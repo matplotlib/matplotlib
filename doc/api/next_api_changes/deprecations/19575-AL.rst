@@ -1,0 +1,4 @@
+``Text.get_prop_tup``
+~~~~~~~~~~~~~~~~~~~~~
+... is deprecated with no replacements (because the `.Text` class cannot know
+whether a backend needs to update cache e.g. when the text's color changes).

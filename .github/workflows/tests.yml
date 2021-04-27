@@ -137,17 +137,17 @@ jobs:
         run: |
           # Upgrade pip and setuptools and wheel to get as clean an install as
           # possible.
-          python -mpip install --upgrade pip setuptools wheel
+          python -m pip install --upgrade pip setuptools wheel
 
           # Install dependencies from PyPI.
-          python -mpip install --upgrade $PRE \
-            cycler kiwisolver numpy pillow pyparsing python-dateutil \
+          python -m pip install --upgrade $PRE \
+            cycler kiwisolver numpy pillow pyparsing python-dateutil setuptools-scm \
             -r requirements/testing/all.txt \
             ${{ matrix.extra-requirements }}
 
           # Install optional dependencies from PyPI.
           # Sphinx is needed to run sphinxext tests
-          python -mpip install --upgrade sphinx
+          python -m pip install --upgrade sphinx
 
           # GUI toolkits are pip-installable only for some versions of Python
           # so don't fail if we can't install them.  Make it easier to check
@@ -160,8 +160,8 @@ jobs:
             # pycairo 1.20+ requires a new version of Cairo, unavailable on
             # Ubuntu 16.04, so PyGObject must be installed without build
             # isolation in order to pick up the lower pre-installed version.
-             python -mpip install --upgrade 'pycairo<1.20.0' 'cairocffi>=0.8' &&
-             python -mpip install --upgrade --no-build-isolation PyGObject &&
+             python -m pip install --upgrade 'pycairo<1.20.0' 'cairocffi>=0.8' &&
+             python -m pip install --upgrade --no-build-isolation PyGObject &&
                python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
                echo 'PyGObject is available' ||
                echo 'PyGObject is not available'
@@ -170,16 +170,16 @@ jobs:
             # Sept 2020) for either pyqt5 (there are only wheels for 10.13+) or
             # pyside2 (the latest version (5.13.2) with 10.12 wheels has a
             # fatal to us bug, it was fixed in 5.14.0 which has 10.13 wheels)
-             python -mpip install --upgrade pyqt5${{ matrix.pyqt5-ver }} &&
+             python -m pip install --upgrade pyqt5${{ matrix.pyqt5-ver }} &&
                python -c 'import PyQt5.QtCore' &&
                echo 'PyQt5 is available' ||
                echo 'PyQt5 is not available'
-             python -mpip install --upgrade pyside2 &&
+             python -m pip install --upgrade pyside2 &&
                python -c 'import PySide2.QtCore' &&
                echo 'PySide2 is available' ||
                echo 'PySide2 is not available'
           fi
-          python -mpip install --upgrade \
+          python -m pip install --upgrade \
             -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04 \
             wxPython &&
             python -c 'import wx' &&
@@ -199,7 +199,7 @@ jobs:
 
           # All dependencies must have been pre-installed, so that the minver
           # constraints are held.
-          python -mpip install --no-deps -e .
+          python -m pip install --no-deps -e .
 
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
             unset CPPFLAGS

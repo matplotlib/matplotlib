@@ -1,3 +1,0 @@
-``ParasiteAxesAuxTransBase.update_viewlim``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... is deprecated; use ``apply_aspect`` instead.

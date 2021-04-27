@@ -1,3 +1,7 @@
+r"""
+Patches are `.Artist`\s with a face color and an edge color.
+"""
+
 import contextlib
 import functools
 import inspect
@@ -316,7 +320,7 @@ class Patch(artist.Artist):
 
         Parameters
         ----------
-        b : bool or None
+        aa : bool or None
         """
         if aa is None:
             aa = mpl.rcParams['patch.antialiased']
@@ -720,7 +724,7 @@ class Rectangle(Patch):
       :               (xy)---- width -----+
 
     One may picture *xy* as the bottom left corner, but which corner *xy* is
-    actually depends on the the direction of the axis and the sign of *width*
+    actually depends on the direction of the axis and the sign of *width*
     and *height*; e.g. *xy* would be the bottom right corner if the x-axis
     was inverted or if *width* was negative.
     """
@@ -799,6 +803,10 @@ class Rectangle(Patch):
         """Return the height of the rectangle."""
         return self._height
 
+    def get_angle(self):
+        """Get the rotation angle in degrees."""
+        return self.angle
+
     def set_x(self, x):
         """Set the left coordinate of the rectangle."""
         self._x0 = x
@@ -807,6 +815,15 @@ class Rectangle(Patch):
     def set_y(self, y):
         """Set the bottom coordinate of the rectangle."""
         self._y0 = y
+        self.stale = True
+
+    def set_angle(self, angle):
+        """
+        Set the rotation angle in degrees.
+
+        The rotation is performed anti-clockwise around *xy*.
+        """
+        self.angle = angle
         self.stale = True
 
     def set_xy(self, xy):
@@ -1305,6 +1322,12 @@ class FancyArrow(Polygon):
         """
         Parameters
         ----------
+        x, y : float
+            The x and y coordinates of the arrow base.
+
+        dx, dy : float
+            The length of the arrow along x and y direction.
+
         width : float, default: 0.001
             Width of full arrow tail.
 
@@ -1333,22 +1356,82 @@ class FancyArrow(Polygon):
 
             %(Patch_kwdoc)s
         """
-        if head_width is None:
-            head_width = 3 * width
-        if head_length is None:
+        self._x = x
+        self._y = y
+        self._dx = dx
+        self._dy = dy
+        self._width = width
+        self._length_includes_head = length_includes_head
+        self._head_width = head_width
+        self._head_length = head_length
+        self._shape = shape
+        self._overhang = overhang
+        self._head_starts_at_zero = head_starts_at_zero
+        self._make_verts()
+        super().__init__(self.verts, closed=True, **kwargs)
+
+    def set_data(self, *, x=None, y=None, dx=None, dy=None, width=None,
+                 head_width=None, head_length=None):
+        """
+        Set `.FancyArrow` x, y, dx, dy, width, head_with, and head_length.
+        Values left as None will not be updated.
+
+        Parameters
+        ----------
+        x, y : float or None, default: None
+            The x and y coordinates of the arrow base.
+
+        dx, dy : float or None, default: None
+            The length of the arrow along x and y direction.
+
+        width: float or None, default: None
+            Width of full arrow tail.
+
+        head_width: float or None, default: None
+            Total width of the full arrow head.
+
+        head_length: float or None, default: None
+            Length of arrow head.
+        """
+        if x is not None:
+            self._x = x
+        if y is not None:
+            self._y = y
+        if dx is not None:
+            self._dx = dx
+        if dy is not None:
+            self._dy = dy
+        if width is not None:
+            self._width = width
+        if head_width is not None:
+            self._head_width = head_width
+        if head_length is not None:
+            self._head_length = head_length
+        self._make_verts()
+        self.set_xy(self.verts)
+
+    def _make_verts(self):
+        if self._head_width is None:
+            head_width = 3 * self._width
+        else:
+            head_width = self._head_width
+        if self._head_length is None:
             head_length = 1.5 * head_width
+        else:
+            head_length = self._head_length
 
-        distance = np.hypot(dx, dy)
+        distance = np.hypot(self._dx, self._dy)
 
-        if length_includes_head:
+        if self._length_includes_head:
             length = distance
         else:
             length = distance + head_length
         if not length:
-            verts = np.empty([0, 2])  # display nothing if empty
+            self.verts = np.empty([0, 2])  # display nothing if empty
         else:
             # start by drawing horizontal arrow, point at (0, 0)
-            hw, hl, hs, lw = head_width, head_length, overhang, width
+            hw, hl = head_width, head_length
+            hs, lw = self._overhang, self._width
             left_half_arrow = np.array([
                 [0.0, 0.0],                 # tip
                 [-hl, -hw / 2],             # leftmost
@@ -1357,36 +1440,37 @@ class FancyArrow(Polygon):
                 [-length, 0],
             ])
             # if we're not including the head, shift up by head length
-            if not length_includes_head:
+            if not self._length_includes_head:
                 left_half_arrow += [head_length, 0]
             # if the head starts at 0, shift up by another head length
-            if head_starts_at_zero:
+            if self._head_starts_at_zero:
                 left_half_arrow += [head_length / 2, 0]
             # figure out the shape, and complete accordingly
-            if shape == 'left':
+            if self._shape == 'left':
                 coords = left_half_arrow
             else:
                 right_half_arrow = left_half_arrow * [1, -1]
-                if shape == 'right':
+                if self._shape == 'right':
                     coords = right_half_arrow
-                elif shape == 'full':
+                elif self._shape == 'full':
                     # The half-arrows contain the midpoint of the stem,
                     # which we can omit from the full arrow. Including it
                     # twice caused a problem with xpdf.
                     coords = np.concatenate([left_half_arrow[:-1],
                                              right_half_arrow[-2::-1]])
                 else:
-                    raise ValueError("Got unknown shape: %s" % shape)
+                    raise ValueError("Got unknown shape: %s" % self.shape)
             if distance != 0:
-                cx = dx / distance
-                sx = dy / distance
+                cx = self._dx / distance
+                sx = self._dy / distance
             else:
                 # Account for division by zero
                 cx, sx = 0, 1
             M = [[cx, sx], [-sx, cx]]
-            verts = np.dot(coords, M) + (x + dx, y + dy)
-
-        super().__init__(verts, closed=True, **kwargs)
+            self.verts = np.dot(coords, M) + [
+                self._x + self._dx,
+                self._y + self._dy,
+            ]
 
 
 docstring.interpd.update(
@@ -1552,9 +1636,197 @@ class Ellipse(Patch):
     angle = property(get_angle, set_angle)
 
 
-class Circle(Ellipse):
-    """A circle patch."""
+class Annulus(Patch):
+    """
+    An elliptical annulus.
+    """
 
+    @docstring.dedent_interpd
+    def __init__(self, xy, r, width, angle=0.0, **kwargs):
+        """
+        Parameters
+        ----------
+        xy : (float, float)
+            xy coordinates of annulus centre.
+        r : float or (float, float)
+            The radius, or semi-axes:
+
+            - If float: radius of the outer circle.
+            - If two floats: semi-major and -minor axes of outer ellipse.
+        width : float
+            Width (thickness) of the annular ring. The width is measured inward
+            from the outer ellipse so that for the inner ellipse the semi-axes
+            are given by ``r - width``. *width* must be less than or equal to
+            the semi-minor axis.
+        angle : float, default: 0
+            Rotation angle in degrees (anti-clockwise from the positive
+            x-axis). Ignored for circular annuli (i.e., if *r* is a scalar).
+        **kwargs
+            Keyword arguments control the `Patch` properties:
+
+            %(Patch_kwdoc)s
+        """
+        super().__init__(**kwargs)
+
+        self.set_radii(r)
+        self.center = xy
+        self.width = width
+        self.angle = angle
+        self._path = None
+
+    def __str__(self):
+        if self.a == self.b:
+            r = self.a
+        else:
+            r = (self.a, self.b)
+
+        return "Annulus(xy=(%s, %s), r=%s, width=%s, angle=%s)" % \
+                (*self.center, r, self.width, self.angle)
+
+    def set_center(self, xy):
+        """
+        Set the center of the annulus.
+
+        Parameters
+        ----------
+        xy : (float, float)
+        """
+        self._center = xy
+        self._path = None
+        self.stale = True
+
+    def get_center(self):
+        """Return the center of the annulus."""
+        return self._center
+
+    center = property(get_center, set_center)
+
+    def set_width(self, width):
+        """
+        Set the width (thickness) of the annulus ring.
+
+        The width is measured inwards from the outer ellipse.
+
+        Parameters
+        ----------
+        width : float
+        """
+        if min(self.a, self.b) <= width:
+            raise ValueError(
+                'Width of annulus must be less than or equal semi-minor axis')
+
+        self._width = width
+        self._path = None
+        self.stale = True
+
+    def get_width(self):
+        """Return the width (thickness) of the annulus ring."""
+        return self._width
+
+    width = property(get_width, set_width)
+
+    def set_angle(self, angle):
+        """
+        Set the tilt angle of the annulus.
+
+        Parameters
+        ----------
+        angle : float
+        """
+        self._angle = angle
+        self._path = None
+        self.stale = True
+
+    def get_angle(self):
+        """Return the angle of the annulus."""
+        return self._angle
+
+    angle = property(get_angle, set_angle)
+
+    def set_semimajor(self, a):
+        """
+        Set the semi-major axis *a* of the annulus.
+
+        Parameters
+        ----------
+        a : float
+        """
+        self.a = float(a)
+        self._path = None
+        self.stale = True
+
+    def set_semiminor(self, b):
+        """
+        Set the semi-minor axis *b* of the annulus.
+
+        Parameters
+        ----------
+        b : float
+        """
+        self.b = float(b)
+        self._path = None
+        self.stale = True
+
+    def set_radii(self, r):
+        """
+        Set the semi-major (*a*) and semi-minor radii (*b*) of the annulus.
+
+        Parameters
+        ----------
+        r : float or (float, float)
+            The radius, or semi-axes:
+
+            - If float: radius of the outer circle.
+            - If two floats: semi-major and -minor axes of outer ellipse.
+        """
+        if np.shape(r) == (2,):
+            self.a, self.b = r
+        elif np.shape(r) == ():
+            self.a = self.b = float(r)
+        else:
+            raise ValueError("Parameter 'r' must be one or two floats.")
+
+        self._path = None
+        self.stale = True
+
+    def get_radii(self):
+        """Return the semi-major and semi-minor radii of the annulus."""
+        return self.a, self.b
+
+    radii = property(get_radii, set_radii)
+
+    def _transform_verts(self, verts, a, b):
+        return transforms.Affine2D() \
+            .scale(*self._convert_xy_units((a, b))) \
+            .rotate_deg(self.angle) \
+            .translate(*self._convert_xy_units(self.center)) \
+            .transform(verts)
+
+    def _recompute_path(self):
+        # circular arc
+        arc = Path.arc(0, 360)
+
+        # annulus needs to draw an outer ring
+        # followed by a reversed and scaled inner ring
+        a, b, w = self.a, self.b, self.width
+        v1 = self._transform_verts(arc.vertices, a, b)
+        v2 = self._transform_verts(arc.vertices[::-1], a - w, b - w)
+        v = np.vstack([v1, v2, v1[0, :], (0, 0)])
+        c = np.hstack([arc.codes, Path.MOVETO,
+                       arc.codes[1:], Path.MOVETO,
+                       Path.CLOSEPOLY])
+        self._path = Path(v, c)
+
+    def get_path(self):
+        if self._path is None:
+            self._recompute_path()
+        return self._path
+
+
+class Circle(Ellipse):
+    """
+    A circle patch.
+    """
     def __str__(self):
         pars = self.center[0], self.center[1], self.radius
         fmt = "Circle(xy=(%g, %g), radius=%g)"

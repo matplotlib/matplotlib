@@ -280,7 +280,7 @@ def test_date_formatter_usetex(delta, expected):
 
     locator = mdates.AutoDateLocator(interval_multiples=False)
     locator.create_dummy_axis()
-    locator.set_view_interval(mdates.date2num(d1), mdates.date2num(d2))
+    locator.axis.set_view_interval(mdates.date2num(d1), mdates.date2num(d2))
 
     formatter = mdates.AutoDateFormatter(locator, usetex=True)
     assert [formatter(loc) for loc in locator()] == expected
@@ -319,8 +319,7 @@ def test_auto_date_locator():
     def _create_auto_date_locator(date1, date2):
         locator = mdates.AutoDateLocator(interval_multiples=False)
         locator.create_dummy_axis()
-        locator.set_view_interval(mdates.date2num(date1),
-                                  mdates.date2num(date2))
+        locator.axis.set_view_interval(*mdates.date2num([date1, date2]))
         return locator
 
     d1 = datetime.datetime(1990, 1, 1)
@@ -391,8 +390,7 @@ def test_auto_date_locator_intmult():
     def _create_auto_date_locator(date1, date2):
         locator = mdates.AutoDateLocator(interval_multiples=True)
         locator.create_dummy_axis()
-        locator.set_view_interval(mdates.date2num(date1),
-                                  mdates.date2num(date2))
+        locator.axis.set_view_interval(*mdates.date2num([date1, date2]))
         return locator
 
     results = ([datetime.timedelta(weeks=52 * 200),
@@ -574,7 +572,7 @@ def test_concise_formatter_usetex(t_delta, expected):
 
     locator = mdates.AutoDateLocator(interval_multiples=True)
     locator.create_dummy_axis()
-    locator.set_view_interval(mdates.date2num(d1), mdates.date2num(d2))
+    locator.axis.set_view_interval(mdates.date2num(d1), mdates.date2num(d2))
 
     formatter = mdates.ConciseDateFormatter(locator, usetex=True)
     assert formatter.format_ticks(locator()) == expected
@@ -732,8 +730,7 @@ def test_auto_date_locator_intmult_tz():
     def _create_auto_date_locator(date1, date2, tz):
         locator = mdates.AutoDateLocator(interval_multiples=True, tz=tz)
         locator.create_dummy_axis()
-        locator.set_view_interval(mdates.date2num(date1),
-                                  mdates.date2num(date2))
+        locator.axis.set_view_interval(*mdates.date2num([date1, date2]))
         return locator
 
     results = ([datetime.timedelta(weeks=52*200),
@@ -951,8 +948,8 @@ def test_yearlocator_pytz():
          + datetime.timedelta(i) for i in range(2000)]
     locator = mdates.AutoDateLocator(interval_multiples=True, tz=tz)
     locator.create_dummy_axis()
-    locator.set_view_interval(mdates.date2num(x[0])-1.0,
-                              mdates.date2num(x[-1])+1.0)
+    locator.axis.set_view_interval(mdates.date2num(x[0])-1.0,
+                                   mdates.date2num(x[-1])+1.0)
     t = np.array([733408.208333, 733773.208333, 734138.208333,
                   734503.208333, 734869.208333, 735234.208333, 735599.208333])
     # convert to new epoch from old...
@@ -1035,8 +1032,8 @@ def test_warn_notintervals():
     locator = mdates.AutoDateLocator(interval_multiples=False)
     locator.intervald[3] = [2]
     locator.create_dummy_axis()
-    locator.set_view_interval(mdates.date2num(dates[0]),
-                              mdates.date2num(dates[-1]))
+    locator.axis.set_view_interval(mdates.date2num(dates[0]),
+                                   mdates.date2num(dates[-1]))
     with pytest.warns(UserWarning, match="AutoDateLocator was unable") as rec:
         locs = locator()
 

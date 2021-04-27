@@ -866,9 +866,9 @@ class Axes(_AxesBase):
         if line.get_clip_path() is None:
             line.set_clip_path(self.patch)
         if not line.get_label():
-            line.set_label(f"_line{len(self.lines)}")
-        self.lines.append(line)
-        line._remove_method = self.lines.remove
+            line.set_label(f"_child{len(self._children)}")
+        self._children.append(line)
+        line._remove_method = self._children.remove
         self.update_datalim(datalim)
 
         self._request_autoscale_view()
@@ -974,6 +974,7 @@ class Axes(_AxesBase):
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(self.get_xaxis_transform(which="grid"))
+        p.get_path()._interpolation_steps = 100
         self.add_patch(p)
         self._request_autoscale_view(scaley=False)
         return p
@@ -2624,14 +2625,15 @@ class Axes(_AxesBase):
             if label_type == "center":
                 ha, va = "center", "center"
             elif label_type == "edge":
-                if orientation == "vertical" and dat >= 0:
-                    ha, va = "center", "bottom"
-                elif orientation == "vertical" and dat < 0:
-                    ha, va = "center", "top"
-                elif orientation == "horizontal" and dat >= 0:
-                    ha, va = "left", "center"
-                elif orientation == "horizontal" and dat < 0:
-                    ha, va = "right", "center"
+                if orientation == "vertical":
+                    ha = 'center'
+                    va = 'top' if dat < 0 else 'bottom'  # also handles NaN
+                elif orientation == "horizontal":
+                    ha = 'right' if dat < 0 else 'left'  # also handles NaN
+                    va = 'center'
+
+            if np.isnan(dat):
+                lbl = ''
 
             annotation = self.annotate(fmt % value if lbl is None else lbl,
                                        xy, xytext, textcoords="offset points",
@@ -3282,26 +3284,18 @@ class Axes(_AxesBase):
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
         kwargs.setdefault('zorder', 2)
 
-        self._process_unit_info([("x", x), ("y", y)], kwargs, convert=False)
-
-        # Make sure all the args are iterable; use lists not arrays to preserve
-        # units.
-        if not np.iterable(x):
-            x = [x]
-
-        if not np.iterable(y):
-            y = [y]
-
+        # Casting to object arrays preserves units.
+        if not isinstance(x, np.ndarray):
+            x = np.asarray(x, dtype=object)
+        if not isinstance(y, np.ndarray):
+            y = np.asarray(y, dtype=object)
+        if xerr is not None and not isinstance(xerr, np.ndarray):
+            xerr = np.asarray(xerr, dtype=object)
+        if yerr is not None and not isinstance(yerr, np.ndarray):
+            yerr = np.asarray(yerr, dtype=object)
+        x, y = np.atleast_1d(x, y)  # Make sure all the args are iterable.
         if len(x) != len(y):
             raise ValueError("'x' and 'y' must have the same size")
-
-        if xerr is not None:
-            if not np.iterable(xerr):
-                xerr = [xerr] * len(x)
-
-        if yerr is not None:
-            if not np.iterable(yerr):
-                yerr = [yerr] * len(y)
 
         if isinstance(errorevery, Integral):
             errorevery = (0, errorevery)
@@ -3314,10 +3308,8 @@ class Axes(_AxesBase):
                 raise ValueError(
                     f'errorevery={errorevery!r} is a not a tuple of two '
                     f'integers')
-
         elif isinstance(errorevery, slice):
             pass
-
         elif not isinstance(errorevery, str) and np.iterable(errorevery):
             # fancy indexing
             try:
@@ -3329,6 +3321,8 @@ class Axes(_AxesBase):
         else:
             raise ValueError(
                 f"errorevery={errorevery!r} is not a recognized value")
+        everymask = np.zeros(len(x), bool)
+        everymask[errorevery] = True
 
         label = kwargs.pop("label", None)
         kwargs['label'] = '_nolegend_'
@@ -3363,20 +3357,18 @@ class Axes(_AxesBase):
         if ecolor is None:
             ecolor = base_style['color']
 
-        # Eject any marker information from line format string, as it's not
+        # Eject any line-specific information from format string, as it's not
         # needed for bars or caps.
-        base_style.pop('marker', None)
-        base_style.pop('markersize', None)
-        base_style.pop('markerfacecolor', None)
-        base_style.pop('markeredgewidth', None)
-        base_style.pop('markeredgecolor', None)
-        base_style.pop('markevery', None)
-        base_style.pop('linestyle', None)
+        for key in ['marker', 'markersize', 'markerfacecolor',
+                    'markeredgewidth', 'markeredgecolor', 'markevery',
+                    'linestyle', 'fillstyle', 'drawstyle', 'dash_capstyle',
+                    'dash_joinstyle', 'solid_capstyle', 'solid_joinstyle']:
+            base_style.pop(key, None)
 
         # Make the style dict for the line collections (the bars).
         eb_lines_style = {**base_style, 'color': ecolor}
 
-        if elinewidth:
+        if elinewidth is not None:
             eb_lines_style['linewidth'] = elinewidth
         elif 'linewidth' in kwargs:
             eb_lines_style['linewidth'] = kwargs['linewidth']
@@ -3411,13 +3403,8 @@ class Axes(_AxesBase):
         xlolims = np.broadcast_to(xlolims, len(x)).astype(bool)
         xuplims = np.broadcast_to(xuplims, len(x)).astype(bool)
 
-        everymask = np.zeros(len(x), bool)
-        everymask[errorevery] = True
-
-        def apply_mask(arrays, mask):
-            # Return, for each array in *arrays*, the elements for which *mask*
-            # is True, without using fancy indexing.
-            return [[*itertools.compress(array, mask)] for array in arrays]
+        # Vectorized fancy-indexer.
+        def apply_mask(arrays, mask): return [array[mask] for array in arrays]
 
         def extract_err(name, err, data, lolims, uplims):
             """
@@ -3438,24 +3425,18 @@ class Axes(_AxesBase):
                 Error is only applied on **lower** side when this is True.  See
                 the note in the main docstring about this parameter's name.
             """
-            try:  # Asymmetric error: pair of 1D iterables.
-                a, b = err
-                iter(a)
-                iter(b)
-            except (TypeError, ValueError):
-                a = b = err  # Symmetric error: 1D iterable.
-            if np.ndim(a) > 1 or np.ndim(b) > 1:
+            try:
+                np.broadcast_to(err, (2, len(data)))
+            except ValueError:
                 raise ValueError(
-                    f"{name}err must be a scalar or a 1D or (2, n) array-like")
-            # Using list comprehensions rather than arrays to preserve units.
-            for e in [a, b]:
-                if len(data) != len(e):
-                    raise ValueError(
-                        f"The lengths of the data ({len(data)}) and the "
-                        f"error {len(e)} do not match")
-            low = [v if lo else v - e for v, e, lo in zip(data, a, lolims)]
-            high = [v if up else v + e for v, e, up in zip(data, b, uplims)]
-            return low, high
+                    f"'{name}err' (shape: {np.shape(err)}) must be a scalar "
+                    f"or a 1D or (2, n) array-like whose shape matches "
+                    f"'{name}' (shape: {np.shape(data)})") from None
+            # This is like
+            #     low, high = np.broadcast_to(...)
+            #     return data - low * ~lolims, data + high * ~uplims
+            # except that broadcast_to would strip units.
+            return data + np.row_stack([-(1 - lolims), 1 - uplims]) * err
 
         if xerr is not None:
             left, right = extract_err('x', xerr, x, xlolims, xuplims)
@@ -3549,26 +3530,38 @@ class Axes(_AxesBase):
                 meanprops=None, capprops=None, whiskerprops=None,
                 manage_ticks=True, autorange=False, zorder=None):
         """
-        Make a box and whisker plot.
+        Draw a box and whisker plot.
 
-        Make a box and whisker plot for each column of *x* or each
-        vector in sequence *x*.  The box extends from the lower to
-        upper quartile values of the data, with a line at the median.
-        The whiskers extend from the box to show the range of the
-        data.  Flier points are those past the end of the whiskers.
+        The box extends from the first quartile (Q1) to the third
+        quartile (Q3) of the data, with a line at the median.  The
+        whiskers extend from the box by 1.5x the inter-quartile range
+        (IQR).  Flier points are those past the end of the whiskers.
+        See https://en.wikipedia.org/wiki/Box_plot for reference.
+
+        .. code-block:: none
+
+                  Q1-1.5IQR   Q1   median  Q3   Q3+1.5IQR
+                               |-----:-----|
+               o      |--------|     :     |--------|    o  o
+                               |-----:-----|
+             flier             <----------->            fliers
+                                    IQR
+
 
         Parameters
         ----------
         x : Array or a sequence of vectors.
-            The input data.
+            The input data.  If a 2D array, a boxplot is drawn for each column
+            in *x*.  If a sequence of 1D arrays, a boxplot is drawn for each
+            array in *x*.
 
         notch : bool, default: False
-            Whether to draw a notched box plot (`True`), or a rectangular box
-            plot (`False`).  The notches represent the confidence interval (CI)
-            around the median.  The documentation for *bootstrap* describes how
-            the locations of the notches are computed by default, but their
-            locations may also be overridden by setting the *conf_intervals*
-            parameter.
+            Whether to draw a notched boxplot (`True`), or a rectangular
+            boxplot (`False`).  The notches represent the confidence interval
+            (CI) around the median.  The documentation for *bootstrap*
+            describes how the locations of the notches are computed by
+            default, but their locations may also be overridden by setting the
+            *conf_intervals* parameter.
 
             .. note::
 
@@ -3713,6 +3706,9 @@ class Axes(_AxesBase):
         meanprops : dict, default: None
             The style of the mean.
 
+        See Also
+        --------
+        violinplot : Draw an estimate of the probability density function.
         """
 
         # Missing arguments default to rcParams.
@@ -4546,8 +4542,8 @@ default: :rc:`scatter.edgecolors`
                 # promote the facecolor to be the edgecolor
                 edgecolors = colors
                 # set the facecolor to 'none' (at the last chance) because
-                # we can not not fill a path if the facecolor is non-null.
-                # (which is defendable at the renderer level)
+                # we can not fill a path if the facecolor is non-null
+                # (which is defendable at the renderer level).
                 colors = 'none'
             else:
                 # if we are not nulling the face color we can do this
@@ -5037,12 +5033,6 @@ default: :rc:`scatter.edgecolors`
 
         Parameters
         ----------
-        x, y : float
-            The x and y coordinates of the arrow base.
-
-        dx, dy : float
-            The length of the arrow along x and y direction.
-
         %(FancyArrow)s
 
         Returns
@@ -6083,7 +6073,7 @@ default: :rc:`scatter.edgecolors`
         snap : bool, default: False
             Whether to snap the mesh to pixel boundaries.
 
-        rasterized: bool, optional
+        rasterized : bool, optional
             Rasterize the pcolormesh when drawing vector graphics.  This can
             speed up rendering and produce smaller files for large data sets.
             See also :doc:`/gallery/misc/rasterization_demo`.

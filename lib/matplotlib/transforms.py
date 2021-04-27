@@ -513,26 +513,21 @@ class BboxBase(TransformNode):
 
     def anchored(self, c, container=None):
         """
-        Return a copy of the `Bbox` shifted to position *c* within *container*.
+        Return a copy of the `Bbox` anchored to *c* within *container*.
 
         Parameters
         ----------
-        c : (float, float) or str
-            May be either:
-
-            * A sequence (*cx*, *cy*) where *cx* and *cy* range from 0
-              to 1, where 0 is left or bottom and 1 is right or top
-
-            * a string:
-              - 'C' for centered
-              - 'S' for bottom-center
-              - 'SE' for bottom-left
-              - 'E' for left
-              - etc.
-
+        c : (float, float) or {'C', 'SW', 'S', 'SE', 'E', 'NE', ...}
+            Either an (*x*, *y*) pair of relative coordinates (0 is left or
+            bottom, 1 is right or top), 'C' (center), or a cardinal direction
+            ('SW', southwest, is bottom left, etc.).
         container : `Bbox`, optional
             The box within which the `Bbox` is positioned; it defaults
             to the initial `Bbox`.
+
+        See Also
+        --------
+        .Axes.set_anchor
         """
         if container is None:
             container = self
@@ -1887,7 +1882,14 @@ class Affine2D(Affine2DBase):
         self._mtx = matrix.copy()
         self._invalid = 0
 
-    __str__ = _make_str_method("_mtx")
+    _base_str = _make_str_method("_mtx")
+
+    def __str__(self):
+        return (self._base_str()
+                if (self._mtx != np.diag(np.diag(self._mtx))).any()
+                else f"Affine2D().scale({self._mtx[0, 0]}, {self._mtx[1, 1]})"
+                if self._mtx[0, 0] != self._mtx[1, 1]
+                else f"Affine2D().scale({self._mtx[0, 0]})")
 
     @staticmethod
     def from_values(a, b, c, d, e, f):

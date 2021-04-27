@@ -4,6 +4,7 @@ Tests specific to the lines module.
 
 import itertools
 import timeit
+from types import SimpleNamespace
 
 from cycler import cycler
 import numpy as np
@@ -264,3 +265,29 @@ def test_marker_as_markerstyle():
 def test_odd_dashes(fig_test, fig_ref):
     fig_test.add_subplot().plot([1, 2], dashes=[1, 2, 3])
     fig_ref.add_subplot().plot([1, 2], dashes=[1, 2, 3, 1, 2, 3])
+
+
+def test_picking():
+    fig, ax = plt.subplots()
+    mouse_event = SimpleNamespace(x=fig.bbox.width // 2,
+                                  y=fig.bbox.height // 2 + 15)
+
+    # Default pickradius is 5, so event should not pick this line.
+    l0, = ax.plot([0, 1], [0, 1], picker=True)
+    found, indices = l0.contains(mouse_event)
+    assert not found
+
+    # But with a larger pickradius, this should be picked.
+    l1, = ax.plot([0, 1], [0, 1], picker=True, pickradius=20)
+    found, indices = l1.contains(mouse_event)
+    assert found
+    assert_array_equal(indices['ind'], [0])
+
+    # And if we modify the pickradius after creation, it should work as well.
+    l2, = ax.plot([0, 1], [0, 1], picker=True)
+    found, indices = l2.contains(mouse_event)
+    assert not found
+    l2.set_pickradius(20)
+    found, indices = l2.contains(mouse_event)
+    assert found
+    assert_array_equal(indices['ind'], [0])

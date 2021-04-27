@@ -124,7 +124,7 @@ class StrCategoryLocator(ticker.Locator):
     def __init__(self, units_mapping):
         """
         Parameters
-        -----------
+        ----------
         units_mapping : dict
             Mapping of category names (str) to indices (int).
         """

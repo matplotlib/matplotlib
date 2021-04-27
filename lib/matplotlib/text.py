@@ -284,13 +284,28 @@ class Text(Artist):
         self._linespacing = other._linespacing
         self.stale = True
 
+    def _get_layout_cache_key(self, renderer=None):
+        """
+        Return a hashable tuple of properties that lets `_get_layout` know
+        whether a previously computed layout can be reused.
+        """
+        x, y = self.get_unitless_position()
+        renderer = renderer or self._renderer
+        return (
+            x, y, self.get_text(), hash(self._fontproperties),
+            self._verticalalignment, self._horizontalalignment,
+            self._linespacing,
+            self._rotation, self._rotation_mode, self._transform_rotates_text,
+            self.figure.dpi, weakref.ref(renderer),
+        )
+
     def _get_layout(self, renderer):
         """
         Return the extent (bbox) of the text together with
         multiple-alignment information. Note that it returns an extent
         of a rotated text when necessary.
         """
-        key = self.get_prop_tup(renderer=renderer)
+        key = self._get_layout_cache_key(renderer=renderer)
         if key in self._cached:
             return self._cached[key]
 
@@ -831,6 +846,8 @@ class Text(Artist):
         # specified with 'set_x' and 'set_y'.
         return self._x, self._y
 
+    # When removing, also remove the hash(color) check in set_color()
+    @_api.deprecated("3.5")
     def get_prop_tup(self, renderer=None):
         """
         Return a hashable tuple of properties.
@@ -938,7 +955,8 @@ class Text(Artist):
         # out at draw time for simplicity.
         if not cbook._str_equal(color, "auto"):
             mpl.colors._check_color_like(color=color)
-        # Make sure it is hashable, or get_prop_tup will fail.
+        # Make sure it is hashable, or get_prop_tup will fail (remove this once
+        # get_prop_tup is removed).
         try:
             hash(color)
         except TypeError:
@@ -1949,7 +1967,10 @@ class Annotation(Text, _AnnotationBase):
             self._renderer = renderer
         if not self.get_visible() or not self._check_xy(renderer):
             return
+        # Update text positions before `Text.draw` would, so that the
+        # FancyArrowPatch is correctly positioned.
         self.update_positions(renderer)
+        self.update_bbox_position_size(renderer)
         if self.arrow_patch is not None:   # FancyArrowPatch
             if self.arrow_patch.figure is None and self.figure is not None:
                 self.arrow_patch.figure = self.figure

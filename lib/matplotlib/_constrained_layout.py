@@ -291,21 +291,24 @@ def _make_margin_suptitles(fig, renderer, *, w_pad=0, h_pad=0):
 
     if fig._suptitle is not None and fig._suptitle.get_in_layout():
         p = fig._suptitle.get_position()
-        fig._suptitle.set_position((p[0], 1 - h_pad_local))
-        bbox = inv_trans_fig(fig._suptitle.get_tightbbox(renderer))
-        fig._layoutgrid.edit_margin_min('top', bbox.height + 2.0 * h_pad)
+        if getattr(fig._suptitle, '_autopos', False):
+            fig._suptitle.set_position((p[0], 1 - h_pad_local))
+            bbox = inv_trans_fig(fig._suptitle.get_tightbbox(renderer))
+            fig._layoutgrid.edit_margin_min('top', bbox.height + 2 * h_pad)
 
     if fig._supxlabel is not None and fig._supxlabel.get_in_layout():
         p = fig._supxlabel.get_position()
-        fig._supxlabel.set_position((p[0], h_pad_local))
-        bbox = inv_trans_fig(fig._supxlabel.get_tightbbox(renderer))
-        fig._layoutgrid.edit_margin_min('bottom', bbox.height + 2.0 * h_pad)
+        if getattr(fig._supxlabel, '_autopos', False):
+            fig._supxlabel.set_position((p[0], h_pad_local))
+            bbox = inv_trans_fig(fig._supxlabel.get_tightbbox(renderer))
+            fig._layoutgrid.edit_margin_min('bottom', bbox.height + 2 * h_pad)
 
     if fig._supylabel is not None and fig._supxlabel.get_in_layout():
         p = fig._supylabel.get_position()
-        fig._supylabel.set_position((w_pad_local, p[1]))
-        bbox = inv_trans_fig(fig._supylabel.get_tightbbox(renderer))
-        fig._layoutgrid.edit_margin_min('left', bbox.width + 2.0 * w_pad)
+        if getattr(fig._supylabel, '_autopos', False):
+            fig._supylabel.set_position((w_pad_local, p[1]))
+            bbox = inv_trans_fig(fig._supylabel.get_tightbbox(renderer))
+            fig._layoutgrid.edit_margin_min('left', bbox.width + 2 * w_pad)
 
 
 def _match_submerged_margins(fig):

@@ -12,8 +12,7 @@ import matplotlib.pyplot as plt
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
-fig = plt.figure(figsize=(8, 6))
-ax = fig.add_subplot(facecolor='#FFFFCC')
+fig, ax = plt.subplots(figsize=(8, 6))
 
 x, y = 4*(np.random.rand(2, 100) - .5)
 ax.plot(x, y, 'o')
@@ -27,13 +26,9 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.widgets.Cursor
+#    - `matplotlib.widgets.Cursor`

@@ -1,6 +1,5 @@
 """
-The 2D line class which can draw with a variety of line styles, markers and
-colors.
+2D lines with support for a variety of line styles, markers, colors, etc.
 """
 
 from numbers import Integral, Number, Real
@@ -397,7 +396,8 @@ class Line2D(Artist):
         self.update(kwargs)
         self.pickradius = pickradius
         self.ind_offset = 0
-        if isinstance(self._picker, Number):
+        if (isinstance(self._picker, Number) and
+                not isinstance(self._picker, bool)):
             self.pickradius = self._picker
 
         self._xorig = np.asarray([])
@@ -628,15 +628,6 @@ class Line2D(Artist):
             bbox = bbox.padded(ms)
         return bbox
 
-    @Artist.axes.setter
-    def axes(self, ax):
-        # call the set method from the base-class property
-        Artist.axes.fset(self, ax)
-        if ax is not None:
-            for axis in ax._get_axis_map().values():
-                axis.callbacks._pickled_cids.add(
-                    axis.callbacks.connect('units', self.recache_always))
-
     def set_data(self, *args):
         """
         Set the x and y data.
@@ -714,26 +705,16 @@ class Line2D(Artist):
         self._transformed_path = TransformedPath(_path, self.get_transform())
 
     def _get_transformed_path(self):
-        """
-        Return the :class:`~matplotlib.transforms.TransformedPath` instance
-        of this line.
-        """
+        """Return this line's `~matplotlib.transforms.TransformedPath`."""
         if self._transformed_path is None:
             self._transform_path()
         return self._transformed_path
 
     def set_transform(self, t):
-        """
-        Set the Transformation instance used by this artist.
-
-        Parameters
-        ----------
-        t : `matplotlib.transforms.Transform`
-        """
-        super().set_transform(t)
+        # docstring inherited
         self._invalidx = True
         self._invalidy = True
-        self.stale = True
+        super().set_transform(t)
 
     def _is_sorted(self, x):
         """Return whether x is sorted in ascending order."""
@@ -1013,10 +994,7 @@ class Line2D(Artist):
         return self._y
 
     def get_path(self):
-        """
-        Return the :class:`~matplotlib.path.Path` object associated
-        with this line.
-        """
+        """Return the `~matplotlib.path.Path` associated with this line."""
         if self._invalidy or self._invalidx:
             self.recache()
         return self._path
@@ -1476,9 +1454,8 @@ class _AxLine(Line2D):
 
 class VertexSelector:
     """
-    Manage the callbacks to maintain a list of selected vertices for
-    `.Line2D`. Derived classes should override
-    :meth:`~matplotlib.lines.VertexSelector.process_selected` to do
+    Manage the callbacks to maintain a list of selected vertices for `.Line2D`.
+    Derived classes should override the `process_selected` method to do
     something with the picks.
 
     Here is an example which highlights the selected verts with red
@@ -1507,9 +1484,8 @@ class VertexSelector:
     """
     def __init__(self, line):
         """
-        Initialize the class with a `.Line2D` instance.  The line should
-        already be added to some :class:`matplotlib.axes.Axes` instance and
-        should have the picker property set.
+        Initialize the class with a `.Line2D`.  The line should already be
+        added to an `~.axes.Axes` and should have the picker property set.
         """
         if line.axes is None:
             raise RuntimeError('You must first add the line to the Axes')
@@ -1527,8 +1503,7 @@ class VertexSelector:
 
     def process_selected(self, ind, xs, ys):
         """
-        Default "do nothing" implementation of the
-        :meth:`process_selected` method.
+        Default "do nothing" implementation of the `process_selected` method.
 
         Parameters
         ----------
@@ -1555,7 +1530,4 @@ drawStyles = Line2D.drawStyles
 fillStyles = MarkerStyle.fillstyles
 
 docstring.interpd.update(Line2D_kwdoc=artist.kwdoc(Line2D))
-
-# You can not set the docstring of an instancemethod,
-# but you can on the underlying function.  Go figure.
 docstring.interpd(Line2D.__init__)

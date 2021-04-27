@@ -53,19 +53,15 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axis.Axis.set_ticks
-matplotlib.axis.XAxis.set_ticks_position
-matplotlib.axis.YAxis.set_ticks_position
-matplotlib.spines
-matplotlib.spines.Spine
-matplotlib.spines.Spine.set_color
-matplotlib.spines.Spine.set_position
+#    - `matplotlib.axis.Axis.set_ticks`
+#    - `matplotlib.axis.XAxis.set_ticks_position`
+#    - `matplotlib.axis.YAxis.set_ticks_position`
+#    - `matplotlib.spines`
+#    - `matplotlib.spines.Spine`
+#    - `matplotlib.spines.Spine.set_color`
+#    - `matplotlib.spines.Spine.set_position`

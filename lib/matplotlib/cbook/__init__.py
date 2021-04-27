@@ -15,7 +15,6 @@ import itertools
 import operator
 import os
 from pathlib import Path
-import re
 import shlex
 import subprocess
 import sys
@@ -202,6 +201,9 @@ class CallbackRegistry:
     @_api.rename_parameter("3.4", "s", "signal")
     def connect(self, signal, func):
         """Register *func* to be called when signal *signal* is generated."""
+        if signal == "units finalize":
+            _api.warn_deprecated(
+                "3.5", name=signal, obj_type="signal", alternative="units")
         self._func_cid_map.setdefault(signal, {})
         proxy = _weak_or_strong_ref(func, self._remove_proxy)
         if proxy in self._func_cid_map[signal]:
@@ -343,7 +345,7 @@ def local_over_kwdict(local_var, kwargs, *keys):
     kwargs : dict
         Dictionary of keyword arguments; modified in place.
 
-    keys : str(s)
+    *keys : str(s)
         Name(s) of keyword arguments to process, in descending order of
         priority.
 
@@ -567,14 +569,6 @@ def get_realpath_and_stat(path):
     return realpath, stat_key
 
 
-# A regular expression used to determine the amount of space to
-# remove.  It looks for the first sequence of spaces immediately
-# following the first newline, or at the beginning of the string.
-_find_dedent_regex = re.compile(r"(?:(?:\n\r?)|^)( *)\S")
-# A cache to hold the regexs that actually remove the indent.
-_dedent_regex = {}
-
-
 class maxdict(dict):
     """
     A dictionary with a maximum size.
@@ -584,18 +578,15 @@ class maxdict(dict):
     This doesn't override all the relevant methods to constrain the size,
     just ``__setitem__``, so use with caution.
     """
+
     def __init__(self, maxsize):
-        dict.__init__(self)
+        super().__init__()
         self.maxsize = maxsize
-        self._killkeys = []
 
     def __setitem__(self, k, v):
-        if k not in self:
-            if len(self) >= self.maxsize:
-                del self[self._killkeys[0]]
-                del self._killkeys[0]
-            self._killkeys.append(k)
-        dict.__setitem__(self, k, v)
+        super().__setitem__(k, v)
+        while len(self) >= self.maxsize:
+            del self[next(iter(self))]
 
 
 class Stack:
@@ -1504,7 +1495,7 @@ def violin_stats(X, method, points=100, quantiles=None):
     # Want quantiles to be as the same shape as data sequences
     if quantiles is not None and len(quantiles) != 0:
         quantiles = _reshape_2D(quantiles, "quantiles")
-    # Else, mock quantiles if is none or empty
+    # Else, mock quantiles if it's none or empty
     else:
         quantiles = [[]] * len(X)
 

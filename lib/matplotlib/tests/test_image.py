@@ -286,11 +286,11 @@ def test_cursor_data():
 
     # Hmm, something is wrong here... I get 0, not None...
     # But, this works further down in the tests with extents flipped
-    #x, y = 0.1, -0.1
-    #xdisp, ydisp = ax.transData.transform([x, y])
-    #event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    #z = im.get_cursor_data(event)
-    #assert z is None, "Did not get None, got %d" % z
+    # x, y = 0.1, -0.1
+    # xdisp, ydisp = ax.transData.transform([x, y])
+    # event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    # z = im.get_cursor_data(event)
+    # assert z is None, "Did not get None, got %d" % z
 
     ax.clear()
     # Now try with the extents flipped.
@@ -636,7 +636,7 @@ def test_jpeg_alpha():
     # If this fails, there will be only one color (all black). If this
     # is working, we should have all 256 shades of grey represented.
     num_colors = len(image.getcolors(256))
-    assert 175 <= num_colors <= 185
+    assert 175 <= num_colors <= 210
     # The fully transparent part should be red.
     corner_pixel = image.getpixel((0, 0))
     assert corner_pixel == (254, 0, 0)

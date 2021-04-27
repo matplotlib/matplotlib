@@ -9,7 +9,7 @@ from matplotlib import _api, backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase, cursors, ToolContainerBase, StatusbarBase, MouseButton)
+    TimerBase, cursors, ToolContainerBase, MouseButton)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
 from matplotlib.backends.qt_editor._formsubplottool import UiSubplotTool
 from . import qt_compat
@@ -81,12 +81,6 @@ cursord = {
     cursors.SELECT_REGION: QtCore.Qt.CrossCursor,
     cursors.WAIT: QtCore.Qt.WaitCursor,
     }
-SUPER = 0  # Deprecated.
-ALT = 1  # Deprecated.
-CTRL = 2  # Deprecated.
-SHIFT = 3  # Deprecated.
-MODIFIER_KEYS = [  # Deprecated.
-    (SPECIAL_KEYS[key], mod, key) for mod, key in _MODIFIER_KEYS]
 
 
 # make place holder
@@ -213,15 +207,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         _create_qApp()
         super().__init__(figure=figure)
 
-        # We don't want to scale up the figure DPI more than once.
-        # Note, we don't handle a signal for changing DPI yet.
-        self.figure._original_dpi = self.figure.dpi
-        self._update_figure_dpi()
-        # In cases with mixed resolution displays, we need to be careful if the
-        # dpi_ratio changes - in this case we need to resize the canvas
-        # accordingly.
-        self._dpi_ratio_prev = self._dpi_ratio
-
         self._draw_pending = False
         self._is_drawing = False
         self._draw_rect_callback = lambda painter: None
@@ -233,28 +218,13 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         palette = QtGui.QPalette(QtCore.Qt.white)
         self.setPalette(palette)
 
-    def _update_figure_dpi(self):
-        dpi = self._dpi_ratio * self.figure._original_dpi
-        self.figure._set_dpi(dpi, forward=False)
-
-    @property
-    def _dpi_ratio(self):
-        return _devicePixelRatioF(self)
-
     def _update_pixel_ratio(self):
-        # We need to be careful in cases with mixed resolution displays if
-        # dpi_ratio changes.
-        if self._dpi_ratio != self._dpi_ratio_prev:
-            # We need to update the figure DPI.
-            self._update_figure_dpi()
-            self._dpi_ratio_prev = self._dpi_ratio
+        if self._set_device_pixel_ratio(_devicePixelRatioF(self)):
             # The easiest way to resize the canvas is to emit a resizeEvent
             # since we implement all the logic for resizing the canvas for
             # that event.
             event = QtGui.QResizeEvent(self.size(), self.size())
             self.resizeEvent(event)
-            # resizeEvent triggers a paintEvent itself, so we exit this one
-            # (after making sure that the event is immediately handled).
 
     def _update_screen(self, screen):
         # Handler for changes to a window's attached screen.
@@ -269,10 +239,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         window = self.window().windowHandle()
         window.screenChanged.connect(self._update_screen)
         self._update_screen(window.screen())
-
-    def get_width_height(self):
-        w, h = FigureCanvasBase.get_width_height(self)
-        return int(w / self._dpi_ratio), int(h / self._dpi_ratio)
 
     def enterEvent(self, event):
         try:
@@ -296,11 +262,10 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
         Also, the origin is different and needs to be corrected.
         """
-        dpi_ratio = self._dpi_ratio
         x = pos.x()
         # flip y so y=0 is bottom of canvas
-        y = self.figure.bbox.height / dpi_ratio - pos.y()
-        return x * dpi_ratio, y * dpi_ratio
+        y = self.figure.bbox.height / self.device_pixel_ratio - pos.y()
+        return x * self.device_pixel_ratio, y * self.device_pixel_ratio
 
     def mousePressEvent(self, event):
         x, y = self.mouseEventCoords(event.pos())
@@ -361,8 +326,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             FigureCanvasBase.key_release_event(self, key, guiEvent=event)
 
     def resizeEvent(self, event):
-        w = event.size().width() * self._dpi_ratio
-        h = event.size().height() * self._dpi_ratio
+        w = event.size().width() * self.device_pixel_ratio
+        h = event.size().height() * self.device_pixel_ratio
         dpival = self.figure.dpi
         winch = w / dpival
         hinch = h / dpival
@@ -460,7 +425,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         if bbox is None and self.figure:
             bbox = self.figure.bbox  # Blit the entire canvas if bbox is None.
         # repaint uses logical pixels, not physical pixels like the renderer.
-        l, b, w, h = [int(pt / self._dpi_ratio) for pt in bbox.bounds]
+        l, b, w, h = [int(pt / self.device_pixel_ratio) for pt in bbox.bounds]
         t = b + h
         self.repaint(l, self.rect().height() - t, w, h)
 
@@ -481,11 +446,11 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         # Draw the zoom rectangle to the QPainter.  _draw_rect_callback needs
         # to be called at the end of paintEvent.
         if rect is not None:
-            x0, y0, w, h = [int(pt / self._dpi_ratio) for pt in rect]
+            x0, y0, w, h = [int(pt / self.device_pixel_ratio) for pt in rect]
             x1 = x0 + w
             y1 = y0 + h
             def _draw_rect_callback(painter):
-                pen = QtGui.QPen(QtCore.Qt.black, 1 / self._dpi_ratio)
+                pen = QtGui.QPen(QtCore.Qt.black, 1 / self.device_pixel_ratio)
                 pen.setDashPattern([3, 3])
                 for color, offset in [
                         (QtCore.Qt.black, 0), (QtCore.Qt.white, 3)]:
@@ -680,22 +645,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
         NavigationToolbar2.__init__(self, canvas)
 
-    @_api.deprecated("3.3", alternative="self.canvas.parent()")
-    @property
-    def parent(self):
-        return self.canvas.parent()
-
-    @_api.deprecated("3.3", alternative="self.canvas.setParent()")
-    @parent.setter
-    def parent(self, value):
-        pass
-
-    @_api.deprecated(
-        "3.3", alternative="os.path.join(mpl.get_data_path(), 'images')")
-    @property
-    def basedir(self):
-        return str(cbook._get_data_path('images'))
-
     def _icon(self, name):
         """
         Construct a `.QIcon` from an image file *name*, including the extension
@@ -725,6 +674,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             titles = [
                 ax.get_label() or
                 ax.get_title() or
+                ax.get_title("left") or
+                ax.get_title("right") or
                 " - ".join(filter(None, [ax.get_xlabel(), ax.get_ylabel()])) or
                 f"<anonymous {type(ax).__name__}>"
                 for ax in axes]
@@ -951,17 +902,6 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
 
     def set_message(self, s):
         self.widgetForAction(self._message_action).setText(s)
-
-
-@_api.deprecated("3.3")
-class StatusbarQt(StatusbarBase, QtWidgets.QLabel):
-    def __init__(self, window, *args, **kwargs):
-        StatusbarBase.__init__(self, *args, **kwargs)
-        QtWidgets.QLabel.__init__(self)
-        window.statusBar().addWidget(self)
-
-    def set_message(self, s):
-        self.setText(s)
 
 
 class ConfigureSubplotsQt(backend_tools.ConfigureSubplotsBase):

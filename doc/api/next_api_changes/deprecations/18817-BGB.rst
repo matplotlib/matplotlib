@@ -1,3 +1,0 @@
-Line2D and Patch no longer duplicate ``validJoin`` and ``validCap``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Validation of joinstyle and capstyles is now centralized in ``rcsetup``.

@@ -1510,3 +1510,16 @@ def test_computed_zorder():
                 zorder=4)
         ax.view_init(azim=-20, elev=20)
         ax.axis('off')
+
+
+@image_comparison(baseline_images=['scatter_spiral.png'],
+                  remove_text=True,
+                  style='default')
+def test_scatter_spiral():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    th = np.linspace(0, 2 * np.pi * 6, 256)
+    sc = ax.scatter(np.sin(th), np.cos(th), th, s=(1 + th * 5), c=th ** 2)
+
+    # force at least 1 draw!
+    fig.canvas.draw()

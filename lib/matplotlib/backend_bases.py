@@ -522,8 +522,7 @@ class RendererBase:
         """
         return False
 
-    @_api.delete_parameter("3.3", "ismath")
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+    def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         """
         """
         self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
@@ -1585,14 +1584,14 @@ def _get_renderer(figure, print_method=None):
 
 
 def _no_output_draw(figure):
-    renderer = _get_renderer(figure)
-    with renderer._draw_disabled():
-        figure.draw(renderer)
+    # _no_output_draw was promoted to the figure level, but
+    # keep this here in case someone was calling it...
+    figure.draw_no_output()
 
 
 def _is_non_interactive_terminal_ipython(ip):
     """
-    Return whether we are in a a terminal IPython, but non interactive.
+    Return whether we are in a terminal IPython, but non interactive.
 
     When in _terminal_ IPython, ip.parent will have and `interact` attribute,
     if this attribute is False we do not setup eventloop integration as the
@@ -1729,6 +1728,9 @@ class FigureCanvasBase:
         self.mouse_grabber = None  # the axes currently grabbing mouse
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_idle_drawing = False
+        # We don't want to scale up the figure DPI more than once.
+        figure._original_dpi = figure.dpi
+        self._device_pixel_ratio = 1
 
     callbacks = property(lambda self: self.figure._canvas_callbacks)
     button_pick_id = property(lambda self: self.figure._button_pick_id)
@@ -2054,12 +2056,73 @@ class FigureCanvasBase:
             with self._idle_draw_cntx():
                 self.draw(*args, **kwargs)
 
+    @property
+    def device_pixel_ratio(self):
+        """
+        The ratio of physical to logical pixels used for the canvas on screen.
+
+        By default, this is 1, meaning physical and logical pixels are the same
+        size. Subclasses that support High DPI screens may set this property to
+        indicate that said ratio is different. All Matplotlib interaction,
+        unless working directly with the canvas, remains in logical pixels.
+
+        """
+        return self._device_pixel_ratio
+
+    def _set_device_pixel_ratio(self, ratio):
+        """
+        Set the ratio of physical to logical pixels used for the canvas.
+
+        Subclasses that support High DPI screens can set this property to
+        indicate that said ratio is different. The canvas itself will be
+        created at the physical size, while the client side will use the
+        logical size. Thus the DPI of the Figure will change to be scaled by
+        this ratio. Implementations that support High DPI screens should use
+        physical pixels for events so that transforms back to Axes space are
+        correct.
+
+        By default, this is 1, meaning physical and logical pixels are the same
+        size.
+
+        Parameters
+        ----------
+        ratio : float
+            The ratio of logical to physical pixels used for the canvas.
+
+        Returns
+        -------
+        bool
+            Whether the ratio has changed. Backends may interpret this as a
+            signal to resize the window, repaint the canvas, or change any
+            other relevant properties.
+        """
+        if self._device_pixel_ratio == ratio:
+            return False
+        # In cases with mixed resolution displays, we need to be careful if the
+        # device pixel ratio changes - in this case we need to resize the
+        # canvas accordingly. Some backends provide events that indicate a
+        # change in DPI, but those that don't will update this before drawing.
+        dpi = ratio * self.figure._original_dpi
+        self.figure._set_dpi(dpi, forward=False)
+        self._device_pixel_ratio = ratio
+        return True
+
     def get_width_height(self):
         """
-        Return the figure width and height in points or pixels
-        (depending on the backend), truncated to integers.
+        Return the figure width and height in integral points or pixels.
+
+        When the figure is used on High DPI screens (and the backend supports
+        it), the truncation to integers occurs after scaling by the device
+        pixel ratio.
+
+        Returns
+        -------
+        width, height : int
+            The size of the figure, in points or pixels, depending on the
+            backend.
         """
-        return int(self.figure.bbox.width), int(self.figure.bbox.height)
+        return tuple(int(size / self.device_pixel_ratio)
+                     for size in self.figure.bbox.max)
 
     @classmethod
     def get_supported_filetypes(cls):
@@ -2510,7 +2573,6 @@ def key_press_handler(event, canvas=None, toolbar=None):
     grid_minor_keys = rcParams['keymap.grid_minor']
     toggle_yscale_keys = rcParams['keymap.yscale']
     toggle_xscale_keys = rcParams['keymap.xscale']
-    all_keys = dict.__getitem__(rcParams, 'keymap.all_axes')
 
     # toggle fullscreen mode ('f', 'ctrl + f')
     if event.key in fullscreen_keys:
@@ -2629,29 +2691,6 @@ def key_press_handler(event, canvas=None, toolbar=None):
                 _log.warning(str(exc))
                 ax.set_xscale('linear')
             ax.figure.canvas.draw_idle()
-    # enable navigation for all axes that contain the event (default key 'a')
-    elif event.key in all_keys:
-        for a in canvas.figure.get_axes():
-            if (event.x is not None and event.y is not None
-                    and a.in_axes(event)):  # FIXME: Why only these?
-                _api.warn_deprecated(
-                    "3.3", message="Toggling axes navigation from the "
-                    "keyboard is deprecated since %(since)s and will be "
-                    "removed %(removal)s.")
-                a.set_navigate(True)
-    # enable navigation only for axes with this index (if such an axes exist,
-    # otherwise do nothing)
-    elif event.key.isdigit() and event.key != '0':
-        n = int(event.key) - 1
-        if n < len(canvas.figure.get_axes()):
-            for i, a in enumerate(canvas.figure.get_axes()):
-                if (event.x is not None and event.y is not None
-                        and a.in_axes(event)):  # FIXME: Why only these?
-                    _api.warn_deprecated(
-                        "3.3", message="Toggling axes navigation from the "
-                        "keyboard is deprecated since %(since)s and will be "
-                        "removed %(removal)s.")
-                    a.set_navigate(i == n)
 
 
 def button_press_handler(event, canvas=None, toolbar=None):
@@ -2736,8 +2775,6 @@ class FigureManagerBase:
             figure.canvas.mpl_disconnect(
                 figure.canvas.manager.button_press_handler_id)
     """
-
-    statusbar = _api.deprecated("3.3")(property(lambda self: None))
 
     def __init__(self, canvas, num):
         self.canvas = canvas
@@ -2904,14 +2941,6 @@ class NavigationToolbar2:
         # This cursor will be set after the initial draw.
         self._lastCursor = cursors.POINTER
 
-        init = _api.deprecate_method_override(
-            __class__._init_toolbar, self, allow_empty=True, since="3.3",
-            addendum="Please fully initialize the toolbar in your subclass' "
-            "__init__; a fully empty _init_toolbar implementation may be kept "
-            "for compatibility with earlier versions of Matplotlib.")
-        if init:
-            init()
-
         self._id_press = self.canvas.mpl_connect(
             'button_press_event', self._zoom_pan_handler)
         self._id_release = self.canvas.mpl_connect(
@@ -2973,38 +3002,11 @@ class NavigationToolbar2:
         self.set_history_buttons()
         self._update_view()
 
-    @_api.deprecated("3.3", alternative="__init__")
-    def _init_toolbar(self):
-        """
-        This is where you actually build the GUI widgets (called by
-        __init__).  The icons ``home.xpm``, ``back.xpm``, ``forward.xpm``,
-        ``hand.xpm``, ``zoom_to_rect.xpm`` and ``filesave.xpm`` are standard
-        across backends (there are ppm versions in CVS also).
-
-        You just need to set the callbacks
-
-        home         : self.home
-        back         : self.back
-        forward      : self.forward
-        hand         : self.pan
-        zoom_to_rect : self.zoom
-        filesave     : self.save_figure
-
-        You only need to define the last one - the others are in the base
-        class implementation.
-
-        """
-        raise NotImplementedError
-
     def _update_cursor(self, event):
         """
         Update the cursor after a mouse move event or a tool (de)activation.
         """
-        if not event.inaxes or not self.mode:
-            if self._lastCursor != cursors.POINTER:
-                self.set_cursor(cursors.POINTER)
-                self._lastCursor = cursors.POINTER
-        else:
+        if self.mode and event.inaxes and event.inaxes.get_navigate():
             if (self.mode == _Mode.ZOOM
                     and self._lastCursor != cursors.SELECT_REGION):
                 self.set_cursor(cursors.SELECT_REGION)
@@ -3013,6 +3015,9 @@ class NavigationToolbar2:
                   and self._lastCursor != cursors.MOVE):
                 self.set_cursor(cursors.MOVE)
                 self._lastCursor = cursors.MOVE
+        elif self._lastCursor != cursors.POINTER:
+            self.set_cursor(cursors.POINTER)
+            self._lastCursor = cursors.POINTER
 
     @contextmanager
     def _wait_cursor_for_draw_cm(self):
@@ -3078,14 +3083,6 @@ class NavigationToolbar2:
             elif event.name == "button_release_event":
                 self.release_zoom(event)
 
-    @_api.deprecated("3.3")
-    def press(self, event):
-        """Called whenever a mouse button is pressed."""
-
-    @_api.deprecated("3.3")
-    def release(self, event):
-        """Callback for mouse button release."""
-
     def pan(self, *args):
         """
         Toggle the pan/zoom tool.
@@ -3121,12 +3118,6 @@ class NavigationToolbar2:
         id_drag = self.canvas.mpl_connect("motion_notify_event", self.drag_pan)
         self._pan_info = self._PanInfo(
             button=event.button, axes=axes, cid=id_drag)
-        press = _api.deprecate_method_override(
-            __class__.press, self, since="3.3", message="Calling an "
-            "overridden press() at pan start is deprecated since %(since)s "
-            "and will be removed %(removal)s; override press_pan() instead.")
-        if press is not None:
-            press(event)
 
     def drag_pan(self, event):
         """Callback for dragging in pan/zoom mode."""
@@ -3145,12 +3136,6 @@ class NavigationToolbar2:
             'motion_notify_event', self.mouse_move)
         for ax in self._pan_info.axes:
             ax.end_pan()
-        release = _api.deprecate_method_override(
-            __class__.press, self, since="3.3", message="Calling an "
-            "overridden release() at pan stop is deprecated since %(since)s "
-            "and will be removed %(removal)s; override release_pan() instead.")
-        if release is not None:
-            release(event)
         self._draw()
         self._pan_info = None
         self.push_current()
@@ -3185,12 +3170,6 @@ class NavigationToolbar2:
         self._zoom_info = self._ZoomInfo(
             direction="in" if event.button == 1 else "out",
             start_xy=(event.x, event.y), axes=axes, cid=id_zoom)
-        press = _api.deprecate_method_override(
-            __class__.press, self, since="3.3", message="Calling an "
-            "overridden press() at zoom start is deprecated since %(since)s "
-            "and will be removed %(removal)s; override press_zoom() instead.")
-        if press is not None:
-            press(event)
 
     def drag_zoom(self, event):
         """Callback for dragging in zoom mode."""
@@ -3221,13 +3200,6 @@ class NavigationToolbar2:
                 or (abs(event.y - start_y) < 5 and event.key != "x")):
             self._draw()
             self._zoom_info = None
-            release = _api.deprecate_method_override(
-                __class__.press, self, since="3.3", message="Calling an "
-                "overridden release() at zoom stop is deprecated since "
-                "%(since)s and will be removed %(removal)s; override "
-                "release_zoom() instead.")
-            if release is not None:
-                release(event)
             return
 
         for i, ax in enumerate(self._zoom_info.axes):
@@ -3245,14 +3217,6 @@ class NavigationToolbar2:
         self._zoom_info = None
         self.push_current()
 
-        release = _api.deprecate_method_override(
-            __class__.release, self, since="3.3", message="Calling an "
-            "overridden release() at zoom stop is deprecated since %(since)s "
-            "and will be removed %(removal)s; override release_zoom() "
-            "instead.")
-        if release is not None:
-            release(event)
-
     def push_current(self):
         """Push the current view limits and position onto the stack."""
         self._nav_stack.push(
@@ -3263,11 +3227,6 @@ class NavigationToolbar2:
                        ax.get_position().frozen()))
                  for ax in self.canvas.figure.axes}))
         self.set_history_buttons()
-
-    @_api.deprecated("3.3", alternative="toolbar.canvas.draw_idle()")
-    def draw(self):
-        """Redraw the canvases, update the locators."""
-        self._draw()
 
     # Can be removed once Locator.refresh() is removed, and replaced by an
     # inline call to self.canvas.draw_idle().
@@ -3286,6 +3245,9 @@ class NavigationToolbar2:
             for loc in locators:
                 mpl.ticker._if_refresh_overridden_call_and_emit_deprec(loc)
         self.canvas.draw_idle()
+
+    draw = _api.deprecate_privatize_attribute(
+        "3.3", alternative="toolbar.canvas.draw_idle()")
 
     def _update_view(self):
         """
@@ -3486,29 +3448,6 @@ class ToolContainerBase:
             Message text.
         """
         raise NotImplementedError
-
-
-@_api.deprecated("3.3")
-class StatusbarBase:
-    """Base class for the statusbar."""
-    def __init__(self, toolmanager):
-        self.toolmanager = toolmanager
-        self.toolmanager.toolmanager_connect('tool_message_event',
-                                             self._message_cbk)
-
-    def _message_cbk(self, event):
-        """Capture the 'tool_message_event' and set the message."""
-        self.set_message(event.message)
-
-    def set_message(self, s):
-        """
-        Display a message on toolbar or in status bar.
-
-        Parameters
-        ----------
-        s : str
-            Message text.
-        """
 
 
 class _Backend:

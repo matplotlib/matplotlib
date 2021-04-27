@@ -71,14 +71,10 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-import matplotlib
-matplotlib.patches.PathPatch
-matplotlib.path.Path
+#    - `matplotlib.patches.PathPatch`
+#    - `matplotlib.path.Path`

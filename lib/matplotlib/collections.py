@@ -851,7 +851,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             supported.
         """
         artist.Artist._set_alpha_for_array(self, alpha)
-        self._update_dict['array'] = True
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
 
@@ -907,7 +906,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if not self._set_mappable_flags():
             return
         # Allow possibility to call 'self.set_array(None)'.
-        if self._check_update("array") and self._A is not None:
+        if self._A is not None:
             # QuadMesh can map 2d arrays (but pcolormesh supplies 1d array)
             if self._A.ndim > 1 and not isinstance(self, QuadMesh):
                 raise ValueError('Collections can only map rank 1 arrays')
@@ -944,8 +943,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         artist.Artist.update_from(self, other)
         self._antialiaseds = other._antialiaseds
+        self._mapped_colors = other._mapped_colors
+        self._edge_is_mapped = other._edge_is_mapped
         self._original_edgecolor = other._original_edgecolor
         self._edgecolors = other._edgecolors
+        self._face_is_mapped = other._face_is_mapped
         self._original_facecolor = other._original_facecolor
         self._facecolors = other._facecolors
         self._linewidths = other._linewidths
@@ -958,7 +960,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._A = other._A
         self.norm = other.norm
         self.cmap = other.cmap
-        # do we need to copy self._update_dict? -JJL
         self.stale = True
 
 
@@ -1151,8 +1152,9 @@ class PathCollection(_CollectionWithSizes):
         if label_values_are_numeric:
             label_values_min = label_values.min()
             label_values_max = label_values.max()
-            fmt.set_bounds(label_values_min, label_values_max)
-
+            fmt.axis.set_view_interval(label_values_min, label_values_max)
+            fmt.axis.set_data_interval(label_values_min, label_values_max)
+            
             if num is not None:
                 # Labels are numerical but larger than the target
                 # number of elements, reduce to target using matplotlibs

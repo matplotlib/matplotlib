@@ -57,19 +57,14 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.scatter
-matplotlib.pyplot.scatter
-matplotlib.projections.polar
-matplotlib.projections.polar.PolarAxes.set_rorigin
-matplotlib.projections.polar.PolarAxes.set_theta_zero_location
-matplotlib.projections.polar.PolarAxes.set_thetamin
-matplotlib.projections.polar.PolarAxes.set_thetamax
+#    - `matplotlib.axes.Axes.scatter` / `matplotlib.pyplot.scatter`
+#    - `matplotlib.projections.polar`
+#    - `matplotlib.projections.polar.PolarAxes.set_rorigin`
+#    - `matplotlib.projections.polar.PolarAxes.set_theta_zero_location`
+#    - `matplotlib.projections.polar.PolarAxes.set_thetamin`
+#    - `matplotlib.projections.polar.PolarAxes.set_thetamax`

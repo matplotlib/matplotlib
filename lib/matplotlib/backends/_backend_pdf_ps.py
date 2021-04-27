@@ -5,7 +5,6 @@ Common functionality between the PDF and PS backends.
 import functools
 
 import matplotlib as mpl
-from matplotlib import _api
 from .. import font_manager, ft2font
 from ..afm import AFM
 from ..backend_bases import RendererBase
@@ -27,15 +26,6 @@ class CharacterTracker:
 
     def __init__(self):
         self.used = {}
-
-    @_api.deprecated("3.3")
-    @property
-    def used_characters(self):
-        d = {}
-        for fname, chars in self.used.items():
-            realpath, stat_key = mpl.cbook.get_realpath_and_stat(fname)
-            d[stat_key] = (realpath, chars)
-        return d
 
     def track(self, font, s):
         """Record that string *s* is being typeset using font *font*."""

@@ -64,15 +64,10 @@ if __name__ == '__main__':
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown in this
-# example:
-
-import matplotlib
-matplotlib.colors.LightSource
-matplotlib.axes.Axes.imshow
-matplotlib.pyplot.imshow
+#    - `matplotlib.colors.LightSource`
+#    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`

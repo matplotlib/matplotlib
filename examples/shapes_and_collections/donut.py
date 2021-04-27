@@ -64,23 +64,19 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.path
-matplotlib.path.Path
-matplotlib.patches
-matplotlib.patches.PathPatch
-matplotlib.patches.Circle
-matplotlib.axes.Axes.add_patch
-matplotlib.axes.Axes.annotate
-matplotlib.axes.Axes.set_aspect
-matplotlib.axes.Axes.set_xlim
-matplotlib.axes.Axes.set_ylim
-matplotlib.axes.Axes.set_title
+#    - `matplotlib.path`
+#    - `matplotlib.path.Path`
+#    - `matplotlib.patches`
+#    - `matplotlib.patches.PathPatch`
+#    - `matplotlib.patches.Circle`
+#    - `matplotlib.axes.Axes.add_patch`
+#    - `matplotlib.axes.Axes.annotate`
+#    - `matplotlib.axes.Axes.set_aspect`
+#    - `matplotlib.axes.Axes.set_xlim`
+#    - `matplotlib.axes.Axes.set_ylim`
+#    - `matplotlib.axes.Axes.set_title`

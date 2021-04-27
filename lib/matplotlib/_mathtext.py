@@ -456,9 +456,6 @@ class UnicodeFonts(TruetypeFonts):
     def __init__(self, *args, **kwargs):
         # This must come first so the backend's owner is set correctly
         fallback_rc = mpl.rcParams['mathtext.fallback']
-        if mpl.rcParams['mathtext.fallback_to_cm'] is not None:
-            fallback_rc = ('cm' if mpl.rcParams['mathtext.fallback_to_cm']
-                           else None)
         font_cls = {'stix': StixFonts,
                     'stixsans': StixSansFonts,
                     'cm': BakomaFonts
@@ -1549,10 +1546,7 @@ class Glue(Node):
     it's easier to stick to what TeX does.)
     """
 
-    glue_subtype = _api.deprecated("3.3")(property(lambda self: "normal"))
-
-    @_api.delete_parameter("3.3", "copy")
-    def __init__(self, glue_type, copy=False):
+    def __init__(self, glue_type):
         super().__init__()
         if isinstance(glue_type, str):
             glue_spec = _GlueSpec._named[glue_type]
@@ -1572,51 +1566,6 @@ class Glue(Node):
         super().grow()
         g = self.glue_spec
         self.glue_spec = g._replace(width=g.width * GROW_FACTOR)
-
-
-# Some convenient ways to get common kinds of glue
-
-
-@_api.deprecated("3.3", alternative="Glue('fil')")
-class Fil(Glue):
-    def __init__(self):
-        super().__init__('fil')
-
-
-@_api.deprecated("3.3", alternative="Glue('fill')")
-class Fill(Glue):
-    def __init__(self):
-        super().__init__('fill')
-
-
-@_api.deprecated("3.3", alternative="Glue('filll')")
-class Filll(Glue):
-    def __init__(self):
-        super().__init__('filll')
-
-
-@_api.deprecated("3.3", alternative="Glue('neg_fil')")
-class NegFil(Glue):
-    def __init__(self):
-        super().__init__('neg_fil')
-
-
-@_api.deprecated("3.3", alternative="Glue('neg_fill')")
-class NegFill(Glue):
-    def __init__(self):
-        super().__init__('neg_fill')
-
-
-@_api.deprecated("3.3", alternative="Glue('neg_filll')")
-class NegFilll(Glue):
-    def __init__(self):
-        super().__init__('neg_filll')
-
-
-@_api.deprecated("3.3", alternative="Glue('ss')")
-class SsGlue(Glue):
-    def __init__(self):
-        super().__init__('ss')
 
 
 class HCentered(Hlist):

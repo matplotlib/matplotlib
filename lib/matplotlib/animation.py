@@ -1785,7 +1785,7 @@ class FuncAnimation(TimedAnimation):
             except TypeError:
                 raise err from None
 
-            # check each item if is artist
+            # check each item if it's artist
             for i in self._drawn_artists:
                 if not isinstance(i, mpl.artist.Artist):
                     raise err

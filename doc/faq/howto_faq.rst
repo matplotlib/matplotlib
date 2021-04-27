@@ -7,28 +7,6 @@ How-to
 .. contents::
    :backlinks: none
 
-
-.. _howto-plotting:
-
-How-to: Plotting
-================
-
-.. _howto-datetime64:
-
-Plot `numpy.datetime64` values
-------------------------------
-
-As of Matplotlib 2.2, `numpy.datetime64` objects are handled the same way
-as `datetime.datetime` objects.
-
-If you prefer the pandas converters and locators, you can register them.  This
-is done automatically when calling a pandas plot function and may be
-unnecessary when using pandas instead of Matplotlib directly. ::
-
-  from pandas.plotting import register_matplotlib_converters
-  register_matplotlib_converters()
-
-
 .. _howto-figure-empty:
 
 Check whether a figure is empty
@@ -84,11 +62,10 @@ You can also filter on class instances::
     for o in fig.findobj(text.Text):
         o.set_fontstyle('italic')
 
-
 .. _howto-supress_offset:
 
-How to prevent ticklabels from having an offset
------------------------------------------------
+Prevent ticklabels from having an offset
+----------------------------------------
 The default formatter will use an offset to reduce
 the length of the ticklabels.  To turn this feature
 off on a per-axis basis::
@@ -128,7 +105,6 @@ on individual elements, e.g.::
    ax.plot(x, y, alpha=0.5)
    ax.set_xlabel('volts', alpha=0.5)
 
-
 .. _howto-multipage:
 
 Save multiple plots to one pdf file
@@ -160,7 +136,6 @@ Finally, the multipage pdf object has to be closed::
 The same can be done using the pgf backend::
 
     from matplotlib.backends.backend_pgf import PdfPages
-
 
 .. _howto-subplots-adjust:
 
@@ -263,45 +238,6 @@ over so that the tick labels fit in the figure:
 
     Auto Subplots Adjust
 
-.. _howto-ticks:
-
-Configure the tick widths
--------------------------
-
-Wherever possible, it is recommended to use the :meth:`~.axes.Axes.tick_params`
-or :meth:`~.axis.Axis.set_tick_params` methods to modify tick properties::
-
-    import matplotlib.pyplot as plt
-
-    fig, ax = plt.subplots()
-    ax.plot(range(10))
-
-    ax.tick_params(width=10)
-
-    plt.show()
-
-For more control of tick properties that are not provided by the above methods,
-it is important to know that in Matplotlib, the ticks are *markers*.  All
-:class:`~matplotlib.lines.Line2D` objects support a line (solid, dashed, etc)
-and a marker (circle, square, tick).  The tick width is controlled by the
-``"markeredgewidth"`` property, so the above effect can also be achieved by::
-
-    import matplotlib.pyplot as plt
-
-    fig, ax = plt.subplots()
-    ax.plot(range(10))
-
-    for line in ax.get_xticklines() + ax.get_yticklines():
-        line.set_markeredgewidth(10)
-
-    plt.show()
-
-The other properties that control the tick marker, and all markers,
-are ``markerfacecolor``, ``markeredgecolor``, ``markeredgewidth``,
-``markersize``.  For more information on configuring ticks, see
-:ref:`axis-container` and :ref:`tick-container`.
-
-
 .. _howto-align-label:
 
 Align my ylabels across multiple subplots
@@ -323,41 +259,14 @@ setting in the right subplots.
 
    Align Ylabels
 
-.. _date-index-plots:
-
-Skip dates where there is no data
----------------------------------
-
-When plotting time series, e.g., financial time series, one often wants to
-leave out days on which there is no data, e.g., weekends.  By passing in
-dates on the x-xaxis, you get large horizontal gaps on periods when there
-is not data. The solution is to pass in some proxy x-data, e.g., evenly
-sampled indices, and then use a custom formatter to format these as dates.
-:doc:`/gallery/text_labels_and_annotations/date_index_formatter` demonstrates
-how to use an 'index formatter' to achieve the desired plot.
-
 .. _howto-set-zorder:
 
-Control the depth of plot elements
-----------------------------------
+Control the draw order of plot elements
+---------------------------------------
 
-
-Within an axes, the order that the various lines, markers, text,
-collections, etc appear is determined by the
-:meth:`~matplotlib.artist.Artist.set_zorder` property.  The default
-order is patches, lines, text, with collections of lines and
-collections of patches appearing at the same level as regular lines
-and patches, respectively::
-
-    line, = ax.plot(x, y, zorder=10)
-
-.. only:: html
-
-    See :doc:`/gallery/misc/zorder_demo` for a complete example.
-
-You can also use the Axes property
-:meth:`~matplotlib.axes.Axes.set_axisbelow` to control whether the grid
-lines are placed above or below your other plot elements.
+The draw order of plot elements, and thus which elements will be on top, is
+determined by the `~.Artist.set_zorder` property.
+See :doc:`/gallery/misc/zorder_demo` for a detailed description.
 
 .. _howto-axis-equal:
 
@@ -377,8 +286,8 @@ some ratio which controls the ratio::
 
 .. _howto-twoscale:
 
-Multiple y-axis scales
-----------------------
+Draw multiple y-axis scales
+---------------------------
 
 A frequent request is to have two scales for the left and right
 y-axis, which is possible using :func:`~matplotlib.pyplot.twinx` (more
@@ -436,87 +345,10 @@ the desired format::
     :doc:`/gallery/user_interfaces/web_application_server_sgskip` for
     information about running matplotlib inside of a web application.
 
-.. _howto-show:
-
-Use :func:`~matplotlib.pyplot.show`
------------------------------------
-
-When you want to view your plots on your display,
-the user interface backend will need to start the GUI mainloop.
-This is what :func:`~matplotlib.pyplot.show` does.  It tells
-Matplotlib to raise all of the figure windows created so far and start
-the mainloop. Because this mainloop is blocking by default (i.e., script
-execution is paused), you should only call this once per script, at the end.
-Script execution is resumed after the last window is closed. Therefore, if
-you are using Matplotlib to generate only images and do not want a user
-interface window, you do not need to call ``show`` (see :ref:`howto-batch`
-and :ref:`what-is-a-backend`).
-
-.. note::
-   Because closing a figure window unregisters it from pyplot, you must call
-   `~matplotlib.pyplot.savefig` *before* calling ``show`` if you wish to save
-   the figure as well as view it.
-
-Whether ``show`` blocks further execution of the script or the python
-interpreter depends on whether Matplotlib is set to use interactive mode.
-In non-interactive mode (the default setting), execution is paused
-until the last figure window is closed.  In interactive mode, the execution
-is not paused, which allows you to create additional figures (but the script
-won't finish until the last figure window is closed).
-
-Because it is expensive to draw, you typically will not want Matplotlib
-to redraw a figure many times in a script such as the following::
-
-    plot([1, 2, 3])          # draw here?
-    xlabel('time')           # and here?
-    ylabel('volts')          # and here?
-    title('a simple plot')   # and here?
-    show()
-
-However, it is *possible* to force Matplotlib to draw after every command,
-which might be what you want when working interactively at the
-python console (see :ref:`mpl-shell`), but in a script you want to
-defer all drawing until the call to ``show``.  This is especially
-important for complex figures that take some time to draw.
-:func:`~matplotlib.pyplot.show` is designed to tell Matplotlib that
-you're all done issuing commands and you want to draw the figure now.
-
-.. note::
-
-    :func:`~matplotlib.pyplot.show` should typically only be called at
-    most once per script and it should be the last line of your
-    script.  At that point, the GUI takes control of the interpreter.
-    If you want to force a figure draw, use
-    :func:`~matplotlib.pyplot.draw` instead.
-
-.. versionadded:: v1.0.0
-   Matplotlib 1.0.0 and 1.0.1 added support for calling ``show`` multiple times
-   per script, and harmonized the behavior of interactive mode, across most
-   backends.
-
-.. _howto-boxplot_violinplot:
-
-Interpreting box plots and violin plots
----------------------------------------
-
-Tukey's :doc:`box plots </gallery/statistics/boxplot_demo>` (Robert McGill,
-John W. Tukey and Wayne A. Larsen: "The American Statistician" Vol. 32, No. 1,
-Feb., 1978, pp. 12-16) are statistical plots that provide useful information
-about the data distribution such as skewness. However, bar plots with error
-bars are still the common standard in most scientific literature, and thus, the
-interpretation of box plots can be challenging for the unfamiliar reader. The
-figure below illustrates the different visual features of a box plot.
-
-.. figure:: ../_static/boxplot_explanation.png
-
-:doc:`Violin plots </gallery/statistics/violinplot>` are closely related to box
-plots but add useful information such as the distribution of the sample data
-(density trace).  Violin plots were added in Matplotlib 1.4.
-
 .. _how-to-threads:
 
-Working with threads
---------------------
+Work with threads
+-----------------
 
 Matplotlib is not thread-safe: in fact, there are known race conditions
 that affect certain artists.  Hence, if you work with threads, it is your

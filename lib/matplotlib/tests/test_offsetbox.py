@@ -12,8 +12,8 @@ import matplotlib.lines as mlines
 from matplotlib.backend_bases import MouseButton
 
 from matplotlib.offsetbox import (
-        AnchoredOffsetbox, AnnotationBbox, AnchoredText, DrawingArea,
-        OffsetImage, TextArea, _get_packed_offsets)
+    AnchoredOffsetbox, AnnotationBbox, AnchoredText, DrawingArea, OffsetBox,
+    OffsetImage, TextArea, _get_packed_offsets)
 
 
 @image_comparison(['offsetbox_clipping'], remove_text=True)
@@ -321,3 +321,7 @@ def test_annotationbbox_extents():
     fig.canvas.draw()
     fig.tight_layout()
     fig.canvas.draw()
+
+
+def test_zorder():
+    assert OffsetBox(zorder=42).zorder == 42

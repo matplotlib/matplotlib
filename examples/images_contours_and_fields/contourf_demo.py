@@ -106,24 +106,16 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.contour
-matplotlib.pyplot.contour
-matplotlib.axes.Axes.contourf
-matplotlib.pyplot.contourf
-matplotlib.axes.Axes.clabel
-matplotlib.pyplot.clabel
-matplotlib.figure.Figure.colorbar
-matplotlib.pyplot.colorbar
-matplotlib.colors.Colormap
-matplotlib.colors.Colormap.set_bad
-matplotlib.colors.Colormap.set_under
-matplotlib.colors.Colormap.set_over
+#    - `matplotlib.axes.Axes.contour` / `matplotlib.pyplot.contour`
+#    - `matplotlib.axes.Axes.contourf` / `matplotlib.pyplot.contourf`
+#    - `matplotlib.axes.Axes.clabel` / `matplotlib.pyplot.clabel`
+#    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
+#    - `matplotlib.colors.Colormap`
+#    - `matplotlib.colors.Colormap.set_bad`
+#    - `matplotlib.colors.Colormap.set_under`
+#    - `matplotlib.colors.Colormap.set_over`

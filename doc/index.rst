@@ -2,6 +2,8 @@
 
 .. title:: Matplotlib: Python plotting
 
+.. module:: matplotlib
+
 Matplotlib: Visualization with Python
 -------------------------------------
 
@@ -78,7 +80,8 @@ Join our community!
 ~~~~~~~~~~~~~~~~~~~
 
 Matplotlib is a welcoming, inclusive project, and everyone within the community
-is expected to abide by our `code of conduct <../CODE_OF_CONDUCT.md>`_.
+is expected to abide by our `code of conduct
+<https://github.com/matplotlib/matplotlib/blob/master/CODE_OF_CONDUCT.md>`_.
 
 
 .. raw:: html

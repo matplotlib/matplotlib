@@ -35,9 +35,9 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import (Patch, Rectangle, Shadow, FancyBboxPatch,
                                 StepPatch)
-from matplotlib.collections import (LineCollection, RegularPolyCollection,
-                                    CircleCollection, PathCollection,
-                                    PolyCollection)
+from matplotlib.collections import (
+    Collection, CircleCollection, LineCollection, PathCollection,
+    PolyCollection, RegularPolyCollection)
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 from matplotlib.transforms import BboxTransformTo, BboxTransformFrom
 
@@ -237,9 +237,17 @@ bbox_transform : None or `matplotlib.transforms.Transform`
 title : str or None
     The legend's title. Default is no title (``None``).
 
+title_fontproperties : None or `matplotlib.font_manager.FontProperties` or dict
+    The font properties of the legend's title. If None (default), the
+    *title_fontsize* argument will be used if present; if *title_fontsize* is
+    also None, the current :rc:`legend.title_fontsize` will be used.
+
 title_fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
 'x-large', 'xx-large'}, default: :rc:`legend.title_fontsize`
     The font size of the legend's title.
+    Note: This cannot be combined with *title_fontproperties*. If you want
+    to set the fontsize alongside other font properties, use the *size*
+    parameter in *title_fontproperties*.
 
 borderpad : float, default: :rc:`legend.borderpad`
     The fractional whitespace inside the legend border, in font-size units.
@@ -332,6 +340,7 @@ class Legend(Artist):
                  bbox_transform=None,  # transform for the bbox
                  frameon=None,  # draw frame
                  handler_map=None,
+                 title_fontproperties=None,  # properties for the legend title
                  ):
         """
         Parameters
@@ -506,11 +515,23 @@ class Legend(Artist):
         self._set_loc(loc)
         self._loc_used_default = tmp  # ignore changes done by _set_loc
 
-        # figure out title fontsize:
-        if title_fontsize is None:
-            title_fontsize = mpl.rcParams['legend.title_fontsize']
-        tprop = FontProperties(size=title_fontsize)
-        self.set_title(title, prop=tprop)
+        # figure out title font properties:
+        if title_fontsize is not None and title_fontproperties is not None:
+            raise ValueError(
+                "title_fontsize and title_fontproperties can't be specified "
+                "at the same time. Only use one of them. ")
+        title_prop_fp = FontProperties._from_any(title_fontproperties)
+        if isinstance(title_fontproperties, dict):
+            if "size" not in title_fontproperties:
+                title_fontsize = mpl.rcParams["legend.title_fontsize"]
+                title_prop_fp.set_size(title_fontsize)
+        elif title_fontsize is not None:
+            title_prop_fp.set_size(title_fontsize)
+        elif not isinstance(title_fontproperties, FontProperties):
+            title_fontsize = mpl.rcParams["legend.title_fontsize"]
+            title_prop_fp.set_size(title_fontsize)
+
+        self.set_title(title, prop=title_prop_fp)
         self._draggable = None
 
         # set the text color
@@ -718,7 +739,7 @@ class Legend(Artist):
         # text.
 
         text_list = []  # the list of text instances
-        handle_list = []  # the list of text instances
+        handle_list = []  # the list of handle instances
         handles_and_labels = []
 
         label_prop = dict(verticalalignment='baseline',
@@ -826,18 +847,23 @@ class Legend(Artist):
             List of (x, y) offsets of all collection.
         """
         assert self.isaxes  # always holds, as this is only called internally
-        ax = self.parent
-        lines = [line.get_transform().transform_path(line.get_path())
-                 for line in ax.lines]
-        bboxes = [patch.get_bbox().transformed(patch.get_data_transform())
-                  if isinstance(patch, Rectangle) else
-                  patch.get_path().get_extents(patch.get_transform())
-                  for patch in ax.patches]
+        bboxes = []
+        lines = []
         offsets = []
-        for handle in ax.collections:
-            _, transOffset, hoffsets, _ = handle._prepare_points()
-            for offset in transOffset.transform(hoffsets):
-                offsets.append(offset)
+        for artist in self.parent._children:
+            if isinstance(artist, Line2D):
+                lines.append(
+                    artist.get_transform().transform_path(artist.get_path()))
+            elif isinstance(artist, Rectangle):
+                bboxes.append(
+                    artist.get_bbox().transformed(artist.get_data_transform()))
+            elif isinstance(artist, Patch):
+                bboxes.append(
+                    artist.get_path().get_extents(artist.get_transform()))
+            elif isinstance(artist, Collection):
+                _, transOffset, hoffsets, _ = artist._prepare_points()
+                for offset in transOffset.transform(hoffsets):
+                    offsets.append(offset)
         return bboxes, lines, offsets
 
     def get_children(self):
@@ -1114,13 +1140,17 @@ def _get_legend_handles(axs, legend_handler_map=None):
     """
     handles_original = []
     for ax in axs:
-        handles_original += (ax.lines + ax.patches +
-                             ax.collections + ax.containers)
+        handles_original += [
+            *(a for a in ax._children
+              if isinstance(a, (Line2D, Patch, Collection))),
+            *ax.containers]
         # support parasite axes:
         if hasattr(ax, 'parasites'):
             for axx in ax.parasites:
-                handles_original += (axx.lines + axx.patches +
-                                     axx.collections + axx.containers)
+                handles_original += [
+                    *(a for a in axx._children
+                      if isinstance(a, (Line2D, Patch, Collection))),
+                    *axx.containers]
 
     handler_map = Legend.get_default_handler_map()
 

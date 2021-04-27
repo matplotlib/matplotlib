@@ -21,19 +21,17 @@ To enable TeX rendering of all text in your Matplotlib figure, set
 """
 
 import functools
-import glob
 import hashlib
 import logging
 import os
 from pathlib import Path
-import re
 import subprocess
 from tempfile import TemporaryDirectory
 
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, dviread, rcParams
+from matplotlib import cbook, dviread, rcParams
 
 _log = logging.getLogger(__name__)
 
@@ -73,21 +71,6 @@ class TexManager:
         'computer modern sans serif': ('cmss', r'\usepackage{type1ec}'),
         'computer modern typewriter': ('cmtt', r'\usepackage{type1ec}')}
 
-    cachedir = _api.deprecated(
-        "3.3", alternative="matplotlib.get_cachedir()")(
-            property(lambda self: mpl.get_cachedir()))
-    rgba_arrayd = _api.deprecated("3.3")(property(lambda self: {}))
-    _fonts = {}  # Only for deprecation period.
-    serif = _api.deprecated("3.3")(property(
-        lambda self: self._fonts.get("serif", ('cmr', ''))))
-    sans_serif = _api.deprecated("3.3")(property(
-        lambda self: self._fonts.get("sans-serif", ('cmss', ''))))
-    cursive = _api.deprecated("3.3")(property(
-        lambda self:
-        self._fonts.get("cursive", ('pzc', r'\usepackage{chancery}'))))
-    monospace = _api.deprecated("3.3")(property(
-        lambda self: self._fonts.get("monospace", ('cmtt', ''))))
-
     @functools.lru_cache()  # Always return the same instance.
     def __new__(cls):
         Path(cls.texcache).mkdir(parents=True, exist_ok=True)
@@ -104,10 +87,11 @@ class TexManager:
             self.font_family = 'serif'
 
         fontconfig = [self.font_family]
+        fonts = {}
         for font_family in self.font_families:
             for font in rcParams['font.' + font_family]:
                 if font.lower() in self.font_info:
-                    self._fonts[font_family] = self.font_info[font.lower()]
+                    fonts[font_family] = self.font_info[font.lower()]
                     _log.debug('family: %s, font: %s, info: %s',
                                font_family, font, self.font_info[font.lower()])
                     break
@@ -116,8 +100,8 @@ class TexManager:
             else:
                 _log.info('No LaTeX-compatible font found for the %s font '
                           'family in rcParams. Using default.', font_family)
-                self._fonts[font_family] = self.font_info[font_family]
-            fontconfig.append(self._fonts[font_family][0])
+                fonts[font_family] = self.font_info[font_family]
+            fontconfig.append(fonts[font_family][0])
         # Add a hash of the latex preamble to fontconfig so that the
         # correct png is selected for strings rendered with same font and dpi
         # even if the latex preamble changes within the session
@@ -126,11 +110,11 @@ class TexManager:
 
         # The following packages and commands need to be included in the latex
         # file's preamble:
-        cmd = [self._fonts['serif'][1],
-               self._fonts['sans-serif'][1],
-               self._fonts['monospace'][1]]
+        cmd = [fonts['serif'][1],
+               fonts['sans-serif'][1],
+               fonts['monospace'][1]]
         if self.font_family == 'cursive':
-            cmd.append(self._fonts['cursive'][1])
+            cmd.append(fonts['cursive'][1])
         self._font_preamble = '\n'.join([r'\usepackage{type1cm}', *cmd])
 
         return ''.join(fontconfig)
@@ -204,48 +188,6 @@ class TexManager:
 
         return texfile
 
-    _re_vbox = re.compile(
-        r"MatplotlibBox:\(([\d.]+)pt\+([\d.]+)pt\)x([\d.]+)pt")
-
-    @_api.deprecated("3.3")
-    def make_tex_preview(self, tex, fontsize):
-        """
-        Generate a tex file to render the tex string at a specific font size.
-
-        It uses the preview.sty to determine the dimension (width, height,
-        descent) of the output.
-
-        Return the file name.
-        """
-        basefile = self.get_basefile(tex, fontsize)
-        texfile = '%s.tex' % basefile
-        fontcmd = {'sans-serif': r'{\sffamily %s}',
-                   'monospace': r'{\ttfamily %s}'}.get(self.font_family,
-                                                       r'{\rmfamily %s}')
-
-        # newbox, setbox, immediate, etc. are used to find the box
-        # extent of the rendered text.
-
-        Path(texfile).write_text(
-            r"""
-%s
-\usepackage[active,showbox,tightpage]{preview}
-
-%% we override the default showbox as it is treated as an error and makes
-%% the exit status not zero
-\def\showbox#1%%
-{\immediate\write16{MatplotlibBox:(\the\ht#1+\the\dp#1)x\the\wd#1}}
-
-\begin{document}
-\begin{preview}
-{\fontsize{%f}{%f}%s}
-\end{preview}
-\end{document}
-""" % (self._get_preamble(), fontsize, fontsize * 1.25, fontcmd % tex),
-            encoding='utf-8')
-
-        return texfile
-
     def _run_checked_subprocess(self, command, tex, *, cwd=None):
         _log.debug(cbook._pformat_subprocess(command))
         try:
@@ -274,10 +216,6 @@ class TexManager:
 
         Return the file name.
         """
-
-        if dict.__getitem__(rcParams, 'text.latex.preview'):
-            return self.make_dvi_preview(tex, fontsize)
-
         basefile = self.get_basefile(tex, fontsize)
         dvifile = '%s.dvi' % basefile
         if not os.path.exists(dvifile):
@@ -292,41 +230,6 @@ class TexManager:
                     ["latex", "-interaction=nonstopmode", "--halt-on-error",
                      texfile], tex, cwd=tmpdir)
                 (Path(tmpdir) / Path(dvifile).name).replace(dvifile)
-        return dvifile
-
-    @_api.deprecated("3.3")
-    def make_dvi_preview(self, tex, fontsize):
-        """
-        Generate a dvi file containing latex's layout of tex string.
-
-        It calls make_tex_preview() method and store the size information
-        (width, height, descent) in a separate file.
-
-        Return the file name.
-        """
-        basefile = self.get_basefile(tex, fontsize)
-        dvifile = '%s.dvi' % basefile
-        baselinefile = '%s.baseline' % basefile
-
-        if not os.path.exists(dvifile) or not os.path.exists(baselinefile):
-            texfile = self.make_tex_preview(tex, fontsize)
-            report = self._run_checked_subprocess(
-                ["latex", "-interaction=nonstopmode", "--halt-on-error",
-                 texfile], tex)
-
-            # find the box extent information in the latex output
-            # file and store them in ".baseline" file
-            m = TexManager._re_vbox.search(report.decode("utf-8"))
-            with open(basefile + '.baseline', "w") as fh:
-                fh.write(" ".join(m.groups()))
-
-            for fname in glob.glob(basefile + '*'):
-                if not fname.endswith(('dvi', 'tex', 'baseline')):
-                    try:
-                        os.remove(fname)
-                    except OSError:
-                        pass
-
         return dvifile
 
     def make_png(self, tex, fontsize, dpi):
@@ -378,26 +281,9 @@ class TexManager:
         """Return width, height and descent of the text."""
         if tex.strip() == '':
             return 0, 0, 0
-
+        dvifile = self.make_dvi(tex, fontsize)
         dpi_fraction = renderer.points_to_pixels(1.) if renderer else 1
-
-        if dict.__getitem__(rcParams, 'text.latex.preview'):
-            # use preview.sty
-            basefile = self.get_basefile(tex, fontsize)
-            baselinefile = '%s.baseline' % basefile
-
-            if not os.path.exists(baselinefile):
-                dvifile = self.make_dvi_preview(tex, fontsize)
-
-            with open(baselinefile) as fh:
-                l = fh.read().split()
-            height, depth, width = [float(l1) * dpi_fraction for l1 in l]
-            return width, height + depth, depth
-
-        else:
-            # use dviread.
-            dvifile = self.make_dvi(tex, fontsize)
-            with dviread.Dvi(dvifile, 72 * dpi_fraction) as dvi:
-                page, = dvi
-            # A total height (including the descent) needs to be returned.
-            return page.width, page.height + page.descent, page.descent
+        with dviread.Dvi(dvifile, 72 * dpi_fraction) as dvi:
+            page, = dvi
+        # A total height (including the descent) needs to be returned.
+        return page.width, page.height + page.descent, page.descent

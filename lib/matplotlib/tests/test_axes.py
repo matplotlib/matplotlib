@@ -52,14 +52,16 @@ def test_get_labels():
 @check_figures_equal()
 def test_label_loc_vertical(fig_test, fig_ref):
     ax = fig_test.subplots()
-    sc = ax.scatter([1, 2], [1, 2], c=[1, 2])
+    sc = ax.scatter([1, 2], [1, 2], c=[1, 2], label='scatter')
+    ax.legend()
     ax.set_ylabel('Y Label', loc='top')
     ax.set_xlabel('X Label', loc='right')
     cbar = fig_test.colorbar(sc)
     cbar.set_label("Z Label", loc='top')
 
     ax = fig_ref.subplots()
-    sc = ax.scatter([1, 2], [1, 2], c=[1, 2])
+    sc = ax.scatter([1, 2], [1, 2], c=[1, 2], label='scatter')
+    ax.legend()
     ax.set_ylabel('Y Label', y=1, ha='right')
     ax.set_xlabel('X Label', x=1, ha='right')
     cbar = fig_ref.colorbar(sc)
@@ -69,14 +71,16 @@ def test_label_loc_vertical(fig_test, fig_ref):
 @check_figures_equal()
 def test_label_loc_horizontal(fig_test, fig_ref):
     ax = fig_test.subplots()
-    sc = ax.scatter([1, 2], [1, 2], c=[1, 2])
+    sc = ax.scatter([1, 2], [1, 2], c=[1, 2], label='scatter')
+    ax.legend()
     ax.set_ylabel('Y Label', loc='bottom')
     ax.set_xlabel('X Label', loc='left')
     cbar = fig_test.colorbar(sc, orientation='horizontal')
     cbar.set_label("Z Label", loc='left')
 
     ax = fig_ref.subplots()
-    sc = ax.scatter([1, 2], [1, 2], c=[1, 2])
+    sc = ax.scatter([1, 2], [1, 2], c=[1, 2], label='scatter')
+    ax.legend()
     ax.set_ylabel('Y Label', y=0, ha='left')
     ax.set_xlabel('X Label', x=0, ha='left')
     cbar = fig_ref.colorbar(sc, orientation='horizontal')
@@ -88,14 +92,16 @@ def test_label_loc_rc(fig_test, fig_ref):
     with matplotlib.rc_context({"xaxis.labellocation": "right",
                                 "yaxis.labellocation": "top"}):
         ax = fig_test.subplots()
-        sc = ax.scatter([1, 2], [1, 2], c=[1, 2])
+        sc = ax.scatter([1, 2], [1, 2], c=[1, 2], label='scatter')
+        ax.legend()
         ax.set_ylabel('Y Label')
         ax.set_xlabel('X Label')
         cbar = fig_test.colorbar(sc, orientation='horizontal')
         cbar.set_label("Z Label")
 
     ax = fig_ref.subplots()
-    sc = ax.scatter([1, 2], [1, 2], c=[1, 2])
+    sc = ax.scatter([1, 2], [1, 2], c=[1, 2], label='scatter')
+    ax.legend()
     ax.set_ylabel('Y Label', y=1, ha='right')
     ax.set_xlabel('X Label', x=1, ha='right')
     cbar = fig_ref.colorbar(sc, orientation='horizontal')
@@ -3437,6 +3443,23 @@ def test_errobar_nonefmt():
         assert np.all(errbar.get_color() == mcolors.to_rgba('C0'))
 
 
+def test_errorbar_line_specific_kwargs():
+    # Check that passing line-specific keyword arguments will not result in
+    # errors.
+    x = np.arange(5)
+    y = np.arange(5)
+
+    plotline, _, _ = plt.errorbar(x, y, xerr=1, yerr=1, ls='None',
+                                  marker='s', fillstyle='full',
+                                  drawstyle='steps-mid',
+                                  dash_capstyle='round',
+                                  dash_joinstyle='miter',
+                                  solid_capstyle='butt',
+                                  solid_joinstyle='bevel')
+    assert plotline.get_fillstyle() == 'full'
+    assert plotline.get_drawstyle() == 'steps-mid'
+
+
 @check_figures_equal(extensions=['png'])
 def test_errorbar_with_prop_cycle(fig_test, fig_ref):
     ax = fig_ref.subplots()
@@ -3517,6 +3540,13 @@ def test_errorbar_every(fig_test, fig_ref):
     ax_ref.plot(x[1::3], y[1::3] + 0.2, 'o', c='C1', zorder=2.1)
     ax_ref.errorbar(x[1::3], y[1::3] + 0.2, yerr[1::3],
                     capsize=4, c='C1', fmt='none')
+
+
+@pytest.mark.parametrize('elinewidth', [[1, 2, 3],
+                                        np.array([1, 2, 3]),
+                                        1])
+def test_errorbar_linewidth_type(elinewidth):
+    plt.errorbar([1, 2, 3], [1, 2, 3], yerr=[1, 2, 3], elinewidth=elinewidth)
 
 
 @image_comparison(['hist_stacked_stepfilled', 'hist_stacked_stepfilled'])
@@ -4913,9 +4943,10 @@ def test_pie_center_radius():
             autopct='%1.1f%%', shadow=True, startangle=90,
             wedgeprops={'linewidth': 0}, center=(1, 2), radius=1.5)
 
-    plt.annotate("Center point", xy=(1, 2), xytext=(1, 1.5),
+    plt.annotate("Center point", xy=(1, 2), xytext=(1, 1.3),
                  arrowprops=dict(arrowstyle="->",
-                                 connectionstyle="arc3"))
+                                 connectionstyle="arc3"),
+                 bbox=dict(boxstyle="square", facecolor="lightgrey"))
     # Set aspect ratio to be equal so that pie is drawn as a circle.
     plt.axis('equal')
 
@@ -6996,6 +7027,15 @@ def test_bar_label_labels():
     assert labels[1].get_text() == 'B'
 
 
+def test_bar_label_nan_ydata():
+    ax = plt.gca()
+    bars = ax.bar([2, 3], [np.nan, 1])
+    labels = ax.bar_label(bars)
+    assert [l.get_text() for l in labels] == ['', '1']
+    assert labels[0].xy == (2, 0)
+    assert labels[0].get_va() == 'bottom'
+
+
 def test_patch_bounds():  # PR 19078
     fig, ax = plt.subplots()
     ax.add_patch(mpatches.Wedge((0, -1), 1.05, 60, 120, 0.1))
@@ -7012,3 +7052,82 @@ def test_warn_ignored_scatter_kwargs():
         c = plt.scatter(
             [0], [0], marker="+", s=500, facecolor="r", edgecolor="b"
         )
+
+
+def test_artist_sublists():
+    fig, ax = plt.subplots()
+    lines = [ax.plot(np.arange(i, i + 5))[0] for i in range(6)]
+    col = ax.scatter(np.arange(5), np.arange(5))
+    im = ax.imshow(np.zeros((5, 5)))
+    patch = ax.add_patch(mpatches.Rectangle((0, 0), 5, 5))
+    text = ax.text(0, 0, 'foo')
+
+    # Get items, which should not be mixed.
+    assert list(ax.collections) == [col]
+    assert list(ax.images) == [im]
+    assert list(ax.lines) == lines
+    assert list(ax.patches) == [patch]
+    assert not ax.tables
+    assert list(ax.texts) == [text]
+
+    # Get items should work like lists/tuple.
+    assert ax.lines[0] is lines[0]
+    assert ax.lines[-1] is lines[-1]
+    with pytest.raises(IndexError, match='out of range'):
+        ax.lines[len(lines) + 1]
+
+    # Deleting items (multiple or single) should warn.
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match='modification of the Axes.lines property'):
+        del ax.lines[-1]
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match='modification of the Axes.lines property'):
+        del ax.lines[-1:]
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match='modification of the Axes.lines property'):
+        del ax.lines[1:]
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match='modification of the Axes.lines property'):
+        del ax.lines[0]
+
+    # Lists should be empty after removing items.
+    col.remove()
+    assert not ax.collections
+    im.remove()
+    assert not ax.images
+    patch.remove()
+    assert not ax.patches
+    text.remove()
+    assert not ax.texts
+
+    # Everything else should remain empty.
+    assert not ax.lines
+    assert not ax.tables
+
+    # Adding items should warn.
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match='modification of the Axes.lines property'):
+        ax.lines.append(lines[-2])
+    assert list(ax.lines) == [lines[-2]]
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match='modification of the Axes.lines property'):
+        ax.lines.append(lines[-1])
+    assert list(ax.lines) == lines[-2:]
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match='modification of the Axes.lines property'):
+        ax.lines.insert(-2, lines[0])
+    assert list(ax.lines) == [lines[0], lines[-2], lines[-1]]
+
+    # Modifying items should warn.
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match='modification of the Axes.lines property'):
+        ax.lines[0] = lines[0]
+    assert list(ax.lines) == [lines[0], lines[-2], lines[-1]]
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match='modification of the Axes.lines property'):
+        ax.lines[1:1] = lines[1:-2]
+    assert list(ax.lines) == lines
+
+    # Adding to other lists should produce a regular list.
+    assert ax.lines + [1, 2, 3] == [*lines, 1, 2, 3]
+    assert [1, 2, 3] + ax.lines == [1, 2, 3, *lines]

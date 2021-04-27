@@ -9,7 +9,7 @@ from matplotlib import _api, backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    StatusbarBase, TimerBase, ToolContainerBase, cursors)
+    TimerBase, ToolContainerBase, cursors)
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
@@ -132,19 +132,6 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         style_ctx = self.get_style_context()
         style_ctx.add_provider(css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         style_ctx.add_class("matplotlib-canvas")
-
-        renderer_init = _api.deprecate_method_override(
-            __class__._renderer_init, self, allow_empty=True, since="3.3",
-            addendum="Please initialize the renderer, if needed, in the "
-            "subclass' __init__; a fully empty _renderer_init implementation "
-            "may be kept for compatibility with earlier versions of "
-            "Matplotlib.")
-        if renderer_init:
-            renderer_init()
-
-    @_api.deprecated("3.3", alternative="__init__")
-    def _renderer_init(self):
-        pass
 
     def destroy(self):
         #Gtk.DrawingArea.destroy(self)
@@ -392,7 +379,14 @@ class FigureManagerGTK3(FigureManagerBase):
         self.window.show()
         self.canvas.draw()
         if mpl.rcParams['figure.raise_window']:
-            self.window.present()
+            if self.window.get_window():
+                self.window.present()
+            else:
+                # If this is called by a callback early during init,
+                # self.window (a GtkWindow) may not have an associated
+                # low-level GdkWindow (self.window.get_window()) yet, and
+                # present() would crash.
+                _api.warn_external("Cannot raise window yet to be setup")
 
     def full_screen_toggle(self):
         self._full_screen_flag = not self._full_screen_flag
@@ -436,9 +430,6 @@ class FigureManagerGTK3(FigureManagerBase):
 
 
 class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
-    ctx = _api.deprecated("3.3")(property(
-        lambda self: self.canvas.get_property("window").cairo_create()))
-
     def __init__(self, canvas, window):
         self.win = window
         GObject.GObject.__init__(self)
@@ -657,18 +648,6 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
 
     def set_message(self, s):
         self._message.set_label(s)
-
-
-@_api.deprecated("3.3")
-class StatusbarGTK3(StatusbarBase, Gtk.Statusbar):
-    def __init__(self, *args, **kwargs):
-        StatusbarBase.__init__(self, *args, **kwargs)
-        Gtk.Statusbar.__init__(self)
-        self._context = self.get_context_id('message')
-
-    def set_message(self, s):
-        self.pop(self._context)
-        self.push(self._context, s)
 
 
 class RubberbandGTK3(backend_tools.RubberbandBase):

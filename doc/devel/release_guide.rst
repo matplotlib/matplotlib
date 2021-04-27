@@ -176,14 +176,12 @@ Finally, push the tag to GitHub::
 
 Congratulations, the scariest part is done!
 
-.. [#] The tarball that is provided by GitHub is produced using `git
-       archive <https://git-scm.com/docs/git-archive>`__.  We use
-       `versioneer <https://github.com/warner/python-versioneer>`__
-       which uses a format string in
+.. [#] The tarball that is provided by GitHub is produced using `git archive`_.
+       We use setuptools_scm_ which uses a format string in
        :file:`lib/matplotlib/_version.py` to have ``git`` insert a
        list of references to exported commit (see
        :file:`.gitattributes` for the configuration).  This string is
-       then used by ``versioneer`` to produce the correct version,
+       then used by ``setuptools_scm`` to produce the correct version,
        based on the git tag, when users install from the tarball.
        However, if there is a branch pointed at the tagged commit,
        then the branch name will also be included in the tarball.
@@ -195,6 +193,8 @@ Congratulations, the scariest part is done!
 
           git archive v2.0.0 -o matplotlib-2.0.0.tar.gz --prefix=matplotlib-2.0.0/
 
+.. _git archive: https://git-scm.com/docs/git-archive
+.. _setuptools_scm: https://github.com/pypa/setuptools_scm
 
 If this is a final release, also create a 'doc' branch (this is not
 done for pre-releases)::
@@ -382,3 +382,13 @@ In addition, announcements should be made on social networks (twitter
 via the ``@matplotlib`` account, any other via personal accounts).
 `NumFOCUS <https://numfocus.org/>`__ should be contacted for
 inclusion in their newsletter.
+
+
+Conda packages
+==============
+
+The Matplotlib project itself does not release conda packages. In particular,
+the Matplotlib release manager is not responsible for conda packaging.
+
+For information on the packaging of Matplotlib for conda-forge see
+https://github.com/conda-forge/matplotlib-feedstock.

@@ -231,12 +231,17 @@ class TickHelper:
         if self.axis is None:
             self.axis = _DummyAxis(**kwargs)
 
+    @_api.deprecated("3.5", alternative=".axis.set_view_interval")
     def set_view_interval(self, vmin, vmax):
         self.axis.set_view_interval(vmin, vmax)
 
+    @_api.deprecated("3.5", alternative=".axis.set_data_interval")
     def set_data_interval(self, vmin, vmax):
         self.axis.set_data_interval(vmin, vmax)
 
+    @_api.deprecated(
+        "3.5",
+        alternative=".axis.set_view_interval and .axis.set_data_interval")
     def set_bounds(self, vmin, vmax):
         self.set_view_interval(vmin, vmax)
         self.set_data_interval(vmin, vmax)
@@ -411,6 +416,10 @@ class FormatStrFormatter(Formatter):
 
     The format string should have a single variable format (%) in it.
     It will be applied to the value (not the position) of the tick.
+
+    Negative numeric values will use a dash not a unicode minus,
+    use mathtext to get a unicode minus by wrappping the format specifier
+    with $ (e.g. "$%g$").
     """
     def __init__(self, fmt):
         self.fmt = fmt
@@ -735,7 +744,8 @@ class ScalarFormatter(Formatter):
                 delta = abs(neighbor_values - value).max()
             else:
                 # Rough approximation: no more than 1e4 divisions.
-                delta = np.diff(self.axis.get_view_interval()) / 1e4
+                a, b = self.axis.get_view_interval()
+                delta = (b - a) / 1e4
             # If e.g. value = 45.67 and delta = 0.02, then we want to round to
             # 2 digits after the decimal point (floor(log10(0.02)) = -2);
             # 45.67 contributes 2 digits before the decimal point

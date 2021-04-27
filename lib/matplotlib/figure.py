@@ -22,13 +22,11 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import docstring, projections
-from matplotlib import __version__ as _mpl_version
-
 import matplotlib.artist as martist
 from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
-    FigureCanvasBase, NonGuiException, MouseButton)
+    FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
 import matplotlib._api as _api
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
@@ -369,11 +367,15 @@ default: %(va)s
             Additional kwargs are `matplotlib.text.Text` properties.
         """
 
-        manual_position = ('x' in kwargs or 'y' in kwargs)
         suplab = getattr(self, info['name'])
 
-        x = kwargs.pop('x', info['x0'])
-        y = kwargs.pop('y', info['y0'])
+        x = kwargs.pop('x', None)
+        y = kwargs.pop('y', None)
+        autopos = x is None and y is None
+        if x is None:
+            x = info['x0']
+        if y is None:
+            y = info['y0']
 
         if 'horizontalalignment' not in kwargs and 'ha' not in kwargs:
             kwargs['horizontalalignment'] = info['ha']
@@ -396,8 +398,7 @@ default: %(va)s
             sup.remove()
         else:
             suplab = sup
-        if manual_position:
-            suplab.set_in_layout(False)
+        suplab._autopos = autopos
         setattr(self, info['name'], suplab)
         self.stale = True
         return suplab
@@ -1649,7 +1650,11 @@ default: %(va)s
                   and (b.width != 0 or b.height != 0))]
 
         if len(bb) == 0:
-            return self.bbox_inches
+            if hasattr(self, 'bbox_inches'):
+                return self.bbox_inches
+            else:
+                # subfigures do not have bbox_inches, but do have a bbox
+                bb = [self.bbox]
 
         _bbox = Bbox.union(bb)
 
@@ -1733,7 +1738,9 @@ default: %(va)s
         Returns
         -------
         dict[label, Axes]
-           A dictionary mapping the labels to the Axes objects.
+           A dictionary mapping the labels to the Axes objects.  The order of
+           the axes is left-to-right and top-to-bottom of their position in the
+           total layout.
 
         """
         subplot_kw = subplot_kw or {}
@@ -1784,11 +1791,12 @@ default: %(va)s
 
             Returns
             -------
-            unique_ids : set
+            unique_ids : tuple
                 The unique non-sub layout entries in this layout
             nested : dict[tuple[int, int]], 2D object array
             """
-            unique_ids = set()
+            # make sure we preserve the user supplied order
+            unique_ids = cbook._OrderedSet()
             nested = {}
             for j, row in enumerate(layout):
                 for k, v in enumerate(row):
@@ -1799,7 +1807,7 @@ default: %(va)s
                     else:
                         unique_ids.add(v)
 
-            return unique_ids, nested
+            return tuple(unique_ids), nested
 
         def _do_layout(gs, layout, unique_ids, nested):
             """
@@ -1810,7 +1818,7 @@ default: %(va)s
             gs : GridSpec
             layout : 2D object array
                 The input converted to a 2D numpy array for this level.
-            unique_ids : set
+            unique_ids : tuple
                 The identified scalar labels at this level of nesting.
             nested : dict[tuple[int, int]], 2D object array
                 The identified nested layouts, if any.
@@ -1823,38 +1831,74 @@ default: %(va)s
             rows, cols = layout.shape
             output = dict()
 
-            # create the Axes at this level of nesting
+            # we need to merge together the Axes at this level and the axes
+            # in the (recursively) nested sub-layouts so that we can add
+            # them to the figure in the "natural" order if you were to
+            # ravel in c-order all of the Axes that will be created
+            #
+            # This will stash the upper left index of each object (axes or
+            # nested layout) at this level
+            this_level = dict()
+
+            # go through the unique keys,
             for name in unique_ids:
+                # sort out where each axes starts/ends
                 indx = np.argwhere(layout == name)
                 start_row, start_col = np.min(indx, axis=0)
                 end_row, end_col = np.max(indx, axis=0) + 1
+                # and construct the slice object
                 slc = (slice(start_row, end_row), slice(start_col, end_col))
-
+                # some light error checking
                 if (layout[slc] != name).any():
                     raise ValueError(
                         f"While trying to layout\n{layout!r}\n"
                         f"we found that the label {name!r} specifies a "
                         "non-rectangular or non-contiguous area.")
+                # and stash this slice for later
+                this_level[(start_row, start_col)] = (name, slc, 'axes')
 
-                ax = self.add_subplot(
-                    gs[slc], **{'label': str(name), **subplot_kw}
-                )
-                output[name] = ax
-
-            # do any sub-layouts
+            # do the same thing for the nested layouts (simpler because these
+            # can not be spans yet!)
             for (j, k), nested_layout in nested.items():
-                rows, cols = nested_layout.shape
-                nested_output = _do_layout(
-                    gs[j, k].subgridspec(rows, cols, **gridspec_kw),
-                    nested_layout,
-                    *_identify_keys_and_nested(nested_layout)
-                )
-                overlap = set(output) & set(nested_output)
-                if overlap:
-                    raise ValueError(f"There are duplicate keys {overlap} "
-                                     f"between the outer layout\n{layout!r}\n"
-                                     f"and the nested layout\n{nested_layout}")
-                output.update(nested_output)
+                this_level[(j, k)] = (None, nested_layout, 'nested')
+
+            # now go through the things in this level and add them
+            # in order left-to-right top-to-bottom
+            for key in sorted(this_level):
+                name, arg, method = this_level[key]
+                # we are doing some hokey function dispatch here based
+                # on the 'method' string stashed above to sort out if this
+                # element is an axes or a nested layout.
+                if method == 'axes':
+                    slc = arg
+                    # add a single axes
+                    if name in output:
+                        raise ValueError(f"There are duplicate keys {name} "
+                                         f"in the layout\n{layout!r}")
+                    ax = self.add_subplot(
+                        gs[slc], **{'label': str(name), **subplot_kw}
+                    )
+                    output[name] = ax
+                elif method == 'nested':
+                    nested_layout = arg
+                    j, k = key
+                    # recursively add the nested layout
+                    rows, cols = nested_layout.shape
+                    nested_output = _do_layout(
+                        gs[j, k].subgridspec(rows, cols, **gridspec_kw),
+                        nested_layout,
+                        *_identify_keys_and_nested(nested_layout)
+                    )
+                    overlap = set(output) & set(nested_output)
+                    if overlap:
+                        raise ValueError(
+                            f"There are duplicate keys {overlap} "
+                            f"between the outer layout\n{layout!r}\n"
+                            f"and the nested layout\n{nested_layout}"
+                        )
+                    output.update(nested_output)
+                else:
+                    raise RuntimeError("This should never happen")
             return output
 
         layout = _make_array(layout)
@@ -1967,42 +2011,23 @@ class SubFigure(FigureBase):
             If not None, then the bbox is used for relative bounding box.
             Otherwise it is calculated from the subplotspec.
         """
-
         if bbox is not None:
             self.bbox_relative.p0 = bbox.p0
             self.bbox_relative.p1 = bbox.p1
             return
-
-        gs = self._subplotspec.get_gridspec()
         # need to figure out *where* this subplotspec is.
-        wr = gs.get_width_ratios()
-        hr = gs.get_height_ratios()
-        nrows, ncols = gs.get_geometry()
-        if wr is None:
-            wr = np.ones(ncols)
-        else:
-            wr = np.array(wr)
-        if hr is None:
-            hr = np.ones(nrows)
-        else:
-            hr = np.array(hr)
-        widthf = np.sum(wr[self._subplotspec.colspan]) / np.sum(wr)
-        heightf = np.sum(hr[self._subplotspec.rowspan]) / np.sum(hr)
-
-        x0 = 0
-        if not self._subplotspec.is_first_col():
-            x0 += np.sum(wr[self._subplotspec.colspan.start - 1]) / np.sum(wr)
-
-        y0 = 0
-        if not self._subplotspec.is_last_row():
-            y0 += 1 - (np.sum(hr[self._subplotspec.rowspan.stop - 1]) /
-                       np.sum(hr))
-
+        gs = self._subplotspec.get_gridspec()
+        wr = np.asarray(gs.get_width_ratios())
+        hr = np.asarray(gs.get_height_ratios())
+        dx = wr[self._subplotspec.colspan].sum() / wr.sum()
+        dy = hr[self._subplotspec.rowspan].sum() / hr.sum()
+        x0 = wr[:self._subplotspec.colspan.start].sum() / wr.sum()
+        y0 = 1 - hr[:self._subplotspec.rowspan.stop].sum() / hr.sum()
         if self.bbox_relative is None:
-            self.bbox_relative = Bbox.from_bounds(x0, y0, widthf, heightf)
+            self.bbox_relative = Bbox.from_bounds(x0, y0, dx, dy)
         else:
             self.bbox_relative.p0 = (x0, y0)
-            self.bbox_relative.p1 = (x0 + widthf, y0 + heightf)
+            self.bbox_relative.p1 = (x0 + dx, y0 + dy)
 
     def get_constrained_layout(self):
         """
@@ -2734,6 +2759,15 @@ class Figure(FigureBase):
 
         self.canvas.draw_event(renderer)
 
+    def draw_no_output(self):
+        """
+        Draw the figure with no output.  Useful to get the final size of
+        artists that require a draw before their size is known (e.g. text).
+        """
+        renderer = _get_renderer(self)
+        with renderer._draw_disabled():
+            self.draw(renderer)
+
     def draw_artist(self, a):
         """
         Draw `.Artist` *a* only.
@@ -2758,7 +2792,7 @@ class Figure(FigureBase):
         state["_cachedRenderer"] = None
 
         # add version information to the state
-        state['__mpl_version__'] = _mpl_version
+        state['__mpl_version__'] = mpl.__version__
 
         # check whether the figure manager (if any) is registered with pyplot
         from matplotlib import _pylab_helpers
@@ -2776,7 +2810,7 @@ class Figure(FigureBase):
         version = state.pop('__mpl_version__')
         restore_to_pylab = state.pop('_restore_to_pylab', False)
 
-        if version != _mpl_version:
+        if version != mpl.__version__:
             _api.warn_external(
                 f"This figure was saved with matplotlib version {version} and "
                 f"is unlikely to function correctly.")
@@ -2841,31 +2875,6 @@ class Figure(FigureBase):
         dpi : float or 'figure', default: :rc:`savefig.dpi`
             The resolution in dots per inch.  If 'figure', use the figure's
             dpi value.
-
-        quality : int, default: :rc:`savefig.jpeg_quality`
-            Applicable only if *format* is 'jpg' or 'jpeg', ignored otherwise.
-
-            The image quality, on a scale from 1 (worst) to 95 (best).
-            Values above 95 should be avoided; 100 disables portions of
-            the JPEG compression algorithm, and results in large files
-            with hardly any gain in image quality.
-
-            This parameter is deprecated.
-
-        optimize : bool, default: False
-            Applicable only if *format* is 'jpg' or 'jpeg', ignored otherwise.
-
-            Whether the encoder should make an extra pass over the image
-            in order to select optimal encoder settings.
-
-            This parameter is deprecated.
-
-        progressive : bool, default: False
-            Applicable only if *format* is 'jpg' or 'jpeg', ignored otherwise.
-
-            Whether the image should be stored as a progressive JPEG file.
-
-            This parameter is deprecated.
 
         facecolor : color or 'auto', default: :rc:`savefig.facecolor`
             The facecolor of the figure.  If 'auto', use the current figure
@@ -3035,7 +3044,6 @@ class Figure(FigureBase):
         """
 
         from matplotlib._constrained_layout import do_constrained_layout
-        from matplotlib.tight_layout import get_renderer
 
         _log.debug('Executing constrainedlayout')
         if self._layoutgrid is None:
@@ -3053,7 +3061,7 @@ class Figure(FigureBase):
         w_pad = w_pad / width
         h_pad = h_pad / height
         if renderer is None:
-            renderer = get_renderer(fig)
+            renderer = _get_renderer(fig)
         do_constrained_layout(fig, renderer, h_pad, w_pad, hspace, wspace)
 
     def tight_layout(self, *, pad=1.08, h_pad=None, w_pad=None, rect=None):
@@ -3083,7 +3091,7 @@ class Figure(FigureBase):
         """
 
         from .tight_layout import (
-            get_renderer, get_subplotspec_list, get_tight_layout_figure)
+            get_subplotspec_list, get_tight_layout_figure)
         from contextlib import suppress
         subplotspec_list = get_subplotspec_list(self.axes)
         if None in subplotspec_list:
@@ -3091,7 +3099,7 @@ class Figure(FigureBase):
                                "compatible with tight_layout, so results "
                                "might be incorrect.")
 
-        renderer = get_renderer(self)
+        renderer = _get_renderer(self)
         ctx = (renderer._draw_disabled()
                if hasattr(renderer, '_draw_disabled')
                else suppress())

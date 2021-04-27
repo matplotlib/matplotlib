@@ -1027,23 +1027,10 @@ class FontManager:
         self.__default_weight = weight
         self.default_size = size
 
+        # Create list of font paths.
         paths = [cbook._get_data_path('fonts', subdir)
                  for subdir in ['ttf', 'afm', 'pdfcorefonts']]
-        #  Create list of font paths
-        for pathname in ['TTFPATH', 'AFMPATH']:
-            if pathname in os.environ:
-                ttfpath = os.environ[pathname]
-                if ttfpath.find(';') >= 0:  # win32 style
-                    paths.extend(ttfpath.split(';'))
-                elif ttfpath.find(':') >= 0:  # unix style
-                    paths.extend(ttfpath.split(':'))
-                else:
-                    paths.append(ttfpath)
-                _api.warn_deprecated(
-                    "3.3", name=pathname, obj_type="environment variable",
-                    alternative="FontManager.addfont()")
         _log.debug('font search path %s', str(paths))
-        #  Load TrueType fonts and create font dictionary.
 
         self.defaultFamily = {
             'ttf': 'DejaVu Sans',

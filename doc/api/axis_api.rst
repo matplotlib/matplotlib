@@ -266,8 +266,6 @@ specify a matching series of labels.  Calling ``set_ticks`` makes a
    :template: autosummary.rst
    :nosignatures:
 
-
-   Tick.apply_tickdir
    Tick.get_loc
    Tick.get_pad
    Tick.get_pad_pixels

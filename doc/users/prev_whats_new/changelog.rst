@@ -2267,7 +2267,7 @@ the `API changes <../../api/api_changes.html>`_.
 
            Much of the drawing has been refactored in terms of
            compound paths.  Therefore, many methods have been removed
-           from the backend interface and replaced with a a handful to
+           from the backend interface and replaced with a handful to
            draw compound paths.  This will make updating the backends
            easier, since there is less to update.  It also should make
            the backends more consistent in terms of functionality.

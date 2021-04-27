@@ -3,7 +3,7 @@ Redirecting old docs to new location
 ====================================
 
 If an rst file is moved or its content subsumed in a different file, it
-is desireable to redirect the old file to the new or existing file. This
+is desirable to redirect the old file to the new or existing file. This
 extension enables this with a simple html refresh.
 
 For example suppose ``doc/topic/old-page.rst`` is removed and its content
@@ -65,8 +65,7 @@ class RedirectFrom(Directive):
             raise ValueError(
                 f"{redirected_reldoc} is already noted as redirecting to "
                 f"{self.redirects[redirected_reldoc]}")
-        self.redirects[redirected_reldoc] = builder.get_relative_uri(
-            redirected_reldoc, current_doc)
+        self.redirects[redirected_reldoc] = current_doc
         return []
 
 
@@ -76,12 +75,13 @@ def _generate_redirects(app, exception):
         return
     for k, v in RedirectFrom.redirects.items():
         p = Path(app.outdir, k + builder.out_suffix)
+        html = HTML_TEMPLATE.format(v=builder.get_relative_uri(k, v))
         if p.is_file():
-            logger.warning(f'A redirect-from directive is trying to create '
-                           f'{p}, but that file already exists (perhaps '
-                           f'you need to run "make clean")')
+            if p.read_text() != html:
+                logger.warning(f'A redirect-from directive is trying to '
+                               f'create {p}, but that file already exists '
+                               f'(perhaps you need to run "make clean")')
         else:
+            logger.info(f'making refresh html file: {k} redirect to {v}')
             p.parent.mkdir(parents=True, exist_ok=True)
-            with p.open("x") as file:
-                logger.info(f'making refresh html file: {k} redirect to {v}')
-                file.write(HTML_TEMPLATE.format(v=v))
+            p.write_text(html)

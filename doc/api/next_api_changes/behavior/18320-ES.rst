@@ -1,6 +1,0 @@
-``Colorbar`` outline is now a ``Spine``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The outline of `~matplotlib.colorbar.Colorbar` is now a `.Spine` and drawn as
-one, instead of a `.Polygon` drawn as an artist. This ensures it will always
-be drawn after all artists, consistent with Spines on normal Axes.

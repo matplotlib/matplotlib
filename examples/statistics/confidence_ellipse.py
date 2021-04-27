@@ -217,13 +217,10 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions and methods is shown in this example:
-
-import matplotlib
-matplotlib.transforms.Affine2D
-matplotlib.patches.Ellipse
+#    - `matplotlib.transforms.Affine2D`
+#    - `matplotlib.patches.Ellipse`

@@ -15,7 +15,6 @@ import sys
 import tarfile
 import textwrap
 import urllib.request
-import versioneer
 
 _log = logging.getLogger(__name__)
 
@@ -357,9 +356,6 @@ def _pkg_data_helper(pkg, subdir):
 
 class Matplotlib(SetupPackage):
     name = "matplotlib"
-
-    def check(self):
-        return versioneer.get_version()
 
     def get_package_data(self):
         return {

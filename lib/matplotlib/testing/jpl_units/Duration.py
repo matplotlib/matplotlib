@@ -1,5 +1,6 @@
 """Duration module."""
 
+import functools
 import operator
 
 from matplotlib import _api
@@ -44,37 +45,19 @@ class Duration:
     def __bool__(self):
         return self._seconds != 0
 
-    def __eq__(self, rhs):
-        return self._cmp(rhs, operator.eq)
-
-    def __ne__(self, rhs):
-        return self._cmp(rhs, operator.ne)
-
-    def __lt__(self, rhs):
-        return self._cmp(rhs, operator.lt)
-
-    def __le__(self, rhs):
-        return self._cmp(rhs, operator.le)
-
-    def __gt__(self, rhs):
-        return self._cmp(rhs, operator.gt)
-
-    def __ge__(self, rhs):
-        return self._cmp(rhs, operator.ge)
-
-    def _cmp(self, rhs, op):
+    def _cmp(self, op, rhs):
         """
-        Compare two Durations.
-
-        = INPUT VARIABLES
-        - rhs     The Duration to compare against.
-        - op      The function to do the comparison
-
-        = RETURN VALUE
-        - Returns op(self, rhs)
+        Check that *self* and *rhs* share frames; compare them using *op*.
         """
         self.checkSameFrame(rhs, "compare")
         return op(self._seconds, rhs._seconds)
+
+    __eq__ = functools.partialmethod(_cmp, operator.eq)
+    __ne__ = functools.partialmethod(_cmp, operator.ne)
+    __lt__ = functools.partialmethod(_cmp, operator.lt)
+    __le__ = functools.partialmethod(_cmp, operator.le)
+    __gt__ = functools.partialmethod(_cmp, operator.gt)
+    __ge__ = functools.partialmethod(_cmp, operator.ge)
 
     def __add__(self, rhs):
         """
@@ -126,17 +109,7 @@ class Duration:
         """
         return Duration(self._frame, self._seconds * float(rhs))
 
-    def __rmul__(self, lhs):
-        """
-        Scale a Duration by a value.
-
-        = INPUT VARIABLES
-        - lhs     The scalar to multiply by.
-
-        = RETURN VALUE
-        - Returns the scaled Duration.
-        """
-        return Duration(self._frame, self._seconds * float(lhs))
+    __rmul__ = __mul__
 
     def __str__(self):
         """Print the Duration."""
