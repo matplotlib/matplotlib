@@ -106,8 +106,9 @@ class AnnotatedCursor(Cursor):
         self.lastdrawnplotpoint = None
 
     def onmove(self, event):
-        """Overridden draw callback for cursor. \
-        Called when moving the mouse."""
+        """
+        Overridden draw callback for cursor. Called when moving the mouse.
+        """
 
         # Leave method under the same conditions as in overridden method
         if self.ignore(event):
