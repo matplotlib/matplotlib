@@ -156,7 +156,7 @@ class AnnotatedCursor(Cursor):
         # Check if the display of text is still necessary.
         # If not, just return.
         # This behaviour is also cloned from the base class.
-        if (not self.get_active()) or (not self.visible):
+        if not self.get_active() or not self.visible:
             return
 
         # Draw the widget, if event coordinates are valid
