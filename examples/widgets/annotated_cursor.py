@@ -160,8 +160,7 @@ class AnnotatedCursor(Cursor):
         if not self.get_active() or not self.visible:
             return
 
-        # Draw the widget, if event coordinates are valid
-        # If plotpoint is valid (not None)
+        # Draw the widget, if event coordinates are valid.
         if plotpoint is not None:
             # Update position and displayed text.
             # Position: Where the event occured.
