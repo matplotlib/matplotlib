@@ -218,7 +218,8 @@ class AnnotatedCursor(Cursor):
 
         Returns
         -------
-        ret : {2D array-like, None} The coordinates which should be displayed.
+        ret : {2D array-like, None}
+            The coordinates which should be displayed.
             *None* is the fallback value.
         """
 
