@@ -169,17 +169,6 @@ Units
    Axis.update_units
 
 
-Incremental navigation
-----------------------
-
-.. autosummary::
-   :toctree: _as_gen
-   :template: autosummary.rst
-   :nosignatures:
-
-   Axis.pan
-   Axis.zoom
-
 XAxis Specific
 --------------
 
