@@ -1953,6 +1953,10 @@ class SpanSelector(_SelectorWidget):
     button : `.MouseButton` or list of `.MouseButton`
         The mouse buttons which activate the span selector.
 
+    drag_from_anywhere : bool, optional
+        If `True`, the widget can be moved by clicking anywhere within
+        its bounds.
+
     Examples
     --------
     >>> import matplotlib.pyplot as plt
@@ -1972,7 +1976,7 @@ class SpanSelector(_SelectorWidget):
     def __init__(self, ax, onselect, direction, minspan=None, useblit=False,
                  rectprops=None, maxdist=10, marker_props=None,
                  onmove_callback=None, span_stays=False, interactive=False,
-                 button=None):
+                 button=None, drag_from_anywhere=False):
 
         super().__init__(ax, onselect, useblit=useblit, button=button)
 
@@ -1998,6 +2002,7 @@ class SpanSelector(_SelectorWidget):
         if span_stays:
             interactive = True
         self.interactive = interactive
+        self.drag_from_anywhere = drag_from_anywhere
 
         # Needed when dragging out of axes
         self.prev = (0, 0)
@@ -2115,6 +2120,8 @@ class SpanSelector(_SelectorWidget):
 
         vmin, vmax = self._extents_on_press
         # move existing span
+        # When "dragging from anywhere", the `self.active_handle` is set to 'C'
+        # in _set_active_handle
         if self.active_handle == 'C' and self._extents_on_press is not None:
             if self.direction == 'horizontal':
                 dv = event.xdata - self.eventpress.xdata
@@ -2191,13 +2198,23 @@ class SpanSelector(_SelectorWidget):
         elif e_dist > self.maxdist:
             # Not close to any handles
             self.active_handle = None
-            return
+            if self.drag_from_anywhere and self._contains(event):
+                # Check if we've clicked inside the region
+                self.active_handle = 'C'
+                self._extents_on_press = self.extents
+            else:
+                self.active_handle = None
+                return
         else:
             # Closest to an edge handle
             self.active_handle = self._edge_order[e_idx]
 
         # Save coordinates of rectangle at the start of handle movement.
         self._extents_on_press = self.extents
+
+    def _contains(self, event):
+        """Return True if event is within the patch."""
+        return self.rect.contains(event, radius=0)[0]
 
     @property
     def vmin(self):
