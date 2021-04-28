@@ -1,7 +1,7 @@
 from itertools import product
 import platform
 
-import matplotlib
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import cbook
 from matplotlib.backend_bases import MouseEvent
@@ -56,9 +56,8 @@ def test_divider_append_axes():
 @image_comparison(['twin_axes_empty_and_removed'], extensions=["png"], tol=1)
 def test_twin_axes_empty_and_removed():
     # Purely cosmetic font changes (avoid overlap)
-    matplotlib.rcParams.update({"font.size": 8})
-    matplotlib.rcParams.update({"xtick.labelsize": 8})
-    matplotlib.rcParams.update({"ytick.labelsize": 8})
+    mpl.rcParams.update(
+        {"font.size": 8, "xtick.labelsize": 8, "ytick.labelsize": 8})
     generators = ["twinx", "twiny", "twin"]
     modifiers = ["", "host invisible", "twin removed", "twin invisible",
                  "twin removed\nhost invisible"]
@@ -348,7 +347,8 @@ def test_anchored_direction_arrows_many_args():
 def test_axes_locatable_position():
     fig, ax = plt.subplots()
     divider = make_axes_locatable(ax)
-    cax = divider.append_axes('right', size='5%', pad='2%')
+    with mpl.rc_context({"figure.subplot.wspace": 0.02}):
+        cax = divider.append_axes('right', size='5%')
     fig.canvas.draw()
     assert np.isclose(cax.get_position(original=False).width,
                       0.03621495327102808)
