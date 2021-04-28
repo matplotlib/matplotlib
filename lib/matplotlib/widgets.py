@@ -2012,10 +2012,7 @@ class SpanSelector(_SelectorWidget):
         self.new_axes(ax)
 
         # Setup handles
-        if rectprops is None:
-            props = dict(markeredgecolor='r')
-        else:
-            props = dict(markeredgecolor=rectprops.get('edgecolor', 'r'))
+        props = dict(color=rectprops.get('facecolor', 'r'))
         props.update(cbook.normalize_kwargs(marker_props, Line2D._alias_map))
 
         self._edge_order = ['min', 'max']
@@ -2261,19 +2258,12 @@ class ToolLineHandles:
     def __init__(self, ax, positions, direction, marker_props=None,
                  useblit=True):
         self.ax = ax
-        props = {'linestyle': 'none', 'alpha': 1, 'visible': False,
-                 'label': '_nolegend_',
-                 **cbook.normalize_kwargs(marker_props, Line2D._alias_map)}
         self._markers = []
         self.direction = direction
+        marker_props.update({'visible':False})
 
-        for p in positions:
-            if self.direction == 'horizontal':
-                l = ax.axvline(p)
-            else:
-                l = ax.axhline(p)
-            l.set_visible(False)
-            self._markers.append(l)
+        line_func = ax.axvline if self.direction == 'horizontal' else ax.axhline
+        self._markers = [line_func(p, **marker_props) for p in positions]
 
         self.artists = self._markers
 
