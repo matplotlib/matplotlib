@@ -1974,7 +1974,7 @@ class SpanSelector(_SelectorWidget):
     See also: :doc:`/gallery/widgets/span_selector`
     """
 
-    def __init__(self, ax, onselect, direction, minspan=None, useblit=False,
+    def __init__(self, ax, onselect, direction, minspan=0, useblit=False,
                  rectprops=None, maxdist=10, marker_props=None,
                  onmove_callback=None, span_stays=False, interactive=False,
                  button=None, drag_from_anywhere=False):
@@ -2051,10 +2051,6 @@ class SpanSelector(_SelectorWidget):
         self.ax.add_patch(self.rect)
         self.artists = [self.rect]
 
-    def ignore(self, event):
-        # docstring inherited
-        return super().ignore(event) or not self.visible
-
     def _press(self, event):
         """Button press event handler."""
         if self.interactive and self.rect.get_visible():
@@ -2097,8 +2093,11 @@ class SpanSelector(_SelectorWidget):
         if vmin > vmax:
             vmin, vmax = vmax, vmin
         span = vmax - vmin
-        if self.minspan is not None and span < self.minspan:
+        if self.minspan is not None and span <= self.minspan:
+            self.set_visible(False)
+            self.update()
             return
+
         self.onselect(vmin, vmax)
         self.update()
 
@@ -2113,7 +2112,7 @@ class SpanSelector(_SelectorWidget):
         vmin, vmax = self._extents_on_press
         # move existing span
         # When "dragging from anywhere", the `self.active_handle` is set to 'C'
-        # in _set_active_handle
+        # in _set_active_handle (match notation used in the RectangleSelector)
         if self.active_handle == 'C' and self._extents_on_press is not None:
             if self.direction == 'horizontal':
                 dv = event.xdata - self.eventpress.xdata
@@ -2124,10 +2123,7 @@ class SpanSelector(_SelectorWidget):
 
         # resize an existing shape
         elif self.active_handle and self.active_handle != 'C':
-            if self.direction == 'horizontal':
-                v = event.xdata
-            else:
-                v = event.ydata
+            v = event.xdata if self.direction == 'horizontal' else event.ydata
             if self.active_handle == 'min':
                 vmin = v
             else:
@@ -2149,7 +2145,6 @@ class SpanSelector(_SelectorWidget):
             self.onmove_callback(vmin, vmax)
 
         self.extents = vmin, vmax
-        self.update()
 
         return False
 
@@ -2160,10 +2155,7 @@ class SpanSelector(_SelectorWidget):
             return
 
         self.prev = x, y
-        if self.direction == 'horizontal':
-            v = x
-        else:
-            v = y
+        v = x if self.direction == 'horizontal' else y
 
         values = v, self.pressv
         self.draw_shape(*values)
@@ -2184,6 +2176,7 @@ class SpanSelector(_SelectorWidget):
         e_idx, e_dist = self._edge_handles.closest(event.x, event.y)
 
         # Prioritise center handle over other handles
+        # Use 'C' to match the notation used in the RectangleSelector
         if 'move' in self.state:
             self.active_handle = 'C'
         elif e_dist > self.maxdist:
@@ -2236,7 +2229,6 @@ class SpanSelector(_SelectorWidget):
         self.draw_shape(*extents)
         # Update displayed handles
         self._edge_handles.set_data(self.extents)
-        self.set_visible(self.visible)
         self.update()
 
 
@@ -2261,7 +2253,7 @@ class ToolLineHandles:
         self.ax = ax
         self._markers = []
         self.direction = direction
-        marker_props.update({'visible':False})
+        marker_props.update({'visible':False, 'animated':useblit})
 
         line_func = ax.axvline if self.direction == 'horizontal' else ax.axhline
         self._markers = [line_func(p, **marker_props) for p in positions]
