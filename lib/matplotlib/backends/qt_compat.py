@@ -115,7 +115,7 @@ def _setup_pyqt4():
             for _sip_api in _sip_apis:
                 try:
                     sip.setapi(_sip_api, api)
-                except ValueError:
+                except (AttributeError, ValueError):
                     pass
         from PyQt4 import QtCore, QtGui
         import sip  # Always succeeds *after* importing PyQt4.
