@@ -176,7 +176,8 @@ class Text(Artist):
         kwargs = dict(kwargs)
         sentinel = object()  # bbox can be None, so use another sentinel.
         # Update fontproperties first, as it has lowest priority.
-        for alias in ["fontproperties", "font", "font_properties"]:
+        alias_map=["fontproperties"]+self._alias_map["fontproperties"]
+        for alias in alias_map:
             fontproperties = kwargs.pop(alias, sentinel)
             if fontproperties is not sentinel:
                 self.set_fontproperties(fontproperties)
