@@ -15,11 +15,16 @@ Plot 2 doesn't use context either; has length 6:
 
     plt.plot(range(6))
 
-Plot 3 has length 4:
+Plot 3 has length 4, and uses doctest syntax:
 
 .. plot::
+    :format: doctest
 
-    plt.plot(range(4))
+    This is a doctest...
+
+    >>> plt.plot(range(4))
+
+    ... isn't it?
 
 Plot 4 shows that a new block with context does not see the variable defined
 in the no-context block:

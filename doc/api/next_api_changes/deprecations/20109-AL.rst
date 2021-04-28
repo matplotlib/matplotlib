@@ -1,0 +1,5 @@
+``plot_directive`` internals deprecations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The following helpers in `matplotlib.sphinxext.plot_directive` are deprecated:
+``unescape_doctest`` (use `doctest.script_from_examples` instead),
+``split_code_at_show``, ``run_code``.
