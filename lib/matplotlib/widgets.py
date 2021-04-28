@@ -1945,6 +1945,7 @@ class SpanSelector(_SelectorWidget):
 
     span_stays : bool, default: False
         If True, the span stays visible after the mouse is released.
+        Deprecated, use interactive instead.
 
     interactive : bool, default: False
         Whether to draw a set of handles that allow interaction with the
