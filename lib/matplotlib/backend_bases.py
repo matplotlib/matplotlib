@@ -3136,7 +3136,7 @@ class NavigationToolbar2:
             'motion_notify_event', self.mouse_move)
         for ax in self._pan_info.axes:
             ax.end_pan()
-        self._draw()
+        self.canvas.draw_idle()
         self._pan_info = None
         self.push_current()
 
@@ -3198,7 +3198,7 @@ class NavigationToolbar2:
         # "cancel" a zoom action by zooming by less than 5 pixels.
         if ((abs(event.x - start_x) < 5 and event.key != "y")
                 or (abs(event.y - start_y) < 5 and event.key != "x")):
-            self._draw()
+            self.canvas.draw_idle()
             self._zoom_info = None
             return
 
@@ -3213,7 +3213,7 @@ class NavigationToolbar2:
                 (start_x, start_y, event.x, event.y),
                 self._zoom_info.direction, event.key, twinx, twiny)
 
-        self._draw()
+        self.canvas.draw_idle()
         self._zoom_info = None
         self.push_current()
 
@@ -3227,27 +3227,6 @@ class NavigationToolbar2:
                        ax.get_position().frozen()))
                  for ax in self.canvas.figure.axes}))
         self.set_history_buttons()
-
-    # Can be removed once Locator.refresh() is removed, and replaced by an
-    # inline call to self.canvas.draw_idle().
-    def _draw(self):
-        for a in self.canvas.figure.get_axes():
-            xaxis = getattr(a, 'xaxis', None)
-            yaxis = getattr(a, 'yaxis', None)
-            locators = []
-            if xaxis is not None:
-                locators.append(xaxis.get_major_locator())
-                locators.append(xaxis.get_minor_locator())
-            if yaxis is not None:
-                locators.append(yaxis.get_major_locator())
-                locators.append(yaxis.get_minor_locator())
-
-            for loc in locators:
-                mpl.ticker._if_refresh_overridden_call_and_emit_deprec(loc)
-        self.canvas.draw_idle()
-
-    draw = _api.deprecate_privatize_attribute(
-        "3.3", alternative="toolbar.canvas.draw_idle()")
 
     def _update_view(self):
         """
