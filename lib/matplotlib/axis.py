@@ -1867,16 +1867,6 @@ class Axis(martist.Artist):
         """
         raise NotImplementedError('Derived must override')
 
-    @_api.deprecated("3.3")
-    def pan(self, numsteps):
-        """Pan by *numsteps* (can be positive or negative)."""
-        self.major.locator.pan(numsteps)
-
-    @_api.deprecated("3.3")
-    def zoom(self, direction):
-        """Zoom in/out on axis; if *direction* is >0 zoom in, else zoom out."""
-        self.major.locator.zoom(direction)
-
     def axis_date(self, tz=None):
         """
         Set up axis ticks and labels to treat data along this Axis as dates.
