@@ -12,6 +12,8 @@ is expected to abide by our
 The project is hosted on
 https://github.com/matplotlib/matplotlib
 
+.. _contributor-incubator:
+
 Contributor Incubator
 =====================
 

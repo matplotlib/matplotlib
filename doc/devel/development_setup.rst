@@ -4,6 +4,59 @@
 Setting up Matplotlib for development
 =====================================
 
+.. note::
+
+    Setting up everything correctly and working with git can be challenging for
+    new contributors. If you have difficulties, feel free to ask for help. We
+    have a dedicated :ref:`contributor-incubator` channel on gitter for
+    onboarding new contributors.
+
+Setting up git and retrieving the latest version of the code
+============================================================
+
+Matplotlib is hosted on `GitHub <https://github.com/matplotlib/matplotlib>`_.
+To contribute you will need to sign up for a `free GitHub account
+<https://github.com/signup/free>`_.
+
+GitHub uses Git for version control, which allows many people to work together
+on the project. See the following links for more information:
+
+- `GitHub help pages <https://help.github.com/>`_
+- `NumPy documentation <https://numpy.org/doc/stable/dev/index.html>`_
+- `pandas documentation <https://pandas.pydata.org/docs/development/contributing.html#working-with-the-code>`_
+
+Forking
+-------
+Go to https://github.com/matplotlib/matplotlib and click the ``Fork`` button in
+the top right corner to create your `own copy of the project <https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/about-forks>`_.
+
+Now clone your fork to your machine (`GitHub help: cloning <https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository>`_):
+
+.. code-block:: bash
+
+    git clone https://github.com/your-user-name/matplotlib.git
+
+This creates a directory :file:`matplotlib` under your current working
+directory with the Matplotlib source code. Change into it:
+
+.. code-block:: bash
+
+    cd matplotlib
+
+and connect to the official Matplotlib repository under the remote name
+``upstream`` (`GitHub help: add remote <https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/configuring-a-remote-for-a-fork>`_):
+
+.. code-block::
+
+    git remote add upstream https://github.com/matplotlib/matplotlib.git
+
+Instead of cloning using the ``https://`` protocol, you can use the ssh
+protocol (``git clone git@github.com:your-user-name/matplotlib.git``). This
+needs `additional configuration`_ but lets you connect to GitHub without
+having to enter your username and password.
+
+.. _additional configuration: https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh
+
 .. _dev-environment:
 
 Creating a dedicated environment
@@ -27,23 +80,6 @@ and activated with one of the following::
 
 Whenever you plan to work on Matplotlib, remember to activate the development
 environment in your shell.
-
-Retrieving the latest version of the code
-=========================================
-
-Matplotlib is hosted at https://github.com/matplotlib/matplotlib.git.
-
-You can retrieve the latest sources with the command (see
-:ref:`set-up-fork` for more details)::
-
-    git clone https://github.com/matplotlib/matplotlib.git
-
-This will place the sources in a directory :file:`matplotlib` below your
-current working directory.
-
-If you have the proper privileges, you can use ``git@`` instead of
-``https://``, which works through the ssh protocol and might be easier to use
-if you are using 2-factor authentication.
 
 Installing Matplotlib in editable mode
 ======================================
