@@ -2019,21 +2019,15 @@ class SpanSelector(_SelectorWidget):
         props.update(cbook.normalize_kwargs(marker_props, Line2D._alias_map))
 
         self._edge_order = ['min', 'max']
-        xe, ye = self.edge_centers
-        self._edge_handles = ToolHandles(self.ax, xe, ye, marker='s',
-                                         marker_props=props,
-                                         useblit=self.useblit)
-
-        xc, yc = self.center
-        self._center_handle = ToolHandles(self.ax, [xc], [yc], marker='s',
-                                          marker_props=props,
-                                          useblit=self.useblit)
+        self._edge_handles = ToolLineHandles(self.ax, self.extents,
+                                             direction=direction,
+                                             marker_props=props,
+                                             useblit=self.useblit)
 
         self.active_handle = None
 
         if self.interactive:
-            self.artists.extend([self._center_handle.artist,
-                                  self._edge_handles.artist])
+            self.artists.extend([line for line in self._edge_handles.artists])
 
     def new_axes(self, ax):
         """Set SpanSelector to operate on a new Axes."""
@@ -2190,10 +2184,9 @@ class SpanSelector(_SelectorWidget):
         """Set active handle based on the location of the mouse event."""
         # Note: event.xdata/ydata in data coordinates, event.x/y in pixels
         e_idx, e_dist = self._edge_handles.closest(event.x, event.y)
-        m_idx, m_dist = self._center_handle.closest(event.x, event.y)
 
         # Prioritise center handle over other handles
-        if 'move' in self.state or m_dist < self.maxdist * 2:
+        if 'move' in self.state:
             self.active_handle = 'C'
         elif e_dist > self.maxdist:
             # Not close to any handles
@@ -2235,28 +2228,6 @@ class SpanSelector(_SelectorWidget):
         return vmax
 
     @property
-    def _mid_position_orthogonal(self):
-        if self.direction == 'horizontal':
-            axis_limits = self.ax.get_ylim()
-            # p = self.rect.get_height() / 2
-        else:
-            axis_limits = self.ax.get_ylim()
-            # p = self.rect.get_width() / 2
-        return (axis_limits[1] - axis_limits[0]) / 2
-
-    @property
-    def edge_centers(self):
-        """Midpoint of rectangle edges."""
-        p = self._mid_position_orthogonal
-        return (self.vmin, self.vmax), (p, p)
-
-    @property
-    def center(self):
-        """Center of rectangle."""
-        p = self._mid_position_orthogonal
-        return (self.vmin + (self.vmax - self.vmin) / 2, ), (p, )
-
-    @property
     def extents(self):
         """Return (vmin, vmax)."""
         return self.vmin, self.vmax
@@ -2266,10 +2237,77 @@ class SpanSelector(_SelectorWidget):
         # Update displayed shape
         self.draw_shape(*extents)
         # Update displayed handles
-        self._edge_handles.set_data(*self.edge_centers)
-        self._center_handle.set_data(*self.center)
+        self._edge_handles.set_data(self.extents)
         self.set_visible(self.visible)
         self.update()
+
+
+class ToolLineHandles:
+    """
+    Control handles for canvas tools.
+
+    Parameters
+    ----------
+    ax : `matplotlib.axes.Axes`
+        Matplotlib axes where tool handles are displayed.
+    positions : 1D array
+        Positions of control handles.
+    marker : str
+        Shape of marker used to display handle. See `matplotlib.pyplot.plot`.
+    marker_props : dict
+        Additional marker properties. See `matplotlib.lines.Line2D`.
+    """
+
+    def __init__(self, ax, positions, direction, marker_props=None,
+                 useblit=True):
+        self.ax = ax
+        props = {'linestyle': 'none', 'alpha': 1, 'visible': False,
+                 'label': '_nolegend_',
+                 **cbook.normalize_kwargs(marker_props, Line2D._alias_map)}
+        self._markers = []
+        self.direction = direction
+
+        for p in positions:
+            if self.direction == 'horizontal':
+                l = ax.axvline(p)
+            else:
+                l = ax.axhline(p)
+            l.set_visible(False)
+            self._markers.append(l)
+
+        self.artists = self._markers
+
+    @property
+    def positions(self):
+        method = 'get_xdata' if self.direction == 'horizontal' else 'get_ydata'
+        return [getattr(line, method)() for line in self._markers]
+
+    def set_data(self, positions):
+        """Set x positions of handles."""
+        method = 'set_xdata' if self.direction == 'horizontal' else 'set_ydata'
+        for line, p in zip(self._markers, positions):
+            getattr(line, method)(p)
+
+    def set_visible(self, val):
+        self._markers.set_visible(val)
+
+    def set_animated(self, val):
+        self._markers.set_animated(val)
+
+    def closest(self, x, y):
+        """Return index and pixel distance to closest handle."""
+        if self.direction == 'horizontal':
+            p_pts = np.array([
+                self.ax.transData.transform((p, 0))[0] for p in self.positions
+                ])
+            dist = abs(p_pts - x)
+        else:
+            p_pts = np.array([
+                self.ax.transData.transform((0, p))[1] for p in self.positions
+                ])
+            dist = abs(p_pts - y)
+        min_index = np.argmin(dist)
+        return min_index, dist[min_index]
 
 
 class ToolHandles:
