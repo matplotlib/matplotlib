@@ -347,7 +347,7 @@ class BboxConnectorPatch(BboxConnector):
 
 
 def _add_inset_axes(parent_axes, inset_axes):
-    """Helper function to add an inset axes and disable navigation in it"""
+    """Helper function to add an inset axes and disable navigation in it."""
     parent_axes.figure.add_axes(inset_axes)
     inset_axes.set_navigate(False)
 
@@ -355,8 +355,7 @@ def _add_inset_axes(parent_axes, inset_axes):
 @docstring.dedent_interpd
 def inset_axes(parent_axes, width, height, loc='upper right',
                bbox_to_anchor=None, bbox_transform=None,
-               axes_class=None,
-               axes_kwargs=None,
+               axes_class=None, axes_kwargs=None,
                borderpad=0.5):
     """
     Create an inset axes with a given width and height.
@@ -364,7 +363,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
     Both sizes used can be specified either in inches or percentage.
     For example,::
 
-        inset_axes(parent_axes, width='40%%', height='30%%', loc=3)
+        inset_axes(parent_axes, width='40%%', height='30%%', loc='lower left')
 
     creates in inset axes in the lower left corner of *parent_axes* which spans
     over 30%% in height and 40%% in width of the *parent_axes*. Since the usage
@@ -404,19 +403,13 @@ def inset_axes(parent_axes, width, height, loc='upper right',
         are relative to the parent_axes. Otherwise they are to be understood
         relative to the bounding box provided via *bbox_to_anchor*.
 
-    loc : int or str, default: 1
-        Location to place the inset axes. The valid locations are::
-
-            'upper right'  : 1,
-            'upper left'   : 2,
-            'lower left'   : 3,
-            'lower right'  : 4,
-            'right'        : 5,
-            'center left'  : 6,
-            'center right' : 7,
-            'lower center' : 8,
-            'upper center' : 9,
-            'center'       : 10
+    loc : str, default: 'upper right'
+        Location to place the inset axes.  Valid locations are
+        'upper left', 'upper center', 'upper right',
+        'center left', 'center', 'center right',
+        'lower left', 'lower center, 'lower right'.
+        For backward compatibility, numeric values are accepted as well.
+        See the parameter *loc* of `.Legend` for details.
 
     bbox_to_anchor : tuple or `matplotlib.transforms.BboxBase`, optional
         Bbox that the inset axes will be anchored to. If None,
@@ -441,12 +434,11 @@ def inset_axes(parent_axes, width, height, loc='upper right',
         You may provide *bbox_to_anchor* in some normalized coordinate,
         and give an appropriate transform (e.g., *parent_axes.transAxes*).
 
-    axes_class : `matplotlib.axes.Axes` type, optional
-        If specified, the inset axes created will be created with this class's
-        constructor.
+    axes_class : `matplotlib.axes.Axes` type, default: `.HostAxes`
+        The type of the newly created inset axes.
 
     axes_kwargs : dict, optional
-        Keyworded arguments to pass to the constructor of the inset axes.
+        Keyword arguments to pass to the constructor of the inset axes.
         Valid arguments include:
 
         %(Axes_kwdoc)s
@@ -464,12 +456,10 @@ def inset_axes(parent_axes, width, height, loc='upper right',
 
     if axes_class is None:
         axes_class = HostAxes
-
     if axes_kwargs is None:
-        inset_axes = axes_class(parent_axes.figure, parent_axes.get_position())
-    else:
-        inset_axes = axes_class(parent_axes.figure, parent_axes.get_position(),
-                                **axes_kwargs)
+        axes_kwargs = {}
+    inset_axes = axes_class(parent_axes.figure, parent_axes.get_position(),
+                            **axes_kwargs)
 
     if bbox_transform in [parent_axes.transAxes,
                           parent_axes.figure.transFigure]:
@@ -505,8 +495,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
 @docstring.dedent_interpd
 def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
                       bbox_to_anchor=None, bbox_transform=None,
-                      axes_class=None,
-                      axes_kwargs=None,
+                      axes_class=None, axes_kwargs=None,
                       borderpad=0.5):
     """
     Create an anchored inset axes by scaling a parent axes. For usage, also see
@@ -518,23 +507,17 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
         Axes to place the inset axes.
 
     zoom : float
-        Scaling factor of the data axes. *zoom* > 1 will enlargen the
+        Scaling factor of the data axes. *zoom* > 1 will enlarge the
         coordinates (i.e., "zoomed in"), while *zoom* < 1 will shrink the
         coordinates (i.e., "zoomed out").
 
-    loc : int or str, default: 'upper right'
-        Location to place the inset axes. The valid locations are::
-
-            'upper right'  : 1,
-            'upper left'   : 2,
-            'lower left'   : 3,
-            'lower right'  : 4,
-            'right'        : 5,
-            'center left'  : 6,
-            'center right' : 7,
-            'lower center' : 8,
-            'upper center' : 9,
-            'center'       : 10
+    loc : str, default: 'upper right'
+        Location to place the inset axes.  Valid locations are
+        'upper left', 'upper center', 'upper right',
+        'center left', 'center', 'center right',
+        'lower left', 'lower center, 'lower right'.
+        For backward compatibility, numeric values are accepted as well.
+        See the parameter *loc* of `.Legend` for details.
 
     bbox_to_anchor : tuple or `matplotlib.transforms.BboxBase`, optional
         Bbox that the inset axes will be anchored to. If None,
@@ -558,12 +541,11 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
         *bbox_to_anchor* will use *parent_axes.bbox*, the units of which are
         in display (pixel) coordinates.
 
-    axes_class : `matplotlib.axes.Axes` type, optional
-        If specified, the inset axes created will be created with this class's
-        constructor.
+    axes_class : `matplotlib.axes.Axes` type, default: `.HostAxes`
+        The type of the newly created inset axes.
 
     axes_kwargs : dict, optional
-        Keyworded arguments to pass to the constructor of the inset axes.
+        Keyword arguments to pass to the constructor of the inset axes.
         Valid arguments include:
 
         %(Axes_kwdoc)s
@@ -581,12 +563,10 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
 
     if axes_class is None:
         axes_class = HostAxes
-
     if axes_kwargs is None:
-        inset_axes = axes_class(parent_axes.figure, parent_axes.get_position())
-    else:
-        inset_axes = axes_class(parent_axes.figure, parent_axes.get_position(),
-                                **axes_kwargs)
+        axes_kwargs = {}
+    inset_axes = axes_class(parent_axes.figure, parent_axes.get_position(),
+                            **axes_kwargs)
 
     axes_locator = AnchoredZoomLocator(parent_axes, zoom=zoom, loc=loc,
                                        bbox_to_anchor=bbox_to_anchor,
