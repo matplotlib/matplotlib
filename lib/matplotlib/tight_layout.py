@@ -277,41 +277,22 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
         None if tight_layout could not be accomplished.
     """
 
-    subplot_list = []
-    nrows_list = []
-    ncols_list = []
-    ax_bbox_list = []
-
-    # Multiple axes can share same subplot_interface (e.g., axes_grid1); thus
-    # we need to join them together.
-    subplot_dict = {}
-
-    subplotspec_list2 = []
-
-    for ax, subplotspec in zip(axes_list, subplotspec_list):
-        if subplotspec is None:
-            continue
-
-        subplots = subplot_dict.setdefault(subplotspec, [])
-
-        if not subplots:
-            myrows, mycols, _, _ = subplotspec.get_geometry()
-            nrows_list.append(myrows)
-            ncols_list.append(mycols)
-            subplotspec_list2.append(subplotspec)
-            subplot_list.append(subplots)
-            ax_bbox_list.append(subplotspec.get_position(fig))
-
-        subplots.append(ax)
-
-    if len(nrows_list) == 0 or len(ncols_list) == 0:
+    # Multiple axes can share same subplotspec (e.g., if using axes_grid1);
+    # we need to group them together.
+    ss_to_subplots = {ss: [] for ss in subplotspec_list}
+    for ax, ss in zip(axes_list, subplotspec_list):
+        ss_to_subplots[ss].append(ax)
+    ss_to_subplots.pop(None, None)  # Skip subplotspec == None.
+    if not ss_to_subplots:
         return {}
+    subplot_list = list(ss_to_subplots.values())
+    ax_bbox_list = [ss.get_position(fig) for ss in ss_to_subplots]
 
-    max_nrows = max(nrows_list)
-    max_ncols = max(ncols_list)
+    max_nrows = max(ss.get_gridspec().nrows for ss in ss_to_subplots)
+    max_ncols = max(ss.get_gridspec().ncols for ss in ss_to_subplots)
 
     span_pairs = []
-    for ss in subplotspec_list2:
+    for ss in ss_to_subplots:
         rows, cols = ss.get_gridspec().get_geometry()
         div_row, mod_row = divmod(max_nrows, rows)
         div_col, mod_col = divmod(max_ncols, cols)
@@ -325,7 +306,6 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
                                'columns in subplot specifications must be '
                                'multiples of one another.')
             return {}
-
         span_pairs.append((
             slice(ss.rowspan.start * div_row, ss.rowspan.stop * div_row),
             slice(ss.colspan.start * div_col, ss.colspan.stop * div_col)))
