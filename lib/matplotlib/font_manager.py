@@ -656,6 +656,7 @@ class FontProperties:
             if (style is None and variant is None and weight is None and
                     stretch is None and size is None and fname is None):
                 self.set_fontconfig_pattern(family)
+                self.set_math_fontfamily(math_fontfamily)
                 return
 
         self.set_family(family)
