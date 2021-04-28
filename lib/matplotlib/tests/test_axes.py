@@ -1,14 +1,11 @@
 from collections import namedtuple
+from contextlib import nullcontext
 import datetime
 from decimal import Decimal
 import io
 from itertools import product
 import platform
 from types import SimpleNamespace
-try:
-    from contextlib import nullcontext
-except ImportError:
-    from contextlib import ExitStack as nullcontext  # Py3.6.
 
 import dateutil.tz
 

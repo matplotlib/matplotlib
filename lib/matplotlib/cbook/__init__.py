@@ -475,15 +475,10 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
     return fh
 
 
-@contextlib.contextmanager
 def open_file_cm(path_or_file, mode="r", encoding=None):
     r"""Pass through file objects and context-manage path-likes."""
     fh, opened = to_filehandle(path_or_file, mode, True, encoding)
-    if opened:
-        with fh:
-            yield fh
-    else:
-        yield fh
+    return fh if opened else contextlib.nullcontext(fh)
 
 
 def is_scalar_or_string(val):

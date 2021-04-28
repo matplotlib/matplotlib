@@ -26,7 +26,7 @@ graphics contexts must implement to serve as a Matplotlib backend.
 """
 
 from collections import namedtuple
-from contextlib import contextmanager, suppress
+from contextlib import contextmanager, nullcontext
 from enum import Enum, IntEnum
 import functools
 import importlib
@@ -2286,10 +2286,7 @@ class FigureCanvasBase:
                     functools.partial(
                         print_method, orientation=orientation)
                 )
-                ctx = (renderer._draw_disabled()
-                       if hasattr(renderer, '_draw_disabled')
-                       else suppress())
-                with ctx:
+                with getattr(renderer, "_draw_disabled", nullcontext)():
                     self.figure.draw(renderer)
 
             if bbox_inches:

@@ -3089,21 +3089,16 @@ class Figure(FigureBase):
         .Figure.set_tight_layout
         .pyplot.tight_layout
         """
-
+        from contextlib import nullcontext
         from .tight_layout import (
             get_subplotspec_list, get_tight_layout_figure)
-        from contextlib import suppress
         subplotspec_list = get_subplotspec_list(self.axes)
         if None in subplotspec_list:
             _api.warn_external("This figure includes Axes that are not "
                                "compatible with tight_layout, so results "
                                "might be incorrect.")
-
         renderer = _get_renderer(self)
-        ctx = (renderer._draw_disabled()
-               if hasattr(renderer, '_draw_disabled')
-               else suppress())
-        with ctx:
+        with getattr(renderer, "_draw_disabled", nullcontext)():
             kwargs = get_tight_layout_figure(
                 self, self.axes, subplotspec_list, renderer,
                 pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
