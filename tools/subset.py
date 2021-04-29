@@ -21,8 +21,10 @@
 #
 # A script for subsetting a font, using FontForge. See README for details.
 
-# TODO 2013-04-08 ensure the menu files are as compact as possible by default, similar to subset.pl
-# TODO 2013-05-22 in Arimo, the latin subset doesn't include ; but the greek does. why on earth is this happening?
+# TODO 2013-04-08 ensure the menu files are as compact as possible by default,
+# similar to subset.pl
+# TODO 2013-05-22 in Arimo, the latin subset doesn't include ; but the greek
+# does. why on earth is this happening?
 
 import getopt
 import os
@@ -35,21 +37,23 @@ import fontforge
 
 def log_namelist(nam, unicode):
     if nam and isinstance(unicode, int):
-        print("0x%0.4X" % unicode, fontforge.nameFromUnicode(unicode), file=nam)
+        print(f"0x{unicode:04X}", fontforge.nameFromUnicode(unicode), file=nam)
 
-def select_with_refs(font, unicode, newfont, pe = None, nam = None):
+
+def select_with_refs(font, unicode, newfont, pe=None, nam=None):
     newfont.selection.select(('more', 'unicode'), unicode)
     log_namelist(nam, unicode)
     if pe:
-        print("SelectMore(%d)" % unicode, file=pe)
+        print(f"SelectMore({unicode})", file=pe)
     try:
         for ref in font[unicode].references:
             newfont.selection.select(('more',), ref[0])
             log_namelist(nam, ref[0])
             if pe:
-                print('SelectMore("%s")' % ref[0], file=pe)
+                print(f'SelectMore("{ref[0]}")', file=pe)
     except Exception:
-        print('Resolving references on u+%04x failed' % unicode)
+        print(f'Resolving references on u+{unicode:04x} failed')
+
 
 def subset_font_raw(font_in, font_out, unicodes, opts):
     if '--namelist' in opts:
@@ -57,7 +61,7 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         # change getopt.gnu_getopt from namelist to namelist=
         # and invert comments on following 2 lines
         # nam_fn = opts['--namelist']
-        nam_fn = font_out + '.nam'
+        nam_fn = f'{font_out}.nam'
         nam = open(nam_fn, 'w')
     else:
         nam = None
@@ -68,7 +72,7 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         pe = None
     font = fontforge.open(font_in)
     if pe:
-        print('Open("' + font_in + '")', file=pe)
+        print(f'Open("{font_in}")', file=pe)
         extract_vert_to_script(font_in, pe)
     for i in unicodes:
         select_with_refs(font, i, font, pe, nam)
@@ -83,9 +87,10 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
     for glyph in addl_glyphs:
         font.selection.select(('more',), glyph)
         if nam:
-            print("0x%0.4X" % fontforge.unicodeFromName(glyph), glyph, file=nam)
+            print(f"0x{fontforge.unicodeFromName(glyph):0.4X}", glyph,
+                  file=nam)
         if pe:
-            print('SelectMore("%s")' % glyph, file=pe)
+            print(f'SelectMore("{glyph}")', file=pe)
 
     flags = ()
 
@@ -149,11 +154,11 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         nam.close()
 
     if pe:
-        print('Generate("' + font_out + '")', file=pe)
+        print(f'Generate("{font_out}")', file=pe)
         pe.close()
         subprocess.call(["fontforge", "-script", pe_fn])
     else:
-        font.generate(font_out, flags = flags)
+        font.generate(font_out, flags=flags)
     font.close()
 
     if '--roundtrip' in opts:
@@ -161,7 +166,8 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         # the advanceWidthMax in the hhea table, and a workaround is to open
         # and re-generate
         font2 = fontforge.open(font_out)
-        font2.generate(font_out, flags = flags)
+        font2.generate(font_out, flags=flags)
+
 
 def subset_font(font_in, font_out, unicodes, opts):
     font_out_raw = font_out
@@ -173,59 +179,70 @@ def subset_font(font_in, font_out, unicodes, opts):
 # 2011-02-14 DC this needs to only happen with --namelist is used
 #        os.rename(font_out_raw + '.nam', font_out + '.nam')
 
+
 def getsubset(subset, font_in):
     subsets = subset.split('+')
 
-    quotes  = [0x2013] # endash
-    quotes += [0x2014] # emdash
-    quotes += [0x2018] # quoteleft
-    quotes += [0x2019] # quoteright
-    quotes += [0x201A] # quotesinglbase
-    quotes += [0x201C] # quotedblleft
-    quotes += [0x201D] # quotedblright
-    quotes += [0x201E] # quotedblbase
-    quotes += [0x2022] # bullet
-    quotes += [0x2039] # guilsinglleft
-    quotes += [0x203A] # guilsinglright
+    quotes = [
+        0x2013,  # endash
+        0x2014,  # emdash
+        0x2018,  # quoteleft
+        0x2019,  # quoteright
+        0x201A,  # quotesinglbase
+        0x201C,  # quotedblleft
+        0x201D,  # quotedblright
+        0x201E,  # quotedblbase
+        0x2022,  # bullet
+        0x2039,  # guilsinglleft
+        0x203A,  # guilsinglright
+    ]
 
-    latin  = range(0x20, 0x7f) # Basic Latin (A-Z, a-z, numbers)
-    latin += range(0xa0, 0x100) # Western European symbols and diacritics
-    latin += [0x20ac] # Euro
-    latin += [0x0152] # OE
-    latin += [0x0153] # oe
-    latin += [0x003b] # semicolon
-    latin += [0x00b7] # periodcentered
-    latin += [0x0131] # dotlessi
-    latin += [0x02c6] # circumflex
-    latin += [0x02da] # ring
-    latin += [0x02dc] # tilde
-    latin += [0x2074] # foursuperior
-    latin += [0x2215] # division slash
-    latin += [0x2044] # fraction slash
-    latin += [0xe0ff] # PUA: Font logo
-    latin += [0xeffd] # PUA: Font version number
-    latin += [0xf000] # PUA: font ppem size indicator: run `ftview -f 1255 10 Ubuntu-Regular.ttf` to see it in action!
+    latin = [
+        *range(0x20, 0x7f),  # Basic Latin (A-Z, a-z, numbers)
+        *range(0xa0, 0x100),  # Western European symbols and diacritics
+        0x20ac,  # Euro
+        0x0152,  # OE
+        0x0153,  # oe
+        0x003b,  # semicolon
+        0x00b7,  # periodcentered
+        0x0131,  # dotlessi
+        0x02c6,  # circumflex
+        0x02da,  # ring
+        0x02dc,  # tilde
+        0x2074,  # foursuperior
+        0x2215,  # division slash
+        0x2044,  # fraction slash
+        0xe0ff,  # PUA: Font logo
+        0xeffd,  # PUA: Font version number
+        0xf000,  # PUA: font ppem size indicator: run
+                 # `ftview -f 1255 10 Ubuntu-Regular.ttf` to see it in action!
+    ]
 
     result = quotes
 
     if 'menu' in subset:
         font = fontforge.open(font_in)
-        result = map(ord, font.familyname)
-        result += [0x0020]
+        result = [
+            *map(ord, font.familyname),
+            0x0020,
+        ]
 
     if 'latin' in subset:
         result += latin
     if 'latin-ext' in subset:
         # These ranges include Extended A, B, C, D, and Additional with the
         # exception of Vietnamese, which is a separate range
-        result += (range(0x100, 0x370) +
-                   range(0x1d00, 0x1ea0) +
-                   range(0x1ef2, 0x1f00) +
-                   range(0x2070, 0x20d0) +
-                   range(0x2c60, 0x2c80) +
-                   range(0xa700, 0xa800))
+        result += [
+            *range(0x100, 0x370),
+            *range(0x1d00, 0x1ea0),
+            *range(0x1ef2, 0x1f00),
+            *range(0x2070, 0x20d0),
+            *range(0x2c60, 0x2c80),
+            *range(0xa700, 0xa800),
+        ]
     if 'vietnamese' in subset:
-        # 2011-07-16 DC: Charset from http://vietunicode.sourceforge.net/charset/ + U+1ef9 from Fontaine
+        # 2011-07-16 DC: Charset from
+        # http://vietunicode.sourceforge.net/charset/ + U+1ef9 from Fontaine
         result += [0x00c0, 0x00c1, 0x00c2, 0x00c3, 0x00C8, 0x00C9,
                    0x00CA, 0x00CC, 0x00CD, 0x00D2, 0x00D3, 0x00D4,
                    0x00D5, 0x00D9, 0x00DA, 0x00DD, 0x00E0, 0x00E1,
@@ -233,21 +250,26 @@ def getsubset(subset, font_in):
                    0x00ED, 0x00F2, 0x00F3, 0x00F4, 0x00F5, 0x00F9,
                    0x00FA, 0x00FD, 0x0102, 0x0103, 0x0110, 0x0111,
                    0x0128, 0x0129, 0x0168, 0x0169, 0x01A0, 0x01A1,
-                   0x01AF, 0x01B0, 0x20AB] + range(0x1EA0, 0x1EFA)
+                   0x01AF, 0x01B0, 0x20AB, *range(0x1EA0, 0x1EFA)]
     if 'greek' in subset:
-        # Could probably be more aggressive here and exclude archaic characters,
-        # but lack data
-        result += range(0x370, 0x400)
+        # Could probably be more aggressive here and exclude archaic
+        # characters, but lack data
+        result += [*range(0x370, 0x400)]
     if 'greek-ext' in subset:
-        result += range(0x370, 0x400) + range(0x1f00, 0x2000)
+        result += [*range(0x370, 0x400), *range(0x1f00, 0x2000)]
     if 'cyrillic' in subset:
         # Based on character frequency analysis
-        result += range(0x400, 0x460) + [0x490, 0x491, 0x4b0, 0x4b1, 0x2116]
+        result += [*range(0x400, 0x460), 0x490, 0x491, 0x4b0, 0x4b1, 0x2116]
     if 'cyrillic-ext' in subset:
-        result += (range(0x400, 0x530) +
-                   [0x20b4, 0x2116] + # 0x2116 is the russian No, a number abbreviation similar to the latin #, suggested by Alexei Vanyashin
-                   range(0x2de0, 0x2e00) +
-                   range(0xa640, 0xa6a0))
+        result += [
+            *range(0x400, 0x530),
+            0x20b4,
+            # 0x2116 is the russian No, a number abbreviation similar to the
+            # latin #, suggested by Alexei Vanyashin
+            0x2116,
+            *range(0x2de0, 0x2e00),
+            *range(0xa640, 0xa6a0),
+        ]
     if 'arabic' in subset:
         # Based on Droid Arabic Kufi 1.0
         result += [0x000D, 0x0020, 0x0621, 0x0627, 0x062D,
@@ -295,7 +317,8 @@ def getsubset(subset, font_in):
                    0x06C8, 0x06C9, 0x06CA, 0x06CB, 0x06CF, 0x06CE,
                    0x06D0, 0x06D1, 0x06D4, 0x06FA, 0x06DD, 0x06DE,
                    0x06E0, 0x06E9, 0x060D, 0xFD3E, 0xFD3F, 0x25CC,
-                   # Added from https://groups.google.com/d/topic/googlefontdirectory-discuss/MwlMWMPNCXs/discussion
+                   # Added from
+                   # https://groups.google.com/d/topic/googlefontdirectory-discuss/MwlMWMPNCXs/discussion
                    0x063b, 0x063c, 0x063d, 0x063e, 0x063f, 0x0620,
                    0x0674, 0x0674, 0x06EC]
 
@@ -308,42 +331,48 @@ def getsubset(subset, font_in):
 
     return result
 
-# code for extracting vertical metrics from a TrueType font
 
+# code for extracting vertical metrics from a TrueType font
 class Sfnt:
     def __init__(self, data):
         version, numTables, _, _, _ = struct.unpack('>IHHHH', data[:12])
         self.tables = {}
         for i in range(numTables):
-            tag, checkSum, offset, length = struct.unpack('>4sIII', data[12 + 16 * i: 28 + 16 * i])
+            tag, checkSum, offset, length = struct.unpack(
+                '>4sIII', data[12 + 16 * i: 28 + 16 * i])
             self.tables[tag] = data[offset: offset + length]
 
     def hhea(self):
         r = {}
         d = self.tables['hhea']
-        r['Ascender'], r['Descender'], r['LineGap'] = struct.unpack('>hhh', d[4:10])
+        r['Ascender'], r['Descender'], r['LineGap'] = struct.unpack(
+            '>hhh', d[4:10])
         return r
 
     def os2(self):
         r = {}
         d = self.tables['OS/2']
         r['fsSelection'], = struct.unpack('>H', d[62:64])
-        r['sTypoAscender'], r['sTypoDescender'], r['sTypoLineGap'] = struct.unpack('>hhh', d[68:74])
-        r['usWinAscender'], r['usWinDescender'] = struct.unpack('>HH', d[74:78])
+        r['sTypoAscender'], r['sTypoDescender'], r['sTypoLineGap'] = \
+            struct.unpack('>hhh', d[68:74])
+        r['usWinAscender'], r['usWinDescender'] = struct.unpack(
+            '>HH', d[74:78])
         return r
 
+
 def set_os2(pe, name, val):
-    print('SetOS2Value("' + name + '", %d)' % val, file=pe)
+    print(f'SetOS2Value("{name}", {val:d})', file=pe)
+
 
 def set_os2_vert(pe, name, val):
     set_os2(pe, name + 'IsOffset', 0)
     set_os2(pe, name, val)
 
+
 # Extract vertical metrics data directly out of font file, and emit
 # script code to set the values in the generated font. This is a (rather
 # ugly) workaround for the issue described in:
-# http://sourceforge.net/mailarchive/forum.php?thread_name=20100906085718.GB1907%40khaled-laptop&forum_name=fontforge-users
-
+# https://sourceforge.net/p/fontforge/mailman/fontforge-users/thread/20100906085718.GB1907@khaled-laptop/
 def extract_vert_to_script(font_in, pe):
     with open(font_in, 'rb') as in_file:
         data = in_file.read()
@@ -357,11 +386,12 @@ def extract_vert_to_script(font_in, pe):
     set_os2_vert(pe, "HHeadAscent", hhea['Ascender'])
     set_os2_vert(pe, "HHeadDescent", hhea['Descender'])
 
+
 def main(argv):
-    optlist, args = getopt.gnu_getopt(argv, '', ['string=', 'strip_names', 'opentype-features',
-                                                 'simplify', 'new', 'script',
-                                                 'nmr', 'roundtrip', 'subset=',
-                                                 'namelist', 'null', 'nd', 'move-display'])
+    optlist, args = getopt.gnu_getopt(argv, '', [
+        'string=', 'strip_names', 'opentype-features', 'simplify', 'new',
+        'script', 'nmr', 'roundtrip', 'subset=', 'namelist', 'null', 'nd',
+        'move-display'])
 
     font_in, font_out = args
     opts = dict(optlist)
@@ -370,6 +400,7 @@ def main(argv):
     else:
         subset = getsubset(opts.get('--subset', 'latin'), font_in)
     subset_font(font_in, font_out, subset, opts)
+
 
 if __name__ == '__main__':
     main(sys.argv[1:])
