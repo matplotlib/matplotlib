@@ -2170,7 +2170,7 @@ class SpanSelector(_SelectorWidget):
 
     @property
     def vmin(self):
-        """ Get the start span coordinate."""
+        """Get the start span coordinate."""
         if self.direction == 'horizontal':
             vmin = self.rect.get_x()
         else:
@@ -2179,7 +2179,7 @@ class SpanSelector(_SelectorWidget):
 
     @property
     def vmax(self):
-        """ Get the end span coordinate."""
+        """Get the end span coordinate."""
         if self.direction == 'horizontal':
             vmax = self.vmin + self.rect.get_width()
         else:
@@ -2222,10 +2222,10 @@ class ToolLineHandles:
         self.ax = ax
         self._markers = []
         self.direction = direction
-        marker_props.update({'visible':False, 'animated':useblit})
+        marker_props.update({'visible': False, 'animated': useblit})
 
-        line_func = ax.axvline if self.direction == 'horizontal' else ax.axhline
-        self._markers = [line_func(p, **marker_props) for p in positions]
+        line_fun = ax.axvline if self.direction == 'horizontal' else ax.axhline
+        self._markers = [line_fun(p, **marker_props) for p in positions]
 
         self.artists = self._markers
 
