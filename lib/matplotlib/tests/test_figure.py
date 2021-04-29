@@ -1110,3 +1110,11 @@ def test_waitforbuttonpress(recwarn):  # recwarn undoes warn filters at exit.
     assert fig.waitforbuttonpress() is True
     Timer(.1, fig.canvas.button_press_event, (0, 0, 1)).start()
     assert fig.waitforbuttonpress() is False
+
+
+def test_kwargs_pass():
+    fig = Figure(label='whole Figure')
+    sub_fig = fig.subfigures(1, 1, label='sub figure')
+
+    assert fig.get_label() == 'whole Figure'
+    assert sub_fig.get_label() == 'sub figure'

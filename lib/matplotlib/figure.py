@@ -184,7 +184,7 @@ class FigureBase(Artist):
     Base class for `.figure.Figure` and `.figure.SubFigure` containing the
     methods that add artists to the figure or subfigure, create Axes, etc.
     """
-    def __init__(self):
+    def __init__(self, **kwargs):
         super().__init__()
         # remove the non-figure artist _axes property
         # as it makes no sense for a figure to be _in_ an axes
@@ -217,6 +217,7 @@ class FigureBase(Artist):
         self.subfigs = []
         self.stale = True
         self.suppressComposite = None
+        self.set(**kwargs)
 
     def _get_draw_artists(self, renderer):
         """Also runs apply_aspect"""
@@ -1923,6 +1924,7 @@ default: %(va)s
         a.set_transform(self.transSubfigure)
 
 
+@docstring.interpd
 class SubFigure(FigureBase):
     """
     Logical figure that can be placed inside a figure.
@@ -1945,7 +1947,8 @@ class SubFigure(FigureBase):
                  facecolor=None,
                  edgecolor=None,
                  linewidth=0.0,
-                 frameon=None):
+                 frameon=None,
+                 **kwargs):
         """
         Parameters
         ----------
@@ -1969,8 +1972,14 @@ class SubFigure(FigureBase):
 
         frameon : bool, default: :rc:`figure.frameon`
             If ``False``, suppress drawing the figure background patch.
+
+        Other Parameters
+        ----------------
+        **kwargs : `.SubFigure` properties, optional
+
+            %(SubFigure:kwdoc)s
         """
-        super().__init__()
+        super().__init__(**kwargs)
         if facecolor is None:
             facecolor = mpl.rcParams['figure.facecolor']
         if edgecolor is None:
@@ -2114,6 +2123,7 @@ class SubFigure(FigureBase):
             self.stale = False
 
 
+@docstring.interpd
 class Figure(FigureBase):
     """
     The top level container for all the plot elements.
@@ -2154,6 +2164,7 @@ class Figure(FigureBase):
                  subplotpars=None,  # rc figure.subplot.*
                  tight_layout=None,  # rc figure.autolayout
                  constrained_layout=None,  # rc figure.constrained_layout.use
+                 **kwargs
                  ):
         """
         Parameters
@@ -2195,8 +2206,14 @@ class Figure(FigureBase):
             :doc:`/tutorials/intermediate/constrainedlayout_guide`
             for examples.  (Note: does not work with `add_subplot` or
             `~.pyplot.subplot2grid`.)
+
+        Other Parameters
+        ----------------
+        **kwargs : `.Figure` properties, optional
+
+            %(Figure:kwdoc)s
         """
-        super().__init__()
+        super().__init__(**kwargs)
 
         self.callbacks = cbook.CallbackRegistry()
         # Callbacks traditionally associated with the canvas (and exposed with
