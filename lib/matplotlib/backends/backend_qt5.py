@@ -576,6 +576,7 @@ class FigureManagerQT(FigureManagerBase):
         self.window.resize(width + extra_width, height + extra_height)
 
     def show(self):
+        self.window._destroying = False
         self.window.show()
         if mpl.rcParams['figure.raise_window']:
             self.window.activateWindow()
