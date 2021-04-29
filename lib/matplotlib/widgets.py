@@ -1992,7 +1992,7 @@ class SpanSelector(_SelectorWidget):
 
         self.rect = None
         self.visible = True
-        self.pressv = None
+        self._extents_on_press = None
 
         self.rectprops = rectprops
         self.onmove_callback = onmove_callback
@@ -2010,9 +2010,6 @@ class SpanSelector(_SelectorWidget):
                                "Use interactive=True instead.")
         self.interactive = interactive
         self.drag_from_anywhere = drag_from_anywhere
-
-        # Needed when dragging out of axes
-        self.prev = (0, 0)
 
         # Reset canvas so that `new_axes` connects events.
         self.canvas = None
@@ -2064,18 +2061,13 @@ class SpanSelector(_SelectorWidget):
         else:
             self.active_handle = None
 
-        xdata, ydata = self._get_data(event)
-        if self.direction == 'horizontal':
-            self.pressv = xdata
-        else:
-            self.pressv = ydata
-        self._extents_on_press = self.extents
-
-        self._set_span_xy(event)
-
         if self.active_handle is None or not self.interactive:
             # Clear previous rectangle before drawing new rectangle.
             self.update()
+
+        if not self.interactive:
+            v = event.xdata if self.direction == 'horizontal' else event.ydata
+            self.extents = v, v
 
         self.set_visible(self.visible)
 
@@ -2083,21 +2075,10 @@ class SpanSelector(_SelectorWidget):
 
     def _release(self, event):
         """Button release event handler."""
-        if self.pressv is None:
-            return
-
         if not self.interactive:
             self.rect.set_visible(False)
 
-        vmin = self.pressv
-        xdata, ydata = self._get_data(event)
-        if self.direction == 'horizontal':
-            vmax = xdata or self.prev[0]
-        else:
-            vmax = ydata or self.prev[1]
-
-        if vmin > vmax:
-            vmin, vmax = vmax, vmin
+        vmin, vmax = self.extents
         span = vmax - vmin
         if span < self.minspan:
             self.set_visible(False)
@@ -2107,64 +2088,45 @@ class SpanSelector(_SelectorWidget):
         self.onselect(vmin, vmax)
         self.update()
 
-        self.pressv = None
         return False
 
     def _onmove(self, event):
         """Motion notify event handler."""
-        if self.pressv is None:
-            return
 
-        vmin, vmax = self._extents_on_press
+        v = event.xdata if self.direction == 'horizontal' else event.ydata
+        if self.direction == 'horizontal':
+            vpress = self.eventpress.xdata
+        else:
+            vpress = self.eventpress.ydata
+
         # move existing span
         # When "dragging from anywhere", the `self.active_handle` is set to 'C'
         # in _set_active_handle (match notation used in the RectangleSelector)
         if self.active_handle == 'C' and self._extents_on_press is not None:
-            if self.direction == 'horizontal':
-                dv = event.xdata - self.eventpress.xdata
-            else:
-                dv = event.ydata - self.eventpress.ydata
+            vmin, vmax = self._extents_on_press
+            dv = v - vpress
             vmin += dv
             vmax += dv
 
         # resize an existing shape
         elif self.active_handle and self.active_handle != 'C':
-            v = event.xdata if self.direction == 'horizontal' else event.ydata
+            vmin, vmax = self._extents_on_press
             if self.active_handle == 'min':
                 vmin = v
             else:
                 vmax = v
+        # new shape
         else:
-            self._set_span_xy(event)
-
-            vmin = self.pressv
-            xdata, ydata = self._get_data(event)
-            if self.direction == 'horizontal':
-                vmax = xdata or self.prev[0]
-            else:
-                vmax = ydata or self.prev[1]
-
+            vmin, vmax = vpress, v
             if vmin > vmax:
                 vmin, vmax = vmax, vmin
+
+        self.extents = vmin, vmax
 
         if self.onmove_callback is not None:
             self.onmove_callback(vmin, vmax)
 
-        self.extents = vmin, vmax
-
         return False
-
-    def _set_span_xy(self, event):
-        """Set the span coordinates."""
-        x, y = self._get_data(event)
-        if x is None:
-            return
-
-        self.prev = x, y
-        v = x if self.direction == 'horizontal' else y
-
-        values = v, self.pressv
-        self.draw_shape(*values)
 
     def draw_shape(self, vmin, vmax):
         if vmin > vmax:
@@ -2235,6 +2197,7 @@ class SpanSelector(_SelectorWidget):
         self.draw_shape(*extents)
         # Update displayed handles
         self._edge_handles.set_data(self.extents)
+        self.set_visible(self.visible)
         self.update()
 
 
