@@ -399,16 +399,23 @@ def test_default_math_fontfamily():
     prop2 = fig.text(0.1, 0.2, test_str, fontproperties='Arial').get_fontproperties()
     assert prop2.get_math_fontfamily() == 'cm'
 
-    prop3 = fig.text(0.1, 0.3, test_str, math_fontfamily='dejavusans', font='Arial').get_fontproperties()
+def test_argument_order():
+    mpl.rcParams['mathtext.fontset'] = 'cm'
+    test_str = r'Foo: $\alpha_{i+1}^j = {\rm sin}(2\pi f_j t_i) e^{-5 t_i/\tau}$'
+
+    buff = io.BytesIO()
+    fig, ax = plt.subplots()
+
+    prop1 = fig.text(0.1, 0.1, test_str, math_fontfamily='dejavusans', font='Arial').get_fontproperties()
+    assert prop1.get_math_fontfamily() == 'dejavusans'
+
+    prop2 = fig.text(0.1, 0.2, test_str, math_fontfamily='dejavusans', fontproperties='Arial').get_fontproperties()
+    assert prop2.get_math_fontfamily() == 'dejavusans'
+
+    prop3 = fig.text(0.1, 0.3, test_str, font='Arial', math_fontfamily='dejavusans').get_fontproperties()
     assert prop3.get_math_fontfamily() == 'dejavusans'
 
-    prop4 = fig.text(0.1, 0.4, test_str, math_fontfamily='dejavusans', fontproperties='Arial').get_fontproperties()
+    prop4 = fig.text(0.1, 0.4, test_str, fontproperties='Arial', math_fontfamily='dejavusans').get_fontproperties()
     assert prop4.get_math_fontfamily() == 'dejavusans'
-
-    prop5 = fig.text(0.1, 0.5, test_str, font='Arial', math_fontfamily='dejavusans').get_fontproperties()
-    assert prop5.get_math_fontfamily() == 'dejavusans'
-
-    prop6 = fig.text(0.1, 0.6, test_str, fontproperties='Arial', math_fontfamily='dejavusans').get_fontproperties()
-    assert prop6.get_math_fontfamily() == 'dejavusans'
 
     fig.savefig(buff, format="svg")
