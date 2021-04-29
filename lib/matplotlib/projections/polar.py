@@ -425,6 +425,9 @@ class RadialLocator(mticker.Locator):
         self.base = base
         self._axes = axes
 
+    def set_axis(self, axis):
+        self.base.set_axis(axis)
+
     def __call__(self):
         # Ensure previous behaviour with full circle non-annular views.
         if self._axes:
