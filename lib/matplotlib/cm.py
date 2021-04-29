@@ -361,12 +361,19 @@ class ScalarMappable:
 
     def set_array(self, A):
         """
-        Set the image array from numpy array *A*.
+        Set the image array from array-like *A*.
 
         Parameters
         ----------
-        A : ndarray or None
+        A : array-like or None
         """
+        A = cbook.safe_masked_invalid(A, copy=True) if A is not None else None
+
+        if (A is not None and A.dtype != np.uint8 and
+                not np.can_cast(A.dtype, float, "same_kind")):
+            raise TypeError("Image data of dtype {} cannot be converted to "
+                            "float".format(A.dtype))
+
         self._A = A
 
     def get_array(self):
