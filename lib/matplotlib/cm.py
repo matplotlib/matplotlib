@@ -373,8 +373,8 @@ class ScalarMappable:
 
         A = cbook.safe_masked_invalid(A, copy=True)
         if not np.can_cast(A.dtype, float, "same_kind"):
-            raise TypeError("Image data of dtype {} cannot be converted to "
-                            "float".format(A.dtype))
+            raise TypeError(f"Image data of dtype {A.dtype} cannot be "
+                            "converted to float")
 
         self._A = A
 
