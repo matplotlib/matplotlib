@@ -395,9 +395,10 @@ def test_default_math_fontfamily():
 
     prop1 = fig.text(0.1, 0.1, test_str, font='Arial').get_fontproperties()
     assert prop1.get_math_fontfamily() == 'cm'
-
     prop2 = fig.text(0.1, 0.2, test_str, fontproperties='Arial').get_fontproperties()
     assert prop2.get_math_fontfamily() == 'cm'
+
+    fig.savefig(buff, format="svg")
 
 def test_argument_order():
     mpl.rcParams['mathtext.fontset'] = 'cm'
@@ -408,13 +409,10 @@ def test_argument_order():
 
     prop1 = fig.text(0.1, 0.1, test_str, math_fontfamily='dejavusans', font='Arial').get_fontproperties()
     assert prop1.get_math_fontfamily() == 'dejavusans'
-
     prop2 = fig.text(0.1, 0.2, test_str, math_fontfamily='dejavusans', fontproperties='Arial').get_fontproperties()
     assert prop2.get_math_fontfamily() == 'dejavusans'
-
     prop3 = fig.text(0.1, 0.3, test_str, font='Arial', math_fontfamily='dejavusans').get_fontproperties()
     assert prop3.get_math_fontfamily() == 'dejavusans'
-
     prop4 = fig.text(0.1, 0.4, test_str, fontproperties='Arial', math_fontfamily='dejavusans').get_fontproperties()
     assert prop4.get_math_fontfamily() == 'dejavusans'
 
