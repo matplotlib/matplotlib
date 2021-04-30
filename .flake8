@@ -45,8 +45,6 @@ per-file-ignores =
     setupext.py: E501
     tests.py: F401
 
-    tools/subset.py: E221, E251, E261, E302, E501
-
     lib/matplotlib/__init__.py: F401
     lib/matplotlib/_api/__init__.py: F401
     lib/matplotlib/_cm.py: E202, E203, E302
