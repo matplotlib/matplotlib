@@ -140,7 +140,8 @@ plt.show()
 #    The use of the following functions, methods, classes and modules is shown
 #    in this example:
 #
-#    - `matplotlib.figure.Figure.tight_layout` / `matplotlib.pyplot.tight_layout`
+#    - `matplotlib.figure.Figure.tight_layout` /
+#      `matplotlib.pyplot.tight_layout`
 #    - `matplotlib.figure.Figure.add_gridspec`
 #    - `matplotlib.figure.Figure.add_subplot`
 #    - `matplotlib.pyplot.subplot2grid`

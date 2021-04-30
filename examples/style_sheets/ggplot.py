@@ -8,7 +8,7 @@ emulate ggplot_ (a popular plotting package for R_).
 
 These settings were shamelessly stolen from [1]_ (with permission).
 
-.. [1] https://web.archive.org/web/20111215111010/http://www.huyng.com/archives/sane-color-scheme-for-matplotlib/691/
+.. [1] https://everyhue.me/posts/sane-color-scheme-for-matplotlib/
 
 .. _ggplot: https://ggplot2.tidyverse.org/
 .. _R: https://www.r-project.org/
