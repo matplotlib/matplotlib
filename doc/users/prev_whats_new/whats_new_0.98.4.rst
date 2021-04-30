@@ -30,12 +30,18 @@ multiple columns and rows, as well as fancy box drawing.  See
 :func:`~matplotlib.pyplot.legend` and
 :class:`matplotlib.legend.Legend`.
 
-.. figure:: ../../gallery/pyplots/images/sphx_glr_whats_new_98_4_legend_001.png
-   :target: ../../gallery/pyplots/whats_new_98_4_legend.html
-   :align: center
-   :scale: 50
+.. plot::
 
-   What's New 98 4 Legend
+    ax = plt.subplot()
+    t1 = np.arange(0.0, 1.0, 0.01)
+    for n in [1, 2, 3, 4]:
+        plt.plot(t1, t1**n, label=f"n={n}")
+
+    leg = plt.legend(loc='best', ncol=2, mode="expand", shadow=True, fancybox=True)
+    leg.get_frame().set_alpha(0.5)
+
+    plt.show()
+
 
 .. _fancy-annotations:
 
@@ -145,12 +151,20 @@ can pass an *x* array and a *ylower* and *yupper* array to fill
 between, and an optional *where* argument which is a logical mask
 where you want to do the filling.
 
-.. figure:: ../../gallery/pyplots/images/sphx_glr_whats_new_98_4_fill_between_001.png
-   :target: ../../gallery/pyplots/whats_new_98_4_fill_between.html
-   :align: center
-   :scale: 50
+.. plot::
 
-   What's New 98 4 Fill Between
+    x = np.arange(-5, 5, 0.01)
+    y1 = -5*x*x + x + 10
+    y2 = 5*x*x + x
+
+    fig, ax = plt.subplots()
+    ax.plot(x, y1, x, y2, color='black')
+    ax.fill_between(x, y1, y2, where=(y2 > y1), facecolor='yellow', alpha=0.5)
+    ax.fill_between(x, y1, y2, where=(y2 <= y1), facecolor='red', alpha=0.5)
+    ax.set_title('Fill Between')
+
+    plt.show()
+
 
 Lots more
 ---------

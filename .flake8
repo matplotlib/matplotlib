@@ -213,12 +213,6 @@ per-file-ignores =
     examples/pyplots/pyplot_two_subplots.py: E402
     examples/pyplots/text_commands.py: E402
     examples/pyplots/text_layout.py: E402
-    examples/pyplots/whats_new_1_subplot3d.py: E402
-    examples/pyplots/whats_new_98_4_fill_between.py: E402
-    examples/pyplots/whats_new_98_4_legend.py: E402
-    examples/pyplots/whats_new_99_axes_grid.py: E402
-    examples/pyplots/whats_new_99_mplot3d.py: E402
-    examples/pyplots/whats_new_99_spines.py: E402
     examples/scales/power_norm.py: E402
     examples/scales/scales.py: E402
     examples/shapes_and_collections/artist_reference.py: E402
