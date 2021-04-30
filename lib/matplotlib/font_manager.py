@@ -23,6 +23,7 @@ Future versions may implement the Level 2 or 2.1 specifications.
 #   - setWeights function needs improvement
 #   - 'light' is an invalid weight value, remove it.
 
+import dataclasses
 from functools import lru_cache
 import json
 import logging
@@ -342,35 +343,22 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     return [fname for fname in fontfiles if os.path.exists(fname)]
 
 
-class FontEntry:
-    """
-    A class for storing Font properties.  It is used when populating
-    the font lookup dictionary.
-    """
-    def __init__(self,
-                 fname  ='',
-                 name   ='',
-                 style  ='normal',
-                 variant='normal',
-                 weight ='normal',
-                 stretch='normal',
-                 size   ='medium',
-                 ):
-        self.fname   = fname
-        self.name    = name
-        self.style   = style
-        self.variant = variant
-        self.weight  = weight
-        self.stretch = stretch
-        try:
-            self.size = str(float(size))
-        except ValueError:
-            self.size = size
+FontEntry = dataclasses.make_dataclass(
+    'FontEntry', [
+        ('fname', str, dataclasses.field(default='')),
+        ('name', str, dataclasses.field(default='')),
+        ('style', str, dataclasses.field(default='normal')),
+        ('variant', str, dataclasses.field(default='normal')),
+        ('weight', str, dataclasses.field(default='normal')),
+        ('stretch', str, dataclasses.field(default='normal')),
+        ('size', str, dataclasses.field(default='medium')),
+    ],
+    namespace={
+        '__doc__': """
+    A class for storing Font properties.
 
-    def __repr__(self):
-        return "<Font '%s' (%s) %s %s %s %s>" % (
-            self.name, os.path.basename(self.fname), self.style, self.variant,
-            self.weight, self.stretch)
+    It is used when populating the font lookup dictionary.
+    """})
 
 
 def ttfFontProperty(font):
