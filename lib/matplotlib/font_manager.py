@@ -618,16 +618,10 @@ class FontProperties:
     fontconfig.
     """
 
-    def __init__(self,
-                 family = None,
-                 style  = None,
-                 variant= None,
-                 weight = None,
-                 stretch= None,
-                 size   = None,
-                 fname  = None,  # if set, it's a hardcoded filename to use
-                 math_fontfamily = None,
-                 ):
+    def __init__(self, family=None, style=None, variant=None, weight=None,
+                 stretch=None, size=None,
+                 fname=None,  # if set, it's a hardcoded filename to use
+                 math_fontfamily=None):
         self._family = _normalize_font_family(rcParams['font.family'])
         self._slant = rcParams['font.style']
         self._variant = rcParams['font.variant']
