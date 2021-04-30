@@ -1061,8 +1061,8 @@ class Axes3D(Axes):
             The azimuth angle in the horizontal plane in degrees.
             If None then the initial value is used which was specified
             in the :class:`Axes3D` constructor.
-        vertical_axis : string, default is "z"
-            Which axis to align vertically.
+        vertical_axis : str, default: "z"
+            The axis to align vertically. *azim* rotates about this axis.
         """
 
         self.dist = 10
