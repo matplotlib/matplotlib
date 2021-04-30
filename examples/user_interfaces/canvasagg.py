@@ -22,6 +22,8 @@ inside a cgi-script *without* needing to write a figure to disk.
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 import numpy as np
+from PIL import Image
+
 
 fig = Figure(figsize=(5, 4), dpi=100)
 # A canvas must be manually attached to the figure (pyplot would automatically
@@ -43,7 +45,6 @@ buf = canvas.buffer_rgba()
 # ... convert to a NumPy array ...
 X = np.asarray(buf)
 # ... and pass it to PIL.
-from PIL import Image
 im = Image.fromarray(X)
 
 # Uncomment this line to display the image using ImageMagick's `display` tool.

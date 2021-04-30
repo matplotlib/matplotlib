@@ -112,7 +112,6 @@ per-file-ignores =
     tutorials/toolkits/axisartist.py: E501
 
     examples/animation/frame_grabbing_sgskip.py: E402
-    examples/axes_grid1/inset_locator_demo.py: E402
     examples/axes_grid1/scatter_hist_locatable_axes.py: E402
     examples/axisartist/demo_curvelinear_grid.py: E402
     examples/color/color_by_yvalue.py: E402
@@ -170,18 +169,14 @@ per-file-ignores =
     examples/lines_bars_and_markers/joinstyle.py: E402
     examples/lines_bars_and_markers/scatter_hist.py: E402
     examples/lines_bars_and_markers/scatter_piecharts.py: E402
-    examples/lines_bars_and_markers/scatter_with_legend.py: E402
     examples/lines_bars_and_markers/span_regions.py: E402
     examples/lines_bars_and_markers/stem_plot.py: E402
     examples/lines_bars_and_markers/step_demo.py: E402
     examples/lines_bars_and_markers/timeline.py: E402
     examples/lines_bars_and_markers/xcorr_acorr_demo.py: E402
-    examples/misc/agg_buffer.py: E402
     examples/misc/histogram_path.py: E402
     examples/misc/print_stdout_sgskip.py: E402
     examples/misc/rasterization_demo.py: E402
-    examples/misc/svg_filter_line.py: E402
-    examples/misc/svg_filter_pie.py: E402
     examples/misc/table_demo.py: E201
     examples/mplot3d/surface3d.py: E402
     examples/pie_and_polar_charts/bar_of_pie.py: E402
@@ -221,7 +216,6 @@ per-file-ignores =
     examples/shapes_and_collections/dolphin.py: E402
     examples/shapes_and_collections/donut.py: E402
     examples/shapes_and_collections/ellipse_collection.py: E402
-    examples/shapes_and_collections/ellipse_demo.py: E402
     examples/shapes_and_collections/fancybox_demo.py: E402
     examples/shapes_and_collections/hatch_demo.py: E402
     examples/shapes_and_collections/hatch_style_reference.py: E402
@@ -242,7 +236,6 @@ per-file-ignores =
     examples/style_sheets/bmh.py: E501
     examples/style_sheets/plot_solarizedlight2.py: E501
     examples/subplots_axes_and_figures/axes_margins.py: E402
-    examples/subplots_axes_and_figures/axes_zoom_effect.py: E402
     examples/subplots_axes_and_figures/custom_figure_class.py: E402
     examples/subplots_axes_and_figures/demo_constrained_layout.py: E402
     examples/subplots_axes_and_figures/demo_tight_layout.py: E402
@@ -254,19 +247,16 @@ per-file-ignores =
     examples/text_labels_and_annotations/demo_text_rotation_mode.py: E402
     examples/text_labels_and_annotations/custom_legends.py: E402
     examples/text_labels_and_annotations/fancyarrow_demo.py: E402
-    examples/text_labels_and_annotations/font_family_rc_sgskip.py: E402
     examples/text_labels_and_annotations/font_file.py: E402
     examples/text_labels_and_annotations/legend.py: E402
     examples/text_labels_and_annotations/line_with_text.py: E402
     examples/text_labels_and_annotations/mathtext_asarray.py: E402
-    examples/text_labels_and_annotations/tex_demo.py: E402
     examples/text_labels_and_annotations/watermark_text.py: E402
     examples/ticks_and_spines/custom_ticker1.py: E402
     examples/ticks_and_spines/date_concise_formatter.py: E402
     examples/ticks_and_spines/major_minor_demo.py: E402
     examples/ticks_and_spines/tick-formatters.py: E402
     examples/ticks_and_spines/tick_labels_from_values.py: E402
-    examples/user_interfaces/canvasagg.py: E402
     examples/user_interfaces/embedding_in_gtk3_panzoom_sgskip.py: E402
     examples/user_interfaces/embedding_in_gtk3_sgskip.py: E402
     examples/user_interfaces/embedding_in_qt_sgskip.py: E402

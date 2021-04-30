@@ -12,8 +12,9 @@ can be adjusted by giving ``alpha`` a value between 0 and 1.
 """
 
 import numpy as np
-np.random.seed(19680801)
 import matplotlib.pyplot as plt
+
+np.random.seed(19680801)
 
 
 fig, ax = plt.subplots()
