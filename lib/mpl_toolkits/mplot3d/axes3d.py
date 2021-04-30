@@ -1057,8 +1057,8 @@ class Axes3D(Axes):
             The elevation angle in the vertical plane in degrees.
             If None then the initial value is used which was specified
             in the :class:`Axes3D` constructor.
-        azim : number, default is None
-            Stores the azimuth angle in the horisontal plane in degrees.
+        azim : float, default: None
+            The azimuth angle in the horizontal plane in degrees.
             If None then the initial value is used which was specified
             in the :class:`Axes3D` constructor.
         vertical_axis : string, default is "z"
