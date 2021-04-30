@@ -740,6 +740,9 @@ class Text(Artist):
         if not self.get_visible():
             return
         if self.get_text() == '':
+            # Create empty group for the svg animation to work
+            renderer.open_group('text', self.get_gid())
+            renderer.close_group('text')
             return
 
         renderer.open_group('text', self.get_gid())
