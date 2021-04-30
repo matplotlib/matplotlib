@@ -1576,7 +1576,7 @@ def test_view_init_vertical_axis(vertical_axis, proj_expected, tickdirs):
         axis to align vertically.
     proj_expected : ndarray
         Expected values from ax.get_proj().
-    tickdirs : list of integers
+    tickdirs : list of int
         indexes indicating which axis to create a tick line along.
     """
     ax = plt.subplot(1, 1, 1, projection="3d")
