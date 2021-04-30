@@ -242,10 +242,20 @@ class ContourLabeler:
         x, y = XX[ind][hysize], YY[ind][hysize]
         return x, y, ind
 
+    def _get_nth_label_width(self, nth):
+        """Return the width of the *nth* label, in pixels."""
+        fig = self.axes.figure
+        return (
+            text.Text(0, 0,
+                      self.get_text(self.labelLevelList[nth], self.labelFmt),
+                      figure=fig,
+                      size=self.labelFontSizeList[nth],
+                      fontproperties=self.labelFontProps)
+            .get_window_extent(mpl.tight_layout.get_renderer(fig)).width)
+
+    @_api.deprecated("3.5")
     def get_label_width(self, lev, fmt, fsize):
-        """
-        Return the width of the label in points.
-        """
+        """Return the width of the label in points."""
         if not isinstance(lev, str):
             lev = self.get_text(lev, fmt)
         fig = self.axes.figure
@@ -498,11 +508,7 @@ class ContourLabeler:
         lmin = self.labelIndiceList.index(conmin)
 
         # Get label width for rotating labels and breaking contours
-        lw = self.get_label_width(self.labelLevelList[lmin],
-                                  self.labelFmt, self.labelFontSizeList[lmin])
-        # lw is in points.
-        lw *= self.axes.figure.dpi / 72  # scale to screen coordinates
-        # now lw in pixels
+        lw = self._get_nth_label_width(lmin)
 
         # Figure out label rotation.
         rotation, nlc = self.calc_label_rot_and_inline(
@@ -534,14 +540,15 @@ class ContourLabeler:
         else:
             add_label = self.add_label
 
-        for icon, lev, fsize, cvalue in zip(
-                self.labelIndiceList, self.labelLevelList,
-                self.labelFontSizeList, self.labelCValueList):
+        for idx, (icon, lev, cvalue) in enumerate(zip(
+                self.labelIndiceList,
+                self.labelLevelList,
+                self.labelCValueList,
+        )):
 
             con = self.collections[icon]
             trans = con.get_transform()
-            lw = self.get_label_width(lev, self.labelFmt, fsize)
-            lw *= self.axes.figure.dpi / 72  # scale to screen coordinates
+            lw = self._get_nth_label_width(idx)
             additions = []
             paths = con.get_paths()
             for segNum, linepath in enumerate(paths):
