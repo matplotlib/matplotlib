@@ -1053,8 +1053,8 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        elev : number, default is None
-            Stores the elevation angle in the vertical plane in degrees.
+        elev : float, default: None
+            The elevation angle in the vertical plane in degrees.
             If None then the initial value is used which was specified
             in the :class:`Axes3D` constructor.
         azim : number, default is None
