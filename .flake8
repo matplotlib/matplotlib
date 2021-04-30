@@ -197,7 +197,7 @@ per-file-ignores =
     examples/pyplots/annotate_transform.py: E251, E402
     examples/pyplots/annotation_basic.py: E402
     examples/pyplots/annotation_polar.py: E402
-    examples/pyplots/auto_subplots_adjust.py: E302, E402
+    examples/pyplots/auto_subplots_adjust.py: E402
     examples/pyplots/axline.py: E402
     examples/pyplots/boxplot_demo_pyplot.py: E402
     examples/pyplots/dollar_ticks.py: E402
@@ -275,7 +275,7 @@ per-file-ignores =
     examples/user_interfaces/gtk_spreadsheet_sgskip.py: E402
     examples/user_interfaces/mathtext_wx_sgskip.py: E402
     examples/user_interfaces/mpl_with_glade3_sgskip.py: E402
-    examples/user_interfaces/pylab_with_gtk_sgskip.py: E302, E402
+    examples/user_interfaces/pylab_with_gtk_sgskip.py: E402
     examples/user_interfaces/toolmanager_sgskip.py: E402
     examples/userdemo/connectionstyle_demo.py: E402
     examples/userdemo/custom_boxstyle01.py: E402
