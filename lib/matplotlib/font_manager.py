@@ -244,11 +244,6 @@ def _win32RegistryFonts(reg_domain, base_dir):
                     key, value, tp = winreg.EnumValue(local, j)
                     if not isinstance(value, str):
                         continue
-
-                    # Work around for https://bugs.python.org/issue25778, which
-                    # is fixed in Py>=3.6.1.
-                    value = value.split("\0", 1)[0]
-
                     try:
                         # If value contains already an absolute path, then it
                         # is not changed further.
