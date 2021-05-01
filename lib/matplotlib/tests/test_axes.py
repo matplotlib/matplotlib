@@ -1006,7 +1006,7 @@ def test_fill_between_interpolate_nan():
     y1 = np.asarray([8, 18, np.nan, 18, 8, 18, 24, 18, 8, 18])
     y2 = np.asarray([18, 11, 8, 11, 18, 26, 32, 30, np.nan, np.nan])
 
-    # numpy 1.16 issues warning 'invalid value encountered in greater_equal'
+    # NumPy <1.19 issues warning 'invalid value encountered in greater_equal'
     # for comparisons that include nan.
     with np.errstate(invalid='ignore'):
         greater2 = y2 >= y1

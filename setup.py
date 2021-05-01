@@ -305,14 +305,14 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
     python_requires='>={}'.format('.'.join(str(n) for n in py_min_version)),
     setup_requires=[
         "certifi>=2020.06.20",
-        "numpy>=1.16",
+        "numpy>=1.17",
         "setuptools_scm>=4",
         "setuptools_scm_git_archive",
     ],
     install_requires=[
         "cycler>=0.10",
         "kiwisolver>=1.0.1",
-        "numpy>=1.16",
+        "numpy>=1.17",
         "pillow>=6.2.0",
         "pyparsing>=2.2.1",
         "python-dateutil>=2.7",

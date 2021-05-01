@@ -15,7 +15,7 @@ mandatory dependencies are automatically installed. This list is mainly for
 reference.
 
 * `Python <https://www.python.org/downloads/>`_ (>= 3.7)
-* `NumPy <https://numpy.org>`_ (>= 1.16)
+* `NumPy <https://numpy.org>`_ (>= 1.17)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil>`_ (>= 2.7)
