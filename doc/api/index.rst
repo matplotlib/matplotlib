@@ -1,13 +1,6 @@
 API
 ===
 
-.. toctree::
-   :hidden:
-
-   api_changes
-
-For recent changes, see :doc:`api_changes`.
-
 When using the library you will typically create
 :doc:`Figure <figure_api>` and :doc:`Axes <axes_api>` objects and
 call their methods to add content and modify the appearance.
