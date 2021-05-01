@@ -42,10 +42,6 @@ plt.show()
 # Draw many ellipses with different angles.
 #
 
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.patches import Ellipse
-
 angle_step = 45  # degrees
 angles = np.arange(0, 180, angle_step)
 
