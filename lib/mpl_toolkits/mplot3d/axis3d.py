@@ -231,7 +231,6 @@ class Axis(maxis.XAxis):
         """
         Get the direction of the tick.
 
-
         Returns
         -------
         tickdir : integer
