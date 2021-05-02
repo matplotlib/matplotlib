@@ -916,33 +916,10 @@ default: %(va)s
             # Set the formatters and locators to be associated with axis
             # (where previously they may have been associated with another
             # Axis instance)
-            #
-            # Because set_major_formatter() etc. force isDefault_* to be False,
-            # we have to manually check if the original formatter was a
-            # default and manually set isDefault_* if that was the case.
-            majfmt = axis.get_major_formatter()
-            isDefault = majfmt.axis.isDefault_majfmt
-            axis.set_major_formatter(majfmt)
-            if isDefault:
-                majfmt.axis.isDefault_majfmt = True
-
-            majloc = axis.get_major_locator()
-            isDefault = majloc.axis.isDefault_majloc
-            axis.set_major_locator(majloc)
-            if isDefault:
-                majloc.axis.isDefault_majloc = True
-
-            minfmt = axis.get_minor_formatter()
-            isDefault = majloc.axis.isDefault_minfmt
-            axis.set_minor_formatter(minfmt)
-            if isDefault:
-                minfmt.axis.isDefault_minfmt = True
-
-            minloc = axis.get_minor_locator()
-            isDefault = majloc.axis.isDefault_minloc
-            axis.set_minor_locator(minloc)
-            if isDefault:
-                minloc.axis.isDefault_minloc = True
+            axis.get_major_formatter().set_axis(axis)
+            axis.get_major_locator().set_axis(axis)
+            axis.get_minor_formatter().set_axis(axis)
+            axis.get_minor_locator().set_axis(axis)
 
         def _break_share_link(ax, grouper):
             siblings = grouper.get_siblings(ax)
@@ -3089,21 +3066,16 @@ class Figure(FigureBase):
         .Figure.set_tight_layout
         .pyplot.tight_layout
         """
-
+        from contextlib import nullcontext
         from .tight_layout import (
             get_subplotspec_list, get_tight_layout_figure)
-        from contextlib import suppress
         subplotspec_list = get_subplotspec_list(self.axes)
         if None in subplotspec_list:
             _api.warn_external("This figure includes Axes that are not "
                                "compatible with tight_layout, so results "
                                "might be incorrect.")
-
         renderer = _get_renderer(self)
-        ctx = (renderer._draw_disabled()
-               if hasattr(renderer, '_draw_disabled')
-               else suppress())
-        with ctx:
+        with getattr(renderer, "_draw_disabled", nullcontext)():
             kwargs = get_tight_layout_figure(
                 self, self.axes, subplotspec_list, renderer,
                 pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)

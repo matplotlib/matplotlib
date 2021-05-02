@@ -161,7 +161,7 @@ def _check_versions():
             ("cycler", "0.10"),
             ("dateutil", "2.7"),
             ("kiwisolver", "1.0.1"),
-            ("numpy", "1.16"),
+            ("numpy", "1.17"),
             ("pyparsing", "2.2.1"),
     ]:
         module = importlib.import_module(modname)
@@ -424,12 +424,14 @@ def _get_xdg_cache_dir():
     return os.environ.get('XDG_CACHE_HOME') or str(Path.home() / ".cache")
 
 
-def _get_config_or_cache_dir(xdg_base):
+def _get_config_or_cache_dir(xdg_base_getter):
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir:
         configdir = Path(configdir).resolve()
-    elif sys.platform.startswith(('linux', 'freebsd')) and xdg_base:
-        configdir = Path(xdg_base, "matplotlib")
+    elif sys.platform.startswith(('linux', 'freebsd')):
+        # Only call _xdg_base_getter here so that MPLCONFIGDIR is tried first,
+        # as _xdg_base_getter can throw.
+        configdir = Path(xdg_base_getter(), "matplotlib")
     else:
         configdir = Path.home() / ".matplotlib"
     try:
@@ -470,7 +472,7 @@ def get_configdir():
     4. Else, create a temporary directory, and use it as the configuration
        directory.
     """
-    return _get_config_or_cache_dir(_get_xdg_config_dir())
+    return _get_config_or_cache_dir(_get_xdg_config_dir)
 
 
 @_logged_cached('CACHEDIR=%s')
@@ -481,7 +483,7 @@ def get_cachedir():
     The procedure used to find the directory is the same as for
     _get_config_dir, except using ``$XDG_CACHE_HOME``/``$HOME/.cache`` instead.
     """
-    return _get_config_or_cache_dir(_get_xdg_cache_dir())
+    return _get_config_or_cache_dir(_get_xdg_cache_dir)
 
 
 @_logged_cached('matplotlib data path: %s')

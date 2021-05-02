@@ -552,6 +552,8 @@ class Ticker:
     def __init__(self):
         self._locator = None
         self._formatter = None
+        self._locator_is_default = True
+        self._formatter_is_default = True
 
     @property
     def locator(self):
@@ -688,6 +690,38 @@ class Axis(martist.Artist):
 
         self.clear()
         self._set_scale('linear')
+
+    @property
+    def isDefault_majloc(self):
+        return self.major._locator_is_default
+
+    @isDefault_majloc.setter
+    def isDefault_majloc(self, value):
+        self.major._locator_is_default = value
+
+    @property
+    def isDefault_majfmt(self):
+        return self.major._formatter_is_default
+
+    @isDefault_majfmt.setter
+    def isDefault_majfmt(self, value):
+        self.major._formatter_is_default = value
+
+    @property
+    def isDefault_minloc(self):
+        return self.minor._locator_is_default
+
+    @isDefault_minloc.setter
+    def isDefault_minloc(self, value):
+        self.minor._locator_is_default = value
+
+    @property
+    def isDefault_minfmt(self):
+        return self.minor._formatter_is_default
+
+    @isDefault_minfmt.setter
+    def isDefault_minfmt(self, value):
+        self.minor._formatter_is_default = value
 
     # During initialization, Axis objects often create ticks that are later
     # unused; this turns out to be a very slow step.  Instead, use a custom
@@ -1866,16 +1900,6 @@ class Axis(martist.Artist):
         boxes of all the ticklabels.
         """
         raise NotImplementedError('Derived must override')
-
-    @_api.deprecated("3.3")
-    def pan(self, numsteps):
-        """Pan by *numsteps* (can be positive or negative)."""
-        self.major.locator.pan(numsteps)
-
-    @_api.deprecated("3.3")
-    def zoom(self, direction):
-        """Zoom in/out on axis; if *direction* is >0 zoom in, else zoom out."""
-        self.major.locator.zoom(direction)
 
     def axis_date(self, tz=None):
         """

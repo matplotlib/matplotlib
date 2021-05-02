@@ -3470,7 +3470,7 @@ class ArrowStyle(_Style):
         def __init__(self, bracketA=None, bracketB=None,
                      widthA=1., widthB=1.,
                      lengthA=0.2, lengthB=0.2,
-                     angleA=None, angleB=None,
+                     angleA=0, angleB=0,
                      scaleA=None, scaleB=None):
             self.bracketA, self.bracketB = bracketA, bracketB
             self.widthA, self.widthB = widthA, widthB
@@ -3496,7 +3496,7 @@ class ArrowStyle(_Style):
                            Path.LINETO,
                            Path.LINETO]
 
-            if angle is not None:
+            if angle:
                 trans = transforms.Affine2D().rotate_deg_around(x0, y0, angle)
                 vertices_arrow = trans.transform(vertices_arrow)
 
@@ -3553,32 +3553,18 @@ class ArrowStyle(_Style):
         """An arrow with outward square brackets at both ends."""
 
         def __init__(self,
-                     widthA=1., lengthA=0.2, angleA=None,
-                     widthB=1., lengthB=0.2, angleB=None):
+                     widthA=1., lengthA=0.2, angleA=0,
+                     widthB=1., lengthB=0.2, angleB=0):
             """
             Parameters
             ----------
-            widthA : float, default: 1.0
+            widthA, widthB : float, default: 1.0
                 Width of the bracket.
-
-            lengthA : float, default: 0.2
+            lengthA, lengthB : float, default: 0.2
                 Length of the bracket.
-
-            angleA : float, default: None
-                Angle, in degrees, between the bracket and the line. Zero is
-                perpendicular to the line, and positive measures
-                counterclockwise.
-
-            widthB : float, default: 1.0
-                Width of the bracket.
-
-            lengthB : float, default: 0.2
-                Length of the bracket.
-
-            angleB : float, default: None
-                Angle, in degrees, between the bracket and the line. Zero is
-                perpendicular to the line, and positive measures
-                counterclockwise.
+            angleA, angleB : float, default: 0 degrees
+                Orientation of the bracket, as a counterclockwise angle.
+                0 degrees means perpendicular to the line.
             """
             super().__init__(True, True,
                              widthA=widthA, lengthA=lengthA, angleA=angleA,
@@ -3588,18 +3574,17 @@ class ArrowStyle(_Style):
     class BracketA(_Bracket):
         """An arrow with an outward square bracket at its start."""
 
-        def __init__(self, widthA=1., lengthA=0.2, angleA=None):
+        def __init__(self, widthA=1., lengthA=0.2, angleA=0):
             """
             Parameters
             ----------
             widthA : float, default: 1.0
                 Width of the bracket.
-
             lengthA : float, default: 0.2
                 Length of the bracket.
-
-            angleA : float, default: None
-                Angle between the bracket and the line.
+            angleA : float, default: 0 degrees
+                Orientation of the bracket, as a counterclockwise angle.
+                0 degrees means perpendicular to the line.
             """
             super().__init__(True, None,
                              widthA=widthA, lengthA=lengthA, angleA=angleA)
@@ -3614,14 +3599,11 @@ class ArrowStyle(_Style):
             ----------
             widthB : float, default: 1.0
                 Width of the bracket.
-
             lengthB : float, default: 0.2
                 Length of the bracket.
-
-            angleB : float, default: None
-                Angle, in degrees, between the bracket and the line. Zero is
-                perpendicular to the line, and positive measures
-                counterclockwise.
+            angleB : float, default: 0 degrees
+                Orientation of the bracket, as a counterclockwise angle.
+                0 degrees means perpendicular to the line.
             """
             super().__init__(None, True,
                              widthB=widthB, lengthB=lengthB, angleB=angleB)
@@ -3636,21 +3618,11 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            widthA : float, default: 1.0
+            widthA, widthB : float, default: 1.0
                 Width of the bracket.
-
-            angleA : float, default: None
-                Angle, in degrees, between the bracket and the line. Zero is
-                perpendicular to the line, and positive measures
-                counterclockwise.
-
-            widthB : float, default: 1.0
-                Width of the bracket.
-
-            angleB : float, default: None
-                Angle, in degrees, between the bracket and the line. Zero is
-                perpendicular to the line, and positive measures
-                counterclockwise.
+            angleA, angleB : float, default: 0 degrees
+                Orientation of the bracket, as a counterclockwise angle.
+                0 degrees means perpendicular to the line.
             """
             super().__init__(True, True,
                              widthA=widthA, lengthA=0, angleA=angleA,

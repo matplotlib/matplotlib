@@ -162,7 +162,7 @@ The ``on_mappable_changed`` and ``update_bruteforce`` methods of
 `~matplotlib.colorbar.Colorbar` are deprecated; both can be replaced by calls
 to `~matplotlib.colorbar.Colorbar.update_normal`.
 
-``OldScalarFormatter``, ``IndexFormatter`` and ``DateIndexFormatter``
+``OldScalarFormatter``, ``IndexFormatter`` and ``IndexDateFormatter``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These formatters are deprecated.  Their functionality can be implemented using
 e.g. `.FuncFormatter`.

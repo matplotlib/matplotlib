@@ -129,14 +129,18 @@ font_family_aliases = {
 
 
 # OS Font paths
+try:
+    _HOME = Path.home()
+except Exception:  # Exceptions thrown by home() are not specified...
+    _HOME = Path(os.devnull)  # Just an arbitrary path with no children.
 MSFolders = \
     r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
 MSFontDirectories = [
     r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts',
     r'SOFTWARE\Microsoft\Windows\CurrentVersion\Fonts']
 MSUserFontDirectories = [
-    str(Path.home() / 'AppData/Local/Microsoft/Windows/Fonts'),
-    str(Path.home() / 'AppData/Roaming/Microsoft/Windows/Fonts'),
+    str(_HOME / 'AppData/Local/Microsoft/Windows/Fonts'),
+    str(_HOME / 'AppData/Roaming/Microsoft/Windows/Fonts'),
 ]
 X11FontDirectories = [
     # an old standard installation point
@@ -149,9 +153,9 @@ X11FontDirectories = [
     # common application, not really useful
     "/usr/lib/openoffice/share/fonts/truetype/",
     # user fonts
-    str((Path(os.environ.get('XDG_DATA_HOME') or Path.home() / ".local/share"))
+    str((Path(os.environ.get('XDG_DATA_HOME') or _HOME / ".local/share"))
         / "fonts"),
-    str(Path.home() / ".fonts"),
+    str(_HOME / ".fonts"),
 ]
 OSXFontDirectories = [
     "/Library/Fonts/",
@@ -160,7 +164,7 @@ OSXFontDirectories = [
     # fonts installed via MacPorts
     "/opt/local/share/fonts",
     # user fonts
-    str(Path.home() / "Library/Fonts"),
+    str(_HOME / "Library/Fonts"),
 ]
 
 
@@ -244,11 +248,6 @@ def _win32RegistryFonts(reg_domain, base_dir):
                     key, value, tp = winreg.EnumValue(local, j)
                     if not isinstance(value, str):
                         continue
-
-                    # Work around for https://bugs.python.org/issue25778, which
-                    # is fixed in Py>=3.6.1.
-                    value = value.split("\0", 1)[0]
-
                     try:
                         # If value contains already an absolute path, then it
                         # is not changed further.

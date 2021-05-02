@@ -135,7 +135,7 @@ axins3 = inset_axes(ax2, width="100%", height="100%",
 
 # Create an inset horizontally centered in figure coordinates and vertically
 # bound to line up with the axes.
-from matplotlib.transforms import blended_transform_factory
+from matplotlib.transforms import blended_transform_factory  # noqa
 transform = blended_transform_factory(fig.transFigure, ax2.transAxes)
 axins4 = inset_axes(ax2, width="16%", height="34%",
                     bbox_to_anchor=(0, 0, 1, 1),
