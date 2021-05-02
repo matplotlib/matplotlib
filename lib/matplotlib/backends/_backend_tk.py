@@ -166,6 +166,7 @@ class FigureCanvasTk(FigureCanvasBase):
         super().__init__(figure)
         self._idle = True
         self._idle_callback = None
+        self._event_loop_id = None
         w, h = self.figure.bbox.size.astype(int)
         self._tkcanvas = tk.Canvas(
             master=master, background="white",
@@ -374,11 +375,20 @@ class FigureCanvasTk(FigureCanvasBase):
     def start_event_loop(self, timeout=0):
         # docstring inherited
         if timeout > 0:
-            self._master.after(int(1000*timeout), self.stop_event_loop)
+            milliseconds = int(1000 * timeout)
+            if milliseconds > 0:
+                self._event_loop_id = self._tkcanvas.after(
+                    milliseconds, self.stop_event_loop)
+            else:
+                self._event_loop_id = self._tkcanvas.after_idle(
+                    self.stop_event_loop)
         self._master.mainloop()
 
     def stop_event_loop(self):
         # docstring inherited
+        if self._event_loop_id:
+            self._master.after_cancel(self._event_loop_id)
+            self._event_loop_id = None
         self._master.quit()
 
 
@@ -454,6 +464,8 @@ class FigureManagerTk(FigureManagerBase):
     def destroy(self, *args):
         if self.canvas._idle_callback:
             self.canvas._tkcanvas.after_cancel(self.canvas._idle_callback)
+        if self.canvas._event_loop_id:
+            self.canvas._tkcanvas.after_cancel(self.canvas._event_loop_id)
 
         # NOTE: events need to be flushed before issuing destroy (GH #9956),
         # however, self.window.update() can break user code. This is the
@@ -466,7 +478,8 @@ class FigureManagerTk(FigureManagerBase):
             if self._owns_mainloop and not Gcf.get_num_fig_managers():
                 self.window.quit()
 
-        self.window.after_idle(delayed_destroy)
+        # "after idle after 0" avoids Tcl error/race (GH #19940)
+        self.window.after_idle(self.window.after, 0, delayed_destroy)
 
     def get_window_title(self):
         return self.window.wm_title()
