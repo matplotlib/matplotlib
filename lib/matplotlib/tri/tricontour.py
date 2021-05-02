@@ -253,7 +253,6 @@ xunits, yunits : registered units, optional
     Override axis units by specifying an instance of a
     :class:`matplotlib.units.ConversionInterface`.
 
-
 antialiased : bool, optional
     Enable antialiasing, overriding the defaults.  For
     filled contours, the default is *True*.  For line contours,
