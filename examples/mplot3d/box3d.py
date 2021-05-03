@@ -28,7 +28,7 @@ kw = {
 }
 
 # Create a figure with 3D ax
-fig = plt.figure(figsize=(7, 4))
+fig = plt.figure(figsize=(5, 4))
 ax = fig.add_subplot(111, projection='3d')
 
 # Plot contour surfaces
