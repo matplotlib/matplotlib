@@ -1414,7 +1414,7 @@ def _load_fontmanager(*, try_read_cache=True):
     if try_read_cache:
         try:
             fm = json_load(fm_path)
-        except Exception as exc:
+        except Exception:
             pass
         else:
             if getattr(fm, "_version", object()) == FontManager.__version__:

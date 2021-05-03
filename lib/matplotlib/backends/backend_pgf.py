@@ -373,7 +373,7 @@ def _get_image_inclusion_command():
         # Don't mess with backslashes on Windows.
         % cbook._get_data_path("images/matplotlib.png").as_posix())
     try:
-        prompt = man._expect_prompt()
+        man._expect_prompt()
         return r"\includegraphics"
     except LatexError:
         # Discard the broken manager.
