@@ -606,13 +606,13 @@ def get_line_anim(constructor, size, fmt="r-", use_init=False):
     return anim
 
 
-@functools.lru_cache
+@functools.lru_cache()
 def get_line_anim_frames(constructor, size, tmpdir, fmt="r-", use_init=False):
     anim = get_line_anim(constructor, size, fmt=fmt, use_init=use_init)
     return get_frames(anim, size, tmpdir)
 
 
-@functools.lru_cache
+@functools.lru_cache()
 def get_text_anim_frames(
     constructor, size, tmpdir, init_text="", use_init=False, math_mode=False
 ):

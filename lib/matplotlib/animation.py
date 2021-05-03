@@ -1997,7 +1997,7 @@ class SVGFuncAnimation:
             return sorted(artists, key=lambda x: x.get_zorder())
         return []
 
-    @lru_cache
+    @lru_cache()
     def _grab_frames(self):
         # Clear previous data
         self._base_document = None
