@@ -60,13 +60,6 @@ subprocess_creation_flags = (
 # (https://stackoverflow.com/q/2940671/)
 
 
-def get_all_children(artist):
-    if isinstance(artist, mpl.artist.Artist):
-        for child in artist.get_children():
-            yield from get_all_children(child)
-        yield artist
-
-
 def adjusted_figsize(w, h, dpi, n):
     """
     Compute figure size so that pixels are a multiple of n.
@@ -1956,6 +1949,13 @@ class SVGFuncAnimation:
                     if retval:
                         return retval
 
+    @staticmethod
+    def _get_all_children(artist):
+        if isinstance(artist, mpl.artist.Artist):
+            for child in artist.get_children():
+                yield from SVGFuncAnimation._get_all_children(child)
+            yield artist
+
     def _validate_artists(self, artists, name="animation function", set_animated=False):
         # Both `_init_func` and `_func` should return an iterable of artists
         # if blit is True. Otherwise the return value is not used.
@@ -2012,7 +2012,7 @@ class SVGFuncAnimation:
             # when an artist is drawn in SVG it will be encased in a group with
             # an id equal to the artist's gid and the gid of an artist doesn't
             # change when the artist's data changes.
-            for artist in get_all_children(self._fig):
+            for artist in self._get_all_children(self._fig):
                 artist.set_gid(f"{artist.__class__.__name__}_{uuid.uuid4().hex}")
 
             # Now we can save the initial figure, without finalizing it's renderer.
