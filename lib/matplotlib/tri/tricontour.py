@@ -268,7 +268,6 @@ nchunk : int >= 0, optional
     on the backend, the *antialiased* flag and value of *alpha*.""")
 
 
-
 @docstring.Substitution(func='tricontour', type='lines')
 @docstring.dedent_interpd
 def tricontour(ax, *args, **kwargs):
