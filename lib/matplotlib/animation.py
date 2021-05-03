@@ -40,8 +40,16 @@ from PIL import Image
 
 import matplotlib as mpl
 from matplotlib._animation_data import (
-    DISPLAY_TEMPLATE, INCLUDED_FRAMES, JS_INCLUDE, STYLE_INCLUDE, SVG_DISPLAY_TEMPLATE, SVG_JS_INCLUDE)
-from matplotlib.backends.backend_svg import MixedModeRenderer, RendererSVG, XMLWriter
+    DISPLAY_TEMPLATE,
+    INCLUDED_FRAMES,
+    JS_INCLUDE,
+    STYLE_INCLUDE,
+    SVG_DISPLAY_TEMPLATE,
+    SVG_JS_INCLUDE
+)
+from matplotlib.backends.backend_svg import (
+    MixedModeRenderer, RendererSVG, XMLWriter
+)
 from matplotlib import _api, cbook
 import matplotlib.colors as mcolors
 
@@ -1805,7 +1813,8 @@ def _validate_grabframe_kwargs(savefig_kwargs):
 
 class SVGFuncAnimation:
     """
-    Makes an SVG animation by repeatedly calling a function *func* which return modified artists.
+    Makes an SVG animation by repeatedly calling a function *func* which
+    return modified artists.
 
     Parameters
     ----------
@@ -1822,8 +1831,8 @@ class SVGFuncAnimation:
             def func(frame, *fargs) -> iterable_of_artists
 
         *func* must return an iterable of all artists that were modified or
-        created. This information is used by the blitting algorithm to determine
-        which parts of the figure have to be updated.
+        created. This information is used by the blitting algorithm to
+        determine which parts of the figure have to be updated.
 
     frames : iterable, int, generator function, or None, optional
         Source of data to pass *func* and each frame of the animation
@@ -1872,6 +1881,7 @@ class SVGFuncAnimation:
     interval : int, default: 200
         Delay between frames in milliseconds.
     """
+
     def __init__(
         self,
         fig,
@@ -1892,7 +1902,8 @@ class SVGFuncAnimation:
         self._args = fargs if fargs else ()
         self._kwargs = fkwargs if fkwargs else {}
         self._default_mode = default_mode.lower()
-        _api.check_in_list(['loop', 'once', 'reflect'], default_mode=self._default_mode)
+        _api.check_in_list(["loop", "once", "reflect"],
+                           default_mode=self._default_mode)
         self._save_count = save_count
         self._interval = interval
         self._blit = blit
@@ -1913,7 +1924,7 @@ class SVGFuncAnimation:
 
         # Save embed limit, which is given in MB
         if embed_limit is None:
-            self._bytes_limit = mpl.rcParams['animation.embed_limit']
+            self._bytes_limit = mpl.rcParams["animation.embed_limit"]
         else:
             self._bytes_limit = embed_limit
         # Convert from MB to bytes
@@ -1925,7 +1936,7 @@ class SVGFuncAnimation:
             self._iter_gen = frames
         elif np.iterable(frames):
             self._iter_gen = lambda: iter(frames)
-            if hasattr(frames, '__len__'):
+            if hasattr(frames, "__len__"):
                 self._save_count = len(frames)
         else:
             self._iter_gen = lambda: iter(range(frames))
@@ -1933,9 +1944,10 @@ class SVGFuncAnimation:
 
     @staticmethod
     def _find_by_attr(dom, value, attr="id", return_child=True):
-        # this could be done better with a more advanced XML parser but has been
-        # done like so to minimize external dependencies. ElementTree re-writes
-        # and changes the namespaces so we use minidom instead.
+        # This could be done better with a more advanced XML parser,
+        # but has been done like so to minimize external dependencies.
+        # ElementTree re-writes and changes the namespaces so here
+        # we use minidom instead.
         for index, child in enumerate(dom.childNodes):
             if isinstance(child, minidom.Element):
                 if child.getAttribute(attr) == value:
@@ -1956,7 +1968,8 @@ class SVGFuncAnimation:
                 yield from SVGFuncAnimation._get_all_children(child)
             yield artist
 
-    def _validate_artists(self, artists, name="animation function", set_animated=False):
+    def _validate_artists(self, artists, name="animation function",
+                          set_animated=False):
         # Both `_init_func` and `_func` should return an iterable of artists
         # if blit is True. Otherwise the return value is not used.
         if self._blit:
@@ -1993,9 +2006,10 @@ class SVGFuncAnimation:
         self._renderer = None
 
         with StringIO() as f:
-            # Init figure by adding all artists returned by init_func to the figure
-            # And marking them as visible and not animated. This makes sure they get
-            # drawn in the first frame. We later mark them as animated for better blitting.
+            # Init figure by adding all artists returned by init_func to
+            # the figure and marking them as visible and not animated. This
+            # makes sure they get drawn in the first frame. We later mark
+            # them as animated for better blitting.
             if self._init_func:
                 init_artists = self._init_func()
                 init_artists = self._validate_artists(
@@ -2009,15 +2023,17 @@ class SVGFuncAnimation:
                 init_artists = []
 
             # Set the gid of every artist to a uuid, the idea here is that
-            # when an artist is drawn in SVG it will be encased in a group with
-            # an id equal to the artist's gid and the gid of an artist doesn't
-            # change when the artist's data changes.
+            # when an artist is drawn in SVG it will be encased in a group
+            # with an id equal to the artist's gid and the gid of an artist
+            # doesn't change when the artist's data changes.
             for artist in self._get_all_children(self._fig):
-                artist.set_gid(f"{artist.__class__.__name__}_{uuid.uuid4().hex}")
+                artist.set_gid(
+                    f"{artist.__class__.__name__}_{uuid.uuid4().hex}")
 
-            # Now we can save the initial figure, without finalizing it's renderer.
-            # This keeps the renderer._defs from being written until we know all of them.
-            # Also keep a ref to the writer in order to swap it out for each artist redraw.
+            # Now we can save the initial figure, without finalizing it's
+            # renderer. This keeps the renderer._defs from being written
+            # until we know all of them. Also keep a ref to the writer in
+            # order to swap it out for each artist redraw.
             dpi = self._fig.get_dpi()
             self._fig.set_dpi(72)
             width, height = self._fig.get_size_inches()
@@ -2058,12 +2074,14 @@ class SVGFuncAnimation:
                     # Check that this artist is known
                     if artist_gid not in known_groups:
                         raise ValueError(
-                            f"Artist {artist}, with gid={artist.get_gid()}, not recognized. "
-                            f"This usually occurs when the animation function returns a new artist."
+                            f"Artist {artist}, with gid={artist.get_gid()}, "
+                            f"not recognized. This usually occurs when the "
+                            f"animation function returns a new artist."
                         )
 
-                    # By switching out the underlying writer we can capture the
-                    # new data but any new defs get captured by the base document.
+                    # By switching out the underlying writer we can capture
+                    # the new data but any new defs get captured by the
+                    # base document.
                     with StringIO() as artist_f:
                         writer = XMLWriter(artist_f)
                         self._vector_renderer.writer = writer
@@ -2076,11 +2094,14 @@ class SVGFuncAnimation:
 
                 if self._total_bytes >= self._bytes_limit:
                     _log.warning(
-                        "Animation size has reached %s bytes, exceeding the limit "
-                        "of %s. If you're sure you want a larger animation "
-                        "embedded, set the animation.embed_limit rc parameter to "
-                        "a larger value (in MB). This and further frames will be "
-                        "dropped.", self._total_bytes, self._bytes_limit)
+                        "Animation size has reached %s bytes, exceeding "
+                        "the limit of %s. If you're sure you want a larger "
+                        "animation embedded, set the animation.embed_limit "
+                        "rc parameter to a larger value (in MB). This and "
+                        "further frames will be dropped.",
+                        self._total_bytes,
+                        self._bytes_limit,
+                    )
                     break
                 else:
                     self._embedded_frames.append(drawn_artists)
@@ -2094,9 +2115,10 @@ class SVGFuncAnimation:
         """
         Get a single frame as a valid SVG document.
 
-        The full animation isn't simply created by calling this repeatedly, instead the final
-        animation reuses parts that are common between frames. This method is useful for debugging
-        and extracting still frames but shouldn't be used to generate all animation frames.
+        The full animation isn't simply created by calling this repeatedly,
+        instead the final animation reuses parts that are common between
+        frames. This method is useful for debugging and extracting still
+        frames but shouldn't be used to generate all animation frames.
 
         Parameters
         ----------
@@ -2104,11 +2126,13 @@ class SVGFuncAnimation:
             Index of frame to grab
         """
         self._grab_frames()
-        # Note: we use minidom instead of etree as etree messes up the namespaces
+        # Note: we use minidom instead of etree
+        # because etree messes up the namespaces
         base = minidom.parseString(self._base_document)
         for gid, data in self._embedded_frames[index].items():
             index, parent = self._find_by_attr(base, gid, return_child=False)
-            # Slightly abuse text nodes to inject XML chunks into doc (requires unescaping)
+            # Slightly abuse text nodes to inject XML
+            # chunks into doc (requires unescaping)
             parent.childNodes[index] = base.createTextNode(data)
         return unescape(base.toxml())
 
@@ -2132,8 +2156,8 @@ class SVGFuncAnimation:
         self._grab_frames()
 
         # Convert interval in ms to frames per second
-        interval = self._interval if fps is None else np.floor(1000/fps)
-        default_mode = self._default_mode if default_mode is None else default_mode
+        interval = self._interval if fps is None else np.floor(1000 / fps)
+        default_mode = default_mode if default_mode else self._default_mode
 
         mode_dict = dict(once_checked="", loop_checked="", reflect_checked="")
         mode_dict[default_mode + "_checked"] = "checked"
