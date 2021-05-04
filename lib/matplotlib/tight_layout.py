@@ -293,6 +293,12 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
 
     span_pairs = []
     for ss in ss_to_subplots:
+        # The intent here is to support axes from different gridspecs where
+        # one's nrows (or ncols) is a multiple of the other (e.g. 2 and 4),
+        # but this doesn't actually work because the computed wspace, in
+        # relative-axes-height, corresponds to different physical spacings for
+        # the 2-row grid and the 4-row grid.  Still, this code is left, mostly
+        # for backcompat.
         rows, cols = ss.get_gridspec().get_geometry()
         div_row, mod_row = divmod(max_nrows, rows)
         div_col, mod_col = divmod(max_ncols, cols)
