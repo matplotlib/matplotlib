@@ -90,13 +90,10 @@ jobs:
         run: |
           python -m cibuildwheel --output-dir dist
         env:
-          CIBW_BUILD: "pp3?-*"
+          CIBW_BUILD: "pp37-*"
           CIBW_BEFORE_BUILD: pip install certifi numpy==${{ env.min-numpy-version }}
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-        if: >
-          runner.os != 'Windows' && (
-          startsWith(github.ref, 'refs/heads/v3.3') ||
-          startsWith(github.ref, 'refs/tags/v3.3') )
+        if: runner.os != 'Windows'
 
       - name: Validate that LICENSE files are included in wheels
         run: |
