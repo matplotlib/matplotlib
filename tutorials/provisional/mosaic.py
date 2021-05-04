@@ -66,13 +66,13 @@ hist_data = np.random.randn(1_500)
 fig = plt.figure(constrained_layout=True)
 ax_array = fig.subplots(2, 2, squeeze=False)
 
-ax_array[0, 0].bar(['a', 'b', 'c'], [5, 7, 9])
+ax_array[0, 0].bar(["a", "b", "c"], [5, 7, 9])
 ax_array[0, 1].plot([1, 2, 3])
-ax_array[1, 0].hist(hist_data, bins='auto')
+ax_array[1, 0].hist(hist_data, bins="auto")
 ax_array[1, 1].imshow([[1, 2], [2, 1]])
 
 identify_axes(
-    {(j, k): a for j, r in enumerate(ax_array) for k, a in enumerate(r)}
+    {(j, k): a for j, r in enumerate(ax_array) for k, a in enumerate(r)},
 )
 
 ###############################################################################
@@ -81,12 +81,15 @@ identify_axes(
 
 fig = plt.figure(constrained_layout=True)
 ax_dict = fig.subplot_mosaic(
-    [['bar',  'plot'],
-     ['hist', 'image']])
-ax_dict['bar'].bar(['a', 'b', 'c'], [5, 7, 9])
-ax_dict['plot'].plot([1, 2, 3])
-ax_dict['hist'].hist(hist_data)
-ax_dict['image'].imshow([[1, 2], [2, 1]])
+    [
+        ["bar", "plot"],
+        ["hist", "image"],
+    ],
+)
+ax_dict["bar"].bar(["a", "b", "c"], [5, 7, 9])
+ax_dict["plot"].plot([1, 2, 3])
+ax_dict["hist"].hist(hist_data)
+ax_dict["image"].imshow([[1, 2], [2, 1]])
 identify_axes(ax_dict)
 
 ###############################################################################
@@ -277,11 +280,12 @@ identify_axes(axd)
 # list), for example using spans, blanks, and *gridspec_kw*:
 
 axd = plt.figure(constrained_layout=True).subplot_mosaic(
-    [["main", "zoom"],
-     ["main", "BLANK"]
-     ],
+    [
+        ["main", "zoom"],
+        ["main", "BLANK"],
+    ],
     empty_sentinel="BLANK",
-    gridspec_kw={"width_ratios": [2, 1]}
+    gridspec_kw={"width_ratios": [2, 1]},
 )
 identify_axes(axd)
 
@@ -311,6 +315,7 @@ mosaic = np.zeros((4, 4), dtype=int)
 for j in range(4):
     mosaic[j, j] = j + 1
 axd = plt.figure(constrained_layout=True).subplot_mosaic(
-    mosaic, empty_sentinel=0
+    mosaic,
+    empty_sentinel=0,
 )
 identify_axes(axd)
