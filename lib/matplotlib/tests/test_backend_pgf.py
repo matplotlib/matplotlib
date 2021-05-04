@@ -257,13 +257,17 @@ def test_pdf_pages_metadata_check(monkeypatch, system):
     if '/PTEX.Fullbanner' in info:
         del info['/PTEX.Fullbanner']
 
+    # Some LaTeX engines ignore this setting, and state themselves as producer.
+    producer = info.pop('/Producer')
+    assert producer == f'Matplotlib pgf backend v{mpl.__version__}' or (
+            system == 'lualatex' and 'LuaTeX' in producer)
+
     assert info == {
         '/Author': 'me',
         '/CreationDate': 'D:19700101000000Z',
         '/Creator': f'Matplotlib v{mpl.__version__}, https://matplotlib.org',
         '/Keywords': 'test,pdf,multipage',
         '/ModDate': 'D:19680801000000Z',
-        '/Producer': f'Matplotlib pgf backend v{mpl.__version__}',
         '/Subject': 'Test page',
         '/Title': 'Multipage PDF with pgf',
         '/Trapped': '/True',
