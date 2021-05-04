@@ -243,6 +243,19 @@ axd = fig.subplot_mosaic(
 )
 identify_axes(axd)
 
+###############################################################################
+# Alternatively, you can use the sub-Figure functionality:
+
+mosaic = """AA
+            BC"""
+fig = plt.figure(constrained_layout=True)
+left, right = fig.subfigures(nrows=1, ncols=2)
+axd = left.subplot_mosaic(mosaic)
+identify_axes(axd)
+
+axd = right.subplot_mosaic(mosaic)
+identify_axes(axd)
+
 
 ###############################################################################
 # We can also pass through arguments used to create the subplots
