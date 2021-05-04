@@ -21,6 +21,11 @@
 #include "_backend_agg_basic_types.h"
 #include "numpy_cpp.h"
 
+/* Compatibility for PyPy3.7 before 7.3.4. */
+#ifndef Py_DTSF_ADD_DOT_0
+#define Py_DTSF_ADD_DOT_0 0x2
+#endif
+
 struct XY
 {
     double x;
