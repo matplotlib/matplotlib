@@ -169,7 +169,7 @@ and mapping toolkit (Cartopy_).
 
 .. _seaborn: https://seaborn.pydata.org
 .. _HoloViews: https://holoviews.org
-.. _ggplot: http://ggplot.yhathq.com
+.. _ggplot: https://yhat.github.io/ggpy/
 .. _Cartopy: https://scitools.org.uk/cartopy/docs/latest
 
 Citing Matplotlib
