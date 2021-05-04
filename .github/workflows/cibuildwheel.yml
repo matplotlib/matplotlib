@@ -93,7 +93,6 @@ jobs:
           CIBW_BUILD: "pp37-*"
           CIBW_BEFORE_BUILD: pip install certifi numpy==${{ env.min-numpy-version }}
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-        if: runner.os != 'Windows'
 
       - name: Validate that LICENSE files are included in wheels
         run: |
