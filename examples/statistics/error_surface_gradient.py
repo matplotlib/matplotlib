@@ -35,7 +35,7 @@ def plot_mesh(X_data, y_data, bounds):
         for j, w_j in enumerate(y_range):
             Z[j,i] = error(X_data, y_data, [w_i, w_j])
     fig = plt.figure(figsize=(7,5))
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(111, projection='3d')
     
     ax.plot_surface(X, Y, Z, cmap=cm.plasma, linewidth=1, antialiased=True, alpha=0.5)
     ax.plot_wireframe(X, Y, Z, rstride=10, cstride=10, cmap=cm.plasma, linewidth=1, color='navy')
