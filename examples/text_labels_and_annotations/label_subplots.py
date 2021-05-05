@@ -45,7 +45,7 @@ plt.show()
 
 ##############################################################################
 # If we want it aligned with the title, either incorporate in the title or
-# use the ``loc`` kwarg:
+# use the *loc* keyword argument:
 
 fig, axs = plt.subplot_mosaic([['a)', 'c)'], ['b)', 'c)'], ['d)', 'd)']],
                               constrained_layout=True)
