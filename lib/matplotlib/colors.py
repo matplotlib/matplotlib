@@ -1341,6 +1341,8 @@ class CenteredNorm(Normalize):
             array([0.25, 0.5 , 1.  ])
         """
         self._vcenter = vcenter
+        self.vmin = None
+        self.vmax = None
         # calling the halfrange setter to set vmin and vmax
         self.halfrange = halfrange
         self.clip = clip
@@ -1364,7 +1366,7 @@ class CenteredNorm(Normalize):
     def autoscale_None(self, A):
         """Set *vmin* and *vmax*."""
         A = np.asanyarray(A)
-        if self.vmax is None and A.size:
+        if self._halfrange is None and A.size:
             self.autoscale(A)
 
     @property
