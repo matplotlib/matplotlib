@@ -418,6 +418,12 @@ def test_CenteredNorm():
     norm.autoscale_None([1, 2])
     assert norm.vmax + norm.vmin == 2 * vcenter
 
+    # Check that halfrange can be set without setting vcenter and that it is
+    # not reset through autoscale_None.
+    norm = mcolors.CenteredNorm(halfrange=1.0)
+    norm.autoscale_None([1, 3000])
+    assert norm.halfrange == 1.0
+
     # Check that halfrange input works correctly.
     x = np.random.normal(size=10)
     norm = mcolors.CenteredNorm(vcenter=0.5, halfrange=0.5)
