@@ -37,6 +37,10 @@ jobs:
             python-version: 3.8
             extra-requirements: '-r requirements/testing/extra.txt'
             XVFB_RUN: xvfb-run -a
+          - os: ubuntu-20.04
+            python-version: 3.9
+            extra-requirements: '-r requirements/testing/extra.txt'
+            XVFB_RUN: xvfb-run -a
           - os: macos-latest
             python-version: 3.8
             XVFB_RUN: ""
@@ -176,7 +180,7 @@ jobs:
                echo 'PySide2 is not available'
           fi
           python -m pip install --upgrade \
-            -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-18.04 \
+            -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-$(lsb_release -r -s) \
             wxPython &&
             python -c 'import wx' &&
             echo 'wxPython is available' ||
@@ -190,7 +194,11 @@ jobs:
           # Set flag in a delayed manner to avoid issues with installing other
           # packages
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
-            export CPPFLAGS=--coverage
+            if [[ "$(lsb_release -r -s)" == "20.04" ]]; then
+              export CPPFLAGS='--coverage -fprofile-abs-path'
+            else
+              export CPPFLAGS='--coverage'
+            fi
           fi
 
           # All dependencies must have been pre-installed, so that the minver
