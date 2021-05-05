@@ -91,8 +91,6 @@ class AnnotatedCursor(Cursor):
         # Saves ax as class attribute.
         super().__init__(**cursorargs)
 
-        # The numbers displayed next to cursor. Default value.
-        self.textdata = [0, 0]
         # Default value for position of text.
         self.set_position(self.line.get_xdata()[0], self.line.get_ydata()[0])
         # Create invisible animated text
