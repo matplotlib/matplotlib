@@ -134,8 +134,10 @@ bool RendererAgg::render_clippath(py::PathIterator &clippath,
 {
     typedef agg::conv_transform<py::PathIterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removed_t;
-    typedef PathClipper<nan_removed_t> clipped_t;
-    typedef PathSnapper<clipped_t> snapped_t;
+    /* Unlike normal Paths, the clip path cannot be clipped to the Figure bbox,
+     * because it needs to remain a complete closed path, so there is no
+     * PathClipper<nan_removed_t> step. */
+    typedef PathSnapper<nan_removed_t> snapped_t;
     typedef PathSimplifier<snapped_t> simplify_t;
     typedef agg::conv_curve<simplify_t> curve_t;
 
@@ -151,8 +153,7 @@ bool RendererAgg::render_clippath(py::PathIterator &clippath,
         rendererBaseAlphaMask.clear(agg::gray8(0, 0));
         transformed_path_t transformed_clippath(clippath, trans);
         nan_removed_t nan_removed_clippath(transformed_clippath, true, clippath.has_curves());
-        clipped_t clipped_clippath(nan_removed_clippath, !clippath.has_curves(), width, height);
-        snapped_t snapped_clippath(clipped_clippath, snap_mode, clippath.total_vertices(), 0.0);
+        snapped_t snapped_clippath(nan_removed_clippath, snap_mode, clippath.total_vertices(), 0.0);
         simplify_t simplified_clippath(snapped_clippath,
                                        clippath.should_simplify() && !clippath.has_curves(),
                                        clippath.simplify_threshold());
