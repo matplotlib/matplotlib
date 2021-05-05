@@ -31,8 +31,8 @@ class AnnotatedCursor(Cursor):
     the current coordinates.
 
     For the cursor to remain responsive you must keep a reference to it.
-    The data of the axis specified as *dataaxis* needs to be constantly
-    growing. Otherwise, the `numpy.searchsorted` call might fail and the text
+    The data of the axis specified as *dataaxis* must be in ascending
+    order. Otherwise, the `numpy.searchsorted` call might fail and the text
     disappears. You can satisfy the requirement by sorting the data you plot.
     Usually the data is already sorted (if it was created e.g. using
     `numpy.linspace`), but e.g. scatter plots might cause this problem.
@@ -48,15 +48,15 @@ class AnnotatedCursor(Cursor):
         The displayed text is created by calling *format()* on this string
         with the two coordinates.
 
-    offset : 2D array-like, optional, default: [5, 5]
+    offset : (float, float) default: (5, 5)
         The offset in display (pixel) coordinates of the text position
         relative to the cross hair.
 
     dataaxis : {"x", "y"}, optional, default: "x"
         If "x" is specified, the vertical cursor line sticks to the mouse
-        pointer. The horizontal cursor line sticks to the plotted line
-        at that x value. The text shows the data coordinates of the plotted
-        line at the pointed x value. If you specify "y", it works vice-versa.
+        pointer. The horizontal cursor line sticks to *line*
+        at that x value. The text shows the data coordinates of *line*
+        at the pointed x value. If you specify "y", it works in the opposite manner.
         But: For the "y" value, where the mouse points to, there might be
         multiple matching x values, if the plotted function is not biunique.
         Cursor and text coordinate will always refer to only one x value.
@@ -75,13 +75,13 @@ class AnnotatedCursor(Cursor):
 
     """
 
-    def __init__(self, line, numberformat="{0:.4g};{1:.4g}", offset=[5, 5],
+    def __init__(self, line, numberformat="{0:.4g};{1:.4g}", offset=(5, 5),
                  dataaxis='x', textprops={}, **cursorargs):
         # The line object, for which the coordinates are displayed
         self.line = line
         # The format string, on which .format() is called for creating the text
         self.numberformat = numberformat
-        # Text positio offset
+        # Text position offset
         self.offset = np.array(offset)
         # The axis in which the cursor position is looked up
         self.dataaxis = dataaxis
@@ -188,7 +188,7 @@ class AnnotatedCursor(Cursor):
         else:
             self.text.set_visible(False)
 
-        # Draw changes. Canot use _update method of baseclass,
+        # Draw changes. Cannot use _update method of baseclass,
         # because it would first restore the background, which
         # is done already and is not necessary.
         if self.useblit:
@@ -196,7 +196,7 @@ class AnnotatedCursor(Cursor):
             self.canvas.blit(self.ax.bbox)
         else:
             # If blitting is deactivated, the overridden _update call made
-            # by the base class immedeately returned.
+            # by the base class immediately returned.
             # We still have to draw the changes.
             self.canvas.draw_idle()
 
@@ -318,7 +318,7 @@ plt.show()
 # -----------------------------------
 # A call demonstrating problems with the *dataaxis=y* parameter.
 # The text now looks up the matching x value for the current cursor y position
-# instead of vice versa. Hover you cursor to y=4. There are two x values
+# instead of vice versa. Hover your cursor to y=4. There are two x values
 # producing this y value: -2 and 2. The function is only unique,
 # but not biunique. Only one value is shown in the text.
 
