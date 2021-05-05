@@ -209,10 +209,10 @@ ft_outline_move_to(FT_Vector const* to, void* user)
     ft_outline_decomposer* d = reinterpret_cast<ft_outline_decomposer*>(user);
     if (d->codes) {
         if (d->index) {
-            // Appending ENDPOLY is important to make patheffects work.
+            // Appending CLOSEPOLY is important to make patheffects work.
             *(d->vertices++) = 0;
             *(d->vertices++) = 0;
-            *(d->codes++) = ENDPOLY;
+            *(d->codes++) = CLOSEPOLY;
         }
         *(d->vertices++) = to->x / 64.;
         *(d->vertices++) = to->y / 64.;
@@ -292,7 +292,7 @@ FT2Font::get_path()
                      "FT_Outline_Decompose failed with error 0x%x", error);
         return NULL;
     }
-    if (!decomposer.index) {  // Don't append ENDPOLY to null glyphs.
+    if (!decomposer.index) {  // Don't append CLOSEPOLY to null glyphs.
       npy_intp vertices_dims[2] = { 0, 2 };
       numpy::array_view<double, 2> vertices(vertices_dims);
       npy_intp codes_dims[1] = { 0 };
@@ -315,7 +315,7 @@ FT2Font::get_path()
     }
     *(decomposer.vertices++) = 0;
     *(decomposer.vertices++) = 0;
-    *(decomposer.codes++) = ENDPOLY;
+    *(decomposer.codes++) = CLOSEPOLY;
     return Py_BuildValue("NN", vertices.pyobj(), codes.pyobj());
 }
 
