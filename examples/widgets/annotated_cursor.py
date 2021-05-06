@@ -56,9 +56,9 @@ class AnnotatedCursor(Cursor):
         If "x" is specified, the vertical cursor line sticks to the mouse
         pointer. The horizontal cursor line sticks to *line*
         at that x value. The text shows the data coordinates of *line*
-        at the pointed x value. If you specify "y", it works in the opposite manner.
-        But: For the "y" value, where the mouse points to, there might be
-        multiple matching x values, if the plotted function is not biunique.
+        at the pointed x value. If you specify "y", it works in the opposite
+        manner. But: For the "y" value, where the mouse points to, there might
+        be multiple matching x values, if the plotted function is not biunique.
         Cursor and text coordinate will always refer to only one x value.
         So if you use the parameter value "y", ensure that your function is
         biunique.
