@@ -257,7 +257,7 @@ antialiased : bool, optional
 def tricontour(ax, *args, **kwargs):
     """
     %(_tricontour_doc)s
-    
+
     corner_mask : bool, default: :rc:`contour.corner_mask`
         Enable/disable corner masking, which only has an effect if *Z* is
         a masked array.  If ``False``, any quad touching a masked point is
