@@ -777,12 +777,6 @@ class SubplotToolQt(UiSubplotTool):
 
         self._figure = targetfig
 
-        for lower, higher in [("bottom", "top"), ("left", "right")]:
-            self._widgets[lower].valueChanged.connect(
-                lambda val: self._widgets[higher].setMinimum(val + .001))
-            self._widgets[higher].valueChanged.connect(
-                lambda val: self._widgets[lower].setMaximum(val - .001))
-
         self._attrs = ["top", "bottom", "left", "right", "hspace", "wspace"]
         self._defaults = {attr: vars(self._figure.subplotpars)[attr]
                           for attr in self._attrs}
@@ -821,7 +815,12 @@ class SubplotToolQt(UiSubplotTool):
         dialog.exec_()
 
     def _on_value_changed(self):
-        self._figure.subplots_adjust(**{attr: self._widgets[attr].value()
+        widgets = self._widgets
+        # Set all mins and maxes, so that this can also be used in _reset().
+        for lower, higher in [("bottom", "top"), ("left", "right")]:
+            widgets[higher].setMinimum(widgets[lower].value() + .001)
+            widgets[lower].setMaximum(widgets[higher].value() - .001)
+        self._figure.subplots_adjust(**{attr: widgets[attr].value()
                                         for attr in self._attrs})
         self._figure.canvas.draw_idle()
 
@@ -836,7 +835,12 @@ class SubplotToolQt(UiSubplotTool):
 
     def _reset(self):
         for attr, value in self._defaults.items():
-            self._widgets[attr].setValue(value)
+            widget = self._widgets[attr]
+            widget.setRange(0, 1)
+            widget.blockSignals(True)
+            widget.setValue(value)
+            widget.blockSignals(False)
+        self._on_value_changed()
 
 
 class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
