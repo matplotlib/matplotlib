@@ -758,6 +758,18 @@ class Axis(martist.Artist):
         return [self.label, self.offsetText,
                 *self.get_major_ticks(), *self.get_minor_ticks()]
 
+    def _reset_major_tick_kw(self):
+        self._major_tick_kw.clear()
+        self._major_tick_kw['gridOn'] = (
+                mpl.rcParams['axes.grid'] and
+                mpl.rcParams['axes.grid.which'] in ('both', 'major'))
+
+    def _reset_minor_tick_kw(self):
+        self._minor_tick_kw.clear()
+        self._minor_tick_kw['gridOn'] = (
+                mpl.rcParams['axes.grid'] and
+                mpl.rcParams['axes.grid.which'] in ('both', 'minor'))
+
     def clear(self):
         """
         Clear the axis.
@@ -779,14 +791,8 @@ class Axis(martist.Artist):
         # Clear the callback registry for this axis, or it may "leak"
         self.callbacks = cbook.CallbackRegistry()
 
-        # whether the grids are on
-        self._major_tick_kw['gridOn'] = (
-                mpl.rcParams['axes.grid'] and
-                mpl.rcParams['axes.grid.which'] in ('both', 'major'))
-        self._minor_tick_kw['gridOn'] = (
-                mpl.rcParams['axes.grid'] and
-                mpl.rcParams['axes.grid.which'] in ('both', 'minor'))
-
+        self._reset_major_tick_kw()
+        self._reset_minor_tick_kw()
         self.reset_ticks()
 
         self.converter = None
@@ -833,10 +839,10 @@ class Axis(martist.Artist):
         # future new ticks will automatically get them
         if reset:
             if which in ['major', 'both']:
-                self._major_tick_kw.clear()
+                self._reset_major_tick_kw()
                 self._major_tick_kw.update(kwtrans)
             if which in ['minor', 'both']:
-                self._minor_tick_kw.clear()
+                self._reset_minor_tick_kw()
                 self._minor_tick_kw.update(kwtrans)
             self.reset_ticks()
         else:
@@ -1385,35 +1391,40 @@ class Axis(martist.Artist):
 
                 grid(color='r', linestyle='-', linewidth=2)
         """
-        if b is not None:
-            if 'visible' in kwargs and bool(b) != bool(kwargs['visible']):
+        TOGGLE = object()
+        UNSET = object()
+        visible = kwargs.pop('visible', UNSET)
+
+        if b is None:
+            if visible is UNSET:
+                if kwargs:  # grid(color='r')
+                    b = True
+                else:  # grid()
+                    b = TOGGLE
+            else:  # grid(visible=v)
+                b = visible
+        else:
+            if visible is not UNSET and bool(b) != bool(visible):
+                # grid(True, visible=False), grid(False, visible=True)
                 raise ValueError(
                     "'b' and 'visible' specify inconsistent grid visibilities")
             if kwargs and not b:  # something false-like but not None
+                # grid(0, visible=True)
                 _api.warn_external('First parameter to grid() is false, '
                                    'but line properties are supplied. The '
                                    'grid will be enabled.')
                 b = True
+
         which = which.lower()
         _api.check_in_list(['major', 'minor', 'both'], which=which)
         gridkw = {'grid_' + item[0]: item[1] for item in kwargs.items()}
-        if 'grid_visible' in gridkw:
-            forced_visibility = True
-            gridkw['gridOn'] = gridkw.pop('grid_visible')
-        else:
-            forced_visibility = False
-
         if which in ['minor', 'both']:
-            if b is None and not forced_visibility:
-                gridkw['gridOn'] = not self._minor_tick_kw['gridOn']
-            elif b is not None:
-                gridkw['gridOn'] = b
+            gridkw['gridOn'] = (not self._minor_tick_kw['gridOn']
+                                if b is TOGGLE else b)
             self.set_tick_params(which='minor', **gridkw)
         if which in ['major', 'both']:
-            if b is None and not forced_visibility:
-                gridkw['gridOn'] = not self._major_tick_kw['gridOn']
-            elif b is not None:
-                gridkw['gridOn'] = b
+            gridkw['gridOn'] = (not self._major_tick_kw['gridOn']
+                                if b is TOGGLE else b)
             self.set_tick_params(which='major', **gridkw)
         self.stale = True
 
