@@ -278,8 +278,8 @@ def test_docstring_addition():
             Text.
         """
     assert not re.search(r"all parameters also accept a string", funcy.__doc__)
-    assert not re.search(r"the following parameters .*: \*bar\*\.",
-                         funcy.__doc__)
+    assert re.search(r"the following parameters .*:\n    \*bar\*\.",
+                     funcy.__doc__, re.DOTALL)
 
     @_preprocess_data(replace_names=["x", "t"])
     def funcy(ax, x, y, z, t=None):
@@ -292,8 +292,8 @@ def test_docstring_addition():
             Text.
         """
     assert not re.search(r"all parameters also accept a string", funcy.__doc__)
-    assert not re.search(r"the following parameters .*: \*x\*, \*t\*\.",
-                         funcy.__doc__)
+    assert re.search(r"the following parameters .*:\n    \*x\*, \*t\*\.",
+                     funcy.__doc__, re.DOTALL)
 
 
 class TestPlotTypes:

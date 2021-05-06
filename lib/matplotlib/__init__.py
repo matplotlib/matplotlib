@@ -1291,7 +1291,7 @@ def _add_data_doc(docstring, replace_names):
         #   seems the most reliable way as the parameters section may be quite
         #   complex.
         # - Go back to the previous empty line (A section title must be
-        #   preceededby an emtpy line.
+        #   preceeded by an emtpy line.
         param_string = '\nParameters\n----------\n'
         i_params = docstring.find(param_string) + len(param_string)
         i_next_heading = docstring.find('\n----', i_params)
