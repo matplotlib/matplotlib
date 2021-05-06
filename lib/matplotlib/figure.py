@@ -14,6 +14,7 @@
     Control the default spacing between subplots.
 """
 
+from contextlib import ExitStack
 import inspect
 import logging
 from numbers import Integral
@@ -2936,23 +2937,15 @@ class Figure(FigureBase):
         if transparent is None:
             transparent = mpl.rcParams['savefig.transparent']
 
-        if transparent:
-            kwargs.setdefault('facecolor', 'none')
-            kwargs.setdefault('edgecolor', 'none')
-            original_axes_colors = []
-            for ax in self.axes:
-                patch = ax.patch
-                original_axes_colors.append((patch.get_facecolor(),
-                                             patch.get_edgecolor()))
-                patch.set_facecolor('none')
-                patch.set_edgecolor('none')
+        with ExitStack() as stack:
+            if transparent:
+                kwargs.setdefault('facecolor', 'none')
+                kwargs.setdefault('edgecolor', 'none')
+                for ax in self.axes:
+                    stack.enter_context(
+                        ax.patch._cm_set(facecolor='none', edgecolor='none'))
 
-        self.canvas.print_figure(fname, **kwargs)
-
-        if transparent:
-            for ax, cc in zip(self.axes, original_axes_colors):
-                ax.patch.set_facecolor(cc[0])
-                ax.patch.set_edgecolor(cc[1])
+            self.canvas.print_figure(fname, **kwargs)
 
     def ginput(self, n=1, timeout=30, show_clicks=True,
                mouse_add=MouseButton.LEFT,
