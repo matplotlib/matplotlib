@@ -11,7 +11,6 @@ from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     TimerBase, cursors, ToolContainerBase, MouseButton)
 import matplotlib.backends.qt_editor.figureoptions as figureoptions
-from matplotlib.backends.qt_editor._formsubplottool import UiSubplotTool
 from . import qt_compat
 from .qt_compat import (
     QtCore, QtGui, QtWidgets, __version__, QT_API,
@@ -759,27 +758,48 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             self._actions['forward'].setEnabled(can_forward)
 
 
-class SubplotToolQt(UiSubplotTool):
+class SubplotToolQt(QtWidgets.QDialog):
     def __init__(self, targetfig, parent):
-        super().__init__(None)
-
+        super().__init__()
+        self.setObjectName("SubplotTool")
+        self._spinboxes = {}
+        main_layout = QtWidgets.QHBoxLayout()
+        self.setLayout(main_layout)
+        for group, spinboxes, buttons in [
+                ("Borders",
+                 ["top", "bottom", "left", "right"],
+                 [("Export values", self._export_values)]),
+                ("Spacings",
+                 ["hspace", "wspace"],
+                 [("Tight layout", self._tight_layout),
+                  ("Reset", self._reset),
+                  ("Close", self.close)])]:
+            layout = QtWidgets.QVBoxLayout()
+            main_layout.addLayout(layout)
+            box = QtWidgets.QGroupBox(group)
+            layout.addWidget(box)
+            inner = QtWidgets.QFormLayout(box)
+            for name in spinboxes:
+                self._spinboxes[name] = spinbox = QtWidgets.QDoubleSpinBox()
+                spinbox.setValue(getattr(targetfig.subplotpars, name))
+                spinbox.setRange(0, 1)
+                spinbox.setDecimals(3)
+                spinbox.setSingleStep(0.005)
+                spinbox.setKeyboardTracking(False)
+                spinbox.valueChanged.connect(self._on_value_changed)
+                inner.addRow(name, spinbox)
+            layout.addStretch(1)
+            for name, method in buttons:
+                button = QtWidgets.QPushButton(name)
+                # Don't trigger on <enter>, which is used to input values.
+                button.setAutoDefault(False)
+                button.clicked.connect(method)
+                layout.addWidget(button)
+                if name == "Close":
+                    button.setFocus()
         self._figure = targetfig
-
-        self._attrs = ["top", "bottom", "left", "right", "hspace", "wspace"]
-        self._defaults = {attr: vars(self._figure.subplotpars)[attr]
-                          for attr in self._attrs}
-
-        # Set values after setting the range callbacks, but before setting up
-        # the redraw callbacks.
-        self._reset()
-
-        for attr in self._attrs:
-            self._widgets[attr].valueChanged.connect(self._on_value_changed)
-        for action, method in [("Export values", self._export_values),
-                               ("Tight layout", self._tight_layout),
-                               ("Reset", self._reset),
-                               ("Close", self.close)]:
-            self._widgets[action].clicked.connect(method)
+        self._defaults = {spinbox: vars(self._figure.subplotpars)[attr]
+                          for attr, spinbox in self._spinboxes.items()}
 
     def _export_values(self):
         # Explicitly round to 3 decimals (which is also the spinbox precision)
@@ -791,8 +811,8 @@ class SubplotToolQt(UiSubplotTool):
         text.setReadOnly(True)
         layout.addWidget(text)
         text.setPlainText(
-            ",\n".join("{}={:.3}".format(attr, self._widgets[attr].value())
-                       for attr in self._attrs))
+            ",\n".join(f"{attr}={spinbox.value():.3}"
+                       for attr, spinbox in self._spinboxes.items()))
         # Adjust the height of the text widget to fit the whole text, plus
         # some padding.
         size = text.maximumSize()
@@ -803,31 +823,29 @@ class SubplotToolQt(UiSubplotTool):
         dialog.exec_()
 
     def _on_value_changed(self):
-        widgets = self._widgets
+        spinboxes = self._spinboxes
         # Set all mins and maxes, so that this can also be used in _reset().
         for lower, higher in [("bottom", "top"), ("left", "right")]:
-            widgets[higher].setMinimum(widgets[lower].value() + .001)
-            widgets[lower].setMaximum(widgets[higher].value() - .001)
-        self._figure.subplots_adjust(**{attr: widgets[attr].value()
-                                        for attr in self._attrs})
+            spinboxes[higher].setMinimum(spinboxes[lower].value() + .001)
+            spinboxes[lower].setMaximum(spinboxes[higher].value() - .001)
+        self._figure.subplots_adjust(
+            **{attr: spinbox.value() for attr, spinbox in spinboxes.items()})
         self._figure.canvas.draw_idle()
 
     def _tight_layout(self):
         self._figure.tight_layout()
-        for attr in self._attrs:
-            widget = self._widgets[attr]
-            widget.blockSignals(True)
-            widget.setValue(vars(self._figure.subplotpars)[attr])
-            widget.blockSignals(False)
+        for attr, spinbox in self._spinboxes.items():
+            spinbox.blockSignals(True)
+            spinbox.setValue(vars(self._figure.subplotpars)[attr])
+            spinbox.blockSignals(False)
         self._figure.canvas.draw_idle()
 
     def _reset(self):
-        for attr, value in self._defaults.items():
-            widget = self._widgets[attr]
-            widget.setRange(0, 1)
-            widget.blockSignals(True)
-            widget.setValue(value)
-            widget.blockSignals(False)
+        for spinbox, value in self._defaults.items():
+            spinbox.setRange(0, 1)
+            spinbox.blockSignals(True)
+            spinbox.setValue(value)
+            spinbox.blockSignals(False)
         self._on_value_changed()
 
 
