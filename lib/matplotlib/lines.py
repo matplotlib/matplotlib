@@ -1295,7 +1295,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        s : `.JoinStyle` or %(JoinStyle)s
+        s : %(JoinStyleLink)s or %(JoinStyle)s
         """
         js = JoinStyle(s)
         if self._dashjoinstyle != js:
@@ -1309,7 +1309,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        s : `.JoinStyle` or %(JoinStyle)s
+        s : %(JoinStyleLink)s or %(JoinStyle)s
         """
         js = JoinStyle(s)
         if self._solidjoinstyle != js:
@@ -1318,7 +1318,7 @@ class Line2D(Artist):
 
     def get_dash_joinstyle(self):
         """
-        Return the `.JoinStyle` for dashed lines.
+        Return the %(JoinStyleLink)s for dashed lines.
 
         See also `~.Line2D.set_dash_joinstyle`.
         """
@@ -1326,7 +1326,7 @@ class Line2D(Artist):
 
     def get_solid_joinstyle(self):
         """
-        Return the `.JoinStyle` for solid lines.
+        Return the %(JoinStyleLink)s for solid lines.
 
         See also `~.Line2D.set_solid_joinstyle`.
         """
@@ -1339,7 +1339,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        s : `.CapStyle` or %(CapStyle)s
+        s : %(CapStyleLink)s or %(CapStyle)s
         """
         cs = CapStyle(s)
         if self._dashcapstyle != cs:
@@ -1353,7 +1353,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        s : `.CapStyle` or %(CapStyle)s
+        s : %(CapStyleLink)s or %(CapStyle)s
         """
         cs = CapStyle(s)
         if self._solidcapstyle != cs:
@@ -1362,7 +1362,7 @@ class Line2D(Artist):
 
     def get_dash_capstyle(self):
         """
-        Return the `.CapStyle` for dashed lines.
+        Return the %(CapStyleLink)s for dashed lines.
 
         See also `~.Line2D.set_dash_capstyle`.
         """
@@ -1370,7 +1370,7 @@ class Line2D(Artist):
 
     def get_solid_capstyle(self):
         """
-        Return the `.CapStyle` for solid lines.
+        Return the %(CapStyleLink)s for solid lines.
 
         See also `~.Line2D.set_solid_capstyle`.
         """

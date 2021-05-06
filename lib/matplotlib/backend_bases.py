@@ -805,8 +805,9 @@ class GraphicsContextBase:
         """Return whether the object should try to do antialiased rendering."""
         return self._antialiased
 
+    @docstring.interpd
     def get_capstyle(self):
-        """Return the `.CapStyle`."""
+        """Return the %(CapStyleLink)s."""
         return self._capstyle.name
 
     def get_clip_rectangle(self):
@@ -850,8 +851,9 @@ class GraphicsContextBase:
         """
         return self._forced_alpha
 
+    @docstring.interpd
     def get_joinstyle(self):
-        """Return the `.JoinStyle`."""
+        """Return the %(JoinStyleLink)s."""
         return self._joinstyle.name
 
     def get_linewidth(self):
@@ -910,7 +912,7 @@ class GraphicsContextBase:
 
         Parameters
         ----------
-        cs : `.CapStyle` or %(CapStyle)s
+        cs : %(CapStyleLink)s or %(CapStyle)s
         """
         self._capstyle = CapStyle(cs)
 
@@ -976,7 +978,7 @@ class GraphicsContextBase:
 
         Parameters
         ----------
-        js : `.JoinStyle` or %(JoinStyle)s
+        js : %(JoinStyleLink)s or %(JoinStyle)s
         """
         self._joinstyle = JoinStyle(js)
 

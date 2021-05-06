@@ -204,5 +204,9 @@ CapStyle.input_description = "{" \
         + ", ".join([f"'{cs.name}'" for cs in CapStyle]) \
         + "}"
 
-docstring.interpd.update({'JoinStyle': JoinStyle.input_description,
-                          'CapStyle': CapStyle.input_description})
+docstring.interpd.update({
+    'JoinStyleLink': '`~matplotlib._enums.JoinStyle`',
+    'JoinStyle': JoinStyle.input_description,
+    'CapStyleLink': '`~matplotlib._enums.CapStyle`',
+    'CapStyle': CapStyle.input_description
+})

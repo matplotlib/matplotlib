@@ -114,10 +114,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
             where *onoffseq* is an even length tuple of on and off ink lengths
             in points. For examples, see
             :doc:`/gallery/lines_bars_and_markers/linestyles`.
-        capstyle : `.CapStyle`-like, default: :rc:`patch.capstyle`
+        capstyle : %(CapStyleLink)s-like, default: :rc:`patch.capstyle`
             Style to use for capping lines for all paths in the collection.
             Allowed values are %(CapStyle)s.
-        joinstyle : `.JoinStyle`-like, default: :rc:`patch.joinstyle`
+        joinstyle : %(JoinStyleLink)s-like, default: :rc:`patch.joinstyle`
             Style to use for joining lines for all paths in the collection.
             Allowed values are %(JoinStyle)s.
         antialiaseds : bool or list of bool, default: :rc:`patch.antialiased`
@@ -664,11 +664,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
     @docstring.interpd
     def set_capstyle(self, cs):
         """
-        Set the `.CapStyle` for the collection (for all its elements).
+        Set the %(CapStyleLink)s for the collection (for all its elements).
 
         Parameters
         ----------
-        cs : `.CapStyle` or %(CapStyle)s
+        cs : %(CapStyleLink)s or %(CapStyle)s
         """
         self._capstyle = CapStyle(cs)
 
@@ -678,11 +678,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
     @docstring.interpd
     def set_joinstyle(self, js):
         """
-        Set the `.JoinStyle` for the collection (for all its elements).
+        Set the %(JoinStyleLink)s for the collection (for all its elements).
 
         Parameters
         ----------
-        js : `.JoinStyle` or %(JoinStyle)s
+        js : %(JoinStyleLink)s or %(JoinStyle)s
         """
         self._joinstyle = JoinStyle(js)
 

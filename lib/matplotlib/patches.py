@@ -479,11 +479,11 @@ class Patch(artist.Artist):
     @docstring.interpd
     def set_capstyle(self, s):
         """
-        Set the `.CapStyle`.
+        Set the %(CapStyleLink)s.
 
         Parameters
         ----------
-        s : `.CapStyle` or %(CapStyle)s
+        s :  %(CapStyleLink)s or %(CapStyle)s
         """
         cs = CapStyle(s)
         self._capstyle = cs
@@ -496,11 +496,11 @@ class Patch(artist.Artist):
     @docstring.interpd
     def set_joinstyle(self, s):
         """
-        Set the `.JoinStyle`.
+        Set the %(JoinStyleLink)s.
 
         Parameters
         ----------
-        s : `.JoinStyle` or %(JoinStyle)s
+        s : %(JoinStyleLink)s or %(JoinStyle)s
         """
         js = JoinStyle(s)
         self._joinstyle = js
