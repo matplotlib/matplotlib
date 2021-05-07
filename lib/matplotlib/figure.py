@@ -1674,7 +1674,7 @@ default: %(va)s
             layout = inspect.cleandoc(layout)
             return [list(ln) for ln in layout.strip('\n').split('\n')]
 
-    def subplot_mosaic(self, layout, *, subplot_kw=None, gridspec_kw=None,
+    def subplot_mosaic(self, mosaic, *, subplot_kw=None, gridspec_kw=None,
                        empty_sentinel='.'):
         """
         Build a layout of Axes based on ASCII art or nested lists.
@@ -1689,7 +1689,7 @@ default: %(va)s
 
         Parameters
         ----------
-        layout : list of list of {hashable or nested} or str
+        mosaic : list of list of {hashable or nested} or str
 
             A visual layout of how you want your Axes to be arranged
             labeled as strings.  For example ::
@@ -1748,8 +1748,8 @@ default: %(va)s
         subplot_kw = subplot_kw or {}
         gridspec_kw = gridspec_kw or {}
         # special-case string input
-        if isinstance(layout, str):
-            layout = self._normalize_grid_string(layout)
+        if isinstance(mosaic, str):
+            mosaic = self._normalize_grid_string(mosaic)
 
         def _make_array(inp):
             """
@@ -1767,10 +1767,10 @@ default: %(va)s
             """
             r0, *rest = inp
             if isinstance(r0, str):
-                raise ValueError('List layout specification must be 2D')
+                raise ValueError('List mosaic specification must be 2D')
             for j, r in enumerate(rest, start=1):
                 if isinstance(r, str):
-                    raise ValueError('List layout specification must be 2D')
+                    raise ValueError('List mosaic specification must be 2D')
                 if len(r0) != len(r):
                     raise ValueError(
                         "All of the rows must be the same length, however "
@@ -1783,24 +1783,24 @@ default: %(va)s
                     out[j, k] = v
             return out
 
-        def _identify_keys_and_nested(layout):
+        def _identify_keys_and_nested(mosaic):
             """
-            Given a 2D object array, identify unique IDs and nested layouts
+            Given a 2D object array, identify unique IDs and nested mosaics
 
             Parameters
             ----------
-            layout : 2D numpy object array
+            mosaic : 2D numpy object array
 
             Returns
             -------
             unique_ids : tuple
-                The unique non-sub layout entries in this layout
+                The unique non-sub mosaic entries in this mosaic
             nested : dict[tuple[int, int]], 2D object array
             """
             # make sure we preserve the user supplied order
             unique_ids = cbook._OrderedSet()
             nested = {}
-            for j, row in enumerate(layout):
+            for j, row in enumerate(mosaic):
                 for k, v in enumerate(row):
                     if v == empty_sentinel:
                         continue
@@ -1811,58 +1811,58 @@ default: %(va)s
 
             return tuple(unique_ids), nested
 
-        def _do_layout(gs, layout, unique_ids, nested):
+        def _do_layout(gs, mosaic, unique_ids, nested):
             """
-            Recursively do the layout.
+            Recursively do the mosaic.
 
             Parameters
             ----------
             gs : GridSpec
-            layout : 2D object array
+            mosaic : 2D object array
                 The input converted to a 2D numpy array for this level.
             unique_ids : tuple
                 The identified scalar labels at this level of nesting.
             nested : dict[tuple[int, int]], 2D object array
-                The identified nested layouts, if any.
+                The identified nested mosaics, if any.
 
             Returns
             -------
             dict[label, Axes]
                 A flat dict of all of the Axes created.
             """
-            rows, cols = layout.shape
+            rows, cols = mosaic.shape
             output = dict()
 
             # we need to merge together the Axes at this level and the axes
-            # in the (recursively) nested sub-layouts so that we can add
+            # in the (recursively) nested sub-mosaics so that we can add
             # them to the figure in the "natural" order if you were to
             # ravel in c-order all of the Axes that will be created
             #
             # This will stash the upper left index of each object (axes or
-            # nested layout) at this level
+            # nested mosaic) at this level
             this_level = dict()
 
             # go through the unique keys,
             for name in unique_ids:
                 # sort out where each axes starts/ends
-                indx = np.argwhere(layout == name)
+                indx = np.argwhere(mosaic == name)
                 start_row, start_col = np.min(indx, axis=0)
                 end_row, end_col = np.max(indx, axis=0) + 1
                 # and construct the slice object
                 slc = (slice(start_row, end_row), slice(start_col, end_col))
                 # some light error checking
-                if (layout[slc] != name).any():
+                if (mosaic[slc] != name).any():
                     raise ValueError(
-                        f"While trying to layout\n{layout!r}\n"
+                        f"While trying to layout\n{mosaic!r}\n"
                         f"we found that the label {name!r} specifies a "
                         "non-rectangular or non-contiguous area.")
                 # and stash this slice for later
                 this_level[(start_row, start_col)] = (name, slc, 'axes')
 
-            # do the same thing for the nested layouts (simpler because these
+            # do the same thing for the nested mosaics (simpler because these
             # can not be spans yet!)
-            for (j, k), nested_layout in nested.items():
-                this_level[(j, k)] = (None, nested_layout, 'nested')
+            for (j, k), nested_mosaic in nested.items():
+                this_level[(j, k)] = (None, nested_mosaic, 'nested')
 
             # now go through the things in this level and add them
             # in order left-to-right top-to-bottom
@@ -1870,43 +1870,43 @@ default: %(va)s
                 name, arg, method = this_level[key]
                 # we are doing some hokey function dispatch here based
                 # on the 'method' string stashed above to sort out if this
-                # element is an axes or a nested layout.
+                # element is an axes or a nested mosaic.
                 if method == 'axes':
                     slc = arg
                     # add a single axes
                     if name in output:
                         raise ValueError(f"There are duplicate keys {name} "
-                                         f"in the layout\n{layout!r}")
+                                         f"in the layout\n{mosaic!r}")
                     ax = self.add_subplot(
                         gs[slc], **{'label': str(name), **subplot_kw}
                     )
                     output[name] = ax
                 elif method == 'nested':
-                    nested_layout = arg
+                    nested_mosaic = arg
                     j, k = key
-                    # recursively add the nested layout
-                    rows, cols = nested_layout.shape
+                    # recursively add the nested mosaic
+                    rows, cols = nested_mosaic.shape
                     nested_output = _do_layout(
                         gs[j, k].subgridspec(rows, cols, **gridspec_kw),
-                        nested_layout,
-                        *_identify_keys_and_nested(nested_layout)
+                        nested_mosaic,
+                        *_identify_keys_and_nested(nested_mosaic)
                     )
                     overlap = set(output) & set(nested_output)
                     if overlap:
                         raise ValueError(
                             f"There are duplicate keys {overlap} "
-                            f"between the outer layout\n{layout!r}\n"
-                            f"and the nested layout\n{nested_layout}"
+                            f"between the outer layout\n{mosaic!r}\n"
+                            f"and the nested layout\n{nested_mosaic}"
                         )
                     output.update(nested_output)
                 else:
                     raise RuntimeError("This should never happen")
             return output
 
-        layout = _make_array(layout)
-        rows, cols = layout.shape
+        mosaic = _make_array(mosaic)
+        rows, cols = mosaic.shape
         gs = self.add_gridspec(rows, cols, **gridspec_kw)
-        ret = _do_layout(gs, layout, *_identify_keys_and_nested(layout))
+        ret = _do_layout(gs, mosaic, *_identify_keys_and_nested(mosaic))
         for k, ax in ret.items():
             if isinstance(k, str):
                 ax.set_label(k)
