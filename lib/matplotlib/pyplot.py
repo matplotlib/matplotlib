@@ -1432,7 +1432,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     return fig, axs
 
 
-def subplot_mosaic(layout, *, sharex=False, sharey=False,
+def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
                    subplot_kw=None, gridspec_kw=None, empty_sentinel='.',
                    **fig_kw):
     """
@@ -1447,7 +1447,7 @@ def subplot_mosaic(layout, *, sharex=False, sharey=False,
 
     Parameters
     ----------
-    layout : list of list of {hashable or nested} or str
+    mosaic : list of list of {hashable or nested} or str
 
         A visual layout of how you want your Axes to be arranged
         labeled as strings.  For example ::
@@ -1513,7 +1513,7 @@ def subplot_mosaic(layout, *, sharex=False, sharey=False,
     """
     fig = figure(**fig_kw)
     ax_dict = fig.subplot_mosaic(
-        layout, sharex=sharex, sharey=sharey,
+        mosaic, sharex=sharex, sharey=sharey,
         subplot_kw=subplot_kw, gridspec_kw=gridspec_kw,
         empty_sentinel=empty_sentinel
     )
