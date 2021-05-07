@@ -5651,9 +5651,10 @@ default: :rc:`scatter.edgecolors`
         if len(args) == 3:
             # Check x and y for bad data...
             C = np.asanyarray(args[2])
-            X, Y = [cbook.safe_masked_invalid(a) for a in args[:2]]
             # unit conversion allows e.g. datetime objects as axis values
+            X, Y = args[:2]
             X, Y = self._process_unit_info([("x", X), ("y", Y)], kwargs)
+            X, Y = [cbook.safe_masked_invalid(a) for a in [X, Y]]
 
             if funcname == 'pcolormesh':
                 if np.ma.is_masked(X) or np.ma.is_masked(Y):
