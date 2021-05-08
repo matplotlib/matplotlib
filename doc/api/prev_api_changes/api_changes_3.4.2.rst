@@ -1,5 +1,11 @@
-Rename fist arg to subplot_mosaic
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+API Changes for 3.4.2
+=====================
+
+Behaviour changes
+-----------------
+
+Rename first argument to ``subplot_mosaic``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Both `.FigureBase.subplot_mosaic`, and `.pyplot.subplot_mosaic` have had the
 first position argument renamed from *layout* to *mosaic*.  This is because we
