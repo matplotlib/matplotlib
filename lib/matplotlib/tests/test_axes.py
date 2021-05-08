@@ -4086,8 +4086,8 @@ def test_eventplot_colors(colors):
 def test_eventplot_problem_kwargs(recwarn):
     """
     test that 'singular' versions of LineCollection props raise an
-    IgnoredKeywordWarning rather than overriding the 'plural' versions (e.g.
-    to prevent 'color' from overriding 'colors', see issue #4297)
+    MatplotlibDeprecationWarning rather than overriding the 'plural' versions
+    (e.g., to prevent 'color' from overriding 'colors', see issue #4297)
     """
     np.random.seed(0)
 
@@ -4106,7 +4106,6 @@ def test_eventplot_problem_kwargs(recwarn):
                     linestyles=['solid', 'dashed'],
                     linestyle=['dashdot', 'dotted'])
 
-    # check that three IgnoredKeywordWarnings were raised
     assert len(recwarn) == 3
     assert all(issubclass(wi.category, MatplotlibDeprecationWarning)
                for wi in recwarn)
