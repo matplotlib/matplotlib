@@ -26,6 +26,7 @@ from matplotlib import _api
 from matplotlib.backend_bases import MouseButton
 import matplotlib.lines as mlines
 
+_api.warn_deprecated("3.5", name=__name__, obj_type="module")
 _log = logging.getLogger(__name__)
 
 

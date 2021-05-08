@@ -22,7 +22,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import docstring, projections
+from matplotlib import _blocking_input, docstring, projections
 from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
@@ -33,7 +33,6 @@ import matplotlib.colorbar as cbar
 import matplotlib.image as mimage
 
 from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
-from matplotlib.blocking_input import BlockingMouseInput, BlockingKeyMouseInput
 from matplotlib.gridspec import GridSpec
 import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
@@ -3013,12 +3012,52 @@ class Figure(FigureBase):
         terminates input and any other key (not already used by the window
         manager) selects a point.
         """
-        blocking_mouse_input = BlockingMouseInput(self,
-                                                  mouse_add=mouse_add,
-                                                  mouse_pop=mouse_pop,
-                                                  mouse_stop=mouse_stop)
-        return blocking_mouse_input(n=n, timeout=timeout,
-                                    show_clicks=show_clicks)
+        clicks = []
+        marks = []
+
+        def handler(event):
+            is_button = event.name == "button_press_event"
+            is_key = event.name == "key_press_event"
+            # Quit (even if not in infinite mode; this is consistent with
+            # MATLAB and sometimes quite useful, but will require the user to
+            # test how many points were actually returned before using data).
+            if (is_button and event.button == mouse_stop
+                    or is_key and event.key in ["escape", "enter"]):
+                self.canvas.stop_event_loop()
+            # Pop last click.
+            elif (is_button and event.button == mouse_pop
+                  or is_key and event.key in ["backspace", "delete"]):
+                if clicks:
+                    clicks.pop()
+                    if show_clicks:
+                        marks.pop().remove()
+                        self.canvas.draw()
+            # Add new click.
+            elif (is_button and event.button == mouse_add
+                  # On macOS/gtk, some keys return None.
+                  or is_key and event.key is not None):
+                if event.inaxes:
+                    clicks.append((event.xdata, event.ydata))
+                    _log.info("input %i: %f, %f",
+                              len(clicks), event.xdata, event.ydata)
+                    if show_clicks:
+                        line = mpl.lines.Line2D([event.xdata], [event.ydata],
+                                                marker="+", color="r")
+                        event.inaxes.add_line(line)
+                        marks.append(line)
+                        self.canvas.draw()
+            if len(clicks) == n and n > 0:
+                self.canvas.stop_event_loop()
+
+        _blocking_input.blocking_input_loop(
+            self, ["button_press_event", "key_press_event"], timeout, handler)
+
+        # Cleanup.
+        for mark in marks:
+            mark.remove()
+        self.canvas.draw()
+
+        return clicks
 
     def waitforbuttonpress(self, timeout=-1):
         """
@@ -3028,8 +3067,17 @@ class Figure(FigureBase):
         mouse button was pressed and None if no input was given within
         *timeout* seconds.  Negative values deactivate *timeout*.
         """
-        blocking_input = BlockingKeyMouseInput(self)
-        return blocking_input(timeout=timeout)
+        event = None
+
+        def handler(ev):
+            nonlocal event
+            event = ev
+            self.canvas.stop_event_loop()
+
+        _blocking_input.blocking_input_loop(
+            self, ["button_press_event", "key_press_event"], timeout, handler)
+
+        return None if event is None else event.name == "key_press_event"
 
     def init_layoutgrid(self):
         """Initialize the layoutgrid for use in constrained_layout."""
