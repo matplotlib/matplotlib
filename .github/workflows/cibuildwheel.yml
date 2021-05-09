@@ -13,8 +13,8 @@ jobs:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:
-      min-numpy-version: "1.16.0"
-      min-numpy-hash: "04/b6/d7faa70a3e3eac39f943cc6a6a64ce378259677de516bd899dd9eb8f9b32"
+      min-numpy-version: "1.17.3"
+      min-numpy-hash: "b6/d6/be8f975f5322336f62371c9abeb936d592c98c047ad63035f1b38ae08efe"
     strategy:
       matrix:
         os: [ubuntu-18.04, windows-latest, macos-latest]
@@ -57,7 +57,7 @@ jobs:
           cd numpy-${{ env.min-numpy-version }}
           python -m cibuildwheel --output-dir ../numpy-aarch64-cache
         env:
-          CIBW_BUILD: "cp36-* cp37-* cp38-*"
+          CIBW_BUILD: "cp37-* cp38-*"
           CIBW_ARCHS: aarch64
 
       - name: Copy setup.cfg to configure wheel
@@ -85,20 +85,6 @@ jobs:
           CIBW_BEFORE_BUILD: pip install certifi; pip install --find-links=numpy-aarch64-cache/ numpy==${{ env.min-numpy-version }}
           MPL_DISABLE_FH4: "yes"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-
-      - name: Build wheels for CPython 3.6
-        run: |
-          python -m cibuildwheel --output-dir dist
-        env:
-          CIBW_BUILD: "cp36-*"
-          CIBW_MANYLINUX_X86_64_IMAGE: manylinux1
-          CIBW_MANYLINUX_I686_IMAGE: manylinux1
-          CIBW_BEFORE_BUILD: pip install certifi; pip install --find-links=numpy-aarch64-cache/ numpy==${{ env.min-numpy-version }}
-          MPL_DISABLE_FH4: "yes"
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
-        if: >
-          startsWith(github.ref, 'refs/heads/v3.3') ||
-          startsWith(github.ref, 'refs/tags/v3.3')
 
       - name: Build wheels for PyPy
         run: |

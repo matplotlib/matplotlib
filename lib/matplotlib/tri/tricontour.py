@@ -191,6 +191,11 @@ norm : `~matplotlib.colors.Normalize`, optional
     the canonical colormap range [0, 1] for mapping to colors. If not given,
     the default linear scaling is used.
 
+vmin, vmax : float, optional
+    If not *None*, either or both of these values will be supplied to
+    the `.Normalize` instance, overriding the default color scaling
+    based on *levels*.
+
 origin : {*None*, 'upper', 'lower', 'image'}, default: None
     Determines the orientation and exact position of *Z* by specifying the
     position of ``Z[0, 0]``.  This is only relevant, if *X*, *Y* are not given.
@@ -239,7 +244,12 @@ extend : {'neither', 'both', 'min', 'max'}, default: 'neither'
 
 xunits, yunits : registered units, optional
     Override axis units by specifying an instance of a
-    :class:`matplotlib.units.ConversionInterface`.""")
+    :class:`matplotlib.units.ConversionInterface`.
+
+antialiased : bool, optional
+    Enable antialiasing, overriding the defaults.  For
+    filled contours, the default is *True*.  For line contours,
+    it is taken from :rc:`lines.antialiased`.""")
 
 
 @docstring.Substitution(func='tricontour', type='lines')
@@ -277,8 +287,11 @@ def tricontourf(ax, *args, **kwargs):
     """
     %(_tricontour_doc)s
 
-    antialiased : bool, default: True
-        Whether to use antialiasing.
+    hatches : list[str], optional
+        A list of cross hatch patterns to use on the filled areas.
+        If None, no hatching will be added to the contour.
+        Hatching is supported in the PostScript, PDF, SVG and Agg
+        backends only.
 
     Notes
     -----

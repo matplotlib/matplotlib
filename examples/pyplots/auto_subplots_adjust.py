@@ -20,6 +20,7 @@ ax.plot(range(10))
 ax.set_yticks((2, 5, 7))
 labels = ax.set_yticklabels(('really, really, really', 'long', 'labels'))
 
+
 def on_draw(event):
     bboxes = []
     for label in labels:
@@ -34,6 +35,7 @@ def on_draw(event):
         # we need to move it over
         fig.subplots_adjust(left=1.1*bbox.width)  # pad a little
         fig.canvas.draw()
+
 
 fig.canvas.mpl_connect('draw_event', on_draw)
 

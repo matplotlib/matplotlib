@@ -85,7 +85,7 @@ objects and Matplotlib dates:
 All the Matplotlib date converters, tickers and formatters are timezone aware.
 If no explicit timezone is provided, :rc:`timezone` is assumed.  If you want to
 use a custom time zone, pass a `datetime.tzinfo` instance with the tz keyword
-argument to `num2date`, `~.Axes.plot_date`, and any custom date tickers or
+argument to `num2date`, `.Axis.axis_date`, and any custom date tickers or
 locators you create.
 
 A wide range of specific and general purpose date tick locators and
@@ -166,15 +166,12 @@ The available date formatters are:
   date information.  This is most useful when used with the `AutoDateLocator`.
 
 * `DateFormatter`: use `~datetime.datetime.strftime` format strings.
-
-* `IndexDateFormatter`: date plots with implicit *x* indexing.
 """
 
 import datetime
 import functools
 import logging
 import math
-import re
 
 from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
                             MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY,
@@ -189,7 +186,7 @@ from matplotlib import _api, cbook, ticker, units
 
 __all__ = ('datestr2num', 'date2num', 'num2date', 'num2timedelta', 'drange',
            'epoch2num', 'num2epoch', 'set_epoch', 'get_epoch', 'DateFormatter',
-           'ConciseDateFormatter', 'IndexDateFormatter', 'AutoDateFormatter',
+           'ConciseDateFormatter', 'AutoDateFormatter',
            'DateLocator', 'RRuleLocator', 'AutoDateLocator', 'YearLocator',
            'MonthLocator', 'WeekdayLocator',
            'DayLocator', 'HourLocator', 'MinuteLocator',
@@ -607,11 +604,6 @@ class DateFormatter(ticker.Formatter):
     `~datetime.datetime.strftime` format string.
     """
 
-    @_api.deprecated("3.3")
-    @property
-    def illegal_s(self):
-        return re.compile(r"((^|[^%])(%%)*%s)")
-
     def __init__(self, fmt, tz=None, *, usetex=None):
         """
         Parameters
@@ -637,33 +629,6 @@ class DateFormatter(ticker.Formatter):
 
     def set_tzinfo(self, tz):
         self.tz = tz
-
-
-@_api.deprecated("3.3")
-class IndexDateFormatter(ticker.Formatter):
-    """Use with `.IndexLocator` to cycle format strings by index."""
-
-    def __init__(self, t, fmt, tz=None):
-        """
-        Parameters
-        ----------
-        t : list of float
-            A sequence of dates (floating point days).
-        fmt : str
-            A `~datetime.datetime.strftime` format string.
-        """
-        if tz is None:
-            tz = _get_rc_timezone()
-        self.t = t
-        self.fmt = fmt
-        self.tz = tz
-
-    def __call__(self, x, pos=0):
-        """Return the label for time *x* at position *pos*."""
-        ind = int(round(x))
-        if ind >= len(self.t) or ind <= 0:
-            return ''
-        return num2date(self.t[ind], self.tz).strftime(self.fmt)
 
 
 class ConciseDateFormatter(ticker.Formatter):

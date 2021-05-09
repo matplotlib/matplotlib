@@ -7,9 +7,18 @@
  */
 #define PY_SSIZE_T_CLEAN
 #include "Python.h"
-#include "numpy/ndarrayobject.h"
+#include "numpy_cpp.h"
+#ifdef _MSC_VER
+/* The Qhull header does not declare this as extern "C", but only MSVC seems to
+ * do name mangling on global variables. We thus need to declare this before
+ * the header so that it treats it correctly, and doesn't mangle the name. */
+extern "C" {
+extern const char qh_version[];
+}
+#endif
 #include "libqhull_r/qhull_ra.h"
-#include <stdio.h>
+#include <cstdio>
+#include <vector>
 
 
 #ifndef MPL_DEVNULL
@@ -35,88 +44,104 @@ static void
 get_facet_vertices(qhT* qh, const facetT* facet, int indices[3])
 {
     vertexT *vertex, **vertexp;
-    FOREACHvertex_(facet->vertices)
+    FOREACHvertex_(facet->vertices) {
         *indices++ = qh_pointid(qh, vertex->point);
+    }
 }
 
 /* Return the indices of the 3 triangles that are neighbors of the specified
  * facet (triangle). */
 static void
-get_facet_neighbours(const facetT* facet, const int* tri_indices,
+get_facet_neighbours(const facetT* facet, std::vector<int>& tri_indices,
                      int indices[3])
 {
     facetT *neighbor, **neighborp;
-    FOREACHneighbor_(facet)
+    FOREACHneighbor_(facet) {
         *indices++ = (neighbor->upperdelaunay ? -1 : tri_indices[neighbor->id]);
+    }
 }
 
-/* Return 1 if the specified points arrays contain at least 3 unique points,
- * or 0 otherwise. */
-static int
-at_least_3_unique_points(int npoints, const double* x, const double* y)
+/* Return true if the specified points arrays contain at least 3 unique points,
+ * or false otherwise. */
+static bool
+at_least_3_unique_points(npy_intp npoints, const double* x, const double* y)
 {
     int i;
     const int unique1 = 0;  /* First unique point has index 0. */
     int unique2 = 0;        /* Second unique point index is 0 until set. */
 
-    if (npoints < 3)
-        return 0;
+    if (npoints < 3) {
+        return false;
+    }
 
     for (i = 1; i < npoints; ++i) {
         if (unique2 == 0) {
             /* Looking for second unique point. */
-            if (x[i] != x[unique1] || y[i] != y[unique1])
+            if (x[i] != x[unique1] || y[i] != y[unique1]) {
                 unique2 = i;
+            }
         }
         else {
             /* Looking for third unique point. */
             if ( (x[i] != x[unique1] || y[i] != y[unique1]) &&
                  (x[i] != x[unique2] || y[i] != y[unique2]) ) {
                 /* 3 unique points found, with indices 0, unique2 and i. */
-                return 1;
+                return true;
             }
         }
     }
 
     /* Run out of points before 3 unique points found. */
-    return 0;
+    return false;
 }
 
-/* Delaunay implementation methyod.  If hide_qhull_errors is 1 then qhull error
- * messages are discarded; if it is 0 then they are written to stderr. */
+/* Holds on to info from Qhull so that it can be destructed automatically. */
+class QhullInfo {
+public:
+    QhullInfo(FILE *error_file, qhT* qh) {
+        this->error_file = error_file;
+        this->qh = qh;
+    }
+
+    ~QhullInfo() {
+        qh_freeqhull(this->qh, !qh_ALL);
+        int curlong, totlong;  /* Memory remaining. */
+        qh_memfreeshort(this->qh, &curlong, &totlong);
+        if (curlong || totlong) {
+            PyErr_WarnEx(PyExc_RuntimeWarning,
+                         "Qhull could not free all allocated memory", 1);
+        }
+
+        if (this->error_file != stderr) {
+            fclose(error_file);
+        }
+    }
+
+private:
+    FILE* error_file;
+    qhT* qh;
+};
+
+/* Delaunay implementation method.
+ * If hide_qhull_errors is true then qhull error messages are discarded;
+ * if it is false then they are written to stderr. */
 static PyObject*
-delaunay_impl(int npoints, const double* x, const double* y,
-              int hide_qhull_errors)
+delaunay_impl(npy_intp npoints, const double* x, const double* y,
+              bool hide_qhull_errors)
 {
-	qhT qh_qh;                  /* qh variable type and name must be like */
-	qhT* qh = &qh_qh;           /* this for Qhull macros to work correctly. */
-    coordT* points = NULL;
+    qhT qh_qh;                  /* qh variable type and name must be like */
+    qhT* qh = &qh_qh;           /* this for Qhull macros to work correctly. */
     facetT* facet;
     int i, ntri, max_facet_id;
-    FILE* error_file = NULL;    /* qhull expects a FILE* to write errors to. */
     int exitcode;               /* Value returned from qh_new_qhull(). */
-    int* tri_indices = NULL;    /* Maps qhull facet id to triangle index. */
-    int indices[3];
-    int curlong, totlong;       /* Memory remaining after qh_memfreeshort. */
-    PyObject* tuple;            /* Return tuple (triangles, neighbors). */
     const int ndim = 2;
-    npy_intp dims[2];
-    PyArrayObject* triangles = NULL;
-    PyArrayObject* neighbors = NULL;
-    int* triangles_ptr;
-    int* neighbors_ptr;
     double x_mean = 0.0;
     double y_mean = 0.0;
 
     QHULL_LIB_CHECK
 
     /* Allocate points. */
-    points = (coordT*)malloc(npoints*ndim*sizeof(coordT));
-    if (points == NULL) {
-        PyErr_SetString(PyExc_MemoryError,
-                        "Could not allocate points array in qhull.delaunay");
-        goto error_before_qhull;
-    }
+    std::vector<coordT> points(npoints * ndim);
 
     /* Determine mean x, y coordinates. */
     for (i = 0; i < npoints; ++i) {
@@ -133,15 +158,14 @@ delaunay_impl(int npoints, const double* x, const double* y,
     }
 
     /* qhull expects a FILE* to write errors to. */
+    FILE* error_file = NULL;
     if (hide_qhull_errors) {
         /* qhull errors are ignored by writing to OS-equivalent of /dev/null.
          * Rather than have OS-specific code here, instead it is determined by
          * setupext.py and passed in via the macro MPL_DEVNULL. */
         error_file = fopen(STRINGIFY(MPL_DEVNULL), "w");
         if (error_file == NULL) {
-            PyErr_SetString(PyExc_RuntimeError,
-                            "Could not open devnull in qhull.delaunay");
-            goto error_before_qhull;
+            throw std::runtime_error("Could not open devnull");
         }
     }
     else {
@@ -150,15 +174,16 @@ delaunay_impl(int npoints, const double* x, const double* y,
     }
 
     /* Perform Delaunay triangulation. */
+    QhullInfo info(error_file, qh);
     qh_zero(qh, error_file);
-    exitcode = qh_new_qhull(qh, ndim, npoints, points, False,
-                            "qhull d Qt Qbb Qc Qz", NULL, error_file);
+    exitcode = qh_new_qhull(qh, ndim, (int)npoints, points.data(), False,
+                            (char*)"qhull d Qt Qbb Qc Qz", NULL, error_file);
     if (exitcode != qh_ERRnone) {
         PyErr_Format(PyExc_RuntimeError,
                      "Error in qhull Delaunay triangulation calculation: %s (exitcode=%d)%s",
                      qhull_error_msg[exitcode], exitcode,
                      hide_qhull_errors ? "; use python verbose option (-v) to see original qhull error." : "");
-        goto error;
+        return NULL;
     }
 
     /* Split facets so that they only have 3 points each. */
@@ -168,57 +193,44 @@ delaunay_impl(int npoints, const double* x, const double* y,
        Note that libqhull uses macros to iterate through collections. */
     ntri = 0;
     FORALLfacets {
-        if (!facet->upperdelaunay)
+        if (!facet->upperdelaunay) {
             ++ntri;
+        }
     }
 
     max_facet_id = qh->facet_id - 1;
 
     /* Create array to map facet id to triangle index. */
-    tri_indices = (int*)malloc((max_facet_id+1)*sizeof(int));
-    if (tri_indices == NULL) {
-        PyErr_SetString(PyExc_MemoryError,
-                        "Could not allocate triangle map in qhull.delaunay");
-        goto error;
-    }
+    std::vector<int> tri_indices(max_facet_id+1);
 
-    /* Allocate python arrays to return. */
-    dims[0] = ntri;
-    dims[1] = 3;
-    triangles = (PyArrayObject*)PyArray_SimpleNew(ndim, dims, NPY_INT);
-    if (triangles == NULL) {
-        PyErr_SetString(PyExc_MemoryError,
-                        "Could not allocate triangles array in qhull.delaunay");
-        goto error;
-    }
+    /* Allocate Python arrays to return. */
+    npy_intp dims[2] = {ntri, 3};
+    numpy::array_view<int, ndim> triangles(dims);
+    int* triangles_ptr = triangles.data();
 
-    neighbors = (PyArrayObject*)PyArray_SimpleNew(ndim, dims, NPY_INT);
-    if (neighbors == NULL) {
-        PyErr_SetString(PyExc_MemoryError,
-                        "Could not allocate neighbors array in qhull.delaunay");
-        goto error;
-    }
-
-    triangles_ptr = (int*)PyArray_DATA(triangles);
-    neighbors_ptr = (int*)PyArray_DATA(neighbors);
+    numpy::array_view<int, ndim> neighbors(dims);
+    int* neighbors_ptr = neighbors.data();
 
     /* Determine triangles array and set tri_indices array. */
     i = 0;
     FORALLfacets {
         if (!facet->upperdelaunay) {
+            int indices[3];
             tri_indices[facet->id] = i++;
             get_facet_vertices(qh, facet, indices);
             *triangles_ptr++ = (facet->toporient ? indices[0] : indices[2]);
             *triangles_ptr++ = indices[1];
             *triangles_ptr++ = (facet->toporient ? indices[2] : indices[0]);
         }
-        else
+        else {
             tri_indices[facet->id] = -1;
+        }
     }
 
     /* Determine neighbors array. */
     FORALLfacets {
         if (!facet->upperdelaunay) {
+            int indices[3];
             get_facet_neighbours(facet, tri_indices, indices);
             *neighbors_ptr++ = (facet->toporient ? indices[2] : indices[0]);
             *neighbors_ptr++ = (facet->toporient ? indices[0] : indices[2]);
@@ -226,95 +238,58 @@ delaunay_impl(int npoints, const double* x, const double* y,
         }
     }
 
-    /* Clean up. */
-    qh_freeqhull(qh, !qh_ALL);
-    qh_memfreeshort(qh, &curlong, &totlong);
-    if (curlong || totlong)
-        PyErr_WarnEx(PyExc_RuntimeWarning,
-                     "Qhull could not free all allocated memory", 1);
-    if (hide_qhull_errors)
-        fclose(error_file);
-    free(tri_indices);
-    free(points);
+    PyObject* tuple = PyTuple_New(2);
+    if (tuple == 0) {
+        throw std::runtime_error("Failed to create Python tuple");
+    }
 
-    tuple = PyTuple_New(2);
-    PyTuple_SetItem(tuple, 0, (PyObject*)triangles);
-    PyTuple_SetItem(tuple, 1, (PyObject*)neighbors);
+    PyTuple_SET_ITEM(tuple, 0, triangles.pyobj());
+    PyTuple_SET_ITEM(tuple, 1, neighbors.pyobj());
     return tuple;
-
-error:
-    /* Clean up. */
-    Py_XDECREF(triangles);
-    Py_XDECREF(neighbors);
-    qh_freeqhull(qh, !qh_ALL);
-    qh_memfreeshort(qh, &curlong, &totlong);
-    /* Don't bother checking curlong and totlong as raising error anyway. */
-    if (hide_qhull_errors)
-        fclose(error_file);
-    free(tri_indices);
-
-error_before_qhull:
-    free(points);
-
-    return NULL;
 }
 
-/* Process python arguments and call Delaunay implementation method. */
+/* Process Python arguments and call Delaunay implementation method. */
 static PyObject*
 delaunay(PyObject *self, PyObject *args)
 {
-    PyObject* xarg;
-    PyObject* yarg;
-    PyArrayObject* xarray;
-    PyArrayObject* yarray;
+    numpy::array_view<double, 1> xarray;
+    numpy::array_view<double, 1> yarray;
     PyObject* ret;
-    int npoints;
+    npy_intp npoints;
     const double* x;
     const double* y;
 
-    if (!PyArg_ParseTuple(args, "OO", &xarg, &yarg)) {
-        PyErr_SetString(PyExc_ValueError, "expecting x and y arrays");
+    if (!PyArg_ParseTuple(args, "O&O&",
+                          &xarray.converter_contiguous, &xarray,
+                          &yarray.converter_contiguous, &yarray)) {
         return NULL;
     }
 
-    xarray = (PyArrayObject*)PyArray_ContiguousFromObject(xarg, NPY_DOUBLE,
-                                                          1, 1);
-    yarray = (PyArrayObject*)PyArray_ContiguousFromObject(yarg, NPY_DOUBLE,
-                                                          1, 1);
-    if (xarray == 0 || yarray == 0 ||
-        PyArray_DIM(xarray,0) != PyArray_DIM(yarray, 0)) {
-        Py_XDECREF(xarray);
-        Py_XDECREF(yarray);
+    npoints = xarray.dim(0);
+    if (npoints != yarray.dim(0)) {
         PyErr_SetString(PyExc_ValueError,
                         "x and y must be 1D arrays of the same length");
         return NULL;
     }
 
-    npoints = PyArray_DIM(xarray, 0);
-
     if (npoints < 3) {
-        Py_XDECREF(xarray);
-        Py_XDECREF(yarray);
         PyErr_SetString(PyExc_ValueError,
                         "x and y arrays must have a length of at least 3");
         return NULL;
     }
 
-    x = (const double*)PyArray_DATA(xarray);
-    y = (const double*)PyArray_DATA(yarray);
+    x = xarray.data();
+    y = yarray.data();
 
     if (!at_least_3_unique_points(npoints, x, y)) {
-        Py_XDECREF(xarray);
-        Py_XDECREF(yarray);
         PyErr_SetString(PyExc_ValueError,
                         "x and y arrays must consist of at least 3 unique points");
         return NULL;
     }
 
-    ret = delaunay_impl(npoints, x, y, Py_VerboseFlag == 0);
+    CALL_CPP("qhull.delaunay",
+             (ret = delaunay_impl(npoints, x, y, Py_VerboseFlag == 0)));
 
-    Py_XDECREF(xarray);
-    Py_XDECREF(yarray);
     return ret;
 }
 

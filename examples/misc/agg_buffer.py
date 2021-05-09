@@ -8,6 +8,7 @@ array, and pass it to Pillow for rendering.
 """
 
 import numpy as np
+from PIL import Image
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 import matplotlib.pyplot as plt
@@ -21,7 +22,6 @@ agg.draw()
 X = np.asarray(agg.buffer_rgba())
 
 # Pass off to PIL.
-from PIL import Image
 im = Image.fromarray(X)
 
 # Uncomment this line to display the image using ImageMagick's `display` tool.

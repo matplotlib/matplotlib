@@ -1138,15 +1138,14 @@ bool __convert_to_string(PathIterator &path,
     double last_x = 0.0;
     double last_y = 0.0;
 
-    const int sizes[] = { 1, 1, 2, 3 };
     int size = 0;
     unsigned code;
 
     while ((code = path.vertex(&x[0], &y[0])) != agg::path_cmd_stop) {
-        if (code == 0x4f) {
+        if (code == CLOSEPOLY) {
             buffer += codes[4];
         } else if (code < 5) {
-            size = sizes[code - 1];
+            size = NUM_VERTICES[code];
 
             for (int i = 1; i < size; ++i) {
                 unsigned subcode = path.vertex(&x[i], &y[i]);

@@ -22,7 +22,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib._pylab_helpers import Gcf
-from matplotlib import _api, cbook
+from matplotlib import cbook
 
 
 class Cursors(IntEnum):  # Must subclass int for the macOS backend.
@@ -553,31 +553,6 @@ class ToolViewsPositions(ToolBase):
             if a not in self.home_views[figure]:
                 self.home_views[figure][a] = a._get_view()
 
-    # Can be removed once Locator.refresh() is removed, and replaced by an
-    # inline call to self.figure.canvas.draw_idle().
-    def _refresh_locators(self):
-        for a in self.figure.get_axes():
-            xaxis = getattr(a, 'xaxis', None)
-            yaxis = getattr(a, 'yaxis', None)
-            zaxis = getattr(a, 'zaxis', None)
-            locators = []
-            if xaxis is not None:
-                locators.append(xaxis.get_major_locator())
-                locators.append(xaxis.get_minor_locator())
-            if yaxis is not None:
-                locators.append(yaxis.get_major_locator())
-                locators.append(yaxis.get_minor_locator())
-            if zaxis is not None:
-                locators.append(zaxis.get_major_locator())
-                locators.append(zaxis.get_minor_locator())
-
-            for loc in locators:
-                mpl.ticker._if_refresh_overridden_call_and_emit_deprec(loc)
-        self.figure.canvas.draw_idle()
-
-    refresh_locators = _api.deprecate_privatize_attribute(
-        "3.3", alternative="self.figure.canvas.draw_idle()")
-
     def home(self):
         """Recall the first view and position from the stack."""
         self.views[self.figure].home()
@@ -732,7 +707,7 @@ class ToolZoom(ZoomPanBase):
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)
         self.toolmanager.trigger_tool('rubberband', self)
-        self.toolmanager.get_tool(_views_positions)._refresh_locators()
+        self.figure.canvas.draw_idle()
         self._xypress = None
         self._button_pressed = None
         self._ids_zoom = []
@@ -859,7 +834,7 @@ class ToolPan(ZoomPanBase):
         self._xypress = []
         self.figure.canvas.mpl_disconnect(self._id_drag)
         self.toolmanager.messagelock.release(self)
-        self.toolmanager.get_tool(_views_positions)._refresh_locators()
+        self.figure.canvas.draw_idle()
 
     def _press(self, event):
         if event.button == 1:

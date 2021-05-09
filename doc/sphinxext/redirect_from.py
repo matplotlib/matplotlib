@@ -32,6 +32,7 @@ full path::
 
 from pathlib import Path
 from docutils.parsers.rst import Directive
+from sphinx.domains import Domain
 from sphinx.util import logging
 
 logger = logging.getLogger(__name__)
@@ -48,24 +49,54 @@ HTML_TEMPLATE = """<html>
 def setup(app):
     RedirectFrom.app = app
     app.add_directive("redirect-from", RedirectFrom)
+    app.add_domain(RedirectFromDomain)
     app.connect("build-finished", _generate_redirects)
+
+    metadata = {'parallel_read_safe': True}
+    return metadata
+
+
+class RedirectFromDomain(Domain):
+    """
+    The sole purpose of this domain is a parallel_read_safe data store for the
+    redirects mapping.
+    """
+    name = 'redirect_from'
+    label = 'redirect_from'
+
+    @property
+    def redirects(self):
+        """The mapping of the redirectes."""
+        return self.data.setdefault('redirects', {})
+
+    def clear_doc(self, docnames):
+        self.redirects.clear()
+
+    def merge_domaindata(self, docnames, otherdata):
+        for src, dst in otherdata['redirects'].items():
+            if src not in self.redirects:
+                self.redirects[src] = dst
+            elif self.redirects[src] != dst:
+                raise ValueError(
+                    f"Inconsistent redirections from {src} to "
+                    F"{self.redirects[src]} and {otherdata.redirects[src]}")
 
 
 class RedirectFrom(Directive):
     required_arguments = 1
-    redirects = {}
 
     def run(self):
         redirected_doc, = self.arguments
         env = self.app.env
         builder = self.app.builder
+        domain = env.get_domain('redirect_from')
         current_doc = env.path2doc(self.state.document.current_source)
         redirected_reldoc, _ = env.relfn2path(redirected_doc, current_doc)
-        if redirected_reldoc in self.redirects:
+        if redirected_reldoc in domain.redirects:
             raise ValueError(
                 f"{redirected_reldoc} is already noted as redirecting to "
-                f"{self.redirects[redirected_reldoc]}")
-        self.redirects[redirected_reldoc] = current_doc
+                f"{domain.redirects[redirected_reldoc]}")
+        domain.redirects[redirected_reldoc] = current_doc
         return []
 
 
@@ -73,7 +104,7 @@ def _generate_redirects(app, exception):
     builder = app.builder
     if builder.name != "html" or exception:
         return
-    for k, v in RedirectFrom.redirects.items():
+    for k, v in app.env.get_domain('redirect_from').redirects.items():
         p = Path(app.outdir, k + builder.out_suffix)
         html = HTML_TEMPLATE.format(v=builder.get_relative_uri(k, v))
         if p.is_file():
