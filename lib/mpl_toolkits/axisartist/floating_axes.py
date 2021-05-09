@@ -318,32 +318,24 @@ class FloatingAxesBase:
             raise ValueError("FloatingAxes requires grid_helper argument")
         if not hasattr(grid_helper, "get_boundary"):
             raise ValueError("grid_helper must implement get_boundary method")
-
-        self._axes_class_floating.__init__(self, *args, **kwargs)
-
+        super().__init__(*args, **kwargs)
         self.set_aspect(1.)
         self.adjust_axes_lim()
 
     def _gen_axes_patch(self):
         # docstring inherited
-        grid_helper = self.get_grid_helper()
-        t = grid_helper.get_boundary()
-        return mpatches.Polygon(t)
+        return mpatches.Polygon(self.get_grid_helper().get_boundary())
 
     def cla(self):
-        self._axes_class_floating.cla(self)
-        # HostAxes.cla(self)
+        super().cla()
         self.patch.set_transform(self.transData)
-
-        patch = self._axes_class_floating._gen_axes_patch(self)
-        patch.set_figure(self.figure)
-        patch.set_visible(False)
-        patch.set_transform(self.transAxes)
-
-        self.patch.set_clip_path(patch)
-        self.gridlines.set_clip_path(patch)
-
-        self._original_patch = patch
+        # The original patch is not in the draw tree; it is only used for
+        # clipping purposes.
+        orig_patch = super()._gen_axes_patch()
+        orig_patch.set_figure(self.figure)
+        orig_patch.set_transform(self.transAxes)
+        self.patch.set_clip_path(orig_patch)
+        self.gridlines.set_clip_path(orig_patch)
 
     def adjust_axes_lim(self):
         grid_helper = self.get_grid_helper()
@@ -363,8 +355,7 @@ class FloatingAxesBase:
 @functools.lru_cache(None)
 def floatingaxes_class_factory(axes_class):
     return type("Floating %s" % axes_class.__name__,
-                (FloatingAxesBase, axes_class),
-                {'_axes_class_floating': axes_class})
+                (FloatingAxesBase, axes_class), {})
 
 
 FloatingAxes = floatingaxes_class_factory(
