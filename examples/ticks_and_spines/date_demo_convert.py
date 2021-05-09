@@ -17,7 +17,7 @@ dates = drange(date1, date2, delta)
 y = np.arange(len(dates))
 
 fig, ax = plt.subplots()
-ax.plot_date(dates, y ** 2)
+ax.plot(dates, y**2, 'o')
 
 # this is superfluous, since the autoscaler should get it right, but
 # use date2num and num2date to convert between dates and floats if

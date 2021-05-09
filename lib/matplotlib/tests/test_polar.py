@@ -394,3 +394,11 @@ def test_remove_shared_polar(fig_ref, fig_test):
         2, 2, sharey=True, subplot_kw={"projection": "polar"})
     for i in [0, 1, 3]:
         axs.flat[i].remove()
+
+
+def test_shared_polar_keeps_ticklabels():
+    fig, axs = plt.subplots(
+        2, 2, subplot_kw=dict(projection="polar"), sharex=True, sharey=True)
+    fig.canvas.draw()
+    assert axs[0, 1].xaxis.majorTicks[0].get_visible()
+    assert axs[0, 1].yaxis.majorTicks[0].get_visible()

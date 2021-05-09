@@ -1616,6 +1616,18 @@ class Axes(_AxesBase):
         """
         Plot co-ercing the axis to treat floats as dates.
 
+        .. admonition:: Discouraged
+
+            This method exists for historic reasons and will be deprecated in
+            the future.
+
+            - ``datetime``-like data should directly be plotted using
+              `~.Axes.plot`.
+            -  If you need to plot plain numeric data as :ref:`date-format` or
+               need to set a timezone, call ``ax.xaxis.axis_date`` /
+               ``ax.yaxis.axis_date`` before `~.Axes.plot`. See
+               `.Axis.axis_date`.
+
         Similar to `.plot`, this plots *y* vs. *x* as lines or markers.
         However, the axis labels are formatted as dates depending on *xdate*
         and *ydate*.  Note that `.plot` will work with `datetime` and
@@ -5621,9 +5633,10 @@ default: :rc:`scatter.edgecolors`
         if len(args) == 3:
             # Check x and y for bad data...
             C = np.asanyarray(args[2])
-            X, Y = [cbook.safe_masked_invalid(a) for a in args[:2]]
             # unit conversion allows e.g. datetime objects as axis values
+            X, Y = args[:2]
             X, Y = self._process_unit_info([("x", X), ("y", Y)], kwargs)
+            X, Y = [cbook.safe_masked_invalid(a) for a in [X, Y]]
 
             if funcname == 'pcolormesh':
                 if np.ma.is_masked(X) or np.ma.is_masked(Y):

@@ -24,7 +24,7 @@ import numpy as np
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import _api, _text_layout, cbook
+from matplotlib import _api, _text_helpers, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
@@ -2296,7 +2296,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             # List of (start_x, glyph_index).
             multibyte_glyphs = []
             prev_was_multibyte = True
-            for item in _text_layout.layout(
+            for item in _text_helpers.layout(
                     s, font, kern_mode=KERNING_UNFITTED):
                 if ord(item.char) <= 255:
                     if prev_was_multibyte:

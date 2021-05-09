@@ -1,0 +1,10 @@
+Removal of ``cbook`` deprecations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* ``local_over_kwdict`` has been removed; use `.cbook.normalize_kwargs`
+  instead.
+* *required*, *forbidden* and *allowed* parameters of `.cbook.normalize_kwargs`
+  have been removed.
+* Flags containing "U" passed to `.cbook.to_filehandle` and
+  `.cbook.open_file_cm` are no longer accepted. This is consistent with their
+  removal from `open` in Python 3.9.

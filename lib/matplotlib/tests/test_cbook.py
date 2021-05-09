@@ -374,32 +374,14 @@ def test_sanitize_sequence():
 
 
 fail_mapping = (
-    ({'a': 1}, {'forbidden': ('a')}),
-    ({'a': 1}, {'required': ('b')}),
-    ({'a': 1, 'b': 2}, {'required': ('a'), 'allowed': ()}),
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}}),
-    ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}, 'allowed': ('a',)}),
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
-    ({'a': 1, 'b': 2, 'c': 3},
-     {'alias_mapping': {'a': ['b']}, 'required': ('a', )}),
 )
 
 pass_mapping = (
     (None, {}, {}),
     ({'a': 1, 'b': 2}, {'a': 1, 'b': 2}, {}),
     ({'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
-    ({'b': 2}, {'a': 2},
-     {'alias_mapping': {'a': ['b']}, 'forbidden': ('b', )}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
-     {'required': ('a', ), 'allowed': ('c', )}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
-     {'required': ('a', 'c'), 'allowed': ('c', )}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
-     {'required': ('a', 'c'), 'allowed': ('a', 'c')}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
-     {'required': ('a', 'c'), 'allowed': ()}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'required': ('a', 'c')}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'allowed': ('a', 'c')}),
 )
 
 
