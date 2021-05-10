@@ -1027,8 +1027,7 @@ class Line2D(Artist):
         ----------
         color : color
         """
-        if not cbook._str_equal(color, 'auto'):
-            mcolors._check_color_like(color=color)
+        mcolors._check_color_like(color=color)
         self._color = color
         self.stale = True
 
