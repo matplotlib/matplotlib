@@ -4,8 +4,9 @@ Choosing Colormaps in Matplotlib
 ********************************
 
 Matplotlib has a number of built-in colormaps accessible via
-`.matplotlib.cm.get_cmap`.  There are also external libraries like
-[palettable]_ and [colorcet]_ that have many extra colormaps.
+`.matplotlib.cm.get_cmap`.  There are also external libraries that
+have many extra colormaps, which can be viewed in the
+[Third-party colormaps]_ section of the Matplotlib documentation.
 Here we briefly discuss how to choose between the many options.  For
 help on creating your own colormaps, see
 :doc:`/tutorials/colors/colormap-manipulation`.
@@ -32,8 +33,9 @@ steps in the color space. Researchers have found that the human brain
 perceives changes in the lightness parameter as changes in the data
 much better than, for example, changes in hue. Therefore, colormaps
 which have monotonically increasing lightness through the colormap
-will be better interpreted by the viewer. A wonderful example of
-perceptually uniform colormaps is [colorcet]_.
+will be better interpreted by the viewer. Wonderful examples of
+perceptually uniform colormaps can be found in the
+[Third-party colormaps]_ section as well.
 
 Color can be represented in 3D space in various ways. One way to represent color
 is using CIELAB. In CIELAB, color space is represented by lightness,
@@ -414,7 +416,7 @@ for cmap_category, cmap_list in cmaps.items():
 # References
 # ==========
 #
-# .. [colorcet] https://colorcet.pyviz.org
+# .. [Third-party colormaps] https://matplotlib.org/mpl-third-party/#colormaps-and-styles
 # .. [Ware] http://ccom.unh.edu/sites/default/files/publications/Ware_1988_CGA_Color_sequences_univariate_maps.pdf
 # .. [Moreland] http://www.kennethmoreland.com/color-maps/ColorMapsExpanded.pdf
 # .. [list-colormaps] https://gist.github.com/endolith/2719900#id7
@@ -424,5 +426,4 @@ for cmap_category, cmap_list in cmaps.items():
 # .. [bw] http://www.tannerhelland.com/3643/grayscale-image-algorithm-vb6/
 # .. [colorblindness] http://www.color-blindness.com/
 # .. [IBM] https://doi.org/10.1109/VISUAL.1995.480803
-# .. [palettable] https://jiffyclub.github.io/palettable/
 # .. [turbo] https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html
