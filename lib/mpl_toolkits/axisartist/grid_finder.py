@@ -2,7 +2,48 @@ import numpy as np
 
 from matplotlib import ticker as mticker
 from matplotlib.transforms import Bbox, Transform
-from .clip_path import clip_line_to_rect
+
+
+def _find_line_box_crossings(xys, bbox):
+    """
+    Find the points where a polyline crosses a bbox, and the crossing angles.
+
+    Parameters
+    ----------
+    xys : (N, 2) array
+        The polyline coordinates.
+    bbox : `.Bbox`
+        The bounding box.
+
+    Returns
+    -------
+    list of ((float, float), float)
+        Four separate lists of crossings, for the left, right, bottom, and top
+        sides of the bbox, respectively.  For each list, the entries are the
+        ``((x, y), ccw_angle_in_degrees)`` of the crossing, where an angle of 0
+        means that the polyline is moving to the right at the crossing point.
+
+        The entries are computed by linearly interpolating at each crossing
+        between the nearest points on either side of the bbox edges.
+    """
+    crossings = []
+    dxys = xys[1:] - xys[:-1]
+    for sl in [slice(None), slice(None, None, -1)]:
+        us, vs = xys.T[sl]  # "this" coord, "other" coord
+        dus, dvs = dxys.T[sl]
+        umin, vmin = bbox.min[sl]
+        umax, vmax = bbox.max[sl]
+        for u0, inside in [(umin, us > umin), (umax, us < umax)]:
+            crossings.append([])
+            idxs, = (inside[:-1] ^ inside[1:]).nonzero()
+            for idx in idxs:
+                v = vs[idx] + (u0 - us[idx]) * dvs[idx] / dus[idx]
+                if not vmin <= v <= vmax:
+                    continue
+                crossing = (u0, v)[sl]
+                theta = np.degrees(np.arctan2(*dxys[idx][::-1]))
+                crossings[-1].append((crossing, theta))
+    return crossings
 
 
 class ExtremeFinderSimple:
@@ -161,14 +202,12 @@ class GridFinder:
         tck_levels = gi["tick_levels"]
         tck_locs = gi["tick_locs"]
         for (lx, ly), v, lev in zip(lines, values, levs):
-            xy, tcks = clip_line_to_rect(lx, ly, bb)
-            if not xy:
-                continue
+            tcks = _find_line_box_crossings(np.column_stack([lx, ly]), bb)
             gi["levels"].append(v)
-            gi["lines"].append(xy)
+            gi["lines"].append([(lx, ly)])
 
             for tck, direction in zip(tcks,
-                                      ["left", "bottom", "right", "top"]):
+                                      ["left", "right", "bottom", "top"]):
                 for t in tck:
                     tck_levels[direction].append(lev)
                     tck_locs[direction].append(t)
