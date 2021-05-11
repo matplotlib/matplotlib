@@ -321,10 +321,6 @@ class Line2D(Artist):
             linestyle = rcParams['lines.linestyle']
         if marker is None:
             marker = rcParams['lines.marker']
-        if markerfacecolor is None:
-            markerfacecolor = rcParams['lines.markerfacecolor']
-        if markeredgecolor is None:
-            markeredgecolor = rcParams['lines.markeredgecolor']
         if color is None:
             color = rcParams['lines.color']
 
@@ -386,9 +382,9 @@ class Line2D(Artist):
         self._markerfacecolor = None
         self._markerfacecoloralt = None
 
-        self.set_markerfacecolor(markerfacecolor)
+        self.set_markerfacecolor(markerfacecolor)  # Normalizes None to rc.
         self.set_markerfacecoloralt(markerfacecoloralt)
-        self.set_markeredgecolor(markeredgecolor)
+        self.set_markeredgecolor(markeredgecolor)  # Normalizes None to rc.
         self.set_markeredgewidth(markeredgewidth)
 
         # update kwargs before updating data to give the caller a
@@ -1146,9 +1142,10 @@ class Line2D(Artist):
         self._marker = MarkerStyle(marker, self._marker.get_fillstyle())
         self.stale = True
 
-    def _set_markercolor(self, attr, val):
+    def _set_markercolor(self, name, has_rcdefault, val):
         if val is None:
-            val = 'auto'
+            val = rcParams[f"lines.{name}"] if has_rcdefault else "auto"
+        attr = f"_{name}"
         current = getattr(self, attr)
         if current is None:
             self.stale = True
@@ -1167,7 +1164,7 @@ class Line2D(Artist):
         ----------
         ec : color
         """
-        self._set_markercolor("_markeredgecolor", ec)
+        self._set_markercolor("markeredgecolor", True, ec)
 
     def set_markerfacecolor(self, fc):
         """
@@ -1177,7 +1174,7 @@ class Line2D(Artist):
         ----------
         fc : color
         """
-        self._set_markercolor("_markerfacecolor", fc)
+        self._set_markercolor("markerfacecolor", True, fc)
 
     def set_markerfacecoloralt(self, fc):
         """
@@ -1187,7 +1184,7 @@ class Line2D(Artist):
         ----------
         fc : color
         """
-        self._set_markercolor("_markerfacecoloralt", fc)
+        self._set_markercolor("markerfacecoloralt", False, fc)
 
     def set_markeredgewidth(self, ew):
         """
