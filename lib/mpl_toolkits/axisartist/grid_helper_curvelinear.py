@@ -202,10 +202,8 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             xx0 = xx0[mask]
 
         def transform_xy(x, y):
-            x1, y1 = grid_finder.transform_xy(x, y)
-            x2y2 = axes.transData.transform(np.array([x1, y1]).transpose())
-            x2, y2 = x2y2.transpose()
-            return x2, y2
+            trf = grid_finder.get_transform() + axes.transData
+            return trf.transform(np.column_stack([x, y])).T
 
         # find angles
         if self.nth_coord == 0:
