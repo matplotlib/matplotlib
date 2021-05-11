@@ -166,7 +166,9 @@ class GridFinder:
 
         lon_min, lon_max, lat_min, lat_max = extremes
         lon_levs, lon_n, lon_factor = self.grid_locator1(lon_min, lon_max)
+        lon_levs = np.asarray(lon_levs)
         lat_levs, lat_n, lat_factor = self.grid_locator2(lat_min, lat_max)
+        lat_levs = np.asarray(lat_levs)
 
         lon_values = lon_levs[:lon_n] / lon_factor
         lat_values = lat_levs[:lat_n] / lat_factor
