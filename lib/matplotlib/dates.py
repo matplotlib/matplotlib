@@ -1729,6 +1729,8 @@ class MicrosecondLocator(DateLocator):
         return self._interval
 
 
+@_api.deprecated("3.5",
+                 alternative="mdates.date2num(datetime.utcfromtimestamp(e))")
 def epoch2num(e):
     """
     Convert UNIX time to days since Matplotlib epoch.
@@ -1750,6 +1752,7 @@ def epoch2num(e):
     return (dt + np.asarray(e)) / SEC_PER_DAY
 
 
+@_api.deprecated("3.5", alternative="mdates.num2date(e).timestamp()")
 def num2epoch(d):
     """
     Convert days since Matplotlib epoch to UNIX time.
