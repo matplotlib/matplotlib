@@ -17,7 +17,7 @@ from .qt_compat import (
     QtCore, QtGui, QtWidgets, __version__, QT_API,
     _enum, _to_int,
     _devicePixelRatioF, _isdeleted, _setDevicePixelRatio,
-    _allow_interrupt
+    _maybe_allow_interrupt
 )
 
 
@@ -402,11 +402,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             timer = QtCore.QTimer.singleShot(int(timeout * 1000),
                                              event_loop.quit)
 
-        old_sigint_handler = signal.getsignal(signal.SIGINT)
-        try:
-            with _allow_interrupt(qApp, old_sigint_handler):
-                qt_compat._exec(event_loop)
-        except ValueError:
+        with _maybe_allow_interrupt(qApp):
             qt_compat._exec(event_loop)
 
     def stop_event_loop(self, event=None):
@@ -1009,11 +1005,5 @@ class _BackendQT(_Backend):
 
     @staticmethod
     def mainloop():
-        old_signal = signal.getsignal(signal.SIGINT)
-        # allow SIGINT exceptions to close the plot window.
-        is_python_signal_handler = old_signal is not None
-        if is_python_signal_handler:
-            with _allow_interrupt(qApp, old_signal):
-                qt_compat._exec(qApp)
-        else:
+        with _maybe_allow_interrupt(qApp):
             qt_compat._exec(qApp)

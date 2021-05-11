@@ -30,7 +30,7 @@ QT_API_PYQT5 = "PyQt5"
 QT_API_PYSIDE2 = "PySide2"
 QT_API_PYQTv2 = "PyQt4v2"
 QT_API_PYSIDE = "PySide"
-QT_API_PYQT = "PyQt4"   # Use the old sip v1 API (Py3 defaults to v2).
+QT_API_PYQT = "PyQt4"  # Use the old sip v1 API (Py3 defaults to v2).
 QT_API_ENV = os.environ.get("QT_API")
 if QT_API_ENV is not None:
     QT_API_ENV = QT_API_ENV.lower()
@@ -101,7 +101,8 @@ def _setup_pyqt5plus():
     elif QT_API == QT_API_PYSIDE2:
         from PySide2 import QtCore, QtGui, QtWidgets, QtNetwork, __version__
         import shiboken2
-        def _isdeleted(obj): return not shiboken2.isValid(obj)
+        def _isdeleted(obj):
+            return not shiboken2.isValid(obj)
     else:
         raise AssertionError(f"Unexpected QT_API: {QT_API}")
     _getSaveFileName = QtWidgets.QFileDialog.getSaveFileName
@@ -135,7 +136,6 @@ if (sys.platform == 'darwin' and
         parse_version(QtCore.qVersion()) < parse_version("5.15.2") and
         "QT_MAC_WANTS_LAYER" not in os.environ):
     os.environ["QT_MAC_WANTS_LAYER"] = "1"
-
 
 # These globals are only defined for backcompatibility purposes.
 ETS = dict(pyqt5=(QT_API_PYQT5, 5), pyside2=(QT_API_PYSIDE2, 5))
@@ -195,47 +195,116 @@ def _setDevicePixelRatio(obj, val):
         obj.setDevicePixelRatio(val)
 
 
-class _allow_interrupt:
-    def __init__(self, qApp, old_sigint_handler):
-        self.interrupted_qobject = qApp
-        self.old_fd = None
-        if old_sigint_handler in (None, signal.SIG_IGN, signal.SIG_DFL):
-            raise ValueError(f"Old SIGINT handler {old_sigint_handler}"
-                             f" will not be overridden")
-        self.old_sigint_handler = old_sigint_handler
-        self.caught_args = None
+@contextlib.contextmanager
+def _maybe_allow_interrupt(qapp):
+    '''
+    This manager allows to terminate a plot by sending a SIGINT. It is
+    necessary because the running Qt backend prevents Python interpreter to
+    run and process signals (i.e., to raise KeyboardInterrupt exception). To
+    solve this one needs to somehow wake up the interpreter and make it close
+    the plot window. We do this by using the signal.set_wakeup_fd() function
+    which organizes a write of the signal number into a socketpair connected
+    to the QSocketNotifier (since it is part of the Qt backend, it can react
+    to that write event). Afterwards, the Qt handler empties the socketpair
+    by a recv() command to re-arm it (we need this if a signal different from
+    SIGINT was caught by set_wakeup_fd() and we shall continue waiting). If
+    the SIGINT was caught indeed, after exiting the on_signal() function the
+    interpreter reacts to the SIGINT according to the handle() function which
+    had been set up by a signal.signal() call: it causes the qt_object to
+    exit by calling its quit() method. Finally, we call the old SIGINT
+    handler with the same arguments that were given to our custom handle()
+    handler.
 
-        QAS = QtNetwork.QAbstractSocket
-        self.qt_socket = QAS(QAS.TcpSocket, qApp)
-        # Create a socket pair
-        self.wsock, self.rsock = socket.socketpair()
-        # Let Qt listen on the one end
-        self.qt_socket.setSocketDescriptor(self.rsock.fileno())
-        self.wsock.setblocking(False)
-        self.qt_socket.readyRead.connect(self._readSignal)
+    We do this only if the old handler for SIGINT was not None, which means
+    that a non-python handler was installed, i.e. in Julia, and not SIG_IGN
+    which means we should ignore the interrupts.
+    '''
+    old_sigint_handler = signal.getsignal(signal.SIGINT)
+    handler_args = None
+    skip = False
+    if old_sigint_handler in (None, signal.SIG_IGN, signal.SIG_DFL):
+        skip = True
+    else:
+        wsock, rsock = socket.socketpair()
+        wsock.setblocking(False)
+        old_wakeup_fd = signal.set_wakeup_fd(wsock.fileno())
+        sn = QtCore.QSocketNotifier(rsock.fileno(),
+                                    QtCore.QSocketNotifier.Read)
 
-    def __enter__(self):
-        signal.signal(signal.SIGINT, self._handle)
-        # And let Python write on the other end
-        self.old_fd = signal.set_wakeup_fd(self.wsock.fileno())
+        @sn.activated.connect
+        def on_signal(*args):
+            rsock.recv(
+                sys.getsizeof(int))  # clear the socket to re-arm the notifier
 
-    def __exit__(self, type, val, traceback):
-        signal.set_wakeup_fd(self.old_fd)
-        signal.signal(signal.SIGINT, self.old_sigint_handler)
+        def handle(*args):
+            nonlocal handler_args
+            handler_args = args
+            qapp.quit()
 
-        self.wsock.close()
-        self.rsock.close()
-        self.qt_socket.abort()
-        if self.caught_args is not None:
-            self.old_sigint_handler(*self.caught_args)
+        signal.signal(signal.SIGINT, handle)
+    try:
+        yield
+    finally:
+        if not skip:
+            wsock.close()
+            rsock.close()
+            sn.setEnabled(False)
+            signal.set_wakeup_fd(old_wakeup_fd)
+            signal.signal(signal.SIGINT, old_sigint_handler)
+            if handler_args is not None:
+                old_sigint_handler(handler_args)
 
-    def _readSignal(self):
-        # Read the written byte.
-        # Note: readyRead is blocked from
-        # occurring again until readData() was called, so call it,
-        # even if you don't need the value.
-        self.qt_socket.readData(1)
-
-    def _handle(self, *args):
-        self.caught_args = args
-        self.interrupted_qobject.quit()
+# class _maybe_allow_interrupt:
+#
+#     def __init__(self, qt_object):
+#         self.interrupted_qobject = qt_object
+#         self.old_fd = None
+#         self.caught_args = None
+#
+#         self.skip = False
+#         self.old_sigint_handler = signal.getsignal(signal.SIGINT)
+#         if self.old_sigint_handler in (None, signal.SIG_IGN, signal.SIG_DFL):
+#             self.skip = True
+#             return
+#
+#         QAS = QtNetwork.QAbstractSocket
+#         self.qt_socket = QAS(QAS.TcpSocket, qt_object)
+#         # Create a socket pair
+#         self.wsock, self.rsock = socket.socketpair()
+#         # Let Qt listen on the one end
+#         self.qt_socket.setSocketDescriptor(self.rsock.fileno())
+#         self.wsock.setblocking(False)
+#         self.qt_socket.readyRead.connect(self._readSignal)
+#
+#     def __enter__(self):
+#         if self.skip:
+#             return
+#
+#         signal.signal(signal.SIGINT, self._handle)
+#         # And let Python write on the other end
+#         self.old_fd = signal.set_wakeup_fd(self.wsock.fileno())
+#
+#     def __exit__(self, type, val, traceback):
+#         if self.skip:
+#             return
+#
+#         signal.set_wakeup_fd(self.old_fd)
+#         signal.signal(signal.SIGINT, self.old_sigint_handler)
+#
+#         self.wsock.close()
+#         self.rsock.close()
+#         self.qt_socket.abort()
+#         if self.caught_args is not None:
+#             self.old_sigint_handler(*self.caught_args)
+#
+#     def _readSignal(self):
+#         # Read the written byte to re-arm the socket if a signal different
+#         # from SIGINT was caught.
+#         # Since a custom handler was installed for SIGINT, KeyboardInterrupt
+#         # is not raised here.
+#         self.qt_socket.readData(1)
+#
+#     def _handle(self, *args):
+#         self.caught_args = args  # save the caught args to call the old
+#                                  # SIGINT handler afterwards
+#         self.interrupted_qobject.quit()

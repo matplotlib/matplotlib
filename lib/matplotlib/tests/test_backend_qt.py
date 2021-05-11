@@ -85,6 +85,37 @@ def test_sigint(qt_core, platform_simulate_ctrl_c, target,
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
+@pytest.mark.parametrize("target, kwargs", [
+    (plt.show, {"block": True}),
+    (plt.pause, {"interval": 10})
+])
+def test_other_signal_before_sigint(qt_core, platform_simulate_ctrl_c,
+                                    target, kwargs):
+    plt.figure()
+
+    sigpipe_caught = False
+    def custom_sigpipe_handler(signum, frame):
+        nonlocal sigpipe_caught
+        sigpipe_caught = True
+    signal.signal(signal.SIGPIPE, custom_sigpipe_handler)
+
+    def fire_other_signal():
+        os.kill(os.getpid(), signal.SIGPIPE)
+
+    def fire_sigint():
+        platform_simulate_ctrl_c()
+
+    qt_core.QTimer.singleShot(50, fire_other_signal)
+    qt_core.QTimer.singleShot(100, fire_sigint)
+    try:
+        target(**kwargs)
+    except KeyboardInterrupt as e:
+        assert sigpipe_caught
+    else:
+        assert False  # KeyboardInterrupt must be raised
+
+
+@pytest.mark.backend('Qt5Agg')
 def test_fig_sigint_override(qt_core):
     from matplotlib.backends.backend_qt5 import _BackendQT5
     # Create a figure
