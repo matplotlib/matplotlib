@@ -3,6 +3,7 @@ from datetime import datetime
 import io
 from pathlib import Path
 import platform
+from threading import Timer
 from types import SimpleNamespace
 import warnings
 
@@ -1082,3 +1083,34 @@ def test_add_axes_kwargs():
     assert ax1.name == 'rectilinear'
     assert ax1 is not ax
     plt.close()
+
+
+def test_ginput(recwarn):  # recwarn undoes warn filters at exit.
+    warnings.filterwarnings("ignore", "cannot show the figure")
+    fig, ax = plt.subplots()
+
+    def single_press():
+        fig.canvas.button_press_event(*ax.transData.transform((.1, .2)), 1)
+
+    Timer(.1, single_press).start()
+    assert fig.ginput() == [(.1, .2)]
+
+    def multi_presses():
+        fig.canvas.button_press_event(*ax.transData.transform((.1, .2)), 1)
+        fig.canvas.key_press_event("backspace")
+        fig.canvas.button_press_event(*ax.transData.transform((.3, .4)), 1)
+        fig.canvas.button_press_event(*ax.transData.transform((.5, .6)), 1)
+        fig.canvas.button_press_event(*ax.transData.transform((0, 0)), 2)
+
+    Timer(.1, multi_presses).start()
+    np.testing.assert_allclose(fig.ginput(3), [(.3, .4), (.5, .6)])
+
+
+def test_waitforbuttonpress(recwarn):  # recwarn undoes warn filters at exit.
+    warnings.filterwarnings("ignore", "cannot show the figure")
+    fig = plt.figure()
+    assert fig.waitforbuttonpress(timeout=.1) is None
+    Timer(.1, fig.canvas.key_press_event, ("z",)).start()
+    assert fig.waitforbuttonpress() is True
+    Timer(.1, fig.canvas.button_press_event, (0, 0, 1)).start()
+    assert fig.waitforbuttonpress() is False
