@@ -2119,7 +2119,7 @@ class SpanSelector(_SelectorWidget):
 
         return False
 
-    def draw_shape(self, vmin, vmax):
+    def _draw_shape(self, vmin, vmax):
         if vmin > vmax:
             vmin, vmax = vmax, vmin
         if self.direction == 'horizontal':
@@ -2185,7 +2185,7 @@ class SpanSelector(_SelectorWidget):
     @extents.setter
     def extents(self, extents):
         # Update displayed shape
-        self.draw_shape(*extents)
+        self._draw_shape(*extents)
         # Update displayed handles
         self._edge_handles.set_data(self.extents)
         self.set_visible(self.visible)
@@ -2658,7 +2658,7 @@ class RectangleSelector(_SelectorWidget):
     @extents.setter
     def extents(self, extents):
         # Update displayed shape
-        self.draw_shape(extents)
+        self._draw_shape(extents)
         # Update displayed handles
         self._corner_handles.set_data(*self.corners)
         self._edge_handles.set_data(*self.edge_centers)
@@ -2666,7 +2666,9 @@ class RectangleSelector(_SelectorWidget):
         self.set_visible(self.visible)
         self.update()
 
-    def draw_shape(self, extents):
+    draw_shape = _api.deprecate_privatize_attribute('3.5')
+
+    def _draw_shape(self, extents):
         x0, x1, y0, y1 = extents
         xmin, xmax = sorted([x0, x1])
         ymin, ymax = sorted([y0, y1])
@@ -2784,8 +2786,9 @@ class EllipseSelector(RectangleSelector):
         plt.show()
     """
     _shape_klass = Ellipse
+    draw_shape = _api.deprecate_privatize_attribute('3.5')
 
-    def draw_shape(self, extents):
+    def _draw_shape(self, extents):
         x0, x1, y0, y1 = extents
         xmin, xmax = sorted([x0, x1])
         ymin, ymax = sorted([y0, y1])
