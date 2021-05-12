@@ -10,7 +10,8 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D, IdentityTransform
-from .axislines import AxisArtistHelper, GridHelperBase
+from .axislines import (
+    _FixedAxisArtistHelperBase, _FloatingAxisArtistHelperBase, GridHelperBase)
 from .axis_artist import AxisArtist
 from .grid_finder import GridFinder
 
@@ -40,7 +41,7 @@ def _value_and_jacobian(func, xs, ys, xlims, ylims):
     return (val, (val_dx - val) / xeps, (val_dy - val) / yeps)
 
 
-class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
+class FixedAxisArtistHelper(_FixedAxisArtistHelperBase):
     """
     Helper class for a fixed axis.
     """
@@ -80,7 +81,8 @@ class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
         return chain(ti1, ti2), iter([])
 
 
-class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
+class FloatingAxisArtistHelper(_FloatingAxisArtistHelperBase):
+
     def __init__(self, grid_helper, nth_coord, value, axis_direction=None):
         """
         nth_coord = along which coordinate value varies.
