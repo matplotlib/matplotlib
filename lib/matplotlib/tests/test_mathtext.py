@@ -399,7 +399,7 @@ def test_default_math_fontfamily():
     prop2 = fig.text(0.2, 0.2, test_str, fontproperties='Arial').get_fontproperties()
     assert prop2.get_math_fontfamily() == 'cm'
 
-    fig.savefig(buff, format="svg")
+    fig.draw_no_output()
 
 
 def test_argument_order():
@@ -426,4 +426,4 @@ def test_argument_order():
     prop4 = text4.get_fontproperties()
     assert prop4.get_math_fontfamily() == 'dejavusans'
 
-    fig.savefig(buff, format="svg")
+    fig.draw_no_output()
