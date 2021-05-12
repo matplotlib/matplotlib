@@ -628,6 +628,7 @@ class Stack:
                 self.push(elem)
 
 
+@_api.deprecated("3.5", alternative="psutil.virtual_memory")
 def report_memory(i=0):  # argument may go away
     """Return the memory consumed by the process."""
     def call(command, os_name):
