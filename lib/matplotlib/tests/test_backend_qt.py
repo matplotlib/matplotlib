@@ -93,14 +93,14 @@ def test_other_signal_before_sigint(qt_core, platform_simulate_ctrl_c,
                                     target, kwargs):
     plt.figure()
 
-    sigpipe_caught = False
+    sigcld_caught = False
     def custom_sigpipe_handler(signum, frame):
-        nonlocal sigpipe_caught
-        sigpipe_caught = True
-    signal.signal(signal.SIGPIPE, custom_sigpipe_handler)
+        nonlocal sigcld_caught
+        sigcld_caught = True
+    signal.signal(signal.SIGCLD, custom_sigpipe_handler)
 
     def fire_other_signal():
-        os.kill(os.getpid(), signal.SIGPIPE)
+        os.kill(os.getpid(), signal.SIGCLD)
 
     def fire_sigint():
         platform_simulate_ctrl_c()
@@ -110,7 +110,7 @@ def test_other_signal_before_sigint(qt_core, platform_simulate_ctrl_c,
     try:
         target(**kwargs)
     except KeyboardInterrupt as e:
-        assert sigpipe_caught
+        assert sigcld_caught
     else:
         assert False  # KeyboardInterrupt must be raised
 

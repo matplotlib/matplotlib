@@ -197,7 +197,7 @@ def _setDevicePixelRatio(obj, val):
 
 @contextlib.contextmanager
 def _maybe_allow_interrupt(qapp):
-    '''
+    """
     This manager allows to terminate a plot by sending a SIGINT. It is
     necessary because the running Qt backend prevents Python interpreter to
     run and process signals (i.e., to raise KeyboardInterrupt exception). To
@@ -218,7 +218,7 @@ def _maybe_allow_interrupt(qapp):
     We do this only if the old handler for SIGINT was not None, which means
     that a non-python handler was installed, i.e. in Julia, and not SIG_IGN
     which means we should ignore the interrupts.
-    '''
+    """
     old_sigint_handler = signal.getsignal(signal.SIGINT)
     handler_args = None
     skip = False
