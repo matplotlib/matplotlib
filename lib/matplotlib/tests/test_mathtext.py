@@ -386,34 +386,44 @@ def test_math_fontfamily():
     fig.text(0.2, 0.3, r"$This\ text\ should\ have\ another$",
              size=24, math_fontfamily='stix')
 
+
 def test_default_math_fontfamily():
     mpl.rcParams['mathtext.fontset'] = 'cm'
-    test_str = r'Foo: $\alpha_{i+1}^j = {\rm sin}(2\pi f_j t_i) e^{-5 t_i/\tau}$'
+    test_str = r'abc$abc\alpha$'
 
     buff = io.BytesIO()
     fig, ax = plt.subplots()
 
     prop1 = fig.text(0.1, 0.1, test_str, font='Arial').get_fontproperties()
     assert prop1.get_math_fontfamily() == 'cm'
-    prop2 = fig.text(0.1, 0.2, test_str, fontproperties='Arial').get_fontproperties()
+    prop2 = fig.text(0.2, 0.2, test_str, fontproperties='Arial').get_fontproperties()
     assert prop2.get_math_fontfamily() == 'cm'
 
     fig.savefig(buff, format="svg")
 
+
 def test_argument_order():
     mpl.rcParams['mathtext.fontset'] = 'cm'
-    test_str = r'Foo: $\alpha_{i+1}^j = {\rm sin}(2\pi f_j t_i) e^{-5 t_i/\tau}$'
+    test_str = r'abc$abc\alpha$'
 
     buff = io.BytesIO()
     fig, ax = plt.subplots()
 
-    prop1 = fig.text(0.1, 0.1, test_str, math_fontfamily='dejavusans', font='Arial').get_fontproperties()
+    text1 = fig.text(0.1, 0.1, test_str,
+                     math_fontfamily='dejavusans', font='Arial')
+    prop1 = text1.get_fontproperties()
     assert prop1.get_math_fontfamily() == 'dejavusans'
-    prop2 = fig.text(0.1, 0.2, test_str, math_fontfamily='dejavusans', fontproperties='Arial').get_fontproperties()
+    text2 = fig.text(0.2, 0.2, test_str,
+                     math_fontfamily='dejavusans', fontproperties='Arial')
+    prop2 = text2.get_fontproperties()
     assert prop2.get_math_fontfamily() == 'dejavusans'
-    prop3 = fig.text(0.1, 0.3, test_str, font='Arial', math_fontfamily='dejavusans').get_fontproperties()
+    text3 = fig.text(0.3, 0.3, test_str,
+                     font='Arial', math_fontfamily='dejavusans')
+    prop3 = text3.get_fontproperties()
     assert prop3.get_math_fontfamily() == 'dejavusans'
-    prop4 = fig.text(0.1, 0.4, test_str, fontproperties='Arial', math_fontfamily='dejavusans').get_fontproperties()
+    text4 = fig.text(0.4, 0.4, test_str,
+                     fontproperties='Arial', math_fontfamily='dejavusans')
+    prop4 = text4.get_fontproperties()
     assert prop4.get_math_fontfamily() == 'dejavusans'
 
     fig.savefig(buff, format="svg")
