@@ -1,0 +1,3 @@
+``cbook.report_memory``
+~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated.  Use ``psutil.virtual_memory`` instead.
