@@ -1777,7 +1777,7 @@ class _SelectorWidget(AxesWidget):
 
     def update(self):
         """Draw using blit() or draw_idle(), depending on ``self.useblit``."""
-        if not self.ax.get_visible():
+        if not self.ax.get_visible() or self.ax.figure._cachedRenderer is None:
             return False
         if self.useblit:
             if self.background is not None:
