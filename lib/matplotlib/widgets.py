@@ -1974,10 +1974,10 @@ class SpanSelector(_SelectorWidget):
     See also: :doc:`/gallery/widgets/span_selector`
     """
 
-    @_api.delete_parameter("3.5", "span_stays")
+    @_api.rename_parameter("3.5", "span_stays", "interactive")
     def __init__(self, ax, onselect, direction, minspan=0, useblit=False,
                  rectprops=None, maxdist=10, marker_props=None,
-                 onmove_callback=None, span_stays=False, interactive=False,
+                 onmove_callback=None, interactive=False,
                  button=None, drag_from_anywhere=False):
 
         super().__init__(ax, onselect, useblit=useblit, button=button)
@@ -1999,15 +1999,6 @@ class SpanSelector(_SelectorWidget):
         self.minspan = minspan
 
         self.maxdist = maxdist
-        # Deprecate `span_stays` in favour of interactive to be consistent
-        # with Rectangle, etc.
-        if span_stays:
-            interactive = True
-            _api.warn_deprecated(
-                "3.5", message="Support for span_stays=True is deprecated "
-                               "since %(since)s and will be removed "
-                               "%(removal)s."
-                               "Use interactive=True instead.")
         self.interactive = interactive
         self.drag_from_anywhere = drag_from_anywhere
 
