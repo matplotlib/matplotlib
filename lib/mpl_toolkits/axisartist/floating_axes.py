@@ -44,15 +44,15 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
 
     def update_lim(self, axes):
         self.grid_helper.update_lim(axes)
-        self.grid_info = self.grid_helper.grid_info
+        self._grid_info = self.grid_helper._grid_info
 
     def get_tick_iterators(self, axes):
         """tick_loc, tick_angle, tick_label, (optionally) tick_label"""
 
         grid_finder = self.grid_helper.grid_finder
 
-        lat_levs, lat_n, lat_factor = self.grid_info["lat_info"]
-        lon_levs, lon_n, lon_factor = self.grid_info["lon_info"]
+        lat_levs, lat_n, lat_factor = self._grid_info["lat_info"]
+        lon_levs, lon_n, lon_factor = self._grid_info["lon_info"]
 
         lon_levs, lat_levs = np.asarray(lon_levs), np.asarray(lat_levs)
         if lat_factor is not None:
@@ -94,7 +94,7 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             xx2a, yy2a = transform_xy(xx0, yy00)
             xx2b, yy2b = transform_xy(xx0, yy00 + dy)
 
-            labels = self.grid_info["lat_labels"]
+            labels = self._grid_info["lat_labels"]
             labels = [l for l, m in zip(labels, mask) if m]
 
         elif self.nth_coord == 1:
@@ -113,7 +113,7 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             xx2a, yy2a = transform_xy(xx00, yy0)
             xx2b, yy2b = transform_xy(xx00 + dx, yy0)
 
-            labels = self.grid_info["lon_labels"]
+            labels = self._grid_info["lon_labels"]
             labels = [l for l, m in zip(labels, mask) if m]
 
         def f1():
@@ -138,7 +138,7 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
                     right=("lon_lines0", 1),
                     bottom=("lat_lines0", 0),
                     top=("lat_lines0", 1))[self._side]
-        xx, yy = self.grid_info[k][v]
+        xx, yy = self._grid_info[k][v]
         return Path(np.column_stack([xx, yy]))
 
 
@@ -229,10 +229,10 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
     #     return axis
 
     def _update_grid(self, x1, y1, x2, y2):
-        if self.grid_info is None:
-            self.grid_info = dict()
+        if self._grid_info is None:
+            self._grid_info = dict()
 
-        grid_info = self.grid_info
+        grid_info = self._grid_info
 
         grid_finder = self.grid_finder
         extremes = grid_finder.extreme_finder(grid_finder.inv_transform_xy,
@@ -284,9 +284,9 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
     def get_gridlines(self, which="major", axis="both"):
         grid_lines = []
         if axis in ["both", "x"]:
-            grid_lines.extend(self.grid_info["lon_lines"])
+            grid_lines.extend(self._grid_info["lon_lines"])
         if axis in ["both", "y"]:
-            grid_lines.extend(self.grid_info["lat_lines"])
+            grid_lines.extend(self._grid_info["lat_lines"])
         return grid_lines
 
     def get_boundary(self):
