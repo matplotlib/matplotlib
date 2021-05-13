@@ -1695,17 +1695,20 @@ class Axes3D(Axes):
                     ps = [
                         # +1 ensures we share edges between polygons
                         cbook._array_perimeter(a[rs:rs_next+1, cs:cs_next+1])
-                        for a in (X, Y, Z, mask)
+                        for a in (X, Y, Z)
                     ]
+                    # If any of the perimeters are masked, then skip the
+                    # polygon
+                    if np.any(cbook._array_perimeter(
+                        mask[rs:rs_next+1, cs:cs_next+1]
+                    )):
+                        continue
                     # ps = np.stack(ps, axis=-1)
                     ps = np.array(ps).T
                     polys.append(ps)
 
                     if fcolors is not None:
                         colset.append(fcolors[rs][cs])
-            # For the masking we have to loop because the polys may
-            # not be regularly shaped
-            polys = [p[:, :3] for p in polys if not np.any(p[:, 3])]
 
         # note that the striding causes some polygons to have more coordinates
         # than others
