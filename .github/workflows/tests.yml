@@ -22,18 +22,18 @@ jobs:
       matrix:
         include:
           - name-suffix: "(Minimum Versions)"
-            os: ubuntu-16.04
+            os: ubuntu-18.04
             python-version: 3.7
             extra-requirements: '-c requirements/testing/minver.txt'
             pyqt5-ver: '==5.8 sip==4.19.7'  # oldest versions with a Py3.7 wheel.
             delete-font-cache: true
             XVFB_RUN: xvfb-run -a
-          - os: ubuntu-16.04
+          - os: ubuntu-18.04
             python-version: 3.7
             extra-requirements: '-r requirements/testing/extra.txt'
             XVFB_RUN: xvfb-run -a
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
-          - os: ubuntu-16.04
+          - os: ubuntu-18.04
             python-version: 3.8
             extra-requirements: '-r requirements/testing/extra.txt'
             XVFB_RUN: xvfb-run -a
@@ -128,10 +128,10 @@ jobs:
             ~/.cache/matplotlib
             !~/.cache/matplotlib/tex.cache
             !~/.cache/matplotlib/test_cache
-          key: ${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
+          key: 1-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
-            ${{ runner.os }}-py${{ matrix.python-version }}-mpl-
+            1-${{ runner.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
+            1-${{ runner.os }}-py${{ matrix.python-version }}-mpl-
 
       - name: Install Python dependencies
         run: |
@@ -156,12 +156,8 @@ jobs:
           # libraries cannot be loaded at runtime, so an actual import is a
           # better check).
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
-            # PyGObject, pycairo, and cariocffi do not install on OSX 10.12;
-            # pycairo 1.20+ requires a new version of Cairo, unavailable on
-            # Ubuntu 16.04, so PyGObject must be installed without build
-            # isolation in order to pick up the lower pre-installed version.
-             python -m pip install --upgrade 'pycairo<1.20.0' 'cairocffi>=0.8' &&
-             python -m pip install --upgrade --no-build-isolation PyGObject &&
+            # PyGObject, pycairo, and cariocffi do not install on OSX 10.12.
+             python -m pip install --upgrade pycairo 'cairocffi>=0.8' PyGObject &&
                python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
                echo 'PyGObject is available' ||
                echo 'PyGObject is not available'
@@ -180,7 +176,7 @@ jobs:
                echo 'PySide2 is not available'
           fi
           python -m pip install --upgrade \
-            -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-16.04 \
+            -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-18.04 \
             wxPython &&
             python -c 'import wx' &&
             echo 'wxPython is available' ||
@@ -226,3 +222,9 @@ jobs:
         if: ${{ runner.os != 'macOS' }}
       - name: Upload code coverage
         uses: codecov/codecov-action@v1
+
+      - uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }} result images"
+          path: ./result_images
