@@ -188,21 +188,21 @@ class Divider:
         renderer
         """
 
-        figW, figH = self._fig.get_size_inches()
+        fig_w, fig_h = self._fig.bbox.size / self._fig.dpi
         x, y, w, h = self.get_position_runtime(axes, renderer)
 
         hsizes = self.get_horizontal_sizes(renderer)
         vsizes = self.get_vertical_sizes(renderer)
-        k_h = self._calc_k(hsizes, figW*w)
-        k_v = self._calc_k(vsizes, figH*h)
+        k_h = self._calc_k(hsizes, fig_w * w)
+        k_v = self._calc_k(vsizes, fig_h * h)
 
         if self.get_aspect():
             k = min(k_h, k_v)
             ox = self._calc_offsets(hsizes, k)
             oy = self._calc_offsets(vsizes, k)
 
-            ww = (ox[-1] - ox[0]) / figW
-            hh = (oy[-1] - oy[0]) / figH
+            ww = (ox[-1] - ox[0]) / fig_w
+            hh = (oy[-1] - oy[0]) / fig_h
             pb = mtransforms.Bbox.from_bounds(x, y, w, h)
             pb1 = mtransforms.Bbox.from_bounds(x, y, ww, hh)
             pb1_anchored = pb1.anchored(self.get_anchor(), pb)
@@ -218,8 +218,8 @@ class Divider:
         if ny1 is None:
             ny1 = ny + 1
 
-        x1, w1 = x0 + ox[nx] / figW, (ox[nx1] - ox[nx]) / figW
-        y1, h1 = y0 + oy[ny] / figH, (oy[ny1] - oy[ny]) / figH
+        x1, w1 = x0 + ox[nx] / fig_w, (ox[nx1] - ox[nx]) / fig_w
+        y1, h1 = y0 + oy[ny] / fig_h, (oy[ny1] - oy[ny]) / fig_h
 
         return mtransforms.Bbox.from_bounds(x1, y1, w1, h1)
 
@@ -649,7 +649,7 @@ class HBoxDivider(SubplotDivider):
 
     def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
         # docstring inherited
-        fig_w, fig_h = self._fig.get_size_inches()
+        fig_w, fig_h = self._fig.bbox.size / self._fig.dpi
         x, y, w, h = self.get_position_runtime(axes, renderer)
         summed_ws = self.get_horizontal_sizes(renderer)
         equal_hs = self.get_vertical_sizes(renderer)
@@ -684,7 +684,7 @@ class VBoxDivider(SubplotDivider):
 
     def locate(self, nx, ny, nx1=None, ny1=None, axes=None, renderer=None):
         # docstring inherited
-        fig_w, fig_h = self._fig.get_size_inches()
+        fig_w, fig_h = self._fig.bbox.size / self._fig.dpi
         x, y, w, h = self.get_position_runtime(axes, renderer)
         summed_hs = self.get_vertical_sizes(renderer)
         equal_ws = self.get_horizontal_sizes(renderer)
