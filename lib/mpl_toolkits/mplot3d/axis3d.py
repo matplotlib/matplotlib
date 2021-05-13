@@ -199,7 +199,7 @@ class Axis(maxis.XAxis):
         bounds = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
         bounds_proj = self.axes.tunit_cube(bounds, self.axes.M)
 
-        # Determine which one of the parallell planes are higher up:
+        # Determine which one of the parallel planes are higher up:
         highs = np.zeros(3, dtype=bool)
         for i in range(3):
             mean_z0 = np.mean(bounds_proj[self._PLANES[2 * i], 2])
