@@ -233,7 +233,7 @@ class Axis(maxis.XAxis):
 
         Returns
         -------
-        tickdir : integer
+        tickdir : int
             Index which indicates which coordinate the tick line will
             align with.
         """
