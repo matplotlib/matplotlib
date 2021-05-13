@@ -423,7 +423,7 @@ def test_surface3d_shaded():
 @mpl3d_image_comparison(['surface3d_masked.png'])
 def test_surface3d_masked():
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    ax = fig.add_subplot(projection='3d')
     X = np.arange(1, 10, 1)
     Y = np.arange(1, 10, 1)
     X, Y = np.meshgrid(X, Y)
