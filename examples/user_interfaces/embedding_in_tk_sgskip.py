@@ -6,6 +6,7 @@ Embedding in Tk
 """
 
 import tkinter
+from random import randint
 
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
@@ -35,13 +36,28 @@ canvas.mpl_connect(
     "key_press_event", lambda event: print(f"you pressed {event.key}"))
 canvas.mpl_connect("key_press_event", key_press_handler)
 
-button = tkinter.Button(master=root, text="Quit", command=root.quit)
+button_quit = tkinter.Button(master=root, text="Quit", command=root.quit)
+
+def update_frequency():
+    # random frequency
+    f = randint(1, 5)
+
+    # retrieve Axes object and update plots there
+    ax = fig.axes[0]
+    ax.clear()
+    ax.plot(t, 2 * np.sin(2 * np.pi * f * t))
+
+    # required to update canvas and attached toolbar!
+    canvas.draw()
+
+button_update = tkinter.Button(master=root, text="Update", command=update_frequency)
 
 # Packing order is important. Widgets are processed sequentially and if there
 # is no space left, because the window is too small, they are not displayed.
 # The canvas is rather flexible in its size, so we pack it last which makes
 # sure the UI controls are displayed as long as possible.
-button.pack(side=tkinter.BOTTOM)
+button_quit.pack(side=tkinter.BOTTOM)
+button_update.pack(side=tkinter.BOTTOM)
 toolbar.pack(side=tkinter.BOTTOM, fill=tkinter.X)
 canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
 
