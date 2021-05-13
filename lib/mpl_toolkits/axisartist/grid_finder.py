@@ -102,7 +102,7 @@ class _User2DTransform(Transform):
         Parameters
         ----------
         forward, backward : callable
-            The forward and backward transforms, as taking ``x`` and ``y`` as
+            The forward and backward transforms, taking ``x`` and ``y`` as
             separate arguments and returning ``(tr_x, tr_y)``.
         """
         # The normal Matplotlib convention would be to take and return an
