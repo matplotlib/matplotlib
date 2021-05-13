@@ -2890,8 +2890,12 @@ class Figure(FigureBase):
 
         transparent : bool
             If *True*, the Axes patches will all be transparent; the
-            figure patch will also be transparent unless facecolor
+            Figure patch will also be transparent unless facecolor
             and/or edgecolor are specified via kwargs.
+
+            If *False* has no effect and leaves the color of the Axes and
+            Figure patches as they are.
+
             This is useful, for example, for displaying
             a plot on top of a colored background on a web page.  The
             transparency of these patches will be restored to their
