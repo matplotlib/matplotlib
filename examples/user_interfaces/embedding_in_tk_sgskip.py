@@ -31,12 +31,12 @@ canvas.draw()
 toolbar = NavigationToolbar2Tk(canvas, root, pack_toolbar=False)
 toolbar.update()
 
-
 canvas.mpl_connect(
     "key_press_event", lambda event: print(f"you pressed {event.key}"))
 canvas.mpl_connect("key_press_event", key_press_handler)
 
 button_quit = tkinter.Button(master=root, text="Quit", command=root.quit)
+
 
 def update_frequency():
     # random frequency
@@ -50,7 +50,9 @@ def update_frequency():
     # required to update canvas and attached toolbar!
     canvas.draw()
 
-button_update = tkinter.Button(master=root, text="Update", command=update_frequency)
+
+button_update = tkinter.Button(
+    master=root, text="Update", command=update_frequency)
 
 # Packing order is important. Widgets are processed sequentially and if there
 # is no space left, because the window is too small, they are not displayed.
