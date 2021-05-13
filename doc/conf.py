@@ -169,6 +169,8 @@ sphinx_gallery_conf = {
     'matplotlib_animations': True,
     # 3.7 CI doc build should not use hidpi images during the testing phase
     'image_srcset': [] if sys.version_info[:2] == (3, 7) else ["2x"],
+    'junit': ('../test-results/sphinx-gallery/junit.xml'
+              if 'CIRCLECI' in os.environ else ''),
 }
 
 plot_gallery = 'True'
