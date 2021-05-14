@@ -6,7 +6,6 @@ Embedding in Tk
 """
 
 import tkinter
-from random import randint
 
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
@@ -39,23 +38,26 @@ canvas.mpl_connect("key_press_event", key_press_handler)
 
 button_quit = tkinter.Button(master=root, text="Quit", command=root.quit)
 
+
 def update_frequency(new_val):
     # retrieve frequency
     f = float(new_val)
 
     # retrieve Axes object and update plots there
     ax = fig.axes[0]
-    ax.clear() # alternatively you could delete last plotted line `del ax.lines[0]`
-    ax.plot(t, 2 * np.sin(2 * np.pi * f * t))
+    # alternatively you could delete last plotted line `del ax.lines[0]`
+    ax.clear()
 
+    ax.plot(t, 2 * np.sin(2 * np.pi * f * t))
     #  since Axes was cleared
     ax.set_xlabel("x")
 
     # required to update canvas and attached toolbar!
     canvas.draw()
 
-slider_update = tkinter.Scale(root, from_=1, to=5, orient=tkinter.HORIZONTAL, 
-    command=update_frequency, label="Frequency [Hz]")
+
+slider_update = tkinter.Scale(root, from_=1, to=5, orient=tkinter.HORIZONTAL,
+                              command=update_frequency, label="Frequency [Hz]")
 
 # Packing order is important. Widgets are processed sequentially and if there
 # is no space left, because the window is too small, they are not displayed.
