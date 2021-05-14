@@ -583,16 +583,17 @@ def test_legend_title_fontprop_fontsize():
     assert leg5.get_title().get_fontsize() == 20
 
 
-def test_legend_labelcolor_single():
+@pytest.mark.parametrize('color', ('red', 'none', (.5, .5, .5)))
+def test_legend_labelcolor_single(color):
     # test labelcolor for a single color
     fig, ax = plt.subplots()
     ax.plot(np.arange(10), np.arange(10)*1, label='#1')
     ax.plot(np.arange(10), np.arange(10)*2, label='#2')
     ax.plot(np.arange(10), np.arange(10)*3, label='#3')
 
-    leg = ax.legend(labelcolor='red')
+    leg = ax.legend(labelcolor=color)
     for text in leg.get_texts():
-        assert mpl.colors.same_color(text.get_color(), 'red')
+        assert mpl.colors.same_color(text.get_color(), color)
 
 
 def test_legend_labelcolor_list():
