@@ -124,6 +124,47 @@ mpl_SetForegroundWindow(PyObject* module, PyObject *arg)
 #endif
 }
 
+static PyObject*
+mpl_SetProcessDpiAwareness_max(PyObject* module)
+{
+#ifdef _WIN32
+#ifdef _DPI_AWARENESS_CONTEXTS_
+    // These functions and options were added in later Windows 10 updates, so
+    // must be loaded dynamically.
+    typedef BOOL (WINAPI *IsValidDpiAwarenessContext_t)(DPI_AWARENESS_CONTEXT);
+    typedef BOOL (WINAPI *SetProcessDpiAwarenessContext_t)(DPI_AWARENESS_CONTEXT);
+
+    HMODULE user32 = LoadLibrary("user32.dll");
+    IsValidDpiAwarenessContext_t IsValidDpiAwarenessContextPtr =
+        (IsValidDpiAwarenessContext_t)GetProcAddress(
+            user32, "IsValidDpiAwarenessContext");
+    SetProcessDpiAwarenessContext_t SetProcessDpiAwarenessContextPtr =
+        (SetProcessDpiAwarenessContext_t)GetProcAddress(
+            user32, "SetProcessDpiAwarenessContext");
+    if (IsValidDpiAwarenessContextPtr != NULL && SetProcessDpiAwarenessContextPtr != NULL) {
+        if (IsValidDpiAwarenessContextPtr(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2)) {
+            // Added in Creators Update of Windows 10.
+            SetProcessDpiAwarenessContextPtr(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+        } else if (IsValidDpiAwarenessContextPtr(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE)) {
+            // Added in Windows 10.
+            SetProcessDpiAwarenessContextPtr(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE);
+        } else if (IsValidDpiAwarenessContextPtr(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE)) {
+            // Added in Windows 10.
+            SetProcessDpiAwarenessContextPtr(DPI_AWARENESS_CONTEXT_SYSTEM_AWARE);
+        }
+    } else {
+        // Added in Windows Vista.
+        SetProcessDPIAware();
+    }
+    FreeLibrary(user32);
+#else
+    // Added in Windows Vista.
+    SetProcessDPIAware();
+#endif
+#endif
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef functions[] = {
     {"display_is_valid", (PyCFunction)mpl_display_is_valid, METH_NOARGS,
      "display_is_valid()\n--\n\n"
@@ -151,6 +192,11 @@ static PyMethodDef functions[] = {
      "Win32_SetForegroundWindow(hwnd, /)\n--\n\n"
      "Wrapper for Windows' SetForegroundWindow.  On non-Windows platforms, \n"
      "a no-op."},
+    {"Win32_SetProcessDpiAwareness_max",
+     (PyCFunction)mpl_SetProcessDpiAwareness_max, METH_NOARGS,
+     "Win32_SetProcessDpiAwareness_max()\n--\n\n"
+     "Set Windows' process DPI awareness to best option available.\n"
+     "On non-Windows platforms, does nothing."},
     {NULL, NULL}};  // sentinel.
 static PyModuleDef util_module = {
     PyModuleDef_HEAD_INIT, "_c_internal_utils", "", 0, functions, NULL, NULL, NULL, NULL};
