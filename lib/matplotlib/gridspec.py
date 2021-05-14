@@ -18,8 +18,6 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import _api, _pylab_helpers, tight_layout, rcParams
 from matplotlib.transforms import Bbox
-import matplotlib._layoutgrid as layoutgrid
-
 
 _log = logging.getLogger(__name__)
 
@@ -387,24 +385,7 @@ class GridSpec(GridSpecBase):
                          width_ratios=width_ratios,
                          height_ratios=height_ratios)
 
-        # set up layoutgrid for constrained_layout:
-        self._layoutgrid = None
-        if self.figure is None or not self.figure.get_constrained_layout():
-            self._layoutgrid = None
-        else:
-            self._toplayoutbox = self.figure._layoutgrid
-            self._layoutgrid = layoutgrid.LayoutGrid(
-                parent=self.figure._layoutgrid,
-                parent_inner=True,
-                name=(self.figure._layoutgrid.name + '.gridspec' +
-                      layoutgrid.seq_id()),
-                ncols=ncols, nrows=nrows, width_ratios=width_ratios,
-                height_ratios=height_ratios)
-
     _AllowedKeys = ["left", "bottom", "right", "top", "wspace", "hspace"]
-
-    def __getstate__(self):
-        return {**self.__dict__, "_layoutgrid": None}
 
     def update(self, **kwargs):
         """
@@ -522,26 +503,6 @@ class GridSpecFromSubplotSpec(GridSpecBase):
         super().__init__(nrows, ncols,
                          width_ratios=width_ratios,
                          height_ratios=height_ratios)
-        # do the layoutgrids for constrained_layout:
-        subspeclb = subplot_spec.get_gridspec()._layoutgrid
-        if subspeclb is None:
-            self._layoutgrid = None
-        else:
-            # this _toplayoutbox is a container that spans the cols and
-            # rows in the parent gridspec.  Not yet implemented,
-            # but we do this so that it is possible to have subgridspec
-            # level artists.
-            self._toplayoutgrid = layoutgrid.LayoutGrid(
-                parent=subspeclb,
-                name=subspeclb.name + '.top' + layoutgrid.seq_id(),
-                nrows=1, ncols=1,
-                parent_pos=(subplot_spec.rowspan, subplot_spec.colspan))
-            self._layoutgrid = layoutgrid.LayoutGrid(
-                    parent=self._toplayoutgrid,
-                    name=(self._toplayoutgrid.name + '.gridspec' +
-                          layoutgrid.seq_id()),
-                    nrows=nrows, ncols=ncols,
-                    width_ratios=width_ratios, height_ratios=height_ratios)
 
     def get_subplot_params(self, figure=None):
         """Return a dictionary of subplot layout parameters."""

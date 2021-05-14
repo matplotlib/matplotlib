@@ -39,7 +39,6 @@ from matplotlib.patches import Rectangle
 from matplotlib.text import Text
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
-import matplotlib._layoutgrid as layoutgrid
 
 _log = logging.getLogger(__name__)
 
@@ -195,9 +194,6 @@ class FigureBase(Artist):
         self._suptitle = None
         self._supxlabel = None
         self._supylabel = None
-
-        # constrained_layout:
-        self._layoutgrid = None
 
         # groupers to keep track of x and y labels we want to align.
         # see self.align_xlabels and self.align_ylabels and
@@ -2012,9 +2008,6 @@ class SubFigure(FigureBase):
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
 
-        if parent._layoutgrid is not None:
-            self.init_layoutgrid()
-
     @property
     def dpi(self):
         return self._parent.dpi
@@ -2074,21 +2067,6 @@ class SubFigure(FigureBase):
             If `True`, then convert from inches to figure relative.
         """
         return self._parent.get_constrained_layout_pads(relative=relative)
-
-    def init_layoutgrid(self):
-        """Initialize the layoutgrid for use in constrained_layout."""
-        if self._layoutgrid is None:
-            gs = self._subplotspec.get_gridspec()
-            parent = gs._layoutgrid
-            if parent is not None:
-                self._layoutgrid = layoutgrid.LayoutGrid(
-                    parent=parent,
-                    name=(parent.name + '.' + 'panellb' +
-                          layoutgrid.seq_id()),
-                    parent_inner=True,
-                    nrows=1, ncols=1,
-                    parent_pos=(self._subplotspec.rowspan,
-                                self._subplotspec.colspan))
 
     @property
     def axes(self):
@@ -2272,7 +2250,6 @@ class Figure(FigureBase):
         self.subplotpars = subplotpars
 
         # constrained_layout:
-        self._layoutgrid = None
         self._constrained = False
 
         self.set_tight_layout(tight_layout)
@@ -2431,9 +2408,6 @@ class Figure(FigureBase):
             self.set_constrained_layout_pads(**constrained)
         else:
             self.set_constrained_layout_pads()
-
-        self.init_layoutgrid()
-
         self.stale = True
 
     def set_constrained_layout_pads(self, *, w_pad=None, h_pad=None,
@@ -2494,10 +2468,10 @@ class Figure(FigureBase):
         hspace = self._constrained_layout_pads['hspace']
 
         if relative and (w_pad is not None or h_pad is not None):
-            renderer0 = layoutgrid.get_renderer(self)
-            dpi = renderer0.dpi
-            w_pad = w_pad * dpi / renderer0.width
-            h_pad = h_pad * dpi / renderer0.height
+            renderer = _get_renderer(self)
+            dpi = renderer.dpi
+            w_pad = w_pad * dpi / renderer.width
+            h_pad = h_pad * dpi / renderer.height
 
         return w_pad, h_pad, wspace, hspace
 
@@ -2749,8 +2723,6 @@ class Figure(FigureBase):
         self._supxlabel = None
         self._supylabel = None
 
-        if self.get_constrained_layout():
-            self.init_layoutgrid()
         self.stale = True
 
     def clear(self, keep_observers=False):
@@ -2833,11 +2805,6 @@ class Figure(FigureBase):
         if getattr(self.canvas, 'manager', None) \
                 in _pylab_helpers.Gcf.figs.values():
             state['_restore_to_pylab'] = True
-
-        # set all the layoutgrid information to None.  kiwisolver objects can't
-        # be pickled, so we lose the layout options at this point.
-        state.pop('_layoutgrid', None)
-
         return state
 
     def __setstate__(self, state):
@@ -2853,7 +2820,6 @@ class Figure(FigureBase):
 
         # re-initialise some of the unstored state information
         FigureCanvasBase(self)  # Set self.canvas.
-        self._layoutgrid = None
 
         if restore_to_pylab:
             # lazy import to avoid circularity
@@ -3114,30 +3080,20 @@ class Figure(FigureBase):
 
         return None if event is None else event.name == "key_press_event"
 
-    def init_layoutgrid(self):
-        """Initialize the layoutgrid for use in constrained_layout."""
-        del(self._layoutgrid)
-        self._layoutgrid = layoutgrid.LayoutGrid(
-            parent=None, name='figlb')
-
     def execute_constrained_layout(self, renderer=None):
         """
         Use ``layoutgrid`` to determine pos positions within Axes.
 
         See also `.set_constrained_layout_pads`.
+
+        Returns
+        -------
+        layoutgrid : private debugging object
         """
 
         from matplotlib._constrained_layout import do_constrained_layout
 
         _log.debug('Executing constrainedlayout')
-        if self._layoutgrid is None:
-            _api.warn_external("Calling figure.constrained_layout, but "
-                               "figure not setup to do constrained layout. "
-                               "You either called GridSpec without the "
-                               "figure keyword, you are using plt.subplot, "
-                               "or you need to call figure or subplots "
-                               "with the constrained_layout=True kwarg.")
-            return
         w_pad, h_pad, wspace, hspace = self.get_constrained_layout_pads()
         # convert to unit-relative lengths
         fig = self
@@ -3146,7 +3102,8 @@ class Figure(FigureBase):
         h_pad = h_pad / height
         if renderer is None:
             renderer = _get_renderer(fig)
-        do_constrained_layout(fig, renderer, h_pad, w_pad, hspace, wspace)
+        return do_constrained_layout(fig, renderer, h_pad, w_pad,
+                                     hspace, wspace)
 
     def tight_layout(self, *, pad=1.08, h_pad=None, w_pad=None, rect=None):
         """
