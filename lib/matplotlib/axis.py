@@ -1706,10 +1706,16 @@ class Axis(martist.Artist):
         r"""
         Set the text values of the tick labels.
 
-        .. warning::
-            This method should only be used after fixing the tick positions
-            using `.Axis.set_ticks`. Otherwise, the labels may end up in
-            unexpected positions.
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged, because of the dependency
+            on tick positions. In most cases, you'll want to use
+            ``set_[x/y]ticks(positions, labels)`` instead.
+
+            If you are using this method, you should always fix the tick
+            positions before, e.g. by using `.Axis.set_ticks` or by explicitly
+            setting a `~.ticker.FixedLocator`. Otherwise, ticks are free to
+            move and the labels may end up in unexpected positions.
 
         Parameters
         ----------
@@ -1817,27 +1823,9 @@ class Axis(martist.Artist):
             kwargs.update(fontdict)
         return self.set_ticklabels(labels, minor=minor, **kwargs)
 
-    def set_ticks(self, ticks, *, minor=False):
-        """
-        Set this Axis' tick locations.
+    def _set_tick_locations(self, ticks, *, minor=False):
+        # see docstring of set_ticks
 
-        If necessary, the view limits of the Axis are expanded so that all
-        given ticks are visible.
-
-        Parameters
-        ----------
-        ticks : list of floats
-            List of tick locations.
-        minor : bool, default: False
-            If ``False``, set the major ticks; if ``True``, the minor ticks.
-
-        Notes
-        -----
-        The mandatory expansion of the view limits is an intentional design
-        choice to prevent the surprise of a non-visible tick. If you need
-        other limits, you should set the limits explicitly after setting the
-        ticks.
-        """
         # XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)
         if self is self.axes.xaxis:
@@ -1871,6 +1859,37 @@ class Axis(martist.Artist):
         else:
             self.set_major_locator(mticker.FixedLocator(ticks))
             return self.get_major_ticks(len(ticks))
+
+    def set_ticks(self, ticks, labels=None, *, minor=False, **kwargs):
+        """
+        Set this Axis' tick locations and optionally labels.
+
+        If necessary, the view limits of the Axis are expanded so that all
+        given ticks are visible.
+
+        Parameters
+        ----------
+        ticks : list of floats
+            List of tick locations.
+        labels : list of str, optional
+            List of tick labels. If not set, the labels show the data value.
+        minor : bool, default: False
+            If ``False``, set the major ticks; if ``True``, the minor ticks.
+        **kwargs
+            `.Text` properties for the labels. These take effect only if you
+            pass *labels*. In other cases, please use `~.Axes.tick_params`.
+
+        Notes
+        -----
+        The mandatory expansion of the view limits is an intentional design
+        choice to prevent the surprise of a non-visible tick. If you need
+        other limits, you should set the limits explicitly after setting the
+        ticks.
+        """
+        result = self._set_tick_locations(ticks, minor=minor)
+        if labels is not None:
+            self.set_ticklabels(labels, minor=minor, **kwargs)
+        return result
 
     def _get_tick_boxes_siblings(self, renderer):
         """
