@@ -1655,7 +1655,7 @@ class MultiCursor(Widget):
     def onmove(self, event):
         if self.ignore(event):
             return
-        if event.inaxes is None:
+        if event.inaxes not in self.axes:
             return
         if not self.canvas.widgetlock.available(self):
             return
