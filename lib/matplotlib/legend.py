@@ -550,6 +550,9 @@ class Legend(Artist):
                         break
                     except AttributeError:
                         pass
+        elif isinstance(labelcolor, str) and labelcolor == 'none':
+            for text in self.texts:
+                text.set_color(labelcolor)
         elif np.iterable(labelcolor):
             for text, color in zip(self.texts,
                                    itertools.cycle(
