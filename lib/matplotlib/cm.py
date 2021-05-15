@@ -361,11 +361,15 @@ class ScalarMappable:
 
     def set_array(self, A):
         """
-        Set the image array from array-like *A*.
+        Set the value array from array-like *A*.
 
         Parameters
         ----------
         A : array-like or None
+            The values that are mapped to colors.
+
+            The base class `.ScalarMappable` does not make any assumptions on
+            the dimensionality and shape of the value array *A*.
         """
         if A is None:
             self._A = None
@@ -379,7 +383,12 @@ class ScalarMappable:
         self._A = A
 
     def get_array(self):
-        """Return the data array."""
+        """
+        Return the array of values, that are mapped to colors.
+
+        The base class `.ScalarMappable` does not make any assumptions on
+        the dimensionality and shape of the array.
+        """
         return self._A
 
     def get_cmap(self):
