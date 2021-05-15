@@ -9,15 +9,17 @@ they are meant to be fast for common use cases (e.g., a large set of solid
 line segments).
 """
 
+import inspect
 import math
 from numbers import Number
+import warnings
+
 import numpy as np
 
 import matplotlib as mpl
 from . import (_api, _path, artist, cbook, cm, colors as mcolors, docstring,
                hatch as mhatch, lines as mlines, path as mpath, transforms)
 from ._enums import JoinStyle, CapStyle
-import warnings
 
 
 # "color" is excluded; it is a compound setter, and its docstring differs
@@ -1991,20 +1993,59 @@ class QuadMesh(Collection):
 
     *shading* may be 'flat', or 'gouraud'
     """
-    def __init__(self, meshWidth, meshHeight, coordinates,
-                 antialiased=True, shading='flat', **kwargs):
+    def __init__(self, *args, **kwargs):
+        # signature deprecation since="3.5": Change to new signature after the
+        # deprecation has expired. Also remove setting __init__.__signature__,
+        # and remove the Notes from the docstring.
+        #
+        # We use lambdas to parse *args, **kwargs through the respective old
+        # and new signatures.
+        try:
+            # Old signature:
+            # The following raises a TypeError iif the args don't match.
+            w, h, coords, antialiased, shading, kwargs = (
+                lambda meshWidth, meshHeight, coordinates, antialiased=True,
+                       shading=False, **kwargs:
+                (meshWidth, meshHeight, coordinates, antialiased, shading,
+                 kwargs))(*args, **kwargs)
+        except TypeError as exc:
+            # New signature:
+            # If the following raises a TypeError (i.e. args don't match),
+            # just let it propagate.
+            coords, antialiased, shading, kwargs = (
+                lambda coordinates, antialiased=True, shading=False, **kwargs:
+                (coordinates, antialiased, shading, kwargs))(*args, **kwargs)
+            coords = np.asarray(coords, np.float64)
+        else:  # The old signature matched.
+            _api.warn_deprecated(
+                "3.5",
+                message="This usage of Quadmesh is deprecated: Parameters "
+                        "meshWidth and meshHights will be removed; "
+                        "coordinates must be 2D; all parameters except "
+                        "coordinates will be keyword-only.")
+            coords = np.asarray(coords, np.float64).reshape((h + 1, w + 1, 2))
+        # end of signature deprecation code
+
         super().__init__(**kwargs)
-        self._meshWidth = meshWidth
-        self._meshHeight = meshHeight
-        # By converting to floats now, we can avoid that on every draw.
-        self._coordinates = np.asarray(coordinates, float).reshape(
-            (meshHeight + 1, meshWidth + 1, 2))
+        self._coordinates = coords
+        shape = self._coordinates.shape
+        if (self._coordinates.ndim != 3 or shape[-1] != 2):
+            raise ValueError(
+                "coordinates must be a (N, M, 2) array-like, but got "
+                f"{shape}")
+
+        self._meshWidth = shape[1] - 1
+        self._meshHeight = shape[0] - 1
         self._antialiased = antialiased
         self._shading = shading
 
         self._bbox = transforms.Bbox.unit()
-        self._bbox.update_from_data_xy(coordinates.reshape(
-            ((meshWidth + 1) * (meshHeight + 1), 2)))
+        self._bbox.update_from_data_xy(self._coordinates.reshape(-1, 2))
+
+    # Only needed during signature deprecation
+    __init__.__signature__ = inspect.signature(
+        lambda self, coordinates, *,
+               antialiased=True, shading='flat', **kwargs: None)
 
     def get_paths(self):
         if self._paths is None:
