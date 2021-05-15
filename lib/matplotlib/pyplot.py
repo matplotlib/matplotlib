@@ -224,7 +224,6 @@ def switch_backend(newbackend):
     if newbackend is rcsetup._auto_backend_sentinel:
         current_framework = cbook._get_running_interactive_framework()
         mapping = {'qt5': 'qt5agg',
-                   'qt4': 'qt4agg',
                    'gtk3': 'gtk3agg',
                    'wx': 'wxagg',
                    'tk': 'tkagg',

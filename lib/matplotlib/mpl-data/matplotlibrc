@@ -74,7 +74,7 @@
 ##     MacOSX Qt5Agg Gtk3Agg TkAgg WxAgg Agg
 ## Other choices include:
 ##     Qt5Cairo GTK3Cairo TkCairo WxCairo Cairo
-##     Qt4Agg Qt4Cairo Wx  # deprecated.
+##     Wx  # deprecated.
 ##     PS PDF SVG Template
 ## You can also deploy your own backend outside of Matplotlib by referring to
 ## the module name (which must be in the PYTHONPATH) as 'module://my_backend'.

@@ -365,15 +365,14 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # If, however, you want to write graphical user interfaces, or a web
 # application server
 # (:doc:`/gallery/user_interfaces/web_application_server_sgskip`), or need a
-# better understanding of what is going on, read on. To make things more
-# easily customizable for graphical user interfaces, Matplotlib separates
-# the concept of the renderer (the thing that actually does the drawing)
-# from the canvas (the place where the drawing goes).  The canonical
-# renderer for user interfaces is ``Agg`` which uses the `Anti-Grain
-# Geometry`_ C++ library to make a raster (pixel) image of the figure; it
-# is used by the ``Qt5Agg``, ``Qt4Agg``, ``GTK3Agg``, ``wxAgg``, ``TkAgg``, and
-# ``macosx`` backends.  An alternative renderer is based on the Cairo library,
-# used by ``Qt5Cairo``, ``Qt4Cairo``, etc.
+# better understanding of what is going on, read on. To make things more easily
+# customizable for graphical user interfaces, Matplotlib separates the concept
+# of the renderer (the thing that actually does the drawing) from the canvas
+# (the place where the drawing goes). The canonical renderer for user
+# interfaces is ``Agg`` which uses the `Anti-Grain Geometry`_ C++ library to
+# make a raster (pixel) image of the figure; it is used by the ``Qt5Agg``,
+# ``GTK3Agg``, ``wxAgg``, ``TkAgg``, and ``macosx`` backends.  An alternative
+# renderer is based on the Cairo library, used by ``Qt5Cairo``, etc.
 #
 # For the rendering engines, users can also distinguish between `vector
 # <https://en.wikipedia.org/wiki/Vector_graphics>`_ or `raster
@@ -430,9 +429,6 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #           figure.
 # GTK3Cairo Cairo rendering to a GTK_ 3.x canvas (requires PyGObject_,
 #           and pycairo_ or cairocffi_).
-# Qt4Agg    Agg rendering to a Qt4_ canvas (requires PyQt4_ or
-#           ``pyside``).  This backend can be activated in IPython with
-#           ``%matplotlib qt4``.
 # wxAgg     Agg rendering to a wxWidgets_ canvas (requires wxPython_ 4).
 #           This backend can be activated in IPython with ``%matplotlib wx``.
 # ========= ================================================================
@@ -452,12 +448,10 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # .. _cairocffi: https://pythonhosted.org/cairocffi/
 # .. _wxPython: https://www.wxpython.org/
 # .. _TkInter: https://docs.python.org/3/library/tk.html
-# .. _PyQt4: https://riverbankcomputing.com/software/pyqt/intro
 # .. _PyQt5: https://riverbankcomputing.com/software/pyqt/intro
 # .. _Qt5: https://doc.qt.io/qt-5/index.html
 # .. _GTK: https://www.gtk.org/
 # .. _Tk: https://www.tcl.tk/
-# .. _Qt4: https://doc.qt.io/archives/qt-4.8/index.html
 # .. _wxWidgets: https://www.wxwidgets.org/
 #
 # ipympl
@@ -482,14 +476,15 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 # .. _QT_API-usage:
 #
-# How do I select PyQt4 or PySide?
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# How do I select PyQt5 or PySide2?
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #
-# The :envvar:`QT_API` environment variable can be set to either ``pyqt`` or
-# ``pyside`` to use ``PyQt4`` or ``PySide``, respectively.
+# The :envvar:`QT_API` environment variable can be set to either ``pyqt5`` or
+# ``pyside2`` to use ``PyQt5`` or ``PySide2``, respectively.
 #
-# Since the default value for the bindings to be used is ``PyQt4``, Matplotlib
-# first tries to import it. If the import fails, it tries to import ``PySide``.
+# Since the default value for the bindings to be used is ``PyQt5``, Matplotlib
+# first tries to import it. If the import fails, it tries to import
+# ``PySide2``.
 #
 # Using non-builtin backends
 # --------------------------
