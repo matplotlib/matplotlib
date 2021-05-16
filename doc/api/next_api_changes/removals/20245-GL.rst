@@ -1,0 +1,7 @@
+Collection's offset_position has been removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The deprecated keyword argument *offset_position* has been removed from
+the Collection class, along with the setter and getter
+``Collection.set_offset_position()`` and ``Collection.get_offset_position()``.
+The ``offset_position`` of the Collection class is now "screen".

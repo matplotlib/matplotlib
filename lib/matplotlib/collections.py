@@ -73,7 +73,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
     # subclass-by-subclass basis.
     _edge_default = False
 
-    @_api.delete_parameter("3.3", "offset_position")
     @docstring.interpd
     def __init__(self,
                  edgecolors=None,
@@ -90,7 +89,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  pickradius=5.0,
                  hatch=None,
                  urls=None,
-                 offset_position='screen',
+                 *,
                  zorder=1,
                  **kwargs
                  ):
@@ -130,9 +129,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         transOffset : `~.transforms.Transform`, default: `.IdentityTransform`
             A single transform which will be applied to each *offsets* vector
             before it is used.
-        offset_position : {{'screen' (default), 'data' (deprecated)}}
-            If set to 'data' (deprecated), *offsets* will be treated as if it
-            is in data coordinates instead of in screen coordinates.
         norm : `~.colors.Normalize`, optional
             Forwarded to `.ScalarMappable`. The default of
             ``None`` means that the first draw call will set ``vmin`` and
@@ -184,8 +180,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_urls(urls)
         self.set_hatch(hatch)
         self._offset_position = "screen"
-        if offset_position != "screen":
-            self.set_offset_position(offset_position)  # emit deprecation.
         self.set_zorder(zorder)
 
         if capstyle:
@@ -560,35 +554,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             return self._offsets
         else:
             return self._uniform_offsets
-
-    @_api.deprecated("3.3")
-    def set_offset_position(self, offset_position):
-        """
-        Set how offsets are applied.  If *offset_position* is 'screen'
-        (default) the offset is applied after the master transform has
-        been applied, that is, the offsets are in screen coordinates.
-        If offset_position is 'data', the offset is applied before the
-        master transform, i.e., the offsets are in data coordinates.
-
-        Parameters
-        ----------
-        offset_position : {'screen', 'data'}
-        """
-        _api.check_in_list(['screen', 'data'], offset_position=offset_position)
-        self._offset_position = offset_position
-        self.stale = True
-
-    @_api.deprecated("3.3")
-    def get_offset_position(self):
-        """
-        Return how offsets are applied for the collection.  If
-        *offset_position* is 'screen', the offset is applied after the
-        master transform has been applied, that is, the offsets are in
-        screen coordinates.  If offset_position is 'data', the offset
-        is applied before the master transform, i.e., the offsets are
-        in data coordinates.
-        """
-        return self._offset_position
 
     def _get_default_linewidth(self):
         # This may be overridden in a subclass.
