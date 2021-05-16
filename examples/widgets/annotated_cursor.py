@@ -282,6 +282,7 @@ class AnnotatedCursor(Cursor):
 
 
 fig, ax = plt.subplots(figsize=(8, 6))
+ax.set_title("Cursor Tracking x Position")
 
 x = np.linspace(-5, 5, 1000)
 y = x**2
@@ -321,6 +322,7 @@ plt.show()
 # but not biunique. Only one value is shown in the text.
 
 fig, ax = plt.subplots(figsize=(8, 6))
+ax.set_title("Cursor Tracking y Position")
 
 line, = ax.plot(x, y)
 ax.set_xlim(-5, 5)
