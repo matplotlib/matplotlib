@@ -190,6 +190,43 @@ def test_rectangle_handles():
         tool._corner_handles.artist.get_markeredgecolor(), 'b')
 
 
+@pytest.mark.parametrize('selector_class', [widgets.RectangleSelector,
+                                            widgets.EllipseSelector])
+def test_rectangle_rotate(selector_class):
+    ax = get_ax()
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = selector_class(ax, onselect=onselect, interactive=True)
+    # Draw rectangle
+    do_event(tool, 'press', xdata=100, ydata=100)
+    do_event(tool, 'onmove', xdata=130, ydata=140)
+    do_event(tool, 'release', xdata=130, ydata=140)
+    assert tool.extents == (100, 130, 100, 140)
+
+    # Rotate anticlockwise using top-right corner
+    do_event(tool, 'on_key_press', key='r')
+    do_event(tool, 'press', xdata=130, ydata=140)
+    do_event(tool, 'onmove', xdata=100, ydata=150)
+    do_event(tool, 'release', xdata=100, ydata=200)
+    do_event(tool, 'on_key_release', key='r')
+    # Extents shouldn't change (as shape of rectangle hasn't changed)
+    assert tool.extents == (100, 130, 100, 140)
+    # Corners should move
+    # The third corner is at (100, 150), as the diagonal of the rectangle has
+    # length 50 (it is a 3,4,5 scaled right angled triangle)
+    assert tool.corners == ((100, 124, 100, 76), (100, 118, 150, 132))
+
+    # Scale using top-right corner
+    do_event(tool, 'press', xdata=100, ydata=150)
+    do_event(tool, 'onmove', xdata=100, ydata=125)
+    do_event(tool, 'release', xdata=100, ydata=125)
+    assert tool.extents == (100, 115, 100, 120)
+    # The bottom-left corner doesn't move, the top-right moves to (100, 125)
+    assert tool.corners == ((100, 112, 100, 88), (100, 109, 125, 116))
+
+
 def check_span(*args, **kwargs):
     ax = get_ax()
 
