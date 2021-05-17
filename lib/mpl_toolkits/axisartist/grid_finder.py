@@ -92,6 +92,34 @@ class ExtremeFinderSimple:
         return x_min - dx, x_max + dx, y_min - dy, y_max + dy
 
 
+class _User2DTransform(Transform):
+    """A transform defined by two user-set functions."""
+
+    input_dims = output_dims = 2
+
+    def __init__(self, forward, backward):
+        """
+        Parameters
+        ----------
+        forward, backward : callable
+            The forward and backward transforms, taking ``x`` and ``y`` as
+            separate arguments and returning ``(tr_x, tr_y)``.
+        """
+        # The normal Matplotlib convention would be to take and return an
+        # (N, 2) array but axisartist uses the transposed version.
+        super().__init__()
+        self._forward = forward
+        self._backward = backward
+
+    def transform_non_affine(self, values):
+        # docstring inherited
+        return np.transpose(self._forward(*np.transpose(values)))
+
+    def inverted(self):
+        # docstring inherited
+        return type(self)(self._backward, self._forward)
+
+
 class GridFinder:
     def __init__(self,
                  transform,
@@ -123,7 +151,7 @@ class GridFinder:
         self.grid_locator2 = grid_locator2
         self.tick_formatter1 = tick_formatter1
         self.tick_formatter2 = tick_formatter2
-        self.update_transform(transform)
+        self.set_transform(transform)
 
     def get_grid_info(self, x1, y1, x2, y2):
         """
@@ -214,27 +242,26 @@ class GridFinder:
 
         return gi
 
-    def update_transform(self, aux_trans):
-        if not isinstance(aux_trans, Transform) and len(aux_trans) != 2:
-            raise TypeError("'aux_trans' must be either a Transform instance "
-                            "or a pair of callables")
-        self._aux_transform = aux_trans
+    def set_transform(self, aux_trans):
+        if isinstance(aux_trans, Transform):
+            self._aux_transform = aux_trans
+        elif len(aux_trans) == 2 and all(map(callable, aux_trans)):
+            self._aux_transform = _User2DTransform(*aux_trans)
+        else:
+            raise TypeError("'aux_trans' must be either a Transform "
+                            "instance or a pair of callables")
+
+    def get_transform(self):
+        return self._aux_transform
+
+    update_transform = set_transform  # backcompat alias.
 
     def transform_xy(self, x, y):
-        aux_trf = self._aux_transform
-        if isinstance(aux_trf, Transform):
-            return aux_trf.transform(np.column_stack([x, y])).T
-        else:
-            transform_xy, inv_transform_xy = aux_trf
-            return transform_xy(x, y)
+        return self._aux_transform.transform(np.column_stack([x, y])).T
 
     def inv_transform_xy(self, x, y):
-        aux_trf = self._aux_transform
-        if isinstance(aux_trf, Transform):
-            return aux_trf.inverted().transform(np.column_stack([x, y])).T
-        else:
-            transform_xy, inv_transform_xy = aux_trf
-            return inv_transform_xy(x, y)
+        return self._aux_transform.inverted().transform(
+            np.column_stack([x, y])).T
 
     def update(self, **kw):
         for k in kw:

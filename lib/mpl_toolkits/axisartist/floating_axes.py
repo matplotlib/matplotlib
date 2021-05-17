@@ -74,9 +74,8 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
         ymin, ymax = sorted(extremes[2:])
 
         def transform_xy(x, y):
-            x1, y1 = grid_finder.transform_xy(x, y)
-            x2, y2 = axes.transData.transform(np.array([x1, y1]).T).T
-            return x2, y2
+            trf = grid_finder.get_transform() + axes.transData
+            return trf.transform(np.column_stack([x, y])).T
 
         if self.nth_coord == 0:
             mask = (ymin <= yy0) & (yy0 <= ymax)
