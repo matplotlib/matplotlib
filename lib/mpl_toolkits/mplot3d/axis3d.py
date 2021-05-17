@@ -178,13 +178,11 @@ class Axis(maxis.XAxis):
             return len(text) > 4
 
     def _get_coord_info(self, renderer):
-        mins, maxs = np.array(
-            [
-                self.axes.get_xbound(),
-                self.axes.get_ybound(),
-                self.axes.get_zbound(),
-            ]
-        ).T
+        mins, maxs = np.array([
+            self.axes.get_xbound(),
+            self.axes.get_ybound(),
+            self.axes.get_zbound(),
+        ]).T
 
         # Get the mean value for each bound:
         centers = 0.5 * (maxs + mins)
