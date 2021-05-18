@@ -980,8 +980,8 @@ def test_YearLocator():
     def _create_year_locator(date1, date2, **kwargs):
         locator = mdates.YearLocator(**kwargs)
         locator.create_dummy_axis()
-        locator.set_view_interval(mdates.date2num(date1),
-                                  mdates.date2num(date2))
+        locator.axis.set_view_interval(mdates.date2num(date1),
+                                       mdates.date2num(date2))
         return locator
 
     d1 = datetime.datetime(1990, 1, 1)
