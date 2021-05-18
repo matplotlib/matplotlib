@@ -426,6 +426,7 @@ def test_argument_order():
 
     fig.draw_no_output()
 
+
 def test_mathtext_cmr10_minus_sign():
     # cmr10 does not contain a minus sign and used to issue a warning
     # RuntimeWarning: Glyph 8722 missing from current font.
