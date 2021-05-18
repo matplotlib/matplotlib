@@ -87,11 +87,18 @@ def test_xelatex():
     create_figure()
 
 
+try:
+    _old_gs_version = mpl._get_executable_info('gs').version < '9.50'
+except mpl.ExecutableNotFoundError:
+    _old_gs_version = True
+
+
 # test compiling a figure to pdf with pdflatex
 @needs_pdflatex
 @pytest.mark.skipif(not _has_tex_package('ucs'), reason='needs ucs.sty')
 @pytest.mark.backend('pgf')
-@image_comparison(['pgf_pdflatex.pdf'], style='default')
+@image_comparison(['pgf_pdflatex.pdf'], style='default',
+                  tol=11.7 if _old_gs_version else 0)
 def test_pdflatex():
     if os.environ.get('APPVEYOR'):
         pytest.xfail("pdflatex test does not work on appveyor due to missing "
@@ -127,7 +134,7 @@ def test_rcupdate():
                 'pgf.preamble': ('\\usepackage[utf8x]{inputenc}'
                                  '\\usepackage[T1]{fontenc}'
                                  '\\usepackage{sfmath}')}]
-    tol = [6, 0]
+    tol = [0, 13.2] if _old_gs_version else [0, 0]
     for i, rc_set in enumerate(rc_sets):
         with mpl.rc_context(rc_set):
             for substring, pkg in [('sfmath', 'sfmath'), ('utf8x', 'ucs')]:
@@ -135,7 +142,7 @@ def test_rcupdate():
                         and not _has_tex_package(pkg)):
                     pytest.skip(f'needs {pkg}.sty')
             create_figure()
-            compare_figure('pgf_rcupdate%d.pdf' % (i + 1), tol=tol[i])
+            compare_figure(f'pgf_rcupdate{i + 1}.pdf', tol=tol[i])
 
 
 # test backend-side clipping, since large numbers are not supported by TeX
@@ -257,13 +264,17 @@ def test_pdf_pages_metadata_check(monkeypatch, system):
     if '/PTEX.Fullbanner' in info:
         del info['/PTEX.Fullbanner']
 
+    # Some LaTeX engines ignore this setting, and state themselves as producer.
+    producer = info.pop('/Producer')
+    assert producer == f'Matplotlib pgf backend v{mpl.__version__}' or (
+            system == 'lualatex' and 'LuaTeX' in producer)
+
     assert info == {
         '/Author': 'me',
         '/CreationDate': 'D:19700101000000Z',
         '/Creator': f'Matplotlib v{mpl.__version__}, https://matplotlib.org',
         '/Keywords': 'test,pdf,multipage',
         '/ModDate': 'D:19680801000000Z',
-        '/Producer': f'Matplotlib pgf backend v{mpl.__version__}',
         '/Subject': 'Test page',
         '/Title': 'Multipage PDF with pgf',
         '/Trapped': '/True',

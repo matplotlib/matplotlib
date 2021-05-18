@@ -178,20 +178,18 @@ class Axis(maxis.XAxis):
             return len(text) > 4
 
     def _get_coord_info(self, renderer):
-        mins, maxs = np.array(
-            [
-                self.axes.get_xbound(),
-                self.axes.get_ybound(),
-                self.axes.get_zbound(),
-            ]
-        ).T
+        mins, maxs = np.array([
+            self.axes.get_xbound(),
+            self.axes.get_ybound(),
+            self.axes.get_zbound(),
+        ]).T
 
         # Get the mean value for each bound:
         centers = 0.5 * (maxs + mins)
 
         # Add a small offset between min/max point and the edge of the
         # plot:
-        deltas = (maxs - mins) / 12.0
+        deltas = (maxs - mins) / 12
         mins -= 0.25 * deltas
         maxs += 0.25 * deltas
 

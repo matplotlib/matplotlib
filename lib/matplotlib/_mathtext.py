@@ -519,6 +519,11 @@ class UnicodeFonts(TruetypeFonts):
             found_symbol = False
             font = self._get_font(new_fontname)
             if font is not None:
+                if font.family_name == "cmr10" and uniindex == 0x2212:
+                    # minus sign exists in cmsy10 (not cmr10)
+                    font = get_font(
+                        cbook._get_data_path("fonts/ttf/cmsy10.ttf"))
+                    uniindex = 0xa1
                 glyphindex = font.get_char_index(uniindex)
                 if glyphindex != 0:
                     found_symbol = True

@@ -17,7 +17,6 @@ import sys
 import warnings
 
 import matplotlib
-from matplotlib._api import MatplotlibDeprecationWarning
 import sphinx
 
 from datetime import datetime
@@ -117,7 +116,7 @@ autosummary_generate = True
 
 # we should ignore warnings coming from importing deprecated modules for
 # autodoc purposes, as this will disappear automatically when they are removed
-warnings.filterwarnings('ignore', category=MatplotlibDeprecationWarning,
+warnings.filterwarnings('ignore', category=DeprecationWarning,
                         module='importlib',  # used by sphinx.autodoc.importer
                         message=r'(\n|.)*module was deprecated.*')
 
@@ -126,7 +125,7 @@ autodoc_default_options = {'members': None, 'undoc-members': None}
 
 # make sure to ignore warnings that stem from simply inspecting deprecated
 # class-level attributes
-warnings.filterwarnings('ignore', category=MatplotlibDeprecationWarning,
+warnings.filterwarnings('ignore', category=DeprecationWarning,
                         module='sphinx.util.inspect')
 
 # missing-references names matches sphinx>=3 behavior, so we can't be nitpicky
@@ -170,6 +169,8 @@ sphinx_gallery_conf = {
     'matplotlib_animations': True,
     # 3.7 CI doc build should not use hidpi images during the testing phase
     'image_srcset': [] if sys.version_info[:2] == (3, 7) else ["2x"],
+    'junit': ('../test-results/sphinx-gallery/junit.xml'
+              if 'CIRCLECI' in os.environ else ''),
 }
 
 plot_gallery = 'True'

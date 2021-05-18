@@ -1,0 +1,7 @@
+``epoch2num`` and ``num2epoch`` are deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These methods convert from unix timestamps to matplotlib floats, but are not
+useed internally to matplotlib, and should not be needed by endusers.
+To convert a unix timestamp to datetime, simply use
+`datetime.datetime.utcfromtimestamp`, or to use numpy datetime64
+``dt = np.datetim64(e*1e6, 'us')``.  

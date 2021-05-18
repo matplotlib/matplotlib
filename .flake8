@@ -58,7 +58,7 @@ per-file-ignores =
     lib/matplotlib/backends/qt_editor/formlayout.py: F401, F403
     lib/matplotlib/cbook/__init__.py: F401
     lib/matplotlib/cbook/deprecation.py: F401
-    lib/matplotlib/font_manager.py: E221, E251, E501
+    lib/matplotlib/font_manager.py: E501
     lib/matplotlib/image.py: F401, F403
     lib/matplotlib/lines.py: F401
     lib/matplotlib/mathtext.py: E221, E251

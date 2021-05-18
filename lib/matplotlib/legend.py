@@ -460,16 +460,11 @@ class Legend(Artist):
             if not self.isaxes and loc in [0, 'best']:
                 loc = 'upper right'
         if isinstance(loc, str):
-            if loc not in self.codes:
-                raise ValueError(
-                    "Unrecognized location {!r}. Valid locations are\n\t{}\n"
-                    .format(loc, '\n\t'.join(self.codes)))
-            else:
-                loc = self.codes[loc]
+            loc = _api.check_getitem(self.codes, loc=loc)
         if not self.isaxes and loc == 0:
             raise ValueError(
                 "Automatic legend placement (loc='best') not implemented for "
-                "figure legend.")
+                "figure legend")
 
         self._mode = mode
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
@@ -555,6 +550,9 @@ class Legend(Artist):
                         break
                     except AttributeError:
                         pass
+        elif isinstance(labelcolor, str) and labelcolor == 'none':
+            for text in self.texts:
+                text.set_color(labelcolor)
         elif np.iterable(labelcolor):
             for text, color in zip(self.texts,
                                    itertools.cycle(
