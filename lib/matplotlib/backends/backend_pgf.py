@@ -635,9 +635,9 @@ class RendererPgf(RendererBase):
             return
 
         if not os.path.exists(getattr(self.fh, "name", "")):
-            _api.warn_external(
+            raise ValueError(
                 "streamed pgf-code does not support raster graphics, consider "
-                "using the pgf-to-pdf option.")
+                "using the pgf-to-pdf option")
 
         # save the images to png files
         path = pathlib.Path(self.fh.name)
