@@ -22,7 +22,7 @@ root.wm_title("Embedding in Tk")
 fig = Figure(figsize=(5, 4), dpi=100)
 t = np.arange(0, 3, .01)
 ax = fig.add_subplot()
-ax.plot(t, 2 * np.sin(2 * np.pi * t))
+line = ax.plot(t, 2 * np.sin(2 * np.pi * t))
 ax.set_xlabel("x")
 
 canvas = FigureCanvasTkAgg(fig, master=root)  # A tk.DrawingArea.
@@ -43,14 +43,9 @@ def update_frequency(new_val):
     # retrieve frequency
     f = float(new_val)
 
-    # retrieve Axes object and update plots there
-    ax = fig.axes[0]
-    # alternatively you could delete last plotted line `del ax.lines[0]`
-    ax.clear()
-
-    ax.plot(t, 2 * np.sin(2 * np.pi * f * t))
-    #  since Axes was cleared
-    ax.set_xlabel("x")
+    # update data
+    y = 2 * np.sin(2 * np.pi * f * t)
+    line[0].set_data(t, y)
 
     # required to update canvas and attached toolbar!
     canvas.draw()
