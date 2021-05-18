@@ -442,7 +442,6 @@ void point_in_path_collection(double x,
                               OffsetArray &offsets,
                               agg::trans_affine &offset_trans,
                               bool filled,
-                              e_offset_position offset_position,
                               std::vector<int> &result)
 {
     size_t Npaths = paths.size();
@@ -478,11 +477,7 @@ void point_in_path_collection(double x,
             double xo = offsets(i % Noffsets, 0);
             double yo = offsets(i % Noffsets, 1);
             offset_trans.transform(&xo, &yo);
-            if (offset_position == OFFSET_POSITION_DATA) {
-                trans = agg::trans_affine_translation(xo, yo) * trans;
-            } else {
-                trans *= agg::trans_affine_translation(xo, yo);
-            }
+            trans *= agg::trans_affine_translation(xo, yo);
         }
 
         if (filled) {

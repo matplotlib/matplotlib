@@ -330,10 +330,10 @@ PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args, PyObject
     DashesVector dashes;
     numpy::array_view<const uint8_t, 1> antialiaseds;
     PyObject *ignored;
-    e_offset_position offset_position;
+    PyObject *offset_position; // offset position is no longer used
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&OO&O&O&O&O&O&O&O&OO&:draw_path_collection",
+                          "O&O&OO&O&O&O&O&O&O&O&OO:draw_path_collection",
                           &convert_gcagg,
                           &gc,
                           &convert_trans_affine,
@@ -356,7 +356,6 @@ PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args, PyObject
                           &antialiaseds.converter,
                           &antialiaseds,
                           &ignored,
-                          &convert_offset_position,
                           &offset_position)) {
         return NULL;
     }
@@ -376,8 +375,7 @@ PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args, PyObject
                                                 edgecolors,
                                                 linewidths,
                                                 dashes,
-                                                antialiaseds,
-                                                offset_position)));
+                                                antialiaseds)));
     }
     catch (const py::exception &)
     {
