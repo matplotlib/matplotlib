@@ -2748,7 +2748,7 @@ class RectangleSelector(_SelectorWidget):
         rect = self._to_draw
         x0, y0, width, height, angle = self._rect_properties
         return (transforms.Affine2D()
-                .rotate_deg_around(x0, y0, -np.rad2deg(angle))
+                .rotate_around(x0, y0, -angle)
                 .translate(-x0, -y0))
 
     to_draw = _api.deprecate_privatize_attribute("3.5")
@@ -2947,11 +2947,10 @@ class RectangleSelector(_SelectorWidget):
     def corners(self):
         """Corners of rectangle from lower left, moving clockwise."""
         x0, y0, width, height, angle = self._rect_properties
-        x = np.array([0, width, width, 0])
-        y = np.array([0, 0, height, height])
-        xc = x0 + (np.cos(angle) * x - np.sin(angle) * y)
-        yc = y0 + (np.sin(angle) * x + np.cos(angle) * y)
-        return tuple(xc), tuple(yc)
+        xy = np.array([[0, width, width, 0],
+                       [0, 0, height, height]])
+        xyc = self._get_translate_rotate_transform().inverted().transform(xy.T)
+        return tuple(xyc[:, 0]), tuple(xyc[:, 1])
 
     @property
     def edge_centers(self):
@@ -2959,20 +2958,18 @@ class RectangleSelector(_SelectorWidget):
         x0, y0, width, height, angle = self._rect_properties
         w = width / 2.
         h = height / 2.
-        x = np.array([0, w, width, w])
-        y = np.array([h, 0, h, height])
-        xe = x0 + (np.cos(angle) * x - np.sin(angle) * y)
-        ye = y0 + (np.sin(angle) * x + np.cos(angle) * y)
-        return tuple(xe), tuple(ye)
+        xy = np.array([[0, w, width, w],
+                       [h, 0, h, height]])
+        xye = self._get_translate_rotate_transform().inverted().transform(xy.T)
+        return tuple(xye[:, 0]), tuple(xye[:, 1])
 
     @property
     def center(self):
         """Center of rectangle."""
         x0, y0, width, height, angle = self._rect_properties
-        hw, hh = width / 2, height / 2
-        dx = np.cos(angle) * hw - np.sin(angle) * hh
-        dy = np.sin(angle) * hw + np.cos(angle) * hh
-        return x0 + dx, y0 + dy
+        xy = np.array([width / 2, height / 2])
+        xyc = self._get_translate_rotate_transform().inverted().transform(xy)
+        return tuple(xyc)
 
     @property
     def extents(self):
