@@ -690,6 +690,17 @@ class Colormap:
         cmapobject._global = False
         return cmapobject
 
+    def __eq__(self, other):
+        if (not isinstance(other, Colormap) or self.name != other.name or
+                self.colorbar_extend != other.colorbar_extend):
+            return False
+        # To compare lookup tables the Colormaps have to be initialized
+        if not self._isinit:
+            self._init()
+        if not other._isinit:
+            other._init()
+        return np.array_equal(self._lut, other._lut)
+
     def get_bad(self):
         """Get the color for masked values."""
         if not self._isinit:
@@ -1359,6 +1370,8 @@ class CenteredNorm(Normalize):
             array([0.25, 0.5 , 1.  ])
         """
         self._vcenter = vcenter
+        self.vmin = None
+        self.vmax = None
         # calling the halfrange setter to set vmin and vmax
         self.halfrange = halfrange
         self.clip = clip
@@ -1382,7 +1395,7 @@ class CenteredNorm(Normalize):
     def autoscale_None(self, A):
         """Set *vmin* and *vmax*."""
         A = np.asanyarray(A)
-        if self.vmax is None and A.size:
+        if self._halfrange is None and A.size:
             self.autoscale(A)
 
     @property

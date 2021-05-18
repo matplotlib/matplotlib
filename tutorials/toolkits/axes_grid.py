@@ -1,38 +1,25 @@
 r"""
-==============================
-Overview of axes_grid1 toolkit
-==============================
-
-Controlling the layout of plots with the
-:mod:`mpl_toolkits.axes_grid1` toolkit.
-
 .. _axes_grid1_users-guide-index:
 
+==========================================
+Overview of :mod:`mpl_toolkits.axes_grid1`
+==========================================
 
-What is axes_grid1 toolkit?
-===========================
+:mod:`.axes_grid1` provides the following features:
 
-:mod:`mpl_toolkits.axes_grid1` is a collection of helper classes to ease
-displaying (multiple) images with matplotlib. In matplotlib, the axes location
-(and size) is specified in the normalized figure coordinates, which
-may not be ideal for displaying images that needs to have a given
-aspect ratio.  For example, it helps if you have a colorbar whose
-height always matches that of the image.  `ImageGrid`_, `RGB Axes`_ and
-`AxesDivider`_ are helper classes that deal with adjusting the
-location of (multiple) Axes.  They provides a framework to adjust the
-position of multiple axes at the drawing time. `ParasiteAxes`_
-provides twinx(or twiny)-like features so that you can plot different
-data (e.g., different y-scale) in a same Axes. `AnchoredArtists`_
-includes custom artists which are placed at some anchored position,
-like the legend.
+- Helper classes (ImageGrid_, RGBAxes_, AxesDivider_) to ease the layout of
+  axes displaying images with a fixed aspect ratio while satisfying additional
+  constraints (matching the heights of a colorbar and an image, or fixing the
+  padding between images);
+- ParasiteAxes_ (twinx/twiny-like features so that you can plot different data
+  (e.g., different y-scale) in a same Axes);
+- AnchoredArtists_ (custom artists which are placed at an anchored position,
+  similarly to legends).
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_demo_axes_grid_001.png
    :target: ../../gallery/axes_grid1/demo_axes_grid.html
    :align: center
    :scale: 50
-
-   Demo Axes Grid
-
 
 axes_grid1
 ==========
@@ -40,45 +27,33 @@ axes_grid1
 ImageGrid
 ---------
 
-A grid of Axes.
-
-In Matplotlib, the axes location (and size) is specified in normalized
-figure coordinates. This may not be ideal for images that needs to be
-displayed with a given aspect ratio; for example, it is difficult to
-display multiple images of a same size with some fixed padding between
-them.  `~.axes_grid1.axes_grid.ImageGrid` can be used in such a case; see its
-docs for a detailed list of the parameters it accepts.
+In Matplotlib, axes location and size are usually specified in normalized
+figure coordinates (0 = bottom left, 1 = top right), which makes
+it difficult to achieve a fixed (absolute) padding between images.
+`~.axes_grid1.axes_grid.ImageGrid` can be used to achieve such a padding; see
+its docs for detailed API information.
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axesgrid_001.png
    :target: ../../gallery/axes_grid1/simple_axesgrid.html
    :align: center
    :scale: 50
 
-   Simple Axesgrid
-
 * The position of each axes is determined at the drawing time (see
-  `AxesDivider`_), so that the size of the entire grid fits in the
+  AxesDivider_), so that the size of the entire grid fits in the
   given rectangle (like the aspect of axes). Note that in this example,
   the paddings between axes are fixed even if you changes the figure
   size.
 
-* axes in the same column has a same axes width (in figure
-  coordinate), and similarly, axes in the same row has a same
-  height. The widths (height) of the axes in the same row (column) are
-  scaled according to their view limits (xlim or ylim).
+* Axes in the same column share their x-axis, and axes in the same row share
+  their y-axis (in the sense of `~.Axes.sharex`, `~.Axes.sharey`).
+  Additionally, Axes in the same column all have the same width, and axes in
+  the same row all have the same height.  These widths and heights are scaled
+  in proportion to the axes' view limits (xlim or ylim).
 
   .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axesgrid2_001.png
      :target: ../../gallery/axes_grid1/simple_axesgrid2.html
      :align: center
      :scale: 50
-
-     Simple Axes Grid
-
-* xaxis are shared among axes in a same column. Similarly, yaxis are
-  shared among axes in a same row. Therefore, changing axis properties
-  (view limits, tick location, etc. either by plot commands or using
-  your mouse in interactive backends) of one axes will affect all
-  other shared axes.
 
 The examples below show what you can do with ImageGrid.
 
@@ -87,29 +62,23 @@ The examples below show what you can do with ImageGrid.
    :align: center
    :scale: 50
 
-   Demo Axes Grid
-
-
 AxesDivider Class
 -----------------
 
-Behind the scene, the ImageGrid class and the RGBAxes class utilize the
-`~.axes_grid1.axes_divider.AxesDivider` class, whose role is to calculate the
-location of the axes at drawing time. Direct use of the
-AxesDivider class will not be necessary for most users. The
-axes_divider module provides a helper function
-`~.axes_grid1.axes_divider.make_axes_locatable`, which can be useful.
-It takes a existing axes instance and create a divider for it. ::
+Behind the scenes, ImageGrid (and RGBAxes, described below) rely on
+`~.axes_grid1.axes_divider.AxesDivider`, whose role is to calculate the
+location of the axes at drawing time.
+
+Users typically do not need to directly instantiate dividers
+by calling `~.axes_grid1.axes_divider.AxesDivider`; instead,
+`~.axes_grid1.axes_divider.make_axes_locatable` can be used to create a divider
+for an axes::
 
   ax = subplot(1, 1, 1)
   divider = make_axes_locatable(ax)
 
-*make_axes_locatable* returns an instance of the
-`~.axes_grid1.axes_divider.AxesDivider` class. It provides an
-`~.AxesDivider.append_axes` method that
-creates a new axes on the given side of ("top", "right", "bottom" and
-"left") of the original axes.
-
+`.AxesDivider.append_axes` can then be used to create a new axes on a given
+side ("left", "right", "top", "bottom") of the original axes.
 
 colorbar whose height (or width) in sync with the master axes
 -------------------------------------------------------------
@@ -118,9 +87,6 @@ colorbar whose height (or width) in sync with the master axes
    :target: ../../gallery/axes_grid1/simple_colorbar.html
    :align: center
    :scale: 50
-
-   Simple Colorbar
-
 
 scatter_hist.py with AxesDivider
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -150,14 +116,11 @@ See the full source code below.
    :align: center
    :scale: 50
 
-   Scatter Hist
-
 The :doc:`/gallery/axes_grid1/scatter_hist_locatable_axes` using the
-AxesDivider has some advantage over the
+AxesDivider has some advantages over the
 original :doc:`/gallery/lines_bars_and_markers/scatter_hist` in Matplotlib.
 For example, you can set the aspect ratio of the scatter plot, even with the
 x-axis or y-axis is shared accordingly.
-
 
 ParasiteAxes
 ------------
@@ -181,7 +144,6 @@ legend command in host, creates a legend that includes lines in the
 parasite axes.  To create a host axes, you may use *host_subplot* or
 *host_axes* command.
 
-
 Example 1. twinx
 ~~~~~~~~~~~~~~~~
 
@@ -189,9 +151,6 @@ Example 1. twinx
    :target: ../../gallery/axes_grid1/parasite_simple.html
    :align: center
    :scale: 50
-
-   Parasite Simple
-
 
 Example 2. twin
 ~~~~~~~~~~~~~~~
@@ -206,98 +165,80 @@ tick-formatter for bottom(or left)-axis. ::
   ax2.set_xticklabels(["0", r"$\frac{1}{2}\pi$",
                        r"$\pi$", r"$\frac{3}{2}\pi$", r"$2\pi$"])
 
-
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axisline4_001.png
    :target: ../../gallery/axes_grid1/simple_axisline4.html
    :align: center
    :scale: 50
 
-   Simple Axisline4
-
 A more sophisticated example using twin. Note that if you change the
 x-limit in the host axes, the x-limit of the parasite axes will change
 accordingly.
-
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_parasite_simple2_001.png
    :target: ../../gallery/axes_grid1/parasite_simple2.html
    :align: center
    :scale: 50
 
-   Parasite Simple2
-
-
 AnchoredArtists
 ---------------
 
-It's a collection of artists whose location is anchored to the (axes)
-bbox, like the legend. It is derived from *OffsetBox* in Matplotlib, and
-artist need to be drawn in the canvas coordinate. But, there is a
-limited support for an arbitrary transform. For example, the ellipse
-in the example below will have width and height in the data
-coordinate.
+:mod:`.axes_grid1.anchored_artists` is a collection of artists whose location
+is anchored to the (axes) bbox, similarly to legends.  These artists derive
+from `.offsetbox.OffsetBox`, and the artist need to be drawn in canvas
+coordinates.  There is limited support for arbitrary transforms.  For example,
+the ellipse in the example below will have width and height in data coordinate.
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_anchored_artists_001.png
    :target: ../../gallery/axes_grid1/simple_anchored_artists.html
    :align: center
    :scale: 50
 
-   Simple Anchored Artists
-
-
 InsetLocator
 ------------
 
-:mod:`mpl_toolkits.axes_grid1.inset_locator` provides helper classes
-and functions to place your (inset) axes at the anchored position of
-the parent axes, similarly to AnchoredArtist.
+.. seealso::
+   `.Axes.inset_axes` and `.Axes.indicate_inset_zoom` in the main library.
 
-Using :func:`mpl_toolkits.axes_grid1.inset_locator.inset_axes`, you
-can have inset axes whose size is either fixed, or a fixed proportion
-of the parent axes::
+:mod:`.axes_grid1.inset_locator` provides helper classes and functions to
+place inset axes at an anchored position of the parent axes, similarly to
+AnchoredArtist.
+
+`.inset_locator.inset_axes` creates an inset axes whose size is either fixed,
+or a fixed proportion of the parent axes::
 
     inset_axes = inset_axes(parent_axes,
-                            width="30%", # width = 30% of parent_bbox
-                            height=1., # height : 1 inch
+                            width="30%",  # width = 30% of parent_bbox
+                            height=1.,  # height = 1 inch
                             loc='lower left')
 
 creates an inset axes whose width is 30% of the parent axes and whose
 height is fixed at 1 inch.
 
-You may creates your inset whose size is determined so that the data
-scale of the inset axes to be that of the parent axes multiplied by
-some factor. For example, ::
+`.inset_locator.zoomed_inset_axes` creates an inset axes whose data scale is
+that of the parent axes multiplied by some factor, e.g. ::
 
     inset_axes = zoomed_inset_axes(ax,
-                                   0.5, # zoom = 0.5
+                                   0.5,  # zoom = 0.5
                                    loc='upper right')
 
-creates an inset axes whose data scale is half of the parent axes.
-Here is complete examples.
+creates an inset axes whose data scale is half of the parent axes.  This can be
+useful to mark the zoomed area on the parent axes:
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_inset_locator_demo_001.png
    :target: ../../gallery/axes_grid1/inset_locator_demo.html
    :align: center
    :scale: 50
 
-   Inset Locator Demo
-
-For example, :func:`.zoomed_inset_axes` can be used when you want the
-inset represents the zoom-up of the small portion in the parent axes.
-And :mod:`~mpl_toolkits.axes_grid1.inset_locator` provides a helper
-function :func:`.mark_inset` to mark the location of the area
-represented by the inset axes.
+`.inset_locator.mark_inset` allows marking the location of the area represented
+by the inset axes:
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_inset_locator_demo2_001.png
    :target: ../../gallery/axes_grid1/inset_locator_demo2.html
    :align: center
    :scale: 50
 
-   Inset Locator Demo2
-
-
-RGB Axes
-~~~~~~~~
+RGBAxes
+-------
 
 RGBAxes is a helper class to conveniently show RGB composite
 images. Like ImageGrid, the location of axes are adjusted so that the
@@ -311,12 +252,10 @@ yaxis of each axes are shared. ::
     r, g, b = get_rgb()  # r, g, b are 2D images.
     ax.imshow_rgb(r, g, b)
 
-
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_demo_axes_rgb_001.png
    :target: ../../gallery/axes_grid1/demo_axes_rgb.html
    :align: center
    :scale: 50
-
 
 AxesDivider
 ===========
@@ -392,7 +331,7 @@ Locators that spans over multiple cells can be created with, e.g.::
 
 See the example,
 
-.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axes_divider1_002.png
+.. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axes_divider1_001.png
    :target: ../../gallery/axes_grid1/simple_axes_divider1.html
    :align: center
    :scale: 50

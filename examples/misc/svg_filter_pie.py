@@ -10,6 +10,9 @@ Note that the filtering effects are only effective if your svg renderer
 support it.
 """
 
+import io
+import xml.etree.ElementTree as ET
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import Shadow
 
@@ -42,11 +45,8 @@ for w in pies[0]:
 
 
 # save
-from io import BytesIO
-f = BytesIO()
+f = io.BytesIO()
 plt.savefig(f, format="svg")
-
-import xml.etree.ElementTree as ET
 
 
 # filter definition for shadow using a gaussian blur
@@ -94,5 +94,5 @@ for i, pie_name in enumerate(labels):
     shadow.set("filter", 'url(#dropshadow)')
 
 fn = "svg_filter_pie.svg"
-print("Saving '%s'" % fn)
+print(f"Saving '{fn}'")
 ET.ElementTree(tree).write(fn)

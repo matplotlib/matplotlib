@@ -1402,11 +1402,7 @@ class SubplotTool(Widget):
 
         bax = toolfig.add_axes([0.8, 0.05, 0.15, 0.075])
         self.buttonreset = Button(bax, 'Reset')
-
-        # During reset there can be a temporary invalid state depending on the
-        # order of the reset so we turn off validation for the resetting
-        with cbook._setattr_cm(toolfig.subplotpars, validate=False):
-            self.buttonreset.on_clicked(self._on_reset)
+        self.buttonreset.on_clicked(self._on_reset)
 
     def _on_slider_changed(self, _):
         self.targetfig.subplots_adjust(
@@ -1417,17 +1413,19 @@ class SubplotTool(Widget):
 
     def _on_reset(self, event):
         with ExitStack() as stack:
-            # Temporarily disable drawing on self and self's sliders.
+            # Temporarily disable drawing on self and self's sliders, and
+            # disconnect slider events (as the subplotparams can be temporarily
+            # invalid, depending on the order in which they are restored).
             stack.enter_context(cbook._setattr_cm(self, drawon=False))
             for slider in self._sliders:
-                stack.enter_context(cbook._setattr_cm(slider, drawon=False))
+                stack.enter_context(
+                    cbook._setattr_cm(slider, drawon=False, eventson=False))
             # Reset the slider to the initial position.
             for slider in self._sliders:
                 slider.reset()
-        # Draw the canvas.
         if self.drawon:
-            event.canvas.draw()
-            self.targetfig.canvas.draw()
+            event.canvas.draw()  # Redraw the subplottool canvas.
+        self._on_slider_changed(None)  # Apply changes to the target window.
 
     axleft = _api.deprecated("3.3")(
         property(lambda self: self.sliderleft.ax))
@@ -1735,8 +1733,7 @@ class _SelectorWidget(AxesWidget):
         with ExitStack() as stack:
             if needs_redraw:
                 for artist in self.artists:
-                    stack.callback(artist.set_visible, artist.get_visible())
-                    artist.set_visible(False)
+                    stack.enter_context(artist._cm_set(visible=False))
                 self.canvas.draw()
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         if needs_redraw:
@@ -2759,11 +2756,17 @@ class PolygonSelector(_SelectorWidget):
     Select a polygon region of an axes.
 
     Place vertices with each mouse click, and make the selection by completing
-    the polygon (clicking on the first vertex). Hold the *ctrl* key and click
-    and drag a vertex to reposition it (the *ctrl* key is not necessary if the
-    polygon has already been completed). Hold the *shift* key and click and
-    drag anywhere in the axes to move all vertices. Press the *esc* key to
-    start a new polygon.
+    the polygon (clicking on the first vertex). Once drawn individual vertices
+    can be moved by clicking and dragging with the left mouse button, or
+    removed by clicking the right mouse button.
+
+    In addition, the following modifier keys can be used:
+
+    - Hold *ctrl* and click and drag a vertex to reposition it before the
+      polygon has been completed.
+    - Hold the *shift* key and click and drag anywhere in the axes to move
+      all vertices.
+    - Press the *esc* key to start a new polygon.
 
     For the selector to remain responsive you must keep a reference to it.
 
@@ -2789,6 +2792,12 @@ class PolygonSelector(_SelectorWidget):
     Examples
     --------
     :doc:`/gallery/widgets/polygon_selector_demo`
+
+    Notes
+    -----
+    If only one point remains after removing points, the selector reverts to an
+    incomplete state and you can start drawing a new polygon from the existing
+    point.
     """
 
     def __init__(self, ax, onselect, useblit=False,
@@ -2827,6 +2836,33 @@ class PolygonSelector(_SelectorWidget):
         self.artists = [self.line, self._polygon_handles.artist]
         self.set_visible(True)
 
+    @property
+    def _nverts(self):
+        return len(self._xs)
+
+    def _remove_vertex(self, i):
+        """Remove vertex with index i."""
+        if (self._nverts > 2 and
+                self._polygon_completed and
+                i in (0, self._nverts - 1)):
+            # If selecting the first or final vertex, remove both first and
+            # last vertex as they are the same for a closed polygon
+            self._xs.pop(0)
+            self._ys.pop(0)
+            self._xs.pop(-1)
+            self._ys.pop(-1)
+            # Close the polygon again by appending the new first vertex to the
+            # end
+            self._xs.append(self._xs[0])
+            self._ys.append(self._ys[0])
+        else:
+            self._xs.pop(i)
+            self._ys.pop(i)
+        if self._nverts <= 2:
+            # If only one point left, return to incomplete state to let user
+            # start drawing again
+            self._polygon_completed = False
+
     def _press(self, event):
         """Button press event handler."""
         # Check for selection of a tool handle.
@@ -2843,6 +2879,9 @@ class PolygonSelector(_SelectorWidget):
         """Button release event handler."""
         # Release active tool handle.
         if self._active_handle_idx >= 0:
+            if event.button == 3:
+                self._remove_vertex(self._active_handle_idx)
+                self._draw_polygon()
             self._active_handle_idx = -1
 
         # Complete the polygon.

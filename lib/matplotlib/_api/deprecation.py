@@ -17,7 +17,7 @@ import math
 import warnings
 
 
-class MatplotlibDeprecationWarning(UserWarning):
+class MatplotlibDeprecationWarning(DeprecationWarning):
     """
     A class for issuing deprecation warnings for Matplotlib users.
 
@@ -282,10 +282,10 @@ class deprecate_privatize_attribute:
             attr = _deprecate_privatize_attribute(*args, **kwargs)
 
     where *all* parameters are forwarded to `deprecated`.  This form makes
-    ``attr`` a property which forwards access to ``self._attr`` (same name but
-    with a leading underscore), with a deprecation warning.  Note that the
-    attribute name is derived from *the name this helper is assigned to*.  This
-    helper also works for deprecating methods.
+    ``attr`` a property which forwards read and write access to ``self._attr``
+    (same name but with a leading underscore), with a deprecation warning.
+    Note that the attribute name is derived from *the name this helper is
+    assigned to*.  This helper also works for deprecating methods.
     """
 
     def __init__(self, *args, **kwargs):
@@ -293,7 +293,9 @@ class deprecate_privatize_attribute:
 
     def __set_name__(self, owner, name):
         setattr(owner, name, self.deprecator(
-            property(lambda self: getattr(self, f"_{name}")), name=name))
+            property(lambda self: getattr(self, f"_{name}"),
+                     lambda self, value: setattr(self, f"_{name}", value)),
+            name=name))
 
 
 def rename_parameter(since, old, new, func=None):

@@ -36,7 +36,7 @@ from cycler import Cycler, cycler as ccycler
 interactive_bk = ['GTK3Agg', 'GTK3Cairo',
                   'MacOSX',
                   'nbAgg',
-                  'Qt4Agg', 'Qt4Cairo', 'Qt5Agg', 'Qt5Cairo',
+                  'Qt5Agg', 'Qt5Cairo',
                   'TkAgg', 'TkCairo',
                   'WebAgg',
                   'WX', 'WXAgg', 'WXCairo']

@@ -15,7 +15,7 @@ mandatory dependencies are automatically installed. This list is mainly for
 reference.
 
 * `Python <https://www.python.org/downloads/>`_ (>= 3.7)
-* `NumPy <https://numpy.org>`_ (>= 1.16)
+* `NumPy <https://numpy.org>`_ (>= 1.17)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil>`_ (>= 2.7)
@@ -40,7 +40,6 @@ Matplotlib figures can be rendered to various user interfaces. See
 and the capabilities they provide.
 
 * Tk_ (>= 8.3, != 8.6.0 or 8.6.1) [#]_: for the Tk-based backends.
-* PyQt4_ (>= 4.6) or PySide_ (>= 1.0.3) [#]_: for the Qt4-based backends.
 * PyQt5_ or PySide2_: for the Qt5-based backends.
 * PyGObject_: for the GTK3-based backends [#]_.
 * wxPython_ (>= 4) [#]_: for the wx-based backends.
@@ -49,8 +48,6 @@ and the capabilities they provide.
 * Tornado_: for the WebAgg backend.
 
 .. _Tk: https://docs.python.org/3/library/tk.html
-.. _PyQt4: https://pypi.org/project/PyQt4
-.. _PySide: https://pypi.org/project/PySide
 .. _PyQt5: https://pypi.org/project/PyQt5
 .. _PySide2: https://pypi.org/project/PySide2
 .. _PyGObject: https://pygobject.readthedocs.io/en/latest/

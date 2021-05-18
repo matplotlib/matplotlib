@@ -224,7 +224,6 @@ def switch_backend(newbackend):
     if newbackend is rcsetup._auto_backend_sentinel:
         current_framework = cbook._get_running_interactive_framework()
         mapping = {'qt5': 'qt5agg',
-                   'qt4': 'qt4agg',
                    'gtk3': 'gtk3agg',
                    'wx': 'wxagg',
                    'tk': 'tkagg',
@@ -1432,8 +1431,9 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     return fig, axs
 
 
-def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
-                   empty_sentinel='.', **fig_kw):
+def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
+                   subplot_kw=None, gridspec_kw=None, empty_sentinel='.',
+                   **fig_kw):
     """
     Build a layout of Axes based on ASCII art or nested lists.
 
@@ -1444,10 +1444,9 @@ def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
        This API is provisional and may be revised in the future based on
        early user feedback.
 
-
     Parameters
     ----------
-    layout : list of list of {hashable or nested} or str
+    mosaic : list of list of {hashable or nested} or str
 
         A visual layout of how you want your Axes to be arranged
         labeled as strings.  For example ::
@@ -1455,7 +1454,7 @@ def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
            x = [['A panel', 'A panel', 'edge'],
                 ['C panel', '.',       'edge']]
 
-        Produces 4 axes:
+        produces 4 axes:
 
         - 'A panel' which is 1 row high and spans the first two columns
         - 'edge' which is 2 rows high and is on the right edge
@@ -1475,6 +1474,12 @@ def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
         where each character is a column and each line is a row.
         This only allows only single character Axes labels and does
         not allow nesting but is very terse.
+
+    sharex, sharey : bool, default: False
+        If True, the x-axis (*sharex*) or y-axis (*sharey*) will be shared
+        among all subplots.  In that case, tick label visibility and axis units
+        behave as for `subplots`.  If False, each subplot's x- or y-axis will
+        be independent.
 
     subplot_kw : dict, optional
         Dictionary with keywords passed to the `.Figure.add_subplot` call
@@ -1507,9 +1512,8 @@ def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
     """
     fig = figure(**fig_kw)
     ax_dict = fig.subplot_mosaic(
-        layout,
-        subplot_kw=subplot_kw,
-        gridspec_kw=gridspec_kw,
+        mosaic, sharex=sharex, sharey=sharey,
+        subplot_kw=subplot_kw, gridspec_kw=gridspec_kw,
         empty_sentinel=empty_sentinel
     )
     return fig, ax_dict

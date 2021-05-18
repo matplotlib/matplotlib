@@ -223,7 +223,7 @@ class _process_plot_var_args:
     def __init__(self, axes, command='plot'):
         self.axes = axes
         self.command = command
-        self.set_prop_cycle()
+        self.set_prop_cycle(None)
 
     def __getstate__(self):
         # note: it is not possible to pickle a generator (and thus a cycler).
@@ -231,18 +231,13 @@ class _process_plot_var_args:
 
     def __setstate__(self, state):
         self.__dict__ = state.copy()
-        self.set_prop_cycle()
+        self.set_prop_cycle(None)
 
-    def set_prop_cycle(self, *args, **kwargs):
-        # Can't do `args == (None,)` as that crashes cycler.
-        if not (args or kwargs) or (len(args) == 1 and args[0] is None):
-            prop_cycler = mpl.rcParams['axes.prop_cycle']
-        else:
-            prop_cycler = cycler(*args, **kwargs)
-
-        self.prop_cycler = itertools.cycle(prop_cycler)
-        # This should make a copy
-        self._prop_keys = prop_cycler.keys
+    def set_prop_cycle(self, cycler):
+        if cycler is None:
+            cycler = mpl.rcParams['axes.prop_cycle']
+        self.prop_cycler = itertools.cycle(cycler)
+        self._prop_keys = cycler.keys  # This should make a copy
 
     def __call__(self, *args, data=None, **kwargs):
         self.axes._process_unit_info(kwargs=kwargs)
@@ -3122,8 +3117,7 @@ class _AxesBase(martist.Artist):
         with ExitStack() as stack:
             for artist in [*self._get_axis_list(),
                            self.title, self._left_title, self._right_title]:
-                stack.callback(artist.set_visible, artist.get_visible())
-                artist.set_visible(False)
+                stack.enter_context(artist._cm_set(visible=False))
             self.draw(self.figure._cachedRenderer)
 
     def get_renderer_cache(self):

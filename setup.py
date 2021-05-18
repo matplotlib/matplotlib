@@ -192,6 +192,20 @@ class BuildExtraLibraries(setuptools.command.build_ext.build_ext):
             package.do_custom_build(env)
         return super().build_extensions()
 
+    def build_extension(self, ext):
+        # When C coverage is enabled, the path to the object file is saved.
+        # Since we re-use source files in multiple extensions, libgcov will
+        # complain at runtime that it is trying to save coverage for the same
+        # object file at different timestamps (since each source is compiled
+        # again for each extension). Thus, we need to use unique temporary
+        # build directories to store object files for each extension.
+        orig_build_temp = self.build_temp
+        self.build_temp = os.path.join(self.build_temp, ext.name)
+        try:
+            super().build_extension(ext)
+        finally:
+            self.build_temp = orig_build_temp
+
 
 def update_matplotlibrc(path):
     # If packagers want to change the default backend, insert a `#backend: ...`
@@ -305,14 +319,14 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
     python_requires='>={}'.format('.'.join(str(n) for n in py_min_version)),
     setup_requires=[
         "certifi>=2020.06.20",
-        "numpy>=1.16",
+        "numpy>=1.17",
         "setuptools_scm>=4",
         "setuptools_scm_git_archive",
     ],
     install_requires=[
         "cycler>=0.10",
         "kiwisolver>=1.0.1",
-        "numpy>=1.16",
+        "numpy>=1.17",
         "pillow>=6.2.0",
         "pyparsing>=2.2.1",
         "python-dateutil>=2.7",

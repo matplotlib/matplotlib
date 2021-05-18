@@ -432,7 +432,7 @@ class Matplotlib(SetupPackage):
         yield ext
         # qhull
         ext = Extension(
-            "matplotlib._qhull", ["src/qhull_wrap.c"],
+            "matplotlib._qhull", ["src/qhull_wrap.cpp"],
             define_macros=[("MPL_DEVNULL", os.devnull)])
         add_numpy_flags(ext)
         Qhull.add_flags(ext)
@@ -444,8 +444,8 @@ class Matplotlib(SetupPackage):
             ],
             include_dirs=["src"],
             # psapi library needed for finding Tcl/Tk at run time.
-            libraries=({"linux": ["dl"], "win32": ["psapi"],
-                        "cygwin": ["psapi"]}.get(sys.platform, [])),
+            libraries={"linux": ["dl"], "win32": ["comctl32", "psapi"],
+                       "cygwin": ["comctl32", "psapi"]}.get(sys.platform, []),
             extra_link_args={"win32": ["-mwindows"]}.get(sys.platform, []))
         add_numpy_flags(ext)
         add_libagg_flags(ext)

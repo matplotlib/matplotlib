@@ -11,6 +11,7 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.ticker as mticker
+import matplotlib._api as _api
 
 
 def test_date_numpyx():
@@ -270,7 +271,7 @@ def test_date_formatter_callable():
     (datetime.timedelta(weeks=52 * 200),
      [r'$\mathdefault{%d}$' % (year,) for year in range(1990, 2171, 20)]),
     (datetime.timedelta(days=30),
-     [r'$\mathdefault{Jan %02d 1990}$' % (day,) for day in range(1, 32, 3)]),
+     [r'Jan$\mathdefault{ %02d 1990}$' % (day,) for day in range(1, 32, 3)]),
     (datetime.timedelta(hours=20),
      [r'$\mathdefault{%02d:00:00}$' % (hour,) for hour in range(0, 21, 2)]),
 ])
@@ -549,15 +550,15 @@ def test_concise_formatter_show_offset(t_delta, expected):
     (datetime.timedelta(weeks=52 * 200),
      ['$\\mathdefault{%d}$' % (t, ) for t in range(1980, 2201, 20)]),
     (datetime.timedelta(days=40),
-     ['$\\mathdefault{Jan}$', '$\\mathdefault{05}$', '$\\mathdefault{09}$',
+     ['Jan', '$\\mathdefault{05}$', '$\\mathdefault{09}$',
       '$\\mathdefault{13}$', '$\\mathdefault{17}$', '$\\mathdefault{21}$',
-      '$\\mathdefault{25}$', '$\\mathdefault{29}$', '$\\mathdefault{Feb}$',
+      '$\\mathdefault{25}$', '$\\mathdefault{29}$', 'Feb',
       '$\\mathdefault{05}$', '$\\mathdefault{09}$']),
     (datetime.timedelta(hours=40),
-     ['$\\mathdefault{Jan{-}01}$', '$\\mathdefault{04:00}$',
+     ['Jan$\\mathdefault{{-}01}$', '$\\mathdefault{04:00}$',
       '$\\mathdefault{08:00}$', '$\\mathdefault{12:00}$',
       '$\\mathdefault{16:00}$', '$\\mathdefault{20:00}$',
-      '$\\mathdefault{Jan{-}02}$', '$\\mathdefault{04:00}$',
+      'Jan$\\mathdefault{{-}02}$', '$\\mathdefault{04:00}$',
       '$\\mathdefault{08:00}$', '$\\mathdefault{12:00}$',
       '$\\mathdefault{16:00}$']),
     (datetime.timedelta(seconds=2),
@@ -1079,15 +1080,16 @@ def test_change_interval_multiples():
 
 
 def test_epoch2num():
-    mdates._reset_epoch_test_example()
-    mdates.set_epoch('0000-12-31')
-    assert mdates.epoch2num(86400) == 719164.0
-    assert mdates.num2epoch(719165.0) == 86400 * 2
-    # set back to the default
-    mdates._reset_epoch_test_example()
-    mdates.set_epoch('1970-01-01T00:00:00')
-    assert mdates.epoch2num(86400) == 1.0
-    assert mdates.num2epoch(2.0) == 86400 * 2
+    with _api.suppress_matplotlib_deprecation_warning():
+        mdates._reset_epoch_test_example()
+        mdates.set_epoch('0000-12-31')
+        assert mdates.epoch2num(86400) == 719164.0
+        assert mdates.num2epoch(719165.0) == 86400 * 2
+        # set back to the default
+        mdates._reset_epoch_test_example()
+        mdates.set_epoch('1970-01-01T00:00:00')
+        assert mdates.epoch2num(86400) == 1.0
+        assert mdates.num2epoch(2.0) == 86400 * 2
 
 
 def test_julian2num():

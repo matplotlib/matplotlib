@@ -43,7 +43,7 @@ ingredients = [x.split()[-1] for x in recipe]
 
 
 def func(pct, allvals):
-    absolute = int(round(pct/100.*np.sum(allvals)))
+    absolute = int(np.round(pct/100.*np.sum(allvals)))
     return "{:.1f}%\n({:d} g)".format(pct, absolute)
 
 

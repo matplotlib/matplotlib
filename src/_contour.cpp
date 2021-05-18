@@ -11,11 +11,6 @@
 #include <algorithm>
 
 
-// 'kind' codes.
-#define MOVETO 1
-#define LINETO 2
-#define CLOSEPOLY 79
-
 // Point indices from current quad index.
 #define POINT_SW (quad)
 #define POINT_SE (quad+1)

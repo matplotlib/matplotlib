@@ -63,7 +63,7 @@ Matplotlib makes easy things easy and hard things possible.
       Extend
 
       - Explore tailored functionality provided by
-        :doc:`third party packages <thirdpartypackages/index>`
+        `third party packages <https://matplotlib.org/mpl-third-party/>`_
       - Learn more about Matplotlib through the many
         :doc:`external learning resources <resources/index>`
 
@@ -162,14 +162,15 @@ helpers in `.axisartist`.
 Third party packages
 ====================
 
-A large number of :doc:`third party packages <thirdpartypackages/index>`
+A large number of 
+`third party packages <https://matplotlib.org/mpl-third-party/>`_
 extend and build on Matplotlib functionality, including several higher-level
 plotting interfaces (seaborn_, HoloViews_, ggplot_, ...), and a projection
 and mapping toolkit (Cartopy_).
 
 .. _seaborn: https://seaborn.pydata.org
 .. _HoloViews: https://holoviews.org
-.. _ggplot: http://ggplot.yhathq.com
+.. _ggplot: https://yhat.github.io/ggpy/
 .. _Cartopy: https://scitools.org.uk/cartopy/docs/latest
 
 Citing Matplotlib

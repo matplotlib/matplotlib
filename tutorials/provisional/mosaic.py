@@ -66,27 +66,30 @@ hist_data = np.random.randn(1_500)
 fig = plt.figure(constrained_layout=True)
 ax_array = fig.subplots(2, 2, squeeze=False)
 
-ax_array[0, 0].bar(['a', 'b', 'c'], [5, 7, 9])
+ax_array[0, 0].bar(["a", "b", "c"], [5, 7, 9])
 ax_array[0, 1].plot([1, 2, 3])
-ax_array[1, 0].hist(hist_data, bins='auto')
+ax_array[1, 0].hist(hist_data, bins="auto")
 ax_array[1, 1].imshow([[1, 2], [2, 1]])
 
 identify_axes(
-    {(j, k): a for j, r in enumerate(ax_array) for k, a in enumerate(r)}
+    {(j, k): a for j, r in enumerate(ax_array) for k, a in enumerate(r)},
 )
 
 ###############################################################################
-# Using `.Figure.subplot_mosaic` we can produce the same layout but give the
+# Using `.Figure.subplot_mosaic` we can produce the same mosaic but give the
 # axes semantic names
 
 fig = plt.figure(constrained_layout=True)
 ax_dict = fig.subplot_mosaic(
-    [['bar',  'plot'],
-     ['hist', 'image']])
-ax_dict['bar'].bar(['a', 'b', 'c'], [5, 7, 9])
-ax_dict['plot'].plot([1, 2, 3])
-ax_dict['hist'].hist(hist_data)
-ax_dict['image'].imshow([[1, 2], [2, 1]])
+    [
+        ["bar", "plot"],
+        ["hist", "image"],
+    ],
+)
+ax_dict["bar"].bar(["a", "b", "c"], [5, 7, 9])
+ax_dict["plot"].plot([1, 2, 3])
+ax_dict["hist"].hist(hist_data)
+ax_dict["image"].imshow([[1, 2], [2, 1]])
 identify_axes(ax_dict)
 
 ###############################################################################
@@ -106,18 +109,18 @@ print(ax_dict)
 # "draw" the Axes we want as "ASCII art".  The following
 
 
-layout = """
+mosaic = """
     AB
     CD
     """
 
 ###############################################################################
 # will give us 4 Axes laid out in a 2x2 grid and generates the same
-# figure layout as above (but now labeled with ``{"A", "B", "C",
+# figure mosaic as above (but now labeled with ``{"A", "B", "C",
 # "D"}`` rather than ``{"bar", "plot", "hist", "image"}``).
 
 fig = plt.figure(constrained_layout=True)
-ax_dict = fig.subplot_mosaic(layout)
+ax_dict = fig.subplot_mosaic(mosaic)
 identify_axes(ax_dict)
 
 
@@ -183,7 +186,7 @@ identify_axes(axd)
 # empty sentinel with the string shorthand because it may be stripped
 # while processing the input.
 #
-# Controlling layout and subplot creation
+# Controlling mosaic and subplot creation
 # =======================================
 #
 # This feature is built on top of `.gridspec` and you can pass the
@@ -211,14 +214,14 @@ identify_axes(axd)
 
 ###############################################################################
 # Or use the {*left*, *right*, *bottom*, *top*} keyword arguments to
-# position the overall layout to put multiple versions of the same
-# layout in a figure
+# position the overall mosaic to put multiple versions of the same
+# mosaic in a figure
 
-layout = """AA
+mosaic = """AA
             BC"""
 fig = plt.figure()
 axd = fig.subplot_mosaic(
-    layout,
+    mosaic,
     gridspec_kw={
         "bottom": 0.25,
         "top": 0.95,
@@ -231,7 +234,7 @@ axd = fig.subplot_mosaic(
 identify_axes(axd)
 
 axd = fig.subplot_mosaic(
-    layout,
+    mosaic,
     gridspec_kw={
         "bottom": 0.05,
         "top": 0.75,
@@ -241,6 +244,19 @@ axd = fig.subplot_mosaic(
         "hspace": 0.5,
     },
 )
+identify_axes(axd)
+
+###############################################################################
+# Alternatively, you can use the sub-Figure functionality:
+
+mosaic = """AA
+            BC"""
+fig = plt.figure(constrained_layout=True)
+left, right = fig.subfigures(nrows=1, ncols=2)
+axd = left.subplot_mosaic(mosaic)
+identify_axes(axd)
+
+axd = right.subplot_mosaic(mosaic)
 identify_axes(axd)
 
 
@@ -264,17 +280,18 @@ identify_axes(axd)
 # list), for example using spans, blanks, and *gridspec_kw*:
 
 axd = plt.figure(constrained_layout=True).subplot_mosaic(
-    [["main", "zoom"],
-     ["main", "BLANK"]
-     ],
+    [
+        ["main", "zoom"],
+        ["main", "BLANK"],
+    ],
     empty_sentinel="BLANK",
-    gridspec_kw={"width_ratios": [2, 1]}
+    gridspec_kw={"width_ratios": [2, 1]},
 )
 identify_axes(axd)
 
 
 ###############################################################################
-# In addition, using the list input we can specify nested layouts.  Any element
+# In addition, using the list input we can specify nested mosaics.  Any element
 # of the inner list can be another set of nested lists:
 
 inner = [
@@ -282,22 +299,23 @@ inner = [
     ["inner B"],
 ]
 
-outer_nested_layout = [
+outer_nested_mosaic = [
     ["main", inner],
     ["bottom", "bottom"],
 ]
 axd = plt.figure(constrained_layout=True).subplot_mosaic(
-    outer_nested_layout, empty_sentinel=None
+    outer_nested_mosaic, empty_sentinel=None
 )
 identify_axes(axd, fontsize=36)
 
 
 ###############################################################################
 # We can also pass in a 2D NumPy array to do things like
-layout = np.zeros((4, 4), dtype=int)
+mosaic = np.zeros((4, 4), dtype=int)
 for j in range(4):
-    layout[j, j] = j + 1
+    mosaic[j, j] = j + 1
 axd = plt.figure(constrained_layout=True).subplot_mosaic(
-    layout, empty_sentinel=0
+    mosaic,
+    empty_sentinel=0,
 )
 identify_axes(axd)

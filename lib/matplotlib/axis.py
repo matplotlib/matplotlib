@@ -552,6 +552,8 @@ class Ticker:
     def __init__(self):
         self._locator = None
         self._formatter = None
+        self._locator_is_default = True
+        self._formatter_is_default = True
 
     @property
     def locator(self):
@@ -689,6 +691,38 @@ class Axis(martist.Artist):
         self.clear()
         self._set_scale('linear')
 
+    @property
+    def isDefault_majloc(self):
+        return self.major._locator_is_default
+
+    @isDefault_majloc.setter
+    def isDefault_majloc(self, value):
+        self.major._locator_is_default = value
+
+    @property
+    def isDefault_majfmt(self):
+        return self.major._formatter_is_default
+
+    @isDefault_majfmt.setter
+    def isDefault_majfmt(self, value):
+        self.major._formatter_is_default = value
+
+    @property
+    def isDefault_minloc(self):
+        return self.minor._locator_is_default
+
+    @isDefault_minloc.setter
+    def isDefault_minloc(self, value):
+        self.minor._locator_is_default = value
+
+    @property
+    def isDefault_minfmt(self):
+        return self.minor._formatter_is_default
+
+    @isDefault_minfmt.setter
+    def isDefault_minfmt(self, value):
+        self.minor._formatter_is_default = value
+
     # During initialization, Axis objects often create ticks that are later
     # unused; this turns out to be a very slow step.  Instead, use a custom
     # descriptor to make the tick lists lazy and instantiate them as needed.
@@ -752,6 +786,18 @@ class Axis(martist.Artist):
         return [self.label, self.offsetText,
                 *self.get_major_ticks(), *self.get_minor_ticks()]
 
+    def _reset_major_tick_kw(self):
+        self._major_tick_kw.clear()
+        self._major_tick_kw['gridOn'] = (
+                mpl.rcParams['axes.grid'] and
+                mpl.rcParams['axes.grid.which'] in ('both', 'major'))
+
+    def _reset_minor_tick_kw(self):
+        self._minor_tick_kw.clear()
+        self._minor_tick_kw['gridOn'] = (
+                mpl.rcParams['axes.grid'] and
+                mpl.rcParams['axes.grid.which'] in ('both', 'minor'))
+
     def clear(self):
         """
         Clear the axis.
@@ -773,14 +819,8 @@ class Axis(martist.Artist):
         # Clear the callback registry for this axis, or it may "leak"
         self.callbacks = cbook.CallbackRegistry()
 
-        # whether the grids are on
-        self._major_tick_kw['gridOn'] = (
-                mpl.rcParams['axes.grid'] and
-                mpl.rcParams['axes.grid.which'] in ('both', 'major'))
-        self._minor_tick_kw['gridOn'] = (
-                mpl.rcParams['axes.grid'] and
-                mpl.rcParams['axes.grid.which'] in ('both', 'minor'))
-
+        self._reset_major_tick_kw()
+        self._reset_minor_tick_kw()
         self.reset_ticks()
 
         self.converter = None
@@ -827,10 +867,10 @@ class Axis(martist.Artist):
         # future new ticks will automatically get them
         if reset:
             if which in ['major', 'both']:
-                self._major_tick_kw.clear()
+                self._reset_major_tick_kw()
                 self._major_tick_kw.update(kwtrans)
             if which in ['minor', 'both']:
-                self._minor_tick_kw.clear()
+                self._reset_minor_tick_kw()
                 self._minor_tick_kw.update(kwtrans)
             self.reset_ticks()
         else:
@@ -1379,35 +1419,40 @@ class Axis(martist.Artist):
 
                 grid(color='r', linestyle='-', linewidth=2)
         """
-        if b is not None:
-            if 'visible' in kwargs and bool(b) != bool(kwargs['visible']):
+        TOGGLE = object()
+        UNSET = object()
+        visible = kwargs.pop('visible', UNSET)
+
+        if b is None:
+            if visible is UNSET:
+                if kwargs:  # grid(color='r')
+                    b = True
+                else:  # grid()
+                    b = TOGGLE
+            else:  # grid(visible=v)
+                b = visible
+        else:
+            if visible is not UNSET and bool(b) != bool(visible):
+                # grid(True, visible=False), grid(False, visible=True)
                 raise ValueError(
                     "'b' and 'visible' specify inconsistent grid visibilities")
             if kwargs and not b:  # something false-like but not None
+                # grid(0, visible=True)
                 _api.warn_external('First parameter to grid() is false, '
                                    'but line properties are supplied. The '
                                    'grid will be enabled.')
                 b = True
+
         which = which.lower()
         _api.check_in_list(['major', 'minor', 'both'], which=which)
         gridkw = {'grid_' + item[0]: item[1] for item in kwargs.items()}
-        if 'grid_visible' in gridkw:
-            forced_visibility = True
-            gridkw['gridOn'] = gridkw.pop('grid_visible')
-        else:
-            forced_visibility = False
-
         if which in ['minor', 'both']:
-            if b is None and not forced_visibility:
-                gridkw['gridOn'] = not self._minor_tick_kw['gridOn']
-            elif b is not None:
-                gridkw['gridOn'] = b
+            gridkw['gridOn'] = (not self._minor_tick_kw['gridOn']
+                                if b is TOGGLE else b)
             self.set_tick_params(which='minor', **gridkw)
         if which in ['major', 'both']:
-            if b is None and not forced_visibility:
-                gridkw['gridOn'] = not self._major_tick_kw['gridOn']
-            elif b is not None:
-                gridkw['gridOn'] = b
+            gridkw['gridOn'] = (not self._major_tick_kw['gridOn']
+                                if b is TOGGLE else b)
             self.set_tick_params(which='major', **gridkw)
         self.stale = True
 
@@ -1661,10 +1706,16 @@ class Axis(martist.Artist):
         r"""
         Set the text values of the tick labels.
 
-        .. warning::
-            This method should only be used after fixing the tick positions
-            using `.Axis.set_ticks`. Otherwise, the labels may end up in
-            unexpected positions.
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged, because of the dependency
+            on tick positions. In most cases, you'll want to use
+            ``set_[x/y]ticks(positions, labels)`` instead.
+
+            If you are using this method, you should always fix the tick
+            positions before, e.g. by using `.Axis.set_ticks` or by explicitly
+            setting a `~.ticker.FixedLocator`. Otherwise, ticks are free to
+            move and the labels may end up in unexpected positions.
 
         Parameters
         ----------
@@ -1772,27 +1823,9 @@ class Axis(martist.Artist):
             kwargs.update(fontdict)
         return self.set_ticklabels(labels, minor=minor, **kwargs)
 
-    def set_ticks(self, ticks, *, minor=False):
-        """
-        Set this Axis' tick locations.
+    def _set_tick_locations(self, ticks, *, minor=False):
+        # see docstring of set_ticks
 
-        If necessary, the view limits of the Axis are expanded so that all
-        given ticks are visible.
-
-        Parameters
-        ----------
-        ticks : list of floats
-            List of tick locations.
-        minor : bool, default: False
-            If ``False``, set the major ticks; if ``True``, the minor ticks.
-
-        Notes
-        -----
-        The mandatory expansion of the view limits is an intentional design
-        choice to prevent the surprise of a non-visible tick. If you need
-        other limits, you should set the limits explicitly after setting the
-        ticks.
-        """
         # XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)
         if self is self.axes.xaxis:
@@ -1826,6 +1859,37 @@ class Axis(martist.Artist):
         else:
             self.set_major_locator(mticker.FixedLocator(ticks))
             return self.get_major_ticks(len(ticks))
+
+    def set_ticks(self, ticks, labels=None, *, minor=False, **kwargs):
+        """
+        Set this Axis' tick locations and optionally labels.
+
+        If necessary, the view limits of the Axis are expanded so that all
+        given ticks are visible.
+
+        Parameters
+        ----------
+        ticks : list of floats
+            List of tick locations.
+        labels : list of str, optional
+            List of tick labels. If not set, the labels show the data value.
+        minor : bool, default: False
+            If ``False``, set the major ticks; if ``True``, the minor ticks.
+        **kwargs
+            `.Text` properties for the labels. These take effect only if you
+            pass *labels*. In other cases, please use `~.Axes.tick_params`.
+
+        Notes
+        -----
+        The mandatory expansion of the view limits is an intentional design
+        choice to prevent the surprise of a non-visible tick. If you need
+        other limits, you should set the limits explicitly after setting the
+        ticks.
+        """
+        result = self._set_tick_locations(ticks, minor=minor)
+        if labels is not None:
+            self.set_ticklabels(labels, minor=minor, **kwargs)
+        return result
 
     def _get_tick_boxes_siblings(self, renderer):
         """
@@ -1866,16 +1930,6 @@ class Axis(martist.Artist):
         boxes of all the ticklabels.
         """
         raise NotImplementedError('Derived must override')
-
-    @_api.deprecated("3.3")
-    def pan(self, numsteps):
-        """Pan by *numsteps* (can be positive or negative)."""
-        self.major.locator.pan(numsteps)
-
-    @_api.deprecated("3.3")
-    def zoom(self, direction):
-        """Zoom in/out on axis; if *direction* is >0 zoom in, else zoom out."""
-        self.major.locator.zoom(direction)
 
     def axis_date(self, tz=None):
         """

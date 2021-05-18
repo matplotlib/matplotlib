@@ -5,11 +5,13 @@ import math
 import os.path
 import sys
 import tkinter as tk
-from tkinter.simpledialog import SimpleDialog
 import tkinter.filedialog
+import tkinter.font
 import tkinter.messagebox
+from tkinter.simpledialog import SimpleDialog
 
 import numpy as np
+from PIL import Image, ImageTk
 
 import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook, _c_internal_utils
@@ -164,9 +166,9 @@ class FigureCanvasTk(FigureCanvasBase):
         alternative="get_tk_widget().bind('<Configure>', ..., True)")
     def __init__(self, figure=None, master=None, resize_callback=None):
         super().__init__(figure)
-        self._idle = True
-        self._idle_callback = None
-        w, h = self.figure.bbox.size.astype(int)
+        self._idle_draw_id = None
+        self._event_loop_id = None
+        w, h = self.get_width_height(physical=True)
         self._tkcanvas = tk.Canvas(
             master=master, background="white",
             width=w, height=h, borderwidth=0, highlightthickness=0)
@@ -175,6 +177,7 @@ class FigureCanvasTk(FigureCanvasBase):
         self._tkcanvas.create_image(w//2, h//2, image=self._tkphoto)
         self._resize_callback = resize_callback
         self._tkcanvas.bind("<Configure>", self.resize)
+        self._tkcanvas.bind("<Map>", self._update_device_pixel_ratio)
         self._tkcanvas.bind("<Key>", self.key_press)
         self._tkcanvas.bind("<Motion>", self.motion_notify_event)
         self._tkcanvas.bind("<Enter>", self.enter_notify_event)
@@ -209,6 +212,18 @@ class FigureCanvasTk(FigureCanvasBase):
         self._master = master
         self._tkcanvas.focus_set()
 
+    def _update_device_pixel_ratio(self, event=None):
+        # Tk gives scaling with respect to 72 DPI, but most (all?) screens are
+        # scaled vs 96 dpi, and pixel ratio settings are given in whole
+        # percentages, so round to 2 digits.
+        ratio = round(self._master.call('tk', 'scaling') / (96 / 72), 2)
+        if self._set_device_pixel_ratio(ratio):
+            # The easiest way to resize the canvas is to resize the canvas
+            # widget itself, since we implement all the logic for resizing the
+            # canvas backing store on that event.
+            w, h = self.get_width_height(physical=True)
+            self._tkcanvas.configure(width=w, height=h)
+
     def resize(self, event):
         width, height = event.width, event.height
         if self._resize_callback is not None:
@@ -229,18 +244,16 @@ class FigureCanvasTk(FigureCanvasBase):
 
     def draw_idle(self):
         # docstring inherited
-        if not self._idle:
+        if self._idle_draw_id:
             return
-
-        self._idle = False
 
         def idle_draw(*args):
             try:
                 self.draw()
             finally:
-                self._idle = True
+                self._idle_draw_id = None
 
-        self._idle_callback = self._tkcanvas.after_idle(idle_draw)
+        self._idle_draw_id = self._tkcanvas.after_idle(idle_draw)
 
     def get_tk_widget(self):
         """
@@ -359,11 +372,20 @@ class FigureCanvasTk(FigureCanvasBase):
     def start_event_loop(self, timeout=0):
         # docstring inherited
         if timeout > 0:
-            self._master.after(int(1000*timeout), self.stop_event_loop)
+            milliseconds = int(1000 * timeout)
+            if milliseconds > 0:
+                self._event_loop_id = self._tkcanvas.after(
+                    milliseconds, self.stop_event_loop)
+            else:
+                self._event_loop_id = self._tkcanvas.after_idle(
+                    self.stop_event_loop)
         self._master.mainloop()
 
     def stop_event_loop(self):
         # docstring inherited
+        if self._event_loop_id:
+            self._master.after_cancel(self._event_loop_id)
+            self._event_loop_id = None
         self._master.quit()
 
 
@@ -397,6 +419,16 @@ class FigureManagerTk(FigureManagerBase):
             if self.toolbar:
                 backend_tools.add_tools_to_container(self.toolbar)
 
+        # If the window has per-monitor DPI awareness, then setup a Tk variable
+        # to store the DPI, which will be updated by the C code, and the trace
+        # will handle it on the Python side.
+        window_frame = int(window.wm_frame(), 16)
+        window_dpi = tk.IntVar(master=window, value=96,
+                               name=f'window_dpi{window_frame}')
+        if _tkagg.enable_dpi_awareness(window_frame, window.tk.interpaddr()):
+            self._window_dpi = window_dpi  # Prevent garbage collection.
+            window_dpi.trace_add('write', self._update_window_dpi)
+
         self._shown = False
 
     def _get_toolbar(self):
@@ -407,6 +439,13 @@ class FigureManagerTk(FigureManagerBase):
         else:
             toolbar = None
         return toolbar
+
+    def _update_window_dpi(self, *args):
+        newdpi = self._window_dpi.get()
+        self.window.call('tk', 'scaling', newdpi / 72)
+        if self.toolbar and hasattr(self.toolbar, '_rescale'):
+            self.toolbar._rescale()
+        self.canvas._update_device_pixel_ratio()
 
     def resize(self, width, height):
         max_size = 1_400_000  # the measured max on xorg 1.20.8 was 1_409_023
@@ -437,8 +476,10 @@ class FigureManagerTk(FigureManagerBase):
             self._shown = True
 
     def destroy(self, *args):
-        if self.canvas._idle_callback:
-            self.canvas._tkcanvas.after_cancel(self.canvas._idle_callback)
+        if self.canvas._idle_draw_id:
+            self.canvas._tkcanvas.after_cancel(self.canvas._idle_draw_id)
+        if self.canvas._event_loop_id:
+            self.canvas._tkcanvas.after_cancel(self.canvas._event_loop_id)
 
         # NOTE: events need to be flushed before issuing destroy (GH #9956),
         # however, self.window.update() can break user code. This is the
@@ -451,7 +492,8 @@ class FigureManagerTk(FigureManagerBase):
             if self._owns_mainloop and not Gcf.get_num_fig_managers():
                 self.window.quit()
 
-        self.window.after_idle(delayed_destroy)
+        # "after idle after 0" avoids Tcl error/race (GH #19940)
+        self.window.after_idle(self.window.after, 0, delayed_destroy)
 
     def get_window_title(self):
         return self.window.wm_title()
@@ -501,21 +543,51 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
                 if tooltip_text is not None:
                     ToolTip.createToolTip(button, tooltip_text)
 
+        self._label_font = tkinter.font.Font(size=10)
+
         # This filler item ensures the toolbar is always at least two text
         # lines high. Otherwise the canvas gets redrawn as the mouse hovers
         # over images because those use two-line messages which resize the
         # toolbar.
-        label = tk.Label(master=self,
+        label = tk.Label(master=self, font=self._label_font,
                          text='\N{NO-BREAK SPACE}\n\N{NO-BREAK SPACE}')
         label.pack(side=tk.RIGHT)
 
         self.message = tk.StringVar(master=self)
-        self._message_label = tk.Label(master=self, textvariable=self.message)
+        self._message_label = tk.Label(master=self, font=self._label_font,
+                                       textvariable=self.message)
         self._message_label.pack(side=tk.RIGHT)
 
         NavigationToolbar2.__init__(self, canvas)
         if pack_toolbar:
             self.pack(side=tk.BOTTOM, fill=tk.X)
+
+    def _rescale(self):
+        """
+        Scale all children of the toolbar to current DPI setting.
+
+        Before this is called, the Tk scaling setting will have been updated to
+        match the new DPI. Tk widgets do not update for changes to scaling, but
+        all measurements made after the change will match the new scaling. Thus
+        this function re-applies all the same sizes in points, which Tk will
+        scale correctly to pixels.
+        """
+        for widget in self.winfo_children():
+            if isinstance(widget, (tk.Button, tk.Checkbutton)):
+                if hasattr(widget, '_image_file'):
+                    # Explicit class because ToolbarTk calls _rescale.
+                    NavigationToolbar2Tk._set_image_for_button(self, widget)
+                else:
+                    # Text-only button is handled by the font setting instead.
+                    pass
+            elif isinstance(widget, tk.Frame):
+                widget.configure(height='22p', pady='1p')
+                widget.pack_configure(padx='4p')
+            elif isinstance(widget, tk.Label):
+                pass  # Text is handled by the font setting instead.
+            else:
+                _log.warning('Unknown child class %s', widget.winfo_class)
+        self._label_font.configure(size=10)
 
     def _update_buttons_checked(self):
         # sync button checkstates to match active mode
@@ -558,15 +630,25 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         except tkinter.TclError:
             pass
 
+    def _set_image_for_button(self, button):
+        """
+        Set the image for a button based on its pixel size.
+
+        The pixel size is determined by the DPI scaling of the window.
+        """
+        if button._image_file is None:
+            return
+
+        size = button.winfo_pixels('18p')
+        with Image.open(button._image_file.replace('.png', '_large.png')
+                        if size > 24 else button._image_file) as im:
+            image = ImageTk.PhotoImage(im.resize((size, size)), master=self)
+        button.configure(image=image, height='18p', width='18p')
+        button._ntimage = image  # Prevent garbage collection.
+
     def _Button(self, text, image_file, toggle, command):
-        if tk.TkVersion >= 8.6:
-            PhotoImage = tk.PhotoImage
-        else:
-            from PIL.ImageTk import PhotoImage
-        image = (PhotoImage(master=self, file=image_file)
-                 if image_file is not None else None)
         if not toggle:
-            b = tk.Button(master=self, text=text, image=image, command=command)
+            b = tk.Button(master=self, text=text, command=command)
         else:
             # There is a bug in tkinter included in some python 3.6 versions
             # that without this variable, produces a "visual" toggling of
@@ -575,18 +657,22 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             # https://bugs.python.org/issue25684
             var = tk.IntVar(master=self)
             b = tk.Checkbutton(
-                master=self, text=text, image=image, command=command,
+                master=self, text=text, command=command,
                 indicatoron=False, variable=var)
             b.var = var
-        b._ntimage = image
+        b._image_file = image_file
+        if image_file is not None:
+            # Explicit class because ToolbarTk calls _Button.
+            NavigationToolbar2Tk._set_image_for_button(self, b)
+        else:
+            b.configure(font=self._label_font)
         b.pack(side=tk.LEFT)
         return b
 
     def _Spacer(self):
-        # Buttons are 30px high. Make this 26px tall +2px padding to center it.
-        s = tk.Frame(
-            master=self, height=26, relief=tk.RIDGE, pady=2, bg="DarkGray")
-        s.pack(side=tk.LEFT, padx=5)
+        # Buttons are also 18pt high.
+        s = tk.Frame(master=self, height='18p', relief=tk.RIDGE, bg='DarkGray')
+        s.pack(side=tk.LEFT, padx='3p')
         return s
 
     def save_figure(self, *args):
@@ -721,12 +807,17 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
         tk.Frame.__init__(self, master=window,
                           width=int(width), height=int(height),
                           borderwidth=2)
+        self._label_font = tkinter.font.Font(size=10)
         self._message = tk.StringVar(master=self)
-        self._message_label = tk.Label(master=self, textvariable=self._message)
+        self._message_label = tk.Label(master=self, font=self._label_font,
+                                       textvariable=self._message)
         self._message_label.pack(side=tk.RIGHT)
         self._toolitems = {}
         self.pack(side=tk.TOP, fill=tk.X)
         self._groups = {}
+
+    def _rescale(self):
+        return NavigationToolbar2Tk._rescale(self)
 
     def add_toolitem(
             self, name, group, position, image_file, description, toggle):
@@ -834,6 +925,7 @@ class _BackendTk(_Backend):
         with _restore_foreground_window_at_end():
             if cbook._get_running_interactive_framework() is None:
                 cbook._setup_new_guiapp()
+                _c_internal_utils.Win32_SetProcessDpiAwareness_max()
             window = tk.Tk(className="matplotlib")
             window.withdraw()
 

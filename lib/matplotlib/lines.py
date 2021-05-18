@@ -321,10 +321,6 @@ class Line2D(Artist):
             linestyle = rcParams['lines.linestyle']
         if marker is None:
             marker = rcParams['lines.marker']
-        if markerfacecolor is None:
-            markerfacecolor = rcParams['lines.markerfacecolor']
-        if markeredgecolor is None:
-            markeredgecolor = rcParams['lines.markeredgecolor']
         if color is None:
             color = rcParams['lines.color']
 
@@ -386,9 +382,9 @@ class Line2D(Artist):
         self._markerfacecolor = None
         self._markerfacecoloralt = None
 
-        self.set_markerfacecolor(markerfacecolor)
+        self.set_markerfacecolor(markerfacecolor)  # Normalizes None to rc.
         self.set_markerfacecoloralt(markerfacecoloralt)
-        self.set_markeredgecolor(markeredgecolor)
+        self.set_markeredgecolor(markeredgecolor)  # Normalizes None to rc.
         self.set_markeredgewidth(markeredgewidth)
 
         # update kwargs before updating data to give the caller a
@@ -1027,8 +1023,7 @@ class Line2D(Artist):
         ----------
         color : color
         """
-        if not cbook._str_equal(color, 'auto'):
-            mcolors._check_color_like(color=color)
+        mcolors._check_color_like(color=color)
         self._color = color
         self.stale = True
 
@@ -1147,6 +1142,20 @@ class Line2D(Artist):
         self._marker = MarkerStyle(marker, self._marker.get_fillstyle())
         self.stale = True
 
+    def _set_markercolor(self, name, has_rcdefault, val):
+        if val is None:
+            val = rcParams[f"lines.{name}"] if has_rcdefault else "auto"
+        attr = f"_{name}"
+        current = getattr(self, attr)
+        if current is None:
+            self.stale = True
+        else:
+            neq = current != val
+            # Much faster than `np.any(current != val)` if no arrays are used.
+            if neq.any() if isinstance(neq, np.ndarray) else neq:
+                self.stale = True
+        setattr(self, attr, val)
+
     def set_markeredgecolor(self, ec):
         """
         Set the marker edge color.
@@ -1155,12 +1164,27 @@ class Line2D(Artist):
         ----------
         ec : color
         """
-        if ec is None:
-            ec = 'auto'
-        if (self._markeredgecolor is None
-                or np.any(self._markeredgecolor != ec)):
-            self.stale = True
-        self._markeredgecolor = ec
+        self._set_markercolor("markeredgecolor", True, ec)
+
+    def set_markerfacecolor(self, fc):
+        """
+        Set the marker face color.
+
+        Parameters
+        ----------
+        fc : color
+        """
+        self._set_markercolor("markerfacecolor", True, fc)
+
+    def set_markerfacecoloralt(self, fc):
+        """
+        Set the alternate marker face color.
+
+        Parameters
+        ----------
+        fc : color
+        """
+        self._set_markercolor("markerfacecoloralt", False, fc)
 
     def set_markeredgewidth(self, ew):
         """
@@ -1176,34 +1200,6 @@ class Line2D(Artist):
         if self._markeredgewidth != ew:
             self.stale = True
         self._markeredgewidth = ew
-
-    def set_markerfacecolor(self, fc):
-        """
-        Set the marker face color.
-
-        Parameters
-        ----------
-        fc : color
-        """
-        if fc is None:
-            fc = 'auto'
-        if np.any(self._markerfacecolor != fc):
-            self.stale = True
-        self._markerfacecolor = fc
-
-    def set_markerfacecoloralt(self, fc):
-        """
-        Set the alternate marker face color.
-
-        Parameters
-        ----------
-        fc : color
-        """
-        if fc is None:
-            fc = 'auto'
-        if np.any(self._markerfacecoloralt != fc):
-            self.stale = True
-        self._markerfacecoloralt = fc
 
     def set_markersize(self, sz):
         """

@@ -172,15 +172,21 @@ FT2Image::draw_rect_filled(unsigned long x0, unsigned long y0, unsigned long x1,
 static FT_UInt ft_get_char_index_or_warn(FT_Face face, FT_ULong charcode)
 {
     FT_UInt glyph_index = FT_Get_Char_Index(face, charcode);
-    if (!glyph_index) {
-        PyErr_WarnFormat(NULL, 1, "Glyph %lu missing from current font.", charcode);
-        // Apparently PyErr_WarnFormat returns 0 even if the exception propagates
-        // due to running with -Werror, so check the error flag directly instead.
-        if (PyErr_Occurred()) {
-            throw py::exception();
-        }
+    if (glyph_index) {
+        return glyph_index;
     }
-    return glyph_index;
+    PyObject *text_helpers = NULL, *tmp = NULL;
+    if (!(text_helpers = PyImport_ImportModule("matplotlib._text_helpers")) ||
+        !(tmp = PyObject_CallMethod(text_helpers, "warn_on_missing_glyph", "k", charcode))) {
+        goto exit;
+    }
+exit:
+    Py_XDECREF(text_helpers);
+    Py_XDECREF(tmp);
+    if (PyErr_Occurred()) {
+        throw py::exception();
+    }
+    return 0;
 }
 
 
@@ -203,10 +209,10 @@ ft_outline_move_to(FT_Vector const* to, void* user)
     ft_outline_decomposer* d = reinterpret_cast<ft_outline_decomposer*>(user);
     if (d->codes) {
         if (d->index) {
-            // Appending ENDPOLY is important to make patheffects work.
+            // Appending CLOSEPOLY is important to make patheffects work.
             *(d->vertices++) = 0;
             *(d->vertices++) = 0;
-            *(d->codes++) = ENDPOLY;
+            *(d->codes++) = CLOSEPOLY;
         }
         *(d->vertices++) = to->x / 64.;
         *(d->vertices++) = to->y / 64.;
@@ -286,7 +292,7 @@ FT2Font::get_path()
                      "FT_Outline_Decompose failed with error 0x%x", error);
         return NULL;
     }
-    if (!decomposer.index) {  // Don't append ENDPOLY to null glyphs.
+    if (!decomposer.index) {  // Don't append CLOSEPOLY to null glyphs.
       npy_intp vertices_dims[2] = { 0, 2 };
       numpy::array_view<double, 2> vertices(vertices_dims);
       npy_intp codes_dims[1] = { 0 };
@@ -309,7 +315,7 @@ FT2Font::get_path()
     }
     *(decomposer.vertices++) = 0;
     *(decomposer.vertices++) = 0;
-    *(decomposer.codes++) = ENDPOLY;
+    *(decomposer.codes++) = CLOSEPOLY;
     return Py_BuildValue("NN", vertices.pyobj(), codes.pyobj());
 }
 

@@ -290,12 +290,12 @@ Including figures and files
 ---------------------------
 
 Image files can directly included in pages with the ``image::`` directive.
-e.g., :file:`thirdpartypackages/index.rst` displays the images for the third-party
-packages as static images::
+e.g., :file:`tutorials/intermediate/constrainedlayout_guide.py` displays 
+a couple of static images::
 
-    .. image:: /_static/toolbar.png
+  # .. image:: /_static/constrained_layout_1b.png
+  #    :align: center
 
-as rendered on the page: :ref:`thirdparty-index`.
 
 Files can be included verbatim.  For instance the ``LICENSE`` file is included
 at :ref:`license-agreement` using ::

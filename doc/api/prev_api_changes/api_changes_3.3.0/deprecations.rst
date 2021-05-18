@@ -162,7 +162,7 @@ The ``on_mappable_changed`` and ``update_bruteforce`` methods of
 `~matplotlib.colorbar.Colorbar` are deprecated; both can be replaced by calls
 to `~matplotlib.colorbar.Colorbar.update_normal`.
 
-``OldScalarFormatter``, ``IndexFormatter`` and ``DateIndexFormatter``
+``OldScalarFormatter``, ``IndexFormatter`` and ``IndexDateFormatter``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These formatters are deprecated.  Their functionality can be implemented using
 e.g. `.FuncFormatter`.
@@ -609,8 +609,8 @@ accepted.
 Qt modifier keys
 ~~~~~~~~~~~~~~~~
 The ``MODIFIER_KEYS``, ``SUPER``, ``ALT``, ``CTRL``, and ``SHIFT``
-global variables of the :mod:`matplotlib.backends.backend_qt4agg`,
-:mod:`matplotlib.backends.backend_qt4cairo`,
+global variables of the ``matplotlib.backends.backend_qt4agg``,
+``matplotlib.backends.backend_qt4cairo``,
 :mod:`matplotlib.backends.backend_qt5agg` and
 :mod:`matplotlib.backends.backend_qt5cairo` modules are deprecated.
 

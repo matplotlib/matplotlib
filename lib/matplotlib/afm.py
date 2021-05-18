@@ -312,7 +312,7 @@ def _parse_composites(fh):
             return composites
         vals = line.split(b';')
         cc = vals[0].split()
-        name, numParts = cc[1], _to_int(cc[2])
+        name, _num_parts = cc[1], _to_int(cc[2])
         pccParts = []
         for s in vals[1:-1]:
             pcc = s.split()
