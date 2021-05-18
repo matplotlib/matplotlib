@@ -747,11 +747,9 @@ class HandlerPolyCollection(HandlerBase):
                 return prop_array[0]
             else:
                 return None
-        edgecolor = getattr(orig_handle, '_original_edgecolor',
-                            orig_handle.get_edgecolor())
-        if edgecolor == 'face':
-            # let get_edgecolor handle this:
-            edgecolor = orig_handle.get_edgecolor()
+        edgecolor = orig_handle.get_edgecolor()
+        if edgecolor.size == 0:
+            edgecolor = None
         legend_handle.set_edgecolor(first_color(edgecolor))
         facecolor = getattr(orig_handle, '_original_facecolor',
                             orig_handle.get_facecolor())
