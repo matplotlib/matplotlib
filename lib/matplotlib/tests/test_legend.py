@@ -764,3 +764,10 @@ def test_plot_multiple_label_incorrect_length_exception():
         label = ['high', 'low', 'medium']
         fig, ax = plt.subplots()
         ax.plot(x, y, label=label)
+
+
+def test_legend_face_edgecolor():
+    fig, ax = plt.subplots()
+    ax.fill_between([0, 1, 2], [1, 2, 3], [2, 3, 4],
+                    facecolor='r', edgecolor='face', label='Fill')
+    ax.legend()
