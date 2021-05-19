@@ -1737,7 +1737,8 @@ class _SelectorWidget(AxesWidget):
                 self.canvas.draw()
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         if needs_redraw:
-            self.update()
+            for artist in self.artists:
+                self.ax.draw_artist(artist)
 
     def connect_default_events(self):
         """Connect the major canvas events to methods."""
