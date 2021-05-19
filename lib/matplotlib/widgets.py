@@ -1782,6 +1782,8 @@ class _SelectorWidget(AxesWidget):
         if self.useblit:
             if self.background is not None:
                 self.canvas.restore_region(self.background)
+            else:
+                self.update_background(None)
             for artist in self.artists:
                 self.ax.draw_artist(artist)
             self.canvas.blit(self.ax.bbox)
