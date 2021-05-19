@@ -1154,7 +1154,7 @@ class PathCollection(_CollectionWithSizes):
             label_values_max = label_values.max()
             fmt.axis.set_view_interval(label_values_min, label_values_max)
             fmt.axis.set_data_interval(label_values_min, label_values_max)
-            
+
             if num is not None:
                 # Labels are numerical but larger than the target
                 # number of elements, reduce to target using matplotlibs
