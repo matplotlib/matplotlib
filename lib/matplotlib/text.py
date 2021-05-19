@@ -1130,7 +1130,9 @@ class Text(Artist):
 
     def set_fontstretch(self, stretch):
         """
-        Set the font stretch (horizontal condensation or expansion).
+        This property is not currently implemented.
+        
+        Sets the font stretch (horizontal condensation or expansion).
 
         Parameters
         ----------
