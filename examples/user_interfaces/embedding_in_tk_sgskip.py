@@ -46,7 +46,7 @@ def update_frequency(new_val):
 
     # update data
     y = 2 * np.sin(2 * np.pi * f * t)
-    line[0].set_data(t, y)
+    line.set_data(t, y)
 
     # required to update canvas and attached toolbar!
     canvas.draw()
