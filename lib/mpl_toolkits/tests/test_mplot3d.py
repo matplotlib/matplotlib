@@ -1590,7 +1590,7 @@ def test_view_init_vertical_axis(
     axis_lines_expected : tuple of arrays
         Edgepoints of the axis line. Expected values retrieved according
         to ``ax.get_[xyz]axis().line.get_data()``.
-    tickdirs_expected : list of integers
+    tickdirs_expected : list of int
         indexes indicating which axis to create a tick line along.
     """
     rtol = 2e-06
