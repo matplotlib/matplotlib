@@ -228,8 +228,8 @@ class RendererBase:
         *offsets* are first transformed by *offsetTrans* before being
         applied.
 
-        *offset_position* may be either "screen" or "data" depending on the
-        space that the offsets are in; "data" is deprecated.
+        *offset_position* is unused now, but the argument is kept for
+        backwards compatibility.
 
         This provides a fallback implementation of
         :meth:`draw_path_collection` that makes multiple calls to
@@ -401,11 +401,6 @@ class RendererBase:
         Naa = len(antialiaseds)
         Nurls = len(urls)
 
-        if offset_position == "data":
-            _api.warn_deprecated(
-                "3.3", message="Support for offset_position='data' is "
-                "deprecated since %(since)s and will be removed %(removal)s.")
-
         if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
             return
         if Noffsets:
@@ -425,17 +420,6 @@ class RendererBase:
             path_id = path_ids[i % Npaths]
             if Noffsets:
                 xo, yo = toffsets[i % Noffsets]
-                if offset_position == 'data':
-                    if Ntransforms:
-                        transform = (
-                            Affine2D(all_transforms[i % Ntransforms]) +
-                            master_transform)
-                    else:
-                        transform = master_transform
-                    (xo, yo), (xp, yp) = transform.transform(
-                        [(xo, yo), (0, 0)])
-                    xo = -(xp - xo)
-                    yo = -(yp - yo)
             if not (np.isfinite(xo) and np.isfinite(yo)):
                 continue
             if Nfacecolors:

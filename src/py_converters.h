@@ -34,7 +34,6 @@ int convert_trans_affine(PyObject *obj, void *transp);
 int convert_path(PyObject *obj, void *pathp);
 int convert_clippath(PyObject *clippath_tuple, void *clippathp);
 int convert_snap(PyObject *obj, void *snapp);
-int convert_offset_position(PyObject *obj, void *offsetp);
 int convert_sketch_params(PyObject *obj, void *sketchp);
 int convert_gcagg(PyObject *pygc, void *gcp);
 int convert_points(PyObject *pygc, void *pointsp);

@@ -109,9 +109,7 @@ class RendererAgg(RendererBase):
         self.draw_gouraud_triangles = self._renderer.draw_gouraud_triangles
         self.draw_image = self._renderer.draw_image
         self.draw_markers = self._renderer.draw_markers
-        # This is its own method for the duration of the deprecation of
-        # offset_position = "data".
-        # self.draw_path_collection = self._renderer.draw_path_collection
+        self.draw_path_collection = self._renderer.draw_path_collection
         self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.copy_from_bbox = self._renderer.copy_from_bbox
 
@@ -162,19 +160,6 @@ class RendererAgg(RendererBase):
             except OverflowError as err:
                 raise OverflowError("Exceeded cell block limit (set "
                                     "'agg.path.chunksize' rcparam)") from err
-
-    def draw_path_collection(self, gc, master_transform, paths, all_transforms,
-                             offsets, offsetTrans, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds, urls,
-                             offset_position):
-        if offset_position == "data":
-            _api.warn_deprecated(
-                "3.3", message="Support for offset_position='data' is "
-                "deprecated since %(since)s and will be removed %(removal)s.")
-        return self._renderer.draw_path_collection(
-            gc, master_transform, paths, all_transforms, offsets, offsetTrans,
-            facecolors, edgecolors, linewidths, linestyles, antialiaseds, urls,
-            offset_position)
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """Draw mathtext using :mod:`matplotlib.mathtext`."""
