@@ -31,7 +31,6 @@ from matplotlib import cbook
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 import matplotlib.collections as mcoll
-import matplotlib.colors as mcolors
 
 
 def update_from_first_child(tgt, src):
