@@ -1994,6 +1994,10 @@ class SpanSelector(_SelectorWidget):
         self.visible = True
         self._extents_on_press = None
 
+        # self._pressv is deprecated and we don't use it internally anymore
+        # but we maintain it until it is removed
+        self._pressv = None
+
         self.rectprops = rectprops
         self.onmove_callback = onmove_callback
         self.minspan = minspan
@@ -2056,13 +2060,25 @@ class SpanSelector(_SelectorWidget):
             # Clear previous rectangle before drawing new rectangle.
             self.update()
 
+        v = event.xdata if self.direction == 'horizontal' else event.ydata
+        # self._pressv is deprecated but we still need to maintain it
+        self._pressv = v
         if not self.interactive:
-            v = event.xdata if self.direction == 'horizontal' else event.ydata
             self.extents = v, v
 
         self.set_visible(self.visible)
 
         return False
+
+    @_api.deprecated("3.5")
+    @property
+    def pressv(self):
+        return self._pressv
+
+    @_api.deprecated("3.5")
+    @pressv.setter
+    def pressv(self, value):
+        self._pressv = value
 
     def _release(self, event):
         """Button release event handler."""
@@ -2078,6 +2094,9 @@ class SpanSelector(_SelectorWidget):
 
         self.onselect(vmin, vmax)
         self.update()
+
+        # self._pressv is deprecated but we still need to maintain it
+        self._pressv = None
 
         return False
 
