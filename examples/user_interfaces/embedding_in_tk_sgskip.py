@@ -22,7 +22,7 @@ root.wm_title("Embedding in Tk")
 fig = Figure(figsize=(5, 4), dpi=100)
 t = np.arange(0, 3, .01)
 ax = fig.add_subplot()
-line = ax.plot(t, 2 * np.sin(2 * np.pi * t))
+line, = ax.plot(t, 2 * np.sin(2 * np.pi * t))
 ax.set_xlabel("time [s]")
 ax.set_ylabel("f(t)")
 
