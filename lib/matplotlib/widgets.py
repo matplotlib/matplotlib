@@ -1933,10 +1933,6 @@ class SpanSelector(_SelectorWidget):
     rectprops : dict, default: None
         Dictionary of `matplotlib.patches.Patch` properties.
 
-    maxdist : float, default: 10
-        Distance in pixels within which the interactive tool handles can be
-        activated.
-
     marker_props : dict
         Properties with which the interactive handles are drawn.
 
@@ -1953,6 +1949,10 @@ class SpanSelector(_SelectorWidget):
 
     button : `.MouseButton` or list of `.MouseButton`
         The mouse buttons which activate the span selector.
+
+    maxdist : float, default: 10
+        Distance in pixels within which the interactive tool handles can be
+        activated.
 
     drag_from_anywhere : bool, optional
         If `True`, the widget can be moved by clicking anywhere within
@@ -1976,9 +1976,9 @@ class SpanSelector(_SelectorWidget):
 
     @_api.rename_parameter("3.5", "span_stays", "interactive")
     def __init__(self, ax, onselect, direction, minspan=0, useblit=False,
-                 rectprops=None, maxdist=10, marker_props=None,
-                 onmove_callback=None, interactive=False,
-                 button=None, drag_from_anywhere=False):
+                 rectprops=None, marker_props=None, onmove_callback=None,
+                 interactive=False, button=None,
+                 maxdist=10, drag_from_anywhere=False):
 
         super().__init__(ax, onselect, useblit=useblit, button=button)
 
