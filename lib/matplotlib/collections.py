@@ -1214,6 +1214,22 @@ class PathCollection(_CollectionWithSizes):
 
         for val, lab in zip(values, label_values):
             color, size = _get_color_and_size(val)
+
+            # TODO: s=0: This is hard to test and breaks for users using
+            # small numbers, consider removing it because:
+            # * Not showing everything that's plotted is weird.
+            # * It is not documented.
+            # * It is currently not tested for.
+            # * It is more efficient to mask away bad data before
+            #   plotting then removing.
+            # * Users can't change the np.isclose() parameters, so maybe
+            #   there's some user out there working with small numbers and
+            #   needs to change the parameters. So it's better to just let
+            #   the user filter out points close to 0 before plotting the data.
+            if prop == "sizes":
+                if np.isclose(size, 0.0):
+                    continue
+
             h = mlines.Line2D([0], [0], ls="", color=color, ms=size,
                               marker=self.get_paths()[0], **kw)
             handles.append(h)
