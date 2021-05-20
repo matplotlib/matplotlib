@@ -602,9 +602,7 @@ def test_scatter_alpha_array():
 
 
 def test_pathcollection_legend_elements():
-    # TODO: s=0: Crashes the test because sizes close to zero are removed:
-    # random = np.random.RandomState(3)
-    random = np.random.RandomState(5)
+    random = np.random.RandomState(3)
     x, y = random.rand(2, 10)
     c = random.randint(0, 5, size=10)
     s = random.randint(0, 300, size=10)
@@ -647,8 +645,7 @@ def test_pathcollection_legend_elements():
 
     levels = [-1, 0, 0.5 * max(s), 0.75 * max(s)]
     h6, lab6 = sc.legend_elements(num=levels, prop="sizes", fmt="{x:g}")
-    # TODO: s=0: Use levels[1:] instead:
-    assert_array_equal(np.array(lab6).astype(float), levels[2:])
+    assert_array_equal(np.array(lab6).astype(float), levels[1:])
 
     def num2str(x):
         """Convert number back to string."""
