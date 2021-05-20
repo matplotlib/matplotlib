@@ -3409,116 +3409,66 @@ class Axes(_AxesBase):
         barcols = []
         caplines = []
 
-        # arrays fine here, they are booleans and hence not units
-        lolims = np.broadcast_to(lolims, len(x)).astype(bool)
-        uplims = np.broadcast_to(uplims, len(x)).astype(bool)
-        xlolims = np.broadcast_to(xlolims, len(x)).astype(bool)
-        xuplims = np.broadcast_to(xuplims, len(x)).astype(bool)
-
         # Vectorized fancy-indexer.
         def apply_mask(arrays, mask): return [array[mask] for array in arrays]
 
-        def extract_err(name, err, data, lolims, uplims):
-            """
-            Private function to compute error bars.
-
-            Parameters
-            ----------
-            name : {'x', 'y'}
-                Name used in the error message.
-            err : array-like
-                xerr or yerr from errorbar().
-            data : array-like
-                x or y from errorbar().
-            lolims : array-like
-                Error is only applied on **upper** side when this is True.  See
-                the note in the main docstring about this parameter's name.
-            uplims : array-like
-                Error is only applied on **lower** side when this is True.  See
-                the note in the main docstring about this parameter's name.
-            """
+        # dep: dependent dataset, indep: independent dataset
+        for (dep_axis, dep, err, lolims, uplims, indep, lines_func,
+             marker, lomarker, himarker) in [
+                ("x", x, xerr, xlolims, xuplims, y, self.hlines,
+                 "|", mlines.CARETRIGHTBASE, mlines.CARETLEFTBASE),
+                ("y", y, yerr, lolims, uplims, x, self.vlines,
+                 "_", mlines.CARETUPBASE, mlines.CARETDOWNBASE),
+        ]:
+            if err is None:
+                continue
+            lolims = np.broadcast_to(lolims, len(dep)).astype(bool)
+            uplims = np.broadcast_to(uplims, len(dep)).astype(bool)
             try:
-                np.broadcast_to(err, (2, len(data)))
+                np.broadcast_to(err, (2, len(dep)))
             except ValueError:
                 raise ValueError(
-                    f"'{name}err' (shape: {np.shape(err)}) must be a scalar "
-                    f"or a 1D or (2, n) array-like whose shape matches "
-                    f"'{name}' (shape: {np.shape(data)})") from None
+                    f"'{dep_axis}err' (shape: {np.shape(err)}) must be a "
+                    f"scalar or a 1D or (2, n) array-like whose shape matches "
+                    f"'{dep_axis}' (shape: {np.shape(dep)})") from None
             # This is like
-            #     low, high = np.broadcast_to(...)
-            #     return data - low * ~lolims, data + high * ~uplims
+            #     elow, ehigh = np.broadcast_to(...)
+            #     return dep - elow * ~lolims, dep + ehigh * ~uplims
             # except that broadcast_to would strip units.
-            return data + np.row_stack([-(1 - lolims), 1 - uplims]) * err
+            low, high = dep + np.row_stack([-(1 - lolims), 1 - uplims]) * err
 
-        if xerr is not None:
-            left, right = extract_err('x', xerr, x, xlolims, xuplims)
-            barcols.append(self.hlines(
-                *apply_mask([y, left, right], everymask), **eb_lines_style))
-            # select points without upper/lower limits in x and
-            # draw normal errorbars for these points
-            noxlims = ~(xlolims | xuplims)
-            if noxlims.any() and capsize > 0:
-                yo, lo, ro = apply_mask([y, left, right], noxlims & everymask)
-                caplines.extend([
-                    mlines.Line2D(lo, yo, marker='|', **eb_cap_style),
-                    mlines.Line2D(ro, yo, marker='|', **eb_cap_style)])
-            if xlolims.any():
-                xo, yo, ro = apply_mask([x, y, right], xlolims & everymask)
-                if self.xaxis_inverted():
-                    marker = mlines.CARETLEFTBASE
-                else:
-                    marker = mlines.CARETRIGHTBASE
-                caplines.append(mlines.Line2D(
-                    ro, yo, ls='None', marker=marker, **eb_cap_style))
+            barcols.append(lines_func(
+                *apply_mask([indep, low, high], everymask), **eb_lines_style))
+            # Normal errorbars for points without upper/lower limits.
+            nolims = ~(lolims | uplims)
+            if nolims.any() and capsize > 0:
+                indep_masked, lo_masked, hi_masked = apply_mask(
+                    [indep, low, high], nolims & everymask)
+                for lh_masked in [lo_masked, hi_masked]:
+                    # Since this has to work for x and y as dependent data, we
+                    # first set both x and y to the independent variable and
+                    # overwrite the respective dependent data in a second step.
+                    line = mlines.Line2D(indep_masked, indep_masked,
+                                         marker=marker, **eb_cap_style)
+                    line.set(**{f"{dep_axis}data": lh_masked})
+                    caplines.append(line)
+            for idx, (lims, hl) in enumerate([(lolims, high), (uplims, low)]):
+                if not lims.any():
+                    continue
+                hlmarker = (
+                    himarker
+                    if getattr(self, f"{dep_axis}axis").get_inverted() ^ idx
+                    else lomarker)
+                x_masked, y_masked, hl_masked = apply_mask(
+                    [x, y, hl], lims & everymask)
+                # As above, we set the dependent data in a second step.
+                line = mlines.Line2D(x_masked, y_masked,
+                                     marker=hlmarker, **eb_cap_style)
+                line.set(**{f"{dep_axis}data": hl_masked})
+                caplines.append(line)
                 if capsize > 0:
                     caplines.append(mlines.Line2D(
-                        xo, yo, marker='|', **eb_cap_style))
-            if xuplims.any():
-                xo, yo, lo = apply_mask([x, y, left], xuplims & everymask)
-                if self.xaxis_inverted():
-                    marker = mlines.CARETRIGHTBASE
-                else:
-                    marker = mlines.CARETLEFTBASE
-                caplines.append(mlines.Line2D(
-                    lo, yo, ls='None', marker=marker, **eb_cap_style))
-                if capsize > 0:
-                    caplines.append(mlines.Line2D(
-                        xo, yo, marker='|', **eb_cap_style))
-
-        if yerr is not None:
-            lower, upper = extract_err('y', yerr, y, lolims, uplims)
-            barcols.append(self.vlines(
-                *apply_mask([x, lower, upper], everymask), **eb_lines_style))
-            # select points without upper/lower limits in y and
-            # draw normal errorbars for these points
-            noylims = ~(lolims | uplims)
-            if noylims.any() and capsize > 0:
-                xo, lo, uo = apply_mask([x, lower, upper], noylims & everymask)
-                caplines.extend([
-                    mlines.Line2D(xo, lo, marker='_', **eb_cap_style),
-                    mlines.Line2D(xo, uo, marker='_', **eb_cap_style)])
-            if lolims.any():
-                xo, yo, uo = apply_mask([x, y, upper], lolims & everymask)
-                if self.yaxis_inverted():
-                    marker = mlines.CARETDOWNBASE
-                else:
-                    marker = mlines.CARETUPBASE
-                caplines.append(mlines.Line2D(
-                    xo, uo, ls='None', marker=marker, **eb_cap_style))
-                if capsize > 0:
-                    caplines.append(mlines.Line2D(
-                        xo, yo, marker='_', **eb_cap_style))
-            if uplims.any():
-                xo, yo, lo = apply_mask([x, y, lower], uplims & everymask)
-                if self.yaxis_inverted():
-                    marker = mlines.CARETUPBASE
-                else:
-                    marker = mlines.CARETDOWNBASE
-                caplines.append(mlines.Line2D(
-                    xo, lo, ls='None', marker=marker, **eb_cap_style))
-                if capsize > 0:
-                    caplines.append(mlines.Line2D(
-                        xo, yo, marker='_', **eb_cap_style))
+                        x_masked, y_masked, marker=marker, **eb_cap_style))
 
         for l in caplines:
             self.add_line(l)
