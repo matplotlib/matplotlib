@@ -174,13 +174,12 @@ class Text(Artist):
         # docstring inherited
         # make a copy so we do not mutate user input!
         kwargs = dict(kwargs)
+        kwargs = cbook.normalize_kwargs(kwargs, Text)
         sentinel = object()  # bbox can be None, so use another sentinel.
         # Update fontproperties first, as it has lowest priority.
-        alias_map = ["fontproperties", *self._alias_map["fontproperties"]]
-        for alias in alias_map:
-            fontproperties = kwargs.pop(alias, sentinel)
-            if fontproperties is not sentinel:
-                self.set_fontproperties(fontproperties)
+        fontproperties = kwargs.pop("fontproperties", sentinel)
+        if fontproperties is not sentinel:
+            self.set_fontproperties(fontproperties)
         # Update bbox last, as it depends on font properties.
         bbox = kwargs.pop("bbox", sentinel)
         super().update(kwargs)
