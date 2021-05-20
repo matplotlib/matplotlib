@@ -2813,12 +2813,13 @@ class Parser:
         return self._genfrac('(', ')', 0.0, self._MathStyle.TEXTSTYLE,
                              num, den)
 
-    def _genset(self, state, annotation, body, overunder):
+    def _genset(self, s, loc, toks):
+        (annotation, body), = toks
+        state = self.get_state()
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
 
         annotation.shrink()
-
         cannotation = HCentered([annotation])
         cbody = HCentered([body])
         width = max(cannotation.width, cbody.width)
@@ -2826,16 +2827,14 @@ class Parser:
         cbody.hpack(width, 'exactly')
 
         vgap = thickness * 3
-        if overunder == "under":
+        if s[loc + 1] == "u":  # \underset
             vlist = Vlist([cbody,                       # body
                            Vbox(0, vgap),               # space
                            cannotation                  # annotation
                            ])
             # Shift so the body sits in the same vertical position
-            shift_amount = cbody.depth + cannotation.height + vgap
-
-            vlist.shift_amount = shift_amount
-        else:
+            vlist.shift_amount = cbody.depth + cannotation.height + vgap
+        else:  # \overset
             vlist = Vlist([cannotation,                 # annotation
                            Vbox(0, vgap),               # space
                            cbody                        # body
@@ -2844,6 +2843,8 @@ class Parser:
         # To add horizontal gap between symbols: wrap the Vlist into
         # an Hlist and extend it with an Hbox(0, horizontal_gap)
         return vlist
+
+    overset = underset = _genset
 
     def sqrt(self, s, loc, toks):
         (root, body), = toks
@@ -2904,24 +2905,6 @@ class Parser:
 
         hlist = Hlist([rightside])
         return [hlist]
-
-    def overset(self, s, loc, toks):
-        assert len(toks) == 1
-        assert len(toks[0]) == 2
-
-        state = self.get_state()
-        annotation, body = toks[0]
-
-        return self._genset(state, annotation, body, overunder="over")
-
-    def underset(self, s, loc, toks):
-        assert len(toks) == 1
-        assert len(toks[0]) == 2
-
-        state = self.get_state()
-        annotation, body = toks[0]
-
-        return self._genset(state, annotation, body, overunder="under")
 
     def _auto_sized_delimiter(self, front, middle, back):
         state = self.get_state()
