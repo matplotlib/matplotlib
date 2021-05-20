@@ -528,22 +528,23 @@ class Axes(maxes.Axes):
     def get_grid_helper(self):
         return self._grid_helper
 
-    def grid(self, b=None, which='major', axis="both", **kwargs):
+    @_api.rename_parameter("3.5", "b", "visible")
+    def grid(self, visible=None, which='major', axis="both", **kwargs):
         """
         Toggle the gridlines, and optionally set the properties of the lines.
         """
         # There are some discrepancies in the behavior of grid() between
         # axes_grid and Matplotlib, because axes_grid explicitly sets the
         # visibility of the gridlines.
-        super().grid(b, which=which, axis=axis, **kwargs)
+        super().grid(visible, which=which, axis=axis, **kwargs)
         if not self._axisline_on:
             return
-        if b is None:
-            b = (self.axes.xaxis._minor_tick_kw["gridOn"]
-                 or self.axes.xaxis._major_tick_kw["gridOn"]
-                 or self.axes.yaxis._minor_tick_kw["gridOn"]
-                 or self.axes.yaxis._major_tick_kw["gridOn"])
-        self.gridlines.set(which=which, axis=axis, visible=b)
+        if visible is None:
+            visible = (self.axes.xaxis._minor_tick_kw["gridOn"]
+                       or self.axes.xaxis._major_tick_kw["gridOn"]
+                       or self.axes.yaxis._minor_tick_kw["gridOn"]
+                       or self.axes.yaxis._major_tick_kw["gridOn"])
+        self.gridlines.set(which=which, axis=axis, visible=visible)
         self.gridlines.set(**kwargs)
 
     def get_children(self):

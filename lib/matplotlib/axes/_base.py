@@ -3191,17 +3191,18 @@ class _AxesBase(martist.Artist):
         self.stale = True
 
     @docstring.dedent_interpd
-    def grid(self, b=None, which='major', axis='both', **kwargs):
+    @_api.rename_parameter("3.5", "b", "visible")
+    def grid(self, visible=None, which='major', axis='both', **kwargs):
         """
         Configure the grid lines.
 
         Parameters
         ----------
-        b : bool or None, optional
-            Whether to show the grid lines. If any *kwargs* are supplied,
-            it is assumed you want the grid on and *b* will be set to True.
+        visible : bool or None, optional
+            Whether to show the grid lines.  If any *kwargs* are supplied, it
+            is assumed you want the grid on and *visible* will be set to True.
 
-            If *b* is *None* and there are no *kwargs*, this toggles the
+            If *visible* is *None* and there are no *kwargs*, this toggles the
             visibility of the lines.
 
         which : {'major', 'minor', 'both'}, optional
@@ -3229,9 +3230,9 @@ class _AxesBase(martist.Artist):
         """
         _api.check_in_list(['x', 'y', 'both'], axis=axis)
         if axis in ['x', 'both']:
-            self.xaxis.grid(b, which=which, **kwargs)
+            self.xaxis.grid(visible, which=which, **kwargs)
         if axis in ['y', 'both']:
-            self.yaxis.grid(b, which=which, **kwargs)
+            self.yaxis.grid(visible, which=which, **kwargs)
 
     def ticklabel_format(self, *, axis='both', style='', scilimits=None,
                          useOffset=None, useLocale=None, useMathText=None):

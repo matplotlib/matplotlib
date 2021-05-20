@@ -1371,7 +1371,8 @@ class Axes3D(Axes):
         self._frameon = bool(b)
         self.stale = True
 
-    def grid(self, b=True, **kwargs):
+    @_api.rename_parameter("3.5", "b", "visible")
+    def grid(self, visible=True, **kwargs):
         """
         Set / unset 3D grid.
 
@@ -1383,8 +1384,8 @@ class Axes3D(Axes):
         """
         # TODO: Operate on each axes separately
         if len(kwargs):
-            b = True
-        self._draw_grid = b
+            visible = True
+        self._draw_grid = visible
         self.stale = True
 
     def locator_params(self, axis='both', tight=None, **kwargs):
