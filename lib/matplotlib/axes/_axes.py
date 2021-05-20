@@ -5603,7 +5603,7 @@ default: :rc:`scatter.edgecolors`
         self.add_image(im)
         return im
 
-    def _pcolorargs(self, funcname, *args, shading='flat', **kwargs):
+    def _pcolorargs(self, funcname, *args, shading='auto', **kwargs):
         # - create X and Y if not present;
         # - reshape X and Y as needed if they are 1-D;
         # - check for proper sizes based on `shading` kwarg;
@@ -5675,25 +5675,16 @@ default: :rc:`scatter.edgecolors`
                 shading = 'flat'
 
         if shading == 'flat':
-            if not (ncols in (Nx, Nx - 1) and nrows in (Ny, Ny - 1)):
+            if (Nx, Ny) != (ncols + 1, nrows + 1):
                 raise TypeError('Dimensions of C %s are incompatible with'
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
-            if (ncols == Nx or nrows == Ny):
-                _api.warn_deprecated(
-                    "3.3", message="shading='flat' when X and Y have the same "
-                    "dimensions as C is deprecated since %(since)s.  Either "
-                    "specify the corners of the quadrilaterals with X and Y, "
-                    "or pass shading='auto', 'nearest' or 'gouraud', or set "
-                    "rcParams['pcolor.shading'].  This will become an error "
-                    "%(removal)s.")
-            C = C[:Ny - 1, :Nx - 1]
         else:    # ['nearest', 'gouraud']:
             if (Nx, Ny) != (ncols, nrows):
                 raise TypeError('Dimensions of C %s are incompatible with'
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
-            if shading in ['nearest', 'auto']:
+            if shading == 'nearest':
                 # grid is specified at the center, so define corners
                 # at the midpoints between the grid centers and then use the
                 # flat algorithm.
