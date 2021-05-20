@@ -172,8 +172,6 @@ class Text(Artist):
 
     def update(self, kwargs):
         # docstring inherited
-        # make a copy so we do not mutate user input!
-        kwargs = dict(kwargs)
         kwargs = cbook.normalize_kwargs(kwargs, Text)
         sentinel = object()  # bbox can be None, so use another sentinel.
         # Update fontproperties first, as it has lowest priority.
