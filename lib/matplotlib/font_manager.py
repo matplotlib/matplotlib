@@ -264,6 +264,8 @@ def _win32RegistryFonts(reg_domain, base_dir):
     return items
 
 
+# Also remove _win32RegistryFonts when this is removed.
+@_api.deprecated("3.5")
 def win32InstalledFonts(directory=None, fontext='ttf'):
     """
     Search for fonts in the specified font directory, or use the
@@ -291,9 +293,41 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
     return [str(path) for path in items if path.suffix.lower() in fontext]
 
 
+def _get_win32_installed_fonts():
+    """List the font paths known to the Windows registry."""
+    import winreg
+    items = set()
+    # Search and resolve fonts listed in the registry.
+    for domain, base_dirs in [
+            (winreg.HKEY_LOCAL_MACHINE, [win32FontDirectory()]),  # System.
+            (winreg.HKEY_CURRENT_USER, MSUserFontDirectories),  # User.
+    ]:
+        for base_dir in base_dirs:
+            for reg_path in MSFontDirectories:
+                try:
+                    with winreg.OpenKey(domain, reg_path) as local:
+                        for j in range(winreg.QueryInfoKey(local)[1]):
+                            # value may contain the filename of the font or its
+                            # absolute path.
+                            key, value, tp = winreg.EnumValue(local, j)
+                            if not isinstance(value, str):
+                                continue
+                            try:
+                                # If value contains already an absolute path,
+                                # then it is not changed further.
+                                path = Path(base_dir, value).resolve()
+                            except RuntimeError:
+                                # Don't fail with invalid entries.
+                                continue
+                            items.add(path)
+                except (OSError, MemoryError):
+                    continue
+    return items
+
+
 @lru_cache()
-def _call_fc_list():
-    """Cache and list the font filenames known to `fc-list`."""
+def _get_fontconfig_fonts():
+    """Cache and list the font paths known to `fc-list`."""
     try:
         if b'--format' not in subprocess.check_output(['fc-list', '--help']):
             _log.warning(  # fontconfig 2.7 implemented --format.
@@ -302,14 +336,15 @@ def _call_fc_list():
         out = subprocess.check_output(['fc-list', '--format=%{file}\\n'])
     except (OSError, subprocess.CalledProcessError):
         return []
-    return [os.fsdecode(fname) for fname in out.split(b'\n')]
+    return [Path(os.fsdecode(fname)) for fname in out.split(b'\n')]
 
 
+@_api.deprecated("3.5")
 def get_fontconfig_fonts(fontext='ttf'):
     """List font filenames known to `fc-list` having the given extension."""
     fontext = ['.' + ext for ext in get_fontext_synonyms(fontext)]
-    return [fname for fname in _call_fc_list()
-            if Path(fname).suffix.lower() in fontext]
+    return [str(path) for path in _get_fontconfig_fonts()
+            if path.suffix.lower() in fontext]
 
 
 def findSystemFonts(fontpaths=None, fontext='ttf'):
@@ -325,14 +360,16 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
 
     if fontpaths is None:
         if sys.platform == 'win32':
+            installed_fonts = _get_win32_installed_fonts()
             fontpaths = MSUserFontDirectories + [win32FontDirectory()]
-            # now get all installed fonts directly...
-            fontfiles.update(win32InstalledFonts(fontext=fontext))
         else:
-            fontpaths = X11FontDirectories
+            installed_fonts = _get_fontconfig_fonts()
             if sys.platform == 'darwin':
                 fontpaths = [*X11FontDirectories, *OSXFontDirectories]
-            fontfiles.update(get_fontconfig_fonts(fontext))
+            else:
+                fontpaths = X11FontDirectories
+        fontfiles.update(str(path) for path in installed_fonts
+                         if path.suffix.lower()[1:] in fontexts)
 
     elif isinstance(fontpaths, str):
         fontpaths = [fontpaths]
