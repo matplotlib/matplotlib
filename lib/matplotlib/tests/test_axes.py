@@ -1243,22 +1243,14 @@ def test_pcolornearestunits(fig_test, fig_ref):
     ax.pcolormesh(x2, y2, Z, shading='nearest')
 
 
-@check_figures_equal(extensions=["png"])
-def test_pcolordropdata(fig_test, fig_ref):
-    ax = fig_test.subplots()
-    x = np.arange(0, 10)
-    y = np.arange(0, 4)
+def test_pcolorflaterror():
+    fig, ax = plt.subplots()
+    x = np.arange(0, 9)
+    y = np.arange(0, 3)
     np.random.seed(19680801)
     Z = np.random.randn(3, 9)
-    # fake dropping the data
-    ax.pcolormesh(x[:-1], y[:-1], Z[:-1, :-1], shading='flat')
-
-    ax = fig_ref.subplots()
-    # test dropping the data...
-    x2 = x[:-1]
-    y2 = y[:-1]
-    with pytest.warns(MatplotlibDeprecationWarning):
-        ax.pcolormesh(x2, y2, Z, shading='flat')
+    with pytest.raises(TypeError, match='Dimensions of C'):
+        ax.pcolormesh(x, y, Z, shading='flat')
 
 
 @check_figures_equal(extensions=["png"])
@@ -1268,13 +1260,15 @@ def test_pcolorauto(fig_test, fig_ref):
     y = np.arange(0, 4)
     np.random.seed(19680801)
     Z = np.random.randn(3, 9)
-    ax.pcolormesh(x, y, Z, shading='auto')
+    # this is the same as flat; note that auto is default
+    ax.pcolormesh(x, y, Z)
 
     ax = fig_ref.subplots()
     # specify the centers
     x2 = x[:-1] + np.diff(x) / 2
     y2 = y[:-1] + np.diff(y) / 2
-    ax.pcolormesh(x2, y2, Z, shading='auto')
+    # this is same as nearest:
+    ax.pcolormesh(x2, y2, Z)
 
 
 @image_comparison(['canonical'])
