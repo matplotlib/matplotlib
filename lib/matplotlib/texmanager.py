@@ -110,12 +110,12 @@ class TexManager:
 
         # The following packages and commands need to be included in the latex
         # file's preamble:
-        cmd = [fonts['serif'][1],
-               fonts['sans-serif'][1],
-               fonts['monospace'][1]]
+        cmd = {fonts[family][1]
+               for family in ['serif', 'sans-serif', 'monospace']}
         if self.font_family == 'cursive':
-            cmd.append(fonts['cursive'][1])
-        self._font_preamble = '\n'.join([r'\usepackage{type1cm}', *cmd])
+            cmd.add(fonts['cursive'][1])
+        cmd.add(r'\usepackage{type1cm}')
+        self._font_preamble = '\n'.join(sorted(cmd))
 
         return ''.join(fontconfig)
 
