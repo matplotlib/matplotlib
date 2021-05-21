@@ -1,6 +1,6 @@
 r"""
 *************************
-Text rendering With LaTeX
+Text rendering with LaTeX
 *************************
 
 Matplotlib can use LaTeX to render text.  This is activated by setting
@@ -50,7 +50,7 @@ matplotlibrc use::
   })
 
 Here is the standard example,
-:file:`/gallery/text_labels_and_annotations/tex_demo`:
+:doc:`/gallery/text_labels_and_annotations/tex_demo`:
 
 .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_tex_demo_001.png
    :target: ../../gallery/text_labels_and_annotations/tex_demo.html
@@ -131,7 +131,7 @@ Troubleshooting
   problems. Please disable this option before reporting problems to
   the mailing list.
 
-* If you still need help, please see :ref:`reporting-problems`
+* If you still need help, please see :ref:`reporting-problems`.
 
 .. _dvipng: http://www.nongnu.org/dvipng/
 .. _dvips: https://tug.org/texinfohtml/dvips.html

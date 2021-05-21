@@ -1,6 +1,6 @@
 r"""
 *********************************
-Typesetting With XeLaTeX/LuaLaTeX
+Typesetting with XeLaTeX/LuaLaTeX
 *********************************
 
 How to typeset text with the ``pgf`` backend in Matplotlib.
