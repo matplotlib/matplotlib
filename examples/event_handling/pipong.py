@@ -178,7 +178,7 @@ class Game:
                                   verticalalignment='center',
                                   horizontalalignment='center',
                                   multialignment='left',
-                                  textcoords='axes fraction',
+                                  xycoords='axes fraction',
                                   animated=False)
         self.canvas.mpl_connect('key_press_event', self.on_key_press)
 
