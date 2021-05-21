@@ -2014,8 +2014,9 @@ def _setattr_cm(obj, **kwargs):
 
 
 class _OrderedSet(collections.abc.MutableSet):
-    def __init__(self):
+    def __init__(self, iterable=()):
         self._od = collections.OrderedDict()
+        self |= iterable
 
     def __contains__(self, key):
         return key in self._od
