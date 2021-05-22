@@ -141,32 +141,6 @@ def _raise_on_image_difference(expected, actual, tol):
                 '\n\t%(actual)s\n\t%(expected)s\n\t%(diff)s') % err)
 
 
-def _skip_if_format_is_uncomparable(extension):
-    import pytest
-    return pytest.mark.skipif(
-        extension not in comparable_formats(),
-        reason='Cannot compare {} files on this system'.format(extension))
-
-
-def _mark_skip_if_format_is_uncomparable(extension):
-    import pytest
-    if isinstance(extension, str):
-        name = extension
-        marks = []
-    elif isinstance(extension, tuple):
-        # Extension might be a pytest ParameterSet instead of a plain string.
-        # Unfortunately, this type is not exposed, so since it's a namedtuple,
-        # check for a tuple instead.
-        name, = extension.values
-        marks = [*extension.marks]
-    else:
-        # Extension might be a pytest marker instead of a plain string.
-        name, = extension.args
-        marks = [extension.mark]
-    return pytest.param(name,
-                        marks=[*marks, _skip_if_format_is_uncomparable(name)])
-
-
 class _ImageComparisonBase:
     """
     Image comparison base class
@@ -238,7 +212,6 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
     """
     import pytest
 
-    extensions = map(_mark_skip_if_format_is_uncomparable, extensions)
     KEYWORD_ONLY = inspect.Parameter.KEYWORD_ONLY
 
     def decorator(func):
@@ -255,6 +228,9 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
                 kwargs['extension'] = extension
             if 'request' in old_sig.parameters:
                 kwargs['request'] = request
+
+            if extension not in comparable_formats():
+                pytest.skip(f"Cannot compare {extension} files on this system")
 
             img = _ImageComparisonBase(func, tol=tol, remove_text=remove_text,
                                        savefig_kwargs=savefig_kwargs)
