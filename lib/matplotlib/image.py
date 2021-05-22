@@ -150,7 +150,7 @@ def _draw_list_compositing_images(
 
         for a in artists:
             if (isinstance(a, _ImageBase) and a.can_composite() and
-                    a.get_clip_on()):
+                    a.get_clip_on() and not a.get_clip_path()):
                 image_group.append(a)
             else:
                 flush_images()

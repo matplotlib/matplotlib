@@ -1,0 +1,2 @@
+``Figure.suppressComposite`` now also controls compositing of Axes images
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

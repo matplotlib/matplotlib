@@ -2094,7 +2094,8 @@ class SubFigure(FigureBase):
         try:
             renderer.open_group('subfigure', gid=self.get_gid())
             self.patch.draw(renderer)
-            mimage._draw_list_compositing_images(renderer, self, artists)
+            mimage._draw_list_compositing_images(
+                renderer, self, artists, self.figure.suppressComposite)
             for sfig in self.subfigs:
                 sfig.draw(renderer)
             renderer.close_group('subfigure')
@@ -2118,7 +2119,7 @@ class Figure(FigureBase):
         The `.Rectangle` instance representing the figure background patch.
 
     suppressComposite
-        For multiple figure images, the figure will make composite images
+        For multiple images, the figure will make composite images
         depending on the renderer option_image_nocomposite function.  If
         *suppressComposite* is a boolean, this will override the renderer.
     """

@@ -11,6 +11,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 from PIL import Image
 
+import matplotlib as mpl
 from matplotlib import (
     _api, colors, image as mimage, patches, pyplot as plt, style, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
@@ -504,6 +505,18 @@ def test_image_composite_alpha():
     ax.set_facecolor((0, 0.5, 0, 1))
     ax.set_xlim([0, 5])
     ax.set_ylim([5, 0])
+
+
+@check_figures_equal(extensions=["pdf"])
+def test_clip_path_disables_compositing(fig_test, fig_ref):
+    t = np.arange(9).reshape((3, 3))
+    for fig in [fig_test, fig_ref]:
+        ax = fig.add_subplot()
+        ax.imshow(t, clip_path=(mpl.path.Path([(0, 0), (0, 1), (1, 0)]),
+                                ax.transData))
+        ax.imshow(t, clip_path=(mpl.path.Path([(1, 1), (1, 2), (2, 1)]),
+                                ax.transData))
+    fig_ref.suppressComposite = True
 
 
 @image_comparison(['rasterize_10dpi'],
