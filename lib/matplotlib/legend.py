@@ -173,11 +173,14 @@ fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
     absolute font size in points. String values are relative to the current
     default font size. This argument is only used if *prop* is not specified.
 
-labelcolor : str or list
+labelcolor : str or list, default: :rc:`legend.labelcolor`
     The color of the text in the legend. Either a valid color string
     (for example, 'red'), or a list of color strings. The labelcolor can
     also be made to match the color of the line or marker using 'linecolor',
     'markerfacecolor' (or 'mfc'), or 'markeredgecolor' (or 'mec').
+
+    Labelcolor can be set globally using :rc:`legend.labelcolor`. If None,
+    use :rc:`text.color`.
 
 numpoints : int, default: :rc:`legend.numpoints`
     The number of marker points in the legend when creating a legend
@@ -539,8 +542,11 @@ class Legend(Artist):
             'mec':             ['get_markeredgecolor', 'get_edgecolor'],
         }
         if labelcolor is None:
-            pass
-        elif isinstance(labelcolor, str) and labelcolor in color_getters:
+            if mpl.rcParams['legend.labelcolor'] is not None:
+                labelcolor = mpl.rcParams['legend.labelcolor']
+            else:
+                labelcolor = mpl.rcParams['text.color']
+        if isinstance(labelcolor, str) and labelcolor in color_getters:
             getter_names = color_getters[labelcolor]
             for handle, text in zip(self.legendHandles, self.texts):
                 for getter_name in getter_names:

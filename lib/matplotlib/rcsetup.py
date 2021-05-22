@@ -289,6 +289,27 @@ def validate_color_for_prop_cycle(s):
     return validate_color(s)
 
 
+def _validate_color_or_linecolor(s):
+    if cbook._str_equal(s, 'linecolor'):
+        return s
+    elif cbook._str_equal(s, 'mfc') or cbook._str_equal(s, 'markerfacecolor'):
+        return 'markerfacecolor'
+    elif cbook._str_equal(s, 'mec') or cbook._str_equal(s, 'markeredgecolor'):
+        return 'markeredgecolor'
+    elif s is None:
+        return None
+    elif isinstance(s, str) and len(s) == 6 or len(s) == 8:
+        stmp = '#' + s
+        if is_color_like(stmp):
+            return stmp
+        if s.lower() == 'none':
+            return None
+    elif is_color_like(s):
+        return s
+
+    raise ValueError(f'{s!r} does not look like a color arg')
+
+
 def validate_color(s):
     """Return a valid color arg."""
     if isinstance(s, str):
@@ -1017,6 +1038,8 @@ _validators = {
     "legend.scatterpoints":  validate_int,
     "legend.fontsize":       validate_fontsize,
     "legend.title_fontsize": validate_fontsize_None,
+     # color of the legend
+    "legend.labelcolor":     _validate_color_or_linecolor,
      # the relative size of legend markers vs. original
     "legend.markerscale":    validate_float,
     "legend.shadow":         validate_bool,
