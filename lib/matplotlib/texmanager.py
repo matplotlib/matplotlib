@@ -31,7 +31,7 @@ from tempfile import TemporaryDirectory
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import cbook, dviread, rcParams
+from matplotlib import _api, cbook, dviread, rcParams
 
 _log = logging.getLogger(__name__)
 
@@ -43,14 +43,12 @@ class TexManager:
     Repeated calls to this constructor always return the same instance.
     """
 
-    # Caches.
     texcache = os.path.join(mpl.get_cachedir(), 'tex.cache')
-    grey_arrayd = {}
 
-    font_family = 'serif'
-    font_families = ('serif', 'sans-serif', 'cursive', 'monospace')
-
-    font_info = {
+    _grey_arrayd = {}
+    _font_family = 'serif'
+    _font_families = ('serif', 'sans-serif', 'cursive', 'monospace')
+    _font_info = {
         'new century schoolbook': ('pnc', r'\renewcommand{\rmdefault}{pnc}'),
         'bookman': ('pbk', r'\renewcommand{\rmdefault}{pbk}'),
         'times': ('ptm', r'\usepackage{mathptmx}'),
@@ -71,6 +69,11 @@ class TexManager:
         'computer modern sans serif': ('cmss', r'\usepackage{type1ec}'),
         'computer modern typewriter': ('cmtt', r'\usepackage{type1ec}')}
 
+    grey_arrayd = _api.deprecate_privatize_attribute("3.5")
+    font_family = _api.deprecate_privatize_attribute("3.5")
+    font_families = _api.deprecate_privatize_attribute("3.5")
+    font_info = _api.deprecate_privatize_attribute("3.5")
+
     @functools.lru_cache()  # Always return the same instance.
     def __new__(cls):
         Path(cls.texcache).mkdir(parents=True, exist_ok=True)
@@ -78,29 +81,30 @@ class TexManager:
 
     def get_font_config(self):
         ff = rcParams['font.family']
-        if len(ff) == 1 and ff[0].lower() in self.font_families:
-            self.font_family = ff[0].lower()
+        if len(ff) == 1 and ff[0].lower() in self._font_families:
+            self._font_family = ff[0].lower()
         else:
             _log.info('font.family must be one of (%s) when text.usetex is '
                       'True. serif will be used by default.',
-                      ', '.join(self.font_families))
-            self.font_family = 'serif'
+                      ', '.join(self._font_families))
+            self._font_family = 'serif'
 
-        fontconfig = [self.font_family]
+        fontconfig = [self._font_family]
         fonts = {}
-        for font_family in self.font_families:
+        for font_family in self._font_families:
             for font in rcParams['font.' + font_family]:
-                if font.lower() in self.font_info:
-                    fonts[font_family] = self.font_info[font.lower()]
-                    _log.debug('family: %s, font: %s, info: %s',
-                               font_family, font, self.font_info[font.lower()])
+                if font.lower() in self._font_info:
+                    fonts[font_family] = self._font_info[font.lower()]
+                    _log.debug(
+                        'family: %s, font: %s, info: %s',
+                        font_family, font, self._font_info[font.lower()])
                     break
                 else:
                     _log.debug('%s font is not compatible with usetex.', font)
             else:
                 _log.info('No LaTeX-compatible font found for the %s font '
                           'family in rcParams. Using default.', font_family)
-                fonts[font_family] = self.font_info[font_family]
+                fonts[font_family] = self._font_info[font_family]
             fontconfig.append(fonts[font_family][0])
         # Add a hash of the latex preamble to fontconfig so that the
         # correct png is selected for strings rendered with same font and dpi
@@ -112,7 +116,7 @@ class TexManager:
         # file's preamble:
         cmd = {fonts[family][1]
                for family in ['serif', 'sans-serif', 'monospace']}
-        if self.font_family == 'cursive':
+        if self._font_family == 'cursive':
             cmd.add(fonts['cursive'][1])
         cmd.add(r'\usepackage{type1cm}')
         self._font_preamble = '\n'.join(sorted(cmd))
@@ -169,7 +173,7 @@ class TexManager:
         basefile = self.get_basefile(tex, fontsize)
         texfile = '%s.tex' % basefile
         fontcmd = {'sans-serif': r'{\sffamily %s}',
-                   'monospace': r'{\ttfamily %s}'}.get(self.font_family,
+                   'monospace': r'{\ttfamily %s}'}.get(self._font_family,
                                                        r'{\rmfamily %s}')
 
         Path(texfile).write_text(
@@ -262,11 +266,11 @@ class TexManager:
         if not dpi:
             dpi = rcParams['savefig.dpi']
         key = tex, self.get_font_config(), fontsize, dpi
-        alpha = self.grey_arrayd.get(key)
+        alpha = self._grey_arrayd.get(key)
         if alpha is None:
             pngfile = self.make_png(tex, fontsize, dpi)
             rgba = mpl.image.imread(os.path.join(self.texcache, pngfile))
-            self.grey_arrayd[key] = alpha = rgba[:, :, -1]
+            self._grey_arrayd[key] = alpha = rgba[:, :, -1]
         return alpha
 
     def get_rgba(self, tex, fontsize=None, dpi=None, rgb=(0, 0, 0)):
