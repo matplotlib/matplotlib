@@ -1114,17 +1114,17 @@ class PathCollection(_CollectionWithSizes):
                               "specify the values to be colormapped via the "
                               "`c` argument.")
                 return handles, labels
-            _size = kwargs.pop("size", mpl.rcParams["lines.markersize"])
+            prop_other = kwargs.pop("size", mpl.rcParams["lines.markersize"])
 
-            def _get_color_and_size(value):
-                return self.cmap(self.norm(value)), _size
+            def _get_color_and_size(value, other):
+                return self.cmap(self.norm(value)), other
 
         elif prop == "sizes":
             arr = self.get_sizes()
-            _color = kwargs.pop("color", "k")
+            prop_other = kwargs.pop("color", "k")
 
-            def _get_color_and_size(value):
-                return _color, np.sqrt(value)
+            def _get_color_and_size(value, other):
+                return other, np.sqrt(value)
 
         else:
             raise ValueError("Valid values for `prop` are 'colors' or "
@@ -1213,7 +1213,7 @@ class PathCollection(_CollectionWithSizes):
         kw.update(kwargs)
 
         for val, lab in zip(values, label_values):
-            color, size = _get_color_and_size(val)
+            color, size = _get_color_and_size(val, prop_other)
 
             # TODO: s=0: This is hard to test and breaks for users using
             # small numbers, consider removing it because:
