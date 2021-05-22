@@ -1,6 +1,8 @@
 import io
-import os
+from pathlib import Path
 import re
+import shlex
+from xml.etree import ElementTree as ET
 
 import numpy as np
 import pytest
@@ -343,7 +345,7 @@ def test_mathtext_fallback_invalid():
      ("stix", ['DejaVu Sans', 'mpltest', 'STIXGeneral'])])
 def test_mathtext_fallback(fallback, fontlist):
     mpl.font_manager.fontManager.addfont(
-        os.path.join((os.path.dirname(os.path.realpath(__file__))), 'mpltest.ttf'))
+        str(Path(__file__).resolve().parent / 'mpltest.ttf'))
     mpl.rcParams["svg.fonttype"] = 'none'
     mpl.rcParams['mathtext.fontset'] = 'custom'
     mpl.rcParams['mathtext.rm'] = 'mpltest'
@@ -357,12 +359,13 @@ def test_mathtext_fallback(fallback, fontlist):
     fig, ax = plt.subplots()
     fig.text(.5, .5, test_str, fontsize=40, ha='center')
     fig.savefig(buff, format="svg")
-    char_fonts = [
-        line.split("font-family:")[-1].split(";")[0]
-        for line in str(buff.getvalue()).split(r"\n") if "tspan" in line
-    ]
+    tspans = (ET.fromstring(buff.getvalue())
+              .findall(".//{http://www.w3.org/2000/svg}tspan[@style]"))
+    # Getting the last element of the style attrib is a close enough
+    # approximation for parsing the font property.
+    char_fonts = [shlex.split(tspan.attrib["style"])[-1] for tspan in tspans]
     assert char_fonts == fontlist
-    mpl.font_manager.fontManager.ttflist = mpl.font_manager.fontManager.ttflist[:-1]
+    mpl.font_manager.fontManager.ttflist.pop()
 
 
 def test_math_to_image(tmpdir):

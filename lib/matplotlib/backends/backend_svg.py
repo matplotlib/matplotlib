@@ -13,15 +13,13 @@ import numpy as np
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import _api, cbook
+from matplotlib import _api, cbook, font_manager as fm
 from matplotlib.backend_bases import (
      _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
      RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.colors import rgb2hex
 from matplotlib.dates import UTC
-from matplotlib.font_manager import findfont, get_font
-from matplotlib.ft2font import LOAD_NO_HINTING
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib import _path
@@ -93,6 +91,12 @@ def escape_attrib(s):
     return s
 
 
+def _quote_escape_attrib(s):
+    return ('"' + escape_cdata(s) + '"' if '"' not in s else
+            "'" + escape_cdata(s) + "'" if "'" not in s else
+            '"' + escape_attrib(s) + '"')
+
+
 def short_float_fmt(x):
     """
     Create a short string representation of a float, which is %f
@@ -158,8 +162,8 @@ class XMLWriter:
         for k, v in {**attrib, **extra}.items():
             if v:
                 k = escape_cdata(k)
-                v = escape_attrib(v)
-                self.__write(' %s="%s"' % (k, v))
+                v = _quote_escape_attrib(v)
+                self.__write(' %s=%s' % (k, v))
         self.__open = 1
         return len(self.__tags) - 1
 
@@ -261,15 +265,7 @@ def generate_transform(transform_list=[]):
 
 
 def generate_css(attrib={}):
-    if attrib:
-        output = StringIO()
-        attrib = attrib.items()
-        for k, v in attrib:
-            k = escape_attrib(k)
-            v = escape_attrib(v)
-            output.write("%s:%s;" % (k, v))
-        return output.getvalue()
-    return ''
+    return "; ".join(f"{k}: {v}" for k, v in attrib.items())
 
 
 _capstyle_d = {'projecting': 'square', 'butt': 'butt', 'round': 'round'}
@@ -462,8 +458,8 @@ class RendererSVG(RendererBase):
                 .translate(0.0, self.height))
 
     def _get_font(self, prop):
-        fname = findfont(prop)
-        font = get_font(fname)
+        fname = fm.findfont(prop)
+        font = fm.get_font(fname)
         font.clear()
         size = prop.get_size_in_points()
         font.set_size(size, 72.0)
@@ -1106,16 +1102,23 @@ class RendererSVG(RendererBase):
             style['opacity'] = short_float_fmt(alpha)
 
         if not ismath:
-            font = self._get_font(prop)
-            font.set_text(s, 0.0, flags=LOAD_NO_HINTING)
-
             attrib = {}
-            style['font-family'] = str(font.family_name)
-            style['font-weight'] = str(prop.get_weight()).lower()
-            style['font-stretch'] = str(prop.get_stretch()).lower()
-            style['font-style'] = prop.get_style().lower()
-            # Must add "px" to workaround a Firefox bug
-            style['font-size'] = short_float_fmt(prop.get_size()) + 'px'
+
+            font_parts = []
+            if prop.get_style() != 'normal':
+                font_parts.append(prop.get_style())
+            if prop.get_variant() != 'normal':
+                font_parts.append(prop.get_variant())
+            weight = fm.weight_dict[prop.get_weight()]
+            if weight != 400:
+                font_parts.append(f'{weight}')
+            font_parts.extend([
+                f'{short_float_fmt(prop.get_size())}px',
+                f'{prop.get_family()[0]!r}',  # ensure quoting
+            ])
+            style['font'] = ' '.join(font_parts)
+            if prop.get_stretch() != 'normal':
+                style['font-stretch'] = prop.get_stretch()
             attrib['style'] = generate_css(style)
 
             if mtext and (angle == 0 or mtext.get_rotation_mode() == "anchor"):
@@ -1175,11 +1178,22 @@ class RendererSVG(RendererBase):
             # Sort the characters by font, and output one tspan for each.
             spans = {}
             for font, fontsize, thetext, new_x, new_y in glyphs:
-                style = generate_css({
-                    'font-size': short_float_fmt(fontsize) + 'px',
-                    'font-family': font.family_name,
-                    'font-style': font.style_name.lower(),
-                    'font-weight': font.style_name.lower()})
+                entry = fm.ttfFontProperty(font)
+                font_parts = []
+                if entry.style != 'normal':
+                    font_parts.append(entry.style)
+                if entry.variant != 'normal':
+                    font_parts.append(entry.variant)
+                if entry.weight != 400:
+                    font_parts.append(f'{entry.weight}')
+                font_parts.extend([
+                    f'{short_float_fmt(fontsize)}px',
+                    f'{entry.name!r}',  # ensure quoting
+                ])
+                style = {'font': ' '.join(font_parts)}
+                if entry.stretch != 'normal':
+                    style['font-stretch'] = entry.stretch
+                style = generate_css(style)
                 if thetext == 32:
                     thetext = 0xa0  # non-breaking space
                 spans.setdefault(style, []).append((new_x, -new_y, thetext))
