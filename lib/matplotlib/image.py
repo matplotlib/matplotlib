@@ -411,14 +411,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     # all masked, so values don't matter
                     a_min, a_max = np.int32(0), np.int32(1)
                 if inp_dtype.kind == 'f':
-                    scaled_dtype = A.dtype
-                    # Cast to float64
-                    if A.dtype not in (np.float32, np.float16):
-                        if A.dtype != np.float64:
-                            _api.warn_external(
-                                f"Casting input data from '{A.dtype}' to "
-                                f"'float64' for imshow")
-                        scaled_dtype = np.float64
+                    scaled_dtype = np.dtype(
+                        np.float64 if A.dtype.itemsize > 4 else np.float32)
+                    if scaled_dtype.itemsize < A.dtype.itemsize:
+                        _api.warn_external(
+                            f"Casting input data from {A.dtype} to "
+                            f"{scaled_dtype} for imshow")
                 else:
                     # probably an integer of some type.
                     da = a_max.astype(np.float64) - a_min.astype(np.float64)
