@@ -1007,6 +1007,8 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
         **kwargs :  `~matplotlib.collections.LineCollection` properties.
 
         See Also
@@ -1084,6 +1086,8 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
         **kwargs : `~matplotlib.collections.LineCollection` properties.
 
         See Also
@@ -1211,6 +1215,9 @@ class Axes(_AxesBase):
 
             If *positions* is 2D, this can be a sequence with length matching
             the length of *positions*.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
 
         **kwargs
             Other keyword arguments are line collection properties.  See
@@ -1660,6 +1667,8 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
@@ -1730,6 +1739,9 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             All parameters supported by `.plot`.
         """
@@ -1783,6 +1795,9 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             All parameters supported by `.plot`.
         """
@@ -1832,6 +1847,9 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             All parameters supported by `.plot`.
         """
@@ -1898,6 +1916,9 @@ class Axes(_AxesBase):
         marker : str, default: 'o'
             The marker for plotting the data points.
             Only used if *usevlines* is ``False``.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
 
         **kwargs
             Additional parameters are passed to `.Axes.vlines` and
@@ -1972,6 +1993,9 @@ class Axes(_AxesBase):
         marker : str, default: 'o'
             The marker for plotting the data points.
             Only used if *usevlines* is ``False``.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
 
         **kwargs
             Additional parameters are passed to `.Axes.vlines` and
@@ -2083,6 +2107,9 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             Additional parameters are the same as those for `.plot`.
 
@@ -2231,6 +2258,9 @@ class Axes(_AxesBase):
 
         log : bool, default: False
             If *True*, set the y-axis to be log scale.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
 
         **kwargs : `.Rectangle` properties
 
@@ -2682,6 +2712,8 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
         **kwargs : `.BrokenBarHCollection` properties
 
             Each *kwarg* can be either a single argument applying to all
@@ -2800,6 +2832,9 @@ class Axes(_AxesBase):
             significantly increases performance.  If ``False``, defaults to the
             old behavior of using a list of `.Line2D` objects.  This parameter
             may be deprecated in the future.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
 
         Returns
         -------
@@ -3017,6 +3052,9 @@ class Axes(_AxesBase):
 
         rotatelabels : bool, default: False
             Rotate each label to the angle of the corresponding slice if true.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
 
         Returns
         -------
@@ -3273,6 +3311,9 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             All other keyword arguments are passed on to the `~.Axes.plot` call
             drawing the markers. For example, this code makes big red squares
@@ -3667,6 +3708,8 @@ class Axes(_AxesBase):
             The style of the median.
         meanprops : dict, default: None
             The style of the mean.
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
 
         See Also
         --------
@@ -4401,6 +4444,8 @@ default: :rc:`scatter.edgecolors`
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
         **kwargs : `~matplotlib.collections.Collection` properties
 
         See Also
@@ -4686,6 +4731,9 @@ default: :rc:`scatter.edgecolors`
             - `numpy.mean`: average of the points
             - `numpy.sum`: integral of the point values
             - `numpy.amax`: value taken from the largest point
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
 
         **kwargs : `~matplotlib.collections.PolyCollection` properties
             All other keyword arguments are passed on to `.PolyCollection`:
@@ -5195,6 +5243,9 @@ default: :rc:`scatter.edgecolors`
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             All other keyword arguments are passed on to `.PolyCollection`.
             They control the `.Polygon` properties:
@@ -5506,6 +5557,9 @@ default: :rc:`scatter.edgecolors`
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs : `~matplotlib.artist.Artist` properties
             These parameters are passed on to the constructor of the
             `.AxesImage` artist.
@@ -5802,6 +5856,9 @@ default: :rc:`scatter.edgecolors`
             Stroking the edges may be preferred if *alpha* is 1, but will
             cause artifacts otherwise.
 
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             Additionally, the following arguments are allowed. They are passed
             along to the `~matplotlib.collections.PolyCollection` constructor:
@@ -6047,6 +6104,9 @@ default: :rc:`scatter.edgecolors`
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             Additionally, the following arguments are allowed. They are passed
             along to the `~matplotlib.collections.QuadMesh` constructor:
@@ -6262,6 +6322,9 @@ default: :rc:`scatter.edgecolors`
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             Supported additional parameters depend on the type of grid.
             See return types of *image* for further description.
@@ -6567,6 +6630,9 @@ such objects
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             `~matplotlib.patches.Patch` properties
 
@@ -6888,6 +6954,9 @@ such objects
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             `~matplotlib.patches.StepPatch` properties
 
@@ -7001,6 +7070,9 @@ such objects
         alpha : ``0 <= scalar <= 1`` or ``None``, optional
             The alpha blending value.
 
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             Additional parameters are passed along to the
             `~.Axes.pcolormesh` method and `~matplotlib.collections.QuadMesh`
@@ -7088,6 +7160,9 @@ such objects
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
@@ -7201,6 +7276,9 @@ such objects
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
@@ -7291,6 +7369,9 @@ such objects
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
@@ -7368,6 +7449,9 @@ such objects
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
@@ -7434,6 +7518,9 @@ such objects
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
@@ -7501,6 +7588,9 @@ such objects
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
@@ -7578,6 +7668,9 @@ such objects
             left border of the first bin (*spectrum* column) and *xmax* to the
             right border of the last bin. Note that for *noverlap>0* the width
             of the bins is smaller than those of the segments.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
 
         **kwargs
             Additional keyword arguments are passed on to `~.axes.Axes.imshow`
@@ -7923,6 +8016,9 @@ such objects
           scalar, this will be used directly as `kde.factor`.  If a
           callable, it should take a `GaussianKDE` instance as its only
           parameter and return a scalar. If None (default), 'scott' is used.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
 
         Returns
         -------

@@ -1726,6 +1726,9 @@ class QuadContourSet(ContourSet):
             Hatching is supported in the PostScript, PDF, SVG and Agg
             backends only.
 
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         Notes
         -----
         1. `.contourf` differs from the MATLAB version in that it does not draw

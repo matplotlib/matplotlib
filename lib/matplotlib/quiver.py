@@ -181,6 +181,9 @@ color : color or color sequence, optional
 
 Other Parameters
 ----------------
+data : indexable object, optional
+    DATA_PARAMETER_PLACEHOLDER
+
 **kwargs : `~matplotlib.collections.PolyCollection` properties, optional
     All other keyword arguments are passed on to `.PolyCollection`:
 
@@ -888,6 +891,9 @@ barbs : `~matplotlib.quiver.Barbs`
 
 Other Parameters
 ----------------
+data : indexable object, optional
+    DATA_PARAMETER_PLACEHOLDER
+
 **kwargs
     The barbs can further be customized using `.PolyCollection` keyword
     arguments:
