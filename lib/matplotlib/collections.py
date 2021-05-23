@@ -1968,6 +1968,35 @@ class QuadMesh(Collection):
     """
     Class for the efficient drawing of a quadrilateral mesh.
 
+    A quadrilateral mesh is a grid of M by N adjacent qudrilaterals that are
+    defined via a (M+1, N+1) grid of vertices. The quadrilateral (m, n) is
+    defind by the vertices ::
+
+               (m+1, n) ----------- (m+1, n+1)
+                  /                   /
+                 /                 /
+                /               /
+            (m, n) -------- (m, n+1)
+
+    The mesh need not be regular and the polygons need not be convex.
+
+    Parameters
+    ----------
+    coordinates : (M+1, N+1, 2) array-like
+        The vertices. ``coordinates[m, n]`` specifies the (x, y) coordinates
+        of vertex (m, n).
+
+    antialiased : bool, default: True
+
+    shading : {'flat', 'gouraud'}, default: 'flat'
+
+    Notes
+    -----
+    There exists a deprecated API version ``QuadMesh(M, N, coords)``, where
+    the dimensions are given explicitly and ``coords`` is a (M*N, 2)
+    array-like. This has been deprecated in Matplotlib 3.5. The following
+    describes the semantics of this deprecated API.
+
     A quadrilateral mesh consists of a grid of vertices.
     The dimensions of this array are (*meshWidth* + 1, *meshHeight* + 1).
     Each vertex in the mesh has a different set of "mesh coordinates"
@@ -1991,7 +2020,6 @@ class QuadMesh(Collection):
     vertex at mesh coordinates (0, 0), then the one at (0, 1), then at (0, 2)
     .. (0, meshWidth), (1, 0), (1, 1), and so on.
 
-    *shading* may be 'flat', or 'gouraud'
     """
     def __init__(self, *args, **kwargs):
         # signature deprecation since="3.5": Change to new signature after the
@@ -2020,7 +2048,7 @@ class QuadMesh(Collection):
             _api.warn_deprecated(
                 "3.5",
                 message="This usage of Quadmesh is deprecated: Parameters "
-                        "meshWidth and meshHights will be removed; "
+                        "meshWidth and meshHeights will be removed; "
                         "coordinates must be 2D; all parameters except "
                         "coordinates will be keyword-only.")
             coords = np.asarray(coords, np.float64).reshape((h + 1, w + 1, 2))
