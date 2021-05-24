@@ -771,7 +771,7 @@ class ColorbarBase:
         _log.debug('locator: %r', locator)
 
     @_api.delete_parameter("3.5", "update_ticks")
-    def set_ticks(self, ticks, update_ticks=True):
+    def set_ticks(self, ticks, update_ticks=True, *, minor=False):
         """
         Set tick locations.
 
@@ -781,16 +781,15 @@ class ColorbarBase:
             The tick positions can be hard-coded by an array of values; or
             they can be defined by a `.Locator`. Setting to *None* reverts
             to using a default locator.
+        
+        minor : boolean, default: False
+            If True, set the minor ticks
 
         update_ticks : bool, default: True
             As of 3.5 this has no effect.
 
         """
-        if np.iterable(ticks):
-            self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
-        else:
-            self.locator = ticks
-        self._long_axis().set_major_locator(self.locator)
+        self._long_axis().set_ticks(ticks, minor=minor)
         self.stale = True
 
     def get_ticks(self, minor=False):
@@ -808,7 +807,7 @@ class ColorbarBase:
             return self._long_axis().get_majorticklocs()
 
     @_api.delete_parameter("3.5", "update_ticks")
-    def set_ticklabels(self, ticklabels, update_ticks=True):
+    def set_ticklabels(self, ticklabels, update_ticks=True, **kwargs):
         """
         Set tick labels.
 
@@ -823,10 +822,7 @@ class ColorbarBase:
             This keyword argument is ignored and will be be removed.
             Deprecated
         """
-        if isinstance(self.locator, ticker.FixedLocator):
-            self.formatter = ticker.FixedFormatter(ticklabels)
-        else:
-            _api._warn_external("set_ticks() must have been called.")
+        self.ax._long_axis().set_ticklabels(self, **kwargs)
         self.stale = True
 
     def minorticks_on(self):
