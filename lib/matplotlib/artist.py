@@ -10,7 +10,7 @@ import warnings
 import numpy as np
 
 import matplotlib as mpl
-from . import _api, cbook, docstring
+from . import _api, cbook
 from .path import Path
 from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
@@ -1697,6 +1697,3 @@ def kwdoc(artist):
     return ('\n'.join(ai.pprint_setters_rest(leadingspace=4))
             if mpl.rcParams['docstring.hardcopy'] else
             'Properties:\n' + '\n'.join(ai.pprint_setters(leadingspace=4)))
-
-
-docstring.interpd.update(Artist_kwdoc=kwdoc(Artist))

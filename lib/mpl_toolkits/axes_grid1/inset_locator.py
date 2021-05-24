@@ -148,7 +148,7 @@ class BboxPatch(Patch):
         **kwargs
             Patch properties. Valid arguments include:
 
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
         """
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
@@ -270,7 +270,7 @@ class BboxConnector(Patch):
         **kwargs
             Patch properties for the line drawn. Valid arguments include:
 
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
         """
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
@@ -329,7 +329,7 @@ class BboxConnectorPatch(BboxConnector):
         **kwargs
             Patch properties for the line drawn:
 
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
         """
         if "transform" in kwargs:
             raise ValueError("transform should not be set")
@@ -441,7 +441,7 @@ def inset_axes(parent_axes, width, height, loc='upper right',
         Keyword arguments to pass to the constructor of the inset axes.
         Valid arguments include:
 
-        %(Axes_kwdoc)s
+        %(Axes:kwdoc)s
 
     borderpad : float, default: 0.5
         Padding between inset axes and the bbox_to_anchor.
@@ -548,7 +548,7 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
         Keyword arguments to pass to the constructor of the inset axes.
         Valid arguments include:
 
-        %(Axes_kwdoc)s
+        %(Axes:kwdoc)s
 
     borderpad : float, default: 0.5
         Padding between inset axes and the bbox_to_anchor.
@@ -603,7 +603,7 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
     **kwargs
         Patch properties for the lines and box drawn:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
 
     Returns
     -------

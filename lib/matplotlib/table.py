@@ -19,7 +19,7 @@ The cell (0, 0) is positioned at the top left.
 Thanks to John Gill for providing the class and table.
 """
 
-from . import _api, artist, docstring
+from . import _api, docstring
 from .artist import Artist, allow_rasterization
 from .patches import Rectangle
 from .text import Text
@@ -177,7 +177,7 @@ class Cell(Rectangle):
 
         Valid keyword arguments are:
 
-        %(Text_kwdoc)s
+        %(Text:kwdoc)s
         """
         self._text.update(kwargs)
         self.stale = True
@@ -639,9 +639,6 @@ class Table(Artist):
         return self._cells
 
 
-docstring.interpd.update(Table_kwdoc=artist.kwdoc(Table))
-
-
 @docstring.dedent_interpd
 def table(ax,
           cellText=None, cellColours=None,
@@ -723,7 +720,7 @@ def table(ax,
     **kwargs
         `.Table` properties.
 
-    %(Table_kwdoc)s
+    %(Table:kwdoc)s
     """
 
     if cellColours is None and cellText is None:
