@@ -301,22 +301,17 @@ def test_canvas_reinit():
 
 
 @pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
-def test_form_widget_get_with_datetime_field():
+def test_form_widget_get_with_datetime_and_date_fields():
     if not QtWidgets.QApplication.instance():
         QtWidgets.QApplication()
-    form = [("Field name", datetime(year=2021, month=3, day=11))]
+    form = [
+        ("Datetime field", datetime(year=2021, month=3, day=11)),
+        ("Date field", date(year=2021, month=3, day=11))
+    ]
     widget = _formlayout.FormWidget(form)
     widget.setup()
     values = widget.get()
-    assert(values == [datetime(year=2021, month=3, day=11)])
-
-
-@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
-def test_form_widget_get_with_date_field():
-    if not QtWidgets.QApplication.instance():
-        QtWidgets.QApplication()
-    form = [("Field name", date(year=2021, month=3, day=11))]
-    widget = _formlayout.FormWidget(form)
-    widget.setup()
-    values = widget.get()
-    assert(values == [date(year=2021, month=3, day=11)])
+    assert values == [
+        datetime(year=2021, month=3, day=11),
+        date(year=2021, month=3, day=11)
+    ]
