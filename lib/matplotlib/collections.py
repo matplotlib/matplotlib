@@ -2055,15 +2055,10 @@ class QuadMesh(Collection):
         # end of signature deprecation code
 
         super().__init__(**kwargs)
+        _api.check_shape((None, None, 2), coordinates=coords)
         self._coordinates = coords
-        shape = self._coordinates.shape
-        if (self._coordinates.ndim != 3 or shape[-1] != 2):
-            raise ValueError(
-                "coordinates must be a (N, M, 2) array-like, but got "
-                f"{shape}")
-
-        self._meshWidth = shape[1] - 1
-        self._meshHeight = shape[0] - 1
+        self._meshWidth = self._coordinates.shape[1] - 1
+        self._meshHeight = self._coordinates.shape[0] - 1
         self._antialiased = antialiased
         self._shading = shading
 
