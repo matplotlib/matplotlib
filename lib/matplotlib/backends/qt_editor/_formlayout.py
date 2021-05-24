@@ -342,9 +342,17 @@ class FormWidget(QtWidgets.QWidget):
             elif isinstance(value, Real):
                 value = float(str(field.text()))
             elif isinstance(value, datetime.datetime):
-                value = field.dateTime().toPyDateTime()
+                datetime_ = field.dateTime()
+                if hasattr(datetime_, "toPyDateTime"):
+                    value = datetime_.toPyDateTime()
+                else:
+                    value = datetime_.toPython()
             elif isinstance(value, datetime.date):
-                value = field.date().toPyDate()
+                date_ = field.date()
+                if hasattr(date_, "toPyDate"):
+                    value = date_.toPyDate()
+                else:
+                    value = date_.toPython()
             else:
                 value = eval(str(field.text()))
             valuelist.append(value)
