@@ -7,5 +7,5 @@
    :undoc-members:
    :show-inheritance:
 
-
-
+.. autoclass:: FontEntry
+   :no-undoc-members:

@@ -869,11 +869,9 @@ class ColorbarBase:
         else:
             intv = self.vmin, self.vmax
         locator.create_dummy_axis(minpos=intv[0])
-        formatter.create_dummy_axis(minpos=intv[0])
-        locator.set_view_interval(*intv)
-        locator.set_data_interval(*intv)
-        formatter.set_view_interval(*intv)
-        formatter.set_data_interval(*intv)
+        locator.axis.set_view_interval(*intv)
+        locator.axis.set_data_interval(*intv)
+        formatter.set_axis(locator.axis)
 
         b = np.array(locator())
         if isinstance(locator, ticker.LogLocator):
@@ -1381,9 +1379,8 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     location = kw['ticklocation'] = loc_settings['location']
 
     anchor = kw.pop('anchor', loc_settings['anchor'])
-    parent_anchor = kw.pop('panchor', loc_settings['panchor'])
+    panchor = kw.pop('panchor', loc_settings['panchor'])
 
-    parents_iterable = np.iterable(parents)
     # turn parents into a list if it is not already. We do this w/ np
     # because `plt.subplots` can return an ndarray and is natural to
     # pass to `colorbar`.
@@ -1427,8 +1424,8 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
         new_posn = shrinking_trans.transform(ax.get_position(original=True))
         new_posn = mtransforms.Bbox(new_posn)
         ax._set_position(new_posn)
-        if parent_anchor is not False:
-            ax.set_anchor(parent_anchor)
+        if panchor is not False:
+            ax.set_anchor(panchor)
 
     cax = fig.add_axes(pbcb, label="<colorbar>")
     for a in parents:
@@ -1439,7 +1436,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
         parents=parents,
         shrink=shrink,
         anchor=anchor,
-        panchor=parent_anchor,
+        panchor=panchor,
         fraction=fraction,
         aspect=aspect,
         pad=pad)
@@ -1541,7 +1538,7 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
             aspect = 1 / aspect
 
     parent.set_subplotspec(ss_main)
-    parent.set_anchor(loc_settings["panchor"])
+    parent.set_anchor(panchor)
 
     fig = parent.get_figure()
     cax = fig.add_subplot(ss_cb, label="<colorbar>")

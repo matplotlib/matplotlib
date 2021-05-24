@@ -183,18 +183,28 @@ class Axis(maxis.XAxis):
             self.axes.get_ybound(),
             self.axes.get_zbound(),
         ]).T
-        centers = (maxs + mins) / 2.
-        deltas = (maxs - mins) / 12.
-        mins = mins - deltas / 4.
-        maxs = maxs + deltas / 4.
 
-        vals = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
-        tc = self.axes.tunit_cube(vals, self.axes.M)
-        avgz = [tc[p1][2] + tc[p2][2] + tc[p3][2] + tc[p4][2]
-                for p1, p2, p3, p4 in self._PLANES]
-        highs = np.array([avgz[2*i] < avgz[2*i+1] for i in range(3)])
+        # Get the mean value for each bound:
+        centers = 0.5 * (maxs + mins)
 
-        return mins, maxs, centers, deltas, tc, highs
+        # Add a small offset between min/max point and the edge of the
+        # plot:
+        deltas = (maxs - mins) / 12
+        mins -= 0.25 * deltas
+        maxs += 0.25 * deltas
+
+        # Project the bounds along the current position of the cube:
+        bounds = mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
+        bounds_proj = self.axes.tunit_cube(bounds, self.axes.M)
+
+        # Determine which one of the parallel planes are higher up:
+        highs = np.zeros(3, dtype=bool)
+        for i in range(3):
+            mean_z0 = np.mean(bounds_proj[self._PLANES[2 * i], 2])
+            mean_z1 = np.mean(bounds_proj[self._PLANES[2 * i + 1], 2])
+            highs[i] = mean_z0 < mean_z1
+
+        return mins, maxs, centers, deltas, bounds_proj, highs
 
     def draw_pane(self, renderer):
         renderer.open_group('pane3d', gid=self.get_gid())

@@ -117,7 +117,7 @@ non-responsive) you will be able to use the prompt again.  Re-starting
 the event loop will make any open figure responsive again (and will
 process any queued up user interaction).
 
-To start the event loop until all open figures are closed use
+To start the event loop until all open figures are closed, use
 `.pyplot.show` as ::
 
   pyplot.show(block=True)
@@ -345,7 +345,7 @@ become stale.
 
 .. _draw_idle:
 
-Draw Idle
+Idle draw
 =========
 
 .. autosummary::
@@ -393,19 +393,18 @@ CPython / readline
 ------------------
 
 The Python C API provides a hook, :c:data:`PyOS_InputHook`, to register a
-function to be run "The function will be called when Python's
+function to be run ("The function will be called when Python's
 interpreter prompt is about to become idle and wait for user input
-from the terminal.".  This hook can be used to integrate a second
+from the terminal.").  This hook can be used to integrate a second
 event loop (the GUI event loop) with the python input prompt loop.
 The hook functions typically exhaust all pending events on the GUI
 event queue, run the main loop for a short fixed amount of time, or
 run the event loop until a key is pressed on stdin.
 
-
 Matplotlib does not currently do any management of :c:data:`PyOS_InputHook` due
 to the wide range of ways that Matplotlib is used.  This management is left to
 downstream libraries -- either user code or the shell.  Interactive figures,
-even with matplotlib in 'interactive mode', may not work in the vanilla python
+even with Matplotlib in 'interactive mode', may not work in the vanilla python
 repl if an appropriate :c:data:`PyOS_InputHook` is not registered.
 
 Input hooks, and helpers to install them, are usually included with
@@ -415,15 +414,15 @@ Matplotlib supports which can be installed via ``%matplotlib``.  This
 is the recommended method of integrating Matplotlib and a prompt.
 
 
-IPython / prompt toolkit
+IPython / prompt_toolkit
 ------------------------
 
-With IPython >= 5.0 IPython has changed from using cpython's readline
+With IPython >= 5.0 IPython has changed from using CPython's readline
 based prompt to a ``prompt_toolkit`` based prompt.  ``prompt_toolkit``
 has the same conceptual input hook, which is fed into ``prompt_toolkit`` via the
 :meth:`IPython.terminal.interactiveshell.TerminalInteractiveShell.inputhook`
 method.  The source for the ``prompt_toolkit`` input hooks lives at
-:mod:`IPython.terminal.pt_inputhooks`
+:mod:`IPython.terminal.pt_inputhooks`.
 
 
 

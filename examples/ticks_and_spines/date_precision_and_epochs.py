@@ -20,7 +20,6 @@ microseconds.
 import datetime
 import numpy as np
 
-import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
@@ -147,14 +146,12 @@ plt.show()
 _reset_epoch_for_tutorial()  # Don't do this.  Just for this tutorial.
 
 #############################################################################
-# ------------
 #
-# References
-# """"""""""
+# .. admonition:: References
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-matplotlib.dates.num2date
-matplotlib.dates.date2num
-matplotlib.dates.set_epoch
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.dates.num2date`
+#    - `matplotlib.dates.date2num`
+#    - `matplotlib.dates.set_epoch`

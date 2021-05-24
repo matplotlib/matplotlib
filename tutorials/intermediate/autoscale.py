@@ -71,7 +71,7 @@ ax[1].set_title("margins(0.2)")
 # `~matplotlib.axes.Axes.use_sticky_edges`.
 # Artists have a property `.Artist.sticky_edges`, and the values of
 # sticky edges can be changed by writing to ``Artist.sticky_edges.x`` or
-# ``.Artist.sticky_edges.y``.
+# ``Artist.sticky_edges.y``.
 #
 # The following example shows how overriding works and when it is needed.
 

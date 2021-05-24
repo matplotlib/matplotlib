@@ -557,10 +557,12 @@ def _warn_if_global_cmap_modified(cmap):
     if getattr(cmap, '_global', False):
         _api.warn_deprecated(
             "3.3",
+            removal="3.6",
             message="You are modifying the state of a globally registered "
-                    "colormap. In future versions, you will not be able to "
-                    "modify a registered colormap in-place. To remove this "
-                    "warning, you can make a copy of the colormap first. "
+                    "colormap. This has been deprecated since %(since)s and "
+                    "%(removal)s, you will not be able to modify a "
+                    "registered colormap in-place. To remove this warning, "
+                    "you can make a copy of the colormap first. "
                     f'cmap = mpl.cm.get_cmap("{cmap.name}").copy()'
         )
 
@@ -687,6 +689,17 @@ class Colormap:
             cmapobject._lut = np.copy(self._lut)
         cmapobject._global = False
         return cmapobject
+
+    def __eq__(self, other):
+        if (not isinstance(other, Colormap) or self.name != other.name or
+                self.colorbar_extend != other.colorbar_extend):
+            return False
+        # To compare lookup tables the Colormaps have to be initialized
+        if not self._isinit:
+            self._init()
+        if not other._isinit:
+            other._init()
+        return np.array_equal(self._lut, other._lut)
 
     def get_bad(self):
         """Get the color for masked values."""
@@ -1270,7 +1283,7 @@ class TwoSlopeNorm(Normalize):
             Defaults to the min value of the dataset.
         vmax : float, optional
             The data value that defines ``1.0`` in the normalization.
-            Defaults to the the max value of the dataset.
+            Defaults to the max value of the dataset.
 
         Examples
         --------
@@ -1357,6 +1370,8 @@ class CenteredNorm(Normalize):
             array([0.25, 0.5 , 1.  ])
         """
         self._vcenter = vcenter
+        self.vmin = None
+        self.vmax = None
         # calling the halfrange setter to set vmin and vmax
         self.halfrange = halfrange
         self.clip = clip
@@ -1380,7 +1395,7 @@ class CenteredNorm(Normalize):
     def autoscale_None(self, A):
         """Set *vmin* and *vmax*."""
         A = np.asanyarray(A)
-        if self.vmax is None and A.size:
+        if self._halfrange is None and A.size:
             self.autoscale(A)
 
     @property
@@ -1737,7 +1752,7 @@ class BoundaryNorm(Normalize):
         else:
             max_col = self.Ncmap
         # this gives us the bins in the lookup table in the range
-        # [0, _n_regions - 1]  (the offset is baked in in the init)
+        # [0, _n_regions - 1]  (the offset is baked in the init)
         iret = np.digitize(xx, self.boundaries) - 1 + self._offset
         # if we have more colors than regions, stretch the region
         # index computed above to full range of the color bins.  This

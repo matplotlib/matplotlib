@@ -47,19 +47,14 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.patches
-matplotlib.patches.Ellipse
-matplotlib.patches.Polygon
-matplotlib.axes.Axes.add_patch
-matplotlib.patches.Patch.set_hatch
-matplotlib.axes.Axes.bar
-matplotlib.pyplot.bar
+#    - `matplotlib.patches`
+#    - `matplotlib.patches.Ellipse`
+#    - `matplotlib.patches.Polygon`
+#    - `matplotlib.axes.Axes.add_patch`
+#    - `matplotlib.patches.Patch.set_hatch`
+#    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`

@@ -21,7 +21,7 @@ import matplotlib as mpl
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
     GraphicsContextBase, MouseButton, NavigationToolbar2, RendererBase,
-    StatusbarBase, TimerBase, ToolContainerBase, cursors)
+    TimerBase, ToolContainerBase, cursors)
 
 from matplotlib import _api, cbook, backend_tools
 from matplotlib._pylab_helpers import Gcf
@@ -34,21 +34,6 @@ from matplotlib.widgets import SubplotTool
 import wx
 
 _log = logging.getLogger(__name__)
-
-# Debugging settings here...
-# Debug level set here. If the debug level is less than 5, information
-# messages (progressively more info for lower value) are printed. In addition,
-# traceback is performed, and pdb activated, for all uncaught exceptions in
-# this case
-_DEBUG = 5
-_DEBUG_lvls = {1: 'Low ', 2: 'Med ', 3: 'High', 4: 'Error'}
-
-
-@_api.deprecated("3.3")
-def DEBUG_MSG(string, lvl=3, o=None):
-    if lvl >= _DEBUG:
-        print(f"{_DEBUG_lvls[lvl]}- {string} in {type(o)}")
-
 
 # the True dots per inch on the screen; should be display dependent; see
 # http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5
@@ -130,7 +115,7 @@ class RendererWx(RendererBase):
 
     # wxPython allows for portable font styles, choosing them appropriately for
     # the target platform. Map some standard font names to the portable styles.
-    # QUESTION: Is it be wise to agree standard fontnames across all backends?
+    # QUESTION: Is it wise to agree to standard fontnames across all backends?
     fontnames = {
         'Sans': wx.FONTFAMILY_SWISS,
         'Roman': wx.FONTFAMILY_ROMAN,
@@ -279,16 +264,6 @@ class RendererWx(RendererBase):
         self.gc = GraphicsContextWx(self.bitmap, self)
         self.gc.select()
         self.gc.unselect()
-        return self.gc
-
-    @_api.deprecated("3.3", alternative=".gc")
-    def get_gc(self):
-        """
-        Fetch the locally cached gc.
-        """
-        # This is a dirty hack to allow anything with access to a renderer to
-        # access the current graphics context
-        assert self.gc is not None, "gc must be defined"
         return self.gc
 
     def get_wx_font(self, s, prop):
@@ -831,7 +806,7 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         self.gui_repaint(drawDC=drawDC)
 
     @_check_savefig_extra_args
-    def _print_image(self, filetype, filename, *, quality=None):
+    def _print_image(self, filetype, filename):
         origBitmap = self.bitmap
 
         self.bitmap = wx.Bitmap(math.ceil(self.figure.bbox.width),
@@ -843,16 +818,6 @@ class FigureCanvasWx(_FigureCanvasWxBase):
 
         # image is the object that we call SaveFile on.
         image = self.bitmap
-        # set the JPEG quality appropriately.  Unfortunately, it is only
-        # possible to set the quality on a wx.Image object.  So if we
-        # are saving a JPEG, convert the wx.Bitmap to a wx.Image,
-        # and set the quality.
-        if filetype == wx.BITMAP_TYPE_JPEG:
-            if quality is None:
-                quality = dict.__getitem__(mpl.rcParams,
-                                           'savefig.jpeg_quality')
-            image = self.bitmap.ConvertToImage()
-            image.SetOption(wx.IMAGE_OPTION_QUALITY, str(quality))
 
         # Now that we have rendered into the bitmap, save it to the appropriate
         # file type and clean up.
@@ -1120,21 +1085,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 
         NavigationToolbar2.__init__(self, canvas)
 
-        self._prevZoomRect = None
-        # for now, use alternate zoom-rectangle drawing on all
-        # Macs. N.B. In future versions of wx it may be possible to
-        # detect Retina displays with window.GetContentScaleFactor()
-        # and/or dc.GetContentScaleFactor()
-        self._retinaFix = 'wxMac' in wx.PlatformInfo
-
-    prevZoomRect = _api.deprecate_privatize_attribute("3.3")
-    retinaFix = _api.deprecate_privatize_attribute("3.3")
-    savedRetinaImage = _api.deprecate_privatize_attribute("3.3")
-    wxoverlay = _api.deprecate_privatize_attribute("3.3")
-    zoomAxes = _api.deprecate_privatize_attribute("3.3")
-    zoomStartX = _api.deprecate_privatize_attribute("3.3")
-    zoomStartY = _api.deprecate_privatize_attribute("3.3")
-
     @staticmethod
     def _icon(name):
         """
@@ -1208,35 +1158,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self.canvas.SetCursor(cursor)
         self.canvas.Update()
 
-    def press_zoom(self, event):
-        super().press_zoom(event)
-        if self.mode.name == 'ZOOM':
-            if not self._retinaFix:
-                self._wxoverlay = wx.Overlay()
-            else:
-                if event.inaxes is not None:
-                    self._savedRetinaImage = self.canvas.copy_from_bbox(
-                        event.inaxes.bbox)
-                    self._zoomStartX = event.xdata
-                    self._zoomStartY = event.ydata
-                    self._zoomAxes = event.inaxes
-
-    def release_zoom(self, event):
-        super().release_zoom(event)
-        if self.mode.name == 'ZOOM':
-            # When the mouse is released we reset the overlay and it
-            # restores the former content to the window.
-            if not self._retinaFix:
-                self._wxoverlay.Reset()
-                del self._wxoverlay
-            else:
-                del self._savedRetinaImage
-                if self._prevZoomRect:
-                    self._prevZoomRect.pop(0).remove()
-                    self._prevZoomRect = None
-                if self._zoomAxes:
-                    self._zoomAxes = None
-
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height
         self.canvas._rubberband_rect = (x0, height - y0, x1, height - y1)
@@ -1257,21 +1178,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             self.EnableTool(self.wx_ids['Back'], can_backward)
         if 'Forward' in self.wx_ids:
             self.EnableTool(self.wx_ids['Forward'], can_forward)
-
-
-@_api.deprecated("3.3")
-class StatusBarWx(wx.StatusBar):
-    """
-    A status bar is added to _FigureFrame to allow measurements and the
-    previously selected scroll function to be displayed as a user convenience.
-    """
-
-    def __init__(self, parent, *args, **kwargs):
-        super().__init__(parent, -1)
-        self.SetFieldsCount(2)
-
-    def set_function(self, string):
-        self.SetStatusText("%s" % string, 1)
 
 
 # tools for matplotlib.backend_managers.ToolManager:
@@ -1359,19 +1265,6 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
 
     def set_message(self, s):
         self._label_text.SetLabel(s)
-
-
-@_api.deprecated("3.3")
-class StatusbarWx(StatusbarBase, wx.StatusBar):
-    """For use with ToolManager."""
-    def __init__(self, parent, *args, **kwargs):
-        StatusbarBase.__init__(self, *args, **kwargs)
-        wx.StatusBar.__init__(self, parent, -1)
-        self.SetFieldsCount(1)
-        self.SetStatusText("")
-
-    def set_message(self, s):
-        self.SetStatusText(s)
 
 
 class ConfigureSubplotsWx(backend_tools.ConfigureSubplotsBase):

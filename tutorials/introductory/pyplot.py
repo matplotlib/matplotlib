@@ -461,5 +461,5 @@ plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.25,
 plt.show()
 
 ###############################################################################
-# It is also possible to add your own scale, see :ref:`adding-new-scales` for
+# It is also possible to add your own scale, see `matplotlib.scale` for
 # details.

@@ -1,10 +1,10 @@
 """
-A PDF matplotlib backend
-Author: Jouni K Seppänen <jks@iki.fi>
+A PDF Matplotlib backend.
+
+Author: Jouni K Seppänen <jks@iki.fi> and others.
 """
 
 import codecs
-import collections
 from datetime import datetime
 from enum import Enum
 from functools import total_ordering
@@ -24,11 +24,11 @@ import numpy as np
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import _api, _text_layout, cbook
+from matplotlib import _api, _text_helpers, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, RendererBase, _no_output_draw)
+    GraphicsContextBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
@@ -681,15 +681,14 @@ class PdfFile:
         self._soft_mask_states = {}
         self._soft_mask_seq = (Name(f'SM{i}') for i in itertools.count(1))
         self._soft_mask_groups = []
-        # reproducible writeHatches needs an ordered dict:
-        self.hatchPatterns = collections.OrderedDict()
+        self.hatchPatterns = {}
         self._hatch_pattern_seq = (Name(f'H{i}') for i in itertools.count(1))
         self.gouraudTriangles = []
 
-        self._images = collections.OrderedDict()   # reproducible writeImages
+        self._images = {}
         self._image_seq = (Name(f'I{i}') for i in itertools.count(1))
 
-        self.markers = collections.OrderedDict()   # reproducible writeMarkers
+        self.markers = {}
         self.multi_byte_charprocs = {}
 
         self.paths = []
@@ -716,11 +715,6 @@ class PdfFile:
                      'ProcSet': procsets}
         self.writeObject(self.resourceObject, resources)
 
-    @_api.deprecated("3.3")
-    @property
-    def used_characters(self):
-        return self.file._character_tracker.used_characters
-
     def newPage(self, width, height):
         self.endStream()
 
@@ -732,9 +726,6 @@ class PdfFile:
                    'Resources': self.resourceObject,
                    'MediaBox': [0, 0, 72 * width, 72 * height],
                    'Contents': contentObject,
-                   'Group': {'Type': Name('Group'),
-                             'S': Name('Transparency'),
-                             'CS': Name('DeviceRGB')},
                    'Annots': annotsObject,
                    }
         pageObject = self.reserveObject('page')
@@ -744,8 +735,10 @@ class PdfFile:
 
         self.beginStream(contentObject.id,
                          self.reserveObject('length of content stream'))
-        # Initialize the pdf graphics state to match the default mpl
-        # graphics context: currently only the join style needs to be set
+        # Initialize the pdf graphics state to match the default Matplotlib
+        # graphics context (colorspace and joinstyle).
+        self.output(Name('DeviceRGB'), Op.setcolorspace_stroke)
+        self.output(Name('DeviceRGB'), Op.setcolorspace_nonstroke)
         self.output(GraphicsContextPdf.joinstyles['round'], Op.setlinejoin)
 
         # Clear the list of annotations for the next page
@@ -1879,15 +1872,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         gc._fillcolor = orig_fill
         gc._effective_alphas = orig_alphas
 
-    @_api.deprecated("3.3")
-    def track_characters(self, *args, **kwargs):
-        """Keep track of which characters are required from each font."""
-        self.file._character_tracker.track(*args, **kwargs)
-
-    @_api.deprecated("3.3")
-    def merge_used_characters(self, *args, **kwargs):
-        self.file._character_tracker.merge(*args, **kwargs)
-
     def get_image_magnification(self):
         return self.image_dpi/72.0
 
@@ -2155,8 +2139,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # Pop off the global transformation
         self.file.output(Op.grestore)
 
-    @_api.delete_parameter("3.3", "ismath")
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+    def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         # docstring inherited
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
@@ -2313,7 +2296,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             # List of (start_x, glyph_index).
             multibyte_glyphs = []
             prev_was_multibyte = True
-            for item in _text_layout.layout(
+            for item in _text_helpers.layout(
                     s, font, kern_mode=KERNING_UNFITTED):
                 if ord(item.char) <= 255:
                     if prev_was_multibyte:
@@ -2733,7 +2716,7 @@ class FigureCanvasPdf(FigureCanvasBase):
                 file.close()
 
     def draw(self):
-        _no_output_draw(self.figure)
+        self.figure.draw_no_output()
         return super().draw()
 
 

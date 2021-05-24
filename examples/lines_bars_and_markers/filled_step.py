@@ -7,7 +7,6 @@ Hatching capabilities for plotting histograms.
 """
 
 import itertools
-from collections import OrderedDict
 from functools import partial
 
 import numpy as np
@@ -188,7 +187,7 @@ hatch_cycle = cycler(hatch=['/', '*', '+', '|'])
 np.random.seed(19680801)
 
 stack_data = np.random.randn(4, 12250)
-dict_data = OrderedDict(zip((c['label'] for c in label_cycle), stack_data))
+dict_data = dict(zip((c['label'] for c in label_cycle), stack_data))
 
 ###############################################################################
 # Work with plain arrays
@@ -225,15 +224,11 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.fill_betweenx
-matplotlib.axes.Axes.fill_between
-matplotlib.axis.Axis.set_major_locator
+#    - `matplotlib.axes.Axes.fill_betweenx` / `matplotlib.pyplot.fill_betweenx`
+#    - `matplotlib.axes.Axes.fill_between` / `matplotlib.pyplot.fill_between`
+#    - `matplotlib.axis.Axis.set_major_locator`

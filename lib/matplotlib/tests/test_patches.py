@@ -5,7 +5,8 @@ import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
-from matplotlib.patches import Patch, Polygon, Rectangle, FancyArrowPatch
+from matplotlib.patches import (Annulus, Patch, Polygon, Rectangle,
+                                FancyArrowPatch)
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.transforms import Bbox
 import matplotlib.pyplot as plt
@@ -148,17 +149,17 @@ def test_patch_alpha_coloring():
     cut_star2 = mpath.Path(verts + 1, codes)
 
     ax = plt.axes()
-    patch = mpatches.PathPatch(cut_star1,
-                               linewidth=5, linestyle='dashdot',
-                               facecolor=(1, 0, 0, 0.5),
-                               edgecolor=(0, 0, 1, 0.75))
-    ax.add_patch(patch)
-
     col = mcollections.PathCollection([cut_star2],
                                       linewidth=5, linestyles='dashdot',
                                       facecolor=(1, 0, 0, 0.5),
                                       edgecolor=(0, 0, 1, 0.75))
     ax.add_collection(col)
+
+    patch = mpatches.PathPatch(cut_star1,
+                               linewidth=5, linestyle='dashdot',
+                               facecolor=(1, 0, 0, 0.5),
+                               edgecolor=(0, 0, 1, 0.75))
+    ax.add_patch(patch)
 
     ax.set_xlim([-1, 2])
     ax.set_ylim([-1, 2])
@@ -178,19 +179,19 @@ def test_patch_alpha_override():
     cut_star2 = mpath.Path(verts + 1, codes)
 
     ax = plt.axes()
-    patch = mpatches.PathPatch(cut_star1,
-                               linewidth=5, linestyle='dashdot',
-                               alpha=0.25,
-                               facecolor=(1, 0, 0, 0.5),
-                               edgecolor=(0, 0, 1, 0.75))
-    ax.add_patch(patch)
-
     col = mcollections.PathCollection([cut_star2],
                                       linewidth=5, linestyles='dashdot',
                                       alpha=0.25,
                                       facecolor=(1, 0, 0, 0.5),
                                       edgecolor=(0, 0, 1, 0.75))
     ax.add_collection(col)
+
+    patch = mpatches.PathPatch(cut_star1,
+                               linewidth=5, linestyle='dashdot',
+                               alpha=0.25,
+                               facecolor=(1, 0, 0, 0.5),
+                               edgecolor=(0, 0, 1, 0.75))
+    ax.add_patch(patch)
 
     ax.set_xlim([-1, 2])
     ax.set_ylim([-1, 2])
@@ -217,17 +218,17 @@ def test_patch_custom_linestyle():
     cut_star2 = mpath.Path(verts + 1, codes)
 
     ax = plt.axes()
-    patch = mpatches.PathPatch(
-        cut_star1,
-        linewidth=5, linestyle=(0, (5, 7, 10, 7)),
-        facecolor=(1, 0, 0), edgecolor=(0, 0, 1))
-    ax.add_patch(patch)
-
     col = mcollections.PathCollection(
         [cut_star2],
         linewidth=5, linestyles=[(0, (5, 7, 10, 7))],
         facecolor=(1, 0, 0), edgecolor=(0, 0, 1))
     ax.add_collection(col)
+
+    patch = mpatches.PathPatch(
+        cut_star1,
+        linewidth=5, linestyle=(0, (5, 7, 10, 7)),
+        facecolor=(1, 0, 0), edgecolor=(0, 0, 1))
+    ax.add_patch(patch)
 
     ax.set_xlim([-1, 2])
     ax.set_ylim([-1, 2])
@@ -352,6 +353,10 @@ def test_patch_str():
 
     p = mpatches.Arc(xy=(1, 2), width=3, height=4, angle=5, theta1=6, theta2=7)
     expected = 'Arc(xy=(1, 2), width=3, height=4, angle=5, theta1=6, theta2=7)'
+    assert str(p) == expected
+
+    p = mpatches.Annulus(xy=(1, 2), r=(3, 4), width=1, angle=2)
+    expected = "Annulus(xy=(1, 2), r=(3, 4), width=1, angle=2)"
     assert str(p) == expected
 
     p = mpatches.RegularPolygon((1, 2), 20, radius=5)
@@ -543,7 +548,37 @@ def test_fancyarrow_units():
     dtime = datetime(2000, 1, 1)
     fig, ax = plt.subplots()
     arrow = FancyArrowPatch((0, dtime), (0.01, dtime))
-    ax.add_patch(arrow)
+
+
+def test_fancyarrow_setdata():
+    fig, ax = plt.subplots()
+    arrow = ax.arrow(0, 0, 10, 10, head_length=5, head_width=1, width=.5)
+    expected1 = np.array(
+      [[13.54, 13.54],
+       [10.35,  9.65],
+       [10.18,  9.82],
+       [0.18, -0.18],
+       [-0.18,  0.18],
+       [9.82, 10.18],
+       [9.65, 10.35],
+       [13.54, 13.54]]
+    )
+    assert np.allclose(expected1, np.round(arrow.verts, 2))
+
+    expected2 = np.array(
+      [[16.71, 16.71],
+       [16.71, 15.29],
+       [16.71, 15.29],
+       [1.71,  0.29],
+       [0.29,  1.71],
+       [15.29, 16.71],
+       [15.29, 16.71],
+       [16.71, 16.71]]
+    )
+    arrow.set_data(
+        x=1, y=1, dx=15, dy=15, width=2, head_width=2, head_length=1
+    )
+    assert np.allclose(expected2, np.round(arrow.verts, 2))
 
 
 @image_comparison(["large_arc.svg"], style="mpl20")
@@ -601,6 +636,39 @@ def test_rotated_arcs():
         ax.axvline(0, color="k")
         ax.set_axis_off()
         ax.set_aspect("equal")
+
+
+@image_comparison(baseline_images=['annulus'], extensions=['png'])
+def test_annulus():
+
+    fig, ax = plt.subplots()
+    cir = Annulus((0.5, 0.5), 0.2, 0.05, fc='g')        # circular annulus
+    ell = Annulus((0.5, 0.5), (0.5, 0.3), 0.1, 45,      # elliptical
+                  fc='m', ec='b', alpha=0.5, hatch='xxx')
+    ax.add_patch(cir)
+    ax.add_patch(ell)
+    ax.set_aspect('equal')
+
+
+@image_comparison(baseline_images=['annulus'], extensions=['png'])
+def test_annulus_setters():
+
+    fig, ax = plt.subplots()
+    cir = Annulus((0., 0.), 0.2, 0.01, fc='g')   # circular annulus
+    ell = Annulus((0., 0.), (1, 2), 0.1, 0,      # elliptical
+                  fc='m', ec='b', alpha=0.5, hatch='xxx')
+    ax.add_patch(cir)
+    ax.add_patch(ell)
+    ax.set_aspect('equal')
+
+    cir.center = (0.5, 0.5)
+    cir.radii = 0.2
+    cir.width = 0.05
+
+    ell.center = (0.5, 0.5)
+    ell.radii = (0.5, 0.3)
+    ell.width = 0.1
+    ell.angle = 45
 
 
 def test_degenerate_polygon():

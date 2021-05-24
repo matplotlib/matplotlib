@@ -52,10 +52,6 @@ The Locator subclasses defined here are
 :class:`LogitLocator`
     Locator for logit scaling.
 
-:class:`OldAutoLocator`
-    Choose a `MultipleLocator` and dynamically reassign it for intelligent
-    ticking during navigation.
-
 :class:`AutoMinorLocator`
     Locator for minor ticks when the axis is linear and the
     major ticks are uniformly spaced.  Subdivides the major
@@ -102,9 +98,6 @@ operates on a single tick value and returns a string to the axis.
 
 :class:`NullFormatter`
     No labels on the ticks.
-
-:class:`IndexFormatter`
-    Set the strings from a list of labels.
 
 :class:`FixedFormatter`
     Set the strings manually for the labels.
@@ -184,13 +177,12 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'NullFormatter', 'FuncFormatter', 'FormatStrFormatter',
            'StrMethodFormatter', 'ScalarFormatter', 'LogFormatter',
            'LogFormatterExponent', 'LogFormatterMathtext',
-           'IndexFormatter', 'LogFormatterSciNotation',
+           'LogFormatterSciNotation',
            'LogitFormatter', 'EngFormatter', 'PercentFormatter',
-           'OldScalarFormatter',
            'Locator', 'IndexLocator', 'FixedLocator', 'NullLocator',
            'LinearLocator', 'LogLocator', 'AutoLocator',
            'MultipleLocator', 'MaxNLocator', 'AutoMinorLocator',
-           'SymmetricalLogLocator', 'LogitLocator', 'OldAutoLocator')
+           'SymmetricalLogLocator', 'LogitLocator')
 
 
 class _DummyAxis:
@@ -231,12 +223,17 @@ class TickHelper:
         if self.axis is None:
             self.axis = _DummyAxis(**kwargs)
 
+    @_api.deprecated("3.5", alternative=".axis.set_view_interval")
     def set_view_interval(self, vmin, vmax):
         self.axis.set_view_interval(vmin, vmax)
 
+    @_api.deprecated("3.5", alternative=".axis.set_data_interval")
     def set_data_interval(self, vmin, vmax):
         self.axis.set_data_interval(vmin, vmax)
 
+    @_api.deprecated(
+        "3.5",
+        alternative=".axis.set_view_interval and .axis.set_data_interval")
     def set_bounds(self, vmin, vmax):
         self.set_view_interval(vmin, vmax)
         self.set_data_interval(vmin, vmax)
@@ -304,35 +301,6 @@ class Formatter(TickHelper):
     def _set_locator(self, locator):
         """Subclasses may want to override this to set a locator."""
         pass
-
-
-@_api.deprecated("3.3")
-class IndexFormatter(Formatter):
-    """
-    Format the position x to the nearest i-th label where ``i = int(x + 0.5)``.
-    Positions where ``i < 0`` or ``i > len(list)`` have no tick labels.
-
-    Parameters
-    ----------
-    labels : list
-        List of labels.
-    """
-    def __init__(self, labels):
-        self.labels = labels
-        self.n = len(labels)
-
-    def __call__(self, x, pos=None):
-        """
-        Return the format for tick value *x* at position pos.
-
-        The position is ignored and the value is rounded to the nearest
-        integer, which is used to look up the label.
-        """
-        i = int(x + 0.5)
-        if i < 0 or i >= self.n:
-            return ''
-        else:
-            return self.labels[i]
 
 
 class NullFormatter(Formatter):
@@ -446,40 +414,6 @@ class StrMethodFormatter(Formatter):
         with those exact names.
         """
         return self.fmt.format(x=x, pos=pos)
-
-
-@_api.deprecated("3.3")
-class OldScalarFormatter(Formatter):
-    """
-    Tick location is a plain old number.
-    """
-
-    def __call__(self, x, pos=None):
-        """
-        Return the format for tick val *x* based on the width of the axis.
-
-        The position *pos* is ignored.
-        """
-        xmin, xmax = self.axis.get_view_interval()
-        # If the number is not too big and it's an int, format it as an int.
-        if abs(x) < 1e4 and x == int(x):
-            return '%d' % x
-        d = abs(xmax - xmin)
-        fmt = ('%1.3e' if d < 1e-2 else
-               '%1.3f' if d <= 1 else
-               '%1.2f' if d <= 10 else
-               '%1.1f' if d <= 1e5 else
-               '%1.1e')
-        s = fmt % x
-        tup = s.split('e')
-        if len(tup) == 2:
-            mantissa = tup[0].rstrip('0').rstrip('.')
-            sign = tup[1][0].replace('+', '')
-            exponent = tup[1][1:].lstrip('0')
-            s = '%se%s%s' % (mantissa, sign, exponent)
-        else:
-            s = s.rstrip('0').rstrip('.')
-        return s
 
 
 class ScalarFormatter(Formatter):
@@ -739,7 +673,8 @@ class ScalarFormatter(Formatter):
                 delta = abs(neighbor_values - value).max()
             else:
                 # Rough approximation: no more than 1e4 divisions.
-                delta = np.diff(self.axis.get_view_interval()) / 1e4
+                a, b = self.axis.get_view_interval()
+                delta = (b - a) / 1e4
             # If e.g. value = 45.67 and delta = 0.02, then we want to round to
             # 2 digits after the decimal point (floor(log10(0.02)) = -2);
             # 45.67 contributes 2 digits before the decimal point
@@ -1669,18 +1604,6 @@ class PercentFormatter(Formatter):
         self._symbol = symbol
 
 
-def _if_refresh_overridden_call_and_emit_deprec(locator):
-    if not locator.refresh.__func__.__module__.startswith("matplotlib."):
-        cbook.warn_external(
-            "3.3", message="Automatic calls to Locator.refresh by the draw "
-            "machinery are deprecated since %(since)s and will be removed in "
-            "%(removal)s.  You are using a third-party locator that overrides "
-            "the refresh() method; this locator should instead perform any "
-            "required processing in __call__().")
-    with _api.suppress_matplotlib_deprecation_warning():
-        locator.refresh()
-
-
 class Locator(TickHelper):
     """
     Determine the tick locations;
@@ -1769,38 +1692,6 @@ class Locator(TickHelper):
         Subclasses should override this method to change locator behaviour.
         """
         return mtransforms.nonsingular(vmin, vmax)
-
-    @_api.deprecated("3.3")
-    def pan(self, numsteps):
-        """Pan numticks (can be positive or negative)"""
-        ticks = self()
-        numticks = len(ticks)
-
-        vmin, vmax = self.axis.get_view_interval()
-        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
-        if numticks > 2:
-            step = numsteps * abs(ticks[0] - ticks[1])
-        else:
-            d = abs(vmax - vmin)
-            step = numsteps * d / 6.
-
-        vmin += step
-        vmax += step
-        self.axis.set_view_interval(vmin, vmax, ignore=True)
-
-    @_api.deprecated("3.3")
-    def zoom(self, direction):
-        """Zoom in/out on axis; if direction is >0 zoom in, else zoom out."""
-
-        vmin, vmax = self.axis.get_view_interval()
-        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
-        interval = abs(vmax - vmin)
-        step = 0.1 * interval * direction
-        self.axis.set_view_interval(vmin + step, vmax - step, ignore=True)
-
-    @_api.deprecated("3.3")
-    def refresh(self):
-        """Refresh internal information based on current limits."""
 
 
 class IndexLocator(Locator):
@@ -2960,58 +2851,3 @@ class AutoMinorLocator(Locator):
     def tick_values(self, vmin, vmax):
         raise NotImplementedError('Cannot get tick locations for a '
                                   '%s type.' % type(self))
-
-
-@_api.deprecated("3.3")
-class OldAutoLocator(Locator):
-    """
-    On autoscale this class picks the best MultipleLocator to set the
-    view limits and the tick locs.
-    """
-
-    def __call__(self):
-        # docstring inherited
-        vmin, vmax = self.axis.get_view_interval()
-        vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
-        d = abs(vmax - vmin)
-        locator = self.get_locator(d)
-        return self.raise_if_exceeds(locator())
-
-    def tick_values(self, vmin, vmax):
-        raise NotImplementedError('Cannot get tick locations for a '
-                                  '%s type.' % type(self))
-
-    def view_limits(self, vmin, vmax):
-        # docstring inherited
-        d = abs(vmax - vmin)
-        locator = self.get_locator(d)
-        return locator.view_limits(vmin, vmax)
-
-    def get_locator(self, d):
-        """Pick the best locator based on a distance *d*."""
-        d = abs(d)
-        if d <= 0:
-            locator = MultipleLocator(0.2)
-        else:
-
-            try:
-                ld = math.log10(d)
-            except OverflowError as err:
-                raise RuntimeError('AutoLocator illegal data interval '
-                                   'range') from err
-
-            fld = math.floor(ld)
-            base = 10 ** fld
-
-            #if ld==fld:  base = 10**(fld-1)
-            #else:        base = 10**fld
-
-            if d >= 5 * base:
-                ticksize = base
-            elif d >= 2 * base:
-                ticksize = base / 2.0
-            else:
-                ticksize = base / 5.0
-            locator = MultipleLocator(ticksize)
-
-        return locator

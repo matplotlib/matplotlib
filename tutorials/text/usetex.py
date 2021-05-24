@@ -1,6 +1,6 @@
 r"""
 *************************
-Text rendering With LaTeX
+Text rendering with LaTeX
 *************************
 
 Matplotlib can use LaTeX to render text.  This is activated by setting
@@ -50,7 +50,7 @@ matplotlibrc use::
   })
 
 Here is the standard example,
-:file:`/gallery/text_labels_and_annotations/tex_demo`:
+:doc:`/gallery/text_labels_and_annotations/tex_demo`:
 
 .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_tex_demo_001.png
    :target: ../../gallery/text_labels_and_annotations/tex_demo.html
@@ -102,13 +102,13 @@ Possible hangups
 
 * On Ubuntu and Gentoo, the base texlive install does not ship with
   the type1cm package. You may need to install some of the extra
-  packages to get all the goodies that come bundled with other latex
+  packages to get all the goodies that come bundled with other LaTeX
   distributions.
 
-* Some progress has been made so matplotlib uses the dvi files
-  directly for text layout. This allows latex to be used for text
+* Some progress has been made so Matplotlib uses the dvi files
+  directly for text layout. This allows LaTeX to be used for text
   layout with the pdf and svg backends, as well as the \*Agg and PS
-  backends. In the future, a latex installation may be the only
+  backends. In the future, a LaTeX installation may be the only
   external dependency.
 
 .. _usetex-troubleshooting:
@@ -131,7 +131,7 @@ Troubleshooting
   problems. Please disable this option before reporting problems to
   the mailing list.
 
-* If you still need help, please see :ref:`reporting-problems`
+* If you still need help, please see :ref:`reporting-problems`.
 
 .. _dvipng: http://www.nongnu.org/dvipng/
 .. _dvips: https://tug.org/texinfohtml/dvips.html

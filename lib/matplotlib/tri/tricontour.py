@@ -33,9 +33,13 @@ class TriContourSet(ContourSet):
         Process args and kwargs.
         """
         if isinstance(args[0], TriContourSet):
-            C = args[0].cppContourGenerator
+            C = args[0]._contour_generator
             if self.levels is None:
                 self.levels = args[0].levels
+            self.zmin = args[0].zmin
+            self.zmax = args[0].zmax
+            self._mins = args[0]._mins
+            self._maxs = args[0]._maxs
         else:
             from matplotlib import _tri
             tri, z = self._contour_args(args, kwargs)
@@ -43,28 +47,8 @@ class TriContourSet(ContourSet):
             self._mins = [tri.x.min(), tri.y.min()]
             self._maxs = [tri.x.max(), tri.y.max()]
 
-        self.cppContourGenerator = C
+        self._contour_generator = C
         return kwargs
-
-    def _get_allsegs_and_allkinds(self):
-        """
-        Create and return allsegs and allkinds by calling underlying C code.
-        """
-        allsegs = []
-        if self.filled:
-            lowers, uppers = self._get_lowers_and_uppers()
-            allkinds = []
-            for lower, upper in zip(lowers, uppers):
-                segs, kinds = self.cppContourGenerator.create_filled_contour(
-                    lower, upper)
-                allsegs.append([segs])
-                allkinds.append([kinds])
-        else:
-            allkinds = None
-            for level in self.levels:
-                segs = self.cppContourGenerator.create_contour(level)
-                allsegs.append(segs)
-        return allsegs, allkinds
 
     def _contour_args(self, args, kwargs):
         if self.filled:
@@ -207,6 +191,11 @@ norm : `~matplotlib.colors.Normalize`, optional
     the canonical colormap range [0, 1] for mapping to colors. If not given,
     the default linear scaling is used.
 
+vmin, vmax : float, optional
+    If not *None*, either or both of these values will be supplied to
+    the `.Normalize` instance, overriding the default color scaling
+    based on *levels*.
+
 origin : {*None*, 'upper', 'lower', 'image'}, default: None
     Determines the orientation and exact position of *Z* by specifying the
     position of ``Z[0, 0]``.  This is only relevant, if *X*, *Y* are not given.
@@ -255,7 +244,12 @@ extend : {'neither', 'both', 'min', 'max'}, default: 'neither'
 
 xunits, yunits : registered units, optional
     Override axis units by specifying an instance of a
-    :class:`matplotlib.units.ConversionInterface`.""")
+    :class:`matplotlib.units.ConversionInterface`.
+
+antialiased : bool, optional
+    Enable antialiasing, overriding the defaults.  For
+    filled contours, the default is *True*.  For line contours,
+    it is taken from :rc:`lines.antialiased`.""")
 
 
 @docstring.Substitution(func='tricontour', type='lines')
@@ -293,8 +287,11 @@ def tricontourf(ax, *args, **kwargs):
     """
     %(_tricontour_doc)s
 
-    antialiased : bool, default: True
-        Whether to use antialiasing.
+    hatches : list[str], optional
+        A list of cross hatch patterns to use on the filled areas.
+        If None, no hatching will be added to the contour.
+        Hatching is supported in the PostScript, PDF, SVG and Agg
+        backends only.
 
     Notes
     -----

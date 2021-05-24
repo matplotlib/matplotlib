@@ -150,7 +150,7 @@ def _draw_list_compositing_images(
 
         for a in artists:
             if (isinstance(a, _ImageBase) and a.can_composite() and
-                    a.get_clip_on()):
+                    a.get_clip_on() and not a.get_clip_path()):
                 image_group.append(a)
             else:
                 flush_images()
@@ -1346,8 +1346,7 @@ class FigureImage(_ImageBase):
 
     def set_data(self, A):
         """Set the image array."""
-        cm.ScalarMappable.set_array(self,
-                                    cbook.safe_masked_invalid(A, copy=True))
+        cm.ScalarMappable.set_array(self, A)
         self.stale = True
 
 
@@ -1425,6 +1424,11 @@ def imread(fname, format=None):
     """
     Read an image from a file into an array.
 
+    .. note::
+
+        This function exists for historical reasons.  It is recommended to
+        use `PIL.Image.open` instead for loading images.
+
     Parameters
     ----------
     fname : str or file-like
@@ -1435,9 +1439,11 @@ def imread(fname, format=None):
         for reading and pass the result to Pillow, e.g. with
         ``PIL.Image.open(urllib.request.urlopen(url))``.
     format : str, optional
-        The image file format assumed for reading the data. If not
-        given, the format is deduced from the filename.  If nothing can
-        be deduced, PNG is tried.
+        The image file format assumed for reading the data.  The image is
+        loaded as a PNG file if *format* is set to "png", if *fname* is a path
+        or opened file with a ".png" extension, or if it is an URL.  In all
+        other cases, *format* is ignored and the format is auto-detected by
+        `PIL.Image.open`.
 
     Returns
     -------
@@ -1447,6 +1453,10 @@ def imread(fname, format=None):
         - (M, N) for grayscale images.
         - (M, N, 3) for RGB images.
         - (M, N, 4) for RGBA images.
+
+        PNG images are returned as float arrays (0-1).  All other formats are
+        returned as int arrays, with a bit depth determined by the file's
+        contents.
     """
     # hide imports to speed initial import on systems with slow linkers
     from urllib import parse
@@ -1478,9 +1488,10 @@ def imread(fname, format=None):
     if isinstance(fname, str):
         parsed = parse.urlparse(fname)
         if len(parsed.scheme) > 1:  # Pillow doesn't handle URLs directly.
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.4", message="Directly reading images from URLs is "
-                "deprecated. Please open the URL for reading and pass the "
+                "deprecated since %(since)s and will no longer be supported "
+                "%(removal)s. Please open the URL for reading and pass the "
                 "result to Pillow, e.g. with "
                 "``PIL.Image.open(urllib.request.urlopen(url))``.")
             # hide imports to speed initial import on systems with slow linkers

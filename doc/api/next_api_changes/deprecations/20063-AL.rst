@@ -1,0 +1,4 @@
+``Divider.get_vsize_hsize`` and ``Grid.get_vsize_hsize``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These ``axes_grid1`` methods are deprecated.  Copy their implementations if
+needed.

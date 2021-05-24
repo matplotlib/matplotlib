@@ -18,12 +18,11 @@ import time
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, _path
-from matplotlib import _text_layout
+from matplotlib import _api, cbook, _path, _text_helpers
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, RendererBase, _no_output_draw)
+    GraphicsContextBase, RendererBase)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import get_font
 from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_NO_SCALE
@@ -180,12 +179,12 @@ end readonly def
  2 copy known not {pop /.notdef} if
  true 3 1 roll get exec
  end
-} d
+} _d
 
 /BuildChar {
  1 index /Encoding get exch get
  1 index /BuildGlyph get exec
-} d
+} _d
 
 FontName currentdict end definefont pop
 """
@@ -208,7 +207,7 @@ FontName currentdict end definefont pop
                 # decomposer always explicitly moving to the closing point
                 # first).
                 [b"m", b"l", b"", b"c", b""], True).decode("ascii")
-            + "ce} d"
+            + "ce} _d"
         )
 
     return preamble + "\n".join(entries) + postamble
@@ -225,8 +224,6 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
 
     mathtext_parser = _api.deprecated("3.4")(property(
         lambda self: MathTextParser("PS")))
-    used_characters = _api.deprecated("3.3")(property(
-        lambda self: self._character_tracker.used_characters))
 
     def __init__(self, width, height, pswriter, imagedpi=72):
         # Although postscript itself is dpi independent, we need to inform the
@@ -253,15 +250,6 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         self._path_collection_id = 0
 
         self._character_tracker = _backend_pdf_ps.CharacterTracker()
-
-    @_api.deprecated("3.3")
-    def track_characters(self, *args, **kwargs):
-        """Keep track of which characters are required from each font."""
-        self._character_tracker.track(*args, **kwargs)
-
-    @_api.deprecated("3.3")
-    def merge_used_characters(self, *args, **kwargs):
-        self._character_tracker.merge(*args, **kwargs)
 
     def set_color(self, r, g, b, store=True):
         if (r, g, b) != self.color:
@@ -548,8 +536,7 @@ translate
 
         self._path_collection_id += 1
 
-    @_api.delete_parameter("3.3", "ismath")
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+    def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         # docstring inherited
         if not hasattr(self, "psfrag"):
             _log.warning(
@@ -570,19 +557,11 @@ translate
         s = fontcmd % s
         tex = r'\color[rgb]{%s} %s' % (color, s)
 
-        corr = 0  # w/2*(fontsize-10)/10
-        if dict.__getitem__(mpl.rcParams, 'text.latex.preview'):
-            # use baseline alignment!
-            pos = _nums_to_str(x-corr, y)
-            self.psfrag.append(
-                r'\psfrag{%s}[Bl][Bl][1][%f]{\fontsize{%f}{%f}%s}' % (
-                    thetext, angle, fontsize, fontsize*1.25, tex))
-        else:
-            # Stick to the bottom alignment.
-            pos = _nums_to_str(x-corr, y-bl)
-            self.psfrag.append(
-                r'\psfrag{%s}[bl][bl][1][%f]{\fontsize{%f}{%f}%s}' % (
-                    thetext, angle, fontsize, fontsize*1.25, tex))
+        # Stick to the bottom alignment.
+        pos = _nums_to_str(x, y-bl)
+        self.psfrag.append(
+            r'\psfrag{%s}[bl][bl][1][%f]{\fontsize{%f}{%f}%s}' % (
+                thetext, angle, fontsize, fontsize*1.25, tex))
 
         self._pswriter.write(f"""\
 gsave
@@ -633,7 +612,7 @@ grestore
             font.set_text(s, 0, flags=LOAD_NO_HINTING)
             self._character_tracker.track(font, s)
             xs_names = [(item.x, font.get_glyph_name(item.glyph_idx))
-                        for item in _text_layout.layout(s, font)]
+                        for item in _text_helpers.layout(s, font)]
 
         self.set_color(*gc.get_rgb())
         ps_name = (font.postscript_name
@@ -1132,7 +1111,7 @@ showpage
             _move_path_to_path_or_stream(tmpfile, outfile)
 
     def draw(self):
-        _no_output_draw(self.figure)
+        self.figure.draw_no_output()
         return super().draw()
 
 
@@ -1358,20 +1337,23 @@ FigureManagerPS = FigureManagerBase
 # The usage comments use the notation of the operator summary
 # in the PostScript Language reference manual.
 psDefs = [
-    # name proc  *d*  -
-    "/d { bind def } bind def",
+    # name proc  *_d*  -
+    # Note that this cannot be bound to /d, because when embedding a Type3 font
+    # we may want to define a "d" glyph using "/d{...} d" which would locally
+    # overwrite the definition.
+    "/_d { bind def } bind def",
     # x y  *m*  -
-    "/m { moveto } d",
+    "/m { moveto } _d",
     # x y  *l*  -
-    "/l { lineto } d",
+    "/l { lineto } _d",
     # x y  *r*  -
-    "/r { rlineto } d",
+    "/r { rlineto } _d",
     # x1 y1 x2 y2 x y *c*  -
-    "/c { curveto } d",
+    "/c { curveto } _d",
     # *cl*  -
-    "/cl { closepath } d",
+    "/cl { closepath } _d",
     # *ce*  -
-    "/ce { closepath eofill } d",
+    "/ce { closepath eofill } _d",
     # w h x y  *box*  -
     """/box {
       m
@@ -1379,15 +1361,15 @@ psDefs = [
       0 exch r
       neg 0 r
       cl
-    } d""",
+    } _d""",
     # w h x y  *clipbox*  -
     """/clipbox {
       box
       clip
       newpath
-    } d""",
+    } _d""",
     # wx wy llx lly urx ury  *setcachedevice*  -
-    "/sc { setcachedevice } d",
+    "/sc { setcachedevice } _d",
 ]
 
 

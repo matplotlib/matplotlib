@@ -1,0 +1,4 @@
+``SubplotParams.validate``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated.  Use `.SubplotParams.update` to change `.SubplotParams`
+while always keeping it in a valid state.

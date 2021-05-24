@@ -116,6 +116,10 @@ class TimerTornado(backend_bases.TimerBase):
 
 class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     _timer_cls = TimerTornado
+    # Webagg and friends having the right methods, but still
+    # having bugs in practice.  Do not advertise that it works until
+    # we can debug this.
+    supports_blit = False
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -133,10 +137,6 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # self.set_image_mode(mode) so that the notification can be given
         # to the connected clients.
         self._current_image_mode = 'full'
-
-        # Store the DPI ratio of the browser.  This is the scaling that
-        # occurs automatically for all images on a HiDPI display.
-        self._dpi_ratio = 1
 
     def show(self):
         # show the figure window
@@ -307,8 +307,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         self.draw_idle()
 
     def handle_resize(self, event):
-        x, y = event.get('width', 800), event.get('height', 800)
-        x, y = int(x) * self._dpi_ratio, int(y) * self._dpi_ratio
+        x = int(event.get('width', 800)) * self.device_pixel_ratio
+        y = int(event.get('height', 800)) * self.device_pixel_ratio
         fig = self.figure
         # An attempt at approximating the figure size in pixels.
         fig.set_size_inches(x / fig.dpi, y / fig.dpi, forward=False)
@@ -323,14 +323,15 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # The client requests notification of what the current image mode is.
         self.send_event('image_mode', mode=self._current_image_mode)
 
+    def handle_set_device_pixel_ratio(self, event):
+        self._handle_set_device_pixel_ratio(event.get('device_pixel_ratio', 1))
+
     def handle_set_dpi_ratio(self, event):
-        dpi_ratio = event.get('dpi_ratio', 1)
-        if dpi_ratio != self._dpi_ratio:
-            # We don't want to scale up the figure dpi more than once.
-            if not hasattr(self.figure, '_original_dpi'):
-                self.figure._original_dpi = self.figure.dpi
-            self.figure.dpi = dpi_ratio * self.figure._original_dpi
-            self._dpi_ratio = dpi_ratio
+        # This handler is for backwards-compatibility with older ipympl.
+        self._handle_set_device_pixel_ratio(event.get('dpi_ratio', 1))
+
+    def _handle_set_device_pixel_ratio(self, device_pixel_ratio):
+        if self._set_device_pixel_ratio(device_pixel_ratio):
             self._force_full = True
             self.draw_idle()
 
@@ -422,7 +423,8 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
     def resize(self, w, h, forward=True):
         self._send_event(
             'resize',
-            size=(w / self.canvas._dpi_ratio, h / self.canvas._dpi_ratio),
+            size=(w / self.canvas.device_pixel_ratio,
+                  h / self.canvas.device_pixel_ratio),
             forward=forward)
 
     def set_window_title(self, title):

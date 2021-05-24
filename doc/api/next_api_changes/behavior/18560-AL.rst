@@ -1,4 +1,0 @@
-Parasite Axes pcolor and pcolormesh now defaults to placing grid edges at integers, not half-integers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This is consistent with `~.Axes.pcolor` and `~.Axes.pcolormesh`.

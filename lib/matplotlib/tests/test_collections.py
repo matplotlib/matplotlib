@@ -677,6 +677,22 @@ def test_collection_set_verts_array():
         assert np.array_equal(ap._codes, atp._codes)
 
 
+def test_collection_set_array():
+    vals = [*range(10)]
+
+    # Test set_array with list
+    c = Collection()
+    c.set_array(vals)
+
+    # Test set_array with wrong dtype
+    with pytest.raises(TypeError, match="^Image data of dtype"):
+        c.set_array("wrong_input")
+
+    # Test if array kwarg is copied
+    vals[5] = 45
+    assert np.not_equal(vals, c.get_array()).any()
+
+
 def test_blended_collection_autolim():
     a = [1, 2, 4]
     height = .2
@@ -713,6 +729,22 @@ def test_quadmesh_set_array():
     coll.set_array(np.ones(9))
     fig.canvas.draw()
     assert np.array_equal(coll.get_array(), np.ones(9))
+
+
+def test_quadmesh_vmin_vmax():
+    # test when vmin/vmax on the norm changes, the quadmesh gets updated
+    fig, ax = plt.subplots()
+    cmap = mpl.cm.get_cmap('plasma')
+    norm = mpl.colors.Normalize(vmin=0, vmax=1)
+    coll = ax.pcolormesh([[1]], cmap=cmap, norm=norm)
+    fig.canvas.draw()
+    assert np.array_equal(coll.get_facecolors()[0, :], cmap(norm(1)))
+
+    # Change the vmin/vmax of the norm so that the color is from
+    # the bottom of the colormap now
+    norm.vmin, norm.vmax = 1, 2
+    fig.canvas.draw()
+    assert np.array_equal(coll.get_facecolors()[0, :], cmap(norm(1)))
 
 
 def test_quadmesh_alpha_array():

@@ -1,6 +1,0 @@
-webAgg backend no longer reports a middle click as a right click
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Previously when using the webAgg backend the event passed to a callback
-by ``fig.canvas.mpl_connect('mouse_button_event', callback)`` on a middle click
-would report `.MouseButton.RIGHT` instead of `.MouseButton.MIDDLE`

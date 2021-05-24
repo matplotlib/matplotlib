@@ -36,6 +36,22 @@
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.Bbox.bounds:2"
     ],
     "input_dims": [
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.AitoffAxes.AitoffTransform.transform_non_affine:14",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.AitoffAxes.AitoffTransform.transform_non_affine:20",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.AitoffAxes.InvertedAitoffTransform.transform_non_affine:14",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.AitoffAxes.InvertedAitoffTransform.transform_non_affine:20",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.HammerAxes.HammerTransform.transform_non_affine:14",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.HammerAxes.HammerTransform.transform_non_affine:20",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.HammerAxes.InvertedHammerTransform.transform_non_affine:14",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.HammerAxes.InvertedHammerTransform.transform_non_affine:20",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.LambertAxes.InvertedLambertTransform.transform_non_affine:14",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.LambertAxes.InvertedLambertTransform.transform_non_affine:20",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.LambertAxes.LambertTransform.transform_non_affine:14",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.LambertAxes.LambertTransform.transform_non_affine:20",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.MollweideAxes.InvertedMollweideTransform.transform_non_affine:14",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.MollweideAxes.InvertedMollweideTransform.transform_non_affine:20",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.MollweideAxes.MollweideTransform.transform_non_affine:14",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.MollweideAxes.MollweideTransform.transform_non_affine:20",
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.AffineBase.transform:14",
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.AffineBase.transform:8",
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.AffineBase.transform_affine:15",
@@ -63,16 +79,16 @@
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89"
     ],
     "matplotlib.axes.Axes.lines": [
-      "doc/tutorials/intermediate/artists.rst:425",
-      "doc/tutorials/intermediate/artists.rst:91"
+      "doc/tutorials/intermediate/artists.rst:100",
+      "doc/tutorials/intermediate/artists.rst:440"
     ],
     "matplotlib.axes.Axes.patch": [
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89",
-      "doc/tutorials/intermediate/artists.rst:174",
-      "doc/tutorials/intermediate/artists.rst:409"
+      "doc/tutorials/intermediate/artists.rst:186",
+      "doc/tutorials/intermediate/artists.rst:424"
     ],
     "matplotlib.axes.Axes.patches": [
-      "doc/tutorials/intermediate/artists.rst:448"
+      "doc/tutorials/intermediate/artists.rst:463"
     ],
     "matplotlib.axes.Axes.transAxes": [
       "lib/mpl_toolkits/axes_grid1/anchored_artists.py:docstring of mpl_toolkits.axes_grid1.anchored_artists.AnchoredDirectionArrows.__init__:8",
@@ -90,13 +106,13 @@
       "doc/api/prev_api_changes/api_changes_0.99.x.rst:23"
     ],
     "matplotlib.axes.Axes.xaxis": [
-      "doc/tutorials/intermediate/artists.rst:593"
+      "doc/tutorials/intermediate/artists.rst:608"
     ],
     "matplotlib.axes.Axes.yaxis": [
-      "doc/tutorials/intermediate/artists.rst:593"
+      "doc/tutorials/intermediate/artists.rst:608"
     ],
     "matplotlib.axis.Axis.label": [
-      "doc/tutorials/intermediate/artists.rst:640"
+      "doc/tutorials/intermediate/artists.rst:655"
     ],
     "matplotlib.cm.ScalarMappable.callbacksSM": [
       "doc/api/prev_api_changes/api_changes_0.98.0.rst:10"
@@ -109,11 +125,11 @@
     ],
     "matplotlib.figure.Figure.patch": [
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89",
-      "doc/tutorials/intermediate/artists.rst:174",
-      "doc/tutorials/intermediate/artists.rst:307"
+      "doc/tutorials/intermediate/artists.rst:186",
+      "doc/tutorials/intermediate/artists.rst:319"
     ],
     "matplotlib.figure.Figure.transFigure": [
-      "doc/tutorials/intermediate/artists.rst:356"
+      "doc/tutorials/intermediate/artists.rst:368"
     ],
     "max": [
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.Bbox.p1:4"
@@ -122,12 +138,20 @@
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.Bbox.p0:4"
     ],
     "mpl_toolkits.mplot3d.axis3d._axinfo": [
-      "doc/api/toolkits/mplot3d.rst:40"
+      "doc/api/toolkits/mplot3d.rst:42"
     ],
     "name": [
       "lib/matplotlib/scale.py:docstring of matplotlib.scale.ScaleBase:8"
     ],
     "output_dims": [
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.AitoffAxes.AitoffTransform.transform_non_affine:20",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.AitoffAxes.InvertedAitoffTransform.transform_non_affine:20",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.HammerAxes.HammerTransform.transform_non_affine:20",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.HammerAxes.InvertedHammerTransform.transform_non_affine:20",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.LambertAxes.InvertedLambertTransform.transform_non_affine:20",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.LambertAxes.LambertTransform.transform_non_affine:20",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.MollweideAxes.InvertedMollweideTransform.transform_non_affine:20",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.MollweideAxes.MollweideTransform.transform_non_affine:20",
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.AffineBase.transform:14",
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.AffineBase.transform_affine:21",
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.AffineBase.transform_non_affine:20",
@@ -167,10 +191,10 @@
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:215"
     ],
     "Patch3DCollection": [
-      "doc/api/toolkits/mplot3d.rst:83:<autosummary>:1"
+      "doc/api/toolkits/mplot3d.rst:85:<autosummary>:1"
     ],
     "Path3DCollection": [
-      "doc/api/toolkits/mplot3d.rst:83:<autosummary>:1"
+      "doc/api/toolkits/mplot3d.rst:85:<autosummary>:1"
     ],
     "backend_qt5.FigureCanvasQT": [
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:199"
@@ -230,12 +254,13 @@
       "doc/api/mathtext_api.rst:12"
     ],
     "matplotlib.axes.Subplot": [
-      "doc/tutorials/intermediate/artists.rst:35",
-      "doc/tutorials/intermediate/artists.rst:58"
+      "doc/tutorials/intermediate/artists.rst:44",
+      "doc/tutorials/intermediate/artists.rst:67"
     ],
     "matplotlib.axes._axes.Axes": [
       "doc/api/artist_api.rst:189",
       "doc/api/axes_api.rst:609",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.GeoAxes:1",
       "lib/matplotlib/projections/polar.py:docstring of matplotlib.projections.polar.PolarAxes:1",
       "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:1",
       "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.Axes:1",
@@ -247,22 +272,16 @@
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes:1"
     ],
     "matplotlib.backend_bases.FigureCanvas": [
-      "doc/tutorials/intermediate/artists.rst:20",
-      "doc/tutorials/intermediate/artists.rst:22",
-      "doc/tutorials/intermediate/artists.rst:27"
+      "doc/tutorials/intermediate/artists.rst:29",
+      "doc/tutorials/intermediate/artists.rst:31",
+      "doc/tutorials/intermediate/artists.rst:36"
     ],
     "matplotlib.backend_bases.Renderer": [
-      "doc/tutorials/intermediate/artists.rst:22",
-      "doc/tutorials/intermediate/artists.rst:27"
+      "doc/tutorials/intermediate/artists.rst:31",
+      "doc/tutorials/intermediate/artists.rst:36"
     ],
     "matplotlib.backend_bases._Backend": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.ShowBase:1"
-    ],
-    "matplotlib.backend_tools._ToolEnableAllNavigation": [
-      "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolEnableAllNavigation:1"
-    ],
-    "matplotlib.backend_tools._ToolEnableNavigation": [
-      "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolEnableNavigation:1"
     ],
     "matplotlib.backends._backend_pdf_ps.RendererPDFPSBase": [
       "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.RendererPdf:1",
@@ -391,20 +410,15 @@
       "lib/matplotlib/patches.py:docstring of matplotlib.patches.ConnectionStyle:1",
       "lib/mpl_toolkits/axisartist/axisline_style.py:docstring of mpl_toolkits.axisartist.axisline_style.AxislineStyle:1"
     ],
-    "matplotlib.projections.geo.AitoffAxes": [
-      "doc/api/artist_api.rst:189"
-    ],
-    "matplotlib.projections.geo.GeoAxes": [
-      "doc/api/artist_api.rst:189"
-    ],
-    "matplotlib.projections.geo.HammerAxes": [
-      "doc/api/artist_api.rst:189"
-    ],
-    "matplotlib.projections.geo.LambertAxes": [
-      "doc/api/artist_api.rst:189"
-    ],
-    "matplotlib.projections.geo.MollweideAxes": [
-      "doc/api/artist_api.rst:189"
+    "matplotlib.projections.geo._GeoTransform": [
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.AitoffAxes.AitoffTransform:1",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.AitoffAxes.InvertedAitoffTransform:1",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.HammerAxes.HammerTransform:1",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.HammerAxes.InvertedHammerTransform:1",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.LambertAxes.InvertedLambertTransform:1",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.LambertAxes.LambertTransform:1",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.MollweideAxes.InvertedMollweideTransform:1",
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.MollweideAxes.MollweideTransform:1"
     ],
     "matplotlib.text._AnnotationBase": [
       "doc/api/artist_api.rst:189",
@@ -521,7 +535,7 @@
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:199"
     ],
     "IPython.terminal.interactiveshell.TerminalInteractiveShell.inputhook": [
-      "doc/users/interactive_guide.rst:421"
+      "doc/users/interactive_guide.rst:420"
     ],
     "_find_tails": [
       "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Barbs:9"
@@ -575,13 +589,15 @@
   },
   "py:mod": {
     "IPython.terminal.pt_inputhooks": [
-      "doc/users/interactive_guide.rst:421"
+      "doc/users/interactive_guide.rst:420"
     ],
     "dateutil": [
       "lib/matplotlib/dates.py:docstring of matplotlib.dates:1"
     ],
     "matplotlib": [
-      "doc/api/prev_api_changes/api_changes_0.91.2.rst:15"
+      "doc/api/next_api_changes/deprecations/19517-AL.rst:3",
+      "doc/api/prev_api_changes/api_changes_0.91.2.rst:15",
+      "doc/api/prev_api_changes/api_changes_3.4.0/deprecations.rst:58"
     ],
     "matplotlib.ft2font": [
       "doc/api/prev_api_changes/api_changes_0.91.0.rst:34"
@@ -639,14 +655,11 @@
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:77"
     ],
     "FT2Font": [
-      "doc/gallery/misc/ftface_props.rst:16",
+      "doc/gallery/misc/ftface_props.rst:25",
       "lib/matplotlib/font_manager.py:docstring of matplotlib.font_manager.ttfFontProperty:8"
     ],
     "Figure.stale_callback": [
       "doc/users/interactive_guide.rst:333"
-    ],
-    "FigureCanvas": [
-      "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolBase:25"
     ],
     "Formatter.__call__": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:1122",
@@ -660,7 +673,7 @@
       "lib/matplotlib/mathtext.py:docstring of matplotlib.mathtext.GlueSpec:2"
     ],
     "Glyph": [
-      "doc/gallery/misc/ftface_props.rst:16"
+      "doc/gallery/misc/ftface_props.rst:25"
     ],
     "Image": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.gci:4"
@@ -672,7 +685,7 @@
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:706"
     ],
     "Line2D.pick": [
-      "doc/users/event_handling.rst:438"
+      "doc/users/event_handling.rst:467"
     ],
     "MicrosecondLocator.__call__": [
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:119"
@@ -700,7 +713,7 @@
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:44"
     ],
     "Rectangle.contains": [
-      "doc/users/event_handling.rst:150"
+      "doc/users/event_handling.rst:179"
     ],
     "Size.from_any": [
       "lib/mpl_toolkits/axes_grid1/axes_grid.py:docstring of mpl_toolkits.axes_grid1.axes_grid.ImageGrid.__init__:61",
@@ -804,7 +817,7 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:128"
     ],
     "floating_axes.FloatingSubplot": [
-      "doc/gallery/axisartist/demo_floating_axes.rst:22"
+      "doc/gallery/axisartist/demo_floating_axes.rst:31"
     ],
     "fmt_xdata": [
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes._base._AxesBase.format_xdata:4"
@@ -823,7 +836,11 @@
       "lib/mpl_toolkits/axes_grid1/axes_size.py:docstring of mpl_toolkits.axes_grid1.axes_size:1"
     ],
     "get_xbound": [
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.GeoAxes.set_xlim:49",
       "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.get_xlim3d:22"
+    ],
+    "get_xlim": [
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.GeoAxes.set_xlim:47"
     ],
     "get_ybound": [
       "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.get_ylim3d:22"
@@ -838,6 +855,7 @@
       "lib/matplotlib/backends/backend_nbagg.py:docstring of matplotlib.backends.backend_nbagg._BackendNbAgg.show:4"
     ],
     "invert_xaxis": [
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.GeoAxes.set_xlim:51",
       "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.get_xlim3d:24"
     ],
     "invert_yaxis": [
@@ -866,7 +884,7 @@
       "doc/api/prev_api_changes/api_changes_3.0.0.rst:197"
     ],
     "load_char": [
-      "doc/gallery/misc/ftface_props.rst:16"
+      "doc/gallery/misc/ftface_props.rst:25"
     ],
     "mainloop": [
       "lib/matplotlib/backends/backend_nbagg.py:docstring of matplotlib.backends.backend_nbagg._BackendNbAgg.show:4"
@@ -1240,7 +1258,7 @@
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:290"
     ],
     "matplotlib.dates.rrulewrapper": [
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates:121"
+      "lib/matplotlib/dates.py:docstring of matplotlib.dates:143"
     ],
     "matplotlib.sphinxext.mathmpl": [
       "doc/users/prev_whats_new/whats_new_3.0.rst:224"
@@ -1256,7 +1274,7 @@
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:947"
     ],
     "mpl_toolkits.axislines.Axes": [
-      "lib/mpl_toolkits/axisartist/axis_artist.py:docstring of mpl_toolkits.axisartist.axis_artist:26"
+      "lib/mpl_toolkits/axisartist/axis_artist.py:docstring of mpl_toolkits.axisartist.axis_artist:7"
     ],
     "next_whats_new": [
       "doc/users/next_whats_new/README.rst:6"
@@ -1274,7 +1292,7 @@
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:374"
     ],
     "rrulewrapper": [
-      "lib/matplotlib/dates.py:docstring of matplotlib.dates:121"
+      "lib/matplotlib/dates.py:docstring of matplotlib.dates:143"
     ],
     "scipy.stats.norm.pdf": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:569",
@@ -1290,6 +1308,7 @@
       "doc/users/prev_whats_new/whats_new_1.4.rst:223"
     ],
     "set_xbound": [
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.GeoAxes.set_xlim:49",
       "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.get_xlim3d:22"
     ],
     "set_ybound": [
@@ -1331,6 +1350,7 @@
       "doc/users/next_whats_new/README.rst:6"
     ],
     "xaxis_inverted": [
+      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.GeoAxes.set_xlim:51",
       "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.get_xlim3d:24"
     ],
     "yaxis_inverted": [

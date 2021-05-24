@@ -13,6 +13,7 @@ import matplotlib.collections as mcollections
 from matplotlib.legend_handler import HandlerTuple
 import matplotlib.legend as mlegend
 from matplotlib import rc_context
+from matplotlib.font_manager import FontProperties
 
 
 def test_legend_ordereddict():
@@ -126,8 +127,8 @@ def test_alpha_rcparam():
 def test_fancy():
     # using subplot triggers some offsetbox functionality untested elsewhere
     plt.subplot(121)
-    plt.scatter(np.arange(10), np.arange(10, 0, -1), label='XX\nXX')
     plt.plot([5] * 10, 'o--', label='XX')
+    plt.scatter(np.arange(10), np.arange(10, 0, -1), label='XX\nXX')
     plt.errorbar(np.arange(10), np.arange(10), xerr=0.5,
                  yerr=0.5, label='XX')
     plt.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
@@ -544,24 +545,55 @@ def test_window_extent_cached_renderer():
     leg2.get_window_extent()
 
 
-def test_legend_title_fontsize():
+def test_legend_title_fontprop_fontsize():
     # test the title_fontsize kwarg
-    fig, ax = plt.subplots()
-    ax.plot(range(10))
-    leg = ax.legend(title='Aardvark', title_fontsize=22)
-    assert leg.get_title().get_fontsize() == 22
+    plt.plot(range(10))
+    with pytest.raises(ValueError):
+        plt.legend(title='Aardvark', title_fontsize=22,
+                   title_fontproperties={'family': 'serif', 'size': 22})
+
+    leg = plt.legend(title='Aardvark', title_fontproperties=FontProperties(
+                                       family='serif', size=22))
+    assert leg.get_title().get_size() == 22
+
+    fig, axes = plt.subplots(2, 3, figsize=(10, 6))
+    axes = axes.flat
+    axes[0].plot(range(10))
+    leg0 = axes[0].legend(title='Aardvark', title_fontsize=22)
+    assert leg0.get_title().get_fontsize() == 22
+    axes[1].plot(range(10))
+    leg1 = axes[1].legend(title='Aardvark',
+                          title_fontproperties={'family': 'serif', 'size': 22})
+    assert leg1.get_title().get_fontsize() == 22
+    axes[2].plot(range(10))
+    mpl.rcParams['legend.title_fontsize'] = None
+    leg2 = axes[2].legend(title='Aardvark',
+                          title_fontproperties={'family': 'serif'})
+    assert leg2.get_title().get_fontsize() == mpl.rcParams['font.size']
+    axes[3].plot(range(10))
+    leg3 = axes[3].legend(title='Aardvark')
+    assert leg3.get_title().get_fontsize() == mpl.rcParams['font.size']
+    axes[4].plot(range(10))
+    mpl.rcParams['legend.title_fontsize'] = 20
+    leg4 = axes[4].legend(title='Aardvark',
+                          title_fontproperties={'family': 'serif'})
+    assert leg4.get_title().get_fontsize() == 20
+    axes[5].plot(range(10))
+    leg5 = axes[5].legend(title='Aardvark')
+    assert leg5.get_title().get_fontsize() == 20
 
 
-def test_legend_labelcolor_single():
+@pytest.mark.parametrize('color', ('red', 'none', (.5, .5, .5)))
+def test_legend_labelcolor_single(color):
     # test labelcolor for a single color
     fig, ax = plt.subplots()
     ax.plot(np.arange(10), np.arange(10)*1, label='#1')
     ax.plot(np.arange(10), np.arange(10)*2, label='#2')
     ax.plot(np.arange(10), np.arange(10)*3, label='#3')
 
-    leg = ax.legend(labelcolor='red')
+    leg = ax.legend(labelcolor=color)
     for text in leg.get_texts():
-        assert mpl.colors.same_color(text.get_color(), 'red')
+        assert mpl.colors.same_color(text.get_color(), color)
 
 
 def test_legend_labelcolor_list():
@@ -608,6 +640,85 @@ def test_legend_labelcolor_markerfacecolor():
     ax.plot(np.arange(10), np.arange(10)*3, label='#3', markerfacecolor='b')
 
     leg = ax.legend(labelcolor='markerfacecolor')
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+@pytest.mark.parametrize('color', ('red', 'none', (.5, .5, .5)))
+def test_legend_labelcolor_rcparam_single(color):
+    # test the rcParams legend.labelcolor for a single color
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3')
+
+    mpl.rcParams['legend.labelcolor'] = color
+    leg = ax.legend()
+    for text in leg.get_texts():
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_labelcolor_rcparam_linecolor():
+    # test the rcParams legend.labelcolor for a linecolor
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1', color='r')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2', color='g')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3', color='b')
+
+    mpl.rcParams['legend.labelcolor'] = 'linecolor'
+    leg = ax.legend()
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_labelcolor_rcparam_markeredgecolor():
+    # test the labelcolor for labelcolor='markeredgecolor'
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1', markeredgecolor='r')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2', markeredgecolor='g')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3', markeredgecolor='b')
+
+    mpl.rcParams['legend.labelcolor'] = 'markeredgecolor'
+    leg = ax.legend()
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_labelcolor_rcparam_markeredgecolor_short():
+    # test the labelcolor for labelcolor='markeredgecolor'
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1', markeredgecolor='r')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2', markeredgecolor='g')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3', markeredgecolor='b')
+
+    mpl.rcParams['legend.labelcolor'] = 'mec'
+    leg = ax.legend()
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_labelcolor_rcparam_markerfacecolor():
+    # test the labelcolor for labelcolor='markeredgecolor'
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1', markerfacecolor='r')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2', markerfacecolor='g')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3', markerfacecolor='b')
+
+    mpl.rcParams['legend.labelcolor'] = 'markerfacecolor'
+    leg = ax.legend()
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_labelcolor_rcparam_markerfacecolor_short():
+    # test the labelcolor for labelcolor='markeredgecolor'
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1', markerfacecolor='r')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2', markerfacecolor='g')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3', markerfacecolor='b')
+
+    mpl.rcParams['legend.labelcolor'] = 'mfc'
+    leg = ax.legend()
     for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
         assert mpl.colors.same_color(text.get_color(), color)
 
@@ -733,3 +844,11 @@ def test_plot_multiple_label_incorrect_length_exception():
         label = ['high', 'low', 'medium']
         fig, ax = plt.subplots()
         ax.plot(x, y, label=label)
+
+
+def test_legend_face_edgecolor():
+    # Smoke test for PolyCollection legend handler with 'face' edgecolor.
+    fig, ax = plt.subplots()
+    ax.fill_between([0, 1, 2], [1, 2, 3], [2, 3, 4],
+                    facecolor='r', edgecolor='face', label='Fill')
+    ax.legend()

@@ -866,9 +866,9 @@ class Axes(_AxesBase):
         if line.get_clip_path() is None:
             line.set_clip_path(self.patch)
         if not line.get_label():
-            line.set_label(f"_line{len(self.lines)}")
-        self.lines.append(line)
-        line._remove_method = self.lines.remove
+            line.set_label(f"_child{len(self._children)}")
+        self._children.append(line)
+        line._remove_method = self._children.remove
         self.update_datalim(datalim)
 
         self._request_autoscale_view()
@@ -974,6 +974,7 @@ class Axes(_AxesBase):
         verts = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(self.get_xaxis_transform(which="grid"))
+        p.get_path()._interpolation_steps = 100
         self.add_patch(p)
         self._request_autoscale_view(scaley=False)
         return p
@@ -1614,6 +1615,18 @@ class Axes(_AxesBase):
                   **kwargs):
         """
         Plot co-ercing the axis to treat floats as dates.
+
+        .. admonition:: Discouraged
+
+            This method exists for historic reasons and will be deprecated in
+            the future.
+
+            - ``datetime``-like data should directly be plotted using
+              `~.Axes.plot`.
+            -  If you need to plot plain numeric data as :ref:`date-format` or
+               need to set a timezone, call ``ax.xaxis.axis_date`` /
+               ``ax.yaxis.axis_date`` before `~.Axes.plot`. See
+               `.Axis.axis_date`.
 
         Similar to `.plot`, this plots *y* vs. *x* as lines or markers.
         However, the axis labels are formatted as dates depending on *xdate*
@@ -2624,14 +2637,15 @@ class Axes(_AxesBase):
             if label_type == "center":
                 ha, va = "center", "center"
             elif label_type == "edge":
-                if orientation == "vertical" and dat >= 0:
-                    ha, va = "center", "bottom"
-                elif orientation == "vertical" and dat < 0:
-                    ha, va = "center", "top"
-                elif orientation == "horizontal" and dat >= 0:
-                    ha, va = "left", "center"
-                elif orientation == "horizontal" and dat < 0:
-                    ha, va = "right", "center"
+                if orientation == "vertical":
+                    ha = 'center'
+                    va = 'top' if dat < 0 else 'bottom'  # also handles NaN
+                elif orientation == "horizontal":
+                    ha = 'right' if dat < 0 else 'left'  # also handles NaN
+                    va = 'center'
+
+            if np.isnan(dat):
+                lbl = ''
 
             annotation = self.annotate(fmt % value if lbl is None else lbl,
                                        xy, xytext, textcoords="offset points",
@@ -3282,26 +3296,18 @@ class Axes(_AxesBase):
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
         kwargs.setdefault('zorder', 2)
 
-        self._process_unit_info([("x", x), ("y", y)], kwargs, convert=False)
-
-        # Make sure all the args are iterable; use lists not arrays to preserve
-        # units.
-        if not np.iterable(x):
-            x = [x]
-
-        if not np.iterable(y):
-            y = [y]
-
+        # Casting to object arrays preserves units.
+        if not isinstance(x, np.ndarray):
+            x = np.asarray(x, dtype=object)
+        if not isinstance(y, np.ndarray):
+            y = np.asarray(y, dtype=object)
+        if xerr is not None and not isinstance(xerr, np.ndarray):
+            xerr = np.asarray(xerr, dtype=object)
+        if yerr is not None and not isinstance(yerr, np.ndarray):
+            yerr = np.asarray(yerr, dtype=object)
+        x, y = np.atleast_1d(x, y)  # Make sure all the args are iterable.
         if len(x) != len(y):
             raise ValueError("'x' and 'y' must have the same size")
-
-        if xerr is not None:
-            if not np.iterable(xerr):
-                xerr = [xerr] * len(x)
-
-        if yerr is not None:
-            if not np.iterable(yerr):
-                yerr = [yerr] * len(y)
 
         if isinstance(errorevery, Integral):
             errorevery = (0, errorevery)
@@ -3314,10 +3320,8 @@ class Axes(_AxesBase):
                 raise ValueError(
                     f'errorevery={errorevery!r} is a not a tuple of two '
                     f'integers')
-
         elif isinstance(errorevery, slice):
             pass
-
         elif not isinstance(errorevery, str) and np.iterable(errorevery):
             # fancy indexing
             try:
@@ -3329,6 +3333,8 @@ class Axes(_AxesBase):
         else:
             raise ValueError(
                 f"errorevery={errorevery!r} is not a recognized value")
+        everymask = np.zeros(len(x), bool)
+        everymask[errorevery] = True
 
         label = kwargs.pop("label", None)
         kwargs['label'] = '_nolegend_'
@@ -3363,20 +3369,18 @@ class Axes(_AxesBase):
         if ecolor is None:
             ecolor = base_style['color']
 
-        # Eject any marker information from line format string, as it's not
+        # Eject any line-specific information from format string, as it's not
         # needed for bars or caps.
-        base_style.pop('marker', None)
-        base_style.pop('markersize', None)
-        base_style.pop('markerfacecolor', None)
-        base_style.pop('markeredgewidth', None)
-        base_style.pop('markeredgecolor', None)
-        base_style.pop('markevery', None)
-        base_style.pop('linestyle', None)
+        for key in ['marker', 'markersize', 'markerfacecolor',
+                    'markeredgewidth', 'markeredgecolor', 'markevery',
+                    'linestyle', 'fillstyle', 'drawstyle', 'dash_capstyle',
+                    'dash_joinstyle', 'solid_capstyle', 'solid_joinstyle']:
+            base_style.pop(key, None)
 
         # Make the style dict for the line collections (the bars).
         eb_lines_style = {**base_style, 'color': ecolor}
 
-        if elinewidth:
+        if elinewidth is not None:
             eb_lines_style['linewidth'] = elinewidth
         elif 'linewidth' in kwargs:
             eb_lines_style['linewidth'] = kwargs['linewidth']
@@ -3405,127 +3409,66 @@ class Axes(_AxesBase):
         barcols = []
         caplines = []
 
-        # arrays fine here, they are booleans and hence not units
-        lolims = np.broadcast_to(lolims, len(x)).astype(bool)
-        uplims = np.broadcast_to(uplims, len(x)).astype(bool)
-        xlolims = np.broadcast_to(xlolims, len(x)).astype(bool)
-        xuplims = np.broadcast_to(xuplims, len(x)).astype(bool)
+        # Vectorized fancy-indexer.
+        def apply_mask(arrays, mask): return [array[mask] for array in arrays]
 
-        everymask = np.zeros(len(x), bool)
-        everymask[errorevery] = True
-
-        def apply_mask(arrays, mask):
-            # Return, for each array in *arrays*, the elements for which *mask*
-            # is True, without using fancy indexing.
-            return [[*itertools.compress(array, mask)] for array in arrays]
-
-        def extract_err(name, err, data, lolims, uplims):
-            """
-            Private function to compute error bars.
-
-            Parameters
-            ----------
-            name : {'x', 'y'}
-                Name used in the error message.
-            err : array-like
-                xerr or yerr from errorbar().
-            data : array-like
-                x or y from errorbar().
-            lolims : array-like
-                Error is only applied on **upper** side when this is True.  See
-                the note in the main docstring about this parameter's name.
-            uplims : array-like
-                Error is only applied on **lower** side when this is True.  See
-                the note in the main docstring about this parameter's name.
-            """
-            try:  # Asymmetric error: pair of 1D iterables.
-                a, b = err
-                iter(a)
-                iter(b)
-            except (TypeError, ValueError):
-                a = b = err  # Symmetric error: 1D iterable.
-            if np.ndim(a) > 1 or np.ndim(b) > 1:
+        # dep: dependent dataset, indep: independent dataset
+        for (dep_axis, dep, err, lolims, uplims, indep, lines_func,
+             marker, lomarker, himarker) in [
+                ("x", x, xerr, xlolims, xuplims, y, self.hlines,
+                 "|", mlines.CARETRIGHTBASE, mlines.CARETLEFTBASE),
+                ("y", y, yerr, lolims, uplims, x, self.vlines,
+                 "_", mlines.CARETUPBASE, mlines.CARETDOWNBASE),
+        ]:
+            if err is None:
+                continue
+            lolims = np.broadcast_to(lolims, len(dep)).astype(bool)
+            uplims = np.broadcast_to(uplims, len(dep)).astype(bool)
+            try:
+                np.broadcast_to(err, (2, len(dep)))
+            except ValueError:
                 raise ValueError(
-                    f"{name}err must be a scalar or a 1D or (2, n) array-like")
-            # Using list comprehensions rather than arrays to preserve units.
-            for e in [a, b]:
-                if len(data) != len(e):
-                    raise ValueError(
-                        f"The lengths of the data ({len(data)}) and the "
-                        f"error {len(e)} do not match")
-            low = [v if lo else v - e for v, e, lo in zip(data, a, lolims)]
-            high = [v if up else v + e for v, e, up in zip(data, b, uplims)]
-            return low, high
+                    f"'{dep_axis}err' (shape: {np.shape(err)}) must be a "
+                    f"scalar or a 1D or (2, n) array-like whose shape matches "
+                    f"'{dep_axis}' (shape: {np.shape(dep)})") from None
+            # This is like
+            #     elow, ehigh = np.broadcast_to(...)
+            #     return dep - elow * ~lolims, dep + ehigh * ~uplims
+            # except that broadcast_to would strip units.
+            low, high = dep + np.row_stack([-(1 - lolims), 1 - uplims]) * err
 
-        if xerr is not None:
-            left, right = extract_err('x', xerr, x, xlolims, xuplims)
-            barcols.append(self.hlines(
-                *apply_mask([y, left, right], everymask), **eb_lines_style))
-            # select points without upper/lower limits in x and
-            # draw normal errorbars for these points
-            noxlims = ~(xlolims | xuplims)
-            if noxlims.any() and capsize > 0:
-                yo, lo, ro = apply_mask([y, left, right], noxlims & everymask)
-                caplines.extend([
-                    mlines.Line2D(lo, yo, marker='|', **eb_cap_style),
-                    mlines.Line2D(ro, yo, marker='|', **eb_cap_style)])
-            if xlolims.any():
-                xo, yo, ro = apply_mask([x, y, right], xlolims & everymask)
-                if self.xaxis_inverted():
-                    marker = mlines.CARETLEFTBASE
-                else:
-                    marker = mlines.CARETRIGHTBASE
-                caplines.append(mlines.Line2D(
-                    ro, yo, ls='None', marker=marker, **eb_cap_style))
+            barcols.append(lines_func(
+                *apply_mask([indep, low, high], everymask), **eb_lines_style))
+            # Normal errorbars for points without upper/lower limits.
+            nolims = ~(lolims | uplims)
+            if nolims.any() and capsize > 0:
+                indep_masked, lo_masked, hi_masked = apply_mask(
+                    [indep, low, high], nolims & everymask)
+                for lh_masked in [lo_masked, hi_masked]:
+                    # Since this has to work for x and y as dependent data, we
+                    # first set both x and y to the independent variable and
+                    # overwrite the respective dependent data in a second step.
+                    line = mlines.Line2D(indep_masked, indep_masked,
+                                         marker=marker, **eb_cap_style)
+                    line.set(**{f"{dep_axis}data": lh_masked})
+                    caplines.append(line)
+            for idx, (lims, hl) in enumerate([(lolims, high), (uplims, low)]):
+                if not lims.any():
+                    continue
+                hlmarker = (
+                    himarker
+                    if getattr(self, f"{dep_axis}axis").get_inverted() ^ idx
+                    else lomarker)
+                x_masked, y_masked, hl_masked = apply_mask(
+                    [x, y, hl], lims & everymask)
+                # As above, we set the dependent data in a second step.
+                line = mlines.Line2D(x_masked, y_masked,
+                                     marker=hlmarker, **eb_cap_style)
+                line.set(**{f"{dep_axis}data": hl_masked})
+                caplines.append(line)
                 if capsize > 0:
                     caplines.append(mlines.Line2D(
-                        xo, yo, marker='|', **eb_cap_style))
-            if xuplims.any():
-                xo, yo, lo = apply_mask([x, y, left], xuplims & everymask)
-                if self.xaxis_inverted():
-                    marker = mlines.CARETRIGHTBASE
-                else:
-                    marker = mlines.CARETLEFTBASE
-                caplines.append(mlines.Line2D(
-                    lo, yo, ls='None', marker=marker, **eb_cap_style))
-                if capsize > 0:
-                    caplines.append(mlines.Line2D(
-                        xo, yo, marker='|', **eb_cap_style))
-
-        if yerr is not None:
-            lower, upper = extract_err('y', yerr, y, lolims, uplims)
-            barcols.append(self.vlines(
-                *apply_mask([x, lower, upper], everymask), **eb_lines_style))
-            # select points without upper/lower limits in y and
-            # draw normal errorbars for these points
-            noylims = ~(lolims | uplims)
-            if noylims.any() and capsize > 0:
-                xo, lo, uo = apply_mask([x, lower, upper], noylims & everymask)
-                caplines.extend([
-                    mlines.Line2D(xo, lo, marker='_', **eb_cap_style),
-                    mlines.Line2D(xo, uo, marker='_', **eb_cap_style)])
-            if lolims.any():
-                xo, yo, uo = apply_mask([x, y, upper], lolims & everymask)
-                if self.yaxis_inverted():
-                    marker = mlines.CARETDOWNBASE
-                else:
-                    marker = mlines.CARETUPBASE
-                caplines.append(mlines.Line2D(
-                    xo, uo, ls='None', marker=marker, **eb_cap_style))
-                if capsize > 0:
-                    caplines.append(mlines.Line2D(
-                        xo, yo, marker='_', **eb_cap_style))
-            if uplims.any():
-                xo, yo, lo = apply_mask([x, y, lower], uplims & everymask)
-                if self.yaxis_inverted():
-                    marker = mlines.CARETUPBASE
-                else:
-                    marker = mlines.CARETDOWNBASE
-                caplines.append(mlines.Line2D(
-                    xo, lo, ls='None', marker=marker, **eb_cap_style))
-                if capsize > 0:
-                    caplines.append(mlines.Line2D(
-                        xo, yo, marker='_', **eb_cap_style))
+                        x_masked, y_masked, marker=marker, **eb_cap_style))
 
         for l in caplines:
             self.add_line(l)
@@ -3549,26 +3492,38 @@ class Axes(_AxesBase):
                 meanprops=None, capprops=None, whiskerprops=None,
                 manage_ticks=True, autorange=False, zorder=None):
         """
-        Make a box and whisker plot.
+        Draw a box and whisker plot.
 
-        Make a box and whisker plot for each column of *x* or each
-        vector in sequence *x*.  The box extends from the lower to
-        upper quartile values of the data, with a line at the median.
-        The whiskers extend from the box to show the range of the
-        data.  Flier points are those past the end of the whiskers.
+        The box extends from the first quartile (Q1) to the third
+        quartile (Q3) of the data, with a line at the median.  The
+        whiskers extend from the box by 1.5x the inter-quartile range
+        (IQR).  Flier points are those past the end of the whiskers.
+        See https://en.wikipedia.org/wiki/Box_plot for reference.
+
+        .. code-block:: none
+
+                  Q1-1.5IQR   Q1   median  Q3   Q3+1.5IQR
+                               |-----:-----|
+               o      |--------|     :     |--------|    o  o
+                               |-----:-----|
+             flier             <----------->            fliers
+                                    IQR
+
 
         Parameters
         ----------
         x : Array or a sequence of vectors.
-            The input data.
+            The input data.  If a 2D array, a boxplot is drawn for each column
+            in *x*.  If a sequence of 1D arrays, a boxplot is drawn for each
+            array in *x*.
 
         notch : bool, default: False
-            Whether to draw a notched box plot (`True`), or a rectangular box
-            plot (`False`).  The notches represent the confidence interval (CI)
-            around the median.  The documentation for *bootstrap* describes how
-            the locations of the notches are computed by default, but their
-            locations may also be overridden by setting the *conf_intervals*
-            parameter.
+            Whether to draw a notched boxplot (`True`), or a rectangular
+            boxplot (`False`).  The notches represent the confidence interval
+            (CI) around the median.  The documentation for *bootstrap*
+            describes how the locations of the notches are computed by
+            default, but their locations may also be overridden by setting the
+            *conf_intervals* parameter.
 
             .. note::
 
@@ -3713,6 +3668,9 @@ class Axes(_AxesBase):
         meanprops : dict, default: None
             The style of the mean.
 
+        See Also
+        --------
+        violinplot : Draw an estimate of the probability density function.
         """
 
         # Missing arguments default to rcParams.
@@ -4546,8 +4504,8 @@ default: :rc:`scatter.edgecolors`
                 # promote the facecolor to be the edgecolor
                 edgecolors = colors
                 # set the facecolor to 'none' (at the last chance) because
-                # we can not not fill a path if the facecolor is non-null.
-                # (which is defendable at the renderer level)
+                # we can not fill a path if the facecolor is non-null
+                # (which is defendable at the renderer level).
                 colors = 'none'
             else:
                 # if we are not nulling the face color we can do this
@@ -5037,12 +4995,6 @@ default: :rc:`scatter.edgecolors`
 
         Parameters
         ----------
-        x, y : float
-            The x and y coordinates of the arrow base.
-
-        dx, dy : float
-            The length of the arrow along x and y direction.
-
         %(FancyArrow)s
 
         Returns
@@ -5601,7 +5553,7 @@ default: :rc:`scatter.edgecolors`
         self.add_image(im)
         return im
 
-    def _pcolorargs(self, funcname, *args, shading='flat', **kwargs):
+    def _pcolorargs(self, funcname, *args, shading='auto', **kwargs):
         # - create X and Y if not present;
         # - reshape X and Y as needed if they are 1-D;
         # - check for proper sizes based on `shading` kwarg;
@@ -5631,9 +5583,10 @@ default: :rc:`scatter.edgecolors`
         if len(args) == 3:
             # Check x and y for bad data...
             C = np.asanyarray(args[2])
-            X, Y = [cbook.safe_masked_invalid(a) for a in args[:2]]
             # unit conversion allows e.g. datetime objects as axis values
+            X, Y = args[:2]
             X, Y = self._process_unit_info([("x", X), ("y", Y)], kwargs)
+            X, Y = [cbook.safe_masked_invalid(a) for a in [X, Y]]
 
             if funcname == 'pcolormesh':
                 if np.ma.is_masked(X) or np.ma.is_masked(Y):
@@ -5672,25 +5625,16 @@ default: :rc:`scatter.edgecolors`
                 shading = 'flat'
 
         if shading == 'flat':
-            if not (ncols in (Nx, Nx - 1) and nrows in (Ny, Ny - 1)):
+            if (Nx, Ny) != (ncols + 1, nrows + 1):
                 raise TypeError('Dimensions of C %s are incompatible with'
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
-            if (ncols == Nx or nrows == Ny):
-                _api.warn_deprecated(
-                    "3.3", message="shading='flat' when X and Y have the same "
-                    "dimensions as C is deprecated since %(since)s.  Either "
-                    "specify the corners of the quadrilaterals with X and Y, "
-                    "or pass shading='auto', 'nearest' or 'gouraud', or set "
-                    "rcParams['pcolor.shading'].  This will become an error "
-                    "%(removal)s.")
-            C = C[:Ny - 1, :Nx - 1]
         else:    # ['nearest', 'gouraud']:
             if (Nx, Ny) != (ncols, nrows):
                 raise TypeError('Dimensions of C %s are incompatible with'
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
-            if shading in ['nearest', 'auto']:
+            if shading == 'nearest':
                 # grid is specified at the center, so define corners
                 # at the midpoints between the grid centers and then use the
                 # flat algorithm.
@@ -5725,6 +5669,15 @@ default: :rc:`scatter.edgecolors`
 
         C = cbook.safe_masked_invalid(C)
         return X, Y, C, shading
+
+    def _pcolor_grid_deprecation_helper(self):
+        if any(axis._major_tick_kw["gridOn"]
+               for axis in self._get_axis_list()):
+            _api.warn_deprecated(
+                "3.5", message="Auto-removal of grids by pcolor() and "
+                "pcolormesh() is deprecated since %(since)s and will be "
+                "removed %(removal)s; please call grid(False) first.")
+        self.grid(False)
 
     @_preprocess_data()
     @docstring.dedent_interpd
@@ -5941,7 +5894,7 @@ default: :rc:`scatter.edgecolors`
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection._scale_norm(norm, vmin, vmax)
-        self.grid(False)
+        self._pcolor_grid_deprecation_helper()
 
         x = X.compressed()
         y = Y.compressed()
@@ -6083,7 +6036,7 @@ default: :rc:`scatter.edgecolors`
         snap : bool, default: False
             Whether to snap the mesh to pixel boundaries.
 
-        rasterized: bool, optional
+        rasterized : bool, optional
             Rasterize the pcolormesh when drawing vector graphics.  This can
             speed up rendering and produce smaller files for large data sets.
             See also :doc:`/gallery/misc/rasterization_demo`.
@@ -6178,8 +6131,7 @@ default: :rc:`scatter.edgecolors`
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection._scale_norm(norm, vmin, vmax)
-
-        self.grid(False)
+        self._pcolor_grid_deprecation_helper()
 
         # Transform from native to data coordinates?
         t = collection._transform
@@ -8103,7 +8055,6 @@ such objects
           - ``cquantiles``: A `~.collections.LineCollection` instance created
             to identify the quantiles values of each of the violin's
             distribution.
-
         """
 
         # Statistical quantities to be plotted on the violins
@@ -8111,10 +8062,11 @@ such objects
         mins = []
         maxes = []
         medians = []
-        quantiles = np.asarray([])
+        quantiles = []
 
-        # Collections to be returned
-        artists = {}
+        qlens = []  # Number of quantiles in each dataset.
+
+        artists = {}  # Collections to be returned
 
         N = len(vpstats)
         datashape_message = ("List of violinplot statistics and `{0}` "
@@ -8132,84 +8084,56 @@ such objects
         elif len(widths) != N:
             raise ValueError(datashape_message.format("widths"))
 
-        # Calculate ranges for statistics lines
-        pmins = -0.25 * np.array(widths) + positions
-        pmaxes = 0.25 * np.array(widths) + positions
+        # Calculate ranges for statistics lines (shape (2, N)).
+        line_ends = [[-0.25], [0.25]] * np.array(widths) + positions
+
+        # Colors.
+        if rcParams['_internal.classic_mode']:
+            fillcolor = 'y'
+            linecolor = 'r'
+        else:
+            fillcolor = linecolor = self._get_lines.get_next_color()
 
         # Check whether we are rendering vertically or horizontally
         if vert:
             fill = self.fill_betweenx
-            perp_lines = self.hlines
-            par_lines = self.vlines
+            perp_lines = functools.partial(self.hlines, colors=linecolor)
+            par_lines = functools.partial(self.vlines, colors=linecolor)
         else:
             fill = self.fill_between
-            perp_lines = self.vlines
-            par_lines = self.hlines
-
-        if rcParams['_internal.classic_mode']:
-            fillcolor = 'y'
-            edgecolor = 'r'
-        else:
-            fillcolor = edgecolor = self._get_lines.get_next_color()
+            perp_lines = functools.partial(self.vlines, colors=linecolor)
+            par_lines = functools.partial(self.hlines, colors=linecolor)
 
         # Render violins
         bodies = []
         for stats, pos, width in zip(vpstats, positions, widths):
-            # The 0.5 factor reflects the fact that we plot from v-p to
-            # v+p
+            # The 0.5 factor reflects the fact that we plot from v-p to v+p.
             vals = np.array(stats['vals'])
             vals = 0.5 * width * vals / vals.max()
-            bodies += [fill(stats['coords'],
-                            -vals + pos,
-                            vals + pos,
-                            facecolor=fillcolor,
-                            alpha=0.3)]
+            bodies += [fill(stats['coords'], -vals + pos, vals + pos,
+                            facecolor=fillcolor, alpha=0.3)]
             means.append(stats['mean'])
             mins.append(stats['min'])
             maxes.append(stats['max'])
             medians.append(stats['median'])
-            q = stats.get('quantiles')
-            if q is not None:
-                # If exist key quantiles, assume it's a list of floats
-                quantiles = np.concatenate((quantiles, q))
+            q = stats.get('quantiles')  # a list of floats, or None
+            if q is None:
+                q = []
+            quantiles.extend(q)
+            qlens.append(len(q))
         artists['bodies'] = bodies
 
-        # Render means
-        if showmeans:
-            artists['cmeans'] = perp_lines(means, pmins, pmaxes,
-                                           colors=edgecolor)
-
-        # Render extrema
-        if showextrema:
-            artists['cmaxes'] = perp_lines(maxes, pmins, pmaxes,
-                                           colors=edgecolor)
-            artists['cmins'] = perp_lines(mins, pmins, pmaxes,
-                                          colors=edgecolor)
-            artists['cbars'] = par_lines(positions, mins, maxes,
-                                         colors=edgecolor)
-
-        # Render medians
-        if showmedians:
-            artists['cmedians'] = perp_lines(medians,
-                                             pmins,
-                                             pmaxes,
-                                             colors=edgecolor)
-
-        # Render quantile values
-        if quantiles.size > 0:
-            # Recalculate ranges for statistics lines for quantiles.
-            # ppmins are the left end of quantiles lines
-            ppmins = np.asarray([])
-            # pmaxes are the right end of quantiles lines
-            ppmaxs = np.asarray([])
-            for stats, cmin, cmax in zip(vpstats, pmins, pmaxes):
-                q = stats.get('quantiles')
-                if q is not None:
-                    ppmins = np.concatenate((ppmins, [cmin] * np.size(q)))
-                    ppmaxs = np.concatenate((ppmaxs, [cmax] * np.size(q)))
-            # Start rendering
-            artists['cquantiles'] = perp_lines(quantiles, ppmins, ppmaxs,
-                                               colors=edgecolor)
+        if showmeans:  # Render means
+            artists['cmeans'] = perp_lines(means, *line_ends)
+        if showextrema:  # Render extrema
+            artists['cmaxes'] = perp_lines(maxes, *line_ends)
+            artists['cmins'] = perp_lines(mins, *line_ends)
+            artists['cbars'] = par_lines(positions, mins, maxes)
+        if showmedians:  # Render medians
+            artists['cmedians'] = perp_lines(medians, *line_ends)
+        if quantiles:  # Render quantiles: each width is repeated qlen times.
+            artists['cquantiles'] = perp_lines(
+                quantiles, *np.repeat(line_ends, qlens, axis=1))
 
         return artists
 

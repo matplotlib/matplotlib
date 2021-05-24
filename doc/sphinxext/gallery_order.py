@@ -23,7 +23,12 @@ explicit_order_folders = [
                           '../examples/showcase',
                           '../tutorials/introductory',
                           '../tutorials/intermediate',
-                          '../tutorials/advanced']
+                          '../tutorials/advanced',
+                          '../plot_types/basic',
+                          '../plot_types/arrays',
+                          '../plot_types/stats',
+                          '../plot_types/unstructured',
+                          ]
 
 
 class MplExplicitOrder(ExplicitOrder):
@@ -60,6 +65,17 @@ list_all = [
     "color_demo",
     #  pies
     "pie_features", "pie_demo2",
+
+    # **Plot Types
+    # Basic
+    "plot", "scatter_plot", "bar", "stem", "step", "pie", "fill_between",
+    # Arrays
+    "imshow", "pcolormesh", "contourf", "quiver", "streamplot",
+    # Stats
+    "hist_plot", "boxplot_plot", "errorbar_plot", "violin",
+    "barbs", "eventplot", "hist2d", "hexbin",
+    # Unstructured
+    "tricontour", "tripcolor", "triplot",
     ]
 explicit_subsection_order = [item + ".py" for item in list_all]
 

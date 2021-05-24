@@ -1,0 +1,11 @@
+usetex-related removals
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``text.latex.preview`` rcParam and associated methods
+(``TexManager.make_tex_preview``, ``TexManager.make_dvi_preview``) have been
+removed.
+
+The ``cachedir``, ``rgba_arrayd``, ``serif``, ``sans_serif``, ``cursive``, and
+``monospace`` attributes of ``TexManager`` have been removed.
+
+``dviread.Encoding`` has been removed.

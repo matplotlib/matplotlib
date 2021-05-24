@@ -76,16 +76,11 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.pie
-matplotlib.axes.Axes.bar
-matplotlib.pyplot
-matplotlib.patches.ConnectionPatch
+#    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`
+#    - `matplotlib.axes.Axes.pie` / `matplotlib.pyplot.pie`
+#    - `matplotlib.patches.ConnectionPatch`

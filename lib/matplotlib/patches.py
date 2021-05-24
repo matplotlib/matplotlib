@@ -1,3 +1,7 @@
+r"""
+Patches are `.Artist`\s with a face color and an edge color.
+"""
+
 import contextlib
 import functools
 import inspect
@@ -316,7 +320,7 @@ class Patch(artist.Artist):
 
         Parameters
         ----------
-        b : bool or None
+        aa : bool or None
         """
         if aa is None:
             aa = mpl.rcParams['patch.antialiased']
@@ -720,7 +724,7 @@ class Rectangle(Patch):
       :               (xy)---- width -----+
 
     One may picture *xy* as the bottom left corner, but which corner *xy* is
-    actually depends on the the direction of the axis and the sign of *width*
+    actually depends on the direction of the axis and the sign of *width*
     and *height*; e.g. *xy* would be the bottom right corner if the x-axis
     was inverted or if *width* was negative.
     """
@@ -1318,6 +1322,12 @@ class FancyArrow(Polygon):
         """
         Parameters
         ----------
+        x, y : float
+            The x and y coordinates of the arrow base.
+
+        dx, dy : float
+            The length of the arrow along x and y direction.
+
         width : float, default: 0.001
             Width of full arrow tail.
 
@@ -1346,22 +1356,82 @@ class FancyArrow(Polygon):
 
             %(Patch_kwdoc)s
         """
-        if head_width is None:
-            head_width = 3 * width
-        if head_length is None:
+        self._x = x
+        self._y = y
+        self._dx = dx
+        self._dy = dy
+        self._width = width
+        self._length_includes_head = length_includes_head
+        self._head_width = head_width
+        self._head_length = head_length
+        self._shape = shape
+        self._overhang = overhang
+        self._head_starts_at_zero = head_starts_at_zero
+        self._make_verts()
+        super().__init__(self.verts, closed=True, **kwargs)
+
+    def set_data(self, *, x=None, y=None, dx=None, dy=None, width=None,
+                 head_width=None, head_length=None):
+        """
+        Set `.FancyArrow` x, y, dx, dy, width, head_with, and head_length.
+        Values left as None will not be updated.
+
+        Parameters
+        ----------
+        x, y : float or None, default: None
+            The x and y coordinates of the arrow base.
+
+        dx, dy : float or None, default: None
+            The length of the arrow along x and y direction.
+
+        width: float or None, default: None
+            Width of full arrow tail.
+
+        head_width: float or None, default: None
+            Total width of the full arrow head.
+
+        head_length: float or None, default: None
+            Length of arrow head.
+        """
+        if x is not None:
+            self._x = x
+        if y is not None:
+            self._y = y
+        if dx is not None:
+            self._dx = dx
+        if dy is not None:
+            self._dy = dy
+        if width is not None:
+            self._width = width
+        if head_width is not None:
+            self._head_width = head_width
+        if head_length is not None:
+            self._head_length = head_length
+        self._make_verts()
+        self.set_xy(self.verts)
+
+    def _make_verts(self):
+        if self._head_width is None:
+            head_width = 3 * self._width
+        else:
+            head_width = self._head_width
+        if self._head_length is None:
             head_length = 1.5 * head_width
+        else:
+            head_length = self._head_length
 
-        distance = np.hypot(dx, dy)
+        distance = np.hypot(self._dx, self._dy)
 
-        if length_includes_head:
+        if self._length_includes_head:
             length = distance
         else:
             length = distance + head_length
         if not length:
-            verts = np.empty([0, 2])  # display nothing if empty
+            self.verts = np.empty([0, 2])  # display nothing if empty
         else:
             # start by drawing horizontal arrow, point at (0, 0)
-            hw, hl, hs, lw = head_width, head_length, overhang, width
+            hw, hl = head_width, head_length
+            hs, lw = self._overhang, self._width
             left_half_arrow = np.array([
                 [0.0, 0.0],                 # tip
                 [-hl, -hw / 2],             # leftmost
@@ -1370,36 +1440,37 @@ class FancyArrow(Polygon):
                 [-length, 0],
             ])
             # if we're not including the head, shift up by head length
-            if not length_includes_head:
+            if not self._length_includes_head:
                 left_half_arrow += [head_length, 0]
             # if the head starts at 0, shift up by another head length
-            if head_starts_at_zero:
+            if self._head_starts_at_zero:
                 left_half_arrow += [head_length / 2, 0]
             # figure out the shape, and complete accordingly
-            if shape == 'left':
+            if self._shape == 'left':
                 coords = left_half_arrow
             else:
                 right_half_arrow = left_half_arrow * [1, -1]
-                if shape == 'right':
+                if self._shape == 'right':
                     coords = right_half_arrow
-                elif shape == 'full':
+                elif self._shape == 'full':
                     # The half-arrows contain the midpoint of the stem,
                     # which we can omit from the full arrow. Including it
                     # twice caused a problem with xpdf.
                     coords = np.concatenate([left_half_arrow[:-1],
                                              right_half_arrow[-2::-1]])
                 else:
-                    raise ValueError("Got unknown shape: %s" % shape)
+                    raise ValueError("Got unknown shape: %s" % self.shape)
             if distance != 0:
-                cx = dx / distance
-                sx = dy / distance
+                cx = self._dx / distance
+                sx = self._dy / distance
             else:
                 # Account for division by zero
                 cx, sx = 0, 1
             M = [[cx, sx], [-sx, cx]]
-            verts = np.dot(coords, M) + (x + dx, y + dy)
-
-        super().__init__(verts, closed=True, **kwargs)
+            self.verts = np.dot(coords, M) + [
+                self._x + self._dx,
+                self._y + self._dy,
+            ]
 
 
 docstring.interpd.update(
@@ -1565,9 +1636,197 @@ class Ellipse(Patch):
     angle = property(get_angle, set_angle)
 
 
-class Circle(Ellipse):
-    """A circle patch."""
+class Annulus(Patch):
+    """
+    An elliptical annulus.
+    """
 
+    @docstring.dedent_interpd
+    def __init__(self, xy, r, width, angle=0.0, **kwargs):
+        """
+        Parameters
+        ----------
+        xy : (float, float)
+            xy coordinates of annulus centre.
+        r : float or (float, float)
+            The radius, or semi-axes:
+
+            - If float: radius of the outer circle.
+            - If two floats: semi-major and -minor axes of outer ellipse.
+        width : float
+            Width (thickness) of the annular ring. The width is measured inward
+            from the outer ellipse so that for the inner ellipse the semi-axes
+            are given by ``r - width``. *width* must be less than or equal to
+            the semi-minor axis.
+        angle : float, default: 0
+            Rotation angle in degrees (anti-clockwise from the positive
+            x-axis). Ignored for circular annuli (i.e., if *r* is a scalar).
+        **kwargs
+            Keyword arguments control the `Patch` properties:
+
+            %(Patch_kwdoc)s
+        """
+        super().__init__(**kwargs)
+
+        self.set_radii(r)
+        self.center = xy
+        self.width = width
+        self.angle = angle
+        self._path = None
+
+    def __str__(self):
+        if self.a == self.b:
+            r = self.a
+        else:
+            r = (self.a, self.b)
+
+        return "Annulus(xy=(%s, %s), r=%s, width=%s, angle=%s)" % \
+                (*self.center, r, self.width, self.angle)
+
+    def set_center(self, xy):
+        """
+        Set the center of the annulus.
+
+        Parameters
+        ----------
+        xy : (float, float)
+        """
+        self._center = xy
+        self._path = None
+        self.stale = True
+
+    def get_center(self):
+        """Return the center of the annulus."""
+        return self._center
+
+    center = property(get_center, set_center)
+
+    def set_width(self, width):
+        """
+        Set the width (thickness) of the annulus ring.
+
+        The width is measured inwards from the outer ellipse.
+
+        Parameters
+        ----------
+        width : float
+        """
+        if min(self.a, self.b) <= width:
+            raise ValueError(
+                'Width of annulus must be less than or equal semi-minor axis')
+
+        self._width = width
+        self._path = None
+        self.stale = True
+
+    def get_width(self):
+        """Return the width (thickness) of the annulus ring."""
+        return self._width
+
+    width = property(get_width, set_width)
+
+    def set_angle(self, angle):
+        """
+        Set the tilt angle of the annulus.
+
+        Parameters
+        ----------
+        angle : float
+        """
+        self._angle = angle
+        self._path = None
+        self.stale = True
+
+    def get_angle(self):
+        """Return the angle of the annulus."""
+        return self._angle
+
+    angle = property(get_angle, set_angle)
+
+    def set_semimajor(self, a):
+        """
+        Set the semi-major axis *a* of the annulus.
+
+        Parameters
+        ----------
+        a : float
+        """
+        self.a = float(a)
+        self._path = None
+        self.stale = True
+
+    def set_semiminor(self, b):
+        """
+        Set the semi-minor axis *b* of the annulus.
+
+        Parameters
+        ----------
+        b : float
+        """
+        self.b = float(b)
+        self._path = None
+        self.stale = True
+
+    def set_radii(self, r):
+        """
+        Set the semi-major (*a*) and semi-minor radii (*b*) of the annulus.
+
+        Parameters
+        ----------
+        r : float or (float, float)
+            The radius, or semi-axes:
+
+            - If float: radius of the outer circle.
+            - If two floats: semi-major and -minor axes of outer ellipse.
+        """
+        if np.shape(r) == (2,):
+            self.a, self.b = r
+        elif np.shape(r) == ():
+            self.a = self.b = float(r)
+        else:
+            raise ValueError("Parameter 'r' must be one or two floats.")
+
+        self._path = None
+        self.stale = True
+
+    def get_radii(self):
+        """Return the semi-major and semi-minor radii of the annulus."""
+        return self.a, self.b
+
+    radii = property(get_radii, set_radii)
+
+    def _transform_verts(self, verts, a, b):
+        return transforms.Affine2D() \
+            .scale(*self._convert_xy_units((a, b))) \
+            .rotate_deg(self.angle) \
+            .translate(*self._convert_xy_units(self.center)) \
+            .transform(verts)
+
+    def _recompute_path(self):
+        # circular arc
+        arc = Path.arc(0, 360)
+
+        # annulus needs to draw an outer ring
+        # followed by a reversed and scaled inner ring
+        a, b, w = self.a, self.b, self.width
+        v1 = self._transform_verts(arc.vertices, a, b)
+        v2 = self._transform_verts(arc.vertices[::-1], a - w, b - w)
+        v = np.vstack([v1, v2, v1[0, :], (0, 0)])
+        c = np.hstack([arc.codes, Path.MOVETO,
+                       arc.codes[1:], Path.MOVETO,
+                       Path.CLOSEPOLY])
+        self._path = Path(v, c)
+
+    def get_path(self):
+        if self._path is None:
+            self._recompute_path()
+        return self._path
+
+
+class Circle(Ellipse):
+    """
+    A circle patch.
+    """
     def __str__(self):
         pars = self.center[0], self.center[1], self.radius
         fmt = "Circle(xy=(%g, %g), radius=%g)"
@@ -2967,24 +3226,24 @@ class ArrowStyle(_Style):
     class _Curve(_Base):
         """
         A simple arrow which will work with any path instance. The
-        returned path is simply concatenation of the original path + at
+        returned path is the concatenation of the original path, and at
         most two paths representing the arrow head at the begin point and the
         at the end point. The arrow heads can be either open or closed.
         """
 
-        def __init__(self, beginarrow=None, endarrow=None,
-                     fillbegin=False, fillend=False,
-                     head_length=.2, head_width=.1):
+        beginarrow = endarrow = False  # Whether arrows are drawn.
+        fillbegin = fillend = False  # Whether arrows are filled.
+
+        def __init__(self, head_length=.4, head_width=.2):
             """
-            The arrows are drawn if *beginarrow* and/or *endarrow* are
-            true. *head_length* and *head_width* determines the size
-            of the arrow relative to the *mutation scale*.  The
-            arrowhead at the begin (or end) is closed if fillbegin (or
-            fillend) is True.
+            Parameters
+            ----------
+            head_length : float, default: 0.4
+                Length of the arrow head, relative to *mutation_scale*.
+            head_width : float, default: 0.2
+                Width of the arrow head, relative to *mutation_scale*.
             """
-            self.beginarrow, self.endarrow = beginarrow, endarrow
             self.head_length, self.head_width = head_length, head_width
-            self.fillbegin, self.fillend = fillbegin, fillend
             super().__init__()
 
         def _get_arrow_wedge(self, x0, y0, x1, y1,
@@ -3098,120 +3357,47 @@ class ArrowStyle(_Style):
     class Curve(_Curve):
         """A simple curve without any arrow head."""
 
-        def __init__(self):
-            super().__init__(beginarrow=False, endarrow=False)
+        def __init__(self):  # hide head_length, head_width
+            # These attributes (whose values come from backcompat) only matter
+            # if someone modifies beginarrow/etc. on an ArrowStyle instance.
+            super().__init__(head_length=.2, head_width=.1)
 
     @_register_style(_style_list, name="<-")
     class CurveA(_Curve):
         """An arrow with a head at its begin point."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=True, endarrow=False,
-                             head_length=head_length, head_width=head_width)
+        beginarrow = True
 
     @_register_style(_style_list, name="->")
     class CurveB(_Curve):
         """An arrow with a head at its end point."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=False, endarrow=True,
-                             head_length=head_length, head_width=head_width)
+        endarrow = True
 
     @_register_style(_style_list, name="<->")
     class CurveAB(_Curve):
         """An arrow with heads both at the begin and the end point."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=True, endarrow=True,
-                             head_length=head_length, head_width=head_width)
+        beginarrow = endarrow = True
 
     @_register_style(_style_list, name="<|-")
     class CurveFilledA(_Curve):
         """An arrow with filled triangle head at the begin."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=True, endarrow=False,
-                             fillbegin=True, fillend=False,
-                             head_length=head_length, head_width=head_width)
+        beginarrow = fillbegin = True
 
     @_register_style(_style_list, name="-|>")
     class CurveFilledB(_Curve):
         """An arrow with filled triangle head at the end."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=False, endarrow=True,
-                             fillbegin=False, fillend=True,
-                             head_length=head_length, head_width=head_width)
+        endarrow = fillend = True
 
     @_register_style(_style_list, name="<|-|>")
     class CurveFilledAB(_Curve):
         """An arrow with filled triangle heads at both ends."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=True, endarrow=True,
-                             fillbegin=True, fillend=True,
-                             head_length=head_length, head_width=head_width)
+        beginarrow = endarrow = fillbegin = fillend = True
 
     class _Bracket(_Base):
 
         def __init__(self, bracketA=None, bracketB=None,
                      widthA=1., widthB=1.,
                      lengthA=0.2, lengthB=0.2,
-                     angleA=None, angleB=None,
+                     angleA=0, angleB=0,
                      scaleA=None, scaleB=None):
             self.bracketA, self.bracketB = bracketA, bracketB
             self.widthA, self.widthB = widthA, widthB
@@ -3237,7 +3423,7 @@ class ArrowStyle(_Style):
                            Path.LINETO,
                            Path.LINETO]
 
-            if angle is not None:
+            if angle:
                 trans = transforms.Affine2D().rotate_deg_around(x0, y0, angle)
                 vertices_arrow = trans.transform(vertices_arrow)
 
@@ -3294,32 +3480,18 @@ class ArrowStyle(_Style):
         """An arrow with outward square brackets at both ends."""
 
         def __init__(self,
-                     widthA=1., lengthA=0.2, angleA=None,
-                     widthB=1., lengthB=0.2, angleB=None):
+                     widthA=1., lengthA=0.2, angleA=0,
+                     widthB=1., lengthB=0.2, angleB=0):
             """
             Parameters
             ----------
-            widthA : float, default: 1.0
+            widthA, widthB : float, default: 1.0
                 Width of the bracket.
-
-            lengthA : float, default: 0.2
+            lengthA, lengthB : float, default: 0.2
                 Length of the bracket.
-
-            angleA : float, default: None
-                Angle, in degrees, between the bracket and the line. Zero is
-                perpendicular to the line, and positive measures
-                counterclockwise.
-
-            widthB : float, default: 1.0
-                Width of the bracket.
-
-            lengthB : float, default: 0.2
-                Length of the bracket.
-
-            angleB : float, default: None
-                Angle, in degrees, between the bracket and the line. Zero is
-                perpendicular to the line, and positive measures
-                counterclockwise.
+            angleA, angleB : float, default: 0 degrees
+                Orientation of the bracket, as a counterclockwise angle.
+                0 degrees means perpendicular to the line.
             """
             super().__init__(True, True,
                              widthA=widthA, lengthA=lengthA, angleA=angleA,
@@ -3329,18 +3501,17 @@ class ArrowStyle(_Style):
     class BracketA(_Bracket):
         """An arrow with an outward square bracket at its start."""
 
-        def __init__(self, widthA=1., lengthA=0.2, angleA=None):
+        def __init__(self, widthA=1., lengthA=0.2, angleA=0):
             """
             Parameters
             ----------
             widthA : float, default: 1.0
                 Width of the bracket.
-
             lengthA : float, default: 0.2
                 Length of the bracket.
-
-            angleA : float, default: None
-                Angle between the bracket and the line.
+            angleA : float, default: 0 degrees
+                Orientation of the bracket, as a counterclockwise angle.
+                0 degrees means perpendicular to the line.
             """
             super().__init__(True, None,
                              widthA=widthA, lengthA=lengthA, angleA=angleA)
@@ -3355,14 +3526,11 @@ class ArrowStyle(_Style):
             ----------
             widthB : float, default: 1.0
                 Width of the bracket.
-
             lengthB : float, default: 0.2
                 Length of the bracket.
-
-            angleB : float, default: None
-                Angle, in degrees, between the bracket and the line. Zero is
-                perpendicular to the line, and positive measures
-                counterclockwise.
+            angleB : float, default: 0 degrees
+                Orientation of the bracket, as a counterclockwise angle.
+                0 degrees means perpendicular to the line.
             """
             super().__init__(None, True,
                              widthB=widthB, lengthB=lengthB, angleB=angleB)
@@ -3377,21 +3545,11 @@ class ArrowStyle(_Style):
             """
             Parameters
             ----------
-            widthA : float, default: 1.0
+            widthA, widthB : float, default: 1.0
                 Width of the bracket.
-
-            angleA : float, default: None
-                Angle, in degrees, between the bracket and the line. Zero is
-                perpendicular to the line, and positive measures
-                counterclockwise.
-
-            widthB : float, default: 1.0
-                Width of the bracket.
-
-            angleB : float, default: None
-                Angle, in degrees, between the bracket and the line. Zero is
-                perpendicular to the line, and positive measures
-                counterclockwise.
+            angleA, angleB : float, default: 0 degrees
+                Orientation of the bracket, as a counterclockwise angle.
+                0 degrees means perpendicular to the line.
             """
             super().__init__(True, True,
                              widthA=widthA, lengthA=0, angleA=angleA,

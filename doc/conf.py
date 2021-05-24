@@ -17,7 +17,6 @@ import sys
 import warnings
 
 import matplotlib
-from matplotlib._api import MatplotlibDeprecationWarning
 import sphinx
 
 from datetime import datetime
@@ -70,7 +69,7 @@ extensions = [
 exclude_patterns = [
     'api/prev_api_changes/api_changes_*/*',
     # Be sure to update users/whats_new.rst:
-    'users/prev_whats_new/whats_new_3.3.0.rst',
+    'users/prev_whats_new/whats_new_3.4.0.rst',
 ]
 
 
@@ -117,7 +116,7 @@ autosummary_generate = True
 
 # we should ignore warnings coming from importing deprecated modules for
 # autodoc purposes, as this will disappear automatically when they are removed
-warnings.filterwarnings('ignore', category=MatplotlibDeprecationWarning,
+warnings.filterwarnings('ignore', category=DeprecationWarning,
                         module='importlib',  # used by sphinx.autodoc.importer
                         message=r'(\n|.)*module was deprecated.*')
 
@@ -126,7 +125,7 @@ autodoc_default_options = {'members': None, 'undoc-members': None}
 
 # make sure to ignore warnings that stem from simply inspecting deprecated
 # class-level attributes
-warnings.filterwarnings('ignore', category=MatplotlibDeprecationWarning,
+warnings.filterwarnings('ignore', category=DeprecationWarning,
                         module='sphinx.util.inspect')
 
 # missing-references names matches sphinx>=3 behavior, so we can't be nitpicky
@@ -143,7 +142,7 @@ intersphinx_mapping = {
     'ipykernel': ('https://ipykernel.readthedocs.io/en/latest/', None),
     'numpy': ('https://numpy.org/doc/stable/', None),
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
-    'pytest': ('https://pytest.org/en/latest/', None),
+    'pytest': ('https://pytest.org/en/stable/', None),
     'python': ('https://docs.python.org/3/', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
 }
@@ -151,9 +150,9 @@ intersphinx_mapping = {
 
 # Sphinx gallery configuration
 sphinx_gallery_conf = {
-    'examples_dirs': ['../examples', '../tutorials'],
+    'examples_dirs': ['../examples', '../tutorials', '../plot_types'],
     'filename_pattern': '^((?!sgskip).)*$',
-    'gallery_dirs': ['gallery', 'tutorials'],
+    'gallery_dirs': ['gallery', 'tutorials', 'plot_types'],
     'doc_module': ('matplotlib', 'mpl_toolkits'),
     'reference_url': {
         'matplotlib': None,
@@ -168,6 +167,10 @@ sphinx_gallery_conf = {
     'thumbnail_size': (320, 224),
     'compress_images': ('thumbnails', 'images'),
     'matplotlib_animations': True,
+    # 3.7 CI doc build should not use hidpi images during the testing phase
+    'image_srcset': [] if sys.version_info[:2] == (3, 7) else ["2x"],
+    'junit': ('../test-results/sphinx-gallery/junit.xml'
+              if 'CIRCLECI' in os.environ else ''),
 }
 
 plot_gallery = 'True'
@@ -198,7 +201,7 @@ master_doc = 'contents'
 try:
     SHA = subprocess.check_output(
         ['git', 'describe', '--dirty']).decode('utf-8').strip()
-# Catch the case where git is not installed locally, and use the versioneer
+# Catch the case where git is not installed locally, and use the setuptools_scm
 # version number instead
 except (subprocess.CalledProcessError, FileNotFoundError):
     SHA = matplotlib.__version__

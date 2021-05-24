@@ -261,18 +261,14 @@ if __name__ == '__main__':
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.transforms
-matplotlib.spines
-matplotlib.spines.Spine
-matplotlib.spines.Spine.register_axis
-matplotlib.projections
-matplotlib.projections.register_projection
+#    - `matplotlib.transforms`
+#    - `matplotlib.spines`
+#    - `matplotlib.spines.Spine`
+#    - `matplotlib.spines.Spine.register_axis`
+#    - `matplotlib.projections`
+#    - `matplotlib.projections.register_projection`

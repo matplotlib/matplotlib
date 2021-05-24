@@ -73,7 +73,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
     # subclass-by-subclass basis.
     _edge_default = False
 
-    @_api.delete_parameter("3.3", "offset_position")
     @docstring.interpd
     def __init__(self,
                  edgecolors=None,
@@ -90,7 +89,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  pickradius=5.0,
                  hatch=None,
                  urls=None,
-                 offset_position='screen',
+                 *,
                  zorder=1,
                  **kwargs
                  ):
@@ -130,9 +129,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         transOffset : `~.transforms.Transform`, default: `.IdentityTransform`
             A single transform which will be applied to each *offsets* vector
             before it is used.
-        offset_position : {{'screen' (default), 'data' (deprecated)}}
-            If set to 'data' (deprecated), *offsets* will be treated as if it
-            is in data coordinates instead of in screen coordinates.
         norm : `~.colors.Normalize`, optional
             Forwarded to `.ScalarMappable`. The default of
             ``None`` means that the first draw call will set ``vmin`` and
@@ -184,8 +180,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_urls(urls)
         self.set_hatch(hatch)
         self._offset_position = "screen"
-        if offset_position != "screen":
-            self.set_offset_position(offset_position)  # emit deprecation.
         self.set_zorder(zorder)
 
         if capstyle:
@@ -561,35 +555,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         else:
             return self._uniform_offsets
 
-    @_api.deprecated("3.3")
-    def set_offset_position(self, offset_position):
-        """
-        Set how offsets are applied.  If *offset_position* is 'screen'
-        (default) the offset is applied after the master transform has
-        been applied, that is, the offsets are in screen coordinates.
-        If offset_position is 'data', the offset is applied before the
-        master transform, i.e., the offsets are in data coordinates.
-
-        Parameters
-        ----------
-        offset_position : {'screen', 'data'}
-        """
-        _api.check_in_list(['screen', 'data'], offset_position=offset_position)
-        self._offset_position = offset_position
-        self.stale = True
-
-    @_api.deprecated("3.3")
-    def get_offset_position(self):
-        """
-        Return how offsets are applied for the collection.  If
-        *offset_position* is 'screen', the offset is applied after the
-        master transform has been applied, that is, the offsets are in
-        screen coordinates.  If offset_position is 'data', the offset
-        is applied before the master transform, i.e., the offsets are
-        in data coordinates.
-        """
-        return self._offset_position
-
     def _get_default_linewidth(self):
         # This may be overridden in a subclass.
         return mpl.rcParams['patch.linewidth']  # validated as float
@@ -851,7 +816,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             supported.
         """
         artist.Artist._set_alpha_for_array(self, alpha)
-        self._update_dict['array'] = True
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
 
@@ -907,7 +871,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if not self._set_mappable_flags():
             return
         # Allow possibility to call 'self.set_array(None)'.
-        if self._check_update("array") and self._A is not None:
+        if self._A is not None:
             # QuadMesh can map 2d arrays (but pcolormesh supplies 1d array)
             if self._A.ndim > 1 and not isinstance(self, QuadMesh):
                 raise ValueError('Collections can only map rank 1 arrays')
@@ -944,8 +908,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         artist.Artist.update_from(self, other)
         self._antialiaseds = other._antialiaseds
+        self._mapped_colors = other._mapped_colors
+        self._edge_is_mapped = other._edge_is_mapped
         self._original_edgecolor = other._original_edgecolor
         self._edgecolors = other._edgecolors
+        self._face_is_mapped = other._face_is_mapped
         self._original_facecolor = other._original_facecolor
         self._facecolors = other._facecolors
         self._linewidths = other._linewidths
@@ -958,7 +925,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._A = other._A
         self.norm = other.norm
         self.cmap = other.cmap
-        # do we need to copy self._update_dict? -JJL
         self.stale = True
 
 
@@ -1127,7 +1093,9 @@ class PathCollection(_CollectionWithSizes):
             raise ValueError("Valid values for `prop` are 'colors' or "
                              f"'sizes'. You supplied '{prop}' instead.")
 
-        fmt.set_bounds(func(u).min(), func(u).max())
+        fu = func(u)
+        fmt.axis.set_view_interval(fu.min(), fu.max())
+        fmt.axis.set_data_interval(fu.min(), fu.max())
         if num == "auto":
             num = 9
             if len(u) <= num:

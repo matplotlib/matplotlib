@@ -290,24 +290,19 @@ Including figures and files
 ---------------------------
 
 Image files can directly included in pages with the ``image::`` directive.
-e.g., :file:`thirdpartypackages/index.rst` displays the images for the third-party
-packages as static images::
+e.g., :file:`tutorials/intermediate/constrainedlayout_guide.py` displays 
+a couple of static images::
 
-    .. image:: /_static/toolbar.png
+  # .. image:: /_static/constrained_layout_1b.png
+  #    :align: center
 
-as rendered on the page: :ref:`thirdparty-index`.
 
-Files can be included verbatim.  For instance the ``matplotlibrc`` file
-is important for customizing Matplotlib, and is included verbatim in the
-tutorial in :doc:`/tutorials/introductory/customizing`::
+Files can be included verbatim.  For instance the ``LICENSE`` file is included
+at :ref:`license-agreement` using ::
 
-    .. literalinclude:: ../../_static/matplotlibrc
+    .. literalinclude:: ../../LICENSE/LICENSE
 
-This is rendered at the bottom of :doc:`/tutorials/introductory/customizing`.
-Note that this is in a tutorial; see :ref:`writing-examples-and-tutorials`
-below.
-
-The examples directory is also copied to :file:`doc/gallery` by sphinx-gallery,
+The examples directory is copied to :file:`doc/gallery` by sphinx-gallery,
 so plots from the examples directory can be included using
 
 .. code-block:: rst
@@ -585,7 +580,7 @@ Setters and getters
 -------------------
 
 Artist properties are implemented using setter and getter methods (because
-Matplotlib predates the introductions of the `property` decorator in Python).
+Matplotlib predates the Python `property` decorator).
 By convention, these setters and getters are named ``set_PROPERTYNAME`` and
 ``get_PROPERTYNAME``; the list of properties thusly defined on an artist and
 their values can be listed by the `~.pyplot.setp` and `~.pyplot.getp` functions.
@@ -712,7 +707,7 @@ Then in any function accepting `~.Line2D` pass-through ``kwargs``, e.g.,
       """
 
 Note there is a problem for `~matplotlib.artist.Artist` ``__init__`` methods,
-e.g., `matplotlib.patches.Patch.__init__`, which supports ``Patch`` ``kwargs``,
+e.g., `matplotlib.patches.Patch`, which supports ``Patch`` ``kwargs``,
 since the artist inspector cannot work until the class is fully defined and
 we can't modify the ``Patch.__init__.__doc__`` docstring outside the class
 definition.  There are some some manual hacks in this case, violating the
@@ -748,7 +743,7 @@ Adding figures
 --------------
 
 As above (see :ref:`rst-figures-and-includes`), figures in the examples gallery
-can be referenced with a ``:plot:`` directive pointing to the python script
+can be referenced with a ``.. plot::`` directive pointing to the python script
 that created the figure.  For instance the `~.Axes.legend` docstring references
 the file :file:`examples/text_labels_and_annotations/legend.py`:
 
@@ -864,6 +859,35 @@ are delimited by a line of ``###`` characters:
 
 In this way text, code, and figures are output in a "notebook" style.
 
+References for sphinx-gallery
+-----------------------------
+
+The showcased Matplotlib functions should be listed in an admonition at the
+bottom as follows
+
+.. code-block:: python
+
+    ###############################################################################
+    #
+    # .. admonition:: References
+    #
+    #    The use of the following functions, methods, classes and modules is shown
+    #    in this example:
+    #
+    #    - `matplotlib.axes.Axes.fill` / `matplotlib.pyplot.fill`
+    #    - `matplotlib.axes.Axes.axis` / `matplotlib.pyplot.axis`
+
+This allows sphinx-gallery to place an entry to the example in the
+mini-gallery of the mentioned functions. Whether or not a function is mentioned
+here should be decided depending on if a mini-gallery link prominently helps
+to illustrate that function; e.g. mention ``matplotlib.pyplot.subplots`` only
+in examples that are about laying out subplots, not in every example that uses
+it.
+
+Functions that exist in ``pyplot`` as well as in Axes or Figure should mention
+both references no matter which one is used in the example code. The ``pyplot``
+reference should always be the second to mention; see the example above.
+
 Order of examples in the gallery
 --------------------------------
 
@@ -963,18 +987,10 @@ google docs to the mplgithub account.
 Generating inheritance diagrams
 -------------------------------
 
-Class inheritance diagrams can be generated with the
-``inheritance-diagram`` directive.  To use it, provide the
-directive with a number of class or module names (separated by
-whitespace).  If a module name is provided, all classes in that module
-will be used.  All of the ancestors of these classes will be included
-in the inheritance diagram.
+Class inheritance diagrams can be generated with the Sphinx
+`inheritance-diagram`_ directive.
 
-A single option is available: *parts* controls how many of parts in
-the path to the class are shown.  For example, if *parts* == 1, the
-class ``matplotlib.patches.Patch`` is shown as ``Patch``.  If *parts*
-== 2, it is shown as ``patches.Patch``.  If *parts* == 0, the full
-path is shown.
+.. _inheritance-diagram: https://www.sphinx-doc.org/en/master/usage/extensions/inheritance.html
 
 Example:
 
@@ -986,42 +1002,6 @@ Example:
 .. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
    :parts: 2
 
-.. _emacs-helpers:
-
-Emacs helpers
--------------
-
-There is an emacs mode `rst.el
-<http://docutils.sourceforge.net/tools/editors/emacs/rst.el>`_ which
-automates many important ReST tasks like building and updating
-table-of-contents, and promoting or demoting section headings.  Here
-is the basic ``.emacs`` configuration:
-
-.. code-block:: lisp
-
-    (require 'rst)
-    (setq auto-mode-alist
-          (append '(("\\.txt$" . rst-mode)
-                    ("\\.rst$" . rst-mode)
-                    ("\\.rest$" . rst-mode)) auto-mode-alist))
-
-Some helpful functions::
-
-    C-c TAB - rst-toc-insert
-
-      Insert table of contents at point
-
-    C-c C-u - rst-toc-update
-
-        Update the table of contents at point
-
-    C-c C-l rst-shift-region-left
-
-        Shift region to the left
-
-    C-c C-r rst-shift-region-right
-
-        Shift region to the right
 
 .. TODO: Add section about uploading docs
 

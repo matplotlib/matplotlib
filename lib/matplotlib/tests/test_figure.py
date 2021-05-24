@@ -3,11 +3,13 @@ from datetime import datetime
 import io
 from pathlib import Path
 import platform
+from threading import Timer
 from types import SimpleNamespace
 import warnings
 
 import matplotlib as mpl
 from matplotlib import cbook, rcParams
+from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
@@ -15,7 +17,6 @@ from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.gridspec as gridspec
-from matplotlib.cbook import MatplotlibDeprecationWarning
 import numpy as np
 import pytest
 
@@ -150,7 +151,7 @@ def test_figure_legend():
 def test_gca():
     fig = plt.figure()
 
-    with pytest.warns(UserWarning):
+    with pytest.warns(MatplotlibDeprecationWarning):
         # empty call to add_axes() will throw deprecation warning
         assert fig.add_axes() is None
 
@@ -415,11 +416,11 @@ def test_autofmt_xdate(which):
 @pytest.mark.style('default')
 def test_change_dpi():
     fig = plt.figure(figsize=(4, 4))
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert fig.canvas.renderer.height == 400
     assert fig.canvas.renderer.width == 400
     fig.dpi = 50
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert fig.canvas.renderer.height == 200
     assert fig.canvas.renderer.width == 200
 
@@ -861,6 +862,42 @@ class TestSubplotMosaic:
         fig_test.subplot_mosaic([[object(), object()]])
         fig_ref.subplot_mosaic([["A", "B"]])
 
+    @pytest.mark.parametrize('str_pattern',
+                             ['abc', 'cab', 'bca', 'cba', 'acb', 'bac'])
+    def test_user_order(self, str_pattern):
+        fig = plt.figure()
+        ax_dict = fig.subplot_mosaic(str_pattern)
+        assert list(str_pattern) == list(ax_dict)
+        assert list(fig.axes) == list(ax_dict.values())
+
+    def test_nested_user_order(self):
+        layout = [
+            ["A", [["B", "C"],
+                   ["D", "E"]]],
+            ["F", "G"],
+            [".", [["H", [["I"],
+                          ["."]]]]]
+        ]
+
+        fig = plt.figure()
+        ax_dict = fig.subplot_mosaic(layout)
+        assert list(ax_dict) == list("ABCDEFGHI")
+        assert list(fig.axes) == list(ax_dict.values())
+
+    def test_share_all(self):
+        layout = [
+            ["A", [["B", "C"],
+                   ["D", "E"]]],
+            ["F", "G"],
+            [".", [["H", [["I"],
+                          ["."]]]]]
+        ]
+        fig = plt.figure()
+        ax_dict = fig.subplot_mosaic(layout, sharex=True, sharey=True)
+        ax_dict["A"].set(xscale="log", yscale="logit")
+        assert all(ax.get_xscale() == "log" and ax.get_yscale() == "logit"
+                   for ax in ax_dict.values())
+
 
 def test_reused_gridspec():
     """Test that these all use the same gridspec"""
@@ -898,6 +935,15 @@ def test_subfigure():
     sub[1].suptitle('Right Side')
 
     fig.suptitle('Figure suptitle', fontsize='xx-large')
+
+
+def test_subfigure_tightbbox():
+    # test that we can get the tightbbox with a subfigure...
+    fig = plt.figure(constrained_layout=True)
+    sub = fig.subfigures(1, 2)
+
+    np.testing.assert_allclose(
+            fig.get_tightbbox(fig.canvas.get_renderer()).width, 0.1)
 
 
 @image_comparison(['test_subfigure_ss.png'], style='mpl20',
@@ -967,6 +1013,28 @@ def test_subfigure_double():
     axsRight = subfigs[1].subplots(2, 2)
 
 
+def test_subfigure_spanning():
+    # test that subfigures get laid out properly...
+    fig = plt.figure(constrained_layout=True)
+    gs = fig.add_gridspec(3, 3)
+    sub_figs = [
+        fig.add_subfigure(gs[0, 0]),
+        fig.add_subfigure(gs[0:2, 1]),
+        fig.add_subfigure(gs[2, 1:3]),
+    ]
+
+    w = 640
+    h = 480
+    np.testing.assert_allclose(sub_figs[0].bbox.min, [0., h * 2/3])
+    np.testing.assert_allclose(sub_figs[0].bbox.max, [w / 3, h])
+
+    np.testing.assert_allclose(sub_figs[1].bbox.min, [w / 3, h / 3])
+    np.testing.assert_allclose(sub_figs[1].bbox.max, [w * 2/3, h])
+
+    np.testing.assert_allclose(sub_figs[2].bbox.min, [w / 3, 0])
+    np.testing.assert_allclose(sub_figs[2].bbox.max, [w, h / 3])
+
+
 def test_add_subplot_kwargs():
     # fig.add_subplot() always creates new axes, even if axes kwargs differ.
     fig = plt.figure()
@@ -1015,3 +1083,34 @@ def test_add_axes_kwargs():
     assert ax1.name == 'rectilinear'
     assert ax1 is not ax
     plt.close()
+
+
+def test_ginput(recwarn):  # recwarn undoes warn filters at exit.
+    warnings.filterwarnings("ignore", "cannot show the figure")
+    fig, ax = plt.subplots()
+
+    def single_press():
+        fig.canvas.button_press_event(*ax.transData.transform((.1, .2)), 1)
+
+    Timer(.1, single_press).start()
+    assert fig.ginput() == [(.1, .2)]
+
+    def multi_presses():
+        fig.canvas.button_press_event(*ax.transData.transform((.1, .2)), 1)
+        fig.canvas.key_press_event("backspace")
+        fig.canvas.button_press_event(*ax.transData.transform((.3, .4)), 1)
+        fig.canvas.button_press_event(*ax.transData.transform((.5, .6)), 1)
+        fig.canvas.button_press_event(*ax.transData.transform((0, 0)), 2)
+
+    Timer(.1, multi_presses).start()
+    np.testing.assert_allclose(fig.ginput(3), [(.3, .4), (.5, .6)])
+
+
+def test_waitforbuttonpress(recwarn):  # recwarn undoes warn filters at exit.
+    warnings.filterwarnings("ignore", "cannot show the figure")
+    fig = plt.figure()
+    assert fig.waitforbuttonpress(timeout=.1) is None
+    Timer(.1, fig.canvas.key_press_event, ("z",)).start()
+    assert fig.waitforbuttonpress() is True
+    Timer(.1, fig.canvas.button_press_event, (0, 0, 1)).start()
+    assert fig.waitforbuttonpress() is False

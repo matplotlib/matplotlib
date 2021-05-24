@@ -1,8 +1,0 @@
-Canvas's callback registry now stored on Figure
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The canonical location of the `~.cbook.CallbackRegistry` used to
-handle Figure/Canvas events has been moved from the Canvas to the
-Figure.  This change should be transparent to almost all users,
-however if you are swapping switching the Figure out from on top of a
-Canvas or visa versa you may see a change in behavior.

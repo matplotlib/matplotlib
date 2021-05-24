@@ -89,23 +89,16 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.tricontour
-matplotlib.pyplot.tricontour
-matplotlib.axes.Axes.triplot
-matplotlib.pyplot.triplot
-matplotlib.tri
-matplotlib.tri.Triangulation
-matplotlib.tri.CubicTriInterpolator
-matplotlib.tri.CubicTriInterpolator.gradient
-matplotlib.tri.UniformTriRefiner
-matplotlib.axes.Axes.quiver
-matplotlib.pyplot.quiver
+#    - `matplotlib.axes.Axes.tricontour` / `matplotlib.pyplot.tricontour`
+#    - `matplotlib.axes.Axes.triplot` / `matplotlib.pyplot.triplot`
+#    - `matplotlib.tri`
+#    - `matplotlib.tri.Triangulation`
+#    - `matplotlib.tri.CubicTriInterpolator`
+#    - `matplotlib.tri.CubicTriInterpolator.gradient`
+#    - `matplotlib.tri.UniformTriRefiner`
+#    - `matplotlib.axes.Axes.quiver` / `matplotlib.pyplot.quiver`

@@ -30,7 +30,7 @@ import textwrap
 
 import numpy as np
 
-from matplotlib import _api, cbook, rcParams
+from matplotlib import _api, cbook
 
 _log = logging.getLogger(__name__)
 
@@ -212,15 +212,8 @@ class Dvi:
         self.dpi = dpi
         self.fonts = {}
         self.state = _dvistate.pre
-        self.baseline = self._get_baseline(filename)
 
-    def _get_baseline(self, filename):
-        if dict.__getitem__(rcParams, 'text.latex.preview'):
-            baseline = Path(filename).with_suffix(".baseline")
-            if baseline.exists():
-                height, depth, width = baseline.read_bytes().split()
-                return float(depth)
-        return None
+    baseline = _api.deprecated("3.5")(property(lambda self: None))
 
     def __enter__(self):
         """Context manager enter method, does nothing."""
@@ -290,10 +283,7 @@ class Dvi:
 
         # convert from TeX's "scaled points" to dpi units
         d = self.dpi / (72.27 * 2**16)
-        if self.baseline is None:
-            descent = (maxy - maxy_pure) * d
-        else:
-            descent = self.baseline
+        descent = (maxy - maxy_pure) * d
 
         text = [Text((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
                 for (x, y, f, g, w) in self.text]
@@ -838,7 +828,7 @@ class PsfontsMap:
     {'slant': 0.16700000000000001}
     >>> entry.filename
     """
-    __slots__ = ('_font', '_filename')
+    __slots__ = ('_filename', '_unparsed', '_parsed')
 
     # Create a filename -> PsfontsMap cache, so that calling
     # `PsfontsMap(filename)` with the same filename a second time immediately
@@ -846,16 +836,22 @@ class PsfontsMap:
     @lru_cache()
     def __new__(cls, filename):
         self = object.__new__(cls)
-        self._font = {}
         self._filename = os.fsdecode(filename)
+        # Some TeX distributions have enormous pdftex.map files which would
+        # take hundreds of milliseconds to parse, but it is easy enough to just
+        # store the unparsed lines (keyed by the first word, which is the
+        # texname) and parse them on-demand.
         with open(filename, 'rb') as file:
-            self._parse(file)
+            self._unparsed = {line.split(b' ', 1)[0]: line for line in file}
+        self._parsed = {}
         return self
 
     def __getitem__(self, texname):
         assert isinstance(texname, bytes)
+        if texname in self._unparsed:
+            self._parse_and_cache_line(self._unparsed.pop(texname))
         try:
-            result = self._font[texname]
+            return self._parsed[texname]
         except KeyError:
             fmt = ('A PostScript file for the font whose TeX name is "{0}" '
                    'could not be found in the file "{1}". The dviread module '
@@ -864,149 +860,83 @@ class PsfontsMap:
                    'This problem can often be solved by installing '
                    'a suitable PostScript font package in your (TeX) '
                    'package manager.')
-            msg = fmt.format(texname.decode('ascii'), self._filename)
-            msg = textwrap.fill(msg, break_on_hyphens=False,
-                                break_long_words=False)
-            _log.info(msg)
+            _log.info(textwrap.fill(
+                fmt.format(texname.decode('ascii'), self._filename),
+                break_on_hyphens=False, break_long_words=False))
             raise
-        fn, enc = result.filename, result.encoding
-        if fn is not None and not fn.startswith(b'/'):
-            fn = find_tex_file(fn)
-        if enc is not None and not enc.startswith(b'/'):
-            enc = find_tex_file(result.encoding)
-        return result._replace(filename=fn, encoding=enc)
 
-    def _parse(self, file):
+    def _parse_and_cache_line(self, line):
         """
-        Parse the font mapping file.
+        Parse a line in the font mapping file.
 
-        The format is, AFAIK: texname fontname [effects and filenames]
-        Effects are PostScript snippets like ".177 SlantFont",
-        filenames begin with one or two less-than signs. A filename
-        ending in enc is an encoding file, other filenames are font
-        files. This can be overridden with a left bracket: <[foobar
-        indicates an encoding file named foobar.
+        The format is (partially) documented at
+        http://mirrors.ctan.org/systems/doc/pdftex/manual/pdftex-a.pdf
+        https://tug.org/texinfohtml/dvips.html#psfonts_002emap
+        Each line can have the following fields:
 
-        There is some difference between <foo.pfb and <<bar.pfb in
-        subsetting, but I have no example of << in my TeX installation.
+        - tfmname (first, only required field),
+        - psname (defaults to tfmname, must come immediately after tfmname if
+          present),
+        - fontflags (integer, must come immediately after psname if present,
+          ignored by us),
+        - special (SlantFont and ExtendFont, only field that is double-quoted),
+        - fontfile, encodingfile (optional, prefixed by <, <<, or <[; << always
+          precedes a font, <[ always precedes an encoding, < can precede either
+          but then an encoding file must have extension .enc; < and << also
+          request different font subsetting behaviors but we ignore that; < can
+          be separated from the filename by whitespace).
+
+        special, fontfile, and encodingfile can appear in any order.
         """
         # If the map file specifies multiple encodings for a font, we
         # follow pdfTeX in choosing the last one specified. Such
         # entries are probably mistakes but they have occurred.
         # http://tex.stackexchange.com/questions/10826/
-        # http://article.gmane.org/gmane.comp.tex.pdftex/4914
 
-        empty_re = re.compile(br'%|\s*$')
-        word_re = re.compile(
-            br'''(?x) (?:
-                 "<\[ (?P<enc1>  [^"]+    )" | # quoted encoding marked by [
-                 "<   (?P<enc2>  [^"]+.enc)" | # quoted encoding, ends in .enc
-                 "<<? (?P<file1> [^"]+    )" | # quoted font file name
-                 "    (?P<eff1>  [^"]+    )" | # quoted effects or font name
-                 <\[  (?P<enc3>  \S+      )  | # encoding marked by [
-                 <    (?P<enc4>  \S+  .enc)  | # encoding, ends in .enc
-                 <<?  (?P<file2> \S+      )  | # font file name
-                      (?P<eff2>  \S+      )    # effects or font name
-            )''')
-        effects_re = re.compile(
-            br'''(?x) (?P<slant> -?[0-9]*(?:\.[0-9]+)) \s* SlantFont
-                    | (?P<extend>-?[0-9]*(?:\.[0-9]+)) \s* ExtendFont''')
-
-        lines = (line.strip()
-                 for line in file
-                 if not empty_re.match(line))
-        for line in lines:
-            effects, encoding, filename = b'', None, None
-            words = word_re.finditer(line)
-
-            # The named groups are mutually exclusive and are
-            # referenced below at an estimated order of probability of
-            # occurrence based on looking at my copy of pdftex.map.
-            # The font names are probably unquoted:
-            w = next(words)
-            texname = w.group('eff2') or w.group('eff1')
-            w = next(words)
-            psname = w.group('eff2') or w.group('eff1')
-
-            for w in words:
-                # Any effects are almost always quoted:
-                eff = w.group('eff1') or w.group('eff2')
-                if eff:
-                    effects = eff
-                    continue
-                # Encoding files usually have the .enc suffix
-                # and almost never need quoting:
-                enc = (w.group('enc4') or w.group('enc3') or
-                       w.group('enc2') or w.group('enc1'))
-                if enc:
-                    if encoding is not None:
-                        _log.debug('Multiple encodings for %s = %s',
-                                   texname, psname)
-                    encoding = enc
-                    continue
-                # File names are probably unquoted:
-                filename = w.group('file2') or w.group('file1')
-
-            effects_dict = {}
-            for match in effects_re.finditer(effects):
-                slant = match.group('slant')
-                if slant:
-                    effects_dict['slant'] = float(slant)
-                else:
-                    effects_dict['extend'] = float(match.group('extend'))
-
-            self._font[texname] = PsFont(
-                texname=texname, psname=psname, effects=effects_dict,
-                encoding=encoding, filename=filename)
-
-
-@_api.deprecated("3.3")
-class Encoding:
-    r"""
-    Parse a \*.enc file referenced from a psfonts.map style file.
-
-    The format this class understands is a very limited subset of PostScript.
-
-    Usage (subject to change)::
-
-      for name in Encoding(filename):
-          whatever(name)
-
-    Parameters
-    ----------
-    filename : str or path-like
-
-    Attributes
-    ----------
-    encoding : list
-        List of character names
-    """
-    __slots__ = ('encoding',)
-
-    def __init__(self, filename):
-        with open(filename, 'rb') as file:
-            _log.debug('Parsing TeX encoding %s', filename)
-            self.encoding = self._parse(file)
-            _log.debug('Result: %s', self.encoding)
-
-    def __iter__(self):
-        yield from self.encoding
-
-    @staticmethod
-    def _parse(file):
-        lines = (line.split(b'%', 1)[0].strip() for line in file)
-        data = b''.join(lines)
-        beginning = data.find(b'[')
-        if beginning < 0:
-            raise ValueError("Cannot locate beginning of encoding in {}"
-                             .format(file))
-        data = data[beginning:]
-        end = data.find(b']')
-        if end < 0:
-            raise ValueError("Cannot locate end of encoding in {}"
-                             .format(file))
-        data = data[:end]
-        return re.findall(br'/([^][{}<>\s]+)', data)
+        if not line or line.startswith((b" ", b"%", b"*", b";", b"#")):
+            return
+        tfmname = basename = special = encodingfile = fontfile = None
+        matches = re.finditer(br'"([^"]*)(?:"|$)|(\S+)', line)
+        for match in matches:
+            quoted, unquoted = match.groups()
+            if unquoted:
+                if unquoted.startswith(b"<<"):  # font
+                    fontfile = unquoted[2:]
+                elif unquoted.startswith(b"<["):  # encoding
+                    encodingfile = unquoted[2:]
+                elif unquoted.startswith(b"<"):  # font or encoding
+                    word = (
+                        # <foo => foo
+                        unquoted[1:]
+                        # < by itself => read the next word
+                        or next(filter(None, next(matches).groups())))
+                    if word.endswith(b".enc"):
+                        encodingfile = word
+                    else:
+                        fontfile = word
+                elif tfmname is None:
+                    tfmname = unquoted
+                elif basename is None:
+                    basename = unquoted
+            elif quoted:
+                special = quoted
+        if basename is None:
+            basename = tfmname
+        effects = {}
+        if special:
+            words = reversed(special.split())
+            for word in words:
+                if word == b"SlantFont":
+                    effects["slant"] = float(next(words))
+                elif word == b"ExtendFont":
+                    effects["extend"] = float(next(words))
+        if encodingfile is not None and not encodingfile.startswith(b"/"):
+            encodingfile = find_tex_file(encodingfile)
+        if fontfile is not None and not fontfile.startswith(b"/"):
+            fontfile = find_tex_file(fontfile)
+        self._parsed[tfmname] = PsFont(
+            texname=tfmname, psname=basename, effects=effects,
+            encoding=encodingfile, filename=fontfile)
 
 
 # Note: this function should ultimately replace the Encoding class, which

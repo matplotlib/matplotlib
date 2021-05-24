@@ -138,6 +138,7 @@ The plot directive has the following configuration options:
 """
 
 import contextlib
+import doctest
 from io import StringIO
 import itertools
 import os
@@ -301,6 +302,7 @@ def contains_doctest(text):
     return bool(m)
 
 
+@_api.deprecated("3.5", alternative="doctest.script_from_examples")
 def unescape_doctest(text):
     """
     Extract code from a piece of text, which contains either Python code
@@ -308,7 +310,6 @@ def unescape_doctest(text):
     """
     if not contains_doctest(text):
         return text
-
     code = ""
     for line in text.split("\n"):
         m = re.match(r'^\s*(>>>|\.\.\.) (.*)$', line)
@@ -321,11 +322,16 @@ def unescape_doctest(text):
     return code
 
 
+@_api.deprecated("3.5")
 def split_code_at_show(text):
+    """Split code at plt.show()."""
+    return _split_code_at_show(text)[1]
+
+
+def _split_code_at_show(text):
     """Split code at plt.show()."""
     parts = []
     is_doctest = contains_doctest(text)
-
     part = []
     for line in text.split("\n"):
         if (not is_doctest and line.strip() == 'plt.show()') or \
@@ -337,7 +343,7 @@ def split_code_at_show(text):
             part.append(line)
     if "\n".join(part).strip():
         parts.append("\n".join(part))
-    return parts
+    return is_doctest, parts
 
 
 # -----------------------------------------------------------------------------
@@ -437,7 +443,16 @@ class PlotError(RuntimeError):
     pass
 
 
+@_api.deprecated("3.5")
 def run_code(code, code_path, ns=None, function_name=None):
+    """
+    Import a Python module from a path, and run the function given by
+    name, if function_name is not None.
+    """
+    _run_code(unescape_doctest(code), code_path, ns, function_name)
+
+
+def _run_code(code, code_path, ns=None, function_name=None):
     """
     Import a Python module from a path, and run the function given by
     name, if function_name is not None.
@@ -466,7 +481,6 @@ def run_code(code, code_path, ns=None, function_name=None):
             sys, argv=[code_path], path=[os.getcwd(), *sys.path]), \
             contextlib.redirect_stdout(StringIO()):
         try:
-            code = unescape_doctest(code)
             if ns is None:
                 ns = {}
             if not ns:
@@ -529,7 +543,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
 
     # Try to determine if all images already exist
 
-    code_pieces = split_code_at_show(code)
+    is_doctest, code_pieces = _split_code_at_show(code)
 
     # Look for single-figure output files first
     all_exists = True
@@ -593,7 +607,9 @@ def render_figures(code, code_path, output_dir, output_base, context,
         elif close_figs:
             plt.close('all')
 
-        run_code(code_piece, code_path, ns, function_name)
+        _run_code(doctest.script_from_examples(code_piece) if is_doctest
+                  else code_piece,
+                  code_path, ns, function_name)
 
         images = []
         fig_managers = _pylab_helpers.Gcf.get_all_fig_managers()
@@ -816,7 +832,9 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # copy script (if necessary)
     Path(dest_dir, output_base + source_ext).write_text(
-        unescape_doctest(code) if source_file_name == rst_file else code,
+        doctest.script_from_examples(code)
+        if source_file_name == rst_file and is_doctest
+        else code,
         encoding='utf-8')
 
     return errors

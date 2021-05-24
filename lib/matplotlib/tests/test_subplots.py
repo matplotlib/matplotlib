@@ -33,6 +33,12 @@ def check_visible(axs, x_visible, y_visible):
         for l in ax.get_yticklabels() + [ax.yaxis.offsetText]:
             assert l.get_visible() == vy, \
                     f"Visibility of y axis #{i} is incorrectly {vy}"
+        # axis label "visibility" is toggled by label_outer by resetting the
+        # label to empty, but it can also be empty to start with.
+        if not vx:
+            assert ax.get_xlabel() == ""
+        if not vy:
+            assert ax.get_ylabel() == ""
 
 
 def test_shared():
@@ -92,6 +98,7 @@ def test_shared():
     f, ((a1, a2), (a3, a4)) = plt.subplots(2, 2, sharex=True, sharey=True)
     axs = [a1, a2, a3, a4]
     for ax in axs:
+        ax.set(xlabel="foo", ylabel="bar")
         ax.label_outer()
     check_visible(axs, [False, False, True, True], [True, False, True, False])
 
@@ -164,7 +171,7 @@ def test_subplots_offsettext():
 @pytest.mark.parametrize("bottom", [True, False])
 @pytest.mark.parametrize("left", [True, False])
 @pytest.mark.parametrize("right", [True, False])
-def test_subplots_hide_labels(top, bottom, left, right):
+def test_subplots_hide_ticklabels(top, bottom, left, right):
     # Ideally, we would also test offset-text visibility (and remove
     # test_subplots_offsettext), but currently, setting rcParams fails to move
     # the offset texts as well.
@@ -180,6 +187,23 @@ def test_subplots_hide_labels(top, bottom, left, right):
         assert xbottom == (bottom and i == 2)
         assert yleft == (left and j == 0)
         assert yright == (right and j == 2)
+
+
+@pytest.mark.parametrize("xlabel_position", ["bottom", "top"])
+@pytest.mark.parametrize("ylabel_position", ["left", "right"])
+def test_subplots_hide_axislabels(xlabel_position, ylabel_position):
+    axs = plt.figure().subplots(3, 3, sharex=True, sharey=True)
+    for (i, j), ax in np.ndenumerate(axs):
+        ax.set(xlabel="foo", ylabel="bar")
+        ax.xaxis.set_label_position(xlabel_position)
+        ax.yaxis.set_label_position(ylabel_position)
+        ax.label_outer()
+        assert bool(ax.get_xlabel()) == (
+            xlabel_position == "bottom" and i == 2
+            or xlabel_position == "top" and i == 0)
+        assert bool(ax.get_ylabel()) == (
+            ylabel_position == "left" and j == 0
+            or ylabel_position == "right" and j == 2)
 
 
 def test_get_gridspec():

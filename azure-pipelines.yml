@@ -6,13 +6,13 @@
 strategy:
   matrix:
     Linux_py37:
-      vmImage: 'ubuntu-16.04'
+      vmImage: 'ubuntu-18.04'
       python.version: '3.7'
     Linux_py38:
-      vmImage: 'ubuntu-16.04'
+      vmImage: 'ubuntu-18.04'
       python.version: '3.8'
     Linux_py39:
-      vmImage: 'ubuntu-16.04'
+      vmImage: 'ubuntu-18.04'
       python.version: '3.9'
     macOS_py37:
       vmImage: 'macOS-10.15'

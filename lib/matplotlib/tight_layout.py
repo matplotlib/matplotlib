@@ -16,24 +16,23 @@ from matplotlib.font_manager import FontProperties
 from matplotlib.transforms import TransformedBbox, Bbox
 
 
-def auto_adjust_subplotpars(
-        fig, renderer, nrows_ncols, num1num2_list, subplot_list,
+def _auto_adjust_subplotpars(
+        fig, renderer, shape, span_pairs, subplot_list,
         ax_bbox_list=None, pad=1.08, h_pad=None, w_pad=None, rect=None):
     """
     Return a dict of subplot parameters to adjust spacing between subplots
     or ``None`` if resulting axes would have zero height or width.
 
-    Note that this function ignores geometry information of subplot
-    itself, but uses what is given by the *nrows_ncols* and *num1num2_list*
-    parameters.  Also, the results could be incorrect if some subplots have
-    ``adjustable=datalim``.
+    Note that this function ignores geometry information of subplot itself, but
+    uses what is given by the *shape* and *subplot_list* parameters.  Also, the
+    results could be incorrect if some subplots have ``adjustable=datalim``.
 
     Parameters
     ----------
-    nrows_ncols : tuple[int, int]
-        Number of rows and number of columns of the grid.
-    num1num2_list : list[int]
-        List of numbers specifying the area occupied by the subplot
+    shape : tuple[int, int]
+        Number of rows and columns of the grid.
+    span_pairs : list[tuple[slice, slice]]
+        List of rowspans and colspans occupied by each subplot.
     subplot_list : list of subplots
         List of subplots that will be used to calculate optimal subplot_params.
     pad : float
@@ -45,15 +44,15 @@ def auto_adjust_subplotpars(
     rect : tuple[float, float, float, float]
         [left, bottom, right, top] in normalized (0, 1) figure coordinates.
     """
-    rows, cols = nrows_ncols
+    rows, cols = shape
 
-    font_size_inches = (
+    font_size_inch = (
         FontProperties(size=rcParams["font.size"]).get_size_in_points() / 72)
-    pad_inches = pad * font_size_inches
-    vpad_inches = h_pad * font_size_inches if h_pad is not None else pad_inches
-    hpad_inches = w_pad * font_size_inches if w_pad is not None else pad_inches
+    pad_inch = pad * font_size_inch
+    vpad_inch = h_pad * font_size_inch if h_pad is not None else pad_inch
+    hpad_inch = w_pad * font_size_inch if w_pad is not None else pad_inch
 
-    if len(num1num2_list) != len(subplot_list) or len(subplot_list) == 0:
+    if len(span_pairs) != len(subplot_list) or len(subplot_list) == 0:
         raise ValueError
 
     if rect is None:
@@ -71,9 +70,8 @@ def auto_adjust_subplotpars(
             Bbox.union([ax.get_position(original=True) for ax in subplots])
             for subplots in subplot_list]
 
-    for subplots, ax_bbox, (num1, num2) in zip(subplot_list,
-                                               ax_bbox_list,
-                                               num1num2_list):
+    for subplots, ax_bbox, (rowspan, colspan) in zip(
+            subplot_list, ax_bbox_list, span_pairs):
         if all(not ax.get_visible() for ax in subplots):
             continue
 
@@ -89,59 +87,47 @@ def auto_adjust_subplotpars(
         tight_bbox = TransformedBbox(tight_bbox_raw,
                                      fig.transFigure.inverted())
 
-        row1, col1 = divmod(num1, cols)
-        if num2 is None:
-            num2 = num1
-        row2, col2 = divmod(num2, cols)
-
-        for row_i in range(row1, row2 + 1):
-            hspaces[row_i, col1] += ax_bbox.xmin - tight_bbox.xmin  # left
-            hspaces[row_i, col2 + 1] += tight_bbox.xmax - ax_bbox.xmax  # right
-        for col_i in range(col1, col2 + 1):
-            vspaces[row1, col_i] += tight_bbox.ymax - ax_bbox.ymax  # top
-            vspaces[row2 + 1, col_i] += ax_bbox.ymin - tight_bbox.ymin  # bot.
+        hspaces[rowspan, colspan.start] += ax_bbox.xmin - tight_bbox.xmin  # l
+        hspaces[rowspan, colspan.stop] += tight_bbox.xmax - ax_bbox.xmax  # r
+        vspaces[rowspan.start, colspan] += tight_bbox.ymax - ax_bbox.ymax  # t
+        vspaces[rowspan.stop, colspan] += ax_bbox.ymin - tight_bbox.ymin  # b
 
     fig_width_inch, fig_height_inch = fig.get_size_inches()
 
     # margins can be negative for axes with aspect applied, so use max(, 0) to
     # make them nonnegative.
     if not margin_left:
-        margin_left = (max(hspaces[:, 0].max(), 0)
-                       + pad_inches / fig_width_inch)
+        margin_left = max(hspaces[:, 0].max(), 0) + pad_inch/fig_width_inch
         suplabel = fig._supylabel
         if suplabel and suplabel.get_in_layout():
             rel_width = fig.transFigure.inverted().transform_bbox(
                 suplabel.get_window_extent(renderer)).width
-            margin_left += rel_width + pad_inches / fig_width_inch
-
+            margin_left += rel_width + pad_inch/fig_width_inch
     if not margin_right:
-        margin_right = (max(hspaces[:, -1].max(), 0)
-                        + pad_inches / fig_width_inch)
+        margin_right = max(hspaces[:, -1].max(), 0) + pad_inch/fig_width_inch
     if not margin_top:
-        margin_top = (max(vspaces[0, :].max(), 0)
-                      + pad_inches / fig_height_inch)
+        margin_top = max(vspaces[0, :].max(), 0) + pad_inch/fig_height_inch
         if fig._suptitle and fig._suptitle.get_in_layout():
             rel_height = fig.transFigure.inverted().transform_bbox(
                 fig._suptitle.get_window_extent(renderer)).height
-            margin_top += rel_height + pad_inches / fig_height_inch
+            margin_top += rel_height + pad_inch/fig_height_inch
     if not margin_bottom:
-        margin_bottom = (max(vspaces[-1, :].max(), 0)
-                         + pad_inches / fig_height_inch)
+        margin_bottom = max(vspaces[-1, :].max(), 0) + pad_inch/fig_height_inch
         suplabel = fig._supxlabel
         if suplabel and suplabel.get_in_layout():
             rel_height = fig.transFigure.inverted().transform_bbox(
                 suplabel.get_window_extent(renderer)).height
-            margin_bottom += rel_height + pad_inches / fig_height_inch
+            margin_bottom += rel_height + pad_inch/fig_height_inch
 
     if margin_left + margin_right >= 1:
         _api.warn_external('Tight layout not applied. The left and right '
                            'margins cannot be made large enough to '
-                           'accommodate all axes decorations. ')
+                           'accommodate all axes decorations.')
         return None
     if margin_bottom + margin_top >= 1:
         _api.warn_external('Tight layout not applied. The bottom and top '
                            'margins cannot be made large enough to '
-                           'accommodate all axes decorations. ')
+                           'accommodate all axes decorations.')
         return None
 
     kwargs = dict(left=margin_left,
@@ -150,7 +136,7 @@ def auto_adjust_subplotpars(
                   top=1 - margin_top)
 
     if cols > 1:
-        hspace = hspaces[:, 1:-1].max() + hpad_inches / fig_width_inch
+        hspace = hspaces[:, 1:-1].max() + hpad_inch / fig_width_inch
         # axes widths:
         h_axes = (1 - margin_right - margin_left - hspace * (cols - 1)) / cols
         if h_axes < 0:
@@ -161,17 +147,59 @@ def auto_adjust_subplotpars(
         else:
             kwargs["wspace"] = hspace / h_axes
     if rows > 1:
-        vspace = vspaces[1:-1, :].max() + vpad_inches / fig_height_inch
+        vspace = vspaces[1:-1, :].max() + vpad_inch / fig_height_inch
         v_axes = (1 - margin_top - margin_bottom - vspace * (rows - 1)) / rows
         if v_axes < 0:
             _api.warn_external('Tight layout not applied. tight_layout '
                                'cannot make axes height small enough to '
-                               'accommodate all axes decorations')
+                               'accommodate all axes decorations.')
             return None
         else:
             kwargs["hspace"] = vspace / v_axes
 
     return kwargs
+
+
+@_api.deprecated("3.5")
+def auto_adjust_subplotpars(
+        fig, renderer, nrows_ncols, num1num2_list, subplot_list,
+        ax_bbox_list=None, pad=1.08, h_pad=None, w_pad=None, rect=None):
+    """
+    Return a dict of subplot parameters to adjust spacing between subplots
+    or ``None`` if resulting axes would have zero height or width.
+
+    Note that this function ignores geometry information of subplot
+    itself, but uses what is given by the *nrows_ncols* and *num1num2_list*
+    parameters.  Also, the results could be incorrect if some subplots have
+    ``adjustable=datalim``.
+
+    Parameters
+    ----------
+    nrows_ncols : tuple[int, int]
+        Number of rows and number of columns of the grid.
+    num1num2_list : list[tuple[int, int]]
+        List of numbers specifying the area occupied by the subplot
+    subplot_list : list of subplots
+        List of subplots that will be used to calculate optimal subplot_params.
+    pad : float
+        Padding between the figure edge and the edges of subplots, as a
+        fraction of the font size.
+    h_pad, w_pad : float
+        Padding (height/width) between edges of adjacent subplots, as a
+        fraction of the font size.  Defaults to *pad*.
+    rect : tuple[float, float, float, float]
+        [left, bottom, right, top] in normalized (0, 1) figure coordinates.
+    """
+    nrows, ncols = nrows_ncols
+    span_pairs = []
+    for n1, n2 in num1num2_list:
+        if n2 is None:
+            n2 = n1
+        span_pairs.append((slice(n1 // ncols, n2 // ncols + 1),
+                           slice(n1 % ncols, n2 % ncols + 1)))
+    return _auto_adjust_subplotpars(
+        fig, renderer, nrows_ncols, num1num2_list, subplot_list,
+        ax_bbox_list, pad, h_pad, w_pad, rect)
 
 
 def get_renderer(fig):
@@ -249,42 +277,29 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
         None if tight_layout could not be accomplished.
     """
 
-    subplot_list = []
-    nrows_list = []
-    ncols_list = []
-    ax_bbox_list = []
-
-    # Multiple axes can share same subplot_interface (e.g., axes_grid1); thus
-    # we need to join them together.
-    subplot_dict = {}
-
-    subplotspec_list2 = []
-
-    for ax, subplotspec in zip(axes_list, subplotspec_list):
-        if subplotspec is None:
-            continue
-
-        subplots = subplot_dict.setdefault(subplotspec, [])
-
-        if not subplots:
-            myrows, mycols, _, _ = subplotspec.get_geometry()
-            nrows_list.append(myrows)
-            ncols_list.append(mycols)
-            subplotspec_list2.append(subplotspec)
-            subplot_list.append(subplots)
-            ax_bbox_list.append(subplotspec.get_position(fig))
-
-        subplots.append(ax)
-
-    if len(nrows_list) == 0 or len(ncols_list) == 0:
+    # Multiple axes can share same subplotspec (e.g., if using axes_grid1);
+    # we need to group them together.
+    ss_to_subplots = {ss: [] for ss in subplotspec_list}
+    for ax, ss in zip(axes_list, subplotspec_list):
+        ss_to_subplots[ss].append(ax)
+    ss_to_subplots.pop(None, None)  # Skip subplotspec == None.
+    if not ss_to_subplots:
         return {}
+    subplot_list = list(ss_to_subplots.values())
+    ax_bbox_list = [ss.get_position(fig) for ss in ss_to_subplots]
 
-    max_nrows = max(nrows_list)
-    max_ncols = max(ncols_list)
+    max_nrows = max(ss.get_gridspec().nrows for ss in ss_to_subplots)
+    max_ncols = max(ss.get_gridspec().ncols for ss in ss_to_subplots)
 
-    num1num2_list = []
-    for subplotspec in subplotspec_list2:
-        rows, cols, num1, num2 = subplotspec.get_geometry()
+    span_pairs = []
+    for ss in ss_to_subplots:
+        # The intent here is to support axes from different gridspecs where
+        # one's nrows (or ncols) is a multiple of the other (e.g. 2 and 4),
+        # but this doesn't actually work because the computed wspace, in
+        # relative-axes-height, corresponds to different physical spacings for
+        # the 2-row grid and the 4-row grid.  Still, this code is left, mostly
+        # for backcompat.
+        rows, cols = ss.get_gridspec().get_geometry()
         div_row, mod_row = divmod(max_nrows, rows)
         div_col, mod_col = divmod(max_ncols, cols)
         if mod_row != 0:
@@ -297,24 +312,16 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
                                'columns in subplot specifications must be '
                                'multiples of one another.')
             return {}
+        span_pairs.append((
+            slice(ss.rowspan.start * div_row, ss.rowspan.stop * div_row),
+            slice(ss.colspan.start * div_col, ss.colspan.stop * div_col)))
 
-        rowNum1, colNum1 = divmod(num1, cols)
-        if num2 is None:
-            rowNum2, colNum2 = rowNum1, colNum1
-        else:
-            rowNum2, colNum2 = divmod(num2, cols)
-
-        num1num2_list.append((rowNum1 * div_row * max_ncols +
-                              colNum1 * div_col,
-                              ((rowNum2 + 1) * div_row - 1) * max_ncols +
-                              (colNum2 + 1) * div_col - 1))
-
-    kwargs = auto_adjust_subplotpars(fig, renderer,
-                                     nrows_ncols=(max_nrows, max_ncols),
-                                     num1num2_list=num1num2_list,
-                                     subplot_list=subplot_list,
-                                     ax_bbox_list=ax_bbox_list,
-                                     pad=pad, h_pad=h_pad, w_pad=w_pad)
+    kwargs = _auto_adjust_subplotpars(fig, renderer,
+                                      shape=(max_nrows, max_ncols),
+                                      span_pairs=span_pairs,
+                                      subplot_list=subplot_list,
+                                      ax_bbox_list=ax_bbox_list,
+                                      pad=pad, h_pad=h_pad, w_pad=w_pad)
 
     # kwargs can be none if tight_layout fails...
     if rect is not None and kwargs is not None:
@@ -336,12 +343,12 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
         if top is not None:
             top -= (1 - kwargs["top"])
 
-        kwargs = auto_adjust_subplotpars(fig, renderer,
-                                         nrows_ncols=(max_nrows, max_ncols),
-                                         num1num2_list=num1num2_list,
-                                         subplot_list=subplot_list,
-                                         ax_bbox_list=ax_bbox_list,
-                                         pad=pad, h_pad=h_pad, w_pad=w_pad,
-                                         rect=(left, bottom, right, top))
+        kwargs = _auto_adjust_subplotpars(fig, renderer,
+                                          shape=(max_nrows, max_ncols),
+                                          span_pairs=span_pairs,
+                                          subplot_list=subplot_list,
+                                          ax_bbox_list=ax_bbox_list,
+                                          pad=pad, h_pad=h_pad, w_pad=w_pad,
+                                          rect=(left, bottom, right, top))
 
     return kwargs

@@ -532,7 +532,6 @@ class PillowWriter(AbstractMovieWriter):
         buf = BytesIO()
         self.fig.savefig(
             buf, **{**savefig_kwargs, "format": "rgba", "dpi": self.dpi})
-        renderer = self.fig.canvas.get_renderer()
         self._frames.append(Image.frombuffer(
             "RGBA", self.frame_size, buf.getbuffer(), "raw", "RGBA", 0, 1))
 
@@ -1785,7 +1784,7 @@ class FuncAnimation(TimedAnimation):
             except TypeError:
                 raise err from None
 
-            # check each item if is artist
+            # check each item if it's artist
             for i in self._drawn_artists:
                 if not isinstance(i, mpl.artist.Artist):
                     raise err

@@ -58,7 +58,6 @@ the :ref:`angle-annotation-usage` section.
 
 
 import numpy as np
-import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.patches import Arc
 from matplotlib.transforms import IdentityTransform, TransformedBbox, Bbox
@@ -314,18 +313,14 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-matplotlib.patches.Arc
-matplotlib.axes.Axes.annotate
-matplotlib.pyplot.annotate
-matplotlib.text.Annotation
-matplotlib.transforms.IdentityTransform
-matplotlib.transforms.TransformedBbox
-matplotlib.transforms.Bbox
+#    - `matplotlib.patches.Arc`
+#    - `matplotlib.axes.Axes.annotate` / `matplotlib.pyplot.annotate`
+#    - `matplotlib.text.Annotation`
+#    - `matplotlib.transforms.IdentityTransform`
+#    - `matplotlib.transforms.TransformedBbox`
+#    - `matplotlib.transforms.Bbox`

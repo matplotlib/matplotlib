@@ -114,19 +114,15 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.pyplot.subplots
-matplotlib.axes.Axes.text
-matplotlib.axis.Axis.set_major_formatter
-matplotlib.axis.XAxis.tick_bottom
-matplotlib.axis.YAxis.tick_left
-matplotlib.artist.Artist.set_visible
-matplotlib.ticker.StrMethodFormatter
+#    - `matplotlib.pyplot.subplots`
+#    - `matplotlib.axes.Axes.text`
+#    - `matplotlib.axis.Axis.set_major_formatter`
+#    - `matplotlib.axis.XAxis.tick_bottom`
+#    - `matplotlib.axis.YAxis.tick_left`
+#    - `matplotlib.artist.Artist.set_visible`
+#    - `matplotlib.ticker.StrMethodFormatter`

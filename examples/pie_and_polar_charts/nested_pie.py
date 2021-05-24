@@ -79,19 +79,13 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.pie
-matplotlib.pyplot.pie
-matplotlib.axes.Axes.bar
-matplotlib.pyplot.bar
-matplotlib.projections.polar
-matplotlib.axes.Axes.set
-matplotlib.axes.Axes.set_axis_off
+#    - `matplotlib.axes.Axes.pie` / `matplotlib.pyplot.pie`
+#    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`
+#    - `matplotlib.projections.polar`
+#    - ``Axes.set`` (`matplotlib.artist.Artist.set`)
+#    - `matplotlib.axes.Axes.set_axis_off`

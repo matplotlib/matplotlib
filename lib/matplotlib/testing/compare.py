@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import sys
 from tempfile import TemporaryDirectory, TemporaryFile
+import weakref
 
 import numpy as np
 from PIL import Image
@@ -170,6 +171,9 @@ class _SVGConverter(_Converter):
         terminator = b"\n>" if old_inkscape else b"> "
         if not hasattr(self, "_tmpdir"):
             self._tmpdir = TemporaryDirectory()
+            # On Windows, we must make sure that self._proc has terminated
+            # (which __del__ does) before clearing _tmpdir.
+            weakref.finalize(self._tmpdir, self.__del__)
         if (not self._proc  # First run.
                 or self._proc.poll() is not None):  # Inkscape terminated.
             env = {

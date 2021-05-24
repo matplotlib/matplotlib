@@ -36,10 +36,11 @@ process or how to fix something feel free to ask on `gitter
    development_setup.rst
    testing.rst
    documenting_mpl.rst
-   add_new_projection.rst
+   style_guide.rst
    gitwash/index.rst
    coding_guide.rst
    release_guide.rst
+   dependencies.rst
    min_dep_policy.rst
    MEP/index
 

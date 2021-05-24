@@ -1,4 +1,5 @@
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
+import contextlib
 from functools import wraps
 import inspect
 import logging
@@ -1152,31 +1153,19 @@ class Artist:
     def set(self, **kwargs):
         """A property batch setter.  Pass *kwargs* to set properties."""
         kwargs = cbook.normalize_kwargs(kwargs, self)
-        move_color_to_start = False
-        if "color" in kwargs:
-            keys = [*kwargs]
-            i_color = keys.index("color")
-            props = ["edgecolor", "facecolor"]
-            if any(tp.__module__ == "matplotlib.collections"
-                   and tp.__name__ == "Collection"
-                   for tp in type(self).__mro__):
-                props.append("alpha")
-            for other in props:
-                if other not in keys:
-                    continue
-                i_other = keys.index(other)
-                if i_other < i_color:
-                    move_color_to_start = True
-                    _api.warn_deprecated(
-                        "3.3", message=f"You have passed the {other!r} kwarg "
-                        "before the 'color' kwarg.  Artist.set() currently "
-                        "reorders the properties to apply 'color' first, but "
-                        "this is deprecated since %(since)s and will be "
-                        "removed %(removal)s; please pass 'color' first "
-                        "instead.")
-        if move_color_to_start:
-            kwargs = {"color": kwargs.pop("color"), **kwargs}
         return self.update(kwargs)
+
+    @contextlib.contextmanager
+    def _cm_set(self, **kwargs):
+        """
+        `.Artist.set` context-manager that restores original values at exit.
+        """
+        orig_vals = {k: getattr(self, f"get_{k}")() for k in kwargs}
+        try:
+            self.set(**kwargs)
+            yield
+        finally:
+            self.set(**orig_vals)
 
     def findobj(self, match=None, include_self=True):
         """
@@ -1578,7 +1567,7 @@ def getp(obj, property=None):
         If *property* is 'somename', this function returns
         ``obj.get_somename()``.
 
-        If is is None (or unset), it *prints* all gettable properties from
+        If it's None (or unset), it *prints* all gettable properties from
         *obj*.  Many properties have aliases for shorter typing, e.g. 'lw' is
         an alias for 'linewidth'.  In the output, aliases and full property
         names will be listed as:
@@ -1683,8 +1672,7 @@ def setp(obj, *args, file=None, **kwargs):
     if len(args) % 2:
         raise ValueError('The set args must be string, value pairs')
 
-    # put args into ordereddict to maintain order
-    funcvals = OrderedDict((k, v) for k, v in zip(args[::2], args[1::2]))
+    funcvals = dict(zip(args[::2], args[1::2]))
     ret = [o.update(funcvals) for o in objs] + [o.set(**kwargs) for o in objs]
     return list(cbook.flatten(ret))
 

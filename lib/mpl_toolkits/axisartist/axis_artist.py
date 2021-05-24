@@ -1,39 +1,24 @@
 """
-axis_artist.py module provides axis-related artists. They are
+The :mod:`.axis_artist` module implements custom artists to draw axis elements
+(axis lines and labels, tick lines and labels, grid lines).
 
-* axis line
-* tick lines
-* tick labels
-* axis label
-* grid lines
+Axis lines and labels and tick lines and labels are managed by the `AxisArtist`
+class; grid lines are managed by the `GridlinesCollection` class.
 
-The main artist classes are `AxisArtist` and `GridlinesCollection`. While
-`GridlinesCollection` is responsible for drawing grid lines, `AxisArtist`
-is responsible for all other artists. `AxisArtist` has attributes that are
-associated with each type of artists:
+There is one `AxisArtist` per Axis; it can be accessed through
+the ``axis`` dictionary of the parent Axes (which should be a
+`mpl_toolkits.axislines.Axes`), e.g. ``ax.axis["bottom"]``.
 
-* line: axis line
-* major_ticks: major tick lines
-* major_ticklabels: major tick labels
-* minor_ticks: minor tick lines
-* minor_ticklabels: minor tick labels
-* label: axis label
+Children of the AxisArtist are accessed as attributes: ``.line`` and ``.label``
+for the axis line and label, ``.major_ticks``, ``.major_ticklabels``,
+``.minor_ticks``, ``.minor_ticklabels`` for the tick lines and labels (e.g.
+``ax.axis["bottom"].line``).
 
-Typically, the `AxisArtist` associated with an axes will be accessed with the
-*axis* dictionary of the axes, i.e., the `AxisArtist` for the bottom axis is ::
+Children properties (colors, fonts, line widths, etc.) can be set using
+setters, e.g. ::
 
-  ax.axis["bottom"]
-
-where *ax* is an instance of `mpl_toolkits.axislines.Axes`.  Thus,
-``ax.axis["bottom"].line`` is an artist associated with the axis line, and
-``ax.axis["bottom"].major_ticks`` is an artist associated with the major tick
-lines.
-
-You can change the colors, fonts, line widths, etc. of these artists
-by calling suitable set method. For example, to change the color of the major
-ticks of the bottom axis to red, use ::
-
-  ax.axis["bottom"].major_ticks.set_color("r")
+  # Make the major ticks of the bottom axis red.
+  ax.axis["bottom"].major_ticks.set_color("red")
 
 However, things like the locations of ticks, and their ticklabels need to be
 changed from the side of the grid_helper.
@@ -90,10 +75,10 @@ from operator import methodcaller
 
 import numpy as np
 
-from matplotlib import _api, rcParams
+from matplotlib import _api, cbook, rcParams
 import matplotlib.artist as martist
+import matplotlib.colors as mcolors
 import matplotlib.text as mtext
-
 from matplotlib.collections import LineCollection
 from matplotlib.lines import Line2D
 from matplotlib.patches import PathPatch
@@ -148,6 +133,14 @@ class Ticks(AttributeCopier, Line2D):
     def get_ref_artist(self):
         # docstring inherited
         return self._axis.majorTicks[0].tick1line
+
+    def set_color(self, color):
+        # docstring inherited
+        # Unlike the base Line2D.set_color, this also supports "auto".
+        if not cbook._str_equal(color, "auto"):
+            mcolors._check_color_like(color=color)
+        self._color = color
+        self.stale = True
 
     def get_color(self):
         return self.get_attribute_from_ref_artist("color")
@@ -687,11 +680,6 @@ class AxisArtist(martist.Artist):
         self._ticklabel_add_angle = 0.
         self._axislabel_add_angle = 0.
         self.set_axis_direction(axis_direction)
-
-    @_api.deprecated("3.3")
-    @property
-    def dpi_transform(self):
-        return Affine2D().scale(1 / 72) + self.axes.figure.dpi_scale_trans
 
     # axis direction
 

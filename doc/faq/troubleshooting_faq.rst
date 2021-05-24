@@ -161,7 +161,7 @@ mode::
     rm -rf /path/to/site-packages/matplotlib*
     git clean -xdf
     git pull
-    python -mpip install -v . > build.out
+    python -m pip install -v . > build.out
     python -c "from pylab import *; set_loglevel('debug'); plot(); show()" > run.out
 
 and post :file:`build.out` and :file:`run.out` to the `matplotlib-devel

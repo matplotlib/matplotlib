@@ -134,7 +134,7 @@ def test_constrained_layout7():
         for gs in gsl:
             fig.add_subplot(gs)
         # need to trigger a draw to get warning
-        fig.draw(fig.canvas.get_renderer())
+        fig.draw_no_output()
 
 
 @image_comparison(['constrained_layout8.png'])
@@ -327,7 +327,7 @@ def test_constrained_layout18():
     ax2 = ax.twinx()
     example_plot(ax)
     example_plot(ax2, fontsize=24)
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert all(ax.get_position().extents == ax2.get_position().extents)
 
 
@@ -339,7 +339,7 @@ def test_constrained_layout19():
     example_plot(ax2, fontsize=24)
     ax2.set_title('')
     ax.set_title('')
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert all(ax.get_position().extents == ax2.get_position().extents)
 
 
@@ -359,11 +359,11 @@ def test_constrained_layout21():
     fig, ax = plt.subplots(constrained_layout=True)
 
     fig.suptitle("Suptitle0")
-    fig.canvas.draw()
+    fig.draw_no_output()
     extents0 = np.copy(ax.get_position().extents)
 
     fig.suptitle("Suptitle1")
-    fig.canvas.draw()
+    fig.draw_no_output()
     extents1 = np.copy(ax.get_position().extents)
 
     np.testing.assert_allclose(extents0, extents1)
@@ -373,11 +373,11 @@ def test_constrained_layout22():
     """#11035: suptitle should not be include in CL if manually positioned"""
     fig, ax = plt.subplots(constrained_layout=True)
 
-    fig.canvas.draw()
+    fig.draw_no_output()
     extents0 = np.copy(ax.get_position().extents)
 
     fig.suptitle("Suptitle", y=0.5)
-    fig.canvas.draw()
+    fig.draw_no_output()
     extents1 = np.copy(ax.get_position().extents)
 
     np.testing.assert_allclose(extents0, extents1)
@@ -425,7 +425,7 @@ def test_hidden_axes():
     # (as does a gridspec slot that is empty)
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
     axs[0, 1].set_visible(False)
-    fig.canvas.draw()
+    fig.draw_no_output()
     extents1 = np.copy(axs[0, 0].get_position().extents)
 
     np.testing.assert_allclose(
@@ -451,7 +451,7 @@ def test_colorbar_align():
         fig.set_constrained_layout_pads(w_pad=4 / 72, h_pad=4 / 72, hspace=0.1,
                                         wspace=0.1)
 
-        fig.canvas.draw()
+        fig.draw_no_output()
         if location in ['left', 'right']:
             np.testing.assert_allclose(cbs[0].ax.get_position().x0,
                                        cbs[2].ax.get_position().x0)
@@ -493,7 +493,7 @@ def test_colorbars_no_overlapH():
 def test_manually_set_position():
     fig, axs = plt.subplots(1, 2, constrained_layout=True)
     axs[0].set_position([0.2, 0.2, 0.3, 0.3])
-    fig.canvas.draw()
+    fig.draw_no_output()
     pp = axs[0].get_position()
     np.testing.assert_allclose(pp, [[0.2, 0.2], [0.5, 0.5]])
 
@@ -501,7 +501,7 @@ def test_manually_set_position():
     axs[0].set_position([0.2, 0.2, 0.3, 0.3])
     pc = axs[0].pcolormesh(np.random.rand(20, 20))
     fig.colorbar(pc, ax=axs[0])
-    fig.canvas.draw()
+    fig.draw_no_output()
     pp = axs[0].get_position()
     np.testing.assert_allclose(pp, [[0.2, 0.2], [0.44, 0.5]])
 
@@ -546,7 +546,7 @@ def test_align_labels():
 
     fig.align_ylabels(axs=(ax3, ax1, ax2))
 
-    fig.canvas.draw()
+    fig.draw_no_output()
     after_align = [ax1.yaxis.label.get_window_extent(),
                    ax2.yaxis.label.get_window_extent(),
                    ax3.yaxis.label.get_window_extent()]

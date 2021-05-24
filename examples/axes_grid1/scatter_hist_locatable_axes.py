@@ -65,17 +65,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+## .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-import matplotlib
-import mpl_toolkits
-mpl_toolkits.axes_grid1.axes_divider.make_axes_locatable
-matplotlib.axes.Axes.set_aspect
-matplotlib.axes.Axes.scatter
-matplotlib.axes.Axes.hist
+#    - `mpl_toolkits.axes_grid1.axes_divider.make_axes_locatable`
+#    - `matplotlib.axes.Axes.set_aspect`
+#    - `matplotlib.axes.Axes.scatter`
+#    - `matplotlib.axes.Axes.hist`

@@ -1,6 +1,0 @@
-The *dpi* parameter of ``FigureCanvas.print_foo`` printers is deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The `~.Figure.savefig` machinery already took care of setting the figure dpi
-to the desired value, so ``print_foo`` can directly read it from there.  Not
-passing *dpi* to ``print_foo`` allows clearer detection of unused parameters
-passed to `~.Figure.savefig`.

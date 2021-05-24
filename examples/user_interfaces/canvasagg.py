@@ -22,6 +22,8 @@ inside a cgi-script *without* needing to write a figure to disk.
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 import numpy as np
+from PIL import Image
+
 
 fig = Figure(figsize=(5, 4), dpi=100)
 # A canvas must be manually attached to the figure (pyplot would automatically
@@ -43,7 +45,6 @@ buf = canvas.buffer_rgba()
 # ... convert to a NumPy array ...
 X = np.asarray(buf)
 # ... and pass it to PIL.
-from PIL import Image
 im = Image.fromarray(X)
 
 # Uncomment this line to display the image using ImageMagick's `display` tool.
@@ -51,17 +52,13 @@ im = Image.fromarray(X)
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.backends.backend_agg.FigureCanvasAgg
-matplotlib.figure.Figure
-matplotlib.figure.Figure.add_subplot
-matplotlib.figure.Figure.savefig
-matplotlib.axes.Axes.plot
+#    - `matplotlib.backends.backend_agg.FigureCanvasAgg`
+#    - `matplotlib.figure.Figure`
+#    - `matplotlib.figure.Figure.add_subplot`
+#    - `matplotlib.figure.Figure.savefig` / `matplotlib.pyplot.savefig`
+#    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`

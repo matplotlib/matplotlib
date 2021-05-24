@@ -1,4 +1,4 @@
-"""Interactive figures in the IPython notebook"""
+"""Interactive figures in the IPython notebook."""
 # Note: There is a notebook in
 # lib/matplotlib/backends/web_backend/nbagg_uat.ipynb to help verify
 # that changes made maintain expected behaviour.

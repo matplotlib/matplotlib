@@ -101,19 +101,15 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.patches
-matplotlib.patches.FancyBboxPatch
-matplotlib.patches.BoxStyle
-matplotlib.patches.BoxStyle.get_styles
-matplotlib.transforms.Bbox
-matplotlib.figure.Figure.text
-matplotlib.axes.Axes.text
+#    - `matplotlib.patches`
+#    - `matplotlib.patches.FancyBboxPatch`
+#    - `matplotlib.patches.BoxStyle`
+#    - ``matplotlib.patches.BoxStyle.get_styles``
+#    - `matplotlib.transforms.Bbox`
+#    - `matplotlib.figure.Figure.text`
+#    - `matplotlib.axes.Axes.text`

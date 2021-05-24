@@ -117,22 +117,44 @@ class SubplotBase:
         """
         Only show "outer" labels and tick labels.
 
-        x-labels are only kept for subplots on the last row; y-labels only for
-        subplots on the first column.
+        x-labels are only kept for subplots on the last row (or first row, if
+        labels are on the top side); y-labels only for subplots on the first
+        column (or last column, if labels are on the right side).
         """
+        self._label_outer_xaxis()
+        self._label_outer_yaxis()
+
+    def _label_outer_xaxis(self):
         ss = self.get_subplotspec()
-        lastrow = ss.is_last_row()
-        firstcol = ss.is_first_col()
-        if not lastrow:
-            for label in self.get_xticklabels(which="both"):
-                label.set_visible(False)
-            self.xaxis.get_offset_text().set_visible(False)
-            self.set_xlabel("")
-        if not firstcol:
-            for label in self.get_yticklabels(which="both"):
-                label.set_visible(False)
-            self.yaxis.get_offset_text().set_visible(False)
-            self.set_ylabel("")
+        label_position = self.xaxis.get_label_position()
+        if not ss.is_first_row():  # Remove top label/ticklabels/offsettext.
+            if label_position == "top":
+                self.set_xlabel("")
+            self.xaxis.set_tick_params(which="both", labeltop=False)
+            if self.xaxis.offsetText.get_position()[1] == 1:
+                self.xaxis.offsetText.set_visible(False)
+        if not ss.is_last_row():  # Remove bottom label/ticklabels/offsettext.
+            if label_position == "bottom":
+                self.set_xlabel("")
+            self.xaxis.set_tick_params(which="both", labelbottom=False)
+            if self.xaxis.offsetText.get_position()[1] == 0:
+                self.xaxis.offsetText.set_visible(False)
+
+    def _label_outer_yaxis(self):
+        ss = self.get_subplotspec()
+        label_position = self.yaxis.get_label_position()
+        if not ss.is_first_col():  # Remove left label/ticklabels/offsettext.
+            if label_position == "left":
+                self.set_ylabel("")
+            self.yaxis.set_tick_params(which="both", labelleft=False)
+            if self.yaxis.offsetText.get_position()[0] == 0:
+                self.yaxis.offsetText.set_visible(False)
+        if not ss.is_last_col():  # Remove right label/ticklabels/offsettext.
+            if label_position == "right":
+                self.set_ylabel("")
+            self.yaxis.set_tick_params(which="both", labelright=False)
+            if self.yaxis.offsetText.get_position()[0] == 1:
+                self.yaxis.offsetText.set_visible(False)
 
     def _make_twin_axes(self, *args, **kwargs):
         """Make a twinx axes of self. This is used for twinx and twiny."""

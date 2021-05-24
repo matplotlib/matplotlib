@@ -1,0 +1,20 @@
+Removal of ``axes_grid``/``axisartist`` APIs deprecated in Matplotlib 3.3
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The following deprecated APIs have been removed:
+
+- ``CbarAxesBase.cbid`` and ``CbarAxesBase.locator`` (use
+  ``mappable.colorbar_cid`` and ``colorbar.locator`` instead),
+- the ``add_all`` parameter to ``axes_grid.Grid``, ``axes_grid.ImageGrid``,
+  ``axes_rgb.make_rgb_axes``, ``axes_rgb.RGBAxes`` (the APIs always behave as
+  if ``add_all=True``),
+- ``axes_rgb.imshow_rgb`` (use ``imshow(np.dstack([r, g, b]))`` instead),
+- ``RGBAxes.add_RGB_to_figure`` (no replacement),
+- ``RGBAxesBase`` (use ``RGBAxes`` instead),
+- passing ``None``, or no argument, to ``parasite_axes_class_factory``,
+  ``parasite_axes_auxtrans_class_factory``, ``host_axes_class_factory``
+  (pass an explicit base class instead),
+- the ``den`` parameter and attribute of ``angle_helper.LocatorBase`` (it has
+  been renamed to ``nbins``),
+- ``AxisArtist.dpi_transform`` (no replacement),
+- ``grid_finder.MaxNLocator.set_factor`` and ``grid_finder.FixedLocator.set_factor``
+  (the factor is always 1 now).

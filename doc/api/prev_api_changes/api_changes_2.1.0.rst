@@ -20,7 +20,7 @@ Previously they were clipped to a very small number and shown.
 Matplotlib uses instances of :obj:`~matplotlib.cbook.CallbackRegistry`
 as a bridge between user input event from the GUI and user callbacks.
 Previously, any exceptions raised in a user call back would bubble out
-of of the ``process`` method, which is typically in the GUI event
+of the ``process`` method, which is typically in the GUI event
 loop.  Most GUI frameworks simple print the traceback to the screen
 and continue as there is not always a clear method of getting the
 exception back to the user.  However PyQt5 now exits the process when

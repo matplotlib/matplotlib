@@ -102,20 +102,15 @@ import sys
 import tempfile
 import warnings
 
+import numpy
+
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
-from . import _api, cbook, docstring, rcsetup
+from . import _api, _version, cbook, docstring, rcsetup
 from matplotlib.cbook import MatplotlibDeprecationWarning, sanitize_sequence
 from matplotlib.cbook import mplDeprecation  # deprecated
 from matplotlib.rcsetup import validate_backend, cycler
 
-import numpy
-
-# Get the version from the _version.py versioneer file. For a git checkout,
-# this is computed based on the number of commits since the last tag.
-from ._version import get_versions
-__version__ = str(get_versions()['version'])
-del get_versions
 
 _log = logging.getLogger(__name__)
 
@@ -135,6 +130,27 @@ __bibtex__ = r"""@Article{Hunter:2007,
 }"""
 
 
+def __getattr__(name):
+    if name == "__version__":
+        import setuptools_scm
+        global __version__  # cache it.
+        # Only shell out to a git subprocess if really needed, and not on a
+        # shallow clone, such as those used by CI, as the latter would trigger
+        # a warning from setuptools_scm.
+        root = Path(__file__).resolve().parents[2]
+        if (root / ".git").exists() and not (root / ".git/shallow").exists():
+            __version__ = setuptools_scm.get_version(
+                root=root,
+                version_scheme="post-release",
+                local_scheme="node-and-date",
+                fallback_version=_version.version,
+            )
+        else:  # Get the version from the _version.py setuptools_scm file.
+            __version__ = _version.version
+        return __version__
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
 def _check_versions():
 
     # Quickfix to ensure Microsoft Visual C++ redistributable
@@ -145,7 +161,7 @@ def _check_versions():
             ("cycler", "0.10"),
             ("dateutil", "2.7"),
             ("kiwisolver", "1.0.1"),
-            ("numpy", "1.16"),
+            ("numpy", "1.17"),
             ("pyparsing", "2.2.1"),
     ]:
         module = importlib.import_module(modname)
@@ -408,12 +424,14 @@ def _get_xdg_cache_dir():
     return os.environ.get('XDG_CACHE_HOME') or str(Path.home() / ".cache")
 
 
-def _get_config_or_cache_dir(xdg_base):
+def _get_config_or_cache_dir(xdg_base_getter):
     configdir = os.environ.get('MPLCONFIGDIR')
     if configdir:
         configdir = Path(configdir).resolve()
-    elif sys.platform.startswith(('linux', 'freebsd')) and xdg_base:
-        configdir = Path(xdg_base, "matplotlib")
+    elif sys.platform.startswith(('linux', 'freebsd')):
+        # Only call _xdg_base_getter here so that MPLCONFIGDIR is tried first,
+        # as _xdg_base_getter can throw.
+        configdir = Path(xdg_base_getter(), "matplotlib")
     else:
         configdir = Path.home() / ".matplotlib"
     try:
@@ -441,7 +459,7 @@ def _get_config_or_cache_dir(xdg_base):
 @_logged_cached('CONFIGDIR=%s')
 def get_configdir():
     """
-    Return the string path of the the configuration directory.
+    Return the string path of the configuration directory.
 
     The directory is chosen as follows:
 
@@ -454,7 +472,7 @@ def get_configdir():
     4. Else, create a temporary directory, and use it as the configuration
        directory.
     """
-    return _get_config_or_cache_dir(_get_xdg_config_dir())
+    return _get_config_or_cache_dir(_get_xdg_config_dir)
 
 
 @_logged_cached('CACHEDIR=%s')
@@ -465,7 +483,7 @@ def get_cachedir():
     The procedure used to find the directory is the same as for
     _get_config_dir, except using ``$XDG_CACHE_HOME``/``$HOME/.cache`` instead.
     """
-    return _get_config_or_cache_dir(_get_xdg_cache_dir())
+    return _get_config_or_cache_dir(_get_xdg_cache_dir)
 
 
 @_logged_cached('matplotlib data path: %s')
@@ -536,10 +554,6 @@ _deprecated_remain_as_none = {
     'animation.avconv_path': ('3.3',),
     'animation.avconv_args': ('3.3',),
     'animation.html_args': ('3.3',),
-    'mathtext.fallback_to_cm': ('3.3',),
-    'keymap.all_axes': ('3.3',),
-    'savefig.jpeg_quality': ('3.3',),
-    'text.latex.preview': ('3.3',),
 }
 
 
@@ -724,6 +738,7 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
     fail_on_error : bool, default: False
         Whether invalid entries should result in an exception or a warning.
     """
+    import matplotlib as mpl
     rc_temp = {}
     with _open_file_or_url(fname) as fd:
         try:
@@ -770,7 +785,10 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
                 version, name=key, alternative=alt_key, obj_type='rcparam',
                 addendum="Please update your matplotlibrc.")
         else:
-            version = 'master' if '.post' in __version__ else f'v{__version__}'
+            # __version__ must be looked up as an attribute to trigger the
+            # module-level __getattr__.
+            version = ('master' if '.post' in mpl.__version__
+                       else f'v{mpl.__version__}')
             _log.warning("""
 Bad key %(key)s in file %(fname)s, line %(line_no)s (%(line)r)
 You probably need to get an updated matplotlibrc file from
@@ -826,6 +844,12 @@ rcParamsDefault = _rc_params_in_file(
     transform=lambda line: line[1:] if line.startswith("#") else line,
     fail_on_error=True)
 dict.update(rcParamsDefault, rcsetup._hardcoded_defaults)
+# Normally, the default matplotlibrc file contains *no* entry for backend (the
+# corresponding line starts with ##, not #; we fill on _auto_backend_sentinel
+# in that case.  However, packagers can set a different default backend
+# (resulting in a normal `#backend: foo` line) in which case we should *not*
+# fill in _auto_backend_sentinel.
+dict.setdefault(rcParamsDefault, "backend", rcsetup._auto_backend_sentinel)
 rcParams = RcParams()  # The global instance.
 dict.update(rcParams, dict.items(rcParamsDefault))
 dict.update(rcParams, _rc_params_in_file(matplotlib_fname()))
@@ -1042,7 +1066,7 @@ def use(backend, *, force=True):
 
         - interactive backends:
           GTK3Agg, GTK3Cairo, MacOSX, nbAgg,
-          Qt4Agg, Qt4Cairo, Qt5Agg, Qt5Cairo,
+          Qt5Agg, Qt5Cairo,
           TkAgg, TkCairo, WebAgg, WX, WXAgg, WXCairo
 
         - non-interactive backends:
@@ -1115,7 +1139,14 @@ def interactive(b):
 
 
 def is_interactive():
-    """Return whether to redraw after every plotting command."""
+    """
+    Return whether to redraw after every plotting command.
+
+    .. note::
+
+        This function is only intended for use in backends. End users should
+        use `.pyplot.isinteractive` instead.
+    """
     return rcParams['interactive']
 
 
@@ -1385,7 +1416,6 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
     return inner
 
 
-_log.debug('matplotlib version %s', __version__)
 _log.debug('interactive is %s', is_interactive())
 _log.debug('platform is %s', sys.platform)
 _log.debug('loaded modules: %s', list(sys.modules))

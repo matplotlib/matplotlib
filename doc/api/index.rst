@@ -1,67 +1,46 @@
-API Overview
-============
+API
+===
 
 .. toctree::
    :hidden:
 
    api_changes
 
-.. contents:: :local:
+For recent changes, see :doc:`api_changes`.
 
-See also the :doc:`api_changes`.
+When using the library you will typically create
+:doc:`Figure <figure_api>` and :doc:`Axes <axes_api>` objects and
+call their methods to add content and modify the appearance.
 
-Usage patterns
---------------
+- :mod:`matplotlib.figure`: axes creation, figure-level content
+- :mod:`matplotlib.axes`: most plotting methods, Axes labels, access to axis
+  styling, etc.
 
-Below we describe several common approaches to plotting with Matplotlib.
+Example: We create a Figure ``fig`` and Axes ``ax``. Then we call
+methods on them to plot data, add axis labels and a figure title.
 
-The pyplot API
-^^^^^^^^^^^^^^
+.. plot::
+   :include-source:
+   :align: center
 
-`matplotlib.pyplot` is a collection of command style functions that make
-Matplotlib work like MATLAB. Each pyplot function makes some change to a
-figure: e.g., creates a figure, creates a plotting area in a figure, plots
-some lines in a plotting area, decorates the plot with labels, etc.
+   import matplotlib.pyplot as plt
+   import numpy as np
 
-`.pyplot` is mainly intended for interactive plots and simple cases of
-programmatic plot generation.
+   x = np.arange(0, 4, 0.05)
+   y = np.sin(x*np.pi)
 
-Further reading:
+   fig, ax = plt.subplots(figsize=(3,2), constrained_layout=True)
+   ax.plot(x, y)
+   ax.set_xlabel('t [s]')
+   ax.set_ylabel('S [V]')
+   ax.set_title('Sine wave')
+   fig.set_facecolor('lightsteelblue')
 
-- The `matplotlib.pyplot` function reference
-- :doc:`/tutorials/introductory/pyplot`
-- :ref:`Pyplot examples <pyplots_examples>`
-
-.. _api-index:
-
-The object-oriented API
-^^^^^^^^^^^^^^^^^^^^^^^
-
-At its core, Matplotlib is object-oriented. We recommend directly working
-with the objects, if you need more control and customization of your plots.
-
-In many cases you will create a `.Figure` and one or more
-`~matplotlib.axes.Axes` using `.pyplot.subplots` and from then on only work
-on these objects. However, it's also possible to create `.Figure`\ s
-explicitly (e.g. when including them in GUI applications).
-
-Further reading:
-
-- `matplotlib.axes.Axes` and `matplotlib.figure.Figure` for an overview of
-  plotting functions.
-- Most of the :ref:`examples <examples-index>` use the object-oriented approach
-  (except for the pyplot section)
-
-The pylab API (disapproved)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: pylab
-   :no-members:
 
 Modules
 -------
 
-Matplotlib consists of the following submodules:
+Alphabetical list of modules:
 
 .. toctree::
    :maxdepth: 1
@@ -147,3 +126,54 @@ Matplotlib. The following toolkits are included:
    toolkits/axes_grid1.rst
    toolkits/axisartist.rst
    toolkits/axes_grid.rst
+
+
+.. _usage_patterns:
+
+Usage patterns
+--------------
+
+Below we describe several common approaches to plotting with Matplotlib.
+
+The pyplot API
+^^^^^^^^^^^^^^
+
+`matplotlib.pyplot` is a collection of functions that make
+Matplotlib work like MATLAB. Each pyplot function makes some change to a
+figure: e.g., creates a figure, creates a plotting area in a figure, plots
+some lines in a plotting area, decorates the plot with labels, etc.
+
+`.pyplot` is mainly intended for interactive plots and simple cases of
+programmatic plot generation.
+
+Further reading:
+
+- The `matplotlib.pyplot` function reference
+- :doc:`/tutorials/introductory/pyplot`
+- :ref:`Pyplot examples <pyplots_examples>`
+
+.. _api-index:
+
+The object-oriented API
+^^^^^^^^^^^^^^^^^^^^^^^
+
+At its core, Matplotlib is object-oriented. We recommend directly working
+with the objects, if you need more control and customization of your plots.
+
+In many cases you will create a `.Figure` and one or more
+`~matplotlib.axes.Axes` using `.pyplot.subplots` and from then on only work
+on these objects. However, it's also possible to create `.Figure`\ s
+explicitly (e.g. when including them in GUI applications).
+
+Further reading:
+
+- `matplotlib.axes.Axes` and `matplotlib.figure.Figure` for an overview of
+   plotting functions.
+- Most of the :ref:`examples <examples-index>` use the object-oriented approach
+   (except for the pyplot section)
+
+The pylab API (disapproved)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: pylab
+   :no-members:

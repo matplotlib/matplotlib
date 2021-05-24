@@ -1,6 +1,0 @@
-`matplotlib.testing` removals
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-- ``testing.is_called_from_pytest`` has been removed.
-- ``jpl_units.Unitdbl.checkUnits`` has been removed. Use
-  ``units not in self.allowed`` instead.

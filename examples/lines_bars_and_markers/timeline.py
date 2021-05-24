@@ -97,18 +97,14 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.annotate
-matplotlib.axes.Axes.vlines
-matplotlib.axis.Axis.set_major_locator
-matplotlib.axis.Axis.set_major_formatter
-matplotlib.dates.MonthLocator
-matplotlib.dates.DateFormatter
+#    - `matplotlib.axes.Axes.annotate`
+#    - `matplotlib.axes.Axes.vlines`
+#    - `matplotlib.axis.Axis.set_major_locator`
+#    - `matplotlib.axis.Axis.set_major_formatter`
+#    - `matplotlib.dates.MonthLocator`
+#    - `matplotlib.dates.DateFormatter`

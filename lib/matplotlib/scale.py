@@ -1,10 +1,15 @@
 """
 Scales define the distribution of data values on an axis, e.g. a log scaling.
-
-They are attached to an `~.axis.Axis` and hold a `.Transform`, which is
-responsible for the actual data transformation.
+They are defined as subclasses of `ScaleBase`.
 
 See also `.axes.Axes.set_xscale` and the scales examples in the documentation.
+
+See :doc:`/gallery/scales/custom_scale` for a full example of defining a custom
+scale.
+
+Matplotlib also supports non-separable transformations that operate on both
+`~.axis.Axis` at the same time.  They are known as projections, and defined in
+`matplotlib.projections`.
 """
 
 import inspect
@@ -28,16 +33,20 @@ class ScaleBase:
 
     Scales are separable transformations, working on a single dimension.
 
-    Any subclasses will want to override:
+    Subclasses should override
 
-    - :attr:`name`
-    - :meth:`get_transform`
-    - :meth:`set_default_locators_and_formatters`
-
-    And optionally:
-
-    - :meth:`limit_range_for_scale`
-
+    :attr:`name`
+        The scale's name.
+    :meth:`get_transform`
+        A method returning a `.Transform`, which converts data coordinates to
+        scaled coordinates.  This transform should be invertible, so that e.g.
+        mouse positions can be converted back to data coordinates.
+    :meth:`set_default_locators_and_formatters`
+        A method that sets default locators and formatters for an `~.axis.Axis`
+        that uses this scale.
+    :meth:`limit_range_for_scale`
+        An optional method that "fixes" the axis range to acceptable values,
+        e.g. restricting log-scaled axes to positive values.
     """
 
     def __init__(self, axis):
@@ -56,8 +65,7 @@ class ScaleBase:
 
     def get_transform(self):
         """
-        Return the :class:`~matplotlib.transforms.Transform` object
-        associated with this scale.
+        Return the `.Transform` object associated with this scale.
         """
         raise NotImplementedError()
 

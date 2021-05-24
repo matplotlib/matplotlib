@@ -109,9 +109,7 @@ class RendererAgg(RendererBase):
         self.draw_gouraud_triangles = self._renderer.draw_gouraud_triangles
         self.draw_image = self._renderer.draw_image
         self.draw_markers = self._renderer.draw_markers
-        # This is its own method for the duration of the deprecation of
-        # offset_position = "data".
-        # self.draw_path_collection = self._renderer.draw_path_collection
+        self.draw_path_collection = self._renderer.draw_path_collection
         self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.copy_from_bbox = self._renderer.copy_from_bbox
 
@@ -163,19 +161,6 @@ class RendererAgg(RendererBase):
                 raise OverflowError("Exceeded cell block limit (set "
                                     "'agg.path.chunksize' rcparam)") from err
 
-    def draw_path_collection(self, gc, master_transform, paths, all_transforms,
-                             offsets, offsetTrans, facecolors, edgecolors,
-                             linewidths, linestyles, antialiaseds, urls,
-                             offset_position):
-        if offset_position == "data":
-            _api.warn_deprecated(
-                "3.3", message="Support for offset_position='data' is "
-                "deprecated since %(since)s and will be removed %(removal)s.")
-        return self._renderer.draw_path_collection(
-            gc, master_transform, paths, all_transforms, offsets, offsetTrans,
-            facecolors, edgecolors, linewidths, linestyles, antialiaseds, urls,
-            offset_position)
-
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """Draw mathtext using :mod:`matplotlib.mathtext`."""
         ox, oy, width, height, descent, font_image, used_characters = \
@@ -217,12 +202,8 @@ class RendererAgg(RendererBase):
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
 
-        if ismath in ["TeX", "TeX!"]:
-            if ismath == "TeX!":
-                _api.warn_deprecated(
-                    "3.3", message="Support for ismath='TeX!' is deprecated "
-                    "since %(since)s and will be removed %(removal)s; use "
-                    "ismath='TeX' instead.")
+        _api.check_in_list(["TeX", True, False], ismath=ismath)
+        if ismath == "TeX":
             # todo: handle props
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
@@ -522,14 +503,7 @@ class FigureCanvasAgg(FigureCanvasBase):
     # print_figure(), and the latter ensures that `self.figure.dpi` already
     # matches the dpi kwarg (if any).
 
-    @_check_savefig_extra_args(
-        extra_kwargs=["quality", "optimize", "progressive"])
-    @_api.delete_parameter("3.3", "quality",
-                           alternative="pil_kwargs={'quality': ...}")
-    @_api.delete_parameter("3.3", "optimize",
-                           alternative="pil_kwargs={'optimize': ...}")
-    @_api.delete_parameter("3.3", "progressive",
-                           alternative="pil_kwargs={'progressive': ...}")
+    @_check_savefig_extra_args()
     @_api.delete_parameter("3.5", "args")
     def print_jpg(self, filename_or_obj, *args, pil_kwargs=None, **kwargs):
         """
@@ -542,23 +516,9 @@ class FigureCanvasAgg(FigureCanvasBase):
 
         Other Parameters
         ----------------
-        quality : int, default: :rc:`savefig.jpeg_quality`
-            The image quality, on a scale from 1 (worst) to 95 (best).
-            Values above 95 should be avoided; 100 disables portions of
-            the JPEG compression algorithm, and results in large files
-            with hardly any gain in image quality.  This parameter is
-            deprecated.
-        optimize : bool, default: False
-            Whether the encoder should make an extra pass over the image
-            in order to select optimal encoder settings.  This parameter is
-            deprecated.
-        progressive : bool, default: False
-            Whether the image should be stored as a progressive JPEG file.
-            This parameter is deprecated.
         pil_kwargs : dict, optional
             Additional keyword arguments that are passed to
-            `PIL.Image.Image.save` when saving the figure.  These take
-            precedence over *quality*, *optimize* and *progressive*.
+            `PIL.Image.Image.save` when saving the figure.
         """
         # Remove transparency by alpha-blending on an assumed white background.
         r, g, b, a = mcolors.to_rgba(self.figure.get_facecolor())
@@ -569,19 +529,6 @@ class FigureCanvasAgg(FigureCanvasBase):
             self.figure.set_facecolor((r, g, b, a))
         if pil_kwargs is None:
             pil_kwargs = {}
-        for k in ["quality", "optimize", "progressive"]:
-            if k in kwargs:
-                pil_kwargs.setdefault(k, kwargs.pop(k))
-        if "quality" not in pil_kwargs:
-            quality = pil_kwargs["quality"] = \
-                dict.__getitem__(mpl.rcParams, "savefig.jpeg_quality")
-            if quality not in [0, 75, 95]:  # default qualities.
-                _api.warn_deprecated(
-                    "3.3", name="savefig.jpeg_quality", obj_type="rcParam",
-                    addendum="Set the quality using "
-                    "`pil_kwargs={'quality': ...}`; the future default "
-                    "quality will be 75, matching the default of Pillow and "
-                    "libjpeg.")
         pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
         # Drop alpha channel now.
         return (Image.fromarray(np.asarray(self.buffer_rgba())[..., :3])

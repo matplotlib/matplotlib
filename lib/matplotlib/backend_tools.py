@@ -22,7 +22,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib._pylab_helpers import Gcf
-from matplotlib import _api, cbook
+from matplotlib import cbook
 
 
 class Cursors(IntEnum):  # Must subclass int for the macOS backend.
@@ -38,42 +38,31 @@ class ToolBase:
     """
     Base tool class.
 
-    A base tool, only implements `trigger` method or not method at all.
+    A base tool, only implements `trigger` method or no method at all.
     The tool is instantiated by `matplotlib.backend_managers.ToolManager`.
-
-    Attributes
-    ----------
-    toolmanager : `matplotlib.backend_managers.ToolManager`
-        ToolManager that controls this Tool.
-    figure : `FigureCanvas`
-        Figure instance that is affected by this Tool.
-    name : str
-        Used as **Id** of the tool, has to be unique among tools of the same
-        ToolManager.
     """
 
     default_keymap = None
     """
     Keymap to associate with this tool.
 
-    **String**: List of comma separated keys that will be used to call this
-    tool when the keypress event of ``self.figure.canvas`` is emitted.
+    ``list[str]``: List of keys that will trigger this tool when a keypress
+    event is emitted on ``self.figure.canvas``.
     """
 
     description = None
     """
     Description of the Tool.
 
-    **String**: If the Tool is included in the Toolbar this text is used
-    as a Tooltip.
+    `str`: Tooltip used if the Tool is included in a Toolbar.
     """
 
     image = None
     """
     Filename of the image.
 
-    **String**: Filename of the image to use in the toolbar. If None, the
-    *name* is used as a label in the toolbar button.
+    `str`: Filename of the image to use in a Toolbar.  If None, the *name* is
+    used as a label in the toolbar button.
     """
 
     def __init__(self, toolmanager, name):
@@ -81,23 +70,26 @@ class ToolBase:
         self._toolmanager = toolmanager
         self._figure = None
 
+    name = property(
+        lambda self: self._name,
+        doc="The tool id (str, must be unique among tools of a tool manager).")
+    toolmanager = property(
+        lambda self: self._toolmanager,
+        doc="The `.ToolManager` that controls this tool.")
+    canvas = property(
+        lambda self: self._figure.canvas if self._figure is not None else None,
+        doc="The canvas of the figure affected by this tool, or None.")
+
     @property
     def figure(self):
+        """The Figure affected by this tool, or None."""
         return self._figure
 
     @figure.setter
     def figure(self, figure):
-        self.set_figure(figure)
+        self._figure = figure
 
-    @property
-    def canvas(self):
-        if not self._figure:
-            return None
-        return self._figure.canvas
-
-    @property
-    def toolmanager(self):
-        return self._toolmanager
+    set_figure = figure.fset
 
     def _make_classic_style_pseudo_toolbar(self):
         """
@@ -108,22 +100,11 @@ class ToolBase:
         """
         return SimpleNamespace(canvas=self.canvas)
 
-    def set_figure(self, figure):
-        """
-        Assign a figure to the tool.
-
-        Parameters
-        ----------
-        figure : `.Figure`
-        """
-        self._figure = figure
-
     def trigger(self, sender, event, data=None):
         """
         Called when this tool gets used.
 
-        This method is called by
-        `matplotlib.backend_managers.ToolManager.trigger_tool`.
+        This method is called by `.ToolManager.trigger_tool`.
 
         Parameters
         ----------
@@ -136,17 +117,11 @@ class ToolBase:
         """
         pass
 
-    @property
-    def name(self):
-        """Tool Id."""
-        return self._name
-
     def destroy(self):
         """
         Destroy the tool.
 
-        This method is called when the tool is removed by
-        `matplotlib.backend_managers.ToolManager.remove_tool`.
+        This method is called by `.ToolManager.remove_tool`.
         """
         pass
 
@@ -167,10 +142,10 @@ class ToolToggleBase(ToolBase):
     """
 
     radio_group = None
-    """Attribute to group 'radio' like tools (mutually exclusive).
+    """
+    Attribute to group 'radio' like tools (mutually exclusive).
 
-    **String** that identifies the group or **None** if not belonging to a
-    group.
+    `str` that identifies the group or **None** if not belonging to a group.
     """
 
     cursor = None
@@ -217,7 +192,6 @@ class ToolToggleBase(ToolBase):
     @property
     def toggled(self):
         """State of the toggled tool."""
-
         return self._toggled
 
     def set_figure(self, figure):
@@ -249,12 +223,11 @@ class SetCursorBase(ToolBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._id_drag = None
-        self._cursor = None
+        self._current_tool = None
         self._default_cursor = cursors.POINTER
         self._last_cursor = self._default_cursor
         self.toolmanager.toolmanager_connect('tool_added_event',
                                              self._add_tool_cbk)
-
         # process current tools
         for tool in self.toolmanager.tools.values():
             self._add_tool(tool)
@@ -269,10 +242,9 @@ class SetCursorBase(ToolBase):
 
     def _tool_trigger_cbk(self, event):
         if event.tool.toggled:
-            self._cursor = event.tool.cursor
+            self._current_tool = event.tool
         else:
-            self._cursor = None
-
+            self._current_tool = None
         self._set_cursor_cbk(event.canvasevent)
 
     def _add_tool(self, tool):
@@ -290,16 +262,14 @@ class SetCursorBase(ToolBase):
     def _set_cursor_cbk(self, event):
         if not event:
             return
-
-        if not getattr(event, 'inaxes', False) or not self._cursor:
-            if self._last_cursor != self._default_cursor:
-                self.set_cursor(self._default_cursor)
-                self._last_cursor = self._default_cursor
-        elif self._cursor:
-            cursor = self._cursor
-            if cursor and self._last_cursor != cursor:
-                self.set_cursor(cursor)
-                self._last_cursor = cursor
+        if (self._current_tool and getattr(event, "inaxes", None)
+                and event.inaxes.get_navigate()):
+            if self._last_cursor != self._current_tool.cursor:
+                self.set_cursor(self._current_tool.cursor)
+                self._last_cursor = self._current_tool.cursor
+        elif self._last_cursor != self._default_cursor:
+            self.set_cursor(self._default_cursor)
+            self._last_cursor = self._default_cursor
 
     def set_cursor(self, cursor):
         """
@@ -386,36 +356,6 @@ class ToolQuitAll(ToolBase):
 
     def trigger(self, sender, event, data=None):
         Gcf.destroy_all()
-
-
-class _ToolEnableAllNavigation(ToolBase):
-    """Tool to enable all axes for toolmanager interaction."""
-
-    description = 'Enable all axes toolmanager'
-    default_keymap = mpl.rcParams['keymap.all_axes']
-
-    def trigger(self, sender, event, data=None):
-        mpl.backend_bases.key_press_handler(event, self.figure.canvas, None)
-
-
-@_api.deprecated("3.3")
-class ToolEnableAllNavigation(_ToolEnableAllNavigation):
-    pass
-
-
-class _ToolEnableNavigation(ToolBase):
-    """Tool to enable a specific axes for toolmanager interaction."""
-
-    description = 'Enable one axes toolmanager'
-    default_keymap = ('1', '2', '3', '4', '5', '6', '7', '8', '9')
-
-    def trigger(self, sender, event, data=None):
-        mpl.backend_bases.key_press_handler(event, self.figure.canvas, None)
-
-
-@_api.deprecated("3.3")
-class ToolEnableNavigation(_ToolEnableNavigation):
-    pass
 
 
 class ToolGrid(ToolBase):
@@ -613,31 +553,6 @@ class ToolViewsPositions(ToolBase):
             if a not in self.home_views[figure]:
                 self.home_views[figure][a] = a._get_view()
 
-    # Can be removed once Locator.refresh() is removed, and replaced by an
-    # inline call to self.figure.canvas.draw_idle().
-    def _refresh_locators(self):
-        for a in self.figure.get_axes():
-            xaxis = getattr(a, 'xaxis', None)
-            yaxis = getattr(a, 'yaxis', None)
-            zaxis = getattr(a, 'zaxis', None)
-            locators = []
-            if xaxis is not None:
-                locators.append(xaxis.get_major_locator())
-                locators.append(xaxis.get_minor_locator())
-            if yaxis is not None:
-                locators.append(yaxis.get_major_locator())
-                locators.append(yaxis.get_minor_locator())
-            if zaxis is not None:
-                locators.append(zaxis.get_major_locator())
-                locators.append(zaxis.get_minor_locator())
-
-            for loc in locators:
-                mpl.ticker._if_refresh_overridden_call_and_emit_deprec(loc)
-        self.figure.canvas.draw_idle()
-
-    refresh_locators = _api.deprecate_privatize_attribute(
-        "3.3", alternative="self.figure.canvas.draw_idle()")
-
     def home(self):
         """Recall the first view and position from the stack."""
         self.views[self.figure].home()
@@ -792,7 +707,7 @@ class ToolZoom(ZoomPanBase):
         for zoom_id in self._ids_zoom:
             self.figure.canvas.mpl_disconnect(zoom_id)
         self.toolmanager.trigger_tool('rubberband', self)
-        self.toolmanager.get_tool(_views_positions)._refresh_locators()
+        self.figure.canvas.draw_idle()
         self._xypress = None
         self._button_pressed = None
         self._ids_zoom = []
@@ -919,7 +834,7 @@ class ToolPan(ZoomPanBase):
         self._xypress = []
         self.figure.canvas.mpl_disconnect(self._id_drag)
         self.toolmanager.messagelock.release(self)
-        self.toolmanager.get_tool(_views_positions)._refresh_locators()
+        self.figure.canvas.draw_idle()
 
     def _press(self, event):
         if event.button == 1:
@@ -1025,8 +940,6 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'fullscreen': ToolFullScreen,
                  'quit': ToolQuit,
                  'quit_all': ToolQuitAll,
-                 'allnav': _ToolEnableAllNavigation,
-                 'nav': _ToolEnableNavigation,
                  'xscale': ToolXScale,
                  'yscale': ToolYScale,
                  'position': ToolCursorPosition,

@@ -160,19 +160,31 @@ rules before submitting a pull request:
   appropriate. Use the `numpy docstring standard
   <https://numpydoc.readthedocs.io/en/latest/format.html>`_.
 
-* Formatting should follow the recommendations of `PEP8
-  <https://www.python.org/dev/peps/pep-0008/>`__. You should consider
-  installing/enabling automatic PEP8 checking in your editor.  Part of the test
-  suite is checking PEP8 compliance, things go smoother if the code is mostly
-  PEP8 compliant to begin with.
+* Formatting should follow the recommendations of PEP8_, as enforced by
+  flake8_.  You can check flake8 compliance from the command line with ::
+
+    python -m pip install flake8
+    flake8 /path/to/module.py
+
+  or your editor may provide integration with it.  Note that Matplotlib
+  intentionally does not use the black_ auto-formatter (1__), in particular due
+  to its unability to understand the semantics of mathematical expressions
+  (2__, 3__).
+
+  .. _PEP8: https://www.python.org/dev/peps/pep-0008/
+  .. _flake8: https://flake8.pycqa.org/
+  .. _black: https://black.readthedocs.io/
+  .. __: https://github.com/matplotlib/matplotlib/issues/18796
+  .. __: https://github.com/psf/black/issues/148
+  .. __: https://github.com/psf/black/issues/1984
 
 * Each high-level plotting function should have a simple example in the
   ``Example`` section of the docstring.  This should be as simple as possible
   to demonstrate the method.  More complex examples should go in the
   ``examples`` tree.
 
-* Changes (both new features and bugfixes) should be tested. See :ref:`testing`
-  for more details.
+* Changes (both new features and bugfixes) should have good test coverage. See
+  :ref:`testing` for more details.
 
 * Import the following modules using the standard scipy conventions::
 
@@ -200,19 +212,6 @@ rules before submitting a pull request:
 
 * See below for additional points about :ref:`keyword-argument-processing`, if
   applicable for your pull request.
-
-In addition, you can check for common programming errors with the following
-tools:
-
-* Code with a good unittest coverage (at least 70%, better 100%), check with::
-
-   python -mpip install coverage
-   python -mpytest --cov=matplotlib --showlocals -v
-
-* No pyflakes warnings, check with::
-
-   python -mpip install pyflakes
-   pyflakes path/to/module.py
 
 .. note::
 
@@ -323,7 +322,7 @@ New modules and files: installation
 
 * If you have added new files or directories, or reorganized existing
   ones, make sure the new files are included in the match patterns in
-  :file:`MANIFEST.in`, and/or in *package_data* in :file:`setup.py`.
+  in *package_data* in :file:`setupext.py`.
 
 C/C++ extensions
 ----------------
@@ -354,9 +353,7 @@ The definition of the pylab text function is a simple pass-through to
 
   # in pylab.py
   def text(*args, **kwargs):
-      ret = gca().text(*args, **kwargs)
-      draw_if_interactive()
-      return ret
+      return gca().text(*args, **kwargs)
 
 `~matplotlib.axes.Axes.text` in simplified form looks like this, i.e., it just
 passes all ``args`` and ``kwargs`` on to ``matplotlib.text.Text.__init__``::

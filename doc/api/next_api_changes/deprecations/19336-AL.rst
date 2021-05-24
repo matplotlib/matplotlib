@@ -1,3 +1,0 @@
-Setting a Line2D's pickradius via ``set_picker`` is undeprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-This cancels the deprecation introduced in Matplotlib 3.3.0.

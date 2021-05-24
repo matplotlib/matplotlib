@@ -85,7 +85,7 @@ objects and Matplotlib dates:
 All the Matplotlib date converters, tickers and formatters are timezone aware.
 If no explicit timezone is provided, :rc:`timezone` is assumed.  If you want to
 use a custom time zone, pass a `datetime.tzinfo` instance with the tz keyword
-argument to `num2date`, `~.Axes.plot_date`, and any custom date tickers or
+argument to `num2date`, `.Axis.axis_date`, and any custom date tickers or
 locators you create.
 
 A wide range of specific and general purpose date tick locators and
@@ -166,8 +166,6 @@ The available date formatters are:
   date information.  This is most useful when used with the `AutoDateLocator`.
 
 * `DateFormatter`: use `~datetime.datetime.strftime` format strings.
-
-* `IndexDateFormatter`: date plots with implicit *x* indexing.
 """
 
 import datetime
@@ -189,7 +187,7 @@ from matplotlib import _api, cbook, ticker, units
 
 __all__ = ('datestr2num', 'date2num', 'num2date', 'num2timedelta', 'drange',
            'epoch2num', 'num2epoch', 'set_epoch', 'get_epoch', 'DateFormatter',
-           'ConciseDateFormatter', 'IndexDateFormatter', 'AutoDateFormatter',
+           'ConciseDateFormatter', 'AutoDateFormatter',
            'DateLocator', 'RRuleLocator', 'AutoDateLocator', 'YearLocator',
            'MonthLocator', 'WeekdayLocator',
            'DayLocator', 'HourLocator', 'MinuteLocator',
@@ -594,8 +592,13 @@ def drange(dstart, dend, delta):
 
 
 def _wrap_in_tex(text):
+    p = r'([a-zA-Z]+)'
+    ret_text = re.sub(p, r'}$\1$\\mathdefault{', text)
+
     # Braces ensure dashes are not spaced like binary operators.
-    return '$\\mathdefault{' + text.replace('-', '{-}') + '}$'
+    ret_text = '$\\mathdefault{'+ret_text.replace('-', '{-}')+'}$'
+    ret_text = ret_text.replace('$\\mathdefault{}$', '')
+    return ret_text
 
 
 ## date tickers and formatters ###
@@ -606,11 +609,6 @@ class DateFormatter(ticker.Formatter):
     Format a tick (in days since the epoch) with a
     `~datetime.datetime.strftime` format string.
     """
-
-    @_api.deprecated("3.3")
-    @property
-    def illegal_s(self):
-        return re.compile(r"((^|[^%])(%%)*%s)")
 
     def __init__(self, fmt, tz=None, *, usetex=None):
         """
@@ -637,33 +635,6 @@ class DateFormatter(ticker.Formatter):
 
     def set_tzinfo(self, tz):
         self.tz = tz
-
-
-@_api.deprecated("3.3")
-class IndexDateFormatter(ticker.Formatter):
-    """Use with `.IndexLocator` to cycle format strings by index."""
-
-    def __init__(self, t, fmt, tz=None):
-        """
-        Parameters
-        ----------
-        t : list of float
-            A sequence of dates (floating point days).
-        fmt : str
-            A `~datetime.datetime.strftime` format string.
-        """
-        if tz is None:
-            tz = _get_rc_timezone()
-        self.t = t
-        self.fmt = fmt
-        self.tz = tz
-
-    def __call__(self, x, pos=0):
-        """Return the label for time *x* at position *pos*."""
-        ind = int(round(x))
-        if ind >= len(self.t) or ind <= 0:
-            return ''
-        return num2date(self.t[ind], self.tz).strftime(self.fmt)
 
 
 class ConciseDateFormatter(ticker.Formatter):
@@ -812,7 +783,7 @@ class ConciseDateFormatter(ticker.Formatter):
         #    year, month, day etc.
         # fmt for most ticks at this level
         fmts = self.formats
-        # format beginnings of days, months, years, etc...
+        # format beginnings of days, months, years, etc.
         zerofmts = self.zero_formats
         # offset fmt are for the offset in the upper left of the
         # or lower right of the axis.
@@ -888,48 +859,48 @@ class AutoDateFormatter(ticker.Formatter):
     A `.Formatter` which attempts to figure out the best format to use.  This
     is most useful when used with the `AutoDateLocator`.
 
-    The AutoDateFormatter has a scale dictionary that maps the scale
-    of the tick (the distance in days between one major tick) and a
-    format string.  The default looks like this::
+    `.AutoDateFormatter` has a ``.scale`` dictionary that maps tick scales (the
+    interval in days between one major tick) to format strings; this dictionary
+    defaults to ::
 
         self.scaled = {
             DAYS_PER_YEAR: rcParams['date.autoformat.year'],
             DAYS_PER_MONTH: rcParams['date.autoformat.month'],
-            1.0: rcParams['date.autoformat.day'],
-            1. / HOURS_PER_DAY: rcParams['date.autoformat.hour'],
-            1. / (MINUTES_PER_DAY): rcParams['date.autoformat.minute'],
-            1. / (SEC_PER_DAY): rcParams['date.autoformat.second'],
-            1. / (MUSECONDS_PER_DAY): rcParams['date.autoformat.microsecond'],
+            1: rcParams['date.autoformat.day'],
+            1 / HOURS_PER_DAY: rcParams['date.autoformat.hour'],
+            1 / MINUTES_PER_DAY: rcParams['date.autoformat.minute'],
+            1 / SEC_PER_DAY: rcParams['date.autoformat.second'],
+            1 / MUSECONDS_PER_DAY: rcParams['date.autoformat.microsecond'],
         }
 
-    The algorithm picks the key in the dictionary that is >= the
-    current scale and uses that format string.  You can customize this
-    dictionary by doing::
+    The formatter uses the format string corresponding to the lowest key in
+    the dictionary that is greater or equal to the current scale.  Dictionary
+    entries can be customized::
 
-    >>> locator = AutoDateLocator()
-    >>> formatter = AutoDateFormatter(locator)
-    >>> formatter.scaled[1/(24.*60.)] = '%M:%S' # only show min and sec
+        locator = AutoDateLocator()
+        formatter = AutoDateFormatter(locator)
+        formatter.scaled[1/(24*60)] = '%M:%S' # only show min and sec
 
-    A custom `.FuncFormatter` can also be used.  The following example shows
-    how to use a custom format function to strip trailing zeros from decimal
-    seconds and adds the date to the first ticklabel::
+    Custom callables can also be used instead of format strings.  The following
+    example shows how to use a custom format function to strip trailing zeros
+    from decimal seconds and adds the date to the first ticklabel::
 
-        >>> def my_format_function(x, pos=None):
-        ...     x = matplotlib.dates.num2date(x)
-        ...     if pos == 0:
-        ...         fmt = '%D %H:%M:%S.%f'
-        ...     else:
-        ...         fmt = '%H:%M:%S.%f'
-        ...     label = x.strftime(fmt)
-        ...     label = label.rstrip("0")
-        ...     label = label.rstrip(".")
-        ...     return label
-        >>> from matplotlib.ticker import FuncFormatter
-        >>> formatter.scaled[1/(24.*60.)] = FuncFormatter(my_format_function)
+        def my_format_function(x, pos=None):
+            x = matplotlib.dates.num2date(x)
+            if pos == 0:
+                fmt = '%D %H:%M:%S.%f'
+            else:
+                fmt = '%H:%M:%S.%f'
+            label = x.strftime(fmt)
+            label = label.rstrip("0")
+            label = label.rstrip(".")
+            return label
+
+        formatter.scaled[1/(24*60)] = my_format_function
     """
 
     # This can be improved by providing some user-level direction on
-    # how to choose the best format (precedence, etc...)
+    # how to choose the best format (precedence, etc.).
 
     # Perhaps a 'struct' that has a field for each time-type where a
     # zero would indicate "don't show" and a number would indicate
@@ -1480,10 +1451,6 @@ class AutoDateLocator(DateLocator):
                     'epoch.')
 
         locator.set_axis(self.axis)
-
-        if self.axis is not None:
-            locator.set_view_interval(*self.axis.get_view_interval())
-            locator.set_data_interval(*self.axis.get_data_interval())
         return locator
 
 
@@ -1727,10 +1694,12 @@ class MicrosecondLocator(DateLocator):
         self._wrapped_locator.set_axis(axis)
         return super().set_axis(axis)
 
+    @_api.deprecated("3.5", alternative=".axis.set_view_interval")
     def set_view_interval(self, vmin, vmax):
         self._wrapped_locator.set_view_interval(vmin, vmax)
         return super().set_view_interval(vmin, vmax)
 
+    @_api.deprecated("3.5", alternative=".axis.set_data_interval")
     def set_data_interval(self, vmin, vmax):
         self._wrapped_locator.set_data_interval(vmin, vmax)
         return super().set_data_interval(vmin, vmax)
@@ -1766,6 +1735,8 @@ class MicrosecondLocator(DateLocator):
         return self._interval
 
 
+@_api.deprecated("3.5",
+                 alternative="mdates.date2num(datetime.utcfromtimestamp(e))")
 def epoch2num(e):
     """
     Convert UNIX time to days since Matplotlib epoch.
@@ -1787,6 +1758,7 @@ def epoch2num(e):
     return (dt + np.asarray(e)) / SEC_PER_DAY
 
 
+@_api.deprecated("3.5", alternative="mdates.num2date(e).timestamp()")
 def num2epoch(d):
     """
     Convert days since Matplotlib epoch to UNIX time.

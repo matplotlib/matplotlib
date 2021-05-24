@@ -224,7 +224,6 @@ def switch_backend(newbackend):
     if newbackend is rcsetup._auto_backend_sentinel:
         current_framework = cbook._get_running_interactive_framework()
         mapping = {'qt5': 'qt5agg',
-                   'qt4': 'qt4agg',
                    'gtk3': 'gtk3agg',
                    'wx': 'wxagg',
                    'tk': 'tkagg',
@@ -307,6 +306,14 @@ def new_figure_manager(*args, **kwargs):
 
 # This function's signature is rewritten upon backend-load by switch_backend.
 def draw_if_interactive(*args, **kwargs):
+    """
+    Redraw the current figure if in interactive mode.
+
+    .. warning::
+
+        End users will typically not have to call this function because the
+        the interactive mode takes care of this.
+    """
     return _backend_mod.draw_if_interactive(*args, **kwargs)
 
 
@@ -315,29 +322,45 @@ def show(*args, **kwargs):
     """
     Display all open figures.
 
-    In non-interactive mode, *block* defaults to True.  All figures
-    will display and show will not return until all windows are closed.
-    If there are no figures, return immediately.
-
-    In interactive mode *block* defaults to False.  This will ensure
-    that all of the figures are shown and this function immediately returns.
-
     Parameters
     ----------
     block : bool, optional
+        Whether to wait for all figures to be closed before returning.
 
-        If `True` block and run the GUI main loop until all windows
+        If `True` block and run the GUI main loop until all figure windows
         are closed.
 
-        If `False` ensure that all windows are displayed and return
+        If `False` ensure that all figure windows are displayed and return
         immediately.  In this case, you are responsible for ensuring
         that the event loop is running to have responsive figures.
 
+        Defaults to True in non-interactive mode and to False in interactive
+        mode (see `.pyplot.isinteractive`).
+
     See Also
     --------
-    ion : enable interactive mode
-    ioff : disable interactive mode
+    ion : Enable interactive mode, which shows / updates the figure after
+          every plotting command, so that calling ``show()`` is not necessary.
+    ioff : Disable interactive mode.
+    savefig : Save the figure to an image file instead of showing it on screen.
 
+    Notes
+    -----
+    **Saving figures to file and showing a window at the same time**
+
+    If you want an image file as well as a user interface window, use
+    `.pyplot.savefig` before `.pyplot.show`. At the end of (a blocking)
+    ``show()`` the figure is closed and thus unregistered from pyplot. Calling
+    `.pyplot.savefig` afterwards would save a new and thus empty figure. This
+    limitation of command order does not apply if the show is non-blocking or
+    if you keep a reference to the figure and use `.Figure.savefig`.
+
+    **Auto-show in jupyter notebooks**
+
+    The jupyter backends (activated via ``%matplotlib inline``,
+    ``%matplotlib notebook``, or ``%matplotlib widget``), call ``show()`` at
+    the end of every cell by default. Thus, you usually don't have to call it
+    explicitly there.
     """
     _warn_if_gui_out_of_main_thread()
     return _backend_mod.show(*args, **kwargs)
@@ -345,15 +368,19 @@ def show(*args, **kwargs):
 
 def isinteractive():
     """
-    Return if pyplot is in "interactive mode" or not.
+    Return whether plots are updated after every plotting command.
 
-    If in interactive mode then:
+    The interactive mode is mainly useful if you build plots from the command
+    line and want to see the effect of each command while you are building the
+    figure.
+
+    In interactive mode:
 
     - newly created figures will be shown immediately;
     - figures will automatically redraw on change;
     - `.pyplot.show` will not block by default.
 
-    If not in interactive mode then:
+    In non-interactive mode:
 
     - newly created figures and changes to figures will not be reflected until
       explicitly asked to be;
@@ -361,11 +388,10 @@ def isinteractive():
 
     See Also
     --------
-    ion : enable interactive mode
-    ioff : disable interactive mode
-
-    show : show windows (and maybe block)
-    pause : show windows, run GUI event loop, and block for a time
+    ion : Enable interactive mode.
+    ioff : Disable interactive mode.
+    show : Show all figures (and maybe block).
+    pause : Show all figures, and block for a time.
     """
     return matplotlib.is_interactive()
 
@@ -424,15 +450,16 @@ class _IonContext:
 
 def ioff():
     """
-    Turn interactive mode off.
+    Disable interactive mode.
+
+    See `.pyplot.isinteractive` for more details.
 
     See Also
     --------
-    ion : enable interactive mode
-    isinteractive : query current state
-
-    show : show windows (and maybe block)
-    pause : show windows, run GUI event loop, and block for a time
+    ion : Enable interactive mode.
+    isinteractive : Whether interactive mode is enabled.
+    show : Show all figures (and maybe block).
+    pause : Show all figures, and block for a time.
 
     Notes
     -----
@@ -459,15 +486,16 @@ def ioff():
 
 def ion():
     """
-    Turn interactive mode on.
+    Enable interactive mode.
+
+    See `.pyplot.isinteractive` for more details.
 
     See Also
     --------
-    ioff : disable interactive mode
-    isinteractive : query current state
-
-    show : show windows (and maybe block)
-    pause : show windows, run GUI event loop, and block for a time
+    ioff : Disable interactive mode.
+    isinteractive : Whether interactive mode is enabled.
+    show : Show all figures (and maybe block).
+    pause : Show all figures, and block for a time.
 
     Notes
     -----
@@ -506,8 +534,8 @@ def pause(interval):
 
     See Also
     --------
-    matplotlib.animation : Complex animation
-    show : show figures and optional block forever
+    matplotlib.animation : Proper animations
+    show : Show all figures and optional block until all figures are closed.
     """
     manager = _pylab_helpers.Gcf.get_active()
     if manager is not None:
@@ -1403,8 +1431,9 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     return fig, axs
 
 
-def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
-                   empty_sentinel='.', **fig_kw):
+def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
+                   subplot_kw=None, gridspec_kw=None, empty_sentinel='.',
+                   **fig_kw):
     """
     Build a layout of Axes based on ASCII art or nested lists.
 
@@ -1415,10 +1444,9 @@ def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
        This API is provisional and may be revised in the future based on
        early user feedback.
 
-
     Parameters
     ----------
-    layout : list of list of {hashable or nested} or str
+    mosaic : list of list of {hashable or nested} or str
 
         A visual layout of how you want your Axes to be arranged
         labeled as strings.  For example ::
@@ -1426,7 +1454,7 @@ def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
            x = [['A panel', 'A panel', 'edge'],
                 ['C panel', '.',       'edge']]
 
-        Produces 4 axes:
+        produces 4 axes:
 
         - 'A panel' which is 1 row high and spans the first two columns
         - 'edge' which is 2 rows high and is on the right edge
@@ -1446,6 +1474,12 @@ def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
         where each character is a column and each line is a row.
         This only allows only single character Axes labels and does
         not allow nesting but is very terse.
+
+    sharex, sharey : bool, default: False
+        If True, the x-axis (*sharex*) or y-axis (*sharey*) will be shared
+        among all subplots.  In that case, tick label visibility and axis units
+        behave as for `subplots`.  If False, each subplot's x- or y-axis will
+        be independent.
 
     subplot_kw : dict, optional
         Dictionary with keywords passed to the `.Figure.add_subplot` call
@@ -1471,14 +1505,15 @@ def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
        The new figure
 
     dict[label, Axes]
-       A dictionary mapping the labels to the Axes objects.
+       A dictionary mapping the labels to the Axes objects.  The order of
+       the axes is left-to-right and top-to-bottom of their position in the
+       total layout.
 
     """
     fig = figure(**fig_kw)
     ax_dict = fig.subplot_mosaic(
-        layout,
-        subplot_kw=subplot_kw,
-        gridspec_kw=gridspec_kw,
+        mosaic, sharex=sharex, sharey=sharey,
+        subplot_kw=subplot_kw, gridspec_kw=gridspec_kw,
         empty_sentinel=empty_sentinel
     )
     return fig, ax_dict
@@ -1768,10 +1803,10 @@ def xticks(ticks=None, labels=None, **kwargs):
 
     if labels is None:
         labels = ax.get_xticklabels()
+        for l in labels:
+            l.update(kwargs)
     else:
         labels = ax.set_xticklabels(labels, **kwargs)
-    for l in labels:
-        l.update(kwargs)
 
     return locs, labels
 
@@ -1828,10 +1863,10 @@ def yticks(ticks=None, labels=None, **kwargs):
 
     if labels is None:
         labels = ax.get_yticklabels()
+        for l in labels:
+            l.update(kwargs)
     else:
         labels = ax.set_yticklabels(labels, **kwargs)
-    for l in labels:
-        l.update(kwargs)
 
     return locs, labels
 
@@ -2778,8 +2813,8 @@ def fill_betweenx(
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Axes.grid)
-def grid(b=None, which='major', axis='both', **kwargs):
-    return gca().grid(b=b, which=which, axis=axis, **kwargs)
+def grid(visible=None, which='major', axis='both', **kwargs):
+    return gca().grid(visible=visible, which=which, axis=axis, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.

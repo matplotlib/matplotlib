@@ -1,17 +1,29 @@
-.. _thirdparty-index:
+:orphan:
+
+.. note:: 
+
+    This page has been moved to <https://matplotlib.org/mpl-third-party>, 
+    where you will find an up-to-date list of packages.  
+
 
 ********************
 Third party packages
 ********************
 
 Several external packages that extend or build on Matplotlib functionality are
-listed below.  They are maintained and distributed separately from Matplotlib
-and thus need to be installed individually.
+listed below. You can find more packages at `PyPI <https://pypi.org/search/?q=&o=&c=Framework+%3A%3A+Matplotlib>`_. 
+They are maintained and distributed separately from Matplotlib, 
+and thus need to be installed individually. 
 
-Please submit an issue or pull request on GitHub if you have created
-a package that you would like to have included.  We are also happy to
-host third party packages within the `Matplotlib GitHub Organization
+If you have a created a package that extends or builds on Matplotlib 
+and would like to have your package listed on this page, please submit 
+an issue or pull request on GitHub. The pull request should include a short 
+description of the library and an image demonstrating the functionality. 
+To be included in the PyPI listing, please include ``Framework :: Matplotlib`` 
+in the classifier list in the ``setup.py`` file for your package. We are also 
+happy to host third party packages within the `Matplotlib GitHub Organization
 <https://github.com/matplotlib>`_.
+
 
 Mapping toolkits
 ****************
@@ -318,6 +330,16 @@ existing table. See the `blume github repository
 
 .. image:: /_static/blume_table_example.png
 
+highlight-text
+==============
+
+`highlight-text <https://pypi.org/project/highlight-text/>`_ is a small library
+that provides an easy way to effectively annotate plots by highlighting
+substrings with the font properties of your choice.
+See the `highlight-text github repository
+<https://github.com/znstrider/highlight_text>`_ for more details and examples.
+
+.. image:: /_static/highlight_text_examples.png
 
 DNA Features Viewer
 ===================

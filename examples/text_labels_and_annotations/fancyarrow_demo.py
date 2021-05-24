@@ -57,16 +57,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.patches
-matplotlib.patches.ArrowStyle
-matplotlib.patches.ArrowStyle.get_styles
-matplotlib.axes.Axes.annotate
+#    - `matplotlib.patches`
+#    - `matplotlib.patches.ArrowStyle`
+#    - ``matplotlib.patches.ArrowStyle.get_styles``
+#    - `matplotlib.axes.Axes.annotate`

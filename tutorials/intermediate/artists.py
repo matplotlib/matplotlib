@@ -723,4 +723,4 @@ plt.show()
 #
 # .. include:: ../../gallery/pyplots/dollar_ticks.rst
 #    :start-after: y axis labels.
-#    :end-before: -------
+#    :end-before: .. admonition:: References

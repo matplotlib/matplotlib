@@ -45,16 +45,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.pyplot.subplots
-matplotlib.axis.Axis.set_major_formatter
-matplotlib.cbook.get_sample_data
-matplotlib.ticker.FuncFormatter
+#    - `matplotlib.pyplot.subplots`
+#    - `matplotlib.axis.Axis.set_major_formatter`
+#    - `matplotlib.cbook.get_sample_data`
+#    - `matplotlib.ticker.FuncFormatter`

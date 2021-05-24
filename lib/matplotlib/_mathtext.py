@@ -456,9 +456,6 @@ class UnicodeFonts(TruetypeFonts):
     def __init__(self, *args, **kwargs):
         # This must come first so the backend's owner is set correctly
         fallback_rc = mpl.rcParams['mathtext.fallback']
-        if mpl.rcParams['mathtext.fallback_to_cm'] is not None:
-            fallback_rc = ('cm' if mpl.rcParams['mathtext.fallback_to_cm']
-                           else None)
         font_cls = {'stix': StixFonts,
                     'stixsans': StixSansFonts,
                     'cm': BakomaFonts
@@ -522,6 +519,11 @@ class UnicodeFonts(TruetypeFonts):
             found_symbol = False
             font = self._get_font(new_fontname)
             if font is not None:
+                if font.family_name == "cmr10" and uniindex == 0x2212:
+                    # minus sign exists in cmsy10 (not cmr10)
+                    font = get_font(
+                        cbook._get_data_path("fonts/ttf/cmsy10.ttf"))
+                    uniindex = 0xa1
                 glyphindex = font.get_char_index(uniindex)
                 if glyphindex != 0:
                     found_symbol = True
@@ -1549,10 +1551,7 @@ class Glue(Node):
     it's easier to stick to what TeX does.)
     """
 
-    glue_subtype = _api.deprecated("3.3")(property(lambda self: "normal"))
-
-    @_api.delete_parameter("3.3", "copy")
-    def __init__(self, glue_type, copy=False):
+    def __init__(self, glue_type):
         super().__init__()
         if isinstance(glue_type, str):
             glue_spec = _GlueSpec._named[glue_type]
@@ -1572,51 +1571,6 @@ class Glue(Node):
         super().grow()
         g = self.glue_spec
         self.glue_spec = g._replace(width=g.width * GROW_FACTOR)
-
-
-# Some convenient ways to get common kinds of glue
-
-
-@_api.deprecated("3.3", alternative="Glue('fil')")
-class Fil(Glue):
-    def __init__(self):
-        super().__init__('fil')
-
-
-@_api.deprecated("3.3", alternative="Glue('fill')")
-class Fill(Glue):
-    def __init__(self):
-        super().__init__('fill')
-
-
-@_api.deprecated("3.3", alternative="Glue('filll')")
-class Filll(Glue):
-    def __init__(self):
-        super().__init__('filll')
-
-
-@_api.deprecated("3.3", alternative="Glue('neg_fil')")
-class NegFil(Glue):
-    def __init__(self):
-        super().__init__('neg_fil')
-
-
-@_api.deprecated("3.3", alternative="Glue('neg_fill')")
-class NegFill(Glue):
-    def __init__(self):
-        super().__init__('neg_fill')
-
-
-@_api.deprecated("3.3", alternative="Glue('neg_filll')")
-class NegFilll(Glue):
-    def __init__(self):
-        super().__init__('neg_filll')
-
-
-@_api.deprecated("3.3", alternative="Glue('ss')")
-class SsGlue(Glue):
-    def __init__(self):
-        super().__init__('ss')
 
 
 class HCentered(Hlist):
@@ -2859,12 +2813,13 @@ class Parser:
         return self._genfrac('(', ')', 0.0, self._MathStyle.TEXTSTYLE,
                              num, den)
 
-    def _genset(self, state, annotation, body, overunder):
+    def _genset(self, s, loc, toks):
+        (annotation, body), = toks
+        state = self.get_state()
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
 
         annotation.shrink()
-
         cannotation = HCentered([annotation])
         cbody = HCentered([body])
         width = max(cannotation.width, cbody.width)
@@ -2872,16 +2827,14 @@ class Parser:
         cbody.hpack(width, 'exactly')
 
         vgap = thickness * 3
-        if overunder == "under":
+        if s[loc + 1] == "u":  # \underset
             vlist = Vlist([cbody,                       # body
                            Vbox(0, vgap),               # space
                            cannotation                  # annotation
                            ])
             # Shift so the body sits in the same vertical position
-            shift_amount = cbody.depth + cannotation.height + vgap
-
-            vlist.shift_amount = shift_amount
-        else:
+            vlist.shift_amount = cbody.depth + cannotation.height + vgap
+        else:  # \overset
             vlist = Vlist([cannotation,                 # annotation
                            Vbox(0, vgap),               # space
                            cbody                        # body
@@ -2890,6 +2843,8 @@ class Parser:
         # To add horizontal gap between symbols: wrap the Vlist into
         # an Hlist and extend it with an Hbox(0, horizontal_gap)
         return vlist
+
+    overset = underset = _genset
 
     def sqrt(self, s, loc, toks):
         (root, body), = toks
@@ -2950,24 +2905,6 @@ class Parser:
 
         hlist = Hlist([rightside])
         return [hlist]
-
-    def overset(self, s, loc, toks):
-        assert len(toks) == 1
-        assert len(toks[0]) == 2
-
-        state = self.get_state()
-        annotation, body = toks[0]
-
-        return self._genset(state, annotation, body, overunder="over")
-
-    def underset(self, s, loc, toks):
-        assert len(toks) == 1
-        assert len(toks[0]) == 2
-
-        state = self.get_state()
-        annotation, body = toks[0]
-
-        return self._genset(state, annotation, body, overunder="under")
 
     def _auto_sized_delimiter(self, front, middle, back):
         state = self.get_state()

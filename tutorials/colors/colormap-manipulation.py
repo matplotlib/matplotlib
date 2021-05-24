@@ -254,19 +254,15 @@ plot_examples([cmap1, cmap2])
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.pcolormesh
-matplotlib.figure.Figure.colorbar
-matplotlib.colors
-matplotlib.colors.LinearSegmentedColormap
-matplotlib.colors.ListedColormap
-matplotlib.cm
-matplotlib.cm.get_cmap
+#    - `matplotlib.axes.Axes.pcolormesh`
+#    - `matplotlib.figure.Figure.colorbar`
+#    - `matplotlib.colors`
+#    - `matplotlib.colors.LinearSegmentedColormap`
+#    - `matplotlib.colors.ListedColormap`
+#    - `matplotlib.cm`
+#    - `matplotlib.cm.get_cmap`

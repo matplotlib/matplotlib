@@ -37,7 +37,7 @@ Running the tests
 
 In the root directory of your development repository run::
 
-   pytest
+   python -m pytest
 
 
 pytest can be configured via a lot of `command-line parameters`_. Some
@@ -258,10 +258,10 @@ Run the tests
 ^^^^^^^^^^^^^
 To run the all the tests on your installed version of Matplotlib::
 
-    pytest --pyargs matplotlib.tests
+    python -m pytest --pyargs matplotlib.tests
 
 The test discovery scope can be narrowed to single test modules or even single
 functions::
 
-    pytest --pyargs matplotlib.tests.test_simplification.py::test_clipping
+    python -m pytest --pyargs matplotlib.tests.test_simplification.py::test_clipping
 

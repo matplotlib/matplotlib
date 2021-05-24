@@ -135,16 +135,13 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions and methods is shown in this example:
-
-import matplotlib
-matplotlib.pyplot.tight_layout
-matplotlib.figure.Figure.tight_layout
-matplotlib.figure.Figure.add_gridspec
-matplotlib.figure.Figure.add_subplot
-matplotlib.pyplot.subplot2grid
+#    - `matplotlib.figure.Figure.tight_layout` /
+#      `matplotlib.pyplot.tight_layout`
+#    - `matplotlib.figure.Figure.add_gridspec`
+#    - `matplotlib.figure.Figure.add_subplot`
+#    - `matplotlib.pyplot.subplot2grid`

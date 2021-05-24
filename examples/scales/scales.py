@@ -103,20 +103,16 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.set_yscale
-matplotlib.axes.Axes.set_xscale
-matplotlib.axis.Axis.set_major_locator
-matplotlib.scale.LogitScale
-matplotlib.scale.LogScale
-matplotlib.scale.LinearScale
-matplotlib.scale.SymmetricalLogScale
-matplotlib.scale.FuncScale
+#    - `matplotlib.axes.Axes.set_xscale`
+#    - `matplotlib.axes.Axes.set_yscale`
+#    - `matplotlib.axis.Axis.set_major_locator`
+#    - `matplotlib.scale.LinearScale`
+#    - `matplotlib.scale.LogScale`
+#    - `matplotlib.scale.SymmetricalLogScale`
+#    - `matplotlib.scale.LogitScale`
+#    - `matplotlib.scale.FuncScale`

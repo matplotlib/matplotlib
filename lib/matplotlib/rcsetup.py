@@ -21,7 +21,7 @@ import re
 
 import numpy as np
 
-from matplotlib import _api, animation, cbook
+from matplotlib import _api, cbook
 from matplotlib.cbook import ls_mapper
 from matplotlib.colors import Colormap, is_color_like
 from matplotlib.fontconfig_pattern import parse_fontconfig_pattern
@@ -36,7 +36,7 @@ from cycler import Cycler, cycler as ccycler
 interactive_bk = ['GTK3Agg', 'GTK3Cairo',
                   'MacOSX',
                   'nbAgg',
-                  'Qt4Agg', 'Qt4Cairo', 'Qt5Agg', 'Qt5Cairo',
+                  'Qt5Agg', 'Qt5Cairo',
                   'TkAgg', 'TkCairo',
                   'WebAgg',
                   'WX', 'WXAgg', 'WXCairo']
@@ -146,21 +146,6 @@ def validate_bool(b):
         raise ValueError('Could not convert "%s" to bool' % b)
 
 
-@_api.deprecated("3.3")
-def validate_bool_maybe_none(b):
-    """Convert b to ``bool`` or raise, passing through *None*."""
-    if isinstance(b, str):
-        b = b.lower()
-    if b is None or b == 'none':
-        return None
-    if b in ('t', 'y', 'yes', 'on', 'true', '1', 1, True):
-        return True
-    elif b in ('f', 'n', 'no', 'off', 'false', '0', 0, False):
-        return False
-    else:
-        raise ValueError('Could not convert "%s" to bool' % b)
-
-
 def _validate_date_converter(s):
     if s is None:
         return
@@ -181,41 +166,12 @@ def _validate_date_int_mult(s):
     mdates._rcParam_helper.set_int_mult(s)
 
 
-def _validate_tex_preamble(s):
-    if s is None or s == 'None':
-        _api.warn_deprecated(
-            "3.3", message="Support for setting the 'text.latex.preamble' or "
-            "'pgf.preamble' rcParam to None is deprecated since %(since)s and "
-            "will be removed %(removal)s; set it to an empty string instead.")
-        return ""
-    try:
-        if isinstance(s, str):
-            return s
-        elif np.iterable(s):
-            _api.warn_deprecated(
-                "3.3", message="Support for setting the 'text.latex.preamble' "
-                "or 'pgf.preamble' rcParam to a list of strings is deprecated "
-                "since %(since)s and will be removed %(removal)s; set it to a "
-                "single string instead.")
-            return '\n'.join(s)
-        else:
-            raise TypeError
-    except TypeError as e:
-        raise ValueError('Could not convert "%s" to string' % s) from e
-
-
 def validate_axisbelow(s):
     try:
         return validate_bool(s)
     except ValueError:
         if isinstance(s, str):
             if s == 'line':
-                return 'line'
-            if s.lower().startswith('line'):
-                _api.warn_deprecated(
-                    "3.3", message=f"Support for setting axes.axisbelow to "
-                    f"{s!r} to mean 'line' is deprecated since %(since)s and "
-                    f"will be removed %(removal)s; set it to 'line' instead.")
                 return 'line'
     raise ValueError('%s cannot be interpreted as'
                      ' True, False, or "line"' % s)
@@ -303,11 +259,6 @@ def validate_backend(s):
     return backend
 
 
-validate_toolbar = ValidateInStrings(
-    'toolbar', ['None', 'toolbar2', 'toolmanager'], ignorecase=True,
-    _deprecated_since="3.3")
-
-
 def _validate_toolbar(s):
     s = ValidateInStrings(
         'toolbar', ['None', 'toolbar2', 'toolmanager'], ignorecase=True)(s)
@@ -316,42 +267,6 @@ def _validate_toolbar(s):
             "Treat the new Tool classes introduced in v1.5 as experimental "
             "for now; the API and rcParam may change in future versions.")
     return s
-
-
-@_api.deprecated("3.3")
-def _make_nseq_validator(cls, n=None, allow_none=False):
-
-    def validator(s):
-        """Convert *n* objects using ``cls``, or raise."""
-        if isinstance(s, str):
-            s = [x.strip() for x in s.split(',')]
-            if n is not None and len(s) != n:
-                raise ValueError(
-                    f'Expected exactly {n} comma-separated values, '
-                    f'but got {len(s)} comma-separated values: {s}')
-        else:
-            if n is not None and len(s) != n:
-                raise ValueError(
-                    f'Expected exactly {n} values, '
-                    f'but got {len(s)} values: {s}')
-        try:
-            return [cls(val) if not allow_none or val is not None else val
-                    for val in s]
-        except ValueError as e:
-            raise ValueError(
-                f'Could not convert all entries to {cls.__name__}s') from e
-
-    return validator
-
-
-@_api.deprecated("3.3")
-def validate_nseq_float(n):
-    return _make_nseq_validator(float, n)
-
-
-@_api.deprecated("3.3")
-def validate_nseq_int(n):
-    return _make_nseq_validator(int, n)
 
 
 def validate_color_or_inherit(s):
@@ -372,6 +287,27 @@ def validate_color_for_prop_cycle(s):
     if isinstance(s, str) and re.match("^C[0-9]$", s):
         raise ValueError(f"Cannot put cycle reference ({s!r}) in prop_cycler")
     return validate_color(s)
+
+
+def _validate_color_or_linecolor(s):
+    if cbook._str_equal(s, 'linecolor'):
+        return s
+    elif cbook._str_equal(s, 'mfc') or cbook._str_equal(s, 'markerfacecolor'):
+        return 'markerfacecolor'
+    elif cbook._str_equal(s, 'mec') or cbook._str_equal(s, 'markeredgecolor'):
+        return 'markeredgecolor'
+    elif s is None:
+        return None
+    elif isinstance(s, str) and len(s) == 6 or len(s) == 8:
+        stmp = '#' + s
+        if is_color_like(stmp):
+            return stmp
+        if s.lower() == 'none':
+            return None
+    elif is_color_like(s):
+        return s
+
+    raise ValueError(f'{s!r} does not look like a color arg')
 
 
 def validate_color(s):
@@ -406,10 +342,6 @@ validate_colorlist = _listify_validator(
 def _validate_cmap(s):
     _api.check_isinstance((str, Colormap), cmap=s)
     return s
-
-
-validate_orientation = ValidateInStrings(
-    'orientation', ['landscape', 'portrait'], _deprecated_since="3.3")
 
 
 def validate_aspect(s):
@@ -463,23 +395,6 @@ def validate_font_properties(s):
     return s
 
 
-def _validate_mathtext_fallback_to_cm(b):
-    """
-    Temporary validate for fallback_to_cm, while deprecated
-
-    """
-    if isinstance(b, str):
-        b = b.lower()
-    if b is None or b == 'none':
-        return None
-    else:
-        _api.warn_deprecated(
-            "3.3", message="Support for setting the 'mathtext.fallback_to_cm' "
-            "rcParam is deprecated since %(since)s and will be removed "
-            "%(removal)s; use 'mathtext.fallback : 'cm' instead.")
-        return validate_bool_maybe_none(b)
-
-
 def _validate_mathtext_fallback(s):
     _fallback_fonts = ['cm', 'stix', 'stixsans']
     if isinstance(s, str):
@@ -495,19 +410,6 @@ def _validate_mathtext_fallback(s):
             "fallback off.")
 
 
-validate_fontset = ValidateInStrings(
-    'fontset',
-    ['dejavusans', 'dejavuserif', 'cm', 'stix', 'stixsans', 'custom'],
-    _deprecated_since="3.3")
-validate_mathtext_default = ValidateInStrings(
-    'default', "rm cal it tt sf bf default bb frak scr regular".split(),
-    _deprecated_since="3.3")
-_validate_alignment = ValidateInStrings(
-    'alignment',
-    ['center', 'top', 'bottom', 'baseline', 'center_baseline'],
-    _deprecated_since="3.3")
-
-
 def validate_whiskers(s):
     try:
         return _listify_validator(validate_float, n=2)(s)
@@ -517,14 +419,6 @@ def validate_whiskers(s):
         except ValueError as e:
             raise ValueError("Not a valid whisker value ['range', float, "
                              "(float, float)]") from e
-
-
-validate_ps_papersize = ValidateInStrings(
-    'ps_papersize',
-    ['auto', 'letter', 'legal', 'ledger',
-     'a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'a10',
-     'b0', 'b1', 'b2', 'b3', 'b4', 'b5', 'b6', 'b7', 'b8', 'b9', 'b10',
-     ], ignorecase=True, _deprecated_since="3.3")
 
 
 def validate_ps_distiller(s):
@@ -564,25 +458,20 @@ def _validate_linestyle(ls):
         # nonsensically interpreted as sequences of numbers (codepoints).
         return np.iterable(x) and not isinstance(x, (str, bytes, bytearray))
 
-    # (offset, (on, off, on, off, ...))
-    if (_is_iterable_not_string_like(ls)
-            and len(ls) == 2
-            and isinstance(ls[0], (type(None), Number))
-            and _is_iterable_not_string_like(ls[1])
-            and len(ls[1]) % 2 == 0
-            and all(isinstance(elem, Number) for elem in ls[1])):
-        if ls[0] is None:
-            _api.warn_deprecated(
-                "3.3", message="Passing the dash offset as None is deprecated "
-                "since %(since)s and support for it will be removed "
-                "%(removal)s; pass it as zero instead.")
-            ls = (0, ls[1])
-        return ls
-    # For backcompat: (on, off, on, off, ...); the offset is implicitly None.
-    if (_is_iterable_not_string_like(ls)
-            and len(ls) % 2 == 0
-            and all(isinstance(elem, Number) for elem in ls)):
-        return (0, ls)
+    if _is_iterable_not_string_like(ls):
+        if len(ls) == 2 and _is_iterable_not_string_like(ls[1]):
+            # (offset, (on, off, on, off, ...))
+            offset, onoff = ls
+        else:
+            # For backcompat: (on, off, on, off, ...); the offset is implicit.
+            offset = 0
+            onoff = ls
+
+        if (isinstance(offset, Number)
+                and len(onoff) % 2 == 0
+                and all(isinstance(elem, Number) for elem in onoff)):
+            return (offset, onoff)
+
     raise ValueError(f"linestyle {ls!r} is not a valid on-off ink sequence.")
 
 
@@ -632,62 +521,6 @@ def validate_markevery(s):
 
 validate_markeverylist = _listify_validator(validate_markevery)
 
-validate_legend_loc = ValidateInStrings(
-    'legend_loc',
-    ['best',
-     'upper right',
-     'upper left',
-     'lower left',
-     'lower right',
-     'right',
-     'center left',
-     'center right',
-     'lower center',
-     'upper center',
-     'center'], ignorecase=True, _deprecated_since="3.3")
-
-validate_svg_fonttype = ValidateInStrings(
-    'svg.fonttype', ['none', 'path'], _deprecated_since="3.3")
-
-
-@_api.deprecated("3.3")
-def validate_hinting(s):
-    return _validate_hinting(s)
-
-
-# Replace by plain list in _prop_validators after deprecation period.
-_validate_hinting = ValidateInStrings(
-    'text.hinting',
-    ['default', 'no_autohint', 'force_autohint', 'no_hinting',
-     'auto', 'native', 'either', 'none'],
-    ignorecase=True)
-
-
-validate_pgf_texsystem = ValidateInStrings(
-    'pgf.texsystem', ['xelatex', 'lualatex', 'pdflatex'],
-    _deprecated_since="3.3")
-
-
-@_api.deprecated("3.3")
-def validate_movie_writer(s):
-    # writers.list() would only list actually available writers, but
-    # FFMpeg.isAvailable is slow and not worth paying for at every import.
-    if s in animation.writers._registered:
-        return s
-    else:
-        raise ValueError(f"Supported animation writers are "
-                         f"{sorted(animation.writers._registered)}")
-
-
-validate_movie_frame_fmt = ValidateInStrings(
-    'animation.frame_format', ['png', 'jpeg', 'tiff', 'raw', 'rgba', 'ppm',
-                               'sgi', 'bmp', 'pbm', 'svg'],
-    _deprecated_since="3.3")
-validate_axis_locator = ValidateInStrings(
-    'major', ['minor', 'both', 'major'], _deprecated_since="3.3")
-validate_movie_html_fmt = ValidateInStrings(
-    'animation.html', ['html5', 'jshtml', 'none'], _deprecated_since="3.3")
-
 
 def validate_bbox(s):
     if isinstance(s, str):
@@ -734,10 +567,6 @@ _range_validators = {  # Slightly nicer (internal) API.
     "0 <= x < 1": _validate_greaterequal0_lessthan1,
     "0 <= x <= 1": _validate_greaterequal0_lessequal1,
 }
-
-
-validate_grid_axis = ValidateInStrings(
-    'axes.grid.axis', ['x', 'y', 'both'], _deprecated_since="3.3")
 
 
 def validate_hatch(s):
@@ -955,23 +784,6 @@ def validate_hist_bins(s):
                      " a sequence of floats".format(valid_strs))
 
 
-@_api.deprecated("3.3")
-def validate_webagg_address(s):
-    if s is not None:
-        import socket
-        try:
-            socket.inet_aton(s)
-        except socket.error as e:
-            raise ValueError(
-                "'webagg.address' is not a valid IP address") from e
-        return s
-    raise ValueError("'webagg.address' is not a valid IP address")
-
-
-validate_axes_titlelocation = ValidateInStrings(
-    'axes.titlelocation', ['left', 'center', 'right'], _deprecated_since="3.3")
-
-
 class _ignorecase(list):
     """A marker class indicating that a list-of-str is case-insensitive."""
 
@@ -1102,9 +914,9 @@ _validators = {
     # text props
     "text.color":          validate_color,
     "text.usetex":         validate_bool,
-    "text.latex.preamble": _validate_tex_preamble,
-    "text.latex.preview":  validate_bool,
-    "text.hinting":        _validate_hinting,
+    "text.latex.preamble": validate_string,
+    "text.hinting":        ["default", "no_autohint", "force_autohint",
+                            "no_hinting", "auto", "native", "either", "none"],
     "text.hinting_factor": validate_int,
     "text.kerning_factor": validate_int,
     "text.antialiased":    validate_bool,
@@ -1119,7 +931,6 @@ _validators = {
                                 "stixsans", "custom"],
     "mathtext.default":        ["rm", "cal", "it", "tt", "sf", "bf", "default",
                                 "bb", "frak", "scr", "regular"],
-    "mathtext.fallback_to_cm": _validate_mathtext_fallback_to_cm,
     "mathtext.fallback":       _validate_mathtext_fallback,
 
     "image.aspect":          validate_aspect,  # equal, auto, a number
@@ -1227,6 +1038,8 @@ _validators = {
     "legend.scatterpoints":  validate_int,
     "legend.fontsize":       validate_fontsize,
     "legend.title_fontsize": validate_fontsize_None,
+     # color of the legend
+    "legend.labelcolor":     _validate_color_or_linecolor,
      # the relative size of legend markers vs. original
     "legend.markerscale":    validate_float,
     "legend.shadow":         validate_bool,
@@ -1337,7 +1150,6 @@ _validators = {
     'savefig.facecolor':    validate_color_or_auto,
     'savefig.edgecolor':    validate_color_or_auto,
     'savefig.orientation':  ['landscape', 'portrait'],
-    'savefig.jpeg_quality': validate_int,
     "savefig.format":       validate_string,
     "savefig.bbox":         validate_bbox,  # "tight", or "standard" (= None)
     "savefig.pad_inches":   validate_float,
@@ -1364,7 +1176,7 @@ _validators = {
 
     "pgf.texsystem": ["xelatex", "lualatex", "pdflatex"],  # latex variant used
     "pgf.rcfonts":   validate_bool,  # use mpl's rc settings for font config
-    "pgf.preamble":  _validate_tex_preamble,  # custom LaTeX preamble
+    "pgf.preamble":  validate_string,  # custom LaTeX preamble
 
     # write raster image data into the svg file
     "svg.image_inline": validate_bool,
@@ -1395,7 +1207,6 @@ _validators = {
     "keymap.grid_minor": validate_stringlist,
     "keymap.yscale":     validate_stringlist,
     "keymap.xscale":     validate_stringlist,
-    "keymap.all_axes":   validate_stringlist,
     "keymap.help":       validate_stringlist,
     "keymap.copy":       validate_stringlist,
 
@@ -1432,18 +1243,13 @@ _validators = {
     "_internal.classic_mode": validate_bool
 }
 _hardcoded_defaults = {  # Defaults not inferred from matplotlibrc.template...
-    # ... because it can"t be:
-    "backend": _auto_backend_sentinel,
     # ... because they are private:
     "_internal.classic_mode": False,
     # ... because they are deprecated:
     "animation.avconv_path": "avconv",
     "animation.avconv_args": [],
     "animation.html_args": [],
-    "mathtext.fallback_to_cm": None,
-    "keymap.all_axes": ["a"],
-    "savefig.jpeg_quality": 95,
-    "text.latex.preview": False,
+    # backend is handled separately when constructing rcParamsDefault.
 }
 _validators = {k: _convert_validator_spec(k, conv)
                for k, conv in _validators.items()}

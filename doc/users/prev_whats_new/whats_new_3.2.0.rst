@@ -47,6 +47,8 @@ Gouraud-shading alpha channel in PDF backend
 The pdf backend now supports an alpha channel in Gouraud-shaded
 triangle meshes.
 
+.. _whats-new-3-2-0-kerning:
+
 Kerning adjustments now use correct values
 ------------------------------------------
 Due to an error in how kerning adjustments were applied, previous versions of

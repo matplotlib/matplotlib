@@ -41,17 +41,13 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.pyplot.subplots
-matplotlib.axis.Axis.set_major_formatter
-matplotlib.axis.Axis.set_major_locator
-matplotlib.ticker.FuncFormatter
-matplotlib.ticker.MaxNLocator
+#    - `matplotlib.pyplot.subplots`
+#    - `matplotlib.axis.Axis.set_major_formatter`
+#    - `matplotlib.axis.Axis.set_major_locator`
+#    - `matplotlib.ticker.FuncFormatter`
+#    - `matplotlib.ticker.MaxNLocator`

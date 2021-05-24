@@ -20,6 +20,7 @@ ax.plot(range(10))
 ax.set_yticks((2, 5, 7))
 labels = ax.set_yticklabels(('really, really, really', 'long', 'labels'))
 
+
 def on_draw(event):
     bboxes = []
     for label in labels:
@@ -35,26 +36,23 @@ def on_draw(event):
         fig.subplots_adjust(left=1.1*bbox.width)  # pad a little
         fig.canvas.draw()
 
+
 fig.canvas.mpl_connect('draw_event', on_draw)
 
 plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.artist.Artist.get_window_extent
-matplotlib.transforms.Bbox
-matplotlib.transforms.Bbox.transformed
-matplotlib.transforms.Bbox.union
-matplotlib.transforms.Transform.inverted
-matplotlib.figure.Figure.subplots_adjust
-matplotlib.figure.SubplotParams
-matplotlib.backend_bases.FigureCanvasBase.mpl_connect
+#    - `matplotlib.artist.Artist.get_window_extent`
+#    - `matplotlib.transforms.Bbox`
+#    - `matplotlib.transforms.BboxBase.transformed`
+#    - `matplotlib.transforms.BboxBase.union`
+#    - `matplotlib.transforms.Transform.inverted`
+#    - `matplotlib.figure.Figure.subplots_adjust`
+#    - `matplotlib.figure.SubplotParams`
+#    - `matplotlib.backend_bases.FigureCanvasBase.mpl_connect`

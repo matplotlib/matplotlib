@@ -11,6 +11,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 from PIL import Image
 
+import matplotlib as mpl
 from matplotlib import (
     _api, colors, image as mimage, patches, pyplot as plt, style, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
@@ -286,11 +287,11 @@ def test_cursor_data():
 
     # Hmm, something is wrong here... I get 0, not None...
     # But, this works further down in the tests with extents flipped
-    #x, y = 0.1, -0.1
-    #xdisp, ydisp = ax.transData.transform([x, y])
-    #event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    #z = im.get_cursor_data(event)
-    #assert z is None, "Did not get None, got %d" % z
+    # x, y = 0.1, -0.1
+    # xdisp, ydisp = ax.transData.transform([x, y])
+    # event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    # z = im.get_cursor_data(event)
+    # assert z is None, "Did not get None, got %d" % z
 
     ax.clear()
     # Now try with the extents flipped.
@@ -506,6 +507,18 @@ def test_image_composite_alpha():
     ax.set_ylim([5, 0])
 
 
+@check_figures_equal(extensions=["pdf"])
+def test_clip_path_disables_compositing(fig_test, fig_ref):
+    t = np.arange(9).reshape((3, 3))
+    for fig in [fig_test, fig_ref]:
+        ax = fig.add_subplot()
+        ax.imshow(t, clip_path=(mpl.path.Path([(0, 0), (0, 1), (1, 0)]),
+                                ax.transData))
+        ax.imshow(t, clip_path=(mpl.path.Path([(1, 1), (1, 2), (2, 1)]),
+                                ax.transData))
+    fig_ref.suppressComposite = True
+
+
 @image_comparison(['rasterize_10dpi'],
                   extensions=['pdf', 'svg'], remove_text=True, style='mpl20')
 def test_rasterize_dpi():
@@ -636,7 +649,7 @@ def test_jpeg_alpha():
     # If this fails, there will be only one color (all black). If this
     # is working, we should have all 256 shades of grey represented.
     num_colors = len(image.getcolors(256))
-    assert 175 <= num_colors <= 185
+    assert 175 <= num_colors <= 210
     # The fully transparent part should be red.
     corner_pixel = image.getpixel((0, 0))
     assert corner_pixel == (254, 0, 0)

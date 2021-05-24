@@ -14,7 +14,6 @@ See also the :doc:`grouped bar
 </gallery/lines_bars_and_markers/barh>` examples.
 """
 
-import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -100,17 +99,11 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-matplotlib.axes.Axes.bar
-matplotlib.pyplot.bar
-matplotlib.axes.Axes.barh
-matplotlib.pyplot.barh
-matplotlib.axes.Axes.bar_label
-matplotlib.pyplot.bar_label
+#    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`
+#    - `matplotlib.axes.Axes.barh` / `matplotlib.pyplot.barh`
+#    - `matplotlib.axes.Axes.bar_label` / `matplotlib.pyplot.bar_label`

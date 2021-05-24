@@ -41,15 +41,11 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.twinx
-matplotlib.axes.Axes.twiny
-matplotlib.axes.Axes.tick_params
+#    - `matplotlib.axes.Axes.twinx` / `matplotlib.pyplot.twinx`
+#    - `matplotlib.axes.Axes.twiny` / `matplotlib.pyplot.twiny`
+#    - `matplotlib.axes.Axes.tick_params` / `matplotlib.pyplot.tick_params`

@@ -50,19 +50,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.contourf
-matplotlib.pyplot.contourf
-matplotlib.figure.Figure.colorbar
-matplotlib.pyplot.colorbar
-matplotlib.axes.Axes.legend
-matplotlib.pyplot.legend
-matplotlib.ticker.LogLocator
+#    - `matplotlib.axes.Axes.contourf` / `matplotlib.pyplot.contourf`
+#    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
+#    - `matplotlib.axes.Axes.legend` / `matplotlib.pyplot.legend`
+#    - `matplotlib.ticker.LogLocator`

@@ -230,6 +230,7 @@ class ThetaLocator(mticker.Locator):
     view spans the entire circle. In such cases, the previously used default
     locations of every 45 degrees are returned.
     """
+
     def __init__(self, base):
         self.base = base
         self.axis = self.base.axis = _AxisWrapper(self.base.axis)
@@ -388,7 +389,14 @@ class ThetaAxis(maxis.XAxis):
         self.clear()
 
     def _set_scale(self, value, **kwargs):
+        if value != 'linear':
+            raise NotImplementedError(
+                "The xscale cannot be set on a polar plot")
         super()._set_scale(value, **kwargs)
+        # LinearScale.set_default_locators_and_formatters just set the major
+        # locator to be an AutoLocator, so we customize it here to have ticks
+        # at sensible degree multiples.
+        self.get_major_locator().set_params(steps=[1, 1.5, 3, 4.5, 9, 10])
         self._wrap_locator_formatter()
 
     def _copy_tick_props(self, src, dest):
@@ -408,28 +416,26 @@ class RadialLocator(mticker.Locator):
     """
     Used to locate radius ticks.
 
-    Ensures that all ticks are strictly positive.  For all other
-    tasks, it delegates to the base
-    :class:`~matplotlib.ticker.Locator` (which may be different
-    depending on the scale of the *r*-axis.
+    Ensures that all ticks are strictly positive.  For all other tasks, it
+    delegates to the base `.Locator` (which may be different depending on the
+    scale of the *r*-axis).
     """
 
     def __init__(self, base, axes=None):
         self.base = base
         self._axes = axes
 
+    def set_axis(self, axis):
+        self.base.set_axis(axis)
+
     def __call__(self):
-        show_all = True
         # Ensure previous behaviour with full circle non-annular views.
         if self._axes:
             if _is_full_circle_rad(*self._axes.viewLim.intervalx):
                 rorigin = self._axes.get_rorigin() * self._axes.get_rsign()
                 if self._axes.get_rmin() <= rorigin:
-                    show_all = False
-        if show_all:
-            return self.base()
-        else:
-            return [tick for tick in self.base() if tick > rorigin]
+                    return [tick for tick in self.base() if tick > rorigin]
+        return self.base()
 
     @_api.deprecated("3.3")
     def pan(self, numsteps):
@@ -1041,29 +1047,20 @@ class PolarAxes(Axes):
         wrapped in to the range :math:`[0, 2\pi]` (in radians), so for example
         it is possible to do ``set_thetalim(-np.pi / 2, np.pi / 2)`` to have
         an axes symmetric around 0. A ValueError is raised if the absolute
-        angle difference is larger than :math:`2\pi`.
+        angle difference is larger than a full circle.
         """
-        thetamin = None
-        thetamax = None
-        left = None
-        right = None
-
-        if len(args) == 2:
-            if args[0] is not None and args[1] is not None:
-                left, right = args
-                if abs(right - left) > 2 * np.pi:
-                    raise ValueError('The angle range must be <= 2 pi')
-
+        orig_lim = self.get_xlim()  # in radians
         if 'thetamin' in kwargs:
-            thetamin = np.deg2rad(kwargs.pop('thetamin'))
+            kwargs['xmin'] = np.deg2rad(kwargs.pop('thetamin'))
         if 'thetamax' in kwargs:
-            thetamax = np.deg2rad(kwargs.pop('thetamax'))
-
-        if thetamin is not None and thetamax is not None:
-            if abs(thetamax - thetamin) > 2 * np.pi:
-                raise ValueError('The angle range must be <= 360 degrees')
-        return tuple(np.rad2deg(self.set_xlim(left=left, right=right,
-                                              xmin=thetamin, xmax=thetamax)))
+            kwargs['xmax'] = np.deg2rad(kwargs.pop('thetamax'))
+        new_min, new_max = self.set_xlim(*args, **kwargs)
+        # Parsing all permutations of *args, **kwargs is tricky; it is simpler
+        # to let set_xlim() do it and then validate the limits.
+        if abs(new_max - new_min) > 2 * np.pi:
+            self.set_xlim(orig_lim)  # un-accept the change
+            raise ValueError("The angle range must be less than a full circle")
+        return tuple(np.rad2deg((new_min, new_max)))
 
     def set_theta_offset(self, offset):
         """
@@ -1403,11 +1400,6 @@ class PolarAxes(Axes):
         for t in self.yaxis.get_ticklabels():
             t.update(kwargs)
         return self.yaxis.get_gridlines(), self.yaxis.get_ticklabels()
-
-    def set_xscale(self, scale, *args, **kwargs):
-        if scale != 'linear':
-            raise NotImplementedError(
-                "You can not set the xscale on a polar plot.")
 
     def format_coord(self, theta, r):
         # docstring inherited

@@ -19,7 +19,7 @@ import matplotlib as mpl
 from matplotlib import _api, cbook, font_manager as fm
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, RendererBase, _no_output_draw
+    GraphicsContextBase, RendererBase
 )
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.backends.backend_pdf import (
@@ -320,10 +320,6 @@ class LatexManager:
         self._expect("*pgf_backend_query_start")
         self._expect_prompt()
 
-    @_api.deprecated("3.3")
-    def latex_stdin_utf8(self):
-        return self.latex.stdin
-
     def get_width_height_descent(self, text, prop):
         """
         Get the width, total height and descent for a text typeset by the
@@ -377,7 +373,7 @@ def _get_image_inclusion_command():
         # Don't mess with backslashes on Windows.
         % cbook._get_data_path("images/matplotlib.png").as_posix())
     try:
-        prompt = man._expect_prompt()
+        man._expect_prompt()
         return r"\includegraphics"
     except LatexError:
         # Discard the broken manager.
@@ -387,8 +383,7 @@ def _get_image_inclusion_command():
 
 class RendererPgf(RendererBase):
 
-    @_api.delete_parameter("3.3", "dummy")
-    def __init__(self, figure, fh, dummy=False):
+    def __init__(self, figure, fh):
         """
         Create a new PGF renderer that translates any drawing instruction
         into text commands to be interpreted in a latex pgfpicture environment.
@@ -406,12 +401,6 @@ class RendererPgf(RendererBase):
         self.fh = fh
         self.figure = figure
         self.image_counter = 0
-
-        if dummy:
-            # dummy==True deactivate all methods
-            for m in RendererPgf.__dict__:
-                if m.startswith("draw_"):
-                    self.__dict__[m] = lambda *args, **kwargs: None
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
                      rgbFace=None):
@@ -635,9 +624,9 @@ class RendererPgf(RendererBase):
             return
 
         if not os.path.exists(getattr(self.fh, "name", "")):
-            _api.warn_external(
+            raise ValueError(
                 "streamed pgf-code does not support raster graphics, consider "
-                "using the pgf-to-pdf option.")
+                "using the pgf-to-pdf option")
 
         # save the images to png files
         path = pathlib.Path(self.fh.name)
@@ -668,7 +657,7 @@ class RendererPgf(RendererBase):
                  interp, w, h, fname_img))
         writeln(self.fh, r"\end{pgfscope}")
 
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath="TeX!", mtext=None):
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath="TeX", mtext=None):
         # docstring inherited
         self.draw_text(gc, x, y, s, prop, angle, ismath, mtext)
 
@@ -748,11 +737,6 @@ class RendererPgf(RendererBase):
     def points_to_pixels(self, points):
         # docstring inherited
         return points * mpl_pt_to_in * self.dpi
-
-
-@_api.deprecated("3.3", alternative="GraphicsContextBase")
-class GraphicsContextPgf(GraphicsContextBase):
-    pass
 
 
 @_api.deprecated("3.4")
@@ -855,38 +839,35 @@ class FigureCanvasPgf(FigureCanvasBase):
 
     def print_pdf(self, fname_or_fh, *, metadata=None, **kwargs):
         """Use LaTeX to compile a pgf generated figure to pdf."""
-        w, h = self.figure.get_figwidth(), self.figure.get_figheight()
+        w, h = self.figure.get_size_inches()
 
         info_dict = _create_pdf_info_dict('pgf', metadata or {})
-        hyperref_options = ','.join(
+        pdfinfo = ','.join(
             _metadata_to_str(k, v) for k, v in info_dict.items())
 
+        # print figure to pgf and compile it with latex
         with TemporaryDirectory() as tmpdir:
             tmppath = pathlib.Path(tmpdir)
-
-            # print figure to pgf and compile it with latex
             self.print_pgf(tmppath / "figure.pgf", **kwargs)
-
-            latexcode = """
-\\PassOptionsToPackage{pdfinfo={%s}}{hyperref}
-\\RequirePackage{hyperref}
-\\documentclass[12pt]{minimal}
-\\usepackage[paperwidth=%fin, paperheight=%fin, margin=0in]{geometry}
-%s
-%s
-\\usepackage{pgf}
-
-\\begin{document}
-\\centering
-\\input{figure.pgf}
-\\end{document}""" % (hyperref_options, w, h, get_preamble(), get_fontspec())
-            (tmppath / "figure.tex").write_text(latexcode, encoding="utf-8")
-
+            (tmppath / "figure.tex").write_text(
+                "\n".join([
+                    r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
+                    r"\RequirePackage{hyperref}",
+                    r"\documentclass[12pt]{minimal}",
+                    r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
+                    % (w, h),
+                    get_preamble(),
+                    get_fontspec(),
+                    r"\usepackage{pgf}",
+                    r"\begin{document}",
+                    r"\centering",
+                    r"\input{figure.pgf}",
+                    r"\end{document}",
+                ]), encoding="utf-8")
             texcommand = mpl.rcParams["pgf.texsystem"]
             cbook._check_and_log_subprocess(
                 [texcommand, "-interaction=nonstopmode", "-halt-on-error",
                  "figure.tex"], _log, cwd=tmpdir)
-
             with (tmppath / "figure.pdf").open("rb") as orig, \
                  cbook.open_file_cm(fname_or_fh, "wb") as dest:
                 shutil.copyfileobj(orig, dest)  # copy file contents to target
@@ -908,7 +889,7 @@ class FigureCanvasPgf(FigureCanvasBase):
         return RendererPgf(self.figure, None)
 
     def draw(self):
-        _no_output_draw(self.figure)
+        self.figure.draw_no_output()
         return super().draw()
 
 
@@ -943,7 +924,6 @@ class PdfPages:
         '_info_dict',
         '_metadata',
     )
-    metadata = _api.deprecated('3.3')(property(lambda self: self._metadata))
 
     def __init__(self, filename, *, keep_empty=True, metadata=None):
         """
@@ -968,58 +948,32 @@ class PdfPages:
             'Creator', 'Producer', 'CreationDate', 'ModDate', and
             'Trapped'. Values have been predefined for 'Creator', 'Producer'
             and 'CreationDate'. They can be removed by setting them to `None`.
+
+            Note that some versions of LaTeX engines may ignore the 'Producer'
+            key and set it to themselves.
         """
         self._output_name = filename
         self._n_figures = 0
         self.keep_empty = keep_empty
         self._metadata = (metadata or {}).copy()
-        if metadata:
-            for key in metadata:
-                canonical = {
-                    'creationdate': 'CreationDate',
-                    'moddate': 'ModDate',
-                }.get(key.lower(), key.lower().title())
-                if canonical != key:
-                    _api.warn_deprecated(
-                        '3.3', message='Support for setting PDF metadata keys '
-                        'case-insensitively is deprecated since %(since)s and '
-                        'will be removed %(removal)s; '
-                        f'set {canonical} instead of {key}.')
-                    self._metadata[canonical] = self._metadata.pop(key)
         self._info_dict = _create_pdf_info_dict('pgf', self._metadata)
         self._file = BytesIO()
 
     def _write_header(self, width_inches, height_inches):
-        hyperref_options = ','.join(
+        pdfinfo = ','.join(
             _metadata_to_str(k, v) for k, v in self._info_dict.items())
-
-        latex_preamble = get_preamble()
-        latex_fontspec = get_fontspec()
-        latex_header = r"""\PassOptionsToPackage{{
-  pdfinfo={{
-    {metadata}
-  }}
-}}{{hyperref}}
-\RequirePackage{{hyperref}}
-\documentclass[12pt]{{minimal}}
-\usepackage[
-    paperwidth={width}in,
-    paperheight={height}in,
-    margin=0in
-]{{geometry}}
-{preamble}
-{fontspec}
-\usepackage{{pgf}}
-\setlength{{\parindent}}{{0pt}}
-
-\begin{{document}}%%
-""".format(
-            width=width_inches,
-            height=height_inches,
-            preamble=latex_preamble,
-            fontspec=latex_fontspec,
-            metadata=hyperref_options,
-        )
+        latex_header = "\n".join([
+            r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
+            r"\RequirePackage{hyperref}",
+            r"\documentclass[12pt]{minimal}",
+            r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
+            % (width_inches, height_inches),
+            get_preamble(),
+            get_fontspec(),
+            r"\usepackage{pgf}",
+            r"\setlength{\parindent}{0pt}",
+            r"\begin{document}%",
+        ])
         self._file.write(latex_header.encode('utf-8'))
 
     def __enter__(self):

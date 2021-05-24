@@ -192,14 +192,12 @@ class OffsetBox(martist.Artist):
     Being an artist itself, all parameters are passed on to `.Artist`.
     """
     def __init__(self, *args, **kwargs):
-
-        super().__init__(*args, **kwargs)
-
-        # Clipping has not been implemented in the OffesetBox family, so
+        super().__init__(*args)
+        self.update(kwargs)
+        # Clipping has not been implemented in the OffsetBox family, so
         # disable the clip flag for consistency. It can always be turned back
         # on to zero effect.
         self.set_clip_on(False)
-
         self._children = []
         self._offset = (0, 0)
 
@@ -406,7 +404,7 @@ default: 'baseline'
         Notes
         -----
         *pad* and *sep* are in points and will be scaled with the renderer
-        dpi, while *width* and *height* are in in pixels.
+        dpi, while *width* and *height* are in pixels.
         """
         super().__init__()
         self.height = height
@@ -1480,8 +1478,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         self.prop = FontProperties(size=s)
         self.stale = True
 
-    @_api.delete_parameter("3.3", "s")
-    def get_fontsize(self, s=None):
+    def get_fontsize(self):
         """Return the fontsize in points."""
         return self.prop.get_size_in_points()
 
@@ -1620,22 +1617,15 @@ class DraggableBase:
 
     def __init__(self, ref_artist, use_blit=False):
         self.ref_artist = ref_artist
-        self.got_artist = False
-
-        self.canvas = self.ref_artist.figure.canvas
-        self._use_blit = use_blit and self.canvas.supports_blit
-
-        c2 = self.canvas.mpl_connect('pick_event', self.on_pick)
-        c3 = self.canvas.mpl_connect('button_release_event', self.on_release)
-
         if not ref_artist.pickable():
             ref_artist.set_picker(True)
-        overridden_picker = _api.deprecate_method_override(
-            __class__.artist_picker, self, since="3.3",
-            addendum="Directly set the artist's picker if desired.")
-        if overridden_picker is not None:
-            ref_artist.set_picker(overridden_picker)
-        self.cids = [c2, c3]
+        self.got_artist = False
+        self.canvas = self.ref_artist.figure.canvas
+        self._use_blit = use_blit and self.canvas.supports_blit
+        self.cids = [
+            self.canvas.mpl_connect('pick_event', self.on_pick),
+            self.canvas.mpl_connect('button_release_event', self.on_release),
+        ]
 
     def on_motion(self, evt):
         if self._check_still_parented() and self.got_artist:
@@ -1648,16 +1638,6 @@ class DraggableBase:
                 self.canvas.blit()
             else:
                 self.canvas.draw()
-
-    @_api.deprecated("3.3", alternative="self.on_motion")
-    def on_motion_blit(self, evt):
-        if self._check_still_parented() and self.got_artist:
-            dx = evt.x - self.mouse_x
-            dy = evt.y - self.mouse_y
-            self.update_offset(dx, dy)
-            self.canvas.restore_region(self.background)
-            self.ref_artist.draw(self.ref_artist.figure._cachedRenderer)
-            self.canvas.blit()
 
     def on_pick(self, evt):
         if self._check_still_parented() and evt.artist == self.ref_artist:
@@ -1701,10 +1681,6 @@ class DraggableBase:
             pass
         else:
             self.canvas.mpl_disconnect(c1)
-
-    @_api.deprecated("3.3", alternative="self.ref_artist.contains")
-    def artist_picker(self, artist, evt):
-        return self.ref_artist.contains(evt)
 
     def save_offset(self):
         pass

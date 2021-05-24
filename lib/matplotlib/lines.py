@@ -1,6 +1,5 @@
 """
-The 2D line class which can draw with a variety of line styles, markers and
-colors.
+2D lines with support for a variety of line styles, markers, colors, etc.
 """
 
 from numbers import Integral, Number, Real
@@ -322,10 +321,6 @@ class Line2D(Artist):
             linestyle = rcParams['lines.linestyle']
         if marker is None:
             marker = rcParams['lines.marker']
-        if markerfacecolor is None:
-            markerfacecolor = rcParams['lines.markerfacecolor']
-        if markeredgecolor is None:
-            markeredgecolor = rcParams['lines.markeredgecolor']
         if color is None:
             color = rcParams['lines.color']
 
@@ -387,9 +382,9 @@ class Line2D(Artist):
         self._markerfacecolor = None
         self._markerfacecoloralt = None
 
-        self.set_markerfacecolor(markerfacecolor)
+        self.set_markerfacecolor(markerfacecolor)  # Normalizes None to rc.
         self.set_markerfacecoloralt(markerfacecoloralt)
-        self.set_markeredgecolor(markeredgecolor)
+        self.set_markeredgecolor(markeredgecolor)  # Normalizes None to rc.
         self.set_markeredgewidth(markeredgewidth)
 
         # update kwargs before updating data to give the caller a
@@ -397,7 +392,8 @@ class Line2D(Artist):
         self.update(kwargs)
         self.pickradius = pickradius
         self.ind_offset = 0
-        if isinstance(self._picker, Number):
+        if (isinstance(self._picker, Number) and
+                not isinstance(self._picker, bool)):
             self.pickradius = self._picker
 
         self._xorig = np.asarray([])
@@ -628,15 +624,6 @@ class Line2D(Artist):
             bbox = bbox.padded(ms)
         return bbox
 
-    @Artist.axes.setter
-    def axes(self, ax):
-        # call the set method from the base-class property
-        Artist.axes.fset(self, ax)
-        if ax is not None:
-            for axis in ax._get_axis_map().values():
-                axis.callbacks._pickled_cids.add(
-                    axis.callbacks.connect('units', self.recache_always))
-
     def set_data(self, *args):
         """
         Set the x and y data.
@@ -714,26 +701,16 @@ class Line2D(Artist):
         self._transformed_path = TransformedPath(_path, self.get_transform())
 
     def _get_transformed_path(self):
-        """
-        Return the :class:`~matplotlib.transforms.TransformedPath` instance
-        of this line.
-        """
+        """Return this line's `~matplotlib.transforms.TransformedPath`."""
         if self._transformed_path is None:
             self._transform_path()
         return self._transformed_path
 
     def set_transform(self, t):
-        """
-        Set the Transformation instance used by this artist.
-
-        Parameters
-        ----------
-        t : `matplotlib.transforms.Transform`
-        """
-        super().set_transform(t)
+        # docstring inherited
         self._invalidx = True
         self._invalidy = True
-        self.stale = True
+        super().set_transform(t)
 
     def _is_sorted(self, x):
         """Return whether x is sorted in ascending order."""
@@ -1013,10 +990,7 @@ class Line2D(Artist):
         return self._y
 
     def get_path(self):
-        """
-        Return the :class:`~matplotlib.path.Path` object associated
-        with this line.
-        """
+        """Return the `~matplotlib.path.Path` associated with this line."""
         if self._invalidy or self._invalidx:
             self.recache()
         return self._path
@@ -1049,8 +1023,7 @@ class Line2D(Artist):
         ----------
         color : color
         """
-        if not cbook._str_equal(color, 'auto'):
-            mcolors._check_color_like(color=color)
+        mcolors._check_color_like(color=color)
         self._color = color
         self.stale = True
 
@@ -1169,6 +1142,20 @@ class Line2D(Artist):
         self._marker = MarkerStyle(marker, self._marker.get_fillstyle())
         self.stale = True
 
+    def _set_markercolor(self, name, has_rcdefault, val):
+        if val is None:
+            val = rcParams[f"lines.{name}"] if has_rcdefault else "auto"
+        attr = f"_{name}"
+        current = getattr(self, attr)
+        if current is None:
+            self.stale = True
+        else:
+            neq = current != val
+            # Much faster than `np.any(current != val)` if no arrays are used.
+            if neq.any() if isinstance(neq, np.ndarray) else neq:
+                self.stale = True
+        setattr(self, attr, val)
+
     def set_markeredgecolor(self, ec):
         """
         Set the marker edge color.
@@ -1177,12 +1164,27 @@ class Line2D(Artist):
         ----------
         ec : color
         """
-        if ec is None:
-            ec = 'auto'
-        if (self._markeredgecolor is None
-                or np.any(self._markeredgecolor != ec)):
-            self.stale = True
-        self._markeredgecolor = ec
+        self._set_markercolor("markeredgecolor", True, ec)
+
+    def set_markerfacecolor(self, fc):
+        """
+        Set the marker face color.
+
+        Parameters
+        ----------
+        fc : color
+        """
+        self._set_markercolor("markerfacecolor", True, fc)
+
+    def set_markerfacecoloralt(self, fc):
+        """
+        Set the alternate marker face color.
+
+        Parameters
+        ----------
+        fc : color
+        """
+        self._set_markercolor("markerfacecoloralt", False, fc)
 
     def set_markeredgewidth(self, ew):
         """
@@ -1198,34 +1200,6 @@ class Line2D(Artist):
         if self._markeredgewidth != ew:
             self.stale = True
         self._markeredgewidth = ew
-
-    def set_markerfacecolor(self, fc):
-        """
-        Set the marker face color.
-
-        Parameters
-        ----------
-        fc : color
-        """
-        if fc is None:
-            fc = 'auto'
-        if np.any(self._markerfacecolor != fc):
-            self.stale = True
-        self._markerfacecolor = fc
-
-    def set_markerfacecoloralt(self, fc):
-        """
-        Set the alternate marker face color.
-
-        Parameters
-        ----------
-        fc : color
-        """
-        if fc is None:
-            fc = 'auto'
-        if np.any(self._markerfacecoloralt != fc):
-            self.stale = True
-        self._markerfacecoloralt = fc
 
     def set_markersize(self, sz):
         """
@@ -1476,9 +1450,8 @@ class _AxLine(Line2D):
 
 class VertexSelector:
     """
-    Manage the callbacks to maintain a list of selected vertices for
-    `.Line2D`. Derived classes should override
-    :meth:`~matplotlib.lines.VertexSelector.process_selected` to do
+    Manage the callbacks to maintain a list of selected vertices for `.Line2D`.
+    Derived classes should override the `process_selected` method to do
     something with the picks.
 
     Here is an example which highlights the selected verts with red
@@ -1507,9 +1480,8 @@ class VertexSelector:
     """
     def __init__(self, line):
         """
-        Initialize the class with a `.Line2D` instance.  The line should
-        already be added to some :class:`matplotlib.axes.Axes` instance and
-        should have the picker property set.
+        Initialize the class with a `.Line2D`.  The line should already be
+        added to an `~.axes.Axes` and should have the picker property set.
         """
         if line.axes is None:
             raise RuntimeError('You must first add the line to the Axes')
@@ -1527,8 +1499,7 @@ class VertexSelector:
 
     def process_selected(self, ind, xs, ys):
         """
-        Default "do nothing" implementation of the
-        :meth:`process_selected` method.
+        Default "do nothing" implementation of the `process_selected` method.
 
         Parameters
         ----------
@@ -1555,7 +1526,4 @@ drawStyles = Line2D.drawStyles
 fillStyles = MarkerStyle.fillstyles
 
 docstring.interpd.update(Line2D_kwdoc=artist.kwdoc(Line2D))
-
-# You can not set the docstring of an instancemethod,
-# but you can on the underlying function.  Go figure.
 docstring.interpd(Line2D.__init__)

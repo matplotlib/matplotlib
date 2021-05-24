@@ -150,12 +150,11 @@ def _check_no_collapsed_axes(fig):
     return True
 
 
-def _get_margin_from_padding(object, *, w_pad=0, h_pad=0,
+def _get_margin_from_padding(obj, *, w_pad=0, h_pad=0,
                              hspace=0, wspace=0):
 
-    ss = object._subplotspec
+    ss = obj._subplotspec
     gs = ss.get_gridspec()
-    lg = gs._layoutgrid
 
     if hasattr(gs, 'hspace'):
         _hspace = (gs.hspace if gs.hspace is not None else hspace)
@@ -220,7 +219,6 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
 
         margin = _get_margin_from_padding(ax, w_pad=w_pad, h_pad=h_pad,
                                            hspace=hspace, wspace=wspace)
-        margin0 = margin.copy()
         pos, bbox = _get_pos_and_bbox(ax, renderer)
         # the margin is the distance between the bounding box of the axes
         # and its position (plus the padding from above)
@@ -291,21 +289,24 @@ def _make_margin_suptitles(fig, renderer, *, w_pad=0, h_pad=0):
 
     if fig._suptitle is not None and fig._suptitle.get_in_layout():
         p = fig._suptitle.get_position()
-        fig._suptitle.set_position((p[0], 1 - h_pad_local))
-        bbox = inv_trans_fig(fig._suptitle.get_tightbbox(renderer))
-        fig._layoutgrid.edit_margin_min('top', bbox.height + 2.0 * h_pad)
+        if getattr(fig._suptitle, '_autopos', False):
+            fig._suptitle.set_position((p[0], 1 - h_pad_local))
+            bbox = inv_trans_fig(fig._suptitle.get_tightbbox(renderer))
+            fig._layoutgrid.edit_margin_min('top', bbox.height + 2 * h_pad)
 
     if fig._supxlabel is not None and fig._supxlabel.get_in_layout():
         p = fig._supxlabel.get_position()
-        fig._supxlabel.set_position((p[0], h_pad_local))
-        bbox = inv_trans_fig(fig._supxlabel.get_tightbbox(renderer))
-        fig._layoutgrid.edit_margin_min('bottom', bbox.height + 2.0 * h_pad)
+        if getattr(fig._supxlabel, '_autopos', False):
+            fig._supxlabel.set_position((p[0], h_pad_local))
+            bbox = inv_trans_fig(fig._supxlabel.get_tightbbox(renderer))
+            fig._layoutgrid.edit_margin_min('bottom', bbox.height + 2 * h_pad)
 
     if fig._supylabel is not None and fig._supxlabel.get_in_layout():
         p = fig._supylabel.get_position()
-        fig._supylabel.set_position((w_pad_local, p[1]))
-        bbox = inv_trans_fig(fig._supylabel.get_tightbbox(renderer))
-        fig._layoutgrid.edit_margin_min('left', bbox.width + 2.0 * w_pad)
+        if getattr(fig._supylabel, '_autopos', False):
+            fig._supylabel.set_position((w_pad_local, p[1]))
+            bbox = inv_trans_fig(fig._supylabel.get_tightbbox(renderer))
+            fig._layoutgrid.edit_margin_min('left', bbox.width + 2 * w_pad)
 
 
 def _match_submerged_margins(fig):
@@ -485,9 +486,6 @@ def _reposition_axes(fig, renderer, *, w_pad=0, h_pad=0, hspace=0, wspace=0):
 
         bbox = gs._layoutgrid.get_inner_bbox(rows=ss.rowspan, cols=ss.colspan)
 
-        bboxouter = gs._layoutgrid.get_outer_bbox(rows=ss.rowspan,
-                                                  cols=ss.colspan)
-
         # transform from figure to panel for set_position:
         newbbox = trans_fig_to_subfig.transform_bbox(bbox)
         ax._set_position(newbbox)
@@ -498,8 +496,7 @@ def _reposition_axes(fig, renderer, *, w_pad=0, h_pad=0, hspace=0, wspace=0):
         offset = {'left': 0, 'right': 0, 'bottom': 0, 'top': 0}
         for nn, cbax in enumerate(ax._colorbars[::-1]):
             if ax == cbax._colorbar_info['parents'][0]:
-                margin = _reposition_colorbar(
-                    cbax, renderer, offset=offset)
+                _reposition_colorbar(cbax, renderer, offset=offset)
 
 
 def _reposition_colorbar(cbax, renderer, *, offset=None):
@@ -524,7 +521,6 @@ def _reposition_colorbar(cbax, renderer, *, offset=None):
 
     parents = cbax._colorbar_info['parents']
     gs = parents[0].get_gridspec()
-    ncols, nrows = gs.ncols, gs.nrows
     fig = cbax.figure
     trans_fig_to_subfig = fig.transFigure - fig.transSubfigure
 

@@ -1,8 +1,9 @@
+from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
-from matplotlib.testing.widgets import do_event, get_ax
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.testing.widgets import do_event, get_ax, mock_event
 
 from numpy.testing import assert_allclose
 
@@ -37,11 +38,56 @@ def check_rectangle(**kwargs):
 
 def test_rectangle_selector():
     check_rectangle()
-    check_rectangle(drawtype='line', useblit=False)
+
+    with pytest.warns(
+        MatplotlibDeprecationWarning,
+            match="Support for drawtype='line' is deprecated"):
+        check_rectangle(drawtype='line', useblit=False)
+
     check_rectangle(useblit=True, button=1)
-    check_rectangle(drawtype='none', minspanx=10, minspany=10)
+
+    with pytest.warns(
+        MatplotlibDeprecationWarning,
+            match="Support for drawtype='none' is deprecated"):
+        check_rectangle(drawtype='none', minspanx=10, minspany=10)
+
     check_rectangle(minspanx=10, minspany=10, spancoords='pixels')
     check_rectangle(rectprops=dict(fill=True))
+
+
+@pytest.mark.parametrize('drag_from_anywhere, new_center',
+                         [[True, (60, 75)],
+                          [False, (30, 20)]])
+def test_rectangle_drag(drag_from_anywhere, new_center):
+    ax = get_ax()
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = widgets.RectangleSelector(ax, onselect, interactive=True,
+                                     drag_from_anywhere=drag_from_anywhere)
+    # Create rectangle
+    do_event(tool, 'press', xdata=0, ydata=10, button=1)
+    do_event(tool, 'onmove', xdata=100, ydata=120, button=1)
+    do_event(tool, 'release', xdata=100, ydata=120, button=1)
+    assert tool.center == (50, 65)
+    # Drag inside rectangle, but away from centre handle
+    #
+    # If drag_from_anywhere == True, this will move the rectangle by (10, 10),
+    # giving it a new center of (60, 75)
+    #
+    # If drag_from_anywhere == False, this will create a new rectangle with
+    # center (30, 20)
+    do_event(tool, 'press', xdata=25, ydata=15, button=1)
+    do_event(tool, 'onmove', xdata=35, ydata=25, button=1)
+    do_event(tool, 'release', xdata=35, ydata=25, button=1)
+    assert tool.center == new_center
+    # Check that in both cases, dragging outside the rectangle draws a new
+    # rectangle
+    do_event(tool, 'press', xdata=175, ydata=185, button=1)
+    do_event(tool, 'onmove', xdata=185, ydata=195, button=1)
+    do_event(tool, 'release', xdata=185, ydata=195, button=1)
+    assert tool.center == (180, 190)
 
 
 def test_ellipse():
@@ -308,10 +354,14 @@ def test_range_slider(orientation):
     fig, ax = plt.subplots()
 
     slider = widgets.RangeSlider(
-        ax=ax, label="", valmin=0.0, valmax=1.0, orientation=orientation
+        ax=ax, label="", valmin=0.0, valmax=1.0, orientation=orientation,
+        valinit=[0.1, 0.34]
     )
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
-    assert_allclose(box.get_points().flatten()[idx], [0.25, 0, 0.75, 1])
+    assert_allclose(box.get_points().flatten()[idx], [0.1, 0, 0.34, 1])
+
+    # Check initial value is set correctly
+    assert_allclose(slider.val, (0.1, 0.34))
 
     slider.set_val((0.2, 0.6))
     assert_allclose(slider.val, (0.2, 0.6))
@@ -364,6 +414,12 @@ def polygon_place_vertex(xdata, ydata):
     return [('onmove', dict(xdata=xdata, ydata=ydata)),
             ('press', dict(xdata=xdata, ydata=ydata)),
             ('release', dict(xdata=xdata, ydata=ydata))]
+
+
+def polygon_remove_vertex(xdata, ydata):
+    return [('onmove', dict(xdata=xdata, ydata=ydata)),
+            ('press', dict(xdata=xdata, ydata=ydata, button=3)),
+            ('release', dict(xdata=xdata, ydata=ydata, button=3))]
 
 
 def test_polygon_selector():
@@ -460,3 +516,111 @@ def test_polygon_selector():
                       + polygon_place_vertex(50, 150)
                       + polygon_place_vertex(50, 50))
     check_polygon_selector(event_sequence, expected_result, 1)
+
+
+@pytest.mark.parametrize(
+    "horizOn, vertOn",
+    [(True, True), (True, False), (False, True)],
+)
+def test_MultiCursor(horizOn, vertOn):
+    fig, (ax1, ax2, ax3) = plt.subplots(3, sharex=True)
+
+    # useblit=false to avoid having to draw the figure to cache the renderer
+    multi = widgets.MultiCursor(
+        fig.canvas, (ax1, ax2), useblit=False, horizOn=horizOn, vertOn=vertOn
+    )
+
+    # Only two of the axes should have a line drawn on them.
+    if vertOn:
+        assert len(multi.vlines) == 2
+    if horizOn:
+        assert len(multi.hlines) == 2
+
+    # mock a motion_notify_event
+    # Can't use `do_event` as that helper requires the widget
+    # to have a single .ax attribute.
+    event = mock_event(ax1, xdata=.5, ydata=.25)
+    multi.onmove(event)
+
+    # the lines in the first two ax should both move
+    for l in multi.vlines:
+        assert l.get_xdata() == (.5, .5)
+    for l in multi.hlines:
+        assert l.get_ydata() == (.25, .25)
+
+    # test a move event in an axes not part of the MultiCursor
+    # the lines in ax1 and ax2 should not have moved.
+    event = mock_event(ax3, xdata=.75, ydata=.75)
+    multi.onmove(event)
+    for l in multi.vlines:
+        assert l.get_xdata() == (.5, .5)
+    for l in multi.hlines:
+        assert l.get_ydata() == (.25, .25)
+
+
+@check_figures_equal()
+def test_rect_visibility(fig_test, fig_ref):
+    # Check that requesting an invisible selector makes it invisible
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
+
+    def onselect(verts):
+        pass
+
+    tool = widgets.RectangleSelector(ax_test, onselect,
+                                     rectprops={'visible': False})
+    tool.extents = (0.2, 0.8, 0.3, 0.7)
+
+
+# Change the order that the extra point is inserted in
+@pytest.mark.parametrize('idx', [1, 2, 3])
+def test_polygon_selector_remove(idx):
+    verts = [(50, 50), (150, 50), (50, 150)]
+    event_sequence = [polygon_place_vertex(*verts[0]),
+                      polygon_place_vertex(*verts[1]),
+                      polygon_place_vertex(*verts[2]),
+                      # Finish the polygon
+                      polygon_place_vertex(*verts[0])]
+    # Add an extra point
+    event_sequence.insert(idx, polygon_place_vertex(200, 200))
+    # Remove the extra point
+    event_sequence.append(polygon_remove_vertex(200, 200))
+    # Flatten list of lists
+    event_sequence = sum(event_sequence, [])
+    check_polygon_selector(event_sequence, verts, 2)
+
+
+def test_polygon_selector_remove_first_point():
+    verts = [(50, 50), (150, 50), (50, 150)]
+    event_sequence = (polygon_place_vertex(*verts[0]) +
+                      polygon_place_vertex(*verts[1]) +
+                      polygon_place_vertex(*verts[2]) +
+                      polygon_place_vertex(*verts[0]) +
+                      polygon_remove_vertex(*verts[0]))
+    check_polygon_selector(event_sequence, verts[1:], 2)
+
+
+def test_polygon_selector_redraw():
+    verts = [(50, 50), (150, 50), (50, 150)]
+    event_sequence = (polygon_place_vertex(*verts[0]) +
+                      polygon_place_vertex(*verts[1]) +
+                      polygon_place_vertex(*verts[2]) +
+                      polygon_place_vertex(*verts[0]) +
+                      # Polygon completed, now remove first two verts
+                      polygon_remove_vertex(*verts[1]) +
+                      polygon_remove_vertex(*verts[2]) +
+                      # At this point the tool should be reset so we can add
+                      # more vertices
+                      polygon_place_vertex(*verts[1]))
+
+    ax = get_ax()
+
+    def onselect(vertices):
+        pass
+
+    tool = widgets.PolygonSelector(ax, onselect)
+    for (etype, event_args) in event_sequence:
+        do_event(tool, etype, **event_args)
+    # After removing two verts, only one remains, and the
+    # selector should be automatically resete
+    assert tool.verts == verts[0:2]
