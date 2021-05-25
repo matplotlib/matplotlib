@@ -25,6 +25,7 @@ import os
 from pathlib import Path
 import re
 import struct
+import subprocess
 import sys
 import textwrap
 
@@ -970,7 +971,30 @@ def _parse_enc(path):
             "Failed to parse {} as Postscript encoding".format(path))
 
 
+class _LuatexKpsewhich:
+    @lru_cache()  # A singleton.
+    def __new__(cls):
+        self = object.__new__(cls)
+        self._proc = self._new_proc()
+        return self
+
+    def _new_proc(self):
+        return subprocess.Popen(
+            ["luatex", "--luaonly",
+             str(cbook._get_data_path("kpsewhich.lua"))],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+
+    def search(self, filename):
+        if self._proc.poll() is not None:  # Dead, restart it.
+            self._proc = self._new_proc()
+        self._proc.stdin.write(os.fsencode(filename) + b"\n")
+        self._proc.stdin.flush()
+        out = self._proc.stdout.readline().rstrip()
+        return "" if out == b"nil" else os.fsdecode(out)
+
+
 @lru_cache()
+@_api.delete_parameter("3.5", "format")
 def find_tex_file(filename, format=None):
     """
     Find a file in the texmf tree.
@@ -988,6 +1012,7 @@ def find_tex_file(filename, format=None):
     format : str or bytes
         Used as the value of the ``--format`` option to :program:`kpsewhich`.
         Could be e.g. 'tfm' or 'vf' to limit the search to that type of files.
+        Deprecated.
 
     References
     ----------
@@ -1001,6 +1026,14 @@ def find_tex_file(filename, format=None):
         filename = filename.decode('utf-8', errors='replace')
     if isinstance(format, bytes):
         format = format.decode('utf-8', errors='replace')
+
+    if format is None:
+        try:
+            lk = _LuatexKpsewhich()
+        except FileNotFoundError:
+            pass  # Fallback to directly calling kpsewhich, as below.
+        else:
+            return lk.search(filename)
 
     if os.name == 'nt':
         # On Windows only, kpathsea can use utf-8 for cmd args and output.

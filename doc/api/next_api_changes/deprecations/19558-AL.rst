@@ -1,0 +1,3 @@
+The *format* parameter of ``dviread.find_tex_file``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated (with no replacement).
