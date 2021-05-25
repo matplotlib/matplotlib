@@ -6115,16 +6115,12 @@ default: :rc:`scatter.edgecolors`
 
         X, Y, C, shading = self._pcolorargs('pcolormesh', *args,
                                             shading=shading, kwargs=kwargs)
-        Ny, Nx = X.shape
-        X = X.ravel()
-        Y = Y.ravel()
-
-        # convert to one dimensional arrays
+        coords = np.stack([X, Y], axis=-1)
+        # convert to one dimensional array
         C = C.ravel()
-        coords = np.column_stack((X, Y)).astype(float, copy=False)
-        collection = mcoll.QuadMesh(Nx - 1, Ny - 1, coords,
-                                    antialiased=antialiased, shading=shading,
-                                    **kwargs)
+
+        collection = mcoll.QuadMesh(
+            coords, antialiased=antialiased, shading=shading, **kwargs)
         snap = kwargs.get('snap', rcParams['pcolormesh.snap'])
         collection.set_snap(snap)
         collection.set_alpha(alpha)
@@ -6133,6 +6129,8 @@ default: :rc:`scatter.edgecolors`
         collection.set_norm(norm)
         collection._scale_norm(norm, vmin, vmax)
         self._pcolor_grid_deprecation_helper()
+
+        coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y
 
         # Transform from native to data coordinates?
         t = collection._transform
@@ -6310,7 +6308,7 @@ default: :rc:`scatter.edgecolors`
             else:
                 raise ValueError("C must be 2D or 3D")
             collection = mcoll.QuadMesh(
-                nc, nr, coords, **qm_kwargs,
+                coords, **qm_kwargs,
                 alpha=alpha, cmap=cmap, norm=norm,
                 antialiased=False, edgecolors="none")
             self.add_collection(collection, autolim=False)

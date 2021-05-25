@@ -9,15 +9,17 @@ they are meant to be fast for common use cases (e.g., a large set of solid
 line segments).
 """
 
+import inspect
 import math
 from numbers import Number
+import warnings
+
 import numpy as np
 
 import matplotlib as mpl
 from . import (_api, _path, artist, cbook, cm, colors as mcolors, docstring,
                hatch as mhatch, lines as mlines, path as mpath, transforms)
 from ._enums import JoinStyle, CapStyle
-import warnings
 
 
 # "color" is excluded; it is a compound setter, and its docstring differs
@@ -1931,6 +1933,35 @@ class QuadMesh(Collection):
     """
     Class for the efficient drawing of a quadrilateral mesh.
 
+    A quadrilateral mesh is a grid of M by N adjacent qudrilaterals that are
+    defined via a (M+1, N+1) grid of vertices. The quadrilateral (m, n) is
+    defind by the vertices ::
+
+               (m+1, n) ----------- (m+1, n+1)
+                  /                   /
+                 /                 /
+                /               /
+            (m, n) -------- (m, n+1)
+
+    The mesh need not be regular and the polygons need not be convex.
+
+    Parameters
+    ----------
+    coordinates : (M+1, N+1, 2) array-like
+        The vertices. ``coordinates[m, n]`` specifies the (x, y) coordinates
+        of vertex (m, n).
+
+    antialiased : bool, default: True
+
+    shading : {'flat', 'gouraud'}, default: 'flat'
+
+    Notes
+    -----
+    There exists a deprecated API version ``QuadMesh(M, N, coords)``, where
+    the dimensions are given explicitly and ``coords`` is a (M*N, 2)
+    array-like. This has been deprecated in Matplotlib 3.5. The following
+    describes the semantics of this deprecated API.
+
     A quadrilateral mesh consists of a grid of vertices.
     The dimensions of this array are (*meshWidth* + 1, *meshHeight* + 1).
     Each vertex in the mesh has a different set of "mesh coordinates"
@@ -1954,22 +1985,55 @@ class QuadMesh(Collection):
     vertex at mesh coordinates (0, 0), then the one at (0, 1), then at (0, 2)
     .. (0, meshWidth), (1, 0), (1, 1), and so on.
 
-    *shading* may be 'flat', or 'gouraud'
     """
-    def __init__(self, meshWidth, meshHeight, coordinates,
-                 antialiased=True, shading='flat', **kwargs):
+    def __init__(self, *args, **kwargs):
+        # signature deprecation since="3.5": Change to new signature after the
+        # deprecation has expired. Also remove setting __init__.__signature__,
+        # and remove the Notes from the docstring.
+        #
+        # We use lambdas to parse *args, **kwargs through the respective old
+        # and new signatures.
+        try:
+            # Old signature:
+            # The following raises a TypeError iif the args don't match.
+            w, h, coords, antialiased, shading, kwargs = (
+                lambda meshWidth, meshHeight, coordinates, antialiased=True,
+                       shading=False, **kwargs:
+                (meshWidth, meshHeight, coordinates, antialiased, shading,
+                 kwargs))(*args, **kwargs)
+        except TypeError as exc:
+            # New signature:
+            # If the following raises a TypeError (i.e. args don't match),
+            # just let it propagate.
+            coords, antialiased, shading, kwargs = (
+                lambda coordinates, antialiased=True, shading=False, **kwargs:
+                (coordinates, antialiased, shading, kwargs))(*args, **kwargs)
+            coords = np.asarray(coords, np.float64)
+        else:  # The old signature matched.
+            _api.warn_deprecated(
+                "3.5",
+                message="This usage of Quadmesh is deprecated: Parameters "
+                        "meshWidth and meshHeights will be removed; "
+                        "coordinates must be 2D; all parameters except "
+                        "coordinates will be keyword-only.")
+            coords = np.asarray(coords, np.float64).reshape((h + 1, w + 1, 2))
+        # end of signature deprecation code
+
         super().__init__(**kwargs)
-        self._meshWidth = meshWidth
-        self._meshHeight = meshHeight
-        # By converting to floats now, we can avoid that on every draw.
-        self._coordinates = np.asarray(coordinates, float).reshape(
-            (meshHeight + 1, meshWidth + 1, 2))
+        _api.check_shape((None, None, 2), coordinates=coords)
+        self._coordinates = coords
+        self._meshWidth = self._coordinates.shape[1] - 1
+        self._meshHeight = self._coordinates.shape[0] - 1
         self._antialiased = antialiased
         self._shading = shading
 
         self._bbox = transforms.Bbox.unit()
-        self._bbox.update_from_data_xy(coordinates.reshape(
-            ((meshWidth + 1) * (meshHeight + 1), 2)))
+        self._bbox.update_from_data_xy(self._coordinates.reshape(-1, 2))
+
+    # Only needed during signature deprecation
+    __init__.__signature__ = inspect.signature(
+        lambda self, coordinates, *,
+               antialiased=True, shading='flat', **kwargs: None)
 
     def get_paths(self):
         if self._paths is None:
