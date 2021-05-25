@@ -1,0 +1,4 @@
+``QuadMesh.convert_mesh_to_paths`` and ``QuadMesh.convert_mesh_to_triangles``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated.  ``QuadMesh.get_paths()`` can be used as an alternative for
+the former; there is no replacement for the latter.

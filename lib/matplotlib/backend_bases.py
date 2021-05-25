@@ -270,8 +270,7 @@ class RendererBase:
         """
 
         from matplotlib.collections import QuadMesh
-        paths = QuadMesh.convert_mesh_to_paths(
-            meshWidth, meshHeight, coordinates)
+        paths = QuadMesh._convert_mesh_to_paths(coordinates)
 
         if edgecolors is None:
             edgecolors = facecolors
