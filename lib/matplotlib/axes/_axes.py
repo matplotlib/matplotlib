@@ -191,10 +191,11 @@ class Axes(_AxesBase):
         Call signatures::
 
             legend()
-            legend(labels)
             legend(handles, labels)
+            legend(handles=handles)
+            legend(labels)
 
-        The call signatures correspond to these three different ways to use
+        The call signatures correspond to the following different ways to use
         this method:
 
         **1. Automatic detection of elements to be shown in the legend**
@@ -222,27 +223,40 @@ class Axes(_AxesBase):
         no legend being drawn.
 
 
-        **2. Labeling existing plot elements**
-
-        To make a legend for lines which already exist on the Axes
-        (via plot for instance), simply call this function with an iterable
-        of strings, one for each legend item. For example::
-
-            ax.plot([1, 2, 3])
-            ax.legend(['A simple line'])
-
-        Note: This call signature is discouraged, because the relation between
-        plot elements and labels is only implicit by their order and can
-        easily be mixed up.
-
-
-        **3. Explicitly defining the elements in the legend**
+        **2. Explicitly listing the artists and labels in the legend**
 
         For full control of which artists have a legend entry, it is possible
         to pass an iterable of legend artists followed by an iterable of
         legend labels respectively::
 
             ax.legend([line1, line2, line3], ['label1', 'label2', 'label3'])
+
+
+        **3. Explicitly listing the artists in the legend**
+
+        This is similar to 2, but the labels are taken from the artists'
+        label properties. Example::
+
+            line1, = ax.plot([1, 2, 3], label='label1')
+            line2, = ax.plot([1, 2, 3], label='label2')
+            ax.legend(handles=[line1, line2])
+
+
+        **4. Labeling existing plot elements**
+
+        .. admonition:: Discouraged
+
+            This call signature is discouraged, because the relation between
+            plot elements and labels is only implicit by their order and can
+            easily be mixed up.
+
+        To make a legend for all artists on an Axes, call this function with
+        an iterable of strings, one for each legend item. For example::
+
+            ax.plot([1, 2, 3])
+            ax.plot([5, 6, 7])
+            ax.legend(['First line', 'Second line'])
+
 
         Parameters
         ----------
