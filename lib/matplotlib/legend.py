@@ -208,7 +208,7 @@ frameon : bool, default: :rc:`legend.frameon`
     Whether the legend should be drawn on a patch (frame).
 
 fancybox : bool, default: :rc:`legend.fancybox`
-    Whether round edges should be enabled around the `~.FancyBboxPatch` which
+    Whether round edges should be enabled around the `.FancyBboxPatch` which
     makes up the legend's background.
 
 shadow : bool, default: :rc:`legend.shadow`

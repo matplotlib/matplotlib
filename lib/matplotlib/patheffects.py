@@ -1,6 +1,6 @@
 """
-Defines classes for path effects. The path effects are supported in `~.Text`,
-`~.Line2D` and `~.Patch`.
+Defines classes for path effects. The path effects are supported in `.Text`,
+`.Line2D` and `.Patch`.
 
 .. seealso::
    :doc:`/tutorials/advanced/patheffects_guide`

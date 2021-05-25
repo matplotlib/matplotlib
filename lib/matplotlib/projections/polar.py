@@ -1325,7 +1325,7 @@ class PolarAxes(Axes):
         Other Parameters
         ----------------
         **kwargs
-            *kwargs* are optional `~.Text` properties for the labels.
+            *kwargs* are optional `.Text` properties for the labels.
 
         See Also
         --------
@@ -1377,7 +1377,7 @@ class PolarAxes(Axes):
         Other Parameters
         ----------------
         **kwargs
-            *kwargs* are optional `~.Text` properties for the labels.
+            *kwargs* are optional `.Text` properties for the labels.
 
         See Also
         --------

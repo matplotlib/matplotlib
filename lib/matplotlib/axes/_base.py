@@ -2165,7 +2165,7 @@ class _AxesBase(martist.Artist):
 
     def add_artist(self, a):
         """
-        Add an `~.Artist` to the Axes; return the artist.
+        Add an `.Artist` to the Axes; return the artist.
 
         Use `add_artist` only for artists for which there is no dedicated
         "add" method; and if necessary, use a method such as `update_datalim`
@@ -2186,7 +2186,7 @@ class _AxesBase(martist.Artist):
 
     def add_child_axes(self, ax):
         """
-        Add an `~.AxesBase` to the axes' children; return the child axes.
+        Add an `.AxesBase` to the axes' children; return the child axes.
 
         This is the lowlevel version.  See `.axes.Axes.inset_axes`.
         """
@@ -2204,7 +2204,7 @@ class _AxesBase(martist.Artist):
 
     def add_collection(self, collection, autolim=True):
         """
-        Add a `~.Collection` to the Axes; return the collection.
+        Add a `.Collection` to the Axes; return the collection.
         """
         self._deprecate_noninstance('add_collection', mcoll.Collection,
                                     collection=collection)
@@ -2238,7 +2238,7 @@ class _AxesBase(martist.Artist):
 
     def add_image(self, image):
         """
-        Add an `~.AxesImage` to the Axes; return the image.
+        Add an `.AxesImage` to the Axes; return the image.
         """
         self._deprecate_noninstance('add_image', mimage.AxesImage, image=image)
         self._set_artist_props(image)
@@ -2272,7 +2272,7 @@ class _AxesBase(martist.Artist):
 
     def _add_text(self, txt):
         """
-        Add a `~.Text` to the Axes; return the text.
+        Add a `.Text` to the Axes; return the text.
         """
         self._deprecate_noninstance('_add_text', mtext.Text, txt=txt)
         self._set_artist_props(txt)
@@ -2327,7 +2327,7 @@ class _AxesBase(martist.Artist):
 
     def add_patch(self, p):
         """
-        Add a `~.Patch` to the Axes; return the patch.
+        Add a `.Patch` to the Axes; return the patch.
         """
         self._deprecate_noninstance('add_patch', mpatches.Patch, p=p)
         self._set_artist_props(p)
@@ -2368,7 +2368,7 @@ class _AxesBase(martist.Artist):
 
     def add_table(self, tab):
         """
-        Add a `~.Table` to the Axes; return the table.
+        Add a `.Table` to the Axes; return the table.
         """
         self._deprecate_noninstance('add_table', mtable.Table, tab=tab)
         self._set_artist_props(tab)
@@ -2379,7 +2379,7 @@ class _AxesBase(martist.Artist):
 
     def add_container(self, container):
         """
-        Add a `~.Container` to the axes' containers; return the container.
+        Add a `.Container` to the axes' containers; return the container.
         """
         label = container.get_label()
         if not label:
@@ -2406,7 +2406,7 @@ class _AxesBase(martist.Artist):
         """
         Recompute the data limits based on current artists.
 
-        At present, `~.Collection` instances are not supported.
+        At present, `.Collection` instances are not supported.
 
         Parameters
         ----------

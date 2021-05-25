@@ -177,7 +177,7 @@ color : color or color sequence, optional
     Explicit color(s) for the arrows. If *C* has been set, *color* has no
     effect.
 
-    This is a synonym for the `~.PolyCollection` *facecolor* parameter.
+    This is a synonym for the `.PolyCollection` *facecolor* parameter.
 
 Other Parameters
 ----------------

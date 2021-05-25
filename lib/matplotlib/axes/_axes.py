@@ -1655,7 +1655,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        list of `~.Line2D`
+        list of `.Line2D`
             Objects representing the plotted data.
 
         Other Parameters
@@ -1725,7 +1725,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        list of `~.Line2D`
+        list of `.Line2D`
             Objects representing the plotted data.
 
         Other Parameters
@@ -1778,7 +1778,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        list of `~.Line2D`
+        list of `.Line2D`
             Objects representing the plotted data.
 
         Other Parameters
@@ -1827,7 +1827,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        list of `~.Line2D`
+        list of `.Line2D`
             Objects representing the plotted data.
 
         Other Parameters
@@ -4655,7 +4655,7 @@ default: :rc:`scatter.edgecolors`
 
         vmin, vmax : float, default: None
             The colorbar range. If *None*, suitable min/max values are
-            automatically chosen by the `~.Normalize` instance (defaults to
+            automatically chosen by the `.Normalize` instance (defaults to
             the respective min/max values of the bins in case of the default
             linear scaling).
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
@@ -5763,7 +5763,7 @@ default: :rc:`scatter.edgecolors`
 
         vmin, vmax : float, default: None
             The colorbar range. If *None*, suitable min/max values are
-            automatically chosen by the `~.Normalize` instance (defaults to
+            automatically chosen by the `.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
@@ -5990,7 +5990,7 @@ default: :rc:`scatter.edgecolors`
 
         vmin, vmax : float, default: None
             The colorbar range. If *None*, suitable min/max values are
-            automatically chosen by the `~.Normalize` instance (defaults to
+            automatically chosen by the `.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
@@ -6240,7 +6240,7 @@ default: :rc:`scatter.edgecolors`
 
         vmin, vmax : float, default: None
             The colorbar range. If *None*, suitable min/max values are
-            automatically chosen by the `~.Normalize` instance (defaults to
+            automatically chosen by the `.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
@@ -6381,7 +6381,7 @@ default: :rc:`scatter.edgecolors`
 
         Parameters
         ----------
-        CS : `~.ContourSet` instance
+        CS : `.ContourSet` instance
             Line contours to label.
 
         levels : array-like, optional

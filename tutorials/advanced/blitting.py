@@ -7,7 +7,7 @@ Faster rendering by using blitting
 <https://en.wikipedia.org/wiki/Bit_blit>`__ in raster graphics that,
 in the context of Matplotlib, can be used to (drastically) improve
 performance of interactive figures. For example, the
-:mod:`~.animation` and :mod:`~.widgets` modules use blitting
+:mod:`.animation` and :mod:`.widgets` modules use blitting
 internally. Here, we demonstrate how to implement your own blitting, outside
 of these classes.
 

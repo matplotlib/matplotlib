@@ -436,7 +436,7 @@ class GridSpec(GridSpecBase):
 
     def get_subplot_params(self, figure=None):
         """
-        Return the `~.SubplotParams` for the GridSpec.
+        Return the `.SubplotParams` for the GridSpec.
 
         In order of precedence the values are taken from
 

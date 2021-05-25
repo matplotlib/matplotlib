@@ -1464,8 +1464,8 @@ class PickEvent(Event):
         (see `.Artist.set_picker`).
     other
         Additional attributes may be present depending on the type of the
-        picked object; e.g., a `~.Line2D` pick may define different extra
-        attributes than a `~.PatchCollection` pick.
+        picked object; e.g., a `.Line2D` pick may define different extra
+        attributes than a `.PatchCollection` pick.
 
     Examples
     --------
@@ -1532,7 +1532,7 @@ class KeyEvent(LocationEvent):
 
 def _get_renderer(figure, print_method=None):
     """
-    Get the renderer that would be used to save a `~.Figure`, and cache it on
+    Get the renderer that would be used to save a `.Figure`, and cache it on
     the figure.
 
     If you need a renderer without any active draw methods use

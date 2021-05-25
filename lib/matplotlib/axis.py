@@ -1797,7 +1797,7 @@ class Axis(martist.Artist):
 
         Returns
         -------
-        list of `~.Text`
+        list of `.Text`
             The labels.
 
         Other Parameters
