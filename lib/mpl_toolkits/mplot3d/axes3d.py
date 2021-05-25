@@ -1046,17 +1046,24 @@ class Axes3D(Axes):
         """Currently not implemented for 3D axes, and returns *None*."""
         return None
 
-    def view_init(self, elev=None, azim=None):
+    def view_init(self, elev=None, azim=None, vertical_axis="z"):
         """
         Set the elevation and azimuth of the axes in degrees (not radians).
 
         This can be used to rotate the axes programmatically.
 
-        'elev' stores the elevation angle in the z plane (in degrees).
-        'azim' stores the azimuth angle in the (x, y) plane (in degrees).
-
-        if 'elev' or 'azim' are None (default), then the initial value
-        is used which was specified in the :class:`Axes3D` constructor.
+        Parameters
+        ----------
+        elev : float, default: None
+            The elevation angle in the vertical plane in degrees.
+            If None then the initial value as specified in the `Axes3D`
+            constructor is used.
+        azim : float, default: None
+            The azimuth angle in the horizontal plane in degrees.
+            If None then the initial value as specified in the `Axes3D`
+            constructor is used.
+        vertical_axis : {"z", "x", "y"}, default: "z"
+            The axis to align vertically. *azim* rotates about this axis.
         """
 
         self.dist = 10
@@ -1071,6 +1078,10 @@ class Axes3D(Axes):
         else:
             self.azim = azim
 
+        self._vertical_axis = _api.check_getitem(
+            dict(x=0, y=1, z=2), vertical_axis=vertical_axis
+        )
+
     def set_proj_type(self, proj_type):
         """
         Set the projection type.
@@ -1084,47 +1095,60 @@ class Axes3D(Axes):
             'ortho': proj3d.ortho_transformation,
         }, proj_type=proj_type)
 
+    def _roll_to_vertical(self, arr):
+        """Roll arrays to match the different vertical axis."""
+        return np.roll(arr, self._vertical_axis - 2)
+
     def get_proj(self):
         """Create the projection matrix from the current viewing position."""
+
+        # Transform to uniform world coordinates 0-1, 0-1, 0-1
+        box_aspect = self._roll_to_vertical(self._box_aspect)
+        worldM = proj3d.world_transformation(
+            *self.get_xlim3d(),
+            *self.get_ylim3d(),
+            *self.get_zlim3d(),
+            pb_aspect=box_aspect,
+        )
+
+        # Look into the middle of the new coordinates:
+        R = 0.5 * box_aspect
+
         # elev stores the elevation angle in the z plane
         # azim stores the azimuth angle in the x,y plane
-        #
-        # dist is the distance of the eye viewing point from the object
-        # point.
+        elev_rad = np.deg2rad(self.elev)
+        azim_rad = np.deg2rad(self.azim)
 
-        relev, razim = np.pi * self.elev/180, np.pi * self.azim/180
+        # Coordinates for a point that rotates around the box of data.
+        # p0, p1 corresponds to rotating the box only around the
+        # vertical axis.
+        # p2 corresponds to rotating the box only around the horizontal
+        # axis.
+        p0 = np.cos(elev_rad) * np.cos(azim_rad)
+        p1 = np.cos(elev_rad) * np.sin(azim_rad)
+        p2 = np.sin(elev_rad)
 
-        xmin, xmax = self.get_xlim3d()
-        ymin, ymax = self.get_ylim3d()
-        zmin, zmax = self.get_zlim3d()
+        # When changing vertical axis the coordinates changes as well.
+        # Roll the values to get the same behaviour as the default:
+        ps = self._roll_to_vertical([p0, p1, p2])
 
-        # transform to uniform world coordinates 0-1, 0-1, 0-1
-        worldM = proj3d.world_transformation(xmin, xmax,
-                                             ymin, ymax,
-                                             zmin, zmax,
-                                             pb_aspect=self._box_aspect)
+        # The coordinates for the eye viewing point. The eye is looking
+        # towards the middle of the box of data from a distance:
+        eye = R + self.dist * ps
 
-        # look into the middle of the new coordinates
-        R = self._box_aspect / 2
-
-        xp = R[0] + np.cos(razim) * np.cos(relev) * self.dist
-        yp = R[1] + np.sin(razim) * np.cos(relev) * self.dist
-        zp = R[2] + np.sin(relev) * self.dist
-        E = np.array((xp, yp, zp))
-
-        self.eye = E
-        self.vvec = R - E
+        # TODO: Is this being used somewhere? Can it be removed?
+        self.eye = eye
+        self.vvec = R - eye
         self.vvec = self.vvec / np.linalg.norm(self.vvec)
 
-        if abs(relev) > np.pi/2:
-            # upside down
-            V = np.array((0, 0, -1))
-        else:
-            V = np.array((0, 0, 1))
-        zfront, zback = -self.dist, self.dist
+        # Define which axis should be vertical. A negative value
+        # indicates the plot is upside down and therefore the values
+        # have been reversed:
+        V = np.zeros(3)
+        V[self._vertical_axis] = -1 if abs(elev_rad) > 0.5 * np.pi else 1
 
-        viewM = proj3d.view_transformation(E, R, V)
-        projM = self._projection(zfront, zback)
+        viewM = proj3d.view_transformation(eye, R, V)
+        projM = self._projection(-self.dist, self.dist)
         M0 = np.dot(viewM, worldM)
         M = np.dot(projM, M0)
         return M
