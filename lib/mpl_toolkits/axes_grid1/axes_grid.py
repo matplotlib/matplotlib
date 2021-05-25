@@ -29,6 +29,7 @@ class CbarAxesBase:
         orientation = (
             "horizontal" if self.orientation in ["top", "bottom"] else
             "vertical")
+        kwargs['userax'] = False
         cb = mpl.colorbar.Colorbar(
             self, mappable, orientation=orientation, ticks=ticks, **kwargs)
         self._config_axes()
