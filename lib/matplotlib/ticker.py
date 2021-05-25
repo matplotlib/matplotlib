@@ -475,6 +475,22 @@ class ScalarFormatter(Formatter):
         self._usetex = mpl.rcParams['text.usetex']
         if useMathText is None:
             useMathText = mpl.rcParams['axes.formatter.use_mathtext']
+            if useMathText is False:
+                try:
+                    ufont = mpl.font_manager.findfont(
+                        mpl.font_manager.FontProperties(
+                            mpl.rcParams["font.family"]
+                        ),
+                        fallback_to_default=False,
+                    )
+                except ValueError:
+                    ufont = None
+
+                if ufont == str(cbook._get_data_path("fonts/ttf/cmr10.ttf")):
+                    _api.warn_external(
+                        "cmr10 font should ideally be used with "
+                        "mathtext, set axes.formatter.use_mathtext to True"
+                    )
         self.set_useMathText(useMathText)
         self.orderOfMagnitude = 0
         self.format = ''
