@@ -38,6 +38,11 @@ Call signature::
 *X*, *Y* define the arrow locations, *U*, *V* define the arrow directions, and
 *C* optionally sets the color.
 
+Each arrow is internally represented by a filled polygon with a default edge
+linewidth of 0. As a result, an arrow is rather a filled area, not a line with
+a head, and `.PolyCollection` properties like *linewidth*, *linestyle*,
+*facecolor*, etc. act accordingly.
+
 **Arrow size**
 
 The default settings auto-scales the length of the arrows to a reasonable size.
@@ -188,7 +193,7 @@ Other Parameters
 
 Returns
 -------
-matplotlib.quiver.Quiver
+`~matplotlib.quiver.Quiver`
 
 See Also
 --------
