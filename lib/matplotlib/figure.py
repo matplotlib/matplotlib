@@ -958,10 +958,11 @@ default: %(va)s
         Call signatures::
 
             legend()
-            legend(labels)
             legend(handles, labels)
+            legend(handles=handles)
+            legend(labels)
 
-        The call signatures correspond to these three different ways to use
+        The call signatures correspond to the following different ways to use
         this method:
 
         **1. Automatic detection of elements to be shown in the legend**
@@ -989,7 +990,32 @@ default: %(va)s
         no legend being drawn.
 
 
-        **2. Labeling existing plot elements**
+        **2. Explicitly listing the artists and labels in the legend**
+
+        For full control of which artists have a legend entry, it is possible
+        to pass an iterable of legend artists followed by an iterable of
+        legend labels respectively::
+
+            fig.legend([line1, line2, line3], ['label1', 'label2', 'label3'])
+
+
+        **3. Explicitly listing the artists in the legend**
+
+        This is similar to 2, but the labels are taken from the artists'
+        label properties. Example::
+
+            line1, = ax1.plot([1, 2, 3], label='label1')
+            line2, = ax2.plot([1, 2, 3], label='label2')
+            fig.legend(handles=[line1, line2])
+
+
+        **4. Labeling existing plot elements**
+
+        .. admonition:: Discouraged
+
+            This call signature is discouraged, because the relation between
+            plot elements and labels is only implicit by their order and can
+            easily be mixed up.
 
         To make a legend for all artists on all Axes, call this function with
         an iterable of strings, one for each legend item. For example::
@@ -999,18 +1025,6 @@ default: %(va)s
             ax2.plot([2, 4, 6], color='red')
             fig.legend(['the blues', 'the reds'])
 
-        Note: This call signature is discouraged, because the relation between
-        plot elements and labels is only implicit by their order and can
-        easily be mixed up.
-
-
-        **3. Explicitly defining the elements in the legend**
-
-        For full control of which artists have a legend entry, it is possible
-        to pass an iterable of legend artists followed by an iterable of
-        legend labels respectively::
-
-            fig.legend([line1, line2, line3], ['label1', 'label2', 'label3'])
 
         Parameters
         ----------
