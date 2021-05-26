@@ -11,6 +11,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 from PIL import Image
 
+import matplotlib as mpl
 from matplotlib import (
     _api, colors, image as mimage, patches, pyplot as plt, style, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
@@ -506,6 +507,18 @@ def test_image_composite_alpha():
     ax.set_ylim([5, 0])
 
 
+@check_figures_equal(extensions=["pdf"])
+def test_clip_path_disables_compositing(fig_test, fig_ref):
+    t = np.arange(9).reshape((3, 3))
+    for fig in [fig_test, fig_ref]:
+        ax = fig.add_subplot()
+        ax.imshow(t, clip_path=(mpl.path.Path([(0, 0), (0, 1), (1, 0)]),
+                                ax.transData))
+        ax.imshow(t, clip_path=(mpl.path.Path([(1, 1), (1, 2), (2, 1)]),
+                                ax.transData))
+    fig_ref.suppressComposite = True
+
+
 @image_comparison(['rasterize_10dpi'],
                   extensions=['pdf', 'svg'], remove_text=True, style='mpl20')
 def test_rasterize_dpi():
@@ -980,6 +993,13 @@ def test_empty_imshow(make_norm):
         im.make_image(fig._cachedRenderer)
 
 
+def test_imshow_float16():
+    fig, ax = plt.subplots()
+    ax.imshow(np.zeros((3, 3), dtype=np.float16))
+    # Ensure that drawing doesn't cause crash.
+    fig.canvas.draw()
+
+
 def test_imshow_float128():
     fig, ax = plt.subplots()
     ax.imshow(np.zeros((3, 3), dtype=np.longdouble))
@@ -1263,3 +1283,19 @@ def test_spy_box(fig_test, fig_ref):
         ax_ref[i].yaxis.set_major_locator(
             mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True)
         )
+
+
+@image_comparison(["nonuniform_and_pcolor.png"], style="mpl20")
+def test_nonuniform_and_pcolor():
+    axs = plt.figure(figsize=(3, 3)).subplots(3, sharex=True, sharey=True)
+    for ax, interpolation in zip(axs, ["nearest", "bilinear"]):
+        im = NonUniformImage(ax, interpolation=interpolation)
+        im.set_data(np.arange(3) ** 2, np.arange(3) ** 2,
+                    np.arange(9).reshape((3, 3)))
+        ax.add_image(im)
+    axs[2].pcolorfast(  # PcolorImage
+        np.arange(4) ** 2, np.arange(4) ** 2, np.arange(9).reshape((3, 3)))
+    for ax in axs:
+        ax.set_axis_off()
+        # NonUniformImage "leaks" out of extents, not PColorImage.
+        ax.set(xlim=(0, 10))

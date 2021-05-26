@@ -43,6 +43,7 @@ _log = logging.getLogger(__name__)
 # All the other methods should go in the _AxesBase class.
 
 
+@docstring.interpd
 class Axes(_AxesBase):
     """
     The `Axes` contains most of the figure elements: `~.axis.Axis`,
@@ -397,7 +398,7 @@ class Axes(_AxesBase):
         **kwargs
             Other keyword arguments are passed on to the `.Rectangle` patch:
 
-            %(Rectangle_kwdoc)s
+            %(Rectangle:kwdoc)s
 
         Returns
         -------
@@ -609,7 +610,7 @@ class Axes(_AxesBase):
         **kwargs : `~matplotlib.text.Text` properties.
             Other miscellaneous text parameters.
 
-            %(Text_kwdoc)s
+            %(Text:kwdoc)s
 
         Examples
         --------
@@ -686,7 +687,7 @@ class Axes(_AxesBase):
             Valid keyword arguments are `.Line2D` properties, with the
             exception of 'transform':
 
-            %(Line2D_kwdoc)s
+            %(Line2D:kwdoc)s
 
         See Also
         --------
@@ -753,7 +754,7 @@ class Axes(_AxesBase):
             Valid keyword arguments are `.Line2D` properties, with the
             exception of 'transform':
 
-            %(Line2D_kwdoc)s
+            %(Line2D:kwdoc)s
 
         See Also
         --------
@@ -837,7 +838,7 @@ class Axes(_AxesBase):
         **kwargs
             Valid kwargs are `.Line2D` properties
 
-            %(Line2D_kwdoc)s
+            %(Line2D:kwdoc)s
 
         See Also
         --------
@@ -905,7 +906,7 @@ class Axes(_AxesBase):
         ----------------
         **kwargs : `~matplotlib.patches.Polygon` properties
 
-        %(Polygon_kwdoc)s
+        %(Polygon:kwdoc)s
 
         See Also
         --------
@@ -953,7 +954,7 @@ class Axes(_AxesBase):
         ----------------
         **kwargs : `~matplotlib.patches.Polygon` properties
 
-        %(Polygon_kwdoc)s
+        %(Polygon:kwdoc)s
 
         See Also
         --------
@@ -1506,7 +1507,7 @@ class Axes(_AxesBase):
 
             Here is a list of available `.Line2D` properties:
 
-            %(Line2D_kwdoc)s
+            %(Line2D:kwdoc)s
 
         See Also
         --------
@@ -1655,7 +1656,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        list of `~.Line2D`
+        list of `.Line2D`
             Objects representing the plotted data.
 
         Other Parameters
@@ -1663,7 +1664,7 @@ class Axes(_AxesBase):
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
-            %(Line2D_kwdoc)s
+            %(Line2D:kwdoc)s
 
         See Also
         --------
@@ -1725,7 +1726,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        list of `~.Line2D`
+        list of `.Line2D`
             Objects representing the plotted data.
 
         Other Parameters
@@ -1778,7 +1779,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        list of `~.Line2D`
+        list of `.Line2D`
             Objects representing the plotted data.
 
         Other Parameters
@@ -1827,7 +1828,7 @@ class Axes(_AxesBase):
 
         Returns
         -------
-        list of `~.Line2D`
+        list of `.Line2D`
             Objects representing the plotted data.
 
         Other Parameters
@@ -2234,7 +2235,7 @@ class Axes(_AxesBase):
 
         **kwargs : `.Rectangle` properties
 
-        %(Rectangle_kwdoc)s
+        %(Rectangle:kwdoc)s
 
         See Also
         --------
@@ -2509,7 +2510,7 @@ class Axes(_AxesBase):
 
         **kwargs : `.Rectangle` properties
 
-        %(Rectangle_kwdoc)s
+        %(Rectangle:kwdoc)s
 
         See Also
         --------
@@ -2697,7 +2698,7 @@ class Axes(_AxesBase):
 
             Supported keywords:
 
-            %(BrokenBarHCollection_kwdoc)s
+            %(BrokenBarHCollection:kwdoc)s
         """
         # process the unit information
         if len(xranges):
@@ -3288,7 +3289,7 @@ class Axes(_AxesBase):
 
             Valid kwargs for the marker properties are `.Line2D` properties:
 
-            %(Line2D_kwdoc)s
+            %(Line2D:kwdoc)s
         """
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
         # anything that comes in as 'None', drop so the default thing
@@ -3409,116 +3410,66 @@ class Axes(_AxesBase):
         barcols = []
         caplines = []
 
-        # arrays fine here, they are booleans and hence not units
-        lolims = np.broadcast_to(lolims, len(x)).astype(bool)
-        uplims = np.broadcast_to(uplims, len(x)).astype(bool)
-        xlolims = np.broadcast_to(xlolims, len(x)).astype(bool)
-        xuplims = np.broadcast_to(xuplims, len(x)).astype(bool)
-
         # Vectorized fancy-indexer.
         def apply_mask(arrays, mask): return [array[mask] for array in arrays]
 
-        def extract_err(name, err, data, lolims, uplims):
-            """
-            Private function to compute error bars.
-
-            Parameters
-            ----------
-            name : {'x', 'y'}
-                Name used in the error message.
-            err : array-like
-                xerr or yerr from errorbar().
-            data : array-like
-                x or y from errorbar().
-            lolims : array-like
-                Error is only applied on **upper** side when this is True.  See
-                the note in the main docstring about this parameter's name.
-            uplims : array-like
-                Error is only applied on **lower** side when this is True.  See
-                the note in the main docstring about this parameter's name.
-            """
+        # dep: dependent dataset, indep: independent dataset
+        for (dep_axis, dep, err, lolims, uplims, indep, lines_func,
+             marker, lomarker, himarker) in [
+                ("x", x, xerr, xlolims, xuplims, y, self.hlines,
+                 "|", mlines.CARETRIGHTBASE, mlines.CARETLEFTBASE),
+                ("y", y, yerr, lolims, uplims, x, self.vlines,
+                 "_", mlines.CARETUPBASE, mlines.CARETDOWNBASE),
+        ]:
+            if err is None:
+                continue
+            lolims = np.broadcast_to(lolims, len(dep)).astype(bool)
+            uplims = np.broadcast_to(uplims, len(dep)).astype(bool)
             try:
-                np.broadcast_to(err, (2, len(data)))
+                np.broadcast_to(err, (2, len(dep)))
             except ValueError:
                 raise ValueError(
-                    f"'{name}err' (shape: {np.shape(err)}) must be a scalar "
-                    f"or a 1D or (2, n) array-like whose shape matches "
-                    f"'{name}' (shape: {np.shape(data)})") from None
+                    f"'{dep_axis}err' (shape: {np.shape(err)}) must be a "
+                    f"scalar or a 1D or (2, n) array-like whose shape matches "
+                    f"'{dep_axis}' (shape: {np.shape(dep)})") from None
             # This is like
-            #     low, high = np.broadcast_to(...)
-            #     return data - low * ~lolims, data + high * ~uplims
+            #     elow, ehigh = np.broadcast_to(...)
+            #     return dep - elow * ~lolims, dep + ehigh * ~uplims
             # except that broadcast_to would strip units.
-            return data + np.row_stack([-(1 - lolims), 1 - uplims]) * err
+            low, high = dep + np.row_stack([-(1 - lolims), 1 - uplims]) * err
 
-        if xerr is not None:
-            left, right = extract_err('x', xerr, x, xlolims, xuplims)
-            barcols.append(self.hlines(
-                *apply_mask([y, left, right], everymask), **eb_lines_style))
-            # select points without upper/lower limits in x and
-            # draw normal errorbars for these points
-            noxlims = ~(xlolims | xuplims)
-            if noxlims.any() and capsize > 0:
-                yo, lo, ro = apply_mask([y, left, right], noxlims & everymask)
-                caplines.extend([
-                    mlines.Line2D(lo, yo, marker='|', **eb_cap_style),
-                    mlines.Line2D(ro, yo, marker='|', **eb_cap_style)])
-            if xlolims.any():
-                xo, yo, ro = apply_mask([x, y, right], xlolims & everymask)
-                if self.xaxis_inverted():
-                    marker = mlines.CARETLEFTBASE
-                else:
-                    marker = mlines.CARETRIGHTBASE
-                caplines.append(mlines.Line2D(
-                    ro, yo, ls='None', marker=marker, **eb_cap_style))
+            barcols.append(lines_func(
+                *apply_mask([indep, low, high], everymask), **eb_lines_style))
+            # Normal errorbars for points without upper/lower limits.
+            nolims = ~(lolims | uplims)
+            if nolims.any() and capsize > 0:
+                indep_masked, lo_masked, hi_masked = apply_mask(
+                    [indep, low, high], nolims & everymask)
+                for lh_masked in [lo_masked, hi_masked]:
+                    # Since this has to work for x and y as dependent data, we
+                    # first set both x and y to the independent variable and
+                    # overwrite the respective dependent data in a second step.
+                    line = mlines.Line2D(indep_masked, indep_masked,
+                                         marker=marker, **eb_cap_style)
+                    line.set(**{f"{dep_axis}data": lh_masked})
+                    caplines.append(line)
+            for idx, (lims, hl) in enumerate([(lolims, high), (uplims, low)]):
+                if not lims.any():
+                    continue
+                hlmarker = (
+                    himarker
+                    if getattr(self, f"{dep_axis}axis").get_inverted() ^ idx
+                    else lomarker)
+                x_masked, y_masked, hl_masked = apply_mask(
+                    [x, y, hl], lims & everymask)
+                # As above, we set the dependent data in a second step.
+                line = mlines.Line2D(x_masked, y_masked,
+                                     marker=hlmarker, **eb_cap_style)
+                line.set(**{f"{dep_axis}data": hl_masked})
+                caplines.append(line)
                 if capsize > 0:
                     caplines.append(mlines.Line2D(
-                        xo, yo, marker='|', **eb_cap_style))
-            if xuplims.any():
-                xo, yo, lo = apply_mask([x, y, left], xuplims & everymask)
-                if self.xaxis_inverted():
-                    marker = mlines.CARETRIGHTBASE
-                else:
-                    marker = mlines.CARETLEFTBASE
-                caplines.append(mlines.Line2D(
-                    lo, yo, ls='None', marker=marker, **eb_cap_style))
-                if capsize > 0:
-                    caplines.append(mlines.Line2D(
-                        xo, yo, marker='|', **eb_cap_style))
-
-        if yerr is not None:
-            lower, upper = extract_err('y', yerr, y, lolims, uplims)
-            barcols.append(self.vlines(
-                *apply_mask([x, lower, upper], everymask), **eb_lines_style))
-            # select points without upper/lower limits in y and
-            # draw normal errorbars for these points
-            noylims = ~(lolims | uplims)
-            if noylims.any() and capsize > 0:
-                xo, lo, uo = apply_mask([x, lower, upper], noylims & everymask)
-                caplines.extend([
-                    mlines.Line2D(xo, lo, marker='_', **eb_cap_style),
-                    mlines.Line2D(xo, uo, marker='_', **eb_cap_style)])
-            if lolims.any():
-                xo, yo, uo = apply_mask([x, y, upper], lolims & everymask)
-                if self.yaxis_inverted():
-                    marker = mlines.CARETDOWNBASE
-                else:
-                    marker = mlines.CARETUPBASE
-                caplines.append(mlines.Line2D(
-                    xo, uo, ls='None', marker=marker, **eb_cap_style))
-                if capsize > 0:
-                    caplines.append(mlines.Line2D(
-                        xo, yo, marker='_', **eb_cap_style))
-            if uplims.any():
-                xo, yo, lo = apply_mask([x, y, lower], uplims & everymask)
-                if self.yaxis_inverted():
-                    marker = mlines.CARETUPBASE
-                else:
-                    marker = mlines.CARETDOWNBASE
-                caplines.append(mlines.Line2D(
-                    xo, lo, ls='None', marker=marker, **eb_cap_style))
-                if capsize > 0:
-                    caplines.append(mlines.Line2D(
-                        xo, yo, marker='_', **eb_cap_style))
+                        x_masked, y_masked, marker=marker, **eb_cap_style))
 
         for l in caplines:
             self.add_line(l)
@@ -4705,7 +4656,7 @@ default: :rc:`scatter.edgecolors`
 
         vmin, vmax : float, default: None
             The colorbar range. If *None*, suitable min/max values are
-            automatically chosen by the `~.Normalize` instance (defaults to
+            automatically chosen by the `.Normalize` instance (defaults to
             the respective min/max values of the bins in case of the default
             linear scaling).
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
@@ -4740,7 +4691,7 @@ default: :rc:`scatter.edgecolors`
         **kwargs : `~matplotlib.collections.PolyCollection` properties
             All other keyword arguments are passed on to `.PolyCollection`:
 
-            %(PolyCollection_kwdoc)s
+            %(PolyCollection:kwdoc)s
 
         """
         self._process_unit_info([("x", x), ("y", y)], kwargs, convert=False)
@@ -5249,7 +5200,7 @@ default: :rc:`scatter.edgecolors`
             All other keyword arguments are passed on to `.PolyCollection`.
             They control the `.Polygon` properties:
 
-            %(PolyCollection_kwdoc)s
+            %(PolyCollection:kwdoc)s
 
         See Also
         --------
@@ -5603,7 +5554,7 @@ default: :rc:`scatter.edgecolors`
         self.add_image(im)
         return im
 
-    def _pcolorargs(self, funcname, *args, shading='flat', **kwargs):
+    def _pcolorargs(self, funcname, *args, shading='auto', **kwargs):
         # - create X and Y if not present;
         # - reshape X and Y as needed if they are 1-D;
         # - check for proper sizes based on `shading` kwarg;
@@ -5675,25 +5626,16 @@ default: :rc:`scatter.edgecolors`
                 shading = 'flat'
 
         if shading == 'flat':
-            if not (ncols in (Nx, Nx - 1) and nrows in (Ny, Ny - 1)):
+            if (Nx, Ny) != (ncols + 1, nrows + 1):
                 raise TypeError('Dimensions of C %s are incompatible with'
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
-            if (ncols == Nx or nrows == Ny):
-                _api.warn_deprecated(
-                    "3.3", message="shading='flat' when X and Y have the same "
-                    "dimensions as C is deprecated since %(since)s.  Either "
-                    "specify the corners of the quadrilaterals with X and Y, "
-                    "or pass shading='auto', 'nearest' or 'gouraud', or set "
-                    "rcParams['pcolor.shading'].  This will become an error "
-                    "%(removal)s.")
-            C = C[:Ny - 1, :Nx - 1]
         else:    # ['nearest', 'gouraud']:
             if (Nx, Ny) != (ncols, nrows):
                 raise TypeError('Dimensions of C %s are incompatible with'
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
-            if shading in ['nearest', 'auto']:
+            if shading == 'nearest':
                 # grid is specified at the center, so define corners
                 # at the midpoints between the grid centers and then use the
                 # flat algorithm.
@@ -5728,6 +5670,15 @@ default: :rc:`scatter.edgecolors`
 
         C = cbook.safe_masked_invalid(C)
         return X, Y, C, shading
+
+    def _pcolor_grid_deprecation_helper(self):
+        if any(axis._major_tick_kw["gridOn"]
+               for axis in self._get_axis_list()):
+            _api.warn_deprecated(
+                "3.5", message="Auto-removal of grids by pcolor() and "
+                "pcolormesh() is deprecated since %(since)s and will be "
+                "removed %(removal)s; please call grid(False) first.")
+        self.grid(False)
 
     @_preprocess_data()
     @docstring.dedent_interpd
@@ -5813,7 +5764,7 @@ default: :rc:`scatter.edgecolors`
 
         vmin, vmax : float, default: None
             The colorbar range. If *None*, suitable min/max values are
-            automatically chosen by the `~.Normalize` instance (defaults to
+            automatically chosen by the `.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
@@ -5856,7 +5807,7 @@ default: :rc:`scatter.edgecolors`
             Additionally, the following arguments are allowed. They are passed
             along to the `~matplotlib.collections.PolyCollection` constructor:
 
-        %(PolyCollection_kwdoc)s
+        %(PolyCollection:kwdoc)s
 
         See Also
         --------
@@ -5944,7 +5895,7 @@ default: :rc:`scatter.edgecolors`
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection._scale_norm(norm, vmin, vmax)
-        self.grid(False)
+        self._pcolor_grid_deprecation_helper()
 
         x = X.compressed()
         y = Y.compressed()
@@ -6040,7 +5991,7 @@ default: :rc:`scatter.edgecolors`
 
         vmin, vmax : float, default: None
             The colorbar range. If *None*, suitable min/max values are
-            automatically chosen by the `~.Normalize` instance (defaults to
+            automatically chosen by the `.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
@@ -6101,7 +6052,7 @@ default: :rc:`scatter.edgecolors`
             Additionally, the following arguments are allowed. They are passed
             along to the `~matplotlib.collections.QuadMesh` constructor:
 
-        %(QuadMesh_kwdoc)s
+        %(QuadMesh:kwdoc)s
 
         See Also
         --------
@@ -6164,16 +6115,12 @@ default: :rc:`scatter.edgecolors`
 
         X, Y, C, shading = self._pcolorargs('pcolormesh', *args,
                                             shading=shading, kwargs=kwargs)
-        Ny, Nx = X.shape
-        X = X.ravel()
-        Y = Y.ravel()
-
-        # convert to one dimensional arrays
+        coords = np.stack([X, Y], axis=-1)
+        # convert to one dimensional array
         C = C.ravel()
-        coords = np.column_stack((X, Y)).astype(float, copy=False)
-        collection = mcoll.QuadMesh(Nx - 1, Ny - 1, coords,
-                                    antialiased=antialiased, shading=shading,
-                                    **kwargs)
+
+        collection = mcoll.QuadMesh(
+            coords, antialiased=antialiased, shading=shading, **kwargs)
         snap = kwargs.get('snap', rcParams['pcolormesh.snap'])
         collection.set_snap(snap)
         collection.set_alpha(alpha)
@@ -6181,8 +6128,9 @@ default: :rc:`scatter.edgecolors`
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection._scale_norm(norm, vmin, vmax)
+        self._pcolor_grid_deprecation_helper()
 
-        self.grid(False)
+        coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y
 
         # Transform from native to data coordinates?
         t = collection._transform
@@ -6291,7 +6239,7 @@ default: :rc:`scatter.edgecolors`
 
         vmin, vmax : float, default: None
             The colorbar range. If *None*, suitable min/max values are
-            automatically chosen by the `~.Normalize` instance (defaults to
+            automatically chosen by the `.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
             It is deprecated to use *vmin*/*vmax* when *norm* is given.
@@ -6360,7 +6308,7 @@ default: :rc:`scatter.edgecolors`
             else:
                 raise ValueError("C must be 2D or 3D")
             collection = mcoll.QuadMesh(
-                nc, nr, coords, **qm_kwargs,
+                coords, **qm_kwargs,
                 alpha=alpha, cmap=cmap, norm=norm,
                 antialiased=False, edgecolors="none")
             self.add_collection(collection, autolim=False)
@@ -6432,7 +6380,7 @@ default: :rc:`scatter.edgecolors`
 
         Parameters
         ----------
-        CS : `~.ContourSet` instance
+        CS : `.ContourSet` instance
             Line contours to label.
 
         levels : array-like, optional
@@ -7142,7 +7090,7 @@ such objects
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
-            %(Line2D_kwdoc)s
+            %(Line2D:kwdoc)s
 
         See Also
         --------
@@ -7255,7 +7203,7 @@ such objects
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
-            %(Line2D_kwdoc)s
+            %(Line2D:kwdoc)s
 
         See Also
         --------
@@ -7345,7 +7293,7 @@ such objects
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
-            %(Line2D_kwdoc)s
+            %(Line2D:kwdoc)s
 
         See Also
         --------
@@ -7422,7 +7370,7 @@ such objects
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
-            %(Line2D_kwdoc)s
+            %(Line2D:kwdoc)s
 
         See Also
         --------
@@ -7488,7 +7436,7 @@ such objects
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
-            %(Line2D_kwdoc)s
+            %(Line2D:kwdoc)s
 
         See Also
         --------
@@ -7555,7 +7503,7 @@ such objects
         **kwargs
             Keyword arguments control the `.Line2D` properties:
 
-            %(Line2D_kwdoc)s
+            %(Line2D:kwdoc)s
 
         References
         ----------
@@ -7805,7 +7753,7 @@ such objects
             For the marker style, you can pass any `.Line2D` property except
             for *linestyle*:
 
-            %(Line2D_kwdoc)s
+            %(Line2D:kwdoc)s
         """
         if marker is None and markersize is None and hasattr(Z, 'tocoo'):
             marker = 's'
@@ -8106,7 +8054,6 @@ such objects
           - ``cquantiles``: A `~.collections.LineCollection` instance created
             to identify the quantiles values of each of the violin's
             distribution.
-
         """
 
         # Statistical quantities to be plotted on the violins
@@ -8114,10 +8061,11 @@ such objects
         mins = []
         maxes = []
         medians = []
-        quantiles = np.asarray([])
+        quantiles = []
 
-        # Collections to be returned
-        artists = {}
+        qlens = []  # Number of quantiles in each dataset.
+
+        artists = {}  # Collections to be returned
 
         N = len(vpstats)
         datashape_message = ("List of violinplot statistics and `{0}` "
@@ -8135,84 +8083,56 @@ such objects
         elif len(widths) != N:
             raise ValueError(datashape_message.format("widths"))
 
-        # Calculate ranges for statistics lines
-        pmins = -0.25 * np.array(widths) + positions
-        pmaxes = 0.25 * np.array(widths) + positions
+        # Calculate ranges for statistics lines (shape (2, N)).
+        line_ends = [[-0.25], [0.25]] * np.array(widths) + positions
+
+        # Colors.
+        if rcParams['_internal.classic_mode']:
+            fillcolor = 'y'
+            linecolor = 'r'
+        else:
+            fillcolor = linecolor = self._get_lines.get_next_color()
 
         # Check whether we are rendering vertically or horizontally
         if vert:
             fill = self.fill_betweenx
-            perp_lines = self.hlines
-            par_lines = self.vlines
+            perp_lines = functools.partial(self.hlines, colors=linecolor)
+            par_lines = functools.partial(self.vlines, colors=linecolor)
         else:
             fill = self.fill_between
-            perp_lines = self.vlines
-            par_lines = self.hlines
-
-        if rcParams['_internal.classic_mode']:
-            fillcolor = 'y'
-            edgecolor = 'r'
-        else:
-            fillcolor = edgecolor = self._get_lines.get_next_color()
+            perp_lines = functools.partial(self.vlines, colors=linecolor)
+            par_lines = functools.partial(self.hlines, colors=linecolor)
 
         # Render violins
         bodies = []
         for stats, pos, width in zip(vpstats, positions, widths):
-            # The 0.5 factor reflects the fact that we plot from v-p to
-            # v+p
+            # The 0.5 factor reflects the fact that we plot from v-p to v+p.
             vals = np.array(stats['vals'])
             vals = 0.5 * width * vals / vals.max()
-            bodies += [fill(stats['coords'],
-                            -vals + pos,
-                            vals + pos,
-                            facecolor=fillcolor,
-                            alpha=0.3)]
+            bodies += [fill(stats['coords'], -vals + pos, vals + pos,
+                            facecolor=fillcolor, alpha=0.3)]
             means.append(stats['mean'])
             mins.append(stats['min'])
             maxes.append(stats['max'])
             medians.append(stats['median'])
-            q = stats.get('quantiles')
-            if q is not None:
-                # If exist key quantiles, assume it's a list of floats
-                quantiles = np.concatenate((quantiles, q))
+            q = stats.get('quantiles')  # a list of floats, or None
+            if q is None:
+                q = []
+            quantiles.extend(q)
+            qlens.append(len(q))
         artists['bodies'] = bodies
 
-        # Render means
-        if showmeans:
-            artists['cmeans'] = perp_lines(means, pmins, pmaxes,
-                                           colors=edgecolor)
-
-        # Render extrema
-        if showextrema:
-            artists['cmaxes'] = perp_lines(maxes, pmins, pmaxes,
-                                           colors=edgecolor)
-            artists['cmins'] = perp_lines(mins, pmins, pmaxes,
-                                          colors=edgecolor)
-            artists['cbars'] = par_lines(positions, mins, maxes,
-                                         colors=edgecolor)
-
-        # Render medians
-        if showmedians:
-            artists['cmedians'] = perp_lines(medians,
-                                             pmins,
-                                             pmaxes,
-                                             colors=edgecolor)
-
-        # Render quantile values
-        if quantiles.size > 0:
-            # Recalculate ranges for statistics lines for quantiles.
-            # ppmins are the left end of quantiles lines
-            ppmins = np.asarray([])
-            # pmaxes are the right end of quantiles lines
-            ppmaxs = np.asarray([])
-            for stats, cmin, cmax in zip(vpstats, pmins, pmaxes):
-                q = stats.get('quantiles')
-                if q is not None:
-                    ppmins = np.concatenate((ppmins, [cmin] * np.size(q)))
-                    ppmaxs = np.concatenate((ppmaxs, [cmax] * np.size(q)))
-            # Start rendering
-            artists['cquantiles'] = perp_lines(quantiles, ppmins, ppmaxs,
-                                               colors=edgecolor)
+        if showmeans:  # Render means
+            artists['cmeans'] = perp_lines(means, *line_ends)
+        if showextrema:  # Render extrema
+            artists['cmaxes'] = perp_lines(maxes, *line_ends)
+            artists['cmins'] = perp_lines(mins, *line_ends)
+            artists['cbars'] = par_lines(positions, mins, maxes)
+        if showmedians:  # Render medians
+            artists['cmedians'] = perp_lines(medians, *line_ends)
+        if quantiles:  # Render quantiles: each width is repeated qlen times.
+            artists['cquantiles'] = perp_lines(
+                quantiles, *np.repeat(line_ends, qlens, axis=1))
 
         return artists
 

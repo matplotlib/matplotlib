@@ -1,6 +1,6 @@
 r"""
 *************************
-Text rendering With LaTeX
+Text rendering with LaTeX
 *************************
 
 Matplotlib can use LaTeX to render text.  This is activated by setting
@@ -11,10 +11,13 @@ is more flexible, since different LaTeX packages (font packages, math packages,
 etc.) can be used. The results can be striking, especially when you take care
 to use the same fonts in your figures as in the main document.
 
-Matplotlib's LaTeX support requires a working LaTeX_ installation.  For the
-\*Agg backends, dvipng_ is additionally required; for the PS backend, psfrag_,
-dvips_ and Ghostscript_ are additionally required.  The executables for these
-external dependencies must all be located on your :envvar:`PATH`.
+Matplotlib's LaTeX support requires a working LaTeX_ installation.  For
+the \*Agg backends, dvipng_ is additionally required; for the PS backend,
+PSfrag_, dvips_ and Ghostscript_ are additionally required.  For the PDF
+and SVG backends, if LuaTeX is present, it will be used to speed up some
+post-processing steps, but note that it is not used to parse the TeX string
+itself (only LaTeX is supported).  The executables for these external
+dependencies must all be located on your :envvar:`PATH`.
 
 There are a couple of options to mention, which can be changed using
 :doc:`rc settings </tutorials/introductory/customizing>`. Here is an example
@@ -50,7 +53,7 @@ matplotlibrc use::
   })
 
 Here is the standard example,
-:file:`/gallery/text_labels_and_annotations/tex_demo`:
+:doc:`/gallery/text_labels_and_annotations/tex_demo`:
 
 .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_tex_demo_001.png
    :target: ../../gallery/text_labels_and_annotations/tex_demo.html
@@ -131,7 +134,7 @@ Troubleshooting
   problems. Please disable this option before reporting problems to
   the mailing list.
 
-* If you still need help, please see :ref:`reporting-problems`
+* If you still need help, please see :ref:`reporting-problems`.
 
 .. _dvipng: http://www.nongnu.org/dvipng/
 .. _dvips: https://tug.org/texinfohtml/dvips.html
@@ -140,6 +143,6 @@ Troubleshooting
 .. _LaTeX: http://www.tug.org
 .. _Poppler: https://poppler.freedesktop.org/
 .. _PSNFSS: http://www.ctan.org/tex-archive/macros/latex/required/psnfss/psnfss2e.pdf
-.. _psfrag: https://ctan.org/pkg/psfrag
+.. _PSfrag: https://ctan.org/pkg/psfrag
 .. _Xpdf: http://www.xpdfreader.com/
 """

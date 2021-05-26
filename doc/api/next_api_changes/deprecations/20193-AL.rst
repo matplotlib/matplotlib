@@ -1,0 +1,3 @@
+``ParasiteAxesBase.get_images_artists``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... has been deprecated.

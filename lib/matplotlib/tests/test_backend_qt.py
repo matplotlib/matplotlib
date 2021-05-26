@@ -1,4 +1,5 @@
 import copy
+from datetime import date, datetime
 import signal
 from unittest import mock
 
@@ -10,7 +11,8 @@ import pytest
 
 
 try:
-    from matplotlib.backends.qt_compat import QtGui
+    from matplotlib.backends.qt_compat import QtGui, QtWidgets
+    from matplotlib.backends.qt_editor import _formlayout
 except ImportError:
     pytestmark = pytest.mark.skip('No usable Qt5 bindings')
 
@@ -21,22 +23,11 @@ def qt_core(request):
     qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
     QtCore = qt_compat.QtCore
 
-    if backend == 'Qt4Agg':
-        try:
-            py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])
-        except AttributeError:
-            py_qt_ver = QtCore.__version_info__[0]
-        if py_qt_ver != 4:
-            pytest.skip('Qt4 is not available')
-
     return QtCore
 
 
 @pytest.mark.parametrize('backend', [
     # Note: the value is irrelevant; the important part is the marker.
-    pytest.param(
-        'Qt4Agg',
-        marks=pytest.mark.backend('Qt4Agg', skip_on_importerror=True)),
     pytest.param(
         'Qt5Agg',
         marks=pytest.mark.backend('Qt5Agg', skip_on_importerror=True)),
@@ -134,9 +125,6 @@ def test_fig_signals(qt_core):
 )
 @pytest.mark.parametrize('backend', [
     # Note: the value is irrelevant; the important part is the marker.
-    pytest.param(
-        'Qt4Agg',
-        marks=pytest.mark.backend('Qt4Agg', skip_on_importerror=True)),
     pytest.param(
         'Qt5Agg',
         marks=pytest.mark.backend('Qt5Agg', skip_on_importerror=True)),
@@ -260,6 +248,20 @@ def test_figureoptions():
 
 
 @pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
+def test_figureoptions_with_datetime_axes():
+    fig, ax = plt.subplots()
+    xydata = [
+        datetime(year=2021, month=1, day=1),
+        datetime(year=2021, month=2, day=1)
+    ]
+    ax.plot(xydata, xydata)
+    with mock.patch(
+            "matplotlib.backends.qt_editor._formlayout.FormDialog.exec_",
+            lambda self: None):
+        fig.canvas.manager.toolbar.edit_parameters()
+
+
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_double_resize():
     # Check that resizing a figure twice keeps the same window size
     fig, ax = plt.subplots()
@@ -296,3 +298,20 @@ def test_canvas_reinit():
     canvas = FigureCanvasQTAgg(fig)
     fig.stale = True
     assert called
+
+
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
+def test_form_widget_get_with_datetime_and_date_fields():
+    if not QtWidgets.QApplication.instance():
+        QtWidgets.QApplication()
+    form = [
+        ("Datetime field", datetime(year=2021, month=3, day=11)),
+        ("Date field", date(year=2021, month=3, day=11))
+    ]
+    widget = _formlayout.FormWidget(form)
+    widget.setup()
+    values = widget.get()
+    assert values == [
+        datetime(year=2021, month=3, day=11),
+        date(year=2021, month=3, day=11)
+    ]

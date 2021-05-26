@@ -143,7 +143,7 @@ plt.show()
 # =========================================
 #
 # `.ConciseDateFormatter` doesn't have rcParams entries, but localization
-# can be accomplished by passing kwargs to `~.ConciseDateConverter` and
+# can be accomplished by passing kwargs to `.ConciseDateConverter` and
 # registering the datatypes you will use with the units registry:
 
 import datetime

@@ -1,7 +1,6 @@
 import functools
 
-from matplotlib import _api, docstring
-import matplotlib.artist as martist
+from matplotlib import _api
 from matplotlib.axes._axes import Axes
 from matplotlib.gridspec import GridSpec, SubplotSpec
 
@@ -220,9 +219,3 @@ def _picklable_subplot_class_constructor(axes_class):
     """
     subplot_class = subplot_class_factory(axes_class)
     return subplot_class.__new__(subplot_class)
-
-
-docstring.interpd.update(Axes_kwdoc=martist.kwdoc(Axes))
-docstring.dedent_interpd(Axes.__init__)
-
-docstring.interpd.update(Subplot_kwdoc=martist.kwdoc(Axes))

@@ -23,6 +23,7 @@ from .path import Path
 from ._enums import JoinStyle, CapStyle
 
 
+@docstring.interpd
 @cbook._define_aliases({
     "antialiased": ["aa"],
     "edgecolor": ["ec"],
@@ -70,7 +71,7 @@ class Patch(artist.Artist):
         """
         The following kwarg properties are supported
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         super().__init__()
 
@@ -631,16 +632,6 @@ class Patch(artist.Artist):
         return x, y
 
 
-_patch_kwdoc = artist.kwdoc(Patch)
-for k in ['Rectangle', 'Circle', 'RegularPolygon', 'Polygon', 'Wedge', 'Arrow',
-          'FancyArrow', 'CirclePolygon', 'Ellipse', 'Arc', 'FancyBboxPatch',
-          'Patch']:
-    docstring.interpd.update({f'{k}_kwdoc': _patch_kwdoc})
-
-# define Patch.__init__ docstring after the class has been added to interpd
-docstring.dedent_interpd(Patch.__init__)
-
-
 class Shadow(Patch):
     def __str__(self):
         return "Shadow(%s)" % (str(self.patch))
@@ -666,7 +657,7 @@ class Shadow(Patch):
         **kwargs
             Properties of the shadow patch. Supported keys are:
 
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
         """
         super().__init__()
         self.patch = patch
@@ -751,7 +742,7 @@ class Rectangle(Patch):
         Other Parameters
         ----------------
         **kwargs : `.Patch` properties
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
         self._x0 = xy[0]
@@ -905,7 +896,7 @@ class RegularPolygon(Patch):
         **kwargs
             `Patch` properties:
 
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
         """
         self.xy = xy
         self.numvertices = numVertices
@@ -941,7 +932,7 @@ class PathPatch(Patch):
 
         Valid keyword arguments are:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
         self._path = path
@@ -988,7 +979,7 @@ class StepPatch(PathPatch):
 
         Other valid keyword arguments are:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         self.orientation = orientation
         self._edges = np.asarray(edges)
@@ -1078,7 +1069,7 @@ class Polygon(Patch):
 
         Valid keyword arguments are:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
         self._closed = closed
@@ -1174,7 +1165,7 @@ class Wedge(Patch):
 
         Valid keyword arguments are:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
         self.center = center
@@ -1282,7 +1273,7 @@ class Arrow(Patch):
         **kwargs
             Keyword arguments control the `Patch` properties:
 
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
 
         See Also
         --------
@@ -1354,7 +1345,7 @@ class FancyArrow(Polygon):
         **kwargs
             `.Patch` properties:
 
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
         """
         self._x = x
         self._y = y
@@ -1496,7 +1487,7 @@ class CirclePolygon(RegularPolygon):
 
         Valid keyword arguments are:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         super().__init__(xy, resolution, radius, orientation=0, **kwargs)
 
@@ -1528,7 +1519,7 @@ class Ellipse(Patch):
         -----
         Valid keyword arguments are:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
 
@@ -1664,7 +1655,7 @@ class Annulus(Patch):
         **kwargs
             Keyword arguments control the `Patch` properties:
 
-            %(Patch_kwdoc)s
+            %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
 
@@ -1842,7 +1833,7 @@ class Circle(Ellipse):
 
         Valid keyword arguments are:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         super().__init__(xy, radius * 2, radius * 2, **kwargs)
         self.radius = radius
@@ -1919,7 +1910,7 @@ class Arc(Ellipse):
             with the exception of *fill* and *facecolor* because filling is
             not supported.
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
         fill = kwargs.setdefault('fill', False)
         if fill:
@@ -3226,24 +3217,24 @@ class ArrowStyle(_Style):
     class _Curve(_Base):
         """
         A simple arrow which will work with any path instance. The
-        returned path is simply concatenation of the original path + at
+        returned path is the concatenation of the original path, and at
         most two paths representing the arrow head at the begin point and the
         at the end point. The arrow heads can be either open or closed.
         """
 
-        def __init__(self, beginarrow=None, endarrow=None,
-                     fillbegin=False, fillend=False,
-                     head_length=.2, head_width=.1):
+        beginarrow = endarrow = False  # Whether arrows are drawn.
+        fillbegin = fillend = False  # Whether arrows are filled.
+
+        def __init__(self, head_length=.4, head_width=.2):
             """
-            The arrows are drawn if *beginarrow* and/or *endarrow* are
-            true. *head_length* and *head_width* determines the size
-            of the arrow relative to the *mutation scale*.  The
-            arrowhead at the begin (or end) is closed if fillbegin (or
-            fillend) is True.
+            Parameters
+            ----------
+            head_length : float, default: 0.4
+                Length of the arrow head, relative to *mutation_scale*.
+            head_width : float, default: 0.2
+                Width of the arrow head, relative to *mutation_scale*.
             """
-            self.beginarrow, self.endarrow = beginarrow, endarrow
             self.head_length, self.head_width = head_length, head_width
-            self.fillbegin, self.fillend = fillbegin, fillend
             super().__init__()
 
         def _get_arrow_wedge(self, x0, y0, x1, y1,
@@ -3357,113 +3348,40 @@ class ArrowStyle(_Style):
     class Curve(_Curve):
         """A simple curve without any arrow head."""
 
-        def __init__(self):
-            super().__init__(beginarrow=False, endarrow=False)
+        def __init__(self):  # hide head_length, head_width
+            # These attributes (whose values come from backcompat) only matter
+            # if someone modifies beginarrow/etc. on an ArrowStyle instance.
+            super().__init__(head_length=.2, head_width=.1)
 
     @_register_style(_style_list, name="<-")
     class CurveA(_Curve):
         """An arrow with a head at its begin point."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=True, endarrow=False,
-                             head_length=head_length, head_width=head_width)
+        beginarrow = True
 
     @_register_style(_style_list, name="->")
     class CurveB(_Curve):
         """An arrow with a head at its end point."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=False, endarrow=True,
-                             head_length=head_length, head_width=head_width)
+        endarrow = True
 
     @_register_style(_style_list, name="<->")
     class CurveAB(_Curve):
         """An arrow with heads both at the begin and the end point."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=True, endarrow=True,
-                             head_length=head_length, head_width=head_width)
+        beginarrow = endarrow = True
 
     @_register_style(_style_list, name="<|-")
     class CurveFilledA(_Curve):
         """An arrow with filled triangle head at the begin."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=True, endarrow=False,
-                             fillbegin=True, fillend=False,
-                             head_length=head_length, head_width=head_width)
+        beginarrow = fillbegin = True
 
     @_register_style(_style_list, name="-|>")
     class CurveFilledB(_Curve):
         """An arrow with filled triangle head at the end."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=False, endarrow=True,
-                             fillbegin=False, fillend=True,
-                             head_length=head_length, head_width=head_width)
+        endarrow = fillend = True
 
     @_register_style(_style_list, name="<|-|>")
     class CurveFilledAB(_Curve):
         """An arrow with filled triangle heads at both ends."""
-
-        def __init__(self, head_length=.4, head_width=.2):
-            """
-            Parameters
-            ----------
-            head_length : float, default: 0.4
-                Length of the arrow head.
-
-            head_width : float, default: 0.2
-                Width of the arrow head.
-            """
-            super().__init__(beginarrow=True, endarrow=True,
-                             fillbegin=True, fillend=True,
-                             head_length=head_length, head_width=head_width)
+        beginarrow = endarrow = fillbegin = fillend = True
 
     class _Bracket(_Base):
 
@@ -3911,7 +3829,7 @@ class FancyBboxPatch(Patch):
         ----------------
         **kwargs : `.Patch` properties
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
         """
 
         super().__init__(**kwargs)
@@ -4231,7 +4149,7 @@ default: 'arc3'
         **kwargs : `.Patch` properties, optional
             Here is a list of available `.Patch` properties:
 
-        %(Patch_kwdoc)s
+        %(Patch:kwdoc)s
 
             In contrast to other patches, the default ``capstyle`` and
             ``joinstyle`` for `FancyArrowPatch` are set to ``"round"``.

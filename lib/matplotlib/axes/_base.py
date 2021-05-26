@@ -223,7 +223,7 @@ class _process_plot_var_args:
     def __init__(self, axes, command='plot'):
         self.axes = axes
         self.command = command
-        self.set_prop_cycle()
+        self.set_prop_cycle(None)
 
     def __getstate__(self):
         # note: it is not possible to pickle a generator (and thus a cycler).
@@ -231,18 +231,13 @@ class _process_plot_var_args:
 
     def __setstate__(self, state):
         self.__dict__ = state.copy()
-        self.set_prop_cycle()
+        self.set_prop_cycle(None)
 
-    def set_prop_cycle(self, *args, **kwargs):
-        # Can't do `args == (None,)` as that crashes cycler.
-        if not (args or kwargs) or (len(args) == 1 and args[0] is None):
-            prop_cycler = mpl.rcParams['axes.prop_cycle']
-        else:
-            prop_cycler = cycler(*args, **kwargs)
-
-        self.prop_cycler = itertools.cycle(prop_cycler)
-        # This should make a copy
-        self._prop_keys = prop_cycler.keys
+    def set_prop_cycle(self, cycler):
+        if cycler is None:
+            cycler = mpl.rcParams['axes.prop_cycle']
+        self.prop_cycler = itertools.cycle(cycler)
+        self._prop_keys = cycler.keys  # This should make a copy
 
     def __call__(self, *args, data=None, **kwargs):
         self.axes._process_unit_info(kwargs=kwargs)
@@ -591,7 +586,7 @@ class _AxesBase(martist.Artist):
         **kwargs
             Other optional keyword arguments:
 
-            %(Axes_kwdoc)s
+            %(Axes:kwdoc)s
 
         Returns
         -------
@@ -2170,7 +2165,7 @@ class _AxesBase(martist.Artist):
 
     def add_artist(self, a):
         """
-        Add an `~.Artist` to the Axes; return the artist.
+        Add an `.Artist` to the Axes; return the artist.
 
         Use `add_artist` only for artists for which there is no dedicated
         "add" method; and if necessary, use a method such as `update_datalim`
@@ -2191,7 +2186,7 @@ class _AxesBase(martist.Artist):
 
     def add_child_axes(self, ax):
         """
-        Add an `~.AxesBase` to the axes' children; return the child axes.
+        Add an `.AxesBase` to the axes' children; return the child axes.
 
         This is the lowlevel version.  See `.axes.Axes.inset_axes`.
         """
@@ -2209,7 +2204,7 @@ class _AxesBase(martist.Artist):
 
     def add_collection(self, collection, autolim=True):
         """
-        Add a `~.Collection` to the Axes; return the collection.
+        Add a `.Collection` to the Axes; return the collection.
         """
         self._deprecate_noninstance('add_collection', mcoll.Collection,
                                     collection=collection)
@@ -2243,7 +2238,7 @@ class _AxesBase(martist.Artist):
 
     def add_image(self, image):
         """
-        Add an `~.AxesImage` to the Axes; return the image.
+        Add an `.AxesImage` to the Axes; return the image.
         """
         self._deprecate_noninstance('add_image', mimage.AxesImage, image=image)
         self._set_artist_props(image)
@@ -2277,7 +2272,7 @@ class _AxesBase(martist.Artist):
 
     def _add_text(self, txt):
         """
-        Add a `~.Text` to the Axes; return the text.
+        Add a `.Text` to the Axes; return the text.
         """
         self._deprecate_noninstance('_add_text', mtext.Text, txt=txt)
         self._set_artist_props(txt)
@@ -2332,7 +2327,7 @@ class _AxesBase(martist.Artist):
 
     def add_patch(self, p):
         """
-        Add a `~.Patch` to the Axes; return the patch.
+        Add a `.Patch` to the Axes; return the patch.
         """
         self._deprecate_noninstance('add_patch', mpatches.Patch, p=p)
         self._set_artist_props(p)
@@ -2373,7 +2368,7 @@ class _AxesBase(martist.Artist):
 
     def add_table(self, tab):
         """
-        Add a `~.Table` to the Axes; return the table.
+        Add a `.Table` to the Axes; return the table.
         """
         self._deprecate_noninstance('add_table', mtable.Table, tab=tab)
         self._set_artist_props(tab)
@@ -2384,7 +2379,7 @@ class _AxesBase(martist.Artist):
 
     def add_container(self, container):
         """
-        Add a `~.Container` to the axes' containers; return the container.
+        Add a `.Container` to the axes' containers; return the container.
         """
         label = container.get_label()
         if not label:
@@ -2411,7 +2406,7 @@ class _AxesBase(martist.Artist):
         """
         Recompute the data limits based on current artists.
 
-        At present, `~.Collection` instances are not supported.
+        At present, `.Collection` instances are not supported.
 
         Parameters
         ----------
@@ -3092,7 +3087,8 @@ class _AxesBase(martist.Artist):
                 a.draw(renderer)
             renderer.stop_rasterizing()
 
-        mimage._draw_list_compositing_images(renderer, self, artists)
+        mimage._draw_list_compositing_images(
+            renderer, self, artists, self.figure.suppressComposite)
 
         renderer.close_group('axes')
         self.stale = False
@@ -3196,17 +3192,18 @@ class _AxesBase(martist.Artist):
         self.stale = True
 
     @docstring.dedent_interpd
-    def grid(self, b=None, which='major', axis='both', **kwargs):
+    @_api.rename_parameter("3.5", "b", "visible")
+    def grid(self, visible=None, which='major', axis='both', **kwargs):
         """
         Configure the grid lines.
 
         Parameters
         ----------
-        b : bool or None, optional
-            Whether to show the grid lines. If any *kwargs* are supplied,
-            it is assumed you want the grid on and *b* will be set to True.
+        visible : bool or None, optional
+            Whether to show the grid lines.  If any *kwargs* are supplied, it
+            is assumed you want the grid on and *visible* will be set to True.
 
-            If *b* is *None* and there are no *kwargs*, this toggles the
+            If *visible* is *None* and there are no *kwargs*, this toggles the
             visibility of the lines.
 
         which : {'major', 'minor', 'both'}, optional
@@ -3222,7 +3219,7 @@ class _AxesBase(martist.Artist):
 
             Valid keyword arguments are:
 
-            %(Line2D_kwdoc)s
+            %(Line2D:kwdoc)s
 
         Notes
         -----
@@ -3234,9 +3231,9 @@ class _AxesBase(martist.Artist):
         """
         _api.check_in_list(['x', 'y', 'both'], axis=axis)
         if axis in ['x', 'both']:
-            self.xaxis.grid(b, which=which, **kwargs)
+            self.xaxis.grid(visible, which=which, **kwargs)
         if axis in ['y', 'both']:
-            self.yaxis.grid(b, which=which, **kwargs)
+            self.yaxis.grid(visible, which=which, **kwargs)
 
     def ticklabel_format(self, *, axis='both', style='', scilimits=None,
                          useOffset=None, useLocale=None, useMathText=None):

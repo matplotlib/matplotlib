@@ -583,16 +583,17 @@ def test_legend_title_fontprop_fontsize():
     assert leg5.get_title().get_fontsize() == 20
 
 
-def test_legend_labelcolor_single():
+@pytest.mark.parametrize('color', ('red', 'none', (.5, .5, .5)))
+def test_legend_labelcolor_single(color):
     # test labelcolor for a single color
     fig, ax = plt.subplots()
     ax.plot(np.arange(10), np.arange(10)*1, label='#1')
     ax.plot(np.arange(10), np.arange(10)*2, label='#2')
     ax.plot(np.arange(10), np.arange(10)*3, label='#3')
 
-    leg = ax.legend(labelcolor='red')
+    leg = ax.legend(labelcolor=color)
     for text in leg.get_texts():
-        assert mpl.colors.same_color(text.get_color(), 'red')
+        assert mpl.colors.same_color(text.get_color(), color)
 
 
 def test_legend_labelcolor_list():
@@ -639,6 +640,85 @@ def test_legend_labelcolor_markerfacecolor():
     ax.plot(np.arange(10), np.arange(10)*3, label='#3', markerfacecolor='b')
 
     leg = ax.legend(labelcolor='markerfacecolor')
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+@pytest.mark.parametrize('color', ('red', 'none', (.5, .5, .5)))
+def test_legend_labelcolor_rcparam_single(color):
+    # test the rcParams legend.labelcolor for a single color
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3')
+
+    mpl.rcParams['legend.labelcolor'] = color
+    leg = ax.legend()
+    for text in leg.get_texts():
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_labelcolor_rcparam_linecolor():
+    # test the rcParams legend.labelcolor for a linecolor
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1', color='r')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2', color='g')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3', color='b')
+
+    mpl.rcParams['legend.labelcolor'] = 'linecolor'
+    leg = ax.legend()
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_labelcolor_rcparam_markeredgecolor():
+    # test the labelcolor for labelcolor='markeredgecolor'
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1', markeredgecolor='r')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2', markeredgecolor='g')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3', markeredgecolor='b')
+
+    mpl.rcParams['legend.labelcolor'] = 'markeredgecolor'
+    leg = ax.legend()
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_labelcolor_rcparam_markeredgecolor_short():
+    # test the labelcolor for labelcolor='markeredgecolor'
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1', markeredgecolor='r')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2', markeredgecolor='g')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3', markeredgecolor='b')
+
+    mpl.rcParams['legend.labelcolor'] = 'mec'
+    leg = ax.legend()
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_labelcolor_rcparam_markerfacecolor():
+    # test the labelcolor for labelcolor='markeredgecolor'
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1', markerfacecolor='r')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2', markerfacecolor='g')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3', markerfacecolor='b')
+
+    mpl.rcParams['legend.labelcolor'] = 'markerfacecolor'
+    leg = ax.legend()
+    for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
+        assert mpl.colors.same_color(text.get_color(), color)
+
+
+def test_legend_labelcolor_rcparam_markerfacecolor_short():
+    # test the labelcolor for labelcolor='markeredgecolor'
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10), np.arange(10)*1, label='#1', markerfacecolor='r')
+    ax.plot(np.arange(10), np.arange(10)*2, label='#2', markerfacecolor='g')
+    ax.plot(np.arange(10), np.arange(10)*3, label='#3', markerfacecolor='b')
+
+    mpl.rcParams['legend.labelcolor'] = 'mfc'
+    leg = ax.legend()
     for text, color in zip(leg.get_texts(), ['r', 'g', 'b']):
         assert mpl.colors.same_color(text.get_color(), color)
 
@@ -764,3 +844,11 @@ def test_plot_multiple_label_incorrect_length_exception():
         label = ['high', 'low', 'medium']
         fig, ax = plt.subplots()
         ax.plot(x, y, label=label)
+
+
+def test_legend_face_edgecolor():
+    # Smoke test for PolyCollection legend handler with 'face' edgecolor.
+    fig, ax = plt.subplots()
+    ax.fill_between([0, 1, 2], [1, 2, 3], [2, 3, 4],
+                    facecolor='r', edgecolor='face', label='Fill')
+    ax.legend()

@@ -124,8 +124,10 @@ class Game:
     def __init__(self, ax):
         # create the initial line
         self.ax = ax
-        ax.set_ylim([-1, 1])
+        ax.xaxis.set_visible(False)
         ax.set_xlim([0, 7])
+        ax.yaxis.set_visible(False)
+        ax.set_ylim([-1, 1])
         pad_a_x = 0
         pad_b_x = .50
         pad_a_y = pad_b_y = .30
@@ -168,7 +170,6 @@ class Game:
         self.res = 100.0
         self.on = False
         self.inst = True    # show instructions from the beginning
-        self.background = None
         self.pads = [Pad(pA, pad_a_x, pad_a_y),
                      Pad(pB, pad_b_x, pad_b_y, 'r')]
         self.pucks = []
@@ -177,7 +178,7 @@ class Game:
                                   verticalalignment='center',
                                   horizontalalignment='center',
                                   multialignment='left',
-                                  textcoords='axes fraction',
+                                  xycoords='axes fraction',
                                   animated=False)
         self.canvas.mpl_connect('key_press_event', self.on_key_press)
 

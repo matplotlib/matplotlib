@@ -9,16 +9,16 @@ API
 For recent changes, see :doc:`api_changes`.
 
 When using the library you will typically create
-:doc:`Figure <figure_api>` and :doc:`Axes <axes_api>` objects and 
+:doc:`Figure <figure_api>` and :doc:`Axes <axes_api>` objects and
 call their methods to add content and modify the appearance.
 
-  - :doc:`figure_api`: axes creation, figure-level content
-  - :doc:`axes_api`: most plotting methods, Axes labels, access to 
-    axis styling, etc.  
+- :mod:`matplotlib.figure`: axes creation, figure-level content
+- :mod:`matplotlib.axes`: most plotting methods, Axes labels, access to axis
+  styling, etc.
 
 Example: We create a Figure ``fig`` and Axes ``ax``. Then we call
 methods on them to plot data, add axis labels and a figure title.
- 
+
 .. plot::
    :include-source:
    :align: center

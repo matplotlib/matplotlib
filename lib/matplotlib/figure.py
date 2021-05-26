@@ -23,7 +23,6 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import docstring, projections
-import matplotlib.artist as martist
 from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
@@ -120,6 +119,7 @@ class SubplotParams:
     """
     A class to hold the parameters for a subplot.
     """
+
     def __init__(self, left=None, bottom=None, right=None, top=None,
                  wspace=None, hspace=None):
         """
@@ -146,17 +146,20 @@ class SubplotParams:
             The height of the padding between subplots,
             as a fraction of the average Axes height.
         """
-        self.validate = True
+        self._validate = True
         for key in ["left", "bottom", "right", "top", "wspace", "hspace"]:
             setattr(self, key, mpl.rcParams[f"figure.subplot.{key}"])
         self.update(left, bottom, right, top, wspace, hspace)
+
+    # Also remove _validate after deprecation elapses.
+    validate = _api.deprecate_privatize_attribute("3.5")
 
     def update(self, left=None, bottom=None, right=None, top=None,
                wspace=None, hspace=None):
         """
         Update the dimensions of the passed parameters. *None* means unchanged.
         """
-        if self.validate:
+        if self._validate:
             if ((left if left is not None else self.left)
                     >= (right if right is not None else self.right)):
                 raise ValueError('left cannot be >= right')
@@ -589,7 +592,7 @@ default: %(va)s
             arguments if another projection is used, see the actual Axes
             class.
 
-            %(Axes_kwdoc)s
+            %(Axes:kwdoc)s
 
         Notes
         -----
@@ -727,7 +730,7 @@ default: %(va)s
             the following table but there might also be other keyword
             arguments if another projection is used.
 
-            %(Axes_kwdoc)s
+            %(Axes:kwdoc)s
 
         See Also
         --------
@@ -1097,7 +1100,7 @@ default: %(va)s
         **kwargs : `~matplotlib.text.Text` properties
             Other miscellaneous text parameters.
 
-            %(Text_kwdoc)s
+            %(Text:kwdoc)s
 
         See Also
         --------
@@ -1133,21 +1136,26 @@ default: %(va)s
                     "to colorbar().")
 
         # Store the value of gca so that we can set it back later on.
-        current_ax = self.gca()
         if cax is None:
+            current_ax = self.gca()
+            kw['userax'] = False
             if (use_gridspec and isinstance(ax, SubplotBase)
                     and not self.get_constrained_layout()):
                 cax, kw = cbar.make_axes_gridspec(ax, **kw)
             else:
                 cax, kw = cbar.make_axes(ax, **kw)
+        else:
+            kw['userax'] = True
 
         # need to remove kws that cannot be passed to Colorbar
         NON_COLORBAR_KEYS = ['fraction', 'pad', 'shrink', 'aspect', 'anchor',
                              'panchor']
         cb_kw = {k: v for k, v in kw.items() if k not in NON_COLORBAR_KEYS}
+
         cb = cbar.Colorbar(cax, mappable, **cb_kw)
 
-        self.sca(current_ax)
+        if not kw['userax']:
+            self.sca(current_ax)
         self.stale = True
         return cb
 
@@ -1480,8 +1488,7 @@ default: %(va)s
         adheres to the given projection etc., and for Axes creation if
         the active Axes does not exist:
 
-        %(Axes_kwdoc)s
-
+        %(Axes:kwdoc)s
         """
         if kwargs:
             _api.warn_deprecated(
@@ -2090,7 +2097,8 @@ class SubFigure(FigureBase):
         try:
             renderer.open_group('subfigure', gid=self.get_gid())
             self.patch.draw(renderer)
-            mimage._draw_list_compositing_images(renderer, self, artists)
+            mimage._draw_list_compositing_images(
+                renderer, self, artists, self.figure.suppressComposite)
             for sfig in self.subfigs:
                 sfig.draw(renderer)
             renderer.close_group('subfigure')
@@ -2114,7 +2122,7 @@ class Figure(FigureBase):
         The `.Rectangle` instance representing the figure background patch.
 
     suppressComposite
-        For multiple figure images, the figure will make composite images
+        For multiple images, the figure will make composite images
         depending on the renderer option_image_nocomposite function.  If
         *suppressComposite* is a boolean, this will override the renderer.
     """
@@ -2837,10 +2845,11 @@ class Figure(FigureBase):
 
         Call signature::
 
-          savefig(fname, dpi=None, facecolor='w', edgecolor='w',
-                  orientation='portrait', papertype=None, format=None,
-                  transparent=False, bbox_inches=None, pad_inches=0.1,
-                  frameon=None, metadata=None)
+          savefig(fname, *, dpi='figure', format=None, metadata=None,
+                  bbox_inches=None, pad_inches=0.1,
+                  facecolor='auto', edgecolor='auto',
+                  backend=None, **kwargs
+                 )
 
         The available output formats depend on the backend being used.
 
@@ -2868,53 +2877,9 @@ class Figure(FigureBase):
             The resolution in dots per inch.  If 'figure', use the figure's
             dpi value.
 
-        facecolor : color or 'auto', default: :rc:`savefig.facecolor`
-            The facecolor of the figure.  If 'auto', use the current figure
-            facecolor.
-
-        edgecolor : color or 'auto', default: :rc:`savefig.edgecolor`
-            The edgecolor of the figure.  If 'auto', use the current figure
-            edgecolor.
-
-        orientation : {'landscape', 'portrait'}
-            Currently only supported by the postscript backend.
-
-        papertype : str
-            One of 'letter', 'legal', 'executive', 'ledger', 'a0' through
-            'a10', 'b0' through 'b10'. Only supported for postscript
-            output.
-
         format : str
             The file format, e.g. 'png', 'pdf', 'svg', ... The behavior when
             this is unset is documented under *fname*.
-
-        transparent : bool
-            If *True*, the Axes patches will all be transparent; the
-            figure patch will also be transparent unless facecolor
-            and/or edgecolor are specified via kwargs.
-            This is useful, for example, for displaying
-            a plot on top of a colored background on a web page.  The
-            transparency of these patches will be restored to their
-            original values upon exit of this function.
-
-        bbox_inches : str or `.Bbox`, default: :rc:`savefig.bbox`
-            Bounding box in inches: only the given portion of the figure is
-            saved.  If 'tight', try to figure out the tight bbox of the figure.
-
-        pad_inches : float, default: :rc:`savefig.pad_inches`
-            Amount of padding around the figure when bbox_inches is 'tight'.
-
-        bbox_extra_artists : list of `~matplotlib.artist.Artist`, optional
-            A list of extra artists that will be considered when the
-            tight bbox is calculated.
-
-        backend : str, optional
-            Use a non-default backend to render the file, e.g. to render a
-            png file with the "cairo" backend rather than the default "agg",
-            or a pdf file with the "pgf" backend rather than the default
-            "pdf".  Note that the default backend is normally sufficient.  See
-            :ref:`the-builtin-backends` for a list of valid backends for each
-            file format.  Custom backends can be referenced as "module://...".
 
         metadata : dict, optional
             Key/value pairs to store in the image metadata. The supported keys
@@ -2928,9 +2893,61 @@ class Figure(FigureBase):
               `~.FigureCanvasSVG.print_svg`.
             - 'eps' and 'ps' with PS backend: Only 'Creator' is supported.
 
+        bbox_inches : str or `.Bbox`, default: :rc:`savefig.bbox`
+            Bounding box in inches: only the given portion of the figure is
+            saved.  If 'tight', try to figure out the tight bbox of the figure.
+
+        pad_inches : float, default: :rc:`savefig.pad_inches`
+            Amount of padding around the figure when bbox_inches is 'tight'.
+
+        facecolor : color or 'auto', default: :rc:`savefig.facecolor`
+            The facecolor of the figure.  If 'auto', use the current figure
+            facecolor.
+
+        edgecolor : color or 'auto', default: :rc:`savefig.edgecolor`
+            The edgecolor of the figure.  If 'auto', use the current figure
+            edgecolor.
+
+        backend : str, optional
+            Use a non-default backend to render the file, e.g. to render a
+            png file with the "cairo" backend rather than the default "agg",
+            or a pdf file with the "pgf" backend rather than the default
+            "pdf".  Note that the default backend is normally sufficient.  See
+            :ref:`the-builtin-backends` for a list of valid backends for each
+            file format.  Custom backends can be referenced as "module://...".
+
+        orientation : {'landscape', 'portrait'}
+            Currently only supported by the postscript backend.
+
+        papertype : str
+            One of 'letter', 'legal', 'executive', 'ledger', 'a0' through
+            'a10', 'b0' through 'b10'. Only supported for postscript
+            output.
+
+        transparent : bool
+            If *True*, the Axes patches will all be transparent; the
+            Figure patch will also be transparent unless *facecolor*
+            and/or *edgecolor* are specified via kwargs.
+
+            If *False* has no effect and the color of the Axes and
+            Figure patches are unchanged (unless the Figure patch
+            is specified via the *facecolor* and/or *edgecolor* keyword
+            arguments in which case those colors are used).
+
+            The transparency of these patches will be restored to their
+            original values upon exit of this function.
+
+            This is useful, for example, for displaying
+            a plot on top of a colored background on a web page.
+
+        bbox_extra_artists : list of `~matplotlib.artist.Artist`, optional
+            A list of extra artists that will be considered when the
+            tight bbox is calculated.
+
         pil_kwargs : dict, optional
             Additional keyword arguments that are passed to
             `PIL.Image.Image.save` when saving the figure.
+
         """
 
         kwargs.setdefault('dpi', mpl.rcParams['savefig.dpi'])
@@ -3168,6 +3185,3 @@ def figaspect(arg):
     # the min/max dimensions (we don't want figures 10 feet tall!)
     newsize = np.clip(newsize, figsize_min, figsize_max)
     return newsize
-
-
-docstring.interpd.update(Figure_kwdoc=martist.kwdoc(Figure))

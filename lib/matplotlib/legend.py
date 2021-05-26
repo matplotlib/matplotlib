@@ -173,11 +173,14 @@ fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
     absolute font size in points. String values are relative to the current
     default font size. This argument is only used if *prop* is not specified.
 
-labelcolor : str or list
+labelcolor : str or list, default: :rc:`legend.labelcolor`
     The color of the text in the legend. Either a valid color string
     (for example, 'red'), or a list of color strings. The labelcolor can
     also be made to match the color of the line or marker using 'linecolor',
     'markerfacecolor' (or 'mfc'), or 'markeredgecolor' (or 'mec').
+
+    Labelcolor can be set globally using :rc:`legend.labelcolor`. If None,
+    use :rc:`text.color`.
 
 numpoints : int, default: :rc:`legend.numpoints`
     The number of marker points in the legend when creating a legend
@@ -205,7 +208,7 @@ frameon : bool, default: :rc:`legend.frameon`
     Whether the legend should be drawn on a patch (frame).
 
 fancybox : bool, default: :rc:`legend.fancybox`
-    Whether round edges should be enabled around the `~.FancyBboxPatch` which
+    Whether round edges should be enabled around the `.FancyBboxPatch` which
     makes up the legend's background.
 
 shadow : bool, default: :rc:`legend.shadow`
@@ -460,16 +463,11 @@ class Legend(Artist):
             if not self.isaxes and loc in [0, 'best']:
                 loc = 'upper right'
         if isinstance(loc, str):
-            if loc not in self.codes:
-                raise ValueError(
-                    "Unrecognized location {!r}. Valid locations are\n\t{}\n"
-                    .format(loc, '\n\t'.join(self.codes)))
-            else:
-                loc = self.codes[loc]
+            loc = _api.check_getitem(self.codes, loc=loc)
         if not self.isaxes and loc == 0:
             raise ValueError(
                 "Automatic legend placement (loc='best') not implemented for "
-                "figure legend.")
+                "figure legend")
 
         self._mode = mode
         self.set_bbox_to_anchor(bbox_to_anchor, bbox_transform)
@@ -544,8 +542,11 @@ class Legend(Artist):
             'mec':             ['get_markeredgecolor', 'get_edgecolor'],
         }
         if labelcolor is None:
-            pass
-        elif isinstance(labelcolor, str) and labelcolor in color_getters:
+            if mpl.rcParams['legend.labelcolor'] is not None:
+                labelcolor = mpl.rcParams['legend.labelcolor']
+            else:
+                labelcolor = mpl.rcParams['text.color']
+        if isinstance(labelcolor, str) and labelcolor in color_getters:
             getter_names = color_getters[labelcolor]
             for handle, text in zip(self.legendHandles, self.texts):
                 for getter_name in getter_names:
@@ -555,6 +556,9 @@ class Legend(Artist):
                         break
                     except AttributeError:
                         pass
+        elif isinstance(labelcolor, str) and labelcolor == 'none':
+            for text in self.texts:
+                text.set_color(labelcolor)
         elif np.iterable(labelcolor):
             for text, color in zip(self.texts,
                                    itertools.cycle(

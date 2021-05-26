@@ -7,7 +7,7 @@ which will be color-mapped (based on *norm* and *cmap*) or a 3D RGB(A)
 array which will be used as-is) to a rectangular region in data space.
 The orientation of the image in the final rendering is controlled by
 the *origin* and *extent* kwargs (and attributes on the resulting
-`~.AxesImage` instance) and the data limits of the axes.
+`.AxesImage` instance) and the data limits of the axes.
 
 The *extent* kwarg controls the bounding box in data coordinates that
 the image will fill specified as ``(left, right, bottom, top)`` in

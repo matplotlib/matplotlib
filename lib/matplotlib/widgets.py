@@ -1402,11 +1402,7 @@ class SubplotTool(Widget):
 
         bax = toolfig.add_axes([0.8, 0.05, 0.15, 0.075])
         self.buttonreset = Button(bax, 'Reset')
-
-        # During reset there can be a temporary invalid state depending on the
-        # order of the reset so we turn off validation for the resetting
-        with cbook._setattr_cm(toolfig.subplotpars, validate=False):
-            self.buttonreset.on_clicked(self._on_reset)
+        self.buttonreset.on_clicked(self._on_reset)
 
     def _on_slider_changed(self, _):
         self.targetfig.subplots_adjust(
@@ -1417,17 +1413,19 @@ class SubplotTool(Widget):
 
     def _on_reset(self, event):
         with ExitStack() as stack:
-            # Temporarily disable drawing on self and self's sliders.
+            # Temporarily disable drawing on self and self's sliders, and
+            # disconnect slider events (as the subplotparams can be temporarily
+            # invalid, depending on the order in which they are restored).
             stack.enter_context(cbook._setattr_cm(self, drawon=False))
             for slider in self._sliders:
-                stack.enter_context(cbook._setattr_cm(slider, drawon=False))
+                stack.enter_context(
+                    cbook._setattr_cm(slider, drawon=False, eventson=False))
             # Reset the slider to the initial position.
             for slider in self._sliders:
                 slider.reset()
-        # Draw the canvas.
         if self.drawon:
-            event.canvas.draw()
-            self.targetfig.canvas.draw()
+            event.canvas.draw()  # Redraw the subplottool canvas.
+        self._on_slider_changed(None)  # Apply changes to the target window.
 
     axleft = _api.deprecated("3.3")(
         property(lambda self: self.sliderleft.ax))
@@ -1739,7 +1737,8 @@ class _SelectorWidget(AxesWidget):
                 self.canvas.draw()
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         if needs_redraw:
-            self.update()
+            for artist in self.artists:
+                self.ax.draw_artist(artist)
 
     def connect_default_events(self):
         """Connect the major canvas events to methods."""
@@ -1783,6 +1782,8 @@ class _SelectorWidget(AxesWidget):
         if self.useblit:
             if self.background is not None:
                 self.canvas.restore_region(self.background)
+            else:
+                self.update_background(None)
             for artist in self.artists:
                 self.ax.draw_artist(artist)
             self.canvas.blit(self.ax.bbox)

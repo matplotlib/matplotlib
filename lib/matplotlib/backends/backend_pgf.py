@@ -624,9 +624,9 @@ class RendererPgf(RendererBase):
             return
 
         if not os.path.exists(getattr(self.fh, "name", "")):
-            _api.warn_external(
+            raise ValueError(
                 "streamed pgf-code does not support raster graphics, consider "
-                "using the pgf-to-pdf option.")
+                "using the pgf-to-pdf option")
 
         # save the images to png files
         path = pathlib.Path(self.fh.name)
@@ -948,6 +948,9 @@ class PdfPages:
             'Creator', 'Producer', 'CreationDate', 'ModDate', and
             'Trapped'. Values have been predefined for 'Creator', 'Producer'
             and 'CreationDate'. They can be removed by setting them to `None`.
+
+            Note that some versions of LaTeX engines may ignore the 'Producer'
+            key and set it to themselves.
         """
         self._output_name = filename
         self._n_figures = 0

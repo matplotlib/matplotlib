@@ -172,6 +172,7 @@ import datetime
 import functools
 import logging
 import math
+import re
 
 from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
                             MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY,
@@ -591,8 +592,13 @@ def drange(dstart, dend, delta):
 
 
 def _wrap_in_tex(text):
+    p = r'([a-zA-Z]+)'
+    ret_text = re.sub(p, r'}$\1$\\mathdefault{', text)
+
     # Braces ensure dashes are not spaced like binary operators.
-    return '$\\mathdefault{' + text.replace('-', '{-}') + '}$'
+    ret_text = '$\\mathdefault{'+ret_text.replace('-', '{-}')+'}$'
+    ret_text = ret_text.replace('$\\mathdefault{}$', '')
+    return ret_text
 
 
 ## date tickers and formatters ###
@@ -1729,6 +1735,8 @@ class MicrosecondLocator(DateLocator):
         return self._interval
 
 
+@_api.deprecated("3.5",
+                 alternative="mdates.date2num(datetime.utcfromtimestamp(e))")
 def epoch2num(e):
     """
     Convert UNIX time to days since Matplotlib epoch.
@@ -1750,6 +1758,7 @@ def epoch2num(e):
     return (dt + np.asarray(e)) / SEC_PER_DAY
 
 
+@_api.deprecated("3.5", alternative="mdates.num2date(e).timestamp()")
 def num2epoch(d):
     """
     Convert days since Matplotlib epoch to UNIX time.

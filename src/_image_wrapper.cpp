@@ -1,6 +1,5 @@
 #include "mplutils.h"
 #include "_image_resample.h"
-#include "_image.h"
 #include "numpy_cpp.h"
 #include "py_converters.h"
 
@@ -290,98 +289,8 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
     return NULL;
 }
 
-
-const char *image_pcolor__doc__ =
-    "pcolor(x, y, data, rows, cols, bounds)\n"
-    "\n"
-    "Generate a pseudo-color image from data on a non-uniform grid using\n"
-    "nearest neighbour or linear interpolation.\n"
-    "bounds = (x_min, x_max, y_min, y_max)\n"
-    "interpolation = NEAREST or BILINEAR \n";
-
-static PyObject *image_pcolor(PyObject *self, PyObject *args, PyObject *kwds)
-{
-    numpy::array_view<const float, 1> x;
-    numpy::array_view<const float, 1> y;
-    numpy::array_view<const agg::int8u, 3> d;
-    npy_intp rows, cols;
-    float bounds[4];
-    int interpolation;
-
-    if (!PyArg_ParseTuple(args,
-                          "O&O&O&nn(ffff)i:pcolor",
-                          &x.converter,
-                          &x,
-                          &y.converter,
-                          &y,
-                          &d.converter_contiguous,
-                          &d,
-                          &rows,
-                          &cols,
-                          &bounds[0],
-                          &bounds[1],
-                          &bounds[2],
-                          &bounds[3],
-                          &interpolation)) {
-        return NULL;
-    }
-
-    npy_intp dim[3] = {rows, cols, 4};
-    numpy::array_view<const agg::int8u, 3> output(dim);
-
-    CALL_CPP("pcolor", (pcolor(x, y, d, rows, cols, bounds, interpolation, output)));
-
-    return output.pyobj();
-}
-
-const char *image_pcolor2__doc__ =
-    "pcolor2(x, y, data, rows, cols, bounds, bg)\n"
-    "\n"
-    "Generate a pseudo-color image from data on a non-uniform grid\n"
-    "specified by its cell boundaries.\n"
-    "bounds = (x_left, x_right, y_bot, y_top)\n"
-    "bg = ndarray of 4 uint8 representing background rgba\n";
-
-static PyObject *image_pcolor2(PyObject *self, PyObject *args, PyObject *kwds)
-{
-    numpy::array_view<const double, 1> x;
-    numpy::array_view<const double, 1> y;
-    numpy::array_view<const agg::int8u, 3> d;
-    npy_intp rows, cols;
-    float bounds[4];
-    numpy::array_view<const agg::int8u, 1> bg;
-
-    if (!PyArg_ParseTuple(args,
-                          "O&O&O&nn(ffff)O&:pcolor2",
-                          &x.converter_contiguous,
-                          &x,
-                          &y.converter_contiguous,
-                          &y,
-                          &d.converter_contiguous,
-                          &d,
-                          &rows,
-                          &cols,
-                          &bounds[0],
-                          &bounds[1],
-                          &bounds[2],
-                          &bounds[3],
-                          &bg.converter,
-                          &bg)) {
-        return NULL;
-    }
-
-    npy_intp dim[3] = {rows, cols, 4};
-    numpy::array_view<const agg::int8u, 3> output(dim);
-
-    CALL_CPP("pcolor2", (pcolor2(x, y, d, rows, cols, bounds, bg, output)));
-
-    return output.pyobj();
-}
-
 static PyMethodDef module_functions[] = {
     {"resample", (PyCFunction)image_resample, METH_VARARGS|METH_KEYWORDS, image_resample__doc__},
-    {"pcolor", (PyCFunction)image_pcolor, METH_VARARGS, image_pcolor__doc__},
-    {"pcolor2", (PyCFunction)image_pcolor2, METH_VARARGS, image_pcolor2__doc__},
     {NULL}
 };
 

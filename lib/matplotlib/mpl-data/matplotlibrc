@@ -74,7 +74,7 @@
 ##     MacOSX Qt5Agg Gtk3Agg TkAgg WxAgg Agg
 ## Other choices include:
 ##     Qt5Cairo GTK3Cairo TkCairo WxCairo Cairo
-##     Qt4Agg Qt4Cairo Wx  # deprecated.
+##     Wx  # deprecated.
 ##     PS PDF SVG Template
 ## You can also deploy your own backend outside of Matplotlib by referring to
 ## the module name (which must be in the PYTHONPATH) as 'module://my_backend'.
@@ -130,7 +130,7 @@
 
 #markers.fillstyle: full  # {full, left, right, bottom, top, none}
 
-#pcolor.shading: flat
+#pcolor.shading: auto
 #pcolormesh.snap: True  # Whether to snap the mesh to pixel boundaries. This is
                         # provided solely to allow old test images to remain
                         # unchanged. Set to False to obtain the previous behavior.
@@ -530,6 +530,7 @@
 #legend.scatterpoints: 1        # number of scatter points
 #legend.markerscale:   1.0      # the relative size of legend markers vs. original
 #legend.fontsize:      medium
+#legend.labelcolor:    None
 #legend.title_fontsize: None    # None sets to the same as the default axes.
 
 ## Dimensions as fraction of font size:

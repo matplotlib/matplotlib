@@ -24,6 +24,7 @@ class ParasiteAxesBase:
         martist.setp(self.get_children(), visible=False)
         self._get_lines = self._parent_axes._get_lines
 
+    @_api.deprecated("3.5")
     def get_images_artists(self):
         artists = []
         images = []
@@ -197,27 +198,20 @@ class HostAxesBase:
         return all_handles
 
     def draw(self, renderer):
-
         orig_children_len = len(self._children)
 
-        if hasattr(self, "get_axes_locator"):
-            locator = self.get_axes_locator()
-            if locator:
-                pos = locator(self, renderer)
-                self.set_position(pos, which="active")
-                self.apply_aspect(pos)
-            else:
-                self.apply_aspect()
+        locator = self.get_axes_locator()
+        if locator:
+            pos = locator(self, renderer)
+            self.set_position(pos, which="active")
+            self.apply_aspect(pos)
         else:
             self.apply_aspect()
 
         rect = self.get_position()
-
         for ax in self.parasites:
             ax.apply_aspect(rect)
-            images, artists = ax.get_images_artists()
-            self._children.extend(images)
-            self._children.extend(artists)
+            self._children.extend(ax.get_children())
 
         super().draw(renderer)
         self._children = self._children[:orig_children_len]

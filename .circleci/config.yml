@@ -138,6 +138,8 @@ jobs:
 
       - store_artifacts:
           path: doc/build/html
+      - store_test_results:
+          path: doc/build/test-results
 
   docs-python38-min:
     docker:
@@ -159,6 +161,8 @@ jobs:
 
       - store_artifacts:
           path: doc/build/html
+      - store_test_results:
+          path: doc/build/test-results
 
   docs-python38:
     docker:
@@ -179,6 +183,8 @@ jobs:
 
       - store_artifacts:
           path: doc/build/html
+      - store_test_results:
+          path: doc/build/test-results
 
       - add_ssh_keys:
           fingerprints:

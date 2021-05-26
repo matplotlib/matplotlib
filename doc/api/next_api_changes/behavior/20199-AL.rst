@@ -1,0 +1,5 @@
+``Line2D.set_markeredgecolor(None)`` and ``Line2D.set_markerfacecolor(None)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... now set the line property using the corresponding rcParam
+(:rc:`lines.markeredgecolor` and :rc:`lines.markerfacecolor`).  This is
+consistent with other `.Line2D` property setters.

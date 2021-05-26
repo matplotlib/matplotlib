@@ -555,7 +555,7 @@ fig.suptitle('subplot2grid')
 # has some complexity due to the complex ways we can layout a figure.
 #
 # Layout in Matplotlib is carried out with gridspecs
-# via the `~.GridSpec` class. A gridspec is a logical division of the figure
+# via the `.GridSpec` class. A gridspec is a logical division of the figure
 # into rows and columns, with the relative width of the Axes in those
 # rows and columns set by *width_ratios* and *height_ratios*.
 #

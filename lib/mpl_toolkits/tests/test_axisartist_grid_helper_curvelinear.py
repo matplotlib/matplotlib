@@ -1,5 +1,4 @@
 import numpy as np
-import platform
 
 import matplotlib.pyplot as plt
 from matplotlib.path import Path
@@ -16,8 +15,7 @@ from mpl_toolkits.axisartist.grid_helper_curvelinear import \
     GridHelperCurveLinear
 
 
-@image_comparison(['custom_transform.png'], style='default',
-                  tol=0.03 if platform.machine() == 'x86_64' else 0.04)
+@image_comparison(['custom_transform.png'], style='default', tol=0.2)
 def test_custom_transform():
     class MyTransform(Transform):
         input_dims = output_dims = 2
@@ -79,8 +77,7 @@ def test_custom_transform():
     ax1.grid(True)
 
 
-@image_comparison(['polar_box.png'], style='default',
-                  tol={'aarch64': 0.04}.get(platform.machine(), 0.03))
+@image_comparison(['polar_box.png'], style='default', tol=0.04)
 def test_polar_box():
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
@@ -143,7 +140,7 @@ def test_polar_box():
     ax1.grid(True)
 
 
-@image_comparison(['axis_direction.png'], style='default', tol=0.03)
+@image_comparison(['axis_direction.png'], style='default', tol=0.07)
 def test_axis_direction():
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6

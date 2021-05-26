@@ -1045,18 +1045,18 @@ class Path:
 def get_path_collection_extents(
         master_transform, paths, transforms, offsets, offset_transform):
     r"""
-    Given a sequence of `Path`\s, `~.Transform`\s objects, and offsets, as
-    found in a `~.PathCollection`, returns the bounding box that encapsulates
+    Given a sequence of `Path`\s, `.Transform`\s objects, and offsets, as
+    found in a `.PathCollection`, returns the bounding box that encapsulates
     all of them.
 
     Parameters
     ----------
-    master_transform : `~.Transform`
+    master_transform : `.Transform`
         Global transformation applied to all paths.
     paths : list of `Path`
-    transforms : list of `~.Affine2D`
+    transforms : list of `.Affine2D`
     offsets : (N, 2) array-like
-    offset_transform : `~.Affine2D`
+    offset_transform : `.Affine2D`
         Transform applied to the offsets before offsetting the path.
 
     Notes

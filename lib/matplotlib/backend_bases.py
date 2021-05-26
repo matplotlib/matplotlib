@@ -99,7 +99,6 @@ def _safe_pyplot_import():
         if current_framework is None:
             raise  # No, something else went wrong, likely with the install...
         backend_mapping = {'qt5': 'qt5agg',
-                           'qt4': 'qt4agg',
                            'gtk3': 'gtk3agg',
                            'wx': 'wxagg',
                            'tk': 'tkagg',
@@ -229,8 +228,8 @@ class RendererBase:
         *offsets* are first transformed by *offsetTrans* before being
         applied.
 
-        *offset_position* may be either "screen" or "data" depending on the
-        space that the offsets are in; "data" is deprecated.
+        *offset_position* is unused now, but the argument is kept for
+        backwards compatibility.
 
         This provides a fallback implementation of
         :meth:`draw_path_collection` that makes multiple calls to
@@ -271,8 +270,7 @@ class RendererBase:
         """
 
         from matplotlib.collections import QuadMesh
-        paths = QuadMesh.convert_mesh_to_paths(
-            meshWidth, meshHeight, coordinates)
+        paths = QuadMesh._convert_mesh_to_paths(coordinates)
 
         if edgecolors is None:
             edgecolors = facecolors
@@ -402,11 +400,6 @@ class RendererBase:
         Naa = len(antialiaseds)
         Nurls = len(urls)
 
-        if offset_position == "data":
-            _api.warn_deprecated(
-                "3.3", message="Support for offset_position='data' is "
-                "deprecated since %(since)s and will be removed %(removal)s.")
-
         if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
             return
         if Noffsets:
@@ -426,17 +419,6 @@ class RendererBase:
             path_id = path_ids[i % Npaths]
             if Noffsets:
                 xo, yo = toffsets[i % Noffsets]
-                if offset_position == 'data':
-                    if Ntransforms:
-                        transform = (
-                            Affine2D(all_transforms[i % Ntransforms]) +
-                            master_transform)
-                    else:
-                        transform = master_transform
-                    (xo, yo), (xp, yp) = transform.transform(
-                        [(xo, yo), (0, 0)])
-                    xo = -(xp - xo)
-                    yo = -(yp - yo)
             if not (np.isfinite(xo) and np.isfinite(yo)):
                 continue
             if Nfacecolors:
@@ -1481,8 +1463,8 @@ class PickEvent(Event):
         (see `.Artist.set_picker`).
     other
         Additional attributes may be present depending on the type of the
-        picked object; e.g., a `~.Line2D` pick may define different extra
-        attributes than a `~.PatchCollection` pick.
+        picked object; e.g., a `.Line2D` pick may define different extra
+        attributes than a `.PatchCollection` pick.
 
     Examples
     --------
@@ -1549,7 +1531,7 @@ class KeyEvent(LocationEvent):
 
 def _get_renderer(figure, print_method=None):
     """
-    Get the renderer that would be used to save a `~.Figure`, and cache it on
+    Get the renderer that would be used to save a `.Figure`, and cache it on
     the figure.
 
     If you need a renderer without any active draw methods use
@@ -1680,7 +1662,7 @@ class FigureCanvasBase:
         A high-level figure instance.
     """
 
-    # Set to one of {"qt5", "qt4", "gtk3", "wx", "tk", "macosx"} if an
+    # Set to one of {"qt5", "gtk3", "wx", "tk", "macosx"} if an
     # interactive framework is required, or None otherwise.
     required_interactive_framework = None
 
@@ -1756,7 +1738,7 @@ class FigureCanvasBase:
             # don't break on our side.
             return
         rif = getattr(cls, "required_interactive_framework", None)
-        backend2gui_rif = {"qt5": "qt", "qt4": "qt", "gtk3": "gtk3",
+        backend2gui_rif = {"qt5": "qt", "gtk3": "gtk3",
                            "wx": "wx", "macosx": "osx"}.get(rif)
         if backend2gui_rif:
             if _is_non_interactive_terminal_ipython(ip):
@@ -2107,7 +2089,7 @@ class FigureCanvasBase:
         self._device_pixel_ratio = ratio
         return True
 
-    def get_width_height(self):
+    def get_width_height(self, *, physical=False):
         """
         Return the figure width and height in integral points or pixels.
 
@@ -2115,13 +2097,20 @@ class FigureCanvasBase:
         it), the truncation to integers occurs after scaling by the device
         pixel ratio.
 
+        Parameters
+        ----------
+        physical : bool, default: False
+            Whether to return true physical pixels or logical pixels. Physical
+            pixels may be used by backends that support HiDPI, but still
+            configure the canvas using its actual size.
+
         Returns
         -------
         width, height : int
             The size of the figure, in points or pixels, depending on the
             backend.
         """
-        return tuple(int(size / self.device_pixel_ratio)
+        return tuple(int(size / (1 if physical else self.device_pixel_ratio))
                      for size in self.figure.bbox.max)
 
     @classmethod

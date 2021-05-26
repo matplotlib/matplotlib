@@ -38,6 +38,11 @@ Call signature::
 *X*, *Y* define the arrow locations, *U*, *V* define the arrow directions, and
 *C* optionally sets the color.
 
+Each arrow is internally represented by a filled polygon with a default edge
+linewidth of 0. As a result, an arrow is rather a filled area, not a line with
+a head, and `.PolyCollection` properties like *linewidth*, *linestyle*,
+*facecolor*, etc. act accordingly.
+
 **Arrow size**
 
 The default settings auto-scales the length of the arrows to a reasonable size.
@@ -177,18 +182,18 @@ color : color or color sequence, optional
     Explicit color(s) for the arrows. If *C* has been set, *color* has no
     effect.
 
-    This is a synonym for the `~.PolyCollection` *facecolor* parameter.
+    This is a synonym for the `.PolyCollection` *facecolor* parameter.
 
 Other Parameters
 ----------------
 **kwargs : `~matplotlib.collections.PolyCollection` properties, optional
     All other keyword arguments are passed on to `.PolyCollection`:
 
-    %(PolyCollection_kwdoc)s
+    %(PolyCollection:kwdoc)s
 
 Returns
 -------
-matplotlib.quiver.Quiver
+`~matplotlib.quiver.Quiver`
 
 See Also
 --------
@@ -892,7 +897,7 @@ Other Parameters
     The barbs can further be customized using `.PolyCollection` keyword
     arguments:
 
-    %(PolyCollection_kwdoc)s
+    %(PolyCollection:kwdoc)s
 """ % docstring.interpd.params
 
 docstring.interpd.update(barbs_doc=_barbs_doc)

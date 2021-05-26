@@ -12,8 +12,8 @@ import pytest
 
 from matplotlib.font_manager import (
     findfont, findSystemFonts, FontProperties, fontManager, json_dump,
-    json_load, get_font, get_fontconfig_fonts, is_opentype_cff_font,
-    MSUserFontDirectories, _call_fc_list)
+    json_load, get_font, is_opentype_cff_font, MSUserFontDirectories,
+    _get_fontconfig_fonts)
 from matplotlib import pyplot as plt, rc_context
 
 has_fclist = shutil.which('fc-list') is not None
@@ -73,7 +73,7 @@ def test_otf():
 
 @pytest.mark.skipif(not has_fclist, reason='no fontconfig installed')
 def test_get_fontconfig_fonts():
-    assert len(get_fontconfig_fonts()) > 1
+    assert len(_get_fontconfig_fonts()) > 1
 
 
 @pytest.mark.parametrize('factor', [2, 4, 6, 8])
@@ -154,13 +154,13 @@ def test_user_fonts_linux(tmpdir, monkeypatch):
 
     with monkeypatch.context() as m:
         m.setenv('XDG_DATA_HOME', str(tmpdir))
-        _call_fc_list.cache_clear()
+        _get_fontconfig_fonts.cache_clear()
         # Now, the font should be available
         fonts = findSystemFonts()
         assert any(font_test_file in font for font in fonts)
 
     # Make sure the temporary directory is no longer cached.
-    _call_fc_list.cache_clear()
+    _get_fontconfig_fonts.cache_clear()
 
 
 @pytest.mark.skipif(sys.platform != 'win32', reason='Windows only')

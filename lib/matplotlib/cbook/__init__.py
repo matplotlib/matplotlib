@@ -50,8 +50,8 @@ def _get_running_interactive_framework():
     Returns
     -------
     Optional[str]
-        One of the following values: "qt5", "qt4", "gtk3", "wx", "tk",
-        "macosx", "headless", ``None``.
+        One of the following values: "qt5", "gtk3", "wx", "tk", "macosx",
+        "headless", ``None``.
     """
     # Use ``sys.modules.get(name)`` rather than ``name in sys.modules`` as
     # entries can also have been explicitly set to None.
@@ -59,10 +59,6 @@ def _get_running_interactive_framework():
                  or sys.modules.get("PySide2.QtWidgets"))
     if QtWidgets and QtWidgets.QApplication.instance():
         return "qt5"
-    QtGui = (sys.modules.get("PyQt4.QtGui")
-             or sys.modules.get("PySide.QtGui"))
-    if QtGui and QtGui.QApplication.instance():
-        return "qt4"
     Gtk = sys.modules.get("gi.repository.Gtk")
     if Gtk and Gtk.main_level():
         return "gtk3"
@@ -628,6 +624,7 @@ class Stack:
                 self.push(elem)
 
 
+@_api.deprecated("3.5", alternative="psutil.virtual_memory")
 def report_memory(i=0):  # argument may go away
     """Return the memory consumed by the process."""
     def call(command, os_name):
@@ -1794,7 +1791,7 @@ def _define_aliases(alias_d, cls=None):
     exception will be raised.
 
     The alias map is stored as the ``_alias_map`` attribute on the class and
-    can be used by `~.normalize_kwargs` (which assumes that higher priority
+    can be used by `.normalize_kwargs` (which assumes that higher priority
     aliases come last).
     """
     if cls is None:  # Return the actual class decorator.
@@ -2037,7 +2034,7 @@ class _OrderedSet(collections.abc.MutableSet):
         self._od.pop(key, None)
 
 
-# Agg's buffers are unmultiplied RGBA8888, which neither PyQt4 nor cairo
+# Agg's buffers are unmultiplied RGBA8888, which neither PyQt5 nor cairo
 # support; however, both do support premultiplied ARGB32.
 
 
