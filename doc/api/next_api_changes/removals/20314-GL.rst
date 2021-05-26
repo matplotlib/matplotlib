@@ -1,0 +1,11 @@
+Colorbar related removals
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``Colorbar.on_mappable_changed()`` and ``Colorbar.update_bruteforce()`` have
+been removed, you can use ``Colorbar.update_normal()`` instead.
+
+``ColorbarBase`` only takes a single positional argument now, the ``Axes`` to
+create it in, with all other options required to be keyword arguments.
+
+The warning for keyword arguments that were overridden by the mappable
+is now removed.
