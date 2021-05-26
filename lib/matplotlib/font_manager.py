@@ -666,7 +666,7 @@ class FontProperties:
         self._stretch = rcParams['font.stretch']
         self._size = rcParams['font.size']
         self._file = None
-        self._math_fontfamily = None
+        self.set_math_fontfamily(math_fontfamily)
 
         if isinstance(family, str):
             # Treat family as a fontconfig pattern if it is the only
@@ -683,7 +683,6 @@ class FontProperties:
         self.set_stretch(stretch)
         self.set_file(fname)
         self.set_size(size)
-        self.set_math_fontfamily(math_fontfamily)
 
     @classmethod
     def _from_any(cls, arg):
