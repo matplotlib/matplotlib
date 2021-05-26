@@ -2022,8 +2022,6 @@ class QuadMesh(Collection):
         super().__init__(**kwargs)
         _api.check_shape((None, None, 2), coordinates=coords)
         self._coordinates = coords
-        self._meshWidth = self._coordinates.shape[1] - 1
-        self._meshHeight = self._coordinates.shape[0] - 1
         self._antialiased = antialiased
         self._shading = shading
 
@@ -2041,15 +2039,19 @@ class QuadMesh(Collection):
         return self._paths
 
     def set_paths(self):
-        self._paths = self.convert_mesh_to_paths(
-            self._meshWidth, self._meshHeight, self._coordinates)
+        self._paths = self._convert_mesh_to_paths(self._coordinates)
         self.stale = True
 
     def get_datalim(self, transData):
         return (self.get_transform() - transData).transform_bbox(self._bbox)
 
     @staticmethod
+    @_api.deprecated("3.5", alternative="QuadMesh(coordinates).get_paths()")
     def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
+        return QuadMesh._convert_mesh_to_paths(coordinates)
+
+    @staticmethod
+    def _convert_mesh_to_paths(coordinates):
         """
         Convert a given mesh into a sequence of `.Path` objects.
 
@@ -2060,20 +2062,23 @@ class QuadMesh(Collection):
             c = coordinates.data
         else:
             c = coordinates
-        points = np.concatenate((
-                    c[:-1, :-1],
-                    c[:-1, 1:],
-                    c[1:, 1:],
-                    c[1:, :-1],
-                    c[:-1, :-1]
-                ), axis=2)
-        points = points.reshape((meshWidth * meshHeight, 5, 2))
+        points = np.concatenate([
+            c[:-1, :-1],
+            c[:-1, 1:],
+            c[1:, 1:],
+            c[1:, :-1],
+            c[:-1, :-1]
+        ], axis=2).reshape((-1, 5, 2))
         return [mpath.Path(x) for x in points]
 
+    @_api.deprecated("3.5")
     def convert_mesh_to_triangles(self, meshWidth, meshHeight, coordinates):
+        return self._convert_mesh_to_triangles(coordinates)
+
+    def _convert_mesh_to_triangles(self, coordinates):
         """
         Convert a given mesh into a sequence of triangles, each point
-        with its own color.  This is useful for experiments using
+        with its own color.  The result can be used to construct a call to
         `~.RendererBase.draw_gouraud_triangle`.
         """
         if isinstance(coordinates, np.ma.MaskedArray):
@@ -2086,29 +2091,25 @@ class QuadMesh(Collection):
         p_c = p[1:, 1:]
         p_d = p[1:, :-1]
         p_center = (p_a + p_b + p_c + p_d) / 4.0
+        triangles = np.concatenate([
+            p_a, p_b, p_center,
+            p_b, p_c, p_center,
+            p_c, p_d, p_center,
+            p_d, p_a, p_center,
+        ], axis=2).reshape((-1, 3, 2))
 
-        triangles = np.concatenate((
-                p_a, p_b, p_center,
-                p_b, p_c, p_center,
-                p_c, p_d, p_center,
-                p_d, p_a, p_center,
-            ), axis=2)
-        triangles = triangles.reshape((meshWidth * meshHeight * 4, 3, 2))
-
-        c = self.get_facecolor().reshape((meshHeight + 1, meshWidth + 1, 4))
+        c = self.get_facecolor().reshape((*coordinates.shape[:2], 4))
         c_a = c[:-1, :-1]
         c_b = c[:-1, 1:]
         c_c = c[1:, 1:]
         c_d = c[1:, :-1]
         c_center = (c_a + c_b + c_c + c_d) / 4.0
-
-        colors = np.concatenate((
-                        c_a, c_b, c_center,
-                        c_b, c_c, c_center,
-                        c_c, c_d, c_center,
-                        c_d, c_a, c_center,
-                    ), axis=2)
-        colors = colors.reshape((meshWidth * meshHeight * 4, 3, 4))
+        colors = np.concatenate([
+            c_a, c_b, c_center,
+            c_b, c_c, c_center,
+            c_c, c_d, c_center,
+            c_d, c_a, c_center,
+        ], axis=2).reshape((-1, 3, 4))
 
         return triangles, colors
 
@@ -2147,13 +2148,13 @@ class QuadMesh(Collection):
         gc.set_linewidth(self.get_linewidth()[0])
 
         if self._shading == 'gouraud':
-            triangles, colors = self.convert_mesh_to_triangles(
-                self._meshWidth, self._meshHeight, coordinates)
+            triangles, colors = self._convert_mesh_to_triangles(coordinates)
             renderer.draw_gouraud_triangles(
                 gc, triangles, colors, transform.frozen())
         else:
             renderer.draw_quad_mesh(
-                gc, transform.frozen(), self._meshWidth, self._meshHeight,
+                gc, transform.frozen(),
+                coordinates.shape[1] - 1, coordinates.shape[0] - 1,
                 coordinates, offsets, transOffset,
                 # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
                 self.get_facecolor().reshape((-1, 4)),
