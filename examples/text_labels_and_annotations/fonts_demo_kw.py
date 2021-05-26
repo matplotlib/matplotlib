@@ -1,9 +1,9 @@
 """
-===================
-Fonts demo (kwargs)
-===================
+==============================
+Fonts demo (keyword arguments)
+==============================
 
-Set font properties using kwargs.
+Set font properties using keyword arguments.
 
 See :doc:`fonts_demo` to achieve the same effect using setters.
 """

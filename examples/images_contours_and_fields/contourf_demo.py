@@ -41,10 +41,10 @@ Z[interior] = np.ma.masked
 fig1, ax2 = plt.subplots(constrained_layout=True)
 CS = ax2.contourf(X, Y, Z, 10, cmap=plt.cm.bone, origin=origin)
 
-# Note that in the following, we explicitly pass in a subset of
-# the contour levels used for the filled contours.  Alternatively,
-# We could pass in additional levels to provide extra resolution,
-# or leave out the levels kwarg to use all of the original levels.
+# Note that in the following, we explicitly pass in a subset of the contour
+# levels used for the filled contours.  Alternatively, we could pass in
+# additional levels to provide extra resolution, or leave out the *levels*
+# keyword argument to use all of the original levels.
 
 CS2 = ax2.contour(CS, levels=CS.levels[::2], colors='r', origin=origin)
 
