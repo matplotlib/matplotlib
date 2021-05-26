@@ -839,13 +839,10 @@ class PsfontsMap:
         try:
             return self._parsed[texname]
         except KeyError:
-            fmt = ('A PostScript file for the font whose TeX name is "{0}" '
-                   'could not be found in the file "{1}". The dviread module '
-                   'can only handle fonts that have an associated PostScript '
-                   'font file. '
-                   'This problem can often be solved by installing '
-                   'a suitable PostScript font package in your (TeX) '
-                   'package manager.')
+            fmt = ('An associated PostScript font (required by Matplotlib) '
+                   'could not be found for TeX font {0!r} in {1!r}.  This '
+                   'problem can often be solved by installing a suitable '
+                   'PostScript font package in your TeX package manager.')
             _log.info(textwrap.fill(
                 fmt.format(texname.decode('ascii'), self._filename),
                 break_on_hyphens=False, break_long_words=False))
