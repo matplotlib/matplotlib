@@ -24,7 +24,7 @@ In Matplotlib they are drawn into a dedicated `~.axes.Axes`.
     used with figures containing a single axes or with freely placed axes.
 
 :func:`make_axes_gridspec`
-    Create a `~.SubplotBase` suitable for a colorbar. This function should
+    Create a `.SubplotBase` suitable for a colorbar. This function should
     be used for adding a colorbar to a `.GridSpec`.
 """
 
@@ -168,7 +168,7 @@ ax : `~matplotlib.axes.Axes`, list of Axes, optional
 use_gridspec : bool, optional
     If *cax* is ``None``, a new *cax* is created as an instance of Axes.  If
     *ax* is an instance of Subplot and *use_gridspec* is ``True``, *cax* is
-    created as an instance of Subplot using the :mod:`~.gridspec` module.
+    created as an instance of Subplot using the :mod:`.gridspec` module.
 
 Returns
 -------
@@ -1453,7 +1453,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
 def make_axes_gridspec(parent, *, location=None, orientation=None,
                        fraction=0.15, shrink=1.0, aspect=20, **kw):
     """
-    Create a `~.SubplotBase` suitable for a colorbar.
+    Create a `.SubplotBase` suitable for a colorbar.
 
     The axes is placed in the figure of the *parent* axes, by resizing and
     repositioning *parent*.

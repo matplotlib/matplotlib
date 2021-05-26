@@ -1791,7 +1791,7 @@ def _define_aliases(alias_d, cls=None):
     exception will be raised.
 
     The alias map is stored as the ``_alias_map`` attribute on the class and
-    can be used by `~.normalize_kwargs` (which assumes that higher priority
+    can be used by `.normalize_kwargs` (which assumes that higher priority
     aliases come last).
     """
     if cls is None:  # Return the actual class decorator.

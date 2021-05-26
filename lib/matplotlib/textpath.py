@@ -333,7 +333,7 @@ class TextPath(Path):
                  _interpolation_steps=1, usetex=False):
         r"""
         Create a path from the text. Note that it simply is a path,
-        not an artist. You need to use the `~.PathPatch` (or other artists)
+        not an artist. You need to use the `.PathPatch` (or other artists)
         to draw this path onto the canvas.
 
         Parameters
@@ -420,7 +420,7 @@ class TextPath(Path):
         Update the path if necessary.
 
         The path for the text is initially create with the font size of
-        `~.FONT_SCALE`, and this path is rescaled to other size when necessary.
+        `.FONT_SCALE`, and this path is rescaled to other size when necessary.
         """
         if self._invalid or self._cached_vertices is None:
             tr = (Affine2D()

@@ -1046,8 +1046,8 @@ class PathCollection(_CollectionWithSizes):
             Finally, a `~.ticker.Locator` can be provided.
         fmt : str, `~matplotlib.ticker.Formatter`, or None (default)
             The format or formatter to use for the labels. If a string must be
-            a valid input for a `~.StrMethodFormatter`. If None (the default),
-            use a `~.ScalarFormatter`.
+            a valid input for a `.StrMethodFormatter`. If None (the default),
+            use a `.ScalarFormatter`.
         func : function, default: ``lambda x: x``
             Function to calculate the labels.  Often the size (or color)
             argument to `~.Axes.scatter` will have been pre-processed by the
@@ -1360,7 +1360,7 @@ class LineCollection(Collection):
     Represents a sequence of `.Line2D`\s that should be drawn together.
 
     This class extends `.Collection` to represent a sequence of
-    `~.Line2D`\s instead of just a sequence of `~.Patch`\s.
+    `.Line2D`\s instead of just a sequence of `.Patch`\s.
     Just as in `.Collection`, each property of a *LineCollection* may be either
     a single value or a list of values. This list is then used cyclically for
     each element of the LineCollection, so the property of the ``i``\th element
@@ -1896,7 +1896,7 @@ class TriMesh(Collection):
     @staticmethod
     def convert_mesh_to_paths(tri):
         """
-        Convert a given mesh into a sequence of `~.Path` objects.
+        Convert a given mesh into a sequence of `.Path` objects.
 
         This function is primarily of use to implementers of backends that do
         not directly support meshes.
@@ -2051,7 +2051,7 @@ class QuadMesh(Collection):
     @staticmethod
     def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
         """
-        Convert a given mesh into a sequence of `~.Path` objects.
+        Convert a given mesh into a sequence of `.Path` objects.
 
         This function is primarily of use to implementers of backends that do
         not directly support quadmeshes.

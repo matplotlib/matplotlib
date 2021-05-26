@@ -66,7 +66,7 @@ print('After Roundtrip:  ', date2)
 
 #############################################################################
 # If a user wants to use modern dates at microsecond precision, they
-# can change the epoch using `~.set_epoch`.  However, the epoch has to be
+# can change the epoch using `.set_epoch`.  However, the epoch has to be
 # set before any date operations to prevent confusion between different
 # epochs. Trying to change the epoch later will raise a `RuntimeError`.
 

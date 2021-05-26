@@ -1911,7 +1911,7 @@ def rgrids(radii=None, labels=None, angle=None, fmt=None, **kwargs):
     Other Parameters
     ----------------
     **kwargs
-        *kwargs* are optional `~.Text` properties for the labels.
+        *kwargs* are optional `.Text` properties for the labels.
 
     See Also
     --------
@@ -1979,7 +1979,7 @@ def thetagrids(angles=None, labels=None, fmt=None, **kwargs):
     Other Parameters
     ----------------
     **kwargs
-        *kwargs* are optional `~.Text` properties for the labels.
+        *kwargs* are optional `.Text` properties for the labels.
 
     See Also
     --------

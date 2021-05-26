@@ -280,7 +280,7 @@ class Axes3D(Axes):
         the axes with the data limits.
 
         To simulate having equal aspect in data space, set the ratio
-        of your data limits to match the value of `~.get_box_aspect`.
+        of your data limits to match the value of `.get_box_aspect`.
         To control box aspect ratios use `~.Axes3D.set_box_aspect`.
 
         Parameters
