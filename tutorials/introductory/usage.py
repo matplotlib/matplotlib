@@ -223,7 +223,7 @@ def my_plotter(ax, data1, data2, param_dict):
        The y data
 
     param_dict : dict
-       Dictionary of kwargs to pass to ax.plot
+       Dictionary of keyword arguments to pass to ax.plot
 
     Returns
     -------

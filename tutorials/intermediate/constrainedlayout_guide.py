@@ -79,7 +79,8 @@ example_plot(ax, fontsize=24)
 # To prevent this, the location of axes needs to be adjusted. For
 # subplots, this can be done by adjusting the subplot params
 # (:ref:`howto-subplots-adjust`). However, specifying your figure with the
-# ``constrained_layout=True`` kwarg will do the adjusting automatically.
+# ``constrained_layout=True`` keyword argument will do the adjusting
+# automatically.
 
 fig, ax = plt.subplots(constrained_layout=True)
 example_plot(ax, fontsize=24)
@@ -112,7 +113,7 @@ for ax in axs.flat:
 #
 # .. note::
 #
-#   For the `~.axes.Axes.pcolormesh` kwargs (``pc_kwargs``) we use a
+#   For the `~.axes.Axes.pcolormesh` keyword arguments (``pc_kwargs``) we use a
 #   dictionary. Below we will assign one colorbar to a number of axes each
 #   containing a `~.cm.ScalarMappable`; specifying the norm and colormap
 #   ensures the colorbar is accurate for all the axes.

@@ -107,7 +107,7 @@ ax.set(xlim=(-1, 5), ylim=(-3, 5))
 # In the example below, the *xy* point is in native coordinates (*xycoords*
 # defaults to 'data').  For a polar axes, this is in (theta, radius) space.
 # The text in the example is placed in the fractional figure coordinate system.
-# Text keyword args like horizontal and vertical alignment are respected.
+# Text keyword arguments like horizontal and vertical alignment are respected.
 
 fig, ax = plt.subplots(subplot_kw=dict(projection='polar'), figsize=(3, 3))
 r = np.arange(0, 1, 0.001)

@@ -20,8 +20,6 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
     """
     Draw a histogram as a stepped patch.
 
-    Extra kwargs are passed through to `fill_between`
-
     Parameters
     ----------
     ax : Axes
@@ -40,6 +38,9 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
     orientation : {'v', 'h'}
        Orientation of the histogram.  'v' (default) has
        the bars increasing in the positive y-direction.
+
+    **kwargs
+        Extra keyword arguments are passed through to `.fill_between`.
 
     Returns
     -------
@@ -103,11 +104,11 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
 
         If not given and stacked data is an array defaults to 'default set {n}'
 
-        If stacked_data is a mapping, and labels is None, default to the keys
-        (which may come out in a random order).
+        If *stacked_data* is a mapping, and *labels* is None, default to the
+        keys.
 
-        If stacked_data is a mapping and labels is given then only
-        the columns listed by be plotted.
+        If *stacked_data* is a mapping and *labels* is given then only the
+        columns listed will be plotted.
 
     plot_func : callable, optional
         Function to call to draw the histogram must have signature:
@@ -116,9 +117,9 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
                           label=label, **kwargs)
 
     plot_kwargs : dict, optional
-        Any extra kwargs to pass through to the plotting function.  This
-        will be the same for all calls to the plotting function and will
-        over-ride the values in cycle.
+        Any extra keyword arguments to pass through to the plotting function.
+        This will be the same for all calls to the plotting function and will
+        override the values in *sty_cycle*.
 
     Returns
     -------

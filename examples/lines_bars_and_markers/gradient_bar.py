@@ -34,7 +34,7 @@ def gradient_image(ax, extent, direction=0.3, cmap_range=(0, 1), **kwargs):
     extent
         The extent of the image as (xmin, xmax, ymin, ymax).
         By default, this is in Axes coordinates but may be
-        changed using the *transform* kwarg.
+        changed using the *transform* keyword argument.
     direction : float
         The direction of the gradient. This is a number in
         range 0 (=vertical) to 1 (=horizontal).
