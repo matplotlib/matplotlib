@@ -104,11 +104,11 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
 
         If not given and stacked data is an array defaults to 'default set {n}'
 
-        If stacked_data is a mapping, and labels is None, default to the keys
-        (which may come out in a random order).
+        If *stacked_data* is a mapping, and *labels* is None, default to the
+        keys.
 
-        If stacked_data is a mapping and labels is given then only
-        the columns listed by be plotted.
+        If *stacked_data* is a mapping and *labels* is given then only the
+        columns listed will be plotted.
 
     plot_func : callable, optional
         Function to call to draw the histogram must have signature:
@@ -119,7 +119,7 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
     plot_kwargs : dict, optional
         Any extra keyword arguments to pass through to the plotting function.
         This will be the same for all calls to the plotting function and will
-        override the values in cycle.
+        override the values in *sty_cycle*.
 
     Returns
     -------
