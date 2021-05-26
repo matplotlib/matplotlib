@@ -1,6 +1,6 @@
 import functools
 
-from matplotlib import _api
+from matplotlib import _api, cbook
 import matplotlib.artist as martist
 import matplotlib.image as mimage
 import matplotlib.transforms as mtransforms
@@ -95,12 +95,8 @@ class ParasiteAxesBase:
     # end of aux_transform support
 
 
-@functools.lru_cache(None)
-def parasite_axes_class_factory(axes_class):
-    return type("%sParasite" % axes_class.__name__,
-                (ParasiteAxesBase, axes_class), {})
-
-
+parasite_axes_class_factory = cbook._make_class_factory(
+    ParasiteAxesBase, "{}Parasite")
 ParasiteAxes = parasite_axes_class_factory(Axes)
 
 
@@ -277,7 +273,7 @@ class HostAxesBase:
         *kwargs* are forwarded to the parasite axes constructor.
         """
         if axes_class is None:
-            axes_class = self._get_base_axes()
+            axes_class = self._base_axes_class
         ax = parasite_axes_class_factory(axes_class)(self, **kwargs)
         self.parasites.append(ax)
         ax._remove_method = self._remove_any_twin
@@ -304,21 +300,16 @@ class HostAxesBase:
         return Bbox.union([b for b in bbs if b.width != 0 or b.height != 0])
 
 
-@functools.lru_cache(None)
-def host_axes_class_factory(axes_class):
-    return type("%sHostAxes" % axes_class.__name__,
-                (HostAxesBase, axes_class),
-                {'_get_base_axes': lambda self: axes_class})
+host_axes_class_factory = cbook._make_class_factory(
+    HostAxesBase, "{}HostAxes", "_base_axes_class")
+HostAxes = host_axes_class_factory(Axes)
+SubplotHost = subplot_class_factory(HostAxes)
 
 
 def host_subplot_class_factory(axes_class):
     host_axes_class = host_axes_class_factory(axes_class)
     subplot_host_class = subplot_class_factory(host_axes_class)
     return subplot_host_class
-
-
-HostAxes = host_axes_class_factory(Axes)
-SubplotHost = subplot_class_factory(HostAxes)
 
 
 def host_axes(*args, axes_class=Axes, figure=None, **kwargs):

@@ -20,7 +20,6 @@
       "doc/users/prev_whats_new/whats_new_3.1.0.rst:335"
     ],
     "cbar_axes": [
-      "lib/mpl_toolkits/axes_grid1/axes_grid.py:docstring of mpl_toolkits.axes_grid1.axes_grid.ImageGrid.__init__:45",
       "lib/mpl_toolkits/axes_grid1/axes_grid.py:docstring of mpl_toolkits.axes_grid1.axes_grid.ImageGrid:45",
       "lib/mpl_toolkits/axisartist/axes_grid.py:docstring of mpl_toolkits.axisartist.axes_grid.ImageGrid:45"
     ],
@@ -79,39 +78,35 @@
     ],
     "matplotlib.axes.Axes.lines": [
       "doc/tutorials/intermediate/artists.rst:100",
-      "doc/tutorials/intermediate/artists.rst:440"
+      "doc/tutorials/intermediate/artists.rst:442"
     ],
     "matplotlib.axes.Axes.patch": [
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89",
-      "doc/tutorials/intermediate/artists.rst:186",
-      "doc/tutorials/intermediate/artists.rst:424"
+      "doc/tutorials/intermediate/artists.rst:187",
+      "doc/tutorials/intermediate/artists.rst:426"
     ],
     "matplotlib.axes.Axes.patches": [
-      "doc/tutorials/intermediate/artists.rst:463"
+      "doc/tutorials/intermediate/artists.rst:465"
     ],
     "matplotlib.axes.Axes.transAxes": [
-      "lib/mpl_toolkits/axes_grid1/anchored_artists.py:docstring of mpl_toolkits.axes_grid1.anchored_artists.AnchoredDirectionArrows.__init__:8",
       "lib/mpl_toolkits/axes_grid1/anchored_artists.py:docstring of mpl_toolkits.axes_grid1.anchored_artists.AnchoredDirectionArrows:8"
     ],
     "matplotlib.axes.Axes.transData": [
-      "lib/mpl_toolkits/axes_grid1/anchored_artists.py:docstring of mpl_toolkits.axes_grid1.anchored_artists.AnchoredAuxTransformBox.__init__:11",
       "lib/mpl_toolkits/axes_grid1/anchored_artists.py:docstring of mpl_toolkits.axes_grid1.anchored_artists.AnchoredAuxTransformBox:11",
-      "lib/mpl_toolkits/axes_grid1/anchored_artists.py:docstring of mpl_toolkits.axes_grid1.anchored_artists.AnchoredEllipse.__init__:8",
       "lib/mpl_toolkits/axes_grid1/anchored_artists.py:docstring of mpl_toolkits.axes_grid1.anchored_artists.AnchoredEllipse:8",
-      "lib/mpl_toolkits/axes_grid1/anchored_artists.py:docstring of mpl_toolkits.axes_grid1.anchored_artists.AnchoredSizeBar.__init__:8",
       "lib/mpl_toolkits/axes_grid1/anchored_artists.py:docstring of mpl_toolkits.axes_grid1.anchored_artists.AnchoredSizeBar:8"
     ],
     "matplotlib.axes.Axes.viewLim": [
       "doc/api/prev_api_changes/api_changes_0.99.x.rst:23"
     ],
     "matplotlib.axes.Axes.xaxis": [
-      "doc/tutorials/intermediate/artists.rst:608"
+      "doc/tutorials/intermediate/artists.rst:610"
     ],
     "matplotlib.axes.Axes.yaxis": [
-      "doc/tutorials/intermediate/artists.rst:608"
+      "doc/tutorials/intermediate/artists.rst:610"
     ],
     "matplotlib.axis.Axis.label": [
-      "doc/tutorials/intermediate/artists.rst:655"
+      "doc/tutorials/intermediate/artists.rst:657"
     ],
     "matplotlib.cm.ScalarMappable.callbacksSM": [
       "doc/api/prev_api_changes/api_changes_0.98.0.rst:10"
@@ -124,11 +119,11 @@
     ],
     "matplotlib.figure.Figure.patch": [
       "doc/api/prev_api_changes/api_changes_0.98.x.rst:89",
-      "doc/tutorials/intermediate/artists.rst:186",
-      "doc/tutorials/intermediate/artists.rst:319"
+      "doc/tutorials/intermediate/artists.rst:187",
+      "doc/tutorials/intermediate/artists.rst:320"
     ],
     "matplotlib.figure.Figure.transFigure": [
-      "doc/tutorials/intermediate/artists.rst:368"
+      "doc/tutorials/intermediate/artists.rst:369"
     ],
     "max": [
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.Bbox.p1:4"
@@ -255,15 +250,6 @@
     "matplotlib.axes.Subplot": [
       "doc/tutorials/intermediate/artists.rst:44",
       "doc/tutorials/intermediate/artists.rst:67"
-    ],
-    "matplotlib.axes._axes.Axes": [
-      "doc/api/artist_api.rst:189",
-      "doc/api/axes_api.rst:609",
-      "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.GeoAxes:1",
-      "lib/matplotlib/projections/polar.py:docstring of matplotlib.projections.polar.PolarAxes:1",
-      "lib/mpl_toolkits/axes_grid1/mpl_axes.py:docstring of mpl_toolkits.axes_grid1.mpl_axes.Axes:1",
-      "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.Axes:1",
-      "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D:1"
     ],
     "matplotlib.axes._base._AxesBase": [
       "doc/api/artist_api.rst:189",
@@ -428,16 +414,6 @@
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.BlendedAffine2D:1",
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.BlendedGenericTransform:1"
     ],
-    "matplotlib.tri.trifinder.TriFinder": [
-      "lib/matplotlib/tri/trifinder.py:docstring of matplotlib.tri.trifinder.TrapezoidMapTriFinder:1"
-    ],
-    "matplotlib.tri.triinterpolate.TriInterpolator": [
-      "lib/matplotlib/tri/triinterpolate.py:docstring of matplotlib.tri.triinterpolate.CubicTriInterpolator:1",
-      "lib/matplotlib/tri/triinterpolate.py:docstring of matplotlib.tri.triinterpolate.LinearTriInterpolator:1"
-    ],
-    "matplotlib.tri.trirefine.TriRefiner": [
-      "lib/matplotlib/tri/trirefine.py:docstring of matplotlib.tri.trirefine.UniformTriRefiner:1"
-    ],
     "matplotlib.widgets._SelectorWidget": [
       "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.LassoSelector:1",
       "lib/matplotlib/widgets.py:docstring of matplotlib.widgets.PolygonSelector:1",
@@ -485,7 +461,7 @@
       "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.AxisArtistHelper.Fixed:1",
       "lib/mpl_toolkits/axisartist/axislines.py:docstring of mpl_toolkits.axisartist.axislines.AxisArtistHelper.Floating:1"
     ],
-    "mpl_toolkits.axisartist.floating_axes.Floating AxesHostAxes": [
+    "mpl_toolkits.axisartist.floating_axes.FloatingAxesHostAxes": [
       "<unknown>:1",
       "doc/api/_as_gen/mpl_toolkits.axisartist.floating_axes.rst:31:<autosummary>:1"
     ],
@@ -498,11 +474,11 @@
   },
   "py:data": {
     "matplotlib.axes.Axes.transAxes": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.legend:219",
-      "lib/matplotlib/figure.py:docstring of matplotlib.figure.FigureBase.legend:220",
-      "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:179",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:220",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:219"
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.legend:222",
+      "lib/matplotlib/figure.py:docstring of matplotlib.figure.FigureBase.legend:223",
+      "lib/matplotlib/legend.py:docstring of matplotlib.legend.Legend:182",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.figlegend:223",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:222"
     ]
   },
   "py:func": {
@@ -541,7 +517,6 @@
     ],
     "_iter_collection": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.RendererBase.draw_path_collection:12",
-      "lib/matplotlib/backends/backend_agg.py:docstring of matplotlib.backends.backend_agg.RendererAgg.draw_path_collection:12",
       "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.RendererPdf.draw_path_collection:12",
       "lib/matplotlib/backends/backend_ps.py:docstring of matplotlib.backends.backend_ps.RendererPS.draw_path_collection:12",
       "lib/matplotlib/backends/backend_svg.py:docstring of matplotlib.backends.backend_svg.RendererSVG.draw_path_collection:12",
@@ -549,7 +524,6 @@
     ],
     "_iter_collection_raw_paths": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.RendererBase.draw_path_collection:12",
-      "lib/matplotlib/backends/backend_agg.py:docstring of matplotlib.backends.backend_agg.RendererAgg.draw_path_collection:12",
       "lib/matplotlib/backends/backend_pdf.py:docstring of matplotlib.backends.backend_pdf.RendererPdf.draw_path_collection:12",
       "lib/matplotlib/backends/backend_ps.py:docstring of matplotlib.backends.backend_ps.RendererPS.draw_path_collection:12",
       "lib/matplotlib/backends/backend_svg.py:docstring of matplotlib.backends.backend_svg.RendererSVG.draw_path_collection:12",
@@ -574,24 +548,22 @@
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.Affine2DBase:13"
     ],
     "matplotlib.collections._CollectionWithSizes.set_sizes": [
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.barbs:172",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.broken_barh:82",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.fill_between:112",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.fill_betweenx:112",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.hexbin:168",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.pcolor:165",
-      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.quiver:202",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.barbs:172",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.broken_barh:82",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.fill_between:112",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.fill_betweenx:112",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.hexbin:168",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.pcolor:165",
-      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.quiver:202",
-      "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Barbs.__init__:176",
-      "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Barbs:206",
-      "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Quiver.__init__:206",
-      "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Quiver:239"
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.barbs:171",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.broken_barh:81",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.fill_between:111",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.fill_betweenx:111",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.hexbin:167",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.pcolor:164",
+      "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.quiver:201",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.barbs:171",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.broken_barh:81",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.fill_between:111",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.fill_betweenx:111",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.hexbin:167",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.pcolor:164",
+      "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.quiver:201",
+      "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Barbs:205",
+      "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Quiver:238"
     ],
     "matplotlib.dates.DateFormatter.__call__": [
       "doc/users/prev_whats_new/whats_new_1.5.rst:497"
@@ -727,7 +699,6 @@
       "doc/users/event_handling.rst:179"
     ],
     "Size.from_any": [
-      "lib/mpl_toolkits/axes_grid1/axes_grid.py:docstring of mpl_toolkits.axes_grid1.axes_grid.ImageGrid.__init__:57",
       "lib/mpl_toolkits/axes_grid1/axes_grid.py:docstring of mpl_toolkits.axes_grid1.axes_grid.ImageGrid:57",
       "lib/mpl_toolkits/axisartist/axes_grid.py:docstring of mpl_toolkits.axisartist.axes_grid.ImageGrid:57"
     ],

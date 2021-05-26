@@ -5,10 +5,9 @@ An experimental support for curvilinear grid.
 # TODO :
 # see if tick_iterator method can be simplified by reusing the parent method.
 
-import functools
-
 import numpy as np
 
+from matplotlib import cbook
 import matplotlib.patches as mpatches
 from matplotlib.path import Path
 import matplotlib.axes as maxes
@@ -351,12 +350,8 @@ class FloatingAxesBase:
         self.set_ylim(ymin-dy, ymax+dy)
 
 
-@functools.lru_cache(None)
-def floatingaxes_class_factory(axes_class):
-    return type("Floating %s" % axes_class.__name__,
-                (FloatingAxesBase, axes_class), {})
-
-
+floatingaxes_class_factory = cbook._make_class_factory(
+    FloatingAxesBase, "Floating{}")
 FloatingAxes = floatingaxes_class_factory(
     host_axes_class_factory(axislines.Axes))
 FloatingSubplot = maxes.subplot_class_factory(FloatingAxes)
