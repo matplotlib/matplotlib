@@ -220,9 +220,6 @@ for param in _thread_safe_backends:
     elif param.values[0].get("QT_API") == "PySide2":
         param.marks.append(
             pytest.mark.xfail(raises=subprocess.CalledProcessError))
-    elif param.values[0].get("QT_API") == "PySide6":
-        param.marks.append(
-            pytest.mark.xfail(raises=subprocess.TimeoutExpired))
 
 
 @pytest.mark.parametrize("env", _thread_safe_backends)
