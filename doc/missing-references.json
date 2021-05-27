@@ -16,9 +16,6 @@
       "lib/matplotlib/ticker.py:docstring of matplotlib.ticker.MultipleLocator.tick_values:5",
       "lib/matplotlib/ticker.py:docstring of matplotlib.ticker.SymmetricalLogLocator.tick_values:5"
     ],
-    "button": [
-      "doc/users/prev_whats_new/whats_new_3.1.0.rst:335"
-    ],
     "cbar_axes": [
       "lib/mpl_toolkits/axes_grid1/axes_grid.py:docstring of mpl_toolkits.axes_grid1.axes_grid.ImageGrid:45",
       "lib/mpl_toolkits/axisartist/axes_grid.py:docstring of mpl_toolkits.axisartist.axes_grid.ImageGrid:45"
@@ -285,9 +282,6 @@
     "matplotlib.backends.backend_webagg_core.NavigationToolbar2WebAgg": [
       "lib/matplotlib/backends/backend_nbagg.py:docstring of matplotlib.backends.backend_nbagg.NavigationIPy:1"
     ],
-    "matplotlib.cm.Wistia": [
-      "doc/users/prev_whats_new/whats_new_1.4.rst:21"
-    ],
     "matplotlib.collections._CollectionWithSizes": [
       "doc/api/artist_api.rst:189",
       "doc/api/collections_api.rst:13",
@@ -481,17 +475,6 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.legend:222"
     ]
   },
-  "py:func": {
-    "matplotlib.Axis.set_ticks_position": [
-      "doc/users/prev_whats_new/whats_new_1.4.rst:141"
-    ],
-    "matplotlib.InvertedPolarTransform.transform_non_affine": [
-      "doc/users/prev_whats_new/whats_new_1.4.rst:236"
-    ],
-    "matplotlib.axis.Tick.label1On": [
-      "doc/users/prev_whats_new/whats_new_2.1.0.rst:409"
-    ]
-  },
   "py:meth": {
     "AbstractPathEffect._update_gc": [
       "lib/matplotlib/patheffects.py:docstring of matplotlib.patheffects.SimpleLineShadow:44",
@@ -535,12 +518,6 @@
     "autoscale_view": [
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.margins:32"
     ],
-    "colorbar.Colobar.minorticks_off": [
-      "doc/users/prev_whats_new/whats_new_3.0.rst:63"
-    ],
-    "colorbar.Colobar.minorticks_on": [
-      "doc/users/prev_whats_new/whats_new_3.0.rst:63"
-    ],
     "draw_image": [
       "lib/matplotlib/backends/backend_agg.py:docstring of matplotlib.backends.backend_agg.RendererAgg.option_scale_image:2"
     ],
@@ -564,9 +541,6 @@
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.quiver:201",
       "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Barbs:205",
       "lib/matplotlib/quiver.py:docstring of matplotlib.quiver.Quiver:238"
-    ],
-    "matplotlib.dates.DateFormatter.__call__": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:497"
     ],
     "matplotlib.dates.MicrosecondLocator.__call__": [
       "doc/api/prev_api_changes/api_changes_1.5.0.rst:122"
@@ -598,8 +572,7 @@
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes.Axes.use_sticky_edges:2"
     ],
     "ArtistInspector.aliasd": [
-      "doc/api/prev_api_changes/api_changes_3.0.0.rst:332",
-      "doc/users/prev_whats_new/whats_new_3.1.0.rst:171"
+      "doc/api/prev_api_changes/api_changes_3.0.0.rst:332"
     ],
     "ArtistInspector.get_aliases": [
       "doc/api/prev_api_changes/api_changes_3.0.0.rst:327"
@@ -633,9 +606,6 @@
     ],
     "Axis._update_ticks": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:1072"
-    ],
-    "Axis.set_tick_params": [
-      "doc/users/prev_whats_new/whats_new_2.1.0.rst:394"
     ],
     "Axis.units": [
       "doc/api/prev_api_changes/api_changes_2.2.0.rst:77"
@@ -707,18 +677,8 @@
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.TimerBase:14"
     ],
     "ToolContainer": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:615",
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.ToolContainerBase.remove_toolitem:2",
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.ToolContainerBase:20"
-    ],
-    "ToolContainers": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:615"
-    ],
-    "Toolbars": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:615"
-    ],
-    "Tools": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:608"
     ],
     "_read": [
       "lib/matplotlib/dviread.py:docstring of matplotlib.dviread.Vf:20"
@@ -788,9 +748,6 @@
     "fc-list": [
       "lib/matplotlib/font_manager.py:docstring of matplotlib.font_manager.get_fontconfig_fonts:2"
     ],
-    "figure.Figure.canvas.set_window_title()": [
-      "doc/users/prev_whats_new/whats_new_3.0.rst:84"
-    ],
     "figure.bbox": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.legend:128",
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.FigureBase.legend:129",
@@ -807,14 +764,10 @@
     "fmt_ydata": [
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes._base._AxesBase.format_ydata:4"
     ],
-    "font.*": [
-      "doc/users/prev_whats_new/whats_new_1.3.rst:302"
-    ],
     "gaussian_kde": [
       "lib/matplotlib/mlab.py:docstring of matplotlib.mlab.GaussianKDE:32"
     ],
     "get_size": [
-      "doc/users/prev_whats_new/whats_new_1.4.rst:223",
       "lib/mpl_toolkits/axes_grid1/axes_size.py:docstring of mpl_toolkits.axes_grid1.axes_size:1"
     ],
     "get_xbound": [
@@ -855,10 +808,6 @@
       "lib/matplotlib/mlab.py:docstring of matplotlib.mlab.GaussianKDE:45",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.violinplot:46"
     ],
-    "labelcolor": [
-      "doc/users/prev_whats_new/whats_new_2.0.0.rst:120",
-      "doc/users/prev_whats_new/whats_new_2.0.0.rst:123"
-    ],
     "legend.Legend.set_draggable()": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:499"
     ],
@@ -873,11 +822,6 @@
     ],
     "make_image": [
       "lib/matplotlib/image.py:docstring of matplotlib.image.composite_images:9"
-    ],
-    "markevery": [
-      "doc/users/prev_whats_new/whats_new_1.4.rst:212",
-      "doc/users/prev_whats_new/whats_new_1.4.rst:214",
-      "doc/users/prev_whats_new/whats_new_3.0.rst:110"
     ],
     "matplotlib.animation.AVConvBase.output_args": [
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.MovieWriter.isAvailable:1:<autosummary>:1"
@@ -1283,9 +1227,6 @@
     "self.vertices": [
       "lib/matplotlib/path.py:docstring of matplotlib.path.Path.codes:2"
     ],
-    "set_size": [
-      "doc/users/prev_whats_new/whats_new_1.4.rst:223"
-    ],
     "set_xbound": [
       "lib/matplotlib/projections/geo.py:docstring of matplotlib.projections.geo.GeoAxes.set_xlim:49",
       "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.get_xlim3d:22"
@@ -1300,9 +1241,6 @@
       "lib/matplotlib/style/__init__.py:docstring of matplotlib.style.core.context:12",
       "lib/matplotlib/style/__init__.py:docstring of matplotlib.style.core.use:19"
     ],
-    "to_html5_video": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:728"
-    ],
     "toggled": [
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.AxisScaleBase.disable:4",
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.AxisScaleBase.enable:4",
@@ -1314,11 +1252,7 @@
     "tool_removed_event": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.ToolContainerBase.remove_toolitem:6"
     ],
-    "toolbar": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:615"
-    ],
     "trigger": [
-      "doc/users/prev_whats_new/whats_new_1.5.rst:615",
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolFullScreen.disable:4",
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.ToolFullScreen.enable:4"
     ],
