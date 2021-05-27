@@ -69,7 +69,7 @@ SPECIAL_KEYS = {
 # Elements are (Qt::KeyboardModifiers, Qt::Key) tuples.
 # Order determines the modifier order (ctrl+alt+...) reported by Matplotlib.
 _MODIFIER_KEYS = [
-    (_to_int(getattr(_enum("QtCore.Qt.KeyboardModifiers"), mod)),
+    (_to_int(getattr(_enum("QtCore.Qt.KeyboardModifier"), mod)),
      _to_int(getattr(_enum("QtCore.Qt.Key"), key)))
     for mod, key in [
         ("ControlModifier", "Key_Control"),
@@ -210,7 +210,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     _timer_cls = TimerQT
 
     buttond = {
-        getattr(_enum("QtCore.Qt.MouseButtons"), k): v for k, v in [
+        getattr(_enum("QtCore.Qt.MouseButton"), k): v for k, v in [
             ("LeftButton", MouseButton.LEFT),
             ("RightButton", MouseButton.RIGHT),
             ("MiddleButton", MouseButton.MIDDLE),
@@ -633,8 +633,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         """coordinates: should we show the coordinates on the right?"""
         QtWidgets.QToolBar.__init__(self, parent)
         self.setAllowedAreas(
-            _enum("QtCore.Qt.ToolBarAreas").TopToolBarArea
-            | _enum("QtCore.Qt.ToolBarAreas").TopToolBarArea)
+            _enum("QtCore.Qt.ToolBarArea").TopToolBarArea
+            | _enum("QtCore.Qt.ToolBarArea").TopToolBarArea)
 
         self.coordinates = coordinates
         self._actions = {}  # mapping of toolitem method names to QActions.
@@ -658,8 +658,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         if self.coordinates:
             self.locLabel = QtWidgets.QLabel("", self)
             self.locLabel.setAlignment(
-                _enum("QtCore.Qt.Alignment").AlignRight
-                | _enum("QtCore.Qt.Alignment").AlignVCenter)
+                _enum("QtCore.Qt.AlignmentFlag").AlignRight
+                | _enum("QtCore.Qt.AlignmentFlag").AlignVCenter)
             self.locLabel.setSizePolicy(QtWidgets.QSizePolicy(
                 _enum("QtWidgets.QSizePolicy.Policy").Expanding,
                 _enum("QtWidgets.QSizePolicy.Policy").Ignored,
@@ -890,12 +890,12 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
         ToolContainerBase.__init__(self, toolmanager)
         QtWidgets.QToolBar.__init__(self, parent)
         self.setAllowedAreas(
-            _enum("QtCore.Qt.ToolBarAreas").TopToolBarArea
-            | _enum("QtCore.Qt.ToolBarAreas").TopToolBarArea)
+            _enum("QtCore.Qt.ToolBarArea").TopToolBarArea
+            | _enum("QtCore.Qt.ToolBarArea").TopToolBarArea)
         message_label = QtWidgets.QLabel("")
         message_label.setAlignment(
-            _enum("QtCore.Qt.Alignment").AlignRight
-            | _enum("QtCore.Qt.Alignment").AlignVCenter)
+            _enum("QtCore.Qt.AlignmentFlag").AlignRight
+            | _enum("QtCore.Qt.AlignmentFlag").AlignVCenter)
         message_label.setSizePolicy(QtWidgets.QSizePolicy(
             _enum("QtWidgets.QSizePolicy.Policy").Expanding,
             _enum("QtWidgets.QSizePolicy.Policy").Ignored,

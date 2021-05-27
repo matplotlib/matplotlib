@@ -441,12 +441,12 @@ class FormDialog(QtWidgets.QDialog):
 
         # Button box
         self.bbox = bbox = QtWidgets.QDialogButtonBox(
-            _enum("QtWidgets.QDialogButtonBox.StandardButtons").Ok
-            | _enum("QtWidgets.QDialogButtonBox.StandardButtons").Cancel)
+            _enum("QtWidgets.QDialogButtonBox.StandardButton").Ok
+            | _enum("QtWidgets.QDialogButtonBox.StandardButton").Cancel)
         self.formwidget.update_buttons.connect(self.update_buttons)
         if self.apply_callback is not None:
             apply_btn = bbox.addButton(
-                _enum("QtWidgets.QDialogButtonBox.StandardButtons").Apply)
+                _enum("QtWidgets.QDialogButtonBox.StandardButton").Apply)
             apply_btn.clicked.connect(self.apply)
 
         bbox.accepted.connect(self.accept)
@@ -471,7 +471,7 @@ class FormDialog(QtWidgets.QDialog):
                 valid = False
         for btn_type in ["Ok", "Apply"]:
             btn = self.bbox.button(
-                getattr(_enum("QtWidgets.QDialogButtonBox.StandardButtons"),
+                getattr(_enum("QtWidgets.QDialogButtonBox.StandardButton"),
                         btn_type))
             if btn is not None:
                 btn.setEnabled(valid)
