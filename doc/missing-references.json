@@ -1270,9 +1270,6 @@
     "print_xyz": [
       "lib/matplotlib/backends/backend_template.py:docstring of matplotlib.backends.backend_template:22"
     ],
-    "pyplot.set_loglevel": [
-      "doc/users/prev_whats_new/whats_new_3.1.0.rst:374"
-    ],
     "rrulewrapper": [
       "lib/matplotlib/dates.py:docstring of matplotlib.dates:143"
     ],
