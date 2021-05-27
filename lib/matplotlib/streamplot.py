@@ -67,6 +67,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         Maximum length of streamline in axes coordinates.
     integration_direction : {'forward', 'backward', 'both'}, default: 'both'
         Integrate the streamline in forward, backward or both directions.
+    data : indexable object, optional
+        DATA_PARAMETER_PLACEHOLDER
 
     Returns
     -------
