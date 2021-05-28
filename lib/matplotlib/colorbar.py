@@ -900,7 +900,8 @@ class ColorbarBase:
 
     def remove(self):
         """Remove this colorbar from the figure."""
-        self.ax.remove()
+        self.ax.inner_ax.remove()
+        self.ax.outer_ax.remove()
 
     def _ticker(self, locator, formatter):
         """
