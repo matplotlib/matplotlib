@@ -14,7 +14,7 @@
 Animation
 =========
 
-The easiest way to make a live animation in matplotlib is to use one of the
+The easiest way to make a live animation in Matplotlib is to use one of the
 `Animation` classes.
 
 .. autosummary::
@@ -29,7 +29,7 @@ In both cases it is critical to keep a reference to the instance
 object.  The animation is advanced by a timer (typically from the host
 GUI framework) which the `Animation` object holds the only reference
 to.  If you do not hold a reference to the `Animation` object, it (and
-hence the timers), will be garbage collected which will stop the
+hence the timers) will be garbage collected which will stop the
 animation.
 
 To save an animation to disk use `Animation.save` or `Animation.to_html5_video`

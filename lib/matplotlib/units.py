@@ -5,8 +5,8 @@ how to convert themselves to arrays.  It also supports classes with
 units and units conversion.  Use cases include converters for custom
 objects, e.g., a list of datetime objects, as well as for objects that
 are unit aware.  We don't assume any particular units implementation;
-rather a units implementation must provide the register with the Registry
-converter dictionary and a `ConversionInterface`.  For example,
+rather a units implementation must register with the Registry converter
+dictionary and provide a `ConversionInterface`.  For example,
 here is a complete implementation which supports plotting with native
 datetime objects::
 
