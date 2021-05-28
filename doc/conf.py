@@ -230,7 +230,7 @@ release = version
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
-#today = ''
+# today = ''
 # Else, today_fmt is used as the format for a strftime call.
 today_fmt = '%B %d, %Y'
 
@@ -238,15 +238,15 @@ today_fmt = '%B %d, %Y'
 unused_docs = []
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
-#add_function_parentheses = True
+# add_function_parentheses = True
 
 # If true, the current module name will be prepended to all description
 # unit titles (such as .. function::).
-#add_module_names = True
+# add_module_names = True
 
 # If true, sectionauthor and moduleauthor directives will be shown in the
 # output. They are ignored by default.
-#show_authors = False
+# show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -268,16 +268,15 @@ github_project_url = "https://github.com/matplotlib/matplotlib/"
 # The style sheet to use for HTML and HTML Help pages. A file of that name
 # must exist either in Sphinx' static/ path, or in one of the custom paths
 # given in html_static_path.
-#html_style = 'matplotlib.css'
 html_style = f'mpl.css?{SHA}'
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-#html_title = None
+# html_title = None
 
 # The name of an image file (within the static path) to place at the top of
 # the sidebar.
-#html_logo = 'logo.png'
+# html_logo = 'logo.png'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -296,7 +295,7 @@ html_last_updated_fmt = '%b %d, %Y'
 html_index = 'index.html'
 
 # Custom sidebar templates, maps document names to template names.
-#html_sidebars = {}
+# html_sidebars = {}
 
 # Custom sidebar templates, maps page names to templates.
 html_sidebars = {
@@ -308,11 +307,11 @@ html_sidebars = {
 }
 
 # If false, no module index is generated.
-#html_use_modindex = True
+# html_use_modindex = True
 html_domain_indices = ["py-modindex"]
 
 # If true, the reST sources are included in the HTML build as _sources/<name>.
-#html_copy_source = True
+# html_copy_source = True
 
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.

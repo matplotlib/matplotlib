@@ -17,7 +17,7 @@ ignore =
     E121,E123,E126,E226,E24,E704,W503,W504,
     # Additional ignores:
     E122, E127, E131,
-    E265, E266,
+    E266,
     E305, E306,
     E722, E741,
     F841,

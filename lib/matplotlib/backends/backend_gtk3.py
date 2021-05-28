@@ -144,7 +144,6 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         style_ctx.add_class("matplotlib-canvas")
 
     def destroy(self):
-        #Gtk.DrawingArea.destroy(self)
         self.close_event()
 
     def scroll_event(self, widget, event):

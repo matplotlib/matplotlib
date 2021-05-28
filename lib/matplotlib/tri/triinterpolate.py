@@ -1347,7 +1347,7 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
         rho = np.dot(r, w)
         x = x + alpha*p
         beta = rho/rhoold
-        #err = np.linalg.norm(A.dot(x) - b) # absolute accuracy - not used
+        # err = np.linalg.norm(A.dot(x) - b)  # absolute accuracy - not used
         k += 1
     err = np.linalg.norm(A.dot(x) - b)
     return x, err
@@ -1468,7 +1468,7 @@ def _pseudo_inv22sym_vectorized(M):
         tr = M[rank01, 0, 0] + M[rank01, 1, 1]
         tr_zeros = (np.abs(tr) < 1.e-8)
         sq_tr_inv = (1.-tr_zeros) / (tr**2+tr_zeros)
-        #sq_tr_inv = 1. / tr**2
+        # sq_tr_inv = 1. / tr**2
         M_inv[rank01, 0, 0] = M[rank01, 0, 0] * sq_tr_inv
         M_inv[rank01, 0, 1] = M[rank01, 0, 1] * sq_tr_inv
         M_inv[rank01, 1, 0] = M[rank01, 1, 0] * sq_tr_inv

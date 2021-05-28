@@ -554,7 +554,7 @@ if __name__ == "__main__":
                 (datalist, "Category 2", "Category 2 comment"),
                 (datalist, "Category 3", "Category 3 comment"))
 
-    #--------- datalist example
+    # --------- datalist example
     datalist = create_datalist_example()
 
     def apply_test(data):
@@ -563,11 +563,11 @@ if __name__ == "__main__":
                            comment="This is just an <b>example</b>.",
                            apply=apply_test))
 
-    #--------- datagroup example
+    # --------- datagroup example
     datagroup = create_datagroup_example()
     print("result:", fedit(datagroup, "Global title"))
 
-    #--------- datagroup inside a datagroup example
+    # --------- datagroup inside a datagroup example
     datalist = create_datalist_example()
     datagroup = create_datagroup_example()
     print("result:", fedit(((datagroup, "Title 1", "Tab 1 comment"),
