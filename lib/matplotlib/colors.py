@@ -1152,7 +1152,7 @@ class Normalize:
         self.vmin = _sanitize_extrema(vmin)
         self.vmax = _sanitize_extrema(vmax)
         self.clip = clip
-        self._scale = scale.LinearScale(axis=None)
+        self._scale = None  # will default to LinearScale for colorbar
 
     @staticmethod
     def process_value(value):
@@ -1332,6 +1332,16 @@ class TwoSlopeNorm(Normalize):
                       [0, 0.5, 1.]), mask=np.ma.getmask(result))
         if is_scalar:
             result = np.atleast_1d(result)[0]
+        return result
+
+    def inverse(self, value):
+        if not self.scaled():
+            raise ValueError("Not invertible until both vmin and vmax are set")
+        (vmin,), _ = self.process_value(self.vmin)
+        (vmax,), _ = self.process_value(self.vmax)
+        (vcenter,), _ = self.process_value(self.vcenter)
+
+        result = np.interp(value, [0, 0.5, 1.], [vmin, vcenter, vmax])
         return result
 
 
