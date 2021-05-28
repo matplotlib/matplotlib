@@ -186,7 +186,7 @@ def uninstall_repl_displayhook():
 draw_all = _pylab_helpers.Gcf.draw_all
 
 
-@functools.wraps(matplotlib.set_loglevel)
+@_copy_docstring_and_deprecators(matplotlib.set_loglevel)
 def set_loglevel(*args, **kwargs):  # Ensure this appears in the pyplot docs.
     return matplotlib.set_loglevel(*args, **kwargs)
 

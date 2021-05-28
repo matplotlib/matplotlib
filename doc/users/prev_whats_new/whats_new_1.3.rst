@@ -299,7 +299,7 @@ hard-coded to default to 0, default value of both rcParam values is 0.
 
 Changes to font rcParams
 ````````````````````````
-The `font.*` rcParams now affect only text objects created after the
+The ``font.*`` rcParams now affect only text objects created after the
 rcParam has been set, and will not retroactively affect already
 existing text objects.  This brings their behavior in line with most
 other rcParams.
