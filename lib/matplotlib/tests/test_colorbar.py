@@ -771,3 +771,17 @@ def test_inset_colorbar_layout():
     np.testing.assert_allclose(cb.ax.get_position().bounds,
                                [0.87, 0.342, 0.0237, 0.315], atol=0.01)
     assert cb.ax.outer_ax in ax.child_axes
+
+
+@check_figures_equal(extensions=["png"])
+def test_colorbar_reuse_axes(fig_ref, fig_test):
+    ax = fig_ref.add_subplot()
+    pc = ax.imshow(np.arange(100).reshape(10, 10))
+    cb = fig_ref.colorbar(pc)
+
+    ax = fig_test.add_subplot()
+    pc = ax.imshow(np.arange(100).reshape(10, 10))
+    cb = fig_test.colorbar(pc)
+    # Clear and re-use the same colorbar axes
+    cb.ax.cla()
+    cb = fig_test.colorbar(pc, cax=cb.ax)

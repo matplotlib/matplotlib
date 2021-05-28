@@ -285,6 +285,16 @@ class ColorbarAxes(Axes):
         self.inner_ax._axes_locator = _TransformedBoundsLocator(
             bounds, self.outer_ax.transAxes)
 
+    def cla(self):
+        """Clear the axes."""
+        self.inner_ax.cla()
+        self.outer_ax.cla()
+
+    def remove(self):
+        """Remove the axes."""
+        self.inner_ax.remove()
+        self.outer_ax.remove()
+
 
 class _ColorbarSpine(mspines.Spine):
     def __init__(self, axes):
@@ -874,8 +884,7 @@ class ColorbarBase:
 
     def remove(self):
         """Remove this colorbar from the figure."""
-        self.ax.inner_ax.remove()
-        self.ax.outer_ax.remove()
+        self.ax.remove()
 
     def _ticker(self, locator, formatter):
         """
