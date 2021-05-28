@@ -759,6 +759,24 @@ def test_axes_handles_same_functions(fig_ref, fig_test):
         caxx.set_position([0.92, 0.1, 0.02, 0.7])
 
 
+@check_figures_equal(extensions=["png"])
+def test_colorbar_reuse_axes(fig_ref, fig_test):
+    ax = fig_ref.add_subplot()
+    pc = ax.imshow(np.arange(100).reshape(10, 10))
+    cb = fig_ref.colorbar(pc)
+    cb2 = fig_ref.colorbar(pc, extend='both')
+
+    ax = fig_test.add_subplot()
+    pc = ax.imshow(np.arange(100).reshape(10, 10))
+    cb = fig_test.colorbar(pc, extend='both')
+    cb2 = fig_test.colorbar(pc)
+    # Clear and re-use the same colorbar axes
+    cb.ax.cla()
+    cb2.ax.cla()
+    cb = fig_test.colorbar(pc, cax=cb.ax)
+    cb2 = fig_test.colorbar(pc, cax=cb2.ax, extend='both')
+
+
 def test_inset_colorbar_layout():
     fig, ax = plt.subplots(constrained_layout=True, figsize=(3, 6))
     pc = ax.imshow(np.arange(100).reshape(10, 10))
