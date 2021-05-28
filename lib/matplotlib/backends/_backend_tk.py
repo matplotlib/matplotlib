@@ -690,7 +690,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         # asksaveasfilename dialog when you choose various save types
         # from the dropdown.  Passing in the empty string seems to
         # work - JDH!
-        #defaultextension = self.canvas.get_default_filetype()
+        # defaultextension = self.canvas.get_default_filetype()
         defaultextension = ''
         initialdir = os.path.expanduser(mpl.rcParams['savefig.directory'])
         initialfile = self.canvas.get_default_filename()

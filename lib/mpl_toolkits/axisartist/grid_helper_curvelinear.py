@@ -193,11 +193,11 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
 
         if self.nth_coord == 0:
             mask = (e0 <= yy0) & (yy0 <= e1)
-            #xx0, yy0 = xx0[mask], yy0[mask]
+            # xx0, yy0 = xx0[mask], yy0[mask]
             yy0 = yy0[mask]
         elif self.nth_coord == 1:
             mask = (e0 <= xx0) & (xx0 <= e1)
-            #xx0, yy0 = xx0[mask], yy0[mask]
+            # xx0, yy0 = xx0[mask], yy0[mask]
             xx0 = xx0[mask]
 
         def transform_xy(x, y):

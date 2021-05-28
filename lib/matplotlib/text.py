@@ -887,7 +887,6 @@ class Text(Artist):
             ``self.figure.dpi`` (*not* the renderer dpi); should be set e.g. if
             to match regions with a figure saved with a custom dpi value.
         """
-        #return _unit_box
         if not self.get_visible():
             return Bbox.unit()
         if dpi is None:

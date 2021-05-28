@@ -561,7 +561,6 @@ class PaddedBox(OffsetBox):
         for c in self.get_visible_children():
             c.draw(renderer)
 
-        #bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
         self.stale = False
 
     def update_frame(self, bbox, fontsize=None):
@@ -1449,9 +1448,6 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         if not self._check_xy(None):
             return False, {}
         return self.offsetbox.contains(mouseevent)
-        #if self.arrow_patch is not None:
-        #    a, ainfo=self.arrow_patch.contains(event)
-        #    t = t or a
         # self.arrow_patch is currently not checked as this can be a line - JJ
 
     def get_children(self):
@@ -1534,7 +1530,6 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
 
         # update patch position
         bbox = self.offsetbox.get_window_extent(renderer)
-        #self.offsetbox.set_offset((ox0-_fw*w, oy0-_fh*h))
         self.patch.set_bounds(bbox.x0, bbox.y0,
                               bbox.width, bbox.height)
 

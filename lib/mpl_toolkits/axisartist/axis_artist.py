@@ -648,7 +648,7 @@ class AxisArtist(martist.Artist):
         axes : `mpl_toolkits.axisartist.axislines.Axes`
         helper : `~mpl_toolkits.axisartist.axislines.AxisArtistHelper`
         """
-        #axes is also used to follow the axis attribute (tick color, etc).
+        # axes is also used to follow the axis attribute (tick color, etc).
 
         super().__init__(**kwargs)
 
