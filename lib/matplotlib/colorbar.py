@@ -260,7 +260,6 @@ class ColorbarAxes(Axes):
                 parent.remove()
         else:
             outer_ax = parent
-
         inner_ax = outer_ax.inset_axes([0, 0, 1, 1])
         self.__dict__.update(inner_ax.__dict__)
 
@@ -284,6 +283,32 @@ class ColorbarAxes(Axes):
         """
         self.inner_ax._axes_locator = _TransformedBoundsLocator(
             bounds, self.outer_ax.transAxes)
+
+    def cla(self):
+        """
+        Reset the colorbar axes to be empty.
+        """
+        # need to low-level manipulate the stacks because we
+        # are just swapping places here.  We don't need to
+        # set transforms etc...
+        self.inner_ax.cla()
+        self.outer_ax.cla()
+        self.figure._axstack.add(self)
+        self.figure._axstack.remove(self.outer_ax)
+        self.figure._localaxes.add(self)
+        self.figure._localaxes.remove(self.outer_ax)
+
+        self.__dict__.update(self.outer_ax.__dict__)
+        self.inner_ax.remove()
+        del self.inner_ax
+        del self.outer_ax
+
+        self.xaxis.set_visible(True)
+        self.yaxis.set_visible(True)
+        for spine in self.spines.values():
+            spine.set_visible(True)
+
+        self.set_facecolor(mpl.rcParams['axes.facecolor'])
 
 
 class _ColorbarSpine(mspines.Spine):
@@ -1250,7 +1275,12 @@ class Colorbar(ColorbarBase):
             self.norm = mappable.norm
             self._reset_locator_formatter_scale()
 
-        self.draw_all()
+        try:
+            self.draw_all()
+        except AttributeError:
+            # update_normal sometimes is called when it shouldn't be..
+            pass
+
         if isinstance(self.mappable, contour.ContourSet):
             CS = self.mappable
             if not CS.filled:
