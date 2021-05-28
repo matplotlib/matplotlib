@@ -2,8 +2,11 @@
 ``matplotlib.colors``
 *********************
 
-The Color :ref:`tutorials <tutorials-colors>` and :ref:`examples
-<color_examples>` demonstrate how to set colors and colormaps.
+.. note::
+
+   The Color :ref:`tutorials <tutorials-colors>` and :ref:`examples
+   <color_examples>` demonstrate how to set colors and colormaps. You may want
+   to read those instead.
 
 .. currentmodule:: matplotlib.colors
 

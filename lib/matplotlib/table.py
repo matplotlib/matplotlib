@@ -9,6 +9,11 @@
 """
 Tables drawing.
 
+.. note::
+    The table implementation in Matplotlib is lightly maintained. For a more
+    featureful table implementation, you may wish to try `blume
+    <https://github.com/swfiua/blume>`_.
+
 Use the factory function `~matplotlib.table.table` to create a ready-made
 table from texts. If you need more control, use the `.Table` class and its
 methods.
