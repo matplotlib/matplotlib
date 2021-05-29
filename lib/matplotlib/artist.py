@@ -27,12 +27,8 @@ def allow_rasterization(draw):
     renderer.
     """
 
-    # Axes has a second (deprecated) argument inframe for its draw method.
-    # args and kwargs are deprecated, but we don't wrap this in
-    # _api.delete_parameter for performance; the relevant deprecation
-    # warning will be emitted by the inner draw() call.
     @wraps(draw)
-    def draw_wrapper(artist, renderer, *args, **kwargs):
+    def draw_wrapper(artist, renderer):
         try:
             if artist.get_rasterized():
                 if renderer._raster_depth == 0 and not renderer._rasterizing:
@@ -49,7 +45,7 @@ def allow_rasterization(draw):
             if artist.get_agg_filter() is not None:
                 renderer.start_filter()
 
-            return draw(artist, renderer, *args, **kwargs)
+            return draw(artist, renderer)
         finally:
             if artist.get_agg_filter() is not None:
                 renderer.stop_filter(artist.get_agg_filter())
@@ -929,9 +925,7 @@ class Artist:
         self._agg_filter = filter_func
         self.stale = True
 
-    @_api.delete_parameter("3.3", "args")
-    @_api.delete_parameter("3.3", "kwargs")
-    def draw(self, renderer, *args, **kwargs):
+    def draw(self, renderer):
         """
         Draw the Artist (and its children) using the given renderer.
 

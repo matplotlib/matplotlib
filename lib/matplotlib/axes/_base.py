@@ -2459,19 +2459,6 @@ class _AxesBase(martist.Artist):
                                          updatex=updatex, updatey=updatey)
         self.ignore_existing_data_limits = False
 
-    @_api.deprecated(
-        "3.3", alternative="ax.dataLim.set(Bbox.union([ax.dataLim, bounds]))")
-    def update_datalim_bounds(self, bounds):
-        """
-        Extend the `~.Axes.datalim` Bbox to include the given
-        `~matplotlib.transforms.Bbox`.
-
-        Parameters
-        ----------
-        bounds : `~matplotlib.transforms.Bbox`
-        """
-        self.dataLim.set(mtransforms.Bbox.union([self.dataLim, bounds]))
-
     def _process_unit_info(self, datasets=None, kwargs=None, *, convert=True):
         """
         Set axis units based on *datasets* and *kwargs*, and optionally apply
@@ -3011,17 +2998,8 @@ class _AxesBase(martist.Artist):
 
     # Drawing
     @martist.allow_rasterization
-    @_api.delete_parameter(
-        "3.3", "inframe", alternative="Axes.redraw_in_frame()")
-    def draw(self, renderer=None, inframe=False):
+    def draw(self, renderer):
         # docstring inherited
-        if renderer is None:
-            _api.warn_deprecated(
-                "3.3", message="Support for not passing the 'renderer' "
-                "parameter to Axes.draw() is deprecated since %(since)s and "
-                "will be removed %(removal)s.  Use axes.draw_artist(axes) "
-                "instead.")
-            renderer = self.figure._cachedRenderer
         if renderer is None:
             raise RuntimeError('No renderer defined')
         if not self.get_visible():
@@ -3054,14 +3032,9 @@ class _AxesBase(martist.Artist):
 
         self._update_title_position(renderer)
 
-        if not self.axison or inframe:
+        if not self.axison:
             for _axis in self._get_axis_list():
                 artists.remove(_axis)
-
-        if inframe:
-            artists.remove(self.title)
-            artists.remove(self._left_title)
-            artists.remove(self._right_title)
 
         if not self.figure.canvas.is_saving():
             artists = [

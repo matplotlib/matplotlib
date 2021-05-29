@@ -1,3 +1,20 @@
+Signatures of `.Artist.draw` and `.Axes.draw`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *inframe* parameter to `.Axes.draw` has been removed.  Use
+`.Axes.redraw_in_frame` instead.
+
+Omitting the *renderer* parameter to `.Axes.draw` is no longer supported.
+Use ``axes.draw_artist(axes)`` instead.
+
+These changes make the signature of the ``draw`` (``artist.draw(renderer)``)
+method consistent across all artists; thus, additional parameters to
+`.Artist.draw` have also been removed.
+
+``Axes.update_datalim_bounds``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This method has been removed.  Use
+``ax.dataLim.set(Bbox.union([ax.dataLim, bounds]))`` instead.
+
 ``{,Symmetrical}LogScale.{,Inverted}LogTransform``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ``LogScale.LogTransform``, ``LogScale.InvertedLogTransform``,
