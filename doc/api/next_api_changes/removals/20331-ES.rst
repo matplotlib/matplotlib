@@ -1,0 +1,13 @@
+Implicit initialization of ``Tick`` attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `.Tick` constructor no longer initializes the attributes ``tick1line``,
+``tick2line``, ``gridline``, ``label1``, and ``label2`` via ``_get_tick1line``,
+``_get_tick2line``, ``_get_gridline``, ``_get_text1``, and ``_get_text2``.
+Please directly set the attribute in the subclass' ``__init__`` instead.
+
+Unused parameters
+~~~~~~~~~~~~~~~~~
+The following parameters do not have any effect and have been removed:
+
+- parameter *label* of `.Tick`
