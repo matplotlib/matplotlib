@@ -2863,8 +2863,8 @@ class _AxesBase(martist.Artist):
         if self.get_yscale() == 'log':
             y_stickies = y_stickies[y_stickies > 0]
 
-        def handle_single_axis(scale, autoscaleon, shared_axes, interval,
-                               minpos, axis, margin, stickies, set_bound):
+        def handle_single_axis(scale, autoscaleon, shared_axes, name,
+                               axis, margin, stickies, set_bound):
 
             if not (scale and autoscaleon):
                 return  # nothing to do...
@@ -2876,12 +2876,16 @@ class _AxesBase(martist.Artist):
             x_values = []
             minimum_minpos = np.inf
             for ax in shared:
-                x_values.extend(getattr(ax.dataLim, interval))
+                x_values.extend(getattr(ax.dataLim, f"interval{name}"))
                 minimum_minpos = min(minimum_minpos,
-                                     getattr(ax.dataLim, minpos))
+                                     getattr(ax.dataLim, f"minpos{name}"))
             x_values = np.extract(np.isfinite(x_values), x_values)
             if x_values.size >= 1:
                 x0, x1 = (x_values.min(), x_values.max())
+            elif getattr(self._viewLim, f"mutated{name}")():
+                # No data, but explicit viewLims already set:
+                # in mutatedx or mutatedy.
+                return
             else:
                 x0, x1 = (-np.inf, np.inf)
             # If x0 and x1 are non finite, use the locator to figure out
@@ -2925,11 +2929,11 @@ class _AxesBase(martist.Artist):
             # End of definition of internal function 'handle_single_axis'.
 
         handle_single_axis(
-            scalex, self._autoscaleXon, self._shared_x_axes, 'intervalx',
-            'minposx', self.xaxis, self._xmargin, x_stickies, self.set_xbound)
+            scalex, self._autoscaleXon, self._shared_x_axes, 'x',
+            self.xaxis, self._xmargin, x_stickies, self.set_xbound)
         handle_single_axis(
-            scaley, self._autoscaleYon, self._shared_y_axes, 'intervaly',
-            'minposy', self.yaxis, self._ymargin, y_stickies, self.set_ybound)
+            scaley, self._autoscaleYon, self._shared_y_axes, 'y',
+            self.yaxis, self._ymargin, y_stickies, self.set_ybound)
 
     def _get_axis_list(self):
         return self.xaxis, self.yaxis

@@ -70,13 +70,55 @@ def test_date2num_NaT_scalar(units):
     assert np.isnan(tmpl)
 
 
-@image_comparison(['date_empty.png'])
 def test_date_empty():
     # make sure we do the right thing when told to plot dates even
     # if no date data has been presented, cf
     # http://sourceforge.net/tracker/?func=detail&aid=2850075&group_id=80706&atid=560720
     fig, ax = plt.subplots()
     ax.xaxis_date()
+    fig.draw_no_output()
+    np.testing.assert_allclose(ax.get_xlim(),
+                               [mdates.date2num(np.datetime64('2000-01-01')),
+                                mdates.date2num(np.datetime64('2010-01-01'))])
+
+    mdates._reset_epoch_test_example()
+    mdates.set_epoch('0000-12-31')
+    fig, ax = plt.subplots()
+    ax.xaxis_date()
+    fig.draw_no_output()
+    np.testing.assert_allclose(ax.get_xlim(),
+                               [mdates.date2num(np.datetime64('2000-01-01')),
+                                mdates.date2num(np.datetime64('2010-01-01'))])
+    mdates._reset_epoch_test_example()
+
+
+def test_date_not_empty():
+    fig = plt.figure()
+    ax = fig.add_subplot()
+
+    ax.plot([50, 70], [1, 2])
+    ax.xaxis.axis_date()
+    np.testing.assert_allclose(ax.get_xlim(), [50, 70])
+
+
+def test_axhline():
+    # make sure that axhline doesn't set the xlimits...
+    fig, ax = plt.subplots()
+    ax.axhline(1.5)
+    ax.plot([np.datetime64('2016-01-01'), np.datetime64('2016-01-02')], [1, 2])
+    np.testing.assert_allclose(ax.get_xlim(),
+                               [mdates.date2num(np.datetime64('2016-01-01')),
+                                mdates.date2num(np.datetime64('2016-01-02'))])
+
+    mdates._reset_epoch_test_example()
+    mdates.set_epoch('0000-12-31')
+    fig, ax = plt.subplots()
+    ax.axhline(1.5)
+    ax.plot([np.datetime64('2016-01-01'), np.datetime64('2016-01-02')], [1, 2])
+    np.testing.assert_allclose(ax.get_xlim(),
+                               [mdates.date2num(np.datetime64('2016-01-01')),
+                                mdates.date2num(np.datetime64('2016-01-02'))])
+    mdates._reset_epoch_test_example()
 
 
 @image_comparison(['date_axhspan.png'])
