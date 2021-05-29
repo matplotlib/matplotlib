@@ -27,9 +27,6 @@ class StrConverter(units.ConversionInterface):
     def convert(value, unit, axis):
         # docstring inherited
 
-        if units.ConversionInterface.is_numlike(value):
-            return value
-
         if value == []:
             return []
 
