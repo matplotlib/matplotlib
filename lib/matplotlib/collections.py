@@ -2002,7 +2002,7 @@ class QuadMesh(Collection):
             # The following raises a TypeError iif the args don't match.
             w, h, coords, antialiased, shading, kwargs = (
                 lambda meshWidth, meshHeight, coordinates, antialiased=True,
-                       shading=False, **kwargs:
+                       shading='flat', **kwargs:
                 (meshWidth, meshHeight, coordinates, antialiased, shading,
                  kwargs))(*args, **kwargs)
         except TypeError as exc:
@@ -2010,7 +2010,7 @@ class QuadMesh(Collection):
             # If the following raises a TypeError (i.e. args don't match),
             # just let it propagate.
             coords, antialiased, shading, kwargs = (
-                lambda coordinates, antialiased=True, shading=False, **kwargs:
+                lambda coordinates, antialiased=True, shading='flat', **kwargs:
                 (coordinates, antialiased, shading, kwargs))(*args, **kwargs)
             coords = np.asarray(coords, np.float64)
         else:  # The old signature matched.
