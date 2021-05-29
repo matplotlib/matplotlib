@@ -743,7 +743,6 @@ def test_quadmesh_deprecated_signature(
     qmesh = QuadMesh(coords, **kwargs)
     qmesh.set_array(C)
     ax.add_collection(qmesh)
-
     assert qmesh._shading == 'flat'
 
     ax = fig_ref.add_subplot()
@@ -756,6 +755,7 @@ def test_quadmesh_deprecated_signature(
                          **kwargs)
     qmesh.set_array(C.flatten() if flat_ref else C)
     ax.add_collection(qmesh)
+    assert qmesh._shading == 'flat'
 
 
 @check_figures_equal(extensions=['png'])
