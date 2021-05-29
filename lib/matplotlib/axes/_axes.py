@@ -2980,7 +2980,7 @@ class Axes(_AxesBase):
             autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
             startangle=0, radius=1, counterclock=True,
             wedgeprops=None, textprops=None, center=(0, 0),
-            frame=False, rotatelabels=False, *, normalize=None):
+            frame=False, rotatelabels=False, *, normalize=True):
         """
         Plot a pie chart.
 
@@ -3021,18 +3021,10 @@ class Axes(_AxesBase):
         shadow : bool, default: False
             Draw a shadow beneath the pie.
 
-        normalize : None or bool, default: None
+        normalize : bool, default: True
             When *True*, always make a full pie by normalizing x so that
             ``sum(x) == 1``. *False* makes a partial pie if ``sum(x) <= 1``
             and raises a `ValueError` for ``sum(x) > 1``.
-
-            When *None*, defaults to *True* if ``sum(x) >= 1`` and *False* if
-            ``sum(x) < 1``.
-
-            Please note that the previous default value of *None* is now
-            deprecated, and the default will change to *True* in the next
-            release. Please pass ``normalize=False`` explicitly if you want to
-            draw a partial pie.
 
         labeldistance : float or None, default: 1.1
             The radial distance at which the pie labels are drawn.
@@ -3102,17 +3094,6 @@ class Axes(_AxesBase):
 
         sx = x.sum()
 
-        if normalize is None:
-            if sx < 1:
-                _api.warn_deprecated(
-                    "3.3", message="normalize=None does not normalize "
-                    "if the sum is less than 1 but this behavior "
-                    "is deprecated since %(since)s until %(removal)s. "
-                    "After the deprecation "
-                    "period the default value will be normalize=True. "
-                    "To prevent normalization pass normalize=False ")
-            else:
-                normalize = True
         if normalize:
             x = x / sx
         elif sx > 1:
@@ -3133,20 +3114,11 @@ class Axes(_AxesBase):
             def get_next_color():
                 return next(color_cycle)
 
-        if radius is None:
-            _api.warn_deprecated(
-                "3.3", message="Support for passing a radius of None to mean "
-                "1 is deprecated since %(since)s and will be removed "
-                "%(removal)s.")
-            radius = 1
+        _api.check_isinstance(Number, radius=radius, startangle=startangle)
+        if radius <= 0:
+            raise ValueError(f'radius must be a positive number, not {radius}')
 
         # Starting theta1 is the start fraction of the circle
-        if startangle is None:
-            _api.warn_deprecated(
-                "3.3", message="Support for passing a startangle of None to "
-                "mean 0 is deprecated since %(since)s and will be removed "
-                "%(removal)s.")
-            startangle = 0
         theta1 = startangle / 360
 
         if wedgeprops is None:

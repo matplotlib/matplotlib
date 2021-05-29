@@ -1,3 +1,14 @@
+``Axes.pie`` *radius*, *startangle*, and *normalize* parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing ``None`` as either the *radius* or *startangle* arguments of an
+`.Axes.pie` is no longer accepted; use the explicit defaults of 1 and 0,
+respectively, instead.
+
+Passing ``None`` as the *normalize* argument of `.Axes.pie` (the former
+default) is no longer accepted, and the pie will always be normalized by
+default. If you wish to plot an incomplete pie, explicitly pass
+``normalize=False``.
+
 Signatures of `.Artist.draw` and `.Axes.draw`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The *inframe* parameter to `.Axes.draw` has been removed.  Use
