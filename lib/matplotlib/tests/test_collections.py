@@ -744,6 +744,8 @@ def test_quadmesh_deprecated_signature(
     qmesh.set_array(C)
     ax.add_collection(qmesh)
 
+    assert qmesh._shading == 'flat'
+
     ax = fig_ref.add_subplot()
     ax.set(xlim=(0, 5), ylim=(0, 4))
     if 'transform' in kwargs:
