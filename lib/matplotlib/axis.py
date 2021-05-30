@@ -1004,6 +1004,7 @@ class Axis(martist.Artist):
         # axes get updated as well.
         raise NotImplementedError('Derived must override')
 
+    @_api.deprecated("3.5")
     def set_default_intervals(self):
         """
         Set the default limits for the axis data and view interval if they
@@ -1017,6 +1018,41 @@ class Axis(martist.Artist):
         # default limits through the AxisInfo.default_limits
         # attribute, and the derived code below will check for that
         # and use it if it's available (else just use 0..1)
+        if self.converter is None:
+            return
+        info = self.converter.axisinfo(self.units, self)
+        self._set_default_intervals_nowarn(info)
+
+    # Delete after deprecation of set_default_intervals ends.
+    def _set_default_intervals_nowarn(self, info):
+        if info is None:
+            return
+        limits = info._default_limits
+        if limits is None:
+            return
+        converted_limits = self.convert_units(limits)
+        # For now, only emit the warning if default_limits is different from
+        # what majloc would have set, in order to give time to pandas to update
+        # their datetime support.
+        if (info.majloc is None
+                or not np.all(self.convert_units(limits)
+                              == info.majloc.nonsingular(np.inf, -np.inf))):
+            _api.warn_deprecated(
+                "3.5", message="Support for default_units is deprecated since "
+                "%(since)s and support will be removed %(removal)s; units can "
+                "still provide default limits by setting a custom Locator "
+                "which overrides nonsingular().")
+        # only change view if dataLim has not changed and user has not changed
+        # the view:
+        if isinstance(self, XAxis):
+            if (not self.axes.dataLim.mutatedx() and
+                    not self.axes._viewLim.mutatedx()):
+                self.axes.viewLim.intervalx = converted_limits
+        elif isinstance(self, YAxis):
+            if (not self.axes.dataLim.mutatedy() and
+                    not self.axes._viewLim.mutatedy()):
+                self.axes.viewLim.intervaly = converted_limits
+        self.stale = True
 
     def _set_artist_props(self, a):
         if a is None:
@@ -1478,6 +1514,11 @@ class Axis(martist.Artist):
            self.major.locator != info.majloc and self.isDefault_majloc:
             self.set_major_locator(info.majloc)
             self.isDefault_majloc = True
+            # Let the new locator set the default limits, if needed.
+            if self is self.axes.xaxis and not self.axes.viewLim.mutatedx():
+                self.axes._stale_viewlim_x = True
+            elif self is self.axes.yaxis and not self.axes.viewLim.mutatedy():
+                self.axes._stale_viewlim_y = True
         if info.minloc is not None and \
            self.minor.locator != info.minloc and self.isDefault_minloc:
             self.set_minor_locator(info.minloc)
@@ -1494,7 +1535,7 @@ class Axis(martist.Artist):
             self.set_label_text(info.label)
             self.isDefault_label = True
 
-        self.set_default_intervals()
+        self._set_default_intervals_nowarn(info)
 
     def have_units(self):
         return self.converter is not None or self.units is not None
@@ -1535,11 +1576,13 @@ class Axis(martist.Artist):
                 ax.xaxis
                 for ax in self.axes.get_shared_x_axes().get_siblings(self.axes)
             ]
+            self.axes._stale_viewlim_x = True
         elif self is self.axes.yaxis:
             shared = [
                 ax.yaxis
                 for ax in self.axes.get_shared_y_axes().get_siblings(self.axes)
             ]
+            self.axes._stale_viewlim_y = True
         else:
             shared = [self]
         for axis in shared:
@@ -2264,20 +2307,6 @@ class XAxis(Axis):
         # cast to bool to avoid bad interaction between python 3.8 and np.bool_
         self.axes.set_xlim(sorted((a, b), reverse=bool(inverted)), auto=None)
 
-    def set_default_intervals(self):
-        # docstring inherited
-        xmin, xmax = 0., 1.
-        # only change view if dataLim has not changed and user has
-        # not changed the view:
-        if (not self.axes.dataLim.mutatedx() and
-                not self.axes.viewLim.mutatedx()):
-            if self.converter is not None:
-                info = self.converter.axisinfo(self.units, self)
-                if info.default_limits is not None:
-                    xmin, xmax = self.convert_units(info.default_limits)
-                    self.axes.viewLim.intervalx = xmin, xmax
-        self.stale = True
-
     def get_tick_space(self):
         ends = self.axes.transAxes.transform([[0, 0], [1, 0]])
         length = ((ends[1][0] - ends[0][0]) / self.axes.figure.dpi) * 72
@@ -2524,20 +2553,6 @@ class YAxis(Axis):
         a, b = self.get_view_interval()
         # cast to bool to avoid bad interaction between python 3.8 and np.bool_
         self.axes.set_ylim(sorted((a, b), reverse=bool(inverted)), auto=None)
-
-    def set_default_intervals(self):
-        # docstring inherited
-        ymin, ymax = 0., 1.
-        # only change view if dataLim has not changed and user has
-        # not changed the view:
-        if (not self.axes.dataLim.mutatedy() and
-                not self.axes.viewLim.mutatedy()):
-            if self.converter is not None:
-                info = self.converter.axisinfo(self.units, self)
-                if info.default_limits is not None:
-                    ymin, ymax = self.convert_units(info.default_limits)
-                    self.axes.viewLim.intervaly = ymin, ymax
-        self.stale = True
 
     def get_tick_space(self):
         ends = self.axes.transAxes.transform([[0, 0], [0, 1]])

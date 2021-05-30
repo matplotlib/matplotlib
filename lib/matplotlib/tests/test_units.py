@@ -2,6 +2,7 @@ from datetime import datetime, timezone, timedelta
 import platform
 from unittest.mock import MagicMock
 
+from matplotlib._api import MatplotlibDeprecationWarning
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.units as munits
@@ -90,11 +91,13 @@ def test_numpy_facade(quantity_converter):
 
     fig, ax = plt.subplots()
     fig.subplots_adjust(left=0.15)  # Make space for label
-    ax.plot(x, y, 'tab:blue')
+    with pytest.warns(MatplotlibDeprecationWarning, match="default_units"):
+        ax.plot(x, y, 'tab:blue')
     ax.axhline(Quantity(26400, 'feet'), color='tab:red')
     ax.axvline(Quantity(120, 'minutes'), color='tab:green')
-    ax.yaxis.set_units('inches')
-    ax.xaxis.set_units('seconds')
+    with pytest.warns(MatplotlibDeprecationWarning, match="default_units"):
+        ax.yaxis.set_units('inches')
+        ax.xaxis.set_units('seconds')
 
     assert quantity_converter.convert.called
     assert quantity_converter.axisinfo.called
@@ -118,8 +121,9 @@ def test_empty_set_limits_with_units(quantity_converter):
     munits.registry[Quantity] = quantity_converter
 
     fig, ax = plt.subplots()
-    ax.set_xlim(Quantity(-1, 'meters'), Quantity(6, 'meters'))
-    ax.set_ylim(Quantity(-1, 'hours'), Quantity(16, 'hours'))
+    with pytest.warns(MatplotlibDeprecationWarning, match="default_units"):
+        ax.set_xlim(Quantity(-1, 'meters'), Quantity(6, 'meters'))
+        ax.set_ylim(Quantity(-1, 'hours'), Quantity(16, 'hours'))
 
 
 @image_comparison(['jpl_bar_units.png'],
@@ -190,12 +194,14 @@ def test_shared_axis_quantity(quantity_converter):
     y1 = Quantity(np.linspace(1, 2, 10), "feet")
     y2 = Quantity(np.linspace(3, 4, 10), "feet")
     fig, (ax1, ax2) = plt.subplots(2, 1, sharex='all', sharey='all')
-    ax1.plot(x, y1)
-    ax2.plot(x, y2)
+    with pytest.warns(MatplotlibDeprecationWarning, match="default_units"):
+        ax1.plot(x, y1)
+        ax2.plot(x, y2)
     assert ax1.xaxis.get_units() == ax2.xaxis.get_units() == "hours"
     assert ax2.yaxis.get_units() == ax2.yaxis.get_units() == "feet"
-    ax1.xaxis.set_units("seconds")
-    ax2.yaxis.set_units("inches")
+    with pytest.warns(MatplotlibDeprecationWarning, match="default_units"):
+        ax1.xaxis.set_units("seconds")
+        ax2.yaxis.set_units("inches")
     assert ax1.xaxis.get_units() == ax2.xaxis.get_units() == "seconds"
     assert ax1.yaxis.get_units() == ax2.yaxis.get_units() == "inches"
 
@@ -225,38 +231,44 @@ def test_shared_axis_categorical():
 def test_empty_default_limits(quantity_converter):
     munits.registry[Quantity] = quantity_converter
     fig, ax1 = plt.subplots()
-    ax1.xaxis.update_units(Quantity([10], "miles"))
+    with pytest.warns(MatplotlibDeprecationWarning, match="default_units"):
+        ax1.xaxis.update_units(Quantity([10], "miles"))
     fig.draw_no_output()
     assert ax1.get_xlim() == (0, 100)
-    ax1.yaxis.update_units(Quantity([10], "miles"))
+    with pytest.warns(MatplotlibDeprecationWarning, match="default_units"):
+        ax1.yaxis.update_units(Quantity([10], "miles"))
     fig.draw_no_output()
     assert ax1.get_ylim() == (0, 100)
 
     fig, ax = plt.subplots()
     ax.axhline(30)
-    ax.plot(Quantity(np.arange(0, 3), "miles"),
-            Quantity(np.arange(0, 6, 2), "feet"))
+    with pytest.warns(MatplotlibDeprecationWarning, match="default_units"):
+        ax.plot(Quantity(np.arange(0, 3), "miles"),
+                Quantity(np.arange(0, 6, 2), "feet"))
     fig.draw_no_output()
     assert ax.get_xlim() == (0, 2)
     assert ax.get_ylim() == (0, 30)
 
     fig, ax = plt.subplots()
     ax.axvline(30)
-    ax.plot(Quantity(np.arange(0, 3), "miles"),
-            Quantity(np.arange(0, 6, 2), "feet"))
+    with pytest.warns(MatplotlibDeprecationWarning, match="default_units"):
+        ax.plot(Quantity(np.arange(0, 3), "miles"),
+                Quantity(np.arange(0, 6, 2), "feet"))
     fig.draw_no_output()
     assert ax.get_xlim() == (0, 30)
     assert ax.get_ylim() == (0, 4)
 
     fig, ax = plt.subplots()
-    ax.xaxis.update_units(Quantity([10], "miles"))
+    with pytest.warns(MatplotlibDeprecationWarning, match="default_units"):
+        ax.xaxis.update_units(Quantity([10], "miles"))
     ax.axhline(30)
     fig.draw_no_output()
     assert ax.get_xlim() == (0, 100)
     assert ax.get_ylim() == (28.5, 31.5)
 
     fig, ax = plt.subplots()
-    ax.yaxis.update_units(Quantity([10], "miles"))
+    with pytest.warns(MatplotlibDeprecationWarning, match="default_units"):
+        ax.yaxis.update_units(Quantity([10], "miles"))
     ax.axvline(30)
     fig.draw_no_output()
     assert ax.get_ylim() == (0, 100)

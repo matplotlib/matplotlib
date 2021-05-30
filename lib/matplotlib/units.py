@@ -78,6 +78,9 @@ class AxisInfo:
     An instance of this class must be returned by
     `ConversionInterface.axisinfo`.
     """
+
+    # Actual deprecation of the default_limits parameter can only occur after
+    # updating pandas's datetime support.
     def __init__(self, majloc=None, minloc=None,
                  majfmt=None, minfmt=None, label=None,
                  default_limits=None):
@@ -92,7 +95,7 @@ class AxisInfo:
             The default axis label.
         default_limits : optional
             The default min and max limits of the axis if no data has
-            been plotted.
+            been plotted.  Will be deprecated in a future version.
 
         Notes
         -----
@@ -104,7 +107,9 @@ class AxisInfo:
         self.majfmt = majfmt
         self.minfmt = minfmt
         self.label = label
-        self.default_limits = default_limits
+        self._default_limits = default_limits
+
+    default_limits = _api.deprecate_privatize_attribute("3.5")
 
 
 class ConversionInterface:
