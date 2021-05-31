@@ -3,8 +3,10 @@ Default legend handlers.
 
 .. important::
 
-    It is strongly encouraged to have read the :doc:`legend guide
-    </tutorials/intermediate/legend_guide>` before this documentation.
+    This is a low-level legend API, which most end users do not need.
+
+    We recommend that you are familiar with the :doc:`legend guide
+    </tutorials/intermediate/legend_guide>` before reading this documentation.
 
 Legend handlers are expected to be a callable object with a following
 signature. ::
