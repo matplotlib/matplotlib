@@ -3,8 +3,7 @@
 Specifying Colors
 *****************
 
-Matplotlib recognizes the following formats in the table below to specify a
-color.
+Matplotlib recognizes the following formats to specify a color.
 
 +--------------------------------------+--------------------------------------+
 | Format                               | Example                              |
@@ -20,18 +19,20 @@ color.
 | equivalent hex shorthand of          | - ``'#fb1'`` as ``'#ffbb11'``        |
 | duplicated characters.               |                                      |
 +--------------------------------------+--------------------------------------+
-| String representation of float value | - ``'0.8'`` as light gray            |
-| in closed interval ``[0, 1]`` for    | - ``'0'`` as black                   |
-| black and white, respectively.       | - ``'1'`` as white                   |
+| String representation of float value | - ``'0'`` as black                   |
+| in closed interval ``[0, 1]`` for    | - ``'1'`` as white                   |
+| grayscale values.                    | - ``'0.8'`` as light gray            |
 +--------------------------------------+--------------------------------------+
 | Single character shorthand notation  | - ``'b'`` as blue                    |
-| for shades of colors.                | - ``'g'`` as green                   |
+| for some basic colors.               | - ``'g'`` as green                   |
 |                                      | - ``'r'`` as red                     |
-| .. note:: The colors green, cyan,    | - ``'c'`` as cyan                    |
-|           magenta, and yellow do not | - ``'m'`` as magenta                 |
-|           coincide with X11/CSS4     | - ``'y'`` as yellow                  |
-|           colors.                    | - ``'k'`` as black                   |
-|                                      | - ``'w'`` as white                   |
+| .. note::                            | - ``'c'`` as cyan                    |
+|    The colors green, cyan, magenta,  | - ``'m'`` as magenta                 |
+|    and yellow do not coincide with   | - ``'y'`` as yellow                  |
+|    X11/CSS4 colors. Their particular | - ``'k'`` as black                   |
+|    shades were chosen for better     | - ``'w'`` as white                   |
+|    visibility of colored lines       |                                      |
+|    against typical backgrounds.      |                                      |
 +--------------------------------------+--------------------------------------+
 | Case-insensitive X11/CSS4 color name | - ``'aquamarine'``                   |
 | with no spaces.                      | - ``'mediumseagreen'``               |
