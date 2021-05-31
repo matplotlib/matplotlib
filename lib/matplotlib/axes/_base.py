@@ -4255,41 +4255,14 @@ class _AxesBase(martist.Artist):
         self.set_xlim((xmin, xmax))
         self.set_ylim((ymin, ymax))
 
-    def _set_view_from_bbox(self, bbox, direction='in',
-                            mode=None, twinx=False, twiny=False):
+    def _prepare_view_from_bbox(self, bbox, direction='in',
+                                mode=None, twinx=False, twiny=False):
         """
-        Update view from a selection bbox.
+        Helper function to prepare the new bounds from a bbox.
 
-        .. note::
-
-            Intended to be overridden by new projection types, but if not, the
-            default implementation sets the view limits to the bbox directly.
-
-        Parameters
-        ----------
-        bbox : 4-tuple or 3 tuple
-            * If bbox is a 4 tuple, it is the selected bounding box limits,
-              in *display* coordinates.
-            * If bbox is a 3 tuple, it is an (xp, yp, scl) triple, where
-              (xp, yp) is the center of zooming and scl the scale factor to
-              zoom by.
-
-        direction : str
-            The direction to apply the bounding box.
-                * `'in'` - The bounding box describes the view directly, i.e.,
-                           it zooms in.
-                * `'out'` - The bounding box describes the size to make the
-                            existing view, i.e., it zooms out.
-
-        mode : str or None
-            The selection mode, whether to apply the bounding box in only the
-            `'x'` direction, `'y'` direction or both (`None`).
-
-        twinx : bool
-            Whether this axis is twinned in the *x*-direction.
-
-        twiny : bool
-            Whether this axis is twinned in the *y*-direction.
+        This helper function returns the new x and y bounds from the zoom
+        bbox. This a convenience method to abstract the bbox logic
+        out of the base setter.
         """
         if len(bbox) == 3:
             xp, yp, scl = bbox  # Zooming code
@@ -4360,6 +4333,46 @@ class _AxesBase(martist.Artist):
             symax1 = symax0 + factor * (symax0 - symax)
             new_ybound = y_trf.inverted().transform([symin1, symax1])
 
+        return new_xbound, new_ybound
+
+    def _set_view_from_bbox(self, bbox, direction='in',
+                            mode=None, twinx=False, twiny=False):
+        """
+        Update view from a selection bbox.
+
+        .. note::
+
+            Intended to be overridden by new projection types, but if not, the
+            default implementation sets the view limits to the bbox directly.
+
+        Parameters
+        ----------
+        bbox : 4-tuple or 3 tuple
+            * If bbox is a 4 tuple, it is the selected bounding box limits,
+              in *display* coordinates.
+            * If bbox is a 3 tuple, it is an (xp, yp, scl) triple, where
+              (xp, yp) is the center of zooming and scl the scale factor to
+              zoom by.
+
+        direction : str
+            The direction to apply the bounding box.
+                * `'in'` - The bounding box describes the view directly, i.e.,
+                           it zooms in.
+                * `'out'` - The bounding box describes the size to make the
+                            existing view, i.e., it zooms out.
+
+        mode : str or None
+            The selection mode, whether to apply the bounding box in only the
+            `'x'` direction, `'y'` direction or both (`None`).
+
+        twinx : bool
+            Whether this axis is twinned in the *x*-direction.
+
+        twiny : bool
+            Whether this axis is twinned in the *y*-direction.
+        """
+        new_xbound, new_ybound = self._prepare_view_from_bbox(
+            bbox, direction=direction, mode=mode, twinx=twinx, twiny=twiny)
         if not twinx and mode != "y":
             self.set_xbound(new_xbound)
             self.set_autoscalex_on(False)
@@ -4400,22 +4413,13 @@ class _AxesBase(martist.Artist):
         """
         del self._pan_start
 
-    def drag_pan(self, button, key, x, y):
+    def _get_pan_points(self, button, key, x, y):
         """
-        Called when the mouse moves during a pan operation.
+        Helper function to return the new points after a pan.
 
-        Parameters
-        ----------
-        button : `.MouseButton`
-            The pressed mouse button.
-        key : str or None
-            The pressed key, if any.
-        x, y : float
-            The mouse coordinates in display coords.
-
-        Notes
-        -----
-        This is intended to be overridden by new projection types.
+        This helper function returns the points on the axis after a pan has
+        occurred. This a convenience method to abstract the pan logic
+        out of the base setter.
         """
         def format_deltas(key, dx, dy):
             if key == 'control':
@@ -4469,8 +4473,30 @@ class _AxesBase(martist.Artist):
         points = result.get_points().astype(object)
         # Just ignore invalid limits (typically, underflow in log-scale).
         points[~valid] = None
-        self.set_xlim(points[:, 0])
-        self.set_ylim(points[:, 1])
+        return points
+
+
+    def drag_pan(self, button, key, x, y):
+        """
+        Called when the mouse moves during a pan operation.
+
+        Parameters
+        ----------
+        button : `.MouseButton`
+            The pressed mouse button.
+        key : str or None
+            The pressed key, if any.
+        x, y : float
+            The mouse coordinates in display coords.
+
+        Notes
+        -----
+        This is intended to be overridden by new projection types.
+        """
+        points = self._get_pan_points(button, key, x, y)
+        if points is not None:
+            self.set_xlim(points[:, 0])
+            self.set_ylim(points[:, 1])
 
     def get_children(self):
         # docstring inherited.
