@@ -1201,13 +1201,7 @@ class PolyCollection(_CollectionWithSizes):
         # Fast path for arrays
         if isinstance(verts, np.ndarray) and len(verts.shape) == 3:
             verts_pad = np.concatenate((verts, verts[:, :1]), axis=1)
-            # Creating the codes once is much faster than having Path do it
-            # separately each time by passing closed=True.
-            codes = np.empty(verts_pad.shape[1], dtype=mpath.Path.code_type)
-            codes[:] = mpath.Path.LINETO
-            codes[0] = mpath.Path.MOVETO
-            codes[-1] = mpath.Path.CLOSEPOLY
-            self._paths = [mpath.Path(xy, codes) for xy in verts_pad]
+            self._paths = mpath.PathCollection(verts_pad, closed=True)
             return
 
         self._paths = []

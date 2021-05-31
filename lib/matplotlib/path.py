@@ -20,6 +20,59 @@ from .cbook import _to_unmasked_float_array, simple_linear_interpolation
 from .bezier import BezierSegment
 
 
+class PathCollection:
+    _is_uniform_path_collection = True
+
+    def __init__(self, vertices, codes=None, _interpolation_steps=1,
+                 closed=False):
+        # TODO: Should this support readonly??
+        vertices = _to_unmasked_float_array(vertices)
+        if vertices.ndim != 3 or vertices.shape[-1] != 2:
+            raise ValueError(
+                "'vertices' must be a 3D list or array with shape CxNx2")
+
+        if codes is not None:
+            codes = np.asarray(codes, Path.code_type)
+            if codes.shape != vertices.shape[:-1]:
+                raise ValueError("'codes' must be a 2D list or array with the "
+                                 "same length of 'vertices'")
+            if len(codes) and np.any(codes[0] != self.MOVETO):
+                raise ValueError("The first element of 'code' must be equal "
+                                 "to 'MOVETO' ({})".format(self.MOVETO))
+        elif closed and len(vertices):
+            codes = np.empty((1, vertices.shape[1]), dtype=Path.code_type)
+            codes[:, 0] = Path.MOVETO
+            codes[:, 1:-1] = Path.LINETO
+            codes[:, -1] = Path.CLOSEPOLY
+            codes = np.broadcast_to(codes, vertices.shape[:-1])
+
+        self._vertices = vertices
+        self._codes = codes
+        self._interpolation_steps = _interpolation_steps
+        self._example_path = Path(vertices[0], codes[0], _interpolation_steps)
+
+    def __len__(self):
+        return len(self._vertices)
+
+    def __getitem__(self, i):
+        pth = Path.__new__(Path)
+        pth._vertices = self._vertices[i]
+        pth._codes = self._codes[i]
+        pth._readonly = False
+        pth._should_simplify = self._example_path._should_simplify
+        pth._simplify_threshold = self._example_path._simplify_threshold
+        pth._interpolation_steps = self._example_path._interpolation_steps
+        return pth
+
+    @property
+    def should_simplify(self):
+        return self._example_path.should_simplify
+
+    @property
+    def simplify_threshold(self):
+        return self._example_path.simplify_threshold
+
+
 class Path:
     """
     A series of possibly disconnected, possibly closed, line and curve
