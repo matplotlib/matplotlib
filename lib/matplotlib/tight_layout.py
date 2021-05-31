@@ -3,10 +3,10 @@ Routines to adjust subplot params so that subplots are
 nicely fit in the figure. In doing so, only axis labels, tick labels, axes
 titles and offsetboxes that are anchored to axes are currently considered.
 
-Internally, this module assumes that the margins (left_margin, etc.) which are
-differences between ax.get_tightbbox and ax.bbox are independent of axes
-position. This may fail if Axes.adjustable is datalim. Also, This will fail
-for some cases (for example, left or right margin is affected by xlabel).
+Internally, this module assumes that the margins (left margin, etc.) which are
+differences between ``Axes.get_tightbbox`` and ``Axes.bbox`` are independent of
+Axes position. This may fail if ``Axes.adjustable`` is ``datalim`` as well as
+such cases as when left or right margin are affected by xlabel.
 """
 
 import numpy as np

@@ -1,8 +1,11 @@
 """
-Numerical python functions written for compatibility with MATLAB
-commands with the same names. Most numerical python functions can be found in
-the `numpy` and `scipy` libraries. What remains here is code for performing
+Numerical Python functions written for compatibility with MATLAB
+commands with the same names. Most numerical Python functions can be found in
+the `NumPy`_ and `SciPy`_ libraries. What remains here is code for performing
 spectral computations.
+
+.. _NumPy: https://numpy.org
+.. _SciPy: https://www.scipy.org
 
 Spectral functions
 ------------------

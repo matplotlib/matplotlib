@@ -1,7 +1,7 @@
 """
 A python interface to Adobe Font Metrics Files.
 
-Although a number of other python implementations exist, and may be more
+Although a number of other Python implementations exist, and may be more
 complete than this, it was decided not to go with them because they were
 either:
 
