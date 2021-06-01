@@ -235,7 +235,7 @@ class ColorbarAxes(Axes):
     Users should not normally instantiate this class, but it is the class
     returned by ``cbar = fig.colorbar(im); cax = cbar.ax``.
     """
-    def __init__(self, parent, userax=True):
+    def __init__(self, parent, userax=True, colorbar=None):
         """
         Parameters
         ----------
@@ -243,6 +243,8 @@ class ColorbarAxes(Axes):
             Axes that specifies the position of the colorbar.
         userax : boolean
             True if the user passed `.Figure.colorbar` the axes manually.
+        colorbar: ColorbarBase
+            colorbar that this axes is contained in.  
         """
 
         if userax:
@@ -271,6 +273,7 @@ class ColorbarAxes(Axes):
         self.outer_ax.tick_params = self.inner_ax.tick_params
         self.outer_ax.set_xticks = self.inner_ax.set_xticks
         self.outer_ax.set_yticks = self.inner_ax.set_yticks
+        self.colorbar = colorbar
         for attr in ["get_position", "set_position", "set_aspect"]:
             setattr(self, attr, getattr(self.outer_ax, attr))
         if userax:
@@ -291,6 +294,11 @@ class ColorbarAxes(Axes):
         # need to low-level manipulate the stacks because we
         # are just swapping places here.  We don't need to
         # set transforms etc...
+        print('id', self.colorbar.mappable.colorbar_cid)
+        self.colorbar.mappable.callbacksSM.disconnect(self.colorbar.mappable.colorbar_cid)
+        #self.colorbar.mappable.colorbar = None
+        #self.colorbar.mappable.colorbar_cid = None
+
         self.inner_ax.cla()
         self.outer_ax.cla()
         self.figure._axstack.add(self)
@@ -443,7 +451,7 @@ class ColorbarBase:
             ['uniform', 'proportional'], spacing=spacing)
 
         # wrap the axes so that it can be positioned as an inset axes:
-        ax = ColorbarAxes(ax, userax=userax)
+        ax = ColorbarAxes(ax, userax=userax, colorbar=self)
         self.ax = ax
         ax.set(navigate=False)
 
@@ -1275,11 +1283,10 @@ class Colorbar(ColorbarBase):
             self.norm = mappable.norm
             self._reset_locator_formatter_scale()
 
-        try:
-            self.draw_all()
-        except AttributeError:
-            # update_normal sometimes is called when it shouldn't be..
-            pass
+        self.draw_all()
+#        except AttributeError:
+#            # update_normal sometimes is called when it shouldn't be..
+#            pass
 
         if isinstance(self.mappable, contour.ContourSet):
             CS = self.mappable
