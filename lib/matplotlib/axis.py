@@ -2273,9 +2273,7 @@ class XAxis(Axis):
             if self.converter is not None:
                 info = self.converter.axisinfo(self.units, self)
                 if info.default_limits is not None:
-                    valmin, valmax = info.default_limits
-                    xmin = self.converter.convert(valmin, self.units, self)
-                    xmax = self.converter.convert(valmax, self.units, self)
+                    xmin, xmax = self.convert_units(info.default_limits)
             if not dataMutated:
                 self.axes.dataLim.intervalx = xmin, xmax
             if not viewMutated:
@@ -2538,9 +2536,7 @@ class YAxis(Axis):
             if self.converter is not None:
                 info = self.converter.axisinfo(self.units, self)
                 if info.default_limits is not None:
-                    valmin, valmax = info.default_limits
-                    ymin = self.converter.convert(valmin, self.units, self)
-                    ymax = self.converter.convert(valmax, self.units, self)
+                    ymin, ymax = self.convert_units(info.default_limits)
             if not dataMutated:
                 self.axes.dataLim.intervaly = ymin, ymax
             if not viewMutated:

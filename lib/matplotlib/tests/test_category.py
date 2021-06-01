@@ -2,6 +2,7 @@
 import pytest
 import numpy as np
 
+from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import matplotlib.category as cat
@@ -100,12 +101,14 @@ class TestStrCategoryConverter:
         assert self.cc.convert(value, self.unit, self.ax) == 0
 
     def test_convert_one_number(self):
-        actual = self.cc.convert(0.0, self.unit, self.ax)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            actual = self.cc.convert(0.0, self.unit, self.ax)
         np.testing.assert_allclose(actual, np.array([0.]))
 
     def test_convert_float_array(self):
         data = np.array([1, 2, 3], dtype=float)
-        actual = self.cc.convert(data, self.unit, self.ax)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            actual = self.cc.convert(data, self.unit, self.ax)
         np.testing.assert_allclose(actual, np.array([1., 2., 3.]))
 
     @pytest.mark.parametrize("fvals", fvalues, ids=fids)

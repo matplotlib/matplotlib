@@ -48,7 +48,7 @@ from numbers import Number
 import numpy as np
 from numpy import ma
 
-from matplotlib import cbook
+from matplotlib import _api, cbook
 
 
 class ConversionError(TypeError):
@@ -134,6 +134,7 @@ class ConversionInterface:
         return obj
 
     @staticmethod
+    @_api.deprecated("3.5")
     def is_numlike(x):
         """
         The Matplotlib datalim, autoscaling, locators etc work with scalars
