@@ -19,27 +19,25 @@ datetime objects::
 
         @staticmethod
         def convert(value, unit, axis):
-            'Convert a datetime value to a scalar or array'
+            "Convert a datetime value to a scalar or array."
             return dates.date2num(value)
 
         @staticmethod
         def axisinfo(unit, axis):
-            'Return major and minor tick locators and formatters'
-            if unit!='date': return None
+            "Return major and minor tick locators and formatters."
+            if unit != 'date':
+                return None
             majloc = dates.AutoDateLocator()
             majfmt = dates.AutoDateFormatter(majloc)
-            return AxisInfo(majloc=majloc,
-                            majfmt=majfmt,
-                            label='date')
+            return AxisInfo(majloc=majloc, majfmt=majfmt, label='date')
 
         @staticmethod
         def default_units(x, axis):
-            'Return the default unit for x or None'
+            "Return the default unit for x or None."
             return 'date'
 
     # Finally we register our object type with the Matplotlib units registry.
     units.registry[datetime.date] = DateConverter()
-
 """
 
 from decimal import Decimal
@@ -166,25 +164,15 @@ class DecimalConverter(ConversionInterface):
         value : decimal.Decimal or iterable
             Decimal or list of Decimal need to be converted
         """
-        # If value is a Decimal
         if isinstance(value, Decimal):
             return float(value)
+        # value is Iterable[Decimal]
+        elif isinstance(value, ma.MaskedArray):
+            return ma.asarray(value, dtype=float)
         else:
-            # assume x is a list of Decimal
-            converter = np.asarray
-            if isinstance(value, ma.MaskedArray):
-                converter = ma.asarray
-            return converter(value, dtype=float)
+            return np.asarray(value, dtype=float)
 
-    @staticmethod
-    def axisinfo(unit, axis):
-        # Since Decimal is a kind of Number, don't need specific axisinfo.
-        return AxisInfo()
-
-    @staticmethod
-    def default_units(x, axis):
-        # Return None since Decimal is a kind of Number.
-        return None
+    # axisinfo and default_units can be inherited as Decimals are Numbers.
 
 
 class Registry(dict):
