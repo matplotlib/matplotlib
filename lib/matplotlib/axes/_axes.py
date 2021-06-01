@@ -5683,9 +5683,8 @@ default: :rc:`scatter.edgecolors`
             y = Y.reshape(Ny, 1)
             Y = y.repeat(Nx, axis=1)
         if X.shape != Y.shape:
-            raise TypeError(
-                'Incompatible X, Y inputs to %s; see help(%s)' % (
-                funcname, funcname))
+            raise TypeError(f'Incompatible X, Y inputs to {funcname}; '
+                            f'see help({funcname})')
 
         if shading == 'auto':
             if ncols == Nx and nrows == Ny:

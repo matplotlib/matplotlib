@@ -1053,14 +1053,14 @@ _validators = {
     "legend.scatterpoints":  validate_int,
     "legend.fontsize":       validate_fontsize,
     "legend.title_fontsize": validate_fontsize_None,
-     # color of the legend
+    # color of the legend
     "legend.labelcolor":     _validate_color_or_linecolor,
-     # the relative size of legend markers vs. original
+    # the relative size of legend markers vs. original
     "legend.markerscale":    validate_float,
     "legend.shadow":         validate_bool,
-     # whether or not to draw a frame around legend
+    # whether or not to draw a frame around legend
     "legend.frameon":        validate_bool,
-     # alpha value of the legend frame
+    # alpha value of the legend frame
     "legend.framealpha":     validate_float_or_None,
 
     ## the following dimensions are in fraction of the font size

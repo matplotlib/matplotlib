@@ -16,7 +16,7 @@ ignore =
     # flake8 default
     E121,E123,E126,E226,E24,E704,W503,W504,
     # Additional ignores:
-    E122, E127, E131,
+    E127, E131,
     E266,
     E305, E306,
     E722, E741,
@@ -47,9 +47,9 @@ per-file-ignores =
 
     lib/matplotlib/__init__.py: F401
     lib/matplotlib/_api/__init__.py: F401
-    lib/matplotlib/_cm.py: E202, E203, E302
+    lib/matplotlib/_cm.py: E122, E202, E203, E302
     lib/matplotlib/_mathtext.py: E221, E251
-    lib/matplotlib/_mathtext_data.py: E203, E261
+    lib/matplotlib/_mathtext_data.py: E122, E203, E261
     lib/matplotlib/animation.py: F401
     lib/matplotlib/_animation_data.py: E501
     lib/matplotlib/axes/__init__.py: F401, F403
