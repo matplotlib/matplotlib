@@ -1285,17 +1285,14 @@ def _add_data_doc(docstring, replace_names):
 
     Objects passed as **data** must support item access (``data[s]``) and
     membership test (``s in data``)."""
-                if replace_names is None else ("""\
+                if replace_names is None else f"""\
     If given, the following parameters also accept a string ``s``, which
     is interpreted as ``data[s]`` (unless this raises an exception):
 
-    {names}
+    {', '.join(map('*{}*'.format, replace_names))}
 
     Objects passed as **data** must support item access (``data[s]``) and
-    membership test (``s in data``).""".format(
-            names=", ".join(map("*{}*".format, replace_names)))
-        )
-    )
+    membership test (``s in data``).""")
     # using string replacement instead of formatting has the advantages
     # 1) simpler indent handling
     # 2) prevent problems with formatting characters '{', '%' in the docstring
