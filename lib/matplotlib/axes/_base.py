@@ -2540,27 +2540,21 @@ class _AxesBase(martist.Artist):
         return self.patch.contains(mouseevent)[0]
 
     def get_autoscale_on(self):
-        """
-        Get whether autoscaling is applied for both axes on plot commands
-        """
+        """Return True if each axis is autoscaled, False otherwise."""
         return self._autoscaleXon and self._autoscaleYon
 
     def get_autoscalex_on(self):
-        """
-        Get whether autoscaling for the x-axis is applied on plot commands
-        """
+        """Return whether the x-axis is autoscaled."""
         return self._autoscaleXon
 
     def get_autoscaley_on(self):
-        """
-        Get whether autoscaling for the y-axis is applied on plot commands
-        """
+        """Return whether the y-axis is autoscaled."""
         return self._autoscaleYon
 
     def set_autoscale_on(self, b):
         """
-        Set whether autoscaling is applied to axes on the next draw or call to
-        `.Axes.autoscale_view`.
+        Set whether autoscaling is applied to each axis on the next draw or
+        call to `.Axes.autoscale_view`.
 
         Parameters
         ----------
@@ -2571,8 +2565,8 @@ class _AxesBase(martist.Artist):
 
     def set_autoscalex_on(self, b):
         """
-        Set whether autoscaling for the x-axis is applied to axes on the next
-        draw or call to `.Axes.autoscale_view`.
+        Set whether the x-axis is autoscaled on the next draw or call to
+        `.Axes.autoscale_view`.
 
         Parameters
         ----------
@@ -2582,8 +2576,8 @@ class _AxesBase(martist.Artist):
 
     def set_autoscaley_on(self, b):
         """
-        Set whether autoscaling for the y-axis is applied to axes on the next
-        draw or call to `.Axes.autoscale_view`.
+        Set whether the y-axis is autoscaled on the next draw or call to
+        `.Axes.autoscale_view`.
 
         Parameters
         ----------
