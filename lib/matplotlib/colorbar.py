@@ -294,8 +294,14 @@ class ColorbarAxes(Axes):
         # need to low-level manipulate the stacks because we
         # are just swapping places here.  We don't need to
         # set transforms etc...
+
         print('id', self.colorbar.mappable.colorbar_cid)
-        self.colorbar.mappable.callbacksSM.disconnect(self.colorbar.mappable.colorbar_cid)
+
+        if isinstance(self.colorbar.mappable.colorbar_cid, dict):
+            cid = self.colorbar.mappable.colorbar_cid[self.colorbar]
+        else:
+            cid = self.colorbar.mappable.colorbar_cid
+        self.colorbar.mappable.callbacksSM.disconnect(cid)
         #self.colorbar.mappable.colorbar = None
         #self.colorbar.mappable.colorbar_cid = None
 
@@ -1228,9 +1234,17 @@ class Colorbar(ColorbarBase):
                 _add_disjoint_kwargs(kwargs, alpha=mappable.get_alpha())
             super().__init__(ax, **kwargs)
 
-        mappable.colorbar = self
-        mappable.colorbar_cid = mappable.callbacksSM.connect(
-            'changed', self.update_normal)
+        cid = mappable.callbacksSM.connect('changed', self.update_normal)
+        if mappable.colorbar is None:
+            mappable.colorbar = self
+            mappable.colorbar_cid = cid
+        elif not isinstance(mappable.colorbar, list):
+            old = mappable.colorbar_cid
+            mappable.colorbar_cid = {mappable.colorbar: old, self: cid}
+            mappable.colorbar = [mappable.colorbar, self]
+        else:
+            mappable.colorbar += [self]
+            mappable.colorbar_cid[self] = cid
 
     @_api.deprecated("3.3", alternative="update_normal")
     def on_mappable_changed(self, mappable):
@@ -1343,7 +1357,11 @@ class Colorbar(ColorbarBase):
         gridspec is restored.
         """
         super().remove()
-        self.mappable.callbacksSM.disconnect(self.mappable.colorbar_cid)
+        if isinstance(self.mappable.colorbar_cid, dict):
+            cid = self.mappable.colorbar_cid[self]
+        else:
+            cid = self.mappable.colorbar_cid
+        self.mappable.callbacksSM.disconnect(cid)
         self.mappable.colorbar = None
         self.mappable.colorbar_cid = None
 

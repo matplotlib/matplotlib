@@ -771,14 +771,11 @@ def test_colorbar_reuse_axes(fig_ref, fig_test):
     cb = fig_test.colorbar(pc, extend='both')
     cb2 = fig_test.colorbar(pc)
     # Clear and re-use the same colorbar axes
-    print('HERE1:', pc, pc.callbacksSM.callbacks)
     cb.ax.cla()
-    print('HERE2:', pc, pc.callbacksSM.callbacks)
     cb2.ax.cla()
-    print('HERE3:', pc, pc.callbacksSM.callbacks)
         
     cb = fig_test.colorbar(pc, cax=cb.ax)
-    #cb2 = fig_test.colorbar(pc, cax=cb2.ax, extend='both')
+    cb2 = fig_test.colorbar(pc, cax=cb2.ax, extend='both')
 
 
 def test_inset_colorbar_layout():
