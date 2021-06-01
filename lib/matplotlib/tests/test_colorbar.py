@@ -773,7 +773,6 @@ def test_colorbar_reuse_axes(fig_ref, fig_test):
     # Clear and re-use the same colorbar axes
     cb.ax.cla()
     cb2.ax.cla()
-        
     cb = fig_test.colorbar(pc, cax=cb.ax)
     cb2 = fig_test.colorbar(pc, cax=cb2.ax, extend='both')
 

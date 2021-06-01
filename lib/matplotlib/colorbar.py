@@ -244,7 +244,7 @@ class ColorbarAxes(Axes):
         userax : boolean
             True if the user passed `.Figure.colorbar` the axes manually.
         colorbar: ColorbarBase
-            colorbar that this axes is contained in.  
+            colorbar that this axes is contained in.
         """
 
         if userax:
@@ -302,8 +302,6 @@ class ColorbarAxes(Axes):
         else:
             cid = self.colorbar.mappable.colorbar_cid
         self.colorbar.mappable.callbacksSM.disconnect(cid)
-        #self.colorbar.mappable.colorbar = None
-        #self.colorbar.mappable.colorbar_cid = None
 
         self.inner_ax.cla()
         self.outer_ax.cla()
