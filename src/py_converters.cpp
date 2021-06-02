@@ -415,6 +415,16 @@ exit:
     return status;
 }
 
+int convert_pathgen(PyObject *obj, void *pathgenp)
+{
+    py::PathGenerator *paths = (py::PathGenerator *)pathgenp;
+    if (!paths->set(obj)) {
+        PyErr_SetString(PyExc_TypeError, "Not an iterable of paths");
+        return 0;
+    }
+    return 1;
+}
+
 int convert_clippath(PyObject *clippath_tuple, void *clippathp)
 {
     ClipPath *clippath = (ClipPath *)clippathp;
