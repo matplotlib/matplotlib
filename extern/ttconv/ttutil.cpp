@@ -45,6 +45,7 @@ void TTStreamWriter::printf(const char* format, ...)
 #else
     vsnprintf(buffer2, size, format, arg_list);
 #endif
+    this->write(buffer2);
     free(buffer2);
   } else {
     this->write(buffer);
