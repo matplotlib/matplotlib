@@ -2,10 +2,11 @@
 A PostScript backend, which can produce both PostScript .ps and .eps.
 """
 
+import codecs
 import datetime
 from enum import Enum
 import glob
-from io import StringIO, TextIOWrapper
+from io import StringIO
 import logging
 import math
 import os
@@ -865,12 +866,8 @@ class FigureCanvasPS(FigureCanvasBase):
         generated from the *metadata* parameter to `.print_figure`.
         """
         is_eps = format == 'eps'
-        if isinstance(outfile, (str, os.PathLike)):
-            outfile = os.fspath(outfile)
-            passed_in_file_object = False
-        elif is_writable_file_like(outfile):
-            passed_in_file_object = True
-        else:
+        if not (isinstance(outfile, (str, os.PathLike))
+                or is_writable_file_like(outfile)):
             raise ValueError("outfile must be a path or a file-like object")
 
         # find the appropriate papertype
@@ -997,23 +994,11 @@ class FigureCanvasPS(FigureCanvasBase):
                                  tmpfile, is_eps, ptype=papertype, bbox=bbox)
                 _move_path_to_path_or_stream(tmpfile, outfile)
 
-        else:
-            # Write directly to outfile.
-            if passed_in_file_object:
-                requires_unicode = file_requires_unicode(outfile)
-
-                if not requires_unicode:
-                    fh = TextIOWrapper(outfile, encoding="latin-1")
-                    # Prevent the TextIOWrapper from closing the underlying
-                    # file.
-                    fh.close = lambda: None
-                else:
-                    fh = outfile
-
-                print_figure_impl(fh)
-            else:
-                with open(outfile, 'w', encoding='latin-1') as fh:
-                    print_figure_impl(fh)
+        else:  # Write directly to outfile.
+            with cbook.open_file_cm(outfile, "w", encoding="latin-1") as file:
+                if not file_requires_unicode(file):
+                    file = codecs.getwriter("latin-1")(file)
+                print_figure_impl(file)
 
     @_check_savefig_extra_args
     def _print_figure_tex(
