@@ -1303,6 +1303,7 @@ class Axis(martist.Artist):
     @_api.make_keyword_only("3.3", "minor")
     def get_ticklocs(self, minor=False):
         """Return this Axis' tick locations in data coordinates."""
+        self._updateticks()
         return self.get_minorticklocs() if minor else self.get_majorticklocs()
 
     def get_ticks_direction(self, minor=False):
