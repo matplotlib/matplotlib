@@ -212,6 +212,7 @@ class PathGenerator
             return 0;
         }
 
+        Py_XDECREF(m_paths);
         m_paths = obj;
         Py_INCREF(m_paths);
 
