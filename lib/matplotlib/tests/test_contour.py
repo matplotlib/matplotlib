@@ -334,9 +334,9 @@ def test_contourf_log_extension():
                       norm=LogNorm(vmin=levels.min(), vmax=levels.max()),
                       extend='both')
     cb = plt.colorbar(c1, ax=ax1)
-    assert cb.ax.get_ylim() == (1e-8, 1e10)
+    assert cb.get_ylim() == (1e-8, 1e10)
     cb = plt.colorbar(c2, ax=ax2)
-    assert cb.ax.get_ylim() == (1e-4, 1e6)
+    assert cb.get_ylim() == (1e-4, 1e6)
     cb = plt.colorbar(c3, ax=ax3)
 
 
@@ -356,7 +356,7 @@ def test_contour_addlines():
     cont = ax.contour(X+1000)
     cb = fig.colorbar(pcm)
     cb.add_lines(cont)
-    assert_array_almost_equal(cb.ax.get_ylim(), [114.3091, 9972.30735], 3)
+    assert_array_almost_equal(cb.get_ylim(), [114.3091, 9972.30735], 3)
 
 
 @image_comparison(baseline_images=['contour_uneven'],

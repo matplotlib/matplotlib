@@ -422,10 +422,10 @@ def test_colorbar_align():
             cb = fig.colorbar(pc, ax=ax, location=location, shrink=0.6,
                               pad=0.04)
             cbs += [cb]
-            cb.ax.tick_params(direction='in')
+            cb.tick_params(direction='in')
             if nn != 1:
-                cb.ax.xaxis.set_ticks([])
-                cb.ax.yaxis.set_ticks([])
+                cb.xaxis.set_ticks([])
+                cb.yaxis.set_ticks([])
                 ax.set_xticklabels('')
                 ax.set_yticklabels('')
         fig.set_constrained_layout_pads(w_pad=4 / 72, h_pad=4 / 72, hspace=0.1,

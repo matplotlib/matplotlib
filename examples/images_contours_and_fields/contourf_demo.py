@@ -54,7 +54,7 @@ ax2.set_ylabel('sentence length anomaly')
 
 # Make a colorbar for the ContourSet returned by the contourf call.
 cbar = fig1.colorbar(CS)
-cbar.ax.set_ylabel('verbosity coefficient')
+cbar.set_ylabel('verbosity coefficient')
 # Add the contour line levels to the colorbar
 cbar.add_lines(CS2)
 

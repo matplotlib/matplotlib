@@ -1,6 +1,6 @@
 """
 Colorbars are a visualization of the mapping from scalar values to colors.
-In Matplotlib they are drawn into a dedicated `~.axes.Axes`.
+In Matplotlib they are a separate dedicated `~.axes.Axes`.
 
 .. note::
    Colorbars are typically created through `.Figure.colorbar` or its pyplot
@@ -233,7 +233,7 @@ class ColorbarAxes(Axes):
     over/under colors.
 
     Users should not normally instantiate this class, but it is the class
-    returned by ``cbar = fig.colorbar(im); cax = cbar.ax``.
+    that the Colorbar inherits from by ``cbar = fig.colorbar(im);``.
     """
     def __init__(self, parent, userax=True):
         """
@@ -339,8 +339,6 @@ class ColorbarBase(ColorbarAxes):
 
     Attributes
     ----------
-    ax : `~matplotlib.axes.Axes`
-        The `~.axes.Axes` instance in which the colorbar is drawn.
     lines : list
         A list of `.LineCollection` (empty if no lines were drawn).
     dividers : `.LineCollection`
@@ -384,7 +382,7 @@ class ColorbarBase(ColorbarAxes):
     label : str
 
     userax : boolean
-        Whether the user created the axes or not.  Default True
+        Whether the user created the axes or not.  Default False
     """
 
     n_rasterize = 50  # rasterize solids if number of colors >= n_rasterize

@@ -103,8 +103,8 @@ CBI = fig.colorbar(im, orientation='horizontal', shrink=0.8)
 # so let's improve its position.
 
 l, b, w, h = ax.get_position().bounds
-ll, bb, ww, hh = CB.ax.get_position().bounds
-CB.ax.set_position([ll, b + 0.1*h, ww, h*0.8])
+ll, bb, ww, hh = CB.get_position().bounds
+CB.set_position([ll, b + 0.1*h, ww, h*0.8])
 
 plt.show()
 

@@ -29,7 +29,7 @@ ax.set_title('Gaussian noise with vertical colorbar')
 
 # Add colorbar, make sure to specify tick locations to match desired ticklabels
 cbar = fig.colorbar(cax, ticks=[-1, 0, 1])
-cbar.ax.set_yticklabels(['< -1', '0', '> 1'])  # vertically oriented colorbar
+cbar.set_yticklabels(['< -1', '0', '> 1'])  # vertically oriented colorbar
 
 ###############################################################################
 # Make plot with horizontal colorbar
@@ -42,6 +42,6 @@ cax = ax.imshow(data, cmap=cm.afmhot)
 ax.set_title('Gaussian noise with horizontal colorbar')
 
 cbar = fig.colorbar(cax, ticks=[-1, 0, 1], orientation='horizontal')
-cbar.ax.set_xticklabels(['Low', 'Medium', 'High'])  # horizontal colorbar
+cbar.set_xticklabels(['Low', 'Medium', 'High'])  # horizontal colorbar
 
 plt.show()

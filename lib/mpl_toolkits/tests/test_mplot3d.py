@@ -1346,7 +1346,7 @@ def test_colorbar_pos():
 
     fig.canvas.draw()
     # check that actually on the bottom
-    assert cbar.ax.get_position().extents[1] < 0.2
+    assert cbar.get_position().extents[1] < 0.2
 
 
 def test_shared_axes_retick():

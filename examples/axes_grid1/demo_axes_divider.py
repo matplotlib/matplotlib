@@ -22,7 +22,7 @@ def demo_simple_image(ax):
 
     im = ax.imshow(Z, extent=extent)
     cb = plt.colorbar(im)
-    plt.setp(cb.ax.get_yticklabels(), visible=False)
+    plt.setp(cb.get_yticklabels(), visible=False)
 
 
 def demo_locatable_axes_hard(fig):
