@@ -448,7 +448,7 @@ class ColorbarBase(ColorbarAxes):
         self.extendrect = extendrect
         self.solids = None
         self.solids_patches = []
-        # self.lines = []
+        self._lines = []
 
         for spine in self.spines.values():
             spine.set_visible(False)
@@ -483,6 +483,10 @@ class ColorbarBase(ColorbarAxes):
         else:
             self.formatter = format  # Assume it is a Formatter or None
         self.draw_all()
+
+    @property
+    def lines(self):
+        return self._lines
 
     def draw_all(self):
         """
