@@ -54,5 +54,5 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`
 #    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
-#    - `matplotlib.colorbar.ColorbarBase.minorticks_on`
-#    - `matplotlib.colorbar.ColorbarBase.minorticks_off`
+#    - `matplotlib.colorbar.Colorbar.minorticks_on`
+#    - `matplotlib.colorbar.Colorbar.minorticks_off`

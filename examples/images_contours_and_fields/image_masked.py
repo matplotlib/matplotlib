@@ -79,4 +79,4 @@ plt.show()
 #    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`
 #    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
 #    - `matplotlib.colors.BoundaryNorm`
-#    - `matplotlib.colorbar.ColorbarBase.set_label`
+#    - `matplotlib.colorbar.Colorbar.set_label`
