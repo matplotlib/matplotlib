@@ -1622,7 +1622,8 @@ class FuncAnimation(TimedAnimation):
         value is unused if ``blit == False`` and may be omitted in that case.
 
     fargs : tuple or None, optional
-        Additional arguments to pass to each call to *func*.
+        Additional arguments to pass to each call to *func*. Note: the use of
+        `functools.partial` is preferred over fargs.
 
     save_count : int, default: 100
         Fallback for the number of values from *frames* to cache. This is
