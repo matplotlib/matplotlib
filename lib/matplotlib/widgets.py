@@ -2196,27 +2196,15 @@ class SpanSelector(_SelectorWidget):
         return self._rect.contains(event, radius=0)[0]
 
     @property
-    def vmin(self):
-        """Get the start span coordinate."""
+    def extents(self):
+        """Return extents of the span selector."""
         if self.direction == 'horizontal':
             vmin = self._rect.get_x()
+            vmax = vmin + self._rect.get_width()
         else:
             vmin = self._rect.get_y()
-        return vmin
-
-    @property
-    def vmax(self):
-        """Get the end span coordinate."""
-        if self.direction == 'horizontal':
-            vmax = self.vmin + self._rect.get_width()
-        else:
-            vmax = self.vmin + self._rect.get_height()
-        return vmax
-
-    @property
-    def extents(self):
-        """Return (vmin, vmax)."""
-        return self.vmin, self.vmax
+            vmax = vmin + self._rect.get_height()
+        return vmin, vmax
 
     @extents.setter
     def extents(self, extents):
