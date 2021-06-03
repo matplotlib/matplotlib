@@ -1992,7 +1992,7 @@ class SpanSelector(_SelectorWidget):
         _api.check_in_list(['horizontal', 'vertical'], direction=direction)
         self._direction = direction
 
-        self.rect = None
+        self._rect = None
         self.visible = True
         self._extents_on_press = None
 
@@ -2000,7 +2000,7 @@ class SpanSelector(_SelectorWidget):
         # but we maintain it until it is removed
         self._pressv = None
 
-        self.rectprops = rectprops
+        self._rectprops = rectprops
         self.onmove_callback = onmove_callback
         self.minspan = minspan
 
@@ -2043,17 +2043,17 @@ class SpanSelector(_SelectorWidget):
         else:
             trans = ax.get_yaxis_transform()
             w, h = 1, 0
-        self.rect = Rectangle((0, 0), w, h,
-                              transform=trans,
-                              visible=False,
-                              **self.rectprops)
+        self._rect = Rectangle((0, 0), w, h,
+                               transform=trans,
+                               visible=False,
+                               **self._rectprops)
 
-        self.ax.add_patch(self.rect)
-        self.artists = [self.rect]
+        self.ax.add_patch(self._rect)
+        self.artists = [self._rect]
 
     def _press(self, event):
         """Button press event handler."""
-        if self.interactive and self.rect.get_visible():
+        if self.interactive and self._rect.get_visible():
             self._set_active_handle(event)
         else:
             self.active_handle = None
@@ -2074,6 +2074,11 @@ class SpanSelector(_SelectorWidget):
 
     @_api.deprecated("3.5")
     @property
+    def rect(self):
+        return self._rect
+
+    @_api.deprecated("3.5")
+    @property
     def pressv(self):
         return self._pressv
 
@@ -2081,6 +2086,11 @@ class SpanSelector(_SelectorWidget):
     @pressv.setter
     def pressv(self, value):
         self._pressv = value
+
+    @_api.deprecated("3.5")
+    @property
+    def rectprops(self):
+        return self._rectprops
 
     @property
     def direction(self):
@@ -2090,7 +2100,7 @@ class SpanSelector(_SelectorWidget):
     def _release(self, event):
         """Button release event handler."""
         if not self.interactive:
-            self.rect.set_visible(False)
+            self._rect.set_visible(False)
 
         vmin, vmax = self.extents
         span = vmax - vmin
@@ -2149,11 +2159,11 @@ class SpanSelector(_SelectorWidget):
         if vmin > vmax:
             vmin, vmax = vmax, vmin
         if self.direction == 'horizontal':
-            self.rect.set_x(vmin)
-            self.rect.set_width(vmax - vmin)
+            self._rect.set_x(vmin)
+            self._rect.set_width(vmax - vmin)
         else:
-            self.rect.set_y(vmin)
-            self.rect.set_height(vmax - vmin)
+            self._rect.set_y(vmin)
+            self._rect.set_height(vmax - vmin)
 
     def _set_active_handle(self, event):
         """Set active handle based on the location of the mouse event."""
@@ -2183,24 +2193,24 @@ class SpanSelector(_SelectorWidget):
 
     def _contains(self, event):
         """Return True if event is within the patch."""
-        return self.rect.contains(event, radius=0)[0]
+        return self._rect.contains(event, radius=0)[0]
 
     @property
     def vmin(self):
         """Get the start span coordinate."""
         if self.direction == 'horizontal':
-            vmin = self.rect.get_x()
+            vmin = self._rect.get_x()
         else:
-            vmin = self.rect.get_y()
+            vmin = self._rect.get_y()
         return vmin
 
     @property
     def vmax(self):
         """Get the end span coordinate."""
         if self.direction == 'horizontal':
-            vmax = self.vmin + self.rect.get_width()
+            vmax = self.vmin + self._rect.get_width()
         else:
-            vmax = self.vmin + self.rect.get_height()
+            vmax = self.vmin + self._rect.get_height()
         return vmax
 
     @property
@@ -2470,7 +2480,7 @@ class RectangleSelector(_SelectorWidget):
         super().__init__(ax, onselect, useblit=useblit, button=button,
                          state_modifier_keys=state_modifier_keys)
 
-        self.to_draw = None
+        self._to_draw = None
         self.visible = True
         self.interactive = interactive
         self.drag_from_anywhere = drag_from_anywhere
@@ -2489,11 +2499,11 @@ class RectangleSelector(_SelectorWidget):
                 rectprops = dict(facecolor='red', edgecolor='black',
                                  alpha=0.2, fill=True)
             rectprops['animated'] = self.useblit
-            self.rectprops = rectprops
-            self.visible = self.rectprops.pop('visible', self.visible)
-            self.to_draw = self._shape_klass((0, 0), 0, 1, visible=False,
-                                             **self.rectprops)
-            self.ax.add_patch(self.to_draw)
+            _rectprops = rectprops
+            self.visible = _rectprops.pop('visible', self.visible)
+            self._to_draw = self._shape_klass((0, 0), 0, 1, visible=False,
+                                              **_rectprops)
+            self.ax.add_patch(self._to_draw)
         if drawtype == 'line':
             _api.warn_deprecated(
                 "3.5", message="Support for drawtype='line' is deprecated "
@@ -2504,9 +2514,9 @@ class RectangleSelector(_SelectorWidget):
                                  linewidth=2, alpha=0.5)
             lineprops['animated'] = self.useblit
             self.lineprops = lineprops
-            self.to_draw = Line2D([0, 0], [0, 0], visible=False,
-                                  **self.lineprops)
-            self.ax.add_line(self.to_draw)
+            self._to_draw = Line2D([0, 0], [0, 0], visible=False,
+                                   **self.lineprops)
+            self.ax.add_line(self._to_draw)
 
         self.minspanx = minspanx
         self.minspany = minspany
@@ -2540,20 +2550,25 @@ class RectangleSelector(_SelectorWidget):
 
         self.active_handle = None
 
-        self.artists = [self.to_draw, self._center_handle.artist,
+        self.artists = [self._to_draw, self._center_handle.artist,
                         self._corner_handles.artist,
                         self._edge_handles.artist]
 
         if not self.interactive:
-            self.artists = [self.to_draw]
+            self.artists = [self._to_draw]
 
         self._extents_on_press = None
+
+    @_api.deprecated("3.5")
+    @property
+    def to_draw(self):
+        return self._to_draw
 
     def _press(self, event):
         """Button press event handler."""
         # make the drawn box/line visible get the click-coordinates,
         # button, ...
-        if self.interactive and self.to_draw.get_visible():
+        if self.interactive and self._to_draw.get_visible():
             self._set_active_handle(event)
         else:
             self.active_handle = None
@@ -2572,7 +2587,7 @@ class RectangleSelector(_SelectorWidget):
     def _release(self, event):
         """Button release event handler."""
         if not self.interactive:
-            self.to_draw.set_visible(False)
+            self._to_draw.set_visible(False)
 
         # update the eventpress and eventrelease with the resulting extents
         x0, x1, y0, y1 = self.extents
@@ -2671,13 +2686,13 @@ class RectangleSelector(_SelectorWidget):
     @property
     def _rect_bbox(self):
         if self.drawtype == 'box':
-            x0 = self.to_draw.get_x()
-            y0 = self.to_draw.get_y()
-            width = self.to_draw.get_width()
-            height = self.to_draw.get_height()
+            x0 = self._to_draw.get_x()
+            y0 = self._to_draw.get_y()
+            width = self._to_draw.get_width()
+            height = self._to_draw.get_height()
             return x0, y0, width, height
         else:
-            x, y = self.to_draw.get_data()
+            x, y = self._to_draw.get_data()
             x0, x1 = min(x), max(x)
             y0, y1 = min(y), max(y)
             return x0, y0, x1 - x0, y1 - y0
@@ -2740,13 +2755,13 @@ class RectangleSelector(_SelectorWidget):
         ymax = min(ymax, ylim[1])
 
         if self.drawtype == 'box':
-            self.to_draw.set_x(xmin)
-            self.to_draw.set_y(ymin)
-            self.to_draw.set_width(xmax - xmin)
-            self.to_draw.set_height(ymax - ymin)
+            self._to_draw.set_x(xmin)
+            self._to_draw.set_y(ymin)
+            self._to_draw.set_width(xmax - xmin)
+            self._to_draw.set_height(ymax - ymin)
 
         elif self.drawtype == 'line':
-            self.to_draw.set_data([xmin, xmax], [ymin, ymax])
+            self._to_draw.set_data([xmin, xmax], [ymin, ymax])
 
     def _set_active_handle(self, event):
         """Set active handle based on the location of the mouse event."""
@@ -2789,7 +2804,7 @@ class RectangleSelector(_SelectorWidget):
 
     def _contains(self, event):
         """Return True if event is within the patch."""
-        return self.to_draw.contains(event, radius=0)[0]
+        return self._to_draw.contains(event, radius=0)[0]
 
     @property
     def geometry(self):
@@ -2800,12 +2815,12 @@ class RectangleSelector(_SelectorWidget):
         of the four corners of the rectangle starting and ending
         in the top left corner.
         """
-        if hasattr(self.to_draw, 'get_verts'):
+        if hasattr(self._to_draw, 'get_verts'):
             xfm = self.ax.transData.inverted()
-            y, x = xfm.transform(self.to_draw.get_verts()).T
+            y, x = xfm.transform(self._to_draw.get_verts()).T
             return np.array([x, y])
         else:
-            return np.array(self.to_draw.get_data())
+            return np.array(self._to_draw.get_data())
 
 
 class EllipseSelector(RectangleSelector):
@@ -2856,24 +2871,24 @@ class EllipseSelector(RectangleSelector):
         b = (ymax - ymin) / 2.
 
         if self.drawtype == 'box':
-            self.to_draw.center = center
-            self.to_draw.width = 2 * a
-            self.to_draw.height = 2 * b
+            self._to_draw.center = center
+            self._to_draw.width = 2 * a
+            self._to_draw.height = 2 * b
         else:
             rad = np.deg2rad(np.arange(31) * 12)
             x = a * np.cos(rad) + center[0]
             y = b * np.sin(rad) + center[1]
-            self.to_draw.set_data(x, y)
+            self._to_draw.set_data(x, y)
 
     @property
     def _rect_bbox(self):
         if self.drawtype == 'box':
-            x, y = self.to_draw.center
-            width = self.to_draw.width
-            height = self.to_draw.height
+            x, y = self._to_draw.center
+            width = self._to_draw.width
+            height = self._to_draw.height
             return x - width / 2., y - height / 2., width, height
         else:
-            x, y = self.to_draw.get_data()
+            x, y = self._to_draw.get_data()
             x0, x1 = min(x), max(x)
             y0, y1 = min(y), max(y)
             return x0, y0, x1 - x0, y1 - y0
