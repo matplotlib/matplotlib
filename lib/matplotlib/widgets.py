@@ -1933,9 +1933,6 @@ class SpanSelector(_SelectorWidget):
     rectprops : dict, default: None
         Dictionary of `matplotlib.patches.Patch` properties.
 
-    marker_props : dict
-        Properties with which the interactive handles are drawn.
-
     onmove_callback : func(min, max), min/max are floats, default: None
         Called on mouse move while the span is being selected.
 
@@ -1949,6 +1946,11 @@ class SpanSelector(_SelectorWidget):
 
     button : `.MouseButton` or list of `.MouseButton`
         The mouse buttons which activate the span selector.
+
+    line_props : dict, default: None
+        Line properties with which the interactive line are drawn. Only used
+        when `interactive` is True. See `matplotlib.lines.Line2D` for details
+        on valid properties.
 
     maxdist : float, default: 10
         Distance in pixels within which the interactive tool handles can be
@@ -1976,9 +1978,9 @@ class SpanSelector(_SelectorWidget):
 
     @_api.rename_parameter("3.5", "span_stays", "interactive")
     def __init__(self, ax, onselect, direction, minspan=0, useblit=False,
-                 rectprops=None, marker_props=None, onmove_callback=None,
-                 interactive=False, button=None,
-                 maxdist=10, drag_from_anywhere=False):
+                 rectprops=None, onmove_callback=None, interactive=False,
+                 button=None, line_props=None, maxdist=10,
+                 drag_from_anywhere=False):
 
         super().__init__(ax, onselect, useblit=useblit, button=button)
 
@@ -1988,7 +1990,7 @@ class SpanSelector(_SelectorWidget):
         rectprops['animated'] = self.useblit
 
         _api.check_in_list(['horizontal', 'vertical'], direction=direction)
-        self.direction = direction
+        self._direction = direction
 
         self.rect = None
         self.visible = True
@@ -2012,12 +2014,12 @@ class SpanSelector(_SelectorWidget):
 
         # Setup handles
         props = dict(color=rectprops.get('facecolor', 'r'))
-        props.update(cbook.normalize_kwargs(marker_props, Line2D._alias_map))
+        props.update(cbook.normalize_kwargs(line_props, Line2D._alias_map))
 
         self._edge_order = ['min', 'max']
         self._edge_handles = ToolLineHandles(self.ax, self.extents,
                                              direction=direction,
-                                             marker_props=props,
+                                             line_props=props,
                                              useblit=self.useblit)
 
         self.active_handle = None
@@ -2079,6 +2081,11 @@ class SpanSelector(_SelectorWidget):
     @pressv.setter
     def pressv(self, value):
         self._pressv = value
+
+    @property
+    def direction(self):
+        """Direction of the span selector: 'vertical' or 'horizontal'."""
+        return self._direction
 
     def _release(self, event):
         """Button release event handler."""
@@ -2220,44 +2227,77 @@ class ToolLineHandles:
     ax : `matplotlib.axes.Axes`
         Matplotlib axes where tool handles are displayed.
     positions : 1D array
-        Positions of control handles.
-    marker : str
-        Shape of marker used to display handle. See `matplotlib.pyplot.plot`.
-    marker_props : dict
-        Additional marker properties. See `matplotlib.lines.Line2D`.
+        Positions of handles in data coordinates.
+    direction : {"horizontal", "vertical"}
+        Direction of handles, either 'vertical' or 'horizontal'
+    line_props : dict
+        Additional line properties. See `matplotlib.lines.Line2D`.
     """
 
-    def __init__(self, ax, positions, direction, marker_props=None,
+    def __init__(self, ax, positions, direction, line_props=None,
                  useblit=True):
         self.ax = ax
-        self._markers = []
-        self.direction = direction
-        marker_props.update({'visible': False, 'animated': useblit})
+
+        _api.check_in_list(['horizontal', 'vertical'], direction=direction)
+        self._direction = direction
+
+        if line_props is None:
+            line_props = {}
+        line_props.update({'visible': False, 'animated': useblit})
 
         line_fun = ax.axvline if self.direction == 'horizontal' else ax.axhline
-        self._markers = [line_fun(p, **marker_props) for p in positions]
 
-        self.artists = self._markers
+        self.artists = [line_fun(p, **line_props) for p in positions]
 
     @property
     def positions(self):
+        """Positions of the handle in data coordinates."""
         method = 'get_xdata' if self.direction == 'horizontal' else 'get_ydata'
-        return [getattr(line, method)() for line in self._markers]
+        return [getattr(line, method)()[0] for line in self.artists]
+
+    @property
+    def direction(self):
+        """Direction of the handle: 'vertical' or 'horizontal'."""
+        return self._direction
 
     def set_data(self, positions):
-        """Set x positions of handles."""
+        """
+        Set x positions of handles
+
+        Parameters
+        ----------
+        positions : tuple of length 2
+            Set the positions of the handle in data coordinates
+        """
         method = 'set_xdata' if self.direction == 'horizontal' else 'set_ydata'
-        for line, p in zip(self._markers, positions):
-            getattr(line, method)(p)
+        for line, p in zip(self.artists, positions):
+            getattr(line, method)([p, p])
 
-    def set_visible(self, val):
-        self._markers.set_visible(val)
+    def set_visible(self, value):
+        """Set the visibility state of the handles artist."""
+        for m in self.artists:
+            m.set_visible(value)
 
-    def set_animated(self, val):
-        self._markers.set_animated(val)
+    def set_animated(self, value):
+        """Set the animated state of the handles artist."""
+        for m in self.artists:
+            m.set_animated(value)
 
     def closest(self, x, y):
-        """Return index and pixel distance to closest handle."""
+        """
+        Return index and pixel distance to closest handle.
+
+        Parameters
+        ----------
+        x, y : float
+            x, y position from which the distance will be calculated to
+            determinate the closest handle
+
+        Returns
+        -------
+        index, distance : index of the handle and its distance from
+            position x, y
+        """
         if self.direction == 'horizontal':
             p_pts = np.array([
                 self.ax.transData.transform((p, 0))[0] for p in self.positions
@@ -2268,8 +2308,8 @@ class ToolLineHandles:
                 self.ax.transData.transform((0, p))[1] for p in self.positions
                 ])
             dist = abs(p_pts - y)
-        min_index = np.argmin(dist)
-        return min_index, dist[min_index]
+        index = np.argmin(dist)
+        return index, dist[index]
 
 
 class ToolHandles:
