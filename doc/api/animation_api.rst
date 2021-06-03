@@ -113,6 +113,7 @@ artist at a global scope and let Python sort things out.  For example ::
    import numpy as np
    import matplotlib.pyplot as plt
    from matplotlib.animation import FuncAnimation
+   from functools import partial
 
    fig, ax = plt.subplots()
    xdata, ydata = [], []
@@ -133,8 +134,37 @@ artist at a global scope and let Python sort things out.  For example ::
                        init_func=init, blit=True)
    plt.show()
 
-The second method is to use `functools.partial` to 'bind' artists to
-function.  A third method is to use closures to build up the required
+The second method is to use `functools.partial` to pass arguments to the
+function. ::
+
+   import numpy as np
+   import matplotlib.pyplot as plt
+   from matplotlib.animation import FuncAnimation
+   from functools import partial
+
+   fig, ax = plt.subplots()
+   ln, = plt.plot([], [], 'ro')
+
+   def init():
+      ax.set_xlim(0, 2*np.pi)
+      ax.set_ylim(-1, 1)
+      return ln,
+
+   def update(frame, x, y):
+      x.append(frame)
+      y.append(np.sin(frame))
+      ln.set_data(xdata, ydata)
+      return ln,
+
+   xdata, ydata = [], []
+   ani = FuncAnimation(
+       fig, partial(update, x=xdata, y=ydata),
+       frames=np.linspace(0, 2 * np.pi, 128),
+       init_func=init, blit=True)
+
+   plt.show()
+
+A third method is to use closures to build up the required
 artists and functions.  A fourth method is to create a class.
 
 Examples
