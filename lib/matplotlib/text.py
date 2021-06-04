@@ -123,6 +123,7 @@ class Text(Artist):
                  linespacing=None,
                  rotation_mode=None,
                  usetex=None,          # defaults to rcParams['text.usetex']
+                 override_math=False,
                  wrap=False,
                  transform_rotates_text=False,
                  **kwargs
@@ -142,6 +143,7 @@ class Text(Artist):
             color if color is not None else mpl.rcParams["text.color"])
         self.set_fontproperties(fontproperties)
         self.set_usetex(usetex)
+        self.set_override_math(override_math)
         self.set_wrap(wrap)
         self.set_verticalalignment(verticalalignment)
         self.set_horizontalalignment(horizontalalignment)
@@ -1237,7 +1239,7 @@ class Text(Artist):
             if s == " ":
                 s = r"\ "
             return s, "TeX"
-        elif cbook.is_math_text(s):
+        elif not self.get_override_math() and cbook.is_math_text(s):
             return s, True
         else:
             return s.replace(r"\$", "$"), False
@@ -1273,6 +1275,22 @@ class Text(Artist):
     def get_usetex(self):
         """Return whether this `Text` object uses TeX for rendering."""
         return self._usetex
+
+    def set_override_math(self, override_math):
+        """
+        Parameters
+        ----------
+        override_math : bool
+            Whether to override mathtext parsing with the normal parsing
+        """
+        self._override_math = bool(override_math)
+
+    def get_override_math(self):
+        """
+        Return whether this `Text` object is supposed to
+        override mathtext parsing with normal parsing.
+        """
+        return self._override_math
 
     def set_fontname(self, fontname):
         """
