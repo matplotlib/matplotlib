@@ -1019,8 +1019,9 @@ class TextBox(AxesWidget):
             -label_pad, 0.5, label, transform=ax.transAxes,
             verticalalignment='center', horizontalalignment='right')
         self.text_disp = self.ax.text(
-            self.DIST_FROM_LEFT, 0.5, initial, transform=self.ax.transAxes,
-            verticalalignment='center', horizontalalignment='left')
+            self.DIST_FROM_LEFT, 0.5, initial,
+            transform=self.ax.transAxes, verticalalignment='center',
+            horizontalalignment='left', override_math=True)
 
         self._observers = cbook.CallbackRegistry()
 
