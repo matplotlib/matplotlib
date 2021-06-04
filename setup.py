@@ -336,7 +336,7 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
         else []
     ),
     use_scm_version={
-        "version_scheme": "post-release",
+        "version_scheme": "release-branch-semver",
         "local_scheme": "node-and-date",
         "write_to": "lib/matplotlib/_version.py",
         "parentdir_prefix_version": "matplotlib-",
