@@ -985,7 +985,7 @@ void convert_path_to_polygons(PathIterator &path,
 
     transformed_path_t tpath(path, trans);
     nan_removal_t nan_removed(tpath, true, path.has_curves());
-    clipped_t clipped(nan_removed, do_clip && !path.has_curves(), width, height);
+    clipped_t clipped(nan_removed, do_clip, width, height);
     simplify_t simplified(clipped, simplify, path.simplify_threshold());
     curve_t curve(simplified);
 
@@ -1050,7 +1050,7 @@ void cleanup_path(PathIterator &path,
 
     transformed_path_t tpath(path, trans);
     nan_removal_t nan_removed(tpath, remove_nans, path.has_curves());
-    clipped_t clipped(nan_removed, do_clip && !path.has_curves(), rect);
+    clipped_t clipped(nan_removed, do_clip, rect);
     snapped_t snapped(clipped, snap_mode, path.total_vertices(), stroke_width);
     simplify_t simplified(snapped, do_simplify, path.simplify_threshold());
 
@@ -1209,7 +1209,7 @@ bool convert_to_string(PathIterator &path,
 
     transformed_path_t tpath(path, trans);
     nan_removal_t nan_removed(tpath, true, path.has_curves());
-    clipped_t clipped(nan_removed, do_clip && !path.has_curves(), clip_rect);
+    clipped_t clipped(nan_removed, do_clip, clip_rect);
     simplify_t simplified(clipped, simplify, path.simplify_threshold());
 
     buffersize = path.total_vertices() * (precision + 5) * 4;

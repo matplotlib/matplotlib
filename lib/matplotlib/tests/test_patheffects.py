@@ -136,7 +136,8 @@ def test_collection():
                        'edgecolor': 'blue'})
 
 
-@image_comparison(['tickedstroke'], remove_text=True, extensions=['png'])
+@image_comparison(['tickedstroke'], remove_text=True, extensions=['png'],
+                  tol=0.22)  # Increased tolerance due to fixed clipping.
 def test_tickedstroke():
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(12, 4))
     path = Path.unit_circle()
