@@ -2115,8 +2115,8 @@ class SpanSelector(_SelectorWidget):
             vpress = self.eventpress.ydata
 
         # move existing span
-        # When "dragging from anywhere", the `self._active_handle` is set to 'C'
-        # in _set_active_handle (match notation used in the RectangleSelector)
+        # When "dragging from anywhere", `self._active_handle` is set to 'C'
+        # (match notation used in the RectangleSelector)
         if self._active_handle == 'C' and self._extents_on_press is not None:
             vmin, vmax = self._extents_on_press
             dv = v - vpress
@@ -2261,13 +2261,13 @@ class ToolLineHandles:
 
     def set_visible(self, value):
         """Set the visibility state of the handles artist."""
-        for m in self.artists:
-            m.set_visible(value)
+        for artist in self.artists:
+            artist.set_visible(value)
 
     def set_animated(self, value):
         """Set the animated state of the handles artist."""
-        for m in self.artists:
-            m.set_animated(value)
+        for artist in self.artists:
+            artist.set_animated(value)
 
     def closest(self, x, y):
         """
