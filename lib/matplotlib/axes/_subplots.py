@@ -1,6 +1,4 @@
-import functools
-
-from matplotlib import _api
+from matplotlib import _api, cbook
 from matplotlib.axes._axes import Axes
 from matplotlib.gridspec import GridSpec, SubplotSpec
 
@@ -35,15 +33,6 @@ class SubplotBase:
         self._axes_class.__init__(self, fig, [0, 0, 1, 1], **kwargs)
         # This will also update the axes position.
         self.set_subplotspec(SubplotSpec._from_subplot_args(fig, args))
-
-    def __reduce__(self):
-        # get the first axes class which does not inherit from a subplotbase
-        axes_class = next(
-            c for c in type(self).__mro__
-            if issubclass(c, Axes) and not issubclass(c, SubplotBase))
-        return (_picklable_subplot_class_constructor,
-                (axes_class,),
-                self.__getstate__())
 
     @_api.deprecated(
         "3.4", alternative="get_subplotspec",
@@ -169,53 +158,6 @@ class SubplotBase:
         return twin
 
 
-# this here to support cartopy which was using a private part of the
-# API to register their Axes subclasses.
-
-# In 3.1 this should be changed to a dict subclass that warns on use
-# In 3.3 to a dict subclass that raises a useful exception on use
-# In 3.4 should be removed
-
-# The slow timeline is to give cartopy enough time to get several
-# release out before we break them.
-_subplot_classes = {}
-
-
-@functools.lru_cache(None)
-def subplot_class_factory(axes_class=None):
-    """
-    Make a new class that inherits from `.SubplotBase` and the
-    given axes_class (which is assumed to be a subclass of `.axes.Axes`).
-    This is perhaps a little bit roundabout to make a new class on
-    the fly like this, but it means that a new Subplot class does
-    not have to be created for every type of Axes.
-    """
-    if axes_class is None:
-        _api.warn_deprecated(
-            "3.3", message="Support for passing None to subplot_class_factory "
-            "is deprecated since %(since)s; explicitly pass the default Axes "
-            "class instead. This will become an error %(removal)s.")
-        axes_class = Axes
-    try:
-        # Avoid creating two different instances of GeoAxesSubplot...
-        # Only a temporary backcompat fix.  This should be removed in
-        # 3.4
-        return next(cls for cls in SubplotBase.__subclasses__()
-                    if cls.__bases__ == (SubplotBase, axes_class))
-    except StopIteration:
-        return type("%sSubplot" % axes_class.__name__,
-                    (SubplotBase, axes_class),
-                    {'_axes_class': axes_class})
-
-
+subplot_class_factory = cbook._make_class_factory(
+    SubplotBase, "{}Subplot", "_axes_class")
 Subplot = subplot_class_factory(Axes)  # Provided for backward compatibility.
-
-
-def _picklable_subplot_class_constructor(axes_class):
-    """
-    Stub factory that returns an empty instance of the appropriate subplot
-    class when called with an axes class. This is purely to allow pickling of
-    Axes and Subplots.
-    """
-    subplot_class = subplot_class_factory(axes_class)
-    return subplot_class.__new__(subplot_class)

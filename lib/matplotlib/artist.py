@@ -1251,19 +1251,33 @@ class Artist:
             method yourself.
 
         The default implementation converts ints and floats and arrays of ints
-        and floats into a comma-separated string enclosed in square brackets.
+        and floats into a comma-separated string enclosed in square brackets,
+        unless the artist has an associated colorbar, in which case scalar
+        values are formatted using the colorbar's formatter.
 
         See Also
         --------
         get_cursor_data
         """
-        try:
-            data[0]
-        except (TypeError, IndexError):
-            data = [data]
-        data_str = ', '.join('{:0.3g}'.format(item) for item in data
-                             if isinstance(item, Number))
-        return "[" + data_str + "]"
+        if np.ndim(data) == 0 and getattr(self, "colorbar", None):
+            # This block logically belongs to ScalarMappable, but can't be
+            # implemented in it because most ScalarMappable subclasses inherit
+            # from Artist first and from ScalarMappable second, so
+            # Artist.format_cursor_data would always have precedence over
+            # ScalarMappable.format_cursor_data.
+            return (
+                "["
+                + cbook.strip_math(
+                    self.colorbar.formatter.format_data_short(data)).strip()
+                + "]")
+        else:
+            try:
+                data[0]
+            except (TypeError, IndexError):
+                data = [data]
+            data_str = ', '.join('{:0.3g}'.format(item) for item in data
+                                 if isinstance(item, Number))
+            return "[" + data_str + "]"
 
     @property
     def mouseover(self):

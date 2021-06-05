@@ -320,7 +320,7 @@ PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args, PyObject
 {
     GCAgg gc;
     agg::trans_affine master_transform;
-    PyObject *pathobj;
+    py::PathGenerator paths;
     numpy::array_view<const double, 3> transforms;
     numpy::array_view<const double, 2> offsets;
     agg::trans_affine offset_trans;
@@ -333,12 +333,13 @@ PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args, PyObject
     PyObject *offset_position; // offset position is no longer used
 
     if (!PyArg_ParseTuple(args,
-                          "O&O&OO&O&O&O&O&O&O&O&OO:draw_path_collection",
+                          "O&O&O&O&O&O&O&O&O&O&O&OO:draw_path_collection",
                           &convert_gcagg,
                           &gc,
                           &convert_trans_affine,
                           &master_transform,
-                          &pathobj,
+                          &convert_pathgen,
+                          &paths,
                           &convert_transforms,
                           &transforms,
                           &convert_points,
@@ -360,27 +361,18 @@ PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args, PyObject
         return NULL;
     }
 
-    try
-    {
-        py::PathGenerator path(pathobj);
-
-        CALL_CPP("draw_path_collection",
-                 (self->x->draw_path_collection(gc,
-                                                master_transform,
-                                                path,
-                                                transforms,
-                                                offsets,
-                                                offset_trans,
-                                                facecolors,
-                                                edgecolors,
-                                                linewidths,
-                                                dashes,
-                                                antialiaseds)));
-    }
-    catch (const py::exception &)
-    {
-        return NULL;
-    }
+    CALL_CPP("draw_path_collection",
+             (self->x->draw_path_collection(gc,
+                                            master_transform,
+                                            paths,
+                                            transforms,
+                                            offsets,
+                                            offset_trans,
+                                            facecolors,
+                                            edgecolors,
+                                            linewidths,
+                                            dashes,
+                                            antialiaseds)));
 
     Py_RETURN_NONE;
 }

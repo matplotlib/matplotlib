@@ -347,7 +347,7 @@ class Axis(maxis.XAxis):
         # the alignment point is used as the "fulcrum" for rotation.
         self.offsetText.set_rotation_mode('anchor')
 
-        #----------------------------------------------------------------------
+        # ----------------------------------------------------------------------
         # Note: the following statement for determining the proper alignment of
         # the offset text. This was determined entirely by trial-and-error
         # and should not be in any way considered as "the way".  There are

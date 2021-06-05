@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import math
 import types
 
 import numpy as np
@@ -187,6 +188,7 @@ class ThetaFormatter(mticker.Formatter):
     Used to format the *theta* tick labels.  Converts the native
     unit of radians into degrees and adds a degree symbol.
     """
+
     def __call__(self, x, pos=None):
         vmin, vmax = self.axis.get_view_interval()
         d = np.rad2deg(abs(vmax - vmin))
@@ -1403,11 +1405,40 @@ class PolarAxes(Axes):
 
     def format_coord(self, theta, r):
         # docstring inherited
+        screen_xy = self.transData.transform((theta, r))
+        screen_xys = screen_xy + np.stack(
+            np.meshgrid([-1, 0, 1], [-1, 0, 1])).reshape((2, -1)).T
+        ts, rs = self.transData.inverted().transform(screen_xys).T
+        delta_t = abs((ts - theta + np.pi) % (2 * np.pi) - np.pi).max()
+        delta_t_halfturns = delta_t / np.pi
+        delta_t_degrees = delta_t_halfturns * 180
+        delta_r = abs(rs - r).max()
         if theta < 0:
             theta += 2 * np.pi
-        theta /= np.pi
-        return ('\N{GREEK SMALL LETTER THETA}=%0.3f\N{GREEK SMALL LETTER PI} '
-                '(%0.3f\N{DEGREE SIGN}), r=%0.3f') % (theta, theta * 180.0, r)
+        theta_halfturns = theta / np.pi
+        theta_degrees = theta_halfturns * 180
+
+        # See ScalarFormatter.format_data_short.  For r, use #g-formatting
+        # (as for linear axes), but for theta, use f-formatting as scientific
+        # notation doesn't make sense and the trailing dot is ugly.
+        def format_sig(value, delta, opt, fmt):
+            digits_post_decimal = math.floor(math.log10(delta))
+            digits_offset = (
+                # For "f", only count digits after decimal point.
+                0 if fmt == "f"
+                # For "g", offset by digits before the decimal point.
+                else math.floor(math.log10(abs(value))) + 1 if value
+                # For "g", 0 contributes 1 "digit" before the decimal point.
+                else 1)
+            fmt_prec = max(0, digits_offset - digits_post_decimal)
+            return f"{value:-{opt}.{fmt_prec}{fmt}}"
+
+        return ('\N{GREEK SMALL LETTER THETA}={}\N{GREEK SMALL LETTER PI} '
+                '({}\N{DEGREE SIGN}), r={}').format(
+                    format_sig(theta_halfturns, delta_t_halfturns, "", "f"),
+                    format_sig(theta_degrees, delta_t_degrees, "", "f"),
+                    format_sig(r, delta_r, "#", "g"),
+                )
 
     def get_data_ratio(self):
         """

@@ -17,6 +17,7 @@ import ast
 from functools import lru_cache, reduce
 from numbers import Number
 import operator
+import os
 import re
 
 import numpy as np
@@ -198,6 +199,11 @@ def _make_type_validator(cls, *, allow_none=False):
         if (allow_none and
                 (s is None or isinstance(s, str) and s.lower() == "none")):
             return None
+        if cls is str and not isinstance(s, str):
+            _api.warn_deprecated(
+                "3.5", message="Support for setting an rcParam that expects a "
+                "str value to a non-str value is deprecated since %(since)s "
+                "and support will be removed %(removal)s.")
         try:
             return cls(s)
         except (TypeError, ValueError) as e:
@@ -222,6 +228,15 @@ validate_float = _make_type_validator(float)
 validate_float_or_None = _make_type_validator(float, allow_none=True)
 validate_floatlist = _listify_validator(
     validate_float, doc='return a list of floats')
+
+
+def _validate_pathlike(s):
+    if isinstance(s, (str, os.PathLike)):
+        # Store value as str because savefig.directory needs to distinguish
+        # between "" (cwd) and "." (cwd, but gets updated by user selections).
+        return os.fsdecode(s)
+    else:
+        return validate_string(s)  # Emit deprecation warning.
 
 
 def validate_fonttype(s):
@@ -1038,14 +1053,14 @@ _validators = {
     "legend.scatterpoints":  validate_int,
     "legend.fontsize":       validate_fontsize,
     "legend.title_fontsize": validate_fontsize_None,
-     # color of the legend
+    # color of the legend
     "legend.labelcolor":     _validate_color_or_linecolor,
-     # the relative size of legend markers vs. original
+    # the relative size of legend markers vs. original
     "legend.markerscale":    validate_float,
     "legend.shadow":         validate_bool,
-     # whether or not to draw a frame around legend
+    # whether or not to draw a frame around legend
     "legend.frameon":        validate_bool,
-     # alpha value of the legend frame
+    # alpha value of the legend frame
     "legend.framealpha":     validate_float_or_None,
 
     ## the following dimensions are in fraction of the font size
@@ -1154,7 +1169,7 @@ _validators = {
     "savefig.bbox":         validate_bbox,  # "tight", or "standard" (= None)
     "savefig.pad_inches":   validate_float,
     # default directory in savefig dialog box
-    "savefig.directory":    validate_string,
+    "savefig.directory":    _validate_pathlike,
     "savefig.transparent":  validate_bool,
 
     "tk.window_focus": validate_bool,  # Maintain shell focus for TkAgg
@@ -1224,15 +1239,15 @@ _validators = {
     # Additional arguments for HTML writer
     "animation.html_args":    validate_stringlist,
     # Path to ffmpeg binary. If just binary name, subprocess uses $PATH.
-    "animation.ffmpeg_path":  validate_string,
+    "animation.ffmpeg_path":  _validate_pathlike,
     # Additional arguments for ffmpeg movie writer (using pipes)
     "animation.ffmpeg_args":  validate_stringlist,
     # Path to AVConv binary. If just binary name, subprocess uses $PATH.
-    "animation.avconv_path":  validate_string,
+    "animation.avconv_path":  _validate_pathlike,
     # Additional arguments for avconv movie writer (using pipes)
     "animation.avconv_args":  validate_stringlist,
      # Path to convert binary. If just binary name, subprocess uses $PATH.
-    "animation.convert_path": validate_string,
+    "animation.convert_path": _validate_pathlike,
      # Additional arguments for convert movie writer (using pipes)
     "animation.convert_args": validate_stringlist,
 

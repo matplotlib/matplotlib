@@ -3,11 +3,11 @@ QuadMesh signature
 The ``QuadMesh`` signature ::
 
     def __init__(meshWidth, meshHeight, coordinates,
-                 antialiased=True, shading=False, **kwargs)
+                 antialiased=True, shading='flat', **kwargs)
 
 is deprecated and replaced by the new signature ::
 
-    def __init__(coordinates, *, antialiased=True, shading=False, **kwargs)
+    def __init__(coordinates, *, antialiased=True, shading='flat', **kwargs)
 
 In particular:
 

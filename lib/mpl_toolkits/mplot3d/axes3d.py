@@ -539,31 +539,22 @@ class Axes3D(Axes):
         pass
 
     def get_autoscale_on(self):
-        """
-        Get whether autoscaling is applied for all axes on plot commands
-        """
+        # docstring inherited
         return super().get_autoscale_on() and self.get_autoscalez_on()
 
     def get_autoscalez_on(self):
-        """
-        Get whether autoscaling for the z-axis is applied on plot commands
-        """
+        """Return whether the z-axis is autoscaled."""
         return self._autoscaleZon
 
     def set_autoscale_on(self, b):
-        """
-        Set whether autoscaling is applied on plot commands
-
-        Parameters
-        ----------
-        b : bool
-        """
+        # docstring inherited
         super().set_autoscale_on(b)
         self.set_autoscalez_on(b)
 
     def set_autoscalez_on(self, b):
         """
-        Set whether autoscaling for the z-axis is applied on plot commands
+        Set whether the z-axis is autoscaled on the next draw or call to
+        `.Axes.autoscale_view`.
 
         Parameters
         ----------

@@ -225,11 +225,11 @@ def generate_validator_testcases(valid):
                      (('a', 'b'), ['a', 'b']),
                      (iter(['a', 'b']), ['a', 'b']),
                      (np.array(['a', 'b']), ['a', 'b']),
-                     ((1, 2), ['1', '2']),
-                     (np.array([1, 2]), ['1', '2']),
                      ),
          'fail': ((set(), ValueError),
                   (1, ValueError),
+                  ((1, 2), _api.MatplotlibDeprecationWarning),
+                  (np.array([1, 2]), _api.MatplotlibDeprecationWarning),
                   )
          },
         {'validator': _listify_validator(validate_int, n=2),

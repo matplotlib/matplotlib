@@ -79,8 +79,8 @@ class ConvertAllProxy(PassThroughProxy):
         arg_units = [self.unit]
         for a in args:
             if hasattr(a, 'get_unit') and not hasattr(a, 'convert_to'):
-                # if this arg has a unit type but no conversion ability,
-                # this operation is prohibited
+                # If this argument has a unit type but no conversion ability,
+                # this operation is prohibited.
                 return NotImplemented
 
             if hasattr(a, 'convert_to'):
@@ -343,8 +343,6 @@ class BasicUnitConverter(units.ConversionInterface):
 
     @staticmethod
     def convert(val, unit, axis):
-        if units.ConversionInterface.is_numlike(val):
-            return val
         if np.iterable(val):
             if isinstance(val, np.ma.MaskedArray):
                 val = val.astype(float).filled(np.nan)

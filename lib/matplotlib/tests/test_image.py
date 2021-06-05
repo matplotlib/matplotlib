@@ -340,7 +340,7 @@ def test_cursor_data():
     "data, text_without_colorbar, text_with_colorbar", [
         ([[10001, 10000]], "[1e+04]", "[10001]"),
         ([[.123, .987]], "[0.123]", "[0.123]"),
-])
+    ])
 def test_format_cursor_data(data, text_without_colorbar, text_with_colorbar):
     from matplotlib.backend_bases import MouseEvent
 

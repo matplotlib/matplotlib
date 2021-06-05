@@ -169,14 +169,14 @@ ax.set(xlim=[-10000, 140000], xlabel='Total Revenue', ylabel='Company',
 
 ###############################################################################
 # We can also adjust the size of this plot using the :func:`pyplot.subplots`
-# function. We can do this with the ``figsize`` kwarg.
+# function. We can do this with the *figsize* keyword argument.
 #
 # .. note::
 #
-#    While indexing in NumPy follows the form (row, column), the figsize
-#    kwarg follows the form (width, height). This follows conventions in
-#    visualization, which unfortunately are different from those of linear
-#    algebra.
+#    While indexing in NumPy follows the form (row, column), the *figsize*
+#    keyword argument follows the form (width, height). This follows
+#    conventions in visualization, which unfortunately are different from those
+#    of linear algebra.
 
 fig, ax = plt.subplots(figsize=(8, 4))
 ax.barh(group_names, group_data)
@@ -198,7 +198,7 @@ ax.set(xlim=[-10000, 140000], xlabel='Total Revenue', ylabel='Company',
 
 
 def currency(x, pos):
-    """The two args are the value and tick position"""
+    """The two arguments are the value and tick position"""
     if x >= 1e6:
         s = '${:1.1f}M'.format(x*1e-6)
     else:

@@ -1,7 +1,6 @@
 from . import axes_size as Size
 from .axes_divider import Divider, SubplotDivider, make_axes_locatable
 from .axes_grid import Grid, ImageGrid, AxesGrid
-#from axes_divider import make_axes_locatable
 from matplotlib import _api
 _api.warn_deprecated(since='2.1',
                      name='mpl_toolkits.axes_grid',

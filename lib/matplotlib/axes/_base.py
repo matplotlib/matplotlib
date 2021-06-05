@@ -2289,41 +2289,45 @@ class _AxesBase(martist.Artist):
         if path.vertices.size == 0:
             return
 
-        line_trans = line.get_transform()
+        line_trf = line.get_transform()
 
-        if line_trans == self.transData:
+        if line_trf == self.transData:
             data_path = path
-
-        elif any(line_trans.contains_branch_seperately(self.transData)):
-            # identify the transform to go from line's coordinates
-            # to data coordinates
-            trans_to_data = line_trans - self.transData
-
-            # if transData is affine we can use the cached non-affine component
-            # of line's path. (since the non-affine part of line_trans is
-            # entirely encapsulated in trans_to_data).
+        elif any(line_trf.contains_branch_seperately(self.transData)):
+            # Compute the transform from line coordinates to data coordinates.
+            trf_to_data = line_trf - self.transData
+            # If transData is affine we can use the cached non-affine component
+            # of line's path (since the non-affine part of line_trf is
+            # entirely encapsulated in trf_to_data).
             if self.transData.is_affine:
                 line_trans_path = line._get_transformed_path()
                 na_path, _ = line_trans_path.get_transformed_path_and_affine()
-                data_path = trans_to_data.transform_path_affine(na_path)
+                data_path = trf_to_data.transform_path_affine(na_path)
             else:
-                data_path = trans_to_data.transform_path(path)
+                data_path = trf_to_data.transform_path(path)
         else:
-            # for backwards compatibility we update the dataLim with the
+            # For backwards compatibility we update the dataLim with the
             # coordinate range of the given path, even though the coordinate
             # systems are completely different. This may occur in situations
             # such as when ax.transAxes is passed through for absolute
             # positioning.
             data_path = path
 
-        if data_path.vertices.size > 0:
-            updatex, updatey = line_trans.contains_branch_seperately(
-                self.transData)
-            self.dataLim.update_from_path(data_path,
-                                          self.ignore_existing_data_limits,
-                                          updatex=updatex,
-                                          updatey=updatey)
-            self.ignore_existing_data_limits = False
+        if not data_path.vertices.size:
+            return
+
+        updatex, updatey = line_trf.contains_branch_seperately(self.transData)
+        if self.name != "rectilinear":
+            # This block is mostly intended to handle axvline in polar plots,
+            # for which updatey would otherwise be True.
+            if updatex and line_trf == self.get_yaxis_transform():
+                updatex = False
+            if updatey and line_trf == self.get_xaxis_transform():
+                updatey = False
+        self.dataLim.update_from_path(data_path,
+                                      self.ignore_existing_data_limits,
+                                      updatex=updatex, updatey=updatey)
+        self.ignore_existing_data_limits = False
 
     def add_patch(self, p):
         """
@@ -2354,17 +2358,19 @@ class _AxesBase(martist.Artist):
         p = patch.get_path()
         vertices = p.vertices if p.codes is None else p.vertices[np.isin(
             p.codes, (mpath.Path.CLOSEPOLY, mpath.Path.STOP), invert=True)]
-        if vertices.size > 0:
-            xys = patch.get_patch_transform().transform(vertices)
-            if patch.get_data_transform() != self.transData:
-                patch_to_data = (patch.get_data_transform() -
-                                 self.transData)
-                xys = patch_to_data.transform(xys)
-
-            updatex, updatey = patch.get_transform().\
-                contains_branch_seperately(self.transData)
-            self.update_datalim(xys, updatex=updatex,
-                                updatey=updatey)
+        if not vertices.size:
+            return
+        patch_trf = patch.get_transform()
+        updatex, updatey = patch_trf.contains_branch_seperately(self.transData)
+        if self.name != "rectilinear":
+            # As in _update_line_limits, but for axvspan.
+            if updatex and patch_trf == self.get_yaxis_transform():
+                updatex = False
+            if updatey and patch_trf == self.get_xaxis_transform():
+                updatey = False
+        trf_to_data = patch_trf - self.transData
+        xys = trf_to_data.transform(vertices)
+        self.update_datalim(xys, updatex=updatex, updatey=updatey)
 
     def add_table(self, tab):
         """
@@ -2534,27 +2540,21 @@ class _AxesBase(martist.Artist):
         return self.patch.contains(mouseevent)[0]
 
     def get_autoscale_on(self):
-        """
-        Get whether autoscaling is applied for both axes on plot commands
-        """
+        """Return True if each axis is autoscaled, False otherwise."""
         return self._autoscaleXon and self._autoscaleYon
 
     def get_autoscalex_on(self):
-        """
-        Get whether autoscaling for the x-axis is applied on plot commands
-        """
+        """Return whether the x-axis is autoscaled."""
         return self._autoscaleXon
 
     def get_autoscaley_on(self):
-        """
-        Get whether autoscaling for the y-axis is applied on plot commands
-        """
+        """Return whether the y-axis is autoscaled."""
         return self._autoscaleYon
 
     def set_autoscale_on(self, b):
         """
-        Set whether autoscaling is applied to axes on the next draw or call to
-        `.Axes.autoscale_view`.
+        Set whether autoscaling is applied to each axis on the next draw or
+        call to `.Axes.autoscale_view`.
 
         Parameters
         ----------
@@ -2565,8 +2565,8 @@ class _AxesBase(martist.Artist):
 
     def set_autoscalex_on(self, b):
         """
-        Set whether autoscaling for the x-axis is applied to axes on the next
-        draw or call to `.Axes.autoscale_view`.
+        Set whether the x-axis is autoscaled on the next draw or call to
+        `.Axes.autoscale_view`.
 
         Parameters
         ----------
@@ -2576,8 +2576,8 @@ class _AxesBase(martist.Artist):
 
     def set_autoscaley_on(self, b):
         """
-        Set whether autoscaling for the y-axis is applied to axes on the next
-        draw or call to `.Axes.autoscale_view`.
+        Set whether the y-axis is autoscaled on the next draw or call to
+        `.Axes.autoscale_view`.
 
         Parameters
         ----------
@@ -2857,8 +2857,8 @@ class _AxesBase(martist.Artist):
         if self.get_yscale() == 'log':
             y_stickies = y_stickies[y_stickies > 0]
 
-        def handle_single_axis(scale, autoscaleon, shared_axes, interval,
-                               minpos, axis, margin, stickies, set_bound):
+        def handle_single_axis(scale, autoscaleon, shared_axes, name,
+                               axis, margin, stickies, set_bound):
 
             if not (scale and autoscaleon):
                 return  # nothing to do...
@@ -2870,12 +2870,16 @@ class _AxesBase(martist.Artist):
             x_values = []
             minimum_minpos = np.inf
             for ax in shared:
-                x_values.extend(getattr(ax.dataLim, interval))
+                x_values.extend(getattr(ax.dataLim, f"interval{name}"))
                 minimum_minpos = min(minimum_minpos,
-                                     getattr(ax.dataLim, minpos))
+                                     getattr(ax.dataLim, f"minpos{name}"))
             x_values = np.extract(np.isfinite(x_values), x_values)
             if x_values.size >= 1:
                 x0, x1 = (x_values.min(), x_values.max())
+            elif getattr(self._viewLim, f"mutated{name}")():
+                # No data, but explicit viewLims already set:
+                # in mutatedx or mutatedy.
+                return
             else:
                 x0, x1 = (-np.inf, np.inf)
             # If x0 and x1 are non finite, use the locator to figure out
@@ -2919,11 +2923,11 @@ class _AxesBase(martist.Artist):
             # End of definition of internal function 'handle_single_axis'.
 
         handle_single_axis(
-            scalex, self._autoscaleXon, self._shared_x_axes, 'intervalx',
-            'minposx', self.xaxis, self._xmargin, x_stickies, self.set_xbound)
+            scalex, self._autoscaleXon, self._shared_x_axes, 'x',
+            self.xaxis, self._xmargin, x_stickies, self.set_xbound)
         handle_single_axis(
-            scaley, self._autoscaleYon, self._shared_y_axes, 'intervaly',
-            'minposy', self.yaxis, self._ymargin, y_stickies, self.set_ybound)
+            scaley, self._autoscaleYon, self._shared_y_axes, 'y',
+            self.yaxis, self._ymargin, y_stickies, self.set_ybound)
 
     def _get_axis_list(self):
         return self.xaxis, self.yaxis

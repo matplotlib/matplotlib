@@ -150,7 +150,7 @@ plt.show()
 # antialiased, etc; see `matplotlib.lines.Line2D`.  There are
 # several ways to set line properties
 #
-# * Use keyword args::
+# * Use keyword arguments::
 #
 #       plt.plot(x, y, linewidth=2.0)
 #
@@ -171,7 +171,7 @@ plt.show()
 #   MATLAB-style string/value pairs::
 #
 #       lines = plt.plot(x1, y1, x2, y2)
-#       # use keyword args
+#       # use keyword arguments
 #       plt.setp(lines, color='r', linewidth=2.0)
 #       # or MATLAB style string value pairs
 #       plt.setp(lines, 'color', 'r', 'linewidth', 2.0)

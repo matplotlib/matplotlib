@@ -32,6 +32,7 @@ int convert_dashes(PyObject *dashobj, void *gcp);
 int convert_dashes_vector(PyObject *obj, void *dashesp);
 int convert_trans_affine(PyObject *obj, void *transp);
 int convert_path(PyObject *obj, void *pathp);
+int convert_pathgen(PyObject *obj, void *pathgenp);
 int convert_clippath(PyObject *clippath_tuple, void *clippathp);
 int convert_snap(PyObject *obj, void *snapp);
 int convert_sketch_params(PyObject *obj, void *sketchp);

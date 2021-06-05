@@ -1,0 +1,6 @@
+The private ``matplotlib.axes._subplots._subplot_classes`` dict has been removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Support for passing ``None`` to ``subplot_class_factory`` has been removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Explicitly pass in the base `~matplotlib.axes.Axes` class instead.

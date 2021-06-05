@@ -5,7 +5,7 @@ Fonts demo (object-oriented style)
 
 Set font properties using setters.
 
-See :doc:`fonts_demo_kw` to achieve the same effect using kwargs.
+See :doc:`fonts_demo_kw` to achieve the same effect using keyword arguments.
 """
 
 from matplotlib.font_manager import FontProperties

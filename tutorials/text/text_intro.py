@@ -153,7 +153,7 @@ plt.show()
 # *position*, via which we can manually specify the label positions.  Here we
 # put the xlabel to the far left of the axis.  Note, that the y-coordinate of
 # this position has no effect - to adjust the y-position we need to use the
-# *labelpad* kwarg.
+# *labelpad* keyword argument.
 
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(bottom=0.15, left=0.2)
@@ -165,8 +165,8 @@ plt.show()
 
 ##############################################################################
 # All the labelling in this tutorial can be changed by manipulating the
-# `matplotlib.font_manager.FontProperties` method, or by named kwargs to
-# `~matplotlib.axes.Axes.set_xlabel`
+# `matplotlib.font_manager.FontProperties` method, or by named keyword
+# arguments to `~matplotlib.axes.Axes.set_xlabel`
 
 from matplotlib.font_manager import FontProperties
 

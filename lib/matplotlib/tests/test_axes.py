@@ -6340,21 +6340,6 @@ def test_spines_properbbox_after_zoom():
     np.testing.assert_allclose(bb.get_points(), bb2.get_points(), rtol=1e-6)
 
 
-def test_cartopy_backcompat():
-
-    class Dummy(matplotlib.axes.Axes):
-        ...
-
-    class DummySubplot(matplotlib.axes.SubplotBase, Dummy):
-        _axes_class = Dummy
-
-    matplotlib.axes._subplots._subplot_classes[Dummy] = DummySubplot
-
-    FactoryDummySubplot = matplotlib.axes.subplot_class_factory(Dummy)
-
-    assert DummySubplot is FactoryDummySubplot
-
-
 def test_gettightbbox_ignore_nan():
     fig, ax = plt.subplots()
     remove_ticks_and_titles(fig)

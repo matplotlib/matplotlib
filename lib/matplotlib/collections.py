@@ -1986,7 +1986,7 @@ class TriMesh(Collection):
 
 
 class QuadMesh(Collection):
-    """
+    r"""
     Class for the efficient drawing of a quadrilateral mesh.
 
     A quadrilateral mesh is a grid of M by N adjacent qudrilaterals that are
@@ -2013,6 +2013,10 @@ class QuadMesh(Collection):
 
     Notes
     -----
+    Unlike other `.Collection`\s, the default *pickradius* of `.QuadMesh` is 0,
+    i.e. `~.Artist.contains` checks whether the test point is within any of the
+    mesh quadrilaterals.
+
     There exists a deprecated API version ``QuadMesh(M, N, coords)``, where
     the dimensions are given explicitly and ``coords`` is a (M*N, 2)
     array-like. This has been deprecated in Matplotlib 3.5. The following
@@ -2040,8 +2044,8 @@ class QuadMesh(Collection):
     For example, the first entry in *coordinates* is the coordinates of the
     vertex at mesh coordinates (0, 0), then the one at (0, 1), then at (0, 2)
     .. (0, meshWidth), (1, 0), (1, 1), and so on.
-
     """
+
     def __init__(self, *args, **kwargs):
         # signature deprecation since="3.5": Change to new signature after the
         # deprecation has expired. Also remove setting __init__.__signature__,
@@ -2054,7 +2058,7 @@ class QuadMesh(Collection):
             # The following raises a TypeError iif the args don't match.
             w, h, coords, antialiased, shading, kwargs = (
                 lambda meshWidth, meshHeight, coordinates, antialiased=True,
-                       shading=False, **kwargs:
+                       shading='flat', **kwargs:
                 (meshWidth, meshHeight, coordinates, antialiased, shading,
                  kwargs))(*args, **kwargs)
         except TypeError as exc:
@@ -2062,7 +2066,7 @@ class QuadMesh(Collection):
             # If the following raises a TypeError (i.e. args don't match),
             # just let it propagate.
             coords, antialiased, shading, kwargs = (
-                lambda coordinates, antialiased=True, shading=False, **kwargs:
+                lambda coordinates, antialiased=True, shading='flat', **kwargs:
                 (coordinates, antialiased, shading, kwargs))(*args, **kwargs)
             coords = np.asarray(coords, np.float64)
         else:  # The old signature matched.
@@ -2073,6 +2077,7 @@ class QuadMesh(Collection):
                         "coordinates must be 2D; all parameters except "
                         "coordinates will be keyword-only.")
             coords = np.asarray(coords, np.float64).reshape((h + 1, w + 1, 2))
+        kwargs.setdefault("pickradius", 0)
         # end of signature deprecation code
 
         super().__init__(**kwargs)
@@ -2087,7 +2092,7 @@ class QuadMesh(Collection):
     # Only needed during signature deprecation
     __init__.__signature__ = inspect.signature(
         lambda self, coordinates, *,
-               antialiased=True, shading='flat', **kwargs: None)
+               antialiased=True, shading='flat', pickradius=0, **kwargs: None)
 
     def get_paths(self):
         if self._paths is None:
@@ -2100,6 +2105,16 @@ class QuadMesh(Collection):
 
     def get_datalim(self, transData):
         return (self.get_transform() - transData).transform_bbox(self._bbox)
+
+    def get_coordinates(self):
+        """
+        Return the vertices of the mesh as an (M+1, N+1, 2) array.
+
+        M, N are the number of quadrilaterals in the rows / columns of the
+        mesh, corresponding to (M+1, N+1) vertices.
+        The last dimension specifies the components (x, y).
+        """
+        return self._coordinates
 
     @staticmethod
     @_api.deprecated("3.5", alternative="QuadMesh(coordinates).get_paths()")
@@ -2218,3 +2233,11 @@ class QuadMesh(Collection):
         gc.restore()
         renderer.close_group(self.__class__.__name__)
         self.stale = False
+
+    def get_cursor_data(self, event):
+        contained, info = self.contains(event)
+        if len(info["ind"]) == 1:
+            ind, = info["ind"]
+            return self.get_array()[ind]
+        else:
+            return None

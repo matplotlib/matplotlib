@@ -269,17 +269,18 @@ const char *Py_get_path_collection_extents__doc__ =
 static PyObject *Py_get_path_collection_extents(PyObject *self, PyObject *args, PyObject *kwds)
 {
     agg::trans_affine master_transform;
-    PyObject *pathsobj;
+    py::PathGenerator paths;
     numpy::array_view<const double, 3> transforms;
     numpy::array_view<const double, 2> offsets;
     agg::trans_affine offset_trans;
     extent_limits e;
 
     if (!PyArg_ParseTuple(args,
-                          "O&OO&O&O&:get_path_collection_extents",
+                          "O&O&O&O&O&:get_path_collection_extents",
                           &convert_trans_affine,
                           &master_transform,
-                          &pathsobj,
+                          &convert_pathgen,
+                          &paths,
                           &convert_transforms,
                           &transforms,
                           &convert_points,
@@ -289,18 +290,9 @@ static PyObject *Py_get_path_collection_extents(PyObject *self, PyObject *args, 
         return NULL;
     }
 
-    try
-    {
-        py::PathGenerator paths(pathsobj);
-
-        CALL_CPP("get_path_collection_extents",
-                 (get_path_collection_extents(
-                     master_transform, paths, transforms, offsets, offset_trans, e)));
-    }
-    catch (const py::exception &)
-    {
-        return NULL;
-    }
+    CALL_CPP("get_path_collection_extents",
+             (get_path_collection_extents(
+                 master_transform, paths, transforms, offsets, offset_trans, e)));
 
     npy_intp dims[] = { 2, 2 };
     numpy::array_view<double, 2> extents(dims);
@@ -327,7 +319,7 @@ static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyO
 {
     double x, y, radius;
     agg::trans_affine master_transform;
-    PyObject *pathsobj;
+    py::PathGenerator paths;
     numpy::array_view<const double, 3> transforms;
     numpy::array_view<const double, 2> offsets;
     agg::trans_affine offset_trans;
@@ -336,13 +328,14 @@ static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyO
     std::vector<int> result;
 
     if (!PyArg_ParseTuple(args,
-                          "dddO&OO&O&O&O&O:point_in_path_collection",
+                          "dddO&O&O&O&O&O&O:point_in_path_collection",
                           &x,
                           &y,
                           &radius,
                           &convert_trans_affine,
                           &master_transform,
-                          &pathsobj,
+                          &convert_pathgen,
+                          &paths,
                           &convert_transforms,
                           &transforms,
                           &convert_points,
@@ -355,26 +348,17 @@ static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyO
         return NULL;
     }
 
-    try
-    {
-        py::PathGenerator paths(pathsobj);
-
-        CALL_CPP("point_in_path_collection",
-                 (point_in_path_collection(x,
-                                           y,
-                                           radius,
-                                           master_transform,
-                                           paths,
-                                           transforms,
-                                           offsets,
-                                           offset_trans,
-                                           filled,
-                                           result)));
-    }
-    catch (const py::exception &)
-    {
-        return NULL;
-    }
+    CALL_CPP("point_in_path_collection",
+             (point_in_path_collection(x,
+                                       y,
+                                       radius,
+                                       master_transform,
+                                       paths,
+                                       transforms,
+                                       offsets,
+                                       offset_trans,
+                                       filled,
+                                       result)));
 
     npy_intp dims[] = {(npy_intp)result.size() };
     numpy::array_view<int, 1> pyresult(dims);

@@ -309,7 +309,7 @@ class Line2D(Artist):
         """
         super().__init__()
 
-        #convert sequences to numpy arrays
+        # Convert sequences to NumPy arrays.
         if not np.iterable(xdata):
             raise RuntimeError('xdata must be a sequence')
         if not np.iterable(ydata):

@@ -53,6 +53,9 @@ def stackplot(axes, x, *args,
 
         If not specified, the colors from the Axes property cycle will be used.
 
+    data : indexable object, optional
+        DATA_PARAMETER_PLACEHOLDER
+
     **kwargs
         All other keyword arguments are passed to `.Axes.fill_between`.
 

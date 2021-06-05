@@ -1457,7 +1457,7 @@ class Axis(martist.Artist):
         if default is not None and self.units is None:
             self.set_units(default)
 
-        if neednew:
+        elif neednew:
             self._update_axisinfo()
         self.stale = True
         return True
@@ -2267,19 +2267,15 @@ class XAxis(Axis):
     def set_default_intervals(self):
         # docstring inherited
         xmin, xmax = 0., 1.
-        dataMutated = self.axes.dataLim.mutatedx()
-        viewMutated = self.axes.viewLim.mutatedx()
-        if not dataMutated or not viewMutated:
+        # only change view if dataLim has not changed and user has
+        # not changed the view:
+        if (not self.axes.dataLim.mutatedx() and
+                not self.axes.viewLim.mutatedx()):
             if self.converter is not None:
                 info = self.converter.axisinfo(self.units, self)
                 if info.default_limits is not None:
-                    valmin, valmax = info.default_limits
-                    xmin = self.converter.convert(valmin, self.units, self)
-                    xmax = self.converter.convert(valmax, self.units, self)
-            if not dataMutated:
-                self.axes.dataLim.intervalx = xmin, xmax
-            if not viewMutated:
-                self.axes.viewLim.intervalx = xmin, xmax
+                    xmin, xmax = self.convert_units(info.default_limits)
+                    self.axes.viewLim.intervalx = xmin, xmax
         self.stale = True
 
     def get_tick_space(self):
@@ -2532,19 +2528,15 @@ class YAxis(Axis):
     def set_default_intervals(self):
         # docstring inherited
         ymin, ymax = 0., 1.
-        dataMutated = self.axes.dataLim.mutatedy()
-        viewMutated = self.axes.viewLim.mutatedy()
-        if not dataMutated or not viewMutated:
+        # only change view if dataLim has not changed and user has
+        # not changed the view:
+        if (not self.axes.dataLim.mutatedy() and
+                not self.axes.viewLim.mutatedy()):
             if self.converter is not None:
                 info = self.converter.axisinfo(self.units, self)
                 if info.default_limits is not None:
-                    valmin, valmax = info.default_limits
-                    ymin = self.converter.convert(valmin, self.units, self)
-                    ymax = self.converter.convert(valmax, self.units, self)
-            if not dataMutated:
-                self.axes.dataLim.intervaly = ymin, ymax
-            if not viewMutated:
-                self.axes.viewLim.intervaly = ymin, ymax
+                    ymin, ymax = self.convert_units(info.default_limits)
+                    self.axes.viewLim.intervaly = ymin, ymax
         self.stale = True
 
     def get_tick_space(self):
