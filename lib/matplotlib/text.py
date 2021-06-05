@@ -123,9 +123,9 @@ class Text(Artist):
                  linespacing=None,
                  rotation_mode=None,
                  usetex=None,          # defaults to rcParams['text.usetex']
-                 override_math=False,
                  wrap=False,
                  transform_rotates_text=False,
+                 parse_math=True,
                  **kwargs
                  ):
         """
@@ -143,7 +143,7 @@ class Text(Artist):
             color if color is not None else mpl.rcParams["text.color"])
         self.set_fontproperties(fontproperties)
         self.set_usetex(usetex)
-        self.set_override_math(override_math)
+        self.set_parse_math(parse_math)
         self.set_wrap(wrap)
         self.set_verticalalignment(verticalalignment)
         self.set_horizontalalignment(horizontalalignment)
@@ -1239,7 +1239,7 @@ class Text(Artist):
             if s == " ":
                 s = r"\ "
             return s, "TeX"
-        elif not self.get_override_math() and cbook.is_math_text(s):
+        elif self.get_parse_math() and cbook.is_math_text(s):
             return s, True
         else:
             return s.replace(r"\$", "$"), False
@@ -1276,21 +1276,24 @@ class Text(Artist):
         """Return whether this `Text` object uses TeX for rendering."""
         return self._usetex
 
-    def set_override_math(self, override_math):
+    def set_parse_math(self, parse_math):
         """
+        Override switch to enable/disable any mathtext
+        parsing for the given `Text` object.
+
         Parameters
         ----------
-        override_math : bool
-            Whether to override mathtext parsing with the normal parsing
+        parse_math : bool
+            Whether to consider mathtext parsing for the string
         """
-        self._override_math = bool(override_math)
+        self._parse_math = bool(parse_math)
 
-    def get_override_math(self):
+    def get_parse_math(self):
         """
-        Return whether this `Text` object is supposed to
-        override mathtext parsing with normal parsing.
+        Return whether mathtext parsing is considered
+        for this `Text` object.
         """
-        return self._override_math
+        return self._parse_math
 
     def set_fontname(self, fontname):
         """
