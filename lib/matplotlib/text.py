@@ -125,6 +125,7 @@ class Text(Artist):
                  usetex=None,          # defaults to rcParams['text.usetex']
                  wrap=False,
                  transform_rotates_text=False,
+                 *,
                  parse_math=True,
                  **kwargs
                  ):
