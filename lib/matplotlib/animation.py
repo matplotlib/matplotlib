@@ -1623,7 +1623,7 @@ class FuncAnimation(TimedAnimation):
 
     fargs : tuple or None, optional
         Additional arguments to pass to each call to *func*. Note: the use of
-        `functools.partial` is preferred over fargs.
+        `functools.partial` is preferred over *fargs*.
 
     save_count : int, default: 100
         Fallback for the number of values from *frames* to cache. This is
