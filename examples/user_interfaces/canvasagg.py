@@ -20,6 +20,8 @@ cgi-script *without* needing to write a figure to disk, and to write images in
 any format supported by Pillow.
 
 .. _Pillow: https://pillow.readthedocs.io/
+.. redirect-from:: /gallery/misc/agg_buffer
+.. redirect-from:: /gallery/misc/agg_buffer_to_array
 """
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg
