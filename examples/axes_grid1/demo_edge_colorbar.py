@@ -1,7 +1,7 @@
 """
-==================
-Demo Edge Colorbar
-==================
+===============================
+Per-row or per-column colorbars
+===============================
 
 This example shows how to use one common colorbar for each row or column
 of an image grid.
