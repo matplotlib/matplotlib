@@ -1,8 +1,7 @@
 """
-===========================
-Demo Colorbar of Inset Axes
-===========================
-
+===============================
+Adding a colorbar to inset axes
+===============================
 """
 
 from matplotlib import cbook
