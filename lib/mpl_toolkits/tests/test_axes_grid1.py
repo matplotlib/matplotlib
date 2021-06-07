@@ -11,7 +11,7 @@ from matplotlib.testing.decorators import (
     image_comparison, remove_ticks_and_titles)
 
 from mpl_toolkits.axes_grid1 import (
-    axes_size as Size, host_subplot, make_axes_locatable, AxesGrid, ImageGrid)
+    axes_size as Size, host_subplot, make_axes_locatable, Grid, AxesGrid, ImageGrid)
 from mpl_toolkits.axes_grid1.anchored_artists import (
     AnchoredSizeBar, AnchoredDirectionArrows)
 from mpl_toolkits.axes_grid1.axes_divider import HBoxDivider
@@ -470,3 +470,25 @@ def test_axes_class_tuple():
     fig = plt.figure()
     axes_class = (mpl_toolkits.axes_grid1.mpl_axes.Axes, {})
     gr = AxesGrid(fig, 111, nrows_ncols=(1, 1), axes_class=axes_class)
+
+
+def test_grid_axes_lists():
+    """Test Grid axes_all, axes_row and axes_column relationship."""
+    fig = plt.figure()
+    grid = Grid(fig, 111, (2, 3), direction="row")
+    assert_array_equal(grid, grid.axes_all)
+    assert_array_equal(grid.axes_row, np.transpose(grid.axes_column))
+    assert_array_equal(grid, np.ravel(grid.axes_row), "row")
+    grid = Grid(fig, 111, (2, 3), direction="column")
+    assert_array_equal(grid, np.ravel(grid.axes_column), "column")
+
+
+def test_grid_axes_position():
+    """Test positioning of the axes in Grid."""
+    fig = plt.figure()
+    for dir in ("row", "column"):
+        grid = Grid(fig, 111, (2, 2), direction=dir)
+        loc = [ax.get_axes_locator() for ax in np.ravel(grid.axes_row)]
+        assert loc[1]._nx > loc[0]._nx and loc[2]._ny < loc[0]._ny, dir
+        assert loc[0]._nx == loc[2]._nx and loc[0]._ny == loc[1]._ny, dir
+        assert loc[3]._nx == loc[1]._nx and loc[3]._ny == loc[2]._ny, dir
