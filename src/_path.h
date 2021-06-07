@@ -833,21 +833,27 @@ inline bool segments_intersect(const double &x1,
     // determinant
     double den = ((y4 - y3) * (x2 - x1)) - ((x4 - x3) * (y2 - y1));
 
-    if (isclose(den, 0.0)) {  // collinear segments
-        if (x1 == x2 && x2 == x3) { // segments have infinite slope (vertical lines)
-                                    // and lie on the same line
-            return (fmin(y1, y2) <= fmin(y3, y4) && fmin(y3, y4) <= fmax(y1, y2)) ||
-                   (fmin(y3, y4) <= fmin(y1, y2) && fmin(y1, y2) <= fmax(y3, y4));
-        }
-        else {
-            double intercept = (y1*x2 - y2*x1)*(x4 - x3) - (y3*x4 - y4*x3)*(x1 - x2);
-            if (isclose(intercept, 0.0)) { // segments lie on the same line
+    // If den == 0 we have two possibilities:
+    if (isclose(den, 0.0)) {
+        float t_area = (x2*y3 - x3*y2) - x1*(y3 - y2) + y1*(x3 - x2);
+        // 1 - If the area of the triangle made by the 3 first points (2 from the first segment
+        // plus one from the second) is zero, they are collinear
+        if (isclose(t_area, 0.0)) {
+            if (x1 == x2 && x2 == x3) { // segments have infinite slope (vertical lines)
+                                        // and lie on the same line
+                return (fmin(y1, y2) <= fmin(y3, y4) && fmin(y3, y4) <= fmax(y1, y2)) ||
+                    (fmin(y3, y4) <= fmin(y1, y2) && fmin(y1, y2) <= fmax(y3, y4));
+            }
+            else {
                 return (fmin(x1, x2) <= fmin(x3, x4) && fmin(x3, x4) <= fmax(x1, x2)) ||
-                       (fmin(x3, x4) <= fmin(x1, x2) && fmin(x1, x2) <= fmax(x3, x4));
+                        (fmin(x3, x4) <= fmin(x1, x2) && fmin(x1, x2) <= fmax(x3, x4));
+                
             }
         }
-
-        return false;
+        // 2 - If t_area is not zero, the segments are parallel, but not collinear
+        else {
+            return false;
+        }
     }
 
     const double n1 = ((x4 - x3) * (y1 - y3)) - ((y4 - y3) * (x1 - x3));
@@ -865,6 +871,7 @@ inline bool segments_intersect(const double &x1,
 template <class PathIterator1, class PathIterator2>
 bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
 {
+    
     typedef PathNanRemover<py::PathIterator> no_nans_t;
     typedef agg::conv_curve<no_nans_t> curve_t;
 
@@ -889,12 +896,14 @@ bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
         }
         c2.rewind(0);
         c2.vertex(&x21, &y21);
+        
 
         while (c2.vertex(&x22, &y22) != agg::path_cmd_stop) {
             // if the segment in path 2 is (almost) 0 length, skip to next vertex
             if ((isclose((x21 - x22) * (x21 - x22) + (y21 - y22) * (y21 - y22), 0))){
                 continue;
             }
+
             if (segments_intersect(x11, y11, x12, y12, x21, y21, x22, y22)) {
                 return true;
             }
