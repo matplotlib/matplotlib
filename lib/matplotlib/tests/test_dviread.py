@@ -44,6 +44,9 @@ def test_PsfontsMap(monkeypatch):
     entry = fontmap[b'TeXfont9']
     assert entry.psname == b'TeXfont9'
     assert entry.filename == b'/absolute/font9.pfb'
+    # First of duplicates only.
+    entry = fontmap[b'TeXfontA']
+    assert entry.psname == b'PSfontA1'
     # Missing font
     with pytest.raises(KeyError, match='no-such-font'):
         fontmap[b'no-such-font']

@@ -828,14 +828,19 @@ class PsfontsMap:
         # store the unparsed lines (keyed by the first word, which is the
         # texname) and parse them on-demand.
         with open(filename, 'rb') as file:
-            self._unparsed = {line.split(b' ', 1)[0]: line for line in file}
+            self._unparsed = {}
+            for line in file:
+                tfmname = line.split(b' ', 1)[0]
+                self._unparsed.setdefault(tfmname, []).append(line)
         self._parsed = {}
         return self
 
     def __getitem__(self, texname):
         assert isinstance(texname, bytes)
         if texname in self._unparsed:
-            self._parse_and_cache_line(self._unparsed.pop(texname))
+            for line in self._unparsed.pop(texname):
+                if self._parse_and_cache_line(line):
+                    break
         try:
             return self._parsed[texname]
         except KeyError:
@@ -920,6 +925,7 @@ class PsfontsMap:
         self._parsed[tfmname] = PsFont(
             texname=tfmname, psname=basename, effects=effects,
             encoding=encodingfile, filename=fontfile)
+        return True
 
 
 # Note: this function should ultimately replace the Encoding class, which

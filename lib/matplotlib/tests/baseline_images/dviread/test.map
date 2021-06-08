@@ -8,3 +8,6 @@ TeXfont6 PSfont6
 TeXfont7 PSfont7 < font7.enc
 TeXfont8 PSfont8 <<font8.pfb
 TeXfont9 </absolute/font9.pfb
+% Only the first of a duplicate key is used.
+TeXfontA PSfontA1
+TeXfontA PSfontA2
