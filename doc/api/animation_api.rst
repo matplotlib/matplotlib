@@ -148,9 +148,9 @@ function. ::
 
    xdata, ydata = [], []
    ani = FuncAnimation(
-   fig, partial(update, x=xdata, y=ydata),
-   frames=np.linspace(0, 2 * np.pi, 128),
-   init_func=init, blit=True)
+       fig, partial(update, x=xdata, y=ydata),
+       frames=np.linspace(0, 2 * np.pi, 128),
+       init_func=init, blit=True)
 
    plt.show()
 
