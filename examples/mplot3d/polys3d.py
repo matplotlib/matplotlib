@@ -11,43 +11,33 @@ of 'jagged stained glass' effect.
 from matplotlib.collections import PolyCollection
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.stats import poisson
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
 
-def polygon_under_graph(xlist, ylist):
+def polygon_under_graph(x, y):
     """
     Construct the vertex list which defines the polygon filling the space under
-    the (xlist, ylist) line graph.  Assumes the xs are in ascending order.
+    the (x, y) line graph. This assumes x is in ascending order.
     """
-    return [(xlist[0], 0.), *zip(xlist, ylist), (xlist[-1], 0.)]
+    return [(x[0], 0.), *zip(x, y), (x[-1], 0.)]
 
 
 ax = plt.figure().add_subplot(projection='3d')
 
-# Make verts a list such that verts[i] is a list of (x, y) pairs defining
-# polygon i.
-verts = []
+x = np.linspace(0., 10., 31)
+lambdas = range(1, 9)
 
-# Set up the x sequence
-xs = np.linspace(0., 10., 26)
+# verts[i] is a list of (x, y) pairs defining polygon i.
+verts = [polygon_under_graph(x, poisson.pmf(l, x)) for l in lambdas]
+facecolors = plt.get_cmap('viridis_r')(np.linspace(0, 1, len(verts)))
 
-# The ith polygon will appear on the plane y = zs[i]
-zs = range(4)
+poly = PolyCollection(verts, facecolors=facecolors, alpha=.7)
+ax.add_collection3d(poly, zs=lambdas, zdir='y')
 
-for i in zs:
-    ys = np.random.rand(len(xs))
-    verts.append(polygon_under_graph(xs, ys))
-
-poly = PolyCollection(verts, facecolors=['r', 'g', 'b', 'y'], alpha=.6)
-ax.add_collection3d(poly, zs=zs, zdir='y')
-
-ax.set_xlabel('X')
-ax.set_ylabel('Y')
-ax.set_zlabel('Z')
-ax.set_xlim(0, 10)
-ax.set_ylim(-1, 4)
-ax.set_zlim(0, 1)
+ax.set(xlim=(0, 10), ylim=(1, 9), zlim=(0, 0.35),
+       xlabel='x', ylabel=r'$\lambda$', zlabel='probability')
 
 plt.show()
