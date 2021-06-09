@@ -908,8 +908,6 @@ class PsfontsMap:
                     basename = unquoted
             elif quoted:
                 special = quoted
-        if basename is None:
-            basename = tfmname
         effects = {}
         if special:
             words = reversed(special.split())
@@ -918,6 +916,24 @@ class PsfontsMap:
                     effects["slant"] = float(next(words))
                 elif word == b"ExtendFont":
                     effects["extend"] = float(next(words))
+
+        # Verify some properties of the line that would cause it to be ignored
+        # otherwise.
+        is_t1 = False
+        if fontfile is not None:
+            if not fontfile.endswith((b".ttf", b".ttc", b".otf"):
+                is_t1 = True
+        elif basename is not None:
+            is_t1 = True
+        if not is_t1 and ("slant" in effects or "extend" in effects):
+            return
+        if abs(effects.get("slant", 0)) > 1:
+            return
+        if abs(effects.get("extend", 0)) > 2:
+            return
+
+        if basename is None:
+            basename = tfmname
         if encodingfile is not None and not encodingfile.startswith(b"/"):
             encodingfile = find_tex_file(encodingfile)
         if fontfile is not None and not fontfile.startswith(b"/"):

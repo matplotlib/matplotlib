@@ -28,7 +28,7 @@ def test_PsfontsMap(monkeypatch):
         else:
             assert entry.filename == b'font%d.pfb' % n
         if n == 4:
-            assert entry.effects == {'slant': -0.1, 'extend': 2.2}
+            assert entry.effects == {'slant': -0.1, 'extend': 1.2}
         else:
             assert entry.effects == {}
     # Some special cases
@@ -47,6 +47,9 @@ def test_PsfontsMap(monkeypatch):
     # First of duplicates only.
     entry = fontmap[b'TeXfontA']
     assert entry.psname == b'PSfontA1'
+    # Slant/Extend only works for T1 fonts.
+    entry = fontmap[b'TeXfontB']
+    assert entry.psname == b'PSfontB6'
     # Missing font
     with pytest.raises(KeyError, match='no-such-font'):
         fontmap[b'no-such-font']
