@@ -106,7 +106,7 @@ You can add arbitrary paths in Matplotlib using the
 Three-dimensional plotting
 ==========================
 
-The mplot3d toolkit (see :ref:`toolkit_mplot3d-tutorial` and
+The mplot3d toolkit (see :doc:`/tutorials/toolkits/mplot3d` and
 :ref:`mplot3d-examples-index`) has support for simple 3D graphs
 including surface, wireframe, scatter, and bar charts.
 

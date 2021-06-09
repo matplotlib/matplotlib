@@ -138,7 +138,7 @@ as 2D plotting, Ben Root has made several improvements to the
   improved to bring the class towards feature-parity with regular
   Axes objects
 
-* Documentation for :ref:`toolkit_mplot3d-tutorial` was significantly expanded
+* Documentation for :doc:`/tutorials/toolkits/mplot3d` was significantly expanded
 
 * Axis labels and orientation improved
 
