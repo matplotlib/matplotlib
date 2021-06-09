@@ -884,6 +884,7 @@ class PsfontsMap:
         if not line or line.startswith((b" ", b"%", b"*", b";", b"#")):
             return
         tfmname = basename = special = encodingfile = fontfile = None
+        is_subsetted = is_t1 = is_truetype = False
         matches = re.finditer(br'"([^"]*)(?:"|$)|(\S+)', line)
         for match in matches:
             quoted, unquoted = match.groups()
@@ -902,6 +903,7 @@ class PsfontsMap:
                         encodingfile = word
                     else:
                         fontfile = word
+                        is_subsetted = True
                 elif tfmname is None:
                     tfmname = unquoted
                 elif basename is None:
@@ -919,12 +921,15 @@ class PsfontsMap:
 
         # Verify some properties of the line that would cause it to be ignored
         # otherwise.
-        is_t1 = False
         if fontfile is not None:
-            if not fontfile.endswith((b".ttf", b".ttc", b".otf"):
+            if fontfile.endswith((b".ttf", b".ttc")):
+                is_truetype = True
+            elif not fontfile.endswith(b".otf"):
                 is_t1 = True
         elif basename is not None:
             is_t1 = True
+        if is_truetype and is_subsetted and encodingfile is None:
+            return
         if not is_t1 and ("slant" in effects or "extend" in effects):
             return
         if abs(effects.get("slant", 0)) > 1:

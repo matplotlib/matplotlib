@@ -15,12 +15,19 @@ TeXfontA PSfontA2
 % Check SlantFont/ExtendFont
 %
 % Options are only allowed on T1 fonts (3 TrueType, 1 bitmap, and 1 T1 below).
-TeXfontB PSfontB1 "-0.1 SlantFont 1.2 ExtendFont" <fontB1.ttf
-TeXfontB PSfontB2 "-0.1 SlantFont" <fontB1.ttc
-TeXfontB PSfontB3 "1.2 ExtendFont" <fontB1.otf
+TeXfontB PSfontB1 "-0.1 SlantFont 1.2 ExtendFont" <fontB1.enc <fontB1.ttf
+TeXfontB PSfontB2 "-0.1 SlantFont" <fontB2.enc <fontB2.ttc
+TeXfontB PSfontB3 "1.2 ExtendFont" <fontB3.enc <fontB3.otf
 TeXfontB "0.1 SlantFont 1.2 ExtendFont"
 % Also, only within range ±1 / ±2.
 TeXfontB PSfontB4 "1.1 SlantFont 1.2 ExtendFont"
 TeXfontB PSfontB5 "0.1 SlantFont 2.2 ExtendFont"
 % This is the only one that works:
 TeXfontB PSfontB6
+%
+% Invalid TrueType entry.
+%
+% Must have encodingfile if subsetted.
+TeXfontC PSfontC1 <fontC1.ttf
+TeXfontC PSfontC2 <fontC2.ttc
+TeXfontC PSfontC3 <fontC3.ttf <8r.enc

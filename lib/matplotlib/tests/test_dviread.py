@@ -50,6 +50,9 @@ def test_PsfontsMap(monkeypatch):
     # Slant/Extend only works for T1 fonts.
     entry = fontmap[b'TeXfontB']
     assert entry.psname == b'PSfontB6'
+    # Subsetted TrueType must have encoding.
+    entry = fontmap[b'TeXfontC']
+    assert entry.psname == b'PSfontC3'
     # Missing font
     with pytest.raises(KeyError, match='no-such-font'):
         fontmap[b'no-such-font']
