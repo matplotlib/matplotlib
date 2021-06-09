@@ -11,7 +11,9 @@ from matplotlib.testing.decorators import (
     image_comparison, remove_ticks_and_titles)
 
 from mpl_toolkits.axes_grid1 import (
-    axes_size as Size, host_subplot, make_axes_locatable, Grid, AxesGrid, ImageGrid)
+    axes_size as Size,
+    host_subplot, make_axes_locatable,
+    Grid, AxesGrid, ImageGrid)
 from mpl_toolkits.axes_grid1.anchored_artists import (
     AnchoredSizeBar, AnchoredDirectionArrows)
 from mpl_toolkits.axes_grid1.axes_divider import HBoxDivider
