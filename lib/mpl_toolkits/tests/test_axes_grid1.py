@@ -483,12 +483,12 @@ def test_grid_axes_lists():
     assert_array_equal(grid, np.ravel(grid.axes_column), "column")
 
 
-def test_grid_axes_position():
+@pytest.mark.parametrize('direction', ('row', 'column'))
+def test_grid_axes_position(direction):
     """Test positioning of the axes in Grid."""
     fig = plt.figure()
-    for dir in ("row", "column"):
-        grid = Grid(fig, 111, (2, 2), direction=dir)
-        loc = [ax.get_axes_locator() for ax in np.ravel(grid.axes_row)]
-        assert loc[1]._nx > loc[0]._nx and loc[2]._ny < loc[0]._ny, dir
-        assert loc[0]._nx == loc[2]._nx and loc[0]._ny == loc[1]._ny, dir
-        assert loc[3]._nx == loc[1]._nx and loc[3]._ny == loc[2]._ny, dir
+    grid = Grid(fig, 111, (2, 2), direction=direction)
+    loc = [ax.get_axes_locator() for ax in np.ravel(grid.axes_row)]
+    assert loc[1]._nx > loc[0]._nx and loc[2]._ny < loc[0]._ny
+    assert loc[0]._nx == loc[2]._nx and loc[0]._ny == loc[1]._ny
+    assert loc[3]._nx == loc[1]._nx and loc[3]._ny == loc[2]._ny
