@@ -8,12 +8,8 @@ Generating 3D plots using the mplot3d toolkit.
 .. currentmodule:: mpl_toolkits.mplot3d
 
 .. contents::
-      :backlinks: none
+   :backlinks: none
 
-.. _toolkit_mplot3d-tutorial:
-
-Getting started
----------------
 3D Axes (of class `.Axes3D`) are created by passing the ``projection="3d"``
 keyword argument to `.Figure.add_subplot`::
 
@@ -21,9 +17,16 @@ keyword argument to `.Figure.add_subplot`::
    fig = plt.figure()
    ax = fig.add_subplot(projection='3d')
 
+Multiple 3D subplots can be added on the same figure, as for 2D subplots.
+
+.. figure:: ../../gallery/mplot3d/images/sphx_glr_subplot3d_001.png
+   :target: ../../gallery/mplot3d/subplot3d.html
+   :align: center
+   :scale: 50
+
 .. versionchanged:: 1.0.0
-   Prior to Matplotlib 1.0.0, `.Axes3D` needed to be directly instantiated with
-   ``from mpl_toolkits.mplot3d import Axes3D; ax = Axes3D(fig)``.
+   Prior to Matplotlib 1.0.0, only a single `.Axes3D` could be created per
+   figure; it needed to be directly instantiated as ``ax = Axes3D(fig)``.
 
 .. versionchanged:: 3.2.0
    Prior to Matplotlib 3.2.0, it was necessary to explicitly import the
@@ -164,23 +167,6 @@ Text
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_text3d_001.png
    :target: ../../gallery/mplot3d/text3d.html
-   :align: center
-   :scale: 50
-
-.. _3dsubplots:
-
-Subplotting
-====================
-Having multiple 3D plots in a single figure is the same
-as it is for 2D plots. Also, you can have both 2D and 3D plots
-in the same figure.
-
-.. versionadded:: 1.0.0
-   Subplotting 3D plots was added in v1.0.0.  Earlier version can not
-   do this.
-
-.. figure:: ../../gallery/mplot3d/images/sphx_glr_subplot3d_001.png
-   :target: ../../gallery/mplot3d/subplot3d.html
    :align: center
    :scale: 50
 """
