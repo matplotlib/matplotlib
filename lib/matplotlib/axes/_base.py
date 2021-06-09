@@ -1566,11 +1566,16 @@ class _AxesBase(martist.Artist):
         self._get_patches_for_fill.set_prop_cycle(prop_cycle)
 
     def get_aspect(self):
+        """
+        Return the aspect ratio of the axes scaling.
+
+        This is either "auto" or a float giving the ratio of y/x-scale.
+        """
         return self._aspect
 
     def set_aspect(self, aspect, adjustable=None, anchor=None, share=False):
         """
-        Set the aspect of the axis scaling, i.e. the ratio of y-unit to x-unit.
+        Set the aspect ratio of the axes scaling, i.e. y/x-scale.
 
         Parameters
         ----------
@@ -1579,8 +1584,10 @@ class _AxesBase(martist.Artist):
 
             - 'auto': fill the position rectangle with data.
             - 'equal': same as ``aspect=1``, i.e. same scaling for x and y.
-            - *float*: A circle will be stretched such that the height
-              is *float* times the width.
+            - *float*: The displayed size of 1 unit in y-data coordinates will
+              be *aspect* times the displayed size of 1 unit in x-data
+              coordinates; e.g. for ``aspect=2`` a square in data coordinates
+              will be rendered with a height of twice its width.
 
         adjustable : None or {'box', 'datalim'}, optional
             If not ``None``, this defines which parameter will be adjusted to
