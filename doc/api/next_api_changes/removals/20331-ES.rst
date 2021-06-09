@@ -1,0 +1,63 @@
+``Axes.pie`` *radius*, *startangle*, and *normalize* parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing ``None`` as either the *radius* or *startangle* arguments of an
+`.Axes.pie` is no longer accepted; use the explicit defaults of 1 and 0,
+respectively, instead.
+
+Passing ``None`` as the *normalize* argument of `.Axes.pie` (the former
+default) is no longer accepted, and the pie will always be normalized by
+default. If you wish to plot an incomplete pie, explicitly pass
+``normalize=False``.
+
+Signatures of `.Artist.draw` and `.Axes.draw`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *inframe* parameter to `.Axes.draw` has been removed.  Use
+`.Axes.redraw_in_frame` instead.
+
+Omitting the *renderer* parameter to `.Axes.draw` is no longer supported.
+Use ``axes.draw_artist(axes)`` instead.
+
+These changes make the signature of the ``draw`` (``artist.draw(renderer)``)
+method consistent across all artists; thus, additional parameters to
+`.Artist.draw` have also been removed.
+
+``Axes.update_datalim_bounds``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This method has been removed.  Use
+``ax.dataLim.set(Bbox.union([ax.dataLim, bounds]))`` instead.
+
+``{,Symmetrical}LogScale.{,Inverted}LogTransform``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``LogScale.LogTransform``, ``LogScale.InvertedLogTransform``,
+``SymmetricalScale.SymmetricalTransform`` and
+``SymmetricalScale.InvertedSymmetricalTransform`` have been removed.  Directly
+access the transform classes from the `matplotlib.scale` module.
+
+log/symlog scale base, ticks, and nonpos specification
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`~.Axes.semilogx`, `~.Axes.semilogy`, `~.Axes.loglog`, `.LogScale`, and
+`.SymmetricalLogScale` used to take keyword arguments that depends on the axis
+orientation ("basex" vs "basey", "subsx" vs "subsy", "nonposx" vs "nonposy");
+these parameter names have been removed in favor of "base", "subs",
+"nonpositive".  This removal also affects e.g. ``ax.set_yscale("log",
+basey=...)`` which must now be spelled ``ax.set_yscale("log", base=...)``.
+
+The change from "nonpos" to "nonpositive" also affects `~.scale.LogTransform`,
+`~.scale.InvertedLogTransform`, `~.scale.SymmetricalLogTransform`, etc.
+
+To use *different* bases for the x-axis and y-axis of a `~.Axes.loglog` plot,
+use e.g. ``ax.set_xscale("log", base=10); ax.set_yscale("log", base=2)``.
+
+Implicit initialization of ``Tick`` attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `.Tick` constructor no longer initializes the attributes ``tick1line``,
+``tick2line``, ``gridline``, ``label1``, and ``label2`` via ``_get_tick1line``,
+``_get_tick2line``, ``_get_gridline``, ``_get_text1``, and ``_get_text2``.
+Please directly set the attribute in the subclass' ``__init__`` instead.
+
+Unused parameters
+~~~~~~~~~~~~~~~~~
+The following parameters do not have any effect and have been removed:
+
+- parameter *label* of `.Tick`

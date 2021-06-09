@@ -54,8 +54,7 @@ class Tick(martist.Artist):
         The right/top tick label.
 
     """
-    @_api.delete_parameter("3.3", "label")
-    def __init__(self, axes, loc, label=None,
+    def __init__(self, axes, loc, *,
                  size=None,  # points
                  width=None,
                  color=None,
@@ -175,18 +174,6 @@ class Tick(martist.Artist):
 
         self._apply_tickdir(tickdir)
 
-        for meth, attr in [("_get_tick1line", "tick1line"),
-                           ("_get_tick2line", "tick2line"),
-                           ("_get_gridline", "gridline"),
-                           ("_get_text1", "label1"),
-                           ("_get_text2", "label2")]:
-            overridden_method = _api.deprecate_method_override(
-                getattr(__class__, meth), self, since="3.3", message="Relying "
-                f"on {meth} to initialize Tick.{attr} is deprecated since "
-                f"%(since)s and will not work %(removal)s; please directly "
-                f"set the attribute in the subclass' __init__ instead.")
-            if overridden_method:
-                setattr(self, attr, overridden_method())
         for artist in [self.tick1line, self.tick2line, self.gridline,
                        self.label1, self.label2]:
             self._set_artist_props(artist)
