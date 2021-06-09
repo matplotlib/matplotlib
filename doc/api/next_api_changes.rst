@@ -1,20 +1,7 @@
 
-===========
-API Changes
-===========
-
-If updating Matplotlib breaks your scripts, this list may help you figure out
-what caused the breakage and how to fix it by updating your code.
-
-For API changes in older versions see
-
-.. toctree::
-   :maxdepth: 1
-
-   api_changes_old
-
-Changes for the latest version are listed below. For new features that were
-added to Matplotlib, see :ref:`whats-new`
+================
+Next API Changes
+================
 
 .. ifconfig:: releaselevel == 'dev'
 
@@ -37,6 +24,3 @@ added to Matplotlib, see :ref:`whats-new`
       next_api_changes/deprecations/*
       next_api_changes/development/*
       next_api_changes/removals/*
-
-.. include:: prev_api_changes/api_changes_3.4.2.rst
-.. include:: prev_api_changes/api_changes_3.4.0.rst

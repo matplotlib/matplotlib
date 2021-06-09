@@ -68,8 +68,6 @@ extensions = [
 
 exclude_patterns = [
     'api/prev_api_changes/api_changes_*/*',
-    # Be sure to update users/whats_new.rst:
-    'users/prev_whats_new/whats_new_3.4.0.rst',
 ]
 
 
