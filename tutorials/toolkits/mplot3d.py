@@ -44,8 +44,6 @@ Line plots
    :align: center
    :scale: 50
 
-   Lines3d
-
 .. _scatter3d:
 
 Scatter plots
@@ -56,8 +54,6 @@ Scatter plots
    :target: ../../gallery/mplot3d/scatter3d.html
    :align: center
    :scale: 50
-
-   Scatter3d
 
 .. _wireframe:
 
@@ -70,8 +66,6 @@ Wireframe plots
    :align: center
    :scale: 50
 
-   Wire3d
-
 .. _surface:
 
 Surface plots
@@ -82,12 +76,6 @@ Surface plots
    :target: ../../gallery/mplot3d/surface3d.html
    :align: center
    :scale: 50
-
-   Surface3d
-
-   Surface3d 2
-
-   Surface3d 3
 
 .. _trisurface:
 
@@ -100,9 +88,6 @@ Tri-Surface plots
    :align: center
    :scale: 50
 
-   Trisurf3d
-
-
 .. _contour3d:
 
 Contour plots
@@ -114,12 +99,6 @@ Contour plots
    :align: center
    :scale: 50
 
-   Contour3d
-
-   Contour3d 2
-
-   Contour3d 3
-
 .. _contourf3d:
 
 Filled contour plots
@@ -130,10 +109,6 @@ Filled contour plots
    :target: ../../gallery/mplot3d/contourf3d.html
    :align: center
    :scale: 50
-
-   Contourf3d
-
-   Contourf3d 2
 
 .. versionadded:: 1.1.0
    The feature demoed in the second contourf3d example was enabled as a
@@ -150,8 +125,6 @@ Polygon plots
    :align: center
    :scale: 50
 
-   Polys3d
-
 .. _bar3d:
 
 Bar plots
@@ -162,8 +135,6 @@ Bar plots
    :target: ../../gallery/mplot3d/bars3d.html
    :align: center
    :scale: 50
-
-   Bars3d
 
 .. _quiver3d:
 
@@ -176,8 +147,6 @@ Quiver
    :align: center
    :scale: 50
 
-   Quiver3d
-
 .. _2dcollections3d:
 
 2D plots in 3D
@@ -186,8 +155,6 @@ Quiver
    :target: ../../gallery/mplot3d/2dcollections3d.html
    :align: center
    :scale: 50
-
-   2dcollections3d
 
 .. _text3d:
 
@@ -199,8 +166,6 @@ Text
    :target: ../../gallery/mplot3d/text3d.html
    :align: center
    :scale: 50
-
-   Text3d
 
 .. _3dsubplots:
 
@@ -218,8 +183,4 @@ in the same figure.
    :target: ../../gallery/mplot3d/subplot3d.html
    :align: center
    :scale: 50
-
-   Subplot3d
-
-   Mixed Subplots
 """
