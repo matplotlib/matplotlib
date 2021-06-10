@@ -937,13 +937,10 @@ default: %(va)s
         self.stale = True
         self._localaxes.remove(ax)
 
-        last_ax = _break_share_link(ax, ax._shared_y_axes)
-        if last_ax is not None:
-            _reset_locators_and_formatters(last_ax.yaxis)
-
-        last_ax = _break_share_link(ax, ax._shared_x_axes)
-        if last_ax is not None:
-            _reset_locators_and_formatters(last_ax.xaxis)
+        for name in ax._axis_names:
+            last_ax = _break_share_link(ax, ax._shared_axes[name])
+            if last_ax is not None:
+                _reset_locators_and_formatters(getattr(last_ax, f"{name}axis"))
 
     # Note: in the docstring below, the newlines in the examples after the
     # calls to legend() allow replacing it with figlegend() to generate the

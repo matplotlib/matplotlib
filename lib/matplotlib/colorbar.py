@@ -519,8 +519,10 @@ class ColorbarBase:
         # also adds the outline path to self.outline spine:
         self._do_extends(extendlen)
 
-        self.ax.set_xlim(self.vmin, self.vmax)
-        self.ax.set_ylim(self.vmin, self.vmax)
+        # These calls must be done on inner_ax, not ax (even though they mostly
+        # share internals), because otherwise viewLim unstaling gets confused.
+        self.ax.inner_ax.set_xlim(self.vmin, self.vmax)
+        self.ax.inner_ax.set_ylim(self.vmin, self.vmax)
 
         # set up the tick locators and formatters.  A bit complicated because
         # boundary norms + uniform spacing requires a manual locator.
