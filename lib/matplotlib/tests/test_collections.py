@@ -734,7 +734,7 @@ def test_quadmesh_deprecated_signature(
     X += 0.2 * Y
     coords = np.stack([X, Y], axis=-1)
     assert coords.shape == (3, 4, 2)
-    C = np.linspace(0, 2, 12).reshape(3, 4)
+    C = np.linspace(0, 2, 6).reshape(2, 3)
 
     ax = fig_test.add_subplot()
     ax.set(xlim=(0, 5), ylim=(0, 4))
@@ -789,6 +789,32 @@ def test_quadmesh_deprecated_positional(fig_test, fig_ref):
     ax.add_collection(qmesh)
 
 
+def test_quadmesh_set_array_validation():
+    x = np.arange(11)
+    y = np.arange(8)
+    z = np.random.random((7, 10))
+    fig, ax = plt.subplots()
+    coll = ax.pcolormesh(x, y, z)
+
+    # Test deprecated warning when faulty shape is passed.
+    with pytest.warns(MatplotlibDeprecationWarning):
+        coll.set_array(z.reshape(10, 7))
+
+    z = np.arange(54).reshape((6, 9))
+    with pytest.raises(TypeError, match=r"Dimensions of A \(6, 9\) "
+                       r"are incompatible with X \(11\) and/or Y \(8\)"):
+        coll.set_array(z)
+    with pytest.raises(TypeError, match=r"Dimensions of A \(54,\) "
+                       r"are incompatible with X \(11\) and/or Y \(8\)"):
+        coll.set_array(z.ravel())
+
+    x = np.arange(10)
+    y = np.arange(7)
+    z = np.random.random((7, 10))
+    fig, ax = plt.subplots()
+    coll = ax.pcolormesh(x, y, z, shading='gouraud')
+
+
 def test_quadmesh_get_coordinates():
     x = [0, 1, 2]
     y = [2, 4, 6]
@@ -816,6 +842,19 @@ def test_quadmesh_set_array():
     coll.set_array(np.ones(9))
     fig.canvas.draw()
     assert np.array_equal(coll.get_array(), np.ones(9))
+
+    z = np.arange(16).reshape((4, 4))
+    fig, ax = plt.subplots()
+    coll = ax.pcolormesh(x, y, np.ones(z.shape), shading='gouraud')
+    # Test that the collection is able to update with a 2d array
+    coll.set_array(z)
+    fig.canvas.draw()
+    assert np.array_equal(coll.get_array(), z)
+
+    # Check that pre-flattened arrays work too
+    coll.set_array(np.ones(16))
+    fig.canvas.draw()
+    assert np.array_equal(coll.get_array(), np.ones(16))
 
 
 def test_quadmesh_vmin_vmax():
