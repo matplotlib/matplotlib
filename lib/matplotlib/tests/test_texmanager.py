@@ -30,6 +30,11 @@ def test_fontconfig_preamble():
          r"\usepackage{chancery}", r"\rmfamily"),
         ({"font.family": "monospace", "font.monospace": "courier"},
          r"\usepackage{courier}", r"\ttfamily"),
+        ({"font.family": "helvetica"}, r"\usepackage{helvet}", r"\sffamily"),
+        ({"font.family": "palatino"}, r"\usepackage{mathpazo}", r"\rmfamily"),
+        ({"font.family": "zapf chancery"},
+         r"\usepackage{chancery}", r"\rmfamily"),
+        ({"font.family": "courier"}, r"\usepackage{courier}", r"\ttfamily")
     ])
 def test_font_selection(rc, preamble, family):
     plt.rcParams.update(rc)

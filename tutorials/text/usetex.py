@@ -51,6 +51,27 @@ matplotlibrc use::
       "font.family": "serif",
       "font.serif": ["Palatino"],
   })
+  # It's also possible to use the reduced notation by directly setting font.family:
+  plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "Helvetica"
+  })
+
+Currently, the supported fonts are:
+
+================= ============================================================
+family            fonts
+================= ============================================================
+``'serif'``         ``'New Century Schoolbook'``, ``'Bookman'``, ``'Times'``,
+                    ``'Palatino'``, ``'Charter'``, ``'Computer Moderm Roman'``
+
+``'sans-serif'``  ``'Helvetica'``, ``'Avant Garde'``, ``'Computer Modern
+                  Serif'``
+
+``'cursive'``     ``'Zapf Chancery'``
+
+``'monospace'``   ``'Courier'``, ``'Computer Modern Typewriter'``
+================= ============================================================
 
 Here is the standard example,
 :doc:`/gallery/text_labels_and_annotations/tex_demo`:

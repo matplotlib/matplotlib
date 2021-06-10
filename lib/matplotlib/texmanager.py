@@ -68,6 +68,13 @@ class TexManager:
         'computer modern roman': ('cmr', r'\usepackage{type1ec}'),
         'computer modern sans serif': ('cmss', r'\usepackage{type1ec}'),
         'computer modern typewriter': ('cmtt', r'\usepackage{type1ec}')}
+    _font_types = {
+        'new century schoolbook': 'serif', 'bookman': 'serif',
+        'times': 'serif', 'palatino': 'serif', 'charter': 'serif',
+        'computer modern roman': 'serif', 'zapf chancery': 'cursive',
+        'helvetica': 'sans-serif', 'avant garde': 'sans-serif',
+        'computer modern sans serif': 'sans-serif',
+        'courier': 'monospace', 'computer modern typewriter': 'monospace'}
 
     grey_arrayd = _api.deprecate_privatize_attribute("3.5")
     font_family = _api.deprecate_privatize_attribute("3.5")
@@ -81,8 +88,13 @@ class TexManager:
 
     def get_font_config(self):
         ff = rcParams['font.family']
-        if len(ff) == 1 and ff[0].lower() in self._font_families:
-            self._font_family = ff[0].lower()
+        ff_val = ff[0].lower() if len(ff) == 1 else None
+        reduced_notation = False
+        if len(ff) == 1 and ff_val in self._font_families:
+            self._font_family = ff_val
+        elif len(ff) == 1 and ff_val in self._font_info:
+            reduced_notation = True
+            self._font_family = self._font_types[ff_val]
         else:
             _log.info('font.family must be one of (%s) when text.usetex is '
                       'True. serif will be used by default.',
@@ -92,19 +104,24 @@ class TexManager:
         fontconfig = [self._font_family]
         fonts = {}
         for font_family in self._font_families:
-            for font in rcParams['font.' + font_family]:
-                if font.lower() in self._font_info:
-                    fonts[font_family] = self._font_info[font.lower()]
-                    _log.debug(
-                        'family: %s, font: %s, info: %s',
-                        font_family, font, self._font_info[font.lower()])
-                    break
-                else:
-                    _log.debug('%s font is not compatible with usetex.', font)
+            if reduced_notation and self._font_family == font_family:
+                fonts[font_family] = self._font_info[ff_val]
             else:
-                _log.info('No LaTeX-compatible font found for the %s font '
-                          'family in rcParams. Using default.', font_family)
-                fonts[font_family] = self._font_info[font_family]
+                for font in rcParams['font.' + font_family]:
+                    if font.lower() in self._font_info:
+                        fonts[font_family] = self._font_info[font.lower()]
+                        _log.debug(
+                            'family: %s, font: %s, info: %s',
+                            font_family, font, self._font_info[font.lower()])
+                        break
+                    else:
+                        _log.debug('%s font is not compatible with usetex.',
+                                   font)
+                else:
+                    _log.info('No LaTeX-compatible font found for the %s font'
+                              'family in rcParams. Using default.',
+                              font_family)
+                    fonts[font_family] = self._font_info[font_family]
             fontconfig.append(fonts[font_family][0])
         # Add a hash of the latex preamble to fontconfig so that the
         # correct png is selected for strings rendered with same font and dpi
