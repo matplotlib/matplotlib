@@ -23,13 +23,16 @@ head or anchor points need to be fixed in data or display space:
 3. Entire patch fixed in data space
 
 Below each use case is presented in turn.
+
+.. redirect-from:: /gallery/text_labels_and_annotations/arrow_simple_demo
 """
+
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 x_tail = 0.1
-y_tail = 0.1
+y_tail = 0.5
 x_head = 0.9
-y_head = 0.9
+y_head = 0.8
 dx = x_head - x_tail
 dy = y_head - y_tail
 
@@ -54,8 +57,7 @@ axs[0].add_patch(arrow)
 arrow = mpatches.FancyArrowPatch((x_tail, y_tail), (x_head, y_head),
                                  mutation_scale=100)
 axs[1].add_patch(arrow)
-axs[1].set_xlim(0, 2)
-axs[1].set_ylim(0, 2)
+axs[1].set(xlim=(0, 2), ylim=(0, 2))
 
 ###############################################################################
 # Head shape and anchor points fixed in display space
@@ -81,28 +83,42 @@ arrow = mpatches.FancyArrowPatch((x_tail, y_tail), (x_head, y_head),
                                  mutation_scale=100,
                                  transform=axs[1].transAxes)
 axs[1].add_patch(arrow)
-axs[1].set_xlim(0, 2)
-axs[1].set_ylim(0, 2)
+axs[1].set(xlim=(0, 2), ylim=(0, 2))
 
 
 ###############################################################################
 # Head shape and anchor points fixed in data space
 # ------------------------------------------------
 #
-# In this case we use `.patches.Arrow`.
+# In this case we use `.patches.Arrow`, or `.patches.FancyArrow` (the latter is
+# in orange).
 #
 # Note that when the axis limits are changed, the arrow shape and location
 # change.
+#
+# `.FancyArrow`'s API is relatively awkward, and requires in particular passing
+# ``length_includes_head=True`` so that the arrow *tip* is ``(dx, dy)`` away
+# from the arrow start.  It is only included in this reference because it is
+# the arrow class returned by `.Axes.arrow` (in green).
 
 fig, axs = plt.subplots(nrows=2)
 
 arrow = mpatches.Arrow(x_tail, y_tail, dx, dy)
 axs[0].add_patch(arrow)
+arrow = mpatches.FancyArrow(x_tail, y_tail - .4, dx, dy,
+                            width=.1, length_includes_head=True, color="C1")
+axs[0].add_patch(arrow)
+axs[0].arrow(x_tail + 1, y_tail - .4, dx, dy,
+             width=.1, length_includes_head=True, color="C2")
 
 arrow = mpatches.Arrow(x_tail, y_tail, dx, dy)
 axs[1].add_patch(arrow)
-axs[1].set_xlim(0, 2)
-axs[1].set_ylim(0, 2)
+arrow = mpatches.FancyArrow(x_tail, y_tail - .4, dx, dy,
+                            width=.1, length_includes_head=True, color="C1")
+axs[1].add_patch(arrow)
+axs[1].arrow(x_tail + 1, y_tail - .4, dx, dy,
+             width=.1, length_includes_head=True, color="C2")
+axs[1].set(xlim=(0, 2), ylim=(0, 2))
 
 ###############################################################################
 
