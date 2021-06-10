@@ -1406,6 +1406,5 @@ def test_norm_deepcopy():
     norm = mcolors.Normalize()
     norm.vmin = 0.0002
     norm2 = copy.deepcopy(norm)
-    assert isinstance(norm2._scale, mscale.LinearScale)
+    assert norm2._scale is None
     assert norm2.vmin == norm.vmin
-    assert norm2._scale is not norm._scale
