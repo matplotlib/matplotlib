@@ -52,3 +52,4 @@ Functions
    is_color_like
    same_color
    get_named_colors_mapping
+   make_norm_from_scale
