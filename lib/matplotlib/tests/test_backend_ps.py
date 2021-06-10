@@ -68,6 +68,8 @@ def test_savefig_to_stringio(format, use_log, rcParams, orientation):
         except tuple(allowable_exceptions) as exc:
             pytest.skip(str(exc))
 
+        assert not s_buf.closed
+        assert not b_buf.closed
         s_val = s_buf.getvalue().encode('ascii')
         b_val = b_buf.getvalue()
 
