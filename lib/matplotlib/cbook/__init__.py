@@ -2211,6 +2211,10 @@ def _make_class_factory(mixin_class, fmt, attr_name=None):
 
     @functools.lru_cache(None)
     def class_factory(axes_class):
+        # if we have already wrapped this class, declare victory!
+        if issubclass(axes_class, mixin_class):
+            return axes_class
+
         # The parameter is named "axes_class" for backcompat but is really just
         # a base class; no axes semantics are used.
         base_class = axes_class
