@@ -175,6 +175,7 @@ def subplot_class_factory(axes_class=None):
             "is deprecated since %(since)s; explicitly pass the default Axes "
             "class instead. This will become an error %(removal)s.")
         axes_class = Axes
+
     try:
         # Avoid creating two different instances of GeoAxesSubplot...
         # Only a temporary backcompat fix.  This should be removed in
@@ -182,6 +183,10 @@ def subplot_class_factory(axes_class=None):
         return next(cls for cls in SubplotBase.__subclasses__()
                     if cls.__bases__ == (SubplotBase, axes_class))
     except StopIteration:
+        # if we have already wrapped this class, declare victory!
+        if issubclass(axes_class, SubplotBase):
+            return axes_class
+
         return type("%sSubplot" % axes_class.__name__,
                     (SubplotBase, axes_class),
                     {'_axes_class': axes_class})
