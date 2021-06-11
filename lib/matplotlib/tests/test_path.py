@@ -410,12 +410,12 @@ def test_path_intersect_path(phi):
     b = transform.transform_path(Path([(0, 1), (0, 2), (0, 5)]))
     assert a.intersects_path(b) and b.intersects_path(a)
 
-    # test added to adress issue #20328
+    # a and b are collinear but do not intersect
     a = transform.transform_path(Path([(1, -1), (0, -1)]))
     b = transform.transform_path(Path([(0, 1), (0.9, 1)]))
     assert not a.intersects_path(b) and not b.intersects_path(a)
 
-    # test added to adress issue #20328
+    # a and b are collinear but do not intersect
     a = transform.transform_path(Path([(0., -5.), (1., -5.)]))
     b = transform.transform_path(Path([(1., 5.), (0., 5.)]))
     assert not a.intersects_path(b) and not b.intersects_path(a)
