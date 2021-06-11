@@ -426,8 +426,12 @@ class RendererPgf(RendererBase):
                             fill=rgbFace is not None)
         writeln(self.fh, r"}")
 
+        maxcoord = 16383 / 72.27 * self.dpi  # Max dimensions in LaTeX.
+        clip = (-maxcoord, -maxcoord, maxcoord, maxcoord)
+
         # draw marker for each vertex
-        for point, code in path.iter_segments(trans, simplify=False):
+        for point, code in path.iter_segments(trans, simplify=False,
+                                              clip=clip):
             x, y = point[0] * f, point[1] * f
             writeln(self.fh, r"\begin{pgfscope}")
             writeln(self.fh, r"\pgfsys@transformshift{%fin}{%fin}" % (x, y))
@@ -564,11 +568,13 @@ class RendererPgf(RendererBase):
         f = 1. / self.dpi
         # check for clip box / ignore clip for filled paths
         bbox = gc.get_clip_rectangle() if gc else None
+        maxcoord = 16383 / 72.27 * self.dpi  # Max dimensions in LaTeX.
         if bbox and (rgbFace is None):
             p1, p2 = bbox.get_points()
-            clip = (p1[0], p1[1], p2[0], p2[1])
+            clip = (max(p1[0], -maxcoord), max(p1[1], -maxcoord),
+                    min(p2[0], maxcoord), min(p2[1], maxcoord))
         else:
-            clip = None
+            clip = (-maxcoord, -maxcoord, maxcoord, maxcoord)
         # build path
         for points, code in path.iter_segments(transform, clip=clip):
             if code == Path.MOVETO:
