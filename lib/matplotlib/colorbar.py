@@ -274,7 +274,9 @@ class ColorbarAxes(Axes):
         self.outer_ax.set_yticks = self.inner_ax.set_yticks
         for attr in ["get_position", "set_position", "set_aspect"]:
             setattr(self, attr, getattr(self.outer_ax, attr))
+        self._colorbar_info = None  # used for mpl-created axes
         if userax:
+            self._colorbar_info = 'user'
             # point the parent's methods all at this axes...
             parent.__dict__ = self.__dict__
 
@@ -1487,6 +1489,15 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
     fig = parent.get_figure()
     cax = fig.add_subplot(ss_cb, label="<colorbar>")
     cax.set_aspect(aspect, anchor=loc_settings["anchor"], adjustable='box')
+    cax._colorbar_info = dict(
+        location=location,
+        parents=[parent],
+        shrink=shrink,
+        anchor=anchor,
+        panchor=panchor,
+        fraction=fraction,
+        aspect=aspect,
+        pad=pad)
     return cax, kw
 
 
