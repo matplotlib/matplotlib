@@ -1,7 +1,9 @@
 """
-======================
-plot([X], Y, [fmt]...)
-======================
+==========
+plot(X, Y)
+==========
+
+See `~matplotlib.axes.Axes.plot`.
 """
 
 import matplotlib.pyplot as plt

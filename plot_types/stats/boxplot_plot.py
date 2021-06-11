@@ -1,7 +1,9 @@
 """
-==============
-boxplot(X,...)
-==============
+==========
+boxplot(X)
+==========
+
+See `~matplotlib.axes.Axes.boxplot`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

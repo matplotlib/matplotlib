@@ -1,7 +1,9 @@
 """
-========================
-streamplot([X, Y], U, V)
-========================
+======================
+streamplot(X, Y, U, V)
+======================
+
+See `~matplotlib.axes.Axes.streamplot`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

@@ -1,7 +1,9 @@
 """
-=================
-stem([x], y, ...)
-=================
+==========
+stem(x, y)
+==========
+
+See `~matplotlib.axes.Axes.stem`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

@@ -1,7 +1,9 @@
 """
-==================================
-hist2d(x, y, [(xbins, ybins)],...)
-==================================
+============
+hist2d(x, y)
+============
+
+See `~matplotlib.axes.Axes.hist2d`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

@@ -1,7 +1,9 @@
 """
-=================
-eventplot(D, ...)
-=================
+============
+eventplot(D)
+============
+
+See `~matplotlib.axes.Axes.eventplot`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

@@ -1,7 +1,7 @@
 """
-===================================
-pcolormesh([X, Y], Z, [cmap=], ...)
-===================================
+===================
+pcolormesh(X, Y, Z)
+===================
 
 `~.axes.Axes.pcolormesh` is more flexible than `~.axes.Axes.imshow` in that
 the x and y vectors need not be equally spaced (indeed they can be skewed).

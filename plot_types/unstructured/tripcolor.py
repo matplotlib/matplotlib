@@ -2,6 +2,8 @@
 ==================
 tripcolor(x, y, z)
 ==================
+
+See `~matplotlib.axes.Axes.tripcolor`.
 """
 import matplotlib.pyplot as plt
 import numpy as np
