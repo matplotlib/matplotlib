@@ -922,12 +922,6 @@ class PsfontsMap:
             encoding=encodingfile, filename=fontfile)
 
 
-# Note: this function should ultimately replace the Encoding class, which
-# appears to be mostly broken: because it uses b''.join(), there is no
-# whitespace left between glyph names (only slashes) so the final re.findall
-# returns a single string with all glyph names.  However this does not appear
-# to bother backend_pdf, so that needs to be investigated more.  (The fixed
-# version below is necessary for textpath/backend_svg, though.)
 def _parse_enc(path):
     r"""
     Parses a \*.enc file referenced from a psfonts.map style file.
