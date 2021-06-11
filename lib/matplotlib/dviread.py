@@ -260,8 +260,8 @@ class Dvi:
         for elt in self.text + self.boxes:
             if isinstance(elt, Box):
                 x, y, h, w = elt
-                e = 0           # zero depth
-            else:               # glyph
+                e = 0  # zero depth
+            else:  # glyph
                 x, y, font, g, w = elt
                 h, e = font._height_depth_of(g)
             minx = min(minx, x)
@@ -1053,14 +1053,19 @@ if __name__ == '__main__':
     with Dvi(args.filename, args.dpi) as dvi:
         fontmap = PsfontsMap(find_tex_file('pdftex.map'))
         for page in dvi:
-            print('=== new page ===')
+            print(f"=== new page === "
+                  f"(w: {page.width}, h: {page.height}, d: {page.descent})")
             for font, group in itertools.groupby(
                     page.text, lambda text: text.font):
-                print('font', font.texname, 'scaled', font._scale / 2 ** 20)
+                print(f"font: {font.texname.decode('latin-1')!r}\t"
+                      f"scale: {font._scale / 2 ** 20}")
+                print("x", "y", "glyph", "chr", "w", "(glyphs)", sep="\t")
                 for text in group:
                     print(text.x, text.y, text.glyph,
                           chr(text.glyph) if chr(text.glyph).isprintable()
                           else ".",
-                          text.width)
-            for x, y, w, h in page.boxes:
-                print(x, y, 'BOX', w, h)
+                          text.width, sep="\t")
+            if page.boxes:
+                print("x", "y", "w", "h", "", "(boxes)", sep="\t")
+                for x, y, w, h in page.boxes:
+                    print(x, y, w, h, sep="\t")
