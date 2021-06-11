@@ -716,7 +716,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         image = str(cbook._get_data_path('images/matplotlib.png'))
         dia = SubplotToolQt(self.canvas.figure, self.canvas.parent())
         dia.setWindowIcon(QtGui.QIcon(image))
-        dia.exec_()
+        dia.show()
 
     def save_figure(self, *args):
         filetypes = self.canvas.get_supported_filetypes_grouped()
@@ -820,7 +820,7 @@ class SubplotToolQt(QtWidgets.QDialog):
             QtGui.QFontMetrics(text.document().defaultFont())
             .size(0, text.toPlainText()).height() + 20)
         text.setMaximumSize(size)
-        dialog.exec_()
+        dialog.show()
 
     def _on_value_changed(self):
         spinboxes = self._spinboxes
