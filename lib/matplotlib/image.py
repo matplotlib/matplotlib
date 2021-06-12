@@ -695,8 +695,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         if (self._A.dtype != np.uint8 and
                 not np.can_cast(self._A.dtype, float, "same_kind")):
-            raise TypeError("Image data of dtype {} cannot be converted to "
-                            "float".format(self._A.dtype))
+            raise TypeError("Image data of dtype {} cannot be converted to 'float'"
+                            .format(self._A.dtype))
 
         if self._A.ndim == 3 and self._A.shape[-1] == 1:
             # If just one dimension assume scalar and apply colormap
