@@ -4727,6 +4727,9 @@ default: :rc:`scatter.edgecolors`
 
             %(PolyCollection:kwdoc)s
 
+        See Also
+        --------
+        hist2d : 2D histogram rectangular bins
         """
         self._process_unit_info([("x", x), ("y", y)], kwargs, convert=False)
 
@@ -6622,7 +6625,8 @@ such objects
 
         See Also
         --------
-        hist2d : 2D histograms
+        hist2d : 2D histogram with rectangular bins
+        hexbin : 2D histogram with hexagonal bins
 
         Notes
         -----
@@ -7065,6 +7069,7 @@ such objects
         See Also
         --------
         hist : 1D histogram plotting
+        hexbin : 2D histogram with hexagonal bins
 
         Notes
         -----
