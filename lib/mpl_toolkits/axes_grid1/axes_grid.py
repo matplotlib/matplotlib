@@ -98,7 +98,8 @@ class Grid:
             If not None, only the first *ngrids* axes in the grid are created.
         direction : {"row", "column"}, default: "row"
             Whether axes are created in row-major ("row by row") or
-            column-major order ("column by column").
+            column-major order ("column by column").  This also affects the
+            order in which axes are accessed using indexing (``grid[index]``).
         axes_pad : float or (float, float), default: 0.02
             Padding or (horizontal padding, vertical padding) between axes, in
             inches.
@@ -166,7 +167,8 @@ class Grid:
                 sharey = axes_array[row, 0] if share_y else None
             axes_array[row, col] = axes_class(
                 fig, rect, sharex=sharex, sharey=sharey)
-        self.axes_all = axes_array.ravel().tolist()
+        self.axes_all = axes_array.ravel(
+            order="C" if self._direction == "row" else "F").tolist()
         self.axes_column = axes_array.T.tolist()
         self.axes_row = axes_array.tolist()
         self.axes_llc = self.axes_column[0][-1]

@@ -22,8 +22,6 @@ curved coordinate systems.
    :align: center
    :scale: 50
 
-   Demo Floating Axis
-
 Since it uses special artists, some Matplotlib commands that work on
 Axes.xaxis and Axes.yaxis may not work.
 
@@ -70,8 +68,6 @@ For example, you can hide the right and top spines using::
    :align: center
    :scale: 50
 
-   Simple Axisline3
-
 It is also possible to add a horizontal axis. For example, you may have an
 horizontal axis at y=0 (in data coordinate). ::
 
@@ -81,8 +77,6 @@ horizontal axis at y=0 (in data coordinate). ::
    :target: ../../gallery/axisartist/simple_axisartist1.html
    :align: center
    :scale: 50
-
-   Simple Axisartist1
 
 Or a fixed axis with some offset ::
 
@@ -108,8 +102,6 @@ Here is an example that uses ParasiteAxes.
    :align: center
    :scale: 50
 
-   Demo Parasite Axes2
-
 Curvilinear Grid
 ----------------
 
@@ -121,8 +113,6 @@ and ticks.
    :align: center
    :scale: 50
 
-   Demo CurveLinear Grid
-
 Floating Axes
 -------------
 
@@ -133,8 +123,6 @@ floating axis.
    :target: ../../gallery/axisartist/demo_floating_axes.html
    :align: center
    :scale: 50
-
-   Demo Floating Axes
 
 axisartist namespace
 ====================
@@ -168,8 +156,6 @@ In summary, all these changes was to support
    :target: ../../gallery/axisartist/demo_floating_axis.html
    :align: center
    :scale: 50
-
-   Demo Floating Axis
 
 *mpl_toolkits.axisartist.Axes* class defines a *axis* attribute, which
 is a dictionary of AxisArtist instances. By default, the dictionary
@@ -333,8 +319,6 @@ using "set_axis_direction" method. ::
    :align: center
    :scale: 50
 
-   Simple Axis Direction01
-
 The parameter for set_axis_direction is one of ["left", "right",
 "bottom", "top"].
 
@@ -387,8 +371,6 @@ direction can be more clear with curved axis.
    :align: center
    :scale: 50
 
-   Demo Axis Direction
-
 The axis_direction can be adjusted in the AxisArtist level, or in the
 level of its child artists, i.e., ticks, ticklabels, and axis-label. ::
 
@@ -420,8 +402,6 @@ default direction). ::
    :target: ../../gallery/axisartist/simple_axis_direction03.html
    :align: center
    :scale: 50
-
-   Simple Axis Direction03
 
 So, in summary,
 
@@ -459,8 +439,6 @@ Alignment of TickLabels are treated specially. See below
    :align: center
    :scale: 50
 
-   Demo Ticklabel Alignment
-
 Adjusting pad
 -------------
 
@@ -476,8 +454,6 @@ Or ticklabels and axis-label ::
    :target: ../../gallery/axisartist/simple_axis_pad.html
    :align: center
    :scale: 50
-
-   Simple Axis Pad
 
 GridHelper
 ==========
@@ -565,8 +541,6 @@ coordinates, or you may use Parasite Axes for convenience.::
    :target: ../../gallery/axisartist/demo_curvelinear_grid.html
    :align: center
    :scale: 50
-
-   Demo CurveLinear Grid
 
 FloatingAxis
 ============

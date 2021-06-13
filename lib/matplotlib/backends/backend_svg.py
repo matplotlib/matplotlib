@@ -1,8 +1,9 @@
 import base64
+import codecs
 import datetime
 import gzip
 import hashlib
-from io import BytesIO, StringIO, TextIOWrapper
+from io import BytesIO, StringIO
 import itertools
 import logging
 import os
@@ -1310,23 +1311,12 @@ class FigureCanvasSVG(FigureCanvasBase):
             __ DC_
         """
         with cbook.open_file_cm(filename, "w", encoding="utf-8") as fh:
-
             filename = getattr(fh, 'name', '')
             if not isinstance(filename, str):
                 filename = ''
-
-            if cbook.file_requires_unicode(fh):
-                detach = False
-            else:
-                fh = TextIOWrapper(fh, 'utf-8')
-                detach = True
-
+            if not cbook.file_requires_unicode(fh):
+                fh = codecs.getwriter('utf-8')(fh)
             self._print_svg(filename, fh, **kwargs)
-
-            # Detach underlying stream from wrapper so that it remains open in
-            # the caller.
-            if detach:
-                fh.detach()
 
     @_api.delete_parameter("3.5", "args")
     def print_svgz(self, filename, *args, **kwargs):

@@ -1005,24 +1005,34 @@ class ColorbarBase:
         self.locator = None
         self.minorlocator = None
         self.formatter = None
-        if ((self.spacing == 'uniform') and
-            ((self.boundaries is not None) or
-              isinstance(self.norm, colors.BoundaryNorm))):
-            funcs = (self._forward_boundaries, self._inverse_boundaries)
-            self.ax.set_xscale('function', functions=funcs)
-            self.ax.set_yscale('function', functions=funcs)
-            self.__scale = 'function'
-        elif hasattr(self.norm, '_scale') and (self.norm._scale is not None):
+        if (self.boundaries is not None or
+                isinstance(self.norm, colors.BoundaryNorm)):
+            if self.spacing == 'uniform':
+                funcs = (self._forward_boundaries, self._inverse_boundaries)
+                self.ax.set_xscale('function', functions=funcs)
+                self.ax.set_yscale('function', functions=funcs)
+                self.__scale = 'function'
+            elif self.spacing == 'proportional':
+                self.__scale = 'linear'
+                self.ax.set_xscale('linear')
+                self.ax.set_yscale('linear')
+        elif hasattr(self.norm, '_scale') and self.norm._scale is not None:
+            # use the norm's scale:
             self.ax.set_xscale(self.norm._scale)
             self.ax.set_yscale(self.norm._scale)
             self.__scale = self.norm._scale.name
-        else:
+        elif type(self.norm) is colors.Normalize:
+            # plain Normalize:
             self.ax.set_xscale('linear')
             self.ax.set_yscale('linear')
-            if type(self.norm) is colors.Normalize:
-                self.__scale = 'linear'
-            else:
-                self.__scale = 'manual'
+            self.__scale = 'linear'
+        else:
+            # norm._scale is None or not an attr: derive the scale from
+            # the Norm:
+            funcs = (self.norm, self.norm.inverse)
+            self.ax.set_xscale('function', functions=funcs)
+            self.ax.set_yscale('function', functions=funcs)
+            self.__scale = 'function'
 
     def _locate(self, x):
         """

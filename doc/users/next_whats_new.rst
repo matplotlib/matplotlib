@@ -1,8 +1,8 @@
 .. _whats-new:
 
-===========
-What's new?
-===========
+================
+Next what's new?
+================
 
 .. ifconfig:: releaselevel == 'dev'
 
@@ -24,6 +24,3 @@ What's new?
       :maxdepth: 1
 
       next_whats_new/*
-
-.. Be sure to update the version in `exclude_patterns` in conf.py.
-.. include:: prev_whats_new/whats_new_3.4.0.rst

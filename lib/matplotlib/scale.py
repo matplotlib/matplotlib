@@ -202,7 +202,6 @@ class FuncScale(ScaleBase):
 class LogTransform(Transform):
     input_dims = output_dims = 1
 
-    @_api.rename_parameter("3.3", "nonpos", "nonpositive")
     def __init__(self, base, nonpositive='clip'):
         super().__init__()
         if base <= 0 or base == 1:
@@ -264,17 +263,7 @@ class LogScale(ScaleBase):
     """
     name = 'log'
 
-    @_api.deprecated("3.3", alternative="scale.LogTransform")
-    @property
-    def LogTransform(self):
-        return LogTransform
-
-    @_api.deprecated("3.3", alternative="scale.InvertedLogTransform")
-    @property
-    def InvertedLogTransform(self):
-        return InvertedLogTransform
-
-    def __init__(self, axis, **kwargs):
+    def __init__(self, axis, *, base=10, subs=None, nonpositive="clip"):
         """
         Parameters
         ----------
@@ -290,18 +279,6 @@ class LogScale(ScaleBase):
             in a log10 scale, ``[2, 3, 4, 5, 6, 7, 8, 9]`` will place 8
             logarithmically spaced minor ticks between each major tick.
         """
-        # After the deprecation, the whole (outer) __init__ can be replaced by
-        # def __init__(self, axis, *, base=10, subs=None, nonpositive="clip")
-        # The following is to emit the right warnings depending on the axis
-        # used, as the *old* kwarg names depended on the axis.
-        axis_name = getattr(axis, "axis_name", "x")
-        @_api.rename_parameter("3.3", f"base{axis_name}", "base")
-        @_api.rename_parameter("3.3", f"subs{axis_name}", "subs")
-        @_api.rename_parameter("3.3", f"nonpos{axis_name}", "nonpositive")
-        def __init__(*, base=10, subs=None, nonpositive="clip"):
-            return base, subs, nonpositive
-
-        base, subs, nonpositive = __init__(**kwargs)
         self._transform = LogTransform(base, nonpositive)
         self.subs = subs
 
@@ -460,28 +437,7 @@ class SymmetricalLogScale(ScaleBase):
     """
     name = 'symlog'
 
-    @_api.deprecated("3.3", alternative="scale.SymmetricalLogTransform")
-    @property
-    def SymmetricalLogTransform(self):
-        return SymmetricalLogTransform
-
-    @_api.deprecated(
-        "3.3", alternative="scale.InvertedSymmetricalLogTransform")
-    @property
-    def InvertedSymmetricalLogTransform(self):
-        return InvertedSymmetricalLogTransform
-
-    def __init__(self, axis, **kwargs):
-        axis_name = getattr(axis, "axis_name", "x")
-        # See explanation in LogScale.__init__.
-        @_api.rename_parameter("3.3", f"base{axis_name}", "base")
-        @_api.rename_parameter("3.3", f"linthresh{axis_name}", "linthresh")
-        @_api.rename_parameter("3.3", f"subs{axis_name}", "subs")
-        @_api.rename_parameter("3.3", f"linscale{axis_name}", "linscale")
-        def __init__(*, base=10, linthresh=2, subs=None, linscale=1):
-            return base, linthresh, subs, linscale
-
-        base, linthresh, subs, linscale = __init__(**kwargs)
+    def __init__(self, axis, *, base=10, linthresh=2, subs=None, linscale=1):
         self._transform = SymmetricalLogTransform(base, linthresh, linscale)
         self.subs = subs
 
@@ -505,7 +461,6 @@ class SymmetricalLogScale(ScaleBase):
 class LogitTransform(Transform):
     input_dims = output_dims = 1
 
-    @_api.rename_parameter("3.3", "nonpos", "nonpositive")
     def __init__(self, nonpositive='mask'):
         super().__init__()
         _api.check_in_list(['mask', 'clip'], nonpositive=nonpositive)
@@ -531,7 +486,6 @@ class LogitTransform(Transform):
 class LogisticTransform(Transform):
     input_dims = output_dims = 1
 
-    @_api.rename_parameter("3.3", "nonpos", "nonpositive")
     def __init__(self, nonpositive='mask'):
         super().__init__()
         self._nonpositive = nonpositive
@@ -556,7 +510,6 @@ class LogitScale(ScaleBase):
     """
     name = 'logit'
 
-    @_api.rename_parameter("3.3", "nonpos", "nonpositive")
     def __init__(self, axis, nonpositive='mask', *,
                  one_half=r"\frac{1}{2}", use_overline=False):
         r"""

@@ -248,10 +248,6 @@ class ThetaLocator(mticker.Locator):
         else:
             return np.deg2rad(self.base())
 
-    @_api.deprecated("3.3")
-    def pan(self, numsteps):
-        return self.base.pan(numsteps)
-
     def refresh(self):
         # docstring inherited
         return self.base.refresh()
@@ -259,10 +255,6 @@ class ThetaLocator(mticker.Locator):
     def view_limits(self, vmin, vmax):
         vmin, vmax = np.rad2deg((vmin, vmax))
         return np.deg2rad(self.base.view_limits(vmin, vmax))
-
-    @_api.deprecated("3.3")
-    def zoom(self, direction):
-        return self.base.zoom(direction)
 
 
 class ThetaTick(maxis.XTick):
@@ -438,19 +430,6 @@ class RadialLocator(mticker.Locator):
                 if self._axes.get_rmin() <= rorigin:
                     return [tick for tick in self.base() if tick > rorigin]
         return self.base()
-
-    @_api.deprecated("3.3")
-    def pan(self, numsteps):
-        return self.base.pan(numsteps)
-
-    @_api.deprecated("3.3")
-    def zoom(self, direction):
-        return self.base.zoom(direction)
-
-    @_api.deprecated("3.3")
-    def refresh(self):
-        # docstring inherited
-        return self.base.refresh()
 
     def nonsingular(self, vmin, vmax):
         # docstring inherited
@@ -953,9 +932,7 @@ class PolarAxes(Axes):
             pad_shift = _ThetaShift(self, pad, 'min')
         return self._yaxis_text_transform + pad_shift, 'center', halign
 
-    @_api.delete_parameter("3.3", "args")
-    @_api.delete_parameter("3.3", "kwargs")
-    def draw(self, renderer, *args, **kwargs):
+    def draw(self, renderer):
         self._unstale_viewLim()
         thetamin, thetamax = np.rad2deg(self._realViewLim.intervalx)
         if thetamin > thetamax:
@@ -999,7 +976,7 @@ class PolarAxes(Axes):
             self.yaxis.reset_ticks()
             self.yaxis.set_clip_path(self.patch)
 
-        super().draw(renderer, *args, **kwargs)
+        super().draw(renderer)
 
     def _gen_axes_patch(self):
         return mpatches.Wedge((0.5, 0.5), 0.5, 0.0, 360.0)
