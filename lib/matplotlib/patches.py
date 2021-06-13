@@ -2195,7 +2195,7 @@ class _Style:
             table_formatstr,
             '',
         ])
-        return textwrap.indent(rst_table, prefix=' ' * 2)
+        return textwrap.indent(rst_table, prefix=' ' * 4)
 
     @classmethod
     def register(cls, name, style):
