@@ -3151,7 +3151,6 @@ class ArrowStyle(_Style):
         value indicating the path is open therefore is not fillable.  This
         class is not an artist and actual drawing of the fancy arrow is
         done by the FancyArrowPatch class.
-
         """
 
         # The derived classes are required to be able to be initialized
@@ -3161,10 +3160,11 @@ class ArrowStyle(_Style):
         @staticmethod
         def ensure_quadratic_bezier(path):
             """
-            Some ArrowStyle class only works with a simple quadratic Bezier
-            curve (created with Arc3Connection or Angle3Connector). This static
-            method is to check if the provided path is a simple quadratic
-            Bezier curve and returns its control points if true.
+            Some ArrowStyle classes only works with a simple quadratic
+            Bezier curve (created with `.ConnectionStyle.Arc3` or
+            `.ConnectionStyle.Angle3`). This static method checks if the
+            provided path is a simple quadratic Bezier curve and returns its
+            control points if true.
             """
             segments = list(path.iter_segments())
             if (len(segments) != 2 or segments[0][1] != Path.MOVETO or
