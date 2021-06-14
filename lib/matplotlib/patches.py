@@ -4354,17 +4354,15 @@ default: 'arc3'
                 else 1)  # backcompat.
 
     def get_path(self):
-        """
-        Return the path of the arrow in the data coordinates. Use
-        get_path_in_displaycoord() method to retrieve the arrow path
-        in display coordinates.
-        """
-        _path, fillable = self.get_path_in_displaycoord()
+        """Return the path of the arrow in the data coordinates."""
+        # The path is generated in display coordinates, then converted back to
+        # data coordinates.
+        _path, fillable = self._get_path_in_displaycoord()
         if np.iterable(fillable):
             _path = Path.make_compound_path(*_path)
         return self.get_transform().inverted().transform_path(_path)
 
-    def get_path_in_displaycoord(self):
+    def _get_path_in_displaycoord(self):
         """Return the mutated path of the arrow in display coordinates."""
         dpi_cor = self._dpi_cor
 
@@ -4389,6 +4387,10 @@ default: 'arc3'
 
         return _path, fillable
 
+    get_path_in_displaycoord = _api.deprecate_privatize_attribute(
+        "3.5",
+        alternative="self.get_transform().transform_path(self.get_path())")
+
     def draw(self, renderer):
         if not self.get_visible():
             return
@@ -4396,11 +4398,11 @@ default: 'arc3'
         with self._bind_draw_path_function(renderer) as draw_path:
 
             # FIXME : dpi_cor is for the dpi-dependency of the linewidth. There
-            # could be room for improvement.  Maybe get_path_in_displaycoord
+            # could be room for improvement.  Maybe _get_path_in_displaycoord
             # could take a renderer argument, but get_path should be adapted
             # too.
             self._dpi_cor = renderer.points_to_pixels(1.)
-            path, fillable = self.get_path_in_displaycoord()
+            path, fillable = self._get_path_in_displaycoord()
 
             if not np.iterable(fillable):
                 path = [path]
@@ -4612,7 +4614,7 @@ class ConnectionPatch(FancyArrowPatch):
         """
         return self._annotation_clip
 
-    def get_path_in_displaycoord(self):
+    def _get_path_in_displaycoord(self):
         """Return the mutated path of the arrow in display coordinates."""
         dpi_cor = self._dpi_cor
         posA = self._get_xy(self.xy1, self.coords1, self.axesA)
