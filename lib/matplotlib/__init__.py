@@ -85,7 +85,6 @@ import atexit
 from collections import namedtuple
 from collections.abc import MutableMapping
 import contextlib
-from distutils.version import LooseVersion
 import functools
 import importlib
 import inspect
@@ -103,6 +102,7 @@ import tempfile
 import warnings
 
 import numpy
+from packaging.version import parse as parse_version
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
@@ -165,9 +165,9 @@ def _check_versions():
             ("pyparsing", "2.2.1"),
     ]:
         module = importlib.import_module(modname)
-        if LooseVersion(module.__version__) < minver:
-            raise ImportError("Matplotlib requires {}>={}; you have {}"
-                              .format(modname, minver, module.__version__))
+        if parse_version(module.__version__) < parse_version(minver):
+            raise ImportError(f"Matplotlib requires {modname}>={minver}; "
+                              f"you have {module.__version__}")
 
 
 _check_versions()
@@ -274,8 +274,7 @@ def _get_executable_info(name):
     -------
     tuple
         A namedtuple with fields ``executable`` (`str`) and ``version``
-        (`distutils.version.LooseVersion`, or ``None`` if the version cannot be
-        determined).
+        (`packaging.Version`, or ``None`` if the version cannot be determined).
 
     Raises
     ------
@@ -305,8 +304,8 @@ def _get_executable_info(name):
             raise ExecutableNotFoundError(str(_ose)) from _ose
         match = re.search(regex, output)
         if match:
-            version = LooseVersion(match.group(1))
-            if min_ver is not None and version < min_ver:
+            version = parse_version(match.group(1))
+            if min_ver is not None and version < parse_version(min_ver):
                 raise ExecutableNotFoundError(
                     f"You have {args[0]} version {version} but the minimum "
                     f"version supported by Matplotlib is {min_ver}")
@@ -367,7 +366,7 @@ def _get_executable_info(name):
         else:
             path = "convert"
         info = impl([path, "--version"], r"^Version: ImageMagick (\S*)")
-        if info.version == "7.0.10-34":
+        if info.version == parse_version("7.0.10-34"):
             # https://github.com/ImageMagick/ImageMagick/issues/2720
             raise ExecutableNotFoundError(
                 f"You have ImageMagick {info.version}, which is unsupported")
@@ -375,9 +374,10 @@ def _get_executable_info(name):
     elif name == "pdftops":
         info = impl(["pdftops", "-v"], "^pdftops version (.*)",
                     ignore_exit_code=True)
-        if info and not ("3.0" <= info.version
-                         # poppler version numbers.
-                         or "0.9" <= info.version <= "1.0"):
+        if info and not (
+                3 <= info.version.major or
+                # poppler version numbers.
+                parse_version("0.9") <= info.version < parse_version("1.0")):
             raise ExecutableNotFoundError(
                 f"You have pdftops version {info.version} but the minimum "
                 f"version supported by Matplotlib is 3.0")

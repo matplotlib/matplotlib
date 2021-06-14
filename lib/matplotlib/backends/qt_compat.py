@@ -11,10 +11,11 @@ The selection logic is as follows:
 - otherwise, use whatever the rcParams indicate.
 """
 
-from distutils.version import LooseVersion
 import os
 import platform
 import sys
+
+from packaging.version import parse as parse_version
 
 import matplotlib as mpl
 
@@ -102,8 +103,8 @@ else:  # We should not get there.
 # Fixes issues with Big Sur
 # https://bugreports.qt.io/browse/QTBUG-87014, fixed in qt 5.15.2
 if (sys.platform == 'darwin' and
-        LooseVersion(platform.mac_ver()[0]) >= LooseVersion("10.16") and
-        LooseVersion(QtCore.qVersion()) < LooseVersion("5.15.2") and
+        parse_version(platform.mac_ver()[0]) >= parse_version("10.16") and
+        parse_version(QtCore.qVersion()) < parse_version("5.15.2") and
         "QT_MAC_WANTS_LAYER" not in os.environ):
     os.environ["QT_MAC_WANTS_LAYER"] = "1"
 

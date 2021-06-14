@@ -29,6 +29,7 @@ import subprocess
 from tempfile import TemporaryDirectory
 
 import numpy as np
+from packaging.version import parse as parse_version
 
 import matplotlib as mpl
 from matplotlib import _api, cbook, dviread, rcParams
@@ -270,8 +271,9 @@ class TexManager:
             # dvipng 1.16 has a bug (fixed in f3ff241) that breaks --freetype0
             # mode, so for it we keep FreeType enabled; the image will be
             # slightly off.
+            bad_ver = parse_version("1.16")
             if (getattr(mpl, "_called_from_pytest", False)
-                    and mpl._get_executable_info("dvipng").version != "1.16"):
+                    and mpl._get_executable_info("dvipng").version != bad_ver):
                 cmd.insert(1, "--freetype0")
             self._run_checked_subprocess(cmd, tex)
         return pngfile
