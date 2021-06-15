@@ -5,6 +5,7 @@ A PostScript backend, which can produce both PostScript .ps and .eps.
 import codecs
 import datetime
 from enum import Enum
+import functools
 import glob
 from io import StringIO
 import logging
@@ -39,8 +40,7 @@ from . import _backend_pdf_ps
 _log = logging.getLogger(__name__)
 
 backend_version = 'Level II'
-
-debugPS = 0
+debugPS = False
 
 
 class PsBackendHelper:
@@ -214,6 +214,20 @@ FontName currentdict end definefont pop
     return preamble + "\n".join(entries) + postamble
 
 
+def _log_if_debug_on(meth):
+    """
+    Wrap `RendererPS` method *meth* to emit a PS comment with the method name,
+    if the global flag `debugPS` is set.
+    """
+    @functools.wraps(meth)
+    def wrapper(self, *args, **kwargs):
+        if debugPS:
+            self._pswriter.write(f"% {meth.__name__}\n")
+        return meth(self, *args, **kwargs)
+
+    return wrapper
+
+
 class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
     """
     The renderer handles all the drawing primitives using a graphics
@@ -254,11 +268,9 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
 
     def set_color(self, r, g, b, store=True):
         if (r, g, b) != self.color:
-            if r == g and r == b:
-                self._pswriter.write("%1.3f setgray\n" % r)
-            else:
-                self._pswriter.write(
-                    "%1.3f %1.3f %1.3f setrgbcolor\n" % (r, g, b))
+            self._pswriter.write(f"{r:1.3f} setgray\n"
+                                 if r == g == b else
+                                 f"{r:1.3f} {g:1.3f} {b:1.3f} setrgbcolor\n")
             if store:
                 self.color = (r, g, b)
 
@@ -301,11 +313,9 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             if np.array_equal(seq, oldseq) and oldo == offset:
                 return
 
-        if seq is not None and len(seq):
-            s = "[%s] %d setdash\n" % (_nums_to_str(*seq), offset)
-            self._pswriter.write(s)
-        else:
-            self._pswriter.write("[] 0 setdash\n")
+        self._pswriter.write(f"[{_nums_to_str(*seq)}] {offset:d} setdash\n"
+                             if seq is not None and len(seq) else
+                             "[] 0 setdash\n")
         if store:
             self.linedash = (offset, seq)
 
@@ -389,6 +399,7 @@ newpath
             clip.append(f"{custom_clip_cmd}\n")
         return "".join(clip)
 
+    @_log_if_debug_on
     def draw_image(self, gc, x, y, im, transform=None):
         # docstring inherited
 
@@ -431,6 +442,7 @@ currentfile DataString readhexstring pop
 grestore
 """)
 
+    @_log_if_debug_on
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
         clip = rgbFace is None and gc.get_hatch_path() is None
@@ -438,12 +450,10 @@ grestore
         ps = self._convert_path(path, transform, clip=clip, simplify=simplify)
         self._draw_ps(ps, gc, rgbFace)
 
+    @_log_if_debug_on
     def draw_markers(
             self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
         # docstring inherited
-
-        if debugPS:
-            self._pswriter.write('% draw_markers \n')
 
         ps_color = (
             None
@@ -493,6 +503,7 @@ grestore
         ps = '\n'.join(ps_cmd)
         self._draw_ps(ps, gc, rgbFace, fill=False, stroke=False)
 
+    @_log_if_debug_on
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offsetTrans, facecolors, edgecolors,
                              linewidths, linestyles, antialiaseds, urls,
@@ -537,6 +548,7 @@ translate
 
         self._path_collection_id += 1
 
+    @_log_if_debug_on
     def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         # docstring inherited
         if not hasattr(self, "psfrag"):
@@ -573,11 +585,9 @@ grestore
 """)
         self.textcnt += 1
 
+    @_log_if_debug_on
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited
-
-        if debugPS:
-            self._pswriter.write("% text\n")
 
         if _is_transparent(gc.get_rgb()):
             return  # Special handling for fully transparent.
@@ -630,11 +640,9 @@ gsave
 grestore
 """)
 
+    @_log_if_debug_on
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """Draw the math text using matplotlib.mathtext."""
-        if debugPS:
-            self._pswriter.write("% mathtext\n")
-
         width, height, descent, glyphs, rects = \
             self._text2path.mathtext_parser.parse(
                 s, 72, prop,
@@ -661,10 +669,12 @@ grestore
             self._pswriter.write(f"{ox} {oy} {w} {h} rectfill\n")
         self._pswriter.write("grestore\n")
 
+    @_log_if_debug_on
     def draw_gouraud_triangle(self, gc, points, colors, trans):
         self.draw_gouraud_triangles(gc, points.reshape((1, 3, 2)),
                                     colors.reshape((1, 3, 4)), trans)
 
+    @_log_if_debug_on
     def draw_gouraud_triangles(self, gc, points, colors, trans):
         assert len(points) == len(colors)
         assert points.ndim == 3
@@ -708,20 +718,16 @@ shfill
 grestore
 """)
 
-    def _draw_ps(self, ps, gc, rgbFace, fill=True, stroke=True, command=None):
+    def _draw_ps(self, ps, gc, rgbFace, *, fill=True, stroke=True):
         """
-        Emit the PostScript snippet 'ps' with all the attributes from 'gc'
-        applied.  'ps' must consist of PostScript commands to construct a path.
+        Emit the PostScript snippet *ps* with all the attributes from *gc*
+        applied.  *ps* must consist of PostScript commands to construct a path.
 
-        The fill and/or stroke kwargs can be set to False if the
-        'ps' string already includes filling and/or stroking, in
-        which case _draw_ps is just supplying properties and
-        clipping.
+        The *fill* and/or *stroke* kwargs can be set to False if the *ps*
+        string already includes filling and/or stroking, in which case
+        `_draw_ps` is just supplying properties and clipping.
         """
-        # local variable eliminates all repeated attribute lookups
         write = self._pswriter.write
-        if debugPS and command:
-            write("% "+command+"\n")
         mightstroke = (gc.get_linewidth() > 0
                        and not _is_transparent(gc.get_rgb()))
         if not mightstroke:
@@ -740,7 +746,6 @@ grestore
 
         write(self._get_clip_cmd(gc))
 
-        # Jochen, is the strip necessary? - this could be a honking big string
         write(ps.strip())
         write("\n")
 
