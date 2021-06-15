@@ -19,8 +19,6 @@ def pytest_configure(config):
         ("markers", "pytz: Tests that require pytz to be installed."),
         ("markers", "network: Tests that reach out to the network."),
         ("filterwarnings", "error"),
-        ("filterwarnings",
-         "ignore:.*The py23 module has been deprecated:DeprecationWarning"),
     ]:
         config.addinivalue_line(key, value)
 
