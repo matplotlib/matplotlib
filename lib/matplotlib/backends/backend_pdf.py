@@ -8,20 +8,17 @@ import codecs
 from datetime import datetime
 from enum import Enum
 from functools import total_ordering
-from io import BytesIO
 import itertools
 import logging
 import math
 import os
 import re
 import struct
-import tempfile
 import time
 import types
 import warnings
 import zlib
 
-from fontTools import subset
 import numpy as np
 from PIL import Image
 
@@ -1213,7 +1210,7 @@ end"""
 
             print(f"SUBSET {filename} characters: "
                   f"{''.join(chr(c) for c in characters)}")
-            fontdata = self.getSubset(
+            fontdata = _backend_pdf_ps.getSubset(
                 filename,
                 ''.join(chr(c) for c in characters)
             )
@@ -1405,28 +1402,6 @@ end"""
             return embedTTFType3(font, characters, descriptor)
         elif fonttype == 42:
             return embedTTFType42(font, characters, descriptor)
-
-    @classmethod
-    def getSubset(self, fontfile, characters):
-        """
-        Subset a TTF font
-
-        Reads the named fontfile and restricts the font to the characters.
-        Returns a serialization of the subset font as bytes.
-        """
-
-        options = subset.Options(glyph_names=True, recommended_glyphs=True)
-        options.drop_tables += ['FFTM']
-        font = subset.load_font(fontfile, options)
-        try:
-            subsetter = subset.Subsetter(options=options)
-            subsetter.populate(text=characters)
-            subsetter.subset(font)
-            fh = BytesIO()
-            font.save(fh, reorderTables=False)
-            return fh.getvalue()
-        finally:
-            font.close()
 
     def alphaState(self, alpha):
         """Return name of an ExtGState that sets alpha to the given value."""

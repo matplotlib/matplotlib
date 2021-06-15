@@ -7,7 +7,7 @@ import datetime
 from enum import Enum
 import functools
 import glob
-from io import BytesIO, StringIO, TextIOWrapper
+from io import StringIO, TextIOWrapper
 import logging
 import math
 import os
@@ -18,7 +18,6 @@ import shutil
 from tempfile import TemporaryDirectory
 import time
 
-from fontTools import subset
 import numpy as np
 
 import matplotlib as mpl
@@ -960,7 +959,7 @@ class FigureCanvasPS(FigureCanvasBase):
                                 f"SUBSET {font_path} characters: "
                                 f"{''.join(chr(c) for c in chars)}"
                             )
-                            fontdata = getSubset(
+                            fontdata = _backend_pdf_ps.getSubset(
                                 font_path, "".join(chr(c) for c in chars)
                             )
                             _log.debug(
