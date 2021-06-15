@@ -805,7 +805,6 @@ class MarkerStyle:
         self._transform = Affine2D()
         self._snap_threshold = 5.0
         self._joinstyle = JoinStyle.miter
-        fs = self.get_fillstyle()
         if not self._half_fill():
             self._path = self._plus_filled_path
         else:
