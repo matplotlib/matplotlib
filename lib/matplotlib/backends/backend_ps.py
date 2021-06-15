@@ -965,7 +965,7 @@ class FigureCanvasPS(FigureCanvasBase):
                             _log.debug(
                                 f"SUBSET {font_path} "
                                 f"{os.stat(font_path).st_size} "
-                                f"↦ {len(fontdata)}"
+                                f"↦ {fontdata.getbuffer().nbytes}"
                             )
 
                             # give ttconv a subsetted font
@@ -973,12 +973,14 @@ class FigureCanvasPS(FigureCanvasBase):
                             with tempfile.NamedTemporaryFile(
                                 suffix=".ttf"
                             ) as tmp:
-                                tmp.write(fontdata)
-                                tmp.seek(0, 0)
-                                font = FT2Font(tmp.name)
+                                font = FT2Font(fontdata)
                                 glyph_ids = [
                                     font.get_char_index(c) for c in chars
                                 ]
+                                tmp.write(fontdata.getvalue())
+                                tmp.seek(0, 0)
+                                # TODO: allow convert_ttf_to_ps
+                                # to input file objects (BytesIO)
                                 convert_ttf_to_ps(
                                     os.fsencode(tmp.name),
                                     fh,

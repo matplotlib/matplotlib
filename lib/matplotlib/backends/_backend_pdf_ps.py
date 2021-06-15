@@ -19,12 +19,12 @@ def _cached_get_afm_from_fname(fname):
         return AFM(fh)
 
 
-def getSubset(self, fontfile, characters):
+def getSubset(fontfile, characters):
     """
     Subset a TTF font
 
     Reads the named fontfile and restricts the font to the characters.
-    Returns a serialization of the subset font as bytes.
+    Returns a serialization of the subset font as file-like object.
     """
 
     options = subset.Options(glyph_names=True, recommended_glyphs=True)
@@ -36,7 +36,7 @@ def getSubset(self, fontfile, characters):
         subsetter.subset(font)
         fh = BytesIO()
         font.save(fh, reorderTables=False)
-        return fh.getvalue()
+        return fh
     finally:
         font.close()
 

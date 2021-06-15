@@ -8,6 +8,7 @@ import codecs
 from datetime import datetime
 from enum import Enum
 from functools import total_ordering
+from io import BytesIO
 import itertools
 import logging
 import math
@@ -1208,22 +1209,19 @@ end"""
             wObject = self.reserveObject('Type 0 widths')
             toUnicodeMapObject = self.reserveObject('ToUnicode map')
 
-            print(f"SUBSET {filename} characters: "
-                  f"{''.join(chr(c) for c in characters)}")
+            _log.debug(f"SUBSET {filename} characters: "
+                       f"{''.join(chr(c) for c in characters)}")
             fontdata = _backend_pdf_ps.getSubset(
                 filename,
                 ''.join(chr(c) for c in characters)
             )
-            print(f'SUBSET {filename} {os.stat(filename).st_size}'
-                  f' ↦ {len(fontdata)}')
+            _log.debug(f'SUBSET {filename} {os.stat(filename).st_size}'
+                       f' ↦ {fontdata.getbuffer().nbytes}')
 
             # reload the font object from the subset
             # (all the necessary data could probably be obtained directly
             # using fontLib.ttLib)
-            with tempfile.NamedTemporaryFile(suffix='.ttf') as tmp:
-                tmp.write(fontdata)
-                tmp.seek(0, 0)
-                font = FT2Font(tmp.name)
+            font = FT2Font(fontdata)
 
             cidFontDict = {
                 'Type': Name('Font'),
@@ -1252,8 +1250,8 @@ end"""
             self.beginStream(
                 fontfileObject.id,
                 self.reserveObject('length of font stream'),
-                {'Length1': len(fontdata)})
-            self.currentstream.write(fontdata)
+                {'Length1': fontdata.getbuffer().nbytes})
+            self.currentstream.write(fontdata.getvalue())
             self.endStream()
 
             # Make the 'W' (Widths) array, CidToGidMap and ToUnicode CMap
