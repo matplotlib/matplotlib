@@ -462,6 +462,7 @@ class Patch3DCollection(PatchCollection):
             xs = []
             ys = []
         self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
+        self._z_markers_idx = slice(-1)
         self._vzs = None
         self.stale = True
 
