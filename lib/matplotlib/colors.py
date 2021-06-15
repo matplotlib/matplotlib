@@ -1272,9 +1272,8 @@ class TwoSlopeNorm(Normalize):
             array([0., 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
         """
 
+        super().__init__(vmin=vmin, vmax=vmax)
         self.vcenter = vcenter
-        self.vmin = vmin
-        self.vmax = vmax
         if vcenter is not None and vmax is not None and vcenter >= vmax:
             raise ValueError('vmin, vcenter, and vmax must be in '
                              'ascending order')
@@ -1353,12 +1352,10 @@ class CenteredNorm(Normalize):
             >>> norm(data)
             array([0.25, 0.5 , 1.  ])
         """
+        super().__init__(vmin=None, vmax=None, clip=clip)
         self._vcenter = vcenter
-        self.vmin = None
-        self.vmax = None
         # calling the halfrange setter to set vmin and vmax
         self.halfrange = halfrange
-        self.clip = clip
 
     def _set_vmin_vmax(self):
         """
@@ -1696,9 +1693,7 @@ class BoundaryNorm(Normalize):
         """
         if clip and extend != 'neither':
             raise ValueError("'clip=True' is not compatible with 'extend'")
-        self.clip = clip
-        self.vmin = boundaries[0]
-        self.vmax = boundaries[-1]
+        super().__init__(vmin=boundaries[0], vmax=boundaries[-1], clip=clip)
         self.boundaries = np.asarray(boundaries)
         self.N = len(self.boundaries)
         if self.N < 2:
