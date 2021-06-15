@@ -939,9 +939,9 @@ class PsfontsMap:
 
         if basename is None:
             basename = tfmname
-        if encodingfile is not None and not encodingfile.startswith(b"/"):
+        if encodingfile is not None:
             encodingfile = find_tex_file(encodingfile)
-        if fontfile is not None and not fontfile.startswith(b"/"):
+        if fontfile is not None:
             fontfile = find_tex_file(fontfile)
         self._parsed[tfmname] = PsFont(
             texname=tfmname, psname=basename, effects=effects,
