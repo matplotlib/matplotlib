@@ -1,5 +1,4 @@
 from collections import namedtuple
-from contextlib import nullcontext
 import datetime
 from decimal import Decimal
 import io
@@ -536,14 +535,6 @@ def test_basic_annotate():
                 xytext=(3, 3), textcoords='offset points')
 
 
-def test_annotate_parameter_warn():
-    fig, ax = plt.subplots()
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match=r"The \'s\' parameter of annotate\(\) "
-                             "has been renamed \'text\'"):
-        ax.annotate(s='now named text', xy=(0, 1))
-
-
 @image_comparison(['arrow_simple.png'], remove_text=True)
 def test_arrow_simple():
     # Simple image test for ax.arrow
@@ -896,16 +887,13 @@ def test_imshow_clip():
     ax.imshow(r, clip_path=clip_path)
 
 
-@check_figures_equal(extensions=["png"])
-def test_imshow_norm_vminvmax(fig_test, fig_ref):
-    """Parameters vmin, vmax should be ignored if norm is given."""
+def test_imshow_norm_vminvmax():
+    """Parameters vmin, vmax should error if norm is given."""
     a = [[1, 2], [3, 4]]
-    ax = fig_ref.subplots()
-    ax.imshow(a, vmin=0, vmax=5)
-    ax = fig_test.subplots()
-    with pytest.warns(MatplotlibDeprecationWarning,
-                      match="Passing parameters norm and vmin/vmax "
-                            "simultaneously is deprecated."):
+    ax = plt.axes()
+    with pytest.raises(ValueError,
+                       match="Passing parameters norm and vmin/vmax "
+                             "simultaneously is not supported."):
         ax.imshow(a, norm=mcolors.Normalize(-10, 10), vmin=0, vmax=5)
 
 
@@ -2259,16 +2247,13 @@ class TestScatter:
         ax = fig_ref.subplots()
         ax.scatter([0, 2], [0, 2], c=[1, 2], s=[1, 3], cmap=cmap)
 
-    @check_figures_equal(extensions=["png"])
-    def test_scatter_norm_vminvmax(self, fig_test, fig_ref):
-        """Parameters vmin, vmax should be ignored if norm is given."""
+    def test_scatter_norm_vminvmax(self):
+        """Parameters vmin, vmax should error if norm is given."""
         x = [1, 2, 3]
-        ax = fig_ref.subplots()
-        ax.scatter(x, x, c=x, vmin=0, vmax=5)
-        ax = fig_test.subplots()
-        with pytest.warns(MatplotlibDeprecationWarning,
-                          match="Passing parameters norm and vmin/vmax "
-                                "simultaneously is deprecated."):
+        ax = plt.axes()
+        with pytest.raises(ValueError,
+                           match="Passing parameters norm and vmin/vmax "
+                                 "simultaneously is not supported."):
             ax.scatter(x, x, c=x, norm=mcolors.Normalize(-10, 10),
                        vmin=0, vmax=5)
 
@@ -4112,15 +4097,12 @@ def test_empty_eventplot():
 
 
 @pytest.mark.parametrize('data', [[[]], [[], [0, 1]], [[0, 1], []]])
-@pytest.mark.parametrize(
-    'orientation', ['_empty', 'vertical', 'horizontal', None, 'none'])
+@pytest.mark.parametrize('orientation', [None, 'vertical', 'horizontal'])
 def test_eventplot_orientation(data, orientation):
     """Introduced when fixing issue #6412."""
-    opts = {} if orientation == "_empty" else {'orientation': orientation}
+    opts = {} if orientation is None else {'orientation': orientation}
     fig, ax = plt.subplots(1, 1)
-    with (pytest.warns(MatplotlibDeprecationWarning)
-          if orientation in [None, 'none'] else nullcontext()):
-        ax.eventplot(data, **opts)
+    ax.eventplot(data, **opts)
     plt.draw()
 
 

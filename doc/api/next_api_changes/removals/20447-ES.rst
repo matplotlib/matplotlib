@@ -28,3 +28,23 @@ Use its more explicit synonym, ``which="major"``, instead.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 All parameters of `.pyplot.tight_layout` are now keyword-only, to be consistent
 with `.Figure.tight_layout`.
+
+Parameters *norm* and *vmin*/*vmax* may not be used simultaneously
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing parameters *norm* and *vmin*/*vmax* simultaneously to functions using
+colormapping such as ``scatter()`` and ``imshow()`` is no longer supported.
+Instead of ``norm=LogNorm(), vmin=min_val, vmax=max_val`` pass
+``norm=LogNorm(min_val, max_val)``. *vmin* and *vmax* should only be used
+without setting *norm*.
+
+`.Axes.annotate` and `.pyplot.annotate` parameter name changed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The parameter *s* to `.Axes.annotate` and  `.pyplot.annotate` has previously
+been renamed to *text*, matching `.Annotation`. The old parameter name is no
+longer supported.
+
+*orientation* of ``eventplot()`` and `.EventCollection`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Setting the *orientation* of an ``eventplot()`` or `.EventCollection` to "none"
+or None is no longer supported; set it to "horizontal" instead.  Moreover, the two
+orientations ("horizontal" and "vertical") are now case-sensitive.
