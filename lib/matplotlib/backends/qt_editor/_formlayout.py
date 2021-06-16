@@ -527,6 +527,12 @@ def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
     if QtWidgets.QApplication.startingUp():
         _app = QtWidgets.QApplication([])
     dialog = FormDialog(data, title, comment, icon, parent, apply)
+
+    if parent is not None:
+        if hasattr(parent, "_fedit_dialog"):
+            parent._fedit_dialog.close()
+        parent._fedit_dialog = dialog
+
     dialog.show()
 
 
