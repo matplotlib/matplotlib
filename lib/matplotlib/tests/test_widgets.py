@@ -254,6 +254,27 @@ def test_CheckButtons():
     check.disconnect(cid)
 
 
+def check_TextBox():
+    def submit(text):
+        tool.set_val('x**1')
+
+    def change(text):
+        tool.color = '1.0'
+    ax = get_ax()
+    tool = widgets.TextBox(ax, 'Evaluate', color='.95', initial='x**2')
+    assert tool.text == 'x**2'
+    tool.on_submit(submit)
+    tool.on_text_change(change)
+    tool.begin_typing(tool.text)
+    tool.stop_typing()
+    assert tool.text == 'x**1'
+    assert tool.color == '1.0'
+
+
+def test_TextBox():
+    check_TextBox()
+
+
 @image_comparison(['check_radio_buttons.png'], style='mpl20', remove_text=True)
 def test_check_radio_buttons_image():
     # Remove this line when this test image is regenerated.
