@@ -1,7 +1,9 @@
 """
-=================
-violinplot(D,...)
-=================
+=============
+violinplot(D)
+=============
+
+See `~matplotlib.axes.Axes.violinplot`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

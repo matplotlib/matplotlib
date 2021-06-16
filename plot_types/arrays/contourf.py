@@ -1,7 +1,9 @@
 """
-=====================================
-contour[f]([X, Y], Z, [levels=], ...)
-=====================================
+====================================
+contour(X, Y, Z) / contourf(X, Y, Z)
+====================================
+
+See `~matplotlib.axes.Axes.contour` / `~matplotlib.axes.Axes.contourf`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

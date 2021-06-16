@@ -1,7 +1,9 @@
 """
-=========================
-quiver([X, Y], U, V, ...)
-=========================
+==================
+quiver(X, Y, U, V)
+==================
+
+See `~matplotlib.axes.Axes.quiver`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

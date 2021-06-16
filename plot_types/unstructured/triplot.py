@@ -1,7 +1,9 @@
 """
-=========================
-triplot(x, y, [triangle])
-=========================
+=============
+triplot(x, y)
+=============
+
+See `~matplotlib.axes.Axes.triplot`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

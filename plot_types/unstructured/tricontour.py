@@ -1,7 +1,9 @@
 """
-==============================
-tripcontour(x, y, z, [levels])
-==============================
+==========================================
+tricontour(x, y, z) / tricontourf(x, y, z)
+==========================================
+
+See `~matplotlib.axes.Axes.tricontour` / `~matplotlib.axes.Axes.tricontourf`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

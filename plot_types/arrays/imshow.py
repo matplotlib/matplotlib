@@ -1,7 +1,9 @@
 """
-=======================
-imshow(Z, [cmap=], ...)
-=======================
+=========
+imshow(Z)
+=========
+
+See `~matplotlib.axes.Axes.imshow`.
 """
 
 import matplotlib.pyplot as plt

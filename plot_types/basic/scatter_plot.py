@@ -1,7 +1,9 @@
 """
-==================
-scatter(X, Y, ...)
-==================
+=============
+scatter(X, Y)
+=============
+
+See `~matplotlib.axes.Axes.scatter`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

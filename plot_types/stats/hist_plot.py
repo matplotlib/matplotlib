@@ -1,7 +1,9 @@
 """
-========================
-hist(X, [bins],...)
-========================
+=======
+hist(X)
+=======
+
+See `~matplotlib.axes.Axes.hist`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

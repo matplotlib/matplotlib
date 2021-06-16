@@ -1,7 +1,9 @@
 """
-=====================
-step(x, y, where=...)
-=====================
+==========
+step(x, y)
+==========
+
+See `~matplotlib.axes.Axes.step`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

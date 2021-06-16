@@ -1,7 +1,9 @@
 """
-========================
-barbs([X, Y], U, V, ...)
-========================
+===========
+barbs(U, V)
+===========
+
+See `~matplotlib.axes.Axes.barbs`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

@@ -1,7 +1,9 @@
 """
-====================
-pie(X, explode, ...)
-====================
+======
+pie(X)
+======
+
+See `~matplotlib.axes.Axes.pie`.
 """
 import matplotlib as mpl
 import matplotlib.pyplot as plt

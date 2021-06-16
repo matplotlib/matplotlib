@@ -1,7 +1,9 @@
 """
-==============================
-errorbar(X, Y, xerr, yerr,...)
-==============================
+==========================
+errorbar(X, Y, xerr, yerr)
+==========================
+
+See `~matplotlib.axes.Axes.errorbar`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

@@ -1,7 +1,9 @@
 """
-======================
-bar[h](x, height, ...)
-======================
+================================
+bar(x, height) / barh(x, height)
+================================
+
+See `~matplotlib.axes.Axes.bar` / `~matplotlib.axes.Axes.barh`.
 """
 import matplotlib.pyplot as plt
 import numpy as np

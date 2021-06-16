@@ -1,7 +1,9 @@
 """
-=================================
-hexbin(x, y, [C], [gridsize],...)
-=================================
+===============
+hexbin(x, y, C)
+===============
+
+See `~matplotlib.axes.Axes.hexbin`.
 """
 import matplotlib.pyplot as plt
 import numpy as np
