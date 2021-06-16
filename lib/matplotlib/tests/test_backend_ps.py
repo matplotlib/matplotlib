@@ -149,10 +149,11 @@ def test_failing_latex():
 @needs_usetex
 def test_partial_usetex(caplog):
     caplog.set_level("WARNING")
-    plt.figtext(.5, .5, "foo", usetex=True)
+    plt.figtext(.1, .1, "foo", usetex=True)
+    plt.figtext(.2, .2, "bar", usetex=True)
     plt.savefig(io.BytesIO(), format="ps")
-    assert caplog.records and all("as if usetex=False" in record.getMessage()
-                                  for record in caplog.records)
+    record, = caplog.records  # asserts there's a single record.
+    assert "as if usetex=False" in record.getMessage()
 
 
 @image_comparison(["useafm.eps"])
