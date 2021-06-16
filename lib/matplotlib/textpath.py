@@ -5,7 +5,7 @@ import urllib.parse
 
 import numpy as np
 
-from matplotlib import _text_helpers, dviread, font_manager, rcParams
+from matplotlib import _text_helpers, dviread, font_manager
 from matplotlib.font_manager import FontProperties, get_font
 from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_TARGET_LIGHT
 from matplotlib.mathtext import MathTextParser
@@ -385,11 +385,11 @@ class TextPath(Path):
 
         self._cached_vertices = None
         s, ismath = Text(usetex=usetex)._preprocess_math(s)
-        self._vertices, self._codes = text_to_path.get_text_path(
-            prop, s, ismath=ismath)
+        super().__init__(
+            *text_to_path.get_text_path(prop, s, ismath=ismath),
+            _interpolation_steps=_interpolation_steps,
+            readonly=True)
         self._should_simplify = False
-        self._simplify_threshold = rcParams['path.simplify_threshold']
-        self._interpolation_steps = _interpolation_steps
 
     def set_size(self, size):
         """Set the text size."""
@@ -427,4 +427,5 @@ class TextPath(Path):
                   .scale(self._size / text_to_path.FONT_SCALE)
                   .translate(*self._xy))
             self._cached_vertices = tr.transform(self._vertices)
+            self._cached_vertices.flags.writeable = False
             self._invalid = False

@@ -189,6 +189,7 @@ class MathtextBackendPs(MathtextBackend):
         "_PSResult", "width height depth pswriter used_characters")
 
     def __init__(self):
+        super().__init__()
         self.pswriter = StringIO()
         self.lastfont = None
 
@@ -230,6 +231,7 @@ class MathtextBackendPdf(MathtextBackend):
         "_PDFResult", "width height depth glyphs rects used_characters")
 
     def __init__(self):
+        super().__init__()
         self.glyphs = []
         self.rects = []
 
@@ -260,6 +262,7 @@ class MathtextBackendSvg(MathtextBackend):
     backend.
     """
     def __init__(self):
+        super().__init__()
         self.svg_glyphs = []
         self.svg_rects = []
 
@@ -293,6 +296,7 @@ class MathtextBackendPath(MathtextBackend):
     _Result = namedtuple("_Result", "width height depth glyphs rects")
 
     def __init__(self):
+        super().__init__()
         self.glyphs = []
         self.rects = []
 
@@ -320,6 +324,7 @@ class MathtextBackendCairo(MathtextBackend):
     """
 
     def __init__(self):
+        super().__init__()
         self.glyphs = []
         self.rects = []
 

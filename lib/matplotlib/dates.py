@@ -1668,9 +1668,9 @@ class MicrosecondLocator(DateLocator):
         example, if ``interval=2``, mark every second microsecond.
 
         """
+        super().__init__(tz=tz)
         self._interval = interval
         self._wrapped_locator = ticker.MultipleLocator(interval)
-        self.tz = tz
 
     def set_axis(self, axis):
         self._wrapped_locator.set_axis(axis)
