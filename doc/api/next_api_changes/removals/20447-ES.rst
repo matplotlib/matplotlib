@@ -53,3 +53,6 @@ orientations ("horizontal" and "vertical") are now case-sensitive.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These attributes have been removed in favor of ``ContourSet.axes`` and
 ``Quiver.axes``, for consistency with other artists.
+
+*fontdict* and *minor* parameters of `.Axes.set_xticklabels` / `.Axes.set_yticklabels` are now keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
