@@ -172,6 +172,8 @@ class TexManager:
             # geometry is loaded before the custom preamble as convert_psfrags
             # relies on a custom preamble to change the geometry.
             r"\usepackage[papersize=72in, margin=1in]{geometry}",
+            r"\usepackage[dvips]{graphicx}",
+            r"\usepackage{color}",
             self.get_custom_preamble(),
             # textcomp is loaded last (if not already loaded by the custom
             # preamble) in order not to clash with custom packages (e.g.

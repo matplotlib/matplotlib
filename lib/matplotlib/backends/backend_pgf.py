@@ -221,6 +221,7 @@ class LatexManager:
             rf"% !TeX program = {mpl.rcParams['pgf.texsystem']}",
             # Test whether \includegraphics supports interpolate option.
             r"\usepackage{graphicx}",
+            r"\usepackage{color}",
             latex_preamble,
             latex_fontspec,
             r"\begin{document}",
@@ -864,6 +865,8 @@ class FigureCanvasPgf(FigureCanvasBase):
                     % (w, h),
                     get_preamble(),
                     get_fontspec(),
+                    r"\usepackage{graphicx}",
+                    r"\usepackage{color}",
                     r"\usepackage{pgf}",
                     r"\begin{document}",
                     r"\centering",
