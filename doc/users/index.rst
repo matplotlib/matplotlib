@@ -15,6 +15,7 @@ User's Guide
     installing.rst
     ../tutorials/index.rst
     interactive.rst
+    fonts.rst
     release_notes.rst
     history.rst
     license.rst
