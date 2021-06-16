@@ -271,11 +271,7 @@ class FigureBase(Artist):
         which : {'major', 'minor', 'both'}, default: 'major'
             Selects which ticklabels to rotate.
         """
-        if which is None:
-            _api.warn_deprecated(
-                "3.3", message="Support for passing which=None to mean "
-                "which='major' is deprecated since %(since)s and will be "
-                "removed %(removal)s.")
+        _api.check_in_list(['major', 'minor', 'both'], which=which)
         allsubplots = all(hasattr(ax, 'get_subplotspec') for ax in self.axes)
         if len(self.axes) == 1:
             for label in self.axes[0].get_xticklabels(which=which):
@@ -622,12 +618,8 @@ default: %(va)s
         """
 
         if not len(args) and 'rect' not in kwargs:
-            _api.warn_deprecated(
-                "3.3",
-                message="Calling add_axes() without argument is "
-                "deprecated since %(since)s and will be removed %(removal)s. "
-                "You may want to use add_subplot() instead.")
-            return
+            raise TypeError(
+                "add_axes() missing 1 required positional argument: 'rect'")
         elif 'rect' in kwargs:
             if len(args):
                 raise TypeError(
@@ -795,8 +787,7 @@ default: %(va)s
         ax.stale_callback = _stale_figure_callback
         return ax
 
-    @_api.make_keyword_only("3.3", "sharex")
-    def subplots(self, nrows=1, ncols=1, sharex=False, sharey=False,
+    def subplots(self, nrows=1, ncols=1, *, sharex=False, sharey=False,
                  squeeze=True, subplot_kw=None, gridspec_kw=None):
         """
         Add a set of subplots to this figure.
