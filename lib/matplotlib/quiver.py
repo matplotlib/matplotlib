@@ -521,10 +521,6 @@ class Quiver(mcollections.PolyCollection):
 
         self._cid = ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
 
-    @_api.deprecated("3.3", alternative="axes")
-    def ax(self):
-        return self.axes
-
     def remove(self):
         # docstring inherited
         self.axes.figure.callbacks.disconnect(self._cid)

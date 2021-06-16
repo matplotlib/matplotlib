@@ -48,3 +48,8 @@ longer supported.
 Setting the *orientation* of an ``eventplot()`` or `.EventCollection` to "none"
 or None is no longer supported; set it to "horizontal" instead.  Moreover, the two
 orientations ("horizontal" and "vertical") are now case-sensitive.
+
+``ContourSet.ax``, ``Quiver.ax``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These attributes have been removed in favor of ``ContourSet.axes`` and
+``Quiver.axes``, for consistency with other artists.
