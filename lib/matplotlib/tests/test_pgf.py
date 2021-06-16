@@ -21,5 +21,5 @@ def test_color_graphicx():
     matplotlib.rcParams['text.usetex'] = True
     matplotlib.rcParams['pgf.rcfonts'] = False
 
-    plt.plot([1,2,3,4])
+    plt.plot([1, 2, 3, 4])
     plt.text(1, 1, r'\textcolor{red}{$y=x$}\rotatebox{10}{rotated}')
