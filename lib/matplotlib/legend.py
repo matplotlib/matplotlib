@@ -828,6 +828,7 @@ class Legend(Artist):
                                    children=[self._legend_title_box,
                                              self._legend_handle_box])
         self._legend_box.set_figure(self.figure)
+        self._legend_box.axes = self.axes
         self.texts = text_list
         self.legendHandles = handle_list
 

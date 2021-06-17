@@ -852,3 +852,12 @@ def test_legend_face_edgecolor():
     ax.fill_between([0, 1, 2], [1, 2, 3], [2, 3, 4],
                     facecolor='r', edgecolor='face', label='Fill')
     ax.legend()
+
+
+def test_legend_text_axes():
+    fig, ax = plt.subplots()
+    ax.plot([1, 2], [3, 4], label='line')
+    leg = ax.legend()
+
+    assert leg.axes is ax
+    assert leg.get_texts()[0].axes is ax
