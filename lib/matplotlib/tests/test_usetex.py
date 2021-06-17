@@ -81,16 +81,18 @@ def test_minus_no_descent(fontsize):
     assert len({*heights.values()}) == 1
 
 
-@pytest.mark.skipif(not _has_tex_package('xcolor'),
-                    reason='xcolor is not available')
-def test_usetex_xcolor():
+@pytest.mark.parametrize('pkg', ['xcolor', 'chemformula'])
+def test_usetex_packages(pkg):
+    if not _has_tex_package(pkg):
+        pytest.skip(f'{pkg} is not available')
     mpl.rcParams['text.usetex'] = True
 
     fig = plt.figure()
     text = fig.text(0.5, 0.5, "Some text 0123456789")
     fig.canvas.draw()
 
-    mpl.rcParams['text.latex.preamble'] = r'\usepackage[dvipsnames]{xcolor}'
+    mpl.rcParams['text.latex.preamble'] = (
+        r'\PassOptionsToPackage{dvipsnames}{xcolor}\usepackage{%s}' % pkg)
     fig = plt.figure()
     text2 = fig.text(0.5, 0.5, "Some text 0123456789")
     fig.canvas.draw()
