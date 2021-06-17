@@ -1,3 +1,7 @@
+extraction:
+  python:
+    python_setup:
+      version: 3
 path_classifiers:
     examples:
         # Exclude example files from analysis by tagging them.
