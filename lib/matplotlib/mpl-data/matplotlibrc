@@ -319,10 +319,10 @@
                         # statements.
                         # Note that it has to be put on a single line, which may
                         # become quite long.
-                        # The following packages are always loaded with usetex, so
-                        # beware of package collisions: color, geometry, graphicx,
-                        # type1cm, textcomp.
-                        # Adobe Postscript (PSSNFS) font packages may also be
+                        # The following packages are always loaded with usetex,
+                        # so beware of package collisions:
+                        #   geometry, inputenc, type1cm.
+                        # PostScript (PSNFSS) font packages may also be
                         # loaded, depending on your font settings.
 
 ## The following settings allow you to select the fonts in math mode.

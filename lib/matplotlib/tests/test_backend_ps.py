@@ -155,6 +155,17 @@ def test_partial_usetex(caplog):
                                   for record in caplog.records)
 
 
+@needs_usetex
+def test_usetex_preamble(caplog):
+    mpl.rcParams.update({
+        "text.usetex": True,
+        # Check that these don't conflict with the packages loaded by default.
+        "text.latex.preamble": r"\usepackage{color,graphicx,textcomp}",
+    })
+    plt.figtext(.5, .5, "foo")
+    plt.savefig(io.BytesIO(), format="ps")
+
+
 @image_comparison(["useafm.eps"])
 def test_useafm():
     mpl.rcParams["ps.useafm"] = True

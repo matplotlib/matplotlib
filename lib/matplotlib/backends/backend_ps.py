@@ -1117,8 +1117,13 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     with mpl.rc_context({
             "text.latex.preamble":
             mpl.rcParams["text.latex.preamble"] +
-            r"\usepackage{psfrag,color}""\n"
-            r"\usepackage[dvips]{graphicx}""\n"
+            # Only load these packages if they have not already been loaded, in
+            # order not to clash with custom packages.
+            r"\makeatletter"
+            r"\@ifpackageloaded{color}{}{\usepackage{color}}"
+            r"\@ifpackageloaded{graphicx}{}{\usepackage{graphicx}}"
+            r"\@ifpackageloaded{psfrag}{}{\usepackage{psfrag}}"
+            r"\makeatother"
             r"\geometry{papersize={%(width)sin,%(height)sin},margin=0in}"
             % {"width": paper_width, "height": paper_height}
     }):
