@@ -970,43 +970,27 @@ class AnchoredOffsetbox(OffsetBox):
         Parameters
         ----------
         loc : str
-            The box location. Supported values:
-
-            - 'upper right'
-            - 'upper left'
-            - 'lower left'
-            - 'lower right'
-            - 'center left'
-            - 'center right'
-            - 'lower center'
-            - 'upper center'
-            - 'center'
-
+            The box location.  Valid locations are
+            'upper left', 'upper center', 'upper right',
+            'center left', 'center', 'center right',
+            'lower left', 'lower center, 'lower right'.
             For backward compatibility, numeric values are accepted as well.
             See the parameter *loc* of `.Legend` for details.
-
         pad : float, default: 0.4
             Padding around the child as fraction of the fontsize.
-
         borderpad : float, default: 0.5
             Padding between the offsetbox frame and the *bbox_to_anchor*.
-
         child : `.OffsetBox`
             The box that will be anchored.
-
         prop : `.FontProperties`
             This is only used as a reference for paddings. If not given,
             :rc:`legend.fontsize` is used.
-
         frameon : bool
             Whether to draw a frame around the box.
-
         bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
             Box that is used to position the legend in conjunction with *loc*.
-
         bbox_transform : None or :class:`matplotlib.transforms.Transform`
             The transform for the bounding box (*bbox_to_anchor*).
-
         **kwargs
             All other parameters are passed on to `.OffsetBox`.
 
