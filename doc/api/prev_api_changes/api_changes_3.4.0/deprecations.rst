@@ -63,12 +63,6 @@ similar replacements.
 ``STYLE_FILE_PATTERN``, ``load_base_library``, and ``iter_user_libraries`` are
 deprecated.
 
-``Tick.apply_tickdir`` is deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``apply_tickdir`` didn't actually update the tick markers on the existing
-Line2D objects used to draw the ticks; use `.Axis.set_tick_params` instead.
-
 ``dpi_cor`` property of `.FancyArrowPatch`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
