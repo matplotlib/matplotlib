@@ -1,0 +1,10 @@
+Case-insensitive properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Upper or mixed-case property names are no longer normalized to lowercase in
+`.Artist.set` and `.Artist.update`. This allows one to pass names such as
+*patchA* or *UVC*.
+
+Case-insensitive capstyles and joinstyles
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Please pass capstyles ("miter", "round", "bevel") and joinstyles ("butt",
+"round", "projecting") as lowercase.

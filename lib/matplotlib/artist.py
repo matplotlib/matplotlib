@@ -1041,13 +1041,7 @@ class Artist:
         ret = []
         with cbook._setattr_cm(self, eventson=False):
             for k, v in props.items():
-                if k != k.lower():
-                    _api.warn_deprecated(
-                        "3.3", message="Case-insensitive properties were "
-                        "deprecated in %(since)s and support will be removed "
-                        "%(removal)s")
-                    k = k.lower()
-                # White list attributes we want to be able to update through
+                # Allow attributes we want to be able to update through
                 # art.update, art.set, setp.
                 if k == "axes":
                     ret.append(setattr(self, k, v))
