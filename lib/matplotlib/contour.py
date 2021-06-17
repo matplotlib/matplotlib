@@ -720,8 +720,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
     %(contour_set_attributes)s
     """
 
-    ax = _api.deprecated("3.3")(property(lambda self: self.axes))
-
     def __init__(self, ax, *args,
                  levels=None, filled=False, linewidths=None, linestyles=None,
                  hatches=(None,), alpha=None, origin=None, extent=None,

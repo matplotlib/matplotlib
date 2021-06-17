@@ -661,7 +661,6 @@ class Axes(_AxesBase):
         self._add_text(t)
         return t
 
-    @_api.rename_parameter("3.3", "s", "text")
     @docstring.dedent_interpd
     def annotate(self, text, xy, *args, **kwargs):
         a = mtext.Annotation(text, xy, *args, **kwargs)
@@ -1367,10 +1366,9 @@ class Axes(_AxesBase):
                 minline = (lineoffsets - linelengths).min()
                 maxline = (lineoffsets + linelengths).max()
 
-                if (orientation is not None and
-                        orientation.lower() == "vertical"):
+                if orientation == "vertical":
                     corners = (minline, minpos), (maxline, maxpos)
-                else:  # "horizontal", None or "none" (see EventCollection)
+                else:  # "horizontal"
                     corners = (minpos, minline), (maxpos, maxline)
                 self.update_datalim(corners)
                 self._request_autoscale_view()
@@ -4399,7 +4397,7 @@ class Axes(_AxesBase):
             *vmin* and *vmax* are used in conjunction with the default norm to
             map the color array *c* to the colormap *cmap*. If None, the
             respective min and max of the color array is used.
-            It is deprecated to use *vmin*/*vmax* when *norm* is given.
+            It is an error to use *vmin*/*vmax* when *norm* is given.
 
         alpha : float, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -4690,7 +4688,7 @@ default: :rc:`scatter.edgecolors`
             automatically chosen by the `.Normalize` instance (defaults to
             the respective min/max values of the bins in case of the default
             linear scaling).
-            It is deprecated to use *vmin*/*vmax* when *norm* is given.
+            It is an error to use *vmin*/*vmax* when *norm* is given.
 
         alpha : float between 0 and 1, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -5487,7 +5485,7 @@ default: :rc:`scatter.edgecolors`
             When using scalar data and no explicit *norm*, *vmin* and *vmax*
             define the data range that the colormap covers. By default,
             the colormap covers the complete value range of the supplied
-            data. It is deprecated to use *vmin*/*vmax* when *norm* is given.
+            data. It is an error to use *vmin*/*vmax* when *norm* is given.
             When using RGB(A) data, parameters *vmin*/*vmax* are ignored.
 
         origin : {'upper', 'lower'}, default: :rc:`image.origin`
@@ -5809,7 +5807,7 @@ default: :rc:`scatter.edgecolors`
             automatically chosen by the `.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
-            It is deprecated to use *vmin*/*vmax* when *norm* is given.
+            It is an error to use *vmin*/*vmax* when *norm* is given.
 
         edgecolors : {'none', None, 'face', color, color sequence}, optional
             The color of the edges. Defaults to 'none'. Possible values:
@@ -6039,7 +6037,7 @@ default: :rc:`scatter.edgecolors`
             automatically chosen by the `.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
-            It is deprecated to use *vmin*/*vmax* when *norm* is given.
+            It is an error to use *vmin*/*vmax* when *norm* is given.
 
         edgecolors : {'none', None, 'face', color, color sequence}, optional
             The color of the edges. Defaults to 'none'. Possible values:
@@ -6290,7 +6288,7 @@ default: :rc:`scatter.edgecolors`
             automatically chosen by the `.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
-            It is deprecated to use *vmin*/*vmax* when *norm* is given.
+            It is an error to use *vmin*/*vmax* when *norm* is given.
 
         alpha : float, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).

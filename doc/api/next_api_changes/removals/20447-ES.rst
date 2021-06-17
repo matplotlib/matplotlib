@@ -1,0 +1,58 @@
+``figure.add_axes()`` without arguments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Calling ``fig.add_axes()`` with no arguments will raise an error. Adding a
+free-floating axes needs a position rectangle. If you want a figure-filling
+single axes, use ``add_subplot()`` instead.
+
+All parameters of `.Figure.subplots` except *nrows* and *ncols* are now keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This avoids typing e.g. ``subplots(1, 1, 1)`` when meaning ``subplot(1, 1, 1)``,
+but actually getting ``subplots(1, 1, sharex=1)``.
+
+``add_subplot()`` validates its inputs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In particular, for ``add_subplot(rows, cols, index)``, all parameters must
+be integral. Previously strings and floats were accepted and converted to
+int.
+
+``SubplotSpec.get_rows_columns``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Use the ``GridSpec.nrows``, ``GridSpec.ncols``, ``SubplotSpec.rowspan``, and
+``SubplotSpec.colspan`` properties instead.
+
+``autofmt_xdate(which=None)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Use its more explicit synonym, ``which="major"``, instead.
+
+`.pyplot.tight_layout` parameters are now keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+All parameters of `.pyplot.tight_layout` are now keyword-only, to be consistent
+with `.Figure.tight_layout`.
+
+Parameters *norm* and *vmin*/*vmax* may not be used simultaneously
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing parameters *norm* and *vmin*/*vmax* simultaneously to functions using
+colormapping such as ``scatter()`` and ``imshow()`` is no longer supported.
+Instead of ``norm=LogNorm(), vmin=min_val, vmax=max_val`` pass
+``norm=LogNorm(min_val, max_val)``. *vmin* and *vmax* should only be used
+without setting *norm*.
+
+`.Axes.annotate` and `.pyplot.annotate` parameter name changed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The parameter *s* to `.Axes.annotate` and  `.pyplot.annotate` has previously
+been renamed to *text*, matching `.Annotation`. The old parameter name is no
+longer supported.
+
+*orientation* of ``eventplot()`` and `.EventCollection`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Setting the *orientation* of an ``eventplot()`` or `.EventCollection` to "none"
+or None is no longer supported; set it to "horizontal" instead.  Moreover, the two
+orientations ("horizontal" and "vertical") are now case-sensitive.
+
+``ContourSet.ax``, ``Quiver.ax``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These attributes have been removed in favor of ``ContourSet.axes`` and
+``Quiver.axes``, for consistency with other artists.
+
+*fontdict* and *minor* parameters of `.Axes.set_xticklabels` / `.Axes.set_yticklabels` are now keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
