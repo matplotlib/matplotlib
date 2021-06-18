@@ -285,7 +285,7 @@ Align labels to Axes edges
 --------------------------
 
 `~.axes.Axes.set_xlabel`, `~.axes.Axes.set_ylabel` and
-`.ColorbarBase.set_label` support a parameter ``loc`` for simplified
+``ColorbarBase.set_label`` support a parameter ``loc`` for simplified
 positioning. For the xlabel, the supported values are 'left', 'center', or
 'right'. For the ylabel, the supported values are 'bottom', 'center', or
 'top'.

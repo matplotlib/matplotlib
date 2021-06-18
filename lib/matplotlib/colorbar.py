@@ -4,28 +4,11 @@ In Matplotlib they are drawn into a dedicated `~.axes.Axes`.
 
 .. note::
    Colorbars are typically created through `.Figure.colorbar` or its pyplot
-   wrapper `.pyplot.colorbar`, which use `.make_axes` and `.Colorbar`
-   internally.
+   wrapper `.pyplot.colorbar`, which internally use `.Colorbar` together with
+   `.make_axes_gridspec` (for `.GridSpec`-positioned axes) or `.make_axes` (for
+   non-`.GridSpec`-positioned axes).
 
-   As an end-user, you most likely won't have to call the methods or
-   instantiate the classes in this module explicitly.
-
-:class:`ColorbarBase`
-    The base class with full colorbar drawing functionality.
-    It can be used as-is to make a colorbar for a given colormap;
-    a mappable object (e.g., image) is not needed.
-
-:class:`Colorbar`
-    On top of `.ColorbarBase` this connects the colorbar with a
-    `.ScalarMappable` such as an image or contour plot.
-
-:func:`make_axes`
-    Create an `~.axes.Axes` suitable for a colorbar. This functions can be
-    used with figures containing a single axes or with freely placed axes.
-
-:func:`make_axes_gridspec`
-    Create a `.SubplotBase` suitable for a colorbar. This function should
-    be used for adding a colorbar to a `.GridSpec`.
+   End-users most likely won't need to directly use this module's API.
 """
 
 import copy
@@ -173,7 +156,6 @@ use_gridspec : bool, optional
 Returns
 -------
 colorbar : `~matplotlib.colorbar.Colorbar`
-    See also its base class, `~matplotlib.colorbar.ColorbarBase`.
 
 Notes
 -----
@@ -220,7 +202,7 @@ make_axes_kw_doc = _make_axes_param_doc + _make_axes_other_param_doc
 
 def _set_ticks_on_axis_warn(*args, **kw):
     # a top level function which gets put in at the axes'
-    # set_xticks and set_yticks by ColorbarBase.__init__.
+    # set_xticks and set_yticks by Colorbar.__init__.
     _api.warn_external("Use the colorbar set_ticks() method instead.")
 
 
@@ -312,30 +294,18 @@ class _ColorbarSpine(mspines.Spine):
         return ret
 
 
-class ColorbarBase:
+class Colorbar:
     r"""
     Draw a colorbar in an existing axes.
 
-    There are only some rare cases in which you would work directly with a
-    `.ColorbarBase` as an end-user. Typically, colorbars are used
-    with `.ScalarMappable`\s such as an `.AxesImage` generated via
-    `~.axes.Axes.imshow`. For these cases you will use `.Colorbar` and
-    likely create it via `.pyplot.colorbar` or `.Figure.colorbar`.
+    Typically, colorbars are created using `.Figure.colorbar` or
+    `.pyplot.colorbar` and associated with `.ScalarMappable`\s (such as an
+    `.AxesImage` generated via `~.axes.Axes.imshow`).
 
-    The main application of using a `.ColorbarBase` explicitly is drawing
-    colorbars that are not associated with other elements in the figure, e.g.
-    when showing a colormap by itself.
-
-    If the *cmap* kwarg is given but *boundaries* and *values* are left as
-    None, then the colormap will be displayed on a 0-1 scale. To show the
-    under- and over-value colors, specify the *norm* as::
-
-        norm=colors.Normalize(clip=False)
-
-    To show the colors versus index instead of on the 0-1 scale,
-    use::
-
-        norm=colors.NoNorm()
+    In order to draw a colorbar not associated with other elements in the
+    figure, e.g. when showing a colormap by itself, one can create an empty
+    `.ScalarMappable`, or directly pass *cmap* and *norm* instead of *mappable*
+    to `Colorbar`.
 
     Useful public methods are :meth:`set_label` and :meth:`add_lines`.
 
@@ -352,16 +322,32 @@ class ColorbarBase:
     ----------
     ax : `~matplotlib.axes.Axes`
         The `~.axes.Axes` instance in which the colorbar is drawn.
+
+    mappable : `.ScalarMappable`
+        The mappable whose colormap and norm will be used.
+
+        To show the under- and over- value colors, the mappable's norm should
+        be specified as ::
+
+            norm = colors.Normalize(clip=False)
+
+        To show the colors versus index instead of on a 0-1 scale, use::
+
+            norm=colors.NoNorm()
+
     cmap : `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
-        The colormap to use.
+        The colormap to use.  This parameter is ignored, unless *mappable* is
+        None.
+
     norm : `~matplotlib.colors.Normalize`
+        The normalization to use.  This parameter is ignored, unless *mappable*
+        is None.
 
     alpha : float
         The colorbar transparency between 0 (transparent) and 1 (opaque).
 
-    values
-
-    boundaries
+    values, boundaries
+        If unset, the colormap will be displayed on a 0-1 scale.
 
     orientation : {'vertical', 'horizontal'}
 
@@ -391,7 +377,7 @@ class ColorbarBase:
 
     n_rasterize = 50  # rasterize solids if number of colors >= n_rasterize
 
-    def __init__(self, ax, *, cmap=None,
+    def __init__(self, ax, mappable=None, *, cmap=None,
                  norm=None,
                  alpha=None,
                  values=None,
@@ -409,7 +395,35 @@ class ColorbarBase:
                  label='',
                  userax=False,
                  ):
-        _api.check_isinstance([colors.Colormap, None], cmap=cmap)
+
+        if mappable is None:
+            mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
+
+        # Ensure the given mappable's norm has appropriate vmin and vmax
+        # set even if mappable.draw has not yet been called.
+        if mappable.get_array() is not None:
+            mappable.autoscale_None()
+
+        self.mappable = mappable
+        cmap = mappable.cmap
+        norm = mappable.norm
+
+        if isinstance(mappable, contour.ContourSet):
+            cs = mappable
+            alpha = cs.get_alpha()
+            boundaries = cs._levels
+            values = cs.cvalues
+            extend = cs.extend
+            filled = cs.filled
+            if ticks is None:
+                ticks = ticker.FixedLocator(cs.levels, nbins=10)
+        elif isinstance(mappable, martist.Artist):
+            alpha = mappable.get_alpha()
+
+        mappable.colorbar = self
+        mappable.colorbar_cid = mappable.callbacksSM.connect(
+            'changed', self.update_normal)
+
         _api.check_in_list(
             ['vertical', 'horizontal'], orientation=orientation)
         _api.check_in_list(
@@ -423,12 +437,11 @@ class ColorbarBase:
         self.ax = ax
         ax.set(navigate=False)
 
-        if cmap is None:
-            cmap = cm.get_cmap()
-        if norm is None:
-            norm = colors.Normalize()
         if extend is None:
-            if hasattr(norm, 'extend'):
+            if (not isinstance(mappable, contour.ContourSet)
+                    and getattr(cmap, 'colorbar_extend', False) is not False):
+                extend = cmap.colorbar_extend
+            elif hasattr(norm, 'extend'):
                 extend = norm.extend
             else:
                 extend = 'neither'
@@ -490,6 +503,37 @@ class ColorbarBase:
         else:
             self.formatter = format  # Assume it is a Formatter or None
         self.draw_all()
+
+        if isinstance(mappable, contour.ContourSet) and not mappable.filled:
+            self.add_lines(mappable)
+
+    def update_normal(self, mappable):
+        """
+        Update solid patches, lines, etc.
+
+        This is meant to be called when the norm of the image or contour plot
+        to which this colorbar belongs changes.
+
+        If the norm on the mappable is different than before, this resets the
+        locator and formatter for the axis, so if these have been customized,
+        they will need to be customized again.  However, if the norm only
+        changes values of *vmin*, *vmax* or *cmap* then the old formatter
+        and locator will be preserved.
+        """
+        _log.debug('colorbar update normal %r %r', mappable.norm, self.norm)
+        self.mappable = mappable
+        self.set_alpha(mappable.get_alpha())
+        self.cmap = mappable.cmap
+        if mappable.norm != self.norm:
+            self.norm = mappable.norm
+            self._reset_locator_formatter_scale()
+
+        self.draw_all()
+        if isinstance(self.mappable, contour.ContourSet):
+            CS = self.mappable
+            if not CS.filled:
+                self.add_lines(CS)
+        self.stale = True
 
     def draw_all(self):
         """
@@ -657,7 +701,7 @@ class ColorbarBase:
             self.ax.outer_ax.add_patch(patch)
         return
 
-    def add_lines(self, levels, colors, linewidths, erase=True):
+    def add_lines(self, *args, **kwargs):
         """
         Draw lines on the colorbar.
 
@@ -675,7 +719,31 @@ class ColorbarBase:
             for each line.
         erase : bool, default: True
             Whether to remove any previously added lines.
+
+        Notes
+        -----
+        Alternatively, this method can also be called with the signature
+        ``colorbar.add_lines(contour_set, erase=True)``, in which case
+        *levels*, *colors*, and *linewidths* are taken from *contour_set*.
         """
+        params = _api.select_matching_signature(
+            [lambda self, CS, erase=True: locals(),
+             lambda self, levels, colors, linewidths, erase=True: locals()],
+            self, *args, **kwargs)
+        if "CS" in params:
+            self, CS, erase = params.values()
+            if not isinstance(CS, contour.ContourSet) or CS.filled:
+                raise ValueError("If a single artist is passed to add_lines, "
+                                 "it must be a ContourSet of lines")
+            # TODO: Make colorbar lines auto-follow changes in contour lines.
+            return self.add_lines(
+                CS.levels,
+                [c[0] for c in CS.tcolors],
+                [t[0] for t in CS.tlinewidths],
+                erase=erase)
+        else:
+            self, levels, colors, linewidths, erase = params.values()
+
         y = self._locate(levels)
         rtol = (self._y[-1] - self._y[0]) * 1e-10
         igood = (y < self._y[-1] + rtol) & (y > self._y[0] - rtol)
@@ -875,9 +943,33 @@ class ColorbarBase:
         self.alpha = alpha
 
     def remove(self):
-        """Remove this colorbar from the figure."""
+        """
+        Remove this colorbar from the figure.
+
+        If the colorbar was created with ``use_gridspec=True`` the previous
+        gridspec is restored.
+        """
         self.ax.inner_ax.remove()
         self.ax.outer_ax.remove()
+
+        self.mappable.callbacksSM.disconnect(self.mappable.colorbar_cid)
+        self.mappable.colorbar = None
+        self.mappable.colorbar_cid = None
+
+        try:
+            ax = self.mappable.axes
+        except AttributeError:
+            return
+        try:
+            gs = ax.get_subplotspec().get_gridspec()
+            subplotspec = gs.get_topmost_subplotspec()
+        except AttributeError:
+            # use_gridspec was False
+            pos = ax.get_position(original=True)
+            ax._set_position(pos)
+        else:
+            # use_gridspec was True
+            ax.set_subplotspec(subplotspec)
 
     def _ticker(self, locator, formatter):
         """
@@ -1152,122 +1244,7 @@ class ColorbarBase:
         return self.ax.yaxis
 
 
-class Colorbar(ColorbarBase):
-    """
-    This class connects a `ColorbarBase` to a `~.cm.ScalarMappable`
-    such as an `~.image.AxesImage` generated via `~.axes.Axes.imshow`.
-
-    .. note::
-        This class is not intended to be instantiated directly; instead, use
-        `.Figure.colorbar` or `.pyplot.colorbar` to create a colorbar.
-    """
-
-    def __init__(self, ax, mappable, **kwargs):
-        # Ensure the given mappable's norm has appropriate vmin and vmax set
-        # even if mappable.draw has not yet been called.
-        if mappable.get_array() is not None:
-            mappable.autoscale_None()
-
-        self.mappable = mappable
-        kwargs.update({"cmap": mappable.cmap, "norm": mappable.norm})
-
-        if isinstance(mappable, contour.ContourSet):
-            cs = mappable
-            kwargs.update({"alpha": cs.get_alpha(),
-                           "boundaries": cs._levels,
-                           "values": cs.cvalues,
-                           "extend": cs.extend,
-                           "filled": cs.filled})
-            kwargs.setdefault(
-                'ticks', ticker.FixedLocator(cs.levels, nbins=10))
-            super().__init__(ax, **kwargs)
-            if not cs.filled:
-                self.add_lines(cs)
-        else:
-            if getattr(mappable.cmap, 'colorbar_extend', False) is not False:
-                kwargs.setdefault('extend', mappable.cmap.colorbar_extend)
-            if isinstance(mappable, martist.Artist):
-                kwargs.update({"alpha": mappable.get_alpha()})
-            super().__init__(ax, **kwargs)
-
-        mappable.colorbar = self
-        mappable.colorbar_cid = mappable.callbacksSM.connect(
-            'changed', self.update_normal)
-
-    def add_lines(self, CS, erase=True):
-        """
-        Add the lines from a non-filled `~.contour.ContourSet` to the colorbar.
-
-        Parameters
-        ----------
-        CS : `~.contour.ContourSet`
-            The line positions are taken from the ContourSet levels. The
-            ContourSet must not be filled.
-        erase : bool, default: True
-            Whether to remove any previously added lines.
-        """
-        if not isinstance(CS, contour.ContourSet) or CS.filled:
-            raise ValueError('add_lines is only for a ContourSet of lines')
-        tcolors = [c[0] for c in CS.tcolors]
-        tlinewidths = [t[0] for t in CS.tlinewidths]
-        # Wishlist: Make colorbar lines auto-follow changes in contour lines.
-        super().add_lines(CS.levels, tcolors, tlinewidths, erase=erase)
-
-    def update_normal(self, mappable):
-        """
-        Update solid patches, lines, etc.
-
-        This is meant to be called when the norm of the image or contour plot
-        to which this colorbar belongs changes.
-
-        If the norm on the mappable is different than before, this resets the
-        locator and formatter for the axis, so if these have been customized,
-        they will need to be customized again.  However, if the norm only
-        changes values of *vmin*, *vmax* or *cmap* then the old formatter
-        and locator will be preserved.
-        """
-        _log.debug('colorbar update normal %r %r', mappable.norm, self.norm)
-        self.mappable = mappable
-        self.set_alpha(mappable.get_alpha())
-        self.cmap = mappable.cmap
-        if mappable.norm != self.norm:
-            self.norm = mappable.norm
-            self._reset_locator_formatter_scale()
-
-        self.draw_all()
-        if isinstance(self.mappable, contour.ContourSet):
-            CS = self.mappable
-            if not CS.filled:
-                self.add_lines(CS)
-        self.stale = True
-
-    def remove(self):
-        """
-        Remove this colorbar from the figure.
-
-        If the colorbar was created with ``use_gridspec=True`` the previous
-        gridspec is restored.
-        """
-        super().remove()
-        self.mappable.callbacksSM.disconnect(self.mappable.colorbar_cid)
-        self.mappable.colorbar = None
-        self.mappable.colorbar_cid = None
-
-        try:
-            ax = self.mappable.axes
-        except AttributeError:
-            return
-
-        try:
-            gs = ax.get_subplotspec().get_gridspec()
-            subplotspec = gs.get_topmost_subplotspec()
-        except AttributeError:
-            # use_gridspec was False
-            pos = ax.get_position(original=True)
-            ax._set_position(pos)
-        else:
-            # use_gridspec was True
-            ax.set_subplotspec(subplotspec)
+ColorbarBase = Colorbar  # Backcompat API
 
 
 def _normalize_location_orientation(location, orientation):
