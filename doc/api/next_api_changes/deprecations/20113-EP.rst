@@ -1,0 +1,18 @@
+SpanSelector
+~~~~~~~~~~~~
+``span_stays`` is deprecated, use ``interactive`` argument instead
+Several `~matplotlib.widgets.SpanSelector` class internals have been privatized 
+and deprecated:
+- ``pressv``
+- ``rect``
+- ``rectprops``
+- ``active_handle``
+
+
+Several `~matplotlib.widgets.RectangleSelector` and
+`~matplotlib.widgets.EllipseSelector` class internals have been privatized and
+deprecated:
+- ``to_draw``
+- ``drawtype``
+- ``rectprops``
+- ``active_handle``
