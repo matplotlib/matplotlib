@@ -1209,14 +1209,17 @@ end"""
             wObject = self.reserveObject('Type 0 widths')
             toUnicodeMapObject = self.reserveObject('ToUnicode map')
 
-            _log.debug(f"SUBSET {filename} characters: "
-                       f"{''.join(chr(c) for c in characters)}")
-            fontdata = _backend_pdf_ps.getSubset(
-                filename,
-                ''.join(chr(c) for c in characters)
+            _log.debug(
+                "SUBSET %s characters: %s",
+                filename, "".join(chr(c) for c in characters)
             )
-            _log.debug(f'SUBSET {filename} {os.stat(filename).st_size}'
-                       f' ↦ {fontdata.getbuffer().nbytes}')
+            fontdata = _backend_pdf_ps.get_glyphs_subset(
+                filename, "".join(chr(c) for c in characters)
+            )
+            _log.debug(
+                "SUBSET %s %d ↦ %d", filename,
+                os.stat(filename).st_size, fontdata.getbuffer().nbytes
+            )
 
             # reload the font object from the subset
             # (all the necessary data could probably be obtained directly

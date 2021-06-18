@@ -956,16 +956,16 @@ class FigureCanvasPS(FigureCanvasBase):
                     else:
                         try:
                             _log.debug(
-                                f"SUBSET {font_path} characters: "
-                                f"{''.join(chr(c) for c in chars)}"
+                                "SUBSET %s characters: %s", font_path,
+                                ''.join(chr(c) for c in chars)
                             )
-                            fontdata = _backend_pdf_ps.getSubset(
+                            fontdata = _backend_pdf_ps.get_glyphs_subset(
                                 font_path, "".join(chr(c) for c in chars)
                             )
                             _log.debug(
-                                f"SUBSET {font_path} "
-                                f"{os.stat(font_path).st_size} "
-                                f"↦ {fontdata.getbuffer().nbytes}"
+                                "SUBSET %s %d ↦ %d", font_path,
+                                os.stat(font_path).st_size,
+                                fontdata.getbuffer().nbytes
                             )
 
                             # give ttconv a subsetted font
