@@ -2074,7 +2074,10 @@ class SpanSelector(_SelectorWidget):
         # self._pressv is deprecated but we still need to maintain it
         self._pressv = v
         if self._active_handle is None:
-            self.extents = v, v
+            # when the press event outside the span, we initially set the
+            # extents to (v, v) and _onmove or _release will follow up
+            # use _draw_shape instead of extents to avoid calling update
+            self._draw_shape(v, v)
 
         self.set_visible(True)
 
