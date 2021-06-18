@@ -1979,32 +1979,23 @@ class QuadMesh(Collection):
         # signature deprecation since="3.5": Change to new signature after the
         # deprecation has expired. Also remove setting __init__.__signature__,
         # and remove the Notes from the docstring.
-        #
-        # We use lambdas to parse *args, **kwargs through the respective old
-        # and new signatures.
-        try:
-            # Old signature:
-            # The following raises a TypeError iif the args don't match.
-            w, h, coords, antialiased, shading, kwargs = (
+        params = _api.select_matching_signature(
+            [
                 lambda meshWidth, meshHeight, coordinates, antialiased=True,
-                       shading='flat', **kwargs:
-                (meshWidth, meshHeight, coordinates, antialiased, shading,
-                 kwargs))(*args, **kwargs)
-        except TypeError as exc:
-            # New signature:
-            # If the following raises a TypeError (i.e. args don't match),
-            # just let it propagate.
-            coords, antialiased, shading, kwargs = (
+                       shading='flat', **kwargs: locals(),
                 lambda coordinates, antialiased=True, shading='flat', **kwargs:
-                (coordinates, antialiased, shading, kwargs))(*args, **kwargs)
-            coords = np.asarray(coords, np.float64)
-        else:  # The old signature matched.
+                       locals()
+            ],
+            *args, **kwargs).values()
+        *old_w_h, coords, antialiased, shading, kwargs = params
+        if old_w_h:  # The old signature matched.
             _api.warn_deprecated(
                 "3.5",
                 message="This usage of Quadmesh is deprecated: Parameters "
                         "meshWidth and meshHeights will be removed; "
                         "coordinates must be 2D; all parameters except "
                         "coordinates will be keyword-only.")
+            w, h = old_w_h
             coords = np.asarray(coords, np.float64).reshape((h + 1, w + 1, 2))
         kwargs.setdefault("pickradius", 0)
         # end of signature deprecation code
