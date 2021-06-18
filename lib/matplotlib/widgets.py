@@ -2073,10 +2073,10 @@ class SpanSelector(_SelectorWidget):
         v = event.xdata if self.direction == 'horizontal' else event.ydata
         # self._pressv is deprecated but we still need to maintain it
         self._pressv = v
-        if not self.interactive:
+        if self._active_handle is None:
             self.extents = v, v
 
-        self.set_visible(self.visible)
+        self.set_visible(True)
 
         return False
 
@@ -2092,7 +2092,7 @@ class SpanSelector(_SelectorWidget):
 
         vmin, vmax = self.extents
         span = vmax - vmin
-        if span < self.minspan:
+        if span <= self.minspan:
             self.set_visible(False)
             self.update()
             return
