@@ -7,6 +7,7 @@ and deprecated:
 - ``rect``
 - ``rectprops``
 - ``active_handle``
+- ``span_stays``
 
 
 Several `~matplotlib.widgets.RectangleSelector` and

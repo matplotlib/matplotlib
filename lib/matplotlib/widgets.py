@@ -2035,6 +2035,10 @@ class SpanSelector(_SelectorWidget):
 
     pressv = _api.deprecate_privatize_attribute("3.5")
 
+    span_stays = _api.deprecated("3.5")(
+        property(lambda self: self._interactive)
+        )
+
     def new_axes(self, ax):
         """Set SpanSelector to operate on a new Axes."""
         self.ax = ax

@@ -23,7 +23,7 @@ ax1.set_ylim(-2, 2)
 ax1.set_title('Press left mouse button and drag '
               'to select a region in the top graph')
 
-(line2,) = ax2.plot([], [])
+line2, = ax2.plot([], [])
 
 
 def onselect(xmin, xmax):
