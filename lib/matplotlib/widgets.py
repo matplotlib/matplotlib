@@ -1923,8 +1923,8 @@ class SpanSelector(_SelectorWidget):
     direction : {"horizontal", "vertical"}
         The direction along which to draw the span selector.
 
-    minspan : float, default: None
-        If selection is less than *minspan*, do not call *onselect*.
+    minspan : float, default: 0
+        If selection is less than or egal to *minspan*, do not call *onselect*.
 
     useblit : bool, default: False
         If True, use the backend-dependent blitting features for faster
@@ -2251,7 +2251,8 @@ class ToolLineHandles:
 
     def set_data(self, positions):
         """
-        Set x positions of handles
+        Set x or y positions of handles, depending if the lines are vertical
+        of horizontal.
 
         Parameters
         ----------

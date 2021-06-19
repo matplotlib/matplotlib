@@ -243,7 +243,7 @@ def test_span_selector_drag(drag_from_anywhere):
     # giving new value extents = 20, 110
     #
     # If drag_from_anywhere == False, this will create a new span with
-    # value vmin, vmaxextents = 25, 35
+    # value extents = 25, 35
     do_event(tool, 'press', xdata=25, ydata=15, button=1)
     do_event(tool, 'onmove', xdata=35, ydata=25, button=1)
     do_event(tool, 'release', xdata=35, ydata=25, button=1)
