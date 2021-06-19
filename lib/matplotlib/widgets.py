@@ -2073,13 +2073,18 @@ class SpanSelector(_SelectorWidget):
         v = event.xdata if self.direction == 'horizontal' else event.ydata
         # self._pressv is deprecated but we still need to maintain it
         self._pressv = v
+
         if self._active_handle is None:
             # when the press event outside the span, we initially set the
-            # extents to (v, v) and _onmove or _release will follow up
-            # use _draw_shape instead of extents to avoid calling update
-            self._draw_shape(v, v)
-
-        self.set_visible(True)
+            # visibility to False and extents to (v, v)
+            # update will be called when setting the extents
+            self.visible = False
+            self.extents = v, v
+            # We need to set the visibility back, so the span selector will be
+            # drawn when necessary (span width > 0)
+            self.visible = True
+        else:
+            self.set_visible(True)
 
         return False
 
