@@ -72,3 +72,16 @@ The *recursionlimit* parameter of `matplotlib.test` has been removed.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This method has been removed.  If needed, directly assign to the ``params``
 attribute of the Substitution object.
+
+``widgets.TextBox.params_to_disable``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This attribute has been removed.
+
+`.widgets.SubplotTool` callbacks and axes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``funcleft``, ``funcright``, ``funcbottom``, ``functop``, ``funcwspace``,
+and ``funchspace`` methods of `.widgets.SubplotTool` have been removed.
+
+The ``axleft``, ``axright``, ``axbottom``, ``axtop``, ``axwspace``, and
+``axhspace`` attributes of `.widgets.SubplotTool` have been removed.  Access
+the ``ax`` attribute of the corresponding slider, if needed.
