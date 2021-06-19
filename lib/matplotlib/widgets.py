@@ -2027,6 +2027,9 @@ class SpanSelector(_SelectorWidget):
         if self._interactive:
             self.artists.extend([line for line in self._edge_handles.artists])
 
+        # prev attritube is deprecated but we still need to maintain it
+        self._prev = (0, 0)
+
     rect = _api.deprecate_privatize_attribute("3.5")
 
     rectprops = _api.deprecate_privatize_attribute("3.5")
@@ -2038,6 +2041,8 @@ class SpanSelector(_SelectorWidget):
     span_stays = _api.deprecated("3.5")(
         property(lambda self: self._interactive)
         )
+
+    prev = _api.deprecated("3.5")(property(lambda self: self._prev))
 
     def new_axes(self, ax):
         """Set SpanSelector to operate on a new Axes."""
@@ -2075,8 +2080,10 @@ class SpanSelector(_SelectorWidget):
             self.update()
 
         v = event.xdata if self.direction == 'horizontal' else event.ydata
-        # self._pressv is deprecated but we still need to maintain it
+        # self._pressv and self._prev are deprecated but we still need to
+        # maintain them
         self._pressv = v
+        self._prev = self._get_data(event)
 
         if self._active_handle is None:
             # when the press event outside the span, we initially set the
@@ -2119,6 +2126,9 @@ class SpanSelector(_SelectorWidget):
 
     def _onmove(self, event):
         """Motion notify event handler."""
+
+        # self._prev are deprecated but we still need to maintain it
+        self._prev = self._get_data(event)
 
         v = event.xdata if self.direction == 'horizontal' else event.ydata
         if self.direction == 'horizontal':

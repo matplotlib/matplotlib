@@ -4,6 +4,7 @@ SpanSelector
 Several `~matplotlib.widgets.SpanSelector` class internals have been privatized 
 and deprecated:
 - ``pressv``
+- ``prev``
 - ``rect``
 - ``rectprops``
 - ``active_handle``
