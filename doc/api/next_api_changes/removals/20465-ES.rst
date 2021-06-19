@@ -28,3 +28,20 @@ to force the use of avconv by using the FFmpeg-based writers with
 * *clear_temp* parameter and attribute of `.FileMovieWriter`; files placed in a
   temporary directory (using ``frame_prefix=None``, the default) will be
   cleared; files placed elsewhere will not.
+
+Artist-specific removals
+~~~~~~~~~~~~~~~~~~~~~~~~
+* Setting a custom method overriding `.Artist.contains` using
+  ``Artist.set_contains`` has been removed, as has ``Artist.get_contains``.
+  There is no replacement, but you may still customize pick events using
+  `.Artist.set_picker`.
+* Passing the dash offset as ``None`` is no longer accepted, as this was never
+  universally implemented, e.g. for vector output. Set the offset to 0 instead.
+* The parameter *props* of `.Shadow` has been removed. Use keyword arguments
+  instead.
+* Arbitrary keyword arguments to ``StreamplotSet`` have no effect and have been
+  removed.
+* ``NonUniformImage.is_grayscale`` and ``PcolorImage.is_grayscale`` attributes
+  have been removed, for consistency with ``AxesImage.is_grayscale``. (Note
+  that previously, these attributes were only available *after rendering the
+  image*).
