@@ -85,3 +85,9 @@ and ``funchspace`` methods of `.widgets.SubplotTool` have been removed.
 The ``axleft``, ``axright``, ``axbottom``, ``axtop``, ``axwspace``, and
 ``axhspace`` attributes of `.widgets.SubplotTool` have been removed.  Access
 the ``ax`` attribute of the corresponding slider, if needed.
+
+Variants on ``ToolManager.update_keymap`` calls
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing multiple keys as a single comma-separated string or multiple arguments
+to `.ToolManager.update_keymap` is no longer supported; pass keys as a list of
+strings instead.
