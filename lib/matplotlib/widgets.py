@@ -1989,7 +1989,6 @@ class SpanSelector(_SelectorWidget):
 
         rectprops['animated'] = self.useblit
 
-        _api.check_in_list(['horizontal', 'vertical'], direction=direction)
         self._direction = direction
 
         self._rect = None
@@ -2010,22 +2009,18 @@ class SpanSelector(_SelectorWidget):
 
         # Reset canvas so that `new_axes` connects events.
         self.canvas = None
+        self.artists = []
         self.new_axes(ax)
 
         # Setup handles
         props = dict(color=rectprops.get('facecolor', 'r'))
         props.update(cbook.normalize_kwargs(line_props, Line2D._alias_map))
 
-        self._edge_order = ['min', 'max']
-        self._edge_handles = ToolLineHandles(self.ax, self.extents,
-                                             direction=direction,
-                                             line_props=props,
-                                             useblit=self.useblit)
+        if self._interactive:
+            self._edge_order = ['min', 'max']
+            self._setup_edge_handle(props)
 
         self._active_handle = None
-
-        if self._interactive:
-            self.artists.extend([line for line in self._edge_handles.artists])
 
         # prev attritube is deprecated but we still need to maintain it
         self._prev = (0, 0)
@@ -2066,7 +2061,17 @@ class SpanSelector(_SelectorWidget):
                                **self._rectprops)
 
         self.ax.add_patch(self._rect)
-        self.artists = [self._rect]
+        if len(self.artists) > 0:
+            self.artists[0] = self._rect
+        else:
+            self.artists.append(self._rect)
+
+    def _setup_edge_handle(self, props):
+        self._edge_handles = ToolLineHandles(self.ax, self.extents,
+                                             direction=self.direction,
+                                             line_props=props,
+                                             useblit=self.useblit)
+        self.artists.extend([line for line in self._edge_handles.artists])
 
     def _press(self, event):
         """Button press event handler."""
@@ -2103,6 +2108,22 @@ class SpanSelector(_SelectorWidget):
     def direction(self):
         """Direction of the span selector: 'vertical' or 'horizontal'."""
         return self._direction
+
+    @direction.setter
+    def direction(self, direction):
+        """Set the direction of the span selector."""
+        _api.check_in_list(['horizontal', 'vertical'], direction=direction)
+        if direction != self._direction:
+            # remove previous artists
+            self._rect.remove()
+            if self._interactive:
+                self._edge_handles.remove()
+                for artist in self._edge_handles.artists:
+                    self.artists.remove(artist)
+            self._direction = direction
+            self.new_axes(self.ax)
+            if self._interactive:
+                self._setup_edge_handle(self._edge_handles._line_props)
 
     def _release(self, event):
         """Button release event handler."""
@@ -2220,8 +2241,9 @@ class SpanSelector(_SelectorWidget):
     def extents(self, extents):
         # Update displayed shape
         self._draw_shape(*extents)
-        # Update displayed handles
-        self._edge_handles.set_data(self.extents)
+        if self._interactive:
+            # Update displayed handles
+            self._edge_handles.set_data(self.extents)
         self.set_visible(self.visible)
         self.update()
 
@@ -2254,6 +2276,7 @@ class ToolLineHandles:
         line_props.update({'visible': False, 'animated': useblit})
 
         line_fun = ax.axvline if self.direction == 'horizontal' else ax.axhline
+        self._line_props = line_props
 
         self.artists = [line_fun(p, **line_props) for p in positions]
 
@@ -2291,6 +2314,11 @@ class ToolLineHandles:
         """Set the animated state of the handles artist."""
         for artist in self.artists:
             artist.set_animated(value)
+
+    def remove(self):
+        """Remove the handles artist from the figure."""
+        for artist in self.artists:
+            artist.remove()
 
     def closest(self, x, y):
         """
