@@ -1236,16 +1236,10 @@ _validators = {
     # Controls image format when frames are written to disk
     "animation.frame_format": ["png", "jpeg", "tiff", "raw", "rgba", "ppm",
                                "sgi", "bmp", "pbm", "svg"],
-    # Additional arguments for HTML writer
-    "animation.html_args":    validate_stringlist,
     # Path to ffmpeg binary. If just binary name, subprocess uses $PATH.
     "animation.ffmpeg_path":  _validate_pathlike,
     # Additional arguments for ffmpeg movie writer (using pipes)
     "animation.ffmpeg_args":  validate_stringlist,
-    # Path to AVConv binary. If just binary name, subprocess uses $PATH.
-    "animation.avconv_path":  _validate_pathlike,
-    # Additional arguments for avconv movie writer (using pipes)
-    "animation.avconv_args":  validate_stringlist,
      # Path to convert binary. If just binary name, subprocess uses $PATH.
     "animation.convert_path": _validate_pathlike,
      # Additional arguments for convert movie writer (using pipes)
@@ -1261,9 +1255,7 @@ _hardcoded_defaults = {  # Defaults not inferred from matplotlibrc.template...
     # ... because they are private:
     "_internal.classic_mode": False,
     # ... because they are deprecated:
-    "animation.avconv_path": "avconv",
-    "animation.avconv_args": [],
-    "animation.html_args": [],
+    # No current deprecations.
     # backend is handled separately when constructing rcParamsDefault.
 }
 _validators = {k: _convert_validator_spec(k, conv)

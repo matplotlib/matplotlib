@@ -8,3 +8,23 @@ Case-insensitive capstyles and joinstyles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Please pass capstyles ("miter", "round", "bevel") and joinstyles ("butt",
 "round", "projecting") as lowercase.
+
+AVConv animation writers removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``AVConvBase``, ``AVConvWriter`` and ``AVConvFileWriter`` classes, and the
+associated ``animation.avconv_path`` and ``animation.avconv_args`` rcParams
+have been removed.
+
+Debian 8 (2015, EOL 06/2020) and Ubuntu 14.04 (EOL 04/2019) were the
+last versions of Debian and Ubuntu to ship avconv.  It remains possible
+to force the use of avconv by using the FFmpeg-based writers with
+:rc:`animation.ffmpeg_path` set to "avconv".
+
+``MovieWriter`` attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+* ``animation.html_args`` rcParam
+* ``HTMLWriter.args_key`` attribute
+* ``MovieWriter.args_key`` and ``MovieWriter.exec_key`` attributes
+* *clear_temp* parameter and attribute of `.FileMovieWriter`; files placed in a
+  temporary directory (using ``frame_prefix=None``, the default) will be
+  cleared; files placed elsewhere will not.
