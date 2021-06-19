@@ -589,10 +589,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
     # We didn't find the files, so build them
 
     results = []
-    if context:
-        ns = plot_context
-    else:
-        ns = {}
+    ns = plot_context if context else {}
 
     if context_reset:
         clear_state(config.plot_rcparams)
@@ -717,9 +714,7 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # determine output directory name fragment
     source_rel_name = relpath(source_file_name, setup.confdir)
-    source_rel_dir = os.path.dirname(source_rel_name)
-    while source_rel_dir.startswith(os.path.sep):
-        source_rel_dir = source_rel_dir[1:]
+    source_rel_dir = os.path.dirname(source_rel_name).lstrip(os.path.sep)
 
     # build_dir: where to place output files (temporarily)
     build_dir = os.path.join(os.path.dirname(setup.app.doctreedir),
@@ -729,15 +724,12 @@ def run(arguments, content, options, state_machine, state, lineno):
     # see note in Python docs for warning about symbolic links on Windows.
     # need to compare source and dest paths at end
     build_dir = os.path.normpath(build_dir)
-
-    if not os.path.exists(build_dir):
-        os.makedirs(build_dir)
+    os.makedirs(build_dir, exist_ok=True)
 
     # output_dir: final location in the builder's directory
     dest_dir = os.path.abspath(os.path.join(setup.app.builder.outdir,
                                             source_rel_dir))
-    if not os.path.exists(dest_dir):
-        os.makedirs(dest_dir)  # no problem here for me, but just use built-ins
+    os.makedirs(dest_dir, exist_ok=True)
 
     # how to link to files from the RST file
     dest_dir_link = os.path.join(relpath(setup.confdir, rst_dir),
