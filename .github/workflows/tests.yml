@@ -145,8 +145,7 @@ jobs:
 
           # Install dependencies from PyPI.
           python -m pip install --upgrade $PRE \
-            cycler kiwisolver numpy packaging pillow pyparsing python-dateutil \
-            setuptools-scm \
+            cycler fonttools kiwisolver numpy pillow pyparsing python-dateutil setuptools-scm \
             -r requirements/testing/all.txt \
             ${{ matrix.extra-requirements }}
 
