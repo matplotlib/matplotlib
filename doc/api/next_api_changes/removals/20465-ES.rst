@@ -45,3 +45,11 @@ Artist-specific removals
   have been removed, for consistency with ``AxesImage.is_grayscale``. (Note
   that previously, these attributes were only available *after rendering the
   image*).
+
+Path helpers
+~~~~~~~~~~~~
+* ``bezier.make_path_regular``; use ``Path.cleaned()`` (or
+  ``Path.cleaned(curves=True)``, etc.) instead, but note that these methods add
+  a ``STOP`` code at the end of the path.
+* ``bezier.concatenate_paths``; use ``Path.make_compound_path()`` instead.
+* *quantize* parameter of `.Path.cleaned()`
