@@ -2005,7 +2005,7 @@ class SpanSelector(_SelectorWidget):
         self.minspan = minspan
 
         self.maxdist = maxdist
-        self.interactive = interactive
+        self._interactive = interactive
         self.drag_from_anywhere = drag_from_anywhere
 
         # Reset canvas so that `new_axes` connects events.
@@ -2024,7 +2024,7 @@ class SpanSelector(_SelectorWidget):
 
         self._active_handle = None
 
-        if self.interactive:
+        if self._interactive:
             self.artists.extend([line for line in self._edge_handles.artists])
 
     rect = _api.deprecate_privatize_attribute("3.5")
@@ -2061,12 +2061,12 @@ class SpanSelector(_SelectorWidget):
 
     def _press(self, event):
         """Button press event handler."""
-        if self.interactive and self._rect.get_visible():
+        if self._interactive and self._rect.get_visible():
             self._set_active_handle(event)
         else:
             self._active_handle = None
 
-        if self._active_handle is None or not self.interactive:
+        if self._active_handle is None or not self._interactive:
             # Clear previous rectangle before drawing new rectangle.
             self.update()
 
@@ -2090,7 +2090,7 @@ class SpanSelector(_SelectorWidget):
 
     def _release(self, event):
         """Button release event handler."""
-        if not self.interactive:
+        if not self._interactive:
             self._rect.set_visible(False)
 
         vmin, vmax = self.extents
@@ -2462,7 +2462,7 @@ class RectangleSelector(_SelectorWidget):
 
         self._to_draw = None
         self.visible = True
-        self.interactive = interactive
+        self._interactive = interactive
         self.drag_from_anywhere = drag_from_anywhere
 
         if drawtype == 'none':  # draw a line but make it invisible
@@ -2534,7 +2534,7 @@ class RectangleSelector(_SelectorWidget):
                         self._corner_handles.artist,
                         self._edge_handles.artist]
 
-        if not self.interactive:
+        if not self._interactive:
             self.artists = [self._to_draw]
 
         self._extents_on_press = None
@@ -2545,20 +2545,22 @@ class RectangleSelector(_SelectorWidget):
 
     active_handle = _api.deprecate_privatize_attribute("3.5")
 
+    interactive = _api.deprecate_privatize_attribute("3.5")
+
     def _press(self, event):
         """Button press event handler."""
         # make the drawn box/line visible get the click-coordinates,
         # button, ...
-        if self.interactive and self._to_draw.get_visible():
+        if self._interactive and self._to_draw.get_visible():
             self._set_active_handle(event)
         else:
             self._active_handle = None
 
-        if self._active_handle is None or not self.interactive:
+        if self._active_handle is None or not self._interactive:
             # Clear previous rectangle before drawing new rectangle.
             self.update()
 
-        if not self.interactive:
+        if not self._interactive:
             x = event.xdata
             y = event.ydata
             self.extents = x, x, y, y
@@ -2567,7 +2569,7 @@ class RectangleSelector(_SelectorWidget):
 
     def _release(self, event):
         """Button release event handler."""
-        if not self.interactive:
+        if not self._interactive:
             self._to_draw.set_visible(False)
 
         # update the eventpress and eventrelease with the resulting extents

@@ -16,3 +16,4 @@ deprecated:
 - ``drawtype``
 - ``rectprops``
 - ``active_handle``
+- ``interactive``
