@@ -1,5 +1,5 @@
 import sphinx
-from distutils.version import LooseVersion
+from packaging.version import parse as parse_version
 
 # -- General configuration ------------------------------------------------
 
@@ -16,7 +16,7 @@ pygments_style = 'sphinx'
 
 # -- Options for HTML output ----------------------------------------------
 
-if LooseVersion(sphinx.__version__) >= LooseVersion('1.3'):
+if parse_version(sphinx.__version__) >= parse_version('1.3'):
     html_theme = 'classic'
 else:
     html_theme = 'default'

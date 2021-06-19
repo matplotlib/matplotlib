@@ -167,7 +167,7 @@ class _GSConverter(_Converter):
 
 class _SVGConverter(_Converter):
     def __call__(self, orig, dest):
-        old_inkscape = mpl._get_executable_info("inkscape").version < "1"
+        old_inkscape = mpl._get_executable_info("inkscape").version.major < 1
         terminator = b"\n>" if old_inkscape else b"> "
         if not hasattr(self, "_tmpdir"):
             self._tmpdir = TemporaryDirectory()

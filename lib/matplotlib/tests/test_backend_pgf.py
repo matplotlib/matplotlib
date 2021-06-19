@@ -4,6 +4,7 @@ import os
 import shutil
 
 import numpy as np
+from packaging.version import parse as parse_version
 import pytest
 
 import matplotlib as mpl
@@ -88,7 +89,8 @@ def test_xelatex():
 
 
 try:
-    _old_gs_version = mpl._get_executable_info('gs').version < '9.50'
+    _old_gs_version = \
+        mpl._get_executable_info('gs').version < parse_version('9.50')
 except mpl.ExecutableNotFoundError:
     _old_gs_version = True
 

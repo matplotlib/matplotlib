@@ -327,6 +327,7 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
         "cycler>=0.10",
         "kiwisolver>=1.0.1",
         "numpy>=1.17",
+        "packaging>=20.0",
         "pillow>=6.2.0",
         "pyparsing>=2.2.1",
         "python-dateutil>=2.7",
