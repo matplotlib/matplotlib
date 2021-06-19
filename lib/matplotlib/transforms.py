@@ -493,14 +493,6 @@ class BboxBase(TransformNode):
             [pts[0], [pts[0, 0], pts[1, 1]], [pts[1, 0], pts[0, 1]]]))
         return Bbox([ll, [lr[0], ul[1]]])
 
-    @_api.deprecated("3.3", alternative="transformed(transform.inverted())")
-    def inverse_transformed(self, transform):
-        """
-        Construct a `Bbox` by statically transforming this one by the inverse
-        of *transform*.
-        """
-        return self.transformed(transform.inverted())
-
     coefs = {'C':  (0.5, 0.5),
              'SW': (0, 0),
              'S':  (0.5, 0),

@@ -53,3 +53,9 @@ Path helpers
   a ``STOP`` code at the end of the path.
 * ``bezier.concatenate_paths``; use ``Path.make_compound_path()`` instead.
 * *quantize* parameter of `.Path.cleaned()`
+
+``BboxBase.inverse_transformed``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``.BboxBase.inverse_transformed`` has been removed (call `.BboxBase.transformed`
+on the `~.Transform.inverted()` transform instead).
