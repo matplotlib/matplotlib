@@ -66,7 +66,7 @@ characters, and embed only those within the output.
 
 .. note::
   The role of subsetter really shines when we encounter characters like `ä`
-  (composed by calling subprograms for ``a`` and ``¨``); since the subsetter
+  (composed by calling subprograms for **a** and **¨**); since the subsetter
   has to find out *all* such subprograms being called by every glyph included
   in the subset, and since there is almost no consistency within multiple
   different backends and the types of subsetting, this is a generally difficult
@@ -75,9 +75,10 @@ characters, and embed only those within the output.
 Luckily, Matplotlib uses a fork of an external dependency called
 `ttconv <https://github.com/sandflow/ttconv>`_, which helps in embedding and
 subsetting stuff. (however, recent versions have moved away from ttconv to pure
-Python for certain types)
+Python for certain types: for more details visit
+`these <https://github.com/matplotlib/matplotlib/pull/18370>` ; `links <https://github.com/matplotlib/matplotlib/pull/18181>`)
 
-| *Type 1 fonts are still non-subsetted* through Matplotlib. (though one will only encounter these via `usetex`/`dviread` in PDF backend)
+| *Type 1 fonts are still non-subsetted* through Matplotlib. (though one will encounter these mostly via *usetex*/*dviread* in PDF backend)
 | **Type 3 and Type 42 fonts are subsetted**, with a fair amount of exceptions and bugs for the latter.
 
 What to use?
