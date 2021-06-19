@@ -2565,12 +2565,16 @@ class RectangleSelector(_SelectorWidget):
             # Clear previous rectangle before drawing new rectangle.
             self.update()
 
-        if not self._interactive:
+        if self._active_handle is None:
             x = event.xdata
             y = event.ydata
+            self.visible = False
             self.extents = x, x, y, y
+            self.visible = True
+        else:
+            self.set_visible(True)
 
-        self.set_visible(self.visible)
+        return False
 
     def _release(self, event):
         """Button release event handler."""
