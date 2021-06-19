@@ -59,3 +59,16 @@ Path helpers
 
 ``.BboxBase.inverse_transformed`` has been removed (call `.BboxBase.transformed`
 on the `~.Transform.inverted()` transform instead).
+
+``matplotlib.test(recursionlimit=...)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *recursionlimit* parameter of `matplotlib.test` has been removed.
+
+``testing.compare.make_external_conversion_command``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... has been removed.
+
+``docstring.Substitution.from_params``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This method has been removed.  If needed, directly assign to the ``params``
+attribute of the Substitution object.
