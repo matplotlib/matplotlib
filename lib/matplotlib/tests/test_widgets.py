@@ -254,25 +254,29 @@ def test_CheckButtons():
     check.disconnect(cid)
 
 
-def check_TextBox():
-    def submit(text):
-        tool.set_val('x**1')
-
-    def change(text):
-        tool.color = '1.0'
+def test_TextBox():
+    from unittest.mock import Mock
+    submit_event = Mock()
+    text_change_event = Mock()
     ax = get_ax()
-    tool = widgets.TextBox(ax, 'Evaluate', color='.95', initial='x**2')
+
+    tool = widgets.TextBox(ax, 'Evaluate')
+    tool.on_submit(submit_event)
+    tool.on_text_change(text_change_event)
+    tool.set_val('x**2')
+
     assert tool.text == 'x**2'
-    tool.on_submit(submit)
-    tool.on_text_change(change)
+    assert text_change_event.call_count == 1
+
     tool.begin_typing(tool.text)
     tool.stop_typing()
-    assert tool.text == 'x**1'
-    assert tool.color == '1.0'
 
+    assert submit_event.call_count == 2
+    do_event(tool, '_click')
+    do_event(tool, '_keypress', key='+')
+    do_event(tool, '_keypress', key='5')
 
-def test_TextBox():
-    check_TextBox()
+    assert text_change_event.call_count == 3
 
 
 @image_comparison(['check_radio_buttons.png'], style='mpl20', remove_text=True)
