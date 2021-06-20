@@ -27,7 +27,6 @@ import re
 import struct
 import subprocess
 import sys
-import textwrap
 
 import numpy as np
 
@@ -852,14 +851,12 @@ class PsfontsMap:
         try:
             return self._parsed[texname]
         except KeyError:
-            fmt = ('An associated PostScript font (required by Matplotlib) '
-                   'could not be found for TeX font {0!r} in {1!r}.  This '
-                   'problem can often be solved by installing a suitable '
-                   'PostScript font package in your TeX package manager.')
-            _log.info(textwrap.fill(
-                fmt.format(texname.decode('ascii'), self._filename),
-                break_on_hyphens=False, break_long_words=False))
-            raise
+            raise LookupError(
+                f"An associated PostScript font (required by Matplotlib) "
+                f"could not be found for TeX font {texname.decode('ascii')!r} "
+                f"in {self._filename!r}; this problem can often be solved by "
+                f"installing a suitable PostScript font package in your TeX "
+                f"package manager") from None
 
     def _parse_and_cache_line(self, line):
         """
