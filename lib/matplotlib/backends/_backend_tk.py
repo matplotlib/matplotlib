@@ -542,7 +542,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
                 if tooltip_text is not None:
                     ToolTip.createToolTip(button, tooltip_text)
 
-        self._label_font = tkinter.font.Font(size=10)
+        self._label_font = tkinter.font.Font(root=window, size=10)
 
         # This filler item ensures the toolbar is always at least two text
         # lines high. Otherwise the canvas gets redrawn as the mouse hovers
