@@ -209,14 +209,13 @@ class FigureCanvasTk(FigureCanvasBase):
                 self.close_event()
         root.bind("<Destroy>", filter_destroy, "+")
 
-        self._master = master
         self._tkcanvas.focus_set()
 
     def _update_device_pixel_ratio(self, event=None):
         # Tk gives scaling with respect to 72 DPI, but most (all?) screens are
         # scaled vs 96 dpi, and pixel ratio settings are given in whole
         # percentages, so round to 2 digits.
-        ratio = round(self._master.call('tk', 'scaling') / (96 / 72), 2)
+        ratio = round(self._tkcanvas.tk.call('tk', 'scaling') / (96 / 72), 2)
         if self._set_device_pixel_ratio(ratio):
             # The easiest way to resize the canvas is to resize the canvas
             # widget itself, since we implement all the logic for resizing the
@@ -367,7 +366,7 @@ class FigureCanvasTk(FigureCanvasBase):
 
     def flush_events(self):
         # docstring inherited
-        self._master.update()
+        self._tkcanvas.update()
 
     def start_event_loop(self, timeout=0):
         # docstring inherited
@@ -379,14 +378,14 @@ class FigureCanvasTk(FigureCanvasBase):
             else:
                 self._event_loop_id = self._tkcanvas.after_idle(
                     self.stop_event_loop)
-        self._master.mainloop()
+        self._tkcanvas.mainloop()
 
     def stop_event_loop(self):
         # docstring inherited
         if self._event_loop_id:
-            self._master.after_cancel(self._event_loop_id)
+            self._tkcanvas.after_cancel(self._event_loop_id)
             self._event_loop_id = None
-        self._master.quit()
+        self._tkcanvas.quit()
 
 
 class FigureManagerTk(FigureManagerBase):
