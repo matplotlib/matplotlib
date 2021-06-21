@@ -1,8 +1,8 @@
 .. _developers-guide-index:
 
-################################
-The Matplotlib Developers' Guide
-################################
+############
+Contributing
+############
 
 Thank you for your interest in helping to improve Matplotlib! There are various
 ways to contribute to Matplotlib. All of them are super valuable but don't necessarily

@@ -4,13 +4,6 @@
 Writing documentation
 =====================
 
-.. contents:: Contents
-   :depth: 3
-   :local:
-   :backlinks: top
-   :class: multicol-toc
-
-
 Getting started
 ===============
 
@@ -290,7 +283,7 @@ Including figures and files
 ---------------------------
 
 Image files can directly included in pages with the ``image::`` directive.
-e.g., :file:`tutorials/intermediate/constrainedlayout_guide.py` displays 
+e.g., :file:`tutorials/intermediate/constrainedlayout_guide.py` displays
 a couple of static images::
 
   # .. image:: /_static/constrained_layout_1b.png

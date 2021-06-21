@@ -12,11 +12,11 @@ User's Guide
 .. toctree::
     :maxdepth: 2
 
-    installing.rst
-    ../tutorials/index.rst
     interactive.rst
     release_notes.rst
-    history.rst
     license.rst
     ../citing.rst
+    ../resources/index.rst
+    ../faq/index.rst
     credits.rst
+    history.rst
