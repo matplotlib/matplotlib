@@ -1048,8 +1048,11 @@ class Polygon(Patch):
     """A general polygon patch."""
 
     def __str__(self):
-        s = "Polygon%d((%g, %g) ...)"
-        return s % (len(self._path.vertices), *tuple(self._path.vertices[0]))
+        if len(self._path.vertices):
+            s = "Polygon%d((%g, %g) ...)"
+            return s % (len(self._path.vertices), *self._path.vertices[0])
+        else:
+            return "Polygon0()"
 
     @docstring.dedent_interpd
     def __init__(self, xy, closed=True, **kwargs):
