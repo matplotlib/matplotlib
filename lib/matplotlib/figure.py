@@ -1200,7 +1200,7 @@ default: %(va)s
                 "disabling constrained_layout.")
         self.subplotpars.update(left, bottom, right, top, wspace, hspace)
         for ax in self.axes:
-            if isinstance(ax, SubplotBase):
+            if hasattr(ax, 'get_subplotspec'):
                 ax._set_position(ax.get_subplotspec().get_position(self))
         self.stale = True
 

@@ -260,9 +260,15 @@ class ColorbarAxes(Axes):
         self.outer_ax.tick_params = self.inner_ax.tick_params
         self.outer_ax.set_xticks = self.inner_ax.set_xticks
         self.outer_ax.set_yticks = self.inner_ax.set_yticks
-        for attr in ["get_position", "set_position", "set_aspect"]:
+        for attr in ["get_position", "set_aspect", 
+                     "_remove_method", "_set_position",
+                     "set_position"]:
             setattr(self, attr, getattr(self.outer_ax, attr))
         self._colorbar_info = None  # used for mpl-created axes
+        if hasattr(self.outer_ax, "get_subplotspec"):
+            attr = "get_subplotspec"
+            setattr(self, attr, getattr(self.outer_ax, attr))
+
         if userax:
             self._colorbar_info = 'user'
             # point the parent's methods all at this axes...
@@ -277,6 +283,7 @@ class ColorbarAxes(Axes):
 
     def draw(self, renderer):
         self.outer_ax.draw(renderer)
+
 
 
 class _ColorbarSpine(mspines.Spine):
@@ -954,12 +961,11 @@ class Colorbar:
     def remove(self):
         """
         Remove this colorbar from the figure.
-
+        
         If the colorbar was created with ``use_gridspec=True`` the previous
         gridspec is restored.
         """
-        self.ax.inner_ax.remove()
-        self.ax.outer_ax.remove()
+        self.ax.remove()
 
         self.mappable.callbacksSM.disconnect(self.mappable.colorbar_cid)
         self.mappable.colorbar = None
