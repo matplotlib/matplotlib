@@ -2380,6 +2380,8 @@ class _AxesBase(martist.Artist):
             return
         patch_trf = patch.get_transform()
         updatex, updatey = patch_trf.contains_branch_seperately(self.transData)
+        if not (updatex or updatey):
+            return
         if self.name != "rectilinear":
             # As in _update_line_limits, but for axvspan.
             if updatex and patch_trf == self.get_yaxis_transform():

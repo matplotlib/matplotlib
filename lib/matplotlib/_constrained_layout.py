@@ -575,7 +575,11 @@ def _reposition_colorbar(cbax, renderer, *, offset=None):
     pbcb = trans_fig_to_subfig.transform_bbox(pbcb)
     cbax.set_transform(fig.transSubfigure)
     cbax._set_position(pbcb)
-    cbax.set_aspect(aspect, anchor=anchor, adjustable='box')
+    cbax.set_anchor(anchor)
+    if location in ['bottom', 'top']:
+        aspect = 1 / aspect
+    cbax.set_box_aspect(aspect)
+    cbax.set_aspect('auto')
     return offset
 
 
