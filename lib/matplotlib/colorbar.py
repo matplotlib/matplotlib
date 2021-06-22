@@ -239,15 +239,19 @@ class ColorbarAxes(Axes):
                 parent._axes.add_child_axes(outer_ax)
                 outer_ax._axes.child_axes.remove(parent)
             else:
-                parent.remove()
+                try:
+                    parent.remove()
+                except ValueError:
+                    pass  # Already removed
         else:
             outer_ax = parent
 
-        # swap axes in the stack:
-        fig._localaxes.remove(outer_ax)
-        fig._axstack.remove(outer_ax)
-        fig._localaxes.add(self)
-        fig._axstack.add(self)
+        # swap axes in the stack if its in there:
+        if outer_ax in fig._localaxes:
+            fig._localaxes.remove(outer_ax)
+            fig._axstack.remove(outer_ax)
+            fig._localaxes.add(self)
+            fig._axstack.add(self)
         inner_ax = outer_ax.inset_axes([0, 0, 1, 1])
         self.__dict__.update(inner_ax.__dict__)
 
@@ -261,8 +265,8 @@ class ColorbarAxes(Axes):
         self.outer_ax.set_xticks = self.inner_ax.set_xticks
         self.outer_ax.set_yticks = self.inner_ax.set_yticks
         for attr in ["get_position", "set_aspect",
-                    "_remove_method", "_set_position",
-                     "set_position"]:
+                     "_remove_method", "_set_position",
+                     "set_position", "cla", "draw"]:
             setattr(self, attr, getattr(self.outer_ax, attr))
         self._colorbar_info = None  # used for mpl-created axes
         if hasattr(self.outer_ax, "get_subplotspec"):
@@ -272,7 +276,11 @@ class ColorbarAxes(Axes):
         if userax:
             self._colorbar_info = 'user'
             # point the parent's methods all at this axes...
+            origdict = parent.__dict__
             parent.__dict__ = self.__dict__
+            for key in origdict.keys():
+                if key not in parent.__dict__:
+                    parent.__dict__[key] = origdict[key]
 
     def _set_inner_bounds(self, bounds):
         """
@@ -280,9 +288,6 @@ class ColorbarAxes(Axes):
         """
         self.inner_ax._axes_locator = _TransformedBoundsLocator(
             bounds, self.outer_ax.transAxes)
-
-    def draw(self, renderer):
-        self.outer_ax.draw(renderer)
 
 
 class _ColorbarSpine(mspines.Spine):
