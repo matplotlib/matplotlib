@@ -54,9 +54,9 @@ def test_PsfontsMap(monkeypatch):
     entry = fontmap[b'TeXfontC']
     assert entry.psname == b'PSfontC3'
     # Missing font
-    with pytest.raises(KeyError, match='no-such-font'):
+    with pytest.raises(LookupError, match='no-such-font'):
         fontmap[b'no-such-font']
-    with pytest.raises(KeyError, match='%'):
+    with pytest.raises(LookupError, match='%'):
         fontmap[b'%']
 
 
