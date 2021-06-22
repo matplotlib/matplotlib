@@ -4648,8 +4648,9 @@ default: :rc:`scatter.edgecolors`
             left of the y-axis.
 
         extent : 4-tuple of float, default: *None*
-            The limits of the bins (xmin, xmax, ymin, ymax) . The default assigns the limits
-            based on *gridsize*, *x*, *y*, *xscale* and *yscale*.
+            The limits of the bins (xmin, xmax, ymin, ymax).
+            The default assigns the limits based on
+            *gridsize*, *x*, *y*, *xscale* and *yscale*.
 
             If *xscale* or *yscale* is set to 'log', the limits are
             expected to be the exponent for a power of 10. E.g. for
