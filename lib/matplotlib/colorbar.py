@@ -227,9 +227,9 @@ class ColorbarAxes(Axes):
             True if the user passed `.Figure.colorbar` the axes manually.
         """
 
+        fig = parent.figure
         if userax:
             # copy position:
-            fig = parent.figure
             outer_ax = fig.add_axes(parent.get_position())
             # copy the locator if one exists:
             outer_ax._axes_locator = parent._axes_locator
@@ -243,11 +243,17 @@ class ColorbarAxes(Axes):
         else:
             outer_ax = parent
 
+        # swap axes in the stack:
+        fig._localaxes.remove(outer_ax)
+        fig._axstack.remove(outer_ax)
+        fig._localaxes.add(self)
+        fig._axstack.add(self)
         inner_ax = outer_ax.inset_axes([0, 0, 1, 1])
         self.__dict__.update(inner_ax.__dict__)
 
         self.outer_ax = outer_ax
         self.inner_ax = inner_ax
+
         self.outer_ax.xaxis.set_visible(False)
         self.outer_ax.yaxis.set_visible(False)
         self.outer_ax.set_facecolor('none')
@@ -268,6 +274,9 @@ class ColorbarAxes(Axes):
         """
         self.inner_ax._axes_locator = _TransformedBoundsLocator(
             bounds, self.outer_ax.transAxes)
+
+    def draw(self, renderer):
+        self.outer_ax.draw(renderer)
 
 
 class _ColorbarSpine(mspines.Spine):
