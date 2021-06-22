@@ -347,6 +347,9 @@ def test_patch_str():
     p = mpatches.PathPatch(path)
     assert str(p) == "PathPatch3((1, 2) ...)"
 
+    p = mpatches.Polygon(np.empty((0, 2)))
+    assert str(p) == "Polygon0()"
+
     data = [[1, 2], [2, 2], [1, 2]]
     p = mpatches.Polygon(data)
     assert str(p) == "Polygon3((1, 2) ...)"
