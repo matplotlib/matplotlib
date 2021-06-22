@@ -4647,7 +4647,7 @@ default: :rc:`scatter.edgecolors`
             colormapped rectangles along the bottom of the x-axis and
             left of the y-axis.
 
-        extent : float, default: *None*
+        extent : 4-tuple of float, default: *None*
             The limits of the bins. The default assigns the limits
             based on *gridsize*, *x*, *y*, *xscale* and *yscale*.
 
