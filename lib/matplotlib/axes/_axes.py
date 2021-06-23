@@ -4647,16 +4647,15 @@ default: :rc:`scatter.edgecolors`
             colormapped rectangles along the bottom of the x-axis and
             left of the y-axis.
 
-        extent : float, default: *None*
-            The limits of the bins. The default assigns the limits
-            based on *gridsize*, *x*, *y*, *xscale* and *yscale*.
+        extent : 4-tuple of float, default: *None*
+            The limits of the bins (xmin, xmax, ymin, ymax).
+            The default assigns the limits based on
+            *gridsize*, *x*, *y*, *xscale* and *yscale*.
 
             If *xscale* or *yscale* is set to 'log', the limits are
             expected to be the exponent for a power of 10. E.g. for
             x-limits of 1 and 50 in 'linear' scale and y-limits
             of 10 and 1000 in 'log' scale, enter (1, 50, 1, 3).
-
-            Order of scalars is (left, right, bottom, top).
 
         Returns
         -------
