@@ -24,7 +24,8 @@ def test_font_priority():
             'font.sans-serif':
             ['cmmi10', 'Bitstream Vera Sans']}):
         font = findfont(FontProperties(family=["sans-serif"]))
-    assert Path(font).name == 'cmmi10.ttf'
+    # first font should be cmmi10.ttf
+    assert Path(next(iter(font.values()))).name == 'cmmi10.ttf'
 
     # Smoketest get_charmap, which isn't used internally anymore
     font = get_font(font)
@@ -110,7 +111,7 @@ def test_utf16m_sfnt():
 
 def test_find_ttc():
     fp = FontProperties(family=["WenQuanYi Zen Hei"])
-    if Path(findfont(fp)).name != "wqy-zenhei.ttc":
+    if "wqy-zenhei.ttc" not in map(lambda x: Path(x).name, findfont(fp)):
         pytest.skip("Font may be missing")
 
     fig, ax = plt.subplots()
