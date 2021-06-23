@@ -280,7 +280,7 @@ html_theme = "pydata_sphinx_theme"
 # the sidebar.
 html_logo = "_static/logo2.svg"
 html_theme_options = {
-    "logo_link": "index.html",
+    "logo_link": "index",
     "icon_links": [
         {
             "name": "gitter",
@@ -296,6 +296,11 @@ html_theme_options = {
             "name": "GitHub",
             "url": "https://github.com/matplotlib/matplotlib",
             "icon": "fab fa-github-square",
+        },
+        {
+            "name": "twitter",
+            "url": "https://twitter.com/matplotlib/",
+            "icon": "fab fa-twitter-square",
         },
 
     ],
