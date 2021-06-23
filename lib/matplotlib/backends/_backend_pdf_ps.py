@@ -108,6 +108,10 @@ class RendererPDFPSBase(RendererBase):
     def _get_font_afm(self, prop):
         fname = font_manager.findfont(
             prop, fontext="afm", directory=self._afm_font_dir)
+
+        # TODO: allow multiple font caching
+        # for now pass the first font
+        fname = next(iter(fname.values()))
         return _cached_get_afm_from_fname(fname)
 
     def _get_font_ttf(self, prop):
