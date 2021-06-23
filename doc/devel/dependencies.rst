@@ -58,7 +58,6 @@ and the capabilities they provide.
 
 .. [#] Tk is part of most standard Python installations, but it's not part of
        Python itself and thus may not be present in rare cases.
-.. [#] PySide cannot be pip-installed on Linux (but can be conda-installed).
 .. [#] If using pip (and not conda), PyGObject must be built from source; see
        https://pygobject.readthedocs.io/en/latest/devguide/dev_environ.html.
 .. [#] If using pip (and not conda) on Linux, wxPython wheels must be manually
