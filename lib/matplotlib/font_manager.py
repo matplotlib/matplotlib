@@ -23,6 +23,7 @@ Future versions may implement the Level 2 or 2.1 specifications.
 #   - setWeights function needs improvement
 #   - 'light' is an invalid weight value, remove it.
 
+from collections import OrderedDict
 import dataclasses
 from functools import lru_cache
 import json
@@ -1019,6 +1020,19 @@ def json_load(filename):
         return json.load(fh, object_hook=_json_decode)
 
 
+class FontsPath:
+    """Class to hold the result of findfont"""
+    def __init__(self, file_paths):
+        self._filepaths = None
+        self.set_filepaths(file_paths)
+
+    def set_filepaths(self, file_paths):
+        self._filepaths = file_paths
+
+    def get_filepaths(self):
+        return self._filepaths
+
+
 def _normalize_font_family(family):
     if isinstance(family, str):
         family = [family]
@@ -1304,15 +1318,38 @@ class FontManager:
         rc_params = tuple(tuple(rcParams[key]) for key in [
             "font.serif", "font.sans-serif", "font.cursive", "font.fantasy",
             "font.monospace"])
-        return self._findfont_cached(
-            prop, fontext, directory, fallback_to_default, rebuild_if_missing,
-            rc_params)
+
+        prop = FontProperties._from_any(prop)
+        ffamily = prop.get_family()
+
+        # maintain two dicts, one for available paths,
+        # the other for fallback paths
+        fpaths, fbpaths = OrderedDict(), OrderedDict()
+        for fidx in range(len(ffamily)):
+            prop = prop.copy()
+
+            # set current prop's family
+            prop.set_family(ffamily[fidx])
+
+            fpath = self._findfont_cached(
+                FontProperties._from_any(prop), fontext, directory,
+                fallback_to_default, rebuild_if_missing, rc_params)
+
+            # if fontfile isn't found, fpath will be a FontsPath object
+            if isinstance(fpath, FontsPath):
+                fbpaths.update(fpath.get_filepaths())
+            else:
+                fpaths[ffamily[fidx]] = fpath
+
+        # append fallback font(s) to the very end
+        fpaths.update(fbpaths)
+
+        return FontsPath(fpaths)
+
 
     @lru_cache()
     def _findfont_cached(self, prop, fontext, directory, fallback_to_default,
                          rebuild_if_missing, rc_params):
-
-        prop = FontProperties._from_any(prop)
 
         fname = prop.get_file()
         if fname is not None:
@@ -1401,7 +1438,10 @@ def is_opentype_cff_font(filename):
 
 
 @lru_cache(64)
-def _get_font(filename, hinting_factor, *, _kerning_factor, thread_id):
+def _get_font(filenames, hinting_factor, *, _kerning_factor, thread_id):
+    # TODO: allow multiple files (future PR)
+    # for now just pass the first element
+    filename = filenames[0]
     return ft2font.FT2Font(
         filename, hinting_factor, _kerning_factor=_kerning_factor)
 
@@ -1417,11 +1457,20 @@ if hasattr(os, "register_at_fork"):
 def get_font(filename, hinting_factor=None):
     # Resolving the path avoids embedding the font twice in pdf/ps output if a
     # single font is selected using two different relative paths.
-    filename = _cached_realpath(filename)
+    if isinstance(filename, FontsPath):
+        filenames = []
+        for fname in filename.get_filepaths().values():
+            filenames.append(_cached_realpath(fname))
+    else:
+        filenames = [_cached_realpath(filename)]
     if hinting_factor is None:
         hinting_factor = rcParams['text.hinting_factor']
+
+    # convert to tuple so its hashable
+    filenames = tuple(filenames)
+
     # also key on the thread ID to prevent segfaults with multi-threading
-    return _get_font(filename, hinting_factor,
+    return _get_font(filenames, hinting_factor,
                      _kerning_factor=rcParams['text.kerning_factor'],
                      thread_id=threading.get_ident())
 
