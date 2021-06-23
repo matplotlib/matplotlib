@@ -1583,7 +1583,7 @@ class QuadContourSet(ContourSet):
             If not given, they are assumed to be integer indices, i.e.
             ``X = range(M)``, ``Y = range(N)``.
 
-        Z : (M, N) array-like
+        Z : (N, M) array-like
             The height values over which the contour is drawn.
 
         levels : int or array-like, optional
