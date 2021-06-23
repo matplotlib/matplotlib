@@ -242,6 +242,9 @@ class TruetypeFonts(Fonts):
     def _get_font(self, font):
         if font in self.fontmap:
             basename = self.fontmap[font]
+            # TODO: allow multiple fonts
+            # for now settle with the first element
+            basename = next(iter(basename.values()))
         else:
             basename = font
         cached_font = self._fonts.get(basename)
