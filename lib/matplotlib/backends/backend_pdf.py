@@ -830,9 +830,9 @@ class PdfFile:
         if isinstance(fontprop, str):
             filename = fontprop
         else:
-            if mpl.rcParams['pdf.use14corefonts']:
-                filename = findfont(
-                    fontprop, fontext='afm', directory=RendererPdf._afm_font_dir)
+            if mpl.rcParams["pdf.use14corefonts"]:
+                filename = findfont(fontprop, fontext="afm",
+                                    directory=RendererPdf._afm_font_dir)
             else:
                 filename = findfont(fontprop)
 

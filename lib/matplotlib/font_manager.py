@@ -1333,7 +1333,6 @@ class FontManager:
 
         return fpaths
 
-
     @lru_cache()
     def _findfont_cached(self, prop, fontext, directory, fallback_to_default,
                          rebuild_if_missing, rc_params):
