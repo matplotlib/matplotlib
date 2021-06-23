@@ -829,11 +829,16 @@ class PdfFile:
 
         if isinstance(fontprop, str):
             filename = fontprop
-        elif mpl.rcParams['pdf.use14corefonts']:
-            filename = findfont(
-                fontprop, fontext='afm', directory=RendererPdf._afm_font_dir)
         else:
-            filename = findfont(fontprop)
+            if mpl.rcParams['pdf.use14corefonts']:
+                filename = findfont(
+                    fontprop, fontext='afm', directory=RendererPdf._afm_font_dir)
+            else:
+                filename = findfont(fontprop)
+
+            # TODO: allow multiple fonts for PDF backend
+            # for now settle with the first element
+            filename = next(iter(filename.values()))
 
         Fx = self.fontNames.get(filename)
         if Fx is None:
