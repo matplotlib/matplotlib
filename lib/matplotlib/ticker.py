@@ -488,7 +488,10 @@ class ScalarFormatter(Formatter):
                 except ValueError:
                     ufont = None
 
-                if str(cbook._get_data_path("fonts/ttf/cmr10.ttf")) in ufont:
+                if (
+                    ufont is not None and
+                    str(cbook._get_data_path("fonts/ttf/cmr10.ttf")) in ufont
+                ):
                     _api.warn_external(
                         "cmr10 font should ideally be used with "
                         "mathtext, set axes.formatter.use_mathtext to True"
