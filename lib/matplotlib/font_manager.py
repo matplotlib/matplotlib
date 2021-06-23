@@ -1020,19 +1020,6 @@ def json_load(filename):
         return json.load(fh, object_hook=_json_decode)
 
 
-class FontsPath:
-    """Class to hold the result of findfont"""
-    def __init__(self, file_paths):
-        self._filepaths = None
-        self.set_filepaths(file_paths)
-
-    def set_filepaths(self, file_paths):
-        self._filepaths = file_paths
-
-    def get_filepaths(self):
-        return self._filepaths
-
-
 def _normalize_font_family(family):
     if isinstance(family, str):
         family = [family]
@@ -1335,16 +1322,16 @@ class FontManager:
                 FontProperties._from_any(prop), fontext, directory,
                 fallback_to_default, rebuild_if_missing, rc_params)
 
-            # if fontfile isn't found, fpath will be a FontsPath object
-            if isinstance(fpath, FontsPath):
-                fbpaths.update(fpath.get_filepaths())
+            # if fontfile isn't found, fpath will be an OrderedDict
+            if isinstance(fpath, OrderedDict):
+                fbpaths.update(fpath)
             else:
                 fpaths[ffamily[fidx]] = fpath
 
         # append fallback font(s) to the very end
         fpaths.update(fbpaths)
 
-        return FontsPath(fpaths)
+        return fpaths
 
 
     @lru_cache()
@@ -1457,9 +1444,9 @@ if hasattr(os, "register_at_fork"):
 def get_font(filename, hinting_factor=None):
     # Resolving the path avoids embedding the font twice in pdf/ps output if a
     # single font is selected using two different relative paths.
-    if isinstance(filename, FontsPath):
+    if isinstance(filename, OrderedDict):
         filenames = []
-        for fname in filename.get_filepaths().values():
+        for fname in filename.values():
             filenames.append(_cached_realpath(fname))
     else:
         filenames = [_cached_realpath(filename)]
