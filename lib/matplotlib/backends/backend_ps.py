@@ -963,7 +963,7 @@ class FigureCanvasPS(FigureCanvasBase):
                                 font_path, "".join(chr(c) for c in chars)
                             )
                             _log.debug(
-                                "SUBSET %s %d ↦ %d", font_path,
+                                "SUBSET %s %d -> %d", font_path,
                                 os.stat(font_path).st_size,
                                 fontdata.getbuffer().nbytes
                             )
