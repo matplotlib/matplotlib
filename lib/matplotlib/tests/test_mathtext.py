@@ -225,6 +225,8 @@ def test_mathfont_rendering(baseline_images, fontset, index, text):
 
 def test_fontinfo():
     fontpath = mpl.font_manager.findfont("DejaVu Sans")
+    # get the first element
+    fontpath = next(iter(fontpath.values()))
     font = mpl.ft2font.FT2Font(fontpath)
     table = font.get_sfnt_table("head")
     assert table['version'] == (1, 0)
