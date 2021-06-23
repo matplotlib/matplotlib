@@ -1098,7 +1098,9 @@ class FontManager:
     def defaultFont(self):
         # Lazily evaluated (findfont then caches the result) to avoid including
         # the venv path in the json serialization.
-        return {ext: self.findfont(family, fontext=ext)
+
+        # TODO: allow embedding multiple fonts
+        return {ext: next(iter(self.findfont(family, fontext=ext).values()))
                 for ext, family in self.defaultFamily.items()}
 
     def get_default_weight(self):
