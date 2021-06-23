@@ -50,7 +50,13 @@ def get_fontspec():
         for family, command in zip(families, commands):
             # 1) Forward slashes also work on Windows, so don't mess with
             # backslashes.  2) The dirname needs to include a separator.
-            path = pathlib.Path(fm.findfont(family))
+            path = fm.findfont(family)
+
+            # TODO: Allow multiple fonts
+            # for now stick with the first font
+            path = next(iter(path.values()))
+
+            path = pathlib.Path(path)
             latex_fontspec.append(r"\%s{%s}[Path=\detokenize{%s}]" % (
                 command, path.name, path.parent.as_posix() + "/"))
 
