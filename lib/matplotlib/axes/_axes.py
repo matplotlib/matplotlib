@@ -4657,8 +4657,6 @@ default: :rc:`scatter.edgecolors`
             x-limits of 1 and 50 in 'linear' scale and y-limits
             of 10 and 1000 in 'log' scale, enter (1, 50, 1, 3).
 
-            Order of scalars is (left, right, bottom, top).
-
         Returns
         -------
         `~matplotlib.collections.PolyCollection`
