@@ -265,6 +265,21 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         self._path_collection_id = 0
 
         self._character_tracker = _backend_pdf_ps.CharacterTracker()
+        self._logwarn_once = functools.lru_cache(None)(_log.warning)
+
+    def _is_transparent(self, rgb_or_rgba):
+        if rgb_or_rgba is None:
+            return True  # Consistent with rgbFace semantics.
+        elif len(rgb_or_rgba) == 4:
+            if rgb_or_rgba[3] == 0:
+                return True
+            if rgb_or_rgba[3] != 1:
+                self._logwarn_once(
+                    "The PostScript backend does not support transparency; "
+                    "partially transparent artists will be rendered opaque.")
+            return False
+        else:  # len() == 3.
+            return False
 
     def set_color(self, r, g, b, store=True):
         if (r, g, b) != self.color:
@@ -457,7 +472,7 @@ grestore
 
         ps_color = (
             None
-            if _is_transparent(rgbFace)
+            if self._is_transparent(rgbFace)
             else '%1.3f setgray' % rgbFace[0]
             if rgbFace[0] == rgbFace[1] == rgbFace[2]
             else '%1.3f %1.3f %1.3f setrgbcolor' % rgbFace[:3])
@@ -552,7 +567,7 @@ translate
     def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         # docstring inherited
         if not hasattr(self, "psfrag"):
-            _log.warning(
+            self._logwarn_once(
                 "The PS backend determines usetex status solely based on "
                 "rcParams['text.usetex'] and does not support having "
                 "usetex=True only for some elements; this element will thus "
@@ -589,7 +604,7 @@ grestore
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited
 
-        if _is_transparent(gc.get_rgb()):
+        if self._is_transparent(gc.get_rgb()):
             return  # Special handling for fully transparent.
 
         if ismath == 'TeX':
@@ -729,10 +744,10 @@ grestore
         """
         write = self._pswriter.write
         mightstroke = (gc.get_linewidth() > 0
-                       and not _is_transparent(gc.get_rgb()))
+                       and not self._is_transparent(gc.get_rgb()))
         if not mightstroke:
             stroke = False
-        if _is_transparent(rgbFace):
+        if self._is_transparent(rgbFace):
             fill = False
         hatch = gc.get_hatch()
 
@@ -767,21 +782,6 @@ grestore
             write("stroke\n")
 
         write("grestore\n")
-
-
-def _is_transparent(rgb_or_rgba):
-    if rgb_or_rgba is None:
-        return True  # Consistent with rgbFace semantics.
-    elif len(rgb_or_rgba) == 4:
-        if rgb_or_rgba[3] == 0:
-            return True
-        if rgb_or_rgba[3] != 1:
-            _log.warning(
-                "The PostScript backend does not support transparency; "
-                "partially transparent artists will be rendered opaque.")
-        return False
-    else:  # len() == 3.
-        return False
 
 
 @_api.deprecated("3.4", alternative="GraphicsContextBase")
