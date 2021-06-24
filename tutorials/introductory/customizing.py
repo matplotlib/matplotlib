@@ -139,6 +139,27 @@ mpl.rc('lines', linewidth=4, linestyle='-.')
 plt.plot(data)
 
 ###############################################################################
+# Temporary rc settings
+# ---------------------
+#
+# The :data:`matplotlib.rcParams` object can also be changed temporarily using
+# the `matplotlib.rc_context` context manager:
+
+with mpl.rc_context({'lines.linewidth': 2, 'lines.linestyle': ':'}):
+    plt.plot(data)
+
+###############################################################################
+# `matplotlib.rc_context` can also be used as a decorator to modify the
+# defaults within a function:
+
+
+@mpl.rc_context({'lines.linewidth': 3, 'lines.linestyle': '-'})
+def plotting_function():
+    plt.plot(data)
+
+plotting_function()
+
+###############################################################################
 # `matplotlib.rcdefaults` will restore the standard Matplotlib
 # default settings.
 #
