@@ -3,8 +3,12 @@
 Interactive Adjustment of Colormap Range
 ========================================
 
-Demonstration of using colorbar and picker functionality to make an
+Demonstration of using colorbar, picker, and event functionality to make an
 interactively adjustable colorbar widget.
+
+Left clicks and drags inside the colorbar axes adjust the high range of the
+color scheme. Likewise, right clicks and drags adjust the low range. The
+connected AxesImage immediately updates to reflect the change.
 """
 
 import numpy as np
@@ -12,12 +16,12 @@ import matplotlib.pyplot as plt
 from matplotlib.backend_bases import MouseButton
 
 
-def pick_fn(event):
+def on_pick(event):
     adjust_colorbar(event.mouseevent)
 
 
-def motion_fn(mouseevent):
-    if mouseevent.inaxes is colorbar.ax.axes:
+def on_move(mouseevent):
+    if mouseevent.inaxes is colorbar.ax:
         adjust_colorbar(mouseevent)
 
 
@@ -35,18 +39,29 @@ def adjust_colorbar(mouseevent):
 
 fig, ax = plt.subplots()
 canvas = fig.canvas
-arr = np.random.random((100, 100))
-axesimage = plt.imshow(arr)
+
+delta = 0.1
+x = np.arange(-3.0, 4.001, delta)
+y = np.arange(-4.0, 3.001, delta)
+X, Y = np.meshgrid(x, y)
+Z1 = np.exp(-X**2 - Y**2)
+Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
+Z = (0.9*Z1 - 0.5*Z2) * 2
+
+cmap = plt.get_cmap('viridis').with_extremes(over='xkcd:orange', under='xkcd:dark red')
+axesimage = plt.imshow(Z, cmap=cmap)
 colorbar = plt.colorbar(axesimage, ax=ax, use_gridspec=True)
 
-# helps you see what value you are about to set the range to
+# `set_navigate` helps you see what value you are about to set the range
+# to, and enables zoom and pan in the colorbar which can be helpful for
+# narrow or wide data ranges
 colorbar.ax.set_navigate(True)
 
 # React to all motion with left or right mouse buttons held
-canvas.mpl_connect("motion_notify_event", motion_fn)
+canvas.mpl_connect("motion_notify_event", on_move)
 
 # React only to left and right clicks
-colorbar.ax.axes.set_picker(True)
-canvas.mpl_connect("pick_event", pick_fn)
+colorbar.ax.set_picker(True)
+canvas.mpl_connect("pick_event", on_pick)
 
 plt.show()
