@@ -1,13 +1,13 @@
 .. _resources-index:
 
-*******************
- External Resources
-*******************
+******************
+External resources
+******************
 
 
-=============================
- Books, Chapters and Articles
-=============================
+============================
+Books, chapters and articles
+============================
 
 * `Mastering matplotlib
   <https://www.packtpub.com/big-data-and-business-intelligence/mastering-matplotlib>`_
@@ -33,9 +33,9 @@
   <http://scipython.com/book/chapter-7-matplotlib/>`_
   by Christian Hill
 
-=======
- Videos
-=======
+======
+Videos
+======
 
 * `Plotting with matplotlib <https://www.youtube.com/watch?v=P7SVi0YTIuE>`_
   by Mike Müller
@@ -51,9 +51,9 @@
   <http://shop.oreilly.com/product/0636920046592.do>`_
   by Randal S. Olson
 
-==========
- Tutorials
-==========
+=========
+Tutorials
+=========
 
 * `Matplotlib tutorial <http://www.labri.fr/perso/nrougier/teaching/matplotlib/>`_
   by Nicolas P. Rougier

@@ -1,9 +1,9 @@
 .. _github-stats:
 
-GitHub Stats
-============
+GitHub statistics
+=================
 
-GitHub stats for 2021/03/31 - 2021/05/07 (tag: v3.4.1)
+GitHub statistics for 2021/03/31 - 2021/05/07 (tag: v3.4.1)
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 

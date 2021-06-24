@@ -1,6 +1,6 @@
 
 ================
-Next API Changes
+Next API changes
 ================
 
 .. ifconfig:: releaselevel == 'dev'
