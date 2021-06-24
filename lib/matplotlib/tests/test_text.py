@@ -738,6 +738,6 @@ def test_parse_math():
     ax.text(0, 0, r"$ \wrong{math} $", parse_math=False)
     fig.canvas.draw()
 
+    ax.text(0, 0, r"$ \wrong{math} $", parse_math=True)
     with pytest.raises(ValueError, match='Unknown symbol'):
-        ax.text(0, 0, r"$ \wrong{math} $", parse_math=True)
         fig.canvas.draw()
