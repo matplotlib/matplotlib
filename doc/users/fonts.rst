@@ -25,9 +25,9 @@ In practice, there are 3 types Matplotlib supports (in addition to
    * - These fonts support font hinting
      - Do not support font hinting
      - Hinting supported (virtual machine processes the "hints")
-   * - Difficult to subset!
-     - Easy to subset!
-     - Very hard to subset!
+   * - Non-subsetted through Matplotlib
+     - Subsetted via external module `ttconv <https://github.com/sandflow/ttconv>`_
+     - Subsetted via external module `fonttools <https://github.com/fonttools/fonttools>`_
 
 NOTE: Adobe will disable support for authoring with Type 1 fonts in
 January 2023. `Read more here. <https://helpx.adobe.com/fonts/kb/postscript-type-1-fonts-end-of-support.html>`_
@@ -38,7 +38,8 @@ Special Mentions
 
   - PostScript wrapper around TrueType fonts
   - 42 is the `Answer to Life, the Universe, and Everything! <https://en.wikipedia.org/wiki/Answer_to_Life,_the_Universe,_and_Everything>`_
-  - Very hard to subset!
+  - Matplotlib uses an external library called `fonttools <https://github.com/fonttools/fonttools>`_
+    to subset these types of fonts
 
 - OpenType fonts:
 
@@ -65,18 +66,16 @@ goal is to find out *which* glyphs are required for a certain array of
 characters, and embed only those within the output.
 
 .. note::
-  The role of subsetter really shines when we encounter characters like `ä`
+  The role of subsetter really shines when we encounter characters like **ä**
   (composed by calling subprograms for **a** and **¨**); since the subsetter
   has to find out *all* such subprograms being called by every glyph included
-  in the subset, and since there is almost no consistency within multiple
-  different backends and the types of subsetting, this is a generally difficult
-  problem!
+  in the subset, this is a generally difficult problem!
 
 Luckily, Matplotlib uses a fork of an external dependency called
 `ttconv <https://github.com/sandflow/ttconv>`_, which helps in embedding and
 subsetting stuff. (however, recent versions have moved away from ttconv to pure
 Python for certain types: for more details visit
-`these <https://github.com/matplotlib/matplotlib/pull/18370>` ; `links <https://github.com/matplotlib/matplotlib/pull/18181>`)
+`these <https://github.com/matplotlib/matplotlib/pull/18370>`_, `links <https://github.com/matplotlib/matplotlib/pull/18181>`_)
 
 | *Type 1 fonts are still non-subsetted* through Matplotlib. (though one will encounter these mostly via *usetex*/*dviread* in PDF backend)
 | **Type 3 and Type 42 fonts are subsetted**, with a fair amount of exceptions and bugs for the latter.
@@ -111,3 +110,11 @@ This is especially helpful to generate *really lightweight* documents.::
 .. note::
   These core fonts are limited to PDF and PS backends only; they can not be
   rendered in other backends.
+
+  Another downside to this is that while the font metric are standardized,
+  different PDF viewer applications will have different fonts to render these
+  metrics. In other words, the **output might look different on different
+  viewers**, as well as (let's say) Windows and Linux, if Linux tools included
+  free versions of the proprietary fonts.
+
+  This also violates the *what-you-see-is-what-you-get* feature of Matplotlib.
