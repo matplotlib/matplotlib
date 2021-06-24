@@ -13,7 +13,9 @@ import itertools
 import logging
 import math
 import os
+import random
 import re
+import string
 import struct
 import time
 import types
@@ -768,6 +770,13 @@ class PdfFile:
                    }
         self.pageAnnotations.append(theNote)
 
+    def _get_subsetted_psname(self, ps_name):
+        # first three characters as MPL
+        prefix = "MPL"
+        # rest 3 random characters
+        rand = ''.join(random.choice(string.ascii_uppercase) for x in range(3))
+        return prefix + rand + "+" + ps_name
+
     def finalize(self):
         """Write out the various deferred objects and the pdf end matter."""
 
@@ -1360,7 +1369,8 @@ end"""
 
         # Beginning of main embedTTF function...
 
-        ps_name = font.postscript_name.encode('ascii', 'replace')
+        ps_name = self._get_subsetted_psname(font.postscript_name)
+        ps_name = ps_name.encode('ascii', 'replace')
         ps_name = Name(ps_name)
         pclt = font.get_sfnt_table('pclt') or {'capHeight': 0, 'xHeight': 0}
         post = font.get_sfnt_table('post') or {'italicAngle': (0, 0)}
