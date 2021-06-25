@@ -34,6 +34,7 @@ def print_glyphs(path):
     """
     if path is None:
         path = fm.findfont(fm.FontProperties())  # The default font.
+        path = next(iter(path.values()))  # Get the first filepath
 
     font = FT2Font(path)
 
@@ -60,6 +61,7 @@ def draw_font_table(path):
     """
     if path is None:
         path = fm.findfont(fm.FontProperties())  # The default font.
+        path = next(iter(path.values()))  # Get the first filepath
 
     font = FT2Font(path)
     # A charmap is a mapping of "character codes" (in the sense of a character
