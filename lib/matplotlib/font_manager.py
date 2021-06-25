@@ -1315,13 +1315,13 @@ class FontManager:
         # the other for fallback paths
         fpaths, fbpaths = OrderedDict(), OrderedDict()
         for fidx in range(len(ffamily)):
-            prop = prop.copy()
+            cprop = prop.copy()
 
             # set current prop's family
-            prop.set_family(ffamily[fidx])
+            cprop.set_family(ffamily[fidx])
 
             fpath = self._findfont_cached(
-                FontProperties._from_any(prop), fontext, directory,
+                FontProperties._from_any(cprop), fontext, directory,
                 fallback_to_default, rebuild_if_missing, rc_params)
 
             # if fontfile isn't found, fpath will be an OrderedDict
