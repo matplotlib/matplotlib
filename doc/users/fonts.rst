@@ -2,12 +2,16 @@ Fonts in Matplotlib Text Engine
 ===============================
 
 Matplotlib needs fonts to work with its text engine, some of which are shipped
-alongside the installation. Users can configure the default fonts, or even
-provide their own custom fonts! Follow this guide.
+alongside the installation. However, users can configure the default fonts, or
+even provide their own custom fonts! For more details, see :doc:`Customizing 
+text properties </tutorials/text/text_props>`.
 
 However, Matplotlib also provides an option to offload text rendering to a TeX
-engine (``usetex=True``). Consult this guide.
+engine (``usetex=True``),
+see :doc:`Text rendering with LaTeX </tutorials/text/usetex>`.
 
+Font Specifications
+-------------------
 Fonts have a long and sometimes incompatible history in computing, leading to
 different platforms supporting different types of fonts. In practice, there are
 3 types of font specifications Matplotlib supports (in addition to 'core
@@ -37,7 +41,9 @@ NOTE: Adobe will disable support for authoring with Type 1 fonts in
 January 2023. `Read more here. <https://helpx.adobe.com/fonts/kb/postscript-type-1-fonts-end-of-support.html>`_
 
 Special Mentions
-~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^
+Other font specifications which Matplotlib supports:
+
 - Type 42 fonts (PS):
 
   - PostScript wrapper around TrueType fonts
@@ -51,7 +57,6 @@ Special Mentions
     Adobe and Microsoft
   - Generally contain a much larger character set!
   - Limited Support with Matplotlib
-
 
 Subsetting
 ----------
