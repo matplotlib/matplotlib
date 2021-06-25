@@ -1,13 +1,17 @@
-All about Matplotlib and Fonts!
+Fonts in Matplotlib Text Engine
 ===============================
 
-The story of fonts has been quite eventful throughout time. It involves
-contributions of tech giants such as the likes of Adobe, Apple and Microsoft.
+Matplotlib needs fonts to work with its text engine, some of which are shipped
+alongside the installation. Users can configure the default fonts, or even
+provide their own custom fonts! Follow this guide.
 
-Types
------
-In practice, there are 3 types Matplotlib supports (in addition to
-'core fonts', more about which is explained later in the guide):
+However, Matplotlib also provides an option to offload text rendering to a TeX
+engine (``usetex=True``). Consult this guide.
+
+Fonts have a long and sometimes incompatible history in computing, leading to
+different platforms supporting different types of fonts. In practice, there are
+3 types of font specifications Matplotlib supports (in addition to 'core
+fonts', more about which is explained later in the guide):
 
 .. list-table:: Type of Fonts
    :header-rows: 1
@@ -57,13 +61,14 @@ a way that when these documents are visually scaled, the text does not appear
 pixelated.
 
 This can be achieved by virtually embedding the *whole* font file within the
-output document. However, this can lead to **very large documents**, wherein
-most of the size bandwidth is captured by that font file data.
+output document. However, this can lead to very large documents, as some
+fonts (for instance, CJK - Chinese/Japanese/Korean fonts) can contain a large
+number of glyphs, and thus their embedded size can be quite huge.
 
-Font Subsetting is a way to embed only the *required* glyphs within the
-documents. Fonts can be considered as a collection of glyphs, so ultimately the
-goal is to find out *which* glyphs are required for a certain array of
-characters, and embed only those within the output.
+Font Subsetting can be used before generating documents, to embed only the
+*required* glyphs within the documents. Fonts can be considered as a collection
+of glyphs, so ultimately the goal is to find out *which* glyphs are required
+for a certain array of characters, and embed only those within the output.
 
 .. note::
   The role of subsetter really shines when we encounter characters like **ä**
@@ -73,8 +78,8 @@ characters, and embed only those within the output.
 
 Luckily, Matplotlib uses a fork of an external dependency called
 `ttconv <https://github.com/sandflow/ttconv>`_, which helps in embedding and
-subsetting stuff. (however, recent versions have moved away from ttconv to pure
-Python for certain types: for more details visit
+subsetting font data. (however, recent versions have moved away from ttconv to
+pure Python for certain types: for more details visit
 `these <https://github.com/matplotlib/matplotlib/pull/18370>`_, `links <https://github.com/matplotlib/matplotlib/pull/18181>`_)
 
 | *Type 1 fonts are still non-subsetted* through Matplotlib. (though one will encounter these mostly via *usetex*/*dviread* in PDF backend)
