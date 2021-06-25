@@ -1,0 +1,8 @@
+Unit-provided ``default_limits``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Support for units providing their own ``default_limits`` on axes is deprecated,
+as well as the related APIs (``Axis.set_default_intervals``,
+``AxisInfo.default_limits``, and the ``default_limits`` parameter of
+`.units.AxisInfo`).  Locators with a custom `.Locator.nonsingular` method can
+still be used to customize the default limits, regardless of whether the unit
+machinery is being used.

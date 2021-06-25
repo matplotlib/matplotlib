@@ -1830,8 +1830,7 @@ class DateConverter(units.ConversionInterface):
         datemin = datetime.date(2000, 1, 1)
         datemax = datetime.date(2010, 1, 1)
 
-        return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='',
-                              default_limits=(datemin, datemax))
+        return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='')
 
     @staticmethod
     def convert(value, unit, axis):
@@ -1886,8 +1885,7 @@ class ConciseDateConverter(DateConverter):
                                       show_offset=self._show_offset)
         datemin = datetime.date(2000, 1, 1)
         datemax = datetime.date(2010, 1, 1)
-        return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='',
-                              default_limits=(datemin, datemax))
+        return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='')
 
 
 class _rcParam_helper:
