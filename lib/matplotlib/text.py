@@ -1240,7 +1240,9 @@ class Text(Artist):
             if s == " ":
                 s = r"\ "
             return s, "TeX"
-        elif self.get_parse_math() and cbook.is_math_text(s):
+        elif not self.get_parse_math():
+            return s, False
+        elif cbook.is_math_text(s):
             return s, True
         else:
             return s.replace(r"\$", "$"), False
