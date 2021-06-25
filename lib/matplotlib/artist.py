@@ -677,6 +677,17 @@ class Artist:
         """
         Set the sketch parameters.
 
+        Requires the following preamble when using the PGF backend:
+
+            \\usepackage{pgf}
+            \\usepgfmodule{decorations}
+            \\usepgflibrary{decorations.pathmorphing}
+
+        This also applies to PGF backend + PDF output, where this must be added
+        to `pgf.preamble` manually. The PGF backend uses the `randomness`
+        argument as a seed and not as described below. Pass the same seed to
+        obtain the same random shape.
+
         Parameters
         ----------
         scale : float, optional
