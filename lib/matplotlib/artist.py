@@ -684,7 +684,7 @@ class Artist:
             \\usepgflibrary{decorations.pathmorphing}
 
         This also applies to PGF backend + PDF output, where this must be added
-        to `pgf.preamble` manually. The PGF backend uses the `randomness`
+        to *pgf.preamble* manually. The PGF backend uses the *randomness*
         argument as a seed and not as described below. Pass the same seed to
         obtain the same random shape.
 
