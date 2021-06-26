@@ -20,6 +20,11 @@ import matplotlib
 import sphinx
 
 from datetime import datetime
+import time
+
+# Parse year using SOURCE_DATE_EPOCH, falling back to current time.
+# https://reproducible-builds.org/specs/source-date-epoch/
+sourceyear=datetime.utcfromtimestamp(int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))).year
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -212,7 +217,7 @@ html_context = {
 project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
              'Michael Droettboom and the Matplotlib development '
-             f'team; 2012 - {datetime.now().year} The Matplotlib development team')
+             f'team; 2012 - {sourceyear} The Matplotlib development team')
 
 
 # The default replacements for |version| and |release|, also used in various
