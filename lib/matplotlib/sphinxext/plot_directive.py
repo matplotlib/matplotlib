@@ -429,14 +429,23 @@ class ImageFile:
         return [self.filename(fmt) for fmt in self.formats]
 
 
-def out_of_date(original, derived):
+def out_of_date(original, derived, includes=None):
     """
-    Return whether *derived* is out-of-date relative to *original*, both of
-    which are full file paths.
+    Return whether *derived* is out-of-date relative to *original* or any of
+    the RST files included in it using the RST include directive (*includes*).
+    *derived* and *original* are full paths, and *includes* is optionally a
+    list of full paths which may have been included in the *original*.
     """
-    return (not os.path.exists(derived) or
-            (os.path.exists(original) and
-             os.stat(derived).st_mtime < os.stat(original).st_mtime))
+    if includes is None:
+        includes = []
+    files_to_check = [original, *includes]
+
+    def out_of_date_one(original, derived):
+        return (not os.path.exists(derived) or
+                (os.path.exists(original) and
+                 os.stat(derived).st_mtime < os.stat(original).st_mtime))
+
+    return any(out_of_date_one(f, derived) for f in files_to_check)
 
 
 class PlotError(RuntimeError):
@@ -532,7 +541,8 @@ def get_plot_formats(config):
 
 def render_figures(code, code_path, output_dir, output_base, context,
                    function_name, config, context_reset=False,
-                   close_figs=False):
+                   close_figs=False,
+                   code_includes=None):
     """
     Run a pyplot script and save the images in *output_dir*.
 
@@ -742,6 +752,25 @@ def run(arguments, content, options, state_machine, state, lineno):
         build_dir_link = build_dir
     source_link = dest_dir_link + '/' + output_base + source_ext
 
+    # get list of included rst files so that the output is updated when any
+    # plots in the included files change. These attributes are modified by the
+    # include directive (see the docutils.parsers.rst.directives.misc module).
+    try:
+        source_file_includes = [os.path.join(os.getcwd(), t[0])
+                                for t in state.document.include_log]
+    except AttributeError:
+        # the document.include_log attribute only exists in docutils >=0.17,
+        # before that we need to inspect the state machine
+        possible_sources = [os.path.join(setup.confdir, t[0])
+                            for t in state_machine.input_lines.items]
+        source_file_includes = [f for f in set(possible_sources)
+                                if os.path.isfile(f)]
+    # remove the source file itself from the includes
+    try:
+        source_file_includes.remove(source_file_name)
+    except ValueError:
+        pass
+
     # make figures
     try:
         results = render_figures(code,
@@ -752,7 +781,8 @@ def run(arguments, content, options, state_machine, state, lineno):
                                  function_name,
                                  config,
                                  context_reset=context_opt == 'reset',
-                                 close_figs=context_opt == 'close-figs')
+                                 close_figs=context_opt == 'close-figs',
+                                 code_includes=source_file_includes)
         errors = []
     except PlotError as err:
         reporter = state.memo.reporter
