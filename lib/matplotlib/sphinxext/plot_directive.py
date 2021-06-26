@@ -559,7 +559,8 @@ def render_figures(code, code_path, output_dir, output_base, context,
     all_exists = True
     img = ImageFile(output_base, output_dir)
     for format, dpi in formats:
-        if out_of_date(code_path, img.filename(format)):
+        if context or out_of_date(code_path, img.filename(format),
+                                  includes=code_includes):
             all_exists = False
             break
         img.formats.append(format)
@@ -579,7 +580,8 @@ def render_figures(code, code_path, output_dir, output_base, context,
             else:
                 img = ImageFile('%s_%02d' % (output_base, j), output_dir)
             for fmt, dpi in formats:
-                if out_of_date(code_path, img.filename(fmt)):
+                if context or out_of_date(code_path, img.filename(fmt),
+                                          includes=code_includes):
                     all_exists = False
                     break
                 img.formats.append(fmt)
