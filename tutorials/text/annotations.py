@@ -319,257 +319,244 @@ There are classes of artists that can be placed at an anchored
 location in the Axes.  A common example is the legend.  This type
 of artist can be created by using the `.OffsetBox` class. A few
 predefined classes are available in :mod:`matplotlib.offsetbox` and in
-:mod:`mpl_toolkits.axes_grid1.anchored_artists`. ::
-
-    from matplotlib.offsetbox import AnchoredText
-    at = AnchoredText("Figure 1a",
-                      prop=dict(size=15), frameon=True,
-                      loc='upper left',
-                      )
-    at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
-    ax.add_artist(at)
-
-
-.. figure:: ../../gallery/userdemo/images/sphx_glr_anchored_box01_001.png
-   :target: ../../gallery/userdemo/anchored_box01.html
-   :align: center
-   :scale: 50
-
-   Anchored Box01
-
-
-The *loc* keyword has same meaning as in the legend command.
-
-A simple application is when the size of the artist (or collection of
-artists) is known in pixel size during the time of creation. For
-example, If you want to draw a circle with fixed size of 20 pixel x 20
-pixel (radius = 10 pixel), you can utilize
-``AnchoredDrawingArea``. The instance is created with a size of the
-drawing area (in pixels), and arbitrary artists can added to the
-drawing area. Note that the extents of the artists that are added to
-the drawing area are not related to the placement of the drawing
-area itself. Only the initial size matters. ::
-
-    from mpl_toolkits.axes_grid1.anchored_artists import AnchoredDrawingArea
-
-    ada = AnchoredDrawingArea(20, 20, 0, 0,
-                              loc='upper right', pad=0., frameon=False)
-    p1 = Circle((10, 10), 10)
-    ada.drawing_area.add_artist(p1)
-    p2 = Circle((30, 10), 5, fc="r")
-    ada.drawing_area.add_artist(p2)
-
-The artists that are added to the drawing area should not have a
-transform set (it will be overridden) and the dimensions of those
-artists are interpreted as a pixel coordinate, i.e., the radius of the
-circles in above example are 10 pixels and 5 pixels, respectively.
-
-.. figure:: ../../gallery/userdemo/images/sphx_glr_anchored_box02_001.png
-   :target: ../../gallery/userdemo/anchored_box02.html
-   :align: center
-   :scale: 50
-
-   Anchored Box02
-
-Sometimes, you want your artists to scale with the data coordinate (or
-coordinates other than canvas pixels). You can use
-``AnchoredAuxTransformBox`` class. This is similar to
-``AnchoredDrawingArea`` except that the extent of the artist is
-determined during the drawing time respecting the specified transform. ::
-
-  from mpl_toolkits.axes_grid1.anchored_artists import AnchoredAuxTransformBox
-
-  box = AnchoredAuxTransformBox(ax.transData, loc='upper left')
-  el = Ellipse((0, 0), width=0.1, height=0.4, angle=30)  # in data coordinates!
-  box.drawing_area.add_artist(el)
-
-The ellipse in the above example will have width and height
-corresponding to 0.1 and 0.4 in data coordinates and will be
-automatically scaled when the view limits of the axes change.
-
-.. figure:: ../../gallery/userdemo/images/sphx_glr_anchored_box03_001.png
-   :target: ../../gallery/userdemo/anchored_box03.html
-   :align: center
-   :scale: 50
-
-   Anchored Box03
-
-As in the legend, the bbox_to_anchor argument can be set.  Using the
-HPacker and VPacker, you can have an arrangement(?) of artist as in the
-legend (as a matter of fact, this is how the legend is created).
-
-.. figure:: ../../gallery/userdemo/images/sphx_glr_anchored_box04_001.png
-   :target: ../../gallery/userdemo/anchored_box04.html
-   :align: center
-   :scale: 50
-
-   Anchored Box04
-
-Note that unlike the legend, the ``bbox_transform`` is set
-to IdentityTransform by default.
-
-Using Complex Coordinates with Annotations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The Annotation in matplotlib supports several types of coordinates as
-described in :ref:`annotations-tutorial`. For an advanced user who wants
-more control, it supports a few other options.
-
-1. A `.Transform` instance.  For example, ::
-
-     ax.annotate("Test", xy=(0.5, 0.5), xycoords=ax.transAxes)
-
-   is identical to ::
-
-     ax.annotate("Test", xy=(0.5, 0.5), xycoords="axes fraction")
-
-   This allows annotating a point in another axes::
-
-     fig, (ax1, ax2) = plt.subplots(1, 2)
-     ax2.annotate("Test", xy=(0.5, 0.5), xycoords=ax1.transData,
-                  xytext=(0.5, 0.5), textcoords=ax2.transData,
-                  arrowprops=dict(arrowstyle="->"))
-
-2. An `.Artist` instance. The *xy* value (or *xytext*) is interpreted as a
-   fractional coordinate of the bbox (return value of *get_window_extent*) of
-   the artist::
-
-     an1 = ax.annotate("Test 1", xy=(0.5, 0.5), xycoords="data",
-                       va="center", ha="center",
-                       bbox=dict(boxstyle="round", fc="w"))
-     an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1,  # (1, 0.5) of the an1's bbox
-                       xytext=(30, 0), textcoords="offset points",
-                       va="center", ha="left",
-                       bbox=dict(boxstyle="round", fc="w"),
-                       arrowprops=dict(arrowstyle="->"))
-
-   .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord01_001.png
-      :target: ../../gallery/userdemo/annotate_simple_coord01.html
-      :align: center
-      :scale: 50
-
-      Annotation with Simple Coordinates
-
-   Note that you must ensure that the extent of the coordinate artist (*an1* in
-   above example) is determined before *an2* gets drawn. Usually, this means
-   that *an2* needs to be drawn after *an1*.
-
-3. A callable object that takes the renderer instance as single argument, and
-   returns either a `.Transform` or a `.BboxBase`.  The return value is then
-   handled as in (1), for transforms, or in (2), for bboxes.  For example, ::
-
-     an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1,
-                       xytext=(30, 0), textcoords="offset points")
-
-   is identical to::
-
-     an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1.get_window_extent,
-                       xytext=(30, 0), textcoords="offset points")
-
-4. A pair of coordinate specifications -- the first for the x-coordinate, and
-   the second is for the y-coordinate; e.g. ::
-
-     annotate("Test", xy=(0.5, 1), xycoords=("data", "axes fraction"))
-
-   Here, 0.5 is in data coordinates, and 1 is in normalized axes coordinates.
-   Each of the coordinate specifications can also be an artist or a transform.
-   For example,
-
-   .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord02_001.png
-      :target: ../../gallery/userdemo/annotate_simple_coord02.html
-      :align: center
-      :scale: 50
-
-      Annotation with Simple Coordinates 2
-
-5. Sometimes, you want your annotation with some "offset points", not from the
-   annotated point but from some other point.  `.text.OffsetFrom` is a helper
-   for such cases.
-
-   .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord03_001.png
-      :target: ../../gallery/userdemo/annotate_simple_coord03.html
-      :align: center
-      :scale: 50
-
-      Annotation with Simple Coordinates 3
-
-   You may take a look at this example
-   :doc:`/gallery/text_labels_and_annotations/annotation_demo`.
-
-Using ConnectionPatch
-~~~~~~~~~~~~~~~~~~~~~
-
-ConnectionPatch is like an annotation without text. While `~.Axes.annotate`
-is sufficient in most situations, ConnectionPatch is useful when you want to
-connect points in different axes. ::
-
-  from matplotlib.patches import ConnectionPatch
-  xy = (0.2, 0.2)
-  con = ConnectionPatch(xyA=xy, coordsA=ax1.transData,
-                        xyB=xy, coordsB=ax2.transData)
-  fig.add_artist(con)
-
-The above code connects point *xy* in the data coordinates of ``ax1`` to
-point *xy* in the data coordinates of ``ax2``. Here is a simple example.
-
-.. figure:: ../../gallery/userdemo/images/sphx_glr_connect_simple01_001.png
-   :target: ../../gallery/userdemo/connect_simple01.html
-   :align: center
-   :scale: 50
-
-   Connect Simple01
-
-Here, we added the ConnectionPatch to the *figure* (with `~.Figure.add_artist`)
-rather than to either axes: this ensures that it is drawn on top of both axes,
-and is also necessary if using :doc:`constrained_layout
-</tutorials/intermediate/constrainedlayout_guide>` for positioning the axes.
-
-Advanced Topics
----------------
-
-Zoom effect between Axes
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-``mpl_toolkits.axes_grid1.inset_locator`` defines some patch classes useful for
-interconnecting two axes. Understanding the code requires some knowledge of
-Matplotlib's transform system.
-
-.. figure:: ../../gallery/subplots_axes_and_figures/images/sphx_glr_axes_zoom_effect_001.png
-   :target: ../../gallery/subplots_axes_and_figures/axes_zoom_effect.html
-   :align: center
-   :scale: 50
-
-   Axes Zoom Effect
-
-Define Custom BoxStyle
-~~~~~~~~~~~~~~~~~~~~~~
-
-You can use a custom box style. The value for the ``boxstyle`` can be a
-callable object in the following forms.::
-
-        def __call__(self, x0, y0, width, height, mutation_size,
-                     aspect_ratio=1.):
-            '''
-            Given the location and size of the box, return the path of
-            the box around it.
-
-              - *x0*, *y0*, *width*, *height* : location and size of the box
-              - *mutation_size* : a reference scale for the mutation.
-              - *aspect_ratio* : aspect-ratio for the mutation.
-            '''
-            path = ...
-            return path
-
-Here is a complete example.
-
-.. figure:: ../../gallery/userdemo/images/sphx_glr_custom_boxstyle01_001.png
-   :target: ../../gallery/userdemo/custom_boxstyle01.html
-   :align: center
-   :scale: 50
-
-   Custom Boxstyle01
-
-Similarly, you can define a custom ConnectionStyle and a custom ArrowStyle.
-See the source code of ``lib/matplotlib/patches.py`` and check
-how each style class is defined.
+:mod:`mpl_toolkits.axes_grid1.anchored_artists`.
 """
+
+from matplotlib import pyplot as plt
+from matplotlib.offsetbox import AnchoredText
+
+fig, ax = plt.subplots()
+at = AnchoredText(
+    "Figure 1a", prop=dict(size=15), frameon=True, loc='upper left')
+at.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
+ax.add_artist(at)
+
+###############################################################################
+# The *loc* keyword has same meaning as in the legend command.
+#
+# A simple application is when the size of the artist (or collection of
+# artists) is known in pixel size during the time of creation. For
+# example, If you want to draw a circle with fixed size of 20 pixel x 20
+# pixel (radius = 10 pixel), you can utilize
+# ``AnchoredDrawingArea``. The instance is created with a size of the
+# drawing area (in pixels), and arbitrary artists can added to the
+# drawing area. Note that the extents of the artists that are added to
+# the drawing area are not related to the placement of the drawing
+# area itself. Only the initial size matters.
+#
+# The artists that are added to the drawing area should not have a
+# transform set (it will be overridden) and the dimensions of those
+# artists are interpreted as a pixel coordinate, i.e., the radius of the
+# circles in above example are 10 pixels and 5 pixels, respectively.
+
+from matplotlib.patches import Circle
+from mpl_toolkits.axes_grid1.anchored_artists import AnchoredDrawingArea
+
+fig, ax = plt.subplots()
+ada = AnchoredDrawingArea(40, 20, 0, 0,
+                          loc='upper right', pad=0., frameon=False)
+p1 = Circle((10, 10), 10)
+ada.drawing_area.add_artist(p1)
+p2 = Circle((30, 10), 5, fc="r")
+ada.drawing_area.add_artist(p2)
+ax.add_artist(ada)
+
+###############################################################################
+# Sometimes, you want your artists to scale with the data coordinate (or
+# coordinates other than canvas pixels). You can use
+# ``AnchoredAuxTransformBox`` class. This is similar to
+# ``AnchoredDrawingArea`` except that the extent of the artist is
+# determined during the drawing time respecting the specified transform.
+#
+# The ellipse in the example below will have width and height
+# corresponding to 0.1 and 0.4 in data coordinates and will be
+# automatically scaled when the view limits of the axes change.
+
+from matplotlib.patches import Ellipse
+from mpl_toolkits.axes_grid1.anchored_artists import AnchoredAuxTransformBox
+
+fig, ax = plt.subplots()
+box = AnchoredAuxTransformBox(ax.transData, loc='upper left')
+el = Ellipse((0, 0), width=0.1, height=0.4, angle=30)  # in data coordinates!
+box.drawing_area.add_artist(el)
+ax.add_artist(box)
+
+###############################################################################
+# As in the legend, the bbox_to_anchor argument can be set.  Using the
+# HPacker and VPacker, you can have an arrangement(?) of artist as in the
+# legend (as a matter of fact, this is how the legend is created).
+#
+# .. figure:: ../../gallery/userdemo/images/sphx_glr_anchored_box04_001.png
+#    :target: ../../gallery/userdemo/anchored_box04.html
+#    :align: center
+#    :scale: 50
+#
+#    Anchored Box04
+#
+# Note that unlike the legend, the ``bbox_transform`` is set
+# to IdentityTransform by default.
+#
+# Using Complex Coordinates with Annotations
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# The Annotation in matplotlib supports several types of coordinates as
+# described in :ref:`annotations-tutorial`. For an advanced user who wants
+# more control, it supports a few other options.
+#
+# 1. A `.Transform` instance.  For example, ::
+#
+#      ax.annotate("Test", xy=(0.5, 0.5), xycoords=ax.transAxes)
+#
+#    is identical to ::
+#
+#      ax.annotate("Test", xy=(0.5, 0.5), xycoords="axes fraction")
+#
+#    This allows annotating a point in another axes::
+#
+#      fig, (ax1, ax2) = plt.subplots(1, 2)
+#      ax2.annotate("Test", xy=(0.5, 0.5), xycoords=ax1.transData,
+#                   xytext=(0.5, 0.5), textcoords=ax2.transData,
+#                   arrowprops=dict(arrowstyle="->"))
+#
+# 2. An `.Artist` instance. The *xy* value (or *xytext*) is interpreted as a
+#    fractional coordinate of the bbox (return value of *get_window_extent*) of
+#    the artist::
+#
+#      an1 = ax.annotate("Test 1", xy=(0.5, 0.5), xycoords="data",
+#                        va="center", ha="center",
+#                        bbox=dict(boxstyle="round", fc="w"))
+#      an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1,  # (1, 0.5) of the an1's bbox
+#                        xytext=(30, 0), textcoords="offset points",
+#                        va="center", ha="left",
+#                        bbox=dict(boxstyle="round", fc="w"),
+#                        arrowprops=dict(arrowstyle="->"))
+#
+#    .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord01_001.png
+#       :target: ../../gallery/userdemo/annotate_simple_coord01.html
+#       :align: center
+#       :scale: 50
+#
+#       Annotation with Simple Coordinates
+#
+#    Note that you must ensure that the extent of the coordinate artist (*an1* in
+#    above example) is determined before *an2* gets drawn. Usually, this means
+#    that *an2* needs to be drawn after *an1*.
+#
+# 3. A callable object that takes the renderer instance as single argument, and
+#    returns either a `.Transform` or a `.BboxBase`.  The return value is then
+#    handled as in (1), for transforms, or in (2), for bboxes.  For example, ::
+#
+#      an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1,
+#                        xytext=(30, 0), textcoords="offset points")
+#
+#    is identical to::
+#
+#      an2 = ax.annotate("Test 2", xy=(1, 0.5), xycoords=an1.get_window_extent,
+#                        xytext=(30, 0), textcoords="offset points")
+#
+# 4. A pair of coordinate specifications -- the first for the x-coordinate, and
+#    the second is for the y-coordinate; e.g. ::
+#
+#      annotate("Test", xy=(0.5, 1), xycoords=("data", "axes fraction"))
+#
+#    Here, 0.5 is in data coordinates, and 1 is in normalized axes coordinates.
+#    Each of the coordinate specifications can also be an artist or a transform.
+#    For example,
+#
+#    .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord02_001.png
+#       :target: ../../gallery/userdemo/annotate_simple_coord02.html
+#       :align: center
+#       :scale: 50
+#
+#       Annotation with Simple Coordinates 2
+#
+# 5. Sometimes, you want your annotation with some "offset points", not from the
+#    annotated point but from some other point.  `.text.OffsetFrom` is a helper
+#    for such cases.
+#
+#    .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord03_001.png
+#       :target: ../../gallery/userdemo/annotate_simple_coord03.html
+#       :align: center
+#       :scale: 50
+#
+#       Annotation with Simple Coordinates 3
+#
+#    You may take a look at this example
+#    :doc:`/gallery/text_labels_and_annotations/annotation_demo`.
+#
+# Using ConnectionPatch
+# ~~~~~~~~~~~~~~~~~~~~~
+#
+# ConnectionPatch is like an annotation without text. While `~.Axes.annotate`
+# is sufficient in most situations, ConnectionPatch is useful when you want to
+# connect points in different axes. ::
+#
+#   from matplotlib.patches import ConnectionPatch
+#   xy = (0.2, 0.2)
+#   con = ConnectionPatch(xyA=xy, coordsA=ax1.transData,
+#                         xyB=xy, coordsB=ax2.transData)
+#   fig.add_artist(con)
+#
+# The above code connects point *xy* in the data coordinates of ``ax1`` to
+# point *xy* in the data coordinates of ``ax2``. Here is a simple example.
+#
+# .. figure:: ../../gallery/userdemo/images/sphx_glr_connect_simple01_001.png
+#    :target: ../../gallery/userdemo/connect_simple01.html
+#    :align: center
+#    :scale: 50
+#
+#    Connect Simple01
+#
+# Here, we added the ConnectionPatch to the *figure* (with `~.Figure.add_artist`)
+# rather than to either axes: this ensures that it is drawn on top of both axes,
+# and is also necessary if using :doc:`constrained_layout
+# </tutorials/intermediate/constrainedlayout_guide>` for positioning the axes.
+#
+# Advanced Topics
+# ---------------
+#
+# Zoom effect between Axes
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# ``mpl_toolkits.axes_grid1.inset_locator`` defines some patch classes useful for
+# interconnecting two axes. Understanding the code requires some knowledge of
+# Matplotlib's transform system.
+#
+# .. figure:: ../../gallery/subplots_axes_and_figures/images/sphx_glr_axes_zoom_effect_001.png
+#    :target: ../../gallery/subplots_axes_and_figures/axes_zoom_effect.html
+#    :align: center
+#    :scale: 50
+#
+#    Axes Zoom Effect
+#
+# Define Custom BoxStyle
+# ~~~~~~~~~~~~~~~~~~~~~~
+#
+# You can use a custom box style. The value for the ``boxstyle`` can be a
+# callable object in the following forms.::
+#
+#         def __call__(self, x0, y0, width, height, mutation_size,
+#                      aspect_ratio=1.):
+#             '''
+#             Given the location and size of the box, return the path of
+#             the box around it.
+#
+#               - *x0*, *y0*, *width*, *height* : location and size of the box
+#               - *mutation_size* : a reference scale for the mutation.
+#               - *aspect_ratio* : aspect-ratio for the mutation.
+#             '''
+#             path = ...
+#             return path
+#
+# Here is a complete example.
+#
+# .. figure:: ../../gallery/userdemo/images/sphx_glr_custom_boxstyle01_001.png
+#    :target: ../../gallery/userdemo/custom_boxstyle01.html
+#    :align: center
+#    :scale: 50
+#
+#    Custom Boxstyle01
+#
+# Similarly, you can define a custom ConnectionStyle and a custom ArrowStyle.
+# See the source code of ``lib/matplotlib/patches.py`` and check
+# how each style class is defined.
