@@ -3835,85 +3835,45 @@ class Axes(_AxesBase):
           A list of dictionaries containing stats for each boxplot.
           Required keys are:
 
-          - ``med``: The median (scalar float).
-
-          - ``q1``: The first quartile (25th percentile) (scalar
-            float).
-
-          - ``q3``: The third quartile (75th percentile) (scalar
-            float).
-
-          - ``whislo``: Lower bound of the lower whisker (scalar
-            float).
-
-          - ``whishi``: Upper bound of the upper whisker (scalar
-            float).
+          - ``med``: Median (scalar).
+          - ``q1``, ``q3``: First & third quartiles (scalars).
+          - ``whislo``, ``whishi``: Lower & upper whisker positions (scalars).
 
           Optional keys are:
 
-          - ``mean``: The mean (scalar float). Needed if
-            ``showmeans=True``.
-
-          - ``fliers``: Data beyond the whiskers (sequence of floats).
+          - ``mean``: Mean (scalar).  Needed if ``showmeans=True``.
+          - ``fliers``: Data beyond the whiskers (array-like).
             Needed if ``showfliers=True``.
-
-          - ``cilo`` & ``cihi``: Lower and upper confidence intervals
+          - ``cilo``, ``cihi``: Lower & upper confidence intervals
             about the median. Needed if ``shownotches=True``.
-
-          - ``label``: Name of the dataset (string). If available,
+          - ``label``: Name of the dataset (str).  If available,
             this will be used a tick label for the boxplot
 
         positions : array-like, default: [1, 2, ..., n]
           The positions of the boxes. The ticks and limits
           are automatically set to match the positions.
 
-        widths : array-like, default: None
-          Either a scalar or a vector and sets the width of each
-          box. The default is ``0.15*(distance between extreme
-          positions)``, clipped to no less than 0.15 and no more than
-          0.5.
+        widths : float or array-like, default: None
+          The widths of the boxes.  The default is
+          ``clip(0.15*(distance between extreme positions), 0.15, 0.5)``.
 
         vert : bool, default: True
-          If `True` (default), makes the boxes vertical.  If `False`,
-          makes horizontal boxes.
+          If `True` (default), makes the boxes vertical.
+          If `False`, makes horizontal boxes.
 
         patch_artist : bool, default: False
           If `False` produces boxes with the `.Line2D` artist.
           If `True` produces boxes with the `~matplotlib.patches.Patch` artist.
 
-        shownotches : bool, default: False
-          If `False` (default), produces a rectangular box plot.
-          If `True`, will produce a notched box plot
+        shownotches, showmeans, showcaps, showbox, showfliers : bool
+          Whether to draw the CI notches, the mean value (both default to
+          False), the caps, the box, and the fliers (all three default to
+          True).
 
-        showmeans : bool, default: False
-          If `True`, will toggle on the rendering of the means
-
-        showcaps  : bool, default: True
-          If `True`, will toggle on the rendering of the caps
-
-        showbox  : bool, default: True
-          If `True`, will toggle on the rendering of the box
-
-        showfliers : bool, default: True
-          If `True`, will toggle on the rendering of the fliers
-
-        boxprops : dict or None (default)
-          If provided, will set the plotting style of the boxes
-
-        whiskerprops : dict or None (default)
-          If provided, will set the plotting style of the whiskers
-
-        capprops : dict or None (default)
-          If provided, will set the plotting style of the caps
-
-        flierprops : dict or None (default)
-          If provided will set the plotting style of the fliers
-
-        medianprops : dict or None (default)
-          If provided, will set the plotting style of the medians
-
-        meanprops : dict or None (default)
-          If provided, will set the plotting style of the means
+        boxprops, whiskerprops, capprops, flierprops, medianprops, meanprops :\
+ dict, optional
+          Artist properties for the boxes, whiskers, caps, fliers, medians, and
+          means.
 
         meanline : bool, default: False
           If `True` (and *showmeans* is `True`), will try to render the mean
@@ -3935,28 +3895,19 @@ class Axes(_AxesBase):
           of the `.Line2D` instances created. That dictionary has the
           following keys (assuming vertical boxplots):
 
-          - ``boxes``: the main body of the boxplot showing the
-            quartiles and the median's confidence intervals if
-            enabled.
-
+          - ``boxes``: main bodies of the boxplot showing the quartiles, and
+            the median's confidence intervals if enabled.
           - ``medians``: horizontal lines at the median of each box.
-
-          - ``whiskers``: the vertical lines extending to the most
-            extreme, non-outlier data points.
-
-          - ``caps``: the horizontal lines at the ends of the
-            whiskers.
-
-          - ``fliers``: points representing data that extend beyond
-            the whiskers (fliers).
-
+          - ``whiskers``: vertical lines up to the last non-outlier data.
+          - ``caps``: horizontal lines at the ends of the whiskers.
+          - ``fliers``: points representing data beyond the whiskers (fliers).
           - ``means``: points or lines representing the means.
 
         Examples
         --------
         .. plot:: gallery/statistics/bxp.py
-
         """
+
         # lists of artists to be output
         whiskers = []
         caps = []
