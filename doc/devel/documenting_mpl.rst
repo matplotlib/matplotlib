@@ -103,16 +103,33 @@ On Windows, either use the format shown above or set options as environment vari
    set O=-W --keep-going -j4
    make html
 
+Showing locally built docs
+--------------------------
+
+The built docs are available in the folder :file:`build/html`. A shortcut
+for opening them in your default browser is:
+
+.. code-block:: sh
+
+   make show
+
 .. _writing-rest-pages:
 
 Writing ReST pages
 ==================
 
-Most documentation is either in the docstring of individual
+Most documentation is either in the docstrings of individual
 classes and methods, in explicit ``.rst`` files, or in examples and tutorials.
-All of these use the ReST_ syntax. Users should look at the ReST_ documentation
-for a full description. But some specific hints and conventions Matplotlib
-uses are useful for creating documentation.
+All of these use the ReST_ syntax and are processed by Sphinx_.
+
+The `Sphinx reStructuredText Primer
+<https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_ is
+a good introduction into using ReST. More complete information is available in
+the `reStructuredText reference documentation
+<https://docutils.sourceforge.io/rst.html#reference-documentation>`_.
+
+This section contains additional information and conventions how ReST is used
+in the Matplotlib documentation.
 
 Formatting and style conventions
 --------------------------------
