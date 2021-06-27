@@ -273,9 +273,8 @@ plt.show()
 # which allows you to specify the location as ``axes([left, bottom,
 # width, height])`` where all values are in fractional (0 to 1)
 # coordinates.  See :doc:`/gallery/subplots_axes_and_figures/axes_demo` for an example of
-# placing axes manually and :doc:`/gallery/subplots_axes_and_figures/subplot_demo` for an
+# placing axes manually and :doc:`/gallery/subplots_axes_and_figures/subplot` for an
 # example with lots of subplots.
-#
 #
 # You can create multiple figures by using multiple
 # `~.pyplot.figure` calls with an increasing figure
