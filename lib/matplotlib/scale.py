@@ -458,6 +458,69 @@ class SymmetricalLogScale(ScaleBase):
         return self._transform
 
 
+class PowerTransform(Transform):
+    input_dims = output_dims = 1
+
+    def __init_(self, gamma, nonpositive='clip'):
+        super().__init__()
+
+        self.gamma = gamma
+        self._clip = _api.check_getitem(
+            {"clip": True, "mask": False}, nonpositive=nonpositive)
+
+    def __str__(self):
+        return "{}(gamma={}, nonpositive={!r})".format(
+            type(self).__name__, self.gamma, "clip" if self._clip else "mask")
+
+    def transform_non_affine(self, a, gamma):
+        with np.errstate(divide="ignore", invalid="ignore"):
+            out = np.power(a, gamma)
+            if self._clip:
+
+                out[a<=0] = 0
+            return out
+    
+    def inverted(self):
+        return InvertedPowerTransform(self.gamma)
+
+
+class InvertedPowerTransform(Transform):
+    input_dims = output_dims = 1
+
+    def __init__(self, gamma):
+        super().__init__()
+        self.gamma = gamma
+
+    def transform_non_affine(self, a, gamma):
+        if gamma == 0 :
+            return np.inf
+        else :
+            return np.power(a, 1./gamma)
+
+
+class PowerScale(ScaleBase):
+
+    name = 'power'
+    
+    def __init__(self, axis, *, base=10,gamma, subs=None, nonpositive="clip"):
+
+        self._transform = PowerTransform(gamma, nonpositive)
+        self.subs = subs
+    
+    base = property(lambda self: self._transform.base)
+
+    def sef_default_locators_and_formatters(self, axis):
+        
+        axis.set_major_locator(AutoLocator())
+        axis.set_major_formatter(NullFormatter())
+        axis.set_minor_locator(AutoMinorLocator())
+        axis.set_minor_formatter(NullFormatter())
+    
+    def get_transform(self):
+
+        return self._transform
+    
+
 class LogitTransform(Transform):
     input_dims = output_dims = 1
 
