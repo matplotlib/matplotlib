@@ -6,6 +6,8 @@ Drawing fancy boxes
 The following examples show how to plot boxes with different visual properties.
 """
 
+import inspect
+
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatch
@@ -15,17 +17,16 @@ from matplotlib.patches import FancyBboxPatch
 # First we'll show some sample boxes with fancybox.
 
 styles = mpatch.BoxStyle.get_styles()
-spacing = 1.2
-
-figheight = (spacing * len(styles) + .5)
-fig = plt.figure(figsize=(4 / 1.5, figheight / 1.5))
-fontsize = 0.3 * 72
-
-for i, stylename in enumerate(sorted(styles)):
-    fig.text(0.5, (spacing * (len(styles) - i) - 0.5) / figheight, stylename,
-             ha="center",
-             size=fontsize,
-             bbox=dict(boxstyle=stylename, fc="w", ec="k"))
+ncol = 2
+nrow = (len(styles) + 1) // ncol
+axs = plt.figure(figsize=(3 * ncol, nrow)).subplots(nrow, ncol)
+for ax in axs.flat:
+    ax.set_axis_off()
+for ax, (stylename, stylecls) in zip(axs.T.flat, styles.items()):
+    ax.text(.5, .5,
+            f"{stylename}\n{inspect.signature(stylecls)}",
+            transform=ax.transAxes, ha="center", va="center",
+            bbox=dict(boxstyle=stylename, fc="w", ec="k"))
 
 
 ###############################################################################
