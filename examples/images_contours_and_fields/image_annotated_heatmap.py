@@ -107,11 +107,11 @@ def heatmap(data, row_labels, col_labels, ax=None,
     Parameters
     ----------
     data
-        A 2D numpy array of shape (N, M).
+        A 2D numpy array of shape (M, N).
     row_labels
-        A list or array of length N with the labels for the rows.
+        A list or array of length M with the labels for the rows.
     col_labels
-        A list or array of length M with the labels for the columns.
+        A list or array of length N with the labels for the columns.
     ax
         A `matplotlib.axes.Axes` instance to which the heatmap is plotted.  If
         not provided, use current axes or create a new one.  Optional.
