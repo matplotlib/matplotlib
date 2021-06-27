@@ -514,6 +514,8 @@ class _process_plot_var_args:
         ncx, ncy = x.shape[1], y.shape[1]
         if ncx > 1 and ncy > 1 and ncx != ncy:
             raise ValueError(f"x has {ncx} columns but y has {ncy} columns")
+        if not ncx or not ncy:
+            return []
 
         label = kwargs.get('label')
         n_datasets = max(ncx, ncy)
