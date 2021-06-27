@@ -227,6 +227,38 @@ def test_rectangle_rotate(selector_class):
     assert tool.corners == ((100, 112, 100, 88), (100, 109, 125, 116))
 
 
+@pytest.mark.parametrize('selector_class', [widgets.RectangleSelector,
+                                            widgets.EllipseSelector])
+def test_rotate_warning(selector_class):
+    # Check that a warning is raised when trying to rotate on a
+    # non-equal aspect Axes.
+    ax = get_ax()
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = selector_class(ax, onselect=onselect, interactive=True)
+    ax.set_aspect(2)
+
+    # Draw rectangle
+    do_event(tool, 'press', xdata=100, ydata=100)
+    do_event(tool, 'onmove', xdata=130, ydata=140)
+    do_event(tool, 'release', xdata=130, ydata=140)
+    old_corners = tool.corners
+
+    # Try to rotate
+    do_event(tool, 'on_key_press', key='r')
+    do_event(tool, 'press', xdata=130, ydata=140)
+    # Check warning is raised
+    with pytest.warns(UserWarning, match='Rotation is only implemented for '
+                                         'equal-aspect Axes.'):
+        do_event(tool, 'onmove', xdata=100, ydata=150)
+    do_event(tool, 'release', xdata=100, ydata=200)
+    do_event(tool, 'on_key_release', key='r')
+    # Check that corners haven't moved
+    assert tool.corners == old_corners
+
+
 def check_span(*args, **kwargs):
     ax = get_ax()
 

@@ -12,6 +12,7 @@ wide and tall you want your Axes to be to accommodate your widget.
 from contextlib import ExitStack
 import copy
 from numbers import Integral, Number
+import warnings
 
 import numpy as np
 
@@ -2603,7 +2604,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         - "center": Make the initial point the center of the shape,
           default: "ctrl".
         - "rotate": Rotate the shape around its corner,
-          default: "r".
+          default: "r". This currently only works for equal-aspect axes.
 
         "square" and "center" can be combined.
 
@@ -2844,11 +2845,15 @@ class RectangleSelector(_SelectorWidget):
 
         # rotate existing shape
         if 'rotate' in self.state:
-            rotation_new = np.arctan2(ymove - y0,
-                                      xmove - x0)
-            rotation_old = np.arctan2(self._prev_ymove - y0,
-                                      self._prev_xmove - x0)
-            rotation += rotation_new - rotation_old
+            if self.ax.get_aspect() == 1:
+                rotation_new = np.arctan2(ymove - y0,
+                                          xmove - x0)
+                rotation_old = np.arctan2(self._prev_ymove - y0,
+                                          self._prev_xmove - x0)
+                rotation += rotation_new - rotation_old
+            else:
+                warnings.warn('Rotation is only implemented for '
+                              'equal-aspect Axes.')
 
         # move existing shape
         elif ('move' in self.state or
