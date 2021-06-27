@@ -4,17 +4,24 @@ Multiple subplots
 =================
 
 Simple demo with multiple subplots.
+
+For more options, see :doc:`/gallery/subplots_axes_and_figures/subplots_demo`.
+
+.. redirect-from:: /gallery/subplots_axes_and_figures/subplot_demo
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 
-###############################################################################
-
+# Create some fake data.
 x1 = np.linspace(0.0, 5.0)
-x2 = np.linspace(0.0, 2.0)
-
 y1 = np.cos(2 * np.pi * x1) * np.exp(-x1)
+x2 = np.linspace(0.0, 2.0)
 y2 = np.cos(2 * np.pi * x2)
+
+###############################################################################
+# `~.pyplot.subplots()` is the recommended method to generate simple subplot
+# arrangements:
 
 fig, (ax1, ax2) = plt.subplots(2, 1)
 fig.suptitle('A tale of 2 subplots')
@@ -28,22 +35,8 @@ ax2.set_ylabel('Undamped')
 
 plt.show()
 
-#############################################################################
-#
-#
-# Alternative Method For Creating Multiple Plots
-# """"""""""""""""""""""""""""""""""""""""""""""
-#
-# Subplots can also be generated using `~.pyplot.subplot()` \
-# as in the following example:
-#
-
-
-x1 = np.linspace(0.0, 5.0)
-x2 = np.linspace(0.0, 2.0)
-
-y1 = np.cos(2 * np.pi * x1) * np.exp(-x1)
-y2 = np.cos(2 * np.pi * x2)
+###############################################################################
+# Subplots can also be generated one at a time using `~.pyplot.subplot()`:
 
 plt.subplot(2, 1, 1)
 plt.plot(x1, y1, 'o-')

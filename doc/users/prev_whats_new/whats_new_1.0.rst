@@ -44,7 +44,7 @@ indexing (starts with 0).  e.g.::
   fig, axarr = plt.subplots(2, 2)
   axarr[0,0].plot([1,2,3])   # upper, left
 
-See :doc:`/gallery/subplots_axes_and_figures/subplot_demo` for several code examples.
+See :doc:`/gallery/subplots_axes_and_figures/subplot` for several code examples.
 
 Contour fixes and and triplot
 -----------------------------
