@@ -461,7 +461,7 @@ class SymmetricalLogScale(ScaleBase):
 class PowerTransform(Transform):
     input_dims = output_dims = 1
 
-    def __init_(self, gamma, nonpositive='clip'):
+    def __init__(self, gamma, nonpositive='clip'):
         super().__init__()
 
         self.gamma = gamma
