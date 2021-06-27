@@ -1447,8 +1447,6 @@ default: %(va)s
             # Returned axis array will be always 2-d, even if nrows=ncols=1.
             return sfarr
 
-        return sfarr
-
     def add_subfigure(self, subplotspec, **kwargs):
         """
         Add a `~.figure.SubFigure` to the figure as part of a subplot
@@ -1823,7 +1821,6 @@ default: %(va)s
             dict[label, Axes]
                 A flat dict of all of the Axes created.
             """
-            rows, cols = mosaic.shape
             output = dict()
 
             # we need to merge together the Axes at this level and the axes

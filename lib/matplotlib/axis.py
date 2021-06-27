@@ -2251,7 +2251,6 @@ class XAxis(Axis):
 
     def set_default_intervals(self):
         # docstring inherited
-        xmin, xmax = 0., 1.
         # only change view if dataLim has not changed and user has
         # not changed the view:
         if (not self.axes.dataLim.mutatedx() and
@@ -2512,7 +2511,6 @@ class YAxis(Axis):
 
     def set_default_intervals(self):
         # docstring inherited
-        ymin, ymax = 0., 1.
         # only change view if dataLim has not changed and user has
         # not changed the view:
         if (not self.axes.dataLim.mutatedy() and
