@@ -817,10 +817,7 @@ class ScalarFormatter(Formatter):
         if self.offset:
             oom = math.floor(math.log10(vmax - vmin))
         else:
-            if locs[0] > locs[-1]:
-                val = locs[0]
-            else:
-                val = locs[-1]
+            val = locs.max()
             if val == 0:
                 oom = 0
             else:
