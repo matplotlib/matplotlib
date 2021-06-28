@@ -196,6 +196,11 @@ def _option_format(arg):
     return directives.choice(arg, ('python', 'doctest'))
 
 
+def _deprecated_option_encoding(arg):
+    _api.warn_deprecated("3.5", "encoding", obj_type="option")
+    return directives.encoding(arg)
+
+
 def mark_plot_labels(app, document):
     """
     To make plots referenceable, we need to move the reference from the
@@ -244,7 +249,7 @@ class PlotDirective(Directive):
         'format': _option_format,
         'context': _option_context,
         'nofigs': directives.flag,
-        'encoding': directives.encoding,
+        'encoding': _deprecated_option_encoding,
         'caption': directives.unchanged,
         }
 
