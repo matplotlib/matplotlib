@@ -47,11 +47,12 @@ Options
 The ``plot`` directive supports the following options:
 
     format : {'python', 'doctest'}
-        The format of the input.
+        The format of the input.  If unset, the format is auto-detected.
 
     include-source : bool
-        Whether to display the source code. The default can be changed
-        using the `plot_include_source` variable in :file:`conf.py`.
+        Whether to display the source code. The default can be changed using
+        the `plot_include_source` variable in :file:`conf.py` (which itself
+        defaults to False).
 
     encoding : str
         If this source file is in a non-UTF8 or non-ASCII encoding, the
@@ -86,25 +87,26 @@ Configuration options
 The plot directive has the following configuration options:
 
     plot_include_source
-        Default value for the include-source option
+        Default value for the include-source option (default: False).
 
     plot_html_show_source_link
-        Whether to show a link to the source in HTML.
+        Whether to show a link to the source in HTML (default: True).
 
     plot_pre_code
-        Code that should be executed before each plot. If not specified or None
+        Code that should be executed before each plot. If None (the default),
         it will default to a string containing::
 
             import numpy as np
             from matplotlib import pyplot as plt
 
     plot_basedir
-        Base directory, to which ``plot::`` file names are relative
-        to.  (If None or empty, file names are relative to the
-        directory where the file containing the directive is.)
+        Base directory, to which ``plot::`` file names are relative to.
+        If None or empty (the default), file names are relative to the
+        directory where the file containing the directive is.
 
     plot_formats
-        File formats to generate. List of tuples or strings::
+        File formats to generate (default: ['png', 'hires.png', 'pdf']).
+        List of tuples or strings::
 
             [(suffix, dpi), suffix, ...]
 
@@ -114,16 +116,16 @@ The plot directive has the following configuration options:
         suffix:dpi,suffix:dpi, ...
 
     plot_html_show_formats
-        Whether to show links to the files in HTML.
+        Whether to show links to the files in HTML (default: True).
 
     plot_rcparams
         A dictionary containing any non-standard rcParams that should
-        be applied before each plot.
+        be applied before each plot (default: {}).
 
     plot_apply_rcparams
         By default, rcParams are applied when ``:context:`` option is not used
-        in a plot directive.  This configuration option overrides this behavior
-        and applies rcParams before each plot.
+        in a plot directive.  If set, this configuration option overrides this
+        behavior and applies rcParams before each plot.
 
     plot_working_directory
         By default, the working directory will be changed to the directory of
