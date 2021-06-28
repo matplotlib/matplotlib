@@ -1,0 +1,3 @@
+``:encoding:`` option to ``.. plot`` directive
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This option has had no effect since Matplotlib 1.3.1, and is now deprecated.
