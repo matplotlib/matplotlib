@@ -1577,13 +1577,13 @@ class QuadContourSet(ContourSet):
 
             *X* and *Y* must both be 2D with the same shape as *Z* (e.g.
             created via `numpy.meshgrid`), or they must both be 1-D such
-            that ``len(X) == M`` is the number of columns in *Z* and
-            ``len(Y) == N`` is the number of rows in *Z*.
+            that ``len(X) == N`` is the number of columns in *Z* and
+            ``len(Y) == M`` is the number of rows in *Z*.
 
             If not given, they are assumed to be integer indices, i.e.
-            ``X = range(M)``, ``Y = range(N)``.
+            ``X = range(N)``, ``Y = range(M)``.
 
-        Z : (N, M) array-like
+        Z : (M, N) array-like
             The height values over which the contour is drawn.
 
         levels : int or array-like, optional

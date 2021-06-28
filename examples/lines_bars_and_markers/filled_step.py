@@ -86,7 +86,7 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
         The axes to add artists too
 
     stacked_data : array or Mapping
-        A (N, M) shaped array.  The first dimension will be iterated over to
+        A (M, N) shaped array.  The first dimension will be iterated over to
         compute histograms row-wise
 
     sty_cycle : Cycler or operable of dict
