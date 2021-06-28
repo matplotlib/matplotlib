@@ -21,7 +21,7 @@ figheight = (spacing * len(styles) + .5)
 fig = plt.figure(figsize=(4 / 1.5, figheight / 1.5))
 fontsize = 0.3 * 72
 
-for i, stylename in enumerate(sorted(styles)):
+for i, stylename in enumerate(styles):
     fig.text(0.5, (spacing * (len(styles) - i) - 0.5) / figheight, stylename,
              ha="center",
              size=fontsize,
