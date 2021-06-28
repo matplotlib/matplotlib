@@ -1403,7 +1403,7 @@ def test_pan():
     assert z_center != pytest.approx(z_center0)
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @check_figures_equal(extensions=["png"])
 def test_scalarmap_update(fig_test, fig_ref):
 

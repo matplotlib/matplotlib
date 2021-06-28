@@ -13,7 +13,8 @@ def pytest_configure(config):
         ("markers", "flaky: (Provided by pytest-rerunfailures.)"),
         ("markers", "timeout: (Provided by pytest-timeout.)"),
         ("markers", "backend: Set alternate Matplotlib backend temporarily."),
-        ("markers", "style: Set alternate Matplotlib style temporarily."),
+        ("markers",
+         "style: Set alternate Matplotlib style temporarily (deprecated)."),
         ("markers", "baseline_images: Compare output against references."),
         ("markers", "pytz: Tests that require pytz to be installed."),
         ("markers", "network: Tests that reach out to the network."),
@@ -65,6 +66,8 @@ def mpl_test_settings(request):
         if style_marker is not None:
             assert len(style_marker.args) == 1, \
                 "Marker 'style' must specify 1 style."
+            _api.warn_deprecated("3.5", name="style", obj_type="pytest marker",
+                                 alternative="@mpl.style.context(...)")
             style, = style_marker.args
 
         matplotlib.testing.setup()

@@ -1117,7 +1117,7 @@ def test_image_array_alpha_validation():
         plt.imshow(np.zeros((2, 2)), alpha=[1, 1])
 
 
-@pytest.mark.style('mpl20')
+@mpl.style.context('mpl20')
 def test_exact_vmin():
     cmap = copy(plt.cm.get_cmap("autumn_r"))
     cmap.set_under(color="lightgrey")

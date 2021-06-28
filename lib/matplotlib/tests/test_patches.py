@@ -5,6 +5,7 @@ import numpy as np
 from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
+import matplotlib as mpl
 from matplotlib.patches import (Annulus, Patch, Polygon, Rectangle,
                                 FancyArrowPatch)
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
@@ -12,7 +13,7 @@ from matplotlib.transforms import Bbox
 import matplotlib.pyplot as plt
 from matplotlib import (
     collections as mcollections, colors as mcolors, patches as mpatches,
-    path as mpath, style as mstyle, transforms as mtransforms, rcParams)
+    path as mpath, transforms as mtransforms, rcParams)
 
 import sys
 on_win = (sys.platform == 'win32')
@@ -197,7 +198,7 @@ def test_patch_alpha_override():
     ax.set_ylim([-1, 2])
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_patch_color_none():
     # Make sure the alpha kwarg does not override 'none' facecolor.
     # Addresses issue #7478.
@@ -410,7 +411,7 @@ def test_multi_color_hatch():
     ax.autoscale(False)
 
     for i in range(5):
-        with mstyle.context({'hatch.color': 'C{}'.format(i)}):
+        with mpl.style.context({'hatch.color': 'C{}'.format(i)}):
             r = Rectangle((i - .8 / 2, 5), .8, 1, hatch='//', fc='none')
         ax.add_patch(r)
 

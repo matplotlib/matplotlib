@@ -308,7 +308,7 @@ def test_missing_psfont(monkeypatch):
         fig.savefig(tmpfile, format='pdf')
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @check_figures_equal(extensions=["pdf", "eps"])
 def test_pdf_eps_savefig_when_color_is_none(fig_test, fig_ref):
     ax_test = fig_test.add_subplot()

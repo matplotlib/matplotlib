@@ -198,7 +198,7 @@ def test_missing_psfont(monkeypatch):
 
 
 # Use Computer Modern Sans Serif, not Helvetica (which has no \textwon).
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @needs_usetex
 def test_unicode_won():
     fig = Figure()
