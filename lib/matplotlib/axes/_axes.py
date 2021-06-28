@@ -4205,7 +4205,7 @@ class Axes(_AxesBase):
                 mcolors.to_rgba_array(kwcolor)
             except ValueError as err:
                 raise ValueError(
-                    "'color' kwarg must be an color or sequence of color "
+                    "'color' kwarg must be a color or sequence of color "
                     "specs.  For a sequence of values to be color-mapped, use "
                     "the 'c' argument instead.") from err
             if edgecolors is None:
