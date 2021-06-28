@@ -28,7 +28,6 @@ from matplotlib import pyplot as plt
 # .. figure:: ../../gallery/pyplots/images/sphx_glr_annotation_basic_001.png
 #    :target: ../../gallery/pyplots/annotation_basic.html
 #    :align: center
-#    :scale: 50
 #
 # In this example, both the *xy* (arrow tip) and *xytext* locations
 # (text location) are in data coordinates.  There are a variety of other
@@ -90,7 +89,6 @@ from matplotlib import pyplot as plt
 # .. figure:: ../../gallery/pyplots/images/sphx_glr_annotation_polar_001.png
 #    :target: ../../gallery/pyplots/annotation_polar.html
 #    :align: center
-#    :scale: 50
 #
 # For more on all the wild and wonderful things you can do with
 # annotations, including fancy arrows, see :ref:`plotting-guide-annotation`
@@ -114,7 +112,6 @@ from matplotlib import pyplot as plt
 # .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_text_arrow_001.png
 #    :target: ../../gallery/userdemo/annotate_text_arrow.html
 #    :align: center
-#    :scale: 50
 #
 # `~.Axes.text` takes a *bbox* keyword argument, which draws a box around the
 # text::
@@ -153,7 +150,6 @@ from matplotlib import pyplot as plt
 # .. figure:: ../../gallery/shapes_and_collections/images/sphx_glr_fancybox_demo_001.png
 #    :target: ../../gallery/shapes_and_collections/fancybox_demo.html
 #    :align: center
-#    :scale: 50
 #
 # Note that the attribute arguments can be specified within the style
 # name with separating comma (this form can be used as "boxstyle" value
@@ -191,7 +187,6 @@ from matplotlib import pyplot as plt
 # .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple01_001.png
 #    :target: ../../gallery/userdemo/annotate_simple01.html
 #    :align: center
-#    :scale: 50
 #
 # The arrow is drawn as follows:
 #
@@ -206,7 +201,6 @@ from matplotlib import pyplot as plt
 # .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_explain_001.png
 #    :target: ../../gallery/userdemo/annotate_explain.html
 #    :align: center
-#    :scale: 50
 #
 # The creation of the connecting path between two points is controlled by
 # ``connectionstyle`` key and the following styles are available.
@@ -233,7 +227,6 @@ from matplotlib import pyplot as plt
 # .. figure:: ../../gallery/userdemo/images/sphx_glr_connectionstyle_demo_001.png
 #    :target: ../../gallery/userdemo/connectionstyle_demo.html
 #    :align: center
-#    :scale: 50
 #
 # The connecting path (after clipping and shrinking) is then mutated to
 # an arrow patch, according to the given ``arrowstyle``.
@@ -258,7 +251,6 @@ from matplotlib import pyplot as plt
 # .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_fancyarrow_demo_001.png
 #    :target: ../../gallery/text_labels_and_annotations/fancyarrow_demo.html
 #    :align: center
-#    :scale: 50
 #
 # Some arrowstyles only work with connection styles that generate a
 # quadratic-spline segment. They are ``fancy``, ``simple``, and ``wedge``.
@@ -271,7 +263,6 @@ from matplotlib import pyplot as plt
 # .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple02_001.png
 #    :target: ../../gallery/userdemo/annotate_simple02.html
 #    :align: center
-#    :scale: 50
 #
 # As with `~.Axes.text`, a box around the text can be drawn using the *bbox*
 # argument.
@@ -279,7 +270,6 @@ from matplotlib import pyplot as plt
 # .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple03_001.png
 #    :target: ../../gallery/userdemo/annotate_simple03.html
 #    :align: center
-#    :scale: 50
 #
 # By default, the starting point is set to the center of the text
 # extent.  This can be adjusted with ``relpos`` key value. The values
@@ -289,7 +279,6 @@ from matplotlib import pyplot as plt
 # .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple04_001.png
 #    :target: ../../gallery/userdemo/annotate_simple04.html
 #    :align: center
-#    :scale: 50
 #
 # Placing Artist at the anchored location of the Axes
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -366,7 +355,6 @@ ax.add_artist(box)
 # .. figure:: ../../gallery/userdemo/images/sphx_glr_anchored_box04_001.png
 #    :target: ../../gallery/userdemo/anchored_box04.html
 #    :align: center
-#    :scale: 50
 #
 # Note that unlike the legend, the ``bbox_transform`` is set
 # to IdentityTransform by default.
@@ -409,7 +397,6 @@ ax.add_artist(box)
 #    .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord01_001.png
 #       :target: ../../gallery/userdemo/annotate_simple_coord01.html
 #       :align: center
-#       :scale: 50
 #
 #    Note that you must ensure that the extent of the coordinate artist (*an1* in
 #    above example) is determined before *an2* gets drawn. Usually, this means
@@ -439,7 +426,6 @@ ax.add_artist(box)
 #    .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord02_001.png
 #       :target: ../../gallery/userdemo/annotate_simple_coord02.html
 #       :align: center
-#       :scale: 50
 #
 # 5. Sometimes, you want your annotation with some "offset points", not from the
 #    annotated point but from some other point.  `.text.OffsetFrom` is a helper
@@ -448,7 +434,6 @@ ax.add_artist(box)
 #    .. figure:: ../../gallery/userdemo/images/sphx_glr_annotate_simple_coord03_001.png
 #       :target: ../../gallery/userdemo/annotate_simple_coord03.html
 #       :align: center
-#       :scale: 50
 #
 #    You may take a look at this example
 #    :doc:`/gallery/text_labels_and_annotations/annotation_demo`.
@@ -472,7 +457,6 @@ ax.add_artist(box)
 # .. figure:: ../../gallery/userdemo/images/sphx_glr_connect_simple01_001.png
 #    :target: ../../gallery/userdemo/connect_simple01.html
 #    :align: center
-#    :scale: 50
 #
 # Here, we added the ConnectionPatch to the *figure* (with `~.Figure.add_artist`)
 # rather than to either axes: this ensures that it is drawn on top of both axes,
@@ -492,7 +476,6 @@ ax.add_artist(box)
 # .. figure:: ../../gallery/subplots_axes_and_figures/images/sphx_glr_axes_zoom_effect_001.png
 #    :target: ../../gallery/subplots_axes_and_figures/axes_zoom_effect.html
 #    :align: center
-#    :scale: 50
 #
 # Define Custom BoxStyle
 # ~~~~~~~~~~~~~~~~~~~~~~
@@ -518,7 +501,6 @@ ax.add_artist(box)
 # .. figure:: ../../gallery/userdemo/images/sphx_glr_custom_boxstyle01_001.png
 #    :target: ../../gallery/userdemo/custom_boxstyle01.html
 #    :align: center
-#    :scale: 50
 #
 # Similarly, you can define a custom ConnectionStyle and a custom ArrowStyle.
 # See the source code of ``lib/matplotlib/patches.py`` and check
