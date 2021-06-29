@@ -7153,3 +7153,17 @@ def test_artist_sublists():
     # Adding to other lists should produce a regular list.
     assert ax.lines + [1, 2, 3] == [*lines, 1, 2, 3]
     assert [1, 2, 3] + ax.lines == [1, 2, 3, *lines]
+
+
+def test_empty_line_plots():
+    # Incompatible nr columns, plot "nothing"
+    x = np.ones(10)
+    y = np.ones((10, 0))
+    _, ax = plt.subplots()
+    line = ax.plot(x, y)
+    assert len(line) == 0
+
+    # Ensure plot([],[]) creates line
+    _, ax = plt.subplots()
+    line = ax.plot([], [])
+    assert len(line) == 1
