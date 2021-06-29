@@ -79,7 +79,6 @@ Here is the standard example,
 .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_tex_demo_001.png
    :target: ../../gallery/text_labels_and_annotations/tex_demo.html
    :align: center
-   :scale: 50
 
 Note that display math mode (``$$ e=mc^2 $$``) is not supported, but adding the
 command ``\displaystyle``, as in the above demo, will produce the same results.
