@@ -27,7 +27,8 @@ Z = Z[::8, :][:, xint]
 
 # plot
 fig, ax = plt.subplots()
+ax.grid(False)
 
-ax.pcolormesh(X, Y, Z, vmin=0, vmax=1.5, shading='nearest')
+ax.pcolormesh(X, Y, Z, vmin=0, vmax=1.5)
 
 plt.show()

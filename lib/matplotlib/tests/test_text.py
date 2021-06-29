@@ -731,3 +731,13 @@ def test_unsupported_script(recwarn):
         [warn.message.args for warn in recwarn] ==
         [(r"Glyph 2534 (\N{BENGALI DIGIT ZERO}) missing from current font.",),
          (r"Matplotlib currently does not support Bengali natively.",)])
+
+
+def test_parse_math():
+    fig, ax = plt.subplots()
+    ax.text(0, 0, r"$ \wrong{math} $", parse_math=False)
+    fig.canvas.draw()
+
+    ax.text(0, 0, r"$ \wrong{math} $", parse_math=True)
+    with pytest.raises(ValueError, match='Unknown symbol'):
+        fig.canvas.draw()
