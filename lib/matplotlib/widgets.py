@@ -994,7 +994,7 @@ class TextBox(AxesWidget):
         lambda self: self._observers.callbacks['submit']))
 
     def __init__(self, ax, label, initial='',
-                 color='.95', hovercolor='1', label_pad=.01):
+                 color='.95', hovercolor='1', label_pad=.01,ha = "left"):
         """
         Parameters
         ----------
@@ -1010,17 +1010,20 @@ class TextBox(AxesWidget):
             The color of the box when the mouse is over it.
         label_pad : float
             The distance between the label and the right side of the textbox.
+        ha :
+            The horizontal location of the text
         """
         super().__init__(ax)
-
-        self.DIST_FROM_LEFT = .05
-
+        
+        ha_dist = {"left": 0.05, "center":0.5, "right":0.95}
+        self.DIST = ha_dist[ha]
+        
         self.label = ax.text(
             -label_pad, 0.5, label, transform=ax.transAxes,
             verticalalignment='center', horizontalalignment='right')
         self.text_disp = self.ax.text(
-            self.DIST_FROM_LEFT, 0.5, initial, transform=self.ax.transAxes,
-            verticalalignment='center', horizontalalignment='left')
+            self.DIST, 0.5, initial, transform=self.ax.transAxes,
+            verticalalignment='center', horizontalalignment=ha)
 
         self._observers = cbook.CallbackRegistry()
 
@@ -1063,15 +1066,27 @@ class TextBox(AxesWidget):
 
         text = self.text_disp.get_text()  # Save value before overwriting it.
         widthtext = text[:self.cursor_index]
+
+        bb_1 = self.text_disp.get_window_extent()
+
         self.text_disp.set_text(widthtext or ",")
-        bb = self.text_disp.get_window_extent()
-        if not widthtext:  # Use the comma for the height, but keep width to 0.
-            bb.x1 = bb.x0
+        
+        bb_2 = self.text_disp.get_window_extent()
+
+        if bb_1.y0 == bb_1.y1 : #no text
+            bb_1.y0 -= (bb_2.y1-bb_2.y0)/2
+            bb_1.y1 += (bb_2.y1-bb_2.y0)/2
+        elif not widthtext: #cursor at index 0
+            bb_1.x1 = bb_1.x0
+        else :
+            bb_1.x1 = bb_1.x0 + (bb_2.x1 - bb_2.x0)
+            
         self.cursor.set(
-            segments=[[(bb.x1, bb.y0), (bb.x1, bb.y1)]], visible=True)
+            segments=[[(bb_1.x1, bb_1.y0), (bb_1.x1, bb_1.y1)]], visible=True)
         self.text_disp.set_text(text)
 
-        self.ax.figure.canvas.draw()
+        self.ax.figure.canvas.draw()    
+
 
     def _release(self, event):
         if self.ignore(event):
