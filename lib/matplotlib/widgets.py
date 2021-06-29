@@ -1924,7 +1924,8 @@ class SpanSelector(_SelectorWidget):
         The direction along which to draw the span selector.
 
     minspan : float, default: 0
-        If selection is less than or egal to *minspan*, do not call *onselect*.
+        If selection is less than or equal to *minspan*, do not call
+        *onselect*.
 
     useblit : bool, default: False
         If True, use the backend-dependent blitting features for faster
@@ -1949,7 +1950,7 @@ class SpanSelector(_SelectorWidget):
 
     line_props : dict, default: None
         Line properties with which the interactive line are drawn. Only used
-        when `interactive` is True. See `matplotlib.lines.Line2D` for details
+        when *interactive* is True. See `matplotlib.lines.Line2D` for details
         on valid properties.
 
     maxdist : float, default: 10
@@ -2022,7 +2023,7 @@ class SpanSelector(_SelectorWidget):
 
         self._active_handle = None
 
-        # prev attritube is deprecated but we still need to maintain it
+        # prev attribute is deprecated but we still need to maintain it
         self._prev = (0, 0)
 
     rect = _api.deprecate_privatize_attribute("3.5")
