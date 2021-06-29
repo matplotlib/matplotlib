@@ -457,7 +457,7 @@ def test_autoscale_tiny_range():
         ax.plot([0, 1], [1, 1 + y1])
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_autoscale_tight():
     fig, ax = plt.subplots(1, 1)
     ax.plot([1, 2, 3, 4])
@@ -467,7 +467,7 @@ def test_autoscale_tight():
     assert_allclose(ax.get_ylim(), (1.0, 4.0))
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_autoscale_log_shared():
     # related to github #7587
     # array starts at zero to trigger _minpos handling
@@ -485,7 +485,7 @@ def test_autoscale_log_shared():
     assert_allclose(ax2.get_ylim(), (x[0], x[-1]))
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_use_sticky_edges():
     fig, ax = plt.subplots()
     ax.imshow([[0, 1], [2, 3]], origin='lower')
@@ -822,7 +822,7 @@ def test_nonfinite_limits():
     ax.plot(x, y)
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @pytest.mark.parametrize('plot_fun',
                          ['scatter', 'plot', 'fill_between'])
 @check_figures_equal(extensions=["png"])
@@ -1696,8 +1696,8 @@ def test_bar_pandas_indexed(pd):
     ax.bar(df.x, 1., width=df.width)
 
 
+@mpl.style.context('default')
 @check_figures_equal()
-@pytest.mark.style('default')
 def test_bar_hatches(fig_test, fig_ref):
     ax_test = fig_test.subplots()
     ax_ref = fig_ref.subplots()
@@ -2190,7 +2190,7 @@ class TestScatter:
                                                    [0.5, 0.5, 0.5, 1]])
         assert_array_equal(coll.get_linewidths(), [1.1, 1.2, 1.3])
 
-    @pytest.mark.style('default')
+    @mpl.style.context('default')
     def test_scatter_unfillable(self):
         coll = plt.scatter([0, 1, 2], [1, 3, 2], c=['0.1', '0.3', '0.5'],
                            marker='x',
@@ -2340,7 +2340,7 @@ class TestScatter:
                     c=c_case, edgecolors="black", kwargs={}, xsize=xsize,
                     get_next_color_func=get_next_color)
 
-    @pytest.mark.style('default')
+    @mpl.style.context('default')
     @check_figures_equal(extensions=["png"])
     def test_scatter_single_color_c(self, fig_test, fig_ref):
         rgb = [[1, 0.5, 0.05]]
@@ -5575,7 +5575,7 @@ def test_loglog_nonpos():
                 ax.set_yscale("log", nonpositive=mcy)
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_axes_margins():
     fig, ax = plt.subplots()
     ax.plot([0, 1, 2, 3])
@@ -6060,7 +6060,7 @@ def test_tick_param_label_rotation():
         assert text.get_rotation() == 35
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_fillbetween_cycle():
     fig, ax = plt.subplots()
 
@@ -6878,7 +6878,7 @@ def test_polar_interpolation_steps_variable_r(fig_test, fig_ref):
         np.linspace(0, np.pi/2, 101), np.linspace(1, 2, 101))
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_autoscale_tiny_sticky():
     fig, ax = plt.subplots()
     ax.bar(0, 1e-9)
@@ -6908,7 +6908,7 @@ def test_ytickcolor_is_not_yticklabelcolor():
 
 @pytest.mark.parametrize('size', [size for size in mfont_manager.font_scalings
                                   if size is not None] + [8, 10, 12])
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_relative_ticklabel_sizes(size):
     mpl.rcParams['xtick.labelsize'] = size
     mpl.rcParams['ytick.labelsize'] = size
@@ -7066,7 +7066,7 @@ def test_patch_bounds():  # PR 19078
         np.array((-0.525, -(bot+0.05), 1.05, bot+0.1)), ax.dataLim.bounds, 16)
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_warn_ignored_scatter_kwargs():
     with pytest.warns(UserWarning,
                       match=r"You passed a edgecolor/edgecolors"):

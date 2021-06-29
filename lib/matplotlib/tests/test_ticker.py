@@ -672,7 +672,7 @@ class TestLogFormatterSciNotation:
         (10, 500000, '$\\mathdefault{5\\times10^{5}}$'),
     ]
 
-    @pytest.mark.style('default')
+    @mpl.style.context('default')
     @pytest.mark.parametrize('base, value, expected', test_data)
     def test_basic(self, base, value, expected):
         formatter = mticker.LogFormatterSciNotation(base=base)
@@ -833,7 +833,7 @@ class TestLogFormatter:
         label_test = [fmt(x) != '' for x in minor_tlocs]
         assert label_test == label_expected
 
-    @pytest.mark.style('default')
+    @mpl.style.context('default')
     def test_sublabel(self):
         # test label locator
         fig, ax = plt.subplots()
@@ -1368,7 +1368,7 @@ def test_bad_locator_subs(sub):
 
 
 @pytest.mark.parametrize('numticks', [1, 2, 3, 9])
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_small_range_loglocator(numticks):
     ll = mticker.LogLocator()
     ll.set_params(numticks=numticks)

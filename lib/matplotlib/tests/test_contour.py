@@ -466,7 +466,7 @@ def test_contour_line_start_on_corner_edge():
     cbar.add_lines(lines)
 
 
-@pytest.mark.style("default")
+@mpl.style.context("default")
 def test_contour_autolabel_beyond_powerlimits():
     ax = plt.figure().add_subplot()
     cs = plt.contour(np.geomspace(1e-6, 1e-4, 100).reshape(10, 10),

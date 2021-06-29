@@ -2,6 +2,7 @@
 import pytest
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
@@ -281,7 +282,7 @@ class TestPlotTypes:
             plotter(ax, xdata, [1, 2])
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @check_figures_equal(extensions=["png"])
 def test_overriding_units_in_plot(fig_test, fig_ref):
     from datetime import datetime
