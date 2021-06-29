@@ -994,7 +994,7 @@ class TextBox(AxesWidget):
         lambda self: self._observers.callbacks['submit']))
 
     def __init__(self, ax, label, initial='',
-                 color='.95', hovercolor='1', label_pad=.01,ha = "left"):
+                 color='.95', hovercolor='1', label_pad=.01, ha="left"):
         """
         Parameters
         ----------
@@ -1014,10 +1014,10 @@ class TextBox(AxesWidget):
             The horizontal location of the text
         """
         super().__init__(ax)
-        
+
         ha_dist = {"left": 0.05, "center":0.5, "right":0.95}
         self.DIST = ha_dist[ha]
-        
+
         self.label = ax.text(
             -label_pad, 0.5, label, transform=ax.transAxes,
             verticalalignment='center', horizontalalignment='right')
@@ -1027,14 +1027,14 @@ class TextBox(AxesWidget):
             self.DIST, 0.5, initial, transform=self.ax.transAxes,
             verticalalignment='center', horizontalalignment=ha,
             parse_math=False)
-        
+
         self._observers = cbook.CallbackRegistry()
 
         ax.set(
             xlim=(0, 1), ylim=(0, 1),  # s.t. cursor appears from first click.
             navigate=False, facecolor=color,
             xticks=[], yticks=[])
-
+        
         self.cursor_index = 0
 
         self.cursor = ax.vlines(0, 0, 0, visible=False, color="k", lw=1,
@@ -1071,9 +1071,7 @@ class TextBox(AxesWidget):
         widthtext = text[:self.cursor_index]
 
         bb_1 = self.text_disp.get_window_extent()
-
         self.text_disp.set_text(widthtext or ",")
-        
         bb_2 = self.text_disp.get_window_extent()
 
         if bb_1.y0 == bb_1.y1 : #no text
@@ -1083,13 +1081,12 @@ class TextBox(AxesWidget):
             bb_1.x1 = bb_1.x0
         else :
             bb_1.x1 = bb_1.x0 + (bb_2.x1 - bb_2.x0)
-            
+   
         self.cursor.set(
             segments=[[(bb_1.x1, bb_1.y0), (bb_1.x1, bb_1.y1)]], visible=True)
         self.text_disp.set_text(text)
 
         self.ax.figure.canvas.draw()    
-
 
     def _release(self, event):
         if self.ignore(event):
