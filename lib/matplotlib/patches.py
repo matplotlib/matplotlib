@@ -2138,7 +2138,7 @@ def _simpleprint_styles(_styles):
     {stylename: styleclass}, return a string rep of the list of keys.
     Used to update the documentation.
     """
-    return "[{}]".format("|".join(map(" '{}' ".format, sorted(_styles))))
+    return "[{}]".format("|".join(map(" '{}' ".format, _styles)))
 
 
 class _Style:
@@ -2184,7 +2184,7 @@ class _Style:
                     f'``{name}``',
                     # [1:-1] drops the surrounding parentheses.
                     str(inspect.signature(cls))[1:-1] or 'None')
-                   for name, cls in sorted(cls._style_list.items())]]
+                   for name, cls in cls._style_list.items()]]
         # Convert to rst table.
         col_len = [max(len(cell) for cell in column) for column in zip(*table)]
         table_formatstr = '  '.join('=' * cl for cl in col_len)
