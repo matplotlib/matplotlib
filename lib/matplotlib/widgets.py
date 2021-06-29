@@ -1034,7 +1034,7 @@ class TextBox(AxesWidget):
             xlim=(0, 1), ylim=(0, 1),  # s.t. cursor appears from first click.
             navigate=False, facecolor=color,
             xticks=[], yticks=[])
-        
+
         self.cursor_index = 0
 
         self.cursor = ax.vlines(0, 0, 0, visible=False, color="k", lw=1,
@@ -1074,14 +1074,14 @@ class TextBox(AxesWidget):
         self.text_disp.set_text(widthtext or ",")
         bb_2 = self.text_disp.get_window_extent()
 
-        if bb_1.y0 == bb_1.y1 : #no text
+        if bb_1.y0 == bb_1.y1:  # no text
             bb_1.y0 -= (bb_2.y1-bb_2.y0)/2
             bb_1.y1 += (bb_2.y1-bb_2.y0)/2
-        elif not widthtext: #cursor at index 0
+        elif not widthtext:  # cursor at index 0
             bb_1.x1 = bb_1.x0
-        else :
+        else:
             bb_1.x1 = bb_1.x0 + (bb_2.x1 - bb_2.x0)
-   
+
         self.cursor.set(
             segments=[[(bb_1.x1, bb_1.y0), (bb_1.x1, bb_1.y1)]], visible=True)
         self.text_disp.set_text(text)
