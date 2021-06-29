@@ -12,12 +12,12 @@ plt.style.use('mpl_plot_gallery')
 
 
 # make data
-X = [1, 2, 3, 4]
-colors = plt.get_cmap('Blues')(np.linspace(0.2, 0.7, len(X)))
+x = [1, 2, 3, 4]
+colors = plt.get_cmap('Blues')(np.linspace(0.2, 0.7, len(x)))
 
 # plot
 fig, ax = plt.subplots()
-ax.pie(X, colors=colors, radius=3, center=(4, 4),
+ax.pie(x, colors=colors, radius=3, center=(4, 4),
        wedgeprops={"linewidth": 1, "edgecolor": "white"}, frame=True)
 
 ax.set(xlim=(0, 8), xticks=np.arange(1, 8),

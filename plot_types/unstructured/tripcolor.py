@@ -17,8 +17,8 @@ Z = Z - Z.min()
 
 # sample it to make unstructured x, y, z
 np.random.seed(1)
-ysamp = np.random.randint(0, high=256, size=250)
-xsamp = np.random.randint(0, high=256, size=250)
+ysamp = np.random.randint(0, 256, size=250)
+xsamp = np.random.randint(0, 256, size=250)
 y = Y[:, 0][ysamp]
 x = X[0, :][xsamp]
 z = Z[ysamp, xsamp]
