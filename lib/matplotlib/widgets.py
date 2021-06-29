@@ -1018,9 +1018,12 @@ class TextBox(AxesWidget):
         self.label = ax.text(
             -label_pad, 0.5, label, transform=ax.transAxes,
             verticalalignment='center', horizontalalignment='right')
+
+        # TextBox's text object should not parse mathtext at all.
         self.text_disp = self.ax.text(
-            self.DIST_FROM_LEFT, 0.5, initial, transform=self.ax.transAxes,
-            verticalalignment='center', horizontalalignment='left')
+            self.DIST_FROM_LEFT, 0.5, initial,
+            transform=self.ax.transAxes, verticalalignment='center',
+            horizontalalignment='left', parse_math=False)
 
         self._observers = cbook.CallbackRegistry()
 

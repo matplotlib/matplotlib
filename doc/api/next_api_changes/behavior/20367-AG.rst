@@ -1,0 +1,12 @@
+``Text`` allows a boolean *parse_math*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`.Text` objects now allow a *parse_math* keyword-only argument
+which defaults to True. When it is passed as False, that text object
+will consider the string as a literal and will not try to parse it
+as a mathtext object.
+
+``TextBox`` defaults it to False
+--------------------------------
+`.TextBox` now defaults its text object's *parse_math** argument
+as False. 
