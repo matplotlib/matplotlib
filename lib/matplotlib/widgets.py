@@ -1086,7 +1086,7 @@ class TextBox(AxesWidget):
             segments=[[(bb_1.x1, bb_1.y0), (bb_1.x1, bb_1.y1)]], visible=True)
         self.text_disp.set_text(text)
 
-        self.ax.figure.canvas.draw()    
+        self.ax.figure.canvas.draw()
 
     def _release(self, event):
         if self.ignore(event):
