@@ -1,4 +1,8 @@
-from .backend_qtcairo import _BackendQTCairo, FigureCanvasQTCairo
+from .backend_qtcairo import (
+    _BackendQTCairo, FigureCanvasQTCairo,
+    FigureCanvasCairo, FigureCanvasQT,
+    RendererCairo
+)
 
 
 @_BackendQTCairo.export
