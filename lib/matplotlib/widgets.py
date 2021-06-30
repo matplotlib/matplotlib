@@ -1990,7 +1990,7 @@ class SpanSelector(_SelectorWidget):
 
         rectprops['animated'] = self.useblit
 
-        self._direction = direction
+        self.direction = direction
 
         self._rect = None
         self.visible = True
@@ -2114,7 +2114,7 @@ class SpanSelector(_SelectorWidget):
     def direction(self, direction):
         """Set the direction of the span selector."""
         _api.check_in_list(['horizontal', 'vertical'], direction=direction)
-        if direction != self._direction:
+        if hasattr(self, '_direction') and direction != self._direction:
             # remove previous artists
             self._rect.remove()
             if self._interactive:
@@ -2125,6 +2125,8 @@ class SpanSelector(_SelectorWidget):
             self.new_axes(self.ax)
             if self._interactive:
                 self._setup_edge_handle(self._edge_handles._line_props)
+        else:
+            self._direction = direction
 
     def _release(self, event):
         """Button release event handler."""
