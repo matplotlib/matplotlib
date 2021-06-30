@@ -195,11 +195,11 @@ def check_span(*args, **kwargs):
     def onselect(vmin, vmax):
         ax._got_onselect = True
         assert vmin == 100
-        assert vmax == 150
+        assert vmax == 199
 
     def onmove(vmin, vmax):
         assert vmin == 100
-        assert vmax == 125
+        assert vmax == 199
         ax._got_on_move = True
 
     if 'onmove_callback' in kwargs:
@@ -207,8 +207,9 @@ def check_span(*args, **kwargs):
 
     tool = widgets.SpanSelector(ax, onselect, *args, **kwargs)
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
-    do_event(tool, 'onmove', xdata=125, ydata=125, button=1)
-    do_event(tool, 'release', xdata=150, ydata=150, button=1)
+    # move outside of axis
+    do_event(tool, 'onmove', xdata=199, ydata=199, button=1)
+    do_event(tool, 'release', xdata=250, ydata=250, button=1)
 
     assert ax._got_onselect
 
@@ -220,6 +221,85 @@ def test_span_selector():
     check_span('horizontal', minspan=10, useblit=True)
     check_span('vertical', onmove_callback=True, button=1)
     check_span('horizontal', rectprops=dict(fill=True))
+
+
+@pytest.mark.parametrize('drag_from_anywhere', [True, False])
+def test_span_selector_drag(drag_from_anywhere):
+    ax = get_ax()
+
+    def onselect(epress, erelease):
+        pass
+
+    # Create span
+    tool = widgets.SpanSelector(ax, onselect, 'horizontal', interactive=True,
+                                drag_from_anywhere=drag_from_anywhere)
+    do_event(tool, 'press', xdata=10, ydata=10, button=1)
+    do_event(tool, 'onmove', xdata=100, ydata=120, button=1)
+    do_event(tool, 'release', xdata=100, ydata=120, button=1)
+    assert tool.extents == (10, 100)
+    # Drag inside span
+    #
+    # If drag_from_anywhere == True, this will move the span by 10,
+    # giving new value extents = 20, 110
+    #
+    # If drag_from_anywhere == False, this will create a new span with
+    # value extents = 25, 35
+    do_event(tool, 'press', xdata=25, ydata=15, button=1)
+    do_event(tool, 'onmove', xdata=35, ydata=25, button=1)
+    do_event(tool, 'release', xdata=35, ydata=25, button=1)
+    if drag_from_anywhere:
+        assert tool.extents == (20, 110)
+    else:
+        assert tool.extents == (25, 35)
+
+    # Check that in both cases, dragging outside the span draws a new span
+    do_event(tool, 'press', xdata=175, ydata=185, button=1)
+    do_event(tool, 'onmove', xdata=185, ydata=195, button=1)
+    do_event(tool, 'release', xdata=185, ydata=195, button=1)
+    assert tool.extents == (175, 185)
+
+
+def test_span_selector_direction():
+    ax = get_ax()
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = widgets.SpanSelector(ax, onselect, 'horizontal', interactive=True)
+    assert tool.direction == 'horizontal'
+    assert tool._edge_handles.direction == 'horizontal'
+
+    with pytest.raises(ValueError):
+        tool = widgets.SpanSelector(ax, onselect, 'invalid_direction')
+
+    tool.direction = 'vertical'
+    assert tool.direction == 'vertical'
+    assert tool._edge_handles.direction == 'vertical'
+
+    with pytest.raises(ValueError):
+        tool.direction = 'invalid_string'
+
+
+def test_tool_line_handle():
+    ax = get_ax()
+
+    positions = [20, 30, 50]
+
+    tool_line_handle = widgets.ToolLineHandles(ax, positions, 'horizontal',
+                                               useblit=False)
+
+    for artist in tool_line_handle.artists:
+        assert not artist.get_animated()
+        assert not artist.get_visible()
+
+    tool_line_handle.set_visible(True)
+    tool_line_handle.set_animated(True)
+
+    for artist in tool_line_handle.artists:
+        assert artist.get_animated()
+        assert artist.get_visible()
+
+    assert tool_line_handle.positions == positions
 
 
 def check_lasso_selector(**kwargs):
