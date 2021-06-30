@@ -33,15 +33,7 @@ def qt_core(request):
     return QtCore
 
 
-@pytest.mark.parametrize('backend', [
-    # Note: the value is irrelevant; the important part is the marker.
-    pytest.param(
-        'QtAgg',
-        marks=pytest.mark.backend('QtAgg', skip_on_importerror=True)),
-    pytest.param(
-        'Qt5Agg',
-        marks=pytest.mark.backend('Qt5Agg', skip_on_importerror=True)),
-])
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_fig_close(backend):
     # save the state of Gcf.figs
     init_figs = copy.copy(Gcf.figs)
