@@ -65,7 +65,7 @@ those formats (for example, PDF, PS/EPS, SVG) allow embedding font data in such
 a way that when these documents are visually scaled, the text does not appear
 pixelated.
 
-This can be achieved by virtually embedding the *whole* font file within the
+This can be achieved by embedding the *whole* font file within the
 output document. However, this can lead to very large documents, as some
 fonts (for instance, CJK - Chinese/Japanese/Korean fonts) can contain a large
 number of glyphs, and thus their embedded size can be quite huge.
