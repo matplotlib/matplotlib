@@ -1,0 +1,4 @@
+MaxNLocator passing *nbins* in two ways
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`~.ticker.MaxNLocator` does not accept a positional parameter and the keyword
+argument *nbins* simultaneously because they specify the same quantity.
