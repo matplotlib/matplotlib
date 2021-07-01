@@ -679,7 +679,6 @@ class Artist:
 
         Requires the following preamble when using the PGF backend:
 
-            \\usepackage{pgf}
             \\usepgfmodule{decorations}
             \\usepgflibrary{decorations.pathmorphing}
 
