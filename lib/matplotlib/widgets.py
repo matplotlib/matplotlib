@@ -1921,7 +1921,11 @@ class SpanSelector(_SelectorWidget):
     ----------
     ax : `matplotlib.axes.Axes`
 
-    onselect : func(min, max), min/max are floats
+    onselect : callable
+        A callback function to be called when the selection is completed.
+        It must have the signature::
+
+            def on_select(min: float, max: float) -> Any
 
     direction : {"horizontal", "vertical"}
         The direction along which to draw the span selector.
@@ -1948,19 +1952,19 @@ class SpanSelector(_SelectorWidget):
         Whether to draw a set of handles that allow interaction with the
         widget after it is drawn.
 
-    button : `.MouseButton` or list of `.MouseButton`
+    button : `.MouseButton` or list of `.MouseButton`, default: all buttons
         The mouse buttons which activate the span selector.
 
-    line_props : dict, default: None
-        Line properties with which the interactive line are drawn. Only used
-        when *interactive* is True. See `matplotlib.lines.Line2D` for details
-        on valid properties.
+    handle_props : dict, default: None
+        Properties of the handle lines at the edges of the span. Only used
+        when *interactive* is True. See `~matplotlib.lines.Line2D` for valid
+        properties.
 
-    maxdist : float, default: 10
+    handle_grab_distance : float, default: 10
         Distance in pixels within which the interactive tool handles can be
         activated.
 
-    drag_from_anywhere : bool, optional
+    drag_from_anywhere : bool, default: False
         If `True`, the widget can be moved by clicking anywhere within
         its bounds.
 
@@ -1983,7 +1987,7 @@ class SpanSelector(_SelectorWidget):
     @_api.rename_parameter("3.5", "span_stays", "interactive")
     def __init__(self, ax, onselect, direction, minspan=0, useblit=False,
                  rectprops=None, onmove_callback=None, interactive=False,
-                 button=None, line_props=None, maxdist=10,
+                 button=None, handle_props=None, handle_grab_distance=10,
                  drag_from_anywhere=False):
 
         super().__init__(ax, onselect, useblit=useblit, button=button)
@@ -2007,7 +2011,7 @@ class SpanSelector(_SelectorWidget):
         self.onmove_callback = onmove_callback
         self.minspan = minspan
 
-        self.maxdist = maxdist
+        self.handle_grab_distance = handle_grab_distance
         self._interactive = interactive
         self.drag_from_anywhere = drag_from_anywhere
 
@@ -2018,7 +2022,7 @@ class SpanSelector(_SelectorWidget):
 
         # Setup handles
         props = dict(color=rectprops.get('facecolor', 'r'))
-        props.update(cbook.normalize_kwargs(line_props, Line2D._alias_map))
+        props.update(cbook.normalize_kwargs(handle_props, Line2D._alias_map))
 
         if self._interactive:
             self._edge_order = ['min', 'max']
@@ -2211,7 +2215,7 @@ class SpanSelector(_SelectorWidget):
         # Use 'C' to match the notation used in the RectangleSelector
         if 'move' in self.state:
             self._active_handle = 'C'
-        elif e_dist > self.maxdist:
+        elif e_dist > self.handle_grab_distance:
             # Not close to any handles
             self._active_handle = None
             if self.drag_from_anywhere and self._contains(event):
