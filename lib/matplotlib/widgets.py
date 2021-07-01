@@ -827,6 +827,24 @@ class RangeSlider(SliderBase):
             self.ax.set_xlim((self.valmin, self.valmax))
             self.vline.set_xdata(self.val)
 
+    def update_range(self, vmin = None, vmax = None):
+        """Update the range of the slider"""
+        if not vmin and not vmax:
+            raise ValueError(
+                (f"Argument vmin ({type(vmin)}) has no value"
+                f"Argument vmax ({type(vmax)}) has no value"))
+        if vmin:
+            self.valmin = vmin
+        if vmax:
+            self.valmax = vmax 
+        self.val = self._value_in_bounds(self.valinit)
+        if self.orientation == 'vertical':
+            self.ax.set_ylim((self.valmin, self.valmax))
+            self.hline.set_ydata(self.val)
+        else:
+            self.ax.set_xlim((self.valmin, self.valmax))
+            self.vline.set_xdata(self.val)
+
 
 class CheckButtons(AxesWidget):
     r"""
