@@ -120,9 +120,11 @@ Plot 14 uses ``include-source``:
 
     # Only a comment
 
-Plot 15 uses an external file with the plot commands and a caption:
+Plot 15 uses an external file with the plot commands and a caption (the
+encoding is ignored and just verifies the deprecation is not broken):
 
 .. plot:: range4.py
+   :encoding: utf-8
 
    This is the caption for plot 15.
 
