@@ -77,10 +77,10 @@ example_plot(ax, fontsize=24)
 
 ###############################################################################
 # To prevent this, the location of axes needs to be adjusted. For
-# subplots, this can be done by adjusting the subplot params
-# (:ref:`howto-subplots-adjust`). However, specifying your figure with the
-# ``constrained_layout=True`` keyword argument will do the adjusting
-# automatically.
+# subplots, this can be done manually by adjusting the subplot parameters
+# using `.Figure.subplots_adjust`. However, specifying your figure with the
+# # ``constrained_layout=True`` keyword argument will do the adjusting
+# # automatically.
 
 fig, ax = plt.subplots(constrained_layout=True)
 example_plot(ax, fontsize=24)
