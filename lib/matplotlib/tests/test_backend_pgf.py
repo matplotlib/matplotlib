@@ -341,34 +341,24 @@ def test_minus_signs_with_tex(fig_test, fig_ref, texsystem):
 
 @pytest.mark.backend("pgf")
 def test_sketch_params():
-    fig, ax = plt.subplots(figsize=[3, 3])
+    fig, ax = plt.subplots(figsize=(3, 3))
     ax.set_xticks([])
     ax.set_yticks([])
     ax.set_frame_on(False)
-    handle = ax.plot([0, 1])[0]
+    handle, = ax.plot([0, 1])
     handle.set_sketch_params(scale=5, length=30, randomness=42)
 
     with BytesIO() as fd:
         fig.savefig(fd, format='pgf')
         buf = fd.getvalue().decode()
 
-    baseline = r"""\begin{pgfscope}%
-\pgfpathrectangle{\pgfqpoint{0.375000in}{0.300000in}}""" \
-    r"""{\pgfqpoint{2.325000in}{2.400000in}}%
-\pgfusepath{clip}%
-\pgfsetrectcap%
-\pgfsetroundjoin%
-\pgfsetlinewidth{1.003750pt}%
-\definecolor{currentstroke}{rgb}{0.000000,0.000000,1.000000}%
-\pgfsetstrokecolor{currentstroke}%
-\pgfsetdash{}{0pt}%
-\pgfpathmoveto{\pgfqpoint{0.375000in}{0.300000in}}%
+    baseline = r"""\pgfpathmoveto{\pgfqpoint{0.375000in}{0.300000in}}%
 \pgfpathlineto{\pgfqpoint{2.700000in}{2.700000in}}%
 \pgfkeys{/pgf/decoration/.cd, """ \
     r"""segment length = 0.300000in, amplitude = 0.050000in}%
 \pgfmathsetseed{42}%
 \pgfdecoratecurrentpath{random steps}%
-\pgfusepath{stroke}%
-\end{pgfscope}%"""
-    # check that \pgfkeys{/pgf/decoration/.cd, ...} is in path definition
+\pgfusepath{stroke}%"""
+    # \pgfdecoratecurrentpath must be after the path definition and before the
+    # path is used (\pgfusepath)
     assert baseline in buf
