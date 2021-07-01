@@ -458,9 +458,8 @@ class Path:
                 raise ValueError("Invalid Path.code_type: " + str(code))
             prev_vert = verts[-2:]
 
-    @_api.delete_parameter("3.3", "quantize")
     def cleaned(self, transform=None, remove_nans=False, clip=None,
-                quantize=False, simplify=False, curves=False,
+                *, simplify=False, curves=False,
                 stroke_width=1.0, snap=False, sketch=None):
         """
         Return a new Path with vertices and codes cleaned according to the

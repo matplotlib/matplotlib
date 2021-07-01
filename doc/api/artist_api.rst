@@ -36,8 +36,6 @@ Interactive
    Artist.format_cursor_data
    Artist.mouseover
    Artist.contains
-   Artist.set_contains
-   Artist.get_contains
    Artist.pick
    Artist.pickable
    Artist.set_picker

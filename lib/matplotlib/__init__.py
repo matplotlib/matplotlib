@@ -1174,8 +1174,7 @@ def _init_tests():
                 "" if ft2font.__freetype_build_type__ == 'local' else "not "))
 
 
-@_api.delete_parameter("3.3", "recursionlimit")
-def test(verbosity=None, coverage=False, *, recursionlimit=0, **kwargs):
+def test(verbosity=None, coverage=False, **kwargs):
     """Run the matplotlib test suite."""
 
     try:
@@ -1192,8 +1191,6 @@ def test(verbosity=None, coverage=False, *, recursionlimit=0, **kwargs):
     old_recursionlimit = sys.getrecursionlimit()
     try:
         use('agg')
-        if recursionlimit:
-            sys.setrecursionlimit(recursionlimit)
 
         args = kwargs.pop('argv', [])
         provide_default_modules = True
@@ -1222,8 +1219,6 @@ def test(verbosity=None, coverage=False, *, recursionlimit=0, **kwargs):
     finally:
         if old_backend.lower() != 'agg':
             use(old_backend)
-        if recursionlimit:
-            sys.setrecursionlimit(old_recursionlimit)
 
     return retcode
 

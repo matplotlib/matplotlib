@@ -109,7 +109,6 @@ class Artist:
         self._clipon = True
         self._label = ''
         self._picker = None
-        self._contains = None
         self._rasterized = False
         self._agg_filter = None
         # Normally, artist classes need to be queried for mouseover info if and
@@ -401,10 +400,9 @@ class Artist:
         """
         Base impl. for checking whether a mouseevent happened in an artist.
 
-        1. If the artist defines a custom checker, use it (deprecated).
-        2. If the artist figure is known and the event did not occur in that
+        1. If the artist figure is known and the event did not occur in that
            figure (by checking its ``canvas`` attribute), reject it.
-        3. Otherwise, return `None, {}`, indicating that the subclass'
+        2. Otherwise, return `None, {}`, indicating that the subclass'
            implementation should be used.
 
         Subclasses should start their definition of `contains` as follows:
@@ -417,8 +415,6 @@ class Artist:
         The *figure* kwarg is provided for the implementation of
         `.Figure.contains`.
         """
-        if callable(self._contains):
-            return self._contains(self, mouseevent)
         if figure is not None and mouseevent.canvas is not figure.canvas:
             return False, {}
         return None, {}
@@ -445,45 +441,6 @@ class Artist:
             return inside, info
         _log.warning("%r needs 'contains' method", self.__class__.__name__)
         return False, {}
-
-    @_api.deprecated("3.3", alternative="set_picker")
-    def set_contains(self, picker):
-        """
-        Define a custom contains test for the artist.
-
-        The provided callable replaces the default `.contains` method
-        of the artist.
-
-        Parameters
-        ----------
-        picker : callable
-            A custom picker function to evaluate if an event is within the
-            artist. The function must have the signature::
-
-                def contains(artist: Artist, event: MouseEvent) -> bool, dict
-
-            that returns:
-
-            - a bool indicating if the event is within the artist
-            - a dict of additional information. The dict should at least
-              return the same information as the default ``contains()``
-              implementation of the respective artist, but may provide
-              additional information.
-        """
-        if not callable(picker):
-            raise TypeError("picker is not a callable")
-        self._contains = picker
-
-    @_api.deprecated("3.3", alternative="get_picker")
-    def get_contains(self):
-        """
-        Return the custom contains function of the artist if set, or *None*.
-
-        See Also
-        --------
-        set_contains
-        """
-        return self._contains
 
     def pickable(self):
         """
@@ -1041,13 +998,7 @@ class Artist:
         ret = []
         with cbook._setattr_cm(self, eventson=False):
             for k, v in props.items():
-                if k != k.lower():
-                    _api.warn_deprecated(
-                        "3.3", message="Case-insensitive properties were "
-                        "deprecated in %(since)s and support will be removed "
-                        "%(removal)s")
-                    k = k.lower()
-                # White list attributes we want to be able to update through
+                # Allow attributes we want to be able to update through
                 # art.update, art.set, setp.
                 if k == "axes":
                     ret.append(setattr(self, k, v))

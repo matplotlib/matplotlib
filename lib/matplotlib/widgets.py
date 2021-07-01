@@ -984,8 +984,6 @@ class TextBox(AxesWidget):
         The color of the text box when hovering.
     """
 
-    params_to_disable = _api.deprecated("3.3")(property(
-        lambda self: [key for key in mpl.rcParams if 'keymap' in key]))
     cnt = _api.deprecated("3.4")(property(  # Not real, but close enough.
         lambda self: sum(len(d) for d in self._observers.callbacks.values())))
     change_observers = _api.deprecated("3.4")(property(
@@ -1429,55 +1427,6 @@ class SubplotTool(Widget):
         if self.drawon:
             event.canvas.draw()  # Redraw the subplottool canvas.
         self._on_slider_changed(None)  # Apply changes to the target window.
-
-    axleft = _api.deprecated("3.3")(
-        property(lambda self: self.sliderleft.ax))
-    axright = _api.deprecated("3.3")(
-        property(lambda self: self.sliderright.ax))
-    axbottom = _api.deprecated("3.3")(
-        property(lambda self: self.sliderbottom.ax))
-    axtop = _api.deprecated("3.3")(
-        property(lambda self: self.slidertop.ax))
-    axwspace = _api.deprecated("3.3")(
-        property(lambda self: self.sliderwspace.ax))
-    axhspace = _api.deprecated("3.3")(
-        property(lambda self: self.sliderhspace.ax))
-
-    @_api.deprecated("3.3")
-    def funcleft(self, val):
-        self.targetfig.subplots_adjust(left=val)
-        if self.drawon:
-            self.targetfig.canvas.draw()
-
-    @_api.deprecated("3.3")
-    def funcright(self, val):
-        self.targetfig.subplots_adjust(right=val)
-        if self.drawon:
-            self.targetfig.canvas.draw()
-
-    @_api.deprecated("3.3")
-    def funcbottom(self, val):
-        self.targetfig.subplots_adjust(bottom=val)
-        if self.drawon:
-            self.targetfig.canvas.draw()
-
-    @_api.deprecated("3.3")
-    def functop(self, val):
-        self.targetfig.subplots_adjust(top=val)
-        if self.drawon:
-            self.targetfig.canvas.draw()
-
-    @_api.deprecated("3.3")
-    def funcwspace(self, val):
-        self.targetfig.subplots_adjust(wspace=val)
-        if self.drawon:
-            self.targetfig.canvas.draw()
-
-    @_api.deprecated("3.3")
-    def funchspace(self, val):
-        self.targetfig.subplots_adjust(hspace=val)
-        if self.drawon:
-            self.targetfig.canvas.draw()
 
 
 class Cursor(AxesWidget):
