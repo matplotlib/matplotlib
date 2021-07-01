@@ -1591,7 +1591,7 @@ class SymLogNorm(Normalize):
     @linthresh.setter
     def linthresh(self, value):
         self._scale.linthresh = value
-        
+
 
 @_make_norm_from_scale(
     scale.PowerScale,
@@ -1602,7 +1602,7 @@ class PowerNorm(Normalize):
     a power-law normalization over that range.
     """
 
-    
+
 class BoundaryNorm(Normalize):
     """
     Generate a colormap index based on discrete intervals.
