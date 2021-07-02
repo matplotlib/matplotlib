@@ -1688,7 +1688,7 @@ def _pil_png_to_float_array(pil_png):
     mode = pil_png.mode
     rawmode = pil_png.png.im_rawmode
     if rawmode == "1":  # Grayscale.
-        return np.asarray(pil_png, np.float32)
+        return np.asarray(pil_png).astype(np.float32)
     if rawmode == "L;2":  # Grayscale.
         return np.divide(pil_png, 2**2 - 1, dtype=np.float32)
     if rawmode == "L;4":  # Grayscale.
