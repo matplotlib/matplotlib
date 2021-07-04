@@ -9,13 +9,14 @@ the ``marker`` parameter of plot commands:
 - `Unfilled markers`_
 - `Filled markers`_
 - `Markers created from TeX symbols`_
-- Custom markers can be created from paths. See
-  :doc:`/gallery/shapes_and_collections/marker_path`.
+- `Markers created from Paths`_
 
 For a list of all markers see also the `matplotlib.markers` documentation.
 
 For example usages see
 :doc:`/gallery/lines_bars_and_markers/scatter_star_poly`.
+
+.. redirect-from:: /gallery/shapes_and_collections/marker_path
 """
 
 import matplotlib.pyplot as plt
@@ -122,6 +123,38 @@ markers = ["$1$", r"$\frac{1}{2}$", "$f$", "$\u266B$", r"$\mathcal{A}$"]
 for y, marker in enumerate(markers):
     # Escape dollars so that the text is written "as is", not as mathtext.
     ax.text(-0.5, y, repr(marker).replace("$", r"\$"), **text_style)
+    ax.plot([y] * 3, marker=marker, **marker_style)
+format_axes(ax)
+
+plt.show()
+
+
+###############################################################################
+# Markers created from Paths
+# ==========================
+#
+# Any `~.path.Path` can be used as a marker. The following example shows two
+# simple paths *star* and *circle*, and a more elaborate path of a circle with
+# a cut-out star.
+
+import matplotlib.path as mpath
+import numpy as np
+
+star = mpath.Path.unit_regular_star(6)
+circle = mpath.Path.unit_circle()
+# concatenate the circle with an internal cutout of the star
+cut_star = mpath.Path(
+    vertices=np.concatenate([circle.vertices, star.vertices[::-1, ...]]),
+    codes=np.concatenate([circle.codes, star.codes]))
+
+fig, ax = plt.subplots()
+fig.suptitle('Path markers', fontsize=14)
+fig.subplots_adjust(left=0.4)
+
+markers = {'star': star, 'circle': circle, 'cut_star': cut_star}
+
+for y, (name, marker) in enumerate(markers.items()):
+    ax.text(-0.5, y, name, **text_style)
     ax.plot([y] * 3, marker=marker, **marker_style)
 format_axes(ax)
 
