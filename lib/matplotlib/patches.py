@@ -3475,7 +3475,7 @@ class ArrowStyle(_Style):
     class BracketB(_Bracket):
         """An arrow with an outward square bracket at its end."""
 
-        def __init__(self, widthB=1., lengthB=0.2, angleB=None):
+        def __init__(self, widthB=1., lengthB=0.2, angleB=0):
             """
             Parameters
             ----------
@@ -3516,9 +3516,7 @@ class ArrowStyle(_Style):
     class BarAB(_Bracket):
         """An arrow with vertical bars ``|`` at both ends."""
 
-        def __init__(self,
-                     widthA=1., angleA=None,
-                     widthB=1., angleB=None):
+        def __init__(self, widthA=1., angleA=0, widthB=1., angleB=0):
             """
             Parameters
             ----------
