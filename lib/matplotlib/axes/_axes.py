@@ -3746,7 +3746,7 @@ class Axes(_AxesBase):
 
         # if non-default sym value, put it into the flier dictionary
         # the logic for providing the default symbol ('b+') now lives
-        # in bxp in the initial value of final_flierprops
+        # in bxp in the initial value of flierkw
         # handle all of the *sym* related logic here so we only have to pass
         # on the flierprops dict.
         if sym is not None:
@@ -3925,72 +3925,47 @@ class Axes(_AxesBase):
 
         zdelta = 0.1
 
-        def line_props_with_rcdefaults(subkey, explicit, zdelta=0,
-                                       use_marker=True):
+        def merge_kw_rc(subkey, explicit, zdelta=0, usemarker=True):
             d = {k.split('.')[-1]: v for k, v in rcParams.items()
-                 if k.startswith(f'boxplot.{subkey}')}
+                 if k.startswith(f'boxplot.{subkey}props')}
             d['zorder'] = zorder + zdelta
-            if not use_marker:
+            if not usemarker:
                 d['marker'] = ''
             d.update(cbook.normalize_kwargs(explicit, mlines.Line2D))
             return d
 
-        # box properties
-        if patch_artist:
-            final_boxprops = {
-                'linestyle': rcParams['boxplot.boxprops.linestyle'],
-                'linewidth': rcParams['boxplot.boxprops.linewidth'],
-                'edgecolor': rcParams['boxplot.boxprops.color'],
-                'facecolor': ('white' if rcParams['_internal.classic_mode']
-                              else rcParams['patch.facecolor']),
-                'zorder': zorder,
-                **cbook.normalize_kwargs(boxprops, mpatches.PathPatch)
-            }
-        else:
-            final_boxprops = line_props_with_rcdefaults('boxprops', boxprops,
-                                                        use_marker=False)
-        final_whiskerprops = line_props_with_rcdefaults(
-            'whiskerprops', whiskerprops, use_marker=False)
-        final_capprops = line_props_with_rcdefaults(
-            'capprops', capprops, use_marker=False)
-        final_flierprops = line_props_with_rcdefaults(
-            'flierprops', flierprops)
-        final_medianprops = line_props_with_rcdefaults(
-            'medianprops', medianprops, zdelta, use_marker=False)
-        final_meanprops = line_props_with_rcdefaults(
-            'meanprops', meanprops, zdelta)
+        box_kw = {
+            'linestyle': rcParams['boxplot.boxprops.linestyle'],
+            'linewidth': rcParams['boxplot.boxprops.linewidth'],
+            'edgecolor': rcParams['boxplot.boxprops.color'],
+            'facecolor': ('white' if rcParams['_internal.classic_mode']
+                          else rcParams['patch.facecolor']),
+            'zorder': zorder,
+            **cbook.normalize_kwargs(boxprops, mpatches.PathPatch)
+        } if patch_artist else merge_kw_rc('box', boxprops, usemarker=False)
+        whisker_kw = merge_kw_rc('whisker', whiskerprops, usemarker=False)
+        cap_kw = merge_kw_rc('cap', capprops, usemarker=False)
+        flier_kw = merge_kw_rc('flier', flierprops)
+        median_kw = merge_kw_rc('median', medianprops, zdelta, usemarker=False)
+        mean_kw = merge_kw_rc('mean', meanprops, zdelta)
         removed_prop = 'marker' if meanline else 'linestyle'
         # Only remove the property if it's not set explicitly as a parameter.
         if meanprops is None or removed_prop not in meanprops:
-            final_meanprops[removed_prop] = ''
-
-        def patch_list(xs, ys, **kwargs):
-            path = mpath.Path(
-                # Last vertex will have a CLOSEPOLY code and thus be ignored.
-                np.append(np.column_stack([xs, ys]), [(0, 0)], 0),
-                closed=True)
-            patch = mpatches.PathPatch(path, **kwargs)
-            self.add_artist(patch)
-            return [patch]
+            mean_kw[removed_prop] = ''
 
         # vertical or horizontal plot?
-        if vert:
-            def doplot(*args, **kwargs):
-                return self.plot(*args, **kwargs)
+        maybe_swap = slice(None) if vert else slice(None, None, -1)
 
-            def dopatch(xs, ys, **kwargs):
-                return patch_list(xs, ys, **kwargs)
+        def do_plot(xs, ys, **kwargs):
+            return self.plot(*[xs, ys][maybe_swap], **kwargs)[0]
 
-        else:
-            def doplot(*args, **kwargs):
-                shuffled = []
-                for i in range(0, len(args), 2):
-                    shuffled.extend([args[i + 1], args[i]])
-                return self.plot(*shuffled, **kwargs)
-
-            def dopatch(xs, ys, **kwargs):
-                xs, ys = ys, xs  # flip X, Y
-                return patch_list(xs, ys, **kwargs)
+        def do_patch(xs, ys, **kwargs):
+            path = mpath.Path(
+                # Last (0, 0) vertex has a CLOSEPOLY code and is thus ignored.
+                np.column_stack([[*xs, 0], [*ys, 0]][maybe_swap]), closed=True)
+            patch = mpatches.PathPatch(path, **kwargs)
+            self.add_artist(patch)
+            return patch
 
         # input validation
         N = len(bxpstats)
@@ -4019,22 +3994,19 @@ class Axes(_AxesBase):
             datalabels.append(stats.get('label', pos))
 
             # whisker coords
-            whisker_x = np.ones(2) * pos
-            whiskerlo_y = np.array([stats['q1'], stats['whislo']])
-            whiskerhi_y = np.array([stats['q3'], stats['whishi']])
-
+            whis_x = [pos, pos]
+            whislo_y = [stats['q1'], stats['whislo']]
+            whishi_y = [stats['q3'], stats['whishi']]
             # cap coords
             cap_left = pos - width * 0.25
             cap_right = pos + width * 0.25
-            cap_x = np.array([cap_left, cap_right])
-            cap_lo = np.ones(2) * stats['whislo']
-            cap_hi = np.ones(2) * stats['whishi']
-
+            cap_x = [cap_left, cap_right]
+            cap_lo = np.full(2, stats['whislo'])
+            cap_hi = np.full(2, stats['whishi'])
             # box and median coords
             box_left = pos - width * 0.5
             box_right = pos + width * 0.5
             med_y = [stats['med'], stats['med']]
-
             # notched boxes
             if shownotches:
                 box_x = [box_left, box_right, box_right, cap_right, box_right,
@@ -4045,7 +4017,6 @@ class Axes(_AxesBase):
                          stats['q3'], stats['cihi'], stats['med'],
                          stats['cilo'], stats['q1']]
                 med_x = cap_x
-
             # plain boxes
             else:
                 box_x = [box_left, box_right, box_right, box_left, box_left]
@@ -4053,50 +4024,33 @@ class Axes(_AxesBase):
                          stats['q1']]
                 med_x = [box_left, box_right]
 
-            # maybe draw the box:
+            # maybe draw the box
             if showbox:
-                if patch_artist:
-                    boxes.extend(dopatch(box_x, box_y, **final_boxprops))
-                else:
-                    boxes.extend(doplot(box_x, box_y, **final_boxprops))
-
+                do_box = do_patch if patch_artist else do_plot
+                boxes.append(do_box(box_x, box_y, **box_kw))
             # draw the whiskers
-            whiskers.extend(doplot(
-                whisker_x, whiskerlo_y, **final_whiskerprops
-            ))
-            whiskers.extend(doplot(
-                whisker_x, whiskerhi_y, **final_whiskerprops
-            ))
-
-            # maybe draw the caps:
+            whiskers.append(do_plot(whis_x, whislo_y, **whisker_kw))
+            whiskers.append(do_plot(whis_x, whishi_y, **whisker_kw))
+            # maybe draw the caps
             if showcaps:
-                caps.extend(doplot(cap_x, cap_lo, **final_capprops))
-                caps.extend(doplot(cap_x, cap_hi, **final_capprops))
-
+                caps.append(do_plot(cap_x, cap_lo, **cap_kw))
+                caps.append(do_plot(cap_x, cap_hi, **cap_kw))
             # draw the medians
-            medians.extend(doplot(med_x, med_y, **final_medianprops))
-
+            medians.append(do_plot(med_x, med_y, **median_kw))
             # maybe draw the means
             if showmeans:
                 if meanline:
-                    means.extend(doplot(
+                    means.append(do_plot(
                         [box_left, box_right], [stats['mean'], stats['mean']],
-                        **final_meanprops
+                        **mean_kw
                     ))
                 else:
-                    means.extend(doplot(
-                        [pos], [stats['mean']], **final_meanprops
-                    ))
-
+                    means.append(do_plot([pos], [stats['mean']], **mean_kw))
             # maybe draw the fliers
             if showfliers:
-                # fliers coords
                 flier_x = np.full(len(stats['fliers']), pos, dtype=np.float64)
                 flier_y = stats['fliers']
-
-                fliers.extend(doplot(
-                    flier_x, flier_y, **final_flierprops
-                ))
+                fliers.append(do_plot(flier_x, flier_y, **flier_kw))
 
         if manage_ticks:
             axis_name = "x" if vert else "y"
