@@ -137,106 +137,25 @@ The same can be done using the pgf backend::
 
     from matplotlib.backends.backend_pgf import PdfPages
 
-.. _howto-subplots-adjust:
-
-Move the edge of an axes to make room for tick labels
------------------------------------------------------
-
-For subplots, you can control the default spacing on the left, right,
-bottom, and top as well as the horizontal and vertical spacing between
-multiple rows and columns using the
-:meth:`matplotlib.figure.Figure.subplots_adjust` method (in pyplot it
-is :func:`~matplotlib.pyplot.subplots_adjust`).  For example, to move
-the bottom of the subplots up to make room for some rotated x tick
-labels::
-
-    fig = plt.figure()
-    fig.subplots_adjust(bottom=0.2)
-    ax = fig.add_subplot(111)
-
-You can control the defaults for these parameters in your
-:file:`matplotlibrc` file; see :doc:`/tutorials/introductory/customizing`.  For
-example, to make the above setting permanent, you would set::
-
-    figure.subplot.bottom : 0.2   # the bottom of the subplots of the figure
-
-The other parameters you can configure are, with their defaults
-
-*left*  = 0.125
-    the left side of the subplots of the figure
-*right* = 0.9
-    the right side of the subplots of the figure
-*bottom* = 0.1
-    the bottom of the subplots of the figure
-*top* = 0.9
-    the top of the subplots of the figure
-*wspace* = 0.2
-    the amount of width reserved for space between subplots,
-    expressed as a fraction of the average axis width
-*hspace* = 0.2
-    the amount of height reserved for space between subplots,
-    expressed as a fraction of the average axis height
-
-If you want additional control, you can create an
-:class:`~matplotlib.axes.Axes` using the
-:func:`~matplotlib.pyplot.axes` command (or equivalently the figure
-:meth:`~matplotlib.figure.Figure.add_axes` method), which allows you to
-specify the location explicitly::
-
-    ax = fig.add_axes([left, bottom, width, height])
-
-where all values are in fractional (0 to 1) coordinates.  See
-:doc:`/gallery/subplots_axes_and_figures/axes_demo` for an example of
-placing axes manually.
 
 .. _howto-auto-adjust:
 
-Automatically make room for tick labels
----------------------------------------
+Make room for tick labels
+-------------------------
 
-.. note::
-   This is now easier to handle than ever before.
-   Calling :func:`~matplotlib.pyplot.tight_layout` or alternatively using
-   ``constrained_layout=True`` argument in :func:`~matplotlib.pyplot.subplots`
-   can fix many common layout issues.  See the
-   :doc:`/tutorials/intermediate/tight_layout_guide` and
-   :doc:`/tutorials/intermediate/constrainedlayout_guide` for more details.
+By default, Matplotlib uses fixed percentage margins around subplots. This can
+lead to labels overlapping or being cut off at the figure boundary. There are
+multiple ways to fix this:
 
-   The information below is kept here in case it is useful for other
-   purposes.
+- Manually adapt the subplot parameters using `.Figure.subplots_adjust` /
+  `.pyplot.subplots_adjust`.
+- Use one of the automatic layout mechanisms:
 
-In most use cases, it is enough to simply change the subplots adjust
-parameters as described in :ref:`howto-subplots-adjust`.  But in some
-cases, you don't know ahead of time what your tick labels will be, or
-how large they will be (data and labels outside your control may be
-being fed into your graphing application), and you may need to
-automatically adjust your subplot parameters based on the size of the
-tick labels.  Any :class:`~matplotlib.text.Text` instance can report
-its extent in window coordinates (a negative x coordinate is outside
-the window), but there is a rub.
+  - constrained layout (:doc:`/tutorials/intermediate/constrainedlayout_guide`)
+  - tight layout (:doc:`/tutorials/intermediate/tight_layout_guide`)
 
-The :class:`~matplotlib.backend_bases.RendererBase` instance, which is
-used to calculate the text size, is not known until the figure is
-drawn (:meth:`~matplotlib.figure.Figure.draw`).  After the window is
-drawn and the text instance knows its renderer, you can call
-:meth:`~matplotlib.text.Text.get_window_extent`.  One way to solve
-this chicken and egg problem is to wait until the figure is draw by
-connecting
-(:meth:`~matplotlib.backend_bases.FigureCanvasBase.mpl_connect`) to the
-"on_draw" signal (:class:`~matplotlib.backend_bases.DrawEvent`) and
-get the window extent there, and then do something with it, e.g., move
-the left of the canvas over; see :ref:`event-handling-tutorial`.
-
-Here is an example that gets a bounding box in relative figure coordinates
-(0..1) of each of the labels and uses it to move the left of the subplots
-over so that the tick labels fit in the figure:
-
-.. figure:: ../gallery/pyplots/images/sphx_glr_auto_subplots_adjust_001.png
-    :target: ../gallery/pyplots/auto_subplots_adjust.html
-    :align: center
-    :scale: 50
-
-    Auto Subplots Adjust
+- Calculate good values from the size of the plot elements yourself
+  (:doc:`/gallery/pyplots/auto_subplots_adjust`)
 
 .. _howto-align-label:
 
