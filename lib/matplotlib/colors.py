@@ -1545,11 +1545,11 @@ class LogNorm(Normalize):
 
     def autoscale(self, A):
         # docstring inherited.
-        super().autoscale(np.ma.masked_less_equal(A, 0, copy=False))
+        super().autoscale(np.ma.array(A, mask=(A <= 0)))
 
     def autoscale_None(self, A):
         # docstring inherited.
-        super().autoscale_None(np.ma.masked_less_equal(A, 0, copy=False))
+        super().autoscale_None(np.ma.array(A, mask=(A <= 0)))
 
 
 @_make_norm_from_scale(
