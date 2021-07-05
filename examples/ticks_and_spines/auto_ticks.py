@@ -1,15 +1,15 @@
 """
-=================================
-Automatically setting tick labels
-=================================
+====================================
+Automatically setting tick positions
+====================================
 
 Setting the behavior of tick auto-placement.
 
-If you don't explicitly set tick positions / labels, Matplotlib will attempt
-to choose them both automatically based on the displayed data and its limits.
+By default, Matplotlib will choose the number of ticks and tick positions so
+that there is a reasonable number of ticks on the axis and they are located
+at "round" numbers.
 
-By default, this attempts to choose tick positions that are distributed
-along the axis:
+As a result, there may be no ticks on the edges of the plot.
 """
 
 import matplotlib.pyplot as plt
@@ -17,31 +17,32 @@ import numpy as np
 np.random.seed(19680801)
 
 fig, ax = plt.subplots()
-dots = np.arange(10) / 100. + .03
-x, y = np.meshgrid(dots, dots)
-data = [x.ravel(), y.ravel()]
-ax.scatter(*data, c=data[1])
+dots = np.linspace(0.3, 1.2, 10)
+X, Y = np.meshgrid(dots, dots)
+x, y = X.ravel(), Y.ravel()
+ax.scatter(x, y, c=x+y)
+plt.show()
 
 ###############################################################################
-# Sometimes choosing evenly-distributed ticks results in strange tick numbers.
-# If you'd like Matplotlib to keep ticks located at round numbers, you can
-# change this behavior with the following rcParams value:
+# If you want to keep ticks at round numbers, and also have ticks at the edges
+# you can switch :rc:`axes.autolimit_mode` to 'round_numbers'. This expands the
+# axis limits to the next round number.
 
-print(plt.rcParams['axes.autolimit_mode'])
+plt.rcParams['axes.autolimit_mode'] = 'round_numbers'
 
-# Now change this value and see the results
-with plt.rc_context({'axes.autolimit_mode': 'round_numbers'}):
-    fig, ax = plt.subplots()
-    ax.scatter(*data, c=data[1])
+# Note: The limits are calculated at draw-time. Therefore, when using
+# :rc:`axes.autolimit_mode` in a context manager, it is important that
+# the ``show()`` command is within the context.
+
+fig, ax = plt.subplots()
+ax.scatter(x, y, c=x+y)
+plt.show()
 
 ###############################################################################
-# You can also alter the margins of the axes around the data by
-# with ``axes.(x,y)margin``:
+# The round numbers autolimit_mode is still respected if you set an additional
+# margin around the data using `.Axes.set_xmargin` / `.Axes.set_ymargin`:
 
-with plt.rc_context({'axes.autolimit_mode': 'round_numbers',
-                     'axes.xmargin': .8,
-                     'axes.ymargin': .8}):
-    fig, ax = plt.subplots()
-    ax.scatter(*data, c=data[1])
-
+fig, ax = plt.subplots()
+ax.scatter(x, y, c=x+y)
+ax.set_xmargin(0.8)
 plt.show()
