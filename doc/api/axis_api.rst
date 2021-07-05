@@ -181,6 +181,7 @@ XAxis Specific
    XAxis.get_text_heights
    XAxis.get_ticks_position
    XAxis.set_ticks_position
+   XAxis.set_label_position
    XAxis.tick_bottom
    XAxis.tick_top
 
@@ -197,6 +198,7 @@ YAxis Specific
    YAxis.get_ticks_position
    YAxis.set_offset_position
    YAxis.set_ticks_position
+   YAxis.set_label_position
    YAxis.tick_left
    YAxis.tick_right
 
@@ -264,4 +266,5 @@ specify a matching series of labels.  Calling ``set_ticks`` makes a
    Tick.set_label1
    Tick.set_label2
    Tick.set_pad
+   Tick.set_url
    Tick.update_position

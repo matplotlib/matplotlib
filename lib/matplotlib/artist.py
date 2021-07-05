@@ -1439,6 +1439,21 @@ class ArtistInspector:
         aliases = ''.join(' or %s' % x for x in sorted(self.aliasd.get(s, [])))
         return s + aliases
 
+    _NOT_LINKABLE = {
+        # A set of property setter methods that are not available in our
+        # current docs. This is a workaround used to prevent trying to link
+        # these setters which would lead to "target reference not found"
+        # warnings during doc build.
+        'matplotlib.image._ImageBase.set_alpha',
+        'matplotlib.image._ImageBase.set_array',
+        'matplotlib.image._ImageBase.set_data',
+        'matplotlib.image._ImageBase.set_filternorm',
+        'matplotlib.image._ImageBase.set_filterrad',
+        'matplotlib.image._ImageBase.set_interpolation',
+        'matplotlib.image._ImageBase.set_resample',
+        'matplotlib.text._AnnotationBase.set_annotation_clip',
+    }
+
     def aliased_name_rest(self, s, target):
         """
         Return 'PROPNAME or alias' if *s* has an alias, else return 'PROPNAME',
@@ -1448,6 +1463,10 @@ class ArtistInspector:
         alias, return 'markerfacecolor or mfc' and for the transform
         property, which does not, return 'transform'.
         """
+        # workaround to prevent "reference target not found"
+        if target in self._NOT_LINKABLE:
+            return f'``{s}``'
+
         aliases = ''.join(' or %s' % x for x in sorted(self.aliasd.get(s, [])))
         return ':meth:`%s <%s>`%s' % (s, target, aliases)
 
