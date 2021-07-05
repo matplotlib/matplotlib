@@ -12,7 +12,7 @@ is expected to abide by our
 The project is hosted on
 https://github.com/matplotlib/matplotlib
 
-Contributor Incubator
+Contributor incubator
 =====================
 
 If you are interested in becoming a regular contributor to Matplotlib, but
@@ -28,7 +28,7 @@ in community work, or get "pre-review" on your PR.
 
 .. _new_contributors:
 
-Issues for New Contributors
+Issues for new contributors
 ---------------------------
 
 While any contributions are welcome, we have marked some issues as

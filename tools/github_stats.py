@@ -176,13 +176,13 @@ if __name__ == "__main__":
     # Print summary report we can directly include into release notes.
     print('.. _github-stats:')
     print()
-    print('GitHub Stats')
-    print('============')
+    print('GitHub statistics')
+    print('=================')
 
     print()
     since_day = since.strftime("%Y/%m/%d")
     today = datetime.today().strftime("%Y/%m/%d")
-    print("GitHub stats for %s - %s (tag: %s)" % (since_day, today, tag))
+    print("GitHub statistics for %s - %s (tag: %s)" % (since_day, today, tag))
     print()
     print("These lists are automatically generated, and may be incomplete or contain duplicates.")
     print()
@@ -229,8 +229,9 @@ if __name__ == "__main__":
         report(issues, show_urls)
     print()
     print()
-    print("""Previous GitHub Stats
----------------------
+    print("""\
+Previous GitHub statistics
+--------------------------
 
 
 .. toctree::

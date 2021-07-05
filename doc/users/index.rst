@@ -1,7 +1,7 @@
 .. _users-guide-index:
 
 ############
-User's Guide
+User's guide
 ############
 
 .. only:: html
