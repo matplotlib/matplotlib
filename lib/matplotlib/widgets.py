@@ -809,16 +809,16 @@ class RangeSlider(SliderBase):
         """
         return self._observers.connect('changed', lambda val: func(val))
 
-    def update_range(self, vmin = None, vmax = None):
+    def update_range(self, vmin=None, vmax=None):
         """Update the range of the slider"""
         if not vmin and not vmax:
             raise ValueError(
                 (f"Argument vmin ({type(vmin)}) has no value"
-                f"Argument vmax ({type(vmax)}) has no value"))
+                    f"Argument vmax ({type(vmax)}) has no value"))
         if vmin:
             self.valmin = vmin
         if vmax:
-            self.valmax = vmax 
+            self.valmax = vmax
         self.val = self._value_in_bounds(self.valinit)
         if self.orientation == 'vertical':
             self.ax.set_ylim((self.valmin, self.valmax))
