@@ -1907,55 +1907,42 @@ class _AxesBase(martist.Artist):
         box_aspect = fig_aspect * (position.height / position.width)
         data_ratio = box_aspect / aspect
 
-        y_expander = data_ratio * xsize / ysize - 1
-        # If y_expander > 0, the dy/dx viewLim ratio needs to increase
-        if abs(y_expander) < 0.005:
+        y_expander = data_ratio * xsize / ysize
+        # If y_expander > 1, the dy/dx viewLim ratio needs to increase
+        if abs(y_expander - 1) < 0.005:
             return
 
-        dL = self.dataLim
-        x0, x1 = x_trf.transform(dL.intervalx)
-        y0, y1 = y_trf.transform(dL.intervaly)
-        xr = 1.05 * (x1 - x0)
-        yr = 1.05 * (y1 - y0)
-
-        xmarg = xsize - xr
-        ymarg = ysize - yr
-        Ysize = data_ratio * xsize
-        Xsize = ysize / data_ratio
-        Xmarg = Xsize - xr
-        Ymarg = Ysize - yr
-        # Setting these targets to, e.g., 0.05*xr does not seem to help.
-        xm = 0
-        ym = 0
-
+        # What axes do we adjust?
+        # - We can't adjust shared axes because it's too easy to break sharing
+        #   given the sequential handling of axes (that may be possible if we
+        #   first collected all the constraints on all axes and considered them
+        #   all at once).
+        # - Assuming no constraints from sharing, prefer expanding axes rather
+        #   than shrinking them, as the latter can hide plot elements.
         shared_x = self in self._shared_x_axes
         shared_y = self in self._shared_y_axes
-        # Not sure whether we need this check:
         if shared_x and shared_y:
             raise RuntimeError("adjustable='datalim' is not allowed when both "
                                "axes are shared")
+        if shared_x:
+            adjust = "y"
+        elif shared_y:
+            adjust = "x"
+        elif y_expander > 1:
+            adjust = "y"
+        else:  # y_expander < 1
+            adjust = "x"
 
-        # If y is shared, then we are only allowed to change x, etc.
-        if shared_y:
-            adjust_y = False
+        if adjust == "y":
+            yc = (ymin + ymax) / 2
+            ymin = yc - (yc - ymin) * y_expander
+            ymax = yc + (ymax - yc) * y_expander
+            self.set_ybound(*map(y_trf.inverted().transform, (ymin, ymax)))
         else:
-            if xmarg > xm and ymarg > ym:
-                adjy = ((Ymarg > 0 and y_expander < 0) or
-                        (Xmarg < 0 and y_expander > 0))
-            else:
-                adjy = y_expander > 0
-            adjust_y = shared_x or adjy  # (Ymarg > xmarg)
-
-        if adjust_y:
-            yc = 0.5 * (ymin + ymax)
-            y0 = yc - Ysize / 2.0
-            y1 = yc + Ysize / 2.0
-            self.set_ybound(y_trf.inverted().transform([y0, y1]))
-        else:
-            xc = 0.5 * (xmin + xmax)
-            x0 = xc - Xsize / 2.0
-            x1 = xc + Xsize / 2.0
-            self.set_xbound(x_trf.inverted().transform([x0, x1]))
+            xc = (xmin + xmax) / 2
+            xmin = xc - (xc - xmin) / y_expander
+            xmax = xc + (xmax - xc) / y_expander
+            self.set_xbound(*map(x_trf.inverted().transform, (xmin, xmax)))
 
     def axis(self, *args, emit=True, **kwargs):
         """
