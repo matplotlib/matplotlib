@@ -111,22 +111,14 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.pcolor
-matplotlib.pyplot.pcolor
-matplotlib.axes.Axes.pcolormesh
-matplotlib.pyplot.pcolormesh
-matplotlib.axes.Axes.pcolorfast
-matplotlib.axes.Axes.imshow
-matplotlib.pyplot.imshow
-matplotlib.figure.Figure.colorbar
-matplotlib.pyplot.colorbar
-matplotlib.colors.LogNorm
+#    - `matplotlib.axes.Axes.pcolor` / `matplotlib.pyplot.pcolor`
+#    - `matplotlib.axes.Axes.pcolormesh` / `matplotlib.pyplot.pcolormesh`
+#    - `matplotlib.axes.Axes.pcolorfast`
+#    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`
+#    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
+#    - `matplotlib.colors.LogNorm`

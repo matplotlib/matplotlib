@@ -13,10 +13,11 @@ This documentation is only relevant for Matplotlib developers, not for users.
 import contextlib
 import functools
 import inspect
+import math
 import warnings
 
 
-class MatplotlibDeprecationWarning(UserWarning):
+class MatplotlibDeprecationWarning(DeprecationWarning):
     """
     A class for issuing deprecation warnings for Matplotlib users.
 
@@ -271,9 +272,9 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
     return deprecate
 
 
-class _deprecate_privatize_attribute:
+class deprecate_privatize_attribute:
     """
-    Helper to deprecate public access to an attribute.
+    Helper to deprecate public access to an attribute (or method).
 
     This helper should only be used at class scope, as follows::
 
@@ -281,9 +282,10 @@ class _deprecate_privatize_attribute:
             attr = _deprecate_privatize_attribute(*args, **kwargs)
 
     where *all* parameters are forwarded to `deprecated`.  This form makes
-    ``attr`` a property which forwards access to ``self._attr`` (same name but
-    with a leading underscore), with a deprecation warning.  Note that the
-    attribute name is derived from *the name this helper is assigned to*.
+    ``attr`` a property which forwards read and write access to ``self._attr``
+    (same name but with a leading underscore), with a deprecation warning.
+    Note that the attribute name is derived from *the name this helper is
+    assigned to*.  This helper also works for deprecating methods.
     """
 
     def __init__(self, *args, **kwargs):
@@ -291,10 +293,12 @@ class _deprecate_privatize_attribute:
 
     def __set_name__(self, owner, name):
         setattr(owner, name, self.deprecator(
-            property(lambda self: getattr(self, f"_{name}")), name=name))
+            property(lambda self: getattr(self, f"_{name}"),
+                     lambda self, value: setattr(self, f"_{name}", value)),
+            name=name))
 
 
-def _rename_parameter(since, old, new, func=None):
+def rename_parameter(since, old, new, func=None):
     """
     Decorator indicating that parameter *old* of *func* is renamed to *new*.
 
@@ -309,12 +313,12 @@ def _rename_parameter(since, old, new, func=None):
     --------
     ::
 
-        @_rename_parameter("3.1", "bad_name", "good_name")
+        @_api.rename_parameter("3.1", "bad_name", "good_name")
         def func(good_name): ...
     """
 
     if func is None:
-        return functools.partial(_rename_parameter, since, old, new)
+        return functools.partial(rename_parameter, since, old, new)
 
     signature = inspect.signature(func)
     assert old not in signature.parameters, (
@@ -350,7 +354,7 @@ class _deprecated_parameter_class:
 _deprecated_parameter = _deprecated_parameter_class()
 
 
-def _delete_parameter(since, name, func=None, **kwargs):
+def delete_parameter(since, name, func=None, **kwargs):
     """
     Decorator indicating that parameter *name* of *func* is being deprecated.
 
@@ -371,12 +375,12 @@ def _delete_parameter(since, name, func=None, **kwargs):
     --------
     ::
 
-        @_delete_parameter("3.1", "unused")
+        @_api.delete_parameter("3.1", "unused")
         def func(used_arg, other_arg, unused, more_args): ...
     """
 
     if func is None:
-        return functools.partial(_delete_parameter, since, name, **kwargs)
+        return functools.partial(delete_parameter, since, name, **kwargs)
 
     signature = inspect.signature(func)
     # Name of `**kwargs` parameter of the decorated function, typically
@@ -389,12 +393,22 @@ def _delete_parameter(since, name, func=None, **kwargs):
         is_varargs = kind is inspect.Parameter.VAR_POSITIONAL
         is_varkwargs = kind is inspect.Parameter.VAR_KEYWORD
         if not is_varargs and not is_varkwargs:
+            name_idx = (
+                # Deprecated parameter can't be passed positionally.
+                math.inf if kind is inspect.Parameter.KEYWORD_ONLY
+                # If call site has no more than this number of parameters, the
+                # deprecated parameter can't have been passed positionally.
+                else [*signature.parameters].index(name))
             func.__signature__ = signature = signature.replace(parameters=[
                 param.replace(default=_deprecated_parameter)
                 if param.name == name else param
                 for param in signature.parameters.values()])
+        else:
+            name_idx = -1  # Deprecated parameter can always have been passed.
     else:
         is_varargs = is_varkwargs = False
+        # Deprecated parameter can't be passed positionally.
+        name_idx = math.inf
         assert kwargs_name, (
             f"Matplotlib internal error: {name!r} must be a parameter for "
             f"{func.__name__}()")
@@ -403,6 +417,10 @@ def _delete_parameter(since, name, func=None, **kwargs):
 
     @functools.wraps(func)
     def wrapper(*inner_args, **inner_kwargs):
+        if len(inner_args) <= name_idx and name not in inner_kwargs:
+            # Early return in the simple, non-deprecated case (much faster than
+            # calling bind()).
+            return func(*inner_args, **inner_kwargs)
         arguments = signature.bind(*inner_args, **inner_kwargs).arguments
         if is_varargs and arguments.get(name):
             warn_deprecated(
@@ -433,14 +451,14 @@ def _delete_parameter(since, name, func=None, **kwargs):
     return wrapper
 
 
-def _make_keyword_only(since, name, func=None):
+def make_keyword_only(since, name, func=None):
     """
     Decorator indicating that passing parameter *name* (or any of the following
     ones) positionally to *func* is being deprecated.
     """
 
     if func is None:
-        return functools.partial(_make_keyword_only, since, name)
+        return functools.partial(make_keyword_only, since, name)
 
     signature = inspect.signature(func)
     POK = inspect.Parameter.POSITIONAL_OR_KEYWORD
@@ -459,7 +477,7 @@ def _make_keyword_only(since, name, func=None):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         # Don't use signature.bind here, as it would fail when stacked with
-        # _rename_parameter and an "old" argument name is passed in
+        # rename_parameter and an "old" argument name is passed in
         # (signature.bind would fail, but the actual call would succeed).
         idx = [*func.__signature__.parameters].index(name)
         if len(args) > idx:
@@ -473,7 +491,7 @@ def _make_keyword_only(since, name, func=None):
     return wrapper
 
 
-def _deprecate_method_override(method, obj, *, allow_empty=False, **kwargs):
+def deprecate_method_override(method, obj, *, allow_empty=False, **kwargs):
     """
     Return ``obj.method`` with a deprecation if it was overridden, else None.
 

@@ -19,7 +19,8 @@ import matplotlib as mpl
 from matplotlib import _api, cbook, font_manager as fm
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, RendererBase)
+    GraphicsContextBase, RendererBase
+)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.backends.backend_pdf import (
     _create_pdf_info_dict, _datetime_to_pdf)
@@ -50,7 +51,7 @@ def get_fontspec():
             # 1) Forward slashes also work on Windows, so don't mess with
             # backslashes.  2) The dirname needs to include a separator.
             path = pathlib.Path(fm.findfont(family))
-            latex_fontspec.append(r"\%s{%s}[Path=%s]" % (
+            latex_fontspec.append(r"\%s{%s}[Path=\detokenize{%s}]" % (
                 command, path.name, path.parent.as_posix() + "/"))
 
     return "\n".join(latex_fontspec)
@@ -121,8 +122,11 @@ def writeln(fh, line):
     fh.write("%\n")
 
 
-def _font_properties_str(prop):
-    # translate font properties to latex commands, return as string
+def _escape_and_apply_props(s, prop):
+    """
+    Generate a TeX string that renders string *s* with font properties *prop*,
+    also applying any required escapes to *s*.
+    """
     commands = []
 
     families = {"serif": r"\rmfamily", "sans": r"\sffamily",
@@ -148,7 +152,7 @@ def _font_properties_str(prop):
         commands.append(r"\bfseries")
 
     commands.append(r"\selectfont")
-    return "".join(commands)
+    return "".join(commands) + " " + common_texification(s)
 
 
 def _metadata_to_str(key, value):
@@ -191,6 +195,12 @@ class LatexError(Exception):
     def __init__(self, message, latex_output=""):
         super().__init__(message)
         self.latex_output = latex_output
+
+    def __str__(self):
+        s, = self.args
+        if self.latex_output:
+            s += "\n" + self.latex_output
+        return s
 
 
 class LatexManager:
@@ -286,10 +296,13 @@ class LatexManager:
         stdout, stderr = latex.communicate(test_input)
         if latex.returncode != 0:
             raise LatexError("LaTeX returned an error, probably missing font "
-                             "or error in preamble:\n%s" % stdout)
+                             "or error in preamble.", stdout)
 
         self.latex = None  # Will be set up on first use.
-        self.str_cache = {}  # cache for strings already processed
+        # Per-instance cache.
+        self._get_box_metrics = functools.lru_cache()(self._get_box_metrics)
+
+    str_cache = _api.deprecated("3.5")(property(lambda self: {}))
 
     def _setup_latex_process(self):
         # Open LaTeX process for real work; register it for deletion.  On
@@ -313,52 +326,36 @@ class LatexManager:
         self._expect("*pgf_backend_query_start")
         self._expect_prompt()
 
-    @_api.deprecated("3.3")
-    def latex_stdin_utf8(self):
-        return self.latex.stdin
-
     def get_width_height_descent(self, text, prop):
         """
-        Get the width, total height and descent for a text typeset by the
-        current LaTeX environment.
+        Get the width, total height, and descent (in TeX points) for a text
+        typeset by the current LaTeX environment.
         """
+        return self._get_box_metrics(_escape_and_apply_props(text, prop))
 
-        # apply font properties and define textbox
-        prop_cmds = _font_properties_str(prop)
-        textbox = "\\sbox0{%s %s}" % (prop_cmds, text)
-
-        # check cache
-        if textbox in self.str_cache:
-            return self.str_cache[textbox]
-
-        # send textbox to LaTeX and wait for prompt
-        self._stdin_writeln(textbox)
-        try:
-            self._expect_prompt()
-        except LatexError as e:
-            raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
-                             .format(text, e.latex_output)) from e
-
-        # typeout width, height and text offset of the last textbox
-        self._stdin_writeln(r"\typeout{\the\wd0,\the\ht0,\the\dp0}")
-        # read answer from latex and advance to the next prompt
+    def _get_box_metrics(self, tex):
+        """
+        Get the width, total height and descent (in TeX points) for a TeX
+        command's output in the current LaTeX environment.
+        """
+        # This method gets wrapped in __init__ for per-instance caching.
+        self._stdin_writeln(  # Send textbox to TeX & request metrics typeout.
+            r"\sbox0{%s}\typeout{\the\wd0,\the\ht0,\the\dp0}" % tex)
         try:
             answer = self._expect_prompt()
-        except LatexError as e:
-            raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
-                             .format(text, e.latex_output)) from e
-
-        # parse metrics from the answer string
+        except LatexError as err:
+            raise ValueError("Error measuring {!r}\nLaTeX Output:\n{}"
+                             .format(tex, err.latex_output)) from err
         try:
-            width, height, offset = answer.splitlines()[0].split(",")
+            # Parse metrics from the answer string.  Last line is prompt, and
+            # next-to-last-line is blank line from \typeout.
+            width, height, offset = answer.splitlines()[-3].split(",")
         except Exception as err:
-            raise ValueError("Error processing '{}'\nLaTeX Output:\n{}"
-                             .format(text, answer)) from err
+            raise ValueError("Error measuring {!r}\nLaTeX Output:\n{}"
+                             .format(tex, answer)) from err
         w, h, o = float(width[:-2]), float(height[:-2]), float(offset[:-2])
-
-        # the height returned from LaTeX goes from base to top.
-        # the height matplotlib expects goes from bottom to top.
-        self.str_cache[textbox] = (w, h + o, o)
+        # The height returned from LaTeX goes from base to top;
+        # the height Matplotlib expects goes from bottom to top.
         return w, h + o, o
 
 
@@ -370,7 +367,7 @@ def _get_image_inclusion_command():
         # Don't mess with backslashes on Windows.
         % cbook._get_data_path("images/matplotlib.png").as_posix())
     try:
-        prompt = man._expect_prompt()
+        man._expect_prompt()
         return r"\includegraphics"
     except LatexError:
         # Discard the broken manager.
@@ -380,8 +377,7 @@ def _get_image_inclusion_command():
 
 class RendererPgf(RendererBase):
 
-    @cbook._delete_parameter("3.3", "dummy")
-    def __init__(self, figure, fh, dummy=False):
+    def __init__(self, figure, fh):
         """
         Create a new PGF renderer that translates any drawing instruction
         into text commands to be interpreted in a latex pgfpicture environment.
@@ -399,12 +395,6 @@ class RendererPgf(RendererBase):
         self.fh = fh
         self.figure = figure
         self.image_counter = 0
-
-        if dummy:
-            # dummy==True deactivate all methods
-            for m in RendererPgf.__dict__:
-                if m.startswith("draw_"):
-                    self.__dict__[m] = lambda *args, **kwargs: None
 
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
                      rgbFace=None):
@@ -430,8 +420,12 @@ class RendererPgf(RendererBase):
                             fill=rgbFace is not None)
         writeln(self.fh, r"}")
 
+        maxcoord = 16383 / 72.27 * self.dpi  # Max dimensions in LaTeX.
+        clip = (-maxcoord, -maxcoord, maxcoord, maxcoord)
+
         # draw marker for each vertex
-        for point, code in path.iter_segments(trans, simplify=False):
+        for point, code in path.iter_segments(trans, simplify=False,
+                                              clip=clip):
             x, y = point[0] * f, point[1] * f
             writeln(self.fh, r"\begin{pgfscope}")
             writeln(self.fh, r"\pgfsys@transformshift{%fin}{%fin}" % (x, y))
@@ -568,11 +562,13 @@ class RendererPgf(RendererBase):
         f = 1. / self.dpi
         # check for clip box / ignore clip for filled paths
         bbox = gc.get_clip_rectangle() if gc else None
+        maxcoord = 16383 / 72.27 * self.dpi  # Max dimensions in LaTeX.
         if bbox and (rgbFace is None):
             p1, p2 = bbox.get_points()
-            clip = (p1[0], p1[1], p2[0], p2[1])
+            clip = (max(p1[0], -maxcoord), max(p1[1], -maxcoord),
+                    min(p2[0], maxcoord), min(p2[1], maxcoord))
         else:
-            clip = None
+            clip = (-maxcoord, -maxcoord, maxcoord, maxcoord)
         # build path
         for points, code in path.iter_segments(transform, clip=clip):
             if code == Path.MOVETO:
@@ -628,9 +624,9 @@ class RendererPgf(RendererBase):
             return
 
         if not os.path.exists(getattr(self.fh, "name", "")):
-            cbook._warn_external(
+            raise ValueError(
                 "streamed pgf-code does not support raster graphics, consider "
-                "using the pgf-to-pdf option.")
+                "using the pgf-to-pdf option")
 
         # save the images to png files
         path = pathlib.Path(self.fh.name)
@@ -661,7 +657,7 @@ class RendererPgf(RendererBase):
                  interp, w, h, fname_img))
         writeln(self.fh, r"\end{pgfscope}")
 
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath="TeX!", mtext=None):
+    def draw_tex(self, gc, x, y, s, prop, angle, ismath="TeX", mtext=None):
         # docstring inherited
         self.draw_text(gc, x, y, s, prop, angle, ismath, mtext)
 
@@ -669,9 +665,7 @@ class RendererPgf(RendererBase):
         # docstring inherited
 
         # prepare string for tex
-        s = common_texification(s)
-        prop_cmds = _font_properties_str(prop)
-        s = r"%s %s" % (prop_cmds, s)
+        s = _escape_and_apply_props(s, prop)
 
         writeln(self.fh, r"\begin{pgfscope}")
 
@@ -716,10 +710,6 @@ class RendererPgf(RendererBase):
 
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
-
-        # check if the math is supposed to be displaystyled
-        s = common_texification(s)
-
         # get text metrics in units of latex pt, convert to display units
         w, h, d = (LatexManager._get_cached_or_new()
                    .get_width_height_descent(s, prop))
@@ -743,16 +733,11 @@ class RendererPgf(RendererBase):
         return points * mpl_pt_to_in * self.dpi
 
 
-@_api.deprecated("3.3", alternative="GraphicsContextBase")
-class GraphicsContextPgf(GraphicsContextBase):
-    pass
-
-
 @_api.deprecated("3.4")
 class TmpDirCleaner:
     _remaining_tmpdirs = set()
 
-    @cbook._classproperty
+    @_api.classproperty
     @_api.deprecated("3.4")
     def remaining_tmpdirs(cls):
         return cls._remaining_tmpdirs
@@ -836,7 +821,7 @@ class FigureCanvasPgf(FigureCanvasBase):
         writeln(fh, r"\makeatother")
         writeln(fh, r"\endgroup")
 
-    def print_pgf(self, fname_or_fh, *args, **kwargs):
+    def print_pgf(self, fname_or_fh, **kwargs):
         """
         Output pgf macros for drawing the figure so it can be included and
         rendered in latex documents.
@@ -844,54 +829,51 @@ class FigureCanvasPgf(FigureCanvasBase):
         with cbook.open_file_cm(fname_or_fh, "w", encoding="utf-8") as file:
             if not cbook.file_requires_unicode(file):
                 file = codecs.getwriter("utf-8")(file)
-            self._print_pgf_to_fh(file, *args, **kwargs)
+            self._print_pgf_to_fh(file, **kwargs)
 
-    def print_pdf(self, fname_or_fh, *args, metadata=None, **kwargs):
+    def print_pdf(self, fname_or_fh, *, metadata=None, **kwargs):
         """Use LaTeX to compile a pgf generated figure to pdf."""
-        w, h = self.figure.get_figwidth(), self.figure.get_figheight()
+        w, h = self.figure.get_size_inches()
 
         info_dict = _create_pdf_info_dict('pgf', metadata or {})
-        hyperref_options = ','.join(
+        pdfinfo = ','.join(
             _metadata_to_str(k, v) for k, v in info_dict.items())
 
+        # print figure to pgf and compile it with latex
         with TemporaryDirectory() as tmpdir:
             tmppath = pathlib.Path(tmpdir)
-
-            # print figure to pgf and compile it with latex
-            self.print_pgf(tmppath / "figure.pgf", *args, **kwargs)
-
-            latexcode = """
-\\PassOptionsToPackage{pdfinfo={%s}}{hyperref}
-\\RequirePackage{hyperref}
-\\documentclass[12pt]{minimal}
-\\usepackage[paperwidth=%fin, paperheight=%fin, margin=0in]{geometry}
-%s
-%s
-\\usepackage{pgf}
-
-\\begin{document}
-\\centering
-\\input{figure.pgf}
-\\end{document}""" % (hyperref_options, w, h, get_preamble(), get_fontspec())
-            (tmppath / "figure.tex").write_text(latexcode, encoding="utf-8")
-
+            self.print_pgf(tmppath / "figure.pgf", **kwargs)
+            (tmppath / "figure.tex").write_text(
+                "\n".join([
+                    r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
+                    r"\RequirePackage{hyperref}",
+                    r"\documentclass[12pt]{minimal}",
+                    r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
+                    % (w, h),
+                    get_preamble(),
+                    get_fontspec(),
+                    r"\usepackage{pgf}",
+                    r"\begin{document}",
+                    r"\centering",
+                    r"\input{figure.pgf}",
+                    r"\end{document}",
+                ]), encoding="utf-8")
             texcommand = mpl.rcParams["pgf.texsystem"]
             cbook._check_and_log_subprocess(
                 [texcommand, "-interaction=nonstopmode", "-halt-on-error",
                  "figure.tex"], _log, cwd=tmpdir)
-
             with (tmppath / "figure.pdf").open("rb") as orig, \
                  cbook.open_file_cm(fname_or_fh, "wb") as dest:
                 shutil.copyfileobj(orig, dest)  # copy file contents to target
 
-    def print_png(self, fname_or_fh, *args, **kwargs):
+    def print_png(self, fname_or_fh, **kwargs):
         """Use LaTeX to compile a pgf figure to pdf and convert it to png."""
         converter = make_pdf_to_png_converter()
         with TemporaryDirectory() as tmpdir:
             tmppath = pathlib.Path(tmpdir)
             pdf_path = tmppath / "figure.pdf"
             png_path = tmppath / "figure.png"
-            self.print_pdf(pdf_path, *args, **kwargs)
+            self.print_pdf(pdf_path, **kwargs)
             converter(pdf_path, png_path, dpi=self.figure.dpi)
             with png_path.open("rb") as orig, \
                  cbook.open_file_cm(fname_or_fh, "wb") as dest:
@@ -899,6 +881,10 @@ class FigureCanvasPgf(FigureCanvasBase):
 
     def get_renderer(self):
         return RendererPgf(self.figure, None)
+
+    def draw(self):
+        self.figure.draw_no_output()
+        return super().draw()
 
 
 FigureManagerPgf = FigureManagerBase
@@ -932,7 +918,6 @@ class PdfPages:
         '_info_dict',
         '_metadata',
     )
-    metadata = cbook.deprecated('3.3')(property(lambda self: self._metadata))
 
     def __init__(self, filename, *, keep_empty=True, metadata=None):
         """
@@ -957,58 +942,32 @@ class PdfPages:
             'Creator', 'Producer', 'CreationDate', 'ModDate', and
             'Trapped'. Values have been predefined for 'Creator', 'Producer'
             and 'CreationDate'. They can be removed by setting them to `None`.
+
+            Note that some versions of LaTeX engines may ignore the 'Producer'
+            key and set it to themselves.
         """
         self._output_name = filename
         self._n_figures = 0
         self.keep_empty = keep_empty
         self._metadata = (metadata or {}).copy()
-        if metadata:
-            for key in metadata:
-                canonical = {
-                    'creationdate': 'CreationDate',
-                    'moddate': 'ModDate',
-                }.get(key.lower(), key.lower().title())
-                if canonical != key:
-                    cbook.warn_deprecated(
-                        '3.3', message='Support for setting PDF metadata keys '
-                        'case-insensitively is deprecated since %(since)s and '
-                        'will be removed %(removal)s; '
-                        f'set {canonical} instead of {key}.')
-                    self._metadata[canonical] = self._metadata.pop(key)
         self._info_dict = _create_pdf_info_dict('pgf', self._metadata)
         self._file = BytesIO()
 
     def _write_header(self, width_inches, height_inches):
-        hyperref_options = ','.join(
+        pdfinfo = ','.join(
             _metadata_to_str(k, v) for k, v in self._info_dict.items())
-
-        latex_preamble = get_preamble()
-        latex_fontspec = get_fontspec()
-        latex_header = r"""\PassOptionsToPackage{{
-  pdfinfo={{
-    {metadata}
-  }}
-}}{{hyperref}}
-\RequirePackage{{hyperref}}
-\documentclass[12pt]{{minimal}}
-\usepackage[
-    paperwidth={width}in,
-    paperheight={height}in,
-    margin=0in
-]{{geometry}}
-{preamble}
-{fontspec}
-\usepackage{{pgf}}
-\setlength{{\parindent}}{{0pt}}
-
-\begin{{document}}%%
-""".format(
-            width=width_inches,
-            height=height_inches,
-            preamble=latex_preamble,
-            fontspec=latex_fontspec,
-            metadata=hyperref_options,
-        )
+        latex_header = "\n".join([
+            r"\PassOptionsToPackage{pdfinfo={%s}}{hyperref}" % pdfinfo,
+            r"\RequirePackage{hyperref}",
+            r"\documentclass[12pt]{minimal}",
+            r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
+            % (width_inches, height_inches),
+            get_preamble(),
+            get_fontspec(),
+            r"\usepackage{pgf}",
+            r"\setlength{\parindent}{0pt}",
+            r"\begin{document}%",
+        ])
         self._file.write(latex_header.encode('utf-8'))
 
     def __enter__(self):
@@ -1048,11 +1007,8 @@ class PdfPages:
 
         Parameters
         ----------
-        figure : `.Figure` or int, optional
-            Specifies what figure is saved to file. If not specified, the
-            active figure is saved. If a `.Figure` instance is provided, this
-            figure is saved. If an int is specified, the figure instance to
-            save is looked up by number.
+        figure : `.Figure` or int, default: the active figure
+            The figure, or index of the figure, that is saved to the file.
         """
         if not isinstance(figure, Figure):
             if figure is None:

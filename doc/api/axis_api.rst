@@ -169,17 +169,6 @@ Units
    Axis.update_units
 
 
-Incremental navigation
-----------------------
-
-.. autosummary::
-   :toctree: _as_gen
-   :template: autosummary.rst
-   :nosignatures:
-
-   Axis.pan
-   Axis.zoom
-
 XAxis Specific
 --------------
 
@@ -226,8 +215,6 @@ Other
    Axis.limit_range_for_scale
    Axis.reset_ticks
    Axis.set_default_intervals
-   Axis.get_smart_bounds
-   Axis.set_smart_bounds
 
 Discouraged
 -----------
@@ -268,8 +255,6 @@ specify a matching series of labels.  Calling ``set_ticks`` makes a
    :template: autosummary.rst
    :nosignatures:
 
-
-   Tick.apply_tickdir
    Tick.get_loc
    Tick.get_pad
    Tick.get_pad_pixels

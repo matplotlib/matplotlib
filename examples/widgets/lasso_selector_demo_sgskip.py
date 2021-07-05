@@ -99,3 +99,13 @@ if __name__ == '__main__':
     ax.set_title("Press enter to accept selected points.")
 
     plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.widgets.LassoSelector`
+#    - `matplotlib.path.Path`

@@ -39,8 +39,8 @@ def test_pyplot_up_to_date(tmpdir):
 
 
 def test_copy_docstring_and_deprecators(recwarn):
-    @mpl.cbook._rename_parameter("(version)", "old", "new")
-    @mpl.cbook._make_keyword_only("(version)", "kwo")
+    @mpl._api.rename_parameter("(version)", "old", "new")
+    @mpl._api.make_keyword_only("(version)", "kwo")
     def func(new, kwo=None):
         pass
 
@@ -153,3 +153,160 @@ def test_nested_ion_ioff():
     with plt.ioff():
         plt.ion()
     assert not mpl.is_interactive()
+
+
+def test_close():
+    try:
+        plt.close(1.1)
+    except TypeError as e:
+        assert str(e) == "close() argument must be a Figure, an int, " \
+                         "a string, or None, not <class 'float'>"
+
+
+def test_subplot_reuse():
+    ax1 = plt.subplot(121)
+    assert ax1 is plt.gca()
+    ax2 = plt.subplot(122)
+    assert ax2 is plt.gca()
+    ax3 = plt.subplot(121)
+    assert ax1 is plt.gca()
+    assert ax1 is ax3
+
+
+def test_axes_kwargs():
+    # plt.axes() always creates new axes, even if axes kwargs differ.
+    plt.figure()
+    ax = plt.axes()
+    ax1 = plt.axes()
+    assert ax is not None
+    assert ax1 is not ax
+    plt.close()
+
+    plt.figure()
+    ax = plt.axes(projection='polar')
+    ax1 = plt.axes(projection='polar')
+    assert ax is not None
+    assert ax1 is not ax
+    plt.close()
+
+    plt.figure()
+    ax = plt.axes(projection='polar')
+    ax1 = plt.axes()
+    assert ax is not None
+    assert ax1.name == 'rectilinear'
+    assert ax1 is not ax
+    plt.close()
+
+
+def test_subplot_replace_projection():
+    # plt.subplot() searches for axes with the same subplot spec, and if one
+    # exists, and the kwargs match returns it, create a new one if they do not
+    fig = plt.figure()
+    ax = plt.subplot(1, 2, 1)
+    ax1 = plt.subplot(1, 2, 1)
+    ax2 = plt.subplot(1, 2, 2)
+    # This will delete ax / ax1 as they fully overlap
+    ax3 = plt.subplot(1, 2, 1, projection='polar')
+    ax4 = plt.subplot(1, 2, 1, projection='polar')
+    assert ax is not None
+    assert ax1 is ax
+    assert ax2 is not ax
+    assert ax3 is not ax
+    assert ax3 is ax4
+
+    assert ax not in fig.axes
+    assert ax2 in fig.axes
+    assert ax3 in fig.axes
+
+    assert ax.name == 'rectilinear'
+    assert ax2.name == 'rectilinear'
+    assert ax3.name == 'polar'
+
+
+def test_subplot_kwarg_collision():
+    ax1 = plt.subplot(projection='polar', theta_offset=0)
+    ax2 = plt.subplot(projection='polar', theta_offset=0)
+    assert ax1 is ax2
+    ax3 = plt.subplot(projection='polar', theta_offset=1)
+    assert ax1 is not ax3
+    assert ax1 not in plt.gcf().axes
+
+
+def test_gca_kwargs():
+    # plt.gca() returns an existing axes, unless there were no axes.
+    plt.figure()
+    ax = plt.gca()
+    ax1 = plt.gca()
+    assert ax is not None
+    assert ax1 is ax
+    plt.close()
+
+    # plt.gca() raises a DeprecationWarning if called with kwargs.
+    plt.figure()
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments was deprecated'):
+        ax = plt.gca(projection='polar')
+    ax1 = plt.gca()
+    assert ax is not None
+    assert ax1 is ax
+    assert ax1.name == 'polar'
+    plt.close()
+
+    # plt.gca() ignores keyword arguments if an axes already exists.
+    plt.figure()
+    ax = plt.gca()
+    with pytest.warns(
+            MatplotlibDeprecationWarning,
+            match=r'Calling gca\(\) with keyword arguments was deprecated'):
+        ax1 = plt.gca(projection='polar')
+    assert ax is not None
+    assert ax1 is ax
+    assert ax1.name == 'rectilinear'
+    plt.close()
+
+
+def test_subplot_projection_reuse():
+    # create an axes
+    ax1 = plt.subplot(111)
+    # check that it is current
+    assert ax1 is plt.gca()
+    # make sure we get it back if we ask again
+    assert ax1 is plt.subplot(111)
+    # create a polar plot
+    ax2 = plt.subplot(111, projection='polar')
+    assert ax2 is plt.gca()
+    # this should have deleted the first axes
+    assert ax1 not in plt.gcf().axes
+    # assert we get it back if no extra parameters passed
+    assert ax2 is plt.subplot(111)
+    # now check explicitly setting the projection to rectilinear
+    # makes a new axes
+    ax3 = plt.subplot(111, projection='rectilinear')
+    assert ax3 is plt.gca()
+    assert ax3 is not ax2
+    assert ax2 not in plt.gcf().axes
+
+
+def test_subplot_polar_normalization():
+    ax1 = plt.subplot(111, projection='polar')
+    ax2 = plt.subplot(111, polar=True)
+    ax3 = plt.subplot(111, polar=True, projection='polar')
+    assert ax1 is ax2
+    assert ax1 is ax3
+
+    with pytest.raises(ValueError,
+                       match="polar=True, yet projection='3d'"):
+        ax2 = plt.subplot(111, polar=True, projection='3d')
+
+
+def test_subplot_change_projection():
+    ax = plt.subplot()
+    projections = ('aitoff', 'hammer', 'lambert', 'mollweide',
+                   'polar', 'rectilinear', '3d')
+    for proj in projections:
+        ax_next = plt.subplot(projection=proj)
+        assert ax_next is plt.subplot()
+        assert ax_next.name == proj
+        assert ax is not ax_next
+        ax = ax_next

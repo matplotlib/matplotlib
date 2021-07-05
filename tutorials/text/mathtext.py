@@ -1,15 +1,14 @@
 r"""
 Writing mathematical expressions
 ================================
-An introduction to writing mathematical expressions in Matplotlib.
 
-You can use a subset TeX markup in any matplotlib text string by placing it
+You can use a subset of TeX markup in any Matplotlib text string by placing it
 inside a pair of dollar signs ($).
 
 Note that you do not need to have TeX installed, since Matplotlib ships
 its own TeX expression parser, layout engine, and fonts.  The layout engine
 is a fairly direct adaptation of the layout algorithms in Donald Knuth's
-TeX, so the quality is quite good (matplotlib also provides a ``usetex``
+TeX, so the quality is quite good (Matplotlib also provides a ``usetex``
 option for those who do want to call out to TeX to generate their text (see
 :doc:`/tutorials/text/usetex`).
 
@@ -94,7 +93,7 @@ produces
 
 .. math::
 
-    \frac{3}{4} \binom{3}{4} \genfrac{}{}{0}{}{3}{4}
+    \frac{3}{4} \binom{3}{4} \genfrac{}{}{0pt}{}{3}{4}
 
 Fractions can be arbitrarily nested::
 
@@ -357,6 +356,4 @@ Here is an example illustrating many of these features in context.
    :target: ../../gallery/pyplots/pyplot_mathtext.html
    :align: center
    :scale: 50
-
-   Pyplot Mathtext
 """

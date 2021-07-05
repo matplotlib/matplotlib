@@ -4,8 +4,11 @@
 mplot3d API
 ***********
 
-.. contents::
-   :backlinks: none
+.. note::
+   `.pyplot` cannot be used to add content to 3D plots, because its function
+   signatures are strictly 2D and cannot handle the additional information
+   needed for 3D. Instead, use the explicit API by calling the respective
+   methods on the `.Axes3D` object.
 
 .. automodule:: mpl_toolkits.mplot3d
    :no-members:
@@ -18,8 +21,7 @@ mplot3d API
 ===================================
 
 .. note::
-   Significant effort went into bringing axes3d to feature-parity with
-   regular axes objects for version 1.1.0. However, more work remains.
+   3D plotting in Matplotlib is still not as mature as the 2D case.
    Please report any functions that do not behave as expected as a bug.
    In addition, help and patches would be greatly appreciated!
 

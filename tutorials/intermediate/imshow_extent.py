@@ -2,18 +2,18 @@
 *origin* and *extent* in `~.Axes.imshow`
 ========================================
 
-:meth:`~.Axes.imshow` allows you to render an image (either a 2D array
-which will be color-mapped (based on *norm* and *cmap*) or a 3D RGB(A)
-array which will be used as-is) to a rectangular region in dataspace.
-The orientation of the image in the final rendering is controlled by
-the *origin* and *extent* kwargs (and attributes on the resulting
-`~.AxesImage` instance) and the data limits of the axes.
+:meth:`~.Axes.imshow` allows you to render an image (either a 2D array which
+will be color-mapped (based on *norm* and *cmap*) or a 3D RGB(A) array which
+will be used as-is) to a rectangular region in data space.  The orientation of
+the image in the final rendering is controlled by the *origin* and *extent*
+keyword arguments (and attributes on the resulting `.AxesImage` instance) and
+the data limits of the axes.
 
-The *extent* kwarg controls the bounding box in data coordinates that
-the image will fill specified as ``(left, right, bottom, top)`` in
-**data coordinates**, the *origin* kwarg controls how the image fills
-that bounding box, and the orientation in the final rendered image is
-also affected by the axes limits.
+The *extent* keyword arguments controls the bounding box in data coordinates
+that the image will fill specified as ``(left, right, bottom, top)`` in **data
+coordinates**, the *origin* keyword argument controls how the image fills that
+bounding box, and the orientation in the final rendered image is also affected
+by the axes limits.
 
 .. hint:: Most of the code below is used for adding labels and informative
    text to the plots. The described effects of *origin* and *extent* can be
@@ -176,7 +176,7 @@ generate_imshow_demo_grid(extents=[None])
 # vertical, the second index runs along the horizontal.
 # The pixel centers are at integer positions ranging from 0 to ``N' = N - 1``
 # horizontally and from 0 to ``M' = M - 1`` vertically.
-# *origin* determines how to the data is filled in the bounding box.
+# *origin* determines how the data is filled in the bounding box.
 #
 # For ``origin='lower'``:
 #
@@ -244,7 +244,7 @@ set_extent_None_text(columns['lower'][0])
 #
 # While we keep the extents as in the examples before, the coordinate (0, 0)
 # is now explicitly put at the bottom left and values increase to up and to
-# the right (from the viewer point of view).
+# the right (from the viewer's point of view).
 # We can see that:
 #
 # - The coordinate ``(left, bottom)`` anchors the image which then fills the

@@ -54,9 +54,9 @@ commands:
       - run:
           name: Upgrade pip, setuptools, wheel
           command: |
-            python -mpip install --upgrade --user pip
-            python -mpip install --upgrade --user wheel
-            python -mpip install --upgrade --user setuptools
+            python -m pip install --upgrade --user pip
+            python -m pip install --upgrade --user wheel
+            python -m pip install --upgrade --user setuptools
 
   deps-install:
     parameters:
@@ -67,14 +67,15 @@ commands:
       - run:
           name: Install Python dependencies
           command: |
-            python -mpip install --user numpy<< parameters.numpy_version >> codecov coverage
-            python -mpip install --user -r requirements/doc/doc-requirements.txt
+            python -m pip install --user \
+                numpy<< parameters.numpy_version >> codecov coverage \
+                -r requirements/doc/doc-requirements.txt
 
   mpl-install:
     steps:
       - run:
           name: Install Matplotlib
-          command: python -mpip install --user -ve .
+          command: python -m pip install --user -ve .
 
   doc-build:
     steps:
@@ -137,6 +138,8 @@ jobs:
 
       - store_artifacts:
           path: doc/build/html
+      - store_test_results:
+          path: doc/build/test-results
 
   docs-python38-min:
     docker:
@@ -149,7 +152,7 @@ jobs:
       - pip-install
 
       - deps-install:
-          numpy_version: "==1.16.0"
+          numpy_version: "==1.17.3"
       - mpl-install
 
       - doc-build
@@ -158,6 +161,8 @@ jobs:
 
       - store_artifacts:
           path: doc/build/html
+      - store_test_results:
+          path: doc/build/test-results
 
   docs-python38:
     docker:
@@ -178,10 +183,12 @@ jobs:
 
       - store_artifacts:
           path: doc/build/html
+      - store_test_results:
+          path: doc/build/test-results
 
       - add_ssh_keys:
           fingerprints:
-            - "78:13:59:08:61:a9:e5:09:af:df:3a:d8:89:c2:84:c0"
+            - "6b:83:76:a5:7d:bd:ce:19:a4:e3:81:e0:80:16:a4:fe"
       - deploy:
           name: "Deploy new docs"
           command: ./.circleci/deploy-docs.sh

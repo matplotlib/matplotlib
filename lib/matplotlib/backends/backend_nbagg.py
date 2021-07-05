@@ -1,4 +1,4 @@
-"""Interactive figures in the IPython notebook"""
+"""Interactive figures in the IPython notebook."""
 # Note: There is a notebook in
 # lib/matplotlib/backends/web_backend/nbagg_uat.ipynb to help verify
 # that changes made maintain expected behaviour.
@@ -17,7 +17,7 @@ except ImportError:
     # Jupyter/IPython 3.x or earlier
     from IPython.kernel.comm import Comm
 
-from matplotlib import cbook, is_interactive
+from matplotlib import is_interactive
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import _Backend, NavigationToolbar2
 from matplotlib.backends.backend_webagg_core import (
@@ -142,7 +142,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
 
 class FigureCanvasNbAgg(FigureCanvasWebAggCore):
-    _timer_cls = TimerTornado
+    pass
 
 
 class CommSocket:

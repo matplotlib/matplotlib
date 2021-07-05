@@ -5,10 +5,9 @@ An experimental support for curvilinear grid.
 # TODO :
 # see if tick_iterator method can be simplified by reusing the parent method.
 
-import functools
-
 import numpy as np
 
+from matplotlib import cbook
 import matplotlib.patches as mpatches
 from matplotlib.path import Path
 import matplotlib.axes as maxes
@@ -44,15 +43,15 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
 
     def update_lim(self, axes):
         self.grid_helper.update_lim(axes)
-        self.grid_info = self.grid_helper.grid_info
+        self._grid_info = self.grid_helper._grid_info
 
     def get_tick_iterators(self, axes):
         """tick_loc, tick_angle, tick_label, (optionally) tick_label"""
 
         grid_finder = self.grid_helper.grid_finder
 
-        lat_levs, lat_n, lat_factor = self.grid_info["lat_info"]
-        lon_levs, lon_n, lon_factor = self.grid_info["lon_info"]
+        lat_levs, lat_n, lat_factor = self._grid_info["lat_info"]
+        lon_levs, lon_n, lon_factor = self._grid_info["lon_info"]
 
         lon_levs, lat_levs = np.asarray(lon_levs), np.asarray(lat_levs)
         if lat_factor is not None:
@@ -74,9 +73,8 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
         ymin, ymax = sorted(extremes[2:])
 
         def transform_xy(x, y):
-            x1, y1 = grid_finder.transform_xy(x, y)
-            x2, y2 = axes.transData.transform(np.array([x1, y1]).T).T
-            return x2, y2
+            trf = grid_finder.get_transform() + axes.transData
+            return trf.transform(np.column_stack([x, y])).T
 
         if self.nth_coord == 0:
             mask = (ymin <= yy0) & (yy0 <= ymax)
@@ -94,7 +92,7 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             xx2a, yy2a = transform_xy(xx0, yy00)
             xx2b, yy2b = transform_xy(xx0, yy00 + dy)
 
-            labels = self.grid_info["lat_labels"]
+            labels = self._grid_info["lat_labels"]
             labels = [l for l, m in zip(labels, mask) if m]
 
         elif self.nth_coord == 1:
@@ -113,7 +111,7 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             xx2a, yy2a = transform_xy(xx00, yy0)
             xx2b, yy2b = transform_xy(xx00 + dx, yy0)
 
-            labels = self.grid_info["lon_labels"]
+            labels = self._grid_info["lon_labels"]
             labels = [l for l, m in zip(labels, mask) if m]
 
         def f1():
@@ -138,7 +136,7 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
                     right=("lon_lines0", 1),
                     bottom=("lat_lines0", 0),
                     top=("lat_lines0", 1))[self._side]
-        xx, yy = self.grid_info[k][v]
+        xx, yy = self._grid_info[k][v]
         return Path(np.column_stack([xx, yy]))
 
 
@@ -229,10 +227,10 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
     #     return axis
 
     def _update_grid(self, x1, y1, x2, y2):
-        if self.grid_info is None:
-            self.grid_info = dict()
+        if self._grid_info is None:
+            self._grid_info = dict()
 
-        grid_info = self.grid_info
+        grid_info = self._grid_info
 
         grid_finder = self.grid_finder
         extremes = grid_finder.extreme_finder(grid_finder.inv_transform_xy,
@@ -284,9 +282,9 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
     def get_gridlines(self, which="major", axis="both"):
         grid_lines = []
         if axis in ["both", "x"]:
-            grid_lines.extend(self.grid_info["lon_lines"])
+            grid_lines.extend(self._grid_info["lon_lines"])
         if axis in ["both", "y"]:
-            grid_lines.extend(self.grid_info["lat_lines"])
+            grid_lines.extend(self._grid_info["lat_lines"])
         return grid_lines
 
     def get_boundary(self):
@@ -318,32 +316,24 @@ class FloatingAxesBase:
             raise ValueError("FloatingAxes requires grid_helper argument")
         if not hasattr(grid_helper, "get_boundary"):
             raise ValueError("grid_helper must implement get_boundary method")
-
-        self._axes_class_floating.__init__(self, *args, **kwargs)
-
+        super().__init__(*args, **kwargs)
         self.set_aspect(1.)
         self.adjust_axes_lim()
 
     def _gen_axes_patch(self):
         # docstring inherited
-        grid_helper = self.get_grid_helper()
-        t = grid_helper.get_boundary()
-        return mpatches.Polygon(t)
+        return mpatches.Polygon(self.get_grid_helper().get_boundary())
 
     def cla(self):
-        self._axes_class_floating.cla(self)
-        # HostAxes.cla(self)
+        super().cla()
         self.patch.set_transform(self.transData)
-
-        patch = self._axes_class_floating._gen_axes_patch(self)
-        patch.set_figure(self.figure)
-        patch.set_visible(False)
-        patch.set_transform(self.transAxes)
-
-        self.patch.set_clip_path(patch)
-        self.gridlines.set_clip_path(patch)
-
-        self._original_patch = patch
+        # The original patch is not in the draw tree; it is only used for
+        # clipping purposes.
+        orig_patch = super()._gen_axes_patch()
+        orig_patch.set_figure(self.figure)
+        orig_patch.set_transform(self.transAxes)
+        self.patch.set_clip_path(orig_patch)
+        self.gridlines.set_clip_path(orig_patch)
 
     def adjust_axes_lim(self):
         grid_helper = self.get_grid_helper()
@@ -360,13 +350,8 @@ class FloatingAxesBase:
         self.set_ylim(ymin-dy, ymax+dy)
 
 
-@functools.lru_cache(None)
-def floatingaxes_class_factory(axes_class):
-    return type("Floating %s" % axes_class.__name__,
-                (FloatingAxesBase, axes_class),
-                {'_axes_class_floating': axes_class})
-
-
+floatingaxes_class_factory = cbook._make_class_factory(
+    FloatingAxesBase, "Floating{}")
 FloatingAxes = floatingaxes_class_factory(
     host_axes_class_factory(axislines.Axes))
 FloatingSubplot = maxes.subplot_class_factory(FloatingAxes)

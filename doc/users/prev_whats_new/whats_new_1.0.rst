@@ -44,7 +44,7 @@ indexing (starts with 0).  e.g.::
   fig, axarr = plt.subplots(2, 2)
   axarr[0,0].plot([1,2,3])   # upper, left
 
-See :doc:`/gallery/subplots_axes_and_figures/subplot_demo` for several code examples.
+See :doc:`/gallery/subplots_axes_and_figures/subplot` for several code examples.
 
 Contour fixes and and triplot
 -----------------------------
@@ -92,12 +92,29 @@ supporting mixing of 2D and 3D graphs in the same figure, and/or
 multiple 3D graphs in a single figure, using the "projection" keyword
 argument to add_axes or add_subplot.  Thanks Ben Root.
 
-.. figure:: ../../gallery/pyplots/images/sphx_glr_whats_new_1_subplot3d_001.png
-   :target: ../../gallery/pyplots/whats_new_1_subplot3d.html
-   :align: center
-   :scale: 50
+.. plot::
 
-   What's New 1 Subplot3d
+    from mpl_toolkits.mplot3d.axes3d import get_test_data
+
+    fig = plt.figure()
+
+    X = np.arange(-5, 5, 0.25)
+    Y = np.arange(-5, 5, 0.25)
+    X, Y = np.meshgrid(X, Y)
+    R = np.sqrt(X**2 + Y**2)
+    Z = np.sin(R)
+    ax = fig.add_subplot(1, 2, 1, projection='3d')
+    surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap='viridis',
+                           linewidth=0, antialiased=False)
+    ax.set_zlim3d(-1.01, 1.01)
+
+    fig.colorbar(surf, shrink=0.5, aspect=5)
+
+    X, Y, Z = get_test_data(0.05)
+    ax = fig.add_subplot(1, 2, 2, projection='3d')
+    ax.plot_wireframe(X, Y, Z, rstride=10, cstride=10)
+
+    plt.show()
 
 tick_params
 -----------

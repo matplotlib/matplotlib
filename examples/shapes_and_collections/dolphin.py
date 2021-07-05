@@ -105,21 +105,17 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.path
-matplotlib.path.Path
-matplotlib.patches
-matplotlib.patches.PathPatch
-matplotlib.patches.Circle
-matplotlib.axes.Axes.add_patch
-matplotlib.transforms
-matplotlib.transforms.Affine2D
-matplotlib.transforms.Affine2D.rotate_deg
+#    - `matplotlib.path`
+#    - `matplotlib.path.Path`
+#    - `matplotlib.patches`
+#    - `matplotlib.patches.PathPatch`
+#    - `matplotlib.patches.Circle`
+#    - `matplotlib.axes.Axes.add_patch`
+#    - `matplotlib.transforms`
+#    - `matplotlib.transforms.Affine2D`
+#    - `matplotlib.transforms.Affine2D.rotate_deg`

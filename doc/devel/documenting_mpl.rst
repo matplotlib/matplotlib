@@ -4,16 +4,8 @@
 Writing documentation
 =====================
 
-.. contents:: Contents
-   :depth: 3
-   :local:
-   :backlinks: top
-   :class: multicol-toc
-
-
 Getting started
 ===============
-
 
 General file structure
 ----------------------
@@ -51,55 +43,12 @@ Setting up the doc build
 ------------------------
 
 The documentation for Matplotlib is generated from reStructuredText (ReST_)
-using the Sphinx_ documentation generation tool. To build the documentation
-you will need to
+using the Sphinx_ documentation generation tool.
 
-1. set up an appropriate Python environment
-2. install additional external dependencies
-
-Setting up a dedicated Python environment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-*  create a clean virtual environment with no existing Matplotlib installation
-*  install the Python packages required for Matplotlib
-*  install the additional Python packages required to build the documentation.
-   They are listed in :file:`doc-requirements.txt`, which is shown below:
-
-   .. include:: ../../requirements/doc/doc-requirements.txt
-      :literal:
-
-.. note::
-
-  If you've already set up an
-  :ref:`environment for Matplotlib development <installing_for_devs>`, you
-  can reuse that and skip the first two steps.
-
-Install additional external dependencies
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Required:
-
-*  a minimal working LaTeX distribution
-*  `Graphviz <http://www.graphviz.org/download>`_
-*  the LaTeX packages *cm-super* and *dvipng*. If your OS bundles ``TexLive``,
-   then often the "complete" version of the installer will automatically include
-   these packages (e.g. "texlive-full" or "texlive-all").
-
-Optional, but recommended:
-
-*  `Inkscape <https://inkscape.org>`_
-*  `optipng <http://optipng.sourceforge.net>`_
-*  the font "Humor Sans" (aka the "XKCD" font), or the free alternative
-   `Comic Neue <http://comicneue.com/>`_.
-*  the font "Times New Roman"
-
-.. note::
-
-  The documentation will not build without LaTeX and Graphviz.  These are not
-  Python packages and must be installed separately. The documentation can be
-  built without Inkscape and optipng, but the build process will raise various
-  warnings. If the build process warns that you are missing fonts, make sure
-  your LaTeX distribution bundles cm-super or install it separately.
+To build the documentation you will need to
+:ref:`set up Matplotlib for development <installing_for_devs>`. Note in
+particular the :ref:`additional dependencies <doc-dependencies>` required to
+build the documentation.
 
 Building the docs
 -----------------
@@ -154,16 +103,33 @@ On Windows, either use the format shown above or set options as environment vari
    set O=-W --keep-going -j4
    make html
 
+Showing locally built docs
+--------------------------
+
+The built docs are available in the folder :file:`build/html`. A shortcut
+for opening them in your default browser is:
+
+.. code-block:: sh
+
+   make show
+
 .. _writing-rest-pages:
 
 Writing ReST pages
 ==================
 
-Most documentation is either in the docstring of individual
+Most documentation is either in the docstrings of individual
 classes and methods, in explicit ``.rst`` files, or in examples and tutorials.
-All of these use the ReST_ syntax. Users should look at the ReST_ documentation
-for a full description. But some specific hints and conventions Matplotlib
-uses are useful for creating documentation.
+All of these use the ReST_ syntax and are processed by Sphinx_.
+
+The `Sphinx reStructuredText Primer
+<https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_ is
+a good introduction into using ReST. More complete information is available in
+the `reStructuredText reference documentation
+<https://docutils.sourceforge.io/rst.html#reference-documentation>`_.
+
+This section contains additional information and conventions how ReST is used
+in the Matplotlib documentation.
 
 Formatting and style conventions
 --------------------------------
@@ -334,24 +300,19 @@ Including figures and files
 ---------------------------
 
 Image files can directly included in pages with the ``image::`` directive.
-e.g., :file:`thirdpartypackages/index.rst` displays the images for the third-party
-packages as static images::
+e.g., :file:`tutorials/intermediate/constrainedlayout_guide.py` displays
+a couple of static images::
 
-    .. image:: /_static/toolbar.png
+  # .. image:: /_static/constrained_layout_1b.png
+  #    :align: center
 
-as rendered on the page: :ref:`thirdparty-index`.
 
-Files can be included verbatim.  For instance the ``matplotlibrc`` file
-is important for customizing Matplotlib, and is included verbatim in the
-tutorial in :doc:`/tutorials/introductory/customizing`::
+Files can be included verbatim.  For instance the ``LICENSE`` file is included
+at :ref:`license-agreement` using ::
 
-    .. literalinclude:: ../../_static/matplotlibrc
+    .. literalinclude:: ../../LICENSE/LICENSE
 
-This is rendered at the bottom of :doc:`/tutorials/introductory/customizing`.
-Note that this is in a tutorial; see :ref:`writing-examples-and-tutorials`
-below.
-
-The examples directory is also copied to :file:`doc/gallery` by sphinx-gallery,
+The examples directory is copied to :file:`doc/gallery` by sphinx-gallery,
 so plots from the examples directory can be included using
 
 .. code-block:: rst
@@ -506,8 +467,9 @@ Use ``array-like`` for homogeneous numeric sequences, which could
 typically be a numpy.array. Dimensionality may be specified using ``2D``,
 ``3D``, ``n-dimensional``. If you need to have variables denoting the
 sizes of the dimensions, use capital letters in brackets
-(``array-like (M, N)``). When referring to them in the text they are easier
-read and no special formatting is needed.
+(``(M, N) array-like``). When referring to them in the text they are easier
+read and no special formatting is needed. Use ``array`` instead of
+``array-like`` for return types if the returned object is indeed a numpy array.
 
 ``float`` is the implicit default dtype for array-likes. For other dtypes
 use ``array-like of int``.
@@ -515,9 +477,9 @@ use ``array-like of int``.
 Some possible uses::
 
   2D array-like
-  array-like (N)
-  array-like (M, N)
-  array-like (M, N, 3)
+  (N,) array-like
+  (M, N) array-like
+  (M, N, 3) array-like
   array-like of int
 
 Non-numeric homogeneous sequences are described as lists, e.g.::
@@ -628,7 +590,7 @@ Setters and getters
 -------------------
 
 Artist properties are implemented using setter and getter methods (because
-Matplotlib predates the introductions of the `property` decorator in Python).
+Matplotlib predates the Python `property` decorator).
 By convention, these setters and getters are named ``set_PROPERTYNAME`` and
 ``get_PROPERTYNAME``; the list of properties thusly defined on an artist and
 their values can be listed by the `~.pyplot.setp` and `~.pyplot.getp` functions.
@@ -706,46 +668,51 @@ are:
 2. as automated as possible so that as properties change, the docs
    are updated automatically.
 
-The function `matplotlib.artist.kwdoc` and the decorator
-``matplotlib.docstring.dedent_interpd`` facilitate this.  They combine Python
-string interpolation in the docstring with the Matplotlib artist introspection
-facility that underlies ``setp`` and ``getp``.  The ``kwdoc`` function gives
-the list of properties as a docstring. In order to use this in another
-docstring, first update the ``matplotlib.docstring.interpd`` object, as seen in
-this example from `matplotlib.lines`:
-
-.. code-block:: python
-
-  # in lines.py
-  docstring.interpd.update(Line2D=artist.kwdoc(Line2D))
-
-Then in any function accepting `~.Line2D` pass-through ``kwargs``, e.g.,
-`matplotlib.axes.Axes.plot`:
+The ``@docstring.interpd`` decorator implements this.  Any function accepting
+`.Line2D` pass-through ``kwargs``, e.g., `matplotlib.axes.Axes.plot`, can list
+a summary of the `.Line2D` properties, as follows:
 
 .. code-block:: python
 
   # in axes.py
-  @docstring.dedent_interpd
+  @docstring.interpd
   def plot(self, *args, **kwargs):
       """
       Some stuff omitted
 
-      The kwargs are Line2D properties:
-      %(_Line2D_docstr)s
+      Other Parameters
+      ----------------
+      scalex, scaley : bool, default: True
+          These parameters determine if the view limits are adapted to the
+          data limits. The values are passed on to `autoscale_view`.
 
-      kwargs scalex and scaley, if defined, are passed on
-      to autoscale_view to determine whether the x and y axes are
-      autoscaled; default True.  See Axes.autoscale_view for more
-      information
+      **kwargs : `.Line2D` properties, optional
+          *kwargs* are used to specify properties like a line label (for
+          auto legends), linewidth, antialiasing, marker face color.
+          Example::
+
+          >>> plot([1, 2, 3], [1, 2, 3], 'go-', label='line 1', linewidth=2)
+          >>> plot([1, 2, 3], [1, 4, 9], 'rs', label='line 2')
+
+          If you specify multiple lines with one plot call, the kwargs apply
+          to all those lines. In case the label object is iterable, each
+          element is used as labels for each set of data.
+
+          Here is a list of available `.Line2D` properties:
+
+          %(Line2D:kwdoc)s
       """
 
-Note there is a problem for `~matplotlib.artist.Artist` ``__init__`` methods,
-e.g., `matplotlib.patches.Patch.__init__`, which supports ``Patch`` ``kwargs``,
-since the artist inspector cannot work until the class is fully defined and
-we can't modify the ``Patch.__init__.__doc__`` docstring outside the class
-definition.  There are some some manual hacks in this case, violating the
-"single entry point" requirement above -- see the ``docstring.interpd.update``
-calls in `matplotlib.patches`.
+The ``%(Line2D:kwdoc)`` syntax makes ``interpd`` lookup an `.Artist` subclass
+named ``Line2D``, and call `.artist.kwdoc` on that class.  `.artist.kwdoc`
+introspects the subclass and summarizes its properties as a substring, which
+gets interpolated into the docstring.
+
+Note that this scheme does not work for decorating an Artist's ``__init__``, as
+the subclass and its properties are not defined yet at that point.  Instead,
+``@docstring.interpd`` can be used to decorate the class itself -- at that
+point, `.kwdoc` can list the properties and interpolate them into
+``__init__.__doc__``.
 
 
 Inheriting docstrings
@@ -776,7 +743,7 @@ Adding figures
 --------------
 
 As above (see :ref:`rst-figures-and-includes`), figures in the examples gallery
-can be referenced with a ``:plot:`` directive pointing to the python script
+can be referenced with a ``.. plot::`` directive pointing to the python script
 that created the figure.  For instance the `~.Axes.legend` docstring references
 the file :file:`examples/text_labels_and_annotations/legend.py`:
 
@@ -892,6 +859,35 @@ are delimited by a line of ``###`` characters:
 
 In this way text, code, and figures are output in a "notebook" style.
 
+References for sphinx-gallery
+-----------------------------
+
+The showcased Matplotlib functions should be listed in an admonition at the
+bottom as follows
+
+.. code-block:: python
+
+    ###############################################################################
+    #
+    # .. admonition:: References
+    #
+    #    The use of the following functions, methods, classes and modules is shown
+    #    in this example:
+    #
+    #    - `matplotlib.axes.Axes.fill` / `matplotlib.pyplot.fill`
+    #    - `matplotlib.axes.Axes.axis` / `matplotlib.pyplot.axis`
+
+This allows sphinx-gallery to place an entry to the example in the
+mini-gallery of the mentioned functions. Whether or not a function is mentioned
+here should be decided depending on if a mini-gallery link prominently helps
+to illustrate that function; e.g. mention ``matplotlib.pyplot.subplots`` only
+in examples that are about laying out subplots, not in every example that uses
+it.
+
+Functions that exist in ``pyplot`` as well as in Axes or Figure should mention
+both references no matter which one is used in the example code. The ``pyplot``
+reference should always be the second to mention; see the example above.
+
 Order of examples in the gallery
 --------------------------------
 
@@ -916,6 +912,40 @@ should ideally be named similar to :file:`imshow_mynewexample.py`.
 
 Miscellaneous
 =============
+
+Moving documentation
+--------------------
+
+Sometimes it is desirable to move or consolidate documentation.  With no
+action this will lead to links either going dead (404) or pointing to old
+versions of the documentation.  Preferable is to replace the old page
+with an html refresh that immediately redirects the viewer to the new
+page. So, for example we move ``/doc/topic/old_info.rst`` to
+``/doc/topic/new_info.rst``.  We remove ``/doc/topic/old_info.rst`` and
+in ``/doc/topic/new_info.rst`` we insert a ``redirect-from`` directive that
+tells sphinx to still make the old file with the html refresh/redirect in it
+(probably near the top of the file to make it noticeable)
+
+.. code-block:: rst
+
+   .. redirect-from:: /topic/old_info
+
+In the built docs this will yield an html file
+``/build/html/topic/old_info.html`` that has a refresh to ``new_info.html``.
+If the two files are in different subdirectories:
+
+.. code-block:: rst
+
+   .. redirect-from:: /old_topic/old_info2
+
+will yield an html file ``/build/html/old_topic/old_info2.html`` that has a
+(relative) refresh to ``../topic/new_info.html``.
+
+Use the full path for this directive, relative to the doc root at
+``http://matplotlib.org/stable/``.  So ``/old_topic/old_info2`` would be
+found by users at ``http://matplotlib.org/stable/old_topic/old_info2``.
+For clarity, do not use relative links.
+
 
 Adding animations
 -----------------
@@ -957,18 +987,10 @@ google docs to the mplgithub account.
 Generating inheritance diagrams
 -------------------------------
 
-Class inheritance diagrams can be generated with the
-``inheritance-diagram`` directive.  To use it, provide the
-directive with a number of class or module names (separated by
-whitespace).  If a module name is provided, all classes in that module
-will be used.  All of the ancestors of these classes will be included
-in the inheritance diagram.
+Class inheritance diagrams can be generated with the Sphinx
+`inheritance-diagram`_ directive.
 
-A single option is available: *parts* controls how many of parts in
-the path to the class are shown.  For example, if *parts* == 1, the
-class ``matplotlib.patches.Patch`` is shown as ``Patch``.  If *parts*
-== 2, it is shown as ``patches.Patch``.  If *parts* == 0, the full
-path is shown.
+.. _inheritance-diagram: https://www.sphinx-doc.org/en/master/usage/extensions/inheritance.html
 
 Example:
 
@@ -980,42 +1002,6 @@ Example:
 .. inheritance-diagram:: matplotlib.patches matplotlib.lines matplotlib.text
    :parts: 2
 
-.. _emacs-helpers:
-
-Emacs helpers
--------------
-
-There is an emacs mode `rst.el
-<http://docutils.sourceforge.net/tools/editors/emacs/rst.el>`_ which
-automates many important ReST tasks like building and updating
-table-of-contents, and promoting or demoting section headings.  Here
-is the basic ``.emacs`` configuration:
-
-.. code-block:: lisp
-
-    (require 'rst)
-    (setq auto-mode-alist
-          (append '(("\\.txt$" . rst-mode)
-                    ("\\.rst$" . rst-mode)
-                    ("\\.rest$" . rst-mode)) auto-mode-alist))
-
-Some helpful functions::
-
-    C-c TAB - rst-toc-insert
-
-      Insert table of contents at point
-
-    C-c C-u - rst-toc-update
-
-        Update the table of contents at point
-
-    C-c C-l rst-shift-region-left
-
-        Shift region to the left
-
-    C-c C-r rst-shift-region-right
-
-        Shift region to the right
 
 .. TODO: Add section about uploading docs
 

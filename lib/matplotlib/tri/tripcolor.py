@@ -1,6 +1,6 @@
 import numpy as np
 
-from matplotlib import _api, cbook
+from matplotlib import _api
 from matplotlib.collections import PolyCollection, TriMesh
 from matplotlib.colors import Normalize
 from matplotlib.tri.triangulation import Triangulation
@@ -114,7 +114,7 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
 
     collection.set_alpha(alpha)
     collection.set_array(C)
-    cbook._check_isinstance((Normalize, None), norm=norm)
+    _api.check_isinstance((Normalize, None), norm=norm)
     collection.set_cmap(cmap)
     collection.set_norm(norm)
     collection._scale_norm(norm, vmin, vmax)

@@ -47,19 +47,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-import matplotlib.colorbar
-matplotlib.axes.Axes.imshow
-matplotlib.pyplot.imshow
-matplotlib.figure.Figure.colorbar
-matplotlib.pyplot.colorbar
-matplotlib.colorbar.Colorbar.minorticks_on
-matplotlib.colorbar.Colorbar.minorticks_off
+#    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`
+#    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
+#    - `matplotlib.colorbar.Colorbar.minorticks_on`
+#    - `matplotlib.colorbar.Colorbar.minorticks_off`

@@ -12,9 +12,9 @@ import matplotlib.cm as cm
 import numpy as np
 
 
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Analytical test function
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 def function_z(x, y):
     r1 = np.sqrt((0.5 - x)**2 + (0.5 - y)**2)
     theta1 = np.arctan2(0.5 - x, 0.5 - y)
@@ -25,9 +25,9 @@ def function_z(x, y):
           0.7 * (x**2 + y**2))
     return (np.max(z) - z) / (np.max(z) - np.min(z))
 
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Creating a Triangulation
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # First create the x and y coordinates of the points.
 n_angles = 20
 n_radii = 10
@@ -52,15 +52,15 @@ triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
                          y[triang.triangles].mean(axis=1))
                 < min_radius)
 
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Refine data
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 refiner = tri.UniformTriRefiner(triang)
 tri_refi, z_test_refi = refiner.refine_field(z, subdiv=3)
 
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Plot the triangulation and the high-res iso-contours
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 fig, ax = plt.subplots()
 ax.set_aspect('equal')
 ax.triplot(triang, lw=0.5, color='white')
@@ -78,19 +78,13 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.tricontour
-matplotlib.pyplot.tricontour
-matplotlib.axes.Axes.tricontourf
-matplotlib.pyplot.tricontourf
-matplotlib.tri
-matplotlib.tri.Triangulation
-matplotlib.tri.UniformTriRefiner
+#    - `matplotlib.axes.Axes.tricontour` / `matplotlib.pyplot.tricontour`
+#    - `matplotlib.axes.Axes.tricontourf` / `matplotlib.pyplot.tricontourf`
+#    - `matplotlib.tri`
+#    - `matplotlib.tri.Triangulation`
+#    - `matplotlib.tri.UniformTriRefiner`

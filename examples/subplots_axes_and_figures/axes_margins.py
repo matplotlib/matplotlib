@@ -13,6 +13,7 @@ to effectively work around that.
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import Polygon
 
 
 def f(t):
@@ -64,7 +65,7 @@ ax2.use_sticky_edges = False
 for ax, status in zip((ax1, ax2), ('Is', 'Is Not')):
     cells = ax.pcolor(x, y, x+y, cmap='inferno', shading='auto')  # sticky
     ax.add_patch(
-        plt.Polygon(poly_coords, color='forestgreen', alpha=0.5)
+        Polygon(poly_coords, color='forestgreen', alpha=0.5)
     )  # not sticky
     ax.margins(x=0.1, y=0.05)
     ax.set_aspect('equal')
@@ -75,18 +76,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.margins
-matplotlib.pyplot.margins
-matplotlib.axes.Axes.use_sticky_edges
-matplotlib.axes.Axes.pcolor
-matplotlib.pyplot.pcolor
-matplotlib.pyplot.Polygon
+#    - `matplotlib.axes.Axes.margins` / `matplotlib.pyplot.margins`
+#    - `matplotlib.axes.Axes.use_sticky_edges`
+#    - `matplotlib.axes.Axes.pcolor` / `matplotlib.pyplot.pcolor`
+#    - `matplotlib.patches.Polygon`

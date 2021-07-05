@@ -16,9 +16,9 @@ from mpl_toolkits.mplot3d.axes3d import get_test_data
 # set up a figure twice as wide as it is tall
 fig = plt.figure(figsize=plt.figaspect(0.5))
 
-#===============
-#  First subplot
-#===============
+# =============
+# First subplot
+# =============
 # set up the axes for the first plot
 ax = fig.add_subplot(1, 2, 1, projection='3d')
 
@@ -33,9 +33,9 @@ surf = ax.plot_surface(X, Y, Z, rstride=1, cstride=1, cmap=cm.coolwarm,
 ax.set_zlim(-1.01, 1.01)
 fig.colorbar(surf, shrink=0.5, aspect=10)
 
-#===============
+# ==============
 # Second subplot
-#===============
+# ==============
 # set up the axes for the second plot
 ax = fig.add_subplot(1, 2, 2, projection='3d')
 

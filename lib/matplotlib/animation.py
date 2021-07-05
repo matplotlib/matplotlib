@@ -31,6 +31,7 @@ import uuid
 import warnings
 
 import numpy as np
+from PIL import Image
 
 import matplotlib as mpl
 from matplotlib._animation_data import (
@@ -260,8 +261,9 @@ class MovieWriter(AbstractMovieWriter):
     # stored.  Third-party writers cannot meaningfully set these as they cannot
     # extend rcParams with new keys.
 
-    exec_key = cbook._deprecate_privatize_attribute("3.3")
-    args_key = cbook._deprecate_privatize_attribute("3.3")
+    # Pipe-based writers only support RGBA, but file-based ones support more
+    # formats.
+    supported_formats = ["rgba"]
 
     def __init__(self, fps=5, codec=None, bitrate=None, extra_args=None,
                  metadata=None):
@@ -280,7 +282,7 @@ class MovieWriter(AbstractMovieWriter):
             Extra command-line arguments passed to the underlying movie
             encoder.  The default, None, means to use
             :rc:`animation.[name-of-encoder]_args` for the builtin writers.
-        metadata : Dict[str, str], default: {}
+        metadata : dict[str, str], default: {}
             A dictionary of keys and values for metadata to include in the
             output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
@@ -296,8 +298,7 @@ class MovieWriter(AbstractMovieWriter):
 
         super().__init__(fps=fps, metadata=metadata, codec=codec,
                          bitrate=bitrate)
-
-        self.frame_format = 'rgba'
+        self.frame_format = self.supported_formats[0]
         self.extra_args = extra_args
 
     def _adjust_frame_size(self):
@@ -335,7 +336,7 @@ class MovieWriter(AbstractMovieWriter):
 
     def finish(self):
         """Finish any processing for writing the movie."""
-        overridden_cleanup = cbook._deprecate_method_override(
+        overridden_cleanup = _api.deprecate_method_override(
             __class__.cleanup, self, since="3.4", alternative="finish()")
         if overridden_cleanup is not None:
             overridden_cleanup()
@@ -403,9 +404,7 @@ class FileMovieWriter(MovieWriter):
         super().__init__(*args, **kwargs)
         self.frame_format = mpl.rcParams['animation.frame_format']
 
-    @cbook._delete_parameter("3.3", "clear_temp")
-    def setup(self, fig, outfile, dpi=None, frame_prefix=None,
-              clear_temp=True):
+    def setup(self, fig, outfile, dpi=None, frame_prefix=None):
         """
         Setup for writing the movie file.
 
@@ -419,13 +418,10 @@ class FileMovieWriter(MovieWriter):
             The dpi of the output file. This, with the figure size,
             controls the size in pixels of the resulting movie file.
         frame_prefix : str, optional
-            The filename prefix to use for temporary files.  If None (the
+            The filename prefix to use for temporary files.  If *None* (the
             default), files are written to a temporary directory which is
-            deleted by `cleanup` (regardless of the value of *clear_temp*).
-        clear_temp : bool, optional
-            If the temporary files should be deleted after stitching
-            the final result.  Setting this to ``False`` can be useful for
-            debugging.  Defaults to ``True``.
+            deleted by `cleanup`; if not *None*, no temporary files are
+            deleted.
         """
         self.fig = fig
         self.outfile = outfile
@@ -440,7 +436,6 @@ class FileMovieWriter(MovieWriter):
         else:
             self._tmpdir = None
             self.temp_prefix = frame_prefix
-        self._clear_temp = clear_temp
         self._frame_counter = 0  # used for generating sequential file names
         self._temp_paths = list()
         self.fname_format_str = '%s%%07d.%s'
@@ -448,15 +443,6 @@ class FileMovieWriter(MovieWriter):
     def __del__(self):
         if self._tmpdir:
             self._tmpdir.cleanup()
-
-    @_api.deprecated("3.3")
-    @property
-    def clear_temp(self):
-        return self._clear_temp
-
-    @clear_temp.setter
-    def clear_temp(self, value):
-        self._clear_temp = value
 
     @property
     def frame_format(self):
@@ -471,6 +457,10 @@ class FileMovieWriter(MovieWriter):
         if frame_format in self.supported_formats:
             self._frame_format = frame_format
         else:
+            _api.warn_external(
+                f"Ignoring file format {frame_format!r} which is not "
+                f"supported by {type(self).__name__}; using "
+                f"{self.supported_formats[0]} instead.")
             self._frame_format = self.supported_formats[0]
 
     def _base_temp_name(self):
@@ -480,10 +470,9 @@ class FileMovieWriter(MovieWriter):
 
     def grab_frame(self, **savefig_kwargs):
         # docstring inherited
-        # Overloaded to explicitly close temp file.
         # Creates a filename for saving using basename and counter.
         path = Path(self._base_temp_name() % self._frame_counter)
-        self._temp_paths.append(path)  # Record the filename for later cleanup.
+        self._temp_paths.append(path)  # Record the filename for later use.
         self._frame_counter += 1  # Ensures each created name is unique.
         _log.debug('FileMovieWriter.grab_frame: Grabbing frame %d to path=%s',
                    self._frame_counter, path)
@@ -502,12 +491,6 @@ class FileMovieWriter(MovieWriter):
         if self._tmpdir:
             _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
             self._tmpdir.cleanup()
-        else:
-            if self._clear_temp:
-                _log.debug('MovieWriter: clearing temporary paths=%s',
-                           self._temp_paths)
-                for path in self._temp_paths:
-                    path.unlink()
 
 
 @writers.register('pillow')
@@ -521,11 +504,9 @@ class PillowWriter(AbstractMovieWriter):
         self._frames = []
 
     def grab_frame(self, **savefig_kwargs):
-        from PIL import Image
         buf = BytesIO()
         self.fig.savefig(
             buf, **{**savefig_kwargs, "format": "rgba", "dpi": self.dpi})
-        renderer = self.fig.canvas.get_renderer()
         self._frames.append(Image.frombuffer(
             "RGBA", self.frame_size, buf.getbuffer(), "raw", "RGBA", 0, 1))
 
@@ -576,17 +557,6 @@ class FFMpegBase:
 
         return args + ['-y', self.outfile]
 
-    @classmethod
-    def isAvailable(cls):
-        return (
-            super().isAvailable()
-            # Ubuntu 12.04 ships a broken ffmpeg binary which we shouldn't use.
-            # NOTE: when removed, remove the same method in AVConvBase.
-            and b'LibAv' not in subprocess.run(
-                [cls.bin_path()], creationflags=subprocess_creation_flags,
-                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                stderr=subprocess.PIPE).stderr)
-
 
 # Combine FFMpeg options with pipe-based writing
 @writers.register('ffmpeg')
@@ -621,54 +591,28 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     Frames are written to temporary files on disk and then stitched
     together at the end.
     """
-    supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
-                         'pbm', 'raw', 'rgba']
+    supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
 
     def _args(self):
         # Returns the command line parameters for subprocess to use
         # ffmpeg to create a movie using a collection of temp images
-        return [self.bin_path(), '-r', str(self.fps),
-                '-i', self._base_temp_name(),
-                '-vframes', str(self._frame_counter)] + self.output_args
-
-
-# Base class of avconv information.  AVConv has identical arguments to FFMpeg.
-@_api.deprecated('3.3')
-class AVConvBase(FFMpegBase):
-    """
-    Mixin class for avconv output.
-
-    To be useful this must be multiply-inherited from with a
-    `MovieWriterBase` sub-class.
-    """
-
-    _exec_key = 'animation.avconv_path'
-    _args_key = 'animation.avconv_args'
-
-    # NOTE : should be removed when the same method is removed in FFMpegBase.
-    isAvailable = classmethod(MovieWriter.isAvailable.__func__)
-
-
-# Combine AVConv options with pipe-based writing
-@writers.register('avconv')
-class AVConvWriter(AVConvBase, FFMpegWriter):
-    """
-    Pipe-based avconv writer.
-
-    Frames are streamed directly to avconv via a pipe and written in a single
-    pass.
-    """
-
-
-# Combine AVConv options with file-based writing
-@writers.register('avconv_file')
-class AVConvFileWriter(AVConvBase, FFMpegFileWriter):
-    """
-    File-based avconv writer.
-
-    Frames are written to temporary files on disk and then stitched
-    together at the end.
-    """
+        args = []
+        # For raw frames, we need to explicitly tell ffmpeg the metadata.
+        if self.frame_format in {'raw', 'rgba'}:
+            args += [
+                '-f', 'image2', '-vcodec', 'rawvideo',
+                '-video_size', '%dx%d' % self.frame_size,
+                '-pixel_format', 'rgba',
+                '-framerate', str(self.fps),
+            ]
+        args += ['-r', str(self.fps), '-i', self._base_temp_name(),
+                 '-vframes', str(self._frame_counter)]
+        # Logging is quieted because subprocess.PIPE has limited buffer size.
+        # If you have a lot of frames in your animation and set logging to
+        # DEBUG, you will have a buffer overrun.
+        if _log.getEffectiveLevel() > logging.DEBUG:
+            args += ['-loglevel', 'error']
+        return [self.bin_path(), *args, *self.output_args]
 
 
 # Base class for animated GIFs with ImageMagick
@@ -736,15 +680,17 @@ class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
 
     Frames are written to temporary files on disk and then stitched
     together at the end.
-
     """
 
-    supported_formats = ['png', 'jpeg', 'ppm', 'tiff', 'sgi', 'bmp',
-                         'pbm', 'raw', 'rgba']
+    supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
 
     def _args(self):
-        return ([self.bin_path(), '-delay', str(self.delay), '-loop', '0',
-                 '%s*.%s' % (self.temp_prefix, self.frame_format)]
+        # Force format: ImageMagick does not recognize 'raw'.
+        fmt = 'rgba:' if self.frame_format == 'raw' else ''
+        return ([self.bin_path(),
+                 '-size', '%ix%i' % self.frame_size, '-depth', '8',
+                 '-delay', str(self.delay), '-loop', '0',
+                 '%s%s*.%s' % (fmt, self.temp_prefix, self.frame_format)]
                 + self.output_args)
 
 
@@ -773,8 +719,6 @@ class HTMLWriter(FileMovieWriter):
     """Writer for JavaScript-based HTML movies."""
 
     supported_formats = ['png', 'jpeg', 'tiff', 'svg']
-    args_key = cbook.deprecated("3.3")(property(
-        lambda self: 'animation.html_args'))
 
     @classmethod
     def isAvailable(cls):
@@ -868,6 +812,16 @@ class HTMLWriter(FileMovieWriter):
                                              fill_frames=fill_frames,
                                              interval=interval,
                                              **mode_dict))
+
+        # duplicate the temporary file clean up logic from
+        # FileMovieWriter.cleanup.  We can not call the inherited
+        # versions of finish or cleanup because both assume that
+        # there is a subprocess that we either need to call to merge
+        # many frames together or that there is a subprocess call that
+        # we need to clean up.
+        if self._tmpdir:
+            _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
+            self._tmpdir.cleanup()
 
 
 class Animation:
@@ -1002,7 +956,7 @@ class Animation:
             encoder.  The default, None, means to use
             :rc:`animation.[name-of-encoder]_args` for the builtin writers.
 
-        metadata : Dict[str, str], default: {}
+        metadata : dict[str, str], default: {}
             Dictionary of keys and values for metadata to include in
             the output file. Some keys that may be of use include:
             title, artist, genre, subject, copyright, srcform, comment.
@@ -1697,7 +1651,7 @@ class FuncAnimation(TimedAnimation):
                     except StopIteration:
                         pass
                     else:
-                        cbook.warn_deprecated(
+                        _api.warn_deprecated(
                             "2.2", message="FuncAnimation.save has truncated "
                             "your animation to 100 frames.  In the future, no "
                             "such truncation will occur; please pass "
@@ -1747,7 +1701,7 @@ class FuncAnimation(TimedAnimation):
             except TypeError:
                 raise err from None
 
-            # check each item if is artist
+            # check each item if it's artist
             for i in self._drawn_artists:
                 if not isinstance(i, mpl.artist.Artist):
                     raise err

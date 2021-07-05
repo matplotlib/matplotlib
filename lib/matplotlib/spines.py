@@ -1,7 +1,10 @@
+from collections.abc import MutableMapping
+import functools
+
 import numpy as np
 
 import matplotlib
-from matplotlib import _api, cbook, docstring, rcParams
+from matplotlib import _api, docstring, rcParams
 from matplotlib.artist import allow_rasterization
 import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatches
@@ -45,7 +48,7 @@ class Spine(mpatches.Patch):
         **kwargs
             Valid keyword arguments are:
 
-            %(Patch)s
+            %(Patch:kwdoc)s
         """
         super().__init__(**kwargs)
         self.axes = axes
@@ -61,13 +64,12 @@ class Spine(mpatches.Patch):
         self.set_transform(self.axes.transData)  # default transform
 
         self._bounds = None  # default bounds
-        self._smart_bounds = False  # deprecated in 3.2
 
         # Defer initial position determination. (Not much support for
         # non-rectangular axes is currently implemented, and this lets
         # them pass through the spines machinery without errors.)
         self._position = None
-        cbook._check_isinstance(matplotlib.path.Path, path=path)
+        _api.check_isinstance(matplotlib.path.Path, path=path)
         self._path = path
 
         # To support drawing both linear and circular spines, this
@@ -81,23 +83,6 @@ class Spine(mpatches.Patch):
         # Behavior copied from mpatches.Ellipse:
         # Note: This cannot be calculated until this is added to an Axes
         self._patch_transform = mtransforms.IdentityTransform()
-
-    @_api.deprecated("3.2")
-    def set_smart_bounds(self, value):
-        """Set the spine and associated axis to have smart bounds."""
-        self._smart_bounds = value
-
-        # also set the axis if possible
-        if self.spine_type in ('left', 'right'):
-            self.axes.yaxis.set_smart_bounds(value)
-        elif self.spine_type in ('top', 'bottom'):
-            self.axes.xaxis.set_smart_bounds(value)
-        self.stale = True
-
-    @_api.deprecated("3.2")
-    def get_smart_bounds(self):
-        """Return whether the spine has smart bounds."""
-        return self._smart_bounds
 
     def set_patch_arc(self, center, radius, theta1, theta2):
         """Set the spine to be arc-like."""
@@ -247,64 +232,14 @@ class Spine(mpatches.Patch):
         if self.spine_type == 'circle':
             return
 
-        if self._bounds is None:
-            if self.spine_type in ('left', 'right'):
-                low, high = self.axes.viewLim.intervaly
-            elif self.spine_type in ('top', 'bottom'):
-                low, high = self.axes.viewLim.intervalx
-            else:
-                raise ValueError('unknown spine spine_type: %s' %
-                                 self.spine_type)
-
-            if self._smart_bounds:  # deprecated in 3.2
-                # attempt to set bounds in sophisticated way
-
-                # handle inverted limits
-                viewlim_low, viewlim_high = sorted([low, high])
-
-                if self.spine_type in ('left', 'right'):
-                    datalim_low, datalim_high = self.axes.dataLim.intervaly
-                    ticks = self.axes.get_yticks()
-                elif self.spine_type in ('top', 'bottom'):
-                    datalim_low, datalim_high = self.axes.dataLim.intervalx
-                    ticks = self.axes.get_xticks()
-                # handle inverted limits
-                ticks = np.sort(ticks)
-                datalim_low, datalim_high = sorted([datalim_low, datalim_high])
-
-                if datalim_low < viewlim_low:
-                    # Data extends past view. Clip line to view.
-                    low = viewlim_low
-                else:
-                    # Data ends before view ends.
-                    cond = (ticks <= datalim_low) & (ticks >= viewlim_low)
-                    tickvals = ticks[cond]
-                    if len(tickvals):
-                        # A tick is less than or equal to lowest data point.
-                        low = tickvals[-1]
-                    else:
-                        # No tick is available
-                        low = datalim_low
-                    low = max(low, viewlim_low)
-
-                if datalim_high > viewlim_high:
-                    # Data extends past view. Clip line to view.
-                    high = viewlim_high
-                else:
-                    # Data ends before view ends.
-                    cond = (ticks >= datalim_high) & (ticks <= viewlim_high)
-                    tickvals = ticks[cond]
-                    if len(tickvals):
-                        # A tick is greater than or equal to highest data
-                        # point.
-                        high = tickvals[0]
-                    else:
-                        # No tick is available
-                        high = datalim_high
-                    high = min(high, viewlim_high)
-
-        else:
+        if self._bounds is not None:
             low, high = self._bounds
+        elif self.spine_type in ('left', 'right'):
+            low, high = self.axes.viewLim.intervaly
+        elif self.spine_type in ('top', 'bottom'):
+            low, high = self.axes.viewLim.intervalx
+        else:
+            raise ValueError(f'unknown spine spine_type: {self.spine_type}')
 
         if self._patch_type == 'arc':
             if self.spine_type in ('bottom', 'top'):
@@ -538,3 +473,114 @@ class Spine(mpatches.Patch):
         """
         self.set_edgecolor(c)
         self.stale = True
+
+
+class SpinesProxy:
+    """
+    A proxy to broadcast ``set_*`` method calls to all contained `.Spines`.
+
+    The proxy cannot be used for any other operations on its members.
+
+    The supported methods are determined dynamically based on the contained
+    spines. If not all spines support a given method, it's executed only on
+    the subset of spines that support it.
+    """
+    def __init__(self, spine_dict):
+        self._spine_dict = spine_dict
+
+    def __getattr__(self, name):
+        broadcast_targets = [spine for spine in self._spine_dict.values()
+                             if hasattr(spine, name)]
+        if not name.startswith('set_') or not broadcast_targets:
+            raise AttributeError(
+                f"'SpinesProxy' object has no attribute '{name}'")
+
+        def x(_targets, _funcname, *args, **kwargs):
+            for spine in _targets:
+                getattr(spine, _funcname)(*args, **kwargs)
+        x = functools.partial(x, broadcast_targets, name)
+        x.__doc__ = broadcast_targets[0].__doc__
+        return x
+
+    def __dir__(self):
+        names = []
+        for spine in self._spine_dict.values():
+            names.extend(name
+                         for name in dir(spine) if name.startswith('set_'))
+        return list(sorted(set(names)))
+
+
+class Spines(MutableMapping):
+    r"""
+    The container of all `.Spine`\s in an Axes.
+
+    The interface is dict-like mapping names (e.g. 'left') to `.Spine` objects.
+    Additionally it implements some pandas.Series-like features like accessing
+    elements by attribute::
+
+        spines['top'].set_visible(False)
+        spines.top.set_visible(False)
+
+    Multiple spines can be addressed simultaneously by passing a list::
+
+        spines[['top', 'right']].set_visible(False)
+
+    Use an open slice to address all spines::
+
+        spines[:].set_visible(False)
+
+    The latter two indexing methods will return a `SpinesProxy` that broadcasts
+    all ``set_*`` calls to its members, but cannot be used for any other
+    operation.
+    """
+    def __init__(self, **kwargs):
+        self._dict = kwargs
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**d)
+
+    def __getstate__(self):
+        return self._dict
+
+    def __setstate__(self, state):
+        self.__init__(**state)
+
+    def __getattr__(self, name):
+        try:
+            return self._dict[name]
+        except KeyError:
+            raise ValueError(
+                f"'Spines' object does not contain a '{name}' spine")
+
+    def __getitem__(self, key):
+        if isinstance(key, list):
+            unknown_keys = [k for k in key if k not in self._dict]
+            if unknown_keys:
+                raise KeyError(', '.join(unknown_keys))
+            return SpinesProxy({k: v for k, v in self._dict.items()
+                                if k in key})
+        if isinstance(key, tuple):
+            raise ValueError('Multiple spines must be passed as a single list')
+        if isinstance(key, slice):
+            if key.start is None and key.stop is None and key.step is None:
+                return SpinesProxy(self._dict)
+            else:
+                raise ValueError(
+                    'Spines does not support slicing except for the fully '
+                    'open slice [:] to access all spines.')
+        return self._dict[key]
+
+    def __setitem__(self, key, value):
+        # TODO: Do we want to deprecate adding spines?
+        self._dict[key] = value
+
+    def __delitem__(self, key):
+        # TODO: Do we want to deprecate deleting spines?
+        del self._dict[key]
+
+    def __iter__(self):
+        return iter(self._dict)
+
+    def __len__(self):
+        return len(self._dict)

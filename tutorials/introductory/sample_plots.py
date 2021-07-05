@@ -106,7 +106,7 @@ You can add arbitrary paths in Matplotlib using the
 Three-dimensional plotting
 ==========================
 
-The mplot3d toolkit (see :ref:`toolkit_mplot3d-tutorial` and
+The mplot3d toolkit (see :doc:`/tutorials/toolkits/mplot3d` and
 :ref:`mplot3d-examples-index`) has support for simple 3D graphs
 including surface, wireframe, scatter, and bar charts.
 
@@ -385,7 +385,7 @@ rendering of strings with the *usetex* option.
 EEG GUI
 =======
 
-You can embed Matplotlib into pygtk, wx, Tk, or Qt applications.
+You can embed Matplotlib into Qt, GTK, Tk, or wxWidgets applications.
 Here is a screenshot of an EEG viewer called `pbrain
 <https://github.com/nipy/pbrain>`__.
 

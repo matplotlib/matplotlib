@@ -57,11 +57,21 @@ class BarContainer(Container):
         A container for the error bar artists if error bars are present.
         *None* otherwise.
 
+    datavalues : None or array-like
+        The underlying data values corresponding to the bars.
+
+    orientation : {'vertical', 'horizontal'}, default: None
+        If 'vertical', the bars are assumed to be vertical.
+        If 'horizontal', the bars are assumed to be horizontal.
+
     """
 
-    def __init__(self, patches, errorbar=None, **kwargs):
+    def __init__(self, patches, errorbar=None, *, datavalues=None,
+                 orientation=None, **kwargs):
         self.patches = patches
         self.errorbar = errorbar
+        self.datavalues = datavalues
+        self.orientation = orientation
         super().__init__(patches, **kwargs)
 
 

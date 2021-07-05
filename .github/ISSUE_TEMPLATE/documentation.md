@@ -27,3 +27,9 @@ If you have an idea to improve the documentation please suggest it here
 * Include a paragraph explaining [...]
 * Add a figure showing [...]
 -->
+
+**Matplotlib version**
+<!--Please specify the version of matplotlib and the version of the documentation that you are using:-->
+  * Operating system:
+  * Matplotlib version (`import matplotlib; print(matplotlib.__version__)`):
+  * Matplotlib documentation version (is listed under the logo):

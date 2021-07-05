@@ -14,7 +14,7 @@
 Animation
 =========
 
-The easiest way to make a live animation in matplotlib is to use one of the
+The easiest way to make a live animation in Matplotlib is to use one of the
 `Animation` classes.
 
 .. autosummary::
@@ -29,7 +29,7 @@ In both cases it is critical to keep a reference to the instance
 object.  The animation is advanced by a timer (typically from the host
 GUI framework) which the `Animation` object holds the only reference
 to.  If you do not hold a reference to the `Animation` object, it (and
-hence the timers), will be garbage collected which will stop the
+hence the timers) will be garbage collected which will stop the
 animation.
 
 To save an animation to disk use `Animation.save` or `Animation.to_html5_video`
@@ -186,7 +186,6 @@ on all systems.
 
    FFMpegWriter
    ImageMagickWriter
-   AVConvWriter
 
 The file-based writers save temporary files for each frame which are stitched
 into a single file at the end.  Although slower, these writers can be easier to
@@ -198,7 +197,6 @@ debug.
 
    FFMpegFileWriter
    ImageMagickFileWriter
-   AVConvFileWriter
 
 Fundamentally, a `MovieWriter` provides a way to grab sequential frames
 from the same underlying `~matplotlib.figure.Figure` object.  The base
@@ -283,7 +281,6 @@ and mixins
    :toctree: _as_gen
    :nosignatures:
 
-   AVConvBase
    FFMpegBase
    ImageMagickBase
 
@@ -298,6 +295,6 @@ Inheritance Diagrams
    :private-bases:
    :parts: 1
 
-.. inheritance-diagram:: matplotlib.animation.AVConvFileWriter matplotlib.animation.AVConvWriter matplotlib.animation.FFMpegFileWriter matplotlib.animation.FFMpegWriter matplotlib.animation.ImageMagickFileWriter matplotlib.animation.ImageMagickWriter
+.. inheritance-diagram:: matplotlib.animation.FFMpegFileWriter matplotlib.animation.FFMpegWriter matplotlib.animation.ImageMagickFileWriter matplotlib.animation.ImageMagickWriter
    :private-bases:
    :parts: 1

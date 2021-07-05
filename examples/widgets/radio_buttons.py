@@ -53,3 +53,12 @@ def stylefunc(label):
 radio3.on_clicked(stylefunc)
 
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.widgets.RadioButtons`

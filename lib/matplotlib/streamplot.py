@@ -6,7 +6,7 @@ Streamline plotting for 2D vector fields.
 import numpy as np
 
 import matplotlib
-from matplotlib import _api, cbook, cm
+from matplotlib import _api, cm
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcollections
 import matplotlib.lines as mlines
@@ -67,6 +67,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         Maximum length of streamline in axes coordinates.
     integration_direction : {'forward', 'backward', 'both'}, default: 'both'
         Integrate the streamline in forward, backward or both directions.
+    data : indexable object, optional
+        DATA_PARAMETER_PLACEHOLDER
 
     Returns
     -------
@@ -210,7 +212,6 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
         p = patches.FancyArrowPatch(
             arrow_tail, arrow_head, transform=transform, **arrow_kw)
-        axes.add_patch(p)
         arrows.append(p)
 
     lc = mcollections.LineCollection(
@@ -222,22 +223,20 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         lc.set_cmap(cmap)
         lc.set_norm(norm)
     axes.add_collection(lc)
-    axes.autoscale_view()
 
     ac = matplotlib.collections.PatchCollection(arrows)
+    # Adding the collection itself is broken; see #2341.
+    for p in arrows:
+        axes.add_patch(p)
+
+    axes.autoscale_view()
     stream_container = StreamplotSet(lc, ac)
     return stream_container
 
 
 class StreamplotSet:
 
-    def __init__(self, lines, arrows, **kwargs):
-        if kwargs:
-            cbook.warn_deprecated(
-                "3.3",
-                message="Passing arbitrary keyword arguments to StreamplotSet "
-                        "is deprecated since %(since) and will become an "
-                        "error %(removal)s.")
+    def __init__(self, lines, arrows):
         self.lines = lines
         self.arrows = arrows
 
@@ -520,9 +519,8 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
        timestep is more suited to the problem as this would be very hard
        to judge automatically otherwise.
 
-    This integrator is about 1.5 - 2x as fast as both the RK4 and RK45
-    solvers in most setups on my machine. I would recommend removing the
-    other two to keep things simple.
+    This integrator is about 1.5 - 2x as fast as RK4 and RK45 solvers (using
+    similar Python implementations) in most setups.
     """
     # This error is below that needed to match the RK4 integrator. It
     # is set for visual reasons -- too low and corners start

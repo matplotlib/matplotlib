@@ -27,15 +27,6 @@ class CharacterTracker:
     def __init__(self):
         self.used = {}
 
-    @mpl.cbook.deprecated("3.3")
-    @property
-    def used_characters(self):
-        d = {}
-        for fname, chars in self.used.items():
-            realpath, stat_key = mpl.cbook.get_realpath_and_stat(fname)
-            d[stat_key] = (realpath, chars)
-        return d
-
     def track(self, font, s):
         """Record that string *s* is being typeset using font *font*."""
         if isinstance(font, str):

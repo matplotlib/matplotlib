@@ -8,7 +8,6 @@ from numpy.testing import assert_almost_equal, assert_array_equal
 import pytest
 
 import matplotlib as mpl
-from matplotlib import _api
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 
@@ -444,21 +443,6 @@ class TestSymmetricalLogLocator:
         assert sym.numticks == 8
 
 
-class TestIndexFormatter:
-    @pytest.mark.parametrize('x, label', [(-2, ''),
-                                          (-1, 'label0'),
-                                          (0, 'label0'),
-                                          (0.5, 'label1'),
-                                          (1, 'label1'),
-                                          (1.5, 'label2'),
-                                          (2, 'label2'),
-                                          (2.5, '')])
-    def test_formatting(self, x, label):
-        with _api.suppress_matplotlib_deprecation_warning():
-            formatter = mticker.IndexFormatter(['label0', 'label1', 'label2'])
-        assert formatter(x) == label
-
-
 class TestScalarFormatter:
     offset_data = [
         (123, 189, 0),
@@ -558,7 +542,7 @@ class TestScalarFormatter:
             assert tmp_form.get_useLocale()
 
             tmp_form.create_dummy_axis()
-            tmp_form.set_bounds(0, 10)
+            tmp_form.axis.set_data_interval(0, 10)
             tmp_form.set_locs([1, 2, 3])
             assert sep in tmp_form(1e9)
 
@@ -589,9 +573,21 @@ class TestScalarFormatter:
         # Issue #17624
         sf = mticker.ScalarFormatter()
         sf.create_dummy_axis()
-        sf.set_bounds(0, 10)
+        sf.axis.set_view_interval(0, 10)
         fmt = sf.format_data_short
         assert fmt(data) == expected
+
+    def test_mathtext_ticks(self):
+        mpl.rcParams.update({
+            'font.family': 'serif',
+            'font.serif': 'cmr10',
+            'axes.formatter.use_mathtext': False
+        })
+
+        with pytest.warns(UserWarning, match='cmr10 font should ideally'):
+            fig, ax = plt.subplots()
+            ax.set_xticks([-1, 0, 1])
+            fig.canvas.draw()
 
 
 class FakeAxis:
@@ -676,7 +672,7 @@ class TestLogFormatterSciNotation:
         (10, 500000, '$\\mathdefault{5\\times10^{5}}$'),
     ]
 
-    @pytest.mark.style('default')
+    @mpl.style.context('default')
     @pytest.mark.parametrize('base, value, expected', test_data)
     def test_basic(self, base, value, expected):
         formatter = mticker.LogFormatterSciNotation(base=base)
@@ -837,7 +833,7 @@ class TestLogFormatter:
         label_test = [fmt(x) != '' for x in minor_tlocs]
         assert label_test == label_expected
 
-    @pytest.mark.style('default')
+    @mpl.style.context('default')
     def test_sublabel(self):
         # test label locator
         fig, ax = plt.subplots()
@@ -1372,7 +1368,7 @@ def test_bad_locator_subs(sub):
 
 
 @pytest.mark.parametrize('numticks', [1, 2, 3, 9])
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_small_range_loglocator(numticks):
     ll = mticker.LogLocator()
     ll.set_params(numticks=numticks)

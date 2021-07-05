@@ -244,3 +244,10 @@ def test_pil_kwargs_tiff():
     im = Image.open(buf)
     tags = {TiffTags.TAGS_V2[k].name: v for k, v in im.tag_v2.items()}
     assert tags["ImageDescription"] == "test image"
+
+
+def test_draw_path_collection_error_handling():
+    fig, ax = plt.subplots()
+    ax.scatter([1], [1]).set_paths(path.Path([(0, 1), (2, 3)]))
+    with pytest.raises(TypeError):
+        fig.canvas.draw()

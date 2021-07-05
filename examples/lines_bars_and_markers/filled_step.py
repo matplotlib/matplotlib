@@ -7,7 +7,6 @@ Hatching capabilities for plotting histograms.
 """
 
 import itertools
-from collections import OrderedDict
 from functools import partial
 
 import numpy as np
@@ -20,8 +19,6 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
                 **kwargs):
     """
     Draw a histogram as a stepped patch.
-
-    Extra kwargs are passed through to `fill_between`
 
     Parameters
     ----------
@@ -41,6 +38,9 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
     orientation : {'v', 'h'}
        Orientation of the histogram.  'v' (default) has
        the bars increasing in the positive y-direction.
+
+    **kwargs
+        Extra keyword arguments are passed through to `.fill_between`.
 
     Returns
     -------
@@ -86,7 +86,7 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
         The axes to add artists too
 
     stacked_data : array or Mapping
-        A (N, M) shaped array.  The first dimension will be iterated over to
+        A (M, N) shaped array.  The first dimension will be iterated over to
         compute histograms row-wise
 
     sty_cycle : Cycler or operable of dict
@@ -104,11 +104,11 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
 
         If not given and stacked data is an array defaults to 'default set {n}'
 
-        If stacked_data is a mapping, and labels is None, default to the keys
-        (which may come out in a random order).
+        If *stacked_data* is a mapping, and *labels* is None, default to the
+        keys.
 
-        If stacked_data is a mapping and labels is given then only
-        the columns listed by be plotted.
+        If *stacked_data* is a mapping and *labels* is given then only the
+        columns listed will be plotted.
 
     plot_func : callable, optional
         Function to call to draw the histogram must have signature:
@@ -117,9 +117,9 @@ def stack_hist(ax, stacked_data, sty_cycle, bottoms=None,
                           label=label, **kwargs)
 
     plot_kwargs : dict, optional
-        Any extra kwargs to pass through to the plotting function.  This
-        will be the same for all calls to the plotting function and will
-        over-ride the values in cycle.
+        Any extra keyword arguments to pass through to the plotting function.
+        This will be the same for all calls to the plotting function and will
+        override the values in *sty_cycle*.
 
     Returns
     -------
@@ -188,7 +188,7 @@ hatch_cycle = cycler(hatch=['/', '*', '+', '|'])
 np.random.seed(19680801)
 
 stack_data = np.random.randn(4, 12250)
-dict_data = OrderedDict(zip((c['label'] for c in label_cycle), stack_data))
+dict_data = dict(zip((c['label'] for c in label_cycle), stack_data))
 
 ###############################################################################
 # Work with plain arrays
@@ -225,15 +225,11 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.fill_betweenx
-matplotlib.axes.Axes.fill_between
-matplotlib.axis.Axis.set_major_locator
+#    - `matplotlib.axes.Axes.fill_betweenx` / `matplotlib.pyplot.fill_betweenx`
+#    - `matplotlib.axes.Axes.fill_between` / `matplotlib.pyplot.fill_between`
+#    - `matplotlib.axis.Axis.set_major_locator`

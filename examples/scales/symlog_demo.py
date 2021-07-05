@@ -1,3 +1,4 @@
+
 """
 ===========
 Symlog Demo
@@ -12,24 +13,23 @@ dt = 0.01
 x = np.arange(-50.0, 50.0, dt)
 y = np.arange(0, 100.0, dt)
 
-plt.subplot(311)
-plt.plot(x, y)
-plt.xscale('symlog')
-plt.ylabel('symlogx')
-plt.grid(True)
-plt.gca().xaxis.grid(True, which='minor')  # minor grid on too
+fig, (ax0, ax1, ax2) = plt.subplots(nrows=3)
 
-plt.subplot(312)
-plt.plot(y, x)
-plt.yscale('symlog')
-plt.ylabel('symlogy')
+ax0.plot(x, y)
+ax0.set_xscale('symlog')
+ax0.set_ylabel('symlogx')
+ax0.grid()
+ax0.xaxis.grid(which='minor')  # minor grid on too
 
-plt.subplot(313)
-plt.plot(x, np.sin(x / 3.0))
-plt.xscale('symlog')
-plt.yscale('symlog', linthresh=0.015)
-plt.grid(True)
-plt.ylabel('symlog both')
+ax1.plot(y, x)
+ax1.set_yscale('symlog')
+ax1.set_ylabel('symlogy')
 
-plt.tight_layout()
+ax2.plot(x, np.sin(x / 3.0))
+ax2.set_xscale('symlog')
+ax2.set_yscale('symlog', linthresh=0.015)
+ax2.grid()
+ax2.set_ylabel('symlog both')
+
+fig.tight_layout()
 plt.show()

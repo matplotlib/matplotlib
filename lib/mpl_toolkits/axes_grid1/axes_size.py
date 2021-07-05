@@ -11,7 +11,7 @@ values are used.
 
 from numbers import Number
 
-from matplotlib import _api, cbook
+from matplotlib import _api
 from matplotlib.axes import Axes
 
 
@@ -54,7 +54,7 @@ class Fixed(_Base):
     """
 
     def __init__(self, fixed_size):
-        cbook._check_isinstance(Number, fixed_size=fixed_size)
+        _api.check_isinstance(Number, fixed_size=fixed_size)
         self.fixed_size = fixed_size
 
     def get_size(self, renderer):
@@ -189,7 +189,7 @@ class Fraction(_Base):
     """
 
     def __init__(self, fraction, ref_size):
-        cbook._check_isinstance(Number, fraction=fraction)
+        _api.check_isinstance(Number, fraction=fraction)
         self._fraction_ref = ref_size
         self._fraction = fraction
 

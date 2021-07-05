@@ -1,10 +1,9 @@
 from itertools import product
 import platform
 
-import matplotlib
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import cbook
-from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.colors import LogNorm
 from matplotlib.transforms import Bbox, TransformedBbox
@@ -12,7 +11,9 @@ from matplotlib.testing.decorators import (
     image_comparison, remove_ticks_and_titles)
 
 from mpl_toolkits.axes_grid1 import (
-    axes_size as Size, host_subplot, make_axes_locatable, AxesGrid, ImageGrid)
+    axes_size as Size,
+    host_subplot, make_axes_locatable,
+    Grid, AxesGrid, ImageGrid)
 from mpl_toolkits.axes_grid1.anchored_artists import (
     AnchoredSizeBar, AnchoredDirectionArrows)
 from mpl_toolkits.axes_grid1.axes_divider import HBoxDivider
@@ -57,9 +58,8 @@ def test_divider_append_axes():
 @image_comparison(['twin_axes_empty_and_removed'], extensions=["png"], tol=1)
 def test_twin_axes_empty_and_removed():
     # Purely cosmetic font changes (avoid overlap)
-    matplotlib.rcParams.update({"font.size": 8})
-    matplotlib.rcParams.update({"xtick.labelsize": 8})
-    matplotlib.rcParams.update({"ytick.labelsize": 8})
+    mpl.rcParams.update(
+        {"font.size": 8, "xtick.labelsize": 8, "ytick.labelsize": 8})
     generators = ["twinx", "twiny", "twin"]
     modifiers = ["", "host invisible", "twin removed", "twin invisible",
                  "twin removed\nhost invisible"]
@@ -83,10 +83,7 @@ def test_twin_axes_empty_and_removed():
     plt.subplots_adjust(wspace=0.5, hspace=1)
 
 
-@pytest.mark.parametrize("legacy_colorbar", [False, True])
-def test_axesgrid_colorbar_log_smoketest(legacy_colorbar):
-    matplotlib.rcParams["mpl_toolkits.legacy_colorbar"] = legacy_colorbar
-
+def test_axesgrid_colorbar_log_smoketest():
     fig = plt.figure()
     grid = AxesGrid(fig, 111,  # modified to be only subplot
                     nrows_ncols=(1, 1),
@@ -99,11 +96,7 @@ def test_axesgrid_colorbar_log_smoketest(legacy_colorbar):
     Z = 10000 * np.random.rand(10, 10)
     im = grid[0].imshow(Z, interpolation="nearest", norm=LogNorm())
 
-    if legacy_colorbar:
-        with pytest.warns(MatplotlibDeprecationWarning):
-            grid.cbar_axes[0].colorbar(im)
-    else:
-        grid.cbar_axes[0].colorbar(im)
+    grid.cbar_axes[0].colorbar(im)
 
 
 @image_comparison(['inset_locator.png'], style='default', remove_text=True)
@@ -356,7 +349,8 @@ def test_anchored_direction_arrows_many_args():
 def test_axes_locatable_position():
     fig, ax = plt.subplots()
     divider = make_axes_locatable(ax)
-    cax = divider.append_axes('right', size='5%', pad='2%')
+    with mpl.rc_context({"figure.subplot.wspace": 0.02}):
+        cax = divider.append_axes('right', size='5%')
     fig.canvas.draw()
     assert np.isclose(cax.get_position(original=False).width,
                       0.03621495327102808)
@@ -478,3 +472,25 @@ def test_axes_class_tuple():
     fig = plt.figure()
     axes_class = (mpl_toolkits.axes_grid1.mpl_axes.Axes, {})
     gr = AxesGrid(fig, 111, nrows_ncols=(1, 1), axes_class=axes_class)
+
+
+def test_grid_axes_lists():
+    """Test Grid axes_all, axes_row and axes_column relationship."""
+    fig = plt.figure()
+    grid = Grid(fig, 111, (2, 3), direction="row")
+    assert_array_equal(grid, grid.axes_all)
+    assert_array_equal(grid.axes_row, np.transpose(grid.axes_column))
+    assert_array_equal(grid, np.ravel(grid.axes_row), "row")
+    grid = Grid(fig, 111, (2, 3), direction="column")
+    assert_array_equal(grid, np.ravel(grid.axes_column), "column")
+
+
+@pytest.mark.parametrize('direction', ('row', 'column'))
+def test_grid_axes_position(direction):
+    """Test positioning of the axes in Grid."""
+    fig = plt.figure()
+    grid = Grid(fig, 111, (2, 2), direction=direction)
+    loc = [ax.get_axes_locator() for ax in np.ravel(grid.axes_row)]
+    assert loc[1]._nx > loc[0]._nx and loc[2]._ny < loc[0]._ny
+    assert loc[0]._nx == loc[2]._nx and loc[0]._ny == loc[1]._ny
+    assert loc[3]._nx == loc[1]._nx and loc[3]._ny == loc[2]._ny

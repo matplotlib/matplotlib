@@ -151,7 +151,7 @@ line2, = plt.plot([3, 2, 1], label="Line 2", linewidth=4)
 first_legend = plt.legend(handles=[line1], loc='upper right')
 
 # Add the legend manually to the current Axes.
-ax = plt.gca().add_artist(first_legend)
+plt.gca().add_artist(first_legend)
 
 # Create another legend for the second line.
 plt.legend(handles=[line2], loc='lower right')
@@ -196,7 +196,7 @@ plt.legend(handler_map={line1: HandlerLine2D(numpoints=4)})
 ###############################################################################
 # As you can see, "Line 1" now has 4 marker points, where "Line 2" has 2 (the
 # default). Try the above code, only change the map's key from ``line1`` to
-# ``type(line1)``. Notice how now both `~.Line2D` instances get 4 markers.
+# ``type(line1)``. Notice how now both `.Line2D` instances get 4 markers.
 #
 # Along with handlers for complex plot types such as errorbars, stem plots
 # and histograms, the default ``handler_map`` has a special ``tuple`` handler

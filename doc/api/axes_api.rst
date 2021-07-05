@@ -66,6 +66,7 @@ Basic
 
    Axes.bar
    Axes.barh
+   Axes.bar_label
 
    Axes.stem
    Axes.eventplot
@@ -294,7 +295,6 @@ Axis limits and direction
    Axes.get_ylim
 
    Axes.update_datalim
-   Axes.update_datalim_bounds
 
    Axes.set_xbound
    Axes.get_xbound
@@ -587,7 +587,6 @@ non-rectilinear Axes.
    Axes.get_xaxis_transform
    Axes.get_yaxis_transform
    Axes.get_data_ratio
-   Axes.get_data_ratio_log
 
    Axes.get_xaxis_text1_transform
    Axes.get_xaxis_text2_transform

@@ -1,0 +1,70 @@
+NavigationToolbar2._init_toolbar
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Overriding this method to initialize third-party toolbars is no longer
+supported. Instead, the toolbar should be initialized in the ``__init__``
+method of the subclass (which should call the base-class' ``__init__`` as
+appropriate).
+
+NavigationToolbar2.press and .release
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These methods were called when pressing or releasing a mouse button, but *only*
+when an interactive pan or zoom was occurring (contrary to what the docs
+stated). They are no longer called; if you write a backend which needs to
+customize such events, please directly override
+``press_pan``/``press_zoom``/``release_pan``/``release_zoom`` instead.
+
+NavigationToolbar2QT.parent and .basedir
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+These attributes have been removed. In order to access the parent window, use
+``toolbar.canvas.parent()`` or ``toolbar.parent()``. The base directory to the
+icons is ``os.path.join(mpl.get_data_path(), "images")``.
+
+NavigationToolbar2QT.ctx
+~~~~~~~~~~~~~~~~~~~~~~~~
+This attribute has been removed.
+
+NavigationToolbar2Wx attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``prevZoomRect``, ``retinaFix``, ``savedRetinaImage``, ``wxoverlay``,
+``zoomAxes``, ``zoomStartX``, and ``zoomStartY`` attributes have been removed.
+
+Statusbar classes and attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``statusbar`` attribute of `.FigureManagerBase`,  as well as
+``backend_bases.StatusbarBase`` and all its subclasses, and ``StatusBarWx``,
+have been removed, as messages are now displayed in the toolbar instead.
+
+Backend-specific internals
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following module-level classes/variables have been removed:
+
+* ``MODIFIER_KEYS``, ``SUPER``, ``ALT``, ``CTRL``, and ``SHIFT`` of
+  :mod:`matplotlib.backends.backend_qt5agg` and
+  :mod:`matplotlib.backends.backend_qt5cairo`
+* ``backend_pgf.GraphicsContextPgf``
+* ``backend_wx.DEBUG_MSG``
+
+The following parameters have been removed:
+
+* The *dummy* parameter of `.RendererPgf`
+
+The following class attributes have been removed:
+
+* ``RendererCairo.fontweights``, ``RendererCairo.fontangles``
+* ``backend_pgf.LatexManager.latex_stdin_utf8``
+* ``backend_pgf.PdfPages.metadata``
+* ``used_characters`` of `.RendererPdf`, `.PdfFile`, and `.RendererPS`
+
+The following class methods have been removed:
+
+* ``FigureCanvasGTK3._renderer_init``
+* ``track_characters`` and ``merge_used_characters`` of `.RendererPdf`,
+  `.PdfFile`, and `.RendererPS`
+* ``RendererWx.get_gc``
+
+Stricter PDF metadata keys in PGF
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Saving metadata in PDF with the PGF backend no longer changes keys to
+lowercase. Only the canonically cased keys listed in the PDF specification (and
+the `~.backend_pgf.PdfPages` documentation) are accepted.

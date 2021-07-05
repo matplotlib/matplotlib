@@ -55,7 +55,6 @@ np.random.seed(19680801)
 fig, ax = plt.subplots()
 x, y = np.random.rand(2, 20)
 line = MyLine(x, y, mfc='red', ms=12, label='line label')
-#line.text.set_text('line label')
 line.text.set_color('red')
 line.text.set_fontsize(16)
 
@@ -65,27 +64,23 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.lines
-matplotlib.lines.Line2D
-matplotlib.lines.Line2D.set_data
-matplotlib.artist
-matplotlib.artist.Artist
-matplotlib.artist.Artist.draw
-matplotlib.artist.Artist.set_transform
-matplotlib.text
-matplotlib.text.Text
-matplotlib.text.Text.set_color
-matplotlib.text.Text.set_fontsize
-matplotlib.text.Text.set_position
-matplotlib.axes.Axes.add_line
-matplotlib.transforms
-matplotlib.transforms.Affine2D
+#    - `matplotlib.lines`
+#    - `matplotlib.lines.Line2D`
+#    - `matplotlib.lines.Line2D.set_data`
+#    - `matplotlib.artist`
+#    - `matplotlib.artist.Artist`
+#    - `matplotlib.artist.Artist.draw`
+#    - `matplotlib.artist.Artist.set_transform`
+#    - `matplotlib.text`
+#    - `matplotlib.text.Text`
+#    - `matplotlib.text.Text.set_color`
+#    - `matplotlib.text.Text.set_fontsize`
+#    - `matplotlib.text.Text.set_position`
+#    - `matplotlib.axes.Axes.add_line`
+#    - `matplotlib.transforms`
+#    - `matplotlib.transforms.Affine2D`

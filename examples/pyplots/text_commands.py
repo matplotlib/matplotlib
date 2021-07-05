@@ -41,20 +41,16 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.figure.Figure.suptitle
-matplotlib.figure.Figure.add_subplot
-matplotlib.figure.Figure.subplots_adjust
-matplotlib.axes.Axes.set_title
-matplotlib.axes.Axes.set_xlabel
-matplotlib.axes.Axes.set_ylabel
-matplotlib.axes.Axes.text
-matplotlib.axes.Axes.annotate
+#    - `matplotlib.figure.Figure.suptitle`
+#    - `matplotlib.figure.Figure.add_subplot`
+#    - `matplotlib.figure.Figure.subplots_adjust`
+#    - `matplotlib.axes.Axes.set_title`
+#    - `matplotlib.axes.Axes.set_xlabel`
+#    - `matplotlib.axes.Axes.set_ylabel`
+#    - `matplotlib.axes.Axes.text`
+#    - `matplotlib.axes.Axes.annotate`

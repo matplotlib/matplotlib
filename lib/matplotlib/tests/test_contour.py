@@ -338,8 +338,6 @@ def test_contourf_log_extension():
     cb = plt.colorbar(c2, ax=ax2)
     assert cb.ax.get_ylim() == (1e-4, 1e6)
     cb = plt.colorbar(c3, ax=ax3)
-    assert_array_almost_equal(
-        cb.ax.get_ylim(), [3.162277660168379e-05, 3162277.660168383], 2)
 
 
 @image_comparison(['contour_addlines.png'],
@@ -398,3 +396,81 @@ def test_contour_linewidth(
 def test_label_nonagg():
     # This should not crash even if the canvas doesn't have a get_renderer().
     plt.clabel(plt.contour([[1, 2], [3, 4]]))
+
+
+@image_comparison(baseline_images=['contour_closed_line_loop'],
+                  extensions=['png'], remove_text=True)
+def test_contour_closed_line_loop():
+    # github issue 19568.
+    z = [[0, 0, 0], [0, 2, 0], [0, 0, 0], [2, 1, 2]]
+
+    fig, ax = plt.subplots(figsize=(2, 2))
+    ax.contour(z, [0.5], linewidths=[20], alpha=0.7)
+    ax.set_xlim(-0.1, 2.1)
+    ax.set_ylim(-0.1, 3.1)
+
+
+def test_quadcontourset_reuse():
+    # If QuadContourSet returned from one contour(f) call is passed as first
+    # argument to another the underlying C++ contour generator will be reused.
+    x, y = np.meshgrid([0.0, 1.0], [0.0, 1.0])
+    z = x + y
+    fig, ax = plt.subplots()
+    qcs1 = ax.contourf(x, y, z)
+    qcs2 = ax.contour(x, y, z)
+    assert qcs2._contour_generator != qcs1._contour_generator
+    qcs3 = ax.contour(qcs1, z)
+    assert qcs3._contour_generator == qcs1._contour_generator
+
+
+@image_comparison(baseline_images=['contour_manual'],
+                  extensions=['png'], remove_text=True)
+def test_contour_manual():
+    # Manually specifying contour lines/polygons to plot.
+    from matplotlib.contour import ContourSet
+
+    fig, ax = plt.subplots(figsize=(4, 4))
+    cmap = 'viridis'
+
+    # Segments only (no 'kind' codes).
+    lines0 = [[[2, 0], [1, 2], [1, 3]]]  # Single line.
+    lines1 = [[[3, 0], [3, 2]], [[3, 3], [3, 4]]]  # Two lines.
+    filled01 = [[[0, 0], [0, 4], [1, 3], [1, 2], [2, 0]]]
+    filled12 = [[[2, 0], [3, 0], [3, 2], [1, 3], [1, 2]],  # Two polygons.
+                [[1, 4], [3, 4], [3, 3]]]
+    ContourSet(ax, [0, 1, 2], [filled01, filled12], filled=True, cmap=cmap)
+    ContourSet(ax, [1, 2], [lines0, lines1], linewidths=3, colors=['r', 'k'])
+
+    # Segments and kind codes (1 = MOVETO, 2 = LINETO, 79 = CLOSEPOLY).
+    segs = [[[4, 0], [7, 0], [7, 3], [4, 3], [4, 0],
+             [5, 1], [5, 2], [6, 2], [6, 1], [5, 1]]]
+    kinds = [[1, 2, 2, 2, 79, 1, 2, 2, 2, 79]]  # Polygon containing hole.
+    ContourSet(ax, [2, 3], [segs], [kinds], filled=True, cmap=cmap)
+    ContourSet(ax, [2], [segs], [kinds], colors='k', linewidths=3)
+
+
+@image_comparison(baseline_images=['contour_line_start_on_corner_edge'],
+                  extensions=['png'], remove_text=True)
+def test_contour_line_start_on_corner_edge():
+    fig, ax = plt.subplots(figsize=(6, 5))
+
+    x, y = np.meshgrid([0, 1, 2, 3, 4], [0, 1, 2])
+    z = 1.2 - (x - 2)**2 + (y - 1)**2
+    mask = np.zeros_like(z, dtype=bool)
+    mask[1, 1] = mask[1, 3] = True
+    z = np.ma.array(z, mask=mask)
+
+    filled = ax.contourf(x, y, z, corner_mask=True)
+    cbar = fig.colorbar(filled)
+    lines = ax.contour(x, y, z, corner_mask=True, colors='k')
+    cbar.add_lines(lines)
+
+
+@mpl.style.context("default")
+def test_contour_autolabel_beyond_powerlimits():
+    ax = plt.figure().add_subplot()
+    cs = plt.contour(np.geomspace(1e-6, 1e-4, 100).reshape(10, 10),
+                     levels=[.25e-5, 1e-5, 4e-5])
+    ax.clabel(cs)
+    # Currently, the exponent is missing, but that may be fixed in the future.
+    assert {text.get_text() for text in ax.texts} == {"0.25", "1.00", "4.00"}

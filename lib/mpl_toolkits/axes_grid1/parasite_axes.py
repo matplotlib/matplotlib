@@ -2,6 +2,7 @@ import functools
 
 from matplotlib import _api, cbook
 import matplotlib.artist as martist
+import matplotlib.image as mimage
 import matplotlib.transforms as mtransforms
 from matplotlib.axes import subplot_class_factory
 from matplotlib.transforms import Bbox
@@ -23,10 +24,20 @@ class ParasiteAxesBase:
         martist.setp(self.get_children(), visible=False)
         self._get_lines = self._parent_axes._get_lines
 
+    @_api.deprecated("3.5")
     def get_images_artists(self):
-        artists = {a for a in self.get_children() if a.get_visible()}
-        images = {a for a in self.images if a.get_visible()}
-        return list(images), list(artists - images)
+        artists = []
+        images = []
+
+        for a in self.get_children():
+            if not a.get_visible():
+                continue
+            if isinstance(a, mimage.AxesImage):
+                images.append(a)
+            else:
+                artists.append(a)
+
+        return images, artists
 
     def pick(self, mouseevent):
         # This most likely goes to Artist.pick (depending on axes_class given
@@ -84,20 +95,8 @@ class ParasiteAxesBase:
     # end of aux_transform support
 
 
-@functools.lru_cache(None)
-def parasite_axes_class_factory(axes_class=None):
-    if axes_class is None:
-        cbook.warn_deprecated(
-            "3.3", message="Support for passing None to "
-            "parasite_axes_class_factory is deprecated since %(since)s and "
-            "will be removed %(removal)s; explicitly pass the default Axes "
-            "class instead.")
-        axes_class = Axes
-
-    return type("%sParasite" % axes_class.__name__,
-                (ParasiteAxesBase, axes_class), {})
-
-
+parasite_axes_class_factory = cbook._make_class_factory(
+    ParasiteAxesBase, "{}Parasite")
 ParasiteAxes = parasite_axes_class_factory(Axes)
 
 
@@ -148,15 +147,8 @@ class ParasiteAxesAuxTransBase:
 
 @_api.deprecated("3.4", alternative="parasite_axes_class_factory")
 @functools.lru_cache(None)
-def parasite_axes_auxtrans_class_factory(axes_class=None):
-    if axes_class is None:
-        cbook.warn_deprecated(
-            "3.3", message="Support for passing None to "
-            "parasite_axes_auxtrans_class_factory is deprecated since "
-            "%(since)s and will be removed %(removal)s; explicitly pass the "
-            "default ParasiteAxes class instead.")
-        parasite_axes_class = ParasiteAxes
-    elif not issubclass(axes_class, ParasiteAxesBase):
+def parasite_axes_auxtrans_class_factory(axes_class):
+    if not issubclass(axes_class, ParasiteAxesBase):
         parasite_axes_class = parasite_axes_class_factory(axes_class)
     else:
         parasite_axes_class = axes_class
@@ -202,32 +194,23 @@ class HostAxesBase:
         return all_handles
 
     def draw(self, renderer):
+        orig_children_len = len(self._children)
 
-        orig_artists = list(self.artists)
-        orig_images = list(self.images)
-
-        if hasattr(self, "get_axes_locator"):
-            locator = self.get_axes_locator()
-            if locator:
-                pos = locator(self, renderer)
-                self.set_position(pos, which="active")
-                self.apply_aspect(pos)
-            else:
-                self.apply_aspect()
+        locator = self.get_axes_locator()
+        if locator:
+            pos = locator(self, renderer)
+            self.set_position(pos, which="active")
+            self.apply_aspect(pos)
         else:
             self.apply_aspect()
 
         rect = self.get_position()
-
         for ax in self.parasites:
             ax.apply_aspect(rect)
-            images, artists = ax.get_images_artists()
-            self.images.extend(images)
-            self.artists.extend(artists)
+            self._children.extend(ax.get_children())
 
         super().draw(renderer)
-        self.artists = orig_artists
-        self.images = orig_images
+        self._children = self._children[:orig_children_len]
 
     def cla(self):
         for ax in self.parasites:
@@ -290,7 +273,7 @@ class HostAxesBase:
         *kwargs* are forwarded to the parasite axes constructor.
         """
         if axes_class is None:
-            axes_class = self._get_base_axes()
+            axes_class = self._base_axes_class
         ax = parasite_axes_class_factory(axes_class)(self, **kwargs)
         self.parasites.append(ax)
         ax._remove_method = self._remove_any_twin
@@ -317,31 +300,16 @@ class HostAxesBase:
         return Bbox.union([b for b in bbs if b.width != 0 or b.height != 0])
 
 
-@functools.lru_cache(None)
-def host_axes_class_factory(axes_class=None):
-    if axes_class is None:
-        cbook.warn_deprecated(
-            "3.3", message="Support for passing None to host_axes_class is "
-            "deprecated since %(since)s and will be removed %(removed)s; "
-            "explicitly pass the default Axes class instead.")
-        axes_class = Axes
-
-    def _get_base_axes(self):
-        return axes_class
-
-    return type("%sHostAxes" % axes_class.__name__,
-                (HostAxesBase, axes_class),
-                {'_get_base_axes': _get_base_axes})
+host_axes_class_factory = cbook._make_class_factory(
+    HostAxesBase, "{}HostAxes", "_base_axes_class")
+HostAxes = host_axes_class_factory(Axes)
+SubplotHost = subplot_class_factory(HostAxes)
 
 
 def host_subplot_class_factory(axes_class):
     host_axes_class = host_axes_class_factory(axes_class)
     subplot_host_class = subplot_class_factory(host_axes_class)
     return subplot_host_class
-
-
-HostAxes = host_axes_class_factory(Axes)
-SubplotHost = subplot_class_factory(HostAxes)
 
 
 def host_axes(*args, axes_class=Axes, figure=None, **kwargs):

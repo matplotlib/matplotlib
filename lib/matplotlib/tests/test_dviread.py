@@ -28,7 +28,7 @@ def test_PsfontsMap(monkeypatch):
         else:
             assert entry.filename == b'font%d.pfb' % n
         if n == 4:
-            assert entry.effects == {'slant': -0.1, 'extend': 2.2}
+            assert entry.effects == {'slant': -0.1, 'extend': 1.2}
         else:
             assert entry.effects == {}
     # Some special cases
@@ -42,10 +42,22 @@ def test_PsfontsMap(monkeypatch):
     assert entry.filename == b'font8.pfb'
     assert entry.encoding is None
     entry = fontmap[b'TeXfont9']
+    assert entry.psname == b'TeXfont9'
     assert entry.filename == b'/absolute/font9.pfb'
+    # First of duplicates only.
+    entry = fontmap[b'TeXfontA']
+    assert entry.psname == b'PSfontA1'
+    # Slant/Extend only works for T1 fonts.
+    entry = fontmap[b'TeXfontB']
+    assert entry.psname == b'PSfontB6'
+    # Subsetted TrueType must have encoding.
+    entry = fontmap[b'TeXfontC']
+    assert entry.psname == b'PSfontC3'
     # Missing font
-    with pytest.raises(KeyError, match='no-such-font'):
+    with pytest.raises(LookupError, match='no-such-font'):
         fontmap[b'no-such-font']
+    with pytest.raises(LookupError, match='%'):
+        fontmap[b'%']
 
 
 @pytest.mark.skipif(shutil.which("kpsewhich") is None,

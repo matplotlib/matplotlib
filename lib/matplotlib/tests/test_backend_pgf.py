@@ -1,16 +1,15 @@
 import datetime
 from io import BytesIO
 import os
-from pathlib import Path
 import shutil
-import subprocess
-from tempfile import TemporaryDirectory
 
 import numpy as np
+from packaging.version import parse as parse_version
 import pytest
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.testing import _has_tex_package, _check_for_pgf
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
 from matplotlib.backends.backend_pgf import PdfPages, common_texification
 from matplotlib.testing.decorators import (_image_directories,
@@ -19,42 +18,15 @@ from matplotlib.testing.decorators import (_image_directories,
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
 
-
-def check_for(texsystem):
-    with TemporaryDirectory() as tmpdir:
-        tex_path = Path(tmpdir, "test.tex")
-        tex_path.write_text(r"""
-            \documentclass{minimal}
-            \usepackage{pgf}
-            \begin{document}
-            \typeout{pgfversion=\pgfversion}
-            \makeatletter
-            \@@end
-        """)
-        try:
-            subprocess.check_call(
-                [texsystem, "-halt-on-error", str(tex_path)], cwd=tmpdir,
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        except (OSError, subprocess.CalledProcessError):
-            return False
-        return True
-
-
-needs_xelatex = pytest.mark.skipif(not check_for('xelatex'),
+needs_xelatex = pytest.mark.skipif(not _check_for_pgf('xelatex'),
                                    reason='xelatex + pgf is required')
-needs_pdflatex = pytest.mark.skipif(not check_for('pdflatex'),
+needs_pdflatex = pytest.mark.skipif(not _check_for_pgf('pdflatex'),
                                     reason='pdflatex + pgf is required')
-needs_lualatex = pytest.mark.skipif(not check_for('lualatex'),
+needs_lualatex = pytest.mark.skipif(not _check_for_pgf('lualatex'),
                                     reason='lualatex + pgf is required')
 needs_ghostscript = pytest.mark.skipif(
     "eps" not in mpl.testing.compare.converter,
     reason="This test needs a ghostscript installation")
-
-
-def _has_tex_package(package):
-    return (shutil.which("kpsewhich")
-            and subprocess.run(["kpsewhich", f"{package}.sty"],
-                               stdout=subprocess.PIPE).returncode == 0)
 
 
 def compare_figure(fname, savefig_kwargs={}, tol=0):
@@ -116,13 +88,21 @@ def test_xelatex():
     create_figure()
 
 
+try:
+    _old_gs_version = \
+        mpl._get_executable_info('gs').version < parse_version('9.50')
+except mpl.ExecutableNotFoundError:
+    _old_gs_version = True
+
+
 # test compiling a figure to pdf with pdflatex
 @needs_pdflatex
 @pytest.mark.skipif(not _has_tex_package('ucs'), reason='needs ucs.sty')
 @pytest.mark.backend('pgf')
-@image_comparison(['pgf_pdflatex.pdf'], style='default')
+@image_comparison(['pgf_pdflatex.pdf'], style='default',
+                  tol=11.7 if _old_gs_version else 0)
 def test_pdflatex():
-    if os.environ.get('APPVEYOR', False):
+    if os.environ.get('APPVEYOR'):
         pytest.xfail("pdflatex test does not work on appveyor due to missing "
                      "LaTeX fonts")
 
@@ -138,7 +118,7 @@ def test_pdflatex():
 # test updating the rc parameters for each figure
 @needs_xelatex
 @needs_pdflatex
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @pytest.mark.backend('pgf')
 def test_rcupdate():
     rc_sets = [{'font.family': 'sans-serif',
@@ -156,7 +136,7 @@ def test_rcupdate():
                 'pgf.preamble': ('\\usepackage[utf8x]{inputenc}'
                                  '\\usepackage[T1]{fontenc}'
                                  '\\usepackage{sfmath}')}]
-    tol = [6, 0]
+    tol = [0, 13.2] if _old_gs_version else [0, 0]
     for i, rc_set in enumerate(rc_sets):
         with mpl.rc_context(rc_set):
             for substring, pkg in [('sfmath', 'sfmath'), ('utf8x', 'ucs')]:
@@ -164,19 +144,27 @@ def test_rcupdate():
                         and not _has_tex_package(pkg)):
                     pytest.skip(f'needs {pkg}.sty')
             create_figure()
-            compare_figure('pgf_rcupdate%d.pdf' % (i + 1), tol=tol[i])
+            compare_figure(f'pgf_rcupdate{i + 1}.pdf', tol=tol[i])
 
 
 # test backend-side clipping, since large numbers are not supported by TeX
 @needs_xelatex
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @pytest.mark.backend('pgf')
 def test_pathclip():
+    np.random.seed(19680801)
     mpl.rcParams.update({'font.family': 'serif', 'pgf.rcfonts': False})
-    plt.plot([0., 1e100], [0., 1e100])
-    plt.xlim(0, 1)
-    plt.ylim(0, 1)
-    plt.savefig(BytesIO(), format="pdf")  # No image comparison.
+    fig, axs = plt.subplots(1, 2)
+
+    axs[0].plot([0., 1e100], [0., 1e100])
+    axs[0].set_xlim(0, 1)
+    axs[0].set_ylim(0, 1)
+
+    axs[1].scatter([0, 1], [1, 1])
+    axs[1].hist(np.random.normal(size=1000), bins=20, range=[-10, 10])
+    axs[1].set_xscale('log')
+
+    fig.savefig(BytesIO(), format="pdf")  # No image comparison.
 
 
 # test mixed mode rendering
@@ -191,7 +179,7 @@ def test_mixedmode():
 
 # test bbox_inches clipping
 @needs_xelatex
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @pytest.mark.backend('pgf')
 def test_bbox_inches():
     mpl.rcParams.update({'font.family': 'serif', 'pgf.rcfonts': False})
@@ -204,7 +192,7 @@ def test_bbox_inches():
                    tol=0)
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @pytest.mark.backend('pgf')
 @pytest.mark.parametrize('system', [
     pytest.param('lualatex', marks=[needs_lualatex]),
@@ -246,7 +234,7 @@ def test_pdf_pages(system):
         assert pdf.get_pagecount() == 3
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @pytest.mark.backend('pgf')
 @pytest.mark.parametrize('system', [
     pytest.param('lualatex', marks=[needs_lualatex]),
@@ -286,13 +274,17 @@ def test_pdf_pages_metadata_check(monkeypatch, system):
     if '/PTEX.Fullbanner' in info:
         del info['/PTEX.Fullbanner']
 
+    # Some LaTeX engines ignore this setting, and state themselves as producer.
+    producer = info.pop('/Producer')
+    assert producer == f'Matplotlib pgf backend v{mpl.__version__}' or (
+            system == 'lualatex' and 'LuaTeX' in producer)
+
     assert info == {
         '/Author': 'me',
         '/CreationDate': 'D:19700101000000Z',
         '/Creator': f'Matplotlib v{mpl.__version__}, https://matplotlib.org',
         '/Keywords': 'test,pdf,multipage',
         '/ModDate': 'D:19680801000000Z',
-        '/Producer': f'Matplotlib pgf backend v{mpl.__version__}',
         '/Subject': 'Test page',
         '/Title': 'Multipage PDF with pgf',
         '/Trapped': '/True',
@@ -312,11 +304,10 @@ def test_tex_restart_after_error():
 
 
 @needs_xelatex
-def test_bbox_inches_tight(tmpdir):
+def test_bbox_inches_tight():
     fig, ax = plt.subplots()
     ax.imshow([[0, 1], [2, 3]])
-    fig.savefig(os.path.join(tmpdir, "test.pdf"), backend="pgf",
-                bbox_inches="tight")
+    fig.savefig(BytesIO(), format="pdf", backend="pgf", bbox_inches="tight")
 
 
 @needs_xelatex
@@ -341,7 +332,7 @@ def test_unknown_font(caplog):
 @pytest.mark.parametrize("texsystem", ("pdflatex", "xelatex", "lualatex"))
 @pytest.mark.backend("pgf")
 def test_minus_signs_with_tex(fig_test, fig_ref, texsystem):
-    if not check_for(texsystem):
+    if not _check_for_pgf(texsystem):
         pytest.skip(texsystem + ' + pgf is required')
     mpl.rcParams["pgf.texsystem"] = texsystem
     fig_test.text(.5, .5, "$-1$")

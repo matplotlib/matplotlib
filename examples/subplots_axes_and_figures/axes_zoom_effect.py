@@ -5,6 +5,8 @@ Axes Zoom Effect
 
 """
 
+import matplotlib.pyplot as plt
+
 from matplotlib.transforms import (
     Bbox, TransformedBbox, blended_transform_factory)
 from mpl_toolkits.axes_grid1.inset_locator import (
@@ -106,8 +108,6 @@ def zoom_effect02(ax1, ax2, **kwargs):
 
     return c1, c2, bbox_patch1, bbox_patch2, p
 
-
-import matplotlib.pyplot as plt
 
 plt.figure(figsize=(5, 5))
 ax1 = plt.subplot(221)

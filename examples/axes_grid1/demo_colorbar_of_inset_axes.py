@@ -1,8 +1,7 @@
 """
-===========================
-Demo Colorbar of Inset Axes
-===========================
-
+===============================
+Adding a colorbar to inset axes
+===============================
 """
 
 from matplotlib import cbook
@@ -11,17 +10,14 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes, zoomed_inset_axes
 
 
 fig, ax = plt.subplots(figsize=[5, 4])
+ax.set(aspect=1, xlim=(-15, 15), ylim=(-20, 5))
 
 Z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
 extent = (-3, 4, -4, 3)
 
-ax.set(aspect=1, xlim=(-15, 15), ylim=(-20, 5))
-
 axins = zoomed_inset_axes(ax, zoom=2, loc='upper left')
+axins.set(xticks=[], yticks=[])
 im = axins.imshow(Z, extent=extent, origin="lower")
-
-plt.xticks(visible=False)
-plt.yticks(visible=False)
 
 # colorbar
 cax = inset_axes(axins,

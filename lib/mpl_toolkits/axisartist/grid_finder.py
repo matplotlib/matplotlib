@@ -1,8 +1,49 @@
 import numpy as np
 
-from matplotlib import _api, ticker as mticker
+from matplotlib import ticker as mticker
 from matplotlib.transforms import Bbox, Transform
-from .clip_path import clip_line_to_rect
+
+
+def _find_line_box_crossings(xys, bbox):
+    """
+    Find the points where a polyline crosses a bbox, and the crossing angles.
+
+    Parameters
+    ----------
+    xys : (N, 2) array
+        The polyline coordinates.
+    bbox : `.Bbox`
+        The bounding box.
+
+    Returns
+    -------
+    list of ((float, float), float)
+        Four separate lists of crossings, for the left, right, bottom, and top
+        sides of the bbox, respectively.  For each list, the entries are the
+        ``((x, y), ccw_angle_in_degrees)`` of the crossing, where an angle of 0
+        means that the polyline is moving to the right at the crossing point.
+
+        The entries are computed by linearly interpolating at each crossing
+        between the nearest points on either side of the bbox edges.
+    """
+    crossings = []
+    dxys = xys[1:] - xys[:-1]
+    for sl in [slice(None), slice(None, None, -1)]:
+        us, vs = xys.T[sl]  # "this" coord, "other" coord
+        dus, dvs = dxys.T[sl]
+        umin, vmin = bbox.min[sl]
+        umax, vmax = bbox.max[sl]
+        for u0, inside in [(umin, us > umin), (umax, us < umax)]:
+            crossings.append([])
+            idxs, = (inside[:-1] ^ inside[1:]).nonzero()
+            for idx in idxs:
+                v = vs[idx] + (u0 - us[idx]) * dvs[idx] / dus[idx]
+                if not vmin <= v <= vmax:
+                    continue
+                crossing = (u0, v)[sl]
+                theta = np.degrees(np.arctan2(*dxys[idx][::-1]))
+                crossings[-1].append((crossing, theta))
+    return crossings
 
 
 class ExtremeFinderSimple:
@@ -51,6 +92,34 @@ class ExtremeFinderSimple:
         return x_min - dx, x_max + dx, y_min - dy, y_max + dy
 
 
+class _User2DTransform(Transform):
+    """A transform defined by two user-set functions."""
+
+    input_dims = output_dims = 2
+
+    def __init__(self, forward, backward):
+        """
+        Parameters
+        ----------
+        forward, backward : callable
+            The forward and backward transforms, taking ``x`` and ``y`` as
+            separate arguments and returning ``(tr_x, tr_y)``.
+        """
+        # The normal Matplotlib convention would be to take and return an
+        # (N, 2) array but axisartist uses the transposed version.
+        super().__init__()
+        self._forward = forward
+        self._backward = backward
+
+    def transform_non_affine(self, values):
+        # docstring inherited
+        return np.transpose(self._forward(*np.transpose(values)))
+
+    def inverted(self):
+        # docstring inherited
+        return type(self)(self._backward, self._forward)
+
+
 class GridFinder:
     def __init__(self,
                  transform,
@@ -82,7 +151,7 @@ class GridFinder:
         self.grid_locator2 = grid_locator2
         self.tick_formatter1 = tick_formatter1
         self.tick_formatter2 = tick_formatter2
-        self.update_transform(transform)
+        self.set_transform(transform)
 
     def get_grid_info(self, x1, y1, x2, y2):
         """
@@ -161,41 +230,38 @@ class GridFinder:
         tck_levels = gi["tick_levels"]
         tck_locs = gi["tick_locs"]
         for (lx, ly), v, lev in zip(lines, values, levs):
-            xy, tcks = clip_line_to_rect(lx, ly, bb)
-            if not xy:
-                continue
+            tcks = _find_line_box_crossings(np.column_stack([lx, ly]), bb)
             gi["levels"].append(v)
-            gi["lines"].append(xy)
+            gi["lines"].append([(lx, ly)])
 
             for tck, direction in zip(tcks,
-                                      ["left", "bottom", "right", "top"]):
+                                      ["left", "right", "bottom", "top"]):
                 for t in tck:
                     tck_levels[direction].append(lev)
                     tck_locs[direction].append(t)
 
         return gi
 
-    def update_transform(self, aux_trans):
-        if not isinstance(aux_trans, Transform) and len(aux_trans) != 2:
-            raise TypeError("'aux_trans' must be either a Transform instance "
-                            "or a pair of callables")
-        self._aux_transform = aux_trans
+    def set_transform(self, aux_trans):
+        if isinstance(aux_trans, Transform):
+            self._aux_transform = aux_trans
+        elif len(aux_trans) == 2 and all(map(callable, aux_trans)):
+            self._aux_transform = _User2DTransform(*aux_trans)
+        else:
+            raise TypeError("'aux_trans' must be either a Transform "
+                            "instance or a pair of callables")
+
+    def get_transform(self):
+        return self._aux_transform
+
+    update_transform = set_transform  # backcompat alias.
 
     def transform_xy(self, x, y):
-        aux_trf = self._aux_transform
-        if isinstance(aux_trf, Transform):
-            return aux_trf.transform(np.column_stack([x, y])).T
-        else:
-            transform_xy, inv_transform_xy = aux_trf
-            return transform_xy(x, y)
+        return self._aux_transform.transform(np.column_stack([x, y])).T
 
     def inv_transform_xy(self, x, y):
-        aux_trf = self._aux_transform
-        if isinstance(aux_trf, Transform):
-            return aux_trf.inverted().transform(np.column_stack([x, y])).T
-        else:
-            transform_xy, inv_transform_xy = aux_trf
-            return inv_transform_xy(x, y)
+        return self._aux_transform.inverted().transform(
+            np.column_stack([x, y])).T
 
     def update(self, **kw):
         for k in kw:
@@ -219,31 +285,20 @@ class MaxNLocator(mticker.MaxNLocator):
         super().__init__(nbins, steps=steps, integer=integer,
                          symmetric=symmetric, prune=prune)
         self.create_dummy_axis()
-        self._factor = 1
 
     def __call__(self, v1, v2):
-        self.set_bounds(v1 * self._factor, v2 * self._factor)
-        locs = super().__call__()
-        return np.array(locs), len(locs), self._factor
-
-    @_api.deprecated("3.3")
-    def set_factor(self, f):
-        self._factor = f
+        locs = super().tick_values(v1, v2)
+        return np.array(locs), len(locs), 1  # 1: factor (see angle_helper)
 
 
 class FixedLocator:
     def __init__(self, locs):
         self._locs = locs
-        self._factor = 1
 
     def __call__(self, v1, v2):
-        v1, v2 = sorted([v1 * self._factor, v2 * self._factor])
+        v1, v2 = sorted([v1, v2])
         locs = np.array([l for l in self._locs if v1 <= l <= v2])
-        return locs, len(locs), self._factor
-
-    @_api.deprecated("3.3")
-    def set_factor(self, f):
-        self._factor = f
+        return locs, len(locs), 1  # 1: factor (see angle_helper)
 
 
 # Tick Formatter

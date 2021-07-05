@@ -232,6 +232,7 @@ date.autoformatter.hour   : %H:%M:%S
 date.autoformatter.minute : %H:%M:%S.%f
 date.autoformatter.second : %H:%M:%S.%f
 date.autoformatter.microsecond : %H:%M:%S.%f
+date.converter:                  auto  # 'auto', 'concise'
 
 ### TICKS
 # see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick

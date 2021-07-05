@@ -158,7 +158,7 @@ class Fonts:
         self.mathtext_backend.set_canvas_size(
             self.width, self.height, self.depth)
 
-    @cbook._rename_parameter("3.4", "facename", "font")
+    @_api.rename_parameter("3.4", "facename", "font")
     def render_glyph(self, ox, oy, font, font_class, sym, fontsize, dpi):
         """
         At position (*ox*, *oy*), draw the glyph specified by the remaining
@@ -203,7 +203,7 @@ class Fonts:
         result = self.mathtext_backend.get_results(
             box, self.get_used_characters())
         if self.destroy != TruetypeFonts.destroy.__get__(self):
-            destroy = cbook._deprecate_method_override(
+            destroy = _api.deprecate_method_override(
                 __class__.destroy, self, since="3.4")
             if destroy:
                 destroy()
@@ -456,9 +456,6 @@ class UnicodeFonts(TruetypeFonts):
     def __init__(self, *args, **kwargs):
         # This must come first so the backend's owner is set correctly
         fallback_rc = mpl.rcParams['mathtext.fallback']
-        if mpl.rcParams['mathtext.fallback_to_cm'] is not None:
-            fallback_rc = ('cm' if mpl.rcParams['mathtext.fallback_to_cm']
-                           else None)
         font_cls = {'stix': StixFonts,
                     'stixsans': StixSansFonts,
                     'cm': BakomaFonts
@@ -522,6 +519,11 @@ class UnicodeFonts(TruetypeFonts):
             found_symbol = False
             font = self._get_font(new_fontname)
             if font is not None:
+                if font.family_name == "cmr10" and uniindex == 0x2212:
+                    # minus sign exists in cmsy10 (not cmr10)
+                    font = get_font(
+                        cbook._get_data_path("fonts/ttf/cmsy10.ttf"))
+                    uniindex = 0xa1
                 glyphindex = font.get_char_index(uniindex)
                 if glyphindex != 0:
                     found_symbol = True
@@ -795,7 +797,7 @@ class StandardPsFonts(Fonts):
         self.fonts['default'] = default_font
         self.fonts['regular'] = default_font
 
-    pswriter = cbook.deprecated("3.4")(property(lambda self: StringIO()))
+    pswriter = _api.deprecated("3.4")(property(lambda self: StringIO()))
 
     def _get_font(self, font):
         if font in self.fontmap:
@@ -1549,10 +1551,7 @@ class Glue(Node):
     it's easier to stick to what TeX does.)
     """
 
-    glue_subtype = cbook.deprecated("3.3")(property(lambda self: "normal"))
-
-    @cbook._delete_parameter("3.3", "copy")
-    def __init__(self, glue_type, copy=False):
+    def __init__(self, glue_type):
         super().__init__()
         if isinstance(glue_type, str):
             glue_spec = _GlueSpec._named[glue_type]
@@ -1572,51 +1571,6 @@ class Glue(Node):
         super().grow()
         g = self.glue_spec
         self.glue_spec = g._replace(width=g.width * GROW_FACTOR)
-
-
-# Some convenient ways to get common kinds of glue
-
-
-@_api.deprecated("3.3", alternative="Glue('fil')")
-class Fil(Glue):
-    def __init__(self):
-        super().__init__('fil')
-
-
-@_api.deprecated("3.3", alternative="Glue('fill')")
-class Fill(Glue):
-    def __init__(self):
-        super().__init__('fill')
-
-
-@_api.deprecated("3.3", alternative="Glue('filll')")
-class Filll(Glue):
-    def __init__(self):
-        super().__init__('filll')
-
-
-@_api.deprecated("3.3", alternative="Glue('neg_fil')")
-class NegFil(Glue):
-    def __init__(self):
-        super().__init__('neg_fil')
-
-
-@_api.deprecated("3.3", alternative="Glue('neg_fill')")
-class NegFill(Glue):
-    def __init__(self):
-        super().__init__('neg_fill')
-
-
-@_api.deprecated("3.3", alternative="Glue('neg_filll')")
-class NegFilll(Glue):
-    def __init__(self):
-        super().__init__('neg_filll')
-
-
-@_api.deprecated("3.3", alternative="Glue('ss')")
-class SsGlue(Glue):
-    def __init__(self):
-        super().__init__('ss')
 
 
 class HCentered(Hlist):
@@ -2035,6 +1989,7 @@ class Parser:
         p.non_math         = Forward()
         p.operatorname     = Forward()
         p.overline         = Forward()
+        p.overset          = Forward()
         p.placeable        = Forward()
         p.rbrace           = Forward()
         p.rbracket         = Forward()
@@ -2053,6 +2008,7 @@ class Parser:
         p.symbol           = Forward()
         p.symbol_name      = Forward()
         p.token            = Forward()
+        p.underset         = Forward()
         p.unknown_symbol   = Forward()
 
         # Set names on everything -- very useful for debugging
@@ -2158,7 +2114,8 @@ class Parser:
 
         p.sqrt <<= Group(
             Suppress(Literal(r"\sqrt"))
-            - ((Optional(p.lbracket + p.int_literal + p.rbracket, default=None)
+            - ((Group(Optional(
+                p.lbracket + OneOrMore(~p.rbracket + p.token) + p.rbracket))
                 + p.required_group)
                | Error("Expected \\sqrt{value}"))
         )
@@ -2166,6 +2123,18 @@ class Parser:
         p.overline <<= Group(
             Suppress(Literal(r"\overline"))
             - (p.required_group | Error("Expected \\overline{value}"))
+        )
+
+        p.overset <<= Group(
+            Suppress(Literal(r"\overset"))
+            - ((p.simple_group + p.simple_group)
+               | Error("Expected \\overset{body}{annotation}"))
+        )
+
+        p.underset <<= Group(
+            Suppress(Literal(r"\underset"))
+            - ((p.simple_group + p.simple_group)
+               | Error("Expected \\underset{body}{annotation}"))
         )
 
         p.unknown_symbol <<= Combine(p.bslash + Regex("[A-Za-z]*"))
@@ -2189,6 +2158,8 @@ class Parser:
             | p.dfrac
             | p.binom
             | p.genfrac
+            | p.overset
+            | p.underset
             | p.sqrt
             | p.overline
             | p.operatorname
@@ -2657,7 +2628,7 @@ class Parser:
             super.kern()
             super.hpack()
 
-        # Handle over/under symbols, such as sum or integral
+        # Handle over/under symbols, such as sum or prod
         if self.is_overunder(nucleus):
             vlist = []
             shift = 0.
@@ -2669,18 +2640,19 @@ class Parser:
                 sub.shrink()
                 width = max(width, sub.width)
 
+            vgap = rule_thickness * 3.0
             if super is not None:
                 hlist = HCentered([super])
                 hlist.hpack(width, 'exactly')
-                vlist.extend([hlist, Kern(rule_thickness * 3.0)])
+                vlist.extend([hlist, Vbox(0, vgap)])
             hlist = HCentered([nucleus])
             hlist.hpack(width, 'exactly')
             vlist.append(hlist)
             if sub is not None:
                 hlist = HCentered([sub])
                 hlist.hpack(width, 'exactly')
-                vlist.extend([Kern(rule_thickness * 3.0), hlist])
-                shift = hlist.height
+                vlist.extend([Vbox(0, vgap), hlist])
+                shift = hlist.height + vgap
             vlist = Vlist(vlist)
             vlist.shift_amount = shift + nucleus.depth
             result = Hlist([vlist])
@@ -2841,6 +2813,39 @@ class Parser:
         return self._genfrac('(', ')', 0.0, self._MathStyle.TEXTSTYLE,
                              num, den)
 
+    def _genset(self, s, loc, toks):
+        (annotation, body), = toks
+        state = self.get_state()
+        thickness = state.font_output.get_underline_thickness(
+            state.font, state.fontsize, state.dpi)
+
+        annotation.shrink()
+        cannotation = HCentered([annotation])
+        cbody = HCentered([body])
+        width = max(cannotation.width, cbody.width)
+        cannotation.hpack(width, 'exactly')
+        cbody.hpack(width, 'exactly')
+
+        vgap = thickness * 3
+        if s[loc + 1] == "u":  # \underset
+            vlist = Vlist([cbody,                       # body
+                           Vbox(0, vgap),               # space
+                           cannotation                  # annotation
+                           ])
+            # Shift so the body sits in the same vertical position
+            vlist.shift_amount = cbody.depth + cannotation.height + vgap
+        else:  # \overset
+            vlist = Vlist([cannotation,                 # annotation
+                           Vbox(0, vgap),               # space
+                           cbody                        # body
+                           ])
+
+        # To add horizontal gap between symbols: wrap the Vlist into
+        # an Hlist and extend it with an Hbox(0, horizontal_gap)
+        return vlist
+
+    overset = underset = _genset
+
     def sqrt(self, s, loc, toks):
         (root, body), = toks
         state = self.get_state()
@@ -2864,10 +2869,10 @@ class Parser:
 
         # Add the root and shift it upward so it is above the tick.
         # The value of 0.6 is a hard-coded hack ;)
-        if root is None:
+        if not root:
             root = Box(check.width * 0.5, 0., 0.)
         else:
-            root = Hlist([Char(x, state) for x in root])
+            root = Hlist(root)
             root.shrink()
             root.shrink()
 

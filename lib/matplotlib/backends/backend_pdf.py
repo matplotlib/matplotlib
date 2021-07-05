@@ -1,10 +1,10 @@
 """
-A PDF matplotlib backend
-Author: Jouni K Seppänen <jks@iki.fi>
+A PDF Matplotlib backend.
+
+Author: Jouni K Seppänen <jks@iki.fi> and others.
 """
 
 import codecs
-import collections
 from datetime import datetime
 from enum import Enum
 from functools import total_ordering
@@ -24,7 +24,7 @@ import numpy as np
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import _api, _text_layout, cbook
+from matplotlib import _api, _text_helpers, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
@@ -151,7 +151,7 @@ def _create_pdf_info_dict(backend, metadata):
     backend : str
         The name of the backend to use in the Producer value.
 
-    metadata : Dict[str, Union[str, datetime, Name]]
+    metadata : dict[str, Union[str, datetime, Name]]
         A dictionary of metadata supplied by the user with information
         following the PDF specification, also defined in
         `~.backend_pdf.PdfPages` below.
@@ -161,7 +161,7 @@ def _create_pdf_info_dict(backend, metadata):
 
     Returns
     -------
-    Dict[str, Union[str, datetime, Name]]
+    dict[str, Union[str, datetime, Name]]
         A validated dictionary of metadata.
     """
 
@@ -210,12 +210,12 @@ def _create_pdf_info_dict(backend, metadata):
     }
     for k in info:
         if k not in keywords:
-            cbook._warn_external(f'Unknown infodict keyword: {k!r}. '
-                                 f'Must be one of {set(keywords)!r}.')
+            _api.warn_external(f'Unknown infodict keyword: {k!r}. '
+                               f'Must be one of {set(keywords)!r}.')
         elif not keywords[k](info[k]):
-            cbook._warn_external(f'Bad value for infodict keyword {k}. '
-                                 f'Got {info[k]!r} which is not '
-                                 f'{keywords[k].text_for_warning}.')
+            _api.warn_external(f'Bad value for infodict keyword {k}. '
+                               f'Got {info[k]!r} which is not '
+                               f'{keywords[k].text_for_warning}.')
     if 'Trapped' in info:
         info['Trapped'] = Name(info['Trapped'])
 
@@ -681,15 +681,14 @@ class PdfFile:
         self._soft_mask_states = {}
         self._soft_mask_seq = (Name(f'SM{i}') for i in itertools.count(1))
         self._soft_mask_groups = []
-        # reproducible writeHatches needs an ordered dict:
-        self.hatchPatterns = collections.OrderedDict()
+        self.hatchPatterns = {}
         self._hatch_pattern_seq = (Name(f'H{i}') for i in itertools.count(1))
         self.gouraudTriangles = []
 
-        self._images = collections.OrderedDict()   # reproducible writeImages
+        self._images = {}
         self._image_seq = (Name(f'I{i}') for i in itertools.count(1))
 
-        self.markers = collections.OrderedDict()   # reproducible writeMarkers
+        self.markers = {}
         self.multi_byte_charprocs = {}
 
         self.paths = []
@@ -716,11 +715,6 @@ class PdfFile:
                      'ProcSet': procsets}
         self.writeObject(self.resourceObject, resources)
 
-    @_api.deprecated("3.3")
-    @property
-    def used_characters(self):
-        return self.file._character_tracker.used_characters
-
     def newPage(self, width, height):
         self.endStream()
 
@@ -732,9 +726,6 @@ class PdfFile:
                    'Resources': self.resourceObject,
                    'MediaBox': [0, 0, 72 * width, 72 * height],
                    'Contents': contentObject,
-                   'Group': {'Type': Name('Group'),
-                             'S': Name('Transparency'),
-                             'CS': Name('DeviceRGB')},
                    'Annots': annotsObject,
                    }
         pageObject = self.reserveObject('page')
@@ -744,8 +735,10 @@ class PdfFile:
 
         self.beginStream(contentObject.id,
                          self.reserveObject('length of content stream'))
-        # Initialize the pdf graphics state to match the default mpl
-        # graphics context: currently only the join style needs to be set
+        # Initialize the pdf graphics state to match the default Matplotlib
+        # graphics context (colorspace and joinstyle).
+        self.output(Name('DeviceRGB'), Op.setcolorspace_stroke)
+        self.output(Name('DeviceRGB'), Op.setcolorspace_nonstroke)
         self.output(GraphicsContextPdf.joinstyles['round'], Op.setlinejoin)
 
         # Clear the list of annotations for the next page
@@ -1879,15 +1872,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         gc._fillcolor = orig_fill
         gc._effective_alphas = orig_alphas
 
-    @_api.deprecated("3.3")
-    def track_characters(self, *args, **kwargs):
-        """Keep track of which characters are required from each font."""
-        self.file._character_tracker.track(*args, **kwargs)
-
-    @_api.deprecated("3.3")
-    def merge_used_characters(self, *args, **kwargs):
-        self.file._character_tracker.merge(*args, **kwargs)
-
     def get_image_magnification(self):
         return self.image_dpi/72.0
 
@@ -2155,8 +2139,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # Pop off the global transformation
         self.file.output(Op.grestore)
 
-    @cbook._delete_parameter("3.3", "ismath")
-    def draw_tex(self, gc, x, y, s, prop, angle, ismath='TeX!', mtext=None):
+    def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         # docstring inherited
         texmanager = self.get_texmanager()
         fontsize = prop.get_size_in_points()
@@ -2287,31 +2270,33 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             }
             self.file._annotations[-1][1].append(link_annotation)
 
-        # If fonttype != 3 or there are no multibyte characters, emit the whole
-        # string at once.
-        if fonttype != 3 or all(ord(char) <= 255 for char in s):
+        # If fonttype != 3 emit the whole string at once without manual
+        # kerning.
+        if fonttype != 3:
             self.file.output(Op.begin_text,
                              self.file.fontName(prop), fontsize, Op.selectfont)
             self._setup_textpos(x, y, angle)
-            self.file.output(self.encode_string(s, fonttype), Op.show,
-                             Op.end_text)
+            self.file.output(self.encode_string(s, fonttype),
+                             Op.show, Op.end_text)
 
         # There is no way to access multibyte characters of Type 3 fonts, as
         # they cannot have a CIDMap.  Therefore, in this case we break the
         # string into chunks, where each chunk contains either a string of
-        # consecutive 1-byte characters or a single multibyte character.  Each
-        # chunk is emitted with a separate command: 1-byte characters use the
-        # regular text show command (Tj), whereas multibyte characters use
-        # the XObject command (Do).  (If using Type 42 fonts, all of this
-        # complication is avoided, but of course, those fonts can not be
-        # subsetted.)
+        # consecutive 1-byte characters or a single multibyte character.
+        # A sequence of 1-byte characters is broken into multiple chunks to
+        # adjust the kerning between adjacent chunks.  Each chunk is emitted
+        # with a separate command: 1-byte characters use the regular text show
+        # command (TJ) with appropriate kerning between chunks, whereas
+        # multibyte characters use the XObject command (Do).  (If using Type
+        # 42 fonts, all of this complication is avoided, but of course,
+        # subsetting those fonts is complex/hard to implement.)
         else:
             # List of (start_x, [prev_kern, char, char, ...]), w/o zero kerns.
             singlebyte_chunks = []
             # List of (start_x, glyph_index).
             multibyte_glyphs = []
             prev_was_multibyte = True
-            for item in _text_layout.layout(
+            for item in _text_helpers.layout(
                     s, font, kern_mode=KERNING_UNFITTED):
                 if ord(item.char) <= 255:
                     if prev_was_multibyte:
@@ -2655,11 +2640,8 @@ class PdfPages:
 
         Parameters
         ----------
-        figure : `.Figure` or int, optional
-            Specifies what figure is saved to file. If not specified, the
-            active figure is saved. If a `.Figure` instance is provided, this
-            figure is saved. If an int is specified, the figure instance to
-            save is looked up by number.
+        figure : `.Figure` or int, default: the active figure
+            The figure, or index of the figure, that is saved to the file.
         """
         if not isinstance(figure, Figure):
             if figure is None:
@@ -2701,10 +2683,13 @@ class FigureCanvasPdf(FigureCanvasBase):
         return 'pdf'
 
     @_check_savefig_extra_args
+    @_api.delete_parameter("3.4", "dpi")
     def print_pdf(self, filename, *,
-                  dpi=72,  # dpi to use for images
+                  dpi=None,  # dpi to use for images
                   bbox_inches_restore=None, metadata=None):
 
+        if dpi is None:  # always use this branch after deprecation elapses.
+            dpi = self.figure.get_dpi()
         self.figure.set_dpi(72)            # there are 72 pdf points to an inch
         width, height = self.figure.get_size_inches()
         if isinstance(filename, PdfPages):
@@ -2726,6 +2711,10 @@ class FigureCanvasPdf(FigureCanvasBase):
                 file.endStream()
             else:            # we opened the file above; now finish it off
                 file.close()
+
+    def draw(self):
+        self.figure.draw_no_output()
+        return super().draw()
 
 
 FigureManagerPdf = FigureManagerBase

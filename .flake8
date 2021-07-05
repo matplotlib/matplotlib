@@ -16,8 +16,8 @@ ignore =
     # flake8 default
     E121,E123,E126,E226,E24,E704,W503,W504,
     # Additional ignores:
-    E122, E127, E131,
-    E265, E266,
+    E127, E131,
+    E266,
     E305, E306,
     E722, E741,
     F841,
@@ -35,7 +35,6 @@ exclude =
     doc/gallery
     doc/tutorials
     # External files.
-    versioneer.py
     tools/gh_api.py
     tools/github_stats.py
     .tox
@@ -46,13 +45,11 @@ per-file-ignores =
     setupext.py: E501
     tests.py: F401
 
-    tools/subset.py: E221, E251, E261, E302, E501
-
     lib/matplotlib/__init__.py: F401
     lib/matplotlib/_api/__init__.py: F401
-    lib/matplotlib/_cm.py: E202, E203, E302
+    lib/matplotlib/_cm.py: E122, E202, E203, E302
     lib/matplotlib/_mathtext.py: E221, E251
-    lib/matplotlib/_mathtext_data.py: E203, E261
+    lib/matplotlib/_mathtext_data.py: E122, E203, E261
     lib/matplotlib/animation.py: F401
     lib/matplotlib/_animation_data.py: E501
     lib/matplotlib/axes/__init__.py: F401, F403
@@ -61,7 +58,7 @@ per-file-ignores =
     lib/matplotlib/backends/qt_editor/formlayout.py: F401, F403
     lib/matplotlib/cbook/__init__.py: F401
     lib/matplotlib/cbook/deprecation.py: F401
-    lib/matplotlib/font_manager.py: E221, E251, E501
+    lib/matplotlib/font_manager.py: E501
     lib/matplotlib/image.py: F401, F403
     lib/matplotlib/lines.py: F401
     lib/matplotlib/mathtext.py: E221, E251
@@ -105,7 +102,7 @@ per-file-ignores =
     tutorials/introductory/pyplot.py: E402, E501
     tutorials/introductory/sample_plots.py: E501
     tutorials/introductory/usage.py: E501
-    tutorials/text/annotations.py: E501
+    tutorials/text/annotations.py: E402, E501
     tutorials/text/text_intro.py: E402
     tutorials/text/text_props.py: E501
     tutorials/text/usetex.py: E501
@@ -113,178 +110,21 @@ per-file-ignores =
     tutorials/toolkits/axisartist.py: E501
 
     examples/animation/frame_grabbing_sgskip.py: E402
-    examples/axes_grid1/inset_locator_demo.py: E402
-    examples/axes_grid1/scatter_hist_locatable_axes.py: E402
-    examples/axisartist/demo_curvelinear_grid.py: E402
-    examples/color/color_by_yvalue.py: E402
-    examples/color/color_cycle_default.py: E402
-    examples/color/color_cycler.py: E402
-    examples/color/color_demo.py: E402
-    examples/color/colorbar_basics.py: E402
-    examples/color/colormap_reference.py: E402
-    examples/color/custom_cmap.py: E402
-    examples/color/named_colors.py: E402
-    examples/images_contours_and_fields/affine_image.py: E402
-    examples/images_contours_and_fields/barb_demo.py: E402
-    examples/images_contours_and_fields/barcode_demo.py: E402
-    examples/images_contours_and_fields/contour_corner_mask.py: E402
-    examples/images_contours_and_fields/contour_demo.py: E402
-    examples/images_contours_and_fields/contour_image.py: E402
-    examples/images_contours_and_fields/contourf_demo.py: E402
-    examples/images_contours_and_fields/contourf_hatching.py: E402
-    examples/images_contours_and_fields/contourf_log.py: E402
-    examples/images_contours_and_fields/demo_bboximage.py: E402
-    examples/images_contours_and_fields/image_antialiasing.py: E402
-    examples/images_contours_and_fields/image_clip_path.py: E402
-    examples/images_contours_and_fields/image_demo.py: E402
-    examples/images_contours_and_fields/image_masked.py: E402
-    examples/images_contours_and_fields/image_transparency_blend.py: E402
-    examples/images_contours_and_fields/image_zcoord.py: E402
-    examples/images_contours_and_fields/interpolation_methods.py: E402
-    examples/images_contours_and_fields/irregulardatagrid.py: E402
-    examples/images_contours_and_fields/layer_images.py: E402
-    examples/images_contours_and_fields/matshow.py: E402
-    examples/images_contours_and_fields/multi_image.py: E402
-    examples/images_contours_and_fields/pcolor_demo.py: E402
-    examples/images_contours_and_fields/plot_streamplot.py: E402
-    examples/images_contours_and_fields/quadmesh_demo.py: E402
-    examples/images_contours_and_fields/quiver_demo.py: E402
-    examples/images_contours_and_fields/quiver_simple_demo.py: E402
-    examples/images_contours_and_fields/shading_example.py: E402
-    examples/images_contours_and_fields/specgram_demo.py: E402
-    examples/images_contours_and_fields/spy_demos.py: E402
-    examples/images_contours_and_fields/tricontour_demo.py: E201, E402
-    examples/images_contours_and_fields/tricontour_smooth_delaunay.py: E402
-    examples/images_contours_and_fields/tricontour_smooth_user.py: E402
-    examples/images_contours_and_fields/trigradient_demo.py: E402
-    examples/images_contours_and_fields/triinterp_demo.py: E402
-    examples/images_contours_and_fields/tripcolor_demo.py: E201, E402
-    examples/images_contours_and_fields/triplot_demo.py: E201, E402
-    examples/images_contours_and_fields/watermark_image.py: E402
-    examples/lines_bars_and_markers/curve_error_band.py: E402
-    examples/lines_bars_and_markers/errorbar_limits_simple.py: E402
-    examples/lines_bars_and_markers/fill.py: E402
-    examples/lines_bars_and_markers/fill_between_demo.py: E402
-    examples/lines_bars_and_markers/filled_step.py: E402
-    examples/lines_bars_and_markers/stairs_demo.py: E402
-    examples/lines_bars_and_markers/horizontal_barchart_distribution.py: E402
-    examples/lines_bars_and_markers/joinstyle.py: E402
-    examples/lines_bars_and_markers/scatter_hist.py: E402
-    examples/lines_bars_and_markers/scatter_piecharts.py: E402
-    examples/lines_bars_and_markers/scatter_with_legend.py: E402
-    examples/lines_bars_and_markers/span_regions.py: E402
-    examples/lines_bars_and_markers/stem_plot.py: E402
-    examples/lines_bars_and_markers/step_demo.py: E402
-    examples/lines_bars_and_markers/timeline.py: E402
-    examples/lines_bars_and_markers/xcorr_acorr_demo.py: E402
-    examples/misc/agg_buffer.py: E402
-    examples/misc/histogram_path.py: E402
+    examples/lines_bars_and_markers/marker_reference.py: E402
+    examples/images_contours_and_fields/tricontour_demo.py: E201
+    examples/images_contours_and_fields/tripcolor_demo.py: E201
+    examples/images_contours_and_fields/triplot_demo.py: E201
     examples/misc/print_stdout_sgskip.py: E402
-    examples/misc/rasterization_demo.py: E402
-    examples/misc/svg_filter_line.py: E402
-    examples/misc/svg_filter_pie.py: E402
     examples/misc/table_demo.py: E201
-    examples/mplot3d/surface3d.py: E402
-    examples/pie_and_polar_charts/bar_of_pie.py: E402
-    examples/pie_and_polar_charts/nested_pie.py: E402
-    examples/pie_and_polar_charts/pie_and_donut_labels.py: E402
-    examples/pie_and_polar_charts/pie_demo2.py: E402
-    examples/pie_and_polar_charts/pie_features.py: E402
-    examples/pie_and_polar_charts/polar_bar.py: E402
-    examples/pie_and_polar_charts/polar_demo.py: E402
-    examples/pie_and_polar_charts/polar_legend.py: E402
-    examples/pie_and_polar_charts/polar_scatter.py: E402
-    examples/pyplots/align_ylabels.py: E402
-    examples/pyplots/annotate_transform.py: E251, E402
-    examples/pyplots/annotation_basic.py: E402
-    examples/pyplots/annotation_polar.py: E402
-    examples/pyplots/auto_subplots_adjust.py: E302, E402
-    examples/pyplots/axline.py: E402
-    examples/pyplots/boxplot_demo_pyplot.py: E402
-    examples/pyplots/dollar_ticks.py: E402
-    examples/pyplots/fig_axes_customize_simple.py: E402
-    examples/pyplots/fig_axes_labels_simple.py: E402
-    examples/pyplots/fig_x.py: E402
-    examples/pyplots/pyplot_formatstr.py: E402
-    examples/pyplots/pyplot_mathtext.py: E402
-    examples/pyplots/pyplot_scales.py: E402
-    examples/pyplots/pyplot_simple.py: E402
-    examples/pyplots/pyplot_text.py: E402
-    examples/pyplots/pyplot_three.py: E402
-    examples/pyplots/pyplot_two_subplots.py: E402
-    examples/pyplots/text_commands.py: E402
-    examples/pyplots/text_layout.py: E402
-    examples/pyplots/whats_new_1_subplot3d.py: E402
-    examples/pyplots/whats_new_98_4_fill_between.py: E402
-    examples/pyplots/whats_new_98_4_legend.py: E402
-    examples/pyplots/whats_new_99_axes_grid.py: E402
-    examples/pyplots/whats_new_99_mplot3d.py: E402
-    examples/pyplots/whats_new_99_spines.py: E402
-    examples/scales/power_norm.py: E402
-    examples/scales/scales.py: E402
-    examples/shapes_and_collections/artist_reference.py: E402
-    examples/shapes_and_collections/collections.py: E402
-    examples/shapes_and_collections/compound_path.py: E402
-    examples/shapes_and_collections/dolphin.py: E402
-    examples/shapes_and_collections/donut.py: E402
-    examples/shapes_and_collections/ellipse_collection.py: E402
-    examples/shapes_and_collections/ellipse_demo.py: E402
-    examples/shapes_and_collections/fancybox_demo.py: E402
-    examples/shapes_and_collections/hatch_demo.py: E402
-    examples/shapes_and_collections/hatch_style_reference.py: E402
-    examples/shapes_and_collections/line_collection.py: E402
-    examples/shapes_and_collections/marker_path.py: E402
-    examples/shapes_and_collections/patch_collection.py: E402
-    examples/shapes_and_collections/path_patch.py: E402
-    examples/shapes_and_collections/quad_bezier.py: E402
-    examples/shapes_and_collections/scatter.py: E402
-    examples/showcase/anatomy.py: E402
-    examples/showcase/bachelors_degrees_by_gender.py: E402
-    examples/showcase/firefox.py: E501
-    examples/specialty_plots/anscombe.py: E402
-    examples/specialty_plots/radar_chart.py: E402
-    examples/specialty_plots/sankey_basics.py: E402
-    examples/specialty_plots/sankey_links.py: E402
-    examples/specialty_plots/sankey_rankine.py: E402
-    examples/specialty_plots/skewt.py: E402
     examples/style_sheets/bmh.py: E501
-    examples/style_sheets/ggplot.py: E501
     examples/style_sheets/plot_solarizedlight2.py: E501
-    examples/subplots_axes_and_figures/axes_margins.py: E402
-    examples/subplots_axes_and_figures/axes_zoom_effect.py: E402
-    examples/subplots_axes_and_figures/custom_figure_class.py: E402
     examples/subplots_axes_and_figures/demo_constrained_layout.py: E402
-    examples/subplots_axes_and_figures/demo_tight_layout.py: E402
-    examples/subplots_axes_and_figures/figure_size_units.py: E402
-    examples/subplots_axes_and_figures/secondary_axis.py: E402
-    examples/subplots_axes_and_figures/two_scales.py: E402
-    examples/subplots_axes_and_figures/zoom_inset_axes.py: E402
-    examples/text_labels_and_annotations/date_index_formatter.py: E402
-    examples/text_labels_and_annotations/demo_text_rotation_mode.py: E402
     examples/text_labels_and_annotations/custom_legends.py: E402
-    examples/text_labels_and_annotations/fancyarrow_demo.py: E402
-    examples/text_labels_and_annotations/font_family_rc_sgskip.py: E402
-    examples/text_labels_and_annotations/font_file.py: E402
-    examples/text_labels_and_annotations/legend.py: E402
-    examples/text_labels_and_annotations/line_with_text.py: E402
-    examples/text_labels_and_annotations/mathtext_asarray.py: E402
-    examples/text_labels_and_annotations/tex_demo.py: E402
-    examples/text_labels_and_annotations/watermark_text.py: E402
-    examples/ticks_and_spines/custom_ticker1.py: E402
     examples/ticks_and_spines/date_concise_formatter.py: E402
-    examples/ticks_and_spines/major_minor_demo.py: E402
-    examples/ticks_and_spines/tick-formatters.py: E402
-    examples/ticks_and_spines/tick_labels_from_values.py: E402
-    examples/user_interfaces/canvasagg.py: E402
     examples/user_interfaces/embedding_in_gtk3_panzoom_sgskip.py: E402
     examples/user_interfaces/embedding_in_gtk3_sgskip.py: E402
-    examples/user_interfaces/embedding_in_qt_sgskip.py: E402
     examples/user_interfaces/gtk_spreadsheet_sgskip.py: E402
-    examples/user_interfaces/mathtext_wx_sgskip.py: E402
     examples/user_interfaces/mpl_with_glade3_sgskip.py: E402
-    examples/user_interfaces/pylab_with_gtk_sgskip.py: E302, E402
+    examples/user_interfaces/pylab_with_gtk_sgskip.py: E402
     examples/user_interfaces/toolmanager_sgskip.py: E402
-    examples/userdemo/connectionstyle_demo.py: E402
-    examples/userdemo/custom_boxstyle01.py: E402
     examples/userdemo/pgf_preamble_sgskip.py: E402
-    examples/widgets/textbox.py: E402

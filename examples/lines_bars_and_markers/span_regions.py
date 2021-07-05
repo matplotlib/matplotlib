@@ -38,16 +38,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.collections.BrokenBarHCollection
-matplotlib.collections.BrokenBarHCollection.span_where
-matplotlib.axes.Axes.add_collection
-matplotlib.axes.Axes.axhline
+#    - `matplotlib.collections.BrokenBarHCollection`
+#    - `matplotlib.collections.BrokenBarHCollection.span_where`
+#    - `matplotlib.axes.Axes.add_collection`
+#    - `matplotlib.axes.Axes.axhline`

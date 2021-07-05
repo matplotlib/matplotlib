@@ -1,11 +1,12 @@
 """
-A Cairo backend for matplotlib
+A Cairo backend for Matplotlib
 ==============================
 :Author: Steve Chaplin and others
 
 This backend depends on cairocffi or pycairo.
 """
 
+import functools
 import gzip
 import math
 
@@ -24,6 +25,7 @@ except ImportError:
             "cairo backend requires that pycairo>=1.11.0 or cairocffi "
             "is installed") from err
 
+import matplotlib as mpl
 from .. import _api, cbook, font_manager
 from matplotlib.backend_bases import (
     _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
@@ -121,9 +123,7 @@ _f_angles = {
 
 
 class RendererCairo(RendererBase):
-    fontweights = cbook.deprecated("3.3")(property(lambda self: {*_f_weights}))
-    fontangles = cbook.deprecated("3.3")(property(lambda self: {*_f_angles}))
-    mathtext_parser = cbook.deprecated("3.4")(
+    mathtext_parser = _api.deprecated("3.4")(
         property(lambda self: MathTextParser('Cairo')))
 
     def __init__(self, dpi):
@@ -243,9 +243,14 @@ class RendererCairo(RendererBase):
             ctx.new_path()
             ctx.move_to(x, y)
 
-            ctx.select_font_face(*_cairo_font_args_from_font_prop(prop))
             ctx.save()
+            ctx.select_font_face(*_cairo_font_args_from_font_prop(prop))
             ctx.set_font_size(prop.get_size_in_points() * self.dpi / 72)
+            opts = cairo.FontOptions()
+            opts.set_antialias(
+                cairo.ANTIALIAS_DEFAULT if mpl.rcParams["text.antialiased"]
+                else cairo.ANTIALIAS_NONE)
+            ctx.set_font_options(opts)
             if angle:
                 ctx.rotate(np.deg2rad(-angle))
             ctx.show_text(s)
@@ -348,9 +353,9 @@ class GraphicsContextCairo(GraphicsContextBase):
         else:
             self.ctx.set_source_rgba(rgb[0], rgb[1], rgb[2], rgb[3])
 
-    # def set_antialiased(self, b):
-        # cairo has many antialiasing modes, we need to pick one for True and
-        # one for False.
+    def set_antialiased(self, b):
+        self.ctx.set_antialias(
+            cairo.ANTIALIAS_DEFAULT if b else cairo.ANTIALIAS_NONE)
 
     def set_capstyle(self, cs):
         self.ctx.set_line_cap(_api.check_getitem(self._capd, capstyle=cs))
@@ -467,20 +472,8 @@ class FigureCanvasCairo(FigureCanvasBase):
         self.figure.draw(renderer)
         return surface
 
-    def print_pdf(self, fobj, *args, **kwargs):
-        return self._save(fobj, 'pdf', *args, **kwargs)
-
-    def print_ps(self, fobj, *args, **kwargs):
-        return self._save(fobj, 'ps', *args, **kwargs)
-
-    def print_svg(self, fobj, *args, **kwargs):
-        return self._save(fobj, 'svg', *args, **kwargs)
-
-    def print_svgz(self, fobj, *args, **kwargs):
-        return self._save(fobj, 'svgz', *args, **kwargs)
-
     @_check_savefig_extra_args
-    def _save(self, fo, fmt, *, orientation='portrait'):
+    def _save(self, fmt, fobj, *, orientation='portrait'):
         # save PDF/PS/SVG
 
         dpi = 72
@@ -496,22 +489,22 @@ class FigureCanvasCairo(FigureCanvasBase):
             if not hasattr(cairo, 'PSSurface'):
                 raise RuntimeError('cairo has not been compiled with PS '
                                    'support enabled')
-            surface = cairo.PSSurface(fo, width_in_points, height_in_points)
+            surface = cairo.PSSurface(fobj, width_in_points, height_in_points)
         elif fmt == 'pdf':
             if not hasattr(cairo, 'PDFSurface'):
                 raise RuntimeError('cairo has not been compiled with PDF '
                                    'support enabled')
-            surface = cairo.PDFSurface(fo, width_in_points, height_in_points)
+            surface = cairo.PDFSurface(fobj, width_in_points, height_in_points)
         elif fmt in ('svg', 'svgz'):
             if not hasattr(cairo, 'SVGSurface'):
                 raise RuntimeError('cairo has not been compiled with SVG '
                                    'support enabled')
             if fmt == 'svgz':
-                if isinstance(fo, str):
-                    fo = gzip.GzipFile(fo, 'wb')
+                if isinstance(fobj, str):
+                    fobj = gzip.GzipFile(fobj, 'wb')
                 else:
-                    fo = gzip.GzipFile(None, 'wb', fileobj=fo)
-            surface = cairo.SVGSurface(fo, width_in_points, height_in_points)
+                    fobj = gzip.GzipFile(None, 'wb', fileobj=fobj)
+            surface = cairo.SVGSurface(fobj, width_in_points, height_in_points)
         else:
             raise ValueError("Unknown format: {!r}".format(fmt))
 
@@ -531,7 +524,12 @@ class FigureCanvasCairo(FigureCanvasBase):
         ctx.show_page()
         surface.finish()
         if fmt == 'svgz':
-            fo.close()
+            fobj.close()
+
+    print_pdf = functools.partialmethod(_save, "pdf")
+    print_ps = functools.partialmethod(_save, "ps")
+    print_svg = functools.partialmethod(_save, "svg")
+    print_svgz = functools.partialmethod(_save, "svgz")
 
 
 @_Backend.export

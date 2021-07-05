@@ -19,7 +19,7 @@ import re
 import warnings
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, rc_params_from_file, rcParamsDefault
+from matplotlib import _api, rc_params_from_file, rcParamsDefault
 
 _log = logging.getLogger(__name__)
 
@@ -30,6 +30,8 @@ BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), 'stylelib')
 # Users may want multiple library paths, so store a list of paths.
 USER_LIBRARY_PATHS = [os.path.join(mpl.get_configdir(), 'stylelib')]
 STYLE_EXTENSION = 'mplstyle'
+
+# Deprecated in Matplotlib 3.5.
 STYLE_FILE_PATTERN = re.compile(r'([\S]+).%s$' % STYLE_EXTENSION)
 
 
@@ -47,7 +49,7 @@ def _remove_blacklisted_style_params(d, warn=True):
     for key in d:  # prevent triggering RcParams.__getitem__('backend')
         if key in STYLE_BLACKLIST:
             if warn:
-                cbook._warn_external(
+                _api.warn_external(
                     "Style includes a parameter, '{0}', that is not related "
                     "to style.  Ignoring".format(key))
         else:
@@ -155,12 +157,14 @@ def context(style, after_reset=False):
         yield
 
 
+@_api.deprecated("3.5")
 def load_base_library():
     """Load style library defined in this package."""
     library = read_style_directory(BASE_LIBRARY_PATH)
     return library
 
 
+@_api.deprecated("3.5")
 def iter_user_libraries():
     for stylelib_path in USER_LIBRARY_PATHS:
         stylelib_path = os.path.expanduser(stylelib_path)
@@ -170,7 +174,7 @@ def iter_user_libraries():
 
 def update_user_library(library):
     """Update style library with user-defined rc files."""
-    for stylelib_path in iter_user_libraries():
+    for stylelib_path in map(os.path.expanduser, USER_LIBRARY_PATHS):
         styles = read_style_directory(stylelib_path)
         update_nested_dict(library, styles)
     return library
@@ -204,10 +208,8 @@ def update_nested_dict(main_dict, new_dict):
 
 # Load style library
 # ==================
-_base_library = load_base_library()
-
+_base_library = read_style_directory(BASE_LIBRARY_PATH)
 library = None
-
 available = []
 
 

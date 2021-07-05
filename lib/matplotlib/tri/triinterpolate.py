@@ -4,7 +4,7 @@ Interpolation inside triangular grids.
 
 import numpy as np
 
-from matplotlib import _api, cbook
+from matplotlib import _api
 from matplotlib.tri import Triangulation
 from matplotlib.tri.trifinder import TriFinder
 from matplotlib.tri.tritools import TriAnalyzer
@@ -31,7 +31,7 @@ class TriInterpolator:
     """
 
     def __init__(self, triangulation, z, trifinder=None):
-        cbook._check_isinstance(Triangulation, triangulation=triangulation)
+        _api.check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
 
         self._z = np.asarray(z)
@@ -39,7 +39,7 @@ class TriInterpolator:
             raise ValueError("z array must have same length as triangulation x"
                              " and y arrays")
 
-        cbook._check_isinstance((TriFinder, None), trifinder=trifinder)
+        _api.check_isinstance((TriFinder, None), trifinder=trifinder)
         self._trifinder = trifinder or self._triangulation.get_trifinder()
 
         # Default scaling factors : 1.0 (= no scaling)
@@ -114,14 +114,14 @@ class TriInterpolator:
         The purpose of :meth:`_interpolate_multikeys` is to implement the
         following common tasks needed in all subclasses implementations:
 
-            - calculation of containing triangles
-            - dealing with more than one interpolation request at the same
-              location (e.g., if the 2 derivatives are requested, it is
-              unnecessary to compute the containing triangles twice)
-            - scaling according to self._unit_x, self._unit_y
-            - dealing with points outside of the grid (with fill value np.nan)
-            - dealing with multi-dimensional *x*, *y* arrays: flattening for
-              :meth:`_interpolate_params` call and final reshaping.
+        - calculation of containing triangles
+        - dealing with more than one interpolation request at the same
+          location (e.g., if the 2 derivatives are requested, it is
+          unnecessary to compute the containing triangles twice)
+        - scaling according to self._unit_x, self._unit_y
+        - dealing with points outside of the grid (with fill value np.nan)
+        - dealing with multi-dimensional *x*, *y* arrays: flattening for
+          :meth:`_interpolate_params` call and final reshaping.
 
         (Note that np.vectorize could do most of those things very well for
         you, but it does it by function evaluations over successive tuples of
@@ -213,10 +213,10 @@ class TriInterpolator:
 
         Parameters
         ----------
-        return_index : {'z', 'dzdx', 'dzdy'}
-            Identifies the requested values (z or its derivatives)
+        return_key : {'z', 'dzdx', 'dzdy'}
+            The requested values (z or its derivatives).
         tri_index : 1D int array
-            Valid triangle index (-1 prohibited)
+            Valid triangle index (cannot be -1).
         x, y : 1D arrays, same shape as `tri_index`
             Valid locations where interpolation is requested.
 
@@ -242,11 +242,11 @@ class LinearTriInterpolator(TriInterpolator):
     ----------
     triangulation : `~matplotlib.tri.Triangulation`
         The triangulation to interpolate over.
-    z : array-like of shape (npoints,)
+    z : (npoints,) array-like
         Array of values, defined at grid points, to interpolate between.
     trifinder : `~matplotlib.tri.TriFinder`, optional
-          If this is not specified, the Triangulation's default TriFinder will
-          be used by calling `.Triangulation.get_trifinder`.
+        If this is not specified, the Triangulation's default TriFinder will
+        be used by calling `.Triangulation.get_trifinder`.
 
     Methods
     -------
@@ -305,7 +305,7 @@ class CubicTriInterpolator(TriInterpolator):
     ----------
     triangulation : `~matplotlib.tri.Triangulation`
         The triangulation to interpolate over.
-    z : array-like of shape (npoints,)
+    z : (npoints,) array-like
         Array of values, defined at grid points, to interpolate between.
     kind : {'min_E', 'geom', 'user'}, optional
         Choice of the smoothing algorithm, in order to compute
@@ -461,8 +461,8 @@ class CubicTriInterpolator(TriInterpolator):
         Returns
         -------
         array-like, shape (npts, 2)
-              Estimation of the gradient at triangulation nodes (stored as
-              degree of freedoms of reduced-HCT triangle elements).
+            Estimation of the gradient at triangulation nodes (stored as
+            degree of freedoms of reduced-HCT triangle elements).
         """
         if kind == 'user':
             if dz is None:
@@ -996,8 +996,7 @@ class _DOF_estimator:
     gradient coordinates.
     """
     def __init__(self, interpolator, **kwargs):
-        cbook._check_isinstance(
-            CubicTriInterpolator, interpolator=interpolator)
+        _api.check_isinstance(CubicTriInterpolator, interpolator=interpolator)
         self._pts = interpolator._pts
         self._tris_pts = interpolator._tris_pts
         self.z = interpolator._z
@@ -1201,10 +1200,10 @@ class _DOF_estimator_min_E(_DOF_estimator_geom):
         err0 = np.linalg.norm(Kff_coo.dot(Uf0) - Ff)
         if err0 < err:
             # Maybe a good occasion to raise a warning here ?
-            cbook._warn_external("In TriCubicInterpolator initialization, "
-                                 "PCG sparse solver did not converge after "
-                                 "1000 iterations. `geom` approximation is "
-                                 "used instead of `min_E`")
+            _api.warn_external("In TriCubicInterpolator initialization, "
+                               "PCG sparse solver did not converge after "
+                               "1000 iterations. `geom` approximation is "
+                               "used instead of `min_E`")
             Uf = Uf0
 
         # Building dz from Uf
@@ -1348,7 +1347,7 @@ def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
         rho = np.dot(r, w)
         x = x + alpha*p
         beta = rho/rhoold
-        #err = np.linalg.norm(A.dot(x) - b) # absolute accuracy - not used
+        # err = np.linalg.norm(A.dot(x) - b)  # absolute accuracy - not used
         k += 1
     err = np.linalg.norm(A.dot(x) - b)
     return x, err
@@ -1469,7 +1468,7 @@ def _pseudo_inv22sym_vectorized(M):
         tr = M[rank01, 0, 0] + M[rank01, 1, 1]
         tr_zeros = (np.abs(tr) < 1.e-8)
         sq_tr_inv = (1.-tr_zeros) / (tr**2+tr_zeros)
-        #sq_tr_inv = 1. / tr**2
+        # sq_tr_inv = 1. / tr**2
         M_inv[rank01, 0, 0] = M[rank01, 0, 0] * sq_tr_inv
         M_inv[rank01, 0, 1] = M[rank01, 0, 1] * sq_tr_inv
         M_inv[rank01, 1, 0] = M[rank01, 1, 0] * sq_tr_inv

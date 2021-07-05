@@ -72,7 +72,7 @@ Revert deprecation \*min, \*max keyword arguments to ``set_x/y/zlim_3d()``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These keyword arguments  were deprecated in 3.0, alongside with the respective
 parameters in ``set_xlim()`` / ``set_ylim()``. The deprecations of the 2D
-versions were already reverted in in 3.1.
+versions were already reverted in 3.1.
 
 ``cbook.local_over_kwdict``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -93,7 +93,7 @@ Parameters *norm* and *vmin*/*vmax* should not be used simultaneously
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Passing parameters *norm* and *vmin*/*vmax* simultaneously to functions using
 colormapping such as ``scatter()`` and ``imshow()`` is deprecated.
-Inestead of ``norm=LogNorm(), vmin=min_val, vmax=max_val`` pass
+Instead of ``norm=LogNorm(), vmin=min_val, vmax=max_val`` pass
 ``norm=LogNorm(min_val, max_val)``. *vmin* and *vmax* should only be used
 without setting *norm*.
 
@@ -162,7 +162,7 @@ The ``on_mappable_changed`` and ``update_bruteforce`` methods of
 `~matplotlib.colorbar.Colorbar` are deprecated; both can be replaced by calls
 to `~matplotlib.colorbar.Colorbar.update_normal`.
 
-``OldScalarFormatter``, ``IndexFormatter`` and ``DateIndexFormatter``
+``OldScalarFormatter``, ``IndexFormatter`` and ``IndexDateFormatter``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 These formatters are deprecated.  Their functionality can be implemented using
 e.g. `.FuncFormatter`.
@@ -238,7 +238,7 @@ The following validators, defined in `.rcsetup`, are deprecated:
 ``validate_axes_titlelocation``, ``validate_toolbar``,
 ``validate_ps_papersize``, ``validate_legend_loc``,
 ``validate_bool_maybe_none``, ``validate_hinting``,
-``validate_movie_writers``, ``validate_webagg_address``,
+``validate_movie_writer``, ``validate_webagg_address``,
 ``validate_nseq_float``, ``validate_nseq_int``.
 To test whether an rcParam value would be acceptable, one can test e.g. ``rc =
 RcParams(); rc[k] = v`` raises an exception.
@@ -351,7 +351,7 @@ PGF backend cleanups
 ~~~~~~~~~~~~~~~~~~~~
 The *dummy* parameter of `.RendererPgf` is deprecated.
 
-`.GraphicsContextPgf` is deprecated (use `.GraphicsContextBase` instead).
+``GraphicsContextPgf`` is deprecated (use `.GraphicsContextBase` instead).
 
 ``set_factor`` method of :mod:`mpl_toolkits.axisartist` locators
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -575,7 +575,7 @@ This is deprecated; pass keys as a list of strings instead.
 
 Statusbar classes and attributes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The ``statusbar`` attribute of `.FigureManagerBase`, `.StatusbarBase` and all
+The ``statusbar`` attribute of `.FigureManagerBase`, ``StatusbarBase`` and all
 its subclasses, and ``StatusBarWx``, are deprecated, as messages are now
 displayed in the toolbar instead.
 
@@ -609,8 +609,8 @@ accepted.
 Qt modifier keys
 ~~~~~~~~~~~~~~~~
 The ``MODIFIER_KEYS``, ``SUPER``, ``ALT``, ``CTRL``, and ``SHIFT``
-global variables of the :mod:`matplotlib.backends.backend_qt4agg`,
-:mod:`matplotlib.backends.backend_qt4cairo`,
+global variables of the ``matplotlib.backends.backend_qt4agg``,
+``matplotlib.backends.backend_qt4cairo``,
 :mod:`matplotlib.backends.backend_qt5agg` and
 :mod:`matplotlib.backends.backend_qt5cairo` modules are deprecated.
 

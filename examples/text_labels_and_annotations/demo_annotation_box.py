@@ -1,13 +1,12 @@
 """
 ===================
-Demo Annotation Box
+AnnotationBbox demo
 ===================
 
-The AnnotationBbox Artist creates an annotation using an OffsetBox. This
-example demonstrates three different OffsetBoxes: TextArea, DrawingArea and
-OffsetImage. AnnotationBbox gives more fine-grained control than using the axes
-method annotate.
-
+`.AnnotationBbox` creates an annotation using an `.OffsetBox`, and
+provides more fine-grained control than `.Axes.annotate`.  This example
+demonstrates the use of AnnotationBbox together with three different
+OffsetBoxes: `.TextArea`, `.DrawingArea`, and `.OffsetImage`.
 """
 
 import matplotlib.pyplot as plt
@@ -104,20 +103,16 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown in this
-# example:
-
-Circle
-TextArea
-DrawingArea
-OffsetImage
-AnnotationBbox
-get_sample_data
-plt.subplots
-plt.imread
-plt.show
+#    - `matplotlib.patches.Circle`
+#    - `matplotlib.offsetbox.TextArea`
+#    - `matplotlib.offsetbox.DrawingArea`
+#    - `matplotlib.offsetbox.OffsetImage`
+#    - `matplotlib.offsetbox.AnnotationBbox`
+#    - `matplotlib.cbook.get_sample_data`
+#    - `matplotlib.pyplot.subplots`
+#    - `matplotlib.pyplot.imread`

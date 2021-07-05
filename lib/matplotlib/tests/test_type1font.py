@@ -25,8 +25,8 @@ def test_Type1Font():
          '- FontDirectory/CMR10 known{/CMR10 findfont dup/UniqueID known{dup',
          '+ FontDirectory/CMR10 known{/CMR10 findfont dup',
          # Changes the font name
-        '- /FontName /CMR10 def',
-        '+ /FontName /CMR10_Slant_1000 def',
+         '- /FontName /CMR10 def',
+         '+ /FontName /CMR10_Slant_1000 def',
          # Alters FontMatrix
          '- /FontMatrix [0.001 0 0 0.001 0 0 ]readonly def',
          '+ /FontMatrix [0.001 0 0.001 0.001 0 0]readonly def',
@@ -43,7 +43,7 @@ def test_Type1Font():
          '- FontDirectory/CMR10 known{/CMR10 findfont dup/UniqueID known{dup',
          '+ FontDirectory/CMR10 known{/CMR10 findfont dup',
          # Changes the font name
-        '- /FontName /CMR10 def',
+         '- /FontName /CMR10 def',
         '+ /FontName /CMR10_Extend_500 def',
          # Alters FontMatrix
          '- /FontMatrix [0.001 0 0 0.001 0 0 ]readonly def',

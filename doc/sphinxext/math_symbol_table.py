@@ -100,38 +100,28 @@ symbols = [
 
 
 def run(state_machine):
-    def get_n(n, l):
-        part = []
-        for x in l:
-            part.append(x)
-            if len(part) == n:
-                yield part
-                part = []
-        yield part
+    def render_symbol(sym):
+        if sym.startswith("\\"):
+            sym = sym[1:]
+            if sym not in {*mathtext.Parser._overunder_functions,
+                           *mathtext.Parser._function_names}:
+                sym = chr(mathtext.tex2uni[sym])
+        return f'\\{sym}' if sym in ('\\', '|') else sym
 
     lines = []
     for category, columns, syms in symbols:
         syms = sorted(syms.split())
+        columns = min(columns, len(syms))
         lines.append("**%s**" % category)
         lines.append('')
         max_width = max(map(len, syms)) * 2 + 16
         header = "    " + (('=' * max_width) + ' ') * columns
         lines.append(header)
-        for part in get_n(columns, syms):
-            line = (
-                "    " +
-                " ".join(
-                    "{} ``{}``".format(
-                        sym
-                        if not sym.startswith("\\")
-                        else sym[1:]
-                        if (sym[1:] in mathtext.Parser._overunder_functions
-                            or sym[1:] in mathtext.Parser._function_names)
-                        else chr(mathtext.tex2uni[sym[1:]]),
-                        sym)
-                    .rjust(max_width)
-                    for sym in part))
-            lines.append(line)
+        for part in range(0, len(syms), columns):
+            row = " ".join(
+                f"{render_symbol(sym)} ``{sym}``".rjust(max_width)
+                for sym in syms[part:part + columns])
+            lines.append(f"    {row}")
         lines.append(header)
         lines.append('')
 

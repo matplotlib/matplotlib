@@ -8,7 +8,7 @@ import pytest
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import cbook, patheffects
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.cbook import MatplotlibDeprecationWarning
 
 
@@ -68,6 +68,8 @@ def test_savefig_to_stringio(format, use_log, rcParams, orientation):
         except tuple(allowable_exceptions) as exc:
             pytest.skip(str(exc))
 
+        assert not s_buf.closed
+        assert not b_buf.closed
         s_val = s_buf.getvalue().encode('ascii')
         b_val = b_buf.getvalue()
 
@@ -147,10 +149,22 @@ def test_failing_latex():
 @needs_usetex
 def test_partial_usetex(caplog):
     caplog.set_level("WARNING")
-    plt.figtext(.5, .5, "foo", usetex=True)
+    plt.figtext(.1, .1, "foo", usetex=True)
+    plt.figtext(.2, .2, "bar", usetex=True)
     plt.savefig(io.BytesIO(), format="ps")
-    assert caplog.records and all("as if usetex=False" in record.getMessage()
-                                  for record in caplog.records)
+    record, = caplog.records  # asserts there's a single record.
+    assert "as if usetex=False" in record.getMessage()
+
+
+@needs_usetex
+def test_usetex_preamble(caplog):
+    mpl.rcParams.update({
+        "text.usetex": True,
+        # Check that these don't conflict with the packages loaded by default.
+        "text.latex.preamble": r"\usepackage{color,graphicx,textcomp}",
+    })
+    plt.figtext(.5, .5, "foo")
+    plt.savefig(io.BytesIO(), format="ps")
 
 
 @image_comparison(["useafm.eps"])
@@ -165,3 +179,22 @@ def test_useafm():
 @image_comparison(["type3.eps"])
 def test_type3_font():
     plt.figtext(.5, .5, "I/J")
+
+
+@check_figures_equal(extensions=["eps"])
+def test_text_clip(fig_test, fig_ref):
+    ax = fig_test.add_subplot()
+    # Fully clipped-out text should not appear.
+    ax.text(0, 0, "hello", transform=fig_test.transFigure, clip_on=True)
+    fig_ref.add_subplot()
+
+
+@needs_ghostscript
+def test_d_glyph(tmp_path):
+    # Ensure that we don't have a procedure defined as /d, which would be
+    # overwritten by the glyph definition for "d".
+    fig = plt.figure()
+    fig.text(.5, .5, "def")
+    out = tmp_path / "test.eps"
+    fig.savefig(out)
+    mpl.testing.compare.convert(out, cache=False)  # Should not raise.

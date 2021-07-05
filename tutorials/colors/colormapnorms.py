@@ -169,14 +169,16 @@ N = 100
 X, Y = np.mgrid[0:3:complex(0, N), 0:2:complex(0, N)]
 Z1 = (1 + np.sin(Y * 10.)) * X**2
 
-fig, ax = plt.subplots(2, 1)
+fig, ax = plt.subplots(2, 1, constrained_layout=True)
 
 pcm = ax[0].pcolormesh(X, Y, Z1, norm=colors.PowerNorm(gamma=0.5),
                        cmap='PuBu_r', shading='auto')
 fig.colorbar(pcm, ax=ax[0], extend='max')
+ax[0].set_title('PowerNorm()')
 
 pcm = ax[1].pcolormesh(X, Y, Z1, cmap='PuBu_r', shading='auto')
 fig.colorbar(pcm, ax=ax[1], extend='max')
+ax[1].set_title('Normalize()')
 plt.show()
 
 ###############################################################################
@@ -274,9 +276,36 @@ pcm = ax.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
 # Simple geographic plot, set aspect ratio beecause distance between lines of
 # longitude depends on latitude.
 ax.set_aspect(1 / np.cos(np.deg2rad(49)))
+ax.set_title('TwoSlopeNorm(x)')
 fig.colorbar(pcm, shrink=0.6)
 plt.show()
 
+
+###############################################################################
+# FuncNorm: Arbitrary function normalization
+# ------------------------------------------
+#
+# If the above norms do not provide the normalization you want, you can use
+# `~.colors.FuncNorm` to define your own.  Note that this example is the same
+# as `~.colors.PowerNorm` with a power of 0.5:
+
+def _forward(x):
+    return np.sqrt(x)
+
+
+def _inverse(x):
+    return x**2
+
+N = 100
+X, Y = np.mgrid[0:3:complex(0, N), 0:2:complex(0, N)]
+Z1 = (1 + np.sin(Y * 10.)) * X**2
+fig, ax = plt.subplots()
+
+norm = colors.FuncNorm((_forward, _inverse), vmin=0, vmax=20)
+pcm = ax.pcolormesh(X, Y, Z1, norm=norm, cmap='PuBu_r', shading='auto')
+ax.set_title('FuncNorm(x)')
+fig.colorbar(pcm, shrink=0.6)
+plt.show()
 
 ###############################################################################
 # Custom normalization: Manually implement two linear ranges
@@ -284,6 +313,7 @@ plt.show()
 #
 # The `.TwoSlopeNorm` described above makes a useful example for
 # defining your own norm.
+
 
 class MidpointNormalize(colors.Normalize):
     def __init__(self, vmin=None, vmax=None, vcenter=None, clip=False):
@@ -303,5 +333,6 @@ midnorm = MidpointNormalize(vmin=-500., vcenter=0, vmax=4000)
 pcm = ax.pcolormesh(longitude, latitude, topo, rasterized=True, norm=midnorm,
                     cmap=terrain_map, shading='auto')
 ax.set_aspect(1 / np.cos(np.deg2rad(49)))
+ax.set_title('Custom norm')
 fig.colorbar(pcm, shrink=0.6, extend='both')
 plt.show()

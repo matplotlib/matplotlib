@@ -2,10 +2,10 @@
 
 |DiscourseBadge|_ |Gitter|_ |GitHubIssues|_ |GitTutorial|_
 
-|Travis|_ |AzurePipelines|_ |AppVeyor|_ |Codecov|_ |LGTM|_
+|GitHubActions|_ |AzurePipelines|_ |AppVeyor|_ |Codecov|_ |LGTM|_
 
-.. |Travis| image:: https://travis-ci.com/matplotlib/matplotlib.svg?branch=master
-.. _Travis: https://travis-ci.com/matplotlib/matplotlib
+.. |GitHubActions| image:: https://github.com/matplotlib/matplotlib/workflows/Tests/badge.svg
+.. _GitHubActions: https://github.com/matplotlib/matplotlib/actions?query=workflow%3ATests
 
 .. |AzurePipelines| image:: https://dev.azure.com/matplotlib/matplotlib/_apis/build/status/matplotlib.matplotlib?branchName=master
 .. _AzurePipelines: https://dev.azure.com/matplotlib/matplotlib/_build/latest?definitionId=1&branchName=master
@@ -35,7 +35,7 @@
 .. _PyPi: https://badge.fury.io/py/matplotlib
 
 .. |Downloads| image:: https://pepy.tech/badge/matplotlib/month
-.. _Downloads: https://pepy.tech/project/matplotlib/month
+.. _Downloads: https://pepy.tech/project/matplotlib
 
 .. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
 .. _NUMFocus: https://numfocus.org
@@ -100,3 +100,20 @@ If Matplotlib contributes to a project that leads to publication, please
 acknowledge this by citing Matplotlib.
 
 `A ready-made citation entry <https://matplotlib.org/citing.html>`_ is available.
+
+Research notice
+~~~~~~~~~~~~~~~
+
+Please note that this repository is participating in a study into
+sustainability of open source projects. Data will be gathered about this
+repository for approximately the next 12 months, starting from June
+2021.
+
+Data collected will include number of contributors, number of PRs, time
+taken to close/merge these PRs, and issues closed.
+
+For more information, please visit `the informational
+page <https://sustainable-open-science-and-software.github.io/>`__ or
+download the `participant information
+sheet <https://sustainable-open-science-and-software.github.io/assets/PIS_sustainable_software.pdf>`__.
+

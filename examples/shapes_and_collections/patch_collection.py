@@ -58,20 +58,16 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.patches
-matplotlib.patches.Circle
-matplotlib.patches.Wedge
-matplotlib.patches.Polygon
-matplotlib.collections.PatchCollection
-matplotlib.collections.Collection.set_array
-matplotlib.axes.Axes.add_collection
-matplotlib.figure.Figure.colorbar
+#    - `matplotlib.patches`
+#    - `matplotlib.patches.Circle`
+#    - `matplotlib.patches.Wedge`
+#    - `matplotlib.patches.Polygon`
+#    - `matplotlib.collections.PatchCollection`
+#    - `matplotlib.collections.Collection.set_array`
+#    - `matplotlib.axes.Axes.add_collection`
+#    - `matplotlib.figure.Figure.colorbar`

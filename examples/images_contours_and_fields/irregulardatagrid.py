@@ -52,8 +52,8 @@ zi = interpolator(Xi, Yi)
 
 # Note that scipy.interpolate provides means to interpolate data on a grid
 # as well. The following would be an alternative to the four lines above:
-#from scipy.interpolate import griddata
-#zi = griddata((x, y), z, (xi[None, :], yi[:, None]), method='linear')
+# from scipy.interpolate import griddata
+# zi = griddata((x, y), z, (xi[None, :], yi[:, None]), method='linear')
 
 ax1.contour(xi, yi, zi, levels=14, linewidths=0.5, colors='k')
 cntr1 = ax1.contourf(xi, yi, zi, levels=14, cmap="RdBu_r")
@@ -83,19 +83,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions and methods is shown in this example:
-
-import matplotlib
-matplotlib.axes.Axes.contour
-matplotlib.pyplot.contour
-matplotlib.axes.Axes.contourf
-matplotlib.pyplot.contourf
-matplotlib.axes.Axes.tricontour
-matplotlib.pyplot.tricontour
-matplotlib.axes.Axes.tricontourf
-matplotlib.pyplot.tricontourf
+#    - `matplotlib.axes.Axes.contour` / `matplotlib.pyplot.contour`
+#    - `matplotlib.axes.Axes.contourf` / `matplotlib.pyplot.contourf`
+#    - `matplotlib.axes.Axes.tricontour` / `matplotlib.pyplot.tricontour`
+#    - `matplotlib.axes.Axes.tricontourf` / `matplotlib.pyplot.tricontourf`

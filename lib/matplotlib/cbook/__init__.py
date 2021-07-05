@@ -15,7 +15,6 @@ import itertools
 import operator
 import os
 from pathlib import Path
-import re
 import shlex
 import subprocess
 import sys
@@ -28,14 +27,19 @@ import weakref
 import numpy as np
 
 import matplotlib
-from matplotlib import _c_internal_utils
-from matplotlib._api import (
-    warn_external as _warn_external, classproperty as _classproperty)
+from matplotlib import _api, _c_internal_utils
 from matplotlib._api.deprecation import (
-    deprecated, warn_deprecated,
-    _rename_parameter, _delete_parameter, _make_keyword_only,
-    _deprecate_method_override, _deprecate_privatize_attribute,
     MatplotlibDeprecationWarning, mplDeprecation)
+
+
+@_api.deprecated("3.4")
+def deprecated(*args, **kwargs):
+    return _api.deprecated(*args, **kwargs)
+
+
+@_api.deprecated("3.4")
+def warn_deprecated(*args, **kwargs):
+    _api.warn_deprecated(*args, **kwargs)
 
 
 def _get_running_interactive_framework():
@@ -46,17 +50,15 @@ def _get_running_interactive_framework():
     Returns
     -------
     Optional[str]
-        One of the following values: "qt5", "qt4", "gtk3", "wx", "tk",
-        "macosx", "headless", ``None``.
+        One of the following values: "qt5", "gtk3", "wx", "tk", "macosx",
+        "headless", ``None``.
     """
+    # Use ``sys.modules.get(name)`` rather than ``name in sys.modules`` as
+    # entries can also have been explicitly set to None.
     QtWidgets = (sys.modules.get("PyQt5.QtWidgets")
                  or sys.modules.get("PySide2.QtWidgets"))
     if QtWidgets and QtWidgets.QApplication.instance():
         return "qt5"
-    QtGui = (sys.modules.get("PyQt4.QtGui")
-             or sys.modules.get("PySide.QtGui"))
-    if QtGui and QtGui.QApplication.instance():
-        return "qt4"
     Gtk = sys.modules.get("gi.repository.Gtk")
     if Gtk and Gtk.main_level():
         return "gtk3"
@@ -71,9 +73,9 @@ def _get_running_interactive_framework():
                 if frame.f_code in codes:
                     return "tk"
                 frame = frame.f_back
-    if 'matplotlib.backends._macosx' in sys.modules:
-        if sys.modules["matplotlib.backends._macosx"].event_loop_is_running():
-            return "macosx"
+    macosx = sys.modules.get("matplotlib.backends._macosx")
+    if macosx and macosx.event_loop_is_running():
+        return "macosx"
     if not _c_internal_utils.display_is_valid():
         return "headless"
     return None
@@ -102,6 +104,16 @@ class _StrongRef:
 
     def __hash__(self):
         return hash(self._obj)
+
+
+def _weak_or_strong_ref(func, callback):
+    """
+    Return a `WeakMethod` wrapping *func* if possible, else a `_StrongRef`.
+    """
+    try:
+        return weakref.WeakMethod(func, callback)
+    except TypeError:
+        return _StrongRef(func)
 
 
 class CallbackRegistry:
@@ -138,20 +150,14 @@ class CallbackRegistry:
     Parameters
     ----------
     exception_handler : callable, optional
-       If provided must have signature ::
+       If not None, *exception_handler* must be a function that takes an
+       `Exception` as single parameter.  It gets called with any `Exception`
+       raised by the callbacks during `CallbackRegistry.process`, and may
+       either re-raise the exception or handle it in another manner.
 
-          def handler(exc: Exception) -> None:
-
-       If not None this function will be called with any `Exception`
-       subclass raised by the callbacks in `CallbackRegistry.process`.
-       The handler may either consume the exception or re-raise.
-
-       The callable must be pickle-able.
-
-       The default handler is ::
-
-          def h(exc):
-              traceback.print_exc()
+       The default handler prints the exception (with `traceback.print_exc`) if
+       an interactive event loop is running; it re-raises the exception if no
+       interactive event loop is running.
     """
 
     # We maintain two mappings:
@@ -163,25 +169,45 @@ class CallbackRegistry:
         self.callbacks = {}
         self._cid_gen = itertools.count()
         self._func_cid_map = {}
+        # A hidden variable that marks cids that need to be pickled.
+        self._pickled_cids = set()
 
     def __getstate__(self):
-        # In general, callbacks may not be pickled, so we just drop them.
-        return {**vars(self), "callbacks": {}, "_func_cid_map": {}}
+        return {
+            **vars(self),
+            # In general, callbacks may not be pickled, so we just drop them,
+            # unless directed otherwise by self._pickled_cids.
+            "callbacks": {s: {cid: proxy() for cid, proxy in d.items()
+                              if cid in self._pickled_cids}
+                          for s, d in self.callbacks.items()},
+            # It is simpler to reconstruct this from callbacks in __setstate__.
+            "_func_cid_map": None,
+        }
 
-    def connect(self, s, func):
-        """Register *func* to be called when signal *s* is generated."""
-        self._func_cid_map.setdefault(s, {})
-        try:
-            proxy = weakref.WeakMethod(func, self._remove_proxy)
-        except TypeError:
-            proxy = _StrongRef(func)
-        if proxy in self._func_cid_map[s]:
-            return self._func_cid_map[s][proxy]
+    def __setstate__(self, state):
+        vars(self).update(state)
+        self.callbacks = {
+            s: {cid: _weak_or_strong_ref(func, self._remove_proxy)
+                for cid, func in d.items()}
+            for s, d in self.callbacks.items()}
+        self._func_cid_map = {
+            s: {proxy: cid for cid, proxy in d.items()}
+            for s, d in self.callbacks.items()}
 
+    @_api.rename_parameter("3.4", "s", "signal")
+    def connect(self, signal, func):
+        """Register *func* to be called when signal *signal* is generated."""
+        if signal == "units finalize":
+            _api.warn_deprecated(
+                "3.5", name=signal, obj_type="signal", alternative="units")
+        self._func_cid_map.setdefault(signal, {})
+        proxy = _weak_or_strong_ref(func, self._remove_proxy)
+        if proxy in self._func_cid_map[signal]:
+            return self._func_cid_map[signal][proxy]
         cid = next(self._cid_gen)
-        self._func_cid_map[s][proxy] = cid
-        self.callbacks.setdefault(s, {})
-        self.callbacks[s][cid] = proxy
+        self._func_cid_map[signal][proxy] = cid
+        self.callbacks.setdefault(signal, {})
+        self.callbacks[signal][cid] = proxy
         return cid
 
     # Keep a reference to sys.is_finalizing, as sys may have been cleared out
@@ -190,14 +216,19 @@ class CallbackRegistry:
         if _is_finalizing():
             # Weakrefs can't be properly torn down at that point anymore.
             return
-        for signal, proxies in list(self._func_cid_map.items()):
-            try:
-                del self.callbacks[signal][proxies[proxy]]
-            except KeyError:
-                pass
-            if len(self.callbacks[signal]) == 0:
-                del self.callbacks[signal]
-                del self._func_cid_map[signal]
+        for signal, proxy_to_cid in list(self._func_cid_map.items()):
+            cid = proxy_to_cid.pop(proxy, None)
+            if cid is not None:
+                del self.callbacks[signal][cid]
+                self._pickled_cids.discard(cid)
+                break
+        else:
+            # Not found
+            return
+        # Clean up empty dicts
+        if len(self.callbacks[signal]) == 0:
+            del self.callbacks[signal]
+            del self._func_cid_map[signal]
 
     def disconnect(self, cid):
         """
@@ -205,17 +236,25 @@ class CallbackRegistry:
 
         No error is raised if such a callback does not exist.
         """
-        for eventname, callbackd in list(self.callbacks.items()):
-            try:
-                del callbackd[cid]
-            except KeyError:
-                continue
-            else:
-                for signal, functions in list(self._func_cid_map.items()):
-                    for function, value in list(functions.items()):
-                        if value == cid:
-                            del functions[function]
-                return
+        self._pickled_cids.discard(cid)
+        # Clean up callbacks
+        for signal, cid_to_proxy in list(self.callbacks.items()):
+            proxy = cid_to_proxy.pop(cid, None)
+            if proxy is not None:
+                break
+        else:
+            # Not found
+            return
+
+        proxy_to_cid = self._func_cid_map[signal]
+        for current_proxy, current_cid in list(proxy_to_cid.items()):
+            if current_cid == cid:
+                assert proxy is current_proxy
+                del proxy_to_cid[current_proxy]
+        # Clean up empty dicts
+        if len(self.callbacks[signal]) == 0:
+            del self.callbacks[signal]
+            del self._func_cid_map[signal]
 
     def process(self, s, *args, **kwargs):
         """
@@ -272,54 +311,6 @@ class silent_list(list):
             return "<an empty list>"
 
 
-@deprecated("3.3")
-class IgnoredKeywordWarning(UserWarning):
-    """
-    A class for issuing warnings about keyword arguments that will be ignored
-    by Matplotlib.
-    """
-    pass
-
-
-@deprecated("3.3", alternative="normalize_kwargs")
-def local_over_kwdict(local_var, kwargs, *keys):
-    """
-    Enforces the priority of a local variable over potentially conflicting
-    argument(s) from a kwargs dict. The following possible output values are
-    considered in order of priority::
-
-        local_var > kwargs[keys[0]] > ... > kwargs[keys[-1]]
-
-    The first of these whose value is not None will be returned. If all are
-    None then None will be returned. Each key in keys will be removed from the
-    kwargs dict in place.
-
-    Parameters
-    ----------
-    local_var : any object
-        The local variable (highest priority).
-
-    kwargs : dict
-        Dictionary of keyword arguments; modified in place.
-
-    keys : str(s)
-        Name(s) of keyword arguments to process, in descending order of
-        priority.
-
-    Returns
-    -------
-    any object
-        Either local_var or one of kwargs[key] for key in keys.
-
-    Raises
-    ------
-    IgnoredKeywordWarning
-        For each key in keys that is removed from kwargs but not used as
-        the output value.
-    """
-    return _local_over_kwdict(local_var, kwargs, *keys, IgnoredKeywordWarning)
-
-
 def _local_over_kwdict(
         local_var, kwargs, *keys, warning_cls=MatplotlibDeprecationWarning):
     out = local_var
@@ -329,8 +320,8 @@ def _local_over_kwdict(
             if out is None:
                 out = kwarg_val
             else:
-                _warn_external('"%s" keyword argument will be ignored' % key,
-                               warning_cls)
+                _api.warn_external(f'"{key}" keyword argument will be ignored',
+                                   warning_cls)
     return out
 
 
@@ -406,11 +397,6 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
     """
     if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
-    if "U" in flag:
-        warn_deprecated("3.3", message="Passing a flag containing 'U' to "
-                        "to_filehandle() is deprecated since %(since)s and "
-                        "will be removed %(removal)s.")
-        flag = flag.replace("U", "")
     if isinstance(fname, str):
         if fname.endswith('.gz'):
             fh = gzip.open(fname, flag)
@@ -432,15 +418,10 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
     return fh
 
 
-@contextlib.contextmanager
 def open_file_cm(path_or_file, mode="r", encoding=None):
     r"""Pass through file objects and context-manage path-likes."""
     fh, opened = to_filehandle(path_or_file, mode, True, encoding)
-    if opened:
-        with fh:
-            yield fh
-    else:
-        yield fh
+    return fh if opened else contextlib.nullcontext(fh)
 
 
 def is_scalar_or_string(val):
@@ -471,7 +452,7 @@ def get_sample_data(fname, asfileobj=True, *, np_load=False):
             if np_load:
                 return np.load(path)
             else:
-                warn_deprecated(
+                _api.warn_deprecated(
                     "3.3", message="In a future release, get_sample_data "
                     "will automatically load numpy arrays.  Set np_load to "
                     "True to get the array and suppress this warning.  Set "
@@ -517,23 +498,6 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield from flatten(item, scalarp)
 
 
-@deprecated("3.3", alternative="os.path.realpath and os.stat")
-@functools.lru_cache()
-def get_realpath_and_stat(path):
-    realpath = os.path.realpath(path)
-    stat = os.stat(realpath)
-    stat_key = (stat.st_ino, stat.st_dev)
-    return realpath, stat_key
-
-
-# A regular expression used to determine the amount of space to
-# remove.  It looks for the first sequence of spaces immediately
-# following the first newline, or at the beginning of the string.
-_find_dedent_regex = re.compile(r"(?:(?:\n\r?)|^)( *)\S")
-# A cache to hold the regexs that actually remove the indent.
-_dedent_regex = {}
-
-
 class maxdict(dict):
     """
     A dictionary with a maximum size.
@@ -543,18 +507,15 @@ class maxdict(dict):
     This doesn't override all the relevant methods to constrain the size,
     just ``__setitem__``, so use with caution.
     """
+
     def __init__(self, maxsize):
-        dict.__init__(self)
+        super().__init__()
         self.maxsize = maxsize
-        self._killkeys = []
 
     def __setitem__(self, k, v):
-        if k not in self:
-            if len(self) >= self.maxsize:
-                del self[self._killkeys[0]]
-                del self._killkeys[0]
-            self._killkeys.append(k)
-        dict.__setitem__(self, k, v)
+        super().__setitem__(k, v)
+        while len(self) >= self.maxsize:
+            del self[next(iter(self))]
 
 
 class Stack:
@@ -663,6 +624,7 @@ class Stack:
                 self.push(elem)
 
 
+@_api.deprecated("3.5", alternative="psutil.virtual_memory")
 def report_memory(i=0):  # argument may go away
     """Return the memory consumed by the process."""
     def call(command, os_name):
@@ -800,8 +762,8 @@ class Grouper:
     >>> grp.join(a, b)
     >>> grp.join(b, c)
     >>> grp.join(d, e)
-    >>> sorted(map(tuple, grp))
-    [(a, b, c), (d, e)]
+    >>> list(grp)
+    [[a, b, c], [d, e]]
     >>> grp.joined(a, b)
     True
     >>> grp.joined(a, c)
@@ -1061,8 +1023,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
 
         If a pair of floats, they indicate the percentiles at which to draw the
         whiskers (e.g., (5, 95)).  In particular, setting this to (0, 100)
-        results in whiskers covering the whole range of the data.  "range" is
-        a deprecated synonym for (0, 100).
+        results in whiskers covering the whole range of the data.
 
         In the edge case where ``Q1 == Q3``, *whis* is automatically set to
         (0, 100) (cover the whole range of the data) if *autorange* is True.
@@ -1205,22 +1166,13 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         )
 
         # lowest/highest non-outliers
-        if np.isscalar(whis):
-            if np.isreal(whis):
-                loval = q1 - whis * stats['iqr']
-                hival = q3 + whis * stats['iqr']
-            elif whis in ['range', 'limit', 'limits', 'min/max']:
-                warn_deprecated(
-                    "3.2", message=f"Setting whis to {whis!r} is deprecated "
-                    "since %(since)s and support for it will be removed "
-                    "%(removal)s; set it to [0, 100] to achieve the same "
-                    "effect.")
-                loval = np.min(x)
-                hival = np.max(x)
-            else:
-                raise ValueError('whis must be a float or list of percentiles')
-        else:
+        if np.iterable(whis) and not isinstance(whis, str):
             loval, hival = np.percentile(x, whis)
+        elif np.isreal(whis):
+            loval = q1 - whis * stats['iqr']
+            hival = q3 + whis * stats['iqr']
+        else:
+            raise ValueError('whis must be a float or list of percentiles')
 
         # get high extreme
         wiskhi = x[x <= hival]
@@ -1237,7 +1189,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
             stats['whislo'] = np.min(wisklo)
 
         # compute a single array of outliers
-        stats['fliers'] = np.hstack([
+        stats['fliers'] = np.concatenate([
             x[x < stats['whislo']],
             x[x > stats['whishi']],
         ])
@@ -1473,7 +1425,7 @@ def violin_stats(X, method, points=100, quantiles=None):
     # Want quantiles to be as the same shape as data sequences
     if quantiles is not None and len(quantiles) != 0:
         quantiles = _reshape_2D(quantiles, "quantiles")
-    # Else, mock quantiles if is none or empty
+    # Else, mock quantiles if it's none or empty
     else:
         quantiles = [[]] * len(X)
 
@@ -1694,23 +1646,9 @@ def sanitize_sequence(data):
             else data)
 
 
-@_delete_parameter("3.3", "required")
-@_delete_parameter("3.3", "forbidden")
-@_delete_parameter("3.3", "allowed")
-def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
-                     allowed=None):
+def normalize_kwargs(kw, alias_mapping=None):
     """
     Helper function to normalize kwarg inputs.
-
-    The order they are resolved are:
-
-    1. aliasing
-    2. required
-    3. forbidden
-    4. allowed
-
-    This order means that only the canonical names need appear in
-    *allowed*, *forbidden*, *required*.
 
     Parameters
     ----------
@@ -1720,32 +1658,20 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
         the form ``props=None``.
 
     alias_mapping : dict or Artist subclass or Artist instance, optional
-        A mapping between a canonical name to a list of
-        aliases, in order of precedence from lowest to highest.
+        A mapping between a canonical name to a list of aliases, in order of
+        precedence from lowest to highest.
 
-        If the canonical value is not in the list it is assumed to have
-        the highest priority.
+        If the canonical value is not in the list it is assumed to have the
+        highest priority.
 
         If an Artist subclass or instance is passed, use its properties alias
         mapping.
 
-    required : list of str, optional
-        A list of keys that must be in *kws*.  This parameter is deprecated.
-
-    forbidden : list of str, optional
-        A list of keys which may not be in *kw*.  This parameter is deprecated.
-
-    allowed : list of str, optional
-        A list of allowed fields.  If this not None, then raise if
-        *kw* contains any keys not in the union of *required*
-        and *allowed*.  To allow only the required fields pass in
-        an empty tuple ``allowed=()``.  This parameter is deprecated.
-
     Raises
     ------
     TypeError
-        To match what python raises if invalid args/kwargs are passed to
-        a callable.
+        To match what Python raises if invalid arguments/keyword arguments are
+        passed to a callable.
     """
     from matplotlib.artist import Artist
 
@@ -1772,25 +1698,6 @@ def normalize_kwargs(kw, alias_mapping=None, required=(), forbidden=(),
                             f"{k!r}, which are aliases of one another")
         canonical_to_seen[canonical] = k
         ret[canonical] = v
-
-    fail_keys = [k for k in required if k not in ret]
-    if fail_keys:
-        raise TypeError("The required keys {keys!r} "
-                        "are not in kwargs".format(keys=fail_keys))
-
-    fail_keys = [k for k in forbidden if k in ret]
-    if fail_keys:
-        raise TypeError("The forbidden keys {keys!r} "
-                        "are in kwargs".format(keys=fail_keys))
-
-    if allowed is not None:
-        allowed_set = {*required, *allowed}
-        fail_keys = [k for k in ret if k not in allowed_set]
-        if fail_keys:
-            raise TypeError(
-                "kwargs contains {keys!r} which are not in the required "
-                "{req!r} or allowed {allow!r} keys".format(
-                    keys=fail_keys, req=required, allow=allowed))
 
     return ret
 
@@ -1884,7 +1791,7 @@ def _define_aliases(alias_d, cls=None):
     exception will be raised.
 
     The alias map is stored as the ``_alias_map`` attribute on the class and
-    can be used by `~.normalize_kwargs` (which assumes that higher priority
+    can be used by `.normalize_kwargs` (which assumes that higher priority
     aliases come last).
     """
     if cls is None:  # Return the actual class decorator.
@@ -2127,7 +2034,7 @@ class _OrderedSet(collections.abc.MutableSet):
         self._od.pop(key, None)
 
 
-# Agg's buffers are unmultiplied RGBA8888, which neither PyQt4 nor cairo
+# Agg's buffers are unmultiplied RGBA8888, which neither PyQt5 nor cairo
 # support; however, both do support premultiplied ARGB32.
 
 
@@ -2227,47 +2134,6 @@ def _check_and_log_subprocess(command, logger, **kwargs):
     return proc.stdout
 
 
-# In the following _check_foo functions, the first parameter starts with an
-# underscore because it is intended to be positional-only (e.g., so that
-# `_check_isinstance([...], types=foo)` doesn't fail.
-
-
-def _check_isinstance(_types, **kwargs):
-    """
-    For each *key, value* pair in *kwargs*, check that *value* is an instance
-    of one of *_types*; if not, raise an appropriate TypeError.
-
-    As a special case, a ``None`` entry in *_types* is treated as NoneType.
-
-    Examples
-    --------
-    >>> cbook._check_isinstance((SomeClass, None), arg=arg)
-    """
-    types = _types
-    none_type = type(None)
-    types = ((types,) if isinstance(types, type) else
-             (none_type,) if types is None else
-             tuple(none_type if tp is None else tp for tp in types))
-
-    def type_name(tp):
-        return ("None" if tp is none_type
-                else tp.__qualname__ if tp.__module__ == "builtins"
-                else f"{tp.__module__}.{tp.__qualname__}")
-
-    for k, v in kwargs.items():
-        if not isinstance(v, types):
-            names = [*map(type_name, types)]
-            if "None" in names:  # Move it to the end for better wording.
-                names.remove("None")
-                names.append("None")
-            raise TypeError(
-                "{!r} must be an instance of {}, not a {}".format(
-                    k,
-                    ", ".join(names[:-1]) + " or " + names[-1]
-                    if len(names) > 1 else names[0],
-                    type_name(type(v))))
-
-
 def _backend_module_name(name):
     """
     Convert a backend name (either a standard backend -- "Agg", "TkAgg", ... --
@@ -2317,8 +2183,62 @@ def _unikey_or_keysym_to_mplkey(unikey, keysym):
     if key.endswith(("_l", "_r")):  # alt_l, ctrl_l, shift_l.
         key = key[:-2]
     key = {
-        "enter": "return",
+        "return": "enter",
         "prior": "pageup",  # Used by tk.
         "next": "pagedown",  # Used by tk.
     }.get(key, key)
     return key
+
+
+@functools.lru_cache(None)
+def _make_class_factory(mixin_class, fmt, attr_name=None):
+    """
+    Return a function that creates picklable classes inheriting from a mixin.
+
+    After ::
+
+        factory = _make_class_factory(FooMixin, fmt, attr_name)
+        FooAxes = factory(Axes)
+
+    ``Foo`` is a class that inherits from ``FooMixin`` and ``Axes`` and **is
+    picklable** (picklability is what differentiates this from a plain call to
+    `type`).  Its ``__name__`` is set to ``fmt.format(Axes.__name__)`` and the
+    base class is stored in the ``attr_name`` attribute, if not None.
+
+    Moreover, the return value of ``factory`` is memoized: calls with the same
+    ``Axes`` class always return the same subclass.
+    """
+
+    @functools.lru_cache(None)
+    def class_factory(axes_class):
+        # if we have already wrapped this class, declare victory!
+        if issubclass(axes_class, mixin_class):
+            return axes_class
+
+        # The parameter is named "axes_class" for backcompat but is really just
+        # a base class; no axes semantics are used.
+        base_class = axes_class
+
+        class subcls(mixin_class, base_class):
+            # Better approximation than __module__ = "matplotlib.cbook".
+            __module__ = mixin_class.__module__
+
+            def __reduce__(self):
+                return (_picklable_class_constructor,
+                        (mixin_class, fmt, attr_name, base_class),
+                        self.__getstate__())
+
+        subcls.__name__ = subcls.__qualname__ = fmt.format(base_class.__name__)
+        if attr_name is not None:
+            setattr(subcls, attr_name, base_class)
+        return subcls
+
+    class_factory.__module__ = mixin_class.__module__
+    return class_factory
+
+
+def _picklable_class_constructor(mixin_class, fmt, attr_name, base_class):
+    """Internal helper for _make_class_factory."""
+    factory = _make_class_factory(mixin_class, fmt, attr_name)
+    cls = factory(base_class)
+    return cls.__new__(cls)

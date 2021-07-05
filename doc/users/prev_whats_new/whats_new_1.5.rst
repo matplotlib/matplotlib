@@ -368,7 +368,7 @@ Add step kwargs to fill_between
 
 Added ``step`` kwarg to `.Axes.fill_between` to allow to fill between
 lines drawn using the 'step' draw style.  The values of ``step`` match
-those of the ``where`` kwarg of `.Axes.step`.  The asymmetry of of the
+those of the ``where`` kwarg of `.Axes.step`.  The asymmetry of the
 kwargs names is not ideal, but `.Axes.fill_between` already has a
 ``where`` kwarg.
 
@@ -494,8 +494,7 @@ backends.
 
 DateFormatter strftime
 ``````````````````````
-:class:`~matplotlib.dates.DateFormatter`\ 's
-:meth:`~matplotlib.dates.DateFormatter.__call__` method will format
+:class:`~matplotlib.dates.DateFormatter`\ 's ``__call__`` method will format
 a :class:`datetime.datetime` object with the format string passed to
 the formatter's constructor. This method accepts datetimes with years
 before 1900, unlike :meth:`datetime.datetime.strftime`.
@@ -609,12 +608,12 @@ that comes as replacement for `.NavigationToolbar2`
 with the figures.  Before we had the `.NavigationToolbar2` with its own
 tools like ``zoom/pan/home/save/...`` and also we had the shortcuts like
 ``yscale/grid/quit/....``. `.ToolManager` relocate all those actions as
-`Tools` (located in `~matplotlib.backend_tools`), and defines a way to
+Tools (located in `~matplotlib.backend_tools`), and defines a way to
 access/trigger/reconfigure them.
 
-The `Toolbars` are replaced for `ToolContainers` that are just GUI
-interfaces to `trigger` the tools. But don't worry the default
-backends include a `ToolContainer` called `toolbar`
+The Toolbars are replaced by `.ToolContainerBase`\s that are just GUI
+interfaces to trigger the tools. But don't worry the default
+backends include a `.ToolContainerBase` called ``toolbar``
 
 
 .. note::
@@ -726,7 +725,7 @@ default, performing no display. ``html5`` converts the animation to an
 h264 encoded video, which is embedded directly in the notebook.
 
 Users not wishing to use the ``_repr_html_`` display hook can also manually
-call the `to_html5_video` method to get the HTML and display using
+call the `.to_html5_video` method to get the HTML and display using
 IPython's ``HTML`` display class::
 
     from IPython.display import HTML

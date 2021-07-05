@@ -102,6 +102,16 @@ def test_exact_extents(path, extents):
     assert np.all(path.get_extents().extents == extents)
 
 
+@pytest.mark.parametrize('ignored_code', [Path.CLOSEPOLY, Path.STOP])
+def test_extents_with_ignored_codes(ignored_code):
+    # Check that STOP and CLOSEPOLY points are ignored when calculating extents
+    # of a path with only straight lines
+    path = Path([[0, 0],
+                 [1, 1],
+                 [2, 2]], [Path.MOVETO, Path.MOVETO, ignored_code])
+    assert np.all(path.get_extents().extents == (0., 0., 1., 1.))
+
+
 def test_point_in_path_nan():
     box = np.array([[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]])
     p = Path(box)
@@ -399,6 +409,16 @@ def test_path_intersect_path(phi):
     a = transform.transform_path(Path([(0, 1), (0, 5)]))
     b = transform.transform_path(Path([(0, 1), (0, 2), (0, 5)]))
     assert a.intersects_path(b) and b.intersects_path(a)
+
+    # a and b are collinear but do not intersect
+    a = transform.transform_path(Path([(1, -1), (0, -1)]))
+    b = transform.transform_path(Path([(0, 1), (0.9, 1)]))
+    assert not a.intersects_path(b) and not b.intersects_path(a)
+
+    # a and b are collinear but do not intersect
+    a = transform.transform_path(Path([(0., -5.), (1., -5.)]))
+    b = transform.transform_path(Path([(1., 5.), (0., 5.)]))
+    assert not a.intersects_path(b) and not b.intersects_path(a)
 
 
 @pytest.mark.parametrize('offset', range(-720, 361, 45))

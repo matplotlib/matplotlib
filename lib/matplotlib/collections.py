@@ -9,16 +9,21 @@ they are meant to be fast for common use cases (e.g., a large set of solid
 line segments).
 """
 
+import inspect
 import math
 from numbers import Number
+import warnings
+
 import numpy as np
 
 import matplotlib as mpl
 from . import (_api, _path, artist, cbook, cm, colors as mcolors, docstring,
                hatch as mhatch, lines as mlines, path as mpath, transforms)
-import warnings
+from ._enums import JoinStyle, CapStyle
 
 
+# "color" is excluded; it is a compound setter, and its docstring differs
+# in LineCollection.
 @cbook._define_aliases({
     "antialiased": ["antialiaseds", "aa"],
     "edgecolor": ["edgecolors", "ec"],
@@ -70,7 +75,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     # subclass-by-subclass basis.
     _edge_default = False
 
-    @cbook._delete_parameter("3.3", "offset_position")
+    @docstring.interpd
     def __init__(self,
                  edgecolors=None,
                  facecolors=None,
@@ -86,7 +91,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  pickradius=5.0,
                  hatch=None,
                  urls=None,
-                 offset_position='screen',
+                 *,
                  zorder=1,
                  **kwargs
                  ):
@@ -110,14 +115,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
             where *onoffseq* is an even length tuple of on and off ink lengths
             in points. For examples, see
             :doc:`/gallery/lines_bars_and_markers/linestyles`.
-        capstyle : str, default: :rc:`patch.capstyle`
+        capstyle : `.CapStyle`-like, default: :rc:`patch.capstyle`
             Style to use for capping lines for all paths in the collection.
-            See :doc:`/gallery/lines_bars_and_markers/joinstyle` for
-            a demonstration of each of the allowed values.
-        joinstyle : str, default: :rc:`patch.joinstyle`
+            Allowed values are %(CapStyle)s.
+        joinstyle : `.JoinStyle`-like, default: :rc:`patch.joinstyle`
             Style to use for joining lines for all paths in the collection.
-            See :doc:`/gallery/lines_bars_and_markers/joinstyle` for
-            a demonstration of each of the allowed values.
+            Allowed values are %(JoinStyle)s.
         antialiaseds : bool or list of bool, default: :rc:`patch.antialiased`
             Whether each patch in the collection should be drawn with
             antialiasing.
@@ -128,9 +131,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         transOffset : `~.transforms.Transform`, default: `.IdentityTransform`
             A single transform which will be applied to each *offsets* vector
             before it is used.
-        offset_position : {'screen' (default), 'data' (deprecated)}
-            If set to 'data' (deprecated), *offsets* will be treated as if it
-            is in data coordinates instead of in screen coordinates.
         norm : `~.colors.Normalize`, optional
             Forwarded to `.ScalarMappable`. The default of
             ``None`` means that the first draw call will set ``vmin`` and
@@ -168,8 +168,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # list of unbroadcast/scaled linewidths
         self._us_lw = [0]
         self._linewidths = [0]
-        self._is_filled = True  # May be modified by set_facecolor().
-
+        # Flags set by _set_mappable_flags: are colors from mapping an array?
+        self._face_is_mapped = None
+        self._edge_is_mapped = None
+        self._mapped_colors = None  # calculated in update_scalarmappable
         self._hatch_color = mcolors.to_rgba(mpl.rcParams['hatch.color'])
         self.set_facecolor(facecolors)
         self.set_edgecolor(edgecolors)
@@ -180,8 +182,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_urls(urls)
         self.set_hatch(hatch)
         self._offset_position = "screen"
-        if offset_position != "screen":
-            self.set_offset_position(offset_position)  # emit deprecation.
         self.set_zorder(zorder)
 
         if capstyle:
@@ -274,11 +274,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 # can properly have the axes limits set by their shape +
                 # offset.  LineCollections that have no offsets can
                 # also use this algorithm (like streamplot).
-                result = mpath.get_path_collection_extents(
-                    transform.get_affine(), paths, self.get_transforms(),
+                return mpath.get_path_collection_extents(
+                    transform.get_affine() - transData, paths,
+                    self.get_transforms(),
                     transOffset.transform_non_affine(offsets),
                     transOffset.get_affine().frozen())
-                return result.transformed(transData.inverted())
             if not self._offsetsNone:
                 # this is for collections that have their paths (shapes)
                 # in physical, axes-relative, or figure-relative units
@@ -290,9 +290,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 # note A-B means A B^{-1}
                 offsets = np.ma.masked_invalid(offsets)
                 if not offsets.mask.all():
-                    points = np.row_stack((offsets.min(axis=0),
-                                           offsets.max(axis=0)))
-                    return transforms.Bbox(points)
+                    bbox = transforms.Bbox.null()
+                    bbox.update_from_data_xy(offsets)
+                    return bbox
         return transforms.Bbox.null()
 
     def get_window_extent(self, renderer):
@@ -421,7 +421,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        d : float
+        pr : float
             Pick radius, in points.
         """
         self._pickradius = pr
@@ -537,7 +537,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        offsets : array-like (N, 2) or (2,)
+        offsets : (N, 2) or (2,) array-like
         """
         offsets = np.asanyarray(offsets, float)
         if offsets.shape == (2,):  # Broadcast (2,) -> (1, 2) but nothing else.
@@ -557,34 +557,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         else:
             return self._uniform_offsets
 
-    @_api.deprecated("3.3")
-    def set_offset_position(self, offset_position):
-        """
-        Set how offsets are applied.  If *offset_position* is 'screen'
-        (default) the offset is applied after the master transform has
-        been applied, that is, the offsets are in screen coordinates.
-        If offset_position is 'data', the offset is applied before the
-        master transform, i.e., the offsets are in data coordinates.
-
-        Parameters
-        ----------
-        offset_position : {'screen', 'data'}
-        """
-        _api.check_in_list(['screen', 'data'], offset_position=offset_position)
-        self._offset_position = offset_position
-        self.stale = True
-
-    @_api.deprecated("3.3")
-    def get_offset_position(self):
-        """
-        Return how offsets are applied for the collection.  If
-        *offset_position* is 'screen', the offset is applied after the
-        master transform has been applied, that is, the offsets are in
-        screen coordinates.  If offset_position is 'data', the offset
-        is applied before the master transform, i.e., the offsets are
-        in data coordinates.
-        """
-        return self._offset_position
+    def _get_default_linewidth(self):
+        # This may be overridden in a subclass.
+        return mpl.rcParams['patch.linewidth']  # validated as float
 
     def set_linewidth(self, lw):
         """
@@ -597,9 +572,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         lw : float or list of floats
         """
         if lw is None:
-            lw = mpl.rcParams['patch.linewidth']
-            if lw is None:
-                lw = mpl.rcParams['lines.linewidth']
+            lw = self._get_default_linewidth()
         # get the un-scaled/broadcast lw
         self._us_lw = np.atleast_1d(np.asarray(lw))
 
@@ -655,35 +628,33 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._linewidths, self._linestyles = self._bcast_lwls(
             self._us_lw, self._us_linestyles)
 
+    @docstring.interpd
     def set_capstyle(self, cs):
         """
-        Set the capstyle for the collection (for all its elements).
+        Set the `.CapStyle` for the collection (for all its elements).
 
         Parameters
         ----------
-        cs : {'butt', 'round', 'projecting'}
-            The capstyle.
+        cs : `.CapStyle` or %(CapStyle)s
         """
-        mpl.rcsetup.validate_capstyle(cs)
-        self._capstyle = cs
+        self._capstyle = CapStyle(cs)
 
     def get_capstyle(self):
-        return self._capstyle
+        return self._capstyle.name
 
+    @docstring.interpd
     def set_joinstyle(self, js):
         """
-        Set the joinstyle for the collection (for all its elements).
+        Set the `.JoinStyle` for the collection (for all its elements).
 
         Parameters
         ----------
-        js : {'miter', 'round', 'bevel'}
-            The joinstyle.
+        js : `.JoinStyle` or %(JoinStyle)s
         """
-        mpl.rcsetup.validate_joinstyle(js)
-        self._joinstyle = js
+        self._joinstyle = JoinStyle(js)
 
     def get_joinstyle(self):
-        return self._joinstyle
+        return self._joinstyle.name
 
     @staticmethod
     def _bcast_lwls(linewidths, dashes):
@@ -705,7 +676,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         Returns
         -------
         linewidths, dashes : list
-             Will be the same length, dashes are scaled by paired linewidth
+            Will be the same length, dashes are scaled by paired linewidth
         """
         if mpl.rcParams['_internal.classic_mode']:
             return linewidths, dashes
@@ -732,9 +703,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
         aa : bool or list of bools
         """
         if aa is None:
-            aa = mpl.rcParams['patch.antialiased']
+            aa = self._get_default_antialiased()
         self._antialiaseds = np.atleast_1d(np.asarray(aa, bool))
         self.stale = True
+
+    def _get_default_antialiased(self):
+        # This may be overridden in a subclass.
+        return mpl.rcParams['patch.antialiased']
 
     def set_color(self, c):
         """
@@ -752,16 +727,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_facecolor(c)
         self.set_edgecolor(c)
 
+    def _get_default_facecolor(self):
+        # This may be overridden in a subclass.
+        return mpl.rcParams['patch.facecolor']
+
     def _set_facecolor(self, c):
         if c is None:
-            c = mpl.rcParams['patch.facecolor']
+            c = self._get_default_facecolor()
 
-        self._is_filled = True
-        try:
-            if c.lower() == 'none':
-                self._is_filled = False
-        except AttributeError:
-            pass
         self._facecolors = mcolors.to_rgba_array(c, self._alpha)
         self.stale = True
 
@@ -777,6 +750,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ----------
         c : color or list of colors
         """
+        if isinstance(c, str) and c.lower() in ("none", "face"):
+            c = c.lower()
         self._original_facecolor = c
         self._set_facecolor(c)
 
@@ -789,29 +764,24 @@ class Collection(artist.Artist, cm.ScalarMappable):
         else:
             return self._edgecolors
 
+    def _get_default_edgecolor(self):
+        # This may be overridden in a subclass.
+        return mpl.rcParams['patch.edgecolor']
+
     def _set_edgecolor(self, c):
         set_hatch_color = True
         if c is None:
-            if (mpl.rcParams['patch.force_edgecolor'] or
-                    not self._is_filled or self._edge_default):
-                c = mpl.rcParams['patch.edgecolor']
+            if (mpl.rcParams['patch.force_edgecolor']
+                    or self._edge_default
+                    or cbook._str_equal(self._original_facecolor, 'none')):
+                c = self._get_default_edgecolor()
             else:
                 c = 'none'
                 set_hatch_color = False
-
-        self._is_stroked = True
-        try:
-            if c.lower() == 'none':
-                self._is_stroked = False
-        except AttributeError:
-            pass
-
-        try:
-            if c.lower() == 'face':   # Special case: lookup in "get" method.
-                self._edgecolors = 'face'
-                return
-        except AttributeError:
-            pass
+        if cbook._str_lower_equal(c, 'face'):
+            self._edgecolors = 'face'
+            self.stale = True
+            return
         self._edgecolors = mcolors.to_rgba_array(c, self._alpha)
         if set_hatch_color and len(self._edgecolors):
             self._hatch_color = tuple(self._edgecolors[0])
@@ -827,6 +797,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
             The collection edgecolor(s).  If a sequence, the patches cycle
             through it.  If 'face', match the facecolor.
         """
+        # We pass through a default value for use in LineCollection.
+        # This allows us to maintain None as the default indicator in
+        # _original_edgecolor.
+        if isinstance(c, str) and c.lower() in ("none", "face"):
+            c = c.lower()
         self._original_edgecolor = c
         self._set_edgecolor(c)
 
@@ -843,7 +818,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
             supported.
         """
         artist.Artist._set_alpha_for_array(self, alpha)
-        self._update_dict['array'] = True
         self._set_facecolor(self._original_facecolor)
         self._set_edgecolor(self._original_edgecolor)
 
@@ -855,44 +829,92 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def get_linestyle(self):
         return self._linestyles
 
-    def update_scalarmappable(self):
-        """Update colors from the scalar mappable array, if it is not None."""
-        if self._A is None:
-            return
-        # QuadMesh can map 2d arrays (but pcolormesh supplies 1d array)
-        if self._A.ndim > 1 and not isinstance(self, QuadMesh):
-            raise ValueError('Collections can only map rank 1 arrays')
-        if not self._check_update("array"):
-            return
-        if np.iterable(self._alpha):
-            if self._alpha.size != self._A.size:
-                raise ValueError(f'Data array shape, {self._A.shape} '
-                                 'is incompatible with alpha array shape, '
-                                 f'{self._alpha.shape}. '
-                                 'This can occur with the deprecated '
-                                 'behavior of the "flat" shading option, '
-                                 'in which a row and/or column of the data '
-                                 'array is dropped.')
-            # pcolormesh, scatter, maybe others flatten their _A
-            self._alpha = self._alpha.reshape(self._A.shape)
+    def _set_mappable_flags(self):
+        """
+        Determine whether edges and/or faces are color-mapped.
 
-        if self._is_filled:
-            self._facecolors = self.to_rgba(self._A, self._alpha)
-        elif self._is_stroked:
-            self._edgecolors = self.to_rgba(self._A, self._alpha)
+        This is a helper for update_scalarmappable.
+        It sets Boolean flags '_edge_is_mapped' and '_face_is_mapped'.
+
+        Returns
+        -------
+        mapping_change : bool
+            True if either flag is True, or if a flag has changed.
+        """
+        # The flags are initialized to None to ensure this returns True
+        # the first time it is called.
+        edge0 = self._edge_is_mapped
+        face0 = self._face_is_mapped
+        # After returning, the flags must be Booleans, not None.
+        self._edge_is_mapped = False
+        self._face_is_mapped = False
+        if self._A is not None:
+            if not cbook._str_equal(self._original_facecolor, 'none'):
+                self._face_is_mapped = True
+                if cbook._str_equal(self._original_edgecolor, 'face'):
+                    self._edge_is_mapped = True
+            else:
+                if self._original_edgecolor is None:
+                    self._edge_is_mapped = True
+
+        mapped = self._face_is_mapped or self._edge_is_mapped
+        changed = (edge0 is None or face0 is None
+                   or self._edge_is_mapped != edge0
+                   or self._face_is_mapped != face0)
+        return mapped or changed
+
+    def update_scalarmappable(self):
+        """
+        Update colors from the scalar mappable array, if any.
+
+        Assign colors to edges and faces based on the array and/or
+        colors that were directly set, as appropriate.
+        """
+        if not self._set_mappable_flags():
+            return
+        # Allow possibility to call 'self.set_array(None)'.
+        if self._A is not None:
+            # QuadMesh can map 2d arrays (but pcolormesh supplies 1d array)
+            if self._A.ndim > 1 and not isinstance(self, QuadMesh):
+                raise ValueError('Collections can only map rank 1 arrays')
+            if np.iterable(self._alpha):
+                if self._alpha.size != self._A.size:
+                    raise ValueError(
+                        f'Data array shape, {self._A.shape} '
+                        'is incompatible with alpha array shape, '
+                        f'{self._alpha.shape}. '
+                        'This can occur with the deprecated '
+                        'behavior of the "flat" shading option, '
+                        'in which a row and/or column of the data '
+                        'array is dropped.')
+                # pcolormesh, scatter, maybe others flatten their _A
+                self._alpha = self._alpha.reshape(self._A.shape)
+            self._mapped_colors = self.to_rgba(self._A, self._alpha)
+
+        if self._face_is_mapped:
+            self._facecolors = self._mapped_colors
+        else:
+            self._set_facecolor(self._original_facecolor)
+        if self._edge_is_mapped:
+            self._edgecolors = self._mapped_colors
+        else:
+            self._set_edgecolor(self._original_edgecolor)
         self.stale = True
 
     def get_fill(self):
-        """Return whether fill is set."""
-        return self._is_filled
+        """Return whether face is colored."""
+        return not cbook._str_lower_equal(self._original_facecolor, "none")
 
     def update_from(self, other):
         """Copy properties from other to self."""
 
         artist.Artist.update_from(self, other)
         self._antialiaseds = other._antialiaseds
+        self._mapped_colors = other._mapped_colors
+        self._edge_is_mapped = other._edge_is_mapped
         self._original_edgecolor = other._original_edgecolor
         self._edgecolors = other._edgecolors
+        self._face_is_mapped = other._face_is_mapped
         self._original_facecolor = other._original_facecolor
         self._facecolors = other._facecolors
         self._linewidths = other._linewidths
@@ -905,7 +927,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._A = other._A
         self.norm = other.norm
         self.cmap = other.cmap
-        # do we need to copy self._update_dict? -JJL
         self.stale = True
 
 
@@ -1025,8 +1046,8 @@ class PathCollection(_CollectionWithSizes):
             Finally, a `~.ticker.Locator` can be provided.
         fmt : str, `~matplotlib.ticker.Formatter`, or None (default)
             The format or formatter to use for the labels. If a string must be
-            a valid input for a `~.StrMethodFormatter`. If None (the default),
-            use a `~.ScalarFormatter`.
+            a valid input for a `.StrMethodFormatter`. If None (the default),
+            use a `.ScalarFormatter`.
         func : function, default: ``lambda x: x``
             Function to calculate the labels.  Often the size (or color)
             argument to `~.Axes.scatter` will have been pre-processed by the
@@ -1074,7 +1095,9 @@ class PathCollection(_CollectionWithSizes):
             raise ValueError("Valid values for `prop` are 'colors' or "
                              f"'sizes'. You supplied '{prop}' instead.")
 
-        fmt.set_bounds(func(u).min(), func(u).max())
+        fu = func(u)
+        fmt.axis.set_view_interval(fu.min(), fu.max())
+        fmt.axis.set_data_interval(fu.min(), fu.max())
         if num == "auto":
             num = 9
             if len(u) <= num:
@@ -1337,7 +1360,7 @@ class LineCollection(Collection):
     Represents a sequence of `.Line2D`\s that should be drawn together.
 
     This class extends `.Collection` to represent a sequence of
-    `~.Line2D`\s instead of just a sequence of `~.Patch`\s.
+    `.Line2D`\s instead of just a sequence of `.Patch`\s.
     Just as in `.Collection`, each property of a *LineCollection* may be either
     a single value or a list of values. This list is then used cyclically for
     each element of the LineCollection, so the property of the ``i``\th element
@@ -1352,18 +1375,9 @@ class LineCollection(Collection):
 
     _edge_default = True
 
-    def __init__(self, segments,     # Can be None.
-                 linewidths=None,
-                 colors=None,
-                 antialiaseds=None,
-                 linestyles='solid',
-                 offsets=None,
-                 transOffset=None,
-                 norm=None,
-                 cmap=None,
-                 pickradius=5,
-                 zorder=2,
-                 facecolors='none',
+    def __init__(self, segments,  # Can be None.
+                 *args,           # Deprecated.
+                 zorder=2,        # Collection.zorder is 1
                  **kwargs
                  ):
         """
@@ -1384,40 +1398,37 @@ class LineCollection(Collection):
         antialiaseds : bool or list of bool, default: :rc:`lines.antialiased`
             Whether to use antialiasing for each line.
         zorder : int, default: 2
-           zorder of the lines once drawn.
-        facecolors : color or list of color, default: 'none'
-           The facecolors of the LineCollection.
-           Setting to a value other than 'none' will lead to each line being
-           "filled in" as if there was an implicit line segment joining the
-           last and first points of that line back around to each other. In
-           order to manually specify what should count as the "interior" of
-           each line, please use `.PathCollection` instead, where the
-           "interior" can be specified by appropriate usage of
-           `~.path.Path.CLOSEPOLY`.
-        **kwargs
-            Forwareded to `.Collection`.
-        """
-        if colors is None:
-            colors = mpl.rcParams['lines.color']
-        if linewidths is None:
-            linewidths = (mpl.rcParams['lines.linewidth'],)
-        if antialiaseds is None:
-            antialiaseds = (mpl.rcParams['lines.antialiased'],)
+            zorder of the lines once drawn.
 
-        colors = mcolors.to_rgba_array(colors)
+        facecolors : color or list of color, default: 'none'
+            When setting *facecolors*, each line is interpreted as a boundary
+            for an area, implicitly closing the path from the last point to the
+            first point. The enclosed area is filled with *facecolor*.
+            In order to manually specify what should count as the "interior" of
+            each line, please use `.PathCollection` instead, where the
+            "interior" can be specified by appropriate usage of
+            `~.path.Path.CLOSEPOLY`.
+
+        **kwargs
+            Forwarded to `.Collection`.
+        """
+        argnames = ["linewidths", "colors", "antialiaseds", "linestyles",
+                    "offsets", "transOffset", "norm", "cmap", "pickradius",
+                    "zorder", "facecolors"]
+        if args:
+            argkw = {name: val for name, val in zip(argnames, args)}
+            kwargs.update(argkw)
+            cbook.warn_deprecated(
+                "3.4", message="Since %(since)s, passing LineCollection "
+                "arguments other than the first, 'segments', as positional "
+                "arguments is deprecated, and they will become keyword-only "
+                "arguments %(removal)s."
+                )
+        # Unfortunately, mplot3d needs this explicit setting of 'facecolors'.
+        kwargs.setdefault('facecolors', 'none')
         super().__init__(
-            edgecolors=colors,
-            facecolors=facecolors,
-            linewidths=linewidths,
-            linestyles=linestyles,
-            antialiaseds=antialiaseds,
-            offsets=offsets,
-            transOffset=transOffset,
-            norm=norm,
-            cmap=cmap,
             zorder=zorder,
             **kwargs)
-
         self.set_segments(segments)
 
     def set_segments(self, segments):
@@ -1469,19 +1480,32 @@ class LineCollection(Collection):
                 segs[i] = segs[i] + offsets[io:io + 1]
         return segs
 
+    def _get_default_linewidth(self):
+        return mpl.rcParams['lines.linewidth']
+
+    def _get_default_antialiased(self):
+        return mpl.rcParams['lines.antialiased']
+
+    def _get_default_edgecolor(self):
+        return mpl.rcParams['lines.color']
+
+    def _get_default_facecolor(self):
+        return 'none'
+
     def set_color(self, c):
         """
-        Set the color(s) of the LineCollection.
+        Set the edgecolor(s) of the LineCollection.
 
         Parameters
         ----------
         c : color or list of colors
-            Single color (all patches have same color), or a
-            sequence of rgba tuples; if it is a sequence the patches will
+            Single color (all lines have same color), or a
+            sequence of rgba tuples; if it is a sequence the lines will
             cycle through the sequence.
         """
         self.set_edgecolor(c)
-        self.stale = True
+
+    set_colors = set_color
 
     def get_color(self):
         return self._edgecolors
@@ -1610,7 +1634,7 @@ class EventCollection(LineCollection):
         self._is_horizontal = not self.is_horizontal()
         self.stale = True
 
-    def set_orientation(self, orientation=None):
+    def set_orientation(self, orientation):
         """
         Set the orientation of the event line.
 
@@ -1618,24 +1642,9 @@ class EventCollection(LineCollection):
         ----------
         orientation : {'horizontal', 'vertical'}
         """
-        try:
-            is_horizontal = _api.check_getitem(
-                {"horizontal": True, "vertical": False},
-                orientation=orientation)
-        except ValueError:
-            if (orientation is None or orientation.lower() == "none"
-                    or orientation.lower() == "horizontal"):
-                is_horizontal = True
-            elif orientation.lower() == "vertical":
-                is_horizontal = False
-            else:
-                raise
-            normalized = "horizontal" if is_horizontal else "vertical"
-            cbook.warn_deprecated(
-                "3.3", message="Support for setting the orientation of "
-                f"EventCollection to {orientation!r} is deprecated since "
-                f"%(since)s and will be removed %(removal)s; please set it to "
-                f"{normalized!r} instead.")
+        is_horizontal = _api.check_getitem(
+            {"horizontal": True, "vertical": False},
+            orientation=orientation)
         if is_horizontal == self.is_horizontal():
             return
         self.switch_orientation()
@@ -1715,15 +1724,11 @@ class EllipseCollection(Collection):
         ----------
         widths : array-like
             The lengths of the first axes (e.g., major axis lengths).
-
         heights : array-like
             The lengths of second axes.
-
         angles : array-like
             The angles of the first axes, degrees CCW from the x-axis.
-
         units : {'points', 'inches', 'dots', 'width', 'height', 'x', 'y', 'xy'}
-
             The units in which majors and minors are given; 'width' and
             'height' refer to the dimensions of the axes, while 'x' and 'y'
             refer to the *offsets* data units. 'xy' differs from all others in
@@ -1856,7 +1861,6 @@ class TriMesh(Collection):
         super().__init__(**kwargs)
         self._triangulation = triangulation
         self._shading = 'gouraud'
-        self._is_filled = True
 
         self._bbox = transforms.Bbox.unit()
 
@@ -1877,7 +1881,7 @@ class TriMesh(Collection):
     @staticmethod
     def convert_mesh_to_paths(tri):
         """
-        Convert a given mesh into a sequence of `~.Path` objects.
+        Convert a given mesh into a sequence of `.Path` objects.
 
         This function is primarily of use to implementers of backends that do
         not directly support meshes.
@@ -1911,8 +1915,41 @@ class TriMesh(Collection):
 
 
 class QuadMesh(Collection):
-    """
+    r"""
     Class for the efficient drawing of a quadrilateral mesh.
+
+    A quadrilateral mesh is a grid of M by N adjacent qudrilaterals that are
+    defined via a (M+1, N+1) grid of vertices. The quadrilateral (m, n) is
+    defind by the vertices ::
+
+               (m+1, n) ----------- (m+1, n+1)
+                  /                   /
+                 /                 /
+                /               /
+            (m, n) -------- (m, n+1)
+
+    The mesh need not be regular and the polygons need not be convex.
+
+    Parameters
+    ----------
+    coordinates : (M+1, N+1, 2) array-like
+        The vertices. ``coordinates[m, n]`` specifies the (x, y) coordinates
+        of vertex (m, n).
+
+    antialiased : bool, default: True
+
+    shading : {'flat', 'gouraud'}, default: 'flat'
+
+    Notes
+    -----
+    Unlike other `.Collection`\s, the default *pickradius* of `.QuadMesh` is 0,
+    i.e. `~.Artist.contains` checks whether the test point is within any of the
+    mesh quadrilaterals.
+
+    There exists a deprecated API version ``QuadMesh(M, N, coords)``, where
+    the dimensions are given explicitly and ``coords`` is a (M*N, 2)
+    array-like. This has been deprecated in Matplotlib 3.5. The following
+    describes the semantics of this deprecated API.
 
     A quadrilateral mesh consists of a grid of vertices.
     The dimensions of this array are (*meshWidth* + 1, *meshHeight* + 1).
@@ -1936,23 +1973,47 @@ class QuadMesh(Collection):
     For example, the first entry in *coordinates* is the coordinates of the
     vertex at mesh coordinates (0, 0), then the one at (0, 1), then at (0, 2)
     .. (0, meshWidth), (1, 0), (1, 1), and so on.
-
-    *shading* may be 'flat', or 'gouraud'
     """
-    def __init__(self, meshWidth, meshHeight, coordinates,
-                 antialiased=True, shading='flat', **kwargs):
-        super().__init__(**kwargs)
-        self._meshWidth = meshWidth
-        self._meshHeight = meshHeight
-        # By converting to floats now, we can avoid that on every draw.
-        self._coordinates = np.asarray(coordinates, float).reshape(
-            (meshHeight + 1, meshWidth + 1, 2))
+
+    def __init__(self, *args, **kwargs):
+        # signature deprecation since="3.5": Change to new signature after the
+        # deprecation has expired. Also remove setting __init__.__signature__,
+        # and remove the Notes from the docstring.
+        params = _api.select_matching_signature(
+            [
+                lambda meshWidth, meshHeight, coordinates, antialiased=True,
+                       shading='flat', **kwargs: locals(),
+                lambda coordinates, antialiased=True, shading='flat', **kwargs:
+                       locals()
+            ],
+            *args, **kwargs).values()
+        *old_w_h, coords, antialiased, shading, kwargs = params
+        if old_w_h:  # The old signature matched.
+            _api.warn_deprecated(
+                "3.5",
+                message="This usage of Quadmesh is deprecated: Parameters "
+                        "meshWidth and meshHeights will be removed; "
+                        "coordinates must be 2D; all parameters except "
+                        "coordinates will be keyword-only.")
+            w, h = old_w_h
+            coords = np.asarray(coords, np.float64).reshape((h + 1, w + 1, 2))
+        kwargs.setdefault("pickradius", 0)
+        # end of signature deprecation code
+
+        _api.check_shape((None, None, 2), coordinates=coords)
+        self._coordinates = coords
         self._antialiased = antialiased
         self._shading = shading
-
         self._bbox = transforms.Bbox.unit()
-        self._bbox.update_from_data_xy(coordinates.reshape(
-            ((meshWidth + 1) * (meshHeight + 1), 2)))
+        self._bbox.update_from_data_xy(self._coordinates.reshape(-1, 2))
+        # super init delayed after own init because array kwarg requires
+        # self._coordinates and self._shading
+        super().__init__(**kwargs)
+
+    # Only needed during signature deprecation
+    __init__.__signature__ = inspect.signature(
+        lambda self, coordinates, *,
+               antialiased=True, shading='flat', pickradius=0, **kwargs: None)
 
     def get_paths(self):
         if self._paths is None:
@@ -1960,17 +2021,78 @@ class QuadMesh(Collection):
         return self._paths
 
     def set_paths(self):
-        self._paths = self.convert_mesh_to_paths(
-            self._meshWidth, self._meshHeight, self._coordinates)
+        self._paths = self._convert_mesh_to_paths(self._coordinates)
         self.stale = True
+
+    def set_array(self, A):
+        """
+        Set the data values.
+
+        Parameters
+        ----------
+        A : (M, N) array-like or M*N array-like
+            If the values are provided as a 2D grid, the shape must match the
+            coordinates grid. If the values are 1D, they are reshaped to 2D.
+            M, N follow from the coordinates grid, where the coordinates grid
+            shape is (M, N) for 'gouraud' *shading* and (M+1, N+1) for 'flat'
+            shading.
+        """
+        height, width = self._coordinates.shape[0:-1]
+        misshapen_data = False
+        faulty_data = False
+
+        if self._shading == 'flat':
+            h, w = height-1, width-1
+        else:
+            h, w = height, width
+
+        if A is not None:
+            shape = np.shape(A)
+            if len(shape) == 1:
+                if shape[0] != (h*w):
+                    faulty_data = True
+            elif shape != (h, w):
+                if np.prod(shape) == (h * w):
+                    misshapen_data = True
+                else:
+                    faulty_data = True
+
+            if misshapen_data:
+                _api.warn_deprecated(
+                    "3.5", message=f"For X ({width}) and Y ({height}) "
+                    f"with {self._shading} shading, the expected shape of "
+                    f"A is ({h}, {w}). Passing A ({A.shape}) is deprecated "
+                    "since %(since)s and will become an error %(removal)s.")
+
+            if faulty_data:
+                raise TypeError(
+                    f"Dimensions of A {A.shape} are incompatible with "
+                    f"X ({width}) and/or Y ({height})")
+
+        return super().set_array(A)
 
     def get_datalim(self, transData):
         return (self.get_transform() - transData).transform_bbox(self._bbox)
 
-    @staticmethod
-    def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
+    def get_coordinates(self):
         """
-        Convert a given mesh into a sequence of `~.Path` objects.
+        Return the vertices of the mesh as an (M+1, N+1, 2) array.
+
+        M, N are the number of quadrilaterals in the rows / columns of the
+        mesh, corresponding to (M+1, N+1) vertices.
+        The last dimension specifies the components (x, y).
+        """
+        return self._coordinates
+
+    @staticmethod
+    @_api.deprecated("3.5", alternative="QuadMesh(coordinates).get_paths()")
+    def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
+        return QuadMesh._convert_mesh_to_paths(coordinates)
+
+    @staticmethod
+    def _convert_mesh_to_paths(coordinates):
+        """
+        Convert a given mesh into a sequence of `.Path` objects.
 
         This function is primarily of use to implementers of backends that do
         not directly support quadmeshes.
@@ -1979,20 +2101,23 @@ class QuadMesh(Collection):
             c = coordinates.data
         else:
             c = coordinates
-        points = np.concatenate((
-                    c[:-1, :-1],
-                    c[:-1, 1:],
-                    c[1:, 1:],
-                    c[1:, :-1],
-                    c[:-1, :-1]
-                ), axis=2)
-        points = points.reshape((meshWidth * meshHeight, 5, 2))
+        points = np.concatenate([
+            c[:-1, :-1],
+            c[:-1, 1:],
+            c[1:, 1:],
+            c[1:, :-1],
+            c[:-1, :-1]
+        ], axis=2).reshape((-1, 5, 2))
         return [mpath.Path(x) for x in points]
 
+    @_api.deprecated("3.5")
     def convert_mesh_to_triangles(self, meshWidth, meshHeight, coordinates):
+        return self._convert_mesh_to_triangles(coordinates)
+
+    def _convert_mesh_to_triangles(self, coordinates):
         """
         Convert a given mesh into a sequence of triangles, each point
-        with its own color.  This is useful for experiments using
+        with its own color.  The result can be used to construct a call to
         `~.RendererBase.draw_gouraud_triangle`.
         """
         if isinstance(coordinates, np.ma.MaskedArray):
@@ -2005,29 +2130,25 @@ class QuadMesh(Collection):
         p_c = p[1:, 1:]
         p_d = p[1:, :-1]
         p_center = (p_a + p_b + p_c + p_d) / 4.0
+        triangles = np.concatenate([
+            p_a, p_b, p_center,
+            p_b, p_c, p_center,
+            p_c, p_d, p_center,
+            p_d, p_a, p_center,
+        ], axis=2).reshape((-1, 3, 2))
 
-        triangles = np.concatenate((
-                p_a, p_b, p_center,
-                p_b, p_c, p_center,
-                p_c, p_d, p_center,
-                p_d, p_a, p_center,
-            ), axis=2)
-        triangles = triangles.reshape((meshWidth * meshHeight * 4, 3, 2))
-
-        c = self.get_facecolor().reshape((meshHeight + 1, meshWidth + 1, 4))
+        c = self.get_facecolor().reshape((*coordinates.shape[:2], 4))
         c_a = c[:-1, :-1]
         c_b = c[:-1, 1:]
         c_c = c[1:, 1:]
         c_d = c[1:, :-1]
         c_center = (c_a + c_b + c_c + c_d) / 4.0
-
-        colors = np.concatenate((
-                        c_a, c_b, c_center,
-                        c_b, c_c, c_center,
-                        c_c, c_d, c_center,
-                        c_d, c_a, c_center,
-                    ), axis=2)
-        colors = colors.reshape((meshWidth * meshHeight * 4, 3, 4))
+        colors = np.concatenate([
+            c_a, c_b, c_center,
+            c_b, c_c, c_center,
+            c_c, c_d, c_center,
+            c_d, c_a, c_center,
+        ], axis=2).reshape((-1, 3, 4))
 
         return triangles, colors
 
@@ -2066,13 +2187,13 @@ class QuadMesh(Collection):
         gc.set_linewidth(self.get_linewidth()[0])
 
         if self._shading == 'gouraud':
-            triangles, colors = self.convert_mesh_to_triangles(
-                self._meshWidth, self._meshHeight, coordinates)
+            triangles, colors = self._convert_mesh_to_triangles(coordinates)
             renderer.draw_gouraud_triangles(
                 gc, triangles, colors, transform.frozen())
         else:
             renderer.draw_quad_mesh(
-                gc, transform.frozen(), self._meshWidth, self._meshHeight,
+                gc, transform.frozen(),
+                coordinates.shape[1] - 1, coordinates.shape[0] - 1,
                 coordinates, offsets, transOffset,
                 # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
                 self.get_facecolor().reshape((-1, 4)),
@@ -2081,11 +2202,10 @@ class QuadMesh(Collection):
         renderer.close_group(self.__class__.__name__)
         self.stale = False
 
-
-patchstr = artist.kwdoc(Collection)
-for k in ('QuadMesh', 'TriMesh', 'PolyCollection', 'BrokenBarHCollection',
-          'RegularPolyCollection', 'PathCollection',
-          'StarPolygonCollection', 'PatchCollection',
-          'CircleCollection', 'Collection',):
-    docstring.interpd.update({k: patchstr})
-docstring.interpd.update(LineCollection=artist.kwdoc(LineCollection))
+    def get_cursor_data(self, event):
+        contained, info = self.contains(event)
+        if len(info["ind"]) == 1:
+            ind, = info["ind"]
+            return self.get_array()[ind]
+        else:
+            return None

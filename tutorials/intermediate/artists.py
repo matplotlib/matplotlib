@@ -313,7 +313,7 @@ plt.show()
 # directly from the Axes list, but rather use the
 # :meth:`~matplotlib.figure.Figure.add_subplot` and
 # :meth:`~matplotlib.figure.Figure.add_axes` methods to insert, and the
-# :meth:`~matplotlib.figure.Figure.delaxes` method to delete.  You are
+# `Axes.remove <matplotlib.artist.Artist.remove>` method to delete.  You are
 # free however, to iterate over the list of Axes or index into it to get
 # access to ``Axes`` instances you want to customize.  Here is an
 # example which turns all the Axes grids on::
@@ -723,4 +723,4 @@ plt.show()
 #
 # .. include:: ../../gallery/pyplots/dollar_ticks.rst
 #    :start-after: y axis labels.
-#    :end-before: -------
+#    :end-before: .. admonition:: References

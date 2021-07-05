@@ -1,0 +1,3 @@
+``Dvi.baseline``
+~~~~~~~~~~~~~~~~
+... is deprecated (with no replacement).

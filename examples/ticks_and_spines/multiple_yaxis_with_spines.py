@@ -24,7 +24,7 @@ twin2 = ax.twinx()
 
 # Offset the right spine of twin2.  The ticks and label have already been
 # placed on the right by twinx above.
-twin2.spines["right"].set_position(("axes", 1.2))
+twin2.spines.right.set_position(("axes", 1.2))
 
 p1, = ax.plot([0, 1, 2], [0, 1, 2], "b-", label="Density")
 p2, = twin1.plot([0, 1, 2], [0, 3, 2], "r-", label="Temperature")

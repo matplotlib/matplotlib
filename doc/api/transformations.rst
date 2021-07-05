@@ -2,7 +2,7 @@
 ``matplotlib.transforms``
 *************************
 
-.. inheritance-diagram:: matplotlib.transforms matplotlib.path
+.. inheritance-diagram:: matplotlib.transforms
    :parts: 1
 
 .. automodule:: matplotlib.transforms

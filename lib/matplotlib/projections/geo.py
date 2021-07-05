@@ -264,10 +264,7 @@ class AitoffAxes(GeoAxes):
             cos_latitude = np.cos(latitude)
 
             alpha = np.arccos(cos_latitude * np.cos(half_long))
-            # Avoid divide-by-zero errors using same method as NumPy.
-            alpha[alpha == 0.0] = 1e-20
-            # We want unnormalized sinc.  numpy.sinc gives us normalized
-            sinc_alpha = np.sin(alpha) / alpha
+            sinc_alpha = np.sinc(alpha / np.pi)  # np.sinc is sin(pi*x)/(pi*x).
 
             x = (cos_latitude * np.sin(half_long)) / sinc_alpha
             y = np.sin(latitude) / sinc_alpha
@@ -282,7 +279,7 @@ class AitoffAxes(GeoAxes):
         def transform_non_affine(self, xy):
             # docstring inherited
             # MGDTODO: Math is hard ;(
-            return xy
+            return np.full_like(xy, np.nan)
 
         def inverted(self):
             # docstring inherited

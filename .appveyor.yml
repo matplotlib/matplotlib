@@ -18,6 +18,7 @@ environment:
     PYTHONIOENCODING: UTF-8
     PYTEST_ARGS: -raR --numprocesses=auto --timeout=300 --durations=25
                  --cov-report= --cov=lib --log-level=DEBUG
+    PINNEDVERS: "pyzmq!=21.0.0 pyzmq!=22.0.0"
 
   matrix:
     # In theory we could use a single CONDA_INSTALL_LOCN because we construct
@@ -26,11 +27,11 @@ environment:
     - PYTHON_VERSION: "3.7"
       CONDA_INSTALL_LOCN: "C:\\Miniconda37-x64"
       TEST_ALL: "no"
-      EXTRAREQS: "-r requirements/testing/travis_extra.txt"
+      EXTRAREQS: "-r requirements/testing/extra.txt"
     - PYTHON_VERSION: "3.8"
       CONDA_INSTALL_LOCN: "C:\\Miniconda37-x64"
       TEST_ALL: "no"
-      EXTRAREQS: "-r requirements/testing/travis_extra.txt"
+      EXTRAREQS: "-r requirements/testing/extra.txt"
 
 # We always use a 64-bit machine, but can build x86 distributions
 # with the PYTHON_ARCH variable
@@ -61,10 +62,10 @@ install:
   - conda install -c conda-forge pywin32
   - echo %PYTHON_VERSION% %TARGET_ARCH%
   # Install dependencies from PyPI.
-  - python -mpip install --upgrade -r requirements/testing/travis_all.txt %EXTRAREQS% %PINNEDVERS%
+  - python -m pip install --upgrade -r requirements/testing/all.txt %EXTRAREQS% %PINNEDVERS%
   # Install optional dependencies from PyPI.
   # Sphinx is needed to run sphinxext tests
-  - python -mpip install --upgrade sphinx
+  - python -m pip install --upgrade sphinx
   # Show the installed packages + versions
   - conda list
 

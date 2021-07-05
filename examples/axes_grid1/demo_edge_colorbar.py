@@ -1,7 +1,7 @@
 """
-==================
-Demo Edge Colorbar
-==================
+===============================
+Per-row or per-column colorbars
+===============================
 
 This example shows how to use one common colorbar for each row or column
 of an image grid.
@@ -10,9 +10,6 @@ of an image grid.
 from matplotlib import cbook
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import AxesGrid
-
-
-plt.rcParams["mpl_toolkits.legacy_colorbar"] = False
 
 
 def get_demo_image():

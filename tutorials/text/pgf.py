@@ -1,6 +1,6 @@
 r"""
 *********************************
-Typesetting With XeLaTeX/LuaLaTeX
+Typesetting with XeLaTeX/LuaLaTeX
 *********************************
 
 How to typeset text with the ``pgf`` backend in Matplotlib.
@@ -149,11 +149,6 @@ Troubleshooting
   to include the directories containing the latex, dvipng and ghostscript
   executables. See :ref:`environment-variables` and
   :ref:`setting-windows-environment-variables` for details.
-
-* A limitation on Windows causes the backend to keep file handles that have
-  been opened by your application open. As a result, it may not be possible
-  to delete the corresponding files until the application closes (see
-  `#1324 <https://github.com/matplotlib/matplotlib/issues/1324>`_).
 
 * Sometimes the font rendering in figures that are saved to png images is
   very bad. This happens when the pdftocairo tool is not available and

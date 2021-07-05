@@ -101,7 +101,7 @@ plt.show()
 # limits are mostly hours, we label Feb 4 00:00 as simply "Feb-4".
 #
 # Note that these format lists can also be passed to `.ConciseDateFormatter`
-# as optional kwargs.
+# as optional keyword arguments.
 #
 # Here we modify the labels to be "day month year", instead of the ISO
 # "year month day":
@@ -142,8 +142,8 @@ plt.show()
 # Registering a converter with localization
 # =========================================
 #
-# `.ConciseDateFormatter` doesn't have rcParams entries, but localization
-# can be accomplished by passing kwargs to `~.ConciseDateConverter` and
+# `.ConciseDateFormatter` doesn't have rcParams entries, but localization can
+# be accomplished by passing keyword arguments to `.ConciseDateConverter` and
 # registering the datatypes you will use with the units registry:
 
 import datetime

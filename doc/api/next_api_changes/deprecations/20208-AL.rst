@@ -1,0 +1,4 @@
+``matplotlib.blocking_input``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This module has been deprecated.  Instead, use ``canvas.start_event_loop()``
+and ``canvas.stop_event_loop()`` while connecting event callbacks as needed.

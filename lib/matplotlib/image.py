@@ -6,7 +6,6 @@ operations.
 import math
 import os
 import logging
-from numbers import Number
 from pathlib import Path
 
 import numpy as np
@@ -151,7 +150,7 @@ def _draw_list_compositing_images(
 
         for a in artists:
             if (isinstance(a, _ImageBase) and a.can_composite() and
-                    a.get_clip_on()):
+                    a.get_clip_on() and not a.get_clip_path()):
                 image_group.append(a)
             else:
                 flush_images()
@@ -412,14 +411,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     # all masked, so values don't matter
                     a_min, a_max = np.int32(0), np.int32(1)
                 if inp_dtype.kind == 'f':
-                    scaled_dtype = A.dtype
-                    # Cast to float64
-                    if A.dtype not in (np.float32, np.float16):
-                        if A.dtype != np.float64:
-                            cbook._warn_external(
-                                f"Casting input data from '{A.dtype}' to "
-                                f"'float64' for imshow")
-                        scaled_dtype = np.float64
+                    scaled_dtype = np.dtype(
+                        np.float64 if A.dtype.itemsize > 4 else np.float32)
+                    if scaled_dtype.itemsize < A.dtype.itemsize:
+                        _api.warn_external(
+                            f"Casting input data from {A.dtype} to "
+                            f"{scaled_dtype} for imshow")
                 else:
                     # probably an integer of some type.
                     da = a_max.astype(np.float64) - a_min.astype(np.float64)
@@ -535,9 +532,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # we have re-set the vmin/vmax to account for small errors
                 # that may have moved input values in/out of range
                 s_vmin, s_vmax = vrange
-                if isinstance(self.norm, mcolors.LogNorm):
-                    if s_vmin < 0:
-                        s_vmin = max(s_vmin, np.finfo(scaled_dtype).eps)
+                if isinstance(self.norm, mcolors.LogNorm) and s_vmin <= 0:
+                    # Don't give 0 or negative values to LogNorm
+                    s_vmin = np.finfo(scaled_dtype).eps
                 with cbook._setattr_cm(self.norm,
                                        vmin=s_vmin,
                                        vmax=s_vmax,
@@ -661,7 +658,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         # collection on nonlinear transformed coordinates.
         # TODO: consider returning image coordinates (shouldn't
         # be too difficult given that the image is rectilinear
-        x, y = mouseevent.xdata, mouseevent.ydata
+        trans = self.get_transform().inverted()
+        x, y = trans.transform([mouseevent.x, mouseevent.y])
         xmin, xmax, ymin, ymax = self.get_extent()
         if xmin > xmax:
             xmin, xmax = xmax, xmin
@@ -855,7 +853,7 @@ class AxesImage(_ImageBase):
         Supported values are 'none', 'antialiased', 'nearest', 'bilinear',
         'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
         'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
-        'sinc', 'lanczos'.
+        'sinc', 'lanczos', 'blackman'.
     origin : {'upper', 'lower'}, default: :rc:`image.origin`
         Place the [0, 0] index of the array in the upper left or lower left
         corner of the axes. The convention 'upper' is typically used for
@@ -983,28 +981,19 @@ class AxesImage(_ImageBase):
         if self.origin == 'upper':
             ymin, ymax = ymax, ymin
         arr = self.get_array()
-        data_extent = Bbox([[ymin, xmin], [ymax, xmax]])
-        array_extent = Bbox([[0, 0], arr.shape[:2]])
-        trans = BboxTransform(boxin=data_extent, boxout=array_extent)
-        point = trans.transform([event.ydata, event.xdata])
+        data_extent = Bbox([[xmin, ymin], [xmax, ymax]])
+        array_extent = Bbox([[0, 0], [arr.shape[1], arr.shape[0]]])
+        trans = self.get_transform().inverted()
+        trans += BboxTransform(boxin=data_extent, boxout=array_extent)
+        point = trans.transform([event.x, event.y])
         if any(np.isnan(point)):
             return None
-        i, j = point.astype(int)
+        j, i = point.astype(int)
         # Clip the coordinates at array bounds
         if not (0 <= i < arr.shape[0]) or not (0 <= j < arr.shape[1]):
             return None
         else:
             return arr[i, j]
-
-    def format_cursor_data(self, data):
-        if np.ndim(data) == 0 and self.colorbar:
-            return (
-                "["
-                + cbook.strip_math(
-                    self.colorbar.formatter.format_data_short(data)).strip()
-                + "]")
-        else:
-            return super().format_cursor_data(data)
 
 
 class NonUniformImage(AxesImage):
@@ -1026,8 +1015,6 @@ class NonUniformImage(AxesImage):
         """Return False. Do not use unsampled image."""
         return False
 
-    is_grayscale = cbook._deprecate_privatize_attribute("3.3")
-
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
         if self._A is None:
@@ -1038,11 +1025,9 @@ class NonUniformImage(AxesImage):
         if A.ndim == 2:
             if A.dtype != np.uint8:
                 A = self.to_rgba(A, bytes=True)
-                self._is_grayscale = self.cmap.is_gray()
             else:
                 A = np.repeat(A[:, :, np.newaxis], 4, 2)
                 A[:, :, 3] = 255
-                self._is_grayscale = True
         else:
             if A.dtype != np.uint8:
                 A = (255*A).astype(np.uint8)
@@ -1051,17 +1036,53 @@ class NonUniformImage(AxesImage):
                 B[:, :, 0:3] = A
                 B[:, :, 3] = 255
                 A = B
-            self._is_grayscale = False
         vl = self.axes.viewLim
         l, b, r, t = self.axes.bbox.extents
-        width = (round(r) + 0.5) - (round(l) - 0.5)
-        height = (round(t) + 0.5) - (round(b) - 0.5)
-        width *= magnification
-        height *= magnification
-        im = _image.pcolor(self._Ax, self._Ay, A,
-                           int(height), int(width),
-                           (vl.x0, vl.x1, vl.y0, vl.y1),
-                           _interpd_[self._interpolation])
+        width = int(((round(r) + 0.5) - (round(l) - 0.5)) * magnification)
+        height = int(((round(t) + 0.5) - (round(b) - 0.5)) * magnification)
+        x_pix = np.linspace(vl.x0, vl.x1, width)
+        y_pix = np.linspace(vl.y0, vl.y1, height)
+        if self._interpolation == "nearest":
+            x_mid = (self._Ax[:-1] + self._Ax[1:]) / 2
+            y_mid = (self._Ay[:-1] + self._Ay[1:]) / 2
+            x_int = x_mid.searchsorted(x_pix)
+            y_int = y_mid.searchsorted(y_pix)
+            # The following is equal to `A[y_int[:, None], x_int[None, :]]`,
+            # but many times faster.  Both casting to uint32 (to have an
+            # effectively 1D array) and manual index flattening matter.
+            im = (
+                np.ascontiguousarray(A).view(np.uint32).ravel()[
+                    np.add.outer(y_int * A.shape[1], x_int)]
+                .view(np.uint8).reshape((height, width, 4)))
+        else:  # self._interpolation == "bilinear"
+            # Use np.interp to compute x_int/x_float has similar speed.
+            x_int = np.clip(
+                self._Ax.searchsorted(x_pix) - 1, 0, len(self._Ax) - 2)
+            y_int = np.clip(
+                self._Ay.searchsorted(y_pix) - 1, 0, len(self._Ay) - 2)
+            idx_int = np.add.outer(y_int * A.shape[1], x_int)
+            x_frac = np.clip(
+                np.divide(x_pix - self._Ax[x_int], np.diff(self._Ax)[x_int],
+                          dtype=np.float32),  # Downcasting helps with speed.
+                0, 1)
+            y_frac = np.clip(
+                np.divide(y_pix - self._Ay[y_int], np.diff(self._Ay)[y_int],
+                          dtype=np.float32),
+                0, 1)
+            f00 = np.outer(1 - y_frac, 1 - x_frac)
+            f10 = np.outer(y_frac, 1 - x_frac)
+            f01 = np.outer(1 - y_frac, x_frac)
+            f11 = np.outer(y_frac, x_frac)
+            im = np.empty((height, width, 4), np.uint8)
+            for chan in range(4):
+                ac = A[:, :, chan].reshape(-1)  # reshape(-1) avoids a copy.
+                # Shifting the buffer start (`ac[offset:]`) avoids an array
+                # addition (`ac[idx_int + offset]`).
+                buf = f00 * ac[idx_int]
+                buf += f10 * ac[A.shape[1]:][idx_int]
+                buf += f01 * ac[1:][idx_int]
+                buf += f11 * ac[A.shape[1] + 1:][idx_int]
+                im[:, :, chan] = buf  # Implicitly casts to uint8.
         return im, l, b, IdentityTransform()
 
     def set_data(self, x, y, A):
@@ -1177,35 +1198,37 @@ class PcolorImage(AxesImage):
         if A is not None:
             self.set_data(x, y, A)
 
-    is_grayscale = cbook._deprecate_privatize_attribute("3.3")
-
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
         if self._A is None:
             raise RuntimeError('You must first set the image array')
         if unsampled:
             raise ValueError('unsampled not supported on PColorImage')
-        fc = self.axes.patch.get_facecolor()
-        bg = mcolors.to_rgba(fc, 0)
-        bg = (np.array(bg)*255).astype(np.uint8)
+
+        if self._rgbacache is None:
+            A = self.to_rgba(self._A, bytes=True)
+            self._rgbacache = np.pad(A, [(1, 1), (1, 1), (0, 0)], "constant")
+        padded_A = self._rgbacache
+        bg = mcolors.to_rgba(self.axes.patch.get_facecolor(), 0)
+        bg = (np.array(bg) * 255).astype(np.uint8)
+        if (padded_A[0, 0] != bg).all():
+            padded_A[[0, -1], :] = padded_A[:, [0, -1]] = bg
+
         l, b, r, t = self.axes.bbox.extents
         width = (round(r) + 0.5) - (round(l) - 0.5)
         height = (round(t) + 0.5) - (round(b) - 0.5)
         width = int(round(width * magnification))
         height = int(round(height * magnification))
-        if self._rgbacache is None:
-            A = self.to_rgba(self._A, bytes=True)
-            self._rgbacache = A
-            if self._A.ndim == 2:
-                self._is_grayscale = self.cmap.is_gray()
-        else:
-            A = self._rgbacache
         vl = self.axes.viewLim
-        im = _image.pcolor2(self._Ax, self._Ay, A,
-                            height,
-                            width,
-                            (vl.x0, vl.x1, vl.y0, vl.y1),
-                            bg)
+
+        x_pix = np.linspace(vl.x0, vl.x1, width)
+        y_pix = np.linspace(vl.y0, vl.y1, height)
+        x_int = self._Ax.searchsorted(x_pix)
+        y_int = self._Ay.searchsorted(y_pix)
+        im = (  # See comment in NonUniformImage.make_image re: performance.
+            padded_A.view(np.uint32).ravel()[
+                np.add.outer(y_int * padded_A.shape[1], x_int)]
+            .view(np.uint8).reshape((height, width, 4)))
         return im, l, b, IdentityTransform()
 
     def _check_unsampled_image(self):
@@ -1245,15 +1268,10 @@ class PcolorImage(AxesImage):
                 (A.shape[:2], (y.size - 1, x.size - 1)))
         if A.ndim not in [2, 3]:
             raise ValueError("A must be 2D or 3D")
-        if A.ndim == 3 and A.shape[2] == 1:
-            A = A.squeeze(axis=-1)
-        self._is_grayscale = False
         if A.ndim == 3:
-            if A.shape[2] in [3, 4]:
-                if ((A[:, :, 0] == A[:, :, 1]).all() and
-                        (A[:, :, 0] == A[:, :, 2]).all()):
-                    self._is_grayscale = True
-            else:
+            if A.shape[2] == 1:
+                A = A.squeeze(axis=-1)
+            elif A.shape[2] not in [3, 4]:
                 raise ValueError("3D arrays must have RGB or RGBA as last dim")
 
         # For efficient cursor readout, ensure x and y are increasing.
@@ -1345,8 +1363,7 @@ class FigureImage(_ImageBase):
 
     def set_data(self, A):
         """Set the image array."""
-        cm.ScalarMappable.set_array(self,
-                                    cbook.safe_masked_invalid(A, copy=True))
+        cm.ScalarMappable.set_array(self, A)
         self.stale = True
 
 
@@ -1424,15 +1441,26 @@ def imread(fname, format=None):
     """
     Read an image from a file into an array.
 
+    .. note::
+
+        This function exists for historical reasons.  It is recommended to
+        use `PIL.Image.open` instead for loading images.
+
     Parameters
     ----------
     fname : str or file-like
         The image file to read: a filename, a URL or a file-like object opened
         in read-binary mode.
+
+        Passing a URL is deprecated.  Please open the URL
+        for reading and pass the result to Pillow, e.g. with
+        ``PIL.Image.open(urllib.request.urlopen(url))``.
     format : str, optional
-        The image file format assumed for reading the data. If not
-        given, the format is deduced from the filename.  If nothing can
-        be deduced, PNG is tried.
+        The image file format assumed for reading the data.  The image is
+        loaded as a PNG file if *format* is set to "png", if *fname* is a path
+        or opened file with a ".png" extension, or if it is an URL.  In all
+        other cases, *format* is ignored and the format is auto-detected by
+        `PIL.Image.open`.
 
     Returns
     -------
@@ -1442,6 +1470,10 @@ def imread(fname, format=None):
         - (M, N) for grayscale images.
         - (M, N, 3) for RGB images.
         - (M, N, 4) for RGBA images.
+
+        PNG images are returned as float arrays (0-1).  All other formats are
+        returned as int arrays, with a bit depth determined by the file's
+        contents.
     """
     # hide imports to speed initial import on systems with slow linkers
     from urllib import parse
@@ -1471,9 +1503,14 @@ def imread(fname, format=None):
     img_open = (
         PIL.PngImagePlugin.PngImageFile if ext == 'png' else PIL.Image.open)
     if isinstance(fname, str):
-
         parsed = parse.urlparse(fname)
         if len(parsed.scheme) > 1:  # Pillow doesn't handle URLs directly.
+            _api.warn_deprecated(
+                "3.4", message="Directly reading images from URLs is "
+                "deprecated since %(since)s and will no longer be supported "
+                "%(removal)s. Please open the URL for reading and pass the "
+                "result to Pillow, e.g. with "
+                "``PIL.Image.open(urllib.request.urlopen(url))``.")
             # hide imports to speed initial import on systems with slow linkers
             from urllib import request
             ssl_ctx = mpl._get_ssl_context()
@@ -1580,8 +1617,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             # semantics of duplicate keys in pnginfo is unclear.
             if "pnginfo" in pil_kwargs:
                 if metadata:
-                    cbook._warn_external("'metadata' is overridden by the "
-                                         "'pnginfo' entry in 'pil_kwargs'.")
+                    _api.warn_external("'metadata' is overridden by the "
+                                       "'pnginfo' entry in 'pil_kwargs'.")
             else:
                 metadata = {
                     "Software": (f"Matplotlib version{mpl.__version__}, "
@@ -1651,7 +1688,7 @@ def _pil_png_to_float_array(pil_png):
     mode = pil_png.mode
     rawmode = pil_png.png.im_rawmode
     if rawmode == "1":  # Grayscale.
-        return np.asarray(pil_png, np.float32)
+        return np.asarray(pil_png).astype(np.float32)
     if rawmode == "L;2":  # Grayscale.
         return np.divide(pil_png, 2**2 - 1, dtype=np.float32)
     if rawmode == "L;4":  # Grayscale.

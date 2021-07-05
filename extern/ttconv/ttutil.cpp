@@ -14,18 +14,6 @@
 #include <cstdlib>
 #include "pprdrv.h"
 
-#if DEBUG_TRUETYPE
-void debug(const char *format, ... )
-{
-  va_list arg_list;
-  va_start(arg_list, format);
-
-  printf(format, arg_list);
-
-  va_end(arg_list);
-}
-#endif
-
 #define PRINTF_BUFFER_SIZE 512
 void TTStreamWriter::printf(const char* format, ...)
 {
@@ -45,6 +33,7 @@ void TTStreamWriter::printf(const char* format, ...)
 #else
     vsnprintf(buffer2, size, format, arg_list);
 #endif
+    this->write(buffer2);
     free(buffer2);
   } else {
     this->write(buffer);

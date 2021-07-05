@@ -13,16 +13,18 @@ Status
 Branches and Pull requests
 ==========================
 
-Previous work
- * https://github.com/matplotlib/matplotlib/pull/1849
- * https://github.com/matplotlib/matplotlib/pull/2557
- * https://github.com/matplotlib/matplotlib/pull/2465
+Previous work:
+
+* https://github.com/matplotlib/matplotlib/pull/1849
+* https://github.com/matplotlib/matplotlib/pull/2557
+* https://github.com/matplotlib/matplotlib/pull/2465
 
 Pull Requests:
- * Removing the NavigationToolbar classes
-   https://github.com/matplotlib/matplotlib/pull/2740 **CLOSED**
- * Keeping the NavigationToolbar classes https://github.com/matplotlib/matplotlib/pull/2759 **CLOSED**
- * Navigation by events: https://github.com/matplotlib/matplotlib/pull/3652
+
+* Removing the NavigationToolbar classes
+  https://github.com/matplotlib/matplotlib/pull/2740 **CLOSED**
+* Keeping the NavigationToolbar classes https://github.com/matplotlib/matplotlib/pull/2759 **CLOSED**
+* Navigation by events: https://github.com/matplotlib/matplotlib/pull/3652
 
 Abstract
 ========
@@ -39,7 +41,7 @@ reconfiguration.
 
 This approach will make easier to create and share tools among
 users. In the far future, we can even foresee a kind of Marketplace
-for ``Tool``\ s where the most popular can be added into the main
+for ``Tool``\s where the most popular can be added into the main
 distribution.
 
 Detailed description
@@ -55,18 +57,18 @@ https://github.com/matplotlib/matplotlib/issues/2699
 
 The proposed solution is to take the actions out of the ``Toolbar`` and the
 shortcuts out of the ``Canvas``. The actions and shortcuts will be in the form
-of ``Tool``\ s.
+of ``Tool``\s.
 
 A new class ``Navigation`` will be the bridge between the events from the
 ``Canvas`` and ``Toolbar`` and redirect them to the appropriate ``Tool``.
 
 At the end the user interaction will be divided into three classes:
 
- * NavigationBase: This class is instantiated for each FigureManager
-   and connect the all user interactions with the Tools
- * ToolbarBase: This existing class is relegated only as a GUI access
-   to Tools.
- * ToolBase: Is the basic definition of Tools.
+* NavigationBase: This class is instantiated for each FigureManager
+  and connect the all user interactions with the Tools
+* ToolbarBase: This existing class is relegated only as a GUI access
+  to Tools.
+* ToolBase: Is the basic definition of Tools.
 
 
 Implementation
@@ -80,37 +82,44 @@ present in the Toolbar as ``Quit``.
 
 The `.ToolBase` has the following class attributes for configuration at definition time
 
- * keymap = None: Key(s) to be used to trigger the tool
- * description = '': Small description of the tool
- * image = None: Image that is used in the toolbar
+* keymap = None: Key(s) to be used to trigger the tool
+* description = '': Small description of the tool
+* image = None: Image that is used in the toolbar
 
 The following instance attributes are set at instantiation:
- * name
- * navigation
 
-**Methods**
- * trigger(self, event): This is the main method of the Tool, it is called when the Tool is triggered by:
-   * Toolbar button click
-   * keypress associated with the Tool Keymap
-   * Call to navigation.trigger_tool(name)
- * set_figure(self, figure): Set the figure and navigation attributes
- * ``destroy(self, *args)``: Destroy the ``Tool`` graphical interface (if
-   exists)
+* name
+* navigation
 
-**Available Tools**
- * ToolQuit
- * ToolEnableAllNavigation
- * ToolEnableNavigation
- * ToolToggleGrid
- * ToolToggleFullScreen
- * ToolToggleYScale
- * ToolToggleXScale
- * ToolHome
- * ToolBack
- * ToolForward
- * SaveFigureBase
- * ConfigureSubplotsBase
+Methods
+~~~~~~~
 
+* ``trigger(self, event)``: This is the main method of the Tool, it is called
+  when the Tool is triggered by:
+
+  * Toolbar button click
+  * keypress associated with the Tool Keymap
+  * Call to navigation.trigger_tool(name)
+
+* ``set_figure(self, figure)``: Set the figure and navigation attributes
+* ``destroy(self, *args)``: Destroy the ``Tool`` graphical interface (if
+  exists)
+
+Available Tools
+~~~~~~~~~~~~~~~
+
+* ToolQuit
+* ToolEnableAllNavigation
+* ToolEnableNavigation
+* ToolToggleGrid
+* ToolToggleFullScreen
+* ToolToggleYScale
+* ToolToggleXScale
+* ToolHome
+* ToolBack
+* ToolForward
+* SaveFigureBase
+* ConfigureSubplotsBase
 
 ToolToggleBase(ToolBase)
 ------------------------
@@ -118,58 +127,63 @@ ToolToggleBase(ToolBase)
 The `.ToolToggleBase` has the following class attributes for
 configuration at definition time
 
- * radio_group = None: Attribute to group 'radio' like tools (mutually
-   exclusive)
- * cursor = None: Cursor to use when the tool is active
+* radio_group = None: Attribute to group 'radio' like tools (mutually
+  exclusive)
+* cursor = None: Cursor to use when the tool is active
 
 The **Toggleable** Tools, can capture keypress, mouse moves, and mouse
 button press
 
-It defines the following methods
- * enable(self, event): Called by `.ToolToggleBase.trigger` method
- * disable(self, event): Called when the tool is untoggled
- * toggled : **Property** True or False
+Methods
+~~~~~~~
 
-**Available Tools**
- * ToolZoom
- * ToolPan
+* ``enable(self, event)``: Called by `.ToolToggleBase.trigger` method
+* ``disable(self, event)``: Called when the tool is untoggled
+* ``toggled``: **Property** True or False
+
+Available Tools
+~~~~~~~~~~~~~~~
+
+* ToolZoom
+* ToolPan
 
 NavigationBase
 --------------
 
-Defines the following attributes
- * canvas:
- * keypresslock: Lock to know if the ``canvas`` ``key_press_event`` is
-        available and process it
- * messagelock: Lock to know if the message is available to write
+Defines the following attributes:
 
-Public methods for **User use**:
- * nav_connect(self, s, func): Connect to to navigation for events
- * nav_disconnect(self, cid): Disconnect from navigation event
- * message_event(self, message, sender=None): Emit a
-   tool_message_event event
- * active_toggle(self): **Property** The currently toggled tools or
-   None
- * get_tool_keymap(self, name): Return a list of keys that are
-   associated with the tool
- * set_tool_keymap(self, name, ``*keys``): Set the keys for the given tool
- * remove_tool(self, name): Removes tool from the navigation control.
- * add_tools(self, tools): Add multiple tools to ``Navigation``
- * add_tool(self, name, tool, group=None, position=None): Add a tool
-   to the ``Navigation``
- * tool_trigger_event(self, name, sender=None, canvasevent=None,
-   data=None): Trigger a tool and fire the event
+* canvas:
+* keypresslock: Lock to know if the ``canvas`` ``key_press_event`` is
+  available and process it
+* messagelock: Lock to know if the message is available to write
 
- * tools(self) **Property**: Return a dict with available tools with
-   corresponding keymaps, descriptions and objects
- * get_tool(self, name): Return the tool object
+Methods (intended for the end user)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
+* ``nav_connect(self, s, func)``: Connect to navigation for events
+* ``nav_disconnect(self, cid)``: Disconnect from navigation event
+* ``message_event(self, message, sender=None)``: Emit a
+  tool_message_event event
+* ``active_toggle(self)``: **Property** The currently toggled tools or
+  None
+* ``get_tool_keymap(self, name)``: Return a list of keys that are
+  associated with the tool
+* ``set_tool_keymap(self, name, ``*keys``)``: Set the keys for the given tool
+* ``remove_tool(self, name)``: Removes tool from the navigation control.
+* ``add_tools(self, tools)``: Add multiple tools to ``Navigation``
+* ``add_tool(self, name, tool, group=None, position=None)``: Add a tool
+  to the ``Navigation``
+* ``tool_trigger_event(self, name, sender=None, canvasevent=None,
+  data=None)``: Trigger a tool and fire the event
+* ``tools``:  **Property** A dict with available tools with
+  corresponding keymaps, descriptions and objects
+* ``get_tool(self, name)``: Return the tool object
 
 ToolbarBase
 -----------
 
-Methods for **Backend implementation**
+Methods (for backend implementation)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * ``add_toolitem(self, name, group, position, image, description, toggle)``:
   Add a toolitem to the toolbar. This method is a callback from

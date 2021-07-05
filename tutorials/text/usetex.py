@@ -1,6 +1,6 @@
 r"""
 *************************
-Text rendering With LaTeX
+Text rendering with LaTeX
 *************************
 
 Matplotlib can use LaTeX to render text.  This is activated by setting
@@ -11,10 +11,13 @@ is more flexible, since different LaTeX packages (font packages, math packages,
 etc.) can be used. The results can be striking, especially when you take care
 to use the same fonts in your figures as in the main document.
 
-Matplotlib's LaTeX support requires a working LaTeX_ installation.  For the
-\*Agg backends, dvipng_ is additionally required; for the PS backend, psfrag_,
-dvips_ and Ghostscript_ are additionally required.  The executables for these
-external dependencies must all be located on your :envvar:`PATH`.
+Matplotlib's LaTeX support requires a working LaTeX_ installation.  For
+the \*Agg backends, dvipng_ is additionally required; for the PS backend,
+PSfrag_, dvips_ and Ghostscript_ are additionally required.  For the PDF
+and SVG backends, if LuaTeX is present, it will be used to speed up some
+post-processing steps, but note that it is not used to parse the TeX string
+itself (only LaTeX is supported).  The executables for these external
+dependencies must all be located on your :envvar:`PATH`.
 
 There are a couple of options to mention, which can be changed using
 :doc:`rc settings </tutorials/introductory/customizing>`. Here is an example
@@ -48,9 +51,30 @@ matplotlibrc use::
       "font.family": "serif",
       "font.serif": ["Palatino"],
   })
+  # It's also possible to use the reduced notation by directly setting font.family:
+  plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "Helvetica"
+  })
+
+Currently, the supported fonts are:
+
+================= ============================================================
+family            fonts
+================= ============================================================
+``'serif'``         ``'New Century Schoolbook'``, ``'Bookman'``, ``'Times'``,
+                    ``'Palatino'``, ``'Charter'``, ``'Computer Moderm Roman'``
+
+``'sans-serif'``  ``'Helvetica'``, ``'Avant Garde'``, ``'Computer Modern
+                  Serif'``
+
+``'cursive'``     ``'Zapf Chancery'``
+
+``'monospace'``   ``'Courier'``, ``'Computer Modern Typewriter'``
+================= ============================================================
 
 Here is the standard example,
-:file:`/gallery/text_labels_and_annotations/tex_demo`:
+:doc:`/gallery/text_labels_and_annotations/tex_demo`:
 
 .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_tex_demo_001.png
    :target: ../../gallery/text_labels_and_annotations/tex_demo.html
@@ -102,13 +126,13 @@ Possible hangups
 
 * On Ubuntu and Gentoo, the base texlive install does not ship with
   the type1cm package. You may need to install some of the extra
-  packages to get all the goodies that come bundled with other latex
+  packages to get all the goodies that come bundled with other LaTeX
   distributions.
 
-* Some progress has been made so matplotlib uses the dvi files
-  directly for text layout. This allows latex to be used for text
+* Some progress has been made so Matplotlib uses the dvi files
+  directly for text layout. This allows LaTeX to be used for text
   layout with the pdf and svg backends, as well as the \*Agg and PS
-  backends. In the future, a latex installation may be the only
+  backends. In the future, a LaTeX installation may be the only
   external dependency.
 
 .. _usetex-troubleshooting:
@@ -131,7 +155,7 @@ Troubleshooting
   problems. Please disable this option before reporting problems to
   the mailing list.
 
-* If you still need help, please see :ref:`reporting-problems`
+* If you still need help, please see :ref:`reporting-problems`.
 
 .. _dvipng: http://www.nongnu.org/dvipng/
 .. _dvips: https://tug.org/texinfohtml/dvips.html
@@ -140,6 +164,6 @@ Troubleshooting
 .. _LaTeX: http://www.tug.org
 .. _Poppler: https://poppler.freedesktop.org/
 .. _PSNFSS: http://www.ctan.org/tex-archive/macros/latex/required/psnfss/psnfss2e.pdf
-.. _psfrag: https://ctan.org/pkg/psfrag
+.. _PSfrag: https://ctan.org/pkg/psfrag
 .. _Xpdf: http://www.xpdfreader.com/
 """

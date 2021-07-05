@@ -38,6 +38,11 @@ Call signature::
 *X*, *Y* define the arrow locations, *U*, *V* define the arrow directions, and
 *C* optionally sets the color.
 
+Each arrow is internally represented by a filled polygon with a default edge
+linewidth of 0. As a result, an arrow is rather a filled area, not a line with
+a head, and `.PolyCollection` properties like *linewidth*, *linestyle*,
+*facecolor*, etc. act accordingly.
+
 **Arrow size**
 
 The default settings auto-scales the length of the arrows to a reasonable size.
@@ -84,7 +89,7 @@ C : 1D or 2D array-like, optional
     use *color* instead.  The size of *C* must match the number of arrow
     locations.
 
-units : {'width', 'height', 'dots', 'inches', 'x', 'y' 'xy'}, default: 'width'
+units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, default: 'width'
     The arrow dimensions (except for *length*) are measured in multiples of
     this unit.
 
@@ -177,14 +182,21 @@ color : color or color sequence, optional
     Explicit color(s) for the arrows. If *C* has been set, *color* has no
     effect.
 
-    This is a synonym for the `~.PolyCollection` *facecolor* parameter.
+    This is a synonym for the `.PolyCollection` *facecolor* parameter.
 
 Other Parameters
 ----------------
+data : indexable object, optional
+    DATA_PARAMETER_PLACEHOLDER
+
 **kwargs : `~matplotlib.collections.PolyCollection` properties, optional
     All other keyword arguments are passed on to `.PolyCollection`:
 
-    %(PolyCollection)s
+    %(PolyCollection:kwdoc)s
+
+Returns
+-------
+`~matplotlib.quiver.Quiver`
 
 See Also
 --------
@@ -374,11 +386,6 @@ class QuiverKey(martist.Artist):
             return True, {}
         return False, {}
 
-    @_api.deprecated("3.2")
-    @property
-    def quiverkey_doc(self):
-        return self.__init__.__doc__
-
 
 def _parse_args(*args, caller_name='function'):
     """
@@ -513,10 +520,6 @@ class Quiver(mcollections.PolyCollection):
                 self_weakref._initialized = False
 
         self._cid = ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
-
-    @_api.deprecated("3.3", alternative="axes")
-    def ax(self):
-        return self.axes
 
     def remove(self):
         # docstring inherited
@@ -889,11 +892,14 @@ barbs : `~matplotlib.quiver.Barbs`
 
 Other Parameters
 ----------------
+data : indexable object, optional
+    DATA_PARAMETER_PLACEHOLDER
+
 **kwargs
     The barbs can further be customized using `.PolyCollection` keyword
     arguments:
 
-    %(PolyCollection)s
+    %(PolyCollection:kwdoc)s
 """ % docstring.interpd.params
 
 docstring.interpd.update(barbs_doc=_barbs_doc)

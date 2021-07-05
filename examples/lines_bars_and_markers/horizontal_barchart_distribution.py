@@ -54,15 +54,12 @@ def survey(results, category_names):
     for i, (colname, color) in enumerate(zip(category_names, category_colors)):
         widths = data[:, i]
         starts = data_cum[:, i] - widths
-        ax.barh(labels, widths, left=starts, height=0.5,
-                label=colname, color=color)
-        xcenters = starts + widths / 2
+        rects = ax.barh(labels, widths, left=starts, height=0.5,
+                        label=colname, color=color)
 
         r, g, b, _ = color
         text_color = 'white' if r * g * b < 0.5 else 'darkgrey'
-        for y, (x, c) in enumerate(zip(xcenters, widths)):
-            ax.text(x, y, str(int(c)), ha='center', va='center',
-                    color=text_color)
+        ax.bar_label(rects, label_type='center', color=text_color)
     ax.legend(ncol=len(category_names), bbox_to_anchor=(0, 1),
               loc='lower left', fontsize='small')
 
@@ -74,18 +71,11 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.barh
-matplotlib.pyplot.barh
-matplotlib.axes.Axes.text
-matplotlib.pyplot.text
-matplotlib.axes.Axes.legend
-matplotlib.pyplot.legend
+#    - `matplotlib.axes.Axes.barh` / `matplotlib.pyplot.barh`
+#    - `matplotlib.axes.Axes.bar_label` / `matplotlib.pyplot.bar_label`
+#    - `matplotlib.axes.Axes.legend` / `matplotlib.pyplot.legend`

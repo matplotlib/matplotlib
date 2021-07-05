@@ -3,7 +3,6 @@ import decimal
 import io
 import os
 from pathlib import Path
-import sys
 from tempfile import NamedTemporaryFile
 
 import numpy as np
@@ -66,9 +65,9 @@ def test_multipage_properfinalize():
             fig, ax = plt.subplots()
             ax.set_title('This is a long title')
             fig.savefig(pdf, format="pdf")
-    pdfio.seek(0)
-    assert sum(b'startxref' in line for line in pdfio) == 1
-    assert sys.getsizeof(pdfio) < 40000
+    s = pdfio.getvalue()
+    assert s.count(b'startxref') == 1
+    assert len(s) < 40000
 
 
 def test_multipage_keep_empty():
@@ -228,13 +227,15 @@ def test_text_urls():
         with pikepdf.Pdf.open(fd) as pdf:
             annots = pdf.pages[0].Annots
 
-    for y, fragment in [('0.1', 'plain'), ('0.4', 'mathtext')]:
-        annot = next(
-            (a for a in annots if a.A.URI == f'{test_url}{fragment}'),
-            None)
-        assert annot is not None
-        # Positions in points (72 per inch.)
-        assert annot.Rect[1] == decimal.Decimal(y) * 72
+            # Iteration over Annots must occur within the context manager,
+            # otherwise it may fail depending on the pdf structure.
+            for y, fragment in [('0.1', 'plain'), ('0.4', 'mathtext')]:
+                annot = next(
+                    (a for a in annots if a.A.URI == f'{test_url}{fragment}'),
+                    None)
+                assert annot is not None
+                # Positions in points (72 per inch.)
+                assert annot.Rect[1] == decimal.Decimal(y) * 72
 
 
 @needs_usetex
@@ -252,12 +253,14 @@ def test_text_urls_tex():
         with pikepdf.Pdf.open(fd) as pdf:
             annots = pdf.pages[0].Annots
 
-    annot = next(
-        (a for a in annots if a.A.URI == f'{test_url}tex'),
-        None)
-    assert annot is not None
-    # Positions in points (72 per inch.)
-    assert annot.Rect[1] == decimal.Decimal('0.7') * 72
+            # Iteration over Annots must occur within the context manager,
+            # otherwise it may fail depending on the pdf structure.
+            annot = next(
+                (a for a in annots if a.A.URI == f'{test_url}tex'),
+                None)
+            assert annot is not None
+            # Positions in points (72 per inch.)
+            assert annot.Rect[1] == decimal.Decimal('0.7') * 72
 
 
 def test_pdfpages_fspath():
@@ -305,7 +308,7 @@ def test_missing_psfont(monkeypatch):
         fig.savefig(tmpfile, format='pdf')
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @check_figures_equal(extensions=["pdf", "eps"])
 def test_pdf_eps_savefig_when_color_is_none(fig_test, fig_ref):
     ax_test = fig_test.add_subplot()
@@ -316,16 +319,11 @@ def test_pdf_eps_savefig_when_color_is_none(fig_test, fig_ref):
 
 
 @needs_usetex
-def test_failing_latex(tmpdir):
+def test_failing_latex():
     """Test failing latex subprocess call"""
-    path = str(tmpdir.join("tmpoutput.pdf"))
-
-    rcParams['text.usetex'] = True
-
-    # This fails with "Double subscript"
-    plt.xlabel("$22_2_2$")
+    plt.xlabel("$22_2_2$", usetex=True)  # This fails with "Double subscript"
     with pytest.raises(RuntimeError):
-        plt.savefig(path)
+        plt.savefig(io.BytesIO(), format="pdf")
 
 
 def test_empty_rasterized():

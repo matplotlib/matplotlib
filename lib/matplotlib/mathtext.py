@@ -24,7 +24,7 @@ import types
 import numpy as np
 from PIL import Image
 
-from matplotlib import _api, cbook, colors as mcolors, rcParams, _mathtext
+from matplotlib import _api, colors as mcolors, rcParams, _mathtext
 from matplotlib.ft2font import FT2Image, LOAD_NO_HINTING
 from matplotlib.font_manager import FontProperties
 # Backcompat imports, all are deprecated as of 3.4.
@@ -189,6 +189,7 @@ class MathtextBackendPs(MathtextBackend):
         "_PSResult", "width height depth pswriter used_characters")
 
     def __init__(self):
+        super().__init__()
         self.pswriter = StringIO()
         self.lastfont = None
 
@@ -230,6 +231,7 @@ class MathtextBackendPdf(MathtextBackend):
         "_PDFResult", "width height depth glyphs rects used_characters")
 
     def __init__(self):
+        super().__init__()
         self.glyphs = []
         self.rects = []
 
@@ -260,6 +262,7 @@ class MathtextBackendSvg(MathtextBackend):
     backend.
     """
     def __init__(self):
+        super().__init__()
         self.svg_glyphs = []
         self.svg_rects = []
 
@@ -293,6 +296,7 @@ class MathtextBackendPath(MathtextBackend):
     _Result = namedtuple("_Result", "width height depth glyphs rects")
 
     def __init__(self):
+        super().__init__()
         self.glyphs = []
         self.rects = []
 
@@ -320,6 +324,7 @@ class MathtextBackendCairo(MathtextBackend):
     """
 
     def __init__(self):
+        super().__init__()
         self.glyphs = []
         self.rects = []
 
@@ -351,42 +356,12 @@ for _cls_name in [
         *[c.__name__ for c in _mathtext.Node.__subclasses__()],
         "Ship", "Parser",
 ]:
-    globals()[_cls_name] = cbook.deprecated("3.4")(
+    globals()[_cls_name] = _api.deprecated("3.4")(
         type(_cls_name, (getattr(_mathtext, _cls_name),), {}))
 
 
 class MathTextWarning(Warning):
     pass
-
-
-@_api.deprecated("3.3")
-class GlueSpec:
-    """See `Glue`."""
-
-    def __init__(self, width=0., stretch=0., stretch_order=0,
-                 shrink=0., shrink_order=0):
-        self.width         = width
-        self.stretch       = stretch
-        self.stretch_order = stretch_order
-        self.shrink        = shrink
-        self.shrink_order  = shrink_order
-
-    def copy(self):
-        return GlueSpec(
-            self.width,
-            self.stretch,
-            self.stretch_order,
-            self.shrink,
-            self.shrink_order)
-
-    @classmethod
-    def factory(cls, glue_type):
-        return cls._types[glue_type]
-
-
-with _api.suppress_matplotlib_deprecation_warning():
-    GlueSpec._types = {k: GlueSpec(**v._asdict())
-                       for k, v in _mathtext._GlueSpec._named.items()}
 
 
 @_api.deprecated("3.4")
@@ -434,7 +409,7 @@ class MathTextParser:
         with the same expression should be fast.
         """
         if _force_standard_ps_fonts:
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.4",
                 removal="3.5",
                 message=(

@@ -709,3 +709,35 @@ def test_update_mutate_input():
     t.update(inp)
     assert inp['fontproperties'] == cache['fontproperties']
     assert inp['bbox'] == cache['bbox']
+
+
+def test_invalid_color():
+    with pytest.raises(ValueError):
+        plt.figtext(.5, .5, "foo", c="foobar")
+
+
+@image_comparison(['text_pdf_kerning.pdf'], style='mpl20')
+def test_pdf_kerning():
+    plt.figure()
+    plt.figtext(0.1, 0.5, "ATATATATATATATATATA", size=30)
+
+
+def test_unsupported_script(recwarn):
+    fig = plt.figure()
+    fig.text(.5, .5, "\N{BENGALI DIGIT ZERO}")
+    fig.canvas.draw()
+    assert all(isinstance(warn.message, UserWarning) for warn in recwarn)
+    assert (
+        [warn.message.args for warn in recwarn] ==
+        [(r"Glyph 2534 (\N{BENGALI DIGIT ZERO}) missing from current font.",),
+         (r"Matplotlib currently does not support Bengali natively.",)])
+
+
+def test_parse_math():
+    fig, ax = plt.subplots()
+    ax.text(0, 0, r"$ \wrong{math} $", parse_math=False)
+    fig.canvas.draw()
+
+    ax.text(0, 0, r"$ \wrong{math} $", parse_math=True)
+    with pytest.raises(ValueError, match='Unknown symbol'):
+        fig.canvas.draw()

@@ -14,7 +14,7 @@ import pytest
 from matplotlib import _api
 import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
-from matplotlib.cbook import MatplotlibDeprecationWarning, delete_masked_points
+from matplotlib.cbook import delete_masked_points
 
 
 class Test_delete_masked_points:
@@ -182,18 +182,32 @@ class Test_callback_registry:
         self.signal = 'test'
         self.callbacks = cbook.CallbackRegistry()
 
-    def connect(self, s, func):
-        return self.callbacks.connect(s, func)
+    def connect(self, s, func, pickle):
+        cid = self.callbacks.connect(s, func)
+        if pickle:
+            self.callbacks._pickled_cids.add(cid)
+        return cid
+
+    def disconnect(self, cid):
+        return self.callbacks.disconnect(cid)
+
+    def count(self):
+        count1 = len(self.callbacks._func_cid_map.get(self.signal, []))
+        count2 = len(self.callbacks.callbacks.get(self.signal))
+        assert count1 == count2
+        return count1
 
     def is_empty(self):
         assert self.callbacks._func_cid_map == {}
         assert self.callbacks.callbacks == {}
+        assert self.callbacks._pickled_cids == set()
 
     def is_not_empty(self):
         assert self.callbacks._func_cid_map != {}
         assert self.callbacks.callbacks != {}
 
-    def test_callback_complete(self):
+    @pytest.mark.parametrize('pickle', [True, False])
+    def test_callback_complete(self, pickle):
         # ensure we start with an empty registry
         self.is_empty()
 
@@ -201,12 +215,12 @@ class Test_callback_registry:
         mini_me = Test_callback_registry()
 
         # test that we can add a callback
-        cid1 = self.connect(self.signal, mini_me.dummy)
+        cid1 = self.connect(self.signal, mini_me.dummy, pickle)
         assert type(cid1) == int
         self.is_not_empty()
 
         # test that we don't add a second callback
-        cid2 = self.connect(self.signal, mini_me.dummy)
+        cid2 = self.connect(self.signal, mini_me.dummy, pickle)
         assert cid1 == cid2
         self.is_not_empty()
         assert len(self.callbacks._func_cid_map) == 1
@@ -215,6 +229,68 @@ class Test_callback_registry:
         del mini_me
 
         # check we now have no callbacks registered
+        self.is_empty()
+
+    @pytest.mark.parametrize('pickle', [True, False])
+    def test_callback_disconnect(self, pickle):
+        # ensure we start with an empty registry
+        self.is_empty()
+
+        # create a class for testing
+        mini_me = Test_callback_registry()
+
+        # test that we can add a callback
+        cid1 = self.connect(self.signal, mini_me.dummy, pickle)
+        assert type(cid1) == int
+        self.is_not_empty()
+
+        self.disconnect(cid1)
+
+        # check we now have no callbacks registered
+        self.is_empty()
+
+    @pytest.mark.parametrize('pickle', [True, False])
+    def test_callback_wrong_disconnect(self, pickle):
+        # ensure we start with an empty registry
+        self.is_empty()
+
+        # create a class for testing
+        mini_me = Test_callback_registry()
+
+        # test that we can add a callback
+        cid1 = self.connect(self.signal, mini_me.dummy, pickle)
+        assert type(cid1) == int
+        self.is_not_empty()
+
+        self.disconnect("foo")
+
+        # check we still have callbacks registered
+        self.is_not_empty()
+
+    @pytest.mark.parametrize('pickle', [True, False])
+    def test_registration_on_non_empty_registry(self, pickle):
+        # ensure we start with an empty registry
+        self.is_empty()
+
+        # setup the registry with a callback
+        mini_me = Test_callback_registry()
+        self.connect(self.signal, mini_me.dummy, pickle)
+
+        # Add another callback
+        mini_me2 = Test_callback_registry()
+        self.connect(self.signal, mini_me2.dummy, pickle)
+
+        # Remove and add the second callback
+        mini_me2 = Test_callback_registry()
+        self.connect(self.signal, mini_me2.dummy, pickle)
+
+        # We still have 2 references
+        self.is_not_empty()
+        assert self.count() == 2
+
+        # Removing the last 2 references
+        mini_me = None
+        mini_me2 = None
         self.is_empty()
 
     def dummy(self):
@@ -298,32 +374,14 @@ def test_sanitize_sequence():
 
 
 fail_mapping = (
-    ({'a': 1}, {'forbidden': ('a')}),
-    ({'a': 1}, {'required': ('b')}),
-    ({'a': 1, 'b': 2}, {'required': ('a'), 'allowed': ()}),
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}}),
-    ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}, 'allowed': ('a',)}),
     ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
-    ({'a': 1, 'b': 2, 'c': 3},
-     {'alias_mapping': {'a': ['b']}, 'required': ('a', )}),
 )
 
 pass_mapping = (
     (None, {}, {}),
     ({'a': 1, 'b': 2}, {'a': 1, 'b': 2}, {}),
     ({'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
-    ({'b': 2}, {'a': 2},
-     {'alias_mapping': {'a': ['b']}, 'forbidden': ('b', )}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
-     {'required': ('a', ), 'allowed': ('c', )}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
-     {'required': ('a', 'c'), 'allowed': ('c', )}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
-     {'required': ('a', 'c'), 'allowed': ('a', 'c')}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3},
-     {'required': ('a', 'c'), 'allowed': ()}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'required': ('a', 'c')}),
-    ({'a': 1, 'c': 3}, {'a': 1, 'c': 3}, {'allowed': ('a', 'c')}),
 )
 
 
@@ -346,7 +404,7 @@ def test_warn_external_frame_embedded_python():
     with patch.object(cbook, "sys") as mock_sys:
         mock_sys._getframe = Mock(return_value=None)
         with pytest.warns(UserWarning, match=r"\Adummy\Z"):
-            cbook._warn_external("dummy")
+            _api.warn_external("dummy")
 
 
 def test_to_prestep():
@@ -606,43 +664,8 @@ def test_safe_first_element_pandas_series(pd):
     assert actual == 0
 
 
-def test_delete_parameter():
-    @cbook._delete_parameter("3.0", "foo")
-    def func1(foo=None):
-        pass
-
-    @cbook._delete_parameter("3.0", "foo")
-    def func2(**kwargs):
-        pass
-
-    for func in [func1, func2]:
-        func()  # No warning.
-        with pytest.warns(MatplotlibDeprecationWarning):
-            func(foo="bar")
-
-    def pyplot_wrapper(foo=_api.deprecation._deprecated_parameter):
-        func1(foo)
-
-    pyplot_wrapper()  # No warning.
-    with pytest.warns(MatplotlibDeprecationWarning):
-        func(foo="bar")
-
-
-def test_make_keyword_only():
-    @cbook._make_keyword_only("3.0", "arg")
-    def func(pre, arg, post=None):
-        pass
-
-    func(1, arg=2)  # Check that no warning is emitted.
-
-    with pytest.warns(MatplotlibDeprecationWarning):
-        func(1, 2)
-    with pytest.warns(MatplotlibDeprecationWarning):
-        func(1, 2, 3)
-
-
 def test_warn_external(recwarn):
-    cbook._warn_external("oops")
+    _api.warn_external("oops")
     assert len(recwarn) == 1
     assert recwarn[0].filename == __file__
 

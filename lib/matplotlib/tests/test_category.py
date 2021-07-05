@@ -2,6 +2,8 @@
 import pytest
 import numpy as np
 
+import matplotlib as mpl
+from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import matplotlib.category as cat
@@ -100,12 +102,14 @@ class TestStrCategoryConverter:
         assert self.cc.convert(value, self.unit, self.ax) == 0
 
     def test_convert_one_number(self):
-        actual = self.cc.convert(0.0, self.unit, self.ax)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            actual = self.cc.convert(0.0, self.unit, self.ax)
         np.testing.assert_allclose(actual, np.array([0.]))
 
     def test_convert_float_array(self):
         data = np.array([1, 2, 3], dtype=float)
-        actual = self.cc.convert(data, self.unit, self.ax)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            actual = self.cc.convert(data, self.unit, self.ax)
         np.testing.assert_allclose(actual, np.array([1., 2., 3.]))
 
     @pytest.mark.parametrize("fvals", fvalues, ids=fids)
@@ -122,11 +126,6 @@ class TestStrCategoryConverter:
         assert isinstance(self.cc.default_units(["a"], self.ax), cat.UnitData)
 
 
-@pytest.fixture
-def ax():
-    return plt.figure().subplots()
-
-
 PLOT_LIST = [Axes.scatter, Axes.plot, Axes.bar]
 PLOT_IDS = ["scatter", "plot", "bar"]
 
@@ -139,8 +138,9 @@ class TestStrCategoryLocator:
         np.testing.assert_array_equal(ticks.tick_values(None, None), locs)
 
     @pytest.mark.parametrize("plotter", PLOT_LIST, ids=PLOT_IDS)
-    def test_StrCategoryLocatorPlot(self, ax, plotter):
-        ax.plot(["a", "b", "c"])
+    def test_StrCategoryLocatorPlot(self, plotter):
+        ax = plt.figure().subplots()
+        plotter(ax, [1, 2, 3], ["a", "b", "c"])
         np.testing.assert_array_equal(ax.yaxis.major.locator(), range(3))
 
 
@@ -151,7 +151,7 @@ class TestStrCategoryFormatter:
     ids, cases = zip(*test_cases)
 
     @pytest.mark.parametrize("ydata", cases, ids=ids)
-    def test_StrCategoryFormatter(self, ax, ydata):
+    def test_StrCategoryFormatter(self, ydata):
         unit = cat.UnitData(ydata)
         labels = cat.StrCategoryFormatter(unit._mapping)
         for i, d in enumerate(ydata):
@@ -160,7 +160,8 @@ class TestStrCategoryFormatter:
 
     @pytest.mark.parametrize("ydata", cases, ids=ids)
     @pytest.mark.parametrize("plotter", PLOT_LIST, ids=PLOT_IDS)
-    def test_StrCategoryFormatterPlot(self, ax, ydata, plotter):
+    def test_StrCategoryFormatterPlot(self, ydata, plotter):
+        ax = plt.figure().subplots()
         plotter(ax, range(len(ydata)), ydata)
         for i, d in enumerate(ydata):
             assert ax.yaxis.major.formatter(i) == d
@@ -186,7 +187,8 @@ class TestPlotBytes:
 
     @pytest.mark.parametrize("plotter", PLOT_LIST, ids=PLOT_IDS)
     @pytest.mark.parametrize("bdata", bytes_data, ids=bytes_ids)
-    def test_plot_bytes(self, ax, plotter, bdata):
+    def test_plot_bytes(self, plotter, bdata):
+        ax = plt.figure().subplots()
         counts = np.array([4, 6, 5])
         plotter(ax, bdata, counts)
         axis_test(ax.xaxis, bdata)
@@ -201,7 +203,8 @@ class TestPlotNumlike:
 
     @pytest.mark.parametrize("plotter", PLOT_LIST, ids=PLOT_IDS)
     @pytest.mark.parametrize("ndata", numlike_data, ids=numlike_ids)
-    def test_plot_numlike(self, ax, plotter, ndata):
+    def test_plot_numlike(self, plotter, ndata):
+        ax = plt.figure().subplots()
         counts = np.array([4, 6, 5])
         plotter(ax, ndata, counts)
         axis_test(ax.xaxis, ndata)
@@ -209,7 +212,8 @@ class TestPlotNumlike:
 
 class TestPlotTypes:
     @pytest.mark.parametrize("plotter", PLOT_LIST, ids=PLOT_IDS)
-    def test_plot_unicode(self, ax, plotter):
+    def test_plot_unicode(self, plotter):
+        ax = plt.figure().subplots()
         words = ['Здравствуйте', 'привет']
         plotter(ax, words, [0, 1])
         axis_test(ax.xaxis, words)
@@ -223,25 +227,29 @@ class TestPlotTypes:
 
     @pytest.mark.usefixtures("test_data")
     @pytest.mark.parametrize("plotter", PLOT_LIST, ids=PLOT_IDS)
-    def test_plot_xaxis(self, ax, test_data, plotter):
+    def test_plot_xaxis(self, test_data, plotter):
+        ax = plt.figure().subplots()
         plotter(ax, self.x, self.xy)
         axis_test(ax.xaxis, self.x)
 
     @pytest.mark.usefixtures("test_data")
     @pytest.mark.parametrize("plotter", PLOT_LIST, ids=PLOT_IDS)
-    def test_plot_yaxis(self, ax, test_data, plotter):
+    def test_plot_yaxis(self, test_data, plotter):
+        ax = plt.figure().subplots()
         plotter(ax, self.yx, self.y)
         axis_test(ax.yaxis, self.y)
 
     @pytest.mark.usefixtures("test_data")
     @pytest.mark.parametrize("plotter", PLOT_LIST, ids=PLOT_IDS)
-    def test_plot_xyaxis(self, ax, test_data, plotter):
+    def test_plot_xyaxis(self, test_data, plotter):
+        ax = plt.figure().subplots()
         plotter(ax, self.x, self.y)
         axis_test(ax.xaxis, self.x)
         axis_test(ax.yaxis, self.y)
 
     @pytest.mark.parametrize("plotter", PLOT_LIST, ids=PLOT_IDS)
-    def test_update_plot(self, ax, plotter):
+    def test_update_plot(self, plotter):
+        ax = plt.figure().subplots()
         plotter(ax, ['a', 'b'], ['e', 'g'])
         plotter(ax, ['a', 'b', 'd'], ['f', 'a', 'b'])
         plotter(ax, ['b', 'c', 'd'], ['g', 'e', 'd'])
@@ -260,19 +268,21 @@ class TestPlotTypes:
 
     @pytest.mark.parametrize("plotter", plotters)
     @pytest.mark.parametrize("xdata", fvalues, ids=fids)
-    def test_mixed_type_exception(self, ax, plotter, xdata):
+    def test_mixed_type_exception(self, plotter, xdata):
+        ax = plt.figure().subplots()
         with pytest.raises(TypeError):
             plotter(ax, xdata, [1, 2])
 
     @pytest.mark.parametrize("plotter", plotters)
     @pytest.mark.parametrize("xdata", fvalues, ids=fids)
-    def test_mixed_type_update_exception(self, ax, plotter, xdata):
+    def test_mixed_type_update_exception(self, plotter, xdata):
+        ax = plt.figure().subplots()
         with pytest.raises(TypeError):
             plotter(ax, [0, 3], [1, 3])
             plotter(ax, xdata, [1, 2])
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @check_figures_equal(extensions=["png"])
 def test_overriding_units_in_plot(fig_test, fig_ref):
     from datetime import datetime

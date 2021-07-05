@@ -107,11 +107,11 @@ def heatmap(data, row_labels, col_labels, ax=None,
     Parameters
     ----------
     data
-        A 2D numpy array of shape (N, M).
+        A 2D numpy array of shape (M, N).
     row_labels
-        A list or array of length N with the labels for the rows.
+        A list or array of length M with the labels for the rows.
     col_labels
-        A list or array of length M with the labels for the columns.
+        A list or array of length N with the labels for the columns.
     ax
         A `matplotlib.axes.Axes` instance to which the heatmap is plotted.  If
         not provided, use current axes or create a new one.  Optional.
@@ -149,8 +149,7 @@ def heatmap(data, row_labels, col_labels, ax=None,
              rotation_mode="anchor")
 
     # Turn spines off and create white grid.
-    for edge, spine in ax.spines.items():
-        spine.set_visible(False)
+    ax.spines[:].set_visible(False)
 
     ax.set_xticks(np.arange(data.shape[1]+1)-.5, minor=True)
     ax.set_yticks(np.arange(data.shape[0]+1)-.5, minor=True)
@@ -306,15 +305,10 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The usage of the following functions and methods is shown in this example:
-
-
-matplotlib.axes.Axes.imshow
-matplotlib.pyplot.imshow
-matplotlib.figure.Figure.colorbar
-matplotlib.pyplot.colorbar
+#    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`
+#    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`

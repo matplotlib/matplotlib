@@ -7,7 +7,6 @@ labels.
 
 .. _hat graph: https://doi.org/10.1186/s41235-019-0182-3
 """
-import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -22,7 +21,7 @@ def hat_graph(ax, xlabels, values, group_labels):
         The Axes to plot into.
     xlabels : list of str
         The category names to be displayed on the x-axis.
-    values : array-like (M, N)
+    values : (M, N) array-like
         The data values.
         Rows are the groups (len(group_labels) == M).
         Columns are the categories (len(xlabels) == N).
@@ -73,14 +72,10 @@ fig.tight_layout()
 plt.show()
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-matplotlib.axes.Axes.bar
-matplotlib.pyplot.bar
-matplotlib.axes.Axes.annotate
-matplotlib.pyplot.annotate
+#    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`
+#    - `matplotlib.axes.Axes.annotate` / `matplotlib.pyplot.annotate`

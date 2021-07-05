@@ -35,7 +35,7 @@ s = np.random.rand(len(dates))  # make up some random y values
 
 
 fig, ax = plt.subplots()
-plt.plot_date(dates, s)
+plt.plot(dates, s, 'o')
 ax.xaxis.set_major_locator(loc)
 ax.xaxis.set_major_formatter(formatter)
 ax.xaxis.set_tick_params(rotation=30, labelsize=10)

@@ -262,7 +262,7 @@ most common operations remain available), and the list-of-one `.Polygon` is
 returned as is.  This makes the `repr` of the returned artist more accurate: it
 is now ::
 
-    <BarContainer object of of 10 artists>  # "bar", "barstacked"
+    <BarContainer object of 10 artists>  # "bar", "barstacked"
     [<matplotlib.patches.Polygon object at 0xdeadbeef>]  # "step", "stepfilled"
 
 instead of ::

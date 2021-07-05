@@ -1,7 +1,5 @@
 import inspect
 
-from matplotlib import _api
-
 
 class Substitution:
     """
@@ -33,7 +31,7 @@ class Substitution:
     def __init__(self, *args, **kwargs):
         if args and kwargs:
             raise TypeError("Only positional or keyword args are allowed")
-        self.params = args or kwargs
+        self.params = params = args or kwargs
 
     def __call__(self, func):
         if func.__doc__:
@@ -46,20 +44,47 @@ class Substitution:
         """
         self.params.update(*args, **kwargs)
 
-    @classmethod
-    @_api.deprecated("3.3", alternative="assign to the params attribute")
-    def from_params(cls, params):
-        """
-        In the case where the params is a mutable sequence (list or
-        dictionary) and it may change before this class is called, one may
-        explicitly use a reference to the params rather than using *args or
-        **kwargs which will copy the values and not reference them.
 
-        :meta private:
-        """
-        result = cls()
-        result.params = params
-        return result
+def _recursive_subclasses(cls):
+    yield cls
+    for subcls in cls.__subclasses__():
+        yield from _recursive_subclasses(subcls)
+
+
+class _ArtistKwdocLoader(dict):
+    def __missing__(self, key):
+        if not key.endswith(":kwdoc"):
+            raise KeyError(key)
+        name = key[:-len(":kwdoc")]
+        from matplotlib.artist import Artist, kwdoc
+        try:
+            cls, = [cls for cls in _recursive_subclasses(Artist)
+                    if cls.__name__ == name]
+        except ValueError as e:
+            raise KeyError(key) from e
+        return self.setdefault(key, kwdoc(cls))
+
+
+class _ArtistPropertiesSubstitution(Substitution):
+    """
+    A `.Substitution` with two additional features:
+
+    - Substitutions of the form ``%(classname:kwdoc)s`` (ending with the
+      literal ":kwdoc" suffix) trigger lookup of an Artist subclass with the
+      given *classname*, and are substituted with the `.kwdoc` of that class.
+    - Decorating a class triggers substitution both on the class docstring and
+      on the class' ``__init__`` docstring (which is a commonly required
+      pattern for Artist subclasses).
+    """
+
+    def __init__(self):
+        self.params = _ArtistKwdocLoader()
+
+    def __call__(self, obj):
+        super().__call__(obj)
+        if isinstance(obj, type) and obj.__init__ != object.__init__:
+            self(obj.__init__)
+        return obj
 
 
 def copy(source):
@@ -73,5 +98,4 @@ def copy(source):
 
 # Create a decorator that will house the various docstring snippets reused
 # throughout Matplotlib.
-interpd = Substitution()
-dedent_interpd = interpd
+dedent_interpd = interpd = _ArtistPropertiesSubstitution()

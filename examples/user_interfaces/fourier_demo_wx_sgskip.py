@@ -70,7 +70,7 @@ class SliderGroup(Knob):
         self.sliderText = wx.TextCtrl(parent, -1, style=wx.TE_PROCESS_ENTER)
         self.slider = wx.Slider(parent, -1)
         # self.slider.SetMax(param.maximum*1000)
-        self.slider.SetRange(0, param.maximum * 1000)
+        self.slider.SetRange(0, int(param.maximum * 1000))
         self.setKnob(param.value)
 
         sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -99,7 +99,7 @@ class SliderGroup(Knob):
 
     def setKnob(self, value):
         self.sliderText.SetValue('%g' % value)
-        self.slider.SetValue(value * 1000)
+        self.slider.SetValue(int(value * 1000))
 
 
 class FourierDemoFrame(wx.Frame):

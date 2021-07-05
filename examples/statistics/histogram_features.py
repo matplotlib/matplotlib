@@ -9,8 +9,6 @@ In addition to the basic histogram, this demo shows a few optional features:
 * The *density* parameter, which normalizes bin heights so that the integral of
   the histogram is 1. The resulting histogram is an approximation of the
   probability density function.
-* Setting the face color of the bars.
-* Setting the opacity (alpha value).
 
 Selecting different bin counts and sizes can significantly affect the shape
 of a histogram. The Astropy docs have a great section_ on how to select these
@@ -19,7 +17,6 @@ parameters.
 .. _section: http://docs.astropy.org/en/stable/visualization/histogram.html
 """
 
-import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -51,14 +48,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions and methods is shown in this example:
-
-matplotlib.axes.Axes.hist
-matplotlib.axes.Axes.set_title
-matplotlib.axes.Axes.set_xlabel
-matplotlib.axes.Axes.set_ylabel
+#    - `matplotlib.axes.Axes.hist` / `matplotlib.pyplot.hist`
+#    - `matplotlib.axes.Axes.set_title`
+#    - `matplotlib.axes.Axes.set_xlabel`
+#    - `matplotlib.axes.Axes.set_ylabel`

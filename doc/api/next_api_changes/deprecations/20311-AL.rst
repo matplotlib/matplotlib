@@ -1,0 +1,5 @@
+rcParams will no longer cast inputs to str
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+After a deprecation period, rcParams that expect a (non-pathlike) str will no
+longer cast non-str inputs using `str`.  This will avoid confusing errors in
+subsequent code if e.g. a list input gets implicitly cast to a str.

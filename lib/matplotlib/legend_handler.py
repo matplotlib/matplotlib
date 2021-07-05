@@ -1,8 +1,12 @@
 """
 Default legend handlers.
 
-It is strongly encouraged to have read the :doc:`legend guide
-</tutorials/intermediate/legend_guide>` before this documentation.
+.. important::
+
+    This is a low-level legend API, which most end users do not need.
+
+    We recommend that you are familiar with the :doc:`legend guide
+    </tutorials/intermediate/legend_guide>` before reading this documentation.
 
 Legend handlers are expected to be a callable object with a following
 signature. ::
@@ -31,7 +35,6 @@ from matplotlib import cbook
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 import matplotlib.collections as mcoll
-import matplotlib.colors as mcolors
 
 
 def update_from_first_child(tgt, src):
@@ -734,32 +737,30 @@ class HandlerPolyCollection(HandlerBase):
     """
     def _update_prop(self, legend_handle, orig_handle):
         def first_color(colors):
-            if colors is None:
-                return None
-            colors = mcolors.to_rgba_array(colors)
-            if len(colors):
-                return colors[0]
-            else:
-                return "none"
+            if colors.size == 0:
+                return (0, 0, 0, 0)
+            return tuple(colors[0])
 
         def get_first(prop_array):
             if len(prop_array):
                 return prop_array[0]
             else:
                 return None
-        edgecolor = getattr(orig_handle, '_original_edgecolor',
-                            orig_handle.get_edgecolor())
-        legend_handle.set_edgecolor(first_color(edgecolor))
-        facecolor = getattr(orig_handle, '_original_facecolor',
-                            orig_handle.get_facecolor())
-        legend_handle.set_facecolor(first_color(facecolor))
-        legend_handle.set_fill(orig_handle.get_fill())
-        legend_handle.set_hatch(orig_handle.get_hatch())
+
+        # orig_handle is a PolyCollection and legend_handle is a Patch.
+        # Directly set Patch color attributes (must be RGBA tuples).
+        legend_handle._facecolor = first_color(orig_handle.get_facecolor())
+        legend_handle._edgecolor = first_color(orig_handle.get_edgecolor())
+        legend_handle._fill = orig_handle.get_fill()
+        legend_handle._hatch = orig_handle.get_hatch()
+        # Hatch color is anomalous in having no getters and setters.
+        legend_handle._hatch_color = orig_handle._hatch_color
+        # Setters are fine for the remaining attributes.
         legend_handle.set_linewidth(get_first(orig_handle.get_linewidths()))
         legend_handle.set_linestyle(get_first(orig_handle.get_linestyles()))
         legend_handle.set_transform(get_first(orig_handle.get_transforms()))
         legend_handle.set_figure(orig_handle.get_figure())
-        legend_handle.set_alpha(orig_handle.get_alpha())
+        # Alpha is already taken into account by the color attributes.
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize, trans):

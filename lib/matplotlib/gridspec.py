@@ -16,7 +16,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, _pylab_helpers, cbook, tight_layout, rcParams
+from matplotlib import _api, _pylab_helpers, tight_layout, rcParams
 from matplotlib.transforms import Bbox
 import matplotlib._layoutgrid as layoutgrid
 
@@ -47,10 +47,10 @@ class GridSpecBase:
         """
         if not isinstance(nrows, Integral) or nrows <= 0:
             raise ValueError(
-                f"Number of rows must be a positive integer, not {nrows}")
+                f"Number of rows must be a positive integer, not {nrows!r}")
         if not isinstance(ncols, Integral) or ncols <= 0:
             raise ValueError(
-                f"Number of columns must be a positive integer, not {ncols}")
+                f"Number of columns must be a positive integer, not {ncols!r}")
         self._nrows, self._ncols = nrows, ncols
         self.set_height_ratios(height_ratios)
         self.set_width_ratios(width_ratios)
@@ -286,7 +286,7 @@ class GridSpecBase:
         # instead treated as a bool for sharex.  This check should go away
         # once sharex becomes kwonly.
         if isinstance(sharex, Integral):
-            cbook._warn_external(
+            _api.warn_external(
                 "sharex argument to subplots() was an integer.  Did you "
                 "intend to use subplot() (without 's')?")
         _api.check_in_list(["all", "row", "col", "none"],
@@ -308,18 +308,13 @@ class GridSpecBase:
                     self[row, col], **subplot_kw)
 
         # turn off redundant tick labeling
-        if sharex in ["col", "all"]:
-            # turn off all but the bottom row
-            for ax in axarr[:-1, :].flat:
-                ax.xaxis.set_tick_params(which='both',
-                                         labelbottom=False, labeltop=False)
-                ax.xaxis.offsetText.set_visible(False)
-        if sharey in ["row", "all"]:
-            # turn off all but the first column
-            for ax in axarr[:, 1:].flat:
-                ax.yaxis.set_tick_params(which='both',
-                                         labelleft=False, labelright=False)
-                ax.yaxis.offsetText.set_visible(False)
+        if all(ax.name == "rectilinear" for ax in axarr.flat):
+            if sharex in ["col", "all"]:
+                for ax in axarr.flat:
+                    ax._label_outer_xaxis()
+            if sharey in ["row", "all"]:
+                for ax in axarr.flat:
+                    ax._label_outer_yaxis()
 
         if squeeze:
             # Discarding unneeded dimensions that equal 1.  If we only have one
@@ -441,7 +436,7 @@ class GridSpec(GridSpecBase):
 
     def get_subplot_params(self, figure=None):
         """
-        Return the `~.SubplotParams` for the GridSpec.
+        Return the `.SubplotParams` for the GridSpec.
 
         In order of precedence the values are taken from
 
@@ -490,9 +485,9 @@ class GridSpec(GridSpecBase):
         subplotspec_list = tight_layout.get_subplotspec_list(
             figure.axes, grid_spec=self)
         if None in subplotspec_list:
-            cbook._warn_external("This figure includes Axes that are not "
-                                 "compatible with tight_layout, so results "
-                                 "might be incorrect.")
+            _api.warn_external("This figure includes Axes that are not "
+                               "compatible with tight_layout, so results "
+                               "might be incorrect.")
 
         if renderer is None:
             renderer = tight_layout.get_renderer(figure)
@@ -573,7 +568,7 @@ class GridSpecFromSubplotSpec(GridSpecBase):
 
 class SubplotSpec:
     """
-    Specifies the location of a subplot in a `GridSpec`.
+    The location of a subplot in a `GridSpec`.
 
     .. note::
 
@@ -609,44 +604,22 @@ class SubplotSpec:
         - a `.SubplotSpec` -- returned as is;
         - one or three numbers -- a MATLAB-style subplot specifier.
         """
-        message = ("Passing non-integers as three-element position "
-                   "specification is deprecated since %(since)s and will be "
-                   "removed %(removal)s.")
         if len(args) == 1:
             arg, = args
             if isinstance(arg, SubplotSpec):
                 return arg
-            else:
-                if not isinstance(arg, Integral):
-                    cbook.warn_deprecated("3.3", message=message)
-                    arg = str(arg)
-                try:
-                    rows, cols, num = map(int, str(arg))
-                except ValueError:
-                    raise ValueError(
-                        f"Single argument to subplot must be a three-digit "
-                        f"integer, not {arg}") from None
-                i = j = num
+            elif not isinstance(arg, Integral):
+                raise ValueError(
+                    f"Single argument to subplot must be a three-digit "
+                    f"integer, not {arg!r}")
+            try:
+                rows, cols, num = map(int, str(arg))
+            except ValueError:
+                raise ValueError(
+                    f"Single argument to subplot must be a three-digit "
+                    f"integer, not {arg!r}") from None
         elif len(args) == 3:
             rows, cols, num = args
-            if not (isinstance(rows, Integral) and isinstance(cols, Integral)):
-                cbook.warn_deprecated("3.3", message=message)
-                rows, cols = map(int, [rows, cols])
-            gs = GridSpec(rows, cols, figure=figure)
-            if isinstance(num, tuple) and len(num) == 2:
-                if not all(isinstance(n, Integral) for n in num):
-                    cbook.warn_deprecated("3.3", message=message)
-                    i, j = map(int, num)
-                else:
-                    i, j = num
-            else:
-                if not isinstance(num, Integral):
-                    cbook.warn_deprecated("3.3", message=message)
-                    num = int(num)
-                if num < 1 or num > rows*cols:
-                    raise ValueError(
-                        f"num must be 1 <= num <= {rows*cols}, not {num}")
-                i = j = num
         else:
             raise TypeError(f"subplot() takes 1 or 3 positional arguments but "
                             f"{len(args)} were given")
@@ -654,6 +627,17 @@ class SubplotSpec:
         gs = GridSpec._check_gridspec_exists(figure, rows, cols)
         if gs is None:
             gs = GridSpec(rows, cols, figure=figure)
+        if isinstance(num, tuple) and len(num) == 2:
+            if not all(isinstance(n, Integral) for n in num):
+                raise ValueError(
+                    f"Subplot specifier tuple must contain integers, not {num}"
+                )
+            i, j = num
+        else:
+            if not isinstance(num, Integral) or num < 1 or num > rows*cols:
+                raise ValueError(
+                    f"num must be 1 <= num <= {rows*cols}, not {num!r}")
+            i = j = num
         return gs[i-1:j]
 
     # num2 is a property only to handle the case where it is None and someone
@@ -684,18 +668,6 @@ class SubplotSpec:
         rows, cols = self.get_gridspec().get_geometry()
         return rows, cols, self.num1, self.num2
 
-    @_api.deprecated("3.3", alternative="rowspan, colspan")
-    def get_rows_columns(self):
-        """
-        Return the subplot row and column numbers as a tuple
-        ``(n_rows, n_cols, row_start, row_stop, col_start, col_stop)``.
-        """
-        gridspec = self.get_gridspec()
-        nrows, ncols = gridspec.get_geometry()
-        row_start, col_start = divmod(self.num1, ncols)
-        row_stop, col_stop = divmod(self.num2, ncols)
-        return nrows, ncols, row_start, row_stop, col_start, col_stop
-
     @property
     def rowspan(self):
         """The rows spanned by this subplot, as a `range` object."""
@@ -723,7 +695,7 @@ class SubplotSpec:
     def is_last_col(self):
         return self.colspan.stop == self.get_gridspec().ncols
 
-    @cbook._delete_parameter("3.4", "return_all")
+    @_api.delete_parameter("3.4", "return_all")
     def get_position(self, figure, return_all=False):
         """
         Update the subplot position from ``figure.subplotpars``.

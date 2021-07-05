@@ -84,16 +84,11 @@ if not plt.rcParams["text.usetex"]:
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.artist.Artist.set_rasterized
-matplotlib.axes.Axes.set_rasterization_zorder
-matplotlib.axes.Axes.pcolormesh
-matplotlib.pyplot.pcolormesh
+#    - `matplotlib.artist.Artist.set_rasterized`
+#    - `matplotlib.axes.Axes.set_rasterization_zorder`
+#    - `matplotlib.axes.Axes.pcolormesh` / `matplotlib.pyplot.pcolormesh`

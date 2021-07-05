@@ -66,7 +66,7 @@ Changes in 1.2.x
 
   This change means that third party objects can expose themselves as
   Matplotlib axes by providing a ``_as_mpl_axes`` method. See
-  :ref:`adding-new-scales` for more detail.
+  :mod:`matplotlib.projections` for more detail.
 
 * A new keyword *extendfrac* in :meth:`~matplotlib.pyplot.colorbar` and
   :class:`~matplotlib.colorbar.ColorbarBase` allows one to control the size of

@@ -1,0 +1,4 @@
+``font_manager`` helpers
+~~~~~~~~~~~~~~~~~~~~~~~~
+The following functions in `matplotlib.font_manager` have been deprecated:
+``win32InstalledFonts``, ``get_fontconfig_fonts``.

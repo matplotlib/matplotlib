@@ -8,6 +8,7 @@ Basic Units
 import math
 
 import numpy as np
+from packaging.version import parse as parse_version
 
 import matplotlib.units as units
 import matplotlib.ticker as ticker
@@ -78,8 +79,8 @@ class ConvertAllProxy(PassThroughProxy):
         arg_units = [self.unit]
         for a in args:
             if hasattr(a, 'get_unit') and not hasattr(a, 'convert_to'):
-                # if this arg has a unit type but no conversion ability,
-                # this operation is prohibited
+                # If this argument has a unit type but no conversion ability,
+                # this operation is prohibited.
                 return NotImplemented
 
             if hasattr(a, 'convert_to'):
@@ -154,6 +155,10 @@ class TaggedValue(metaclass=TaggedValueMeta):
     def __len__(self):
         return len(self.value)
 
+    if parse_version(np.__version__) >= parse_version('1.20'):
+        def __getitem__(self, key):
+            return TaggedValue(self.value[key], self.unit)
+
     def __iter__(self):
         # Return a generator expression rather than use `yield`, so that
         # TypeError is raised by iter(self) if appropriate when checking for
@@ -215,7 +220,7 @@ class BasicUnit:
         return TaggedValue(array, self)
 
     def __array__(self, t=None, context=None):
-        ret = np.array([1])
+        ret = np.array(1)
         if t is not None:
             return ret.astype(t)
         else:
@@ -338,8 +343,6 @@ class BasicUnitConverter(units.ConversionInterface):
 
     @staticmethod
     def convert(val, unit, axis):
-        if units.ConversionInterface.is_numlike(val):
-            return val
         if np.iterable(val):
             if isinstance(val, np.ma.MaskedArray):
                 val = val.astype(float).filled(np.nan)

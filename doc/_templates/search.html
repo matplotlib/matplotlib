@@ -3,6 +3,7 @@
 {%- block scripts %}
     {{ super() }}
     <script type="text/javascript" src="{{ pathto('_static/searchtools.js', 1) }}"></script>
+    <script type="text/javascript" src="{{ pathto('_static/language_data.js', 1) }}"></script>
 {%- endblock %}
 {% block body %}
   <h1 id="search-documentation">{{ _('Search') }}</h1>
@@ -16,7 +17,7 @@
     "codex ellipse".
   </p>
   <form action="" method="get">
-    <input type="text" name="q" value="" />
+    <input type="text" name="q" value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
     <input type="submit" value="{{ _('search') }}" />
     <span id="search-progress" style="padding-left: 10px"></span>
   </form>

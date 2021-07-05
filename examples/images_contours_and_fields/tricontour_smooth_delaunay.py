@@ -29,9 +29,9 @@ import matplotlib.cm as cm
 import numpy as np
 
 
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Analytical test function
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 def experiment_res(x, y):
     """An analytic function representing experiment results."""
     x = 2 * x
@@ -44,9 +44,9 @@ def experiment_res(x, y):
          2 * (x**2 + y**2))
     return (np.max(z) - z) / (np.max(z) - np.min(z))
 
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Generating the initial data test points and triangulation for the demo
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # User parameters for data test points
 
 # Number of test data points, tested from 3 to 5000 for subdiv=3
@@ -83,9 +83,9 @@ mask_init[masked_tri] = True
 tri.set_mask(mask_init)
 
 
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Improving the triangulation before high-res plots: removing flat triangles
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # masking badly shaped triangles at the border of the triangular mesh.
 mask = TriAnalyzer(tri).get_flat_tri_mask(min_circle_ratio)
 tri.set_mask(mask)
@@ -102,9 +102,9 @@ flat_tri = Triangulation(x_test, y_test)
 flat_tri.set_mask(~mask)
 
 
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # Now the plots
-#-----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
 # User options for plots
 plot_tri = True          # plot of base triangulation
 plot_masked_tri = True   # plot of excessively flat excluded triangles
@@ -142,22 +142,15 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.tricontour
-matplotlib.pyplot.tricontour
-matplotlib.axes.Axes.tricontourf
-matplotlib.pyplot.tricontourf
-matplotlib.axes.Axes.triplot
-matplotlib.pyplot.triplot
-matplotlib.tri
-matplotlib.tri.Triangulation
-matplotlib.tri.TriAnalyzer
-matplotlib.tri.UniformTriRefiner
+#    - `matplotlib.axes.Axes.tricontour` / `matplotlib.pyplot.tricontour`
+#    - `matplotlib.axes.Axes.tricontourf` / `matplotlib.pyplot.tricontourf`
+#    - `matplotlib.axes.Axes.triplot` / `matplotlib.pyplot.triplot`
+#    - `matplotlib.tri`
+#    - `matplotlib.tri.Triangulation`
+#    - `matplotlib.tri.TriAnalyzer`
+#    - `matplotlib.tri.UniformTriRefiner`

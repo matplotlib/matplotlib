@@ -136,7 +136,7 @@ def _truncate_location(location):
     """
     Cuts off anything after the first colon in location strings.
 
-    This allows for easy comparison even when line numbers chagne
+    This allows for easy comparison even when line numbers change
     (as they do regularly).
     """
     return location.split(":", 1)[0]

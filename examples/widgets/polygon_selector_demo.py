@@ -91,3 +91,13 @@ if __name__ == '__main__':
     # After figure is closed print the coordinates of the selected points
     print('\nSelected points:')
     print(selector.xys[selector.ind])
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.widgets.PolygonSelector`
+#    - `matplotlib.path.Path`

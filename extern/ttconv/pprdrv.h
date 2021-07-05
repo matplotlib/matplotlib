@@ -48,20 +48,6 @@ class TTStreamWriter
     virtual void putline(const char* a);
 };
 
-class TTDictionaryCallback
-{
-private:
-    // Private copy and assignment
-    TTDictionaryCallback& operator=(const TTStreamWriter& other);
-    TTDictionaryCallback(const TTStreamWriter& other);
-
-public:
-    TTDictionaryCallback() { }
-    virtual ~TTDictionaryCallback() { }
-
-    virtual void add_pair(const char* key, const char* value) = 0;
-};
-
 void replace_newlines_with_spaces(char* a);
 
 /*
@@ -95,6 +81,12 @@ public:
 #define DEBUG_TRUETYPE          /* truetype fonts, conversion to Postscript */
 #endif
 
+#if DEBUG_TRUETYPE
+#define debug(...) printf(__VA_ARGS__)
+#else
+#define debug(...)
+#endif
+
 /* Do not change anything below this line. */
 
 enum font_type_enum
@@ -102,12 +94,9 @@ enum font_type_enum
     PS_TYPE_3  = 3,
     PS_TYPE_42 = 42,
     PS_TYPE_42_3_HYBRID = 43,
-    PDF_TYPE_3 = -3
 };
 
 /* routines in pprdrv_tt.c */
 void insert_ttfont(const char *filename, TTStreamWriter& stream, font_type_enum target_type, std::vector<int>& glyph_ids);
-
-void get_pdf_charprocs(const char *filename, std::vector<int>& glyph_ids, TTDictionaryCallback& dict);
 
 /* end of file */

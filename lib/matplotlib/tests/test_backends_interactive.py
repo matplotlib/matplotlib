@@ -12,6 +12,7 @@ import urllib.request
 import pytest
 
 import matplotlib as mpl
+from matplotlib import _c_internal_utils
 
 
 # Minimal smoke-testing of the backends for which the dependencies are
@@ -40,29 +41,28 @@ def _get_testable_interactive_backends():
     ]:
         reason = None
         missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
-        if sys.platform == "linux" and not os.environ.get("DISPLAY"):
-            reason = "$DISPLAY is unset"
+        if (sys.platform == "linux" and
+                not _c_internal_utils.display_is_valid()):
+            reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
         elif missing:
             reason = "{} cannot be imported".format(", ".join(missing))
         elif backend == 'macosx' and os.environ.get('TF_BUILD'):
             reason = "macosx backend fails on Azure"
         elif 'qt5' in backend and not have_qt5:
             reason = "no usable Qt5 bindings"
+        marks = []
         if reason:
-            backend = pytest.param(
-                backend,
-                marks=pytest.mark.skip(
-                    reason=f"Skipping {backend} because {reason}"))
+            marks.append(pytest.mark.skip(
+                reason=f"Skipping {backend} because {reason}"))
         elif backend.startswith('wx') and sys.platform == 'darwin':
             # ignore on OSX because that's currently broken (github #16849)
-            backend = pytest.param(
-                backend,
-                marks=pytest.mark.xfail(reason='github #16849'))
+            marks.append(pytest.mark.xfail(reason='github #16849'))
+        backend = pytest.param(backend, marks=marks)
         backends.append(backend)
     return backends
 
 
-_test_timeout = 10  # Empirically, 1s is not enough on Travis.
+_test_timeout = 10  # Empirically, 1s is not enough on CI.
 
 
 # The source of this function gets extracted and run in another process, so it
@@ -161,9 +161,6 @@ def test_interactive_backend(backend, toolbar):
     if backend == "macosx":
         if toolbar == "toolmanager":
             pytest.skip("toolmanager is not implemented for macosx.")
-        if toolbar == "toolbar2" and os.environ.get('TRAVIS'):
-            # See https://github.com/matplotlib/matplotlib/issues/18213
-            pytest.skip("toolbar2 for macosx is buggy on Travis.")
 
     proc = subprocess.run(
         [sys.executable, "-c",
@@ -214,16 +211,19 @@ def _test_thread_impl():
 
 _thread_safe_backends = _get_testable_interactive_backends()
 # Known unsafe backends. Remove the xfails if they start to pass!
-if "wx" in _thread_safe_backends:
-    _thread_safe_backends.remove("wx")
-    _thread_safe_backends.append(
-        pytest.param("wx", marks=pytest.mark.xfail(
-            raises=subprocess.CalledProcessError)))
-if "macosx" in _thread_safe_backends:
-    _thread_safe_backends.remove("macosx")
-    _thread_safe_backends.append(
-        pytest.param("macosx", marks=pytest.mark.xfail(
-            raises=subprocess.TimeoutExpired, strict=True)))
+for param in _thread_safe_backends:
+    backend = param.values[0]
+    if "cairo" in backend:
+        # Cairo backends save a cairo_t on the graphics context, and sharing
+        # these is not threadsafe.
+        param.marks.append(
+            pytest.mark.xfail(raises=subprocess.CalledProcessError))
+    elif backend == "wx":
+        param.marks.append(
+            pytest.mark.xfail(raises=subprocess.CalledProcessError))
+    elif backend == "macosx":
+        param.marks.append(
+            pytest.mark.xfail(raises=subprocess.TimeoutExpired, strict=True))
 
 
 @pytest.mark.parametrize("backend", _thread_safe_backends)
@@ -276,7 +276,8 @@ import os
 import sys
 
 # make it look headless
-del os.environ['DISPLAY']
+os.environ.pop('DISPLAY', None)
+os.environ.pop('WAYLAND_DISPLAY', None)
 
 # we should fast-track to Agg
 import matplotlib.pyplot as plt

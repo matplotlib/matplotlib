@@ -1,35 +1,39 @@
 """
-=================
-Blitting tutorial
-=================
+==================================
+Faster rendering by using blitting
+==================================
 
-'Blitting' is a `standard technique
+*Blitting* is a `standard technique
 <https://en.wikipedia.org/wiki/Bit_blit>`__ in raster graphics that,
 in the context of Matplotlib, can be used to (drastically) improve
 performance of interactive figures. For example, the
-:mod:`~.animation` and :mod:`~.widgets` modules use blitting
+:mod:`.animation` and :mod:`.widgets` modules use blitting
 internally. Here, we demonstrate how to implement your own blitting, outside
 of these classes.
 
-The source of the performance gains is simply not re-doing work we do
-not have to.  If the limits of an Axes have not changed, then there is
-no need to re-draw all of the ticks and tick-labels (particularly
-because text is one of the more expensive things to render).
+Blitting speeds up repetitive drawing by rendering all non-changing
+graphic elements into a background image once. Then, for every draw, only the
+changing elements need to be drawn onto this background. For example,
+if the limits of an Axes have not changed, we can render the empty Axes
+including all ticks and labels once, and only draw the changing data later.
 
-The procedure to save our work is roughly:
+The strategy is
 
-- draw the figure, but exclude any artists marked as 'animated'
-- save a copy of the RBGA buffer
+- Prepare the constant background:
 
-In the future, to update the 'animated' artists we
+  - Draw the figure, but exclude all artists that you want to animate by
+    marking them as *animated* (see `.Artist.set_animated`).
+  - Save a copy of the RBGA buffer.
 
-- restore our copy of the RGBA buffer
-- redraw only the animated artists
-- show the resulting image on the screen
+- Render the individual images:
 
-thus saving us from having to re-draw everything which is _not_
-animated.  One consequence of this procedure is that your animated
-artists are always drawn at a higher z-order than the static artists.
+  - Restore the copy of the RGBA buffer.
+  - Redraw the animated artists using `.Axes.draw_artist` /
+    `.Figure.draw_artist`.
+  - Show the resulting image on the screen.
+
+One consequence of this procedure is that your animated artists are always
+drawn on top of the static artists.
 
 Not all backends support blitting.  You can check if a given canvas does via
 the `.FigureCanvasBase.supports_blit` property.

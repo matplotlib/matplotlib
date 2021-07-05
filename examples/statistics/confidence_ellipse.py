@@ -34,8 +34,9 @@ import matplotlib.transforms as transforms
 #
 # The radiuses of the ellipse can be controlled by n_std which is the number
 # of standard deviations. The default value is 3 which makes the ellipse
-# enclose 99.7% of the points (given the data is normally distributed
-# like in these examples).
+# enclose 99.4% of the points if the data is normally distributed
+# like in these examples (3 standard deviations in 1-D contain 99.7%
+# of the data, which is 99.4% of the data in 2-D).
 
 
 def confidence_ellipse(x, y, ax, n_std=3.0, facecolor='none', **kwargs):
@@ -189,7 +190,7 @@ plt.show()
 # Using the keyword arguments
 # """""""""""""""""""""""""""
 #
-# Use the kwargs specified for matplotlib.patches.Patch in order
+# Use the keyword arguments specified for `matplotlib.patches.Patch` in order
 # to have the ellipse rendered in different ways.
 
 fig, ax_kwargs = plt.subplots(figsize=(6, 6))
@@ -209,7 +210,17 @@ confidence_ellipse(x, y, ax_kwargs,
 
 ax_kwargs.scatter(x, y, s=0.5)
 ax_kwargs.scatter(mu[0], mu[1], c='red', s=3)
-ax_kwargs.set_title('Using kwargs')
+ax_kwargs.set_title('Using keyword arguments')
 
 fig.subplots_adjust(hspace=0.25)
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.transforms.Affine2D`
+#    - `matplotlib.patches.Ellipse`

@@ -102,3 +102,13 @@ for ax in axs.flat:
 fig.suptitle("I never said they'd be pretty")
 fig.subplots_adjust(hspace=0.4)
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.axes.Axes.bxp`
+#    - `matplotlib.cbook.boxplot_stats`

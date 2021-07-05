@@ -41,7 +41,7 @@ from the axis as some gridlines can never pass any axis.
 
 import numpy as np
 
-from matplotlib import _api, cbook, rcParams
+from matplotlib import _api, rcParams
 import matplotlib.axes as maxes
 from matplotlib.path import Path
 from mpl_toolkits.axes_grid1 import mpl_axes
@@ -315,25 +315,26 @@ class AxisArtistHelperRectlinear:
 class GridHelperBase:
 
     def __init__(self):
-        self._force_update = True
+        self._force_update = True  # Remove together with invalidate()/valid().
         self._old_limits = None
         super().__init__()
 
     def update_lim(self, axes):
         x1, x2 = axes.get_xlim()
         y1, y2 = axes.get_ylim()
-
         if self._force_update or self._old_limits != (x1, x2, y1, y2):
-            self._update(x1, x2, y1, y2)
+            self._update_grid(x1, y1, x2, y2)
             self._force_update = False
             self._old_limits = (x1, x2, y1, y2)
 
-    def _update(self, x1, x2, y1, y2):
-        pass
+    def _update_grid(self, x1, y1, x2, y2):
+        """Cache relevant computations when the axes limits have changed."""
 
+    @_api.deprecated("3.4")
     def invalidate(self):
         self._force_update = True
 
+    @_api.deprecated("3.4")
     def valid(self):
         return not self._force_update
 
@@ -383,7 +384,7 @@ class GridHelperRectlinear(GridHelperBase):
                        ):
 
         if axes is None:
-            cbook._warn_external(
+            _api.warn_external(
                 "'new_fixed_axis' explicitly requires the axes keyword.")
             axes = self.axes
 
@@ -403,14 +404,14 @@ class GridHelperRectlinear(GridHelperBase):
                           ):
 
         if axes is None:
-            cbook._warn_external(
+            _api.warn_external(
                 "'new_floating_axis' explicitly requires the axes keyword.")
             axes = self.axes
 
         _helper = AxisArtistHelperRectlinear.Floating(
             axes, nth_coord, value, axis_direction)
 
-        axisline = AxisArtist(axes, _helper)
+        axisline = AxisArtist(axes, _helper, axis_direction=axis_direction)
 
         axisline.line.set_clip_on(True)
         axisline.line.set_clip_box(axisline.axes.bbox)
@@ -467,14 +468,12 @@ class Axes(maxes.Axes):
             b = not self._axisline_on
         if b:
             self._axisline_on = True
-            for s in self.spines.values():
-                s.set_visible(False)
+            self.spines[:].set_visible(False)
             self.xaxis.set_visible(False)
             self.yaxis.set_visible(False)
         else:
             self._axisline_on = False
-            for s in self.spines.values():
-                s.set_visible(True)
+            self.spines[:].set_visible(True)
             self.xaxis.set_visible(True)
             self.yaxis.set_visible(True)
 
@@ -529,22 +528,23 @@ class Axes(maxes.Axes):
     def get_grid_helper(self):
         return self._grid_helper
 
-    def grid(self, b=None, which='major', axis="both", **kwargs):
+    @_api.rename_parameter("3.5", "b", "visible")
+    def grid(self, visible=None, which='major', axis="both", **kwargs):
         """
         Toggle the gridlines, and optionally set the properties of the lines.
         """
         # There are some discrepancies in the behavior of grid() between
         # axes_grid and Matplotlib, because axes_grid explicitly sets the
         # visibility of the gridlines.
-        super().grid(b, which=which, axis=axis, **kwargs)
+        super().grid(visible, which=which, axis=axis, **kwargs)
         if not self._axisline_on:
             return
-        if b is None:
-            b = (self.axes.xaxis._minor_tick_kw["gridOn"]
-                 or self.axes.xaxis._major_tick_kw["gridOn"]
-                 or self.axes.yaxis._minor_tick_kw["gridOn"]
-                 or self.axes.yaxis._major_tick_kw["gridOn"])
-        self.gridlines.set(which=which, axis=axis, visible=b)
+        if visible is None:
+            visible = (self.axes.xaxis._minor_tick_kw["gridOn"]
+                       or self.axes.xaxis._major_tick_kw["gridOn"]
+                       or self.axes.yaxis._minor_tick_kw["gridOn"]
+                       or self.axes.yaxis._major_tick_kw["gridOn"])
+        self.gridlines.set(which=which, axis=axis, visible=visible)
         self.gridlines.set(**kwargs)
 
     def get_children(self):
@@ -555,6 +555,7 @@ class Axes(maxes.Axes):
         children.extend(super().get_children())
         return children
 
+    @_api.deprecated("3.4")
     def invalidate_grid_helper(self):
         self._grid_helper.invalidate()
 

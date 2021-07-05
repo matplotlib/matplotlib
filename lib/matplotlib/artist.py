@@ -1,4 +1,5 @@
-from collections import OrderedDict, namedtuple
+from collections import namedtuple
+import contextlib
 from functools import wraps
 import inspect
 import logging
@@ -9,7 +10,7 @@ import warnings
 import numpy as np
 
 import matplotlib as mpl
-from . import _api, cbook, docstring
+from . import _api, cbook
 from .path import Path
 from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
@@ -26,12 +27,8 @@ def allow_rasterization(draw):
     renderer.
     """
 
-    # Axes has a second (deprecated) argument inframe for its draw method.
-    # args and kwargs are deprecated, but we don't wrap this in
-    # cbook._delete_parameter for performance; the relevant deprecation
-    # warning will be emitted by the inner draw() call.
     @wraps(draw)
-    def draw_wrapper(artist, renderer, *args, **kwargs):
+    def draw_wrapper(artist, renderer):
         try:
             if artist.get_rasterized():
                 if renderer._raster_depth == 0 and not renderer._rasterizing:
@@ -48,7 +45,7 @@ def allow_rasterization(draw):
             if artist.get_agg_filter() is not None:
                 renderer.start_filter()
 
-            return draw(artist, renderer, *args, **kwargs)
+            return draw(artist, renderer)
         finally:
             if artist.get_agg_filter() is not None:
                 renderer.stop_filter(artist.get_agg_filter())
@@ -112,7 +109,6 @@ class Artist:
         self._clipon = True
         self._label = ''
         self._picker = None
-        self._contains = None
         self._rasterized = False
         self._agg_filter = None
         # Normally, artist classes need to be queried for mouseover info if and
@@ -351,7 +347,7 @@ class Artist:
         --------
         add_callback
         """
-        self._callbacks.disconnect("pchanged", oid)
+        self._callbacks.disconnect(oid)
 
     def pchanged(self):
         """
@@ -404,10 +400,9 @@ class Artist:
         """
         Base impl. for checking whether a mouseevent happened in an artist.
 
-        1. If the artist defines a custom checker, use it (deprecated).
-        2. If the artist figure is known and the event did not occur in that
+        1. If the artist figure is known and the event did not occur in that
            figure (by checking its ``canvas`` attribute), reject it.
-        3. Otherwise, return `None, {}`, indicating that the subclass'
+        2. Otherwise, return `None, {}`, indicating that the subclass'
            implementation should be used.
 
         Subclasses should start their definition of `contains` as follows:
@@ -420,8 +415,6 @@ class Artist:
         The *figure* kwarg is provided for the implementation of
         `.Figure.contains`.
         """
-        if callable(self._contains):
-            return self._contains(self, mouseevent)
         if figure is not None and mouseevent.canvas is not figure.canvas:
             return False, {}
         return None, {}
@@ -448,45 +441,6 @@ class Artist:
             return inside, info
         _log.warning("%r needs 'contains' method", self.__class__.__name__)
         return False, {}
-
-    @_api.deprecated("3.3", alternative="set_picker")
-    def set_contains(self, picker):
-        """
-        Define a custom contains test for the artist.
-
-        The provided callable replaces the default `.contains` method
-        of the artist.
-
-        Parameters
-        ----------
-        picker : callable
-            A custom picker function to evaluate if an event is within the
-            artist. The function must have the signature::
-
-                def contains(artist: Artist, event: MouseEvent) -> bool, dict
-
-            that returns:
-
-            - a bool indicating if the event is within the artist
-            - a dict of additional information. The dict should at least
-              return the same information as the default ``contains()``
-              implementation of the respective artist, but may provide
-              additional information.
-        """
-        if not callable(picker):
-            raise TypeError("picker is not a callable")
-        self._contains = picker
-
-    @_api.deprecated("3.3", alternative="get_picker")
-    def get_contains(self):
-        """
-        Return the custom contains function of the artist if set, or *None*.
-
-        See Also
-        --------
-        set_contains
-        """
-        return self._contains
 
     def pickable(self):
         """
@@ -539,7 +493,7 @@ class Artist:
 
         Parameters
         ----------
-        picker : None or bool or callable
+        picker : None or bool or float or callable
             This can be one of the following:
 
             - *None*: Picking is disabled for this artist (default).
@@ -547,6 +501,14 @@ class Artist:
             - A boolean: If *True* then picking will be enabled and the
               artist will fire a pick event if the mouse event is over
               the artist.
+
+            - A float: If picker is a number it is interpreted as an
+              epsilon tolerance in points and the artist will fire
+              off an event if its data is within epsilon of the mouse
+              event.  For some artists like lines and patch collections,
+              the artist may provide additional data to the pick event
+              that is generated, e.g., the indices of the data within
+              epsilon of the pick event
 
             - A function: If picker is callable, it is a user supplied
               function which determines whether the artist is hit by the
@@ -557,11 +519,6 @@ class Artist:
               to determine the hit test.  if the mouse event is over the
               artist, return *hit=True* and props is a dictionary of
               properties you want added to the PickEvent attributes.
-
-            - *deprecated*: For `.Line2D` only, *picker* can also be a float
-              that sets the tolerance for checking whether an event occurred
-              "on" the line; this is deprecated.  Use `.Line2D.set_pickradius`
-              instead.
         """
         self._picker = picker
 
@@ -901,8 +858,7 @@ class Artist:
         rasterized : bool
         """
         if rasterized and not hasattr(self.draw, "_supports_rasterization"):
-            cbook._warn_external(
-                "Rasterization of '%s' will be ignored" % self)
+            _api.warn_external(f"Rasterization of '{self}' will be ignored")
 
         self._rasterized = rasterized
 
@@ -926,9 +882,7 @@ class Artist:
         self._agg_filter = filter_func
         self.stale = True
 
-    @cbook._delete_parameter("3.3", "args")
-    @cbook._delete_parameter("3.3", "kwargs")
-    def draw(self, renderer, *args, **kwargs):
+    def draw(self, renderer):
         """
         Draw the Artist (and its children) using the given renderer.
 
@@ -1002,7 +956,15 @@ class Artist:
 
     def set_animated(self, b):
         """
-        Set the artist's animation state.
+        Set whether the artist is intended to be used in an animation.
+
+        If True, the artist is excluded from regular drawing of the figure.
+        You have to call `.Figure.draw_artist` / `.Axes.draw_artist`
+        explicitly on the artist. This appoach is used to speed up animations
+        using blitting.
+
+        See also `matplotlib.animation` and
+        :doc:`/tutorials/advanced/blitting`.
 
         Parameters
         ----------
@@ -1036,13 +998,7 @@ class Artist:
         ret = []
         with cbook._setattr_cm(self, eventson=False):
             for k, v in props.items():
-                if k != k.lower():
-                    cbook.warn_deprecated(
-                        "3.3", message="Case-insensitive properties were "
-                        "deprecated in %(since)s and support will be removed "
-                        "%(removal)s")
-                    k = k.lower()
-                # White list attributes we want to be able to update through
+                # Allow attributes we want to be able to update through
                 # art.update, art.set, setp.
                 if k == "axes":
                     ret.append(setattr(self, k, v))
@@ -1142,31 +1098,19 @@ class Artist:
     def set(self, **kwargs):
         """A property batch setter.  Pass *kwargs* to set properties."""
         kwargs = cbook.normalize_kwargs(kwargs, self)
-        move_color_to_start = False
-        if "color" in kwargs:
-            keys = [*kwargs]
-            i_color = keys.index("color")
-            props = ["edgecolor", "facecolor"]
-            if any(tp.__module__ == "matplotlib.collections"
-                   and tp.__name__ == "Collection"
-                   for tp in type(self).__mro__):
-                props.append("alpha")
-            for other in props:
-                if other not in keys:
-                    continue
-                i_other = keys.index(other)
-                if i_other < i_color:
-                    move_color_to_start = True
-                    cbook.warn_deprecated(
-                        "3.3", message=f"You have passed the {other!r} kwarg "
-                        "before the 'color' kwarg.  Artist.set() currently "
-                        "reorders the properties to apply 'color' first, but "
-                        "this is deprecated since %(since)s and will be "
-                        "removed %(removal)s; please pass 'color' first "
-                        "instead.")
-        if move_color_to_start:
-            kwargs = {"color": kwargs.pop("color"), **kwargs}
         return self.update(kwargs)
+
+    @contextlib.contextmanager
+    def _cm_set(self, **kwargs):
+        """
+        `.Artist.set` context-manager that restores original values at exit.
+        """
+        orig_vals = {k: getattr(self, f"get_{k}")() for k in kwargs}
+        try:
+            self.set(**kwargs)
+            yield
+        finally:
+            self.set(**orig_vals)
 
     def findobj(self, match=None, include_self=True):
         """
@@ -1252,19 +1196,33 @@ class Artist:
             method yourself.
 
         The default implementation converts ints and floats and arrays of ints
-        and floats into a comma-separated string enclosed in square brackets.
+        and floats into a comma-separated string enclosed in square brackets,
+        unless the artist has an associated colorbar, in which case scalar
+        values are formatted using the colorbar's formatter.
 
         See Also
         --------
         get_cursor_data
         """
-        try:
-            data[0]
-        except (TypeError, IndexError):
-            data = [data]
-        data_str = ', '.join('{:0.3g}'.format(item) for item in data
-                             if isinstance(item, Number))
-        return "[" + data_str + "]"
+        if np.ndim(data) == 0 and getattr(self, "colorbar", None):
+            # This block logically belongs to ScalarMappable, but can't be
+            # implemented in it because most ScalarMappable subclasses inherit
+            # from Artist first and from ScalarMappable second, so
+            # Artist.format_cursor_data would always have precedence over
+            # ScalarMappable.format_cursor_data.
+            return (
+                "["
+                + cbook.strip_math(
+                    self.colorbar.formatter.format_data_short(data)).strip()
+                + "]")
+        else:
+            try:
+                data[0]
+            except (TypeError, IndexError):
+                data = [data]
+            data_str = ', '.join('{:0.3g}'.format(item) for item in data
+                                 if isinstance(item, Number))
+            return "[" + data_str + "]"
 
     @property
     def mouseover(self):
@@ -1568,7 +1526,7 @@ def getp(obj, property=None):
         If *property* is 'somename', this function returns
         ``obj.get_somename()``.
 
-        If is is None (or unset), it *prints* all gettable properties from
+        If it's None (or unset), it *prints* all gettable properties from
         *obj*.  Many properties have aliases for shorter typing, e.g. 'lw' is
         an alias for 'linewidth'.  In the output, aliases and full property
         names will be listed as:
@@ -1673,8 +1631,7 @@ def setp(obj, *args, file=None, **kwargs):
     if len(args) % 2:
         raise ValueError('The set args must be string, value pairs')
 
-    # put args into ordereddict to maintain order
-    funcvals = OrderedDict((k, v) for k, v in zip(args[::2], args[1::2]))
+    funcvals = dict(zip(args[::2], args[1::2]))
     ret = [o.update(funcvals) for o in objs] + [o.set(**kwargs) for o in objs]
     return list(cbook.flatten(ret))
 
@@ -1699,6 +1656,3 @@ def kwdoc(artist):
     return ('\n'.join(ai.pprint_setters_rest(leadingspace=4))
             if mpl.rcParams['docstring.hardcopy'] else
             'Properties:\n' + '\n'.join(ai.pprint_setters(leadingspace=4)))
-
-
-docstring.interpd.update(Artist=kwdoc(Artist))

@@ -23,6 +23,7 @@ Future versions may implement the Level 2 or 2.1 specifications.
 #   - setWeights function needs improvement
 #   - 'light' is an invalid weight value, remove it.
 
+import dataclasses
 from functools import lru_cache
 import json
 import logging
@@ -33,8 +34,10 @@ import re
 import subprocess
 import sys
 try:
+    import threading
     from threading import Timer
 except ImportError:
+    import dummy_threading as threading
     from dummy_threading import Timer
 
 import matplotlib as mpl
@@ -127,14 +130,18 @@ font_family_aliases = {
 
 
 # OS Font paths
+try:
+    _HOME = Path.home()
+except Exception:  # Exceptions thrown by home() are not specified...
+    _HOME = Path(os.devnull)  # Just an arbitrary path with no children.
 MSFolders = \
     r'Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'
 MSFontDirectories = [
     r'SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts',
     r'SOFTWARE\Microsoft\Windows\CurrentVersion\Fonts']
 MSUserFontDirectories = [
-    str(Path.home() / 'AppData/Local/Microsoft/Windows/Fonts'),
-    str(Path.home() / 'AppData/Roaming/Microsoft/Windows/Fonts'),
+    str(_HOME / 'AppData/Local/Microsoft/Windows/Fonts'),
+    str(_HOME / 'AppData/Roaming/Microsoft/Windows/Fonts'),
 ]
 X11FontDirectories = [
     # an old standard installation point
@@ -147,9 +154,9 @@ X11FontDirectories = [
     # common application, not really useful
     "/usr/lib/openoffice/share/fonts/truetype/",
     # user fonts
-    str(Path(os.environ.get('XDG_DATA_HOME',
-                            Path.home() / ".local/share")) / "fonts"),
-    str(Path.home() / ".fonts"),
+    str((Path(os.environ.get('XDG_DATA_HOME') or _HOME / ".local/share"))
+        / "fonts"),
+    str(_HOME / ".fonts"),
 ]
 OSXFontDirectories = [
     "/Library/Fonts/",
@@ -158,7 +165,7 @@ OSXFontDirectories = [
     # fonts installed via MacPorts
     "/opt/local/share/fonts",
     # user fonts
-    str(Path.home() / "Library/Fonts"),
+    str(_HOME / "Library/Fonts"),
 ]
 
 
@@ -242,11 +249,6 @@ def _win32RegistryFonts(reg_domain, base_dir):
                     key, value, tp = winreg.EnumValue(local, j)
                     if not isinstance(value, str):
                         continue
-
-                    # Work around for https://bugs.python.org/issue25778, which
-                    # is fixed in Py>=3.6.1.
-                    value = value.split("\0", 1)[0]
-
                     try:
                         # If value contains already an absolute path, then it
                         # is not changed further.
@@ -262,6 +264,8 @@ def _win32RegistryFonts(reg_domain, base_dir):
     return items
 
 
+# Also remove _win32RegistryFonts when this is removed.
+@_api.deprecated("3.5")
 def win32InstalledFonts(directory=None, fontext='ttf'):
     """
     Search for fonts in the specified font directory, or use the
@@ -289,9 +293,41 @@ def win32InstalledFonts(directory=None, fontext='ttf'):
     return [str(path) for path in items if path.suffix.lower() in fontext]
 
 
+def _get_win32_installed_fonts():
+    """List the font paths known to the Windows registry."""
+    import winreg
+    items = set()
+    # Search and resolve fonts listed in the registry.
+    for domain, base_dirs in [
+            (winreg.HKEY_LOCAL_MACHINE, [win32FontDirectory()]),  # System.
+            (winreg.HKEY_CURRENT_USER, MSUserFontDirectories),  # User.
+    ]:
+        for base_dir in base_dirs:
+            for reg_path in MSFontDirectories:
+                try:
+                    with winreg.OpenKey(domain, reg_path) as local:
+                        for j in range(winreg.QueryInfoKey(local)[1]):
+                            # value may contain the filename of the font or its
+                            # absolute path.
+                            key, value, tp = winreg.EnumValue(local, j)
+                            if not isinstance(value, str):
+                                continue
+                            try:
+                                # If value contains already an absolute path,
+                                # then it is not changed further.
+                                path = Path(base_dir, value).resolve()
+                            except RuntimeError:
+                                # Don't fail with invalid entries.
+                                continue
+                            items.add(path)
+                except (OSError, MemoryError):
+                    continue
+    return items
+
+
 @lru_cache()
-def _call_fc_list():
-    """Cache and list the font filenames known to `fc-list`."""
+def _get_fontconfig_fonts():
+    """Cache and list the font paths known to `fc-list`."""
     try:
         if b'--format' not in subprocess.check_output(['fc-list', '--help']):
             _log.warning(  # fontconfig 2.7 implemented --format.
@@ -300,14 +336,15 @@ def _call_fc_list():
         out = subprocess.check_output(['fc-list', '--format=%{file}\\n'])
     except (OSError, subprocess.CalledProcessError):
         return []
-    return [os.fsdecode(fname) for fname in out.split(b'\n')]
+    return [Path(os.fsdecode(fname)) for fname in out.split(b'\n')]
 
 
+@_api.deprecated("3.5")
 def get_fontconfig_fonts(fontext='ttf'):
     """List font filenames known to `fc-list` having the given extension."""
     fontext = ['.' + ext for ext in get_fontext_synonyms(fontext)]
-    return [fname for fname in _call_fc_list()
-            if Path(fname).suffix.lower() in fontext]
+    return [str(path) for path in _get_fontconfig_fonts()
+            if path.suffix.lower() in fontext]
 
 
 def findSystemFonts(fontpaths=None, fontext='ttf'):
@@ -323,14 +360,16 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
 
     if fontpaths is None:
         if sys.platform == 'win32':
+            installed_fonts = _get_win32_installed_fonts()
             fontpaths = MSUserFontDirectories + [win32FontDirectory()]
-            # now get all installed fonts directly...
-            fontfiles.update(win32InstalledFonts(fontext=fontext))
         else:
-            fontpaths = X11FontDirectories
+            installed_fonts = _get_fontconfig_fonts()
             if sys.platform == 'darwin':
                 fontpaths = [*X11FontDirectories, *OSXFontDirectories]
-            fontfiles.update(get_fontconfig_fonts(fontext))
+            else:
+                fontpaths = X11FontDirectories
+        fontfiles.update(str(path) for path in installed_fonts
+                         if path.suffix.lower()[1:] in fontexts)
 
     elif isinstance(fontpaths, str):
         fontpaths = [fontpaths]
@@ -341,35 +380,22 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     return [fname for fname in fontfiles if os.path.exists(fname)]
 
 
-class FontEntry:
-    """
-    A class for storing Font properties.  It is used when populating
-    the font lookup dictionary.
-    """
-    def __init__(self,
-                 fname  ='',
-                 name   ='',
-                 style  ='normal',
-                 variant='normal',
-                 weight ='normal',
-                 stretch='normal',
-                 size   ='medium',
-                 ):
-        self.fname   = fname
-        self.name    = name
-        self.style   = style
-        self.variant = variant
-        self.weight  = weight
-        self.stretch = stretch
-        try:
-            self.size = str(float(size))
-        except ValueError:
-            self.size = size
+FontEntry = dataclasses.make_dataclass(
+    'FontEntry', [
+        ('fname', str, dataclasses.field(default='')),
+        ('name', str, dataclasses.field(default='')),
+        ('style', str, dataclasses.field(default='normal')),
+        ('variant', str, dataclasses.field(default='normal')),
+        ('weight', str, dataclasses.field(default='normal')),
+        ('stretch', str, dataclasses.field(default='normal')),
+        ('size', str, dataclasses.field(default='medium')),
+    ],
+    namespace={
+        '__doc__': """
+    A class for storing Font properties.
 
-    def __repr__(self):
-        return "<Font '%s' (%s) %s %s %s %s>" % (
-            self.name, os.path.basename(self.fname), self.style, self.variant,
-            self.weight, self.stretch)
+    It is used when populating the font lookup dictionary.
+    """})
 
 
 def ttfFontProperty(font):
@@ -629,16 +655,10 @@ class FontProperties:
     fontconfig.
     """
 
-    def __init__(self,
-                 family = None,
-                 style  = None,
-                 variant= None,
-                 weight = None,
-                 stretch= None,
-                 size   = None,
-                 fname  = None,  # if set, it's a hardcoded filename to use
-                 math_fontfamily = None,
-                 ):
+    def __init__(self, family=None, style=None, variant=None, weight=None,
+                 stretch=None, size=None,
+                 fname=None,  # if set, it's a hardcoded filename to use
+                 math_fontfamily=None):
         self._family = _normalize_font_family(rcParams['font.family'])
         self._slant = rcParams['font.style']
         self._variant = rcParams['font.variant']
@@ -646,7 +666,7 @@ class FontProperties:
         self._stretch = rcParams['font.stretch']
         self._size = rcParams['font.size']
         self._file = None
-        self._math_fontfamily = None
+        self.set_math_fontfamily(math_fontfamily)
 
         if isinstance(family, str):
             # Treat family as a fontconfig pattern if it is the only
@@ -663,7 +683,6 @@ class FontProperties:
         self.set_stretch(stretch)
         self.set_file(fname)
         self.set_size(size)
-        self.set_math_fontfamily(math_fontfamily)
 
     @classmethod
     def _from_any(cls, arg):
@@ -1025,23 +1044,10 @@ class FontManager:
         self.__default_weight = weight
         self.default_size = size
 
+        # Create list of font paths.
         paths = [cbook._get_data_path('fonts', subdir)
                  for subdir in ['ttf', 'afm', 'pdfcorefonts']]
-        #  Create list of font paths
-        for pathname in ['TTFPATH', 'AFMPATH']:
-            if pathname in os.environ:
-                ttfpath = os.environ[pathname]
-                if ttfpath.find(';') >= 0:  # win32 style
-                    paths.extend(ttfpath.split(';'))
-                elif ttfpath.find(':') >= 0:  # unix style
-                    paths.extend(ttfpath.split(':'))
-                else:
-                    paths.append(ttfpath)
-                cbook.warn_deprecated(
-                    "3.3", name=pathname, obj_type="environment variable",
-                    alternative="FontManager.addfont()")
         _log.debug('font search path %s', str(paths))
-        #  Load TrueType fonts and create font dictionary.
 
         self.defaultFamily = {
             'ttf': 'DejaVu Sans',
@@ -1394,7 +1400,12 @@ def is_opentype_cff_font(filename):
         return False
 
 
-_get_font = lru_cache(64)(ft2font.FT2Font)
+@lru_cache(64)
+def _get_font(filename, hinting_factor, *, _kerning_factor, thread_id):
+    return ft2font.FT2Font(
+        filename, hinting_factor, _kerning_factor=_kerning_factor)
+
+
 # FT2Font objects cannot be used across fork()s because they reference the same
 # FT_Library object.  While invalidating *all* existing FT2Fonts after a fork
 # would be too complicated to be worth it, the main way FT2Fonts get reused is
@@ -1409,8 +1420,10 @@ def get_font(filename, hinting_factor=None):
     filename = _cached_realpath(filename)
     if hinting_factor is None:
         hinting_factor = rcParams['text.hinting_factor']
+    # also key on the thread ID to prevent segfaults with multi-threading
     return _get_font(filename, hinting_factor,
-                     _kerning_factor=rcParams['text.kerning_factor'])
+                     _kerning_factor=rcParams['text.kerning_factor'],
+                     thread_id=threading.get_ident())
 
 
 def _load_fontmanager(*, try_read_cache=True):
@@ -1419,7 +1432,7 @@ def _load_fontmanager(*, try_read_cache=True):
     if try_read_cache:
         try:
             fm = json_load(fm_path)
-        except Exception as exc:
+        except Exception:
             pass
         else:
             if getattr(fm, "_version", object()) == FontManager.__version__:

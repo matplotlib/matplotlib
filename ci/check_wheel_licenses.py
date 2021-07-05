@@ -21,14 +21,15 @@ project_dir = Path(__file__).parent.resolve().parent
 dist_dir = project_dir / 'dist'
 license_dir = project_dir / 'LICENSE'
 
-license_file_names = [path.name for path in sorted(license_dir.glob('*'))]
+license_file_names = {path.name for path in sorted(license_dir.glob('*'))}
 for wheel in dist_dir.glob('*.whl'):
     print(f'Checking LICENSE files in: {wheel}')
     with zipfile.ZipFile(wheel) as f:
-        wheel_license_file_names = [Path(path).name
+        wheel_license_file_names = {Path(path).name
                                     for path in sorted(f.namelist())
-                                    if '.dist-info/LICENSE' in path]
-        if wheel_license_file_names != license_file_names:
+                                    if '.dist-info/LICENSE' in path}
+        if not (len(wheel_license_file_names) and
+                wheel_license_file_names.issuperset(license_file_names)):
             print(f'LICENSE file(s) missing:\n'
                   f'{wheel_license_file_names} !=\n'
                   f'{license_file_names}')

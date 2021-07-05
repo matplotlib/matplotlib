@@ -1,8 +1,0 @@
-wx backend cleanups
-~~~~~~~~~~~~~~~~~~~
-The *origin* parameter to ``_FigureCanvasWxBase.gui_repaint`` is deprecated
-with no replacement; ``gui_repaint`` now automatically detects the case where
-it is used with the wx renderer.
-
-The ``NavigationToolbar2Wx.get_canvas`` method is deprecated; directly
-instantiate a canvas (``FigureCanvasWxAgg(frame, -1, figure)``) if needed.

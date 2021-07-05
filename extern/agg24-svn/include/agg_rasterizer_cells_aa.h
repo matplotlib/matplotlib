@@ -329,6 +329,7 @@ namespace agg
             int cy = (y1 + y2) >> 1;
             line(x1, y1, cx, cy);
             line(cx, cy, x2, y2);
+            return;
         }
 
         int dy = y2 - y1;

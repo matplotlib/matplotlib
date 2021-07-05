@@ -46,7 +46,7 @@ import datetime
 import logging
 from numbers import Integral, Real
 
-from matplotlib import cbook, colors as mcolors
+from matplotlib import _api, colors as mcolors
 from matplotlib.backends.qt_compat import QtGui, QtWidgets, QtCore
 
 _log = logging.getLogger(__name__)
@@ -95,7 +95,7 @@ def to_qcolor(color):
     try:
         rgba = mcolors.to_rgba(color)
     except ValueError:
-        cbook._warn_external('Ignoring invalid color %r' % color)
+        _api.warn_external(f'Ignoring invalid color {color!r}')
         return qcolor  # return invalid QColor
     qcolor.setRgbF(*rgba)
     return qcolor
@@ -342,9 +342,17 @@ class FormWidget(QtWidgets.QWidget):
             elif isinstance(value, Real):
                 value = float(str(field.text()))
             elif isinstance(value, datetime.datetime):
-                value = field.dateTime().toPyDateTime()
+                datetime_ = field.dateTime()
+                if hasattr(datetime_, "toPyDateTime"):
+                    value = datetime_.toPyDateTime()
+                else:
+                    value = datetime_.toPython()
             elif isinstance(value, datetime.date):
-                value = field.date().toPyDate()
+                date_ = field.date()
+                if hasattr(date_, "toPyDate"):
+                    value = date_.toPyDate()
+                else:
+                    value = date_.toPython()
             else:
                 value = eval(str(field.text()))
             valuelist.append(value)
@@ -546,7 +554,7 @@ if __name__ == "__main__":
                 (datalist, "Category 2", "Category 2 comment"),
                 (datalist, "Category 3", "Category 3 comment"))
 
-    #--------- datalist example
+    # --------- datalist example
     datalist = create_datalist_example()
 
     def apply_test(data):
@@ -555,11 +563,11 @@ if __name__ == "__main__":
                            comment="This is just an <b>example</b>.",
                            apply=apply_test))
 
-    #--------- datagroup example
+    # --------- datagroup example
     datagroup = create_datagroup_example()
     print("result:", fedit(datagroup, "Global title"))
 
-    #--------- datagroup inside a datagroup example
+    # --------- datagroup inside a datagroup example
     datalist = create_datalist_example()
     datagroup = create_datagroup_example()
     print("result:", fedit(((datagroup, "Title 1", "Tab 1 comment"),

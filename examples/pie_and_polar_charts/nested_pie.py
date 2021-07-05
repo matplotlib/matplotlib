@@ -52,13 +52,13 @@ plt.show()
 # a circle. The cumulative sum of the values are used as the edges
 # of the bars.
 
-fig, ax = plt.subplots(subplot_kw=dict(polar=True))
+fig, ax = plt.subplots(subplot_kw=dict(projection="polar"))
 
 size = 0.3
 vals = np.array([[60., 32.], [37., 40.], [29., 10.]])
-#normalize vals to 2 pi
+# Normalize vals to 2 pi
 valsnorm = vals/np.sum(vals)*2*np.pi
-#obtain the ordinates of the bar edges
+# Obtain the ordinates of the bar edges
 valsleft = np.cumsum(np.append(0, valsnorm.flatten()[:-1])).reshape(vals.shape)
 
 cmap = plt.get_cmap("tab20c")
@@ -79,19 +79,13 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.pie
-matplotlib.pyplot.pie
-matplotlib.axes.Axes.bar
-matplotlib.pyplot.bar
-matplotlib.projections.polar
-matplotlib.axes.Axes.set
-matplotlib.axes.Axes.set_axis_off
+#    - `matplotlib.axes.Axes.pie` / `matplotlib.pyplot.pie`
+#    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`
+#    - `matplotlib.projections.polar`
+#    - ``Axes.set`` (`matplotlib.artist.Artist.set`)
+#    - `matplotlib.axes.Axes.set_axis_off`

@@ -61,3 +61,12 @@ ax.set_ylabel("Data values")
 ax.set_xlabel("Data sets")
 
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.axes.Axes.barh` / `matplotlib.pyplot.barh`

@@ -1,11 +1,5 @@
-import logging
-
-import matplotlib.cbook as cbook
-import matplotlib.widgets as widgets
-from matplotlib.rcsetup import validate_stringlist
+from matplotlib import _api, cbook, widgets
 import matplotlib.backend_tools as tools
-
-_log = logging.getLogger(__name__)
 
 
 class ToolEvent:
@@ -51,9 +45,6 @@ class ToolManager:
     """
 
     def __init__(self, figure=None):
-        _log.warning('Treat the new Tool classes introduced in v1.5 as '
-                     'experimental for now, the API will likely change in '
-                     'version 2.1 and perhaps the rcParam as well')
 
         self._key_press_handler_id = None
 
@@ -183,8 +174,7 @@ class ToolManager:
         for k in self.get_tool_keymap(name):
             del self._keys[k]
 
-    @cbook._delete_parameter("3.3", "args")
-    def update_keymap(self, name, key, *args):
+    def update_keymap(self, name, key):
         """
         Set the keymap to associate with the specified tool.
 
@@ -192,27 +182,19 @@ class ToolManager:
         ----------
         name : str
             Name of the Tool.
-        keys : str or list of str
+        key : str or list of str
             Keys to associate with the tool.
         """
         if name not in self._tools:
-            raise KeyError('%s not in Tools' % name)
+            raise KeyError(f'{name} not in Tools')
         self._remove_keys(name)
-        for key in [key, *args]:
-            if isinstance(key, str) and validate_stringlist(key) != [key]:
-                cbook.warn_deprecated(
-                    "3.3", message="Passing a list of keys as a single "
-                    "comma-separated string is deprecated since %(since)s and "
-                    "support will be removed %(removal)s; pass keys as a list "
-                    "of strings instead.")
-                key = validate_stringlist(key)
-            if isinstance(key, str):
-                key = [key]
-            for k in key:
-                if k in self._keys:
-                    cbook._warn_external('Key %s changed from %s to %s' %
-                                         (k, self._keys[k], name))
-                self._keys[k] = name
+        if isinstance(key, str):
+            key = [key]
+        for k in key:
+            if k in self._keys:
+                _api.warn_external(
+                    f'Key {k} changed from {self._keys[k]} to {name}')
+            self._keys[k] = name
 
     def remove_tool(self, name):
         """
@@ -227,7 +209,7 @@ class ToolManager:
         tool = self.get_tool(name)
         tool.destroy()
 
-        # If is a toggle tool and toggled, untoggle
+        # If it's a toggle tool and toggled, untoggle
         if getattr(tool, 'toggled', False):
             self.trigger_tool(tool, 'toolmanager')
 
@@ -268,8 +250,8 @@ class ToolManager:
             raise ValueError('Impossible to find class for %s' % str(tool))
 
         if name in self._tools:
-            cbook._warn_external('A "Tool class" with the same name already '
-                                 'exists, not added')
+            _api.warn_external('A "Tool class" with the same name already '
+                               'exists, not added')
             return self._tools[name]
 
         tool_obj = tool_cls(self, name, *args, **kwargs)
@@ -438,7 +420,6 @@ class ToolManager:
             return name
         if name not in self._tools:
             if warn:
-                cbook._warn_external("ToolManager does not control tool "
-                                     "%s" % name)
+                _api.warn_external(f"ToolManager does not control tool {name}")
             return None
         return self._tools[name]

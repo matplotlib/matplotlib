@@ -94,13 +94,6 @@ int convert_from_attr(PyObject *obj, const char *name, converter func, void *p)
     return 1;
 }
 
-int convert_voidptr(PyObject *obj, void *p)
-{
-    void **val = (void **)p;
-    *val = PyLong_AsVoidPtr(obj);
-    return *val != NULL ? 1 : !PyErr_Occurred();
-}
-
 int convert_double(PyObject *obj, void *p)
 {
     double *val = (double *)p;
@@ -422,6 +415,16 @@ exit:
     return status;
 }
 
+int convert_pathgen(PyObject *obj, void *pathgenp)
+{
+    py::PathGenerator *paths = (py::PathGenerator *)pathgenp;
+    if (!paths->set(obj)) {
+        PyErr_SetString(PyExc_TypeError, "Not an iterable of paths");
+        return 0;
+    }
+    return 1;
+}
+
 int convert_clippath(PyObject *clippath_tuple, void *clippathp)
 {
     ClipPath *clippath = (ClipPath *)clippathp;
@@ -495,22 +498,6 @@ int convert_gcagg(PyObject *pygc, void *gcp)
           convert_from_method(pygc, "get_sketch_params", &convert_sketch_params, &gc->sketch))) {
         return 0;
     }
-
-    return 1;
-}
-
-int convert_offset_position(PyObject *obj, void *offsetp)
-{
-    e_offset_position *offset = (e_offset_position *)offsetp;
-    const char *names[] = {"data", NULL};
-    int values[] = {OFFSET_POSITION_DATA};
-    int result = (int)OFFSET_POSITION_FIGURE;
-
-    if (!convert_string_enum(obj, "offset_position", names, values, &result)) {
-        PyErr_Clear();
-    }
-
-    *offset = (e_offset_position)result;
 
     return 1;
 }

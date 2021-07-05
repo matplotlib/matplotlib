@@ -53,3 +53,13 @@ for ax in axs:
 plt.setp(axs, xticks=[y + 1 for y in range(len(all_data))],
          xticklabels=['x1', 'x2', 'x3', 'x4'])
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.axes.Axes.boxplot` / `matplotlib.pyplot.boxplot`
+#    - `matplotlib.axes.Axes.violinplot` / `matplotlib.pyplot.violinplot`

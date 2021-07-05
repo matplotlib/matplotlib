@@ -660,7 +660,6 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     NSRect rect;
     Window* window;
     View* view;
-    const char* title;
     PyObject* size;
     int width, height;
     PyObject* obj;
@@ -672,7 +671,7 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    if(!PyArg_ParseTuple(args, "Os", &obj, &title)) return -1;
+    if(!PyArg_ParseTuple(args, "O", &obj)) return -1;
 
     canvas = (FigureCanvas*)obj;
     view = canvas->view;
@@ -704,9 +703,6 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
                                              defer: YES
                                        withManager: (PyObject*)self];
     window = self->window;
-    [window setTitle: [NSString stringWithCString: title
-                                         encoding: NSASCIIStringEncoding]];
-
     [window setDelegate: view];
     [window makeFirstResponder: view];
     [[window contentView] addSubview: view];

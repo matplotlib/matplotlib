@@ -1,14 +1,15 @@
 """
 ==================
-Demo Floating Axis
+floating_axis demo
 ==================
 
-Axis within rectangular frame
+Axis within rectangular frame.
 
 The following code demonstrates how to put a floating polar curve within a
 rectangular box. In order to get a better sense of polar curves, please look at
 :doc:`/gallery/axisartist/demo_curvelinear_grid`.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 import mpl_toolkits.axisartist.angle_helper as angle_helper

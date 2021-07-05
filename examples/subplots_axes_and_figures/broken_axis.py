@@ -31,8 +31,8 @@ ax1.set_ylim(.78, 1.)  # outliers only
 ax2.set_ylim(0, .22)  # most of the data
 
 # hide the spines between ax and ax2
-ax1.spines['bottom'].set_visible(False)
-ax2.spines['top'].set_visible(False)
+ax1.spines.bottom.set_visible(False)
+ax2.spines.top.set_visible(False)
 ax1.xaxis.tick_top()
 ax1.tick_params(labeltop=False)  # don't put tick labels at the top
 ax2.xaxis.tick_bottom()

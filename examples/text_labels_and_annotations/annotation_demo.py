@@ -107,7 +107,7 @@ ax.set(xlim=(-1, 5), ylim=(-3, 5))
 # In the example below, the *xy* point is in native coordinates (*xycoords*
 # defaults to 'data').  For a polar axes, this is in (theta, radius) space.
 # The text in the example is placed in the fractional figure coordinate system.
-# Text keyword args like horizontal and vertical alignment are respected.
+# Text keyword arguments like horizontal and vertical alignment are respected.
 
 fig, ax = plt.subplots(subplot_kw=dict(projection='polar'), figsize=(3, 3))
 r = np.arange(0, 1, 0.001)
@@ -338,11 +338,8 @@ ax1.annotate('axes fraction : 1, 1', xy=(1, 1), xycoords='axes fraction',
 # It is also possible to generate draggable annotations
 
 an1 = ax1.annotate('Drag me 1', xy=(.5, .7), xycoords='data',
-                   #xytext=(.5, .7), textcoords='data',
                    ha="center", va="center",
-                   bbox=bbox_args,
-                   #arrowprops=arrow_args
-                   )
+                   bbox=bbox_args)
 
 an2 = ax1.annotate('Drag me 2', xy=(.5, .5), xycoords=an1,
                    xytext=(.5, .3), textcoords='axes fraction',

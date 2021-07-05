@@ -1,5 +1,4 @@
 import contextlib
-from distutils.version import StrictVersion
 import functools
 import inspect
 import os
@@ -10,6 +9,8 @@ import sys
 import unittest
 import warnings
 
+from packaging.version import parse as parse_version
+
 import matplotlib.style
 import matplotlib.units
 import matplotlib.testing
@@ -17,7 +18,6 @@ from matplotlib import cbook
 from matplotlib import ft2font
 from matplotlib import pyplot as plt
 from matplotlib import ticker
-
 from .compare import comparable_formats, compare_images, make_test_filename
 from .exceptions import ImageComparisonFailure
 
@@ -92,26 +92,27 @@ def check_freetype_version(ver):
 
     if isinstance(ver, str):
         ver = (ver, ver)
-    ver = [StrictVersion(x) for x in ver]
-    found = StrictVersion(ft2font.__freetype_version__)
+    ver = [parse_version(x) for x in ver]
+    found = parse_version(ft2font.__freetype_version__)
 
     return ver[0] <= found <= ver[1]
 
 
 def _checked_on_freetype_version(required_freetype_version):
     import pytest
-    reason = ("Mismatched version of freetype. "
-              "Test requires '%s', you have '%s'" %
-              (required_freetype_version, ft2font.__freetype_version__))
     return pytest.mark.xfail(
         not check_freetype_version(required_freetype_version),
-        reason=reason, raises=ImageComparisonFailure, strict=False)
+        reason=f"Mismatched version of freetype. "
+               f"Test requires '{required_freetype_version}', "
+               f"you have '{ft2font.__freetype_version__}'",
+        raises=ImageComparisonFailure, strict=False)
 
 
 def remove_ticks_and_titles(figure):
     figure.suptitle("")
     null_formatter = ticker.NullFormatter()
-    for ax in figure.get_axes():
+    def remove_ticks(ax):
+        """Remove ticks in *ax* and all its child Axes."""
         ax.set_title("")
         ax.xaxis.set_major_formatter(null_formatter)
         ax.xaxis.set_minor_formatter(null_formatter)
@@ -122,6 +123,10 @@ def remove_ticks_and_titles(figure):
             ax.zaxis.set_minor_formatter(null_formatter)
         except AttributeError:
             pass
+        for child in ax.child_axes:
+            remove_ticks(child)
+    for ax in figure.get_axes():
+        remove_ticks(ax)
 
 
 def _raise_on_image_difference(expected, actual, tol):
@@ -134,32 +139,6 @@ def _raise_on_image_difference(expected, actual, tol):
         raise ImageComparisonFailure(
             ('images not close (RMS %(rms).3f):'
                 '\n\t%(actual)s\n\t%(expected)s\n\t%(diff)s') % err)
-
-
-def _skip_if_format_is_uncomparable(extension):
-    import pytest
-    return pytest.mark.skipif(
-        extension not in comparable_formats(),
-        reason='Cannot compare {} files on this system'.format(extension))
-
-
-def _mark_skip_if_format_is_uncomparable(extension):
-    import pytest
-    if isinstance(extension, str):
-        name = extension
-        marks = []
-    elif isinstance(extension, tuple):
-        # Extension might be a pytest ParameterSet instead of a plain string.
-        # Unfortunately, this type is not exposed, so since it's a namedtuple,
-        # check for a tuple instead.
-        name, = extension.values
-        marks = [*extension.marks]
-    else:
-        # Extension might be a pytest marker instead of a plain string.
-        name, = extension.args
-        marks = [extension.mark]
-    return pytest.param(name,
-                        marks=[*marks, _skip_if_format_is_uncomparable(name)])
 
 
 class _ImageComparisonBase:
@@ -233,7 +212,6 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
     """
     import pytest
 
-    extensions = map(_mark_skip_if_format_is_uncomparable, extensions)
     KEYWORD_ONLY = inspect.Parameter.KEYWORD_ONLY
 
     def decorator(func):
@@ -241,7 +219,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
 
         @functools.wraps(func)
         @pytest.mark.parametrize('extension', extensions)
-        @pytest.mark.style(style)
+        @matplotlib.style.context(style)
         @_checked_on_freetype_version(freetype_version)
         @functools.wraps(func)
         def wrapper(*args, extension, request, **kwargs):
@@ -250,6 +228,9 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
                 kwargs['extension'] = extension
             if 'request' in old_sig.parameters:
                 kwargs['request'] = request
+
+            if extension not in comparable_formats():
+                pytest.skip(f"Cannot compare {extension} files on this system")
 
             img = _ImageComparisonBase(func, tol=tol, remove_text=remove_text,
                                        savefig_kwargs=savefig_kwargs)
@@ -403,6 +384,12 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
     tol : float
         The RMS threshold above which the test is considered failed.
 
+    Raises
+    ------
+    RuntimeError
+        If any new figures are created (and not subsequently closed) inside
+        the test function.
+
     Examples
     --------
     Check that calling `.Axes.plot` with a single argument plots it against
@@ -416,6 +403,7 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
     """
     ALLOWED_CHARS = set(string.digits + string.ascii_letters + '_-[]()')
     KEYWORD_ONLY = inspect.Parameter.KEYWORD_ONLY
+
     def decorator(func):
         import pytest
 
@@ -439,7 +427,16 @@ def check_figures_equal(*, extensions=("png", "pdf", "svg"), tol=0):
             try:
                 fig_test = plt.figure("test")
                 fig_ref = plt.figure("reference")
+                # Keep track of number of open figures, to make sure test
+                # doesn't create any new ones
+                n_figs = len(plt.get_fignums())
                 func(*args, fig_test=fig_test, fig_ref=fig_ref, **kwargs)
+                if len(plt.get_fignums()) > n_figs:
+                    raise RuntimeError('Number of open figures changed during '
+                                       'test. Make sure you are plotting to '
+                                       'fig_test or fig_ref, or if this is '
+                                       'deliberate explicitly close the '
+                                       'new figure(s) inside the test.')
                 test_image_path = result_dir / (file_name + "." + ext)
                 ref_image_path = result_dir / (file_name + "-expected." + ext)
                 fig_test.savefig(test_image_path)

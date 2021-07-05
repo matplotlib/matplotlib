@@ -1,0 +1,11 @@
+pcolor(mesh) shading defaults to auto
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The *shading* kwarg for `.Axes.pcolormesh` and `.Axes.pcolor` default 
+has been changed to 'auto'.  
+
+Passing ``Z(M, N)``, ``x(N)``, ``y(M)`` to ``pcolormesh`` with 
+``shading='flat'`` will now raise a ``TypeError``.  Use 
+``shading='auto'`` or ``shading='nearest'`` for ``x`` and ``y``
+to be treated as cell centers, or drop the last column and row 
+of ``Z`` to get the old behavior with ``shading='flat'``.      

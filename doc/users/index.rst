@@ -12,13 +12,11 @@ User's Guide
 .. toctree::
     :maxdepth: 2
 
-    installing.rst
-    ../tutorials/index.rst
     interactive.rst
-    whats_new.rst
-    history.rst
-    github_stats.rst
-    whats_new_old.rst
+    release_notes.rst
     license.rst
     ../citing.rst
+    ../resources/index.rst
+    ../faq/index.rst
     credits.rst
+    history.rst

@@ -1,4 +1,5 @@
 import copy
+from datetime import date, datetime
 import signal
 from unittest import mock
 
@@ -10,7 +11,8 @@ import pytest
 
 
 try:
-    from matplotlib.backends.qt_compat import QtGui
+    from matplotlib.backends.qt_compat import QtGui, QtWidgets
+    from matplotlib.backends.qt_editor import _formlayout
 except ImportError:
     pytestmark = pytest.mark.skip('No usable Qt5 bindings')
 
@@ -21,21 +23,14 @@ def qt_core(request):
     qt_compat = pytest.importorskip('matplotlib.backends.qt_compat')
     QtCore = qt_compat.QtCore
 
-    if backend == 'Qt4Agg':
-        try:
-            py_qt_ver = int(QtCore.PYQT_VERSION_STR.split('.')[0])
-        except AttributeError:
-            py_qt_ver = QtCore.__version_info__[0]
-        if py_qt_ver != 4:
-            pytest.skip('Qt4 is not available')
-
     return QtCore
 
 
 @pytest.mark.parametrize('backend', [
     # Note: the value is irrelevant; the important part is the marker.
-    pytest.param('Qt4Agg', marks=pytest.mark.backend('Qt4Agg')),
-    pytest.param('Qt5Agg', marks=pytest.mark.backend('Qt5Agg')),
+    pytest.param(
+        'Qt5Agg',
+        marks=pytest.mark.backend('Qt5Agg', skip_on_importerror=True)),
 ])
 def test_fig_close(backend):
     # save the state of Gcf.figs
@@ -53,7 +48,7 @@ def test_fig_close(backend):
     assert init_figs == Gcf.figs
 
 
-@pytest.mark.backend('Qt5Agg')
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_fig_signals(qt_core):
     # Create a figure
     plt.figure()
@@ -130,8 +125,9 @@ def test_fig_signals(qt_core):
 )
 @pytest.mark.parametrize('backend', [
     # Note: the value is irrelevant; the important part is the marker.
-    pytest.param('Qt4Agg', marks=pytest.mark.backend('Qt4Agg')),
-    pytest.param('Qt5Agg', marks=pytest.mark.backend('Qt5Agg')),
+    pytest.param(
+        'Qt5Agg',
+        marks=pytest.mark.backend('Qt5Agg', skip_on_importerror=True)),
 ])
 def test_correct_key(backend, qt_core, qt_key, qt_mods, answer):
     """
@@ -157,93 +153,80 @@ def test_correct_key(backend, qt_core, qt_key, qt_mods, answer):
     qt_canvas.keyPressEvent(_Event())
 
 
-@pytest.mark.backend('Qt5Agg')
-def test_dpi_ratio_change():
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
+def test_device_pixel_ratio_change():
     """
-    Make sure that if _dpi_ratio changes, the figure dpi changes but the
-    widget remains the same physical size.
+    Make sure that if the pixel ratio changes, the figure dpi changes but the
+    widget remains the same logical size.
     """
 
-    prop = 'matplotlib.backends.backend_qt5.FigureCanvasQT._dpi_ratio'
-
-    with mock.patch(prop, new_callable=mock.PropertyMock) as p:
-
+    prop = 'matplotlib.backends.backend_qt5.FigureCanvasQT.devicePixelRatioF'
+    with mock.patch(prop) as p:
         p.return_value = 3
 
         fig = plt.figure(figsize=(5, 2), dpi=120)
         qt_canvas = fig.canvas
         qt_canvas.show()
 
-        from matplotlib.backends.backend_qt5 import qApp
+        def set_device_pixel_ratio(ratio):
+            p.return_value = ratio
 
-        # Make sure the mocking worked
-        assert qt_canvas._dpi_ratio == 3
+            # The value here doesn't matter, as we can't mock the C++ QScreen
+            # object, but can override the functional wrapper around it.
+            # Emitting this event is simply to trigger the DPI change handler
+            # in Matplotlib in the same manner that it would occur normally.
+            screen.logicalDotsPerInchChanged.emit(96)
 
-        size = qt_canvas.size()
+            qt_canvas.draw()
+            qt_canvas.flush_events()
+
+            # Make sure the mocking worked
+            assert qt_canvas.device_pixel_ratio == ratio
 
         qt_canvas.manager.show()
-        qt_canvas.draw()
-        qApp.processEvents()
+        size = qt_canvas.size()
+        screen = qt_canvas.window().windowHandle().screen()
+        set_device_pixel_ratio(3)
 
         # The DPI and the renderer width/height change
         assert fig.dpi == 360
         assert qt_canvas.renderer.width == 1800
         assert qt_canvas.renderer.height == 720
 
-        # The actual widget size and figure physical size don't change
+        # The actual widget size and figure logical size don't change.
         assert size.width() == 600
         assert size.height() == 240
         assert qt_canvas.get_width_height() == (600, 240)
         assert (fig.get_size_inches() == (5, 2)).all()
 
-        p.return_value = 2
-
-        assert qt_canvas._dpi_ratio == 2
-
-        qt_canvas.draw()
-        qApp.processEvents()
-        # this second processEvents is required to fully run the draw.
-        # On `update` we notice the DPI has changed and trigger a
-        # resize event to refresh, the second processEvents is
-        # required to process that and fully update the window sizes.
-        qApp.processEvents()
+        set_device_pixel_ratio(2)
 
         # The DPI and the renderer width/height change
         assert fig.dpi == 240
         assert qt_canvas.renderer.width == 1200
         assert qt_canvas.renderer.height == 480
 
-        # The actual widget size and figure physical size don't change
+        # The actual widget size and figure logical size don't change.
         assert size.width() == 600
         assert size.height() == 240
         assert qt_canvas.get_width_height() == (600, 240)
         assert (fig.get_size_inches() == (5, 2)).all()
 
-        p.return_value = 1.5
-
-        assert qt_canvas._dpi_ratio == 1.5
-
-        qt_canvas.draw()
-        qApp.processEvents()
-        # this second processEvents is required to fully run the draw.
-        # On `update` we notice the DPI has changed and trigger a
-        # resize event to refresh, the second processEvents is
-        # required to process that and fully update the window sizes.
-        qApp.processEvents()
+        set_device_pixel_ratio(1.5)
 
         # The DPI and the renderer width/height change
         assert fig.dpi == 180
         assert qt_canvas.renderer.width == 900
         assert qt_canvas.renderer.height == 360
 
-        # The actual widget size and figure physical size don't change
+        # The actual widget size and figure logical size don't change.
         assert size.width() == 600
         assert size.height() == 240
         assert qt_canvas.get_width_height() == (600, 240)
         assert (fig.get_size_inches() == (5, 2)).all()
 
 
-@pytest.mark.backend('Qt5Agg')
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_subplottool():
     fig, ax = plt.subplots()
     with mock.patch(
@@ -252,7 +235,7 @@ def test_subplottool():
         fig.canvas.manager.toolbar.configure_subplots()
 
 
-@pytest.mark.backend('Qt5Agg')
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_figureoptions():
     fig, ax = plt.subplots()
     ax.plot([1, 2])
@@ -264,7 +247,21 @@ def test_figureoptions():
         fig.canvas.manager.toolbar.edit_parameters()
 
 
-@pytest.mark.backend('Qt5Agg')
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
+def test_figureoptions_with_datetime_axes():
+    fig, ax = plt.subplots()
+    xydata = [
+        datetime(year=2021, month=1, day=1),
+        datetime(year=2021, month=2, day=1)
+    ]
+    ax.plot(xydata, xydata)
+    with mock.patch(
+            "matplotlib.backends.qt_editor._formlayout.FormDialog.exec_",
+            lambda self: None):
+        fig.canvas.manager.toolbar.edit_parameters()
+
+
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_double_resize():
     # Check that resizing a figure twice keeps the same window size
     fig, ax = plt.subplots()
@@ -284,7 +281,7 @@ def test_double_resize():
     assert window.height() == old_height
 
 
-@pytest.mark.backend("Qt5Agg")
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_canvas_reinit():
     from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 
@@ -301,3 +298,20 @@ def test_canvas_reinit():
     canvas = FigureCanvasQTAgg(fig)
     fig.stale = True
     assert called
+
+
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
+def test_form_widget_get_with_datetime_and_date_fields():
+    if not QtWidgets.QApplication.instance():
+        QtWidgets.QApplication()
+    form = [
+        ("Datetime field", datetime(year=2021, month=3, day=11)),
+        ("Date field", date(year=2021, month=3, day=11))
+    ]
+    widget = _formlayout.FormWidget(form)
+    widget.setup()
+    values = widget.get()
+    assert values == [
+        datetime(year=2021, month=3, day=11),
+        date(year=2021, month=3, day=11)
+    ]

@@ -1,0 +1,22 @@
+Deprecated rcParams validators
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The following validators, defined in `.rcsetup`, have been removed:
+``validate_alignment``, ``validate_axes_titlelocation``,
+``validate_axis_locator``, ``validate_bool_maybe_none``, ``validate_fontset``,
+``validate_grid_axis``, ``validate_hinting``, ``validate_legend_loc``,
+``validate_mathtext_default``, ``validate_movie_frame_fmt``,
+``validate_movie_html_fmt``, ``validate_movie_writer``,
+``validate_nseq_float``, ``validate_nseq_int``, ``validate_orientation``,
+``validate_pgf_texsystem``, ``validate_ps_papersize``,
+``validate_svg_fontset``, ``validate_toolbar``, ``validate_webagg_address``.
+
+Stricter rcParam validation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+:rc:`axes.axisbelow` no longer accepts strings starting with "line"
+(case-insensitive) as "line"; use "line" (case-sensitive) instead.
+
+The :rc:`text.latex.preamble` and :rc:`pdf.preamble` no longer accept
+non-string values.
+
+All ``*.linestyle`` rcParams no longer accept ``offset = None``; set the offset
+to 0 instead.

@@ -150,7 +150,7 @@ plt.show()
 # antialiased, etc; see `matplotlib.lines.Line2D`.  There are
 # several ways to set line properties
 #
-# * Use keyword args::
+# * Use keyword arguments::
 #
 #       plt.plot(x, y, linewidth=2.0)
 #
@@ -171,7 +171,7 @@ plt.show()
 #   MATLAB-style string/value pairs::
 #
 #       lines = plt.plot(x1, y1, x2, y2)
-#       # use keyword args
+#       # use keyword arguments
 #       plt.setp(lines, color='r', linewidth=2.0)
 #       # or MATLAB style string value pairs
 #       plt.setp(lines, 'color', 'r', 'linewidth', 2.0)
@@ -273,9 +273,8 @@ plt.show()
 # which allows you to specify the location as ``axes([left, bottom,
 # width, height])`` where all values are in fractional (0 to 1)
 # coordinates.  See :doc:`/gallery/subplots_axes_and_figures/axes_demo` for an example of
-# placing axes manually and :doc:`/gallery/subplots_axes_and_figures/subplot_demo` for an
+# placing axes manually and :doc:`/gallery/subplots_axes_and_figures/subplot` for an
 # example with lots of subplots.
-#
 #
 # You can create multiple figures by using multiple
 # `~.pyplot.figure` calls with an increasing figure
@@ -340,7 +339,7 @@ plt.show()
 
 ###############################################################################
 # All of the `~.pyplot.text` functions return a `matplotlib.text.Text`
-# instance.  Just as with with lines above, you can customize the properties by
+# instance.  Just as with lines above, you can customize the properties by
 # passing keyword arguments into the text functions or using `~.pyplot.setp`::
 #
 #   t = plt.xlabel('my data', fontsize=14, color='red')
@@ -461,5 +460,5 @@ plt.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95, hspace=0.25,
 plt.show()
 
 ###############################################################################
-# It is also possible to add your own scale, see :ref:`adding-new-scales` for
+# It is also possible to add your own scale, see `matplotlib.scale` for
 # details.

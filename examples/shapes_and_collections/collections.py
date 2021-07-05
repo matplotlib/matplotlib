@@ -3,11 +3,10 @@
 Line, Poly and RegularPoly Collection with autoscaling
 =========================================================
 
-For the first two subplots, we will use spirals.  Their
-size will be set in plot units, not data units.  Their positions
-will be set in data units by using the "offsets" and "transOffset"
-kwargs of the `~.collections.LineCollection` and
-`~.collections.PolyCollection`.
+For the first two subplots, we will use spirals.  Their size will be set in
+plot units, not data units.  Their positions will be set in data units by using
+the *offsets* and *transOffset* keyword arguments of the `.LineCollection` and
+`.PolyCollection`.
 
 The third subplot will make regular polygons, with the same
 type of scaling and positioning as in the first two.
@@ -60,7 +59,7 @@ ax1.add_collection(col, autolim=True)
 # but it is good enough to generate a plot that you can use
 # as a starting point.  If you know beforehand the range of
 # x and y that you want to show, it is better to set them
-# explicitly, leave out the autolim kwarg (or set it to False),
+# explicitly, leave out the *autolim* keyword argument (or set it to False),
 # and omit the 'ax1.autoscale_view()' call below.
 
 # Make a transform for the line segments such that their size is
@@ -127,20 +126,16 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.figure.Figure
-matplotlib.collections
-matplotlib.collections.LineCollection
-matplotlib.collections.RegularPolyCollection
-matplotlib.axes.Axes.add_collection
-matplotlib.axes.Axes.autoscale_view
-matplotlib.transforms.Affine2D
-matplotlib.transforms.Affine2D.scale
+#    - `matplotlib.figure.Figure`
+#    - `matplotlib.collections`
+#    - `matplotlib.collections.LineCollection`
+#    - `matplotlib.collections.RegularPolyCollection`
+#    - `matplotlib.axes.Axes.add_collection`
+#    - `matplotlib.axes.Axes.autoscale_view`
+#    - `matplotlib.transforms.Affine2D`
+#    - `matplotlib.transforms.Affine2D.scale`

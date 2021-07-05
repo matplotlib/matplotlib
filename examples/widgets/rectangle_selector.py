@@ -48,12 +48,20 @@ ax.set_title(
     "Click and drag to draw a rectangle.\n"
     "Press 't' to toggle the selector on and off.")
 
-# drawtype is 'box' or 'line' or 'none'
 toggle_selector.RS = RectangleSelector(ax, line_select_callback,
-                                       drawtype='box', useblit=True,
+                                       useblit=True,
                                        button=[1, 3],  # disable middle button
                                        minspanx=5, minspany=5,
                                        spancoords='pixels',
                                        interactive=True)
 fig.canvas.mpl_connect('key_press_event', toggle_selector)
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.widgets.RectangleSelector`

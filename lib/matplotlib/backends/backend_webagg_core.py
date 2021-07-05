@@ -27,97 +27,98 @@ from matplotlib.backend_bases import _Backend
 
 _log = logging.getLogger(__name__)
 
-# http://www.cambiaresearch.com/articles/15/javascript-char-codes-key-codes
-_SHIFT_LUT = {59: ':',
-              61: '+',
-              173: '_',
-              186: ':',
-              187: '+',
-              188: '<',
-              189: '_',
-              190: '>',
-              191: '?',
-              192: '~',
-              219: '{',
-              220: '|',
-              221: '}',
-              222: '"'}
-
-_LUT = {8: 'backspace',
-        9: 'tab',
-        13: 'enter',
-        16: 'shift',
-        17: 'control',
-        18: 'alt',
-        19: 'pause',
-        20: 'caps',
-        27: 'escape',
-        32: ' ',
-        33: 'pageup',
-        34: 'pagedown',
-        35: 'end',
-        36: 'home',
-        37: 'left',
-        38: 'up',
-        39: 'right',
-        40: 'down',
-        45: 'insert',
-        46: 'delete',
-        91: 'super',
-        92: 'super',
-        93: 'select',
-        106: '*',
-        107: '+',
-        109: '-',
-        110: '.',
-        111: '/',
-        144: 'num_lock',
-        145: 'scroll_lock',
-        186: ':',
-        187: '=',
-        188: ',',
-        189: '-',
-        190: '.',
-        191: '/',
-        192: '`',
-        219: '[',
-        220: '\\',
-        221: ']',
-        222: "'"}
+_SPECIAL_KEYS_LUT = {'Alt': 'alt',
+                     'AltGraph': 'alt',
+                     'CapsLock': 'caps_lock',
+                     'Control': 'control',
+                     'Meta': 'meta',
+                     'NumLock': 'num_lock',
+                     'ScrollLock': 'scroll_lock',
+                     'Shift': 'shift',
+                     'Super': 'super',
+                     'Enter': 'enter',
+                     'Tab': 'tab',
+                     'ArrowDown': 'down',
+                     'ArrowLeft': 'left',
+                     'ArrowRight': 'right',
+                     'ArrowUp': 'up',
+                     'End': 'end',
+                     'Home': 'home',
+                     'PageDown': 'pagedown',
+                     'PageUp': 'pageup',
+                     'Backspace': 'backspace',
+                     'Delete': 'delete',
+                     'Insert': 'insert',
+                     'Escape': 'escape',
+                     'Pause': 'pause',
+                     'Select': 'select',
+                     'Dead': 'dead',
+                     'F1': 'f1',
+                     'F2': 'f2',
+                     'F3': 'f3',
+                     'F4': 'f4',
+                     'F5': 'f5',
+                     'F6': 'f6',
+                     'F7': 'f7',
+                     'F8': 'f8',
+                     'F9': 'f9',
+                     'F10': 'f10',
+                     'F11': 'f11',
+                     'F12': 'f12'}
 
 
 def _handle_key(key):
-    """Handle key codes"""
-    code = int(key[key.index('k') + 1:])
-    value = chr(code)
-    # letter keys
-    if 65 <= code <= 90:
-        if 'shift+' in key:
+    """Handle key values"""
+    value = key[key.index('k') + 1:]
+    if 'shift+' in key:
+        if len(value) == 1:
             key = key.replace('shift+', '')
-        else:
-            value = value.lower()
-    # number keys
-    elif 48 <= code <= 57:
-        if 'shift+' in key:
-            value = ')!@#$%^&*('[int(value)]
-            key = key.replace('shift+', '')
-    # function keys
-    elif 112 <= code <= 123:
-        value = 'f%s' % (code - 111)
-    # number pad keys
-    elif 96 <= code <= 105:
-        value = '%s' % (code - 96)
-    # keys with shift alternatives
-    elif code in _SHIFT_LUT and 'shift+' in key:
-        key = key.replace('shift+', '')
-        value = _SHIFT_LUT[code]
-    elif code in _LUT:
-        value = _LUT[code]
+    if value in _SPECIAL_KEYS_LUT:
+        value = _SPECIAL_KEYS_LUT[value]
     key = key[:key.index('k')] + value
     return key
 
 
+class TimerTornado(backend_bases.TimerBase):
+    def __init__(self, *args, **kwargs):
+        self._timer = None
+        super().__init__(*args, **kwargs)
+
+    def _timer_start(self):
+        self._timer_stop()
+        if self._single:
+            ioloop = tornado.ioloop.IOLoop.instance()
+            self._timer = ioloop.add_timeout(
+                datetime.timedelta(milliseconds=self.interval),
+                self._on_timer)
+        else:
+            self._timer = tornado.ioloop.PeriodicCallback(
+                self._on_timer,
+                max(self.interval, 1e-6))
+            self._timer.start()
+
+    def _timer_stop(self):
+        if self._timer is None:
+            return
+        elif self._single:
+            ioloop = tornado.ioloop.IOLoop.instance()
+            ioloop.remove_timeout(self._timer)
+        else:
+            self._timer.stop()
+        self._timer = None
+
+    def _timer_set_interval(self):
+        # Only stop and restart it if the timer has already been started
+        if self._timer is not None:
+            self._timer_stop()
+            self._timer_start()
+
+
 class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
+    _timer_cls = TimerTornado
+    # Webagg and friends having the right methods, but still
+    # having bugs in practice.  Do not advertise that it works until
+    # we can debug this.
     supports_blit = False
 
     def __init__(self, *args, **kwargs):
@@ -137,10 +138,6 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # to the connected clients.
         self._current_image_mode = 'full'
 
-        # Store the DPI ratio of the browser.  This is the scaling that
-        # occurs automatically for all images on a HiDPI display.
-        self._dpi_ratio = 1
-
     def show(self):
         # show the figure window
         from matplotlib.pyplot import show
@@ -152,6 +149,10 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             super().draw()
         finally:
             self.manager.refresh_all()  # Swap the frames.
+
+    def blit(self, bbox=None):
+        self._png_is_old = True
+        self.manager.refresh_all()
 
     def draw_idle(self):
         self.send_event("draw")
@@ -189,21 +190,18 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 output = buff
             else:
                 self.set_image_mode('diff')
-                last_buffer = (np.frombuffer(self._last_renderer.buffer_rgba(),
-                                             dtype=np.uint32)
-                               .reshape((renderer.height, renderer.width)))
-                diff = buff != last_buffer
+                diff = buff != self._last_buff
                 output = np.where(diff, buff, 0)
 
-            buf = BytesIO()
-            data = output.view(dtype=np.uint8).reshape((*output.shape, 4))
-            Image.fromarray(data).save(buf, format="png")
-            # Swap the renderer frames
-            self._renderer, self._last_renderer = (
-                self._last_renderer, renderer)
+            # Store the current buffer so we can compute the next diff.
+            np.copyto(self._last_buff, buff)
             self._force_full = False
             self._png_is_old = False
-            return buf.getvalue()
+
+            data = output.view(dtype=np.uint8).reshape((*output.shape, 4))
+            with BytesIO() as png:
+                Image.fromarray(data).save(png, format="png")
+                return png.getvalue()
 
     def get_renderer(self, cleared=None):
         # Mirrors super.get_renderer, but caches the old one so that we can do
@@ -220,9 +218,10 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         if need_new_renderer:
             self._renderer = backend_agg.RendererAgg(
                 w, h, self.figure.dpi)
-            self._last_renderer = backend_agg.RendererAgg(
-                w, h, self.figure.dpi)
             self._lastKey = key
+            self._last_buff = np.copy(np.frombuffer(
+                self._renderer.buffer_rgba(), dtype=np.uint32
+            ).reshape((self._renderer.height, self._renderer.width)))
 
         elif cleared:
             self._renderer.clear()
@@ -308,8 +307,8 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         self.draw_idle()
 
     def handle_resize(self, event):
-        x, y = event.get('width', 800), event.get('height', 800)
-        x, y = int(x) * self._dpi_ratio, int(y) * self._dpi_ratio
+        x = int(event.get('width', 800)) * self.device_pixel_ratio
+        y = int(event.get('height', 800)) * self.device_pixel_ratio
         fig = self.figure
         # An attempt at approximating the figure size in pixels.
         fig.set_size_inches(x / fig.dpi, y / fig.dpi, forward=False)
@@ -324,14 +323,15 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # The client requests notification of what the current image mode is.
         self.send_event('image_mode', mode=self._current_image_mode)
 
+    def handle_set_device_pixel_ratio(self, event):
+        self._handle_set_device_pixel_ratio(event.get('device_pixel_ratio', 1))
+
     def handle_set_dpi_ratio(self, event):
-        dpi_ratio = event.get('dpi_ratio', 1)
-        if dpi_ratio != self._dpi_ratio:
-            # We don't want to scale up the figure dpi more than once.
-            if not hasattr(self.figure, '_original_dpi'):
-                self.figure._original_dpi = self.figure.dpi
-            self.figure.dpi = dpi_ratio * self.figure._original_dpi
-            self._dpi_ratio = dpi_ratio
+        # This handler is for backwards-compatibility with older ipympl.
+        self._handle_set_device_pixel_ratio(event.get('dpi_ratio', 1))
+
+    def _handle_set_device_pixel_ratio(self, device_pixel_ratio):
+        if self._set_device_pixel_ratio(device_pixel_ratio):
             self._force_full = True
             self.draw_idle()
 
@@ -409,10 +409,8 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
     ToolbarCls = NavigationToolbar2WebAgg
 
     def __init__(self, canvas, num):
-        super().__init__(canvas, num)
-
         self.web_sockets = set()
-
+        super().__init__(canvas, num)
         self.toolbar = self._get_toolbar(canvas)
 
     def show(self):
@@ -425,7 +423,8 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
     def resize(self, w, h, forward=True):
         self._send_event(
             'resize',
-            size=(w / self.canvas._dpi_ratio, h / self.canvas._dpi_ratio),
+            size=(w / self.canvas.device_pixel_ratio,
+                  h / self.canvas.device_pixel_ratio),
             forward=forward)
 
     def set_window_title(self, title):
@@ -476,8 +475,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         for filetype, ext in sorted(FigureCanvasWebAggCore.
                                     get_supported_filetypes_grouped().
                                     items()):
-            if ext[0] != 'pgf':  # pgf does not support BytesIO
-                extensions.append(ext[0])
+            extensions.append(ext[0])
         output.write("mpl.extensions = {0};\n\n".format(
             json.dumps(extensions)))
 
@@ -495,41 +493,6 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         payload = {'type': event_type, **kwargs}
         for s in self.web_sockets:
             s.send_json(payload)
-
-
-class TimerTornado(backend_bases.TimerBase):
-    def __init__(self, *args, **kwargs):
-        self._timer = None
-        super().__init__(*args, **kwargs)
-
-    def _timer_start(self):
-        self._timer_stop()
-        if self._single:
-            ioloop = tornado.ioloop.IOLoop.instance()
-            self._timer = ioloop.add_timeout(
-                datetime.timedelta(milliseconds=self.interval),
-                self._on_timer)
-        else:
-            self._timer = tornado.ioloop.PeriodicCallback(
-                self._on_timer,
-                max(self.interval, 1e-6))
-            self._timer.start()
-
-    def _timer_stop(self):
-        if self._timer is None:
-            return
-        elif self._single:
-            ioloop = tornado.ioloop.IOLoop.instance()
-            ioloop.remove_timeout(self._timer)
-        else:
-            self._timer.stop()
-        self._timer = None
-
-    def _timer_set_interval(self):
-        # Only stop and restart it if the timer has already been started
-        if self._timer is not None:
-            self._timer_stop()
-            self._timer_start()
 
 
 @_Backend.export

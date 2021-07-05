@@ -1,6 +1,5 @@
 """
-The 2D line class which can draw with a variety of line styles, markers and
-colors.
+2D lines with support for a variety of line styles, markers, colors, etc.
 """
 
 from numbers import Integral, Number, Real
@@ -13,11 +12,10 @@ from . import _api, artist, cbook, colors as mcolors, docstring, rcParams
 from .artist import Artist, allow_rasterization
 from .cbook import (
     _to_unmasked_float_array, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
-from .colors import is_color_like, get_named_colors_mapping
 from .markers import MarkerStyle
 from .path import Path
-from .transforms import (
-    Affine2D, Bbox, BboxTransformFrom, BboxTransformTo, TransformedPath)
+from .transforms import Bbox, BboxTransformTo, TransformedPath
+from ._enums import JoinStyle, CapStyle
 
 # Imported here for backward compatibility, even though they don't
 # really belong.
@@ -47,13 +45,9 @@ def _get_dash_pattern(style):
     elif isinstance(style, tuple):
         offset, dashes = style
         if offset is None:
-            cbook.warn_deprecated(
-                "3.3", message="Passing the dash offset as None is deprecated "
-                "since %(since)s and support for it will be removed "
-                "%(removal)s; pass it as zero instead.")
-            offset = 0
+            raise ValueError(f'Unrecognized linestyle: {style!r}')
     else:
-        raise ValueError('Unrecognized linestyle: %s' % str(style))
+        raise ValueError(f'Unrecognized linestyle: {style!r}')
 
     # normalize offset to be positive and shorter than the dash cycle
     if dashes is not None:
@@ -197,6 +191,7 @@ def _mark_every_path(markevery, tpath, affine, ax_transform):
         raise ValueError(f"markevery={markevery!r} is not a recognized value")
 
 
+@docstring.interpd
 @cbook._define_aliases({
     "antialiased": ["aa"],
     "color": ["c"],
@@ -254,12 +249,12 @@ class Line2D(Artist):
     @_api.deprecated("3.4")
     @_api.classproperty
     def validCap(cls):
-        return ('butt', 'round', 'projecting')
+        return tuple(cs.value for cs in CapStyle)
 
     @_api.deprecated("3.4")
     @_api.classproperty
     def validJoin(cls):
-        return ('miter', 'round', 'bevel')
+        return tuple(js.value for js in JoinStyle)
 
     def __str__(self):
         if self._label != "":
@@ -301,7 +296,7 @@ class Line2D(Artist):
 
         Additional keyword arguments are `.Line2D` properties:
 
-        %(_Line2D_docstr)s
+        %(Line2D:kwdoc)s
 
         See :meth:`set_linestyle` for a description of the line styles,
         :meth:`set_marker` for a description of the markers, and
@@ -310,7 +305,7 @@ class Line2D(Artist):
         """
         super().__init__()
 
-        #convert sequences to numpy arrays
+        # Convert sequences to NumPy arrays.
         if not np.iterable(xdata):
             raise RuntimeError('xdata must be a sequence')
         if not np.iterable(ydata):
@@ -323,10 +318,6 @@ class Line2D(Artist):
             linestyle = rcParams['lines.linestyle']
         if marker is None:
             marker = rcParams['lines.marker']
-        if markerfacecolor is None:
-            markerfacecolor = rcParams['lines.markerfacecolor']
-        if markeredgecolor is None:
-            markeredgecolor = rcParams['lines.markeredgecolor']
         if color is None:
             color = rcParams['lines.color']
 
@@ -388,9 +379,9 @@ class Line2D(Artist):
         self._markerfacecolor = None
         self._markerfacecoloralt = None
 
-        self.set_markerfacecolor(markerfacecolor)
+        self.set_markerfacecolor(markerfacecolor)  # Normalizes None to rc.
         self.set_markerfacecoloralt(markerfacecoloralt)
-        self.set_markeredgecolor(markeredgecolor)
+        self.set_markeredgecolor(markeredgecolor)  # Normalizes None to rc.
         self.set_markeredgewidth(markeredgewidth)
 
         # update kwargs before updating data to give the caller a
@@ -398,6 +389,9 @@ class Line2D(Artist):
         self.update(kwargs)
         self.pickradius = pickradius
         self.ind_offset = 0
+        if (isinstance(self._picker, Number) and
+                not isinstance(self._picker, bool)):
+            self.pickradius = self._picker
 
         self._xorig = np.asarray([])
         self._yorig = np.asarray([])
@@ -533,7 +527,7 @@ class Line2D(Artist):
 
             For examples see :ref:`marker_fill_styles`.
         """
-        self._marker.set_fillstyle(fs)
+        self.set_marker(MarkerStyle(self._marker.get_marker(), fs))
         self.stale = True
 
     def set_markevery(self, every):
@@ -544,8 +538,8 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        every : None or int or (int, int) or slice or List[int] or float or \
-(float, float) or List[bool]
+        every : None or int or (int, int) or slice or list[int] or float or \
+(float, float) or list[bool]
             Which markers to plot.
 
             - every=None, every point will be plotted.
@@ -602,13 +596,17 @@ class Line2D(Artist):
         return self._markevery
 
     def set_picker(self, p):
-        # docstring inherited
-        if isinstance(p, Number) and not isinstance(p, bool):
-            # After deprecation, the whole method can be deleted and inherited.
-            cbook.warn_deprecated(
-                "3.3", message="Setting the line's pick radius via set_picker "
-                "is deprecated since %(since)s and will be removed "
-                "%(removal)s; use set_pickradius instead.")
+        """
+        Sets the event picker details for the line.
+
+        Parameters
+        ----------
+        p : float or callable[[Artist, Event], tuple[bool, dict]]
+            If a float, it is used as the pick radius in points.
+        """
+        if callable(p):
+            self._contains = p
+        else:
             self.pickradius = p
         self._picker = p
 
@@ -622,19 +620,6 @@ class Line2D(Artist):
             ms = (self._markersize / 72.0 * self.figure.dpi) * 0.5
             bbox = bbox.padded(ms)
         return bbox
-
-    @Artist.axes.setter
-    def axes(self, ax):
-        # call the set method from the base-class property
-        Artist.axes.fset(self, ax)
-        if ax is not None:
-            # connect unit-related callbacks
-            if ax.xaxis is not None:
-                self._xcid = ax.xaxis.callbacks.connect('units',
-                                                        self.recache_always)
-            if ax.yaxis is not None:
-                self._ycid = ax.yaxis.callbacks.connect('units',
-                                                        self.recache_always)
 
     def set_data(self, *args):
         """
@@ -713,26 +698,16 @@ class Line2D(Artist):
         self._transformed_path = TransformedPath(_path, self.get_transform())
 
     def _get_transformed_path(self):
-        """
-        Return the :class:`~matplotlib.transforms.TransformedPath` instance
-        of this line.
-        """
+        """Return this line's `~matplotlib.transforms.TransformedPath`."""
         if self._transformed_path is None:
             self._transform_path()
         return self._transformed_path
 
     def set_transform(self, t):
-        """
-        Set the Transformation instance used by this artist.
-
-        Parameters
-        ----------
-        t : `matplotlib.transforms.Transform`
-        """
-        super().set_transform(t)
+        # docstring inherited
         self._invalidx = True
         self._invalidy = True
-        self.stale = True
+        super().set_transform(t)
 
     def _is_sorted(self, x):
         """Return whether x is sorted in ascending order."""
@@ -929,7 +904,8 @@ class Line2D(Artist):
             if rcParams['_internal.classic_mode']:
                 if self._marker.get_marker() in ('.', ','):
                     return self._color
-                if self._marker.is_filled() and self.get_fillstyle() != 'none':
+                if (self._marker.is_filled()
+                        and self._marker.get_fillstyle() != 'none'):
                     return 'k'  # Bad hard-wired default...
             return self._color
         else:
@@ -944,7 +920,7 @@ class Line2D(Artist):
         return self._markeredgewidth
 
     def _get_markerfacecolor(self, alt=False):
-        if self.get_fillstyle() == 'none':
+        if self._marker.get_fillstyle() == 'none':
             return 'none'
         fc = self._markerfacecoloralt if alt else self._markerfacecolor
         if cbook._str_lower_equal(fc, 'auto'):
@@ -978,7 +954,7 @@ class Line2D(Artist):
 
     def get_data(self, orig=True):
         """
-        Return the xdata, ydata.
+        Return the line data as an ``(xdata, ydata)`` pair.
 
         If *orig* is *True*, return the original data.
         """
@@ -1011,10 +987,7 @@ class Line2D(Artist):
         return self._y
 
     def get_path(self):
-        """
-        Return the :class:`~matplotlib.path.Path` object associated
-        with this line.
-        """
+        """Return the `~matplotlib.path.Path` associated with this line."""
         if self._invalidy or self._invalidx:
             self.recache()
         return self._path
@@ -1047,9 +1020,7 @@ class Line2D(Artist):
         ----------
         color : color
         """
-        if not is_color_like(color) and color != 'auto':
-            _api.check_in_list(get_named_colors_mapping(),
-                               _print_supported_values=False, color=color)
+        mcolors._check_color_like(color=color)
         self._color = color
         self.stale = True
 
@@ -1154,7 +1125,7 @@ class Line2D(Artist):
         self._dashOffset, self._dashSeq = _scale_dashes(
             self._us_dashOffset, self._us_dashSeq, self._linewidth)
 
-    @docstring.dedent_interpd
+    @docstring.interpd
     def set_marker(self, marker):
         """
         Set the line marker.
@@ -1165,8 +1136,22 @@ class Line2D(Artist):
             See `~matplotlib.markers` for full description of possible
             arguments.
         """
-        self._marker.set_marker(marker)
+        self._marker = MarkerStyle(marker, self._marker.get_fillstyle())
         self.stale = True
+
+    def _set_markercolor(self, name, has_rcdefault, val):
+        if val is None:
+            val = rcParams[f"lines.{name}"] if has_rcdefault else "auto"
+        attr = f"_{name}"
+        current = getattr(self, attr)
+        if current is None:
+            self.stale = True
+        else:
+            neq = current != val
+            # Much faster than `np.any(current != val)` if no arrays are used.
+            if neq.any() if isinstance(neq, np.ndarray) else neq:
+                self.stale = True
+        setattr(self, attr, val)
 
     def set_markeredgecolor(self, ec):
         """
@@ -1176,12 +1161,27 @@ class Line2D(Artist):
         ----------
         ec : color
         """
-        if ec is None:
-            ec = 'auto'
-        if (self._markeredgecolor is None
-                or np.any(self._markeredgecolor != ec)):
-            self.stale = True
-        self._markeredgecolor = ec
+        self._set_markercolor("markeredgecolor", True, ec)
+
+    def set_markerfacecolor(self, fc):
+        """
+        Set the marker face color.
+
+        Parameters
+        ----------
+        fc : color
+        """
+        self._set_markercolor("markerfacecolor", True, fc)
+
+    def set_markerfacecoloralt(self, fc):
+        """
+        Set the alternate marker face color.
+
+        Parameters
+        ----------
+        fc : color
+        """
+        self._set_markercolor("markerfacecoloralt", False, fc)
 
     def set_markeredgewidth(self, ew):
         """
@@ -1197,34 +1197,6 @@ class Line2D(Artist):
         if self._markeredgewidth != ew:
             self.stale = True
         self._markeredgewidth = ew
-
-    def set_markerfacecolor(self, fc):
-        """
-        Set the marker face color.
-
-        Parameters
-        ----------
-        fc : color
-        """
-        if fc is None:
-            fc = 'auto'
-        if np.any(self._markerfacecolor != fc):
-            self.stale = True
-        self._markerfacecolor = fc
-
-    def set_markerfacecoloralt(self, fc):
-        """
-        Set the alternate marker face color.
-
-        Parameters
-        ----------
-        fc : color
-        """
-        if fc is None:
-            fc = 'auto'
-        if np.any(self._markerfacecoloralt != fc):
-            self.stale = True
-        self._markerfacecoloralt = fc
 
     def set_markersize(self, sz):
         """
@@ -1309,97 +1281,100 @@ class Line2D(Artist):
         self._marker = MarkerStyle(marker=other._marker)
         self._drawstyle = other._drawstyle
 
+    @docstring.interpd
     def set_dash_joinstyle(self, s):
         """
-        Set the join style for dashed lines.
+        How to join segments of the line if it `~Line2D.is_dashed`.
 
         Parameters
         ----------
-        s : {'miter', 'round', 'bevel'}
-            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
+        s : `.JoinStyle` or %(JoinStyle)s
         """
-        mpl.rcsetup.validate_joinstyle(s)
-        if self._dashjoinstyle != s:
+        js = JoinStyle(s)
+        if self._dashjoinstyle != js:
             self.stale = True
-        self._dashjoinstyle = s
+        self._dashjoinstyle = js
 
+    @docstring.interpd
     def set_solid_joinstyle(self, s):
         """
-        Set the join style for solid lines.
+        How to join segments if the line is solid (not `~Line2D.is_dashed`).
 
         Parameters
         ----------
-        s : {'miter', 'round', 'bevel'}
-            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
+        s : `.JoinStyle` or %(JoinStyle)s
         """
-        mpl.rcsetup.validate_joinstyle(s)
-        if self._solidjoinstyle != s:
+        js = JoinStyle(s)
+        if self._solidjoinstyle != js:
             self.stale = True
-        self._solidjoinstyle = s
+        self._solidjoinstyle = js
 
     def get_dash_joinstyle(self):
         """
-        Return the join style for dashed lines.
+        Return the `.JoinStyle` for dashed lines.
 
         See also `~.Line2D.set_dash_joinstyle`.
         """
-        return self._dashjoinstyle
+        return self._dashjoinstyle.name
 
     def get_solid_joinstyle(self):
         """
-        Return the join style for solid lines.
+        Return the `.JoinStyle` for solid lines.
 
         See also `~.Line2D.set_solid_joinstyle`.
         """
-        return self._solidjoinstyle
+        return self._solidjoinstyle.name
 
+    @docstring.interpd
     def set_dash_capstyle(self, s):
         """
-        Set the cap style for dashed lines.
+        How to draw the end caps if the line is `~Line2D.is_dashed`.
 
         Parameters
         ----------
-        s : {'butt', 'round', 'projecting'}
-            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
+        s : `.CapStyle` or %(CapStyle)s
         """
-        mpl.rcsetup.validate_capstyle(s)
-        if self._dashcapstyle != s:
+        cs = CapStyle(s)
+        if self._dashcapstyle != cs:
             self.stale = True
-        self._dashcapstyle = s
+        self._dashcapstyle = cs
 
+    @docstring.interpd
     def set_solid_capstyle(self, s):
         """
-        Set the cap style for solid lines.
+        How to draw the end caps if the line is solid (not `~Line2D.is_dashed`)
 
         Parameters
         ----------
-        s : {'butt', 'round', 'projecting'}
-            For examples see :doc:`/gallery/lines_bars_and_markers/joinstyle`.
+        s : `.CapStyle` or %(CapStyle)s
         """
-        mpl.rcsetup.validate_capstyle(s)
-        if self._solidcapstyle != s:
+        cs = CapStyle(s)
+        if self._solidcapstyle != cs:
             self.stale = True
-        self._solidcapstyle = s
+        self._solidcapstyle = cs
 
     def get_dash_capstyle(self):
         """
-        Return the cap style for dashed lines.
+        Return the `.CapStyle` for dashed lines.
 
         See also `~.Line2D.set_dash_capstyle`.
         """
-        return self._dashcapstyle
+        return self._dashcapstyle.name
 
     def get_solid_capstyle(self):
         """
-        Return the cap style for solid lines.
+        Return the `.CapStyle` for solid lines.
 
         See also `~.Line2D.set_solid_capstyle`.
         """
-        return self._solidcapstyle
+        return self._solidcapstyle.name
 
     def is_dashed(self):
         """
         Return whether line has a dashed linestyle.
+
+        A custom linestyle is assumed to be dashed, we do not inspect the
+        ``onoffseq`` directly.
 
         See also `~.Line2D.set_linestyle`.
         """
@@ -1412,34 +1387,57 @@ class _AxLine(Line2D):
     transform at draw time.
     """
 
+    def __init__(self, xy1, xy2, slope, **kwargs):
+        super().__init__([0, 1], [0, 1], **kwargs)
+
+        if (xy2 is None and slope is None or
+                xy2 is not None and slope is not None):
+            raise TypeError(
+                "Exactly one of 'xy2' and 'slope' must be given")
+
+        self._slope = slope
+        self._xy1 = xy1
+        self._xy2 = xy2
+
     def get_transform(self):
         ax = self.axes
-        (x1, y1), (x2, y2) = ax.transScale.transform([*zip(*self.get_data())])
-        dx = x2 - x1
-        dy = y2 - y1
-        if np.allclose(x1, x2):
-            if np.allclose(y1, y2):
-                raise ValueError(
-                    f"Cannot draw a line through two identical points "
-                    f"(x={self.get_xdata()}, y={self.get_ydata()})")
-            # First send y1 to 0 and y2 to 1.
-            return (Affine2D.from_values(1, 0, 0, 1 / dy, 0, -y1 / dy)
-                    + ax.get_xaxis_transform(which="grid"))
-        if np.allclose(y1, y2):
-            # First send x1 to 0 and x2 to 1.
-            return (Affine2D.from_values(1 / dx, 0, 0, 1, -x1 / dx, 0)
-                    + ax.get_yaxis_transform(which="grid"))
+        points_transform = self._transform - ax.transData + ax.transScale
+
+        if self._xy2 is not None:
+            # two points were given
+            (x1, y1), (x2, y2) = \
+                points_transform.transform([self._xy1, self._xy2])
+            dx = x2 - x1
+            dy = y2 - y1
+            if np.allclose(x1, x2):
+                if np.allclose(y1, y2):
+                    raise ValueError(
+                        f"Cannot draw a line through two identical points "
+                        f"(x={(x1, x2)}, y={(y1, y2)})")
+                slope = np.inf
+            else:
+                slope = dy / dx
+        else:
+            # one point and a slope were given
+            x1, y1 = points_transform.transform(self._xy1)
+            slope = self._slope
         (vxlo, vylo), (vxhi, vyhi) = ax.transScale.transform(ax.viewLim)
         # General case: find intersections with view limits in either
         # direction, and draw between the middle two points.
-        _, start, stop, _ = sorted([
-            (vxlo, y1 + (vxlo - x1) * dy / dx),
-            (vxhi, y1 + (vxhi - x1) * dy / dx),
-            (x1 + (vylo - y1) * dx / dy, vylo),
-            (x1 + (vyhi - y1) * dx / dy, vyhi),
-        ])
-        return (BboxTransformFrom(Bbox([*zip(*self.get_data())]))
-                + BboxTransformTo(Bbox([start, stop]))
+        if np.isclose(slope, 0):
+            start = vxlo, y1
+            stop = vxhi, y1
+        elif np.isinf(slope):
+            start = x1, vylo
+            stop = x1, vyhi
+        else:
+            _, start, stop, _ = sorted([
+                (vxlo, y1 + (vxlo - x1) * slope),
+                (vxhi, y1 + (vxhi - x1) * slope),
+                (x1 + (vylo - y1) / slope, vylo),
+                (x1 + (vyhi - y1) / slope, vyhi),
+            ])
+        return (BboxTransformTo(Bbox([start, stop]))
                 + ax.transLimits + ax.transAxes)
 
     def draw(self, renderer):
@@ -1449,9 +1447,8 @@ class _AxLine(Line2D):
 
 class VertexSelector:
     """
-    Manage the callbacks to maintain a list of selected vertices for
-    `.Line2D`. Derived classes should override
-    :meth:`~matplotlib.lines.VertexSelector.process_selected` to do
+    Manage the callbacks to maintain a list of selected vertices for `.Line2D`.
+    Derived classes should override the `process_selected` method to do
     something with the picks.
 
     Here is an example which highlights the selected verts with red
@@ -1480,9 +1477,8 @@ class VertexSelector:
     """
     def __init__(self, line):
         """
-        Initialize the class with a `.Line2D` instance.  The line should
-        already be added to some :class:`matplotlib.axes.Axes` instance and
-        should have the picker property set.
+        Initialize the class with a `.Line2D`.  The line should already be
+        added to an `~.axes.Axes` and should have the picker property set.
         """
         if line.axes is None:
             raise RuntimeError('You must first add the line to the Axes')
@@ -1500,8 +1496,7 @@ class VertexSelector:
 
     def process_selected(self, ind, xs, ys):
         """
-        Default "do nothing" implementation of the
-        :meth:`process_selected` method.
+        Default "do nothing" implementation of the `process_selected` method.
 
         Parameters
         ----------
@@ -1526,9 +1521,3 @@ lineStyles = Line2D._lineStyles
 lineMarkers = MarkerStyle.markers
 drawStyles = Line2D.drawStyles
 fillStyles = MarkerStyle.fillstyles
-
-docstring.interpd.update(_Line2D_docstr=artist.kwdoc(Line2D))
-
-# You can not set the docstring of an instancemethod,
-# but you can on the underlying function.  Go figure.
-docstring.dedent_interpd(Line2D.__init__)

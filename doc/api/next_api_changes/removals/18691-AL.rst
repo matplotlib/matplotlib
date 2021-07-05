@@ -1,9 +1,0 @@
-sample_data removals
-~~~~~~~~~~~~~~~~~~~~
-The sample datasets listed below have been removed.  Suggested replacements for
-demonstration purposes are listed in parentheses.
-- ``None_vs_nearest-pdf.png``,
-- ``aapl.npz`` (use ``goog.npz``),
-- ``ada.png``, ``grace_hopper.png`` (use ``grace_hopper.jpg``),
-- ``ct.raw.gz`` (use ``s1045.ima.gz``),
-- ``damodata.csv`` (use ``msft.csv``).

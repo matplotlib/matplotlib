@@ -29,6 +29,7 @@ method), you can register it as the default handler for a given file type::
     plt.savefig("figure.xyz")
 """
 
+from matplotlib import _api
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
      FigureCanvasBase, FigureManagerBase, GraphicsContextBase, RendererBase)
@@ -100,9 +101,9 @@ class RendererTemplate(RendererBase):
         # if backend doesn't have dpi, e.g., postscript or svg
         return points
         # elif backend assumes a value for pixels_per_inch
-        #return points/72.0 * self.dpi.get() * pixels_per_inch/72.0
+        # return points/72.0 * self.dpi.get() * pixels_per_inch/72.0
         # else
-        #return points/72.0 * self.dpi.get()
+        # return points/72.0 * self.dpi.get()
 
 
 class GraphicsContextTemplate(GraphicsContextBase):
@@ -191,7 +192,14 @@ class FigureCanvasTemplate(FigureCanvasBase):
     """
 
     def draw(self):
-        """Draw the figure using the renderer."""
+        """
+        Draw the figure using the renderer.
+
+        It is important that this method actually walk the artist tree
+        even if not output is produced because this will trigger
+        deferred work (like computing limits auto-limits and tick
+        values) that users may want access to before saving to disk.
+        """
         renderer = RendererTemplate(self.figure.dpi)
         self.figure.draw(renderer)
 
@@ -202,11 +210,16 @@ class FigureCanvasTemplate(FigureCanvasBase):
     # you should add it to the class-scope filetypes dictionary as follows:
     filetypes = {**FigureCanvasBase.filetypes, 'foo': 'My magic Foo format'}
 
+    @_api.delete_parameter("3.5", "args")
     def print_foo(self, filename, *args, **kwargs):
         """
-        Write out format foo.  The dpi, facecolor and edgecolor are restored
-        to their original values after this call, so you don't need to
-        save and restore them.
+        Write out format foo.
+
+        This method is normally called via `.Figure.savefig` and
+        `.FigureCanvasBase.print_figure`, which take care of setting the figure
+        facecolor, edgecolor, and dpi to the desired output values, and will
+        restore them to the original values.  Therefore, `print_foo` does not
+        need to handle these settings.
         """
         self.draw()
 

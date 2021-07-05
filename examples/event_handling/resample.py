@@ -25,7 +25,7 @@ class DataDisplayDownsampler:
         mask = (self.origXData > xstart) & (self.origXData < xend)
         # dilate the mask by one to catch the points just outside
         # of the view range to not truncate the line
-        mask = np.convolve([1, 1], mask, mode='same').astype(bool)
+        mask = np.convolve([1, 1, 1], mask, mode='same').astype(bool)
         # sort out how many points to drop
         ratio = max(np.sum(mask) // self.max_points, 1)
 

@@ -3,7 +3,9 @@
 Simple Axes Divider 3
 =====================
 
+See also :doc:`/tutorials/toolkits/axes_grid`.
 """
+
 import mpl_toolkits.axes_grid1.axes_size as Size
 from mpl_toolkits.axes_grid1 import Divider
 import matplotlib.pyplot as plt

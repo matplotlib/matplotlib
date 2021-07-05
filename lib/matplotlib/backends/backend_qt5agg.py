@@ -16,7 +16,7 @@ from .qt_compat import QT_API, _setDevicePixelRatio
 
 class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
 
-    def __init__(self, figure):
+    def __init__(self, figure=None):
         # Must pass 'figure' as kwarg to Qt base class.
         super().__init__(figure=figure)
 
@@ -27,9 +27,6 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         In Qt, all drawing should be done inside of here when a widget is
         shown onscreen.
         """
-        if self._update_dpi():
-            # The dpi update triggered its own paintEvent.
-            return
         self._draw_idle()  # Only does something if a draw is pending.
 
         # If the canvas does not have a renderer, then give up and wait for
@@ -45,8 +42,8 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             # scale rect dimensions using the screen dpi ratio to get
             # correct values for the Figure coordinates (rather than
             # QT5's coords)
-            width = rect.width() * self._dpi_ratio
-            height = rect.height() * self._dpi_ratio
+            width = rect.width() * self.device_pixel_ratio
+            height = rect.height() * self.device_pixel_ratio
             left, top = self.mouseEventCoords(rect.topLeft())
             # shift the "top" by the height of the image to get the
             # correct corner for our coordinate system
@@ -64,7 +61,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
 
             qimage = QtGui.QImage(buf, buf.shape[1], buf.shape[0],
                                   QtGui.QImage.Format_ARGB32_Premultiplied)
-            _setDevicePixelRatio(qimage, self._dpi_ratio)
+            _setDevicePixelRatio(qimage, self.device_pixel_ratio)
             # set origin using original QT coordinates
             origin = QtCore.QPoint(rect.left(), rect.top())
             painter.drawImage(origin, qimage)

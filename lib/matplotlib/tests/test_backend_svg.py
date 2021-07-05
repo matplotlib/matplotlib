@@ -198,7 +198,7 @@ def test_missing_psfont(monkeypatch):
 
 
 # Use Computer Modern Sans Serif, not Helvetica (which has no \textwon).
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @needs_usetex
 def test_unicode_won():
     fig = Figure()
@@ -216,7 +216,7 @@ def test_unicode_won():
 
 
 def test_svgnone_with_data_coordinates():
-    plt.rcParams['svg.fonttype'] = 'none'
+    plt.rcParams.update({'svg.fonttype': 'none', 'font.stretch': 'condensed'})
     expected = 'Unlikely to appear by chance'
 
     fig, ax = plt.subplots()
@@ -229,9 +229,7 @@ def test_svgnone_with_data_coordinates():
         fd.seek(0)
         buf = fd.read().decode()
 
-    assert expected in buf
-    for prop in ["family", "weight", "stretch", "style", "size"]:
-        assert f"font-{prop}:" in buf
+    assert expected in buf and "condensed" in buf
 
 
 def test_gid():

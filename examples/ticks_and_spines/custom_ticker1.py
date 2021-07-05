@@ -17,7 +17,7 @@ money = [1.5e5, 2.5e6, 5.5e6, 2.0e7]
 
 
 def millions(x, pos):
-    """The two args are the value and tick position."""
+    """The two arguments are the value and tick position."""
     return '${:1.1f}M'.format(x*1e-6)
 
 fig, ax = plt.subplots()
@@ -28,15 +28,11 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.pyplot.subplots
-matplotlib.axis.Axis.set_major_formatter
-matplotlib.ticker.FuncFormatter
+#    - `matplotlib.pyplot.subplots`
+#    - `matplotlib.axis.Axis.set_major_formatter`
+#    - `matplotlib.ticker.FuncFormatter`

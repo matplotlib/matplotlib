@@ -6,7 +6,7 @@ Custom scale
 Create a custom scale, by implementing the scaling use for latitude data in a
 Mercator Projection.
 
-Unless you are making special use of the `~.Transform` class, you probably
+Unless you are making special use of the `.Transform` class, you probably
 don't need to use this verbose method, and instead can use `~.scale.FuncScale`
 and the ``'function'`` option of `~.Axes.set_xscale` and `~.Axes.set_yscale`.
 See the last example in :doc:`/gallery/scales/scales`.

@@ -25,6 +25,14 @@ def test_tmpconfigdir_warning(tmpdir):
         os.chmod(tmpdir, mode)
 
 
+def test_importable_with_no_home(tmpdir):
+    subprocess.run(
+        [sys.executable, "-c",
+         "import pathlib; pathlib.Path.home = lambda *args: 1/0; "
+         "import matplotlib.pyplot"],
+        env={**os.environ, "MPLCONFIGDIR": str(tmpdir)}, check=True)
+
+
 def test_use_doc_standard_backends():
     """
     Test that the standard backends mentioned in the docstring of
@@ -56,4 +64,4 @@ def test_importable_with__OO():
         "import matplotlib.patches as mpatches"
     )
     cmd = [sys.executable, "-OO", "-c", program]
-    assert subprocess.call(cmd) == 0
+    assert subprocess.call(cmd, env={**os.environ, "MPLBACKEND": ""}) == 0

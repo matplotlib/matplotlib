@@ -60,8 +60,6 @@ private:
 
     int stack_depth;            /* A book-keeping variable for keeping track of the depth of the PS stack */
 
-    bool pdf_mode;
-
     void load_char(TTFONT* font, BYTE *glyph);
     void stack(TTStreamWriter& stream, int new_elem);
     void stack_end(TTStreamWriter& stream);
@@ -91,12 +89,6 @@ struct FlaggedPoint
     FlaggedPoint(Flag flag_, FWord x_, FWord y_): flag(flag_), x(x_), y(y_) {};
 };
 
-double area(FWord *x, FWord *y, int n);
-#define sqr(x) ((x)*(x))
-
-#define NOMOREINCTR -1
-#define NOMOREOUTCTR -1
-
 /*
 ** This routine is used to break the character
 ** procedure up into a number of smaller
@@ -111,9 +103,8 @@ double area(FWord *x, FWord *y, int n);
 */
 void GlyphToType3::stack(TTStreamWriter& stream, int new_elem)
 {
-    if ( !pdf_mode && num_pts > 25 )                    /* Only do something of we will */
+    if ( num_pts > 25 )  /* Only do something of we will have a log of points. */
     {
-        /* have a log of points. */
         if (stack_depth == 0)
         {
             stream.put_char('{');
@@ -132,7 +123,7 @@ void GlyphToType3::stack(TTStreamWriter& stream, int new_elem)
 
 void GlyphToType3::stack_end(TTStreamWriter& stream)                    /* called at end */
 {
-    if ( !pdf_mode && stack_depth )
+    if ( stack_depth )
     {
         stream.puts("}_e");
         stack_depth=0;
@@ -238,19 +229,17 @@ void GlyphToType3::PSConvert(TTStreamWriter& stream)
 
     /* Now, we can fill the whole thing. */
     stack(stream, 1);
-    stream.puts( pdf_mode ? "f" : "_cl" );
+    stream.puts("_cl");
 } /* end of PSConvert() */
 
 void GlyphToType3::PSMoveto(TTStreamWriter& stream, int x, int y)
 {
-    stream.printf(pdf_mode ? "%d %d m\n" : "%d %d _m\n",
-                  x, y);
+    stream.printf("%d %d _m\n", x, y);
 }
 
 void GlyphToType3::PSLineto(TTStreamWriter& stream, int x, int y)
 {
-    stream.printf(pdf_mode ? "%d %d l\n" : "%d %d _l\n",
-                  x, y);
+    stream.printf("%d %d _l\n", x, y);
 }
 
 /*
@@ -278,9 +267,9 @@ void GlyphToType3::PSCurveto(TTStreamWriter& stream,
     cy[1] = (sy[2]+2*sy[1])/3;
     cx[2] = sx[2];
     cy[2] = sy[2];
-    stream.printf("%d %d %d %d %d %d %s\n",
+    stream.printf("%d %d %d %d %d %d _c\n",
                   (int)cx[0], (int)cy[0], (int)cx[1], (int)cy[1],
-                  (int)cx[2], (int)cy[2], pdf_mode ? "c" : "_c");
+                  (int)cx[2], (int)cy[2]);
 }
 
 /*
@@ -464,50 +453,27 @@ void GlyphToType3::do_composite(TTStreamWriter& stream, struct TTFONT *font, BYT
                       (int)flags,arg1,arg2);
 #endif
 
-        if (pdf_mode)
+        /* If we have an (X,Y) shift and it is non-zero, */
+        /* translate the coordinate system. */
+        if ( flags & ARGS_ARE_XY_VALUES )
         {
-            if ( flags & ARGS_ARE_XY_VALUES )
-            {
-                /* We should have been able to use 'Do' to reference the
-                   subglyph here.  However, that doesn't seem to work with
-                   xpdf or gs (only acrobat), so instead, this just includes
-                   the subglyph here inline. */
-                stream.printf("q 1 0 0 1 %d %d cm\n", topost(arg1), topost(arg2));
-            }
-            else
-            {
-                stream.printf("%% unimplemented shift, arg1=%d, arg2=%d\n",arg1,arg2);
-            }
-            GlyphToType3(stream, font, glyphIndex, true);
-            if ( flags & ARGS_ARE_XY_VALUES )
-            {
-                stream.printf("\nQ\n");
-            }
+            if ( arg1 != 0 || arg2 != 0 )
+                stream.printf("gsave %d %d translate\n", topost(arg1), topost(arg2) );
         }
         else
         {
-            /* If we have an (X,Y) shif and it is non-zero, */
-            /* translate the coordinate system. */
-            if ( flags & ARGS_ARE_XY_VALUES )
-            {
-                if ( arg1 != 0 || arg2 != 0 )
-                    stream.printf("gsave %d %d translate\n", topost(arg1), topost(arg2) );
-            }
-            else
-            {
-                stream.printf("%% unimplemented shift, arg1=%d, arg2=%d\n",arg1,arg2);
-            }
+            stream.printf("%% unimplemented shift, arg1=%d, arg2=%d\n",arg1,arg2);
+        }
 
-            /* Invoke the CharStrings procedure to print the component. */
-            stream.printf("false CharStrings /%s get exec\n",
-                          ttfont_CharStrings_getname(font,glyphIndex));
+        /* Invoke the CharStrings procedure to print the component. */
+        stream.printf("false CharStrings /%s get exec\n",
+                      ttfont_CharStrings_getname(font, glyphIndex));
 
-            /* If we translated the coordinate system, */
-            /* put it back the way it was. */
-            if ( flags & ARGS_ARE_XY_VALUES && (arg1 != 0 || arg2 != 0) )
-            {
-                stream.puts("grestore ");
-            }
+        /* If we translated the coordinate system, */
+        /* put it back the way it was. */
+        if ( flags & ARGS_ARE_XY_VALUES && (arg1 != 0 || arg2 != 0) )
+        {
+            stream.puts("grestore ");
         }
 
     }
@@ -559,7 +525,6 @@ GlyphToType3::GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int char
     ycoor = NULL;
     epts_ctr = NULL;
     stack_depth = 0;
-    pdf_mode = font->target_type < 0;
 
     /* Get a pointer to the data. */
     glyph = find_glyph_data( font, charindex );
@@ -610,15 +575,7 @@ GlyphToType3::GlyphToType3(TTStreamWriter& stream, struct TTFONT *font, int char
     /* Execute setcachedevice in order to inform the font machinery */
     /* of the character bounding box and advance width. */
     stack(stream, 7);
-    if (pdf_mode)
-    {
-        if (!embedded) {
-            stream.printf("%d 0 %d %d %d %d d1\n",
-                          topost(advance_width),
-                          topost(llx), topost(lly), topost(urx), topost(ury) );
-        }
-    }
-    else if (font->target_type == PS_TYPE_42_3_HYBRID)
+    if (font->target_type == PS_TYPE_42_3_HYBRID)
     {
         stream.printf("pop gsave .001 .001 scale %d 0 %d %d %d %d setcachedevice\n",
                       topost(advance_width),

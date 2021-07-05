@@ -42,7 +42,7 @@ from matplotlib import cbook
 from matplotlib import docstring
 from matplotlib.backend_bases import FigureCanvasBase, MouseButton
 from matplotlib.figure import Figure, figaspect
-from matplotlib.gridspec import GridSpec
+from matplotlib.gridspec import GridSpec, SubplotSpec
 from matplotlib import rcParams, rcParamsDefault, get_backend, rcParamsOrig
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
 from matplotlib.artist import Artist
@@ -73,10 +73,10 @@ _log = logging.getLogger(__name__)
 
 
 _code_objs = {
-    cbook._rename_parameter:
-        cbook._rename_parameter("", "old", "new", lambda new: None).__code__,
-    cbook._make_keyword_only:
-        cbook._make_keyword_only("", "p", lambda p: None).__code__,
+    _api.rename_parameter:
+        _api.rename_parameter("", "old", "new", lambda new: None).__code__,
+    _api.make_keyword_only:
+        _api.make_keyword_only("", "p", lambda p: None).__code__,
 }
 
 
@@ -84,9 +84,9 @@ def _copy_docstring_and_deprecators(method, func=None):
     if func is None:
         return functools.partial(_copy_docstring_and_deprecators, method)
     decorators = [docstring.copy(method)]
-    # Check whether the definition of *method* includes _rename_parameter or
-    # _make_keyword_only decorators; if so, propagate them to the pyplot
-    # wrapper as well.
+    # Check whether the definition of *method* includes @_api.rename_parameter
+    # or @_api.make_keyword_only decorators; if so, propagate them to the
+    # pyplot wrapper as well.
     while getattr(method, "__wrapped__", None) is not None:
         for decorator_maker, code in _code_objs.items():
             if method.__code__ is code:
@@ -119,52 +119,41 @@ def install_repl_displayhook():
     global _IP_REGISTERED
     global _INSTALL_FIG_OBSERVER
 
-    class _NotIPython(Exception):
-        pass
-
-    # see if we have IPython hooks around, if use them
-
-    try:
-        if 'IPython' in sys.modules:
-            from IPython import get_ipython
-            ip = get_ipython()
-            if ip is None:
-                raise _NotIPython()
-
-            if _IP_REGISTERED:
-                return
-
-            def post_execute():
-                if matplotlib.is_interactive():
-                    draw_all()
-
-            # IPython >= 2
-            try:
-                ip.events.register('post_execute', post_execute)
-            except AttributeError:
-                # IPython 1.x
-                ip.register_post_execute(post_execute)
-
-            _IP_REGISTERED = post_execute
-            _INSTALL_FIG_OBSERVER = False
-
-            # trigger IPython's eventloop integration, if available
-            from IPython.core.pylabtools import backend2gui
-
-            ipython_gui_name = backend2gui.get(get_backend())
-            if ipython_gui_name:
-                ip.enable_gui(ipython_gui_name)
-        else:
-            _INSTALL_FIG_OBSERVER = True
-
-    # import failed or ipython is not running
-    except (ImportError, _NotIPython):
+    if _IP_REGISTERED:
+        return
+    # See if we have IPython hooks around, if so use them.
+    # Use ``sys.modules.get(name)`` rather than ``name in sys.modules`` as
+    # entries can also have been explicitly set to None.
+    mod_ipython = sys.modules.get("IPython")
+    if not mod_ipython:
         _INSTALL_FIG_OBSERVER = True
+        return
+    ip = mod_ipython.get_ipython()
+    if not ip:
+        _INSTALL_FIG_OBSERVER = True
+        return
+
+    def post_execute():
+        if matplotlib.is_interactive():
+            draw_all()
+
+    try:  # IPython >= 2
+        ip.events.register("post_execute", post_execute)
+    except AttributeError:  # IPython 1.x
+        ip.register_post_execute(post_execute)
+    _IP_REGISTERED = post_execute
+    _INSTALL_FIG_OBSERVER = False
+
+    from IPython.core.pylabtools import backend2gui
+    # trigger IPython's eventloop integration, if available
+    ipython_gui_name = backend2gui.get(get_backend())
+    if ipython_gui_name:
+        ip.enable_gui(ipython_gui_name)
 
 
 def uninstall_repl_displayhook():
     """
-    Uninstall the matplotlib display hook.
+    Uninstall the Matplotlib display hook.
 
     .. warning::
 
@@ -174,8 +163,8 @@ def uninstall_repl_displayhook():
     .. warning::
 
        If you are using vanilla python and have installed another
-       display hook this will reset ``sys.displayhook`` to what ever
-       function was there when matplotlib installed it's displayhook,
+       display hook, this will reset ``sys.displayhook`` to what ever
+       function was there when Matplotlib installed its displayhook,
        possibly discarding your changes.
     """
     global _IP_REGISTERED
@@ -197,7 +186,7 @@ def uninstall_repl_displayhook():
 draw_all = _pylab_helpers.Gcf.draw_all
 
 
-@functools.wraps(matplotlib.set_loglevel)
+@_copy_docstring_and_deprecators(matplotlib.set_loglevel)
 def set_loglevel(*args, **kwargs):  # Ensure this appears in the pyplot docs.
     return matplotlib.set_loglevel(*args, **kwargs)
 
@@ -235,7 +224,6 @@ def switch_backend(newbackend):
     if newbackend is rcsetup._auto_backend_sentinel:
         current_framework = cbook._get_running_interactive_framework()
         mapping = {'qt5': 'qt5agg',
-                   'qt4': 'qt4agg',
                    'gtk3': 'gtk3agg',
                    'wx': 'wxagg',
                    'tk': 'tkagg',
@@ -304,7 +292,7 @@ def switch_backend(newbackend):
 def _warn_if_gui_out_of_main_thread():
     if (_get_required_interactive_framework(_backend_mod)
             and threading.current_thread() is not threading.main_thread()):
-        cbook._warn_external(
+        _api.warn_external(
             "Starting a Matplotlib GUI outside of the main thread will likely "
             "fail.")
 
@@ -318,6 +306,14 @@ def new_figure_manager(*args, **kwargs):
 
 # This function's signature is rewritten upon backend-load by switch_backend.
 def draw_if_interactive(*args, **kwargs):
+    """
+    Redraw the current figure if in interactive mode.
+
+    .. warning::
+
+        End users will typically not have to call this function because the
+        the interactive mode takes care of this.
+    """
     return _backend_mod.draw_if_interactive(*args, **kwargs)
 
 
@@ -326,29 +322,45 @@ def show(*args, **kwargs):
     """
     Display all open figures.
 
-    In non-interactive mode, *block* defaults to True.  All figures
-    will display and show will not return until all windows are closed.
-    If there are no figures, return immediately.
-
-    In interactive mode *block* defaults to False.  This will ensure
-    that all of the figures are shown and this function immediately returns.
-
     Parameters
     ----------
     block : bool, optional
+        Whether to wait for all figures to be closed before returning.
 
-        If `True` block and run the GUI main loop until all windows
+        If `True` block and run the GUI main loop until all figure windows
         are closed.
 
-        If `False` ensure that all windows are displayed and return
+        If `False` ensure that all figure windows are displayed and return
         immediately.  In this case, you are responsible for ensuring
         that the event loop is running to have responsive figures.
 
+        Defaults to True in non-interactive mode and to False in interactive
+        mode (see `.pyplot.isinteractive`).
+
     See Also
     --------
-    ion : enable interactive mode
-    ioff : disable interactive mode
+    ion : Enable interactive mode, which shows / updates the figure after
+          every plotting command, so that calling ``show()`` is not necessary.
+    ioff : Disable interactive mode.
+    savefig : Save the figure to an image file instead of showing it on screen.
 
+    Notes
+    -----
+    **Saving figures to file and showing a window at the same time**
+
+    If you want an image file as well as a user interface window, use
+    `.pyplot.savefig` before `.pyplot.show`. At the end of (a blocking)
+    ``show()`` the figure is closed and thus unregistered from pyplot. Calling
+    `.pyplot.savefig` afterwards would save a new and thus empty figure. This
+    limitation of command order does not apply if the show is non-blocking or
+    if you keep a reference to the figure and use `.Figure.savefig`.
+
+    **Auto-show in jupyter notebooks**
+
+    The jupyter backends (activated via ``%matplotlib inline``,
+    ``%matplotlib notebook``, or ``%matplotlib widget``), call ``show()`` at
+    the end of every cell by default. Thus, you usually don't have to call it
+    explicitly there.
     """
     _warn_if_gui_out_of_main_thread()
     return _backend_mod.show(*args, **kwargs)
@@ -356,15 +368,19 @@ def show(*args, **kwargs):
 
 def isinteractive():
     """
-    Return if pyplot is in "interactive mode" or not.
+    Return whether plots are updated after every plotting command.
 
-    If in interactive mode then:
+    The interactive mode is mainly useful if you build plots from the command
+    line and want to see the effect of each command while you are building the
+    figure.
+
+    In interactive mode:
 
     - newly created figures will be shown immediately;
     - figures will automatically redraw on change;
     - `.pyplot.show` will not block by default.
 
-    If not in interactive mode then:
+    In non-interactive mode:
 
     - newly created figures and changes to figures will not be reflected until
       explicitly asked to be;
@@ -372,11 +388,10 @@ def isinteractive():
 
     See Also
     --------
-    ion : enable interactive mode
-    ioff : disable interactive mode
-
-    show : show windows (and maybe block)
-    pause : show windows, run GUI event loop, and block for a time
+    ion : Enable interactive mode.
+    ioff : Disable interactive mode.
+    show : Show all figures (and maybe block).
+    pause : Show all figures, and block for a time.
     """
     return matplotlib.is_interactive()
 
@@ -435,15 +450,16 @@ class _IonContext:
 
 def ioff():
     """
-    Turn interactive mode off.
+    Disable interactive mode.
+
+    See `.pyplot.isinteractive` for more details.
 
     See Also
     --------
-    ion : enable interactive mode
-    isinteractive : query current state
-
-    show : show windows (and maybe block)
-    pause : show windows, run GUI event loop, and block for a time
+    ion : Enable interactive mode.
+    isinteractive : Whether interactive mode is enabled.
+    show : Show all figures (and maybe block).
+    pause : Show all figures, and block for a time.
 
     Notes
     -----
@@ -470,15 +486,16 @@ def ioff():
 
 def ion():
     """
-    Turn interactive mode on.
+    Enable interactive mode.
+
+    See `.pyplot.isinteractive` for more details.
 
     See Also
     --------
-    ioff : disable interactive mode
-    isinteractive : query current state
-
-    show : show windows (and maybe block)
-    pause : show windows, run GUI event loop, and block for a time
+    ioff : Disable interactive mode.
+    isinteractive : Whether interactive mode is enabled.
+    show : Show all figures (and maybe block).
+    pause : Show all figures, and block for a time.
 
     Notes
     -----
@@ -517,8 +534,8 @@ def pause(interval):
 
     See Also
     --------
-    matplotlib.animation : Complex animation
-    show : show figures and optional block forever
+    matplotlib.animation : Proper animations
+    show : Show all figures and optional block until all figures are closed.
     """
     manager = _pylab_helpers.Gcf.get_active()
     if manager is not None:
@@ -745,8 +762,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         all_labels = get_figlabels()
         if fig_label not in all_labels:
             if fig_label == 'all':
-                cbook._warn_external(
-                    "close('all') closes all existing figures.")
+                _api.warn_external("close('all') closes all existing figures.")
             num = next_num
         else:
             inum = all_labels.index(fig_label)
@@ -758,7 +774,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     if manager is None:
         max_open_warning = rcParams['figure.max_open_warning']
         if len(allnums) == max_open_warning >= 1:
-            cbook._warn_external(
+            _api.warn_external(
                 f"More than {max_open_warning} figures have been opened. "
                 f"Figures created through the pyplot interface "
                 f"(`matplotlib.pyplot.figure`) are retained until explicitly "
@@ -850,7 +866,7 @@ def get_current_fig_manager():
     The figure manager is a container for the actual backend-depended window
     that displays the figure on screen.
 
-    If if no current figure exists, a new one is created an its figure
+    If no current figure exists, a new one is created, and its figure
     manager is returned.
 
     Returns
@@ -909,7 +925,7 @@ def close(fig=None):
         _pylab_helpers.Gcf.destroy_fig(fig)
     else:
         raise TypeError("close() argument must be a Figure, an int, a string, "
-                        "or None, not '%s'")
+                        "or None, not %s" % type(fig))
 
 
 def clf():
@@ -1007,7 +1023,7 @@ def axes(arg=None, **kwargs):
         arguments if another projection is used, see the actual axes
         class.
 
-        %(Axes)s
+        %(Axes:kwdoc)s
 
     Notes
     -----
@@ -1038,11 +1054,11 @@ def axes(arg=None, **kwargs):
         # Creating a new axes with specified dimensions and some kwargs
         plt.axes((left, bottom, width, height), facecolor='w')
     """
-
+    fig = gcf()
     if arg is None:
-        return subplot(**kwargs)
+        return fig.add_subplot(**kwargs)
     else:
-        return gcf().add_axes(arg, **kwargs)
+        return fig.add_axes(arg, **kwargs)
 
 
 def delaxes(ax=None):
@@ -1073,10 +1089,10 @@ def cla():
 @docstring.dedent_interpd
 def subplot(*args, **kwargs):
     """
-    Add a subplot to the current figure.
+    Add an Axes to the current figure or retrieve an existing Axes.
 
-    Wrapper of `.Figure.add_subplot` with a difference in
-    behavior explained in the notes section.
+    This is a wrapper of `.Figure.add_subplot` which provides additional
+    behavior when working with the implicit API (see the notes section).
 
     Call signatures::
 
@@ -1139,12 +1155,12 @@ def subplot(*args, **kwargs):
         the following table but there might also be other keyword
         arguments if another projection is used.
 
-        %(Axes)s
+        %(Axes:kwdoc)s
 
     Notes
     -----
-    Creating a subplot will delete any pre-existing subplot that overlaps
-    with it beyond sharing a boundary::
+    Creating a new Axes will delete any pre-existing Axes that
+    overlaps with it beyond sharing a boundary::
 
         import matplotlib.pyplot as plt
         # plot a line, implicitly creating a subplot(111)
@@ -1157,18 +1173,19 @@ def subplot(*args, **kwargs):
     If you do not want this behavior, use the `.Figure.add_subplot` method
     or the `.pyplot.axes` function instead.
 
-    If the figure already has a subplot with key (*args*,
-    *kwargs*) then it will simply make that subplot current and
-    return it.  This behavior is deprecated. Meanwhile, if you do
-    not want this behavior (i.e., you want to force the creation of a
-    new subplot), you must use a unique set of args and kwargs.  The axes
-    *label* attribute has been exposed for this purpose: if you want
-    two subplots that are otherwise identical to be added to the figure,
-    make sure you give them unique labels.
+    If no *kwargs* are passed and there exists an Axes in the location
+    specified by *args* then that Axes will be returned rather than a new
+    Axes being created.
 
-    In rare circumstances, `.Figure.add_subplot` may be called with a single
-    argument, a subplot axes instance already created in the
-    present figure but not in the figure's list of axes.
+    If *kwargs* are passed and there exists an Axes in the location
+    specified by *args*, the projection type is the same, and the
+    *kwargs* match with the existing Axes, then the existing Axes is
+    returned.  Otherwise a new Axes is created with the specified
+    parameters.  We save a reference to the *kwargs* which we use
+    for this comparison.  If any of the values in *kwargs* are
+    mutable we will not detect the case where they are mutated.
+    In these cases we suggest using `.Figure.add_subplot` and the
+    explicit Axes API rather than the implicit pyplot API.
 
     See Also
     --------
@@ -1184,10 +1201,10 @@ def subplot(*args, **kwargs):
         plt.subplot(221)
 
         # equivalent but more general
-        ax1=plt.subplot(2, 2, 1)
+        ax1 = plt.subplot(2, 2, 1)
 
         # add a subplot with no frame
-        ax2=plt.subplot(222, frameon=False)
+        ax2 = plt.subplot(222, frameon=False)
 
         # add a polar subplot
         plt.subplot(223, projection='polar')
@@ -1200,29 +1217,65 @@ def subplot(*args, **kwargs):
 
         # add ax2 to the figure again
         plt.subplot(ax2)
+
+        # make the first axes "current" again
+        plt.subplot(221)
+
     """
+    # Here we will only normalize `polar=True` vs `projection='polar'` and let
+    # downstream code deal with the rest.
+    unset = object()
+    projection = kwargs.get('projection', unset)
+    polar = kwargs.pop('polar', unset)
+    if polar is not unset and polar:
+        # if we got mixed messages from the user, raise
+        if projection is not unset and projection != 'polar':
+            raise ValueError(
+                f"polar={polar}, yet projection={projection!r}. "
+                "Only one of these arguments should be supplied."
+            )
+        kwargs['projection'] = projection = 'polar'
 
     # if subplot called without arguments, create subplot(1, 1, 1)
     if len(args) == 0:
         args = (1, 1, 1)
 
-    # This check was added because it is very easy to type
-    # subplot(1, 2, False) when subplots(1, 2, False) was intended
-    # (sharex=False, that is). In most cases, no error will
-    # ever occur, but mysterious behavior can result because what was
-    # intended to be the sharex argument is instead treated as a
-    # subplot index for subplot()
+    # This check was added because it is very easy to type subplot(1, 2, False)
+    # when subplots(1, 2, False) was intended (sharex=False, that is). In most
+    # cases, no error will ever occur, but mysterious behavior can result
+    # because what was intended to be the sharex argument is instead treated as
+    # a subplot index for subplot()
     if len(args) >= 3 and isinstance(args[2], bool):
-        cbook._warn_external("The subplot index argument to subplot() appears "
-                             "to be a boolean. Did you intend to use "
-                             "subplots()?")
+        _api.warn_external("The subplot index argument to subplot() appears "
+                           "to be a boolean. Did you intend to use "
+                           "subplots()?")
     # Check for nrows and ncols, which are not valid subplot args:
     if 'nrows' in kwargs or 'ncols' in kwargs:
         raise TypeError("subplot() got an unexpected keyword argument 'ncols' "
                         "and/or 'nrows'.  Did you intend to call subplots()?")
 
     fig = gcf()
-    ax = fig.add_subplot(*args, **kwargs)
+
+    # First, search for an existing subplot with a matching spec.
+    key = SubplotSpec._from_subplot_args(fig, args)
+
+    for ax in fig.axes:
+        # if we found an axes at the position sort out if we can re-use it
+        if hasattr(ax, 'get_subplotspec') and ax.get_subplotspec() == key:
+            # if the user passed no kwargs, re-use
+            if kwargs == {}:
+                break
+            # if the axes class and kwargs are identical, reuse
+            elif ax._projection_init == fig._process_projection_requirements(
+                *args, **kwargs
+            ):
+                break
+    else:
+        # we have exhausted the known Axes and none match, make a new one!
+        ax = fig.add_subplot(*args, **kwargs)
+
+    fig.sca(ax)
+
     bbox = ax.bbox
     axes_to_delete = []
     for other_ax in fig.axes:
@@ -1236,8 +1289,7 @@ def subplot(*args, **kwargs):
     return ax
 
 
-@cbook._make_keyword_only("3.3", "sharex")
-def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
+def subplots(nrows=1, ncols=1, *, sharex=False, sharey=False, squeeze=True,
              subplot_kw=None, gridspec_kw=None, **fig_kw):
     """
     Create a figure and a set of subplots.
@@ -1350,7 +1402,7 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
         ax2.scatter(x, y)
 
         # Create four polar axes and access them through the returned array
-        fig, axs = plt.subplots(2, 2, subplot_kw=dict(polar=True))
+        fig, axs = plt.subplots(2, 2, subplot_kw=dict(projection="polar"))
         axs[0, 0].plot(x, y)
         axs[1, 1].scatter(x, y)
 
@@ -1378,8 +1430,9 @@ def subplots(nrows=1, ncols=1, sharex=False, sharey=False, squeeze=True,
     return fig, axs
 
 
-def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
-                   empty_sentinel='.', **fig_kw):
+def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
+                   subplot_kw=None, gridspec_kw=None, empty_sentinel='.',
+                   **fig_kw):
     """
     Build a layout of Axes based on ASCII art or nested lists.
 
@@ -1390,10 +1443,9 @@ def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
        This API is provisional and may be revised in the future based on
        early user feedback.
 
-
     Parameters
     ----------
-    layout : list of list of {hashable or nested} or str
+    mosaic : list of list of {hashable or nested} or str
 
         A visual layout of how you want your Axes to be arranged
         labeled as strings.  For example ::
@@ -1401,7 +1453,7 @@ def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
            x = [['A panel', 'A panel', 'edge'],
                 ['C panel', '.',       'edge']]
 
-        Produces 4 axes:
+        produces 4 axes:
 
         - 'A panel' which is 1 row high and spans the first two columns
         - 'edge' which is 2 rows high and is on the right edge
@@ -1421,6 +1473,12 @@ def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
         where each character is a column and each line is a row.
         This only allows only single character Axes labels and does
         not allow nesting but is very terse.
+
+    sharex, sharey : bool, default: False
+        If True, the x-axis (*sharex*) or y-axis (*sharey*) will be shared
+        among all subplots.  In that case, tick label visibility and axis units
+        behave as for `subplots`.  If False, each subplot's x- or y-axis will
+        be independent.
 
     subplot_kw : dict, optional
         Dictionary with keywords passed to the `.Figure.add_subplot` call
@@ -1446,14 +1504,15 @@ def subplot_mosaic(layout, *, subplot_kw=None, gridspec_kw=None,
        The new figure
 
     dict[label, Axes]
-       A dictionary mapping the labels to the Axes objects.
+       A dictionary mapping the labels to the Axes objects.  The order of
+       the axes is left-to-right and top-to-bottom of their position in the
+       total layout.
 
     """
     fig = figure(**fig_kw)
     ax_dict = fig.subplot_mosaic(
-        layout,
-        subplot_kw=subplot_kw,
-        gridspec_kw=gridspec_kw,
+        mosaic, sharex=sharex, sharey=sharey,
+        subplot_kw=subplot_kw, gridspec_kw=gridspec_kw,
         empty_sentinel=empty_sentinel
     )
     return fig, ax_dict
@@ -1571,27 +1630,6 @@ def subplot_tool(targetfig=None):
     tool_fig.subplots_adjust(top=0.9)
     manager.show()
     return SubplotTool(targetfig, tool_fig)
-
-
-# After deprecation elapses, this can be autogenerated by boilerplate.py.
-@cbook._make_keyword_only("3.3", "pad")
-def tight_layout(pad=1.08, h_pad=None, w_pad=None, rect=None):
-    """
-    Adjust the padding between and around subplots.
-
-    Parameters
-    ----------
-    pad : float, default: 1.08
-        Padding between the figure edge and the edges of subplots,
-        as a fraction of the font size.
-    h_pad, w_pad : float, default: *pad*
-        Padding (height/width) between edges of adjacent subplots,
-        as a fraction of the font size.
-    rect : tuple (left, bottom, right, top), default: (0, 0, 1, 1)
-        A rectangle in normalized figure coordinates into which the whole
-        subplots area (including labels) will fit.
-    """
-    gcf().tight_layout(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
 
 
 def box(on=None):
@@ -1743,10 +1781,10 @@ def xticks(ticks=None, labels=None, **kwargs):
 
     if labels is None:
         labels = ax.get_xticklabels()
+        for l in labels:
+            l.update(kwargs)
     else:
         labels = ax.set_xticklabels(labels, **kwargs)
-    for l in labels:
-        l.update(kwargs)
 
     return locs, labels
 
@@ -1803,10 +1841,10 @@ def yticks(ticks=None, labels=None, **kwargs):
 
     if labels is None:
         labels = ax.get_yticklabels()
+        for l in labels:
+            l.update(kwargs)
     else:
         labels = ax.set_yticklabels(labels, **kwargs)
-    for l in labels:
-        l.update(kwargs)
 
     return locs, labels
 
@@ -1851,7 +1889,7 @@ def rgrids(radii=None, labels=None, angle=None, fmt=None, **kwargs):
     Other Parameters
     ----------------
     **kwargs
-        *kwargs* are optional `~.Text` properties for the labels.
+        *kwargs* are optional `.Text` properties for the labels.
 
     See Also
     --------
@@ -1919,7 +1957,7 @@ def thetagrids(angles=None, labels=None, fmt=None, **kwargs):
     Other Parameters
     ----------------
     **kwargs
-        *kwargs* are optional `~.Text` properties for the labels.
+        *kwargs* are optional `.Text` properties for the labels.
 
     See Also
     --------
@@ -2358,7 +2396,7 @@ def matshow(A, fignum=None, **kwargs):
 
     Parameters
     ----------
-    A : array-like(M, N)
+    A : 2D array-like
         The matrix to be displayed.
 
     fignum : None or int or False
@@ -2410,10 +2448,13 @@ def polar(*args, **kwargs):
     """
     # If an axis already exists, check if it has a polar projection
     if gcf().get_axes():
-        if not isinstance(gca(), PolarAxes):
-            cbook._warn_external('Trying to create polar plot on an axis '
-                                 'that does not have a polar projection.')
-    ax = gca(polar=True)
+        ax = gca()
+        if isinstance(ax, PolarAxes):
+            return ax
+        else:
+            _api.warn_external('Trying to create polar plot on an Axes '
+                               'that does not have a polar projection.')
+    ax = axes(projection="polar")
     ret = ax.plot(*args, **kwargs)
     return ret
 
@@ -2494,6 +2535,12 @@ def subplots_adjust(
 @_copy_docstring_and_deprecators(Figure.suptitle)
 def suptitle(t, **kwargs):
     return gcf().suptitle(t, **kwargs)
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@_copy_docstring_and_deprecators(Figure.tight_layout)
+def tight_layout(*, pad=1.08, h_pad=None, w_pad=None, rect=None):
+    return gcf().tight_layout(pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -2595,6 +2642,16 @@ def barbs(*args, data=None, **kw):
 def barh(y, width, height=0.8, left=None, *, align='center', **kwargs):
     return gca().barh(
         y, width, height=height, left=left, align=align, **kwargs)
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+@_copy_docstring_and_deprecators(Axes.bar_label)
+def bar_label(
+        container, labels=None, *, fmt='%g', label_type='edge',
+        padding=0, **kwargs):
+    return gca().bar_label(
+        container, labels=labels, fmt=fmt, label_type=label_type,
+        padding=padding, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -2740,8 +2797,8 @@ def fill_betweenx(
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Axes.grid)
-def grid(b=None, which='major', axis='both', **kwargs):
-    return gca().grid(b=b, which=which, axis=axis, **kwargs)
+def grid(visible=None, which='major', axis='both', **kwargs):
+    return gca().grid(visible=visible, which=which, axis=axis, **kwargs)
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -2922,7 +2979,7 @@ def pie(
         pctdistance=0.6, shadow=False, labeldistance=1.1,
         startangle=0, radius=1, counterclock=True, wedgeprops=None,
         textprops=None, center=(0, 0), frame=False,
-        rotatelabels=False, *, normalize=None, data=None):
+        rotatelabels=False, *, normalize=True, data=None):
     return gca().pie(
         x, explode=explode, labels=labels, colors=colors,
         autopct=autopct, pctdistance=pctdistance, shadow=shadow,
@@ -2983,14 +3040,12 @@ def quiverkey(Q, X, Y, U, label, **kw):
 @_copy_docstring_and_deprecators(Axes.scatter)
 def scatter(
         x, y, s=None, c=None, marker=None, cmap=None, norm=None,
-        vmin=None, vmax=None, alpha=None, linewidths=None,
-        verts=_api.deprecation._deprecated_parameter, edgecolors=None,
-        *, plotnonfinite=False, data=None, **kwargs):
+        vmin=None, vmax=None, alpha=None, linewidths=None, *,
+        edgecolors=None, plotnonfinite=False, data=None, **kwargs):
     __ret = gca().scatter(
         x, y, s=s, c=c, marker=marker, cmap=cmap, norm=norm,
         vmin=vmin, vmax=vmax, alpha=alpha, linewidths=linewidths,
-        verts=verts, edgecolors=edgecolors,
-        plotnonfinite=plotnonfinite,
+        edgecolors=edgecolors, plotnonfinite=plotnonfinite,
         **({"data": data} if data is not None else {}), **kwargs)
     sci(__ret)
     return __ret

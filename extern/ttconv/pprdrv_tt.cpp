@@ -121,10 +121,7 @@ BYTE *GetTable(struct TTFONT *font, const char *name)
 {
     BYTE *ptr;
     ULONG x;
-
-#ifdef DEBUG_TRUETYPE
     debug("GetTable(file,font,\"%s\")",name);
-#endif
 
     /* We must search the table directory. */
     ptr = font->offset_table + 12;
@@ -142,9 +139,7 @@ BYTE *GetTable(struct TTFONT *font, const char *name)
 
             try
             {
-#ifdef DEBUG_TRUETYPE
                 debug("Loading table \"%s\" from offset %d, %d bytes",name,offset,length);
-#endif
 
                 if ( fseek( font->file, (long)offset, SEEK_SET ) )
                 {
@@ -200,10 +195,7 @@ void Read_name(struct TTFONT *font)
     int platform;                       /* Current platform id */
     int nameid;                         /* name id, */
     int offset,length;                  /* offset and length of string. */
-
-#ifdef DEBUG_TRUETYPE
     debug("Read_name()");
-#endif
 
     table_ptr = NULL;
 
@@ -235,11 +227,8 @@ void Read_name(struct TTFONT *font)
             nameid = getUSHORT(ptr2+6);
             length = getUSHORT(ptr2+8);
             offset = getUSHORT(ptr2+10);
-
-#ifdef DEBUG_TRUETYPE
             debug("platform %d, encoding %d, language 0x%x, name %d, offset %d, length %d",
                   platform,encoding,language,nameid,offset,length);
-#endif
 
             /* Copyright notice */
             if ( platform == 1 && nameid == 0 )
@@ -248,10 +237,7 @@ void Read_name(struct TTFONT *font)
                 strncpy(font->Copyright,(const char*)strings+offset,length);
                 font->Copyright[length]='\0';
                 replace_newlines_with_spaces(font->Copyright);
-
-#ifdef DEBUG_TRUETYPE
                 debug("font->Copyright=\"%s\"",font->Copyright);
-#endif
                 continue;
             }
 
@@ -264,10 +250,7 @@ void Read_name(struct TTFONT *font)
                 strncpy(font->FamilyName,(const char*)strings+offset,length);
                 font->FamilyName[length]='\0';
                 replace_newlines_with_spaces(font->FamilyName);
-
-#ifdef DEBUG_TRUETYPE
                 debug("font->FamilyName=\"%s\"",font->FamilyName);
-#endif
                 continue;
             }
 
@@ -280,10 +263,7 @@ void Read_name(struct TTFONT *font)
                 strncpy(font->Style,(const char*)strings+offset,length);
                 font->Style[length]='\0';
                 replace_newlines_with_spaces(font->Style);
-
-#ifdef DEBUG_TRUETYPE
                 debug("font->Style=\"%s\"",font->Style);
-#endif
                 continue;
             }
 
@@ -296,10 +276,7 @@ void Read_name(struct TTFONT *font)
                 strncpy(font->FullName,(const char*)strings+offset,length);
                 font->FullName[length]='\0';
                 replace_newlines_with_spaces(font->FullName);
-
-#ifdef DEBUG_TRUETYPE
                 debug("font->FullName=\"%s\"",font->FullName);
-#endif
                 continue;
             }
 
@@ -312,10 +289,7 @@ void Read_name(struct TTFONT *font)
                 strncpy(font->Version,(const char*)strings+offset,length);
                 font->Version[length]='\0';
                 replace_newlines_with_spaces(font->Version);
-
-#ifdef DEBUG_TRUETYPE
                 debug("font->Version=\"%s\"",font->Version);
-#endif
                 continue;
             }
 
@@ -328,10 +302,7 @@ void Read_name(struct TTFONT *font)
                 strncpy(font->PostName,(const char*)strings+offset,length);
                 font->PostName[length]='\0';
                 replace_newlines_with_spaces(font->PostName);
-
-#ifdef DEBUG_TRUETYPE
                 debug("font->PostName=\"%s\"",font->PostName);
-#endif
                 continue;
             }
 
@@ -343,10 +314,7 @@ void Read_name(struct TTFONT *font)
                 utf16be_to_ascii(font->PostName, (char *)strings+offset, length);
                 font->PostName[length/2]='\0';
                 replace_newlines_with_spaces(font->PostName);
-
-#ifdef DEBUG_TRUETYPE
                 debug("font->PostName=\"%s\"",font->PostName);
-#endif
                 continue;
             }
 
@@ -358,10 +326,7 @@ void Read_name(struct TTFONT *font)
                 strncpy(font->Trademark,(const char*)strings+offset,length);
                 font->Trademark[length]='\0';
                 replace_newlines_with_spaces(font->Trademark);
-
-#ifdef DEBUG_TRUETYPE
                 debug("font->Trademark=\"%s\"",font->Trademark);
-#endif
                 continue;
             }
         }
@@ -677,10 +642,7 @@ void sfnts_glyf_table(TTStreamWriter& stream, struct TTFONT *font, ULONG oldoffs
     ULONG total=0;              /* running total of bytes written to table */
     int x;
     bool loca_is_local=false;
-
-#ifdef DEBUG_TRUETYPE
     debug("sfnts_glyf_table(font,%d)", (int)correct_total_length);
-#endif
 
     if (font->loca_table == NULL)
     {
@@ -709,10 +671,7 @@ void sfnts_glyf_table(TTStreamWriter& stream, struct TTFONT *font, ULONG oldoffs
             length = getULONG( font->loca_table + ((x+1) * 4) );
             length -= off;
         }
-
-#ifdef DEBUG_TRUETYPE
         debug("glyph length=%d",(int)length);
-#endif
 
         /* Start new string if necessary. */
         sfnts_new_table( stream, (int)length );
@@ -847,12 +806,10 @@ void ttfont_sfnts(TTStreamWriter& stream, struct TTFONT *font)
         sfnts_pputUSHORT(stream, 3);          /* entrySelector */
         sfnts_pputUSHORT(stream, 81);         /* rangeShift */
     }
-#ifdef DEBUG_TRUETYPE
     else
     {
         debug("only %d tables selected",count);
     }
-#endif
 
     /* Now, emmit the table directory. */
     for (x=0; x < 9; x++)
@@ -885,10 +842,7 @@ void ttfont_sfnts(TTStreamWriter& stream, struct TTFONT *font)
         {
             continue;
         }
-
-#ifdef DEBUG_TRUETYPE
         debug("emmiting table '%s'",table_names[x]);
-#endif
 
         /* 'glyf' table gets special treatment */
         if ( strcmp(table_names[x],"glyf")==0 )
@@ -1278,9 +1232,7 @@ void read_font(const char *filename, font_type_enum target_type, std::vector<int
 
     /* Determine how many directory entries there are. */
     font.numTables = getUSHORT( font.offset_table + 4 );
-#ifdef DEBUG_TRUETYPE
     debug("numTables=%d",(int)font.numTables);
-#endif
 
     /* Expand the memory block to hold the whole thing. */
     font.offset_table = (BYTE*)realloc( font.offset_table, sizeof(BYTE) * (12 + font.numTables * 16) );
@@ -1301,9 +1253,7 @@ void read_font(const char *filename, font_type_enum target_type, std::vector<int
         font.MfrRevision = getFixed( ptr + 4 );           /* font revision number */
         font.unitsPerEm = getUSHORT( ptr + 18 );
         font.HUPM = font.unitsPerEm / 2;
-#ifdef DEBUG_TRUETYPE
         debug("unitsPerEm=%d",(int)font.unitsPerEm);
-#endif
         font.llx = topost2( getFWord( ptr + 36 ) );               /* bounding box info */
         font.lly = topost2( getFWord( ptr + 38 ) );
         font.urx = topost2( getFWord( ptr + 40 ) );
@@ -1336,8 +1286,7 @@ void read_font(const char *filename, font_type_enum target_type, std::vector<int
     /* If we are generating a Type 3 font, we will need to */
     /* have the 'loca' and 'glyf' tables arround while */
     /* we are generating the CharStrings. */
-    if (font.target_type == PS_TYPE_3 || font.target_type == PDF_TYPE_3 ||
-            font.target_type == PS_TYPE_42_3_HYBRID)
+    if (font.target_type == PS_TYPE_3 || font.target_type == PS_TYPE_42_3_HYBRID)
     {
         BYTE *ptr;                      /* We need only one value */
         ptr = GetTable(&font, "hhea");
@@ -1400,38 +1349,6 @@ void insert_ttfont(const char *filename, TTStreamWriter& stream,
     ttfont_trailer(stream, &font);
 
 } /* end of insert_ttfont() */
-
-class StringStreamWriter : public TTStreamWriter
-{
-    std::ostringstream oss;
-
-public:
-    void write(const char* a)
-    {
-        oss << a;
-    }
-
-    std::string str()
-    {
-        return oss.str();
-    }
-};
-
-void get_pdf_charprocs(const char *filename, std::vector<int>& glyph_ids, TTDictionaryCallback& dict)
-{
-    struct TTFONT font;
-
-    read_font(filename, PDF_TYPE_3, glyph_ids, font);
-
-    for (std::vector<int>::const_iterator i = glyph_ids.begin();
-            i != glyph_ids.end(); ++i)
-    {
-        StringStreamWriter writer;
-        tt_type3_charproc(writer, &font, *i);
-        const char* name = ttfont_CharStrings_getname(&font, *i);
-        dict.add_pair(name, writer.str().c_str());
-    }
-}
 
 TTFONT::TTFONT() :
     file(NULL),

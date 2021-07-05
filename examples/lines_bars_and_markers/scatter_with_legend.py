@@ -12,8 +12,9 @@ can be adjusted by giving ``alpha`` a value between 0 and 1.
 """
 
 import numpy as np
-np.random.seed(19680801)
 import matplotlib.pyplot as plt
+
+np.random.seed(19680801)
 
 
 fig, ax = plt.subplots()
@@ -100,16 +101,11 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The usage of the following functions and methods is shown in this example:
-
-import matplotlib
-matplotlib.axes.Axes.scatter
-matplotlib.pyplot.scatter
-matplotlib.axes.Axes.legend
-matplotlib.pyplot.legend
-matplotlib.collections.PathCollection.legend_elements
+#    - `matplotlib.axes.Axes.scatter` / `matplotlib.pyplot.scatter`
+#    - `matplotlib.axes.Axes.legend` / `matplotlib.pyplot.legend`
+#    - `matplotlib.collections.PathCollection.legend_elements`

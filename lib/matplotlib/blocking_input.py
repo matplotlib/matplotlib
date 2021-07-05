@@ -22,10 +22,11 @@ Classes used for blocking interaction with figure windows:
 import logging
 from numbers import Integral
 
-from matplotlib import cbook
+from matplotlib import _api
 from matplotlib.backend_bases import MouseButton
 import matplotlib.lines as mlines
 
+_api.warn_deprecated("3.5", name=__name__, obj_type="module")
 _log = logging.getLogger(__name__)
 
 
@@ -78,7 +79,7 @@ class BlockingInput:
 
     def __call__(self, n=1, timeout=30):
         """Blocking call to retrieve *n* events."""
-        cbook._check_isinstance(Integral, n=n)
+        _api.check_isinstance(Integral, n=n)
         self.n = n
         self.events = []
 

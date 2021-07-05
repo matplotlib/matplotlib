@@ -1,0 +1,15 @@
+Qt4-based backends
+~~~~~~~~~~~~~~~~~~
+The qt4agg and qt4cairo backends have been removed. Qt4 has reached its
+end-of-life in 2015 and there are no releases of either PyQt4 or PySide for
+recent versions of Python. Please use one of the Qt5 or Qt6 backends.
+
+``qt_compat.is_pyqt5``
+~~~~~~~~~~~~~~~~~~~~~~
+This function has been removed due to the release of PyQt6. The Qt version can
+be checked using ``QtCore.qVersion()``.
+
+``matplotlib.backends.qt_editor.formsubplottool``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This module has been removed.  Use
+``matplotlib.backends.backend_qt5.SubplotToolQt`` instead.

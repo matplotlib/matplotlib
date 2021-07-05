@@ -230,3 +230,13 @@ ax.set_ylabel('response')
 plt.setp(bp['whiskers'], color='k', linestyle='-')
 plt.setp(bp['fliers'], markersize=3.0)
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.axes.Axes.boxplot` / `matplotlib.pyplot.boxplot`
+#    - `matplotlib.artist.Artist.set` / `matplotlib.pyplot.setp`

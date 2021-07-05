@@ -1,0 +1,4 @@
+``is_url`` and ``URL_REGEX``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated.  (They were previously defined in the toplevel
+:mod:`matplotlib` module.)

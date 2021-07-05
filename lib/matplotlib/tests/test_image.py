@@ -11,12 +11,14 @@ import numpy as np
 from numpy.testing import assert_array_equal
 from PIL import Image
 
+import matplotlib as mpl
 from matplotlib import (
-    colors, image as mimage, patches, pyplot as plt, style, rcParams)
+    _api, colors, image as mimage, patches, pyplot as plt, style, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.transforms import Bbox, Affine2D, TransformedBbox
+import matplotlib.ticker as mticker
 
 import pytest
 
@@ -285,11 +287,11 @@ def test_cursor_data():
 
     # Hmm, something is wrong here... I get 0, not None...
     # But, this works further down in the tests with extents flipped
-    #x, y = 0.1, -0.1
-    #xdisp, ydisp = ax.transData.transform([x, y])
-    #event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    #z = im.get_cursor_data(event)
-    #assert z is None, "Did not get None, got %d" % z
+    # x, y = 0.1, -0.1
+    # xdisp, ydisp = ax.transData.transform([x, y])
+    # event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    # z = im.get_cursor_data(event)
+    # assert z is None, "Did not get None, got %d" % z
 
     ax.clear()
     # Now try with the extents flipped.
@@ -324,12 +326,21 @@ def test_cursor_data():
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
     assert im.get_cursor_data(event) is None
 
+    # Now try with additional transform applied to the image artist
+    trans = Affine2D().scale(2).rotate(0.5)
+    im = ax.imshow(np.arange(100).reshape(10, 10),
+                   transform=trans + ax.transData)
+    x, y = 3, 10
+    xdisp, ydisp = ax.transData.transform([x, y])
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.get_cursor_data(event) == 44
+
 
 @pytest.mark.parametrize(
     "data, text_without_colorbar, text_with_colorbar", [
         ([[10001, 10000]], "[1e+04]", "[10001]"),
         ([[.123, .987]], "[0.123]", "[0.123]"),
-])
+    ])
 def test_format_cursor_data(data, text_without_colorbar, text_with_colorbar):
     from matplotlib.backend_bases import MouseEvent
 
@@ -496,6 +507,18 @@ def test_image_composite_alpha():
     ax.set_ylim([5, 0])
 
 
+@check_figures_equal(extensions=["pdf"])
+def test_clip_path_disables_compositing(fig_test, fig_ref):
+    t = np.arange(9).reshape((3, 3))
+    for fig in [fig_test, fig_ref]:
+        ax = fig.add_subplot()
+        ax.imshow(t, clip_path=(mpl.path.Path([(0, 0), (0, 1), (1, 0)]),
+                                ax.transData))
+        ax.imshow(t, clip_path=(mpl.path.Path([(1, 1), (1, 2), (2, 1)]),
+                                ax.transData))
+    fig_ref.suppressComposite = True
+
+
 @image_comparison(['rasterize_10dpi'],
                   extensions=['pdf', 'svg'], remove_text=True, style='mpl20')
 def test_rasterize_dpi():
@@ -522,8 +545,7 @@ def test_rasterize_dpi():
     for ax in axs:
         ax.set_xticks([])
         ax.set_yticks([])
-        for spine in ax.spines.values():
-            spine.set_visible(False)
+        ax.spines[:].set_visible(False)
 
     rcParams['savefig.dpi'] = 10
 
@@ -627,7 +649,7 @@ def test_jpeg_alpha():
     # If this fails, there will be only one color (all black). If this
     # is working, we should have all 256 shades of grey represented.
     num_colors = len(image.getcolors(256))
-    assert 175 <= num_colors <= 185
+    assert 175 <= num_colors <= 210
     # The fully transparent part should be red.
     corner_pixel = image.getpixel((0, 0))
     assert corner_pixel == (254, 0, 0)
@@ -705,8 +727,10 @@ def test_load_from_url():
     url = ('file:'
            + ('///' if sys.platform == 'win32' else '')
            + path.resolve().as_posix())
-    plt.imread(url)
-    plt.imread(urllib.request.urlopen(url))
+    with _api.suppress_matplotlib_deprecation_warning():
+        plt.imread(url)
+    with urllib.request.urlopen(url) as file:
+        plt.imread(file)
 
 
 @image_comparison(['log_scale_image'], remove_text=True)
@@ -969,6 +993,13 @@ def test_empty_imshow(make_norm):
         im.make_image(fig._cachedRenderer)
 
 
+def test_imshow_float16():
+    fig, ax = plt.subplots()
+    ax.imshow(np.zeros((3, 3), dtype=np.float16))
+    # Ensure that drawing doesn't cause crash.
+    fig.canvas.draw()
+
+
 def test_imshow_float128():
     fig, ax = plt.subplots()
     ax.imshow(np.zeros((3, 3), dtype=np.longdouble))
@@ -1086,7 +1117,7 @@ def test_image_array_alpha_validation():
         plt.imshow(np.zeros((2, 2)), alpha=[1, 1])
 
 
-@pytest.mark.style('mpl20')
+@mpl.style.context('mpl20')
 def test_exact_vmin():
     cmap = copy(plt.cm.get_cmap("autumn_r"))
     cmap.set_under(color="lightgrey")
@@ -1118,7 +1149,8 @@ def test_exact_vmin():
 @pytest.mark.network
 @pytest.mark.flaky
 def test_https_imread_smoketest():
-    v = mimage.imread('https://matplotlib.org/1.5.0/_static/logo2.png')
+    with _api.suppress_matplotlib_deprecation_warning():
+        v = mimage.imread('https://matplotlib.org/1.5.0/_static/logo2.png')
 
 
 # A basic ndarray subclass that implements a quantity
@@ -1201,20 +1233,70 @@ def test_imshow_quantitynd():
     fig.canvas.draw()
 
 
+@pytest.mark.parametrize('x', [-1, 1])
 @check_figures_equal(extensions=['png'])
-def test_huge_range_log(fig_test, fig_ref):
-    data = np.full((5, 5), -1, dtype=np.float64)
+def test_huge_range_log(fig_test, fig_ref, x):
+    # parametrize over bad lognorm -1 values and large range 1 -> 1e20
+    data = np.full((5, 5), x, dtype=np.float64)
     data[0:2, :] = 1E20
 
     ax = fig_test.subplots()
-    im = ax.imshow(data, norm=colors.LogNorm(vmin=100, vmax=data.max()),
-                   interpolation='nearest', cmap='viridis')
+    ax.imshow(data, norm=colors.LogNorm(vmin=1, vmax=data.max()),
+              interpolation='nearest', cmap='viridis')
 
-    data = np.full((5, 5), -1, dtype=np.float64)
+    data = np.full((5, 5), x, dtype=np.float64)
     data[0:2, :] = 1000
 
-    cmap = copy(plt.get_cmap('viridis'))
-    cmap.set_under('w')
     ax = fig_ref.subplots()
-    im = ax.imshow(data, norm=colors.Normalize(vmin=100, vmax=data.max()),
-                   interpolation='nearest', cmap=cmap)
+    cmap = plt.get_cmap('viridis').with_extremes(under='w')
+    ax.imshow(data, norm=colors.Normalize(vmin=1, vmax=data.max()),
+              interpolation='nearest', cmap=cmap)
+
+
+@check_figures_equal()
+def test_spy_box(fig_test, fig_ref):
+    # setting up reference and test
+    ax_test = fig_test.subplots(1, 3)
+    ax_ref = fig_ref.subplots(1, 3)
+
+    plot_data = (
+        [[1, 1], [1, 1]],
+        [[0, 0], [0, 0]],
+        [[0, 1], [1, 0]],
+    )
+    plot_titles = ["ones", "zeros", "mixed"]
+
+    for i, (z, title) in enumerate(zip(plot_data, plot_titles)):
+        ax_test[i].set_title(title)
+        ax_test[i].spy(z)
+        ax_ref[i].set_title(title)
+        ax_ref[i].imshow(z, interpolation='nearest',
+                            aspect='equal', origin='upper', cmap='Greys',
+                            vmin=0, vmax=1)
+        ax_ref[i].set_xlim(-0.5, 1.5)
+        ax_ref[i].set_ylim(1.5, -0.5)
+        ax_ref[i].xaxis.tick_top()
+        ax_ref[i].title.set_y(1.05)
+        ax_ref[i].xaxis.set_ticks_position('both')
+        ax_ref[i].xaxis.set_major_locator(
+            mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True)
+        )
+        ax_ref[i].yaxis.set_major_locator(
+            mticker.MaxNLocator(nbins=9, steps=[1, 2, 5, 10], integer=True)
+        )
+
+
+@image_comparison(["nonuniform_and_pcolor.png"], style="mpl20")
+def test_nonuniform_and_pcolor():
+    axs = plt.figure(figsize=(3, 3)).subplots(3, sharex=True, sharey=True)
+    for ax, interpolation in zip(axs, ["nearest", "bilinear"]):
+        im = NonUniformImage(ax, interpolation=interpolation)
+        im.set_data(np.arange(3) ** 2, np.arange(3) ** 2,
+                    np.arange(9).reshape((3, 3)))
+        ax.add_image(im)
+    axs[2].pcolorfast(  # PcolorImage
+        np.arange(4) ** 2, np.arange(4) ** 2, np.arange(9).reshape((3, 3)))
+    for ax in axs:
+        ax.set_axis_off()
+        # NonUniformImage "leaks" out of extents, not PColorImage.
+        ax.set(xlim=(0, 10))

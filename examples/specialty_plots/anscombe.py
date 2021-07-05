@@ -55,15 +55,11 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.axline
-matplotlib.axes.Axes.text
-matplotlib.axes.Axes.tick_params
+#    - `matplotlib.axes.Axes.axline` / `matplotlib.pyplot.axline`
+#    - `matplotlib.axes.Axes.text` / `matplotlib.pyplot.text`
+#    - `matplotlib.axes.Axes.tick_params` / matplotlib.pyplot.tick_params`

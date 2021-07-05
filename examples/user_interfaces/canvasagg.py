@@ -14,14 +14,21 @@ code without using the pyplot interface to manage figures, figure closing etc.
     the backend to "Agg" would be sufficient.
 
 In this example, we show how to save the contents of the agg canvas to a file,
-and how to extract them to a string, which can in turn be passed off to PIL or
-put in a numpy array.  The latter functionality allows e.g. to use Matplotlib
-inside a cgi-script *without* needing to write a figure to disk.
+and how to extract them to a numpy array, which can in turn be passed off
+to Pillow_.  The latter functionality allows e.g. to use Matplotlib inside a
+cgi-script *without* needing to write a figure to disk, and to write images in
+any format supported by Pillow.
+
+.. _Pillow: https://pillow.readthedocs.io/
+.. redirect-from:: /gallery/misc/agg_buffer
+.. redirect-from:: /gallery/misc/agg_buffer_to_array
 """
 
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.figure import Figure
 import numpy as np
+from PIL import Image
+
 
 fig = Figure(figsize=(5, 4), dpi=100)
 # A canvas must be manually attached to the figure (pyplot would automatically
@@ -37,31 +44,27 @@ ax.plot([1, 2, 3])
 # etc.).
 fig.savefig("test.png")
 
-# Option 2: Retrieve a view on the renderer buffer...
+# Option 2: Retrieve a memoryview on the renderer buffer, and convert it to a
+# numpy array.
 canvas.draw()
-buf = canvas.buffer_rgba()
-# ... convert to a NumPy array ...
-X = np.asarray(buf)
+rgba = np.asarray(canvas.buffer_rgba())
 # ... and pass it to PIL.
-from PIL import Image
-im = Image.fromarray(X)
+im = Image.fromarray(rgba)
+# This image can then be saved to any format supported by Pillow, e.g.:
+im.save("test.bmp")
 
 # Uncomment this line to display the image using ImageMagick's `display` tool.
 # im.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.backends.backend_agg.FigureCanvasAgg
-matplotlib.figure.Figure
-matplotlib.figure.Figure.add_subplot
-matplotlib.figure.Figure.savefig
-matplotlib.axes.Axes.plot
+#    - `matplotlib.backends.backend_agg.FigureCanvasAgg`
+#    - `matplotlib.figure.Figure`
+#    - `matplotlib.figure.Figure.add_subplot`
+#    - `matplotlib.figure.Figure.savefig` / `matplotlib.pyplot.savefig`
+#    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`

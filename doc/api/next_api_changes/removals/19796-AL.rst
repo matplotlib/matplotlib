@@ -1,0 +1,3 @@
+Keymaps toggling ``Axes.get_navigate`` have been removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This includes numeric key events and the ``keymap.all_axes`` rcParam.

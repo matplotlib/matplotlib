@@ -27,20 +27,26 @@ plt.xlabel("t")
 plt.legend(fontsize=14)
 plt.show()
 
+##############################################################################
+# `~.axes.Axes.axline` can also be used with a ``transform`` parameter, which
+# applies to the point, but not to the slope. This can be useful for drawing
+# diagonal grid lines with a fixed slope, which stay in place when the
+# plot limits are moved.
+
+for pos in np.linspace(-2, 1, 10):
+    plt.axline((pos, 0), slope=0.5, color='k', transform=plt.gca().transAxes)
+
+plt.ylim([0, 1])
+plt.xlim([0, 1])
+plt.show()
+
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.pyplot.axhline
-matplotlib.pyplot.axvline
-matplotlib.pyplot.axline
-matplotlib.axes.Axes.axhline
-matplotlib.axes.Axes.axvline
-matplotlib.axes.Axes.axline
+#    - `matplotlib.axes.Axes.axhline` / `matplotlib.pyplot.axhline`
+#    - `matplotlib.axes.Axes.axvline` / `matplotlib.pyplot.axvline`
+#    - `matplotlib.axes.Axes.axline` / `matplotlib.pyplot.axline`

@@ -1,6 +1,6 @@
 
 
-Overview
+Contents
 ========
 
 .. only:: html
@@ -14,12 +14,14 @@ Overview
 .. toctree::
    :maxdepth: 2
 
-   users/index.rst
-   faq/index.rst
+   users/installing.rst
+   plot_types/index.rst
+   gallery/index.rst
+   tutorials/index.rst
    api/index.rst
-   resources/index.rst
-   thirdpartypackages/index.rst
+   users/index.rst
    devel/index.rst
+   Third-party packages <https://matplotlib.org/mpl-third-party/>
 
 .. only:: html
 
