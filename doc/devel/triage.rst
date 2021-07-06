@@ -62,7 +62,7 @@ The following actions are typically useful:
    explores how to lead online discussions in the context of open source.
 
 
-Triage Team
+Triage team
 -----------
 
 

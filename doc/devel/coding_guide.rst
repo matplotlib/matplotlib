@@ -85,7 +85,7 @@ Organizational topics:
 
 .. _pr-guidelines-details:
 
-Detailed Guidelines
+Detailed guidelines
 ===================
 
 .. _pr-documentation:
@@ -246,7 +246,7 @@ Number of commits and squashing
 
 .. _branches_and_backports:
 
-Branches and Backports
+Branches and backports
 ======================
 
 Current branches

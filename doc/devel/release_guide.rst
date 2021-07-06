@@ -3,7 +3,7 @@
 .. _release-guide:
 
 =============
-Release Guide
+Release guide
 =============
 
 
@@ -45,8 +45,8 @@ is currently broken::
 
 .. _release_ghstats:
 
-GitHub Stats
-============
+GitHub statistics
+=================
 
 
 We automatically extract GitHub issue, PRs, and authors from GitHub via the
@@ -85,7 +85,7 @@ most common issue is ``*`` which is interpreted as unclosed markup).
 
 .. _release_chkdocs:
 
-Update and Validate the Docs
+Update and validate the docs
 ============================
 
 Merge ``*-doc`` branch
@@ -101,7 +101,7 @@ When making major or minor releases, update the supported versions in the
 Security Policy in :file:`SECURITY.md`.  Commonly, this may be one or two
 previous minor releases, but is dependent on release managers.
 
-Update "What's New" and "API changes"
+Update "What's new" and "API changes"
 -------------------------------------
 
 Before tagging major and minor releases, the "what's new" and "API changes"
@@ -216,7 +216,7 @@ On this branch un-comment the globs from :ref:`release_chkdocs`.  And then ::
 
 .. _release_DOI:
 
-Release Management / DOI
+Release management / DOI
 ========================
 
 Via the `GitHub UI
@@ -308,7 +308,7 @@ Congratulations, you have now done the second scariest part!
 
 .. _release_docs:
 
-Build and Deploy Documentation
+Build and deploy documentation
 ==============================
 
 To build the documentation you must have the tagged version installed, but

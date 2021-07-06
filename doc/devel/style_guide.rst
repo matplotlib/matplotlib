@@ -1,6 +1,6 @@
 
 =========================
-Documentation Style Guide
+Documentation style guide
 =========================
 
 This guide contains best practices for the language and formatting of Matplotlib

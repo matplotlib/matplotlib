@@ -1,7 +1,7 @@
 .. _environment-variables:
 
 *********************
-Environment Variables
+Environment variables
 *********************
 
 .. contents::
