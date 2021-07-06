@@ -3139,9 +3139,17 @@ class PolygonSelector(_SelectorWidget):
     markerprops : dict, default: \
 ``dict(marker='o', markersize=7, mec='k', mfc='k', alpha=0.5)``.
         Artist properties for the markers drawn at the vertices of the polygon.
+        Deprecated, use *handle_props* instead.
+    handle_props : dict, default: \
+``dict(marker='o', markersize=7, mec='k', mfc='k', alpha=0.5)``.
+        Artist properties for the markers drawn at the vertices of the polygon.
     vertex_select_radius : float, default: 15px
         A vertex is selected (to complete the polygon or to move a vertex) if
         the mouse click is within *vertex_select_radius* pixels of the vertex.
+        Deprecated, use *handle_grab_distance* instead.
+    handle_grab_distance : float, default: 15px
+        A vertex is selected (to complete the polygon or to move a vertex) if
+        the mouse click is within *handle_grab_distance* pixels of the vertex.
 
     Examples
     --------
@@ -3154,8 +3162,11 @@ class PolygonSelector(_SelectorWidget):
     point.
     """
 
+    @_api.rename_parameter("3.5", "markerprops", "handle_props")
+    @_api.rename_parameter("3.5", "vertex_select_radius",
+                           "handle_grab_distance")
     def __init__(self, ax, onselect, useblit=False,
-                 lineprops=None, markerprops=None, vertex_select_radius=15):
+                 lineprops=None, handle_props=None, handle_grab_distance=15):
         # The state modifiers 'move', 'square', and 'center' are expected by
         # _SelectorWidget but are not supported by PolygonSelector
         # Note: could not use the existing 'move' state modifier in-place of
@@ -3177,15 +3188,15 @@ class PolygonSelector(_SelectorWidget):
         self.line = Line2D(self._xs, self._ys, **lineprops)
         self.ax.add_line(self.line)
 
-        if markerprops is None:
-            markerprops = dict(markeredgecolor='k',
-                               markerfacecolor=lineprops.get('color', 'k'))
+        if handle_props is None:
+            handle_props = dict(markeredgecolor='k',
+                                markerfacecolor=lineprops.get('color', 'k'))
         self._polygon_handles = ToolHandles(self.ax, self._xs, self._ys,
                                             useblit=self.useblit,
-                                            marker_props=markerprops)
+                                            marker_props=handle_props)
 
         self._active_handle_idx = -1
-        self.vertex_select_radius = vertex_select_radius
+        self.handle_grab_distance = handle_grab_distance
 
         self.artists = [self.line, self._polygon_handles.artist]
         self.set_visible(True)
@@ -3223,7 +3234,7 @@ class PolygonSelector(_SelectorWidget):
         if ((self._polygon_completed or 'move_vertex' in self._state)
                 and len(self._xs) > 0):
             h_idx, h_dist = self._polygon_handles.closest(event.x, event.y)
-            if h_dist < self.vertex_select_radius:
+            if h_dist < self.handle_grab_distance:
                 self._active_handle_idx = h_idx
         # Save the vertex positions at the time of the press event (needed to
         # support the 'move_all' state modifier).
@@ -3297,7 +3308,7 @@ class PolygonSelector(_SelectorWidget):
                                                           self._ys[0]))
             v0_dist = np.hypot(x0 - event.x, y0 - event.y)
             # Lock on to the start vertex if near it and ready to complete.
-            if len(self._xs) > 3 and v0_dist < self.vertex_select_radius:
+            if len(self._xs) > 3 and v0_dist < self.handle_grab_distance:
                 self._xs[-1], self._ys[-1] = self._xs[0], self._ys[0]
             else:
                 self._xs[-1], self._ys[-1] = event.xdata, event.ydata
