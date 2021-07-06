@@ -1015,8 +1015,10 @@ class TextBox(AxesWidget):
         """
         super().__init__(ax)
 
-        ha_dist = {"left": 0.05, "center": 0.5, "right": 0.95}
-        self.DIST = ha_dist[ha]
+        self.text_position = {
+            "left": 0.05,
+            "center": 0.5,
+            "right": 0.95}[textalignment]
 
         self.label = ax.text(
             -label_pad, 0.5, label, transform=ax.transAxes,
