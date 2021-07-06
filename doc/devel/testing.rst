@@ -57,14 +57,6 @@ not need to be installed, but Matplotlib should be)::
   pytest lib/matplotlib/tests/test_simplification.py::test_clipping
 
 
-An alternative implementation that does not look at command line arguments
-and works from within Python is to run the tests from the Matplotlib library
-function :func:`matplotlib.test`::
-
-  import matplotlib
-  matplotlib.test()
-
-
 .. _command-line parameters: http://doc.pytest.org/en/latest/usage.html
 
 
