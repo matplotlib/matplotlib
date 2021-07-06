@@ -994,7 +994,7 @@ class TextBox(AxesWidget):
         lambda self: self._observers.callbacks['submit']))
 
     def __init__(self, ax, label, initial='',
-                 color='.95', hovercolor='1', label_pad=.01, ha="left"):
+                 color='.95', hovercolor='1', label_pad=.01, textalignment="left"):
         """
         Parameters
         ----------
@@ -1010,7 +1010,7 @@ class TextBox(AxesWidget):
             The color of the box when the mouse is over it.
         label_pad : float
             The distance between the label and the right side of the textbox.
-        ha :
+        textalignment :
             The horizontal location of the text
         """
         super().__init__(ax)
@@ -1026,7 +1026,7 @@ class TextBox(AxesWidget):
 
         # TextBox's text object should not parse mathtext at all.
         self.text_disp = self.ax.text(
-            self.DIST, 0.5, initial, transform=self.ax.transAxes,
+            self.text_position, 0.5, initial, transform=self.ax.transAxes,
             verticalalignment='center', horizontalalignment=ha,
             parse_math=False)
 
@@ -1076,10 +1076,10 @@ class TextBox(AxesWidget):
         self.text_disp.set_text(widthtext or ",")
         bb_2 = self.text_disp.get_window_extent()
 
-        if bb_1.y0 == bb_1.y1:  # no text
+        if bb_1.y0 == bb_1.y1:  # if no text 
             bb_1.y0 -= (bb_2.y1-bb_2.y0)/2
             bb_1.y1 += (bb_2.y1-bb_2.y0)/2
-        elif not widthtext:  # cursor at index 0
+        elif not widthtext:  # if cursor at index 0
             bb_1.x1 = bb_1.x0
         else:
             bb_1.x1 = bb_1.x0 + (bb_2.x1 - bb_2.x0)
