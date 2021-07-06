@@ -436,16 +436,19 @@ def out_of_date(original, derived, includes=None):
     *derived* and *original* are full paths, and *includes* is optionally a
     list of full paths which may have been included in the *original*.
     """
+    if not os.path.exists(derived):
+        return True
+
     if includes is None:
         includes = []
     files_to_check = [original, *includes]
 
-    def out_of_date_one(original, derived):
-        return (not os.path.exists(derived) or
-                (os.path.exists(original) and
-                 os.stat(derived).st_mtime < os.stat(original).st_mtime))
+    def out_of_date_one(original, derived_mtime):
+        return (os.path.exists(original) and
+                derived_mtime < os.stat(original).st_mtime)
 
-    return any(out_of_date_one(f, derived) for f in files_to_check)
+    derived_mtime = os.stat(derived).st_mtime
+    return any(out_of_date_one(f, derived_mtime) for f in files_to_check)
 
 
 class PlotError(RuntimeError):
@@ -763,9 +766,9 @@ def run(arguments, content, options, state_machine, state, lineno):
     except AttributeError:
         # the document.include_log attribute only exists in docutils >=0.17,
         # before that we need to inspect the state machine
-        possible_sources = [os.path.join(setup.confdir, t[0])
-                            for t in state_machine.input_lines.items]
-        source_file_includes = [f for f in set(possible_sources)
+        possible_sources = {os.path.join(setup.confdir, t[0])
+                            for t in state_machine.input_lines.items}
+        source_file_includes = [f for f in possible_sources
                                 if os.path.isfile(f)]
     # remove the source file itself from the includes
     try:
