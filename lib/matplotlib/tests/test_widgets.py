@@ -98,7 +98,7 @@ def test_ellipse():
         pass
 
     tool = widgets.EllipseSelector(ax, onselect=onselect,
-                                   maxdist=10, interactive=True)
+                                   handle_grab_distance=10, interactive=True)
     tool.extents = (100, 150, 100, 150)
 
     # drag the rectangle
@@ -152,8 +152,9 @@ def test_rectangle_handles():
         pass
 
     tool = widgets.RectangleSelector(ax, onselect=onselect,
-                                     maxdist=10, interactive=True,
-                                     marker_props={'markerfacecolor': 'r',
+                                     handle_grab_distance=10,
+                                     interactive=True,
+                                     handle_props={'markerfacecolor': 'r',
                                                    'markeredgecolor': 'b'})
     tool.extents = (100, 150, 100, 150)
 

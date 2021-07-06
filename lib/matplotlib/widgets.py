@@ -2027,7 +2027,7 @@ class SpanSelector(_SelectorWidget):
 
     span_stays : bool, default: False
         If True, the span stays visible after the mouse is released.
-        Deprecated, use interactive instead.
+        Deprecated, use *interactive* instead.
 
     interactive : bool, default: False
         Whether to draw a set of handles that allow interaction with the
@@ -2511,12 +2511,14 @@ class RectangleSelector(_SelectorWidget):
 
     _shape_klass = Rectangle
 
+    @_api.rename_parameter("3.5", "maxdist", "handle_grab_distance")
+    @_api.rename_parameter("3.5", "marker_props", "handle_props")
     @_api.delete_parameter("3.5", "drawtype")
     @_api.delete_parameter("3.5", "lineprops")
     def __init__(self, ax, onselect, drawtype='box',
                  minspanx=0, minspany=0, useblit=False,
                  lineprops=None, rectprops=None, spancoords='data',
-                 button=None, maxdist=10, marker_props=None,
+                 button=None, handle_grab_distance=10, handle_props=None,
                  interactive=False, state_modifier_keys=None,
                  drag_from_anywhere=False):
         r"""
@@ -2569,9 +2571,18 @@ class RectangleSelector(_SelectorWidget):
 
         maxdist : float, default: 10
             Distance in pixels within which the interactive tool handles can be
+            activated. Deprecated, use *handle_grab_distance* instead.
+
+        handle_grab_distance : float, default: 10
+            Distance in pixels within which the interactive tool handles can be
             activated.
 
         marker_props : dict
+            Properties with which the interactive handles are drawn.  Currently
+            not implemented and ignored. Deprecated, use *handle_props*
+            instead.
+
+        handle_props : dict
             Properties with which the interactive handles are drawn.  Currently
             not implemented and ignored.
 
@@ -2643,13 +2654,13 @@ class RectangleSelector(_SelectorWidget):
         self.spancoords = spancoords
         self._drawtype = drawtype
 
-        self.maxdist = maxdist
+        self.handle_grab_distance = handle_grab_distance
 
         if rectprops is None:
             props = dict(markeredgecolor='r')
         else:
             props = dict(markeredgecolor=rectprops.get('edgecolor', 'r'))
-        props.update(cbook.normalize_kwargs(marker_props, Line2D._alias_map))
+        props.update(cbook.normalize_kwargs(handle_props, Line2D._alias_map))
         self._corner_order = ['NW', 'NE', 'SE', 'SW']
         xc, yc = self.corners
         self._corner_handles = ToolHandles(self.ax, xc, yc, marker_props=props,
@@ -2899,10 +2910,11 @@ class RectangleSelector(_SelectorWidget):
             self._active_handle = 'C'
             self._extents_on_press = self.extents
         # Set active handle as closest handle, if mouse click is close enough.
-        elif m_dist < self.maxdist * 2:
+        elif m_dist < self.handle_grab_distance * 2:
             # Prioritise center handle over other handles
             self._active_handle = 'C'
-        elif c_dist > self.maxdist and e_dist > self.maxdist:
+        elif (c_dist > self.handle_grab_distance and
+                  e_dist > self.handle_grab_distance):
             # Not close to any handles
             if self.drag_from_anywhere and self._contains(event):
                 # Check if we've clicked inside the region
