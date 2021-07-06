@@ -789,10 +789,10 @@ def test_aspects():
     extends = ['neither', 'both', 'both']
     cb = [[None, None, None], [None, None, None]]
     for nn, orient in enumerate(['vertical', 'horizontal']):
-        for mm in range(3):
+        for mm, (aspect, extend) in enumerate(zip(aspects, extends)):
             pc = ax[mm, nn].pcolormesh(np.arange(100).reshape(10, 10))
             cb[nn][mm] = fig.colorbar(pc, ax=ax[mm, nn], orientation=orient,
-                                      aspect=aspects[mm], extend=extends[mm])
+                                      aspect=aspect, extend=extend)
     fig.draw_no_output()
     # check the extends are right ratio:
     np.testing.assert_almost_equal(cb[0][1].ax.get_position().height,

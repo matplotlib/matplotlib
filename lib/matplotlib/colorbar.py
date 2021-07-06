@@ -231,7 +231,7 @@ class _ColorbarSpine(mspines.Spine):
 
 class _ColorbarAxesLocator:
     """
-    Shrink the axes if there triangular or rectangular extends.
+    Shrink the axes if there are triangular or rectangular extends.
     """
     def __init__(self, cbar):
         self._cbar = cbar
