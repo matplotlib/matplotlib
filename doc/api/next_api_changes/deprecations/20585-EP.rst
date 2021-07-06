@@ -1,0 +1,10 @@
+RectangleSelector and EllipseSelector
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``maxdist`` is deprecated, use ``handle_grab_distance`` argument instead
+``marker_props`` is deprecated, use ``handle_props`` argument instead
+
+PolygonSelector
+~~~~~~~~~~~~~~~
+``vertex_select_radius`` is deprecated, use ``handle_grab_distance`` argument instead
+``markerprops`` is deprecated, use ``handle_props`` argument instead
+
