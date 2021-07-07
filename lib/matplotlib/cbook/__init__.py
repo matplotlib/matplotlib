@@ -401,7 +401,7 @@ def to_filehandle(fname, flag='r', return_opened=False, encoding=None):
         if fname.endswith('.gz'):
             fh = gzip.open(fname, flag)
         elif fname.endswith('.bz2'):
-            # python may not be complied with bz2 support,
+            # python may not be compiled with bz2 support,
             # bury import until we need it
             import bz2
             fh = bz2.BZ2File(fname, flag)

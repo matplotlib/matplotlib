@@ -153,8 +153,8 @@ reliability and consistency in documentation. They are not interchangeable.
   |                  |                          |   motion."   |              |
   +------------------+--------------------------+--------------+--------------+
   | Explicit,        | Explicit approach of     | - Explicit   | - object     |
-  | Object Oriented  | programing in Matplotlib.| - explicit   |   oriented   |
-  | Programming (OOP)|                          | - OOP        | - OO-style   |
+  | Object Oriented  | programming in           | - explicit   |   oriented   |
+  | Programming (OOP)| Matplotlib.              | - OOP        | - OO-style   |
   +------------------+--------------------------+--------------+--------------+
   | Implicit,        | Implicit approach of     | - Implicit   | - MATLAB like|
   | ``pyplot``       | programming in Matplotlib| - implicit   | - Pyplot     |

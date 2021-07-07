@@ -1927,7 +1927,7 @@ class QuadMesh(Collection):
 
     A quadrilateral mesh is a grid of M by N adjacent qudrilaterals that are
     defined via a (M+1, N+1) grid of vertices. The quadrilateral (m, n) is
-    defind by the vertices ::
+    defined by the vertices ::
 
                (m+1, n) ----------- (m+1, n+1)
                   /                   /
