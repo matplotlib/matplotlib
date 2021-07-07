@@ -16,6 +16,7 @@ from numbers import Integral, Number
 import numpy as np
 
 import matplotlib as mpl
+from matplotlib import docstring
 from . import _api, cbook, colors, ticker
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
@@ -2576,6 +2577,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     """
 
 
+@docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING)
 class RectangleSelector(_SelectorWidget):
     """
     Select a rectangular region of an axes.
@@ -2600,7 +2602,6 @@ class RectangleSelector(_SelectorWidget):
 
     See also: :doc:`/gallery/widgets/rectangle_selector`
     """
-    __doc__ %= (_RECTANGLESELECTOR_PARAMETERS_DOCSTRING)
 
     _shape_klass = Rectangle
 
@@ -2968,6 +2969,7 @@ class RectangleSelector(_SelectorWidget):
             return np.array(self._to_draw.get_data())
 
 
+@docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING)
 class EllipseSelector(RectangleSelector):
     """
     Select an elliptical region of an axes.
@@ -3004,7 +3006,6 @@ class EllipseSelector(RectangleSelector):
     >>> fig.canvas.mpl_connect('key_press_event', toggle_selector)
     >>> plt.show()
     """
-    __doc__ %= (_RECTANGLESELECTOR_PARAMETERS_DOCSTRING)
 
     _shape_klass = Ellipse
     draw_shape = _api.deprecate_privatize_attribute('3.5')
