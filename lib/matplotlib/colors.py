@@ -1490,6 +1490,7 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     Norm.__name__ = base_norm_cls.__name__
     Norm.__qualname__ = base_norm_cls.__qualname__
     Norm.__module__ = base_norm_cls.__module__
+    Norm.__doc__ = base_norm_cls.__doc__
     Norm.__init__.__signature__ = bound_init_signature.replace(parameters=[
         inspect.Parameter("self", inspect.Parameter.POSITIONAL_OR_KEYWORD),
         *bound_init_signature.parameters.values()])
