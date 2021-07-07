@@ -2498,12 +2498,8 @@ class ToolHandles:
         return min_index, dist[min_index]
 
 
-class RectangleSelector(_SelectorWidget):
+_RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     r"""
-    Select a rectangular region of an axes.
-
-    For the cursor to remain responsive you must keep a reference to it.
-
     Parameters
     ----------
     ax : `~matplotlib.axes.Axes`
@@ -2577,11 +2573,34 @@ class RectangleSelector(_SelectorWidget):
     drag_from_anywhere : bool, optional
         If `True`, the widget can be moved by clicking anywhere within
         its bounds.
+    """
+
+
+class RectangleSelector(_SelectorWidget):
+    """
+    Select a rectangular region of an axes.
+
+    For the cursor to remain responsive you must keep a reference to it.
+
+    %s
 
     Examples
     --------
-    :doc:`/gallery/widgets/rectangle_selector`
+    >>> import matplotlib.pyplot as plt
+    >>> import matplotlib.widgets as mwidgets
+    >>> fig, ax = plt.subplots()
+    >>> ax.plot([1, 2, 3], [10, 50, 100])
+    >>> def onselect(eclick, erelease):
+    ...     print(eclick.xdata, eclick.ydata)
+    ...     print(erelease.xdata, erelease.ydata)
+    >>> rectprops = dict(facecolor='blue', alpha=0.5)
+    >>> rect = mwidgets.RectangleSelector(ax, onselect, rectprops=rectprops,
+                                          interactive=True)
+    >>> fig.show()
+
+    See also: :doc:`/gallery/widgets/rectangle_selector`
     """
+    __doc__ %= (_RECTANGLESELECTOR_PARAMETERS_DOCSTRING)
 
     _shape_klass = Rectangle
 
@@ -2955,36 +2974,38 @@ class EllipseSelector(RectangleSelector):
 
     For the cursor to remain responsive you must keep a reference to it.
 
-    Example usage::
+    %s
 
-        import numpy as np
-        import matplotlib.pyplot as plt
-        from matplotlib.widgets import EllipseSelector
-
-        def onselect(eclick, erelease):
-            "eclick and erelease are matplotlib events at press and release."
-            print('startposition: (%f, %f)' % (eclick.xdata, eclick.ydata))
-            print('endposition  : (%f, %f)' % (erelease.xdata, erelease.ydata))
-            print('used button  : ', eclick.button)
-
-        def toggle_selector(event):
-            print(' Key pressed.')
-            if event.key in ['Q', 'q'] and toggle_selector.ES.active:
-                print('EllipseSelector deactivated.')
-                toggle_selector.RS.set_active(False)
-            if event.key in ['A', 'a'] and not toggle_selector.ES.active:
-                print('EllipseSelector activated.')
-                toggle_selector.ES.set_active(True)
-
-        x = np.arange(100.) / 99
-        y = np.sin(x)
-        fig, ax = plt.subplots()
-        ax.plot(x, y)
-
-        toggle_selector.ES = EllipseSelector(ax, onselect)
-        fig.canvas.mpl_connect('key_press_event', toggle_selector)
-        plt.show()
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import matplotlib.pyplot as plt
+    >>> from matplotlib.widgets import EllipseSelector
+    >>> def onselect(eclick, erelease):
+    ...     "eclick and erelease are matplotlib events at press and release."
+    ...     print(f'startposition: {eclick.xdata}, {eclick.ydata})
+    ...     print(f'endposition  : {erelease.xdata}, {erelease.ydata})
+    ...     print('used button  : ', eclick.button)
+    ...
+    >>> def toggle_selector(event):
+    ...     print(' Key pressed.')
+    ...     if event.key in ['Q', 'q'] and toggle_selector.ES.active:
+    ...         print('EllipseSelector deactivated.')
+    ...         toggle_selector.RS.set_active(False)
+    ...     if event.key in ['A', 'a'] and not toggle_selector.ES.active:
+    ...         print('EllipseSelector activated.')
+    ...         toggle_selector.ES.set_active(True)
+    ...
+    >>> x = np.arange(100.) / 99
+    >>> y = np.sin(x)
+    >>> fig, ax = plt.subplots()
+    >>> ax.plot(x, y)
+    >>> toggle_selector.ES = EllipseSelector(ax, onselect)
+    >>> fig.canvas.mpl_connect('key_press_event', toggle_selector)
+    >>> plt.show()
     """
+    __doc__ %= (_RECTANGLESELECTOR_PARAMETERS_DOCSTRING)
+
     _shape_klass = Ellipse
     draw_shape = _api.deprecate_privatize_attribute('3.5')
 
