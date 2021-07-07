@@ -36,8 +36,8 @@ def get_glyphs_subset(fontfile, characters):
 
     options = subset.Options(glyph_names=True, recommended_glyphs=True)
 
-    # prevent subsetting FontForge Timestamp table
-    options.drop_tables += ['FFTM']
+    # prevent subsetting FontForge Timestamp and other tables
+    options.drop_tables += ['FFTM', 'PfEd']
 
     with subset.load_font(fontfile, options) as font:
         subsetter = subset.Subsetter(options=options)
