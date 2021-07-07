@@ -1516,16 +1516,13 @@ class Axis(martist.Artist):
         """
         if u == self.units:
             return
-        if self is self.axes.xaxis:
-            shared = [
-                ax.xaxis
-                for ax in self.axes.get_shared_x_axes().get_siblings(self.axes)
-            ]
-        elif self is self.axes.yaxis:
-            shared = [
-                ax.yaxis
-                for ax in self.axes.get_shared_y_axes().get_siblings(self.axes)
-            ]
+        for name, axis in self.axes._get_axis_map().items():
+            if self is axis:
+                shared = [
+                    getattr(ax, f"{name}axis")
+                    for ax
+                    in self.axes._shared_axes[name].get_siblings(self.axes)]
+                break
         else:
             shared = [self]
         for axis in shared:
@@ -1798,21 +1795,13 @@ class Axis(martist.Artist):
 
         # XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)
-        if self is self.axes.xaxis:
-            shared = [
-                ax.xaxis
-                for ax in self.axes.get_shared_x_axes().get_siblings(self.axes)
-            ]
-        elif self is self.axes.yaxis:
-            shared = [
-                ax.yaxis
-                for ax in self.axes.get_shared_y_axes().get_siblings(self.axes)
-            ]
-        elif hasattr(self.axes, "zaxis") and self is self.axes.zaxis:
-            shared = [
-                ax.zaxis
-                for ax in self.axes._shared_z_axes.get_siblings(self.axes)
-            ]
+        for name, axis in self.axes._get_axis_map().items():
+            if self is axis:
+                shared = [
+                    getattr(ax, f"{name}axis")
+                    for ax
+                    in self.axes._shared_axes[name].get_siblings(self.axes)]
+                break
         else:
             shared = [self]
         for axis in shared:
@@ -1880,7 +1869,7 @@ class Axis(martist.Artist):
         bboxes2 = []
         # If we want to align labels from other axes:
         for ax in grouper.get_siblings(self.axes):
-            axis = ax._get_axis_map()[axis_name]
+            axis = getattr(ax, f"{axis_name}axis")
             ticks_to_draw = axis._update_ticks()
             tlb, tlb2 = axis._get_tick_bboxes(ticks_to_draw, renderer)
             bboxes.extend(tlb)
