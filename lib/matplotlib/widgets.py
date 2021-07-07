@@ -1072,20 +1072,20 @@ class TextBox(AxesWidget):
         text = self.text_disp.get_text()  # Save value before overwriting it.
         widthtext = text[:self.cursor_index]
 
-        bb_1 = self.text_disp.get_window_extent()
+        bb_all = self.text_disp.get_window_extent()
         self.text_disp.set_text(widthtext or ",")
-        bb_2 = self.text_disp.get_window_extent()
+        bb_widthtext = self.text_disp.get_window_extent()
 
-        if bb_1.y0 == bb_1.y1:  # if no text 
-            bb_1.y0 -= (bb_2.y1-bb_2.y0)/2
-            bb_1.y1 += (bb_2.y1-bb_2.y0)/2
-        elif not widthtext:  # if cursor at index 0
-            bb_1.x1 = bb_1.x0
-        else:
-            bb_1.x1 = bb_1.x0 + (bb_2.x1 - bb_2.x0)
+        if bb_all.y0 == bb_1.y1:  # Restoring the height if no text. 
+            bb_all.y0 -= (bb_widthtext.y1-bb_widthtext.y0)/2
+            bb_all.y1 += (bb_widthtext.y1-bb_widthtext.y0)/2
+        elif not widthtext:  # Keep width to 0.
+            bb_all.x1 = bb_all.x0
+        else:  # Move the cursor using width of bb_2.
+            bb_all.x1 = bb_all.x0 + (bb_widthtext.x1 - bb_widthtext.x0)
 
         self.cursor.set(
-            segments=[[(bb_1.x1, bb_1.y0), (bb_1.x1, bb_1.y1)]], visible=True)
+            segments=[[(bb_all.x1, bb_all.y0), (bb_all.x1, bb_all.y1)]], visible=True)
         self.text_disp.set_text(text)
 
         self.ax.figure.canvas.draw()
