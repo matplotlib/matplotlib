@@ -304,6 +304,7 @@ html_theme_options = {
         },
 
     ],
+    "collapse_navigation": True,
 }
 include_analytics = False
 if include_analytics:
