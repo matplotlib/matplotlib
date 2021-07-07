@@ -267,9 +267,9 @@ class SliderBase(AxesWidget):
         self._fmt.set_useOffset(False)  # No additive offset.
         self._fmt.set_useMathText(True)  # x sign before multiplicative offset.
 
-        ax.set_xticks([])
-        ax.set_yticks([])
+        ax.set_axis_off()
         ax.set_navigate(False)
+
         self.connect_event("button_press_event", self._update)
         self.connect_event("button_release_event", self._update)
         if dragging:
@@ -329,7 +329,8 @@ class Slider(SliderBase):
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt=None,
                  closedmin=True, closedmax=True, slidermin=None,
                  slidermax=None, dragging=True, valstep=None,
-                 orientation='horizontal', *, initcolor='r', **kwargs):
+                 orientation='horizontal', *, initcolor='r',
+                 track_color='lightgrey', handle_style=None, **kwargs):
         """
         Parameters
         ----------
@@ -380,11 +381,30 @@ class Slider(SliderBase):
             The color of the line at the *valinit* position. Set to ``'none'``
             for no line.
 
+        track_color : color, default: 'lightgrey'
+            The color of the background track. The track is accessible for
+            further styling via the *track* attribute.
+
+        handle_style : dict
+            Properties of the slider handle. Default values are
+
+            ========= ===== ======= ========================================
+            Key       Value Default Description
+            ========= ===== ======= ========================================
+            facecolor color 'white' The facecolor of the slider handle.
+            edgecolor color '.75'   The edgecolor of the slider handle.
+            size      int   10      The size of the slider handle in points.
+            ========= ===== ======= ========================================
+
+            Other values will be transformed as marker{foo} and passed to the
+            `~.Line2D` constructor. e.g. ``handle_style = {'style'='x'}`` will
+            result in ``markerstyle = 'x'``.
+
         Notes
         -----
         Additional kwargs are passed on to ``self.poly`` which is the
-        `~matplotlib.patches.Rectangle` that draws the slider knob.  See the
-        `.Rectangle` documentation for valid property names (``facecolor``,
+        `~matplotlib.patches.Polygon` that draws the slider knob.  See the
+        `.Polygon` documentation for valid property names (``facecolor``,
         ``edgecolor``, ``alpha``, etc.).
         """
         super().__init__(ax, orientation, closedmin, closedmax,
@@ -403,12 +423,44 @@ class Slider(SliderBase):
             valinit = valmin
         self.val = valinit
         self.valinit = valinit
+
+        defaults = {'facecolor': 'white', 'edgecolor': '.75', 'size': 10}
+        handle_style = {} if handle_style is None else handle_style
+        marker_props = {
+            f'marker{k}': v for k, v in {**defaults, **handle_style}.items()
+        }
+
         if orientation == 'vertical':
-            self.poly = ax.axhspan(valmin, valinit, 0, 1, **kwargs)
-            self.hline = ax.axhline(valinit, 0, 1, color=initcolor, lw=1)
+            self.track = Rectangle(
+                (.25, 0), .5, 1,
+                transform=ax.transAxes,
+                facecolor=track_color
+            )
+            ax.add_patch(self.track)
+            self.poly = ax.axhspan(valmin, valinit, .25, .75, **kwargs)
+            self.hline = ax.axhline(valinit, .15, .85, color=initcolor, lw=1)
+            handleXY = [[0.5], [valinit]]
         else:
-            self.poly = ax.axvspan(valmin, valinit, 0, 1, **kwargs)
-            self.vline = ax.axvline(valinit, 0, 1, color=initcolor, lw=1)
+            self.track = Rectangle(
+                (0, .25), 1, .5,
+                transform=ax.transAxes,
+                facecolor=track_color
+            )
+            ax.add_patch(self.track)
+            self.poly = ax.axvspan(valmin, valinit, .25, .75, **kwargs)
+            # These asymmetric limits (.2, .9) minimize the asymmetry
+            # above and below the *poly* when rendered to pixels.
+            # This seems to be different for Horizontal and Vertical lines.
+            # For discussion see:
+            # https://github.com/matplotlib/matplotlib/pull/19265
+            self.vline = ax.axvline(valinit, .2, .9, color=initcolor, lw=1)
+            handleXY = [[valinit], [0.5]]
+        self._handle, = ax.plot(
+            *handleXY,
+            "o",
+            **marker_props,
+            clip_on=False
+        )
 
         if orientation == 'vertical':
             self.label = ax.text(0.5, 1.02, label, transform=ax.transAxes,
@@ -499,11 +551,13 @@ class Slider(SliderBase):
         """
         xy = self.poly.xy
         if self.orientation == 'vertical':
-            xy[1] = 0, val
-            xy[2] = 1, val
+            xy[1] = .25, val
+            xy[2] = .75, val
+            self._handle.set_ydata([val])
         else:
-            xy[2] = val, 1
-            xy[3] = val, 0
+            xy[2] = val, .75
+            xy[3] = val, .25
+            self._handle.set_xdata([val])
         self.poly.xy = xy
         self.valtext.set_text(self._format(val))
         if self.drawon:
@@ -558,6 +612,8 @@ class RangeSlider(SliderBase):
         dragging=True,
         valstep=None,
         orientation="horizontal",
+        track_color='lightgrey',
+        handle_style=None,
         **kwargs,
     ):
         """
@@ -598,11 +654,30 @@ class RangeSlider(SliderBase):
         orientation : {'horizontal', 'vertical'}, default: 'horizontal'
             The orientation of the slider.
 
+        track_color : color, default: 'lightgrey'
+            The color of the background track. The track is accessible for
+            further styling via the *track* attribute.
+
+        handle_style : dict
+            Properties of the slider handles. Default values are
+
+            ========= ===== ======= =========================================
+            Key       Value Default Description
+            ========= ===== ======= =========================================
+            facecolor color 'white' The facecolor of the slider handles.
+            edgecolor color '.75'   The edgecolor of the slider handles.
+            size      int   10      The size of the slider handles in points.
+            ========= ===== ======= =========================================
+
+            Other values will be transformed as marker{foo} and passed to the
+            `~.Line2D` constructor. e.g. ``handle_style = {'style'='x'}`` will
+            result in ``markerstyle = 'x'``.
+
         Notes
         -----
         Additional kwargs are passed on to ``self.poly`` which is the
-        `~matplotlib.patches.Rectangle` that draws the slider knob.  See the
-        `.Rectangle` documentation for valid property names (``facecolor``,
+        `~matplotlib.patches.Polygon` that draws the slider knob.  See the
+        `.Polygon` documentation for valid property names (``facecolor``,
         ``edgecolor``, ``alpha``, etc.).
         """
         super().__init__(ax, orientation, closedmin, closedmax,
@@ -619,10 +694,47 @@ class RangeSlider(SliderBase):
             valinit = self._value_in_bounds(valinit)
         self.val = valinit
         self.valinit = valinit
+
+        defaults = {'facecolor': 'white', 'edgecolor': '.75', 'size': 10}
+        handle_style = {} if handle_style is None else handle_style
+        marker_props = {
+            f'marker{k}': v for k, v in {**defaults, **handle_style}.items()
+        }
+
         if orientation == "vertical":
+            self.track = Rectangle(
+                (.25, 0), .5, 2,
+                transform=ax.transAxes,
+                facecolor=track_color
+            )
+            ax.add_patch(self.track)
             self.poly = ax.axhspan(valinit[0], valinit[1], 0, 1, **kwargs)
+            handleXY_1 = [.5, valinit[0]]
+            handleXY_2 = [.5, valinit[1]]
         else:
+            self.track = Rectangle(
+                (0, .25), 1, .5,
+                transform=ax.transAxes,
+                facecolor=track_color
+            )
+            ax.add_patch(self.track)
             self.poly = ax.axvspan(valinit[0], valinit[1], 0, 1, **kwargs)
+            handleXY_1 = [valinit[0], .5]
+            handleXY_2 = [valinit[1], .5]
+        self._handles = [
+            ax.plot(
+                *handleXY_1,
+                "o",
+                **marker_props,
+                clip_on=False
+            )[0],
+            ax.plot(
+                *handleXY_2,
+                "o",
+                **marker_props,
+                clip_on=False
+            )[0]
+        ]
 
         if orientation == "vertical":
             self.label = ax.text(
@@ -661,6 +773,7 @@ class RangeSlider(SliderBase):
                 horizontalalignment="left",
             )
 
+        self._active_handle = None
         self.set_val(valinit)
 
     def _min_in_bounds(self, min):
@@ -698,6 +811,8 @@ class RangeSlider(SliderBase):
         else:
             val = self._max_in_bounds(pos)
             self.set_max(val)
+        if self._active_handle:
+            self._active_handle.set_xdata([val])
 
     def _update(self, event):
         """Update the slider position."""
@@ -716,7 +831,20 @@ class RangeSlider(SliderBase):
         ):
             self.drag_active = False
             event.canvas.release_mouse(self.ax)
+            self._active_handle = None
             return
+
+        # determine which handle was grabbed
+        handle = self._handles[
+            np.argmin(
+                np.abs([h.get_xdata()[0] - event.xdata for h in self._handles])
+            )
+        ]
+        # these checks ensure smooth behavior if the handles swap which one
+        # has a higher value. i.e. if one is dragged over and past the other.
+        if handle is not self._active_handle:
+            self._active_handle = handle
+
         if self.orientation == "vertical":
             self._update_val_from_pos(event.ydata)
         else:
@@ -773,17 +901,17 @@ class RangeSlider(SliderBase):
         val[1] = self._max_in_bounds(val[1])
         xy = self.poly.xy
         if self.orientation == "vertical":
-            xy[0] = 0, val[0]
-            xy[1] = 0, val[1]
-            xy[2] = 1, val[1]
-            xy[3] = 1, val[0]
-            xy[4] = 0, val[0]
+            xy[0] = .25, val[0]
+            xy[1] = .25, val[1]
+            xy[2] = .75, val[1]
+            xy[3] = .75, val[0]
+            xy[4] = .25, val[0]
         else:
-            xy[0] = val[0], 0
-            xy[1] = val[0], 1
-            xy[2] = val[1], 1
-            xy[3] = val[1], 0
-            xy[4] = val[0], 0
+            xy[0] = val[0], .25
+            xy[1] = val[0], .75
+            xy[2] = val[1], .75
+            xy[3] = val[1], .25
+            xy[4] = val[0], .25
         self.poly.xy = xy
         self.valtext.set_text(self._format(val))
         if self.drawon:
