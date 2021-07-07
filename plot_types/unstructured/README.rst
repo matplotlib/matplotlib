@@ -1,6 +1,6 @@
 .. _unstructured_plots:
 
-Unstructured co-ordinates
+Unstructured coordinates
 -------------------------
 
 Sometimes we collect data ``z`` at coordinates ``(x,y)`` and want to visualize

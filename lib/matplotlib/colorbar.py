@@ -561,7 +561,7 @@ class Colorbar:
         self.vmin, self.vmax = self._boundaries[self._inside][[0, -1]]
         # Compute the X/Y mesh.
         X, Y, extendlen = self._mesh()
-        # draw the extend triangles, and shrink the inner axes to accomodate.
+        # draw the extend triangles, and shrink the inner axes to accommodate.
         # also adds the outline path to self.outline spine:
         self._do_extends(extendlen)
 
@@ -622,7 +622,7 @@ class Colorbar:
     def _do_extends(self, extendlen):
         """
         Make adjustments of the inner axes for the extend triangles (or
-        rectanges) and add them as patches.
+        rectangles) and add them as patches.
         """
         # extend lengths are fraction of the *inner* part of colorbar,
         # not the total colorbar:
@@ -659,7 +659,7 @@ class Colorbar:
             return
 
         # Make extend triangles or rectangles filled patches.  These are
-        # defined in the outer parent axes' co-ordinates:
+        # defined in the outer parent axes' coordinates:
         mappable = getattr(self, 'mappable', None)
         if (isinstance(mappable, contour.ContourSet)
                 and any(hatch is not None for hatch in mappable.hatches)):

@@ -41,7 +41,7 @@ with compiled extensions
   minor versions initially released in the 24 months prior to our planned
   release date or the oldest that support our minimum Python + NumPy
 
-without complied extensions
+without compiled extensions
   minor versions initially released in the 12 months prior to our planned
   release date or the oldest that supports our minimum Python.
 

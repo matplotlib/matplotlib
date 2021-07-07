@@ -354,7 +354,7 @@ class TestSpectral:
                                              num=pad_to_spectrum_real // 2 + 1)
         else:
             # frequencies for specgram, psd, and csd
-            # need to handle even and odd differentl
+            # need to handle even and odd differently
             if pad_to_density_real % 2:
                 freqs_density = np.linspace(-Fs / 2, Fs / 2,
                                             num=2 * pad_to_density_real,
