@@ -32,6 +32,8 @@ class Cursors(enum.IntEnum):  # Must subclass int for the macOS backend.
     SELECT_REGION = enum.auto()
     MOVE = enum.auto()
     WAIT = enum.auto()
+    RESIZE_HORIZONTAL = enum.auto()
+    RESIZE_VERTICAL = enum.auto()
 cursors = Cursors  # Backcompat.
 
 # Views positions tool

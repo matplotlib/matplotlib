@@ -79,7 +79,9 @@ cursord = {  # deprecated in Matplotlib 3.5.
     cursors.POINTER: QtCore.Qt.ArrowCursor,
     cursors.SELECT_REGION: QtCore.Qt.CrossCursor,
     cursors.WAIT: QtCore.Qt.WaitCursor,
-    }
+    cursors.RESIZE_HORIZONTAL: QtCore.Qt.SizeHorCursor,
+    cursors.RESIZE_VERTICAL: QtCore.Qt.SizeVerCursor,
+}
 
 
 # make place holder

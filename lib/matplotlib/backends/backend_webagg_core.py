@@ -380,6 +380,8 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
                 backend_tools.Cursors.SELECT_REGION: 'crosshair',
                 backend_tools.Cursors.MOVE: 'move',
                 backend_tools.Cursors.WAIT: 'wait',
+                backend_tools.Cursors.RESIZE_HORIZONTAL: 'ew-resize',
+                backend_tools.Cursors.RESIZE_VERTICAL: 'ns-resize',
             }[cursor]
             self.canvas.send_event("cursor", cursor=cursor)
         self.cursor = cursor

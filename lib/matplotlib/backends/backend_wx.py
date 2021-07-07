@@ -1049,6 +1049,8 @@ cursord = {  # deprecated in Matplotlib 3.5.
     cursors.POINTER: wx.CURSOR_ARROW,
     cursors.SELECT_REGION: wx.CURSOR_CROSS,
     cursors.WAIT: wx.CURSOR_WAIT,
+    cursors.RESIZE_HORIZONTAL: wx.CURSOR_SIZEWE,
+    cursors.RESIZE_VERTICAL: wx.CURSOR_SIZENS,
 }
 
 
