@@ -168,3 +168,8 @@ scenario:
 
    plt.figure()
    plt.plot(range(4))
+ 
+Plot 21 is generated via an include directive:
+
+.. include:: included_plot_21.rst
+
