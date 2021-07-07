@@ -605,6 +605,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
         self.coordinates = coordinates
         self._actions = {}  # mapping of toolitem method names to QActions.
+        self._subplot_dialog = None
 
         for text, tooltip_text, image_file, callback in self.toolitems:
             if text is None:
@@ -714,9 +715,10 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
     def configure_subplots(self):
         image = str(cbook._get_data_path('images/matplotlib.png'))
-        dia = SubplotToolQt(self.canvas.figure, self.canvas.parent())
-        dia.setWindowIcon(QtGui.QIcon(image))
-        dia.exec_()
+        self._subplot_dialog = SubplotToolQt(
+            self.canvas.figure, self.canvas.parent())
+        self._subplot_dialog.setWindowIcon(QtGui.QIcon(image))
+        self._subplot_dialog.show()
 
     def save_figure(self, *args):
         filetypes = self.canvas.get_supported_filetypes_grouped()
@@ -800,13 +802,14 @@ class SubplotToolQt(QtWidgets.QDialog):
         self._figure = targetfig
         self._defaults = {spinbox: vars(self._figure.subplotpars)[attr]
                           for attr, spinbox in self._spinboxes.items()}
+        self._export_values_dialog = None
 
     def _export_values(self):
         # Explicitly round to 3 decimals (which is also the spinbox precision)
         # to avoid numbers of the form 0.100...001.
-        dialog = QtWidgets.QDialog()
+        self._export_values_dialog = QtWidgets.QDialog()
         layout = QtWidgets.QVBoxLayout()
-        dialog.setLayout(layout)
+        self._export_values_dialog.setLayout(layout)
         text = QtWidgets.QPlainTextEdit()
         text.setReadOnly(True)
         layout.addWidget(text)
@@ -820,7 +823,7 @@ class SubplotToolQt(QtWidgets.QDialog):
             QtGui.QFontMetrics(text.document().defaultFont())
             .size(0, text.toPlainText()).height() + 20)
         text.setMaximumSize(size)
-        dialog.exec_()
+        self._export_values_dialog.show()
 
     def _on_value_changed(self):
         spinboxes = self._spinboxes
