@@ -1086,8 +1086,8 @@ class TextBox(AxesWidget):
             bb_text.x1 = bb_text.x0 + (bb_widthtext.x1 - bb_widthtext.x0)
 
         self.cursor.set(
-            segments=[[(bb_text.x1, bb_text.y0), (bb_text.x1, bb_text.y1)]], 
-                        visible=True)
+            segments=[[(bb_text.x1, bb_text.y0), (bb_text.x1, bb_text.y1)]],
+            visible=True)
         self.text_disp.set_text(text)
 
         self.ax.figure.canvas.draw()
