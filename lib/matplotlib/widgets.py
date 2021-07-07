@@ -1011,7 +1011,7 @@ class TextBox(AxesWidget):
         label_pad : float
             The distance between the label and the right side of the textbox.
         textalignment : {'left', 'center', 'right'}
-            The horizontal location of the text
+            The horizontal location of the text.
         """
         super().__init__(ax)
 
