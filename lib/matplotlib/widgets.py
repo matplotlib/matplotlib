@@ -2569,22 +2569,12 @@ class RectangleSelector(_SelectorWidget):
         button : `.MouseButton`, list of `.MouseButton`, default: all buttons
             Button(s) that trigger rectangle selection.
 
-        maxdist : float, default: 10
-            Distance in pixels within which the interactive tool handles can be
-            activated. Deprecated, use *handle_grab_distance* instead.
-
         handle_grab_distance : float, default: 10
             Distance in pixels within which the interactive tool handles can be
             activated.
 
-        marker_props : dict
-            Properties with which the interactive handles are drawn.  Currently
-            not implemented and ignored. Deprecated, use *handle_props*
-            instead.
-
         handle_props : dict
-            Properties with which the interactive handles are drawn.  Currently
-            not implemented and ignored.
+            Properties with which the interactive handles are drawn.
 
         interactive : bool, default: False
             Whether to draw a set of handles that allow interaction with the
@@ -3128,25 +3118,26 @@ class PolygonSelector(_SelectorWidget):
     ----------
     ax : `~matplotlib.axes.Axes`
         The parent axes for the widget.
+
     onselect : function
         When a polygon is completed or modified after completion,
         the *onselect* function is called and passed a list of the vertices as
         ``(xdata, ydata)`` tuples.
+
     useblit : bool, default: False
-    lineprops : dict, default: \
-``dict(color='k', linestyle='-', linewidth=2, alpha=0.5)``.
+
+    lineprops : dict
         Artist properties for the line representing the edges of the polygon.
-    markerprops : dict, default: \
-``dict(marker='o', markersize=7, mec='k', mfc='k', alpha=0.5)``.
+        Default::
+
+            dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
+
+    handle_props : dict
         Artist properties for the markers drawn at the vertices of the polygon.
-        Deprecated, use *handle_props* instead.
-    handle_props : dict, default: \
-``dict(marker='o', markersize=7, mec='k', mfc='k', alpha=0.5)``.
-        Artist properties for the markers drawn at the vertices of the polygon.
-    vertex_select_radius : float, default: 15px
-        A vertex is selected (to complete the polygon or to move a vertex) if
-        the mouse click is within *vertex_select_radius* pixels of the vertex.
-        Deprecated, use *handle_grab_distance* instead.
+        Default::
+
+            dict(marker='o', markersize=7, mec='k', mfc='k', alpha=0.5)
+
     handle_grab_distance : float, default: 15px
         A vertex is selected (to complete the polygon or to move a vertex) if
         the mouse click is within *handle_grab_distance* pixels of the vertex.
