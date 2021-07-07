@@ -950,6 +950,16 @@ class Colorbar:
         else:
             self.__scale = scale
 
+    def set_aspect(self, aspect):
+        """
+        Set ratio of the long axis to short axis.
+        """
+        self.ax._colorbar_info['aspect'] = aspect
+        if self.orientation == 'horizontal':
+            aspect = 1 / aspect
+        self.ax.set_box_aspect(aspect)
+        self.ax.set_aspect('auto')
+
     def remove(self):
         """
         Remove this colorbar from the figure.
