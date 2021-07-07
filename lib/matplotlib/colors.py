@@ -1731,7 +1731,7 @@ class BoundaryNorm(Normalize):
         else:
             max_col = self.Ncmap
         # this gives us the bins in the lookup table in the range
-        # [0, _n_regions - 1]  (the offset is baked-in in the init)
+        # [0, _n_regions - 1]  (the offset is set in the init)
         iret = np.digitize(xx, self.boundaries) - 1 + self._offset
         # if we have more colors than regions, stretch the region
         # index computed above to full range of the color bins.  This
