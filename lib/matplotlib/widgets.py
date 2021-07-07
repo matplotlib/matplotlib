@@ -994,7 +994,8 @@ class TextBox(AxesWidget):
         lambda self: self._observers.callbacks['submit']))
 
     def __init__(self, ax, label, initial='',
-                 color='.95', hovercolor='1', label_pad=.01, textalignment="left"):
+                 color='.95', hovercolor='1', label_pad=.01,
+                 textalignment="left"):
         """
         Parameters
         ----------
