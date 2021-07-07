@@ -1010,7 +1010,7 @@ class TextBox(AxesWidget):
             The color of the box when the mouse is over it.
         label_pad : float
             The distance between the label and the right side of the textbox.
-        textalignment :
+        textalignment : {'left', 'center', 'right'}
             The horizontal location of the text
         """
         super().__init__(ax)
