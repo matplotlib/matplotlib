@@ -325,17 +325,14 @@ class MidpointNormalize(colors.Normalize):
     def __call__(self, value, clip=None):
         # I'm ignoring masked values and all kinds of edge cases to make a
         # simple example...
-        # Note also that we must extrapolate linearly beyond vmin/vmax
-        min = self.vmin - (self.vcenter - self.vmin)
-        max = self.vmax + (self.vmax - self.vcenter)
-        x, y = [min, self.vcenter, max], [-0.5, 0.5, 1.5]
-        return np.ma.masked_array(np.interp(value, x, y))
+        # Note also that we must extrapolate beyond vmin/vmax
+        x, y = [self.vmin, self.vcenter, self.vmax], [0, 0.5, 1.]
+        return np.ma.masked_array(np.interp(value, x, y,
+                                            left=-np.inf, right=np.inf))
 
     def inverse(self, value):
-        min = self.vmin - (self.vcenter - self.vmin)
-        max = self.vmax + (self.vmax - self.vcenter)
-        y, x = [min, self.vcenter, max], [-0.5, 0.5, 1.5]
-        return np.interp(value, x, y)
+        y, x = [self.vmin, self.vcenter, self.vmax], [0, 0.5, 1]
+        return np.interp(value, x, y, left=-np.inf, right=np.inf)
 
 
 fig, ax = plt.subplots()
