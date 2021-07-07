@@ -73,7 +73,7 @@ _MODIFIER_KEYS = [
     (QtCore.Qt.ShiftModifier, QtCore.Qt.Key_Shift),
     (QtCore.Qt.MetaModifier, QtCore.Qt.Key_Meta),
 ]
-cursord = {
+cursord = {  # deprecated in Matplotlib 3.5.
     cursors.MOVE: QtCore.Qt.SizeAllCursor,
     cursors.HAND: QtCore.Qt.PointingHandCursor,
     cursors.POINTER: QtCore.Qt.ArrowCursor,
