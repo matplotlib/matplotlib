@@ -3061,6 +3061,7 @@ class LassoSelector(_SelectorWidget):
         self.ax.add_line(self.line)
         self.artists = [self.line]
 
+    @_api.deprecated("3.5", alternative="press")
     def onpress(self, event):
         self.press(event)
 
@@ -3068,6 +3069,7 @@ class LassoSelector(_SelectorWidget):
         self.verts = [self._get_data(event)]
         self.line.set_visible(True)
 
+    @_api.deprecated("3.5", alternative="release")
     def onrelease(self, event):
         self.release(event)
 
@@ -3083,9 +3085,7 @@ class LassoSelector(_SelectorWidget):
         if self.verts is None:
             return
         self.verts.append(self._get_data(event))
-
         self.line.set_data(list(zip(*self.verts)))
-
         self.update()
 
 
