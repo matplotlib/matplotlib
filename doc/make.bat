@@ -10,7 +10,7 @@ if "%SPHINXBUILD%" == "" (
 set SOURCEDIR=.
 set BUILDDIR=build
 set SPHINXPROJ=matplotlib
-set SPHINXOPTS=-W
+set SPHINXOPTS=-W --keep-going
 set O=
 
 %SPHINXBUILD% >NUL 2>NUL
