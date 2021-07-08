@@ -142,7 +142,7 @@ Finally, go to the web page of your fork of the Matplotlib repo, and click
 
 .. seealso::
 
-  * `Git documentation <https://git-scm.com/documentation>`_
+  * `Git documentation <https://git-scm.com/doc>`_
   * `Git-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
   * `Introduction to GitHub  <https://lab.github.com/githubtraining/introduction-to-github>`_
   * :ref:`development-workflow` for best practices for Matplotlib

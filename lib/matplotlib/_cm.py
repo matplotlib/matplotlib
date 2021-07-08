@@ -502,7 +502,7 @@ _nipy_spectral_data = {
 
 
 # 34 colormaps based on color specifications and designs
-# developed by Cynthia Brewer (http://colorbrewer.org).
+# developed by Cynthia Brewer (https://colorbrewer2.org/).
 # The ColorBrewer palettes have been included under the terms
 # of an Apache-stype license (for details, see the file
 # LICENSE_COLORBREWER in the license directory of the matplotlib
@@ -1213,7 +1213,7 @@ _coolwarm_data = {
 # Implementation of Carey Rappaport's CMRmap.
 # See `A Color Map for Effective Black-and-White Rendering of Color-Scale
 # Images' by Carey Rappaport
-# http://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m
+# https://www.mathworks.com/matlabcentral/fileexchange/2662-cmrmap-m
 _CMRmap_data = {'red':    ((0.000, 0.00, 0.00),
                            (0.125, 0.15, 0.15),
                            (0.250, 0.30, 0.30),
@@ -1245,7 +1245,7 @@ _CMRmap_data = {'red':    ((0.000, 0.00, 0.00),
 
 # An MIT licensed, colorblind-friendly heatmap from Wistia:
 #   https://github.com/wistia/heatmap-palette
-#   http://wistia.com/blog/heatmaps-for-colorblindness
+#   https://wistia.com/learn/culture/heatmaps-for-colorblindness
 #
 # >>> import matplotlib.colors as c
 # >>> colors = ["#e4ff7a", "#ffe81a", "#ffbd00", "#ffa000", "#fc7f00"]

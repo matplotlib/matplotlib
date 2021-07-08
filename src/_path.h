@@ -524,7 +524,7 @@ bool path_in_path(PathIterator1 &a,
 /** The clip_path_to_rect code here is a clean-room implementation of
     the Sutherland-Hodgman clipping algorithm described here:
 
-  http://en.wikipedia.org/wiki/Sutherland-Hodgman_clipping_algorithm
+  https://en.wikipedia.org/wiki/Sutherland-Hodgman_clipping_algorithm
 */
 
 namespace clip_to_rect_filters

@@ -44,8 +44,8 @@ def connection_info():
 
 
 # Note: Version 3.2 and 4.x icons
-# http://fontawesome.io/3.2.1/icons/
-# http://fontawesome.io/
+# https://fontawesome.com/icons
+# https://fontawesome.com
 # the `fa fa-xxx` part targets font-awesome 4, (IPython 3.x)
 # the icon-xxx targets font awesome 3.21 (IPython 2.x)
 _FONT_AWESOME_CLASSES = {

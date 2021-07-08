@@ -278,7 +278,7 @@ for cmap_category, cmap_list in cmaps.items():
             # Plot colormap L values.  Do separately for each category
             # so each plot can be pretty.  To make scatter markers change
             # color along plot:
-            # http://stackoverflow.com/questions/8202605/
+            # https://stackoverflow.com/q/8202605/353337
 
             if cmap_category == 'Sequential':
                 # These colormaps all start at high lightness but we want them
@@ -423,7 +423,7 @@ for cmap_category, cmap_list in cmaps.items():
 # .. [mycarta-banding] https://mycarta.wordpress.com/2012/10/14/the-rainbow-is-deadlong-live-the-rainbow-part-4-cie-lab-heated-body/
 # .. [mycarta-jet] https://mycarta.wordpress.com/2012/10/06/the-rainbow-is-deadlong-live-the-rainbow-part-3/
 # .. [kovesi-colormaps] https://arxiv.org/abs/1509.03700
-# .. [bw] http://www.tannerhelland.com/3643/grayscale-image-algorithm-vb6/
+# .. [bw] https://tannerhelland.com/3643/grayscale-image-algorithm-vb6/
 # .. [colorblindness] http://www.color-blindness.com/
 # .. [IBM] https://doi.org/10.1109/VISUAL.1995.480803
 # .. [turbo] https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html

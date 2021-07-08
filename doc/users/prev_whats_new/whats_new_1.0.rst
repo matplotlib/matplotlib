@@ -12,7 +12,7 @@ HTML5/Canvas backend
 --------------------
 
 Simon Ratcliffe and Ludwig Schwardt have released an `HTML5/Canvas
-<http://code.google.com/p/mplh5canvas/>`__ backend for matplotlib.  The
+<https://code.google.com/archive/p/mplh5canvas>`__ backend for matplotlib.  The
 backend is almost feature complete, and they have done a lot of work
 comparing their html5 rendered images with our core renderer Agg.  The
 backend features client/server interactive navigation of matplotlib

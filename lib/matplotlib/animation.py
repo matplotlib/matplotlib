@@ -1,7 +1,7 @@
 # TODO:
 # * Documentation -- this will need a new section of the User's Guide.
 #      Both for Animations and just timers.
-#   - Also need to update http://www.scipy.org/Cookbook/Matplotlib/Animations
+#   - Also need to update http://scipy-cookbook.readthedocs.io/
 # * Blit
 #   * Currently broken with Qt4 for widgets that don't start on screen
 #   * Still a few edge cases that aren't working correctly
@@ -43,7 +43,7 @@ _log = logging.getLogger(__name__)
 
 # Process creation flag for subprocess to prevent it raising a terminal
 # window. See for example:
-# https://stackoverflow.com/questions/24130623/using-python-subprocess-popen-cant-prevent-exe-stopped-working-prompt
+# https://stackoverflow.com/q/24130623/353337
 if sys.platform == 'win32':
     subprocess_creation_flags = CREATE_NO_WINDOW = 0x08000000
 else:
@@ -55,8 +55,7 @@ else:
 # * libming (produces swf) python wrappers: https://github.com/libming/libming
 # * Wrap x264 API:
 
-# (http://stackoverflow.com/questions/2940671/
-# how-to-encode-series-of-images-into-h264-using-x264-api-c-c )
+# (https://stackoverflow.com/q/2940671/353337)
 
 
 def adjusted_figsize(w, h, dpi, n):
@@ -1692,7 +1691,7 @@ class FuncAnimation(TimedAnimation):
             self.save_count = 100
         else:
             # itertools.islice returns an error when passed a numpy int instead
-            # of a native python int (http://bugs.python.org/issue30537).
+            # of a native python int (https://bugs.python.org/issue30537).
             # As a workaround, convert save_count to a native python int.
             self.save_count = int(self.save_count)
 

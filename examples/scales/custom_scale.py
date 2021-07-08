@@ -34,7 +34,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
     there is user-defined threshold, above and below which nothing
     will be plotted.  This defaults to +/- 85 degrees.
 
-    __ http://en.wikipedia.org/wiki/Mercator_projection
+    __ https://en.wikipedia.org/wiki/Mercator_projection
     """
 
     # The scale class must have a member ``name`` that defines the string used

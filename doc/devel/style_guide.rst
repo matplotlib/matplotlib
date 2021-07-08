@@ -404,6 +404,6 @@ resources contain common best practices for writing documentation.
 
 * `Python Developer's Guide <https://devguide.python.org/documenting/#documenting-python>`_
 * `Google Developer Style Guide <https://developers.google.com/style>`_
-* `IBM Style Guide <https://www.ibm.com/developerworks/library/styleguidelines/>`_
+* `IBM Style Guide <https://developer.ibm.com/>`_
 * `Red Hat Style Guide <https://stylepedia.net/style/#grammar>`_
 

@@ -187,7 +187,7 @@ Updated shipped dependencies
 The following dependencies that ship with matplotlib and are
 optionally installed alongside it have been updated:
 
-- `pytz <http://pytz.sf.net/>`_ 2012d
+- `pytz <http://pytz.sourceforge.net/>`_ 2012d
 - `dateutil <http://labix.org/python-dateutil>`_ 1.5 on Python 2.x,
    and 2.1 on Python 3.x
 

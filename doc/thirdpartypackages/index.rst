@@ -2,7 +2,7 @@
 
 .. note:: 
 
-    This page has been moved to <https://matplotlib.org/mpl-third-party>, 
+    This page has been moved to <https://matplotlib.org/mpl-third-party/>, 
     where you will find an up-to-date list of packages.  
 
 
@@ -168,7 +168,7 @@ pyUpSet
 =======
 `pyUpSet <https://github.com/ImSoErgodic/py-upset>`_ is a
 static Python implementation of the `UpSet suite by Lex et al.
-<http://www.caleydo.org/tools/upset/>`_ to explore complex intersections of
+<http://caleydo.org/tools/upset/>`_ to explore complex intersections of
 sets and data frames.
 
 seaborn
@@ -183,7 +183,7 @@ part of exploring and understanding complex datasets.
 WCSAxes
 =======
 
-The `Astropy <http://www.astropy.org>`_ core package includes a submodule
+The `Astropy <https://www.astropy.org/>`_ core package includes a submodule
 called WCSAxes (available at `astropy.visualization.wcsaxes
 <http://docs.astropy.org/en/stable/visualization/wcsaxes/index.html>`_) which
 adds Matplotlib projections for Astronomical image data. The following is an
@@ -272,7 +272,7 @@ selection of font formats and complex text layout, and various other features.
 
 gr
 ==
-`gr <http://gr-framework.org/>`_ is a framework for cross-platform
+`gr <https://gr-framework.org/>`_ is a framework for cross-platform
 visualisation applications, which can be used as a high-performance Matplotlib
 backend.
 

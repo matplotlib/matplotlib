@@ -332,7 +332,7 @@ the documentation for the latest stable release.  Under that, there are
 directories containing the documentation for older versions.  The documentation
 for current master is built on Circle CI and pushed to the `devdocs
 <https://github.com/matplotlib/devdocs/>`__ repository.  These are available at
-`matplotlib.org/devdocs <https://matplotlib.org/devdocs>`__.
+`matplotlib.org/devdocs <https://matplotlib.org/devdocs/>`__.
 
 Assuming you have this repository checked out in the same directory as
 matplotlib ::

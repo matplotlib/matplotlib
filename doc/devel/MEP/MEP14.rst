@@ -82,7 +82,7 @@ number of other projects:
 .. _harfbuzz: https://www.freedesktop.org/wiki/Software/HarfBuzz/
 .. _QtTextLayout: https://doc.qt.io/archives/qt-4.8/qtextlayout.html
 .. _Microsoft DirectWrite: https://docs.microsoft.com/en-ca/windows/win32/directwrite/introducing-directwrite
-.. _Apple Core Text: https://developer.apple.com/library/content/documentation/StringsTextFonts/Conceptual/CoreText_Programming/Overview/Overview.html
+.. _Apple Core Text: https://developer.apple.com/library/archive/documentation/StringsTextFonts/Conceptual/CoreText_Programming/Overview/Overview.html
 
 Of the above options, it should be noted that harfbuzz_ is designed
 from the start as a cross platform option with minimal dependencies,

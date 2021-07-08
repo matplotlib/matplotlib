@@ -117,7 +117,7 @@ Implementation
 For installing from source, and assuming the user has all of the
 C-level compilers and dependencies, this can be accomplished fairly
 easily using distribute_ and following the instructions `here
-<https://pypi.org/project/distribute>`_.  The only anticipated
+<https://pypi.org/project/distribute/>`_.  The only anticipated
 change to the matplotlib library code will be to import pyparsing_
 from the top-level namespace rather than from within matplotlib.  Note
 that distribute_ will also allow us to remove the direct dependency

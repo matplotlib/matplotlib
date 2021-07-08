@@ -2,7 +2,7 @@
 
 
 ### LINES
-# See http://matplotlib.org/api/artist_api.html#module-matplotlib.lines for more
+# See https://matplotlib.org/api/artist_api.html#module-matplotlib.lines for more
 # information on line properties.
 lines.linewidth   : 1.0     # line width in points
 lines.linestyle   : -       # solid line
@@ -28,7 +28,7 @@ markers.fillstyle: full
 ### PATCHES
 # Patches are graphical objects that fill 2D space, like polygons or
 # circles.  See
-# http://matplotlib.org/api/artist_api.html#module-matplotlib.patches
+# https://matplotlib.org/api/artist_api.html#module-matplotlib.patches
 # information on patch properties
 patch.linewidth        : 1.0     # edge width in points
 patch.facecolor        : b
@@ -44,7 +44,7 @@ hist.bins              : 10
 ### FONT
 #
 # font properties used by text.Text.  See
-# http://matplotlib.org/api/font_manager_api.html for more
+# https://matplotlib.org/api/font_manager_api.html for more
 # information on font properties.  The 6 font properties used for font
 # matching are given below with their default values.
 #
@@ -96,7 +96,7 @@ font.monospace : DejaVu Sans Mono, Andale Mono, Nimbus Mono L, Courier New, Cour
 
 ### TEXT
 # text properties used by text.Text.  See
-# http://matplotlib.org/api/artist_api.html#module-matplotlib.text for more
+# https://matplotlib.org/api/artist_api.html#module-matplotlib.text for more
 # information on text properties
 
 text.color          : k
@@ -170,7 +170,7 @@ mathtext.default : it # The default font to use for math.
 ### AXES
 # default face and edge color, default tick sizes,
 # default fontsizes for ticklabels, and so on.  See
-# http://matplotlib.org/api/axes_api.html#module-matplotlib.axes
+# https://matplotlib.org/api/axes_api.html#module-matplotlib.axes
 axes.facecolor      : w       # axes background color
 axes.edgecolor      : k       # axes edge color
 axes.linewidth      : 1.0     # edge linewidth
@@ -209,7 +209,7 @@ axes.formatter.offset_threshold : 2      # When useoffset is True, the offset
 
 axes.unicode_minus  : True    # use unicode for the minus symbol
                               # rather than hyphen.  See
-                              # http://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
+                              # https://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
 axes.prop_cycle    : cycler('color', 'bgrcmyk')
                                            # color cycle for plot lines
                                            # as list of string colorspecs:
@@ -235,7 +235,7 @@ date.autoformatter.microsecond : %H:%M:%S.%f
 date.converter:                  auto  # 'auto', 'concise'
 
 ### TICKS
-# see http://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
+# see https://matplotlib.org/api/axis_api.html#matplotlib.axis.Tick
 
 xtick.top            : True   # draw ticks on the top side
 xtick.bottom         : True   # draw ticks on the bottom side
@@ -304,7 +304,7 @@ legend.edgecolor     : inherit   # legend edge color (when 'inherit' uses axes.e
 
 
 ### FIGURE
-# See http://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
+# See https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure
 figure.titlesize : medium     # size of the figure title
 figure.titleweight : normal   # weight of the figure title
 figure.figsize   : 8, 6    # figure size in inches

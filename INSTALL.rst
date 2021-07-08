@@ -65,7 +65,7 @@ Matplotlib is part of major Python distributions:
 - `Anaconda <https://www.anaconda.com/>`_
 
 - `ActiveState ActivePython
-  <https://www.activestate.com/activepython/downloads>`_
+  <https://www.activestate.com/products/python/downloads/>`_
 
 - `WinPython <https://winpython.github.io/>`_
 
