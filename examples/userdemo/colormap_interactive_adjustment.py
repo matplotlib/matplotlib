@@ -53,6 +53,12 @@ cmap = plt.get_cmap('viridis').with_extremes(
 axesimage = plt.imshow(Z, cmap=cmap)
 colorbar = plt.colorbar(axesimage, ax=ax, use_gridspec=True)
 
+# Note that axesimage and colorbar share a Normalize object
+# so they will stay in sync
+assert colorbar.norm is axesimage.norm
+colorbar.norm.vmax = 1.5
+axesimage.norm.vmin = -0.75
+
 # `set_navigate` helps you see what value you are about to set the range
 # to, and enables zoom and pan in the colorbar which can be helpful for
 # narrow or wide data ranges
