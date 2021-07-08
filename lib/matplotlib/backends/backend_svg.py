@@ -280,8 +280,13 @@ class RendererSVG(RendererBase):
         self.writer = XMLWriter(svgwriter)
         self.image_dpi = image_dpi  # actual dpi at which we rasterize stuff
 
-        self._groupd = {}
+        if basename is None:
+            basename = getattr(svgwriter, "name", "")
+            if not isinstance(basename, str):
+                basename = ""
         self.basename = basename
+
+        self._groupd = {}
         self._image_counter = itertools.count()
         self._clipd = {}
         self._markers = {}
@@ -1311,9 +1316,6 @@ class FigureCanvasSVG(FigureCanvasBase):
             __ DC_
         """
         with cbook.open_file_cm(filename, "w", encoding="utf-8") as fh:
-            filename = getattr(fh, 'name', '')
-            if not isinstance(filename, str):
-                filename = ''
             if not cbook.file_requires_unicode(fh):
                 fh = codecs.getwriter('utf-8')(fh)
             self._print_svg(filename, fh, **kwargs)
@@ -1322,7 +1324,7 @@ class FigureCanvasSVG(FigureCanvasBase):
     def print_svgz(self, filename, *args, **kwargs):
         with cbook.open_file_cm(filename, "wb") as fh, \
                 gzip.GzipFile(mode='w', fileobj=fh) as gzipwriter:
-            return self.print_svg(gzipwriter)
+            return self.print_svg(gzipwriter, **kwargs)
 
     @_check_savefig_extra_args
     @_api.delete_parameter("3.4", "dpi")
@@ -1336,7 +1338,7 @@ class FigureCanvasSVG(FigureCanvasBase):
 
         renderer = MixedModeRenderer(
             self.figure, width, height, dpi,
-            RendererSVG(w, h, fh, filename, dpi, metadata=metadata),
+            RendererSVG(w, h, fh, image_dpi=dpi, metadata=metadata),
             bbox_inches_restore=bbox_inches_restore)
 
         self.figure.draw(renderer)

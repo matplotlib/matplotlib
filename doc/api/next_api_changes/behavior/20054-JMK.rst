@@ -5,3 +5,8 @@ If a colorbar has lines added to it (e.g. for contour lines), these will
 no longer be clipped.  This is an improvement for lines on the edge of
 the colorbar, but could lead to lines off the colorbar if the limits of
 the colorbar are changed.
+
+``Colorbar.patch`` is deprecated
+================================
+
+This attribute is not correctly updated anymore.
