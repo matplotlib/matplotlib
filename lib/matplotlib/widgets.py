@@ -2523,7 +2523,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         Selections with an x-span less than *minspanx* are ignored.
 
     minspany : float, default: 0
-        Selections with an y-span less than *minspany* are ignored.
+        Selections with a y-span less than *minspany* are ignored.
 
     useblit : bool, default: False
         Whether to use blitting for faster drawing (if supported by the
@@ -2704,6 +2704,10 @@ class RectangleSelector(_SelectorWidget):
     active_handle = _api.deprecate_privatize_attribute("3.5")
 
     interactive = _api.deprecate_privatize_attribute("3.5")
+
+    maxdist = _api.deprecated("3.5")(
+        property(lambda self: self.handle_grab_distance)
+        )
 
     def _press(self, event):
         """Button press event handler."""
@@ -3212,6 +3216,10 @@ class PolygonSelector(_SelectorWidget):
 
         self.artists = [self.line, self._polygon_handles.artist]
         self.set_visible(True)
+
+    vertex_select_radius = _api.deprecated("3.5")(
+        property(lambda self: self.handle_grab_distance)
+        )
 
     @property
     def _nverts(self):
