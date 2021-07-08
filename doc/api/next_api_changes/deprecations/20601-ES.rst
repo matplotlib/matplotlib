@@ -1,0 +1,9 @@
+Selector widget state internals
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Several `~matplotlib.widgets.EllipseSelector`,
+`~matplotlib.widgets.RectangleSelector` and `~matplotlib.widgets.SpanSelector`
+class internals have been privatized and deprecated:
+
+- ``eventpress``
+- ``eventrelease``
+- ``state``
