@@ -2441,6 +2441,8 @@ class Parser:
         r'tilde':          r'\combiningtilde',
         r'dot':            r'\combiningdotabove',
         r'ddot':           r'\combiningdiaeresis',
+        r'dddot':          r'\dddot',
+        r'ddddot':         r'\ddddot',
         r'vec':            r'\combiningrightarrowabove',
         r'"':              r'\combiningdiaeresis',
         r"`":              r'\combininggraveaccent',
