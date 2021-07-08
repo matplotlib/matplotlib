@@ -15,6 +15,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backend_bases import MouseButton
 
+###############################################################################
+# Callback definitions
+
 
 def on_pick(event):
     adjust_colorbar(event.mouseevent)
@@ -37,6 +40,9 @@ def adjust_colorbar(mouseevent):
     canvas.draw_idle()
 
 
+###############################################################################
+# Generate figure with Axesimage and Colorbar
+
 fig, ax = plt.subplots()
 canvas = fig.canvas
 
@@ -53,11 +59,16 @@ cmap = plt.get_cmap('viridis').with_extremes(
 axesimage = plt.imshow(Z, cmap=cmap)
 colorbar = plt.colorbar(axesimage, ax=ax, use_gridspec=True)
 
+###############################################################################
 # Note that axesimage and colorbar share a Normalize object
 # so they will stay in sync
+
 assert colorbar.norm is axesimage.norm
 colorbar.norm.vmax = 1.5
 axesimage.norm.vmin = -0.75
+
+###############################################################################
+# Hook Colorbar up to canvas events
 
 # `set_navigate` helps you see what value you are about to set the range
 # to, and enables zoom and pan in the colorbar which can be helpful for
@@ -70,5 +81,10 @@ canvas.mpl_connect("motion_notify_event", on_move)
 # React only to left and right clicks
 colorbar.ax.set_picker(True)
 canvas.mpl_connect("pick_event", on_pick)
+
+###############################################################################
+# Display
+#
+# The colormap will now respond to left and right clicks in the Colorbar axes
 
 plt.show()
