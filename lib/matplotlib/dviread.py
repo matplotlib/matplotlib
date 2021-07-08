@@ -39,7 +39,7 @@ _log = logging.getLogger(__name__)
 # are cached using lru_cache().
 
 # Dvi is a bytecode format documented in
-# http://mirrors.ctan.org/systems/knuth/dist/texware/dvitype.web
+# https://ctan.org/pkg/dvitype
 # https://texdoc.org/serve/dvitype.pdf/0
 #
 # The file consists of a preamble, some number of pages, a postamble,
@@ -602,7 +602,7 @@ class DviFont:
                 result.append(_mul2012(value, self._scale))
         # cmsyXX (symbols font) glyph 0 ("minus") has a nonzero descent
         # so that TeX aligns equations properly
-        # (https://tex.stackexchange.com/questions/526103/why-does-cmsy10-tfm-give-the-minus-sign-a-positive-depth),
+        # (https://tex.stackexchange.com/q/526103/13262)
         # but we actually care about the rasterization depth to align
         # the dvipng-generated images.
         if re.match(br'^cmsy\d+$', self.texname) and char == 0:
@@ -884,7 +884,7 @@ class PsfontsMap:
         # If the map file specifies multiple encodings for a font, we
         # follow pdfTeX in choosing the last one specified. Such
         # entries are probably mistakes but they have occurred.
-        # https://tex.stackexchange.com/questions/10826/two-encoding-files-for-one-font-in-pdftex-map
+        # https://tex.stackexchange.com/q/10826/13262
 
         if not line or line.startswith((b" ", b"%", b"*", b";", b"#")):
             return
