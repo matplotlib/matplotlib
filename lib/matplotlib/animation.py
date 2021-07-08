@@ -1,7 +1,8 @@
 # TODO:
 # * Documentation -- this will need a new section of the User's Guide.
 #      Both for Animations and just timers.
-#   - Also need to update https://scipy-cookbook.readthedocs.io/items/Matplotlib_Animations.html
+#   - Also need to update
+#     https://scipy-cookbook.readthedocs.io/items/Matplotlib_Animations.html
 # * Blit
 #   * Currently broken with Qt4 for widgets that don't start on screen
 #   * Still a few edge cases that aren't working correctly
