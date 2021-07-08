@@ -1043,12 +1043,14 @@ def _set_frame_icon(frame):
     frame.SetIcons(bundle)
 
 
-cursord = {
+cursord = {  # deprecated in Matplotlib 3.5.
     cursors.MOVE: wx.CURSOR_HAND,
     cursors.HAND: wx.CURSOR_HAND,
     cursors.POINTER: wx.CURSOR_ARROW,
     cursors.SELECT_REGION: wx.CURSOR_CROSS,
     cursors.WAIT: wx.CURSOR_WAIT,
+    cursors.RESIZE_HORIZONTAL: wx.CURSOR_SIZEWE,
+    cursors.RESIZE_VERTICAL: wx.CURSOR_SIZENS,
 }
 
 

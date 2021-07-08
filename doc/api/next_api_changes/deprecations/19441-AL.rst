@@ -1,4 +1,5 @@
-``backend_gtk3.cursord``
-~~~~~~~~~~~~~~~~~~~~~~~~
-This dict is deprecated, in order to make the module importable on headless
-environments.
+``cursord`` in GTK, Qt, and wx backends
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``backend_gtk3.cursord``, ``backend_qt.cursord``, and
+``backend_wx.cursord`` dictionaries are deprecated. This makes the GTK module
+importable on headless environments.
