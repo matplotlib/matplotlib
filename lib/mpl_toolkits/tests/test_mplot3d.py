@@ -433,6 +433,19 @@ def test_surface3d_masked():
     ax.set_zlim(-1, 1000)
 
 
+@mpl3d_image_comparison(['surface3d_masked_strides.png'])
+def test_surface3d_masked_strides():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    X = np.linspace(-1, 1)
+    Y = np.linspace(-1, 1)
+    X, Y = np.meshgrid(X, Y)
+    Z = X**2 + Y**2
+    Z[30:40, 10:20] = 0.0
+    Z = np.ma.masked_equal(Z, 0.0)
+    ax.plot_surface(X, Y, Z, lw=0, antialiased=False, rstride=3, cstride=3)
+
+
 @mpl3d_image_comparison(['text3d.png'], remove_text=False)
 def test_text3d():
     fig = plt.figure()
