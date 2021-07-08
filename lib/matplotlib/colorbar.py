@@ -451,10 +451,11 @@ class Colorbar:
             spine.set_visible(False)
         self.outline = self.ax.spines['outline'] = _ColorbarSpine(self.ax)
         self._short_axis().set_visible(False)
-        self.patch = mpatches.Polygon(
+        # Only kept for backcompat; remove after deprecation of .patch elapses.
+        self._patch = mpatches.Polygon(
             np.empty((0, 2)),
             color=mpl.rcParams['axes.facecolor'], linewidth=0.01, zorder=-1)
-        ax.add_artist(self.patch)
+        ax.add_artist(self._patch)
 
         self.dividers = collections.LineCollection(
             [],
@@ -486,6 +487,9 @@ class Colorbar:
 
         if isinstance(mappable, contour.ContourSet) and not mappable.filled:
             self.add_lines(mappable)
+
+    # Also remove ._patch after deprecation elapses.
+    patch = _api.deprecate_privatize_attribute("3.5")
 
     def update_normal(self, mappable):
         """
