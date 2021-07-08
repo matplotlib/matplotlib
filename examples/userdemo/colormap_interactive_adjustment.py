@@ -48,7 +48,8 @@ Z1 = np.exp(-X**2 - Y**2)
 Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
 Z = (0.9*Z1 - 0.5*Z2) * 2
 
-cmap = plt.get_cmap('viridis').with_extremes(over='xkcd:orange', under='xkcd:dark red')
+cmap = plt.get_cmap('viridis').with_extremes(
+    over='xkcd:orange', under='xkcd:dark red')
 axesimage = plt.imshow(Z, cmap=cmap)
 colorbar = plt.colorbar(axesimage, ax=ax, use_gridspec=True)
 
