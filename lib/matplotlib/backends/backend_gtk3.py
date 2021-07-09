@@ -33,7 +33,7 @@ from gi.repository import Gio, GLib, GObject, Gtk, Gdk
 _log = logging.getLogger(__name__)
 
 backend_version = "%s.%s.%s" % (
-    Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
+    Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version())
 
 try:
     _display = Gdk.Display.get_default()
