@@ -263,7 +263,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         for key_mask, prefix in modifiers:
             if event.state & key_mask:
                 if not (prefix == 'shift' and unikey.isprintable()):
-                    key = '{0}+{1}'.format(prefix, key)
+                    key = f'{prefix}+{key}'
         return key
 
     def configure_event(self, widget, event):
@@ -577,7 +577,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             ff = Gtk.FileFilter()
             ff.set_name(name)
             for fmt in fmts:
-                ff.add_pattern("*." + fmt)
+                ff.add_pattern(f'*.{fmt}')
             dialog.add_filter(ff)
             if self.canvas.get_default_filetype() in fmts:
                 dialog.set_filter(ff)
@@ -587,7 +587,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             name = dialog.get_filter().get_name()
             fmt = self.canvas.get_supported_filetypes_grouped()[name][0]
             dialog.set_current_name(
-                str(Path(dialog.get_current_name()).with_suffix("." + fmt)))
+                str(Path(dialog.get_current_name()).with_suffix(f'.{fmt}')))
 
         dialog.set_current_folder(mpl.rcParams["savefig.directory"])
         dialog.set_current_name(self.canvas.get_default_filename())
@@ -678,7 +678,7 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
 
     def remove_toolitem(self, name):
         if name not in self._toolitems:
-            self.toolmanager.message_event('%s Not in toolbar' % name, self)
+            self.toolmanager.message_event(f'{name} not in toolbar', self)
             return
 
         for group in self._groups:
