@@ -2699,8 +2699,6 @@ class RectangleSelector(_SelectorWidget):
             self.update()
 
         if self._active_handle is None:
-            x = event.xdata
-            y = event.ydata
             self.visible = True
         else:
             self.set_visible(True)
