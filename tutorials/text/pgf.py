@@ -170,7 +170,7 @@ Troubleshooting
   alternatively make the fonts available to your OS. See this
   `tex.stackexchange.com question`__ for more details.
 
-  __ https://tex.stackexchange.com/q/43642/13262
+  __ https://tex.stackexchange.com/q/43642/
 
 * If the font configuration used by Matplotlib differs from the font setting
   in yout LaTeX document, the alignment of text elements in imported figures
@@ -182,7 +182,7 @@ Troubleshooting
   big scatter graphs.  In an extreme case this can cause TeX to run out of
   memory: "TeX capacity exceeded, sorry"  You can configure latex to increase
   the amount of memory available to generate the ``.pdf`` image as discussed on
-  `tex.stackexchange.com <https://tex.stackexchange.com/q/7953/13262>`_.
+  `tex.stackexchange.com <https://tex.stackexchange.com/q/7953/>`_.
   Another way would be to "rasterize" parts of the graph causing problems
   using either the ``rasterized=True`` keyword, or ``.set_rasterized(True)`` as
   per :doc:`this example </gallery/misc/rasterization_demo>`.
