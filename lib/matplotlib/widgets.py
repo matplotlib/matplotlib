@@ -992,6 +992,8 @@ class TextBox(AxesWidget):
         lambda self: self._observers.callbacks['change']))
     submit_observers = _api.deprecated("3.4")(property(
         lambda self: self._observers.callbacks['submit']))
+    DIST_FROM_LEFT = _api.deprecated("3.4")(property(
+        lambda self: self.DIST_FROM_LEFT))
 
     def __init__(self, ax, label, initial='',
                  color='.95', hovercolor='1', label_pad=.01,
@@ -1015,7 +1017,9 @@ class TextBox(AxesWidget):
             The horizontal location of the text.
         """
         super().__init__(ax)
-
+        
+        self.DIST_FROM_LEFT = .05
+        
         self._text_position = _api.check_getitem(
                                 {"left": 0.05,
                                  "center": 0.5,
