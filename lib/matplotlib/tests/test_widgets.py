@@ -347,13 +347,12 @@ def test_TextBox():
 
     assert tool.text == ''
     assert text_change_event.call_count == 1
-    
+
     do_event(tool, '_click')
-    
     tool.set_val('x**2')
     tool.begin_typing(tool.text)
     tool.stop_typing()
-    
+
     assert submit_event.call_count == 3
     
     do_event(tool, '_click')
