@@ -3166,6 +3166,15 @@ class NavigationToolbar2:
             y1, y2 = ax.bbox.intervaly
         elif event.key == "y":
             x1, x2 = ax.bbox.intervalx
+
+        # A colorbar is one-dimensional, so we extend the zoom rectangle out
+        # to the edge of the axes bbox in the other dimension
+        if hasattr(ax, "_colorbar"):
+            if ax._colorbar.orientation == 'horizontal':
+                y1, y2 = ax.bbox.intervaly
+            else:
+                x1, x2 = ax.bbox.intervalx
+
         self.draw_rubberband(event, x1, y1, x2, y2)
 
     def release_zoom(self, event):
