@@ -31,7 +31,6 @@ div.responsive_screenshots {
 
 /* To avoid subfigure parts outside of the responsive_screenshots  */
 /* element (see: https://stackoverflow.com/q/2062258/353337        */
-/* floating-stuff-within-a-div-floats-outside-of-div-why)          */
 span.clear_screenshots { clear: left; display: block; }
 
 div.responsive_subfig{
