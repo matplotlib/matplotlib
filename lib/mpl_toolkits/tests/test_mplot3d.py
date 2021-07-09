@@ -1119,6 +1119,12 @@ def test_line3d_set_get_data_3d():
     np.testing.assert_array_equal((x, y, z), line.get_data_3d())
     line.set_data_3d(x2, y2, z2)
     np.testing.assert_array_equal((x2, y2, z2), line.get_data_3d())
+    line.set_xdata(x)
+    line.set_ydata(y)
+    line.set_3d_properties(zs=z, zdir='z')
+    np.testing.assert_array_equal((x, y, z), line.get_data_3d())
+    line.set_3d_properties(zs=0, zdir='z')
+    np.testing.assert_array_equal((x, y, np.zeros_like(z)), line.get_data_3d())
 
 
 @check_figures_equal(extensions=["png"])
