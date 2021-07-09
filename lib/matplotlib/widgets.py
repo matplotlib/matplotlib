@@ -1016,9 +1016,11 @@ class TextBox(AxesWidget):
         """
         super().__init__(ax)
 
-        self._text_position = check_getitem({"left": 0.05,
-                                             "center": 0.5,
-                                             "right": 0.95},key=textalignment)
+        self._text_position = _api.check_getitem(
+                                {"left": 0.05,
+                                 "center": 0.5,
+                                 "right": 0.95}, key=textalignment)
+
         self.label = ax.text(
             -label_pad, 0.5, label, transform=ax.transAxes,
             verticalalignment='center', horizontalalignment='right')
