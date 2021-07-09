@@ -11,7 +11,7 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
     `matplotlib.backend_managers.ToolManager`
 """
 
-from enum import IntEnum
+import enum
 import re
 import time
 from types import SimpleNamespace
@@ -25,9 +25,15 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib import cbook
 
 
-class Cursors(IntEnum):  # Must subclass int for the macOS backend.
+class Cursors(enum.IntEnum):  # Must subclass int for the macOS backend.
     """Backend-independent cursor types."""
-    HAND, POINTER, SELECT_REGION, MOVE, WAIT = range(5)
+    POINTER = enum.auto()
+    HAND = enum.auto()
+    SELECT_REGION = enum.auto()
+    MOVE = enum.auto()
+    WAIT = enum.auto()
+    RESIZE_HORIZONTAL = enum.auto()
+    RESIZE_VERTICAL = enum.auto()
 cursors = Cursors  # Backcompat.
 
 # Views positions tool
