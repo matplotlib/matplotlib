@@ -422,7 +422,6 @@ class Colorbar:
 
         self.ax = ax
         self.ax._axes_locator = _ColorbarAxesLocator(self)
-        ax.set(navigate=False)
 
         if extend is None:
             if (not isinstance(mappable, contour.ContourSet)
@@ -495,6 +494,16 @@ class Colorbar:
 
         if isinstance(mappable, contour.ContourSet) and not mappable.filled:
             self.add_lines(mappable)
+
+        # Link the Axes and Colorbar for interactive use
+        self.ax._colorbar = self
+        for x in ["_get_view", "_set_view", "_set_view_from_bbox",
+                  "drag_pan", "start_pan", "end_pan"]:
+            setattr(self.ax, x, getattr(self, x))
+        # Don't navigate on any of these types of mappables
+        if (isinstance(self.norm, (colors.BoundaryNorm, colors.NoNorm)) or
+                isinstance(self.mappable, contour.ContourSet)):
+            self.ax.set_navigate(False)
 
     # Also remove ._patch after deprecation elapses.
     patch = _api.deprecate_privatize_attribute("3.5", alternative="ax")

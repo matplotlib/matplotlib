@@ -4418,7 +4418,7 @@ class _AxesBase(martist.Artist):
         Helper function to return the new points after a pan.
 
         This helper function returns the points on the axis after a pan has
-        occurred. This a convenience method to abstract the pan logic
+        occurred. This is a convenience method to abstract the pan logic
         out of the base setter.
         """
         def format_deltas(key, dx, dy):
@@ -4474,7 +4474,6 @@ class _AxesBase(martist.Artist):
         # Just ignore invalid limits (typically, underflow in log-scale).
         points[~valid] = None
         return points
-
 
     def drag_pan(self, button, key, x, y):
         """
