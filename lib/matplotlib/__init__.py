@@ -1074,11 +1074,16 @@ def use(backend, *, force=True):
 
         or a string of the form: ``module://my.module.name``.
 
+        Switching to an interactive backend is not possible if an unrelated
+        event loop has already been started (e.g., switching to GTK3Agg if a
+        TkAgg window has already been opened).  Switching to a non-interactive
+        backend is always possible.
+
     force : bool, default: True
         If True (the default), raise an `ImportError` if the backend cannot be
         set up (either because it fails to import, or because an incompatible
-        GUI interactive framework is already running); if False, ignore the
-        failure.
+        GUI interactive framework is already running); if False, silently
+        ignore the failure.
 
     See Also
     --------
@@ -1174,8 +1179,7 @@ def _init_tests():
                 "" if ft2font.__freetype_build_type__ == 'local' else "not "))
 
 
-@_api.delete_parameter("3.3", "recursionlimit")
-def test(verbosity=None, coverage=False, *, recursionlimit=0, **kwargs):
+def test(verbosity=None, coverage=False, **kwargs):
     """Run the matplotlib test suite."""
 
     try:
@@ -1192,8 +1196,6 @@ def test(verbosity=None, coverage=False, *, recursionlimit=0, **kwargs):
     old_recursionlimit = sys.getrecursionlimit()
     try:
         use('agg')
-        if recursionlimit:
-            sys.setrecursionlimit(recursionlimit)
 
         args = kwargs.pop('argv', [])
         provide_default_modules = True
@@ -1222,8 +1224,6 @@ def test(verbosity=None, coverage=False, *, recursionlimit=0, **kwargs):
     finally:
         if old_backend.lower() != 'agg':
             use(old_backend)
-        if recursionlimit:
-            sys.setrecursionlimit(old_recursionlimit)
 
     return retcode
 

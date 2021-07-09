@@ -12,7 +12,7 @@ licenses. Non-BSD compatible licenses (e.g., LGPL) are acceptable in
 matplotlib toolkits.  For a discussion of the motivations behind the
 licencing choice, see :ref:`license-discussion`.
 
-Copyright Policy
+Copyright policy
 ================
 
 John Hunter began Matplotlib around 2003.  Since shortly before his

@@ -21,7 +21,7 @@ import numpy as np
 from PIL import Image
 import tornado
 
-from matplotlib import _api, backend_bases
+from matplotlib import _api, backend_bases, backend_tools
 from matplotlib.backends import backend_agg
 from matplotlib.backend_bases import _Backend
 
@@ -364,7 +364,7 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
 
     def __init__(self, canvas):
         self.message = ''
-        self.cursor = 0
+        self.cursor = None
         super().__init__(canvas)
 
     def set_message(self, message):
@@ -374,6 +374,15 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
 
     def set_cursor(self, cursor):
         if cursor != self.cursor:
+            cursor = {
+                backend_tools.Cursors.HAND: 'pointer',
+                backend_tools.Cursors.POINTER: 'default',
+                backend_tools.Cursors.SELECT_REGION: 'crosshair',
+                backend_tools.Cursors.MOVE: 'move',
+                backend_tools.Cursors.WAIT: 'wait',
+                backend_tools.Cursors.RESIZE_HORIZONTAL: 'ew-resize',
+                backend_tools.Cursors.RESIZE_VERTICAL: 'ns-resize',
+            }[cursor]
             self.canvas.send_event("cursor", cursor=cursor)
         self.cursor = cursor
 

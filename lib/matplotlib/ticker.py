@@ -1987,7 +1987,7 @@ class MaxNLocator(Locator):
                           prune=None,
                           min_n_ticks=2)
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, nbins=None, **kwargs):
         """
         Parameters
         ----------
@@ -2024,17 +2024,8 @@ class MaxNLocator(Locator):
             Relax *nbins* and *integer* constraints if necessary to obtain
             this minimum number of ticks.
         """
-        if args:
-            if 'nbins' in kwargs:
-                _api.deprecated("3.1",
-                                message='Calling MaxNLocator with positional '
-                                        'and keyword parameter *nbins* is '
-                                        'considered an error and will fail '
-                                        'in future versions of matplotlib.')
-            kwargs['nbins'] = args[0]
-            if len(args) > 1:
-                raise ValueError(
-                    "Keywords are required for all arguments except 'nbins'")
+        if nbins is not None:
+            kwargs['nbins'] = nbins
         self.set_params(**{**self.default_params, **kwargs})
 
     @staticmethod

@@ -19,7 +19,7 @@ import numpy as np
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import _api, cbook
+from matplotlib import cbook
 from matplotlib.testing.exceptions import ImageComparisonFailure
 
 _log = logging.getLogger(__name__)
@@ -62,25 +62,6 @@ def get_file_hash(path, block_size=2 ** 20):
                    .encode('utf-8'))
 
     return md5.hexdigest()
-
-
-@_api.deprecated("3.3")
-def make_external_conversion_command(cmd):
-    def convert(old, new):
-        cmdline = cmd(old, new)
-        pipe = subprocess.Popen(cmdline, universal_newlines=True,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = pipe.communicate()
-        errcode = pipe.wait()
-        if not os.path.exists(new) or errcode:
-            msg = "Conversion command failed:\n%s\n" % ' '.join(cmdline)
-            if stdout:
-                msg += "Standard output:\n%s\n" % stdout
-            if stderr:
-                msg += "Standard error:\n%s\n" % stderr
-            raise IOError(msg)
-
-    return convert
 
 
 # Modified from https://bugs.python.org/issue25567.

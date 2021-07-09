@@ -304,7 +304,7 @@ def test_add_collection():
     assert ax.dataLim.bounds == bounds
 
 
-@pytest.mark.style('mpl20')
+@mpl.style.context('mpl20')
 @check_figures_equal(extensions=['png'])
 def test_collection_log_datalim(fig_test, fig_ref):
     # Data limits should respect the minimum x/y when using log scale.
@@ -515,7 +515,7 @@ def test_pandas_indexing(pd):
     Collection(antialiaseds=aa)
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_lslw_bcast():
     col = mcollections.PathCollection([])
     col.set_linestyles(['-', '-'])
@@ -529,7 +529,7 @@ def test_lslw_bcast():
     assert (col.get_linewidths() == [1, 2, 3]).all()
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_capstyle():
     col = mcollections.PathCollection([], capstyle='round')
     assert col.get_capstyle() == 'round'
@@ -537,7 +537,7 @@ def test_capstyle():
     assert col.get_capstyle() == 'butt'
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_joinstyle():
     col = mcollections.PathCollection([], joinstyle='round')
     assert col.get_joinstyle() == 'round'
@@ -933,7 +933,7 @@ def test_legend_inverse_size_label_relationship():
     assert_array_almost_equal(handle_sizes, legend_sizes, decimal=1)
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @pytest.mark.parametrize('pcfunc', [plt.pcolor, plt.pcolormesh])
 def test_color_logic(pcfunc):
     z = np.arange(12).reshape(3, 4)
@@ -1039,3 +1039,12 @@ def test_quadmesh_cursor_data():
         x, y = ax.transData.transform([-1, 101])
         event = MouseEvent('motion_notify_event', fig.canvas, x, y)
         assert qm.get_cursor_data(event) is None
+
+
+def test_get_segments():
+    segments = np.tile(np.linspace(0, 1, 256), (2, 1)).T
+    lc = LineCollection([segments])
+
+    readback, = lc.get_segments()
+    # these should comeback un-changed!
+    assert np.all(segments == readback)

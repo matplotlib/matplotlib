@@ -63,7 +63,7 @@ Currently, the supported fonts are:
 family            fonts
 ================= ============================================================
 ``'serif'``         ``'New Century Schoolbook'``, ``'Bookman'``, ``'Times'``,
-                    ``'Palatino'``, ``'Charter'``, ``'Computer Moderm Roman'``
+                    ``'Palatino'``, ``'Charter'``, ``'Computer Modern Roman'``
 
 ``'sans-serif'``  ``'Helvetica'``, ``'Avant Garde'``, ``'Computer Modern
                   Serif'``

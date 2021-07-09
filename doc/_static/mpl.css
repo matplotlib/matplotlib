@@ -207,3 +207,9 @@ does not float with it.
     visibility: hidden;
 
 }
+
+
+table.property-table th,
+table.property-table td {
+    padding: 4px 10px;
+}

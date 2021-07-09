@@ -3,9 +3,9 @@
 .. currentmodule:: matplotlib
 
 
-==================================================
- Interactive Figures and Asynchronous Programming
-==================================================
+================================================
+Interactive figures and asynchronous programming
+================================================
 
 Matplotlib supports rich interactive figures by embedding figures into
 a GUI window.  The basic interactions of panning and zooming in an
@@ -21,7 +21,7 @@ handling system <event-handling-tutorial>`, `Interactive Tutorial
 `Interactive Applications using Matplotlib
 <http://www.amazon.com/Interactive-Applications-using-Matplotlib-Benjamin/dp/1783988843>`__.
 
-Event Loops
+Event loops
 ===========
 
 Fundamentally, all user interaction (and networking) is implemented as
@@ -71,7 +71,7 @@ interfaces.
 
 .. _cp_integration:
 
-Command Prompt Integration
+Command prompt integration
 ==========================
 
 So far, so good.  We have the REPL (like the IPython terminal) that
@@ -92,7 +92,7 @@ responsive we need a method to allow the loops to 'timeshare' :
 
 .. _cp_block_the_prompt:
 
-Blocking the Prompt
+Blocking the prompt
 -------------------
 
 .. autosummary::
@@ -138,7 +138,7 @@ between polling for additional data.  See :ref:`interactive_scripts`
 for more details.
 
 
-Input Hook integration
+Input hook integration
 ----------------------
 
 While running the GUI event loop in a blocking mode or explicitly
@@ -236,7 +236,7 @@ which would poll for new data and update the figure at 1Hz.
 
 .. _spin_event_loop:
 
-Explicitly spinning the Event Loop
+Explicitly spinning the event Loop
 ----------------------------------
 
 .. autosummary::
@@ -306,7 +306,7 @@ resources on the visualization and less on your computation.
 
 .. _stale_artists:
 
-Stale Artists
+Stale artists
 =============
 
 Artists (as of Matplotlib 1.5) have a **stale** attribute which is

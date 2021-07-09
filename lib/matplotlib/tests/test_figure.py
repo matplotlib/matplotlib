@@ -409,7 +409,7 @@ def test_autofmt_xdate(which):
             assert int(label.get_rotation()) == angle
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_change_dpi():
     fig = plt.figure(figsize=(4, 4))
     fig.draw_no_output()
@@ -598,7 +598,7 @@ def test_removed_axis():
     fig.canvas.draw()
 
 
-@pytest.mark.style('mpl20')
+@mpl.style.context('mpl20')
 def test_picking_does_not_stale():
     fig, ax = plt.subplots()
     col = ax.scatter([0], [0], [1000], picker=True)

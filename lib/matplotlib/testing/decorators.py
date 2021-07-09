@@ -18,7 +18,6 @@ from matplotlib import cbook
 from matplotlib import ft2font
 from matplotlib import pyplot as plt
 from matplotlib import ticker
-
 from .compare import comparable_formats, compare_images, make_test_filename
 from .exceptions import ImageComparisonFailure
 
@@ -220,7 +219,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
 
         @functools.wraps(func)
         @pytest.mark.parametrize('extension', extensions)
-        @pytest.mark.style(style)
+        @matplotlib.style.context(style)
         @_checked_on_freetype_version(freetype_version)
         @functools.wraps(func)
         def wrapper(*args, extension, request, **kwargs):

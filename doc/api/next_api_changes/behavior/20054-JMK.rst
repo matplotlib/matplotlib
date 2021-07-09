@@ -1,15 +1,3 @@
-Axes used to make colorbar now wrapped
-======================================
-
-The axes used to place a colorbar is now wrapped by a new parent class
-(``ColorbarAxes``) when the colorbar is created::
-
-    cb = fig.colorbar(im, cax=cax)
-
-This means that ``cb.ax`` is no longer the same object as ``cax``. However, 
-we map all the methods from ``cb.ax`` onto ``cax`` so ``cax`` should remain 
-functionally the same as ``cb.ax``.  
-
 Colorbar lines no longer clipped
 ================================
 
@@ -17,3 +5,8 @@ If a colorbar has lines added to it (e.g. for contour lines), these will
 no longer be clipped.  This is an improvement for lines on the edge of
 the colorbar, but could lead to lines off the colorbar if the limits of
 the colorbar are changed.
+
+``Colorbar.patch`` is deprecated
+================================
+
+This attribute is not correctly updated anymore.

@@ -65,7 +65,7 @@ class AnnotatedCursor(Cursor):
 
     Other Parameters
     ----------------
-    textprops : `matplotlib.text` properties as dictionay
+    textprops : `matplotlib.text` properties as dictionary
         Specifies the appearance of the rendered text object.
 
     **cursorargs : `matplotlib.widgets.Cursor` properties
@@ -161,7 +161,7 @@ class AnnotatedCursor(Cursor):
         # Draw the widget, if event coordinates are valid.
         if plotpoint is not None:
             # Update position and displayed text.
-            # Position: Where the event occured.
+            # Position: Where the event occurred.
             # Text: Determined by set_position() method earlier
             # Position is transformed to pixel coordinates,
             # an offset is added there and this is transformed back.

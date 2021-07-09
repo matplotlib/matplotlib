@@ -48,7 +48,9 @@ class Axes3D(Axes):
     3D axes object.
     """
     name = '3d'
-    _shared_z_axes = cbook.Grouper()
+
+    _axis_names = ("x", "y", "z")
+    Axes._shared_axes["z"] = cbook.Grouper()
 
     def __init__(
             self, fig, rect=None, *args,
@@ -106,7 +108,6 @@ class Axes3D(Axes):
         self.zz_viewLim = Bbox.unit()
         self.xy_dataLim = Bbox.unit()
         self.zz_dataLim = Bbox.unit()
-        self._stale_viewlim_z = False
 
         # inhibit autoscale_view until the axes are defined
         # they can't be defined until Axes.__init__ has been called
@@ -114,7 +115,7 @@ class Axes3D(Axes):
 
         self._sharez = sharez
         if sharez is not None:
-            self._shared_z_axes.join(self, sharez)
+            self._shared_axes["z"].join(self, sharez)
             self._adjustable = 'datalim'
 
         auto_add_to_figure = kwargs.pop('auto_add_to_figure', True)
@@ -215,27 +216,6 @@ class Axes3D(Axes):
     w_zaxis = _api.deprecated("3.1", alternative="zaxis", pending=True)(
         property(lambda self: self.zaxis))
 
-    def _get_axis_list(self):
-        return super()._get_axis_list() + (self.zaxis, )
-
-    def _unstale_viewLim(self):
-        # We should arrange to store this information once per share-group
-        # instead of on every axis.
-        scalex = any(ax._stale_viewlim_x
-                     for ax in self._shared_x_axes.get_siblings(self))
-        scaley = any(ax._stale_viewlim_y
-                     for ax in self._shared_y_axes.get_siblings(self))
-        scalez = any(ax._stale_viewlim_z
-                     for ax in self._shared_z_axes.get_siblings(self))
-        if scalex or scaley or scalez:
-            for ax in self._shared_x_axes.get_siblings(self):
-                ax._stale_viewlim_x = False
-            for ax in self._shared_y_axes.get_siblings(self):
-                ax._stale_viewlim_y = False
-            for ax in self._shared_z_axes.get_siblings(self):
-                ax._stale_viewlim_z = False
-            self.autoscale_view(scalex=scalex, scaley=scaley, scalez=scalez)
-
     def unit_cube(self, vals=None):
         minx, maxx, miny, maxy, minz, maxz = vals or self.get_w_lims()
         return [(minx, miny, minz),
@@ -316,7 +296,7 @@ class Axes3D(Axes):
             etc.
             =====   =====================
 
-            See `.set_anchor` for further details.
+            See `~.Axes.set_anchor` for further details.
 
         share : bool, default: False
             If ``True``, apply the settings to all shared Axes.
@@ -330,37 +310,8 @@ class Axes3D(Axes):
                 "Axes3D currently only supports the aspect argument "
                 f"'auto'. You passed in {aspect!r}."
             )
-
-        if share:
-            axes = {*self._shared_x_axes.get_siblings(self),
-                    *self._shared_y_axes.get_siblings(self),
-                    *self._shared_z_axes.get_siblings(self),
-                    }
-        else:
-            axes = {self}
-
-        for ax in axes:
-            ax._aspect = aspect
-            ax.stale = True
-
-        if anchor is not None:
-            self.set_anchor(anchor, share=share)
-
-    def set_anchor(self, anchor, share=False):
-        # docstring inherited
-        if not (anchor in mtransforms.Bbox.coefs or len(anchor) == 2):
-            raise ValueError('anchor must be among %s' %
-                             ', '.join(mtransforms.Bbox.coefs))
-        if share:
-            axes = {*self._shared_x_axes.get_siblings(self),
-                    *self._shared_y_axes.get_siblings(self),
-                    *self._shared_z_axes.get_siblings(self),
-                    }
-        else:
-            axes = {self}
-        for ax in axes:
-            ax._anchor = anchor
-            ax.stale = True
+        super().set_aspect(
+            aspect, adjustable=adjustable, anchor=anchor, share=share)
 
     def set_box_aspect(self, aspect, *, zoom=1):
         """
@@ -564,21 +515,21 @@ class Axes3D(Axes):
 
     def set_xmargin(self, m):
         # docstring inherited
-        scalez = self._stale_viewlim_z
+        scalez = self._stale_viewlims["z"]
         super().set_xmargin(m)
         # Superclass is 2D and will call _request_autoscale_view with defaults
         # for unknown Axis, which would be scalez=True, but it shouldn't be for
         # this call, so restore it.
-        self._stale_viewlim_z = scalez
+        self._stale_viewlims["z"] = scalez
 
     def set_ymargin(self, m):
         # docstring inherited
-        scalez = self._stale_viewlim_z
+        scalez = self._stale_viewlims["z"]
         super().set_ymargin(m)
         # Superclass is 2D and will call _request_autoscale_view with defaults
         # for unknown Axis, which would be scalez=True, but it shouldn't be for
         # this call, so restore it.
-        self._stale_viewlim_z = scalez
+        self._stale_viewlims["z"] = scalez
 
     def set_zmargin(self, m):
         """
@@ -703,19 +654,6 @@ class Axes3D(Axes):
         # Let autoscale_view figure out how to use this data.
         self.autoscale_view()
 
-    # API could be better, right now this is just to match the old calls to
-    # autoscale_view() after each plotting method.
-    def _request_autoscale_view(self, tight=None, scalex=True, scaley=True,
-                                scalez=True):
-        if tight is not None:
-            self._tight = tight
-        if scalex:
-            self._stale_viewlim_x = True  # Else keep old state.
-        if scaley:
-            self._stale_viewlim_y = True
-        if scalez:
-            self._stale_viewlim_z = True
-
     def autoscale_view(self, tight=None, scalex=True, scaley=True,
                        scalez=True):
         """
@@ -740,7 +678,7 @@ class Axes3D(Axes):
             _tight = self._tight = bool(tight)
 
         if scalex and self._autoscaleXon:
-            self._shared_x_axes.clean()
+            self._shared_axes["x"].clean()
             x0, x1 = self.xy_dataLim.intervalx
             xlocator = self.xaxis.get_major_locator()
             x0, x1 = xlocator.nonsingular(x0, x1)
@@ -753,7 +691,7 @@ class Axes3D(Axes):
             self.set_xbound(x0, x1)
 
         if scaley and self._autoscaleYon:
-            self._shared_y_axes.clean()
+            self._shared_axes["y"].clean()
             y0, y1 = self.xy_dataLim.intervaly
             ylocator = self.yaxis.get_major_locator()
             y0, y1 = ylocator.nonsingular(y0, y1)
@@ -766,7 +704,7 @@ class Axes3D(Axes):
             self.set_ybound(y0, y1)
 
         if scalez and self._autoscaleZon:
-            self._shared_z_axes.clean()
+            self._shared_axes["z"].clean()
             z0, z1 = self.zz_dataLim.intervalx
             zlocator = self.zaxis.get_major_locator()
             z0, z1 = zlocator.nonsingular(z0, z1)
@@ -825,15 +763,15 @@ class Axes3D(Axes):
         self.xy_viewLim.intervalx = (left, right)
 
         # Mark viewlims as no longer stale without triggering an autoscale.
-        for ax in self._shared_x_axes.get_siblings(self):
-            ax._stale_viewlim_x = False
+        for ax in self._shared_axes["x"].get_siblings(self):
+            ax._stale_viewlims["x"] = False
         if auto is not None:
             self._autoscaleXon = bool(auto)
 
         if emit:
             self.callbacks.process('xlim_changed', self)
             # Call all of the other x-axes that are shared with this one
-            for other in self._shared_x_axes.get_siblings(self):
+            for other in self._shared_axes["x"].get_siblings(self):
                 if other is not self:
                     other.set_xlim(self.xy_viewLim.intervalx,
                                    emit=False, auto=auto)
@@ -883,15 +821,15 @@ class Axes3D(Axes):
         self.xy_viewLim.intervaly = (bottom, top)
 
         # Mark viewlims as no longer stale without triggering an autoscale.
-        for ax in self._shared_y_axes.get_siblings(self):
-            ax._stale_viewlim_y = False
+        for ax in self._shared_axes["y"].get_siblings(self):
+            ax._stale_viewlims["y"] = False
         if auto is not None:
             self._autoscaleYon = bool(auto)
 
         if emit:
             self.callbacks.process('ylim_changed', self)
             # Call all of the other y-axes that are shared with this one
-            for other in self._shared_y_axes.get_siblings(self):
+            for other in self._shared_axes["y"].get_siblings(self):
                 if other is not self:
                     other.set_ylim(self.xy_viewLim.intervaly,
                                    emit=False, auto=auto)
@@ -941,15 +879,15 @@ class Axes3D(Axes):
         self.zz_viewLim.intervalx = (bottom, top)
 
         # Mark viewlims as no longer stale without triggering an autoscale.
-        for ax in self._shared_z_axes.get_siblings(self):
-            ax._stale_viewlim_z = False
+        for ax in self._shared_axes["z"].get_siblings(self):
+            ax._stale_viewlims["z"] = False
         if auto is not None:
             self._autoscaleZon = bool(auto)
 
         if emit:
             self.callbacks.process('zlim_changed', self)
             # Call all of the other y-axes that are shared with this one
-            for other in self._shared_z_axes.get_siblings(self):
+            for other in self._shared_axes["z"].get_siblings(self):
                 if other is not self:
                     other.set_zlim(self.zz_viewLim.intervalx,
                                    emit=False, auto=auto)

@@ -1,20 +1,9 @@
 
 ================
-Next API Changes
+Next API changes
 ================
 
 .. ifconfig:: releaselevel == 'dev'
-
-   .. note::
-
-      The list below is a table of contents of individual files from the
-      most recent :file:`api_changes_X.Y` folder.
-
-      When a release is made
-
-       - The include directive below should be changed to point to the new file
-         created in the previous step.
-
 
    .. toctree::
       :glob:

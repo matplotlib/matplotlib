@@ -45,13 +45,9 @@ def _get_dash_pattern(style):
     elif isinstance(style, tuple):
         offset, dashes = style
         if offset is None:
-            _api.warn_deprecated(
-                "3.3", message="Passing the dash offset as None is deprecated "
-                "since %(since)s and support for it will be removed "
-                "%(removal)s; pass it as zero instead.")
-            offset = 0
+            raise ValueError(f'Unrecognized linestyle: {style!r}')
     else:
-        raise ValueError('Unrecognized linestyle: %s' % str(style))
+        raise ValueError(f'Unrecognized linestyle: {style!r}')
 
     # normalize offset to be positive and shorter than the dash cycle
     if dashes is not None:

@@ -636,9 +636,8 @@ class Shadow(Patch):
     def __str__(self):
         return "Shadow(%s)" % (str(self.patch))
 
-    @_api.delete_parameter("3.3", "props")
     @docstring.dedent_interpd
-    def __init__(self, patch, ox, oy, props=None, **kwargs):
+    def __init__(self, patch, ox, oy, **kwargs):
         """
         Create a shadow of the given *patch*.
 
@@ -652,8 +651,6 @@ class Shadow(Patch):
         ox, oy : float
             The shift of the shadow in data coordinates, scaled by a factor
             of dpi/72.
-        props : dict
-            *deprecated (use kwargs instead)* Properties of the shadow patch.
         **kwargs
             Properties of the shadow patch. Supported keys are:
 
@@ -661,29 +658,15 @@ class Shadow(Patch):
         """
         super().__init__()
         self.patch = patch
-        # Note: when removing props, we can directly pass kwargs to _update()
-        # and remove self._props
-        if props is None:
-            color = .3 * np.asarray(colors.to_rgb(self.patch.get_facecolor()))
-            props = {
-                'facecolor': color,
-                'edgecolor': color,
-                'alpha': 0.5,
-            }
-        self._props = {**props, **kwargs}
         self._ox, self._oy = ox, oy
         self._shadow_transform = transforms.Affine2D()
-        self._update()
 
-    props = _api.deprecate_privatize_attribute("3.3")
-
-    def _update(self):
         self.update_from(self.patch)
-
-        # Place the shadow patch directly behind the inherited patch.
-        self.set_zorder(np.nextafter(self.patch.zorder, -np.inf))
-
-        self.update(self._props)
+        color = .3 * np.asarray(colors.to_rgb(self.patch.get_facecolor()))
+        self.update({'facecolor': color, 'edgecolor': color, 'alpha': 0.5,
+                     # Place shadow patch directly behind the inherited patch.
+                     'zorder': np.nextafter(self.patch.zorder, -np.inf),
+                     **kwargs})
 
     def _update_transform(self, renderer):
         ox = renderer.points_to_pixels(self._ox)
@@ -3492,7 +3475,7 @@ class ArrowStyle(_Style):
     class BracketB(_Bracket):
         """An arrow with an outward square bracket at its end."""
 
-        def __init__(self, widthB=1., lengthB=0.2, angleB=None):
+        def __init__(self, widthB=1., lengthB=0.2, angleB=0):
             """
             Parameters
             ----------
@@ -3533,9 +3516,7 @@ class ArrowStyle(_Style):
     class BarAB(_Bracket):
         """An arrow with vertical bars ``|`` at both ends."""
 
-        def __init__(self,
-                     widthA=1., angleA=None,
-                     widthB=1., angleB=None):
+        def __init__(self, widthA=1., angleA=0, widthB=1., angleB=0):
             """
             Parameters
             ----------

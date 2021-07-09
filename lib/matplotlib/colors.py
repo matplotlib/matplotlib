@@ -1500,6 +1500,7 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     Norm.__name__ = base_norm_cls.__name__
     Norm.__qualname__ = base_norm_cls.__qualname__
     Norm.__module__ = base_norm_cls.__module__
+    Norm.__doc__ = base_norm_cls.__doc__
     Norm.__init__.__signature__ = bound_init_signature.replace(parameters=[
         inspect.Parameter("self", inspect.Parameter.POSITIONAL_OR_KEYWORD),
         *bound_init_signature.parameters.values()])
@@ -1545,11 +1546,11 @@ class LogNorm(Normalize):
 
     def autoscale(self, A):
         # docstring inherited.
-        super().autoscale(np.ma.masked_less_equal(A, 0, copy=False))
+        super().autoscale(np.ma.array(A, mask=(A <= 0)))
 
     def autoscale_None(self, A):
         # docstring inherited.
-        super().autoscale_None(np.ma.masked_less_equal(A, 0, copy=False))
+        super().autoscale_None(np.ma.array(A, mask=(A <= 0)))
 
 
 @_make_norm_from_scale(
@@ -1731,7 +1732,7 @@ class BoundaryNorm(Normalize):
         else:
             max_col = self.Ncmap
         # this gives us the bins in the lookup table in the range
-        # [0, _n_regions - 1]  (the offset is baked in the init)
+        # [0, _n_regions - 1]  (the offset is set in the init)
         iret = np.digitize(xx, self.boundaries) - 1 + self._offset
         # if we have more colors than regions, stretch the region
         # index computed above to full range of the color bins.  This
