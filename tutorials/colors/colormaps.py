@@ -278,7 +278,7 @@ for cmap_category, cmap_list in cmaps.items():
             # Plot colormap L values.  Do separately for each category
             # so each plot can be pretty.  To make scatter markers change
             # color along plot:
-            # https://stackoverflow.com/q/8202605/353337
+            # https://stackoverflow.com/q/8202605/
 
             if cmap_category == 'Sequential':
                 # These colormaps all start at high lightness but we want them

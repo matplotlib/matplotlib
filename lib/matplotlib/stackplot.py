@@ -1,7 +1,7 @@
 """
 Stacked area plot for 1D arrays inspired by Douglas Y'barbo's stackoverflow
 answer:
-https://stackoverflow.com/q/2225995/353337
+https://stackoverflow.com/q/2225995/
 
 (https://stackoverflow.com/users/66549/doug)
 """

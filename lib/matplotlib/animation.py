@@ -44,7 +44,7 @@ _log = logging.getLogger(__name__)
 
 # Process creation flag for subprocess to prevent it raising a terminal
 # window. See for example:
-# https://stackoverflow.com/q/24130623/353337
+# https://stackoverflow.com/q/24130623/
 if sys.platform == 'win32':
     subprocess_creation_flags = CREATE_NO_WINDOW = 0x08000000
 else:
@@ -56,7 +56,7 @@ else:
 # * libming (produces swf) python wrappers: https://github.com/libming/libming
 # * Wrap x264 API:
 
-# (https://stackoverflow.com/q/2940671/353337)
+# (https://stackoverflow.com/q/2940671/)
 
 
 def adjusted_figsize(w, h, dpi, n):
