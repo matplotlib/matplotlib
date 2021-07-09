@@ -17,8 +17,8 @@ def check_rectangle(**kwargs):
         ax._got_onselect = True
         assert epress.xdata == 100
         assert epress.ydata == 100
-        assert erelease.xdata == 199
-        assert erelease.ydata == 199
+        assert erelease.xdata == 200
+        assert erelease.ydata == 200
 
     tool = widgets.RectangleSelector(ax, onselect, **kwargs)
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
