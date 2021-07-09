@@ -992,7 +992,7 @@ class TextBox(AxesWidget):
         lambda self: self._observers.callbacks['change']))
     submit_observers = _api.deprecated("3.4")(property(
         lambda self: self._observers.callbacks['submit']))
-    DIST_FROM_LEFT = _api.deprecated("3.4")(property(
+    DIST_FROM_LEFT = _api.deprecated("3.5")(property(
         lambda self: self.DIST_FROM_LEFT))
 
     def __init__(self, ax, label, initial='',
