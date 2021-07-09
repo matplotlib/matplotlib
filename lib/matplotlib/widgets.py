@@ -1027,7 +1027,7 @@ class TextBox(AxesWidget):
 
         # TextBox's text object should not parse mathtext at all.
         self.text_disp = self.ax.text(
-            self.text_position, 0.5, initial, transform=self.ax.transAxes,
+            self._text_position, 0.5, initial, transform=self.ax.transAxes,
             verticalalignment='center', horizontalalignment=textalignment,
             parse_math=False)
 
