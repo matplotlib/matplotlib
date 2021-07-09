@@ -2698,12 +2698,7 @@ class RectangleSelector(_SelectorWidget):
             # Clear previous rectangle before drawing new rectangle.
             self.update()
 
-        if self._active_handle is None:
-            x = event.xdata
-            y = event.ydata
-            self.visible = True
-        else:
-            self.set_visible(True)
+        self.set_visible(True)
 
         return False
 
