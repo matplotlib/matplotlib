@@ -39,6 +39,10 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
             self._dpi_ratio, old_value = value, self._dpi_ratio
             self.figure.dpi = self.figure.dpi / old_value * self._dpi_ratio
 
+    def set_cursor(self, cursor):
+        # docstring inherited
+        _macosx.set_cursor(cursor)
+
     def _draw(self):
         renderer = self.get_renderer(cleared=self.figure.stale)
         if self.figure.stale:
@@ -107,9 +111,6 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
     def release_zoom(self, event):
         super().release_zoom(event)
         self.canvas.remove_rubberband()
-
-    def set_cursor(self, cursor):
-        _macosx.set_cursor(cursor)
 
     def save_figure(self, *args):
         filename = _macosx.choose_save_file('Save the figure',

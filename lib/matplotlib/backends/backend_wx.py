@@ -719,6 +719,12 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         if self:
             event.Skip()
 
+    def set_cursor(self, cursor):
+        # docstring inherited
+        cursor = wx.Cursor(_api.check_getitem(cursord, cursor=cursor))
+        self.SetCursor(cursor)
+        self.Update()
+
     def _set_capture(self, capture=True):
         """Control wx mouse capture."""
         if self.HasCapture():
@@ -1154,11 +1160,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                 self.canvas.figure.savefig(str(path), format=fmt)
             except Exception as e:
                 error_msg_wx(str(e))
-
-    def set_cursor(self, cursor):
-        cursor = wx.Cursor(cursord[cursor])
-        self.canvas.SetCursor(cursor)
-        self.canvas.Update()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height

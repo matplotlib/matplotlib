@@ -241,6 +241,10 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         window.screenChanged.connect(self._update_screen)
         self._update_screen(window.screen())
 
+    def set_cursor(self, cursor):
+        # docstring inherited
+        self.setCursor(_api.check_getitem(cursord, cursor=cursor))
+
     def enterEvent(self, event):
         try:
             x, y = self.mouseEventCoords(event.pos())
@@ -701,9 +705,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self.message.emit(s)
         if self.coordinates:
             self.locLabel.setText(s)
-
-    def set_cursor(self, cursor):
-        self.canvas.setCursor(cursord[cursor])
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height

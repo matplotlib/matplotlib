@@ -157,6 +157,19 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     def draw_idle(self):
         self.send_event("draw")
 
+    def set_cursor(self, cursor):
+        # docstring inherited
+        cursor = _api.check_getitem({
+            backend_tools.Cursors.HAND: 'pointer',
+            backend_tools.Cursors.POINTER: 'default',
+            backend_tools.Cursors.SELECT_REGION: 'crosshair',
+            backend_tools.Cursors.MOVE: 'move',
+            backend_tools.Cursors.WAIT: 'wait',
+            backend_tools.Cursors.RESIZE_HORIZONTAL: 'ew-resize',
+            backend_tools.Cursors.RESIZE_VERTICAL: 'ns-resize',
+        }, cursor=cursor)
+        self.send_event('cursor', cursor=cursor)
+
     def set_image_mode(self, mode):
         """
         Set the image mode for any subsequent images which will be sent
@@ -362,29 +375,17 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
         if name_of_method in _ALLOWED_TOOL_ITEMS
     ]
 
+    cursor = _api.deprecate_privatize_attribute("3.5")
+
     def __init__(self, canvas):
         self.message = ''
-        self.cursor = None
+        self._cursor = None  # Remove with deprecation.
         super().__init__(canvas)
 
     def set_message(self, message):
         if message != self.message:
             self.canvas.send_event("message", message=message)
         self.message = message
-
-    def set_cursor(self, cursor):
-        if cursor != self.cursor:
-            cursor = {
-                backend_tools.Cursors.HAND: 'pointer',
-                backend_tools.Cursors.POINTER: 'default',
-                backend_tools.Cursors.SELECT_REGION: 'crosshair',
-                backend_tools.Cursors.MOVE: 'move',
-                backend_tools.Cursors.WAIT: 'wait',
-                backend_tools.Cursors.RESIZE_HORIZONTAL: 'ew-resize',
-                backend_tools.Cursors.RESIZE_VERTICAL: 'ns-resize',
-            }[cursor]
-            self.canvas.send_event("cursor", cursor=cursor)
-        self.cursor = cursor
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         self.canvas.send_event(

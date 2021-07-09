@@ -2011,6 +2011,24 @@ class FigureCanvasBase:
         if self.mouse_grabber is ax:
             self.mouse_grabber = None
 
+    def set_cursor(self, cursor):
+        """
+        Set the current cursor.
+
+        This may have no effect if the backend does not display anything.
+
+        If required by the backend, this method should trigger an update in
+        the backend event loop after the cursor is set, as this method may be
+        called e.g. before a long-running task during which the GUI is not
+        updated.
+
+        Parameters
+        ----------
+        cursor : `.Cursors`
+            The cursor to dispay over the canvas. Note: some backends may
+            change the cursor for the entire window.
+        """
+
     def draw(self, *args, **kwargs):
         """
         Render the `.Figure`.
@@ -2914,7 +2932,7 @@ class NavigationToolbar2:
         canvas.toolbar = self
         self._nav_stack = cbook.Stack()
         # This cursor will be set after the initial draw.
-        self._lastCursor = cursors.POINTER
+        self._lastCursor = tools.Cursors.POINTER
 
         self._id_press = self.canvas.mpl_connect(
             'button_press_event', self._zoom_pan_handler)
@@ -2983,16 +3001,16 @@ class NavigationToolbar2:
         """
         if self.mode and event.inaxes and event.inaxes.get_navigate():
             if (self.mode == _Mode.ZOOM
-                    and self._lastCursor != cursors.SELECT_REGION):
-                self.set_cursor(cursors.SELECT_REGION)
-                self._lastCursor = cursors.SELECT_REGION
+                    and self._lastCursor != tools.Cursors.SELECT_REGION):
+                self.canvas.set_cursor(tools.Cursors.SELECT_REGION)
+                self._lastCursor = tools.Cursors.SELECT_REGION
             elif (self.mode == _Mode.PAN
-                  and self._lastCursor != cursors.MOVE):
-                self.set_cursor(cursors.MOVE)
-                self._lastCursor = cursors.MOVE
-        elif self._lastCursor != cursors.POINTER:
-            self.set_cursor(cursors.POINTER)
-            self._lastCursor = cursors.POINTER
+                  and self._lastCursor != tools.Cursors.MOVE):
+                self.canvas.set_cursor(tools.Cursors.MOVE)
+                self._lastCursor = tools.Cursors.MOVE
+        elif self._lastCursor != tools.Cursors.POINTER:
+            self.canvas.set_cursor(tools.Cursors.POINTER)
+            self._lastCursor = tools.Cursors.POINTER
 
     @contextmanager
     def _wait_cursor_for_draw_cm(self):
@@ -3009,10 +3027,10 @@ class NavigationToolbar2:
             time.time(), getattr(self, "_draw_time", -np.inf))
         if self._draw_time - last_draw_time > 1:
             try:
-                self.set_cursor(cursors.WAIT)
+                self.canvas.set_cursor(tools.Cursors.WAIT)
                 yield
             finally:
-                self.set_cursor(self._lastCursor)
+                self.canvas.set_cursor(self._lastCursor)
         else:
             yield
 
