@@ -2701,8 +2701,6 @@ class RectangleSelector(_SelectorWidget):
         if self._active_handle is None:
             x = event.xdata
             y = event.ydata
-            self.visible = False
-            self.extents = x, x, y, y
             self.visible = True
         else:
             self.set_visible(True)
@@ -2713,18 +2711,6 @@ class RectangleSelector(_SelectorWidget):
         """Button release event handler."""
         if not self._interactive:
             self._to_draw.set_visible(False)
-
-        # update the eventpress and eventrelease with the resulting extents
-        x0, x1, y0, y1 = self.extents
-        self._eventpress.xdata = x0
-        self._eventpress.ydata = y0
-        xy0 = self.ax.transData.transform([x0, y0])
-        self._eventpress.x, self._eventpress.y = xy0
-
-        self._eventrelease.xdata = x1
-        self._eventrelease.ydata = y1
-        xy1 = self.ax.transData.transform([x1, y1])
-        self._eventrelease.x, self._eventrelease.y = xy1
 
         # calculate dimensions of box or line
         if self.spancoords == 'data':
