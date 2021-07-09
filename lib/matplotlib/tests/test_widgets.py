@@ -343,15 +343,18 @@ def test_TextBox():
     tool = widgets.TextBox(ax, 'Evaluate')
     tool.on_submit(submit_event)
     tool.on_text_change(text_change_event)
-    tool.set_val('x**2')
+    tool.set_val('')
 
-    assert tool.text == 'x**2'
+    assert tool.text == ''
     assert text_change_event.call_count == 1
 
     tool.begin_typing(tool.text)
     tool.stop_typing()
-
+    do_event(tool, '_click')
+    
     assert submit_event.call_count == 2
+    
+    tool.set_val('x**2')
     do_event(tool, '_click')
     do_event(tool, '_keypress', key='+')
     do_event(tool, '_keypress', key='5')
