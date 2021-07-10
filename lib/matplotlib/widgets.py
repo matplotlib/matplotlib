@@ -1577,7 +1577,7 @@ class Cursor(AxesWidget):
 
     Other Parameters
     ----------------
-    **lineprops
+    **props
         `.Line2D` properties that control the appearance of the lines.
         See also `~.Axes.axhline`.
 
@@ -1586,8 +1586,9 @@ class Cursor(AxesWidget):
     See :doc:`/gallery/widgets/cursor`.
     """
 
+    @_api.rename_parameter("3.5", "lineprops", "props")
     def __init__(self, ax, horizOn=True, vertOn=True, useblit=False,
-                 **lineprops):
+                 **props):
         super().__init__(ax)
 
         self.connect_event('motion_notify_event', self.onmove)
@@ -1599,9 +1600,9 @@ class Cursor(AxesWidget):
         self.useblit = useblit and self.canvas.supports_blit
 
         if self.useblit:
-            lineprops['animated'] = True
-        self.lineh = ax.axhline(ax.get_ybound()[0], visible=False, **lineprops)
-        self.linev = ax.axvline(ax.get_xbound()[0], visible=False, **lineprops)
+            props['animated'] = True
+        self.lineh = ax.axhline(ax.get_ybound()[0], visible=False, **props)
+        self.linev = ax.axvline(ax.get_xbound()[0], visible=False, **props)
 
         self.background = None
         self.needclear = False
@@ -1675,8 +1676,9 @@ class MultiCursor(Widget):
         plt.show()
 
     """
+    @_api.rename_parameter("3.5", "lineprops", "props")
     def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True,
-                 **lineprops):
+                 **props):
 
         self.canvas = canvas
         self.axes = axes
@@ -1694,16 +1696,16 @@ class MultiCursor(Widget):
         self.needclear = False
 
         if self.useblit:
-            lineprops['animated'] = True
+            props['animated'] = True
 
         if vertOn:
-            self.vlines = [ax.axvline(xmid, visible=False, **lineprops)
+            self.vlines = [ax.axvline(xmid, visible=False, **props)
                            for ax in axes]
         else:
             self.vlines = []
 
         if horizOn:
-            self.hlines = [ax.axhline(ymid, visible=False, **lineprops)
+            self.hlines = [ax.axhline(ymid, visible=False, **props)
                            for ax in axes]
         else:
             self.hlines = []
@@ -2020,7 +2022,7 @@ class SpanSelector(_SelectorWidget):
         If True, use the backend-dependent blitting features for faster
         canvas updates.
 
-    rectprops : dict, optional
+    props : dict, optional
         Dictionary of `matplotlib.patches.Patch` properties.
         Default:
             ``dict(facecolor='red', alpha=0.5)``
@@ -2060,26 +2062,26 @@ class SpanSelector(_SelectorWidget):
     >>> ax.plot([1, 2, 3], [10, 50, 100])
     >>> def onselect(vmin, vmax):
     ...     print(vmin, vmax)
-    >>> rectprops = dict(facecolor='blue', alpha=0.5)
     >>> span = mwidgets.SpanSelector(ax, onselect, 'horizontal',
-    ...                              rectprops=rectprops)
+    ...                              props=dict(facecolor='blue', alpha=0.5))
     >>> fig.show()
 
     See also: :doc:`/gallery/widgets/span_selector`
     """
 
+    @_api.rename_parameter("3.5", "rectprops", "props")
     @_api.rename_parameter("3.5", "span_stays", "interactive")
     def __init__(self, ax, onselect, direction, minspan=0, useblit=False,
-                 rectprops=None, onmove_callback=None, interactive=False,
+                 props=None, onmove_callback=None, interactive=False,
                  button=None, handle_props=None, handle_grab_distance=10,
                  drag_from_anywhere=False):
 
         super().__init__(ax, onselect, useblit=useblit, button=button)
 
-        if rectprops is None:
-            rectprops = dict(facecolor='red', alpha=0.5)
+        if props is None:
+            props = dict(facecolor='red', alpha=0.5)
 
-        rectprops['animated'] = self.useblit
+        props['animated'] = self.useblit
 
         self.direction = direction
 
@@ -2091,7 +2093,7 @@ class SpanSelector(_SelectorWidget):
         # but we maintain it until it is removed
         self._pressv = None
 
-        self._rectprops = rectprops
+        self._props = props
         self.onmove_callback = onmove_callback
         self.minspan = minspan
 
@@ -2105,12 +2107,13 @@ class SpanSelector(_SelectorWidget):
         self.new_axes(ax)
 
         # Setup handles
-        props = dict(color=rectprops.get('facecolor', 'r'))
-        props.update(cbook.normalize_kwargs(handle_props, Line2D._alias_map))
+        _handle_props = dict(color=props.get('facecolor', 'r'))
+        _handle_props.update(cbook.normalize_kwargs(handle_props,
+                                                    Line2D._alias_map))
 
         if self._interactive:
             self._edge_order = ['min', 'max']
-            self._setup_edge_handle(props)
+            self._setup_edge_handle(_handle_props)
 
         self._active_handle = None
 
@@ -2119,7 +2122,9 @@ class SpanSelector(_SelectorWidget):
 
     rect = _api.deprecate_privatize_attribute("3.5")
 
-    rectprops = _api.deprecate_privatize_attribute("3.5")
+    rectprops = _api.deprecated("3.5")(
+        property(lambda self: self._props)
+        )
 
     active_handle = _api.deprecate_privatize_attribute("3.5")
 
@@ -2150,7 +2155,7 @@ class SpanSelector(_SelectorWidget):
         self._rect = Rectangle((0, 0), w, h,
                                transform=trans,
                                visible=False,
-                               **self._rectprops)
+                               **self._props)
 
         self.ax.add_patch(self._rect)
         if len(self.artists) > 0:
@@ -2533,7 +2538,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         Whether to use blitting for faster drawing (if supported by the
         backend).
 
-    rectprops : dict, optional
+    props : dict, optional
         Properties with which the __ARTIST_NAME__ is drawn.
         Default:
             ``dict(facecolor='red', edgecolor='black', alpha=0.2, fill=True))``
@@ -2593,9 +2598,9 @@ class RectangleSelector(_SelectorWidget):
     >>> def onselect(eclick, erelease):
     ...     print(eclick.xdata, eclick.ydata)
     ...     print(erelease.xdata, erelease.ydata)
-    >>> rectprops = dict(facecolor='blue', alpha=0.5)
-    >>> rect = mwidgets.RectangleSelector(ax, onselect, rectprops=rectprops,
-                                          interactive=True)
+    >>> props = dict(facecolor='blue', alpha=0.5)
+    >>> rect = mwidgets.RectangleSelector(ax, onselect, interactive=True,
+                                          props=props)
     >>> fig.show()
 
     See also: :doc:`/gallery/widgets/rectangle_selector`
@@ -2605,11 +2610,12 @@ class RectangleSelector(_SelectorWidget):
 
     @_api.rename_parameter("3.5", "maxdist", "handle_grab_distance")
     @_api.rename_parameter("3.5", "marker_props", "handle_props")
+    @_api.rename_parameter("3.5", "rectprops", "props")
     @_api.delete_parameter("3.5", "drawtype")
     @_api.delete_parameter("3.5", "lineprops")
     def __init__(self, ax, onselect, drawtype='box',
                  minspanx=0, minspany=0, useblit=False,
-                 lineprops=None, rectprops=None, spancoords='data',
+                 lineprops=None, props=None, spancoords='data',
                  button=None, handle_grab_distance=10, handle_props=None,
                  interactive=False, state_modifier_keys=None,
                  drag_from_anywhere=False):
@@ -2626,19 +2632,19 @@ class RectangleSelector(_SelectorWidget):
                 "3.5", message="Support for drawtype='none' is deprecated "
                                "since %(since)s and will be removed "
                                "%(removal)s."
-                               "Use rectprops=dict(visible=False) instead.")
+                               "Use props=dict(visible=False) instead.")
             drawtype = 'line'
             self.visible = False
 
         if drawtype == 'box':
-            if rectprops is None:
-                rectprops = dict(facecolor='red', edgecolor='black',
-                                 alpha=0.2, fill=True)
-            rectprops['animated'] = self.useblit
-            _rectprops = rectprops
-            self.visible = _rectprops.pop('visible', self.visible)
+            if props is None:
+                props = dict(facecolor='red', edgecolor='black',
+                             alpha=0.2, fill=True)
+            props['animated'] = self.useblit
+            _props = props
+            self.visible = _props.pop('visible', self.visible)
             self._to_draw = self._shape_klass((0, 0), 0, 1, visible=False,
-                                              **_rectprops)
+                                              **_props)
             self.ax.add_patch(self._to_draw)
         if drawtype == 'line':
             _api.warn_deprecated(
@@ -2663,25 +2669,27 @@ class RectangleSelector(_SelectorWidget):
 
         self.handle_grab_distance = handle_grab_distance
 
-        if rectprops is None:
-            props = dict(markeredgecolor='r')
+        if props is None:
+            _handle_props = dict(markeredgecolor='r')
         else:
-            props = dict(markeredgecolor=rectprops.get('edgecolor', 'r'))
-        props.update(cbook.normalize_kwargs(handle_props, Line2D._alias_map))
+            _handle_props = dict(markeredgecolor=props.get('edgecolor', 'r'))
+        _handle_props.update(cbook.normalize_kwargs(handle_props,
+                                                    Line2D._alias_map))
         self._corner_order = ['NW', 'NE', 'SE', 'SW']
         xc, yc = self.corners
-        self._corner_handles = ToolHandles(self.ax, xc, yc, marker_props=props,
+        self._corner_handles = ToolHandles(self.ax, xc, yc,
+                                           marker_props=_handle_props,
                                            useblit=self.useblit)
 
         self._edge_order = ['W', 'N', 'E', 'S']
         xe, ye = self.edge_centers
         self._edge_handles = ToolHandles(self.ax, xe, ye, marker='s',
-                                         marker_props=props,
+                                         marker_props=_handle_props,
                                          useblit=self.useblit)
 
         xc, yc = self.center
         self._center_handle = ToolHandles(self.ax, [xc], [yc], marker='s',
-                                          marker_props=props,
+                                          marker_props=_handle_props,
                                           useblit=self.useblit)
 
         self._active_handle = None
@@ -3077,20 +3085,25 @@ class LassoSelector(_SelectorWidget):
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
         backend).
+    props : dict, optional
+        Properties with which the line is drawn.
+        Default:
+            ``dict()``
     button : `.MouseButton` or list of `.MouseButton`, optional
         The mouse buttons used for rectangle selection.  Default is ``None``,
         which corresponds to all buttons.
     """
 
-    def __init__(self, ax, onselect=None, useblit=True, lineprops=None,
+    @_api.rename_parameter("3.5", "lineprops", "props")
+    def __init__(self, ax, onselect=None, useblit=True, props=None,
                  button=None):
         super().__init__(ax, onselect, useblit=useblit, button=button)
         self.verts = None
-        if lineprops is None:
-            lineprops = dict()
+        if props is None:
+            props = dict()
         # self.useblit may be != useblit, if the canvas doesn't support blit.
-        lineprops.update(animated=self.useblit, visible=False)
-        self.line = Line2D([], [], **lineprops)
+        props.update(animated=self.useblit, visible=False)
+        self.line = Line2D([], [], **props)
         self.ax.add_line(self.line)
         self.artists = [self.line]
 
@@ -3155,7 +3168,7 @@ class PolygonSelector(_SelectorWidget):
         Whether to use blitting for faster drawing (if supported by the
         backend).
 
-    lineprops : dict, optional
+    props : dict, optional
         Artist properties for the line representing the edges of the polygon.
         Default:
             dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
@@ -3180,11 +3193,12 @@ class PolygonSelector(_SelectorWidget):
     point.
     """
 
+    @_api.rename_parameter("3.5", "lineprops", "props")
     @_api.rename_parameter("3.5", "markerprops", "handle_props")
     @_api.rename_parameter("3.5", "vertex_select_radius",
                            "handle_grab_distance")
     def __init__(self, ax, onselect, useblit=False,
-                 lineprops=None, handle_props=None, handle_grab_distance=15):
+                 props=None, handle_props=None, handle_grab_distance=15):
         # The state modifiers 'move', 'square', and 'center' are expected by
         # _SelectorWidget but are not supported by PolygonSelector
         # Note: could not use the existing 'move' state modifier in-place of
@@ -3200,15 +3214,15 @@ class PolygonSelector(_SelectorWidget):
         self._xs, self._ys = [0], [0]
         self._polygon_completed = False
 
-        if lineprops is None:
-            lineprops = dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
-        lineprops['animated'] = self.useblit
-        self.line = Line2D(self._xs, self._ys, **lineprops)
+        if props is None:
+            props = dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
+        props['animated'] = self.useblit
+        self.line = Line2D(self._xs, self._ys, **props)
         self.ax.add_line(self.line)
 
         if handle_props is None:
             handle_props = dict(markeredgecolor='k',
-                                markerfacecolor=lineprops.get('color', 'k'))
+                                markerfacecolor=props.get('color', 'k'))
         self._polygon_handles = ToolHandles(self.ax, self._xs, self._ys,
                                             useblit=self.useblit,
                                             marker_props=handle_props)

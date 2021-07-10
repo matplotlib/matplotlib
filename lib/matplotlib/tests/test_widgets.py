@@ -52,7 +52,7 @@ def test_rectangle_selector():
         check_rectangle(drawtype='none', minspanx=10, minspany=10)
 
     check_rectangle(minspanx=10, minspany=10, spancoords='pixels')
-    check_rectangle(rectprops=dict(fill=True))
+    check_rectangle(props=dict(fill=True))
 
 
 @pytest.mark.parametrize('drag_from_anywhere, new_center',
@@ -221,7 +221,7 @@ def check_span(*args, **kwargs):
 def test_span_selector():
     check_span('horizontal', minspan=10, useblit=True)
     check_span('vertical', onmove_callback=True, button=1)
-    check_span('horizontal', rectprops=dict(fill=True))
+    check_span('horizontal', props=dict(fill=True))
 
 
 @pytest.mark.parametrize('drag_from_anywhere', [True, False])
@@ -320,7 +320,7 @@ def check_lasso_selector(**kwargs):
 
 def test_lasso_selector():
     check_lasso_selector()
-    check_lasso_selector(useblit=False, lineprops=dict(color='red'))
+    check_lasso_selector(useblit=False, props=dict(color='red'))
     check_lasso_selector(useblit=True, button=1)
 
 
@@ -674,7 +674,7 @@ def test_rect_visibility(fig_test, fig_ref):
         pass
 
     tool = widgets.RectangleSelector(ax_test, onselect,
-                                     rectprops={'visible': False})
+                                     props={'visible': False})
     tool.extents = (0.2, 0.8, 0.3, 0.7)
 
 
