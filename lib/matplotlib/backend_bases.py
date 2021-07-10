@@ -2882,9 +2882,6 @@ class NavigationToolbar2:
       :meth:`save_figure`
          save the current figure
 
-      :meth:`set_cursor`
-         if you want the pointer icon to change
-
       :meth:`draw_rubberband` (optional)
          draw the zoom to rect "rubberband" rectangle
 
@@ -3248,6 +3245,7 @@ class NavigationToolbar2:
         """Save the current figure."""
         raise NotImplementedError
 
+    @_api.deprecated("3.5", alternative="canvas.set_cursor")
     def set_cursor(self, cursor):
         """
         Set the current cursor to one of the :class:`Cursors` enums values.
@@ -3257,6 +3255,7 @@ class NavigationToolbar2:
         called e.g. before a long-running task during which the GUI is not
         updated.
         """
+        self.canvas.set_cursor(cursor)
 
     def update(self):
         """Reset the axes stack."""

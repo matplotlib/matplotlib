@@ -1,0 +1,4 @@
+``NavigationToolbar2.set_cursor``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Instead, use the `.FigureCanvasBase.set_cursor` method on the canvas (available
+as the ``canvas`` attribute on the toolbar or the Figure.)
