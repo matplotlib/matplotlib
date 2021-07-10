@@ -7,6 +7,7 @@ import sphinx
 
 import matplotlib as mpl
 from matplotlib import _api, mathtext
+from matplotlib.rcsetup import validate_float_or_None
 
 
 # Define LaTeX math node:
@@ -25,8 +26,11 @@ def math_role(role, rawtext, text, lineno, inliner,
     node = latex_math(rawtext)
     node['latex'] = latex
     node['fontset'] = options.get('fontset', 'cm')
+    node['fontsize'] = options.get('fontsize',
+                                   setup.app.config.mathmpl_fontsize)
     return [node], []
-math_role.options = {'fontset': fontset_choice}
+math_role.options = {'fontset': fontset_choice,
+                     'fontsize': validate_float_or_None}
 
 
 class MathDirective(Directive):
@@ -34,23 +38,25 @@ class MathDirective(Directive):
     required_arguments = 0
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {'fontset': fontset_choice}
+    option_spec = {'fontset': fontset_choice,
+                   'fontsize': validate_float_or_None}
 
     def run(self):
         latex = ''.join(self.content)
         node = latex_math(self.block_text)
         node['latex'] = latex
         node['fontset'] = self.options.get('fontset', 'cm')
+        node['fontsize'] = self.options.get('fontsize',
+                                            setup.app.config.mathmpl_fontsize)
         return [node]
 
 
 # This uses mathtext to render the expression
-def latex2png(latex, filename, fontset='cm'):
-    latex = "$%s$" % latex
-    with mpl.rc_context({'mathtext.fontset': fontset}):
+def latex2png(latex, filename, fontset='cm', fontsize=10):
+    with mpl.rc_context({'mathtext.fontset': fontset, 'font.size': fontsize}):
         try:
             depth = mathtext.math_to_image(
-                latex, filename, dpi=100, format="png")
+                f"${latex}$", filename, dpi=100, format="png")
         except Exception:
             _api.warn_external(f"Could not render math expression {latex}")
             depth = 0
@@ -62,14 +68,15 @@ def latex2html(node, source):
     inline = isinstance(node.parent, nodes.TextElement)
     latex = node['latex']
     fontset = node['fontset']
+    fontsize = node['fontsize']
     name = 'math-{}'.format(
-        hashlib.md5((latex + fontset).encode()).hexdigest()[-10:])
+        hashlib.md5(f'{latex}{fontset}{fontsize}'.encode()).hexdigest()[-10:])
 
     destdir = Path(setup.app.builder.outdir, '_images', 'mathmpl')
     destdir.mkdir(parents=True, exist_ok=True)
     dest = destdir / f'{name}.png'
 
-    depth = latex2png(latex, dest, fontset)
+    depth = latex2png(latex, dest, fontset, fontsize=fontsize)
 
     if inline:
         cls = ''
@@ -86,6 +93,7 @@ def latex2html(node, source):
 
 def setup(app):
     setup.app = app
+    app.add_config_value('mathmpl_fontsize', 10.0, True)
 
     # Add visit/depart methods to HTML-Translator:
     def visit_latex_math_html(self, node):

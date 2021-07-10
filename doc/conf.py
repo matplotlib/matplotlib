@@ -178,6 +178,7 @@ sphinx_gallery_conf = {
 }
 
 plot_gallery = 'True'
+mathmpl_fontsize = 11.0
 
 # Monkey-patching gallery signature to include search keywords
 gen_rst.SPHX_GLR_SIG = """\n
