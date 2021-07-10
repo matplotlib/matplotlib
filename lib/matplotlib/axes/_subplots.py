@@ -76,10 +76,10 @@ class SubplotBase:
         return self._subplotspec.get_gridspec()
 
     @_api.deprecated(
-        "3.4", alternative="get_subplotspec().get_position(self.figure)")
+        "3.4", alternative="get_position()")
     @property
     def figbox(self):
-        return self.get_subplotspec().get_position(self.figure)
+        return self.get_position()
 
     @_api.deprecated("3.4", alternative="get_gridspec().nrows")
     @property
