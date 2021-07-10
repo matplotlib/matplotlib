@@ -2020,8 +2020,10 @@ class SpanSelector(_SelectorWidget):
         If True, use the backend-dependent blitting features for faster
         canvas updates.
 
-    rectprops : dict, default: None
+    rectprops : dict, optional
         Dictionary of `matplotlib.patches.Patch` properties.
+        Default:
+            ``dict(facecolor='red', alpha=0.5)``
 
     onmove_callback : func(min, max), min/max are floats, default: None
         Called on mouse move while the span is being selected.
@@ -2352,8 +2354,11 @@ class ToolLineHandles:
         Positions of handles in data coordinates.
     direction : {"horizontal", "vertical"}
         Direction of handles, either 'vertical' or 'horizontal'
-    line_props : dict
+    line_props : dict, optional
         Additional line properties. See `matplotlib.lines.Line2D`.
+    useblit : bool, default: True
+        Whether to use blitting for faster drawing (if supported by the
+        backend).
     """
 
     def __init__(self, ax, positions, direction, line_props=None,
@@ -2451,10 +2456,13 @@ class ToolHandles:
         Matplotlib axes where tool handles are displayed.
     x, y : 1D arrays
         Coordinates of control handles.
-    marker : str
+    marker : str, default: 'o'
         Shape of marker used to display handle. See `matplotlib.pyplot.plot`.
-    marker_props : dict
+    marker_props : dict, optional
         Additional marker properties. See `matplotlib.lines.Line2D`.
+    useblit : bool, default: True
+        Whether to use blitting for faster drawing (if supported by the
+        backend).
     """
 
     def __init__(self, ax, x, y, marker='o', marker_props=None, useblit=True):
@@ -2515,10 +2523,6 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         where *eclick* and *erelease* are the mouse click and release
         `.MouseEvent`\s that start and complete the selection.
 
-    drawtype : {"box", "line", "none"}, default: "box"
-        Whether to draw the full rectangle box, the diagonal line of the
-        rectangle, or nothing at all.
-
     minspanx : float, default: 0
         Selections with an x-span less than *minspanx* are ignored.
 
@@ -2529,17 +2533,10 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         Whether to use blitting for faster drawing (if supported by the
         backend).
 
-    lineprops : dict, optional
-        Properties with which the line is drawn, if ``drawtype == "line"``.
-        Default::
-
-            dict(color="black", linestyle="-", linewidth=2, alpha=0.5)
-
     rectprops : dict, optional
-        Properties with which the rectangle is drawn, if ``drawtype ==
-        "box"``.  Default::
-
-            dict(facecolor="red", edgecolor="black", alpha=0.2, fill=True)
+        Properties with which the __ARTIST_NAME__ is drawn.
+        Default:
+            ``dict(facecolor='red', edgecolor='black', alpha=0.2, fill=True))``
 
     spancoords : {"data", "pixels"}, default: "data"
         Whether to interpret *minspanx* and *minspany* in data or in pixel
@@ -2552,7 +2549,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         Distance in pixels within which the interactive tool handles can be
         activated.
 
-    handle_props : dict
+    handle_props : dict, optional
         Properties with which the interactive handles are drawn.
 
     interactive : bool, default: False
@@ -2577,7 +2574,8 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     """
 
 
-@docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING)
+@docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING.replace(
+    '__ARTIST_NAME__', 'rectangle'))
 class RectangleSelector(_SelectorWidget):
     """
     Select a rectangular region of an axes.
@@ -2973,7 +2971,8 @@ class RectangleSelector(_SelectorWidget):
             return np.array(self._to_draw.get_data())
 
 
-@docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING)
+@docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING.replace(
+    '__ARTIST_NAME__', 'ellipse'))
 class EllipseSelector(RectangleSelector):
     """
     Select an elliptical region of an axes.
@@ -3075,6 +3074,9 @@ class LassoSelector(_SelectorWidget):
     onselect : function
         Whenever the lasso is released, the *onselect* function is called and
         passed the vertices of the selected path.
+    useblit : bool, default: True
+        Whether to use blitting for faster drawing (if supported by the
+        backend).
     button : `.MouseButton` or list of `.MouseButton`, optional
         The mouse buttons used for rectangle selection.  Default is ``None``,
         which corresponds to all buttons.
@@ -3150,17 +3152,17 @@ class PolygonSelector(_SelectorWidget):
         ``(xdata, ydata)`` tuples.
 
     useblit : bool, default: False
+        Whether to use blitting for faster drawing (if supported by the
+        backend).
 
-    lineprops : dict
+    lineprops : dict, optional
         Artist properties for the line representing the edges of the polygon.
-        Default::
-
+        Default:
             dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
 
-    handle_props : dict
+    handle_props : dict, optional
         Artist properties for the markers drawn at the vertices of the polygon.
-        Default::
-
+        Default:
             dict(marker='o', markersize=7, mec='k', mfc='k', alpha=0.5)
 
     handle_grab_distance : float, default: 15px
@@ -3400,6 +3402,9 @@ class Lasso(AxesWidget):
         The parent axes for the widget.
     xy : (float, float)
         Coordinates of the start of the lasso.
+    useblit : bool, default: True
+        Whether to use blitting for faster drawing (if supported by the
+        backend).
     callback : callable
         Whenever the lasso is released, the *callback* function is called and
         passed the vertices of the selected path.
