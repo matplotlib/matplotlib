@@ -1282,6 +1282,7 @@ class SaveFigureWx(backend_tools.SaveFigureBase):
             self._make_classic_style_pseudo_toolbar())
 
 
+@_api.deprecated("3.5", alternative="ToolSetCursor")
 class SetCursorWx(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
         NavigationToolbar2Wx.set_cursor(
@@ -1363,7 +1364,6 @@ class ToolCopyToClipboardWx(backend_tools.ToolCopyToClipboardBase):
 
 backend_tools.ToolSaveFigure = SaveFigureWx
 backend_tools.ToolConfigureSubplots = ConfigureSubplotsWx
-backend_tools.ToolSetCursor = SetCursorWx
 backend_tools.ToolRubberband = RubberbandWx
 backend_tools.ToolHelp = HelpWx
 backend_tools.ToolCopyToClipboard = ToolCopyToClipboardWx

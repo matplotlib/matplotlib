@@ -718,6 +718,7 @@ class SaveFigureGTK3(backend_tools.SaveFigureBase):
         return NavigationToolbar2GTK3.save_figure(PseudoToolbar())
 
 
+@_api.deprecated("3.5", alternative="ToolSetCursor")
 class SetCursorGTK3(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
         NavigationToolbar2GTK3.set_cursor(
@@ -851,7 +852,6 @@ def error_msg_gtk(msg, parent=None):
 
 backend_tools.ToolSaveFigure = SaveFigureGTK3
 backend_tools.ToolConfigureSubplots = ConfigureSubplotsGTK3
-backend_tools.ToolSetCursor = SetCursorGTK3
 backend_tools.ToolRubberband = RubberbandGTK3
 backend_tools.ToolHelp = HelpGTK3
 backend_tools.ToolCopyToClipboard = ToolCopyToClipboardGTK3

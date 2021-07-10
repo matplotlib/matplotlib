@@ -22,7 +22,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib._pylab_helpers import Gcf
-from matplotlib import cbook
+from matplotlib import _api, cbook
 
 
 class Cursors(enum.IntEnum):  # Must subclass int for the macOS backend.
@@ -277,13 +277,17 @@ class SetCursorBase(ToolBase):
             self.canvas.set_cursor(self._default_cursor)
             self._last_cursor = self._default_cursor
 
+    @_api.deprecated("3.5", alternative="figure.canvas.set_cursor")
     def set_cursor(self, cursor):
         """
         Set the cursor.
-
-        This method has to be implemented per backend.
         """
-        raise NotImplementedError
+        self.canvas.set_cursor(cursor)
+
+
+# This exists solely for deprecation warnings; remove with
+# SetCursorBase.set_cursor.
+ToolSetCursor = SetCursorBase
 
 
 class ToolCursorPosition(ToolBase):

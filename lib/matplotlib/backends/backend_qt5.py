@@ -932,6 +932,7 @@ class SaveFigureQt(backend_tools.SaveFigureBase):
             self._make_classic_style_pseudo_toolbar())
 
 
+@_api.deprecated("3.5", alternative="ToolSetCursor")
 class SetCursorQt(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
         NavigationToolbar2QT.set_cursor(
@@ -961,7 +962,6 @@ class ToolCopyToClipboardQT(backend_tools.ToolCopyToClipboardBase):
 
 backend_tools.ToolSaveFigure = SaveFigureQt
 backend_tools.ToolConfigureSubplots = ConfigureSubplotsQt
-backend_tools.ToolSetCursor = SetCursorQt
 backend_tools.ToolRubberband = RubberbandQt
 backend_tools.ToolHelp = HelpQt
 backend_tools.ToolCopyToClipboard = ToolCopyToClipboardQT
