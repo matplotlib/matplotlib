@@ -2701,7 +2701,7 @@ class RectangleSelector(_SelectorWidget):
         if self._active_handle is None:
             x = self._eventpress.xdata
             y = self._eventpress.ydata
-            self.extents = x,x,y,y
+            self.extents = x, x, y, y
             self.visible = True
         else:
             self.set_visible(True)
