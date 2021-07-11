@@ -296,8 +296,8 @@ pads = [0, 0.05, 0.1, 0.2]
 for pad, ax in zip(pads, axs.flat):
     pc = ax.pcolormesh(arr, **pc_kwargs)
     fig.colorbar(pc, ax=ax, shrink=0.6, pad=pad)
-    ax.set_xticklabels('')
-    ax.set_yticklabels('')
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
     ax.set_title(f'pad: {pad}')
 fig.set_constrained_layout_pads(w_pad=2 / 72, h_pad=2 / 72, hspace=0.2,
                                 wspace=0.2)
