@@ -364,7 +364,8 @@ class ScalarMappable:
         Parameters
         ----------
         A : array-like or None
-            The values that are mapped to colors.
+            The values that are mapped to colors. If None, colormapping is
+            disabled.
 
             The base class `.ScalarMappable` does not make any assumptions on
             the dimensionality and shape of the value array *A*.
@@ -386,6 +387,9 @@ class ScalarMappable:
 
         The base class `.ScalarMappable` does not make any assumptions on
         the dimensionality and shape of the array.
+
+        Subclasses may decide per instance if they support colormapping.
+        Return None here in case they don't.
         """
         return self._A
 

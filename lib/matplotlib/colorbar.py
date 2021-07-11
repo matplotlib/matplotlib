@@ -380,12 +380,18 @@ class Colorbar:
                  ):
 
         if mappable is None:
+            # Special case for a standalone colormap
             mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
-
-        # Ensure the given mappable's norm has appropriate vmin and vmax
-        # set even if mappable.draw has not yet been called.
-        if mappable.get_array() is not None:
-            mappable.autoscale_None()
+        else:
+            if mappable.get_array() is None:
+                _api.deprecated("3.5",
+                                message="The given mappable instance "
+                                f"{mappable!r} does not support colormapping. "
+                                "Possibly it has explicitly specified colors.")
+            else:
+                # Ensure the given mappable's norm has appropriate vmin and
+                # vmax set even if mappable.draw has not yet been called.
+                mappable.autoscale_None()
 
         self.mappable = mappable
         cmap = mappable.cmap
