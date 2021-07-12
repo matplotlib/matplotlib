@@ -21,8 +21,7 @@ def plot_scatter(ax, prng, nb_samples=100):
     for mu, sigma, marker in [(-.5, 0.75, 'o'), (0.75, 1., 's')]:
         x, y = prng.normal(loc=mu, scale=sigma, size=(2, nb_samples))
         ax.plot(x, y, ls='none', marker=marker)
-    ax.set_xlabel('X-label')
-    ax.set_title('Axes title')
+    ax.set(xlabel='X-label', title='Axes title')
     return ax
 
 
@@ -63,8 +62,7 @@ def plot_colored_circles(ax, prng, nb_samples=15):
                                 radius=1.0, color=sty_dict['color']))
     # Force the limits to be the same across the styles (because different
     # styles may have different numbers of available colors).
-    ax.set_xlim([-4, 8])
-    ax.set_ylim([-5, 6])
+    ax.set(xlim=[-4, 8], ylim=[-5, 6])
     ax.set_aspect('equal', adjustable='box')  # to plot circles as circles
     return ax
 
@@ -75,9 +73,7 @@ def plot_image_and_patch(ax, prng, size=(20, 20)):
     ax.imshow(values, interpolation='none')
     c = plt.Circle((5, 5), radius=5, label='patch')
     ax.add_patch(c)
-    # Remove ticks
-    ax.set_xticks([])
-    ax.set_yticks([])
+    ax.set(xticks=[], yticks=[])  # Remove ticks
 
 
 def plot_histograms(ax, prng, nb_samples=10000):

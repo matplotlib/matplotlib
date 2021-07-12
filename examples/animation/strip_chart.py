@@ -21,8 +21,7 @@ class Scope:
         self.ydata = [0]
         self.line = Line2D(self.tdata, self.ydata)
         self.ax.add_line(self.line)
-        self.ax.set_ylim(-.1, 1.1)
-        self.ax.set_xlim(0, self.maxt)
+        self.ax.set(xlim=(0, self.maxt), ylim=(-.1, 1.1))
 
     def update(self, y):
         lastt = self.tdata[-1]

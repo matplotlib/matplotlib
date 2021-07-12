@@ -24,7 +24,6 @@ ax.set_xticks(x + dimw / 2)
 ax.set_xticklabels(map(str, x))
 ax.set_yscale('log')
 
-ax.set_xlabel('x')
-ax.set_ylabel('y')
+ax.set(xlabel='x', ylabel='y')
 
 plt.show()

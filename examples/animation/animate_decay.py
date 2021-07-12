@@ -22,8 +22,7 @@ def data_gen():
 
 
 def init():
-    ax.set_ylim(-1.1, 1.1)
-    ax.set_xlim(0, 10)
+    ax.set(xlim=(0, 10), ylim=(-1.1, 1.1))
     del xdata[:]
     del ydata[:]
     line.set_data(xdata, ydata)

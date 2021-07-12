@@ -122,9 +122,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
         if 17 in seg_bold:
             ax.plot(theta0, r0, '-k', lw=linewidth + 2)
 
-    ax.set_ylim([0, 1])
-    ax.set_yticklabels([])
-    ax.set_xticklabels([])
+    ax.set(ylim=[0, 1], xticklabels=[], yticklabels=[])
 
 
 # Create the fake data

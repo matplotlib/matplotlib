@@ -52,10 +52,7 @@ ax.add_collection(yevents1)
 ax.add_collection(yevents2)
 
 # set the limits
-ax.set_xlim([0, 1])
-ax.set_ylim([0, 1])
-
-ax.set_title('line plot with data points')
+ax.set(xlim=[0, 1], ylim=[0, 1], title='line plot with data points')
 
 # display the plot
 plt.show()

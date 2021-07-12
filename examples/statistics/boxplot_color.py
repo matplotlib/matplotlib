@@ -47,8 +47,7 @@ for bplot in (bplot1, bplot2):
 # adding horizontal grid lines
 for ax in [ax1, ax2]:
     ax.yaxis.grid(True)
-    ax.set_xlabel('Three separate samples')
-    ax.set_ylabel('Observed values')
+    ax.set(xlabel='Three separate samples', ylabel='Observed values')
 
 plt.show()
 

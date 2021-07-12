@@ -57,8 +57,7 @@ for x_loc, binned_data in zip(x_locations, binned_data_sets):
 ax.set_xticks(x_locations)
 ax.set_xticklabels(labels)
 
-ax.set_ylabel("Data values")
-ax.set_xlabel("Data sets")
+ax.set(xlabel="Data sets", ylabel="Data values")
 
 plt.show()
 

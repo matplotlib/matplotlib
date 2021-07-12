@@ -127,7 +127,6 @@ if __name__ == "__main__":
 
     ax2.add_artist(ab)
 
-    ax2.set_xlim(0, 1)
-    ax2.set_ylim(0, 1)
+    ax2.set(xlim=(0, 1), ylim=(0, 1))
 
     plt.show()

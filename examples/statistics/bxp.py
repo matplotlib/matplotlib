@@ -63,8 +63,7 @@ axs[1, 2].bxp(stats, showfliers=False)
 axs[1, 2].set_title('showfliers=False', fontsize=fs)
 
 for ax in axs.flat:
-    ax.set_yscale('log')
-    ax.set_yticklabels([])
+    ax.set(yscale='log', yticklabels=[])
 
 fig.subplots_adjust(hspace=0.4)
 plt.show()
@@ -96,8 +95,7 @@ axs[1, 1].bxp(stats, meanprops=meanlineprops, meanline=True,
 axs[1, 1].set_title('Custom mean\nas line', fontsize=fs)
 
 for ax in axs.flat:
-    ax.set_yscale('log')
-    ax.set_yticklabels([])
+    ax.set(yscale='log', yticklabels=[])
 
 fig.suptitle("I never said they'd be pretty")
 fig.subplots_adjust(hspace=0.4)

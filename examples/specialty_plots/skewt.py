@@ -250,8 +250,7 @@ if __name__ == '__main__':
     # Disables the log-formatting that comes with semilogy
     ax.yaxis.set_major_formatter(ScalarFormatter())
     ax.yaxis.set_minor_formatter(NullFormatter())
-    ax.set_yticks(np.linspace(100, 1000, 10))
-    ax.set_ylim(1050, 100)
+    ax.set(yticks=np.linspace(100, 1000, 10), ylim=(1050, 100))
 
     ax.xaxis.set_major_locator(MultipleLocator(10))
     ax.set_xlim(-50, 50)

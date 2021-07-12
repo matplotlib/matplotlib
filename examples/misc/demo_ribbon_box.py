@@ -78,8 +78,7 @@ def main():
         ax.add_artist(RibbonBoxImage(ax, bbox, bc, interpolation="bicubic"))
         ax.annotate(str(h), (year, h), va="bottom", ha="center")
 
-    ax.set_xlim(years[0] - 0.5, years[-1] + 0.5)
-    ax.set_ylim(0, 10000)
+    ax.set(xlim=(years[0] - 0.5, years[-1] + 0.5), ylim=(0, 10000))
 
     background_gradient = np.zeros((2, 2, 4))
     background_gradient[:, :, :3] = [1, 1, 0]

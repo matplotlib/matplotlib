@@ -11,8 +11,7 @@ import mpl_toolkits.axisartist as axisartist
 
 def setup_axes(fig, pos):
     ax = fig.add_subplot(pos, axes_class=axisartist.Axes)
-    ax.set_yticks([0.2, 0.8])
-    ax.set_xticks([0.2, 0.8])
+    ax.set(xticks=[0.2, 0.8], yticks=[0.2, 0.8])
     return ax
 
 

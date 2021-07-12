@@ -13,10 +13,7 @@ fig.suptitle('bold figure suptitle', fontsize=14, fontweight='bold')
 
 ax = fig.add_subplot()
 fig.subplots_adjust(top=0.85)
-ax.set_title('axes title')
-
-ax.set_xlabel('xlabel')
-ax.set_ylabel('ylabel')
+ax.set(xlabel='xlabel', ylabel='ylabel', title='axes title')
 
 ax.text(3, 8, 'boxed italics text in data coords', style='italic',
         bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})

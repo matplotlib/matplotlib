@@ -32,8 +32,7 @@ segs = np.ma.masked_where((segs > 50) & (segs < 60), segs)
 
 # We need to set the plot limits.
 fig, ax = plt.subplots()
-ax.set_xlim(x.min(), x.max())
-ax.set_ylim(ys.min(), ys.max())
+ax.set(xlim=(x.min(), x.max()), ylim=(ys.min(), ys.max()))
 
 # *colors* is sequence of rgba tuples.
 # *linestyle* is a string or dash tuple. Legal string values are
@@ -62,8 +61,7 @@ ys = [x + i for i in x]
 
 # We need to set the plot limits, they will not autoscale
 fig, ax = plt.subplots()
-ax.set_xlim(np.min(x), np.max(x))
-ax.set_ylim(np.min(ys), np.max(ys))
+ax.set(xlim=(np.min(x), np.max(x)), ylim=(np.min(ys), np.max(ys)))
 
 # colors is sequence of rgba tuples
 # linestyle is a string or dash tuple. Legal string values are

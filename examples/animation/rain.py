@@ -20,8 +20,8 @@ np.random.seed(19680801)
 # Create new Figure and an Axes which fills it.
 fig = plt.figure(figsize=(7, 7))
 ax = fig.add_axes([0, 0, 1, 1], frameon=False)
-ax.set_xlim(0, 1), ax.set_xticks([])
-ax.set_ylim(0, 1), ax.set_yticks([])
+ax.set(xticks=[], xlim=(0, 1),
+       yticks=[], ylim=(0, 1))
 
 # Create rain data
 n_drops = 50

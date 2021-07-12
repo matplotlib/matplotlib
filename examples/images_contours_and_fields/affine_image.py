@@ -40,8 +40,7 @@ def do_plot(ax, Z, transform):
     x1, x2, y1, y2 = im.get_extent()
     ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], "y--",
             transform=trans_data)
-    ax.set_xlim(-5, 5)
-    ax.set_ylim(-4, 4)
+    ax.set(xlim=(-5, 5), ylim=(-4, 4))
 
 
 # prepare image and figure

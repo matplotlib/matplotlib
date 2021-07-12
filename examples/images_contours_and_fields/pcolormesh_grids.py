@@ -42,9 +42,7 @@ def _annotate(ax, x, y, title):
     # this all gets repeated below:
     X, Y = np.meshgrid(x, y)
     ax.plot(X.flat, Y.flat, 'o', color='m')
-    ax.set_xlim(-0.7, 5.2)
-    ax.set_ylim(-0.7, 3.2)
-    ax.set_title(title)
+    ax.set(xlim=(-0.7, 5.2), ylim=(-0.7, 3.2), title=title)
 
 _annotate(ax, x, y, "shading='flat'")
 

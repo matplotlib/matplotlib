@@ -29,9 +29,7 @@ def addtext(ax, props):
     ax.text(4.5, 0.5, 'text -45', props, rotation=-45)
     for x in range(0, 5):
         ax.scatter(x + 0.5, 0.5, color='r', alpha=0.5)
-    ax.set_yticks([0, .5, 1])
-    ax.set_xticks(np.arange(0, 5.1, 0.5))
-    ax.set_xlim(0, 5)
+    ax.set(yticks=[0, .5, 1], xticks=np.arange(0, 5.1, 0.5), xlim=(0, 5))
     ax.grid(True)
 
 

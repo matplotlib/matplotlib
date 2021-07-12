@@ -30,8 +30,7 @@ class UpdateDist:
         self.ax = ax
 
         # Set up plot parameters
-        self.ax.set_xlim(0, 1)
-        self.ax.set_ylim(0, 10)
+        self.ax.set(xlim=(0, 1), ylim=(0, 10))
         self.ax.grid(True)
 
         # This vertical line represents the theoretical value, to

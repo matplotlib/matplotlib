@@ -65,9 +65,7 @@ for ax, case in zip(axs, cases):
 axs = plt.figure(figsize=figsize, constrained_layout=True).subplots(rows, cols)
 axs = trim_axs(axs, len(cases))
 for ax, case in zip(axs, cases):
-    ax.set_title('markevery=%s' % str(case))
-    ax.set_xscale('log')
-    ax.set_yscale('log')
+    ax.set(xscale='log', yscale='log', title=f'markevery={case!r}')
     ax.plot(x, y, 'o', ls='-', ms=4, markevery=case)
 
 ###############################################################################
@@ -79,10 +77,8 @@ for ax, case in zip(axs, cases):
 axs = plt.figure(figsize=figsize, constrained_layout=True).subplots(rows, cols)
 axs = trim_axs(axs, len(cases))
 for ax, case in zip(axs, cases):
-    ax.set_title('markevery=%s' % str(case))
     ax.plot(x, y, 'o', ls='-', ms=4, markevery=case)
-    ax.set_xlim((6, 6.7))
-    ax.set_ylim((1.1, 1.7))
+    ax.set(xlim=(6, 6.7), ylim=(1.1, 1.7), title=f'markevery={case!r}')
 
 # define data for polar plots
 r = np.linspace(0, 3.0, 200)
@@ -95,7 +91,7 @@ axs = plt.figure(figsize=figsize, constrained_layout=True).subplots(
     rows, cols, subplot_kw={'projection': 'polar'})
 axs = trim_axs(axs, len(cases))
 for ax, case in zip(axs, cases):
-    ax.set_title('markevery=%s' % str(case))
+    ax.set_title(f'markevery={case!r}')
     ax.plot(theta, r, 'o', ls='-', ms=4, markevery=case)
 
 plt.show()

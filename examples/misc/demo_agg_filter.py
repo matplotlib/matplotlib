@@ -224,8 +224,7 @@ def drop_shadow_line(ax):
         shadow.set_agg_filter(gauss)
         shadow.set_rasterized(True)  # to support mixed-mode renderers
 
-    ax.set_xlim(0., 1.)
-    ax.set_ylim(0., 1.)
+    ax.set(xlim=(0, 1), ylim=(0, 1))
 
     ax.xaxis.set_visible(False)
     ax.yaxis.set_visible(False)

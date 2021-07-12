@@ -60,8 +60,7 @@ if __name__ == '__main__':
     M = light.shade(M, cmap=plt.cm.hot, vert_exag=1.5,
                     norm=colors.PowerNorm(0.3), blend_mode='hsv')
     ax.imshow(M, extent=[xmin, xmax, ymin, ymax], interpolation="bicubic")
-    ax.set_xticks([])
-    ax.set_yticks([])
+    ax.set(xticks=[], yticks=[])
 
     # Some advertisement for matplotlib
     year = time.strftime("%Y")

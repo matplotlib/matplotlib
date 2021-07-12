@@ -205,7 +205,7 @@ if __name__ == '__main__':
     ax.add_patch(poly)
     p = PolygonInteractor(ax, poly)
 
-    ax.set_title('Click and drag a point to move it')
-    ax.set_xlim((-2, 2))
-    ax.set_ylim((-2, 2))
+    ax.set(xlim=(-2, 2), ylim=(-2, 2),
+           title='Click and drag a point to move it')
+
     plt.show()

@@ -26,12 +26,8 @@ cset = ax.contourf(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
 cset = ax.contourf(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
 cset = ax.contourf(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
 
-ax.set_xlim(-40, 40)
-ax.set_ylim(-40, 40)
-ax.set_zlim(-100, 100)
-
-ax.set_xlabel('X')
-ax.set_ylabel('Y')
-ax.set_zlabel('Z')
+ax.set(xlabel='X', xlim=(-40, 40),
+       ylabel='Y', ylim=(-40, 40),
+       zlabel='Z', zlim=(-100, 100))
 
 plt.show()
