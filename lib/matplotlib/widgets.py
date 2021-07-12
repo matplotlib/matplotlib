@@ -2047,7 +2047,7 @@ class SpanSelector(_SelectorWidget):
         when *interactive* is True. See `matplotlib.lines.Line2D` for valid
         properties.
 
-    handle_grab_distance : float, default: 10
+    grab_range : float, default: 10
         Distance in pixels within which the interactive tool handles can be
         activated.
 
@@ -2074,7 +2074,7 @@ class SpanSelector(_SelectorWidget):
     @_api.rename_parameter("3.5", "span_stays", "interactive")
     def __init__(self, ax, onselect, direction, minspan=0, useblit=False,
                  props=None, onmove_callback=None, interactive=False,
-                 button=None, handle_props=None, handle_grab_distance=10,
+                 button=None, handle_props=None, grab_range=10,
                  drag_from_anywhere=False):
 
         super().__init__(ax, onselect, useblit=useblit, button=button)
@@ -2098,7 +2098,7 @@ class SpanSelector(_SelectorWidget):
         self.onmove_callback = onmove_callback
         self.minspan = minspan
 
-        self.handle_grab_distance = handle_grab_distance
+        self.grab_range = grab_range
         self._interactive = interactive
         self.drag_from_anywhere = drag_from_anywhere
 
@@ -2305,7 +2305,7 @@ class SpanSelector(_SelectorWidget):
         # Use 'C' to match the notation used in the RectangleSelector
         if 'move' in self._state:
             self._active_handle = 'C'
-        elif e_dist > self.handle_grab_distance:
+        elif e_dist > self.grab_range:
             # Not close to any handles
             self._active_handle = None
             if self.drag_from_anywhere and self._contains(event):
@@ -2553,7 +2553,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     button : `.MouseButton`, list of `.MouseButton`, default: all buttons
         Button(s) that trigger rectangle selection.
 
-    handle_grab_distance : float, default: 10
+    grab_range : float, default: 10
         Distance in pixels within which the interactive tool handles can be
         activated.
 
@@ -2615,7 +2615,7 @@ class RectangleSelector(_SelectorWidget):
 
     _shape_klass = Rectangle
 
-    @_api.rename_parameter("3.5", "maxdist", "handle_grab_distance")
+    @_api.rename_parameter("3.5", "maxdist", "grab_range")
     @_api.rename_parameter("3.5", "marker_props", "handle_props")
     @_api.rename_parameter("3.5", "rectprops", "props")
     @_api.delete_parameter("3.5", "drawtype")
@@ -2623,7 +2623,7 @@ class RectangleSelector(_SelectorWidget):
     def __init__(self, ax, onselect, drawtype='box',
                  minspanx=0, minspany=0, useblit=False,
                  lineprops=None, props=None, spancoords='data',
-                 button=None, handle_grab_distance=10, handle_props=None,
+                 button=None, grab_range=10, handle_props=None,
                  interactive=False, state_modifier_keys=None,
                  drag_from_anywhere=False):
         super().__init__(ax, onselect, useblit=useblit, button=button,
@@ -2674,7 +2674,7 @@ class RectangleSelector(_SelectorWidget):
         self.spancoords = spancoords
         self._drawtype = drawtype
 
-        self.handle_grab_distance = handle_grab_distance
+        self.grab_range = grab_range
 
         if props is None:
             _handle_props = dict(markeredgecolor='black')
@@ -2721,7 +2721,7 @@ class RectangleSelector(_SelectorWidget):
     interactive = _api.deprecate_privatize_attribute("3.5")
 
     maxdist = _api.deprecated("3.5")(
-        property(lambda self: self.handle_grab_distance)
+        property(lambda self: self.grab_range)
         )
 
     def _press(self, event):
@@ -2938,11 +2938,11 @@ class RectangleSelector(_SelectorWidget):
             self._active_handle = 'C'
             self._extents_on_press = self.extents
         # Set active handle as closest handle, if mouse click is close enough.
-        elif m_dist < self.handle_grab_distance * 2:
+        elif m_dist < self.grab_range * 2:
             # Prioritise center handle over other handles
             self._active_handle = 'C'
-        elif (c_dist > self.handle_grab_distance and
-                  e_dist > self.handle_grab_distance):
+        elif (c_dist > self.grab_range and
+                  e_dist > self.grab_range):
             # Not close to any handles
             if self.drag_from_anywhere and self._contains(event):
                 # Check if we've clicked inside the region
@@ -3190,9 +3190,9 @@ class PolygonSelector(_SelectorWidget):
         the default value of ``markeredgecolor`` which will be the same as the
         ``color`` property in *props*.
 
-    handle_grab_distance : float, default: 15px
+    grab_range : float, default: 10
         A vertex is selected (to complete the polygon or to move a vertex) if
-        the mouse click is within *handle_grab_distance* pixels of the vertex.
+        the mouse click is within *grab_range* pixels of the vertex.
 
     Examples
     --------
@@ -3207,10 +3207,9 @@ class PolygonSelector(_SelectorWidget):
 
     @_api.rename_parameter("3.5", "lineprops", "props")
     @_api.rename_parameter("3.5", "markerprops", "handle_props")
-    @_api.rename_parameter("3.5", "vertex_select_radius",
-                           "handle_grab_distance")
+    @_api.rename_parameter("3.5", "vertex_select_radius", "grab_range")
     def __init__(self, ax, onselect, useblit=False,
-                 props=None, handle_props=None, handle_grab_distance=15):
+                 props=None, handle_props=None, grab_range=10):
         # The state modifiers 'move', 'square', and 'center' are expected by
         # _SelectorWidget but are not supported by PolygonSelector
         # Note: could not use the existing 'move' state modifier in-place of
@@ -3240,13 +3239,13 @@ class PolygonSelector(_SelectorWidget):
                                             marker_props=handle_props)
 
         self._active_handle_idx = -1
-        self.handle_grab_distance = handle_grab_distance
+        self.grab_range = grab_range
 
         self.artists = [self.line, self._polygon_handles.artist]
         self.set_visible(True)
 
     vertex_select_radius = _api.deprecated("3.5")(
-        property(lambda self: self.handle_grab_distance)
+        property(lambda self: self.grab_range)
         )
 
     @property
@@ -3282,7 +3281,7 @@ class PolygonSelector(_SelectorWidget):
         if ((self._polygon_completed or 'move_vertex' in self._state)
                 and len(self._xs) > 0):
             h_idx, h_dist = self._polygon_handles.closest(event.x, event.y)
-            if h_dist < self.handle_grab_distance:
+            if h_dist < self.grab_range:
                 self._active_handle_idx = h_idx
         # Save the vertex positions at the time of the press event (needed to
         # support the 'move_all' state modifier).
@@ -3356,7 +3355,7 @@ class PolygonSelector(_SelectorWidget):
                                                           self._ys[0]))
             v0_dist = np.hypot(x0 - event.x, y0 - event.y)
             # Lock on to the start vertex if near it and ready to complete.
-            if len(self._xs) > 3 and v0_dist < self.handle_grab_distance:
+            if len(self._xs) > 3 and v0_dist < self.grab_range:
                 self._xs[-1], self._ys[-1] = self._xs[0], self._ys[0]
             else:
                 self._xs[-1], self._ys[-1] = event.xdata, event.ydata
