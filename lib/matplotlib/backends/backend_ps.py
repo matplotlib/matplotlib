@@ -978,6 +978,8 @@ class FigureCanvasPS(FigureCanvasBase):
                                     font.get_char_index(c) for c in chars
                                 ]
                                 tmp.write(fontdata.getvalue())
+                                tmp.flush()
+
                                 # TODO: allow convert_ttf_to_ps
                                 # to input file objects (BytesIO)
                                 convert_ttf_to_ps(
