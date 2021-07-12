@@ -15,6 +15,8 @@ def test_Type1Font():
     assert font.parts[2] == rawdata[0x8985:0x8ba6]
     assert font.parts[1:] == slanted.parts[1:]
     assert font.parts[1:] == condensed.parts[1:]
+    assert font.decrypted.startswith(b'dup\n/Private 18 dict dup begin')
+    assert font.decrypted.endswith(b'mark currentfile closefile\n')
 
     differ = difflib.Differ()
     diff = list(differ.compare(
@@ -67,3 +69,11 @@ def test_overprecision():
     assert matrix == '0.001 0 0.000167 0.001 0 0'
     # and here we had -9.48090361795083
     assert angle == '-9.4809'
+
+
+def test_encrypt_decrypt_roundtrip():
+    data = b'this is my plaintext \0\1\2\3'
+    encrypted = t1f.Type1Font._encrypt(data, 'eexec')
+    decrypted = t1f.Type1Font._decrypt(encrypted, 'eexec')
+    assert encrypted != decrypted
+    assert data == decrypted
