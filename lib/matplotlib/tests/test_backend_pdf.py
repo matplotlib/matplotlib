@@ -12,11 +12,8 @@ import matplotlib as mpl
 from matplotlib import dviread, pyplot as plt, checkdep_usetex, rcParams
 from matplotlib.cbook import _get_data_path
 from matplotlib.ft2font import FT2Font
-
-# Weird py23 deprecation warning from fonttools
-with pytest.warns(DeprecationWarning):
-    from matplotlib.backends._backend_pdf_ps import get_glyphs_subset
-    from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib.backends._backend_pdf_ps import get_glyphs_subset
+from matplotlib.backends.backend_pdf import PdfPages
 
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
@@ -350,7 +347,7 @@ def test_kerning():
 
 def test_glyphs_subset():
     fpath = str(_get_data_path("fonts/ttf/DejaVuSerif.ttf"))
-    chars = "these should be subsetted!"
+    chars = "these should be subsetted! 1234567890"
 
     # non-subsetted FT2Font
     nosubfont = FT2Font(fpath)
@@ -364,7 +361,7 @@ def test_glyphs_subset():
     subcmap = subfont.get_charmap()
 
     # all unique chars must be available in subsetted font
-    assert set(chars).issuperset(set([chr(key) for key in subcmap.keys()]))
+    assert set(chars).issubset(set([chr(key) for key in subcmap.keys()]))
 
     # subsetted font's charmap should have less (or equal) entries
     assert len(subcmap) <= len(nosubcmap)
