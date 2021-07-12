@@ -2025,6 +2025,7 @@ class SpanSelector(_SelectorWidget):
     props : dict, optional
         Dictionary of `matplotlib.patches.Patch` properties.
         Default:
+
             ``dict(facecolor='red', alpha=0.5)``
 
     onmove_callback : func(min, max), min/max are floats, default: None
@@ -2043,7 +2044,7 @@ class SpanSelector(_SelectorWidget):
 
     handle_props : dict, default: None
         Properties of the handle lines at the edges of the span. Only used
-        when *interactive* is True. See `~matplotlib.lines.Line2D` for valid
+        when *interactive* is True. See `matplotlib.lines.Line2D` for valid
         properties.
 
     handle_grab_distance : float, default: 10
@@ -2539,9 +2540,11 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         backend).
 
     props : dict, optional
-        Properties with which the __ARTIST_NAME__ is drawn.
+        Properties with which the __ARTIST_NAME__ is drawn. See
+        `matplotlib.patches.Patch` for valid properties.
         Default:
-            ``dict(facecolor='red', edgecolor='black', alpha=0.2, fill=True))``
+
+            ``dict(facecolor='red', edgecolor='black', alpha=0.2, fill=True)``
 
     spancoords : {"data", "pixels"}, default: "data"
         Whether to interpret *minspanx* and *minspany* in data or in pixel
@@ -2555,7 +2558,11 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         activated.
 
     handle_props : dict, optional
-        Properties with which the interactive handles are drawn.
+        Properties with which the interactive handles (marker artists) are
+        drawn. See the marker arguments in `matplotlib.lines.Line2D` for valid
+        properties.  Default values are defined in ``mpl.rcParams`` except for
+        the default value of ``markeredgecolor`` which will be the same as the
+        ``edgecolor`` property in *props*.
 
     interactive : bool, default: False
         Whether to draw a set of handles that allow interaction with the
@@ -2670,9 +2677,11 @@ class RectangleSelector(_SelectorWidget):
         self.handle_grab_distance = handle_grab_distance
 
         if props is None:
-            _handle_props = dict(markeredgecolor='r')
+            _handle_props = dict(markeredgecolor='black')
         else:
-            _handle_props = dict(markeredgecolor=props.get('edgecolor', 'r'))
+            _handle_props = dict(
+                markeredgecolor=props.get('edgecolor', 'black')
+                )
         _handle_props.update(cbook.normalize_kwargs(handle_props,
                                                     Line2D._alias_map))
         self._corner_order = ['NW', 'NE', 'SE', 'SW']
@@ -3086,9 +3095,8 @@ class LassoSelector(_SelectorWidget):
         Whether to use blitting for faster drawing (if supported by the
         backend).
     props : dict, optional
-        Properties with which the line is drawn.
-        Default:
-            ``dict()``
+        Properties with which the line is drawn, see `matplotlib.lines.Line2D`
+        for valid properties. Default values are defined in ``mpl.rcParams``.
     button : `.MouseButton` or list of `.MouseButton`, optional
         The mouse buttons used for rectangle selection.  Default is ``None``,
         which corresponds to all buttons.
@@ -3169,14 +3177,18 @@ class PolygonSelector(_SelectorWidget):
         backend).
 
     props : dict, optional
-        Artist properties for the line representing the edges of the polygon.
+        Properties with which the line is drawn, see `matplotlib.lines.Line2D`
+        for valid properties.
         Default:
-            dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
+
+            ``dict(color='k', linestyle='-', linewidth=2, alpha=0.5)``
 
     handle_props : dict, optional
         Artist properties for the markers drawn at the vertices of the polygon.
-        Default:
-            dict(marker='o', markersize=7, mec='k', mfc='k', alpha=0.5)
+        See the marker arguments in `matplotlib.lines.Line2D` for valid
+        properties.  Default values are defined in ``mpl.rcParams`` except for
+        the default value of ``markeredgecolor`` which will be the same as the
+        ``color`` property in *props*.
 
     handle_grab_distance : float, default: 15px
         A vertex is selected (to complete the polygon or to move a vertex) if
