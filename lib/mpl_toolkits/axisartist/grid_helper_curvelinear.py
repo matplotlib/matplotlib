@@ -32,21 +32,11 @@ class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
         self.nth_coord_ticks = nth_coord_ticks
 
         self.side = side
-        self._limits_inverted = False
 
     def update_lim(self, axes):
         self.grid_helper.update_lim(axes)
 
-        if self.nth_coord == 0:
-            xy1, xy2 = axes.get_ylim()
-        else:
-            xy1, xy2 = axes.get_xlim()
-
-        if xy1 > xy2:
-            self._limits_inverted = True
-        else:
-            self._limits_inverted = False
-
+    @_api.deprecated("3.5")
     def change_tick_coord(self, coord_number=None):
         if coord_number is None:
             self.nth_coord_ticks = 1 - self.nth_coord_ticks
@@ -60,18 +50,15 @@ class FixedAxisArtistHelper(AxisArtistHelper.Fixed):
 
     def get_tick_iterators(self, axes):
         """tick_loc, tick_angle, tick_label"""
-
-        g = self.grid_helper
-
-        if self._limits_inverted:
+        v1, v2 = axes.get_ylim() if self.nth_coord == 0 else axes.get_xlim()
+        if v1 > v2:  # Inverted limits.
             side = {"left": "right", "right": "left",
                     "top": "bottom", "bottom": "top"}[self.side]
         else:
             side = self.side
-
+        g = self.grid_helper
         ti1 = g.get_tick_iterator(self.nth_coord_ticks, side)
         ti2 = g.get_tick_iterator(1-self.nth_coord_ticks, side, minor=True)
-
         return chain(ti1, ti2), iter([])
 
 
