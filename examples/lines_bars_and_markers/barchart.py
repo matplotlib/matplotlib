@@ -25,8 +25,7 @@ rects2 = ax.bar(x + width/2, women_means, width, label='Women')
 # Add some text for labels, title and custom x-axis tick labels, etc.
 ax.set_ylabel('Scores')
 ax.set_title('Scores by group and gender')
-ax.set_xticks(x)
-ax.set_xticklabels(labels)
+ax.set_xticks(x, labels)
 ax.legend()
 
 ax.bar_label(rects1, padding=3)
