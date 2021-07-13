@@ -349,6 +349,7 @@ def test_TextBox():
 
     tool.set_val('x**2')
 
+    assert tool.text == 'x**2'
     assert text_change_event.call_count == 1
 
     tool.begin_typing(tool.text)
