@@ -1118,8 +1118,7 @@ class TextBox(AxesWidget):
         lambda self: self._observers.callbacks['change']))
     submit_observers = _api.deprecated("3.4")(property(
         lambda self: self._observers.callbacks['submit']))
-    DIST_FROM_LEFT = _api.deprecated("3.5")(property(
-        lambda self: self._DIST_FROM_LEFT))
+    DIST_FROM_LEFT = _api.deprecate_privatize_attribute("3.5")
 
     def __init__(self, ax, label, initial='',
                  color='.95', hovercolor='1', label_pad=.01,
