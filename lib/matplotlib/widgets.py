@@ -306,6 +306,19 @@ class SliderBase(AxesWidget):
         if self.val != self.valinit:
             self.set_val(self.valinit)
 
+    def set_limits(self, vmin=None, vmax=None):
+        """Update the limits of the slider."""
+        if vmin is None and vmax is None:
+            return
+        if vmin is not None:
+            self.valmin = vmin
+        if vmax is not None:
+            self.valmax = vmax
+        if self.orientation == 'vertical':
+            self.ax.set_ylim((self.valmin, self.valmax))
+        else:
+            self.ax.set_xlim((self.valmin, self.valmax))
+
 
 class Slider(SliderBase):
     """
@@ -530,22 +543,15 @@ class Slider(SliderBase):
         return self._observers.connect('changed', lambda val: func(val))
 
     def set_limits(self, vmin=None, vmax=None):
-        """Update the range of the slider"""
-        if vmin is None and vmax is None:
-            raise ValueError(
-                (f"Argument vmin ({type(vmin)}) has no value and "
-                    f"Argument vmax ({type(vmax)}) has no value"))
-            return
-        if vmin is not None:
-            self.valmin = vmin
-        if vmax is not None:
-            self.valmax = vmax
+        """Update the limits of the slider."""
+        super().set_limits(vmin=vmin, vmax=vmax)
         self.val = self._value_in_bounds(self.val)
+        # if we reset the slider after updating the limits then we should have
+        # the proper valinit value
+        self.valinit = self._value_in_bounds(self.valinit)
         if self.orientation == 'vertical':
-            self.ax.set_ylim((self.valmin, self.valmax))
             self.hline.set_ydata(self.valinit)
         else:
-            self.ax.set_xlim((self.valmin, self.valmax))
             self.vline.set_xdata(self.valinit)
 
 
