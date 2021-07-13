@@ -800,16 +800,23 @@ void ttfont_sfnts(TTStreamWriter& stream, struct TTFONT *font)
 
     /* Now, generate those silly numTables numbers. */
     sfnts_pputUSHORT(stream, count);            /* number of tables */
-    if ( count == 9 )
-    {
-        sfnts_pputUSHORT(stream, 7);          /* searchRange */
-        sfnts_pputUSHORT(stream, 3);          /* entrySelector */
-        sfnts_pputUSHORT(stream, 81);         /* rangeShift */
+
+    int search_range = 1;
+    int entry_sel = 0;
+
+    while (search_range <= count) {
+        search_range <<= 1;
+        entry_sel++;
     }
-    else
-    {
-        debug("only %d tables selected",count);
-    }
+    entry_sel = entry_sel > 0 ? entry_sel - 1 : 0;
+    search_range = (search_range >> 1) * 16;
+    int range_shift = count * 16 - search_range;
+
+    sfnts_pputUSHORT(stream, search_range);      /* searchRange */
+    sfnts_pputUSHORT(stream, entry_sel);         /* entrySelector */
+    sfnts_pputUSHORT(stream, range_shift);       /* rangeShift */
+
+    debug("only %d tables selected",count);
 
     /* Now, emmit the table directory. */
     for (x=0; x < 9; x++)
