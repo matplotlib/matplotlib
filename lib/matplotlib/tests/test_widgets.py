@@ -430,7 +430,7 @@ def test_slider_set_limits():
     slider = widgets.Slider(ax=ax, label='', valmin=10.0, valmax=40.0,
                             valinit=15.0)
     slider.set_limits(vmin=20, vmax=40)
-    assert slider.valinit == 15
+    assert slider.valinit == 20
     assert slider.valmax == 40
     assert slider.valmin == 20
 
@@ -452,8 +452,7 @@ def test_slider_set_limits():
 
     slider = widgets.Slider(ax=ax, label='', valmin=10.0, valmax=40.0,
                             valinit=15.0)
-    with pytest.raises(ValueError):
-        slider.set_limits()
+    slider.set_limits()
     assert slider.valmax == 40
     assert slider.valmin == 10
 
