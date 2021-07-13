@@ -1300,9 +1300,11 @@ class TwoSlopeNorm(Normalize):
 
         if not self.vmin <= self.vcenter <= self.vmax:
             raise ValueError("vmin, vcenter, vmax must increase monotonically")
+        # note that we must extrapolate for tick locators:
         result = np.ma.masked_array(
             np.interp(result, [self.vmin, self.vcenter, self.vmax],
-                      [0, 0.5, 1.]), mask=np.ma.getmask(result))
+                      [0, 0.5, 1], left=-np.inf, right=np.inf),
+            mask=np.ma.getmask(result))
         if is_scalar:
             result = np.atleast_1d(result)[0]
         return result
@@ -1313,8 +1315,8 @@ class TwoSlopeNorm(Normalize):
         (vmin,), _ = self.process_value(self.vmin)
         (vmax,), _ = self.process_value(self.vmax)
         (vcenter,), _ = self.process_value(self.vcenter)
-
-        result = np.interp(value, [0, 0.5, 1.], [vmin, vcenter, vmax])
+        result = np.interp(value, [0, 0.5, 1], [vmin, vcenter, vmax],
+                           left=-np.inf, right=np.inf)
         return result
 
 

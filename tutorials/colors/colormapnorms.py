@@ -277,7 +277,8 @@ pcm = ax.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
 # longitude depends on latitude.
 ax.set_aspect(1 / np.cos(np.deg2rad(49)))
 ax.set_title('TwoSlopeNorm(x)')
-fig.colorbar(pcm, shrink=0.6)
+cb = fig.colorbar(pcm, shrink=0.6)
+cb.set_ticks([-500, 0, 1000, 2000, 3000, 4000])
 plt.show()
 
 
@@ -312,7 +313,8 @@ plt.show()
 # ----------------------------------------------------------
 #
 # The `.TwoSlopeNorm` described above makes a useful example for
-# defining your own norm.
+# defining your own norm.  Note for the colorbar to work, you must
+# define an inverse for your norm:
 
 
 class MidpointNormalize(colors.Normalize):
@@ -323,8 +325,14 @@ class MidpointNormalize(colors.Normalize):
     def __call__(self, value, clip=None):
         # I'm ignoring masked values and all kinds of edge cases to make a
         # simple example...
-        x, y = [self.vmin, self.vcenter, self.vmax], [0, 0.5, 1]
-        return np.ma.masked_array(np.interp(value, x, y))
+        # Note also that we must extrapolate beyond vmin/vmax
+        x, y = [self.vmin, self.vcenter, self.vmax], [0, 0.5, 1.]
+        return np.ma.masked_array(np.interp(value, x, y,
+                                            left=-np.inf, right=np.inf))
+
+    def inverse(self, value):
+        y, x = [self.vmin, self.vcenter, self.vmax], [0, 0.5, 1]
+        return np.interp(value, x, y, left=-np.inf, right=np.inf)
 
 
 fig, ax = plt.subplots()
@@ -334,5 +342,7 @@ pcm = ax.pcolormesh(longitude, latitude, topo, rasterized=True, norm=midnorm,
                     cmap=terrain_map, shading='auto')
 ax.set_aspect(1 / np.cos(np.deg2rad(49)))
 ax.set_title('Custom norm')
-fig.colorbar(pcm, shrink=0.6, extend='both')
+cb = fig.colorbar(pcm, shrink=0.6, extend='both')
+cb.set_ticks([-500, 0, 1000, 2000, 3000, 4000])
+
 plt.show()
