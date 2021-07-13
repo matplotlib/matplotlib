@@ -798,33 +798,36 @@ void ttfont_sfnts(TTStreamWriter& stream, struct TTFONT *font)
     ** Find the tables we want and store there vital
     ** statistics in tables[].
     */
-    for (x=0; x < 9; x++ )
-    {
-        do
-        {
-            diff = strncmp( (char*)ptr, table_names[x], 4 );
+    ULONG num_tables_read = 0;  /* Number of tables read from the directory */
+    for (x = 0; x < 9; x++) {
+        do {
+          if (num_tables_read < font->numTables) {
+              /* There are still tables to read from ptr */
+              diff = strncmp((char*)ptr, table_names[x], 4);
 
-            if ( diff > 0 )             /* If we are past it. */
-            {
-                tables[x].length = 0;
-                diff = 0;
-            }
-            else if ( diff < 0 )        /* If we haven't hit it yet. */
-            {
-                ptr += 16;
-            }
-            else if ( diff == 0 )       /* Here it is! */
-            {
-                tables[x].newoffset = nextoffset;
-                tables[x].checksum = getULONG( ptr + 4 );
-                tables[x].oldoffset = getULONG( ptr + 8 );
-                tables[x].length = getULONG( ptr + 12 );
-                nextoffset += ( ((tables[x].length + 3) / 4) * 4 );
-                count++;
-                ptr += 16;
-            }
-        }
-        while (diff != 0);
+              if (diff > 0) {           /* If we are past it. */
+                  tables[x].length = 0;
+                  diff = 0;
+              } else if (diff < 0) {      /* If we haven't hit it yet. */
+                  ptr += 16;
+                  num_tables_read++;
+              } else if (diff == 0) {     /* Here it is! */
+                  tables[x].newoffset = nextoffset;
+                  tables[x].checksum = getULONG( ptr + 4 );
+                  tables[x].oldoffset = getULONG( ptr + 8 );
+                  tables[x].length = getULONG( ptr + 12 );
+                  nextoffset += ( ((tables[x].length + 3) / 4) * 4 );
+                  count++;
+                  ptr += 16;
+                  num_tables_read++;
+              }
+          } else {
+            /* We've read the whole table directory already */
+            /* Some tables couldn't be found */
+            tables[x].length = 0;
+            break;  /* Proceed to next tables[x] */
+          }
+        } while (diff != 0);
 
     } /* end of for loop which passes over the table directory */
 
