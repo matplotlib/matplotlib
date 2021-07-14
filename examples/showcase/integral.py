@@ -46,8 +46,7 @@ ax.spines.right.set_visible(False)
 ax.spines.top.set_visible(False)
 ax.xaxis.set_ticks_position('bottom')
 
-ax.set_xticks((a, b))
-ax.set_xticklabels(('$a$', '$b$'))
+ax.set_xticks([a, b], labels=['$a$', '$b$'])
 ax.set_yticks([])
 
 plt.show()

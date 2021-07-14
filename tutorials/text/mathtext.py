@@ -308,8 +308,10 @@ long and short forms for some of them.
     ``\acute a`` or ``\'a``        :mathmpl:`\acute a`
     ``\bar a``                     :mathmpl:`\bar a`
     ``\breve a``                   :mathmpl:`\breve a`
-    ``\ddot a`` or ``\''a``        :mathmpl:`\ddot a`
     ``\dot a`` or ``\.a``          :mathmpl:`\dot a`
+    ``\ddot a`` or ``\''a``        :mathmpl:`\ddot a`
+    ``\dddot a``                   :mathmpl:`\dddot a`
+    ``\ddddot a``                  :mathmpl:`\ddddot a`
     ``\grave a`` or ``\`a``        :mathmpl:`\grave a`
     ``\hat a`` or ``\^a``          :mathmpl:`\hat a`
     ``\tilde a`` or ``\~a``        :mathmpl:`\tilde a`

@@ -1039,3 +1039,12 @@ def test_quadmesh_cursor_data():
         x, y = ax.transData.transform([-1, 101])
         event = MouseEvent('motion_notify_event', fig.canvas, x, y)
         assert qm.get_cursor_data(event) is None
+
+
+def test_get_segments():
+    segments = np.tile(np.linspace(0, 1, 256), (2, 1)).T
+    lc = LineCollection([segments])
+
+    readback, = lc.get_segments()
+    # these should comeback un-changed!
+    assert np.all(segments == readback)

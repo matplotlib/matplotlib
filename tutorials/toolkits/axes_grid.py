@@ -161,9 +161,9 @@ top(or right)-axis to have different tick-locations, tick-labels, or
 tick-formatter for bottom(or left)-axis. ::
 
   ax2 = ax.twin() # now, ax2 is responsible for "top" axis and "right" axis
-  ax2.set_xticks([0., .5*np.pi, np.pi, 1.5*np.pi, 2*np.pi])
-  ax2.set_xticklabels(["0", r"$\frac{1}{2}\pi$",
-                       r"$\pi$", r"$\frac{3}{2}\pi$", r"$2\pi$"])
+  ax2.set_xticks([0., .5*np.pi, np.pi, 1.5*np.pi, 2*np.pi],
+                 labels=["0", r"$\frac{1}{2}\pi$",
+                         r"$\pi$", r"$\frac{3}{2}\pi$", r"$2\pi$"])
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axisline4_001.png
    :target: ../../gallery/axes_grid1/simple_axisline4.html

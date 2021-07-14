@@ -95,6 +95,8 @@ def _mpl_to_gtk_cursor(mpl_cursor):
         cursors.POINTER: "default",
         cursors.SELECT_REGION: "crosshair",
         cursors.WAIT: "wait",
+        cursors.RESIZE_HORIZONTAL: "ew-resize",
+        cursors.RESIZE_VERTICAL: "ns-resize",
     }[mpl_cursor]
     return Gdk.Cursor.new_from_name(Gdk.Display.get_default(), name)
 

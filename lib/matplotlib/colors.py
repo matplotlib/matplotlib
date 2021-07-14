@@ -1300,9 +1300,11 @@ class TwoSlopeNorm(Normalize):
 
         if not self.vmin <= self.vcenter <= self.vmax:
             raise ValueError("vmin, vcenter, vmax must increase monotonically")
+        # note that we must extrapolate for tick locators:
         result = np.ma.masked_array(
             np.interp(result, [self.vmin, self.vcenter, self.vmax],
-                      [0, 0.5, 1.]), mask=np.ma.getmask(result))
+                      [0, 0.5, 1], left=-np.inf, right=np.inf),
+            mask=np.ma.getmask(result))
         if is_scalar:
             result = np.atleast_1d(result)[0]
         return result
@@ -1313,8 +1315,8 @@ class TwoSlopeNorm(Normalize):
         (vmin,), _ = self.process_value(self.vmin)
         (vmax,), _ = self.process_value(self.vmax)
         (vcenter,), _ = self.process_value(self.vcenter)
-
-        result = np.interp(value, [0, 0.5, 1.], [vmin, vcenter, vmax])
+        result = np.interp(value, [0, 0.5, 1], [vmin, vcenter, vmax],
+                           left=-np.inf, right=np.inf)
         return result
 
 
@@ -1500,6 +1502,7 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     Norm.__name__ = base_norm_cls.__name__
     Norm.__qualname__ = base_norm_cls.__qualname__
     Norm.__module__ = base_norm_cls.__module__
+    Norm.__doc__ = base_norm_cls.__doc__
     Norm.__init__.__signature__ = bound_init_signature.replace(parameters=[
         inspect.Parameter("self", inspect.Parameter.POSITIONAL_OR_KEYWORD),
         *bound_init_signature.parameters.values()])
@@ -1731,7 +1734,7 @@ class BoundaryNorm(Normalize):
         else:
             max_col = self.Ncmap
         # this gives us the bins in the lookup table in the range
-        # [0, _n_regions - 1]  (the offset is baked in the init)
+        # [0, _n_regions - 1]  (the offset is set in the init)
         iret = np.digitize(xx, self.boundaries) - 1 + self._offset
         # if we have more colors than regions, stretch the region
         # index computed above to full range of the color bins.  This

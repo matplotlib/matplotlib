@@ -2050,9 +2050,6 @@ def test_contour_hatching():
 
 @image_comparison(['contour_colorbar'], style='mpl20')
 def test_contour_colorbar():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
     x, y, z = contour_dat()
 
     fig, ax = plt.subplots()

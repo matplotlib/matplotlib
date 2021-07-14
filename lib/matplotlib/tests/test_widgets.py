@@ -476,7 +476,7 @@ def test_slider_horizontal_vertical():
     assert slider.val == 10
     # check the dimension of the slider patch in axes units
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
-    assert_allclose(box.bounds, [0, 0, 10/24, 1])
+    assert_allclose(box.bounds, [0, .25, 10/24, .5])
 
     fig, ax = plt.subplots()
     slider = widgets.Slider(ax=ax, label='', valmin=0, valmax=24,
@@ -485,7 +485,7 @@ def test_slider_horizontal_vertical():
     assert slider.val == 10
     # check the dimension of the slider patch in axes units
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
-    assert_allclose(box.bounds, [0, 0, 1, 10/24])
+    assert_allclose(box.bounds, [.25, 0, .5, 10/24])
 
 
 @pytest.mark.parametrize("orientation", ["horizontal", "vertical"])
@@ -502,7 +502,7 @@ def test_range_slider(orientation):
         valinit=[0.1, 0.34]
     )
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
-    assert_allclose(box.get_points().flatten()[idx], [0.1, 0, 0.34, 1])
+    assert_allclose(box.get_points().flatten()[idx], [0.1, 0.25, 0.34, 0.75])
 
     # Check initial value is set correctly
     assert_allclose(slider.val, (0.1, 0.34))
@@ -510,7 +510,7 @@ def test_range_slider(orientation):
     slider.set_val((0.2, 0.6))
     assert_allclose(slider.val, (0.2, 0.6))
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
-    assert_allclose(box.get_points().flatten()[idx], [0.2, 0, 0.6, 1])
+    assert_allclose(box.get_points().flatten()[idx], [0.2, .25, 0.6, .75])
 
     slider.set_val((0.2, 0.1))
     assert_allclose(slider.val, (0.1, 0.2))

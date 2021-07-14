@@ -119,51 +119,6 @@ commands:
 #
 
 jobs:
-  docs-python37:
-    docker:
-      - image: circleci/python:3.7
-    steps:
-      - checkout
-
-      - apt-install
-      - fonts-install
-      - pip-install
-
-      - deps-install
-      - mpl-install
-
-      - doc-build
-
-      - doc-bundle
-
-      - store_artifacts:
-          path: doc/build/html
-      - store_test_results:
-          path: doc/build/test-results
-
-  docs-python38-min:
-    docker:
-      - image: circleci/python:3.8
-    steps:
-      - checkout
-
-      - apt-install
-      - fonts-install
-      - pip-install
-
-      - deps-install:
-          numpy_version: "==1.17.3"
-      - mpl-install
-
-      - doc-build
-
-      - doc-bundle
-
-      - store_artifacts:
-          path: doc/build/html
-      - store_test_results:
-          path: doc/build/test-results
-
   docs-python38:
     docker:
       - image: circleci/python:3.8
@@ -201,6 +156,4 @@ workflows:
   version: 2
   build:
     jobs:
-      - docs-python37
       - docs-python38
-      - docs-python38-min

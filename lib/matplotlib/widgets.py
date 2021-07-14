@@ -267,9 +267,9 @@ class SliderBase(AxesWidget):
         self._fmt.set_useOffset(False)  # No additive offset.
         self._fmt.set_useMathText(True)  # x sign before multiplicative offset.
 
-        ax.set_xticks([])
-        ax.set_yticks([])
+        ax.set_axis_off()
         ax.set_navigate(False)
+
         self.connect_event("button_press_event", self._update)
         self.connect_event("button_release_event", self._update)
         if dragging:
@@ -342,7 +342,8 @@ class Slider(SliderBase):
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt=None,
                  closedmin=True, closedmax=True, slidermin=None,
                  slidermax=None, dragging=True, valstep=None,
-                 orientation='horizontal', *, initcolor='r', **kwargs):
+                 orientation='horizontal', *, initcolor='r',
+                 track_color='lightgrey', handle_style=None, **kwargs):
         """
         Parameters
         ----------
@@ -393,11 +394,30 @@ class Slider(SliderBase):
             The color of the line at the *valinit* position. Set to ``'none'``
             for no line.
 
+        track_color : color, default: 'lightgrey'
+            The color of the background track. The track is accessible for
+            further styling via the *track* attribute.
+
+        handle_style : dict
+            Properties of the slider handle. Default values are
+
+            ========= ===== ======= ========================================
+            Key       Value Default Description
+            ========= ===== ======= ========================================
+            facecolor color 'white' The facecolor of the slider handle.
+            edgecolor color '.75'   The edgecolor of the slider handle.
+            size      int   10      The size of the slider handle in points.
+            ========= ===== ======= ========================================
+
+            Other values will be transformed as marker{foo} and passed to the
+            `~.Line2D` constructor. e.g. ``handle_style = {'style'='x'}`` will
+            result in ``markerstyle = 'x'``.
+
         Notes
         -----
         Additional kwargs are passed on to ``self.poly`` which is the
-        `~matplotlib.patches.Rectangle` that draws the slider knob.  See the
-        `.Rectangle` documentation for valid property names (``facecolor``,
+        `~matplotlib.patches.Polygon` that draws the slider knob.  See the
+        `.Polygon` documentation for valid property names (``facecolor``,
         ``edgecolor``, ``alpha``, etc.).
         """
         super().__init__(ax, orientation, closedmin, closedmax,
@@ -416,12 +436,44 @@ class Slider(SliderBase):
             valinit = valmin
         self.val = valinit
         self.valinit = valinit
+
+        defaults = {'facecolor': 'white', 'edgecolor': '.75', 'size': 10}
+        handle_style = {} if handle_style is None else handle_style
+        marker_props = {
+            f'marker{k}': v for k, v in {**defaults, **handle_style}.items()
+        }
+
         if orientation == 'vertical':
-            self.poly = ax.axhspan(valmin, valinit, 0, 1, **kwargs)
-            self.hline = ax.axhline(valinit, 0, 1, color=initcolor, lw=1)
+            self.track = Rectangle(
+                (.25, 0), .5, 1,
+                transform=ax.transAxes,
+                facecolor=track_color
+            )
+            ax.add_patch(self.track)
+            self.poly = ax.axhspan(valmin, valinit, .25, .75, **kwargs)
+            self.hline = ax.axhline(valinit, .15, .85, color=initcolor, lw=1)
+            handleXY = [[0.5], [valinit]]
         else:
-            self.poly = ax.axvspan(valmin, valinit, 0, 1, **kwargs)
-            self.vline = ax.axvline(valinit, 0, 1, color=initcolor, lw=1)
+            self.track = Rectangle(
+                (0, .25), 1, .5,
+                transform=ax.transAxes,
+                facecolor=track_color
+            )
+            ax.add_patch(self.track)
+            self.poly = ax.axvspan(valmin, valinit, .25, .75, **kwargs)
+            # These asymmetric limits (.2, .9) minimize the asymmetry
+            # above and below the *poly* when rendered to pixels.
+            # This seems to be different for Horizontal and Vertical lines.
+            # For discussion see:
+            # https://github.com/matplotlib/matplotlib/pull/19265
+            self.vline = ax.axvline(valinit, .2, .9, color=initcolor, lw=1)
+            handleXY = [[valinit], [0.5]]
+        self._handle, = ax.plot(
+            *handleXY,
+            "o",
+            **marker_props,
+            clip_on=False
+        )
 
         if orientation == 'vertical':
             self.label = ax.text(0.5, 1.02, label, transform=ax.transAxes,
@@ -512,11 +564,13 @@ class Slider(SliderBase):
         """
         xy = self.poly.xy
         if self.orientation == 'vertical':
-            xy[1] = 0, val
-            xy[2] = 1, val
+            xy[1] = .25, val
+            xy[2] = .75, val
+            self._handle.set_ydata([val])
         else:
-            xy[2] = val, 1
-            xy[3] = val, 0
+            xy[2] = val, .75
+            xy[3] = val, .25
+            self._handle.set_xdata([val])
         self.poly.xy = xy
         self.valtext.set_text(self._format(val))
         if self.drawon:
@@ -583,6 +637,8 @@ class RangeSlider(SliderBase):
         dragging=True,
         valstep=None,
         orientation="horizontal",
+        track_color='lightgrey',
+        handle_style=None,
         **kwargs,
     ):
         """
@@ -623,11 +679,30 @@ class RangeSlider(SliderBase):
         orientation : {'horizontal', 'vertical'}, default: 'horizontal'
             The orientation of the slider.
 
+        track_color : color, default: 'lightgrey'
+            The color of the background track. The track is accessible for
+            further styling via the *track* attribute.
+
+        handle_style : dict
+            Properties of the slider handles. Default values are
+
+            ========= ===== ======= =========================================
+            Key       Value Default Description
+            ========= ===== ======= =========================================
+            facecolor color 'white' The facecolor of the slider handles.
+            edgecolor color '.75'   The edgecolor of the slider handles.
+            size      int   10      The size of the slider handles in points.
+            ========= ===== ======= =========================================
+
+            Other values will be transformed as marker{foo} and passed to the
+            `~.Line2D` constructor. e.g. ``handle_style = {'style'='x'}`` will
+            result in ``markerstyle = 'x'``.
+
         Notes
         -----
         Additional kwargs are passed on to ``self.poly`` which is the
-        `~matplotlib.patches.Rectangle` that draws the slider knob.  See the
-        `.Rectangle` documentation for valid property names (``facecolor``,
+        `~matplotlib.patches.Polygon` that draws the slider knob.  See the
+        `.Polygon` documentation for valid property names (``facecolor``,
         ``edgecolor``, ``alpha``, etc.).
         """
         super().__init__(ax, orientation, closedmin, closedmax,
@@ -644,10 +719,47 @@ class RangeSlider(SliderBase):
             valinit = self._value_in_bounds(valinit)
         self.val = valinit
         self.valinit = valinit
+
+        defaults = {'facecolor': 'white', 'edgecolor': '.75', 'size': 10}
+        handle_style = {} if handle_style is None else handle_style
+        marker_props = {
+            f'marker{k}': v for k, v in {**defaults, **handle_style}.items()
+        }
+
         if orientation == "vertical":
+            self.track = Rectangle(
+                (.25, 0), .5, 2,
+                transform=ax.transAxes,
+                facecolor=track_color
+            )
+            ax.add_patch(self.track)
             self.poly = ax.axhspan(valinit[0], valinit[1], 0, 1, **kwargs)
+            handleXY_1 = [.5, valinit[0]]
+            handleXY_2 = [.5, valinit[1]]
         else:
+            self.track = Rectangle(
+                (0, .25), 1, .5,
+                transform=ax.transAxes,
+                facecolor=track_color
+            )
+            ax.add_patch(self.track)
             self.poly = ax.axvspan(valinit[0], valinit[1], 0, 1, **kwargs)
+            handleXY_1 = [valinit[0], .5]
+            handleXY_2 = [valinit[1], .5]
+        self._handles = [
+            ax.plot(
+                *handleXY_1,
+                "o",
+                **marker_props,
+                clip_on=False
+            )[0],
+            ax.plot(
+                *handleXY_2,
+                "o",
+                **marker_props,
+                clip_on=False
+            )[0]
+        ]
 
         if orientation == "vertical":
             self.label = ax.text(
@@ -686,6 +798,7 @@ class RangeSlider(SliderBase):
                 horizontalalignment="left",
             )
 
+        self._active_handle = None
         self.set_val(valinit)
 
     def _min_in_bounds(self, min):
@@ -723,6 +836,8 @@ class RangeSlider(SliderBase):
         else:
             val = self._max_in_bounds(pos)
             self.set_max(val)
+        if self._active_handle:
+            self._active_handle.set_xdata([val])
 
     def _update(self, event):
         """Update the slider position."""
@@ -741,7 +856,20 @@ class RangeSlider(SliderBase):
         ):
             self.drag_active = False
             event.canvas.release_mouse(self.ax)
+            self._active_handle = None
             return
+
+        # determine which handle was grabbed
+        handle = self._handles[
+            np.argmin(
+                np.abs([h.get_xdata()[0] - event.xdata for h in self._handles])
+            )
+        ]
+        # these checks ensure smooth behavior if the handles swap which one
+        # has a higher value. i.e. if one is dragged over and past the other.
+        if handle is not self._active_handle:
+            self._active_handle = handle
+
         if self.orientation == "vertical":
             self._update_val_from_pos(event.ydata)
         else:
@@ -798,17 +926,17 @@ class RangeSlider(SliderBase):
         val[1] = self._max_in_bounds(val[1])
         xy = self.poly.xy
         if self.orientation == "vertical":
-            xy[0] = 0, val[0]
-            xy[1] = 0, val[1]
-            xy[2] = 1, val[1]
-            xy[3] = 1, val[0]
-            xy[4] = 0, val[0]
+            xy[0] = .25, val[0]
+            xy[1] = .25, val[1]
+            xy[2] = .75, val[1]
+            xy[3] = .75, val[0]
+            xy[4] = .25, val[0]
         else:
-            xy[0] = val[0], 0
-            xy[1] = val[0], 1
-            xy[2] = val[1], 1
-            xy[3] = val[1], 0
-            xy[4] = val[0], 0
+            xy[0] = val[0], .25
+            xy[1] = val[0], .75
+            xy[2] = val[1], .75
+            xy[3] = val[1], .25
+            xy[4] = val[0], .25
         self.poly.xy = xy
         self.valtext.set_text(self._format(val))
         if self.drawon:
@@ -1686,11 +1814,15 @@ class _SelectorWidget(AxesWidget):
             self.validButtons = button
 
         # will save the data (position at mouseclick)
-        self.eventpress = None
+        self._eventpress = None
         # will save the data (pos. at mouserelease)
-        self.eventrelease = None
+        self._eventrelease = None
         self._prev_event = None
-        self.state = set()
+        self._state = set()
+
+    eventpress = _api.deprecate_privatize_attribute("3.5")
+    eventrelease = _api.deprecate_privatize_attribute("3.5")
+    state = _api.deprecate_privatize_attribute("3.5")
 
     def set_active(self, active):
         super().set_active(active)
@@ -1743,14 +1875,14 @@ class _SelectorWidget(AxesWidget):
             return True
         # If no button was pressed yet ignore the event if it was out
         # of the axes
-        if self.eventpress is None:
+        if self._eventpress is None:
             return event.inaxes != self.ax
         # If a button was pressed, check if the release-button is the same.
-        if event.button == self.eventpress.button:
+        if event.button == self._eventpress.button:
             return False
         # If a button was pressed, check if the release-button is the same.
         return (event.inaxes != self.ax or
-                event.button != self.eventpress.button)
+                event.button != self._eventpress.button)
 
     def update(self):
         """Draw using blit() or draw_idle(), depending on ``self.useblit``."""
@@ -1796,13 +1928,13 @@ class _SelectorWidget(AxesWidget):
         """Button press handler and validator."""
         if not self.ignore(event):
             event = self._clean_event(event)
-            self.eventpress = event
+            self._eventpress = event
             self._prev_event = event
             key = event.key or ''
             key = key.replace('ctrl', 'control')
             # move state is locked in on a button press
             if key == self.state_modifier_keys['move']:
-                self.state.add('move')
+                self._state.add('move')
             self._press(event)
             return True
         return False
@@ -1812,13 +1944,13 @@ class _SelectorWidget(AxesWidget):
 
     def release(self, event):
         """Button release event handler and validator."""
-        if not self.ignore(event) and self.eventpress:
+        if not self.ignore(event) and self._eventpress:
             event = self._clean_event(event)
-            self.eventrelease = event
+            self._eventrelease = event
             self._release(event)
-            self.eventpress = None
-            self.eventrelease = None
-            self.state.discard('move')
+            self._eventpress = None
+            self._eventrelease = None
+            self._state.discard('move')
             return True
         return False
 
@@ -1827,7 +1959,7 @@ class _SelectorWidget(AxesWidget):
 
     def onmove(self, event):
         """Cursor move event handler and validator."""
-        if not self.ignore(event) and self.eventpress:
+        if not self.ignore(event) and self._eventpress:
             event = self._clean_event(event)
             self._onmove(event)
             return True
@@ -1856,7 +1988,7 @@ class _SelectorWidget(AxesWidget):
                 return
             for (state, modifier) in self.state_modifier_keys.items():
                 if modifier in key:
-                    self.state.add(state)
+                    self._state.add(state)
             self._on_key_press(event)
 
     def _on_key_press(self, event):
@@ -1868,7 +2000,7 @@ class _SelectorWidget(AxesWidget):
             key = event.key or ''
             for (state, modifier) in self.state_modifier_keys.items():
                 if modifier in key:
-                    self.state.discard(state)
+                    self._state.discard(state)
             self._on_key_release(event)
 
     def _on_key_release(self, event):
@@ -2137,9 +2269,9 @@ class SpanSelector(_SelectorWidget):
 
         v = event.xdata if self.direction == 'horizontal' else event.ydata
         if self.direction == 'horizontal':
-            vpress = self.eventpress.xdata
+            vpress = self._eventpress.xdata
         else:
-            vpress = self.eventpress.ydata
+            vpress = self._eventpress.ydata
 
         # move existing span
         # When "dragging from anywhere", `self._active_handle` is set to 'C'
@@ -2187,7 +2319,7 @@ class SpanSelector(_SelectorWidget):
 
         # Prioritise center handle over other handles
         # Use 'C' to match the notation used in the RectangleSelector
-        if 'move' in self.state:
+        if 'move' in self._state:
             self._active_handle = 'C'
         elif e_dist > self.handle_grab_distance:
             # Not close to any handles
@@ -2609,23 +2741,23 @@ class RectangleSelector(_SelectorWidget):
 
         # update the eventpress and eventrelease with the resulting extents
         x0, x1, y0, y1 = self.extents
-        self.eventpress.xdata = x0
-        self.eventpress.ydata = y0
+        self._eventpress.xdata = x0
+        self._eventpress.ydata = y0
         xy0 = self.ax.transData.transform([x0, y0])
-        self.eventpress.x, self.eventpress.y = xy0
+        self._eventpress.x, self._eventpress.y = xy0
 
-        self.eventrelease.xdata = x1
-        self.eventrelease.ydata = y1
+        self._eventrelease.xdata = x1
+        self._eventrelease.ydata = y1
         xy1 = self.ax.transData.transform([x1, y1])
-        self.eventrelease.x, self.eventrelease.y = xy1
+        self._eventrelease.x, self._eventrelease.y = xy1
 
         # calculate dimensions of box or line
         if self.spancoords == 'data':
-            spanx = abs(self.eventpress.xdata - self.eventrelease.xdata)
-            spany = abs(self.eventpress.ydata - self.eventrelease.ydata)
+            spanx = abs(self._eventpress.xdata - self._eventrelease.xdata)
+            spany = abs(self._eventpress.ydata - self._eventrelease.ydata)
         elif self.spancoords == 'pixels':
-            spanx = abs(self.eventpress.x - self.eventrelease.x)
-            spany = abs(self.eventpress.y - self.eventrelease.y)
+            spanx = abs(self._eventpress.x - self._eventrelease.x)
+            spany = abs(self._eventpress.y - self._eventrelease.y)
         else:
             _api.check_in_list(['data', 'pixels'],
                                spancoords=self.spancoords)
@@ -2640,7 +2772,7 @@ class RectangleSelector(_SelectorWidget):
             return
 
         # call desired function
-        self.onselect(self.eventpress, self.eventrelease)
+        self.onselect(self._eventpress, self._eventrelease)
         self.update()
 
         return False
@@ -2656,12 +2788,12 @@ class RectangleSelector(_SelectorWidget):
                 y1 = event.ydata
 
         # move existing shape
-        elif (('move' in self.state or self._active_handle == 'C' or
+        elif (('move' in self._state or self._active_handle == 'C' or
                (self.drag_from_anywhere and self._contains(event))) and
               self._extents_on_press is not None):
             x0, x1, y0, y1 = self._extents_on_press
-            dx = event.xdata - self.eventpress.xdata
-            dy = event.ydata - self.eventpress.ydata
+            dx = event.xdata - self._eventpress.xdata
+            dy = event.ydata - self._eventpress.ydata
             x0 += dx
             x1 += dx
             y0 += dy
@@ -2669,13 +2801,13 @@ class RectangleSelector(_SelectorWidget):
 
         # new shape
         else:
-            center = [self.eventpress.xdata, self.eventpress.ydata]
-            center_pix = [self.eventpress.x, self.eventpress.y]
+            center = [self._eventpress.xdata, self._eventpress.ydata]
+            center_pix = [self._eventpress.x, self._eventpress.y]
             dx = (event.xdata - center[0]) / 2.
             dy = (event.ydata - center[1]) / 2.
 
             # square shape
-            if 'square' in self.state:
+            if 'square' in self._state:
                 dx_pix = abs(event.x - center_pix[0])
                 dy_pix = abs(event.y - center_pix[1])
                 if not dx_pix:
@@ -2687,7 +2819,7 @@ class RectangleSelector(_SelectorWidget):
                     dy *= maxd / (abs(dy_pix) + 1e-6)
 
             # from center
-            if 'center' in self.state:
+            if 'center' in self._state:
                 dx *= 2
                 dy *= 2
 
@@ -2788,7 +2920,7 @@ class RectangleSelector(_SelectorWidget):
         e_idx, e_dist = self._edge_handles.closest(event.x, event.y)
         m_idx, m_dist = self._center_handle.closest(event.x, event.y)
 
-        if 'move' in self.state:
+        if 'move' in self._state:
             self._active_handle = 'C'
             self._extents_on_press = self.extents
         # Set active handle as closest handle, if mouse click is close enough.
@@ -3101,7 +3233,7 @@ class PolygonSelector(_SelectorWidget):
     def _press(self, event):
         """Button press event handler."""
         # Check for selection of a tool handle.
-        if ((self._polygon_completed or 'move_vertex' in self.state)
+        if ((self._polygon_completed or 'move_vertex' in self._state)
                 and len(self._xs) > 0):
             h_idx, h_dist = self._polygon_handles.closest(event.x, event.y)
             if h_dist < self.vertex_select_radius:
@@ -3127,8 +3259,8 @@ class PolygonSelector(_SelectorWidget):
 
         # Place new vertex.
         elif (not self._polygon_completed
-              and 'move_all' not in self.state
-              and 'move_vertex' not in self.state):
+              and 'move_all' not in self._state
+              and 'move_vertex' not in self._state):
             self._xs.insert(-1, event.xdata)
             self._ys.insert(-1, event.ydata)
 
@@ -3140,7 +3272,7 @@ class PolygonSelector(_SelectorWidget):
         # Method overrides _SelectorWidget.onmove because the polygon selector
         # needs to process the move callback even if there is no button press.
         # _SelectorWidget.onmove include logic to ignore move event if
-        # eventpress is None.
+        # _eventpress is None.
         if not self.ignore(event):
             event = self._clean_event(event)
             self._onmove(event)
@@ -3159,16 +3291,16 @@ class PolygonSelector(_SelectorWidget):
                 self._xs[-1], self._ys[-1] = event.xdata, event.ydata
 
         # Move all vertices.
-        elif 'move_all' in self.state and self.eventpress:
-            dx = event.xdata - self.eventpress.xdata
-            dy = event.ydata - self.eventpress.ydata
+        elif 'move_all' in self._state and self._eventpress:
+            dx = event.xdata - self._eventpress.xdata
+            dy = event.ydata - self._eventpress.ydata
             for k in range(len(self._xs)):
                 self._xs[k] = self._xs_at_press[k] + dx
                 self._ys[k] = self._ys_at_press[k] + dy
 
         # Do nothing if completed or waiting for a move.
         elif (self._polygon_completed
-              or 'move_vertex' in self.state or 'move_all' in self.state):
+              or 'move_vertex' in self._state or 'move_all' in self._state):
             return
 
         # Position pending vertex.
@@ -3190,7 +3322,8 @@ class PolygonSelector(_SelectorWidget):
         # Remove the pending vertex if entering the 'move_vertex' or
         # 'move_all' mode
         if (not self._polygon_completed
-                and ('move_vertex' in self.state or 'move_all' in self.state)):
+                and ('move_vertex' in self._state or
+                     'move_all' in self._state)):
             self._xs, self._ys = self._xs[:-1], self._ys[:-1]
             self._draw_polygon()
 

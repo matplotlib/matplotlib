@@ -79,7 +79,7 @@ plt.show()
 
 ######################################################################
 # One way around this issue is to use an `.Axes.inset_axes` to locate the
-# axes in axes co-ordinates.  Note that if you zoom in on the axes, and
+# axes in axes coordinates.  Note that if you zoom in on the axes, and
 # change the shape of the axes, the colorbar will also change position.
 
 fig, axs = plt.subplots(2, 2, constrained_layout=True)

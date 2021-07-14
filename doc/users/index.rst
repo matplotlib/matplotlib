@@ -13,6 +13,7 @@ User's guide
     :maxdepth: 2
 
     interactive.rst
+    fonts.rst
     release_notes.rst
     license.rst
     ../citing.rst
