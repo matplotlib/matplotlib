@@ -43,13 +43,12 @@ import matplotlib.transforms as mtransforms
 
 fig, ax = plt.subplots()
 ax.plot(range(10))
-ax.set_yticks((2, 5, 7))
-labels = ax.set_yticklabels(('really, really, really', 'long', 'labels'))
+ax.set_yticks([2, 5, 7], labels=['really, really, really', 'long', 'labels'])
 
 
 def on_draw(event):
     bboxes = []
-    for label in labels:
+    for label in ax.get_yticklabels():
         # Bounding box in pixels
         bbox_px = label.get_window_extent()
         # Transform to relative figure coordinates. This is the inverse of

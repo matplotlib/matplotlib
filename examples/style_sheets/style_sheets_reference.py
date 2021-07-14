@@ -45,8 +45,7 @@ def plot_bar_graphs(ax, prng, min_value=5, max_value=25, nb_samples=5):
     width = 0.25
     ax.bar(x, ya, width)
     ax.bar(x + width, yb, width, color='C2')
-    ax.set_xticks(x + width)
-    ax.set_xticklabels(['a', 'b', 'c', 'd', 'e'])
+    ax.set_xticks(x + width, labels=['a', 'b', 'c', 'd', 'e'])
     return ax
 
 

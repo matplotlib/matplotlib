@@ -45,8 +45,7 @@ width = 0.25
 ax3.bar(x, y1, width)
 ax3.bar(x + width, y2, width,
         color=list(plt.rcParams['axes.prop_cycle'])[2]['color'])
-ax3.set_xticks(x + width)
-ax3.set_xticklabels(['a', 'b', 'c', 'd', 'e'])
+ax3.set_xticks(x + width, labels=['a', 'b', 'c', 'd', 'e'])
 
 # circles with colors from default color cycle
 for i, color in enumerate(plt.rcParams['axes.prop_cycle']):
