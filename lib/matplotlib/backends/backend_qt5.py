@@ -621,6 +621,31 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
                 if tooltip_text is not None:
                     a.setToolTip(tooltip_text)
 
+        menu = QtWidgets.QMenu()
+        group = QtWidgets.QActionGroup(menu)
+
+        @group.triggered.connect
+        def set_filter(action):
+            filter = action.text().lower()
+            if filter == 'none':
+                filter = None
+            self.canvas.figure.set_agg_filter(filter)
+            self.canvas.draw_idle()
+
+        for filt in ['None', 'Greyscale', 'Deuteranopia', 'Protanopia',
+                     'Tritanopia']:
+            a = menu.addAction(filt)
+            a.setCheckable(True)
+            a.setActionGroup(group)
+            a.setChecked(filt == 'None')
+
+        self.addSeparator()
+        tb = QtWidgets.QToolButton()
+        tb.setText('Filter')
+        tb.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+        tb.setMenu(menu)
+        self.addWidget(tb)
+
         # Add the (x, y) location widget at the right side of the toolbar
         # The stretch factor is 1 which means any resizing of the toolbar
         # will resize this label instead of the buttons.
