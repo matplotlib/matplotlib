@@ -8,6 +8,7 @@ artists into 3D versions which can be added to an Axes3D.
 """
 
 import math
+import sys
 
 import numpy as np
 
@@ -733,7 +734,13 @@ class Poly3DCollection(PolyCollection):
             The function applied on the z-coordinates of the vertices in the
             viewer's coordinate system, to determine the z-order.
         """
-        self._zsortfunc = self._zsort_functions[zsort]
+        def nansafe(func):
+            def f(x):
+                value = func(x)
+                return sys.maxsize if np.isnan(value) else value
+            return f
+
+        self._zsortfunc = nansafe(self._zsort_functions[zsort])
         self._sort_zpos = None
         self.stale = True
 
