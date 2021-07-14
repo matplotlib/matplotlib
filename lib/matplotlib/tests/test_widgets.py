@@ -457,13 +457,6 @@ def test_slider_set_limits():
     assert slider.valmin == 10
 
 
-def test_slider_update_valmin_valmax():
-    fig, ax = plt.subplots()
-    slider = widgets.Slider(ax=ax, label='', valmin=0.0, valmax=24.0,
-                            valinit=10.0)
-    slider.update_range(vmin=20, vmax=50)
-    assert slider.val == slider.valmin
-
 def test_slider_valstep_snapping():
     fig, ax = plt.subplots()
     slider = widgets.Slider(ax=ax, label='', valmin=0.0, valmax=24.0,
