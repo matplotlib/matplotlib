@@ -1166,6 +1166,8 @@ tex2uni = {
     'combiningtilde'           : 771,
     'combiningrightarrowabove' : 8407,
     'combiningdotabove'        : 775,
+    'combiningthreedotsabove'  : 8411,
+    'combiningfourdotsabove'   : 8412,
     'to'                       : 8594,
     'succeq'                   : 8829,
     'emptyset'                 : 8709,

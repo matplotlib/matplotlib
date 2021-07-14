@@ -68,8 +68,7 @@ lines = LineCollection(segs, offsets=offsets, transOffset=None)
 ax2.add_collection(lines)
 
 # Set the yticks to use axes coordinates on the y axis
-ax2.set_yticks(ticklocs)
-ax2.set_yticklabels(['PG3', 'PG5', 'PG7', 'PG9'])
+ax2.set_yticks(ticklocs, labels=['PG3', 'PG5', 'PG7', 'PG9'])
 
 ax2.set_xlabel('Time (s)')
 

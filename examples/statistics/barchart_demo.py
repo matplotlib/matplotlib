@@ -88,13 +88,11 @@ def plot_student_results(student, scores, cohort_size):
     # Set the right-hand Y-axis ticks and labels
     ax2 = ax1.twinx()
 
-    # Set the tick locations
-    ax2.set_yticks(pos)
+    # Set the tick locations and labels
+    ax2.set_yticks(
+        pos, labels=[format_score(scores[k].score, k) for k in test_names])
     # Set equal limits on both yaxis so that the ticks line up
     ax2.set_ylim(ax1.get_ylim())
-
-    # Set the tick labels
-    ax2.set_yticklabels([format_score(scores[k].score, k) for k in test_names])
 
     ax2.set_ylabel('Test Scores')
 

@@ -21,8 +21,7 @@ ax.plot(x, y2)
 
 # set ticks and tick labels
 ax.set_xlim((0, 2*np.pi))
-ax.set_xticks([0, np.pi, 2*np.pi])
-ax.set_xticklabels(['0', r'$\pi$', r'2$\pi$'])
+ax.set_xticks([0, np.pi, 2*np.pi], labels=['0', r'$\pi$', r'2$\pi$'])
 ax.set_ylim((-1.5, 1.5))
 ax.set_yticks([-1, 0, 1])
 
