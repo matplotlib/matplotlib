@@ -2394,3 +2394,67 @@ def from_levels_and_colors(levels, colors, extend='neither'):
 
     norm = BoundaryNorm(levels, ncolors=n_data_colors)
     return cmap, norm
+
+
+def get_color_filter(name):
+    """
+    Given a color filter name, create a color filter function.
+
+    Parameters
+    ----------
+    name : str
+        The color filter name, one of the following:
+
+        - ``'greyscale'``: Convert the input to luminosity.
+        - ``'deuteranopia'``: Simulate the most common form of red-green
+          colorblindness.
+        - ``'protanopia'``: Simulate a rarer form of red-green colorblindness.
+        - ``'tritanopia'``: Simulate the rare form of blue-yellow
+          colorblindness.
+
+        Color conversions use `colorspacious`_.
+
+    Returns
+    -------
+    callable
+        A color filter function that has the form:
+
+        def filter(input: np.ndarray[M, N, D])-> np.ndarray[M, N, D]
+
+        where (M, N) are the image dimentions, and D is the color depth (3 for
+        RGB, 4 for RGBA). Alpha is passed through unchanged and otherwise
+        ignored.
+    """
+    from colorspacious import cspace_converter
+
+    filter = _api.check_getitem({
+        'greyscale': 'greyscale',
+        'deuteranopia': 'deuteranomaly',
+        'protanopia': 'protanomaly',
+        'tritanopia': 'tritanomaly',
+    }, name=name)
+
+    if filter == 'greyscale':
+        rgb_to_jch = cspace_converter('sRGB1', 'JCh')
+        jch_to_rgb = cspace_converter('JCh', 'sRGB1')
+
+        def filter(im):
+            greyscale_JCh = rgb_to_jch(im)
+            greyscale_JCh[..., 1] = 0
+            im = jch_to_rgb(greyscale_JCh)
+            return im
+    else:
+        cvd_space = {'name': 'sRGB1+CVD', 'cvd_type': filter,
+                     'severity': 100}
+        filter = cspace_converter(cvd_space, "sRGB1")
+
+    def filter_func(im, dpi):
+        alpha = None
+        if im.shape[-1] == 4:
+            im, alpha = im[..., :3], im[..., 3]
+        im = filter(im)
+        if alpha is not None:
+            im = np.dstack((im, alpha))
+        return np.clip(im, 0, 1), 0, 0
+
+    return filter_func

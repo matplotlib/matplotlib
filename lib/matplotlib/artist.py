@@ -924,13 +924,20 @@ class Artist:
 
         Parameters
         ----------
-        filter_func : callable
-            A filter function, which takes a (m, n, 3) float array and a dpi
-            value, and returns a (m, n, 3) array.
+        filter_func : callable or str or None
+            A filter function, or the name of a builtin one.
 
-            .. ACCEPTS: a filter function, which takes a (m, n, 3) float array
-                and a dpi value, and returns a (m, n, 3) array
+            If passed a callable, then it should have the signature:
+
+            def filter_func(np.ndarray[(M, N, 3), float]) -> \
+                    np.ndarray[(M, N, 3), float]
+
+            If passed a string, it should be one of the names accepted by
+            `matplotlib.colors.get_color_filter`.
         """
+        if isinstance(filter_func, str):
+            from . import colors
+            filter_func = colors.get_color_filter(filter_func)
         self._agg_filter = filter_func
         self.stale = True
 
