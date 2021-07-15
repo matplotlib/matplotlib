@@ -4,7 +4,7 @@
 # This file is execfile()d with the current directory set to its containing dir.
 #
 # The contents of this file are pickled, so don't put values in the namespace
-# that aren't pickleable (module imports are okay, they're removed automatically).
+# that isn't pickleable (module imports are okay, they're removed automatically).
 #
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
@@ -315,8 +315,8 @@ if include_analytics:
     html_theme_options["google_analytics_id"] = "UA-55954603-1"
 
 # Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
+# relative to this directory. They are copied after the built-in static files,
+# so a file named "default.css" will overwrite the built-in "default.css".
 html_static_path = ['_static']
 
 # If nonempty, this is the file name suffix for generated HTML files.  The
@@ -530,3 +530,4 @@ def setup(app):
     else:
         bld_type = 'rel'
     app.add_config_value('releaselevel', bld_type, 'env')
+{"mode":"full","isActive":false}
