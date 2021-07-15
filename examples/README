@@ -20,7 +20,7 @@ Below is a brief description of the different directories found here:
 
   * axisartist - Examples related to the axisartist toolkit.
 
-  * event_handling - How to interact with your figure, mouse presses,
+  * event_handling - How to interact with your figure, mousepresses,
     keypresses, object picking, etc.
 
   * misc - Miscellaneous examples.  Some demos for loading and working
@@ -28,7 +28,7 @@ Below is a brief description of the different directories found here:
 
   * mplot3d - 3D examples.
 
-  * pylab_examples - The interface to Matplotlib is similar to MATLAB.
+  * pylab_examples - The interface to Matplotlib similar to MATLAB.
 
   * tests - Tests used by Matplotlib developers to check functionality.
     (These tests are still sometimes useful, but most developers should
@@ -40,4 +40,3 @@ Below is a brief description of the different directories found here:
     Tkinter, wxPython, PyGObject, PyQt widgets.
 
   * widgets - Examples using interactive widgets.
-{"mode":"full","isActive":false}
