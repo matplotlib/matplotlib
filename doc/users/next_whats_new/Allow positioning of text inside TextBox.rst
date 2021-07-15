@@ -1,9 +1,9 @@
 Text can be positioned inside TextBox widget
 ---------------------
 
-A new parameter called ``textalignment``,by default set to ``"left"``, can be used to control for the position of the text inside the Axes of the TextBox widget.
+A new parameter called ``textalignment`` can be used to control for the position of the text inside the Axes of the TextBox widget.
 
-For example a textbox with the property set to "center" can be created with
+Example :
 
 .. code-block::
 
