@@ -641,7 +641,9 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 
         self.addSeparator()
         tb = QtWidgets.QToolButton()
+        tb.setIcon(self._icon('eye.png'))
         tb.setText('Filter')
+        tb.setToolTip('Simulate color vision deficiencies')
         tb.setPopupMode(QtWidgets.QToolButton.InstantPopup)
         tb.setMenu(menu)
         self.addWidget(tb)

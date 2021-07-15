@@ -88,6 +88,7 @@ icon_defs = [
     ('subplots', 0xf1de),
     ('qt4_editor_options', 0xf201),
     ('help', 0xf128),
+    ('eye', 0xf06e),
 ]
 
 
