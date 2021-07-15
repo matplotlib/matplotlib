@@ -11,6 +11,6 @@ from matplotlib import pyplot as plt
 from matplotlib.widgets import TextBox
 
 Box_input = plt.axes([0.2, 0.2, 0.1, 0.075])
-text_box = TextBox(ax=Box_input, initial="text", textalignment="center")
+text_box = TextBox(ax=Box_input, initial="text", label="", textalignment="center")
 
 ``
