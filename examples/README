@@ -21,17 +21,17 @@ Below is a brief description of the different directories found here:
   * axisartist - Examples related to the axisartist toolkit.
 
   * event_handling - How to interact with your figure, mouse presses,
-    key presses, object picking, etc.
+    keypresses, object picking, etc.
 
   * misc - Miscellaneous examples.  Some demos for loading and working
     with record arrays.
 
   * mplot3d - 3D examples.
 
-  * pylab_examples - The interface to Matplotlib similar to MATLAB.
+  * pylab_examples - The interface to Matplotlib is similar to MATLAB.
 
   * tests - Tests used by Matplotlib developers to check functionality.
-    (These tests are still sometimes useful, but mostly developers should
+    (These tests are still sometimes useful, but most developers should
     use the pytest tests which perform automatic image comparison.)
 
   * units - Working with unit data and custom types in Matplotlib.
@@ -40,3 +40,4 @@ Below is a brief description of the different directories found here:
     Tkinter, wxPython, PyGObject, PyQt widgets.
 
   * widgets - Examples using interactive widgets.
+{"mode":"full","isActive":false}
