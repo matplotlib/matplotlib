@@ -472,11 +472,10 @@ class PowerTransform(Transform):
         return "{}(gamma={}, nonpositive={!r})".format(
             type(self).__name__, self.gamma, "clip" if self._clip else "mask")
 
-    def transform_non_affine(self, a, gamma):
+    def transform_non_affine(self, a):
         with np.errstate(divide="ignore", invalid="ignore"):
-            out = np.power(a, gamma)
+            out = np.power(a, self.gamma)
             if self._clip:
-
                 out[a <= 0] = 0
             return out
 
@@ -491,34 +490,45 @@ class InvertedPowerTransform(Transform):
         super().__init__()
         self.gamma = gamma
 
-    def transform_non_affine(self, a, gamma):
-        if gamma == 0:
+    def transform_non_affine(self, a):
+        if self.gamma == 0:
             return np.inf
         else:
-            return np.power(a, 1./gamma)
+            return np.power(a, 1./self.gamma)
 
 
 class PowerScale(ScaleBase):
 
     name = 'power'
 
-    def __init__(self, axis, *, base=10, gamma, subs=None, nonpositive="clip"):
+    def __init__(self, axis, gamma=0.5):
+        self._transform = PowerTransform(gamma)
 
-        self._transform = PowerTransform(gamma, nonpositive)
-        self.subs = subs
-
-    base = property(lambda self: self._transform.base)
-
-    def sef_default_locators_and_formatters(self, axis):
-
-        axis.set_major_locator(AutoLocator())
-        axis.set_major_formatter(NullFormatter())
-        axis.set_minor_locator(AutoMinorLocator())
-        axis.set_minor_formatter(NullFormatter())
+    gamma = property(lambda self: self._transform.gamma)
 
     def get_transform(self):
 
         return self._transform
+
+    def set_default_locators_and_formatters(self, axis):
+        # docstring inherited
+        axis.set_major_locator(AutoLocator())
+        axis.set_major_formatter(ScalarFormatter())
+        axis.set_minor_formatter(NullFormatter())
+        # update the minor locator for x and y axis based on rcParams
+        if (axis.axis_name == 'x' and mpl.rcParams['xtick.minor.visible'] or
+                axis.axis_name == 'y' and mpl.rcParams['ytick.minor.visible']):
+            axis.set_minor_locator(AutoMinorLocator())
+        else:
+            axis.set_minor_locator(NullLocator())
+
+    def limit_range_for_scale(self, vmin, vmax, minpos):
+        """Limit the domain to positive values."""
+        if not np.isfinite(minpos):
+            minpos = 1e-300
+
+        return (minpos if vmin <= 0 else vmin,
+                minpos if vmax <= 0 else vmax)
 
 
 class LogitTransform(Transform):
