@@ -5,12 +5,12 @@ A new parameter called ``textalignment``,by default set to ``"left"``, can be us
 
 For example a textbox with the property set to "center" can be created with
 
-``
+.. code-block::
 
-from matplotlib import pyplot as plt
-from matplotlib.widgets import TextBox
+  from matplotlib import pyplot as plt
+  from matplotlib.widgets import TextBox
 
-Box_input = plt.axes([0.2, 0.2, 0.1, 0.075])
-text_box = TextBox(ax=Box_input, initial="text", label="", textalignment="center")
+  Box_input = plt.axes([0.2, 0.2, 0.1, 0.075])
+  text_box = TextBox(ax=Box_input, initial="text", label="", textalignment="center")
 
-``
+
