@@ -503,6 +503,72 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
                 'clicked', getattr(self, callback))
             tbutton.set_tooltip_text(tooltip_text)
 
+        # Add the CVD simulation button. The type of menu is progressively
+        # downgraded depending on GTK version.
+        toolitem = Gtk.SeparatorToolItem()
+        self.insert(toolitem, -1)
+
+        filters = ['None', 'Greyscale', 'Deuteranopia', 'Protanopia',
+                   'Tritanopia']
+        image = Gtk.Image.new_from_gicon(
+            Gio.Icon.new_for_string(
+                str(cbook._get_data_path('images', 'eye-symbolic.svg'))),
+            Gtk.IconSize.LARGE_TOOLBAR)
+
+        if Gtk.check_version(3, 6, 0) is None:
+            group = Gio.SimpleActionGroup.new()
+            action = Gio.SimpleAction.new_stateful('cvdsim',
+                                                   GLib.VariantType('s'),
+                                                   GLib.Variant('s', 'none'))
+            group.add_action(action)
+
+            @functools.partial(action.connect, 'activate')
+            def set_filter(action, parameter):
+                filter = parameter.get_string().lower()
+                if filter == 'none':
+                    filter = None
+
+                self.canvas.figure.set_agg_filter(filter)
+                self.canvas.draw_idle()
+                action.set_state(parameter)
+
+            menu = Gio.Menu()
+            for filt in filters:
+                menu.append(filt, f'local.cvdsim::{filt.lower()}')
+
+            button = Gtk.MenuButton.new()
+            button.add(image)
+            button.insert_action_group('local', group)
+            button.set_menu_model(menu)
+            button.get_style_context().add_class('flat')
+
+            item = Gtk.ToolItem()
+            item.add(button)
+            self.insert(item, -1)
+        else:
+            def set_filter(item):
+                filter = item.get_label().lower()
+                if filter == 'none':
+                    filter = None
+
+                self.canvas.figure.set_agg_filter(filter)
+                self.canvas.draw_idle()
+
+            menu = Gtk.Menu()
+            group = []
+            for filt in filters:
+                item = Gtk.RadioMenuItem.new_with_label(group, filt)
+                item.set_active(filt == 'None')
+                item.connect('activate', set_filter)
+                group.append(item)
+                menu.append(item)
+            menu.show_all()
+
+            tbutton = Gtk.MenuToolButton.new(image, "Filter")
+            tbutton.set_menu(menu)
+            self.insert(tbutton, -1)
+
+        # Fill the space in between to ensure message is at end.
         toolitem = Gtk.SeparatorToolItem()
         self.insert(toolitem, -1)
         toolitem.set_draw(False)
