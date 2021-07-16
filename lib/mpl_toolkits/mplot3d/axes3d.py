@@ -1655,6 +1655,24 @@ class Axes3D(Axes):
                     if fcolors is not None:
                         colset.append(fcolors[rs][cs])
 
+        # In cases where there are NaNs in the data (possibly from masked
+        # arrays), artifacts can be introduced. Here check whether NaNs exist
+        # and remove the entries if so
+        if not isinstance(polys, np.ndarray) or np.isnan(polys).any():
+            new_polys = []
+            new_colset = []
+
+            for p, col in itertools.zip_longest(polys, colset):
+                new_poly = np.array(p)[~np.isnan(p).any(axis=1)]
+                if len(new_poly):
+                    new_polys.append(new_poly)
+                    new_colset.append(col)
+
+            # Replace previous polys and, if fcolors is not None, colset
+            polys = new_polys
+            if fcolors is not None:
+                colset = new_colset
+
         # note that the striding causes some polygons to have more coordinates
         # than others
         polyc = art3d.Poly3DCollection(polys, *args, **kwargs)
