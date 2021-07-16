@@ -4,6 +4,7 @@ from pathlib import Path
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
 import sphinx
+from sphinx.errors import ConfigError, ExtensionError
 
 import matplotlib as mpl
 from matplotlib import _api, mathtext
@@ -52,11 +53,11 @@ class MathDirective(Directive):
 
 
 # This uses mathtext to render the expression
-def latex2png(latex, filename, fontset='cm', fontsize=10):
+def latex2png(latex, filename, fontset='cm', fontsize=10, dpi=100):
     with mpl.rc_context({'mathtext.fontset': fontset, 'font.size': fontsize}):
         try:
             depth = mathtext.math_to_image(
-                f"${latex}$", filename, dpi=100, format="png")
+                f"${latex}$", filename, dpi=dpi, format="png")
         except Exception:
             _api.warn_external(f"Could not render math expression {latex}")
             depth = 0
@@ -74,9 +75,20 @@ def latex2html(node, source):
 
     destdir = Path(setup.app.builder.outdir, '_images', 'mathmpl')
     destdir.mkdir(parents=True, exist_ok=True)
-    dest = destdir / f'{name}.png'
 
+    dest = destdir / f'{name}.png'
     depth = latex2png(latex, dest, fontset, fontsize=fontsize)
+
+    srcset = []
+    for size in setup.app.config.mathmpl_srcset:
+        filename = f'{name}-{size.replace(".", "_")}.png'
+        latex2png(latex, destdir / filename, fontset, fontsize=fontsize,
+                  dpi=100 * float(size[:-1]))
+        srcset.append(
+            f'{setup.app.builder.imgpath}/mathmpl/{filename} {size}')
+    if srcset:
+        srcset = (f'srcset="{setup.app.builder.imgpath}/mathmpl/{name}.png, ' +
+                  ', '.join(srcset) + '" ')
 
     if inline:
         cls = ''
@@ -88,12 +100,35 @@ def latex2html(node, source):
         style = ''
 
     return (f'<img src="{setup.app.builder.imgpath}/mathmpl/{name}.png"'
-            f' {cls}{style}/>')
+            f' {srcset}{cls}{style}/>')
+
+
+def _config_inited(app, config):
+    # Check for srcset hidpi images
+    for i, size in enumerate(app.config.mathmpl_srcset):
+        if size[-1] == 'x':  # "2x" = "2.0"
+            try:
+                float(size[:-1])
+            except ValueError:
+                raise ConfigError(
+                    f'Invalid value for mathmpl_srcset parameter: {size!r}. '
+                    'Must be a list of strings with the multiplicative '
+                    'factor followed by an "x".  e.g. ["2.0x", "1.5x"]')
+        else:
+            raise ConfigError(
+                f'Invalid value for mathmpl_srcset parameter: {size!r}. '
+                'Must be a list of strings with the multiplicative '
+                'factor followed by an "x".  e.g. ["2.0x", "1.5x"]')
 
 
 def setup(app):
     setup.app = app
     app.add_config_value('mathmpl_fontsize', 10.0, True)
+    app.add_config_value('mathmpl_srcset', [], True)
+    try:
+        app.connect('config-inited', _config_inited)  # Sphinx 1.8+
+    except ExtensionError:
+        app.connect('env-updated', lambda app, env: _config_inited(app, None))
 
     # Add visit/depart methods to HTML-Translator:
     def visit_latex_math_html(self, node):
