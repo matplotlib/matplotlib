@@ -42,13 +42,13 @@ s3 = np.sin(4 * np.pi * t)
 
 ax1 = plt.subplot(311)
 plt.plot(t, s1)
-plt.setp(ax1.get_xticklabels(), fontsize=6)
+plt.tick_params('x', labelsize=6)
 
 # share x only
 ax2 = plt.subplot(312, sharex=ax1)
 plt.plot(t, s2)
 # make these tick labels invisible
-plt.setp(ax2.get_xticklabels(), visible=False)
+plt.tick_params('x', labelbottom=False)
 
 # share x and y
 ax3 = plt.subplot(313, sharex=ax1, sharey=ax1)
