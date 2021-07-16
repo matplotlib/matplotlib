@@ -1577,7 +1577,7 @@ class Cursor(AxesWidget):
 
     Other Parameters
     ----------------
-    **props
+    **lineprops
         `.Line2D` properties that control the appearance of the lines.
         See also `~.Axes.axhline`.
 
@@ -1586,9 +1586,8 @@ class Cursor(AxesWidget):
     See :doc:`/gallery/widgets/cursor`.
     """
 
-    @_api.rename_parameter("3.5", "lineprops", "props")
     def __init__(self, ax, horizOn=True, vertOn=True, useblit=False,
-                 **props):
+                 **lineprops):
         super().__init__(ax)
 
         self.connect_event('motion_notify_event', self.onmove)
@@ -1600,9 +1599,9 @@ class Cursor(AxesWidget):
         self.useblit = useblit and self.canvas.supports_blit
 
         if self.useblit:
-            props['animated'] = True
-        self.lineh = ax.axhline(ax.get_ybound()[0], visible=False, **props)
-        self.linev = ax.axvline(ax.get_xbound()[0], visible=False, **props)
+            lineprops['animated'] = True
+        self.lineh = ax.axhline(ax.get_ybound()[0], visible=False, **lineprops)
+        self.linev = ax.axvline(ax.get_xbound()[0], visible=False, **lineprops)
 
         self.background = None
         self.needclear = False
@@ -1676,9 +1675,8 @@ class MultiCursor(Widget):
         plt.show()
 
     """
-    @_api.rename_parameter("3.5", "lineprops", "props")
     def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True,
-                 **props):
+                 **lineprops):
 
         self.canvas = canvas
         self.axes = axes
@@ -1696,16 +1694,16 @@ class MultiCursor(Widget):
         self.needclear = False
 
         if self.useblit:
-            props['animated'] = True
+            lineprops['animated'] = True
 
         if vertOn:
-            self.vlines = [ax.axvline(xmid, visible=False, **props)
+            self.vlines = [ax.axvline(xmid, visible=False, **lineprops)
                            for ax in axes]
         else:
             self.vlines = []
 
         if horizOn:
-            self.hlines = [ax.axhline(ymid, visible=False, **props)
+            self.hlines = [ax.axhline(ymid, visible=False, **lineprops)
                            for ax in axes]
         else:
             self.hlines = []
@@ -2108,13 +2106,13 @@ class SpanSelector(_SelectorWidget):
         self.new_axes(ax)
 
         # Setup handles
-        _handle_props = dict(color=props.get('facecolor', 'r'))
-        _handle_props.update(cbook.normalize_kwargs(handle_props,
-                                                    Line2D._alias_map))
+        handle_props = {
+            'color': (props or{}).get('facecolor', 'r'),
+            **cbook.normalize_kwargs(handle_props, Line2D._alias_map)}
 
         if self._interactive:
             self._edge_order = ['min', 'max']
-            self._setup_edge_handle(_handle_props)
+            self._setup_edge_handle(handle_props)
 
         self._active_handle = None
 
@@ -2676,29 +2674,25 @@ class RectangleSelector(_SelectorWidget):
 
         self.grab_range = grab_range
 
-        if props is None:
-            _handle_props = dict(markeredgecolor='black')
-        else:
-            _handle_props = dict(
-                markeredgecolor=props.get('edgecolor', 'black')
-                )
-        _handle_props.update(cbook.normalize_kwargs(handle_props,
-                                                    Line2D._alias_map))
+        handle_props = {
+            'markeredgecolor': (props or {}).get('edgecolor', 'black'),
+            **cbook.normalize_kwargs(handle_props, Line2D._alias_map)}
+
         self._corner_order = ['NW', 'NE', 'SE', 'SW']
         xc, yc = self.corners
         self._corner_handles = ToolHandles(self.ax, xc, yc,
-                                           marker_props=_handle_props,
+                                           marker_props=handle_props,
                                            useblit=self.useblit)
 
         self._edge_order = ['W', 'N', 'E', 'S']
         xe, ye = self.edge_centers
         self._edge_handles = ToolHandles(self.ax, xe, ye, marker='s',
-                                         marker_props=_handle_props,
+                                         marker_props=handle_props,
                                          useblit=self.useblit)
 
         xc, yc = self.center
         self._center_handle = ToolHandles(self.ax, [xc], [yc], marker='s',
-                                          marker_props=_handle_props,
+                                          marker_props=handle_props,
                                           useblit=self.useblit)
 
         self._active_handle = None
