@@ -4,8 +4,8 @@ Centered spines with arrows
 ===========================
 
 This example shows a way to draw a "math textbook" style plot, where the
-spines ("axes lines") are drawn at ``x0 = 0`` and ``y0 = 0.2``, and have arrows at
-their ends.
+spines ("axes lines") are drawn at ``x0 = 0`` and ``y0 = 0.2``, and have
+arrows at their ends.
 """
 
 import matplotlib.pyplot as plt
