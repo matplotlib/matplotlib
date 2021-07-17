@@ -361,10 +361,10 @@ def test_glyphs_subset():
     subcmap = subfont.get_charmap()
 
     # all unique chars must be available in subsetted font
-    assert set(chars).issubset(set([chr(key) for key in subcmap.keys()]))
+    assert set(chars) == set(chr(key) for key in subcmap.keys())
 
-    # subsetted font's charmap should have less (or equal) entries
-    assert len(subcmap) <= len(nosubcmap)
+    # subsetted font's charmap should have less entries
+    assert len(subcmap) < len(nosubcmap)
 
     # since both objects are assigned same characters
     assert subfont.get_num_glyphs() == nosubfont.get_num_glyphs()
