@@ -87,7 +87,7 @@ There is a good chance your question has already been asked:
 - `GitHub issues <https://github.com/matplotlib/matplotlib/issues>`_.
 
 - Stackoverflow questions tagged `matplotlib
-  <http://stackoverflow.com/questions/tagged/matplotlib>`_.
+  <https://stackoverflow.com/questions/tagged/matplotlib>`_.
 
 If you are unable to find an answer to your question through search, please
 provide the following information in your e-mail to the `mailing list

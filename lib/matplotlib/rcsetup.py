@@ -732,7 +732,7 @@ def validate_cycler(s):
         # I locked it down by only having the 'cycler()' function available.
         # UPDATE: Partly plugging a security hole.
         # I really should have read this:
-        # http://nedbatchelder.com/blog/201206/eval_really_is_dangerous.html
+        # https://nedbatchelder.com/blog/201206/eval_really_is_dangerous.html
         # We should replace this eval with a combo of PyParsing and
         # ast.literal_eval()
         try:

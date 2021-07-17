@@ -36,7 +36,7 @@ import wx
 _log = logging.getLogger(__name__)
 
 # the True dots per inch on the screen; should be display dependent; see
-# http://groups.google.com/groups?q=screen+dpi+x11&hl=en&lr=&ie=UTF-8&oe=UTF-8&safe=off&selm=7077.26e81ad5%40swift.cs.tcd.ie&rnum=5
+# http://groups.google.com/d/msg/comp.lang.postscript/-/omHAc9FEuAsJ?hl=en
 # for some info about screen dpi
 PIXELS_PER_INCH = 75
 

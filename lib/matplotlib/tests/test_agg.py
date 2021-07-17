@@ -83,7 +83,7 @@ def test_long_path():
 @image_comparison(['agg_filter.png'], remove_text=True)
 def test_agg_filter():
     def smooth1d(x, window_len):
-        # copied from http://www.scipy.org/Cookbook/SignalSmooth
+        # copied from https://scipy-cookbook.readthedocs.io/
         s = np.r_[
             2*x[0] - x[window_len:1:-1], x, 2*x[-1] - x[-1:-window_len:-1]]
         w = np.hanning(window_len)

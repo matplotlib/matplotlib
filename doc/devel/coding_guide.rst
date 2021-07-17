@@ -41,7 +41,7 @@ When making a PR, pay attention to:
   the review process.
 * It is ok to open incomplete or work-in-progress PRs if you need help or
   feedback from the developers. You may mark these as
-  `draft pull requests <https://help.github.com/en/articles/about-pull-requests#draft-pull-requests>`_
+  `draft pull requests <https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests>`_
   on GitHub.
 * When updating your PR, instead of adding new commits to fix something, please
   consider amending your initial commit(s) to keep the history clean.
@@ -159,7 +159,7 @@ Merging
   core developers (those with commit rights) should review all pull
   requests.  If you are the first to review a PR and approve of the
   changes use the GitHub `'approve review'
-  <https://help.github.com/articles/reviewing-changes-in-pull-requests/>`__
+  <https://docs.github.com/en/github/collaborating-with-pull-requests/reviewing-changes-in-pull-requests>`__
   tool to mark it as such.  If you are a subsequent reviewer please
   approve the review and if you think no more review is needed, merge
   the PR.

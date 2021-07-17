@@ -73,7 +73,7 @@ See the Ananconda web page for installation support.
 Other options for a fresh Python install are the standard installer from
 `python.org <https://www.python.org/downloads/mac-osx/>`_, or installing
 Python using a general OSX package management system such as `homebrew
-<http://brew.sh>`_ or `macports <https://www.macports.org>`_.  Power users on
+<https://brew.sh/>`_ or `macports <https://www.macports.org>`_.  Power users on
 OSX will likely want one of homebrew or macports on their system to install
 open source software packages, but it is perfectly possible to use these
 systems with another source for your Python binary, such as Anaconda

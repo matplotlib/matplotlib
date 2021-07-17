@@ -7,7 +7,7 @@ This is an example of plotting Edward Lorenz's 1963 `"Deterministic Nonperiodic
 Flow"`_ in a 3-dimensional space using mplot3d.
 
 .. _"Deterministic Nonperiodic Flow":
-   https://journals.ametsoc.org/jas/article/20/2/130/16956/Deterministic-Nonperiodic-Flow
+   https://journals.ametsoc.org/view/journals/atsc/20/2/1520-0469_1963_020_0130_dnf_2_0_co_2.xml
 
 .. note::
    Because this is a simple non-linear ODE, it would be more easily done using

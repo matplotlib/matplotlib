@@ -1,9 +1,9 @@
 """
 Stacked area plot for 1D arrays inspired by Douglas Y'barbo's stackoverflow
 answer:
-http://stackoverflow.com/questions/2225995/how-can-i-create-stacked-line-graph-with-matplotlib
+https://stackoverflow.com/q/2225995/
 
-(http://stackoverflow.com/users/66549/doug)
+(https://stackoverflow.com/users/66549/doug)
 """
 
 import numpy as np

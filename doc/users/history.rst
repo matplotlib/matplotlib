@@ -72,7 +72,7 @@ nothing about output.  The *backends* are device-dependent drawing
 devices, aka renderers, that transform the frontend representation to
 hardcopy or a display device (:ref:`what-is-a-backend`).  Example
 backends: PS creates `PostScript®
-<http://www.adobe.com/products/postscript/>`_ hardcopy, SVG
+<https://www.adobe.com/products/postscript.html>`_ hardcopy, SVG
 creates `Scalable Vector Graphics <https://www.w3.org/Graphics/SVG/>`_
 hardcopy, Agg creates PNG output using the high quality `Anti-Grain
 Geometry <http://antigrain.com/>`_
@@ -80,9 +80,9 @@ library that ships with Matplotlib, GTK embeds Matplotlib in a
 `Gtk+ <https://www.gtk.org/>`_
 application, GTKAgg uses the Anti-Grain renderer to create a figure
 and embed it in a Gtk+ application, and so on for `PDF
-<https://acrobat.adobe.com/us/en/why-adobe/about-adobe-pdf.html>`_, `WxWidgets
+<https://acrobat.adobe.com/us/en/acrobat/about-adobe-pdf.html>`_, `WxWidgets
 <https://www.wxpython.org/>`_, `Tkinter
-<https://docs.python.org/library/tkinter.html>`_, etc.
+<https://docs.python.org/3/library/tkinter.html>`_, etc.
 
 Matplotlib is used by many people in many different contexts.  Some
 people want to automatically generate PostScript files to send

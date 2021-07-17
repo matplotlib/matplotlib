@@ -16,7 +16,7 @@
 .. |Codecov| image:: https://codecov.io/github/matplotlib/matplotlib/badge.svg?branch=master&service=github
 .. _Codecov: https://codecov.io/github/matplotlib/matplotlib?branch=master
 
-.. |LGTM| image:: https://img.shields.io/lgtm/grade/python/g/matplotlib/matplotlib.svg?logo=lgtm&logoWidth=18
+.. |LGTM| image:: https://img.shields.io/lgtm/grade/python/github/matplotlib/matplotlib.svg?logo=lgtm&logoWidth=18
 .. _LGTM: https://lgtm.com/projects/g/matplotlib/matplotlib
 
 .. |DiscourseBadge| image:: https://img.shields.io/badge/help_forum-discourse-blue.svg

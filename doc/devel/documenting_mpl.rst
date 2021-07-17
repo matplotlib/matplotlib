@@ -290,7 +290,7 @@ you can check the full list of referenceable objects with the following
 commands::
 
   python -m sphinx.ext.intersphinx 'https://docs.python.org/3/objects.inv'
-  python -m sphinx.ext.intersphinx 'https://docs.scipy.org/doc/numpy/objects.inv'
+  python -m sphinx.ext.intersphinx 'https://numpy.org/doc/stable/objects.inv'
   python -m sphinx.ext.intersphinx 'https://docs.scipy.org/doc/scipy/reference/objects.inv'
   python -m sphinx.ext.intersphinx 'https://pandas.pydata.org/pandas-docs/stable/objects.inv'
 
@@ -942,7 +942,7 @@ will yield an html file ``/build/html/old_topic/old_info2.html`` that has a
 (relative) refresh to ``../topic/new_info.html``.
 
 Use the full path for this directive, relative to the doc root at
-``http://matplotlib.org/stable/``.  So ``/old_topic/old_info2`` would be
+``https://matplotlib.org/stable/``.  So ``/old_topic/old_info2`` would be
 found by users at ``http://matplotlib.org/stable/old_topic/old_info2``.
 For clarity, do not use relative links.
 
@@ -966,7 +966,7 @@ embedding string youtube provides like:
   .. raw:: html
 
      <iframe width="420" height="315"
-       src="http://www.youtube.com/embed/32cjc6V0OZY"
+       src="https://www.youtube.com/embed/32cjc6V0OZY"
        frameborder="0" allowfullscreen>
      </iframe>
 
@@ -1005,7 +1005,7 @@ Example:
 
 .. TODO: Add section about uploading docs
 
-.. _ReST: http://docutils.sourceforge.net/rst.html
+.. _ReST: https://docutils.sourceforge.io/rst.html
 .. _Sphinx: http://www.sphinx-doc.org
 .. _documentation: https://www.sphinx-doc.org/en/master/contents.html
 .. _index: http://www.sphinx-doc.org/markup/para.html#index-generating-markup

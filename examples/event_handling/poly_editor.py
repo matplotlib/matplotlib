@@ -24,7 +24,7 @@ def dist_point_to_segment(p, s0, s1):
     Get the distance of a point to a segment.
       *p*, *s0*, *s1* are *xy* sequences
     This algorithm from
-    http://geomalgorithms.com/a02-_lines.html
+    http://www.geomalgorithms.com/algorithms.html
     """
     v = s1 - s0
     w = p - s0

@@ -240,9 +240,9 @@ def stride_windows(x, n, noverlap=None, axis=0):
     References
     ----------
     `stackoverflow: Rolling window for 1D arrays in Numpy?
-    <http://stackoverflow.com/a/6811241>`_
+    <https://stackoverflow.com/a/6811241>`_
     `stackoverflow: Using strides for an efficient moving average filter
-    <http://stackoverflow.com/a/4947453>`_
+    <https://stackoverflow.com/a/4947453>`_
     """
     if noverlap is None:
         noverlap = 0

@@ -6,7 +6,7 @@ Solarized Light stylesheet
 This shows an example of "Solarized_Light" styling, which
 tries to replicate the styles of:
 
-- http://ethanschoonover.com/solarized
+- https://ethanschoonover.com/solarized/
 - https://github.com/jrnold/ggthemes
 - http://www.pygal.org/en/stable/documentation/builtin_styles.html#light-solarized
 

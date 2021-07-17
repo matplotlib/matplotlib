@@ -1324,8 +1324,8 @@ FigureManagerPS = FigureManagerBase
 # the matplotlib primitives and some abbreviations.
 #
 # References:
-# http://www.adobe.com/products/postscript/pdfs/PLRM.pdf
-# http://www.mactech.com/articles/mactech/Vol.09/09.04/PostscriptTutorial/
+# https://www.adobe.com/content/dam/acom/en/devnet/actionscript/articles/PLRM.pdf
+# http://preserve.mactech.com/articles/mactech/Vol.09/09.04/PostscriptTutorial
 # http://www.math.ubc.ca/people/faculty/cass/graphics/text/www/
 #
 

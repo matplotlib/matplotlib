@@ -14,7 +14,7 @@ API for full control.  These examples are found in the "api" directory.
 Below is a brief description of the different directories found here:
 
   * animation - Dynamic plots, see the documentation at
-    http://matplotlib.org/api/animation_api.html
+    https://matplotlib.org/api/animation_api.html
 
   * axes_grid1 - Examples related to the axes_grid1 toolkit.
 

@@ -61,7 +61,7 @@ f2_ax4 = fig2.add_subplot(spec2[1, 1])
 #############################################################################
 # The power of gridspec comes in being able to create subplots that span
 # rows and columns.  Note the `NumPy slice syntax
-# <https://docs.scipy.org/doc/numpy/reference/arrays.indexing.html>`_
+# <https://numpy.org/doc/stable/reference/arrays.indexing.html>`_
 # for selecting the part of the gridspec each subplot will occupy.
 #
 # Note that we have also used the convenience method `.Figure.add_gridspec`

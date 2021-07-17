@@ -171,7 +171,7 @@ and mapping toolkit (Cartopy_).
 .. _seaborn: https://seaborn.pydata.org
 .. _HoloViews: https://holoviews.org
 .. _ggplot: https://yhat.github.io/ggpy/
-.. _Cartopy: https://scitools.org.uk/cartopy/docs/latest
+.. _Cartopy: https://scitools.org.uk/cartopy/docs/latest/
 
 Citing Matplotlib
 =================
@@ -218,7 +218,7 @@ the NumFOCUS organization or to the `John Hunter Technology Fellowship
 The :doc:`Matplotlib license <users/license>` is based on the `Python Software
 Foundation (PSF) license <psf-license_>`_.
 
-.. _psf-license: https://www.python.org/psf/license
+.. _psf-license: https://docs.python.org/3/license.html
 
 There is an active developer community and a long list of people who have made
 significant :doc:`contributions <users/credits>`.
