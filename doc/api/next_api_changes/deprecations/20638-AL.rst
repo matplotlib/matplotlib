@@ -1,0 +1,3 @@
+``FixedAxisArtistHelper.change_tick_coord``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated with no replacement.
