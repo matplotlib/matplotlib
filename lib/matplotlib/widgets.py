@@ -2107,7 +2107,7 @@ class SpanSelector(_SelectorWidget):
 
         # Setup handles
         handle_props = {
-            'color': (props or {}).get('facecolor', 'r'),
+            'color': props.get('facecolor', 'r'),
             **cbook.normalize_kwargs(handle_props, Line2D._alias_map)}
 
         if self._interactive:
