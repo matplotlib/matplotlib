@@ -299,11 +299,10 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #
 # Without a backend explicitly set, Matplotlib automatically detects a usable
 # backend based on what is available on your system and on whether a GUI event
-# loop is already running. On Linux, if the environment variable
-# :envvar:`DISPLAY` is unset, the "event loop" is identified as "headless",
-# which causes a fallback to a noninteractive backend (agg); in all other
-# cases, an interactive backend is preferred (usually, at least tkagg will be
-# available).
+# loop is already running.  The first usable backend in the following list is
+# selected: MacOSX, Qt5Agg, Gtk3Agg, TkAgg, WxAgg, Agg.  The last, Agg, is a
+# non-interactive backend that can only write to files.  It is used on Linux,
+# if Matplotlib cannot connect to either an X display or a Wayland display.
 #
 # Here is a detailed description of the configuration methods:
 #
