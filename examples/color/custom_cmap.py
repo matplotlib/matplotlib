@@ -88,7 +88,7 @@ n_bins = [3, 6, 10, 100]  # Discretizes the interpolation into bins
 cmap_name = 'my_list'
 fig, axs = plt.subplots(2, 2, figsize=(6, 9))
 fig.subplots_adjust(left=0.02, bottom=0.06, right=0.95, top=0.94, wspace=0.05)
-for n_bin, ax in zip(n_bins, axs.ravel()):
+for n_bin, ax in zip(n_bins, axs.flat):
     # Create the colormap
     cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bin)
     # Fewer bins will result in "coarser" colomap interpolation

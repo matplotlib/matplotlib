@@ -115,12 +115,12 @@ def test_imshow_antialiased(fig_test, fig_ref,
     A = np.random.rand(int(dpi * img_size), int(dpi * img_size))
     for fig in [fig_test, fig_ref]:
         fig.set_size_inches(fig_size, fig_size)
-    axs = fig_test.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='antialiased')
-    axs = fig_ref.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation=interpolation)
+    ax = fig_test.subplots()
+    ax.set_position([0, 0, 1, 1])
+    ax.imshow(A, interpolation='antialiased')
+    ax = fig_ref.subplots()
+    ax.set_position([0, 0, 1, 1])
+    ax.imshow(A, interpolation=interpolation)
 
 
 @check_figures_equal(extensions=['png'])
@@ -131,14 +131,14 @@ def test_imshow_zoom(fig_test, fig_ref):
     A = np.random.rand(int(dpi * 3), int(dpi * 3))
     for fig in [fig_test, fig_ref]:
         fig.set_size_inches(2.9, 2.9)
-    axs = fig_test.subplots()
-    axs.imshow(A, interpolation='antialiased')
-    axs.set_xlim([10, 20])
-    axs.set_ylim([10, 20])
-    axs = fig_ref.subplots()
-    axs.imshow(A, interpolation='nearest')
-    axs.set_xlim([10, 20])
-    axs.set_ylim([10, 20])
+    ax = fig_test.subplots()
+    ax.imshow(A, interpolation='antialiased')
+    ax.set_xlim([10, 20])
+    ax.set_ylim([10, 20])
+    ax = fig_ref.subplots()
+    ax.imshow(A, interpolation='nearest')
+    ax.set_xlim([10, 20])
+    ax.set_ylim([10, 20])
 
 
 @check_figures_equal()
