@@ -207,8 +207,9 @@ class HandlerNpointsYoffsets(HandlerNpoints):
 class HandlerLine2DCompound(HandlerNpoints):
     """
     Original handler for `.Line2D` instances, that relies on combining
-    a line-only with a marker-only artist.
+    a line-only with a marker-only artist.  May be deprecated in the future.
     """
+
     def __init__(self, marker_pad=0.3, numpoints=None, **kwargs):
         """
         Parameters
@@ -257,25 +258,22 @@ class HandlerLine2D(HandlerNpoints):
     """
     Handler for `.Line2D` instances.
 
-    A class similar to the original handler for `.Line2D` instances but
-    that uses a monolithic artist rather than using one artist for the
-    line and another one for the marker(s).  NB: the former handler, in
-    use before Matplotlib 3, is still available as `.HandlerLine2DCompound`.
-
+    See Also
+    --------
+    HandlerLine2DCompound : An earlier handler implementation, which used one
+                            artist for the line and another for the marker(s).
     """
+
     def __init__(self, marker_pad=0.3, numpoints=None, **kw):
         """
         Parameters
         ----------
         marker_pad : float
             Padding between points in legend entry.
-
         numpoints : int
             Number of points to show in legend entry.
-
-        Notes
-        -----
-        Any other keyword arguments are given to `HandlerNpoints`.
+        **kwargs
+            Keyword arguments forwarded to `.HandlerNpoints`.
         """
         HandlerNpoints.__init__(self, marker_pad=marker_pad,
                                 numpoints=numpoints, **kw)

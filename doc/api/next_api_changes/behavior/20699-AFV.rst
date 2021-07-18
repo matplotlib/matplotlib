@@ -19,8 +19,7 @@ after instantiating a legend.
   leg.legendHandles[0].set_mec("black")  # marker edge color
 
 The former legend handler for Line2D objects has been renamed
-`.HandlerLine2DCompound`. To revert to the behavior that was used before
-Matplotlib 3, one can use
+`.HandlerLine2DCompound`. To revert to the previous behavior, one can use
 
 .. code::
 

@@ -865,9 +865,7 @@ def test_legend_text_axes():
 
 
 def test_handlerline2d():
-    '''Test consistency of the marker for the (monolithic) Line2D legend
-    handler (see #11357).
-    '''
+    # Test marker consistency for monolithic Line2D legend handler (#11357).
     fig, ax = plt.subplots()
     ax.scatter([0, 1], [0, 1], marker="v")
     handles = [mlines.Line2D([0], [0], marker="v")]
