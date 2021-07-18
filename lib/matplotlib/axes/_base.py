@@ -4362,8 +4362,10 @@ class _AxesBase(martist.Artist):
 
         if not twinx and mode != "y":
             self.set_xbound(new_xbound)
+            self.set_autoscalex_on(False)
         if not twiny and mode != "x":
             self.set_ybound(new_ybound)
+            self.set_autoscaley_on(False)
 
     def start_pan(self, x, y, button):
         """
