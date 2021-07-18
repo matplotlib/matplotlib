@@ -1305,10 +1305,6 @@ class FontManager:
         rc_params = tuple(tuple(rcParams[key]) for key in [
             "font.serif", "font.sans-serif", "font.cursive", "font.fantasy",
             "font.monospace"])
-
-        if not isinstance(prop, FontProperties):
-            prop = FontProperties._from_any(prop)
-
         return self._findfont_cached(
             prop, fontext, directory, fallback_to_default, rebuild_if_missing,
             rc_params)
@@ -1410,6 +1406,8 @@ class FontManager:
     @lru_cache()
     def _findfont_cached(self, prop, fontext, directory, fallback_to_default,
                          rebuild_if_missing, rc_params):
+
+        prop = FontProperties._from_any(prop)
 
         fname = prop.get_file()
         if fname is not None:
