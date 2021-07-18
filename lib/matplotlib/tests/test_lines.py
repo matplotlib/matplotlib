@@ -217,28 +217,57 @@ def test_step_markers(fig_test, fig_ref):
     fig_ref.subplots().plot([0, 0, 1], [0, 1, 1], "-o", markevery=[0, 2])
 
 
+@pytest.mark.parametrize("parent", ["figure", "axes"])
 @check_figures_equal(extensions=('png',))
-def test_markevery(fig_test, fig_ref):
+def test_markevery(fig_test, fig_ref, parent):
     np.random.seed(42)
-    t = np.linspace(0, 3, 14)
-    y = np.random.rand(len(t))
+    x = np.linspace(0, 1, 14)
+    y = np.random.rand(len(x))
 
-    casesA = [None, 4, (2, 5), [1, 5, 11],
-              [0, -1], slice(5, 10, 2), 0.3, (0.3, 0.4),
-              np.arange(len(t))[y > 0.5]]
-    casesB = ["11111111111111", "10001000100010", "00100001000010",
-              "01000100000100", "10000000000001", "00000101010000",
-              "11011011011110", "01010011011101", "01110001110110"]
+    cases_test = [None, 4, (2, 5), [1, 5, 11],
+                  [0, -1], slice(5, 10, 2),
+                  np.arange(len(x))[y > 0.5],
+                  0.3, (0.3, 0.4)]
+    cases_ref = ["11111111111111", "10001000100010", "00100001000010",
+                 "01000100000100", "10000000000001", "00000101010000",
+                 "01110001110110", "11011011011110", "01010011011101"]
 
-    axsA = fig_ref.subplots(3, 3)
-    axsB = fig_test.subplots(3, 3)
+    if parent == "figure":
+        # float markevery ("relative to axes size") is not supported.
+        cases_test = cases_test[:-2]
+        cases_ref = cases_ref[:-2]
 
-    for ax, case in zip(axsA.flat, casesA):
-        ax.plot(t, y, "-gD", markevery=case)
+        def add_test(x, y, *, markevery):
+            fig_test.add_artist(
+                mlines.Line2D(x, y, marker="o", markevery=markevery))
 
-    for ax, case in zip(axsB.flat, casesB):
+        def add_ref(x, y, *, markevery):
+            fig_ref.add_artist(
+                mlines.Line2D(x, y, marker="o", markevery=markevery))
+
+    elif parent == "axes":
+        axs_test = iter(fig_test.subplots(3, 3).flat)
+        axs_ref = iter(fig_ref.subplots(3, 3).flat)
+
+        def add_test(x, y, *, markevery):
+            next(axs_test).plot(x, y, "-gD", markevery=markevery)
+
+        def add_ref(x, y, *, markevery):
+            next(axs_ref).plot(x, y, "-gD", markevery=markevery)
+
+    for case in cases_test:
+        add_test(x, y, markevery=case)
+
+    for case in cases_ref:
         me = np.array(list(case)).astype(int).astype(bool)
-        ax.plot(t, y, "-gD", markevery=me)
+        add_ref(x, y, markevery=me)
+
+
+def test_markevery_figure_line_unsupported_relsize():
+    fig = plt.figure()
+    fig.add_artist(mlines.Line2D([0, 1], [0, 1], marker="o", markevery=.5))
+    with pytest.raises(ValueError):
+        fig.canvas.draw()
 
 
 def test_marker_as_markerstyle():
