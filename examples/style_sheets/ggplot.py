@@ -23,7 +23,7 @@ plt.style.use('ggplot')
 np.random.seed(19680801)
 
 fig, axs = plt.subplots(ncols=2, nrows=2)
-ax1, ax2, ax3, ax4 = axs.ravel()
+ax1, ax2, ax3, ax4 = axs.flat
 
 # scatter plot (Note: `plt.scatter` doesn't use default colors)
 x, y = np.random.normal(size=(2, 200))
