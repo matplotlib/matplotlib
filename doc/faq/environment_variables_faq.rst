@@ -7,14 +7,6 @@ Environment variables
 .. contents::
    :backlinks: none
 
-
-.. envvar:: DISPLAY
-
-  The server and screen on which to place windows. This is interpreted by GUI
-  toolkits in a backend-specific manner, but generally refers to an `X.org
-  display name
-  <https://www.x.org/releases/X11R7.7/doc/man/man7/X.7.xhtml#heading5>`_.
-
 .. envvar:: HOME
 
   The user's home directory. On Linux, :envvar:`~ <HOME>` is shorthand for :envvar:`HOME`.
