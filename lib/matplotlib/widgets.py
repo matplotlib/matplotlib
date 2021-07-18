@@ -2542,7 +2542,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         `matplotlib.patches.Patch` for valid properties.
         Default:
 
-            ``dict(facecolor='red', edgecolor='black', alpha=0.2, fill=True)``
+        ``dict(facecolor='red', edgecolor='black', alpha=0.2, fill=True)``
 
     spancoords : {"data", "pixels"}, default: "data"
         Whether to interpret *minspanx* and *minspany* in data or in pixel
