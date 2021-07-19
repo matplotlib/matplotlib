@@ -10,3 +10,4 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           artifact-path: 0/doc/build/html/index.html
           circleci-jobs: docs-python38
+          job-title: Check the rendered docs here!

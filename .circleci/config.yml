@@ -9,6 +9,22 @@ version: 2.1
 #
 
 commands:
+  merge:
+    steps:
+      - run:
+          name: Merge with upstream
+          command: |
+            if ! git remote -v | grep upstream; then
+              git remote add upstream git://github.com/matplotlib/matplotlib.git
+            fi
+            git fetch upstream
+            echo $(git log -1 --pretty=%B) | tee gitlog.txt
+            echo ${CI_PULL_REQUEST//*pull\//} | tee merge.txt
+            if [[ $(cat merge.txt) != "" ]]; then
+              echo "Merging $(cat merge.txt)";
+              git pull --ff-only upstream "refs/pull/$(cat merge.txt)/merge";
+            fi
+
   apt-install:
     steps:
       - run:
@@ -124,6 +140,7 @@ jobs:
       - image: circleci/python:3.8
     steps:
       - checkout
+      - merge
 
       - apt-install
       - fonts-install
