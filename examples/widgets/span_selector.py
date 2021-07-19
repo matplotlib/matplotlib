@@ -53,7 +53,7 @@ span = SpanSelector(
     onselect,
     "horizontal",
     useblit=True,
-    rectprops=dict(alpha=0.5, facecolor="tab:blue"),
+    props=dict(alpha=0.5, facecolor="tab:blue"),
     interactive=True,
     drag_from_anywhere=True
 )

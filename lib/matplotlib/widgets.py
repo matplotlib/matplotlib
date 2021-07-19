@@ -16,6 +16,7 @@ from numbers import Integral, Number
 import numpy as np
 
 import matplotlib as mpl
+from matplotlib import docstring
 from . import _api, cbook, colors, ticker
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
@@ -2019,15 +2020,18 @@ class SpanSelector(_SelectorWidget):
         If True, use the backend-dependent blitting features for faster
         canvas updates.
 
-    rectprops : dict, default: None
+    props : dict, optional
         Dictionary of `matplotlib.patches.Patch` properties.
+        Default:
+
+            ``dict(facecolor='red', alpha=0.5)``
 
     onmove_callback : func(min, max), min/max are floats, default: None
         Called on mouse move while the span is being selected.
 
     span_stays : bool, default: False
         If True, the span stays visible after the mouse is released.
-        Deprecated, use interactive instead.
+        Deprecated, use *interactive* instead.
 
     interactive : bool, default: False
         Whether to draw a set of handles that allow interaction with the
@@ -2038,10 +2042,10 @@ class SpanSelector(_SelectorWidget):
 
     handle_props : dict, default: None
         Properties of the handle lines at the edges of the span. Only used
-        when *interactive* is True. See `~matplotlib.lines.Line2D` for valid
+        when *interactive* is True. See `matplotlib.lines.Line2D` for valid
         properties.
 
-    handle_grab_distance : float, default: 10
+    grab_range : float, default: 10
         Distance in pixels within which the interactive tool handles can be
         activated.
 
@@ -2057,26 +2061,26 @@ class SpanSelector(_SelectorWidget):
     >>> ax.plot([1, 2, 3], [10, 50, 100])
     >>> def onselect(vmin, vmax):
     ...     print(vmin, vmax)
-    >>> rectprops = dict(facecolor='blue', alpha=0.5)
     >>> span = mwidgets.SpanSelector(ax, onselect, 'horizontal',
-    ...                              rectprops=rectprops)
+    ...                              props=dict(facecolor='blue', alpha=0.5))
     >>> fig.show()
 
     See also: :doc:`/gallery/widgets/span_selector`
     """
 
+    @_api.rename_parameter("3.5", "rectprops", "props")
     @_api.rename_parameter("3.5", "span_stays", "interactive")
     def __init__(self, ax, onselect, direction, minspan=0, useblit=False,
-                 rectprops=None, onmove_callback=None, interactive=False,
-                 button=None, handle_props=None, handle_grab_distance=10,
+                 props=None, onmove_callback=None, interactive=False,
+                 button=None, handle_props=None, grab_range=10,
                  drag_from_anywhere=False):
 
         super().__init__(ax, onselect, useblit=useblit, button=button)
 
-        if rectprops is None:
-            rectprops = dict(facecolor='red', alpha=0.5)
+        if props is None:
+            props = dict(facecolor='red', alpha=0.5)
 
-        rectprops['animated'] = self.useblit
+        props['animated'] = self.useblit
 
         self.direction = direction
 
@@ -2088,11 +2092,11 @@ class SpanSelector(_SelectorWidget):
         # but we maintain it until it is removed
         self._pressv = None
 
-        self._rectprops = rectprops
+        self._props = props
         self.onmove_callback = onmove_callback
         self.minspan = minspan
 
-        self.handle_grab_distance = handle_grab_distance
+        self.grab_range = grab_range
         self._interactive = interactive
         self.drag_from_anywhere = drag_from_anywhere
 
@@ -2102,12 +2106,13 @@ class SpanSelector(_SelectorWidget):
         self.new_axes(ax)
 
         # Setup handles
-        props = dict(color=rectprops.get('facecolor', 'r'))
-        props.update(cbook.normalize_kwargs(handle_props, Line2D._alias_map))
+        handle_props = {
+            'color': props.get('facecolor', 'r'),
+            **cbook.normalize_kwargs(handle_props, Line2D._alias_map)}
 
         if self._interactive:
             self._edge_order = ['min', 'max']
-            self._setup_edge_handle(props)
+            self._setup_edge_handle(handle_props)
 
         self._active_handle = None
 
@@ -2116,7 +2121,9 @@ class SpanSelector(_SelectorWidget):
 
     rect = _api.deprecate_privatize_attribute("3.5")
 
-    rectprops = _api.deprecate_privatize_attribute("3.5")
+    rectprops = _api.deprecated("3.5")(
+        property(lambda self: self._props)
+        )
 
     active_handle = _api.deprecate_privatize_attribute("3.5")
 
@@ -2147,7 +2154,7 @@ class SpanSelector(_SelectorWidget):
         self._rect = Rectangle((0, 0), w, h,
                                transform=trans,
                                visible=False,
-                               **self._rectprops)
+                               **self._props)
 
         self.ax.add_patch(self._rect)
         if len(self.artists) > 0:
@@ -2296,7 +2303,7 @@ class SpanSelector(_SelectorWidget):
         # Use 'C' to match the notation used in the RectangleSelector
         if 'move' in self._state:
             self._active_handle = 'C'
-        elif e_dist > self.handle_grab_distance:
+        elif e_dist > self.grab_range:
             # Not close to any handles
             self._active_handle = None
             if self.drag_from_anywhere and self._contains(event):
@@ -2351,8 +2358,11 @@ class ToolLineHandles:
         Positions of handles in data coordinates.
     direction : {"horizontal", "vertical"}
         Direction of handles, either 'vertical' or 'horizontal'
-    line_props : dict
+    line_props : dict, optional
         Additional line properties. See `matplotlib.lines.Line2D`.
+    useblit : bool, default: True
+        Whether to use blitting for faster drawing (if supported by the
+        backend).
     """
 
     def __init__(self, ax, positions, direction, line_props=None,
@@ -2450,10 +2460,13 @@ class ToolHandles:
         Matplotlib axes where tool handles are displayed.
     x, y : 1D arrays
         Coordinates of control handles.
-    marker : str
+    marker : str, default: 'o'
         Shape of marker used to display handle. See `matplotlib.pyplot.plot`.
-    marker_props : dict
+    marker_props : dict, optional
         Additional marker properties. See `matplotlib.lines.Line2D`.
+    useblit : bool, default: True
+        Whether to use blitting for faster drawing (if supported by the
+        backend).
     """
 
     def __init__(self, ax, x, y, marker='o', marker_props=None, useblit=True):
@@ -2498,103 +2511,119 @@ class ToolHandles:
         return min_index, dist[min_index]
 
 
+_RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
+    r"""
+    Parameters
+    ----------
+    ax : `~matplotlib.axes.Axes`
+        The parent axes for the widget.
+
+    onselect : function
+        A callback function that is called after a selection is completed.
+        It must have the signature::
+
+            def onselect(eclick: MouseEvent, erelease: MouseEvent)
+
+        where *eclick* and *erelease* are the mouse click and release
+        `.MouseEvent`\s that start and complete the selection.
+
+    minspanx : float, default: 0
+        Selections with an x-span less than *minspanx* are ignored.
+
+    minspany : float, default: 0
+        Selections with a y-span less than *minspany* are ignored.
+
+    useblit : bool, default: False
+        Whether to use blitting for faster drawing (if supported by the
+        backend).
+
+    props : dict, optional
+        Properties with which the __ARTIST_NAME__ is drawn. See
+        `matplotlib.patches.Patch` for valid properties.
+        Default:
+
+        ``dict(facecolor='red', edgecolor='black', alpha=0.2, fill=True)``
+
+    spancoords : {"data", "pixels"}, default: "data"
+        Whether to interpret *minspanx* and *minspany* in data or in pixel
+        coordinates.
+
+    button : `.MouseButton`, list of `.MouseButton`, default: all buttons
+        Button(s) that trigger rectangle selection.
+
+    grab_range : float, default: 10
+        Distance in pixels within which the interactive tool handles can be
+        activated.
+
+    handle_props : dict, optional
+        Properties with which the interactive handles (marker artists) are
+        drawn. See the marker arguments in `matplotlib.lines.Line2D` for valid
+        properties.  Default values are defined in ``mpl.rcParams`` except for
+        the default value of ``markeredgecolor`` which will be the same as the
+        ``edgecolor`` property in *props*.
+
+    interactive : bool, default: False
+        Whether to draw a set of handles that allow interaction with the
+        widget after it is drawn.
+
+    state_modifier_keys : dict, optional
+        Keyboard modifiers which affect the widget's behavior.  Values
+        amend the defaults.
+
+        - "move": Move the existing shape, default: no modifier.
+        - "clear": Clear the current shape, default: "escape".
+        - "square": Makes the shape square, default: "shift".
+        - "center": Make the initial point the center of the shape,
+          default: "ctrl".
+
+        "square" and "center" can be combined.
+
+    drag_from_anywhere : bool, optional
+        If `True`, the widget can be moved by clicking anywhere within
+        its bounds.
+    """
+
+
+@docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING.replace(
+    '__ARTIST_NAME__', 'rectangle'))
 class RectangleSelector(_SelectorWidget):
     """
     Select a rectangular region of an axes.
 
     For the cursor to remain responsive you must keep a reference to it.
 
+    %s
+
     Examples
     --------
-    :doc:`/gallery/widgets/rectangle_selector`
+    >>> import matplotlib.pyplot as plt
+    >>> import matplotlib.widgets as mwidgets
+    >>> fig, ax = plt.subplots()
+    >>> ax.plot([1, 2, 3], [10, 50, 100])
+    >>> def onselect(eclick, erelease):
+    ...     print(eclick.xdata, eclick.ydata)
+    ...     print(erelease.xdata, erelease.ydata)
+    >>> props = dict(facecolor='blue', alpha=0.5)
+    >>> rect = mwidgets.RectangleSelector(ax, onselect, interactive=True,
+                                          props=props)
+    >>> fig.show()
+
+    See also: :doc:`/gallery/widgets/rectangle_selector`
     """
 
     _shape_klass = Rectangle
 
+    @_api.rename_parameter("3.5", "maxdist", "grab_range")
+    @_api.rename_parameter("3.5", "marker_props", "handle_props")
+    @_api.rename_parameter("3.5", "rectprops", "props")
     @_api.delete_parameter("3.5", "drawtype")
     @_api.delete_parameter("3.5", "lineprops")
     def __init__(self, ax, onselect, drawtype='box',
                  minspanx=0, minspany=0, useblit=False,
-                 lineprops=None, rectprops=None, spancoords='data',
-                 button=None, maxdist=10, marker_props=None,
+                 lineprops=None, props=None, spancoords='data',
+                 button=None, grab_range=10, handle_props=None,
                  interactive=False, state_modifier_keys=None,
                  drag_from_anywhere=False):
-        r"""
-        Parameters
-        ----------
-        ax : `~matplotlib.axes.Axes`
-            The parent axes for the widget.
-
-        onselect : function
-            A callback function that is called after a selection is completed.
-            It must have the signature::
-
-                def onselect(eclick: MouseEvent, erelease: MouseEvent)
-
-            where *eclick* and *erelease* are the mouse click and release
-            `.MouseEvent`\s that start and complete the selection.
-
-        drawtype : {"box", "line", "none"}, default: "box"
-            Whether to draw the full rectangle box, the diagonal line of the
-            rectangle, or nothing at all.
-
-        minspanx : float, default: 0
-            Selections with an x-span less than *minspanx* are ignored.
-
-        minspany : float, default: 0
-            Selections with an y-span less than *minspany* are ignored.
-
-        useblit : bool, default: False
-            Whether to use blitting for faster drawing (if supported by the
-            backend).
-
-        lineprops : dict, optional
-            Properties with which the line is drawn, if ``drawtype == "line"``.
-            Default::
-
-                dict(color="black", linestyle="-", linewidth=2, alpha=0.5)
-
-        rectprops : dict, optional
-            Properties with which the rectangle is drawn, if ``drawtype ==
-            "box"``.  Default::
-
-                dict(facecolor="red", edgecolor="black", alpha=0.2, fill=True)
-
-        spancoords : {"data", "pixels"}, default: "data"
-            Whether to interpret *minspanx* and *minspany* in data or in pixel
-            coordinates.
-
-        button : `.MouseButton`, list of `.MouseButton`, default: all buttons
-            Button(s) that trigger rectangle selection.
-
-        maxdist : float, default: 10
-            Distance in pixels within which the interactive tool handles can be
-            activated.
-
-        marker_props : dict
-            Properties with which the interactive handles are drawn.  Currently
-            not implemented and ignored.
-
-        interactive : bool, default: False
-            Whether to draw a set of handles that allow interaction with the
-            widget after it is drawn.
-
-        state_modifier_keys : dict, optional
-            Keyboard modifiers which affect the widget's behavior.  Values
-            amend the defaults.
-
-            - "move": Move the existing shape, default: no modifier.
-            - "clear": Clear the current shape, default: "escape".
-            - "square": Makes the shape square, default: "shift".
-            - "center": Make the initial point the center of the shape,
-              default: "ctrl".
-
-            "square" and "center" can be combined.
-
-        drag_from_anywhere : bool, optional
-            If `True`, the widget can be moved by clicking anywhere within
-            its bounds.
-        """
         super().__init__(ax, onselect, useblit=useblit, button=button,
                          state_modifier_keys=state_modifier_keys)
 
@@ -2608,19 +2637,19 @@ class RectangleSelector(_SelectorWidget):
                 "3.5", message="Support for drawtype='none' is deprecated "
                                "since %(since)s and will be removed "
                                "%(removal)s."
-                               "Use rectprops=dict(visible=False) instead.")
+                               "Use props=dict(visible=False) instead.")
             drawtype = 'line'
             self.visible = False
 
         if drawtype == 'box':
-            if rectprops is None:
-                rectprops = dict(facecolor='red', edgecolor='black',
-                                 alpha=0.2, fill=True)
-            rectprops['animated'] = self.useblit
-            _rectprops = rectprops
-            self.visible = _rectprops.pop('visible', self.visible)
+            if props is None:
+                props = dict(facecolor='red', edgecolor='black',
+                             alpha=0.2, fill=True)
+            props['animated'] = self.useblit
+            _props = props
+            self.visible = _props.pop('visible', self.visible)
             self._to_draw = self._shape_klass((0, 0), 0, 1, visible=False,
-                                              **_rectprops)
+                                              **_props)
             self.ax.add_patch(self._to_draw)
         if drawtype == 'line':
             _api.warn_deprecated(
@@ -2643,27 +2672,27 @@ class RectangleSelector(_SelectorWidget):
         self.spancoords = spancoords
         self._drawtype = drawtype
 
-        self.maxdist = maxdist
+        self.grab_range = grab_range
 
-        if rectprops is None:
-            props = dict(markeredgecolor='r')
-        else:
-            props = dict(markeredgecolor=rectprops.get('edgecolor', 'r'))
-        props.update(cbook.normalize_kwargs(marker_props, Line2D._alias_map))
+        handle_props = {
+            'markeredgecolor': (props or {}).get('edgecolor', 'black'),
+            **cbook.normalize_kwargs(handle_props, Line2D._alias_map)}
+
         self._corner_order = ['NW', 'NE', 'SE', 'SW']
         xc, yc = self.corners
-        self._corner_handles = ToolHandles(self.ax, xc, yc, marker_props=props,
+        self._corner_handles = ToolHandles(self.ax, xc, yc,
+                                           marker_props=handle_props,
                                            useblit=self.useblit)
 
         self._edge_order = ['W', 'N', 'E', 'S']
         xe, ye = self.edge_centers
         self._edge_handles = ToolHandles(self.ax, xe, ye, marker='s',
-                                         marker_props=props,
+                                         marker_props=handle_props,
                                          useblit=self.useblit)
 
         xc, yc = self.center
         self._center_handle = ToolHandles(self.ax, [xc], [yc], marker='s',
-                                          marker_props=props,
+                                          marker_props=handle_props,
                                           useblit=self.useblit)
 
         self._active_handle = None
@@ -2684,6 +2713,10 @@ class RectangleSelector(_SelectorWidget):
     active_handle = _api.deprecate_privatize_attribute("3.5")
 
     interactive = _api.deprecate_privatize_attribute("3.5")
+
+    maxdist = _api.deprecated("3.5", name="maxdist", alternative="grab_range")(
+        property(lambda self: self.grab_range,
+                 lambda self, value: setattr(self, "grab_range", value)))
 
     def _press(self, event):
         """Button press event handler."""
@@ -2899,10 +2932,11 @@ class RectangleSelector(_SelectorWidget):
             self._active_handle = 'C'
             self._extents_on_press = self.extents
         # Set active handle as closest handle, if mouse click is close enough.
-        elif m_dist < self.maxdist * 2:
+        elif m_dist < self.grab_range * 2:
             # Prioritise center handle over other handles
             self._active_handle = 'C'
-        elif c_dist > self.maxdist and e_dist > self.maxdist:
+        elif (c_dist > self.grab_range and
+                  e_dist > self.grab_range):
             # Not close to any handles
             if self.drag_from_anywhere and self._contains(event):
                 # Check if we've clicked inside the region
@@ -2948,42 +2982,45 @@ class RectangleSelector(_SelectorWidget):
             return np.array(self._to_draw.get_data())
 
 
+@docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING.replace(
+    '__ARTIST_NAME__', 'ellipse'))
 class EllipseSelector(RectangleSelector):
     """
     Select an elliptical region of an axes.
 
     For the cursor to remain responsive you must keep a reference to it.
 
-    Example usage::
+    %s
 
-        import numpy as np
-        import matplotlib.pyplot as plt
-        from matplotlib.widgets import EllipseSelector
-
-        def onselect(eclick, erelease):
-            "eclick and erelease are matplotlib events at press and release."
-            print('startposition: (%f, %f)' % (eclick.xdata, eclick.ydata))
-            print('endposition  : (%f, %f)' % (erelease.xdata, erelease.ydata))
-            print('used button  : ', eclick.button)
-
-        def toggle_selector(event):
-            print(' Key pressed.')
-            if event.key in ['Q', 'q'] and toggle_selector.ES.active:
-                print('EllipseSelector deactivated.')
-                toggle_selector.RS.set_active(False)
-            if event.key in ['A', 'a'] and not toggle_selector.ES.active:
-                print('EllipseSelector activated.')
-                toggle_selector.ES.set_active(True)
-
-        x = np.arange(100.) / 99
-        y = np.sin(x)
-        fig, ax = plt.subplots()
-        ax.plot(x, y)
-
-        toggle_selector.ES = EllipseSelector(ax, onselect)
-        fig.canvas.mpl_connect('key_press_event', toggle_selector)
-        plt.show()
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import matplotlib.pyplot as plt
+    >>> from matplotlib.widgets import EllipseSelector
+    >>> def onselect(eclick, erelease):
+    ...     "eclick and erelease are matplotlib events at press and release."
+    ...     print(f'startposition: {eclick.xdata}, {eclick.ydata})
+    ...     print(f'endposition  : {erelease.xdata}, {erelease.ydata})
+    ...     print('used button  : ', eclick.button)
+    ...
+    >>> def toggle_selector(event):
+    ...     print(' Key pressed.')
+    ...     if event.key in ['Q', 'q'] and toggle_selector.ES.active:
+    ...         print('EllipseSelector deactivated.')
+    ...         toggle_selector.RS.set_active(False)
+    ...     if event.key in ['A', 'a'] and not toggle_selector.ES.active:
+    ...         print('EllipseSelector activated.')
+    ...         toggle_selector.ES.set_active(True)
+    ...
+    >>> x = np.arange(100.) / 99
+    >>> y = np.sin(x)
+    >>> fig, ax = plt.subplots()
+    >>> ax.plot(x, y)
+    >>> toggle_selector.ES = EllipseSelector(ax, onselect)
+    >>> fig.canvas.mpl_connect('key_press_event', toggle_selector)
+    >>> plt.show()
     """
+
     _shape_klass = Ellipse
     draw_shape = _api.deprecate_privatize_attribute('3.5')
 
@@ -3048,20 +3085,27 @@ class LassoSelector(_SelectorWidget):
     onselect : function
         Whenever the lasso is released, the *onselect* function is called and
         passed the vertices of the selected path.
+    useblit : bool, default: True
+        Whether to use blitting for faster drawing (if supported by the
+        backend).
+    props : dict, optional
+        Properties with which the line is drawn, see `matplotlib.lines.Line2D`
+        for valid properties. Default values are defined in ``mpl.rcParams``.
     button : `.MouseButton` or list of `.MouseButton`, optional
         The mouse buttons used for rectangle selection.  Default is ``None``,
         which corresponds to all buttons.
     """
 
-    def __init__(self, ax, onselect=None, useblit=True, lineprops=None,
+    @_api.rename_parameter("3.5", "lineprops", "props")
+    def __init__(self, ax, onselect=None, useblit=True, props=None,
                  button=None):
         super().__init__(ax, onselect, useblit=useblit, button=button)
         self.verts = None
-        if lineprops is None:
-            lineprops = dict()
+        if props is None:
+            props = dict()
         # self.useblit may be != useblit, if the canvas doesn't support blit.
-        lineprops.update(animated=self.useblit, visible=False)
-        self.line = Line2D([], [], **lineprops)
+        props.update(animated=self.useblit, visible=False)
+        self.line = Line2D([], [], **props)
         self.ax.add_line(self.line)
         self.artists = [self.line]
 
@@ -3116,20 +3160,33 @@ class PolygonSelector(_SelectorWidget):
     ----------
     ax : `~matplotlib.axes.Axes`
         The parent axes for the widget.
+
     onselect : function
         When a polygon is completed or modified after completion,
         the *onselect* function is called and passed a list of the vertices as
         ``(xdata, ydata)`` tuples.
+
     useblit : bool, default: False
-    lineprops : dict, default: \
-``dict(color='k', linestyle='-', linewidth=2, alpha=0.5)``.
-        Artist properties for the line representing the edges of the polygon.
-    markerprops : dict, default: \
-``dict(marker='o', markersize=7, mec='k', mfc='k', alpha=0.5)``.
+        Whether to use blitting for faster drawing (if supported by the
+        backend).
+
+    props : dict, optional
+        Properties with which the line is drawn, see `matplotlib.lines.Line2D`
+        for valid properties.
+        Default:
+
+            ``dict(color='k', linestyle='-', linewidth=2, alpha=0.5)``
+
+    handle_props : dict, optional
         Artist properties for the markers drawn at the vertices of the polygon.
-    vertex_select_radius : float, default: 15px
+        See the marker arguments in `matplotlib.lines.Line2D` for valid
+        properties.  Default values are defined in ``mpl.rcParams`` except for
+        the default value of ``markeredgecolor`` which will be the same as the
+        ``color`` property in *props*.
+
+    grab_range : float, default: 10
         A vertex is selected (to complete the polygon or to move a vertex) if
-        the mouse click is within *vertex_select_radius* pixels of the vertex.
+        the mouse click is within *grab_range* pixels of the vertex.
 
     Examples
     --------
@@ -3142,8 +3199,11 @@ class PolygonSelector(_SelectorWidget):
     point.
     """
 
+    @_api.rename_parameter("3.5", "lineprops", "props")
+    @_api.rename_parameter("3.5", "markerprops", "handle_props")
+    @_api.rename_parameter("3.5", "vertex_select_radius", "grab_range")
     def __init__(self, ax, onselect, useblit=False,
-                 lineprops=None, markerprops=None, vertex_select_radius=15):
+                 props=None, handle_props=None, grab_range=10):
         # The state modifiers 'move', 'square', and 'center' are expected by
         # _SelectorWidget but are not supported by PolygonSelector
         # Note: could not use the existing 'move' state modifier in-place of
@@ -3159,24 +3219,30 @@ class PolygonSelector(_SelectorWidget):
         self._xs, self._ys = [0], [0]
         self._polygon_completed = False
 
-        if lineprops is None:
-            lineprops = dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
-        lineprops['animated'] = self.useblit
-        self.line = Line2D(self._xs, self._ys, **lineprops)
+        if props is None:
+            props = dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
+        props['animated'] = self.useblit
+        self.line = Line2D(self._xs, self._ys, **props)
         self.ax.add_line(self.line)
 
-        if markerprops is None:
-            markerprops = dict(markeredgecolor='k',
-                               markerfacecolor=lineprops.get('color', 'k'))
+        if handle_props is None:
+            handle_props = dict(markeredgecolor='k',
+                                markerfacecolor=props.get('color', 'k'))
         self._polygon_handles = ToolHandles(self.ax, self._xs, self._ys,
                                             useblit=self.useblit,
-                                            marker_props=markerprops)
+                                            marker_props=handle_props)
 
         self._active_handle_idx = -1
-        self.vertex_select_radius = vertex_select_radius
+        self.grab_range = grab_range
 
         self.artists = [self.line, self._polygon_handles.artist]
         self.set_visible(True)
+
+    vertex_select_radius = _api.deprecated("3.5", name="vertex_select_radius",
+                                           alternative="grab_range")(
+        property(lambda self: self.grab_range,
+                 lambda self, value: setattr(self, "grab_range", value))
+        )
 
     @property
     def _nverts(self):
@@ -3211,7 +3277,7 @@ class PolygonSelector(_SelectorWidget):
         if ((self._polygon_completed or 'move_vertex' in self._state)
                 and len(self._xs) > 0):
             h_idx, h_dist = self._polygon_handles.closest(event.x, event.y)
-            if h_dist < self.vertex_select_radius:
+            if h_dist < self.grab_range:
                 self._active_handle_idx = h_idx
         # Save the vertex positions at the time of the press event (needed to
         # support the 'move_all' state modifier).
@@ -3285,7 +3351,7 @@ class PolygonSelector(_SelectorWidget):
                                                           self._ys[0]))
             v0_dist = np.hypot(x0 - event.x, y0 - event.y)
             # Lock on to the start vertex if near it and ready to complete.
-            if len(self._xs) > 3 and v0_dist < self.vertex_select_radius:
+            if len(self._xs) > 3 and v0_dist < self.grab_range:
                 self._xs[-1], self._ys[-1] = self._xs[0], self._ys[0]
             else:
                 self._xs[-1], self._ys[-1] = event.xdata, event.ydata
@@ -3357,6 +3423,9 @@ class Lasso(AxesWidget):
         The parent axes for the widget.
     xy : (float, float)
         Coordinates of the start of the lasso.
+    useblit : bool, default: True
+        Whether to use blitting for faster drawing (if supported by the
+        backend).
     callback : callable
         Whenever the lasso is released, the *callback* function is called and
         passed the vertices of the selected path.
