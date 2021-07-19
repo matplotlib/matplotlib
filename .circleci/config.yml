@@ -18,7 +18,6 @@ commands:
               git remote add upstream git://github.com/matplotlib/matplotlib.git
             fi
             git fetch upstream
-            echo $(git log -1 --pretty=%B) | tee gitlog.txt
             echo ${CI_PULL_REQUEST//*pull\//} | tee merge.txt
             if [[ $(cat merge.txt) != "" ]]; then
               echo "Merging $(cat merge.txt)";
