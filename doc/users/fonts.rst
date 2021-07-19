@@ -128,3 +128,58 @@ This is especially helpful to generate *really lightweight* documents.::
   free versions of the proprietary fonts.
 
   This also violates the *what-you-see-is-what-you-get* feature of Matplotlib.
+
+Are we reinventing the wheel?
+-----------------------------
+Internally, a feasible response to the question of 'reinventing the
+wheel would be, well, Yes *and No*. The font-matching algorithm used
+by Matplotlib has been *inspired* by web browsers, more specifically,
+`CSS Specifications <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_!
+
+Currently, the simplest way (and the only way) to tell Matplotlib what fonts
+you want it to use for your document is via the **font.family** rcParam,
+see :doc:`Customizing text properties </tutorials/text/text_props>`.
+
+This is similar to how one tells a browser to use multiple font families
+(specified in their order of preference) for their HTML webpages. By using
+**font-family** in their stylesheet, users can essentially trigger a very
+useful feature provided by browers, known as Font-Fallback. For example, the
+following snippet in an HTMl markup would:
+
+.. code-block:: html
+
+  <style>
+    someTag {
+      font-family: Arial, Helvetica, sans-serif;
+    }
+  </style>
+
+  <!-- somewhere in the main body -->
+  <someTag>
+    some text
+  </someTag>
+
+
+For every character/glyph in *"some text"*, the browser will iterate through
+the whole list of font-families, and check whether that character/glyph is
+available in that font-family. As soon as a font is found which has the
+required glyph(s), the browser moves on to the next character.
+
+How does Matplotlib achieve this?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Well, Matplotlib doesn't achieve this, *yet*. It was initially only designed to
+use a **single font** throughout the document, i.e., no matter how many
+families you pass to **font.family** rcParam, Matplotlib would use the very
+first font it's able to find on your system, and try to render all your
+characters/glyphs from that *and only that* font.
+
+.. note::
+  This is, because the internal font matching was written/adapted
+  from a very old `CSS1 spec <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_,
+  **written in 1998**!
+
+  However, allowing multiple fonts for a single document (also enabling
+  Font-Fallback) is one of the goals for 2021's Google Summer of Code project.
+
+  `Read more on Matplotblog <https://matplotlib.org/matplotblog/>`_!
+
