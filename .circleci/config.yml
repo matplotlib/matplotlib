@@ -29,7 +29,8 @@ commands:
       - run:
           name: Check-skip
           command: |
-            export COMMIT_MESSAGE=$(git log --max-count=1 --skip=1 --pretty=format:"%B" | tr "\n" " ")
+            git log --max-count=1 --skip=1 --pretty=format:"%B" | tr "\n" " " > commit_message.txt
+            export COMMIT_MESSAGE=$(cat commit_message.txt);
             echo "Got commit message:"
             echo "${COMMIT_MESSAGE}"
             if [[ -v CIRCLE_PULL_REQUEST ]] && ([[ "$COMMIT_MESSAGE" == *"[skip circle]"* ]] || [[ "$COMMIT_MESSAGE" == *"[circle skip]"* ]]); then
