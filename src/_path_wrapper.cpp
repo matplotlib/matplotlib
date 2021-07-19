@@ -453,17 +453,19 @@ static PyObject *Py_affine_transform(PyObject *self, PyObject *args, PyObject *k
 
     if (PyArray_NDIM(vertices_arr) == 2) {
         numpy::array_view<double, 2> vertices(vertices_arr);
+        Py_DECREF(vertices_arr);
+
         npy_intp dims[] = { (npy_intp)vertices.size(), 2 };
         numpy::array_view<double, 2> result(dims);
         CALL_CPP("affine_transform", (affine_transform_2d(vertices, trans, result)));
-        Py_DECREF(vertices_arr);
         return result.pyobj();
     } else { // PyArray_NDIM(vertices_arr) == 1
         numpy::array_view<double, 1> vertices(vertices_arr);
+        Py_DECREF(vertices_arr);
+
         npy_intp dims[] = { (npy_intp)vertices.size() };
         numpy::array_view<double, 1> result(dims);
         CALL_CPP("affine_transform", (affine_transform_1d(vertices, trans, result)));
-        Py_DECREF(vertices_arr);
         return result.pyobj();
     }
 }
