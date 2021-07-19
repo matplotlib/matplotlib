@@ -138,7 +138,13 @@ def generate_function(name, called_fullname, template, **kwargs):
     class_name, called_name = called_fullname.split('.')
     class_ = {'Axes': Axes, 'Figure': Figure}[class_name]
 
-    signature = inspect.signature(getattr(class_, called_name))
+    meth = getattr(class_, called_name)
+    decorator = _api.deprecation.DECORATORS.get(meth)
+    # Generate the wrapper with the non-kwonly signature, as it will get
+    # redecorated with make_keyword_only by _copy_docstring_and_deprecators.
+    if decorator and decorator.func is _api.make_keyword_only:
+        meth = meth.__wrapped__
+    signature = inspect.signature(meth)
     # Replace self argument.
     params = list(signature.parameters.values())[1:]
     signature = str(signature.replace(parameters=[

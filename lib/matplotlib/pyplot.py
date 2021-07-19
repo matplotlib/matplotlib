@@ -72,14 +72,6 @@ from .ticker import (
 _log = logging.getLogger(__name__)
 
 
-_code_objs = {
-    _api.rename_parameter:
-        _api.rename_parameter("", "old", "new", lambda new: None).__code__,
-    _api.make_keyword_only:
-        _api.make_keyword_only("", "p", lambda p: None).__code__,
-}
-
-
 def _copy_docstring_and_deprecators(method, func=None):
     if func is None:
         return functools.partial(_copy_docstring_and_deprecators, method)
@@ -88,14 +80,9 @@ def _copy_docstring_and_deprecators(method, func=None):
     # or @_api.make_keyword_only decorators; if so, propagate them to the
     # pyplot wrapper as well.
     while getattr(method, "__wrapped__", None) is not None:
-        for decorator_maker, code in _code_objs.items():
-            if method.__code__ is code:
-                kwargs = {
-                    k: v.cell_contents
-                    for k, v in zip(code.co_freevars, method.__closure__)}
-                assert kwargs["func"] is method.__wrapped__
-                kwargs.pop("func")
-                decorators.append(decorator_maker(**kwargs))
+        decorator = _api.deprecation.DECORATORS.get(method)
+        if decorator:
+            decorators.append(decorator)
         method = method.__wrapped__
     for decorator in decorators[::-1]:
         func = decorator(func)
