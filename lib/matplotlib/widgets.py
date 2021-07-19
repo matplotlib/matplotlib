@@ -2714,9 +2714,9 @@ class RectangleSelector(_SelectorWidget):
 
     interactive = _api.deprecate_privatize_attribute("3.5")
 
-    maxdist = _api.deprecated("3.5")(
-        property(lambda self: self.grab_range)
-        )
+    maxdist = _api.deprecated("3.5", name="maxdist", alternative="grab_range")(
+        property(lambda self: self.grab_range,
+                 lambda self, value: setattr(self, "grab_range", value)))
 
     def _press(self, event):
         """Button press event handler."""
@@ -3238,8 +3238,10 @@ class PolygonSelector(_SelectorWidget):
         self.artists = [self.line, self._polygon_handles.artist]
         self.set_visible(True)
 
-    vertex_select_radius = _api.deprecated("3.5")(
-        property(lambda self: self.grab_range)
+    vertex_select_radius = _api.deprecated("3.5", name="vertex_select_radius",
+                                           alternative="grab_range")(
+        property(lambda self: self.grab_range,
+                 lambda self, value: setattr(self, "grab_range", value))
         )
 
     @property
