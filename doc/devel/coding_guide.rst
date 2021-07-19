@@ -220,14 +220,15 @@ will run on all supported platforms and versions of Python.
   .. _tox: https://tox.readthedocs.io/
 
 * If you know your changes do not need to be tested (this is very rare!), all
-  CIs can be skipped by including ``[ci skip]`` or ``[skip ci]`` in your
-  commit message. If you know only a subset of CIs need to be run (e.g.,
-  if you are changing some block of plain reStructuredText and only want
-  only CircleCI to run to render the result), individual CIs can be skipped
-  to save bandwidth using:
+  CIs can be skipped for a given commit by including ``[ci skip]`` or
+  ``[skip ci]`` in the commit message. If you know only a subset of CIs need
+  to be run (e.g., if you are changing some block of plain reStructuredText and
+  want only CircleCI to run to render the result), individual CIs can be
+  skipped on individual commits as well by using the following substrings
+  in commit messages:
 
   - GitHub Actions: ``[skip actions]``
-  - AppVeyor: ``[skip appveyor]``
+  - AppVeyor: ``[skip appveyor]`` (must be in the first line of the commit)
   - Azure Pipelines: ``[skip azp]``
   - CircleCI: ``[skip circle]``
 
