@@ -1415,13 +1415,14 @@ class CenteredNorm(Normalize):
         return super().__call__(value, clip=clip)
 
 
-def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
+def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     """
-    Decorator for building a `.Normalize` subclass from a `.Scale` subclass.
+    Decorator for building a `.Normalize` subclass from a `~.scale.ScaleBase`
+    subclass.
 
     After ::
 
-        @_make_norm_from_scale(scale_cls)
+        @make_norm_from_scale(scale_cls)
         class norm_cls(Normalize):
             ...
 
@@ -1436,7 +1437,7 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     a dummy axis).
 
     If the *scale_cls* constructor takes additional parameters, then *init*
-    should be passed to `_make_norm_from_scale`.  It is a callable which is
+    should be passed to `make_norm_from_scale`.  It is a callable which is
     *only* used for its signature.  First, this signature will become the
     signature of *norm_cls*.  Second, the *norm_cls* constructor will bind the
     parameters passed to it using this signature, extract the bound *vmin*,
@@ -1446,7 +1447,7 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     """
 
     if base_norm_cls is None:
-        return functools.partial(_make_norm_from_scale, scale_cls, init=init)
+        return functools.partial(make_norm_from_scale, scale_cls, init=init)
 
     if init is None:
         def init(vmin=None, vmax=None, clip=False): pass
@@ -1509,7 +1510,7 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     return Norm
 
 
-@_make_norm_from_scale(
+@make_norm_from_scale(
     scale.FuncScale,
     init=lambda functions, vmin=None, vmax=None, clip=False: None)
 class FuncNorm(Normalize):
@@ -1542,7 +1543,7 @@ class FuncNorm(Normalize):
     """
 
 
-@_make_norm_from_scale(functools.partial(scale.LogScale, nonpositive="mask"))
+@make_norm_from_scale(functools.partial(scale.LogScale, nonpositive="mask"))
 class LogNorm(Normalize):
     """Normalize a given value to the 0-1 range on a log scale."""
 
@@ -1555,7 +1556,7 @@ class LogNorm(Normalize):
         super().autoscale_None(np.ma.array(A, mask=(A <= 0)))
 
 
-@_make_norm_from_scale(
+@make_norm_from_scale(
     scale.SymmetricalLogScale,
     init=lambda linthresh, linscale=1., vmin=None, vmax=None, clip=False, *,
                 base=10: None)
