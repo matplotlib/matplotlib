@@ -124,10 +124,9 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
     """
     Decorator to mark a function, a class, or a property as deprecated.
 
-    When deprecating a classmethod, a staticmethod, or a property, the
-    ``@deprecated`` decorator should go *under* ``@classmethod`` and
-    ``@staticmethod`` (i.e., `deprecated` should directly decorate the
-    underlying callable), but *over* ``@property``.
+    When deprecating a property, the ``@deprecated`` decorator should go *over*
+    ``@property``.  On the other hand ``@deprecated`` can be placed either over
+    or under ``@classmethod`` and ``@staticmethod``.
 
     When deprecating a class ``C`` intended to be used as a base class in a
     multiple inheritance hierarchy, ``C`` *must* define an ``__init__`` method
@@ -200,8 +199,20 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
                 obj.__init__ = functools.wraps(obj.__init__)(wrapper)
                 return obj
 
+        elif isinstance(obj, (classmethod, staticmethod)):
+            if obj_type is None:
+                obj_type = "function"
+            func = obj.__func__
+            old_doc = func.__doc__
+
+            def finalize(wrapper, new_doc):
+                wrapper = functools.wraps(func)(wrapper)
+                wrapper.__doc__ = new_doc
+                return type(obj)(wrapper)
+
         elif isinstance(obj, (property, classproperty)):
-            obj_type = "attribute"
+            if obj_type is None:
+                obj_type = "attribute"
             func = None
             name = name or obj.fget.__name__
             old_doc = obj.__doc__

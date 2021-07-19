@@ -21,17 +21,52 @@ def test_check_shape(target, test_shape):
         _api.check_shape(target, aardvark=data)
 
 
-def test_classproperty_deprecation():
+def test_deprecated():
     class A:
         @_api.deprecated("0.0.0")
-        @_api.classproperty
-        def f(cls):
+        def meth(self):
             pass
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
-        A.f
-    with pytest.warns(_api.MatplotlibDeprecationWarning):
-        a = A()
-        a.f
+
+        @_api.deprecated("0.0.0")
+        @classmethod
+        def cmeth1(cls):
+            pass
+
+        @classmethod
+        @_api.deprecated("0.0.0")
+        def cmeth2(cls):
+            pass
+
+        @_api.deprecated("0.0.0")
+        @staticmethod
+        def smeth1():
+            pass
+
+        @staticmethod
+        @_api.deprecated("0.0.0")
+        def smeth2():
+            pass
+
+        @_api.deprecated("0.0.0")
+        @property
+        def prop(self):
+            pass
+
+        @_api.deprecated("0.0.0")
+        @_api.classproperty
+        def cprop(cls):
+            pass
+
+    a = A()
+    for call in [
+            a.meth,
+            a.cmeth1, a.cmeth2, A.cmeth1, A.cmeth2,
+            a.smeth1, a.smeth2, A.smeth1, A.smeth2,
+            lambda: getattr(a, "prop"),
+            lambda: getattr(A, "cprop"), lambda: getattr(a, "cprop"),
+    ]:
+        with pytest.warns(_api.MatplotlibDeprecationWarning):
+            call()
 
 
 def test_deprecate_privatize_attribute():
