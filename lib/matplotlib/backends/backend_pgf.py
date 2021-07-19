@@ -116,8 +116,8 @@ def common_texification(text):
 
 
 def writeln(fh, line):
-    # every line of a file included with \\input must be terminated with %
-    # if not, latex will create additional vertical spaces for some reason
+    # Ending lines with a % prevents TeX from inserting spurious spaces
+    # (https://tex.stackexchange.com/questions/7453).
     fh.write(line)
     fh.write("%\n")
 
