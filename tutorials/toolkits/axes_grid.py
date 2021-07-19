@@ -19,7 +19,6 @@ Overview of :mod:`mpl_toolkits.axes_grid1`
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_demo_axes_grid_001.png
    :target: ../../gallery/axes_grid1/demo_axes_grid.html
    :align: center
-   :scale: 50
 
 axes_grid1
 ==========
@@ -36,7 +35,6 @@ its docs for detailed API information.
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axesgrid_001.png
    :target: ../../gallery/axes_grid1/simple_axesgrid.html
    :align: center
-   :scale: 50
 
 * The position of each axes is determined at the drawing time (see
   AxesDivider_), so that the size of the entire grid fits in the
@@ -53,14 +51,12 @@ its docs for detailed API information.
   .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axesgrid2_001.png
      :target: ../../gallery/axes_grid1/simple_axesgrid2.html
      :align: center
-     :scale: 50
 
 The examples below show what you can do with ImageGrid.
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_demo_axes_grid_001.png
    :target: ../../gallery/axes_grid1/demo_axes_grid.html
    :align: center
-   :scale: 50
 
 AxesDivider Class
 -----------------
@@ -86,7 +82,6 @@ colorbar whose height (or width) in sync with the master axes
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_colorbar_001.png
    :target: ../../gallery/axes_grid1/simple_colorbar.html
    :align: center
-   :scale: 50
 
 scatter_hist.py with AxesDivider
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -114,7 +109,6 @@ See the full source code below.
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_scatter_hist_locatable_axes_001.png
    :target: ../../gallery/axes_grid1/scatter_hist_locatable_axes.html
    :align: center
-   :scale: 50
 
 The :doc:`/gallery/axes_grid1/scatter_hist_locatable_axes` using the
 AxesDivider has some advantages over the
@@ -150,7 +144,6 @@ Example 1. twinx
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_parasite_simple_001.png
    :target: ../../gallery/axes_grid1/parasite_simple.html
    :align: center
-   :scale: 50
 
 Example 2. twin
 ~~~~~~~~~~~~~~~
@@ -168,7 +161,6 @@ tick-formatter for bottom(or left)-axis. ::
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axisline4_001.png
    :target: ../../gallery/axes_grid1/simple_axisline4.html
    :align: center
-   :scale: 50
 
 A more sophisticated example using twin. Note that if you change the
 x-limit in the host axes, the x-limit of the parasite axes will change
@@ -177,7 +169,6 @@ accordingly.
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_parasite_simple2_001.png
    :target: ../../gallery/axes_grid1/parasite_simple2.html
    :align: center
-   :scale: 50
 
 AnchoredArtists
 ---------------
@@ -191,7 +182,6 @@ the ellipse in the example below will have width and height in data coordinate.
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_anchored_artists_001.png
    :target: ../../gallery/axes_grid1/simple_anchored_artists.html
    :align: center
-   :scale: 50
 
 InsetLocator
 ------------
@@ -227,7 +217,6 @@ useful to mark the zoomed area on the parent axes:
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_inset_locator_demo_001.png
    :target: ../../gallery/axes_grid1/inset_locator_demo.html
    :align: center
-   :scale: 50
 
 `.inset_locator.mark_inset` allows marking the location of the area represented
 by the inset axes:
@@ -235,7 +224,6 @@ by the inset axes:
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_inset_locator_demo2_001.png
    :target: ../../gallery/axes_grid1/inset_locator_demo2.html
    :align: center
-   :scale: 50
 
 RGBAxes
 -------
@@ -255,7 +243,6 @@ yaxis of each axes are shared. ::
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_demo_axes_rgb_001.png
    :target: ../../gallery/axes_grid1/demo_axes_rgb.html
    :align: center
-   :scale: 50
 
 AxesDivider
 ===========
@@ -334,7 +321,6 @@ See the example,
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axes_divider1_001.png
    :target: ../../gallery/axes_grid1/simple_axes_divider1.html
    :align: center
-   :scale: 50
 
 You can also adjust the size of each axes according to its x or y
 data limits (AxesX and AxesY).
@@ -342,5 +328,4 @@ data limits (AxesX and AxesY).
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_axes_divider3_001.png
    :target: ../../gallery/axes_grid1/simple_axes_divider3.html
    :align: center
-   :scale: 50
 """
