@@ -7,7 +7,7 @@ An experimental support for curvilinear grid.
 
 import numpy as np
 
-from matplotlib import cbook
+from matplotlib import _api, cbook
 import matplotlib.patches as mpatches
 from matplotlib.path import Path
 import matplotlib.axes as maxes
@@ -287,6 +287,7 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
             grid_lines.extend(self._grid_info["lat_lines"])
         return grid_lines
 
+    @_api.deprecated("3.5")
     def get_boundary(self):
         """
         Return (N, 2) array of (x, y) coordinate of the boundary.
@@ -322,11 +323,19 @@ class FloatingAxesBase:
 
     def _gen_axes_patch(self):
         # docstring inherited
-        return mpatches.Polygon(self.get_grid_helper().get_boundary())
+        # Using a public API to access _extremes.
+        (x0, _), (x1, _), (y0, _), (y1, _) = map(
+            self.get_grid_helper().get_data_boundary,
+            ["left", "right", "bottom", "top"])
+        patch = mpatches.Polygon([(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
+        patch.get_path()._interpolation_steps = 100
+        return patch
 
     def cla(self):
         super().cla()
-        self.patch.set_transform(self.transData)
+        self.patch.set_transform(
+            self.get_grid_helper().grid_finder.get_transform()
+            + self.transData)
         # The original patch is not in the draw tree; it is only used for
         # clipping purposes.
         orig_patch = super()._gen_axes_patch()
@@ -336,18 +345,12 @@ class FloatingAxesBase:
         self.gridlines.set_clip_path(orig_patch)
 
     def adjust_axes_lim(self):
-        grid_helper = self.get_grid_helper()
-        t = grid_helper.get_boundary()
-        x, y = t[:, 0], t[:, 1]
-
-        xmin, xmax = min(x), max(x)
-        ymin, ymax = min(y), max(y)
-
-        dx = (xmax-xmin) / 100
-        dy = (ymax-ymin) / 100
-
-        self.set_xlim(xmin-dx, xmax+dx)
-        self.set_ylim(ymin-dy, ymax+dy)
+        bbox = self.patch.get_path().get_extents(
+            # First transform to pixel coords, then to parent data coords.
+            self.patch.get_transform() - self.transData)
+        bbox = bbox.expanded(1.02, 1.02)
+        self.set_xlim(bbox.xmin, bbox.xmax)
+        self.set_ylim(bbox.ymin, bbox.ymax)
 
 
 floatingaxes_class_factory = cbook._make_class_factory(
