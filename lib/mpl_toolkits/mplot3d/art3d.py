@@ -8,7 +8,6 @@ artists into 3D versions which can be added to an Axes3D.
 """
 
 import math
-import sys
 
 import numpy as np
 
@@ -737,7 +736,7 @@ class Poly3DCollection(PolyCollection):
         def nansafe(func):
             def f(x):
                 value = func(x)
-                return sys.maxsize if np.isnan(value) else value
+                return np.inf if np.isnan(value) else value
             return f
 
         self._zsortfunc = nansafe(self._zsort_functions[zsort])
