@@ -656,19 +656,21 @@ PyMODINIT_FUNC PyInit__backend_agg(void)
 {
     PyObject *m;
 
+    import_array();
+
     m = PyModule_Create(&moduledef);
 
     if (m == NULL) {
         return NULL;
     }
 
-    import_array();
-
     if (!PyRendererAgg_init_type(m, &PyRendererAggType)) {
+        Py_DECREF(m);
         return NULL;
     }
 
     if (!PyBufferRegion_init_type(m, &PyBufferRegionType)) {
+        Py_DECREF(m);
         return NULL;
     }
 
