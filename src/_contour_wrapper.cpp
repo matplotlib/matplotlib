@@ -170,6 +170,8 @@ PyMODINIT_FUNC PyInit__contour(void)
 {
     PyObject *m;
 
+    import_array();
+
     m = PyModule_Create(&moduledef);
 
     if (m == NULL) {
@@ -177,10 +179,9 @@ PyMODINIT_FUNC PyInit__contour(void)
     }
 
     if (!PyQuadContourGenerator_init_type(m, &PyQuadContourGeneratorType)) {
+        Py_DECREF(m);
         return NULL;
     }
-
-    import_array();
 
     return m;
 }

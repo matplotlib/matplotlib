@@ -908,13 +908,14 @@ static struct PyModuleDef moduledef = {
 PyMODINIT_FUNC PyInit__path(void)
 {
     PyObject *m;
+
+    import_array();
+
     m = PyModule_Create(&moduledef);
 
     if (m == NULL) {
         return NULL;
     }
-
-    import_array();
 
     return m;
 }
