@@ -1,7 +1,7 @@
 .. _min_deps_policy:
 
 ======================================
-Minimum Version of Dependencies Policy
+Minimum version of dependencies policy
 ======================================
 
 For the purpose of this document, 'minor version' is in the sense of
@@ -32,7 +32,7 @@ on every major and minor release, but never on a patch release.
 
 See also the :ref:`list-of-dependency-min-versions`.
 
-Python Dependencies
+Python dependencies
 ===================
 
 For Python dependencies we should support at least:
@@ -41,14 +41,14 @@ with compiled extensions
   minor versions initially released in the 24 months prior to our planned
   release date or the oldest that support our minimum Python + NumPy
 
-without complied extensions
+without compiled extensions
   minor versions initially released in the 12 months prior to our planned
   release date or the oldest that supports our minimum Python.
 
 We will only bump these dependencies as we need new features or the old
 versions no longer support our minimum NumPy or Python.
 
-Test and Documentation Dependencies
+Test and documentation dependencies
 ===================================
 
 As these packages are only needed for testing or building the docs and

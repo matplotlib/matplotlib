@@ -3,8 +3,7 @@ import functools
 
 import numpy as np
 
-import matplotlib as mpl
-from matplotlib import _api
+from matplotlib import _api, cbook
 from matplotlib.gridspec import SubplotSpec
 
 from .axes_divider import Size, SubplotDivider, Divider
@@ -29,19 +28,9 @@ class CbarAxesBase:
         orientation = (
             "horizontal" if self.orientation in ["top", "bottom"] else
             "vertical")
-        kwargs['userax'] = False
-        cb = mpl.colorbar.Colorbar(
-            self, mappable, orientation=orientation, ticks=ticks, **kwargs)
-        self._config_axes()
+        cb = self.figure.colorbar(mappable, cax=self, orientation=orientation,
+                                  ticks=ticks, **kwargs)
         return cb
-
-    def _config_axes(self):
-        """Make an axes patch and outline."""
-        ax = self
-        ax.set_navigate(False)
-        ax.axis[:].toggle(all=False)
-        b = self._default_label_on
-        ax.axis[self.orientation].toggle(all=b)
 
     def toggle_label(self, b):
         self._default_label_on = b
@@ -49,12 +38,17 @@ class CbarAxesBase:
         axis.toggle(ticklabels=b, label=b)
 
     def cla(self):
+        orientation = self.orientation
         super().cla()
-        self._config_axes()
+        self.orientation = orientation
 
 
+@_api.deprecated("3.5")
 class CbarAxes(CbarAxesBase, Axes):
     pass
+
+
+_cbaraxes_class_factory = cbook._make_class_factory(CbarAxesBase, "Cbar{}")
 
 
 class Grid:
@@ -320,8 +314,6 @@ class Grid:
 class ImageGrid(Grid):
     # docstring inherited
 
-    _defaultCbarAxesClass = CbarAxes
-
     def __init__(self, fig,
                  rect,
                  nrows_ncols,
@@ -426,7 +418,7 @@ class ImageGrid(Grid):
             else:
                 self._colorbar_pad = self._vert_pad_size.fixed_size
         self.cbar_axes = [
-            self._defaultCbarAxesClass(
+            _cbaraxes_class_factory(self._defaultAxesClass)(
                 self.axes_all[0].figure, self._divider.get_position(),
                 orientation=self._colorbar_location)
             for _ in range(self.ngrids)]

@@ -1461,7 +1461,14 @@ class LineCollection(Collection):
         segments = []
 
         for path in self._paths:
-            vertices = [vertex for vertex, _ in path.iter_segments()]
+            vertices = [
+                vertex
+                for vertex, _
+                # Never simplify here, we want to get the data-space values
+                # back and there in no way to know the "right" simplification
+                # threshold so never try.
+                in path.iter_segments(simplify=False)
+            ]
             vertices = np.asarray(vertices)
             segments.append(vertices)
 
@@ -1634,7 +1641,7 @@ class EventCollection(LineCollection):
         self._is_horizontal = not self.is_horizontal()
         self.stale = True
 
-    def set_orientation(self, orientation=None):
+    def set_orientation(self, orientation):
         """
         Set the orientation of the event line.
 
@@ -1642,24 +1649,9 @@ class EventCollection(LineCollection):
         ----------
         orientation : {'horizontal', 'vertical'}
         """
-        try:
-            is_horizontal = _api.check_getitem(
-                {"horizontal": True, "vertical": False},
-                orientation=orientation)
-        except ValueError:
-            if (orientation is None or orientation.lower() == "none"
-                    or orientation.lower() == "horizontal"):
-                is_horizontal = True
-            elif orientation.lower() == "vertical":
-                is_horizontal = False
-            else:
-                raise
-            normalized = "horizontal" if is_horizontal else "vertical"
-            _api.warn_deprecated(
-                "3.3", message="Support for setting the orientation of "
-                f"EventCollection to {orientation!r} is deprecated since "
-                f"%(since)s and will be removed %(removal)s; please set it to "
-                f"{normalized!r} instead.")
+        is_horizontal = _api.check_getitem(
+            {"horizontal": True, "vertical": False},
+            orientation=orientation)
         if is_horizontal == self.is_horizontal():
             return
         self.switch_orientation()
@@ -1935,7 +1927,7 @@ class QuadMesh(Collection):
 
     A quadrilateral mesh is a grid of M by N adjacent qudrilaterals that are
     defined via a (M+1, N+1) grid of vertices. The quadrilateral (m, n) is
-    defind by the vertices ::
+    defined by the vertices ::
 
                (m+1, n) ----------- (m+1, n+1)
                   /                   /
@@ -1994,32 +1986,23 @@ class QuadMesh(Collection):
         # signature deprecation since="3.5": Change to new signature after the
         # deprecation has expired. Also remove setting __init__.__signature__,
         # and remove the Notes from the docstring.
-        #
-        # We use lambdas to parse *args, **kwargs through the respective old
-        # and new signatures.
-        try:
-            # Old signature:
-            # The following raises a TypeError iif the args don't match.
-            w, h, coords, antialiased, shading, kwargs = (
+        params = _api.select_matching_signature(
+            [
                 lambda meshWidth, meshHeight, coordinates, antialiased=True,
-                       shading='flat', **kwargs:
-                (meshWidth, meshHeight, coordinates, antialiased, shading,
-                 kwargs))(*args, **kwargs)
-        except TypeError as exc:
-            # New signature:
-            # If the following raises a TypeError (i.e. args don't match),
-            # just let it propagate.
-            coords, antialiased, shading, kwargs = (
+                       shading='flat', **kwargs: locals(),
                 lambda coordinates, antialiased=True, shading='flat', **kwargs:
-                (coordinates, antialiased, shading, kwargs))(*args, **kwargs)
-            coords = np.asarray(coords, np.float64)
-        else:  # The old signature matched.
+                       locals()
+            ],
+            *args, **kwargs).values()
+        *old_w_h, coords, antialiased, shading, kwargs = params
+        if old_w_h:  # The old signature matched.
             _api.warn_deprecated(
                 "3.5",
                 message="This usage of Quadmesh is deprecated: Parameters "
                         "meshWidth and meshHeights will be removed; "
                         "coordinates must be 2D; all parameters except "
                         "coordinates will be keyword-only.")
+            w, h = old_w_h
             coords = np.asarray(coords, np.float64).reshape((h + 1, w + 1, 2))
         kwargs.setdefault("pickradius", 0)
         # end of signature deprecation code

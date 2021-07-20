@@ -12,7 +12,7 @@ is expected to abide by our
 The project is hosted on
 https://github.com/matplotlib/matplotlib
 
-Contributor Incubator
+Contributor incubator
 =====================
 
 If you are interested in becoming a regular contributor to Matplotlib, but
@@ -28,7 +28,7 @@ in community work, or get "pre-review" on your PR.
 
 .. _new_contributors:
 
-Issues for New Contributors
+Issues for new contributors
 ---------------------------
 
 While any contributions are welcome, we have marked some issues as
@@ -77,6 +77,8 @@ We have preloaded the issue creation page with a Markdown template that you can
 use to organize this information.
 
 Thank you for your help in keeping bug reports complete, targeted and descriptive.
+
+.. _request-a-new-feature:
 
 Requesting a new feature
 ========================
@@ -140,7 +142,7 @@ Finally, go to the web page of your fork of the Matplotlib repo, and click
 
 .. seealso::
 
-  * `Git documentation <https://git-scm.com/documentation>`_
+  * `Git documentation <https://git-scm.com/doc>`_
   * `Git-Contributing to a Project <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
   * `Introduction to GitHub  <https://lab.github.com/githubtraining/introduction-to-github>`_
   * :ref:`development-workflow` for best practices for Matplotlib

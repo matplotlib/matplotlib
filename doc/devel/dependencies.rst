@@ -18,7 +18,7 @@ reference.
 * `NumPy <https://numpy.org>`_ (>= 1.17)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
-* `dateutil <https://pypi.org/project/python-dateutil>`_ (>= 2.7)
+* `dateutil <https://pypi.org/project/python-dateutil/>`_ (>= 2.7)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.0.1)
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 6.2)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>=2.2.1)
@@ -48,17 +48,16 @@ and the capabilities they provide.
 * Tornado_: for the WebAgg backend.
 
 .. _Tk: https://docs.python.org/3/library/tk.html
-.. _PyQt5: https://pypi.org/project/PyQt5
-.. _PySide2: https://pypi.org/project/PySide2
+.. _PyQt5: https://pypi.org/project/PyQt5/
+.. _PySide2: https://pypi.org/project/PySide2/
 .. _PyGObject: https://pygobject.readthedocs.io/en/latest/
 .. _wxPython: https://www.wxpython.org/
 .. _pycairo: https://pycairo.readthedocs.io/en/latest/
 .. _cairocffi: https://cairocffi.readthedocs.io/en/latest/
-.. _Tornado: https://pypi.org/project/tornado
+.. _Tornado: https://pypi.org/project/tornado/
 
 .. [#] Tk is part of most standard Python installations, but it's not part of
        Python itself and thus may not be present in rare cases.
-.. [#] PySide cannot be pip-installed on Linux (but can be conda-installed).
 .. [#] If using pip (and not conda), PyGObject must be built from source; see
        https://pygobject.readthedocs.io/en/latest/devguide/dev_environ.html.
 .. [#] If using pip (and not conda) on Linux, wxPython wheels must be manually

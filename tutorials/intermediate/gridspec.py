@@ -5,27 +5,24 @@ Customizing Figure Layouts Using GridSpec and Other Functions
 
 How to create grid-shaped combinations of axes.
 
-    :func:`~matplotlib.pyplot.subplots`
-        Perhaps the primary function used to create figures and axes.
-        It's also similar to :func:`.matplotlib.pyplot.subplot`,
-        but creates and places all axes on the figure at once.  See also
-        `matplotlib.figure.Figure.subplots`.
+`~matplotlib.pyplot.subplots`
+    The primary function used to create figures and axes.  It is similar to
+    `.pyplot.subplot`, but creates and places all axes on the figure at once.
+    See also `.Figure.subplots`.
 
-    :class:`~matplotlib.gridspec.GridSpec`
-        Specifies the geometry of the grid that a subplot will be
-        placed. The number of rows and number of columns of the grid
-        need to be set. Optionally, the subplot layout parameters
-        (e.g., left, right, etc.) can be tuned.
+`~matplotlib.gridspec.GridSpec`
+    Specifies the geometry of the grid that a subplot will be
+    placed. The number of rows and number of columns of the grid
+    need to be set. Optionally, the subplot layout parameters
+    (e.g., left, right, etc.) can be tuned.
 
-    :class:`~matplotlib.gridspec.SubplotSpec`
-        Specifies the location of the subplot in the given *GridSpec*.
+`~matplotlib.gridspec.SubplotSpec`
+    Specifies the location of the subplot in the given `.GridSpec`.
 
-    :func:`~matplotlib.pyplot.subplot2grid`
-        A helper function that is similar to
-        :func:`~matplotlib.pyplot.subplot`,
-        but uses 0-based indexing and let subplot to occupy multiple cells.
-        This function is not covered in this tutorial.
-
+`~matplotlib.pyplot.subplot2grid`
+    A helper function that is similar to `.pyplot.subplot`,
+    but uses 0-based indexing and let subplot to occupy multiple cells.
+    This function is not covered in this tutorial.
 """
 
 import matplotlib.pyplot as plt
@@ -64,7 +61,7 @@ f2_ax4 = fig2.add_subplot(spec2[1, 1])
 #############################################################################
 # The power of gridspec comes in being able to create subplots that span
 # rows and columns.  Note the `NumPy slice syntax
-# <https://docs.scipy.org/doc/numpy/reference/arrays.indexing.html>`_
+# <https://numpy.org/doc/stable/reference/arrays.indexing.html>`_
 # for selecting the part of the gridspec each subplot will occupy.
 #
 # Note that we have also used the convenience method `.Figure.add_gridspec`

@@ -68,8 +68,8 @@ def doall():
     plt.gca().set_ylim(0., 1.)
     plt.gca().set_title("Matplotlib's math rendering engine",
                         color=mpl_grey_rvb, fontsize=14, weight='bold')
-    plt.gca().set_xticklabels("", visible=False)
-    plt.gca().set_yticklabels("", visible=False)
+    plt.gca().set_xticklabels([])
+    plt.gca().set_yticklabels([])
 
     # Gap between lines in axes coords
     line_axesfrac = 1 / n_lines

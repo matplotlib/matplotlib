@@ -11,7 +11,7 @@ It's possible to get a polygon grid by setting GRIDLINE_INTERPOLATION_STEPS in
 matplotlib.axis to the desired number of vertices, but the orientation of the
 polygon is not aligned with the radial axes.
 
-.. [1] http://en.wikipedia.org/wiki/Radar_chart
+.. [1] https://en.wikipedia.org/wiki/Radar_chart
 """
 
 import numpy as np

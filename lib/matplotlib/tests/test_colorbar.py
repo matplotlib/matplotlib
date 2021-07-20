@@ -7,9 +7,8 @@ import matplotlib.colors as mcolors
 from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from matplotlib.colors import (BoundaryNorm, LogNorm, PowerNorm, Normalize,
-                               TwoSlopeNorm)
-from matplotlib.colorbar import ColorbarBase
+from matplotlib.colors import BoundaryNorm, LogNorm, PowerNorm, Normalize
+from matplotlib.colorbar import Colorbar
 from matplotlib.ticker import FixedLocator
 
 from matplotlib.testing.decorators import check_figures_equal
@@ -56,10 +55,10 @@ def _colorbar_extension_shape(spacing):
         # Create a subplot.
         cax = fig.add_subplot(4, 1, i + 1)
         # Generate the colorbar.
-        ColorbarBase(cax, cmap=cmap, norm=norm,
-                     boundaries=boundaries, values=values,
-                     extend=extension_type, extendrect=True,
-                     orientation='horizontal', spacing=spacing)
+        Colorbar(cax, cmap=cmap, norm=norm,
+                 boundaries=boundaries, values=values,
+                 extend=extension_type, extendrect=True,
+                 orientation='horizontal', spacing=spacing)
         # Turn off text and ticks.
         cax.tick_params(left=False, labelleft=False,
                         bottom=False, labelbottom=False)
@@ -88,10 +87,10 @@ def _colorbar_extension_length(spacing):
             # Create a subplot.
             cax = fig.add_subplot(12, 1, i*3 + j + 1)
             # Generate the colorbar.
-            ColorbarBase(cax, cmap=cmap, norm=norm,
-                         boundaries=boundaries, values=values,
-                         extend=extension_type, extendfrac=extendfrac,
-                         orientation='horizontal', spacing=spacing)
+            Colorbar(cax, cmap=cmap, norm=norm,
+                     boundaries=boundaries, values=values,
+                     extend=extension_type, extendfrac=extendfrac,
+                     orientation='horizontal', spacing=spacing)
             # Turn off text and ticks.
             cax.tick_params(left=False, labelleft=False,
                               bottom=False, labelbottom=False)
@@ -239,7 +238,7 @@ def test_remove_from_figure(use_gridspec):
 def test_colorbarbase():
     # smoke test from #3805
     ax = plt.gca()
-    ColorbarBase(ax, cmap=plt.cm.bone)
+    Colorbar(ax, cmap=plt.cm.bone)
 
 
 @image_comparison(['colorbar_closed_patch.png'], remove_text=True)
@@ -460,16 +459,16 @@ def test_colorbar_get_ticks():
 def test_colorbar_lognorm_extension(extend):
     # Test that colorbar with lognorm is extended correctly
     f, ax = plt.subplots()
-    cb = ColorbarBase(ax, norm=LogNorm(vmin=0.1, vmax=1000.0),
-                      orientation='vertical', extend=extend)
+    cb = Colorbar(ax, norm=LogNorm(vmin=0.1, vmax=1000.0),
+                  orientation='vertical', extend=extend)
     assert cb._values[0] >= 0.0
 
 
 def test_colorbar_powernorm_extension():
     # Test that colorbar with powernorm is extended correctly
     f, ax = plt.subplots()
-    cb = ColorbarBase(ax, norm=PowerNorm(gamma=0.5, vmin=0.0, vmax=1.0),
-                      orientation='vertical', extend='both')
+    cb = Colorbar(ax, norm=PowerNorm(gamma=0.5, vmin=0.0, vmax=1.0),
+                  orientation='vertical', extend='both')
     assert cb._values[0] >= 0.0
 
 
@@ -595,16 +594,6 @@ def test_colorbar_inverted_ticks():
     cbar.ax.invert_yaxis()
     np.testing.assert_allclose(ticks, cbar.get_ticks())
     np.testing.assert_allclose(minorticks, cbar.get_ticks(minor=True))
-
-
-def test_extend_colorbar_customnorm():
-    # This was a funny error with TwoSlopeNorm, maybe with other norms,
-    # when extend='both'
-    fig, (ax0, ax1) = plt.subplots(2, 1)
-    pcm = ax0.pcolormesh([[0]], norm=TwoSlopeNorm(vcenter=0., vmin=-2, vmax=1))
-    cb = fig.colorbar(pcm, ax=ax0, extend='both')
-    np.testing.assert_allclose(cb.ax.get_position().extents,
-                               [0.78375, 0.536364, 0.796147, 0.9], rtol=2e-3)
 
 
 def test_mappable_no_alpha():
@@ -754,7 +743,7 @@ def test_axes_handles_same_functions(fig_ref, fig_test):
             caxx = cax
         else:
             caxx = cb.ax
-        caxx.set_yticks(np.arange(20))
+        caxx.set_yticks(np.arange(0, 20))
         caxx.set_yscale('log')
         caxx.set_position([0.92, 0.1, 0.02, 0.7])
 
@@ -770,18 +759,59 @@ def test_inset_colorbar_layout():
     # it was being dropped from the list of children...
     np.testing.assert_allclose(cb.ax.get_position().bounds,
                                [0.87, 0.342, 0.0237, 0.315], atol=0.01)
-    assert cb.ax.outer_ax in ax.child_axes
+    assert cb.ax in ax.child_axes
 
 
 @image_comparison(['colorbar_twoslope.png'], remove_text=True,
                   style='mpl20')
 def test_twoslope_colorbar():
-    # Note that the first tick = 20, and should be in the middle
+    # Note that the second tick = 20, and should be in the middle
     # of the colorbar (white)
+    # There should be no tick right at the bottom, nor at the top.
     fig, ax = plt.subplots()
 
-    norm = mcolors.TwoSlopeNorm(20, 0, 100)
+    norm = mcolors.TwoSlopeNorm(20, 5, 95)
     pc = ax.pcolormesh(np.arange(1, 11), np.arange(1, 11),
                        np.arange(100).reshape(10, 10),
                        norm=norm, cmap='RdBu_r')
     fig.colorbar(pc)
+
+
+@check_figures_equal(extensions=["png"])
+def test_remove_cb_whose_mappable_has_no_figure(fig_ref, fig_test):
+    ax = fig_test.add_subplot()
+    cb = fig_test.colorbar(cm.ScalarMappable(), cax=ax)
+    cb.remove()
+
+
+def test_aspects():
+    fig, ax = plt.subplots(3, 2, figsize=(8, 8))
+    aspects = [20, 20, 10]
+    extends = ['neither', 'both', 'both']
+    cb = [[None, None, None], [None, None, None]]
+    for nn, orient in enumerate(['vertical', 'horizontal']):
+        for mm, (aspect, extend) in enumerate(zip(aspects, extends)):
+            pc = ax[mm, nn].pcolormesh(np.arange(100).reshape(10, 10))
+            cb[nn][mm] = fig.colorbar(pc, ax=ax[mm, nn], orientation=orient,
+                                      aspect=aspect, extend=extend)
+    fig.draw_no_output()
+    # check the extends are right ratio:
+    np.testing.assert_almost_equal(cb[0][1].ax.get_position().height,
+                                   cb[0][0].ax.get_position().height * 0.9,
+                                   decimal=2)
+    # horizontal
+    np.testing.assert_almost_equal(cb[1][1].ax.get_position().width,
+                                   cb[1][0].ax.get_position().width * 0.9,
+                                   decimal=2)
+    # check correct aspect:
+    pos = cb[0][0].ax.get_position(original=False)
+    np.testing.assert_almost_equal(pos.height, pos.width * 20, decimal=2)
+    pos = cb[1][0].ax.get_position(original=False)
+    np.testing.assert_almost_equal(pos.height * 20, pos.width, decimal=2)
+    # check twice as wide if aspect is 10 instead of 20
+    np.testing.assert_almost_equal(
+        cb[0][0].ax.get_position(original=False).width * 2,
+        cb[0][2].ax.get_position(original=False).width, decimal=2)
+    np.testing.assert_almost_equal(
+        cb[1][0].ax.get_position(original=False).height * 2,
+        cb[1][2].ax.get_position(original=False).height, decimal=2)

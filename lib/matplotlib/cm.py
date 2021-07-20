@@ -278,12 +278,10 @@ class ScalarMappable:
         if vmin is not None or vmax is not None:
             self.set_clim(vmin, vmax)
             if norm is not None:
-                _api.warn_deprecated(
-                    "3.3",
-                    message="Passing parameters norm and vmin/vmax "
-                            "simultaneously is deprecated since %(since)s and "
-                            "will become an error %(removal)s. Please pass "
-                            "vmin/vmax directly to the norm when creating it.")
+                raise ValueError(
+                    "Passing parameters norm and vmin/vmax simultaneously is "
+                    "not supported. Please pass vmin/vmax directly to the "
+                    "norm when creating it.")
 
         # always resolve the autoscaling so we have concrete limits
         # rather than deferring to draw time.

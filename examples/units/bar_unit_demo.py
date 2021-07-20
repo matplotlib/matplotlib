@@ -33,8 +33,7 @@ ax.bar(ind + width, women_means, width, bottom=0*cm, yerr=women_std,
        label='Women')
 
 ax.set_title('Scores by group and gender')
-ax.set_xticks(ind + width / 2)
-ax.set_xticklabels(('G1', 'G2', 'G3', 'G4', 'G5'))
+ax.set_xticks(ind + width / 2, labels=['G1', 'G2', 'G3', 'G4', 'G5'])
 
 ax.legend()
 ax.yaxis.set_units(inch)

@@ -85,7 +85,6 @@ import atexit
 from collections import namedtuple
 from collections.abc import MutableMapping
 import contextlib
-from distutils.version import LooseVersion
 import functools
 import importlib
 import inspect
@@ -103,6 +102,7 @@ import tempfile
 import warnings
 
 import numpy
+from packaging.version import parse as parse_version
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
@@ -129,25 +129,60 @@ __bibtex__ = r"""@Article{Hunter:2007,
   year      = 2007
 }"""
 
+# modelled after sys.version_info
+_VersionInfo = namedtuple('_VersionInfo',
+                          'major, minor, micro, releaselevel, serial')
+
+
+def _parse_to_version_info(version_str):
+    """
+    Parse a version string to a namedtuple analogous to sys.version_info.
+
+    See:
+    https://packaging.pypa.io/en/latest/version.html#packaging.version.parse
+    https://docs.python.org/3/library/sys.html#sys.version_info
+    """
+    v = parse_version(version_str)
+    if v.pre is None and v.post is None and v.dev is None:
+        return _VersionInfo(v.major, v.minor, v.micro, 'final', 0)
+    elif v.dev is not None:
+        return _VersionInfo(v.major, v.minor, v.micro, 'alpha', v.dev)
+    elif v.pre is not None:
+        releaselevel = {
+            'a': 'alpha',
+            'b': 'beta',
+            'rc': 'candidate'}.get(v.pre[0], 'alpha')
+        return _VersionInfo(v.major, v.minor, v.micro, releaselevel, v.pre[1])
+    else:
+        # fallback for v.post: guess-next-dev scheme from setuptools_scm
+        return _VersionInfo(v.major, v.minor, v.micro + 1, 'alpha', v.post)
+
+
+def _get_version():
+    """Return the version string used for __version__."""
+    # Only shell out to a git subprocess if really needed, and not on a
+    # shallow clone, such as those used by CI, as the latter would trigger
+    # a warning from setuptools_scm.
+    root = Path(__file__).resolve().parents[2]
+    if (root / ".git").exists() and not (root / ".git/shallow").exists():
+        import setuptools_scm
+        return setuptools_scm.get_version(
+            root=root,
+            version_scheme="post-release",
+            local_scheme="node-and-date",
+            fallback_version=_version.version,
+        )
+    else:  # Get the version from the _version.py setuptools_scm file.
+        return _version.version
+
 
 def __getattr__(name):
-    if name == "__version__":
-        import setuptools_scm
+    if name in ("__version__", "__version_info__"):
         global __version__  # cache it.
-        # Only shell out to a git subprocess if really needed, and not on a
-        # shallow clone, such as those used by CI, as the latter would trigger
-        # a warning from setuptools_scm.
-        root = Path(__file__).resolve().parents[2]
-        if (root / ".git").exists() and not (root / ".git/shallow").exists():
-            __version__ = setuptools_scm.get_version(
-                root=root,
-                version_scheme="post-release",
-                local_scheme="node-and-date",
-                fallback_version=_version.version,
-            )
-        else:  # Get the version from the _version.py setuptools_scm file.
-            __version__ = _version.version
-        return __version__
+        __version__ = _get_version()
+        global __version__info__  # cache it.
+        __version_info__ = _parse_to_version_info(__version__)
+        return __version__ if name == "__version__" else __version_info__
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -165,9 +200,9 @@ def _check_versions():
             ("pyparsing", "2.2.1"),
     ]:
         module = importlib.import_module(modname)
-        if LooseVersion(module.__version__) < minver:
-            raise ImportError("Matplotlib requires {}>={}; you have {}"
-                              .format(modname, minver, module.__version__))
+        if parse_version(module.__version__) < parse_version(minver):
+            raise ImportError(f"Matplotlib requires {modname}>={minver}; "
+                              f"you have {module.__version__}")
 
 
 _check_versions()
@@ -274,8 +309,7 @@ def _get_executable_info(name):
     -------
     tuple
         A namedtuple with fields ``executable`` (`str`) and ``version``
-        (`distutils.version.LooseVersion`, or ``None`` if the version cannot be
-        determined).
+        (`packaging.Version`, or ``None`` if the version cannot be determined).
 
     Raises
     ------
@@ -305,8 +339,8 @@ def _get_executable_info(name):
             raise ExecutableNotFoundError(str(_ose)) from _ose
         match = re.search(regex, output)
         if match:
-            version = LooseVersion(match.group(1))
-            if min_ver is not None and version < min_ver:
+            version = parse_version(match.group(1))
+            if min_ver is not None and version < parse_version(min_ver):
                 raise ExecutableNotFoundError(
                     f"You have {args[0]} version {version} but the minimum "
                     f"version supported by Matplotlib is {min_ver}")
@@ -367,7 +401,7 @@ def _get_executable_info(name):
         else:
             path = "convert"
         info = impl([path, "--version"], r"^Version: ImageMagick (\S*)")
-        if info.version == "7.0.10-34":
+        if info.version == parse_version("7.0.10-34"):
             # https://github.com/ImageMagick/ImageMagick/issues/2720
             raise ExecutableNotFoundError(
                 f"You have ImageMagick {info.version}, which is unsupported")
@@ -375,9 +409,10 @@ def _get_executable_info(name):
     elif name == "pdftops":
         info = impl(["pdftops", "-v"], "^pdftops version (.*)",
                     ignore_exit_code=True)
-        if info and not ("3.0" <= info.version
-                         # poppler version numbers.
-                         or "0.9" <= info.version <= "1.0"):
+        if info and not (
+                3 <= info.version.major or
+                # poppler version numbers.
+                parse_version("0.9") <= info.version < parse_version("1.0")):
             raise ExecutableNotFoundError(
                 f"You have pdftops version {info.version} but the minimum "
                 f"version supported by Matplotlib is 3.0")
@@ -410,7 +445,7 @@ def _get_xdg_config_dir():
     Return the XDG configuration directory, according to the XDG base
     directory spec:
 
-    https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+    https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
     """
     return os.environ.get('XDG_CONFIG_HOME') or str(Path.home() / ".config")
 
@@ -419,7 +454,7 @@ def _get_xdg_cache_dir():
     """
     Return the XDG cache directory, according to the XDG base directory spec:
 
-    https://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+    https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
     """
     return os.environ.get('XDG_CACHE_HOME') or str(Path.home() / ".cache")
 
@@ -1074,11 +1109,16 @@ def use(backend, *, force=True):
 
         or a string of the form: ``module://my.module.name``.
 
+        Switching to an interactive backend is not possible if an unrelated
+        event loop has already been started (e.g., switching to GTK3Agg if a
+        TkAgg window has already been opened).  Switching to a non-interactive
+        backend is always possible.
+
     force : bool, default: True
         If True (the default), raise an `ImportError` if the backend cannot be
         set up (either because it fails to import, or because an incompatible
-        GUI interactive framework is already running); if False, ignore the
-        failure.
+        GUI interactive framework is already running); if False, silently
+        ignore the failure.
 
     See Also
     --------
@@ -1174,8 +1214,7 @@ def _init_tests():
                 "" if ft2font.__freetype_build_type__ == 'local' else "not "))
 
 
-@_api.delete_parameter("3.3", "recursionlimit")
-def test(verbosity=None, coverage=False, *, recursionlimit=0, **kwargs):
+def test(verbosity=None, coverage=False, **kwargs):
     """Run the matplotlib test suite."""
 
     try:
@@ -1192,8 +1231,6 @@ def test(verbosity=None, coverage=False, *, recursionlimit=0, **kwargs):
     old_recursionlimit = sys.getrecursionlimit()
     try:
         use('agg')
-        if recursionlimit:
-            sys.setrecursionlimit(recursionlimit)
 
         args = kwargs.pop('argv', [])
         provide_default_modules = True
@@ -1222,8 +1259,6 @@ def test(verbosity=None, coverage=False, *, recursionlimit=0, **kwargs):
     finally:
         if old_backend.lower() != 'agg':
             use(old_backend)
-        if recursionlimit:
-            sys.setrecursionlimit(old_recursionlimit)
 
     return retcode
 

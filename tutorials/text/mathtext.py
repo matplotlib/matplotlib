@@ -308,8 +308,10 @@ long and short forms for some of them.
     ``\acute a`` or ``\'a``        :mathmpl:`\acute a`
     ``\bar a``                     :mathmpl:`\bar a`
     ``\breve a``                   :mathmpl:`\breve a`
-    ``\ddot a`` or ``\''a``        :mathmpl:`\ddot a`
     ``\dot a`` or ``\.a``          :mathmpl:`\dot a`
+    ``\ddot a`` or ``\''a``        :mathmpl:`\ddot a`
+    ``\dddot a``                   :mathmpl:`\dddot a`
+    ``\ddddot a``                  :mathmpl:`\ddddot a`
     ``\grave a`` or ``\`a``        :mathmpl:`\grave a`
     ``\hat a`` or ``\^a``          :mathmpl:`\hat a`
     ``\tilde a`` or ``\~a``        :mathmpl:`\tilde a`
@@ -355,5 +357,4 @@ Here is an example illustrating many of these features in context.
 .. figure:: ../../gallery/pyplots/images/sphx_glr_pyplot_mathtext_001.png
    :target: ../../gallery/pyplots/pyplot_mathtext.html
    :align: center
-   :scale: 50
 """

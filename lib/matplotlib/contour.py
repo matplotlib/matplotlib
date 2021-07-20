@@ -720,8 +720,6 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
     %(contour_set_attributes)s
     """
 
-    ax = _api.deprecated("3.3")(property(lambda self: self.axes))
-
     def __init__(self, ax, *args,
                  levels=None, filled=False, linewidths=None, linestyles=None,
                  hatches=(None,), alpha=None, origin=None, extent=None,
@@ -1579,11 +1577,11 @@ class QuadContourSet(ContourSet):
 
             *X* and *Y* must both be 2D with the same shape as *Z* (e.g.
             created via `numpy.meshgrid`), or they must both be 1-D such
-            that ``len(X) == M`` is the number of columns in *Z* and
-            ``len(Y) == N`` is the number of rows in *Z*.
+            that ``len(X) == N`` is the number of columns in *Z* and
+            ``len(Y) == M`` is the number of rows in *Z*.
 
             If not given, they are assumed to be integer indices, i.e.
-            ``X = range(M)``, ``Y = range(N)``.
+            ``X = range(N)``, ``Y = range(M)``.
 
         Z : (M, N) array-like
             The height values over which the contour is drawn.

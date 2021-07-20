@@ -47,10 +47,10 @@ class GridSpecBase:
         """
         if not isinstance(nrows, Integral) or nrows <= 0:
             raise ValueError(
-                f"Number of rows must be a positive integer, not {nrows}")
+                f"Number of rows must be a positive integer, not {nrows!r}")
         if not isinstance(ncols, Integral) or ncols <= 0:
             raise ValueError(
-                f"Number of columns must be a positive integer, not {ncols}")
+                f"Number of columns must be a positive integer, not {ncols!r}")
         self._nrows, self._ncols = nrows, ncols
         self.set_height_ratios(height_ratios)
         self.set_width_ratios(width_ratios)
@@ -568,7 +568,7 @@ class GridSpecFromSubplotSpec(GridSpecBase):
 
 class SubplotSpec:
     """
-    Specifies the location of a subplot in a `GridSpec`.
+    The location of a subplot in a `GridSpec`.
 
     .. note::
 
@@ -604,44 +604,22 @@ class SubplotSpec:
         - a `.SubplotSpec` -- returned as is;
         - one or three numbers -- a MATLAB-style subplot specifier.
         """
-        message = ("Passing non-integers as three-element position "
-                   "specification is deprecated since %(since)s and will be "
-                   "removed %(removal)s.")
         if len(args) == 1:
             arg, = args
             if isinstance(arg, SubplotSpec):
                 return arg
-            else:
-                if not isinstance(arg, Integral):
-                    _api.warn_deprecated("3.3", message=message)
-                    arg = str(arg)
-                try:
-                    rows, cols, num = map(int, str(arg))
-                except ValueError:
-                    raise ValueError(
-                        f"Single argument to subplot must be a three-digit "
-                        f"integer, not {arg}") from None
-                i = j = num
+            elif not isinstance(arg, Integral):
+                raise ValueError(
+                    f"Single argument to subplot must be a three-digit "
+                    f"integer, not {arg!r}")
+            try:
+                rows, cols, num = map(int, str(arg))
+            except ValueError:
+                raise ValueError(
+                    f"Single argument to subplot must be a three-digit "
+                    f"integer, not {arg!r}") from None
         elif len(args) == 3:
             rows, cols, num = args
-            if not (isinstance(rows, Integral) and isinstance(cols, Integral)):
-                _api.warn_deprecated("3.3", message=message)
-                rows, cols = map(int, [rows, cols])
-            gs = GridSpec(rows, cols, figure=figure)
-            if isinstance(num, tuple) and len(num) == 2:
-                if not all(isinstance(n, Integral) for n in num):
-                    _api.warn_deprecated("3.3", message=message)
-                    i, j = map(int, num)
-                else:
-                    i, j = num
-            else:
-                if not isinstance(num, Integral):
-                    _api.warn_deprecated("3.3", message=message)
-                    num = int(num)
-                if num < 1 or num > rows*cols:
-                    raise ValueError(
-                        f"num must be 1 <= num <= {rows*cols}, not {num}")
-                i = j = num
         else:
             raise TypeError(f"subplot() takes 1 or 3 positional arguments but "
                             f"{len(args)} were given")
@@ -649,6 +627,17 @@ class SubplotSpec:
         gs = GridSpec._check_gridspec_exists(figure, rows, cols)
         if gs is None:
             gs = GridSpec(rows, cols, figure=figure)
+        if isinstance(num, tuple) and len(num) == 2:
+            if not all(isinstance(n, Integral) for n in num):
+                raise ValueError(
+                    f"Subplot specifier tuple must contain integers, not {num}"
+                )
+            i, j = num
+        else:
+            if not isinstance(num, Integral) or num < 1 or num > rows*cols:
+                raise ValueError(
+                    f"num must be 1 <= num <= {rows*cols}, not {num!r}")
+            i = j = num
         return gs[i-1:j]
 
     # num2 is a property only to handle the case where it is None and someone
@@ -678,18 +667,6 @@ class SubplotSpec:
         """
         rows, cols = self.get_gridspec().get_geometry()
         return rows, cols, self.num1, self.num2
-
-    @_api.deprecated("3.3", alternative="rowspan, colspan")
-    def get_rows_columns(self):
-        """
-        Return the subplot row and column numbers as a tuple
-        ``(n_rows, n_cols, row_start, row_stop, col_start, col_stop)``.
-        """
-        gridspec = self.get_gridspec()
-        nrows, ncols = gridspec.get_geometry()
-        row_start, col_start = divmod(self.num1, ncols)
-        row_stop, col_stop = divmod(self.num2, ncols)
-        return nrows, ncols, row_start, row_stop, col_start, col_stop
 
     @property
     def rowspan(self):

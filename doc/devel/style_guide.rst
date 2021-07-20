@@ -1,6 +1,6 @@
 
 =========================
-Documentation Style Guide
+Documentation style guide
 =========================
 
 This guide contains best practices for the language and formatting of Matplotlib
@@ -20,7 +20,7 @@ language use.
 Terminology
 -----------
 
-There are several key terms in Matplotlib that are standards for 
+There are several key terms in Matplotlib that are standards for
 reliability and consistency in documentation. They are not interchangeable.
 
 .. table::
@@ -153,8 +153,8 @@ reliability and consistency in documentation. They are not interchangeable.
   |                  |                          |   motion."   |              |
   +------------------+--------------------------+--------------+--------------+
   | Explicit,        | Explicit approach of     | - Explicit   | - object     |
-  | Object Oriented  | programing in Matplotlib.| - explicit   |   oriented   |
-  | Programming (OOP)|                          | - OOP        | - OO-style   |
+  | Object Oriented  | programming in           | - explicit   |   oriented   |
+  | Programming (OOP)| Matplotlib.              | - OOP        | - OO-style   |
   +------------------+--------------------------+--------------+--------------+
   | Implicit,        | Implicit approach of     | - Implicit   | - MATLAB like|
   | ``pyplot``       | programming in Matplotlib| - implicit   | - Pyplot     |
@@ -359,7 +359,7 @@ exclusively for performing actions in a determined order.
 
 Tables
 ^^^^^^
-Use ASCII tables with reStructuredText standards in organizing content. 
+Use ASCII tables with reStructuredText standards in organizing content.
 Markdown tables and the csv-table directive are not accepted.
 
 .. table::
@@ -400,10 +400,10 @@ Additional resources
 ====================
 This style guide is not a comprehensive standard. For a more thorough
 reference of how to contribute to documentation, see the links below. These
-resources contain common best practices for writing documentation.  
+resources contain common best practices for writing documentation.
 
 * `Python Developer's Guide <https://devguide.python.org/documenting/#documenting-python>`_
 * `Google Developer Style Guide <https://developers.google.com/style>`_
-* `IBM Style Guide <https://www.ibm.com/developerworks/library/styleguidelines/>`_
+* `IBM Style Guide <https://www.oreilly.com/library/view/the-ibm-style/9780132118989/>`_
 * `Red Hat Style Guide <https://stylepedia.net/style/#grammar>`_
 

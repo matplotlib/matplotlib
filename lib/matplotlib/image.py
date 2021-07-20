@@ -532,9 +532,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # we have re-set the vmin/vmax to account for small errors
                 # that may have moved input values in/out of range
                 s_vmin, s_vmax = vrange
-                if isinstance(self.norm, mcolors.LogNorm):
-                    if s_vmin < 0:
-                        s_vmin = max(s_vmin, np.finfo(scaled_dtype).eps)
+                if isinstance(self.norm, mcolors.LogNorm) and s_vmin <= 0:
+                    # Don't give 0 or negative values to LogNorm
+                    s_vmin = np.finfo(scaled_dtype).eps
                 with cbook._setattr_cm(self.norm,
                                        vmin=s_vmin,
                                        vmax=s_vmax,
@@ -1015,8 +1015,6 @@ class NonUniformImage(AxesImage):
         """Return False. Do not use unsampled image."""
         return False
 
-    is_grayscale = _api.deprecate_privatize_attribute("3.3")
-
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
         if self._A is None:
@@ -1027,11 +1025,9 @@ class NonUniformImage(AxesImage):
         if A.ndim == 2:
             if A.dtype != np.uint8:
                 A = self.to_rgba(A, bytes=True)
-                self._is_grayscale = self.cmap.is_gray()
             else:
                 A = np.repeat(A[:, :, np.newaxis], 4, 2)
                 A[:, :, 3] = 255
-                self._is_grayscale = True
         else:
             if A.dtype != np.uint8:
                 A = (255*A).astype(np.uint8)
@@ -1040,7 +1036,6 @@ class NonUniformImage(AxesImage):
                 B[:, :, 0:3] = A
                 B[:, :, 3] = 255
                 A = B
-            self._is_grayscale = False
         vl = self.axes.viewLim
         l, b, r, t = self.axes.bbox.extents
         width = int(((round(r) + 0.5) - (round(l) - 0.5)) * magnification)
@@ -1203,8 +1198,6 @@ class PcolorImage(AxesImage):
         if A is not None:
             self.set_data(x, y, A)
 
-    is_grayscale = _api.deprecate_privatize_attribute("3.3")
-
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
         if self._A is None:
@@ -1215,8 +1208,6 @@ class PcolorImage(AxesImage):
         if self._rgbacache is None:
             A = self.to_rgba(self._A, bytes=True)
             self._rgbacache = np.pad(A, [(1, 1), (1, 1), (0, 0)], "constant")
-            if self._A.ndim == 2:
-                self._is_grayscale = self.cmap.is_gray()
         padded_A = self._rgbacache
         bg = mcolors.to_rgba(self.axes.patch.get_facecolor(), 0)
         bg = (np.array(bg) * 255).astype(np.uint8)
@@ -1277,15 +1268,10 @@ class PcolorImage(AxesImage):
                 (A.shape[:2], (y.size - 1, x.size - 1)))
         if A.ndim not in [2, 3]:
             raise ValueError("A must be 2D or 3D")
-        if A.ndim == 3 and A.shape[2] == 1:
-            A = A.squeeze(axis=-1)
-        self._is_grayscale = False
         if A.ndim == 3:
-            if A.shape[2] in [3, 4]:
-                if ((A[:, :, 0] == A[:, :, 1]).all() and
-                        (A[:, :, 0] == A[:, :, 2]).all()):
-                    self._is_grayscale = True
-            else:
+            if A.shape[2] == 1:
+                A = A.squeeze(axis=-1)
+            elif A.shape[2] not in [3, 4]:
                 raise ValueError("3D arrays must have RGB or RGBA as last dim")
 
         # For efficient cursor readout, ensure x and y are increasing.
@@ -1702,7 +1688,7 @@ def _pil_png_to_float_array(pil_png):
     mode = pil_png.mode
     rawmode = pil_png.png.im_rawmode
     if rawmode == "1":  # Grayscale.
-        return np.asarray(pil_png, np.float32)
+        return np.asarray(pil_png).astype(np.float32)
     if rawmode == "L;2":  # Grayscale.
         return np.divide(pil_png, 2**2 - 1, dtype=np.float32)
     if rawmode == "L;4":  # Grayscale.

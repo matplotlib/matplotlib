@@ -89,12 +89,6 @@ struct FlaggedPoint
     FlaggedPoint(Flag flag_, FWord x_, FWord y_): flag(flag_), x(x_), y(y_) {};
 };
 
-double area(FWord *x, FWord *y, int n);
-#define sqr(x) ((x)*(x))
-
-#define NOMOREINCTR -1
-#define NOMOREOUTCTR -1
-
 /*
 ** This routine is used to break the character
 ** procedure up into a number of smaller

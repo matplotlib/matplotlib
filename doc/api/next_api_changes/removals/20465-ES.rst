@@ -1,0 +1,93 @@
+Case-insensitive properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Upper or mixed-case property names are no longer normalized to lowercase in
+`.Artist.set` and `.Artist.update`. This allows one to pass names such as
+*patchA* or *UVC*.
+
+Case-insensitive capstyles and joinstyles
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Please pass capstyles ("miter", "round", "bevel") and joinstyles ("butt",
+"round", "projecting") as lowercase.
+
+AVConv animation writers removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``AVConvBase``, ``AVConvWriter`` and ``AVConvFileWriter`` classes, and the
+associated ``animation.avconv_path`` and ``animation.avconv_args`` rcParams
+have been removed.
+
+Debian 8 (2015, EOL 06/2020) and Ubuntu 14.04 (EOL 04/2019) were the
+last versions of Debian and Ubuntu to ship avconv.  It remains possible
+to force the use of avconv by using the FFmpeg-based writers with
+:rc:`animation.ffmpeg_path` set to "avconv".
+
+``MovieWriter`` attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+* ``animation.html_args`` rcParam
+* ``HTMLWriter.args_key`` attribute
+* ``MovieWriter.args_key`` and ``MovieWriter.exec_key`` attributes
+* *clear_temp* parameter and attribute of `.FileMovieWriter`; files placed in a
+  temporary directory (using ``frame_prefix=None``, the default) will be
+  cleared; files placed elsewhere will not.
+
+Artist-specific removals
+~~~~~~~~~~~~~~~~~~~~~~~~
+* Setting a custom method overriding `.Artist.contains` using
+  ``Artist.set_contains`` has been removed, as has ``Artist.get_contains``.
+  There is no replacement, but you may still customize pick events using
+  `.Artist.set_picker`.
+* Passing the dash offset as ``None`` is no longer accepted, as this was never
+  universally implemented, e.g. for vector output. Set the offset to 0 instead.
+* The parameter *props* of `.Shadow` has been removed. Use keyword arguments
+  instead.
+* Arbitrary keyword arguments to ``StreamplotSet`` have no effect and have been
+  removed.
+* ``NonUniformImage.is_grayscale`` and ``PcolorImage.is_grayscale`` attributes
+  have been removed, for consistency with ``AxesImage.is_grayscale``. (Note
+  that previously, these attributes were only available *after rendering the
+  image*).
+
+Path helpers
+~~~~~~~~~~~~
+* ``bezier.make_path_regular``; use ``Path.cleaned()`` (or
+  ``Path.cleaned(curves=True)``, etc.) instead, but note that these methods add
+  a ``STOP`` code at the end of the path.
+* ``bezier.concatenate_paths``; use ``Path.make_compound_path()`` instead.
+* *quantize* parameter of `.Path.cleaned()`
+
+``BboxBase.inverse_transformed``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``.BboxBase.inverse_transformed`` has been removed (call `.BboxBase.transformed`
+on the `~.Transform.inverted()` transform instead).
+
+``matplotlib.test(recursionlimit=...)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *recursionlimit* parameter of `matplotlib.test` has been removed.
+
+``testing.compare.make_external_conversion_command``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... has been removed.
+
+``docstring.Substitution.from_params``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This method has been removed.  If needed, directly assign to the ``params``
+attribute of the Substitution object.
+
+``widgets.TextBox.params_to_disable``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This attribute has been removed.
+
+`.widgets.SubplotTool` callbacks and axes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``funcleft``, ``funcright``, ``funcbottom``, ``functop``, ``funcwspace``,
+and ``funchspace`` methods of `.widgets.SubplotTool` have been removed.
+
+The ``axleft``, ``axright``, ``axbottom``, ``axtop``, ``axwspace``, and
+``axhspace`` attributes of `.widgets.SubplotTool` have been removed.  Access
+the ``ax`` attribute of the corresponding slider, if needed.
+
+Variants on ``ToolManager.update_keymap`` calls
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing multiple keys as a single comma-separated string or multiple arguments
+to `.ToolManager.update_keymap` is no longer supported; pass keys as a list of
+strings instead.

@@ -96,7 +96,7 @@ cmap = cmap.with_extremes(under="magenta", over="yellow")
 
 fig, axs = plt.subplots(2, 2, constrained_layout=True)
 
-for ax, extend in zip(axs.ravel(), extends):
+for ax, extend in zip(axs.flat, extends):
     cs = ax.contourf(X, Y, Z, levels, cmap=cmap, extend=extend, origin=origin)
     fig.colorbar(cs, ax=ax, shrink=0.9)
     ax.set_title("extend = %s" % extend)

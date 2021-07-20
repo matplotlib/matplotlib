@@ -27,7 +27,6 @@ import re
 import struct
 import subprocess
 import sys
-import textwrap
 
 import numpy as np
 
@@ -40,8 +39,8 @@ _log = logging.getLogger(__name__)
 # are cached using lru_cache().
 
 # Dvi is a bytecode format documented in
-# http://mirrors.ctan.org/systems/knuth/dist/texware/dvitype.web
-# http://texdoc.net/texmf-dist/doc/generic/knuth/texware/dvitype.pdf
+# https://ctan.org/pkg/dvitype
+# https://texdoc.org/serve/dvitype.pdf/0
 #
 # The file consists of a preamble, some number of pages, a postamble,
 # and a finale. Different opcodes are allowed in different contexts,
@@ -302,6 +301,7 @@ class Dvi:
         # Pages appear to start with the sequence
         #   bop (begin of page)
         #   xxx comment
+        #   <push, ..., pop>  # if using chemformula
         #   down
         #   push
         #     down
@@ -313,17 +313,24 @@ class Dvi:
         #         etc.
         # (dviasm is useful to explore this structure.)
         # Thus, we use the vertical position at the first time the stack depth
-        # reaches 3, while at least three "downs" have been executed, as the
+        # reaches 3, while at least three "downs" have been executed (excluding
+        # those popped out (corresponding to the chemformula preamble)), as the
         # baseline (the "down" count is necessary to handle xcolor).
-        downs = 0
+        down_stack = [0]
         self._baseline_v = None
         while True:
             byte = self.file.read(1)[0]
             self._dtable[byte](self, byte)
-            downs += self._dtable[byte].__name__ == "_down"
+            name = self._dtable[byte].__name__
+            if name == "_push":
+                down_stack.append(down_stack[-1])
+            elif name == "_pop":
+                down_stack.pop()
+            elif name == "_down":
+                down_stack[-1] += 1
             if (self._baseline_v is None
                     and len(getattr(self, "stack", [])) == 3
-                    and downs >= 4):
+                    and down_stack[-1] >= 4):
                 self._baseline_v = self.v
             if byte == 140:                         # end of page
                 return True
@@ -595,7 +602,7 @@ class DviFont:
                 result.append(_mul2012(value, self._scale))
         # cmsyXX (symbols font) glyph 0 ("minus") has a nonzero descent
         # so that TeX aligns equations properly
-        # (https://tex.stackexchange.com/questions/526103/),
+        # (https://tex.stackexchange.com/q/526103/)
         # but we actually care about the rasterization depth to align
         # the dvipng-generated images.
         if re.match(br'^cmsy\d+$', self.texname) and char == 0:
@@ -828,25 +835,28 @@ class PsfontsMap:
         # store the unparsed lines (keyed by the first word, which is the
         # texname) and parse them on-demand.
         with open(filename, 'rb') as file:
-            self._unparsed = {line.split(b' ', 1)[0]: line for line in file}
+            self._unparsed = {}
+            for line in file:
+                tfmname = line.split(b' ', 1)[0]
+                self._unparsed.setdefault(tfmname, []).append(line)
         self._parsed = {}
         return self
 
     def __getitem__(self, texname):
         assert isinstance(texname, bytes)
         if texname in self._unparsed:
-            self._parse_and_cache_line(self._unparsed.pop(texname))
+            for line in self._unparsed.pop(texname):
+                if self._parse_and_cache_line(line):
+                    break
         try:
             return self._parsed[texname]
         except KeyError:
-            fmt = ('An associated PostScript font (required by Matplotlib) '
-                   'could not be found for TeX font {0!r} in {1!r}.  This '
-                   'problem can often be solved by installing a suitable '
-                   'PostScript font package in your TeX package manager.')
-            _log.info(textwrap.fill(
-                fmt.format(texname.decode('ascii'), self._filename),
-                break_on_hyphens=False, break_long_words=False))
-            raise
+            raise LookupError(
+                f"An associated PostScript font (required by Matplotlib) "
+                f"could not be found for TeX font {texname.decode('ascii')!r} "
+                f"in {self._filename!r}; this problem can often be solved by "
+                f"installing a suitable PostScript font package in your TeX "
+                f"package manager") from None
 
     def _parse_and_cache_line(self, line):
         """
@@ -874,11 +884,12 @@ class PsfontsMap:
         # If the map file specifies multiple encodings for a font, we
         # follow pdfTeX in choosing the last one specified. Such
         # entries are probably mistakes but they have occurred.
-        # http://tex.stackexchange.com/questions/10826/
+        # https://tex.stackexchange.com/q/10826/
 
         if not line or line.startswith((b" ", b"%", b"*", b";", b"#")):
             return
         tfmname = basename = special = encodingfile = fontfile = None
+        is_subsetted = is_t1 = is_truetype = False
         matches = re.finditer(br'"([^"]*)(?:"|$)|(\S+)', line)
         for match in matches:
             quoted, unquoted = match.groups()
@@ -897,14 +908,13 @@ class PsfontsMap:
                         encodingfile = word
                     else:
                         fontfile = word
+                        is_subsetted = True
                 elif tfmname is None:
                     tfmname = unquoted
                 elif basename is None:
                     basename = unquoted
             elif quoted:
                 special = quoted
-        if basename is None:
-            basename = tfmname
         effects = {}
         if special:
             words = reversed(special.split())
@@ -913,13 +923,35 @@ class PsfontsMap:
                     effects["slant"] = float(next(words))
                 elif word == b"ExtendFont":
                     effects["extend"] = float(next(words))
-        if encodingfile is not None and not encodingfile.startswith(b"/"):
+
+        # Verify some properties of the line that would cause it to be ignored
+        # otherwise.
+        if fontfile is not None:
+            if fontfile.endswith((b".ttf", b".ttc")):
+                is_truetype = True
+            elif not fontfile.endswith(b".otf"):
+                is_t1 = True
+        elif basename is not None:
+            is_t1 = True
+        if is_truetype and is_subsetted and encodingfile is None:
+            return
+        if not is_t1 and ("slant" in effects or "extend" in effects):
+            return
+        if abs(effects.get("slant", 0)) > 1:
+            return
+        if abs(effects.get("extend", 0)) > 2:
+            return
+
+        if basename is None:
+            basename = tfmname
+        if encodingfile is not None:
             encodingfile = find_tex_file(encodingfile)
-        if fontfile is not None and not fontfile.startswith(b"/"):
+        if fontfile is not None:
             fontfile = find_tex_file(fontfile)
         self._parsed[tfmname] = PsFont(
             texname=tfmname, psname=basename, effects=effects,
             encoding=encodingfile, filename=fontfile)
+        return True
 
 
 def _parse_enc(path):

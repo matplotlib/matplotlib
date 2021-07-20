@@ -475,13 +475,6 @@ class HPacker(PackerBase):
         if not whd_list:
             return 2 * pad, 2 * pad, pad, pad, []
 
-        if self.height is None:
-            height_descent = max(h - yd for w, h, xd, yd in whd_list)
-            ydescent = max(yd for w, h, xd, yd in whd_list)
-            height = height_descent + ydescent
-        else:
-            height = self.height - 2 * pad  # width w/o pad
-
         hd_list = [(h, yd) for w, h, xd, yd in whd_list]
         height, ydescent, yoffsets = _get_aligned_offsets(hd_list,
                                                           self.height,
@@ -970,43 +963,27 @@ class AnchoredOffsetbox(OffsetBox):
         Parameters
         ----------
         loc : str
-            The box location. Supported values:
-
-            - 'upper right'
-            - 'upper left'
-            - 'lower left'
-            - 'lower right'
-            - 'center left'
-            - 'center right'
-            - 'lower center'
-            - 'upper center'
-            - 'center'
-
+            The box location.  Valid locations are
+            'upper left', 'upper center', 'upper right',
+            'center left', 'center', 'center right',
+            'lower left', 'lower center, 'lower right'.
             For backward compatibility, numeric values are accepted as well.
             See the parameter *loc* of `.Legend` for details.
-
         pad : float, default: 0.4
             Padding around the child as fraction of the fontsize.
-
         borderpad : float, default: 0.5
             Padding between the offsetbox frame and the *bbox_to_anchor*.
-
         child : `.OffsetBox`
             The box that will be anchored.
-
         prop : `.FontProperties`
             This is only used as a reference for paddings. If not given,
             :rc:`legend.fontsize` is used.
-
         frameon : bool
             Whether to draw a frame around the box.
-
         bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
             Box that is used to position the legend in conjunction with *loc*.
-
         bbox_transform : None or :class:`matplotlib.transforms.Transform`
             The transform for the bounding box (*bbox_to_anchor*).
-
         **kwargs
             All other parameters are passed on to `.OffsetBox`.
 
@@ -1121,17 +1098,14 @@ class AnchoredOffsetbox(OffsetBox):
         """
         if fontsize is None:
             fontsize = renderer.points_to_pixels(
-                            self.prop.get_size_in_points())
+                self.prop.get_size_in_points())
 
-        def _offset(w, h, xd, yd, renderer, fontsize=fontsize, self=self):
+        def _offset(w, h, xd, yd, renderer):
             bbox = Bbox.from_bounds(0, 0, w, h)
             borderpad = self.borderpad * fontsize
             bbox_to_anchor = self.get_bbox_to_anchor()
-
-            x0, y0 = self._get_anchored_bbox(self.loc,
-                                             bbox,
-                                             bbox_to_anchor,
-                                             borderpad)
+            x0, y0 = _get_anchored_bbox(
+                self.loc, bbox, bbox_to_anchor, borderpad)
             return x0 + xd, y0 + yd
 
         self.set_offset(_offset)
@@ -1162,31 +1136,18 @@ class AnchoredOffsetbox(OffsetBox):
         self.get_child().draw(renderer)
         self.stale = False
 
-    def _get_anchored_bbox(self, loc, bbox, parentbbox, borderpad):
-        """
-        Return the position of the bbox anchored at the parentbbox
-        with the loc code, with the borderpad.
-        """
-        assert loc in range(1, 11)  # called only internally
 
-        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = range(11)
-
-        anchor_coefs = {UR: "NE",
-                        UL: "NW",
-                        LL: "SW",
-                        LR: "SE",
-                        R: "E",
-                        CL: "W",
-                        CR: "E",
-                        LC: "S",
-                        UC: "N",
-                        C: "C"}
-
-        c = anchor_coefs[loc]
-
-        container = parentbbox.padded(-borderpad)
-        anchored_box = bbox.anchored(c, container=container)
-        return anchored_box.x0, anchored_box.y0
+def _get_anchored_bbox(loc, bbox, parentbbox, borderpad):
+    """
+    Return the (x, y) position of the *bbox* anchored at the *parentbbox* with
+    the *loc* code with the *borderpad*.
+    """
+    # This is only called internally and *loc* should already have been
+    # validated.  If 0 (None), we just let ``bbox.anchored`` raise.
+    c = [None, "NE", "NW", "SW", "SE", "E", "W", "E", "S", "N", "C"][loc]
+    container = parentbbox.padded(-borderpad)
+    anchored_box = bbox.anchored(c, container=container)
+    return anchored_box.x0, anchored_box.y0
 
 
 class AnchoredText(AnchoredOffsetbox):

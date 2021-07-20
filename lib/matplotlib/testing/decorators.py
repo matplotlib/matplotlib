@@ -1,5 +1,4 @@
 import contextlib
-from distutils.version import StrictVersion
 import functools
 import inspect
 import os
@@ -10,6 +9,8 @@ import sys
 import unittest
 import warnings
 
+from packaging.version import parse as parse_version
+
 import matplotlib.style
 import matplotlib.units
 import matplotlib.testing
@@ -17,7 +18,6 @@ from matplotlib import cbook
 from matplotlib import ft2font
 from matplotlib import pyplot as plt
 from matplotlib import ticker
-
 from .compare import comparable_formats, compare_images, make_test_filename
 from .exceptions import ImageComparisonFailure
 
@@ -92,20 +92,20 @@ def check_freetype_version(ver):
 
     if isinstance(ver, str):
         ver = (ver, ver)
-    ver = [StrictVersion(x) for x in ver]
-    found = StrictVersion(ft2font.__freetype_version__)
+    ver = [parse_version(x) for x in ver]
+    found = parse_version(ft2font.__freetype_version__)
 
     return ver[0] <= found <= ver[1]
 
 
 def _checked_on_freetype_version(required_freetype_version):
     import pytest
-    reason = ("Mismatched version of freetype. "
-              "Test requires '%s', you have '%s'" %
-              (required_freetype_version, ft2font.__freetype_version__))
     return pytest.mark.xfail(
         not check_freetype_version(required_freetype_version),
-        reason=reason, raises=ImageComparisonFailure, strict=False)
+        reason=f"Mismatched version of freetype. "
+               f"Test requires '{required_freetype_version}', "
+               f"you have '{ft2font.__freetype_version__}'",
+        raises=ImageComparisonFailure, strict=False)
 
 
 def remove_ticks_and_titles(figure):
@@ -219,7 +219,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
 
         @functools.wraps(func)
         @pytest.mark.parametrize('extension', extensions)
-        @pytest.mark.style(style)
+        @matplotlib.style.context(style)
         @_checked_on_freetype_version(freetype_version)
         @functools.wraps(func)
         def wrapper(*args, extension, request, **kwargs):

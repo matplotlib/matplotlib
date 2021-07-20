@@ -1,0 +1,2 @@
+``dviread.PsfontsMap`` now raises LookupError instead of KeyError for missing fonts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -17,9 +17,6 @@ Here's how to create a line plot with text labels using
 .. figure:: ../../gallery/lines_bars_and_markers/images/sphx_glr_simple_plot_001.png
    :target: ../../gallery/lines_bars_and_markers/simple_plot.html
    :align: center
-   :scale: 50
-
-   Simple Plot
 
 .. _screenshots_subplot_demo:
 
@@ -32,9 +29,6 @@ Multiple axes (i.e. subplots) are created with the
 .. figure:: ../../gallery/subplots_axes_and_figures/images/sphx_glr_subplot_001.png
    :target: ../../gallery/subplots_axes_and_figures/subplot.html
    :align: center
-   :scale: 50
-
-   Subplot
 
 .. _screenshots_images_demo:
 
@@ -47,7 +41,6 @@ horizontal dimensions) using the :func:`~matplotlib.pyplot.imshow` function.
 .. figure:: ../../gallery/images_contours_and_fields/images/sphx_glr_image_demo_003.png
    :target: ../../gallery/images_contours_and_fields/image_demo.html
    :align: center
-   :scale: 50
 
    Example of using :func:`~matplotlib.pyplot.imshow` to display a CT scan
 
@@ -66,9 +59,6 @@ the same data:
 .. figure:: ../../gallery/images_contours_and_fields/images/sphx_glr_pcolormesh_levels_001.png
    :target: ../../gallery/images_contours_and_fields/pcolormesh_levels.html
    :align: center
-   :scale: 50
-
-   Example comparing :func:`~matplotlib.pyplot.pcolormesh` and :func:`~matplotlib.pyplot.contour` for plotting two-dimensional data
 
 .. _screenshots_histogram_demo:
 
@@ -81,10 +71,6 @@ histograms and returns the bin counts or probabilities:
 .. figure:: ../../gallery/statistics/images/sphx_glr_histogram_features_001.png
    :target: ../../gallery/statistics/histogram_features.html
    :align: center
-   :scale: 50
-
-   Histogram Features
-
 
 .. _screenshots_path_demo:
 
@@ -97,9 +83,6 @@ You can add arbitrary paths in Matplotlib using the
 .. figure:: ../../gallery/shapes_and_collections/images/sphx_glr_path_patch_001.png
    :target: ../../gallery/shapes_and_collections/path_patch.html
    :align: center
-   :scale: 50
-
-   Path Patch
 
 .. _screenshots_mplot3d_surface:
 
@@ -113,9 +96,6 @@ including surface, wireframe, scatter, and bar charts.
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_surface3d_001.png
    :target: ../../gallery/mplot3d/surface3d.html
    :align: center
-   :scale: 50
-
-   Surface3d
 
 Thanks to John Porter, Jonathon Taylor, Reinier Heeres, and Ben Root for
 the `.mplot3d` toolkit. This toolkit is included with all standard Matplotlib
@@ -135,7 +115,6 @@ such as the speed or local intensity of the vector field.
 .. figure:: ../../gallery/images_contours_and_fields/images/sphx_glr_plot_streamplot_001.png
    :target: ../../gallery/images_contours_and_fields/plot_streamplot.html
    :align: center
-   :scale: 50
 
    Streamplot with various plotting options.
 
@@ -147,7 +126,7 @@ streamplot function.
 Ellipses
 ========
 
-In support of the `Phoenix <http://www.jpl.nasa.gov/news/phoenix/main.php>`_
+In support of the `Phoenix <https://www.jpl.nasa.gov/news/phoenix/main.php>`_
 mission to Mars (which used Matplotlib to display ground tracking of
 spacecraft), Michael Droettboom built on work by Charlie Moad to provide
 an extremely accurate 8-spline approximation to elliptical arcs (see
@@ -156,9 +135,6 @@ an extremely accurate 8-spline approximation to elliptical arcs (see
 .. figure:: ../../gallery/shapes_and_collections/images/sphx_glr_ellipse_demo_001.png
    :target: ../../gallery/shapes_and_collections/ellipse_demo.html
    :align: center
-   :scale: 50
-
-   Ellipse Demo
 
 .. _screenshots_barchart_demo:
 
@@ -171,9 +147,6 @@ includes customizations such as error bars:
 .. figure:: ../../gallery/statistics/images/sphx_glr_barchart_demo_001.png
    :target: ../../gallery/statistics/barchart_demo.html
    :align: center
-   :scale: 50
-
-   Barchart Demo
 
 You can also create stacked bars
 (`bar_stacked.py <../../gallery/lines_bars_and_markers/bar_stacked.html>`_),
@@ -195,9 +168,6 @@ a few lines of code.
 .. figure:: ../../gallery/pie_and_polar_charts/images/sphx_glr_pie_features_001.png
    :target: ../../gallery/pie_and_polar_charts/pie_features.html
    :align: center
-   :scale: 50
-
-   Pie Features
 
 .. _screenshots_table_demo:
 
@@ -210,13 +180,8 @@ to an axes.
 .. figure:: ../../gallery/misc/images/sphx_glr_table_demo_001.png
    :target: ../../gallery/misc/table_demo.html
    :align: center
-   :scale: 50
-
-   Table Demo
-
 
 .. _screenshots_scatter_demo:
-
 
 Scatter plots
 =============
@@ -230,10 +195,6 @@ alpha attribute is used to make semitransparent circle markers.
 .. figure:: ../../gallery/lines_bars_and_markers/images/sphx_glr_scatter_demo2_001.png
    :target: ../../gallery/lines_bars_and_markers/scatter_demo2.html
    :align: center
-   :scale: 50
-
-   Scatter Demo2
-
 
 .. _screenshots_slider_demo:
 
@@ -248,7 +209,6 @@ and widgets.  See :mod:`matplotlib.widgets` and the
 .. figure:: ../../gallery/widgets/images/sphx_glr_slider_demo_001.png
    :target: ../../gallery/widgets/slider_demo.html
    :align: center
-   :scale: 50
 
    Slider and radio-button GUI.
 
@@ -264,9 +224,6 @@ plot filled curves and polygons:
 .. figure:: ../../gallery/lines_bars_and_markers/images/sphx_glr_fill_001.png
    :target: ../../gallery/lines_bars_and_markers/fill.html
    :align: center
-   :scale: 50
-
-   Fill
 
 Thanks to Andrew Straw for adding this function.
 
@@ -281,9 +238,6 @@ tick formatters for both.
 .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_date_001.png
    :target: ../../gallery/text_labels_and_annotations/date.html
    :align: center
-   :scale: 50
-
-   Date
 
 See :mod:`matplotlib.ticker` and :mod:`matplotlib.dates` for details and usage.
 
@@ -301,9 +255,6 @@ logarithmic plots.
 .. figure:: ../../gallery/scales/images/sphx_glr_log_demo_001.png
    :target: ../../gallery/scales/log_demo.html
    :align: center
-   :scale: 50
-
-   Log Demo
 
 Thanks to Andrew Straw, Darren Dale and Gregory Lielens for contributions
 log-scaling infrastructure.
@@ -318,9 +269,6 @@ The :func:`~matplotlib.pyplot.polar` function generates polar plots.
 .. figure:: ../../gallery/pie_and_polar_charts/images/sphx_glr_polar_demo_001.png
    :target: ../../gallery/pie_and_polar_charts/polar_demo.html
    :align: center
-   :scale: 50
-
-   Polar Demo
 
 .. _screenshots_legend_demo:
 
@@ -335,7 +283,6 @@ functions.
 .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_legend_001.png
    :target: ../../gallery/text_labels_and_annotations/legend.html
    :align: center
-   :scale: 50
 
    Legend
 
@@ -355,9 +302,6 @@ fonts.  See the :mod:`matplotlib.mathtext` module for additional details.
 .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_mathtext_examples_001.png
    :target: ../../gallery/text_labels_and_annotations/mathtext_examples.html
    :align: center
-   :scale: 50
-
-   Mathtext Examples
 
 Matplotlib's mathtext infrastructure is an independent implementation and
 does not require TeX or any external packages installed on your computer. See
@@ -376,9 +320,6 @@ rendering of strings with the *usetex* option.
 .. figure:: ../../gallery/text_labels_and_annotations/images/sphx_glr_tex_demo_001.png
    :target: ../../gallery/text_labels_and_annotations/tex_demo.html
    :align: center
-   :scale: 50
-
-   Tex Demo
 
 .. _screenshots_eeg_demo:
 
@@ -390,6 +331,7 @@ Here is a screenshot of an EEG viewer called `pbrain
 <https://github.com/nipy/pbrain>`__.
 
 .. image:: ../../_static/eeg_small.png
+   :align: center
 
 The lower axes uses :func:`~matplotlib.pyplot.specgram`
 to plot the spectrogram of one of the EEG channels.
@@ -406,14 +348,11 @@ XKCD-style sketch plots
 =======================
 
 Just for fun, Matplotlib supports plotting in the style of `xkcd
-<https://www.xkcd.com/>`_.
+<https://xkcd.com/>`_.
 
 .. figure:: ../../gallery/showcase/images/sphx_glr_xkcd_001.png
    :target: ../../gallery/showcase/xkcd.html
    :align: center
-   :scale: 50
-
-   xkcd
 
 Subplot example
 ===============

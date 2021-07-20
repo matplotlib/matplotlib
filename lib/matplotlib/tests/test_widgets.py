@@ -52,7 +52,7 @@ def test_rectangle_selector():
         check_rectangle(drawtype='none', minspanx=10, minspany=10)
 
     check_rectangle(minspanx=10, minspany=10, spancoords='pixels')
-    check_rectangle(rectprops=dict(fill=True))
+    check_rectangle(props=dict(fill=True))
 
 
 @pytest.mark.parametrize('drag_from_anywhere, new_center',
@@ -98,7 +98,7 @@ def test_ellipse():
         pass
 
     tool = widgets.EllipseSelector(ax, onselect=onselect,
-                                   maxdist=10, interactive=True)
+                                   grab_range=10, interactive=True)
     tool.extents = (100, 150, 100, 150)
 
     # drag the rectangle
@@ -152,8 +152,9 @@ def test_rectangle_handles():
         pass
 
     tool = widgets.RectangleSelector(ax, onselect=onselect,
-                                     maxdist=10, interactive=True,
-                                     marker_props={'markerfacecolor': 'r',
+                                     grab_range=10,
+                                     interactive=True,
+                                     handle_props={'markerfacecolor': 'r',
                                                    'markeredgecolor': 'b'})
     tool.extents = (100, 150, 100, 150)
 
@@ -195,11 +196,11 @@ def check_span(*args, **kwargs):
     def onselect(vmin, vmax):
         ax._got_onselect = True
         assert vmin == 100
-        assert vmax == 150
+        assert vmax == 199
 
     def onmove(vmin, vmax):
         assert vmin == 100
-        assert vmax == 125
+        assert vmax == 199
         ax._got_on_move = True
 
     if 'onmove_callback' in kwargs:
@@ -207,8 +208,9 @@ def check_span(*args, **kwargs):
 
     tool = widgets.SpanSelector(ax, onselect, *args, **kwargs)
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
-    do_event(tool, 'onmove', xdata=125, ydata=125, button=1)
-    do_event(tool, 'release', xdata=150, ydata=150, button=1)
+    # move outside of axis
+    do_event(tool, 'onmove', xdata=199, ydata=199, button=1)
+    do_event(tool, 'release', xdata=250, ydata=250, button=1)
 
     assert ax._got_onselect
 
@@ -219,7 +221,115 @@ def check_span(*args, **kwargs):
 def test_span_selector():
     check_span('horizontal', minspan=10, useblit=True)
     check_span('vertical', onmove_callback=True, button=1)
-    check_span('horizontal', rectprops=dict(fill=True))
+    check_span('horizontal', props=dict(fill=True))
+
+
+@pytest.mark.parametrize('drag_from_anywhere', [True, False])
+def test_span_selector_drag(drag_from_anywhere):
+    ax = get_ax()
+
+    def onselect(epress, erelease):
+        pass
+
+    # Create span
+    tool = widgets.SpanSelector(ax, onselect, 'horizontal', interactive=True,
+                                drag_from_anywhere=drag_from_anywhere)
+    do_event(tool, 'press', xdata=10, ydata=10, button=1)
+    do_event(tool, 'onmove', xdata=100, ydata=120, button=1)
+    do_event(tool, 'release', xdata=100, ydata=120, button=1)
+    assert tool.extents == (10, 100)
+    # Drag inside span
+    #
+    # If drag_from_anywhere == True, this will move the span by 10,
+    # giving new value extents = 20, 110
+    #
+    # If drag_from_anywhere == False, this will create a new span with
+    # value extents = 25, 35
+    do_event(tool, 'press', xdata=25, ydata=15, button=1)
+    do_event(tool, 'onmove', xdata=35, ydata=25, button=1)
+    do_event(tool, 'release', xdata=35, ydata=25, button=1)
+    if drag_from_anywhere:
+        assert tool.extents == (20, 110)
+    else:
+        assert tool.extents == (25, 35)
+
+    # Check that in both cases, dragging outside the span draws a new span
+    do_event(tool, 'press', xdata=175, ydata=185, button=1)
+    do_event(tool, 'onmove', xdata=185, ydata=195, button=1)
+    do_event(tool, 'release', xdata=185, ydata=195, button=1)
+    assert tool.extents == (175, 185)
+
+
+def test_span_selector_direction():
+    ax = get_ax()
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = widgets.SpanSelector(ax, onselect, 'horizontal', interactive=True)
+    assert tool.direction == 'horizontal'
+    assert tool._edge_handles.direction == 'horizontal'
+
+    with pytest.raises(ValueError):
+        tool = widgets.SpanSelector(ax, onselect, 'invalid_direction')
+
+    tool.direction = 'vertical'
+    assert tool.direction == 'vertical'
+    assert tool._edge_handles.direction == 'vertical'
+
+    with pytest.raises(ValueError):
+        tool.direction = 'invalid_string'
+
+
+def test_tool_line_handle():
+    ax = get_ax()
+
+    positions = [20, 30, 50]
+
+    tool_line_handle = widgets.ToolLineHandles(ax, positions, 'horizontal',
+                                               useblit=False)
+
+    for artist in tool_line_handle.artists:
+        assert not artist.get_animated()
+        assert not artist.get_visible()
+
+    tool_line_handle.set_visible(True)
+    tool_line_handle.set_animated(True)
+
+    for artist in tool_line_handle.artists:
+        assert artist.get_animated()
+        assert artist.get_visible()
+
+    assert tool_line_handle.positions == positions
+
+
+@pytest.mark.parametrize('direction', ("horizontal", "vertical"))
+def test_span_selector_bound(direction):
+    fig, ax = plt.subplots(1, 1)
+    ax.plot([10, 20], [10, 30])
+    ax.figure.canvas.draw()
+    x_bound = ax.get_xbound()
+    y_bound = ax.get_ybound()
+
+    tool = widgets.SpanSelector(ax, print, direction, interactive=True)
+    assert ax.get_xbound() == x_bound
+    assert ax.get_ybound() == y_bound
+
+    bound = x_bound if direction == 'horizontal' else y_bound
+    assert tool._edge_handles.positions == list(bound)
+
+    press_data = [10.5, 11.5]
+    move_data = [11, 13]  # Updating selector is done in onmove
+    release_data = move_data
+    do_event(tool, 'press', xdata=press_data[0], ydata=press_data[1], button=1)
+    do_event(tool, 'onmove', xdata=move_data[0], ydata=move_data[1], button=1)
+
+    assert ax.get_xbound() == x_bound
+    assert ax.get_ybound() == y_bound
+
+    index = 0 if direction == 'horizontal' else 1
+    handle_positions = [press_data[index], release_data[index]]
+    assert tool._edge_handles.positions == handle_positions
 
 
 def check_lasso_selector(**kwargs):
@@ -239,7 +349,7 @@ def check_lasso_selector(**kwargs):
 
 def test_lasso_selector():
     check_lasso_selector()
-    check_lasso_selector(useblit=False, lineprops=dict(color='red'))
+    check_lasso_selector(useblit=False, props=dict(color='red'))
     check_lasso_selector(useblit=True, button=1)
 
 
@@ -252,6 +362,36 @@ def test_CheckButtons():
 
     cid = check.on_clicked(lambda: None)
     check.disconnect(cid)
+
+
+def test_TextBox():
+    from unittest.mock import Mock
+    submit_event = Mock()
+    text_change_event = Mock()
+    ax = get_ax()
+    tool = widgets.TextBox(ax, '')
+    tool.on_submit(submit_event)
+    tool.on_text_change(text_change_event)
+
+    assert tool.text == ''
+
+    do_event(tool, '_click')
+
+    tool.set_val('x**2')
+
+    assert tool.text == 'x**2'
+    assert text_change_event.call_count == 1
+
+    tool.begin_typing(tool.text)
+    tool.stop_typing()
+
+    assert submit_event.call_count == 2
+
+    do_event(tool, '_click')
+    do_event(tool, '_keypress', key='+')
+    do_event(tool, '_keypress', key='5')
+
+    assert text_change_event.call_count == 3
 
 
 @image_comparison(['check_radio_buttons.png'], style='mpl20', remove_text=True)
@@ -332,7 +472,7 @@ def test_slider_horizontal_vertical():
     assert slider.val == 10
     # check the dimension of the slider patch in axes units
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
-    assert_allclose(box.bounds, [0, 0, 10/24, 1])
+    assert_allclose(box.bounds, [0, .25, 10/24, .5])
 
     fig, ax = plt.subplots()
     slider = widgets.Slider(ax=ax, label='', valmin=0, valmax=24,
@@ -341,7 +481,7 @@ def test_slider_horizontal_vertical():
     assert slider.val == 10
     # check the dimension of the slider patch in axes units
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
-    assert_allclose(box.bounds, [0, 0, 1, 10/24])
+    assert_allclose(box.bounds, [.25, 0, .5, 10/24])
 
 
 @pytest.mark.parametrize("orientation", ["horizontal", "vertical"])
@@ -358,7 +498,7 @@ def test_range_slider(orientation):
         valinit=[0.1, 0.34]
     )
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
-    assert_allclose(box.get_points().flatten()[idx], [0.1, 0, 0.34, 1])
+    assert_allclose(box.get_points().flatten()[idx], [0.1, 0.25, 0.34, 0.75])
 
     # Check initial value is set correctly
     assert_allclose(slider.val, (0.1, 0.34))
@@ -366,7 +506,7 @@ def test_range_slider(orientation):
     slider.set_val((0.2, 0.6))
     assert_allclose(slider.val, (0.2, 0.6))
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
-    assert_allclose(box.get_points().flatten()[idx], [0.2, 0, 0.6, 1])
+    assert_allclose(box.get_points().flatten()[idx], [0.2, .25, 0.6, .75])
 
     slider.set_val((0.2, 0.1))
     assert_allclose(slider.val, (0.1, 0.2))
@@ -568,7 +708,7 @@ def test_rect_visibility(fig_test, fig_ref):
         pass
 
     tool = widgets.RectangleSelector(ax_test, onselect,
-                                     rectprops={'visible': False})
+                                     props={'visible': False})
     tool.extents = (0.2, 0.8, 0.3, 0.7)
 
 

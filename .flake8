@@ -102,7 +102,7 @@ per-file-ignores =
     tutorials/introductory/pyplot.py: E402, E501
     tutorials/introductory/sample_plots.py: E501
     tutorials/introductory/usage.py: E501
-    tutorials/text/annotations.py: E501
+    tutorials/text/annotations.py: E402, E501
     tutorials/text/text_intro.py: E402
     tutorials/text/text_props.py: E501
     tutorials/text/usetex.py: E501
@@ -110,6 +110,7 @@ per-file-ignores =
     tutorials/toolkits/axisartist.py: E501
 
     examples/animation/frame_grabbing_sgskip.py: E402
+    examples/lines_bars_and_markers/marker_reference.py: E402
     examples/images_contours_and_fields/tricontour_demo.py: E201
     examples/images_contours_and_fields/tripcolor_demo.py: E201
     examples/images_contours_and_fields/triplot_demo.py: E201

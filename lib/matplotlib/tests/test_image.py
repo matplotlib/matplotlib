@@ -115,12 +115,12 @@ def test_imshow_antialiased(fig_test, fig_ref,
     A = np.random.rand(int(dpi * img_size), int(dpi * img_size))
     for fig in [fig_test, fig_ref]:
         fig.set_size_inches(fig_size, fig_size)
-    axs = fig_test.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation='antialiased')
-    axs = fig_ref.subplots()
-    axs.set_position([0, 0, 1, 1])
-    axs.imshow(A, interpolation=interpolation)
+    ax = fig_test.subplots()
+    ax.set_position([0, 0, 1, 1])
+    ax.imshow(A, interpolation='antialiased')
+    ax = fig_ref.subplots()
+    ax.set_position([0, 0, 1, 1])
+    ax.imshow(A, interpolation=interpolation)
 
 
 @check_figures_equal(extensions=['png'])
@@ -131,14 +131,14 @@ def test_imshow_zoom(fig_test, fig_ref):
     A = np.random.rand(int(dpi * 3), int(dpi * 3))
     for fig in [fig_test, fig_ref]:
         fig.set_size_inches(2.9, 2.9)
-    axs = fig_test.subplots()
-    axs.imshow(A, interpolation='antialiased')
-    axs.set_xlim([10, 20])
-    axs.set_ylim([10, 20])
-    axs = fig_ref.subplots()
-    axs.imshow(A, interpolation='nearest')
-    axs.set_xlim([10, 20])
-    axs.set_ylim([10, 20])
+    ax = fig_test.subplots()
+    ax.imshow(A, interpolation='antialiased')
+    ax.set_xlim([10, 20])
+    ax.set_ylim([10, 20])
+    ax = fig_ref.subplots()
+    ax.imshow(A, interpolation='nearest')
+    ax.set_xlim([10, 20])
+    ax.set_ylim([10, 20])
 
 
 @check_figures_equal()
@@ -1117,7 +1117,7 @@ def test_image_array_alpha_validation():
         plt.imshow(np.zeros((2, 2)), alpha=[1, 1])
 
 
-@pytest.mark.style('mpl20')
+@mpl.style.context('mpl20')
 def test_exact_vmin():
     cmap = copy(plt.cm.get_cmap("autumn_r"))
     cmap.set_under(color="lightgrey")
@@ -1234,22 +1234,51 @@ def test_imshow_quantitynd():
 
 
 @check_figures_equal(extensions=['png'])
-def test_huge_range_log(fig_test, fig_ref):
-    data = np.full((5, 5), -1, dtype=np.float64)
+def test_norm_change(fig_test, fig_ref):
+    # LogNorm should not mask anything invalid permanently.
+    data = np.full((5, 5), 1, dtype=np.float64)
+    data[0:2, :] = -1
+
+    masked_data = np.ma.array(data, mask=False)
+    masked_data.mask[0:2, 0:2] = True
+
+    cmap = plt.get_cmap('viridis').with_extremes(under='w')
+
+    ax = fig_test.subplots()
+    im = ax.imshow(data, norm=colors.LogNorm(vmin=0.5, vmax=1),
+                   extent=(0, 5, 0, 5), interpolation='nearest', cmap=cmap)
+    im.set_norm(colors.Normalize(vmin=-2, vmax=2))
+    im = ax.imshow(masked_data, norm=colors.LogNorm(vmin=0.5, vmax=1),
+                   extent=(5, 10, 5, 10), interpolation='nearest', cmap=cmap)
+    im.set_norm(colors.Normalize(vmin=-2, vmax=2))
+    ax.set(xlim=(0, 10), ylim=(0, 10))
+
+    ax = fig_ref.subplots()
+    ax.imshow(data, norm=colors.Normalize(vmin=-2, vmax=2),
+              extent=(0, 5, 0, 5), interpolation='nearest', cmap=cmap)
+    ax.imshow(masked_data, norm=colors.Normalize(vmin=-2, vmax=2),
+              extent=(5, 10, 5, 10), interpolation='nearest', cmap=cmap)
+    ax.set(xlim=(0, 10), ylim=(0, 10))
+
+
+@pytest.mark.parametrize('x', [-1, 1])
+@check_figures_equal(extensions=['png'])
+def test_huge_range_log(fig_test, fig_ref, x):
+    # parametrize over bad lognorm -1 values and large range 1 -> 1e20
+    data = np.full((5, 5), x, dtype=np.float64)
     data[0:2, :] = 1E20
 
     ax = fig_test.subplots()
-    im = ax.imshow(data, norm=colors.LogNorm(vmin=100, vmax=data.max()),
-                   interpolation='nearest', cmap='viridis')
+    ax.imshow(data, norm=colors.LogNorm(vmin=1, vmax=data.max()),
+              interpolation='nearest', cmap='viridis')
 
-    data = np.full((5, 5), -1, dtype=np.float64)
+    data = np.full((5, 5), x, dtype=np.float64)
     data[0:2, :] = 1000
 
-    cmap = copy(plt.get_cmap('viridis'))
-    cmap.set_under('w')
     ax = fig_ref.subplots()
-    im = ax.imshow(data, norm=colors.Normalize(vmin=100, vmax=data.max()),
-                   interpolation='nearest', cmap=cmap)
+    cmap = plt.get_cmap('viridis').with_extremes(under='w')
+    ax.imshow(data, norm=colors.Normalize(vmin=1, vmax=data.max()),
+              interpolation='nearest', cmap=cmap)
 
 
 @check_figures_equal()

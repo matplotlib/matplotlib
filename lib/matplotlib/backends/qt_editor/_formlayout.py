@@ -478,6 +478,7 @@ class FormDialog(QtWidgets.QDialog):
 
     def accept(self):
         self.data = self.formwidget.get()
+        self.apply_callback(self.data)
         super().accept()
 
     def reject(self):
@@ -526,8 +527,13 @@ def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
     if QtWidgets.QApplication.startingUp():
         _app = QtWidgets.QApplication([])
     dialog = FormDialog(data, title, comment, icon, parent, apply)
-    if dialog.exec_():
-        return dialog.get()
+
+    if parent is not None:
+        if hasattr(parent, "_fedit_dialog"):
+            parent._fedit_dialog.close()
+        parent._fedit_dialog = dialog
+
+    dialog.show()
 
 
 if __name__ == "__main__":

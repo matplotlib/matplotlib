@@ -1,0 +1,3 @@
+``backend_pgf.LatexManager.str_cache``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated.

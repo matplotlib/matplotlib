@@ -28,7 +28,7 @@ import time
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, docstring, colors
+from matplotlib import _api, docstring, colors, offsetbox
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list
 from matplotlib.font_manager import FontProperties
@@ -40,10 +40,11 @@ from matplotlib.collections import (
     PolyCollection, RegularPolyCollection)
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 from matplotlib.transforms import BboxTransformTo, BboxTransformFrom
-
-from matplotlib.offsetbox import HPacker, VPacker, TextArea, DrawingArea
-from matplotlib.offsetbox import DraggableOffsetBox
-
+from matplotlib.offsetbox import (
+    AnchoredOffsetbox, DraggableOffsetBox,
+    HPacker, VPacker,
+    DrawingArea, TextArea,
+)
 from matplotlib.container import ErrorbarContainer, BarContainer, StemContainer
 from . import legend_handler
 
@@ -280,21 +281,10 @@ handler_map : dict or None
 class Legend(Artist):
     """
     Place a legend on the axes at location loc.
-
     """
-    codes = {'best':         0,  # only implemented for axes legends
-             'upper right':  1,
-             'upper left':   2,
-             'lower left':   3,
-             'lower right':  4,
-             'right':        5,
-             'center left':  6,
-             'center right': 7,
-             'lower center': 8,
-             'upper center': 9,
-             'center':       10,
-             }
 
+    # 'best' is only implemented for axes legends
+    codes = {'best': 0, **AnchoredOffsetbox.codes}
     zorder = 5
 
     def __str__(self):
@@ -828,6 +818,7 @@ class Legend(Artist):
                                    children=[self._legend_title_box,
                                              self._legend_handle_box])
         self._legend_box.set_figure(self.figure)
+        self._legend_box.axes = self.axes
         self.texts = text_list
         self.legendHandles = handle_list
 
@@ -1013,29 +1004,10 @@ class Legend(Artist):
             bbox to be placed, in display coordinates.
         parentbbox : `~matplotlib.transforms.Bbox`
             A parent box which will contain the bbox, in display coordinates.
-
         """
-        assert loc in range(1, 11)  # called only internally
-
-        BEST, UR, UL, LL, LR, R, CL, CR, LC, UC, C = range(11)
-
-        anchor_coefs = {UR: "NE",
-                        UL: "NW",
-                        LL: "SW",
-                        LR: "SE",
-                        R: "E",
-                        CL: "W",
-                        CR: "E",
-                        LC: "S",
-                        UC: "N",
-                        C: "C"}
-
-        c = anchor_coefs[loc]
-
-        fontsize = renderer.points_to_pixels(self._fontsize)
-        container = parentbbox.padded(-self.borderaxespad * fontsize)
-        anchored_box = bbox.anchored(c, container=container)
-        return anchored_box.x0, anchored_box.y0
+        return offsetbox._get_anchored_bbox(
+            loc, bbox, parentbbox,
+            self.borderaxespad * renderer.points_to_pixels(self._fontsize))
 
     def _find_best_position(self, width, height, renderer, consider=None):
         """

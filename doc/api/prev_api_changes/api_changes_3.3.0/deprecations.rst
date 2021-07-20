@@ -93,7 +93,7 @@ Parameters *norm* and *vmin*/*vmax* should not be used simultaneously
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Passing parameters *norm* and *vmin*/*vmax* simultaneously to functions using
 colormapping such as ``scatter()`` and ``imshow()`` is deprecated.
-Inestead of ``norm=LogNorm(), vmin=min_val, vmax=max_val`` pass
+Instead of ``norm=LogNorm(), vmin=min_val, vmax=max_val`` pass
 ``norm=LogNorm(min_val, max_val)``. *vmin* and *vmax* should only be used
 without setting *norm*.
 

@@ -322,13 +322,13 @@ PyInit__qhull(void)
 {
     PyObject* m;
 
+    import_array();
+
     m = PyModule_Create(&qhull_module);
 
     if (m == NULL) {
         return NULL;
     }
-
-    import_array();
 
     return m;
 }

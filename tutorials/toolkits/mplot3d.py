@@ -22,7 +22,6 @@ Multiple 3D subplots can be added on the same figure, as for 2D subplots.
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_subplot3d_001.png
    :target: ../../gallery/mplot3d/subplot3d.html
    :align: center
-   :scale: 50
 
 .. versionchanged:: 1.0.0
    Prior to Matplotlib 1.0.0, only a single `.Axes3D` could be created per
@@ -39,79 +38,79 @@ toolkit.
 .. _plot3d:
 
 Line plots
-====================
-.. automethod:: Axes3D.plot
+==========
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_lines3d_001.png
    :target: ../../gallery/mplot3d/lines3d.html
    :align: center
-   :scale: 50
+
+.. automethod:: Axes3D.plot
 
 .. _scatter3d:
 
 Scatter plots
 =============
-.. automethod:: Axes3D.scatter
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_scatter3d_001.png
    :target: ../../gallery/mplot3d/scatter3d.html
    :align: center
-   :scale: 50
+
+.. automethod:: Axes3D.scatter
 
 .. _wireframe:
 
 Wireframe plots
 ===============
-.. automethod:: Axes3D.plot_wireframe
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_wire3d_001.png
    :target: ../../gallery/mplot3d/wire3d.html
    :align: center
-   :scale: 50
+
+.. automethod:: Axes3D.plot_wireframe
 
 .. _surface:
 
 Surface plots
 =============
-.. automethod:: Axes3D.plot_surface
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_surface3d_001.png
    :target: ../../gallery/mplot3d/surface3d.html
    :align: center
-   :scale: 50
+
+.. automethod:: Axes3D.plot_surface
 
 .. _trisurface:
 
 Tri-Surface plots
 =================
-.. automethod:: Axes3D.plot_trisurf
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_trisurf3d_001.png
    :target: ../../gallery/mplot3d/trisurf3d.html
    :align: center
-   :scale: 50
+
+.. automethod:: Axes3D.plot_trisurf
 
 .. _contour3d:
 
 Contour plots
 =============
-.. automethod:: Axes3D.contour
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_contour3d_001.png
    :target: ../../gallery/mplot3d/contour3d.html
    :align: center
-   :scale: 50
+
+.. automethod:: Axes3D.contour
 
 .. _contourf3d:
 
 Filled contour plots
 ====================
-.. automethod:: Axes3D.contourf
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_contourf3d_001.png
    :target: ../../gallery/mplot3d/contourf3d.html
    :align: center
-   :scale: 50
+
+.. automethod:: Axes3D.contourf
 
 .. versionadded:: 1.1.0
    The feature demoed in the second contourf3d example was enabled as a
@@ -120,53 +119,52 @@ Filled contour plots
 .. _polygon3d:
 
 Polygon plots
-====================
-.. automethod:: Axes3D.add_collection3d
+=============
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_polys3d_001.png
    :target: ../../gallery/mplot3d/polys3d.html
    :align: center
-   :scale: 50
+
+.. automethod:: Axes3D.add_collection3d
 
 .. _bar3d:
 
 Bar plots
-====================
-.. automethod:: Axes3D.bar
+=========
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_bars3d_001.png
    :target: ../../gallery/mplot3d/bars3d.html
    :align: center
-   :scale: 50
+
+.. automethod:: Axes3D.bar
 
 .. _quiver3d:
 
 Quiver
-====================
-.. automethod:: Axes3D.quiver
+======
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_quiver3d_001.png
    :target: ../../gallery/mplot3d/quiver3d.html
    :align: center
-   :scale: 50
+
+.. automethod:: Axes3D.quiver
 
 .. _2dcollections3d:
 
 2D plots in 3D
-====================
+==============
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_2dcollections3d_001.png
    :target: ../../gallery/mplot3d/2dcollections3d.html
    :align: center
-   :scale: 50
 
 .. _text3d:
 
 Text
-====================
-.. automethod:: Axes3D.text
+====
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_text3d_001.png
    :target: ../../gallery/mplot3d/text3d.html
    :align: center
-   :scale: 50
+
+.. automethod:: Axes3D.text
 """

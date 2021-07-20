@@ -60,11 +60,11 @@ frame. Padding and separation parameters can be adjusted.
 Add ``minorticks_on()/off()`` methods for colorbar
 --------------------------------------------------
 
-A new method `~.colorbar.ColorbarBase.minorticks_on` has been added to
+A new method ``ColorbarBase.minorticks_on`` has been added to
 correctly display minor ticks on a colorbar. This method doesn't allow the
 minor ticks to extend into the regions beyond vmin and vmax when the *extend*
 keyword argument (used while creating the colorbar) is set to 'both', 'max' or
-'min'. A complementary method `~.colorbar.ColorbarBase.minorticks_off` has
+'min'. A complementary method ``ColorbarBase.minorticks_off`` has
 also been added to remove the minor ticks on the colorbar.
 
 

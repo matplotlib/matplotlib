@@ -1,7 +1,5 @@
 import inspect
 
-from matplotlib import _api
-
 
 class Substitution:
     """
@@ -45,21 +43,6 @@ class Substitution:
         Update ``self.params`` (which must be a dict) with the supplied args.
         """
         self.params.update(*args, **kwargs)
-
-    @classmethod
-    @_api.deprecated("3.3", alternative="assign to the params attribute")
-    def from_params(cls, params):
-        """
-        In the case where the params is a mutable sequence (list or
-        dictionary) and it may change before this class is called, one may
-        explicitly use a reference to the params rather than using *args or
-        **kwargs which will copy the values and not reference them.
-
-        :meta private:
-        """
-        result = cls()
-        result.params = params
-        return result
 
 
 def _recursive_subclasses(cls):

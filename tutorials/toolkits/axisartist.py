@@ -20,7 +20,6 @@ curved coordinate systems.
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_floating_axis_001.png
    :target: ../../gallery/axisartist/demo_floating_axis.html
    :align: center
-   :scale: 50
 
 Since it uses special artists, some Matplotlib commands that work on
 Axes.xaxis and Axes.yaxis may not work.
@@ -66,7 +65,6 @@ For example, you can hide the right and top spines using::
 .. figure:: ../../gallery/axisartist/images/sphx_glr_simple_axisline3_001.png
    :target: ../../gallery/axisartist/simple_axisline3.html
    :align: center
-   :scale: 50
 
 It is also possible to add a horizontal axis. For example, you may have an
 horizontal axis at y=0 (in data coordinate). ::
@@ -76,7 +74,6 @@ horizontal axis at y=0 (in data coordinate). ::
 .. figure:: ../../gallery/axisartist/images/sphx_glr_simple_axisartist1_001.png
    :target: ../../gallery/axisartist/simple_axisartist1.html
    :align: center
-   :scale: 50
 
 Or a fixed axis with some offset ::
 
@@ -100,7 +97,6 @@ Here is an example that uses ParasiteAxes.
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_parasite_axes2_001.png
    :target: ../../gallery/axisartist/demo_parasite_axes2.html
    :align: center
-   :scale: 50
 
 Curvilinear Grid
 ----------------
@@ -111,7 +107,6 @@ and ticks.
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_curvelinear_grid_001.png
    :target: ../../gallery/axisartist/demo_curvelinear_grid.html
    :align: center
-   :scale: 50
 
 Floating Axes
 -------------
@@ -122,7 +117,6 @@ floating axis.
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_floating_axes_001.png
    :target: ../../gallery/axisartist/demo_floating_axes.html
    :align: center
-   :scale: 50
 
 axisartist namespace
 ====================
@@ -155,7 +149,6 @@ In summary, all these changes was to support
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_floating_axis_001.png
    :target: ../../gallery/axisartist/demo_floating_axis.html
    :align: center
-   :scale: 50
 
 *mpl_toolkits.axisartist.Axes* class defines a *axis* attribute, which
 is a dictionary of AxisArtist instances. By default, the dictionary
@@ -317,7 +310,6 @@ using "set_axis_direction" method. ::
 .. figure:: ../../gallery/axisartist/images/sphx_glr_simple_axis_direction01_001.png
    :target: ../../gallery/axisartist/simple_axis_direction01.html
    :align: center
-   :scale: 50
 
 The parameter for set_axis_direction is one of ["left", "right",
 "bottom", "top"].
@@ -343,7 +335,6 @@ You must understand some underlying concept of directions.
 .. figure:: ../../gallery/axisartist/images/sphx_glr_axis_direction_001.png
    :target: ../../gallery/axisartist/axis_direction.html
    :align: center
-   :scale: 50
 
 On the other hand, there is a concept of "axis_direction". This is a
 default setting of above properties for each, "bottom", "left", "top",
@@ -369,7 +360,6 @@ direction can be more clear with curved axis.
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_axis_direction_001.png
    :target: ../../gallery/axisartist/demo_axis_direction.html
    :align: center
-   :scale: 50
 
 The axis_direction can be adjusted in the AxisArtist level, or in the
 level of its child artists, i.e., ticks, ticklabels, and axis-label. ::
@@ -401,7 +391,6 @@ default direction). ::
 .. figure:: ../../gallery/axisartist/images/sphx_glr_simple_axis_direction03_001.png
    :target: ../../gallery/axisartist/simple_axis_direction03.html
    :align: center
-   :scale: 50
 
 So, in summary,
 
@@ -437,7 +426,6 @@ Alignment of TickLabels are treated specially. See below
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_ticklabel_alignment_001.png
    :target: ../../gallery/axisartist/demo_ticklabel_alignment.html
    :align: center
-   :scale: 50
 
 Adjusting pad
 -------------
@@ -453,7 +441,6 @@ Or ticklabels and axis-label ::
 .. figure:: ../../gallery/axisartist/images/sphx_glr_simple_axis_pad_001.png
    :target: ../../gallery/axisartist/simple_axis_pad.html
    :align: center
-   :scale: 50
 
 GridHelper
 ==========
@@ -540,7 +527,6 @@ coordinates, or you may use Parasite Axes for convenience.::
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_curvelinear_grid_001.png
    :target: ../../gallery/axisartist/demo_curvelinear_grid.html
    :align: center
-   :scale: 50
 
 FloatingAxis
 ============

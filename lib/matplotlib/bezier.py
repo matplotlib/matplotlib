@@ -593,28 +593,3 @@ def make_wedged_bezier2(bezier2, width, w1=1., wm=0.5, w2=0.):
                                      c3x_right, c3y_right)
 
     return path_left, path_right
-
-
-@_api.deprecated(
-    "3.3", alternative="Path.cleaned() and remove the final STOP if needed")
-def make_path_regular(p):
-    """
-    If the ``codes`` attribute of `.Path` *p* is None, return a copy of *p*
-    with ``codes`` set to (MOVETO, LINETO, LINETO, ..., LINETO); otherwise
-    return *p* itself.
-    """
-    from .path import Path
-    c = p.codes
-    if c is None:
-        c = np.full(len(p.vertices), Path.LINETO, dtype=Path.code_type)
-        c[0] = Path.MOVETO
-        return Path(p.vertices, c)
-    else:
-        return p
-
-
-@_api.deprecated("3.3", alternative="Path.make_compound_path()")
-def concatenate_paths(paths):
-    """Concatenate a list of paths into a single path."""
-    from .path import Path
-    return Path.make_compound_path(*paths)

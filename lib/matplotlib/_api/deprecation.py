@@ -18,16 +18,7 @@ import warnings
 
 
 class MatplotlibDeprecationWarning(DeprecationWarning):
-    """
-    A class for issuing deprecation warnings for Matplotlib users.
-
-    In light of the fact that Python builtin DeprecationWarnings are ignored
-    by default as of Python 2.7 (see link below), this class was put in to
-    allow for the signaling of deprecation, but via UserWarnings which are not
-    ignored by default.
-
-    https://docs.python.org/dev/whatsnew/2.7.html#the-future-for-python-2-x
-    """
+    """A class for issuing deprecation warnings for Matplotlib users."""
 
 
 # mplDeprecation is deprecated. Use MatplotlibDeprecationWarning instead.
@@ -73,31 +64,24 @@ def warn_deprecated(
     ----------
     since : str
         The release at which this API became deprecated.
-
     message : str, optional
         Override the default deprecation message.  The ``%(since)s``,
         ``%(name)s``, ``%(alternative)s``, ``%(obj_type)s``, ``%(addendum)s``,
         and ``%(removal)s`` format specifiers will be replaced by the values
         of the respective arguments passed to this function.
-
     name : str, optional
         The name of the deprecated object.
-
     alternative : str, optional
         An alternative API that the user may use in place of the deprecated
         API.  The deprecation warning will tell the user about this alternative
         if provided.
-
     pending : bool, optional
         If True, uses a PendingDeprecationWarning instead of a
         DeprecationWarning.  Cannot be used together with *removal*.
-
     obj_type : str, optional
         The object type being deprecated.
-
     addendum : str, optional
         Additional text appended directly to the final message.
-
     removal : str, optional
         The expected removal version.  With the default (an empty string), a
         removal version is automatically computed from *since*.  Set to other
@@ -106,7 +90,7 @@ def warn_deprecated(
 
     Examples
     --------
-    Basic example::
+    ::
 
         # To warn of the deprecation of "matplotlib.name_of_module"
         warn_deprecated('1.4.0', name='matplotlib.name_of_module',
@@ -135,46 +119,13 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
     ``@deprecated`` would mess up ``__init__`` inheritance when installing its
     own (deprecation-emitting) ``C.__init__``).
 
-    Parameters
-    ----------
-    since : str
-        The release at which this API became deprecated.
-
-    message : str, optional
-        Override the default deprecation message.  The ``%(since)s``,
-        ``%(name)s``, ``%(alternative)s``, ``%(obj_type)s``, ``%(addendum)s``,
-        and ``%(removal)s`` format specifiers will be replaced by the values
-        of the respective arguments passed to this function.
-
-    name : str, optional
-        The name used in the deprecation message; if not provided, the name
-        is automatically determined from the deprecated object.
-
-    alternative : str, optional
-        An alternative API that the user may use in place of the deprecated
-        API.  The deprecation warning will tell the user about this alternative
-        if provided.
-
-    pending : bool, optional
-        If True, uses a PendingDeprecationWarning instead of a
-        DeprecationWarning.  Cannot be used together with *removal*.
-
-    obj_type : str, optional
-        The object type being deprecated; by default, 'class' if decorating
-        a class, 'attribute' if decorating a property, 'function' otherwise.
-
-    addendum : str, optional
-        Additional text appended directly to the final message.
-
-    removal : str, optional
-        The expected removal version.  With the default (an empty string), a
-        removal version is automatically computed from *since*.  Set to other
-        Falsy values to not schedule a removal date.  Cannot be used together
-        with *pending*.
+    Parameters are the same as for `warn_deprecated`, except that *obj_type*
+    defaults to 'class' if decorating a class, 'attribute' if decorating a
+    property, and 'function' otherwise.
 
     Examples
     --------
-    Basic example::
+    ::
 
         @deprecated('1.4.0')
         def the_function_to_deprecate():

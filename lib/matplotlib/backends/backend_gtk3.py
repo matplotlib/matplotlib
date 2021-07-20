@@ -47,6 +47,45 @@ try:
 except TypeError as exc:
     cursord = {}  # deprecated in Matplotlib 3.5.
 
+# Placeholder
+_application = None
+
+
+def _shutdown_application(app):
+    # The application might prematurely shut down if Ctrl-C'd out of IPython,
+    # so close all windows.
+    for win in app.get_windows():
+        win.destroy()
+    # The PyGObject wrapper incorrectly thinks that None is not allowed, or we
+    # would call this:
+    # Gio.Application.set_default(None)
+    # Instead, we set this property and ignore default applications with it:
+    app._created_by_matplotlib = True
+    global _application
+    _application = None
+
+
+def _create_application():
+    global _application
+
+    if _application is None:
+        app = Gio.Application.get_default()
+        if app is None or getattr(app, '_created_by_matplotlib'):
+            # display_is_valid returns False only if on Linux and neither X11
+            # nor Wayland display can be opened.
+            if not mpl._c_internal_utils.display_is_valid():
+                raise RuntimeError('Invalid DISPLAY variable')
+            _application = Gtk.Application.new('org.matplotlib.Matplotlib3',
+                                               Gio.ApplicationFlags.NON_UNIQUE)
+            # The activate signal must be connected, but we don't care for
+            # handling it, since we don't do any remote processing.
+            _application.connect('activate', lambda *args, **kwargs: None)
+            _application.connect('shutdown', _shutdown_application)
+            _application.register()
+            cbook._setup_new_guiapp()
+        else:
+            _application = app
+
 
 @functools.lru_cache()
 def _mpl_to_gtk_cursor(mpl_cursor):
@@ -56,6 +95,8 @@ def _mpl_to_gtk_cursor(mpl_cursor):
         cursors.POINTER: "default",
         cursors.SELECT_REGION: "crosshair",
         cursors.WAIT: "wait",
+        cursors.RESIZE_HORIZONTAL: "ew-resize",
+        cursors.RESIZE_VERTICAL: "ns-resize",
     }[mpl_cursor]
     return Gdk.Cursor.new_from_name(Gdk.Display.get_default(), name)
 
@@ -293,11 +334,9 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
 
     def flush_events(self):
         # docstring inherited
-        Gdk.threads_enter()
-        while Gtk.events_pending():
-            Gtk.main_iteration()
-        Gdk.flush()
-        Gdk.threads_leave()
+        context = GLib.MainContext.default()
+        while context.pending():
+            context.iteration(True)
 
 
 class FigureManagerGTK3(FigureManagerBase):
@@ -317,7 +356,9 @@ class FigureManagerGTK3(FigureManagerBase):
 
     """
     def __init__(self, canvas, num):
+        _create_application()
         self.window = Gtk.Window()
+        _application.add_window(self.window)
         super().__init__(canvas, num)
 
         self.window.set_wmclass("matplotlib", "Matplotlib")
@@ -378,10 +419,6 @@ class FigureManagerGTK3(FigureManagerBase):
         self.canvas.destroy()
         if self.toolbar:
             self.toolbar.destroy()
-
-        if (Gcf.get_num_fig_managers() == 0 and not mpl.is_interactive() and
-                Gtk.main_level() >= 1):
-            Gtk.main_quit()
 
     def show(self):
         # show the figure window
@@ -499,7 +536,8 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         window = self.canvas.get_property("window")
         if window is not None:
             window.set_cursor(_mpl_to_gtk_cursor(cursor))
-            Gtk.main_iteration()
+            context = GLib.MainContext.default()
+            context.iteration(True)
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height
@@ -826,6 +864,12 @@ class _BackendGTK3(_Backend):
 
     @staticmethod
     def mainloop():
-        if Gtk.main_level() == 0:
-            cbook._setup_new_guiapp()
-            Gtk.main()
+        global _application
+        if _application is None:
+            return
+
+        try:
+            _application.run()  # Quits when all added windows close.
+        finally:
+            # Running after quit is undefined, so create a new one next time.
+            _application = None

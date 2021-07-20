@@ -1,4 +1,3 @@
-from contextlib import nullcontext
 from datetime import datetime
 import io
 from pathlib import Path
@@ -151,8 +150,7 @@ def test_figure_legend():
 def test_gca():
     fig = plt.figure()
 
-    with pytest.warns(MatplotlibDeprecationWarning):
-        # empty call to add_axes() will throw deprecation warning
+    with pytest.raises(TypeError):
         assert fig.add_axes() is None
 
     ax0 = fig.add_axes([0, 0, 1, 1])
@@ -249,14 +247,14 @@ def test_add_subplot_invalid():
     with pytest.raises(TypeError, match='takes 1 or 3 positional arguments '
                                         'but 4 were given'):
         fig.add_subplot(1, 2, 3, 4)
-    with pytest.warns(cbook.MatplotlibDeprecationWarning,
-                      match='Passing non-integers as three-element position '
-                            'specification is deprecated'):
+    with pytest.raises(ValueError,
+                       match="Number of rows must be a positive integer, "
+                             "not '2'"):
         fig.add_subplot('2', 2, 1)
-    with pytest.warns(cbook.MatplotlibDeprecationWarning,
-                      match='Passing non-integers as three-element position '
-                            'specification is deprecated'):
-        fig.add_subplot(2.0, 2, 1)
+    with pytest.raises(ValueError,
+                       match='Number of columns must be a positive integer, '
+                             'not 2.0'):
+        fig.add_subplot(2, 2.0, 1)
     _, ax = plt.subplots()
     with pytest.raises(ValueError,
                        match='The Subplot must have been created in the '
@@ -371,7 +369,7 @@ def test_figaspect():
     assert h / w == 1
 
 
-@pytest.mark.parametrize('which', [None, 'both', 'major', 'minor'])
+@pytest.mark.parametrize('which', ['both', 'major', 'minor'])
 def test_autofmt_xdate(which):
     date = ['3 Jan 2013', '4 Jan 2013', '5 Jan 2013', '6 Jan 2013',
             '7 Jan 2013', '8 Jan 2013', '9 Jan 2013', '10 Jan 2013',
@@ -400,11 +398,9 @@ def test_autofmt_xdate(which):
             'FixedFormatter should only be used together with FixedLocator')
         ax.xaxis.set_minor_formatter(FixedFormatter(minors))
 
-    with (pytest.warns(mpl.MatplotlibDeprecationWarning) if which is None else
-          nullcontext()):
-        fig.autofmt_xdate(0.2, angle, 'right', which)
+    fig.autofmt_xdate(0.2, angle, 'right', which)
 
-    if which in ('both', 'major', None):
+    if which in ('both', 'major'):
         for label in fig.axes[0].get_xticklabels(False, 'major'):
             assert int(label.get_rotation()) == angle
 
@@ -413,7 +409,7 @@ def test_autofmt_xdate(which):
             assert int(label.get_rotation()) == angle
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 def test_change_dpi():
     fig = plt.figure(figsize=(4, 4))
     fig.draw_no_output()
@@ -602,7 +598,7 @@ def test_removed_axis():
     fig.canvas.draw()
 
 
-@pytest.mark.style('mpl20')
+@mpl.style.context('mpl20')
 def test_picking_does_not_stale():
     fig, ax = plt.subplots()
     col = ax.scatter([0], [0], [1000], picker=True)

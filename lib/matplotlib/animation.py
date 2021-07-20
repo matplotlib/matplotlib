@@ -1,7 +1,8 @@
 # TODO:
 # * Documentation -- this will need a new section of the User's Guide.
 #      Both for Animations and just timers.
-#   - Also need to update http://www.scipy.org/Cookbook/Matplotlib/Animations
+#   - Also need to update
+#     https://scipy-cookbook.readthedocs.io/items/Matplotlib_Animations.html
 # * Blit
 #   * Currently broken with Qt4 for widgets that don't start on screen
 #   * Still a few edge cases that aren't working correctly
@@ -43,7 +44,7 @@ _log = logging.getLogger(__name__)
 
 # Process creation flag for subprocess to prevent it raising a terminal
 # window. See for example:
-# https://stackoverflow.com/questions/24130623/using-python-subprocess-popen-cant-prevent-exe-stopped-working-prompt
+# https://stackoverflow.com/q/24130623/
 if sys.platform == 'win32':
     subprocess_creation_flags = CREATE_NO_WINDOW = 0x08000000
 else:
@@ -55,8 +56,7 @@ else:
 # * libming (produces swf) python wrappers: https://github.com/libming/libming
 # * Wrap x264 API:
 
-# (http://stackoverflow.com/questions/2940671/
-# how-to-encode-series-of-images-into-h264-using-x264-api-c-c )
+# (https://stackoverflow.com/q/2940671/)
 
 
 def adjusted_figsize(w, h, dpi, n):
@@ -261,9 +261,6 @@ class MovieWriter(AbstractMovieWriter):
     # stored.  Third-party writers cannot meaningfully set these as they cannot
     # extend rcParams with new keys.
 
-    exec_key = _api.deprecate_privatize_attribute("3.3")
-    args_key = _api.deprecate_privatize_attribute("3.3")
-
     # Pipe-based writers only support RGBA, but file-based ones support more
     # formats.
     supported_formats = ["rgba"]
@@ -407,9 +404,7 @@ class FileMovieWriter(MovieWriter):
         super().__init__(*args, **kwargs)
         self.frame_format = mpl.rcParams['animation.frame_format']
 
-    @_api.delete_parameter("3.3", "clear_temp")
-    def setup(self, fig, outfile, dpi=None, frame_prefix=None,
-              clear_temp=True):
+    def setup(self, fig, outfile, dpi=None, frame_prefix=None):
         """
         Setup for writing the movie file.
 
@@ -423,13 +418,10 @@ class FileMovieWriter(MovieWriter):
             The dpi of the output file. This, with the figure size,
             controls the size in pixels of the resulting movie file.
         frame_prefix : str, optional
-            The filename prefix to use for temporary files.  If None (the
+            The filename prefix to use for temporary files.  If *None* (the
             default), files are written to a temporary directory which is
-            deleted by `cleanup` (regardless of the value of *clear_temp*).
-        clear_temp : bool, optional
-            If the temporary files should be deleted after stitching
-            the final result.  Setting this to ``False`` can be useful for
-            debugging.  Defaults to ``True``.
+            deleted by `cleanup`; if not *None*, no temporary files are
+            deleted.
         """
         self.fig = fig
         self.outfile = outfile
@@ -444,7 +436,6 @@ class FileMovieWriter(MovieWriter):
         else:
             self._tmpdir = None
             self.temp_prefix = frame_prefix
-        self._clear_temp = clear_temp
         self._frame_counter = 0  # used for generating sequential file names
         self._temp_paths = list()
         self.fname_format_str = '%s%%07d.%s'
@@ -452,15 +443,6 @@ class FileMovieWriter(MovieWriter):
     def __del__(self):
         if self._tmpdir:
             self._tmpdir.cleanup()
-
-    @_api.deprecated("3.3")
-    @property
-    def clear_temp(self):
-        return self._clear_temp
-
-    @clear_temp.setter
-    def clear_temp(self, value):
-        self._clear_temp = value
 
     @property
     def frame_format(self):
@@ -488,10 +470,9 @@ class FileMovieWriter(MovieWriter):
 
     def grab_frame(self, **savefig_kwargs):
         # docstring inherited
-        # Overloaded to explicitly close temp file.
         # Creates a filename for saving using basename and counter.
         path = Path(self._base_temp_name() % self._frame_counter)
-        self._temp_paths.append(path)  # Record the filename for later cleanup.
+        self._temp_paths.append(path)  # Record the filename for later use.
         self._frame_counter += 1  # Ensures each created name is unique.
         _log.debug('FileMovieWriter.grab_frame: Grabbing frame %d to path=%s',
                    self._frame_counter, path)
@@ -510,12 +491,6 @@ class FileMovieWriter(MovieWriter):
         if self._tmpdir:
             _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
             self._tmpdir.cleanup()
-        else:
-            if self._clear_temp:
-                _log.debug('MovieWriter: clearing temporary paths=%s',
-                           self._temp_paths)
-                for path in self._temp_paths:
-                    path.unlink()
 
 
 @writers.register('pillow')
@@ -582,17 +557,6 @@ class FFMpegBase:
 
         return args + ['-y', self.outfile]
 
-    @classmethod
-    def isAvailable(cls):
-        return (
-            super().isAvailable()
-            # Ubuntu 12.04 ships a broken ffmpeg binary which we shouldn't use.
-            # NOTE: when removed, remove the same method in AVConvBase.
-            and b'LibAv' not in subprocess.run(
-                [cls.bin_path()], creationflags=subprocess_creation_flags,
-                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                stderr=subprocess.PIPE).stderr)
-
 
 # Combine FFMpeg options with pipe-based writing
 @writers.register('ffmpeg')
@@ -649,45 +613,6 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
         if _log.getEffectiveLevel() > logging.DEBUG:
             args += ['-loglevel', 'error']
         return [self.bin_path(), *args, *self.output_args]
-
-
-# Base class of avconv information.  AVConv has identical arguments to FFMpeg.
-@_api.deprecated('3.3')
-class AVConvBase(FFMpegBase):
-    """
-    Mixin class for avconv output.
-
-    To be useful this must be multiply-inherited from with a
-    `MovieWriterBase` sub-class.
-    """
-
-    _exec_key = 'animation.avconv_path'
-    _args_key = 'animation.avconv_args'
-
-    # NOTE : should be removed when the same method is removed in FFMpegBase.
-    isAvailable = classmethod(MovieWriter.isAvailable.__func__)
-
-
-# Combine AVConv options with pipe-based writing
-@writers.register('avconv')
-class AVConvWriter(AVConvBase, FFMpegWriter):
-    """
-    Pipe-based avconv writer.
-
-    Frames are streamed directly to avconv via a pipe and written in a single
-    pass.
-    """
-
-
-# Combine AVConv options with file-based writing
-@writers.register('avconv_file')
-class AVConvFileWriter(AVConvBase, FFMpegFileWriter):
-    """
-    File-based avconv writer.
-
-    Frames are written to temporary files on disk and then stitched
-    together at the end.
-    """
 
 
 # Base class for animated GIFs with ImageMagick
@@ -794,8 +719,6 @@ class HTMLWriter(FileMovieWriter):
     """Writer for JavaScript-based HTML movies."""
 
     supported_formats = ['png', 'jpeg', 'tiff', 'svg']
-    args_key = _api.deprecated("3.3")(property(
-        lambda self: 'animation.html_args'))
 
     @classmethod
     def isAvailable(cls):
@@ -892,19 +815,13 @@ class HTMLWriter(FileMovieWriter):
 
         # duplicate the temporary file clean up logic from
         # FileMovieWriter.cleanup.  We can not call the inherited
-        # versions of finished or cleanup because both assume that
+        # versions of finish or cleanup because both assume that
         # there is a subprocess that we either need to call to merge
         # many frames together or that there is a subprocess call that
         # we need to clean up.
         if self._tmpdir:
             _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
             self._tmpdir.cleanup()
-        else:
-            if self._clear_temp:
-                _log.debug('MovieWriter: clearing temporary paths=%s',
-                           self._temp_paths)
-                for path in self._temp_paths:
-                    path.unlink()
 
 
 class Animation:
@@ -1692,7 +1609,7 @@ class FuncAnimation(TimedAnimation):
             self.save_count = 100
         else:
             # itertools.islice returns an error when passed a numpy int instead
-            # of a native python int (http://bugs.python.org/issue30537).
+            # of a native python int (https://bugs.python.org/issue30537).
             # As a workaround, convert save_count to a native python int.
             self.save_count = int(self.save_count)
 

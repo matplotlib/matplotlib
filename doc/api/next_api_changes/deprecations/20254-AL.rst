@@ -1,0 +1,3 @@
+``floating_axes.GridHelperCurveLinear.get_boundary``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated, with no replacement.

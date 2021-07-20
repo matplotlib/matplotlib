@@ -24,14 +24,10 @@ def curvelinear_test1(fig):
     """Grid for custom transform."""
 
     def tr(x, y):
-        sgn = np.sign(x)
-        x, y = np.abs(np.asarray(x)), np.asarray(y)
-        return sgn*x**.5, y
+        return np.sign(x)*abs(x)**.5, y
 
     def inv_tr(x, y):
-        sgn = np.sign(x)
-        x, y = np.asarray(x), np.asarray(y)
-        return sgn*x**2, y
+        return np.sign(x)*x**2, y
 
     grid_helper = GridHelperCurveLinear(
         (tr, inv_tr),

@@ -1,19 +1,11 @@
 .. _environment-variables:
 
 *********************
-Environment Variables
+Environment variables
 *********************
 
 .. contents::
    :backlinks: none
-
-
-.. envvar:: DISPLAY
-
-  The server and screen on which to place windows. This is interpreted by GUI
-  toolkits in a backend-specific manner, but generally refers to an `X.org
-  display name
-  <https://www.x.org/releases/X11R7.7/doc/man/man7/X.7.xhtml#heading5>`_.
 
 .. envvar:: HOME
 
@@ -34,6 +26,13 @@ Environment Variables
   writable. Otherwise, the Python standard library's `tempfile.gettempdir` is
   used to find a base directory in which the :file:`matplotlib` subdirectory is
   created.
+
+.. envvar:: MPLSETUPCFG
+
+   This optional variable can be set to the full path of a :file:`setup.cfg`
+   configuration file used to customize the Matplotlib build.  By default, a
+   :file:`setup.cfg` file in the root of the Matplotlib source tree will be
+   read.  Supported build options are listed in :file:`setup.cfg.template`.
 
 .. envvar:: PATH
 

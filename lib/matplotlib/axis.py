@@ -211,7 +211,7 @@ class Tick(martist.Artist):
 
     @_api.deprecated("3.5", alternative="axis.set_tick_params")
     def apply_tickdir(self, tickdir):
-        self._apply_tickdir()
+        self._apply_tickdir(tickdir)
         self.stale = True
 
     def get_tickdir(self):
@@ -1287,8 +1287,7 @@ class Axis(martist.Artist):
                 if ~np.isclose(tr_loc, tr_major_locs, atol=tol, rtol=0).any()]
         return minor_locs
 
-    @_api.make_keyword_only("3.3", "minor")
-    def get_ticklocs(self, minor=False):
+    def get_ticklocs(self, *, minor=False):
         """Return this Axis' tick locations in data coordinates."""
         return self.get_minorticklocs() if minor else self.get_majorticklocs()
 
@@ -1517,16 +1516,13 @@ class Axis(martist.Artist):
         """
         if u == self.units:
             return
-        if self is self.axes.xaxis:
-            shared = [
-                ax.xaxis
-                for ax in self.axes.get_shared_x_axes().get_siblings(self.axes)
-            ]
-        elif self is self.axes.yaxis:
-            shared = [
-                ax.yaxis
-                for ax in self.axes.get_shared_y_axes().get_siblings(self.axes)
-            ]
+        for name, axis in self.axes._get_axis_map().items():
+            if self is axis:
+                shared = [
+                    getattr(ax, f"{name}axis")
+                    for ax
+                    in self.axes._shared_axes[name].get_siblings(self.axes)]
+                break
         else:
             shared = [self]
         for axis in shared:
@@ -1755,8 +1751,7 @@ class Axis(martist.Artist):
 
     # Wrapper around set_ticklabels used to generate Axes.set_x/ytickabels; can
     # go away once the API of Axes.set_x/yticklabels becomes consistent.
-    @_api.make_keyword_only("3.3", "fontdict")
-    def _set_ticklabels(self, labels, fontdict=None, minor=False, **kwargs):
+    def _set_ticklabels(self, labels, *, fontdict=None, minor=False, **kwargs):
         """
         Set this Axis' labels with list of string labels.
 
@@ -1800,21 +1795,13 @@ class Axis(martist.Artist):
 
         # XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)
-        if self is self.axes.xaxis:
-            shared = [
-                ax.xaxis
-                for ax in self.axes.get_shared_x_axes().get_siblings(self.axes)
-            ]
-        elif self is self.axes.yaxis:
-            shared = [
-                ax.yaxis
-                for ax in self.axes.get_shared_y_axes().get_siblings(self.axes)
-            ]
-        elif hasattr(self.axes, "zaxis") and self is self.axes.zaxis:
-            shared = [
-                ax.zaxis
-                for ax in self.axes._shared_z_axes.get_siblings(self.axes)
-            ]
+        for name, axis in self.axes._get_axis_map().items():
+            if self is axis:
+                shared = [
+                    getattr(ax, f"{name}axis")
+                    for ax
+                    in self.axes._shared_axes[name].get_siblings(self.axes)]
+                break
         else:
             shared = [self]
         for axis in shared:
@@ -1882,7 +1869,7 @@ class Axis(martist.Artist):
         bboxes2 = []
         # If we want to align labels from other axes:
         for ax in grouper.get_siblings(self.axes):
-            axis = ax._get_axis_map()[axis_name]
+            axis = getattr(ax, f"{axis_name}axis")
             ticks_to_draw = axis._update_ticks()
             tlb, tlb2 = axis._get_tick_bboxes(ticks_to_draw, renderer)
             bboxes.extend(tlb)
@@ -2253,7 +2240,6 @@ class XAxis(Axis):
 
     def set_default_intervals(self):
         # docstring inherited
-        xmin, xmax = 0., 1.
         # only change view if dataLim has not changed and user has
         # not changed the view:
         if (not self.axes.dataLim.mutatedx() and
@@ -2514,7 +2500,6 @@ class YAxis(Axis):
 
     def set_default_intervals(self):
         # docstring inherited
-        ymin, ymax = 0., 1.
         # only change view if dataLim has not changed and user has
         # not changed the view:
         if (not self.axes.dataLim.mutatedy() and

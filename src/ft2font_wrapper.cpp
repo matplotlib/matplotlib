@@ -1551,6 +1551,8 @@ PyMODINIT_FUNC PyInit_ft2font(void)
 {
     PyObject *m;
 
+    import_array();
+
     m = PyModule_Create(&moduledef);
 
     if (m == NULL) {
@@ -1558,14 +1560,17 @@ PyMODINIT_FUNC PyInit_ft2font(void)
     }
 
     if (!PyFT2Image_init_type(m, &PyFT2ImageType)) {
+        Py_DECREF(m);
         return NULL;
     }
 
     if (!PyGlyph_init_type(m, &PyGlyphType)) {
+        Py_DECREF(m);
         return NULL;
     }
 
     if (!PyFT2Font_init_type(m, &PyFT2FontType)) {
+        Py_DECREF(m);
         return NULL;
     }
 
@@ -1607,6 +1612,7 @@ PyMODINIT_FUNC PyInit_ft2font(void)
         add_dict_int(d, "LOAD_TARGET_MONO", (unsigned long)FT_LOAD_TARGET_MONO) ||
         add_dict_int(d, "LOAD_TARGET_LCD", (unsigned long)FT_LOAD_TARGET_LCD) ||
         add_dict_int(d, "LOAD_TARGET_LCD_V", (unsigned long)FT_LOAD_TARGET_LCD_V)) {
+        Py_DECREF(m);
         return NULL;
     }
 
@@ -1615,6 +1621,7 @@ PyMODINIT_FUNC PyInit_ft2font(void)
 
     if (error) {
         PyErr_SetString(PyExc_RuntimeError, "Could not initialize the freetype2 library");
+        Py_DECREF(m);
         return NULL;
     }
 
@@ -1625,15 +1632,15 @@ PyMODINIT_FUNC PyInit_ft2font(void)
         FT_Library_Version(_ft2Library, &major, &minor, &patch);
         sprintf(version_string, "%d.%d.%d", major, minor, patch);
         if (PyModule_AddStringConstant(m, "__freetype_version__", version_string)) {
+            Py_DECREF(m);
             return NULL;
         }
     }
 
     if (PyModule_AddStringConstant(m, "__freetype_build_type__", STRINGIFY(FREETYPE_BUILD_TYPE))) {
+        Py_DECREF(m);
         return NULL;
     }
-
-    import_array();
 
     return m;
 }

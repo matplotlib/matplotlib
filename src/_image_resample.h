@@ -25,7 +25,7 @@
 
 //----------------------------------------------------------------------------
 // Anti-Grain Geometry - Version 2.4
-// Copyright (C) 2002-2005 Maxim Shemanarev (http://www.antigrain.com)
+// Copyright (C) 2002-2005 Maxim Shemanarev (http://antigrain.com/)
 //
 // Permission to copy, use, modify, sell and distribute this software
 // is granted provided this copyright notice appears in all copies.
@@ -35,7 +35,7 @@
 //----------------------------------------------------------------------------
 // Contact: mcseem@antigrain.com
 //          mcseemagg@yahoo.com
-//          http://www.antigrain.com
+//          http://antigrain.com/
 //----------------------------------------------------------------------------
 //
 // Adaptation for high precision colors has been sponsored by

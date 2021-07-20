@@ -636,12 +636,12 @@ def test_large_subscript_title():
     ax = axs[0]
     ax.set_title(r'$\sum_{i} x_i$')
     ax.set_title('New way', loc='left')
-    ax.set_xticklabels('')
+    ax.set_xticklabels([])
 
     ax = axs[1]
     ax.set_title(r'$\sum_{i} x_i$', y=1.01)
     ax.set_title('Old Way', loc='left')
-    ax.set_xticklabels('')
+    ax.set_xticklabels([])
 
 
 def test_wrap():
@@ -731,3 +731,20 @@ def test_unsupported_script(recwarn):
         [warn.message.args for warn in recwarn] ==
         [(r"Glyph 2534 (\N{BENGALI DIGIT ZERO}) missing from current font.",),
          (r"Matplotlib currently does not support Bengali natively.",)])
+
+
+def test_parse_math():
+    fig, ax = plt.subplots()
+    ax.text(0, 0, r"$ \wrong{math} $", parse_math=False)
+    fig.canvas.draw()
+
+    ax.text(0, 0, r"$ \wrong{math} $", parse_math=True)
+    with pytest.raises(ValueError, match='Unknown symbol'):
+        fig.canvas.draw()
+
+
+@image_comparison(['text_pdf_font42_kerning.pdf'], style='mpl20')
+def test_pdf_font42_kerning():
+    plt.rcParams['pdf.fonttype'] = 42
+    plt.figure()
+    plt.figtext(0.1, 0.5, "ATAVATAVATAVATAVATA", size=30)

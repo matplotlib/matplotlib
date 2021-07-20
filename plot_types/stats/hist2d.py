@@ -1,7 +1,9 @@
 """
-==================================
-hist2d(x, y, [(xbins, ybins)],...)
-==================================
+============
+hist2d(x, y)
+============
+
+See `~matplotlib.axes.Axes.hist2d`.
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,7 +13,7 @@ plt.style.use('mpl_plot_gallery')
 # make data: correlated + noise
 np.random.seed(1)
 x = np.random.randn(5000)
-y = 1.2 * x + np.random.randn(5000)/3
+y = 1.2 * x + np.random.randn(5000) / 3
 
 # plot:
 fig, ax = plt.subplots()

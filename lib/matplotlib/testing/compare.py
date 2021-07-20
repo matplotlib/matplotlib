@@ -19,7 +19,7 @@ import numpy as np
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import _api, cbook
+from matplotlib import cbook
 from matplotlib.testing.exceptions import ImageComparisonFailure
 
 _log = logging.getLogger(__name__)
@@ -64,25 +64,6 @@ def get_file_hash(path, block_size=2 ** 20):
     return md5.hexdigest()
 
 
-@_api.deprecated("3.3")
-def make_external_conversion_command(cmd):
-    def convert(old, new):
-        cmdline = cmd(old, new)
-        pipe = subprocess.Popen(cmdline, universal_newlines=True,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = pipe.communicate()
-        errcode = pipe.wait()
-        if not os.path.exists(new) or errcode:
-            msg = "Conversion command failed:\n%s\n" % ' '.join(cmdline)
-            if stdout:
-                msg += "Standard output:\n%s\n" % stdout
-            if stderr:
-                msg += "Standard error:\n%s\n" % stderr
-            raise IOError(msg)
-
-    return convert
-
-
 # Modified from https://bugs.python.org/issue25567.
 _find_unsafe_bytes = re.compile(br'[^a-zA-Z0-9_@%+=:,./-]').search
 
@@ -124,7 +105,7 @@ class _Converter:
                 raise _ConverterError
             buf.extend(c)
             if buf.endswith(terminator):
-                return bytes(buf[:-len(terminator)])
+                return bytes(buf)
 
 
 class _GSConverter(_Converter):
@@ -154,20 +135,21 @@ class _GSConverter(_Converter):
             + b") run flush\n")
         self._proc.stdin.flush()
         # GS> if nothing left on the stack; GS<n> if n items left on the stack.
-        err = self._read_until(b"GS")
-        stack = self._read_until(b">")
+        err = self._read_until((b"GS<", b"GS>"))
+        stack = ""
+        if err.endswith(b"GS<"):
+            stack = self._read_until(b">")
         if stack or not os.path.exists(dest):
-            stack_size = int(stack[1:]) if stack else 0
+            stack_size = int(stack[:-1]) if stack else 0
             self._proc.stdin.write(b"pop\n" * stack_size)
             # Using the systemencoding should at least get the filenames right.
             raise ImageComparisonFailure(
-                (err + b"GS" + stack + b">")
-                .decode(sys.getfilesystemencoding(), "replace"))
+                (err + stack).decode(sys.getfilesystemencoding(), "replace"))
 
 
 class _SVGConverter(_Converter):
     def __call__(self, orig, dest):
-        old_inkscape = mpl._get_executable_info("inkscape").version < "1"
+        old_inkscape = mpl._get_executable_info("inkscape").version.major < 1
         terminator = b"\n>" if old_inkscape else b"> "
         if not hasattr(self, "_tmpdir"):
             self._tmpdir = TemporaryDirectory()

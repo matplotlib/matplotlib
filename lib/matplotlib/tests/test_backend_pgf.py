@@ -4,6 +4,7 @@ import os
 import shutil
 
 import numpy as np
+from packaging.version import parse as parse_version
 import pytest
 
 import matplotlib as mpl
@@ -88,7 +89,8 @@ def test_xelatex():
 
 
 try:
-    _old_gs_version = mpl._get_executable_info('gs').version < '9.50'
+    _old_gs_version = \
+        mpl._get_executable_info('gs').version < parse_version('9.50')
 except mpl.ExecutableNotFoundError:
     _old_gs_version = True
 
@@ -116,7 +118,7 @@ def test_pdflatex():
 # test updating the rc parameters for each figure
 @needs_xelatex
 @needs_pdflatex
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @pytest.mark.backend('pgf')
 def test_rcupdate():
     rc_sets = [{'font.family': 'sans-serif',
@@ -147,7 +149,7 @@ def test_rcupdate():
 
 # test backend-side clipping, since large numbers are not supported by TeX
 @needs_xelatex
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @pytest.mark.backend('pgf')
 def test_pathclip():
     np.random.seed(19680801)
@@ -177,7 +179,7 @@ def test_mixedmode():
 
 # test bbox_inches clipping
 @needs_xelatex
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @pytest.mark.backend('pgf')
 def test_bbox_inches():
     mpl.rcParams.update({'font.family': 'serif', 'pgf.rcfonts': False})
@@ -190,7 +192,7 @@ def test_bbox_inches():
                    tol=0)
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @pytest.mark.backend('pgf')
 @pytest.mark.parametrize('system', [
     pytest.param('lualatex', marks=[needs_lualatex]),
@@ -232,7 +234,7 @@ def test_pdf_pages(system):
         assert pdf.get_pagecount() == 3
 
 
-@pytest.mark.style('default')
+@mpl.style.context('default')
 @pytest.mark.backend('pgf')
 @pytest.mark.parametrize('system', [
     pytest.param('lualatex', marks=[needs_lualatex]),

@@ -19,9 +19,7 @@ def check_shared(axs, x_shared, y_shared):
             enumerate(zip("xy", [x_shared, y_shared]))):
         if i2 <= i1:
             continue
-        assert \
-            (getattr(axs[0], "_shared_{}_axes".format(name)).joined(ax1, ax2)
-             == shared[i1, i2]), \
+        assert axs[0]._shared_axes[name].joined(ax1, ax2) == shared[i1, i2], \
             "axes %i and %i incorrectly %ssharing %s axis" % (
                 i1, i2, "not " if shared[i1, i2] else "", name)
 
@@ -144,17 +142,6 @@ def test_exceptions():
         plt.subplots(2, 2, sharex='blah')
     with pytest.raises(ValueError):
         plt.subplots(2, 2, sharey='blah')
-    # We filter warnings in this test which are genuine since
-    # the point of this test is to ensure that this raises.
-    with pytest.warns(UserWarning, match='.*sharex argument to subplots'), \
-         pytest.raises(ValueError):
-        plt.subplots(2, 2, -1)
-    with pytest.warns(UserWarning, match='.*sharex argument to subplots'), \
-         pytest.raises(ValueError):
-        plt.subplots(2, 2, 0)
-    with pytest.warns(UserWarning, match='.*sharex argument to subplots'), \
-         pytest.raises(ValueError):
-        plt.subplots(2, 2, 5)
 
 
 @image_comparison(['subplots_offset_text'], remove_text=False)

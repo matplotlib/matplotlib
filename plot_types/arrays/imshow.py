@@ -1,7 +1,9 @@
 """
-=======================
-imshow(Z, [cmap=], ...)
-=======================
+=========
+imshow(Z)
+=========
+
+See `~matplotlib.axes.Axes.imshow`.
 """
 
 import matplotlib.pyplot as plt
@@ -17,10 +19,8 @@ Z = Z[::16, ::16]
 
 # plot
 fig, ax = plt.subplots()
+ax.grid(False)
 
-ax.imshow(Z, extent=[0, 8, 0, 8], interpolation="nearest",
-            cmap=plt.get_cmap('Blues'), vmin=0, vmax=1.6)
-
-ax.set(xticks=[], yticks=[])
+ax.imshow(Z)
 
 plt.show()

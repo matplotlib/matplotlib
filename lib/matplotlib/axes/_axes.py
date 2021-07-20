@@ -661,7 +661,6 @@ class Axes(_AxesBase):
         self._add_text(t)
         return t
 
-    @_api.rename_parameter("3.3", "s", "text")
     @docstring.dedent_interpd
     def annotate(self, text, xy, *args, **kwargs):
         a = mtext.Annotation(text, xy, *args, **kwargs)
@@ -1367,10 +1366,9 @@ class Axes(_AxesBase):
                 minline = (lineoffsets - linelengths).min()
                 maxline = (lineoffsets + linelengths).max()
 
-                if (orientation is not None and
-                        orientation.lower() == "vertical"):
+                if orientation == "vertical":
                     corners = (minline, minpos), (maxline, maxpos)
-                else:  # "horizontal", None or "none" (see EventCollection)
+                else:  # "horizontal"
                     corners = (minpos, minline), (maxpos, maxline)
                 self.update_datalim(corners)
                 self._request_autoscale_view()
@@ -3748,7 +3746,7 @@ class Axes(_AxesBase):
 
         # if non-default sym value, put it into the flier dictionary
         # the logic for providing the default symbol ('b+') now lives
-        # in bxp in the initial value of final_flierprops
+        # in bxp in the initial value of flierkw
         # handle all of the *sym* related logic here so we only have to pass
         # on the flierprops dict.
         if sym is not None:
@@ -3837,85 +3835,45 @@ class Axes(_AxesBase):
           A list of dictionaries containing stats for each boxplot.
           Required keys are:
 
-          - ``med``: The median (scalar float).
-
-          - ``q1``: The first quartile (25th percentile) (scalar
-            float).
-
-          - ``q3``: The third quartile (75th percentile) (scalar
-            float).
-
-          - ``whislo``: Lower bound of the lower whisker (scalar
-            float).
-
-          - ``whishi``: Upper bound of the upper whisker (scalar
-            float).
+          - ``med``: Median (scalar).
+          - ``q1``, ``q3``: First & third quartiles (scalars).
+          - ``whislo``, ``whishi``: Lower & upper whisker positions (scalars).
 
           Optional keys are:
 
-          - ``mean``: The mean (scalar float). Needed if
-            ``showmeans=True``.
-
-          - ``fliers``: Data beyond the whiskers (sequence of floats).
+          - ``mean``: Mean (scalar).  Needed if ``showmeans=True``.
+          - ``fliers``: Data beyond the whiskers (array-like).
             Needed if ``showfliers=True``.
-
-          - ``cilo`` & ``cihi``: Lower and upper confidence intervals
+          - ``cilo``, ``cihi``: Lower & upper confidence intervals
             about the median. Needed if ``shownotches=True``.
-
-          - ``label``: Name of the dataset (string). If available,
+          - ``label``: Name of the dataset (str).  If available,
             this will be used a tick label for the boxplot
 
         positions : array-like, default: [1, 2, ..., n]
           The positions of the boxes. The ticks and limits
           are automatically set to match the positions.
 
-        widths : array-like, default: None
-          Either a scalar or a vector and sets the width of each
-          box. The default is ``0.15*(distance between extreme
-          positions)``, clipped to no less than 0.15 and no more than
-          0.5.
+        widths : float or array-like, default: None
+          The widths of the boxes.  The default is
+          ``clip(0.15*(distance between extreme positions), 0.15, 0.5)``.
 
         vert : bool, default: True
-          If `True` (default), makes the boxes vertical.  If `False`,
-          makes horizontal boxes.
+          If `True` (default), makes the boxes vertical.
+          If `False`, makes horizontal boxes.
 
         patch_artist : bool, default: False
           If `False` produces boxes with the `.Line2D` artist.
           If `True` produces boxes with the `~matplotlib.patches.Patch` artist.
 
-        shownotches : bool, default: False
-          If `False` (default), produces a rectangular box plot.
-          If `True`, will produce a notched box plot
+        shownotches, showmeans, showcaps, showbox, showfliers : bool
+          Whether to draw the CI notches, the mean value (both default to
+          False), the caps, the box, and the fliers (all three default to
+          True).
 
-        showmeans : bool, default: False
-          If `True`, will toggle on the rendering of the means
-
-        showcaps  : bool, default: True
-          If `True`, will toggle on the rendering of the caps
-
-        showbox  : bool, default: True
-          If `True`, will toggle on the rendering of the box
-
-        showfliers : bool, default: True
-          If `True`, will toggle on the rendering of the fliers
-
-        boxprops : dict or None (default)
-          If provided, will set the plotting style of the boxes
-
-        whiskerprops : dict or None (default)
-          If provided, will set the plotting style of the whiskers
-
-        capprops : dict or None (default)
-          If provided, will set the plotting style of the caps
-
-        flierprops : dict or None (default)
-          If provided will set the plotting style of the fliers
-
-        medianprops : dict or None (default)
-          If provided, will set the plotting style of the medians
-
-        meanprops : dict or None (default)
-          If provided, will set the plotting style of the means
+        boxprops, whiskerprops, capprops, flierprops, medianprops, meanprops :\
+ dict, optional
+          Artist properties for the boxes, whiskers, caps, fliers, medians, and
+          means.
 
         meanline : bool, default: False
           If `True` (and *showmeans* is `True`), will try to render the mean
@@ -3937,28 +3895,19 @@ class Axes(_AxesBase):
           of the `.Line2D` instances created. That dictionary has the
           following keys (assuming vertical boxplots):
 
-          - ``boxes``: the main body of the boxplot showing the
-            quartiles and the median's confidence intervals if
-            enabled.
-
+          - ``boxes``: main bodies of the boxplot showing the quartiles, and
+            the median's confidence intervals if enabled.
           - ``medians``: horizontal lines at the median of each box.
-
-          - ``whiskers``: the vertical lines extending to the most
-            extreme, non-outlier data points.
-
-          - ``caps``: the horizontal lines at the ends of the
-            whiskers.
-
-          - ``fliers``: points representing data that extend beyond
-            the whiskers (fliers).
-
+          - ``whiskers``: vertical lines up to the last non-outlier data.
+          - ``caps``: horizontal lines at the ends of the whiskers.
+          - ``fliers``: points representing data beyond the whiskers (fliers).
           - ``means``: points or lines representing the means.
 
         Examples
         --------
         .. plot:: gallery/statistics/bxp.py
-
         """
+
         # lists of artists to be output
         whiskers = []
         caps = []
@@ -3976,72 +3925,47 @@ class Axes(_AxesBase):
 
         zdelta = 0.1
 
-        def line_props_with_rcdefaults(subkey, explicit, zdelta=0,
-                                       use_marker=True):
+        def merge_kw_rc(subkey, explicit, zdelta=0, usemarker=True):
             d = {k.split('.')[-1]: v for k, v in rcParams.items()
-                 if k.startswith(f'boxplot.{subkey}')}
+                 if k.startswith(f'boxplot.{subkey}props')}
             d['zorder'] = zorder + zdelta
-            if not use_marker:
+            if not usemarker:
                 d['marker'] = ''
             d.update(cbook.normalize_kwargs(explicit, mlines.Line2D))
             return d
 
-        # box properties
-        if patch_artist:
-            final_boxprops = {
-                'linestyle': rcParams['boxplot.boxprops.linestyle'],
-                'linewidth': rcParams['boxplot.boxprops.linewidth'],
-                'edgecolor': rcParams['boxplot.boxprops.color'],
-                'facecolor': ('white' if rcParams['_internal.classic_mode']
-                              else rcParams['patch.facecolor']),
-                'zorder': zorder,
-                **cbook.normalize_kwargs(boxprops, mpatches.PathPatch)
-            }
-        else:
-            final_boxprops = line_props_with_rcdefaults('boxprops', boxprops,
-                                                        use_marker=False)
-        final_whiskerprops = line_props_with_rcdefaults(
-            'whiskerprops', whiskerprops, use_marker=False)
-        final_capprops = line_props_with_rcdefaults(
-            'capprops', capprops, use_marker=False)
-        final_flierprops = line_props_with_rcdefaults(
-            'flierprops', flierprops)
-        final_medianprops = line_props_with_rcdefaults(
-            'medianprops', medianprops, zdelta, use_marker=False)
-        final_meanprops = line_props_with_rcdefaults(
-            'meanprops', meanprops, zdelta)
+        box_kw = {
+            'linestyle': rcParams['boxplot.boxprops.linestyle'],
+            'linewidth': rcParams['boxplot.boxprops.linewidth'],
+            'edgecolor': rcParams['boxplot.boxprops.color'],
+            'facecolor': ('white' if rcParams['_internal.classic_mode']
+                          else rcParams['patch.facecolor']),
+            'zorder': zorder,
+            **cbook.normalize_kwargs(boxprops, mpatches.PathPatch)
+        } if patch_artist else merge_kw_rc('box', boxprops, usemarker=False)
+        whisker_kw = merge_kw_rc('whisker', whiskerprops, usemarker=False)
+        cap_kw = merge_kw_rc('cap', capprops, usemarker=False)
+        flier_kw = merge_kw_rc('flier', flierprops)
+        median_kw = merge_kw_rc('median', medianprops, zdelta, usemarker=False)
+        mean_kw = merge_kw_rc('mean', meanprops, zdelta)
         removed_prop = 'marker' if meanline else 'linestyle'
         # Only remove the property if it's not set explicitly as a parameter.
         if meanprops is None or removed_prop not in meanprops:
-            final_meanprops[removed_prop] = ''
-
-        def patch_list(xs, ys, **kwargs):
-            path = mpath.Path(
-                # Last vertex will have a CLOSEPOLY code and thus be ignored.
-                np.append(np.column_stack([xs, ys]), [(0, 0)], 0),
-                closed=True)
-            patch = mpatches.PathPatch(path, **kwargs)
-            self.add_artist(patch)
-            return [patch]
+            mean_kw[removed_prop] = ''
 
         # vertical or horizontal plot?
-        if vert:
-            def doplot(*args, **kwargs):
-                return self.plot(*args, **kwargs)
+        maybe_swap = slice(None) if vert else slice(None, None, -1)
 
-            def dopatch(xs, ys, **kwargs):
-                return patch_list(xs, ys, **kwargs)
+        def do_plot(xs, ys, **kwargs):
+            return self.plot(*[xs, ys][maybe_swap], **kwargs)[0]
 
-        else:
-            def doplot(*args, **kwargs):
-                shuffled = []
-                for i in range(0, len(args), 2):
-                    shuffled.extend([args[i + 1], args[i]])
-                return self.plot(*shuffled, **kwargs)
-
-            def dopatch(xs, ys, **kwargs):
-                xs, ys = ys, xs  # flip X, Y
-                return patch_list(xs, ys, **kwargs)
+        def do_patch(xs, ys, **kwargs):
+            path = mpath.Path(
+                # Last (0, 0) vertex has a CLOSEPOLY code and is thus ignored.
+                np.column_stack([[*xs, 0], [*ys, 0]][maybe_swap]), closed=True)
+            patch = mpatches.PathPatch(path, **kwargs)
+            self.add_artist(patch)
+            return patch
 
         # input validation
         N = len(bxpstats)
@@ -4070,22 +3994,19 @@ class Axes(_AxesBase):
             datalabels.append(stats.get('label', pos))
 
             # whisker coords
-            whisker_x = np.ones(2) * pos
-            whiskerlo_y = np.array([stats['q1'], stats['whislo']])
-            whiskerhi_y = np.array([stats['q3'], stats['whishi']])
-
+            whis_x = [pos, pos]
+            whislo_y = [stats['q1'], stats['whislo']]
+            whishi_y = [stats['q3'], stats['whishi']]
             # cap coords
             cap_left = pos - width * 0.25
             cap_right = pos + width * 0.25
-            cap_x = np.array([cap_left, cap_right])
-            cap_lo = np.ones(2) * stats['whislo']
-            cap_hi = np.ones(2) * stats['whishi']
-
+            cap_x = [cap_left, cap_right]
+            cap_lo = np.full(2, stats['whislo'])
+            cap_hi = np.full(2, stats['whishi'])
             # box and median coords
             box_left = pos - width * 0.5
             box_right = pos + width * 0.5
             med_y = [stats['med'], stats['med']]
-
             # notched boxes
             if shownotches:
                 box_x = [box_left, box_right, box_right, cap_right, box_right,
@@ -4096,7 +4017,6 @@ class Axes(_AxesBase):
                          stats['q3'], stats['cihi'], stats['med'],
                          stats['cilo'], stats['q1']]
                 med_x = cap_x
-
             # plain boxes
             else:
                 box_x = [box_left, box_right, box_right, box_left, box_left]
@@ -4104,50 +4024,33 @@ class Axes(_AxesBase):
                          stats['q1']]
                 med_x = [box_left, box_right]
 
-            # maybe draw the box:
+            # maybe draw the box
             if showbox:
-                if patch_artist:
-                    boxes.extend(dopatch(box_x, box_y, **final_boxprops))
-                else:
-                    boxes.extend(doplot(box_x, box_y, **final_boxprops))
-
+                do_box = do_patch if patch_artist else do_plot
+                boxes.append(do_box(box_x, box_y, **box_kw))
             # draw the whiskers
-            whiskers.extend(doplot(
-                whisker_x, whiskerlo_y, **final_whiskerprops
-            ))
-            whiskers.extend(doplot(
-                whisker_x, whiskerhi_y, **final_whiskerprops
-            ))
-
-            # maybe draw the caps:
+            whiskers.append(do_plot(whis_x, whislo_y, **whisker_kw))
+            whiskers.append(do_plot(whis_x, whishi_y, **whisker_kw))
+            # maybe draw the caps
             if showcaps:
-                caps.extend(doplot(cap_x, cap_lo, **final_capprops))
-                caps.extend(doplot(cap_x, cap_hi, **final_capprops))
-
+                caps.append(do_plot(cap_x, cap_lo, **cap_kw))
+                caps.append(do_plot(cap_x, cap_hi, **cap_kw))
             # draw the medians
-            medians.extend(doplot(med_x, med_y, **final_medianprops))
-
+            medians.append(do_plot(med_x, med_y, **median_kw))
             # maybe draw the means
             if showmeans:
                 if meanline:
-                    means.extend(doplot(
+                    means.append(do_plot(
                         [box_left, box_right], [stats['mean'], stats['mean']],
-                        **final_meanprops
+                        **mean_kw
                     ))
                 else:
-                    means.extend(doplot(
-                        [pos], [stats['mean']], **final_meanprops
-                    ))
-
+                    means.append(do_plot([pos], [stats['mean']], **mean_kw))
             # maybe draw the fliers
             if showfliers:
-                # fliers coords
                 flier_x = np.full(len(stats['fliers']), pos, dtype=np.float64)
                 flier_y = stats['fliers']
-
-                fliers.extend(doplot(
-                    flier_x, flier_y, **final_flierprops
-                ))
+                fliers.append(do_plot(flier_x, flier_y, **flier_kw))
 
         if manage_ticks:
             axis_name = "x" if vert else "y"
@@ -4256,7 +4159,7 @@ class Axes(_AxesBase):
                 mcolors.to_rgba_array(kwcolor)
             except ValueError as err:
                 raise ValueError(
-                    "'color' kwarg must be an color or sequence of color "
+                    "'color' kwarg must be a color or sequence of color "
                     "specs.  For a sequence of values to be color-mapped, use "
                     "the 'c' argument instead.") from err
             if edgecolors is None:
@@ -4399,7 +4302,7 @@ class Axes(_AxesBase):
             *vmin* and *vmax* are used in conjunction with the default norm to
             map the color array *c* to the colormap *cmap*. If None, the
             respective min and max of the color array is used.
-            It is deprecated to use *vmin*/*vmax* when *norm* is given.
+            It is an error to use *vmin*/*vmax* when *norm* is given.
 
         alpha : float, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -4649,16 +4552,15 @@ default: :rc:`scatter.edgecolors`
             colormapped rectangles along the bottom of the x-axis and
             left of the y-axis.
 
-        extent : float, default: *None*
-            The limits of the bins. The default assigns the limits
-            based on *gridsize*, *x*, *y*, *xscale* and *yscale*.
+        extent : 4-tuple of float, default: *None*
+            The limits of the bins (xmin, xmax, ymin, ymax).
+            The default assigns the limits based on
+            *gridsize*, *x*, *y*, *xscale* and *yscale*.
 
             If *xscale* or *yscale* is set to 'log', the limits are
             expected to be the exponent for a power of 10. E.g. for
             x-limits of 1 and 50 in 'linear' scale and y-limits
             of 10 and 1000 in 'log' scale, enter (1, 50, 1, 3).
-
-            Order of scalars is (left, right, bottom, top).
 
         Returns
         -------
@@ -4690,7 +4592,7 @@ default: :rc:`scatter.edgecolors`
             automatically chosen by the `.Normalize` instance (defaults to
             the respective min/max values of the bins in case of the default
             linear scaling).
-            It is deprecated to use *vmin*/*vmax* when *norm* is given.
+            It is an error to use *vmin*/*vmax* when *norm* is given.
 
         alpha : float between 0 and 1, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -4727,6 +4629,9 @@ default: :rc:`scatter.edgecolors`
 
             %(PolyCollection:kwdoc)s
 
+        See Also
+        --------
+        hist2d : 2D histogram rectangular bins
         """
         self._process_unit_info([("x", x), ("y", y)], kwargs, convert=False)
 
@@ -5484,7 +5389,7 @@ default: :rc:`scatter.edgecolors`
             When using scalar data and no explicit *norm*, *vmin* and *vmax*
             define the data range that the colormap covers. By default,
             the colormap covers the complete value range of the supplied
-            data. It is deprecated to use *vmin*/*vmax* when *norm* is given.
+            data. It is an error to use *vmin*/*vmax* when *norm* is given.
             When using RGB(A) data, parameters *vmin*/*vmax* are ignored.
 
         origin : {'upper', 'lower'}, default: :rc:`image.origin`
@@ -5806,7 +5711,7 @@ default: :rc:`scatter.edgecolors`
             automatically chosen by the `.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
-            It is deprecated to use *vmin*/*vmax* when *norm* is given.
+            It is an error to use *vmin*/*vmax* when *norm* is given.
 
         edgecolors : {'none', None, 'face', color, color sequence}, optional
             The color of the edges. Defaults to 'none'. Possible values:
@@ -6036,7 +5941,7 @@ default: :rc:`scatter.edgecolors`
             automatically chosen by the `.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
-            It is deprecated to use *vmin*/*vmax* when *norm* is given.
+            It is an error to use *vmin*/*vmax* when *norm* is given.
 
         edgecolors : {'none', None, 'face', color, color sequence}, optional
             The color of the edges. Defaults to 'none'. Possible values:
@@ -6287,7 +6192,7 @@ default: :rc:`scatter.edgecolors`
             automatically chosen by the `.Normalize` instance (defaults to
             the respective min/max values of *C* in case of the default linear
             scaling).
-            It is deprecated to use *vmin*/*vmax* when *norm* is given.
+            It is an error to use *vmin*/*vmax* when *norm* is given.
 
         alpha : float, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -6622,7 +6527,8 @@ such objects
 
         See Also
         --------
-        hist2d : 2D histograms
+        hist2d : 2D histogram with rectangular bins
+        hexbin : 2D histogram with hexagonal bins
 
         Notes
         -----
@@ -7065,6 +6971,7 @@ such objects
         See Also
         --------
         hist : 1D histogram plotting
+        hexbin : 2D histogram with hexagonal bins
 
         Notes
         -----

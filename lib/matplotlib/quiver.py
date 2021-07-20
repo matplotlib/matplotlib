@@ -521,10 +521,6 @@ class Quiver(mcollections.PolyCollection):
 
         self._cid = ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
 
-    @_api.deprecated("3.3", alternative="axes")
-    def ax(self):
-        return self.axes
-
     def remove(self):
         # docstring inherited
         self.axes.figure.callbacks.disconnect(self._cid)
@@ -1162,8 +1158,10 @@ class Barbs(mcollections.PolyCollection):
         return barb_list
 
     def set_UVC(self, U, V, C=None):
-        self.u = ma.masked_invalid(U, copy=False).ravel()
-        self.v = ma.masked_invalid(V, copy=False).ravel()
+        # We need to ensure we have a copy, not a reference to an array that
+        # might change before draw().
+        self.u = ma.masked_invalid(U, copy=True).ravel()
+        self.v = ma.masked_invalid(V, copy=True).ravel()
 
         # Flip needs to have the same number of entries as everything else.
         # Use broadcast_to to avoid a bloated array of identical values.
@@ -1174,7 +1172,7 @@ class Barbs(mcollections.PolyCollection):
             flip = self.flip
 
         if C is not None:
-            c = ma.masked_invalid(C, copy=False).ravel()
+            c = ma.masked_invalid(C, copy=True).ravel()
             x, y, u, v, c, flip = cbook.delete_masked_points(
                 self.x.ravel(), self.y.ravel(), self.u, self.v, c,
                 flip.ravel())

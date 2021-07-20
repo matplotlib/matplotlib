@@ -5,10 +5,10 @@ Basic Units
 
 """
 
-from distutils.version import LooseVersion
 import math
 
 import numpy as np
+from packaging.version import parse as parse_version
 
 import matplotlib.units as units
 import matplotlib.ticker as ticker
@@ -155,7 +155,7 @@ class TaggedValue(metaclass=TaggedValueMeta):
     def __len__(self):
         return len(self.value)
 
-    if LooseVersion(np.__version__) >= '1.20':
+    if parse_version(np.__version__) >= parse_version('1.20'):
         def __getitem__(self, key):
             return TaggedValue(self.value[key], self.unit)
 

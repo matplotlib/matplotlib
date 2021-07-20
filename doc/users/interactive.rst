@@ -2,9 +2,9 @@
 
 .. _mpl-shell:
 
-=====================
- Interactive Figures
-=====================
+===================
+Interactive figures
+===================
 
 .. toctree::
 
@@ -201,7 +201,7 @@ helpful keybindings are registered by default.
 
 .. _key-event-handling:
 
-Navigation Keyboard Shortcuts
+Navigation keyboard shortcuts
 -----------------------------
 
 The following table holds all the default keys, which can be
@@ -249,8 +249,8 @@ documentation of your GUI toolkit for details.
 
 
 
-Jupyter Notebooks / Lab
------------------------
+Jupyter Notebooks / JupyterLab
+------------------------------
 
 .. note::
 

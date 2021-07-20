@@ -149,10 +149,22 @@ def test_failing_latex():
 @needs_usetex
 def test_partial_usetex(caplog):
     caplog.set_level("WARNING")
-    plt.figtext(.5, .5, "foo", usetex=True)
+    plt.figtext(.1, .1, "foo", usetex=True)
+    plt.figtext(.2, .2, "bar", usetex=True)
     plt.savefig(io.BytesIO(), format="ps")
-    assert caplog.records and all("as if usetex=False" in record.getMessage()
-                                  for record in caplog.records)
+    record, = caplog.records  # asserts there's a single record.
+    assert "as if usetex=False" in record.getMessage()
+
+
+@needs_usetex
+def test_usetex_preamble(caplog):
+    mpl.rcParams.update({
+        "text.usetex": True,
+        # Check that these don't conflict with the packages loaded by default.
+        "text.latex.preamble": r"\usepackage{color,graphicx,textcomp}",
+    })
+    plt.figtext(.5, .5, "foo")
+    plt.savefig(io.BytesIO(), format="ps")
 
 
 @image_comparison(["useafm.eps"])
@@ -186,3 +198,12 @@ def test_d_glyph(tmp_path):
     out = tmp_path / "test.eps"
     fig.savefig(out)
     mpl.testing.compare.convert(out, cache=False)  # Should not raise.
+
+
+@image_comparison(["type42_without_prep.eps"], style='mpl20')
+def test_type42_font_without_prep():
+    # Test whether Type 42 fonts without prep table are properly embedded
+    mpl.rcParams["ps.fonttype"] = 42
+    mpl.rcParams["mathtext.fontset"] = "stix"
+
+    plt.figtext(0.5, 0.5, "Mass $m$")

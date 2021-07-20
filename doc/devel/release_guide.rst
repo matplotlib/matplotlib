@@ -3,7 +3,7 @@
 .. _release-guide:
 
 =============
-Release Guide
+Release guide
 =============
 
 
@@ -45,8 +45,8 @@ is currently broken::
 
 .. _release_ghstats:
 
-GitHub Stats
-============
+GitHub statistics
+=================
 
 
 We automatically extract GitHub issue, PRs, and authors from GitHub via the
@@ -85,7 +85,7 @@ most common issue is ``*`` which is interpreted as unclosed markup).
 
 .. _release_chkdocs:
 
-Update and Validate the Docs
+Update and validate the docs
 ============================
 
 Merge ``*-doc`` branch
@@ -101,27 +101,54 @@ When making major or minor releases, update the supported versions in the
 Security Policy in :file:`SECURITY.md`.  Commonly, this may be one or two
 previous minor releases, but is dependent on release managers.
 
-Update "What's New" and "API changes"
--------------------------------------
+Update release notes
+--------------------
 
-Before tagging major and minor releases, the "what's new" and "API changes"
-listings should be updated.  This is not needed for micro releases.
+What's new
+~~~~~~~~~~
 
-For the "what's new",
+*Only needed for major and minor releases. Bugfix releases should not have new
+features.*
 
- 1. copy the current content to a file in :file:`doc/users/prev_whats_new`
- 2. merge all of the files in :file:`doc/users/next_whats_new/` into
-    :file:`doc/users/whats_new.rst` and delete the individual files
- 3. comment out the next what's new glob at the top
+Merge the contents of all the files in :file:`doc/users/next_whats_new/`
+into a single file :file:`doc/users/prev_whats_new/whats_new_X.Y.0.rst`
+and delete the individual files.
 
-Similarly for the "API changes",
+API changes
+~~~~~~~~~~~
 
- 1. copy the current api changes to a file is :file:`doc/api/prev_api_changes`
- 2. merge all of the files in the most recent :file:`doc/api/next_api_changes`
-    into :file:`doc/api/api_changes.rst`
- 3. comment out the most recent API changes at the top.
+*Primarily needed for major and minor releases. We may sometimes have API
+changes in bugfix releases.*
 
-In both cases step 3 will have to be un-done right after the release.
+Merge the contents of all the files in :file:`doc/api/next_api_changes/`
+into a single file :file:`doc/api/prev_api_changes/api_changes_X.Y.Z.rst`
+and delete the individual files.
+
+Release notes TOC
+~~~~~~~~~~~~~~~~~
+
+Update :file:`doc/users/release_notes.rst`:
+
+- For major and minor releases add a new section
+
+  .. code:: rst
+
+     X.Y
+     ===
+     .. toctree::
+         :maxdepth: 1
+
+         prev_whats_new/whats_new_X.Y.0.rst
+         ../api/prev_api_changes/api_changes_X.Y.0.rst
+         prev_whats_new/github_stats_X.Y.0.rst
+
+- For bugfix releases add the GitHub stats and (if present) the API changes to
+  the existing X.Y section
+
+  .. code:: rst
+
+     ../api/prev_api_changes/api_changes_X.Y.Z.rst
+     prev_whats_new/github_stats_X.Y.Z.rst
 
 Verify that docs build
 ----------------------
@@ -216,7 +243,7 @@ On this branch un-comment the globs from :ref:`release_chkdocs`.  And then ::
 
 .. _release_DOI:
 
-Release Management / DOI
+Release management / DOI
 ========================
 
 Via the `GitHub UI
@@ -308,7 +335,7 @@ Congratulations, you have now done the second scariest part!
 
 .. _release_docs:
 
-Build and Deploy Documentation
+Build and deploy documentation
 ==============================
 
 To build the documentation you must have the tagged version installed, but
@@ -332,7 +359,7 @@ the documentation for the latest stable release.  Under that, there are
 directories containing the documentation for older versions.  The documentation
 for current master is built on Circle CI and pushed to the `devdocs
 <https://github.com/matplotlib/devdocs/>`__ repository.  These are available at
-`matplotlib.org/devdocs <https://matplotlib.org/devdocs>`__.
+`matplotlib.org/devdocs <https://matplotlib.org/devdocs/>`__.
 
 Assuming you have this repository checked out in the same directory as
 matplotlib ::

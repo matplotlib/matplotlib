@@ -1272,9 +1272,8 @@ class TwoSlopeNorm(Normalize):
             array([0., 0.25, 0.5, 0.625, 0.75, 0.875, 1.0])
         """
 
+        super().__init__(vmin=vmin, vmax=vmax)
         self.vcenter = vcenter
-        self.vmin = vmin
-        self.vmax = vmax
         if vcenter is not None and vmax is not None and vcenter >= vmax:
             raise ValueError('vmin, vcenter, and vmax must be in '
                              'ascending order')
@@ -1301,9 +1300,11 @@ class TwoSlopeNorm(Normalize):
 
         if not self.vmin <= self.vcenter <= self.vmax:
             raise ValueError("vmin, vcenter, vmax must increase monotonically")
+        # note that we must extrapolate for tick locators:
         result = np.ma.masked_array(
             np.interp(result, [self.vmin, self.vcenter, self.vmax],
-                      [0, 0.5, 1.]), mask=np.ma.getmask(result))
+                      [0, 0.5, 1], left=-np.inf, right=np.inf),
+            mask=np.ma.getmask(result))
         if is_scalar:
             result = np.atleast_1d(result)[0]
         return result
@@ -1314,8 +1315,8 @@ class TwoSlopeNorm(Normalize):
         (vmin,), _ = self.process_value(self.vmin)
         (vmax,), _ = self.process_value(self.vmax)
         (vcenter,), _ = self.process_value(self.vcenter)
-
-        result = np.interp(value, [0, 0.5, 1.], [vmin, vcenter, vmax])
+        result = np.interp(value, [0, 0.5, 1], [vmin, vcenter, vmax],
+                           left=-np.inf, right=np.inf)
         return result
 
 
@@ -1353,12 +1354,10 @@ class CenteredNorm(Normalize):
             >>> norm(data)
             array([0.25, 0.5 , 1.  ])
         """
+        super().__init__(vmin=None, vmax=None, clip=clip)
         self._vcenter = vcenter
-        self.vmin = None
-        self.vmax = None
         # calling the halfrange setter to set vmin and vmax
         self.halfrange = halfrange
-        self.clip = clip
 
     def _set_vmin_vmax(self):
         """
@@ -1416,13 +1415,14 @@ class CenteredNorm(Normalize):
         return super().__call__(value, clip=clip)
 
 
-def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
+def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     """
-    Decorator for building a `.Normalize` subclass from a `.Scale` subclass.
+    Decorator for building a `.Normalize` subclass from a `~.scale.ScaleBase`
+    subclass.
 
     After ::
 
-        @_make_norm_from_scale(scale_cls)
+        @make_norm_from_scale(scale_cls)
         class norm_cls(Normalize):
             ...
 
@@ -1437,7 +1437,7 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     a dummy axis).
 
     If the *scale_cls* constructor takes additional parameters, then *init*
-    should be passed to `_make_norm_from_scale`.  It is a callable which is
+    should be passed to `make_norm_from_scale`.  It is a callable which is
     *only* used for its signature.  First, this signature will become the
     signature of *norm_cls*.  Second, the *norm_cls* constructor will bind the
     parameters passed to it using this signature, extract the bound *vmin*,
@@ -1447,7 +1447,7 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     """
 
     if base_norm_cls is None:
-        return functools.partial(_make_norm_from_scale, scale_cls, init=init)
+        return functools.partial(make_norm_from_scale, scale_cls, init=init)
 
     if init is None:
         def init(vmin=None, vmax=None, clip=False): pass
@@ -1503,13 +1503,14 @@ def _make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     Norm.__name__ = base_norm_cls.__name__
     Norm.__qualname__ = base_norm_cls.__qualname__
     Norm.__module__ = base_norm_cls.__module__
+    Norm.__doc__ = base_norm_cls.__doc__
     Norm.__init__.__signature__ = bound_init_signature.replace(parameters=[
         inspect.Parameter("self", inspect.Parameter.POSITIONAL_OR_KEYWORD),
         *bound_init_signature.parameters.values()])
     return Norm
 
 
-@_make_norm_from_scale(
+@make_norm_from_scale(
     scale.FuncScale,
     init=lambda functions, vmin=None, vmax=None, clip=False: None)
 class FuncNorm(Normalize):
@@ -1542,20 +1543,20 @@ class FuncNorm(Normalize):
     """
 
 
-@_make_norm_from_scale(functools.partial(scale.LogScale, nonpositive="mask"))
+@make_norm_from_scale(functools.partial(scale.LogScale, nonpositive="mask"))
 class LogNorm(Normalize):
     """Normalize a given value to the 0-1 range on a log scale."""
 
     def autoscale(self, A):
         # docstring inherited.
-        super().autoscale(np.ma.masked_less_equal(A, 0, copy=False))
+        super().autoscale(np.ma.array(A, mask=(A <= 0)))
 
     def autoscale_None(self, A):
         # docstring inherited.
-        super().autoscale_None(np.ma.masked_less_equal(A, 0, copy=False))
+        super().autoscale_None(np.ma.array(A, mask=(A <= 0)))
 
 
-@_make_norm_from_scale(
+@make_norm_from_scale(
     scale.SymmetricalLogScale,
     init=lambda linthresh, linscale=1., vmin=None, vmax=None, clip=False, *,
                 base=10: None)
@@ -1655,9 +1656,7 @@ class BoundaryNorm(Normalize):
         """
         if clip and extend != 'neither':
             raise ValueError("'clip=True' is not compatible with 'extend'")
-        self.clip = clip
-        self.vmin = boundaries[0]
-        self.vmax = boundaries[-1]
+        super().__init__(vmin=boundaries[0], vmax=boundaries[-1], clip=clip)
         self.boundaries = np.asarray(boundaries)
         self.N = len(self.boundaries)
         if self.N < 2:
@@ -1695,7 +1694,7 @@ class BoundaryNorm(Normalize):
         else:
             max_col = self.Ncmap
         # this gives us the bins in the lookup table in the range
-        # [0, _n_regions - 1]  (the offset is baked in the init)
+        # [0, _n_regions - 1]  (the offset is set in the init)
         iret = np.digitize(xx, self.boundaries) - 1 + self._offset
         # if we have more colors than regions, stretch the region
         # index computed above to full range of the color bins.  This

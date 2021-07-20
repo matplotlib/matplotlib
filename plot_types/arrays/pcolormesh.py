@@ -1,7 +1,7 @@
 """
-===================================
-pcolormesh([X, Y], Z, [cmap=], ...)
-===================================
+===================
+pcolormesh(X, Y, Z)
+===================
 
 `~.axes.Axes.pcolormesh` is more flexible than `~.axes.Axes.imshow` in that
 the x and y vectors need not be equally spaced (indeed they can be skewed).
@@ -27,7 +27,8 @@ Z = Z[::8, :][:, xint]
 
 # plot
 fig, ax = plt.subplots()
+ax.grid(False)
 
-ax.pcolormesh(X, Y, Z, vmin=0, vmax=1.5, shading='nearest')
+ax.pcolormesh(X, Y, Z, vmin=0, vmax=1.5)
 
 plt.show()

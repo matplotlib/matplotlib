@@ -136,21 +136,19 @@ class HandlerNpoints(HandlerBase):
     """
     A legend handler that shows *numpoints* points in the legend entry.
     """
-    def __init__(self, marker_pad=0.3, numpoints=None, **kw):
+
+    def __init__(self, marker_pad=0.3, numpoints=None, **kwargs):
         """
         Parameters
         ----------
         marker_pad : float
             Padding between points in legend entry.
-
         numpoints : int
             Number of points to show in legend entry.
-
-        Notes
-        -----
-        Any other keyword arguments are given to `HandlerBase`.
+        **kwargs
+            Keyword arguments forwarded to `.HandlerBase`.
         """
-        super().__init__(**kw)
+        super().__init__(**kwargs)
 
         self._numpoints = numpoints
         self._marker_pad = marker_pad
@@ -181,22 +179,20 @@ class HandlerNpointsYoffsets(HandlerNpoints):
     A legend handler that shows *numpoints* in the legend, and allows them to
     be individually offset in the y-direction.
     """
-    def __init__(self, numpoints=None, yoffsets=None, **kw):
+
+    def __init__(self, numpoints=None, yoffsets=None, **kwargs):
         """
         Parameters
         ----------
         numpoints : int
             Number of points to show in legend entry.
-
         yoffsets : array of floats
             Length *numpoints* list of y offsets for each point in
             legend entry.
-
-        Notes
-        -----
-        Any other keyword arguments are given to `HandlerNpoints`.
+        **kwargs
+            Keyword arguments forwarded to `.HandlerNpoints`.
         """
-        super().__init__(numpoints=numpoints, **kw)
+        super().__init__(numpoints=numpoints, **kwargs)
         self._yoffsets = yoffsets
 
     def get_ydata(self, legend, xdescent, ydescent, width, height, fontsize):
@@ -212,21 +208,18 @@ class HandlerLine2D(HandlerNpoints):
     """
     Handler for `.Line2D` instances.
     """
-    def __init__(self, marker_pad=0.3, numpoints=None, **kw):
+    def __init__(self, marker_pad=0.3, numpoints=None, **kwargs):
         """
         Parameters
         ----------
         marker_pad : float
             Padding between points in legend entry.
-
         numpoints : int
             Number of points to show in legend entry.
-
-        Notes
-        -----
-        Any other keyword arguments are given to `HandlerNpoints`.
+        **kwargs
+            Keyword arguments forwarded to `.HandlerNpoints`.
         """
-        super().__init__(marker_pad=marker_pad, numpoints=numpoints, **kw)
+        super().__init__(marker_pad=marker_pad, numpoints=numpoints, **kwargs)
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
@@ -263,7 +256,8 @@ class HandlerPatch(HandlerBase):
     """
     Handler for `.Patch` instances.
     """
-    def __init__(self, patch_func=None, **kw):
+
+    def __init__(self, patch_func=None, **kwargs):
         """
         Parameters
         ----------
@@ -278,11 +272,10 @@ class HandlerPatch(HandlerBase):
             Subsequently the created artist will have its ``update_prop``
             method called and the appropriate transform will be applied.
 
-        Notes
-        -----
-        Any other keyword arguments are given to `HandlerBase`.
+        **kwargs
+            Keyword arguments forwarded to `.HandlerBase`.
         """
-        super().__init__(**kw)
+        super().__init__(**kwargs)
         self._patch_func = patch_func
 
     def _create_patch(self, legend, orig_handle,
@@ -309,11 +302,6 @@ class HandlerStepPatch(HandlerBase):
     """
     Handler for `~.matplotlib.patches.StepPatch` instances.
     """
-    def __init__(self, **kw):
-        """
-        Any other keyword arguments are given to `HandlerBase`.
-        """
-        super().__init__(**kw)
 
     def _create_patch(self, legend, orig_handle,
                       xdescent, ydescent, width, height, fontsize):
@@ -385,8 +373,8 @@ class HandlerLineCollection(HandlerLine2D):
 class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
     r"""Handler for `.RegularPolyCollection`\s."""
 
-    def __init__(self, yoffsets=None, sizes=None, **kw):
-        super().__init__(yoffsets=yoffsets, **kw)
+    def __init__(self, yoffsets=None, sizes=None, **kwargs):
+        super().__init__(yoffsets=yoffsets, **kwargs)
 
         self._sizes = sizes
 
@@ -481,12 +469,12 @@ class HandlerErrorbar(HandlerLine2D):
     """Handler for Errorbars."""
 
     def __init__(self, xerr_size=0.5, yerr_size=None,
-                 marker_pad=0.3, numpoints=None, **kw):
+                 marker_pad=0.3, numpoints=None, **kwargs):
 
         self._xerr_size = xerr_size
         self._yerr_size = yerr_size
 
-        super().__init__(marker_pad=marker_pad, numpoints=numpoints, **kw)
+        super().__init__(marker_pad=marker_pad, numpoints=numpoints, **kwargs)
 
     def get_err_size(self, legend, xdescent, ydescent,
                      width, height, fontsize):
@@ -588,30 +576,26 @@ class HandlerStem(HandlerNpointsYoffsets):
     """
     Handler for plots produced by `~.Axes.stem`.
     """
+
     def __init__(self, marker_pad=0.3, numpoints=None,
-                 bottom=None, yoffsets=None, **kw):
+                 bottom=None, yoffsets=None, **kwargs):
         """
         Parameters
         ----------
         marker_pad : float, default: 0.3
             Padding between points in legend entry.
-
         numpoints : int, optional
             Number of points to show in legend entry.
-
         bottom : float, optional
 
         yoffsets : array of floats, optional
             Length *numpoints* list of y offsets for each point in
             legend entry.
-
-        Notes
-        -----
-        Any other keyword arguments are given to `HandlerNpointsYoffsets`.
+        **kwargs
+            Keyword arguments forwarded to `.HandlerNpointsYoffsets`.
         """
-
         super().__init__(marker_pad=marker_pad, numpoints=numpoints,
-                         yoffsets=yoffsets, **kw)
+                         yoffsets=yoffsets, **kwargs)
         self._bottom = bottom
 
     def get_ydata(self, legend, xdescent, ydescent, width, height, fontsize):
@@ -681,19 +665,20 @@ class HandlerStem(HandlerNpointsYoffsets):
 class HandlerTuple(HandlerBase):
     """
     Handler for Tuple.
-
-    Additional kwargs are passed through to `HandlerBase`.
-
-    Parameters
-    ----------
-    ndivide : int, default: 1
-        The number of sections to divide the legend area into. If None,
-        use the length of the input tuple.
-    pad : float, default: :rc:`legend.borderpad`
-        Padding in units of fraction of font size.
     """
 
     def __init__(self, ndivide=1, pad=None, **kwargs):
+        """
+        Parameters
+        ----------
+        ndivide : int, default: 1
+            The number of sections to divide the legend area into.  If None,
+            use the length of the input tuple.
+        pad : float, default: :rc:`legend.borderpad`
+            Padding in units of fraction of font size.
+        **kwargs
+            Keyword arguments forwarded to `.HandlerBase`.
+        """
         self._ndivide = ndivide
         self._pad = pad
         super().__init__(**kwargs)

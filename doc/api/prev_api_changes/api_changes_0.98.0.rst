@@ -126,8 +126,8 @@ with a verb in the present tense.
 | ``lbwh_to_bbox(l, b, w, h)``               | `Bbox.from_bounds(x0, y0, w, h) <.Bbox.from_bounds>` |
 |                                            | [It is a staticmethod.]                              |
 +--------------------------------------------+------------------------------------------------------+
-| ``inverse_transform_bbox(trans, bbox)``    | `Bbox.inverse_transformed(trans)                     |
-|                                            | <.BboxBase.inverse_transformed>`                     |
+| ``inverse_transform_bbox(trans, bbox)``    | ``bbox.inverse_transformed(trans)``                  |
+|                                            |                                                      |
 +--------------------------------------------+------------------------------------------------------+
 | ``Interval.contains_open(v)``              | `interval_contains_open(tuple, v)                    |
 |                                            | <.interval_contains_open>`                           |

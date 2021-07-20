@@ -6,6 +6,8 @@ Drawing fancy boxes
 The following examples show how to plot boxes with different visual properties.
 """
 
+import inspect
+
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import matplotlib.patches as mpatch
@@ -15,17 +17,26 @@ from matplotlib.patches import FancyBboxPatch
 # First we'll show some sample boxes with fancybox.
 
 styles = mpatch.BoxStyle.get_styles()
-spacing = 1.2
-
-figheight = (spacing * len(styles) + .5)
-fig = plt.figure(figsize=(4 / 1.5, figheight / 1.5))
-fontsize = 0.3 * 72
-
-for i, stylename in enumerate(sorted(styles)):
-    fig.text(0.5, (spacing * (len(styles) - i) - 0.5) / figheight, stylename,
-             ha="center",
-             size=fontsize,
-             bbox=dict(boxstyle=stylename, fc="w", ec="k"))
+ncol = 2
+nrow = (len(styles) + 1) // ncol
+axs = (plt.figure(figsize=(3 * ncol, 1 + nrow))
+       .add_gridspec(1 + nrow, ncol, wspace=.5).subplots())
+for ax in axs.flat:
+    ax.set_axis_off()
+for ax in axs[0, :]:
+    ax.text(.2, .5, "boxstyle",
+            transform=ax.transAxes, size="large", color="tab:blue",
+            horizontalalignment="right", verticalalignment="center")
+    ax.text(.4, .5, "default parameters",
+            transform=ax.transAxes,
+            horizontalalignment="left", verticalalignment="center")
+for ax, (stylename, stylecls) in zip(axs[1:, :].T.flat, styles.items()):
+    ax.text(.2, .5, stylename, bbox=dict(boxstyle=stylename, fc="w", ec="k"),
+            transform=ax.transAxes, size="large", color="tab:blue",
+            horizontalalignment="right", verticalalignment="center")
+    ax.text(.4, .5, str(inspect.signature(stylecls))[1:-1].replace(", ", "\n"),
+            transform=ax.transAxes,
+            horizontalalignment="left", verticalalignment="center")
 
 
 ###############################################################################

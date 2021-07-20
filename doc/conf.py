@@ -20,6 +20,11 @@ import matplotlib
 import sphinx
 
 from datetime import datetime
+import time
+
+# Parse year using SOURCE_DATE_EPOCH, falling back to current time.
+# https://reproducible-builds.org/specs/source-date-epoch/
+sourceyear = datetime.utcfromtimestamp(int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))).year
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -104,6 +109,7 @@ _check_dependencies()
 # gallery_order.py from the sphinxext folder provides the classes that
 # allow custom ordering of sections and subsections of the gallery
 import sphinxext.gallery_order as gallery_order
+
 # The following import is only necessary to monkey patch the signature later on
 from sphinx_gallery import gen_rst
 
@@ -154,7 +160,7 @@ sphinx_gallery_conf = {
     'doc_module': ('matplotlib', 'mpl_toolkits'),
     'reference_url': {
         'matplotlib': None,
-        'numpy': 'https://docs.scipy.org/doc/numpy/',
+        'numpy': 'https://numpy.org/doc/stable/',
         'scipy': 'https://docs.scipy.org/doc/scipy/reference/',
     },
     'backreferences_dir': Path('api') / Path('_as_gen'),
@@ -205,16 +211,13 @@ except (subprocess.CalledProcessError, FileNotFoundError):
     SHA = matplotlib.__version__
 
 html_context = {
-    'sha': SHA,
-    # This will disable any analytics in the HTML templates (currently Google
-    # Analytics.)
-    'include_analytics': False,
+    "sha": SHA,
 }
 
 project = 'Matplotlib'
 copyright = ('2002 - 2012 John Hunter, Darren Dale, Eric Firing, '
              'Michael Droettboom and the Matplotlib development '
-             f'team; 2012 - {datetime.now().year} The Matplotlib development team')
+             f'team; 2012 - {sourceyear} The Matplotlib development team')
 
 
 # The default replacements for |version| and |release|, also used in various
@@ -266,7 +269,13 @@ github_project_url = "https://github.com/matplotlib/matplotlib/"
 # The style sheet to use for HTML and HTML Help pages. A file of that name
 # must exist either in Sphinx' static/ path, or in one of the custom paths
 # given in html_static_path.
-html_style = f'mpl.css?{SHA}'
+# html_style = 'matplotlib.css'
+# html_style = f"mpl.css?{SHA}"
+html_css_files = [
+    f"mpl.css?{SHA}",
+]
+
+html_theme = "pydata_sphinx_theme"
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -274,7 +283,36 @@ html_style = f'mpl.css?{SHA}'
 
 # The name of an image file (within the static path) to place at the top of
 # the sidebar.
-# html_logo = 'logo.png'
+html_logo = "_static/logo2.svg"
+html_theme_options = {
+    "logo_link": "index",
+    "icon_links": [
+        {
+            "name": "gitter",
+            "url": "https://gitter.im/matplotlib",
+            "icon": "fab fa-gitter",
+        },
+        {
+            "name": "discourse",
+            "url": "https://discourse.matplotlib.org",
+            "icon": "fab fa-discourse",
+        },
+        {
+            "name": "GitHub",
+            "url": "https://github.com/matplotlib/matplotlib",
+            "icon": "fab fa-github-square",
+        },
+        {
+            "name": "twitter",
+            "url": "https://twitter.com/matplotlib/",
+            "icon": "fab fa-twitter-square",
+        },
+
+    ],
+}
+include_analytics = False
+if include_analytics:
+    html_theme_options["google_analytics_id"] = "UA-55954603-1"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -297,11 +335,12 @@ html_index = 'index.html'
 
 # Custom sidebar templates, maps page names to templates.
 html_sidebars = {
-    'index': [
+    "index": [
         # 'sidebar_announcement.html',
-        'sidebar_versions.html',
-        'donate_sidebar.html'],
-    '**': ['localtoc.html', 'pagesource.html']
+        "sidebar_versions.html",
+        "donate_sidebar.html",
+    ],
+    # '**': ['localtoc.html', 'pagesource.html']
 }
 
 # If false, no module index is generated.

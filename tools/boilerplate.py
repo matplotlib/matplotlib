@@ -202,6 +202,7 @@ def boilerplate_gen():
         'ginput',
         'subplots_adjust',
         'suptitle',
+        'tight_layout',
         'waitforbuttonpress',
     )
 

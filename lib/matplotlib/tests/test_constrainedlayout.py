@@ -16,8 +16,8 @@ def example_plot(ax, fontsize=12, nodec=False):
         ax.set_ylabel('y-label', fontsize=fontsize)
         ax.set_title('Title', fontsize=fontsize)
     else:
-        ax.set_xticklabels('')
-        ax.set_yticklabels('')
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
 
 
 def example_pcolor(ax, fontsize=12):
@@ -252,6 +252,8 @@ def test_constrained_layout13():
     for ax in axs.flat:
         pcm = example_pcolor(ax, fontsize=12)
         fig.colorbar(pcm, ax=ax, shrink=0.6, aspect=20., pad=0.02)
+    with pytest.raises(TypeError, match='unexpected keyword argument'):
+        fig.set_constrained_layout_pads(wpad=1, hpad=2)
     fig.set_constrained_layout_pads(w_pad=24./72., h_pad=24./72.)
 
 
@@ -426,8 +428,8 @@ def test_colorbar_align():
             if nn != 1:
                 cb.ax.xaxis.set_ticks([])
                 cb.ax.yaxis.set_ticks([])
-                ax.set_xticklabels('')
-                ax.set_yticklabels('')
+                ax.set_xticklabels([])
+                ax.set_yticklabels([])
         fig.set_constrained_layout_pads(w_pad=4 / 72, h_pad=4 / 72, hspace=0.1,
                                         wspace=0.1)
 
