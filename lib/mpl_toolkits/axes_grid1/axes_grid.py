@@ -3,7 +3,7 @@ import functools
 
 import numpy as np
 
-from matplotlib import _api
+from matplotlib import _api, cbook
 from matplotlib.gridspec import SubplotSpec
 
 from .axes_divider import Size, SubplotDivider, Divider
@@ -43,8 +43,12 @@ class CbarAxesBase:
         self.orientation = orientation
 
 
+@_api.deprecated("3.5")
 class CbarAxes(CbarAxesBase, Axes):
     pass
+
+
+_cbaraxes_class_factory = cbook._make_class_factory(CbarAxesBase, "Cbar{}")
 
 
 class Grid:
@@ -310,8 +314,6 @@ class Grid:
 class ImageGrid(Grid):
     # docstring inherited
 
-    _defaultCbarAxesClass = CbarAxes
-
     def __init__(self, fig,
                  rect,
                  nrows_ncols,
@@ -416,7 +418,7 @@ class ImageGrid(Grid):
             else:
                 self._colorbar_pad = self._vert_pad_size.fixed_size
         self.cbar_axes = [
-            self._defaultCbarAxesClass(
+            _cbaraxes_class_factory(self._defaultAxesClass)(
                 self.axes_all[0].figure, self._divider.get_position(),
                 orientation=self._colorbar_location)
             for _ in range(self.ngrids)]
