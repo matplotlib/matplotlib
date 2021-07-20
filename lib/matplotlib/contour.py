@@ -1771,4 +1771,9 @@ class QuadContourSet(ContourSet):
 
            except for the lowest interval, which is closed on both sides (i.e.
            it includes the lowest value).
+
+        3. `.contour` and `.contourf` use a `marching squares
+           <https://en.wikipedia.org/wiki/Marching_squares>`_ algorithm to
+           compute contour locations.  More information can be found in
+           the source ``src/_contour.h``.
         """
