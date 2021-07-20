@@ -9,7 +9,8 @@ from matplotlib import _api, backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase, ToolContainerBase, cursors)
+    TimerBase, ToolContainerBase)
+from matplotlib.backend_tools import Cursors
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
@@ -38,11 +39,11 @@ backend_version = "%s.%s.%s" % (
 try:
     _display = Gdk.Display.get_default()
     cursord = {  # deprecated in Matplotlib 3.5.
-        cursors.MOVE:          Gdk.Cursor.new_from_name(_display, "move"),
-        cursors.HAND:          Gdk.Cursor.new_from_name(_display, "pointer"),
-        cursors.POINTER:       Gdk.Cursor.new_from_name(_display, "default"),
-        cursors.SELECT_REGION: Gdk.Cursor.new_from_name(_display, "crosshair"),
-        cursors.WAIT:          Gdk.Cursor.new_from_name(_display, "wait"),
+        Cursors.MOVE:          Gdk.Cursor.new_from_name(_display, "move"),
+        Cursors.HAND:          Gdk.Cursor.new_from_name(_display, "pointer"),
+        Cursors.POINTER:       Gdk.Cursor.new_from_name(_display, "default"),
+        Cursors.SELECT_REGION: Gdk.Cursor.new_from_name(_display, "crosshair"),
+        Cursors.WAIT:          Gdk.Cursor.new_from_name(_display, "wait"),
     }
 except TypeError as exc:
     cursord = {}  # deprecated in Matplotlib 3.5.
@@ -90,13 +91,13 @@ def _create_application():
 @functools.lru_cache()
 def _mpl_to_gtk_cursor(mpl_cursor):
     name = {
-        cursors.MOVE: "move",
-        cursors.HAND: "pointer",
-        cursors.POINTER: "default",
-        cursors.SELECT_REGION: "crosshair",
-        cursors.WAIT: "wait",
-        cursors.RESIZE_HORIZONTAL: "ew-resize",
-        cursors.RESIZE_VERTICAL: "ns-resize",
+        Cursors.MOVE: "move",
+        Cursors.HAND: "pointer",
+        Cursors.POINTER: "default",
+        Cursors.SELECT_REGION: "crosshair",
+        Cursors.WAIT: "wait",
+        Cursors.RESIZE_HORIZONTAL: "ew-resize",
+        Cursors.RESIZE_VERTICAL: "ns-resize",
     }[mpl_cursor]
     return Gdk.Cursor.new_from_name(Gdk.Display.get_default(), name)
 
