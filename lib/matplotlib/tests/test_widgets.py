@@ -369,14 +369,10 @@ def test_TextBox():
     submit_event = Mock()
     text_change_event = Mock()
     ax = get_ax()
-    tool = widgets.TextBox(ax, '')
+
+    tool = widgets.TextBox(ax, 'Evaluate')
     tool.on_submit(submit_event)
     tool.on_text_change(text_change_event)
-
-    assert tool.text == ''
-
-    do_event(tool, '_click')
-
     tool.set_val('x**2')
 
     assert tool.text == 'x**2'
@@ -386,7 +382,6 @@ def test_TextBox():
     tool.stop_typing()
 
     assert submit_event.call_count == 2
-
     do_event(tool, '_click')
     do_event(tool, '_keypress', key='+')
     do_event(tool, '_keypress', key='5')
