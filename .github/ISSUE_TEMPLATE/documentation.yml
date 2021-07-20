@@ -1,0 +1,51 @@
+name: Documentation
+description: Create a report to help us improve the documentation
+title: "[Doc]: "
+labels: [Documentation]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        To help us understand and resolve your issue, please fill out the form to the best of your ability.
+  - type: input
+    id: link
+    attributes:
+      label: Documentation Link
+      description: Please provide a link to any documentation or examples that you are referencing.  
+      placeholder: https://matplotlib.org/devdocs/
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is missing, unclear, or wrong in the documentation? 
+      placeholder: |
+        * I found [...] to be unclear because [...]
+        * [...] made me think that [...] when really it should be [...]
+        * There is no example showing how to do [...]
+    validations:
+      required: true
+  - type: textarea
+    id: improvement
+    attributes:
+      label: Suggested improvement
+      description: How can we improve the documentation?
+      placeholder: |
+        * This line should be be changed to say [...]
+        * Include a paragraph explaining [...]
+        * Add a figure showing [...]
+  - type: input
+    id: matplotlib-version
+    attributes:
+      label: Matplotlib Version
+      placeholder: import matplotlib; print(matplotlib.__version__)
+    validations:
+      required: true
+  - type: input
+    id: matplotlib-doc-version
+    attributes:
+      label: Matplotlib documentation version
+      placeholder: check under the logo
+    validations:
+      required: true
+
+  
