@@ -33,7 +33,7 @@ commands:
             git fetch upstream
             export merge=${CI_PULL_REQUEST//*pull\//}
             if [[ "$merge" != "" ]]; then
-              echo "Merging ${merge})";
+              echo "Merging ${merge}";
               git pull --ff-only upstream "refs/pull/${merge}/merge";
             fi
 
