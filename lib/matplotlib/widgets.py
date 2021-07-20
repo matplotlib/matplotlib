@@ -1119,9 +1119,11 @@ class TextBox(AxesWidget):
         lambda self: self._observers.callbacks['change']))
     submit_observers = _api.deprecated("3.4")(property(
         lambda self: self._observers.callbacks['submit']))
+    DIST_FROM_LEFT = _api.deprecate_privatize_attribute("3.5")
 
     def __init__(self, ax, label, initial='',
-                 color='.95', hovercolor='1', label_pad=.01):
+                 color='.95', hovercolor='1', label_pad=.01,
+                 textalignment="left"):
         """
         Parameters
         ----------
@@ -1137,10 +1139,16 @@ class TextBox(AxesWidget):
             The color of the box when the mouse is over it.
         label_pad : float
             The distance between the label and the right side of the textbox.
+        textalignment : {'left', 'center', 'right'}
+            The horizontal location of the text.
         """
         super().__init__(ax)
 
-        self.DIST_FROM_LEFT = .05
+        self._DIST_FROM_LEFT = .05
+
+        self._text_position = _api.check_getitem(
+            {"left": 0.05, "center": 0.5, "right": 0.95},
+            textalignment=textalignment)
 
         self.label = ax.text(
             -label_pad, 0.5, label, transform=ax.transAxes,
@@ -1148,9 +1156,9 @@ class TextBox(AxesWidget):
 
         # TextBox's text object should not parse mathtext at all.
         self.text_disp = self.ax.text(
-            self.DIST_FROM_LEFT, 0.5, initial,
-            transform=self.ax.transAxes, verticalalignment='center',
-            horizontalalignment='left', parse_math=False)
+            self._text_position, 0.5, initial, transform=self.ax.transAxes,
+            verticalalignment='center', horizontalalignment=textalignment,
+            parse_math=False)
 
         self._observers = cbook.CallbackRegistry()
 
@@ -1193,12 +1201,22 @@ class TextBox(AxesWidget):
 
         text = self.text_disp.get_text()  # Save value before overwriting it.
         widthtext = text[:self.cursor_index]
+
+        bb_text = self.text_disp.get_window_extent()
         self.text_disp.set_text(widthtext or ",")
-        bb = self.text_disp.get_window_extent()
-        if not widthtext:  # Use the comma for the height, but keep width to 0.
-            bb.x1 = bb.x0
+        bb_widthtext = self.text_disp.get_window_extent()
+
+        if bb_text.y0 == bb_text.y1:  # Restoring the height if no text.
+            bb_text.y0 -= (bb_widthtext.y1-bb_widthtext.y0)/2
+            bb_text.y1 += (bb_widthtext.y1-bb_widthtext.y0)/2
+        elif not widthtext:  # Keep width to 0.
+            bb_text.x1 = bb_text.x0
+        else:  # Move the cursor using width of bb_widthtext.
+            bb_text.x1 = bb_text.x0 + (bb_widthtext.x1 - bb_widthtext.x0)
+
         self.cursor.set(
-            segments=[[(bb.x1, bb.y0), (bb.x1, bb.y1)]], visible=True)
+            segments=[[(bb_text.x1, bb_text.y0), (bb_text.x1, bb_text.y1)]],
+            visible=True)
         self.text_disp.set_text(text)
 
         self.ax.figure.canvas.draw()
