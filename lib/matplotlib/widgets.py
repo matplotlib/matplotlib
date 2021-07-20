@@ -2016,7 +2016,30 @@ class _SelectorWidget(AxesWidget):
 
     @property
     def artists(self):
+        """Tuple of the artists of the selector"""
         return tuple(self._artists)
+
+    def set_props(self, **props):
+        """
+        Set the properties of the selector artist. See the `props` argument
+        in the selector docstring to know which properties are supported.
+        """
+        self.artists[0].set(**props)
+        self.update()
+        self._props = props
+
+    def set_handle_props(self, **handle_props):
+        """
+        Set the properties of the handles selector artist. See the
+        `handle_props` argument in the selector docstring to know which
+        properties are supported.
+        """
+        if not hasattr(self, '_handles_artists'):
+            raise NotImplementedError("This selector doesn't have handles.")
+        for handle in self._handles_artists:
+            handle.set(**handle_props)
+        self.update()
+        self._handle_props = handle_props
 
 
 class SpanSelector(_SelectorWidget):
@@ -2150,7 +2173,7 @@ class SpanSelector(_SelectorWidget):
 
         if self._interactive:
             self._edge_order = ['min', 'max']
-            self._setup_edge_handle(handle_props)
+            self._setup_edge_handles(handle_props)
 
         self._active_handle = None
 
@@ -2203,7 +2226,7 @@ class SpanSelector(_SelectorWidget):
         else:
             self.add_artist(rect_artist)
 
-    def _setup_edge_handle(self, props):
+    def _setup_edge_handles(self, props):
         # Define initial position using the axis bounds to keep the same bounds
         if self.direction == 'horizontal':
             positions = self.ax.get_xbound()
@@ -2283,7 +2306,7 @@ class SpanSelector(_SelectorWidget):
             self._direction = direction
             self.new_axes(self.ax)
             if self._interactive:
-                self._setup_edge_handle(self._edge_handles._line_props)
+                self._setup_edge_handles(self._edge_handles._line_props)
         else:
             self._direction = direction
 
@@ -2439,6 +2462,10 @@ class SpanSelector(_SelectorWidget):
         self.set_visible(self.visible)
         self.update()
 
+    @property
+    def _handles_artists(self):
+        return self._edge_handles.artists
+
 
 class ToolLineHandles:
     """
@@ -2575,7 +2602,6 @@ class ToolHandles:
                  **cbook.normalize_kwargs(marker_props, Line2D._alias_map)}
         self._markers = Line2D(x, y, animated=useblit, **props)
         self.ax.add_line(self._markers)
-        self.artist = self._markers
 
     @property
     def x(self):
@@ -2584,6 +2610,10 @@ class ToolHandles:
     @property
     def y(self):
         return self._markers.get_ydata()
+
+    @property
+    def artists(self):
+        return (self._markers, )
 
     def set_data(self, pts, y=None):
         """Set x and y positions of handles."""
@@ -2808,9 +2838,7 @@ class RectangleSelector(_SelectorWidget):
 
             self._active_handle = None
 
-            self._artists.extend([self._center_handle.artist,
-                                  self._corner_handles.artist,
-                                  self._edge_handles.artist])
+            self._artists.extend(self._handles_artists)
 
         self._extents_on_press = None
 
@@ -2825,6 +2853,11 @@ class RectangleSelector(_SelectorWidget):
     maxdist = _api.deprecated("3.5", name="maxdist", alternative="grab_range")(
         property(lambda self: self.grab_range,
                  lambda self, value: setattr(self, "grab_range", value)))
+
+    @property
+    def _handles_artists(self):
+        return (self._center_handle.artists + self._corner_handles.artists +
+                self._edge_handles.artists)
 
     def _press(self, event):
         """Button press event handler."""
@@ -3335,7 +3368,7 @@ class PolygonSelector(_SelectorWidget):
         self._active_handle_idx = -1
         self.grab_range = grab_range
 
-        self._artists = [line, self._polygon_handles.artist]
+        self._artists = [line] + list(self._handles_artists)
         self.set_visible(True)
 
     vertex_select_radius = _api.deprecated("3.5", name="vertex_select_radius",
@@ -3347,6 +3380,10 @@ class PolygonSelector(_SelectorWidget):
     @property
     def _nverts(self):
         return len(self._xs)
+
+    @property
+    def _handles_artists(self):
+        return self._polygon_handles.artists
 
     def _remove_vertex(self, i):
         """Remove vertex with index i."""
