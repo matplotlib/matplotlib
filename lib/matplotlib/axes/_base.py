@@ -4292,25 +4292,17 @@ class _AxesBase(martist.Artist):
             Whether this axis is twinned in the *y*-direction.
         """
         if len(bbox) == 3:
-            Xmin, Xmax = self.get_xlim()
-            Ymin, Ymax = self.get_ylim()
-
             xp, yp, scl = bbox  # Zooming code
-
             if scl == 0:  # Should not happen
                 scl = 1.
-
             if scl > 1:
                 direction = 'in'
             else:
                 direction = 'out'
                 scl = 1/scl
-
             # get the limits of the axes
-            tranD2C = self.transData.transform
-            xmin, ymin = tranD2C((Xmin, Ymin))
-            xmax, ymax = tranD2C((Xmax, Ymax))
-
+            (xmin, ymin), (xmax, ymax) = self.transData.transform(
+                np.transpose([self.get_xlim(), self.get_ylim()]))
             # set the range
             xwidth = xmax - xmin
             ywidth = ymax - ymin
@@ -4318,7 +4310,6 @@ class _AxesBase(martist.Artist):
             ycen = (ymax + ymin)*.5
             xzc = (xp*(scl - 1) + xcen)/scl
             yzc = (yp*(scl - 1) + ycen)/scl
-
             bbox = [xzc - xwidth/2./scl, yzc - ywidth/2./scl,
                     xzc + xwidth/2./scl, yzc + ywidth/2./scl]
         elif len(bbox) != 4:
@@ -4371,8 +4362,10 @@ class _AxesBase(martist.Artist):
 
         if not twinx and mode != "y":
             self.set_xbound(new_xbound)
+            self.set_autoscalex_on(False)
         if not twiny and mode != "x":
             self.set_ybound(new_ybound)
+            self.set_autoscaley_on(False)
 
     def start_pan(self, x, y, button):
         """

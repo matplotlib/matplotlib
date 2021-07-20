@@ -178,6 +178,8 @@ def test_interactive_zoom():
     tb.zoom()
     assert ax.get_navigate_mode() is None
 
+    assert not ax.get_autoscalex_on() and not ax.get_autoscaley_on()
+
 
 def test_toolbar_zoompan():
     expected_warning_regex = (
