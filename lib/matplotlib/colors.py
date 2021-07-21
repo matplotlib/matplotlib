@@ -1594,7 +1594,7 @@ class SymLogNorm(Normalize):
         self._scale.linthresh = value
 
 
-@_make_norm_from_scale(
+@make_norm_from_scale(
     scale.PowerScale,
     init=lambda gamma, vmin=None, vmax=None, clip=False: None)
 class PowerNorm(Normalize):
