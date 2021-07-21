@@ -9,7 +9,8 @@ from matplotlib import _api, backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase, ToolContainerBase, cursors)
+    TimerBase, ToolContainerBase)
+from matplotlib.backend_tools import Cursors
 from matplotlib.figure import Figure
 from matplotlib.widgets import SubplotTool
 
@@ -33,16 +34,16 @@ from gi.repository import Gio, GLib, GObject, Gtk, Gdk
 _log = logging.getLogger(__name__)
 
 backend_version = "%s.%s.%s" % (
-    Gtk.get_major_version(), Gtk.get_micro_version(), Gtk.get_minor_version())
+    Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version())
 
 try:
     _display = Gdk.Display.get_default()
     cursord = {  # deprecated in Matplotlib 3.5.
-        cursors.MOVE:          Gdk.Cursor.new_from_name(_display, "move"),
-        cursors.HAND:          Gdk.Cursor.new_from_name(_display, "pointer"),
-        cursors.POINTER:       Gdk.Cursor.new_from_name(_display, "default"),
-        cursors.SELECT_REGION: Gdk.Cursor.new_from_name(_display, "crosshair"),
-        cursors.WAIT:          Gdk.Cursor.new_from_name(_display, "wait"),
+        Cursors.MOVE:          Gdk.Cursor.new_from_name(_display, "move"),
+        Cursors.HAND:          Gdk.Cursor.new_from_name(_display, "pointer"),
+        Cursors.POINTER:       Gdk.Cursor.new_from_name(_display, "default"),
+        Cursors.SELECT_REGION: Gdk.Cursor.new_from_name(_display, "crosshair"),
+        Cursors.WAIT:          Gdk.Cursor.new_from_name(_display, "wait"),
     }
 except TypeError as exc:
     cursord = {}  # deprecated in Matplotlib 3.5.
@@ -90,13 +91,13 @@ def _create_application():
 @functools.lru_cache()
 def _mpl_to_gtk_cursor(mpl_cursor):
     name = {
-        cursors.MOVE: "move",
-        cursors.HAND: "pointer",
-        cursors.POINTER: "default",
-        cursors.SELECT_REGION: "crosshair",
-        cursors.WAIT: "wait",
-        cursors.RESIZE_HORIZONTAL: "ew-resize",
-        cursors.RESIZE_VERTICAL: "ns-resize",
+        Cursors.MOVE: "move",
+        Cursors.HAND: "pointer",
+        Cursors.POINTER: "default",
+        Cursors.SELECT_REGION: "crosshair",
+        Cursors.WAIT: "wait",
+        Cursors.RESIZE_HORIZONTAL: "ew-resize",
+        Cursors.RESIZE_VERTICAL: "ns-resize",
     }[mpl_cursor]
     return Gdk.Cursor.new_from_name(Gdk.Display.get_default(), name)
 
@@ -263,7 +264,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         for key_mask, prefix in modifiers:
             if event.state & key_mask:
                 if not (prefix == 'shift' and unikey.isprintable()):
-                    key = '{0}+{1}'.format(prefix, key)
+                    key = f'{prefix}+{key}'
         return key
 
     def configure_event(self, widget, event):
@@ -577,7 +578,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             ff = Gtk.FileFilter()
             ff.set_name(name)
             for fmt in fmts:
-                ff.add_pattern("*." + fmt)
+                ff.add_pattern(f'*.{fmt}')
             dialog.add_filter(ff)
             if self.canvas.get_default_filetype() in fmts:
                 dialog.set_filter(ff)
@@ -587,7 +588,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
             name = dialog.get_filter().get_name()
             fmt = self.canvas.get_supported_filetypes_grouped()[name][0]
             dialog.set_current_name(
-                str(Path(dialog.get_current_name()).with_suffix("." + fmt)))
+                str(Path(dialog.get_current_name()).with_suffix(f'.{fmt}')))
 
         dialog.set_current_folder(mpl.rcParams["savefig.directory"])
         dialog.set_current_name(self.canvas.get_default_filename())
@@ -678,7 +679,7 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
 
     def remove_toolitem(self, name):
         if name not in self._toolitems:
-            self.toolmanager.message_event('%s Not in toolbar' % name, self)
+            self.toolmanager.message_event(f'{name} not in toolbar', self)
             return
 
         for group in self._groups:
