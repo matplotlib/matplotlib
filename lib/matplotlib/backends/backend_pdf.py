@@ -1462,7 +1462,7 @@ end"""
                  # Change origin to match Agg at top-left.
                  'Matrix': [1, 0, 0, 1, 0, self.height * 72]})
 
-            stroke_rgb, fill_rgb, path = hatch_style
+            stroke_rgb, fill_rgb, hatch = hatch_style
             self.output(stroke_rgb[0], stroke_rgb[1], stroke_rgb[2],
                         Op.setrgb_stroke)
             if fill_rgb is not None:
@@ -1474,7 +1474,7 @@ end"""
             self.output(mpl.rcParams['hatch.linewidth'], Op.setlinewidth)
 
             self.output(*self.pathOperations(
-                Path.hatch(path),
+                Path.hatch(hatch),
                 Affine2D().scale(sidelen),
                 simplify=False))
             self.output(Op.fill_stroke)
