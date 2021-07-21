@@ -25,6 +25,7 @@ import hashlib
 import logging
 import os
 from pathlib import Path
+import shutil
 import subprocess
 from tempfile import TemporaryDirectory
 
@@ -173,6 +174,7 @@ class TexManager:
             # geometry is loaded before the custom preamble as convert_psfrags
             # relies on a custom preamble to change the geometry.
             r"\usepackage[papersize=72in, margin=1in]{geometry}",
+            r"\usepackage{underscore}",
             self.get_custom_preamble(),
             # textcomp is loaded last (if not already loaded by the custom
             # preamble) in order not to clash with custom packages (e.g.
@@ -248,6 +250,8 @@ class TexManager:
             # final output dir ensures that they are on the same filesystem,
             # and thus replace() works atomically.
             with TemporaryDirectory(dir=Path(dvifile).parent) as tmpdir:
+                shutil.copy(
+                    cbook._get_data_path(Path("latex").joinpath("underscore.sty")), tmpdir)
                 self._run_checked_subprocess(
                     ["latex", "-interaction=nonstopmode", "--halt-on-error",
                      texfile], tex, cwd=tmpdir)
