@@ -187,6 +187,11 @@ Troubleshooting
   using either the ``rasterized=True`` keyword, or ``.set_rasterized(True)`` as
   per :doc:`this example </gallery/misc/rasterization_demo>`.
 
+* Various math font are compiled and rendered only if corresponding font
+  packages are loaded. The ``lmodern`` package is often required when using
+  math symbols. See `discussion <https://matrix.to/#/!BXmyZMTnRjWJldDRLV:gitter.im/$M7KxLQuyUosx2byFxIsKJE8QS_14NRiWqmmlb6nSIfE?via=gitter.im&via=matrix.org>`
+  for more details.
+
 * If you still need help, please see :ref:`reporting-problems`
 
 .. _LaTeX: http://www.tug.org
