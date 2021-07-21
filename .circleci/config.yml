@@ -31,10 +31,10 @@ commands:
               git remote add upstream git://github.com/matplotlib/matplotlib.git
             fi
             git fetch upstream
-            export merge=${CI_PULL_REQUEST//*pull\//}
-            if [[ "$merge" != "" ]]; then
-              echo "Merging ${merge}";
-              git pull --ff-only upstream "refs/pull/${merge}/merge";
+            if [[ "$CIRCLE_BRANCH" != "master" ]] && \
+               [[ "$CIRCLE_PR_NUMBER" != "" ]]; then
+              echo "Merging ${CIRCLE_PR_NUMBER}"
+              git pull --ff-only upstream "refs/pull/${CIRCLE_PR_NUMBER}/merge"
             fi
 
   apt-install:
