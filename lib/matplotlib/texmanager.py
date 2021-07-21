@@ -250,8 +250,10 @@ class TexManager:
             # final output dir ensures that they are on the same filesystem,
             # and thus replace() works atomically.
             with TemporaryDirectory(dir=Path(dvifile).parent) as tmpdir:
-                shutil.copy(
-                    cbook._get_data_path(Path("latex").joinpath("underscore.sty")), tmpdir)
+                shutil.copy(cbook._get_data_path(
+                    Path("latex").joinpath("underscore.sty")),
+                    tmpdir,
+                )
                 self._run_checked_subprocess(
                     ["latex", "-interaction=nonstopmode", "--halt-on-error",
                      texfile], tex, cwd=tmpdir)
