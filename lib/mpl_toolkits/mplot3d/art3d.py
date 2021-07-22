@@ -733,15 +733,13 @@ class Poly3DCollection(PolyCollection):
             The function applied on the z-coordinates of the vertices in the
             viewer's coordinate system, to determine the z-order.
         """
-        def nansafe(func):
-            def f(x):
-                value = func(x)
-                return np.inf if np.isnan(value) else value
-            return f
-
-        self._zsortfunc = nansafe(self._zsort_functions[zsort])
+        self._zsortfunc = self._zsort_functions[zsort]
         self._sort_zpos = None
         self.stale = True
+
+    def _zsortval(self, zs):
+        nans = np.isnan(zs)
+        return np.inf if nans.all() else self._zsortfunc(zs[~nans])
 
     def get_vector(self, segments3d):
         """Optimize points for projection."""
@@ -821,7 +819,7 @@ class Poly3DCollection(PolyCollection):
         if xyzlist:
             # sort by depth (furthest drawn first)
             z_segments_2d = sorted(
-                ((self._zsortfunc(zs), np.column_stack([xs, ys]), fc, ec, idx)
+                ((self._zsortval(zs), np.column_stack([xs, ys]), fc, ec, idx)
                  for idx, ((xs, ys, zs), fc, ec)
                  in enumerate(zip(xyzlist, cface, cedge))),
                 key=lambda x: x[0], reverse=True)
