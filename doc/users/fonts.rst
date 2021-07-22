@@ -134,7 +134,7 @@ Are we reinventing the wheel?
 Internally, a feasible response to the question of 'reinventing the
 wheel would be, well, Yes *and No*. The font-matching algorithm used
 by Matplotlib has been *inspired* by web browsers, more specifically,
-`CSS Specifications <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_!
+`CSS Specifications <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_.
 
 Currently, the simplest way (and the only way) to tell Matplotlib what fonts
 you want it to use for your document is via the **font.family** rcParam,
@@ -144,7 +144,7 @@ This is similar to how one tells a browser to use multiple font families
 (specified in their order of preference) for their HTML webpages. By using
 **font-family** in their stylesheet, users can essentially trigger a very
 useful feature provided by browers, known as Font-Fallback. For example, the
-following snippet in an HTMl markup would:
+following snippet in an HTML markup would:
 
 .. code-block:: html
 
@@ -163,14 +163,15 @@ following snippet in an HTMl markup would:
 For every character/glyph in *"some text"*, the browser will iterate through
 the whole list of font-families, and check whether that character/glyph is
 available in that font-family. As soon as a font is found which has the
-required glyph(s), the browser moves on to the next character.
+required glyph(s), the browser uses that font to render that character, and
+subsequently moves on to the next character.
 
 How does Matplotlib achieve this?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Well, Matplotlib doesn't achieve this, *yet*. It was initially only designed to
-use a **single font** throughout the document, i.e., no matter how many
-families you pass to **font.family** rcParam, Matplotlib would use the very
-first font it's able to find on your system, and try to render all your
+Currently, Matplotlib can't render a multi-font document. It was initially
+only designed to use a **single font** throughout the document, i.e., no matter
+how many families you pass to **font.family** rcParam, Matplotlib would use the
+very first font it's able to find on your system, and try to render all your
 characters/glyphs from that *and only that* font.
 
 .. note::
