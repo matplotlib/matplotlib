@@ -194,20 +194,18 @@ class Collection(artist.Artist, cm.ScalarMappable):
         else:
             self._joinstyle = None
 
+        # default to zeros
         self._offsets = np.zeros((1, 2))
-        # save if offsets passed in were none...
-        self._offsetsNone = offsets is None
-        self._uniform_offsets = None
+
         if offsets is not None:
             offsets = np.asanyarray(offsets, float)
             # Broadcast (2,) -> (1, 2) but nothing else.
             if offsets.shape == (2,):
                 offsets = offsets[None, :]
-            if transOffset is not None:
-                self._offsets = offsets
-                self._transOffset = transOffset
-            else:
-                self._uniform_offsets = offsets
+            self._offsets = offsets
+
+        if transOffset is not None:
+            self._transOffset = transOffset
 
         self._path_effects = None
         self.update(kwargs)
@@ -229,6 +227,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
             t = t._as_mpl_transform(self.axes)
         return t
 
+    def set_offset_transform(self, transOffset):
+        self._transOffset = transOffset
+
     def get_datalim(self, transData):
         # Calculate the data limits and return them as a `.Bbox`.
         #
@@ -248,8 +249,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         transform = self.get_transform()
         transOffset = self.get_offset_transform()
-        if (not self._offsetsNone and
-                not transOffset.contains_branch(transData)):
+        hasOffsets = np.any(self._offsets)  # True if any non-zero offsets
+        if (hasOffsets and not transOffset.contains_branch(transData)):
             # if there are offsets but in some coords other than data,
             # then don't use them for autoscaling.
             return transforms.Bbox.null()
@@ -279,7 +280,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                     self.get_transforms(),
                     transOffset.transform_non_affine(offsets),
                     transOffset.get_affine().frozen())
-            if not self._offsetsNone:
+            if hasOffsets:
                 # this is for collections that have their paths (shapes)
                 # in physical, axes-relative, or figure-relative units
                 # (i.e. like scatter). We can't uniquely set limits based on
@@ -542,20 +543,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
         offsets = np.asanyarray(offsets, float)
         if offsets.shape == (2,):  # Broadcast (2,) -> (1, 2) but nothing else.
             offsets = offsets[None, :]
-        # This decision is based on how they are initialized above in __init__.
-        if self._uniform_offsets is None:
-            self._offsets = offsets
-        else:
-            self._uniform_offsets = offsets
+        self._offsets = offsets
         self.stale = True
 
     def get_offsets(self):
         """Return the offsets for the collection."""
-        # This decision is based on how they are initialized above in __init__.
-        if self._uniform_offsets is None:
-            return self._offsets
-        else:
-            return self._uniform_offsets
+        return self._offsets
 
     def _get_default_linewidth(self):
         # This may be overridden in a subclass.
@@ -1441,9 +1434,6 @@ class LineCollection(Collection):
                 seg = np.asarray(seg, float)
             _segments.append(seg)
 
-        if self._uniform_offsets is not None:
-            _segments = self._add_offsets(_segments)
-
         self._paths = [mpath.Path(_seg) for _seg in _segments]
         self.stale = True
 
@@ -1473,19 +1463,6 @@ class LineCollection(Collection):
             segments.append(vertices)
 
         return segments
-
-    def _add_offsets(self, segs):
-        offsets = self._uniform_offsets
-        Nsegs = len(segs)
-        Noffs = offsets.shape[0]
-        if Noffs == 1:
-            for i in range(Nsegs):
-                segs[i] = segs[i] + i * offsets
-        else:
-            for i in range(Nsegs):
-                io = i % Noffs
-                segs[i] = segs[i] + offsets[io:io + 1]
-        return segs
 
     def _get_default_linewidth(self):
         return mpl.rcParams['lines.linewidth']
