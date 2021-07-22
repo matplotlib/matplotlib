@@ -1370,7 +1370,7 @@ def test_markevery_line():
     ax.legend()
 
 
-@image_comparison(['markevery_linear_scales'], remove_text=True)
+@image_comparison(['markevery_linear_scales'], remove_text=True, tol=0.001)
 def test_markevery_linear_scales():
     cases = [None,
              8,
