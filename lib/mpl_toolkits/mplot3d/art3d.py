@@ -738,6 +738,14 @@ class Poly3DCollection(PolyCollection):
         self.stale = True
 
     def _zsortval(self, zs):
+        """
+        Compute the value to use for z-sorting given the viewer z
+        coordinates of an object `zs`, with larger values drawn underneath
+        smaller values.
+
+        This function should never return `nan`, and returns `np.inf` if no
+        non-nan value is computable.
+        """
         nans = np.isnan(zs)
         return np.inf if nans.all() else self._zsortfunc(zs[~nans])
 
