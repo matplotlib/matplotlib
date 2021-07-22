@@ -24,6 +24,7 @@ Sources:
 import binascii
 import enum
 import itertools
+import logging
 import re
 import struct
 
@@ -32,6 +33,7 @@ import numpy as np
 from matplotlib.cbook import _format_approx
 from . import _api
 
+_log = logging.getLogger(__name__)
 
 # token types
 _TokenType = enum.Enum('_TokenType',
@@ -129,13 +131,16 @@ class Type1Font:
                 zeros -= 1
             idx -= 1
         if zeros:
-            raise RuntimeError('Insufficiently many zeros in Type 1 font')
+            # this may have been a problem on old implementations that
+            # used the zeros as necessary padding
+            _log.info('Insufficiently many zeros in Type 1 font')
 
         # Convert encrypted part to binary (if we read a pfb file, we may end
         # up converting binary to hexadecimal to binary again; but if we read
         # a pfa file, this part is already in hex, and I am not quite sure if
         # even the pfb format guarantees that it will be in binary).
-        binary = binascii.unhexlify(data[len1:idx+1])
+        idx1 = len1 + ((idx - len1 + 2) & ~1)  # ensure an even number of bytes
+        binary = binascii.unhexlify(data[len1:idx1])
 
         return data[:len1], binary, data[idx+1:]
 
