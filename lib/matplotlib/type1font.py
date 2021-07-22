@@ -344,11 +344,14 @@ class Type1Font:
           Subrs - array of byte code subroutines
           OtherSubrs - bytes object encoding some PostScript code
     """
-    __slots__ = ('parts', 'decrypted', 'prop', '_pos')
+    __slots__ = ('parts', 'decrypted', 'prop', '_pos', '_abbr')
     # the _pos dict contains (begin, end) indices to parts[0] + decrypted
     # so that they can be replaced when transforming the font;
     # but since sometimes a definition appears in both parts[0] and decrypted,
     # _pos[name] is an array of such pairs
+    #
+    # _abbr maps three standard abbreviations to their particular names in
+    # this font (e.g. 'RD' is named '-|' in some fonts)
 
     def __init__(self, input):
         """
@@ -368,6 +371,7 @@ class Type1Font:
             self.parts = self._split(data)
 
         self.decrypted = self._decrypt(self.parts[1], 'eexec')
+        self._abbr = {'RD': 'RD', 'ND': 'ND', 'NP': 'NP'}
         self._parse()
 
     def _read(self, file):
@@ -552,9 +556,17 @@ class Type1Font:
                 break
 
             # sometimes noaccess def and readonly def are abbreviated
-            if kw.is_name(b'def', b'ND', b'RD', b'|-'):
+            if kw.is_keyword('def', self._abbr['ND'], self._abbr['NP']):
                 prop[key] = value
                 pos.setdefault(key, []).append((keypos, kw.endpos()))
+
+            # detect the standard abbreviations
+            if value == '{noaccess def}':
+                self._abbr['ND'] = key
+            elif value == '{noaccess put}':
+                self._abbr['NP'] = key
+            elif value == '{string currentfile exch readstring pop}':
+                self._abbr['RD'] = key
 
         # Fill in the various *Name properties
         if 'FontName' not in prop:
@@ -604,9 +616,14 @@ class Type1Font:
                     "Second token following dup in Subrs definition must "
                     f"be a number, was {nbytes_token}"
                 )
-            token = next(tokens)  # usually RD or |- but the font can define this to be anything
-            binary_token = tokens.send(1+nbytes_token.numeric_value())
-            array[index_token.numeric_value()] = binary_token.value[1:]
+            token = next(tokens)
+            if not token.is_keyword(self._abbr['RD']):
+                raise RuntimeError(
+                    f"Token preceding subr must be {self._abbr['RD']}, "
+                    f"was {token}"
+                )
+            binary_token = tokens.send(1+nbytes_token.value())
+            array[index_token.value()] = binary_token.value()
 
         return array, next(tokens).endpos()
 

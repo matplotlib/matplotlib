@@ -42,6 +42,7 @@ def test_Type1Font():
     assert slanted.prop['ItalicAngle'] == -45
     assert font.prop['Encoding'][5] == 'Pi'
     assert isinstance(font.prop['CharStrings']['Pi'], bytes)
+    assert font._abbr['ND'] == 'ND'
 
     differ = difflib.Differ()
     diff = list(differ.compare(
@@ -85,6 +86,7 @@ def test_Type1Font_2():
     assert font.prop['Encoding'][65] == 'A'  # the font uses StandardEncoding
     (pos0, pos1), = font._pos['Encoding']
     assert font.parts[0][pos0:pos1] == b'/Encoding StandardEncoding'
+    assert font._abbr['ND'] == '|-'
 
 
 def test_tokenize():
