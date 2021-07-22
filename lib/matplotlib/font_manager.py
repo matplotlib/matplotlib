@@ -1370,30 +1370,22 @@ class FontManager:
             # set current prop's family
             cprop.set_family(ffamily[fidx])
 
-            try:
-                fpath = self._findfont_cached(
-                    cprop, fontext, directory,
-                    False, rebuild_if_missing, rc_params
-                )
+            # do not fall back to default font
+            fpath = self._findfontsprop_cached(
+                ffamily[fidx], cprop, fontext, directory,
+                False, rebuild_if_missing, rc_params
+            )
+            if fpath:
                 fpaths[ffamily[fidx]] = fpath
-            except ValueError:
-                _log.warning(
-                    'findfont: Font family [\'%s\'] not found.', ffamily[fidx]
-                )
-                if ffamily[fidx].lower() in font_family_aliases:
-                    _log.warning(
-                        "findfont: Generic family [%r] not found because "
-                        "none of the following families were found: %s",
-                        ffamily[fidx],
-                        ", ".join(self._expand_aliases(ffamily[fidx]))
-                    )
 
+        # only add default family if no other font was found
+        # and fallback_to_default is enabled
         if not fpaths:
             if fallback_to_default:
                 dfamily = self.defaultFamily[fontext]
                 cprop = prop.copy().set_family(dfamily)
-                fpath = self._findfont_cached(
-                    cprop, fontext, directory,
+                fpath = self._findfontsprop_cached(
+                    dfamily, cprop, fontext, directory,
                     True, rebuild_if_missing, rc_params
                 )
                 fpaths[dfamily] = fpath
@@ -1402,6 +1394,32 @@ class FontManager:
                                  "to the default font was disabled.")
 
         return fpaths
+
+
+    @lru_cache()
+    def _findfontsprop_cached(
+        self, family, prop, fontext, directory,
+        fallback_to_default, rebuild_if_missing, rc_params
+    ):
+        try:
+            return self._findfont_cached(
+                prop, fontext, directory, fallback_to_default,
+                rebuild_if_missing, rc_params
+            )
+        except ValueError:
+            if not fallback_to_default:
+                if family.lower() in font_family_aliases:
+                    _log.warning(
+                        "findfont: Generic family %r not found because "
+                        "none of the following families were found: %s",
+                        family,
+                        ", ".join(self._expand_aliases(family))
+                    )
+                else:
+                    _log.warning(
+                        'findfont: Font family \'%s\' not found.', family
+                    )
+
 
     @lru_cache()
     def _findfont_cached(self, prop, fontext, directory, fallback_to_default,
