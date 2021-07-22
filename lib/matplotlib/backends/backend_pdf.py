@@ -1239,6 +1239,9 @@ end"""
                 os.stat(filename).st_size, fontdata.getbuffer().nbytes
             )
 
+            # We need this ref for XObjects
+            full_font = font
+
             # reload the font object from the subset
             # (all the necessary data could probably be obtained directly
             # using fontLib.ttLib)
@@ -1325,10 +1328,10 @@ end"""
             glyph_ids = []
             for ccode in characters:
                 if not _font_supports_char(fonttype, chr(ccode)):
-                    gind = font.get_char_index(ccode)
+                    gind = full_font.get_char_index(ccode)
                     glyph_ids.append(gind)
 
-            bbox = [cvt(x, nearest=False) for x in font.bbox]
+            bbox = [cvt(x, nearest=False) for x in full_font.bbox]
             rawcharprocs = _get_pdf_charprocs(filename, glyph_ids)
             for charname in sorted(rawcharprocs):
                 stream = rawcharprocs[charname]
