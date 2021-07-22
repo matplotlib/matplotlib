@@ -188,9 +188,9 @@ Troubleshooting
   per :doc:`this example </gallery/misc/rasterization_demo>`.
 
 * Various math font are compiled and rendered only if corresponding font
-  packages are loaded. The ``lmodern`` package is often required when using
-  math symbols. See `discussion <https://matrix.to/#/!BXmyZMTnRjWJldDRLV:gitter.im/$M7KxLQuyUosx2byFxIsKJE8QS_14NRiWqmmlb6nSIfE?via=gitter.im&via=matrix.org>`
-  for more details.
+  packages are loaded. Specifically, when using ``\mathbf{}`` on Greek letters,
+  the default computer modern font may not contain them, in which case such font
+  is not rendered. Is such scenarios, the ``lmodern`` package may be loaded.
 
 * If you still need help, please see :ref:`reporting-problems`
 
