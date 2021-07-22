@@ -321,6 +321,21 @@ def pdfRepr(obj):
                         .format(type(obj)))
 
 
+def _font_supports_char(fonttype, char):
+    """
+    Returns True if the font is able to provide *char* in a PDF.
+
+    For a Type 3 font, this method returns True only for single-byte
+    chars.  For Type 42 fonts this method return True if the char is from
+    the Basic Multilingual Plane.
+    """
+    if fonttype == 3:
+        return ord(char) <= 255
+    if fonttype == 42:
+        return ord(char) <= 65535
+    raise NotImplementedError()
+
+
 class Reference:
     """
     PDF reference object.
@@ -1268,12 +1283,47 @@ end"""
 
             unicode_bfrange = []
             for start, end in unicode_groups:
+                # Ensure the CID map contains only chars from BMP
+                if start > 65535:
+                    continue
+                end = min(65535, end)
+
                 unicode_bfrange.append(
                     b"<%04x> <%04x> [%s]" %
                     (start, end,
                      b" ".join(b"<%04x>" % x for x in range(start, end+1))))
             unicode_cmap = (self._identityToUnicodeCMap %
                             (len(unicode_groups), b"\n".join(unicode_bfrange)))
+
+            # Add XObjects for unsupported chars
+            glyph_ids = []
+            for ccode in characters:
+                if not _font_supports_char(fonttype, chr(ccode)):
+                    gind = font.get_char_index(ccode)
+                    glyph_ids.append(gind)
+
+            bbox = [cvt(x, nearest=False) for x in font.bbox]
+            rawcharprocs = _get_pdf_charprocs(filename, glyph_ids)
+            for charname in sorted(rawcharprocs):
+                stream = rawcharprocs[charname]
+                charprocDict = {'Length': len(stream)}
+                charprocDict['Type'] = Name('XObject')
+                charprocDict['Subtype'] = Name('Form')
+                charprocDict['BBox'] = bbox
+                # Each glyph includes bounding box information,
+                # but xpdf and ghostscript can't handle it in a
+                # Form XObject (they segfault!!!), so we remove it
+                # from the stream here.  It's not needed anyway,
+                # since the Form XObject includes it in its BBox
+                # value.
+                stream = stream[stream.find(b"d1") + 2:]
+                charprocObject = self.reserveObject('charProc')
+                self.beginStream(charprocObject.id, None, charprocDict)
+                self.currentstream.write(stream)
+                self.endStream()
+
+                name = self._get_xobject_symbol_name(filename, charname)
+                self.multi_byte_charprocs[name] = charprocObject
 
             # CIDToGIDMap stream
             cid_to_gid_map = "".join(cid_to_gid_map).encode("utf-16be")
@@ -2106,16 +2156,17 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         self.check_gc(gc, gc._rgb)
         prev_font = None, None
         oldx, oldy = 0, 0
-        type3_multibytes = []
+        unsupported_chars = []
 
         self.file.output(Op.begin_text)
         for font, fontsize, num, ox, oy in glyphs:
-            self.file._character_tracker.track(font, chr(num))
+            char = chr(num)
+            self.file._character_tracker.track(font, char)
             fontname = font.fname
-            if fonttype == 3 and num > 255:
-                # For Type3 fonts, multibyte characters must be emitted
-                # separately (below).
-                type3_multibytes.append((font, fontsize, ox, oy, num))
+            if not _font_supports_char(fonttype, char):
+                # Unsupported chars (i.e. multibyte in Type 3 or beyond BMP in
+                # Type 42) must be emitted separately (below).
+                unsupported_chars.append((font, fontsize, ox, oy, num))
             else:
                 self._setup_textpos(ox, oy, 0, oldx, oldy)
                 oldx, oldy = ox, oy
@@ -2127,7 +2178,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                                  Op.show)
         self.file.output(Op.end_text)
 
-        for font, fontsize, ox, oy, num in type3_multibytes:
+        for font, fontsize, ox, oy, num in unsupported_chars:
             self._draw_xobject_glyph(
                 font, fontsize, font.get_char_index(num), ox, oy)
 
@@ -2236,20 +2287,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             return s.encode('cp1252', 'replace')
         return s.encode('utf-16be', 'replace')
 
-    @staticmethod
-    def _font_supports_char(fonttype, char):
-        """
-        Returns True if the font is able to provided the char in a PDF
-
-        For a Type 3 font, this method returns True only for single-byte
-        chars.  For Type 42 fonts this method always returns True.
-        """
-        if fonttype == 3:
-            return ord(char) <= 255
-        if fonttype == 42:
-            return True
-        raise NotImplementedError()
-
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited
 
@@ -2313,7 +2350,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             prev_was_multibyte = True
             for item in _text_helpers.layout(
                     s, font, kern_mode=KERNING_UNFITTED):
-                if self._font_supports_char(fonttype, item.char):
+                if _font_supports_char(fonttype, item.char):
                     if prev_was_multibyte:
                         singlebyte_chunks.append((item.x, []))
                     if item.prev_kern:
