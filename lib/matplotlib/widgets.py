@@ -2844,7 +2844,7 @@ class RectangleSelector(_SelectorWidget):
         ymove = event.ydata
 
         # rotate existing shape
-        if 'rotate' in self.state:
+        if 'rotate' in self._state:
             if self.ax.get_aspect() == 1:
                 rotation_new = np.arctan2(ymove - y0,
                                           xmove - x0)
@@ -2856,7 +2856,7 @@ class RectangleSelector(_SelectorWidget):
                               'equal-aspect Axes.')
 
         # move existing shape
-        elif ('move' in self.state or
+        elif ('move' in self._state or
               self._active_handle == 'C' or
               (self.drag_from_anywhere and self._contains(event))):
             x0 += xmove - self._prev_xmove
@@ -2891,8 +2891,8 @@ class RectangleSelector(_SelectorWidget):
         # new shape
         else:
             rotation = 0
-            center = [self.eventpress.xdata, self.eventpress.ydata]
-            center_pix = [self.eventpress.x, self.eventpress.y]
+            center = [self._eventpress.xdata, self._eventpress.ydata]
+            center_pix = [self._eventpress.x, self._eventpress.y]
             dx = (event.xdata - center[0]) / 2.
             dy = (event.ydata - center[1]) / 2.
 
@@ -3038,7 +3038,7 @@ class RectangleSelector(_SelectorWidget):
         m_idx, m_dist = self._center_handle.closest(event.x, event.y)
 
         # Set the active handle
-        if 'move' in self.state:
+        if 'move' in self._state:
             self._active_handle = 'C'
         # Set active handle as closest handle, if mouse click is close enough.
         elif m_dist < self.grab_range * 2:
