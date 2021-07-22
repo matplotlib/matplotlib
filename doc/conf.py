@@ -276,7 +276,6 @@ html_css_files = [
 ]
 
 # html_theme = "pydata_sphinx_theme"
-
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
 # html_title = None
