@@ -43,6 +43,7 @@ def test_font_selection(rc, preamble, family):
     assert preamble in src
     assert [*re.findall(r"\\\w+family", src)] == [family]
 
+
 def test_usetex_with_underscore():
     plt.rcParams["text.usetex"] = True
     df = {"a_b": range(5)[::-1], "c": range(5)}
