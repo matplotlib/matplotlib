@@ -1929,9 +1929,9 @@ class _SelectorWidget(AxesWidget):
             key = event.key or ''
             key = key.replace('ctrl', 'control')
             # move/rotate state is locked in on a button press
-            for action_key in ['move', 'rotate']:
-                if key == self.state_modifier_keys[action_key]:
-                    self._state.add(action_key)
+            for action in ['move', 'rotate']:
+                if key == self.state_modifier_keys[action]:
+                    self._state.add(action)
 
             self._press(event)
             return True
