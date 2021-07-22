@@ -1,0 +1,5 @@
+Type1Font.subset
+~~~~~~~~~~~~~~~~
+
+``_type1font.Type1Font`` has a new ``subset`` method that creates a subset
+of the font comprising only the characters used. This is used by the PDF backend.

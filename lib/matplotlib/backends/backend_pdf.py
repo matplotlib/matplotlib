@@ -1032,6 +1032,8 @@ class PdfFile:
         t1font = _type1font.Type1Font(fontinfo.fontfile)
         if fontinfo.effects:
             t1font = t1font.transform(fontinfo.effects)
+        chars = self._character_tracker.used[fontinfo.dvifont.fname]
+        t1font = t1font.subset(chars)
         fontdict['BaseFont'] = Name(t1font.prop['FontName'])
 
         # Font descriptors may be shared between differently encoded
@@ -2275,6 +2277,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 seq += [['font', pdfname, dvifont.size]]
                 oldfont = dvifont
             seq += [['text', x1, y1, [bytes([glyph])], x1+width]]
+            self.file._character_tracker.track(dvifont, chr(glyph))
 
         # Find consecutive text strings with constant y coordinate and
         # combine into a sequence of strings and kerns, or just one
