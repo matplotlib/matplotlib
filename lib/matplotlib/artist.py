@@ -677,7 +677,7 @@ class Artist:
         """
         Set the sketch parameters.
 
-        Requires the following preamble when using the PGF backend:
+        Requires the following preamble when using the PGF backend::
 
             \\usepgfmodule{decorations}
             \\usepgflibrary{decorations.pathmorphing}
