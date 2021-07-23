@@ -354,6 +354,8 @@ def test_sketch_params():
 
     baseline = r"""\pgfpathmoveto{\pgfqpoint{0.375000in}{0.300000in}}%
 \pgfpathlineto{\pgfqpoint{2.700000in}{2.700000in}}%
+\usepgfmodule{decorations}%
+\usepgflibrary{decorations.pathmorphing}%
 \pgfkeys{/pgf/decoration/.cd, """ \
     r"""segment length = 0.300000in, amplitude = 0.050000in}%
 \pgfmathsetseed{42}%
