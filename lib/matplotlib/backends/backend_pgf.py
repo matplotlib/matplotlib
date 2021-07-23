@@ -612,6 +612,9 @@ class RendererPgf(RendererBase):
             # same shape on multiple sketched lines
             scale, length, randomness = sketch_params
             if scale is not None:
+                # PGF guarantees that repeated loading is a no-op
+                writeln(self.fh, r"\usepgfmodule{decorations}")
+                writeln(self.fh, r"\usepgflibrary{decorations.pathmorphing}")
                 writeln(self.fh, r"\pgfkeys{/pgf/decoration/.cd, "
                         f"segment length = {(length * f):f}in, "
                         f"amplitude = {(scale * f):f}in}}")
