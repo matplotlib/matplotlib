@@ -127,6 +127,7 @@ Examples showing the use of markers:
 .. |m36| image:: /_static/markers/m36.png
 .. |m37| image:: /_static/markers/m37.png
 """
+import copy
 
 from collections.abc import Sized
 import inspect
@@ -221,7 +222,8 @@ class MarkerStyle:
 
     _unset = object()  # For deprecation of MarkerStyle(<noargs>).
 
-    def __init__(self, marker=_unset, fillstyle=None):
+    def __init__(self, marker=_unset, fillstyle=None,
+                 transform=None, capstyle=None, joinstyle=None):
         """
         Parameters
         ----------
@@ -236,6 +238,9 @@ class MarkerStyle:
             One of 'full', 'left', 'right', 'bottom', 'top', 'none'.
         """
         self._marker_function = None
+        self._user_transform = transform
+        self._user_capstyle = capstyle
+        self._user_joinstyle = joinstyle
         self._set_fillstyle(fillstyle)
         # Remove _unset and signature rewriting after deprecation elapses.
         if marker is self._unset:
@@ -265,7 +270,7 @@ class MarkerStyle:
         self._alt_transform = None
         self._snap_threshold = None
         self._joinstyle = JoinStyle.round
-        self._capstyle = CapStyle.butt
+        self._capstyle = self._user_capstyle or CapStyle.butt
         # Initial guess: Assume the marker is filled unless the fillstyle is
         # set to 'none'. The marker function will override this for unfilled
         # markers.
@@ -342,7 +347,8 @@ class MarkerStyle:
             self._marker_function = getattr(
                 self, '_set_' + self.markers[marker])
         elif isinstance(marker, MarkerStyle):
-            self.__dict__.update(marker.__dict__)
+            self.__dict__ = copy.deepcopy(marker.__dict__)
+
         else:
             try:
                 Path(marker)
@@ -369,7 +375,10 @@ class MarkerStyle:
         Return the transform to be applied to the `.Path` from
         `MarkerStyle.get_path()`.
         """
-        return self._transform.frozen()
+        if self._user_transform is not None:
+            return (self._transform + self._user_transform).frozen()
+        else:
+            return self._transform.frozen()
 
     def get_alt_path(self):
         """
@@ -385,7 +394,10 @@ class MarkerStyle:
         Return the transform to be applied to the `.Path` from
         `MarkerStyle.get_alt_path()`.
         """
-        return self._alt_transform.frozen()
+        if self._user_transform is not None:
+            return (self._alt_transform + self._user_transform).frozen()
+        else:
+            return self._alt_transform.frozen()
 
     def get_snap_threshold(self):
         return self._snap_threshold
@@ -413,14 +425,14 @@ class MarkerStyle:
         symstyle = marker[1]
         if symstyle == 0:
             self._path = Path.unit_regular_polygon(numsides)
-            self._joinstyle = JoinStyle.miter
+            self._joinstyle = self._user_joinstyle or JoinStyle.miter
         elif symstyle == 1:
             self._path = Path.unit_regular_star(numsides)
-            self._joinstyle = JoinStyle.bevel
+            self._joinstyle = self._user_joinstyle or JoinStyle.bevel
         elif symstyle == 2:
             self._path = Path.unit_regular_asterisk(numsides)
             self._filled = False
-            self._joinstyle = JoinStyle.bevel
+            self._joinstyle = self._user_joinstyle or JoinStyle.bevel
         else:
             raise ValueError(f"Unexpected tuple marker: {marker}")
         self._transform = Affine2D().scale(0.5).rotate_deg(rotation)
@@ -521,7 +533,7 @@ class MarkerStyle:
 
             self._alt_transform = self._transform
 
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
 
     def _set_triangle_up(self):
         return self._set_triangle(0.0, 0)
@@ -551,7 +563,7 @@ class MarkerStyle:
             self._transform.rotate_deg(rotate)
             self._alt_transform = self._transform
 
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
 
     def _set_diamond(self):
         self._transform = Affine2D().translate(-0.5, -0.5).rotate_deg(45)
@@ -565,7 +577,7 @@ class MarkerStyle:
             rotate = {'right': 0, 'top': 90, 'left': 180, 'bottom': 270}[fs]
             self._transform.rotate_deg(rotate)
             self._alt_transform = self._transform
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
 
     def _set_thin_diamond(self):
         self._set_diamond()
@@ -592,7 +604,7 @@ class MarkerStyle:
             }[self.get_fillstyle()]
             self._alt_transform = self._transform
 
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
 
     def _set_star(self):
         self._transform = Affine2D().scale(0.5)
@@ -614,7 +626,7 @@ class MarkerStyle:
             }[self.get_fillstyle()]
             self._alt_transform = self._transform
 
-        self._joinstyle = JoinStyle.bevel
+        self._joinstyle = self._user_joinstyle or JoinStyle.bevel
 
     def _set_hexagon1(self):
         self._transform = Affine2D().scale(0.5)
@@ -638,7 +650,7 @@ class MarkerStyle:
             }[self.get_fillstyle()]
             self._alt_transform = self._transform
 
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
 
     def _set_hexagon2(self):
         self._transform = Affine2D().scale(0.5).rotate_deg(30)
@@ -664,7 +676,7 @@ class MarkerStyle:
             }[self.get_fillstyle()]
             self._alt_transform = self._transform
 
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
 
     def _set_octagon(self):
         self._transform = Affine2D().scale(0.5)
@@ -685,7 +697,7 @@ class MarkerStyle:
                 {'left': 0, 'bottom': 90, 'right': 180, 'top': 270}[fs])
             self._alt_transform = self._transform.frozen().rotate_deg(180.0)
 
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
 
     _line_marker_path = Path([[0.0, -1.0], [0.0, 1.0]])
 
@@ -759,7 +771,7 @@ class MarkerStyle:
         self._snap_threshold = 3.0
         self._filled = False
         self._path = self._caret_path
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
 
     def _set_caretup(self):
         self._set_caretdown()
@@ -825,7 +837,7 @@ class MarkerStyle:
     def _set_plus_filled(self):
         self._transform = Affine2D()
         self._snap_threshold = 5.0
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
         if not self._half_fill():
             self._path = self._plus_filled_path
         else:
@@ -849,7 +861,7 @@ class MarkerStyle:
     def _set_x_filled(self):
         self._transform = Affine2D()
         self._snap_threshold = 5.0
-        self._joinstyle = JoinStyle.miter
+        self._joinstyle = self._user_joinstyle or JoinStyle.miter
         if not self._half_fill():
             self._path = self._x_filled_path
         else:
