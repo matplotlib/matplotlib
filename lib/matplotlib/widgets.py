@@ -2786,7 +2786,6 @@ class RectangleSelector(_SelectorWidget):
         else:
             self.set_visible(True)
 
-
         self._prev_xmove = event.xdata
         self._prev_ymove = event.ydata
         self.set_visible(self.visible)
@@ -3060,7 +3059,6 @@ class RectangleSelector(_SelectorWidget):
         else:
             # Closest to an edge handle
             self._active_handle = self._edge_order[e_idx]
-
 
     def _contains(self, event):
         """Return True if event is within the patch."""
