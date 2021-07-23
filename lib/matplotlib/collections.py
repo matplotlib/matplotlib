@@ -229,6 +229,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def set_offset_transform(self, transOffset):
         self._transOffset = transOffset
+        self.pchanged()
+        self.stale = True
 
     def get_datalim(self, transData):
         # Calculate the data limits and return them as a `.Bbox`.
