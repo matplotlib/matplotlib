@@ -169,7 +169,7 @@ sphinx_gallery_conf = {
     'remove_config_comments': True,
     'min_reported_time': 1,
     'thumbnail_size': (320, 224),
-    # 'compress_images': ('thumbnails', 'images'),
+    'compress_images': ('thumbnails', 'images'),
     'matplotlib_animations': True,
     # 3.7 CI doc build should not use hidpi images during the testing phase
     'image_srcset': [] if sys.version_info[:2] == (3, 7) else ["2x"],
