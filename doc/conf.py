@@ -285,6 +285,7 @@ html_theme = "pydata_sphinx_theme"
 html_logo = "_static/logo2.svg"
 html_theme_options = {
     "logo_link": "index",
+    "collapse_navigation": True,
     "icon_links": [
         {
             "name": "gitter",
