@@ -22,6 +22,9 @@ import sphinx
 from datetime import datetime
 import time
 
+# are we running circle CI?
+CIRCLECI = 'CIRCLECI' in os.environ
+
 # Parse year using SOURCE_DATE_EPOCH, falling back to current time.
 # https://reproducible-builds.org/specs/source-date-epoch/
 sourceyear = datetime.utcfromtimestamp(int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))).year
@@ -153,6 +156,7 @@ intersphinx_mapping = {
 
 
 # Sphinx gallery configuration
+
 sphinx_gallery_conf = {
     'examples_dirs': ['../examples', '../tutorials', '../plot_types'],
     'filename_pattern': '^((?!sgskip).)*$',
@@ -169,12 +173,11 @@ sphinx_gallery_conf = {
     'remove_config_comments': True,
     'min_reported_time': 1,
     'thumbnail_size': (320, 224),
-    'compress_images': ('thumbnails', 'images'),
+    'compress_images': () if CIRCLECI else ('thumbnails', 'images'),
     'matplotlib_animations': True,
     # 3.7 CI doc build should not use hidpi images during the testing phase
     'image_srcset': [] if sys.version_info[:2] == (3, 7) else ["2x"],
-    'junit': ('../test-results/sphinx-gallery/junit.xml'
-              if 'CIRCLECI' in os.environ else ''),
+    'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
 }
 
 plot_gallery = 'True'
@@ -286,6 +289,7 @@ html_theme = "pydata_sphinx_theme"
 html_logo = "_static/logo2.svg"
 html_theme_options = {
     "logo_link": "index",
+    "collapse_navigation": True if CIRCLECI else False,
     "icon_links": [
         {
             "name": "gitter",
