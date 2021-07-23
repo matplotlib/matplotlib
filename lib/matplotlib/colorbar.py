@@ -489,7 +489,7 @@ class Colorbar:
             self.add_lines(mappable)
 
     # Also remove ._patch after deprecation elapses.
-    patch = _api.deprecate_privatize_attribute("3.5")
+    patch = _api.deprecate_privatize_attribute("3.5", alternative="ax")
 
     def update_normal(self, mappable):
         """
