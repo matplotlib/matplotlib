@@ -91,6 +91,7 @@ def _check_dependencies():
         "matplotlib": 'matplotlib',
         "numpydoc": 'numpydoc',
         "PIL.Image": 'pillow',
+        "pydata_sphinx_theme": 'pydata_sphinx_theme',
         "sphinx_copybutton": 'sphinx_copybutton',
         "sphinx_gallery": 'sphinx_gallery',
         "sphinxcontrib.inkscapeconverter": 'sphinxcontrib-svg2pdfconverter',
