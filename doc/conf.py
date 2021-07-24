@@ -22,6 +22,9 @@ import sphinx
 from datetime import datetime
 import time
 
+# Release mode enables optimizations and other related options.
+_doc_release_mode = tags.has('release')  # noqa
+
 # are we running circle CI?
 CIRCLECI = 'CIRCLECI' in os.environ
 
@@ -175,10 +178,10 @@ sphinx_gallery_conf = {
     'remove_config_comments': True,
     'min_reported_time': 1,
     'thumbnail_size': (320, 224),
-    'compress_images': () if CIRCLECI else ('thumbnails', 'images'),
+    'compress_images': ('thumbnails', 'images') if _doc_release_mode else (),
     'matplotlib_animations': True,
-    # 3.7 CI doc build should not use hidpi images during the testing phase
-    'image_srcset': [] if sys.version_info[:2] == (3, 7) else ["2x"],
+    # Doc build should not use hidpi images during the testing phase.
+    'image_srcset': ["2x"] if _doc_release_mode else [],
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
 }
 
@@ -293,7 +296,7 @@ html_theme = "pydata_sphinx_theme"
 html_logo = "_static/logo2.svg"
 html_theme_options = {
     "logo_link": "index",
-    "collapse_navigation": True if CIRCLECI else False,
+    "collapse_navigation": not _doc_release_mode,
     "icon_links": [
         {
             "name": "gitter",
@@ -319,7 +322,7 @@ html_theme_options = {
     "show_prev_next": False,
     "navbar_center": ["mpl_nav_bar.html"],
 }
-include_analytics = False
+include_analytics = _doc_release_mode
 if include_analytics:
     html_theme_options["google_analytics_id"] = "UA-55954603-1"
 
