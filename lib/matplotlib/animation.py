@@ -1711,3 +1711,59 @@ class FuncAnimation(TimedAnimation):
 
             for a in self._drawn_artists:
                 a.set_animated(self._blit)
+
+
+def linanimate(fig, func, lf, uf,\
+        duration, fps=30, **kwargs):
+    """
+    Makes an animation by repeatedly calling a function *func*, over a
+    linear time, from lf to uf, with delta_t calculated from
+    fps and duration.
+    .. note::
+
+        You must store the created Animation in a variable that lives as long
+        as the animation should run. Otherwise, the Animation object will be
+        garbage-collected and the animation stops.
+
+    Parameters
+    ----------
+    fig : `~matplotlib.figure.Figure`
+        The figure object used to get needed events, such as draw or resize.
+
+    func : callable
+        The function to call at each frame.  The first argument will
+        be the next value in *frames*.   Any additional positional
+        arguments can be supplied via the *fargs* parameter.
+
+        The required signature is::
+
+            def func(frame, *fargs) -> iterable_of_artists
+
+        If ``blit == True``, *func* must return an iterable of all artists
+        that were modified or created. This information is used by the blitting
+        algorithm to determine which parts of the figure have to be updated.
+        The return value is unused if ``blit == False`` and may be omitted in
+        that case.
+
+    lf: float
+        The lowest value which will be passed into func.
+
+    uf: float
+        The highest value which will be passed into func.
+
+    fps: float
+        Frames per second (for animation)
+
+    duration: float (optional)
+        Running time of the animation if ran at specified fps.
+
+    """
+    # get the number of frames req. for the animation
+    frame_count = round(abs(uf - lf) * fps)
+    # the sepation of values of x (frame param) required to have specified fps.
+    if duration:
+        time_multiplier = duration / abs(uf - lf)
+    else:
+        time_multiplier = 1
+    return FuncAnimation(fig, func, frames=np.linspace(lf, uf, \
+            round(frame_count * time_multiplier)), **kwargs), fps
