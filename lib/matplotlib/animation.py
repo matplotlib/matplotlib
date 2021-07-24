@@ -1713,8 +1713,8 @@ class FuncAnimation(TimedAnimation):
                 a.set_animated(self._blit)
 
 
-def linanimate(fig, func, lf, uf,\
-        duration, fps=30, **kwargs):
+def linanimate(fig, func, lf, uf,
+               duration, fps=30, **kwargs):
     """
     Makes an animation by repeatedly calling a function *func*, over a
     linear time, from lf to uf, with delta_t calculated from
@@ -1765,5 +1765,5 @@ def linanimate(fig, func, lf, uf,\
         time_multiplier = duration / abs(uf - lf)
     else:
         time_multiplier = 1
-    return FuncAnimation(fig, func, frames=np.linspace(lf, uf, \
-            round(frame_count * time_multiplier)), **kwargs), fps
+    return FuncAnimation(fig, func, frames=np.linspace(lf, uf,
+                         round(frame_count * time_multiplier)), **kwargs)
