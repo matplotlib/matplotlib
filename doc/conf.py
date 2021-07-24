@@ -542,12 +542,27 @@ graphviz_dot = shutil.which('dot')
 # graphviz_output_format = 'svg'
 
 
+def reduce_plot_formats(app):
+    if app.builder.name == 'html':
+        keep = 'png'
+    elif app.builder.name == 'latex':
+        keep = 'pdf'
+    else:
+        return
+    app.config.plot_formats = [entry
+                               for entry in app.config.plot_formats
+                               if entry[0] == keep]
+
+
 def setup(app):
     if any(st in version for st in ('post', 'alpha', 'beta')):
         bld_type = 'dev'
     else:
         bld_type = 'rel'
     app.add_config_value('releaselevel', bld_type, 'env')
+
+    if not _doc_release_mode:
+        app.connect('builder-inited', reduce_plot_formats)
 
 # -----------------------------------------------------------------------------
 # Source code links
