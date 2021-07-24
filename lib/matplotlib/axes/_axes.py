@@ -4799,7 +4799,8 @@ default: :rc:`scatter.edgecolors`
                 _api.warn_external("Only one of 'bins' and 'norm' arguments "
                                    f"can be supplied, ignoring bins={bins}")
             else:
-                norm = mcolors.LogNorm()
+                norm = mcolors.LogNorm(vmin=vmin, vmax=vmax)
+                vmin, vmax = None, None
             bins = None
 
         if isinstance(norm, mcolors.LogNorm):
