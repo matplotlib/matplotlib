@@ -334,11 +334,11 @@ def test_path_deepcopy():
     path2 = Path(verts, codes)
     path1_copy = path1.deepcopy()
     path2_copy = path2.deepcopy()
-    assert(path1 is not path1_copy)
-    assert(path1.vertices is not path1_copy.vertices)
-    assert(path2 is not path2_copy)
-    assert(path2.vertices is not path2_copy.vertices)
-    assert(path2.codes is not path2_copy.codes)
+    assert path1 is not path1_copy
+    assert path1.vertices is not path1_copy.vertices
+    assert path2 is not path2_copy
+    assert path2.vertices is not path2_copy.vertices
+    assert path2.codes is not path2_copy.codes
 
 
 def test_path_shallowcopy():
@@ -349,11 +349,11 @@ def test_path_shallowcopy():
     path2 = Path(verts, codes)
     path1_copy = path1.copy()
     path2_copy = path2.copy()
-    assert(path1 is not path1_copy)
-    assert(path1.vertices is path1_copy.vertices)
-    assert(path2 is not path2_copy)
-    assert(path2.vertices is path2_copy.vertices)
-    assert(path2.codes is path2_copy.codes)
+    assert path1 is not path1_copy
+    assert path1.vertices is path1_copy.vertices
+    assert path2 is not path2_copy
+    assert path2.vertices is path2_copy.vertices
+    assert path2.codes is path2_copy.codes
 
 
 @pytest.mark.parametrize('phi', np.concatenate([
