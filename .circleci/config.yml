@@ -124,15 +124,13 @@ commands:
           command: |
             # Set epoch to date of latest tag.
             export SOURCE_DATE_EPOCH="$(git log -1 --format=%at $(git describe --abbrev=0))"
-            # Include analytics only when deploying to devdocs.
-            if [ "$CIRCLE_PROJECT_USERNAME" != "matplotlib" ] || \
-               [ "$CIRCLE_BRANCH" != "master" ] || \
-               [[ "$CIRCLE_PULL_REQUEST" == https://github.com/matplotlib/matplotlib/pull/* ]]; then
-              export ANALYTICS=False
-            else
-              export ANALYTICS=True
+            # Set release mode only when deploying to devdocs.
+            if [ "$CIRCLE_PROJECT_USERNAME" = "matplotlib" ] && \
+               [ "$CIRCLE_BRANCH" = "master" ] && \
+               [ "$CIRCLE_PR_NUMBER" = "" ]; then
+              export RELEASE_TAG='-t release'
             fi
-            make html O="-T -Ainclude_analytics=$ANALYTICS"
+            make html O="-T $RELEASE_TAG"
             rm -r build/html/_sources
           working_directory: doc
       - save_cache:
