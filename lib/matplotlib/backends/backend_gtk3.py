@@ -90,7 +90,7 @@ def _create_application():
 
 @functools.lru_cache()
 def _mpl_to_gtk_cursor(mpl_cursor):
-    name = {
+    name = _api.check_getitem({
         Cursors.MOVE: "move",
         Cursors.HAND: "pointer",
         Cursors.POINTER: "default",
@@ -98,7 +98,7 @@ def _mpl_to_gtk_cursor(mpl_cursor):
         Cursors.WAIT: "wait",
         Cursors.RESIZE_HORIZONTAL: "ew-resize",
         Cursors.RESIZE_VERTICAL: "ns-resize",
-    }[mpl_cursor]
+    }, cursor=mpl_cursor)
     return Gdk.Cursor.new_from_name(Gdk.Display.get_default(), name)
 
 
@@ -187,6 +187,14 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
 
     def destroy(self):
         self.close_event()
+
+    def set_cursor(self, cursor):
+        # docstring inherited
+        window = self.get_property("window")
+        if window is not None:
+            window.set_cursor(_mpl_to_gtk_cursor(cursor))
+            context = GLib.MainContext.default()
+            context.iteration(True)
 
     def scroll_event(self, widget, event):
         x = event.x
@@ -533,13 +541,6 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         escaped = GLib.markup_escape_text(s)
         self.message.set_markup(f'<small>{escaped}</small>')
 
-    def set_cursor(self, cursor):
-        window = self.canvas.get_property("window")
-        if window is not None:
-            window.set_cursor(_mpl_to_gtk_cursor(cursor))
-            context = GLib.MainContext.default()
-            context.iteration(True)
-
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height
         y1 = height - y1
@@ -717,6 +718,7 @@ class SaveFigureGTK3(backend_tools.SaveFigureBase):
         return NavigationToolbar2GTK3.save_figure(PseudoToolbar())
 
 
+@_api.deprecated("3.5", alternative="ToolSetCursor")
 class SetCursorGTK3(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
         NavigationToolbar2GTK3.set_cursor(
@@ -850,7 +852,6 @@ def error_msg_gtk(msg, parent=None):
 
 backend_tools.ToolSaveFigure = SaveFigureGTK3
 backend_tools.ToolConfigureSubplots = ConfigureSubplotsGTK3
-backend_tools.ToolSetCursor = SetCursorGTK3
 backend_tools.ToolRubberband = RubberbandGTK3
 backend_tools.ToolHelp = HelpGTK3
 backend_tools.ToolCopyToClipboard = ToolCopyToClipboardGTK3

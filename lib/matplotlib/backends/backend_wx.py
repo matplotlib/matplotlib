@@ -719,6 +719,12 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         if self:
             event.Skip()
 
+    def set_cursor(self, cursor):
+        # docstring inherited
+        cursor = wx.Cursor(_api.check_getitem(cursord, cursor=cursor))
+        self.SetCursor(cursor)
+        self.Update()
+
     def _set_capture(self, capture=True):
         """Control wx mouse capture."""
         if self.HasCapture():
@@ -1155,11 +1161,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             except Exception as e:
                 error_msg_wx(str(e))
 
-    def set_cursor(self, cursor):
-        cursor = wx.Cursor(cursord[cursor])
-        self.canvas.SetCursor(cursor)
-        self.canvas.Update()
-
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height
         self.canvas._rubberband_rect = (x0, height - y0, x1, height - y1)
@@ -1281,6 +1282,7 @@ class SaveFigureWx(backend_tools.SaveFigureBase):
             self._make_classic_style_pseudo_toolbar())
 
 
+@_api.deprecated("3.5", alternative="ToolSetCursor")
 class SetCursorWx(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
         NavigationToolbar2Wx.set_cursor(
@@ -1362,7 +1364,6 @@ class ToolCopyToClipboardWx(backend_tools.ToolCopyToClipboardBase):
 
 backend_tools.ToolSaveFigure = SaveFigureWx
 backend_tools.ToolConfigureSubplots = ConfigureSubplotsWx
-backend_tools.ToolSetCursor = SetCursorWx
 backend_tools.ToolRubberband = RubberbandWx
 backend_tools.ToolHelp = HelpWx
 backend_tools.ToolCopyToClipboard = ToolCopyToClipboardWx

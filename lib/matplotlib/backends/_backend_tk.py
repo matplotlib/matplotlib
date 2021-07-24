@@ -794,6 +794,7 @@ class RubberbandTk(backend_tools.RubberbandBase):
             del self.lastrect
 
 
+@_api.deprecated("3.5", alternative="ToolSetCursor")
 class SetCursorTk(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
         NavigationToolbar2Tk.set_cursor(
@@ -907,7 +908,6 @@ class HelpTk(backend_tools.ToolHelpBase):
 
 backend_tools.ToolSaveFigure = SaveFigureTk
 backend_tools.ToolConfigureSubplots = ConfigureSubplotsTk
-backend_tools.ToolSetCursor = SetCursorTk
 backend_tools.ToolRubberband = RubberbandTk
 backend_tools.ToolHelp = HelpTk
 backend_tools.ToolCopyToClipboard = backend_tools.ToolCopyToClipboardBase

@@ -241,6 +241,10 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         window.screenChanged.connect(self._update_screen)
         self._update_screen(window.screen())
 
+    def set_cursor(self, cursor):
+        # docstring inherited
+        self.setCursor(_api.check_getitem(cursord, cursor=cursor))
+
     def enterEvent(self, event):
         try:
             x, y = self.mouseEventCoords(event.pos())
@@ -702,9 +706,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         if self.coordinates:
             self.locLabel.setText(s)
 
-    def set_cursor(self, cursor):
-        self.canvas.setCursor(cursord[cursor])
-
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height
         y1 = height - y1
@@ -931,6 +932,7 @@ class SaveFigureQt(backend_tools.SaveFigureBase):
             self._make_classic_style_pseudo_toolbar())
 
 
+@_api.deprecated("3.5", alternative="ToolSetCursor")
 class SetCursorQt(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
         NavigationToolbar2QT.set_cursor(
@@ -960,7 +962,6 @@ class ToolCopyToClipboardQT(backend_tools.ToolCopyToClipboardBase):
 
 backend_tools.ToolSaveFigure = SaveFigureQt
 backend_tools.ToolConfigureSubplots = ConfigureSubplotsQt
-backend_tools.ToolSetCursor = SetCursorQt
 backend_tools.ToolRubberband = RubberbandQt
 backend_tools.ToolHelp = HelpQt
 backend_tools.ToolCopyToClipboard = ToolCopyToClipboardQT
