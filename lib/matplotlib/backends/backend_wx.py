@@ -40,8 +40,26 @@ _log = logging.getLogger(__name__)
 # for some info about screen dpi
 PIXELS_PER_INCH = 75
 
-# Delay time for idle checks
-IDLE_DELAY = 5  # Documented as deprecated as of Matplotlib 3.1.
+
+# module-level deprecations.
+@functools.lru_cache(None)
+def __getattr__(name):
+    if name == "IDLE_DELAY":
+        _api.warn_deprecated("3.1", name=name)
+        return 5
+    elif name == "cursord":
+        _api.warn_deprecated("3.5", name=name)
+        return {  # deprecated in Matplotlib 3.5.
+            cursors.MOVE: wx.CURSOR_HAND,
+            cursors.HAND: wx.CURSOR_HAND,
+            cursors.POINTER: wx.CURSOR_ARROW,
+            cursors.SELECT_REGION: wx.CURSOR_CROSS,
+            cursors.WAIT: wx.CURSOR_WAIT,
+            cursors.RESIZE_HORIZONTAL: wx.CURSOR_SIZEWE,
+            cursors.RESIZE_VERTICAL: wx.CURSOR_SIZENS,
+        }
+    else:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def error_msg_wx(msg, parent=None):
@@ -721,7 +739,15 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
     def set_cursor(self, cursor):
         # docstring inherited
-        cursor = wx.Cursor(_api.check_getitem(cursord, cursor=cursor))
+        cursor = wx.Cursor(_api.check_getitem({
+            cursors.MOVE: wx.CURSOR_HAND,
+            cursors.HAND: wx.CURSOR_HAND,
+            cursors.POINTER: wx.CURSOR_ARROW,
+            cursors.SELECT_REGION: wx.CURSOR_CROSS,
+            cursors.WAIT: wx.CURSOR_WAIT,
+            cursors.RESIZE_HORIZONTAL: wx.CURSOR_SIZEWE,
+            cursors.RESIZE_VERTICAL: wx.CURSOR_SIZENS,
+        }, cursor=cursor))
         self.SetCursor(cursor)
         self.Update()
 
@@ -1047,17 +1073,6 @@ def _set_frame_icon(frame):
             return
         bundle.AddIcon(icon)
     frame.SetIcons(bundle)
-
-
-cursord = {  # deprecated in Matplotlib 3.5.
-    cursors.MOVE: wx.CURSOR_HAND,
-    cursors.HAND: wx.CURSOR_HAND,
-    cursors.POINTER: wx.CURSOR_ARROW,
-    cursors.SELECT_REGION: wx.CURSOR_CROSS,
-    cursors.WAIT: wx.CURSOR_WAIT,
-    cursors.RESIZE_HORIZONTAL: wx.CURSOR_SIZEWE,
-    cursors.RESIZE_VERTICAL: wx.CURSOR_SIZENS,
-}
 
 
 class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):

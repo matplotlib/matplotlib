@@ -12,6 +12,7 @@ In Matplotlib they are drawn into a dedicated `~.axes.Axes`.
 """
 
 import copy
+import functools
 import logging
 import textwrap
 
@@ -193,10 +194,21 @@ workaround is not used by default (see issue #1188).
        textwrap.indent(_make_axes_other_param_doc, "    "),
        _colormap_kw_doc))
 
-# Deprecated since 3.4.
-colorbar_doc = docstring.interpd.params["colorbar_doc"]
-colormap_kw_doc = _colormap_kw_doc
-make_axes_kw_doc = _make_axes_param_doc + _make_axes_other_param_doc
+
+# module-level deprecations.
+@functools.lru_cache(None)
+def __getattr__(name):
+    if name == "colorbar_doc":
+        _api.warn_deprecated("3.4", name=name)
+        return docstring.interpd.params["colorbar_doc"]
+    elif name == "colormap_kw_doc":
+        _api.warn_deprecated("3.4", name=name)
+        return _colormap_kw_doc
+    elif name == "make_axes_kw_doc":
+        _api.warn_deprecated("3.4", name=name)
+        return _make_axes_param_doc + _make_axes_other_param_doc
+    else:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def _set_ticks_on_axis_warn(*args, **kw):

@@ -12,6 +12,7 @@ Core functions and attributes for the matplotlib style library:
 """
 
 import contextlib
+import functools
 import logging
 import os
 from pathlib import Path
@@ -26,15 +27,18 @@ _log = logging.getLogger(__name__)
 __all__ = ['use', 'context', 'available', 'library', 'reload_library']
 
 
+# module-level deprecations.
+@functools.lru_cache(None)
+def __getattr__(name):
+    if name == "STYLE_FILE_PATTERN":
+        _api.warn_deprecated("3.5", name=name)
+        return re.compile(r'([\S]+).%s$' % STYLE_EXTENSION)
+
+
 BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), 'stylelib')
 # Users may want multiple library paths, so store a list of paths.
 USER_LIBRARY_PATHS = [os.path.join(mpl.get_configdir(), 'stylelib')]
 STYLE_EXTENSION = 'mplstyle'
-
-# Deprecated in Matplotlib 3.5.
-STYLE_FILE_PATTERN = re.compile(r'([\S]+).%s$' % STYLE_EXTENSION)
-
-
 # A list of rcParams that should not be applied from styles
 STYLE_BLACKLIST = {
     'interactive', 'backend', 'backend.qt4', 'webagg.port', 'webagg.address',
