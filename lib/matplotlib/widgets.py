@@ -2264,6 +2264,8 @@ class SpanSelector(_SelectorWidget):
         # self._pressv is deprecated but we still need to maintain it
         self._pressv = None
 
+        self._active_handle = None
+
         return False
 
     def _onmove(self, event):
@@ -2805,6 +2807,7 @@ class RectangleSelector(_SelectorWidget):
         # call desired function
         self.onselect(self._eventpress, self._eventrelease)
         self.update()
+        self._active_handle = None
 
         return False
 
