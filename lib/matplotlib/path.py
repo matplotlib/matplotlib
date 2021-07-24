@@ -264,8 +264,13 @@ class Path:
         Return a shallow copy of the `Path`, which will share the
         vertices and codes with the source `Path`.
         """
-        import copy
-        return copy.copy(self)
+        try:
+            codes = self.codes
+        except AttributeError:
+            codes = None
+        return self.__class__(
+            self.vertices, codes,
+            _interpolation_steps=self._interpolation_steps)
 
     copy = __copy__
 
