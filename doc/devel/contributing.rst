@@ -119,7 +119,7 @@ A brief overview is:
       git clone https://github.com/<YOUR GITHUB USERNAME>/matplotlib.git
 
 4. Enter the directory and install the local version of Matplotlib.
-   See ref`<installing_for_devs>` for instructions
+   See :ref:`installing_for_devs` for instructions
 
 5. Create a branch to hold your changes::
 
