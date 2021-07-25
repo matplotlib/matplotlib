@@ -1,0 +1,2 @@
+All parameters of ``imshow`` starting from *aspect* will become keyword-only
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

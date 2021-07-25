@@ -5285,6 +5285,7 @@ default: :rc:`scatter.edgecolors`
         replace_names=["y", "x1", "x2", "where"])
 
     #### plotting z(x, y): imshow, pcolor and relatives, contour
+    @_api.make_keyword_only("3.5", "aspect")
     @_preprocess_data()
     def imshow(self, X, cmap=None, norm=None, aspect=None,
                interpolation=None, alpha=None, vmin=None, vmax=None,

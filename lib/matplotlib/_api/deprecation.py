@@ -249,6 +249,14 @@ class deprecate_privatize_attribute:
             name=name))
 
 
+# Used by _copy_docstring_and_deprecators to redecorate pyplot wrappers and
+# boilerplate.py to retrieve original signatures.  It may seem natural to store
+# this information as an attribute on the wrapper, but if the wrapper gets
+# itself functools.wraps()ed, then such attributes are silently propagated to
+# the outer wrapper, which is not desired.
+DECORATORS = {}
+
+
 def rename_parameter(since, old, new, func=None):
     """
     Decorator indicating that parameter *old* of *func* is renamed to *new*.
@@ -268,8 +276,10 @@ def rename_parameter(since, old, new, func=None):
         def func(good_name): ...
     """
 
+    decorator = functools.partial(rename_parameter, since, old, new)
+
     if func is None:
-        return functools.partial(rename_parameter, since, old, new)
+        return decorator
 
     signature = inspect.signature(func)
     assert old not in signature.parameters, (
@@ -294,6 +304,7 @@ def rename_parameter(since, old, new, func=None):
     # would both show up in the pyplot function for an Axes method as well and
     # pyplot would explicitly pass both arguments to the Axes method.
 
+    DECORATORS[wrapper] = decorator
     return wrapper
 
 
@@ -330,8 +341,10 @@ def delete_parameter(since, name, func=None, **kwargs):
         def func(used_arg, other_arg, unused, more_args): ...
     """
 
+    decorator = functools.partial(delete_parameter, since, name, **kwargs)
+
     if func is None:
-        return functools.partial(delete_parameter, since, name, **kwargs)
+        return decorator
 
     signature = inspect.signature(func)
     # Name of `**kwargs` parameter of the decorated function, typically
@@ -399,6 +412,7 @@ def delete_parameter(since, name, func=None, **kwargs):
                 **kwargs)
         return func(*inner_args, **inner_kwargs)
 
+    DECORATORS[wrapper] = decorator
     return wrapper
 
 
@@ -406,10 +420,16 @@ def make_keyword_only(since, name, func=None):
     """
     Decorator indicating that passing parameter *name* (or any of the following
     ones) positionally to *func* is being deprecated.
+
+    When used on a method that has a pyplot wrapper, this should be the
+    outermost decorator, so that :file:`boilerplate.py` can access the original
+    signature.
     """
 
+    decorator = functools.partial(make_keyword_only, since, name)
+
     if func is None:
-        return functools.partial(make_keyword_only, since, name)
+        return decorator
 
     signature = inspect.signature(func)
     POK = inspect.Parameter.POSITIONAL_OR_KEYWORD
@@ -419,19 +439,16 @@ def make_keyword_only(since, name, func=None):
         f"Matplotlib internal error: {name!r} must be a positional-or-keyword "
         f"parameter for {func.__name__}()")
     names = [*signature.parameters]
-    kwonly = [name for name in names[names.index(name):]
+    name_idx = names.index(name)
+    kwonly = [name for name in names[name_idx:]
               if signature.parameters[name].kind == POK]
-    func.__signature__ = signature.replace(parameters=[
-        param.replace(kind=KWO) if param.name in kwonly else param
-        for param in signature.parameters.values()])
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         # Don't use signature.bind here, as it would fail when stacked with
         # rename_parameter and an "old" argument name is passed in
         # (signature.bind would fail, but the actual call would succeed).
-        idx = [*func.__signature__.parameters].index(name)
-        if len(args) > idx:
+        if len(args) > name_idx:
             warn_deprecated(
                 since, message="Passing the %(name)s %(obj_type)s "
                 "positionally is deprecated since Matplotlib %(since)s; the "
@@ -439,6 +456,11 @@ def make_keyword_only(since, name, func=None):
                 name=name, obj_type=f"parameter of {func.__name__}()")
         return func(*args, **kwargs)
 
+    # Don't modify *func*'s signature, as boilerplate.py needs it.
+    wrapper.__signature__ = signature.replace(parameters=[
+        param.replace(kind=KWO) if param.name in kwonly else param
+        for param in signature.parameters.values()])
+    DECORATORS[wrapper] = decorator
     return wrapper
 
 
