@@ -264,6 +264,7 @@ typedef struct
     Py_ssize_t shape[2];
     Py_ssize_t strides[2];
     Py_ssize_t suboffsets[2];
+    std::vector<FT2Font *> fallbacks;
 } PyFT2Font;
 
 static unsigned long read_from_file_callback(FT_Stream stream,
@@ -361,15 +362,18 @@ const char *PyFT2Font_init__doc__ =
 
 static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *filename = NULL, *open = NULL, *data = NULL;
+    printf("PyFT2Font init!\n");
+    PyObject *filename = NULL, *open = NULL, *data = NULL, *fallback_list = NULL;
     FT_Open_Args open_args;
     long hinting_factor = 8;
     int kerning_factor = 0;
-    const char *names[] = { "filename", "hinting_factor", "_kerning_factor", NULL };
+    const char *names[] = {
+        "filename", "hinting_factor", "_fallback_list", "_kerning_factor", NULL
+    };
 
     if (!PyArg_ParseTupleAndKeywords(
-             args, kwds, "O|l$i:FT2Font", (char **)names, &filename,
-             &hinting_factor, &kerning_factor)) {
+             args, kwds, "O|l$Oi:FT2Font", (char **)names, &filename,
+             &hinting_factor, &fallback_list, &kerning_factor)) {
         return -1;
     }
 
@@ -381,6 +385,21 @@ static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
     memset((void *)&open_args, 0, sizeof(FT_Open_Args));
     open_args.flags = FT_OPEN_STREAM;
     open_args.stream = &self->stream;
+
+    if (fallback_list && PyList_Check(fallback_list)) {
+        Py_ssize_t size = PyList_Size(fallback_list);
+
+        for (int i = 0; i < size; ++i) {
+            PyObject* item = PyList_GetItem(fallback_list, i);
+
+            // TODO: check whether item is actually an FT2Font
+            FT2Font *fback = reinterpret_cast<PyFT2Font *>(item)->x;
+            self->fallbacks.push_back(fback);
+        }
+
+        Py_INCREF(fallback_list);
+    }
+    printf("Fallback SIZE: %lu \n", self->fallbacks.size());
 
     if (PyBytes_Check(filename) || PyUnicode_Check(filename)) {
         if (!(open = PyDict_GetItemString(PyEval_GetBuiltins(), "open"))  // Borrowed reference.
@@ -403,7 +422,7 @@ static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
     Py_CLEAR(data);
 
     CALL_CPP_FULL(
-        "FT2Font", (self->x = new FT2Font(open_args, hinting_factor)),
+        "FT2Font", (self->x = new FT2Font(open_args, hinting_factor, self->fallbacks)),
         Py_CLEAR(self->py_file), -1);
 
     CALL_CPP_INIT("FT2Font->set_kerning_factor", (self->x->set_kerning_factor(kerning_factor)));
@@ -444,6 +463,7 @@ static PyObject *PyFT2Font_set_size(PyFT2Font *self, PyObject *args, PyObject *k
 {
     double ptsize;
     double dpi;
+    printf("PyFT, set_size called!\n");
 
     if (!PyArg_ParseTuple(args, "dd:set_size", &ptsize, &dpi)) {
         return NULL;
