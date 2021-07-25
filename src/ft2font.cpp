@@ -169,12 +169,8 @@ FT2Image::draw_rect_filled(unsigned long x0, unsigned long y0, unsigned long x1,
     m_dirty = true;
 }
 
-static FT_UInt ft_get_char_index_or_warn(FT_Face face, FT_ULong charcode)
+static FT_UInt ft_glyph_warn(FT_ULong charcode)
 {
-    FT_UInt glyph_index = FT_Get_Char_Index(face, charcode);
-    if (glyph_index) {
-        return glyph_index;
-    }
     PyObject *text_helpers = NULL, *tmp = NULL;
     if (!(text_helpers = PyImport_ImportModule("matplotlib._text_helpers")) ||
         !(tmp = PyObject_CallMethod(text_helpers, "warn_on_missing_glyph", "k", charcode))) {
@@ -189,6 +185,14 @@ exit:
     return 0;
 }
 
+static FT_UInt ft_get_char_index_or_warn(FT_Face face, FT_ULong charcode)
+{
+    FT_UInt glyph_index = FT_Get_Char_Index(face, charcode);
+    if (glyph_index) {
+        return glyph_index;
+    }
+    return ft_glyph_warn(charcode);
+}
 
 // ft_outline_decomposer should be passed to FT_Outline_Decompose.  On the
 // first pass, vertices and codes are set to NULL, and index is simply
@@ -319,7 +323,10 @@ FT2Font::get_path()
     return Py_BuildValue("NN", vertices.pyobj(), codes.pyobj());
 }
 
-FT2Font::FT2Font(FT_Open_Args &open_args, long hinting_factor_) : image(), face(NULL)
+FT2Font::FT2Font(FT_Open_Args &open_args,
+                 long hinting_factor_,
+                 std::vector<FT2Font *> &fallback_list)
+    : image(), face(NULL)
 {
     clear();
 
@@ -353,6 +360,9 @@ FT2Font::FT2Font(FT_Open_Args &open_args, long hinting_factor_) : image(), face(
 
     FT_Matrix transform = { 65536 / hinting_factor, 0, 0, 65536 };
     FT_Set_Transform(face, &transform, 0);
+
+    // Set fallbacks
+    set_fallbacks(fallback_list);
 }
 
 FT2Font::~FT2Font()
@@ -363,6 +373,10 @@ FT2Font::~FT2Font()
 
     if (face) {
         FT_Done_Face(face);
+    }
+
+    for (uint i = 0; i < fallbacks.size(); i ++) {
+        fallbacks[i]->~FT2Font();
     }
 }
 
@@ -376,6 +390,17 @@ void FT2Font::clear()
     }
 
     glyphs.clear();
+
+    for (uint i = 0; i < fallbacks.size(); i ++) {
+        fallbacks[i]->clear();
+    }
+}
+
+void FT2Font::check() {
+    printf("Fallback num: -1; Numface: %lu\n", get_face()->num_glyphs);
+    for (uint i = 0; i < fallbacks.size(); i++) {
+        printf("Fallback num: %u; Numface: %lu\n", i, fallbacks[i]->get_face()->num_glyphs);
+    }
 }
 
 void FT2Font::set_size(double ptsize, double dpi)
@@ -387,7 +412,17 @@ void FT2Font::set_size(double ptsize, double dpi)
     }
     FT_Matrix transform = { 65536 / hinting_factor, 0, 0, 65536 };
     FT_Set_Transform(face, &transform, 0);
+
+    for (uint i = 0; i < fallbacks.size(); i++) {
+        fallbacks[i]->set_size(ptsize, dpi);
+    }
 }
+
+void FT2Font::set_fallbacks(std::vector<FT2Font *> &fallback_list)
+{
+    fallbacks.assign(fallback_list.begin(), fallback_list.end());
+}
+
 
 void FT2Font::set_charmap(int i)
 {
@@ -421,15 +456,32 @@ int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode)
     }
 }
 
+int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode, FT_Vector &delta)
+{
+    if (!FT_HAS_KERNING(face)) {
+        return 0;
+    }
+
+    if (!FT_Get_Kerning(face, left, right, mode, &delta)) {
+        return (int)(delta.x) / (hinting_factor << kerning_factor);
+    } else {
+        return 0;
+    }
+}
+
 void FT2Font::set_kerning_factor(int factor)
 {
     kerning_factor = factor;
+    for (uint i = 0; i < fallbacks.size(); i ++){
+        fallbacks[i]->set_kerning_factor(factor);
+    }
 }
 
 void FT2Font::set_text(
     size_t N, uint32_t *codepoints, double angle, FT_Int32 flags, std::vector<double> &xys)
 {
     FT_Matrix matrix; /* transformation matrix */
+    check();
 
     angle = angle / 360.0 * 2 * M_PI;
 
@@ -452,28 +504,47 @@ void FT2Font::set_text(
         FT_BBox glyph_bbox;
         FT_Pos last_advance;
 
-        glyph_index = ft_get_char_index_or_warn(face, codepoints[n]);
+        FT_UInt final_glyph_index;
+        FT_Error charcode_error, glyph_error;
+        FT2Font *ft_object_with_glyph = this;
+        printf("\nBefore loading char! \n");
+        load_char_with_fallback(ft_object_with_glyph, final_glyph_index, glyphs, codepoints[n],
+                                flags, charcode_error, glyph_error);
+        printf("Final ft2font: %lu\n", ft_object_with_glyph->get_face()->num_glyphs);
+        if (charcode_error || glyph_error) {
+            ft_glyph_warn((FT_ULong)codepoints[n]);
+            return;
+        }
+
+        glyph_index = final_glyph_index;
 
         // retrieve kerning distance and move pen position
         if (use_kerning && previous && glyph_index) {
             FT_Vector delta;
-            FT_Get_Kerning(face, previous, glyph_index, FT_KERNING_DEFAULT, &delta);
+            ft_object_with_glyph->get_kerning(previous, glyph_index, FT_KERNING_DEFAULT, delta);
             pen.x += delta.x / (hinting_factor << kerning_factor);
         }
-        if (FT_Error error = FT_Load_Glyph(face, glyph_index, flags)) {
-            throw_ft_error("Could not load glyph", error);
-        }
+
+        // DONE with load_char_with_fallback
+        // if (FT_Error error = FT_Load_Glyph(face, glyph_index, flags)) {
+        //     throw_ft_error("Could not load glyph", error);
+        // }
+
         // ignore errors, jump to next glyph
 
         // extract glyph image and store it in our table
 
-        FT_Glyph thisGlyph;
-        if (FT_Error error = FT_Get_Glyph(face->glyph, &thisGlyph)) {
-            throw_ft_error("Could not get glyph", error);
-        }
+        // DONE with load_char_with_fallback
+        // FT_Glyph thisGlyph;
+        // if (FT_Error error = FT_Get_Glyph(face->glyph, &thisGlyph)) {
+        //     throw_ft_error("Could not get glyph", error);
+        // }
         // ignore errors, jump to next glyph
 
-        last_advance = face->glyph->advance.x;
+        FT_Glyph &thisGlyph = glyphs[glyphs.size() - 1];
+
+        // Compare with thisGlyph?
+        last_advance = ft_object_with_glyph->get_face()->glyph->advance.x;
         FT_Glyph_Transform(thisGlyph, 0, &pen);
         FT_Glyph_Transform(thisGlyph, &matrix, 0);
         xys.push_back(pen.x);
@@ -489,7 +560,10 @@ void FT2Font::set_text(
         pen.x += last_advance;
 
         previous = glyph_index;
-        glyphs.push_back(thisGlyph);
+
+        printf("Set_Text complete! \n");
+        // DONE with load_char_with_fallback
+        // glyphs.push_back(thisGlyph);
     }
 
     FT_Vector_Transform(&pen, &matrix);
@@ -511,6 +585,48 @@ void FT2Font::load_char(long charcode, FT_Int32 flags)
         throw_ft_error("Could not get glyph", error);
     }
     glyphs.push_back(thisGlyph);
+}
+
+void FT2Font::load_char_with_fallback(FT2Font* &ft_object_with_glyph,
+                                      FT_UInt &final_glyph_index,
+                                      std::vector<FT_Glyph> &parent_glyphs,
+                                      long charcode,
+                                      FT_Int32 flags,
+                                      FT_Error &charcode_error,
+                                      FT_Error &glyph_error)
+{
+    printf("loading char!\n");
+    FT_UInt glyph_index = FT_Get_Char_Index(face, charcode);
+
+    if (glyph_index) {
+        printf("glyph found!\n");
+        charcode_error = FT_Load_Glyph(face, glyph_index, flags);
+        // throw_ft_error("Could not load charcode", error);
+        FT_Glyph thisGlyph;
+        glyph_error = FT_Get_Glyph(face->glyph, &thisGlyph);
+        // throw_ft_error("Could not get glyph", error);
+        final_glyph_index = glyph_index;
+        parent_glyphs.push_back(thisGlyph);
+    }
+
+    else {
+        printf("glyph not found! Fallback size: %lu\n", fallbacks.size());
+        for (uint i = 0; i < fallbacks.size(); ++i) {
+            uint current_size = parent_glyphs.size();
+            printf("Fallback %u: %u\n", i, current_size);
+            fallbacks[i]->load_char_with_fallback(ft_object_with_glyph, final_glyph_index,
+                                                  parent_glyphs, charcode, flags, charcode_error,
+                                                  glyph_error);
+            printf("Got back from fallback load char!\n");
+            // jump out if glyph size increased
+            if (parent_glyphs.size() == current_size + 1) {
+                printf("size increased!\n");
+                ft_object_with_glyph = fallbacks[i];
+                printf("Ft object assigned!\n");
+                return;
+            }
+        }
+    }
 }
 
 void FT2Font::load_glyph(FT_UInt glyph_index, FT_Int32 flags)
