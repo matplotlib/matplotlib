@@ -69,17 +69,27 @@ class FT2Font
 {
 
   public:
-    FT2Font(FT_Open_Args &open_args, long hinting_factor);
+    FT2Font(FT_Open_Args &open_args, long hinting_factor, std::vector<FT2Font *> &fallback_list);
     virtual ~FT2Font();
     void clear();
     void set_size(double ptsize, double dpi);
     void set_charmap(int i);
+    void set_fallbacks(std::vector<FT2Font *> &fallback_list);
+    void check();
     void select_charmap(unsigned long i);
     void set_text(
         size_t N, uint32_t *codepoints, double angle, FT_Int32 flags, std::vector<double> &xys);
     int get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode);
+    int get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode, FT_Vector &delta);
     void set_kerning_factor(int factor);
     void load_char(long charcode, FT_Int32 flags);
+    void load_char_with_fallback(FT2Font* &ft_object_with_glyph,
+                                 FT_UInt &final_glyph_index,
+                                 std::vector<FT_Glyph> &parent_glyphs,
+                                 long charcode,
+                                 FT_Int32 flags,
+                                 FT_Error &charcode_error,
+                                 FT_Error &glyph_error);
     void load_glyph(FT_UInt glyph_index, FT_Int32 flags);
     void get_width_height(long *width, long *height);
     void get_bitmap_offset(long *x, long *y);
@@ -123,6 +133,7 @@ class FT2Font
     FT_Face face;
     FT_Vector pen;    /* untransformed origin  */
     std::vector<FT_Glyph> glyphs;
+    std::vector<FT2Font *> fallbacks;
     FT_BBox bbox;
     FT_Pos advance;
     long hinting_factor;
