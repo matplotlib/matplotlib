@@ -9,6 +9,7 @@ such as `.PathPatch` and `.PathCollection`, can be used for convenient `Path`
 visualisation.
 """
 
+import copy
 from functools import lru_cache
 from weakref import WeakValueDictionary
 
@@ -259,15 +260,12 @@ class Path:
         """
         return self._readonly
 
-    def __copy__(self):
+    def copy(self):
         """
         Return a shallow copy of the `Path`, which will share the
         vertices and codes with the source `Path`.
         """
-        import copy
         return copy.copy(self)
-
-    copy = __copy__
 
     def __deepcopy__(self, memo=None):
         """
