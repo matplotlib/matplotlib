@@ -100,8 +100,12 @@ def test_usetex_packages(pkg):
                                   text.get_window_extent())
 
 
-def test_textcomp_full():
-    plt.rcParams["text.latex.preamble"] = r"\usepackage[full]{textcomp}"
+@pytest.mark.parametrize(
+    "latex_statement",
+    [r"\usepackage[full]{textcomp}", r"\usepackage[strings]{underscore}"],
+)
+def test_latex_pkg_already_loaded(latex_statement):
+    plt.rcParams["text.latex.preamble"] = latex_statement
     fig = plt.figure()
     fig.text(.5, .5, "hello, world", usetex=True)
     fig.canvas.draw()
@@ -114,4 +118,4 @@ def test_usetex_with_underscore():
     ax.plot("c", "a_b", data=df)
     ax.legend()
     ax.text(0, 0, "foo_bar", usetex=True)
-    plt.draw()  # TeX rendering is done at draw time
+    plt.draw()

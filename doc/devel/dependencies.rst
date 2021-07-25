@@ -221,9 +221,13 @@ Required:
 
 * a minimal working LaTeX distribution
 * `Graphviz <http://www.graphviz.org/download>`_
-* the LaTeX packages *cm-super* and *dvipng* (if your OS bundles TeXLive, the
+* the following LaTeX packages (if your OS bundles TeXLive, the
   "complete" version of the installer, e.g. "texlive-full" or "texlive-all",
-  will often automatically include these packages)
+  will often automatically include these packages):
+
+  * `cm-super <https://ctan.org/pkg/cm-super>`_
+  * `dvipng <https://ctan.org/pkg/dvipng>`_
+  * `underscore <https://ctan.org/pkg/underscore>`_
 
 Optional, but recommended:
 
