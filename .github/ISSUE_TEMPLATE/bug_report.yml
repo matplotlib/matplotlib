@@ -19,7 +19,7 @@ body:
     id: reproduction
     attributes:
       label: Code for reproduction
-      description: Please provide the minimum code required to reproduce the bug. Please make sure to minimize the number of dependencies required, and provide any necessary plotted data. Avoid using threads, as Matplotlib is (explicitly) not thread-safe.
+      description: If possible, please provide a minimum self-contained example. 
       placeholder: Paste your code here
       render: python
     validations:
@@ -57,8 +57,6 @@ body:
     attributes: 
       label: Matplotlib Backend
       placeholder: print(matplotlib.get_backend())
-    validations:
-      required: true
   - type: input
     id: python-version
     attributes:
