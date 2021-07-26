@@ -1658,6 +1658,9 @@ class Axes3D(Axes):
             new_polys = []
             new_colset = []
 
+            # Depending on fcolors, colset is either an empty list or has as
+            # many elements as polys. In the former case new_colset results in
+            # a list with None entries, that is discarded later.
             for p, col in itertools.zip_longest(polys, colset):
                 new_poly = np.array(p)[~np.isnan(p).any(axis=1)]
                 if len(new_poly):
