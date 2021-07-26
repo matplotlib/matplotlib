@@ -2,7 +2,10 @@
 Common functionality between the PDF and PS backends.
 """
 
+from io import BytesIO
 import functools
+
+from fontTools import subset
 
 import matplotlib as mpl
 from .. import font_manager, ft2font
@@ -14,6 +17,35 @@ from ..backend_bases import RendererBase
 def _cached_get_afm_from_fname(fname):
     with open(fname, "rb") as fh:
         return AFM(fh)
+
+
+def get_glyphs_subset(fontfile, characters):
+    """
+    Subset a TTF font
+
+    Reads the named fontfile and restricts the font to the characters.
+    Returns a serialization of the subset font as file-like object.
+
+    Parameters
+    ----------
+    symbol : str
+        Path to the font file
+    characters : str
+        Continuous set of characters to include in subset
+    """
+
+    options = subset.Options(glyph_names=True, recommended_glyphs=True)
+
+    # prevent subsetting FontForge Timestamp and other tables
+    options.drop_tables += ['FFTM', 'PfEd']
+
+    with subset.load_font(fontfile, options) as font:
+        subsetter = subset.Subsetter(options=options)
+        subsetter.populate(text=characters)
+        subsetter.subset(font)
+        fh = BytesIO()
+        font.save(fh, reorderTables=False)
+        return fh
 
 
 class CharacterTracker:

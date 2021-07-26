@@ -22,6 +22,7 @@ reference.
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.0.1)
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 6.2)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>=2.2.1)
+* `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>=4.22.0)
 
 
 .. _optional_dependencies:

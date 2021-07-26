@@ -1,0 +1,8 @@
+fontTools for type 42 subsetting
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A new dependency known as `fontTools <https://fonttools.readthedocs.io/>`_
+is integrated in with Maptlotlib 3.5
+
+It is designed to be used with PS/EPS and PDF documents; and handles
+Type 42 font subsetting.

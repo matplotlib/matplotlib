@@ -14,7 +14,9 @@ import logging
 import math
 import os
 import re
+import string
 import struct
+import sys
 import time
 import types
 import warnings
@@ -36,7 +38,7 @@ from matplotlib.afm import AFM
 import matplotlib.type1font as type1font
 import matplotlib.dviread as dviread
 from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
-                                LOAD_NO_HINTING, KERNING_UNFITTED)
+                                LOAD_NO_HINTING, KERNING_UNFITTED, FT2Font)
 from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
@@ -768,6 +770,22 @@ class PdfFile:
                    }
         self.pageAnnotations.append(theNote)
 
+    def _get_subsetted_psname(self, ps_name, charmap):
+        def toStr(n, base):
+            if n < base:
+                return string.ascii_uppercase[n]
+            else:
+                return (
+                    toStr(n // base, base) + string.ascii_uppercase[n % base]
+                )
+
+        # encode to string using base 26
+        hashed = hash(frozenset(charmap.keys())) % ((sys.maxsize + 1) * 2)
+        prefix = toStr(hashed, 26)
+
+        # get first 6 characters from prefix
+        return prefix[:6] + "+" + ps_name
+
     def finalize(self):
         """Write out the various deferred objects and the pdf end matter."""
 
@@ -1209,6 +1227,26 @@ end"""
             wObject = self.reserveObject('Type 0 widths')
             toUnicodeMapObject = self.reserveObject('ToUnicode map')
 
+            _log.debug(
+                "SUBSET %s characters: %s",
+                filename, "".join(chr(c) for c in characters)
+            )
+            fontdata = _backend_pdf_ps.get_glyphs_subset(
+                filename, "".join(chr(c) for c in characters)
+            )
+            _log.debug(
+                "SUBSET %s %d -> %d", filename,
+                os.stat(filename).st_size, fontdata.getbuffer().nbytes
+            )
+
+            # We need this ref for XObjects
+            full_font = font
+
+            # reload the font object from the subset
+            # (all the necessary data could probably be obtained directly
+            # using fontLib.ttLib)
+            font = FT2Font(fontdata)
+
             cidFontDict = {
                 'Type': Name('Font'),
                 'Subtype': Name('CIDFontType2'),
@@ -1233,21 +1271,12 @@ end"""
 
             # Make fontfile stream
             descriptor['FontFile2'] = fontfileObject
-            length1Object = self.reserveObject('decoded length of a font')
             self.beginStream(
                 fontfileObject.id,
                 self.reserveObject('length of font stream'),
-                {'Length1': length1Object})
-            with open(filename, 'rb') as fontfile:
-                length1 = 0
-                while True:
-                    data = fontfile.read(4096)
-                    if not data:
-                        break
-                    length1 += len(data)
-                    self.currentstream.write(data)
+                {'Length1': fontdata.getbuffer().nbytes})
+            self.currentstream.write(fontdata.getvalue())
             self.endStream()
-            self.writeObject(length1Object, length1)
 
             # Make the 'W' (Widths) array, CidToGidMap and ToUnicode CMap
             # at the same time
@@ -1299,10 +1328,10 @@ end"""
             glyph_ids = []
             for ccode in characters:
                 if not _font_supports_char(fonttype, chr(ccode)):
-                    gind = font.get_char_index(ccode)
+                    gind = full_font.get_char_index(ccode)
                     glyph_ids.append(gind)
 
-            bbox = [cvt(x, nearest=False) for x in font.bbox]
+            bbox = [cvt(x, nearest=False) for x in full_font.bbox]
             rawcharprocs = _get_pdf_charprocs(filename, glyph_ids)
             for charname in sorted(rawcharprocs):
                 stream = rawcharprocs[charname]
@@ -1352,7 +1381,11 @@ end"""
 
         # Beginning of main embedTTF function...
 
-        ps_name = font.postscript_name.encode('ascii', 'replace')
+        ps_name = self._get_subsetted_psname(
+            font.postscript_name,
+            font.get_charmap()
+        )
+        ps_name = ps_name.encode('ascii', 'replace')
         ps_name = Name(ps_name)
         pclt = font.get_sfnt_table('pclt') or {'capHeight': 0, 'xHeight': 0}
         post = font.get_sfnt_table('post') or {'italicAngle': (0, 0)}

@@ -7,11 +7,12 @@ import datetime
 from enum import Enum
 import functools
 import glob
-from io import StringIO
+from io import StringIO, TextIOWrapper
 import logging
 import math
 import os
 import pathlib
+import tempfile
 import re
 import shutil
 from tempfile import TemporaryDirectory
@@ -27,7 +28,7 @@ from matplotlib.backend_bases import (
     GraphicsContextBase, RendererBase)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import get_font
-from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_NO_SCALE
+from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_NO_SCALE, FT2Font
 from matplotlib._ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
@@ -954,8 +955,40 @@ class FigureCanvasPS(FigureCanvasBase):
                         fh.write(_font_to_ps_type3(font_path, glyph_ids))
                     else:
                         try:
-                            convert_ttf_to_ps(os.fsencode(font_path),
-                                              fh, fonttype, glyph_ids)
+                            _log.debug(
+                                "SUBSET %s characters: %s", font_path,
+                                ''.join(chr(c) for c in chars)
+                            )
+                            fontdata = _backend_pdf_ps.get_glyphs_subset(
+                                font_path, "".join(chr(c) for c in chars)
+                            )
+                            _log.debug(
+                                "SUBSET %s %d -> %d", font_path,
+                                os.stat(font_path).st_size,
+                                fontdata.getbuffer().nbytes
+                            )
+
+                            # give ttconv a subsetted font
+                            # along with updated glyph_ids
+                            with TemporaryDirectory() as tmpdir:
+                                tmpfile = os.path.join(tmpdir, "tmp.ttf")
+                                font = FT2Font(fontdata)
+                                glyph_ids = [
+                                    font.get_char_index(c) for c in chars
+                                ]
+
+                                with open(tmpfile, 'wb') as tmp:
+                                    tmp.write(fontdata.getvalue())
+                                    tmp.flush()
+
+                                # TODO: allow convert_ttf_to_ps
+                                # to input file objects (BytesIO)
+                                convert_ttf_to_ps(
+                                    os.fsencode(tmpfile),
+                                    fh,
+                                    fonttype,
+                                    glyph_ids,
+                                )
                         except RuntimeError:
                             _log.warning(
                                 "The PostScript backend does not currently "
