@@ -1807,6 +1807,9 @@ class _SelectorWidget(AxesWidget):
         else:
             self.validButtons = button
 
+        # Set to True when a selection is completed, otherwise is False
+        self._selection_completed = False
+
         # will save the data (position at mouseclick)
         self._eventpress = None
         # will save the data (pos. at mouserelease)
@@ -2017,12 +2020,17 @@ class SpanSelector(_SelectorWidget):
     In order to turn off the SpanSelector, set ``span_selector.active`` to
     False.  To turn it back on, set it to True.
 
+    Press and release events triggered at the same coordinates outside the
+    selection will clear the selector, except when
+    ``ignore_event_outside=True``.
+
     Parameters
     ----------
     ax : `matplotlib.axes.Axes`
 
     onselect : callable
-        A callback function to be called when the selection is completed.
+        A callback function that is called after a release event and the
+        selection is created, changed or removed.
         It must have the signature::
 
             def on_select(min: float, max: float) -> Any
@@ -2031,8 +2039,8 @@ class SpanSelector(_SelectorWidget):
         The direction along which to draw the span selector.
 
     minspan : float, default: 0
-        If selection is less than or equal to *minspan*, do not call
-        *onselect*.
+        If selection is less than or equal to *minspan*, the selection is
+        removed (when already existing) or cancelled.
 
     useblit : bool, default: False
         If True, use the backend-dependent blitting features for faster
@@ -2071,6 +2079,10 @@ class SpanSelector(_SelectorWidget):
         If `True`, the widget can be moved by clicking anywhere within
         its bounds.
 
+    ignore_event_outside : bool, default: False
+        If `True`, the event triggered outside the span selector will be
+        ignored.
+
     Examples
     --------
     >>> import matplotlib.pyplot as plt
@@ -2091,7 +2103,7 @@ class SpanSelector(_SelectorWidget):
     def __init__(self, ax, onselect, direction, minspan=0, useblit=False,
                  props=None, onmove_callback=None, interactive=False,
                  button=None, handle_props=None, grab_range=10,
-                 drag_from_anywhere=False):
+                 drag_from_anywhere=False, ignore_event_outside=False):
 
         super().__init__(ax, onselect, useblit=useblit, button=button)
 
@@ -2117,6 +2129,7 @@ class SpanSelector(_SelectorWidget):
         self.grab_range = grab_range
         self._interactive = interactive
         self.drag_from_anywhere = drag_from_anywhere
+        self.ignore_event_outside = ignore_event_outside
 
         # Reset canvas so that `new_axes` connects events.
         self.canvas = None
@@ -2162,6 +2175,9 @@ class SpanSelector(_SelectorWidget):
 
             self.canvas = ax.figure.canvas
             self.connect_default_events()
+
+        # Reset
+        self._selection_completed = False
 
         if self.direction == 'horizontal':
             trans = ax.get_xaxis_transform()
@@ -2227,7 +2243,7 @@ class SpanSelector(_SelectorWidget):
         self._pressv = v
         self._prev = self._get_data(event)
 
-        if self._active_handle is None:
+        if self._active_handle is None and not self.ignore_event_outside:
             # when the press event outside the span, we initially set the
             # visibility to False and extents to (v, v)
             # update will be called when setting the extents
@@ -2267,21 +2283,31 @@ class SpanSelector(_SelectorWidget):
     def _release(self, event):
         """Button release event handler."""
         self._set_cursor(False)
+        # self._pressv is deprecated but we still need to maintain it
+        self._pressv = None
+
         if not self._interactive:
             self._rect.set_visible(False)
 
-        vmin, vmax = self.extents
-        span = vmax - vmin
-        if span <= self.minspan:
-            self.set_visible(False)
-            self.update()
+        if (self._active_handle is None and self._selection_completed and
+                self.ignore_event_outside):
             return
 
-        self.onselect(vmin, vmax)
-        self.update()
+        vmin, vmax = self.extents
+        span = vmax - vmin
 
-        # self._pressv is deprecated but we still need to maintain it
-        self._pressv = None
+        if span <= self.minspan:
+            # Remove span and set self._selection_completed = False
+            self.set_visible(False)
+            if self._selection_completed:
+                # Call onselect, only when the span is already existing
+                self.onselect(vmin, vmax)
+            self._selection_completed = False
+        else:
+            self.onselect(vmin, vmax)
+            self._selection_completed = True
+
+        self.update()
 
         self._active_handle = None
 
@@ -2330,6 +2356,10 @@ class SpanSelector(_SelectorWidget):
                 vmax = v
         # new shape
         else:
+            # Don't create a new span if there is already one when
+            # ignore_event_outside=True
+            if self.ignore_event_outside and self._selection_completed:
+                return
             vmin, vmax = vpress, v
             if vmin > vmax:
                 vmin, vmax = vmax, vmin
@@ -2576,7 +2606,8 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         The parent axes for the widget.
 
     onselect : function
-        A callback function that is called after a selection is completed.
+        A callback function that is called after a release event and the
+        selection is created, changed or removed.
         It must have the signature::
 
             def onselect(eclick: MouseEvent, erelease: MouseEvent)
@@ -2585,10 +2616,12 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         `.MouseEvent`\s that start and complete the selection.
 
     minspanx : float, default: 0
-        Selections with an x-span less than *minspanx* are ignored.
+        Selections with an x-span less than or equal to *minspanx* are removed
+        (when already existing) or cancelled.
 
     minspany : float, default: 0
-        Selections with a y-span less than *minspany* are ignored.
+        Selections with an y-span less than or equal to *minspanx* are removed
+        (when already existing) or cancelled.
 
     useblit : bool, default: False
         Whether to use blitting for faster drawing (if supported by the
@@ -2635,9 +2668,14 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
 
         "square" and "center" can be combined.
 
-    drag_from_anywhere : bool, optional
+    drag_from_anywhere : bool, default: False
         If `True`, the widget can be moved by clicking anywhere within
         its bounds.
+
+    ignore_event_outside : bool, default: False
+        If `True`, the event triggered outside the span selector will be
+        ignored.
+
     """
 
 
@@ -2648,6 +2686,10 @@ class RectangleSelector(_SelectorWidget):
     Select a rectangular region of an axes.
 
     For the cursor to remain responsive you must keep a reference to it.
+
+    Press and release events triggered at the same coordinates outside the
+    selection will clear the selector, except when
+    ``ignore_event_outside=True``.
 
     %s
 
@@ -2680,7 +2722,7 @@ class RectangleSelector(_SelectorWidget):
                  lineprops=None, props=None, spancoords='data',
                  button=None, grab_range=10, handle_props=None,
                  interactive=False, state_modifier_keys=None,
-                 drag_from_anywhere=False):
+                 drag_from_anywhere=False, ignore_event_outside=False):
         super().__init__(ax, onselect, useblit=useblit, button=button,
                          state_modifier_keys=state_modifier_keys)
 
@@ -2688,6 +2730,7 @@ class RectangleSelector(_SelectorWidget):
         self.visible = True
         self._interactive = interactive
         self.drag_from_anywhere = drag_from_anywhere
+        self.ignore_event_outside = ignore_event_outside
 
         if drawtype == 'none':  # draw a line but make it invisible
             _api.warn_deprecated(
@@ -2788,7 +2831,7 @@ class RectangleSelector(_SelectorWidget):
             # Clear previous rectangle before drawing new rectangle.
             self.update()
 
-        if self._active_handle is None:
+        if self._active_handle is None and not self.ignore_event_outside:
             x = event.xdata
             y = event.ydata
             self.visible = False
@@ -2803,6 +2846,10 @@ class RectangleSelector(_SelectorWidget):
         """Button release event handler."""
         if not self._interactive:
             self._to_draw.set_visible(False)
+
+        if (self._active_handle is None and self._selection_completed and
+                self.ignore_event_outside):
+            return
 
         # update the eventpress and eventrelease with the resulting extents
         x0, x1, y0, y1 = self.extents
@@ -2828,16 +2875,18 @@ class RectangleSelector(_SelectorWidget):
                                spancoords=self.spancoords)
         # check if drawn distance (if it exists) is not too small in
         # either x or y-direction
-        if (self._drawtype != 'none'
-                and (self.minspanx is not None and spanx < self.minspanx
-                     or self.minspany is not None and spany < self.minspany)):
+        minspanxy = (spanx <= self.minspanx or spany <= self.minspany)
+        if (self._drawtype != 'none' and minspanxy):
             for artist in self.artists:
                 artist.set_visible(False)
-            self.update()
-            return
+            if self._selection_completed:
+                # Call onselect, only when the selection is already existing
+                self.onselect(self._eventpress, self._eventrelease)
+            self._selection_completed = False
+        else:
+            self.onselect(self._eventpress, self._eventrelease)
+            self._selection_completed = True
 
-        # call desired function
-        self.onselect(self._eventpress, self._eventrelease)
         self.update()
         self._active_handle = None
 
@@ -2867,6 +2916,10 @@ class RectangleSelector(_SelectorWidget):
 
         # new shape
         else:
+            # Don't create a new rectangle if there is already one when
+            # ignore_event_outside=True
+            if self.ignore_event_outside and self._selection_completed:
+                return
             center = [self._eventpress.xdata, self._eventpress.ydata]
             center_pix = [self._eventpress.x, self._eventpress.y]
             dx = (event.xdata - center[0]) / 2.
@@ -3047,6 +3100,10 @@ class EllipseSelector(RectangleSelector):
     Select an elliptical region of an axes.
 
     For the cursor to remain responsive you must keep a reference to it.
+
+    Press and release events triggered at the same coordinates outside the
+    selection will clear the selector, except when
+    ``ignore_event_outside=True``.
 
     %s
 
@@ -3275,7 +3332,6 @@ class PolygonSelector(_SelectorWidget):
                          state_modifier_keys=state_modifier_keys)
 
         self._xs, self._ys = [0], [0]
-        self._polygon_completed = False
 
         if props is None:
             props = dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
@@ -3309,7 +3365,7 @@ class PolygonSelector(_SelectorWidget):
     def _remove_vertex(self, i):
         """Remove vertex with index i."""
         if (self._nverts > 2 and
-                self._polygon_completed and
+                self._selection_completed and
                 i in (0, self._nverts - 1)):
             # If selecting the first or final vertex, remove both first and
             # last vertex as they are the same for a closed polygon
@@ -3327,12 +3383,12 @@ class PolygonSelector(_SelectorWidget):
         if self._nverts <= 2:
             # If only one point left, return to incomplete state to let user
             # start drawing again
-            self._polygon_completed = False
+            self._selection_completed = False
 
     def _press(self, event):
         """Button press event handler."""
         # Check for selection of a tool handle.
-        if ((self._polygon_completed or 'move_vertex' in self._state)
+        if ((self._selection_completed or 'move_vertex' in self._state)
                 and len(self._xs) > 0):
             h_idx, h_dist = self._polygon_handles.closest(event.x, event.y)
             if h_dist < self.grab_range:
@@ -3354,16 +3410,16 @@ class PolygonSelector(_SelectorWidget):
         elif (len(self._xs) > 3
               and self._xs[-1] == self._xs[0]
               and self._ys[-1] == self._ys[0]):
-            self._polygon_completed = True
+            self._selection_completed = True
 
         # Place new vertex.
-        elif (not self._polygon_completed
+        elif (not self._selection_completed
               and 'move_all' not in self._state
               and 'move_vertex' not in self._state):
             self._xs.insert(-1, event.xdata)
             self._ys.insert(-1, event.ydata)
 
-        if self._polygon_completed:
+        if self._selection_completed:
             self.onselect(self.verts)
 
     def onmove(self, event):
@@ -3386,7 +3442,7 @@ class PolygonSelector(_SelectorWidget):
             self._xs[idx], self._ys[idx] = event.xdata, event.ydata
             # Also update the end of the polygon line if the first vertex is
             # the active handle and the polygon is completed.
-            if idx == 0 and self._polygon_completed:
+            if idx == 0 and self._selection_completed:
                 self._xs[-1], self._ys[-1] = event.xdata, event.ydata
 
         # Move all vertices.
@@ -3398,7 +3454,7 @@ class PolygonSelector(_SelectorWidget):
                 self._ys[k] = self._ys_at_press[k] + dy
 
         # Do nothing if completed or waiting for a move.
-        elif (self._polygon_completed
+        elif (self._selection_completed
               or 'move_vertex' in self._state or 'move_all' in self._state):
             return
 
@@ -3420,7 +3476,7 @@ class PolygonSelector(_SelectorWidget):
         """Key press event handler."""
         # Remove the pending vertex if entering the 'move_vertex' or
         # 'move_all' mode
-        if (not self._polygon_completed
+        if (not self._selection_completed
                 and ('move_vertex' in self._state or
                      'move_all' in self._state)):
             self._xs, self._ys = self._xs[:-1], self._ys[:-1]
@@ -3430,7 +3486,7 @@ class PolygonSelector(_SelectorWidget):
         """Key release event handler."""
         # Add back the pending vertex if leaving the 'move_vertex' or
         # 'move_all' mode (by checking the released key)
-        if (not self._polygon_completed
+        if (not self._selection_completed
                 and
                 (event.key == self.state_modifier_keys.get('move_vertex')
                  or event.key == self.state_modifier_keys.get('move_all'))):
@@ -3441,7 +3497,7 @@ class PolygonSelector(_SelectorWidget):
         elif event.key == self.state_modifier_keys.get('clear'):
             event = self._clean_event(event)
             self._xs, self._ys = [event.xdata], [event.ydata]
-            self._polygon_completed = False
+            self._selection_completed = False
             self.set_visible(True)
 
     def _draw_polygon(self):
@@ -3450,7 +3506,7 @@ class PolygonSelector(_SelectorWidget):
         # Only show one tool handle at the start and end vertex of the polygon
         # if the polygon is completed or the user is locked on to the start
         # vertex.
-        if (self._polygon_completed
+        if (self._selection_completed
                 or (len(self._xs) > 3
                     and self._xs[-1] == self._xs[0]
                     and self._ys[-1] == self._ys[0])):
