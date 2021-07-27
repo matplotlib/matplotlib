@@ -135,16 +135,16 @@ def _move_path_to_path_or_stream(src, dst):
         shutil.move(src, dst, copy_function=shutil.copyfile)
 
 
-def _font_to_ps_type3(font_path, glyph_ids):
+def _font_to_ps_type3(font_path, chars):
     """
-    Subset *glyph_ids* from the font at *font_path* into a Type 3 font.
+    Subset *chars* from the font at *font_path* into a Type 3 font.
 
     Parameters
     ----------
     font_path : path-like
         Path to the font to be subsetted.
-    glyph_ids : list of int
-        The glyph indices to include in the subsetted font.
+    chars : str
+        The characters to include in the subsetted font.
 
     Returns
     -------
@@ -153,6 +153,7 @@ def _font_to_ps_type3(font_path, glyph_ids):
         verbatim into a PostScript file.
     """
     font = get_font(font_path, hinting_factor=1)
+    glyph_ids = [font.get_char_index(c) for c in chars]
 
     preamble = """\
 %!PS-Adobe-3.0 Resource-Font
@@ -983,15 +984,13 @@ class FigureCanvasPS(FigureCanvasBase):
                         in ps_renderer._character_tracker.used.items():
                     if not chars:
                         continue
-                    font = get_font(font_path)
-                    glyph_ids = [font.get_char_index(c) for c in chars]
                     fonttype = mpl.rcParams['ps.fonttype']
                     # Can't use more than 255 chars from a single Type 3 font.
-                    if len(glyph_ids) > 255:
+                    if len(chars) > 255:
                         fonttype = 42
                     fh.flush()
                     if fonttype == 3:
-                        fh.write(_font_to_ps_type3(font_path, glyph_ids))
+                        fh.write(_font_to_ps_type3(font_path, chars))
                     else:  # Type 42 only.
                         _font_to_ps_type42(font_path, chars, fh)
             print("end", file=fh)
