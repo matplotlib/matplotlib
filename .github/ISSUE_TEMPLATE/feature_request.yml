@@ -1,0 +1,36 @@
+name: Feature Request
+description: Suggest something to add to Matplotlib!
+title: "[ENH]: "
+labels: [New feature]
+body:
+  - type: markdown
+    attributes:
+      value: |
+         Thanks for thinking of a way to improve Matplotlib. Please search the issues for relevant feature requests before creating a new feature request.  
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Please provide a clear and concise description of the problem this feature will solve. 
+      placeholder: |
+        * I'm always frustrated when [...] because [...]
+        * I would like it if [...] happened when I [...] because [...]
+        * Here is a sample image of what I am asking for [...]
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Please provide a clear and concise description of a way to accomplish what you want.
+      placeholder: Add an option so that when [...]  [...] will happen
+  - type: textarea
+    id: prior-art
+    attributes:
+      label: Additional context and prior art
+      description: Add any other context or screenshots about the feature request here. You can also include links to examples of other programs that have something similar to your request.
+      placeholder: Another project [...] solved this by [...]
+
+
+
+
