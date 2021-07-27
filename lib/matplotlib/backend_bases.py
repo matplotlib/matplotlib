@@ -1211,9 +1211,10 @@ class TimerBase:
 
 class Event:
     """
-    A Matplotlib event.  Attach additional attributes as defined in
-    :meth:`FigureCanvasBase.mpl_connect`.  The following attributes
-    are defined and shown with their default values
+    A Matplotlib event.
+
+    The following attributes are defined and shown with their default values.
+    Subclasses may define additional attributes.
 
     Attributes
     ----------
@@ -1232,12 +1233,12 @@ class Event:
 
 class DrawEvent(Event):
     """
-    An event triggered by a draw operation on the canvas
+    An event triggered by a draw operation on the canvas.
 
-    In most backends callbacks subscribed to this callback will be
-    fired after the rendering is complete but before the screen is
-    updated.  Any extra artists drawn to the canvas's renderer will
-    be reflected without an explicit call to ``blit``.
+    In most backends, callbacks subscribed to this event will be fired after
+    the rendering is complete but before the screen is updated. Any extra
+    artists drawn to the canvas's renderer will be reflected without an
+    explicit call to ``blit``.
 
     .. warning::
 
@@ -1259,7 +1260,7 @@ class DrawEvent(Event):
 
 class ResizeEvent(Event):
     """
-    An event triggered by a canvas resize
+    An event triggered by a canvas resize.
 
     In addition to the `Event` attributes, the following event
     attributes are defined:
@@ -1284,32 +1285,23 @@ class LocationEvent(Event):
     """
     An event that has a screen location.
 
-    The following additional attributes are defined and shown with
-    their default values.
-
-    In addition to the `Event` attributes, the following
-    event attributes are defined:
+    In addition to the `Event` attributes, the following event attributes are
+    defined:
 
     Attributes
     ----------
-    x : int
-        x position - pixels from left of canvas.
-    y : int
-        y position - pixels from bottom of canvas.
+    x, y : int or None
+        Position in figure coordinates (pixels from bottom left of canvas).
     inaxes : `~.axes.Axes` or None
         The `~.axes.Axes` instance over which the mouse is, if any.
-    xdata : float or None
-        x data coordinate of the mouse.
-    ydata : float or None
-        y data coordinate of the mouse.
+    xdata, ydata : float or None
+        Data coordinates of the mouse within *inaxes*, or *None* if the mouse
+        is not over an Axes.
     """
 
     lastevent = None  # the last event that was triggered before this one
 
     def __init__(self, name, canvas, x, y, guiEvent=None):
-        """
-        (*x*, *y*) in figure coords ((0, 0) = bottom left).
-        """
         super().__init__(name, canvas, guiEvent=guiEvent)
         # x position - pixels from left of canvas
         self.x = int(x) if x is not None else x
@@ -1378,13 +1370,11 @@ class MouseButton(IntEnum):
 
 class MouseEvent(LocationEvent):
     """
-    A mouse event ('button_press_event',
-                   'button_release_event',
-                   'scroll_event',
-                   'motion_notify_event').
+    A mouse event ('button_press_event', 'button_release_event', \
+'scroll_event', 'motion_notify_event').
 
-    In addition to the `Event` and `LocationEvent`
-    attributes, the following attributes are defined:
+    In addition to the `Event` and `LocationEvent` attributes, the below event
+    attributes are defined.
 
     Attributes
     ----------
@@ -1426,10 +1416,6 @@ class MouseEvent(LocationEvent):
 
     def __init__(self, name, canvas, x, y, button=None, key=None,
                  step=0, dblclick=False, guiEvent=None):
-        """
-        (*x*, *y*) in figure coords ((0, 0) = bottom left)
-        button pressed None, 1, 2, 3, 'up', 'down'
-        """
         if button in MouseButton.__members__.values():
             button = MouseButton(button)
         self.button = button
@@ -1450,11 +1436,14 @@ class MouseEvent(LocationEvent):
 
 class PickEvent(Event):
     """
-    A pick event, fired when the user picks a location on the canvas
+    A pick event.
+
+    This event is fired when the user picks a location on the canvas
     sufficiently close to an artist that has been made pickable with
     `.Artist.set_picker`.
 
-    Attrs: all the `Event` attributes plus
+    In addition to the `Event` attributes, the below event attributes are
+    defined.
 
     Attributes
     ----------
@@ -1495,19 +1484,16 @@ class KeyEvent(LocationEvent):
     """
     A key event (key press, key release).
 
-    Attach additional attributes as defined in
-    :meth:`FigureCanvasBase.mpl_connect`.
-
-    In addition to the `Event` and `LocationEvent`
-    attributes, the following attributes are defined:
+    In addition to the `Event` and `LocationEvent` attributes, the below event
+    attributes are defined.
 
     Attributes
     ----------
     key : None or str
-        the key(s) pressed. Could be **None**, a single case sensitive ascii
-        character ("g", "G", "#", etc.), a special key
-        ("control", "shift", "f1", "up", etc.) or a
-        combination of the above (e.g., "ctrl+alt+g", "ctrl+alt+G").
+        The key(s) pressed. Could be *None*, a single case sensitive ASCII
+        character ("g", "G", "#", etc.), a special key ("control", "shift",
+        "f1", "up", etc.) or a combination of the above (e.g., "ctrl+alt+g",
+        "ctrl+alt+G").
 
     Notes
     -----
