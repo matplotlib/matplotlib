@@ -2180,7 +2180,9 @@ class SpanSelector(_SelectorWidget):
         # prev attribute is deprecated but we still need to maintain it
         self._prev = (0, 0)
 
-    rect = _api.deprecate_privatize_attribute("3.5")
+    rect = _api.deprecated("3.5")(
+        property(lambda self: self.artists[0])
+        )
 
     rectprops = _api.deprecated("3.5")(
         property(lambda self: self._props)
@@ -2842,7 +2844,9 @@ class RectangleSelector(_SelectorWidget):
 
         self._extents_on_press = None
 
-    to_draw = _api.deprecate_privatize_attribute("3.5")
+    to_draw = _api.deprecated("3.5")(
+        property(lambda self: self.artists[0])
+        )
 
     drawtype = _api.deprecate_privatize_attribute("3.5")
 
@@ -3370,6 +3374,10 @@ class PolygonSelector(_SelectorWidget):
 
         self._artists = [line] + list(self._handles_artists)
         self.set_visible(True)
+
+    line = _api.deprecated("3.5")(
+        property(lambda self: self.artists[0])
+        )
 
     vertex_select_radius = _api.deprecated("3.5", name="vertex_select_radius",
                                            alternative="grab_range")(
