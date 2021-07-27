@@ -17,7 +17,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import docstring
-from . import _api, cbook, colors, ticker
+from . import _api, backend_tools, cbook, colors, ticker
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
 
@@ -2192,8 +2192,26 @@ class SpanSelector(_SelectorWidget):
                                              useblit=self.useblit)
         self.artists.extend([line for line in self._edge_handles.artists])
 
+    def _set_cursor(self, enabled):
+        """Update the canvas cursor based on direction of the selector."""
+        if enabled:
+            cursor = (backend_tools.Cursors.RESIZE_HORIZONTAL
+                      if self.direction == 'horizontal' else
+                      backend_tools.Cursors.RESIZE_VERTICAL)
+        else:
+            cursor = backend_tools.Cursors.POINTER
+
+        self.ax.figure.canvas.set_cursor(cursor)
+
+    def connect_default_events(self):
+        # docstring inherited
+        super().connect_default_events()
+        if getattr(self, '_interactive', False):
+            self.connect_event('motion_notify_event', self._hover)
+
     def _press(self, event):
         """Button press event handler."""
+        self._set_cursor(True)
         if self._interactive and self._rect.get_visible():
             self._set_active_handle(event)
         else:
@@ -2248,6 +2266,7 @@ class SpanSelector(_SelectorWidget):
 
     def _release(self, event):
         """Button release event handler."""
+        self._set_cursor(False)
         if not self._interactive:
             self._rect.set_visible(False)
 
@@ -2264,7 +2283,22 @@ class SpanSelector(_SelectorWidget):
         # self._pressv is deprecated but we still need to maintain it
         self._pressv = None
 
+        self._active_handle = None
+
         return False
+
+    def _hover(self, event):
+        """Update the canvas cursor if it's over a handle."""
+        if self.ignore(event):
+            return
+
+        if self._active_handle is not None:
+            # Do nothing if button is pressed and a handle is active, which may
+            # occur with drag_from_anywhere=True.
+            return
+
+        _, e_dist = self._edge_handles.closest(event.x, event.y)
+        self._set_cursor(e_dist <= self.grab_range)
 
     def _onmove(self, event):
         """Motion notify event handler."""
@@ -2805,6 +2839,7 @@ class RectangleSelector(_SelectorWidget):
         # call desired function
         self.onselect(self._eventpress, self._eventrelease)
         self.update()
+        self._active_handle = None
 
         return False
 
