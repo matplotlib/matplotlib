@@ -102,7 +102,7 @@ def test_usetex_packages(pkg):
 
 @pytest.mark.parametrize(
     "latex_statement",
-    [r"\usepackage[full]{textcomp}", r"\usepackage[strings]{underscore}"],
+    [r"\usepackage[full]{textcomp}", r"\usepackage{underscore}"],
 )
 def test_latex_pkg_already_loaded(latex_statement):
     plt.rcParams["text.latex.preamble"] = latex_statement
