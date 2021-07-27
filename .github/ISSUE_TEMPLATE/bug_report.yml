@@ -80,6 +80,7 @@ body:
       options:
         - pip
         - conda
+        - Linux package manager (Debian/Fedora/etc.)
         - source
   - type: input
     id: conda-channel
