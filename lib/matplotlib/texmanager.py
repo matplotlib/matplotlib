@@ -176,7 +176,8 @@ class TexManager:
             self.get_custom_preamble(),
             # Use `underscore` package to take care of underscores in text
             r"\makeatletter"
-            r"\@ifpackageloaded{underscore}{}{\usepackage[strings]{underscore}}"
+            r"\@ifpackageloaded{underscore}{}"
+            r"{\usepackage[strings]{underscore}}"
             r"\makeatother",
             # textcomp is loaded last (if not already loaded by the custom
             # preamble) in order not to clash with custom packages (e.g.
