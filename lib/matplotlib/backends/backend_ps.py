@@ -670,7 +670,7 @@ grestore
             f"{angle:f} rotate\n")
         lastfont = None
         for font, fontsize, num, ox, oy in glyphs:
-            self._character_tracker.track(font, chr(num))
+            self._character_tracker.track_glyph(font, num)
             if (font.postscript_name, fontsize) != lastfont:
                 lastfont = font.postscript_name, fontsize
                 self._pswriter.write(
@@ -955,13 +955,13 @@ class FigureCanvasPS(FigureCanvasBase):
                         fh.write(_font_to_ps_type3(font_path, glyph_ids))
                     else:
                         try:
+                            subset_str = ''.join(chr(c) for c in chars)
                             _log.debug(
                                 "SUBSET %s characters: %s", font_path,
-                                ''.join(chr(c) for c in chars)
+                                subset_str
                             )
                             fontdata = _backend_pdf_ps.get_glyphs_subset(
-                                font_path, "".join(chr(c) for c in chars)
-                            )
+                                font_path, subset_str)
                             _log.debug(
                                 "SUBSET %s %d -> %d", font_path,
                                 os.stat(font_path).st_size,
