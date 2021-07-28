@@ -137,8 +137,8 @@ class RendererPDFPSBase(RendererBase):
         return _cached_get_afm_from_fname(fname)
 
     def _get_font_ttf(self, prop):
-        fname = font_manager.findfont(prop)
-        font = font_manager.get_font(fname)
+        fnames = font_manager.fontManager._find_fonts_by_props(prop)
+        font = font_manager.get_font(fnames)
         font.clear()
         font.set_size(prop.get_size_in_points(), 72)
         return font
