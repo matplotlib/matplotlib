@@ -140,8 +140,8 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     u = np.ma.masked_invalid(u)
     v = np.ma.masked_invalid(v)
 
-    integrate = get_integrator(u, v, dmap, minlength, maxlength,
-                               integration_direction)
+    integrate = _get_integrator(u, v, dmap, minlength, maxlength,
+                                integration_direction)
 
     trajectories = []
     if start_points is None:
@@ -176,18 +176,14 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     if use_multicolor_lines:
         if norm is None:
             norm = mcolors.Normalize(color.min(), color.max())
-        if cmap is None:
-            cmap = cm.get_cmap(matplotlib.rcParams['image.cmap'])
-        else:
-            cmap = cm.get_cmap(cmap)
+        cmap = cm.get_cmap(cmap)
 
     streamlines = []
     arrows = []
     for t in trajectories:
-        tgx = np.array(t[0])
-        tgy = np.array(t[1])
+        tgx, tgy = t.T
         # Rescale from grid-coordinates to data-coordinates.
-        tx, ty = dmap.grid2data(*np.array(t))
+        tx, ty = dmap.grid2data(tgx, tgy)
         tx += grid.x_origin
         ty += grid.y_origin
 
@@ -427,7 +423,7 @@ class TerminateTrajectory(Exception):
 # Integrator definitions
 # =======================
 
-def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
+def _get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
 
     # rescale velocity onto grid-coordinates for integrations.
     u, v = dmap.data2grid(u, v)
@@ -454,7 +450,7 @@ def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
 
     def integrate(x0, y0):
         """
-        Return x, y grid-coordinates of trajectory based on starting point.
+        Return (N, 2) grid-coordinates of trajectory based on starting point.
 
         Integrate both forward and backward in time from starting point in
         grid coordinates.
@@ -464,35 +460,39 @@ def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
         resulting trajectory is None if it is shorter than `minlength`.
         """
 
-        stotal, x_traj, y_traj = 0., [], []
+        stotal, xy_traj = 0., []
 
         try:
             dmap.start_trajectory(x0, y0)
         except InvalidIndexError:
             return None
         if integration_direction in ['both', 'backward']:
-            s, xt, yt = _integrate_rk12(x0, y0, dmap, backward_time, maxlength)
+            s, xyt = _integrate_rk12(x0, y0, dmap, backward_time, maxlength)
             stotal += s
-            x_traj += xt[::-1]
-            y_traj += yt[::-1]
+            xy_traj += xyt[::-1]
 
         if integration_direction in ['both', 'forward']:
             dmap.reset_start_point(x0, y0)
-            s, xt, yt = _integrate_rk12(x0, y0, dmap, forward_time, maxlength)
-            if len(x_traj) > 0:
-                xt = xt[1:]
-                yt = yt[1:]
+            s, xyt = _integrate_rk12(x0, y0, dmap, forward_time, maxlength)
             stotal += s
-            x_traj += xt
-            y_traj += yt
+            xy_traj += xyt[1:]
 
         if stotal > minlength:
-            return x_traj, y_traj
+            return np.broadcast_arrays(xy_traj, np.empty((1, 2)))[0]
         else:  # reject short trajectories
             dmap.undo_trajectory()
             return None
 
     return integrate
+
+
+@_api.deprecated("3.5")
+def get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
+    xy_traj = _get_integrator(
+        u, v, dmap, minlength, maxlength, integration_direction)
+    return (None if xy_traj is None
+            else ([], []) if not len(xy_traj)
+            else [*zip(*xy_traj)])
 
 
 class OutOfBounds(IndexError):
@@ -539,14 +539,12 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
     stotal = 0
     xi = x0
     yi = y0
-    xf_traj = []
-    yf_traj = []
+    xyf_traj = []
 
     while True:
         try:
             if dmap.grid.within_grid(xi, yi):
-                xf_traj.append(xi)
-                yf_traj.append(yi)
+                xyf_traj.append((xi, yi))
             else:
                 raise OutOfBounds
 
@@ -560,9 +558,8 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
             # Out of the domain during this step.
             # Take an Euler step to the boundary to improve neatness
             # unless the trajectory is currently empty.
-            if xf_traj:
-                ds, xf_traj, yf_traj = _euler_step(xf_traj, yf_traj,
-                                                   dmap, f)
+            if xyf_traj:
+                ds, xyf_traj = _euler_step(xyf_traj, dmap, f)
                 stotal += ds
             break
         except TerminateTrajectory:
@@ -595,14 +592,13 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
         else:
             ds = min(maxds, 0.85 * ds * (maxerror / error) ** 0.5)
 
-    return stotal, xf_traj, yf_traj
+    return stotal, xyf_traj
 
 
-def _euler_step(xf_traj, yf_traj, dmap, f):
+def _euler_step(xyf_traj, dmap, f):
     """Simple Euler integration step that extends streamline to boundary."""
     ny, nx = dmap.grid.shape
-    xi = xf_traj[-1]
-    yi = yf_traj[-1]
+    xi, yi = xyf_traj[-1]
     cx, cy = f(xi, yi)
     if cx == 0:
         dsx = np.inf
@@ -617,9 +613,8 @@ def _euler_step(xf_traj, yf_traj, dmap, f):
     else:
         dsy = (ny - 1 - yi) / cy
     ds = min(dsx, dsy)
-    xf_traj.append(xi + cx * ds)
-    yf_traj.append(yi + cy * ds)
-    return ds, xf_traj, yf_traj
+    xyf_traj.append((xi + cx * ds, yi + cy * ds))
+    return ds, xyf_traj
 
 
 # Utility functions
