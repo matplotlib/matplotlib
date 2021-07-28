@@ -107,20 +107,19 @@ def doall():
 if '--latex' in sys.argv:
     # Run: python mathtext_examples.py --latex
     # Need amsmath and amssymb packages.
-    fd = open("mathtext_examples.ltx", "w")
-    fd.write("\\documentclass{article}\n")
-    fd.write("\\usepackage{amsmath, amssymb}\n")
-    fd.write("\\begin{document}\n")
-    fd.write("\\begin{enumerate}\n")
+    with open("mathtext_examples.ltx", "w") as fd:
+        fd.write("\\documentclass{article}\n")
+        fd.write("\\usepackage{amsmath, amssymb}\n")
+        fd.write("\\begin{document}\n")
+        fd.write("\\begin{enumerate}\n")
 
-    for i in range(n_lines):
-        s = mathext_demos[i]
-        s = re.sub(r"(?<!\\)\$", "$$", s)
-        fd.write("\\item %s\n" % s)
+        for i in range(n_lines):
+            s = mathext_demos[i]
+            s = re.sub(r"(?<!\\)\$", "$$", s)
+            fd.write("\\item %s\n" % s)
 
-    fd.write("\\end{enumerate}\n")
-    fd.write("\\end{document}\n")
-    fd.close()
+        fd.write("\\end{enumerate}\n")
+        fd.write("\\end{document}\n")
 
     subprocess.call(["pdflatex", "mathtext_examples.ltx"])
 else:
