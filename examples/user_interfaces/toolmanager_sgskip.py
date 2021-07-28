@@ -13,6 +13,10 @@ This example demonstrates how to:
 Using `matplotlib.backend_managers.ToolManager`
 """
 
+import matplotlib
+# Not all backends have a toolbar
+matplotlib.use('TkAgg')
+
 import matplotlib.pyplot as plt
 plt.rcParams['toolbar'] = 'toolmanager'
 from matplotlib.backend_tools import ToolBase, ToolToggleBase
