@@ -1,3 +1,68 @@
+r"""
+A role and directive to display mathtext in Sphinx
+==================================================
+
+.. warning::
+    In most cases, you will likely want to use one of `Sphinx's builtin Math
+    extensions
+    <https://www.sphinx-doc.org/en/master/usage/extensions/math.html>`__
+    instead of this one.
+
+Mathtext may be included in two ways:
+
+1. Inline, using the role::
+
+     This text uses inline math: :mathmpl:`\alpha > \beta`.
+
+   which produces:
+
+     This text uses inline math: :mathmpl:`\alpha > \beta`.
+
+2. Standalone, using the directive::
+
+     Here is some standalone math:
+
+     .. mathmpl::
+
+         \alpha > \beta
+
+   which produces:
+
+     Here is some standalone math:
+
+     .. mathmpl::
+
+         \alpha > \beta
+
+Options
+-------
+
+The ``mathmpl`` role and directive both support the following options:
+
+    fontset : str, default: 'cm'
+        The font set to use when displaying math. See :rc:`mathtext.fontset`.
+
+    fontsize : float
+        The font size, in points. Defaults to the value from the extension
+        configuration option defined below.
+
+Configuration options
+---------------------
+
+The mathtext extension has the following configuration options:
+
+    mathmpl_fontsize : float, default: 10.0
+        Default font size, in points.
+
+    mathmpl_srcset : list of str, default: []
+        Additional image sizes to generate when embedding in HTML, to support
+        `responsive resolution images
+        <https://developer.mozilla.org/en-US/docs/Learn/HTML/Multimedia_and_embedding/Responsive_images>`__.
+        The list should contain additional x-descriptors (``'1.5x'``, ``'2x'``,
+        etc.) to generate (1x is the default and always included.)
+
+"""
+
 import hashlib
 from pathlib import Path
 
@@ -35,6 +100,9 @@ math_role.options = {'fontset': fontset_choice,
 
 
 class MathDirective(Directive):
+    """
+    The ``.. mathmpl::`` directive, as documented in the module's docstring.
+    """
     has_content = True
     required_arguments = 0
     optional_arguments = 0
