@@ -907,6 +907,7 @@ class PdfFile:
         return pdfname
 
     def writeFonts(self):
+        print(self.fontNames)
         fonts = {}
         for dviname, info in sorted(self.dviFontInfo.items()):
             Fx = info.pdfname
