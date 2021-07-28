@@ -5,10 +5,12 @@ Mathtext Examples
 
 Selected features of Matplotlib's math rendering engine.
 """
-import matplotlib.pyplot as plt
+import re
 import subprocess
 import sys
-import re
+
+import matplotlib.pyplot as plt
+
 
 # Selection of features following "Writing mathematical expressions" tutorial,
 # with randomly picked examples.
