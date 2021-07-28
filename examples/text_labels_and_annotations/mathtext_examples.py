@@ -62,23 +62,24 @@ def doall():
     mpl_grey_rvb = (51. / 255., 51. / 255., 51. / 255.)
 
     # Creating figure and axis.
-    plt.figure(figsize=(6, 7))
-    plt.axes([0.01, 0.01, 0.98, 0.90], facecolor="white", frameon=True)
-    plt.gca().set_xlim(0., 1.)
-    plt.gca().set_ylim(0., 1.)
-    plt.gca().set_title("Matplotlib's math rendering engine",
-                        color=mpl_grey_rvb, fontsize=14, weight='bold')
-    plt.gca().set_xticklabels([])
-    plt.gca().set_yticklabels([])
+    fig = plt.figure(figsize=(6, 7))
+    ax = fig.add_axes([0.01, 0.01, 0.98, 0.90],
+                      facecolor="white", frameon=True)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.set_title("Matplotlib's math rendering engine",
+                 color=mpl_grey_rvb, fontsize=14, weight='bold')
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
 
     # Gap between lines in axes coords
     line_axesfrac = 1 / n_lines
 
     # Plotting header demonstration formula
     full_demo = mathext_demos[0]
-    plt.annotate(full_demo,
-                 xy=(0.5, 1. - 0.59 * line_axesfrac),
-                 color=mpl_orange_rvb, ha='center', fontsize=20)
+    ax.annotate(full_demo,
+                xy=(0.5, 1. - 0.59 * line_axesfrac),
+                color=mpl_orange_rvb, ha='center', fontsize=20)
 
     # Plotting features demonstration formulae
     for i_line in range(1, n_lines):
@@ -86,16 +87,16 @@ def doall():
         baseline_next = baseline - line_axesfrac
         title = mathtext_titles[i_line] + ":"
         fill_color = ['white', mpl_blue_rvb][i_line % 2]
-        plt.fill_between([0., 1.], [baseline, baseline],
-                         [baseline_next, baseline_next],
-                         color=fill_color, alpha=0.5)
-        plt.annotate(title,
-                     xy=(0.07, baseline - 0.3 * line_axesfrac),
-                     color=mpl_grey_rvb, weight='bold')
+        ax.fill_between([0, 1], [baseline, baseline],
+                        [baseline_next, baseline_next],
+                        color=fill_color, alpha=0.5)
+        ax.annotate(title,
+                    xy=(0.07, baseline - 0.3 * line_axesfrac),
+                    color=mpl_grey_rvb, weight='bold')
         demo = mathext_demos[i_line]
-        plt.annotate(demo,
-                     xy=(0.05, baseline - 0.75 * line_axesfrac),
-                     color=mpl_grey_rvb, fontsize=16)
+        ax.annotate(demo,
+                    xy=(0.05, baseline - 0.75 * line_axesfrac),
+                    color=mpl_grey_rvb, fontsize=16)
 
     for i in range(n_lines):
         s = mathext_demos[i]
