@@ -57,9 +57,7 @@ mathext_demos = {
 
 def doall():
     # Colors used in Matplotlib online documentation.
-    mpl_blue_rvb = (191. / 255., 209. / 256., 212. / 255.)
-    mpl_orange_rvb = (202. / 255., 121. / 256., 0. / 255.)
-    mpl_grey_rvb = (51. / 255., 51. / 255., 51. / 255.)
+    mpl_grey_rgb = (51 / 255, 51 / 255, 51 / 255)
 
     # Creating figure and axis.
     fig = plt.figure(figsize=(6, 7))
@@ -68,7 +66,7 @@ def doall():
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.set_title("Matplotlib's math rendering engine",
-                 color=mpl_grey_rvb, fontsize=14, weight='bold')
+                 color=mpl_grey_rgb, fontsize=14, weight='bold')
     ax.set_xticklabels([])
     ax.set_yticklabels([])
 
@@ -79,24 +77,24 @@ def doall():
     full_demo = mathext_demos[0]
     ax.annotate(full_demo,
                 xy=(0.5, 1. - 0.59 * line_axesfrac),
-                color=mpl_orange_rvb, ha='center', fontsize=20)
+                color='tab:orange', ha='center', fontsize=20)
 
     # Plotting features demonstration formulae
     for i_line in range(1, n_lines):
         baseline = 1 - i_line * line_axesfrac
         baseline_next = baseline - line_axesfrac
         title = mathtext_titles[i_line] + ":"
-        fill_color = ['white', mpl_blue_rvb][i_line % 2]
+        fill_color = ['white', 'tab:blue'][i_line % 2]
         ax.fill_between([0, 1], [baseline, baseline],
                         [baseline_next, baseline_next],
-                        color=fill_color, alpha=0.5)
+                        color=fill_color, alpha=0.2)
         ax.annotate(title,
                     xy=(0.07, baseline - 0.3 * line_axesfrac),
-                    color=mpl_grey_rvb, weight='bold')
+                    color=mpl_grey_rgb, weight='bold')
         demo = mathext_demos[i_line]
         ax.annotate(demo,
                     xy=(0.05, baseline - 0.75 * line_axesfrac),
-                    color=mpl_grey_rvb, fontsize=16)
+                    color=mpl_grey_rgb, fontsize=16)
 
     for i in range(n_lines):
         s = mathext_demos[i]
