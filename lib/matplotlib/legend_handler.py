@@ -27,11 +27,12 @@ derived from the base class (HandlerBase) with the following method::
     def legend_artist(self, legend, orig_handle, fontsize, handlebox)
 """
 
+from collections.abc import Sequence
 from itertools import cycle
 
 import numpy as np
 
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib.lines import Line2D
 from matplotlib.patches import Rectangle
 import matplotlib.collections as mcoll
@@ -118,6 +119,9 @@ class HandlerBase:
         artists = self.create_artists(legend, orig_handle,
                                       xdescent, ydescent, width, height,
                                       fontsize, handlebox.get_transform())
+
+        if isinstance(artists, _Line2DHandleList):
+            artists = [artists[0]]
 
         # create_artists will return a list of artists.
         for a in artists:
@@ -254,6 +258,24 @@ class HandlerLine2DCompound(HandlerNpoints):
         return [legline, legline_marker]
 
 
+class _Line2DHandleList(Sequence):
+    def __init__(self, legline):
+        self._legline = legline
+
+    def __len__(self):
+        return 2
+
+    def __getitem__(self, index):
+        if index != 0:
+            # Make HandlerLine2D return [self._legline] directly after
+            # deprecation elapses.
+            _api.warn_deprecated(
+                "3.5", message="Access to the second element returned by "
+                "HandlerLine2D is deprecated since %(since)s; it will be "
+                "removed %(removal)s.")
+        return [self._legline, self._legline][index]
+
+
 class HandlerLine2D(HandlerNpoints):
     """
     Handler for `.Line2D` instances.
@@ -304,7 +326,7 @@ class HandlerLine2D(HandlerNpoints):
 
         legline.set_transform(trans)
 
-        return [legline]
+        return _Line2DHandleList(legline)
 
 
 class HandlerPatch(HandlerBase):
@@ -765,6 +787,8 @@ class HandlerTuple(HandlerBase):
             _a_list = handler.create_artists(
                 legend, handle1,
                 next(xds_cycle), ydescent, width, height, fontsize, trans)
+            if isinstance(_a_list, _Line2DHandleList):
+                _a_list = [_a_list[0]]
             a_list.extend(_a_list)
 
         return a_list
