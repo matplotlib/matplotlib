@@ -1,0 +1,4 @@
+Improve underscore support in LaTeX
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `underscore <https://ctan.org/pkg/underscore>`_ package is now a requirement to improve support for underscores in LaTeX.

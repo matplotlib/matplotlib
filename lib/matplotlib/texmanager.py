@@ -175,6 +175,7 @@ class TexManager:
             r"\usepackage[papersize=72in, margin=1in]{geometry}",
             self.get_custom_preamble(),
             # Use `underscore` package to take care of underscores in text
+            # The [strings] option allows to use underscores in file names
             r"\makeatletter"
             r"\@ifpackageloaded{underscore}{}"
             r"{\usepackage[strings]{underscore}}"
