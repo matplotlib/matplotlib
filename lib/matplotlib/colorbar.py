@@ -764,7 +764,6 @@ class Colorbar:
         """
         Setup the ticks and ticklabels. This should not be needed by users.
         """
-        ax = self.ax
         # Get the locator and formatter; defaults to self.locator if not None.
         self._get_ticker_locator_formatter()
         self._long_axis().set_major_locator(self.locator)
@@ -817,26 +816,30 @@ class Colorbar:
         _log.debug('locator: %r', locator)
 
     @_api.delete_parameter("3.5", "update_ticks")
-    def set_ticks(self, ticks, update_ticks=True):
+    def set_ticks(self, ticks, update_ticks=True, labels=None, *,
+                  minor=False, **kwargs):
         """
         Set tick locations.
 
         Parameters
         ----------
-        ticks : array-like or `~matplotlib.ticker.Locator` or None
-            The tick positions can be hard-coded by an array of values; or
-            they can be defined by a `.Locator`. Setting to *None* reverts
-            to using a default locator.
-
-        update_ticks : bool, default: True
-            As of 3.5 this has no effect.
-
+        ticks : list of floats
+            List of tick locations.
+        labels : list of str, optional
+            List of tick labels. If not set, the labels show the data value.
+        minor : bool, default: False
+            If ``False``, set the major ticks; if ``True``, the minor ticks.
+        **kwargs
+            `.Text` properties for the labels. These take effect only if you
+            pass *labels*. In other cases, please use `~.Axes.tick_params`.
         """
         if np.iterable(ticks):
-            self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
+            self._long_axis().set_ticks(ticks, labels=labels, minor=minor,
+                                        **kwargs)
+            self.locator = self._long_axis().get_major_locator()
         else:
             self.locator = ticks
-        self._long_axis().set_major_locator(self.locator)
+            self._long_axis().set_major_locator(self.locator)
         self.stale = True
 
     def get_ticks(self, minor=False):
@@ -854,26 +857,41 @@ class Colorbar:
             return self._long_axis().get_majorticklocs()
 
     @_api.delete_parameter("3.5", "update_ticks")
-    def set_ticklabels(self, ticklabels, update_ticks=True):
+    def set_ticklabels(self, ticklabels, update_ticks=True, *, minor=False,
+                       **kwargs):
         """
         Set tick labels.
+
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged, because of the dependency
+            on tick positions. In most cases, you'll want to use
+            ``set_ticks(positions, labels=labels)`` instead.
+
+            If you are using this method, you should always fix the tick
+            positions before, e.g. by using `.Colorbar.set_ticks` or by
+            explicitly setting a `~.ticker.FixedLocator` on the long axis
+            of the colorbar. Otherwise, ticks are free to move and the
+            labels may end up in unexpected positions.
 
         Parameters
         ----------
         ticklabels : sequence of str or of `.Text`
             Texts for labeling each tick location in the sequence set by
-            `.Axis.set_ticks`; the number of labels must match the number of
-            locations.
+            `.Colorbar.set_ticks`; the number of labels must match the number
+            of locations.
 
         update_ticks : bool, default: True
             This keyword argument is ignored and will be be removed.
             Deprecated
+
+         minor : bool
+            If True, set minor ticks instead of major ticks.
+
+        **kwargs
+            `.Text` properties for the labels.
         """
-        if isinstance(self.locator, ticker.FixedLocator):
-            self.formatter = ticker.FixedFormatter(ticklabels)
-        else:
-            _api._warn_external("set_ticks() must have been called.")
-        self.stale = True
+        self._long_axis().set_ticklabels(ticklabels, minor=minor, **kwargs)
 
     def minorticks_on(self):
         """
