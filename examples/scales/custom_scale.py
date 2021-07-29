@@ -38,8 +38,8 @@ class MercatorLatitudeScale(mscale.ScaleBase):
     """
 
     # The scale class must have a member ``name`` that defines the string used
-    # to select the scale.  For example, ``gca().set_yscale("mercator")`` would
-    # be used to select this scale.
+    # to select the scale.  For example, ``ax.set_yscale("mercator")`` would be
+    # used to select this scale.
     name = 'mercator'
 
     def __init__(self, axis, *, thresh=np.deg2rad(85), **kwargs):
@@ -159,7 +159,7 @@ if __name__ == '__main__':
     s = np.radians(t)/2.
 
     plt.plot(t, s, '-', lw=2)
-    plt.gca().set_yscale('mercator')
+    plt.yscale('mercator')
 
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
