@@ -1,0 +1,4 @@
+Case-insensitive scales
+~~~~~~~~~~~~~~~~~~~~~~~
+Previously, scales could be set case-insensitively (e.g. ``set_xscale("LoG")``).
+This is deprecated; all builtin scales use lowercase names.
