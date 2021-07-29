@@ -373,7 +373,10 @@ default: %(va)s
 
         x = kwargs.pop('x', None)
         y = kwargs.pop('y', None)
-        autopos = x is None and y is None
+        if info['name'] in ['_supxlabel', '_suptitle']:
+            autopos = y is None
+        elif info['name'] == '_supylabel':
+            autopos = x is None
         if x is None:
             x = info['x0']
         if y is None:
