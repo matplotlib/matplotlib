@@ -101,11 +101,11 @@ def test_usetex_packages(pkg):
 
 
 @pytest.mark.parametrize(
-    "latex_statement",
+    "preamble",
     [r"\usepackage[full]{textcomp}", r"\usepackage{underscore}"],
 )
-def test_latex_pkg_already_loaded(latex_statement):
-    plt.rcParams["text.latex.preamble"] = latex_statement
+def test_latex_pkg_already_loaded(preamble):
+    plt.rcParams["text.latex.preamble"] = preamble
     fig = plt.figure()
     fig.text(.5, .5, "hello, world", usetex=True)
     fig.canvas.draw()
