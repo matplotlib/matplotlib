@@ -4800,7 +4800,7 @@ default: :rc:`scatter.edgecolors`
                                    f"can be supplied, ignoring bins={bins}")
             else:
                 norm = mcolors.LogNorm(vmin=vmin, vmax=vmax)
-                vmin, vmax = None, None
+                vmin = vmax = None
             bins = None
 
         if isinstance(norm, mcolors.LogNorm):
