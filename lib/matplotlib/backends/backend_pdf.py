@@ -33,7 +33,7 @@ from matplotlib.backend_bases import (
     GraphicsContextBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
-from matplotlib.font_manager import findfont, get_font
+from matplotlib.font_manager import findfont, find_fontsprop, get_font
 from matplotlib.afm import AFM
 import matplotlib.type1font as type1font
 import matplotlib.dviread as dviread
@@ -861,20 +861,24 @@ class PdfFile:
         """
 
         if isinstance(fontprop, str):
-            filename = fontprop
+            filename = [fontprop]
         elif mpl.rcParams['pdf.use14corefonts']:
-            filename = findfont(
-                fontprop, fontext='afm', directory=RendererPdf._afm_font_dir)
+            filename = find_fontsprop(
+                fontprop, fontext='afm', directory=RendererPdf._afm_font_dir
+            ).values()
         else:
-            filename = findfont(fontprop)
+            filename = find_fontsprop(fontprop).values()
 
-        Fx = self.fontNames.get(filename)
-        if Fx is None:
-            Fx = next(self._internal_font_seq)
-            self.fontNames[filename] = Fx
-            _log.debug('Assigning font %s = %r', Fx, filename)
+        Fxs = []
+        for fname in filename:
+            Fx = self.fontNames.get(fname)
+            if Fx is None:
+                Fx = next(self._internal_font_seq)
+                self.fontNames[fname] = Fx
+                _log.debug('Assigning font %s = %r', Fx, fname)
+            Fxs.append(Fx)
 
-        return Fx
+        return Fxs[0]
 
     def dviFontName(self, dvifont):
         """
@@ -1066,6 +1070,9 @@ class PdfFile:
 
     def _get_xobject_symbol_name(self, filename, symbol_name):
         Fx = self.fontName(filename)
+        # TODO: XObject symbol name should be multiple names?
+        # list(map(lambda x: x.name.decode(), Fxs))
+        # Fx = Fxs[0]
         return "-".join([
             Fx.name.decode(),
             os.path.splitext(os.path.basename(filename))[0],

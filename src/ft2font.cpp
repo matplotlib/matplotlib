@@ -555,6 +555,11 @@ void FT2Font::set_text(
     if (bbox.xMin > bbox.xMax) {
         bbox.xMin = bbox.yMin = bbox.xMax = bbox.yMax = 0;
     }
+    printf("\nMap: \n");
+    // print out num_glyphs for the final FT2Font so its easy to track
+    for (std::pair<const FT_UInt, FT2Font *> &x: glyph_to_font) {
+        printf("%u: %lu \n", x.first, x.second->get_face()->num_glyphs);
+    }
 }
 
 void FT2Font::fill_glyphs(
