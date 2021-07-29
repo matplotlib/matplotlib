@@ -446,6 +446,7 @@ def test_surface3d_masked():
     ax.plot_surface(x, y, z, facecolors=colors)
     ax.view_init(30, -80)
 
+
 @mpl3d_image_comparison(['surface3d_masked_strides.png'])
 def test_surface3d_masked_strides():
     fig = plt.figure()
