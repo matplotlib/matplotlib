@@ -329,7 +329,8 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             if np.array_equal(seq, oldseq) and oldo == offset:
                 return
 
-        self._pswriter.write(f"[{_nums_to_str(*seq)}] {offset:d} setdash\n"
+        self._pswriter.write(f"[{_nums_to_str(*seq)}]"
+                             f" {_nums_to_str(offset)} setdash\n"
                              if seq is not None and len(seq) else
                              "[] 0 setdash\n")
         if store:
