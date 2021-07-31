@@ -203,7 +203,6 @@ def boilerplate_gen():
     _figure_commands = (
         'figimage',
         'figtext:text',
-        'gca',
         'gci:_gci',
         'ginput',
         'subplots_adjust',

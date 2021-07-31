@@ -64,6 +64,7 @@ def test_align_labels():
 def test_figure_label():
     # pyplot figure creation, selection, and closing with label/number/instance
     plt.close('all')
+    assert plt.gcf(create_if_none=False) is None
     fig_today = plt.figure('today')
     plt.figure(3)
     plt.figure('tomorrow')
@@ -149,6 +150,8 @@ def test_figure_legend():
 
 def test_gca():
     fig = plt.figure()
+
+    assert plt.gca(create_if_none=False) is None
 
     with pytest.raises(TypeError):
         assert fig.add_axes() is None

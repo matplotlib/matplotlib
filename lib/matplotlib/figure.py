@@ -1482,15 +1482,25 @@ default: %(va)s
         return a
 
     @docstring.dedent_interpd
-    def gca(self, **kwargs):
+    def gca(self, *, create_if_none=True, **kwargs):
         """
-        Get the current Axes, creating one if necessary.
+        Get the current Axes.
 
-        The following kwargs are supported for ensuring the returned Axes
-        adheres to the given projection etc., and for Axes creation if
-        the active Axes does not exist:
+        Parameters
+        ----------
+        create_if_none : bool, default: True
+            *create_if_none* controls this method's behavior if there is no
+            current Axes: a new one is created if *create_if_none* is True (the
+            default); None is returned if *create_if_none* is False.
 
-        %(Axes:kwdoc)s
+        Other Parameters
+        ----------------
+        **kwargs
+            The kwargs listed below are supported for ensuring the returned
+            Axes adheres to the given projection etc., and for Axes creation if
+            the active Axes does not exist.  This behavior is deprecated.
+
+            %(Axes:kwdoc)s
         """
         if kwargs:
             _api.warn_deprecated(
@@ -1502,10 +1512,9 @@ default: %(va)s
                 "new axes with default keyword arguments. To create a new "
                 "axes with non-default arguments, use plt.axes() or "
                 "plt.subplot().")
-        if self._axstack.empty():
-            return self.add_subplot(1, 1, 1, **kwargs)
-        else:
-            return self._axstack()
+        return (self._axstack() if not self._axstack.empty() else
+                self.add_subplot(1, 1, 1, **kwargs) if create_if_none else
+                None)
 
     def _gci(self):
         # Helper for `~matplotlib.pyplot.gci`.  Do not use elsewhere.
