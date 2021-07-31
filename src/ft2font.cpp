@@ -735,6 +735,17 @@ void FT2Font::load_glyph(FT_UInt glyph_index,
 
 void FT2Font::load_glyph(FT_UInt glyph_index, FT_Int32 flags)
 {
+    // search cache first
+    if (fallback == 1 && glyph_to_font.find(glyph_index) != glyph_to_font.end()) {
+        ft_object = glyph_to_font[glyph_index];
+        return;
+    }
+    // can not do fallback without a charcode
+    // so ignore exact condition fallback == 1
+
+    // set as self
+    ft_object = this;
+
     if (FT_Error error = FT_Load_Glyph(face, glyph_index, flags)) {
         throw_ft_error("Could not load glyph", error);
     }
