@@ -37,7 +37,7 @@ STYLE_FILE_PATTERN = re.compile(r'([\S]+).%s$' % STYLE_EXTENSION)
 
 # A list of rcParams that should not be applied from styles
 STYLE_BLACKLIST = {
-    'interactive', 'backend', 'backend.qt4', 'webagg.port', 'webagg.address',
+    'interactive', 'backend', 'webagg.port', 'webagg.address',
     'webagg.port_retries', 'webagg.open_in_browser', 'backend_fallback',
     'toolbar', 'timezone', 'datapath', 'figure.max_open_warning',
     'figure.raise_window', 'savefig.directory', 'tk.window_focus',

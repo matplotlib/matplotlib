@@ -246,11 +246,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
         self.setCursor(_api.check_getitem(cursord, cursor=cursor))
 
     def enterEvent(self, event):
-        try:
-            x, y = self.mouseEventCoords(event.pos())
-        except AttributeError:
-            # the event from PyQt4 does not include the position
-            x = y = None
+        x, y = self.mouseEventCoords(event.pos())
         FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
 
     def leaveEvent(self, event):
