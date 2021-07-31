@@ -611,15 +611,13 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         self.message.set(s)
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
+        self.remove_rubberband()
         height = self.canvas.figure.bbox.height
         y0 = height - y0
         y1 = height - y1
-        if hasattr(self, "lastrect"):
-            self.canvas._tkcanvas.delete(self.lastrect)
         self.lastrect = self.canvas._tkcanvas.create_rectangle(x0, y0, x1, y1)
 
-    def release_zoom(self, event):
-        super().release_zoom(event)
+    def remove_rubberband(self):
         if hasattr(self, "lastrect"):
             self.canvas._tkcanvas.delete(self.lastrect)
             del self.lastrect
@@ -780,11 +778,10 @@ class ToolTip:
 
 class RubberbandTk(backend_tools.RubberbandBase):
     def draw_rubberband(self, x0, y0, x1, y1):
+        self.remove_rubberband()
         height = self.figure.canvas.figure.bbox.height
         y0 = height - y0
         y1 = height - y1
-        if hasattr(self, "lastrect"):
-            self.figure.canvas._tkcanvas.delete(self.lastrect)
         self.lastrect = self.figure.canvas._tkcanvas.create_rectangle(
             x0, y0, x1, y1)
 
