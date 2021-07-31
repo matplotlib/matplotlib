@@ -692,6 +692,7 @@ class PdfFile:
         # differently encoded Type-1 fonts may share the same descriptor
         self.type1Descriptors = {}
         self._character_tracker = _backend_pdf_ps.CharacterTracker()
+        # self._char_to_font = None
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
         self._alpha_state_seq = (Name(f'A{i}') for i in itertools.count(1))
@@ -911,7 +912,8 @@ class PdfFile:
         return pdfname
 
     def writeFonts(self):
-        print(self.fontNames)
+        # print("OHNO")
+        # breakpoint()
         fonts = {}
         for dviname, info in sorted(self.dviFontInfo.items()):
             Fx = info.pdfname
@@ -927,7 +929,15 @@ class PdfFile:
             else:
                 # a normal TrueType font
                 _log.debug('Writing TrueType font.')
+                # characters = []
+                print("lalalla")
+                # breakpoint()
+                # for key, val in self._char_to_font:
+                #     if val.fname == filename:
+                #         print("nice", filename)
+                #         characters.append(key)
                 chars = self._character_tracker.used.get(filename)
+                print("chars:", chars, " for font:", filename)
                 if chars:
                     fonts[Fx] = self.embedTTF(filename, chars)
         self.writeObject(self.fontObject, fonts)
@@ -1149,7 +1159,7 @@ end"""
             def get_char_width(charcode):
                 s = ord(cp1252.decoding_table[charcode])
                 width = font.load_char(
-                    s, flags=LOAD_NO_SCALE | LOAD_NO_HINTING).horiAdvance
+                    s, fallback=False, flags=LOAD_NO_SCALE | LOAD_NO_HINTING).horiAdvance
                 return cvt(width)
 
             with warnings.catch_warnings():
@@ -2344,7 +2354,12 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             fonttype = 1
         else:
             font = self._get_font_ttf(prop)
-            self.file._character_tracker.track(font, s)
+            font.set_text(s)
+            char_to_font = font.get_char_to_font()
+            for char, font in char_to_font.items():
+                print(chr(char), "to:", font.fname)
+                self.file._character_tracker.track(font, chr(char))
+            print("\nFONT_TO_CHAR:", self.file._character_tracker.used)
             fonttype = mpl.rcParams['pdf.fonttype']
 
         if gc.get_url() is not None:
