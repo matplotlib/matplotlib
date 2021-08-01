@@ -37,6 +37,23 @@ from matplotlib import _api, cbook, dviread, rcParams
 _log = logging.getLogger(__name__)
 
 
+def _usepackage_if_not_loaded(package, *, option=None):
+    """
+    Output LaTeX code that loads a package (possibly with an option) if it
+    hasn't been loaded yet.
+
+    LaTeX cannot load twice a package with different options, so this helper
+    can be used to protect against users loading arbitrary packages/options in
+    their custom preamble.
+    """
+    option = f"[{option}]" if option is not None else ""
+    return (
+        r"\makeatletter"
+        r"\@ifpackageloaded{%(package)s}{}{\usepackage%(option)s{%(package)s}}"
+        r"\makeatother"
+    ) % {"package": package, "option": option}
+
+
 class TexManager:
     """
     Convert strings to dvi files using TeX, caching the results to a directory.
@@ -176,16 +193,10 @@ class TexManager:
             self.get_custom_preamble(),
             # Use `underscore` package to take care of underscores in text
             # The [strings] option allows to use underscores in file names
-            r"\makeatletter"
-            r"\@ifpackageloaded{underscore}{}"
-            r"{\usepackage[strings]{underscore}}"
-            r"\makeatother",
-            # textcomp is loaded last (if not already loaded by the custom
-            # preamble) in order not to clash with custom packages (e.g.
-            # newtxtext) which load it with different options.
-            r"\makeatletter"
-            r"\@ifpackageloaded{textcomp}{}{\usepackage{textcomp}}"
-            r"\makeatother",
+            _usepackage_if_not_loaded("underscore", option="strings"),
+            # Custom packages (e.g. newtxtext) may already have loaded textcomp
+            # with different options.
+            _usepackage_if_not_loaded("textcomp"),
         ])
 
     def make_tex(self, tex, fontsize):
