@@ -82,6 +82,7 @@ Alphabetical list of modules:
    rcsetup_api.rst
    sankey_api.rst
    scale_api.rst
+   sphinxext_mathmpl_api.rst
    sphinxext_plot_directive_api.rst
    spines_api.rst
    style_api.rst
