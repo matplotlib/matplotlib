@@ -62,7 +62,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
     ignoring those that were manually passed in.
     """
     _offsets = np.zeros((0, 2))
-    _transOffset = transforms.IdentityTransform()
     #: Either a list of 3x3 arrays or an Nx3x3 array (representing N
     #: transforms), suitable for the `all_transforms` argument to
     #: `~matplotlib.backend_bases.RendererBase.draw_path_collection`;
@@ -204,8 +203,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 offsets = offsets[None, :]
             self._offsets = offsets
 
-        if transOffset is not None:
-            self._transOffset = transOffset
+        self._transOffset = transOffset
 
         self._path_effects = None
         self.update(kwargs)
@@ -221,16 +219,22 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return self._transforms
 
     def get_offset_transform(self):
-        t = self._transOffset
-        if (not isinstance(t, transforms.Transform)
-                and hasattr(t, '_as_mpl_transform')):
-            t = t._as_mpl_transform(self.axes)
-        return t
+        """Return the `.Transform` instance used by this artist offset."""
+        if self._transOffset is None:
+            self._transOffset = transforms.IdentityTransform()
+        elif (not isinstance(self._transOffset, transforms.Transform)
+              and hasattr(self._transOffset, '_as_mpl_transform')):
+            self._transOffset = self._transOffset._as_mpl_transform(self.axes)
+        return self._transOffset
 
     def set_offset_transform(self, transOffset):
+        """
+        Set the artist offset transform.
+        Parameters
+        ----------
+        transOffset : `.Transform`
+        """
         self._transOffset = transOffset
-        self.pchanged()
-        self.stale = True
 
     def get_datalim(self, transData):
         # Calculate the data limits and return them as a `.Bbox`.
@@ -252,7 +256,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         transform = self.get_transform()
         transOffset = self.get_offset_transform()
         hasOffsets = np.any(self._offsets)  # True if any non-zero offsets
-        if (hasOffsets and not transOffset.contains_branch(transData)):
+        if hasOffsets and not transOffset.contains_branch(transData):
             # if there are offsets but in some coords other than data,
             # then don't use them for autoscaling.
             return transforms.Bbox.null()
