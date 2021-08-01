@@ -300,7 +300,7 @@ def test_fig_sigint_override(qt_core):
         'QtAgg',
         marks=pytest.mark.backend('QtAgg', skip_on_importerror=True)),
 ])
-def test_correct_key(backend, qt_core, qt_key, qt_mods, answer):
+def test_correct_key(backend, qt_core, qt_key, qt_mods, answer, monkeypatch):
     """
     Make a figure.
     Send a key_press_event event (using non-public, qtX backend specific api).
@@ -321,7 +321,9 @@ def test_correct_key(backend, qt_core, qt_key, qt_mods, answer):
     class _Event:
         def isAutoRepeat(self): return False
         def key(self): return _to_int(getattr(_enum("QtCore.Qt.Key"), qt_key))
-        def modifiers(self): return qt_mod
+
+    monkeypatch.setattr(QtWidgets.QApplication, "keyboardModifiers",
+                        lambda self: qt_mod)
 
     def on_key_press(event):
         nonlocal result

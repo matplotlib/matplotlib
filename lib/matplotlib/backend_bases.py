@@ -1316,11 +1316,13 @@ class LocationEvent(Event):
     xdata, ydata : float or None
         Data coordinates of the mouse within *inaxes*, or *None* if the mouse
         is not over an Axes.
+    modifiers : frozenset
+        The keyboard modifiers currently being pressed (except for KeyEvent).
     """
 
     lastevent = None  # The last event processed so far.
 
-    def __init__(self, name, canvas, x, y, guiEvent=None):
+    def __init__(self, name, canvas, x, y, guiEvent=None, *, modifiers=None):
         super().__init__(name, canvas, guiEvent=guiEvent)
         # x position - pixels from left of canvas
         self.x = int(x) if x is not None else x
@@ -1329,6 +1331,7 @@ class LocationEvent(Event):
         self.inaxes = None  # the Axes instance the mouse is over
         self.xdata = None   # x coord of mouse in data coords
         self.ydata = None   # y coord of mouse in data coords
+        self.modifiers = frozenset(modifiers if modifiers is not None else [])
 
         if x is None or y is None:
             # cannot check if event was in Axes if no (x, y) info
@@ -1387,7 +1390,9 @@ class MouseEvent(LocationEvent):
            This key is currently obtained from the last 'key_press_event' or
            'key_release_event' that occurred within the canvas.  Thus, if the
            last change of keyboard state occurred while the canvas did not have
-           focus, this attribute will be wrong.
+           focus, this attribute will be wrong.  On the other hand, the
+           ``modifiers`` attribute should always be correct, but it can only
+           report on modifier keys.
 
     step : float
         The number of scroll steps (positive for 'up', negative for 'down').
@@ -1409,8 +1414,9 @@ class MouseEvent(LocationEvent):
     """
 
     def __init__(self, name, canvas, x, y, button=None, key=None,
-                 step=0, dblclick=False, guiEvent=None):
-        super().__init__(name, canvas, x, y, guiEvent=guiEvent)
+                 step=0, dblclick=False, guiEvent=None, *, modifiers=None):
+        super().__init__(
+            name, canvas, x, y, guiEvent=guiEvent, modifiers=modifiers)
         if button in MouseButton.__members__.values():
             button = MouseButton(button)
         if name == "scroll_event" and button is None:

@@ -316,6 +316,41 @@ static CGFloat _get_device_scale(CGContextRef cr)
     return pixelSize.width;
 }
 
+int mpl_check_modifier(
+        NSUInteger modifiers, NSEventModifierFlags flag,
+        PyObject* list, char const* name)
+{
+    int status = 0;
+    if (modifiers & flag) {
+        PyObject* py_name = NULL;
+        if (!(py_name = PyUnicode_FromString(name))
+            || PyList_Append(list, py_name)) {
+            status = -1;  // failure
+        }
+        Py_XDECREF(py_name);
+    }
+    return status;
+}
+
+PyObject* mpl_modifiers(NSEvent* event)
+{
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    PyObject* list = NULL;
+    if (!(list = PyList_New(0))) {
+        goto exit;
+    }
+    NSUInteger modifiers = [event modifierFlags];
+    if (mpl_check_modifier(modifiers, NSEventModifierFlagControl, list, "ctrl")
+        || mpl_check_modifier(modifiers, NSEventModifierFlagOption, list, "alt")
+        || mpl_check_modifier(modifiers, NSEventModifierFlagShift, list, "shift")
+        || mpl_check_modifier(modifiers, NSEventModifierFlagCommand, list, "cmd")) {
+        Py_CLEAR(list);  // On failure, return NULL with an exception set.
+    }
+exit:
+    PyGILState_Release(gstate);
+    return list;
+}
+
 typedef struct {
     PyObject_HEAD
     View* view;
@@ -1452,8 +1487,9 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     x = location.x * device_scale;
     y = location.y * device_scale;
     process_event(
-        "LocationEvent", "{s:s, s:O, s:i, s:i}",
-        "name", "figure_enter_event", "canvas", canvas, "x", x, "y", y);
+        "LocationEvent", "{s:s, s:O, s:i, s:i, s:N}",
+        "name", "figure_enter_event", "canvas", canvas, "x", x, "y", y,
+        "modifiers", mpl_modifiers(event));
 }
 
 - (void)mouseExited:(NSEvent *)event
@@ -1464,8 +1500,9 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     x = location.x * device_scale;
     y = location.y * device_scale;
     process_event(
-        "LocationEvent", "{s:s, s:O, s:i, s:i}",
-        "name", "figure_leave_event", "canvas", canvas, "x", x, "y", y);
+        "LocationEvent", "{s:s, s:O, s:i, s:i, s:N}",
+        "name", "figure_leave_event", "canvas", canvas, "x", x, "y", y,
+        "modifiers", mpl_modifiers(event));
 }
 
 - (void)mouseDown:(NSEvent *)event
@@ -1502,9 +1539,9 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
       dblclick = 1;
     }
     process_event(
-        "MouseEvent", "{s:s, s:O, s:i, s:i, s:i, s:i}",
+        "MouseEvent", "{s:s, s:O, s:i, s:i, s:i, s:i, s:N}",
         "name", "button_press_event", "canvas", canvas, "x", x, "y", y,
-        "button", button, "dblclick", dblclick);
+        "button", button, "dblclick", dblclick, "modifiers", mpl_modifiers(event));
 }
 
 - (void)mouseUp:(NSEvent *)event
@@ -1526,9 +1563,9 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
          default: return; /* Unknown mouse event */
     }
     process_event(
-        "MouseEvent", "{s:s, s:O, s:i, s:i, s:i}",
+        "MouseEvent", "{s:s, s:O, s:i, s:i, s:i, s:N}",
         "name", "button_release_event", "canvas", canvas, "x", x, "y", y,
-        "button", button);
+        "button", button, "modifiers", mpl_modifiers(event));
 }
 
 - (void)mouseMoved:(NSEvent *)event
@@ -1539,8 +1576,9 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     x = location.x * device_scale;
     y = location.y * device_scale;
     process_event(
-        "MouseEvent", "{s:s, s:O, s:i, s:i}",
-        "name", "motion_notify_event", "canvas", canvas, "x", x, "y", y);
+        "MouseEvent", "{s:s, s:O, s:i, s:i, s:N}",
+        "name", "motion_notify_event", "canvas", canvas, "x", x, "y", y,
+        "modifiers", mpl_modifiers(event));
 }
 
 - (void)mouseDragged:(NSEvent *)event
@@ -1551,8 +1589,9 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     x = location.x * device_scale;
     y = location.y * device_scale;
     process_event(
-        "MouseEvent", "{s:s, s:O, s:i, s:i}",
-        "name", "motion_notify_event", "canvas", canvas, "x", x, "y", y);
+        "MouseEvent", "{s:s, s:O, s:i, s:i, s:N}",
+        "name", "motion_notify_event", "canvas", canvas, "x", x, "y", y,
+        "modifiers", mpl_modifiers(event));
 }
 
 - (void)rightMouseDown:(NSEvent *)event { [self mouseDown: event]; }
@@ -1711,9 +1750,9 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     int x = (int)round(point.x * device_scale);
     int y = (int)round(point.y * device_scale - 1);
     process_event(
-        "MouseEvent", "{s:s, s:O, s:i, s:i, s:i}",
+        "MouseEvent", "{s:s, s:O, s:i, s:i, s:i, s:N}",
         "name", "scroll_event", "canvas", canvas,
-        "x", x, "y", y, "step", step);
+        "x", x, "y", y, "step", step, "modifiers", mpl_modifiers(event));
 }
 
 - (BOOL)acceptsFirstResponder
