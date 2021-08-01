@@ -766,8 +766,7 @@ static PyObject *PyFT2Font_load_char(PyFT2Font *self, PyObject *args, PyObject *
     long charcode;
     int fallback = 1;
     FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT;
-    const char *names[] = { "charcode", "flags", "fallback", NULL };
-    printf("Loading char!\n");
+    const char *names[] = { "charcode", "flags", NULL };
 
     /* This makes a technically incorrect assumption that FT_Int32 is
        int. In theory it can also be long, if the size of int is less
@@ -776,9 +775,9 @@ static PyObject *PyFT2Font_load_char(PyFT2Font *self, PyObject *args, PyObject *
                                      &flags)) {
         return NULL;
     }
-    
+
     FT2Font *ft_object = NULL;
-    CALL_CPP("load_char", (self->x->load_char(charcode, flags, fallback, ft_object)));
+    CALL_CPP("load_char", (self->x->load_char(charcode, flags, ft_object, (bool)fallback)));
     printf("Char %ld loaded to: %lu\n", charcode, ft_object->get_face()->num_glyphs);
 
     FT2Font *ft_object = NULL;
@@ -818,6 +817,11 @@ static PyObject *PyFT2Font_load_glyph(PyFT2Font *self, PyObject *args, PyObject 
                                      &flags)) {
         return NULL;
     }
+
+    // if (!PyArg_ParseTupleAndKeywords(
+    //          args, kwds, "I|i$p:load_glyph", (char **)names, &glyph_index, &flags, &fallback)) {
+    //     return NULL;
+    // }
 
     FT2Font *ft_object = NULL;
     CALL_CPP("load_glyph", (self->x->load_glyph(glyph_index, flags, ft_object, (bool)fallback)));
