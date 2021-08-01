@@ -879,6 +879,7 @@ class PdfFile:
                 _log.debug('Assigning font %s = %r', Fx, fname)
             Fxs.append(Fx)
 
+        # return only the first for Op.selectfont to work
         return Fxs[0]
 
     def dviFontName(self, dvifont):
@@ -912,8 +913,7 @@ class PdfFile:
         return pdfname
 
     def writeFonts(self):
-        # print("OHNO")
-        # breakpoint()
+        print("fonts: ", self.fontNames)
         fonts = {}
         for dviname, info in sorted(self.dviFontInfo.items()):
             Fx = info.pdfname
@@ -929,13 +929,6 @@ class PdfFile:
             else:
                 # a normal TrueType font
                 _log.debug('Writing TrueType font.')
-                # characters = []
-                print("lalalla")
-                # breakpoint()
-                # for key, val in self._char_to_font:
-                #     if val.fname == filename:
-                #         print("nice", filename)
-                #         characters.append(key)
                 chars = self._character_tracker.used.get(filename)
                 print("chars:", chars, " for font:", filename)
                 if chars:
@@ -1079,14 +1072,14 @@ class PdfFile:
         return fontdescObject
 
     def _get_xobject_symbol_name(self, filename, symbol_name):
+        # since filename is a string
         Fx = self.fontName(filename)
-        # TODO: XObject symbol name should be multiple names?
-        # list(map(lambda x: x.name.decode(), Fxs))
-        # Fx = Fxs[0]
-        return "-".join([
+        x = "-".join([
             Fx.name.decode(),
             os.path.splitext(os.path.basename(filename))[0],
             symbol_name])
+        print("\n\nXOBJECT", x, "\n\n")
+        return x
 
     _identityToUnicodeCMap = b"""/CIDInit /ProcSet findresource begin
 12 dict begin
@@ -1113,6 +1106,7 @@ end"""
         """Embed the TTF font from the named file into the document."""
 
         font = get_font(filename)
+        print("embedding:", font.fname)
         fonttype = mpl.rcParams['pdf.fonttype']
 
         def cvt(length, upe=font.units_per_EM, nearest=True):
@@ -1159,9 +1153,8 @@ end"""
             def get_char_width(charcode):
                 s = ord(cp1252.decoding_table[charcode])
                 width = font.load_char(
-                    s, fallback=False, flags=LOAD_NO_SCALE | LOAD_NO_HINTING).horiAdvance
+                    s, flags=LOAD_NO_SCALE | LOAD_NO_HINTING).horiAdvance
                 return cvt(width)
-
             with warnings.catch_warnings():
                 # Ignore 'Required glyph missing from current font' warning
                 # from ft2font: here we're just building the widths table, but
@@ -2419,6 +2412,11 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                              -math.sin(a), math.cos(a),
                              x, y, Op.concat_matrix)
             # Emit all the 1-byte characters in a BT/ET group.
+
+            x = self.file.fontName(prop)
+            print(x)
+            # breakpoint()
+
             self.file.output(Op.begin_text,
                              self.file.fontName(prop), fontsize, Op.selectfont)
             prev_start_x = 0
@@ -2434,12 +2432,18 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 prev_start_x = start_x
             self.file.output(Op.end_text)
             # Then emit all the multibyte characters, one at a time.
+            glyph_to_font = font.get_glyph_to_font()
             for start_x, glyph_idx in multibyte_glyphs:
-                self._draw_xobject_glyph(font, fontsize, glyph_idx, start_x, 0)
+                self._draw_xobject_glyph(glyph_to_font, fontsize, glyph_idx, start_x, 0)
             self.file.output(Op.grestore)
+            # print("fine here")
 
-    def _draw_xobject_glyph(self, font, fontsize, glyph_idx, x, y):
+    def _draw_xobject_glyph(self, glyph_to_font, fontsize, glyph_idx, x, y):
         """Draw a multibyte character from a Type 3 font as an XObject."""
+        if glyph_idx not in glyph_to_font:
+            # ideally raise.
+            pass
+        font = glyph_to_font[glyph_idx]
         symbol_name = font.get_glyph_name(glyph_idx)
         name = self.file._get_xobject_symbol_name(font.fname, symbol_name)
         self.file.output(

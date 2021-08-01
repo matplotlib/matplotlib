@@ -60,11 +60,12 @@ def layout(string, font, *, kern_mode=KERNING_DEFAULT):
     print("Inside _text_helpers.py")
     # breakpoint()
     for char in string:
+        print("\nchecking:", char, "\n")
         glyph_idx = font.get_char_index(ord(char))
         kern = (font.get_kerning(prev_glyph_idx, glyph_idx, kern_mode) / 64
                 if prev_glyph_idx is not None else 0.)
         x += kern
-        glyph = font.load_glyph(glyph_idx, flags=LOAD_NO_HINTING, fallback=True)
+        glyph = font.load_glyph(glyph_idx, flags=LOAD_NO_HINTING)
         yield LayoutItem(char, glyph_idx, x, kern)
         x += glyph.linearHoriAdvance / 65536
         prev_glyph_idx = glyph_idx
