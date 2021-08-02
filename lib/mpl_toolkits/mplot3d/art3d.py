@@ -568,8 +568,9 @@ class Path3DCollection(PathCollection):
         self._vzs = None
         self.stale = True
 
+    @_api.delete_parameter("3.5", "dpi")
     def set_sizes(self, sizes, dpi=72.0):
-        super().set_sizes(sizes, dpi)
+        super().set_sizes(sizes)
         if not self._in_draw:
             self._sizes3d = sizes
 
@@ -607,7 +608,7 @@ class Path3DCollection(PathCollection):
 
         # we have to special case the sizes because of code in collections.py
         # as the draw method does
-        #      self.set_sizes(self._sizes, self.figure.dpi)
+        #      self.set_sizes(self._sizes)
         # so we can not rely on doing the sorting on the way out via get_*
 
         if len(self._sizes3d) > 1:

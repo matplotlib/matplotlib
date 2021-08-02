@@ -1,0 +1,7 @@
+dpi keyword argument of collections.set_sizes is removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The *dpi* argument of `.PathCollection.set_sizes`, `.PolyCollection.set_sizes`,
+`.RegularPolyCollection.set_sizes`, `.CircleCollection.set_sizes` no longer has 
+an effect.  The dpi is determined by *dpi_scale_trans* property of `.FigureBase`, 
+which works with subfigures.

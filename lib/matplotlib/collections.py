@@ -947,6 +947,7 @@ class _CollectionWithSizes(Collection):
         """
         return self._sizes
 
+    @_api.delete_parameter("3.5", "dpi")
     def set_sizes(self, sizes, dpi=72.0):
         """
         Set the sizes of each member of the collection.
@@ -956,8 +957,6 @@ class _CollectionWithSizes(Collection):
         sizes : ndarray or None
             The size to set for each element of the collection.  The
             value is the 'area' of the element.
-        dpi : float, default: 72
-            The dpi of the canvas.
         """
         if sizes is None:
             self._sizes = np.array([])
@@ -965,6 +964,10 @@ class _CollectionWithSizes(Collection):
         else:
             self._sizes = np.asarray(sizes)
             self._transforms = np.zeros((len(self._sizes), 3, 3))
+            dpi = 72.0
+            if self.figure is not None:
+                trans = self.figure.dpi_scale_trans
+                dpi = trans.transform(np.array([1, 1]))[0]
             scale = np.sqrt(self._sizes) * dpi / 72.0 * self._factor
             self._transforms[:, 0, 0] = scale
             self._transforms[:, 1, 1] = scale
@@ -973,7 +976,7 @@ class _CollectionWithSizes(Collection):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        self.set_sizes(self._sizes, self.figure.dpi)
+        self.set_sizes(self._sizes)
         super().draw(renderer)
 
 
@@ -1335,7 +1338,7 @@ class RegularPolyCollection(_CollectionWithSizes):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        self.set_sizes(self._sizes, self.figure.dpi)
+        self.set_sizes(self._sizes)
         self._transforms = [
             transforms.Affine2D(x).rotate(-self._rotation).get_matrix()
             for x in self._transforms
