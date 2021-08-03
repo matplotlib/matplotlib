@@ -303,7 +303,7 @@ def _make_margin_suptitles(fig, renderer, *, w_pad=0, h_pad=0):
             bbox = inv_trans_fig(fig._supxlabel.get_tightbbox(renderer))
             fig._layoutgrid.edit_margin_min('bottom', bbox.height + 2 * h_pad)
 
-    if fig._supylabel is not None and fig._supxlabel.get_in_layout():
+    if fig._supylabel is not None and fig._supylabel.get_in_layout():
         p = fig._supylabel.get_position()
         if getattr(fig._supylabel, '_autopos', False):
             fig._supylabel.set_position((w_pad_local, p[1]))
