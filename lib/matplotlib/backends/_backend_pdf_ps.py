@@ -61,18 +61,11 @@ class CharacterTracker:
 
     def track(self, font, s):
         """Record that string *s* is being typeset using font *font*."""
-        if isinstance(font, str):
-            # Unused, can be removed after removal of track_characters.
-            fname = font
-        else:
-            fname = font.fname
-        self.used.setdefault(fname, set()).update(map(ord, s))
+        self.used.setdefault(font.fname, set()).update(map(ord, s))
 
-    # Not public, can be removed when pdf/ps merge_used_characters is removed.
-    def merge(self, other):
-        """Update self with a font path to character codepoints."""
-        for fname, charset in other.items():
-            self.used.setdefault(fname, set()).update(charset)
+    def track_glyph(self, font, glyph):
+        """Record that codepoint *glyph* is being typeset using font *font*."""
+        self.used.setdefault(font.fname, set()).add(glyph)
 
 
 class RendererPDFPSBase(RendererBase):

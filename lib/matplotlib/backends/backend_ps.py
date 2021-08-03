@@ -121,16 +121,16 @@ def _move_path_to_path_or_stream(src, dst):
         shutil.move(src, dst, copy_function=shutil.copyfile)
 
 
-def _font_to_ps_type3(font_path, glyph_ids):
+def _font_to_ps_type3(font_path, chars):
     """
-    Subset *glyph_ids* from the font at *font_path* into a Type 3 font.
+    Subset *chars* from the font at *font_path* into a Type 3 font.
 
     Parameters
     ----------
     font_path : path-like
         Path to the font to be subsetted.
-    glyph_ids : list of int
-        The glyph indices to include in the subsetted font.
+    chars : str
+        The characters to include in the subsetted font.
 
     Returns
     -------
@@ -139,6 +139,7 @@ def _font_to_ps_type3(font_path, glyph_ids):
         verbatim into a PostScript file.
     """
     font = get_font(font_path, hinting_factor=1)
+    glyph_ids = [font.get_char_index(c) for c in chars]
 
     preamble = """\
 %!PS-Adobe-3.0 Resource-Font
@@ -199,6 +200,44 @@ FontName currentdict end definefont pop
         )
 
     return preamble + "\n".join(entries) + postamble
+
+
+def _font_to_ps_type42(font_path, chars, fh):
+    """
+    Subset *chars* from the font at *font_path* into a Type 42 font at *fh*.
+
+    Parameters
+    ----------
+    font_path : path-like
+        Path to the font to be subsetted.
+    chars : str
+        The characters to include in the subsetted font.
+    fh : file-like
+        Where to write the font.
+    """
+    subset_str = ''.join(chr(c) for c in chars)
+    _log.debug("SUBSET %s characters: %s", font_path, subset_str)
+    try:
+        fontdata = _backend_pdf_ps.get_glyphs_subset(font_path, subset_str)
+        _log.debug("SUBSET %s %d -> %d", font_path, os.stat(font_path).st_size,
+                   fontdata.getbuffer().nbytes)
+
+        # Give ttconv a subsetted font along with updated glyph_ids.
+        font = FT2Font(fontdata)
+        glyph_ids = [font.get_char_index(c) for c in chars]
+        with TemporaryDirectory() as tmpdir:
+            tmpfile = os.path.join(tmpdir, "tmp.ttf")
+
+            with open(tmpfile, 'wb') as tmp:
+                tmp.write(fontdata.getvalue())
+
+            # TODO: allow convert_ttf_to_ps to input file objects (BytesIO)
+            convert_ttf_to_ps(os.fsencode(tmpfile), fh, 42, glyph_ids)
+    except RuntimeError:
+        _log.warning(
+            "The PostScript backend does not currently "
+            "support the selected font.")
+        raise
 
 
 def _log_if_debug_on(meth):
@@ -657,7 +696,7 @@ grestore
             f"{angle:f} rotate\n")
         lastfont = None
         for font, fontsize, num, ox, oy in glyphs:
-            self._character_tracker.track(font, chr(num))
+            self._character_tracker.track_glyph(font, num)
             if (font.postscript_name, fontsize) != lastfont:
                 lastfont = font.postscript_name, fontsize
                 self._pswriter.write(
@@ -931,56 +970,15 @@ class FigureCanvasPS(FigureCanvasBase):
                         in ps_renderer._character_tracker.used.items():
                     if not chars:
                         continue
-                    font = get_font(font_path)
-                    glyph_ids = [font.get_char_index(c) for c in chars]
                     fonttype = mpl.rcParams['ps.fonttype']
                     # Can't use more than 255 chars from a single Type 3 font.
-                    if len(glyph_ids) > 255:
+                    if len(chars) > 255:
                         fonttype = 42
                     fh.flush()
                     if fonttype == 3:
-                        fh.write(_font_to_ps_type3(font_path, glyph_ids))
-                    else:
-                        try:
-                            _log.debug(
-                                "SUBSET %s characters: %s", font_path,
-                                ''.join(chr(c) for c in chars)
-                            )
-                            fontdata = _backend_pdf_ps.get_glyphs_subset(
-                                font_path, "".join(chr(c) for c in chars)
-                            )
-                            _log.debug(
-                                "SUBSET %s %d -> %d", font_path,
-                                os.stat(font_path).st_size,
-                                fontdata.getbuffer().nbytes
-                            )
-
-                            # give ttconv a subsetted font
-                            # along with updated glyph_ids
-                            with TemporaryDirectory() as tmpdir:
-                                tmpfile = os.path.join(tmpdir, "tmp.ttf")
-                                font = FT2Font(fontdata)
-                                glyph_ids = [
-                                    font.get_char_index(c) for c in chars
-                                ]
-
-                                with open(tmpfile, 'wb') as tmp:
-                                    tmp.write(fontdata.getvalue())
-                                    tmp.flush()
-
-                                # TODO: allow convert_ttf_to_ps
-                                # to input file objects (BytesIO)
-                                convert_ttf_to_ps(
-                                    os.fsencode(tmpfile),
-                                    fh,
-                                    fonttype,
-                                    glyph_ids,
-                                )
-                        except RuntimeError:
-                            _log.warning(
-                                "The PostScript backend does not currently "
-                                "support the selected font.")
-                            raise
+                        fh.write(_font_to_ps_type3(font_path, chars))
+                    else:  # Type 42 only.
+                        _font_to_ps_type42(font_path, chars, fh)
             print("end", file=fh)
             print("%%EndProlog", file=fh)
 

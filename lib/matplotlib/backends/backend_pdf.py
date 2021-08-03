@@ -323,18 +323,18 @@ def pdfRepr(obj):
                         .format(type(obj)))
 
 
-def _font_supports_char(fonttype, char):
+def _font_supports_glyph(fonttype, glyph):
     """
-    Returns True if the font is able to provide *char* in a PDF.
+    Returns True if the font is able to provide codepoint *glyph* in a PDF.
 
     For a Type 3 font, this method returns True only for single-byte
-    chars.  For Type 42 fonts this method return True if the char is from
-    the Basic Multilingual Plane.
+    characters. For Type 42 fonts this method return True if the character is
+    from the Basic Multilingual Plane.
     """
     if fonttype == 3:
-        return ord(char) <= 255
+        return glyph <= 255
     if fonttype == 42:
-        return ord(char) <= 65535
+        return glyph <= 65535
     raise NotImplementedError()
 
 
@@ -1227,13 +1227,9 @@ end"""
             wObject = self.reserveObject('Type 0 widths')
             toUnicodeMapObject = self.reserveObject('ToUnicode map')
 
-            _log.debug(
-                "SUBSET %s characters: %s",
-                filename, "".join(chr(c) for c in characters)
-            )
-            fontdata = _backend_pdf_ps.get_glyphs_subset(
-                filename, "".join(chr(c) for c in characters)
-            )
+            subset_str = "".join(chr(c) for c in characters)
+            _log.debug("SUBSET %s characters: %s", filename, subset_str)
+            fontdata = _backend_pdf_ps.get_glyphs_subset(filename, subset_str)
             _log.debug(
                 "SUBSET %s %d -> %d", filename,
                 os.stat(filename).st_size, fontdata.getbuffer().nbytes
@@ -1327,7 +1323,7 @@ end"""
             # Add XObjects for unsupported chars
             glyph_ids = []
             for ccode in characters:
-                if not _font_supports_char(fonttype, chr(ccode)):
+                if not _font_supports_glyph(fonttype, ccode):
                     gind = full_font.get_char_index(ccode)
                     glyph_ids.append(gind)
 
@@ -2193,10 +2189,9 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
         self.file.output(Op.begin_text)
         for font, fontsize, num, ox, oy in glyphs:
-            char = chr(num)
-            self.file._character_tracker.track(font, char)
+            self.file._character_tracker.track_glyph(font, num)
             fontname = font.fname
-            if not _font_supports_char(fonttype, char):
+            if not _font_supports_glyph(fonttype, num):
                 # Unsupported chars (i.e. multibyte in Type 3 or beyond BMP in
                 # Type 42) must be emitted separately (below).
                 unsupported_chars.append((font, fontsize, ox, oy, num))
@@ -2383,7 +2378,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             prev_was_multibyte = True
             for item in _text_helpers.layout(
                     s, font, kern_mode=KERNING_UNFITTED):
-                if _font_supports_char(fonttype, item.char):
+                if _font_supports_glyph(fonttype, ord(item.char)):
                     if prev_was_multibyte:
                         singlebyte_chunks.append((item.x, []))
                     if item.prev_kern:
