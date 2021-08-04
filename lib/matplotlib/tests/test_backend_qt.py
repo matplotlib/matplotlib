@@ -34,7 +34,7 @@ def qt_core(request):
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
-def test_fig_close(backend):
+def test_fig_close():
     # save the state of Gcf.figs
     init_figs = copy.copy(Gcf.figs)
 
