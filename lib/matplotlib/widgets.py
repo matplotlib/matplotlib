@@ -2021,7 +2021,11 @@ class _SelectorWidget(AxesWidget):
         Set the properties of the selector artist. See the `props` argument
         in the selector docstring to know which properties are supported.
         """
-        self._selection_artist.set(**props)
+        artist = self._selection_artist
+        alias_map = getattr(artist, '_alias_map', None)
+        if alias_map:
+            props = cbook.normalize_kwargs(props, alias_map)
+        artist.set(**props)
         if self.useblit:
             self.update()
         self._props.update(props)
@@ -2034,6 +2038,11 @@ class _SelectorWidget(AxesWidget):
         """
         if not hasattr(self, '_handles_artists'):
             raise NotImplementedError("This selector doesn't have handles.")
+
+        artist = self._handles_artists[0]
+        alias_map = getattr(artist, '_alias_map', None)
+        if alias_map:
+            handle_props = cbook.normalize_kwargs(handle_props, alias_map)
         for handle in self._handles_artists:
             handle.set(**handle_props)
         if self.useblit:
