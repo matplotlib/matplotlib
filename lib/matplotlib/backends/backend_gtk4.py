@@ -32,8 +32,10 @@ except ValueError as e:
 from gi.repository import Gio, GLib, GObject, Gtk, Gdk, GdkPixbuf
 from ._backend_gtk import (
     _create_application, _shutdown_application,
-    backend_version, _BackendGTK,
+    backend_version, _BackendGTK, _NavigationToolbar2GTK,
     TimerGTK as TimerGTK4,
+    ConfigureSubplotsGTK as ConfigureSubplotsGTK4,
+    RubberbandGTK as RubberbandGTK4,
 )
 
 
@@ -249,7 +251,7 @@ class FigureManagerGTK4(FigureManagerBase):
     num : int or str
         The Figure number
     toolbar : Gtk.Box
-        The Gtk.Box
+        The toolbar
     vbox : Gtk.VBox
         The Gtk.VBox containing the canvas and toolbar
     window : Gtk.Window
@@ -368,7 +370,7 @@ class FigureManagerGTK4(FigureManagerBase):
             self.window.resize(width, height)
 
 
-class NavigationToolbar2GTK4(NavigationToolbar2, Gtk.Box):
+class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
     def __init__(self, canvas, window):
         self.win = window
         Gtk.Box.__init__(self)
@@ -410,35 +412,6 @@ class NavigationToolbar2GTK4(NavigationToolbar2, Gtk.Box):
         self.append(self.message)
 
         NavigationToolbar2.__init__(self, canvas)
-
-    def set_message(self, s):
-        escaped = GLib.markup_escape_text(s)
-        self.message.set_markup(f'<small>{escaped}</small>')
-
-    def draw_rubberband(self, event, x0, y0, x1, y1):
-        height = self.canvas.figure.bbox.height
-        y1 = height - y1
-        y0 = height - y0
-        rect = [int(val) for val in (x0, y0, x1 - x0, y1 - y0)]
-        self.canvas._draw_rubberband(rect)
-
-    def remove_rubberband(self):
-        self.canvas._draw_rubberband(None)
-
-    def _update_buttons_checked(self):
-        for name, active in [("Pan", "PAN"), ("Zoom", "ZOOM")]:
-            button = self._gtk_ids.get(name)
-            if button:
-                with button.handler_block(button._signal_handler):
-                    button.set_active(self.mode.name == active)
-
-    def pan(self, *args):
-        super().pan(*args)
-        self._update_buttons_checked()
-
-    def zoom(self, *args):
-        super().zoom(*args)
-        self._update_buttons_checked()
 
     def save_figure(self, *args):
         dialog = Gtk.FileChooserNative(
@@ -501,14 +474,6 @@ class NavigationToolbar2GTK4(NavigationToolbar2, Gtk.Box):
                 msg.show()
 
         dialog.show()
-
-    def set_history_buttons(self):
-        can_backward = self._nav_stack._pos > 0
-        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
-        if 'Back' in self._gtk_ids:
-            self._gtk_ids['Back'].set_sensitive(can_backward)
-        if 'Forward' in self._gtk_ids:
-            self._gtk_ids['Forward'].set_sensitive(can_forward)
 
 
 class ToolbarGTK4(ToolContainerBase, Gtk.Box):
@@ -611,16 +576,6 @@ class ToolbarGTK4(ToolContainerBase, Gtk.Box):
         self._message.set_label(s)
 
 
-class RubberbandGTK4(backend_tools.RubberbandBase):
-    def draw_rubberband(self, x0, y0, x1, y1):
-        NavigationToolbar2GTK4.draw_rubberband(
-            self._make_classic_style_pseudo_toolbar(), None, x0, y0, x1, y1)
-
-    def remove_rubberband(self):
-        NavigationToolbar2GTK4.remove_rubberband(
-            self._make_classic_style_pseudo_toolbar())
-
-
 class SaveFigureGTK4(backend_tools.SaveFigureBase):
     def trigger(self, *args, **kwargs):
 
@@ -628,15 +583,6 @@ class SaveFigureGTK4(backend_tools.SaveFigureBase):
             canvas = self.figure.canvas
 
         return NavigationToolbar2GTK4.save_figure(PseudoToolbar())
-
-
-class ConfigureSubplotsGTK4(backend_tools.ConfigureSubplotsBase, Gtk.Window):
-    def _get_canvas(self, fig):
-        return self.canvas.__class__(fig)
-
-    def trigger(self, *args):
-        NavigationToolbar2GTK4.configure_subplots(
-            self._make_classic_style_pseudo_toolbar(), None)
 
 
 class HelpGTK4(backend_tools.ToolHelpBase):
