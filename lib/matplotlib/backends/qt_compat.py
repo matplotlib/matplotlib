@@ -67,9 +67,10 @@ else:
         QT_API = _ETS[QT_API_ENV]
     except KeyError as err:
         raise RuntimeError(
-            "The environment variable QT_API has the unrecognized value {!r};"
-            "valid values are {}".format(
-                QT_API, ", ".join(map(repr, _ETS)))) from None
+            "The environment variable QT_API has the unrecognized value "
+            f"{QT_API_ENV!r}; "
+            f"valid values are {set(k for k in _ETS if k is not None)}"
+        ) from None
 
 
 def _setup_pyqt5plus():
