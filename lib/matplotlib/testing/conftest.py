@@ -97,6 +97,7 @@ def mpl_test_settings(request):
 
 
 @pytest.fixture
+@_api.deprecated("3.5", alternative="none")
 def mpl_image_comparison_parameters(request, extension):
     # This fixture is applied automatically by the image_comparison decorator.
     #
