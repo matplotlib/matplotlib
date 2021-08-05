@@ -5,9 +5,9 @@ Common code for GTK3 and GTK4 backends.
 import logging
 
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import backend_tools, cbook
 from matplotlib.backend_bases import (
-    _Backend, TimerBase,
+    _Backend, NavigationToolbar2, TimerBase,
 )
 
 # The GTK3/GTK4 backends will have already called `gi.require_version` to set
@@ -96,6 +96,68 @@ class TimerGTK(TimerBase):
         else:
             self._timer = None
             return False
+
+
+class _NavigationToolbar2GTK(NavigationToolbar2):
+    # Must be implemented in GTK3/GTK4 backends:
+    # * __init__
+    # * save_figure
+
+    def set_message(self, s):
+        escaped = GLib.markup_escape_text(s)
+        self.message.set_markup(f'<small>{escaped}</small>')
+
+    def draw_rubberband(self, event, x0, y0, x1, y1):
+        height = self.canvas.figure.bbox.height
+        y1 = height - y1
+        y0 = height - y0
+        rect = [int(val) for val in (x0, y0, x1 - x0, y1 - y0)]
+        self.canvas._draw_rubberband(rect)
+
+    def remove_rubberband(self):
+        self.canvas._draw_rubberband(None)
+
+    def _update_buttons_checked(self):
+        for name, active in [("Pan", "PAN"), ("Zoom", "ZOOM")]:
+            button = self._gtk_ids.get(name)
+            if button:
+                with button.handler_block(button._signal_handler):
+                    button.set_active(self.mode.name == active)
+
+    def pan(self, *args):
+        super().pan(*args)
+        self._update_buttons_checked()
+
+    def zoom(self, *args):
+        super().zoom(*args)
+        self._update_buttons_checked()
+
+    def set_history_buttons(self):
+        can_backward = self._nav_stack._pos > 0
+        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
+        if 'Back' in self._gtk_ids:
+            self._gtk_ids['Back'].set_sensitive(can_backward)
+        if 'Forward' in self._gtk_ids:
+            self._gtk_ids['Forward'].set_sensitive(can_forward)
+
+
+class RubberbandGTK(backend_tools.RubberbandBase):
+    def draw_rubberband(self, x0, y0, x1, y1):
+        _NavigationToolbar2GTK.draw_rubberband(
+            self._make_classic_style_pseudo_toolbar(), None, x0, y0, x1, y1)
+
+    def remove_rubberband(self):
+        _NavigationToolbar2GTK.remove_rubberband(
+            self._make_classic_style_pseudo_toolbar())
+
+
+class ConfigureSubplotsGTK(backend_tools.ConfigureSubplotsBase, Gtk.Window):
+    def _get_canvas(self, fig):
+        return self.canvas.__class__(fig)
+
+    def trigger(self, *args):
+        _NavigationToolbar2GTK.configure_subplots(
+            self._make_classic_style_pseudo_toolbar(), None)
 
 
 class _BackendGTK(_Backend):

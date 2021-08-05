@@ -31,8 +31,10 @@ except ValueError as e:
 from gi.repository import Gio, GLib, GObject, Gtk, Gdk
 from ._backend_gtk import (
     _create_application, _shutdown_application,
-    backend_version, _BackendGTK,
+    backend_version, _BackendGTK, _NavigationToolbar2GTK,
     TimerGTK as TimerGTK3,
+    ConfigureSubplotsGTK as ConfigureSubplotsGTK3,
+    RubberbandGTK as RubberbandGTK3,
 )
 
 
@@ -291,7 +293,7 @@ class FigureManagerGTK3(FigureManagerBase):
     num : int or str
         The Figure number
     toolbar : Gtk.Toolbar
-        The Gtk.Toolbar
+        The toolbar
     vbox : Gtk.VBox
         The Gtk.VBox containing the canvas and toolbar
     window : Gtk.Window
@@ -418,7 +420,7 @@ class FigureManagerGTK3(FigureManagerBase):
             self.window.resize(width, height)
 
 
-class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
+class NavigationToolbar2GTK3(_NavigationToolbar2GTK, Gtk.Toolbar):
     def __init__(self, canvas, window):
         self.win = window
         GObject.GObject.__init__(self)
@@ -435,21 +437,16 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
                     str(cbook._get_data_path('images',
                                              f'{image_file}-symbolic.svg'))),
                 Gtk.IconSize.LARGE_TOOLBAR)
-            self._gtk_ids[text] = tbutton = (
+            self._gtk_ids[text] = button = (
                 Gtk.ToggleToolButton() if callback in ['zoom', 'pan'] else
                 Gtk.ToolButton())
-            tbutton.set_label(text)
-            tbutton.set_icon_widget(image)
-            self.insert(tbutton, -1)
+            button.set_label(text)
+            button.set_icon_widget(image)
             # Save the handler id, so that we can block it as needed.
-            tbutton._signal_handler = tbutton.connect(
+            button._signal_handler = button.connect(
                 'clicked', getattr(self, callback))
-            tbutton.set_tooltip_text(tooltip_text)
-
-        toolitem = Gtk.SeparatorToolItem()
-        self.insert(toolitem, -1)
-        toolitem.set_draw(False)
-        toolitem.set_expand(True)
+            button.set_tooltip_text(tooltip_text)
+            self.insert(button, -1)
 
         # This filler item ensures the toolbar is always at least two text
         # lines high. Otherwise the canvas gets redrawn as the mouse hovers
@@ -460,6 +457,7 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         label = Gtk.Label()
         label.set_markup(
             '<small>\N{NO-BREAK SPACE}\n\N{NO-BREAK SPACE}</small>')
+        toolitem.set_expand(True)  # Push real message to the right.
         toolitem.add(label)
 
         toolitem = Gtk.ToolItem()
@@ -470,35 +468,6 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         self.show_all()
 
         NavigationToolbar2.__init__(self, canvas)
-
-    def set_message(self, s):
-        escaped = GLib.markup_escape_text(s)
-        self.message.set_markup(f'<small>{escaped}</small>')
-
-    def draw_rubberband(self, event, x0, y0, x1, y1):
-        height = self.canvas.figure.bbox.height
-        y1 = height - y1
-        y0 = height - y0
-        rect = [int(val) for val in (x0, y0, x1 - x0, y1 - y0)]
-        self.canvas._draw_rubberband(rect)
-
-    def remove_rubberband(self):
-        self.canvas._draw_rubberband(None)
-
-    def _update_buttons_checked(self):
-        for name, active in [("Pan", "PAN"), ("Zoom", "ZOOM")]:
-            button = self._gtk_ids.get(name)
-            if button:
-                with button.handler_block(button._signal_handler):
-                    button.set_active(self.mode.name == active)
-
-    def pan(self, *args):
-        super().pan(*args)
-        self._update_buttons_checked()
-
-    def zoom(self, *args):
-        super().zoom(*args)
-        self._update_buttons_checked()
 
     def save_figure(self, *args):
         dialog = Gtk.FileChooserDialog(
@@ -544,14 +513,6 @@ class NavigationToolbar2GTK3(NavigationToolbar2, Gtk.Toolbar):
         except Exception as e:
             error_msg_gtk(str(e), parent=self)
 
-    def set_history_buttons(self):
-        can_backward = self._nav_stack._pos > 0
-        can_forward = self._nav_stack._pos < len(self._nav_stack._elements) - 1
-        if 'Back' in self._gtk_ids:
-            self._gtk_ids['Back'].set_sensitive(can_backward)
-        if 'Forward' in self._gtk_ids:
-            self._gtk_ids['Forward'].set_sensitive(can_forward)
-
 
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
     _icon_extension = '-symbolic.svg'
@@ -569,26 +530,26 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
     def add_toolitem(self, name, group, position, image_file, description,
                      toggle):
         if toggle:
-            tbutton = Gtk.ToggleToolButton()
+            button = Gtk.ToggleToolButton()
         else:
-            tbutton = Gtk.ToolButton()
-        tbutton.set_label(name)
+            button = Gtk.ToolButton()
+        button.set_label(name)
 
         if image_file is not None:
             image = Gtk.Image.new_from_gicon(
                 Gio.Icon.new_for_string(image_file),
                 Gtk.IconSize.LARGE_TOOLBAR)
-            tbutton.set_icon_widget(image)
+            button.set_icon_widget(image)
 
         if position is None:
             position = -1
 
-        self._add_button(tbutton, group, position)
-        signal = tbutton.connect('clicked', self._call_tool, name)
-        tbutton.set_tooltip_text(description)
-        tbutton.show_all()
+        self._add_button(button, group, position)
+        signal = button.connect('clicked', self._call_tool, name)
+        button.set_tooltip_text(description)
+        button.show_all()
         self._toolitems.setdefault(name, [])
-        self._toolitems[name].append((tbutton, signal))
+        self._toolitems[name].append((button, signal))
 
     def _add_button(self, button, group, position):
         if group not in self._groups:
@@ -633,16 +594,6 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
         self._message.set_label(s)
 
 
-class RubberbandGTK3(backend_tools.RubberbandBase):
-    def draw_rubberband(self, x0, y0, x1, y1):
-        NavigationToolbar2GTK3.draw_rubberband(
-            self._make_classic_style_pseudo_toolbar(), None, x0, y0, x1, y1)
-
-    def remove_rubberband(self):
-        NavigationToolbar2GTK3.remove_rubberband(
-            self._make_classic_style_pseudo_toolbar())
-
-
 class SaveFigureGTK3(backend_tools.SaveFigureBase):
     def trigger(self, *args, **kwargs):
 
@@ -657,15 +608,6 @@ class SetCursorGTK3(backend_tools.SetCursorBase):
     def set_cursor(self, cursor):
         NavigationToolbar2GTK3.set_cursor(
             self._make_classic_style_pseudo_toolbar(), cursor)
-
-
-class ConfigureSubplotsGTK3(backend_tools.ConfigureSubplotsBase, Gtk.Window):
-    def _get_canvas(self, fig):
-        return self.canvas.__class__(fig)
-
-    def trigger(self, *args):
-        NavigationToolbar2GTK3.configure_subplots(
-            self._make_classic_style_pseudo_toolbar(), None)
 
 
 class HelpGTK3(backend_tools.ToolHelpBase):
