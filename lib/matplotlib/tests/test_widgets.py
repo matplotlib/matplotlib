@@ -104,7 +104,7 @@ def test_rectangle_selector_set_props_handle_props():
     do_event(tool, 'onmove', xdata=100, ydata=120, button=1)
     do_event(tool, 'release', xdata=100, ydata=120, button=1)
 
-    artist = tool.artists[0]
+    artist = tool._selection_artist
     assert artist.get_facecolor() == mcolors.to_rgba('b', alpha=0.2)
     props = dict(facecolor='r', alpha=0.3)
     tool.set_props(**props)
@@ -448,7 +448,7 @@ def test_span_selector_set_props_handle_props():
     do_event(tool, 'onmove', xdata=100, ydata=120, button=1)
     do_event(tool, 'release', xdata=100, ydata=120, button=1)
 
-    artist = tool.artists[0]
+    artist = tool._selection_artist
     assert artist.get_facecolor() == mcolors.to_rgba('b', alpha=0.2)
     props = dict(facecolor='r', alpha=0.3)
     tool.set_props(**props)
@@ -862,7 +862,7 @@ def test_polygon_selector_set_props_handle_props():
     for (etype, event_args) in event_sequence:
         do_event(tool, etype, **event_args)
 
-    artist = tool.artists[0]
+    artist = tool._selection_artist
     assert artist.get_color() == 'b'
     assert artist.get_alpha() == 0.2
     props = dict(color='r', alpha=0.3)
