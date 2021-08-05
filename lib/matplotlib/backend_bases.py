@@ -98,12 +98,14 @@ def _safe_pyplot_import():
         current_framework = cbook._get_running_interactive_framework()
         if current_framework is None:
             raise  # No, something else went wrong, likely with the install...
-        backend_mapping = {'qt5': 'qt5agg',
-                           'gtk3': 'gtk3agg',
-                           'wx': 'wxagg',
-                           'tk': 'tkagg',
-                           'macosx': 'macosx',
-                           'headless': 'agg'}
+        backend_mapping = {
+            'qt': 'qtagg',
+            'gtk3': 'gtk3agg',
+            'wx': 'wxagg',
+            'tk': 'tkagg',
+            'macosx': 'macosx',
+            'headless': 'agg',
+        }
         backend = backend_mapping[current_framework]
         rcParams["backend"] = mpl.rcParamsOrig["backend"] = backend
         import matplotlib.pyplot as plt  # Now this should succeed.
@@ -1662,7 +1664,7 @@ class FigureCanvasBase:
         A high-level figure instance.
     """
 
-    # Set to one of {"qt5", "gtk3", "wx", "tk", "macosx"} if an
+    # Set to one of {"qt", "gtk3", "wx", "tk", "macosx"} if an
     # interactive framework is required, or None otherwise.
     required_interactive_framework = None
 
@@ -1738,7 +1740,7 @@ class FigureCanvasBase:
             # don't break on our side.
             return
         rif = getattr(cls, "required_interactive_framework", None)
-        backend2gui_rif = {"qt5": "qt", "gtk3": "gtk3",
+        backend2gui_rif = {"qt": "qt", "gtk3": "gtk3",
                            "wx": "wx", "macosx": "osx"}.get(rif)
         if backend2gui_rif:
             if _is_non_interactive_terminal_ipython(ip):

@@ -20,24 +20,20 @@ from matplotlib import _c_internal_utils
 # versions so we don't fail on missing backends.
 
 def _get_testable_interactive_backends():
-    try:
-        from matplotlib.backends.qt_compat import QtGui  # noqa
-        have_qt5 = True
-    except ImportError:
-        have_qt5 = False
-
-    backends = []
-    for deps, backend in [
-            (["cairo", "gi"], "gtk3agg"),
-            (["cairo", "gi"], "gtk3cairo"),
-            (["PyQt5"], "qt5agg"),
-            (["PyQt5", "cairocffi"], "qt5cairo"),
-            (["PySide2"], "qt5agg"),
-            (["PySide2", "cairocffi"], "qt5cairo"),
-            (["tkinter"], "tkagg"),
-            (["wx"], "wx"),
-            (["wx"], "wxagg"),
-            (["matplotlib.backends._macosx"], "macosx"),
+    envs = []
+    for deps, env in [
+            *[([qt_api],
+               {"MPLBACKEND": "qtagg", "QT_API": qt_api})
+              for qt_api in ["PyQt6", "PySide6", "PyQt5", "PySide2"]],
+            *[([qt_api, "cairocffi"],
+               {"MPLBACKEND": "qtcairo", "QT_API": qt_api})
+              for qt_api in ["PyQt6", "PySide6", "PyQt5", "PySide2"]],
+            (["cairo", "gi"], {"MPLBACKEND": "gtk3agg"}),
+            (["cairo", "gi"], {"MPLBACKEND": "gtk3cairo"}),
+            (["tkinter"], {"MPLBACKEND": "tkagg"}),
+            (["wx"], {"MPLBACKEND": "wx"}),
+            (["wx"], {"MPLBACKEND": "wxagg"}),
+            (["matplotlib.backends._macosx"], {"MPLBACKEND": "macosx"}),
     ]:
         reason = None
         missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
@@ -46,20 +42,17 @@ def _get_testable_interactive_backends():
             reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
         elif missing:
             reason = "{} cannot be imported".format(", ".join(missing))
-        elif backend == 'macosx' and os.environ.get('TF_BUILD'):
+        elif env["MPLBACKEND"] == 'macosx' and os.environ.get('TF_BUILD'):
             reason = "macosx backend fails on Azure"
-        elif 'qt5' in backend and not have_qt5:
-            reason = "no usable Qt5 bindings"
         marks = []
         if reason:
             marks.append(pytest.mark.skip(
-                reason=f"Skipping {backend} because {reason}"))
-        elif backend.startswith('wx') and sys.platform == 'darwin':
+                reason=f"Skipping {env} because {reason}"))
+        elif env["MPLBACKEND"].startswith('wx') and sys.platform == 'darwin':
             # ignore on OSX because that's currently broken (github #16849)
             marks.append(pytest.mark.xfail(reason='github #16849'))
-        backend = pytest.param(backend, marks=marks)
-        backends.append(backend)
-    return backends
+        envs.append(pytest.param(env, marks=marks, id=str(env)))
+    return envs
 
 
 _test_timeout = 10  # Empirically, 1s is not enough on CI.
@@ -154,11 +147,11 @@ def _test_interactive_impl():
         assert_equal(result.getvalue(), result_after.getvalue())
 
 
-@pytest.mark.parametrize("backend", _get_testable_interactive_backends())
+@pytest.mark.parametrize("env", _get_testable_interactive_backends())
 @pytest.mark.parametrize("toolbar", ["toolbar2", "toolmanager"])
 @pytest.mark.flaky(reruns=3)
-def test_interactive_backend(backend, toolbar):
-    if backend == "macosx":
+def test_interactive_backend(env, toolbar):
+    if env["MPLBACKEND"] == "macosx":
         if toolbar == "toolmanager":
             pytest.skip("toolmanager is not implemented for macosx.")
 
@@ -167,7 +160,7 @@ def test_interactive_backend(backend, toolbar):
          inspect.getsource(_test_interactive_impl)
          + "\n_test_interactive_impl()",
          json.dumps({"toolbar": toolbar})],
-        env={**os.environ, "MPLBACKEND": backend, "SOURCE_DATE_EPOCH": "0"},
+        env={**os.environ, "SOURCE_DATE_EPOCH": "0", **env},
         timeout=_test_timeout,
         stdout=subprocess.PIPE, universal_newlines=True)
     if proc.returncode:
@@ -212,7 +205,7 @@ def _test_thread_impl():
 _thread_safe_backends = _get_testable_interactive_backends()
 # Known unsafe backends. Remove the xfails if they start to pass!
 for param in _thread_safe_backends:
-    backend = param.values[0]
+    backend = param.values[0]["MPLBACKEND"]
     if "cairo" in backend:
         # Cairo backends save a cairo_t on the graphics context, and sharing
         # these is not threadsafe.
@@ -224,15 +217,18 @@ for param in _thread_safe_backends:
     elif backend == "macosx":
         param.marks.append(
             pytest.mark.xfail(raises=subprocess.TimeoutExpired, strict=True))
+    elif param.values[0].get("QT_API") == "PySide2":
+        param.marks.append(
+            pytest.mark.xfail(raises=subprocess.CalledProcessError))
 
 
-@pytest.mark.parametrize("backend", _thread_safe_backends)
+@pytest.mark.parametrize("env", _thread_safe_backends)
 @pytest.mark.flaky(reruns=3)
-def test_interactive_thread_safety(backend):
+def test_interactive_thread_safety(env):
     proc = subprocess.run(
         [sys.executable, "-c",
          inspect.getsource(_test_thread_impl) + "\n_test_thread_impl()"],
-        env={**os.environ, "MPLBACKEND": backend, "SOURCE_DATE_EPOCH": "0"},
+        env={**os.environ, "SOURCE_DATE_EPOCH": "0", **env},
         timeout=_test_timeout, check=True,
         stdout=subprocess.PIPE, universal_newlines=True)
     assert proc.stdout.count("CloseEvent") == 1
@@ -269,7 +265,7 @@ def test_webagg():
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="this a linux-only test")
-@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_lazy_linux_headless():
     test_script = """
 import os
@@ -297,7 +293,8 @@ else:
     sys.exit(1)
 
 """
-    proc = subprocess.run([sys.executable, "-c", test_script])
+    proc = subprocess.run([sys.executable, "-c", test_script],
+                          env={"MPLBACKEND": ""})
     if proc.returncode:
         pytest.fail("The subprocess returned with non-zero exit status "
                     f"{proc.returncode}.")

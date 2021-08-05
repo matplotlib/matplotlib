@@ -1,20 +1,27 @@
 import copy
-from datetime import date, datetime
+import importlib
+import inspect
+import os
 import signal
+import subprocess
+import sys
+
+from datetime import date, datetime
 from unittest import mock
+
+import pytest
 
 import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib._pylab_helpers import Gcf
-
-import pytest
+from matplotlib import _c_internal_utils
 
 
 try:
     from matplotlib.backends.qt_compat import QtGui, QtWidgets
     from matplotlib.backends.qt_editor import _formlayout
 except ImportError:
-    pytestmark = pytest.mark.skip('No usable Qt5 bindings')
+    pytestmark = pytest.mark.skip('No usable Qt bindings')
 
 
 @pytest.fixture
@@ -26,13 +33,8 @@ def qt_core(request):
     return QtCore
 
 
-@pytest.mark.parametrize('backend', [
-    # Note: the value is irrelevant; the important part is the marker.
-    pytest.param(
-        'Qt5Agg',
-        marks=pytest.mark.backend('Qt5Agg', skip_on_importerror=True)),
-])
-def test_fig_close(backend):
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_fig_close():
     # save the state of Gcf.figs
     init_figs = copy.copy(Gcf.figs)
 
@@ -48,7 +50,7 @@ def test_fig_close(backend):
     assert init_figs == Gcf.figs
 
 
-@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_fig_signals(qt_core):
     # Create a figure
     plt.figure()
@@ -79,7 +81,7 @@ def test_fig_signals(qt_core):
 
     # mainloop() sets SIGINT, starts Qt event loop (which triggers timer and
     # exits) and then mainloop() resets SIGINT
-    matplotlib.backends.backend_qt5._BackendQT5.mainloop()
+    matplotlib.backends.backend_qt._BackendQT.mainloop()
 
     # Assert: signal handler during loop execution is signal.SIG_DFL
     assert event_loop_signal == signal.SIG_DFL
@@ -128,6 +130,9 @@ def test_fig_signals(qt_core):
     pytest.param(
         'Qt5Agg',
         marks=pytest.mark.backend('Qt5Agg', skip_on_importerror=True)),
+    pytest.param(
+        'QtAgg',
+        marks=pytest.mark.backend('QtAgg', skip_on_importerror=True)),
 ])
 def test_correct_key(backend, qt_core, qt_key, qt_mods, answer):
     """
@@ -136,13 +141,14 @@ def test_correct_key(backend, qt_core, qt_key, qt_mods, answer):
     Catch the event.
     Assert sent and caught keys are the same.
     """
-    qt_mod = qt_core.Qt.NoModifier
+    from matplotlib.backends.qt_compat import _enum, _to_int
+    qt_mod = _enum("QtCore.Qt.KeyboardModifier").NoModifier
     for mod in qt_mods:
-        qt_mod |= getattr(qt_core.Qt, mod)
+        qt_mod |= getattr(_enum("QtCore.Qt.KeyboardModifier"), mod)
 
     class _Event:
         def isAutoRepeat(self): return False
-        def key(self): return getattr(qt_core.Qt, qt_key)
+        def key(self): return _to_int(getattr(_enum("QtCore.Qt.Key"), qt_key))
         def modifiers(self): return qt_mod
 
     def on_key_press(event):
@@ -153,14 +159,14 @@ def test_correct_key(backend, qt_core, qt_key, qt_mods, answer):
     qt_canvas.keyPressEvent(_Event())
 
 
-@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_device_pixel_ratio_change():
     """
     Make sure that if the pixel ratio changes, the figure dpi changes but the
     widget remains the same logical size.
     """
 
-    prop = 'matplotlib.backends.backend_qt5.FigureCanvasQT.devicePixelRatioF'
+    prop = 'matplotlib.backends.backend_qt.FigureCanvasQT.devicePixelRatioF'
     with mock.patch(prop) as p:
         p.return_value = 3
 
@@ -226,28 +232,24 @@ def test_device_pixel_ratio_change():
         assert (fig.get_size_inches() == (5, 2)).all()
 
 
-@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_subplottool():
     fig, ax = plt.subplots()
-    with mock.patch(
-            "matplotlib.backends.backend_qt5.SubplotToolQt.exec_",
-            lambda self: None):
+    with mock.patch("matplotlib.backends.qt_compat._exec", lambda obj: None):
         fig.canvas.manager.toolbar.configure_subplots()
 
 
-@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_figureoptions():
     fig, ax = plt.subplots()
     ax.plot([1, 2])
     ax.imshow([[1]])
     ax.scatter(range(3), range(3), c=range(3))
-    with mock.patch(
-            "matplotlib.backends.qt_editor._formlayout.FormDialog.exec_",
-            lambda self: None):
+    with mock.patch("matplotlib.backends.qt_compat._exec", lambda obj: None):
         fig.canvas.manager.toolbar.edit_parameters()
 
 
-@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_figureoptions_with_datetime_axes():
     fig, ax = plt.subplots()
     xydata = [
@@ -255,13 +257,11 @@ def test_figureoptions_with_datetime_axes():
         datetime(year=2021, month=2, day=1)
     ]
     ax.plot(xydata, xydata)
-    with mock.patch(
-            "matplotlib.backends.qt_editor._formlayout.FormDialog.exec_",
-            lambda self: None):
+    with mock.patch("matplotlib.backends.qt_compat._exec", lambda obj: None):
         fig.canvas.manager.toolbar.edit_parameters()
 
 
-@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_double_resize():
     # Check that resizing a figure twice keeps the same window size
     fig, ax = plt.subplots()
@@ -281,9 +281,9 @@ def test_double_resize():
     assert window.height() == old_height
 
 
-@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_canvas_reinit():
-    from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 
     called = False
 
@@ -315,3 +315,155 @@ def test_form_widget_get_with_datetime_and_date_fields():
         datetime(year=2021, month=3, day=11),
         date(year=2021, month=3, day=11)
     ]
+
+
+# The source of this function gets extracted and run in another process, so it
+# must be fully self-contained.
+def _test_enums_impl():
+    import sys
+
+    from matplotlib.backends.qt_compat import _enum, _to_int, QtCore
+    from matplotlib.backend_bases import cursors, MouseButton
+
+    _enum("QtGui.QDoubleValidator.State").Acceptable
+
+    _enum("QtWidgets.QDialogButtonBox.StandardButton").Ok
+    _enum("QtWidgets.QDialogButtonBox.StandardButton").Cancel
+    _enum("QtWidgets.QDialogButtonBox.StandardButton").Apply
+    for btn_type in ["Ok", "Cancel"]:
+        getattr(_enum("QtWidgets.QDialogButtonBox.StandardButton"), btn_type)
+
+    _enum("QtGui.QImage.Format").Format_ARGB32_Premultiplied
+    _enum("QtGui.QImage.Format").Format_ARGB32_Premultiplied
+    # SPECIAL_KEYS are Qt::Key that do *not* return their unicode name instead
+    # they have manually specified names.
+    SPECIAL_KEYS = {
+        _to_int(getattr(_enum("QtCore.Qt.Key"), k)): v
+        for k, v in [
+            ("Key_Escape", "escape"),
+            ("Key_Tab", "tab"),
+            ("Key_Backspace", "backspace"),
+            ("Key_Return", "enter"),
+            ("Key_Enter", "enter"),
+            ("Key_Insert", "insert"),
+            ("Key_Delete", "delete"),
+            ("Key_Pause", "pause"),
+            ("Key_SysReq", "sysreq"),
+            ("Key_Clear", "clear"),
+            ("Key_Home", "home"),
+            ("Key_End", "end"),
+            ("Key_Left", "left"),
+            ("Key_Up", "up"),
+            ("Key_Right", "right"),
+            ("Key_Down", "down"),
+            ("Key_PageUp", "pageup"),
+            ("Key_PageDown", "pagedown"),
+            ("Key_Shift", "shift"),
+            # In OSX, the control and super (aka cmd/apple) keys are switched.
+            ("Key_Control", "control" if sys.platform != "darwin" else "cmd"),
+            ("Key_Meta", "meta" if sys.platform != "darwin" else "control"),
+            ("Key_Alt", "alt"),
+            ("Key_CapsLock", "caps_lock"),
+            ("Key_F1", "f1"),
+            ("Key_F2", "f2"),
+            ("Key_F3", "f3"),
+            ("Key_F4", "f4"),
+            ("Key_F5", "f5"),
+            ("Key_F6", "f6"),
+            ("Key_F7", "f7"),
+            ("Key_F8", "f8"),
+            ("Key_F9", "f9"),
+            ("Key_F10", "f10"),
+            ("Key_F10", "f11"),
+            ("Key_F12", "f12"),
+            ("Key_Super_L", "super"),
+            ("Key_Super_R", "super"),
+        ]
+    }
+    # Define which modifier keys are collected on keyboard events.  Elements
+    # are (Qt::KeyboardModifiers, Qt::Key) tuples.  Order determines the
+    # modifier order (ctrl+alt+...) reported by Matplotlib.
+    _MODIFIER_KEYS = [
+        (
+            _to_int(getattr(_enum("QtCore.Qt.KeyboardModifier"), mod)),
+            _to_int(getattr(_enum("QtCore.Qt.Key"), key)),
+        )
+        for mod, key in [
+            ("ControlModifier", "Key_Control"),
+            ("AltModifier", "Key_Alt"),
+            ("ShiftModifier", "Key_Shift"),
+            ("MetaModifier", "Key_Meta"),
+        ]
+    ]
+    cursord = {
+        k: getattr(_enum("QtCore.Qt.CursorShape"), v)
+        for k, v in [
+            (cursors.MOVE, "SizeAllCursor"),
+            (cursors.HAND, "PointingHandCursor"),
+            (cursors.POINTER, "ArrowCursor"),
+            (cursors.SELECT_REGION, "CrossCursor"),
+            (cursors.WAIT, "WaitCursor"),
+        ]
+    }
+
+    buttond = {
+        getattr(_enum("QtCore.Qt.MouseButton"), k): v
+        for k, v in [
+            ("LeftButton", MouseButton.LEFT),
+            ("RightButton", MouseButton.RIGHT),
+            ("MiddleButton", MouseButton.MIDDLE),
+            ("XButton1", MouseButton.BACK),
+            ("XButton2", MouseButton.FORWARD),
+        ]
+    }
+
+    _enum("QtCore.Qt.WidgetAttribute").WA_OpaquePaintEvent
+    _enum("QtCore.Qt.FocusPolicy").StrongFocus
+    _enum("QtCore.Qt.ToolBarArea").TopToolBarArea
+    _enum("QtCore.Qt.ToolBarArea").TopToolBarArea
+    _enum("QtCore.Qt.AlignmentFlag").AlignRight
+    _enum("QtCore.Qt.AlignmentFlag").AlignVCenter
+    _enum("QtWidgets.QSizePolicy.Policy").Expanding
+    _enum("QtWidgets.QSizePolicy.Policy").Ignored
+    _enum("QtCore.Qt.MaskMode").MaskOutColor
+    _enum("QtCore.Qt.ToolBarArea").TopToolBarArea
+    _enum("QtCore.Qt.ToolBarArea").TopToolBarArea
+    _enum("QtCore.Qt.AlignmentFlag").AlignRight
+    _enum("QtCore.Qt.AlignmentFlag").AlignVCenter
+    _enum("QtWidgets.QSizePolicy.Policy").Expanding
+    _enum("QtWidgets.QSizePolicy.Policy").Ignored
+
+
+def _get_testable_qt_backends():
+    envs = []
+    for deps, env in [
+            ([qt_api], {"MPLBACKEND": "qtagg", "QT_API": qt_api})
+            for qt_api in ["PyQt6", "PySide6", "PyQt5", "PySide2"]
+    ]:
+        reason = None
+        missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
+        if (sys.platform == "linux" and
+                not _c_internal_utils.display_is_valid()):
+            reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
+        elif missing:
+            reason = "{} cannot be imported".format(", ".join(missing))
+        elif env["MPLBACKEND"] == 'macosx' and os.environ.get('TF_BUILD'):
+            reason = "macosx backend fails on Azure"
+        marks = []
+        if reason:
+            marks.append(pytest.mark.skip(
+                reason=f"Skipping {env} because {reason}"))
+        envs.append(pytest.param(env, marks=marks, id=str(env)))
+    return envs
+
+_test_timeout = 10  # Empirically, 1s is not enough on CI.
+
+
+@pytest.mark.parametrize("env", _get_testable_qt_backends())
+def test_enums_available(env):
+    proc = subprocess.run(
+        [sys.executable, "-c",
+         inspect.getsource(_test_enums_impl) + "\n_test_enums_impl()"],
+        env={**os.environ, "SOURCE_DATE_EPOCH": "0", **env},
+        timeout=_test_timeout, check=True,
+        stdout=subprocess.PIPE, universal_newlines=True)
