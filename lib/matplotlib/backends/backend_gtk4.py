@@ -1,6 +1,5 @@
 import functools
 import io
-import logging
 import os
 from pathlib import Path
 import sys
@@ -37,9 +36,6 @@ from ._backend_gtk import (
     ConfigureSubplotsGTK as ConfigureSubplotsGTK4,
     RubberbandGTK as RubberbandGTK4,
 )
-
-
-_log = logging.getLogger(__name__)
 
 
 def _mpl_to_gtk_cursor(mpl_cursor):
@@ -263,14 +259,6 @@ class FigureManagerGTK4(FigureManagerBase):
         self.window = Gtk.Window()
         app.add_window(self.window)
         super().__init__(canvas, num)
-
-        try:
-            self.window.set_icon_from_file(window_icon)
-        except Exception:
-            # Some versions of gtk throw a glib.GError but not all, so I am not
-            # sure how to catch it.  I am unhappy doing a blanket catch here,
-            # but am not sure what a better way is - JDH
-            _log.info('Could not load matplotlib icon: %s', sys.exc_info()[1])
 
         self.vbox = Gtk.Box()
         self.vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
