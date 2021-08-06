@@ -404,7 +404,7 @@ class Colorbar:
             alpha = mappable.get_alpha()
 
         mappable.colorbar = self
-        mappable.colorbar_cid = mappable.callbacksSM.connect(
+        mappable.colorbar_cid = mappable.callbacks.connect(
             'changed', self.update_normal)
 
         _api.check_in_list(
@@ -981,7 +981,7 @@ class Colorbar:
         """
         self.ax.remove()
 
-        self.mappable.callbacksSM.disconnect(self.mappable.colorbar_cid)
+        self.mappable.callbacks.disconnect(self.mappable.colorbar_cid)
         self.mappable.colorbar = None
         self.mappable.colorbar_cid = None
 

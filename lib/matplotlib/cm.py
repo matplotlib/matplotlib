@@ -263,7 +263,10 @@ class ScalarMappable:
         self.set_cmap(cmap)  # The Colormap instance of this ScalarMappable.
         #: The last colorbar associated with this ScalarMappable. May be None.
         self.colorbar = None
-        self.callbacksSM = cbook.CallbackRegistry()
+        self.callbacks = cbook.CallbackRegistry()
+
+    callbacksSM = _api.deprecated("3.5", alternative="callbacks")(
+        property(lambda self: self.callbacks))
 
     def _scale_norm(self, norm, vmin, vmax):
         """
@@ -495,5 +498,5 @@ class ScalarMappable:
         Call this whenever the mappable is changed to notify all the
         callbackSM listeners to the 'changed' signal.
         """
-        self.callbacksSM.process('changed', self)
+        self.callbacks.process('changed', self)
         self.stale = True
