@@ -36,17 +36,27 @@ _log = logging.getLogger(__name__)
 backend_version = "%s.%s.%s" % (
     Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version())
 
-try:
-    _display = Gdk.Display.get_default()
-    cursord = {  # deprecated in Matplotlib 3.5.
-        Cursors.MOVE:          Gdk.Cursor.new_from_name(_display, "move"),
-        Cursors.HAND:          Gdk.Cursor.new_from_name(_display, "pointer"),
-        Cursors.POINTER:       Gdk.Cursor.new_from_name(_display, "default"),
-        Cursors.SELECT_REGION: Gdk.Cursor.new_from_name(_display, "crosshair"),
-        Cursors.WAIT:          Gdk.Cursor.new_from_name(_display, "wait"),
-    }
-except TypeError as exc:
-    cursord = {}  # deprecated in Matplotlib 3.5.
+
+# module-level deprecations.
+@functools.lru_cache(None)
+def __getattr__(name):
+    if name == "cursord":
+        _api.warn_deprecated("3.5", name=name)
+        try:
+            new_cursor = functools.partial(
+                Gdk.Cursor.new_from_name, Gdk.Display.get_default())
+            return {
+                Cursors.MOVE:          new_cursor("move"),
+                Cursors.HAND:          new_cursor("pointer"),
+                Cursors.POINTER:       new_cursor("default"),
+                Cursors.SELECT_REGION: new_cursor("crosshair"),
+                Cursors.WAIT:          new_cursor("wait"),
+            }
+        except TypeError as exc:
+            return {}
+    else:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 # Placeholder
 _application = None

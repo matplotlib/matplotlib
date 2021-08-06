@@ -176,13 +176,15 @@ def _get_version():
         return _version.version
 
 
+@functools.lru_cache(None)
 def __getattr__(name):
-    if name in ("__version__", "__version_info__"):
-        global __version__  # cache it.
-        __version__ = _get_version()
-        global __version__info__  # cache it.
-        __version_info__ = _parse_to_version_info(__version__)
-        return __version__ if name == "__version__" else __version_info__
+    if name == "__version__":
+        return _get_version()
+    elif name == "__version_info__":
+        return _parse_to_version_info(__getattr__("__version__"))
+    elif name == "URL_REGEX":  # module-level deprecation.
+        _api.warn_deprecated("3.5", name=name)
+        return re.compile(r'^http://|^https://|^ftp://|^file:')
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -714,14 +716,10 @@ def rc_params(fail_on_error=False):
     return rc_params_from_file(matplotlib_fname(), fail_on_error)
 
 
-# Deprecated in Matplotlib 3.5.
-URL_REGEX = re.compile(r'^http://|^https://|^ftp://|^file:')
-
-
 @_api.deprecated("3.5")
 def is_url(filename):
     """Return whether *filename* is an http, https, ftp, or file URL path."""
-    return URL_REGEX.match(filename) is not None
+    return __getattr__("URL_REGEX").match(filename) is not None
 
 
 @functools.lru_cache()
