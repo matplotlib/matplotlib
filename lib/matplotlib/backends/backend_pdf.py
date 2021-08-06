@@ -862,21 +862,28 @@ class PdfFile:
         """
 
         if isinstance(fontprop, str):
-            filename = fontprop
+            filenames = [fontprop]
         elif mpl.rcParams['pdf.use14corefonts']:
-            filename = findfont(
+            filenames = find_fontsprop(
                 fontprop, fontext='afm', directory=RendererPdf._afm_font_dir
-            )
+            ).values()
         else:
-            filename = findfont(fontprop)
+            filenames = find_fontsprop(fontprop).values()
+        first_Fx = None
+        for fname in filenames:
+            Fx = self.fontNames.get(fname)
+            if not first_Fx:
+                first_Fx = Fx
+            if Fx is None:
+                Fx = next(self._internal_font_seq)
+                self.fontNames[fname] = Fx
+                _log.debug('Assigning font %s = %r', Fx, fname)
+                if not first_Fx:
+                    first_Fx = Fx
 
-        Fx = self.fontNames.get(filename)
-        if Fx is None:
-            Fx = next(self._internal_font_seq)
-            self.fontNames[filename] = Fx
-            _log.debug('Assigning font %s = %r', Fx, filename)
-
-        return Fx
+        # find_fontsprop's first value always adheres to
+        # findfont's value, so technically no behaviour change
+        return first_Fx
 
     def dviFontName(self, dvifont):
         """
@@ -1073,7 +1080,6 @@ class PdfFile:
             Fx.name.decode(),
             os.path.splitext(os.path.basename(filename))[0],
             symbol_name])
-        print("\n\nXOBJECT", x, "\n\n")
         return x
 
     _identityToUnicodeCMap = b"""/CIDInit /ProcSet findresource begin
@@ -2345,7 +2351,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             # populate self.fontNames with all fonts
             _ = [self.file.fontName(ft_object.fname) for ft_object in self.glyph_to_font.values()]
             for char, font in self.char_to_font.items():
-                print(chr(char), "to:", font.fname)
+                # print(chr(char), "to:", font.fname)
                 self.file._character_tracker.track(font, chr(char))
             print("\nFONT_TO_CHAR:", self.file._character_tracker.used)
             fonttype = mpl.rcParams['pdf.fonttype']

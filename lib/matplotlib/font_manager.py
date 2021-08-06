@@ -1355,6 +1355,7 @@ class FontManager:
         See `findfont` for more details.
 
         """
+        # print("finding font!")
 
         rc_params = tuple(tuple(rcParams[key]) for key in [
             "font.serif", "font.sans-serif", "font.cursive", "font.fantasy",
