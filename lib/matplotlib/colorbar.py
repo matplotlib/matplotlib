@@ -427,7 +427,9 @@ class Colorbar:
                 extend = norm.extend
             else:
                 extend = 'neither'
-        self.alpha = alpha
+        self.alpha = None
+        # Call set_alpha to handle array-like alphas properly
+        self.set_alpha(alpha)
         self.cmap = cmap
         self.norm = norm
         self.values = values
@@ -934,8 +936,13 @@ class Colorbar:
         self.stale = True
 
     def set_alpha(self, alpha):
-        """Set the transparency between 0 (transparent) and 1 (opaque)."""
-        self.alpha = alpha
+        """
+        Set the transparency between 0 (transparent) and 1 (opaque).
+
+        If an array is provided, *alpha* will be set to None to use the
+        transparency values associated with the colormap.
+        """
+        self.alpha = None if isinstance(alpha, np.ndarray) else alpha
 
     def _set_scale(self, scale, **kwargs):
         """
