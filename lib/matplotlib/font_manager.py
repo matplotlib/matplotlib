@@ -1395,7 +1395,6 @@ class FontManager:
 
         return fpaths
 
-
     @lru_cache()
     def _findfontsprop_cached(
         self, family, prop, fontext, directory,
@@ -1419,7 +1418,6 @@ class FontManager:
                     _log.warning(
                         'findfont: Font family \'%s\' not found.', family
                     )
-
 
     @lru_cache()
     def _findfont_cached(self, prop, fontext, directory, fallback_to_default,
