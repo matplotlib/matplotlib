@@ -1,0 +1,5 @@
+Remove unused pytest fixture
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The fixture ``matplotlib.testing.conftest.mpl_image_comparison_parameters``
+is not used internally by Matplotlib.  If you use this please copy it
+into your code base.
