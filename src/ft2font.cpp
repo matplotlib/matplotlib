@@ -738,7 +738,7 @@ void FT2Font::load_glyph(FT_UInt glyph_index, FT_Int32 flags)
 {
     // search cache first
     if (fallback && glyph_to_font.find(glyph_index) != glyph_to_font.end()) {
-        printf("load_glyph: Already present in cache.\n");
+        // printf("load_glyph: Already present in cache.\n");
         ft_object = glyph_to_font[glyph_index];
     } else {
         ft_object = this;

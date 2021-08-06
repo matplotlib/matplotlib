@@ -2398,11 +2398,13 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             # List of (ft_object, start_x, glyph_index).
             multibyte_glyphs = []
             prev_was_multibyte = True
+            prev_font = font
             for item in _text_helpers.layout(
                     s, font, kern_mode=KERNING_UNFITTED):
                 if _font_supports_glyph(fonttype, ord(item.char)):
                     if prev_was_multibyte:
                         singlebyte_chunks.append((item.ft_object, item.x, []))
+                        prev_font = item.ft_object
                     if item.prev_kern:
                         singlebyte_chunks[-1][2].append(item.prev_kern)
                     singlebyte_chunks[-1][2].append(item.char)
@@ -2439,7 +2441,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             for ft_object, start_x, glyph_idx in multibyte_glyphs:
                 self._draw_xobject_glyph(ft_object, fontsize, glyph_idx, start_x, 0)
             self.file.output(Op.grestore)
-            # print("fine here")
 
     def _draw_xobject_glyph(self, ft_object, fontsize, glyph_idx, x, y):
         """Draw a multibyte character from a Type 3 font as an XObject."""
