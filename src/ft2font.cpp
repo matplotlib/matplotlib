@@ -557,7 +557,7 @@ void FT2Font::set_text(
         bbox.xMin = bbox.yMin = bbox.xMax = bbox.yMax = 0;
     }
     // printf("\nMap: \n");
-    // // print out num_glyphs for the final FT2Font so its easy to track
+    // print out num_glyphs for the final FT2Font so its easy to track
     // for (std::pair<const FT_UInt, FT2Font *> &x: glyph_to_font) {
     //     printf("%u: %lu \n", x.first, x.second->get_face()->num_glyphs);
     // }
@@ -692,7 +692,6 @@ bool FT2Font::load_char_with_fallback(FT2Font *&ft_object_with_glyph,
         charcode_error = FT_Load_Glyph(face, glyph_index, flags);
         FT_Glyph thisGlyph;
         glyph_error = FT_Get_Glyph(face->glyph, &thisGlyph);
-
         if (charcode_error || glyph_error) {
             return false;
         }
@@ -739,16 +738,17 @@ void FT2Font::load_glyph(FT_UInt glyph_index, FT_Int32 flags)
 {
     // search cache first
     if (fallback && glyph_to_font.find(glyph_index) != glyph_to_font.end()) {
-        // printf("load_glyph: Already present in cache.\n");
+        printf("load_glyph: Already present in cache.\n");
         ft_object = glyph_to_font[glyph_index];
-        return;
+    } else {
+        ft_object = this;
     }
-    // can not do fallback without a charcode
-    // so ignore exact condition fallback == 1
 
-    // set as self
-    ft_object = this;
+    ft_object->load_glyph(glyph_index, flags);
+}
 
+void FT2Font::load_glyph(FT_UInt glyph_index, FT_Int32 flags)
+{
     if (FT_Error error = FT_Load_Glyph(face, glyph_index, flags)) {
         throw_ft_error("Could not load glyph", error);
     }
