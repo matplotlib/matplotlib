@@ -447,7 +447,7 @@ def test_annotation_negative_fig_coords():
 
 def test_text_stale():
     fig, (ax1, ax2) = plt.subplots(1, 2)
-    plt.draw_all()
+    fig.canvas.draw()
     assert not ax1.stale
     assert not ax2.stale
     assert not fig.stale
@@ -462,7 +462,7 @@ def test_text_stale():
     assert ann1.stale
     assert fig.stale
 
-    plt.draw_all()
+    fig.canvas.draw()
     assert not ax1.stale
     assert not ax2.stale
     assert not fig.stale

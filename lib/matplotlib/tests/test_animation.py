@@ -358,4 +358,5 @@ def test_draw_frame(return_value):
             return return_value
 
     with pytest.raises(RuntimeError):
-        animation.FuncAnimation(fig, animate, blit=True)
+        anim = animation.FuncAnimation(fig, animate, blit=True)
+        fig.canvas.draw()
