@@ -300,9 +300,10 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Without a backend explicitly set, Matplotlib automatically detects a usable
 # backend based on what is available on your system and on whether a GUI event
 # loop is already running.  The first usable backend in the following list is
-# selected: MacOSX, Qt5Agg, Gtk3Agg, TkAgg, WxAgg, Agg.  The last, Agg, is a
-# non-interactive backend that can only write to files.  It is used on Linux,
-# if Matplotlib cannot connect to either an X display or a Wayland display.
+# selected: MacOSX, QtAgg, GTK4Agg, Gtk3Agg, TkAgg, WxAgg, Agg.  The last, Agg,
+# is a non-interactive backend that can only write to files.  It is used on
+# Linux, if Matplotlib cannot connect to either an X display or a Wayland
+# display.
 #
 # Here is a detailed description of the configuration methods:
 #
@@ -370,7 +371,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # from the canvas (the place where the drawing goes).  The canonical
 # renderer for user interfaces is ``Agg`` which uses the `Anti-Grain
 # Geometry`_ C++ library to make a raster (pixel) image of the figure; it
-# is used by the ``QtAgg``, ``GTK3Agg``, ``wxAgg``, ``TkAgg``, and
+# is used by the ``QtAgg``, ``GTK4Agg``, ``GTK3Agg``, ``wxAgg``, ``TkAgg``, and
 # ``macosx`` backends.  An alternative renderer is based on the Cairo library,
 # used by ``QtCairo``, etc.
 #
@@ -419,6 +420,9 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # GTK3Agg   Agg rendering to a GTK_ 3.x canvas (requires PyGObject_,
 #           and pycairo_ or cairocffi_).  This backend can be activated in
 #           IPython with ``%matplotlib gtk3``.
+# GTK4Agg   Agg rendering to a GTK_ 4.x canvas (requires PyGObject_,
+#           and pycairo_ or cairocffi_).  This backend can be activated in
+#           IPython with ``%matplotlib gtk4``.
 # macosx    Agg rendering into a Cocoa canvas in OSX.  This backend can be
 #           activated in IPython with ``%matplotlib osx``.
 # TkAgg     Agg rendering to a Tk_ canvas (requires TkInter_). This
@@ -429,6 +433,8 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # WebAgg    On ``show()`` will start a tornado server with an interactive
 #           figure.
 # GTK3Cairo Cairo rendering to a GTK_ 3.x canvas (requires PyGObject_,
+#           and pycairo_ or cairocffi_).
+# GTK4Cairo Cairo rendering to a GTK_ 4.x canvas (requires PyGObject_,
 #           and pycairo_ or cairocffi_).
 # wxAgg     Agg rendering to a wxWidgets_ canvas (requires wxPython_ 4).
 #           This backend can be activated in IPython with ``%matplotlib wx``.
