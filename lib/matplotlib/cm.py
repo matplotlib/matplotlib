@@ -16,6 +16,7 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 """
 
 from collections.abc import Mapping, MutableMapping
+import functools
 
 import numpy as np
 from numpy import ma
@@ -26,7 +27,16 @@ from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
 
 
-LUTSIZE = mpl.rcParams['image.lut']
+# module-level deprecations.
+@functools.lru_cache(None)
+def __getattr__(name):
+    if name == "LUTSIZE":
+        _api.warn_deprecated("3.5", name=name,
+                             alternative="rcParams['image.lut']")
+        return _LUTSIZE
+
+
+_LUTSIZE = mpl.rcParams['image.lut']
 
 
 def _gen_cmap_registry():
@@ -37,11 +47,11 @@ def _gen_cmap_registry():
     cmap_d = {**cmaps_listed}
     for name, spec in datad.items():
         cmap_d[name] = (  # Precache the cmaps at a fixed lutsize..
-            colors.LinearSegmentedColormap(name, spec, LUTSIZE)
+            colors.LinearSegmentedColormap(name, spec, _LUTSIZE)
             if 'red' in spec else
             colors.ListedColormap(spec['listed'], name)
             if 'listed' in spec else
-            colors.LinearSegmentedColormap.from_list(name, spec, LUTSIZE))
+            colors.LinearSegmentedColormap.from_list(name, spec, _LUTSIZE))
     # Generate reversed cmaps.
     for cmap in list(cmap_d.values()):
         rmap = cmap.reversed()
