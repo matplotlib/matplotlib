@@ -778,7 +778,6 @@ static PyObject *PyFT2Font_load_char(PyFT2Font *self, PyObject *args, PyObject *
 
     FT2Font *ft_object = NULL;
     CALL_CPP("load_char", (self->x->load_char(charcode, flags, ft_object, (bool)fallback)));
-    // printf("Char %ld loaded to: %lu\n", charcode, ft_object->get_face()->num_glyphs);
 
     FT2Font *ft_object = NULL;
     CALL_CPP("load_char", (self->x->load_char(charcode, flags, ft_object, (bool)fallback)));
@@ -817,11 +816,6 @@ static PyObject *PyFT2Font_load_glyph(PyFT2Font *self, PyObject *args, PyObject 
                                      &flags)) {
         return NULL;
     }
-
-    // if (!PyArg_ParseTupleAndKeywords(
-    //          args, kwds, "I|i$p:load_glyph", (char **)names, &glyph_index, &flags, &fallback)) {
-    //     return NULL;
-    // }
 
     FT2Font *ft_object = NULL;
     CALL_CPP("load_glyph", (self->x->load_glyph(glyph_index, flags, ft_object, (bool)fallback)));
