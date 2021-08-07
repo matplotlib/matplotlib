@@ -692,7 +692,6 @@ class PdfFile:
         # differently encoded Type-1 fonts may share the same descriptor
         self.type1Descriptors = {}
         self._character_tracker = _backend_pdf_ps.CharacterTracker()
-        # self._char_to_font = None
 
         self.alphaStates = {}   # maps alpha values to graphics state objects
         self._alpha_state_seq = (Name(f'A{i}') for i in itertools.count(1))
@@ -916,7 +915,6 @@ class PdfFile:
         return pdfname
 
     def writeFonts(self):
-        print("fonts: ", self.fontNames)
         fonts = {}
         for dviname, info in sorted(self.dviFontInfo.items()):
             Fx = info.pdfname
@@ -933,7 +931,6 @@ class PdfFile:
                 # a normal TrueType font
                 _log.debug('Writing TrueType font.')
                 chars = self._character_tracker.used.get(filename)
-                print("chars:", chars, " for font:", filename)
                 if chars:
                     fonts[Fx] = self.embedTTF(filename, chars)
         self.writeObject(self.fontObject, fonts)
@@ -1076,11 +1073,10 @@ class PdfFile:
 
     def _get_xobject_symbol_name(self, filename, symbol_name):
         Fx = self.fontName(filename)
-        x = "-".join([
+        return "-".join([
             Fx.name.decode(),
             os.path.splitext(os.path.basename(filename))[0],
             symbol_name])
-        return x
 
     _identityToUnicodeCMap = b"""/CIDInit /ProcSet findresource begin
 12 dict begin
@@ -1107,7 +1103,6 @@ end"""
         """Embed the TTF font from the named file into the document."""
 
         font = get_font(filename)
-        print("embedding:", font.fname)
         fonttype = mpl.rcParams['pdf.fonttype']
 
         def cvt(length, upe=font.units_per_EM, nearest=True):
@@ -1925,8 +1920,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
     def __init__(self, file, image_dpi, height, width):
         super().__init__(width, height)
         self.file = file
-        self.char_to_font = {}
-        self.glyph_to_font = {}
         self.gc = self.new_gc()
         self.image_dpi = image_dpi
 
@@ -2416,7 +2409,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             # Emit all the 1-byte characters in a BT/ET group.
 
             self.file.output(Op.begin_text)
-            # ft, fontsize, Op.selectfont
             prev_start_x = 0
             for ft_object, start_x, kerns_or_chars in singlebyte_chunks:
                 ft_name = self.file.fontName(ft_object.fname)
