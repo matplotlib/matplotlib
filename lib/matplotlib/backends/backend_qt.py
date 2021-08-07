@@ -89,12 +89,6 @@ cursord = {
         (cursors.RESIZE_VERTICAL, "SizeVerCursor"),
     ]
 }
-SUPER = 0  # Deprecated.
-ALT = 1  # Deprecated.
-CTRL = 2  # Deprecated.
-SHIFT = 3  # Deprecated.
-MODIFIER_KEYS = [  # Deprecated.
-    (SPECIAL_KEYS[key], mod, key) for mod, key in _MODIFIER_KEYS]
 
 
 # make place holder
