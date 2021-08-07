@@ -402,7 +402,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             timer = QtCore.QTimer.singleShot(int(timeout * 1000),
                                              event_loop.quit)
 
-        with _maybe_allow_interrupt(qApp):
+        with _maybe_allow_interrupt(event_loop):
             qt_compat._exec(event_loop)
 
     def stop_event_loop(self, event=None):

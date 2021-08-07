@@ -76,12 +76,8 @@ def test_sigint(qt_core, platform_simulate_ctrl_c, target,
         platform_simulate_ctrl_c()
 
     qt_core.QTimer.singleShot(100, fire_signal)
-    try:
+    with pytest.raises(KeyboardInterrupt):
         target(**kwargs)
-    except KeyboardInterrupt as e:
-        assert True
-    else:
-        assert False  # KeyboardInterrupt must be raised
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
@@ -107,12 +103,11 @@ def test_other_signal_before_sigint(qt_core, platform_simulate_ctrl_c,
 
     qt_core.QTimer.singleShot(50, fire_other_signal)
     qt_core.QTimer.singleShot(100, fire_sigint)
-    try:
+
+    with pytest.raises(KeyboardInterrupt):
         target(**kwargs)
-    except KeyboardInterrupt as e:
-        assert sigcld_caught
-    else:
-        assert False  # KeyboardInterrupt must be raised
+
+    assert sigcld_caught
 
 
 @pytest.mark.backend('Qt5Agg')

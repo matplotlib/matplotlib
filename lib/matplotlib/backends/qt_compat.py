@@ -18,6 +18,7 @@ import platform
 import sys
 import signal
 import socket
+import contextlib
 
 from packaging.version import parse as parse_version
 
@@ -228,8 +229,9 @@ def _maybe_allow_interrupt(qapp):
         wsock, rsock = socket.socketpair()
         wsock.setblocking(False)
         old_wakeup_fd = signal.set_wakeup_fd(wsock.fileno())
-        sn = QtCore.QSocketNotifier(rsock.fileno(),
-                                    QtCore.QSocketNotifier.Read)
+        sn = QtCore.QSocketNotifier(
+            rsock.fileno(), _enum('QtCore.QSocketNotifier.Type').Read
+        )
 
         @sn.activated.connect
         def on_signal(*args):
@@ -252,59 +254,4 @@ def _maybe_allow_interrupt(qapp):
             signal.set_wakeup_fd(old_wakeup_fd)
             signal.signal(signal.SIGINT, old_sigint_handler)
             if handler_args is not None:
-                old_sigint_handler(handler_args)
-
-# class _maybe_allow_interrupt:
-#
-#     def __init__(self, qt_object):
-#         self.interrupted_qobject = qt_object
-#         self.old_fd = None
-#         self.caught_args = None
-#
-#         self.skip = False
-#         self.old_sigint_handler = signal.getsignal(signal.SIGINT)
-#         if self.old_sigint_handler in (None, signal.SIG_IGN, signal.SIG_DFL):
-#             self.skip = True
-#             return
-#
-#         QAS = QtNetwork.QAbstractSocket
-#         self.qt_socket = QAS(QAS.TcpSocket, qt_object)
-#         # Create a socket pair
-#         self.wsock, self.rsock = socket.socketpair()
-#         # Let Qt listen on the one end
-#         self.qt_socket.setSocketDescriptor(self.rsock.fileno())
-#         self.wsock.setblocking(False)
-#         self.qt_socket.readyRead.connect(self._readSignal)
-#
-#     def __enter__(self):
-#         if self.skip:
-#             return
-#
-#         signal.signal(signal.SIGINT, self._handle)
-#         # And let Python write on the other end
-#         self.old_fd = signal.set_wakeup_fd(self.wsock.fileno())
-#
-#     def __exit__(self, type, val, traceback):
-#         if self.skip:
-#             return
-#
-#         signal.set_wakeup_fd(self.old_fd)
-#         signal.signal(signal.SIGINT, self.old_sigint_handler)
-#
-#         self.wsock.close()
-#         self.rsock.close()
-#         self.qt_socket.abort()
-#         if self.caught_args is not None:
-#             self.old_sigint_handler(*self.caught_args)
-#
-#     def _readSignal(self):
-#         # Read the written byte to re-arm the socket if a signal different
-#         # from SIGINT was caught.
-#         # Since a custom handler was installed for SIGINT, KeyboardInterrupt
-#         # is not raised here.
-#         self.qt_socket.readData(1)
-#
-#     def _handle(self, *args):
-#         self.caught_args = args  # save the caught args to call the old
-#                                  # SIGINT handler afterwards
-#         self.interrupted_qobject.quit()
+                old_sigint_handler(*handler_args)
