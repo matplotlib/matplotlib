@@ -1,3 +1,4 @@
+#include "forward.h"
 #include "mplutils.h"
 #include "ft2font.h"
 #include "py_converters.h"
@@ -178,25 +179,25 @@ typedef struct
 
 static PyTypeObject PyGlyphType;
 
-static PyObject *
-PyGlyph_new(const FT_Face &face, const FT_Glyph &glyph, size_t ind, long hinting_factor)
+static PyObject *PyGlyph_new(FT2Font *&parent_ft_object, FT2Font *&ft_object)
 {
     PyGlyph *self;
     self = (PyGlyph *)PyGlyphType.tp_alloc(&PyGlyphType, 0);
+    const long hinting_factor = ft_object->get_hinting_factor();
 
-    self->glyphInd = ind;
+    self->glyphInd = ft_object->get_last_glyph_index();
 
-    FT_Glyph_Get_CBox(glyph, ft_glyph_bbox_subpixels, &self->bbox);
-
-    self->width = face->glyph->metrics.width / hinting_factor;
-    self->height = face->glyph->metrics.height;
-    self->horiBearingX = face->glyph->metrics.horiBearingX / hinting_factor;
-    self->horiBearingY = face->glyph->metrics.horiBearingY;
-    self->horiAdvance = face->glyph->metrics.horiAdvance;
-    self->linearHoriAdvance = face->glyph->linearHoriAdvance / hinting_factor;
-    self->vertBearingX = face->glyph->metrics.vertBearingX;
-    self->vertBearingY = face->glyph->metrics.vertBearingY;
-    self->vertAdvance = face->glyph->metrics.vertAdvance;
+    ft_object->get_cbox(self->bbox);
+    
+    self->width = ft_object->get_face()->glyph->metrics.width / hinting_factor;
+    self->height = ft_object->get_face()->glyph->metrics.height;
+    self->horiBearingX = ft_object->get_face()->glyph->metrics.horiBearingX / hinting_factor;
+    self->horiBearingY = ft_object->get_face()->glyph->metrics.horiBearingY;
+    self->horiAdvance = ft_object->get_face()->glyph->metrics.horiAdvance;
+    self->linearHoriAdvance = ft_object->get_face()->glyph->linearHoriAdvance / hinting_factor;
+    self->vertBearingX = ft_object->get_face()->glyph->metrics.vertBearingX;
+    self->vertBearingY = ft_object->get_face()->glyph->metrics.vertBearingY;
+    self->vertAdvance = ft_object->get_face()->glyph->metrics.vertAdvance;
 
     return (PyObject *)self;
 }
@@ -254,7 +255,7 @@ static PyTypeObject *PyGlyph_init_type(PyObject *m, PyTypeObject *type)
  * FT2Font
  * */
 
-typedef struct
+struct PyFT2Font
 {
     PyObject_HEAD
     FT2Font *x;
@@ -265,7 +266,7 @@ typedef struct
     Py_ssize_t strides[2];
     Py_ssize_t suboffsets[2];
     std::vector<FT2Font *> fallbacks;
-} PyFT2Font;
+};
 
 static unsigned long read_from_file_callback(FT_Stream stream,
                                              unsigned long offset,
@@ -420,7 +421,7 @@ static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
     Py_CLEAR(data);
 
     CALL_CPP_FULL(
-        "FT2Font", (self->x = new FT2Font(open_args, hinting_factor, self->fallbacks)),
+        "FT2Font", (self->x = new FT2Font(open_args, hinting_factor, self->fallbacks, self)),
         Py_CLEAR(self->py_file), -1);
 
     CALL_CPP_INIT("FT2Font->set_kerning_factor", (self->x->set_kerning_factor(kerning_factor)));
@@ -520,12 +521,13 @@ static PyObject *PyFT2Font_get_kerning(PyFT2Font *self, PyObject *args, PyObject
 {
     FT_UInt left, right, mode;
     int result;
+    int fallback = 1;
 
     if (!PyArg_ParseTuple(args, "III:get_kerning", &left, &right, &mode)) {
         return NULL;
     }
 
-    CALL_CPP("get_kerning", (result = self->x->get_kerning(left, right, mode)));
+    CALL_CPP("get_kerning", (result = self->x->get_kerning(left, right, mode, (bool)fallback)));
 
     return PyLong_FromLong(result);
 }
@@ -602,6 +604,78 @@ static PyObject *PyFT2Font_set_text(PyFT2Font *self, PyObject *args, PyObject *k
     return convert_xys_to_array(xys);
 }
 
+const char *PyFT2Font_fill_glyphs__doc__ =
+    "fill_glyphs(string, angle, flags=32)\n"
+    "--\n\n"
+    "Fill (and cache) a text *string* and *angle*.\n"
+    "*flags* can be a bitwise-or of the LOAD_XXX constants;\n"
+    "the default value is LOAD_FORCE_AUTOHINT.\n"
+    "A mapping of character to FT2Font object is returned.\n";
+
+static PyObject *PyFT2Font_fill_glyphs(PyFT2Font *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *textobj;
+    double angle = 0.0;
+    bool warn = false;
+    FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT;
+    const char *names[] = { "string", "angle", "flags", NULL };
+
+    if (!PyArg_ParseTupleAndKeywords(
+             args, kwds, "O|di:fill_glyphs", (char **)names, &textobj, &angle, &flags)) {
+        return NULL;
+    }
+
+    std::vector<uint32_t> codepoints;
+    size_t size;
+
+    if (PyUnicode_Check(textobj)) {
+        size = PyUnicode_GET_LENGTH(textobj);
+        codepoints.resize(size);
+#if defined(PYPY_VERSION) && (PYPY_VERSION_NUM < 0x07040000)
+        // PyUnicode_ReadChar is available from PyPy 7.3.2, but wheels do not
+        // specify the micro-release version, so put the version bound at 7.4
+        // to prevent generating wheels unusable on PyPy 7.3.{0,1}.
+        Py_UNICODE *unistr = PyUnicode_AsUnicode(textobj);
+        for (size_t i = 0; i < size; ++i) {
+            codepoints[i] = unistr[i];
+        }
+#else
+        for (size_t i = 0; i < size; ++i) {
+            codepoints[i] = PyUnicode_ReadChar(textobj, i);
+        }
+#endif
+    } else {
+        PyErr_SetString(PyExc_TypeError, "String must be str");
+        return NULL;
+    }
+
+    uint32_t* codepoints_array = NULL;
+    if (size > 0) {
+        codepoints_array = &codepoints[0];
+    }
+    CALL_CPP("fill_glyphs", self->x->fill_glyphs(size, codepoints_array, angle, flags, warn));
+
+    PyObject *char_to_font;
+    if (!(char_to_font = PyDict_New())) {
+        return NULL;
+    }
+    std::unordered_map<long, FT2Font *> from_ft = self->x->get_char_to_font();
+
+    for (std::pair<const long, FT2Font *> &itr : from_ft) {
+        PyObject *key = NULL, *val = NULL;
+        bool error = (!(key = PyLong_FromLong(itr.first))
+                      || !(val = reinterpret_cast<PyObject *>(itr.second->get_pyfont()))
+                      || (PyDict_SetItem(char_to_font, key, val) == -1));
+        Py_XDECREF(key);
+        Py_XDECREF(val);
+        if (error) {
+            Py_DECREF(char_to_font);
+            return NULL;
+        }
+    }
+    return char_to_font;
+}
+
 const char *PyFT2Font_get_num_glyphs__doc__ =
     "get_num_glyphs()\n"
     "--\n\n"
@@ -612,8 +686,66 @@ static PyObject *PyFT2Font_get_num_glyphs(PyFT2Font *self, PyObject *args, PyObj
     return PyLong_FromLong(self->x->get_num_glyphs());
 }
 
+const char *PyFT2Font_get_char_to_font__doc__ =
+    "get_char_to_font()\n"
+    "--\n\n"
+    "Return a cache of characters mapped to FT2Font objects.\n";
+
+static PyObject *PyFT2Font_get_char_to_font(PyFT2Font *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *char_to_font;
+    if (!(char_to_font = PyDict_New())) {
+        return NULL;
+    }
+    std::unordered_map<long, FT2Font *> from_ft = self->x->get_char_to_font();
+
+    for (std::pair<const long, FT2Font *> &itr : from_ft) {
+        PyObject *key = NULL, *val = NULL;
+        bool error = (!(key = PyLong_FromLong(itr.first))
+                      || !(val = reinterpret_cast<PyObject *>(itr.second->get_pyfont()))
+                      || (PyDict_SetItem(char_to_font, key, val) == -1));
+        Py_XDECREF(key);
+        Py_XDECREF(val);
+        if (error) {
+            Py_DECREF(char_to_font);
+            return NULL;
+        }
+    }
+    return char_to_font;
+}
+
+const char *PyFT2Font_get_glyph_to_font__doc__ =
+    "get_glyph_to_font()\n"
+    "--\n\n"
+    "Return a cache of glyph indexes mapped to FT2Font objects.\n";
+
+static PyObject *PyFT2Font_get_glyph_to_font(PyFT2Font *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *glyph_to_font;
+    if (!(glyph_to_font = PyDict_New())) {
+        return NULL;
+    }
+    std::unordered_map<FT_UInt, FT2Font *> from_ft = self->x->get_glyph_to_font();
+
+    for (std::pair<const FT_UInt, FT2Font *> &itr : from_ft) {
+        PyObject *key = NULL, *val = NULL;
+        bool error = (!(key = PyLong_FromLong(itr.first))
+                      || !(val = reinterpret_cast<PyObject *>(itr.second->get_pyfont()))
+                      || (PyDict_SetItem(glyph_to_font, key, val) == -1));
+        // Py_XDECREF(key);
+        // Py_XDECREF(val);
+        Py_INCREF(val);
+        Py_INCREF(key);
+        if (error) {
+            Py_DECREF(glyph_to_font);
+            return NULL;
+        }
+    }
+    return glyph_to_font;
+}
+
 const char *PyFT2Font_load_char__doc__ =
-    "load_char(charcode, flags=32)\n"
+    "load_char(charcode, fallback=False, flags=32)\n"
     "--\n\n"
     "Load character with *charcode* in current fontfile and set glyph.\n"
     "*flags* can be a bitwise-or of the LOAD_XXX constants;\n"
@@ -632,23 +764,22 @@ const char *PyFT2Font_load_char__doc__ =
 static PyObject *PyFT2Font_load_char(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
     long charcode;
+    int fallback = 1;
     FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT;
     const char *names[] = { "charcode", "flags", NULL };
 
     /* This makes a technically incorrect assumption that FT_Int32 is
        int. In theory it can also be long, if the size of int is less
        than 32 bits. This is very unlikely on modern platforms. */
-    if (!PyArg_ParseTupleAndKeywords(
-             args, kwds, "l|i:load_char", (char **)names, &charcode, &flags)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "l|i:load_char", (char **)names, &charcode,
+                                     &flags)) {
         return NULL;
     }
 
-    CALL_CPP("load_char", (self->x->load_char(charcode, flags)));
+    FT2Font *ft_object = NULL;
+    CALL_CPP("load_char", (self->x->load_char(charcode, flags, ft_object, (bool)fallback)));
 
-    return PyGlyph_new(self->x->get_face(),
-                       self->x->get_last_glyph(),
-                       self->x->get_last_glyph_index(),
-                       self->x->get_hinting_factor());
+    return PyGlyph_new(self->x, ft_object);
 }
 
 const char *PyFT2Font_load_glyph__doc__ =
@@ -672,22 +803,21 @@ static PyObject *PyFT2Font_load_glyph(PyFT2Font *self, PyObject *args, PyObject 
 {
     FT_UInt glyph_index;
     FT_Int32 flags = FT_LOAD_FORCE_AUTOHINT;
+    int fallback = 1;
     const char *names[] = { "glyph_index", "flags", NULL };
 
     /* This makes a technically incorrect assumption that FT_Int32 is
        int. In theory it can also be long, if the size of int is less
        than 32 bits. This is very unlikely on modern platforms. */
-    if (!PyArg_ParseTupleAndKeywords(
-             args, kwds, "I|i:load_glyph", (char **)names, &glyph_index, &flags)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "I|i:load_glyph", (char **)names, &glyph_index,
+                                     &flags)) {
         return NULL;
     }
 
-    CALL_CPP("load_glyph", (self->x->load_glyph(glyph_index, flags)));
+    FT2Font *ft_object = NULL;
+    CALL_CPP("load_glyph", (self->x->load_glyph(glyph_index, flags, ft_object, (bool)fallback)));
 
-    return PyGlyph_new(self->x->get_face(),
-                       self->x->get_last_glyph(),
-                       self->x->get_last_glyph_index(),
-                       self->x->get_hinting_factor());
+    return PyGlyph_new(self->x, ft_object);
 }
 
 const char *PyFT2Font_get_width_height__doc__ =
@@ -833,10 +963,13 @@ static PyObject *PyFT2Font_get_glyph_name(PyFT2Font *self, PyObject *args, PyObj
 {
     unsigned int glyph_number;
     char buffer[128];
+    int fallback = 1;
+
+    // parse kwds too
     if (!PyArg_ParseTuple(args, "I:get_glyph_name", &glyph_number)) {
         return NULL;
     }
-    CALL_CPP("get_glyph_name", (self->x->get_glyph_name(glyph_number, buffer)));
+    CALL_CPP("get_glyph_name", (self->x->get_glyph_name(glyph_number, buffer, (bool)fallback)));
     return PyUnicode_FromString(buffer);
 }
 
@@ -872,7 +1005,7 @@ static PyObject *PyFT2Font_get_charmap(PyFT2Font *self, PyObject *args, PyObject
 
 
 const char *PyFT2Font_get_char_index__doc__ =
-    "get_char_index(codepoint)\n"
+    "get_char_index(codepoint, fallback=True)\n"
     "--\n\n"
     "Return the glyph index corresponding to a character *codepoint*.\n";
 
@@ -880,12 +1013,13 @@ static PyObject *PyFT2Font_get_char_index(PyFT2Font *self, PyObject *args, PyObj
 {
     FT_UInt index;
     FT_ULong ccode;
+    int fallback = 1;
 
     if (!PyArg_ParseTuple(args, "k:get_char_index", &ccode)) {
         return NULL;
     }
 
-    index = FT_Get_Char_Index(self->x->get_face(), ccode);
+    CALL_CPP("get_char_index", index = self->x->get_char_index(ccode, (bool)fallback));
 
     return PyLong_FromLong(index);
 }
@@ -1502,7 +1636,10 @@ static PyTypeObject *PyFT2Font_init_type(PyObject *m, PyTypeObject *type)
         {"select_charmap", (PyCFunction)PyFT2Font_select_charmap, METH_VARARGS, PyFT2Font_select_charmap__doc__},
         {"get_kerning", (PyCFunction)PyFT2Font_get_kerning, METH_VARARGS, PyFT2Font_get_kerning__doc__},
         {"set_text", (PyCFunction)PyFT2Font_set_text, METH_VARARGS|METH_KEYWORDS, PyFT2Font_set_text__doc__},
+        {"fill_glyphs", (PyCFunction)PyFT2Font_fill_glyphs, METH_VARARGS|METH_KEYWORDS, PyFT2Font_fill_glyphs__doc__},
         {"get_num_glyphs", (PyCFunction)PyFT2Font_get_num_glyphs, METH_NOARGS, PyFT2Font_get_num_glyphs__doc__},
+        {"get_char_to_font", (PyCFunction)PyFT2Font_get_char_to_font, METH_NOARGS, PyFT2Font_get_char_to_font__doc__},
+        {"get_glyph_to_font", (PyCFunction)PyFT2Font_get_glyph_to_font, METH_NOARGS, PyFT2Font_get_glyph_to_font__doc__},
         {"load_char", (PyCFunction)PyFT2Font_load_char, METH_VARARGS|METH_KEYWORDS, PyFT2Font_load_char__doc__},
         {"load_glyph", (PyCFunction)PyFT2Font_load_glyph, METH_VARARGS|METH_KEYWORDS, PyFT2Font_load_glyph__doc__},
         {"get_width_height", (PyCFunction)PyFT2Font_get_width_height, METH_NOARGS, PyFT2Font_get_width_height__doc__},
