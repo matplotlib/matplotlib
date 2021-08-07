@@ -443,7 +443,7 @@ int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode, bool fallbac
         FT2Font *left_ft_object = glyph_to_font[left];
         FT2Font *right_ft_object = glyph_to_font[right];
         if (left_ft_object != right_ft_object) {
-            printf("Prev FT2Font != Curr FT2Font!\n");
+            // could potentially do something different?
         }
         // if left_ft_object is not the same the right_ft_object,
         // do the exact same thing which set_text does.
