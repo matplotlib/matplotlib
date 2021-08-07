@@ -185,13 +185,14 @@ exit:
     return 0;
 }
 
-static FT_UInt ft_get_char_index_or_warn(FT_Face face, FT_ULong charcode)
+static FT_UInt ft_get_char_index_or_warn(FT_Face face, FT_ULong charcode, bool warn = true)
 {
     FT_UInt glyph_index = FT_Get_Char_Index(face, charcode);
     if (glyph_index) {
         return glyph_index;
     }
-    return ft_glyph_warn(charcode);
+    if (warn) return ft_glyph_warn(charcode);
+    else return 0;
 }
 
 // ft_outline_decomposer should be passed to FT_Outline_Decompose.  On the
@@ -752,7 +753,8 @@ FT_UInt FT2Font::get_char_index(FT_ULong charcode, bool fallback = false)
         ft_object = this;
     }
 
-    return ft_get_char_index_or_warn(ft_object->get_face(), charcode);
+    // historically, get_char_index never raises a warning
+    return ft_get_char_index_or_warn(ft_object->get_face(), charcode, false);
 }
 
 void FT2Font::get_cbox(FT_BBox &bbox)
