@@ -392,7 +392,7 @@ void FT2Font::clear()
     glyph_to_font.clear();
     char_to_font.clear();
 
-    for (uint i = 0; i < fallbacks.size(); i ++) {
+    for (unsigned int i = 0; i < fallbacks.size(); i++) {
         fallbacks[i]->clear();
     }
 }
@@ -407,7 +407,7 @@ void FT2Font::set_size(double ptsize, double dpi)
     FT_Matrix transform = { 65536 / hinting_factor, 0, 0, 65536 };
     FT_Set_Transform(face, &transform, 0);
 
-    for (uint i = 0; i < fallbacks.size(); i++) {
+    for (unsigned int i = 0; i < fallbacks.size(); i++) {
         fallbacks[i]->set_size(ptsize, dpi);
     }
 }
@@ -477,7 +477,7 @@ int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_UInt mode, FT_Vector &d
 void FT2Font::set_kerning_factor(int factor)
 {
     kerning_factor = factor;
-    for (uint i = 0; i < fallbacks.size(); i ++){
+    for (unsigned int i = 0; i < fallbacks.size(); i ++){
         fallbacks[i]->set_kerning_factor(factor);
     }
 }
@@ -702,7 +702,7 @@ bool FT2Font::load_char_with_fallback(FT2Font *&ft_object_with_glyph,
     }
 
     else {
-        for (uint i = 0; i < fallbacks.size(); ++i) {
+        for (unsigned int i = 0; i < fallbacks.size(); ++i) {
             bool was_found = fallbacks[i]->load_char_with_fallback(
                 ft_object_with_glyph, final_glyph_index, parent_glyphs, parent_char_to_font,
                 parent_glyph_to_font, charcode, flags, charcode_error, glyph_error, override);
