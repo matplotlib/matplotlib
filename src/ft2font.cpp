@@ -396,13 +396,6 @@ void FT2Font::clear()
     }
 }
 
-void FT2Font::check() {
-    printf("Fallback num: -1; Numface: %lu\n", get_face()->num_glyphs);
-    for (uint i = 0; i < fallbacks.size(); i++) {
-        printf("Fallback num: %u; Numface: %lu\n", i, fallbacks[i]->get_face()->num_glyphs);
-    }
-}
-
 void FT2Font::set_size(double ptsize, double dpi)
 {
     FT_Error error = FT_Set_Char_Size(
@@ -481,7 +474,6 @@ void FT2Font::set_text(
     size_t N, uint32_t *codepoints, double angle, FT_Int32 flags, std::vector<double> &xys)
 {
     FT_Matrix matrix; /* transformation matrix */
-    check();
 
     angle = angle / 360.0 * 2 * M_PI;
 
@@ -507,10 +499,8 @@ void FT2Font::set_text(
         FT_UInt final_glyph_index;
         FT_Error charcode_error, glyph_error;
         FT2Font *ft_object_with_glyph = this;
-        printf("\nBefore loading char! \n");
         load_char_with_fallback(ft_object_with_glyph, final_glyph_index, glyphs, codepoints[n],
                                 flags, charcode_error, glyph_error);
-        printf("Final ft2font: %lu\n", ft_object_with_glyph->get_face()->num_glyphs);
         if (charcode_error || glyph_error) {
             ft_glyph_warn((FT_ULong)codepoints[n]);
             return;
@@ -525,25 +515,9 @@ void FT2Font::set_text(
             pen.x += delta.x / (hinting_factor << kerning_factor);
         }
 
-        // DONE with load_char_with_fallback
-        // if (FT_Error error = FT_Load_Glyph(face, glyph_index, flags)) {
-        //     throw_ft_error("Could not load glyph", error);
-        // }
-
-        // ignore errors, jump to next glyph
-
         // extract glyph image and store it in our table
-
-        // DONE with load_char_with_fallback
-        // FT_Glyph thisGlyph;
-        // if (FT_Error error = FT_Get_Glyph(face->glyph, &thisGlyph)) {
-        //     throw_ft_error("Could not get glyph", error);
-        // }
-        // ignore errors, jump to next glyph
-
         FT_Glyph &thisGlyph = glyphs[glyphs.size() - 1];
 
-        // Compare with thisGlyph?
         last_advance = ft_object_with_glyph->get_face()->glyph->advance.x;
         FT_Glyph_Transform(thisGlyph, 0, &pen);
         FT_Glyph_Transform(thisGlyph, &matrix, 0);
@@ -560,10 +534,6 @@ void FT2Font::set_text(
         pen.x += last_advance;
 
         previous = glyph_index;
-
-        printf("Set_Text complete! \n");
-        // DONE with load_char_with_fallback
-        // glyphs.push_back(thisGlyph);
     }
 
     FT_Vector_Transform(&pen, &matrix);
@@ -595,34 +565,25 @@ void FT2Font::load_char_with_fallback(FT2Font* &ft_object_with_glyph,
                                       FT_Error &charcode_error,
                                       FT_Error &glyph_error)
 {
-    printf("loading char!\n");
     FT_UInt glyph_index = FT_Get_Char_Index(face, charcode);
 
     if (glyph_index) {
-        printf("glyph found!\n");
         charcode_error = FT_Load_Glyph(face, glyph_index, flags);
-        // throw_ft_error("Could not load charcode", error);
         FT_Glyph thisGlyph;
         glyph_error = FT_Get_Glyph(face->glyph, &thisGlyph);
-        // throw_ft_error("Could not get glyph", error);
         final_glyph_index = glyph_index;
         parent_glyphs.push_back(thisGlyph);
     }
 
     else {
-        printf("glyph not found! Fallback size: %lu\n", fallbacks.size());
         for (uint i = 0; i < fallbacks.size(); ++i) {
             uint current_size = parent_glyphs.size();
-            printf("Fallback %u: %u\n", i, current_size);
             fallbacks[i]->load_char_with_fallback(ft_object_with_glyph, final_glyph_index,
                                                   parent_glyphs, charcode, flags, charcode_error,
                                                   glyph_error);
-            printf("Got back from fallback load char!\n");
             // jump out if glyph size increased
             if (parent_glyphs.size() == current_size + 1) {
-                printf("size increased!\n");
                 ft_object_with_glyph = fallbacks[i];
-                printf("Ft object assigned!\n");
                 return;
             }
         }

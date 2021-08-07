@@ -362,7 +362,6 @@ const char *PyFT2Font_init__doc__ =
 
 static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
 {
-    printf("PyFT2Font init!\n");
     PyObject *filename = NULL, *open = NULL, *data = NULL, *fallback_list = NULL;
     FT_Open_Args open_args;
     long hinting_factor = 8;
@@ -399,7 +398,6 @@ static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
 
         Py_INCREF(fallback_list);
     }
-    printf("Fallback SIZE: %lu \n", self->fallbacks.size());
 
     if (PyBytes_Check(filename) || PyUnicode_Check(filename)) {
         if (!(open = PyDict_GetItemString(PyEval_GetBuiltins(), "open"))  // Borrowed reference.
@@ -463,7 +461,6 @@ static PyObject *PyFT2Font_set_size(PyFT2Font *self, PyObject *args, PyObject *k
 {
     double ptsize;
     double dpi;
-    printf("PyFT, set_size called!\n");
 
     if (!PyArg_ParseTuple(args, "dd:set_size", &ptsize, &dpi)) {
         return NULL;
