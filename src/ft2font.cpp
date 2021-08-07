@@ -375,7 +375,6 @@ FT2Font::~FT2Font()
     }
 
     if (face) {
-        printf("Deleting face from: %lu\n", face->num_glyphs);
         FT_Done_Face(face);
     }
 }
@@ -730,18 +729,6 @@ void FT2Font::load_glyph(FT_UInt glyph_index,
 
 void FT2Font::load_glyph(FT_UInt glyph_index, FT_Int32 flags)
 {
-    // search cache first
-    if (fallback && glyph_to_font.find(glyph_index) != glyph_to_font.end()) {
-        ft_object = glyph_to_font[glyph_index];
-    } else {
-        ft_object = this;
-    }
-
-    ft_object->load_glyph(glyph_index, flags);
-}
-
-void FT2Font::load_glyph(FT_UInt glyph_index, FT_Int32 flags)
-{
     if (FT_Error error = FT_Load_Glyph(face, glyph_index, flags)) {
         throw_ft_error("Could not load glyph", error);
     }
@@ -767,11 +754,6 @@ FT_UInt FT2Font::get_char_index(FT_ULong charcode, bool fallback = false)
 
     // historically, get_char_index never raises a warning
     return ft_get_char_index_or_warn(ft_object->get_face(), charcode, false);
-}
-
-void FT2Font::get_cbox(FT_BBox &bbox)
-{
-    FT_Glyph_Get_CBox(glyphs.back(), ft_glyph_bbox_subpixels, &bbox);
 }
 
 void FT2Font::get_cbox(FT_BBox &bbox)
