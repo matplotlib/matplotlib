@@ -2345,15 +2345,9 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             fonttype = 1
         else:
             font = self._get_font_ttf(prop)
-            font.set_text(s)
-            self.char_to_font = font.get_char_to_font()
-            self.glyph_to_font = font.get_glyph_to_font()
-            # populate self.fontNames with all fonts
-            _ = [self.file.fontName(ft_object.fname) for ft_object in self.glyph_to_font.values()]
-            for char, font in self.char_to_font.items():
-                # print(chr(char), "to:", font.fname)
+            char_to_font = font.fill_glyphs(s)
+            for char, font in char_to_font.items():
                 self.file._character_tracker.track(font, chr(char))
-            print("\nFONT_TO_CHAR:", self.file._character_tracker.used)
             fonttype = mpl.rcParams['pdf.fonttype']
 
         if gc.get_url() is not None:
