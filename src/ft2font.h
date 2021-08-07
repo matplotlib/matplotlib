@@ -75,7 +75,6 @@ class FT2Font
     void set_size(double ptsize, double dpi);
     void set_charmap(int i);
     void set_fallbacks(std::vector<FT2Font *> &fallback_list);
-    void check();
     void select_charmap(unsigned long i);
     void set_text(
         size_t N, uint32_t *codepoints, double angle, FT_Int32 flags, std::vector<double> &xys);
