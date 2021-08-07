@@ -556,11 +556,6 @@ void FT2Font::set_text(
     if (bbox.xMin > bbox.xMax) {
         bbox.xMin = bbox.yMin = bbox.xMax = bbox.yMax = 0;
     }
-    // printf("\nMap: \n");
-    // print out num_glyphs for the final FT2Font so its easy to track
-    // for (std::pair<const FT_UInt, FT2Font *> &x: glyph_to_font) {
-    //     printf("%u: %lu \n", x.first, x.second->get_face()->num_glyphs);
-    // }
 }
 
 void FT2Font::fill_glyphs(
@@ -686,7 +681,6 @@ bool FT2Font::load_char_with_fallback(FT2Font *&ft_object_with_glyph,
                                       bool override = false)
 {
     FT_UInt glyph_index = FT_Get_Char_Index(face, charcode);
-    // printf("fallback glyph id: %u\n", glyph_index);
 
     if (glyph_index || override) {
         charcode_error = FT_Load_Glyph(face, glyph_index, flags);
@@ -738,7 +732,6 @@ void FT2Font::load_glyph(FT_UInt glyph_index, FT_Int32 flags)
 {
     // search cache first
     if (fallback && glyph_to_font.find(glyph_index) != glyph_to_font.end()) {
-        // printf("load_glyph: Already present in cache.\n");
         ft_object = glyph_to_font[glyph_index];
     } else {
         ft_object = this;
