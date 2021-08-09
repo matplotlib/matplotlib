@@ -149,7 +149,7 @@ commands:
 jobs:
   docs-python38:
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     steps:
       - checkout
       - check-skip
