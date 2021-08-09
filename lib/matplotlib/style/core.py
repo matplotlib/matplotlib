@@ -20,7 +20,7 @@ import re
 import warnings
 
 import matplotlib as mpl
-from matplotlib import _api, rc_params_from_file, rcParamsDefault
+from matplotlib import _api, docstring, rc_params_from_file, rcParamsDefault
 
 _log = logging.getLogger(__name__)
 
@@ -65,6 +65,9 @@ def _apply_style(d, warn=True):
     mpl.rcParams.update(_remove_blacklisted_style_params(d, warn=warn))
 
 
+@docstring.Substitution(
+    "\n".join(map("- {}".format, sorted(STYLE_BLACKLIST, key=str.lower)))
+)
 def use(style):
     """
     Use Matplotlib style settings from a style specification.
@@ -84,7 +87,7 @@ def use(style):
 
         +------+-------------------------------------------------------------+
         | str  | The name of a style or a path/URL to a style file. For a    |
-        |      | list of available style names, see `style.available`.       |
+        |      | list of available style names, see `.style.available`.      |
         +------+-------------------------------------------------------------+
         | dict | Dictionary with valid key/value pairs for                   |
         |      | `matplotlib.rcParams`.                                      |
@@ -95,6 +98,12 @@ def use(style):
         |      | first to last in the list.                                  |
         +------+-------------------------------------------------------------+
 
+    Notes
+    -----
+    The following `.rcParams` are not related to style and will be ignored if
+    found in a style specification:
+
+    %s
     """
     style_alias = {'mpl20': 'default',
                    'mpl15': 'classic'}
@@ -139,7 +148,7 @@ def context(style, after_reset=False):
 
         +------+-------------------------------------------------------------+
         | str  | The name of a style or a path/URL to a style file. For a    |
-        |      | list of available style names, see `style.available`.       |
+        |      | list of available style names, see `.style.available`.      |
         +------+-------------------------------------------------------------+
         | dict | Dictionary with valid key/value pairs for                   |
         |      | `matplotlib.rcParams`.                                      |
