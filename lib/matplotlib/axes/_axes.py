@@ -4923,7 +4923,7 @@ default: :rc:`scatter.edgecolors`
             vbar.set_cmap(collection.get_cmap())
             vbar.set_clim(collection.get_clim())
 
-        collection.callbacksSM.connect('changed', on_changed)
+        collection.callbacks.connect('changed', on_changed)
 
         return collection
 
