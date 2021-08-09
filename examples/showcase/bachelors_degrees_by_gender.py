@@ -8,6 +8,10 @@ styling of plot frame, tick lines and labels, and line graph properties.
 
 Also demonstrates the custom placement of text labels along the right edge
 as an alternative to a conventional legend.
+
+Note: The third-party mpl style dufte_ produces similar-looking plots with less code.
+
+.. _dufte: https://github.com/nschloe/dufte
 """
 
 import numpy as np
