@@ -54,8 +54,8 @@ def _remove_blacklisted_style_params(d, warn=True):
         if key in STYLE_BLACKLIST:
             if warn:
                 _api.warn_external(
-                    "Style includes a parameter, '{0}', that is not related "
-                    "to style.  Ignoring".format(key))
+                    f"Style includes a parameter, {key!r}, that is not "
+                    "related to style.  Ignoring this parameter.")
         else:
             o[key] = d[key]
     return o
