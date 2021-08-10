@@ -1004,12 +1004,15 @@ def test_datetime64_in_list():
 def test_change_epoch():
     date = np.datetime64('2000-01-01')
 
+    # use private method to clear the epoch and allow it to be set...
+    mdates._reset_epoch_test_example()
+    mdates.get_epoch()  # Set default.
+
     with pytest.raises(RuntimeError):
         # this should fail here because there is a sentinel on the epoch
         # if the epoch has been used then it cannot be set.
         mdates.set_epoch('0000-01-01')
 
-    # use private method to clear the epoch and allow it to be set...
     mdates._reset_epoch_test_example()
     mdates.set_epoch('1970-01-01')
     dt = (date - np.datetime64('1970-01-01')).astype('datetime64[D]')
