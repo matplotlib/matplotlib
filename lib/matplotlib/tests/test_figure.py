@@ -1040,7 +1040,7 @@ def test_subfigure_ticks():
     ax3 = subfig_bl.add_subplot(gs[0, 3:14], sharey=ax1)
 
     fig.set_dpi(120)
-    fig.draw_no_output()
+    fig.canvas.draw()
     ticks120 = ax2.get_xticks()
     fig.set_dpi(300)
     fig.canvas.draw()
