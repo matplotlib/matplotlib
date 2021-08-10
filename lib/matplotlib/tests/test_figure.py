@@ -1043,7 +1043,7 @@ def test_subfigure_ticks():
     fig.draw_no_output()
     ticks120 = ax2.get_xticks()
     fig.set_dpi(300)
-    fig.draw_no_output()
+    fig.canvas.draw()
     ticks300 = ax2.get_xticks()
     np.testing.assert_allclose(ticks120, ticks300)
 
