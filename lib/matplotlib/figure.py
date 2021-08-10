@@ -1995,7 +1995,6 @@ class SubFigure(FigureBase):
         self.subplotpars = parent.subplotpars
         self.dpi_scale_trans = parent.dpi_scale_trans
         self._axobservers = parent._axobservers
-        self.dpi = parent.dpi
         self.canvas = parent.canvas
         self.transFigure = parent.transFigure
         self.bbox_relative = None
@@ -2015,6 +2014,14 @@ class SubFigure(FigureBase):
 
         if parent._layoutgrid is not None:
             self.init_layoutgrid()
+
+    @property
+    def dpi(self):
+        return self._parent.dpi
+
+    @dpi.setter
+    def dpi(self, value):
+        self._parent.dpi = value
 
     def _redo_transform_rel_fig(self, bbox=None):
         """
