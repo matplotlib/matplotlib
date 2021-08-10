@@ -1020,6 +1020,51 @@ def test_subfigure_spanning():
     np.testing.assert_allclose(sub_figs[2].bbox.max, [w, h / 3])
 
 
+@mpl.style.context('mpl20')
+def test_subfigure_ticks():
+    # This tests a tick-spacing error that only seems applicable
+    # when the subfigures are saved to file.  It is very hard to replicate
+    fig = plt.figure(constrained_layout=True, figsize=(10, 3))
+    # create left/right subfigs nested in bottom subfig
+    (subfig_bl, subfig_br) = fig.subfigures(1, 2, wspace=0.01,
+                                            width_ratios=[7, 2])
+
+    # put ax1-ax3 in gridspec of bottom-left subfig
+    gs = subfig_bl.add_gridspec(nrows=1, ncols=14)
+
+    ax1 = subfig_bl.add_subplot(gs[0, :1])
+    ax1.scatter(x=[-56.46881504821776, 24.179891162109396], y=[1500, 3600])
+
+    ax2 = subfig_bl.add_subplot(gs[0, 1:3], sharey=ax1)
+    ax2.scatter(x=[-126.5357270050049, 94.68456736755368], y=[1500, 3600])
+    ax3 = subfig_bl.add_subplot(gs[0, 3:14], sharey=ax1)
+
+    fig.set_dpi(120)
+    fig.canvas.draw()
+    ticks120 = ax2.get_xticks()
+    fig.set_dpi(300)
+    fig.canvas.draw()
+    ticks300 = ax2.get_xticks()
+    np.testing.assert_allclose(ticks120, ticks300)
+
+
+@image_comparison(['test_subfigure_scatter_size.png'], style='mpl20',
+                   remove_text=True)
+def test_subfigure_scatter_size():
+    # markers in the left- and right-most subplots should be the same
+    fig = plt.figure()
+    gs = fig.add_gridspec(1, 2)
+    ax0 = fig.add_subplot(gs[1])
+    ax0.scatter([1, 2, 3], [1, 2, 3], s=30, marker='s')
+    ax0.scatter([3, 4, 5], [1, 2, 3], s=[20, 30, 40], marker='s')
+
+    sfig = fig.add_subfigure(gs[0])
+    axs = sfig.subplots(1, 2)
+    for ax in [ax0, axs[0]]:
+        ax.scatter([1, 2, 3], [1, 2, 3], s=30, marker='s', color='r')
+        ax.scatter([3, 4, 5], [1, 2, 3], s=[20, 30, 40], marker='s', color='g')
+
+
 def test_add_subplot_kwargs():
     # fig.add_subplot() always creates new axes, even if axes kwargs differ.
     fig = plt.figure()
