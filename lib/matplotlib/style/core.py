@@ -33,6 +33,7 @@ def __getattr__(name):
     if name == "STYLE_FILE_PATTERN":
         _api.warn_deprecated("3.5", name=name)
         return re.compile(r'([\S]+).%s$' % STYLE_EXTENSION)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), 'stylelib')
