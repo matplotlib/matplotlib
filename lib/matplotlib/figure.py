@@ -14,6 +14,7 @@
     Control the default spacing between subplots.
 """
 
+import contextlib
 from contextlib import ExitStack
 import inspect
 import logging
@@ -37,8 +38,9 @@ from matplotlib.gridspec import GridSpec
 import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
 from matplotlib.text import Text
-from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
-                                   TransformedBbox)
+from matplotlib.transforms import (
+    Affine2D, Bbox, BboxTransformTo, IdentityTransform, ScaledTranslation,
+    TransformedBbox, TransformedPath)
 import matplotlib._layoutgrid as layoutgrid
 
 _log = logging.getLogger(__name__)
@@ -2754,6 +2756,9 @@ class Figure(FigureBase):
     @allow_rasterization
     def draw(self, renderer):
         # docstring inherited
+        if hasattr(self, "_bbox_renderer_hook"):
+            self._bbox_renderer_hook(renderer)
+
         self._cachedRenderer = renderer
 
         # draw the figure bounding box, perhaps none for white figure
@@ -2785,6 +2790,157 @@ class Figure(FigureBase):
             self.stale = False
 
         self.canvas.draw_event(renderer)
+
+    @contextlib.contextmanager
+    def _install_bbox_renderer_hook(self, bbox_inches):
+        """
+        Helper for rendering only part of the figure.
+
+        Temporarily that the figure's inches bbox is *bbox_inches*.  When
+        `draw` is called, patch the renderer so that all its draws are shifted
+        according to the origin of *bbox_inches*, and undo the bbox patching.
+        """
+        orig_bbox_inches_bounds = self.bbox_inches.bounds
+        self.bbox_inches.x1 = bbox_inches.width
+        self.bbox_inches.y1 = bbox_inches.height
+        x0 = bbox_inches.x0
+        y0 = bbox_inches.y0
+        shift_trf = ScaledTranslation(-x0, -y0, self.dpi_scale_trans)
+
+        def bbox_renderer_hook(renderer):
+            try:  # o_: original, s_: shifted.
+                origs = {
+                    "draw_path": renderer.draw_path,
+                    "draw_markers": renderer.draw_markers,
+                    "draw_path_collection": renderer.draw_path_collection,
+                    "draw_quad_mesh": renderer.draw_quad_mesh,
+                    "draw_gouraud_triangle": renderer.draw_gouraud_triangle,
+                    "draw_gouraud_triangles": renderer.draw_gouraud_triangles,
+                    "draw_image": renderer.draw_image,
+                    "draw_tex": renderer.draw_tex,
+                    "draw_text": renderer.draw_text,
+                }
+
+                @contextlib.contextmanager
+                def _shifted_clips_and_unpatched(gc):
+                    cr = gc.get_clip_rectangle()
+                    if cr is not None:
+                        gc.set_clip_rectangle(shift_trf.transform_bbox(cr))
+                    tp, tr = gc.get_clip_path()
+                    if tp is not None:
+                        gc.set_clip_path(TransformedPath(tp, tr + shift_trf))
+                    try:
+                        with cbook._setattr_cm(renderer, **origs):
+                            yield
+                    finally:
+                        if tp:
+                            gc.set_clip_path(TransformedPath(tp, tr))
+                        if cr:
+                            gc.set_clip_rectangle(cr)
+
+                def s_draw_path(gc, path, transform, rgbFace=None):
+                    with _shifted_clips_and_unpatched(gc):
+                        return origs["draw_path"](
+                            gc, path, transform + shift_trf, rgbFace)
+
+                def s_draw_markers(
+                        gc, marker_path, marker_trans, path, trans,
+                        rgbFace=None):
+                    with _shifted_clips_and_unpatched(gc):
+                        return origs["draw_markers"](
+                            gc, marker_path, marker_trans, path,
+                            trans + shift_trf, rgbFace)
+
+                def s_draw_path_collection(
+                        gc, master_transform, paths, all_transforms,
+                        offsets, offsetTrans, facecolors, edgecolors,
+                        linewidths, linestyles, antialiaseds, urls,
+                        offset_position):
+                    with _shifted_clips_and_unpatched(gc):
+                        return orig["draw_path_collection"](
+                            gc, master_transform + shift_trf, paths,
+                            all_transforms, offsets, offsetTrans, facecolors,
+                            edgecolors, linewidths, linestyles, antialiaseds,
+                            urls, offset_position)
+
+                def s_draw_quad_mesh(
+                        gc, master_transform, meshWidth, meshHeight,
+                        coordinates, offsets, offsetTrans, facecolors,
+                        antialiased, edgecolors):
+                    with _shifted_clips_and_unpatched(gc):
+                        return orig["draw_quad_mesh"](
+                            gc, master_transform + shift_trf, meshWidth,
+                            meshHeight, coordinates, offsets, offsetTrans,
+                            facecolors, antialiased, edgecolors)
+
+                def s_draw_gouraud_triangle(gc, points, colors, transform):
+                    with _shifted_clips_and_unpatched(gc):
+                        return orig["draw_gouraud_triangle"](
+                            gc, points, colors, transform + shift_trf)
+
+                def s_draw_gouraud_triangles(
+                        gc, triangles_array, colors_array, transform):
+                    with _shifted_clips_and_unpatched(gc):
+                        return orig["draw_gouraud_triangles"](
+                            gc, triangles_array, colors_array, transform)
+
+                # draw_image may take a transform kwarg, or not.
+                def s_draw_image(gc, x, y, *args, **kwargs):
+                    with _shifted_clips_and_unpatched(gc):
+                        dx = -x0 * self.dpi
+                        dy = -y0 * self.dpi
+                        return origs["draw_image"](
+                            gc, x + dx, y + dy, *args, **kwargs)
+
+                def s_draw_tex(gc, x, y, s, prop, angle, *, mtext=None):
+                    with _shifted_clips_and_unpatched(gc):
+                        dx = -x0 * self.dpi
+                        dy = -y0 * self.dpi
+                        if renderer.flipy():
+                            dy = -dy
+                        return origs["draw_tex"](
+                            gc, x + dx, y + dy, s, prop, angle, mtext)
+
+                def s_draw_text(
+                        gc, x, y, s, prop, angle, ismath=False, mtext=None):
+                    with _shifted_clips_and_unpatched(gc):
+                        dx = -x0 * self.dpi
+                        dy = -y0 * self.dpi
+                        if renderer.flipy():
+                            dy = -dy
+                        # Some backends ignore x and y and directly read
+                        # mtext.get_position()/get_unitless_position().
+                        with cbook._setattr_cm(
+                            mtext,
+                            get_position=lambda: (x + dx, y + dy),
+                            get_unitless_position=lambda: (x + dx, y + dy),
+                            get_transform=lambda: IdentityTransform(),
+                        ):
+                            return origs["draw_text"](
+                                gc, x + dx, y + dy, s, prop, angle, ismath,
+                                mtext)
+
+                stack.enter_context(cbook._setattr_cm(
+                    renderer,
+                    draw_path=s_draw_path,
+                    draw_markers=s_draw_markers,
+                    draw_path_collection=s_draw_path_collection,
+                    draw_quad_mesh=s_draw_quad_mesh,
+                    draw_gouraud_triangle=s_draw_gouraud_triangle,
+                    draw_gouraud_triangles=s_draw_gouraud_triangles,
+                    draw_image=s_draw_image,
+                    draw_tex=s_draw_tex,
+                    draw_text=s_draw_text,
+                ))
+
+            finally:
+                self.bbox_inches.bounds = orig_bbox_inches_bounds
+                del self._bbox_renderer_hook
+
+        self._bbox_renderer_hook = bbox_renderer_hook
+
+        with ExitStack() as stack:
+            yield
 
     def draw_no_output(self):
         """

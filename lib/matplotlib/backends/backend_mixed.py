@@ -68,6 +68,36 @@ class MixedModeRenderer:
         # to the underlying C implementation).
         return getattr(self._renderer, attr)
 
+    # These methods are explicitly defined as forwarders here so that they
+    # can be setattr_cm'd by _install_bbox_renderer_hook.
+
+    def draw_path(self, *args, **kwargs):
+        return self._renderer.draw_path(*args, **kwargs)
+
+    def draw_markers(self, *args, **kwargs):
+        return self._renderer.draw_markers(*args, **kwargs)
+
+    def draw_path_collection(self, *args, **kwargs):
+        return self._renderer.draw_path_collection(*args, **kwargs)
+
+    def draw_quad_mesh(self, *args, **kwargs):
+        return self._renderer.draw_quad_mesh(*args, **kwargs)
+
+    def draw_gouraud_triangle(self, *args, **kwargs):
+        return self._renderer.draw_gouraud_triangle(*args, **kwargs)
+
+    def draw_gouraud_triangles(self, *args, **kwargs):
+        return self._renderer.draw_gouraud_triangles(*args, **kwargs)
+
+    def draw_image(self, *args, **kwargs):
+        return self._renderer.draw_image(*args, **kwargs)
+
+    def draw_tex(self, *args, **kwargs):
+        return self._renderer.draw_tex(*args, **kwargs)
+
+    def draw_text(self, *args, **kwargs):
+        return self._renderer.draw_text(*args, **kwargs)
+
     def start_rasterizing(self):
         """
         Enter "raster" mode.  All subsequent drawing commands (until

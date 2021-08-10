@@ -45,7 +45,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import (
     _api, backend_tools as tools, cbook, colors, docstring, textpath,
-    tight_bbox, transforms, widgets, get_backend, is_interactive, rcParams)
+    transforms, widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import _setattr_cm
@@ -2279,8 +2279,9 @@ class FigureCanvasBase:
             if bbox_inches is None:
                 bbox_inches = rcParams['savefig.bbox']
 
-            if (self.figure.get_constrained_layout() or
-                    bbox_inches == "tight"):
+            orig_dpi = self.figure.dpi
+
+            if self.figure.get_constrained_layout() or bbox_inches == "tight":
                 # we need to trigger a draw before printing to make sure
                 # CL works.  "tight" also needs a draw to get the right
                 # locations:
@@ -2292,6 +2293,8 @@ class FigureCanvasBase:
                 with getattr(renderer, "_draw_disabled", nullcontext)():
                     self.figure.draw(renderer)
 
+            save_dpi = self.figure.dpi
+
             if bbox_inches:
                 if bbox_inches == "tight":
                     bbox_inches = self.figure.get_tightbbox(
@@ -2299,14 +2302,12 @@ class FigureCanvasBase:
                     if pad_inches is None:
                         pad_inches = rcParams['savefig.pad_inches']
                     bbox_inches = bbox_inches.padded(pad_inches)
-
-                # call adjust_bbox to save only the given area
-                restore_bbox = tight_bbox.adjust_bbox(self.figure, bbox_inches,
-                                                      canvas.fixed_dpi)
-
-                _bbox_inches_restore = (bbox_inches, restore_bbox)
-            else:
-                _bbox_inches_restore = None
+                stack.enter_context(
+                    self.figure._install_bbox_renderer_hook(
+                        bbox_inches
+                        # Affine2D().scale(save_dpi / orig_dpi)
+                        # .transform_bbox(bbox_inches)
+                    ))
 
             # we have already done CL above, so turn it off:
             stack.enter_context(self.figure._cm_set(constrained_layout=False))
@@ -2319,12 +2320,8 @@ class FigureCanvasBase:
                         facecolor=facecolor,
                         edgecolor=edgecolor,
                         orientation=orientation,
-                        bbox_inches_restore=_bbox_inches_restore,
                         **kwargs)
             finally:
-                if bbox_inches and restore_bbox:
-                    restore_bbox()
-
                 self.figure.set_canvas(self)
             return result
 
