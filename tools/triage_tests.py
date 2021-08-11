@@ -30,6 +30,7 @@ import shutil
 import sys
 
 from matplotlib.backends.qt_compat import QtCore, QtGui, QtWidgets
+from matplotlib.backends.qt_compat import _enum, _exec
 
 
 # matplotlib stores the baseline images under two separate subtrees,
@@ -61,13 +62,13 @@ class Thumbnail(QtWidgets.QFrame):
         layout = QtWidgets.QVBoxLayout()
 
         label = QtWidgets.QLabel(name)
-        label.setAlignment(QtCore.Qt.AlignHCenter |
-                           QtCore.Qt.AlignVCenter)
+        label.setAlignment(_enum('QtCore.Qt.AlignmentFlag').AlignHCenter |
+                           _enum('QtCore.Qt.AlignmentFlag').AlignVCenter)
         layout.addWidget(label, 0)
 
         self.image = QtWidgets.QLabel()
-        self.image.setAlignment(QtCore.Qt.AlignHCenter |
-                                QtCore.Qt.AlignVCenter)
+        self.image.setAlignment(_enum('QtCore.Qt.AlignmentFlag').AlignHCenter |
+                                _enum('QtCore.Qt.AlignmentFlag').AlignVCenter)
         self.image.setMinimumSize(800 // 3, 600 // 3)
         layout.addWidget(self.image)
         self.setLayout(layout)
@@ -85,7 +86,7 @@ class EventFilter(QtCore.QObject):
         self.window = window
 
     def eventFilter(self, receiver, event):
-        if event.type() == QtCore.QEvent.KeyPress:
+        if event.type() == _enum('QtCore.QEvent.Type').KeyPress:
             self.window.keyPressEvent(event)
             return True
         else:
@@ -125,8 +126,9 @@ class Dialog(QtWidgets.QDialog):
         images_layout = QtWidgets.QVBoxLayout()
         images_box = QtWidgets.QWidget()
         self.image_display = QtWidgets.QLabel()
-        self.image_display.setAlignment(QtCore.Qt.AlignHCenter |
-                                        QtCore.Qt.AlignVCenter)
+        self.image_display.setAlignment(
+            _enum('QtCore.Qt.AlignmentFlag').AlignHCenter |
+            _enum('QtCore.Qt.AlignmentFlag').AlignVCenter)
         self.image_display.setMinimumSize(800, 600)
         images_layout.addWidget(self.image_display, 6)
         images_box.setLayout(images_layout)
@@ -164,8 +166,9 @@ class Dialog(QtWidgets.QDialog):
         for fname, thumbnail in zip(entry.thumbnails, self.thumbnails):
             pixmap = QtGui.QPixmap(os.fspath(fname))
             scaled_pixmap = pixmap.scaled(
-                thumbnail.size(), QtCore.Qt.KeepAspectRatio,
-                QtCore.Qt.SmoothTransformation)
+                thumbnail.size(),
+                _enum('QtCore.Qt.AspectRatioMode').KeepAspectRatio,
+                _enum('QtCore.Qt.TransformationMode').SmoothTransformation)
             thumbnail.image.setPixmap(scaled_pixmap)
             self.pixmaps.append(scaled_pixmap)
 
@@ -173,13 +176,15 @@ class Dialog(QtWidgets.QDialog):
         self.filelist.setCurrentRow(self.current_entry)
 
     def set_large_image(self, index):
-        self.thumbnails[self.current_thumbnail].setFrameShape(0)
+        self.thumbnails[self.current_thumbnail].setFrameShape(
+            _enum('QtWidgets.QFrame.Shape').NoFrame)
         self.current_thumbnail = index
         pixmap = QtGui.QPixmap(os.fspath(
             self.entries[self.current_entry]
             .thumbnails[self.current_thumbnail]))
         self.image_display.setPixmap(pixmap)
-        self.thumbnails[self.current_thumbnail].setFrameShape(1)
+        self.thumbnails[self.current_thumbnail].setFrameShape(
+            _enum('QtWidgets.QFrame.Shape').Box)
 
     def accept_test(self):
         entry = self.entries[self.current_entry]
@@ -204,17 +209,17 @@ class Dialog(QtWidgets.QDialog):
         self.set_entry(min((self.current_entry + 1), len(self.entries) - 1))
 
     def keyPressEvent(self, e):
-        if e.key() == QtCore.Qt.Key_Left:
+        if e.key() == _enum('QtCore.Qt.Key').Key_Left:
             self.set_large_image((self.current_thumbnail - 1) % 3)
-        elif e.key() == QtCore.Qt.Key_Right:
+        elif e.key() == _enum('QtCore.Qt.Key').Key_Right:
             self.set_large_image((self.current_thumbnail + 1) % 3)
-        elif e.key() == QtCore.Qt.Key_Up:
+        elif e.key() == _enum('QtCore.Qt.Key').Key_Up:
             self.set_entry(max(self.current_entry - 1, 0))
-        elif e.key() == QtCore.Qt.Key_Down:
+        elif e.key() == _enum('QtCore.Qt.Key').Key_Down:
             self.set_entry(min(self.current_entry + 1, len(self.entries) - 1))
-        elif e.key() == QtCore.Qt.Key_A:
+        elif e.key() == _enum('QtCore.Qt.Key').Key_A:
             self.accept_test()
-        elif e.key() == QtCore.Qt.Key_R:
+        elif e.key() == _enum('QtCore.Qt.Key').Key_R:
             self.reject_test()
         else:
             super().keyPressEvent(e)
@@ -233,8 +238,8 @@ class Entry:
 
         basename = self.diff[:-len('-failed-diff.png')]
         for ext in exts:
-            if basename.endswith('_' + ext):
-                display_extension = '_' + ext
+            if basename.endswith(f'_{ext}'):
+                display_extension = f'_{ext}'
                 extension = ext
                 basename = basename[:-4]
                 break
@@ -244,11 +249,10 @@ class Entry:
 
         self.basename = basename
         self.extension = extension
-        self.generated = basename + '.' + extension
-        self.expected = basename + '-expected.' + extension
-        self.expected_display = (basename + '-expected' + display_extension +
-                                 '.png')
-        self.generated_display = basename + display_extension + '.png'
+        self.generated = f'{basename}.{extension}'
+        self.expected = f'{basename}-expected.{extension}'
+        self.expected_display = f'{basename}-expected{display_extension}.png'
+        self.generated_display = f'{basename}{display_extension}.png'
         self.name = self.reldir / self.basename
         self.destdir = self.get_dest_dir(self.reldir)
 
@@ -277,7 +281,7 @@ class Entry:
             path = self.source / baseline_dir / reldir
             if path.is_dir():
                 return path
-        raise ValueError("Can't find baseline dir for {}".format(reldir))
+        raise ValueError(f"Can't find baseline dir for {reldir}")
 
     @property
     def display(self):
@@ -292,7 +296,7 @@ class Entry:
             'autogen': '\N{WHITE SQUARE CONTAINING BLACK SMALL SQUARE}',
         }
         box = status_map[self.status]
-        return '{} {} [{}]'.format(box, self.name, self.extension)
+        return f'{box} {self.name} [{self.extension}]'
 
     def accept(self):
         """
@@ -305,7 +309,9 @@ class Entry:
         """
         Reject this test by copying the expected result to the source tree.
         """
-        copy_file(self.dir / self.expected, self.destdir / self.generated)
+        expected = self.dir / self.expected
+        if not expected.is_symlink():
+            copy_file(expected, self.destdir / self.generated)
         self.status = 'reject'
 
 
@@ -339,7 +345,7 @@ def launch(result_images, source):
     dialog.show()
     filter = EventFilter(dialog)
     app.installEventFilter(filter)
-    sys.exit(app.exec_())
+    sys.exit(_exec(app))
 
 
 if __name__ == '__main__':
