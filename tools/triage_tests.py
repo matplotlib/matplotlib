@@ -309,7 +309,9 @@ class Entry:
         """
         Reject this test by copying the expected result to the source tree.
         """
-        copy_file(self.dir / self.expected, self.destdir / self.generated)
+        expected = self.dir / self.expected
+        if not expected.is_symlink():
+            copy_file(expected, self.destdir / self.generated)
         self.status = 'reject'
 
 
