@@ -238,8 +238,8 @@ class Entry:
 
         basename = self.diff[:-len('-failed-diff.png')]
         for ext in exts:
-            if basename.endswith('_' + ext):
-                display_extension = '_' + ext
+            if basename.endswith(f'_{ext}'):
+                display_extension = f'_{ext}'
                 extension = ext
                 basename = basename[:-4]
                 break
@@ -249,11 +249,10 @@ class Entry:
 
         self.basename = basename
         self.extension = extension
-        self.generated = basename + '.' + extension
-        self.expected = basename + '-expected.' + extension
-        self.expected_display = (basename + '-expected' + display_extension +
-                                 '.png')
-        self.generated_display = basename + display_extension + '.png'
+        self.generated = f'{basename}.{extension}'
+        self.expected = f'{basename}-expected.{extension}'
+        self.expected_display = f'{basename}-expected{display_extension}.png'
+        self.generated_display = f'{basename}{display_extension}.png'
         self.name = self.reldir / self.basename
         self.destdir = self.get_dest_dir(self.reldir)
 
@@ -282,7 +281,7 @@ class Entry:
             path = self.source / baseline_dir / reldir
             if path.is_dir():
                 return path
-        raise ValueError("Can't find baseline dir for {}".format(reldir))
+        raise ValueError(f"Can't find baseline dir for {reldir}")
 
     @property
     def display(self):
@@ -297,7 +296,7 @@ class Entry:
             'autogen': '\N{WHITE SQUARE CONTAINING BLACK SMALL SQUARE}',
         }
         box = status_map[self.status]
-        return '{} {} [{}]'.format(box, self.name, self.extension)
+        return f'{box} {self.name} [{self.extension}]'
 
     def accept(self):
         """
