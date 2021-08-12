@@ -180,8 +180,8 @@ def test_save_animation_smoketest(tmpdir, writer, frame_format, output, anim):
     with tmpdir.as_cwd():
         anim.save(output, fps=30, writer=writer, bitrate=500, dpi=dpi,
                   codec=codec)
-    with pytest.warns(None):
-        del anim
+
+    del anim
 
 
 @pytest.mark.parametrize('writer', [
