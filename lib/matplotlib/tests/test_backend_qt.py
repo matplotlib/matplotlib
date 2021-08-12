@@ -456,7 +456,7 @@ def _get_testable_qt_backends():
         envs.append(pytest.param(env, marks=marks, id=str(env)))
     return envs
 
-_test_timeout = 10  # Empirically, 1s is not enough on CI.
+_test_timeout = 60  # A reasonably safe value for slower architectures.
 
 
 @pytest.mark.parametrize("env", _get_testable_qt_backends())
