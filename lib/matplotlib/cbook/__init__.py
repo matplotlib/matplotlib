@@ -122,7 +122,8 @@ def _weak_or_strong_ref(func, callback):
 
 class CallbackRegistry:
     """
-    Handle registering and disconnecting for a set of signals and callbacks:
+    Handle registering, processing, blocking, and disconnecting
+    for a set of signals and callbacks:
 
         >>> def oneat(x):
         ...    print('eat', x)
@@ -140,8 +141,14 @@ class CallbackRegistry:
         >>> callbacks.process('eat', 456)
         eat 456
         >>> callbacks.process('be merry', 456) # nothing will be called
+
         >>> callbacks.disconnect(id_eat)
         >>> callbacks.process('eat', 456)      # nothing will be called
+
+        >>> with callbacks.blocked(signal='drink'):
+        ...     callbacks.process('drink', 123) # nothing will be called
+        >>> callbacks.process('drink', 123)
+        drink 123
 
     In practice, one should always disconnect all callbacks when they are
     no longer needed to avoid dangling references (and thus memory leaks).
@@ -279,6 +286,31 @@ class CallbackRegistry:
                         self.exception_handler(exc)
                     else:
                         raise
+
+    @contextlib.contextmanager
+    def blocked(self, *, signal=None):
+        """
+        Block callback signals from being processed.
+
+        A context manager to temporarily block/disable callback signals
+        from being processed by the registered listeners.
+
+        Parameters
+        ----------
+        signal : str, optional
+            The callback signal to block. The default is to block all signals.
+        """
+        orig = self.callbacks
+        try:
+            if signal is None:
+                # Empty out the callbacks
+                self.callbacks = {}
+            else:
+                # Only remove the specific signal
+                self.callbacks = {k: orig[k] for k in orig if k != signal}
+            yield
+        finally:
+            self.callbacks = orig
 
 
 class silent_list(list):
