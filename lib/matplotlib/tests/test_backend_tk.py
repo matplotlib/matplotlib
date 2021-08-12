@@ -7,7 +7,7 @@ import sys
 
 import pytest
 
-_test_timeout = 10  # Empirically, 1s is not enough on CI.
+_test_timeout = 60  # A reasonably safe value for slower architectures.
 
 
 def _isolated_tk_test(success_count, func=None):

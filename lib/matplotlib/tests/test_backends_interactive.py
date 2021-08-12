@@ -55,7 +55,7 @@ def _get_testable_interactive_backends():
     return envs
 
 
-_test_timeout = 10  # Empirically, 1s is not enough on CI.
+_test_timeout = 60  # A reasonably safe value for slower architectures.
 
 
 # The source of this function gets extracted and run in another process, so it
