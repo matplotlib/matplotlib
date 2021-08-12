@@ -289,7 +289,7 @@ def test_twinx_cla():
     fig, ax = plt.subplots()
     ax2 = ax.twinx()
     ax3 = ax2.twiny()
-    fig.canvas.draw()
+    fig.draw_no_output()
 
     assert not ax2.xaxis.get_visible()
     assert not ax2.patch.get_visible()
@@ -478,7 +478,7 @@ def test_autoscale_log_shared():
     ax2.semilogx(x, x)
     ax1.autoscale(tight=True)
     ax2.autoscale(tight=True)
-    fig.canvas.draw()
+    fig.draw_no_output()
 
     lims = (x[1], x[-1])
     assert_allclose(ax1.get_xlim(), lims)
@@ -4099,7 +4099,7 @@ def test_eventplot_problem_kwargs(recwarn):
 def test_empty_eventplot():
     fig, ax = plt.subplots(1, 1)
     ax.eventplot([[]], colors=[(0.0, 0.0, 0.0, 0.0)])
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 @pytest.mark.parametrize('data', [[[]], [[], [0, 1]], [[0, 1], []]])
@@ -4109,7 +4109,7 @@ def test_eventplot_orientation(data, orientation):
     opts = {} if orientation is None else {'orientation': orientation}
     fig, ax = plt.subplots(1, 1)
     ax.eventplot(data, **opts)
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 @image_comparison(['marker_styles.png'], remove_text=True)

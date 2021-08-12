@@ -13,7 +13,7 @@ computing until draw time (limits, ticks, the size of things in screen
 space, optimized layout, etc).  If you need to be sure that these
 values are correct (with any backend) call ::
 
-  fig.canvas.draw()
+  fig.draw_no_output()
 
 to force the Figure to fully render.  This may break user code if it
 is relying on `pyplot.draw` (which internally calls ``draw_idle``)
