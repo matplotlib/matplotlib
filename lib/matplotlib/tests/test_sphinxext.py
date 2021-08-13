@@ -100,8 +100,8 @@ def test_tinypages(tmpdir):
 def test_plot_html_show_source_link(tmpdir):
     source_dir = Path(tmpdir) / 'src'
     source_dir.mkdir()
-    shutil.copyfile(Path(__file__).parent / 'tinypages' / "conf.py", source_dir / "conf.py")
-    shutil.copytree(Path(__file__).parent / 'tinypages' / "_static", source_dir / "_static")
+    shutil.copyfile(Path(__file__).parent / 'tinypages/conf.py', source_dir)
+    shutil.copytree(Path(__file__).parent / 'tinypages/_static', source_dir)
     doctree_dir = source_dir / 'doctrees'
     (source_dir / 'index.rst').write_text("""
 .. plot::
