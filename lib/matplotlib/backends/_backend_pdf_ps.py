@@ -2,6 +2,7 @@
 Common functionality between the PDF and PS backends.
 """
 
+import os
 from io import BytesIO
 import functools
 
@@ -37,7 +38,11 @@ def get_glyphs_subset(fontfile, characters):
     options = subset.Options(glyph_names=True, recommended_glyphs=True)
 
     # prevent subsetting FontForge Timestamp and other tables
-    options.drop_tables += ['FFTM', 'PfEd']
+    options.drop_tables += ['FFTM', 'PfEd', 'BDF']
+
+    # if fontfile is a ttc, specify font number
+    if os.path.splitext(fontfile)[1] == ".ttc":
+        options.font_number = 0
 
     with subset.load_font(fontfile, options) as font:
         subsetter = subset.Subsetter(options=options)
