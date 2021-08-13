@@ -304,14 +304,14 @@ def test_polar_gridlines():
     ax.grid(alpha=0.2)
     # hide y tick labels, no effect in 2.1.0
     plt.setp(ax.yaxis.get_ticklabels(), visible=False)
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert ax.xaxis.majorTicks[0].gridline.get_alpha() == .2
     assert ax.yaxis.majorTicks[0].gridline.get_alpha() == .2
 
 
 def test_get_tightbbox_polar():
     fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
-    fig.canvas.draw()
+    fig.draw_no_output()
     bb = ax.get_tightbbox(fig.canvas.get_renderer())
     assert_allclose(
         bb.extents, [107.7778,  29.2778, 539.7847, 450.7222], rtol=1e-03)
@@ -397,7 +397,7 @@ def test_remove_shared_polar(fig_ref, fig_test):
 def test_shared_polar_keeps_ticklabels():
     fig, axs = plt.subplots(
         2, 2, subplot_kw=dict(projection="polar"), sharex=True, sharey=True)
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert axs[0, 1].xaxis.majorTicks[0].get_visible()
     assert axs[0, 1].yaxis.majorTicks[0].get_visible()
 

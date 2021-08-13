@@ -320,7 +320,7 @@ def test_colorbar_minorticks_on_off():
     fig, ax = plt.subplots()
     im = ax.pcolormesh(data, norm=LogNorm())
     cbar = fig.colorbar(im)
-    fig.canvas.draw()
+    fig.draw_no_output()
     default_minorticklocks = cbar.ax.yaxis.get_minorticklocs()
     # test that minorticks turn off for LogNorm
     cbar.minorticks_off()
@@ -486,7 +486,7 @@ def test_colorbar_log_minortick_labels():
         fig, ax = plt.subplots()
         pcm = ax.imshow([[10000, 50000]], norm=LogNorm())
         cb = fig.colorbar(pcm)
-        fig.canvas.draw()
+        fig.draw_no_output()
         lb = [l.get_text() for l in cb.ax.yaxis.get_ticklabels(which='both')]
         expected = [r'$\mathdefault{10^{4}}$',
                     r'$\mathdefault{2\times10^{4}}$',
@@ -534,18 +534,18 @@ def test_colorbar_format():
     fig, ax = plt.subplots()
     im = ax.imshow(z)
     cbar = fig.colorbar(im, format='%4.2e')
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert cbar.ax.yaxis.get_ticklabels()[4].get_text() == '8.00e+04'
 
     # make sure that if we change the clim of the mappable that the
     # formatting is *not* lost:
     im.set_clim([4, 200])
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert cbar.ax.yaxis.get_ticklabels()[4].get_text() == '2.00e+02'
 
     # but if we change the norm:
     im.set_norm(LogNorm(vmin=0.1, vmax=10))
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert (cbar.ax.yaxis.get_ticklabels()[0].get_text() ==
             r'$\mathdefault{10^{-2}}$')
 
@@ -601,7 +601,7 @@ def test_mappable_no_alpha():
     sm = cm.ScalarMappable(norm=mcolors.Normalize(), cmap='viridis')
     fig.colorbar(sm)
     sm.set_cmap('plasma')
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 def test_mappable_2d_alpha():

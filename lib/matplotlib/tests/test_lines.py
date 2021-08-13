@@ -95,7 +95,7 @@ def test_line_colors():
     ax.plot(range(10), color='.3')
     ax.plot(range(10), color=(1, 0, 0, 1))
     ax.plot(range(10), color=(1, 0, 0))
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 def test_valid_colors():
@@ -109,7 +109,7 @@ def test_linestyle_variants():
     for ls in ["-", "solid", "--", "dashed",
                "-.", "dashdot", ":", "dotted"]:
         ax.plot(range(10), linestyle=ls)
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 def test_valid_linestyles():
@@ -267,20 +267,20 @@ def test_markevery_figure_line_unsupported_relsize():
     fig = plt.figure()
     fig.add_artist(mlines.Line2D([0, 1], [0, 1], marker="o", markevery=.5))
     with pytest.raises(ValueError):
-        fig.canvas.draw()
+        fig.draw_no_output()
 
 
 def test_marker_as_markerstyle():
     fig, ax = plt.subplots()
     line, = ax.plot([2, 4, 3], marker=MarkerStyle("D"))
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert line.get_marker() == "D"
 
     # continue with smoke tests:
     line.set_marker("s")
-    fig.canvas.draw()
+    fig.draw_no_output()
     line.set_marker(MarkerStyle("o"))
-    fig.canvas.draw()
+    fig.draw_no_output()
     # test Path roundtrip
     triangle1 = Path([[-1., -1.], [1., -1.], [0., 2.], [0., 0.]], closed=True)
     line2, = ax.plot([1, 3, 2], marker=MarkerStyle(triangle1), ms=22)

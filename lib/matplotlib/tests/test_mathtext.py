@@ -438,5 +438,5 @@ def test_mathtext_cmr10_minus_sign():
     fig, ax = plt.subplots()
     ax.plot(range(-1, 1), range(-1, 1))
     with pytest.warns(None) as record:
-        fig.canvas.draw()
+        fig.draw_no_output()
     assert len(record) == 0, "\n".join(str(e.message) for e in record)

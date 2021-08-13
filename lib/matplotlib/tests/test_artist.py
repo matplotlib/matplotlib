@@ -193,7 +193,7 @@ def test_remove():
     assert fig.stale
     assert ax.stale
 
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert not fig.stale
     assert not ax.stale
     assert not ln.stale

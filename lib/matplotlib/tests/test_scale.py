@@ -93,7 +93,7 @@ def test_logscale_subs():
     fig, ax = plt.subplots()
     ax.set_yscale('log', subs=np.array([2, 3, 4]))
     # force draw
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 @image_comparison(['logscale_mask.png'], remove_text=True)
@@ -104,7 +104,7 @@ def test_logscale_mask():
 
     fig, ax = plt.subplots()
     ax.plot(np.exp(-xs**2))
-    fig.canvas.draw()
+    fig.draw_no_output()
     ax.set(yscale="log")
 
 

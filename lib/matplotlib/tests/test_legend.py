@@ -539,7 +539,7 @@ def test_window_extent_cached_renderer():
     ax.plot(range(10), label='Aardvark')
     leg = ax.legend()
     leg2 = fig.legend()
-    fig.canvas.draw()
+    fig.draw_no_output()
     # check that get_window_extent will use the cached renderer
     leg.get_window_extent()
     leg2.get_window_extent()
@@ -753,13 +753,13 @@ def test_usetex_no_warn(caplog):
     ax.plot(0, 0, label='input')
     ax.legend(title="My legend")
 
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert "Font family ['serif'] not found." not in caplog.text
 
 
 def test_warn_big_data_best_loc():
     fig, ax = plt.subplots()
-    fig.canvas.draw()  # So that we can call draw_artist later.
+    fig.draw_no_output()  # So that we can call draw_artist later.
     for idx in range(1000):
         ax.plot(np.arange(5000), label=idx)
     with rc_context({'legend.loc': 'best'}):
@@ -777,7 +777,7 @@ def test_warn_big_data_best_loc():
 
 def test_no_warn_big_data_when_loc_specified():
     fig, ax = plt.subplots()
-    fig.canvas.draw()
+    fig.draw_no_output()
     for idx in range(1000):
         ax.plot(np.arange(5000), label=idx)
     legend = ax.legend('best')

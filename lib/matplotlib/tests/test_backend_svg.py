@@ -253,7 +253,7 @@ def test_gid():
     ax3 = fig.add_subplot(133, projection="3d")
     ax3.plot([1, 2], [1, 2], [1, 2])
 
-    fig.canvas.draw()
+    fig.draw_no_output()
 
     gdic = {}
     for idx, obj in enumerate(fig.findobj(include_self=True)):

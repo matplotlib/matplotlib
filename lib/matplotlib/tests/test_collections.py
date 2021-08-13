@@ -650,7 +650,7 @@ def test_pathcollection_legend_elements():
     for l in [l1, l2, l3, l4]:
         ax.add_artist(l)
 
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 def test_EventCollection_nosort():
@@ -835,12 +835,12 @@ def test_quadmesh_set_array():
     coll = ax.pcolormesh(x, y, np.ones(z.shape))
     # Test that the collection is able to update with a 2d array
     coll.set_array(z)
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert np.array_equal(coll.get_array(), z)
 
     # Check that pre-flattened arrays work too
     coll.set_array(np.ones(9))
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert np.array_equal(coll.get_array(), np.ones(9))
 
     z = np.arange(16).reshape((4, 4))
@@ -848,12 +848,12 @@ def test_quadmesh_set_array():
     coll = ax.pcolormesh(x, y, np.ones(z.shape), shading='gouraud')
     # Test that the collection is able to update with a 2d array
     coll.set_array(z)
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert np.array_equal(coll.get_array(), z)
 
     # Check that pre-flattened arrays work too
     coll.set_array(np.ones(16))
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert np.array_equal(coll.get_array(), np.ones(16))
 
 
@@ -863,13 +863,13 @@ def test_quadmesh_vmin_vmax():
     cmap = mpl.cm.get_cmap('plasma')
     norm = mpl.colors.Normalize(vmin=0, vmax=1)
     coll = ax.pcolormesh([[1]], cmap=cmap, norm=norm)
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert np.array_equal(coll.get_facecolors()[0, :], cmap(norm(1)))
 
     # Change the vmin/vmax of the norm so that the color is from
     # the bottom of the colormap now
     norm.vmin, norm.vmax = 1, 2
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert np.array_equal(coll.get_facecolors()[0, :], cmap(norm(1)))
 
 

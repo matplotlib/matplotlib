@@ -1291,7 +1291,7 @@ def test_ndarray_subclass_norm():
         assert_array_equal(norm(mydata), norm(data))
         fig, ax = plt.subplots()
         ax.imshow(mydata, norm=norm)
-        fig.canvas.draw()  # Check that no warning is emitted.
+        fig.draw_no_output()  # Check that no warning is emitted.
 
 
 def test_same_color():

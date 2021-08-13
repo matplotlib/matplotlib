@@ -82,7 +82,7 @@ def test_offsetbox_clip_children():
     da.add_artist(line)
     ax.add_artist(anchored_box)
 
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert not fig.stale
     da.clip_children = True
     assert fig.stale
@@ -106,7 +106,7 @@ def test_offsetbox_loc_codes():
     for code in codes:
         anchored_box = AnchoredOffsetbox(loc=code, child=da)
         ax.add_artist(anchored_box)
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 def test_expand_with_tight_layout():
@@ -226,7 +226,7 @@ def test_picking(child_type, boxcoords):
         y += 0.5
     else:
         x, y = ax.transAxes.transform_point((0.5, 0.5))
-    fig.canvas.draw()
+    fig.draw_no_output()
     calls.clear()
     fig.canvas.button_press_event(x, y, MouseButton.LEFT)
     assert len(calls) == 1 and calls[0].artist == ab
@@ -235,7 +235,7 @@ def test_picking(child_type, boxcoords):
     # point when the limits have changed enough to hide the *xy* point.
     ax.set_xlim(-1, 0)
     ax.set_ylim(-1, 0)
-    fig.canvas.draw()
+    fig.draw_no_output()
     calls.clear()
     fig.canvas.button_press_event(x, y, MouseButton.LEFT)
     assert len(calls) == 0
@@ -283,7 +283,7 @@ def test_annotationbbox_extents():
                          arrowprops=dict(arrowstyle="->"))
     ax.add_artist(ab6)
 
-    fig.canvas.draw()
+    fig.draw_no_output()
     renderer = fig.canvas.get_renderer()
 
     # Test Annotation
@@ -318,9 +318,9 @@ def test_annotationbbox_extents():
     assert_allclose(shape, targetshape, atol=2)
 
     # Simple smoke test for tight_layout, to make sure it does not error out.
-    fig.canvas.draw()
+    fig.draw_no_output()
     fig.tight_layout()
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 def test_zorder():

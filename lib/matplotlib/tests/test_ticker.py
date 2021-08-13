@@ -587,7 +587,7 @@ class TestScalarFormatter:
         with pytest.warns(UserWarning, match='cmr10 font should ideally'):
             fig, ax = plt.subplots()
             ax.set_xticks([-1, 0, 1])
-            fig.canvas.draw()
+            fig.draw_no_output()
 
 
 class FakeAxis:
@@ -1203,7 +1203,7 @@ def test_engformatter_usetex_useMathText():
     for formatter in (mticker.EngFormatter(usetex=True),
                       mticker.EngFormatter(useMathText=True)):
         ax.xaxis.set_major_formatter(formatter)
-        fig.canvas.draw()
+        fig.draw_no_output()
         x_tick_label_text = [labl.get_text() for labl in ax.get_xticklabels()]
         # Checking if the dollar `$` signs have been inserted around numbers
         # in tick labels.

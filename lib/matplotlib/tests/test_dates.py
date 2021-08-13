@@ -290,7 +290,7 @@ def test_locator_set_formatter():
     fig, ax = plt.subplots()
     ax.plot(t, x)
     ax.xaxis.set_major_locator(mdates.MinuteLocator((0, 30)))
-    fig.canvas.draw()
+    fig.draw_no_output()
     ticklabels = [tl.get_text() for tl in ax.get_xticklabels()]
     expected = ['30 08:00', '30 08:30', '30 09:00',
                 '30 09:30', '30 10:00', '30 10:30']
@@ -302,7 +302,7 @@ def test_locator_set_formatter():
     ax.xaxis.set_minor_formatter(mdates.AutoDateFormatter(decoy_loc))
 
     ax.xaxis.set_minor_locator(mdates.MinuteLocator((15, 45)))
-    fig.canvas.draw()
+    fig.draw_no_output()
     ticklabels = [tl.get_text() for tl in ax.get_xticklabels(which="minor")]
     expected = ['30 08:15', '30 08:45', '30 09:15', '30 09:45', '30 10:15']
     assert ticklabels == expected
@@ -536,7 +536,7 @@ def test_concise_formatter():
         ax.yaxis.set_major_locator(locator)
         ax.yaxis.set_major_formatter(formatter)
         ax.set_ylim(date1, date2)
-        fig.canvas.draw()
+        fig.draw_no_output()
         sts = [st.get_text() for st in ax.get_yticklabels()]
         return sts
 
@@ -596,7 +596,7 @@ def test_concise_formatter_show_offset(t_delta, expected):
     ax.xaxis.set_major_formatter(formatter)
 
     ax.plot([d1, d2], [0, 0])
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert formatter.get_offset() == expected
 
 
@@ -645,7 +645,7 @@ def test_concise_formatter_formats():
         ax.yaxis.set_major_locator(locator)
         ax.yaxis.set_major_formatter(formatter)
         ax.set_ylim(date1, date2)
-        fig.canvas.draw()
+        fig.draw_no_output()
         sts = [st.get_text() for st in ax.get_yticklabels()]
         return sts
 
@@ -700,7 +700,7 @@ def test_concise_formatter_zformats():
         ax.yaxis.set_major_locator(locator)
         ax.yaxis.set_major_formatter(formatter)
         ax.set_ylim(date1, date2)
-        fig.canvas.draw()
+        fig.draw_no_output()
         sts = [st.get_text() for st in ax.get_yticklabels()]
         return sts
 
@@ -749,7 +749,7 @@ def test_concise_formatter_tz():
         ax.yaxis.set_major_locator(locator)
         ax.yaxis.set_major_formatter(formatter)
         ax.set_ylim(date1, date2)
-        fig.canvas.draw()
+        fig.draw_no_output()
         sts = [st.get_text() for st in ax.get_yticklabels()]
         return sts, ax.yaxis.get_offset_text().get_text()
 
@@ -1141,7 +1141,7 @@ def test_change_converter():
     fig, ax = plt.subplots()
 
     ax.plot(dates, np.arange(len(dates)))
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert ax.get_xticklabels()[0].get_text() == 'Jan'
     assert ax.get_xticklabels()[1].get_text() == '15'
 
@@ -1149,7 +1149,7 @@ def test_change_converter():
     fig, ax = plt.subplots()
 
     ax.plot(dates, np.arange(len(dates)))
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert ax.get_xticklabels()[0].get_text() == 'Jan 01 2020'
     assert ax.get_xticklabels()[1].get_text() == 'Jan 15 2020'
     with pytest.warns(UserWarning) as rec:
@@ -1162,7 +1162,7 @@ def test_change_interval_multiples():
     fig, ax = plt.subplots()
 
     ax.plot(dates, np.arange(len(dates)))
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert ax.get_xticklabels()[0].get_text() == 'Jan 10 2020'
     assert ax.get_xticklabels()[1].get_text() == 'Jan 24 2020'
 
@@ -1170,7 +1170,7 @@ def test_change_interval_multiples():
     fig, ax = plt.subplots()
 
     ax.plot(dates, np.arange(len(dates)))
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert ax.get_xticklabels()[0].get_text() == 'Jan 15 2020'
     assert ax.get_xticklabels()[1].get_text() == 'Feb 01 2020'
 

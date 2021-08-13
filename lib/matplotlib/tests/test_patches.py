@@ -258,7 +258,7 @@ def test_patch_linestyle_accents():
 
     ax.set_xlim([-1, i + 1])
     ax.set_ylim([-1, i + 1])
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 @check_figures_equal(extensions=['png'])

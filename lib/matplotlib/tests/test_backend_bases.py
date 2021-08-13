@@ -123,7 +123,7 @@ def test_location_event_position(x, y):
 def test_pick():
     fig = plt.figure()
     fig.text(.5, .5, "hello", ha="center", va="center", picker=True)
-    fig.canvas.draw()
+    fig.draw_no_output()
     picks = []
     fig.canvas.mpl_connect("pick_event", lambda event: picks.append(event))
     start_event = MouseEvent(

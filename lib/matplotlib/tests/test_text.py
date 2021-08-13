@@ -221,7 +221,7 @@ def test_contains():
 
     # draw the text. This is important, as the contains method can only work
     # when a renderer exists.
-    fig.canvas.draw()
+    fig.draw_no_output()
 
     for x, y in zip(xs.flat, ys.flat):
         mevent.x, mevent.y = plt.gca().transAxes.transform([x, y])
@@ -240,7 +240,7 @@ def test_annotation_contains():
     fig, ax = plt.subplots()
     ann = ax.annotate(
         "hello", xy=(.4, .4), xytext=(.6, .6), arrowprops={"arrowstyle": "->"})
-    fig.canvas.draw()   # Needed for the same reason as in test_contains.
+    fig.draw_no_output()   # Needed for the same reason as in test_contains.
     event = MouseEvent(
         "button_press_event", fig.canvas, *ax.transData.transform((.5, .6)))
     assert ann.contains(event) == (False, {})
@@ -297,12 +297,12 @@ def test_set_position():
     # test set_position
     ann = ax.annotate(
         'test', (0, 0), xytext=(0, 0), textcoords='figure pixels')
-    fig.canvas.draw()
+    fig.draw_no_output()
 
     init_pos = ann.get_window_extent(fig.canvas.renderer)
     shift_val = 15
     ann.set_position((shift_val, shift_val))
-    fig.canvas.draw()
+    fig.draw_no_output()
     post_pos = ann.get_window_extent(fig.canvas.renderer)
 
     for a, b in zip(init_pos.min, post_pos.min):
@@ -311,12 +311,12 @@ def test_set_position():
     # test xyann
     ann = ax.annotate(
         'test', (0, 0), xytext=(0, 0), textcoords='figure pixels')
-    fig.canvas.draw()
+    fig.draw_no_output()
 
     init_pos = ann.get_window_extent(fig.canvas.renderer)
     shift_val = 15
     ann.xyann = (shift_val, shift_val)
-    fig.canvas.draw()
+    fig.draw_no_output()
     post_pos = ann.get_window_extent(fig.canvas.renderer)
 
     for a, b in zip(init_pos.min, post_pos.min):
@@ -328,7 +328,7 @@ def test_non_default_dpi(text):
     fig, ax = plt.subplots()
 
     t1 = ax.text(0.5, 0.5, text, ha='left', va='bottom')
-    fig.canvas.draw()
+    fig.draw_no_output()
     dpi = fig.dpi
 
     bbox1 = t1.get_window_extent()
@@ -377,7 +377,7 @@ def test_null_rotation_with_rotation_mode(ha, va):
     kw = dict(rotation=0, va=va, ha=ha)
     t0 = ax.text(.5, .5, 'test', rotation_mode='anchor', **kw)
     t1 = ax.text(.5, .5, 'test', rotation_mode='default', **kw)
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert_almost_equal(t0.get_window_extent(fig.canvas.renderer).get_points(),
                         t1.get_window_extent(fig.canvas.renderer).get_points())
 
@@ -447,7 +447,7 @@ def test_annotation_negative_fig_coords():
 
 def test_text_stale():
     fig, (ax1, ax2) = plt.subplots(1, 2)
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert not ax1.stale
     assert not ax2.stale
     assert not fig.stale
@@ -462,7 +462,7 @@ def test_text_stale():
     assert ann1.stale
     assert fig.stale
 
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert not ax1.stale
     assert not ax2.stale
     assert not fig.stale
@@ -506,7 +506,7 @@ def test_two_2line_texts(spacing1, spacing2):
 
     text1 = plt.text(0.25, 0.5, text_string, linespacing=spacing1)
     text2 = plt.text(0.25, 0.5, text_string, linespacing=spacing2)
-    fig.canvas.draw()
+    fig.draw_no_output()
 
     box1 = text1.get_window_extent(renderer=renderer)
     box2 = text2.get_window_extent(renderer=renderer)
@@ -523,7 +523,7 @@ def test_nonfinite_pos():
     fig, ax = plt.subplots()
     ax.text(0, np.nan, 'nan')
     ax.text(np.inf, 0, 'inf')
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 def test_hinting_factor_backends():
@@ -549,7 +549,7 @@ def test_usetex_is_copied():
     ax1 = fig.add_subplot(121)
     plt.rcParams["text.usetex"] = True
     ax2 = fig.add_subplot(122)
-    fig.canvas.draw()
+    fig.draw_no_output()
     for ax, usetex in [(ax1, False), (ax2, True)]:
         for t in ax.xaxis.majorTicks:
             assert t.label1.get_usetex() == usetex
@@ -562,7 +562,7 @@ def test_single_artist_usetex():
     # currently fails to parse \frac12, requiring \frac{1}{2} instead).
     fig = plt.figure()
     fig.text(.5, .5, r"$\frac12$", usetex=True)
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 @pytest.mark.parametrize("fmt", ["png", "pdf", "svg"])
@@ -648,7 +648,7 @@ def test_wrap():
     fig = plt.figure(figsize=(6, 4))
     s = 'This is a very long text that should be wrapped multiple times.'
     text = fig.text(0.7, 0.5, s, wrap=True)
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert text._get_wrapped_text() == ('This is a very long\n'
                                         'text that should be\n'
                                         'wrapped multiple\n'
@@ -658,14 +658,14 @@ def test_wrap():
 def test_long_word_wrap():
     fig = plt.figure(figsize=(6, 4))
     text = fig.text(9.5, 8, 'Alonglineoftexttowrap', wrap=True)
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert text._get_wrapped_text() == 'Alonglineoftexttowrap'
 
 
 def test_wrap_no_wrap():
     fig = plt.figure(figsize=(6, 4))
     text = fig.text(0, 0, 'non wrapped text', wrap=True)
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert text._get_wrapped_text() == 'non wrapped text'
 
 
@@ -725,7 +725,7 @@ def test_pdf_kerning():
 def test_unsupported_script(recwarn):
     fig = plt.figure()
     fig.text(.5, .5, "\N{BENGALI DIGIT ZERO}")
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert all(isinstance(warn.message, UserWarning) for warn in recwarn)
     assert (
         [warn.message.args for warn in recwarn] ==
@@ -736,10 +736,12 @@ def test_unsupported_script(recwarn):
 def test_parse_math():
     fig, ax = plt.subplots()
     ax.text(0, 0, r"$ \wrong{math} $", parse_math=False)
+    # needs to exercise text drawing
     fig.canvas.draw()
 
     ax.text(0, 0, r"$ \wrong{math} $", parse_math=True)
     with pytest.raises(ValueError, match='Unknown symbol'):
+        # needs to exercise text drawing
         fig.canvas.draw()
 
 

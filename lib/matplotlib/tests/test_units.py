@@ -164,7 +164,7 @@ def test_scatter_element0_masked():
     y[0] = np.nan
     fig, ax = plt.subplots()
     ax.scatter(times, y)
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 def test_errorbar_mixed_units():
@@ -172,7 +172,7 @@ def test_errorbar_mixed_units():
     y = [datetime(2020, 5, i * 2 + 1) for i in x]
     fig, ax = plt.subplots()
     ax.errorbar(x, y, timedelta(days=0.5))
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 @check_figures_equal(extensions=["png"])

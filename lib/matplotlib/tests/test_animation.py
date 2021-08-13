@@ -357,8 +357,9 @@ def test_draw_frame(return_value):
         else:
             return return_value
 
-    anim = animation.FuncAnimation(fig, animate, blit=True)
-    fig.canvas.draw()
+    with pytest.raises(RuntimeError):
+        anim = animation.FuncAnimation(fig, animate, blit=True)
+        fig.draw_no_output()
 
 
 def test_exhausted_animation(tmpdir):

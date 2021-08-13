@@ -265,7 +265,7 @@ def test_figureoptions_with_datetime_axes():
 def test_double_resize():
     # Check that resizing a figure twice keeps the same window size
     fig, ax = plt.subplots()
-    fig.canvas.draw()
+    fig.draw_no_output()
     window = fig.canvas.manager.window
 
     w, h = 3, 2

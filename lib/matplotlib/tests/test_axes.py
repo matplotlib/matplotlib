@@ -1673,7 +1673,7 @@ def test_pcolor_regression(pd):
 
         im = ax.pcolormesh(time_axis, y_axis, z_data)
         # make sure this does not raise!
-        fig.canvas.draw()
+        fig.draw_no_output()
     finally:
         deregister_matplotlib_converters()
 
@@ -1759,7 +1759,7 @@ def test_hist_log_barstacked():
     axs[0].set_yscale("log")
     axs[1].hist([0, 0, 1], 2, histtype="barstacked")
     axs[1].set_yscale("log")
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert axs[0].get_ylim() == axs[1].get_ylim()
 
 
@@ -3283,7 +3283,7 @@ def test_boxplot_not_single():
     fig, ax = plt.subplots()
     ax.boxplot(np.random.rand(100), positions=[3])
     ax.boxplot(np.random.rand(100), positions=[5])
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert ax.get_xlim() == (2.5, 5.5)
     assert list(ax.get_xticks()) == [3, 5]
     assert [t.get_text() for t in ax.get_xticklabels()] == ["3", "5"]
@@ -4263,7 +4263,7 @@ def test_axline_args():
     ax.set_yscale('linear')
     with pytest.raises(ValueError):
         ax.axline((0, 0), (0, 0))  # two identical points are not allowed
-        fig.canvas.draw()
+        fig.draw_no_output()
 
 
 @image_comparison(['vlines_basic', 'vlines_with_nan', 'vlines_masked'],
@@ -4745,7 +4745,7 @@ def test_twin_spines_on_top():
 def test_rcparam_grid_minor(grid_which, major_visible, minor_visible):
     mpl.rcParams.update({"axes.grid": True, "axes.grid.which": grid_which})
     fig, ax = plt.subplots()
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert all(tick.gridline.get_visible() == major_visible
                for tick in ax.xaxis.majorTicks)
     assert all(tick.gridline.get_visible() == minor_visible
@@ -4755,16 +4755,16 @@ def test_rcparam_grid_minor(grid_which, major_visible, minor_visible):
 def test_grid():
     fig, ax = plt.subplots()
     ax.grid()
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert ax.xaxis.majorTicks[0].gridline.get_visible()
     ax.grid(visible=False)
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert not ax.xaxis.majorTicks[0].gridline.get_visible()
     ax.grid(visible=True)
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert ax.xaxis.majorTicks[0].gridline.get_visible()
     ax.grid()
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert not ax.xaxis.majorTicks[0].gridline.get_visible()
 
 
@@ -4836,7 +4836,7 @@ def test_shared_with_aspect_2():
     axs[0].set_aspect(2, share=True)
     axs[0].plot([1, 2], [3, 4])
     axs[1].plot([3, 4], [1, 2])
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert axs[0].get_xlim() == axs[1].get_xlim()
     assert axs[0].get_ylim() == axs[1].get_ylim()
 
@@ -4849,7 +4849,7 @@ def test_shared_with_aspect_3():
         axs[1].set_aspect(0.5, adjustable=adjustable)
         axs[0].plot([1, 2], [3, 4])
         axs[1].plot([3, 4], [1, 2])
-        fig.canvas.draw()
+        fig.draw_no_output()
         assert axs[0].get_xlim() != axs[1].get_xlim()
         assert axs[0].get_ylim() == axs[1].get_ylim()
         fig_aspect = fig.bbox_inches.height / fig.bbox_inches.width
@@ -5151,7 +5151,7 @@ def test_subsampled_ticklabels():
     ax.xaxis.set_ticks(np.arange(10) + 0.1)
     ax.locator_params(nbins=5)
     ax.xaxis.set_ticklabels([c for c in "bcdefghijk"])
-    fig.canvas.draw()
+    fig.draw_no_output()
 
     labels = [t.get_text() for t in ax.xaxis.get_ticklabels()]
     assert labels == ['b', 'd', 'f', 'h', 'j']
@@ -5307,22 +5307,22 @@ def test_move_offsetlabel():
 
     fig, ax = plt.subplots()
     ax.plot(data)
-    fig.canvas.draw()
+    fig.draw_no_output()
     before = ax.yaxis.offsetText.get_position()
     assert ax.yaxis.offsetText.get_horizontalalignment() == 'left'
     ax.yaxis.tick_right()
-    fig.canvas.draw()
+    fig.draw_no_output()
     after = ax.yaxis.offsetText.get_position()
     assert after[0] > before[0] and after[1] == before[1]
     assert ax.yaxis.offsetText.get_horizontalalignment() == 'right'
 
     fig, ax = plt.subplots()
     ax.plot(data)
-    fig.canvas.draw()
+    fig.draw_no_output()
     before = ax.xaxis.offsetText.get_position()
     assert ax.xaxis.offsetText.get_verticalalignment() == 'top'
     ax.xaxis.tick_top()
-    fig.canvas.draw()
+    fig.draw_no_output()
     after = ax.xaxis.offsetText.get_position()
     assert after[0] == before[0] and after[1] > before[1]
     assert ax.xaxis.offsetText.get_verticalalignment() == 'bottom'
@@ -5689,10 +5689,10 @@ def test_adjust_numtick_aspect():
     ax.yaxis.get_major_locator().set_params(nbins='auto')
     ax.set_xlim(0, 1000)
     ax.set_aspect('equal')
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert len(ax.yaxis.get_major_locator()()) == 2
     ax.set_ylim(0, 1000)
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert len(ax.yaxis.get_major_locator()()) > 2
 
 
@@ -5775,7 +5775,7 @@ def test_pandas_bar_align_center(pd):
            df.loc[df['a'] == 1, 'b'],
            align='center')
 
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 def test_tick_apply_tickdir_deprecation():
@@ -5941,7 +5941,7 @@ def test_titletwiny():
     ax2 = ax.twiny()
     xlabel2 = ax2.set_xlabel('Xlabel2')
     title = ax.set_title('Title')
-    fig.canvas.draw()
+    fig.draw_no_output()
     renderer = fig.canvas.get_renderer()
     # ------- Test that title is put above Xlabel2 (Xlabel2 at top) ----------
     bbox_y0_title = title.get_window_extent(renderer).y0  # bottom of title
@@ -5971,7 +5971,7 @@ def test_title_xticks_top():
     fig, ax = plt.subplots()
     ax.xaxis.set_ticks_position('top')
     ax.set_title('xlabel top')
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert ax.title.get_position()[1] > 1.04
 
 
@@ -5982,7 +5982,7 @@ def test_title_xticks_top_both():
     ax.tick_params(axis="x",
                    bottom=True, top=True, labelbottom=True, labeltop=True)
     ax.set_title('xlabel top')
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert ax.title.get_position()[1] > 1.04
 
 
@@ -5995,7 +5995,7 @@ def test_title_no_move_off_page():
     ax.tick_params(axis="x",
                    bottom=True, top=True, labelbottom=True, labeltop=True)
     tt = ax.set_title('Boo')
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert tt.get_position()[1] == 1.0
 
 
@@ -6019,7 +6019,7 @@ def test_offset_text_visible():
 def test_large_offset():
     fig, ax = plt.subplots()
     ax.plot((1 + np.array([0, 1.e-12])) * 1.e27)
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 def test_barb_units():
@@ -6241,7 +6241,7 @@ def test_inset():
 
     rec, connectors = ax.indicate_inset(bounds=rect)
     assert connectors is None
-    fig.canvas.draw()
+    fig.draw_no_output()
     xx = np.array([[1.5, 2.],
                    [2.15, 2.5]])
     assert np.all(rec.get_bbox().get_points() == xx)
@@ -6270,7 +6270,7 @@ def test_zoom_inset():
 
     rec, connectors = ax.indicate_inset_zoom(axin1)
     assert len(connectors) == 4
-    fig.canvas.draw()
+    fig.draw_no_output()
     xx = np.array([[1.5,  2.],
                    [2.15, 2.5]])
     assert np.all(rec.get_bbox().get_points() == xx)
@@ -6410,7 +6410,7 @@ def test_secondary_resize():
             return 1 / x
 
     ax.secondary_xaxis('top', functions=(invert, invert))
-    fig.canvas.draw()
+    fig.draw_no_output()
     fig.set_size_inches((7, 4))
     assert_allclose(ax.get_position().extents, [0.125, 0.1, 0.9, 0.9])
 
@@ -6430,11 +6430,11 @@ def test_secondary_minorloc():
     assert isinstance(secax._axis.get_minor_locator(),
                       mticker.AutoMinorLocator)
     ax.set_xscale('log')
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert isinstance(secax._axis.get_minor_locator(),
                       mticker.LogLocator)
     ax.set_xscale('linear')
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert isinstance(secax._axis.get_minor_locator(),
                       mticker.NullLocator)
 
@@ -6444,7 +6444,7 @@ def test_secondary_formatter():
     ax.set_xscale("log")
     secax = ax.secondary_xaxis("top")
     secax.xaxis.set_major_formatter(mticker.ScalarFormatter())
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert isinstance(
         secax.xaxis.get_major_formatter(), mticker.ScalarFormatter)
 
@@ -6453,7 +6453,7 @@ def color_boxes(fig, ax):
     """
     Helper for the tests below that test the extents of various axes elements
     """
-    fig.canvas.draw()
+    fig.draw_no_output()
 
     renderer = fig.canvas.get_renderer()
     bbaxis = []
@@ -6498,7 +6498,7 @@ def color_boxes(fig, ax):
 def test_normal_axes():
     with rc_context({'_internal.classic_mode': False}):
         fig, ax = plt.subplots(dpi=200, figsize=(6, 6))
-        fig.canvas.draw()
+        fig.draw_no_output()
         plt.close(fig)
         bbaxis, bbspines, bbax, bbtb = color_boxes(fig, ax)
 
@@ -6537,7 +6537,7 @@ def test_normal_axes():
 def test_nodecorator():
     with rc_context({'_internal.classic_mode': False}):
         fig, ax = plt.subplots(dpi=200, figsize=(6, 6))
-        fig.canvas.draw()
+        fig.draw_no_output()
         ax.set(xticklabels=[], yticklabels=[])
         bbaxis, bbspines, bbax, bbtb = color_boxes(fig, ax)
 
@@ -6569,7 +6569,7 @@ def test_displaced_spine():
         fig, ax = plt.subplots(dpi=200, figsize=(6, 6))
         ax.set(xticklabels=[], yticklabels=[])
         ax.spines.bottom.set_position(('axes', -0.1))
-        fig.canvas.draw()
+        fig.draw_no_output()
         bbaxis, bbspines, bbax, bbtb = color_boxes(fig, ax)
 
     targets = [
@@ -6605,7 +6605,7 @@ def test_tickdirs():
         with rc_context({'_internal.classic_mode': False}):
             fig, ax = plt.subplots(dpi=200, figsize=(6, 6))
             ax.tick_params(direction=dirs)
-            fig.canvas.draw()
+            fig.draw_no_output()
             bbaxis, bbspines, bbax, bbtb = color_boxes(fig, ax)
             for nn, num in enumerate([0, 2]):
                 targetbb = mtransforms.Bbox.from_bounds(*targets[dnum][nn])
@@ -6616,7 +6616,7 @@ def test_tickdirs():
 def test_minor_accountedfor():
     with rc_context({'_internal.classic_mode': False}):
         fig, ax = plt.subplots(dpi=200, figsize=(6, 6))
-        fig.canvas.draw()
+        fig.draw_no_output()
         ax.tick_params(which='both', direction='out')
 
         bbaxis, bbspines, bbax, bbtb = color_boxes(fig, ax)
@@ -6629,11 +6629,11 @@ def test_minor_accountedfor():
                 bbspines[n * 2].bounds, targetbb.bounds, atol=1e-2)
 
         fig, ax = plt.subplots(dpi=200, figsize=(6, 6))
-        fig.canvas.draw()
+        fig.draw_no_output()
         ax.tick_params(which='both', direction='out')
         ax.minorticks_on()
         ax.tick_params(axis='both', which='minor', length=30)
-        fig.canvas.draw()
+        fig.draw_no_output()
         bbaxis, bbspines, bbax, bbtb = color_boxes(fig, ax)
         targets = [[150.0, 36.66666666666663, 930.0, 83.33333333333334],
                    [66.6667, 120.0, 83.3333, 960.0]]
@@ -6816,7 +6816,7 @@ def test_bbox_aspect_axes_init():
     # all equal square axes.
     fig, axs = plt.subplots(2, 3, subplot_kw=dict(box_aspect=1),
                             constrained_layout=True)
-    fig.canvas.draw()
+    fig.draw_no_output()
     renderer = fig.canvas.get_renderer()
     sizes = []
     for ax in axs.flat:
@@ -6829,7 +6829,7 @@ def test_bbox_aspect_axes_init():
 def test_redraw_in_frame():
     fig, ax = plt.subplots(1, 1)
     ax.plot([1, 2, 3])
-    fig.canvas.draw()
+    fig.draw_no_output()
     ax.redraw_in_frame()
 
 
@@ -6873,7 +6873,7 @@ def test_unautoscale(axis, auto):
 
     set_lim((-0.5, 0.5), auto=auto)
     assert post_auto == get_autoscale_on()
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert_array_equal(get_lim(), (-0.5, 0.5))
 
 
@@ -6889,7 +6889,7 @@ def test_polar_interpolation_steps_variable_r(fig_test, fig_ref):
 def test_autoscale_tiny_sticky():
     fig, ax = plt.subplots()
     ax.bar(0, 1e-9)
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert ax.get_ylim() == (0, 1.05e-9)
 
 
@@ -6920,7 +6920,7 @@ def test_relative_ticklabel_sizes(size):
     mpl.rcParams['xtick.labelsize'] = size
     mpl.rcParams['ytick.labelsize'] = size
     fig, ax = plt.subplots()
-    fig.canvas.draw()
+    fig.draw_no_output()
 
     for name, axis in zip(['x', 'y'], [ax.xaxis, ax.yaxis]):
         for tick in axis.get_major_ticks():

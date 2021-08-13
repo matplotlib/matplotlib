@@ -78,7 +78,7 @@ def test_noise():
     p1 = ax.plot(x, solid_joinstyle='round', linewidth=2.0)
 
     # Ensure that the path's transform takes the new axes limits into account.
-    fig.canvas.draw()
+    fig.draw_no_output()
     path = p1[0].get_path()
     transform = p1[0].get_transform()
     path = transform.transform_path(path)
@@ -221,7 +221,7 @@ def test_sine_plus_noise():
     p1 = ax.plot(x, solid_joinstyle='round', linewidth=2.0)
 
     # Ensure that the path's transform takes the new axes limits into account.
-    fig.canvas.draw()
+    fig.draw_no_output()
     path = p1[0].get_path()
     transform = p1[0].get_transform()
     path = transform.transform_path(path)
@@ -260,7 +260,7 @@ def test_fft_peaks():
     p1 = ax.plot(abs(np.fft.fft(np.sin(2*np.pi*.01*t)*np.blackman(len(t)))))
 
     # Ensure that the path's transform takes the new axes limits into account.
-    fig.canvas.draw()
+    fig.draw_no_output()
     path = p1[0].get_path()
     transform = p1[0].get_transform()
     path = transform.transform_path(path)

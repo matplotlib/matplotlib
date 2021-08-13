@@ -79,7 +79,7 @@ def test_no_warnings():
     U = V = np.ones_like(X)
     phi = (np.random.rand(15, 10) - .5) * 150
     ax.quiver(X, Y, U, V, angles=phi)
-    fig.canvas.draw()  # Check that no warning is emitted.
+    fig.draw_no_output()  # Check that no warning is emitted.
 
 
 def test_zero_headlength():
@@ -89,7 +89,7 @@ def test_zero_headlength():
     X, Y = np.meshgrid(np.arange(10), np.arange(10))
     U, V = np.cos(X), np.sin(Y)
     ax.quiver(U, V, headlength=0, headaxislength=0)
-    fig.canvas.draw()  # Check that no warning is emitted.
+    fig.draw_no_output()  # Check that no warning is emitted.
 
 
 @image_comparison(['quiver_animated_test_image.png'])
@@ -256,7 +256,7 @@ def test_quiverkey_angles():
     q = ax.quiver(X, Y, U, V, angles=angles)
     qk = ax.quiverkey(q, 1, 1, 2, 'Label')
     # The arrows are only created when the key is drawn
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert len(qk.verts) == 1
 
 

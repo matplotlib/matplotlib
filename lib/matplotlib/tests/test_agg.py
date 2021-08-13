@@ -208,13 +208,13 @@ def test_chunksize():
     # Test without chunksize
     fig, ax = plt.subplots()
     ax.plot(x, np.sin(x))
-    fig.canvas.draw()
+    fig.draw_no_output()
 
     # Test with chunksize
     fig, ax = plt.subplots()
     rcParams['agg.path.chunksize'] = 105
     ax.plot(x, np.sin(x))
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 @pytest.mark.backend('Agg')
@@ -250,4 +250,5 @@ def test_draw_path_collection_error_handling():
     fig, ax = plt.subplots()
     ax.scatter([1], [1]).set_paths(path.Path([(0, 1), (2, 3)]))
     with pytest.raises(TypeError):
+        # this needs to exercise code in the render paths
         fig.canvas.draw()

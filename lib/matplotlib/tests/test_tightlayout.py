@@ -312,7 +312,7 @@ def test_suptitle():
     fig, ax = plt.subplots(tight_layout=True)
     st = fig.suptitle("foo")
     t = ax.set_title("bar")
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert st.get_window_extent().y0 > t.get_window_extent().y1
 
 

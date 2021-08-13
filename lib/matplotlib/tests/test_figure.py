@@ -595,14 +595,14 @@ def test_removed_axis():
     # Simple smoke test to make sure removing a shared axis works
     fig, axs = plt.subplots(2, sharex=True)
     axs[0].remove()
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 @mpl.style.context('mpl20')
 def test_picking_does_not_stale():
     fig, ax = plt.subplots()
     col = ax.scatter([0], [0], [1000], picker=True)
-    fig.canvas.draw()
+    fig.draw_no_output()
     assert not fig.stale
 
     mouse_event = SimpleNamespace(x=ax.bbox.x0 + ax.bbox.width / 2,

@@ -354,7 +354,7 @@ def test_format_cursor_data(data, text_without_colorbar, text_with_colorbar):
         == text_without_colorbar
 
     fig.colorbar(im)
-    fig.canvas.draw()  # This is necessary to set up the colorbar formatter.
+    fig.draw_no_output()  # This is necessary to set up the colorbar formatter.
 
     assert im.get_cursor_data(event) == data[0][0]
     assert im.format_cursor_data(im.get_cursor_data(event)) \
@@ -589,7 +589,7 @@ def test_get_window_extent_for_AxisImage():
     im_obj = ax.imshow(
         im, extent=[0.4, 0.7, 0.2, 0.9], interpolation='nearest')
 
-    fig.canvas.draw()
+    fig.draw_no_output()
     renderer = fig.canvas.renderer
     im_bbox = im_obj.get_window_extent(renderer)
 
@@ -987,7 +987,7 @@ def test_empty_imshow(make_norm):
                       match="Attempting to set identical left == right"):
         im = ax.imshow([[]], norm=make_norm())
     im.set_extent([-5, 5, -5, 5])
-    fig.canvas.draw()
+    fig.draw_no_output()
 
     with pytest.raises(RuntimeError):
         im.make_image(fig._cachedRenderer)
@@ -997,7 +997,7 @@ def test_imshow_float16():
     fig, ax = plt.subplots()
     ax.imshow(np.zeros((3, 3), dtype=np.float16))
     # Ensure that drawing doesn't cause crash.
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 def test_imshow_float128():
@@ -1006,7 +1006,7 @@ def test_imshow_float128():
     with (ExitStack() if np.can_cast(np.longdouble, np.float64, "equiv")
           else pytest.warns(UserWarning)):
         # Ensure that drawing doesn't cause crash.
-        fig.canvas.draw()
+        fig.draw_no_output()
 
 
 def test_imshow_bool():
@@ -1018,7 +1018,7 @@ def test_full_invalid():
     fig, ax = plt.subplots()
     ax.imshow(np.full((10, 10), np.nan))
     with pytest.warns(UserWarning):
-        fig.canvas.draw()
+        fig.draw_no_output()
 
 
 @pytest.mark.parametrize("fmt,counted",
@@ -1054,6 +1054,7 @@ def test_unclipped():
     im = ax.imshow([[0, 0], [0, 0]], aspect="auto", extent=(-10, 10, -10, 10),
                    cmap='gray', clip_on=False)
     ax.set(xlim=(0, 1), ylim=(0, 1))
+    # this test needs to actually render the image
     fig.canvas.draw()
     # The unclipped image should fill the *entire* figure and be black.
     # Ignore alpha for this comparison.
@@ -1133,7 +1134,7 @@ def test_exact_vmin():
 
     im = ax.imshow(data, aspect="auto", cmap=cmap, vmin=0, vmax=100)
     ax.axis("off")
-    fig.canvas.draw()
+    fig.draw_no_output()
 
     # get the RGBA slice from the image
     from_image = im.make_image(fig.canvas.renderer)[0][0]
@@ -1230,7 +1231,7 @@ def test_imshow_quantitynd():
     fig, ax = plt.subplots()
     ax.imshow(arr)
     # executing the draw should not raise an exception
-    fig.canvas.draw()
+    fig.draw_no_output()
 
 
 @check_figures_equal(extensions=['png'])
