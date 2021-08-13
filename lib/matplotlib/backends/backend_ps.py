@@ -640,10 +640,12 @@ grestore
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
 
+        self.set_color(*gc.get_rgb())
+
         if mpl.rcParams['ps.useafm']:
             font = self._get_font_afm(prop)
             scale = 0.001 * prop.get_size_in_points()
-
+            stream = []
             thisx = 0
             last_name = None  # kerns returns 0 for None.
             xs_names = []
@@ -659,21 +661,36 @@ grestore
                 thisx += kern * scale
                 xs_names.append((thisx, name))
                 thisx += width * scale
+            ps_name = (font.postscript_name
+                       .encode("ascii", "replace").decode("ascii"))
+            stream.append((ps_name, xs_names))
 
         else:
             font = self._get_font_ttf(prop)
-            font.set_text(s, 0, flags=LOAD_NO_HINTING)
-            self._character_tracker.track(font, s)
-            xs_names = [(item.x, font.get_glyph_name(item.glyph_idx))
-                        for item in _text_helpers.layout(s, font)]
+            char_to_font = font.fill_glyphs(s, 0, flags=LOAD_NO_HINTING)
+            for char, font in char_to_font.items():
+                self._character_tracker.track(font, chr(char))
+            stream = []
+            prev_font = curr_stream = None
+            for item in _text_helpers.layout(s, font):
+                ps_name = (item.ft_object.postscript_name
+                           .encode("ascii", "replace").decode("ascii"))
+                if item.ft_object is not prev_font:
+                    if curr_stream:
+                        stream.append(curr_stream)
+                    prev_font = item.ft_object
+                    curr_stream = [ps_name, []]
+                curr_stream[1].append(
+                    (item.x, item.ft_object.get_glyph_name(item.glyph_idx))
+                )
+            # append the last entry
+            stream.append(curr_stream)
 
-        self.set_color(*gc.get_rgb())
-        ps_name = (font.postscript_name
-                   .encode("ascii", "replace").decode("ascii"))
-        self.set_font(ps_name, prop.get_size_in_points())
-        thetext = "\n".join(f"{x:f} 0 m /{name:s} glyphshow"
-                            for x, name in xs_names)
-        self._pswriter.write(f"""\
+        for ps_name, xs_names in stream:
+            self.set_font(ps_name, prop.get_size_in_points(), False)
+            thetext = "\n".join(f"{x:f} 0 m /{name:s} glyphshow"
+                                for x, name in xs_names)
+            self._pswriter.write(f"""\
 gsave
 {self._get_clip_cmd(gc)}
 {x:f} {y:f} translate
