@@ -2385,7 +2385,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         # the regular text show command (TJ) with appropriate kerning between
         # chunks, whereas multibyte characters use the XObject command (Do).
         else:
-            # List of (ft_object, start_x, [prev_kern, char, char, ...]), w/o zero kerns.
+            # List of (ft_object, start_x, [prev_kern, char, char, ...]),
+            # w/o zero kerns.
             singlebyte_chunks = []
             # List of (ft_object, start_x, glyph_index).
             multibyte_glyphs = []
@@ -2402,7 +2403,9 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                     singlebyte_chunks[-1][2].append(item.char)
                     prev_was_multibyte = False
                 else:
-                    multibyte_glyphs.append((item.ft_object, item.x, item.glyph_idx))
+                    multibyte_glyphs.append(
+                        (item.ft_object, item.x, item.glyph_idx)
+                    )
                     prev_was_multibyte = True
             # Do the rotation and global translation as a single matrix
             # concatenation up front
@@ -2430,7 +2433,9 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             self.file.output(Op.end_text)
             # Then emit all the multibyte characters, one at a time.
             for ft_object, start_x, glyph_idx in multibyte_glyphs:
-                self._draw_xobject_glyph(ft_object, fontsize, glyph_idx, start_x, 0)
+                self._draw_xobject_glyph(
+                    ft_object, fontsize, glyph_idx, start_x, 0
+                )
             self.file.output(Op.grestore)
 
     def _draw_xobject_glyph(self, ft_object, fontsize, glyph_idx, x, y):
