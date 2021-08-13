@@ -5289,8 +5289,9 @@ default: :rc:`scatter.edgecolors`
     @_api.make_keyword_only("3.5", "aspect")
     @_preprocess_data()
     def imshow(self, X, cmap=None, norm=None, aspect=None,
-               interpolation=None, alpha=None, vmin=None, vmax=None,
-               origin=None, extent=None, *, filternorm=True, filterrad=4.0,
+               interpolation=None, alpha=None,
+               vmin=None, vmax=None, origin=None, extent=None, *,
+               interpolation_stage=None, filternorm=True, filterrad=4.0,
                resample=None, url=None, **kwargs):
         """
         Display data as an image, i.e., on a 2D regular raster.
@@ -5381,6 +5382,12 @@ default: :rc:`scatter.edgecolors`
             Some interpolation methods require an additional radius parameter,
             which can be set by *filterrad*. Additionally, the antigrain image
             resize filter is controlled by the parameter *filternorm*.
+
+        interpolation_stage : {'data', 'rgba'}, default: 'data'
+            If 'data', interpolation
+            is carried out on the data provided by the user.  If 'rgba', the
+            interpolation is carried out after the colormapping has been
+            applied (visual interpolation).
 
         alpha : float or array-like, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -5482,9 +5489,11 @@ default: :rc:`scatter.edgecolors`
         if aspect is None:
             aspect = rcParams['image.aspect']
         self.set_aspect(aspect)
-        im = mimage.AxesImage(self, cmap, norm, interpolation, origin, extent,
-                              filternorm=filternorm, filterrad=filterrad,
-                              resample=resample, **kwargs)
+        im = mimage.AxesImage(self, cmap, norm, interpolation,
+                              origin, extent, filternorm=filternorm,
+                              filterrad=filterrad, resample=resample,
+                              interpolation_stage=interpolation_stage,
+                              **kwargs)
 
         im.set_data(X)
         im.set_alpha(alpha)

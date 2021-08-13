@@ -238,6 +238,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                  filternorm=True,
                  filterrad=4.0,
                  resample=False,
+                 *,
+                 interpolation_stage=None,
                  **kwargs
                  ):
         martist.Artist.__init__(self)
@@ -249,6 +251,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self.set_filternorm(filternorm)
         self.set_filterrad(filterrad)
         self.set_interpolation(interpolation)
+        self.set_interpolation_stage(interpolation_stage)
         self.set_resample(resample)
         self.axes = ax
 
@@ -392,8 +395,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if not unsampled:
             if not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in (3, 4)):
                 raise ValueError(f"Invalid shape {A.shape} for image data")
-
-            if A.ndim == 2:
+            if A.ndim == 2 and self._interpolation_stage != 'rgba':
                 # if we are a 2D array, then we are running through the
                 # norm + colormap transformation.  However, in general the
                 # input data is not going to match the size on the screen so we
@@ -541,6 +543,9 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                                        ):
                     output = self.norm(resampled_masked)
             else:
+                if A.ndim == 2:  # _interpolation_stage == 'rgba'
+                    self.norm.autoscale_None(A)
+                    A = self.to_rgba(A)
                 if A.shape[2] == 3:
                     A = _rgb_to_rgba(A)
                 alpha = self._get_scalar_alpha()
@@ -773,6 +778,22 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self._interpolation = s
         self.stale = True
 
+    def set_interpolation_stage(self, s):
+        """
+        Set when interpolation happens during the transform to RGBA.
+
+        Parameters
+        ----------
+        s : {'data', 'rgba'} or None
+            Whether to apply up/downsampling interpolation in data or rgba
+            space.
+        """
+        if s is None:
+            s = "data"  # placeholder for maybe having rcParam
+        _api.check_in_list(['data', 'rgba'])
+        self._interpolation_stage = s
+        self.stale = True
+
     def can_composite(self):
         """Return whether the image can be composited with its neighbors."""
         trans = self.get_transform()
@@ -854,6 +875,11 @@ class AxesImage(_ImageBase):
         'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
         'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
         'sinc', 'lanczos', 'blackman'.
+    interpolation_stage : {'data', 'rgba'}, default: 'data'
+        If 'data', interpolation
+        is carried out on the data provided by the user.  If 'rgba', the
+        interpolation is carried out after the colormapping has been
+        applied (visual interpolation).
     origin : {'upper', 'lower'}, default: :rc:`image.origin`
         Place the [0, 0] index of the array in the upper left or lower left
         corner of the axes. The convention 'upper' is typically used for
@@ -890,6 +916,8 @@ class AxesImage(_ImageBase):
                  filternorm=True,
                  filterrad=4.0,
                  resample=False,
+                 *,
+                 interpolation_stage=None,
                  **kwargs
                  ):
 
@@ -904,6 +932,7 @@ class AxesImage(_ImageBase):
             filternorm=filternorm,
             filterrad=filterrad,
             resample=resample,
+            interpolation_stage=interpolation_stage,
             **kwargs
         )
 
