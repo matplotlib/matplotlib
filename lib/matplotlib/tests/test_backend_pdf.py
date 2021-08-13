@@ -368,3 +368,21 @@ def test_glyphs_subset():
 
     # since both objects are assigned same characters
     assert subfont.get_num_glyphs() == nosubfont.get_num_glyphs()
+
+
+@image_comparison(["multi_font_type3.pdf"])
+def test_multi_font_type3():
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    plt.rc('pdf', fonttype=3)
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "There are 多个汉字 in between!")
+
+
+@image_comparison(["multi_font_type42.pdf"])
+def test_multi_font_type42():
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    plt.rc('pdf', fonttype=42)
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "There are 多个汉字 in between!")
