@@ -222,3 +222,15 @@ def test_fonttype(fonttype):
     test = b'/FontType ' + bytes(f"{fonttype}", encoding='utf-8') + b' def'
 
     assert re.search(test, buf.getvalue(), re.MULTILINE)
+
+
+def test_linedash():
+    """Test that dashed lines do not break PS output"""
+    fig, ax = plt.subplots()
+
+    ax.plot([0, 1], linestyle="--")
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format="ps")
+
+    assert buf.tell() > 0

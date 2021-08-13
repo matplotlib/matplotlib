@@ -361,6 +361,39 @@ def test_callbackregistry_custom_exception_handler(monkeypatch, cb, excp):
         cb.process('foo')
 
 
+def test_callbackregistry_blocking():
+    # Needs an exception handler for interactive testing environments
+    # that would only print this out instead of raising the exception
+    def raise_handler(excp):
+        raise excp
+    cb = cbook.CallbackRegistry(exception_handler=raise_handler)
+    def test_func1():
+        raise ValueError("1 should be blocked")
+    def test_func2():
+        raise ValueError("2 should be blocked")
+    cb.connect("test1", test_func1)
+    cb.connect("test2", test_func2)
+
+    # block all of the callbacks to make sure they aren't processed
+    with cb.blocked():
+        cb.process("test1")
+        cb.process("test2")
+
+    # block individual callbacks to make sure the other is still processed
+    with cb.blocked(signal="test1"):
+        # Blocked
+        cb.process("test1")
+        # Should raise
+        with pytest.raises(ValueError, match="2 should be blocked"):
+            cb.process("test2")
+
+    # Make sure the original callback functions are there after blocking
+    with pytest.raises(ValueError, match="1 should be blocked"):
+        cb.process("test1")
+    with pytest.raises(ValueError, match="2 should be blocked"):
+        cb.process("test2")
+
+
 def test_sanitize_sequence():
     d = {'a': 1, 'b': 2, 'c': 3}
     k = ['a', 'b', 'c']

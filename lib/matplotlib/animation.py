@@ -1666,8 +1666,21 @@ class FuncAnimation(TimedAnimation):
         # For blitting, the init_func should return a sequence of modified
         # artists.
         if self._init_func is None:
-            self._draw_frame(next(self.new_frame_seq()))
-
+            try:
+                frame_data = next(self.new_frame_seq())
+            except StopIteration:
+                # we can't start the iteration, it may have already been
+                # exhausted by a previous save or just be 0 length.
+                # warn and bail.
+                warnings.warn(
+                    "Can not start iterating the frames for the initial draw. "
+                    "This can be caused by passing in a 0 length sequence "
+                    "for *frames*.\n\n"
+                    "If you passed *frames* as a generator "
+                    "it may be exhausted due to a previous display or save."
+                )
+                return
+            self._draw_frame(frame_data)
         else:
             self._drawn_artists = self._init_func()
             if self._blit:

@@ -95,6 +95,9 @@ jobs:
               texlive-luatex \
               texlive-xetex \
               ttf-wqy-zenhei
+            if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
+              sudo apt install -yy libopengl0
+            fi
             ;;
           macOS)
             brew install ccache
@@ -106,25 +109,25 @@ jobs:
         if: startsWith(runner.os, 'Linux')
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('requirements/*/*.txt') }}
+          key: ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('requirements/*/*.txt') }}
           restore-keys: |
-            ${{ runner.os }}-py${{ matrix.python-version }}-pip-
+            ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
       - name: Cache pip
         uses: actions/cache@v2
         if: startsWith(runner.os, 'macOS')
         with:
           path: ~/Library/Caches/pip
-          key: ${{ runner.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('requirements/*/*.txt') }}
+          key: ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('requirements/*/*.txt') }}
           restore-keys: |
-            ${{ runner.os }}-py${{ matrix.python-version }}-pip-
+            ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
       - name: Cache ccache
         uses: actions/cache@v2
         with:
           path: |
             ~/.ccache
-          key: ${{ runner.os }}-py${{ matrix.python-version }}-ccache-${{ hashFiles('src/*') }}
+          key: ${{ matrix.os }}-py${{ matrix.python-version }}-ccache-${{ hashFiles('src/*') }}
           restore-keys: |
-            ${{ runner.os }}-py${{ matrix.python-version }}-ccache-
+            ${{ matrix.os }}-py${{ matrix.python-version }}-ccache-
       - name: Cache Matplotlib
         uses: actions/cache@v2
         with:
@@ -171,17 +174,28 @@ jobs:
             # Sept 2020) for either pyqt5 (there are only wheels for 10.13+) or
             # pyside2 (the latest version (5.13.2) with 10.12 wheels has a
             # fatal to us bug, it was fixed in 5.14.0 which has 10.13 wheels)
-             python -m pip install --upgrade pyqt5${{ matrix.pyqt5-ver }} &&
-               python -c 'import PyQt5.QtCore' &&
-               echo 'PyQt5 is available' ||
-               echo 'PyQt5 is not available'
-             python -m pip install --upgrade pyside2 &&
-               python -c 'import PySide2.QtCore' &&
-               echo 'PySide2 is available' ||
-               echo 'PySide2 is not available'
+            python -mpip install --upgrade pyqt5${{ matrix.pyqt5-ver }} &&
+              python -c 'import PyQt5.QtCore' &&
+              echo 'PyQt5 is available' ||
+              echo 'PyQt5 is not available'
+            python -mpip install --upgrade pyside2 &&
+              python -c 'import PySide2.QtCore' &&
+              echo 'PySide2 is available' ||
+              echo 'PySide2 is not available'
+            # Qt6 crashes on Github's ubuntu 18.04 runner.
+            if [[ "${{ matrix.os }}" = ubuntu-20.04 ]]; then
+              python -mpip install --upgrade pyqt6 &&
+                python -c 'import PyQt6.QtCore' &&
+                echo 'PyQt6 is available' ||
+                echo 'PyQt6 is not available'
+              python -mpip install --upgrade pyside6 &&
+                python -c 'import PySide6.QtCore' &&
+                echo 'PySide6 is available' ||
+                echo 'PySide6 is not available'
+            fi
           fi
-          python -m pip install --upgrade \
-            -f https://extras.wxpython.org/wxPython4/extras/linux/gtk3/ubuntu-$(lsb_release -r -s) \
+          python -mpip install --upgrade \
+            -f "https://extras.wxpython.org/wxPython4/extras/linux/gtk3/${{ matrix.os }}" \
             wxPython &&
             python -c 'import wx' &&
             echo 'wxPython is available' ||

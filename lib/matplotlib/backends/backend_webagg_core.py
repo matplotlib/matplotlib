@@ -388,13 +388,10 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
         self.message = message
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        self.canvas.send_event(
-            "rubberband", x0=x0, y0=y0, x1=x1, y1=y1)
+        self.canvas.send_event("rubberband", x0=x0, y0=y0, x1=x1, y1=y1)
 
-    def release_zoom(self, event):
-        super().release_zoom(event)
-        self.canvas.send_event(
-            "rubberband", x0=-1, y0=-1, x1=-1, y1=-1)
+    def remove_rubberband(self):
+        self.canvas.send_event("rubberband", x0=-1, y0=-1, x1=-1, y1=-1)
 
     def save_figure(self, *args):
         """Save the current figure"""

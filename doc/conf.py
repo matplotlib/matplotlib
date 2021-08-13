@@ -56,7 +56,6 @@ extensions = [
     'sphinx.ext.inheritance_diagram',
     'sphinx.ext.intersphinx',
     'sphinx.ext.ifconfig',
-    'sphinx.ext.viewcode',
     'IPython.sphinxext.ipython_console_highlighting',
     'IPython.sphinxext.ipython_directive',
     'numpydoc',  # Needs to be loaded *after* autodoc.
@@ -181,6 +180,8 @@ sphinx_gallery_conf = {
 }
 
 plot_gallery = 'True'
+mathmpl_fontsize = 11.0
+mathmpl_srcset = ['2x']
 
 # Monkey-patching gallery signature to include search keywords
 gen_rst.SPHX_GLR_SIG = """\n
@@ -534,3 +535,74 @@ def setup(app):
     else:
         bld_type = 'rel'
     app.add_config_value('releaselevel', bld_type, 'env')
+
+# -----------------------------------------------------------------------------
+# Source code links
+# -----------------------------------------------------------------------------
+link_github = True
+# You can add build old with link_github = False
+
+if link_github:
+    import re
+    import inspect
+
+    extensions.append('sphinx.ext.linkcode')
+
+    def linkcode_resolve(domain, info):
+        """
+        Determine the URL corresponding to Python object
+        """
+        if domain != 'py':
+            return None
+
+        modname = info['module']
+        fullname = info['fullname']
+
+        submod = sys.modules.get(modname)
+        if submod is None:
+            return None
+
+        obj = submod
+        for part in fullname.split('.'):
+            try:
+                obj = getattr(obj, part)
+            except AttributeError:
+                return None
+
+        try:
+            fn = inspect.getsourcefile(obj)
+        except TypeError:
+            fn = None
+        if not fn or fn.endswith('__init__.py'):
+            try:
+                fn = inspect.getsourcefile(sys.modules[obj.__module__])
+            except (TypeError, AttributeError, KeyError):
+                fn = None
+        if not fn:
+            return None
+
+        try:
+            source, lineno = inspect.getsourcelines(obj)
+        except (OSError, TypeError):
+            lineno = None
+
+        if lineno:
+            linespec = "#L%d-L%d" % (lineno, lineno + len(source) - 1)
+        else:
+            linespec = ""
+
+        startdir = Path(matplotlib.__file__).parent.parent
+        fn = os.path.relpath(fn, start=startdir).replace(os.path.sep, '/')
+
+        if not fn.startswith(('matplotlib/', 'mpl_toolkits/')):
+            return None
+
+        m = re.match(r'^.*post[0-9]+\+\w([a-z0-9]+).\w+$', matplotlib.__version__)
+        if m:
+            return "https://github.com/matplotlib/matplotlib/blob/%s/lib/%s%s" % (
+                    m.group(1), fn, linespec)
+        else:
+            return "https://github.com/matplotlib/matplotlib/blob/v%s/lib/%s%s" % (
+                    matplotlib.__version__, fn, linespec)
+else:
+    extensions.append('sphinx.ext.viewcode')

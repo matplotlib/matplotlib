@@ -55,6 +55,10 @@ Videos
 Tutorials
 =========
 
+
+* `The Python Graph Gallery <https://www.python-graph-gallery.com>`_
+  by Yan Holtz
+  
 * `Matplotlib tutorial <https://www.labri.fr/perso/nrougier/teaching/matplotlib/>`_
   by Nicolas P. Rougier
 

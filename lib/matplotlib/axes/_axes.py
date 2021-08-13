@@ -4799,7 +4799,8 @@ default: :rc:`scatter.edgecolors`
                 _api.warn_external("Only one of 'bins' and 'norm' arguments "
                                    f"can be supplied, ignoring bins={bins}")
             else:
-                norm = mcolors.LogNorm()
+                norm = mcolors.LogNorm(vmin=vmin, vmax=vmax)
+                vmin = vmax = None
             bins = None
 
         if isinstance(norm, mcolors.LogNorm):
@@ -4922,7 +4923,7 @@ default: :rc:`scatter.edgecolors`
             vbar.set_cmap(collection.get_cmap())
             vbar.set_clim(collection.get_clim())
 
-        collection.callbacksSM.connect('changed', on_changed)
+        collection.callbacks.connect('changed', on_changed)
 
         return collection
 

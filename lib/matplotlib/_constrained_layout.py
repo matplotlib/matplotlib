@@ -19,6 +19,8 @@ import numpy as np
 
 from matplotlib import _api
 import matplotlib.transforms as mtransforms
+import matplotlib._layoutgrid as mlayoutgrid
+
 
 _log = logging.getLogger(__name__)
 
@@ -83,20 +85,19 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
        A value of 0.2 for a three-column layout would have a space
        of 0.1 of the figure width between each column.
        If h/wspace < h/w_pad, then the pads are used instead.
+
+    Returns
+    -------
+    layoutgrid : private debugging structure
     """
 
-    # list of unique gridspecs that contain child axes:
-    gss = set()
-    for ax in fig.axes:
-        if hasattr(ax, 'get_subplotspec'):
-            gs = ax.get_subplotspec().get_gridspec()
-            if gs._layoutgrid is not None:
-                gss.add(gs)
-    gss = list(gss)
-    if len(gss) == 0:
+    # make layoutgrid tree...
+    layoutgrids = make_layoutgrids(fig, None)
+    if not layoutgrids['hasgrids']:
         _api.warn_external('There are no gridspecs with layoutgrids. '
                            'Possibly did not call parent GridSpec with the'
                            ' "figure" keyword')
+        return
 
     for _ in range(2):
         # do the algorithm twice.  This has to be done because decorations
@@ -106,42 +107,132 @@ def do_constrained_layout(fig, renderer, h_pad, w_pad,
 
         # make margins for all the axes and subfigures in the
         # figure.  Add margins for colorbars...
-        _make_layout_margins(fig, renderer, h_pad=h_pad, w_pad=w_pad,
-                             hspace=hspace, wspace=wspace)
-        _make_margin_suptitles(fig, renderer, h_pad=h_pad, w_pad=w_pad)
+        make_layout_margins(layoutgrids, fig, renderer, h_pad=h_pad,
+                            w_pad=w_pad, hspace=hspace, wspace=wspace)
+        make_margin_suptitles(layoutgrids, fig, renderer, h_pad=h_pad,
+                              w_pad=w_pad)
 
         # if a layout is such that a columns (or rows) margin has no
         # constraints, we need to make all such instances in the grid
         # match in margin size.
-        _match_submerged_margins(fig)
+        match_submerged_margins(layoutgrids, fig)
 
         # update all the variables in the layout.
-        fig._layoutgrid.update_variables()
+        layoutgrids[fig].update_variables()
 
-        if _check_no_collapsed_axes(fig):
-            _reposition_axes(fig, renderer, h_pad=h_pad, w_pad=w_pad,
-                             hspace=hspace, wspace=wspace)
+        if check_no_collapsed_axes(layoutgrids, fig):
+            reposition_axes(layoutgrids, fig, renderer, h_pad=h_pad,
+                            w_pad=w_pad, hspace=hspace, wspace=wspace)
         else:
             _api.warn_external('constrained_layout not applied because '
                                'axes sizes collapsed to zero.  Try making '
                                'figure larger or axes decorations smaller.')
-        _reset_margins(fig)
+        reset_margins(layoutgrids, fig)
+    return layoutgrids
 
 
-def _check_no_collapsed_axes(fig):
+def make_layoutgrids(fig, layoutgrids):
+    """
+    Make the layoutgrid tree.
+
+    (Sub)Figures get a layoutgrid so we can have figure margins.
+
+    Gridspecs that are attached to axes get a layoutgrid so axes
+    can have margins.
+    """
+
+    if layoutgrids is None:
+        layoutgrids = dict()
+        layoutgrids['hasgrids'] = False
+    if not hasattr(fig, '_parent'):
+        # top figure
+        layoutgrids[fig] = mlayoutgrid.LayoutGrid(parent=None, name='figlb')
+    else:
+        # subfigure
+        gs = fig._subplotspec.get_gridspec()
+        # it is possible the gridspec containing this subfigure hasn't
+        # been added to the tree yet:
+        layoutgrids = make_layoutgrids_gs(layoutgrids, gs)
+        # add the layoutgrid for the subfigure:
+        parentlb = layoutgrids[gs]
+        layoutgrids[fig] = mlayoutgrid.LayoutGrid(
+            parent=parentlb,
+            name='panellb',
+            parent_inner=True,
+            nrows=1, ncols=1,
+            parent_pos=(fig._subplotspec.rowspan,
+                        fig._subplotspec.colspan))
+    # recursively do all subfigures in this figure...
+    for sfig in fig.subfigs:
+        layoutgrids = make_layoutgrids(sfig, layoutgrids)
+
+    # for each axes at the local level add its gridspec:
+    for ax in fig._localaxes.as_list():
+        if hasattr(ax, 'get_subplotspec'):
+            gs = ax.get_subplotspec().get_gridspec()
+            layoutgrids = make_layoutgrids_gs(layoutgrids, gs)
+
+    return layoutgrids
+
+
+def make_layoutgrids_gs(layoutgrids, gs):
+    """
+    Make the layoutgrid for a gridspec (and anything nested in the gridspec)
+    """
+
+    if gs in layoutgrids or gs.figure is None:
+        return layoutgrids
+    # in order to do constrained_layout there has to be at least *one*
+    # gridspec in the tree:
+    layoutgrids['hasgrids'] = True
+    if not hasattr(gs, '_subplot_spec'):
+        # normal gridspec
+        parent = layoutgrids[gs.figure]
+        layoutgrids[gs] = mlayoutgrid.LayoutGrid(
+                parent=parent,
+                parent_inner=True,
+                name='gridspec',
+                ncols=gs._ncols, nrows=gs._nrows,
+                width_ratios=gs.get_width_ratios(),
+                height_ratios=gs.get_height_ratios())
+    else:
+        # this is a gridspecfromsubplotspec:
+        subplot_spec = gs._subplot_spec
+        parentgs = subplot_spec.get_gridspec()
+        # if a nested gridspec it is possible the parent is not in there yet:
+        if parentgs not in layoutgrids:
+            layoutgrids = make_layoutgrids_gs(layoutgrids, parentgs)
+        subspeclb = layoutgrids[parentgs]
+        # gridspecfromsubplotspec need an outer container:
+        if f'{gs}top' not in layoutgrids:
+            layoutgrids[f'{gs}top'] = mlayoutgrid.LayoutGrid(
+                parent=subspeclb,
+                name='top',
+                nrows=1, ncols=1,
+                parent_pos=(subplot_spec.rowspan, subplot_spec.colspan))
+        layoutgrids[gs] = mlayoutgrid.LayoutGrid(
+                parent=layoutgrids[f'{gs}top'],
+                name='gridspec',
+                nrows=gs._nrows, ncols=gs._ncols,
+                width_ratios=gs.get_width_ratios(),
+                height_ratios=gs.get_height_ratios())
+    return layoutgrids
+
+
+def check_no_collapsed_axes(layoutgrids, fig):
     """
     Check that no axes have collapsed to zero size.
     """
-    for panel in fig.subfigs:
-        ok = _check_no_collapsed_axes(panel)
+    for sfig in fig.subfigs:
+        ok = check_no_collapsed_axes(layoutgrids, sfig)
         if not ok:
             return False
 
     for ax in fig.axes:
         if hasattr(ax, 'get_subplotspec'):
             gs = ax.get_subplotspec().get_gridspec()
-            lg = gs._layoutgrid
-            if lg is not None:
+            if gs in layoutgrids:
+                lg = layoutgrids[gs]
                 for i in range(gs.nrows):
                     for j in range(gs.ncols):
                         bb = lg.get_inner_bbox(i, j)
@@ -150,8 +241,8 @@ def _check_no_collapsed_axes(fig):
     return True
 
 
-def _get_margin_from_padding(obj, *, w_pad=0, h_pad=0,
-                             hspace=0, wspace=0):
+def get_margin_from_padding(obj, *, w_pad=0, h_pad=0,
+                            hspace=0, wspace=0):
 
     ss = obj._subplotspec
     gs = ss.get_gridspec()
@@ -188,8 +279,8 @@ def _get_margin_from_padding(obj, *, w_pad=0, h_pad=0,
     return margin
 
 
-def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
-                         hspace=0, wspace=0):
+def make_layout_margins(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0,
+                        hspace=0, wspace=0):
     """
     For each axes, make a margin between the *pos* layoutbox and the
     *axes* layoutbox be a minimum size that can accommodate the
@@ -197,14 +288,15 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
 
     Then make room for colorbars.
     """
-    for panel in fig.subfigs:  # recursively make child panel margins
-        ss = panel._subplotspec
-        _make_layout_margins(panel, renderer, w_pad=w_pad, h_pad=h_pad,
-                             hspace=hspace, wspace=wspace)
+    for sfig in fig.subfigs:  # recursively make child panel margins
+        ss = sfig._subplotspec
+        make_layout_margins(layoutgrids, sfig, renderer,
+                            w_pad=w_pad, h_pad=h_pad,
+                            hspace=hspace, wspace=wspace)
 
-        margins = _get_margin_from_padding(panel, w_pad=0, h_pad=0,
-                                           hspace=hspace, wspace=wspace)
-        panel._layoutgrid.parent.edit_outer_margin_mins(margins, ss)
+        margins = get_margin_from_padding(sfig, w_pad=0, h_pad=0,
+                                          hspace=hspace, wspace=wspace)
+        layoutgrids[sfig].parent.edit_outer_margin_mins(margins, ss)
 
     for ax in fig._localaxes.as_list():
         if not hasattr(ax, 'get_subplotspec') or not ax.get_in_layout():
@@ -212,14 +304,13 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
 
         ss = ax.get_subplotspec()
         gs = ss.get_gridspec()
-        nrows, ncols = gs.get_geometry()
 
-        if gs._layoutgrid is None:
+        if gs not in layoutgrids:
             return
 
-        margin = _get_margin_from_padding(ax, w_pad=w_pad, h_pad=h_pad,
-                                           hspace=hspace, wspace=wspace)
-        pos, bbox = _get_pos_and_bbox(ax, renderer)
+        margin = get_margin_from_padding(ax, w_pad=w_pad, h_pad=h_pad,
+                                         hspace=hspace, wspace=wspace)
+        pos, bbox = get_pos_and_bbox(ax, renderer)
         # the margin is the distance between the bounding box of the axes
         # and its position (plus the padding from above)
         margin['left'] += pos.x0 - bbox.x0
@@ -232,11 +323,11 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
         # padding margin, versus the margin for axes decorators.
         for cbax in ax._colorbars:
             # note pad is a fraction of the parent width...
-            pad = _colorbar_get_pad(cbax)
+            pad = colorbar_get_pad(layoutgrids, cbax)
             # colorbars can be child of more than one subplot spec:
-            cbp_rspan, cbp_cspan = _get_cb_parent_spans(cbax)
+            cbp_rspan, cbp_cspan = get_cb_parent_spans(cbax)
             loc = cbax._colorbar_info['location']
-            cbpos, cbbbox = _get_pos_and_bbox(cbax, renderer)
+            cbpos, cbbbox = get_pos_and_bbox(cbax, renderer)
             if loc == 'right':
                 if cbp_cspan.stop == ss.colspan.stop:
                     # only increase if the colorbar is on the right edge
@@ -269,10 +360,10 @@ def _make_layout_margins(fig, renderer, *, w_pad=0, h_pad=0,
                         cbbbox.y1 > bbox.y1):
                     margin['top'] += cbbbox.y1 - bbox.y1
         # pass the new margins down to the layout grid for the solution...
-        gs._layoutgrid.edit_outer_margin_mins(margin, ss)
+        layoutgrids[gs].edit_outer_margin_mins(margin, ss)
 
 
-def _make_margin_suptitles(fig, renderer, *, w_pad=0, h_pad=0):
+def make_margin_suptitles(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0):
     # Figure out how large the suptitle is and make the
     # top level figure margin larger.
 
@@ -284,32 +375,34 @@ def _make_margin_suptitles(fig, renderer, *, w_pad=0, h_pad=0):
     h_pad_local = padbox.height
     w_pad_local = padbox.width
 
-    for panel in fig.subfigs:
-        _make_margin_suptitles(panel, renderer, w_pad=w_pad, h_pad=h_pad)
+    for sfig in fig.subfigs:
+        make_margin_suptitles(layoutgrids, sfig, renderer,
+                              w_pad=w_pad, h_pad=h_pad)
 
     if fig._suptitle is not None and fig._suptitle.get_in_layout():
         p = fig._suptitle.get_position()
         if getattr(fig._suptitle, '_autopos', False):
             fig._suptitle.set_position((p[0], 1 - h_pad_local))
             bbox = inv_trans_fig(fig._suptitle.get_tightbbox(renderer))
-            fig._layoutgrid.edit_margin_min('top', bbox.height + 2 * h_pad)
+            layoutgrids[fig].edit_margin_min('top', bbox.height + 2 * h_pad)
 
     if fig._supxlabel is not None and fig._supxlabel.get_in_layout():
         p = fig._supxlabel.get_position()
         if getattr(fig._supxlabel, '_autopos', False):
             fig._supxlabel.set_position((p[0], h_pad_local))
             bbox = inv_trans_fig(fig._supxlabel.get_tightbbox(renderer))
-            fig._layoutgrid.edit_margin_min('bottom', bbox.height + 2 * h_pad)
+            layoutgrids[fig].edit_margin_min('bottom',
+                                             bbox.height + 2 * h_pad)
 
-    if fig._supylabel is not None and fig._supxlabel.get_in_layout():
+    if fig._supylabel is not None and fig._supylabel.get_in_layout():
         p = fig._supylabel.get_position()
         if getattr(fig._supylabel, '_autopos', False):
             fig._supylabel.set_position((w_pad_local, p[1]))
             bbox = inv_trans_fig(fig._supylabel.get_tightbbox(renderer))
-            fig._layoutgrid.edit_margin_min('left', bbox.width + 2 * w_pad)
+            layoutgrids[fig].edit_margin_min('left', bbox.width + 2 * w_pad)
 
 
-def _match_submerged_margins(fig):
+def match_submerged_margins(layoutgrids, fig):
     """
     Make the margins that are submerged inside an Axes the same size.
 
@@ -334,18 +427,18 @@ def _match_submerged_margins(fig):
     See test_constrained_layout::test_constrained_layout12 for an example.
     """
 
-    for panel in fig.subfigs:
-        _match_submerged_margins(panel)
+    for sfig in fig.subfigs:
+        match_submerged_margins(layoutgrids, sfig)
 
     axs = [a for a in fig.get_axes() if (hasattr(a, 'get_subplotspec')
                                          and a.get_in_layout())]
 
     for ax1 in axs:
         ss1 = ax1.get_subplotspec()
-        lg1 = ss1.get_gridspec()._layoutgrid
-        if lg1 is None:
+        if ss1.get_gridspec() not in layoutgrids:
             axs.remove(ax1)
             continue
+        lg1 = layoutgrids[ss1.get_gridspec()]
 
         # interior columns:
         if len(ss1.colspan) > 1:
@@ -359,7 +452,7 @@ def _match_submerged_margins(fig):
             )
             for ax2 in axs:
                 ss2 = ax2.get_subplotspec()
-                lg2 = ss2.get_gridspec()._layoutgrid
+                lg2 = layoutgrids[ss2.get_gridspec()]
                 if lg2 is not None and len(ss2.colspan) > 1:
                     maxsubl2 = np.max(
                         lg2.margin_vals['left'][ss2.colspan[1:]] +
@@ -389,7 +482,7 @@ def _match_submerged_margins(fig):
 
             for ax2 in axs:
                 ss2 = ax2.get_subplotspec()
-                lg2 = ss2.get_gridspec()._layoutgrid
+                lg2 = layoutgrids[ss2.get_gridspec()]
                 if lg2 is not None:
                     if len(ss2.rowspan) > 1:
                         maxsubt = np.max([np.max(
@@ -406,7 +499,7 @@ def _match_submerged_margins(fig):
                 lg1.edit_margin_min('bottom', maxsubb, cell=i)
 
 
-def _get_cb_parent_spans(cbax):
+def get_cb_parent_spans(cbax):
     """
     Figure out which subplotspecs this colorbar belongs to:
     """
@@ -426,7 +519,7 @@ def _get_cb_parent_spans(cbax):
     return rowspan, colspan
 
 
-def _get_pos_and_bbox(ax, renderer):
+def get_pos_and_bbox(ax, renderer):
     """
     Get the position and the bbox for the axes.
 
@@ -459,18 +552,19 @@ def _get_pos_and_bbox(ax, renderer):
     return pos, bbox
 
 
-def _reposition_axes(fig, renderer, *, w_pad=0, h_pad=0, hspace=0, wspace=0):
+def reposition_axes(layoutgrids, fig, renderer, *,
+                    w_pad=0, h_pad=0, hspace=0, wspace=0):
     """
     Reposition all the axes based on the new inner bounding box.
     """
     trans_fig_to_subfig = fig.transFigure - fig.transSubfigure
     for sfig in fig.subfigs:
-        bbox = sfig._layoutgrid.get_outer_bbox()
+        bbox = layoutgrids[sfig].get_outer_bbox()
         sfig._redo_transform_rel_fig(
             bbox=bbox.transformed(trans_fig_to_subfig))
-        _reposition_axes(sfig, renderer,
-                         w_pad=w_pad, h_pad=h_pad,
-                         wspace=wspace, hspace=hspace)
+        reposition_axes(layoutgrids, sfig, renderer,
+                        w_pad=w_pad, h_pad=h_pad,
+                        wspace=wspace, hspace=hspace)
 
     for ax in fig._localaxes.as_list():
         if not hasattr(ax, 'get_subplotspec') or not ax.get_in_layout():
@@ -481,10 +575,11 @@ def _reposition_axes(fig, renderer, *, w_pad=0, h_pad=0, hspace=0, wspace=0):
         ss = ax.get_subplotspec()
         gs = ss.get_gridspec()
         nrows, ncols = gs.get_geometry()
-        if gs._layoutgrid is None:
+        if gs not in layoutgrids:
             return
 
-        bbox = gs._layoutgrid.get_inner_bbox(rows=ss.rowspan, cols=ss.colspan)
+        bbox = layoutgrids[gs].get_inner_bbox(rows=ss.rowspan,
+                                              cols=ss.colspan)
 
         # transform from figure to panel for set_position:
         newbbox = trans_fig_to_subfig.transform_bbox(bbox)
@@ -496,10 +591,11 @@ def _reposition_axes(fig, renderer, *, w_pad=0, h_pad=0, hspace=0, wspace=0):
         offset = {'left': 0, 'right': 0, 'bottom': 0, 'top': 0}
         for nn, cbax in enumerate(ax._colorbars[::-1]):
             if ax == cbax._colorbar_info['parents'][0]:
-                _reposition_colorbar(cbax, renderer, offset=offset)
+                reposition_colorbar(layoutgrids, cbax, renderer,
+                                    offset=offset)
 
 
-def _reposition_colorbar(cbax, renderer, *, offset=None):
+def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None):
     """
     Place the colorbar in its new place.
 
@@ -524,9 +620,10 @@ def _reposition_colorbar(cbax, renderer, *, offset=None):
     fig = cbax.figure
     trans_fig_to_subfig = fig.transFigure - fig.transSubfigure
 
-    cb_rspans, cb_cspans = _get_cb_parent_spans(cbax)
-    bboxparent = gs._layoutgrid.get_bbox_for_cb(rows=cb_rspans, cols=cb_cspans)
-    pb = gs._layoutgrid.get_inner_bbox(rows=cb_rspans, cols=cb_cspans)
+    cb_rspans, cb_cspans = get_cb_parent_spans(cbax)
+    bboxparent = layoutgrids[gs].get_bbox_for_cb(rows=cb_rspans,
+                                                 cols=cb_cspans)
+    pb = layoutgrids[gs].get_inner_bbox(rows=cb_rspans, cols=cb_cspans)
 
     location = cbax._colorbar_info['location']
     anchor = cbax._colorbar_info['anchor']
@@ -534,12 +631,12 @@ def _reposition_colorbar(cbax, renderer, *, offset=None):
     aspect = cbax._colorbar_info['aspect']
     shrink = cbax._colorbar_info['shrink']
 
-    cbpos, cbbbox = _get_pos_and_bbox(cbax, renderer)
+    cbpos, cbbbox = get_pos_and_bbox(cbax, renderer)
 
     # Colorbar gets put at extreme edge of outer bbox of the subplotspec
     # It needs to be moved in by: 1) a pad 2) its "margin" 3) by
     # any colorbars already added at this location:
-    cbpad = _colorbar_get_pad(cbax)
+    cbpad = colorbar_get_pad(layoutgrids, cbax)
     if location in ('left', 'right'):
         # fraction and shrink are fractions of parent
         pbcb = pb.shrunk(fraction, shrink).anchored(anchor, pb)
@@ -583,30 +680,30 @@ def _reposition_colorbar(cbax, renderer, *, offset=None):
     return offset
 
 
-def _reset_margins(fig):
+def reset_margins(layoutgrids, fig):
     """
     Reset the margins in the layoutboxes of fig.
 
     Margins are usually set as a minimum, so if the figure gets smaller
     the minimum needs to be zero in order for it to grow again.
     """
-    for span in fig.subfigs:
-        _reset_margins(span)
+    for sfig in fig.subfigs:
+        reset_margins(layoutgrids, sfig)
     for ax in fig.axes:
         if hasattr(ax, 'get_subplotspec') and ax.get_in_layout():
             ss = ax.get_subplotspec()
             gs = ss.get_gridspec()
-            if gs._layoutgrid is not None:
-                gs._layoutgrid.reset_margins()
-    fig._layoutgrid.reset_margins()
+            if gs in layoutgrids:
+                layoutgrids[gs].reset_margins()
+    layoutgrids[fig].reset_margins()
 
 
-def _colorbar_get_pad(cax):
+def colorbar_get_pad(layoutgrids, cax):
     parents = cax._colorbar_info['parents']
     gs = parents[0].get_gridspec()
 
-    cb_rspans, cb_cspans = _get_cb_parent_spans(cax)
-    bboxouter = gs._layoutgrid.get_inner_bbox(rows=cb_rspans, cols=cb_cspans)
+    cb_rspans, cb_cspans = get_cb_parent_spans(cax)
+    bboxouter = layoutgrids[gs].get_inner_bbox(rows=cb_rspans, cols=cb_cspans)
 
     if cax._colorbar_info['location'] in ['right', 'left']:
         size = bboxouter.width

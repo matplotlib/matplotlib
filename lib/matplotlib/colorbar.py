@@ -12,6 +12,7 @@ In Matplotlib they are drawn into a dedicated `~.axes.Axes`.
 """
 
 import copy
+import functools
 import logging
 import textwrap
 
@@ -193,10 +194,21 @@ workaround is not used by default (see issue #1188).
        textwrap.indent(_make_axes_other_param_doc, "    "),
        _colormap_kw_doc))
 
-# Deprecated since 3.4.
-colorbar_doc = docstring.interpd.params["colorbar_doc"]
-colormap_kw_doc = _colormap_kw_doc
-make_axes_kw_doc = _make_axes_param_doc + _make_axes_other_param_doc
+
+# module-level deprecations.
+@functools.lru_cache(None)
+def __getattr__(name):
+    if name == "colorbar_doc":
+        _api.warn_deprecated("3.4", name=name)
+        return docstring.interpd.params["colorbar_doc"]
+    elif name == "colormap_kw_doc":
+        _api.warn_deprecated("3.4", name=name)
+        return _colormap_kw_doc
+    elif name == "make_axes_kw_doc":
+        _api.warn_deprecated("3.4", name=name)
+        return _make_axes_param_doc + _make_axes_other_param_doc
+    else:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def _set_ticks_on_axis_warn(*args, **kw):
@@ -404,7 +416,7 @@ class Colorbar:
             alpha = mappable.get_alpha()
 
         mappable.colorbar = self
-        mappable.colorbar_cid = mappable.callbacksSM.connect(
+        mappable.colorbar_cid = mappable.callbacks.connect(
             'changed', self.update_normal)
 
         _api.check_in_list(
@@ -427,7 +439,9 @@ class Colorbar:
                 extend = norm.extend
             else:
                 extend = 'neither'
-        self.alpha = alpha
+        self.alpha = None
+        # Call set_alpha to handle array-like alphas properly
+        self.set_alpha(alpha)
         self.cmap = cmap
         self.norm = norm
         self.values = values
@@ -764,7 +778,6 @@ class Colorbar:
         """
         Setup the ticks and ticklabels. This should not be needed by users.
         """
-        ax = self.ax
         # Get the locator and formatter; defaults to self.locator if not None.
         self._get_ticker_locator_formatter()
         self._long_axis().set_major_locator(self.locator)
@@ -817,26 +830,30 @@ class Colorbar:
         _log.debug('locator: %r', locator)
 
     @_api.delete_parameter("3.5", "update_ticks")
-    def set_ticks(self, ticks, update_ticks=True):
+    def set_ticks(self, ticks, update_ticks=True, labels=None, *,
+                  minor=False, **kwargs):
         """
         Set tick locations.
 
         Parameters
         ----------
-        ticks : array-like or `~matplotlib.ticker.Locator` or None
-            The tick positions can be hard-coded by an array of values; or
-            they can be defined by a `.Locator`. Setting to *None* reverts
-            to using a default locator.
-
-        update_ticks : bool, default: True
-            As of 3.5 this has no effect.
-
+        ticks : list of floats
+            List of tick locations.
+        labels : list of str, optional
+            List of tick labels. If not set, the labels show the data value.
+        minor : bool, default: False
+            If ``False``, set the major ticks; if ``True``, the minor ticks.
+        **kwargs
+            `.Text` properties for the labels. These take effect only if you
+            pass *labels*. In other cases, please use `~.Axes.tick_params`.
         """
         if np.iterable(ticks):
-            self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
+            self._long_axis().set_ticks(ticks, labels=labels, minor=minor,
+                                        **kwargs)
+            self.locator = self._long_axis().get_major_locator()
         else:
             self.locator = ticks
-        self._long_axis().set_major_locator(self.locator)
+            self._long_axis().set_major_locator(self.locator)
         self.stale = True
 
     def get_ticks(self, minor=False):
@@ -854,26 +871,41 @@ class Colorbar:
             return self._long_axis().get_majorticklocs()
 
     @_api.delete_parameter("3.5", "update_ticks")
-    def set_ticklabels(self, ticklabels, update_ticks=True):
+    def set_ticklabels(self, ticklabels, update_ticks=True, *, minor=False,
+                       **kwargs):
         """
         Set tick labels.
+
+        .. admonition:: Discouraged
+
+            The use of this method is discouraged, because of the dependency
+            on tick positions. In most cases, you'll want to use
+            ``set_ticks(positions, labels=labels)`` instead.
+
+            If you are using this method, you should always fix the tick
+            positions before, e.g. by using `.Colorbar.set_ticks` or by
+            explicitly setting a `~.ticker.FixedLocator` on the long axis
+            of the colorbar. Otherwise, ticks are free to move and the
+            labels may end up in unexpected positions.
 
         Parameters
         ----------
         ticklabels : sequence of str or of `.Text`
             Texts for labeling each tick location in the sequence set by
-            `.Axis.set_ticks`; the number of labels must match the number of
-            locations.
+            `.Colorbar.set_ticks`; the number of labels must match the number
+            of locations.
 
         update_ticks : bool, default: True
             This keyword argument is ignored and will be be removed.
             Deprecated
+
+         minor : bool
+            If True, set minor ticks instead of major ticks.
+
+        **kwargs
+            `.Text` properties for the labels.
         """
-        if isinstance(self.locator, ticker.FixedLocator):
-            self.formatter = ticker.FixedFormatter(ticklabels)
-        else:
-            _api._warn_external("set_ticks() must have been called.")
-        self.stale = True
+        self._long_axis().set_ticklabels(ticklabels, minor=minor, **kwargs)
 
     def minorticks_on(self):
         """
@@ -916,8 +948,13 @@ class Colorbar:
         self.stale = True
 
     def set_alpha(self, alpha):
-        """Set the transparency between 0 (transparent) and 1 (opaque)."""
-        self.alpha = alpha
+        """
+        Set the transparency between 0 (transparent) and 1 (opaque).
+
+        If an array is provided, *alpha* will be set to None to use the
+        transparency values associated with the colormap.
+        """
+        self.alpha = None if isinstance(alpha, np.ndarray) else alpha
 
     def _set_scale(self, scale, **kwargs):
         """
@@ -963,7 +1000,7 @@ class Colorbar:
         """
         self.ax.remove()
 
-        self.mappable.callbacksSM.disconnect(self.mappable.colorbar_cid)
+        self.mappable.callbacks.disconnect(self.mappable.colorbar_cid)
         self.mappable.colorbar = None
         self.mappable.colorbar_cid = None
 

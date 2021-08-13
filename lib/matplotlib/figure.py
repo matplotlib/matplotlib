@@ -39,7 +39,6 @@ from matplotlib.patches import Rectangle
 from matplotlib.text import Text
 from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
                                    TransformedBbox)
-import matplotlib._layoutgrid as layoutgrid
 
 _log = logging.getLogger(__name__)
 
@@ -184,7 +183,7 @@ class FigureBase(Artist):
     Base class for `.figure.Figure` and `.figure.SubFigure` containing the
     methods that add artists to the figure or subfigure, create Axes, etc.
     """
-    def __init__(self):
+    def __init__(self, **kwargs):
         super().__init__()
         # remove the non-figure artist _axes property
         # as it makes no sense for a figure to be _in_ an axes
@@ -195,9 +194,6 @@ class FigureBase(Artist):
         self._suptitle = None
         self._supxlabel = None
         self._supylabel = None
-
-        # constrained_layout:
-        self._layoutgrid = None
 
         # groupers to keep track of x and y labels we want to align.
         # see self.align_xlabels and self.align_ylabels and
@@ -217,6 +213,7 @@ class FigureBase(Artist):
         self.subfigs = []
         self.stale = True
         self.suppressComposite = None
+        self.set(**kwargs)
 
     def _get_draw_artists(self, renderer):
         """Also runs apply_aspect"""
@@ -370,7 +367,10 @@ default: %(va)s
 
         x = kwargs.pop('x', None)
         y = kwargs.pop('y', None)
-        autopos = x is None and y is None
+        if info['name'] in ['_supxlabel', '_suptitle']:
+            autopos = y is None
+        elif info['name'] == '_supylabel':
+            autopos = x is None
         if x is None:
             x = info['x0']
         if y is None:
@@ -1481,7 +1481,13 @@ default: %(va)s
     @docstring.dedent_interpd
     def gca(self, **kwargs):
         """
-        Get the current Axes, creating one if necessary.
+        Get the current Axes.
+
+        If there is currently no Axes on this Figure, a new one is created
+        using `.Figure.add_subplot`.  (To test whether there is currently an
+        Axes on a Figure, check whether ``figure.axes`` is empty.  To test
+        whether there is currently a Figure on the pyplot figure stack, check
+        whether `.pyplot.get_fignums()` is empty.)
 
         The following kwargs are supported for ensuring the returned Axes
         adheres to the given projection etc., and for Axes creation if
@@ -1914,6 +1920,7 @@ default: %(va)s
         a.set_transform(self.transSubfigure)
 
 
+@docstring.interpd
 class SubFigure(FigureBase):
     """
     Logical figure that can be placed inside a figure.
@@ -1936,7 +1943,8 @@ class SubFigure(FigureBase):
                  facecolor=None,
                  edgecolor=None,
                  linewidth=0.0,
-                 frameon=None):
+                 frameon=None,
+                 **kwargs):
         """
         Parameters
         ----------
@@ -1960,8 +1968,14 @@ class SubFigure(FigureBase):
 
         frameon : bool, default: :rc:`figure.frameon`
             If ``False``, suppress drawing the figure background patch.
+
+        Other Parameters
+        ----------------
+        **kwargs : `.SubFigure` properties, optional
+
+            %(SubFigure:kwdoc)s
         """
-        super().__init__()
+        super().__init__(**kwargs)
         if facecolor is None:
             facecolor = mpl.rcParams['figure.facecolor']
         if edgecolor is None:
@@ -1977,7 +1991,6 @@ class SubFigure(FigureBase):
         self.subplotpars = parent.subplotpars
         self.dpi_scale_trans = parent.dpi_scale_trans
         self._axobservers = parent._axobservers
-        self.dpi = parent.dpi
         self.canvas = parent.canvas
         self.transFigure = parent.transFigure
         self.bbox_relative = None
@@ -1995,8 +2008,13 @@ class SubFigure(FigureBase):
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
 
-        if parent._layoutgrid is not None:
-            self.init_layoutgrid()
+    @property
+    def dpi(self):
+        return self._parent.dpi
+
+    @dpi.setter
+    def dpi(self, value):
+        self._parent.dpi = value
 
     def _redo_transform_rel_fig(self, bbox=None):
         """
@@ -2050,21 +2068,6 @@ class SubFigure(FigureBase):
         """
         return self._parent.get_constrained_layout_pads(relative=relative)
 
-    def init_layoutgrid(self):
-        """Initialize the layoutgrid for use in constrained_layout."""
-        if self._layoutgrid is None:
-            gs = self._subplotspec.get_gridspec()
-            parent = gs._layoutgrid
-            if parent is not None:
-                self._layoutgrid = layoutgrid.LayoutGrid(
-                    parent=parent,
-                    name=(parent.name + '.' + 'panellb' +
-                          layoutgrid.seq_id()),
-                    parent_inner=True,
-                    nrows=1, ncols=1,
-                    parent_pos=(self._subplotspec.rowspan,
-                                self._subplotspec.colspan))
-
     @property
     def axes(self):
         """
@@ -2105,6 +2108,7 @@ class SubFigure(FigureBase):
             self.stale = False
 
 
+@docstring.interpd
 class Figure(FigureBase):
     """
     The top level container for all the plot elements.
@@ -2145,6 +2149,7 @@ class Figure(FigureBase):
                  subplotpars=None,  # rc figure.subplot.*
                  tight_layout=None,  # rc figure.autolayout
                  constrained_layout=None,  # rc figure.constrained_layout.use
+                 **kwargs
                  ):
         """
         Parameters
@@ -2186,8 +2191,14 @@ class Figure(FigureBase):
             :doc:`/tutorials/intermediate/constrainedlayout_guide`
             for examples.  (Note: does not work with `add_subplot` or
             `~.pyplot.subplot2grid`.)
+
+        Other Parameters
+        ----------------
+        **kwargs : `.Figure` properties, optional
+
+            %(Figure:kwdoc)s
         """
-        super().__init__()
+        super().__init__(**kwargs)
 
         self.callbacks = cbook.CallbackRegistry()
         # Callbacks traditionally associated with the canvas (and exposed with
@@ -2239,7 +2250,6 @@ class Figure(FigureBase):
         self.subplotpars = subplotpars
 
         # constrained_layout:
-        self._layoutgrid = None
         self._constrained = False
 
         self.set_tight_layout(tight_layout)
@@ -2398,9 +2408,6 @@ class Figure(FigureBase):
             self.set_constrained_layout_pads(**constrained)
         else:
             self.set_constrained_layout_pads()
-
-        self.init_layoutgrid()
-
         self.stale = True
 
     def set_constrained_layout_pads(self, *, w_pad=None, h_pad=None,
@@ -2461,10 +2468,10 @@ class Figure(FigureBase):
         hspace = self._constrained_layout_pads['hspace']
 
         if relative and (w_pad is not None or h_pad is not None):
-            renderer0 = layoutgrid.get_renderer(self)
-            dpi = renderer0.dpi
-            w_pad = w_pad * dpi / renderer0.width
-            h_pad = h_pad * dpi / renderer0.height
+            renderer = _get_renderer(self)
+            dpi = renderer.dpi
+            w_pad = w_pad * dpi / renderer.width
+            h_pad = h_pad * dpi / renderer.height
 
         return w_pad, h_pad, wspace, hspace
 
@@ -2716,8 +2723,6 @@ class Figure(FigureBase):
         self._supxlabel = None
         self._supylabel = None
 
-        if self.get_constrained_layout():
-            self.init_layoutgrid()
         self.stale = True
 
     def clear(self, keep_observers=False):
@@ -2800,11 +2805,6 @@ class Figure(FigureBase):
         if getattr(self.canvas, 'manager', None) \
                 in _pylab_helpers.Gcf.figs.values():
             state['_restore_to_pylab'] = True
-
-        # set all the layoutgrid information to None.  kiwisolver objects can't
-        # be pickled, so we lose the layout options at this point.
-        state.pop('_layoutgrid', None)
-
         return state
 
     def __setstate__(self, state):
@@ -2820,7 +2820,6 @@ class Figure(FigureBase):
 
         # re-initialise some of the unstored state information
         FigureCanvasBase(self)  # Set self.canvas.
-        self._layoutgrid = None
 
         if restore_to_pylab:
             # lazy import to avoid circularity
@@ -3081,30 +3080,20 @@ class Figure(FigureBase):
 
         return None if event is None else event.name == "key_press_event"
 
-    def init_layoutgrid(self):
-        """Initialize the layoutgrid for use in constrained_layout."""
-        del(self._layoutgrid)
-        self._layoutgrid = layoutgrid.LayoutGrid(
-            parent=None, name='figlb')
-
     def execute_constrained_layout(self, renderer=None):
         """
         Use ``layoutgrid`` to determine pos positions within Axes.
 
         See also `.set_constrained_layout_pads`.
+
+        Returns
+        -------
+        layoutgrid : private debugging object
         """
 
         from matplotlib._constrained_layout import do_constrained_layout
 
         _log.debug('Executing constrainedlayout')
-        if self._layoutgrid is None:
-            _api.warn_external("Calling figure.constrained_layout, but "
-                               "figure not setup to do constrained layout. "
-                               "You either called GridSpec without the "
-                               "figure keyword, you are using plt.subplot, "
-                               "or you need to call figure or subplots "
-                               "with the constrained_layout=True kwarg.")
-            return
         w_pad, h_pad, wspace, hspace = self.get_constrained_layout_pads()
         # convert to unit-relative lengths
         fig = self
@@ -3113,7 +3102,8 @@ class Figure(FigureBase):
         h_pad = h_pad / height
         if renderer is None:
             renderer = _get_renderer(fig)
-        do_constrained_layout(fig, renderer, h_pad, w_pad, hspace, wspace)
+        return do_constrained_layout(fig, renderer, h_pad, w_pad,
+                                     hspace, wspace)
 
     def tight_layout(self, *, pad=1.08, h_pad=None, w_pad=None, rect=None):
         """

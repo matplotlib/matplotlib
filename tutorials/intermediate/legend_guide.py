@@ -53,16 +53,18 @@ Those artists with an empty string as label or with a label starting with
 For full control of what is being added to the legend, it is common to pass
 the appropriate handles directly to :func:`legend`::
 
-    line_up, = plt.plot([1, 2, 3], label='Line 2')
-    line_down, = plt.plot([3, 2, 1], label='Line 1')
-    plt.legend(handles=[line_up, line_down])
+    fig, ax = plt.subplots()
+    line_up, = ax.plot([1, 2, 3], label='Line 2')
+    line_down, = ax.plot([3, 2, 1], label='Line 1')
+    ax.legend(handles=[line_up, line_down])
 
 In some cases, it is not possible to set the label of the handle, so it is
 possible to pass through the list of labels to :func:`legend`::
 
-    line_up, = plt.plot([1, 2, 3], label='Line 2')
-    line_down, = plt.plot([3, 2, 1], label='Line 1')
-    plt.legend([line_up, line_down], ['Line Up', 'Line Down'])
+    fig, ax = plt.subplots()
+    line_up, = ax.plot([1, 2, 3], label='Line 2')
+    line_down, = ax.plot([3, 2, 1], label='Line 1')
+    ax.legend([line_up, line_down], ['Line Up', 'Line Down'])
 
 
 .. _proxy_legend_handles:
@@ -81,8 +83,9 @@ is represented by a red color:
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 
+fig, ax = plt.subplots()
 red_patch = mpatches.Patch(color='red', label='The red data')
-plt.legend(handles=[red_patch])
+ax.legend(handles=[red_patch])
 
 plt.show()
 
@@ -92,9 +95,10 @@ plt.show()
 
 import matplotlib.lines as mlines
 
+fig, ax = plt.subplots()
 blue_line = mlines.Line2D([], [], color='blue', marker='*',
                           markersize=15, label='Blue stars')
-plt.legend(handles=[blue_line])
+ax.legend(handles=[blue_line])
 
 plt.show()
 
@@ -110,25 +114,25 @@ plt.show()
 # figure's top right-hand corner instead of the axes' corner, simply specify
 # the corner's location and the coordinate system of that location::
 #
-#     plt.legend(bbox_to_anchor=(1, 1),
-#                bbox_transform=plt.gcf().transFigure)
+#     ax.legend(bbox_to_anchor=(1, 1),
+#               bbox_transform=fig.transFigure)
 #
 # More examples of custom legend placement:
 
-plt.subplot(211)
-plt.plot([1, 2, 3], label="test1")
-plt.plot([3, 2, 1], label="test2")
-
+fig, ax_dict = plt.subplot_mosaic([['top', 'top'], ['bottom', 'BLANK']],
+                                  empty_sentinel="BLANK")
+ax_dict['top'].plot([1, 2, 3], label="test1")
+ax_dict['top'].plot([3, 2, 1], label="test2")
 # Place a legend above this subplot, expanding itself to
 # fully use the given bounding box.
-plt.legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
-           ncol=2, mode="expand", borderaxespad=0.)
+ax_dict['top'].legend(bbox_to_anchor=(0., 1.02, 1., .102), loc='lower left',
+                      ncol=2, mode="expand", borderaxespad=0.)
 
-plt.subplot(223)
-plt.plot([1, 2, 3], label="test1")
-plt.plot([3, 2, 1], label="test2")
+ax_dict['bottom'].plot([1, 2, 3], label="test1")
+ax_dict['bottom'].plot([3, 2, 1], label="test2")
 # Place a legend to the right of this smaller subplot.
-plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+ax_dict['bottom'].legend(bbox_to_anchor=(1.05, 1),
+                         loc='upper left', borderaxespad=0.)
 
 plt.show()
 
@@ -144,17 +148,18 @@ plt.show()
 # handles on the Axes. To keep old legend instances, we must add them
 # manually to the Axes:
 
-line1, = plt.plot([1, 2, 3], label="Line 1", linestyle='--')
-line2, = plt.plot([3, 2, 1], label="Line 2", linewidth=4)
+fig, ax = plt.subplots()
+line1, = ax.plot([1, 2, 3], label="Line 1", linestyle='--')
+line2, = ax.plot([3, 2, 1], label="Line 2", linewidth=4)
 
 # Create a legend for the first line.
-first_legend = plt.legend(handles=[line1], loc='upper right')
+first_legend = ax.legend(handles=[line1], loc='upper right')
 
-# Add the legend manually to the current Axes.
-plt.gca().add_artist(first_legend)
+# Add the legend manually to the Axes.
+ax.add_artist(first_legend)
 
 # Create another legend for the second line.
-plt.legend(handles=[line2], loc='lower right')
+ax.legend(handles=[line2], loc='lower right')
 
 plt.show()
 
@@ -188,10 +193,11 @@ plt.show()
 
 from matplotlib.legend_handler import HandlerLine2D
 
-line1, = plt.plot([3, 2, 1], marker='o', label='Line 1')
-line2, = plt.plot([1, 2, 3], marker='o', label='Line 2')
+fig, ax = plt.subplots()
+line1, = ax.plot([3, 2, 1], marker='o', label='Line 1')
+line2, = ax.plot([1, 2, 3], marker='o', label='Line 2')
 
-plt.legend(handler_map={line1: HandlerLine2D(numpoints=4)})
+ax.legend(handler_map={line1: HandlerLine2D(numpoints=4)})
 
 ###############################################################################
 # As you can see, "Line 1" now has 4 marker points, where "Line 2" has 2 (the
@@ -208,11 +214,12 @@ from numpy.random import randn
 
 z = randn(10)
 
-red_dot, = plt.plot(z, "ro", markersize=15)
+fig, ax = plt.subplots()
+red_dot, = ax.plot(z, "ro", markersize=15)
 # Put a white cross over some of the data.
-white_cross, = plt.plot(z[:5], "w+", markeredgewidth=3, markersize=15)
+white_cross, = ax.plot(z[:5], "w+", markeredgewidth=3, markersize=15)
 
-plt.legend([red_dot, (red_dot, white_cross)], ["Attr A", "Attr A+B"])
+ax.legend([red_dot, (red_dot, white_cross)], ["Attr A", "Attr A+B"])
 
 ###############################################################################
 # The `.legend_handler.HandlerTuple` class can also be used to
@@ -220,11 +227,12 @@ plt.legend([red_dot, (red_dot, white_cross)], ["Attr A", "Attr A+B"])
 
 from matplotlib.legend_handler import HandlerLine2D, HandlerTuple
 
-p1, = plt.plot([1, 2.5, 3], 'r-d')
-p2, = plt.plot([3, 2, 1], 'k-o')
+fig, ax = plt.subplots()
+p1, = ax.plot([1, 2.5, 3], 'r-d')
+p2, = ax.plot([3, 2, 1], 'k-o')
 
-l = plt.legend([(p1, p2)], ['Two keys'], numpoints=1,
-               handler_map={tuple: HandlerTuple(ndivide=None)})
+l = ax.legend([(p1, p2)], ['Two keys'], numpoints=1,
+              handler_map={tuple: HandlerTuple(ndivide=None)})
 
 ###############################################################################
 # Implementing a custom legend handler
@@ -253,9 +261,10 @@ class AnyObjectHandler:
         handlebox.add_artist(patch)
         return patch
 
+fig, ax = plt.subplots()
 
-plt.legend([AnyObject()], ['My first handler'],
-           handler_map={AnyObject: AnyObjectHandler()})
+ax.legend([AnyObject()], ['My first handler'],
+          handler_map={AnyObject: AnyObjectHandler()})
 
 ###############################################################################
 # Alternatively, had we wanted to globally accept ``AnyObject`` instances
@@ -286,7 +295,9 @@ class HandlerEllipse(HandlerPatch):
 
 c = mpatches.Circle((0.5, 0.5), 0.25, facecolor="green",
                     edgecolor="red", linewidth=3)
-plt.gca().add_patch(c)
 
-plt.legend([c], ["An ellipse, not a rectangle"],
-           handler_map={mpatches.Circle: HandlerEllipse()})
+fig, ax = plt.subplots()
+
+ax.add_patch(c)
+ax.legend([c], ["An ellipse, not a rectangle"],
+          handler_map={mpatches.Circle: HandlerEllipse()})

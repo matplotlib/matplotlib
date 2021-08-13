@@ -63,7 +63,7 @@ it also ensures that the GUI toolkit event loop is properly integrated
 with the command line (see :ref:`cp_integration`).
 
 In this example, we create and modify a figure via an IPython prompt.
-The figure displays in a Qt5Agg GUI window. To configure the integration
+The figure displays in a QtAgg GUI window. To configure the integration
 and enable :ref:`interactive mode <controlling-interactive>` use the
 ``%matplotlib`` magic:
 
@@ -72,7 +72,7 @@ and enable :ref:`interactive mode <controlling-interactive>` use the
 ::
 
    In [1]: %matplotlib
-   Using matplotlib backend: Qt5Agg
+   Using matplotlib backend: QtAgg
 
    In [2]: import matplotlib.pyplot as plt
 

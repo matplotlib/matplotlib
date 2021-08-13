@@ -71,7 +71,6 @@ def example_plot(ax, fontsize=12, hide_labels=False):
         ax.set_ylabel('y-label', fontsize=fontsize)
         ax.set_title('Title', fontsize=fontsize)
 
-
 fig, ax = plt.subplots(constrained_layout=False)
 example_plot(ax, fontsize=24)
 
@@ -509,6 +508,7 @@ example_plot(ax2)
 example_plot(ax3)
 example_plot(ax4)
 fig.suptitle('subplot2grid')
+plt.show()
 
 ###############################################################################
 # Other Caveats
@@ -589,7 +589,7 @@ from matplotlib._layoutgrid import plot_children
 
 fig, ax = plt.subplots(constrained_layout=True)
 example_plot(ax, fontsize=24)
-plot_children(fig, fig._layoutgrid)
+plot_children(fig)
 
 #######################################################################
 # Simple case: two Axes
@@ -604,7 +604,7 @@ plot_children(fig, fig._layoutgrid)
 fig, ax = plt.subplots(1, 2, constrained_layout=True)
 example_plot(ax[0], fontsize=32)
 example_plot(ax[1], fontsize=8)
-plot_children(fig, fig._layoutgrid, printit=False)
+plot_children(fig, printit=False)
 
 #######################################################################
 # Two Axes and colorbar
@@ -617,7 +617,7 @@ fig, ax = plt.subplots(1, 2, constrained_layout=True)
 im = ax[0].pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=ax[0], shrink=0.6)
 im = ax[1].pcolormesh(arr, **pc_kwargs)
-plot_children(fig, fig._layoutgrid)
+plot_children(fig)
 
 #######################################################################
 # Colorbar associated with a Gridspec
@@ -630,7 +630,7 @@ fig, axs = plt.subplots(2, 2, constrained_layout=True)
 for ax in axs.flat:
     im = ax.pcolormesh(arr, **pc_kwargs)
 fig.colorbar(im, ax=axs, shrink=0.6)
-plot_children(fig, fig._layoutgrid, printit=False)
+plot_children(fig, printit=False)
 
 #######################################################################
 # Uneven sized Axes
@@ -655,7 +655,7 @@ ax = fig.add_subplot(gs[0, 1])
 im = ax.pcolormesh(arr, **pc_kwargs)
 ax = fig.add_subplot(gs[1, 1])
 im = ax.pcolormesh(arr, **pc_kwargs)
-plot_children(fig, fig._layoutgrid, printit=False)
+plot_children(fig, printit=False)
 
 #######################################################################
 # One case that requires finessing is if margins do not have any artists
@@ -670,4 +670,5 @@ ax00 = fig.add_subplot(gs[0, 0:2])
 ax01 = fig.add_subplot(gs[0, 2:])
 ax10 = fig.add_subplot(gs[1, 1:3])
 example_plot(ax10, fontsize=14)
-plot_children(fig, fig._layoutgrid)
+plot_children(fig)
+plt.show()

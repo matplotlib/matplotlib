@@ -806,8 +806,13 @@ class Axis(martist.Artist):
         # Clear the callback registry for this axis, or it may "leak"
         self.callbacks = cbook.CallbackRegistry()
 
-        self._reset_major_tick_kw()
-        self._reset_minor_tick_kw()
+        # whether the grids are on
+        self._major_tick_kw['gridOn'] = (
+                mpl.rcParams['axes.grid'] and
+                mpl.rcParams['axes.grid.which'] in ('both', 'major'))
+        self._minor_tick_kw['gridOn'] = (
+                mpl.rcParams['axes.grid'] and
+                mpl.rcParams['axes.grid.which'] in ('both', 'minor'))
         self.reset_ticks()
 
         self.converter = None
@@ -2252,8 +2257,10 @@ class XAxis(Axis):
         self.stale = True
 
     def get_tick_space(self):
-        ends = self.axes.transAxes.transform([[0, 0], [1, 0]])
-        length = ((ends[1][0] - ends[0][0]) / self.axes.figure.dpi) * 72
+        ends = mtransforms.Bbox.from_bounds(0, 0, 1, 1)
+        ends = ends.transformed(self.axes.transAxes -
+                                self.figure.dpi_scale_trans)
+        length = ends.width * 72
         # There is a heuristic here that the aspect ratio of tick text
         # is no more than 3:1
         size = self._get_tick_label_size('x') * 3
@@ -2512,8 +2519,10 @@ class YAxis(Axis):
         self.stale = True
 
     def get_tick_space(self):
-        ends = self.axes.transAxes.transform([[0, 0], [0, 1]])
-        length = ((ends[1][1] - ends[0][1]) / self.axes.figure.dpi) * 72
+        ends = mtransforms.Bbox.from_bounds(0, 0, 1, 1)
+        ends = ends.transformed(self.axes.transAxes -
+                                self.figure.dpi_scale_trans)
+        length = ends.height * 72
         # Having a spacing of at least 2 just looks good.
         size = self._get_tick_label_size('y') * 2
         if size > 0:

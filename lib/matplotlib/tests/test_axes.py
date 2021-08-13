@@ -785,6 +785,13 @@ def test_hexbin_log():
     plt.colorbar(h)
 
 
+def test_hexbin_log_clim():
+    x, y = np.arange(200).reshape((2, 100))
+    fig, ax = plt.subplots()
+    h = ax.hexbin(x, y, bins='log', vmin=2, vmax=100)
+    assert h.get_clim() == (2, 100)
+
+
 def test_inverted_limits():
     # Test gh:1553
     # Calling invert_xaxis prior to plotting should not disable autoscaling
@@ -6952,6 +6959,21 @@ def test_2dcolor_plot(fig_test, fig_ref):
     axs[2].step([1, 2], [1, 2], c=color.reshape((1, -1)))
     axs[3].hist(np.arange(10), color=color.reshape((1, -1)))
     axs[4].bar(np.arange(10), np.arange(10), color=color.reshape((1, -1)))
+
+
+@check_figures_equal(extensions=['png'])
+def test_shared_axes_clear(fig_test, fig_ref):
+    x = np.arange(0.0, 2*np.pi, 0.01)
+    y = np.sin(x)
+
+    axs = fig_ref.subplots(2, 2, sharex=True, sharey=True)
+    for ax in axs.flat:
+        ax.plot(x, y)
+
+    axs = fig_test.subplots(2, 2, sharex=True, sharey=True)
+    for ax in axs.flat:
+        ax.clear()
+        ax.plot(x, y)
 
 
 def test_shared_axes_retick():

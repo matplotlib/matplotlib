@@ -1048,3 +1048,34 @@ def test_get_segments():
     readback, = lc.get_segments()
     # these should comeback un-changed!
     assert np.all(segments == readback)
+
+
+def test_set_offsets_late():
+    identity = mtransforms.IdentityTransform()
+    sizes = [2]
+
+    null = mcollections.CircleCollection(sizes=sizes)
+
+    init = mcollections.CircleCollection(sizes=sizes, offsets=(10, 10))
+
+    late = mcollections.CircleCollection(sizes=sizes)
+    late.set_offsets((10, 10))
+
+    # Bbox.__eq__ doesn't compare bounds
+    null_bounds = null.get_datalim(identity).bounds
+    init_bounds = init.get_datalim(identity).bounds
+    late_bounds = late.get_datalim(identity).bounds
+
+    # offsets and transform are applied when set after initialization
+    assert null_bounds != init_bounds
+    assert init_bounds == late_bounds
+
+
+def test_set_offset_transform():
+    skew = mtransforms.Affine2D().skew(2, 2)
+    init = mcollections.Collection([], transOffset=skew)
+
+    late = mcollections.Collection([])
+    late.set_offset_transform(skew)
+
+    assert skew == init.get_offset_transform() == late.get_offset_transform()

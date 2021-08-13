@@ -53,14 +53,6 @@ def mpl_test_settings(request):
             if backend.lower().startswith('qt5'):
                 if any(sys.modules.get(k) for k in ('PyQt4', 'PySide')):
                     pytest.skip('Qt4 binding already imported')
-                try:
-                    import PyQt5
-                # RuntimeError if PyQt4 already imported.
-                except (ImportError, RuntimeError):
-                    try:
-                        import PySide2
-                    except ImportError:
-                        pytest.skip("Failed to import a Qt5 binding.")
 
         # Default of cleanup and image_comparison too.
         style = ["classic", "_classic_test_patch"]
@@ -97,6 +89,7 @@ def mpl_test_settings(request):
 
 
 @pytest.fixture
+@_api.deprecated("3.5", alternative="none")
 def mpl_image_comparison_parameters(request, extension):
     # This fixture is applied automatically by the image_comparison decorator.
     #

@@ -41,7 +41,7 @@ Matplotlib figures can be rendered to various user interfaces. See
 and the capabilities they provide.
 
 * Tk_ (>= 8.3, != 8.6.0 or 8.6.1) [#]_: for the Tk-based backends.
-* PyQt5_ or PySide2_: for the Qt5-based backends.
+* PyQt6_ (>= 6.1), PySide6_, PyQt5_, or PySide2_: for the Qt-based backends.
 * PyGObject_: for the GTK3-based backends [#]_.
 * wxPython_ (>= 4) [#]_: for the wx-based backends.
 * pycairo_ (>= 1.11.0) or cairocffi_ (>= 0.8): for the GTK3 and/or cairo-based
@@ -51,6 +51,8 @@ and the capabilities they provide.
 .. _Tk: https://docs.python.org/3/library/tk.html
 .. _PyQt5: https://pypi.org/project/PyQt5/
 .. _PySide2: https://pypi.org/project/PySide2/
+.. _PyQt6: https://pypi.org/project/PyQt6/
+.. _PySide6: https://pypi.org/project/PySide6/
 .. _PyGObject: https://pygobject.readthedocs.io/en/latest/
 .. _wxPython: https://www.wxpython.org/
 .. _pycairo: https://pycairo.readthedocs.io/en/latest/
@@ -222,9 +224,13 @@ Required:
 
 * a minimal working LaTeX distribution
 * `Graphviz <http://www.graphviz.org/download>`_
-* the LaTeX packages *cm-super* and *dvipng* (if your OS bundles TeXLive, the
+* the following LaTeX packages (if your OS bundles TeXLive, the
   "complete" version of the installer, e.g. "texlive-full" or "texlive-all",
-  will often automatically include these packages)
+  will often automatically include these packages):
+
+  * `cm-super <https://ctan.org/pkg/cm-super>`_
+  * `dvipng <https://ctan.org/pkg/dvipng>`_
+  * `underscore <https://ctan.org/pkg/underscore>`_
 
 Optional, but recommended:
 
