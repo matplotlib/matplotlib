@@ -234,3 +234,21 @@ def test_linedash():
     fig.savefig(buf, format="ps")
 
     assert buf.tell() > 0
+
+
+@image_comparison(["multi_font_type3.eps"])
+def test_multi_font_type3():
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    plt.rc('ps', fonttype=3)
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "There are 多个汉字 in between!")
+
+
+@image_comparison(["multi_font_type42.eps"])
+def test_multi_font_type42():
+    plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
+    plt.rc('ps', fonttype=42)
+
+    fig = plt.figure()
+    fig.text(0.15, 0.475, "There are 多个汉字 in between!")
