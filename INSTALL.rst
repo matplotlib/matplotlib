@@ -21,10 +21,30 @@ Linux on `PyPI <https://pypi.org/project/matplotlib/>`_. Install it using
   python -m pip install -U pip
   python -m pip install -U matplotlib
 
-If this command results in Matplotlib being compiled from source and
-there's trouble with the compilation, you can add ``--prefer-binary`` to
-select the newest version of Matplotlib for which there is a
-precompiled wheel for your OS and Python.
+While we make a best effort to publish wheels concurrently with the source,
+there can be a lag in availability or coverage for you platform, OS, or Python
+version.  If ``pip`` can not find a wheel suitable for your system it will by
+default try to :ref:`compile Matplotlib from source <install_from_source>`
+which requires a compiler and the Python headers which are not available on all
+systems.  To be sure that you will always get a pre-compiled version of
+Matplotlib use the ``--only-binary``
+`option <https://pip.pypa.io/en/stable/cli/pip_install/#cmdoption-only-binary>`__ to
+``pip``
+
+.. code-block:: sh
+
+  python -m pip install -U matplotlib --only-binary matplotlib
+
+or specify Matplotlib in your `requirements file
+<https://pip.pypa.io/en/stable/user_guide/#requirements-files>`_ as
+
+.. code-block:: sh
+
+   matplotlib --only-binary matplotlib
+
+You can also use the ``--prefer-binary``
+`option <https://pip.pypa.io/en/stable/cli/pip_install/#install-prefer-binary>`__ which
+will cause ``pip`` to pick older wheels over newer sdists for all packages.
 
 .. note::
 
@@ -89,4 +109,3 @@ See :ref:`install_from_source`.
 Installing for development
 ==========================
 See :ref:`installing_for_devs`.
-
