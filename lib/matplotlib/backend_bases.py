@@ -1618,14 +1618,20 @@ def _check_savefig_extra_args(func=None, extra_kwargs=()):
             if frame is None:
                 # when called in embedded context may hit frame is None.
                 break
+            # Work around sphinx-gallery not setting __name__.
+            frame_name = frame.f_globals.get('__name__', '')
             if re.match(r'\A(matplotlib|mpl_toolkits)(\Z|\.(?!tests\.))',
-                        # Work around sphinx-gallery not setting __name__.
-                        frame.f_globals.get('__name__', '')):
-                if public_api.match(frame.f_code.co_name):
-                    name = frame.f_code.co_name
+                        frame_name):
+                name = frame.f_code.co_name
+                if public_api.match(name):
                     if name in ('print_figure', '_no_output_draw'):
                         seen_print_figure = True
 
+            elif frame_name == '_functools':
+                # PyPy adds an extra frame without module prefix for this
+                # functools wrapper, which we ignore to assume we're still in
+                # Matplotlib code.
+                continue
             else:
                 break
 
