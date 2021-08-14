@@ -1,4 +1,3 @@
-import gc
 import os
 from pathlib import Path
 import subprocess
@@ -90,7 +89,7 @@ def test_animation_delete(anim):
     anim = animation.FuncAnimation(**anim)
     with pytest.warns(Warning, match='Animation was deleted'):
         del anim
-        gc.collect()
+        np.testing.break_cycles()
 
 
 def test_movie_writer_dpi_default():
@@ -214,7 +213,8 @@ def test_animation_repr_html(writer, html, want, anim):
     if want is None:
         assert html is None
         with pytest.warns(UserWarning):
-            del anim  # Animtion was never run, so will warn on cleanup.
+            del anim  # Animation was never run, so will warn on cleanup.
+            np.testing.break_cycles()
     else:
         assert want in html
 
@@ -324,6 +324,7 @@ def test_funcanimation_cache_frame_data(cache_frame_data):
     writer = NullMovieWriter()
     anim.save('unused.null', writer=writer)
     assert len(frames_generated) == 5
+    np.testing.break_cycles()
     for f in frames_generated:
         # If cache_frame_data is True, then the weakref should be alive;
         # if cache_frame_data is False, then the weakref should be dead (None).
