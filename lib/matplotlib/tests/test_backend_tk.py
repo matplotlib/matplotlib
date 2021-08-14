@@ -1,6 +1,7 @@
 import functools
 import inspect
 import os
+import platform
 import re
 import subprocess
 import sys
@@ -111,6 +112,9 @@ def test_figuremanager_preserves_host_mainloop():  # pragma: no cover
         print("success")
 
 
+@pytest.mark.skipif(platform.python_implementation() != 'CPython',
+                    reason='PyPy does not support Tkinter threading: '
+                           'https://foss.heptapod.net/pypy/pypy/-/issues/1929')
 @pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @pytest.mark.flaky(reruns=3)
 @_isolated_tk_test(success_count=1)
