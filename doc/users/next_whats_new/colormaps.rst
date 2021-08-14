@@ -1,4 +1,4 @@
-Colormaps registry
+Colormap registry
 ------------------
 
 Colormaps are now managed via `matplotlib.colormaps`, which is a
