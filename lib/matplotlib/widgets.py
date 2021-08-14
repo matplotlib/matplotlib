@@ -2970,35 +2970,34 @@ class RectangleSelector(_SelectorWidget):
         # resize an existing shape
         if self._active_handle and self._active_handle != 'C':
             x0, x1, y0, y1 = self._extents_on_press
-            if len(state) == 0:
-	            # Switch variables so that only x1 and/or y1 are updated on move.
-	            if self._active_handle in ['W', 'SW', 'NW']:
-	                x0, x1 = x1, event.xdata
-	            if self._active_handle in ['S', 'SW', 'SE']:
-	                y0, y1 = y1, event.ydata
+            dx = event.xdata - self._eventpress.xdata
+            dy = event.ydata - self._eventpress.ydata
 
-	            if self._active_handle in ['E', 'W'] + self._corner_order:
-	                x1 = event.xdata
-	            if self._active_handle in ['N', 'S'] + self._corner_order:
-	                y1 = event.ydata
-
-            else:
-                dx = event.xdata - self._eventpress.xdata
-                dy = event.ydata - self._eventpress.ydata
-
+            # from center
+            if 'center' in state:
                 sizepress = [x1 - x0, y1 - y0]
                 centerpress = [x0 + sizepress[0] / 2, y0 + sizepress[1] / 2]
                 center = centerpress
+                if 'square' in state:
+                    if self._active_handle in ['E', 'W']:
+                        # using E, W handle we need to update dy accordingly
+                        dy = dx if self._active_handle == 'E' else -dx
+                    elif self._active_handle in ['S', 'N']:
+                        # using S, N handle, we need to update dx accordingly
+                        dx = dy if self._active_handle == 'N' else -dy
+                    elif self._active_handle in self._corner_order:
+                        # This doesn't work 
+                        dx = dy = max(dx, dy)
 
-                # from center
-                if 'center' in state:
-                    if 'W' in self._active_handle:
-                        dx = -dx
-                    if 'S' in self._active_handle:
-                        dy = -dy
-                    dw = sizepress[0] / 2 + dx
-                    dh = sizepress[1] / 2 + dy
+                if 'W' in self._active_handle:
+                    dx *= -1
+                if 'S' in self._active_handle:
+                    dy *= -1
 
+                dw = sizepress[0] / 2 + dx
+                dh = sizepress[1] / 2 + dy
+
+                if 'square' not in state:
                     # cancel changes in perpendicular direction
                     if self._active_handle in ['E', 'W']:
                         dh = sizepress[1] / 2
@@ -3007,7 +3006,25 @@ class RectangleSelector(_SelectorWidget):
 
                 x0, x1, y0, y1 = (center[0] - dw, center[0] + dw,
                                   center[1] - dh, center[1] + dh)
+            else:
+                # Switch variables so that only x1 and/or y1 are updated on move
+                if 'W' in self._active_handle:
+                    x0 = x1
+                if 'S' in self._active_handle:
+                    y0 = y1
 
+                if self._active_handle in ['E', 'W'] + self._corner_order:
+                    x1 = event.xdata
+                    if 'square' in state:
+                        # update perpendicular direction
+                        dy = dx if self._active_handle == 'E' else -dx
+                        y1 += dy
+                if self._active_handle in ['N', 'S'] + self._corner_order:
+                    y1 = event.ydata
+                    if 'square' in state:
+                        # update perpendicular direction
+                        dx = dy if self._active_handle == 'N' else -dy
+                        x1 += dx
 
         # move existing shape
         elif (self._active_handle == 'C' or
