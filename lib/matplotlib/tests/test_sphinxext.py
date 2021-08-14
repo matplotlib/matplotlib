@@ -117,7 +117,7 @@ def test_plot_html_show_source_link(tmpdir):
     # plot_html_show_source_link` is False
     html_dir2 = source_dir / '_build' / 'html2'
     build_sphinx_html(source_dir, doctree_dir, html_dir2,
-                      extra_args=["-D", "plot_html_show_source_link=0"])
+                      extra_args=['-D', 'plot_html_show_source_link=0'])
     assert "index-1.py" not in [p.name for p in html_dir2.iterdir()]
 
 
