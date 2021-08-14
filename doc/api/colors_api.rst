@@ -37,8 +37,8 @@ Color Conversion tools
 
 .. _norms_and_colormaps:
 
-Normalization and Colormapping
-------------------------------
+Normalization and Colormapping of Continuous Data
+-------------------------------------------------
 
 Some `~.artist.Artist` classes can map an array of input data to RGBA
 values, (ex `~.axes.Axes.scatter` or `~.axes.Axes.imshow`).  The
@@ -46,43 +46,72 @@ machinery for this is implemented via the `~.cm.ScalarMappable` base
 class in `~.cm` and the `~.Normalize` and `~.Colormap` classes in
 `~.colors` (this module).
 
-At the core, colormapping is going from a scalar value to a RGB tuple
-(formally :math:`f(x) : ℝ^1 \rightarrow ℝ^3`).  To effectively
-communicate through the color we want pick a :ref:`colormap suited to
-the data <sphx_glr_tutorials_colors_colormaps.py>` but in general
-"good" colormaps smoothly and continuously change their RGB values as
-a function of the input data.  By looking at the RGB values as we go
-through the full range of the user data we can trace out the
-1-dimensional path the colormap takes through 3-dimensional RGB space.
-This allows us to separate the mapping process into two orthogonal
-parts :
+At the core, colormapping is going from a scalar value to a RGB tuple (formally
+:math:`f(x) : ℝ^1 \rightarrow ℝ^3`).  To effectively communicate through the
+color we want pick a :ref:`colormap suited to the data
+<sphx_glr_tutorials_colors_colormaps.py>`.  For continuous data types [#f1]_ a
+"good" colormap smoothly and continuously change their RGB values as a function
+of the input that trace out a 1-dimensional path through the 3-dimensional RGB
+space [#f2]_.  We can restrict the domain of :math:`f` to $[0, 1]$ which we
+interpret as the normalized distance along the curve.  This allows us to
+cleanly separate the mapping process from the continuous input data to RGB into
+two steps:
 
-1. the parameterized path through color space
-2. the mapping between the user's data to distance along the curve.
+1. the mapping between the user's data to distance along the curve
+2. the parameterized path through color space.
 
-The first step is expressed in Matplotlib via the `.Colormap` family
-of classes and the second step is expressed through the `.Normalize` family
-of classes.  This allows us to fully independently pick what colors to use (by
-selecting the colormap), what data range to show (via the ``vmin`` and ``vmax``
-attributes on `.Normalize`, or via the `.cm.ScalarMappable.set_clim` method), and
-the functional transform (e.g., linear vs log) from data space to distance along the
-curve space.
+The first step is expressed through the `.Normalize` family of classes and the
+second is expressed in Matplotlib via the `.Colormap` family of classes.  This
+allows us to fully independently pick the functional transform (e.g., linear vs
+log) from data space to distance along the curve space, what (user) data range
+to show (via the ``vmin`` and ``vmax`` attributes on `.Normalize`, or via the
+`.cm.ScalarMappable.set_clim` method), and what colors to use (by selecting the
+`.Colormap`).  Both `.Colormap` and `.Normalize` are implemented as `callable
+classes <https://docs.python.org/3/reference/datamodel.html#object.__call__>`__
+which allows use to bind some (mutable) state to a function call. The complete
+functionality is exposed in the `.ScalarMappable` family of artists which have
+a `.Colormap` and `.Normalize` instances and are responsible for invoking them
+at draw time.
 
-In addition to the colors in the map, `.Colormap` objects carry three
-additional colors:
+The `.Normalize` family has 3 common attributes: *vmin*, *vmax*, and *clip*
+which control the data limits.  The `.Normalize.__call__` signature is ::
 
-- over (`.Colormap.set_over` / `.Colormap.get_over`)
-- under (`.Colormap.set_under` / `.Colormap.get_under`)
-- bad (`.Colormap.set_bad` / `.Colormap.get_bad`)
+  def __call__(value: RawData, clip:Optional[Bool] =None) -> NormedData:
+     ...
 
-The first two (over / under) control what should be done for values
-that are greater or less than the data range set by the user.  By
-default these are equal to the top and bottom colors of the color map.
-The "bad" value is used for masked or non-finite values (e.g. nan and
-inf) and defaults to transparent.
+It takes in data in the user's data space and converts it to *NormedData* with
+the range:
+
+.. math::
+
+     \begin{cases}
+      \mathrm{under} & d <  vmin \\
+      [0, 1] & vmin \leq d \leq vmax \\
+      \mathrm{over} & vmax < d \\
+      \mathrm{bad} & !\mathrm{np.finite(d)}
+    \end{cases}
 
 
-.. note::
+
+The `.Colormap.__call__` signature when passed *NormedData* (floats) [#f3]_ is
+::
+
+  def __call__(self, X: NormedData,
+               alpha:Optional[float] =None, bytes:Bool=False) -> RGBA:
+     ...
+
+In addition to parameterized path through RGB (which handles values in $[0,
+1]$,  `.Colormap` objects carry three additional colors:
+
+- *over* (`.Colormap.set_over` / `.Colormap.get_over`)
+- *under* (`.Colormap.set_under` / `.Colormap.get_under`)
+- *bad* (`.Colormap.set_bad` / `.Colormap.get_bad`)
+
+which control the color for the corresponding values in *NormedData*.
+By default the over and under colors are the top and bottom colors of
+the colormap respectively and bad is transparent.
+
+.. warning::
 
    Using `.cm.get_cmap` may return to you a reference to a globally
    visible instance of the colormap (rather than a new instance).  If
@@ -94,46 +123,15 @@ inf) and defaults to transparent.
 
      my_cmap = copy(mcm.get_cmap('viridis'))
 
+.. rubric:: Footnotes
 
-Both `.Colormap` and `.Normalize` are implemented as `callable classes
-<https://docs.python.org/3/reference/datamodel.html#object.__call__>`__ which
-allows use to bind some (mutable) state to a function call.
-
-The `.Normalize.__call__` signature is ::
-
-  def normalize(value: RawData, clip:Optional[Bool] =None):
-     ...
-
-It takes in data in the user's data space and converts it to *NormedData*.  The
-*clip* parameter allows you to override the value set at class instantiation time
-and controls if the input data is clipped to the range :math:`[vmin, vmax]` before
-being transformed or not.
-
-The `.Colormap.__call__` signature when passed floats ::
-
-  def map(X: NormedData, alpha:Optional[float] =None, bytes:Bool=False) -> RGBA:
-     ...
-
-It takes data in a "normalized" space and:
-
-- maps values in the closed set ``[0, 1]`` to that fraction along the curve
-- maps any value greater than 1 to the "over" color
-- maps any value less than 0 to the "under" color
-- maps any non-finite or masked value to the "bad" color
-
-broadcasting to match the input shape (scalar to tuple, n-D array to
-(n+1)-D array).
-
-.. note ::
-
-   This can be useful to draw a set of colors from a colormap ::
-
-     import matplotlib.cm as mcm
-     import numpy as np
-
-     cmap = mcm.get_cmap('viridis')
-     array_of_colors = cmap(np.arange(0, 1, 5))
-
+.. [#f1] Discrete data types, such as Categorical and Ordinal, have different
+         considerations.
+.. [#f2] Notable, the cubehelix colormap is named because it traces a helix
+         through the RGB color cube from black to white.
+.. [#f3] Discrete data, as handled by `.NoNorm` and `.BoundaryNorm` are passed
+         as integers and act as direct Look Up Table (LUT) indexes into the
+         colormap.
 
 In practice
 ~~~~~~~~~~~
@@ -237,10 +235,30 @@ see them pulled out:
           [1., 0., 0., 1.]])
 
 
+
+Directly using a `.Colormap` outside of a `.ScalarMappable` can be useful
+to generate a family of coherent colors for plotting
+
+.. plot::
+    :include-source:
+
+    import matplotlib.cm as mcm
+    import numpy as np
+
+    cmap = mcm.get_cmap('viridis')
+    array_of_colors = cmap(np.linspace(0, 1, 5))
+
+    x = np.linspace(0, 1, 25)
+    fig, ax = plt.subplots(constrained_layout=True)
+    for j, color in enumerate(array_of_colors):
+        ax.plot(x, x**j, color=color, label=f'$x^{j}$')
+    ax.legend()
+
 API
 ~~~
 
-
+Colormap Classes
+++++++++++++++++
 
 .. autosummary::
    :toctree: _as_gen/
@@ -251,6 +269,14 @@ API
    ListedColormap
 
 
+.. inheritance-diagram:: matplotlib.colors.Colormap matplotlib.colors.LinearSegmentedColormap matplotlib.colors.ListedColormap
+   :parts: 1
+   :private-bases:
+
+
+Norm Classes
+++++++++++++
+
 .. autosummary::
    :toctree: _as_gen/
    :template: autosummary.rst
@@ -258,11 +284,22 @@ API
    Normalize
    LogNorm
    CenteredNorm
-   BoundaryNorm
    TwoSlopeNorm
    PowerNorm
-   NoNorm
    SymLogNorm
+   FuncNorm
+   BoundaryNorm
+   NoNorm
+
+
+.. inheritance-diagram:: matplotlib.colors.Normalize matplotlib.colors.LogNorm matplotlib.colors.PowerNorm matplotlib.colors.NoNorm matplotlib.colors.TwoSlopeNorm matplotlib.colors.SymLogNorm matplotlib.colors.BoundaryNorm matplotlib.colors.FuncNorm matplotlib.colors.CenteredNorm
+   :parts: 1
+   :private-bases:
+
+
+Factory Functions & Decorators
+++++++++++++++++++++++++++++++
+
 
 .. autosummary::
    :toctree: _as_gen/
@@ -271,15 +308,6 @@ API
    from_levels_and_colors
    make_norm_from_scale
 
-
-.. inheritance-diagram:: matplotlib.colors.Colormap matplotlib.colors.LinearSegmentedColormap matplotlib.colors.ListedColormap
-   :parts: 1
-   :private-bases:
-
-
-.. inheritance-diagram:: matplotlib.colors.Normalize matplotlib.colors.LogNorm matplotlib.colors.PowerNorm matplotlib.colors.NoNorm matplotlib.colors.TwoSlopeNorm matplotlib.colors.SymLogNorm matplotlib.colors.BoundaryNorm
-   :parts: 1
-   :private-bases:
 
 
 Hill Shading
