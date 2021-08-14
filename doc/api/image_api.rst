@@ -63,7 +63,7 @@ What you need to know about Floating Point Arithmetic for Colormapping
 
 Floating point numbers, despite being ubiquitous, are not fully
 understood by most practitioners.  For a concise discussion of how
-floating point numbers work see `https://floating-point-gui.de/`__,
+floating point numbers work see `<https://floating-point-gui.de/>`_,
 for a through review see `Goldberg, ACM Computing Surveys (1991)
 10.1145/103162.103163 <https://doi.org/10.1145/103162.103163>`__
 (paywall), or to for all of the details see `IEEE Standard for
