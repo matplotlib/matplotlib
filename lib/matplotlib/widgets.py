@@ -2846,13 +2846,13 @@ class RectangleSelector(_SelectorWidget):
                     'edgecolor', 'black'),
                 **cbook.normalize_kwargs(handle_props, Line2D)}
 
-            self._corner_order = ['NW', 'NE', 'SE', 'SW']
+            self._corner_order = ['SW', 'SE', 'NE', 'NW']
             xc, yc = self.corners
             self._corner_handles = ToolHandles(self.ax, xc, yc,
                                                marker_props=self._handle_props,
                                                useblit=self.useblit)
 
-            self._edge_order = ['W', 'N', 'E', 'S']
+            self._edge_order = ['W', 'S', 'E', 'N']
             xe, ye = self.edge_centers
             self._edge_handles = ToolHandles(self.ax, xe, ye, marker='s',
                                              marker_props=self._handle_props,
@@ -2892,6 +2892,7 @@ class RectangleSelector(_SelectorWidget):
         # button, ...
         if self._interactive and self._selection_artist.get_visible():
             self._set_active_handle(event)
+            self._extents_on_press = self.extents
         else:
             self._active_handle = None
 
@@ -2957,22 +2958,31 @@ class RectangleSelector(_SelectorWidget):
 
         self.update()
         self._active_handle = None
+        self._extents_on_press = None
 
         return False
 
     def _onmove(self, event):
         """Motion notify event handler."""
+
+
         # resize an existing shape
         if self._active_handle and self._active_handle != 'C':
             x0, x1, y0, y1 = self._extents_on_press
+            # Switch variables so that only x1 and/or y1 are updated on move.
+            if self._active_handle in ['W', 'SW', 'NW']:
+                x0, x1 = x1, event.xdata
+            if self._active_handle in ['S', 'SW', 'SE']:
+                y0, y1 = y1, event.ydata
+
             if self._active_handle in ['E', 'W'] + self._corner_order:
                 x1 = event.xdata
             if self._active_handle in ['N', 'S'] + self._corner_order:
                 y1 = event.ydata
 
         # move existing shape
-        elif (('move' in self._state or self._active_handle == 'C' or
-               (self.drag_from_anywhere and self._contains(event))) and
+        elif (self._active_handle == 'C' or
+              (self.drag_from_anywhere and self._contains(event)) and
               self._extents_on_press is not None):
             x0, x1, y0, y1 = self._extents_on_press
             dx = event.xdata - self._eventpress.xdata
@@ -3110,7 +3120,6 @@ class RectangleSelector(_SelectorWidget):
 
         if 'move' in self._state:
             self._active_handle = 'C'
-            self._extents_on_press = self.extents
         # Set active handle as closest handle, if mouse click is close enough.
         elif m_dist < self.grab_range * 2:
             # Prioritise center handle over other handles
@@ -3121,7 +3130,6 @@ class RectangleSelector(_SelectorWidget):
             if self.drag_from_anywhere and self._contains(event):
                 # Check if we've clicked inside the region
                 self._active_handle = 'C'
-                self._extents_on_press = self.extents
             else:
                 self._active_handle = None
                 return
@@ -3131,15 +3139,6 @@ class RectangleSelector(_SelectorWidget):
         else:
             # Closest to an edge handle
             self._active_handle = self._edge_order[e_idx]
-
-        # Save coordinates of rectangle at the start of handle movement.
-        x0, x1, y0, y1 = self.extents
-        # Switch variables so that only x1 and/or y1 are updated on move.
-        if self._active_handle in ['W', 'SW', 'NW']:
-            x0, x1 = x1, event.xdata
-        if self._active_handle in ['N', 'NW', 'NE']:
-            y0, y1 = y1, event.ydata
-        self._extents_on_press = x0, x1, y0, y1
 
     def _contains(self, event):
         """Return True if event is within the patch."""
