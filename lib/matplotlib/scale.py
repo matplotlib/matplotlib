@@ -620,10 +620,11 @@ def _get_scale_docs():
     """
     docs = []
     for name, scale_class in _scale_mapping.items():
+        docstring = inspect.getdoc(scale_class.__init__) or ""
         docs.extend([
             f"    {name!r}",
             "",
-            textwrap.indent(inspect.getdoc(scale_class.__init__), " " * 8),
+            textwrap.indent(docstring, " " * 8),
             ""
         ])
     return "\n".join(docs)
