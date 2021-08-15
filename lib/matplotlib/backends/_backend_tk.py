@@ -53,6 +53,8 @@ _blit_args = {}
 # Initialize to a non-empty string that is not a Tcl command
 _blit_tcl_name = "mpl_blit_" + uuid.uuid4().hex
 
+TK_PHOTO_COMPOSITE_OVERLAY = 0  # apply transparency rules pixel-wise
+TK_PHOTO_COMPOSITE_SET = 1  # set image buffer directly
 
 def _blit(argsid):
     """
@@ -61,9 +63,9 @@ def _blit(argsid):
     *argsid* is a unique string identifier to fetch the correct arguments from
     the ``_blit_args`` dict, since arguments cannot be passed directly.
     """
-    photoimage, dataptr, offsets, bboxptr, blank = _blit_args.pop(argsid)
+    photoimage, dataptr, offsets, bboxptr, comp_rule = _blit_args.pop(argsid)
     _tkagg.blit(
-        photoimage.tk.interpaddr(), str(photoimage), dataptr, blank, offsets, bboxptr)
+        photoimage.tk.interpaddr(), str(photoimage), dataptr, comp_rule, offsets, bboxptr)
 
 
 def blit(photoimage, aggimage, offsets, bbox=None):
@@ -76,7 +78,7 @@ def blit(photoimage, aggimage, offsets, bbox=None):
     for big-endian ARGB32 (i.e. ARGB8888) data.
 
     If *bbox* is passed, it defines the region that gets blitted. That region
-    will NOT be blanked before blitting.
+    will be composed with the previous data according to the alpha channel.
 
     Tcl events must be dispatched to trigger a blit from a non-Tcl thread.
     """
@@ -90,10 +92,10 @@ def blit(photoimage, aggimage, offsets, bbox=None):
         y1 = max(math.floor(y1), 0)
         y2 = min(math.ceil(y2), height)
         bboxptr = (x1, x2, y1, y2)
-        blank = False
+        comp_rule = TK_PHOTO_COMPOSITE_OVERLAY
     else:
         bboxptr = (0, width, 0, height)
-        blank = True
+        comp_rule = TK_PHOTO_COMPOSITE_SET
 
     # NOTE: _tkagg.blit is thread unsafe and will crash the process if called
     # from a thread (GH#13293). Instead of blanking and blitting here,
@@ -102,7 +104,7 @@ def blit(photoimage, aggimage, offsets, bbox=None):
 
     # tkapp.call coerces all arguments to strings, so to avoid string parsing
     # within _blit, pack up the arguments into a global data structure.
-    args = photoimage, dataptr, offsets, bboxptr, blank
+    args = photoimage, dataptr, offsets, bboxptr, comp_rule
     # Need a unique key to avoid thread races.
     # Again, make the key a string to avoid string parsing in _blit.
     argsid = str(id(args))

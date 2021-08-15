@@ -63,7 +63,7 @@ static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
     char const *photo_name;
     int height, width;
     unsigned char *data_ptr;
-    int blank;
+    int comp_rule;
     int o0, o1, o2, o3;
     int x1, x2, y1, y2;
     Tk_PhotoHandle photo;
@@ -71,7 +71,7 @@ static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "O&s(iiO&)i(iiii)(iiii):blit",
                           convert_voidptr, &interp, &photo_name,
                           &height, &width, convert_voidptr, &data_ptr,
-                          &blank,
+                          &comp_rule,
                           &o0, &o1, &o2, &o3,
                           &x1, &x2, &y1, &y2)) {
         goto exit;
@@ -84,8 +84,8 @@ static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
         PyErr_SetString(PyExc_ValueError, "Attempting to draw out of bounds");
         goto exit;
     }
-    if (blank != TK_PHOTO_COMPOSITE_OVERLAY && blank != TK_PHOTO_COMPOSITE_SET){
-        PyErr_SetString(PyExc_ValueError, "Invalid blank argument");
+    if (comp_rule != TK_PHOTO_COMPOSITE_OVERLAY && comp_rule != TK_PHOTO_COMPOSITE_SET){
+        PyErr_SetString(PyExc_ValueError, "Invalid comp_rule argument");
         goto exit;
     }
 
@@ -100,7 +100,7 @@ static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
     block.offset[2] = o2;
     block.offset[3] = o3;
     TK_PHOTO_PUT_BLOCK(
-        interp, photo, &block, x1, height - y2, x2 - x1, y2 - y1, blank);
+        interp, photo, &block, x1, height - y2, x2 - x1, y2 - y1, comp_rule);
     Py_END_ALLOW_THREADS
 
 exit:
