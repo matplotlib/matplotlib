@@ -1809,9 +1809,9 @@ class _SelectorWidget(AxesWidget):
         self.useblit = useblit and self.canvas.supports_blit
         self.connect_default_events()
 
-        self.state_modifier_keys = dict(move=' ', clear='escape',
-                                        square='shift', center='control')
-        self.state_modifier_keys.update(state_modifier_keys or {})
+        self._state_modifier_keys = dict(move=' ', clear='escape',
+                                         square='shift', center='control')
+        self._state_modifier_keys.update(state_modifier_keys or {})
 
         self.background = None
 
@@ -1834,6 +1834,7 @@ class _SelectorWidget(AxesWidget):
     eventpress = _api.deprecate_privatize_attribute("3.5")
     eventrelease = _api.deprecate_privatize_attribute("3.5")
     state = _api.deprecate_privatize_attribute("3.5")
+    state_modifier_keys = _api.deprecate_privatize_attribute("3.5")
 
     def set_active(self, active):
         super().set_active(active)
@@ -1944,7 +1945,7 @@ class _SelectorWidget(AxesWidget):
             key = event.key or ''
             key = key.replace('ctrl', 'control')
             # move state is locked in on a button press
-            if key == self.state_modifier_keys['move']:
+            if key == self._state_modifier_keys['move']:
                 self._state.add('move')
             self._press(event)
             return True
@@ -1992,10 +1993,10 @@ class _SelectorWidget(AxesWidget):
         if self.active:
             key = event.key or ''
             key = key.replace('ctrl', 'control')
-            if key == self.state_modifier_keys['clear']:
+            if key == self._state_modifier_keys['clear']:
                 self.clear()
                 return
-            for (state, modifier) in self.state_modifier_keys.items():
+            for (state, modifier) in self._state_modifier_keys.items():
                 if modifier in key:
                     self._state.add(state)
             self._on_key_press(event)
@@ -2007,7 +2008,7 @@ class _SelectorWidget(AxesWidget):
         """Key release event handler and validator."""
         if self.active:
             key = event.key or ''
-            for (state, modifier) in self.state_modifier_keys.items():
+            for (state, modifier) in self._state_modifier_keys.items():
                 if modifier in key:
                     self._state.discard(state)
             self._on_key_release(event)
@@ -2088,7 +2089,7 @@ class _SelectorWidget(AxesWidget):
 
         """
         supported_default_state = [
-            key for key, value in self.state_modifier_keys.items()
+            key for key, value in self._state_modifier_keys.items()
             if key != 'clear' and value != 'not-applicable'
             ]
         if value not in supported_default_state:
@@ -3635,13 +3636,13 @@ class PolygonSelector(_SelectorWidget):
         # 'move_all' mode (by checking the released key)
         if (not self._selection_completed
                 and
-                (event.key == self.state_modifier_keys.get('move_vertex')
-                 or event.key == self.state_modifier_keys.get('move_all'))):
+                (event.key == self._state_modifier_keys.get('move_vertex')
+                 or event.key == self._state_modifier_keys.get('move_all'))):
             self._xs.append(event.xdata)
             self._ys.append(event.ydata)
             self._draw_polygon()
         # Reset the polygon if the released key is the 'clear' key.
-        elif event.key == self.state_modifier_keys.get('clear'):
+        elif event.key == self._state_modifier_keys.get('clear'):
             event = self._clean_event(event)
             self._xs, self._ys = [event.xdata], [event.ydata]
             self._selection_completed = False
