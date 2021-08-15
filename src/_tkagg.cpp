@@ -64,6 +64,7 @@ static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
     int height, width;
     unsigned char *data_ptr;
     int comp_rule;
+    int put_retval;
     int o0, o1, o2, o3;
     int x1, x2, y1, y2;
     Tk_PhotoHandle photo;
@@ -99,9 +100,12 @@ static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
     block.offset[1] = o1;
     block.offset[2] = o2;
     block.offset[3] = o3;
-    TK_PHOTO_PUT_BLOCK(
+    put_retval = TK_PHOTO_PUT_BLOCK(
         interp, photo, &block, x1, height - y2, x2 - x1, y2 - y1, comp_rule);
     Py_END_ALLOW_THREADS
+    if (put_retval) {
+        return PyErr_NoMemory();
+    }
 
 exit:
     if (PyErr_Occurred()) {
