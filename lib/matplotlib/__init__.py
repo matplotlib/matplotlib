@@ -1442,3 +1442,8 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
 _log.debug('interactive is %s', is_interactive())
 _log.debug('platform is %s', sys.platform)
 _log.debug('loaded modules: %s', list(sys.modules))
+
+
+# workaround: we must defer colormaps import to after loading rcParams, because
+# colormap creation depends on rcParams
+from matplotlib.cm import _colormaps as colormaps

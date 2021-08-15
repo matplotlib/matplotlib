@@ -52,6 +52,12 @@ Logging
 
 .. autofunction:: set_loglevel
 
+Colormaps
+=========
+
+.. autodata:: colormaps
+   :no-value:
+
 Miscellaneous
 =============
 
