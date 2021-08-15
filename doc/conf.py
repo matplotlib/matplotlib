@@ -71,11 +71,14 @@ extensions = [
     'sphinxext.skip_deprecated',
     'sphinxext.redirect_from',
     'sphinx_copybutton',
+    'sphinx_panels',
 ]
 
 exclude_patterns = [
     'api/prev_api_changes/api_changes_*/*',
 ]
+
+panels_add_bootstrap_css = False
 
 
 def _check_dependencies():
@@ -312,8 +315,9 @@ html_theme_options = {
             "url": "https://twitter.com/matplotlib/",
             "icon": "fab fa-twitter-square",
         },
-
     ],
+    "show_prev_next": False,
+    "navbar_center": ["mpl_nav_bar.html"],
 }
 include_analytics = False
 if include_analytics:
@@ -341,8 +345,10 @@ html_index = 'index.html'
 # Custom sidebar templates, maps page names to templates.
 html_sidebars = {
     "index": [
+        'search-field.html',
         # 'sidebar_announcement.html',
         "sidebar_versions.html",
+        "cheatsheet_sidebar.html",
         "donate_sidebar.html",
     ],
     # '**': ['localtoc.html', 'pagesource.html']
