@@ -56,6 +56,7 @@ _blit_tcl_name = "mpl_blit_" + uuid.uuid4().hex
 TK_PHOTO_COMPOSITE_OVERLAY = 0  # apply transparency rules pixel-wise
 TK_PHOTO_COMPOSITE_SET = 1  # set image buffer directly
 
+
 def _blit(argsid):
     """
     Thin wrapper to blit called via tkapp.call.
@@ -64,8 +65,8 @@ def _blit(argsid):
     the ``_blit_args`` dict, since arguments cannot be passed directly.
     """
     photoimage, dataptr, offsets, bboxptr, comp_rule = _blit_args.pop(argsid)
-    _tkagg.blit(
-        photoimage.tk.interpaddr(), str(photoimage), dataptr, comp_rule, offsets, bboxptr)
+    _tkagg.blit(photoimage.tk.interpaddr(), str(photoimage), dataptr,
+                comp_rule, offsets, bboxptr)
 
 
 def blit(photoimage, aggimage, offsets, bbox=None):
