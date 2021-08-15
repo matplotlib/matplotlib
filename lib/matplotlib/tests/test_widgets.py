@@ -171,6 +171,26 @@ def test_rectangle_resize():
     assert tool.extents == (xdata_new, extents[1], ydata_new, extents[3])
 
 
+def test_rectangle_add_default_state():
+    ax = get_ax()
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = widgets.RectangleSelector(ax, onselect, interactive=True)
+    # Create rectangle
+    _resize_rectangle(tool, 70, 65, 125, 130)
+
+    with pytest.raises(ValueError):
+        tool.add_default_state('unsupported_state')
+
+    with pytest.raises(ValueError):
+        tool.add_default_state('clear')
+    tool.add_default_state('move')
+    tool.add_default_state('square')
+    tool.add_default_state('center')
+
+
 @pytest.mark.parametrize('use_default_state', [True, False])
 def test_rectangle_resize_center(use_default_state):
     ax = get_ax()
@@ -184,7 +204,7 @@ def test_rectangle_resize_center(use_default_state):
     assert tool.extents == (70.0, 125.0, 65.0, 130.0)
 
     if use_default_state:
-        tool._default_state.add('center')
+        tool.add_default_state('center')
         use_key = None
     else:
         use_key = 'control'
@@ -257,7 +277,7 @@ def test_rectangle_resize_square(use_default_state):
     assert tool.extents == (70.0, 120.0, 65.0, 115.0)
 
     if use_default_state:
-        tool._default_state.add('square')
+        tool.add_default_state('square')
         use_key = None
     else:
         use_key = 'shift'
@@ -326,8 +346,8 @@ def test_rectangle_resize_square_center():
     tool = widgets.RectangleSelector(ax, onselect, interactive=True)
     # Create rectangle
     _resize_rectangle(tool, 70, 65, 120, 115)
-    tool._default_state.add('square')
-    tool._default_state.add('center')
+    tool.add_default_state('square')
+    tool.add_default_state('center')
     assert tool.extents == (70.0, 120.0, 65.0, 115.0)
 
     # resize NE handle
@@ -801,6 +821,24 @@ def test_selector_clear_method(selector):
     assert tool.visible
     if selector == 'span':
         assert tool.extents == (10, 50)
+
+
+def test_span_selector_add_default_state():
+    ax = get_ax()
+
+    def onselect(*args):
+        pass
+
+    tool = widgets.SpanSelector(ax, onselect, 'horizontal', interactive=True)
+
+    with pytest.raises(ValueError):
+        tool.add_default_state('unsupported_state')
+    with pytest.raises(ValueError):
+        tool.add_default_state('center')
+    with pytest.raises(ValueError):
+        tool.add_default_state('square')
+
+    tool.add_default_state('move')
 
 
 def test_tool_line_handle():

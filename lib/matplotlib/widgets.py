@@ -2062,6 +2062,40 @@ class _SelectorWidget(AxesWidget):
             self.update()
         self._handle_props.update(handle_props)
 
+    @property
+    def default_state(self):
+        """
+        Default state of the selector, which affect the widget's behavior. See
+        the `state_modifier_keys` parameters for details.
+        """
+        return tuple(self._default_state)
+
+    def add_default_state(self, value):
+        """
+        Add a default state to define the widget's behavior. See the
+        `state_modifier_keys` parameters for details.
+
+        Parameters
+        ----------
+        value : str
+            Must be a supported state of the selector. See the
+            `state_modifier_keys` parameters for details.
+
+        Raises
+        ------
+        ValueError
+            When the value is not supported by the selector.
+
+        """
+        supported_default_state = [
+            key for key, value in self.state_modifier_keys.items()
+            if key != 'clear' and value != 'not-applicable'
+            ]
+        if value not in supported_default_state:
+            keys = ', '.join(supported_default_state)
+            raise ValueError('Setting default state must be one of the '
+                             f'following: {keys}.')
+        self._default_state.add(value)
 
 class SpanSelector(_SelectorWidget):
     """
@@ -2129,6 +2163,12 @@ class SpanSelector(_SelectorWidget):
         Distance in pixels within which the interactive tool handles can be
         activated.
 
+    state_modifier_keys : dict, optional
+        Keyboard modifiers which affect the widget's behavior.  Values
+        amend the defaults.
+
+        - "clear": Clear the current shape, default: "escape".
+
     drag_from_anywhere : bool, default: False
         If `True`, the widget can be moved by clicking anywhere within
         its bounds.
@@ -2157,9 +2197,15 @@ class SpanSelector(_SelectorWidget):
     def __init__(self, ax, onselect, direction, minspan=0, useblit=False,
                  props=None, onmove_callback=None, interactive=False,
                  button=None, handle_props=None, grab_range=10,
-                 drag_from_anywhere=False, ignore_event_outside=False):
+                 state_modifier_keys=None, drag_from_anywhere=False,
+                 ignore_event_outside=False):
 
-        super().__init__(ax, onselect, useblit=useblit, button=button)
+        if state_modifier_keys is None:
+            state_modifier_keys = dict(clear='escape',
+                                       square='not-applicable',
+                                       center='not-applicable')
+        super().__init__(ax, onselect, useblit=useblit, button=button,
+                         state_modifier_keys=state_modifier_keys)
 
         if props is None:
             props = dict(facecolor='red', alpha=0.5)
@@ -2446,7 +2492,7 @@ class SpanSelector(_SelectorWidget):
 
         # Prioritise center handle over other handles
         # Use 'C' to match the notation used in the RectangleSelector
-        if 'move' in self._state:
+        if 'move' in self._state | self._default_state:
             self._active_handle = 'C'
         elif e_dist > self.grab_range:
             # Not close to any handles
@@ -2730,8 +2776,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         - "move": Move the existing shape, default: no modifier.
         - "clear": Clear the current shape, default: "escape".
         - "square": Make the shape square, default: "shift".
-        - "center": Make the initial point the center of the shape,
-          default: "ctrl".
+        - "center": change the shape around its center, default: "ctrl".
 
         "square" and "center" can be combined.
 
@@ -2893,7 +2938,6 @@ class RectangleSelector(_SelectorWidget):
         # button, ...
         if self._interactive and self._selection_artist.get_visible():
             self._set_active_handle(event)
-            self._extents_on_press = self.extents
         else:
             self._active_handle = None
 
@@ -2909,6 +2953,8 @@ class RectangleSelector(_SelectorWidget):
             self.visible = True
         else:
             self.set_visible(True)
+
+        self._extents_on_press = self.extents
 
         return False
 
@@ -3027,9 +3073,7 @@ class RectangleSelector(_SelectorWidget):
                         y1 = event.ydata
 
         # move existing shape
-        elif (self._active_handle == 'C' or
-              (self.drag_from_anywhere and self._contains(event)) and
-              self._extents_on_press is not None):
+        elif self._active_handle == 'C':
             x0, x1, y0, y1 = self._extents_on_press
             dx = event.xdata - self._eventpress.xdata
             dy = event.ydata - self._eventpress.ydata
@@ -3164,14 +3208,13 @@ class RectangleSelector(_SelectorWidget):
         e_idx, e_dist = self._edge_handles.closest(event.x, event.y)
         m_idx, m_dist = self._center_handle.closest(event.x, event.y)
 
-        if 'move' in self._state:
+        if 'move' in self._state | self._default_state:
             self._active_handle = 'C'
         # Set active handle as closest handle, if mouse click is close enough.
         elif m_dist < self.grab_range * 2:
             # Prioritise center handle over other handles
             self._active_handle = 'C'
-        elif (c_dist > self.grab_range and
-                  e_dist > self.grab_range):
+        elif c_dist > self.grab_range and e_dist > self.grab_range:
             # Not close to any handles
             if self.drag_from_anywhere and self._contains(event):
                 # Check if we've clicked inside the region
