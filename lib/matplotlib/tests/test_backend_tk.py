@@ -80,7 +80,7 @@ def test_blit():  # pragma: no cover
     for bad_box in bad_boxes:
         try:
             _tkagg.blit(
-                photoimage.tk.interpaddr(), str(photoimage), dataptr,
+                photoimage.tk.interpaddr(), str(photoimage), dataptr, 0,
                 (0, 1, 2, 3), bad_box)
         except ValueError:
             print("success")
