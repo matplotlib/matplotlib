@@ -1,23 +1,24 @@
 .. _users-guide-index:
 
-############
-User's guide
-############
+###########
+Usage Guide
+###########
 
 .. only:: html
 
     :Release: |version|
     :Date: |today|
 
-.. toctree::
-    :maxdepth: 2
 
-    interactive.rst
-    fonts.rst
-    release_notes.rst
-    license.rst
-    ../citing.rst
-    ../resources/index.rst
-    ../faq/index.rst
-    credits.rst
-    history.rst
+
+
+.. toctree::
+   :maxdepth: 2
+
+   ../plot_types/index.rst
+   ../tutorials/index.rst
+   ../gallery/index.rst
+   explain.rst
+   ../faq/index.rst
+   ../api/index.rst
+   ../resources/index.rst

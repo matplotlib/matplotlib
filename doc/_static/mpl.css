@@ -212,3 +212,11 @@ table.property-table th,
 table.property-table td {
     padding: 4px 10px;
 }
+
+.donate-button {
+    margin: 1em 0;
+}
+
+.sphinxsidebarwrapper {
+    margin: 0 1em;
+}
