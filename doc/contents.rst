@@ -20,8 +20,6 @@ Contents
    tutorials/index.rst
    api/index.rst
    users/index.rst
-   devel/index.rst
-   Third-party packages <https://matplotlib.org/mpl-third-party/>
 
 .. only:: html
 
