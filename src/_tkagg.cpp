@@ -50,6 +50,7 @@ static int convert_voidptr(PyObject *obj, void *p)
 // Global vars for Tk functions.  We load these symbols from the tkinter
 // extension module or loaded Tk libraries at run-time.
 static Tk_FindPhoto_t TK_FIND_PHOTO;
+static Tk_PhotoPutBlock_t TK_PHOTO_PUT_BLOCK;
 static Tk_PhotoPutBlock_NoComposite_t TK_PHOTO_PUT_BLOCK_NO_COMPOSITE;
 #ifdef WIN32_DLL
 // Global vars for Tcl functions.  We load these symbols from the tkinter
@@ -219,6 +220,8 @@ int load_tk(T lib)
     return
         !!(TK_FIND_PHOTO =
             (Tk_FindPhoto_t)dlsym(lib, "Tk_FindPhoto")) +
+        !!(TK_PHOTO_PUT_BLOCK =
+            (Tk_PhotoPutBlock_t)dlsym(lib, "Tk_PhotoPutBlock")) +
         !!(TK_PHOTO_PUT_BLOCK_NO_COMPOSITE =
             (Tk_PhotoPutBlock_NoComposite_t)dlsym(lib, "Tk_PhotoPutBlock_NoComposite"));
 }
@@ -340,6 +343,9 @@ PyMODINIT_FUNC PyInit__tkagg(void)
 #endif
     } else if (!TK_FIND_PHOTO) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to load Tk_FindPhoto");
+        return NULL;
+    } else if (!TK_PHOTO_PUT_BLOCK) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to load Tk_PhotoPutBlock");
         return NULL;
     } else if (!TK_PHOTO_PUT_BLOCK_NO_COMPOSITE) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to load Tk_PhotoPutBlock_NoComposite");
