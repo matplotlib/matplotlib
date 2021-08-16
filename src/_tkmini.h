@@ -97,10 +97,6 @@ typedef Tk_PhotoHandle (*Tk_FindPhoto_t) (Tcl_Interp *interp, const char
 typedef int (*Tk_PhotoPutBlock_t) (Tcl_Interp *interp, Tk_PhotoHandle handle,
         Tk_PhotoImageBlock *blockPtr, int x, int y,
         int width, int height, int compRule);
-/* Tk_PhotoPutBLock_NoComposite typedef */
-typedef void (*Tk_PhotoPutBlock_NoComposite_t) (Tk_PhotoHandle handle,
-        Tk_PhotoImageBlock *blockPtr, int x, int y,
-        int width, int height);
 
 #ifdef WIN32_DLL
 /* Typedefs derived from function signatures in Tcl header */
