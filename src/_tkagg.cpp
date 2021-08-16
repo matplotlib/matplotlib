@@ -85,7 +85,7 @@ static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
         PyErr_SetString(PyExc_ValueError, "Attempting to draw out of bounds");
         goto exit;
     }
-    if (comp_rule != TK_PHOTO_COMPOSITE_OVERLAY && comp_rule != TK_PHOTO_COMPOSITE_SET){
+    if (comp_rule != TK_PHOTO_COMPOSITE_OVERLAY && comp_rule != TK_PHOTO_COMPOSITE_SET) {
         PyErr_SetString(PyExc_ValueError, "Invalid comp_rule argument");
         goto exit;
     }
