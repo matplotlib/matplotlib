@@ -1,7 +1,5 @@
 from .backend_qt import (
     backend_version, SPECIAL_KEYS,
-    # These are deprecated.
-    SUPER, ALT, CTRL, SHIFT, MODIFIER_KEYS as _MODIFIER_KEYS,
     # Public API
     cursord, _create_qApp, _BackendQT, TimerQT, MainWindow, FigureCanvasQT,
     FigureManagerQT, ToolbarQt, NavigationToolbar2QT, SubplotToolQt,
