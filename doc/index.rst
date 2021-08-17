@@ -18,6 +18,7 @@ Learn
 - :doc:`Quick-start Guide <tutorials/introductory/usage>`
 - Basic :doc:`Plot Types <plot_types/index>` and :doc:`Example Gallery <gallery/index>`
 - `Introductory Tutorials <../tutorials/index.html#introductory>`_
+- :doc:`External Learning Resources <resources/index>`
       
 Reference
 =========
