@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing.widgets import do_event, get_ax, mock_event
 
+import numpy as np
 from numpy.testing import assert_allclose
 
 import pytest
@@ -404,6 +405,42 @@ def test_rectangle_resize_square_center():
     _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
     assert tool.extents == (extents[0] + ydiff, extents[1] - ydiff,
                             ydata_new, extents[3] - ydiff)
+
+
+@pytest.mark.parametrize('selector_class',
+                         [widgets.RectangleSelector, widgets.EllipseSelector])
+def test_rectangle_rotate(selector_class):
+    ax = get_ax()
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = selector_class(ax, onselect=onselect, interactive=True)
+    # Draw rectangle
+    do_event(tool, 'press', xdata=100, ydata=100)
+    do_event(tool, 'onmove', xdata=130, ydata=140)
+    do_event(tool, 'release', xdata=130, ydata=140)
+    assert tool.extents == (100, 130, 100, 140)
+
+    # Rotate anticlockwise using top-right corner
+    do_event(tool, 'on_key_press', key='r')
+    do_event(tool, 'press', xdata=130, ydata=140)
+    do_event(tool, 'onmove', xdata=110, ydata=145)
+    do_event(tool, 'release', xdata=110, ydata=145)
+    do_event(tool, 'on_key_press', key='r')
+    # Extents shouldn't change (as shape of rectangle hasn't changed)
+    assert tool.extents == (100, 130, 100, 140)
+    # Corners should move
+    # The third corner is at (100, 145)
+    assert_allclose(tool.corners,
+                    np.array([[119.9, 139.9, 110.1, 90.1],
+                              [95.4, 117.8, 144.5, 122.2]]), atol=0.1)
+
+    # Scale using top-right corner
+    do_event(tool, 'press', xdata=110, ydata=145)
+    do_event(tool, 'onmove', xdata=110, ydata=160)
+    do_event(tool, 'release', xdata=110, ydata=160)
+    assert_allclose(tool.extents, (100, 141.5, 100, 150.4), atol=0.1)
 
 
 def test_rectangle_resize_square_center_aspect():

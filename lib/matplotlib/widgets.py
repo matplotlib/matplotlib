@@ -1947,9 +1947,9 @@ class _SelectorWidget(AxesWidget):
             key = event.key or ''
             key = key.replace('ctrl', 'control')
             # move state is locked in on a button press
-            for action in ['move']:
-                if key == self._state_modifier_keys[action]:
-                    self._state.add(action)
+            for state in ['move']:
+                if key == self._state_modifier_keys[state]:
+                    self._state.add(state)
             self._press(event)
             return True
         return False
@@ -1999,16 +1999,15 @@ class _SelectorWidget(AxesWidget):
             if key == self._state_modifier_keys['clear']:
                 self.clear()
                 return
-            for state in ['rotate', 'data_coordinates']:
-                if key == self._state_modifier_keys[state]:
-                    if state in self._default_state:
-                        self._default_state.remove(state)
-                    else:
-                        self.add_default_state(state)
             for (state, modifier) in self._state_modifier_keys.items():
-                # Multiple keys are string concatenated using '+'
                 if modifier in key.split('+'):
-                    self._state.add(state)
+                    # rotate and data_coordinates are enable/disable
+                    # on key press
+                    if (state in ['rotate', 'data_coordinates'] and
+                            state in self._state):
+                        self._state.discard(state)
+                    else:
+                        self._state.add(state)
             self._on_key_press(event)
 
     def _on_key_press(self, event):
@@ -2019,7 +2018,8 @@ class _SelectorWidget(AxesWidget):
         if self.active:
             key = event.key or ''
             for (state, modifier) in self._state_modifier_keys.items():
-                if modifier in key:
+                if (modifier in key.split('+') and
+                        state not in ['rotate', 'data_coordinates']):
                     self._state.discard(state)
             self._on_key_release(event)
 
@@ -3033,9 +3033,21 @@ class RectangleSelector(_SelectorWidget):
         """Motion notify event handler."""
 
         state = self._state | self._default_state
+        rotate = ('rotate' in state and
+                  self._active_handle in self._corner_order)
+        eventpress = self._eventpress
+        # The calculations are done for rotation at zero: we apply inverse
+        # transformation to events except when we rotate and move
+        if not (self._active_handle == 'C' or rotate):
+            inv_tr = self._get_rotation_transform().inverted()
+            event.xdata, event.ydata = inv_tr.transform(
+                [event.xdata, event.ydata])
+            eventpress.xdata, eventpress.ydata = inv_tr.transform(
+                [eventpress.xdata, eventpress.ydata]
+                )
 
-        dx = event.xdata - self._eventpress.xdata
-        dy = event.ydata - self._eventpress.ydata
+        dx = event.xdata - eventpress.xdata
+        dy = event.ydata - eventpress.ydata
         refmax = None
         if 'data_coordinates' in state:
             aspect_ratio = 1
@@ -3045,19 +3057,20 @@ class RectangleSelector(_SelectorWidget):
             ll, ur = self.ax.get_position() * figure_size
             width, height = ur - ll
             aspect_ratio = height / width * self.ax.get_data_ratio()
-            refx = event.xdata / (self._eventpress.xdata + 1e-6)
-            refy = event.ydata / (self._eventpress.ydata + 1e-6)
-
+            refx = event.xdata / (eventpress.xdata + 1e-6)
+            refy = event.ydata / (eventpress.ydata + 1e-6)
 
         x0, x1, y0, y1 = self._extents_on_press
-        # resize an existing shape
-        if 'rotate' in state and self._active_handle in self._corner_order:
+        # rotate an existing shape
+        if rotate:
             # calculate angle abc
-            a = np.array([self._eventpress.xdata, self._eventpress.ydata])
+            a = np.array([eventpress.xdata, eventpress.ydata])
             b = np.array(self.center)
             c = np.array([event.xdata, event.ydata])
             self._rotation = (np.arctan2(c[1]-b[1], c[0]-b[0]) -
                               np.arctan2(a[1]-b[1], a[0]-b[0]))
+
+        # resize an existing shape
         elif self._active_handle and self._active_handle != 'C':
             size_on_press = [x1 - x0, y1 - y0]
             center = [x0 + size_on_press[0] / 2, y0 + size_on_press[1] / 2]
@@ -3114,8 +3127,8 @@ class RectangleSelector(_SelectorWidget):
         # move existing shape
         elif self._active_handle == 'C':
             x0, x1, y0, y1 = self._extents_on_press
-            dx = event.xdata - self._eventpress.xdata
-            dy = event.ydata - self._eventpress.ydata
+            dx = event.xdata - eventpress.xdata
+            dy = event.ydata - eventpress.ydata
             x0 += dx
             x1 += dx
             y0 += dy
@@ -3128,7 +3141,7 @@ class RectangleSelector(_SelectorWidget):
             # ignore_event_outside=True
             if self.ignore_event_outside and self._selection_completed:
                 return
-            center = [self._eventpress.xdata, self._eventpress.ydata]
+            center = [eventpress.xdata, eventpress.ydata]
             dx = (event.xdata - center[0]) / 2.
             dy = (event.ydata - center[1]) / 2.
 
