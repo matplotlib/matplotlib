@@ -20,7 +20,8 @@ from pyparsing import (
 import matplotlib as mpl
 from . import _api, cbook
 from ._mathtext_data import (
-    latex_to_bakoma, latex_to_standard, stix_virtual_fonts, tex2uni)
+    latex_to_bakoma, latex_to_standard, stix_glyph_fixes, stix_virtual_fonts,
+    tex2uni)
 from .afm import AFM
 from .font_manager import FontProperties, findfont, get_font
 from .ft2font import KERNING_DEFAULT
@@ -719,6 +720,10 @@ class StixFonts(UnicodeFonts):
                 # This will generate a dummy character
                 uniindex = 0x1
                 fontname = mpl.rcParams['mathtext.default']
+
+        # Fix some incorrect glyphs.
+        if fontname in ('rm', 'it'):
+            uniindex = stix_glyph_fixes.get(uniindex, uniindex)
 
         # Handle private use area glyphs
         if fontname in ('it', 'rm', 'bf') and 0xe000 <= uniindex <= 0xf8ff:

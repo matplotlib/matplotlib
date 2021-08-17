@@ -1384,3 +1384,11 @@ stix_virtual_fonts = {
         (0x0061, 0x007a, 'rm', 0x1d68a)  # a-z
         ],
     }
+
+
+# Fix some incorrect glyphs.
+stix_glyph_fixes = {
+    # Cap and Cup glyphs are swapped.
+    0x22d2: 0x22d3,
+    0x22d3: 0x22d2,
+}
