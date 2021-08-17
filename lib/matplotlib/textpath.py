@@ -351,7 +351,7 @@ class TextPath(Path):
         prop : `matplotlib.font_manager.FontProperties`, optional
             Font property. If not provided, will use a default
             ``FontProperties`` with parameters from the
-            :ref:`rcParams <matplotlib-rcparams>`.
+            :ref:`rcParams<customizing-with-dynamic-rc-settings>`.
 
         _interpolation_steps : int, optional
             (Currently ignored)
