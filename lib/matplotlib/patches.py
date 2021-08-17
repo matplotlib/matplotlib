@@ -706,7 +706,8 @@ class Rectangle(Patch):
         return fmt % pars
 
     @docstring.dedent_interpd
-    def __init__(self, xy, width, height, angle=0.0, **kwargs):
+    def __init__(self, xy, width, height, angle=0.0,
+                 rotate_around_center=False, **kwargs):
         """
         Parameters
         ----------
@@ -717,7 +718,12 @@ class Rectangle(Patch):
         height : float
             Rectangle height.
         angle : float, default: 0
-            Rotation in degrees anti-clockwise about *xy*.
+            Rotation in degrees anti-clockwise about *xy* if
+            *rotate_around_center* if False, otherwise rotate around the
+            center of the rectangle
+        rotate_around_center : bool, default: False
+            If True, the rotation is performed around the center of the
+            rectangle.
 
         Other Parameters
         ----------------
@@ -730,6 +736,7 @@ class Rectangle(Patch):
         self._width = width
         self._height = height
         self.angle = float(angle)
+        self.rotate_around_center = rotate_around_center
         self._convert_units()  # Validate the inputs.
 
     def get_path(self):
@@ -750,9 +757,14 @@ class Rectangle(Patch):
         # important to call the accessor method and not directly access the
         # transformation member variable.
         bbox = self.get_bbox()
+        if self.rotate_around_center:
+            width, height = bbox.x1 - bbox.x0, bbox.y1 - bbox.y0
+            rotation_point = bbox.x0 + width / 2., bbox.y0 + height / 2.
+        else:
+            rotation_point = bbox.x0, bbox.y0
         return (transforms.BboxTransformTo(bbox)
                 + transforms.Affine2D().rotate_deg_around(
-                    bbox.x0, bbox.y0, self.angle))
+                    *rotation_point, self.angle))
 
     def get_x(self):
         """Return the left coordinate of the rectangle."""

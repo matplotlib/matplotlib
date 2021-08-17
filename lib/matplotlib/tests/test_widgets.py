@@ -510,11 +510,10 @@ def test_rectangle_handles():
                                                    'markeredgecolor': 'b'})
     tool.extents = (100, 150, 100, 150)
 
-    assert tool.corners == (
-        (100, 150, 150, 100), (100, 100, 150, 150))
+    assert_allclose(tool.corners, ((100, 150, 150, 100), (100, 100, 150, 150)))
     assert tool.extents == (100, 150, 100, 150)
-    assert tool.edge_centers == (
-        (100, 125.0, 150, 125.0), (125.0, 100, 125.0, 150))
+    assert_allclose(tool.edge_centers,
+                    ((100, 125.0, 150, 125.0), (125.0, 100, 125.0, 150)))
     assert tool.extents == (100, 150, 100, 150)
 
     # grab a corner and move it
