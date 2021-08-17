@@ -65,6 +65,7 @@ jobs:
               cm-super \
               dvipng \
               ffmpeg \
+              fonts-noto-cjk \
               gdb \
               gir1.2-gtk-3.0 \
               graphviz \
@@ -101,6 +102,8 @@ jobs:
             ;;
           macOS)
             brew install ccache
+            brew tap homebrew/cask-fonts
+            brew install font-noto-sans-cjk-sc
             ;;
           esac
 
