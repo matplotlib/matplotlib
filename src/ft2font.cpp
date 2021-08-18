@@ -377,6 +377,10 @@ FT2Font::~FT2Font()
     if (face) {
         FT_Done_Face(face);
     }
+
+    for (size_t i = 0; i < fallbacks.size(); i++) {
+        Py_DECREF(fallbacks[i]->get_pyfont());
+    }
 }
 
 void FT2Font::clear()
@@ -508,7 +512,7 @@ void FT2Font::set_text(
         FT_BBox glyph_bbox;
         FT_Pos last_advance;
 
-        FT_UInt final_glyph_index;
+        FT_UInt final_glyph_index = 0;
         FT_Error charcode_error, glyph_error;
         FT2Font *ft_object_with_glyph = this;
         bool was_found = load_char_with_fallback(ft_object_with_glyph, final_glyph_index, glyphs,
@@ -516,7 +520,12 @@ void FT2Font::set_text(
                                                  charcode_error, glyph_error, false);
         if (!was_found) {
             ft_glyph_warn((FT_ULong)codepoints[n]);
-            continue;
+
+            // render tofu
+            // ft_object_with_glyph == this
+            char_to_font[codepoints[n]] = ft_object_with_glyph;
+            glyph_to_font[final_glyph_index] = ft_object_with_glyph;
+            ft_object_with_glyph->load_glyph(final_glyph_index, flags, ft_object_with_glyph, false);
         }
 
         glyph_index = final_glyph_index;
