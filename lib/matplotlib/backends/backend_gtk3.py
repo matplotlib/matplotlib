@@ -37,11 +37,11 @@ backend_version = "%s.%s.%s" % (
     Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version())
 
 
-# module-level deprecations.
-@functools.lru_cache(None)
-def __getattr__(name):
-    if name == "cursord":
-        _api.warn_deprecated("3.5", name=name)
+@_api.caching_module_getattr  # module-level deprecations
+class __getattr__:
+    @_api.deprecated("3.5", obj_type="")
+    @property
+    def cursord(self):
         try:
             new_cursor = functools.partial(
                 Gdk.Cursor.new_from_name, Gdk.Display.get_default())
@@ -54,8 +54,6 @@ def __getattr__(name):
             }
         except TypeError as exc:
             return {}
-    else:
-        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 # Placeholder

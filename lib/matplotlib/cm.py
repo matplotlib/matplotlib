@@ -16,7 +16,6 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
 """
 
 from collections.abc import Mapping, MutableMapping
-import functools
 
 import numpy as np
 from numpy import ma
@@ -27,14 +26,11 @@ from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
 
 
-# module-level deprecations.
-@functools.lru_cache(None)
-def __getattr__(name):
-    if name == "LUTSIZE":
-        _api.warn_deprecated("3.5", name=name,
-                             alternative="rcParams['image.lut']")
-        return _LUTSIZE
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+@_api.caching_module_getattr  # module-level deprecations
+class __getattr__:
+    LUTSIZE = _api.deprecated(
+        "3.5", obj_type="", alternative="rcParams['image.lut']")(
+            property(lambda self: _LUTSIZE))
 
 
 _LUTSIZE = mpl.rcParams['image.lut']

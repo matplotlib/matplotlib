@@ -12,7 +12,6 @@ Core functions and attributes for the matplotlib style library:
 """
 
 import contextlib
-import functools
 import logging
 import os
 from pathlib import Path
@@ -27,13 +26,10 @@ _log = logging.getLogger(__name__)
 __all__ = ['use', 'context', 'available', 'library', 'reload_library']
 
 
-# module-level deprecations.
-@functools.lru_cache(None)
-def __getattr__(name):
-    if name == "STYLE_FILE_PATTERN":
-        _api.warn_deprecated("3.5", name=name)
-        return re.compile(r'([\S]+).%s$' % STYLE_EXTENSION)
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+@_api.caching_module_getattr  # module-level deprecations
+class __getattr__:
+    STYLE_FILE_PATTERN = _api.deprecated("3.5", obj_type="")(property(
+        lambda self: re.compile(r'([\S]+).%s$' % STYLE_EXTENSION)))
 
 
 BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), 'stylelib')

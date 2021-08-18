@@ -150,13 +150,14 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
                 return obj
 
         elif isinstance(obj, (property, classproperty)):
-            obj_type = "attribute"
+            if obj_type is None:
+                obj_type = "attribute"
             func = None
             name = name or obj.fget.__name__
             old_doc = obj.__doc__
 
             class _deprecated_property(type(obj)):
-                def __get__(self, instance, owner):
+                def __get__(self, instance, owner=None):
                     if instance is not None or owner is not None \
                             and isinstance(self, classproperty):
                         emit_warning()
