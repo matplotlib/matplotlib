@@ -597,7 +597,9 @@ _deprecated_remain_as_none = {
 _all_deprecated = {*_deprecated_map, *_deprecated_ignore_map}
 
 
-@docstring.Substitution("\n".join(map("- {}".format, rcsetup._validators)))
+@docstring.Substitution(
+    "\n".join(map("- {}".format, sorted(rcsetup._validators, key=str.lower)))
+)
 class RcParams(MutableMapping, dict):
     """
     A dictionary object including validation.

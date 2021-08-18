@@ -22,7 +22,8 @@ a figure. Two ways of doing so are
 
       plt.subplots(constrained_layout=True)
 
-* activate it via :ref:`rcParams<matplotlib-rcparams>`, like::
+* activate it via :ref:`rcParams<customizing-with-dynamic-rc-settings>`,
+  like::
 
       plt.rcParams['figure.constrained_layout.use'] = True
 
@@ -305,9 +306,9 @@ fig.set_constrained_layout_pads(w_pad=2 / 72, h_pad=2 / 72, hspace=0.2,
 # rcParams
 # ========
 #
-# There are five :ref:`rcParams<matplotlib-rcparams>` that can be set,
-# either in a script or in the :file:`matplotlibrc` file.
-# They all have the prefix ``figure.constrained_layout``:
+# There are five :ref:`rcParams<customizing-with-dynamic-rc-settings>`
+# that can be set, either in a script or in the :file:`matplotlibrc`
+# file. They all have the prefix ``figure.constrained_layout``:
 #
 # - *use*: Whether to use constrained_layout. Default is False
 # - *w_pad*, *h_pad*:    Padding around axes objects.
