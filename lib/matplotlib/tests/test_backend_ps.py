@@ -7,7 +7,7 @@ import pytest
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib import cbook, patheffects
+from matplotlib import cbook, patheffects, font_manager as fm
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.cbook import MatplotlibDeprecationWarning
 
@@ -238,6 +238,10 @@ def test_linedash():
 
 @image_comparison(["multi_font_type3.eps"])
 def test_multi_font_type3():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
     plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
     plt.rc('ps', fonttype=3)
 
@@ -247,6 +251,10 @@ def test_multi_font_type3():
 
 @image_comparison(["multi_font_type42.eps"])
 def test_multi_font_type42():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
     plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
     plt.rc('ps', fonttype=42)
 
