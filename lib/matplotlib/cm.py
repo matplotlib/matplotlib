@@ -34,6 +34,7 @@ def __getattr__(name):
         _api.warn_deprecated("3.5", name=name,
                              alternative="rcParams['image.lut']")
         return _LUTSIZE
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 _LUTSIZE = mpl.rcParams['image.lut']
