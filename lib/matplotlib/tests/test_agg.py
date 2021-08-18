@@ -1,4 +1,5 @@
 import io
+from pathlib import Path
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal
@@ -7,7 +8,9 @@ import pytest
 
 
 from matplotlib import (
-    collections, path, pyplot as plt, transforms as mtransforms, rcParams)
+    collections, path, pyplot as plt, transforms as mtransforms, rcParams,
+    font_manager as fm
+)
 from matplotlib.image import imread
 from matplotlib.figure import Figure
 from matplotlib.testing.decorators import image_comparison
@@ -255,6 +258,10 @@ def test_draw_path_collection_error_handling():
 
 @image_comparison(["font_fallback.png"])
 def test_font_fallback():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
     plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=15)
 
     fig, ax = plt.subplots()
