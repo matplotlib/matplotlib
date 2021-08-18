@@ -350,7 +350,7 @@ def test_rectangle_resize_square_center():
     _resize_rectangle(tool, 70, 65, 120, 115)
     tool.add_default_state('square')
     tool.add_default_state('center')
-    assert tool.extents == (70.0, 120.0, 65.0, 115.0)
+    assert_allclose(tool.extents, (70.0, 120.0, 65.0, 115.0))
 
     # resize NE handle
     extents = tool.extents
@@ -358,8 +358,8 @@ def test_rectangle_resize_square_center():
     xdiff, ydiff = 10, 5
     xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
     _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
-    assert tool.extents == (extents[0] - xdiff, xdata_new,
-                            extents[2] - xdiff, extents[3] + xdiff)
+    assert_allclose(tool.extents, (extents[0] - xdiff, xdata_new,
+                                   extents[2] - xdiff, extents[3] + xdiff))
 
     # resize E handle
     extents = tool.extents
@@ -367,8 +367,8 @@ def test_rectangle_resize_square_center():
     xdiff = 10
     xdata_new, ydata_new = xdata + xdiff, ydata
     _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
-    assert tool.extents == (extents[0] - xdiff, xdata_new,
-                            extents[2] - xdiff, extents[3] + xdiff)
+    assert_allclose(tool.extents, (extents[0] - xdiff, xdata_new,
+                                   extents[2] - xdiff, extents[3] + xdiff))
 
     # resize E handle negative diff
     extents = tool.extents
@@ -376,8 +376,8 @@ def test_rectangle_resize_square_center():
     xdiff = -20
     xdata_new, ydata_new = xdata + xdiff, ydata
     _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
-    assert tool.extents == (extents[0] - xdiff, xdata_new,
-                            extents[2] - xdiff, extents[3] + xdiff)
+    assert_allclose(tool.extents, (extents[0] - xdiff, xdata_new,
+                                   extents[2] - xdiff, extents[3] + xdiff))
 
     # resize W handle
     extents = tool.extents
@@ -385,8 +385,8 @@ def test_rectangle_resize_square_center():
     xdiff = 5
     xdata_new, ydata_new = xdata + xdiff, ydata
     _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
-    assert tool.extents == (xdata_new, extents[1] - xdiff,
-                            extents[2] + xdiff, extents[3] - xdiff)
+    assert_allclose(tool.extents, (xdata_new, extents[1] - xdiff,
+                                   extents[2] + xdiff, extents[3] - xdiff))
 
     # resize W handle negative diff
     extents = tool.extents
@@ -394,8 +394,8 @@ def test_rectangle_resize_square_center():
     xdiff = -25
     xdata_new, ydata_new = xdata + xdiff, ydata
     _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
-    assert tool.extents == (xdata_new, extents[1] - xdiff,
-                            extents[2] + xdiff, extents[3] - xdiff)
+    assert_allclose(tool.extents, (xdata_new, extents[1] - xdiff,
+                                   extents[2] + xdiff, extents[3] - xdiff))
 
     # resize SW handle
     extents = tool.extents
@@ -403,8 +403,8 @@ def test_rectangle_resize_square_center():
     xdiff, ydiff = 20, 25
     xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
     _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
-    assert tool.extents == (extents[0] + ydiff, extents[1] - ydiff,
-                            ydata_new, extents[3] - ydiff)
+    assert_allclose(tool.extents, (extents[0] + ydiff, extents[1] - ydiff,
+                                   ydata_new, extents[3] - ydiff))
 
 
 @pytest.mark.parametrize('selector_class',
@@ -421,26 +421,35 @@ def test_rectangle_rotate(selector_class):
     do_event(tool, 'onmove', xdata=130, ydata=140)
     do_event(tool, 'release', xdata=130, ydata=140)
     assert tool.extents == (100, 130, 100, 140)
+    assert len(tool._default_state) == 0
+    assert len(tool._state) == 0
 
     # Rotate anticlockwise using top-right corner
     do_event(tool, 'on_key_press', key='r')
+    assert tool._default_state == set(['rotate'])
+    assert len(tool._state) == 0
     do_event(tool, 'press', xdata=130, ydata=140)
-    do_event(tool, 'onmove', xdata=110, ydata=145)
-    do_event(tool, 'release', xdata=110, ydata=145)
+    do_event(tool, 'onmove', xdata=120, ydata=145)
+    do_event(tool, 'release', xdata=120, ydata=145)
     do_event(tool, 'on_key_press', key='r')
+    assert len(tool._default_state) == 0
+    assert len(tool._state) == 0
     # Extents shouldn't change (as shape of rectangle hasn't changed)
     assert tool.extents == (100, 130, 100, 140)
+    assert_allclose(tool.rotation, 25.56, atol=0.01)
+    tool.rotation = 45
+    assert tool.rotation == 45
     # Corners should move
     # The third corner is at (100, 145)
     assert_allclose(tool.corners,
-                    np.array([[119.9, 139.9, 110.1, 90.1],
-                              [95.4, 117.8, 144.5, 122.2]]), atol=0.1)
+                    np.array([[118.53, 139.75, 111.46, 90.25],
+                              [95.25, 116.46, 144.75, 123.54]]), atol=0.01)
 
     # Scale using top-right corner
     do_event(tool, 'press', xdata=110, ydata=145)
     do_event(tool, 'onmove', xdata=110, ydata=160)
     do_event(tool, 'release', xdata=110, ydata=160)
-    assert_allclose(tool.extents, (100, 141.5, 100, 150.4), atol=0.1)
+    assert_allclose(tool.extents, (100, 139.75, 100, 151.82), atol=0.01)
 
 
 def test_rectangle_resize_square_center_aspect():
@@ -462,6 +471,7 @@ def test_rectangle_resize_square_center_aspect():
     xdata, ydata = extents[1], extents[3]
     xdiff = 10
     xdata_new, ydata_new = xdata + xdiff, ydata
+    ychange = xdiff * 1 / tool._aspect_ratio_correction
     _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
     assert_allclose(tool.extents, [extents[0] - xdiff, xdata_new,
                                    46.25, 133.75])

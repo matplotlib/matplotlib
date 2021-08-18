@@ -737,6 +737,8 @@ class Rectangle(Patch):
         self._height = height
         self.angle = float(angle)
         self.rotate_around_center = rotate_around_center
+        # Required for RectangleSelector with axes aspect ratio != 1
+        self._aspect_ratio_correction = 1.0
         self._convert_units()  # Validate the inputs.
 
     def get_path(self):
@@ -762,9 +764,13 @@ class Rectangle(Patch):
             rotation_point = bbox.x0 + width / 2., bbox.y0 + height / 2.
         else:
             rotation_point = bbox.x0, bbox.y0
-        return (transforms.BboxTransformTo(bbox)
-                + transforms.Affine2D().rotate_deg_around(
-                    *rotation_point, self.angle))
+        return transforms.BboxTransformTo(bbox) \
+                + transforms.Affine2D() \
+                .translate(-rotation_point[0], -rotation_point[1]) \
+                .scale(1, self._aspect_ratio_correction) \
+                .rotate_deg(self.angle) \
+                .scale(1, 1 / self._aspect_ratio_correction) \
+                .translate(*rotation_point)
 
     def get_x(self):
         """Return the left coordinate of the rectangle."""
@@ -1523,6 +1529,8 @@ class Ellipse(Patch):
         self._width, self._height = width, height
         self._angle = angle
         self._path = Path.unit_circle()
+        # Required for EllipseSelector with axes aspect ratio != 1
+        self._aspect_ratio_correction = 1.0
         # Note: This cannot be calculated until this is added to an Axes
         self._patch_transform = transforms.IdentityTransform()
 
@@ -1540,8 +1548,9 @@ class Ellipse(Patch):
         width = self.convert_xunits(self._width)
         height = self.convert_yunits(self._height)
         self._patch_transform = transforms.Affine2D() \
-            .scale(width * 0.5, height * 0.5) \
+            .scale(width * 0.5, height * 0.5 * self._aspect_ratio_correction) \
             .rotate_deg(self.angle) \
+            .scale(1, 1 / self._aspect_ratio_correction) \
             .translate(*center)
 
     def get_path(self):
