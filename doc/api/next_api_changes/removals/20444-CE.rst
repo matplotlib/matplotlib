@@ -1,0 +1,4 @@
+Change the drawing parameter in ArrowStyle
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+For drawing arrows heads or brackets at the arrow, use the ``arrow``
+parameter with the drawing of the desired arrow.

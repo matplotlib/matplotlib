@@ -3204,14 +3204,18 @@ class ArrowStyle(_Style):
         """
         A simple arrow which will work with any path instance. The
         returned path is the concatenation of the original path, and at
-        most two paths representing the arrow head at the begin point and the
-        at the end point. The arrow heads can be either open or closed.
+        most two paths representing the arrow head or bracket at the begin
+        point and at the end point. The arrow heads can be either open
+        or closed.
         """
 
-        beginarrow = endarrow = False  # Whether arrows are drawn.
+        beginarrow = endarrow = None  # Whether arrows are drawn.
+        arrow = "-"
         fillbegin = fillend = False  # Whether arrows are filled.
 
-        def __init__(self, head_length=.4, head_width=.2):
+        def __init__(self, head_length=.4, head_width=.2, widthA=1., widthB=1.,
+                     lengthA=0.2, lengthB=0.2, angleA=0, angleB=0, scaleA=None,
+                     scaleB=None):
             """
             Parameters
             ----------
@@ -3219,8 +3223,91 @@ class ArrowStyle(_Style):
                 Length of the arrow head, relative to *mutation_scale*.
             head_width : float, default: 0.2
                 Width of the arrow head, relative to *mutation_scale*.
+            widthA : float, default: 1.0
+                Width of the bracket at the beginning of the arrow
+            widthB : float, default: 1.0
+                Width of the bracket at the end of the arrow
+            lengthA : float, default: 0.2
+                Length of the bracket at the beginning of the arrow
+            lengthB : float, default: 0.2
+                Length of the bracket at the end of the arrow
+            angleA : float, default 0
+                Orientation of the bracket at the beginning, as a
+                counterclockwise angle. 0 degrees means perpendicular
+                to the line.
+            angleB : float, default 0
+                Orientation of the bracket at the beginning, as a
+                counterclockwise angle. 0 degrees means perpendicular
+                to the line.
+            scaleA : float, default *mutation_size*
+                The mutation_size for the beginning bracket
+            scaleB : float, default *mutation_size*
+                The mutation_size for the end bracket
             """
+
             self.head_length, self.head_width = head_length, head_width
+            self.widthA, self.widthB = widthA, widthB
+            self.lengthA, self.lengthB = lengthA, lengthB
+            self.angleA, self.angleB = angleA, angleB
+            self.scaleA, self.scaleB = scaleA, scaleB
+
+            self._beginarrow_head = False
+            self._beginarrow_bracket = False
+            self._endarrow_head = False
+            self._endarrow_bracket = False
+
+            if "-" not in self.arrow:
+                raise ValueError("arrow must have the '-' between "
+                                 "the two heads")
+
+            beginarrow, endarrow = self.arrow.split("-", 1)
+
+            if beginarrow == "<":
+                self._beginarrow_head = True
+                self._beginarrow_bracket = False
+            elif beginarrow == "<|":
+                self._beginarrow_head = True
+                self._beginarrow_bracket = False
+                self.fillbegin = True
+            elif beginarrow in ("]", "|"):
+                self._beginarrow_head = False
+                self._beginarrow_bracket = True
+            elif self.beginarrow is True:
+                self._beginarrow_head = True
+                self._beginarrow_bracket = False
+
+                _api.warn_deprecated('3.5', name="beginarrow",
+                                     alternative="arrow")
+            elif self.beginarrow is False:
+                self._beginarrow_head = False
+                self._beginarrow_bracket = False
+
+                _api.warn_deprecated('3.5', name="beginarrow",
+                                     alternative="arrow")
+
+            if endarrow == ">":
+                self._endarrow_head = True
+                self._endarrow_bracket = False
+            elif endarrow == "|>":
+                self._endarrow_head = True
+                self._endarrow_bracket = False
+                self.fillend = True
+            elif endarrow in ("[", "|"):
+                self._endarrow_head = False
+                self._endarrow_bracket = True
+            elif self.endarrow is True:
+                self._endarrow_head = True
+                self._endarrow_bracket = False
+
+                _api.warn_deprecated('3.5', name="endarrow",
+                                     alternative="arrow")
+            elif self.endarrow is False:
+                self._endarrow_head = False
+                self._endarrow_bracket = False
+
+                _api.warn_deprecated('3.5', name="endarrow",
+                                     alternative="arrow")
+
             super().__init__()
 
         def _get_arrow_wedge(self, x0, y0, x1, y1,
@@ -3265,19 +3352,49 @@ class ArrowStyle(_Style):
 
             return vertices_arrow, codes_arrow, ddx, ddy
 
+        def _get_bracket(self, x0, y0,
+                         x1, y1, width, length, angle):
+
+            cos_t, sin_t = get_cos_sin(x1, y1, x0, y0)
+
+            # arrow from x0, y0 to x1, y1
+            from matplotlib.bezier import get_normal_points
+            x1, y1, x2, y2 = get_normal_points(x0, y0, cos_t, sin_t, width)
+
+            dx, dy = length * cos_t, length * sin_t
+
+            vertices_arrow = [(x1 + dx, y1 + dy),
+                              (x1, y1),
+                              (x2, y2),
+                              (x2 + dx, y2 + dy)]
+            codes_arrow = [Path.MOVETO,
+                           Path.LINETO,
+                           Path.LINETO,
+                           Path.LINETO]
+
+            if angle:
+                trans = transforms.Affine2D().rotate_deg_around(x0, y0, angle)
+                vertices_arrow = trans.transform(vertices_arrow)
+
+            return vertices_arrow, codes_arrow
+
         def transmute(self, path, mutation_size, linewidth):
 
-            head_length = self.head_length * mutation_size
-            head_width = self.head_width * mutation_size
-            head_dist = np.hypot(head_length, head_width)
-            cos_t, sin_t = head_length / head_dist, head_width / head_dist
+            if self._beginarrow_head or self._endarrow_head:
+                head_length = self.head_length * mutation_size
+                head_width = self.head_width * mutation_size
+                head_dist = np.hypot(head_length, head_width)
+                cos_t, sin_t = head_length / head_dist, head_width / head_dist
+
+            scaleA = mutation_size if self.scaleA is None else self.scaleA
+            scaleB = mutation_size if self.scaleB is None else self.scaleB
 
             # begin arrow
             x0, y0 = path.vertices[0]
             x1, y1 = path.vertices[1]
 
             # If there is no room for an arrow and a line, then skip the arrow
-            has_begin_arrow = self.beginarrow and (x0, y0) != (x1, y1)
+            has_begin_arrow = self._beginarrow_head and (x0, y0) != (x1, y1)
             verticesA, codesA, ddxA, ddyA = (
                 self._get_arrow_wedge(x1, y1, x0, y0,
                                       head_dist, cos_t, sin_t, linewidth)
@@ -3290,7 +3407,7 @@ class ArrowStyle(_Style):
             x3, y3 = path.vertices[-1]
 
             # If there is no room for an arrow and a line, then skip the arrow
-            has_end_arrow = self.endarrow and (x2, y2) != (x3, y3)
+            has_end_arrow = self._endarrow_head and (x2, y2) != (x3, y3)
             verticesB, codesB, ddxB, ddyB = (
                 self._get_arrow_wedge(x2, y2, x3, y3,
                                       head_dist, cos_t, sin_t, linewidth)
@@ -3316,6 +3433,16 @@ class ArrowStyle(_Style):
                 else:
                     _path.append(Path(verticesA, codesA))
                     _fillable.append(False)
+            elif self._beginarrow_bracket:
+                x0, y0 = path.vertices[0]
+                x1, y1 = path.vertices[1]
+                verticesA, codesA = self._get_bracket(x0, y0, x1, y1,
+                                                      self.widthA * scaleA,
+                                                      self.lengthA * scaleA,
+                                                      self.angleA)
+
+                _path.append(Path(verticesA, codesA))
+                _fillable.append(False)
 
             if has_end_arrow:
                 if self.fillend:
@@ -3327,6 +3454,16 @@ class ArrowStyle(_Style):
                 else:
                     _fillable.append(False)
                     _path.append(Path(verticesB, codesB))
+            elif self._endarrow_bracket:
+                x0, y0 = path.vertices[-1]
+                x1, y1 = path.vertices[-2]
+                verticesB, codesB = self._get_bracket(x0, y0, x1, y1,
+                                                      self.widthB * scaleB,
+                                                      self.lengthB * scaleB,
+                                                      self.angleB)
+
+                _path.append(Path(verticesB, codesB))
+                _fillable.append(False)
 
             return _path, _fillable
 
@@ -3342,119 +3479,37 @@ class ArrowStyle(_Style):
     @_register_style(_style_list, name="<-")
     class CurveA(_Curve):
         """An arrow with a head at its begin point."""
-        beginarrow = True
+        arrow = "<-"
 
     @_register_style(_style_list, name="->")
     class CurveB(_Curve):
         """An arrow with a head at its end point."""
-        endarrow = True
+        arrow = "->"
 
     @_register_style(_style_list, name="<->")
     class CurveAB(_Curve):
         """An arrow with heads both at the begin and the end point."""
-        beginarrow = endarrow = True
+        arrow = "<->"
 
     @_register_style(_style_list, name="<|-")
     class CurveFilledA(_Curve):
         """An arrow with filled triangle head at the begin."""
-        beginarrow = fillbegin = True
+        arrow = "<|-"
 
     @_register_style(_style_list, name="-|>")
     class CurveFilledB(_Curve):
         """An arrow with filled triangle head at the end."""
-        endarrow = fillend = True
+        arrow = "-|>"
 
     @_register_style(_style_list, name="<|-|>")
     class CurveFilledAB(_Curve):
         """An arrow with filled triangle heads at both ends."""
-        beginarrow = endarrow = fillbegin = fillend = True
-
-    class _Bracket(_Base):
-
-        def __init__(self, bracketA=None, bracketB=None,
-                     widthA=1., widthB=1.,
-                     lengthA=0.2, lengthB=0.2,
-                     angleA=0, angleB=0,
-                     scaleA=None, scaleB=None):
-            self.bracketA, self.bracketB = bracketA, bracketB
-            self.widthA, self.widthB = widthA, widthB
-            self.lengthA, self.lengthB = lengthA, lengthB
-            self.angleA, self.angleB = angleA, angleB
-            self.scaleA, self.scaleB = scaleA, scaleB
-
-        def _get_bracket(self, x0, y0,
-                         cos_t, sin_t, width, length, angle):
-
-            # arrow from x0, y0 to x1, y1
-            from matplotlib.bezier import get_normal_points
-            x1, y1, x2, y2 = get_normal_points(x0, y0, cos_t, sin_t, width)
-
-            dx, dy = length * cos_t, length * sin_t
-
-            vertices_arrow = [(x1 + dx, y1 + dy),
-                              (x1, y1),
-                              (x2, y2),
-                              (x2 + dx, y2 + dy)]
-            codes_arrow = [Path.MOVETO,
-                           Path.LINETO,
-                           Path.LINETO,
-                           Path.LINETO]
-
-            if angle:
-                trans = transforms.Affine2D().rotate_deg_around(x0, y0, angle)
-                vertices_arrow = trans.transform(vertices_arrow)
-
-            return vertices_arrow, codes_arrow
-
-        def transmute(self, path, mutation_size, linewidth):
-
-            if self.scaleA is None:
-                scaleA = mutation_size
-            else:
-                scaleA = self.scaleA
-
-            if self.scaleB is None:
-                scaleB = mutation_size
-            else:
-                scaleB = self.scaleB
-
-            vertices_list, codes_list = [], []
-
-            if self.bracketA:
-                x0, y0 = path.vertices[0]
-                x1, y1 = path.vertices[1]
-                cos_t, sin_t = get_cos_sin(x1, y1, x0, y0)
-                verticesA, codesA = self._get_bracket(x0, y0, cos_t, sin_t,
-                                                      self.widthA * scaleA,
-                                                      self.lengthA * scaleA,
-                                                      self.angleA)
-                vertices_list.append(verticesA)
-                codes_list.append(codesA)
-
-            vertices_list.append(path.vertices)
-            codes_list.append(path.codes)
-
-            if self.bracketB:
-                x0, y0 = path.vertices[-1]
-                x1, y1 = path.vertices[-2]
-                cos_t, sin_t = get_cos_sin(x1, y1, x0, y0)
-                verticesB, codesB = self._get_bracket(x0, y0, cos_t, sin_t,
-                                                      self.widthB * scaleB,
-                                                      self.lengthB * scaleB,
-                                                      self.angleB)
-                vertices_list.append(verticesB)
-                codes_list.append(codesB)
-
-            vertices = np.concatenate(vertices_list)
-            codes = np.concatenate(codes_list)
-
-            p = Path(vertices, codes)
-
-            return p, False
+        arrow = "<|-|>"
 
     @_register_style(_style_list, name="]-")
-    class BracketA(_Bracket):
+    class BracketA(_Curve):
         """An arrow with an outward square bracket at its start."""
+        arrow = "]-"
 
         def __init__(self, widthA=1., lengthA=0.2, angleA=0):
             """
@@ -3468,12 +3523,12 @@ class ArrowStyle(_Style):
                 Orientation of the bracket, as a counterclockwise angle.
                 0 degrees means perpendicular to the line.
             """
-            super().__init__(True, None,
-                             widthA=widthA, lengthA=lengthA, angleA=angleA)
+            super().__init__(widthA=widthA, lengthA=lengthA, angleA=angleA)
 
     @_register_style(_style_list, name="-[")
-    class BracketB(_Bracket):
+    class BracketB(_Curve):
         """An arrow with an outward square bracket at its end."""
+        arrow = "-["
 
         def __init__(self, widthB=1., lengthB=0.2, angleB=0):
             """
@@ -3487,12 +3542,12 @@ class ArrowStyle(_Style):
                 Orientation of the bracket, as a counterclockwise angle.
                 0 degrees means perpendicular to the line.
             """
-            super().__init__(None, True,
-                             widthB=widthB, lengthB=lengthB, angleB=angleB)
+            super().__init__(widthB=widthB, lengthB=lengthB, angleB=angleB)
 
     @_register_style(_style_list, name="]-[")
-    class BracketAB(_Bracket):
+    class BracketAB(_Curve):
         """An arrow with outward square brackets at both ends."""
+        arrow = "]-["
 
         def __init__(self,
                      widthA=1., lengthA=0.2, angleA=0,
@@ -3508,13 +3563,13 @@ class ArrowStyle(_Style):
                 Orientation of the bracket, as a counterclockwise angle.
                 0 degrees means perpendicular to the line.
             """
-            super().__init__(True, True,
-                             widthA=widthA, lengthA=lengthA, angleA=angleA,
+            super().__init__(widthA=widthA, lengthA=lengthA, angleA=angleA,
                              widthB=widthB, lengthB=lengthB, angleB=angleB)
 
     @_register_style(_style_list, name="|-|")
-    class BarAB(_Bracket):
+    class BarAB(_Curve):
         """An arrow with vertical bars ``|`` at both ends."""
+        arrow = "|-|"
 
         def __init__(self, widthA=1., angleA=0, widthB=1., angleB=0):
             """
@@ -3526,9 +3581,52 @@ class ArrowStyle(_Style):
                 Orientation of the bracket, as a counterclockwise angle.
                 0 degrees means perpendicular to the line.
             """
-            super().__init__(True, True,
-                             widthA=widthA, lengthA=0, angleA=angleA,
+            super().__init__(widthA=widthA, lengthA=0, angleA=angleA,
                              widthB=widthB, lengthB=0, angleB=angleB)
+
+    @_register_style(_style_list, name=']->')
+    class BracketCurve(_Curve):
+        """
+        An arrow with an outward square bracket at its start and a head at
+        the end.
+        """
+        arrow = "]->"
+
+        def __init__(self, widthA=1., lengthA=0.2, angleA=None):
+            """
+            Parameters
+            ----------
+            widthA : float, default: 1.0
+                Width of the bracket.
+            lengthA : float, default: 0.2
+                Length of the bracket.
+            angleA : float, default: 0 degrees
+                Orientation of the bracket, as a counterclockwise angle.
+                0 degrees means perpendicular to the line.
+            """
+            super().__init__(widthA=widthA, lengthA=lengthA, angleA=angleA)
+
+    @_register_style(_style_list, name='<-[')
+    class CurveBracket(_Curve):
+        """
+        An arrow with an outward square bracket at its end and a head at
+        the start.
+        """
+        arrow = "<-["
+
+        def __init__(self, widthB=1., lengthB=0.2, angleB=None):
+            """
+            Parameters
+            ----------
+            widthB : float, default: 1.0
+                Width of the bracket.
+            lengthB : float, default: 0.2
+                Length of the bracket.
+            angleB : float, default: 0 degrees
+                Orientation of the bracket, as a counterclockwise angle.
+                0 degrees means perpendicular to the line.
+            """
+            super().__init__(widthB=widthB, lengthB=lengthB, angleB=angleB)
 
     @_register_style(_style_list)
     class Simple(_Base):
