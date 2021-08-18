@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import platform
 import subprocess
 import sys
 import weakref
@@ -86,6 +87,11 @@ def test_null_movie_writer(anim):
 
 @pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
 def test_animation_delete(anim):
+    if platform.python_implementation() == 'PyPy':
+        # Something in the test setup fixture lingers around into the test and
+        # breaks pytest.warns on PyPy. This garbage collection fixes it.
+        # https://foss.heptapod.net/pypy/pypy/-/issues/3536
+        np.testing.break_cycles()
     anim = animation.FuncAnimation(**anim)
     with pytest.warns(Warning, match='Animation was deleted'):
         del anim
@@ -200,6 +206,11 @@ def test_save_animation_smoketest(tmpdir, writer, frame_format, output, anim):
 ])
 @pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
 def test_animation_repr_html(writer, html, want, anim):
+    if platform.python_implementation() == 'PyPy':
+        # Something in the test setup fixture lingers around into the test and
+        # breaks pytest.warns on PyPy. This garbage collection fixes it.
+        # https://foss.heptapod.net/pypy/pypy/-/issues/3536
+        np.testing.break_cycles()
     if (writer == 'imagemagick' and html == 'html5'
             # ImageMagick delegates to ffmpeg for this format.
             and not animation.FFMpegWriter.isAvailable()):
