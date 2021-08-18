@@ -9,6 +9,13 @@ Release notes
 .. include from another document so that it's easy to exclude this for releases
 .. include:: release_notes_next.rst
 
+Version 3.5
+===========
+.. toctree::
+    :maxdepth: 1
+
+    prev_whats_new/whats_new_3.5.0.rst
+
 Version 3.4
 ===========
 .. toctree::
