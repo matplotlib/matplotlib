@@ -9,7 +9,9 @@ import numpy as np
 import pytest
 
 import matplotlib as mpl
-from matplotlib import dviread, pyplot as plt, checkdep_usetex, rcParams
+from matplotlib import (
+    dviread, pyplot as plt, checkdep_usetex, rcParams, font_manager as fm
+)
 from matplotlib.cbook import _get_data_path
 from matplotlib.ft2font import FT2Font
 from matplotlib.backends._backend_pdf_ps import get_glyphs_subset
@@ -372,6 +374,10 @@ def test_glyphs_subset():
 
 @image_comparison(["multi_font_type3.pdf"])
 def test_multi_font_type3():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
     plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
     plt.rc('pdf', fonttype=3)
 
@@ -381,6 +387,10 @@ def test_multi_font_type3():
 
 @image_comparison(["multi_font_type42.pdf"])
 def test_multi_font_type42():
+    fp = fm.FontProperties(family=["WenQuanYi Zen Hei"])
+    if Path(fm.findfont(fp)).name != "wqy-zenhei.ttc":
+        pytest.skip("Font may be missing")
+
     plt.rc('font', family=['DejaVu Sans', 'WenQuanYi Zen Hei'], size=27)
     plt.rc('pdf', fonttype=42)
 
