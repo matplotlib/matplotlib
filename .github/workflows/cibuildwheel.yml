@@ -47,7 +47,7 @@ jobs:
 
       - name: Install cibuildwheel
         run: |
-          python -m pip install cibuildwheel==1.9.0
+          python -m pip install cibuildwheel==2.1.1
 
       - name: Build minimum NumPy for aarch64
         if: matrix.cibw_archs == 'aarch64' && steps.numpy-cache.outputs.cache-hit != 'true'
@@ -93,7 +93,7 @@ jobs:
           CIBW_BUILD: "pp37-*"
           CIBW_BEFORE_BUILD: pip install certifi numpy==${{ env.min-numpy-version }}
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
-        if: runner.os != 'Windows' && matrix.cibw_archs != 'aarch64'
+        if: matrix.cibw_archs != 'aarch64'
 
       - name: Validate that LICENSE files are included in wheels
         run: |

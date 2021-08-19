@@ -1451,7 +1451,8 @@ class FancyArrow(Polygon):
 
 
 docstring.interpd.update(
-    FancyArrow="\n".join(inspect.getdoc(FancyArrow.__init__).splitlines()[2:]))
+    FancyArrow="\n".join(
+        (inspect.getdoc(FancyArrow.__init__) or "").splitlines()[2:]))
 
 
 class CirclePolygon(RegularPolygon):

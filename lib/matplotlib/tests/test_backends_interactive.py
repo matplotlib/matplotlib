@@ -3,6 +3,7 @@ import importlib.util
 import inspect
 import json
 import os
+import platform
 import signal
 import subprocess
 import sys
@@ -220,6 +221,12 @@ for param in _thread_safe_backends:
     elif param.values[0].get("QT_API") == "PySide2":
         param.marks.append(
             pytest.mark.xfail(raises=subprocess.CalledProcessError))
+    elif backend == "tkagg" and platform.python_implementation() != 'CPython':
+        param.marks.append(
+            pytest.mark.xfail(
+                reason='PyPy does not support Tkinter threading: '
+                       'https://foss.heptapod.net/pypy/pypy/-/issues/1929',
+                strict=True))
 
 
 @pytest.mark.parametrize("env", _thread_safe_backends)

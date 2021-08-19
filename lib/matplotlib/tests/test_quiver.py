@@ -1,6 +1,9 @@
+import platform
+import sys
+
 import numpy as np
 import pytest
-import sys
+
 from matplotlib import pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
@@ -15,6 +18,8 @@ def draw_quiver(ax, **kw):
     return Q
 
 
+@pytest.mark.skipif(platform.python_implementation() != 'CPython',
+                    reason='Requires CPython')
 def test_quiver_memory_leak():
     fig, ax = plt.subplots()
 
@@ -27,6 +32,8 @@ def test_quiver_memory_leak():
     assert sys.getrefcount(ttX) == 2
 
 
+@pytest.mark.skipif(platform.python_implementation() != 'CPython',
+                    reason='Requires CPython')
 def test_quiver_key_memory_leak():
     fig, ax = plt.subplots()
 

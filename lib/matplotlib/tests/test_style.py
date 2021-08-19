@@ -1,9 +1,9 @@
 from contextlib import contextmanager
-import gc
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import sys
 
+import numpy as np
 import pytest
 
 import matplotlib as mpl
@@ -165,7 +165,7 @@ def test_xkcd_no_cm():
     assert mpl.rcParams["path.sketch"] is None
     plt.xkcd()
     assert mpl.rcParams["path.sketch"] == (1, 100, 2)
-    gc.collect()
+    np.testing.break_cycles()
     assert mpl.rcParams["path.sketch"] == (1, 100, 2)
 
 
