@@ -103,7 +103,7 @@ static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
     put_retval = TK_PHOTO_PUT_BLOCK(
         interp, photo, &block, x1, height - y2, x2 - x1, y2 - y1, comp_rule);
     Py_END_ALLOW_THREADS
-    if (put_retval) {
+    if (put_retval == TCL_ERROR) {
         return PyErr_NoMemory();
     }
 

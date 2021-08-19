@@ -88,6 +88,8 @@ typedef struct Tk_PhotoImageBlock
 
 #define TK_PHOTO_COMPOSITE_OVERLAY	0  // apply transparency rules pixel-wise
 #define TK_PHOTO_COMPOSITE_SET		1  // set image buffer directly
+#define TCL_OK     0
+#define TCL_ERROR  1
 
 /* Typedefs derived from function signatures in Tk header */
 /* Tk_FindPhoto typedef */
