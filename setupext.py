@@ -177,7 +177,7 @@ LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 LOCAL_QHULL_VERSION = '2020.2'
 
 
-# matplotlib build options, which can be altered using setup.cfg
+# Matplotlib build options, which can be altered using setup.cfg
 setup_cfg = os.environ.get('MPLSETUPCFG') or 'setup.cfg'
 config = configparser.ConfigParser()
 if os.path.exists(setup_cfg):
