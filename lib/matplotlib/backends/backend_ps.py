@@ -319,7 +319,7 @@ def _bounds(font):
     pen = fontTools.pens.boundsPen.BoundsPen(gs)
     for name in gs.keys():
         gs[name].draw(pen)
-    return pen.bounds
+    return pen.bounds or (0, 0, 0, 0)
 
 
 def _charstrings(font):
