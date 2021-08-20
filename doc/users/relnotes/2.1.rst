@@ -1,0 +1,10 @@
+Version 2.1
+***********
+
+.. toctree::
+    :maxdepth: 1
+
+    ../prev_whats_new/whats_new_2.1.0.rst
+    ../../api/prev_api_changes/api_changes_2.1.2.rst
+    ../../api/prev_api_changes/api_changes_2.1.1.rst
+    ../../api/prev_api_changes/api_changes_2.1.0.rst

@@ -1,0 +1,20 @@
+Version 1.x
+***********
+
+.. toctree::
+    :maxdepth: 1
+
+    ../prev_whats_new/whats_new_1.5.rst
+    ../../api/prev_api_changes/api_changes_1.5.3.rst
+    ../../api/prev_api_changes/api_changes_1.5.2.rst
+    ../prev_whats_new/whats_new_1.4.rst
+    ../../api/prev_api_changes/api_changes_1.4.x.rst
+    ../../api/prev_api_changes/api_changes_1.5.0.rst
+    ../prev_whats_new/whats_new_1.3.rst
+    ../../api/prev_api_changes/api_changes_1.3.x.rst
+    ../prev_whats_new/whats_new_1.2.2.rst
+    ../prev_whats_new/whats_new_1.2.rst
+    ../../api/prev_api_changes/api_changes_1.2.x.rst
+    ../prev_whats_new/whats_new_1.1.rst
+    ../../api/prev_api_changes/api_changes_1.1.x.rst
+    ../prev_whats_new/whats_new_1.0.rst

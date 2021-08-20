@@ -1,0 +1,12 @@
+Version 3.1
+***********
+
+.. toctree::
+    :maxdepth: 1
+
+    ../prev_whats_new/whats_new_3.1.0.rst
+    ../../api/prev_api_changes/api_changes_3.1.1.rst
+    ../../api/prev_api_changes/api_changes_3.1.0.rst
+    ../prev_whats_new/github_stats_3.1.2.rst
+    ../prev_whats_new/github_stats_3.1.1.rst
+    ../prev_whats_new/github_stats_3.1.0.rst
