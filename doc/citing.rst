@@ -13,7 +13,7 @@ pp. 90-95, 2007 <https://doi.org/10.1109/MCSE.2007.55>`_.
 
 .. container:: sphx-glr-download
 
-   :download:`Download BibTeX bibliography file: MCSE.2007.55.bib <../CITATION.bib>`
+   :download:`Download BibTeX bibliography file: CITATION.bib <../CITATION.bib>`
 
 DOIs
 ----
