@@ -88,7 +88,6 @@ python_sources = [
   'test_tightlayout.py',
   'test_transforms.py',
   'test_triangulation.py',
-  'test_ttconv.py',
   'test_type1font.py',
   'test_units.py',
   'test_usetex.py',
