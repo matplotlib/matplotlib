@@ -167,10 +167,12 @@ class Tick(martist.Artist):
             GRIDLINE_INTERPOLATION_STEPS
         self.label1 = mtext.Text(
             np.nan, np.nan,
-            fontsize=labelsize, color=labelcolor, visible=label1On)
+            fontsize=labelsize, color=labelcolor, visible=label1On,
+            rotation=self._labelrotation[1])
         self.label2 = mtext.Text(
             np.nan, np.nan,
-            fontsize=labelsize, color=labelcolor, visible=label2On)
+            fontsize=labelsize, color=labelcolor, visible=label2On,
+            rotation=self._labelrotation[1])
 
         self._apply_tickdir(tickdir)
 
