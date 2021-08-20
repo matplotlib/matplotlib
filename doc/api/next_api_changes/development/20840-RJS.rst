@@ -1,0 +1,13 @@
+Increase to minimum supported optional dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For Matplotlib 3.5, the :ref:`minimum supported versions of optional dependencies
+<optional_dependencies>` are being bumped:
+
++------------+-----------------+---------------+
+| Dependency |  min in mpl3.4  | min in mpl3.5 |
++============+=================+===============+
+|   Tk       |      8.3        |     8.4       |
++------------+-----------------+---------------+
+
+This is consistent with our :ref:`min_deps_policy`
