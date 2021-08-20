@@ -107,6 +107,8 @@ def test_fig_signals(qt_core):
         ('Key_Alt', ['ControlModifier'], 'ctrl+alt'),
         ('Key_Aacute', ['ControlModifier', 'AltModifier', 'MetaModifier'],
          'ctrl+alt+super+\N{LATIN SMALL LETTER A WITH ACUTE}'),
+        # We do not currently map the media keys, this may change in the
+        # future.  This means the callback will never fire
         ('Key_Play', [], None),
         ('Key_Backspace', [], 'backspace'),
         ('Key_Backspace', ['ControlModifier'], 'ctrl+backspace'),
@@ -142,6 +144,7 @@ def test_correct_key(backend, qt_core, qt_key, qt_mods, answer):
     Assert sent and caught keys are the same.
     """
     from matplotlib.backends.qt_compat import _enum, _to_int
+    result = None
     qt_mod = _enum("QtCore.Qt.KeyboardModifier").NoModifier
     for mod in qt_mods:
         qt_mod |= getattr(_enum("QtCore.Qt.KeyboardModifier"), mod)
@@ -152,11 +155,13 @@ def test_correct_key(backend, qt_core, qt_key, qt_mods, answer):
         def modifiers(self): return qt_mod
 
     def on_key_press(event):
-        assert event.key == answer
+        nonlocal result
+        result = event.key
 
     qt_canvas = plt.figure().canvas
     qt_canvas.mpl_connect('key_press_event', on_key_press)
     qt_canvas.keyPressEvent(_Event())
+    assert result == answer
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
