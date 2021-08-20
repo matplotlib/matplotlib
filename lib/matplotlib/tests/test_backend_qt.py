@@ -106,7 +106,7 @@ def test_fig_signals(qt_core):
         ('Key_Control', ['AltModifier'], 'alt+control'),
         ('Key_Alt', ['ControlModifier'], 'ctrl+alt'),
         ('Key_Aacute', ['ControlModifier', 'AltModifier', 'MetaModifier'],
-         'ctrl+alt+super+\N{LATIN SMALL LETTER A WITH ACUTE}'),
+         'ctrl+alt+meta+\N{LATIN SMALL LETTER A WITH ACUTE}'),
         # We do not currently map the media keys, this may change in the
         # future.  This means the callback will never fire
         ('Key_Play', [], None),
