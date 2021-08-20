@@ -41,25 +41,19 @@ _log = logging.getLogger(__name__)
 PIXELS_PER_INCH = 75
 
 
-# module-level deprecations.
-@functools.lru_cache(None)
-def __getattr__(name):
-    if name == "IDLE_DELAY":
-        _api.warn_deprecated("3.1", name=name)
-        return 5
-    elif name == "cursord":
-        _api.warn_deprecated("3.5", name=name)
-        return {  # deprecated in Matplotlib 3.5.
-            cursors.MOVE: wx.CURSOR_HAND,
-            cursors.HAND: wx.CURSOR_HAND,
-            cursors.POINTER: wx.CURSOR_ARROW,
-            cursors.SELECT_REGION: wx.CURSOR_CROSS,
-            cursors.WAIT: wx.CURSOR_WAIT,
-            cursors.RESIZE_HORIZONTAL: wx.CURSOR_SIZEWE,
-            cursors.RESIZE_VERTICAL: wx.CURSOR_SIZENS,
-        }
-    else:
-        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+@_api.caching_module_getattr  # module-level deprecations
+class __getattr__:
+    IDLE_DELAY = _api.deprecated("3.1", obj_type="", removal="3.6")(property(
+        lambda self: 5))
+    cursord = _api.deprecated("3.5", obj_type="")(property(lambda self: {
+        cursors.MOVE: wx.CURSOR_HAND,
+        cursors.HAND: wx.CURSOR_HAND,
+        cursors.POINTER: wx.CURSOR_ARROW,
+        cursors.SELECT_REGION: wx.CURSOR_CROSS,
+        cursors.WAIT: wx.CURSOR_WAIT,
+        cursors.RESIZE_HORIZONTAL: wx.CURSOR_SIZEWE,
+        cursors.RESIZE_VERTICAL: wx.CURSOR_SIZENS,
+    }))
 
 
 def error_msg_wx(msg, parent=None):

@@ -176,16 +176,14 @@ def _get_version():
         return _version.version
 
 
-@functools.lru_cache(None)
-def __getattr__(name):
-    if name == "__version__":
-        return _get_version()
-    elif name == "__version_info__":
-        return _parse_to_version_info(__getattr__("__version__"))
-    elif name == "URL_REGEX":  # module-level deprecation.
-        _api.warn_deprecated("3.5", name=name)
-        return re.compile(r'^http://|^https://|^ftp://|^file:')
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+@_api.caching_module_getattr
+class __getattr__:
+    __version__ = property(lambda self: _get_version())
+    __version_info__ = property(
+        lambda self: _parse_to_version_info(self.__version__))
+    # module-level deprecations
+    URL_REGEX = _api.deprecated("3.5", obj_type="")(property(
+        lambda self: re.compile(r'^http://|^https://|^ftp://|^file:')))
 
 
 def _check_versions():
