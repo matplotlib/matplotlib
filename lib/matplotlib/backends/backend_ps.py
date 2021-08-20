@@ -2,20 +2,25 @@
 A PostScript backend, which can produce both PostScript .ps and .eps.
 """
 
+import binascii
+import bisect
 import codecs
 import datetime
 from enum import Enum
 import functools
-from io import StringIO
+from io import BytesIO, StringIO
 import itertools
 import logging
 import math
 import os
 import pathlib
 import shutil
+import struct
 from tempfile import TemporaryDirectory
+import textwrap
 import time
 
+import fontTools
 import numpy as np
 
 import matplotlib as mpl
@@ -25,8 +30,7 @@ from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import get_font
-from matplotlib.ft2font import LOAD_NO_SCALE, FT2Font
-from matplotlib._ttconv import convert_ttf_to_ps
+from matplotlib.ft2font import LOAD_NO_SCALE
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.path import Path
 from matplotlib.texmanager import TexManager
@@ -183,26 +187,195 @@ def _font_to_ps_type42(font_path, chars, fh):
     subset_str = ''.join(chr(c) for c in chars)
     _log.debug("SUBSET %s characters: %s", font_path, subset_str)
     try:
-        fontdata = _backend_pdf_ps.get_glyphs_subset(font_path, subset_str)
-        _log.debug("SUBSET %s %d -> %d", font_path, os.stat(font_path).st_size,
-                   fontdata.getbuffer().nbytes)
-
-        # Give ttconv a subsetted font along with updated glyph_ids.
-        font = FT2Font(fontdata)
-        glyph_ids = [font.get_char_index(c) for c in chars]
-        with TemporaryDirectory() as tmpdir:
-            tmpfile = os.path.join(tmpdir, "tmp.ttf")
-
-            with open(tmpfile, 'wb') as tmp:
-                tmp.write(fontdata.getvalue())
-
-            # TODO: allow convert_ttf_to_ps to input file objects (BytesIO)
-            convert_ttf_to_ps(os.fsencode(tmpfile), fh, 42, glyph_ids)
+        with _backend_pdf_ps.get_glyphs_subset(
+                font_path, subset_str
+        ) as subset:
+            fontdata = _backend_pdf_ps.font_as_file(subset).getvalue()
+            _log.debug(
+                "SUBSET %s %d -> %d", font_path, os.stat(font_path).st_size,
+                len(fontdata)
+            )
+            fh.write(_serialize_type42(subset, fontdata))
     except RuntimeError:
         _log.warning(
             "The PostScript backend does not currently "
             "support the selected font.")
         raise
+
+
+def _serialize_type42(font, fontdata):
+    """
+    Output a PostScript Type-42 format representation of font
+
+    Parameters
+    ----------
+    font : fontTools.ttLib.ttFont.TTFont
+        The font object
+    fontdata : bytes
+        The raw font data in TTF format
+
+    Returns
+    -------
+    str
+        The Type-42 formatted font
+    """
+    version, breakpoints = _version_and_breakpoints(font['loca'], fontdata)
+    post, name = font['post'], font['name']
+    fmt = textwrap.dedent(f"""
+    %%!PS-TrueTypeFont-{version[0]}.{version[1]}-{font['head'].fontRevision:.7f}
+    10 dict begin
+    /FontType 42 def
+    /FontMatrix [1 0 0 1 0 0] def
+    /FontName /{name.getDebugName(6)} def
+    /FontInfo 7 dict dup begin
+    /FullName ({name.getDebugName(4)}) def
+    /FamilyName ({name.getDebugName(1)}) def
+    /Version ({name.getDebugName(5)}) def
+    /ItalicAngle {post.italicAngle} def
+    /isFixedPitch {'true' if post.isFixedPitch else 'false'} def
+    /UnderlinePosition {post.underlinePosition} def
+    /UnderlineThickness {post.underlineThickness} def
+    end readonly def
+    /Encoding StandardEncoding def
+    /FontBBox [{' '.join(str(x) for x in _bounds(font))}] def
+    /PaintType 0 def
+    /CIDMap 0 def
+    %s
+    %s
+    FontName currentdict end definefont pop
+    """)
+
+    return fmt % (_charstrings(font), _sfnts(fontdata, font, breakpoints))
+
+
+def _version_and_breakpoints(loca, fontdata):
+    """
+    Read the version number of the font and determine sfnts breakpoints.
+    When a TrueType font file is written as a Type 42 font, it has to be
+    broken into substrings of at most 65535 bytes. These substrings must
+    begin at font table boundaries or glyph boundaries in the glyf table.
+    This function determines all possible breakpoints and it is the caller's
+    responsibility to do the splitting.
+
+    Helper function for _font_to_ps_type42.
+
+    Parameters
+    ----------
+    loca : fontTools.ttLib._l_o_c_a.table__l_o_c_a
+        The loca table of the font
+    fontdata : bytes
+        The raw data of the font
+
+    Returns
+    -------
+    tuple
+        ((v1, v2), breakpoints) where v1 is the major version number,
+        v2 is the minor version number and breakpoints is a sorted list
+        of offsets into fontdata
+    """
+    v1, v2, numTables = struct.unpack('>3h', fontdata[:6])
+    version = (v1, v2)
+
+    tables = {}
+    for i in range(numTables):
+        tag, _, offset, _ = struct.unpack(
+            '>4sIII',
+            fontdata[12 + i*16:12 + (i+1)*16]
+        )
+        tables[tag.decode('ascii')] = offset
+    breakpoints = sorted(
+        set(tables.values())
+        | {tables['glyf'] + offset for offset in loca.locations[:-1]}
+        | {len(fontdata)}
+    )
+
+    return version, breakpoints
+
+
+def _bounds(font):
+    """
+    Compute the font bounding box, as if all glyphs were written
+    at the same start position.
+
+    Helper function for _font_to_ps_type42.
+
+    Parameters
+    ----------
+    font : fontTools.ttLib.ttFont.TTFont
+        The font
+
+    Returns
+    -------
+    tuple
+        (xMin, yMin, xMax, yMax) of the combined bounding box
+        of all the glyphs in the font
+    """
+    gs = font.getGlyphSet(False)
+    pen = fontTools.pens.boundsPen.BoundsPen(gs)
+    for name in gs.keys():
+        gs[name].draw(pen)
+    return pen.bounds
+
+
+def _charstrings(font):
+    """
+    Transform font glyphs into CharStrings
+
+    Helper function for _font_to_ps_type42.
+
+    Parameters
+    ----------
+    font : fontTools.ttLib.ttFont.TTFont
+        The font
+
+    Returns
+    -------
+    str
+        A definition of the CharStrings dictionary in PostScript
+    """
+    s = StringIO()
+    go = font.getGlyphOrder()
+    s.write(f'/CharStrings {len(go)} dict dup begin\n')
+    for i, name in enumerate(go):
+        s.write(f'/{name} {i} def\n')
+    s.write('end readonly def')
+    return s.getvalue()
+
+
+def _sfnts(fontdata, font, breakpoints):
+    """
+    Transform font data into PostScript sfnts format.
+
+    Helper function for _font_to_ps_type42.
+
+    Parameters
+    ----------
+    fontdata : bytes
+        The raw data of the font
+    font : fontTools.ttLib.ttFont.TTFont
+        The fontTools font object
+    breakpoints : list
+        Sorted offsets of possible breakpoints
+
+    Returns
+    -------
+    str
+        The sfnts array for the font definition, consisting
+        of hex-encoded strings in PostScript format
+    """
+    b = BytesIO()
+    b.write(b'/sfnts[')
+    pos = 0
+    while pos < len(fontdata):
+        i = bisect.bisect_left(breakpoints, pos + 65534)
+        newpos = breakpoints[i-1]
+        b.write(b'<')
+        b.write(binascii.hexlify(fontdata[pos:newpos]))
+        b.write(b'00>')  # need an extra zero byte on every string
+        pos = newpos
+    b.write(b']def')
+    s = b.getvalue().decode('ascii')
+    return '\n'.join(s[i:i+100] for i in range(0, len(s), 100))
 
 
 def _log_if_debug_on(meth):

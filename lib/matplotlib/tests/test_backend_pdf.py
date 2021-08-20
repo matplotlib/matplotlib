@@ -14,7 +14,7 @@ from matplotlib import (
 from matplotlib.cbook import _get_data_path
 from matplotlib.ft2font import FT2Font
 from matplotlib.font_manager import findfont, FontProperties
-from matplotlib.backends._backend_pdf_ps import get_glyphs_subset
+from matplotlib.backends._backend_pdf_ps import get_glyphs_subset, font_as_file
 from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.patches import Rectangle
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
@@ -377,7 +377,8 @@ def test_glyphs_subset():
     nosubfont.set_text(chars)
 
     # subsetted FT2Font
-    subfont = FT2Font(get_glyphs_subset(fpath, chars))
+    with get_glyphs_subset(fpath, chars) as subset:
+        subfont = FT2Font(font_as_file(subset))
     subfont.set_text(chars)
 
     nosubcmap = nosubfont.get_charmap()
