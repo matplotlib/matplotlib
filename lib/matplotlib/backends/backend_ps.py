@@ -219,7 +219,7 @@ def _serialize_type42(font, fontdata):
     str
         The Type-42 formatted font
     """
-    version, breakpoints = _version_and_breakpoints(font['loca'], fontdata)
+    version, breakpoints = _version_and_breakpoints(font.get('loca'), fontdata)
     post, name = font['post'], font['name']
     fmt = textwrap.dedent(f"""
     %%!PS-TrueTypeFont-{version[0]}.{version[1]}-{font['head'].fontRevision:.7f}
@@ -261,8 +261,8 @@ def _version_and_breakpoints(loca, fontdata):
 
     Parameters
     ----------
-    loca : fontTools.ttLib._l_o_c_a.table__l_o_c_a
-        The loca table of the font
+    loca : fontTools.ttLib._l_o_c_a.table__l_o_c_a or None
+        The loca table of the font if available
     fontdata : bytes
         The raw data of the font
 
@@ -271,7 +271,8 @@ def _version_and_breakpoints(loca, fontdata):
     tuple
         ((v1, v2), breakpoints) where v1 is the major version number,
         v2 is the minor version number and breakpoints is a sorted list
-        of offsets into fontdata
+        of offsets into fontdata; if loca is not available, just the table
+        boundaries
     """
     v1, v2, numTables = struct.unpack('>3h', fontdata[:6])
     version = (v1, v2)
@@ -283,10 +284,14 @@ def _version_and_breakpoints(loca, fontdata):
             fontdata[12 + i*16:12 + (i+1)*16]
         )
         tables[tag.decode('ascii')] = offset
+    if loca is not None:
+        glyf_breakpoints = {
+            tables['glyf'] + offset for offset in loca.locations[:-1]
+        }
+    else:
+        glyf_breakpoints = set()
     breakpoints = sorted(
-        set(tables.values())
-        | {tables['glyf'] + offset for offset in loca.locations[:-1]}
-        | {len(fontdata)}
+        set(tables.values()) | glyf_breakpoints | {len(fontdata)}
     )
 
     return version, breakpoints
@@ -369,6 +374,9 @@ def _sfnts(fontdata, font, breakpoints):
     while pos < len(fontdata):
         i = bisect.bisect_left(breakpoints, pos + 65534)
         newpos = breakpoints[i-1]
+        if newpos <= pos:
+            # have to accept a larger string
+            newpos = breakpoints[-1]
         b.write(b'<')
         b.write(binascii.hexlify(fontdata[pos:newpos]))
         b.write(b'00>')  # need an extra zero byte on every string
