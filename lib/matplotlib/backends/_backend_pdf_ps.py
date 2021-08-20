@@ -48,8 +48,23 @@ def get_glyphs_subset(fontfile, characters):
         'PfEd',  # FontForge personal table.
         'BDF',  # X11 BDF header.
         'meta',  # Metadata stores design/supported languages (meaningless for subsets).
+        'MERG',  # Merge Table.
+        'TSIV',  # Microsoft Visual TrueType extension.
+        'Zapf',  # Information about the individual glyphs in the font.
+        'bdat',  # The bitmap data table.
+        'bloc',  # The bitmap location table.
+        'cidg',  # CID to Glyph ID table (Apple Advanced Typography).
+        'fdsc',  # The font descriptors table.
+        'feat',  # Feature name table (Apple Advanced Typography).
+        'fmtx',  # The Font Metrics Table.
+        'fond',  # Data-fork font information (Apple Advanced Typography).
+        'just',  # The justification table (Apple Advanced Typography).
+        'kerx',  # An extended kerning table (Apple Advanced Typography).
+        'ltag',  # Language Tag.
+        'morx',  # Extended Glyph Metamorphosis Table.
+        'trak',  # Tracking table.
+        'xref',  # The cross-reference table (some Apple font tooling information).
     ]
-
     # if fontfile is a ttc, specify font number
     if fontfile.endswith(".ttc"):
         options.font_number = 0
