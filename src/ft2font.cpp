@@ -99,13 +99,13 @@ void FT2Image::draw_bitmap(FT_Bitmap *bitmap, FT_Int x, FT_Int y)
     FT_Int char_width = bitmap->width;
     FT_Int char_height = bitmap->rows;
 
-    FT_Int x1 = CLAMP(x, 0, image_width);
-    FT_Int y1 = CLAMP(y, 0, image_height);
-    FT_Int x2 = CLAMP(x + char_width, 0, image_width);
-    FT_Int y2 = CLAMP(y + char_height, 0, image_height);
+    FT_Int x1 = std::min(std::max(x, 0), image_width);
+    FT_Int y1 = std::min(std::max(y, 0), image_height);
+    FT_Int x2 = std::min(std::max(x + char_width, 0), image_width);
+    FT_Int y2 = std::min(std::max(y + char_height, 0), image_height);
 
-    FT_Int x_start = MAX(0, -x);
-    FT_Int y_offset = y1 - MAX(0, -y);
+    FT_Int x_start = std::max(0, -x);
+    FT_Int y_offset = y1 - std::max(0, -y);
 
     if (bitmap->pixel_mode == FT_PIXEL_MODE_GRAY) {
         for (FT_Int i = y1; i < y2; ++i) {
