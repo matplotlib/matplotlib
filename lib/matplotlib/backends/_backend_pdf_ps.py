@@ -4,6 +4,7 @@ Common functionality between the PDF and PS backends.
 
 from io import BytesIO
 import functools
+import logging
 
 from fontTools import subset
 
@@ -177,7 +178,13 @@ class RendererPDFPSBase(RendererBase):
 
     def _get_font_ttf(self, prop):
         fnames = font_manager.fontManager._find_fonts_by_props(prop)
-        font = font_manager.get_font(fnames)
-        font.clear()
-        font.set_size(prop.get_size_in_points(), 72)
-        return font
+        try:
+            font = font_manager.get_font(fnames)
+            font.clear()
+            font.set_size(prop.get_size_in_points(), 72)
+            return font
+        except RuntimeError:
+            logging.getLogger(__name__).warning(
+                "The PostScript/PDF backend does not currently "
+                "support the selected font (%s).", fnames)
+            raise

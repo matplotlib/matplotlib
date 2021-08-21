@@ -199,7 +199,7 @@ def _font_to_ps_type42(font_path, chars, fh):
     except RuntimeError:
         _log.warning(
             "The PostScript backend does not currently "
-            "support the selected font.")
+            "support the selected font (%s).", font_path)
         raise
 
 
