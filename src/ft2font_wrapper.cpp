@@ -1564,44 +1564,42 @@ PyMODINIT_FUNC PyInit_ft2font(void)
         return NULL;
     }
 
-    PyObject *d = PyModule_GetDict(m);
-
-    if (add_dict_int(d, "SCALABLE", FT_FACE_FLAG_SCALABLE) ||
-        add_dict_int(d, "FIXED_SIZES", FT_FACE_FLAG_FIXED_SIZES) ||
-        add_dict_int(d, "FIXED_WIDTH", FT_FACE_FLAG_FIXED_WIDTH) ||
-        add_dict_int(d, "SFNT", FT_FACE_FLAG_SFNT) ||
-        add_dict_int(d, "HORIZONTAL", FT_FACE_FLAG_HORIZONTAL) ||
-        add_dict_int(d, "VERTICAL", FT_FACE_FLAG_VERTICAL) ||
-        add_dict_int(d, "KERNING", FT_FACE_FLAG_KERNING) ||
-        add_dict_int(d, "FAST_GLYPHS", FT_FACE_FLAG_FAST_GLYPHS) ||
-        add_dict_int(d, "MULTIPLE_MASTERS", FT_FACE_FLAG_MULTIPLE_MASTERS) ||
-        add_dict_int(d, "GLYPH_NAMES", FT_FACE_FLAG_GLYPH_NAMES) ||
-        add_dict_int(d, "EXTERNAL_STREAM", FT_FACE_FLAG_EXTERNAL_STREAM) ||
-        add_dict_int(d, "ITALIC", FT_STYLE_FLAG_ITALIC) ||
-        add_dict_int(d, "BOLD", FT_STYLE_FLAG_BOLD) ||
-        add_dict_int(d, "KERNING_DEFAULT", FT_KERNING_DEFAULT) ||
-        add_dict_int(d, "KERNING_UNFITTED", FT_KERNING_UNFITTED) ||
-        add_dict_int(d, "KERNING_UNSCALED", FT_KERNING_UNSCALED) ||
-        add_dict_int(d, "LOAD_DEFAULT", FT_LOAD_DEFAULT) ||
-        add_dict_int(d, "LOAD_NO_SCALE", FT_LOAD_NO_SCALE) ||
-        add_dict_int(d, "LOAD_NO_HINTING", FT_LOAD_NO_HINTING) ||
-        add_dict_int(d, "LOAD_RENDER", FT_LOAD_RENDER) ||
-        add_dict_int(d, "LOAD_NO_BITMAP", FT_LOAD_NO_BITMAP) ||
-        add_dict_int(d, "LOAD_VERTICAL_LAYOUT", FT_LOAD_VERTICAL_LAYOUT) ||
-        add_dict_int(d, "LOAD_FORCE_AUTOHINT", FT_LOAD_FORCE_AUTOHINT) ||
-        add_dict_int(d, "LOAD_CROP_BITMAP", FT_LOAD_CROP_BITMAP) ||
-        add_dict_int(d, "LOAD_PEDANTIC", FT_LOAD_PEDANTIC) ||
-        add_dict_int(d, "LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH", FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH) ||
-        add_dict_int(d, "LOAD_NO_RECURSE", FT_LOAD_NO_RECURSE) ||
-        add_dict_int(d, "LOAD_IGNORE_TRANSFORM", FT_LOAD_IGNORE_TRANSFORM) ||
-        add_dict_int(d, "LOAD_MONOCHROME", FT_LOAD_MONOCHROME) ||
-        add_dict_int(d, "LOAD_LINEAR_DESIGN", FT_LOAD_LINEAR_DESIGN) ||
-        add_dict_int(d, "LOAD_NO_AUTOHINT", (unsigned long)FT_LOAD_NO_AUTOHINT) ||
-        add_dict_int(d, "LOAD_TARGET_NORMAL", (unsigned long)FT_LOAD_TARGET_NORMAL) ||
-        add_dict_int(d, "LOAD_TARGET_LIGHT", (unsigned long)FT_LOAD_TARGET_LIGHT) ||
-        add_dict_int(d, "LOAD_TARGET_MONO", (unsigned long)FT_LOAD_TARGET_MONO) ||
-        add_dict_int(d, "LOAD_TARGET_LCD", (unsigned long)FT_LOAD_TARGET_LCD) ||
-        add_dict_int(d, "LOAD_TARGET_LCD_V", (unsigned long)FT_LOAD_TARGET_LCD_V)) {
+    if (PyModule_AddIntConstant(m, "SCALABLE", FT_FACE_FLAG_SCALABLE) ||
+        PyModule_AddIntConstant(m, "FIXED_SIZES", FT_FACE_FLAG_FIXED_SIZES) ||
+        PyModule_AddIntConstant(m, "FIXED_WIDTH", FT_FACE_FLAG_FIXED_WIDTH) ||
+        PyModule_AddIntConstant(m, "SFNT", FT_FACE_FLAG_SFNT) ||
+        PyModule_AddIntConstant(m, "HORIZONTAL", FT_FACE_FLAG_HORIZONTAL) ||
+        PyModule_AddIntConstant(m, "VERTICAL", FT_FACE_FLAG_VERTICAL) ||
+        PyModule_AddIntConstant(m, "KERNING", FT_FACE_FLAG_KERNING) ||
+        PyModule_AddIntConstant(m, "FAST_GLYPHS", FT_FACE_FLAG_FAST_GLYPHS) ||
+        PyModule_AddIntConstant(m, "MULTIPLE_MASTERS", FT_FACE_FLAG_MULTIPLE_MASTERS) ||
+        PyModule_AddIntConstant(m, "GLYPH_NAMES", FT_FACE_FLAG_GLYPH_NAMES) ||
+        PyModule_AddIntConstant(m, "EXTERNAL_STREAM", FT_FACE_FLAG_EXTERNAL_STREAM) ||
+        PyModule_AddIntConstant(m, "ITALIC", FT_STYLE_FLAG_ITALIC) ||
+        PyModule_AddIntConstant(m, "BOLD", FT_STYLE_FLAG_BOLD) ||
+        PyModule_AddIntConstant(m, "KERNING_DEFAULT", FT_KERNING_DEFAULT) ||
+        PyModule_AddIntConstant(m, "KERNING_UNFITTED", FT_KERNING_UNFITTED) ||
+        PyModule_AddIntConstant(m, "KERNING_UNSCALED", FT_KERNING_UNSCALED) ||
+        PyModule_AddIntConstant(m, "LOAD_DEFAULT", FT_LOAD_DEFAULT) ||
+        PyModule_AddIntConstant(m, "LOAD_NO_SCALE", FT_LOAD_NO_SCALE) ||
+        PyModule_AddIntConstant(m, "LOAD_NO_HINTING", FT_LOAD_NO_HINTING) ||
+        PyModule_AddIntConstant(m, "LOAD_RENDER", FT_LOAD_RENDER) ||
+        PyModule_AddIntConstant(m, "LOAD_NO_BITMAP", FT_LOAD_NO_BITMAP) ||
+        PyModule_AddIntConstant(m, "LOAD_VERTICAL_LAYOUT", FT_LOAD_VERTICAL_LAYOUT) ||
+        PyModule_AddIntConstant(m, "LOAD_FORCE_AUTOHINT", FT_LOAD_FORCE_AUTOHINT) ||
+        PyModule_AddIntConstant(m, "LOAD_CROP_BITMAP", FT_LOAD_CROP_BITMAP) ||
+        PyModule_AddIntConstant(m, "LOAD_PEDANTIC", FT_LOAD_PEDANTIC) ||
+        PyModule_AddIntConstant(m, "LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH", FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH) ||
+        PyModule_AddIntConstant(m, "LOAD_NO_RECURSE", FT_LOAD_NO_RECURSE) ||
+        PyModule_AddIntConstant(m, "LOAD_IGNORE_TRANSFORM", FT_LOAD_IGNORE_TRANSFORM) ||
+        PyModule_AddIntConstant(m, "LOAD_MONOCHROME", FT_LOAD_MONOCHROME) ||
+        PyModule_AddIntConstant(m, "LOAD_LINEAR_DESIGN", FT_LOAD_LINEAR_DESIGN) ||
+        PyModule_AddIntConstant(m, "LOAD_NO_AUTOHINT", (unsigned long)FT_LOAD_NO_AUTOHINT) ||
+        PyModule_AddIntConstant(m, "LOAD_TARGET_NORMAL", (unsigned long)FT_LOAD_TARGET_NORMAL) ||
+        PyModule_AddIntConstant(m, "LOAD_TARGET_LIGHT", (unsigned long)FT_LOAD_TARGET_LIGHT) ||
+        PyModule_AddIntConstant(m, "LOAD_TARGET_MONO", (unsigned long)FT_LOAD_TARGET_MONO) ||
+        PyModule_AddIntConstant(m, "LOAD_TARGET_LCD", (unsigned long)FT_LOAD_TARGET_LCD) ||
+        PyModule_AddIntConstant(m, "LOAD_TARGET_LCD_V", (unsigned long)FT_LOAD_TARGET_LCD_V)) {
         Py_DECREF(m);
         return NULL;
     }

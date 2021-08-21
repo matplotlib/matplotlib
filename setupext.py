@@ -371,7 +371,6 @@ class Matplotlib(SetupPackage):
         # agg
         ext = Extension(
             "matplotlib.backends._backend_agg", [
-                "src/mplutils.cpp",
                 "src/py_converters.cpp",
                 "src/_backend_agg.cpp",
                 "src/_backend_agg_wrapper.cpp",
@@ -403,7 +402,6 @@ class Matplotlib(SetupPackage):
             "matplotlib.ft2font", [
                 "src/ft2font.cpp",
                 "src/ft2font_wrapper.cpp",
-                "src/mplutils.cpp",
                 "src/py_converters.cpp",
             ])
         FreeType.add_flags(ext)
@@ -413,7 +411,6 @@ class Matplotlib(SetupPackage):
         # image
         ext = Extension(
             "matplotlib._image", [
-                "src/mplutils.cpp",
                 "src/_image_wrapper.cpp",
                 "src/py_converters.cpp",
             ])
@@ -454,7 +451,6 @@ class Matplotlib(SetupPackage):
             "matplotlib._tri", [
                 "src/tri/_tri.cpp",
                 "src/tri/_tri_wrapper.cpp",
-                "src/mplutils.cpp",
             ])
         add_numpy_flags(ext)
         yield ext
