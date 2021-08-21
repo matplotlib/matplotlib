@@ -1,0 +1,4 @@
+PolygonSelector
+^^^^^^^^^^^^^^^
+The *line* attribute is deprecated. If you want to change the selector
+artist properties, use the ``set_props`` or ``set_handle_props`` methods.

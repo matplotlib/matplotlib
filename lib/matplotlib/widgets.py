@@ -2012,7 +2012,7 @@ class _SelectorWidget(AxesWidget):
     def artists(self):
         """Tuple of the artists of the selector."""
         if getattr(self, '_handles_artists', None) is not None:
-            return (self._selection_artist, ) + self._handles_artists
+            return (self._selection_artist, *self._handles_artists)
         else:
             return (self._selection_artist, )
 
