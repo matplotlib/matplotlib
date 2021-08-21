@@ -336,7 +336,7 @@ exit:
 #endif // end not Windows
 
 static PyModuleDef _tkagg_module = {
-    PyModuleDef_HEAD_INIT, "_tkagg", "", -1, functions, NULL, NULL, NULL, NULL
+    PyModuleDef_HEAD_INIT, "_tkagg", NULL, -1, functions
 };
 
 #pragma GCC visibility push(default)

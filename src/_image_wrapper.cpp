@@ -295,15 +295,7 @@ static PyMethodDef module_functions[] = {
 };
 
 static struct PyModuleDef moduledef = {
-    PyModuleDef_HEAD_INIT,
-    "_image",
-    NULL,
-    0,
-    module_functions,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    PyModuleDef_HEAD_INIT, "_image", NULL, 0, module_functions,
 };
 
 #pragma GCC visibility push(default)

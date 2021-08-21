@@ -2295,15 +2295,7 @@ static struct PyMethodDef methods[] = {
 };
 
 static struct PyModuleDef moduledef = {
-    PyModuleDef_HEAD_INIT,
-    "_macosx",
-    "Mac OS X native backend",
-    -1,
-    methods,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    PyModuleDef_HEAD_INIT, "_macosx", "Mac OS X native backend", -1, methods
 };
 
 #pragma GCC visibility push(default)

@@ -489,20 +489,7 @@ static PyTypeObject* PyTrapezoidMapTriFinder_init_type(PyObject* m, PyTypeObject
     return type;
 }
 
-
-/* Module */
-
-static struct PyModuleDef moduledef = {
-    PyModuleDef_HEAD_INIT,
-    "_tri",
-    NULL,
-    0,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL
-};
+static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT, "_tri" };
 
 #pragma GCC visibility push(default)
 
