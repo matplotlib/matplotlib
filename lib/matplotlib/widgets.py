@@ -2022,9 +2022,7 @@ class _SelectorWidget(AxesWidget):
         in the selector docstring to know which properties are supported.
         """
         artist = self._selection_artist
-        alias_map = getattr(artist, '_alias_map', None)
-        if alias_map:
-            props = cbook.normalize_kwargs(props, alias_map)
+        props = cbook.normalize_kwargs(props, artist)
         artist.set(**props)
         if self.useblit:
             self.update()
@@ -2040,9 +2038,7 @@ class _SelectorWidget(AxesWidget):
             raise NotImplementedError("This selector doesn't have handles.")
 
         artist = self._handles_artists[0]
-        alias_map = getattr(artist, '_alias_map', None)
-        if alias_map:
-            handle_props = cbook.normalize_kwargs(handle_props, alias_map)
+        handle_props = cbook.normalize_kwargs(handle_props, artist)
         for handle in self._handles_artists:
             handle.set(**handle_props)
         if self.useblit:
@@ -2178,7 +2174,7 @@ class SpanSelector(_SelectorWidget):
         # Setup handles
         self._handle_props = {
             'color': props.get('facecolor', 'r'),
-            **cbook.normalize_kwargs(handle_props, Line2D._alias_map)}
+            **cbook.normalize_kwargs(handle_props, Line2D)}
 
         if self._interactive:
             self._edge_order = ['min', 'max']
@@ -2824,7 +2820,7 @@ class RectangleSelector(_SelectorWidget):
             self._handle_props = {
                 'markeredgecolor': (self._props or {}).get(
                     'edgecolor', 'black'),
-                **cbook.normalize_kwargs(handle_props, Line2D._alias_map)}
+                **cbook.normalize_kwargs(handle_props, Line2D)}
 
             self._corner_order = ['NW', 'NE', 'SE', 'SW']
             xc, yc = self.corners
@@ -2863,8 +2859,8 @@ class RectangleSelector(_SelectorWidget):
 
     @property
     def _handles_artists(self):
-        return (self._center_handle.artists + self._corner_handles.artists +
-                self._edge_handles.artists)
+        return (*self._center_handle.artists, *self._corner_handles.artists,
+                *self._edge_handles.artists)
 
     def _press(self, event):
         """Button press event handler."""
@@ -3498,8 +3494,7 @@ class PolygonSelector(_SelectorWidget):
         else:
             # Calculate distance to the start vertex.
             x0, y0 = self._selection_artist.get_transform().transform(
-                    (self._xs[0],
-                     self._ys[0])
+                    (self._xs[0], self._ys[0])
                 )
             v0_dist = np.hypot(x0 - event.x, y0 - event.y)
             # Lock on to the start vertex if near it and ready to complete.
