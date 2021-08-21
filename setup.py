@@ -38,7 +38,10 @@ import setuptools.command.sdist
 # The setuptools version of sdist adds a setup.cfg file to the tree.
 # We don't want that, so we simply remove it, and it will fall back to
 # vanilla distutils.
-del setuptools.command.sdist.sdist.make_release_tree
+try:
+    del setuptools.command.sdist.sdist.make_release_tree
+except AttributeError:
+    pass
 
 from distutils.errors import CompileError
 from distutils.dist import Distribution
