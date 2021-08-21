@@ -187,15 +187,19 @@ def _font_to_ps_type42(font_path, chars, fh):
     subset_str = ''.join(chr(c) for c in chars)
     _log.debug("SUBSET %s characters: %s", font_path, subset_str)
     try:
-        with _backend_pdf_ps.get_glyphs_subset(
-                font_path, subset_str
-        ) as subset:
+        kw = {}
+        # fix this once we support loading more fonts from a collection
+        # https://github.com/matplotlib/matplotlib/issues/3135#issuecomment-571085541
+        if font_path.endswith('.ttc'):
+            kw['fontNumber'] = 0
+        with fontTools.ttLib.TTFont(font_path, **kw) as font, \
+             _backend_pdf_ps.get_glyphs_subset(font_path, subset_str) as subset:
             fontdata = _backend_pdf_ps.font_as_file(subset).getvalue()
             _log.debug(
                 "SUBSET %s %d -> %d", font_path, os.stat(font_path).st_size,
                 len(fontdata)
             )
-            fh.write(_serialize_type42(subset, fontdata))
+            fh.write(_serialize_type42(font, subset, fontdata))
     except RuntimeError:
         _log.warning(
             "The PostScript backend does not currently "
@@ -203,14 +207,16 @@ def _font_to_ps_type42(font_path, chars, fh):
         raise
 
 
-def _serialize_type42(font, fontdata):
+def _serialize_type42(font, subset, fontdata):
     """
     Output a PostScript Type-42 format representation of font
 
     Parameters
     ----------
     font : fontTools.ttLib.ttFont.TTFont
-        The font object
+        The original font object
+    subset : fontTools.ttLib.ttFont.TTFont
+        The subset font object
     fontdata : bytes
         The raw font data in TTF format
 
@@ -245,7 +251,7 @@ def _serialize_type42(font, fontdata):
     FontName currentdict end definefont pop
     """)
 
-    return fmt % (_charstrings(font), _sfnts(fontdata, font, breakpoints))
+    return fmt % (_charstrings(subset), _sfnts(fontdata, subset, breakpoints))
 
 
 def _version_and_breakpoints(loca, fontdata):
