@@ -104,7 +104,7 @@ rasterize characters differently) and of Qhull.  As an exception, Matplotlib
 defaults to the system version of FreeType on AIX.
 
 To force Matplotlib to use a copy of FreeType or Qhull already installed in
-your system, create a :file:`setup.cfg` file with the following contents:
+your system, create a :file:`mplsetup.cfg` file with the following contents:
 
 .. code-block:: cfg
 

@@ -60,10 +60,6 @@ jobs:
           CIBW_BUILD: "cp37-* cp38-*"
           CIBW_ARCHS: aarch64
 
-      - name: Copy setup.cfg to configure wheel
-        run: |
-          cp setup.cfg.template setup.cfg
-
       - name: Build wheels for CPython 3.9
         run: |
           python -m cibuildwheel --output-dir dist

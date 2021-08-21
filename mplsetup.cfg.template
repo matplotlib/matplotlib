@@ -1,9 +1,4 @@
-# Rename this file to setup.cfg to modify Matplotlib's build options.
-
-[metadata]
-license_files = LICENSE/*
-
-[egg_info]
+# Rename this file to mplsetup.cfg to modify Matplotlib's build options.
 
 [libs]
 # By default, Matplotlib builds with LTO, which may be slow if you re-compile

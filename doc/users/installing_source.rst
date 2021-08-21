@@ -65,12 +65,12 @@ docs.
 If you would like to build from a tarball, grab the latest *tar.gz* release
 file from `the PyPI files page <https://pypi.org/project/matplotlib/>`_.
 
-We provide a `setup.cfg`_ file which you can use to customize the build
+We provide a `mplsetup.cfg`_ file which you can use to customize the build
 process. For example, which default backend to use, whether some of the
 optional libraries that Matplotlib ships with are installed, and so on.  This
 file will be particularly useful to those packaging Matplotlib.
 
-.. _setup.cfg: https://raw.githubusercontent.com/matplotlib/matplotlib/master/setup.cfg.template
+.. _mplsetup.cfg: https://raw.githubusercontent.com/matplotlib/matplotlib/master/mplsetup.cfg.template
 
 If you are building your own Matplotlib wheels (or sdists) on Windows, note
 that any DLLs that you copy into the source tree will be packaged too.
