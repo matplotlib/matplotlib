@@ -233,10 +233,8 @@ def _maybe_allow_interrupt(qapp):
             rsock.fileno(), _enum('QtCore.QSocketNotifier.Type').Read
         )
 
-        @sn.activated.connect
-        def on_signal(*args):
-            rsock.recv(
-                sys.getsizeof(int))  # clear the socket to re-arm the notifier
+        # Clear the socket to re-arm the notifier.
+        sn.activated.connect(lambda *args: rsock.recv(1))
 
         def handle(*args):
             nonlocal handler_args
