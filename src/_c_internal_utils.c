@@ -211,7 +211,8 @@ static PyMethodDef functions[] = {
      "On non-Windows platforms, does nothing."},
     {NULL, NULL}};  // sentinel.
 static PyModuleDef util_module = {
-    PyModuleDef_HEAD_INIT, "_c_internal_utils", "", 0, functions, NULL, NULL, NULL, NULL};
+    PyModuleDef_HEAD_INIT, "_c_internal_utils", NULL, 0, functions
+};
 
 #pragma GCC visibility push(default)
 PyMODINIT_FUNC PyInit__c_internal_utils(void)

@@ -184,7 +184,6 @@ static PyModuleDef ttconv_module = {
     module_docstring,
     -1,
     ttconv_methods,
-    NULL, NULL, NULL, NULL
 };
 
 #pragma GCC visibility push(default)
@@ -192,11 +191,7 @@ static PyModuleDef ttconv_module = {
 PyMODINIT_FUNC
 PyInit__ttconv(void)
 {
-    PyObject* m;
-
-    m = PyModule_Create(&ttconv_module);
-
-    return m;
+    return PyModule_Create(&ttconv_module);
 }
 
 #pragma GCC visibility pop

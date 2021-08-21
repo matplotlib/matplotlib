@@ -892,32 +892,15 @@ static PyMethodDef module_functions[] = {
 };
 
 static struct PyModuleDef moduledef = {
-    PyModuleDef_HEAD_INIT,
-    "_path",
-    NULL,
-    0,
-    module_functions,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    PyModuleDef_HEAD_INIT, "_path", NULL, 0, module_functions
 };
 
 #pragma GCC visibility push(default)
 
 PyMODINIT_FUNC PyInit__path(void)
 {
-    PyObject *m;
-
     import_array();
-
-    m = PyModule_Create(&moduledef);
-
-    if (m == NULL) {
-        return NULL;
-    }
-
-    return m;
+    return PyModule_Create(&moduledef);
 }
 
 #pragma GCC visibility pop
