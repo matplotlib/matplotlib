@@ -177,17 +177,17 @@ LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 LOCAL_QHULL_VERSION = '2020.2'
 
 
-# Matplotlib build options, which can be altered using setup.cfg
-setup_cfg = os.environ.get('MPLSETUPCFG') or 'setup.cfg'
+# Matplotlib build options, which can be altered using mplsetup.cfg
+mplsetup_cfg = os.environ.get('MPLSETUPCFG') or 'mplsetup.cfg'
 config = configparser.ConfigParser()
-if os.path.exists(setup_cfg):
-    config.read(setup_cfg)
+if os.path.exists(mplsetup_cfg):
+    config.read(mplsetup_cfg)
 options = {
     'backend': config.get('rc_options', 'backend', fallback=None),
     'system_freetype': config.getboolean(
         'libs', 'system_freetype', fallback=sys.platform.startswith('aix')),
-    'system_qhull': config.getboolean('libs', 'system_qhull',
-                                      fallback=False),
+    'system_qhull': config.getboolean(
+        'libs', 'system_qhull', fallback=False),
 }
 
 
@@ -323,7 +323,7 @@ class OptionalPackage(SetupPackage):
 
     def check(self):
         """
-        Check whether ``setup.cfg`` requests this package to be installed.
+        Check whether ``mplsetup.cfg`` requests this package to be installed.
 
         May be overridden by subclasses for additional checks.
         """

@@ -1,6 +1,6 @@
 """
-The matplotlib build options can be modified with a setup.cfg file. See
-setup.cfg.template for more information.
+The Matplotlib build options can be modified with a mplsetup.cfg file. See
+mplsetup.cfg.template for more information.
 """
 
 # NOTE: This file must remain Python 2 compatible for the foreseeable future,
@@ -34,14 +34,6 @@ import setuptools.command.build_ext
 import setuptools.command.build_py
 import setuptools.command.test
 import setuptools.command.sdist
-
-# The setuptools version of sdist adds a setup.cfg file to the tree.
-# We don't want that, so we simply remove it, and it will fall back to
-# vanilla distutils.
-try:
-    del setuptools.command.sdist.sdist.make_release_tree
-except AttributeError:
-    pass
 
 from distutils.errors import CompileError
 from distutils.dist import Distribution
@@ -250,7 +242,7 @@ if not (any('--' + opt in sys.argv
     # Go through all of the packages and figure out which ones we are
     # going to build/install.
     print_raw()
-    print_raw("Edit setup.cfg to change the build options; "
+    print_raw("Edit mplsetup.cfg to change the build options; "
               "suppress output with --quiet.")
     print_raw()
     print_raw("BUILDING MATPLOTLIB")

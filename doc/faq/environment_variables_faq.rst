@@ -29,10 +29,10 @@ Environment variables
 
 .. envvar:: MPLSETUPCFG
 
-   This optional variable can be set to the full path of a :file:`setup.cfg`
+   This optional variable can be set to the full path of a :file:`mplsetup.cfg`
    configuration file used to customize the Matplotlib build.  By default, a
-   :file:`setup.cfg` file in the root of the Matplotlib source tree will be
-   read.  Supported build options are listed in :file:`setup.cfg.template`.
+   :file:`mplsetup.cfg` file in the root of the Matplotlib source tree will be
+   read.  Supported build options are listed in :file:`mplsetup.cfg.template`.
 
 .. envvar:: PATH
 
