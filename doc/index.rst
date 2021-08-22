@@ -65,40 +65,50 @@ Installation
         :doc:`Installation Guide <users/installing>`
 
 
+Learning Resources
+==================
 
 
-Learn
-=====
+.. panels::
 
-- :doc:`Quick-start Guide <tutorials/introductory/usage>`
-- Basic :doc:`Plot Types <plot_types/index>` and :doc:`Example Gallery <gallery/index>`
-- `Introductory Tutorials <../tutorials/index.html#introductory>`_
-- :doc:`External Learning Resources <resources/index>`
+    Tutorials
+    ^^^^^^^^^
 
+    - :doc:`Quick-start Guide <tutorials/introductory/usage>`
+    - Basic :doc:`Plot Types <plot_types/index>`
+    - `Introductory Tutorials <../tutorials/index.html#introductory>`_
+    - :doc:`External Learning Resources <resources/index>`
 
-Reference
-=========
+    ---
 
-- :doc:`API Reference <api/index>`
+    How-tos
+    ^^^^^^^
+    - :doc:`Example Gallery <gallery/index>`
+    - :doc:`Matplotlib FAQ <faq/index>`
 
-  - :doc:`pyplot API <api/pyplot_summary>`: top-level interface to create
-    Figures (`.pyplot.figure`) and Subplots (`.pyplot.subplots`,
-    `.pyplot.subplot_mosaic`)
-  - :doc:`Axes API <api/axes_api>` for *most* plotting methods
-  - :doc:`Figure API <api/figure_api>` for figure-level methods
+    ---
 
-How-tos
-=======
+    Understand how Matplotlib works
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- :doc:`Installation Guide <users/installing>`
-- :doc:`Contributing to Matplotlib <devel/index>`
-- :doc:`Matplotlib FAQ <faq/index>`
+    - The :ref:`users-guide-explain` section of the :doc:`Users guide <users/index>`
+    - Many of the :doc:`Tutorials <tutorials/index>` have explanatory material
 
-Understand how Matplotlib works
-===============================
+    ---
 
-- The :ref:`users-guide-explain` section of the :doc:`Users guide <users/index>`
-- Many of the :doc:`Tutorials <tutorials/index>` have explanatory material
+    Reference
+    ^^^^^^^^^
+
+    - :doc:`API Reference <api/index>`
+
+      - :doc:`pyplot API <api/pyplot_summary>`: top-level interface to create
+        Figures (`.pyplot.figure`) and Subplots (`.pyplot.subplots`,
+        `.pyplot.subplot_mosaic`)
+      - :doc:`Axes API <api/axes_api>` for *most* plotting methods
+      - :doc:`Figure API <api/figure_api>` for figure-level methods
+
+    - :doc:`Extra Toolkits <api/toolkits/index>`
+
 
 
 Third-party Packages
