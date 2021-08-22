@@ -341,6 +341,7 @@ html_index = 'index.html'
 # Custom sidebar templates, maps page names to templates.
 html_sidebars = {
     "index": [
+        'search-field.html',
         # 'sidebar_announcement.html',
         "sidebar_versions.html",
         "donate_sidebar.html",
