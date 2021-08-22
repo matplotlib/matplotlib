@@ -14,7 +14,6 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   users/installing.rst
    plot_types/index.rst
    gallery/index.rst
    tutorials/index.rst

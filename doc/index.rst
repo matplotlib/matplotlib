@@ -4,6 +4,13 @@
 
 .. module:: matplotlib
 
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+
+   users/installing.rst
+
+
 Matplotlib documentation
 ------------------------
 
@@ -11,6 +18,54 @@ Release: |release|
 
 Matplotlib is a comprehensive library for creating static, animated,
 and interactive visualizations in Python.
+
+Installation
+============
+
+.. panels::
+    :card: + install-card
+    :column: col-lg-6 col-md-6 col-sm-12 col-xs-12 p-3
+
+    Working with conda?
+    ^^^^^^^^^^^^^^^^^^^
+
+    Matplotlib is part of the `Anaconda <https://docs.continuum.io/anaconda/>`__
+    distribution and can be installed with Anaconda or Miniconda:
+
+    ++++++++++++++++++++++
+
+    .. code-block:: bash
+
+        conda install matplotlib
+
+    ---
+
+    Prefer pip?
+    ^^^^^^^^^^^
+
+    Matplotlib can be installed via pip from `PyPI <https://pypi.org/project/matplotlib>`__.
+
+    ++++
+
+    .. code-block:: bash
+
+        pip install matplotlib
+
+    ---
+    :column: col-12 p-3
+
+    In-depth instructions?
+    ^^^^^^^^^^^^^^^^^^^^^^
+
+    Installing a specific version? Installing from source? Check the advanced
+    installation page.
+
+    .. container:: custom-button
+
+        :doc:`Installation Guide <users/installing>`
+
+
+
 
 Learn
 =====
