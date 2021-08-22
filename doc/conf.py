@@ -71,12 +71,14 @@ extensions = [
     'sphinxext.skip_deprecated',
     'sphinxext.redirect_from',
     'sphinx_copybutton',
+    'sphinx_panels',
 ]
 
 exclude_patterns = [
     'api/prev_api_changes/api_changes_*/*',
 ]
 
+panels_add_bootstrap_css = False
 
 def _check_dependencies():
     names = {
