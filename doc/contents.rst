@@ -20,6 +20,7 @@ Contents
    tutorials/index.rst
    api/index.rst
    users/index.rst
+   users/release_notes.rst
 
 .. only:: html
 

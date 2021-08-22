@@ -12,7 +12,6 @@ User's guide
 .. toctree::
     :maxdepth: 3
 
-    release_notes.rst
     explain.rst
     resource.rst
     backmatter.rst
