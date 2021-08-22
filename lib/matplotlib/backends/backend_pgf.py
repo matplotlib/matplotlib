@@ -611,13 +611,16 @@ class RendererPgf(RendererBase):
             # -> Use "randomness" as PRNG seed to allow the user to force the
             # same shape on multiple sketched lines
             scale, length, randomness = sketch_params
+            # make PGF output visually similar to matplotlib's sketched lines
+            adjustment_a = 0.5
+            adjustment_b = 2
             if scale is not None:
                 # PGF guarantees that repeated loading is a no-op
                 writeln(self.fh, r"\usepgfmodule{decorations}")
                 writeln(self.fh, r"\usepgflibrary{decorations.pathmorphing}")
                 writeln(self.fh, r"\pgfkeys{/pgf/decoration/.cd, "
-                        f"segment length = {(length * f):f}in, "
-                        f"amplitude = {(scale * f):f}in}}")
+                        f"segment length = {(length * f * adjustment_a):f}in, "
+                        f"amplitude = {(scale * f * adjustment_b):f}in}}")
                 writeln(self.fh, f"\\pgfmathsetseed{{{int(randomness)}}}")
                 writeln(self.fh, r"\pgfdecoratecurrentpath{random steps}")
 

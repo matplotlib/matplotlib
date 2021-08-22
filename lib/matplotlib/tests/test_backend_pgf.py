@@ -357,7 +357,7 @@ def test_sketch_params():
 \usepgfmodule{decorations}%
 \usepgflibrary{decorations.pathmorphing}%
 \pgfkeys{/pgf/decoration/.cd, """ \
-    r"""segment length = 0.300000in, amplitude = 0.050000in}%
+    r"""segment length = 0.150000in, amplitude = 0.100000in}%
 \pgfmathsetseed{42}%
 \pgfdecoratecurrentpath{random steps}%
 \pgfusepath{stroke}%"""
