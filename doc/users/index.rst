@@ -12,6 +12,7 @@ User guide
 .. toctree::
     :maxdepth: 3
 
+    installing.rst
     explain.rst
     resource.rst
     backmatter.rst

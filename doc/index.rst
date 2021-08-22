@@ -4,12 +4,6 @@
 
 .. module:: matplotlib
 
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-
-   users/installing.rst
-
 
 Matplotlib documentation
 ------------------------
