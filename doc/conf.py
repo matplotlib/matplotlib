@@ -346,6 +346,7 @@ html_sidebars = {
         'search-field.html',
         # 'sidebar_announcement.html',
         "sidebar_versions.html",
+        "cheatsheet_sidebar.html",
         "donate_sidebar.html",
     ],
     # '**': ['localtoc.html', 'pagesource.html']
