@@ -54,9 +54,9 @@ def plot_color_gradients(cmap_category, cmap_list):
 
     axs[0].set_title(cmap_category + ' colormaps', fontsize=14)
 
-    for ax, name in zip(axs, cmap_list):
-        ax.imshow(gradient, aspect='auto', cmap=plt.get_cmap(name))
-        ax.text(-.01, .5, name, va='center', ha='right', fontsize=10,
+    for ax, cmap_name in zip(axs, cmap_list):
+        ax.imshow(gradient, aspect='auto', cmap=cmap_name)
+        ax.text(-.01, .5, cmap_name, va='center', ha='right', fontsize=10,
                 transform=ax.transAxes)
 
     # Turn off *all* ticks & spines, not just the ones with colormaps.

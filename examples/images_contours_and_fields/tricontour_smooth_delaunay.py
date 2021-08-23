@@ -25,7 +25,6 @@ a data set is the following:
 """
 from matplotlib.tri import Triangulation, TriAnalyzer, UniformTriRefiner
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 import numpy as np
 
 
@@ -114,7 +113,6 @@ plot_expected = False    # plot of analytical function values for comparison
 
 # Graphical options for tricontouring
 levels = np.arange(0., 1., 0.025)
-cmap = cm.get_cmap(name='Blues', lut=None)
 
 fig, ax = plt.subplots()
 ax.set_aspect('equal')
@@ -122,11 +120,11 @@ ax.set_title("Filtering a Delaunay mesh\n"
              "(application to high-resolution tricontouring)")
 
 # 1) plot of the refined (computed) data contours:
-ax.tricontour(tri_refi, z_test_refi, levels=levels, cmap=cmap,
+ax.tricontour(tri_refi, z_test_refi, levels=levels, cmap='Blues',
               linewidths=[2.0, 0.5, 1.0, 0.5])
 # 2) plot of the expected (analytical) data contours (dashed):
 if plot_expected:
-    ax.tricontour(tri_refi, z_expected, levels=levels, cmap=cmap,
+    ax.tricontour(tri_refi, z_expected, levels=levels, cmap='Blues',
                   linestyles='--')
 # 3) plot of the fine mesh on which interpolation was done:
 if plot_refi_tri:

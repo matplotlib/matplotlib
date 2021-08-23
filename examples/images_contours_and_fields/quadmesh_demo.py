@@ -9,7 +9,8 @@ a faster generalization of `~.axes.Axes.pcolor`, but with some restrictions.
 This demo illustrates a bug in quadmesh with masked data.
 """
 
-from matplotlib import cm, pyplot as plt
+import matplotlib as mpl
+from matplotlib import pyplot as plt
 import numpy as np
 
 n = 12
@@ -29,7 +30,7 @@ axs[0].pcolormesh(Qx, Qz, Z, shading='gouraud')
 axs[0].set_title('Without masked values')
 
 # You can control the color of the masked region.
-cmap = cm.get_cmap(plt.rcParams['image.cmap']).with_extremes(bad='y')
+cmap = mpl.colormaps[mpl.rcParams['image.cmap']].with_extremes(bad='y')
 axs[1].pcolormesh(Qx, Qz, Zm, shading='gouraud', cmap=cmap)
 axs[1].set_title('With masked values')
 
