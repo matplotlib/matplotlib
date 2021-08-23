@@ -16,6 +16,9 @@ import operator
 import os
 import platform
 import sys
+import signal
+import socket
+import contextlib
 
 from packaging.version import parse as parse_version
 
@@ -28,7 +31,7 @@ QT_API_PYQT5 = "PyQt5"
 QT_API_PYSIDE2 = "PySide2"
 QT_API_PYQTv2 = "PyQt4v2"
 QT_API_PYSIDE = "PySide"
-QT_API_PYQT = "PyQt4"   # Use the old sip v1 API (Py3 defaults to v2).
+QT_API_PYQT = "PyQt4"  # Use the old sip v1 API (Py3 defaults to v2).
 QT_API_ENV = os.environ.get("QT_API")
 if QT_API_ENV is not None:
     QT_API_ENV = QT_API_ENV.lower()
@@ -74,22 +77,22 @@ else:
 
 
 def _setup_pyqt5plus():
-    global QtCore, QtGui, QtWidgets, __version__, is_pyqt5, \
+    global QtCore, QtGui, QtWidgets, QtNetwork, __version__, is_pyqt5, \
         _isdeleted, _getSaveFileName
 
     if QT_API == QT_API_PYQT6:
-        from PyQt6 import QtCore, QtGui, QtWidgets, sip
+        from PyQt6 import QtCore, QtGui, QtWidgets, QtNetwork, sip
         __version__ = QtCore.PYQT_VERSION_STR
         QtCore.Signal = QtCore.pyqtSignal
         QtCore.Slot = QtCore.pyqtSlot
         QtCore.Property = QtCore.pyqtProperty
         _isdeleted = sip.isdeleted
     elif QT_API == QT_API_PYSIDE6:
-        from PySide6 import QtCore, QtGui, QtWidgets, __version__
+        from PySide6 import QtCore, QtGui, QtWidgets, QtNetwork, __version__
         import shiboken6
         def _isdeleted(obj): return not shiboken6.isValid(obj)
     elif QT_API == QT_API_PYQT5:
-        from PyQt5 import QtCore, QtGui, QtWidgets
+        from PyQt5 import QtCore, QtGui, QtWidgets, QtNetwork
         import sip
         __version__ = QtCore.PYQT_VERSION_STR
         QtCore.Signal = QtCore.pyqtSignal
@@ -97,9 +100,10 @@ def _setup_pyqt5plus():
         QtCore.Property = QtCore.pyqtProperty
         _isdeleted = sip.isdeleted
     elif QT_API == QT_API_PYSIDE2:
-        from PySide2 import QtCore, QtGui, QtWidgets, __version__
+        from PySide2 import QtCore, QtGui, QtWidgets, QtNetwork, __version__
         import shiboken2
-        def _isdeleted(obj): return not shiboken2.isValid(obj)
+        def _isdeleted(obj):
+            return not shiboken2.isValid(obj)
     else:
         raise AssertionError(f"Unexpected QT_API: {QT_API}")
     _getSaveFileName = QtWidgets.QFileDialog.getSaveFileName
@@ -133,7 +137,6 @@ if (sys.platform == 'darwin' and
         parse_version(QtCore.qVersion()) < parse_version("5.15.2") and
         "QT_MAC_WANTS_LAYER" not in os.environ):
     os.environ["QT_MAC_WANTS_LAYER"] = "1"
-
 
 # These globals are only defined for backcompatibility purposes.
 ETS = dict(pyqt5=(QT_API_PYQT5, 5), pyside2=(QT_API_PYSIDE2, 5))
@@ -191,3 +194,62 @@ def _setDevicePixelRatio(obj, val):
     if hasattr(obj, 'setDevicePixelRatio'):
         # Not available on Qt4 or some older Qt5.
         obj.setDevicePixelRatio(val)
+
+
+@contextlib.contextmanager
+def _maybe_allow_interrupt(qapp):
+    """
+    This manager allows to terminate a plot by sending a SIGINT. It is
+    necessary because the running Qt backend prevents Python interpreter to
+    run and process signals (i.e., to raise KeyboardInterrupt exception). To
+    solve this one needs to somehow wake up the interpreter and make it close
+    the plot window. We do this by using the signal.set_wakeup_fd() function
+    which organizes a write of the signal number into a socketpair connected
+    to the QSocketNotifier (since it is part of the Qt backend, it can react
+    to that write event). Afterwards, the Qt handler empties the socketpair
+    by a recv() command to re-arm it (we need this if a signal different from
+    SIGINT was caught by set_wakeup_fd() and we shall continue waiting). If
+    the SIGINT was caught indeed, after exiting the on_signal() function the
+    interpreter reacts to the SIGINT according to the handle() function which
+    had been set up by a signal.signal() call: it causes the qt_object to
+    exit by calling its quit() method. Finally, we call the old SIGINT
+    handler with the same arguments that were given to our custom handle()
+    handler.
+
+    We do this only if the old handler for SIGINT was not None, which means
+    that a non-python handler was installed, i.e. in Julia, and not SIG_IGN
+    which means we should ignore the interrupts.
+    """
+    old_sigint_handler = signal.getsignal(signal.SIGINT)
+    handler_args = None
+    skip = False
+    if old_sigint_handler in (None, signal.SIG_IGN, signal.SIG_DFL):
+        skip = True
+    else:
+        wsock, rsock = socket.socketpair()
+        wsock.setblocking(False)
+        old_wakeup_fd = signal.set_wakeup_fd(wsock.fileno())
+        sn = QtCore.QSocketNotifier(
+            rsock.fileno(), _enum('QtCore.QSocketNotifier.Type').Read
+        )
+
+        # Clear the socket to re-arm the notifier.
+        sn.activated.connect(lambda *args: rsock.recv(1))
+
+        def handle(*args):
+            nonlocal handler_args
+            handler_args = args
+            qapp.quit()
+
+        signal.signal(signal.SIGINT, handle)
+    try:
+        yield
+    finally:
+        if not skip:
+            wsock.close()
+            rsock.close()
+            sn.setEnabled(False)
+            signal.set_wakeup_fd(old_wakeup_fd)
+            signal.signal(signal.SIGINT, old_sigint_handler)
+            if handler_args is not None:
+                old_sigint_handler(*handler_args)
