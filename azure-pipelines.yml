@@ -29,15 +29,6 @@ stages:
     - job: Pytest
       strategy:
         matrix:
-          Linux_py37:
-            vmImage: 'ubuntu-18.04'
-            python.version: '3.7'
-          Linux_py38:
-            vmImage: 'ubuntu-18.04'
-            python.version: '3.8'
-          Linux_py39:
-            vmImage: 'ubuntu-18.04'
-            python.version: '3.9'
           macOS_py37:
             vmImage: 'macOS-10.15'
             python.version: '3.7'
@@ -46,15 +37,6 @@ stages:
             python.version: '3.8'
           macOS_py39:
             vmImage: 'macOS-latest'
-            python.version: '3.9'
-          Windows_py37:
-            vmImage: 'vs2017-win2016'
-            python.version: '3.7'
-          Windows_py38:
-            vmImage: 'windows-latest'
-            python.version: '3.8'
-          Windows_py39:
-            vmImage: 'windows-latest'
             python.version: '3.9'
         maxParallel: 4
       pool:
@@ -126,20 +108,6 @@ stages:
         displayName: 'print env'
 
       - bash: |
-          PYTHONFAULTHANDLER=1 python -m pytest --junitxml=junit/test-results.xml -raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n 2 ||
+          PYTHONFAULTHANDLER=1 python multifont.py
             [[ "$PYTHON_VERSION" = 'Pre' ]]
-        displayName: 'pytest'
-
-      - bash: |
-          bash <(curl -s https://codecov.io/bash)  -f "!*.gcov" -X gcov
-        displayName: 'Upload to codecov.io'
-
-      - task: PublishTestResults@2
-        inputs:
-          testResultsFiles: '**/test-results.xml'
-          testRunTitle: 'Python $(python.version)'
-        condition: succeededOrFailed()
-
-      - publish: $(System.DefaultWorkingDirectory)/result_images
-        artifact: $(Agent.JobName)-result_images
-        condition: and(failed(), ne(variables['python.version'], 'Pre'))
+        displayName: 'test'
