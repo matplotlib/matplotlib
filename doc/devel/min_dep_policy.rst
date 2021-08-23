@@ -100,7 +100,7 @@ Matplotlib  Python    NumPy
 1.0         2.4       1.1
 ==========  ========  ======
 
-.. _`3.4`: https://matplotlib.org/3.4.0/users/installing.html#dependencies
+.. _`3.4`: https://matplotlib.org/3.4.0/devel/dependencies.html#dependencies
 .. _`3.3`: https://matplotlib.org/3.3.0/users/installing.html#dependencies
 .. _`3.2`: https://matplotlib.org/3.2.0/users/installing.html#dependencies
 .. _`3.1`: https://matplotlib.org/3.1.0/users/installing.html#dependencies
