@@ -18,46 +18,31 @@ choosing of tick locations. A useful semi-automatic tick locator is
 `MultipleLocator`. It is initialized with a base, e.g., 10, and it picks
 axis limits and ticks that are multiples of that base.
 
-The Locator subclasses defined here are
+The Locator subclasses defined here are:
 
-:class:`AutoLocator`
-    `MaxNLocator` with simple defaults.  This is the default tick locator for
-    most plotting.
-
-:class:`MaxNLocator`
-    Finds up to a max number of intervals with ticks at nice locations.
-
-:class:`LinearLocator`
-    Space ticks evenly from min to max.
-
-:class:`LogLocator`
-    Space ticks logarithmically from min to max.
-
-:class:`MultipleLocator`
-    Ticks and range are a multiple of base; either integer or float.
-
-:class:`FixedLocator`
-    Tick locations are fixed.
-
-:class:`IndexLocator`
-    Locator for index plots (e.g., where ``x = range(len(y))``).
-
-:class:`NullLocator`
-    No ticks.
-
-:class:`SymmetricalLogLocator`
-    Locator for use with with the symlog norm; works like `LogLocator` for the
-    part outside of the threshold and adds 0 if inside the limits.
-
-:class:`LogitLocator`
-    Locator for logit scaling.
-
-:class:`AutoMinorLocator`
-    Locator for minor ticks when the axis is linear and the
-    major ticks are uniformly spaced.  Subdivides the major
-    tick interval into a specified number of minor intervals,
-    defaulting to 4 or 5 depending on the major interval.
-
+======================= =======================================================
+`AutoLocator`           `MaxNLocator` with simple defaults. This is the default
+                        tick locator for most plotting.
+`MaxNLocator`           Finds up to a max number of intervals with ticks at
+                        nice locations.
+`LinearLocator`         Space ticks evenly from min to max.
+`LogLocator`            Space ticks logarithmically from min to max.
+`MultipleLocator`       Ticks and range are a multiple of base; either integer
+                        or float.
+`FixedLocator`          Tick locations are fixed.
+`IndexLocator`          Locator for index plots (e.g., where
+                        ``x = range(len(y))``).
+`NullLocator`           No ticks.
+`SymmetricalLogLocator` Locator for use with with the symlog norm; works like
+                        `LogLocator` for the part outside of the threshold and
+                        adds 0 if inside the limits.
+`LogitLocator`          Locator for logit scaling.
+`AutoMinorLocator`      Locator for minor ticks when the axis is linear and the
+                        major ticks are uniformly spaced. Subdivides the major
+                        tick interval into a specified number of minor
+                        intervals, defaulting to 4 or 5 depending on the major
+                        interval.
+======================= =======================================================
 
 There are a number of locators specialized for date locations - see
 the :mod:`.dates` module.
@@ -96,45 +81,24 @@ Tick formatting
 Tick formatting is controlled by classes derived from Formatter. The formatter
 operates on a single tick value and returns a string to the axis.
 
-:class:`NullFormatter`
-    No labels on the ticks.
-
-:class:`FixedFormatter`
-    Set the strings manually for the labels.
-
-:class:`FuncFormatter`
-    User defined function sets the labels.
-
-:class:`StrMethodFormatter`
-    Use string `format` method.
-
-:class:`FormatStrFormatter`
-    Use an old-style sprintf format string.
-
-:class:`ScalarFormatter`
-    Default formatter for scalars: autopick the format string.
-
-:class:`LogFormatter`
-    Formatter for log axes.
-
-:class:`LogFormatterExponent`
-    Format values for log axis using ``exponent = log_base(value)``.
-
-:class:`LogFormatterMathtext`
-    Format values for log axis using ``exponent = log_base(value)``
-    using Math text.
-
-:class:`LogFormatterSciNotation`
-    Format values for log axis using scientific notation.
-
-:class:`LogitFormatter`
-    Probability formatter.
-
-:class:`EngFormatter`
-    Format labels in engineering notation.
-
-:class:`PercentFormatter`
-    Format labels as a percentage.
+========================= =====================================================
+`NullFormatter`           No labels on the ticks.
+`FixedFormatter`          Set the strings manually for the labels.
+`FuncFormatter`           User defined function sets the labels.
+`StrMethodFormatter`      Use string `format` method.
+`FormatStrFormatter`      Use an old-style sprintf format string.
+`ScalarFormatter`         Default formatter for scalars: autopick the format
+                          string.
+`LogFormatter`            Formatter for log axes.
+`LogFormatterExponent`    Format values for log axis using
+                          ``exponent = log_base(value)``.
+`LogFormatterMathtext`    Format values for log axis using
+                          ``exponent = log_base(value)`` using Math text.
+`LogFormatterSciNotation` Format values for log axis using scientific notation.
+`LogitFormatter`          Probability formatter.
+`EngFormatter`            Format labels in engineering notation.
+`PercentFormatter`        Format labels as a percentage.
+========================= =====================================================
 
 You can derive your own formatter from the Formatter base class by
 simply overriding the ``__call__`` method. The formatter class has
