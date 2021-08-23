@@ -205,5 +205,5 @@ jobs:
           fi
 
       - name: Run test script
-        run: python multifont.py
+        run: python -X faulthandler multifont.py
 

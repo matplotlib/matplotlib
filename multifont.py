@@ -4,8 +4,8 @@ matplotlib.use('pdf')
 import matplotlib.font_manager as fm
 from matplotlib import pyplot as plt
 
-fm.fontManager.ttflist.append(fm.FontEntry(fname='fonts/NotoSansCJKsc-Medium.otf', name='Noto Sans SC Medium'))
-matplotlib.rc('font', family=['DejaVu Sans', 'Noto Sans SC Medium'])
+fm.fontManager.ttflist.append(fm.FontEntry(fname='fonts/NotoSansCJKtc-Medium.otf', name='Noto Sans TC Medium'))
+matplotlib.rc('font', family=['DejaVu Sans', 'Noto Sans TC Medium'])
 
 for ft in (3, 42):
     matplotlib.rc('pdf', fonttype=ft)
