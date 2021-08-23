@@ -23,6 +23,7 @@ import contextlib
 from packaging.version import parse as parse_version
 
 import matplotlib as mpl
+from matplotlib import _api
 
 
 QT_API_PYQT6 = "PyQt6"
@@ -138,11 +139,6 @@ if (sys.platform == 'darwin' and
         "QT_MAC_WANTS_LAYER" not in os.environ):
     os.environ["QT_MAC_WANTS_LAYER"] = "1"
 
-# These globals are only defined for backcompatibility purposes.
-ETS = dict(pyqt5=(QT_API_PYQT5, 5), pyside2=(QT_API_PYSIDE2, 5))
-
-QT_RC_MAJOR_VERSION = int(QtCore.qVersion().split(".")[0])
-
 
 # PyQt6 enum compat helpers.
 
@@ -253,3 +249,11 @@ def _maybe_allow_interrupt(qapp):
             signal.signal(signal.SIGINT, old_sigint_handler)
             if handler_args is not None:
                 old_sigint_handler(*handler_args)
+
+
+@_api.caching_module_getattr
+class __getattr__:
+    ETS = _api.deprecated("3.5")(property(lambda self: dict(
+        pyqt5=(QT_API_PYQT5, 5), pyside2=(QT_API_PYSIDE2, 5))))
+    QT_RC_MAJOR_VERSION = _api.deprecated("3.5")(property(
+        lambda self: int(QtCore.qVersion().split(".")[0])))
