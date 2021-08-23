@@ -39,8 +39,8 @@ def platform_simulate_ctrl_c(request):
     from functools import partial
 
     if hasattr(signal, "CTRL_C_EVENT"):
-        from win32api import GenerateConsoleCtrlEvent
-        return partial(GenerateConsoleCtrlEvent, 0, 0)
+        win32api = pytest.importorskip('win32api')
+        return partial(win32api.GenerateConsoleCtrlEvent, 0, 0)
     else:
         # we're not on windows
         return partial(os.kill, os.getpid(), signal.SIGINT)
