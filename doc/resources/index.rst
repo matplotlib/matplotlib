@@ -33,6 +33,10 @@ Books, chapters and articles
   <https://scipython.com/book/chapter-7-matplotlib/>`_
   by Christian Hill
 
+* `Hands-On Data Analysis with Pandas, chapters 5 and 6
+  <https://www.packtpub.com/product/hands-on-data-analysis-with-pandas-second-edition/9781800563452>`_
+  by Stefanie Molin
+
 ======
 Videos
 ======
