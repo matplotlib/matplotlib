@@ -1,0 +1,12 @@
+``matplotlib.test()`` is deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Run tests using ``pytest`` from the commandline instead. The variable
+``matplotlib.default_test_modules`` is only used for ``matplotlib.test()`` and
+is thus deprecated as well.
+
+To test an installed copy, be sure to specify both ``matplotlib`` and
+``mpl_toolkits`` with ``--pyargs``::
+
+    python -m pytest --pyargs matplotlib.tests mpl_toolkits.tests
+
+See :ref:`testing` for more details.

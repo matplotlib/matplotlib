@@ -1211,6 +1211,7 @@ def _init_tests():
                 "" if ft2font.__freetype_build_type__ == 'local' else "not "))
 
 
+@_api.deprecated("3.5", alternative='pytest')
 def test(verbosity=None, coverage=False, **kwargs):
     """Run the matplotlib test suite."""
 
