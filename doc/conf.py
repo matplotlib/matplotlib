@@ -80,6 +80,7 @@ exclude_patterns = [
 
 panels_add_bootstrap_css = False
 
+
 def _check_dependencies():
     names = {
         "colorspacious": 'colorspacious',
