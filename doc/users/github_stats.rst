@@ -280,7 +280,7 @@ Pull Requests (532):
 * :ghpull:`20374`: Check modification times of included RST files
 * :ghpull:`20569`: Better signature and docstring for Artist.set
 * :ghpull:`20574`: Add tricontourf hatching example
-* :ghpull:`18666`: Remove unused/deprecated AVConv_ classes
+* :ghpull:`18666`: Remove unused/deprecated ``AVConv`` classes
 * :ghpull:`20514`: Fix example for rcParams['autolimit_mode']
 * :ghpull:`20571`: Switch default ArrowStyle angle values from None to zero.
 * :ghpull:`20510`: Consistent capitalization of section headers
@@ -587,7 +587,7 @@ Pull Requests (532):
 * :ghpull:`19912`: Add symlog to figureoptions scalings
 * :ghpull:`19564`: Micro-optimize type1font loading
 * :ghpull:`19623`: FIX: Contour lines rendered incorrectly when closed loops
-* :ghpull:`19902`: Implement ArtistList.__[r]add__.
+* :ghpull:`19902`: Implement ``ArtistList.__[r]add__``.
 * :ghpull:`19904`: Don't set zoom/pan cursor for non-navigatable axes.
 * :ghpull:`19909`: Use unicode when interactively displaying 3d azim/elev.
 * :ghpull:`19905`: pyplot: do not apply kwargs twice in to x/yticklabels
