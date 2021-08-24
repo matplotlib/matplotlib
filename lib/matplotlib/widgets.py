@@ -2011,10 +2011,8 @@ class _SelectorWidget(AxesWidget):
     @property
     def artists(self):
         """Tuple of the artists of the selector."""
-        if getattr(self, '_handles_artists', None) is not None:
-            return (self._selection_artist, *self._handles_artists)
-        else:
-            return (self._selection_artist, )
+        handles_artists = getattr(self, '_handles_artists', ())
+        return (self._selection_artist,) + handles_artists
 
     def set_props(self, **props):
         """
@@ -2245,6 +2243,8 @@ class SpanSelector(_SelectorWidget):
     def _handles_artists(self):
         if self._edge_handles is not None:
             return self._edge_handles.artists
+        else:
+            return ()
 
     def _set_cursor(self, enabled):
         """Update the canvas cursor based on direction of the selector."""

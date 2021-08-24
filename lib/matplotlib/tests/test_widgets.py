@@ -106,15 +106,13 @@ def test_rectangle_selector_set_props_handle_props():
 
     artist = tool._selection_artist
     assert artist.get_facecolor() == mcolors.to_rgba('b', alpha=0.2)
-    props = dict(facecolor='r', alpha=0.3)
-    tool.set_props(**props)
-    assert artist.get_facecolor() == mcolors.to_rgba(*props.values())
+    tool.set_props(facecolor='r', alpha=0.3)
+    assert artist.get_facecolor() == mcolors.to_rgba('r', alpha=0.3)
 
     for artist in tool._handles_artists:
         assert artist.get_markeredgecolor() == 'black'
         assert artist.get_alpha() == 0.5
-    handle_props = dict(markeredgecolor='r', alpha=0.3)
-    tool.set_handle_props(**handle_props)
+    tool.set_handle_props(markeredgecolor='r', alpha=0.3)
     for artist in tool._handles_artists:
         assert artist.get_markeredgecolor() == 'r'
         assert artist.get_alpha() == 0.3
@@ -450,15 +448,13 @@ def test_span_selector_set_props_handle_props():
 
     artist = tool._selection_artist
     assert artist.get_facecolor() == mcolors.to_rgba('b', alpha=0.2)
-    props = dict(facecolor='r', alpha=0.3)
-    tool.set_props(**props)
-    assert artist.get_facecolor() == mcolors.to_rgba(*props.values())
+    tool.set_props(facecolor='r', alpha=0.3)
+    assert artist.get_facecolor() == mcolors.to_rgba('r', alpha=0.3)
 
     for artist in tool._handles_artists:
         assert artist.get_color() == 'b'
         assert artist.get_alpha() == 0.5
-    handle_props = dict(color='r', alpha=0.3)
-    tool.set_handle_props(**handle_props)
+    tool.set_handle_props(color='r', alpha=0.3)
     for artist in tool._handles_artists:
         assert artist.get_color() == 'r'
         assert artist.get_alpha() == 0.3
@@ -865,16 +861,14 @@ def test_polygon_selector_set_props_handle_props():
     artist = tool._selection_artist
     assert artist.get_color() == 'b'
     assert artist.get_alpha() == 0.2
-    props = dict(color='r', alpha=0.3)
-    tool.set_props(**props)
-    assert artist.get_color() == props['color']
-    assert artist.get_alpha() == props['alpha']
+    tool.set_props(color='r', alpha=0.3)
+    assert artist.get_color() == 'r'
+    assert artist.get_alpha() == 0.3
 
     for artist in tool._handles_artists:
         assert artist.get_color() == 'b'
         assert artist.get_alpha() == 0.5
-    handle_props = dict(color='r', alpha=0.3)
-    tool.set_handle_props(**handle_props)
+    tool.set_handle_props(color='r', alpha=0.3)
     for artist in tool._handles_artists:
         assert artist.get_color() == 'r'
         assert artist.get_alpha() == 0.3
