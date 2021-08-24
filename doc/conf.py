@@ -315,8 +315,8 @@ html_theme_options = {
             "url": "https://twitter.com/matplotlib/",
             "icon": "fab fa-twitter-square",
         },
-
     ],
+    "show_prev_next": False,
 }
 include_analytics = False
 if include_analytics:
