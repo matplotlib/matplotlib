@@ -10,7 +10,8 @@ import sys
 import pytest
 
 
-pytest.importorskip('sphinx')
+pytest.importorskip('sphinx',
+                    minversion=None if sys.version_info < (3, 10) else '4.1.3')
 
 
 def test_tinypages(tmpdir):

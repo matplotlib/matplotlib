@@ -48,7 +48,7 @@ from numbers import Integral, Real
 
 from matplotlib import _api, colors as mcolors
 from .. import qt_compat
-from ..qt_compat import QtGui, QtWidgets, QtCore, _enum
+from ..qt_compat import QtGui, QtWidgets, QtCore, _enum, _to_int
 
 _log = logging.getLogger(__name__)
 
@@ -441,8 +441,12 @@ class FormDialog(QtWidgets.QDialog):
 
         # Button box
         self.bbox = bbox = QtWidgets.QDialogButtonBox(
-            _enum("QtWidgets.QDialogButtonBox.StandardButton").Ok
-            | _enum("QtWidgets.QDialogButtonBox.StandardButton").Cancel)
+            QtWidgets.QDialogButtonBox.StandardButton(
+                _to_int(
+                    _enum("QtWidgets.QDialogButtonBox.StandardButton").Ok) |
+                _to_int(
+                    _enum("QtWidgets.QDialogButtonBox.StandardButton").Cancel)
+            ))
         self.formwidget.update_buttons.connect(self.update_buttons)
         if self.apply_callback is not None:
             apply_btn = bbox.addButton(

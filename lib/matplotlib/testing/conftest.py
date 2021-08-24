@@ -21,6 +21,9 @@ def pytest_configure(config):
         ("filterwarnings", "error"),
         ("filterwarnings",
          "ignore:.*The py23 module has been deprecated:DeprecationWarning"),
+        ("filterwarnings",
+         r"ignore:DynamicImporter.find_spec\(\) not found; "
+         r"falling back to find_module\(\):ImportWarning"),
     ]:
         config.addinivalue_line(key, value)
 
