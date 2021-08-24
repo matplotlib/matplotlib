@@ -1981,7 +1981,6 @@ class _SelectorWidget(AxesWidget):
                 for artist in self.artists:
                     artist.set_visible(False)
                 self.update()
-                return
             for (state, modifier) in self.state_modifier_keys.items():
                 if modifier in key:
                     self._state.add(state)
@@ -2316,6 +2315,11 @@ class SpanSelector(_SelectorWidget):
         else:
             self._direction = direction
 
+    def _on_key_press(self, event):
+        key = event.key or ''
+        if key == self.state_modifier_keys['clear']:
+            self._selection_completed = False
+
     def _release(self, event):
         """Button release event handler."""
         self._set_cursor(False)
@@ -2354,9 +2358,11 @@ class SpanSelector(_SelectorWidget):
         if self.ignore(event):
             return
 
-        if self._active_handle is not None:
+        if self._active_handle is not None or not self._selection_completed:
             # Do nothing if button is pressed and a handle is active, which may
             # occur with drag_from_anywhere=True.
+            # Do nothing if selection is not completed, which occurs when
+            # a selector has been cleared
             return
 
         _, e_dist = self._edge_handles.closest(event.x, event.y)
