@@ -630,9 +630,9 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
     def __init__(self, canvas, parent, coordinates=True):
         """coordinates: should we show the coordinates on the right?"""
         QtWidgets.QToolBar.__init__(self, parent)
-        self.setAllowedAreas(
-            _enum("QtCore.Qt.ToolBarArea").TopToolBarArea
-            | _enum("QtCore.Qt.ToolBarArea").TopToolBarArea)
+        self.setAllowedAreas(QtCore.Qt.ToolBarArea(
+            _to_int(_enum("QtCore.Qt.ToolBarArea").TopToolBarArea) |
+            _to_int(_enum("QtCore.Qt.ToolBarArea").BottomToolBarArea)))
 
         self.coordinates = coordinates
         self._actions = {}  # mapping of toolitem method names to QActions.
@@ -655,9 +655,9 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         # will resize this label instead of the buttons.
         if self.coordinates:
             self.locLabel = QtWidgets.QLabel("", self)
-            self.locLabel.setAlignment(
-                _enum("QtCore.Qt.AlignmentFlag").AlignRight
-                | _enum("QtCore.Qt.AlignmentFlag").AlignVCenter)
+            self.locLabel.setAlignment(QtCore.Qt.AlignmentFlag(
+                _to_int(_enum("QtCore.Qt.AlignmentFlag").AlignRight) |
+                _to_int(_enum("QtCore.Qt.AlignmentFlag").AlignVCenter)))
             self.locLabel.setSizePolicy(QtWidgets.QSizePolicy(
                 _enum("QtWidgets.QSizePolicy.Policy").Expanding,
                 _enum("QtWidgets.QSizePolicy.Policy").Ignored,
@@ -887,13 +887,13 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
     def __init__(self, toolmanager, parent):
         ToolContainerBase.__init__(self, toolmanager)
         QtWidgets.QToolBar.__init__(self, parent)
-        self.setAllowedAreas(
-            _enum("QtCore.Qt.ToolBarArea").TopToolBarArea
-            | _enum("QtCore.Qt.ToolBarArea").TopToolBarArea)
+        self.setAllowedAreas(QtCore.Qt.ToolBarArea(
+            _to_int(_enum("QtCore.Qt.ToolBarArea").TopToolBarArea) |
+            _to_int(_enum("QtCore.Qt.ToolBarArea").BottomToolBarArea)))
         message_label = QtWidgets.QLabel("")
-        message_label.setAlignment(
-            _enum("QtCore.Qt.AlignmentFlag").AlignRight
-            | _enum("QtCore.Qt.AlignmentFlag").AlignVCenter)
+        message_label.setAlignment(QtCore.Qt.AlignmentFlag(
+            _to_int(_enum("QtCore.Qt.AlignmentFlag").AlignRight) |
+            _to_int(_enum("QtCore.Qt.AlignmentFlag").AlignVCenter)))
         message_label.setSizePolicy(QtWidgets.QSizePolicy(
             _enum("QtWidgets.QSizePolicy.Policy").Expanding,
             _enum("QtWidgets.QSizePolicy.Policy").Ignored,
