@@ -49,7 +49,7 @@ Installation
 Further details are availabe in the :doc:`Installation Guide <users/installing>`.
 
 
-Learning Resources
+Learning resources
 ==================
 
 
