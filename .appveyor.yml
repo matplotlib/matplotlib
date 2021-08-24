@@ -60,6 +60,8 @@ install:
   # pull pywin32 from conda because on py38 there is something wrong with finding
   # the dlls when insalled from pip
   - conda install -c conda-forge pywin32
+  # install pyqt from conda-forge
+  - conda install -c conda-forge pyqt
   - echo %PYTHON_VERSION% %TARGET_ARCH%
   # Install dependencies from PyPI.
   - python -m pip install --upgrade -r requirements/testing/all.txt %EXTRAREQS% %PINNEDVERS%
