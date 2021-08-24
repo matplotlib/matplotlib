@@ -1,0 +1,3 @@
+``matplotlib.backends.qt_compat.ETS`` and ``matplotlib.backends.qt_compat.QT_RC_MAJOR_VERSION``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated, with no replacement.
