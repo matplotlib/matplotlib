@@ -2149,6 +2149,8 @@ class Figure(FigureBase):
                  subplotpars=None,  # rc figure.subplot.*
                  tight_layout=None,  # rc figure.autolayout
                  constrained_layout=None,  # rc figure.constrained_layout.use
+                 *,
+                 layout=None,
                  **kwargs
                  ):
         """
@@ -2178,19 +2180,42 @@ class Figure(FigureBase):
             parameters :rc:`figure.subplot.*` are used.
 
         tight_layout : bool or dict, default: :rc:`figure.autolayout`
-            If ``False`` use *subplotpars*. If ``True`` adjust subplot
-            parameters using `.tight_layout` with default padding.
-            When providing a dict containing the keys ``pad``, ``w_pad``,
-            ``h_pad``, and ``rect``, the default `.tight_layout` paddings
-            will be overridden.
+            Whether to use the tight layout mechanism. See `.set_tight_layout`.
+
+            .. admonition:: Discouraged
+
+                The use of this parameter is discouraged. Please use
+                ``layout='tight'`` instead for the common case of
+                ``tight_layout=True`` and use `.set_tight_layout` otherwise.
 
         constrained_layout : bool, default: :rc:`figure.constrained_layout.use`
-            If ``True`` use constrained layout to adjust positioning of plot
-            elements.  Like ``tight_layout``, but designed to be more
-            flexible.  See
-            :doc:`/tutorials/intermediate/constrainedlayout_guide`
-            for examples.  (Note: does not work with `add_subplot` or
-            `~.pyplot.subplot2grid`.)
+            This is equal to ``layout='constrained'``.
+
+            .. admonition:: Discouraged
+
+                The use of this parameter is discouraged. Please use
+                ``layout='constrained'`` instead.
+
+        layout : {'constrained', 'tight'}, optional
+            The layout mechanism for positioning of plot elements.
+            Supported values:
+
+            - 'constrained': The constrained layout solver usually gives the
+              best layout results and is thus recommended. However, it is
+              computationally expensive and can be slow for complex figures
+              with many elements.
+
+              See :doc:`/tutorials/intermediate/constrainedlayout_guide`
+              for examples.
+
+            - 'tight': Use the tight layout mechanism. This is a relatively
+              simple algorithm, that adjusts the subplot parameters so that
+              decorations like tick labels, axis labels and titles have enough
+              space. See `.Figure.set_tight_layout` for further details.
+
+            If not given, fall back to using the parameters *tight_layout* and
+            *constrained_layout*, including their config defaults
+            :rc:`figure.autolayout` and :rc:`figure.constrained_layout.use`.
 
         Other Parameters
         ----------------
@@ -2199,6 +2224,24 @@ class Figure(FigureBase):
             %(Figure:kwdoc)s
         """
         super().__init__(**kwargs)
+
+        if layout is not None:
+            if tight_layout is not None:
+                _api.warn_external(
+                    "The Figure parameters 'layout' and 'tight_layout' "
+                    "cannot be used together. Please use 'layout' only.")
+            if constrained_layout is not None:
+                _api.warn_external(
+                    "The Figure parameters 'layout' and 'constrained_layout' "
+                    "cannot be used together. Please use 'layout' only.")
+            if layout == 'constrained':
+                tight_layout = False
+                constrained_layout = True
+            elif layout == 'tight':
+                tight_layout = True
+                constrained_layout = False
+            else:
+                _api.check_in_list(['constrained', 'tight'], layout=layout)
 
         self.callbacks = cbook.CallbackRegistry()
         # Callbacks traditionally associated with the canvas (and exposed with
@@ -2362,7 +2405,7 @@ class Figure(FigureBase):
         ----------
         tight : bool or dict with keys "pad", "w_pad", "h_pad", "rect" or None
             If a bool, sets whether to call `.tight_layout` upon drawing.
-            If ``None``, use the ``figure.autolayout`` rcparam instead.
+            If ``None``, use :rc:`figure.autolayout` instead.
             If a dict, pass it as kwargs to `.tight_layout`, overriding the
             default paddings.
         """
