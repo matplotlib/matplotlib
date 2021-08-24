@@ -112,3 +112,9 @@ you can help!
 - Help other users `on discourse <https://discourse.matplotlib.org>`__
 - report a bug or request a feature `on GitHub <https://github.com/matplotlib/matplotlib/issues>`__
 - or improve the :ref:`documentation and code <developers-guide-index>`
+
+
+Site Map
+--------
+
+The :ref:`complete contents of the docs <complete_sitemap>`.

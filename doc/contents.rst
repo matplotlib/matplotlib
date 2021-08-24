@@ -1,4 +1,4 @@
-
+.. _complete_sitemap:
 
 Contents
 ========
