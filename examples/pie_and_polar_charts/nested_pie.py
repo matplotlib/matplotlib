@@ -8,6 +8,7 @@ in Matplotlib. Such charts are often referred to as donut charts.
 
 """
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -30,7 +31,7 @@ fig, ax = plt.subplots()
 size = 0.3
 vals = np.array([[60., 32.], [37., 40.], [29., 10.]])
 
-cmap = plt.get_cmap("tab20c")
+cmap = mpl.colormaps["tab20c"]
 outer_colors = cmap(np.arange(3)*4)
 inner_colors = cmap([1, 2, 5, 6, 9, 10])
 
@@ -61,7 +62,7 @@ valsnorm = vals/np.sum(vals)*2*np.pi
 # Obtain the ordinates of the bar edges
 valsleft = np.cumsum(np.append(0, valsnorm.flatten()[:-1])).reshape(vals.shape)
 
-cmap = plt.get_cmap("tab20c")
+cmap = mpl.colormaps["tab20c"]
 outer_colors = cmap(np.arange(3)*4)
 inner_colors = cmap([1, 2, 5, 6, 9, 10])
 

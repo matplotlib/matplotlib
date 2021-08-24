@@ -9,7 +9,6 @@ Demonstrates computation of gradient with
 from matplotlib.tri import (
     Triangulation, UniformTriRefiner, CubicTriInterpolator)
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 import numpy as np
 
 
@@ -76,8 +75,7 @@ ax.margins(0.07)
 ax.triplot(triang, color='0.8')
 
 levels = np.arange(0., 1., 0.01)
-cmap = cm.get_cmap(name='hot', lut=None)
-ax.tricontour(tri_refi, z_test_refi, levels=levels, cmap=cmap,
+ax.tricontour(tri_refi, z_test_refi, levels=levels, cmap='hot',
               linewidths=[2.0, 1.0, 1.0, 1.0])
 # Plots direction of the electrical vector field
 ax.quiver(triang.x, triang.y, Ex/E_norm, Ey/E_norm,

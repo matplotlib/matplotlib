@@ -6,6 +6,7 @@ Contourf Demo
 How to use the `.axes.Axes.contourf` method to create filled contour plots.
 """
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 origin = 'lower'
@@ -86,8 +87,7 @@ fig2.colorbar(CS3)
 
 # Illustrate all 4 possible "extend" settings:
 extends = ["neither", "both", "min", "max"]
-cmap = plt.cm.get_cmap("winter")
-cmap = cmap.with_extremes(under="magenta", over="yellow")
+cmap = mpl.colormaps["winter"].with_extremes(under="magenta", over="yellow")
 # Note: contouring simply excludes masked or nan regions, so
 # instead of using the "bad" colormap value for them, it draws
 # nothing at all in them.  Therefore the following would have

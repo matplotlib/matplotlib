@@ -69,6 +69,7 @@ never used.
 
 """
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
@@ -167,11 +168,9 @@ blue_red1 = LinearSegmentedColormap('BlueRed1', cdict1)
 # of Colormap, not just
 # a LinearSegmentedColormap:
 
-blue_red2 = LinearSegmentedColormap('BlueRed2', cdict2)
-plt.register_cmap(cmap=blue_red2)
-
-plt.register_cmap(cmap=LinearSegmentedColormap('BlueRed3', cdict3))
-plt.register_cmap(cmap=LinearSegmentedColormap('BlueRedAlpha', cdict4))
+mpl.colormaps.register(LinearSegmentedColormap('BlueRed2', cdict2))
+mpl.colormaps.register(LinearSegmentedColormap('BlueRed3', cdict3))
+mpl.colormaps.register(LinearSegmentedColormap('BlueRedAlpha', cdict4))
 
 ###############################################################################
 # Make the figure:
@@ -184,8 +183,7 @@ fig.subplots_adjust(left=0.02, bottom=0.06, right=0.95, top=0.94, wspace=0.05)
 im1 = axs[0, 0].imshow(Z, cmap=blue_red1)
 fig.colorbar(im1, ax=axs[0, 0])
 
-cmap = plt.get_cmap('BlueRed2')
-im2 = axs[1, 0].imshow(Z, cmap=cmap)
+im2 = axs[1, 0].imshow(Z, cmap='BlueRed2')
 fig.colorbar(im2, ax=axs[1, 0])
 
 # Now we will set the third cmap as the default.  One would
