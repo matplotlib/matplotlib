@@ -1800,7 +1800,6 @@ class _SelectorWidget(AxesWidget):
         self.state_modifier_keys.update(state_modifier_keys or {})
 
         self.background = None
-        self.artists = []
 
         if isinstance(button, Integral):
             self.validButtons = [button]
@@ -2009,6 +2008,41 @@ class _SelectorWidget(AxesWidget):
         for artist in self.artists:
             artist.set_visible(visible)
 
+    @property
+    def artists(self):
+        """Tuple of the artists of the selector."""
+        handles_artists = getattr(self, '_handles_artists', ())
+        return (self._selection_artist,) + handles_artists
+
+    def set_props(self, **props):
+        """
+        Set the properties of the selector artist. See the `props` argument
+        in the selector docstring to know which properties are supported.
+        """
+        artist = self._selection_artist
+        props = cbook.normalize_kwargs(props, artist)
+        artist.set(**props)
+        if self.useblit:
+            self.update()
+        self._props.update(props)
+
+    def set_handle_props(self, **handle_props):
+        """
+        Set the properties of the handles selector artist. See the
+        `handle_props` argument in the selector docstring to know which
+        properties are supported.
+        """
+        if not hasattr(self, '_handles_artists'):
+            raise NotImplementedError("This selector doesn't have handles.")
+
+        artist = self._handles_artists[0]
+        handle_props = cbook.normalize_kwargs(handle_props, artist)
+        for handle in self._handles_artists:
+            handle.set(**handle_props)
+        if self.useblit:
+            self.update()
+        self._handle_props.update(handle_props)
+
 
 class SpanSelector(_SelectorWidget):
     """
@@ -2114,7 +2148,6 @@ class SpanSelector(_SelectorWidget):
 
         self.direction = direction
 
-        self._rect = None
         self.visible = True
         self._extents_on_press = None
 
@@ -2128,29 +2161,31 @@ class SpanSelector(_SelectorWidget):
 
         self.grab_range = grab_range
         self._interactive = interactive
+        self._edge_handles = None
         self.drag_from_anywhere = drag_from_anywhere
         self.ignore_event_outside = ignore_event_outside
 
         # Reset canvas so that `new_axes` connects events.
         self.canvas = None
-        self.artists = []
         self.new_axes(ax)
 
         # Setup handles
-        handle_props = {
+        self._handle_props = {
             'color': props.get('facecolor', 'r'),
-            **cbook.normalize_kwargs(handle_props, Line2D._alias_map)}
+            **cbook.normalize_kwargs(handle_props, Line2D)}
 
         if self._interactive:
             self._edge_order = ['min', 'max']
-            self._setup_edge_handle(handle_props)
+            self._setup_edge_handles(self._handle_props)
 
         self._active_handle = None
 
         # prev attribute is deprecated but we still need to maintain it
         self._prev = (0, 0)
 
-    rect = _api.deprecate_privatize_attribute("3.5")
+    rect = _api.deprecated("3.5")(
+        property(lambda self: self._selection_artist)
+        )
 
     rectprops = _api.deprecated("3.5")(
         property(lambda self: self._props)
@@ -2185,18 +2220,15 @@ class SpanSelector(_SelectorWidget):
         else:
             trans = ax.get_yaxis_transform()
             w, h = 1, 0
-        self._rect = Rectangle((0, 0), w, h,
-                               transform=trans,
-                               visible=False,
-                               **self._props)
+        rect_artist = Rectangle((0, 0), w, h,
+                                transform=trans,
+                                visible=False,
+                                **self._props)
 
-        self.ax.add_patch(self._rect)
-        if len(self.artists) > 0:
-            self.artists[0] = self._rect
-        else:
-            self.artists.append(self._rect)
+        self.ax.add_patch(rect_artist)
+        self._selection_artist = rect_artist
 
-    def _setup_edge_handle(self, props):
+    def _setup_edge_handles(self, props):
         # Define initial position using the axis bounds to keep the same bounds
         if self.direction == 'horizontal':
             positions = self.ax.get_xbound()
@@ -2206,7 +2238,13 @@ class SpanSelector(_SelectorWidget):
                                              direction=self.direction,
                                              line_props=props,
                                              useblit=self.useblit)
-        self.artists.extend([line for line in self._edge_handles.artists])
+
+    @property
+    def _handles_artists(self):
+        if self._edge_handles is not None:
+            return self._edge_handles.artists
+        else:
+            return ()
 
     def _set_cursor(self, enabled):
         """Update the canvas cursor based on direction of the selector."""
@@ -2228,7 +2266,7 @@ class SpanSelector(_SelectorWidget):
     def _press(self, event):
         """Button press event handler."""
         self._set_cursor(True)
-        if self._interactive and self._rect.get_visible():
+        if self._interactive and self._selection_artist.get_visible():
             self._set_active_handle(event)
         else:
             self._active_handle = None
@@ -2268,15 +2306,13 @@ class SpanSelector(_SelectorWidget):
         _api.check_in_list(['horizontal', 'vertical'], direction=direction)
         if hasattr(self, '_direction') and direction != self._direction:
             # remove previous artists
-            self._rect.remove()
+            self._selection_artist.remove()
             if self._interactive:
                 self._edge_handles.remove()
-                for artist in self._edge_handles.artists:
-                    self.artists.remove(artist)
             self._direction = direction
             self.new_axes(self.ax)
             if self._interactive:
-                self._setup_edge_handle(self._edge_handles._line_props)
+                self._setup_edge_handles(self._handle_props)
         else:
             self._direction = direction
 
@@ -2287,7 +2323,7 @@ class SpanSelector(_SelectorWidget):
         self._pressv = None
 
         if not self._interactive:
-            self._rect.set_visible(False)
+            self._selection_artist.set_visible(False)
 
         if (self._active_handle is None and self._selection_completed and
                 self.ignore_event_outside):
@@ -2375,11 +2411,11 @@ class SpanSelector(_SelectorWidget):
         if vmin > vmax:
             vmin, vmax = vmax, vmin
         if self.direction == 'horizontal':
-            self._rect.set_x(vmin)
-            self._rect.set_width(vmax - vmin)
+            self._selection_artist.set_x(vmin)
+            self._selection_artist.set_width(vmax - vmin)
         else:
-            self._rect.set_y(vmin)
-            self._rect.set_height(vmax - vmin)
+            self._selection_artist.set_y(vmin)
+            self._selection_artist.set_height(vmax - vmin)
 
     def _set_active_handle(self, event):
         """Set active handle based on the location of the mouse event."""
@@ -2409,17 +2445,17 @@ class SpanSelector(_SelectorWidget):
 
     def _contains(self, event):
         """Return True if event is within the patch."""
-        return self._rect.contains(event, radius=0)[0]
+        return self._selection_artist.contains(event, radius=0)[0]
 
     @property
     def extents(self):
         """Return extents of the span selector."""
         if self.direction == 'horizontal':
-            vmin = self._rect.get_x()
-            vmax = vmin + self._rect.get_width()
+            vmin = self._selection_artist.get_x()
+            vmax = vmin + self._selection_artist.get_width()
         else:
-            vmin = self._rect.get_y()
-            vmax = vmin + self._rect.get_height()
+            vmin = self._selection_artist.get_y()
+            vmax = vmin + self._selection_artist.get_height()
         return vmin, vmax
 
     @extents.setter
@@ -2464,9 +2500,12 @@ class ToolLineHandles:
         line_props.update({'visible': False, 'animated': useblit})
 
         line_fun = ax.axvline if self.direction == 'horizontal' else ax.axhline
-        self._line_props = line_props
 
-        self.artists = [line_fun(p, **line_props) for p in positions]
+        self._artists = [line_fun(p, **line_props) for p in positions]
+
+    @property
+    def artists(self):
+        return tuple(self._artists)
 
     @property
     def positions(self):
@@ -2505,7 +2544,7 @@ class ToolLineHandles:
 
     def remove(self):
         """Remove the handles artist from the figure."""
-        for artist in self.artists:
+        for artist in self._artists:
             artist.remove()
 
     def closest(self, x, y):
@@ -2564,7 +2603,6 @@ class ToolHandles:
                  **cbook.normalize_kwargs(marker_props, Line2D._alias_map)}
         self._markers = Line2D(x, y, animated=useblit, **props)
         self.ax.add_line(self._markers)
-        self.artist = self._markers
 
     @property
     def x(self):
@@ -2573,6 +2611,10 @@ class ToolHandles:
     @property
     def y(self):
         return self._markers.get_ydata()
+
+    @property
+    def artists(self):
+        return (self._markers, )
 
     def set_data(self, pts, y=None):
         """Set x and y positions of handles."""
@@ -2726,7 +2768,6 @@ class RectangleSelector(_SelectorWidget):
         super().__init__(ax, onselect, useblit=useblit, button=button,
                          state_modifier_keys=state_modifier_keys)
 
-        self._to_draw = None
         self.visible = True
         self._interactive = interactive
         self.drag_from_anywhere = drag_from_anywhere
@@ -2746,11 +2787,11 @@ class RectangleSelector(_SelectorWidget):
                 props = dict(facecolor='red', edgecolor='black',
                              alpha=0.2, fill=True)
             props['animated'] = self.useblit
-            _props = props
-            self.visible = _props.pop('visible', self.visible)
-            self._to_draw = self._shape_klass((0, 0), 0, 1, visible=False,
-                                              **_props)
-            self.ax.add_patch(self._to_draw)
+            self.visible = props.pop('visible', self.visible)
+            self._props = props
+            to_draw = self._shape_klass((0, 0), 0, 1, visible=False,
+                                        **self._props)
+            self.ax.add_patch(to_draw)
         if drawtype == 'line':
             _api.warn_deprecated(
                 "3.5", message="Support for drawtype='line' is deprecated "
@@ -2760,10 +2801,11 @@ class RectangleSelector(_SelectorWidget):
                 lineprops = dict(color='black', linestyle='-',
                                  linewidth=2, alpha=0.5)
             lineprops['animated'] = self.useblit
-            self.lineprops = lineprops
-            self._to_draw = Line2D([0, 0], [0, 0], visible=False,
-                                   **self.lineprops)
-            self.ax.add_line(self._to_draw)
+            self._props = lineprops
+            to_draw = Line2D([0, 0], [0, 0], visible=False, **self._props)
+            self.ax.add_line(to_draw)
+
+        self._selection_artist = to_draw
 
         self.minspanx = minspanx
         self.minspany = minspany
@@ -2774,39 +2816,36 @@ class RectangleSelector(_SelectorWidget):
 
         self.grab_range = grab_range
 
-        handle_props = {
-            'markeredgecolor': (props or {}).get('edgecolor', 'black'),
-            **cbook.normalize_kwargs(handle_props, Line2D._alias_map)}
+        if self._interactive:
+            self._handle_props = {
+                'markeredgecolor': (self._props or {}).get(
+                    'edgecolor', 'black'),
+                **cbook.normalize_kwargs(handle_props, Line2D)}
 
-        self._corner_order = ['NW', 'NE', 'SE', 'SW']
-        xc, yc = self.corners
-        self._corner_handles = ToolHandles(self.ax, xc, yc,
-                                           marker_props=handle_props,
-                                           useblit=self.useblit)
+            self._corner_order = ['NW', 'NE', 'SE', 'SW']
+            xc, yc = self.corners
+            self._corner_handles = ToolHandles(self.ax, xc, yc,
+                                               marker_props=self._handle_props,
+                                               useblit=self.useblit)
 
-        self._edge_order = ['W', 'N', 'E', 'S']
-        xe, ye = self.edge_centers
-        self._edge_handles = ToolHandles(self.ax, xe, ye, marker='s',
-                                         marker_props=handle_props,
-                                         useblit=self.useblit)
+            self._edge_order = ['W', 'N', 'E', 'S']
+            xe, ye = self.edge_centers
+            self._edge_handles = ToolHandles(self.ax, xe, ye, marker='s',
+                                             marker_props=self._handle_props,
+                                             useblit=self.useblit)
 
-        xc, yc = self.center
-        self._center_handle = ToolHandles(self.ax, [xc], [yc], marker='s',
-                                          marker_props=handle_props,
-                                          useblit=self.useblit)
+            xc, yc = self.center
+            self._center_handle = ToolHandles(self.ax, [xc], [yc], marker='s',
+                                              marker_props=self._handle_props,
+                                              useblit=self.useblit)
 
-        self._active_handle = None
-
-        self.artists = [self._to_draw, self._center_handle.artist,
-                        self._corner_handles.artist,
-                        self._edge_handles.artist]
-
-        if not self._interactive:
-            self.artists = [self._to_draw]
+            self._active_handle = None
 
         self._extents_on_press = None
 
-    to_draw = _api.deprecate_privatize_attribute("3.5")
+    to_draw = _api.deprecated("3.5")(
+        property(lambda self: self._selection_artist)
+        )
 
     drawtype = _api.deprecate_privatize_attribute("3.5")
 
@@ -2818,11 +2857,16 @@ class RectangleSelector(_SelectorWidget):
         property(lambda self: self.grab_range,
                  lambda self, value: setattr(self, "grab_range", value)))
 
+    @property
+    def _handles_artists(self):
+        return (*self._center_handle.artists, *self._corner_handles.artists,
+                *self._edge_handles.artists)
+
     def _press(self, event):
         """Button press event handler."""
         # make the drawn box/line visible get the click-coordinates,
         # button, ...
-        if self._interactive and self._to_draw.get_visible():
+        if self._interactive and self._selection_artist.get_visible():
             self._set_active_handle(event)
         else:
             self._active_handle = None
@@ -2845,7 +2889,7 @@ class RectangleSelector(_SelectorWidget):
     def _release(self, event):
         """Button release event handler."""
         if not self._interactive:
-            self._to_draw.set_visible(False)
+            self._selection_artist.set_visible(False)
 
         if (self._active_handle is None and self._selection_completed and
                 self.ignore_event_outside):
@@ -2955,13 +2999,13 @@ class RectangleSelector(_SelectorWidget):
     @property
     def _rect_bbox(self):
         if self._drawtype == 'box':
-            x0 = self._to_draw.get_x()
-            y0 = self._to_draw.get_y()
-            width = self._to_draw.get_width()
-            height = self._to_draw.get_height()
+            x0 = self._selection_artist.get_x()
+            y0 = self._selection_artist.get_y()
+            width = self._selection_artist.get_width()
+            height = self._selection_artist.get_height()
             return x0, y0, width, height
         else:
-            x, y = self._to_draw.get_data()
+            x, y = self._selection_artist.get_data()
             x0, x1 = min(x), max(x)
             y0, y1 = min(y), max(y)
             return x0, y0, x1 - x0, y1 - y0
@@ -3002,10 +3046,11 @@ class RectangleSelector(_SelectorWidget):
     def extents(self, extents):
         # Update displayed shape
         self._draw_shape(extents)
-        # Update displayed handles
-        self._corner_handles.set_data(*self.corners)
-        self._edge_handles.set_data(*self.edge_centers)
-        self._center_handle.set_data(*self.center)
+        if self._interactive:
+            # Update displayed handles
+            self._corner_handles.set_data(*self.corners)
+            self._edge_handles.set_data(*self.edge_centers)
+            self._center_handle.set_data(*self.center)
         self.set_visible(self.visible)
         self.update()
 
@@ -3024,13 +3069,13 @@ class RectangleSelector(_SelectorWidget):
         ymax = min(ymax, ylim[1])
 
         if self._drawtype == 'box':
-            self._to_draw.set_x(xmin)
-            self._to_draw.set_y(ymin)
-            self._to_draw.set_width(xmax - xmin)
-            self._to_draw.set_height(ymax - ymin)
+            self._selection_artist.set_x(xmin)
+            self._selection_artist.set_y(ymin)
+            self._selection_artist.set_width(xmax - xmin)
+            self._selection_artist.set_height(ymax - ymin)
 
         elif self._drawtype == 'line':
-            self._to_draw.set_data([xmin, xmax], [ymin, ymax])
+            self._selection_artist.set_data([xmin, xmax], [ymin, ymax])
 
     def _set_active_handle(self, event):
         """Set active handle based on the location of the mouse event."""
@@ -3074,7 +3119,7 @@ class RectangleSelector(_SelectorWidget):
 
     def _contains(self, event):
         """Return True if event is within the patch."""
-        return self._to_draw.contains(event, radius=0)[0]
+        return self._selection_artist.contains(event, radius=0)[0]
 
     @property
     def geometry(self):
@@ -3085,12 +3130,12 @@ class RectangleSelector(_SelectorWidget):
         of the four corners of the rectangle starting and ending
         in the top left corner.
         """
-        if hasattr(self._to_draw, 'get_verts'):
+        if hasattr(self._selection_artist, 'get_verts'):
             xfm = self.ax.transData.inverted()
-            y, x = xfm.transform(self._to_draw.get_verts()).T
+            y, x = xfm.transform(self._selection_artist.get_verts()).T
             return np.array([x, y])
         else:
-            return np.array(self._to_draw.get_data())
+            return np.array(self._selection_artist.get_data())
 
 
 @docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING.replace(
@@ -3124,24 +3169,24 @@ class EllipseSelector(RectangleSelector):
         b = (ymax - ymin) / 2.
 
         if self._drawtype == 'box':
-            self._to_draw.center = center
-            self._to_draw.width = 2 * a
-            self._to_draw.height = 2 * b
+            self._selection_artist.center = center
+            self._selection_artist.width = 2 * a
+            self._selection_artist.height = 2 * b
         else:
             rad = np.deg2rad(np.arange(31) * 12)
             x = a * np.cos(rad) + center[0]
             y = b * np.sin(rad) + center[1]
-            self._to_draw.set_data(x, y)
+            self._selection_artist.set_data(x, y)
 
     @property
     def _rect_bbox(self):
         if self._drawtype == 'box':
-            x, y = self._to_draw.center
-            width = self._to_draw.width
-            height = self._to_draw.height
+            x, y = self._selection_artist.center
+            width = self._selection_artist.width
+            height = self._selection_artist.height
             return x - width / 2., y - height / 2., width, height
         else:
-            x, y = self._to_draw.get_data()
+            x, y = self._selection_artist.get_data()
             x0, x1 = min(x), max(x)
             y0, y1 = min(y), max(y)
             return x0, y0, x1 - x0, y1 - y0
@@ -3196,9 +3241,9 @@ class LassoSelector(_SelectorWidget):
             props = dict()
         # self.useblit may be != useblit, if the canvas doesn't support blit.
         props.update(animated=self.useblit, visible=False)
-        self.line = Line2D([], [], **props)
-        self.ax.add_line(self.line)
-        self.artists = [self.line]
+        line = Line2D([], [], **props)
+        self.ax.add_line(line)
+        self._selection_artist = line
 
     @_api.deprecated("3.5", alternative="press")
     def onpress(self, event):
@@ -3206,7 +3251,7 @@ class LassoSelector(_SelectorWidget):
 
     def _press(self, event):
         self.verts = [self._get_data(event)]
-        self.line.set_visible(True)
+        self._selection_artist.set_visible(True)
 
     @_api.deprecated("3.5", alternative="release")
     def onrelease(self, event):
@@ -3216,15 +3261,16 @@ class LassoSelector(_SelectorWidget):
         if self.verts is not None:
             self.verts.append(self._get_data(event))
             self.onselect(self.verts)
-        self.line.set_data([[], []])
-        self.line.set_visible(False)
+        self._selection_artist.set_data([[], []])
+        self._selection_artist.set_visible(False)
         self.verts = None
 
     def _onmove(self, event):
         if self.verts is None:
             return
         self.verts.append(self._get_data(event))
-        self.line.set_data(list(zip(*self.verts)))
+        self._selection_artist.set_data(list(zip(*self.verts)))
+
         self.update()
 
 
@@ -3312,21 +3358,27 @@ class PolygonSelector(_SelectorWidget):
         if props is None:
             props = dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
         props['animated'] = self.useblit
-        self.line = Line2D(self._xs, self._ys, **props)
-        self.ax.add_line(self.line)
+        self._props = props
+        line = Line2D(self._xs, self._ys, **self._props)
+        self.ax.add_line(line)
+        self._selection_artist = line
 
         if handle_props is None:
             handle_props = dict(markeredgecolor='k',
-                                markerfacecolor=props.get('color', 'k'))
+                                markerfacecolor=self._props.get('color', 'k'))
+        self._handle_props = handle_props
         self._polygon_handles = ToolHandles(self.ax, self._xs, self._ys,
                                             useblit=self.useblit,
-                                            marker_props=handle_props)
+                                            marker_props=self._handle_props)
 
         self._active_handle_idx = -1
         self.grab_range = grab_range
 
-        self.artists = [self.line, self._polygon_handles.artist]
         self.set_visible(True)
+
+    line = _api.deprecated("3.5")(
+        property(lambda self: self._selection_artist)
+        )
 
     vertex_select_radius = _api.deprecated("3.5", name="vertex_select_radius",
                                            alternative="grab_range")(
@@ -3337,6 +3389,10 @@ class PolygonSelector(_SelectorWidget):
     @property
     def _nverts(self):
         return len(self._xs)
+
+    @property
+    def _handles_artists(self):
+        return self._polygon_handles.artists
 
     def _remove_vertex(self, i):
         """Remove vertex with index i."""
@@ -3437,8 +3493,9 @@ class PolygonSelector(_SelectorWidget):
         # Position pending vertex.
         else:
             # Calculate distance to the start vertex.
-            x0, y0 = self.line.get_transform().transform((self._xs[0],
-                                                          self._ys[0]))
+            x0, y0 = self._selection_artist.get_transform().transform(
+                    (self._xs[0], self._ys[0])
+                )
             v0_dist = np.hypot(x0 - event.x, y0 - event.y)
             # Lock on to the start vertex if near it and ready to complete.
             if len(self._xs) > 3 and v0_dist < self.grab_range:
@@ -3478,7 +3535,7 @@ class PolygonSelector(_SelectorWidget):
 
     def _draw_polygon(self):
         """Redraw the polygon based on the new vertex positions."""
-        self.line.set_data(self._xs, self._ys)
+        self._selection_artist.set_data(self._xs, self._ys)
         # Only show one tool handle at the start and end vertex of the polygon
         # if the polygon is completed or the user is locked on to the start
         # vertex.
