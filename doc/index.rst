@@ -106,8 +106,9 @@ Matplotlib.
 Contributing
 ------------
 
+Matplotlib is a community project maitained for and by its users.  There are many ways
+you can help!
 
-.. toctree::
-   :maxdepth: 2
-
-   devel/index.rst
+- Help other users `on discourse <https://discourse.matplotlib.org>`__
+- report a bug or request a feature `on GitHub <https://github.com/matplotlib/matplotlib/issues>`__
+- or improve the :ref:`documentation and code <developers-guide-index>`

@@ -9,10 +9,15 @@ User guide
     :Release: |version|
     :Date: |today|
 
-.. toctree::
-    :maxdepth: 3
 
-    installing.rst
-    explain.rst
-    resource.rst
-    backmatter.rst
+
+
+.. toctree::
+   :maxdepth: 3
+
+   installing.rst
+   explain.rst
+   ../faq/index.rst
+   ../resources/index.rst
+   backmatter.rst
+   ../devel/index.rst
