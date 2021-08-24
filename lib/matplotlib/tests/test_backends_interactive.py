@@ -301,7 +301,7 @@ else:
 
 """
     proc = subprocess.run([sys.executable, "-c", test_script],
-                          env={"MPLBACKEND": ""})
+                          env={**os.environ, "MPLBACKEND": ""})
     if proc.returncode:
         pytest.fail("The subprocess returned with non-zero exit status "
                     f"{proc.returncode}.")
