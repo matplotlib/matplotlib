@@ -80,6 +80,8 @@ def blit(photoimage, aggimage, offsets, bbox=None):
 
     If *bbox* is passed, it defines the region that gets blitted. That region
     will be composed with the previous data according to the alpha channel.
+    Blitting will be clipped to pixels inside the canvas, including silently
+    doing nothing if the *bbox* region is entirely outside the canvas.
 
     Tcl events must be dispatched to trigger a blit from a non-Tcl thread.
     """
@@ -92,6 +94,8 @@ def blit(photoimage, aggimage, offsets, bbox=None):
         x2 = min(math.ceil(x2), width)
         y1 = max(math.floor(y1), 0)
         y2 = min(math.ceil(y2), height)
+        if (x1 > x2) or (y1 > y2):
+            return
         bboxptr = (x1, x2, y1, y2)
         comp_rule = TK_PHOTO_COMPOSITE_OVERLAY
     else:
