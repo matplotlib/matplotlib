@@ -667,7 +667,8 @@ static PyObject *PyFT2Font_fill_glyphs(PyFT2Font *self, PyObject *args, PyObject
                       || !(val = reinterpret_cast<PyObject *>(itr.second->get_pyfont()))
                       || (PyDict_SetItem(char_to_font, key, val) == -1));
         Py_XDECREF(key);
-        Py_XDECREF(val);
+        // do not decref value here, it's an FT2Font pointer
+
         if (error) {
             Py_DECREF(char_to_font);
             return NULL;
@@ -705,7 +706,8 @@ static PyObject *PyFT2Font_get_char_to_font(PyFT2Font *self, PyObject *args, PyO
                       || !(val = reinterpret_cast<PyObject *>(itr.second->get_pyfont()))
                       || (PyDict_SetItem(char_to_font, key, val) == -1));
         Py_XDECREF(key);
-        Py_XDECREF(val);
+        // do not decref value here, it's an FT2Font pointer
+
         if (error) {
             Py_DECREF(char_to_font);
             return NULL;
@@ -732,10 +734,9 @@ static PyObject *PyFT2Font_get_glyph_to_font(PyFT2Font *self, PyObject *args, Py
         bool error = (!(key = PyLong_FromLong(itr.first))
                       || !(val = reinterpret_cast<PyObject *>(itr.second->get_pyfont()))
                       || (PyDict_SetItem(glyph_to_font, key, val) == -1));
-        // Py_XDECREF(key);
-        // Py_XDECREF(val);
-        Py_INCREF(val);
-        Py_INCREF(key);
+        Py_XDECREF(key);
+        // do not decref value here, it's an FT2Font pointer
+
         if (error) {
             Py_DECREF(glyph_to_font);
             return NULL;
