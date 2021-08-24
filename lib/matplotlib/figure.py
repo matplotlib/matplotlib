@@ -2241,7 +2241,7 @@ class Figure(FigureBase):
                 tight_layout = True
                 constrained_layout = False
             else:
-                raise ValueError(f"Invalid value for 'layout': {layout!r}")
+                _api.check_in_list(['constrained', 'tight'], layout=layout)
 
         self.callbacks = cbook.CallbackRegistry()
         # Callbacks traditionally associated with the canvas (and exposed with
