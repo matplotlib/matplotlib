@@ -34,7 +34,8 @@ Installation
     Installing using pip
     ^^^^^^^^^^^
 
-    Matplotlib can be installed via pip from `PyPI <https://pypi.org/project/matplotlib>`__.
+    Matplotlib provides wheels for Linux, OSX, and Windows which can be
+    installed via pip from `PyPI <https://pypi.org/project/matplotlib>`__.
 
 
     .. code-block:: bash
