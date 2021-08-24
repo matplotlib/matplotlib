@@ -20,13 +20,12 @@ Installation
     :card: + install-card
     :column: col-lg-6 col-md-6 col-sm-12 col-xs-12 p-3
 
-    Working with conda?
+    Installing using conda
     ^^^^^^^^^^^^^^^^^^^
 
     Matplotlib is part of the `Anaconda <https://docs.continuum.io/anaconda/>`__
     distribution and can be installed with Anaconda or Miniconda:
 
-    ++++++++++++++++++++++
 
     .. code-block:: bash
 
@@ -34,7 +33,7 @@ Installation
 
     ---
 
-    Prefer pip?
+    Installing using pip
     ^^^^^^^^^^^
 
     Matplotlib can be installed via pip from `PyPI <https://pypi.org/project/matplotlib>`__.
@@ -46,17 +45,8 @@ Installation
         pip install matplotlib
 
     ---
-    :column: col-12 p-3
 
-    In-depth instructions?
-    ^^^^^^^^^^^^^^^^^^^^^^
-
-    Installing a specific version? Installing from source? Check the advanced
-    installation page.
-
-    .. container:: custom-button
-
-        :doc:`Installation Guide <users/installing>`
+Further details are availabe in the :doc:`Installation Guide <users/installing>`.
 
 
 Learning Resources
@@ -105,7 +95,7 @@ Learning Resources
 
 
 
-Third-party Packages
+Third-party packages
 --------------------
 
 There are many `Third-party packages
