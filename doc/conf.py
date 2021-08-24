@@ -294,6 +294,12 @@ html_logo = "_static/logo2.svg"
 html_theme_options = {
     "logo_link": "index",
     "collapse_navigation": True if CIRCLECI else False,
+    # "external_links": [
+    #     {
+    #         "name": "Third party packages",
+    #         "url": "https://matplotlib.org/mpl-third-party/"
+    #     },
+    # ],
     "icon_links": [
         {
             "name": "gitter",
