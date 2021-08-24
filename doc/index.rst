@@ -5,10 +5,8 @@
 .. module:: matplotlib
 
 
-Matplotlib documentation
-------------------------
-
-Release: |release|
+Matplotlib |release| documentation
+----------------------------------
 
 Matplotlib is a comprehensive library for creating static, animated,
 and interactive visualizations in Python.
@@ -38,13 +36,11 @@ Installation
 
     Matplotlib can be installed via pip from `PyPI <https://pypi.org/project/matplotlib>`__.
 
-    ++++
 
     .. code-block:: bash
 
         pip install matplotlib
 
-    ---
 
 Further details are availabe in the :doc:`Installation Guide <users/installing>`.
 
@@ -85,11 +81,10 @@ Learning resources
 
     - :doc:`API Reference <api/index>`
 
-      - :doc:`pyplot API <api/pyplot_summary>`: top-level interface to create
-        Figures (`.pyplot.figure`) and Subplots (`.pyplot.subplots`,
-        `.pyplot.subplot_mosaic`)
       - :doc:`Axes API <api/axes_api>` for *most* plotting methods
       - :doc:`Figure API <api/figure_api>` for figure-level methods
+      - Top-level interface to create Figures (`.pyplot.figure`) and Subplots
+        (`.pyplot.subplots`, `.pyplot.subplot_mosaic`)
 
     - :doc:`Extra Toolkits <api/toolkits/index>`
 
