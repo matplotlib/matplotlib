@@ -166,7 +166,7 @@ Further reading:
 - Most of the :ref:`examples <examples-index>` use the object-oriented approach
    (except for the pyplot section)
 
-The pylab API (disapproved)
+The pylab API (discouraged)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: pylab
