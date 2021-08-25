@@ -1978,10 +1978,7 @@ class _SelectorWidget(AxesWidget):
             key = event.key or ''
             key = key.replace('ctrl', 'control')
             if key == self.state_modifier_keys['clear']:
-                self._selection_completed = False
-                for artist in self.artists:
-                    artist.set_visible(False)
-                self.update()
+                self.clear()
                 return
             for (state, modifier) in self.state_modifier_keys.items():
                 if modifier in key:
@@ -2008,6 +2005,12 @@ class _SelectorWidget(AxesWidget):
         self.visible = visible
         for artist in self.artists:
             artist.set_visible(visible)
+
+    def clear(self):
+        """Clear the selection and set the selector ready to make a new one."""
+        self._selection_completed = False
+        self.set_visible(False)
+        self.update()
 
     @property
     def artists(self):
