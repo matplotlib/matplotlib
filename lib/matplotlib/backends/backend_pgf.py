@@ -612,7 +612,7 @@ class RendererPgf(RendererBase):
             # same shape on multiple sketched lines
             scale, length, randomness = sketch_params
             if scale is not None:
-                # make PGF output visually similar to matplotlib's sketched lines
+                # make matplotlib and PGF rendering visually similar
                 length *= 0.5
                 scale *= 2
                 # PGF guarantees that repeated loading is a no-op
