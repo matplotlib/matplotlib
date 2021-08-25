@@ -1651,19 +1651,23 @@ class BoundaryNorm(Normalize):
 
     Unlike `Normalize` or `LogNorm`, `BoundaryNorm` maps values to integers
     instead of to the interval 0-1.
-
-    Mapping to the 0-1 interval could have been done via piece-wise linear
-    interpolation, but using integers seems simpler, and reduces the number of
-    conversions back and forth between integer and floating point.
     """
+
+    # Mapping to the 0-1 interval could have been done via piece-wise linear
+    # interpolation, but using integers seems simpler, and reduces the number
+    # of conversions back and forth between int and float.
+
     def __init__(self, boundaries, ncolors, clip=False, *, extend='neither'):
         """
         Parameters
         ----------
         boundaries : array-like
-            Monotonically increasing sequence of at least 2 boundaries.
+            Monotonically increasing sequence of at least 2 bin edges:  data
+            falling in the n-th bin will be mapped to the n-th color.
+
         ncolors : int
             Number of colors in the colormap to be used.
+
         clip : bool, optional
             If clip is ``True``, out of range values are mapped to 0 if they
             are below ``boundaries[0]`` or mapped to ``ncolors - 1`` if they
@@ -1673,6 +1677,7 @@ class BoundaryNorm(Normalize):
             they are below ``boundaries[0]`` or mapped to *ncolors* if they are
             above ``boundaries[-1]``. These are then converted to valid indices
             by `Colormap.__call__`.
+
         extend : {'neither', 'both', 'min', 'max'}, default: 'neither'
             Extend the number of bins to include one or both of the
             regions beyond the boundaries.  For example, if ``extend``
@@ -1682,18 +1687,12 @@ class BoundaryNorm(Normalize):
             `~matplotlib.colorbar.Colorbar` will be drawn with
             the triangle extension on the left or lower end.
 
-        Returns
-        -------
-        int16 scalar or array
-
         Notes
         -----
-        *boundaries* defines the edges of bins, and data falling within a bin
-        is mapped to the color with the same index.
-
-        If the number of bins, including any extensions, is less than
-        *ncolors*, the color index is chosen by linear interpolation, mapping
-        the ``[0, nbins - 1]`` range onto the ``[0, ncolors - 1]`` range.
+        If there are fewer bins (including extensions) than colors, then the
+        color index is chosen by linearly interpolating the ``[0, nbins - 1]``
+        range onto the ``[0, ncolors - 1]`` range, effectively skipping some
+        colors in the middle of the colormap.
         """
         if clip and extend != 'neither':
             raise ValueError("'clip=True' is not compatible with 'extend'")
@@ -1722,6 +1721,10 @@ class BoundaryNorm(Normalize):
                              "number of bins")
 
     def __call__(self, value, clip=None):
+        """
+        This method behaves similarly to `.Normalize.__call__`, except that it
+        returns integers or arrays of int16.
+        """
         if clip is None:
             clip = self.clip
 
