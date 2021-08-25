@@ -379,8 +379,9 @@ def test_canvas_reinit():
 
 @pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_form_widget_get_with_datetime_and_date_fields():
-    if not QtWidgets.QApplication.instance():
-        QtWidgets.QApplication()
+    from matplotlib.backends.backend_qt import _create_qApp
+    _create_qApp()
+
     form = [
         ("Datetime field", datetime(year=2021, month=3, day=11)),
         ("Date field", date(year=2021, month=3, day=11))
