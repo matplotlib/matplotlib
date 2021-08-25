@@ -1245,8 +1245,8 @@ class DrawEvent(Event):
        Calling ``canvas.draw`` and ``canvas.blit`` in these callbacks may
        not be safe with all backends and may cause infinite recursion.
 
-    In addition to the `Event` attributes, the following event
-    attributes are defined:
+    A DrawEvent has a number of special attributes in addition to those defined
+    by the parent `Event` class.
 
     Attributes
     ----------
@@ -1262,8 +1262,8 @@ class ResizeEvent(Event):
     """
     An event triggered by a canvas resize.
 
-    In addition to the `Event` attributes, the following event
-    attributes are defined:
+    A ResizeEvent has a number of special attributes in addition to those
+    defined by the parent `Event` class.
 
     Attributes
     ----------
@@ -1285,13 +1285,13 @@ class LocationEvent(Event):
     """
     An event that has a screen location.
 
-    In addition to the `Event` attributes, the following event attributes are
-    defined:
+    A LocationEvent has a number of special attributes in addition to those
+    defined by the parent `Event` class.
 
     Attributes
     ----------
     x, y : int or None
-        Position in figure coordinates (pixels from bottom left of canvas).
+        Event location in pixels from bottom left of canvas.
     inaxes : `~.axes.Axes` or None
         The `~.axes.Axes` instance over which the mouse is, if any.
     xdata, ydata : float or None
@@ -1373,8 +1373,8 @@ class MouseEvent(LocationEvent):
     A mouse event ('button_press_event', 'button_release_event', \
 'scroll_event', 'motion_notify_event').
 
-    In addition to the `Event` and `LocationEvent` attributes, the below event
-    attributes are defined.
+    A MouseEvent has a number of special attributes in addition to those
+    defined by the parent `Event` and `LocationEvent` classes.
 
     Attributes
     ----------
@@ -1442,8 +1442,8 @@ class PickEvent(Event):
     sufficiently close to an artist that has been made pickable with
     `.Artist.set_picker`.
 
-    In addition to the `Event` attributes, the below event attributes are
-    defined.
+    A PickEvent has a number of special attributes in addition to those defined
+    by the parent `Event` class.
 
     Attributes
     ----------
@@ -1484,13 +1484,13 @@ class KeyEvent(LocationEvent):
     """
     A key event (key press, key release).
 
-    In addition to the `Event` and `LocationEvent` attributes, the below event
-    attributes are defined.
+    A KeyEvent has a number of special attributes in addition to those defined
+    by the parent `Event` and `LocationEvent` classes.
 
     Attributes
     ----------
     key : None or str
-        The key(s) pressed. Could be *None*, a single case sensitive ASCII
+        The key(s) pressed. Could be *None*, a single case sensitive Unicode
         character ("g", "G", "#", etc.), a special key ("control", "shift",
         "f1", "up", etc.) or a combination of the above (e.g., "ctrl+alt+g",
         "ctrl+alt+G").
