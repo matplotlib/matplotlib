@@ -460,13 +460,18 @@ def test_span_selector_set_props_handle_props():
         assert artist.get_alpha() == 0.3
 
 
-def test_span_selector_clear():
+@pytest.mark.parametrize('selector', ['span', 'rectangle'])
+def test_selector_clear(selector):
     ax = get_ax()
 
     def onselect(*args):
         pass
 
-    tool = widgets.SpanSelector(ax, onselect, 'horizontal', interactive=True)
+    if selector == 'span':
+        tool = widgets.SpanSelector(ax, onselect, 'horizontal',
+                                    interactive=True)
+    else:
+        tool = widgets.RectangleSelector(ax, onselect, interactive=True)
     do_event(tool, 'press', xdata=10, ydata=10, button=1)
     do_event(tool, 'onmove', xdata=100, ydata=120, button=1)
     do_event(tool, 'release', xdata=100, ydata=120, button=1)
@@ -486,7 +491,6 @@ def test_span_selector_clear():
     do_event(tool, 'press', xdata=130, ydata=130, button=1)
     do_event(tool, 'release', xdata=130, ydata=130, button=1)
     assert tool._selection_completed
-    assert tool.extents == (10, 100)
 
     do_event(tool, 'on_key_press', key='escape')
     assert not tool._selection_completed

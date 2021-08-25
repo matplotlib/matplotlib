@@ -1978,9 +1978,11 @@ class _SelectorWidget(AxesWidget):
             key = event.key or ''
             key = key.replace('ctrl', 'control')
             if key == self.state_modifier_keys['clear']:
+                self._selection_completed = False
                 for artist in self.artists:
                     artist.set_visible(False)
                 self.update()
+                return
             for (state, modifier) in self.state_modifier_keys.items():
                 if modifier in key:
                     self._state.add(state)
@@ -2314,11 +2316,6 @@ class SpanSelector(_SelectorWidget):
                 self._setup_edge_handles(self._handle_props)
         else:
             self._direction = direction
-
-    def _on_key_press(self, event):
-        key = event.key or ''
-        if key == self.state_modifier_keys['clear']:
-            self._selection_completed = False
 
     def _release(self, event):
         """Button release event handler."""
