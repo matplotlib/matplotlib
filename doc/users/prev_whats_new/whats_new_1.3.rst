@@ -1,7 +1,7 @@
 .. _whats-new-1-3:
 
-What's new in Matplotlib 1.3 (Aug 1, 2013)
-==========================================
+What's new in Matplotlib 1.3 (Aug 01, 2013)
+===========================================
 
 .. contents:: Table of Contents
    :depth: 2

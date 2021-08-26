@@ -1,7 +1,7 @@
 .. _whats-new-2-2-0:
 
-What's new in Matplotlib 2.2 (Mar 6, 2018)
-==========================================
+What's new in Matplotlib 2.2 (Mar 06, 2018)
+===========================================
 
 Constrained Layout Manager
 --------------------------

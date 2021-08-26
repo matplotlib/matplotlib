@@ -1,5 +1,5 @@
-Changes in 1.5.2
-================
+API Changes in 1.5.2
+====================
 
 
 Default Behavior Changes
