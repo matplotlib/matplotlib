@@ -390,8 +390,18 @@ def to_hex(c, keep_alpha=False):
     """
     Convert *c* to a hex color.
 
-    Uses the ``#rrggbb`` format if *keep_alpha* is False (the default),
-    ``#rrggbbaa`` otherwise.
+    Parameters
+    ----------
+    c : :doc:`color </tutorials/colors/colors>` or ``np.ma.masked``
+
+    keep_alpha: bool, optional
+      Uses the ``#rrggbb`` format if *keep_alpha* is False (the default),
+      otherwise uses ``#rrggbbaa``.
+
+    Returns
+    -------
+    str
+      ``#rrggbb`` or ``#rrggbbaa`` hex color string
     """
     c = to_rgba(c)
     if not keep_alpha:
