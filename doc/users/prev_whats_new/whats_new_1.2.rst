@@ -1,8 +1,8 @@
 .. _whats-new-1-2:
 
 
-New in matplotlib 1.2
-=====================
+What's new in Matplotlib 1.2 (Nov 9, 2012)
+==========================================
 
 .. contents:: Table of Contents
    :depth: 2

@@ -1,7 +1,7 @@
 .. _whats-new-0-98-4:
 
-New in matplotlib 0.98.4
-========================
+What's new in Matplotlib 0.98.4
+===============================
 
 .. contents:: Table of Contents
    :depth: 2

@@ -1,7 +1,7 @@
 .. _whats-new-1-0:
 
-New in matplotlib 1.0
-=====================
+What's new in Matplotlib 1.0 (Jul 6, 2010)
+==========================================
 
 .. contents:: Table of Contents
    :depth: 2
