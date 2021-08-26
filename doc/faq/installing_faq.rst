@@ -1,8 +1,8 @@
 .. _installing-faq:
 
-*************
- Installation
-*************
+**************
+Installing FAQ
+**************
 
 .. contents::
    :backlinks: none
