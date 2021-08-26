@@ -214,29 +214,31 @@ def test_fig_sigint_override(qt_core):
 
     signal.signal(signal.SIGINT, custom_handler)
 
-    # mainloop() sets SIGINT, starts Qt event loop (which triggers timer and
-    # exits) and then mainloop() resets SIGINT
-    matplotlib.backends.backend_qt._BackendQT.mainloop()
+    try:
+        # mainloop() sets SIGINT, starts Qt event loop (which triggers timer
+        # and exits) and then mainloop() resets SIGINT
+        matplotlib.backends.backend_qt._BackendQT.mainloop()
 
-    # Assert: signal handler during loop execution is changed
-    # (can't test equality with func)
-    assert event_loop_handler != custom_handler
+        # Assert: signal handler during loop execution is changed
+        # (can't test equality with func)
+        assert event_loop_handler != custom_handler
 
-    # Assert: current signal handler is the same as the one we set before
-    assert signal.getsignal(signal.SIGINT) == custom_handler
-
-    # Repeat again to test that SIG_DFL and SIG_IGN will not be overridden
-    for custom_handler in (signal.SIG_DFL, signal.SIG_IGN):
-        qt_core.QTimer.singleShot(0, fire_signal_and_quit)
-        signal.signal(signal.SIGINT, custom_handler)
-
-        _BackendQT5.mainloop()
-
-        assert event_loop_handler == custom_handler
+        # Assert: current signal handler is the same as the one we set before
         assert signal.getsignal(signal.SIGINT) == custom_handler
 
-    # Reset SIGINT handler to what it was before the test
-    signal.signal(signal.SIGINT, original_handler)
+        # Repeat again to test that SIG_DFL and SIG_IGN will not be overridden
+        for custom_handler in (signal.SIG_DFL, signal.SIG_IGN):
+            qt_core.QTimer.singleShot(0, fire_signal_and_quit)
+            signal.signal(signal.SIGINT, custom_handler)
+
+            _BackendQT5.mainloop()
+
+            assert event_loop_handler == custom_handler
+            assert signal.getsignal(signal.SIGINT) == custom_handler
+
+    finally:
+        # Reset SIGINT handler to what it was before the test
+        signal.signal(signal.SIGINT, original_handler)
 
 
 @pytest.mark.parametrize(
