@@ -24,6 +24,9 @@ except ImportError:
     pytestmark = pytest.mark.skip('No usable Qt bindings')
 
 
+_test_timeout = 60  # A reasonably safe value for slower architectures.
+
+
 @pytest.fixture
 def qt_core(request):
     backend, = request.node.get_closest_marker('backend').args
@@ -31,19 +34,6 @@ def qt_core(request):
     QtCore = qt_compat.QtCore
 
     return QtCore
-
-
-@pytest.fixture
-def platform_simulate_ctrl_c(request):
-    import signal
-    from functools import partial
-
-    if hasattr(signal, "CTRL_C_EVENT"):
-        win32api = pytest.importorskip('win32api')
-        return partial(win32api.GenerateConsoleCtrlEvent, 0, 0)
-    else:
-        # we're not on windows
-        return partial(os.kill, os.getpid(), signal.SIGINT)
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
@@ -64,50 +54,134 @@ def test_fig_close():
     assert init_figs == Gcf.figs
 
 
+class InterruptiblePopen(subprocess.Popen):
+    """
+    A Popen that passes flags that allow triggering KeyboardInterrupt.
+    """
+
+    def __init__(self, *args, **kwargs):
+        if sys.platform == 'win32':
+            kwargs['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP
+        super().__init__(
+            *args, **kwargs,
+            # Force Agg so that each test can switch to its desired Qt backend.
+            env={**os.environ, "MPLBACKEND": "Agg", "SOURCE_DATE_EPOCH": "0"},
+            stdout=subprocess.PIPE, universal_newlines=True)
+
+    def wait_for(self, terminator):
+        """Read until the terminator is reached."""
+        buf = ''
+        while True:
+            c = self.stdout.read(1)
+            if not c:
+                raise RuntimeError(
+                    f'Subprocess died before emitting expected {terminator!r}')
+            buf += c
+            if buf.endswith(terminator):
+                return
+
+    def interrupt(self):
+        """Interrupt process in a platform-specific way."""
+        if sys.platform == 'win32':
+            self.send_signal(signal.CTRL_C_EVENT)
+        else:
+            self.send_signal(signal.SIGINT)
+
+
+def _test_sigint_impl(backend, target_name, kwargs):
+    import sys
+    import matplotlib.pyplot as plt
+    plt.switch_backend(backend)
+    from matplotlib.backends.qt_compat import QtCore
+
+    target = getattr(plt, target_name)
+
+    fig = plt.figure()
+    fig.canvas.mpl_connect('draw_event',
+                           lambda *args: print('DRAW', flush=True))
+    try:
+        target(**kwargs)
+    except KeyboardInterrupt:
+        print('SUCCESS', flush=True)
+
+
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
 @pytest.mark.parametrize("target, kwargs", [
-    (plt.show, {"block": True}),
-    (plt.pause, {"interval": 10})
+    ('show', {'block': True}),
+    ('pause', {'interval': 10})
 ])
-def test_sigint(qt_core, platform_simulate_ctrl_c, target,
-                kwargs):
-    plt.figure()
-    def fire_signal():
-        platform_simulate_ctrl_c()
+def test_sigint(target, kwargs):
+    backend = plt.get_backend()
+    proc = InterruptiblePopen(
+        [sys.executable, "-c",
+         inspect.getsource(_test_sigint_impl) +
+         f"\n_test_sigint_impl({backend!r}, {target!r}, {kwargs!r})"])
+    try:
+        proc.wait_for('DRAW')
+        proc.interrupt()
+        stdout, _ = proc.communicate(timeout=_test_timeout)
+    except:
+        proc.kill()
+        stdout, _ = proc.communicate()
+        raise
+    print(stdout)
+    assert 'SUCCESS' in stdout
 
-    qt_core.QTimer.singleShot(100, fire_signal)
-    with pytest.raises(KeyboardInterrupt):
+
+def _test_other_signal_before_sigint_impl(backend, target_name, kwargs):
+    import signal
+    import sys
+    import matplotlib.pyplot as plt
+    plt.switch_backend(backend)
+    from matplotlib.backends.qt_compat import QtCore
+
+    target = getattr(plt, target_name)
+
+    fig = plt.figure()
+    fig.canvas.mpl_connect('draw_event',
+                           lambda *args: print('DRAW', flush=True))
+
+    timer = fig.canvas.new_timer(interval=1)
+    timer.single_shot = True
+    timer.add_callback(print, 'SIGUSR1', flush=True)
+
+    def custom_signal_handler(signum, frame):
+        timer.start()
+    signal.signal(signal.SIGUSR1, custom_signal_handler)
+
+    try:
         target(**kwargs)
+    except KeyboardInterrupt:
+        print('SUCCESS', flush=True)
 
 
+@pytest.mark.skipif(sys.platform == 'win32',
+                    reason='No other signal available to send on Windows')
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
 @pytest.mark.parametrize("target, kwargs", [
-    (plt.show, {"block": True}),
-    (plt.pause, {"interval": 10})
+    ('show', {'block': True}),
+    ('pause', {'interval': 10})
 ])
-def test_other_signal_before_sigint(qt_core, platform_simulate_ctrl_c,
-                                    target, kwargs):
+def test_other_signal_before_sigint(target, kwargs):
+    backend = plt.get_backend()
+    proc = InterruptiblePopen(
+        [sys.executable, "-c",
+         inspect.getsource(_test_other_signal_before_sigint_impl) +
+         "\n_test_other_signal_before_sigint_impl("
+            f"{backend!r}, {target!r}, {kwargs!r})"])
+    try:
+        proc.wait_for('DRAW')
+        os.kill(proc.pid, signal.SIGUSR1)
+        proc.wait_for('SIGUSR1')
+        proc.interrupt()
+        stdout, _ = proc.communicate(timeout=_test_timeout)
+    except:
+        proc.kill()
+        stdout, _ = proc.communicate()
+        raise
+    print(stdout)
+    assert 'SUCCESS' in stdout
     plt.figure()
-
-    sigcld_caught = False
-    def custom_sigpipe_handler(signum, frame):
-        nonlocal sigcld_caught
-        sigcld_caught = True
-    signal.signal(signal.SIGCHLD, custom_sigpipe_handler)
-
-    def fire_other_signal():
-        os.kill(os.getpid(), signal.SIGCHLD)
-
-    def fire_sigint():
-        platform_simulate_ctrl_c()
-
-    qt_core.QTimer.singleShot(50, fire_other_signal)
-    qt_core.QTimer.singleShot(100, fire_sigint)
-
-    with pytest.raises(KeyboardInterrupt):
-        target(**kwargs)
-
-    assert sigcld_caught
 
 
 @pytest.mark.backend('Qt5Agg')
@@ -547,8 +621,6 @@ def _get_testable_qt_backends():
                 reason=f"Skipping {env} because {reason}"))
         envs.append(pytest.param(env, marks=marks, id=str(env)))
     return envs
-
-_test_timeout = 60  # A reasonably safe value for slower architectures.
 
 
 @pytest.mark.parametrize("env", _get_testable_qt_backends())
