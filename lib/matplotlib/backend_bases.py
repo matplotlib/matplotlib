@@ -2041,10 +2041,10 @@ class FigureCanvasBase:
         """
         Render the `.Figure`.
 
-        It is important that this method actually walk the artist tree
-        even if not output is produced because this will trigger
-        deferred work (like computing limits auto-limits and tick
-        values) that users may want access to before saving to disk.
+        This method must walk the artist tree, even if no output is produced,
+        because it triggers deferred work that users may want to access
+        before saving output to disk. For example computing limits,
+        auto-limits, and tick values.
         """
 
     def draw_idle(self, *args, **kwargs):
