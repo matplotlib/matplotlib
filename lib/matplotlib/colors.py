@@ -394,9 +394,8 @@ def to_hex(c, keep_alpha=False):
     ----------
     c : :doc:`color </tutorials/colors/colors>` or ``np.ma.masked``
 
-    keep_alpha: bool, optional
-      Uses the ``#rrggbb`` format if *keep_alpha* is False (the default),
-      otherwise uses ``#rrggbbaa``.
+    keep_alpha: bool, default: False
+      If False, use the ``#rrggbb`` format, otherwise use ``#rrggbbaa``.
 
     Returns
     -------
