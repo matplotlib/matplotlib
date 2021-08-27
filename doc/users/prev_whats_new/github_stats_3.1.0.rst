@@ -1,9 +1,9 @@
 .. _github-stats-3-1-0:
 
-GitHub Stats for Matplotlib 3.1.0
-=================================
+GitHub statistics for 3.1.0 (May 18, 2019)
+==========================================
 
-GitHub stats for 2018/09/18 - 2019/05/13 (tag: v3.0.0)
+GitHub statistics for 2018/09/18 (tag: v3.0.0) - 2019/05/18
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
