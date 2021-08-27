@@ -276,7 +276,7 @@ class Path:
             codes = self.codes.copy()
         except AttributeError:
             codes = None
-        return self.__class__(
+        return Path(
             self.vertices.copy(), codes,
             _interpolation_steps=self._interpolation_steps)
 
