@@ -6,6 +6,7 @@ Installation
    :hidden:
 
    installing_source.rst
+   ../faq/installing_faq.rst
 
 
 ==============================
@@ -90,3 +91,8 @@ Installing for development
 ==========================
 See :ref:`installing_for_devs`.
 
+==============
+Installing FAQ
+==============
+
+See :ref:`installing-faq`.
