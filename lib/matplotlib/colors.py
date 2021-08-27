@@ -392,7 +392,7 @@ def to_hex(c, keep_alpha=False):
 
     Parameters
     ----------
-    c : :doc:`color </tutorials/colors/colors>` or ``np.ma.masked``
+    c : :doc:`color </tutorials/colors/colors>` or `np.ma.masked`
 
     keep_alpha: bool, default: False
       If False, use the ``#rrggbb`` format, otherwise use ``#rrggbbaa``.
