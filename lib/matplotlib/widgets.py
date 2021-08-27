@@ -1978,9 +1978,7 @@ class _SelectorWidget(AxesWidget):
             key = event.key or ''
             key = key.replace('ctrl', 'control')
             if key == self.state_modifier_keys['clear']:
-                for artist in self.artists:
-                    artist.set_visible(False)
-                self.update()
+                self.clear()
                 return
             for (state, modifier) in self.state_modifier_keys.items():
                 if modifier in key:
@@ -2007,6 +2005,12 @@ class _SelectorWidget(AxesWidget):
         self.visible = visible
         for artist in self.artists:
             artist.set_visible(visible)
+
+    def clear(self):
+        """Clear the selection and set the selector ready to make a new one."""
+        self._selection_completed = False
+        self.set_visible(False)
+        self.update()
 
     @property
     def artists(self):
@@ -2354,9 +2358,11 @@ class SpanSelector(_SelectorWidget):
         if self.ignore(event):
             return
 
-        if self._active_handle is not None:
+        if self._active_handle is not None or not self._selection_completed:
             # Do nothing if button is pressed and a handle is active, which may
             # occur with drag_from_anywhere=True.
+            # Do nothing if selection is not completed, which occurs when
+            # a selector has been cleared
             return
 
         _, e_dist = self._edge_handles.closest(event.x, event.y)
