@@ -3624,7 +3624,7 @@ class Axes(_AxesBase):
 
         patch_artist : bool, default: False
             If `False` produces boxes with the Line2D artist. Otherwise,
-            boxes and drawn with Patch artists.
+            boxes are drawn with Patch artists.
 
         labels : sequence, optional
             Labels for each dataset (one per dataset).
