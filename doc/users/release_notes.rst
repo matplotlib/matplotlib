@@ -53,6 +53,7 @@ Version 3.1
     prev_whats_new/whats_new_3.1.0.rst
     ../api/prev_api_changes/api_changes_3.1.1.rst
     ../api/prev_api_changes/api_changes_3.1.0.rst
+    prev_whats_new/github_stats_3.1.3.rst
     prev_whats_new/github_stats_3.1.2.rst
     prev_whats_new/github_stats_3.1.1.rst
     prev_whats_new/github_stats_3.1.0.rst
@@ -65,7 +66,10 @@ Version 3.0
     prev_whats_new/whats_new_3.0.rst
     ../api/prev_api_changes/api_changes_3.0.1.rst
     ../api/prev_api_changes/api_changes_3.0.0.rst
+    prev_whats_new/github_stats_3.0.3.rst
     prev_whats_new/github_stats_3.0.2.rst
+    prev_whats_new/github_stats_3.0.1.rst
+    prev_whats_new/github_stats_3.0.0.rst
 
 Version 2.2
 ===========
