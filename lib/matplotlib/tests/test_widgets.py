@@ -467,11 +467,14 @@ def test_selector_clear(selector):
     def onselect(*args):
         pass
 
+    kwargs = dict(ax=ax, onselect=onselect, interactive=True)
     if selector == 'span':
-        tool = widgets.SpanSelector(ax, onselect, 'horizontal',
-                                    interactive=True)
+        Selector = widgets.SpanSelector
+        kwargs['direction'] = 'horizontal'
     else:
-        tool = widgets.RectangleSelector(ax, onselect, interactive=True)
+        Selector = widgets.RectangleSelector
+
+    tool = Selector(**kwargs)
     do_event(tool, 'press', xdata=10, ydata=10, button=1)
     do_event(tool, 'onmove', xdata=100, ydata=120, button=1)
     do_event(tool, 'release', xdata=100, ydata=120, button=1)
@@ -481,8 +484,10 @@ def test_selector_clear(selector):
     do_event(tool, 'release', xdata=130, ydata=130, button=1)
     assert not tool._selection_completed
 
-    tool = widgets.SpanSelector(ax, onselect, 'horizontal', interactive=True,
-                                ignore_event_outside=True)
+    ax = get_ax()
+    kwargs['ignore_event_outside'] = True
+    tool = Selector(**kwargs)
+    assert tool.ignore_event_outside
     do_event(tool, 'press', xdata=10, ydata=10, button=1)
     do_event(tool, 'onmove', xdata=100, ydata=120, button=1)
     do_event(tool, 'release', xdata=100, ydata=120, button=1)
