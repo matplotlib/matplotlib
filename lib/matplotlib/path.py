@@ -33,7 +33,7 @@ class Path:
 
     These two arrays always have the same length in the first
     dimension.  For example, to represent a cubic curve, you must
-    provide three vertices as well as three codes ``CURVE3``.
+    provide three vertices as well as three codes ``CURVE4``.
 
     The code types are:
 
