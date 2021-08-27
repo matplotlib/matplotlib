@@ -9,8 +9,8 @@ Release notes
 .. include from another document so that it's easy to exclude this for releases
 .. include:: release_notes_next.rst
 
-3.4
-===
+Version 3.4
+===========
 .. toctree::
     :maxdepth: 1
 
@@ -20,8 +20,8 @@ Release notes
     prev_whats_new/github_stats_3.4.1.rst
     prev_whats_new/github_stats_3.4.0.rst
 
-3.3
-===
+Version 3.3
+===========
 .. toctree::
     :maxdepth: 1
 
@@ -34,8 +34,8 @@ Release notes
     prev_whats_new/github_stats_3.3.1.rst
     prev_whats_new/github_stats_3.3.0.rst
 
-3.2
-===
+Version 3.2
+===========
 .. toctree::
     :maxdepth: 1
 
@@ -45,8 +45,8 @@ Release notes
     prev_whats_new/github_stats_3.2.1.rst
     prev_whats_new/github_stats_3.2.0.rst
 
-3.1
-===
+Version 3.1
+===========
 .. toctree::
     :maxdepth: 1
 
@@ -57,8 +57,8 @@ Release notes
     prev_whats_new/github_stats_3.1.1.rst
     prev_whats_new/github_stats_3.1.0.rst
 
-3.0
-===
+Version 3.0
+===========
 .. toctree::
     :maxdepth: 1
 
@@ -67,16 +67,16 @@ Release notes
     ../api/prev_api_changes/api_changes_3.0.0.rst
     prev_whats_new/github_stats_3.0.2.rst
 
-2.2
-===
+Version 2.2
+===========
 .. toctree::
     :maxdepth: 1
 
     prev_whats_new/whats_new_2.2.rst
     ../api/prev_api_changes/api_changes_2.2.0.rst
 
-2.1
-===
+Version 2.1
+===========
 .. toctree::
     :maxdepth: 1
 
@@ -85,8 +85,8 @@ Release notes
     ../api/prev_api_changes/api_changes_2.1.1.rst
     ../api/prev_api_changes/api_changes_2.1.0.rst
 
-2.0
-===
+Version 2.0
+===========
 .. toctree::
     :maxdepth: 1
 
@@ -94,8 +94,8 @@ Release notes
     ../api/prev_api_changes/api_changes_2.0.1.rst
     ../api/prev_api_changes/api_changes_2.0.0.rst
 
-1.5
-===
+Version 1.5
+===========
 .. toctree::
     :maxdepth: 1
 
@@ -103,8 +103,8 @@ Release notes
     ../api/prev_api_changes/api_changes_1.5.3.rst
     ../api/prev_api_changes/api_changes_1.5.2.rst
 
-1.4
-===
+Version 1.4
+===========
 .. toctree::
     :maxdepth: 1
 
@@ -112,16 +112,16 @@ Release notes
     ../api/prev_api_changes/api_changes_1.4.x.rst
     ../api/prev_api_changes/api_changes_1.5.0.rst
 
-1.3
-===
+Version 1.3
+===========
 .. toctree::
     :maxdepth: 1
 
     prev_whats_new/whats_new_1.3.rst
     ../api/prev_api_changes/api_changes_1.3.x.rst
 
-1.2
-===
+Version 1.2
+===========
 .. toctree::
     :maxdepth: 1
 
@@ -129,23 +129,23 @@ Release notes
     prev_whats_new/whats_new_1.2.rst
     ../api/prev_api_changes/api_changes_1.2.x.rst
 
-1.1
-===
+Version 1.1
+===========
 .. toctree::
     :maxdepth: 1
 
     prev_whats_new/whats_new_1.1.rst
     ../api/prev_api_changes/api_changes_1.1.x.rst
 
-1.0
-===
+Version 1.0
+===========
 .. toctree::
     :maxdepth: 1
 
     prev_whats_new/whats_new_1.0.rst
 
-0.x
-===
+Version 0.x
+===========
 .. toctree::
     :maxdepth: 1
 
