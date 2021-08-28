@@ -102,6 +102,10 @@ class ColormapRegistry(Mapping):
     r"""
     Container for colormaps that are known to Matplotlib by name.
 
+    .. admonition:: Experimental
+
+       This API is experimental and may still change in future versions.
+
     The universal registry instance is `matplotlib.colormaps`. There should be
     no need for users to instantiate `.ColormapRegistry` themselves.
 

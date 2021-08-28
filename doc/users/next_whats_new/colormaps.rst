@@ -1,8 +1,9 @@
-Colormap registry
-------------------
+Colormap registry (experimental)
+--------------------------------
 
 Colormaps are now managed via `matplotlib.colormaps`, which is a
-`.ColormapRegistry`.
+`.ColormapRegistry`. This API is experimental and may still change in future
+versions.
 
 Colormaps can be obtained using item access::
 
