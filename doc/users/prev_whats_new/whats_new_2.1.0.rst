@@ -1,7 +1,7 @@
 .. _whats-new-2-1-0:
 
-New in Matplotlib 2.1.0
-=======================
+What's new in Matplotlib 2.1.0 (Oct 7, 2017)
+============================================
 
 Documentation
 +++++++++++++
