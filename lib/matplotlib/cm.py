@@ -140,6 +140,17 @@ class ColormapRegistry(Mapping):
         return ('ColormapRegistry; available colormaps:\n' +
                 ', '.join(f"'{name}'" for name in self))
 
+    def __call__(self):
+        """
+        Return a list of the registered colormap names.
+
+        This exists only for backward-compatibilty in `.pyplot` which had a
+        ``plt.colormaps()`` method. The recommended way to get this list is
+        now ``list(colormaps)``.
+        """
+        return list(self)
+
+
     def register(self, cmap, *, name=None, force=False):
         """
         Register a new colormap.
