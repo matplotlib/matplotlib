@@ -412,11 +412,11 @@ def test_autofmt_xdate(which):
 @mpl.style.context('default')
 def test_change_dpi():
     fig = plt.figure(figsize=(4, 4))
-    fig.draw_no_output()
+    fig.draw_without_rendering()
     assert fig.canvas.renderer.height == 400
     assert fig.canvas.renderer.width == 400
     fig.dpi = 50
-    fig.draw_no_output()
+    fig.draw_without_rendering()
     assert fig.canvas.renderer.height == 200
     assert fig.canvas.renderer.width == 200
 
@@ -1082,10 +1082,10 @@ def test_subfigure_ticks():
     ax3 = subfig_bl.add_subplot(gs[0, 3:14], sharey=ax1)
 
     fig.set_dpi(120)
-    fig.draw_no_output()
+    fig.draw_without_rendering()
     ticks120 = ax2.get_xticks()
     fig.set_dpi(300)
-    fig.draw_no_output()
+    fig.draw_without_rendering()
     ticks300 = ax2.get_xticks()
     np.testing.assert_allclose(ticks120, ticks300)
 

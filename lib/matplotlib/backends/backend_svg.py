@@ -1343,7 +1343,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         return 'svg'
 
     def draw(self):
-        self.figure.draw_no_output()
+        self.figure.draw_without_rendering()
         return super().draw()
 
 
