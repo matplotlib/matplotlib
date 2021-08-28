@@ -1,19 +1,22 @@
 Colormap registry (experimental)
 --------------------------------
 
-Colormaps are now managed via `matplotlib.colormaps`, which is a
-`.ColormapRegistry`. This API is experimental and may still change in future
-versions.
+Colormaps are now managed via `matplotlib.colormaps` (or `.pyplot.colormaps`),
+which is a `.ColormapRegistry`. While we are confident that the API is final,
+we formally mark it as experimental for 3.5 because we want to keep the option
+to still adapt the API for 3.6 should the need arise.
 
 Colormaps can be obtained using item access::
 
-    import matplotlib as mpl
-    cmap = mpl.colormaps['viridis']
+    import matplotlib.pyplot as plt
+    cmap = plt.colormaps['viridis']
 
 To register new colormaps use::
 
-    mpl.colormaps.register(my_colormap)
+    plt.colormaps.register(my_colormap)
 
-The use of `matplotlib.cm.get_cmap` and `matplotlib.cm.register_cmap` is
-discouraged in favor of the above. Within `.pyplot` the use of
-``plt.get_cmap()`` and ``plt.register_cmap()`` will continue to be supported.
+We recommend to use the new API instead of the `~.cm.get_cmap` and
+`~.cm.register_cmap` functions for new code. `matplotlib.cm.get_cmap` and
+`matplotlib.cm.register_cmap` will eventually be deprecated and removed.
+Within `.pyplot` ``plt.get_cmap()`` and ``plt.register_cmap()`` will continue
+to be supported for backward compatibility.

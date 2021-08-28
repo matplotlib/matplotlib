@@ -104,7 +104,9 @@ class ColormapRegistry(Mapping):
 
     .. admonition:: Experimental
 
-       This API is experimental and may still change in future versions.
+       While we expect the API to be final, we formally mark it as
+       experimental for 3.5 because we want to keep the option to still adapt
+       the API for 3.6 should the need arise.
 
     The universal registry instance is `matplotlib.colormaps`. There should be
     no need for users to instantiate `.ColormapRegistry` themselves.
@@ -149,7 +151,6 @@ class ColormapRegistry(Mapping):
         now ``list(colormaps)``.
         """
         return list(self)
-
 
     def register(self, cmap, *, name=None, force=False):
         """
