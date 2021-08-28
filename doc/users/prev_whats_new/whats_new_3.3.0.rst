@@ -1,6 +1,8 @@
-==============================
-What's new in Matplotlib 3.3.0
-==============================
+.. _whats-new-3-3-0:
+
+=============================================
+What's new in Matplotlib 3.3.0 (Jul 16, 2020)
+=============================================
 
 For a list of all of the issues and pull requests since the last
 revision, see the :ref:`github-stats`.

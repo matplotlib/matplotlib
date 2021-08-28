@@ -1,8 +1,8 @@
 .. _whats-new-1-4:
 
 
-New in matplotlib 1.4
-=====================
+What's new in Matplotlib 1.4 (Aug 25, 2014)
+===========================================
 
 Thomas A. Caswell served as the release manager for the 1.4 release.
 

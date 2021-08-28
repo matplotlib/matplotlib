@@ -172,17 +172,18 @@ if __name__ == "__main__":
 
     n_issues, n_pulls = map(len, (issues, pulls))
     n_total = n_issues + n_pulls
+    since_day = since.strftime("%Y/%m/%d")
+    today = datetime.today()
 
     # Print summary report we can directly include into release notes.
     print('.. _github-stats:')
     print()
-    print('GitHub statistics')
-    print('=================')
+    title = 'GitHub statistics ' + today.strftime('(%b %d, %Y)')
+    print(title)
+    print('=' * len(title))
 
     print()
-    since_day = since.strftime("%Y/%m/%d")
-    today = datetime.today().strftime("%Y/%m/%d")
-    print("GitHub statistics for %s - %s (tag: %s)" % (since_day, today, tag))
+    print("GitHub statistics for %s (tag: %s) - %s" % (since_day, tag, today.strftime("%Y/%m/%d"), ))
     print()
     print("These lists are automatically generated, and may be incomplete or contain duplicates.")
     print()

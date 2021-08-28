@@ -1,8 +1,8 @@
 .. _changes_in_1_3:
 
 
-Changes in 1.3.x
-================
+API Changes in 1.3.x
+====================
 
 Changes in 1.3.1
 ----------------
