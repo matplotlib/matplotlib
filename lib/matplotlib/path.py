@@ -29,11 +29,11 @@ class Path:
     The underlying storage is made up of two parallel numpy arrays:
 
     - *vertices*: an Nx2 float array of vertices
-    - *codes*: an N-length uint8 array of vertex types, or None
+    - *codes*: an N-length uint8 array of path codes, or None
 
     These two arrays always have the same length in the first
     dimension.  For example, to represent a cubic curve, you must
-    provide three vertices as well as three codes ``CURVE4``.
+    provide three vertices and three ``CURVE4`` codes.
 
     The code types are:
 
@@ -109,7 +109,7 @@ class Path:
             handled correctly by the Agg PathIterator and other consumers of
             path data, such as :meth:`iter_segments`.
         codes : array-like or None, optional
-            n-length array integers representing the codes of the path.
+            N-length array of integers representing the codes of the path.
             If not None, codes must be the same length as vertices.
             If None, *vertices* will be treated as a series of line segments.
         _interpolation_steps : int, optional
@@ -288,7 +288,7 @@ class Path:
         Make a compound path object to draw a number
         of polygons with equal numbers of sides XY is a (numpolys x
         numsides x 2) numpy array of vertices.  Return object is a
-        :class:`Path`
+        :class:`Path`.
 
         .. plot:: gallery/misc/histogram_path.py
 
@@ -314,8 +314,8 @@ class Path:
     @classmethod
     def make_compound_path(cls, *args):
         """
-        Make a compound path from a list of Path objects. Blindly removes all
-        Path.STOP control points.
+        Make a compound path from a list of `Path` objects. Blindly removes
+        all `Path.STOP` control points.
         """
         # Handle an empty list in args (i.e. no args).
         if not args:
@@ -917,8 +917,8 @@ class Path:
     @classmethod
     def arc(cls, theta1, theta2, n=None, is_wedge=False):
         """
-        Return the unit circle arc from angles *theta1* to *theta2* (in
-        degrees).
+        Return a `Path` for the unit circle arc from angles *theta1* to
+        *theta2* (in degrees).
 
         *theta2* is unwrapped to produce the shortest arc within 360 degrees.
         That is, if *theta2* > *theta1* + 360, the arc will be from *theta1* to
@@ -996,8 +996,8 @@ class Path:
     @classmethod
     def wedge(cls, theta1, theta2, n=None):
         """
-        Return the unit circle wedge from angles *theta1* to *theta2* (in
-        degrees).
+        Return a `Path` for the unit circle wedge from angles *theta1* to
+        *theta2* (in degrees).
 
         *theta2* is unwrapped to produce the shortest wedge within 360 degrees.
         That is, if *theta2* > *theta1* + 360, the wedge will be from *theta1*
