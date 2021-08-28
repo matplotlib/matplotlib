@@ -18,6 +18,7 @@ def test_deepcopy():
     # Should not raise any error
     path = TextPath((0, 0), ".")
     path_copy = deepcopy(path)
+    assert isinstance(path_copy, TextPath)
     assert path is not path_copy
     assert path.vertices is not path_copy.vertices
     assert path.codes is not path_copy.codes
