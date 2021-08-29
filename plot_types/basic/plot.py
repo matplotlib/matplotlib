@@ -1,6 +1,6 @@
 """
 ==========
-plot(X, Y)
+plot(x, y)
 ==========
 
 See `~matplotlib.axes.Axes.plot`.
