@@ -349,7 +349,7 @@ class Patch(artist.Artist):
 
         Parameters
         ----------
-        color : color or None or 'auto'
+        color : color or None
         """
         self._original_edgecolor = color
         self._set_edgecolor(color)
