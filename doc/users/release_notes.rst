@@ -106,6 +106,7 @@ Version 1.5
     prev_whats_new/whats_new_1.5.rst
     ../api/prev_api_changes/api_changes_1.5.3.rst
     ../api/prev_api_changes/api_changes_1.5.2.rst
+    ../api/prev_api_changes/api_changes_1.5.0.rst
 
 Version 1.4
 ===========
@@ -114,7 +115,6 @@ Version 1.4
 
     prev_whats_new/whats_new_1.4.rst
     ../api/prev_api_changes/api_changes_1.4.x.rst
-    ../api/prev_api_changes/api_changes_1.5.0.rst
 
 Version 1.3
 ===========
