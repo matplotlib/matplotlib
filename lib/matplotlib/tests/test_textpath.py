@@ -15,9 +15,14 @@ def test_set_size():
 
 
 def test_deepcopy():
-    # Should not raise any error
     path = TextPath((0, 0), ".")
     path_copy = deepcopy(path)
+    assert isinstance(path_copy, TextPath)
+    assert path is not path_copy
+    assert path.vertices is not path_copy.vertices
+    assert path.codes is not path_copy.codes
+    path = TextPath((0, 0), ".")
+    path_copy = path.deepcopy({})
     assert isinstance(path_copy, TextPath)
     assert path is not path_copy
     assert path.vertices is not path_copy.vertices
@@ -25,7 +30,6 @@ def test_deepcopy():
 
 
 def test_copy():
-    # Should not raise any error
     path = TextPath((0, 0), ".")
     path_copy = copy(path)
     assert path is not path_copy

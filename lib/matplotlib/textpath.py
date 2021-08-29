@@ -1,3 +1,4 @@
+from copy import deepcopy
 from collections import OrderedDict
 import functools
 import logging
@@ -429,3 +430,23 @@ class TextPath(Path):
             self._cached_vertices = tr.transform(self._vertices)
             self._cached_vertices.flags.writeable = False
             self._invalid = False
+
+    def __deepcopy__(self, memo):
+        # taken from https://stackoverflow.com/a/15774013
+        self._revalidate_path()
+        cls = self.__class__
+        new_instance = cls.__new__(cls)
+        memo[id(self)] = new_instance
+        for k, v in self.__dict__.items():
+            setattr(new_instance, k, deepcopy(v, memo))
+        return new_instance
+
+    deepcopy = __deepcopy__
+
+    def __copy__(self):
+        # taken from https://stackoverflow.com/a/15774013
+        self._revalidate_path()
+        cls = self.__class__
+        new_instance = cls.__new__(cls)
+        new_instance.__dict__.update(self.__dict__)
+        return new_instance
