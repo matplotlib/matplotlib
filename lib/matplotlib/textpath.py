@@ -381,6 +381,7 @@ class TextPath(Path):
             size = prop.get_size_in_points()
 
         self._xy = xy
+        self.set_size(size)
 
         self._cached_vertices = None
         s, ismath = Text(usetex=usetex)._preprocess_math(s)
@@ -389,12 +390,11 @@ class TextPath(Path):
             _interpolation_steps=_interpolation_steps,
             readonly=True)
         self._should_simplify = False
-        self.set_size(size)
 
     def set_size(self, size):
         """Set the text size."""
         self._size = size
-        self._recache_path()
+        self._invalid = True
 
     def get_size(self):
         """Get the text size."""
@@ -403,8 +403,9 @@ class TextPath(Path):
     @property
     def vertices(self):
         """
-        Return the cached path.
+        Return the cached path after updating it if necessary.
         """
+        self._revalidate_path()
         return self._cached_vertices
 
     @property
@@ -414,15 +415,17 @@ class TextPath(Path):
         """
         return self._codes
 
-    def _recache_path(self):
+    def _revalidate_path(self):
         """
-        Update the path.
+        Update the path if necessary.
 
-        The path for the text is initially created with the font size of
+        The path for the text is initially create with the font size of
         `.FONT_SCALE`, and this path is rescaled to other size when necessary.
         """
-        tr = (Affine2D()
-                .scale(self._size / text_to_path.FONT_SCALE)
-                .translate(*self._xy))
-        self._cached_vertices = tr.transform(self._vertices)
-        self._cached_vertices.flags.writeable = False
+        if self._invalid or self._cached_vertices is None:
+            tr = (Affine2D()
+                  .scale(self._size / text_to_path.FONT_SCALE)
+                  .translate(*self._xy))
+            self._cached_vertices = tr.transform(self._vertices)
+            self._cached_vertices.flags.writeable = False
+            self._invalid = False
