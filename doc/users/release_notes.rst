@@ -102,6 +102,7 @@ Release notes
     prev_whats_new/whats_new_1.5.rst
     ../api/prev_api_changes/api_changes_1.5.3.rst
     ../api/prev_api_changes/api_changes_1.5.2.rst
+    ../api/prev_api_changes/api_changes_1.5.0.rst
 
 1.4
 ===
@@ -110,7 +111,6 @@ Release notes
 
     prev_whats_new/whats_new_1.4.rst
     ../api/prev_api_changes/api_changes_1.4.x.rst
-    ../api/prev_api_changes/api_changes_1.5.0.rst
 
 1.3
 ===
