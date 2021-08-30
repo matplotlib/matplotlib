@@ -12,6 +12,7 @@ import numpy as np
 
 import matplotlib as mpl
 from . import _api, cbook
+from .cm import ScalarMappable
 from .path import Path
 from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
                          TransformedPatchPath, TransformedPath)
@@ -1258,17 +1259,18 @@ class Artist:
         --------
         get_cursor_data
         """
-        if np.ndim(data) == 0 and getattr(self, "colorbar", None):
+        if np.ndim(data) == 0 and isinstance(self, ScalarMappable):
             # This block logically belongs to ScalarMappable, but can't be
             # implemented in it because most ScalarMappable subclasses inherit
             # from Artist first and from ScalarMappable second, so
             # Artist.format_cursor_data would always have precedence over
             # ScalarMappable.format_cursor_data.
-            return (
-                "["
-                + cbook.strip_math(
-                    self.colorbar.formatter.format_data_short(data)).strip()
-                + "]")
+            n = self.cmap.N
+            # Midpoints of neighboring color intervals.
+            neighbors = self.norm.inverse(
+                (int(self.norm(data) * n) + np.array([0, 1])) / n)
+            delta = abs(neighbors - data).max()
+            return "[{:-#.{}g}]".format(data, cbook._g_sig_digits(data, delta))
         else:
             try:
                 data[0]

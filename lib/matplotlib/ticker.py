@@ -655,16 +655,7 @@ class ScalarFormatter(Formatter):
                 # Rough approximation: no more than 1e4 divisions.
                 a, b = self.axis.get_view_interval()
                 delta = (b - a) / 1e4
-            # If e.g. value = 45.67 and delta = 0.02, then we want to round to
-            # 2 digits after the decimal point (floor(log10(0.02)) = -2);
-            # 45.67 contributes 2 digits before the decimal point
-            # (floor(log10(45.67)) + 1 = 2): the total is 4 significant digits.
-            # A value of 0 contributes 1 "digit" before the decimal point.
-            sig_digits = max(
-                0,
-                (math.floor(math.log10(abs(value))) + 1 if value else 1)
-                - math.floor(math.log10(delta)))
-            fmt = f"%-#.{sig_digits}g"
+            fmt = "%-#.{}g".format(cbook._g_sig_digits(value, delta))
         return self._format_maybe_minus_and_locale(fmt, value)
 
     def format_data(self, value):
