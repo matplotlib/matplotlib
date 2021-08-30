@@ -59,6 +59,7 @@ commands:
               fonts-crosextra-carlito \
               fonts-freefont-otf \
               fonts-humor-sans \
+              fonts-noto-cjk \
               optipng
 
   fonts-install:

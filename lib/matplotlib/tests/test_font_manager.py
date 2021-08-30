@@ -101,7 +101,7 @@ def test_utf16m_sfnt():
         entry = next(entry for entry in fontManager.ttflist
                      if Path(entry.fname).name == "seguisbi.ttf")
     except StopIteration:
-        pytest.skip("Couldn't find font to test against.")
+        pytest.skip("Couldn't find seguisbi.ttf font to test against.")
     else:
         # Check that we successfully read "semibold" from the font's sfnt table
         # and set its weight accordingly.
@@ -111,10 +111,21 @@ def test_utf16m_sfnt():
 def test_find_ttc():
     fp = FontProperties(family=["WenQuanYi Zen Hei"])
     if Path(findfont(fp)).name != "wqy-zenhei.ttc":
-        pytest.skip("Font may be missing")
-
+        pytest.skip("Font wqy-zenhei.ttc may be missing")
     fig, ax = plt.subplots()
     ax.text(.5, .5, "\N{KANGXI RADICAL DRAGON}", fontproperties=fp)
+    for fmt in ["raw", "svg", "pdf", "ps"]:
+        fig.savefig(BytesIO(), format=fmt)
+
+
+def test_find_noto():
+    fp = FontProperties(family=["Noto Sans CJK SC", "Noto Sans CJK JP"])
+    name = Path(findfont(fp)).name
+    if name not in ("NotoSansCJKsc-Regular.otf", "NotoSansCJK-Regular.ttc"):
+        pytest.skip(f"Noto Sans CJK SC font may be missing (found {name})")
+
+    fig, ax = plt.subplots()
+    ax.text(0.5, 0.5, 'Hello, 你好', fontproperties=fp)
     for fmt in ["raw", "svg", "pdf", "ps"]:
         fig.savefig(BytesIO(), format=fmt)
 

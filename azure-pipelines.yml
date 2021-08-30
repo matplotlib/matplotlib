@@ -82,6 +82,7 @@ stages:
               cm-super \
               dvipng \
               ffmpeg \
+              fonts-noto-cjk \
               gdb \
               gir1.2-gtk-3.0 \
               graphviz \
@@ -102,6 +103,8 @@ stages:
           darwin)
             brew install --cask xquartz
             brew install pkg-config ffmpeg imagemagick mplayer ccache
+            brew tap homebrew/cask-fonts
+            brew install font-noto-sans-cjk-sc
             ;;
           win32)
             ;;
