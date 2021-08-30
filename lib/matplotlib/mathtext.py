@@ -24,17 +24,25 @@ import types
 import numpy as np
 from PIL import Image
 
-from matplotlib import _api, colors as mcolors, rcParams, _mathtext
+from matplotlib import (
+    _api, colors as mcolors, rcParams, _mathtext, _mathtext_data)
 from matplotlib.ft2font import FT2Image, LOAD_NO_HINTING
 from matplotlib.font_manager import FontProperties
-# Backcompat imports, all are deprecated as of 3.4.
-from matplotlib._mathtext import (  # noqa: F401
-    SHRINK_FACTOR, GROW_FACTOR, NUM_SIZE_LEVELS)
-from matplotlib._mathtext_data import (  # noqa: F401
-    latex_to_bakoma, latex_to_cmex, latex_to_standard, stix_virtual_fonts,
-    tex2uni)
 
 _log = logging.getLogger(__name__)
+
+
+@_api.caching_module_getattr
+class __getattr__:
+    locals().update({
+        name: _api.deprecated("3.4")(
+            property(lambda self, _mod=mod, _name=name: getattr(_mod, _name)))
+        for mod, names in [
+            (_mathtext, ["SHRINK_FACTOR", "GROW_FACTOR", "NUM_SIZE_LEVELS"]),
+            (_mathtext_data, [
+                "latex_to_bakoma", "latex_to_cmex", "latex_to_standard",
+                "stix_virtual_fonts", "tex2uni"])]
+        for name in names})
 
 
 get_unicode_index = _mathtext.get_unicode_index
