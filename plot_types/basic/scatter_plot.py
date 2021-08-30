@@ -1,6 +1,6 @@
 """
 =============
-scatter(X, Y)
+scatter(x, y)
 =============
 
 See `~matplotlib.axes.Axes.scatter`.
