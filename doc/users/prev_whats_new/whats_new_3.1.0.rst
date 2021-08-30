@@ -1,6 +1,7 @@
+.. _whats-new-3-1-0:
 
-What's new in Matplotlib 3.1
-============================
+What's new in Matplotlib 3.1 (May 18, 2019)
+===========================================
 
 For a list of all of the issues and pull requests since the last
 revision, see the :ref:`github-stats`.

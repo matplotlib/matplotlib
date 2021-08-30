@@ -1,7 +1,7 @@
 .. _whats-new-1-1:
 
-New in matplotlib 1.1
-=====================
+What's new in Matplotlib 1.1 (Nov 02, 2011)
+===========================================
 
 .. contents:: Table of Contents
    :depth: 2

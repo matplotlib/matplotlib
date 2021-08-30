@@ -1,7 +1,7 @@
 .. _whats-new-0-99:
 
-New in matplotlib 0.99
-======================
+What's new in Matplotlib 0.99 (Aug 29, 2009)
+============================================
 
 .. contents:: Table of Contents
    :depth: 2

@@ -1,5 +1,5 @@
-Changes in 1.4.x
-================
+API Changes in 1.4.x
+====================
 
 Code changes
 ------------

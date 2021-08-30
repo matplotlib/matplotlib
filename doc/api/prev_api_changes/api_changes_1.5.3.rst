@@ -1,5 +1,5 @@
-Changes in 1.5.3
-================
+API Changes in 1.5.3
+====================
 
 ``ax.plot(..., marker=None)`` gives default marker
 --------------------------------------------------

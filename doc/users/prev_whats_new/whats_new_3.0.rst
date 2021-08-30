@@ -1,7 +1,7 @@
 .. _whats-new-3-0-0:
 
-New in Matplotlib 3.0
-=====================
+What's new in Matplotlib 3.0 (Sep 18, 2018)
+===========================================
 
 Improved default backend selection
 ----------------------------------

@@ -1,7 +1,7 @@
 .. _whats-new-1-5:
 
-New in matplotlib 1.5
-=====================
+What's new in Matplotlib 1.5 (Oct 29, 2015)
+===========================================
 
 .. contents:: Table of Contents
    :depth: 2

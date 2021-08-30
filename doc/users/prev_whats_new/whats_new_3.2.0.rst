@@ -1,6 +1,7 @@
+.. _whats-new-3-2-0:
 
-What's new in Matplotlib 3.2
-============================
+What's new in Matplotlib 3.2 (Mar 04, 2020)
+===========================================
 
 For a list of all of the issues and pull requests since the last
 revision, see the :ref:`github-stats`.
