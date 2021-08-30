@@ -3,7 +3,7 @@
 GitHub statistics (Aug 12, 2021)
 ================================
 
-GitHub statistics for 2021/05/08 (tag: v3.4.2) - 2021/08/12
+GitHub statistics for 2021/03/26 (tag: v3.4.0) - 2021/08/24
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
