@@ -1,6 +1,6 @@
 """
 ======
-pie(X)
+pie(x)
 ======
 
 See `~matplotlib.axes.Axes.pie`.
