@@ -4793,7 +4793,7 @@ def test_reset_ticks(fig_test, fig_ref):
             labelsize=14, labelcolor='C1', labelrotation=45,
             grid_color='C2', grid_alpha=0.8, grid_linewidth=3,
             grid_linestyle='--')
-        fig.draw_no_output()
+        fig.draw_without_rendering()
 
     # After we've changed any setting on ticks, reset_ticks will mean
     # re-creating them from scratch. This *should* appear the same as not

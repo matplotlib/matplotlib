@@ -402,7 +402,7 @@ def test_default_math_fontfamily():
     prop2 = text2.get_fontproperties()
     assert prop2.get_math_fontfamily() == 'cm'
 
-    fig.draw_no_output()
+    fig.draw_without_rendering()
 
 
 def test_argument_order():
@@ -427,7 +427,7 @@ def test_argument_order():
     prop4 = text4.get_fontproperties()
     assert prop4.get_math_fontfamily() == 'dejavusans'
 
-    fig.draw_no_output()
+    fig.draw_without_rendering()
 
 
 def test_mathtext_cmr10_minus_sign():
