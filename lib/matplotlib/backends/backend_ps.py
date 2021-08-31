@@ -1119,7 +1119,7 @@ showpage
             _move_path_to_path_or_stream(tmpfile, outfile)
 
     def draw(self):
-        self.figure.draw_no_output()
+        self.figure.draw_without_rendering()
         return super().draw()
 
 

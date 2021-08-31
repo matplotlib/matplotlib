@@ -76,7 +76,7 @@ def test_date_empty():
     # http://sourceforge.net/tracker/?func=detail&aid=2850075&group_id=80706&atid=560720
     fig, ax = plt.subplots()
     ax.xaxis_date()
-    fig.draw_no_output()
+    fig.draw_without_rendering()
     np.testing.assert_allclose(ax.get_xlim(),
                                [mdates.date2num(np.datetime64('2000-01-01')),
                                 mdates.date2num(np.datetime64('2010-01-01'))])
@@ -85,7 +85,7 @@ def test_date_empty():
     mdates.set_epoch('0000-12-31')
     fig, ax = plt.subplots()
     ax.xaxis_date()
-    fig.draw_no_output()
+    fig.draw_without_rendering()
     np.testing.assert_allclose(ax.get_xlim(),
                                [mdates.date2num(np.datetime64('2000-01-01')),
                                 mdates.date2num(np.datetime64('2010-01-01'))])

@@ -613,7 +613,7 @@ def test_mappable_2d_alpha():
     # the original alpha array
     assert cb.alpha is None
     assert pc.get_alpha() is x
-    fig.draw_no_output()
+    fig.draw_without_rendering()
 
 
 def test_colorbar_label():
@@ -766,7 +766,7 @@ def test_inset_colorbar_layout():
     cax = ax.inset_axes([1.02, 0.1, 0.03, 0.8])
     cb = fig.colorbar(pc, cax=cax)
 
-    fig.draw_no_output()
+    fig.draw_without_rendering()
     # make sure this is in the figure. In the colorbar swapping
     # it was being dropped from the list of children...
     np.testing.assert_allclose(cb.ax.get_position().bounds,
@@ -806,7 +806,7 @@ def test_aspects():
             pc = ax[mm, nn].pcolormesh(np.arange(100).reshape(10, 10))
             cb[nn][mm] = fig.colorbar(pc, ax=ax[mm, nn], orientation=orient,
                                       aspect=aspect, extend=extend)
-    fig.draw_no_output()
+    fig.draw_without_rendering()
     # check the extends are right ratio:
     np.testing.assert_almost_equal(cb[0][1].ax.get_position().height,
                                    cb[0][0].ax.get_position().height * 0.9,
