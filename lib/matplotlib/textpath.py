@@ -432,7 +432,7 @@ class TextPath(Path):
             self._invalid = False
 
     def __deepcopy__(self, memo):
-        # taken from https://stackoverflow.com/a/15774013
+        """Update path and create deep copy."""
         self._revalidate_path()
         cls = self.__class__
         new_instance = cls.__new__(cls)
@@ -444,7 +444,7 @@ class TextPath(Path):
     deepcopy = __deepcopy__
 
     def __copy__(self):
-        # taken from https://stackoverflow.com/a/15774013
+        """Update path and create shallow copy."""
         self._revalidate_path()
         cls = self.__class__
         new_instance = cls.__new__(cls)
