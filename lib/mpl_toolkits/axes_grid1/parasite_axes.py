@@ -187,12 +187,6 @@ class HostAxesBase:
         ax2._remove_method = self.parasites.remove
         return ax2
 
-    def _get_legend_handles(self, legend_handler_map=None):
-        all_handles = super()._get_legend_handles()
-        for ax in self.parasites:
-            all_handles.extend(ax._get_legend_handles(legend_handler_map))
-        return all_handles
-
     def draw(self, renderer):
         orig_children_len = len(self._children)
 
