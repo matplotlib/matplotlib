@@ -2808,7 +2808,7 @@ class Figure(FigureBase):
 
         self.canvas.draw_event(renderer)
 
-    def draw_no_output(self):
+    def draw_without_rendering(self):
         """
         Draw the figure with no output.  Useful to get the final size of
         artists that require a draw before their size is known (e.g. text).

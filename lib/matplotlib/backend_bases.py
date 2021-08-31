@@ -1570,7 +1570,7 @@ def _get_renderer(figure, print_method=None):
 def _no_output_draw(figure):
     # _no_output_draw was promoted to the figure level, but
     # keep this here in case someone was calling it...
-    figure.draw_no_output()
+    figure.draw_without_rendering()
 
 
 def _is_non_interactive_terminal_ipython(ip):
