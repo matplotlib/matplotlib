@@ -1,12 +1,12 @@
 Figure now has ``draw_without_rendering`` method
 ------------------------------------------------
 
-Rarely, the user will want to trigger a draw without rendering to either the
-screen or a file.  This is useful for determining the final position of artists
-on the figure that require a draw, like text artists, or resolve deferred
-computation like automatic data limits.  This can be done by
-``fig.canvas.draw()``, which forces a full draw and rendering, however this has
-side effects, sometimes requires an open file, and is doing more work than is
-needed.  The `.Figure.draw_without_rendering` method is provided to run the
-code in Matplotlib that updates values that are computed at draw-time and get
-accurate dimensions of the Artists more efficiently.
+Some aspects of a figure are only determined at draw-time, such as the exact
+position of text artists or deferred computation like automatic data limits.
+If you need these values, you can use ``figure.canvas.draw()`` to force a full
+draw. However, this has side effects, sometimes requires an open file, and is
+doing more work than is needed.
+
+The new `.Figure.draw_without_rendering` method runs all the updates that
+``draw()`` does, but skips rendering the figure. It's thus more efficient if you
+need the updated values to configure further aspects of the figure.
