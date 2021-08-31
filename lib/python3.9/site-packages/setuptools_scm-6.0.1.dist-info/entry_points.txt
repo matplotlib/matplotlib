@@ -1,0 +1,37 @@
+[distutils.setup_keywords]
+use_scm_version = setuptools_scm.integration:version_keyword
+
+[setuptools.file_finders]
+setuptools_scm = setuptools_scm.integration:find_files
+
+[setuptools.finalize_distribution_options]
+setuptools_scm = setuptools_scm.integration:infer_version
+
+[setuptools_scm.files_command]
+.git = setuptools_scm.file_finder_git:git_find_files
+.hg = setuptools_scm.file_finder_hg:hg_find_files
+
+[setuptools_scm.local_scheme]
+dirty-tag = setuptools_scm.version:get_local_dirty_tag
+no-local-version = setuptools_scm.version:get_no_local_node
+node-and-date = setuptools_scm.version:get_local_node_and_date
+node-and-timestamp = setuptools_scm.version:get_local_node_and_timestamp
+
+[setuptools_scm.parse_scm]
+.git = setuptools_scm.git:parse
+.hg = setuptools_scm.hg:parse
+
+[setuptools_scm.parse_scm_fallback]
+.hg_archival.txt = setuptools_scm.hg:parse_archival
+PKG-INFO = setuptools_scm.hacks:parse_pkginfo
+pip-egg-info = setuptools_scm.hacks:parse_pip_egg_info
+setup.py = setuptools_scm.hacks:fallback_version
+
+[setuptools_scm.version_scheme]
+calver-by-date = setuptools_scm.version:calver_by_date
+guess-next-dev = setuptools_scm.version:guess_next_dev_version
+no-guess-dev = setuptools_scm.version:no_guess_dev_version
+post-release = setuptools_scm.version:postrelease_version
+python-simplified-semver = setuptools_scm.version:simplified_semver_version
+release-branch-semver = setuptools_scm.version:release_branch_semver_version
+
