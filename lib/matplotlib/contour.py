@@ -1124,7 +1124,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         if self.locator is None:
             if self.logscale:
-                self.locator = ticker.LogLocator()
+                self.locator = ticker.LogLocator(numticks=N)
             else:
                 self.locator = ticker.MaxNLocator(N + 1, min_n_ticks=1)
 
