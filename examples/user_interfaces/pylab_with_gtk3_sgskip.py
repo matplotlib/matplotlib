@@ -1,7 +1,7 @@
 """
-===============
-pyplot with GTK
-===============
+================
+pyplot with GTK3
+================
 
 An example of how to use pyplot to manage your figure windows, but modify the
 GUI by accessing the underlying GTK widgets.

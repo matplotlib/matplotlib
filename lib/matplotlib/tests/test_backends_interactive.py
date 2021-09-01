@@ -29,8 +29,8 @@ def _get_testable_interactive_backends():
             *[([qt_api, "cairocffi"],
                {"MPLBACKEND": "qtcairo", "QT_API": qt_api})
               for qt_api in ["PyQt6", "PySide6", "PyQt5", "PySide2"]],
-            (["cairo", "gi"], {"MPLBACKEND": "gtk3agg"}),
-            (["cairo", "gi"], {"MPLBACKEND": "gtk3cairo"}),
+            *[(["cairo", "gi"], {"MPLBACKEND": f"gtk{version}{renderer}"})
+              for version in [3, 4] for renderer in ["agg", "cairo"]],
             (["tkinter"], {"MPLBACKEND": "tkagg"}),
             (["wx"], {"MPLBACKEND": "wx"}),
             (["wx"], {"MPLBACKEND": "wxagg"}),
@@ -45,6 +45,12 @@ def _get_testable_interactive_backends():
             reason = "{} cannot be imported".format(", ".join(missing))
         elif env["MPLBACKEND"] == 'macosx' and os.environ.get('TF_BUILD'):
             reason = "macosx backend fails on Azure"
+        elif env["MPLBACKEND"].startswith('gtk'):
+            import gi
+            version = env["MPLBACKEND"][3]
+            repo = gi.Repository.get_default()
+            if f'{version}.0' not in repo.enumerate_versions('Gtk'):
+                reason = "no usable GTK bindings"
         marks = []
         if reason:
             marks.append(pytest.mark.skip(
@@ -87,7 +93,7 @@ def _test_interactive_impl():
     assert_equal = TestCase().assertEqual
     assert_raises = TestCase().assertRaises
 
-    if backend.endswith("agg") and not backend.startswith(("gtk3", "web")):
+    if backend.endswith("agg") and not backend.startswith(("gtk", "web")):
         # Force interactive framework setup.
         plt.figure()
 

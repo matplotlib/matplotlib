@@ -338,6 +338,7 @@ to plot the spectrogram of one of the EEG channels.
 
 For examples of how to embed Matplotlib in different toolkits, see:
 
+   * :doc:`/gallery/user_interfaces/embedding_in_gtk4_sgskip`
    * :doc:`/gallery/user_interfaces/embedding_in_gtk3_sgskip`
    * :doc:`/gallery/user_interfaces/embedding_in_wx2_sgskip`
    * :doc:`/gallery/user_interfaces/mpl_with_glade3_sgskip`
