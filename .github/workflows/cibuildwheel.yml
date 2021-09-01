@@ -63,6 +63,7 @@ jobs:
       - name: Build wheels for CPython 3.10
         run: |
           python -m cibuildwheel --output-dir dist
+        if: matrix.os != 'macos-latest'
         env:
           CIBW_BUILD: "cp310-*"
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
