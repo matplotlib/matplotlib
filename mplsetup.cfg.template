@@ -28,8 +28,8 @@
 [rc_options]
 # User-configurable options
 #
-# Default backend, one of: Agg, Cairo, GTK3Agg, GTK3Cairo, MacOSX, Pdf, Ps,
-# QtAgg, QtCairo, SVG, TkAgg, WX, WXAgg.
+# Default backend, one of: Agg, Cairo, GTK3Agg, GTK3Cairo, GTK4Agg, GTK4Cairo,
+# MacOSX, Pdf, Ps, QtAgg, QtCairo, SVG, TkAgg, WX, WXAgg.
 #
 # The Agg, Ps, Pdf and SVG backends do not require external dependencies.  Do
 # not choose MacOSX if you have disabled the relevant extension modules.  The

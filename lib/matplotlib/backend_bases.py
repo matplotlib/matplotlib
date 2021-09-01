@@ -101,6 +101,7 @@ def _safe_pyplot_import():
         backend_mapping = {
             'qt': 'qtagg',
             'gtk3': 'gtk3agg',
+            'gtk4': 'gtk4agg',
             'wx': 'wxagg',
             'tk': 'tkagg',
             'macosx': 'macosx',
@@ -1656,7 +1657,7 @@ class FigureCanvasBase:
         A high-level figure instance.
     """
 
-    # Set to one of {"qt", "gtk3", "wx", "tk", "macosx"} if an
+    # Set to one of {"qt", "gtk3", "gtk4", "wx", "tk", "macosx"} if an
     # interactive framework is required, or None otherwise.
     required_interactive_framework = None
 
@@ -1732,7 +1733,7 @@ class FigureCanvasBase:
             # don't break on our side.
             return
         rif = getattr(cls, "required_interactive_framework", None)
-        backend2gui_rif = {"qt": "qt", "gtk3": "gtk3",
+        backend2gui_rif = {"qt": "qt", "gtk3": "gtk3", "gtk4": "gtk4",
                            "wx": "wx", "macosx": "osx"}.get(rif)
         if backend2gui_rif:
             if _is_non_interactive_terminal_ipython(ip):
