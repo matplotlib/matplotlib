@@ -35,7 +35,7 @@ from cycler import Cycler, cycler as ccycler
 # The capitalized forms are needed for ipython at present; this may
 # change for later versions.
 interactive_bk = [
-    'GTK3Agg', 'GTK3Cairo',
+    'GTK3Agg', 'GTK3Cairo', 'GTK4Agg', 'GTK4Cairo',
     'MacOSX',
     'nbAgg',
     'QtAgg', 'QtCairo', 'Qt5Agg', 'Qt5Cairo',
