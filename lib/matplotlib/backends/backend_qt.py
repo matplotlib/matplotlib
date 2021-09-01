@@ -333,7 +333,8 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
     def resizeEvent(self, event):
         frame = sys._getframe()
-        if frame.f_code is frame.f_back.f_code:  # Prevent PyQt6 recursion.
+        # Prevent PyQt6 recursion, but sometimes frame.f_back is None
+        if frame.f_code is getattr(frame.f_back, 'f_code', None):
             return
         w = event.size().width() * self.device_pixel_ratio
         h = event.size().height() * self.device_pixel_ratio
