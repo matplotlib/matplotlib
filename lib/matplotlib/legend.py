@@ -1224,7 +1224,10 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     elif len(args) == 0:
         handles, labels = _get_legend_handles_labels(axs, handlers)
         if not handles:
-            log.warning('No handles with labels found to put in legend.')
+            log.warning(
+                "No artists with labels found to put in legend.  Note that "
+                "artists whose label start with an underscore are ignored "
+                "when legend() is called with no argument.")
 
     # One argument. User defined labels - automatic handle detection.
     elif len(args) == 1:
