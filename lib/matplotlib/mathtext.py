@@ -588,18 +588,12 @@ def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None):
         format is determined as for `.Figure.savefig`.
     """
     from matplotlib import figure
-    # backend_agg supports all of the core output formats
-    from matplotlib.backends import backend_agg
-
-    if prop is None:
-        prop = FontProperties()
 
     parser = MathTextParser('path')
     width, height, depth, _, _ = parser.parse(s, dpi=72, prop=prop)
 
     fig = figure.Figure(figsize=(width / 72.0, height / 72.0))
     fig.text(0, depth/height, s, fontproperties=prop)
-    backend_agg.FigureCanvasAgg(fig)
     fig.savefig(filename_or_obj, dpi=dpi, format=format)
 
     return depth
