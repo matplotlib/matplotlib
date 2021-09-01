@@ -337,7 +337,7 @@ class ScalarMappable:
             The colormap used to map normalized data values to RGBA colors.
         """
         self._A = None
-        self.norm = None  # So that the setter knows we're initializing.
+        self._norm = None  # So that the setter knows we're initializing.
         self.set_norm(norm)  # The Normalize instance of this ScalarMappable.
         self.cmap = None  # So that the setter knows we're initializing.
         self.set_cmap(cmap)  # The Colormap instance of this ScalarMappable.
@@ -496,6 +496,8 @@ class ScalarMappable:
 
              .. ACCEPTS: (vmin: float, vmax: float)
         """
+        # If the norm's limits are updated self.changed() will be called
+        # through the callbacks attached to the norm
         if vmax is None:
             try:
                 vmin, vmax = vmin
@@ -505,7 +507,6 @@ class ScalarMappable:
             self.norm.vmin = colors._sanitize_extrema(vmin)
         if vmax is not None:
             self.norm.vmax = colors._sanitize_extrema(vmax)
-        self.changed()
 
     def get_alpha(self):
         """
@@ -531,6 +532,30 @@ class ScalarMappable:
         if not in_init:
             self.changed()  # Things are not set up properly yet.
 
+    @property
+    def norm(self):
+        return self._norm
+
+    @norm.setter
+    def norm(self, norm):
+        _api.check_isinstance((colors.Normalize, None), norm=norm)
+        if norm is None:
+            norm = colors.Normalize()
+
+        if norm is self.norm:
+            # We aren't updating anything
+            return
+
+        in_init = self.norm is None
+        # Remove the current callback and connect to the new one
+        if not in_init:
+            self.norm.callbacks.disconnect(self._id_norm)
+        self._norm = norm
+        self._id_norm = self.norm.callbacks.connect('changed',
+                                                    self.changed)
+        if not in_init:
+            self.changed()
+
     def set_norm(self, norm):
         """
         Set the normalization instance.
@@ -545,13 +570,7 @@ class ScalarMappable:
         the norm of the mappable will reset the norm, locator, and formatters
         on the colorbar to default.
         """
-        _api.check_isinstance((colors.Normalize, None), norm=norm)
-        in_init = self.norm is None
-        if norm is None:
-            norm = colors.Normalize()
         self.norm = norm
-        if not in_init:
-            self.changed()  # Things are not set up properly yet.
 
     def autoscale(self):
         """
@@ -560,8 +579,9 @@ class ScalarMappable:
         """
         if self._A is None:
             raise TypeError('You must first set_array for mappable')
+        # If the norm's limits are updated self.changed() will be called
+        # through the callbacks attached to the norm
         self.norm.autoscale(self._A)
-        self.changed()
 
     def autoscale_None(self):
         """
@@ -570,8 +590,9 @@ class ScalarMappable:
         """
         if self._A is None:
             raise TypeError('You must first set_array for mappable')
+        # If the norm's limits are updated self.changed() will be called
+        # through the callbacks attached to the norm
         self.norm.autoscale_None(self._A)
-        self.changed()
 
     def changed(self):
         """
