@@ -651,38 +651,24 @@ class Legend(Artist):
 
     @classmethod
     def get_default_handler_map(cls):
-        """
-        A class method that returns the default handler map.
-        """
+        """Return the global default handler map, shared by all legends."""
         return cls._default_handler_map
 
     @classmethod
     def set_default_handler_map(cls, handler_map):
-        """
-        A class method to set the default handler map.
-        """
+        """Set the global default handler map, shared by all legends."""
         cls._default_handler_map = handler_map
 
     @classmethod
     def update_default_handler_map(cls, handler_map):
-        """
-        A class method to update the default handler map.
-        """
+        """Update the global default handler map, shared by all legends."""
         cls._default_handler_map.update(handler_map)
 
     def get_legend_handler_map(self):
-        """
-        Return the handler map.
-        """
-
+        """Return this legend instance's handler map."""
         default_handler_map = self.get_default_handler_map()
-
-        if self._custom_handler_map:
-            hm = default_handler_map.copy()
-            hm.update(self._custom_handler_map)
-            return hm
-        else:
-            return default_handler_map
+        return ({**default_handler_map, **self._custom_handler_map}
+                if self._custom_handler_map else default_handler_map)
 
     @staticmethod
     def get_legend_handler(legend_handler_map, orig_handle):
@@ -1105,11 +1091,7 @@ class Legend(Artist):
 # Helper functions to parse legend arguments for both `figure.legend` and
 # `axes.legend`:
 def _get_legend_handles(axs, legend_handler_map=None):
-    """
-    Return a generator of artists that can be used as handles in
-    a legend.
-
-    """
+    """Yield artists that can be used as handles in a legend."""
     handles_original = []
     for ax in axs:
         handles_original += [
@@ -1124,14 +1106,9 @@ def _get_legend_handles(axs, legend_handler_map=None):
                       if isinstance(a, (Line2D, Patch, Collection))),
                     *axx.containers]
 
-    handler_map = Legend.get_default_handler_map()
-
-    if legend_handler_map is not None:
-        handler_map = handler_map.copy()
-        handler_map.update(legend_handler_map)
-
+    handler_map = {**Legend.get_default_handler_map(),
+                   **(legend_handler_map or {})}
     has_handler = Legend.get_legend_handler
-
     for handle in handles_original:
         label = handle.get_label()
         if label != '_nolegend_' and has_handler(handler_map, handle):
@@ -1139,13 +1116,9 @@ def _get_legend_handles(axs, legend_handler_map=None):
 
 
 def _get_legend_handles_labels(axs, legend_handler_map=None):
-    """
-    Return handles and labels for legend, internal method.
-
-    """
+    """Return handles and labels for legend."""
     handles = []
     labels = []
-
     for handle in _get_legend_handles(axs, legend_handler_map):
         label = handle.get_label()
         if label and not label.startswith('_'):
@@ -1201,7 +1174,7 @@ def _parse_legend_args(axs, *args, handles=None, labels=None, **kwargs):
     """
     log = logging.getLogger(__name__)
 
-    handlers = kwargs.get('handler_map', {}) or {}
+    handlers = kwargs.get('handler_map')
     extra_args = ()
 
     if (handles is not None or labels is not None) and args:
