@@ -1123,10 +1123,50 @@ class Normalize:
         -----
         Returns 0 if ``vmin == vmax``.
         """
-        self.vmin = _sanitize_extrema(vmin)
-        self.vmax = _sanitize_extrema(vmax)
-        self.clip = clip
-        self._scale = None  # will default to LinearScale for colorbar
+        self._vmin = _sanitize_extrema(vmin)
+        self._vmax = _sanitize_extrema(vmax)
+        self._clip = clip
+        self._scale = None
+        self.callbacks = cbook.CallbackRegistry()
+
+    @property
+    def vmin(self):
+        return self._vmin
+
+    @vmin.setter
+    def vmin(self, value):
+        value = _sanitize_extrema(value)
+        if value != self._vmin:
+            self._vmin = value
+            self._changed()
+
+    @property
+    def vmax(self):
+        return self._vmax
+
+    @vmax.setter
+    def vmax(self, value):
+        value = _sanitize_extrema(value)
+        if value != self._vmax:
+            self._vmax = value
+            self._changed()
+
+    @property
+    def clip(self):
+        return self._clip
+
+    @clip.setter
+    def clip(self, value):
+        if value != self._clip:
+            self._clip = value
+            self._changed()
+
+    def _changed(self):
+        """
+        Call this whenever the norm is changed to notify all the
+        callback listeners to the 'changed' signal.
+        """
+        self.callbacks.process('changed')
 
     @staticmethod
     def process_value(value):
@@ -1273,13 +1313,23 @@ class TwoSlopeNorm(Normalize):
         """
 
         super().__init__(vmin=vmin, vmax=vmax)
-        self.vcenter = vcenter
+        self._vcenter = vcenter
         if vcenter is not None and vmax is not None and vcenter >= vmax:
             raise ValueError('vmin, vcenter, and vmax must be in '
                              'ascending order')
         if vcenter is not None and vmin is not None and vcenter <= vmin:
             raise ValueError('vmin, vcenter, and vmax must be in '
                              'ascending order')
+
+    @property
+    def vcenter(self):
+        return self._vcenter
+
+    @vcenter.setter
+    def vcenter(self, value):
+        if value != self._vcenter:
+            self._vcenter = value
+            self._changed()
 
     def autoscale_None(self, A):
         """
@@ -1387,7 +1437,9 @@ class CenteredNorm(Normalize):
 
     @vcenter.setter
     def vcenter(self, vcenter):
-        self._vcenter = vcenter
+        if vcenter != self._vcenter:
+            self._vcenter = vcenter
+            self._changed()
         if self.vmax is not None:
             # recompute halfrange assuming vmin and vmax represent
             # min and max of data
