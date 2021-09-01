@@ -123,8 +123,12 @@ per-file-ignores =
     examples/ticks_and_spines/date_concise_formatter.py: E402
     examples/user_interfaces/embedding_in_gtk3_panzoom_sgskip.py: E402
     examples/user_interfaces/embedding_in_gtk3_sgskip.py: E402
-    examples/user_interfaces/gtk_spreadsheet_sgskip.py: E402
+    examples/user_interfaces/embedding_in_gtk4_panzoom_sgskip.py: E402
+    examples/user_interfaces/embedding_in_gtk4_sgskip.py: E402
+    examples/user_interfaces/gtk3_spreadsheet_sgskip.py: E402
+    examples/user_interfaces/gtk4_spreadsheet_sgskip.py: E402
     examples/user_interfaces/mpl_with_glade3_sgskip.py: E402
-    examples/user_interfaces/pylab_with_gtk_sgskip.py: E402
+    examples/user_interfaces/pylab_with_gtk3_sgskip.py: E402
+    examples/user_interfaces/pylab_with_gtk4_sgskip.py: E402
     examples/user_interfaces/toolmanager_sgskip.py: E402
     examples/userdemo/pgf_preamble_sgskip.py: E402
