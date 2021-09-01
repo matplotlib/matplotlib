@@ -1090,6 +1090,15 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     in zip(segs, kinds)]
 
     def changed(self):
+        if not hasattr(self, "cvalues"):
+            # Just return after calling the super() changed function
+            cm.ScalarMappable.changed(self)
+            return
+        # Force an autoscale immediately because self.to_rgba() calls
+        # autoscale_None() internally with the data passed to it,
+        # so if vmin/vmax are not set yet, this would override them with
+        # content from *cvalues* rather than levels like we want
+        self.norm.autoscale_None(self.levels)
         tcolors = [(tuple(rgba),)
                    for rgba in self.to_rgba(self.cvalues, alpha=self.alpha)]
         self.tcolors = tcolors
