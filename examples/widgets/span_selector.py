@@ -23,7 +23,7 @@ ax1.set_ylim(-2, 2)
 ax1.set_title('Press left mouse button and drag '
               'to select a region in the top graph')
 
-line2, = ax2.plot([], [])
+line2, = ax2.plot([], [], animated=True)
 
 
 def onselect(xmin, xmax):
@@ -58,6 +58,17 @@ span = SpanSelector(
     drag_from_anywhere=True
 )
 # Set useblit=True on most backends for enhanced performance.
+
+
+#############################################################################
+# .. note::
+#
+#    With useblit=True or when the callback update an animated artist, the
+#    artist needs to be added in the `depending_artists` list of the selector,
+#    otherwise it will not be drawn
+
+
+span.depending_artists.append(line2)
 
 
 plt.show()
