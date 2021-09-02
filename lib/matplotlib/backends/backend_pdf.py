@@ -1063,12 +1063,12 @@ class PdfFile:
 
         return fontdescObject
 
-    def _get_xobject_symbol_name(self, filename, symbol_name):
+    def _get_xobject_glyph_name(self, filename, glyph_name):
         Fx = self.fontName(filename)
         return "-".join([
             Fx.name.decode(),
             os.path.splitext(os.path.basename(filename))[0],
-            symbol_name])
+            glyph_name])
 
     _identityToUnicodeCMap = b"""/CIDInit /ProcSet findresource begin
 12 dict begin
@@ -1204,7 +1204,7 @@ end"""
                 # Send the glyphs with ccode > 255 to the XObject dictionary,
                 # and the others to the font itself
                 if charname in multi_byte_chars:
-                    name = self._get_xobject_symbol_name(filename, charname)
+                    name = self._get_xobject_glyph_name(filename, charname)
                     self.multi_byte_charprocs[name] = charprocObject
                 else:
                     charprocs[charname] = charprocObject
@@ -1347,7 +1347,7 @@ end"""
                 self.currentstream.write(stream)
                 self.endStream()
 
-                name = self._get_xobject_symbol_name(filename, charname)
+                name = self._get_xobject_glyph_name(filename, charname)
                 self.multi_byte_charprocs[name] = charprocObject
 
             # CIDToGIDMap stream
@@ -2417,8 +2417,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
     def _draw_xobject_glyph(self, font, fontsize, glyph_idx, x, y):
         """Draw a multibyte character from a Type 3 font as an XObject."""
-        symbol_name = font.get_glyph_name(glyph_idx)
-        name = self.file._get_xobject_symbol_name(font.fname, symbol_name)
+        glyph_name = font.get_glyph_name(glyph_idx)
+        name = self.file._get_xobject_glyph_name(font.fname, glyph_name)
         self.file.output(
             Op.gsave,
             0.001 * fontsize, 0, 0, 0.001 * fontsize, x, y, Op.concat_matrix,
