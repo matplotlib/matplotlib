@@ -245,8 +245,8 @@ class TruetypeFonts(Fonts):
         if bunch is not None:
             return bunch
 
-        font, num, glyph_name, fontsize, slanted = \
-            self._get_glyph(fontname, font_class, sym, fontsize, math)
+        font, num, fontsize, slanted = self._get_glyph(
+            fontname, font_class, sym, fontsize, math)
 
         font.set_size(fontsize, dpi)
         glyph = font.load_char(
@@ -273,8 +273,6 @@ class TruetypeFonts(Fonts):
             fontsize        = fontsize,
             postscript_name = font.postscript_name,
             metrics         = metrics,
-            glyph_name      = glyph_name,
-            symbol_name     = glyph_name,  # Backcompat alias.
             num             = num,
             glyph           = glyph,
             offset          = offset
@@ -340,7 +338,6 @@ class BakomaFonts(TruetypeFonts):
     _slanted_symbols = set(r"\int \oint".split())
 
     def _get_glyph(self, fontname, font_class, sym, fontsize, math=True):
-        glyph_name = None
         font = None
         if fontname in self.fontmap and sym in latex_to_bakoma:
             basename, num = latex_to_bakoma[sym]
@@ -351,17 +348,11 @@ class BakomaFonts(TruetypeFonts):
             font = self._get_font(fontname)
             if font is not None:
                 num = ord(sym)
-
-        if font is not None:
-            gid = font.get_char_index(num)
-            if gid != 0:
-                glyph_name = font.get_glyph_name(gid)
-
-        if glyph_name is None:
+        if font is not None and font.get_char_index(num) != 0:
+            return font, num, fontsize, slanted
+        else:
             return self._stix_fallback._get_glyph(
                 fontname, font_class, sym, fontsize, math)
-
-        return font, num, glyph_name, fontsize, slanted
 
     # The Bakoma fonts contain many pre-sized alternatives for the
     # delimiters.  The AutoSizedChar class will use these alternatives
@@ -532,14 +523,11 @@ class UnicodeFonts(TruetypeFonts):
                 _log.warning("Font {!r} does not have a glyph for {!a} "
                              "[U+{:x}], substituting with a dummy "
                              "symbol.".format(new_fontname, sym, uniindex))
-                fontname = 'rm'
-                font = self._get_font(fontname)
+                font = self._get_font('rm')
                 uniindex = 0xA4  # currency char, for lack of anything better
-                glyphindex = font.get_char_index(uniindex)
                 slanted = False
 
-        glyph_name = font.get_glyph_name(glyphindex)
-        return font, uniindex, glyph_name, fontsize, slanted
+        return font, uniindex, fontsize, slanted
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
         if self.cm_fallback:
