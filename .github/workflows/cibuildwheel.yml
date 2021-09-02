@@ -15,6 +15,7 @@ jobs:
     env:
       min-numpy-version: "1.17.3"
       min-numpy-hash: "b6/d6/be8f975f5322336f62371c9abeb936d592c98c047ad63035f1b38ae08efe"
+      CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
     strategy:
       matrix:
         os: [ubuntu-18.04, windows-latest, macos-latest]
