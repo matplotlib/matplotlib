@@ -1815,6 +1815,10 @@ class _SelectorWidget(AxesWidget):
         self._eventrelease = None
         self._prev_event = None
         self._state = set()
+        # List of artists which need to be drawn when updating the selector,
+        # Necessary with useblit=True or with animated artists, which are
+        # updated in a callback of the selector
+        self.depending_artists = []
 
     eventpress = _api.deprecate_privatize_attribute("3.5")
     eventrelease = _api.deprecate_privatize_attribute("3.5")
@@ -1834,15 +1838,16 @@ class _SelectorWidget(AxesWidget):
         # Make sure that widget artists don't get accidentally included in the
         # background, by re-rendering the background if needed (and then
         # re-re-rendering the canvas with the visible widget artists).
-        needs_redraw = any(artist.get_visible() for artist in self.artists)
+        artists = self.artists + tuple(self.depending_artists)
+        needs_redraw = any(artist.get_visible() for artist in artists)
         with ExitStack() as stack:
             if needs_redraw:
-                for artist in self.artists:
+                for artist in artists:
                     stack.enter_context(artist._cm_set(visible=False))
                 self.canvas.draw()
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         if needs_redraw:
-            for artist in self.artists:
+            for artist in artists:
                 self.ax.draw_artist(artist)
 
     def connect_default_events(self):
@@ -1889,7 +1894,7 @@ class _SelectorWidget(AxesWidget):
                 self.canvas.restore_region(self.background)
             else:
                 self.update_background(None)
-            for artist in self.artists:
+            for artist in self.artists + tuple(self.depending_artists):
                 self.ax.draw_artist(artist)
             self.canvas.blit(self.ax.bbox)
         else:
