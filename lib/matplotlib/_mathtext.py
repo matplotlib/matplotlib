@@ -264,7 +264,7 @@ class TruetypeFonts(Fonts):
         if bunch is not None:
             return bunch
 
-        font, num, symbol_name, fontsize, slanted = \
+        font, num, glyph_name, fontsize, slanted = \
             self._get_glyph(fontname, font_class, sym, fontsize, math)
 
         font.set_size(fontsize, dpi)
@@ -292,7 +292,8 @@ class TruetypeFonts(Fonts):
             fontsize        = fontsize,
             postscript_name = font.postscript_name,
             metrics         = metrics,
-            symbol_name     = symbol_name,
+            glyph_name      = glyph_name,
+            symbol_name     = glyph_name,  # Backcompat alias.
             num             = num,
             glyph           = glyph,
             offset          = offset
@@ -358,7 +359,7 @@ class BakomaFonts(TruetypeFonts):
     _slanted_symbols = set(r"\int \oint".split())
 
     def _get_glyph(self, fontname, font_class, sym, fontsize, math=True):
-        symbol_name = None
+        glyph_name = None
         font = None
         if fontname in self.fontmap and sym in latex_to_bakoma:
             basename, num = latex_to_bakoma[sym]
@@ -373,13 +374,13 @@ class BakomaFonts(TruetypeFonts):
         if font is not None:
             gid = font.get_char_index(num)
             if gid != 0:
-                symbol_name = font.get_glyph_name(gid)
+                glyph_name = font.get_glyph_name(gid)
 
-        if symbol_name is None:
+        if glyph_name is None:
             return self._stix_fallback._get_glyph(
                 fontname, font_class, sym, fontsize, math)
 
-        return font, num, symbol_name, fontsize, slanted
+        return font, num, glyph_name, fontsize, slanted
 
     # The Bakoma fonts contain many pre-sized alternatives for the
     # delimiters.  The AutoSizedChar class will use these alternatives
@@ -556,8 +557,8 @@ class UnicodeFonts(TruetypeFonts):
                 glyphindex = font.get_char_index(uniindex)
                 slanted = False
 
-        symbol_name = font.get_glyph_name(glyphindex)
-        return font, uniindex, symbol_name, fontsize, slanted
+        glyph_name = font.get_glyph_name(glyphindex)
+        return font, uniindex, glyph_name, fontsize, slanted
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
         if self.cm_fallback:
@@ -854,7 +855,7 @@ class StandardPsFonts(Fonts):
 
         if found_symbol:
             try:
-                symbol_name = font.get_name_char(glyph)
+                glyph_name = font.get_name_char(glyph)
             except KeyError:
                 _log.warning(
                     "No glyph in standard Postscript font {!r} for {!r}"
@@ -864,7 +865,7 @@ class StandardPsFonts(Fonts):
         if not found_symbol:
             glyph = '?'
             num = ord(glyph)
-            symbol_name = font.get_name_char(glyph)
+            glyph_name = font.get_name_char(glyph)
 
         offset = 0
 
@@ -890,7 +891,8 @@ class StandardPsFonts(Fonts):
             fontsize        = fontsize,
             postscript_name = font.get_fontname(),
             metrics         = metrics,
-            symbol_name     = symbol_name,
+            glyph_name      = glyph_name,
+            symbol_name     = glyph_name,  # Backcompat alias.
             num             = num,
             glyph           = glyph,
             offset          = offset
