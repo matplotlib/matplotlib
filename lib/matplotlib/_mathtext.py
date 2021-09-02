@@ -140,15 +140,6 @@ class Fonts:
         info = self._get_info(font, font_class, sym, fontsize, dpi, math)
         return info.metrics
 
-    def set_canvas_size(self, w, h, d):
-        """
-        Set the size of the buffer used to render the math expression.
-        Only really necessary for the bitmap backends.
-        """
-        self.width, self.height, self.depth = np.ceil([w, h, d])
-        self.mathtext_backend.set_canvas_size(
-            self.width, self.height, self.depth)
-
     @_api.rename_parameter("3.4", "facename", "font")
     def render_glyph(self, ox, oy, font, font_class, sym, fontsize, dpi):
         """
@@ -184,15 +175,6 @@ class Fonts:
         they know which glyphs to include.
         """
         return self.used_characters
-
-    def get_results(self, box):
-        """
-        Get the data needed by the backend to render the math
-        expression.  The return value is backend-specific.
-        """
-        result = self.mathtext_backend.get_results(
-            box, self.get_used_characters())
-        return result
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
         """

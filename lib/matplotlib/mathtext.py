@@ -256,8 +256,8 @@ class MathTextParser:
             self.__class__._parser = _mathtext.Parser()
 
         box = self._parser.parse(s, font_output, fontsize, dpi)
-        font_output.set_canvas_size(box.width, box.height, box.depth)
-        return font_output.get_results(box)
+        backend.set_canvas_size(*np.ceil([box.width, box.height, box.depth]))
+        return backend.get_results(box)
 
 
 def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None,
