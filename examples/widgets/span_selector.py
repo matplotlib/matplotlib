@@ -64,8 +64,8 @@ span = SpanSelector(
 # .. note::
 #
 #    With useblit=True or when the callback update an animated artist, the
-#    artist needs to be added in the `depending_artists` list of the selector,
-#    otherwise it will not be drawn
+#    artist needs to be added in the *depending_artists* list of the
+#    selector, otherwise it will not be drawn
 
 
 span.depending_artists.append(line2)
