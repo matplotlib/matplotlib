@@ -84,8 +84,6 @@ def _arg(nbytes, signed, dvi, _):
 
 def _arg_slen(dvi, delta):
     """
-    Signed, length *delta*
-
     Read *delta* bytes, returning None if *delta* is zero, and the bytes
     interpreted as a signed integer otherwise.
     """
@@ -96,26 +94,20 @@ def _arg_slen(dvi, delta):
 
 def _arg_slen1(dvi, delta):
     """
-    Signed, length *delta*+1
-
     Read *delta*+1 bytes, returning the bytes interpreted as signed.
     """
-    return dvi._arg(delta+1, True)
+    return dvi._arg(delta + 1, True)
 
 
 def _arg_ulen1(dvi, delta):
     """
-    Unsigned length *delta*+1
-
     Read *delta*+1 bytes, returning the bytes interpreted as unsigned.
     """
-    return dvi._arg(delta+1, False)
+    return dvi._arg(delta + 1, False)
 
 
 def _arg_olen1(dvi, delta):
     """
-    Optionally signed, length *delta*+1
-
     Read *delta*+1 bytes, returning the bytes interpreted as
     unsigned integer for 0<=*delta*<3 and signed if *delta*==3.
     """
@@ -139,30 +131,30 @@ def _dispatch(table, min, max=None, state=None, args=('raw',)):
     matches *state* if not None, reads arguments from the file according
     to *args*.
 
-    *table*
-        the dispatch table to be filled in
+    Parameters
+    ----------
+    table : dict[int, callable]
+        The dispatch table to be filled in.
 
-    *min*
-        minimum opcode for calling this function
+    min, max : int
+        Range of opcodes that calls the registered function; *max* defaults to
+        *min*.
 
-    *max*
-        maximum opcode for calling this function, None if only *min* is allowed
+    state : _dvistate, optional
+        State of the Dvi object in which these opcodes are allowed.
 
-    *state*
-        state of the Dvi object in which these opcodes are allowed
+    args : list[str], default: ['raw']
+        Sequence of argument specifications:
 
-    *args*
-        sequence of argument specifications:
-
-        ``'raw'``: opcode minus minimum
-        ``'u1'``: read one unsigned byte
-        ``'u4'``: read four bytes, treat as an unsigned number
-        ``'s4'``: read four bytes, treat as a signed number
-        ``'slen'``: read (opcode - minimum) bytes, treat as signed
-        ``'slen1'``: read (opcode - minimum + 1) bytes, treat as signed
-        ``'ulen1'``: read (opcode - minimum + 1) bytes, treat as unsigned
-        ``'olen1'``: read (opcode - minimum + 1) bytes, treat as unsigned
-                     if under four bytes, signed if four bytes
+        - 'raw': opcode minus minimum
+        - 'u1': read one unsigned byte
+        - 'u4': read four bytes, treat as an unsigned number
+        - 's4': read four bytes, treat as a signed number
+        - 'slen': read (opcode - minimum) bytes, treat as signed
+        - 'slen1': read (opcode - minimum + 1) bytes, treat as signed
+        - 'ulen1': read (opcode - minimum + 1) bytes, treat as unsigned
+        - 'olen1': read (opcode - minimum + 1) bytes, treat as unsigned
+          if under four bytes, signed if four bytes
     """
     def decorate(method):
         get_args = [_arg_mapping[x] for x in args]
@@ -185,6 +177,7 @@ def _dispatch(table, min, max=None, state=None, args=('raw',)):
 class Dvi:
     """
     A reader for a dvi ("device-independent") file, as produced by TeX.
+
     The current implementation can only iterate through pages in order,
     and does not even attempt to verify the postamble.
 
@@ -956,8 +949,9 @@ class PsfontsMap:
 
 def _parse_enc(path):
     r"""
-    Parses a \*.enc file referenced from a psfonts.map style file.
-    The format this class understands is a very limited subset of PostScript.
+    Parse a \*.enc file referenced from a psfonts.map style file.
+
+    The format supported by this function is a tiny subset of PostScript.
 
     Parameters
     ----------
