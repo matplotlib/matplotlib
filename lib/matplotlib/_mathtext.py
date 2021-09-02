@@ -89,7 +89,6 @@ class Fonts:
         """
         self.default_font_prop = default_font_prop
         self.mathtext_backend = mathtext_backend
-        self.used_characters = {}
 
     def get_kern(self, font1, fontclass1, sym1, fontsize1,
                  font2, fontclass2, sym2, fontsize2, dpi):
@@ -157,7 +156,6 @@ class Fonts:
         parameters (see `get_metrics` for their detailed description).
         """
         info = self._get_info(font, font_class, sym, fontsize, dpi)
-        self.used_characters.setdefault(info.font.fname, set()).add(info.num)
         self.mathtext_backend.render_glyph(ox, oy, info)
 
     def render_rect_filled(self, x1, y1, x2, y2):

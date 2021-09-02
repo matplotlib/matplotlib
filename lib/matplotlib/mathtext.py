@@ -134,7 +134,7 @@ class MathtextBackendAgg(MathtextBackend):
                 y = int(y1)
             self.image.draw_rect_filled(int(x1), y, np.ceil(x2), y + height)
 
-    def get_results(self, box, used_characters):
+    def get_results(self, box):
         self.mode = 'bbox'
         orig_height = box.height
         orig_depth  = box.depth
@@ -152,8 +152,7 @@ class MathtextBackendAgg(MathtextBackend):
                   self.width,
                   self.height + self.depth,
                   self.depth,
-                  self.image,
-                  used_characters)
+                  self.image)
         self.image = None
         return result
 
@@ -182,7 +181,7 @@ class MathtextBackendPath(MathtextBackend):
     def render_rect_filled(self, x1, y1, x2, y2):
         self.rects.append((x1, self.height - y2, x2 - x1, y2 - y1))
 
-    def get_results(self, box, used_characters):
+    def get_results(self, box):
         _mathtext.ship(0, 0, box)
         return self._Result(self.width,
                             self.height + self.depth,
