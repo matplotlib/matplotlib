@@ -601,7 +601,7 @@ class Line2D(Artist):
 
     def set_picker(self, p):
         """
-        Sets the event picker details for the line.
+        Set the event picker details for the line.
 
         Parameters
         ----------
@@ -688,7 +688,7 @@ class Line2D(Artist):
 
     def _transform_path(self, subslice=None):
         """
-        Puts a TransformedPath instance at self._transformed_path;
+        Put a TransformedPath instance at self._transformed_path;
         all invalidation of the transform is then handled by the
         TransformedPath instance.
         """

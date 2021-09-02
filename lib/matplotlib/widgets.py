@@ -2710,7 +2710,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
 
         - "move": Move the existing shape, default: no modifier.
         - "clear": Clear the current shape, default: "escape".
-        - "square": Makes the shape square, default: "shift".
+        - "square": Make the shape square, default: "shift".
         - "center": Make the initial point the center of the shape,
           default: "ctrl".
 
