@@ -701,12 +701,12 @@ grestore
                 lastfont = font.postscript_name, fontsize
                 self._pswriter.write(
                     f"/{font.postscript_name} {fontsize} selectfont\n")
-            symbol_name = (
+            glyph_name = (
                 font.get_name_char(chr(num)) if isinstance(font, AFM) else
                 font.get_glyph_name(font.get_char_index(num)))
             self._pswriter.write(
                 f"{ox:f} {oy:f} moveto\n"
-                f"/{symbol_name} glyphshow\n")
+                f"/{glyph_name} glyphshow\n")
         for ox, oy, w, h in rects:
             self._pswriter.write(f"{ox} {oy} {w} {h} rectfill\n")
         self._pswriter.write("grestore\n")
