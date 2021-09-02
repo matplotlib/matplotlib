@@ -2,15 +2,16 @@
 ========================
 Widget testing utilities
 ========================
-Functions that are useful for testing widgets.
-See also matplotlib.tests.test_widgets
+
+See also :mod:`matplotlib.tests.test_widgets`.
 """
+
 import matplotlib.pyplot as plt
 from unittest import mock
 
 
 def get_ax():
-    """Creates plot and returns its axes"""
+    """Create a plot and return its axes."""
     fig, ax = plt.subplots(1, 1)
     ax.plot([0, 200], [0, 200])
     ax.set_aspect(1.0)

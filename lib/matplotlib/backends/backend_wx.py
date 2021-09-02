@@ -592,8 +592,8 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
     @_api.delete_parameter("3.4", "origin")
     def gui_repaint(self, drawDC=None, origin='WX'):
         """
-        Performs update of the displayed image on the GUI canvas, using the
-        supplied wx.PaintDC device context.
+        Update the displayed image on the GUI canvas, using the supplied
+        wx.PaintDC device context.
 
         The 'WXAgg' backend sets origin accordingly.
         """
