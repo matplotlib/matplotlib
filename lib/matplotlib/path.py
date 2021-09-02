@@ -162,7 +162,7 @@ class Path:
     @classmethod
     def _fast_from_codes_and_verts(cls, verts, codes, internals_from=None):
         """
-        Creates a Path instance without the expense of calling the constructor.
+        Create a Path instance without the expense of calling the constructor.
 
         Parameters
         ----------
