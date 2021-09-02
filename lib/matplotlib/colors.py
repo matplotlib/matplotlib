@@ -2373,7 +2373,7 @@ class LightSource:
 
     def blend_overlay(self, rgb, intensity):
         """
-        Combines an rgb image with an intensity map using "overlay" blending.
+        Combine an rgb image with an intensity map using "overlay" blending.
 
         Parameters
         ----------
