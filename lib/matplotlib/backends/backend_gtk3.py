@@ -29,12 +29,11 @@ except ValueError as e:
     raise ImportError from e
 
 from gi.repository import Gio, GLib, GObject, Gtk, Gdk
+from . import _backend_gtk
 from ._backend_gtk import (
     _create_application, _shutdown_application,
     backend_version, _BackendGTK, _NavigationToolbar2GTK,
     TimerGTK as TimerGTK3,
-    ConfigureSubplotsGTK as ConfigureSubplotsGTK3,
-    RubberbandGTK as RubberbandGTK3,
 )
 
 
@@ -597,6 +596,7 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
         self._message.set_label(s)
 
 
+@backend_tools._register_tool_class(FigureCanvasGTK3)
 class SaveFigureGTK3(backend_tools.SaveFigureBase):
     def trigger(self, *args, **kwargs):
 
@@ -613,6 +613,7 @@ class SetCursorGTK3(backend_tools.SetCursorBase):
             self._make_classic_style_pseudo_toolbar(), cursor)
 
 
+@backend_tools._register_tool_class(FigureCanvasGTK3)
 class HelpGTK3(backend_tools.ToolHelpBase):
     def _normalize_shortcut(self, key):
         """
@@ -698,6 +699,7 @@ class HelpGTK3(backend_tools.ToolHelpBase):
             self._show_shortcuts_dialog()
 
 
+@backend_tools._register_tool_class(FigureCanvasGTK3)
 class ToolCopyToClipboardGTK3(backend_tools.ToolCopyToClipboardBase):
     def trigger(self, *args, **kwargs):
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
@@ -721,13 +723,11 @@ def error_msg_gtk(msg, parent=None):
     dialog.destroy()
 
 
-backend_tools.ToolSaveFigure = SaveFigureGTK3
-backend_tools.ToolConfigureSubplots = ConfigureSubplotsGTK3
-backend_tools.ToolRubberband = RubberbandGTK3
-backend_tools.ToolHelp = HelpGTK3
-backend_tools.ToolCopyToClipboard = ToolCopyToClipboardGTK3
-
 Toolbar = ToolbarGTK3
+backend_tools._register_tool_class(
+    FigureCanvasGTK3, _backend_gtk.ConfigureSubplotsGTK)
+backend_tools._register_tool_class(
+    FigureCanvasGTK3, _backend_gtk.RubberbandGTK)
 
 
 @_Backend.export

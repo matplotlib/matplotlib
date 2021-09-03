@@ -277,6 +277,13 @@ def select_matching_signature(funcs, *args, **kwargs):
                 raise
 
 
+def recursive_subclasses(cls):
+    """Yield *cls* and direct and indirect subclasses of *cls*."""
+    yield cls
+    for subcls in cls.__subclasses__():
+        yield from recursive_subclasses(subcls)
+
+
 def warn_external(message, category=None):
     """
     `warnings.warn` wrapper that sets *stacklevel* to "outside Matplotlib".
