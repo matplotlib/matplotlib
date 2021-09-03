@@ -206,7 +206,9 @@ class ToolManager:
         """
 
         tool = self.get_tool(name)
-        tool.destroy()
+        _api.deprecate_method_override(
+            backend_tools.ToolBase.destroy, tool, since="3.6",
+            alternative="tool_removed_event")()
 
         # If it's a toggle tool and toggled, untoggle
         if getattr(tool, 'toggled', False):
@@ -214,9 +216,8 @@ class ToolManager:
 
         self._remove_keys(name)
 
-        s = 'tool_removed_event'
-        event = ToolEvent(s, self, tool)
-        self._callbacks.process(s, event)
+        event = ToolEvent('tool_removed_event', self, tool)
+        self._callbacks.process(event.name, event)
 
         del self._tools[name]
 
@@ -284,13 +285,10 @@ class ToolManager:
                 self._handle_toggle(tool_obj, None, None, None)
         tool_obj.set_figure(self.figure)
 
-        self._tool_added_event(tool_obj)
-        return tool_obj
+        event = ToolEvent('tool_added_event', self, tool_obj)
+        self._callbacks.process(event.name, event)
 
-    def _tool_added_event(self, tool):
-        s = 'tool_added_event'
-        event = ToolEvent(s, self, tool)
-        self._callbacks.process(s, event)
+        return tool_obj
 
     def _handle_toggle(self, tool, sender, canvasevent, data):
         """
