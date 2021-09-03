@@ -1287,12 +1287,14 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
         self._label_text.SetLabel(s)
 
 
+@backend_tools._register_tool_class(_FigureCanvasWxBase)
 class ConfigureSubplotsWx(backend_tools.ConfigureSubplotsBase):
     def trigger(self, *args):
         NavigationToolbar2Wx.configure_subplots(
             self._make_classic_style_pseudo_toolbar())
 
 
+@backend_tools._register_tool_class(_FigureCanvasWxBase)
 class SaveFigureWx(backend_tools.SaveFigureBase):
     def trigger(self, *args):
         NavigationToolbar2Wx.save_figure(
@@ -1306,6 +1308,7 @@ class SetCursorWx(backend_tools.SetCursorBase):
             self._make_classic_style_pseudo_toolbar(), cursor)
 
 
+@backend_tools._register_tool_class(_FigureCanvasWxBase)
 class RubberbandWx(backend_tools.RubberbandBase):
     def draw_rubberband(self, x0, y0, x1, y1):
         NavigationToolbar2Wx.draw_rubberband(
@@ -1361,12 +1364,14 @@ class _HelpDialog(wx.Dialog):
         cls._instance.Show()
 
 
+@backend_tools._register_tool_class(_FigureCanvasWxBase)
 class HelpWx(backend_tools.ToolHelpBase):
     def trigger(self, *args):
         _HelpDialog.show(self.figure.canvas.GetTopLevelParent(),
                          self._get_help_entries())
 
 
+@backend_tools._register_tool_class(_FigureCanvasWxBase)
 class ToolCopyToClipboardWx(backend_tools.ToolCopyToClipboardBase):
     def trigger(self, *args, **kwargs):
         if not self.canvas._isDrawn:
@@ -1377,13 +1382,6 @@ class ToolCopyToClipboardWx(backend_tools.ToolCopyToClipboardBase):
             wx.TheClipboard.SetData(wx.BitmapDataObject(self.canvas.bitmap))
         finally:
             wx.TheClipboard.Close()
-
-
-backend_tools.ToolSaveFigure = SaveFigureWx
-backend_tools.ToolConfigureSubplots = ConfigureSubplotsWx
-backend_tools.ToolRubberband = RubberbandWx
-backend_tools.ToolHelp = HelpWx
-backend_tools.ToolCopyToClipboard = ToolCopyToClipboardWx
 
 
 @_Backend.export

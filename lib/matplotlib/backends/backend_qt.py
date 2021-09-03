@@ -952,12 +952,14 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
         self.widgetForAction(self._message_action).setText(s)
 
 
+@backend_tools._register_tool_class(FigureCanvasQT)
 class ConfigureSubplotsQt(backend_tools.ConfigureSubplotsBase):
     def trigger(self, *args):
         NavigationToolbar2QT.configure_subplots(
             self._make_classic_style_pseudo_toolbar())
 
 
+@backend_tools._register_tool_class(FigureCanvasQT)
 class SaveFigureQt(backend_tools.SaveFigureBase):
     def trigger(self, *args):
         NavigationToolbar2QT.save_figure(
@@ -971,6 +973,7 @@ class SetCursorQt(backend_tools.SetCursorBase):
             self._make_classic_style_pseudo_toolbar(), cursor)
 
 
+@backend_tools._register_tool_class(FigureCanvasQT)
 class RubberbandQt(backend_tools.RubberbandBase):
     def draw_rubberband(self, x0, y0, x1, y1):
         NavigationToolbar2QT.draw_rubberband(
@@ -981,22 +984,17 @@ class RubberbandQt(backend_tools.RubberbandBase):
             self._make_classic_style_pseudo_toolbar())
 
 
+@backend_tools._register_tool_class(FigureCanvasQT)
 class HelpQt(backend_tools.ToolHelpBase):
     def trigger(self, *args):
         QtWidgets.QMessageBox.information(None, "Help", self._get_help_html())
 
 
+@backend_tools._register_tool_class(FigureCanvasQT)
 class ToolCopyToClipboardQT(backend_tools.ToolCopyToClipboardBase):
     def trigger(self, *args, **kwargs):
         pixmap = self.canvas.grab()
         qApp.clipboard().setPixmap(pixmap)
-
-
-backend_tools.ToolSaveFigure = SaveFigureQt
-backend_tools.ToolConfigureSubplots = ConfigureSubplotsQt
-backend_tools.ToolRubberband = RubberbandQt
-backend_tools.ToolHelp = HelpQt
-backend_tools.ToolCopyToClipboard = ToolCopyToClipboardQT
 
 
 @_Backend.export

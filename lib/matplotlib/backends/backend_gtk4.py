@@ -29,12 +29,11 @@ except ValueError as e:
     raise ImportError from e
 
 from gi.repository import Gio, GLib, GObject, Gtk, Gdk, GdkPixbuf
+from . import _backend_gtk
 from ._backend_gtk import (
     _create_application, _shutdown_application,
     backend_version, _BackendGTK, _NavigationToolbar2GTK,
     TimerGTK as TimerGTK4,
-    ConfigureSubplotsGTK as ConfigureSubplotsGTK4,
-    RubberbandGTK as RubberbandGTK4,
 )
 
 
@@ -564,6 +563,7 @@ class ToolbarGTK4(ToolContainerBase, Gtk.Box):
         self._message.set_label(s)
 
 
+@backend_tools._register_tool_class(FigureCanvasGTK4)
 class SaveFigureGTK4(backend_tools.SaveFigureBase):
     def trigger(self, *args, **kwargs):
 
@@ -573,6 +573,7 @@ class SaveFigureGTK4(backend_tools.SaveFigureBase):
         return NavigationToolbar2GTK4.save_figure(PseudoToolbar())
 
 
+@backend_tools._register_tool_class(FigureCanvasGTK4)
 class HelpGTK4(backend_tools.ToolHelpBase):
     def _normalize_shortcut(self, key):
         """
@@ -646,6 +647,7 @@ class HelpGTK4(backend_tools.ToolHelpBase):
         window.show()
 
 
+@backend_tools._register_tool_class(FigureCanvasGTK4)
 class ToolCopyToClipboardGTK4(backend_tools.ToolCopyToClipboardBase):
     def trigger(self, *args, **kwargs):
         with io.BytesIO() as f:
@@ -658,12 +660,10 @@ class ToolCopyToClipboardGTK4(backend_tools.ToolCopyToClipboardBase):
         clipboard.set(pb)
 
 
-backend_tools.ToolSaveFigure = SaveFigureGTK4
-backend_tools.ToolConfigureSubplots = ConfigureSubplotsGTK4
-backend_tools.ToolRubberband = RubberbandGTK4
-backend_tools.ToolHelp = HelpGTK4
-backend_tools.ToolCopyToClipboard = ToolCopyToClipboardGTK4
-
+backend_tools._register_tool_class(
+    FigureCanvasGTK4, _backend_gtk.ConfigureSubplotsGTK)
+backend_tools._register_tool_class(
+    FigureCanvasGTK4, _backend_gtk.RubberbandGTK)
 Toolbar = ToolbarGTK4
 
 

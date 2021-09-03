@@ -12,6 +12,7 @@ These tools are used by `matplotlib.backend_managers.ToolManager`
 """
 
 import enum
+import functools
 import re
 import time
 from types import SimpleNamespace
@@ -35,6 +36,35 @@ class Cursors(enum.IntEnum):  # Must subclass int for the macOS backend.
     RESIZE_HORIZONTAL = enum.auto()
     RESIZE_VERTICAL = enum.auto()
 cursors = Cursors  # Backcompat.
+
+
+# _tool_registry, _register_tool_class, and _find_tool_class implement a
+# mechanism through which ToolManager.add_tool can determine whether a subclass
+# of the requested tool class has been registered (either for the current
+# canvas class or for a parent class), in which case that tool subclass will be
+# instantiated instead.  This is the mechanism used e.g. to allow different
+# GUI backends to implement different specializations for ConfigureSubplots.
+
+
+_tool_registry = set()
+
+
+def _register_tool_class(canvas_cls, tool_cls=None):
+    """Decorator registering *tool_cls* as a tool class for *canvas_cls*."""
+    if tool_cls is None:
+        return functools.partial(_register_tool_class, canvas_cls)
+    _tool_registry.add((canvas_cls, tool_cls))
+    return tool_cls
+
+
+def _find_tool_class(canvas_cls, tool_cls):
+    """Find a subclass of *tool_cls* registered for *canvas_cls*."""
+    for canvas_parent in canvas_cls.__mro__:
+        for tool_child in _api.recursive_subclasses(tool_cls):
+            if (canvas_parent, tool_child) in _tool_registry:
+                return tool_child
+    return tool_cls
+
 
 # Views positions tool
 _views_positions = 'viewpos'
@@ -943,8 +973,8 @@ class ToolCopyToClipboardBase(ToolBase):
 
 default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'zoom': ToolZoom, 'pan': ToolPan,
-                 'subplots': 'ToolConfigureSubplots',
-                 'save': 'ToolSaveFigure',
+                 'subplots': ConfigureSubplotsBase,
+                 'save': SaveFigureBase,
                  'grid': ToolGrid,
                  'grid_minor': ToolMinorGrid,
                  'fullscreen': ToolFullScreen,
@@ -954,10 +984,10 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'yscale': ToolYScale,
                  'position': ToolCursorPosition,
                  _views_positions: ToolViewsPositions,
-                 'cursor': 'ToolSetCursor',
-                 'rubberband': 'ToolRubberband',
-                 'help': 'ToolHelp',
-                 'copy': 'ToolCopyToClipboard',
+                 'cursor': SetCursorBase,
+                 'rubberband': RubberbandBase,
+                 'help': ToolHelpBase,
+                 'copy': ToolCopyToClipboardBase,
                  }
 """Default tools"""
 
