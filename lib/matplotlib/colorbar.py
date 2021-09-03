@@ -97,7 +97,9 @@ _colormap_kw_doc = """
                   If None, ticks are determined automatically from the
                   input.
     *format*      None or str or Formatter
-                  If None, `~.ticker.ScalarFormatter` is used.
+                  If None, extracted from the mappable ``converter`` attribute
+                  if units are present, otherwise `~.ticker.ScalarFormatter` is
+                  used.
                   If a format string is given, e.g., '%.3f', that is used.
                   An alternative `~.ticker.Formatter` may be given instead.
     *drawedges*   bool
@@ -470,9 +472,6 @@ class Colorbar:
             linewidths=[0.5 * mpl.rcParams['axes.linewidth']])
         self.ax.add_collection(self.dividers)
 
-        self.locator = None
-        self.minorlocator = None
-        self.formatter = None
         self.__scale = None  # linear, log10 for now.  Hopefully more?
 
         if ticklocation == 'auto':
@@ -489,8 +488,15 @@ class Colorbar:
 
         if isinstance(format, str):
             self.formatter = ticker.FormatStrFormatter(format)
-        else:
-            self.formatter = format  # Assume it is a Formatter or None
+        elif format is not None:
+            self.formatter = format  # Assume it is a Formatter
+        elif mappable.converter is not None and mappable.units is not None:
+            # Set from mappable if it has a converter and units
+            info = mappable.converter.axisinfo(
+                mappable.units, self._long_axis)
+            if info is not None and info.majfmt is not None:
+                self.formatter = info.majfmt
+
         self.draw_all()
 
         if isinstance(mappable, contour.ContourSet) and not mappable.filled:
@@ -1141,10 +1147,10 @@ class Colorbar:
         need to be re-entered if this gets called (either at init, or when
         the mappable normal gets changed: Colorbar.update_normal)
         """
-        self._process_values()
         self.locator = None
         self.minorlocator = None
         self.formatter = None
+        self._process_values()
         if (self.boundaries is not None or
                 isinstance(self.norm, colors.BoundaryNorm)):
             if self.spacing == 'uniform':

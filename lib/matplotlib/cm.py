@@ -22,6 +22,7 @@ from numpy import ma
 
 import matplotlib as mpl
 from matplotlib import _api, colors, cbook
+import matplotlib.units as munits
 from matplotlib._cm import datad
 from matplotlib._cm_listed import cmaps as cmaps_listed
 
@@ -344,6 +345,8 @@ class ScalarMappable:
         #: The last colorbar associated with this ScalarMappable. May be None.
         self.colorbar = None
         self.callbacks = cbook.CallbackRegistry()
+        self.units = None
+        self.converter = None
 
     callbacksSM = _api.deprecated("3.5", alternative="callbacks")(
         property(lambda self: self.callbacks))
@@ -456,6 +459,7 @@ class ScalarMappable:
             self._A = None
             return
 
+        A = self._convert_mappable_units(A)
         A = cbook.safe_masked_invalid(A, copy=True)
         if not np.can_cast(A.dtype, float, "same_kind"):
             raise TypeError(f"Image data of dtype {A.dtype} cannot be "
@@ -601,3 +605,70 @@ class ScalarMappable:
         """
         self.callbacks.process('changed', self)
         self.stale = True
+
+    @property
+    def units(self):
+        return self._units
+
+    @units.setter
+    def units(self, unit):
+        self._units = unit
+
+    # {get, set}_units are included to mimic the unit API of Axis
+    def set_units(self, u):
+        """
+        Set the units.
+
+        Parameters
+        ----------
+        u : units tag
+        """
+        self.units = u
+
+    def get_units(self):
+        """Return the units for axis."""
+        return self.units
+
+    @property
+    def converter(self):
+        return self._converter
+
+    @converter.setter
+    def converter(self, converter):
+        if (converter is not None and
+                not isinstance(converter, munits.ConversionInterface)):
+            raise ValueError('converter must be None or an instance of '
+                             'ConversionInterface')
+        self._converter = converter
+
+    def _convert_mappable_units(self, A):
+        # If A is natively supported by Matplotlib, doesn't need converting
+        if munits._is_natively_supported(A):
+            return A
+
+        if self.converter is None:
+            self.converter = munits.registry.get_converter(A)
+
+        if self.converter is None:
+            return A
+
+        if self.units is None:
+            try:
+                self.units = self.converter.default_units(A, self)
+            except Exception as e:
+                raise RuntimeError(
+                    f'{self.converter} failed when trying to return the '
+                    'default units for this image. This may be because '
+                    f'{self.converter} has not implemented support for '
+                    '`ScalarMappable`s in the default_units() method.'
+                ) from e
+
+        try:
+            return self.converter.convert(A, self.units, self)
+        except Exception as e:
+            raise munits.ConversionError(
+                f'{self.converter} failed when trying to convert the units '
+                f'for this image. This may be because {self.converter} has '
+                'not implemented support for `ScalarMappable`s in the '
+                'convert() method.'
+            ) from e

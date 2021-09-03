@@ -1734,7 +1734,7 @@ class EllipseCollection(Collection):
         self._widths = 0.5 * np.asarray(widths).ravel()
         self._heights = 0.5 * np.asarray(heights).ravel()
         self._angles = np.deg2rad(angles).ravel()
-        self._units = units
+        self._size_units = units
         self.set_transform(transforms.IdentityTransform())
         self._transforms = np.empty((0, 3, 3))
         self._paths = [mpath.Path.unit_circle()]
@@ -1745,24 +1745,24 @@ class EllipseCollection(Collection):
         ax = self.axes
         fig = self.figure
 
-        if self._units == 'xy':
+        if self._size_units == 'xy':
             sc = 1
-        elif self._units == 'x':
+        elif self._size_units == 'x':
             sc = ax.bbox.width / ax.viewLim.width
-        elif self._units == 'y':
+        elif self._size_units == 'y':
             sc = ax.bbox.height / ax.viewLim.height
-        elif self._units == 'inches':
+        elif self._size_units == 'inches':
             sc = fig.dpi
-        elif self._units == 'points':
+        elif self._size_units == 'points':
             sc = fig.dpi / 72.0
-        elif self._units == 'width':
+        elif self._size_units == 'width':
             sc = ax.bbox.width
-        elif self._units == 'height':
+        elif self._size_units == 'height':
             sc = ax.bbox.height
-        elif self._units == 'dots':
+        elif self._size_units == 'dots':
             sc = 1.0
         else:
-            raise ValueError('unrecognized units: %s' % self._units)
+            raise ValueError('unrecognized units: %s' % self._size_units)
 
         self._transforms = np.zeros((len(self._widths), 3, 3))
         widths = self._widths * sc
@@ -1776,7 +1776,7 @@ class EllipseCollection(Collection):
         self._transforms[:, 2, 2] = 1.0
 
         _affine = transforms.Affine2D
-        if self._units == 'xy':
+        if self._size_units == 'xy':
             m = ax.transData.get_affine().get_matrix().copy()
             m[:2, 2:] = 0
             self.set_transform(_affine(m))

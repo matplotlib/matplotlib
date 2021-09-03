@@ -18,6 +18,7 @@ from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook
+import matplotlib.units as munits
 # For clarity, names from _image are given explicitly in this module:
 import matplotlib._image as _image
 # For user convenience, the names from _image are also imported into
@@ -699,6 +700,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         if isinstance(A, PIL.Image.Image):
             A = pil_to_array(A)  # Needed e.g. to apply png palette.
+        A = self._convert_mappable_units(A)
         self._A = cbook.safe_masked_invalid(A, copy=True)
 
         if (self._A.dtype != np.uint8 and

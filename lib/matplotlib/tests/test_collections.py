@@ -684,10 +684,7 @@ def test_collection_set_array():
     # Test set_array with list
     c = Collection()
     c.set_array(vals)
-
-    # Test set_array with wrong dtype
-    with pytest.raises(TypeError, match="^Image data of dtype"):
-        c.set_array("wrong_input")
+    c.set_array("categorical_input")
 
     # Test if array kwarg is copied
     vals[5] = 45

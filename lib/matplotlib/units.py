@@ -118,7 +118,11 @@ class ConversionInterface:
 
     @staticmethod
     def default_units(x, axis):
-        """Return the default unit for *x* or ``None`` for the given axis."""
+        """
+        Return the default unit for *x* or ``None``.
+
+        *axis* can be either an `Axis` or a `~.cm.ScalarMappable`.
+        """
         return None
 
     @staticmethod
@@ -128,6 +132,8 @@ class ConversionInterface:
 
         If *obj* is a sequence, return the converted sequence.  The output must
         be a sequence of scalars that can be used by the numpy array layer.
+
+        *axis* can be either an `Axis` or a `~.cm.ScalarMappable`.
         """
         return obj
 

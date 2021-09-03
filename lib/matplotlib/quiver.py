@@ -489,7 +489,6 @@ class Quiver(mcollections.PolyCollection):
         self.headaxislength = headaxislength
         self.minshaft = minshaft
         self.minlength = minlength
-        self.units = units
         self.scale_units = scale_units
         self.angles = angles
         self.width = width
@@ -504,6 +503,8 @@ class Quiver(mcollections.PolyCollection):
         kw.setdefault('linewidths', (0,))
         super().__init__([], offsets=self.XY, transOffset=self.transform,
                          closed=False, **kw)
+
+        self.units = units
         self.polykw = kw
         self.set_UVC(U, V, C)
         self._initialized = False
@@ -520,6 +521,14 @@ class Quiver(mcollections.PolyCollection):
                 self_weakref._initialized = False
 
         self._cid = ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
+
+    def _convert_mappable_units(self, A):
+        """
+        Since Quiver already has a .units attribute for another purpose, it's
+        not yet possible to support units on the ScalarMappable part, so
+        override convert units to be a no-op.
+        """
+        return A
 
     def remove(self):
         # docstring inherited
@@ -622,7 +631,7 @@ class Quiver(mcollections.PolyCollection):
             elif units == 'inches':
                 dx = self.axes.figure.dpi
             else:
-                raise ValueError('unrecognized units')
+                raise ValueError(f'Unrecognized units: {units}')
         return dx
 
     def _set_transform(self):

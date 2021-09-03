@@ -38,6 +38,9 @@ class Quantity:
     def __array__(self):
         return np.asarray(self.magnitude)
 
+    def __len__(self):
+        return len(self.__array__())
+
 
 @pytest.fixture
 def quantity_converter():
@@ -261,3 +264,37 @@ def test_empty_default_limits(quantity_converter):
     fig.draw_without_rendering()
     assert ax.get_ylim() == (0, 100)
     assert ax.get_xlim() == (28.5, 31.5)
+
+
+@image_comparison(['mappable_units.png'], remove_text=True)
+def test_mappable_units(quantity_converter):
+    # Check that showing an image with units works
+    munits.registry[Quantity] = quantity_converter
+    x, y = np.meshgrid([0, 1], [0, 1])
+    data = Quantity(np.arange(4).reshape(2, 2), 'hours')
+
+    fig, axs = plt.subplots(nrows=3, ncols=2, sharex=True, sharey=True)
+    # imshow
+    ax = axs[0, 0]
+    mappable = ax.imshow(data, origin='lower', interpolation='none')
+    fig.colorbar(mappable, ax=ax)
+    # pcolor
+    ax = axs[0, 1]
+    mappable = ax.pcolor(x, y, data)
+    fig.colorbar(mappable, ax=ax)
+    # pcolormesh
+    ax = axs[1, 0]
+    mappable = ax.pcolormesh(x, y, data)
+    fig.colorbar(mappable, ax=ax)
+    # scatter
+    ax = axs[1, 1]
+    mappable = ax.scatter(x, y, c=data, s=100)
+    fig.colorbar(mappable, ax=ax)
+
+    ax = axs[2, 0]
+    mappable = ax.contour(x, y, data)
+    fig.colorbar(mappable, ax=ax)
+
+    ax = axs[2, 1]
+    mappable = ax.contourf(x, y, data)
+    fig.colorbar(mappable, ax=ax)

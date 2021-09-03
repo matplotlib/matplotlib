@@ -346,19 +346,28 @@ class BasicUnitConverter(units.ConversionInterface):
         if np.iterable(val):
             if isinstance(val, np.ma.MaskedArray):
                 val = val.astype(float).filled(np.nan)
-            out = np.empty(len(val))
-            for i, thisval in enumerate(val):
-                if np.ma.is_masked(thisval):
-                    out[i] = np.nan
-                else:
-                    try:
-                        out[i] = thisval.convert_to(unit).get_value()
-                    except AttributeError:
-                        out[i] = thisval
+            out = np.empty(np.shape(val))
+            if isinstance(val, np.ndarray) and isinstance(val, TaggedValue):
+                masked_mask = np.ma.getmaskarray(val)
+                out[masked_mask] = np.nan
+                converted = val[~masked_mask].convert_to(unit).get_value()
+                out[~masked_mask] = converted
+            else:
+                for i, thisval in enumerate(val):
+                    if np.ma.is_masked(thisval):
+                        out[i] = np.nan
+                    else:
+                        try:
+                            out[i] = thisval.convert_to(unit).get_value()
+                        except AttributeError:
+                            out[i] = thisval
+
             return out
+
         if np.ma.is_masked(val):
             return np.nan
         else:
+            # Scalar
             return val.convert_to(unit).get_value()
 
     @staticmethod

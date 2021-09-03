@@ -1,0 +1,10 @@
+Unit converters can now support units in `~.cm.ScalarMappable`s
+---------------------------------------------------------------
+
+`~.cm.ScalarMappable` can now contain data with units.
+For this to be supported by third-party `~.units.ConversionInterface`s,
+the `~.units.ConversionInterface.default_units` and
+`~.units.ConversionInterface.convert` methods must allow for the *axis*
+argument to be a `~.cm.ScalarMappable` object, and
+`~.units.ConversionInterface.convert` must be able to convert data of more than
+one dimension (e.g. when plotting images the data is 2D).
