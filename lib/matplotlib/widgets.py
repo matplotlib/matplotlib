@@ -1287,7 +1287,7 @@ class TextBox(AxesWidget):
             # If using toolmanager, lock keypresses, and plan to release the
             # lock when typing stops.
             toolmanager.keypresslock(self)
-            stack.push(toolmanager.keypresslock.release, self)
+            stack.callback(toolmanager.keypresslock.release, self)
         else:
             # If not using toolmanager, disable all keypress-related rcParams.
             # Avoid spurious warnings if keymaps are getting deprecated.
