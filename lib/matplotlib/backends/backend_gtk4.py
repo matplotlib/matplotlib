@@ -658,14 +658,6 @@ class ToolCopyToClipboardGTK4(backend_tools.ToolCopyToClipboardBase):
         clipboard.set(pb)
 
 
-# Define the file to use as the GTk icon
-if sys.platform == 'win32':
-    icon_filename = 'matplotlib.png'
-else:
-    icon_filename = 'matplotlib.svg'
-window_icon = str(cbook._get_data_path('images', icon_filename))
-
-
 backend_tools.ToolSaveFigure = SaveFigureGTK4
 backend_tools.ToolConfigureSubplots = ConfigureSubplotsGTK4
 backend_tools.ToolRubberband = RubberbandGTK4
