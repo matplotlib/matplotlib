@@ -32,6 +32,7 @@ import functools
 import importlib
 import inspect
 import io
+import itertools
 import logging
 import os
 import re
@@ -394,7 +395,6 @@ class RendererBase:
         *path_ids*; *gc* is a graphics context and *rgbFace* is a color to
         use for filling the path.
         """
-        Ntransforms = len(all_transforms)
         Npaths = len(path_ids)
         Noffsets = len(offsets)
         N = max(Npaths, Noffsets)
@@ -402,53 +402,50 @@ class RendererBase:
         Nedgecolors = len(edgecolors)
         Nlinewidths = len(linewidths)
         Nlinestyles = len(linestyles)
-        Naa = len(antialiaseds)
         Nurls = len(urls)
 
         if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
             return
-        if Noffsets:
-            toffsets = offsetTrans.transform(offsets)
 
         gc0 = self.new_gc()
         gc0.copy_properties(gc)
 
-        if Nfacecolors == 0:
-            rgbFace = None
+        def cycle_or_default(seq, default=None):
+            # Cycle over *seq* if it is not empty; else always yield *default*.
+            return (itertools.cycle(seq) if len(seq)
+                    else itertools.repeat(default))
+
+        pathids = cycle_or_default(path_ids)
+        toffsets = cycle_or_default(offsetTrans.transform(offsets), (0, 0))
+        fcs = cycle_or_default(facecolors)
+        ecs = cycle_or_default(edgecolors)
+        lws = cycle_or_default(linewidths)
+        lss = cycle_or_default(linestyles)
+        aas = cycle_or_default(antialiaseds)
+        urls = cycle_or_default(urls)
 
         if Nedgecolors == 0:
             gc0.set_linewidth(0.0)
 
-        xo, yo = 0, 0
-        for i in range(N):
-            path_id = path_ids[i % Npaths]
-            if Noffsets:
-                xo, yo = toffsets[i % Noffsets]
+        for pathid, (xo, yo), fc, ec, lw, ls, aa, url in itertools.islice(
+                zip(pathids, toffsets, fcs, ecs, lws, lss, aas, urls), N):
             if not (np.isfinite(xo) and np.isfinite(yo)):
                 continue
-            if Nfacecolors:
-                rgbFace = facecolors[i % Nfacecolors]
             if Nedgecolors:
                 if Nlinewidths:
-                    gc0.set_linewidth(linewidths[i % Nlinewidths])
+                    gc0.set_linewidth(lw)
                 if Nlinestyles:
-                    gc0.set_dashes(*linestyles[i % Nlinestyles])
-                fg = edgecolors[i % Nedgecolors]
-                if len(fg) == 4:
-                    if fg[3] == 0.0:
-                        gc0.set_linewidth(0)
-                    else:
-                        gc0.set_foreground(fg)
+                    gc0.set_dashes(*ls)
+                if len(ec) == 4 and ec[3] == 0.0:
+                    gc0.set_linewidth(0)
                 else:
-                    gc0.set_foreground(fg)
-            if rgbFace is not None and len(rgbFace) == 4:
-                if rgbFace[3] == 0:
-                    rgbFace = None
-            gc0.set_antialiased(antialiaseds[i % Naa])
+                    gc0.set_foreground(ec)
+            if fc is not None and len(fc) == 4 and fc[3] == 0:
+                fc = None
+            gc0.set_antialiased(aa)
             if Nurls:
-                gc0.set_url(urls[i % Nurls])
-
-            yield xo, yo, path_id, gc0, rgbFace
+                gc0.set_url(url)
+            yield xo, yo, pathid, gc0, fc
         gc0.restore()
 
     def get_image_magnification(self):
