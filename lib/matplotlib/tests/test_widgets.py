@@ -619,7 +619,11 @@ def test_CheckButtons():
     check.disconnect(cid)
 
 
-def test_TextBox():
+@pytest.mark.parametrize("toolbar", ["none", "toolbar2", "toolmanager"])
+def test_TextBox(toolbar):
+    # Avoid "toolmanager is provisional" warning.
+    dict.__setitem__(plt.rcParams, "toolbar", toolbar)
+
     from unittest.mock import Mock
     submit_event = Mock()
     text_change_event = Mock()
