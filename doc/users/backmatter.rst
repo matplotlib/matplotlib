@@ -1,6 +1,6 @@
 
-Back Matter
------------
+Project Information
+-------------------
 
 .. toctree::
     :maxdepth: 1

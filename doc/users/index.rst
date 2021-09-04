@@ -1,8 +1,8 @@
 .. _users-guide-index:
 
-##########
-User guide
-##########
+###########
+Usage Guide
+###########
 
 .. only:: html
 
@@ -13,11 +13,12 @@ User guide
 
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
-   installing.rst
+   ../plot_types/index.rst
+   ../tutorials/index.rst
+   ../gallery/index.rst
    explain.rst
    ../faq/index.rst
+   ../api/index.rst
    ../resources/index.rst
-   backmatter.rst
-   ../devel/index.rst

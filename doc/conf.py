@@ -323,6 +323,7 @@ html_theme_options = {
         },
     ],
     "show_prev_next": False,
+    "navbar_center": ["mpl_nav_bar.html"],
 }
 include_analytics = False
 if include_analytics:

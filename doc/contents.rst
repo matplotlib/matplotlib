@@ -14,11 +14,10 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   plot_types/index.rst
-   gallery/index.rst
-   tutorials/index.rst
-   api/index.rst
+   users/installing.rst
    users/index.rst
+   users/backmatter.rst
+   devel/index.rst
    users/release_notes.rst
 
 .. only:: html
