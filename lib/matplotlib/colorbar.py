@@ -1198,8 +1198,9 @@ class Colorbar:
         a proportional colorbar, plus extension lengths if required:
         """
         if isinstance(self.norm, colors.BoundaryNorm):
-            y = (self._boundaries - self._boundaries[0])
-            y = y / (self._boundaries[-1] - self._boundaries[0])
+            y = (self._boundaries - self._boundaries[self._inside][0])
+            y = y / (self._boundaries[self._inside][-1] -
+                     self._boundaries[self._inside][0])
             # need yscaled the same as the axes scale to get
             # the extend lengths.
             if self.spacing == 'uniform':
