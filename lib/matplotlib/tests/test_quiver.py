@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 
 from matplotlib import pyplot as plt
+from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.testing.decorators import image_comparison
 
 
@@ -168,7 +169,7 @@ def test_quiver_key_xy():
         ax.set_xlim(-1, 8)
         ax.set_ylim(-0.2, 0.2)
         q = ax.quiver(X, Y, U, V, pivot='middle',
-                      units='xy', width=0.05,
+                      arrow_units='xy', width=0.05,
                       scale=2, scale_units='xy',
                       angles=angle_str)
         for x, angle in zip((0.2, 0.5, 0.8), (0, 45, 90)):
@@ -277,3 +278,25 @@ def test_quiver_setuvc_numbers():
 
     q = ax.quiver(X, Y, U, V)
     q.set_UVC(0, 1)
+
+
+def test_units_deprecation():
+    fig, ax = plt.subplots()
+
+    X, Y = np.meshgrid(np.arange(2), np.arange(2))
+    U = V = np.ones_like(X)
+
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match="renamed 'arrow_units'"):
+        q = ax.quiver(X, Y, U, V, units='xy')
+
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match="Quiver.units is deprecated"):
+        assert q.units == 'xy'
+
+    assert q.arrow_units == 'xy'
+
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match="Quiver.units is deprecated"):
+        q.units = 'x'
+    assert q.arrow_units == 'x'

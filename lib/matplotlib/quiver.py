@@ -89,7 +89,8 @@ C : 1D or 2D array-like, optional
     use *color* instead.  The size of *C* must match the number of arrow
     locations.
 
-units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, default: 'width'
+arrow_units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, default:
+'width'
     The arrow dimensions (except for *length*) are measured in multiples of
     this unit.
 
@@ -99,9 +100,9 @@ units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, default: 'width'
     - 'dots', 'inches': Pixels or inches based on the figure dpi.
     - 'x', 'y', 'xy': *X*, *Y* or :math:`\\sqrt{X^2 + Y^2}` in data units.
 
-    The arrows scale differently depending on the units.  For
+    The arrows scale differently depending on the arrow units.  For
     'x' or 'y', the arrows get larger as one zooms in; for other
-    units, the arrow size is independent of the zoom state.  For
+    arrow units, the arrow size is independent of the zoom state.  For
     'width or 'height', the arrow size increases with the width and
     height of the axes, respectively, when the window is resized;
     for 'dots' or 'inches', resizing does not change the arrows.
@@ -151,7 +152,7 @@ scale_units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, optional
     ``angles='xy', scale_units='xy', scale=1``.
 
 width : float, optional
-    Shaft width in arrow units; default depends on choice of units,
+    Shaft width in arrow units; default depends on choice of arrow units,
     above, and number of vectors; a typical starting value is about
     0.005 times the width of the plot.
 
@@ -466,11 +467,13 @@ class Quiver(mcollections.PolyCollection):
 
     _PIVOT_VALS = ('tail', 'middle', 'tip')
 
+    @_api.rename_parameter('3.6', 'units', 'arrow_units')
     @docstring.Substitution(_quiver_doc)
     def __init__(self, ax, *args,
                  scale=None, headwidth=3, headlength=5, headaxislength=4.5,
-                 minshaft=1, minlength=1, units='width', scale_units=None,
-                 angles='uv', width=None, color='k', pivot='tail', **kw):
+                 minshaft=1, minlength=1, arrow_units='width',
+                 scale_units=None, angles='uv', width=None, color='k',
+                 pivot='tail', **kw):
         """
         The constructor takes one required argument, an Axes
         instance, followed by the args and kwargs described
@@ -504,7 +507,7 @@ class Quiver(mcollections.PolyCollection):
         super().__init__([], offsets=self.XY, transOffset=self.transform,
                          closed=False, **kw)
 
-        self.units = units
+        self.arrow_units = arrow_units
         self.polykw = kw
         self.set_UVC(U, V, C)
         self._initialized = False
@@ -522,11 +525,36 @@ class Quiver(mcollections.PolyCollection):
 
         self._cid = ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
 
+    @property
+    def units(self):
+        _api.warn_deprecated(
+            '3.6',
+            message='%(name)s is deprecated since %(since)s. Use '
+            '%(alternative)s instead.',
+            name='Quiver.units',
+            alternative='Quiver.arrow_units')
+        return self.arrow_units
+
+    @units.setter
+    def units(self, val):
+        # Avoid emitting a warning when `ScalarMappable.__init__` sets this
+        # to None
+        if val is not None:
+            _api.warn_deprecated(
+                '3.6',
+                message='%(name)s is deprecated since %(since)s. Use '
+                '%(alternative)s instead.',
+                name='Quiver.units',
+                alternative='Quiver.arrow_units')
+        self.arrow_units = val
+
     def _convert_mappable_units(self, A):
         """
         Since Quiver already has a .units attribute for another purpose, it's
         not yet possible to support units on the ScalarMappable part, so
         override convert units to be a no-op.
+
+        This method can be removed when the .units deprecation expires.
         """
         return A
 
@@ -602,15 +630,15 @@ class Quiver(mcollections.PolyCollection):
         self._new_UV = True
         self.stale = True
 
-    def _dots_per_unit(self, units):
+    def _dots_per_unit(self, arrow_units):
         """
         Return a scale factor for converting from units to pixels
         """
-        if units in ('x', 'y', 'xy'):
-            if units == 'x':
+        if arrow_units in ('x', 'y', 'xy'):
+            if arrow_units == 'x':
                 dx0 = self.axes.viewLim.width
                 dx1 = self.axes.bbox.width
-            elif units == 'y':
+            elif arrow_units == 'y':
                 dx0 = self.axes.viewLim.height
                 dx1 = self.axes.bbox.height
             else:  # 'xy' is assumed
@@ -622,16 +650,16 @@ class Quiver(mcollections.PolyCollection):
                 dx0 = np.hypot(dxx0, dyy0)
             dx = dx1 / dx0
         else:
-            if units == 'width':
+            if arrow_units == 'width':
                 dx = self.axes.bbox.width
-            elif units == 'height':
+            elif arrow_units == 'height':
                 dx = self.axes.bbox.height
-            elif units == 'dots':
+            elif arrow_units == 'dots':
                 dx = 1.0
-            elif units == 'inches':
+            elif arrow_units == 'inches':
                 dx = self.axes.figure.dpi
             else:
-                raise ValueError(f'Unrecognized units: {units}')
+                raise ValueError(f'Unrecognized arrow units: {arrow_units}')
         return dx
 
     def _set_transform(self):
@@ -639,7 +667,7 @@ class Quiver(mcollections.PolyCollection):
         Set the PolyCollection transform to go
         from arrow width units to pixels.
         """
-        dx = self._dots_per_unit(self.units)
+        dx = self._dots_per_unit(self.arrow_units)
         self._trans_scale = dx  # pixels per arrow width unit
         trans = transforms.Affine2D().scale(dx)
         self.set_transform(trans)

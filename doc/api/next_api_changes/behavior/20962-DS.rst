@@ -8,3 +8,9 @@ the `~.units.ConversionInterface.default_units` and
 argument to be a `~.cm.ScalarMappable` object, and
 `~.units.ConversionInterface.convert` must be able to convert data of more than
 one dimension (e.g. when plotting images the data is 2D).
+
+The ``Quiver`` ``units`` property is renamed ``arrow_units``
+------------------------------------------------------------
+This is to clarify the meaning of this property, and enable support for color
+mapped data with units in the future. The corresponding keyword argument to
+`~.quiver.Quiver` is also renamed. 
