@@ -236,6 +236,18 @@ class MarkerStyle:
 
         fillstyle : str, default: :rc:`markers.fillstyle`
             One of 'full', 'left', 'right', 'bottom', 'top', 'none'.
+        
+        transform : Affine2D, default: None
+            User supplied transformation that will be combined with the
+            native transformation of selected marker.
+
+        capstyle : CapStyle, default: None
+            User supplied cap style that will override the default cap
+            style of selected marker.
+
+        joinstyle : JoinStyle, default: None
+            User supplied join style that will override the default cap
+            style of selected marker.
         """
         self._marker_function = None
         self._user_transform = transform
