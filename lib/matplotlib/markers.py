@@ -236,7 +236,7 @@ class MarkerStyle:
 
         fillstyle : str, default: :rc:`markers.fillstyle`
             One of 'full', 'left', 'right', 'bottom', 'top', 'none'.
-        
+
         transform : Affine2D, default: None
             User supplied transformation that will be combined with the
             native transformation of selected marker.
@@ -319,10 +319,10 @@ class MarkerStyle:
         self._recache()
 
     def get_joinstyle(self):
-        return self._joinstyle
+        return self._user_joinstyle or self._joinstyle
 
     def get_capstyle(self):
-        return self._capstyle
+        return self._user_capstyle or self._capstyle
 
     def get_marker(self):
         return self._marker
@@ -413,6 +413,51 @@ class MarkerStyle:
 
     def get_snap_threshold(self):
         return self._snap_threshold
+
+    def get_user_transform(self):
+        """Return user supplied part of marker transform."""
+        if self._user_transform is not None:
+            return self._user_transform.frozen()
+
+    def transformed(self, transform:Affine2D):
+        """
+        Return new marker with combined transformation.
+
+        Parameters
+        ----------
+        transform : Affine2D, default: None
+            - transform will be combined with current user supplied transform.
+        """
+        new_marker = MarkerStyle(self)
+        if new_marker._user_transform is not None:
+            new_marker._user_transform += transform
+        else:
+            new_marker._user_transform = transform
+        return new_marker
+
+    def rotated(self, deg=None, rad=None):
+        """
+        Return new marker rotated by specified angle.
+
+        Parameters
+        ----------
+        deg : float, default: None
+
+        rad : float, default: None
+        """
+        if not ((deg is None) ^ (rad is None)):
+            raise Exception("Only one of deg or rad shall be used.")
+        
+        _transform = self._user_transform or Affine2D()
+
+        if deg is not None: 
+            _transform = _transform.rotate_deg(deg)
+        
+        if rad is not None:
+            _transform = _transform.rotate(rad)
+
+        new_marker = MarkerStyle(self)
+        new_marker._user_transform = _transform
 
     def _set_nothing(self):
         self._filled = False
