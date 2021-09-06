@@ -4,6 +4,7 @@ from matplotlib import markers
 from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 from matplotlib.path import Path
 from matplotlib.testing.decorators import check_figures_equal
+from matplotlib.transforms import Affine2D
 
 import pytest
 
@@ -204,3 +205,13 @@ def test_marker_clipping(fig_ref, fig_test):
     ax_test.set(xlim=(-0.5, ncol), ylim=(-0.5, 2 * nrow))
     ax_ref.axis('off')
     ax_test.axis('off')
+
+@pytest.mark.parametrize("marker,transform,expected", [
+    (markers.MarkerStyle("o"), Affine2D().translate(1,1), Affine2D().translate(1,1)),
+    (markers.MarkerStyle("o", transform=Affine2D().translate(1,1)), Affine2D().translate(1,1), Affine2D().translate(2,2)),
+])
+def test_marker_transformed(marker, transform, expected):
+    new_marker = marker.transformed(transform)
+    assert new_marker is not marker
+    assert new_marker.get_user_transform() == expected
+    assert marker.get_user_transform() is not new_marker.get_user_transform()
