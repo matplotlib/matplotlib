@@ -575,24 +575,13 @@ def matplotlib_fname():
 # rcParams deprecated and automatically mapped to another key.
 # Values are tuples of (version, new_name, f_old2new, f_new2old).
 _deprecated_map = {}
-
 # rcParams deprecated; some can manually be mapped to another key.
 # Values are tuples of (version, new_name_or_None).
-_deprecated_ignore_map = {
-    'mpl_toolkits.legacy_colorbar': ('3.4', None),
-}
-
+_deprecated_ignore_map = {}
 # rcParams deprecated; can use None to suppress warnings; remain actually
-# listed in the rcParams (not included in _all_deprecated).
+# listed in the rcParams.
 # Values are tuples of (version,)
-_deprecated_remain_as_none = {
-    'animation.avconv_path': ('3.3',),
-    'animation.avconv_args': ('3.3',),
-    'animation.html_args': ('3.3',),
-}
-
-
-_all_deprecated = {*_deprecated_map, *_deprecated_ignore_map}
+_deprecated_remain_as_none = {}
 
 
 @docstring.Substitution(
