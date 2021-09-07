@@ -31,8 +31,6 @@ Reference
   - :doc:`Axes API <api/axes_api>` for *most* plotting methods
   - :doc:`Figure API <api/figure_api>` for figure-level methods
 
-- :doc:`Extra Toolkits <api/toolkits/index>`
-
 How-tos
 =======
 
