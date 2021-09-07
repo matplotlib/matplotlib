@@ -59,6 +59,13 @@ class __getattr__:
         except TypeError as exc:
             return {}
 
+    icon_filename = _api.deprecated("3.6", obj_type="")(property(
+        lambda self:
+        "matplotlib.png" if sys.platform == "win32" else "matplotlib.svg"))
+    window_icon = _api.deprecated("3.6", obj_type="")(property(
+        lambda self:
+        str(cbook._get_data_path("images", __getattr__("icon_filename")))))
+
 
 @functools.lru_cache()
 def _mpl_to_gtk_cursor(mpl_cursor):
@@ -307,7 +314,9 @@ class FigureManagerGTK3(FigureManagerBase):
         super().__init__(canvas, num)
 
         self.window.set_wmclass("matplotlib", "Matplotlib")
-        self.window.set_icon_from_file(window_icon)
+        icon_ext = "png" if sys.platform == "win32" else "svg"
+        self.window.set_icon_from_file(
+            str(cbook._get_data_path(f"images/matplotlib.{icon_ext}")))
 
         self.vbox = Gtk.Box()
         self.vbox.set_property("orientation", Gtk.Orientation.VERTICAL)
@@ -696,14 +705,6 @@ class ToolCopyToClipboardGTK3(backend_tools.ToolCopyToClipboardBase):
         x, y, width, height = window.get_geometry()
         pb = Gdk.pixbuf_get_from_window(window, x, y, width, height)
         clipboard.set_image(pb)
-
-
-# Define the file to use as the GTk icon
-if sys.platform == 'win32':
-    icon_filename = 'matplotlib.png'
-else:
-    icon_filename = 'matplotlib.svg'
-window_icon = str(cbook._get_data_path('images', icon_filename))
 
 
 def error_msg_gtk(msg, parent=None):
