@@ -6,9 +6,9 @@ Custom spines with axisartist
 This example showcases the use of :mod:`.axisartist` to draw spines at custom
 positions (here, at ``y = 0``).
 
-Note, however, that it is simpler to achieve this effect
-using standard `.Spine` methods, as demonstrated in
-:doc:`/gallery/ticks_and_spines/centered_spines_with_arrows`.
+Note, however, that it is simpler to achieve this effect using standard
+`.Spine` methods, as demonstrated in
+:doc:`/gallery/spines/centered_spines_with_arrows`.
 
 .. redirect-from:: /gallery/axisartist/simple_axisline2
 """
