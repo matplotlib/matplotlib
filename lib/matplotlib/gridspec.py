@@ -490,11 +490,19 @@ class GridSpecFromSubplotSpec(GridSpecBase):
                  wspace=None, hspace=None,
                  height_ratios=None, width_ratios=None):
         """
-        The number of rows and number of columns of the grid need to
-        be set. An instance of SubplotSpec is also needed to be set
-        from which the layout parameters will be inherited. The wspace
-        and hspace of the layout can be optionally specified or the
-        default values (from the figure or rcParams) will be used.
+        Parameters
+        ----------
+        nrows, ncols : int
+            Number of rows and number of columns of the grid.
+        subplot_spec : SubplotSpec
+            Spec from which the layout parameters are inherited.
+        wspace, hspace : float, optional
+            See `GridSpec` for more details. If not specified default values
+            (from the figure or rcParams) are used.
+        height_ratios : array-like of length *nrows*, optional
+            See `GridSpecBase` for details.
+        width_ratios : array-like of length *ncols*, optional
+            See `GridSpecBase` for details.
         """
         self._wspace = wspace
         self._hspace = hspace
