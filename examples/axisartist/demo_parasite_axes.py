@@ -10,7 +10,7 @@ This approach uses `mpl_toolkits.axes_grid1.parasite_axes.HostAxes` and
 `mpl_toolkits.axes_grid1.parasite_axes.ParasiteAxes`.
 
 An alternative approach using standard Matplotlib subplots is shown in the
-:doc:`/gallery/ticks_and_spines/multiple_yaxis_with_spines` example.
+:doc:`/gallery/spines/multiple_yaxis_with_spines` example.
 
 An alternative approach using :mod:`mpl_toolkits.axes_grid1`
 and :mod:`mpl_toolkits.axisartist` is found in the
