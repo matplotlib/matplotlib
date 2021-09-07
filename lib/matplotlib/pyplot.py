@@ -613,7 +613,8 @@ class _xkcd:
     # work as a non-contextmanager too.
 
     def __init__(self, scale, length, randomness):
-        self._orig = rcParams.copy()
+        with _api.suppress_matplotlib_deprecation_warning():
+            self._orig = rcParams.copy()
 
         if rcParams['text.usetex']:
             raise RuntimeError(

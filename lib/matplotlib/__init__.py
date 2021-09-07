@@ -708,6 +708,11 @@ class RcParams(MutableMapping, dict):
                         if pattern_re.search(key))
 
     def copy(self):
+        _api.warn_deprecated(
+            "3.6", message="In the future, rcParams.copy() will return a new "
+            "RcParams instance.  During the deprecation period, either use "
+            "dict.copy(rcParams) to copy rcParams as a plain dict, or "
+            "copy.copy(rcParams) to copy rcParams as a new RcParams instance.")
         return {k: dict.__getitem__(self, k) for k in self}
 
 
@@ -1076,7 +1081,8 @@ def rc_context(rc=None, fname=None):
              plt.plot(x, y)  # uses 'print.rc'
 
     """
-    orig = rcParams.copy()
+    with _api.suppress_matplotlib_deprecation_warning():
+        orig = rcParams.copy()
     try:
         if fname:
             rc_file(fname)
