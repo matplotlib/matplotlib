@@ -101,21 +101,6 @@ Alphabetical list of modules:
    widgets_api.rst
    _api_api.rst
    _enums_api.rst
-
-Toolkits
---------
-
-:ref:`toolkits-index` are collections of application-specific functions that extend
-Matplotlib. The following toolkits are included:
-
-.. toctree::
-   :hidden:
-
-   toolkits/index.rst
-
-.. toctree::
-   :maxdepth: 1
-
    toolkits/mplot3d.rst
    toolkits/axes_grid1.rst
    toolkits/axisartist.rst
