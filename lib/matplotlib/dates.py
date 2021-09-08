@@ -21,8 +21,8 @@ A basic example using `numpy.datetime64` is::
 .. seealso::
 
     - :doc:`/gallery/text_labels_and_annotations/date`
-    - :doc:`/gallery/ticks_and_spines/date_concise_formatter`
-    - :doc:`/gallery/ticks_and_spines/date_demo_convert`
+    - :doc:`/gallery/ticks/date_concise_formatter`
+    - :doc:`/gallery/ticks/date_demo_convert`
 
 .. _date-format:
 
@@ -38,7 +38,7 @@ is achievable for (approximately) 70 years on either side of the epoch, and
 20 microseconds for the rest of the allowable range of dates (year 0001 to
 9999). The epoch can be changed at import time via `.dates.set_epoch` or
 :rc:`dates.epoch` to other dates if necessary; see
-:doc:`/gallery/ticks_and_spines/date_precision_and_epochs` for a discussion.
+:doc:`/gallery/ticks/date_precision_and_epochs` for a discussion.
 
 .. note::
 
@@ -144,7 +144,7 @@ The available date tickers are:
 * `RRuleLocator`: Locate using a `matplotlib.dates.rrulewrapper`.
   `.rrulewrapper` is a simple wrapper around dateutil_'s `dateutil.rrule` which
   allow almost arbitrary date tick specifications.  See :doc:`rrule example
-  </gallery/ticks_and_spines/date_demo_rrule>`.
+  </gallery/ticks/date_demo_rrule>`.
 
 * `AutoDateLocator`: On autoscale, this class picks the best `DateLocator`
   (e.g., `RRuleLocator`) to set the view limits and the tick locations.  If
@@ -271,7 +271,7 @@ def set_epoch(epoch):
     `~.dates.set_epoch` must be called before any dates are converted
     (i.e. near the import section) or a RuntimeError will be raised.
 
-    See also :doc:`/gallery/ticks_and_spines/date_precision_and_epochs`.
+    See also :doc:`/gallery/ticks/date_precision_and_epochs`.
 
     Parameters
     ----------
@@ -683,7 +683,7 @@ class ConciseDateFormatter(ticker.Formatter):
 
     Examples
     --------
-    See :doc:`/gallery/ticks_and_spines/date_concise_formatter`
+    See :doc:`/gallery/ticks/date_concise_formatter`
 
     .. plot::
 
@@ -1659,7 +1659,7 @@ class MicrosecondLocator(DateLocator):
         If you really must use datetime.datetime() or similar and still
         need microsecond precision, change the time origin via
         `.dates.set_epoch` to something closer to the dates being plotted.
-        See :doc:`/gallery/ticks_and_spines/date_precision_and_epochs`.
+        See :doc:`/gallery/ticks/date_precision_and_epochs`.
 
     """
     def __init__(self, interval=1, tz=None):
