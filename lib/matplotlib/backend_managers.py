@@ -376,22 +376,14 @@ class ToolManager:
         if sender is None:
             sender = self
 
-        self._trigger_tool(name, sender, canvasevent, data)
+        if isinstance(tool, tools.ToolToggleBase):
+            self._handle_toggle(tool, sender, canvasevent, data)
+
+        tool.trigger(sender, canvasevent, data)  # Actually trigger Tool.
 
         s = 'tool_trigger_%s' % name
         event = ToolTriggerEvent(s, sender, tool, canvasevent, data)
         self._callbacks.process(s, event)
-
-    def _trigger_tool(self, name, sender=None, canvasevent=None, data=None):
-        """Actually trigger a tool."""
-        tool = self.get_tool(name)
-
-        if isinstance(tool, tools.ToolToggleBase):
-            self._handle_toggle(tool, sender, canvasevent, data)
-
-        # Important!!!
-        # This is where the Tool object gets triggered
-        tool.trigger(sender, canvasevent, data)
 
     def _key_press(self, event):
         if event.key is None or self.keypresslock.locked():
