@@ -6,7 +6,7 @@ Spine Placement
 Adjusting the location and appearance of axis spines.
 
 Note: If you want to obtain arrow heads at the ends of the axes, also check
-out the :doc:`/gallery/ticks_and_spines/centered_spines_with_arrows` example.
+out the :doc:`/gallery/spines/centered_spines_with_arrows` example.
 """
 import numpy as np
 import matplotlib.pyplot as plt

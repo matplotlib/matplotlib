@@ -19,7 +19,7 @@ Note that this approach uses the `mpl_toolkits.axes_grid1.parasite_axes`'
 `~.mpl_toolkits.axes_grid1.parasite_axes.ParasiteAxes` is the
 :doc:`/gallery/axisartist/demo_parasite_axes` example.
 An alternative approach using the usual Matplotlib subplots is shown in
-the :doc:`/gallery/ticks_and_spines/multiple_yaxis_with_spines` example.
+the :doc:`/gallery/spines/multiple_yaxis_with_spines` example.
 """
 
 from mpl_toolkits.axes_grid1 import host_subplot
