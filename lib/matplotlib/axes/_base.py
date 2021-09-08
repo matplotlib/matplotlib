@@ -4582,21 +4582,13 @@ class _AxesBase(martist.Artist):
 
         if self.axison:
             if self.xaxis.get_visible():
-                try:
-                    bb_xaxis = self.xaxis.get_tightbbox(
-                        renderer, for_layout_only=for_layout_only)
-                except TypeError:
-                    # in case downstream library has redefined axis:
-                    bb_xaxis = self.xaxis.get_tightbbox(renderer)
+                bb_xaxis = martist._get_tightbbox_for_layout_only(
+                    self.xaxis, renderer)
                 if bb_xaxis:
                     bb.append(bb_xaxis)
             if self.yaxis.get_visible():
-                try:
-                    bb_yaxis = self.yaxis.get_tightbbox(
-                        renderer, for_layout_only=for_layout_only)
-                except TypeError:
-                    # in case downstream library has redefined axis:
-                    bb_yaxis = self.yaxis.get_tightbbox(renderer)
+                bb_yaxis = martist._get_tightbbox_for_layout_only(
+                    self.yaxis, renderer)
                 if bb_yaxis:
                     bb.append(bb_yaxis)
         self._update_title_position(renderer)
