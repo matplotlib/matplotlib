@@ -337,3 +337,30 @@ def test_minus_signs_with_tex(fig_test, fig_ref, texsystem):
     mpl.rcParams["pgf.texsystem"] = texsystem
     fig_test.text(.5, .5, "$-1$")
     fig_ref.text(.5, .5, "$\N{MINUS SIGN}1$")
+
+
+@pytest.mark.backend("pgf")
+def test_sketch_params():
+    fig, ax = plt.subplots(figsize=(3, 3))
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_frame_on(False)
+    handle, = ax.plot([0, 1])
+    handle.set_sketch_params(scale=5, length=30, randomness=42)
+
+    with BytesIO() as fd:
+        fig.savefig(fd, format='pgf')
+        buf = fd.getvalue().decode()
+
+    baseline = r"""\pgfpathmoveto{\pgfqpoint{0.375000in}{0.300000in}}%
+\pgfpathlineto{\pgfqpoint{2.700000in}{2.700000in}}%
+\usepgfmodule{decorations}%
+\usepgflibrary{decorations.pathmorphing}%
+\pgfkeys{/pgf/decoration/.cd, """ \
+    r"""segment length = 0.150000in, amplitude = 0.100000in}%
+\pgfmathsetseed{42}%
+\pgfdecoratecurrentpath{random steps}%
+\pgfusepath{stroke}%"""
+    # \pgfdecoratecurrentpath must be after the path definition and before the
+    # path is used (\pgfusepath)
+    assert baseline in buf

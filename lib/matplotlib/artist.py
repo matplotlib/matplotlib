@@ -690,6 +690,9 @@ class Artist:
             The scale factor by which the length is shrunken or
             expanded (default 16.0)
 
+            The PGF backend uses this argument as an RNG seed and not as
+            described above. Using the same seed yields the same random shape.
+
             .. ACCEPTS: (scale: float, length: float, randomness: float)
         """
         if scale is None:

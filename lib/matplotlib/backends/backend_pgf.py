@@ -600,6 +600,30 @@ class RendererPgf(RendererBase):
                         r"{\pgfqpoint{%fin}{%fin}}"
                         % coords)
 
+        # apply pgf decorators
+        sketch_params = gc.get_sketch_params() if gc else None
+        if sketch_params is not None:
+            # Only "length" directly maps to "segment length" in PGF's API.
+            # PGF uses "amplitude" to pass the combined deviation in both x-
+            # and y-direction, while matplotlib only varies the length of the
+            # wiggle along the line ("randomness" and "length" parameters)
+            # and has a separate "scale" argument for the amplitude.
+            # -> Use "randomness" as PRNG seed to allow the user to force the
+            # same shape on multiple sketched lines
+            scale, length, randomness = sketch_params
+            if scale is not None:
+                # make matplotlib and PGF rendering visually similar
+                length *= 0.5
+                scale *= 2
+                # PGF guarantees that repeated loading is a no-op
+                writeln(self.fh, r"\usepgfmodule{decorations}")
+                writeln(self.fh, r"\usepgflibrary{decorations.pathmorphing}")
+                writeln(self.fh, r"\pgfkeys{/pgf/decoration/.cd, "
+                        f"segment length = {(length * f):f}in, "
+                        f"amplitude = {(scale * f):f}in}}")
+                writeln(self.fh, f"\\pgfmathsetseed{{{int(randomness)}}}")
+                writeln(self.fh, r"\pgfdecoratecurrentpath{random steps}")
+
     def _pgf_path_draw(self, stroke=True, fill=False):
         actions = []
         if stroke:
