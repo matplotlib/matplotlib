@@ -1301,6 +1301,18 @@ class Artist:
                 ax._mouseover_set.discard(self)
 
 
+def _get_tightbbox_for_layout_only(obj, *args, **kwargs):
+    """
+    Matplotlib's `.Axes.get_tightbbox` and `.Axis.get_tightbbox` support a
+    *for_layout_only* kwarg; this helper tries to uses the kwarg but skips it
+    when encountering third-party subclasses that do not support it.
+    """
+    try:
+        return obj.get_tightbbox(*args, **{**kwargs, "for_layout_only": True})
+    except TypeError:
+        return obj.get_tightbbox(*args, **kwargs)
+
+
 class ArtistInspector:
     """
     A helper class to inspect an `~matplotlib.artist.Artist` and return
