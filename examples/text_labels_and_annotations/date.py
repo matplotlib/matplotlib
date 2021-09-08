@@ -16,11 +16,10 @@ The registration process also sets the default tick ``locator`` and
 
 An alternative formatter is the `~.dates.ConciseDateFormatter`,
 used in the second ``Axes`` below (see
-:doc:`/gallery/ticks_and_spines/date_concise_formatter`), which often
-removes the need to rotate the tick labels. The last ``Axes``
-formats the dates manually, using `~.dates.DateFormatter` to
-format the dates using the format strings documented at
-`datetime.date.strftime`.
+:doc:`/gallery/ticks/date_concise_formatter`), which often removes the need to
+rotate the tick labels. The last ``Axes`` formats the dates manually, using
+`~.dates.DateFormatter` to format the dates using the format strings documented
+at `datetime.date.strftime`.
 """
 
 import matplotlib.pyplot as plt
