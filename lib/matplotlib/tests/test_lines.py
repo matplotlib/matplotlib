@@ -16,6 +16,7 @@ import matplotlib.lines as mlines
 from matplotlib.markers import MarkerStyle
 from matplotlib.path import Path
 import matplotlib.pyplot as plt
+import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
@@ -129,6 +130,17 @@ def test_drawstyle_variants():
     for ax, ds in zip(axs.flat, dss):
         ax.plot(range(2000), drawstyle=ds)
         ax.set(xlim=(0, 2), ylim=(0, 2))
+
+
+@check_figures_equal(extensions=('png',))
+def test_no_subslice_with_transform(fig_ref, fig_test):
+    ax = fig_ref.add_subplot()
+    x = np.arange(2000)
+    ax.plot(x + 2000, x)
+
+    ax = fig_test.add_subplot()
+    t = mtransforms.Affine2D().translate(2000.0, 0.0)
+    ax.plot(x, x, transform=t+ax.transData)
 
 
 def test_valid_drawstyles():
