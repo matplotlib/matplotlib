@@ -93,7 +93,6 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
                   | Gdk.EventMask.ENTER_NOTIFY_MASK
                   | Gdk.EventMask.LEAVE_NOTIFY_MASK
                   | Gdk.EventMask.POINTER_MOTION_MASK
-                  | Gdk.EventMask.POINTER_MOTION_HINT_MASK
                   | Gdk.EventMask.SCROLL_MASK)
 
     def __init__(self, figure=None):
@@ -184,14 +183,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         return True  # stop event propagation
 
     def motion_notify_event(self, widget, event):
-        if event.is_hint:
-            t, x, y, state = event.window.get_device_position(event.device)
-            # flipy so y=0 is bottom of canvas
-            x *= self.device_pixel_ratio
-            y = (self.get_allocation().height - y) * self.device_pixel_ratio
-        else:
-            x, y = self._mouse_event_coords(event)
-
+        x, y = self._mouse_event_coords(event)
         FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
         return False  # finish event propagation?
 
