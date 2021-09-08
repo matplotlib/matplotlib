@@ -57,11 +57,9 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
     tr = Affine2D().scale(fixed_dpi)
     dpi_scale = fixed_dpi / fig.dpi
 
-    _bbox = TransformedBbox(bbox_inches, tr)
-
     fig.bbox_inches = Bbox.from_bounds(0, 0,
                                        bbox_inches.width, bbox_inches.height)
-    x0, y0 = _bbox.x0, _bbox.y0
+    x0, y0 = tr.transform(bbox_inches.p0)
     w1, h1 = fig.bbox.width * dpi_scale, fig.bbox.height * dpi_scale
     fig.transFigure._boxout = Bbox.from_bounds(-x0, -y0, w1, h1)
     fig.transFigure.invalidate()
