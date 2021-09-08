@@ -13,7 +13,7 @@ import numpy as np
 
 from matplotlib import _api, rcParams
 from matplotlib.font_manager import FontProperties
-from matplotlib.transforms import TransformedBbox, Bbox
+from matplotlib.transforms import Bbox
 
 
 def _auto_adjust_subplotpars(
@@ -84,8 +84,7 @@ def _auto_adjust_subplotpars(
                     bb += [ax.get_tightbbox(renderer)]
 
         tight_bbox_raw = Bbox.union(bb)
-        tight_bbox = TransformedBbox(tight_bbox_raw,
-                                     fig.transFigure.inverted())
+        tight_bbox = fig.transFigure.inverted().transform_bbox(tight_bbox_raw)
 
         hspaces[rowspan, colspan.start] += ax_bbox.xmin - tight_bbox.xmin  # l
         hspaces[rowspan, colspan.stop] += tight_bbox.xmax - ax_bbox.xmax  # r
