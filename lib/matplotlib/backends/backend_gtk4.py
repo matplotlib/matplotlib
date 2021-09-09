@@ -287,8 +287,7 @@ class FigureManagerGTK4(FigureManagerBase):
 
         self.vbox.prepend(self.canvas)
         # calculate size for window
-        w = int(self.canvas.figure.bbox.width)
-        h = int(self.canvas.figure.bbox.height)
+        w, h = self.canvas.get_width_height()
 
         self.toolbar = self._get_toolbar()
 
