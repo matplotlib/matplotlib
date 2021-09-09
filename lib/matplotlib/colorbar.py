@@ -992,6 +992,12 @@ class Colorbar:
         If the colorbar was created with ``use_gridspec=True`` the previous
         gridspec is restored.
         """
+        if hasattr(self.ax, '_colorbar_info'):
+            parents = self.ax._colorbar_info['parents']
+            for a in parents:
+                if self.ax in a._colorbars:
+                    a._colorbars.remove(self.ax)
+
         self.ax.remove()
 
         self.mappable.callbacks.disconnect(self.mappable.colorbar_cid)

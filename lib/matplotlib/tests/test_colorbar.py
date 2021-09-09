@@ -221,7 +221,7 @@ def test_colorbar_single_scatter():
                          ids=['no gridspec', 'with gridspec'])
 def test_remove_from_figure(use_gridspec):
     """
-    Test `remove_from_figure` with the specified ``use_gridspec`` setting
+    Test `remove` with the specified ``use_gridspec`` setting
     """
     fig, ax = plt.subplots()
     sc = ax.scatter([1, 2], [3, 4], cmap="spring")
@@ -233,6 +233,23 @@ def test_remove_from_figure(use_gridspec):
     fig.subplots_adjust()
     post_position = ax.get_position()
     assert (pre_position.get_points() == post_position.get_points()).all()
+
+
+def test_remove_from_figure_cl():
+    """
+    Test `remove` with constrained_layout
+    """
+    fig, ax = plt.subplots(constrained_layout=True)
+    sc = ax.scatter([1, 2], [3, 4], cmap="spring")
+    sc.set_array(np.array([5, 6]))
+    fig.draw_without_rendering()
+    pre_position = ax.get_position()
+    cb = fig.colorbar(sc)
+    cb.remove()
+    fig.draw_without_rendering()
+    post_position = ax.get_position()
+    np.testing.assert_allclose(pre_position.get_points(),
+                               post_position.get_points())
 
 
 def test_colorbarbase():
