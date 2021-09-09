@@ -340,8 +340,7 @@ class FigureManagerGTK3(FigureManagerBase):
 
         self.vbox.pack_start(self.canvas, True, True, 0)
         # calculate size for window
-        w = int(self.canvas.figure.bbox.width)
-        h = int(self.canvas.figure.bbox.height)
+        w, h = self.canvas.get_width_height()
 
         self.toolbar = self._get_toolbar()
 
