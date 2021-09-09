@@ -1,0 +1,5 @@
+rcParams.copy() returns a new RcParams instance, rather than a dict
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This makes the copied instance still validate inputs, and additionally avoids
+emitting deprecation warnings when using a previously copied RcParams instance
+to update the global instance (even if some entries are deprecated).

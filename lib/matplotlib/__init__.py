@@ -699,7 +699,10 @@ class RcParams(MutableMapping, dict):
                         if pattern_re.search(key))
 
     def copy(self):
-        return {k: dict.__getitem__(self, k) for k in self}
+        rccopy = RcParams()
+        for k in self:  # Skip deprecations and revalidation.
+            dict.__setitem__(rccopy, k, dict.__getitem__(self, k))
+        return rccopy
 
 
 def rc_params(fail_on_error=False):
@@ -877,8 +880,8 @@ dict.setdefault(rcParamsDefault, "backend", rcsetup._auto_backend_sentinel)
 rcParams = RcParams()  # The global instance.
 dict.update(rcParams, dict.items(rcParamsDefault))
 dict.update(rcParams, _rc_params_in_file(matplotlib_fname()))
+rcParamsOrig = rcParams.copy()
 with _api.suppress_matplotlib_deprecation_warning():
-    rcParamsOrig = RcParams(rcParams.copy())
     # This also checks that all rcParams are indeed listed in the template.
     # Assigning to rcsetup.defaultParams is left only for backcompat.
     defaultParams = rcsetup.defaultParams = {
