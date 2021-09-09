@@ -6,6 +6,10 @@ from threading import Timer
 from types import SimpleNamespace
 import warnings
 
+import numpy as np
+import pytest
+from PIL import Image
+
 import matplotlib as mpl
 from matplotlib import cbook, rcParams
 from matplotlib._api.deprecation import MatplotlibDeprecationWarning
@@ -16,8 +20,6 @@ from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.gridspec as gridspec
-import numpy as np
-import pytest
 
 
 @image_comparison(['figure_align_labels'], extensions=['png', 'svg'],
@@ -494,6 +496,29 @@ def test_savefig_backend():
     with pytest.raises(ValueError,
                        match="The 'pdf' backend does not support png output"):
         fig.savefig("test.png", backend="pdf")
+
+
+@pytest.mark.parametrize('backend', [
+    pytest.param('Agg', marks=[pytest.mark.backend('Agg')]),
+    pytest.param('Cairo', marks=[pytest.mark.backend('Cairo')]),
+])
+def test_savefig_pixel_ratio(backend):
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3])
+    with io.BytesIO() as buf:
+        fig.savefig(buf, format='png')
+        ratio1 = Image.open(buf)
+        ratio1.load()
+
+    fig, ax = plt.subplots()
+    ax.plot([1, 2, 3])
+    fig.canvas._set_device_pixel_ratio(2)
+    with io.BytesIO() as buf:
+        fig.savefig(buf, format='png')
+        ratio2 = Image.open(buf)
+        ratio2.load()
+
+    assert ratio1 == ratio2
 
 
 def test_figure_repr():
