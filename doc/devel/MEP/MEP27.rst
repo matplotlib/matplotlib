@@ -1,5 +1,5 @@
 ======================================
- MEP27: decouple pyplot from backends
+ MEP27: Decouple pyplot from backends
 ======================================
 
 .. contents::
