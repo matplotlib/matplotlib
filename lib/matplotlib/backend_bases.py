@@ -2259,6 +2259,7 @@ class FigureCanvasBase:
         # Remove the figure manager, if any, to avoid resizing the GUI widget.
         with cbook._setattr_cm(self, manager=None), \
              cbook._setattr_cm(self.figure, dpi=dpi), \
+             cbook._setattr_cm(canvas, _device_pixel_ratio=1), \
              cbook._setattr_cm(canvas, _is_saving=True), \
              ExitStack() as stack:
 
