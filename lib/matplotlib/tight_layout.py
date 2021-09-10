@@ -11,7 +11,7 @@ such cases as when left or right margin are affected by xlabel.
 
 import numpy as np
 
-from matplotlib import _api, rcParams
+from matplotlib import _api, artist as martist, rcParams
 from matplotlib.font_manager import FontProperties
 from matplotlib.transforms import Bbox
 
@@ -78,10 +78,7 @@ def _auto_adjust_subplotpars(
         bb = []
         for ax in subplots:
             if ax.get_visible():
-                try:
-                    bb += [ax.get_tightbbox(renderer, for_layout_only=True)]
-                except TypeError:
-                    bb += [ax.get_tightbbox(renderer)]
+                bb += [martist._get_tightbbox_for_layout_only(ax, renderer)]
 
         tight_bbox_raw = Bbox.union(bb)
         tight_bbox = fig.transFigure.inverted().transform_bbox(tight_bbox_raw)
