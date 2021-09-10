@@ -3287,16 +3287,10 @@ pivot='tail', normalize=False, **kwargs)
         if self._axis3don:
             for axis in self._get_axis_list():
                 if axis.get_visible():
-                    try:
-                        axis_bb = axis.get_tightbbox(
-                            renderer,
-                            for_layout_only=for_layout_only
-                        )
-                    except TypeError:
-                        # in case downstream library has redefined axis:
-                        axis_bb = axis.get_tightbbox(renderer)
-                if axis_bb:
-                    batch.append(axis_bb)
+                    axis_bb = martist._get_tightbbox_for_layout_only(
+                        axis, renderer)
+                    if axis_bb:
+                        batch.append(axis_bb)
         return mtransforms.Bbox.union(batch)
 
     def stem(self, x, y, z, *, linefmt='C0-', markerfmt='C0o', basefmt='C3-',

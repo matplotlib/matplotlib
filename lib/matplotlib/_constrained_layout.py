@@ -17,7 +17,7 @@ import logging
 
 import numpy as np
 
-from matplotlib import _api
+from matplotlib import _api, artist as martist
 import matplotlib.transforms as mtransforms
 import matplotlib._layoutgrid as mlayoutgrid
 
@@ -534,17 +534,12 @@ def get_pos_and_bbox(ax, renderer):
         Position in figure coordinates.
     bbox : Bbox
         Tight bounding box in figure coordinates.
-
     """
     fig = ax.figure
     pos = ax.get_position(original=True)
     # pos is in panel co-ords, but we need in figure for the layout
     pos = pos.transformed(fig.transSubfigure - fig.transFigure)
-    try:
-        tightbbox = ax.get_tightbbox(renderer=renderer, for_layout_only=True)
-    except TypeError:
-        tightbbox = ax.get_tightbbox(renderer=renderer)
-
+    tightbbox = martist._get_tightbbox_for_layout_only(ax, renderer)
     if tightbbox is None:
         bbox = pos
     else:
