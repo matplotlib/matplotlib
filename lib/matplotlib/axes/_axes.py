@@ -4803,11 +4803,6 @@ default: :rc:`scatter.edgecolors`
                 vmin = vmax = None
             bins = None
 
-        if isinstance(norm, mcolors.LogNorm):
-            if (accum == 0).any():
-                # make sure we have no zeros
-                accum += 1
-
         # autoscale the norm with current accum values if it hasn't
         # been set
         if norm is not None:
