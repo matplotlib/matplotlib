@@ -781,7 +781,8 @@ def test_hexbin_log():
     y = np.power(2, y * 0.5)
 
     fig, ax = plt.subplots()
-    h = ax.hexbin(x, y, yscale='log', bins='log')
+    h = ax.hexbin(x, y, yscale='log', bins='log',
+                  marginals=True, reduce_C_function=np.sum)
     plt.colorbar(h)
 
 
