@@ -149,26 +149,6 @@ def validate_bool(b):
         raise ValueError('Could not convert "%s" to bool' % b)
 
 
-def _validate_date_converter(s):
-    if s is None:
-        return
-    s = validate_string(s)
-    if s not in ['auto', 'concise']:
-        _api.warn_external(f'date.converter string must be "auto" or '
-                           f'"concise", not "{s}".  Check your matplotlibrc')
-        return
-    import matplotlib.dates as mdates
-    mdates._rcParam_helper.set_converter(s)
-
-
-def _validate_date_int_mult(s):
-    if s is None:
-        return
-    s = validate_bool(s)
-    import matplotlib.dates as mdates
-    mdates._rcParam_helper.set_int_mult(s)
-
-
 def validate_axisbelow(s):
     try:
         return validate_bool(s)
@@ -1036,10 +1016,9 @@ _validators = {
     "date.autoformatter.second":      validate_string,
     "date.autoformatter.microsecond": validate_string,
 
-    # 'auto', 'concise', 'auto-noninterval'
-    'date.converter': _validate_date_converter,
+    'date.converter':          ['auto', 'concise'],
     # for auto date locator, choose interval_multiples
-    'date.interval_multiples': _validate_date_int_mult,
+    'date.interval_multiples': validate_bool,
 
     # legend properties
     "legend.fancybox": validate_bool,
