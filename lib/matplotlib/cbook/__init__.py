@@ -12,6 +12,7 @@ import contextlib
 import functools
 import gzip
 import itertools
+import math
 import operator
 import os
 from pathlib import Path
@@ -2204,6 +2205,23 @@ def _format_approx(number, precision):
     Remove trailing zeros and possibly the decimal point.
     """
     return f'{number:.{precision}f}'.rstrip('0').rstrip('.') or '0'
+
+
+def _g_sig_digits(value, delta):
+    """
+    Return the number of significant digits to %g-format *value*, assuming that
+    it is known with an error of *delta*.
+    """
+    # If e.g. value = 45.67 and delta = 0.02, then we want to round to 2 digits
+    # after the decimal point (floor(log10(0.02)) = -2); 45.67 contributes 2
+    # digits before the decimal point (floor(log10(45.67)) + 1 = 2): the total
+    # is 4 significant digits.  A value of 0 contributes 1 "digit" before the
+    # decimal point.
+    # For inf or nan, the precision doesn't matter.
+    return max(
+        0,
+        (math.floor(math.log10(abs(value))) + 1 if value else 1)
+        - math.floor(math.log10(delta))) if math.isfinite(value) else 0
 
 
 def _unikey_or_keysym_to_mplkey(unikey, keysym):
