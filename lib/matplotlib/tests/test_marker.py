@@ -206,12 +206,47 @@ def test_marker_clipping(fig_ref, fig_test):
     ax_ref.axis('off')
     ax_test.axis('off')
 
+
 @pytest.mark.parametrize("marker,transform,expected", [
-    (markers.MarkerStyle("o"), Affine2D().translate(1,1), Affine2D().translate(1,1)),
-    (markers.MarkerStyle("o", transform=Affine2D().translate(1,1)), Affine2D().translate(1,1), Affine2D().translate(2,2)),
+    (markers.MarkerStyle("o"), Affine2D().translate(1, 1),
+        Affine2D().translate(1, 1)),
+    (markers.MarkerStyle("o", transform=Affine2D().translate(1, 1)),
+        Affine2D().translate(1, 1), Affine2D().translate(2, 2)),
+    # (markers.MarkerStyle("$|||$", transform=Affine2D().translate(1, 1)),
+    #  Affine2D().translate(1, 1), Affine2D().translate(2, 2)),
+    (markers.MarkerStyle(
+        markers.TICKLEFT, transform=Affine2D().translate(1, 1)),
+        Affine2D().translate(1, 1), Affine2D().translate(2, 2)),
 ])
 def test_marker_transformed(marker, transform, expected):
     new_marker = marker.transformed(transform)
     assert new_marker is not marker
     assert new_marker.get_user_transform() == expected
-    assert marker.get_user_transform() is not new_marker.get_user_transform()
+    assert marker._user_transform is not new_marker._user_transform
+
+
+def test_marker_rotated_invalid():
+    marker = markers.MarkerStyle("o")
+    with pytest.raises(ValueError):
+        new_marker = marker.rotated()
+        new_marker = marker.rotated(deg=10, rad=10)
+
+
+@pytest.mark.parametrize("marker,deg,rad,expected", [
+    (markers.MarkerStyle("o"), 10, None, Affine2D().rotate_deg(10)),
+    (markers.MarkerStyle("o"), None, 0.01, Affine2D().rotate(0.01)),
+    (markers.MarkerStyle("o", transform=Affine2D().translate(1, 1)),
+        10, None, Affine2D().translate(1, 1).rotate_deg(10)),
+    (markers.MarkerStyle("o", transform=Affine2D().translate(1, 1)),
+        None, 0.01, Affine2D().translate(1, 1).rotate(0.01)),
+    # (markers.MarkerStyle("$|||$", transform=Affine2D().translate(1, 1)),
+    #   10, None, Affine2D().translate(1, 1).rotate_deg(10)),
+    (markers.MarkerStyle(
+        markers.TICKLEFT, transform=Affine2D().translate(1, 1)),
+        10, None, Affine2D().translate(1, 1).rotate_deg(10)),
+])
+def test_marker_rotated_deg(marker, deg, rad, expected):
+    new_marker = marker.rotated(deg=deg, rad=rad)
+    assert new_marker is not marker
+    assert new_marker.get_user_transform() == expected
+    assert marker._user_transform is not new_marker._user_transform

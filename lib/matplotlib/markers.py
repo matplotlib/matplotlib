@@ -419,7 +419,7 @@ class MarkerStyle:
         if self._user_transform is not None:
             return self._user_transform.frozen()
 
-    def transformed(self, transform:Affine2D):
+    def transformed(self, transform: Affine2D):
         """
         Return new marker with combined transformation.
 
@@ -442,22 +442,65 @@ class MarkerStyle:
         Parameters
         ----------
         deg : float, default: None
+            - use this parameter to specify rotation angle in degrees.
 
         rad : float, default: None
+            - use this parameter to specify rotation angle in radians.
+
+        Note: you must specify exactly one of deg or rad.
         """
         if not ((deg is None) ^ (rad is None)):
-            raise Exception("Only one of deg or rad shall be used.")
-        
-        _transform = self._user_transform or Affine2D()
-
-        if deg is not None: 
-            _transform = _transform.rotate_deg(deg)
-        
-        if rad is not None:
-            _transform = _transform.rotate(rad)
+            raise ValueError("Exactly one of deg or rad shall be used.")
 
         new_marker = MarkerStyle(self)
-        new_marker._user_transform = _transform
+        if new_marker._user_transform is None:
+            new_marker._user_transform = Affine2D()
+
+        if deg is not None:
+            new_marker._user_transform.rotate_deg(deg)
+        if rad is not None:
+            new_marker._user_transform.rotate(rad)
+
+        return new_marker
+
+    def scaled(self, sx, sy=None):
+        """
+        Return new marker scaled by specified scale factors.
+
+        If *sy* is None, the same scale is applied in both the *x*- and
+        *y*-directions.
+
+        Parameters
+        ----------
+        sx : float
+        - *x*-direction scaling factor.
+
+        sy : float, default: None
+        - *y*-direction scaling factor.
+        """
+        if sy is None:
+            sy = sx
+
+        new_marker = MarkerStyle(self)
+        _transform = new_marker._user_transform or Affine2D()
+        new_marker._user_transform = _transform.scale(sx, sy)
+        return new_marker
+
+    def translated(self, tx, ty):
+        """
+        Return new marker translated by tx and ty.
+
+        Parameters
+        ----------
+        tx : float
+
+        ty : float
+
+        """
+        new_marker = MarkerStyle(self)
+        _transform = new_marker._user_transform or Affine2D()
+        new_marker._user_transform = _transform.translate(tx, ty)
+        return new_marker
 
     def _set_nothing(self):
         self._filled = False
