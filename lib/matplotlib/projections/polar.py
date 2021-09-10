@@ -1399,16 +1399,10 @@ class PolarAxes(Axes):
         # (as for linear axes), but for theta, use f-formatting as scientific
         # notation doesn't make sense and the trailing dot is ugly.
         def format_sig(value, delta, opt, fmt):
-            digits_post_decimal = math.floor(math.log10(delta))
-            digits_offset = (
-                # For "f", only count digits after decimal point.
-                0 if fmt == "f"
-                # For "g", offset by digits before the decimal point.
-                else math.floor(math.log10(abs(value))) + 1 if value
-                # For "g", 0 contributes 1 "digit" before the decimal point.
-                else 1)
-            fmt_prec = max(0, digits_offset - digits_post_decimal)
-            return f"{value:-{opt}.{fmt_prec}{fmt}}"
+            # For "f", only count digits after decimal point.
+            prec = (max(0, -math.floor(math.log10(delta))) if fmt == "f" else
+                    cbook._g_sig_digits(value, delta))
+            return f"{value:-{opt}.{prec}{fmt}}"
 
         return ('\N{GREEK SMALL LETTER THETA}={}\N{GREEK SMALL LETTER PI} '
                 '({}\N{DEGREE SIGN}), r={}').format(
