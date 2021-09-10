@@ -1,0 +1,3 @@
+Setting invalid ``rcParams["date.converter"]`` now raises ValueError
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, invalid values would be ignored with a UserWarning.
