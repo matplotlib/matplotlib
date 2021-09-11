@@ -262,6 +262,9 @@ labelspacing : float, default: :rc:`legend.labelspacing`
 handlelength : float, default: :rc:`legend.handlelength`
     The length of the legend handles, in font-size units.
 
+handleheight : float, default: :rc:`legend.handleheight`
+    The height of the legend handles, in font-size units.
+
 handletextpad : float, default: :rc:`legend.handletextpad`
     The pad between the legend handle and text, in font-size units.
 
