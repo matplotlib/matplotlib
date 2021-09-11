@@ -1291,7 +1291,7 @@ class _AxesBase(martist.Artist):
         self.patch = self._gen_axes_patch()
         self.patch.set_figure(self.figure)
         self.patch.set_facecolor(self._facecolor)
-        self.patch.set_edgecolor('None')
+        self.patch.set_edgecolor('none')
         self.patch.set_linewidth(0)
         self.patch.set_transform(self.transAxes)
 

@@ -40,7 +40,7 @@ yerr = np.random.rand(2, n) + 0.2
 
 
 def make_error_boxes(ax, xdata, ydata, xerror, yerror, facecolor='r',
-                     edgecolor='None', alpha=0.5):
+                     edgecolor='none', alpha=0.5):
 
     # Loop over data points; create box from errors at each point
     errorboxes = [Rectangle((x - xe[0], y - ye[0]), xe.sum(), ye.sum())
@@ -55,7 +55,7 @@ def make_error_boxes(ax, xdata, ydata, xerror, yerror, facecolor='r',
 
     # Plot errorbars
     artists = ax.errorbar(xdata, ydata, xerr=xerror, yerr=yerror,
-                          fmt='None', ecolor='k')
+                          fmt='none', ecolor='k')
 
     return artists
 
