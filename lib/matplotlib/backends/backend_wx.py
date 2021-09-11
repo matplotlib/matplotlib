@@ -772,8 +772,8 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             wx.MOUSE_BTN_LEFT: MouseButton.LEFT,
             wx.MOUSE_BTN_MIDDLE: MouseButton.MIDDLE,
             wx.MOUSE_BTN_RIGHT: MouseButton.RIGHT,
-            wx.MOUSE_BTN_AUX1: MouseButton.FORWARD,
-            wx.MOUSE_BTN_AUX2: MouseButton.BACK,
+            wx.MOUSE_BTN_AUX1: MouseButton.BACK,
+            wx.MOUSE_BTN_AUX2: MouseButton.FORWARD,
         }
         button = event.GetButton()
         button = button_map.get(button, button)
