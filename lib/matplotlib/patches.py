@@ -97,9 +97,10 @@ class Patch(artist.Artist):
         else:
             self.set_edgecolor(edgecolor)
             self.set_facecolor(facecolor)
-        # unscaled dashes.  Needed to scale dash patterns by lw
-        self._us_dashes = None
+
         self._linewidth = 0
+        self._unscaled_dash_pattern = (0, None)  # offset, dash
+        self._dash_pattern = (0, None)  # offset, dash (scaled by linewidth)
 
         self.set_fill(fill)
         self.set_linestyle(linestyle)
@@ -259,9 +260,8 @@ class Patch(artist.Artist):
         self._fill = other._fill
         self._hatch = other._hatch
         self._hatch_color = other._hatch_color
-        # copy the unscaled dash pattern
-        self._us_dashes = other._us_dashes
-        self.set_linewidth(other._linewidth)  # also sets dash properties
+        self._unscaled_dash_pattern = other._unscaled_dash_pattern
+        self.set_linewidth(other._linewidth)  # also sets scaled dashes
         self.set_transform(other.get_data_transform())
         # If the transform of other needs further initialization, then it will
         # be the case for this artist too.
@@ -407,12 +407,9 @@ class Patch(artist.Artist):
             w = mpl.rcParams['patch.linewidth']
             if w is None:
                 w = mpl.rcParams['axes.linewidth']
-
         self._linewidth = float(w)
-        # scale the dash pattern by the linewidth
-        offset, ls = self._us_dashes
-        self._dashoffset, self._dashes = mlines._scale_dashes(
-            offset, ls, self._linewidth)
+        self._dash_pattern = mlines._scale_dashes(
+            *self._unscaled_dash_pattern, w)
         self.stale = True
 
     def set_linestyle(self, ls):
@@ -445,11 +442,9 @@ class Patch(artist.Artist):
         if ls in [' ', '', 'none']:
             ls = 'None'
         self._linestyle = ls
-        # get the unscaled dash pattern
-        offset, ls = self._us_dashes = mlines._get_dash_pattern(ls)
-        # scale the dash pattern by the linewidth
-        self._dashoffset, self._dashes = mlines._scale_dashes(
-            offset, ls, self._linewidth)
+        self._unscaled_dash_pattern = mlines._get_dash_pattern(ls)
+        self._dash_pattern = mlines._scale_dashes(
+            *self._unscaled_dash_pattern, self._linewidth)
         self.stale = True
 
     def set_fill(self, b):
@@ -565,7 +560,7 @@ class Patch(artist.Artist):
         if self._edgecolor[3] == 0 or self._linestyle == 'None':
             lw = 0
         gc.set_linewidth(lw)
-        gc.set_dashes(self._dashoffset, self._dashes)
+        gc.set_dashes(*self._dash_pattern)
         gc.set_capstyle(self._capstyle)
         gc.set_joinstyle(self._joinstyle)
 
@@ -603,8 +598,9 @@ class Patch(artist.Artist):
         if not self.get_visible():
             return
         # Patch has traditionally ignored the dashoffset.
-        with cbook._setattr_cm(self, _dashoffset=0), \
-                self._bind_draw_path_function(renderer) as draw_path:
+        with cbook._setattr_cm(
+                 self, _dash_pattern=(0, self._dash_pattern[1])), \
+             self._bind_draw_path_function(renderer) as draw_path:
             path = self.get_path()
             transform = self.get_transform()
             tpath = transform.transform_path_non_affine(path)

@@ -353,14 +353,8 @@ class Line2D(Artist):
         self._linestyles = None
         self._drawstyle = None
         self._linewidth = linewidth
-
-        # scaled dash + offset
-        self._dashSeq = None
-        self._dashOffset = 0
-        # unscaled dash + offset
-        # this is needed scaling the dash pattern by linewidth
-        self._us_dashSeq = None
-        self._us_dashOffset = 0
+        self._unscaled_dash_pattern = (0, None)  # offset, dash
+        self._dash_pattern = (0, None)  # offset, dash (scaled by linewidth)
 
         self.set_linewidth(linewidth)
         self.set_linestyle(linestyle)
@@ -775,7 +769,7 @@ class Line2D(Artist):
                 if self.get_sketch_params() is not None:
                     gc.set_sketch_params(*self.get_sketch_params())
 
-                gc.set_dashes(self._dashOffset, self._dashSeq)
+                gc.set_dashes(*self._dash_pattern)
                 renderer.draw_path(gc, tpath, affine.frozen())
                 gc.restore()
 
@@ -1079,13 +1073,10 @@ class Line2D(Artist):
             Line width, in points.
         """
         w = float(w)
-
         if self._linewidth != w:
             self.stale = True
         self._linewidth = w
-        # rescale the dashes + offset
-        self._dashOffset, self._dashSeq = _scale_dashes(
-            self._us_dashOffset, self._us_dashSeq, self._linewidth)
+        self._dash_pattern = _scale_dashes(*self._unscaled_dash_pattern, w)
 
     def set_linestyle(self, ls):
         """
@@ -1121,19 +1112,16 @@ class Line2D(Artist):
         if isinstance(ls, str):
             if ls in [' ', '', 'none']:
                 ls = 'None'
-
             _api.check_in_list([*self._lineStyles, *ls_mapper_r], ls=ls)
             if ls not in self._lineStyles:
                 ls = ls_mapper_r[ls]
             self._linestyle = ls
         else:
             self._linestyle = '--'
-
-        # get the unscaled dashes
-        self._us_dashOffset, self._us_dashSeq = _get_dash_pattern(ls)
-        # compute the linewidth scaled dashes
-        self._dashOffset, self._dashSeq = _scale_dashes(
-            self._us_dashOffset, self._us_dashSeq, self._linewidth)
+        self._unscaled_dash_pattern = _get_dash_pattern(ls)
+        self._dash_pattern = _scale_dashes(
+            *self._unscaled_dash_pattern, self._linewidth)
+        self.stale = True
 
     @docstring.interpd
     def set_marker(self, marker):
@@ -1278,10 +1266,8 @@ class Line2D(Artist):
         self._markerfacecoloralt = other._markerfacecoloralt
         self._markeredgecolor = other._markeredgecolor
         self._markeredgewidth = other._markeredgewidth
-        self._dashSeq = other._dashSeq
-        self._us_dashSeq = other._us_dashSeq
-        self._dashOffset = other._dashOffset
-        self._us_dashOffset = other._us_dashOffset
+        self._unscaled_dash_pattern = other._unscaled_dash_pattern
+        self._dash_pattern = other._dash_pattern
         self._dashcapstyle = other._dashcapstyle
         self._dashjoinstyle = other._dashjoinstyle
         self._solidcapstyle = other._solidcapstyle
