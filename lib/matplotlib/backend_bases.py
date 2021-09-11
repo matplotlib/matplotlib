@@ -914,15 +914,13 @@ class GraphicsContextBase:
 
         Parameters
         ----------
-        dash_offset : float or None
+        dash_offset : float
             The offset (usually 0).
         dash_list : array-like or None
-            The on-off sequence as points.
+            The on-off sequence as points.  None specifies a solid line.
 
         Notes
         -----
-        ``(None, None)`` specifies a solid line.
-
         See p. 107 of to PostScript `blue book`_ for more info.
 
         .. _blue book: https://www-cdf.fnal.gov/offline/PostScript/BLUEBOOK.PDF
