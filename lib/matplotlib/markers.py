@@ -426,7 +426,7 @@ class MarkerStyle:
         Parameters
         ----------
         transform : Affine2D, default: None
-            - transform will be combined with current user supplied transform.
+            Transform will be combined with current user supplied transform.
         """
         new_marker = MarkerStyle(self)
         if new_marker._user_transform is not None:
@@ -442,12 +442,12 @@ class MarkerStyle:
         Parameters
         ----------
         deg : float, default: None
-            - use this parameter to specify rotation angle in degrees.
+            Use this parameter to specify rotation angle in degrees.
 
         rad : float, default: None
-            - use this parameter to specify rotation angle in radians.
+            Use this parameter to specify rotation angle in radians.
 
-        Note: you must specify exactly one of deg or rad.
+        .. note:: You must specify exactly one of deg or rad.
         """
         if not ((deg is None) ^ (rad is None)):
             raise ValueError("Exactly one of deg or rad shall be used.")
@@ -473,10 +473,9 @@ class MarkerStyle:
         Parameters
         ----------
         sx : float
-        - *x*-direction scaling factor.
-
+            *X*-direction scaling factor.
         sy : float, default: None
-        - *y*-direction scaling factor.
+            *Y*-direction scaling factor.
         """
         if sy is None:
             sy = sx
@@ -493,9 +492,9 @@ class MarkerStyle:
         Parameters
         ----------
         tx : float
-
+            Coordinate for translation in *x*-direction.
         ty : float
-
+            Coordinate for translation in *y*-direction.
         """
         new_marker = MarkerStyle(self)
         _transform = new_marker._user_transform or Affine2D()
