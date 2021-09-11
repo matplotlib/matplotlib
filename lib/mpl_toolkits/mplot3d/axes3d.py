@@ -3033,8 +3033,7 @@ pivot='tail', normalize=False, **kwargs)
         had_data = self.has_data()
 
         kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
-        # anything that comes in as 'None', drop so the default thing
-        # happens down stream
+        # Drop anything that comes in as None to use the default instead.
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
         kwargs.setdefault('zorder', 2)
 
