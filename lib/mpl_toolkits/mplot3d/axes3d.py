@@ -19,7 +19,7 @@ import textwrap
 
 import numpy as np
 
-from matplotlib import _api, cbook, docstring
+from matplotlib import _api, cbook, docstring, _preprocess_data
 import matplotlib.artist as martist
 import matplotlib.axes as maxes
 import matplotlib.collections as mcoll
@@ -2270,7 +2270,11 @@ class Axes3D(Axes):
 
         collection = super().add_collection(col)
         return collection
-
+        
+    @_preprocess_data(replace_names=["xs", "ys", "zs", "s",
+                                     "edgecolors", "c", "facecolor",
+                                     "facecolors", "color"],
+                      label_namer=None)
     def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=True,
                 *args, **kwargs):
         """
