@@ -117,7 +117,7 @@ fig, ax = plt.subplots()
 fig.suptitle('Mathtext markers', fontsize=14)
 fig.subplots_adjust(left=0.4)
 
-marker_style.update(markeredgecolor="None", markersize=15)
+marker_style.update(markeredgecolor="none", markersize=15)
 markers = ["$1$", r"$\frac{1}{2}$", "$f$", "$\u266B$", r"$\mathcal{A}$"]
 
 for y, marker in enumerate(markers):

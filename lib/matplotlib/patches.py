@@ -419,18 +419,15 @@ class Patch(artist.Artist):
         """
         Set the patch linestyle.
 
-        ===========================   =================
-        linestyle                     description
-        ===========================   =================
-        ``'-'`` or ``'solid'``        solid line
-        ``'--'`` or  ``'dashed'``     dashed line
-        ``'-.'`` or  ``'dashdot'``    dash-dotted line
-        ``':'`` or ``'dotted'``       dotted line
-        ``'None'``                    draw nothing
-        ``'none'``                    draw nothing
-        ``' '``                       draw nothing
-        ``''``                        draw nothing
-        ===========================   =================
+        ==========================================  =================
+        linestyle                                   description
+        ==========================================  =================
+        ``'-'`` or ``'solid'``                      solid line
+        ``'--'`` or  ``'dashed'``                   dashed line
+        ``'-.'`` or  ``'dashdot'``                  dash-dotted line
+        ``':'`` or ``'dotted'``                     dotted line
+        ``'none'``, ``'None'``, ``' '``, or ``''``  draw nothing
+        ==========================================  =================
 
         Alternatively a dash tuple of the following form can be provided::
 
