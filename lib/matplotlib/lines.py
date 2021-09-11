@@ -1093,15 +1093,15 @@ class Line2D(Artist):
 
             - A string:
 
-              ===============================   =================
-              Linestyle                         Description
-              ===============================   =================
-              ``'-'`` or ``'solid'``            solid line
-              ``'--'`` or  ``'dashed'``         dashed line
-              ``'-.'`` or  ``'dashdot'``        dash-dotted line
-              ``':'`` or ``'dotted'``           dotted line
-              ``'None'`` or ``' '`` or ``''``   draw nothing
-              ===============================   =================
+              ==========================================  =================
+              linestyle                                   description
+              ==========================================  =================
+              ``'-'`` or ``'solid'``                      solid line
+              ``'--'`` or  ``'dashed'``                   dashed line
+              ``'-.'`` or  ``'dashdot'``                  dash-dotted line
+              ``':'`` or ``'dotted'``                     dotted line
+              ``'none'``, ``'None'``, ``' '``, or ``''``  draw nothing
+              ==========================================  =================
 
             - Alternatively a dash tuple of the following form can be
               provided::
