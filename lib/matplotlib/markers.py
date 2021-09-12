@@ -82,6 +82,13 @@ Hence the following are equivalent::
     plt.plot([1, 2, 3], marker=11)
     plt.plot([1, 2, 3], marker=matplotlib.markers.CARETDOWNBASE)
 
+Markers have some reasonable default settings for join and cap styles.
+However, those can be overriden when creating a new instance of MarkerStyle.
+Furthermore, the marker shape can be modified by supplying
+`~matplotlib .transforms.Transform` during creation.
+Some markers are created as internally rotated shapes (e.g. triangles).
+For such cases, both internal and user supplied transforms are combined.
+
 Examples showing the use of markers:
 
 * :doc:`/gallery/lines_bars_and_markers/marker_reference`
