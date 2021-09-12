@@ -63,9 +63,9 @@ path                                  A `~matplotlib.path.Path` instance.
                                       rotated by ``angle``.
 ============================== ====== =========================================
 
-``None`` is the default which means 'nothing', however this table is
-referred to from other docs for the valid inputs from marker inputs and in
-those cases ``None`` still means 'default'.
+``None`` also means 'nothing' when directly constructing a `.MarkerStyle`, but
+note that there are other contexts where ``marker=None`` instead means "the
+default marker" (e.g. :rc:`scatter.marker` for `.Axes.scatter`).
 
 Note that special symbols can be defined via the
 :doc:`STIX math font </tutorials/text/mathtext>`,
@@ -127,6 +127,7 @@ Examples showing the use of markers:
 """
 
 from collections.abc import Sized
+import inspect
 
 import numpy as np
 
@@ -216,14 +217,16 @@ class MarkerStyle:
     # TODO: Is this ever used as a non-constant?
     _point_size_reduction = 0.5
 
-    def __init__(self, marker=None, fillstyle=None):
+    _unset = object()  # For deprecation of MarkerStyle(<noargs>).
+
+    def __init__(self, marker=_unset, fillstyle=None):
         """
         Parameters
         ----------
-        marker : str, array-like, Path, MarkerStyle, or None, default: None
+        marker : str, array-like, Path, MarkerStyle, or None
             - Another instance of *MarkerStyle* copies the details of that
               ``marker``.
-            - *None* means no marker.
+            - *None* means no marker.  This is the deprecated default.
             - For other possible marker values see the module docstring
               `matplotlib.markers`.
 
@@ -232,7 +235,18 @@ class MarkerStyle:
         """
         self._marker_function = None
         self._set_fillstyle(fillstyle)
+        # Remove _unset and signature rewriting after deprecation elapses.
+        if marker is self._unset:
+            marker = ""
+            _api.warn_deprecated(
+                "3.6", message="Calling MarkerStyle() with no parameters is "
+                "deprecated since %(since)s; support will be removed "
+                "%(removal)s.  Use MarkerStyle('') to construct an empty "
+                "MarkerStyle.")
         self._set_marker(marker)
+
+    __init__.__signature__ = inspect.signature(  # Only for deprecation period.
+        lambda self, marker, fillstyle=None: None)
 
     def _recache(self):
         if self._marker_function is None:
