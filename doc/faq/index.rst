@@ -1,8 +1,8 @@
 .. _faq-index:
 
-##################
-The Matplotlib FAQ
-##################
+######
+How-to
+######
 
 .. only:: html
 
