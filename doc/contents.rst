@@ -1,4 +1,4 @@
-
+.. _complete_sitemap:
 
 Contents
 ========
@@ -15,13 +15,10 @@ Contents
    :maxdepth: 2
 
    users/installing.rst
-   plot_types/index.rst
-   gallery/index.rst
-   tutorials/index.rst
-   api/index.rst
    users/index.rst
+   users/backmatter.rst
    devel/index.rst
-   Third-party packages <https://matplotlib.org/mpl-third-party/>
+   users/release_notes.rst
 
 .. only:: html
 
