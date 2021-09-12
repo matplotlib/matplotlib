@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import markers
+from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 from matplotlib.path import Path
 from matplotlib.testing.decorators import check_figures_equal
 
@@ -32,12 +33,17 @@ def test_marker_fillstyle():
     (5, 0, 10),  # a pentagon, rotated by 10 degrees
     (7, 1, 10),  # a 7-pointed star, rotated by 10 degrees
     (5, 2, 10),  # asterisk, rotated by 10 degrees
-    markers.MarkerStyle(),
     markers.MarkerStyle('o'),
 ])
 def test_markers_valid(marker):
     # Checking this doesn't fail.
     markers.MarkerStyle(marker)
+
+
+def test_deprecated_marker_noargs():
+    with pytest.warns(MatplotlibDeprecationWarning):
+        ms = markers.MarkerStyle()
+    markers.MarkerStyle(ms)  # No warning on copy.
 
 
 @pytest.mark.parametrize('marker', [
