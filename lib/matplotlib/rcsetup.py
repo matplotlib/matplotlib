@@ -485,14 +485,11 @@ def validate_markevery(s):
 
     Parameters
     ----------
-    s : None, int, float, slice, length-2 tuple of ints,
-        length-2 tuple of floats, list of ints
+    s : None, int, (int, int), slice, float, (float, float), or list[int]
 
     Returns
     -------
-    None, int, float, slice, length-2 tuple of ints,
-        length-2 tuple of floats, list of ints
-
+    None, int, (int, int), slice, float, (float, float), or list[int]
     """
     # Validate s against type slice float int and None
     if isinstance(s, (slice, float, int, type(None))):
