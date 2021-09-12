@@ -84,8 +84,12 @@ class ValidateInStrings:
 
 @lru_cache
 def _listify_validator(scalar_validator, allow_stringlist=False, *,
-                       n=None, doc=None):
+                       n=None, doc=None, _deprecated=None):
     def f(s):
+        if _deprecated:
+            name, = (k for k, v in globals().items() if v is f)
+            cbook.warn_deprecated(
+                _deprecated, name=name, obj_type="function")
         if isinstance(s, str):
             try:
                 val = [scalar_validator(v.strip()) for v in s.split(',')
@@ -123,9 +127,10 @@ def _listify_validator(scalar_validator, allow_stringlist=False, *,
     return f
 
 
+@_api.deprecated("3.8")
 def validate_any(s):
     return s
-validate_anylist = _listify_validator(validate_any)
+validate_anylist = _listify_validator(validate_any, _deprecated="3.8")
 
 
 def _validate_date(s):
@@ -487,7 +492,8 @@ validate_fillstyle = ValidateInStrings(
     'markers.fillstyle', ['full', 'left', 'right', 'bottom', 'top', 'none'])
 
 
-validate_fillstylelist = _listify_validator(validate_fillstyle)
+validate_fillstylelist = _listify_validator(
+    validate_fillstyle, _deprecated="3.8")
 
 
 def validate_markevery(s):
@@ -524,7 +530,8 @@ def validate_markevery(s):
     raise TypeError("'markevery' is of an invalid type")
 
 
-validate_markeverylist = _listify_validator(validate_markevery)
+validate_markeverylist = _listify_validator(
+    validate_markevery, _deprecated="3.8")
 
 
 def validate_bbox(s):
@@ -591,8 +598,8 @@ def validate_hatch(s):
     return s
 
 
-validate_hatchlist = _listify_validator(validate_hatch)
-validate_dashlist = _listify_validator(validate_floatlist)
+validate_hatchlist = _listify_validator(validate_hatch, _deprecated="3.8")
+validate_dashlist = _listify_validator(validate_floatlist, _deprecated="3.8")
 
 
 def _validate_minor_tick_ndivs(n):
@@ -622,16 +629,16 @@ _prop_validators = {
         'edgecolor': validate_colorlist,
         'joinstyle': _listify_validator(JoinStyle),
         'capstyle': _listify_validator(CapStyle),
-        'fillstyle': validate_fillstylelist,
+        'fillstyle': _listify_validator(validate_fillstyle),
         'markerfacecolor': validate_colorlist,
         'markersize': validate_floatlist,
         'markeredgewidth': validate_floatlist,
         'markeredgecolor': validate_colorlist,
-        'markevery': validate_markeverylist,
+        'markevery': _listify_validator(validate_markevery),
         'alpha': validate_floatlist,
         'marker': validate_stringlist,
-        'hatch': validate_hatchlist,
-        'dashes': validate_dashlist,
+        'hatch': _listify_validator(validate_hatch),
+        'dashes': _listify_validator(validate_floatlist),
     }
 _prop_aliases = {
         'c': 'color',
@@ -1234,7 +1241,7 @@ _validators = {
     "path.simplify_threshold": _validate_greaterequal0_lessequal1,
     "path.snap":               validate_bool,
     "path.sketch":             validate_sketch,
-    "path.effects":            validate_anylist,
+    "path.effects":            _listify_validator(lambda s: s),  # any list
     "agg.path.chunksize":      validate_int,  # 0 to disable chunking
 
     # key-mappings (multi-character mappings should be a list/tuple)

@@ -1,0 +1,6 @@
+Deprecation of rcParams validators
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The following rcParams validators defined in :mod:`.rcsetup` are
+deprecated with no replacement: ``validate_any``, ``validate_anylist``,
+``validate_fillstylelist``, ``validate_markeverylist``, ``validate_hatchlist``,
+``validate_dashlist``.
