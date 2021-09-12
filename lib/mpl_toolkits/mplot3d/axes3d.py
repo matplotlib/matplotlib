@@ -2270,7 +2270,7 @@ class Axes3D(Axes):
 
         collection = super().add_collection(col)
         return collection
-        
+
     @_preprocess_data(replace_names=["xs", "ys", "zs", "s",
                                      "edgecolors", "c", "facecolor",
                                      "facecolors", "color"],
