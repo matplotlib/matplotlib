@@ -93,7 +93,7 @@ Examples showing the use of markers:
 
 * :doc:`/gallery/lines_bars_and_markers/marker_reference`
 * :doc:`/gallery/lines_bars_and_markers/scatter_star_poly`
-
+* :doc:`/gallery/lines_bars_and_markers/multivariate_marker_plot`
 
 .. |m00| image:: /_static/markers/m00.png
 .. |m01| image:: /_static/markers/m01.png
