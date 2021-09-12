@@ -32,7 +32,6 @@ import subprocess
 from setuptools import setup, find_packages, Extension
 import setuptools.command.build_ext
 import setuptools.command.build_py
-import setuptools.command.test
 import setuptools.command.sdist
 
 from distutils.errors import CompileError
@@ -65,12 +64,6 @@ def has_flag(self, flagname):
         except CompileError:
             return False
     return True
-
-
-class NoopTestCommand(setuptools.command.test.test):
-    def __init__(self, dist):
-        print("Matplotlib does not support running tests with "
-              "'python setup.py test'. Please run 'pytest'.")
 
 
 class BuildExtraLibraries(setuptools.command.build_ext.build_ext):
@@ -341,7 +334,6 @@ setup(  # Finally, pass this all along to distutils to do the heavy lifting.
         "fallback_version": "0.0+UNKNOWN",
     },
     cmdclass={
-        "test": NoopTestCommand,
         "build_ext": BuildExtraLibraries,
         "build_py": BuildPy,
         "sdist": Sdist,
