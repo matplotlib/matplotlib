@@ -6,7 +6,8 @@ The appearance of individual markers can be further controlled by
 transform supplied during creation.
 
 .. plot::
-    :include-source:
+    :include-source: true
+    
     import matplotlib.pyplot as plt
     from matplotlib.markers import MarkerStyle
     from matplotlib.transforms import Affine2D

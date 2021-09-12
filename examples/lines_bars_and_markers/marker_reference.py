@@ -171,7 +171,7 @@ plt.show()
 # selected marker shape (e.g. caret up, caret down). Following example shows
 # how user supplied rotation applies to several marker shapes.
 
-common_style = {k: v for k, v in filled_marker_style.items() if v != 'marker'}
+common_style = {k: v for k, v in filled_marker_style.items() if k != 'marker'}
 angles = [0, 10, 20, 30, 45, 60, 90]
 
 fig, ax = plt.subplots()
@@ -227,7 +227,7 @@ fig, ax = plt.subplots()
 fig.suptitle('Marker CapStyle', fontsize=14)
 fig.subplots_adjust(left=0.1)
 
-for y, cap_style in enumerate([None, *CapStyle]):
+for y, cap_style in enumerate(CapStyle):
     ax.text(-0.5, y, cap_style.name, **text_style)
     for x, theta in enumerate(angles):
         t = Affine2D().rotate_deg(theta)
@@ -240,7 +240,7 @@ plt.show()
 
 ###############################################################################
 # Follwing example show how to change the join style and how different styles
-# look.
+# looks like.
 
 fig, ax = plt.subplots()
 fig.suptitle('Marker JoinStyle', fontsize=14)
