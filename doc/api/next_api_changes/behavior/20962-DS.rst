@@ -1,5 +1,5 @@
-Unit converters can now support units in `~.cm.ScalarMappable`s
----------------------------------------------------------------
+Unit converters can now support units in Scalar Mappables
+---------------------------------------------------------
 
 `~.cm.ScalarMappable` can now contain data with units.
 For this to be supported by third-party `~.units.ConversionInterface`s,
@@ -13,4 +13,4 @@ The ``Quiver`` ``units`` property is renamed ``arrow_units``
 ------------------------------------------------------------
 This is to clarify the meaning of this property, and enable support for color
 mapped data with units in the future. The corresponding keyword argument to
-`~.quiver.Quiver` is also renamed. 
+`~.quiver.Quiver` is also renamed.
