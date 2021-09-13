@@ -2311,6 +2311,8 @@ class Axes3D(Axes):
             Whether to shade the scatter markers to give the appearance of
             depth. Each call to ``scatter()`` will perform its depthshading
             independently.
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
         **kwargs
             All other arguments are passed on to `~.axes.Axes.scatter`.
 
