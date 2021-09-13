@@ -388,17 +388,20 @@ class Legend(Artist):
         #: instance.
         self._custom_handler_map = handler_map
 
-        locals_view = locals()
-        for name in ["numpoints", "markerscale", "shadow", "columnspacing",
-                     "scatterpoints", "handleheight", 'borderpad',
-                     'labelspacing', 'handlelength', 'handletextpad',
-                     'borderaxespad']:
-            if locals_view[name] is None:
-                value = mpl.rcParams["legend." + name]
-            else:
-                value = locals_view[name]
-            setattr(self, name, value)
-        del locals_view
+        def val_or_rc(val, rc_name):
+            return val if val is not None else mpl.rcParams[rc_name]
+
+        self.numpoints = val_or_rc(numpoints, 'legend.numpoints')
+        self.markerscale = val_or_rc(markerscale, 'legend.markerscale')
+        self.scatterpoints = val_or_rc(scatterpoints, 'legend.scatterpoints')
+        self.borderpad = val_or_rc(borderpad, 'legend.borderpad')
+        self.labelspacing = val_or_rc(labelspacing, 'legend.labelspacing')
+        self.handlelength = val_or_rc(handlelength, 'legend.handlelength')
+        self.handleheight = val_or_rc(handleheight, 'legend.handleheight')
+        self.handletextpad = val_or_rc(handletextpad, 'legend.handletextpad')
+        self.borderaxespad = val_or_rc(borderaxespad, 'legend.borderaxespad')
+        self.columnspacing = val_or_rc(columnspacing, 'legend.columnspacing')
+        self.shadow = val_or_rc(shadow, 'legend.shadow')
         # trim handles and labels if illegal label...
         _lab, _hand = [], []
         for label, handle in zip(labels, handles):
