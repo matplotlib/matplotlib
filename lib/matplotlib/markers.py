@@ -85,7 +85,7 @@ Hence the following are equivalent::
 Markers have some reasonable default settings for join and cap styles.
 However, those can be overriden when creating a new instance of MarkerStyle.
 Furthermore, the marker shape can be modified by supplying
-`~matplotlib .transforms.Transform` during creation.
+`~matplotlib.transforms.Transform` during creation.
 Some markers are created as internally rotated shapes (e.g. triangles).
 For such cases, both internal and user supplied transforms are combined.
 
