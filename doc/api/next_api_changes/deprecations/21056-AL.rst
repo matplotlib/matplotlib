@@ -1,0 +1,3 @@
+Calling ``MarkerStyle()`` with no arguments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated; use ``MarkerStyle("")`` to construct an empty marker style.
