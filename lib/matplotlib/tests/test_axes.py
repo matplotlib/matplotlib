@@ -3376,6 +3376,16 @@ def test_errorbar():
     ax.set_title("Simplest errorbars, 0.2 in x, 0.4 in y")
 
 
+@image_comparison(['errorbar_polar_caps'], extensions=['png'])
+def test_errorbar_polar_caps():
+    fig = plt.figure()
+    ax = plt.subplot(111, projection='polar')
+    theta = np.arange(0, 2*np.pi, np.pi / 4)
+    r = theta / np.pi / 2 + 0.5
+    ax.errorbar(theta, r, xerr=0.15, yerr=0.1)
+    ax.set_rlim(0, 2)
+
+
 def test_errorbar_colorcycle():
 
     f, ax = plt.subplots()

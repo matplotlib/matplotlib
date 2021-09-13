@@ -3439,10 +3439,11 @@ class Axes(_AxesBase):
         eb_cap_style['color'] = ecolor
 
         barcols = []
-        caplines = []
+        caplines = {'x': [], 'y': []}
 
         # Vectorized fancy-indexer.
-        def apply_mask(arrays, mask): return [array[mask] for array in arrays]
+        def apply_mask(arrays, mask):
+            return [array[mask] for array in arrays]
 
         # dep: dependent dataset, indep: independent dataset
         for (dep_axis, dep, err, lolims, uplims, indep, lines_func,
@@ -3486,7 +3487,7 @@ class Axes(_AxesBase):
                     line = mlines.Line2D(indep_masked, indep_masked,
                                          marker=marker, **eb_cap_style)
                     line.set(**{f"{dep_axis}data": lh_masked})
-                    caplines.append(line)
+                    caplines[dep_axis].append(line)
             for idx, (lims, hl) in enumerate([(lolims, high), (uplims, low)]):
                 if not lims.any():
                     continue
@@ -3500,15 +3501,28 @@ class Axes(_AxesBase):
                 line = mlines.Line2D(x_masked, y_masked,
                                      marker=hlmarker, **eb_cap_style)
                 line.set(**{f"{dep_axis}data": hl_masked})
-                caplines.append(line)
+                caplines[dep_axis].append(line)
                 if capsize > 0:
-                    caplines.append(mlines.Line2D(
+                    caplines[dep_axis].append(mlines.Line2D(
                         x_masked, y_masked, marker=marker, **eb_cap_style))
 
-        for l in caplines:
-            self.add_line(l)
+        for axis in caplines:
+            for l in caplines[axis]:
+                if self.name == 'polar':
+                    # Rotate caps to be perpendicular to the error bars
+                    for theta, r in zip(l.get_xdata(), l.get_ydata()):
+                        rotation = theta
+                        if axis == 'x':
+                            rotation += np.pi / 2
+                        ms = mmarkers.MarkerStyle(marker=marker)
+                        ms._transform = mtransforms.Affine2D().rotate(rotation)
+                        self.add_line(mlines.Line2D([theta], [r], marker=ms,
+                                                    **eb_cap_style))
+                else:
+                    self.add_line(l)
 
         self._request_autoscale_view()
+        caplines = caplines['x'] + caplines['y']
         errorbar_container = ErrorbarContainer(
             (data_line, tuple(caplines), tuple(barcols)),
             has_xerr=(xerr is not None), has_yerr=(yerr is not None),
