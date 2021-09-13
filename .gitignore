@@ -72,6 +72,7 @@ doc/plot_types
 doc/pyplots/tex_demo.png
 doc/tutorials
 lib/dateutil
+examples/*/*.bmp
 examples/*/*.eps
 examples/*/*.pdf
 examples/*/*.png
