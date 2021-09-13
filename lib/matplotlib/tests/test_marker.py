@@ -19,7 +19,6 @@ def test_marker_fillstyle():
     'x',
     '',
     'None',
-    None,
     r'$\frac{1}{2}$',
     "$\u266B$",
     1,
@@ -40,9 +39,12 @@ def test_markers_valid(marker):
     markers.MarkerStyle(marker)
 
 
-def test_deprecated_marker_noargs():
+def test_deprecated_marker():
     with pytest.warns(MatplotlibDeprecationWarning):
         ms = markers.MarkerStyle()
+    markers.MarkerStyle(ms)  # No warning on copy.
+    with pytest.warns(MatplotlibDeprecationWarning):
+        ms = markers.MarkerStyle(None)
     markers.MarkerStyle(ms)  # No warning on copy.
 
 
