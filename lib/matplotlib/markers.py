@@ -64,9 +64,10 @@ path                                  A `~matplotlib.path.Path` instance.
                                       rotated by ``angle``.
 ============================== ====== =========================================
 
-``None`` also means 'nothing' when directly constructing a `.MarkerStyle`, but
-note that there are other contexts where ``marker=None`` instead means "the
-default marker" (e.g. :rc:`scatter.marker` for `.Axes.scatter`).
+As a deprecated feature, ``None`` also means 'nothing' when directly
+constructing a `.MarkerStyle`, but note that there are other contexts where
+``marker=None`` instead means "the default marker" (e.g. :rc:`scatter.marker`
+for `.Axes.scatter`).
 
 Note that special symbols can be defined via the
 :doc:`STIX math font </tutorials/text/mathtext>`,
@@ -202,7 +203,6 @@ class MarkerStyle:
         CARETDOWNBASE: 'caretdownbase',
         "None": 'nothing',
         "none": 'nothing',
-        None: 'nothing',
         ' ': 'nothing',
         '': 'nothing'
     }
@@ -245,6 +245,12 @@ class MarkerStyle:
                 "deprecated since %(since)s; support will be removed "
                 "%(removal)s.  Use MarkerStyle('') to construct an empty "
                 "MarkerStyle.")
+        if marker is None:
+            marker = ""
+            _api.warn_deprecated(
+                "3.6", message="MarkerStyle(None) is deprecated since "
+                "%(since)s; support will be removed %(removal)s.  Use "
+                "MarkerStyle('') to construct an empty MarkerStyle.")
         self._set_marker(marker)
 
     __init__.__signature__ = inspect.signature(  # Only for deprecation period.
