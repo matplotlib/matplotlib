@@ -4607,32 +4607,38 @@ default: :rc:`scatter.edgecolors`
             nx = gridsize
             ny = int(nx / math.sqrt(3))
         # Count the number of data in each hexagon
-        x = np.array(x, float)
-        y = np.array(y, float)
+        x = np.asarray(x, float)
+        y = np.asarray(y, float)
 
-        if marginals:
-            xorig = x.copy()
-            yorig = y.copy()
+        # Will be log()'d if necessary, and then rescaled.
+        tx = x
+        ty = y
 
         if xscale == 'log':
             if np.any(x <= 0.0):
-                raise ValueError("x contains non-positive values, so can not"
-                                 " be log-scaled")
-            x = np.log10(x)
+                raise ValueError("x contains non-positive values, so can not "
+                                 "be log-scaled")
+            tx = np.log10(tx)
         if yscale == 'log':
             if np.any(y <= 0.0):
-                raise ValueError("y contains non-positive values, so can not"
-                                 " be log-scaled")
-            y = np.log10(y)
+                raise ValueError("y contains non-positive values, so can not "
+                                 "be log-scaled")
+            ty = np.log10(ty)
         if extent is not None:
             xmin, xmax, ymin, ymax = extent
         else:
-            xmin, xmax = (np.min(x), np.max(x)) if len(x) else (0, 1)
-            ymin, ymax = (np.min(y), np.max(y)) if len(y) else (0, 1)
+            xmin, xmax = (tx.min(), tx.max()) if len(x) else (0, 1)
+            ymin, ymax = (ty.min(), ty.max()) if len(y) else (0, 1)
 
             # to avoid issues with singular data, expand the min/max pairs
             xmin, xmax = mtransforms.nonsingular(xmin, xmax, expander=0.1)
             ymin, ymax = mtransforms.nonsingular(ymin, ymax, expander=0.1)
+
+        nx1 = nx + 1
+        ny1 = ny + 1
+        nx2 = nx
+        ny2 = ny
+        n = nx1 * ny1 + nx2 * ny2
 
         # In the x-direction, the hexagons exactly cover the region from
         # xmin to xmax. Need some padding to avoid roundoff errors.
@@ -4641,76 +4647,48 @@ default: :rc:`scatter.edgecolors`
         xmax += padding
         sx = (xmax - xmin) / nx
         sy = (ymax - ymin) / ny
+        # Positions in hexagon index coordinates.
+        ix = (tx - xmin) / sx
+        iy = (ty - ymin) / sy
+        ix1 = np.round(ix).astype(int)
+        iy1 = np.round(iy).astype(int)
+        ix2 = np.floor(ix).astype(int)
+        iy2 = np.floor(iy).astype(int)
+        # flat indices, plus one so that out-of-range points go to position 0.
+        i1 = np.where((0 <= ix1) & (ix1 < nx1) & (0 <= iy1) & (iy1 < ny1),
+                      ix1 * ny1 + iy1 + 1, 0)
+        i2 = np.where((0 <= ix2) & (ix2 < nx2) & (0 <= iy2) & (iy2 < ny2),
+                      ix2 * ny2 + iy2 + 1, 0)
 
-        x = (x - xmin) / sx
-        y = (y - ymin) / sy
-        ix1 = np.round(x).astype(int)
-        iy1 = np.round(y).astype(int)
-        ix2 = np.floor(x).astype(int)
-        iy2 = np.floor(y).astype(int)
-
-        nx1 = nx + 1
-        ny1 = ny + 1
-        nx2 = nx
-        ny2 = ny
-        n = nx1 * ny1 + nx2 * ny2
-
-        d1 = (x - ix1) ** 2 + 3.0 * (y - iy1) ** 2
-        d2 = (x - ix2 - 0.5) ** 2 + 3.0 * (y - iy2 - 0.5) ** 2
+        d1 = (ix - ix1) ** 2 + 3.0 * (iy - iy1) ** 2
+        d2 = (ix - ix2 - 0.5) ** 2 + 3.0 * (iy - iy2 - 0.5) ** 2
         bdist = (d1 < d2)
-        if C is None:
-            lattice1 = np.zeros((nx1, ny1))
-            lattice2 = np.zeros((nx2, ny2))
-            c1 = (0 <= ix1) & (ix1 < nx1) & (0 <= iy1) & (iy1 < ny1) & bdist
-            c2 = (0 <= ix2) & (ix2 < nx2) & (0 <= iy2) & (iy2 < ny2) & ~bdist
-            np.add.at(lattice1, (ix1[c1], iy1[c1]), 1)
-            np.add.at(lattice2, (ix2[c2], iy2[c2]), 1)
+
+        if C is None:  # [1:] drops out-of-range points.
+            counts1 = np.bincount(i1[bdist], minlength=1 + nx1 * ny1)[1:]
+            counts2 = np.bincount(i2[~bdist], minlength=1 + nx2 * ny2)[1:]
+            accum = np.concatenate([counts1, counts2]).astype(float)
             if mincnt is not None:
-                lattice1[lattice1 < mincnt] = np.nan
-                lattice2[lattice2 < mincnt] = np.nan
-            accum = np.concatenate([lattice1.ravel(), lattice2.ravel()])
-            good_idxs = ~np.isnan(accum)
-
+                accum[accum < mincnt] = np.nan
+            C = np.ones(len(x))
         else:
-            if mincnt is None:
-                mincnt = 0
-
-            # create accumulation arrays
-            lattice1 = np.empty((nx1, ny1), dtype=object)
-            for i in range(nx1):
-                for j in range(ny1):
-                    lattice1[i, j] = []
-            lattice2 = np.empty((nx2, ny2), dtype=object)
-            for i in range(nx2):
-                for j in range(ny2):
-                    lattice2[i, j] = []
-
+            # store the C values in a list per hexagon index
+            Cs_at_i1 = [[] for _ in range(1 + nx1 * ny1)]
+            Cs_at_i2 = [[] for _ in range(1 + nx2 * ny2)]
             for i in range(len(x)):
                 if bdist[i]:
-                    if 0 <= ix1[i] < nx1 and 0 <= iy1[i] < ny1:
-                        lattice1[ix1[i], iy1[i]].append(C[i])
+                    Cs_at_i1[i1[i]].append(C[i])
                 else:
-                    if 0 <= ix2[i] < nx2 and 0 <= iy2[i] < ny2:
-                        lattice2[ix2[i], iy2[i]].append(C[i])
+                    Cs_at_i2[i2[i]].append(C[i])
+            if mincnt is None:
+                mincnt = 0
+            accum = np.array(
+                [reduce_C_function(acc) if len(acc) > mincnt else np.nan
+                 for Cs_at_i in [Cs_at_i1, Cs_at_i2]
+                 for acc in Cs_at_i[1:]],  # [1:] drops out-of-range points.
+                float)
 
-            for i in range(nx1):
-                for j in range(ny1):
-                    vals = lattice1[i, j]
-                    if len(vals) > mincnt:
-                        lattice1[i, j] = reduce_C_function(vals)
-                    else:
-                        lattice1[i, j] = np.nan
-            for i in range(nx2):
-                for j in range(ny2):
-                    vals = lattice2[i, j]
-                    if len(vals) > mincnt:
-                        lattice2[i, j] = reduce_C_function(vals)
-                    else:
-                        lattice2[i, j] = np.nan
-
-            accum = np.concatenate([lattice1.astype(float).ravel(),
-                                    lattice2.astype(float).ravel()])
-            good_idxs = ~np.isnan(accum)
+        good_idxs = ~np.isnan(accum)
 
         offsets = np.zeros((n, 2), float)
         offsets[:nx1 * ny1, 0] = np.repeat(np.arange(nx1), ny1)
@@ -4767,8 +4745,7 @@ default: :rc:`scatter.edgecolors`
                 vmin = vmax = None
             bins = None
 
-        # autoscale the norm with current accum values if it hasn't
-        # been set
+        # autoscale the norm with current accum values if it hasn't been set
         if norm is not None:
             if norm.vmin is None and norm.vmax is None:
                 norm.autoscale(accum)
@@ -4798,92 +4775,55 @@ default: :rc:`scatter.edgecolors`
             return collection
 
         # Process marginals
-        if C is None:
-            C = np.ones(len(x))
+        bars = []
+        for zname, z, zmin, zmax, zscale, nbins in [
+                ("x", x, xmin, xmax, xscale, nx),
+                ("y", y, ymin, ymax, yscale, 2 * ny),
+        ]:
 
-        def coarse_bin(x, y, bin_edges):
-            """
-            Sort x-values into bins defined by *bin_edges*, then for all the
-            corresponding y-values in each bin use *reduce_c_function* to
-            compute the bin value.
-            """
-            nbins = len(bin_edges) - 1
-            # Sort x-values into bins
-            bin_idxs = np.searchsorted(bin_edges, x) - 1
-            mus = np.zeros(nbins) * np.nan
+            if zscale == "log":
+                bin_edges = np.geomspace(zmin, zmax, nbins + 1)
+            else:
+                bin_edges = np.linspace(zmin, zmax, nbins + 1)
+
+            verts = np.empty((nbins, 4, 2))
+            verts[:, 0, 0] = verts[:, 1, 0] = bin_edges[:-1]
+            verts[:, 2, 0] = verts[:, 3, 0] = bin_edges[1:]
+            verts[:, 0, 1] = verts[:, 3, 1] = .00
+            verts[:, 1, 1] = verts[:, 2, 1] = .05
+            if zname == "y":
+                verts = verts[:, :, ::-1]  # Swap x and y.
+
+            # Sort z-values into bins defined by bin_edges.
+            bin_idxs = np.searchsorted(bin_edges, z) - 1
+            values = np.empty(nbins)
             for i in range(nbins):
-                # Get y-values for each bin
-                yi = y[bin_idxs == i]
-                if len(yi) > 0:
-                    mus[i] = reduce_C_function(yi)
-            return mus
+                # Get C-values for each bin, and compute bin value with
+                # reduce_C_function.
+                ci = C[bin_idxs == i]
+                values[i] = reduce_C_function(ci) if len(ci) > 0 else np.nan
 
-        if xscale == 'log':
-            bin_edges = np.geomspace(xmin, xmax, nx + 1)
-        else:
-            bin_edges = np.linspace(xmin, xmax, nx + 1)
-        xcoarse = coarse_bin(xorig, C, bin_edges)
+            mask = ~np.isnan(values)
+            verts = verts[mask]
+            values = values[mask]
 
-        verts, values = [], []
-        for bin_left, bin_right, val in zip(
-                bin_edges[:-1], bin_edges[1:], xcoarse):
-            if np.isnan(val):
-                continue
-            verts.append([(bin_left, 0),
-                          (bin_left, 0.05),
-                          (bin_right, 0.05),
-                          (bin_right, 0)])
-            values.append(val)
+            trans = getattr(self, f"get_{zname}axis_transform")(which="grid")
+            bar = mcoll.PolyCollection(
+                verts, transform=trans, edgecolors="face")
+            bar.set_array(values)
+            bar.set_cmap(cmap)
+            bar.set_norm(norm)
+            bar.set_alpha(alpha)
+            bar.update(kwargs)
+            bars.append(self.add_collection(bar, autolim=False))
 
-        values = np.array(values)
-        trans = self.get_xaxis_transform(which='grid')
-
-        hbar = mcoll.PolyCollection(verts, transform=trans, edgecolors='face')
-
-        hbar.set_array(values)
-        hbar.set_cmap(cmap)
-        hbar.set_norm(norm)
-        hbar.set_alpha(alpha)
-        hbar.update(kwargs)
-        self.add_collection(hbar, autolim=False)
-
-        if yscale == 'log':
-            bin_edges = np.geomspace(ymin, ymax, 2 * ny + 1)
-        else:
-            bin_edges = np.linspace(ymin, ymax, 2 * ny + 1)
-        ycoarse = coarse_bin(yorig, C, bin_edges)
-
-        verts, values = [], []
-        for bin_bottom, bin_top, val in zip(
-                bin_edges[:-1], bin_edges[1:], ycoarse):
-            if np.isnan(val):
-                continue
-            verts.append([(0, bin_bottom),
-                          (0, bin_top),
-                          (0.05, bin_top),
-                          (0.05, bin_bottom)])
-            values.append(val)
-
-        values = np.array(values)
-
-        trans = self.get_yaxis_transform(which='grid')
-
-        vbar = mcoll.PolyCollection(verts, transform=trans, edgecolors='face')
-        vbar.set_array(values)
-        vbar.set_cmap(cmap)
-        vbar.set_norm(norm)
-        vbar.set_alpha(alpha)
-        vbar.update(kwargs)
-        self.add_collection(vbar, autolim=False)
-
-        collection.hbar = hbar
-        collection.vbar = vbar
+        collection.hbar, collection.vbar = bars
 
         def on_changed(collection):
-            hbar.set_cmap(collection.get_cmap())
-            hbar.set_clim(collection.get_clim())
-            vbar.set_cmap(collection.get_cmap())
-            vbar.set_clim(collection.get_clim())
+            collection.hbar.set_cmap(collection.get_cmap())
+            collection.hbar.set_cmap(collection.get_cmap())
+            collection.vbar.set_clim(collection.get_clim())
+            collection.vbar.set_clim(collection.get_clim())
 
         collection.callbacks.connect('changed', on_changed)
 
