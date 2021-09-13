@@ -2273,8 +2273,7 @@ class Axes3D(Axes):
 
     @_preprocess_data(replace_names=["xs", "ys", "zs", "s",
                                      "edgecolors", "c", "facecolor",
-                                     "facecolors", "color"],
-                      label_namer=None)
+                                     "facecolors", "color"])
     def scatter(self, xs, ys, zs=0, zdir='z', s=20, c=None, depthshade=True,
                 *args, **kwargs):
         """
