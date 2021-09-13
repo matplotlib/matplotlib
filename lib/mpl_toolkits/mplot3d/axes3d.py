@@ -2075,6 +2075,7 @@ class Axes3D(Axes):
             art3d.poly_collection_2d_to_3d(linec, z, zdir=zdir)
             linec.set_sort_zpos(z)
 
+    @_preprocess_data()
     def contour(self, X, Y, Z, *args,
                 extend3d=False, stride=5, zdir='z', offset=None, **kwargs):
         """
@@ -2093,6 +2094,9 @@ class Axes3D(Axes):
         offset : float, optional
             If specified, plot a projection of the contour lines at this
             position in a plane normal to zdir.
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         *args, **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.contour`.
 
@@ -2111,6 +2115,7 @@ class Axes3D(Axes):
 
     contour3D = contour
 
+    @_preprocess_data()
     def tricontour(self, *args,
                    extend3d=False, stride=5, zdir='z', offset=None, **kwargs):
         """
@@ -2133,6 +2138,8 @@ class Axes3D(Axes):
         offset : float, optional
             If specified, plot a projection of the contour lines at this
             position in a plane normal to zdir.
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
         *args, **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.tricontour`.
 
@@ -2161,6 +2168,7 @@ class Axes3D(Axes):
         self.auto_scale_xyz(X, Y, Z, had_data)
         return cset
 
+    @_preprocess_data()
     def contourf(self, X, Y, Z, *args, zdir='z', offset=None, **kwargs):
         """
         Create a 3D filled contour plot.
@@ -2174,6 +2182,8 @@ class Axes3D(Axes):
         offset : float, optional
             If specified, plot a projection of the contour lines at this
             position in a plane normal to zdir.
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
         *args, **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.contourf`.
 
@@ -2192,6 +2202,7 @@ class Axes3D(Axes):
 
     contourf3D = contourf
 
+    @_preprocess_data()
     def tricontourf(self, *args, zdir='z', offset=None, **kwargs):
         """
         Create a 3D filled contour plot.
@@ -2209,6 +2220,8 @@ class Axes3D(Axes):
         offset : float, optional
             If specified, plot a projection of the contour lines at this
             position in a plane normal to zdir.
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
         *args, **kwargs
             Other arguments are forwarded to
             `matplotlib.axes.Axes.tricontourf`.
@@ -2347,6 +2360,7 @@ class Axes3D(Axes):
 
     scatter3D = scatter
 
+    @_preprocess_data()
     def bar(self, left, height, zs=0, zdir='z', *args, **kwargs):
         """
         Add 2D bar(s).
@@ -2362,6 +2376,8 @@ class Axes3D(Axes):
             used for all bars.
         zdir : {'x', 'y', 'z'}, default: 'z'
             When plotting 2D data, the direction to use as z ('x', 'y' or 'z').
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
         **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.bar`.
 
@@ -2398,6 +2414,7 @@ class Axes3D(Axes):
 
         return patches
 
+    @_preprocess_data()
     def bar3d(self, x, y, z, dx, dy, dz, color=None,
               zsort='average', shade=True, lightsource=None, *args, **kwargs):
         """
@@ -2445,6 +2462,9 @@ class Axes3D(Axes):
 
         lightsource : `~matplotlib.colors.LightSource`
             The lightsource to use when *shade* is True.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
 
         **kwargs
             Any additional keyword arguments are passed onto
@@ -2567,6 +2587,7 @@ class Axes3D(Axes):
         self.title.set_y(0.92 * y)
         return ret
 
+    @_preprocess_data()
     def quiver(self, *args,
                length=1, arrow_length_ratio=.3, pivot='tail', normalize=False,
                **kwargs):
@@ -2603,6 +2624,9 @@ pivot='tail', normalize=False, **kwargs)
         normalize : bool, default: False
             Whether all arrows are normalized to have the same length, or keep
             the lengths defined by *u*, *v*, and *w*.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
 
         **kwargs
             Any additional keyword arguments are delegated to
@@ -2932,6 +2956,7 @@ pivot='tail', normalize=False, **kwargs)
 
         return polygons
 
+    @_preprocess_data(replace_names=["x", "y", "z", "xerr", "yerr", "zerr"])
     def errorbar(self, x, y, z, zerr=None, yerr=None, xerr=None, fmt='',
                  barsabove=False, errorevery=1, ecolor=None, elinewidth=None,
                  capsize=None, capthick=None, xlolims=False, xuplims=False,
@@ -3027,6 +3052,9 @@ pivot='tail', normalize=False, **kwargs)
 
         Other Parameters
         ----------------
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+
         **kwargs
             All other keyword arguments for styling errorbar lines are passed
             `~mpl_toolkits.mplot3d.art3d.Line3DCollection`.
@@ -3304,6 +3332,7 @@ pivot='tail', normalize=False, **kwargs)
                     batch.append(axis_bb)
         return mtransforms.Bbox.union(batch)
 
+    @_preprocess_data()
     def stem(self, x, y, z, *, linefmt='C0-', markerfmt='C0o', basefmt='C3-',
              bottom=0, label=None, orientation='z'):
         """
@@ -3354,6 +3383,9 @@ pivot='tail', normalize=False, **kwargs)
 
         orientation : {'x', 'y', 'z'}, default: 'z'
             The direction along which stems are drawn.
+
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
 
         Returns
         -------
