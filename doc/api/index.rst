@@ -66,6 +66,7 @@ Alphabetical list of modules:
    fontconfig_pattern_api.rst
    gridspec_api.rst
    image_api.rst
+   layout_engine_api.rst
    legend_api.rst
    legend_handler_api.rst
    lines_api.rst
