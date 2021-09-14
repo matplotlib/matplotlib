@@ -45,7 +45,8 @@ marker                         symbol description
 ``9`` (``CARETRIGHTBASE``)     |m34|  caretright (centered at base)
 ``10`` (``CARETUPBASE``)       |m35|  caretup (centered at base)
 ``11`` (``CARETDOWNBASE``)     |m36|  caretdown (centered at base)
-``"None"``, ``" "`` or  ``""``        nothing
+``"none"`` or ``"None"``              nothing
+``" "`` or  ``""``                    nothing
 ``'$...$'``                    |m37|  Render the string using mathtext.
                                       E.g ``"$f$"`` for marker showing the
                                       letter ``f``.
@@ -200,6 +201,7 @@ class MarkerStyle:
         CARETUPBASE: 'caretupbase',
         CARETDOWNBASE: 'caretdownbase',
         "None": 'nothing',
+        "none": 'nothing',
         None: 'nothing',
         ' ': 'nothing',
         '': 'nothing'
@@ -227,7 +229,7 @@ class MarkerStyle:
             - Another instance of *MarkerStyle* copies the details of that
               ``marker``.
             - *None* means no marker.  This is the deprecated default.
-            - For other possible marker values see the module docstring
+            - For other possible marker values, see the module docstring
               `matplotlib.markers`.
 
         fillstyle : str, default: :rc:`markers.fillstyle`
