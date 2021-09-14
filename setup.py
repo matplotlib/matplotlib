@@ -29,14 +29,11 @@ from pathlib import Path
 import shutil
 import subprocess
 
-from setuptools import setup, find_packages, Extension
+from setuptools import setup, find_packages, Distribution, Extension
 import setuptools.command.build_ext
 import setuptools.command.build_py
 import setuptools.command.test
 import setuptools.command.sdist
-
-from distutils.errors import CompileError
-from distutils.dist import Distribution
 
 import setupext
 from setupext import print_raw, print_status
@@ -62,7 +59,10 @@ def has_flag(self, flagname):
         f.write('int main (int argc, char **argv) { return 0; }')
         try:
             self.compile([f.name], extra_postargs=[flagname])
-        except CompileError:
+        except Exception as exc:
+            # https://github.com/pypa/setuptools/issues/2698
+            if type(exc).__name__ != "CompileError":
+                raise
             return False
     return True
 
@@ -270,7 +270,7 @@ if not (any('--' + opt in sys.argv
             package_data.setdefault(key, [])
             package_data[key] = list(set(val + package_data[key]))
 
-setup(  # Finally, pass this all along to distutils to do the heavy lifting.
+setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
     name="matplotlib",
     description="Python plotting package",
     author="John D. Hunter, Michael Droettboom",
