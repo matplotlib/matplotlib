@@ -245,7 +245,7 @@ class RendererCairo(RendererBase):
 
             ctx.save()
             ctx.select_font_face(*_cairo_font_args_from_font_prop(prop))
-            ctx.set_font_size(prop.get_size_in_points() * self.dpi / 72)
+            ctx.set_font_size(self.points_to_pixels(prop.get_size_in_points()))
             opts = cairo.FontOptions()
             opts.set_antialias(
                 cairo.ANTIALIAS_DEFAULT if mpl.rcParams["text.antialiased"]
@@ -271,7 +271,7 @@ class RendererCairo(RendererBase):
             ctx.move_to(ox, -oy)
             ctx.select_font_face(
                 *_cairo_font_args_from_font_prop(ttfFontProperty(font)))
-            ctx.set_font_size(fontsize * self.dpi / 72)
+            ctx.set_font_size(self.points_to_pixels(fontsize))
             ctx.show_text(chr(idx))
 
         for ox, oy, w, h in rects:
@@ -303,9 +303,7 @@ class RendererCairo(RendererBase):
         # save/restore prevents the problem
         ctx.save()
         ctx.select_font_face(*_cairo_font_args_from_font_prop(prop))
-        # Cairo (says it) uses 1/96 inch user space units, ref: cairo_gstate.c
-        # but if /96.0 is used the font is too small
-        ctx.set_font_size(prop.get_size_in_points() * self.dpi / 72)
+        ctx.set_font_size(self.points_to_pixels(prop.get_size_in_points()))
 
         y_bearing, w, h = ctx.text_extents(s)[1:4]
         ctx.restore()
