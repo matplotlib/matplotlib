@@ -229,7 +229,7 @@ def test_marker_rotated_invalid():
     marker = markers.MarkerStyle("o")
     with pytest.raises(ValueError):
         new_marker = marker.rotated()
-    with pytest.raises(ValueError):    
+    with pytest.raises(ValueError):
         new_marker = marker.rotated(deg=10, rad=10)
 
 
@@ -246,8 +246,42 @@ def test_marker_rotated_invalid():
         markers.TICKLEFT, transform=Affine2D().translate(1, 1)),
         10, None, Affine2D().translate(1, 1).rotate_deg(10)),
 ])
-def test_marker_rotated_deg(marker, deg, rad, expected):
+def test_marker_rotated(marker, deg, rad, expected):
     new_marker = marker.rotated(deg=deg, rad=rad)
     assert new_marker is not marker
+    assert new_marker.get_user_transform() == expected
+    assert marker._user_transform is not new_marker._user_transform
+
+
+def test_marker_translated():
+    marker = markers.MarkerStyle("1")
+    new_marker = marker.translated(1, 1)
+    assert new_marker is not marker
+    assert new_marker.get_user_transform() == Affine2D().translate(1, 1)
+    assert marker._user_transform is not new_marker._user_transform
+
+    marker = markers.MarkerStyle("1", transform=Affine2D().translate(1, 1))
+    new_marker = marker.translated(1, 1)
+    assert new_marker is not marker
+    assert new_marker.get_user_transform() == Affine2D().translate(2, 2)
+    assert marker._user_transform is not new_marker._user_transform
+
+
+def test_marker_scaled():
+    marker = markers.MarkerStyle("1")
+    new_marker = marker.scaled(2)
+    assert new_marker is not marker
+    assert new_marker.get_user_transform() == Affine2D().scale(2)
+    assert marker._user_transform is not new_marker._user_transform
+
+    new_marker = marker.scaled(2, 3)
+    assert new_marker is not marker
+    assert new_marker.get_user_transform() == Affine2D().scale(2, 3)
+    assert marker._user_transform is not new_marker._user_transform
+
+    marker = markers.MarkerStyle("1", transform=Affine2D().translate(1, 1))
+    new_marker = marker.scaled(2)
+    assert new_marker is not marker
+    expected = Affine2D().translate(1, 1).scale(2)
     assert new_marker.get_user_transform() == expected
     assert marker._user_transform is not new_marker._user_transform
