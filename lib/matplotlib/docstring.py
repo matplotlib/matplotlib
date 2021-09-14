@@ -1,5 +1,7 @@
 import inspect
 
+from . import _api
+
 
 class Substitution:
     """
@@ -45,12 +47,6 @@ class Substitution:
         self.params.update(*args, **kwargs)
 
 
-def _recursive_subclasses(cls):
-    yield cls
-    for subcls in cls.__subclasses__():
-        yield from _recursive_subclasses(subcls)
-
-
 class _ArtistKwdocLoader(dict):
     def __missing__(self, key):
         if not key.endswith(":kwdoc"):
@@ -58,7 +54,7 @@ class _ArtistKwdocLoader(dict):
         name = key[:-len(":kwdoc")]
         from matplotlib.artist import Artist, kwdoc
         try:
-            cls, = [cls for cls in _recursive_subclasses(Artist)
+            cls, = [cls for cls in _api.recursive_subclasses(Artist)
                     if cls.__name__ == name]
         except ValueError as e:
             raise KeyError(key) from e

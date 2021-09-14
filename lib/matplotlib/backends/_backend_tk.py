@@ -774,6 +774,7 @@ class ToolTip:
             tw.destroy()
 
 
+@backend_tools._register_tool_class(FigureCanvasTk)
 class RubberbandTk(backend_tools.RubberbandBase):
     def draw_rubberband(self, x0, y0, x1, y1):
         self.remove_rubberband()
@@ -859,12 +860,14 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
         self._message.set(s)
 
 
+@backend_tools._register_tool_class(FigureCanvasTk)
 class SaveFigureTk(backend_tools.SaveFigureBase):
     def trigger(self, *args):
         NavigationToolbar2Tk.save_figure(
             self._make_classic_style_pseudo_toolbar())
 
 
+@backend_tools._register_tool_class(FigureCanvasTk)
 class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -894,6 +897,7 @@ class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
             self.window = None
 
 
+@backend_tools._register_tool_class(FigureCanvasTk)
 class HelpTk(backend_tools.ToolHelpBase):
     def trigger(self, *args):
         dialog = SimpleDialog(
@@ -901,11 +905,6 @@ class HelpTk(backend_tools.ToolHelpBase):
         dialog.done = lambda num: dialog.frame.master.withdraw()
 
 
-backend_tools.ToolSaveFigure = SaveFigureTk
-backend_tools.ToolConfigureSubplots = ConfigureSubplotsTk
-backend_tools.ToolRubberband = RubberbandTk
-backend_tools.ToolHelp = HelpTk
-backend_tools.ToolCopyToClipboard = backend_tools.ToolCopyToClipboardBase
 Toolbar = ToolbarTk
 
 
