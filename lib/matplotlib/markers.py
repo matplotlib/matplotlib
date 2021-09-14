@@ -456,7 +456,7 @@ class MarkerStyle:
 
         .. note:: You must specify exactly one of deg or rad.
         """
-        if not ((deg is None) ^ (rad is None)):
+        if not (deg is None) ^ (rad is None):
             raise ValueError("Exactly one of deg or rad shall be used.")
 
         new_marker = MarkerStyle(self)
