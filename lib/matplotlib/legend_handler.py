@@ -566,7 +566,7 @@ class HandlerErrorbar(HandlerLine2D):
             self.update_prop(legline, plotlines, legend)
 
             legline.set_drawstyle('default')
-            legline.set_marker('None')
+            legline.set_marker('none')
 
             self.update_prop(legline_marker, plotlines, legend)
             legline_marker.set_linestyle('None')
