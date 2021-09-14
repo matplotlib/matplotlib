@@ -28,6 +28,7 @@ class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
                 allocation.width, allocation.height)
             self._renderer.set_width_height(
                 allocation.width, allocation.height)
+            self._renderer.dpi = self.figure.dpi
             self.figure.draw(self._renderer)
 
 

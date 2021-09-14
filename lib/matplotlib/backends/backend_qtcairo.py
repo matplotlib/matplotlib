@@ -13,6 +13,7 @@ class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
 
     def draw(self):
         if hasattr(self._renderer.gc, "ctx"):
+            self._renderer.dpi = self.figure.dpi
             self.figure.draw(self._renderer)
         super().draw()
 
@@ -23,6 +24,7 @@ class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
             surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
             self._renderer.set_ctx_from_surface(surface)
             self._renderer.set_width_height(width, height)
+            self._renderer.dpi = self.figure.dpi
             self.figure.draw(self._renderer)
         buf = self._renderer.gc.ctx.get_target().get_data()
         if QT_API == "PyQt6":
