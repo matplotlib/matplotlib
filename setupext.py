@@ -1,6 +1,5 @@
 import configparser
-from distutils import ccompiler, sysconfig
-from distutils.core import Extension
+from distutils import sysconfig
 import functools
 import hashlib
 from io import BytesIO
@@ -15,6 +14,8 @@ import sys
 import tarfile
 import textwrap
 import urllib.request
+
+from setuptools import Distribution, Extension
 
 _log = logging.getLogger(__name__)
 
@@ -523,9 +524,27 @@ def add_libagg_flags_and_sources(ext):
         os.path.join("extern", "agg24-svn", "src", x) for x in agg_sources)
 
 
-# First compile checkdep_freetype2.c, which aborts the compilation either
-# with "foo.h: No such file or directory" if the header is not found, or an
-# appropriate error message if the header indicates a too-old version.
+def get_ccompiler():
+    """
+    Return a new CCompiler instance.
+
+    CCompiler used to be constructible via `distutils.ccompiler.new_compiler`,
+    but this API was removed as part of the distutils deprecation.  Instead,
+    we trick setuptools into instantiating it by creating a dummy Distribution
+    with a list of extension modules that claims to be truthy, but is actually
+    empty, and then running the Distribution's build_ext command.  (If using
+    a plain empty ext_modules, build_ext would early-return without doing
+    anything.)
+    """
+
+    class L(list):
+        def __bool__(self):
+            return True
+
+    build_ext = Distribution({"ext_modules": L()}).get_command_obj("build_ext")
+    build_ext.finalize_options()
+    build_ext.run()
+    return build_ext.compiler
 
 
 class FreeType(SetupPackage):
@@ -533,6 +552,9 @@ class FreeType(SetupPackage):
 
     @classmethod
     def add_flags(cls, ext):
+        # checkdep_freetype2.c immediately aborts the compilation either with
+        # "foo.h: No such file or directory" if the header is not found, or an
+        # appropriate error message if the header indicates a too-old version.
         ext.sources.insert(0, 'src/checkdep_freetype2.c')
         if options.get('system_freetype'):
             pkg_config_setup_extension(
@@ -636,7 +658,7 @@ class FreeType(SetupPackage):
                 f.truncate()
                 f.write(vcxproj)
 
-            cc = ccompiler.new_compiler()
+            cc = get_ccompiler()
             cc.initialize()  # Get msbuild in the %PATH% of cc.spawn.
             cc.spawn(["msbuild", str(sln_path),
                       "/t:Clean;Build",
