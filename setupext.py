@@ -1,5 +1,4 @@
 import configparser
-from distutils import sysconfig
 import functools
 import hashlib
 from io import BytesIO
@@ -11,6 +10,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import sysconfig
 import tarfile
 import textwrap
 import urllib.request
