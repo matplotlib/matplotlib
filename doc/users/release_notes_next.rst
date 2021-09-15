@@ -1,4 +1,4 @@
-Next Version
+Next version
 ============
 .. toctree::
    :maxdepth: 1
