@@ -228,8 +228,14 @@ def _maybe_allow_interrupt(qapp):
             rsock.fileno(), _enum('QtCore.QSocketNotifier.Type').Read
         )
 
+        rsock.setblocking(False)
         # Clear the socket to re-arm the notifier.
-        sn.activated.connect(lambda *args: rsock.recv(1))
+        @sn.activated.connect
+        def _may_clear_sock(*args):
+            try:
+                rsock.recv(1)
+            except BlockingIOError:
+                pass
 
         def handle(*args):
             nonlocal handler_args
