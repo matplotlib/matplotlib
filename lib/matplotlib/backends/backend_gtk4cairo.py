@@ -11,6 +11,7 @@ class RendererGTK4Cairo(backend_cairo.RendererCairo):
 
 class FigureCanvasGTK4Cairo(backend_gtk4.FigureCanvasGTK4,
                             backend_cairo.FigureCanvasCairo):
+    _context_is_scaled = True
 
     def __init__(self, figure):
         super().__init__(figure)
