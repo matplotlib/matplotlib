@@ -1,5 +1,3 @@
-import sys
-
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 import pytest
@@ -8,19 +6,15 @@ from matplotlib.testing.decorators import image_comparison
 import matplotlib.transforms as mtransforms
 
 
-on_win = (sys.platform == 'win32')
-on_mac = (sys.platform == 'darwin')
-
-
 def velocity_field():
-    Y, X = np.mgrid[-3:3:100j, -3:3:100j]
+    Y, X = np.mgrid[-3:3:100j, -3:3:200j]
     U = -1 - X**2 + Y
     V = 1 + X - Y**2
     return X, Y, U, V
 
 
 def swirl_velocity_field():
-    x = np.linspace(-3., 3., 100)
+    x = np.linspace(-3., 3., 200)
     y = np.linspace(-3., 3., 100)
     X, Y = np.meshgrid(x, y)
     a = 0.1
@@ -29,7 +23,8 @@ def swirl_velocity_field():
     return x, y, U, V
 
 
-@image_comparison(['streamplot_startpoints'], remove_text=True, style='mpl20')
+@image_comparison(['streamplot_startpoints'], remove_text=True, style='mpl20',
+                  tol=0.513)
 def test_startpoints():
     X, Y, U, V = velocity_field()
     start_x = np.linspace(X.min(), X.max(), 10)
@@ -39,51 +34,39 @@ def test_startpoints():
     plt.plot(start_x, start_y, 'ok')
 
 
-@image_comparison(['streamplot_colormap'],
-                  tol=.04, remove_text=True, style='mpl20')
+@image_comparison(['streamplot_colormap'], remove_text=True, style='mpl20')
 def test_colormap():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
     X, Y, U, V = velocity_field()
     plt.streamplot(X, Y, U, V, color=U, density=0.6, linewidth=2,
                    cmap=plt.cm.autumn)
     plt.colorbar()
 
 
-@image_comparison(['streamplot_linewidth'], remove_text=True, style='mpl20')
+@image_comparison(['streamplot_linewidth'], remove_text=True, style='mpl20',
+                  tol=0.002)
 def test_linewidth():
     X, Y, U, V = velocity_field()
     speed = np.hypot(U, V)
     lw = 5 * speed / speed.max()
-    # Compatibility for old test image
-    df = 25 / 30
     ax = plt.figure().subplots()
-    ax.set(xlim=(-3.0, 2.9999999999999947),
-           ylim=(-3.0000000000000004, 2.9999999999999947))
-    ax.streamplot(X, Y, U, V, density=[0.5 * df, 1. * df], color='k',
-                  linewidth=lw)
+    ax.streamplot(X, Y, U, V, density=[0.5, 1], color='k', linewidth=lw)
 
 
 @image_comparison(['streamplot_masks_and_nans'],
-                  remove_text=True, style='mpl20', tol=0.04 if on_win else 0)
+                  remove_text=True, style='mpl20')
 def test_masks_and_nans():
     X, Y, U, V = velocity_field()
     mask = np.zeros(U.shape, dtype=bool)
-    mask[40:60, 40:60] = 1
-    U[:20, :20] = np.nan
+    mask[40:60, 80:120] = 1
+    U[:20, :40] = np.nan
     U = np.ma.array(U, mask=mask)
-    # Compatibility for old test image
     ax = plt.figure().subplots()
-    ax.set(xlim=(-3.0, 2.9999999999999947),
-           ylim=(-3.0000000000000004, 2.9999999999999947))
     with np.errstate(invalid='ignore'):
         ax.streamplot(X, Y, U, V, color=U, cmap=plt.cm.Blues)
 
 
 @image_comparison(['streamplot_maxlength.png'],
-                  remove_text=True, style='mpl20',
-                  tol=0.002 if on_mac else 0)
+                  remove_text=True, style='mpl20', tol=0.302)
 def test_maxlength():
     x, y, U, V = swirl_velocity_field()
     ax = plt.figure().subplots()
@@ -95,7 +78,7 @@ def test_maxlength():
 
 
 @image_comparison(['streamplot_direction.png'],
-                  remove_text=True, style='mpl20')
+                  remove_text=True, style='mpl20', tol=0.056)
 def test_direction():
     x, y, U, V = swirl_velocity_field()
     plt.streamplot(x, y, U, V, integration_direction='backward',
