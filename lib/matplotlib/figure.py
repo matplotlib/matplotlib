@@ -2286,6 +2286,7 @@ class Figure(FigureBase):
             facecolor=facecolor, edgecolor=edgecolor, linewidth=linewidth,
             # Don't let the figure patch influence bbox calculation.
             in_layout=False)
+        self._linewidth = linewidth
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
 
@@ -2740,13 +2741,19 @@ class Figure(FigureBase):
         """
         self.set_size_inches(self.get_figwidth(), val, forward=forward)
 
-    def clf(self, keep_observers=False):
+    def clf(self, keep_observers=False, refetch_rcparams=False):
         """
         Clear the figure.
 
-        Set *keep_observers* to True if, for example,
-        a gui widget is tracking the Axes in the figure.
+        Parameters
+        ----------
+        keep_observers: bool, optional
+            Set to True if, for example, a GUI widget is tracking the Axes in
+            the figure.
+        reset_rcparams: bool, optional
+            Set to True to reset Figure parameters to rcParams values.
         """
+
         self.suppressComposite = None
         self.callbacks = cbook.CallbackRegistry()
 
@@ -2770,11 +2777,62 @@ class Figure(FigureBase):
         self._supxlabel = None
         self._supylabel = None
 
+        # if refetching rcparams, store their vals in local vars
+        if refetch_rcparams:
+            figsize = mpl.rcParams['figure.figsize']
+            dpi = mpl.rcParams['figure.dpi']
+            facecolor = mpl.rcParams['figure.facecolor']
+            edgecolor = mpl.rcParams['figure.edgecolor']
+            frameon = mpl.rcParams['figure.frameon']
+            tight = mpl.rcParams['figure.autolayout']
+        # then utilize local vars to update Figure attributes
+        # figsize adjustments
+        if not (
+            np.isfinite(figsize).all()
+            or (np.array(figsize) < 0).any()
+        ):
+            raise ValueError('figure size must be positive finite not '
+                             f'{figsize}')
+        self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
+        # dpi adjustments
+        self.dpi_scale_trans = Affine2D().scale(dpi)
+        self.bbox = TransformedBbox(self.bbox_inches, self.dpi_scale_trans)
+        self.figbbox = self.bbox
+        self.transFigure = BboxTransformTo(self.bbox)
+        self.transSubfigure = self.transFigure
+        # facecolor and edgecolor adjustments
+        self.set_facecolor(facecolor)
+        self.set_edgecolor(edgecolor)
+        # frameon adjustments, keeping linewidth
+        self.patch = Rectangle(
+            xy=(0, 0), width=1, height=1, visible=frameon,
+            facecolor=facecolor, edgecolor=edgecolor,
+            linewidth=self._linewidth,
+            # Don't let the figure patch influence bbox calculation.
+            in_layout=False)
+        self._set_artist_props(self.patch)
+        self.patch.set_antialiased(False)
+        # tight layout call using tight rcparam
+        tight = mpl.rcParams['figure.autolayout']
+        self._tight = bool(tight)
+        self._tight_parameters = tight if isinstance(tight, dict) else {}
+        self.set_tight_layout(tight)
+        # constrained layout call using rcparam
+        constrained = mpl.rcParams['figure.constrained_layout.use']
+        self._constrained = bool(constrained)
+        if isinstance(constrained, dict):
+            self.set_constrained_layout_pads(**constrained)
+        else:
+            self.set_constrained_layout_pads()
+
         self.stale = True
 
-    def clear(self, keep_observers=False):
+    def clear(self, keep_observers=False, refectch_rcparams=False):
         """Clear the figure -- synonym for `clf`."""
-        self.clf(keep_observers=keep_observers)
+        self.clf(
+            keep_observers=keep_observers,
+            refetch_rcparams=refectch_rcparams
+        )
 
     @_finalize_rasterization
     @allow_rasterization
