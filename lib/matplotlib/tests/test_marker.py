@@ -271,3 +271,9 @@ def test_marker_scaled():
     expected = Affine2D().translate(1, 1).scale(2)
     assert new_marker.get_user_transform() == expected
     assert marker._user_transform is not new_marker._user_transform
+
+
+def test_alt_transform():
+    m1 = markers.MarkerStyle("o", "left")
+    m2 = markers.MarkerStyle("o", "left", Affine2D().rotate_deg(90))
+    assert m1.get_alt_transform().rotate_deg(90) == m2.get_alt_transform()
