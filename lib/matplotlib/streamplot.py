@@ -572,7 +572,7 @@ def _integrate_rk12(x0, y0, dmap, f, maxlength):
         dx2 = ds * 0.5 * (k1x + k2x)
         dy2 = ds * 0.5 * (k1y + k2y)
 
-        nx, ny = dmap.grid.shape
+        ny, nx = dmap.grid.shape
         # Error is normalized to the axes coordinates
         error = np.hypot((dx2 - dx1) / (nx - 1), (dy2 - dy1) / (ny - 1))
 
