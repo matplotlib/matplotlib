@@ -168,14 +168,16 @@ _freetype_hashes = {
     '2.10.1':
         '3a60d391fd579440561bf0e7f31af2222bc610ad6ce4d9d7bd2165bca8669110',
 }
-# This is the version of FreeType to use when building a local
-# version.  It must match the value in
-# lib/matplotlib.__init__.py and also needs to be changed below in the
-# embedded windows build script (grep for "REMINDER" in this file)
+# This is the version of FreeType to use when building a local version.  It
+# must match the value in lib/matplotlib.__init__.py and also needs to be
+# changed below in the embedded windows build script (grep for "REMINDER" in
+# this file). Also update the cache path in `.circleci/config.yml`.
 LOCAL_FREETYPE_VERSION = '2.6.1'
 LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 
+# Also update the cache path in `.circleci/config.yml`.
 LOCAL_QHULL_VERSION = '2020.2'
+LOCAL_QHULL_HASH = 'b5c2d7eb833278881b952c8a52d20179eab87766b00b865000469a45c1838b7e'
 
 
 # Matplotlib build options, which can be altered using mplsetup.cfg
@@ -688,7 +690,7 @@ class Qhull(SetupPackage):
 
         toplevel = get_and_extract_tarball(
             urls=["http://www.qhull.org/download/qhull-2020-src-8.0.2.tgz"],
-            sha="b5c2d7eb833278881b952c8a52d20179eab87766b00b865000469a45c1838b7e",
+            sha=LOCAL_QHULL_HASH,
             dirname=f"qhull-{LOCAL_QHULL_VERSION}",
         )
         shutil.copyfile(toplevel / "COPYING.txt", "LICENSE/LICENSE_QHULL")
