@@ -253,20 +253,6 @@ def test_marker_rotated(marker, deg, rad, expected):
     assert marker._user_transform is not new_marker._user_transform
 
 
-def test_marker_translated():
-    marker = markers.MarkerStyle("1")
-    new_marker = marker.translated(1, 1)
-    assert new_marker is not marker
-    assert new_marker.get_user_transform() == Affine2D().translate(1, 1)
-    assert marker._user_transform is not new_marker._user_transform
-
-    marker = markers.MarkerStyle("1", transform=Affine2D().translate(1, 1))
-    new_marker = marker.translated(1, 1)
-    assert new_marker is not marker
-    assert new_marker.get_user_transform() == Affine2D().translate(2, 2)
-    assert marker._user_transform is not new_marker._user_transform
-
-
 def test_marker_scaled():
     marker = markers.MarkerStyle("1")
     new_marker = marker.scaled(2)
