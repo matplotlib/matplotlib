@@ -52,6 +52,7 @@ def _mpl_to_gtk_cursor(mpl_cursor):
 class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
     required_interactive_framework = "gtk4"
     _timer_cls = TimerGTK4
+    _context_is_scaled = False
 
     def __init__(self, figure=None):
         FigureCanvasBase.__init__(self, figure)
@@ -205,8 +206,15 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
         if self._rubberband_rect is None:
             return
 
-        x0, y0, w, h = (dim / self.device_pixel_ratio
-                        for dim in self._rubberband_rect)
+        lw = 1
+        dash = 3
+        if not self._context_is_scaled:
+            x0, y0, w, h = (dim / self.device_pixel_ratio
+                            for dim in self._rubberband_rect)
+        else:
+            x0, y0, w, h = self._rubberband_rect
+            lw *= self.device_pixel_ratio
+            dash *= self.device_pixel_ratio
         x1 = x0 + w
         y1 = y0 + h
 
@@ -222,12 +230,12 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
         ctx.line_to(x1, y1)
 
         ctx.set_antialias(1)
-        ctx.set_line_width(1)
-        ctx.set_dash((3, 3), 0)
+        ctx.set_line_width(lw)
+        ctx.set_dash((dash, dash), 0)
         ctx.set_source_rgb(0, 0, 0)
         ctx.stroke_preserve()
 
-        ctx.set_dash((3, 3), 3)
+        ctx.set_dash((dash, dash), dash)
         ctx.set_source_rgb(1, 1, 1)
         ctx.stroke()
 
