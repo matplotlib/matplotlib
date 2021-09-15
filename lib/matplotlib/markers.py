@@ -495,22 +495,6 @@ class MarkerStyle:
         new_marker._user_transform = _transform.scale(sx, sy)
         return new_marker
 
-    def translated(self, tx, ty):
-        """
-        Return new marker translated by tx and ty.
-
-        Parameters
-        ----------
-        tx : float
-            Coordinate for translation in *x*-direction.
-        ty : float
-            Coordinate for translation in *y*-direction.
-        """
-        new_marker = MarkerStyle(self)
-        _transform = new_marker._user_transform or Affine2D()
-        new_marker._user_transform = _transform.translate(tx, ty)
-        return new_marker
-
     def _set_nothing(self):
         self._filled = False
 
