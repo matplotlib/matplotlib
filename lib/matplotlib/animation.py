@@ -1299,7 +1299,20 @@ class Animation:
             return 'Video too large to embed.'
 
     def to_jshtml(self, fps=None, embed_frames=True, default_mode=None):
-        """Generate HTML representation of the animation"""
+        """
+        Generate HTML representation of the animation.
+
+        Parameters
+        ----------
+        fps : int, optional
+            Movie frame rate (per second). If not set, the frame rate from
+            the animation's frame interval.
+        embed_frames : bool, optional
+        default_mode : str, optional
+            What to do when the animation ends. Must be one of ``{'loop',
+            'once', 'reflect'}``. Defaults to ``'loop'`` if ``self.repeat``
+            is True ``, otherwise ``'once'``.
+        """
         if fps is None and hasattr(self, '_interval'):
             # Convert interval in ms to frames per second
             fps = 1000 / self._interval
