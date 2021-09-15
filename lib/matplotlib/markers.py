@@ -154,6 +154,14 @@ from ._enums import JoinStyle, CapStyle
 _empty_path = Path(np.empty((0, 2)))
 
 
+def _fast_transform_combine(t1, t2):
+    """Combine two transformations where the second one can be None."""
+    if t2 is None:
+        return t1.frozen()
+    else:
+        return (t1 + t2).frozen()
+
+
 class MarkerStyle:
     """
     A class representing marker types.
@@ -394,10 +402,7 @@ class MarkerStyle:
         Return the transform to be applied to the `.Path` from
         `MarkerStyle.get_path()`.
         """
-        if self._user_transform is not None:
-            return (self._transform + self._user_transform).frozen()
-        else:
-            return self._transform.frozen()
+        return _fast_transform_combine(self._transform, self._user_transform)
 
     def get_alt_path(self):
         """
@@ -413,10 +418,8 @@ class MarkerStyle:
         Return the transform to be applied to the `.Path` from
         `MarkerStyle.get_alt_path()`.
         """
-        if self._user_transform is not None:
-            return (self._alt_transform + self._user_transform).frozen()
-        else:
-            return self._alt_transform.frozen()
+        return _fast_transform_combine(self._alt_transform,
+                                       self._user_transform)
 
     def get_snap_threshold(self):
         return self._snap_threshold
