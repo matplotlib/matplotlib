@@ -43,3 +43,5 @@ fig.colorbar(plt.cm.ScalarMappable(norm=Normalize(0, 1), cmap=cmap),
              ax=ax, label="Normalized Thrust [a.u.]")
 ax.set_xlabel("X position [m]")
 ax.set_ylabel("Y position [m]")
+
+plt.show()

@@ -197,6 +197,7 @@ for x, theta in enumerate(angles):
     ax.text(x, 2.5, f"{theta}°", horizontalalignment="center")
 format_axes(ax)
 
+fig.tight_layout()
 plt.show()
 
 ###############################################################################
