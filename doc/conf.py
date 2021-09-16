@@ -354,9 +354,12 @@ html_sidebars = {
     # '**': ['localtoc.html', 'pagesource.html']
 }
 
-# If false, no module index is generated.
-# html_use_modindex = True
-html_domain_indices = ["py-modindex"]
+# If true, add an index to the HTML documents.
+html_use_index = False
+
+# If true, generate domain-specific indices in addition to the general index.
+# For e.g. the Python domain, this is the global module index.
+html_domain_index = False
 
 # If true, the reST sources are included in the HTML build as _sources/<name>.
 # html_copy_source = True
