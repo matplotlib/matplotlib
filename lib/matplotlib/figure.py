@@ -2785,6 +2785,7 @@ class Figure(FigureBase):
             edgecolor = mpl.rcParams['figure.edgecolor']
             frameon = mpl.rcParams['figure.frameon']
             tight = mpl.rcParams['figure.autolayout']
+            constrained = mpl.rcParams['figure.constrained_layout.use']
             # then utilize local vars to update Figure attributes...
             # figsize adjustments
             if not (
@@ -2797,6 +2798,7 @@ class Figure(FigureBase):
             self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
             # dpi adjustments
             self.dpi_scale_trans = Affine2D().scale(dpi)
+            self._dpi = dpi
             self.bbox = TransformedBbox(self.bbox_inches, self.dpi_scale_trans)
             self.figbbox = self.bbox
             self.transFigure = BboxTransformTo(self.bbox)
@@ -2814,11 +2816,9 @@ class Figure(FigureBase):
             self._set_artist_props(self.patch)
             self.patch.set_antialiased(False)
             # tight layout call using tight rcparam
-            tight = mpl.rcParams['figure.autolayout']
             self._tight = bool(tight)
             self._tight_parameters = tight if isinstance(tight, dict) else {}
             # constrained layout call using rcparam
-            constrained = mpl.rcParams['figure.constrained_layout.use']
             self._constrained = bool(constrained)
             if isinstance(constrained, dict):
                 self.set_constrained_layout_pads(**constrained)
@@ -2827,11 +2827,11 @@ class Figure(FigureBase):
 
         self.stale = True
 
-    def clear(self, keep_observers=False, refectch_rcparams=False):
+    def clear(self, keep_observers=False, refetch_rcparams=False):
         """Clear the figure -- synonym for `clf`."""
         self.clf(
             keep_observers=keep_observers,
-            refetch_rcparams=refectch_rcparams
+            refetch_rcparams=refetch_rcparams
         )
 
     @_finalize_rasterization

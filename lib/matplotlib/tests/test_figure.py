@@ -3,7 +3,7 @@ import io
 from pathlib import Path
 import platform
 from threading import Timer
-from types import SimpleNamespace
+from types import BuiltinFunctionType, SimpleNamespace
 import warnings
 
 import numpy as np
@@ -123,10 +123,60 @@ def test_clf_keyword():
 
 
 def test_clf_refetch_rcparams():
-    # testing whether kwarg refetches relevant rcParams on clf() call
+    # calling clf() without kwarg shouldn't account for updates to rcParams
+    # made after a figure is created
     fig0 = plt.figure()
-    for param in mpl.rcParams:
-        print(param)
+    mpl.rcParams["figure.figsize"] = [6.4*2, 4.8*2]
+    mpl.rcParams["figure.dpi"] = 200.0
+    mpl.rcParams["figure.facecolor"] = "blue"
+    mpl.rcParams["figure.edgecolor"] = "red"
+    mpl.rcParams["figure.frameon"] = False
+    mpl.rcParams["figure.autolayout"] = True
+    mpl.rcParams["figure.constrained_layout.use"] = True
+    fig0.clf()
+    assert not fig0.get_figwidth() == mpl.rcParams["figure.figsize"][0]
+    assert not fig0.get_figheight() == mpl.rcParams["figure.figsize"][1]
+    assert not fig0.get_dpi() == mpl.rcParams["figure.dpi"]
+    assert not fig0.get_facecolor() == mcolors.to_rgba(
+        mpl.rcParams["figure.facecolor"]
+    )
+    assert not fig0.get_edgecolor() == mcolors.to_rgba(
+        mpl.rcParams["figure.edgecolor"]
+    )
+    assert not fig0.get_frameon() == mpl.rcParams["figure.frameon"]
+    assert not fig0.get_tight_layout() == mpl.rcParams["figure.autolayout"]
+    assert not fig0.get_constrained_layout() == (
+        mpl.rcParams["figure.constrained_layout.use"]
+    )
+
+    # reset rcParams
+    mpl.style.use("default")
+
+    # calling clf() with kwarg should refetch rcParams and account for updates
+    # made even after a figure is created
+    fig1 = plt.figure()
+    mpl.rcParams["figure.figsize"] = [6.4*2, 4.8*2]
+    mpl.rcParams["figure.dpi"] = 200.0
+    mpl.rcParams["figure.facecolor"] = "blue"
+    mpl.rcParams["figure.edgecolor"] = "red"
+    mpl.rcParams["figure.frameon"] = False
+    mpl.rcParams["figure.autolayout"] = True
+    mpl.rcParams["figure.constrained_layout.use"] = True
+    fig1.clf(refetch_rcparams=True)
+    assert fig1.get_figwidth() == mpl.rcParams["figure.figsize"][0]
+    assert fig1.get_figheight() == mpl.rcParams["figure.figsize"][1]
+    assert fig1.get_dpi() == mpl.rcParams["figure.dpi"]
+    assert fig1.get_facecolor() == mcolors.to_rgba(
+        mpl.rcParams["figure.facecolor"]
+    )
+    assert fig1.get_edgecolor() == mcolors.to_rgba(
+        mpl.rcParams["figure.edgecolor"]
+    )
+    assert fig1.get_frameon() == mpl.rcParams["figure.frameon"]
+    assert fig1.get_tight_layout() == mpl.rcParams["figure.autolayout"]
+    assert fig1.get_constrained_layout() == (
+        mpl.rcParams["figure.constrained_layout.use"]
+    )
 
 
 @image_comparison(['figure_today'])
