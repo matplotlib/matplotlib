@@ -102,6 +102,12 @@ class ColormapRegistry(Mapping):
     r"""
     Container for colormaps that are known to Matplotlib by name.
 
+    .. admonition:: Experimental
+
+       While we expect the API to be final, we formally mark it as
+       experimental for 3.5 because we want to keep the option to still adapt
+       the API for 3.6 should the need arise.
+
     The universal registry instance is `matplotlib.colormaps`. There should be
     no need for users to instantiate `.ColormapRegistry` themselves.
 
@@ -135,6 +141,16 @@ class ColormapRegistry(Mapping):
     def __str__(self):
         return ('ColormapRegistry; available colormaps:\n' +
                 ', '.join(f"'{name}'" for name in self))
+
+    def __call__(self):
+        """
+        Return a list of the registered colormap names.
+
+        This exists only for backward-compatibilty in `.pyplot` which had a
+        ``plt.colormaps()`` method. The recommended way to get this list is
+        now ``list(colormaps)``.
+        """
+        return list(self)
 
     def register(self, cmap, *, name=None, force=False):
         """

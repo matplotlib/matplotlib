@@ -94,7 +94,7 @@ levels = MaxNLocator(nbins=15).tick_values(z.min(), z.max())
 
 # pick the desired colormap, sensible levels, and define a normalization
 # instance which takes data values and translates those into levels.
-cmap = plt.get_cmap('PiYG')
+cmap = plt.colormaps['PiYG']
 norm = BoundaryNorm(levels, ncolors=cmap.N, clip=True)
 
 fig, (ax0, ax1) = plt.subplots(nrows=2)
