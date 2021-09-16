@@ -2750,8 +2750,9 @@ class Figure(FigureBase):
         keep_observers: bool, optional
             Set to True if, for example, a GUI widget is tracking the Axes in
             the figure.
-        reset_rcparams: bool, optional
-            Set to True to reset Figure parameters to rcParams values.
+        refetch_rcparams: bool, optional
+            Set to True to refetch rcParams and update existing Figure
+            parameters to match.
         """
 
         self.suppressComposite = None
