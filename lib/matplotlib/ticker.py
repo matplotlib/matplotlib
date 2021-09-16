@@ -2539,14 +2539,17 @@ class SymmetricalLogLocator(Locator):
 
         decades = []
         if has_a:
-            decades.extend(-1 * (base ** (np.arange(a_lo, a_hi,
-                                                    stride)[::-1])))
+            a = -1 * (base ** (np.arange(a_lo, a_hi, stride)[::-1]))
+            a = a[a <= -linthresh]
+            decades.extend(a)
 
         if has_b:
             decades.append(0.0)
 
         if has_c:
-            decades.extend(base ** (np.arange(c_lo, c_hi, stride)))
+            c = base ** (np.arange(c_lo, c_hi, stride))
+            c = c[c >= linthresh]
+            decades.extend(c)
 
         # Add the subticks if requested
         if self._subs is None:
