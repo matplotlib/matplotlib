@@ -497,13 +497,26 @@ class Colorbar:
 
         # Link the Axes and Colorbar for interactive use
         self.ax._colorbar = self
-        for x in ["_get_view", "_set_view", "_set_view_from_bbox",
-                  "drag_pan", "start_pan", "end_pan"]:
-            setattr(self.ax, x, getattr(self, x))
         # Don't navigate on any of these types of mappables
         if (isinstance(self.norm, (colors.BoundaryNorm, colors.NoNorm)) or
                 isinstance(self.mappable, contour.ContourSet)):
             self.ax.set_navigate(False)
+
+        # These are the functions that set up interactivity on this colorbar
+        self._interactive_funcs = ["_get_view", "_set_view",
+                                   "_set_view_from_bbox", "drag_pan"]
+        for x in self._interactive_funcs:
+            setattr(self.ax, x, getattr(self, x))
+        # Set the cla function to the cbar's method to override it
+        self.ax.cla = self._cbar_cla
+
+    def _cbar_cla(self):
+        """Function to clear the interactive colorbar state."""
+        for x in self._interactive_funcs:
+            delattr(self.ax, x)
+        # We now restore the old cla() back and can call it directly
+        del self.ax.cla
+        self.ax.cla()
 
     # Also remove ._patch after deprecation elapses.
     patch = _api.deprecate_privatize_attribute("3.5", alternative="ax")
