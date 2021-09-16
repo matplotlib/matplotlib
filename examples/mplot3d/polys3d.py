@@ -32,7 +32,7 @@ lambdas = range(1, 9)
 
 # verts[i] is a list of (x, y) pairs defining polygon i.
 verts = [polygon_under_graph(x, poisson.pmf(l, x)) for l in lambdas]
-facecolors = plt.get_cmap('viridis_r')(np.linspace(0, 1, len(verts)))
+facecolors = plt.colormaps['viridis_r'](np.linspace(0, 1, len(verts)))
 
 poly = PolyCollection(verts, facecolors=facecolors, alpha=.7)
 ax.add_collection3d(poly, zs=lambdas, zdir='y')
