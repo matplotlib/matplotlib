@@ -500,8 +500,10 @@ def test_backend_fallback_headful(tmpdir):
     backend = subprocess.check_output(
         [sys.executable, "-c",
          "import matplotlib as mpl; "
-         "assert dict.__getitem__(mpl.rcParams, 'backend') == "
-         "mpl.rcsetup._auto_backend_sentinel; "
+         "sentinel = mpl.rcsetup._auto_backend_sentinel; "
+         # Check that access on another instance does not resolve the sentinel.
+         "assert mpl.RcParams({'backend': sentinel})['backend'] == sentinel; "
+         "assert dict.__getitem__(mpl.rcParams, 'backend') == sentinel; "
          "import matplotlib.pyplot; "
          "print(matplotlib.get_backend())"],
         env=env, universal_newlines=True)

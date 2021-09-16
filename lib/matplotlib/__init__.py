@@ -652,7 +652,9 @@ class RcParams(MutableMapping, dict):
                 version, name=key, obj_type="rcparam", alternative=alt_key)
             return dict.__getitem__(self, alt_key) if alt_key else None
 
-        elif key == "backend":
+        # In theory, this should only ever be used after the global rcParams
+        # has been set up, but better be safe e.g. in presence of breakpoints.
+        elif key == "backend" and self is globals().get("rcParams"):
             val = dict.__getitem__(self, key)
             if val is rcsetup._auto_backend_sentinel:
                 from matplotlib import pyplot as plt
