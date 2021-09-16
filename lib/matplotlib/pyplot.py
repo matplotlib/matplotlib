@@ -3,7 +3,8 @@
 
 """
 `matplotlib.pyplot` is a state-based interface to matplotlib. It provides
-a MATLAB-like way of plotting.
+an implicit,  MATLAB-like, way of plotting.  It also opens figures on your
+screen, and acts as the figure GUI manager.
 
 pyplot is mainly intended for interactive plots and simple cases of
 programmatic plot generation::
@@ -15,7 +16,19 @@ programmatic plot generation::
     y = np.sin(x)
     plt.plot(x, y)
 
-The object-oriented API is recommended for more complex plots.
+The explicit (object-oriented) API is recommended for complex plots, though
+pyplot is still usually used to create the figure and often the axes in the
+figure. See `.pyplot.figure`, `.pyplot.subplots`, and
+`.pyplot.subplot_mosaic` to create figures, and
+:doc:`Axes API <../axes_api>` for the plotting methods on an axes::
+
+    import numpy as np
+    import matplotlib.pyplot as plt
+
+    x = np.arange(0, 5, 0.1)
+    y = np.sin(x)
+    fig, ax = plt.subplots()
+    ax.plot(x, y)
 """
 
 import functools
