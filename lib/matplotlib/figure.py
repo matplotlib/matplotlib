@@ -2777,53 +2777,53 @@ class Figure(FigureBase):
         self._supxlabel = None
         self._supylabel = None
 
-        # if refetching rcparams, store their vals in local vars
         if refetch_rcparams:
+            # if refetching rcparams, store their vals in local vars
             figsize = mpl.rcParams['figure.figsize']
             dpi = mpl.rcParams['figure.dpi']
             facecolor = mpl.rcParams['figure.facecolor']
             edgecolor = mpl.rcParams['figure.edgecolor']
             frameon = mpl.rcParams['figure.frameon']
             tight = mpl.rcParams['figure.autolayout']
-        # then utilize local vars to update Figure attributes
-        # figsize adjustments
-        if not (
-            np.isfinite(figsize).all()
-            or (np.array(figsize) < 0).any()
-        ):
-            raise ValueError('figure size must be positive finite not '
-                             f'{figsize}')
-        self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
-        # dpi adjustments
-        self.dpi_scale_trans = Affine2D().scale(dpi)
-        self.bbox = TransformedBbox(self.bbox_inches, self.dpi_scale_trans)
-        self.figbbox = self.bbox
-        self.transFigure = BboxTransformTo(self.bbox)
-        self.transSubfigure = self.transFigure
-        # facecolor and edgecolor adjustments
-        self.set_facecolor(facecolor)
-        self.set_edgecolor(edgecolor)
-        # frameon adjustments, keeping linewidth
-        self.patch = Rectangle(
-            xy=(0, 0), width=1, height=1, visible=frameon,
-            facecolor=facecolor, edgecolor=edgecolor,
-            linewidth=self._linewidth,
-            # Don't let the figure patch influence bbox calculation.
-            in_layout=False)
-        self._set_artist_props(self.patch)
-        self.patch.set_antialiased(False)
-        # tight layout call using tight rcparam
-        tight = mpl.rcParams['figure.autolayout']
-        self._tight = bool(tight)
-        self._tight_parameters = tight if isinstance(tight, dict) else {}
-        self.set_tight_layout(tight)
-        # constrained layout call using rcparam
-        constrained = mpl.rcParams['figure.constrained_layout.use']
-        self._constrained = bool(constrained)
-        if isinstance(constrained, dict):
-            self.set_constrained_layout_pads(**constrained)
-        else:
-            self.set_constrained_layout_pads()
+            # then utilize local vars to update Figure attributes...
+            # figsize adjustments
+            if not (
+                np.isfinite(figsize).all()
+                or (np.array(figsize) < 0).any()
+            ):
+                raise ValueError(
+                    f"figure size must be positive finite not {figsize}"
+                )
+            self.bbox_inches = Bbox.from_bounds(0, 0, *figsize)
+            # dpi adjustments
+            self.dpi_scale_trans = Affine2D().scale(dpi)
+            self.bbox = TransformedBbox(self.bbox_inches, self.dpi_scale_trans)
+            self.figbbox = self.bbox
+            self.transFigure = BboxTransformTo(self.bbox)
+            self.transSubfigure = self.transFigure
+            # facecolor and edgecolor adjustments
+            self.set_facecolor(facecolor)
+            self.set_edgecolor(edgecolor)
+            # frameon adjustments, keeping linewidth
+            self.patch = Rectangle(
+                xy=(0, 0), width=1, height=1, visible=frameon,
+                facecolor=facecolor, edgecolor=edgecolor,
+                linewidth=self._linewidth,
+                # Don't let the figure patch influence bbox calculation.
+                in_layout=False)
+            self._set_artist_props(self.patch)
+            self.patch.set_antialiased(False)
+            # tight layout call using tight rcparam
+            tight = mpl.rcParams['figure.autolayout']
+            self._tight = bool(tight)
+            self._tight_parameters = tight if isinstance(tight, dict) else {}
+            # constrained layout call using rcparam
+            constrained = mpl.rcParams['figure.constrained_layout.use']
+            self._constrained = bool(constrained)
+            if isinstance(constrained, dict):
+                self.set_constrained_layout_pads(**constrained)
+            else:
+                self.set_constrained_layout_pads()
 
         self.stale = True
 

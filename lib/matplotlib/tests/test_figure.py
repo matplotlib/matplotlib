@@ -18,6 +18,7 @@ from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import matplotlib.dates as mdates
 import matplotlib.gridspec as gridspec
 
@@ -119,7 +120,13 @@ def test_clf_keyword():
 
     fig2, ax2 = plt.subplots(2, 1, num=1, clear=True)
     assert fig0 is fig2
-    assert [t.get_text() for t in fig2.texts] == []
+
+
+def test_clf_refetch_rcparams():
+    # testing whether kwarg refetches relevant rcParams on clf() call
+    fig0 = plt.figure()
+    for param in mpl.rcParams:
+        print(param)
 
 
 @image_comparison(['figure_today'])
