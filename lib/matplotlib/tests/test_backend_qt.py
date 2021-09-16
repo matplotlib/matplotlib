@@ -54,14 +54,14 @@ def test_fig_close():
     assert init_figs == Gcf.figs
 
 
-class InterruptiblePopen(subprocess.Popen):
+class WaitForStringPopen(subprocess.Popen):
     """
     A Popen that passes flags that allow triggering KeyboardInterrupt.
     """
 
     def __init__(self, *args, **kwargs):
         if sys.platform == 'win32':
-            kwargs['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP
+            kwargs['creationflags'] = subprocess.CREATE_NEW_CONSOLE
         super().__init__(
             *args, **kwargs,
             # Force Agg so that each test can switch to its desired Qt backend.
@@ -80,25 +80,35 @@ class InterruptiblePopen(subprocess.Popen):
             if buf.endswith(terminator):
                 return
 
-    def interrupt(self):
-        """Interrupt process in a platform-specific way."""
-        if sys.platform == 'win32':
-            self.send_signal(signal.CTRL_C_EVENT)
-        else:
-            self.send_signal(signal.SIGINT)
-
 
 def _test_sigint_impl(backend, target_name, kwargs):
     import sys
     import matplotlib.pyplot as plt
+    import os
+    import threading
+
     plt.switch_backend(backend)
     from matplotlib.backends.qt_compat import QtCore
 
-    target = getattr(plt, target_name)
+    def interupter():
+        if sys.platform == 'win32':
+            import win32api
+            win32api.GenerateConsoleCtrlEvent(0, 0)
+        else:
+            import signal
+            os.kill(os.getpid(), signal.SIGINT)
 
+    target = getattr(plt, target_name)
+    timer = threading.Timer(1, interupter)
     fig = plt.figure()
-    fig.canvas.mpl_connect('draw_event',
-                           lambda *args: print('DRAW', flush=True))
+    fig.canvas.mpl_connect(
+        'draw_event',
+        lambda *args: print('DRAW', flush=True)
+    )
+    fig.canvas.mpl_connect(
+        'draw_event',
+        lambda *args: timer.start()
+    )
     try:
         target(**kwargs)
     except KeyboardInterrupt:
@@ -112,13 +122,12 @@ def _test_sigint_impl(backend, target_name, kwargs):
 ])
 def test_sigint(target, kwargs):
     backend = plt.get_backend()
-    proc = InterruptiblePopen(
+    proc = WaitForStringPopen(
         [sys.executable, "-c",
          inspect.getsource(_test_sigint_impl) +
          f"\n_test_sigint_impl({backend!r}, {target!r}, {kwargs!r})"])
     try:
         proc.wait_for('DRAW')
-        proc.interrupt()
         stdout, _ = proc.communicate(timeout=_test_timeout)
     except:
         proc.kill()
@@ -164,7 +173,7 @@ def _test_other_signal_before_sigint_impl(backend, target_name, kwargs):
 ])
 def test_other_signal_before_sigint(target, kwargs):
     backend = plt.get_backend()
-    proc = InterruptiblePopen(
+    proc = WaitForStringPopen(
         [sys.executable, "-c",
          inspect.getsource(_test_other_signal_before_sigint_impl) +
          "\n_test_other_signal_before_sigint_impl("
@@ -173,7 +182,7 @@ def test_other_signal_before_sigint(target, kwargs):
         proc.wait_for('DRAW')
         os.kill(proc.pid, signal.SIGUSR1)
         proc.wait_for('SIGUSR1')
-        proc.interrupt()
+        os.kill(proc.pid, signal.SIGINT)
         stdout, _ = proc.communicate(timeout=_test_timeout)
     except:
         proc.kill()
