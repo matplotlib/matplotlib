@@ -213,10 +213,11 @@ table.property-table td {
     padding: 4px 10px;
 }
 
-.donate-button {
-    margin: 1em 0;
+.sidebar-cheatsheets, .sidebar-donate {
+    margin: 2.75rem 0;
 }
 
-.sphinxsidebarwrapper {
-    margin: 0 1em;
+.sidebar-donate .mpl-button {
+    /* fix width to width of cheatsheet */
+    width: 210px;
 }
