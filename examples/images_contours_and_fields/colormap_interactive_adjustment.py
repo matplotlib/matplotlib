@@ -9,6 +9,8 @@ interactively adjustable colorbar widget.
 Left clicks and drags inside the colorbar axes adjust the high range of the
 color scheme. Likewise, right clicks and drags adjust the low range. The
 connected AxesImage immediately updates to reflect the change.
+
+.. redirect-from:: /gallery/userdemo/colormap_interactive_adjustment
 """
 
 import numpy as np

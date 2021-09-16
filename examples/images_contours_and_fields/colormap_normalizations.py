@@ -4,6 +4,8 @@ Colormap Normalizations
 =======================
 
 Demonstration of using norm to map colormaps onto data in non-linear ways.
+
+.. redirect-from:: /gallery/userdemo/colormap_normalizations
 """
 
 import numpy as np
