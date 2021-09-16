@@ -29,4 +29,5 @@ For a more in-depth look at colormaps, see the
 
 .. currentmodule:: matplotlib.pyplot
 
-.. autofunction:: colormaps
+.. autodata:: colormaps
+   :no-value:
