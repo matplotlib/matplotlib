@@ -168,7 +168,7 @@ def _get_version():
         import setuptools_scm
         return setuptools_scm.get_version(
             root=root,
-            version_scheme="post-release",
+            version_scheme="release-branch-semver",
             local_scheme="node-and-date",
             fallback_version=_version.version,
         )
