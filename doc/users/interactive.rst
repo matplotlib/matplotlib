@@ -153,9 +153,11 @@ If in interactive mode:
 If not in interactive mode:
 
 - newly created figures and changes to figures are not displayed until
-   * `.pyplot.show()` is called
-   * `.pyplot.pause()` is called
-   * `.FigureCanvasBase.flush_events()` is called
+
+  * `.pyplot.show()` is called
+  * `.pyplot.pause()` is called
+  * `.FigureCanvasBase.flush_events()` is called
+
 - `pyplot.show()` runs the GUI event loop and does not return until all the plot windows are closed
 
 If you are in non-interactive mode (or created figures while in
