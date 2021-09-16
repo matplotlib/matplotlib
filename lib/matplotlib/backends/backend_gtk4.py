@@ -52,6 +52,7 @@ def _mpl_to_gtk_cursor(mpl_cursor):
 class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
     required_interactive_framework = "gtk4"
     _timer_cls = TimerGTK4
+    _context_is_scaled = False
 
     def __init__(self, figure=None):
         FigureCanvasBase.__init__(self, figure)
@@ -65,6 +66,7 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
 
         self.set_draw_func(self._draw_func)
         self.connect('resize', self.resize_event)
+        self.connect('notify::scale-factor', self._update_device_pixel_ratio)
 
         click = Gtk.GestureClick()
         click.set_button(0)  # All buttons.
@@ -108,20 +110,33 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
         # docstring inherited
         self.set_cursor_from_name(_mpl_to_gtk_cursor(cursor))
 
+    def _mouse_event_coords(self, x, y):
+        """
+        Calculate mouse coordinates in physical pixels.
+
+        GTK use logical pixels, but the figure is scaled to physical pixels for
+        rendering.  Transform to physical pixels so that all of the down-stream
+        transforms work as expected.
+
+        Also, the origin is different and needs to be corrected.
+        """
+        x = x * self.device_pixel_ratio
+        # flip y so y=0 is bottom of canvas
+        y = self.figure.bbox.height - y * self.device_pixel_ratio
+        return x, y
+
     def scroll_event(self, controller, dx, dy):
         FigureCanvasBase.scroll_event(self, 0, 0, dy)
         return True
 
     def button_press_event(self, controller, n_press, x, y):
-        # flipy so y=0 is bottom of canvas
-        y = self.get_allocation().height - y
+        x, y = self._mouse_event_coords(x, y)
         FigureCanvasBase.button_press_event(self, x, y,
                                             controller.get_current_button())
         self.grab_focus()
 
     def button_release_event(self, controller, n_press, x, y):
-        # flipy so y=0 is bottom of canvas
-        y = self.get_allocation().height - y
+        x, y = self._mouse_event_coords(x, y)
         FigureCanvasBase.button_release_event(self, x, y,
                                               controller.get_current_button())
 
@@ -136,21 +151,22 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
         return True
 
     def motion_notify_event(self, controller, x, y):
-        # flipy so y=0 is bottom of canvas
-        y = self.get_allocation().height - y
+        x, y = self._mouse_event_coords(x, y)
         FigureCanvasBase.motion_notify_event(self, x, y)
 
     def leave_notify_event(self, controller):
         FigureCanvasBase.leave_notify_event(self)
 
     def enter_notify_event(self, controller, x, y):
-        # flipy so y=0 is bottom of canvas
-        y = self.get_allocation().height - y
+        x, y = self._mouse_event_coords(x, y)
         FigureCanvasBase.enter_notify_event(self, xy=(x, y))
 
     def resize_event(self, area, width, height):
+        self._update_device_pixel_ratio()
         dpi = self.figure.dpi
-        self.figure.set_size_inches(width / dpi, height / dpi, forward=False)
+        winch = width * self.device_pixel_ratio / dpi
+        hinch = height * self.device_pixel_ratio / dpi
+        self.figure.set_size_inches(winch, hinch, forward=False)
         FigureCanvasBase.resize_event(self)
         self.draw_idle()
 
@@ -171,6 +187,12 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
                     key = f'{prefix}+{key}'
         return key
 
+    def _update_device_pixel_ratio(self, *args, **kwargs):
+        # We need to be careful in cases with mixed resolution displays if
+        # device_pixel_ratio changes.
+        if self._set_device_pixel_ratio(self.get_scale_factor()):
+            self.draw()
+
     def _draw_rubberband(self, rect):
         self._rubberband_rect = rect
         # TODO: Only update the rubberband area.
@@ -184,7 +206,15 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
         if self._rubberband_rect is None:
             return
 
-        x0, y0, w, h = self._rubberband_rect
+        lw = 1
+        dash = 3
+        if not self._context_is_scaled:
+            x0, y0, w, h = (dim / self.device_pixel_ratio
+                            for dim in self._rubberband_rect)
+        else:
+            x0, y0, w, h = self._rubberband_rect
+            lw *= self.device_pixel_ratio
+            dash *= self.device_pixel_ratio
         x1 = x0 + w
         y1 = y0 + h
 
@@ -200,12 +230,12 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
         ctx.line_to(x1, y1)
 
         ctx.set_antialias(1)
-        ctx.set_line_width(1)
-        ctx.set_dash((3, 3), 0)
+        ctx.set_line_width(lw)
+        ctx.set_dash((dash, dash), 0)
         ctx.set_source_rgb(0, 0, 0)
         ctx.stroke_preserve()
 
-        ctx.set_dash((3, 3), 3)
+        ctx.set_dash((dash, dash), dash)
         ctx.set_source_rgb(1, 1, 1)
         ctx.stroke()
 
@@ -265,8 +295,7 @@ class FigureManagerGTK4(FigureManagerBase):
 
         self.vbox.prepend(self.canvas)
         # calculate size for window
-        w = int(self.canvas.figure.bbox.width)
-        h = int(self.canvas.figure.bbox.height)
+        w, h = self.canvas.get_width_height()
 
         self.toolbar = self._get_toolbar()
 
