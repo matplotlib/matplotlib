@@ -2,5 +2,5 @@
 
 .. _axisartist-examples-index:
 
-Axis Artist
-===========
+axisartist
+==========
