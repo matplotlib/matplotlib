@@ -4,6 +4,8 @@ Colormap Normalizations Symlognorm
 ==================================
 
 Demonstration of using norm to map colormaps onto data in non-linear ways.
+
+.. redirect-from:: /gallery/userdemo/colormap_normalization_symlognorm
 """
 
 import numpy as np
