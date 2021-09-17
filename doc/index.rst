@@ -50,16 +50,16 @@ Learning resources
     Tutorials
     ^^^^^^^^^
 
-    - :doc:`Quick-start Guide <tutorials/introductory/usage>`
-    - :doc:`Plot Types <plot_types/index>`
-    - `Introductory Tutorials <../tutorials/index.html#introductory>`_
-    - :doc:`External Learning Resources <resources/index>`
+    - :doc:`Quick-start guide <tutorials/introductory/usage>`
+    - :doc:`Plot types <plot_types/index>`
+    - `Introductory tutorials <../tutorials/index.html#introductory>`_
+    - :doc:`External learning resources <resources/index>`
 
     ---
 
     How-tos
     ^^^^^^^
-    - :doc:`Example Gallery <gallery/index>`
+    - :doc:`Example gallery <gallery/index>`
     - :doc:`Matplotlib FAQ <faq/index>`
 
     ---
@@ -67,9 +67,9 @@ Learning resources
     Understand how Matplotlib works
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    - The :ref:`users-guide-explain` section of the :doc:`Users guide <users/index>`
+    - The :ref:`users-guide-explain` in the :doc:`Usage guide <users/index>`
     - Many of the :ref:`Intermediate <tutorials-intermediate>` and
-      :ref:`Advanced <tutorials-advanced>` Tutorials
+      :ref:`Advanced <tutorials-advanced>` tutorials
       have explanatory material
 
     ---
