@@ -12,7 +12,7 @@ plt.style.use('mpl_plot_gallery')
 
 # make structured data
 X, Y = np.meshgrid(np.linspace(-3, 3, 256), np.linspace(-3, 3, 256))
-Z = (1 - X/2. + X**5 + Y**3) * np.exp(-X**2 - Y**2)
+Z = (1 - X/2 + X**5 + Y**3) * np.exp(-X**2 - Y**2)
 
 # sample it to make unstructured x, y, z
 np.random.seed(1)
@@ -25,7 +25,7 @@ z = Z[ysamp, xsamp]
 # plot:
 fig, ax = plt.subplots()
 
-ax.plot(x, y, '.k', alpha=0.5)
+ax.plot(x, y, 'o', markersize=2, color='grey')
 ax.tripcolor(x, y, z)
 
 ax.set(xlim=(-3, 3), ylim=(-3, 3))
