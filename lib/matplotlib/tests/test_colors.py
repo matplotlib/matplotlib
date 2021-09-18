@@ -1475,3 +1475,9 @@ def test_norm_update_figs(fig_test, fig_ref):
     # Force initial draw to make sure it isn't already stale
     fig_test.canvas.draw()
     norm.vmin, norm.vmax = 10, 90
+
+
+def test_make_norm_from_scale_name():
+    logitnorm = mcolors.make_norm_from_scale(
+        mscale.LogitScale, mcolors.Normalize)
+    assert logitnorm.__name__ == "LogitScaleNorm"

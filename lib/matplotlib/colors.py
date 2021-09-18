@@ -1561,7 +1561,8 @@ def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
                      .reshape(np.shape(value)))
             return value[0] if is_scalar else value
 
-    Norm.__name__ = base_norm_cls.__name__
+    Norm.__name__ = (f"{scale_cls.__name__}Norm" if base_norm_cls is Normalize
+                     else base_norm_cls.__name__)
     Norm.__qualname__ = base_norm_cls.__qualname__
     Norm.__module__ = base_norm_cls.__module__
     Norm.__doc__ = base_norm_cls.__doc__
