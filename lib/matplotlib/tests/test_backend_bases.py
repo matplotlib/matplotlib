@@ -202,10 +202,13 @@ def test_interactive_colorbar(plot_func, orientation, tool, button, expected):
     assert cb.ax.get_navigate()
 
     # Mouse from 4 to 6 (data coordinates, "d").
-    # The y coordinate doesn't matter, just needs to be between 0 and 1
     vmin, vmax = 4, 6
-    d0 = (vmin, 0.1)
-    d1 = (vmax, 0.9)
+    # The y coordinate doesn't matter, it just needs to be between 0 and 1
+    # However, we will set d0/d1 to the same y coordinate to test that small
+    # pixel changes in that coordinate doesn't cancel the zoom like a normal
+    # axes would.
+    d0 = (vmin, 0.5)
+    d1 = (vmax, 0.5)
     # Swap them if the orientation is vertical
     if orientation == "vertical":
         d0 = d0[::-1]

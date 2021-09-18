@@ -3137,7 +3137,7 @@ class NavigationToolbar2:
             a.set_navigate_mode(self.mode._navigate_mode)
         self.set_message(self.mode)
 
-    _ZoomInfo = namedtuple("_ZoomInfo", "direction start_xy axes cid")
+    _ZoomInfo = namedtuple("_ZoomInfo", "direction start_xy axes cid cbar")
 
     def press_zoom(self, event):
         """Callback for mouse button press in zoom to rect mode."""
@@ -3152,9 +3152,16 @@ class NavigationToolbar2:
             self.push_current()  # set the home button to this view
         id_zoom = self.canvas.mpl_connect(
             "motion_notify_event", self.drag_zoom)
+        # A colorbar is one-dimensional, so we extend the zoom rectangle out
+        # to the edge of the axes bbox in the other dimension. To do that we
+        # store the orientation of the colorbar for later.
+        if hasattr(axes[0], "_colorbar"):
+            cbar = axes[0]._colorbar.orientation
+        else:
+            cbar = None
         self._zoom_info = self._ZoomInfo(
             direction="in" if event.button == 1 else "out",
-            start_xy=(event.x, event.y), axes=axes, cid=id_zoom)
+            start_xy=(event.x, event.y), axes=axes, cid=id_zoom, cbar=cbar)
 
     def drag_zoom(self, event):
         """Callback for dragging in zoom mode."""
@@ -3162,18 +3169,16 @@ class NavigationToolbar2:
         ax = self._zoom_info.axes[0]
         (x1, y1), (x2, y2) = np.clip(
             [start_xy, [event.x, event.y]], ax.bbox.min, ax.bbox.max)
-        if event.key == "x":
+        key = event.key
+        # Force the key on colorbars to extend the short-axis bbox
+        if self._zoom_info.cbar == "horizontal":
+            key = "x"
+        elif self._zoom_info.cbar == "vertical":
+            key = "y"
+        if key == "x":
             y1, y2 = ax.bbox.intervaly
-        elif event.key == "y":
+        elif key == "y":
             x1, x2 = ax.bbox.intervalx
-
-        # A colorbar is one-dimensional, so we extend the zoom rectangle out
-        # to the edge of the axes bbox in the other dimension
-        if hasattr(ax, "_colorbar"):
-            if ax._colorbar.orientation == 'horizontal':
-                y1, y2 = ax.bbox.intervaly
-            else:
-                x1, x2 = ax.bbox.intervalx
 
         self.draw_rubberband(event, x1, y1, x2, y2)
 
@@ -3188,10 +3193,17 @@ class NavigationToolbar2:
         self.remove_rubberband()
 
         start_x, start_y = self._zoom_info.start_xy
+        key = event.key
+        # Force the key on colorbars to ignore the zoom-cancel on the
+        # short-axis side
+        if self._zoom_info.cbar == "horizontal":
+            key = "x"
+        elif self._zoom_info.cbar == "vertical":
+            key = "y"
         # Ignore single clicks: 5 pixels is a threshold that allows the user to
         # "cancel" a zoom action by zooming by less than 5 pixels.
-        if ((abs(event.x - start_x) < 5 and event.key != "y")
-                or (abs(event.y - start_y) < 5 and event.key != "x")):
+        if ((abs(event.x - start_x) < 5 and key != "y") or
+                (abs(event.y - start_y) < 5 and key != "x")):
             self.canvas.draw_idle()
             self._zoom_info = None
             return
@@ -3205,7 +3217,7 @@ class NavigationToolbar2:
                         for prev in self._zoom_info.axes[:i])
             ax._set_view_from_bbox(
                 (start_x, start_y, event.x, event.y),
-                self._zoom_info.direction, event.key, twinx, twiny)
+                self._zoom_info.direction, key, twinx, twiny)
 
         self.canvas.draw_idle()
         self._zoom_info = None
