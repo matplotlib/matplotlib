@@ -310,3 +310,13 @@ def test_subplot_change_projection():
         assert ax_next.name == proj
         assert ax is not ax_next
         ax = ax_next
+
+
+def test_polar_second_call():
+    # the first call creates the axes with polar projection
+    h1 = plt.polar(0., 1., 'ro')
+    assert isinstance(h1[0], mpl.lines.Line2D)
+    # the second call should reuse the existing axes
+    h2 = plt.polar(1.57, .5, 'bo')
+    assert isinstance(h2[0], mpl.lines.Line2D)
+    assert h1[0].axes is h2[0].axes
