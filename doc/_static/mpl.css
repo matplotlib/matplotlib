@@ -213,6 +213,10 @@ does not float with it.
     margin: 5px 2px;
 }
 
+/* workaround: the default padding decenters the image inside the frame */
+.sphx-glr-thumbcontainer .figure {
+    padding: 0;
+}
 
 table.property-table th,
 table.property-table td {
