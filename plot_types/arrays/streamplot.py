@@ -8,7 +8,7 @@ See `~matplotlib.axes.Axes.streamplot`.
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.style.use('mpl_plot_gallery')
+plt.style.use('_mpl-gallery-nogrid')
 
 # make a stream function:
 X, Y = np.meshgrid(np.linspace(-3, 3, 256), np.linspace(-3, 3, 256))
@@ -19,7 +19,6 @@ U = -np.diff(Z[:, 1:], axis=0)
 
 # plot:
 fig, ax = plt.subplots()
-ax.grid(False)
 
 # plot stream plot
 ax.streamplot(X[1:, 1:], Y[1:, 1:], U, V)

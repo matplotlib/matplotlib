@@ -8,7 +8,7 @@ See `~matplotlib.axes.Axes.tripcolor`.
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.style.use('mpl_plot_gallery')
+plt.style.use('_mpl-gallery-nogrid')
 
 # make structured data
 X, Y = np.meshgrid(np.linspace(-3, 3, 256), np.linspace(-3, 3, 256))
