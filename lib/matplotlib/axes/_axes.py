@@ -2849,6 +2849,12 @@ class Axes(_AxesBase):
             args = ()
         else:
             locs, heads, *args = args
+        if args:
+            _api.warn_deprecated(
+                "3.5",
+                message="Passing the linefmt parameter positionally is "
+                        "deprecated since Matplotlib %(since)s; the "
+                        "parameter will become keyword-only %(removal)s.")
 
         if orientation == 'vertical':
             locs, heads = self._process_unit_info([("x", locs), ("y", heads)])

@@ -3641,8 +3641,8 @@ def test_stem_args():
     # Test the call signatures
     ax.stem(y)
     ax.stem(x, y)
-    ax.stem(x, y, 'r--')
-    ax.stem(x, y, 'r--', basefmt='b--')
+    ax.stem(x, y, linefmt='r--')
+    ax.stem(x, y, linefmt='r--', basefmt='b--')
 
 
 def test_stem_dates():
@@ -3650,7 +3650,7 @@ def test_stem_dates():
     xs = [dateutil.parser.parse("2013-9-28 11:00:00"),
           dateutil.parser.parse("2013-9-28 12:00:00")]
     ys = [100, 200]
-    ax.stem(xs, ys, "*-")
+    ax.stem(xs, ys)
 
 
 @pytest.mark.parametrize("use_line_collection", [True, False],
