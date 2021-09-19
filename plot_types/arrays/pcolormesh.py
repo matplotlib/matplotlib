@@ -15,7 +15,6 @@ plt.style.use('mpl_plot_gallery')
 # make full-res data
 X, Y = np.meshgrid(np.linspace(-3, 3, 256), np.linspace(-3, 3, 256))
 Z = (1 - X/2. + X**5 + Y**3) * np.exp(-X**2 - Y**2)
-Z = Z - Z.min()
 
 # sample unevenly in x:
 dx = np.sqrt((np.arange(16) - 8)**2) + 6
@@ -29,6 +28,6 @@ Z = Z[::8, :][:, xint]
 fig, ax = plt.subplots()
 ax.grid(False)
 
-ax.pcolormesh(X, Y, Z, vmin=0, vmax=1.5)
+ax.pcolormesh(X, Y, Z, vmin=-0.5, vmax=1.0)
 
 plt.show()
