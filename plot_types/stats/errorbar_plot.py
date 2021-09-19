@@ -8,7 +8,7 @@ See `~matplotlib.axes.Axes.errorbar`.
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.style.use('mpl_plot_gallery')
+plt.style.use('_mpl-gallery')
 
 # make data:
 np.random.seed(1)
