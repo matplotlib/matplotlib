@@ -1,4 +1,4 @@
 .. _pyplots_examples:
 
-Pyplot
+pyplot
 ======
