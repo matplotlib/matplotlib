@@ -207,6 +207,12 @@ does not float with it.
 
 }
 
+/* slightly reduce horizontal margin compared to gallery.css to
+ * get four columns of thumbnails in the pydata-sphinx-theme. */
+.sphx-glr-thumbcontainer {
+    margin: 5px 2px;
+}
+
 
 table.property-table th,
 table.property-table td {
