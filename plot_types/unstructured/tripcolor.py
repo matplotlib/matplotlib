@@ -12,8 +12,7 @@ plt.style.use('mpl_plot_gallery')
 
 # make structured data
 X, Y = np.meshgrid(np.linspace(-3, 3, 256), np.linspace(-3, 3, 256))
-Z = (1 - X/2. + X**5 + Y**3)*np.exp(-X**2-Y**2)
-Z = Z - Z.min()
+Z = (1 - X/2. + X**5 + Y**3) * np.exp(-X**2 - Y**2)
 
 # sample it to make unstructured x, y, z
 np.random.seed(1)
