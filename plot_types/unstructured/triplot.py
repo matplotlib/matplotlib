@@ -22,6 +22,7 @@ x = X[0, :][xsamp]
 
 # plot:
 fig, ax = plt.subplots()
+ax.grid(False)
 
 ax.triplot(x, y)
 
