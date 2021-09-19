@@ -13,8 +13,7 @@ plt.style.use('mpl_plot_gallery')
 # make data
 X, Y = np.meshgrid(np.linspace(-3, 3, 256), np.linspace(-3, 3, 256))
 Z = (1 - X/2. + X**5 + Y**3) * np.exp(-X**2 - Y**2)
-Z = Z - Z.min()
-levels = np.linspace(np.min(Z), np.max(Z), 7)
+levels = np.linspace(Z.min(), Z.max(), 7)
 
 # plot
 fig, ax = plt.subplots()
