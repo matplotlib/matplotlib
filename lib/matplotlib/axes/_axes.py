@@ -4966,43 +4966,39 @@ default: :rc:`scatter.edgecolors`
         return a
 
     @docstring.copy(mquiver.QuiverKey.__init__)
-    def quiverkey(self, Q, X, Y, U, label, **kw):
-        qk = mquiver.QuiverKey(Q, X, Y, U, label, **kw)
+    def quiverkey(self, Q, X, Y, U, label, **kwargs):
+        qk = mquiver.QuiverKey(Q, X, Y, U, label, **kwargs)
         self.add_artist(qk)
         return qk
 
     # Handle units for x and y, if they've been passed
-    def _quiver_units(self, args, kw):
+    def _quiver_units(self, args, kwargs):
         if len(args) > 3:
             x, y = args[0:2]
-            x, y = self._process_unit_info([("x", x), ("y", y)], kw)
+            x, y = self._process_unit_info([("x", x), ("y", y)], kwargs)
             return (x, y) + args[2:]
         return args
 
     # args can by a combination if X, Y, U, V, C and all should be replaced
     @_preprocess_data()
-    def quiver(self, *args, **kw):
+    @docstring.dedent_interpd
+    def quiver(self, *args, **kwargs):
+        """%(quiver_doc)s"""
         # Make sure units are handled for x and y values
-        args = self._quiver_units(args, kw)
-
-        q = mquiver.Quiver(self, *args, **kw)
-
+        args = self._quiver_units(args, kwargs)
+        q = mquiver.Quiver(self, *args, **kwargs)
         self.add_collection(q, autolim=True)
         self._request_autoscale_view()
         return q
-    quiver.__doc__ = mquiver.Quiver.quiver_doc
 
     # args can be some combination of X, Y, U, V, C and all should be replaced
     @_preprocess_data()
     @docstring.dedent_interpd
-    def barbs(self, *args, **kw):
-        """
-        %(barbs_doc)s
-        """
+    def barbs(self, *args, **kwargs):
+        """%(barbs_doc)s"""
         # Make sure units are handled for x and y values
-        args = self._quiver_units(args, kw)
-
-        b = mquiver.Barbs(self, *args, **kw)
+        args = self._quiver_units(args, kwargs)
+        b = mquiver.Barbs(self, *args, **kwargs)
         self.add_collection(b, autolim=True)
         self._request_autoscale_view()
         return b
@@ -6308,32 +6304,36 @@ default: :rc:`scatter.edgecolors`
         return ret
 
     @_preprocess_data()
+    @docstring.dedent_interpd
     def contour(self, *args, **kwargs):
-        kwargs['filled'] = False
-        contours = mcontour.QuadContourSet(self, *args, **kwargs)
-        self._request_autoscale_view()
-        return contours
-    contour.__doc__ = """
+        """
         Plot contour lines.
 
         Call signature::
 
             contour([X, Y,] Z, [levels], **kwargs)
-        """ + mcontour.QuadContourSet._contour_doc
-
-    @_preprocess_data()
-    def contourf(self, *args, **kwargs):
-        kwargs['filled'] = True
+        %(contour_doc)s
+        """
+        kwargs['filled'] = False
         contours = mcontour.QuadContourSet(self, *args, **kwargs)
         self._request_autoscale_view()
         return contours
-    contourf.__doc__ = """
+
+    @_preprocess_data()
+    @docstring.dedent_interpd
+    def contourf(self, *args, **kwargs):
+        """
         Plot filled contours.
 
         Call signature::
 
             contourf([X, Y,] Z, [levels], **kwargs)
-        """ + mcontour.QuadContourSet._contour_doc
+        %(contour_doc)s
+        """
+        kwargs['filled'] = True
+        contours = mcontour.QuadContourSet(self, *args, **kwargs)
+        self._request_autoscale_view()
+        return contours
 
     def clabel(self, CS, levels=None, **kwargs):
         """
