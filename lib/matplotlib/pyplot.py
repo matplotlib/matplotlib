@@ -2206,14 +2206,12 @@ def polar(*args, **kwargs):
     # If an axis already exists, check if it has a polar projection
     if gcf().get_axes():
         ax = gca()
-        if isinstance(ax, PolarAxes):
-            return ax
-        else:
+        if not isinstance(ax, PolarAxes):
             _api.warn_external('Trying to create polar plot on an Axes '
                                'that does not have a polar projection.')
-    ax = axes(projection="polar")
-    ret = ax.plot(*args, **kwargs)
-    return ret
+    else:
+        ax = axes(projection="polar")
+    return ax.plot(*args, **kwargs)
 
 
 # If rcParams['backend_fallback'] is true, and an interactive backend is
