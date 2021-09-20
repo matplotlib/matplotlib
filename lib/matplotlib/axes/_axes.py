@@ -1745,18 +1745,13 @@ class Axes(_AxesBase):
             Non-positive values can be masked as invalid, or clipped to a very
             small positive number.
 
+        **kwargs
+            All parameters supported by `.plot`.
+
         Returns
         -------
         list of `.Line2D`
             Objects representing the plotted data.
-
-        Other Parameters
-        ----------------
-        data : indexable object, optional
-            DATA_PARAMETER_PLACEHOLDER
-
-        **kwargs
-            All parameters supported by `.plot`.
         """
         dx = {k: v for k, v in kwargs.items()
               if k in ['base', 'subs', 'nonpositive',
@@ -1801,18 +1796,13 @@ class Axes(_AxesBase):
             Non-positive values in x can be masked as invalid, or clipped to a
             very small positive number.
 
+        **kwargs
+            All parameters supported by `.plot`.
+
         Returns
         -------
         list of `.Line2D`
             Objects representing the plotted data.
-
-        Other Parameters
-        ----------------
-        data : indexable object, optional
-            DATA_PARAMETER_PLACEHOLDER
-
-        **kwargs
-            All parameters supported by `.plot`.
         """
         d = {k: v for k, v in kwargs.items()
              if k in ['base', 'subs', 'nonpositive',
@@ -1853,18 +1843,13 @@ class Axes(_AxesBase):
             Non-positive values in y can be masked as invalid, or clipped to a
             very small positive number.
 
+        **kwargs
+            All parameters supported by `.plot`.
+
         Returns
         -------
         list of `.Line2D`
             Objects representing the plotted data.
-
-        Other Parameters
-        ----------------
-        data : indexable object, optional
-            DATA_PARAMETER_PLACEHOLDER
-
-        **kwargs
-            All parameters supported by `.plot`.
         """
         d = {k: v for k, v in kwargs.items()
              if k in ['base', 'subs', 'nonpositive',
@@ -2098,10 +2083,6 @@ class Axes(_AxesBase):
             and plotted on the given positions, however, this is a rarely
             needed feature for step plots.
 
-        data : indexable object, optional
-            An object with labelled data. If given, provide the label names to
-            plot in *x* and *y*.
-
         where : {'pre', 'post', 'mid'}, default: 'pre'
             Define where the steps should be placed:
 
@@ -2113,22 +2094,17 @@ class Axes(_AxesBase):
               value ``y[i]``.
             - 'mid': Steps occur half-way between the *x* positions.
 
-        Returns
-        -------
-        list of `.Line2D`
-            Objects representing the plotted data.
-
-        Other Parameters
-        ----------------
         data : indexable object, optional
-            DATA_PARAMETER_PLACEHOLDER
+            An object with labelled data. If given, provide the label names to
+            plot in *x* and *y*.
 
         **kwargs
             Additional parameters are the same as those for `.plot`.
 
-        Notes
-        -----
-        .. [notes section required to get data note injection right]
+        Returns
+        -------
+        list of `.Line2D`
+            Objects representing the plotted data.
         """
         _api.check_in_list(('pre', 'post', 'mid'), where=where)
         kwargs['drawstyle'] = 'steps-' + where
@@ -5148,10 +5124,6 @@ default: :rc:`scatter.edgecolors`
         --------
         fill_between : Fill between two sets of y-values.
         fill_betweenx : Fill between two sets of x-values.
-
-        Notes
-        -----
-        .. [notes section required to get data note injection right]
         """
 
         dep_dir = {"x": "y", "y": "x"}[ind_dir]
@@ -6227,10 +6199,6 @@ default: :rc:`scatter.edgecolors`
         **kwargs
             Supported additional parameters depend on the type of grid.
             See return types of *image* for further description.
-
-        Notes
-        -----
-        .. [notes section required to get data note injection right]
         """
 
         C = args[-1]
