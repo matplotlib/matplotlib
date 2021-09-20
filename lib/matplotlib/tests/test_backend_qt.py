@@ -93,10 +93,10 @@ def test_other_signal_before_sigint(qt_core, platform_simulate_ctrl_c,
     def custom_sigpipe_handler(signum, frame):
         nonlocal sigcld_caught
         sigcld_caught = True
-    signal.signal(signal.SIGCLD, custom_sigpipe_handler)
+    signal.signal(signal.SIGCHLD, custom_sigpipe_handler)
 
     def fire_other_signal():
-        os.kill(os.getpid(), signal.SIGCLD)
+        os.kill(os.getpid(), signal.SIGCHLD)
 
     def fire_sigint():
         platform_simulate_ctrl_c()
