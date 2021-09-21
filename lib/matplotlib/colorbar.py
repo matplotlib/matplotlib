@@ -422,7 +422,6 @@ class Colorbar:
 
         self.ax = ax
         self.ax._axes_locator = _ColorbarAxesLocator(self)
-        ax.set(navigate=False)
 
         if extend is None:
             if (not isinstance(mappable, contour.ContourSet)
@@ -495,6 +494,29 @@ class Colorbar:
 
         if isinstance(mappable, contour.ContourSet) and not mappable.filled:
             self.add_lines(mappable)
+
+        # Link the Axes and Colorbar for interactive use
+        self.ax._colorbar = self
+        # Don't navigate on any of these types of mappables
+        if (isinstance(self.norm, (colors.BoundaryNorm, colors.NoNorm)) or
+                isinstance(self.mappable, contour.ContourSet)):
+            self.ax.set_navigate(False)
+
+        # These are the functions that set up interactivity on this colorbar
+        self._interactive_funcs = ["_get_view", "_set_view",
+                                   "_set_view_from_bbox", "drag_pan"]
+        for x in self._interactive_funcs:
+            setattr(self.ax, x, getattr(self, x))
+        # Set the cla function to the cbar's method to override it
+        self.ax.cla = self._cbar_cla
+
+    def _cbar_cla(self):
+        """Function to clear the interactive colorbar state."""
+        for x in self._interactive_funcs:
+            delattr(self.ax, x)
+        # We now restore the old cla() back and can call it directly
+        del self.ax.cla
+        self.ax.cla()
 
     # Also remove ._patch after deprecation elapses.
     patch = _api.deprecate_privatize_attribute("3.5", alternative="ax")
@@ -1279,6 +1301,36 @@ class Colorbar:
         if self.orientation == 'vertical':
             return self.ax.xaxis
         return self.ax.yaxis
+
+    def _get_view(self):
+        # docstring inherited
+        # An interactive view for a colorbar is the norm's vmin/vmax
+        return self.norm.vmin, self.norm.vmax
+
+    def _set_view(self, view):
+        # docstring inherited
+        # An interactive view for a colorbar is the norm's vmin/vmax
+        self.norm.vmin, self.norm.vmax = view
+
+    def _set_view_from_bbox(self, bbox, direction='in',
+                            mode=None, twinx=False, twiny=False):
+        # docstring inherited
+        # For colorbars, we use the zoom bbox to scale the norm's vmin/vmax
+        new_xbound, new_ybound = self.ax._prepare_view_from_bbox(
+            bbox, direction=direction, mode=mode, twinx=twinx, twiny=twiny)
+        if self.orientation == 'horizontal':
+            self.norm.vmin, self.norm.vmax = new_xbound
+        elif self.orientation == 'vertical':
+            self.norm.vmin, self.norm.vmax = new_ybound
+
+    def drag_pan(self, button, key, x, y):
+        # docstring inherited
+        points = self.ax._get_pan_points(button, key, x, y)
+        if points is not None:
+            if self.orientation == 'horizontal':
+                self.norm.vmin, self.norm.vmax = points[:, 0]
+            elif self.orientation == 'vertical':
+                self.norm.vmin, self.norm.vmax = points[:, 1]
 
 
 ColorbarBase = Colorbar  # Backcompat API
