@@ -5,6 +5,7 @@ from matplotlib.textpath import TextPath
 
 
 def test_set_size():
+    """Set size with zero offset should scale vertices and retain codes."""
     path = TextPath((0, 0), ".")
     _size = path.get_size()
     verts = path.vertices.copy()
