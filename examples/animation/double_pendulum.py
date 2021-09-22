@@ -79,7 +79,7 @@ ax.set_aspect('equal')
 ax.grid()
 
 line, = ax.plot([], [], 'o-', lw=2)
-trace, = ax.plot([], [], ',-', lw=1)
+trace, = ax.plot([], [], '.-', lw=1, ms=2)
 time_template = 'time = %.1fs'
 time_text = ax.text(0.05, 0.9, '', transform=ax.transAxes)
 history_x, history_y = deque(maxlen=history_len), deque(maxlen=history_len)
