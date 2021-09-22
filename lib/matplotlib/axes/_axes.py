@@ -2857,50 +2857,18 @@ class Axes(_AxesBase):
 
         # defaults for formats
         if linefmt is None:
-            try:
-                # fallback to positional argument
-                linefmt = args[0]
-            except IndexError:
-                linecolor = 'C0'
-                linemarker = 'None'
-                linestyle = '-'
-            else:
-                linestyle, linemarker, linecolor = \
-                    _process_plot_format(linefmt)
-        else:
-            linestyle, linemarker, linecolor = _process_plot_format(linefmt)
+            linefmt = args[0] if len(args) > 0 else "C0-"
+        linestyle, linemarker, linecolor = _process_plot_format(linefmt)
 
         if markerfmt is None:
-            try:
-                # fallback to positional argument
-                markerfmt = args[1]
-            except IndexError:
-                markercolor = 'C0'
-                markermarker = 'o'
-                markerstyle = 'None'
-            else:
-                markerstyle, markermarker, markercolor = \
-                    _process_plot_format(markerfmt)
-        else:
-            markerstyle, markermarker, markercolor = \
-                _process_plot_format(markerfmt)
+            markerfmt = args[1] if len(args) > 1 else "C0o"
+        markerstyle, markermarker, markercolor = \
+            _process_plot_format(markerfmt)
 
         if basefmt is None:
-            try:
-                # fallback to positional argument
-                basefmt = args[2]
-            except IndexError:
-                if rcParams['_internal.classic_mode']:
-                    basecolor = 'C2'
-                else:
-                    basecolor = 'C3'
-                basemarker = 'None'
-                basestyle = '-'
-            else:
-                basestyle, basemarker, basecolor = \
-                    _process_plot_format(basefmt)
-        else:
-            basestyle, basemarker, basecolor = _process_plot_format(basefmt)
+            basefmt = (args[2] if len(args) > 2 else
+                       "C2-" if rcParams["_internal.classic_mode"] else "C3-")
+        basestyle, basemarker, basecolor = _process_plot_format(basefmt)
 
         # New behaviour in 3.1 is to use a LineCollection for the stemlines
         if use_line_collection:
