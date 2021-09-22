@@ -33,7 +33,7 @@ Plot a 2D field of arrows.
 
 Call signature::
 
-  quiver([X, Y], U, V, [C], **kw)
+  quiver([X, Y], U, V, [C], **kwargs)
 
 *X*, *Y* define the arrow locations, *U*, *V* define the arrow directions, and
 *C* optionally sets the color.
@@ -214,8 +214,7 @@ class QuiverKey(martist.Artist):
 
     def __init__(self, Q, X, Y, U, label,
                  *, angle=0, coordinates='axes', color=None, labelsep=0.1,
-                 labelpos='N', labelcolor=None, fontproperties=None,
-                 **kw):
+                 labelpos='N', labelcolor=None, fontproperties=None, **kwargs):
         """
         Add a key to a quiver plot.
 
@@ -292,7 +291,7 @@ class QuiverKey(martist.Artist):
         self.labelpos = labelpos
         self.labelcolor = labelcolor
         self.fontproperties = fontproperties or dict()
-        self.kw = kw
+        self.kw = kwargs
         _fp = self.fontproperties
         # boxprops = dict(facecolor='red')
         self.text = mtext.Text(
@@ -326,13 +325,13 @@ class QuiverKey(martist.Artist):
                          else 'uv')
                 self.verts = self.Q._make_verts(
                     np.array([u]), np.array([v]), angle)
-            kw = self.Q.polykw
-            kw.update(self.kw)
+            kwargs = self.Q.polykw
+            kwargs.update(self.kw)
             self.vector = mcollections.PolyCollection(
                                         self.verts,
                                         offsets=[(self.X, self.Y)],
                                         transOffset=self.get_transform(),
-                                        **kw)
+                                        **kwargs)
             if self.color is not None:
                 self.vector.set_color(self.color)
             self.vector.set_transform(self.Q.get_transform())
@@ -472,7 +471,7 @@ class Quiver(mcollections.PolyCollection):
     def __init__(self, ax, *args,
                  scale=None, headwidth=3, headlength=5, headaxislength=4.5,
                  minshaft=1, minlength=1, units='width', scale_units=None,
-                 angles='uv', width=None, color='k', pivot='tail', **kw):
+                 angles='uv', width=None, color='k', pivot='tail', **kwargs):
         """
         The constructor takes one required argument, an Axes
         instance, followed by the args and kwargs described
@@ -501,12 +500,12 @@ class Quiver(mcollections.PolyCollection):
         self.pivot = pivot.lower()
         _api.check_in_list(self._PIVOT_VALS, pivot=self.pivot)
 
-        self.transform = kw.pop('transform', ax.transData)
-        kw.setdefault('facecolors', color)
-        kw.setdefault('linewidths', (0,))
+        self.transform = kwargs.pop('transform', ax.transData)
+        kwargs.setdefault('facecolors', color)
+        kwargs.setdefault('linewidths', (0,))
         super().__init__([], offsets=self.XY, transOffset=self.transform,
-                         closed=False, **kw)
-        self.polykw = kw
+                         closed=False, **kwargs)
+        self.polykw = kwargs
         self.set_UVC(U, V, C)
         self._initialized = False
 
@@ -773,7 +772,7 @@ Plot a 2D field of barbs.
 
 Call signature::
 
-  barbs([X, Y], U, V, [C], **kw)
+  barbs([X, Y], U, V, [C], **kwargs)
 
 Where *X*, *Y* define the barb locations, *U*, *V* define the barb
 directions, and *C* optionally sets the color.
@@ -928,7 +927,7 @@ class Barbs(mcollections.PolyCollection):
     def __init__(self, ax, *args,
                  pivot='tip', length=7, barbcolor=None, flagcolor=None,
                  sizes=None, fill_empty=False, barb_increments=None,
-                 rounding=True, flip_barb=False, **kw):
+                 rounding=True, flip_barb=False, **kwargs):
         """
         The constructor takes one required argument, an Axes
         instance, followed by the args and kwargs described
@@ -940,7 +939,7 @@ class Barbs(mcollections.PolyCollection):
         self.barb_increments = barb_increments or dict()
         self.rounding = rounding
         self.flip = np.atleast_1d(flip_barb)
-        transform = kw.pop('transform', ax.transData)
+        transform = kwargs.pop('transform', ax.transData)
         self._pivot = pivot
         self._length = length
         barbcolor = barbcolor
@@ -952,22 +951,22 @@ class Barbs(mcollections.PolyCollection):
         # rest of the barb by default
 
         if None in (barbcolor, flagcolor):
-            kw['edgecolors'] = 'face'
+            kwargs['edgecolors'] = 'face'
             if flagcolor:
-                kw['facecolors'] = flagcolor
+                kwargs['facecolors'] = flagcolor
             elif barbcolor:
-                kw['facecolors'] = barbcolor
+                kwargs['facecolors'] = barbcolor
             else:
                 # Set to facecolor passed in or default to black
-                kw.setdefault('facecolors', 'k')
+                kwargs.setdefault('facecolors', 'k')
         else:
-            kw['edgecolors'] = barbcolor
-            kw['facecolors'] = flagcolor
+            kwargs['edgecolors'] = barbcolor
+            kwargs['facecolors'] = flagcolor
 
         # Explicitly set a line width if we're not given one, otherwise
         # polygons are not outlined and we get no barbs
-        if 'linewidth' not in kw and 'lw' not in kw:
-            kw['linewidth'] = 1
+        if 'linewidth' not in kwargs and 'lw' not in kwargs:
+            kwargs['linewidth'] = 1
 
         # Parse out the data arrays from the various configurations supported
         x, y, u, v, c = _parse_args(*args, caller_name='barbs()')
@@ -978,7 +977,7 @@ class Barbs(mcollections.PolyCollection):
         # Make a collection
         barb_size = self._length ** 2 / 4  # Empirically determined
         super().__init__([], (barb_size,), offsets=xy, transOffset=transform,
-                         **kw)
+                         **kwargs)
         self.set_transform(transforms.IdentityTransform())
 
         self.set_UVC(u, v, c)
