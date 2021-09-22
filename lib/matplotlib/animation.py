@@ -1311,7 +1311,7 @@ class Animation:
         default_mode : str, optional
             What to do when the animation ends. Must be one of ``{'loop',
             'once', 'reflect'}``. Defaults to ``'loop'`` if ``self.repeat``
-            is True ``, otherwise ``'once'``.
+            is True, otherwise ``'once'``.
         """
         if fps is None and hasattr(self, '_interval'):
             # Convert interval in ms to frames per second
