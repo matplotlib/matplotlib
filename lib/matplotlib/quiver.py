@@ -203,6 +203,8 @@ See Also
 .Axes.quiverkey : Add a key to a quiver plot.
 """ % docstring.interpd.params
 
+docstring.interpd.update(quiver_doc=_quiver_doc)
+
 
 class QuiverKey(martist.Artist):
     """Labelled arrow for use as a quiver plot scale key."""
