@@ -2128,7 +2128,7 @@ class _Style:
     where actual styles are declared as subclass of it, and it
     provides some helper functions.
     """
-    def __new__(cls, stylename, **kw):
+    def __new__(cls, stylename, **kwargs):
         """Return the instance of the subclass with the given style name."""
 
         # The "class" should have the _style_list attribute, which is a mapping
@@ -2147,7 +2147,7 @@ class _Style:
         except ValueError as err:
             raise ValueError("Incorrect style argument : %s" %
                              stylename) from err
-        _args.update(kw)
+        _args.update(kwargs)
 
         return _cls(**_args)
 
@@ -4329,7 +4329,7 @@ default: 'arc3'
         self.patchB = patchB
         self.stale = True
 
-    def set_connectionstyle(self, connectionstyle, **kw):
+    def set_connectionstyle(self, connectionstyle, **kwargs):
         """
         Set the connection style. Old attributes are forgotten.
 
@@ -4356,14 +4356,14 @@ default: 'arc3'
                 callable(connectionstyle)):
             self._connector = connectionstyle
         else:
-            self._connector = ConnectionStyle(connectionstyle, **kw)
+            self._connector = ConnectionStyle(connectionstyle, **kwargs)
         self.stale = True
 
     def get_connectionstyle(self):
         """Return the `ConnectionStyle` used."""
         return self._connector
 
-    def set_arrowstyle(self, arrowstyle=None, **kw):
+    def set_arrowstyle(self, arrowstyle=None, **kwargs):
         """
         Set the arrow style. Old attributes are forgotten. Without arguments
         (or with ``arrowstyle=None``) returns available box styles as a list of
@@ -4389,7 +4389,7 @@ default: 'arc3'
         if isinstance(arrowstyle, ArrowStyle._Base):
             self._arrow_transmuter = arrowstyle
         else:
-            self._arrow_transmuter = ArrowStyle(arrowstyle, **kw)
+            self._arrow_transmuter = ArrowStyle(arrowstyle, **kwargs)
         self.stale = True
 
     def get_arrowstyle(self):

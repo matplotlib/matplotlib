@@ -2073,7 +2073,7 @@ def _setup_pyplot_info_docstrings():
 
 
 @_copy_docstring_and_deprecators(Figure.colorbar)
-def colorbar(mappable=None, cax=None, ax=None, **kw):
+def colorbar(mappable=None, cax=None, ax=None, **kwargs):
     if mappable is None:
         mappable = gci()
         if mappable is None:
@@ -2081,7 +2081,7 @@ def colorbar(mappable=None, cax=None, ax=None, **kw):
                                'creation. First define a mappable such as '
                                'an image (with imshow) or a contour set ('
                                'with contourf).')
-    ret = gcf().colorbar(mappable, cax=cax, ax=ax, **kw)
+    ret = gcf().colorbar(mappable, cax=cax, ax=ax, **kwargs)
     return ret
 
 
