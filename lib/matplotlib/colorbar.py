@@ -204,7 +204,7 @@ class __getattr__:
         lambda self: _make_axes_param_doc + _make_axes_other_param_doc))
 
 
-def _set_ticks_on_axis_warn(*args, **kw):
+def _set_ticks_on_axis_warn(*args, **kwargs):
     # a top level function which gets put in at the axes'
     # set_xticks and set_yticks by Colorbar.__init__.
     _api.warn_external("Use the colorbar set_ticks() method instead.")
@@ -1355,7 +1355,7 @@ def _normalize_location_orientation(location, orientation):
 
 @docstring.Substitution(_make_axes_param_doc, _make_axes_other_param_doc)
 def make_axes(parents, location=None, orientation=None, fraction=0.15,
-              shrink=1.0, aspect=20, **kw):
+              shrink=1.0, aspect=20, **kwargs):
     """
     Create an `~.axes.Axes` suitable for a colorbar.
 
@@ -1372,7 +1372,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     -------
     cax : `~.axes.Axes`
         The child axes.
-    kw : dict
+    kwargs : dict
         The reduced keyword dictionary to be passed when creating the colorbar
         instance.
 
@@ -1381,13 +1381,13 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     %s
     """
     loc_settings = _normalize_location_orientation(location, orientation)
-    # put appropriate values into the kw dict for passing back to
+    # put appropriate values into the kwargs dict for passing back to
     # the Colorbar class
-    kw['orientation'] = loc_settings['orientation']
-    location = kw['ticklocation'] = loc_settings['location']
+    kwargs['orientation'] = loc_settings['orientation']
+    location = kwargs['ticklocation'] = loc_settings['location']
 
-    anchor = kw.pop('anchor', loc_settings['anchor'])
-    panchor = kw.pop('panchor', loc_settings['panchor'])
+    anchor = kwargs.pop('anchor', loc_settings['anchor'])
+    panchor = kwargs.pop('panchor', loc_settings['panchor'])
     aspect0 = aspect
     # turn parents into a list if it is not already. We do this w/ np
     # because `plt.subplots` can return an ndarray and is natural to
@@ -1396,7 +1396,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     fig = parents[0].get_figure()
 
     pad0 = 0.05 if fig.get_constrained_layout() else loc_settings['pad']
-    pad = kw.pop('pad', pad0)
+    pad = kwargs.pop('pad', pad0)
 
     if not all(fig is ax.get_figure() for ax in parents):
         raise ValueError('Unable to create a colorbar axes as not all '
@@ -1453,12 +1453,12 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     cax.set_box_aspect(aspect)
     cax.set_aspect('auto')
 
-    return cax, kw
+    return cax, kwargs
 
 
 @docstring.Substitution(_make_axes_param_doc, _make_axes_other_param_doc)
 def make_axes_gridspec(parent, *, location=None, orientation=None,
-                       fraction=0.15, shrink=1.0, aspect=20, **kw):
+                       fraction=0.15, shrink=1.0, aspect=20, **kwargs):
     """
     Create a `.SubplotBase` suitable for a colorbar.
 
@@ -1488,7 +1488,7 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
     -------
     cax : `~.axes.SubplotBase`
         The child axes.
-    kw : dict
+    kwargs : dict
         The reduced keyword dictionary to be passed when creating the colorbar
         instance.
 
@@ -1498,13 +1498,13 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
     """
 
     loc_settings = _normalize_location_orientation(location, orientation)
-    kw['orientation'] = loc_settings['orientation']
-    location = kw['ticklocation'] = loc_settings['location']
+    kwargs['orientation'] = loc_settings['orientation']
+    location = kwargs['ticklocation'] = loc_settings['location']
 
     aspect0 = aspect
-    anchor = kw.pop('anchor', loc_settings['anchor'])
-    panchor = kw.pop('panchor', loc_settings['panchor'])
-    pad = kw.pop('pad', loc_settings["pad"])
+    anchor = kwargs.pop('anchor', loc_settings['anchor'])
+    panchor = kwargs.pop('panchor', loc_settings['panchor'])
+    pad = kwargs.pop('pad', loc_settings["pad"])
     wh_space = 2 * pad / (1 - pad)
 
     if location in ('left', 'right'):
@@ -1565,7 +1565,7 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
         fraction=fraction,
         aspect=aspect0,
         pad=pad)
-    return cax, kw
+    return cax, kwargs
 
 
 @_api.deprecated("3.4", alternative="Colorbar")

@@ -263,16 +263,16 @@ class GridFinder:
         return self._aux_transform.inverted().transform(
             np.column_stack([x, y])).T
 
-    def update(self, **kw):
-        for k in kw:
+    def update(self, **kwargs):
+        for k, v in kwargs.items():
             if k in ["extreme_finder",
                      "grid_locator1",
                      "grid_locator2",
                      "tick_formatter1",
                      "tick_formatter2"]:
-                setattr(self, k, kw[k])
+                setattr(self, k, v)
             else:
-                raise ValueError("Unknown update property '%s'" % k)
+                raise ValueError(f"Unknown update property {k!r}")
 
 
 class MaxNLocator(mticker.MaxNLocator):

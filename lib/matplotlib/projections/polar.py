@@ -284,9 +284,8 @@ class ThetaTick(maxis.XTick):
             rotation_mode='anchor',
             transform=self.label2.get_transform() + self._text2_translate)
 
-    def _apply_params(self, **kw):
-        super()._apply_params(**kw)
-
+    def _apply_params(self, **kwargs):
+        super()._apply_params(**kwargs)
         # Ensure transform is correct; sometimes this gets reset.
         trans = self.label1.get_transform()
         if not trans.contains_branch(self._text1_translate):
