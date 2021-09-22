@@ -12,7 +12,6 @@ http://www.physics.usyd.edu.au/~wheat/dpend_html/solve_dpend.c
 from numpy import sin, cos
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy.integrate as integrate
 import matplotlib.animation as animation
 from collections import deque
 
@@ -22,13 +21,13 @@ L2 = 1.0  # length of pendulum 2 in m
 L = L1 + L2  # maximal length of the combined pendulum
 M1 = 1.0  # mass of pendulum 1 in kg
 M2 = 1.0  # mass of pendulum 2 in kg
-t_stop = 5  # how many seconds to simulate
+t_stop = 2.5  # how many seconds to simulate
 history_len = 500  # how many trajectory points to display
 
 
-def derivs(state, t):
-
+def derivs(t, state):
     dydx = np.zeros_like(state)
+
     dydx[0] = state[1]
 
     delta = state[2] - state[0]
@@ -51,7 +50,7 @@ def derivs(state, t):
     return dydx
 
 # create a time array from 0..t_stop sampled at 0.02 second steps
-dt = 0.02
+dt = 0.01
 t = np.arange(0, t_stop, dt)
 
 # th1 and th2 are the initial angles (degrees)
@@ -64,8 +63,15 @@ w2 = 0.0
 # initial state
 state = np.radians([th1, w1, th2, w2])
 
-# integrate your ODE using scipy.integrate.
-y = integrate.odeint(derivs, state, t)
+# integrate the ODE using Euler's method
+y = np.empty((len(t), 4))
+y[0] = state
+for i in range(1, len(t)):
+    y[i] = y[i - 1] + derivs(t[i - 1], y[i - 1]) * dt
+
+# A more accurate estimate could be obtained e.g. using scipy:
+#
+#   y = scipy.integrate.solve_ivp(derivs, t[[0, -1]], state, t_eval=t).y.T
 
 x1 = L1*sin(y[:, 0])
 y1 = -L1*cos(y[:, 0])
