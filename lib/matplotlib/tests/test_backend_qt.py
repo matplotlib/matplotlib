@@ -93,10 +93,10 @@ def test_other_signal_before_sigint(qt_core, platform_simulate_ctrl_c,
     def custom_sigpipe_handler(signum, frame):
         nonlocal sigcld_caught
         sigcld_caught = True
-    signal.signal(signal.SIGCLD, custom_sigpipe_handler)
+    signal.signal(signal.SIGCHLD, custom_sigpipe_handler)
 
     def fire_other_signal():
-        os.kill(os.getpid(), signal.SIGCLD)
+        os.kill(os.getpid(), signal.SIGCHLD)
 
     def fire_sigint():
         platform_simulate_ctrl_c()
@@ -166,24 +166,33 @@ def test_fig_sigint_override(qt_core):
 
 
 @pytest.mark.parametrize(
-    'qt_key, qt_mods, answer',
+    "qt_key, qt_mods, answer",
     [
-        ('Key_A', ['ShiftModifier'], 'A'),
-        ('Key_A', [], 'a'),
-        ('Key_A', ['ControlModifier'], 'ctrl+a'),
-        ('Key_Aacute', ['ShiftModifier'],
-         '\N{LATIN CAPITAL LETTER A WITH ACUTE}'),
-        ('Key_Aacute', [],
-         '\N{LATIN SMALL LETTER A WITH ACUTE}'),
-        ('Key_Control', ['AltModifier'], 'alt+control'),
-        ('Key_Alt', ['ControlModifier'], 'ctrl+alt'),
-        ('Key_Aacute', ['ControlModifier', 'AltModifier', 'MetaModifier'],
-         'ctrl+alt+meta+\N{LATIN SMALL LETTER A WITH ACUTE}'),
+        ("Key_A", ["ShiftModifier"], "A"),
+        ("Key_A", [], "a"),
+        ("Key_A", ["ControlModifier"], ("ctrl+a")),
+        (
+            "Key_Aacute",
+            ["ShiftModifier"],
+            "\N{LATIN CAPITAL LETTER A WITH ACUTE}",
+        ),
+        ("Key_Aacute", [], "\N{LATIN SMALL LETTER A WITH ACUTE}"),
+        ("Key_Control", ["AltModifier"], ("alt+control")),
+        ("Key_Alt", ["ControlModifier"], "ctrl+alt"),
+        (
+            "Key_Aacute",
+            ["ControlModifier", "AltModifier", "MetaModifier"],
+            ("ctrl+alt+meta+\N{LATIN SMALL LETTER A WITH ACUTE}"),
+        ),
         # We do not currently map the media keys, this may change in the
         # future.  This means the callback will never fire
-        ('Key_Play', [], None),
-        ('Key_Backspace', [], 'backspace'),
-        ('Key_Backspace', ['ControlModifier'], 'ctrl+backspace'),
+        ("Key_Play", [], None),
+        ("Key_Backspace", [], "backspace"),
+        (
+            "Key_Backspace",
+            ["ControlModifier"],
+            "ctrl+backspace",
+        ),
     ],
     ids=[
         'shift',
@@ -216,6 +225,11 @@ def test_correct_key(backend, qt_core, qt_key, qt_mods, answer):
     Assert sent and caught keys are the same.
     """
     from matplotlib.backends.qt_compat import _enum, _to_int
+
+    if sys.platform == "darwin" and answer is not None:
+        answer = answer.replace("ctrl", "cmd")
+        answer = answer.replace("control", "cmd")
+        answer = answer.replace("meta", "ctrl")
     result = None
     qt_mod = _enum("QtCore.Qt.KeyboardModifier").NoModifier
     for mod in qt_mods:
