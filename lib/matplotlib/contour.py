@@ -1574,215 +1574,216 @@ class QuadContourSet(ContourSet):
             y = y[::-1]
         return np.meshgrid(x, y)
 
-    _contour_doc = """
-        `.contour` and `.contourf` draw contour lines and filled contours,
-        respectively.  Except as noted, function signatures and return values
-        are the same for both versions.
 
-        Parameters
-        ----------
-        X, Y : array-like, optional
-            The coordinates of the values in *Z*.
+docstring.interpd.update(contour_doc="""
+`.contour` and `.contourf` draw contour lines and filled contours,
+respectively.  Except as noted, function signatures and return values
+are the same for both versions.
 
-            *X* and *Y* must both be 2D with the same shape as *Z* (e.g.
-            created via `numpy.meshgrid`), or they must both be 1-D such
-            that ``len(X) == N`` is the number of columns in *Z* and
-            ``len(Y) == M`` is the number of rows in *Z*.
+Parameters
+----------
+X, Y : array-like, optional
+    The coordinates of the values in *Z*.
 
-            If not given, they are assumed to be integer indices, i.e.
-            ``X = range(N)``, ``Y = range(M)``.
+    *X* and *Y* must both be 2D with the same shape as *Z* (e.g.
+    created via `numpy.meshgrid`), or they must both be 1-D such
+    that ``len(X) == N`` is the number of columns in *Z* and
+    ``len(Y) == M`` is the number of rows in *Z*.
 
-        Z : (M, N) array-like
-            The height values over which the contour is drawn.
+    If not given, they are assumed to be integer indices, i.e.
+    ``X = range(N)``, ``Y = range(M)``.
 
-        levels : int or array-like, optional
-            Determines the number and positions of the contour lines / regions.
+Z : (M, N) array-like
+    The height values over which the contour is drawn.
 
-            If an int *n*, use `~matplotlib.ticker.MaxNLocator`, which tries
-            to automatically choose no more than *n+1* "nice" contour levels
-            between *vmin* and *vmax*.
+levels : int or array-like, optional
+    Determines the number and positions of the contour lines / regions.
 
-            If array-like, draw contour lines at the specified levels.
-            The values must be in increasing order.
+    If an int *n*, use `~matplotlib.ticker.MaxNLocator`, which tries
+    to automatically choose no more than *n+1* "nice" contour levels
+    between *vmin* and *vmax*.
 
-        Returns
-        -------
-        `~.contour.QuadContourSet`
+    If array-like, draw contour lines at the specified levels.
+    The values must be in increasing order.
 
-        Other Parameters
-        ----------------
-        corner_mask : bool, default: :rc:`contour.corner_mask`
-            Enable/disable corner masking, which only has an effect if *Z* is
-            a masked array.  If ``False``, any quad touching a masked point is
-            masked out.  If ``True``, only the triangular corners of quads
-            nearest those points are always masked out, other triangular
-            corners comprising three unmasked points are contoured as usual.
+Returns
+-------
+`~.contour.QuadContourSet`
 
-        colors : color string or sequence of colors, optional
-            The colors of the levels, i.e. the lines for `.contour` and the
-            areas for `.contourf`.
+Other Parameters
+----------------
+corner_mask : bool, default: :rc:`contour.corner_mask`
+    Enable/disable corner masking, which only has an effect if *Z* is
+    a masked array.  If ``False``, any quad touching a masked point is
+    masked out.  If ``True``, only the triangular corners of quads
+    nearest those points are always masked out, other triangular
+    corners comprising three unmasked points are contoured as usual.
 
-            The sequence is cycled for the levels in ascending order. If the
-            sequence is shorter than the number of levels, it's repeated.
+colors : color string or sequence of colors, optional
+    The colors of the levels, i.e. the lines for `.contour` and the
+    areas for `.contourf`.
 
-            As a shortcut, single color strings may be used in place of
-            one-element lists, i.e. ``'red'`` instead of ``['red']`` to color
-            all levels with the same color. This shortcut does only work for
-            color strings, not for other ways of specifying colors.
+    The sequence is cycled for the levels in ascending order. If the
+    sequence is shorter than the number of levels, it's repeated.
 
-            By default (value *None*), the colormap specified by *cmap*
-            will be used.
+    As a shortcut, single color strings may be used in place of
+    one-element lists, i.e. ``'red'`` instead of ``['red']`` to color
+    all levels with the same color. This shortcut does only work for
+    color strings, not for other ways of specifying colors.
 
-        alpha : float, default: 1
-            The alpha blending value, between 0 (transparent) and 1 (opaque).
+    By default (value *None*), the colormap specified by *cmap*
+    will be used.
 
-        cmap : str or `.Colormap`, default: :rc:`image.cmap`
-            A `.Colormap` instance or registered colormap name. The colormap
-            maps the level values to colors.
+alpha : float, default: 1
+    The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-            If both *colors* and *cmap* are given, an error is raised.
+cmap : str or `.Colormap`, default: :rc:`image.cmap`
+    A `.Colormap` instance or registered colormap name. The colormap
+    maps the level values to colors.
 
-        norm : `~matplotlib.colors.Normalize`, optional
-            If a colormap is used, the `.Normalize` instance scales the level
-            values to the canonical colormap range [0, 1] for mapping to
-            colors. If not given, the default linear scaling is used.
+    If both *colors* and *cmap* are given, an error is raised.
 
-        vmin, vmax : float, optional
-            If not *None*, either or both of these values will be supplied to
-            the `.Normalize` instance, overriding the default color scaling
-            based on *levels*.
+norm : `~matplotlib.colors.Normalize`, optional
+    If a colormap is used, the `.Normalize` instance scales the level
+    values to the canonical colormap range [0, 1] for mapping to
+    colors. If not given, the default linear scaling is used.
 
-        origin : {*None*, 'upper', 'lower', 'image'}, default: None
-            Determines the orientation and exact position of *Z* by specifying
-            the position of ``Z[0, 0]``.  This is only relevant, if *X*, *Y*
-            are not given.
+vmin, vmax : float, optional
+    If not *None*, either or both of these values will be supplied to
+    the `.Normalize` instance, overriding the default color scaling
+    based on *levels*.
 
-            - *None*: ``Z[0, 0]`` is at X=0, Y=0 in the lower left corner.
-            - 'lower': ``Z[0, 0]`` is at X=0.5, Y=0.5 in the lower left corner.
-            - 'upper': ``Z[0, 0]`` is at X=N+0.5, Y=0.5 in the upper left
-              corner.
-            - 'image': Use the value from :rc:`image.origin`.
+origin : {*None*, 'upper', 'lower', 'image'}, default: None
+    Determines the orientation and exact position of *Z* by specifying
+    the position of ``Z[0, 0]``.  This is only relevant, if *X*, *Y*
+    are not given.
 
-        extent : (x0, x1, y0, y1), optional
-            If *origin* is not *None*, then *extent* is interpreted as in
-            `.imshow`: it gives the outer pixel boundaries. In this case, the
-            position of Z[0, 0] is the center of the pixel, not a corner. If
-            *origin* is *None*, then (*x0*, *y0*) is the position of Z[0, 0],
-            and (*x1*, *y1*) is the position of Z[-1, -1].
+    - *None*: ``Z[0, 0]`` is at X=0, Y=0 in the lower left corner.
+    - 'lower': ``Z[0, 0]`` is at X=0.5, Y=0.5 in the lower left corner.
+    - 'upper': ``Z[0, 0]`` is at X=N+0.5, Y=0.5 in the upper left
+      corner.
+    - 'image': Use the value from :rc:`image.origin`.
 
-            This argument is ignored if *X* and *Y* are specified in the call
-            to contour.
+extent : (x0, x1, y0, y1), optional
+    If *origin* is not *None*, then *extent* is interpreted as in
+    `.imshow`: it gives the outer pixel boundaries. In this case, the
+    position of Z[0, 0] is the center of the pixel, not a corner. If
+    *origin* is *None*, then (*x0*, *y0*) is the position of Z[0, 0],
+    and (*x1*, *y1*) is the position of Z[-1, -1].
 
-        locator : ticker.Locator subclass, optional
-            The locator is used to determine the contour levels if they
-            are not given explicitly via *levels*.
-            Defaults to `~.ticker.MaxNLocator`.
+    This argument is ignored if *X* and *Y* are specified in the call
+    to contour.
 
-        extend : {'neither', 'both', 'min', 'max'}, default: 'neither'
-            Determines the ``contourf``-coloring of values that are outside the
-            *levels* range.
+locator : ticker.Locator subclass, optional
+    The locator is used to determine the contour levels if they
+    are not given explicitly via *levels*.
+    Defaults to `~.ticker.MaxNLocator`.
 
-            If 'neither', values outside the *levels* range are not colored.
-            If 'min', 'max' or 'both', color the values below, above or below
-            and above the *levels* range.
+extend : {'neither', 'both', 'min', 'max'}, default: 'neither'
+    Determines the ``contourf``-coloring of values that are outside the
+    *levels* range.
 
-            Values below ``min(levels)`` and above ``max(levels)`` are mapped
-            to the under/over values of the `.Colormap`. Note that most
-            colormaps do not have dedicated colors for these by default, so
-            that the over and under values are the edge values of the colormap.
-            You may want to set these values explicitly using
-            `.Colormap.set_under` and `.Colormap.set_over`.
+    If 'neither', values outside the *levels* range are not colored.
+    If 'min', 'max' or 'both', color the values below, above or below
+    and above the *levels* range.
 
-            .. note::
+    Values below ``min(levels)`` and above ``max(levels)`` are mapped
+    to the under/over values of the `.Colormap`. Note that most
+    colormaps do not have dedicated colors for these by default, so
+    that the over and under values are the edge values of the colormap.
+    You may want to set these values explicitly using
+    `.Colormap.set_under` and `.Colormap.set_over`.
 
-                An existing `.QuadContourSet` does not get notified if
-                properties of its colormap are changed. Therefore, an explicit
-                call `.QuadContourSet.changed()` is needed after modifying the
-                colormap. The explicit call can be left out, if a colorbar is
-                assigned to the `.QuadContourSet` because it internally calls
-                `.QuadContourSet.changed()`.
+    .. note::
 
-            Example::
+        An existing `.QuadContourSet` does not get notified if
+        properties of its colormap are changed. Therefore, an explicit
+        call `.QuadContourSet.changed()` is needed after modifying the
+        colormap. The explicit call can be left out, if a colorbar is
+        assigned to the `.QuadContourSet` because it internally calls
+        `.QuadContourSet.changed()`.
 
-                x = np.arange(1, 10)
-                y = x.reshape(-1, 1)
-                h = x * y
+    Example::
 
-                cs = plt.contourf(h, levels=[10, 30, 50],
-                    colors=['#808080', '#A0A0A0', '#C0C0C0'], extend='both')
-                cs.cmap.set_over('red')
-                cs.cmap.set_under('blue')
-                cs.changed()
+        x = np.arange(1, 10)
+        y = x.reshape(-1, 1)
+        h = x * y
 
-        xunits, yunits : registered units, optional
-            Override axis units by specifying an instance of a
-            :class:`matplotlib.units.ConversionInterface`.
+        cs = plt.contourf(h, levels=[10, 30, 50],
+            colors=['#808080', '#A0A0A0', '#C0C0C0'], extend='both')
+        cs.cmap.set_over('red')
+        cs.cmap.set_under('blue')
+        cs.changed()
 
-        antialiased : bool, optional
-            Enable antialiasing, overriding the defaults.  For
-            filled contours, the default is *True*.  For line contours,
-            it is taken from :rc:`lines.antialiased`.
+xunits, yunits : registered units, optional
+    Override axis units by specifying an instance of a
+    :class:`matplotlib.units.ConversionInterface`.
 
-        nchunk : int >= 0, optional
-            If 0, no subdivision of the domain.  Specify a positive integer to
-            divide the domain into subdomains of *nchunk* by *nchunk* quads.
-            Chunking reduces the maximum length of polygons generated by the
-            contouring algorithm which reduces the rendering workload passed
-            on to the backend and also requires slightly less RAM.  It can
-            however introduce rendering artifacts at chunk boundaries depending
-            on the backend, the *antialiased* flag and value of *alpha*.
+antialiased : bool, optional
+    Enable antialiasing, overriding the defaults.  For
+    filled contours, the default is *True*.  For line contours,
+    it is taken from :rc:`lines.antialiased`.
 
-        linewidths : float or array-like, default: :rc:`contour.linewidth`
-            *Only applies to* `.contour`.
+nchunk : int >= 0, optional
+    If 0, no subdivision of the domain.  Specify a positive integer to
+    divide the domain into subdomains of *nchunk* by *nchunk* quads.
+    Chunking reduces the maximum length of polygons generated by the
+    contouring algorithm which reduces the rendering workload passed
+    on to the backend and also requires slightly less RAM.  It can
+    however introduce rendering artifacts at chunk boundaries depending
+    on the backend, the *antialiased* flag and value of *alpha*.
 
-            The line width of the contour lines.
+linewidths : float or array-like, default: :rc:`contour.linewidth`
+    *Only applies to* `.contour`.
 
-            If a number, all levels will be plotted with this linewidth.
+    The line width of the contour lines.
 
-            If a sequence, the levels in ascending order will be plotted with
-            the linewidths in the order specified.
+    If a number, all levels will be plotted with this linewidth.
 
-            If None, this falls back to :rc:`lines.linewidth`.
+    If a sequence, the levels in ascending order will be plotted with
+    the linewidths in the order specified.
 
-        linestyles : {*None*, 'solid', 'dashed', 'dashdot', 'dotted'}, optional
-            *Only applies to* `.contour`.
+    If None, this falls back to :rc:`lines.linewidth`.
 
-            If *linestyles* is *None*, the default is 'solid' unless the lines
-            are monochrome.  In that case, negative contours will take their
-            linestyle from :rc:`contour.negative_linestyle` setting.
+linestyles : {*None*, 'solid', 'dashed', 'dashdot', 'dotted'}, optional
+    *Only applies to* `.contour`.
 
-            *linestyles* can also be an iterable of the above strings
-            specifying a set of linestyles to be used. If this
-            iterable is shorter than the number of contour levels
-            it will be repeated as necessary.
+    If *linestyles* is *None*, the default is 'solid' unless the lines
+    are monochrome.  In that case, negative contours will take their
+    linestyle from :rc:`contour.negative_linestyle` setting.
 
-        hatches : list[str], optional
-            *Only applies to* `.contourf`.
+    *linestyles* can also be an iterable of the above strings
+    specifying a set of linestyles to be used. If this
+    iterable is shorter than the number of contour levels
+    it will be repeated as necessary.
 
-            A list of cross hatch patterns to use on the filled areas.
-            If None, no hatching will be added to the contour.
-            Hatching is supported in the PostScript, PDF, SVG and Agg
-            backends only.
+hatches : list[str], optional
+    *Only applies to* `.contourf`.
 
-        data : indexable object, optional
-            DATA_PARAMETER_PLACEHOLDER
+    A list of cross hatch patterns to use on the filled areas.
+    If None, no hatching will be added to the contour.
+    Hatching is supported in the PostScript, PDF, SVG and Agg
+    backends only.
 
-        Notes
-        -----
-        1. `.contourf` differs from the MATLAB version in that it does not draw
-           the polygon edges. To draw edges, add line contours with calls to
-           `.contour`.
+data : indexable object, optional
+    DATA_PARAMETER_PLACEHOLDER
 
-        2. `.contourf` fills intervals that are closed at the top; that is, for
-           boundaries *z1* and *z2*, the filled region is::
+Notes
+-----
+1. `.contourf` differs from the MATLAB version in that it does not draw
+   the polygon edges. To draw edges, add line contours with calls to
+   `.contour`.
 
-              z1 < Z <= z2
+2. `.contourf` fills intervals that are closed at the top; that is, for
+   boundaries *z1* and *z2*, the filled region is::
 
-           except for the lowest interval, which is closed on both sides (i.e.
-           it includes the lowest value).
+      z1 < Z <= z2
 
-        3. `.contour` and `.contourf` use a `marching squares
-           <https://en.wikipedia.org/wiki/Marching_squares>`_ algorithm to
-           compute contour locations.  More information can be found in
-           the source ``src/_contour.h``.
-        """
+   except for the lowest interval, which is closed on both sides (i.e.
+   it includes the lowest value).
+
+3. `.contour` and `.contourf` use a `marching squares
+   <https://en.wikipedia.org/wiki/Marching_squares>`_ algorithm to
+   compute contour locations.  More information can be found in
+   the source ``src/_contour.h``.
+""")
