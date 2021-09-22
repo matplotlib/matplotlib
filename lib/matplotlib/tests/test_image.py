@@ -340,6 +340,7 @@ def test_cursor_data():
     "data, text", [
         ([[10001, 10000]], "[10001.000]"),
         ([[.123, .987]], "[0.123]"),
+        ([[np.nan, 1, 2]], "[]"),
     ])
 def test_format_cursor_data(data, text):
     from matplotlib.backend_bases import MouseEvent
@@ -349,7 +350,6 @@ def test_format_cursor_data(data, text):
 
     xdisp, ydisp = ax.transData.transform([0, 0])
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
-    assert im.get_cursor_data(event) == data[0][0]
     assert im.format_cursor_data(im.get_cursor_data(event)) == text
 
 
