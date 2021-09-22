@@ -54,29 +54,29 @@ class Tick(martist.Artist):
         The right/top tick label.
 
     """
-    def __init__(self, axes, loc, *,
-                 size=None,  # points
-                 width=None,
-                 color=None,
-                 tickdir=None,
-                 pad=None,
-                 labelsize=None,
-                 labelcolor=None,
-                 zorder=None,
-                 gridOn=None,  # defaults to axes.grid depending on
-                               # axes.grid.which
-                 tick1On=True,
-                 tick2On=True,
-                 label1On=True,
-                 label2On=False,
-                 major=True,
-                 labelrotation=0,
-                 grid_color=None,
-                 grid_linestyle=None,
-                 grid_linewidth=None,
-                 grid_alpha=None,
-                 **kw  # Other Line2D kwargs applied to gridlines.
-                 ):
+    def __init__(
+        self, axes, loc, *,
+        size=None,  # points
+        width=None,
+        color=None,
+        tickdir=None,
+        pad=None,
+        labelsize=None,
+        labelcolor=None,
+        zorder=None,
+        gridOn=None,  # defaults to axes.grid depending on axes.grid.which
+        tick1On=True,
+        tick2On=True,
+        label1On=True,
+        label2On=False,
+        major=True,
+        labelrotation=0,
+        grid_color=None,
+        grid_linestyle=None,
+        grid_linewidth=None,
+        grid_alpha=None,
+        **kwargs,  # Other Line2D kwargs applied to gridlines.
+    ):
         """
         bbox is the Bound2D bounding box in display coords of the Axes
         loc is the tick location in data coords
@@ -145,7 +145,7 @@ class Tick(martist.Artist):
             grid_linewidth = mpl.rcParams["grid.linewidth"]
         if grid_alpha is None:
             grid_alpha = mpl.rcParams["grid.alpha"]
-        grid_kw = {k[5:]: v for k, v in kw.items()}
+        grid_kw = {k[5:]: v for k, v in kwargs.items()}
 
         self.tick1line = mlines.Line2D(
             [], [],
@@ -346,23 +346,23 @@ class Tick(martist.Artist):
         """
         raise NotImplementedError('Derived must override')
 
-    def _apply_params(self, **kw):
+    def _apply_params(self, **kwargs):
         for name, target in [("gridOn", self.gridline),
                              ("tick1On", self.tick1line),
                              ("tick2On", self.tick2line),
                              ("label1On", self.label1),
                              ("label2On", self.label2)]:
-            if name in kw:
-                target.set_visible(kw.pop(name))
-        if any(k in kw for k in ['size', 'width', 'pad', 'tickdir']):
-            self._size = kw.pop('size', self._size)
+            if name in kwargs:
+                target.set_visible(kwargs.pop(name))
+        if any(k in kwargs for k in ['size', 'width', 'pad', 'tickdir']):
+            self._size = kwargs.pop('size', self._size)
             # Width could be handled outside this block, but it is
             # convenient to leave it here.
-            self._width = kw.pop('width', self._width)
-            self._base_pad = kw.pop('pad', self._base_pad)
+            self._width = kwargs.pop('width', self._width)
+            self._base_pad = kwargs.pop('pad', self._base_pad)
             # _apply_tickdir uses _size and _base_pad to make _pad, and also
             # sets the ticklines markers.
-            self._apply_tickdir(kw.pop('tickdir', self._tickdir))
+            self._apply_tickdir(kwargs.pop('tickdir', self._tickdir))
             for line in (self.tick1line, self.tick2line):
                 line.set_markersize(self._size)
                 line.set_markeredgewidth(self._width)
@@ -371,25 +371,25 @@ class Tick(martist.Artist):
             self.label1.set_transform(trans)
             trans = self._get_text2_transform()[0]
             self.label2.set_transform(trans)
-        tick_kw = {k: v for k, v in kw.items() if k in ['color', 'zorder']}
-        if 'color' in kw:
-            tick_kw['markeredgecolor'] = kw['color']
+        tick_kw = {k: v for k, v in kwargs.items() if k in ['color', 'zorder']}
+        if 'color' in kwargs:
+            tick_kw['markeredgecolor'] = kwargs['color']
         self.tick1line.set(**tick_kw)
         self.tick2line.set(**tick_kw)
         for k, v in tick_kw.items():
             setattr(self, '_' + k, v)
 
-        if 'labelrotation' in kw:
-            self._set_labelrotation(kw.pop('labelrotation'))
+        if 'labelrotation' in kwargs:
+            self._set_labelrotation(kwargs.pop('labelrotation'))
             self.label1.set(rotation=self._labelrotation[1])
             self.label2.set(rotation=self._labelrotation[1])
 
-        label_kw = {k[5:]: v for k, v in kw.items()
+        label_kw = {k[5:]: v for k, v in kwargs.items()
                     if k in ['labelsize', 'labelcolor']}
         self.label1.set(**label_kw)
         self.label2.set(**label_kw)
 
-        grid_kw = {k[5:]: v for k, v in kw.items()
+        grid_kw = {k[5:]: v for k, v in kwargs.items()
                    if k in _gridline_param_names}
         self.gridline.set(**grid_kw)
 
@@ -847,7 +847,7 @@ class Axis(martist.Artist):
         except AttributeError:
             pass
 
-    def set_tick_params(self, which='major', reset=False, **kw):
+    def set_tick_params(self, which='major', reset=False, **kwargs):
         """
         Set appearance parameters for ticks, ticklabels, and gridlines.
 
@@ -855,7 +855,7 @@ class Axis(martist.Artist):
         :meth:`matplotlib.axes.Axes.tick_params`.
         """
         _api.check_in_list(['major', 'minor', 'both'], which=which)
-        kwtrans = self._translate_tick_kw(kw)
+        kwtrans = self._translate_tick_kw(kwargs)
 
         # the kwargs are stored in self._major/minor_tick_kw so that any
         # future new ticks will automatically get them

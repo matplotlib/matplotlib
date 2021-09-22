@@ -1127,7 +1127,8 @@ default: %(va)s
         return text
 
     @docstring.dedent_interpd
-    def colorbar(self, mappable, cax=None, ax=None, use_gridspec=True, **kw):
+    def colorbar(
+            self, mappable, cax=None, ax=None, use_gridspec=True, **kwargs):
         """%(colorbar_doc)s"""
         if ax is None:
             ax = self.gca()
@@ -1146,16 +1147,16 @@ default: %(va)s
             userax = False
             if (use_gridspec and isinstance(ax, SubplotBase)
                     and not self.get_constrained_layout()):
-                cax, kw = cbar.make_axes_gridspec(ax, **kw)
+                cax, kwargs = cbar.make_axes_gridspec(ax, **kwargs)
             else:
-                cax, kw = cbar.make_axes(ax, **kw)
+                cax, kwargs = cbar.make_axes(ax, **kwargs)
         else:
             userax = True
 
         # need to remove kws that cannot be passed to Colorbar
         NON_COLORBAR_KEYS = ['fraction', 'pad', 'shrink', 'aspect', 'anchor',
                              'panchor']
-        cb_kw = {k: v for k, v in kw.items() if k not in NON_COLORBAR_KEYS}
+        cb_kw = {k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS}
 
         cb = cbar.Colorbar(cax, mappable, **cb_kw)
 

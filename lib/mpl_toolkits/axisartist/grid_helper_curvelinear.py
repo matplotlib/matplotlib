@@ -278,10 +278,10 @@ class GridHelperCurveLinear(GridHelperBase):
                                       tick_formatter1,
                                       tick_formatter2)
 
-    def update_grid_finder(self, aux_trans=None, **kw):
+    def update_grid_finder(self, aux_trans=None, **kwargs):
         if aux_trans is not None:
             self.grid_finder.update_transform(aux_trans)
-        self.grid_finder.update(**kw)
+        self.grid_finder.update(**kwargs)
         self._old_limits = None  # Force revalidation.
 
     def new_fixed_axis(self, loc,
