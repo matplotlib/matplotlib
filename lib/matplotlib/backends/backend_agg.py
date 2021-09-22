@@ -163,7 +163,7 @@ class RendererAgg(RendererBase):
                            f"= {path.simplify_threshold:.2f} "
                            "on the input)."
                            )
-                    raise OverflowError(msg) from err
+                    raise OverflowError(msg) from None
         else:
             try:
                 self._renderer.draw_path(gc, path, transform, rgbFace)
@@ -207,7 +207,7 @@ class RendererAgg(RendererBase):
                                + inc_threhold
                                )
 
-                raise OverflowError(msg) from err
+                raise OverflowError(msg) from None
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """Draw mathtext using :mod:`matplotlib.mathtext`."""
