@@ -7,7 +7,7 @@ See `~matplotlib.axes.Axes.bar` / `~matplotlib.axes.Axes.barh`.
 """
 import matplotlib.pyplot as plt
 import numpy as np
-plt.style.use('mpl_plot_gallery')
+plt.style.use('_mpl-gallery')
 
 # make data:
 np.random.seed(3)
