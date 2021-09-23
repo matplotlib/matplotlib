@@ -1,6 +1,6 @@
-# from the Matplotlib cheatsheet as used in our gallery:
+# This style is used for the plot_types gallery. It is considered private.
 
-axes.grid: True
+axes.grid: False
 axes.axisbelow: True
 
 figure.figsize: 2, 2
