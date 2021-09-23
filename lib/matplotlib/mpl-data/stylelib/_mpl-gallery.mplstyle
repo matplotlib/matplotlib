@@ -1,4 +1,4 @@
-# This style is used for the plot_types gallery. It is considered private.
+# This style is used for the plot_types gallery. It is considered part of the private API.
 
 axes.grid: True
 axes.axisbelow: True
