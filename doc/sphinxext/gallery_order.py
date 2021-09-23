@@ -70,12 +70,12 @@ list_all = [
     # Basic
     "plot", "scatter_plot", "bar", "stem", "step", "pie", "fill_between",
     # Arrays
-    "imshow", "pcolormesh", "contourf", "quiver", "streamplot",
+    "imshow", "pcolormesh", "contour", "contourf", "quiver", "streamplot",
     # Stats
     "hist_plot", "boxplot_plot", "errorbar_plot", "violin",
     "barbs", "eventplot", "hist2d", "hexbin",
     # Unstructured
-    "tricontour", "tripcolor", "triplot",
+    "tricontour", "tricontourf", "tripcolor", "triplot",
     ]
 explicit_subsection_order = [item + ".py" for item in list_all]
 

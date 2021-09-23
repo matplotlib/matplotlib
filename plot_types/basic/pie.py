@@ -8,7 +8,7 @@ See `~matplotlib.axes.Axes.pie`.
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.style.use('mpl_plot_gallery')
+plt.style.use('_mpl-gallery-nogrid')
 
 
 # make data
