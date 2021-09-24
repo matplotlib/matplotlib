@@ -1,7 +1,7 @@
 Modification of ``Axes`` children sublists
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-See :ref:`Behavioral API Changes 3.5 - Axes children combined` for more
+See :ref:`Behavioural API Changes 3.5 - Axes children combined` for more
 information; modification of the following sublists is deprecated:
 
 * ``Axes.artists``
