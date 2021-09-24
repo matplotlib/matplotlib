@@ -1,0 +1,4 @@
+hexbin with a log norm
+----------------------
+`~.axes.Axes.hexbin` no longer  (incorrectly) adds 1 to every bin value if a
+log norm is being used.
