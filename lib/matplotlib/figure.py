@@ -23,7 +23,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _blocking_input, _docstring, projections
+from matplotlib import _blocking_input, backend_bases, _docstring, projections
 from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
@@ -2376,6 +2376,8 @@ class Figure(FigureBase):
             'button_press_event', self.pick)
         self._scroll_pick_id = self._canvas_callbacks._connect_picklable(
             'scroll_event', self.pick)
+        self._axes_enter_leave_id = self._canvas_callbacks.connect(
+            'motion_notify_event', backend_bases._axes_enter_leave_emitter)
 
         if figsize is None:
             figsize = mpl.rcParams['figure.figsize']

@@ -1344,22 +1344,6 @@ class LocationEvent(Event):
                 self.xdata = xdata
                 self.ydata = ydata
 
-    def _process(self):
-        last = LocationEvent.lastevent
-        last_axes = last.inaxes if last is not None else None
-        if last_axes != self.inaxes:
-            if last_axes is not None:
-                try:
-                    last.canvas.callbacks.process("axes_leave_event", last)
-                except Exception:
-                    # The last canvas may already have been torn down.
-                    pass
-            if self.inaxes is not None:
-                self.canvas.callbacks.process("axes_enter_event", self)
-        LocationEvent.lastevent = (
-            None if self.name == "figure_leave_event" else self)
-        super()._process()
-
 
 class MouseButton(IntEnum):
     LEFT = 1
@@ -1547,6 +1531,22 @@ class KeyEvent(LocationEvent):
         elif self.name == "key_release_event":
             self.canvas._key = None
         super()._process()
+
+
+def _axes_enter_leave_emitter(event):
+    last = LocationEvent.lastevent
+    last_axes = last.inaxes if last is not None else None
+    if last_axes != event.inaxes:
+        if last_axes is not None:
+            try:
+                last.canvas.callbacks.process("axes_leave_event", last)
+            except Exception:
+                # The last canvas may already have been torn down.
+                pass
+        if event.inaxes is not None:
+            event.canvas.callbacks.process("axes_enter_event", event)
+    LocationEvent.lastevent = (
+        None if event.name == "figure_leave_event" else event)
 
 
 def _get_renderer(figure, print_method=None):
