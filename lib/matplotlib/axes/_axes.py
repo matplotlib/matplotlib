@@ -4589,6 +4589,11 @@ default: :rc:`scatter.edgecolors`
         # Count the number of data in each hexagon
         x = np.array(x, float)
         y = np.array(y, float)
+
+        if marginals:
+            xorig = x.copy()
+            yorig = y.copy()
+
         if xscale == 'log':
             if np.any(x <= 0.0):
                 raise ValueError("x contains non-positive values, so can not"
@@ -4616,10 +4621,6 @@ default: :rc:`scatter.edgecolors`
         xmax += padding
         sx = (xmax - xmin) / nx
         sy = (ymax - ymin) / ny
-
-        if marginals:
-            xorig = x.copy()
-            yorig = y.copy()
 
         x = (x - xmin) / sx
         y = (y - ymin) / sy
@@ -4746,11 +4747,6 @@ default: :rc:`scatter.edgecolors`
                 vmin = vmax = None
             bins = None
 
-        if isinstance(norm, mcolors.LogNorm):
-            if (accum == 0).any():
-                # make sure we have no zeros
-                accum += 1
-
         # autoscale the norm with current accum values if it hasn't
         # been set
         if norm is not None:
@@ -4781,40 +4777,42 @@ default: :rc:`scatter.edgecolors`
         if not marginals:
             return collection
 
+        # Process marginals
         if C is None:
             C = np.ones(len(x))
 
-        def coarse_bin(x, y, coarse):
-            ind = coarse.searchsorted(x).clip(0, len(coarse) - 1)
-            mus = np.zeros(len(coarse))
-            for i in range(len(coarse)):
-                yi = y[ind == i]
+        def coarse_bin(x, y, bin_edges):
+            """
+            Sort x-values into bins defined by *bin_edges*, then for all the
+            corresponding y-values in each bin use *reduce_c_function* to
+            compute the bin value.
+            """
+            nbins = len(bin_edges) - 1
+            # Sort x-values into bins
+            bin_idxs = np.searchsorted(bin_edges, x) - 1
+            mus = np.zeros(nbins) * np.nan
+            for i in range(nbins):
+                # Get y-values for each bin
+                yi = y[bin_idxs == i]
                 if len(yi) > 0:
-                    mu = reduce_C_function(yi)
-                else:
-                    mu = np.nan
-                mus[i] = mu
+                    mus[i] = reduce_C_function(yi)
             return mus
 
-        coarse = np.linspace(xmin, xmax, gridsize)
+        if xscale == 'log':
+            bin_edges = np.geomspace(xmin, xmax, nx + 1)
+        else:
+            bin_edges = np.linspace(xmin, xmax, nx + 1)
+        xcoarse = coarse_bin(xorig, C, bin_edges)
 
-        xcoarse = coarse_bin(xorig, C, coarse)
-        valid = ~np.isnan(xcoarse)
         verts, values = [], []
-        for i, val in enumerate(xcoarse):
-            thismin = coarse[i]
-            if i < len(coarse) - 1:
-                thismax = coarse[i + 1]
-            else:
-                thismax = thismin + np.diff(coarse)[-1]
-
-            if not valid[i]:
+        for bin_left, bin_right, val in zip(
+                bin_edges[:-1], bin_edges[1:], xcoarse):
+            if np.isnan(val):
                 continue
-
-            verts.append([(thismin, 0),
-                          (thismin, 0.05),
-                          (thismax, 0.05),
-                          (thismax, 0)])
+            verts.append([(bin_left, 0),
+                          (bin_left, 0.05),
+                          (bin_right, 0.05),
+                          (bin_right, 0)])
             values.append(val)
 
         values = np.array(values)
@@ -4829,20 +4827,21 @@ default: :rc:`scatter.edgecolors`
         hbar.update(kwargs)
         self.add_collection(hbar, autolim=False)
 
-        coarse = np.linspace(ymin, ymax, gridsize)
-        ycoarse = coarse_bin(yorig, C, coarse)
-        valid = ~np.isnan(ycoarse)
+        if yscale == 'log':
+            bin_edges = np.geomspace(ymin, ymax, 2 * ny + 1)
+        else:
+            bin_edges = np.linspace(ymin, ymax, 2 * ny + 1)
+        ycoarse = coarse_bin(yorig, C, bin_edges)
+
         verts, values = [], []
-        for i, val in enumerate(ycoarse):
-            thismin = coarse[i]
-            if i < len(coarse) - 1:
-                thismax = coarse[i + 1]
-            else:
-                thismax = thismin + np.diff(coarse)[-1]
-            if not valid[i]:
+        for bin_bottom, bin_top, val in zip(
+                bin_edges[:-1], bin_edges[1:], ycoarse):
+            if np.isnan(val):
                 continue
-            verts.append([(0, thismin), (0.0, thismax),
-                          (0.05, thismax), (0.05, thismin)])
+            verts.append([(0, bin_bottom),
+                          (0, bin_top),
+                          (0.05, bin_top),
+                          (0.05, bin_bottom)])
             values.append(val)
 
         values = np.array(values)
