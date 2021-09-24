@@ -15,6 +15,7 @@ Version 3.5
     :maxdepth: 1
 
     prev_whats_new/whats_new_3.5.0.rst
+    ../api/prev_api_changes/api_changes_3.5.0.rst
 
 Version 3.4
 ===========
