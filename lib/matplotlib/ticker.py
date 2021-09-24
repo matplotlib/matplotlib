@@ -1836,13 +1836,13 @@ class MultipleLocator(Locator):
     Set a tick on each integer multiple of a base within the view interval.
     """
 
-    def __init__(self, base=1.0):
-        self._edge = _Edge_integer(base, 0)
+    def __init__(self, base=1.0, offset=0):
+        self._edge = _Edge_integer(base, offset)
 
     def set_params(self, base):
         """Set parameters within this locator."""
         if base is not None:
-            self._edge = _Edge_integer(base, 0)
+            self._edge = _Edge_integer(base, offset)
 
     def __call__(self):
         """Return the locations of the ticks."""
@@ -1855,7 +1855,7 @@ class MultipleLocator(Locator):
         step = self._edge.step
         vmin = self._edge.ge(vmin) * step
         n = (vmax - vmin + 0.001 * step) // step
-        locs = vmin - step + np.arange(n + 3) * step
+        locs = vmin - step + np.arange(n + 3) * step + self._edge._offset
         return self.raise_if_exceeds(locs)
 
     def view_limits(self, dmin, dmax):
