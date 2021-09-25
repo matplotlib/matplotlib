@@ -2292,6 +2292,14 @@ class LogLocator(Locator):
         return self.tick_values(vmin, vmax)
 
     def tick_values(self, vmin, vmax):
+        """
+        Return tick locations.
+
+        Notes
+        -----
+        If vmin/vmax are not exactly on a decade, a single tick lower/higher
+        than vmin/vmax can be returned.
+        """
         if self.numticks == 'auto':
             if self.axis is not None:
                 numticks = np.clip(self.axis.get_tick_space(), 2, 9)
@@ -2322,10 +2330,13 @@ class LogLocator(Locator):
 
         if vmax < vmin:
             vmin, vmax = vmax, vmin
-        log_vmin = math.log(vmin) / math.log(b)
-        log_vmax = math.log(vmax) / math.log(b)
+        # Since base 10 is most common, use log10 here to minimise floating
+        # point errors when vmin/vmax is exactly on a decade
+        log_vmin = np.log10(vmin) / np.log10(b)
+        log_vmax = np.log10(vmax) / np.log10(b)
 
-        numdec = math.floor(log_vmax) - math.ceil(log_vmin)
+        # Number of decades fully containing range [vmin, vmax]
+        numdec = math.ceil(log_vmax) - math.floor(log_vmin)
 
         if isinstance(self._subs, str):
             _first = 2.0 if self._subs == 'auto' else 1.0
@@ -2342,22 +2353,26 @@ class LogLocator(Locator):
         # Get decades between major ticks.
         stride = (max(math.ceil(numdec / (numticks - 1)), 1)
                   if mpl.rcParams['_internal.classic_mode'] else
-                  (numdec + 1) // numticks + 1)
+                  numdec // numticks)
 
-        # if we have decided that the stride is as big or bigger than
-        # the range, clip the stride back to the available range - 1
-        # with a floor of 1.  This prevents getting axis with only 1 tick
-        # visible.
         if stride >= numdec:
+            # If we have decided that the stride is as big or bigger than
+            # the range, clip the stride back to the available range - 1
+            # with a floor of 1.  This prevents getting axis with only 1 tick
+            # visible.
             stride = max(1, numdec - 1)
+        elif stride == 0:
+            # If requesting more ticks than decades, make sure we always have
+            # at least a single stride
+            stride = 1
 
         # Does subs include anything other than 1?  Essentially a hack to know
         # whether we're a major or a minor locator.
         have_subs = len(subs) > 1 or (len(subs) == 1 and subs[0] != 1.0)
 
-        decades = np.arange(math.floor(log_vmin) - stride,
-                            math.ceil(log_vmax) + 2 * stride, stride)
-
+        decades = np.arange(math.floor(log_vmin),
+                            math.ceil(log_vmax) + 1,
+                            stride)
         if hasattr(self, '_transform'):
             ticklocs = self._transform.inverted().transform(decades)
             if have_subs:
@@ -2368,7 +2383,7 @@ class LogLocator(Locator):
                     ticklocs = np.array([])
         else:
             if have_subs:
-                if stride == 1:
+                if stride == 1 and len(decades):
                     ticklocs = np.concatenate(
                         [subs * decade_start for decade_start in b ** decades])
                 else:
