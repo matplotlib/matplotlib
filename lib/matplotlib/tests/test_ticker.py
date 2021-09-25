@@ -1373,3 +1373,12 @@ def test_small_range_loglocator(numticks):
     for top in [5, 7, 9, 11, 15, 50, 100, 1000]:
         ticks = ll.tick_values(0.5, top)
         assert len(ticks) > 1
+
+
+# Test vmin/vmax both on and off an exact decade
+@pytest.mark.parametrize('vmin', [0.1, 0.2])
+@pytest.mark.parametrize('vmax', [100, 110])
+@pytest.mark.parametrize('numticks', np.arange(2, 11))
+def test_loglocator_numticks(numticks, vmin, vmax):
+    ll = mticker.LogLocator(numticks=numticks)
+    assert len(ll.tick_values(vmin, vmax)) <= numticks
