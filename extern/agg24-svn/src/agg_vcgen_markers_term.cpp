@@ -37,7 +37,7 @@ namespace agg
             if(m_markers.size() & 1)
             {
                 // Initial state, the first coordinate was added.
-                // If two of more calls of start_vertex() occures
+                // If two of more calls of start_vertex() occurs
                 // we just modify the last one.
                 m_markers.modify_last(coord_type(x, y));
             }

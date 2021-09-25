@@ -23,7 +23,7 @@
 //
 // A set of functors used with color_conv(). See file agg_color_conv.h
 // These functors can convert images with up to 8 bits per component.
-// Use convertors in the following way:
+// Use converters in the following way:
 //
 // agg::color_conv(dst, src, agg::color_conv_XXXX_to_YYYY());
 //----------------------------------------------------------------------------

@@ -81,7 +81,7 @@ namespace agg
     // Possible formats of the rendering buffer. Initially I thought that it's
     // reasonable to create the buffer and the rendering functions in 
     // accordance with the native pixel format of the system because it 
-    // would have no overhead for pixel format conersion. 
+    // would have no overhead for pixel format conversion. 
     // But eventually I came to a conclusion that having a possibility to 
     // convert pixel formats on demand is a good idea. First, it was X11 where 
     // there lots of different formats and visuals and it would be great to 
@@ -153,7 +153,7 @@ namespace agg
     // In the method on_mouse_button_up() the mouse flags have different
     // meaning. They mean that the respective button is being released, but
     // the meaning of the keyboard flags remains the same.
-    // There's absolut minimal set of flags is used because they'll be most
+    // There's absolute minimal set of flags is used because they'll be most
     // probably supported on different platforms. Even the mouse_right flag
     // is restricted because Mac's mice have only one button, but AFAIK
     // it can be simulated with holding a special key on the keydoard.
@@ -369,7 +369,7 @@ namespace agg
 
 
     //---------------------------------------------------------platform_support
-    // This class is a base one to the apllication classes. It can be used 
+    // This class is a base one to the application classes. It can be used 
     // as follows:
     //
     //  class the_application : public agg::platform_support
@@ -467,7 +467,7 @@ namespace agg
         unsigned bpp() const { return m_bpp; }
 
         //--------------------------------------------------------------------
-        // The following provides a very simple mechanism of doing someting
+        // The following provides a very simple mechanism of doing something
         // in background. It's not multithreading. When wait_mode is true
         // the class waits for the events and it does not ever call on_idle().
         // When it's false it calls on_idle() when the event queue is empty.
@@ -489,7 +489,7 @@ namespace agg
         void update_window();
 
         //--------------------------------------------------------------------
-        // So, finally, how to draw anythig with AGG? Very simple.
+        // So, finally, how to draw anything with AGG? Very simple.
         // rbuf_window() returns a reference to the main rendering 
         // buffer which can be attached to any rendering class.
         // rbuf_img() returns a reference to the previously created
@@ -544,9 +544,9 @@ namespace agg
         // to override them all.
         // In my demo applications these functions are defined inside
         // the the_application class (implicit inlining) which is in general 
-        // very bad practice, I mean vitual inline methods. At least it does
+        // very bad practice, I mean virtual inline methods. At least it does
         // not make sense. 
-        // But in this case it's quite appropriate bacause we have the only
+        // But in this case it's quite appropriate because we have the only
         // instance of the the_application class and it is in the same file 
         // where this class is defined.
         virtual void on_init();
