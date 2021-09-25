@@ -26,7 +26,7 @@
 // Use convertors in the following way:
 //
 // agg::color_conv(dst, src, agg::color_conv_XXXX_to_YYYY());
-//------------------------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 #ifndef AGG_COLOR_CONV_RGB16_INCLUDED
 #define AGG_COLOR_CONV_RGB16_INCLUDED
