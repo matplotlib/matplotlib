@@ -742,7 +742,7 @@ void ttfont_sfnts(TTStreamWriter& stream, struct TTFONT *font)
         ULONG checksum;
     } tables[9];
 
-    BYTE *ptr;                  /* A pointer into the origi nal table directory. */
+    BYTE *ptr;                  /* A pointer into the original table directory. */
     ULONG x,y;                  /* General use loop countes. */
     int c;                      /* Input character. */
     int diff;
