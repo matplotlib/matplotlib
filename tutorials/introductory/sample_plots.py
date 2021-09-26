@@ -284,8 +284,6 @@ functions.
    :target: ../../gallery/text_labels_and_annotations/legend.html
    :align: center
 
-   Legend
-
 Thanks to Charles Twardy for input on the legend function.
 
 .. _screenshots_mathtext_examples_demo:

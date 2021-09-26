@@ -176,8 +176,6 @@ setting in the right subplots.
    :align: center
    :scale: 50
 
-   Align Ylabels
-
 .. _howto-set-zorder:
 
 Control the draw order of plot elements
