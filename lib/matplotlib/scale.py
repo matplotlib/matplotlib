@@ -458,7 +458,6 @@ class SymmetricalLogScale(ScaleBase):
         return self._transform
 
 
-
 class AsinhScale(ScaleBase):
     """
     A quasi-logarithmic scale based on the inverse hyperbolic sine (asinh)
@@ -480,6 +479,8 @@ class AsinhScale(ScaleBase):
             The scale parameter defining the extent of the quasi-linear region.
         """
         super().__init__(axis)
+        if a0 <= 0.0:
+            raise ValueError("Scale parameter 'a0' must be strictly positive")
         self.a0 = a0
 
     def get_transform(self):
@@ -490,7 +491,7 @@ class AsinhScale(ScaleBase):
                  major_formatter='{x:.3g}')
 
     class AsinhTransform(Transform):
-        input_dims = output_dims =1
+        input_dims = output_dims = 1
 
         def __init__(self, a0):
             super().__init__()
@@ -503,7 +504,7 @@ class AsinhScale(ScaleBase):
             return AsinhScale.InvertedAsinhTransform(self.a0)
 
     class InvertedAsinhTransform(Transform):
-        input_dims = output_dims =1
+        input_dims = output_dims = 1
 
         def __init__(self, a0):
             super().__init__()
@@ -526,9 +527,11 @@ class AsinhScale(ScaleBase):
             Parameters
             ----------
             a0 : float
-                The scale parameter defining the extent of the quasi-linear region.
+                The scale parameter defining the extent
+                of the quasi-linear region.
             apx_tick_count : int, default: 12
-                The approximate number of major ticks that will fit along the entire axis
+                The approximate number of major ticks that will fit
+                along the entire axis
             """
             super().__init__()
             self.a0 = a0
@@ -539,12 +542,14 @@ class AsinhScale(ScaleBase):
             return self.tick_values(dmin, dmax)
 
         def tick_values(self, vmin, vmax):
-            # Construct a set of "on-screen" locations that are uniformly spaced:
+            # Construct a set of "on-screen" locations
+            # that are uniformly spaced:
             ymin, ymax = self.a0 * np.arcsinh(np.array([vmin, vmax]) / self.a0)
             ys = np.linspace(ymin, ymax, self.apx_tick_count)
             if (ymin * ymax) < 0:
-                # Ensure that zero tick-mark is included if the axis stradles zero
-                ys = np.hstack([ ys, 0.0 ])
+                # Ensure that the zero tick-mark is included,
+                # if the axis stradles zero
+                ys = np.hstack([ys, 0.0])
 
             # Transform the "on-screen" grid to the data space:
             xs = self.a0 * np.sinh(ys / self.a0)
@@ -554,12 +559,12 @@ class AsinhScale(ScaleBase):
             decades = (
                 np.where(xs >= 0, 1, -1) *
                 np.power(10, np.where(zero_xs, 1.0,
-                                      np.floor(np.log10(np.abs(xs) + zero_xs*1e-6))))
+                                      np.floor(np.log10(np.abs(xs)
+                                                        + zero_xs*1e-6))))
             )
             qs = decades * np.round(xs / decades)
 
             return np.array(sorted(set(qs)))
-
 
 
 class LogitTransform(Transform):
