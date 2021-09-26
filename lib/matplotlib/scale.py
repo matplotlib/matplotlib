@@ -461,23 +461,24 @@ class SymmetricalLogScale(ScaleBase):
 
 class AsinhScale(ScaleBase):
     """
-    A quasi-logarithmic scale based on the inverse hyperbolic sin (asinh)
+    A quasi-logarithmic scale based on the inverse hyperbolic sine (asinh)
 
     For values close to zero, this is essentially a linear scale,
-    but for larger values (either positive or negative) is asymptotically
+    but for larger values (either positive or negative) it is asymptotically
     logarithmic. The transition between these linear and logarithmic regimes
     is smooth, and has no discontinutities in the function gradient
     in contrast to the "symlog" scale.
-
-    Parameters
-    ----------
-    a0 : float, default: 1
-        The scale parameter defining the extent of the quasi-linear region.
     """
 
     name = 'asinh'
 
     def __init__(self, axis, *, a0=1.0, **kwargs):
+        """
+        Parameters
+        ----------
+        a0 : float, default: 1
+            The scale parameter defining the extent of the quasi-linear region.
+        """
         super().__init__(axis)
         self.a0 = a0
 
@@ -485,7 +486,8 @@ class AsinhScale(ScaleBase):
         return self.AsinhTransform(self.a0)
 
     def set_default_locators_and_formatters(self, axis):
-        axis.set(major_locator=AsinhScale.AsinhLocator(self.a0), major_formatter='{x:.3g}')
+        axis.set(major_locator=AsinhScale.AsinhLocator(self.a0),
+                 major_formatter='{x:.3g}')
 
     class AsinhTransform(Transform):
         input_dims = output_dims =1
@@ -514,24 +516,41 @@ class AsinhScale(ScaleBase):
             return AsinhScale.AsinhTransform(self.a0)
 
     class AsinhLocator(Locator):
-        def __init__(self, a0):
+        """
+        An axis tick locator specialized for the arcsinh scale
+
+        This is very unlikely to have any use beyond the AsinhScale class.
+        """
+        def __init__(self, a0, apx_tick_count=12):
+            """
+            Parameters
+            ----------
+            a0 : float
+                The scale parameter defining the extent of the quasi-linear region.
+            apx_tick_count : int, default: 12
+                The approximate number of major ticks that will fit along the entire axis
+            """
             super().__init__()
             self.a0 = a0
+            self.apx_tick_count = apx_tick_count
 
         def __call__(self):
             dmin, dmax = self.axis.get_data_interval()
             return self.tick_values(dmin, dmax)
 
         def tick_values(self, vmin, vmax):
-
+            # Construct a set of "on-screen" locations that are uniformly spaced:
             ymin, ymax = self.a0 * np.arcsinh(np.array([vmin, vmax]) / self.a0)
-            ys = np.linspace(ymin, ymax, 12)
+            ys = np.linspace(ymin, ymax, self.apx_tick_count)
             if (ymin * ymax) < 0:
+                # Ensure that zero tick-mark is included if the axis stradles zero
                 ys = np.hstack([ ys, 0.0 ])
 
+            # Transform the "on-screen" grid to the data space:
             xs = self.a0 * np.sinh(ys / self.a0)
             zero_xs = (xs == 0)
 
+            # Round the data-space values to be intuitive decimal numbers:
             decades = (
                 np.where(xs >= 0, 1, -1) *
                 np.power(10, np.where(zero_xs, 1.0,
