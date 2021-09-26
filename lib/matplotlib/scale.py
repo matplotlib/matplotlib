@@ -22,7 +22,7 @@ import matplotlib as mpl
 from matplotlib import _api, docstring
 from matplotlib.ticker import (
     NullFormatter, ScalarFormatter, LogFormatterSciNotation, LogitFormatter,
-    NullLocator, LogLocator, AutoLocator, AutoMinorLocator,
+    Locator, NullLocator, LogLocator, AutoLocator, AutoMinorLocator,
     SymmetricalLogLocator, LogitLocator)
 from matplotlib.transforms import Transform, IdentityTransform
 
@@ -460,6 +460,21 @@ class SymmetricalLogScale(ScaleBase):
 
 
 class AsinhScale(ScaleBase):
+    """
+    A quasi-logarithmic scale based on the inverse hyperbolic sin (asinh)
+
+    For values close to zero, this is essentially a linear scale,
+    but for larger values (either positive or negative) is asymptotically
+    logarithmic. The transition between these linear and logarithmic regimes
+    is smooth, and has no discontinutities in the function gradient
+    in contrast to the "symlog" scale.
+
+    Parameters
+    ----------
+    a0 : float, default: 1
+        The scale parameter defining the extent of the quasi-linear region.
+    """
+
     name = 'asinh'
 
     def __init__(self, axis, *, a0=1.0, **kwargs):
@@ -476,7 +491,7 @@ class AsinhScale(ScaleBase):
         input_dims = output_dims =1
 
         def __init__(self, a0):
-            matplotlib.transforms.Transform.__init__(self)
+            super().__init__()
             self.a0 = a0
 
         def transform_non_affine(self, a):
@@ -489,7 +504,7 @@ class AsinhScale(ScaleBase):
         input_dims = output_dims =1
 
         def __init__(self, a0):
-            matplotlib.transforms.Transform.__init__(self)
+            super().__init__()
             self.a0 = a0
 
         def transform_non_affine(self, a):
@@ -498,7 +513,7 @@ class AsinhScale(ScaleBase):
         def inverted(self):
             return AsinhScale.AsinhTransform(self.a0)
 
-    class AsinhLocator(matplotlib.ticker.Locator):
+    class AsinhLocator(Locator):
         def __init__(self, a0):
             super().__init__()
             self.a0 = a0
@@ -515,11 +530,12 @@ class AsinhScale(ScaleBase):
                 ys = np.hstack([ ys, 0.0 ])
 
             xs = self.a0 * np.sinh(ys / self.a0)
+            zero_xs = (xs == 0)
 
             decades = (
                 np.where(xs >= 0, 1, -1) *
-                np.power(10, np.where(xs == 0, 1.0,
-                                            np.floor(np.log10(np.abs(xs)))))
+                np.power(10, np.where(zero_xs, 1.0,
+                                      np.floor(np.log10(np.abs(xs) + zero_xs*1e-6))))
             )
             qs = decades * np.round(xs / decades)
 
