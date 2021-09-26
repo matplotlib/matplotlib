@@ -16,9 +16,6 @@ from matplotlib import cm
 
 ax = plt.figure().add_subplot(projection='3d')
 X, Y, Z = axes3d.get_test_data(0.05)
-
-cset = ax.contourf(X, Y, Z, cmap=cm.coolwarm)
-
-ax.clabel(cset, fontsize=9, inline=True)
+ax.contourf(X, Y, Z, cmap=cm.coolwarm)
 
 plt.show()
