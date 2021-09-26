@@ -165,8 +165,6 @@ specifically the Skew-T used in meteorology.
    :align: center
    :scale: 50
 
-   Skewt
-
 Support for specifying properties of wedge and text in pie charts.
 ``````````````````````````````````````````````````````````````````
 Added the kwargs 'wedgeprops' and 'textprops' to `~.Axes.pie`
@@ -252,8 +250,6 @@ Caradec Bisesar and Vlad Vassilovski.
    :target: ../../gallery/mplot3d/quiver3d.html
    :align: center
    :scale: 50
-
-   Quiver3d
 
 polar-plot r-tick locations
 ```````````````````````````

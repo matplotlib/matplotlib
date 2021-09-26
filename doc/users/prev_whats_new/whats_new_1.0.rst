@@ -30,8 +30,6 @@ more.  See :doc:`/tutorials/intermediate/gridspec` for a tutorial overview.
    :align: center
    :scale: 50
 
-   Demo Gridspec01
-
 Easy pythonic subplots
 -----------------------
 
@@ -62,8 +60,6 @@ plotting unstructured triangular grids.
    :target: ../../gallery/images_contours_and_fields/triplot_demo.html
    :align: center
    :scale: 50
-
-   Triplot Demo
 
 multiple calls to show supported
 --------------------------------
