@@ -32,7 +32,8 @@ to.  If you do not hold a reference to the `Animation` object, it (and
 hence the timers) will be garbage collected which will stop the
 animation.
 
-To save an animation to disk use `Animation.save` or `Animation.to_html5_video`
+To save an animation use `Animation.save`, `Animation.to_html5_video`,
+or `Animation.to_jshtml`.
 
 See :ref:`ani_writer_classes` below for details about what movie formats are
 supported.
