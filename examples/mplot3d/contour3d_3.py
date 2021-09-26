@@ -21,17 +21,12 @@ ax.plot_surface(X, Y, Z, rstride=8, cstride=8, alpha=0.3)
 
 # Plot projections of the contours for each dimension.  By choosing offsets
 # that match the appropriate axes limits, the projected contours will sit on
-# the 'walls' of the graph
-cset = ax.contour(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
-cset = ax.contour(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
-cset = ax.contour(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
+# the 'walls' of the graph.
+ax.contour(X, Y, Z, zdir='z', offset=-100, cmap=cm.coolwarm)
+ax.contour(X, Y, Z, zdir='x', offset=-40, cmap=cm.coolwarm)
+ax.contour(X, Y, Z, zdir='y', offset=40, cmap=cm.coolwarm)
 
-ax.set_xlim(-40, 40)
-ax.set_ylim(-40, 40)
-ax.set_zlim(-100, 100)
-
-ax.set_xlabel('X')
-ax.set_ylabel('Y')
-ax.set_zlabel('Z')
+ax.set(xlim=(-40, 40), ylim=(-40, 40), zlim=(-100, 100),
+       xlabel='X', ylabel='Y', zlabel='Z')
 
 plt.show()
