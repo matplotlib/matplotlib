@@ -61,7 +61,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
 
             if QT_API == "PyQt6":
                 from PyQt6 import sip
-                ptr = sip.voidptr(buf)
+                ptr = int(sip.voidptr(buf))
             else:
                 ptr = buf
             qimage = QtGui.QImage(
@@ -74,7 +74,8 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             # Adjust the buf reference count to work around a memory
             # leak bug in QImage under PySide.
             if QT_API in ('PySide', 'PySide2'):
-                ctypes.c_long.from_address(id(buf)).value = 1
+                if QtCore.__version_info__ < (5, 12):
+                    ctypes.c_long.from_address(id(buf)).value = 1
 
             self._draw_rect_callback(painter)
         finally:
