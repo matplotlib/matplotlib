@@ -458,6 +458,75 @@ class SymmetricalLogScale(ScaleBase):
         return self._transform
 
 
+
+class AsinhScale(ScaleBase):
+    name = 'asinh'
+
+    def __init__(self, axis, *, a0=1.0, **kwargs):
+        super().__init__(axis)
+        self.a0 = a0
+
+    def get_transform(self):
+        return self.AsinhTransform(self.a0)
+
+    def set_default_locators_and_formatters(self, axis):
+        axis.set(major_locator=AsinhScale.AsinhLocator(self.a0), major_formatter='{x:.3g}')
+
+    class AsinhTransform(Transform):
+        input_dims = output_dims =1
+
+        def __init__(self, a0):
+            matplotlib.transforms.Transform.__init__(self)
+            self.a0 = a0
+
+        def transform_non_affine(self, a):
+            return self.a0 * np.arcsinh(a / self.a0)
+
+        def inverted(self):
+            return AsinhScale.InvertedAsinhTransform(self.a0)
+
+    class InvertedAsinhTransform(Transform):
+        input_dims = output_dims =1
+
+        def __init__(self, a0):
+            matplotlib.transforms.Transform.__init__(self)
+            self.a0 = a0
+
+        def transform_non_affine(self, a):
+            return self.a0 * np.sinh(a / self.a0)
+
+        def inverted(self):
+            return AsinhScale.AsinhTransform(self.a0)
+
+    class AsinhLocator(matplotlib.ticker.Locator):
+        def __init__(self, a0):
+            super().__init__()
+            self.a0 = a0
+
+        def __call__(self):
+            dmin, dmax = self.axis.get_data_interval()
+            return self.tick_values(dmin, dmax)
+
+        def tick_values(self, vmin, vmax):
+
+            ymin, ymax = self.a0 * np.arcsinh(np.array([vmin, vmax]) / self.a0)
+            ys = np.linspace(ymin, ymax, 12)
+            if (ymin * ymax) < 0:
+                ys = np.hstack([ ys, 0.0 ])
+
+            xs = self.a0 * np.sinh(ys / self.a0)
+
+            decades = (
+                np.where(xs >= 0, 1, -1) *
+                np.power(10, np.where(xs == 0, 1.0,
+                                            np.floor(np.log10(np.abs(xs)))))
+            )
+            qs = decades * np.round(xs / decades)
+
+            return np.array(sorted(set(qs)))
+
+
+
 class LogitTransform(Transform):
     input_dims = output_dims = 1
 
@@ -568,6 +637,7 @@ _scale_mapping = {
     'linear': LinearScale,
     'log':    LogScale,
     'symlog': SymmetricalLogScale,
+    'asinh':  AsinhScale,
     'logit':  LogitScale,
     'function': FuncScale,
     'functionlog': FuncScaleLog,
