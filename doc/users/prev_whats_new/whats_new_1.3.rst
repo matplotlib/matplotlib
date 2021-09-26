@@ -96,8 +96,6 @@ to modify each artist's sketch parameters individually with
    :align: center
    :scale: 50
 
-   xkcd
-
 Updated Axes3D.contour methods
 ------------------------------
 Damon McDougall updated the
@@ -110,8 +108,6 @@ contour plots on abitrary unstructured user-specified triangulations.
    :align: center
    :scale: 50
 
-   Tricontour3d
-
 New eventplot plot type
 ```````````````````````
 Todd Jennings added a :func:`~matplotlib.pyplot.eventplot` function to
@@ -121,8 +117,6 @@ create multiple rows or columns of identical line segments
    :target: ../../gallery/lines_bars_and_markers/eventplot_demo.html
    :align: center
    :scale: 50
-
-   Eventplot Demo
 
 As part of this feature, there is a new
 :class:`~matplotlib.collections.EventCollection` class that allows for
@@ -146,8 +140,6 @@ added (:class:`~matplotlib.tri.TriAnalyzer`).
    :align: center
    :scale: 50
 
-   Tricontour Smooth User
-
 Baselines for stackplot
 ```````````````````````
 Till Stensitzki added non-zero baselines to
@@ -158,8 +150,6 @@ weighted.
    :target: ../../gallery/lines_bars_and_markers/stackplot_demo.html
    :align: center
    :scale: 50
-
-   Stackplot Demo2
 
 Rectangular colorbar extensions
 ```````````````````````````````
@@ -203,8 +193,6 @@ Thanks to Jae-Joon Lee, path effects now also work on plot lines.
    :target: ../../gallery/misc/patheffect_demo.html
    :align: center
    :scale: 50
-
-   Patheffect Demo
 
 Easier creation of colormap and normalizer for levels with colors
 `````````````````````````````````````````````````````````````````

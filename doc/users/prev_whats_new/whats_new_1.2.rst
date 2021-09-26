@@ -67,8 +67,6 @@ Damon McDougall added a new plotting method for the
    :align: center
    :scale: 50
 
-   Trisurf3d
-
 Control the lengths of colorbar extensions
 ------------------------------------------
 
@@ -133,9 +131,6 @@ median and confidence interval.
    :align: center
    :scale: 50
 
-   Boxplot Demo3
-
-
 New RC parameter functionality
 ------------------------------
 
@@ -167,9 +162,6 @@ local intensity of the vector field.
    :target: ../../gallery/images_contours_and_fields/plot_streamplot.html
    :align: center
    :scale: 50
-
-   Plot Streamplot
-
 
 New hist functionality
 ----------------------
@@ -204,8 +196,6 @@ a triangulation.
    :align: center
    :scale: 50
 
-   Tripcolor Demo
-
 Hatching patterns in filled contour plots, with legends
 -------------------------------------------------------
 
@@ -217,8 +207,6 @@ to use a legend to identify contoured ranges.
    :target: ../../gallery/images_contours_and_fields/contourf_hatching.html
    :align: center
    :scale: 50
-
-   Contourf Hatching
 
 Known issues in the matplotlib 1.2 release
 ------------------------------------------
