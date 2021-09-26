@@ -26,9 +26,6 @@ Kevin Davies has extended Yannick Copin's original Sankey example into a module
    :align: center
    :scale: 50
 
-   Sankey Rankine
-
-
 Animation
 ---------
 
@@ -125,8 +122,6 @@ examples.
    :align: center
    :scale: 50
 
-   Legend Demo4
-
 mplot3d
 -------
 
@@ -151,8 +146,6 @@ as 2D plotting, Ben Root has made several improvements to the
    :align: center
    :scale: 50
 
-   Offset
-
 * :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.contourf`
   gains *zdir* and *offset* kwargs. You can now do this:
 
@@ -160,8 +153,6 @@ as 2D plotting, Ben Root has made several improvements to the
    :target: ../../gallery/mplot3d/contourf3d_2.html
    :align: center
    :scale: 50
-
-   Contourf3d 2
 
 Numerix support removed
 -----------------------

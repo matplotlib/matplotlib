@@ -109,9 +109,6 @@ on two or more property cycles.
    :align: center
    :scale: 50
 
-   Color Cycle
-
-
 New Colormaps
 -------------
 
@@ -316,9 +313,6 @@ specified, the default value is taken from rcParams.
    :align: center
    :scale: 50
 
-   Contour Corner Mask
-
-
 Mostly unified linestyles for `.Line2D`, `.Patch` and `.Collection`
 ```````````````````````````````````````````````````````````````````
 
@@ -378,9 +372,6 @@ This is particularly useful for plotting pre-binned histograms.
    :target: ../../gallery/lines_bars_and_markers/filled_step.html
    :align: center
    :scale: 50
-
-   Filled Step
-
 
 Square Plot
 ```````````
