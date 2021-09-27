@@ -190,7 +190,7 @@ globals().update(_cmap_registry)
 cmap_d = _DeprecatedCmapDictWrapper(_cmap_registry)
 __builtin_cmaps = tuple(_cmap_registry)
 
-# public acces to the colormaps should be via `matplotlib.colormaps`. For now,
+# public access to the colormaps should be via `matplotlib.colormaps`. For now,
 # we still create the registry here, but that should stay an implementation
 # detail.
 _colormaps = ColormapRegistry(_cmap_registry)

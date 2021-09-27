@@ -4786,7 +4786,7 @@ the `API changes <../../api/api_changes.html>`_.
     Added Nick's picker "among" patch - JDH
 
 2005-06-05
-    Fixed a TeX/LaTeX font discrepency in backend_ps. - DSD
+    Fixed a TeX/LaTeX font discrepancy in backend_ps. - DSD
 
 2005-06-05
     Added a ps.distill option in rc settings. If True, postscript output will
