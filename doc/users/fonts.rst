@@ -121,7 +121,7 @@ This is especially helpful to generate *really lightweight* documents.::
   These core fonts are limited to PDF and PS backends only; they can not be
   rendered in other backends.
 
-  Another downside to this is that while the font metric is standardized,
+  Another downside to this is that while the font metrics are standardized,
   different PDF viewer applications will have different fonts to render these
   metrics. In other words, the **output might look different on different
   viewers**, as well as (let's say) Windows and Linux, if Linux tools included
