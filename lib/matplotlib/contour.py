@@ -813,6 +813,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         kwargs = self._process_args(*args, **kwargs)
         self._process_levels()
 
+        self._extend_min = self.extend in ['min', 'both']
+        self._extend_max = self.extend in ['max', 'both']
         if self.colors is not None:
             ncolors = len(self.levels)
             if self.filled:
@@ -821,25 +823,27 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
 
             # Handle the case where colors are given for the extended
             # parts of the contour.
-            extend_min = self.extend in ['min', 'both']
-            extend_max = self.extend in ['max', 'both']
+
             use_set_under_over = False
             # if we are extending the lower end, and we've been given enough
             # colors then skip the first color in the resulting cmap. For the
             # extend_max case we don't need to worry about passing more colors
             # than ncolors as ListedColormap will clip.
-            total_levels = ncolors + int(extend_min) + int(extend_max)
-            if len(self.colors) == total_levels and (extend_min or extend_max):
+            total_levels = (ncolors +
+                            int(self._extend_min) +
+                            int(self._extend_max))
+            if (len(self.colors) == total_levels and
+                    (self._extend_min or self._extend_max)):
                 use_set_under_over = True
-                if extend_min:
+                if self._extend_min:
                     i0 = 1
 
             cmap = mcolors.ListedColormap(self.colors[i0:None], N=ncolors)
 
             if use_set_under_over:
-                if extend_min:
+                if self._extend_min:
                     cmap.set_under(self.colors[0])
-                if extend_max:
+                if self._extend_max:
                     cmap.set_over(self.colors[-1])
 
         self.collections = cbook.silent_list(None)
