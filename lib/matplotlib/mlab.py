@@ -215,6 +215,7 @@ def detrend_linear(y):
     return y - (b*x + a)
 
 
+@_api.deprecated("3.6")
 def stride_windows(x, n, noverlap=None, axis=0):
     """
     Get all windows of x with length n as a single array,
@@ -246,6 +247,18 @@ def stride_windows(x, n, noverlap=None, axis=0):
     """
     if noverlap is None:
         noverlap = 0
+    if np.ndim(x) != 1:
+        raise ValueError('only 1-dimensional arrays can be used')
+    return _stride_windows(x, n, noverlap, axis)
+
+
+def _stride_windows(x, n, noverlap=0, axis=0):
+    # np>=1.20 provides sliding_window_view, and we only ever use axis=0.
+    if hasattr(np.lib.stride_tricks, "sliding_window_view") and axis == 0:
+        if noverlap >= n:
+            raise ValueError('noverlap must be less than n')
+        return np.lib.stride_tricks.sliding_window_view(
+            x, n, axis=0)[::n - noverlap].T
 
     if noverlap >= n:
         raise ValueError('noverlap must be less than n')
@@ -254,8 +267,6 @@ def stride_windows(x, n, noverlap=None, axis=0):
 
     x = np.asarray(x)
 
-    if x.ndim != 1:
-        raise ValueError('only 1-dimensional arrays can be used')
     if n == 1 and noverlap == 0:
         if axis == 0:
             return x[np.newaxis]
@@ -370,7 +381,7 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
         raise ValueError(
             "The window length must match the data's first dimension")
 
-    result = stride_windows(x, NFFT, noverlap, axis=0)
+    result = _stride_windows(x, NFFT, noverlap)
     result = detrend(result, detrend_func, axis=0)
     result = result * window.reshape((-1, 1))
     result = np.fft.fft(result, n=pad_to, axis=0)[:numFreqs, :]
@@ -378,7 +389,7 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
 
     if not same_data:
         # if same_data is False, mode must be 'psd'
-        resultY = stride_windows(y, NFFT, noverlap)
+        resultY = _stride_windows(y, NFFT, noverlap)
         resultY = detrend(resultY, detrend_func, axis=0)
         resultY = resultY * window.reshape((-1, 1))
         resultY = np.fft.fft(resultY, n=pad_to, axis=0)[:numFreqs, :]
