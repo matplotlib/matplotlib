@@ -1,3 +1,0 @@
-``LassoSelector.onpress`` and ``LassoSelector.onrelease``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... are deprecated (they are straight aliases for ``press`` and ``release``).

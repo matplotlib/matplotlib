@@ -1,6 +1,0 @@
-Locator and Formatter wrapper methods
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The ``set_view_interval``, ``set_data_interval`` and ``set_bounds`` methods of
-`.Locator`\s and `.Formatter`\s (and their common base class, TickHelper) are
-deprecated.  Directly manipulate the view and data intervals on the underlying
-axis instead.

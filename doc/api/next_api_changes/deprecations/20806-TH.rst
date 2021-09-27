@@ -1,4 +1,0 @@
-``matplotlib.cm.LUTSIZE``
-~~~~~~~~~~~~~~~~~~~~~~~~~
-is deprecated. Use :rc:`image.lut` instead. This value only affects colormap
-quantization levels for default colormaps generated at module import time.
