@@ -343,6 +343,11 @@ C/C++ extensions
   docstrings, and the Numpydoc format is well understood in the
   scientific Python community.
 
+* C/C++ code in the :file:`extern/` directory is vendored, and should be kept
+  close to upstream whenever possible.  It can be modified to fix bugs or
+  implement new features only if the required changes cannot be made elsewhere
+  in the codebase.  In particular, avoid making style fixes to it.
+
 .. _keyword-argument-processing:
 
 Keyword argument processing
