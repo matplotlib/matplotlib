@@ -478,16 +478,14 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
         output.write("mpl.toolbar_items = {0};\n\n".format(
             json.dumps(toolitems)))
 
-        extensions = []
-        for filetype, ext in sorted(FigureCanvasWebAggCore.
-                                    get_supported_filetypes_grouped().
-                                    items()):
-            extensions.append(ext[0])
+        extensions = [
+            ext[0] for filetype, ext
+            in sorted(cls.get_supported_filetypes_grouped().items())]
         output.write("mpl.extensions = {0};\n\n".format(
             json.dumps(extensions)))
 
         output.write("mpl.default_extension = {0};".format(
-            json.dumps(FigureCanvasWebAggCore.get_default_filetype())))
+            json.dumps(cls.get_default_filetype())))
 
         if stream is None:
             return output.getvalue()
