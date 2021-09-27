@@ -354,7 +354,7 @@ class Legend(Artist):
         -----
         Users can specify any arbitrary location for the legend using the
         *bbox_to_anchor* keyword argument. *bbox_to_anchor* can be a
-        `.BboxBase` (or derived therefrom) or a tuple of 2 or 4 floats.
+        `.BboxBase` (or derived there from) or a tuple of 2 or 4 floats.
         See `set_bbox_to_anchor` for more detail.
 
         The legend location can be specified by setting *loc* with a tuple of
