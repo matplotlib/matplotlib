@@ -526,7 +526,11 @@ class NavigationToolbar2GTK3(_NavigationToolbar2GTK, Gtk.Toolbar):
         try:
             self.canvas.figure.savefig(fname, format=fmt)
         except Exception as e:
-            error_msg_gtk(str(e), parent=self)
+            dialog = Gtk.MessageDialog(
+                parent=self.canvas.get_toplevel(), message_format=str(e),
+                type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.OK)
+            dialog.run()
+            dialog.destroy()
 
 
 class ToolbarGTK3(ToolContainerBase, Gtk.Box):
@@ -722,6 +726,7 @@ class ToolCopyToClipboardGTK3(backend_tools.ToolCopyToClipboardBase):
         clipboard.set_image(pb)
 
 
+@_api.deprecated("3.6")
 def error_msg_gtk(msg, parent=None):
     if parent is not None:  # find the toplevel Gtk.Window
         parent = parent.get_toplevel()
