@@ -2330,8 +2330,6 @@ class LogLocator(Locator):
 
         if vmax < vmin:
             vmin, vmax = vmax, vmin
-        # Since base 10 is most common, use log10 here to minimise floating
-        # point errors when vmin/vmax is exactly on a decade
         log_vmin = np.log10(vmin) / np.log10(b)
         log_vmax = np.log10(vmax) / np.log10(b)
 
@@ -2355,12 +2353,11 @@ class LogLocator(Locator):
                   if mpl.rcParams['_internal.classic_mode'] else
                   numdec // numticks)
 
-        if stride >= numdec:
-            # If we have decided that the stride is as big or bigger than
-            # the range, clip the stride back to the available range - 1
-            # with a floor of 1.  This prevents getting axis with only 1 tick
-            # visible.
-            stride = max(1, numdec - 1)
+        if stride > numdec:
+            # If we have decided that the stride is bigger than the range, clip
+            # the stride back to the available range - 1 with a floor of 1.
+            # This prevents getting axis with only 1 tick visible.
+            stride = max(1, numdec)
         elif stride == 0:
             # If requesting more ticks than decades, make sure we always have
             # at least a single stride

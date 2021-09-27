@@ -1382,3 +1382,24 @@ def test_small_range_loglocator(numticks):
 def test_loglocator_numticks(numticks, vmin, vmax):
     ll = mticker.LogLocator(numticks=numticks)
     assert len(ll.tick_values(vmin, vmax)) <= numticks
+
+
+@pytest.mark.parametrize('base', [2, 5, 10, 3.8])
+def test_loglocator_bases(base):
+    ll = mticker.LogLocator(base=base, numticks=2)
+    vmin, vmax = base**1, base**2
+    # Ticks should be exactly on a decade
+    np.testing.assert_equal(ll.tick_values(vmin, vmax),
+                            [base**1, base**2])
+    # Ticks should extend to cover whole range of values
+    np.testing.assert_equal(ll.tick_values(vmin - 1, vmax + 1),
+                            [base**0, base**3])
+    # Even if the range is less than a decade,
+    # we should always get two ticks back
+    #
+    # Range falls within two decades
+    np.testing.assert_equal(ll.tick_values(vmin + 1, vmax - 1),
+                            [base**1, base**2])
+    # Range falls across a decade
+    np.testing.assert_equal(ll.tick_values(vmin - 1, vmin + 1),
+                            [base**0, base**2])
