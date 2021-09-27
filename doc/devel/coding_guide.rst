@@ -80,7 +80,7 @@ Organizational topics:
 * Tag with descriptive :ref:`labels <pr-labels>`.
 * Set the :ref:`milestone <pr-milestones>`.
 * Keep an eye on the :ref:`number of commits <pr-squashing>`.
-* Approve if all of the above topics handled.
+* Approve if all of the above topics are handled.
 * :ref:`Merge  <pr-merging>` if a sufficient number of approvals is reached.
 
 .. _pr-guidelines-details:
