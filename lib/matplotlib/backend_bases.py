@@ -2018,7 +2018,7 @@ class FigureCanvasBase:
         Parameters
         ----------
         cursor : `.Cursors`
-            The cursor to dispay over the canvas. Note: some backends may
+            The cursor to display over the canvas. Note: some backends may
             change the cursor for the entire window.
         """
 
