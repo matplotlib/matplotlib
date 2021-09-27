@@ -2,7 +2,7 @@
 Numerical Python functions written for compatibility with MATLAB
 commands with the same names. Most numerical Python functions can be found in
 the `NumPy`_ and `SciPy`_ libraries. What remains here is code for performing
-spectral computations.
+spectral computations and kernel density estimations.
 
 .. _NumPy: https://numpy.org
 .. _SciPy: https://www.scipy.org
