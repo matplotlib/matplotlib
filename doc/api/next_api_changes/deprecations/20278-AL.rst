@@ -1,4 +1,0 @@
-``TexManager`` attributes
-~~~~~~~~~~~~~~~~~~~~~~~~~
-The following attributes of `.TexManager` are deprecated: ``grey_arrayd``,
-``font_family``, ``font_families``, ``font_info``.

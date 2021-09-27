@@ -1,4 +1,0 @@
-``Colorbar.patch`` is deprecated
-================================
-
-This attribute is not correctly updated anymore.

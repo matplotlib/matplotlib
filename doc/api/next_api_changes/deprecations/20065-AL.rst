@@ -1,4 +1,0 @@
-``AxesDivider.append_axes(..., add_to_figure=False)``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... is deprecated.  Use ``ax.remove()`` to remove the Axes from the figure if
-needed.

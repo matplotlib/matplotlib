@@ -1,5 +1,0 @@
-``cursord`` in GTK, Qt, and wx backends
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The ``backend_gtk3.cursord``, ``backend_qt.cursord``, and
-``backend_wx.cursord`` dictionaries are deprecated. This makes the GTK module
-importable on headless environments.

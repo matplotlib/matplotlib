@@ -1,3 +1,0 @@
-``@pytest.mark.style`` is deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Use ``@mpl.style.context``, which has the same effect.

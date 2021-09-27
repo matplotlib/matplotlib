@@ -1,2 +1,0 @@
-Passing formatting parameters positionally to ``stem()`` is deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
