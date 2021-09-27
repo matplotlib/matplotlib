@@ -96,7 +96,7 @@ struct FlaggedPoint
 ** overflow the stack on certain level 1 interpreters.
 **
 ** Prepare to push another item onto the stack,
-** starting a new procedure if necessary.
+** starting a new proceedure if necessary.
 **
 ** Not all the stack depth calculations in this routine
 ** are perfectly accurate, but they do the job.
@@ -131,7 +131,7 @@ void GlyphToType3::stack_end(TTStreamWriter& stream)                    /* calle
 } /* end of stack_end() */
 
 /*
-** We call this routine to emit the PostScript code
+** We call this routine to emmit the PostScript code
 ** for the character we have loaded with load_char().
 */
 void GlyphToType3::PSConvert(TTStreamWriter& stream)
@@ -398,7 +398,7 @@ void GlyphToType3::load_char(TTFONT* font, BYTE *glyph)
 } /* end of load_char() */
 
 /*
-** Emit PostScript code for a composite character.
+** Emmit PostScript code for a composite character.
 */
 void GlyphToType3::do_composite(TTStreamWriter& stream, struct TTFONT *font, BYTE *glyph)
 {
