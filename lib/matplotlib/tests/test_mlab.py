@@ -3,7 +3,7 @@ from numpy.testing import (assert_allclose, assert_almost_equal,
 import numpy as np
 import pytest
 
-import matplotlib.mlab as mlab
+from matplotlib import mlab, _api
 
 
 class TestStride:
@@ -12,6 +12,11 @@ class TestStride:
         while y.base is not None:
             y = y.base
         return y
+
+    @pytest.fixture(autouse=True)
+    def stride_is_deprecated(self):
+        with _api.suppress_matplotlib_deprecation_warning():
+            yield
 
     def calc_window_target(self, x, NFFT, noverlap=0, axis=0):
         """
