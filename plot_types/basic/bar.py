@@ -1,7 +1,7 @@
 """
-================================
-bar(x, height) / barh(x, height)
-================================
+===============================
+bar(x, height) / barh(y, width)
+===============================
 
 See `~matplotlib.axes.Axes.bar` / `~matplotlib.axes.Axes.barh`.
 """
