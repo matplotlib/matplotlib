@@ -2068,12 +2068,32 @@ class Axes3D(Axes):
                 art3d.line_collection_2d_to_3d(linec, z, zdir=zdir)
 
     def add_contourf_set(self, cset, zdir='z', offset=None):
+        self._add_contourf_set(cset, zdir=zdir, offset=offset)
+
+    def _add_contourf_set(self, cset, zdir='z', offset=None):
+        """
+        Returns
+        -------
+        levels : numpy.ndarray
+            Levels at which the filled contours are added.
+        """
         zdir = '-' + zdir
-        for z, linec in zip(cset.levels, cset.collections):
+
+        midpoints = cset.levels[:-1] + np.diff(cset.levels) / 2
+        # Linearly interpolate to get levels for any extensions
+        if cset._extend_min:
+            min_level = cset.levels[0] - np.diff(cset.levels[:2]) / 2
+            midpoints = np.insert(midpoints, 0, min_level)
+        if cset._extend_max:
+            max_level = cset.levels[-1] + np.diff(cset.levels[-2:]) / 2
+            midpoints = np.append(midpoints, max_level)
+
+        for z, linec in zip(midpoints, cset.collections):
             if offset is not None:
                 z = offset
             art3d.poly_collection_2d_to_3d(linec, z, zdir=zdir)
             linec.set_sort_zpos(z)
+        return midpoints
 
     @_preprocess_data()
     def contour(self, X, Y, Z, *args,
@@ -2168,6 +2188,16 @@ class Axes3D(Axes):
         self.auto_scale_xyz(X, Y, Z, had_data)
         return cset
 
+    def _auto_scale_contourf(self, X, Y, Z, zdir, levels, had_data):
+        # Autoscale in the zdir based on the levels added, which are
+        # different from data range if any contour extensions are present
+        dim_vals = {'x': X, 'y': Y, 'z': Z, zdir: levels}
+        # Input data and levels have different sizes, but auto_scale_xyz
+        # expected same-size input, so manually take min/max limits
+        limits = [(np.nanmin(dim_vals[dim]), np.nanmax(dim_vals[dim]))
+                  for dim in ['x', 'y', 'z']]
+        self.auto_scale_xyz(*limits, had_data)
+
     @_preprocess_data()
     def contourf(self, X, Y, Z, *args, zdir='z', offset=None, **kwargs):
         """
@@ -2195,9 +2225,9 @@ class Axes3D(Axes):
 
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
         cset = super().contourf(jX, jY, jZ, *args, **kwargs)
-        self.add_contourf_set(cset, zdir, offset)
+        levels = self._add_contourf_set(cset, zdir, offset)
 
-        self.auto_scale_xyz(X, Y, Z, had_data)
+        self._auto_scale_contourf(X, Y, Z, zdir, levels, had_data)
         return cset
 
     contourf3D = contourf
@@ -2246,9 +2276,9 @@ class Axes3D(Axes):
         tri = Triangulation(jX, jY, tri.triangles, tri.mask)
 
         cset = super().tricontourf(tri, jZ, *args, **kwargs)
-        self.add_contourf_set(cset, zdir, offset)
+        levels = self._add_contourf_set(cset, zdir, offset)
 
-        self.auto_scale_xyz(X, Y, Z, had_data)
+        self._auto_scale_contourf(X, Y, Z, zdir, levels, had_data)
         return cset
 
     def add_collection3d(self, col, zs=0, zdir='z'):
