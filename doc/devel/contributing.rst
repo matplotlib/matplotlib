@@ -290,12 +290,12 @@ prevent unexpected breaking of code that uses Matplotlib.
 - If possible, usage of an deprecated API should emit a
   `.MatplotlibDeprecationWarning`. There are a number of helper tools for this:
 
-  - Use ``cbook.warn_deprecated()`` for general deprecation warnings.
-  - Use the decorator ``@cbook.deprecated`` to deprecate classes, functions,
+  - Use ``_api.warn_deprecated()`` for general deprecation warnings.
+  - Use the decorator ``@_api.deprecated`` to deprecate classes, functions,
     methods, or properties.
   - To warn on changes of the function signature, use the decorators
-    ``@cbook._delete_parameter``, ``@cbook._rename_parameter``, and
-    ``@cbook._make_keyword_only``.
+    ``@_api.delete_parameter``, ``@_api.rename_parameter``, and
+    ``@_api.make_keyword_only``.
 
 - Deprecated API may be removed two point-releases after they were deprecated.
 
@@ -349,22 +349,22 @@ Keyword argument processing
 ---------------------------
 
 Matplotlib makes extensive use of ``**kwargs`` for pass-through customizations
-from one function to another. A typical example is in `matplotlib.pyplot.text`.
-The definition of the pylab text function is a simple pass-through to
-`matplotlib.axes.Axes.text`::
+from one function to another.  A typical example is
+`~matplotlib.axes.Axes.text`.  The definition of `matplotlib.pyplot.text` is a
+simple pass-through to `matplotlib.axes.Axes.text`::
 
-  # in pylab.py
-  def text(*args, **kwargs):
-      return gca().text(*args, **kwargs)
+  # in pyplot.py
+  def text(x, y, s, fontdict=None, **kwargs):
+      return gca().text(x, y, s, fontdict=fontdict, **kwargs)
 
-`~matplotlib.axes.Axes.text` in simplified form looks like this, i.e., it just
+`matplotlib.axes.Axes.text` (simplified for illustration) just
 passes all ``args`` and ``kwargs`` on to ``matplotlib.text.Text.__init__``::
 
   # in axes/_axes.py
-  def text(self, x, y, s, fontdict=None, withdash=False, **kwargs):
+  def text(self, x, y, s, fontdict=None, **kwargs):
       t = Text(x=x, y=y, text=s, **kwargs)
 
-and ``matplotlib.text.Text.__init__`` (again with liberties for illustration)
+and ``matplotlib.text.Text.__init__`` (again, simplified)
 just passes them on to the `matplotlib.artist.Artist.update` method::
 
   # in text.py
