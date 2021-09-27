@@ -619,7 +619,7 @@ void sfnts_end_string(TTStreamWriter& stream)
 
 /*
 ** This is called at the start of each new table.
-** The argement is the length in bytes of the table
+** The argument is the length in bytes of the table
 ** which will follow.  If the new table will not fit
 ** in the current string, a new one is started.
 */
@@ -742,7 +742,7 @@ void ttfont_sfnts(TTStreamWriter& stream, struct TTFONT *font)
         ULONG checksum;
     } tables[9];
 
-    BYTE *ptr;                  /* A pointer into the origional table directory. */
+    BYTE *ptr;                  /* A pointer into the original table directory. */
     ULONG x,y;                  /* General use loop countes. */
     int c;                      /* Input character. */
     int diff;
@@ -821,7 +821,7 @@ void ttfont_sfnts(TTStreamWriter& stream, struct TTFONT *font)
 
     debug("only %d tables selected",count);
 
-    /* Now, emmit the table directory. */
+    /* Now, emit the table directory. */
     for (x=0; x < 9; x++)
     {
         if ( tables[x].length == 0 )    /* Skip missing tables */
@@ -910,7 +910,7 @@ void ttfont_sfnts(TTStreamWriter& stream, struct TTFONT *font)
 **
 ** If we are creating a type 3 instead of a type 42 font,
 ** this array will instead convert PostScript character names
-** to executable proceedures.
+** to executable procedures.
 --------------------------------------------------------------*/
 const char *Apple_CharStrings[]=
 {
@@ -1022,7 +1022,7 @@ void ttfont_CharStrings(TTStreamWriter& stream, struct TTFONT *font, std::vector
     /* The 'post' table format number. */
     post_format = getFixed( font->post_table );
 
-    /* Emmit the start of the PostScript code to define the dictionary. */
+    /* Emit the start of the PostScript code to define the dictionary. */
     stream.printf("/CharStrings %d dict dup begin\n", glyph_ids.size()+1);
     /* Section 5.8.2 table 5.7 of the PS Language Ref says a CharStrings dictionary must contain an entry for .notdef */
     stream.printf("/.notdef 0 def\n");
@@ -1051,13 +1051,13 @@ void ttfont_CharStrings(TTStreamWriter& stream, struct TTFONT *font, std::vector
 } /* end of ttfont_CharStrings() */
 
 /*----------------------------------------------------------------
-** Emmit the code to finish up the dictionary and turn
+** Emit the code to finish up the dictionary and turn
 ** it into a font.
 ----------------------------------------------------------------*/
 void ttfont_trailer(TTStreamWriter& stream, struct TTFONT *font)
 {
     /* If we are generating a type 3 font, we need to provide */
-    /* a BuildGlyph and BuildChar proceedures. */
+    /* a BuildGlyph and BuildChar procedures. */
     if (font->target_type == PS_TYPE_3 ||
         font->target_type == PS_TYPE_42_3_HYBRID)
     {
@@ -1072,7 +1072,7 @@ void ttfont_trailer(TTStreamWriter& stream, struct TTFONT *font)
 
         stream.put_char('\n');
 
-        /* This proceedure is for compatibility with */
+        /* This procedure is for compatibility with */
         /* level 1 interpreters. */
         stream.putline("/BuildChar {");
         stream.putline(" 1 index /Encoding get exch get");
@@ -1127,7 +1127,7 @@ void ttfont_trailer(TTStreamWriter& stream, struct TTFONT *font)
         /* is a procedure.  If it is, it executes it, otherwise, it */
         /* lets the TrueType rasterizer loose on it. */
 
-        /* When this proceedure is executed the stack contains */
+        /* When this procedure is executed the stack contains */
         /* the font dictionary and the character name.  We */
         /* exchange arguments and move the dictionary to the */
         /* dictionary stack. */
@@ -1151,7 +1151,7 @@ void ttfont_trailer(TTStreamWriter& stream, struct TTFONT *font)
         stream.putline("  get dup xcheck");
         /* stack: CharStrings_entry */
 
-        /* If is a proceedure.  Execute according to RBIIp 277-278. */
+        /* If is a procedure.  Execute according to RBIIp 277-278. */
         stream.putline("    {currentdict systemdict begin begin exec end end}");
 
         /* Is a TrueType character index, let the rasterizer at it. */
@@ -1294,7 +1294,7 @@ void read_font(const char *filename, font_type_enum target_type, std::vector<int
     font.numGlyphs = getUSHORT( font.post_table + 32 );
 
     /* If we are generating a Type 3 font, we will need to */
-    /* have the 'loca' and 'glyf' tables arround while */
+    /* have the 'loca' and 'glyf' tables around while */
     /* we are generating the CharStrings. */
     if (font.target_type == PS_TYPE_3 || font.target_type == PS_TYPE_42_3_HYBRID)
     {
@@ -1345,14 +1345,14 @@ void insert_ttfont(const char *filename, TTStreamWriter& stream,
     ttfont_FontInfo(stream, &font);
 
     /* If we are generating a type 42 font, */
-    /* emmit the sfnts array. */
+    /* emit the sfnts array. */
     if (font.target_type == PS_TYPE_42 ||
         font.target_type == PS_TYPE_42_3_HYBRID)
     {
         ttfont_sfnts(stream, &font);
     }
 
-    /* Emmit the CharStrings array. */
+    /* Emit the CharStrings array. */
     ttfont_CharStrings(stream, &font, glyph_ids);
 
     /* Send the font trailer. */
