@@ -1,0 +1,3 @@
+``backend_gtk3.error_msg_gtk`` and ``backend_wx.error_msg_wx``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated.

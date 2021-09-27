@@ -56,6 +56,7 @@ class __getattr__:
     }))
 
 
+@_api.deprecated("3.6")
 def error_msg_wx(msg, parent=None):
     """Signal an error condition with a popup error dialog."""
     dialog = wx.MessageDialog(parent=parent,
@@ -1153,15 +1154,15 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         # Fetch the required filename and file type.
         filetypes, exts, filter_index = self.canvas._get_imagesave_wildcards()
         default_file = self.canvas.get_default_filename()
-        dlg = wx.FileDialog(
+        dialog = wx.FileDialog(
             self.canvas.GetParent(), "Save to file",
             mpl.rcParams["savefig.directory"], default_file, filetypes,
             wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
-        dlg.SetFilterIndex(filter_index)
-        if dlg.ShowModal() == wx.ID_OK:
-            path = pathlib.Path(dlg.GetPath())
+        dialog.SetFilterIndex(filter_index)
+        if dialog.ShowModal() == wx.ID_OK:
+            path = pathlib.Path(dialog.GetPath())
             _log.debug('%s - Save file path: %s', type(self), path)
-            fmt = exts[dlg.GetFilterIndex()]
+            fmt = exts[dialog.GetFilterIndex()]
             ext = path.suffix[1:]
             if ext in self.canvas.get_supported_filetypes() and fmt != ext:
                 # looks like they forgot to set the image type drop
@@ -1176,7 +1177,11 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             try:
                 self.canvas.figure.savefig(str(path), format=fmt)
             except Exception as e:
-                error_msg_wx(str(e))
+                dialog = wx.MessageDialog(
+                    parent=self.canvas.GetParent(), message=str(e),
+                    caption='Matplotlib error')
+                dialog.ShowModal()
+                dialog.Destroy()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
         height = self.canvas.figure.bbox.height
