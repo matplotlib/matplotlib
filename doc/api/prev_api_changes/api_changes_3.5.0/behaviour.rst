@@ -184,6 +184,17 @@ Usually norms have a scale, and the advantage of having a  `~.scale.ScaleBase`
 attached to a norm is to provide a scale, and associated tick locators and
 formatters, for the colorbar.
 
+``ContourSet`` always use ``PathCollection``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to correct rendering issues with closed loops, the `.ContourSet` now
+creates a `.PathCollection` instead of a `.LineCollection` for line contours.
+This type matches the artist used for filled contours.
+
+This affects `.ContourSet` itself and its subclasses, `.QuadContourSet`
+(returned by `.Axes.contour`), and `.TriContourSet` (returned by
+`.Axes.tricontour`).
+
 ``hatch.SmallFilledCircles`` inherits from ``hatch.Circles``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
