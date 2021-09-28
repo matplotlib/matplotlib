@@ -207,6 +207,30 @@ def test_marker_clipping(fig_ref, fig_test):
     ax_test.axis('off')
 
 
+def test_marker_init_transforms():
+    """Test that initializing marker with transform is a simple addition."""
+    marker = markers.MarkerStyle("o")
+    t = Affine2D().translate(1, 1)
+    t_marker = markers.MarkerStyle("o", transform=t)
+    assert marker.get_transform() + t == t_marker.get_transform()
+
+
+def test_marker_init_joinstyle():
+    marker = markers.MarkerStyle("*")
+    jstl = markers.JoinStyle.round
+    styled_marker = markers.MarkerStyle("*", joinstyle=jstl)
+    assert styled_marker.get_joinstyle() == jstl
+    assert marker.get_joinstyle() != jstl
+
+
+def test_marker_init_captyle():
+    marker = markers.MarkerStyle("*")
+    capstl = markers.CapStyle.round
+    styled_marker = markers.MarkerStyle("*", capstyle=capstl)
+    assert styled_marker.get_capstyle() == capstl
+    assert marker.get_capstyle() != capstl
+
+
 @pytest.mark.parametrize("marker,transform,expected", [
     (markers.MarkerStyle("o"), Affine2D().translate(1, 1),
         Affine2D().translate(1, 1)),
