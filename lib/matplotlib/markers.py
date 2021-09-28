@@ -82,9 +82,11 @@ Hence the following are equivalent::
     plt.plot([1, 2, 3], marker=11)
     plt.plot([1, 2, 3], marker=matplotlib.markers.CARETDOWNBASE)
 
-Markers join and cap styles can be customized by creating a new instance of MarkerStyle.
-A MarkerStyle can also have a custom
-`~matplotlib.transforms.Transform` allowing it to be arbitrarily rotated or offset.  
+Markers join and cap styles can be customized by creating a new instance of
+MarkerStyle.
+A MarkerStyle can also have a custom `~matplotlib.transforms.Transform`
+allowing it to be arbitrarily rotated or offset.
+
 Examples showing the use of markers:
 
 * :doc:`/gallery/lines_bars_and_markers/marker_reference`
@@ -148,14 +150,6 @@ from ._enums import JoinStyle, CapStyle
  CARETLEFTBASE, CARETRIGHTBASE, CARETUPBASE, CARETDOWNBASE) = range(12)
 
 _empty_path = Path(np.empty((0, 2)))
-
-
-def _fast_transform_combine(t1, t2):
-    """Combine two transformations where the second one can be None."""
-    if t2 is None:
-        return t1.frozen()
-    else:
-        return (t1 + t2).frozen()
 
 
 class MarkerStyle:
@@ -248,8 +242,9 @@ class MarkerStyle:
         fillstyle : str, default: :rc:`markers.fillstyle`
             One of 'full', 'left', 'right', 'bottom', 'top', 'none'.
 
-        transform : Affine2D, default: None
-            Transform that will be combined with the native transform of the marker.
+        transform : transforms.Transform, default: None
+            Transform that will be combined with the native transform of the
+            marker.
 
         capstyle : CapStyle, default: None
             Cap style that will override the default cap style of the marker.
@@ -395,7 +390,10 @@ class MarkerStyle:
         Return the transform to be applied to the `.Path` from
         `MarkerStyle.get_path()`.
         """
-        return _fast_transform_combine(self._transform, self._user_transform)
+        if self._user_transform is None:
+            return self._transform.frozen()
+        else:
+            return (self._transform + self._user_transform).frozen()
 
     def get_alt_path(self):
         """
@@ -411,8 +409,10 @@ class MarkerStyle:
         Return the transform to be applied to the `.Path` from
         `MarkerStyle.get_alt_path()`.
         """
-        return _fast_transform_combine(self._alt_transform,
-                                       self._user_transform)
+        if self._user_transform is None:
+            return self._alt_transform.frozen()
+        else:
+            return (self._alt_transform + self._user_transform).frozen()
 
     def get_snap_threshold(self):
         return self._snap_threshold
@@ -424,7 +424,7 @@ class MarkerStyle:
 
     def transformed(self, transform: Affine2D):
         """
-        Return a new version of this marker with the transform applied. 
+        Return a new version of this marker with the transform applied.
 
         Parameters
         ----------
