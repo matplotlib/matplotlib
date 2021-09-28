@@ -4,9 +4,9 @@ Mapping marker properties to multivariate data
 ==============================================
 
 This example shows how to use different properties of markers to plot
-multivariate datasets. Here we represent a successful baseball throw as a smiley 
-face with marker size mapped to the skill of thrower, marker rotation to the take-off angle, 
-and thrust to the marker color.
+multivariate datasets. Here we represent a successful baseball throw as a
+smiley face with marker size mapped to the skill of thrower, marker rotation to
+the take-off angle, and thrust to the marker color.
 """
 
 import numpy as np

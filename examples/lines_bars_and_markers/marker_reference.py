@@ -166,8 +166,9 @@ plt.show()
 # Advanced marker modifications with transform
 # ============================================
 #
-# Markers can be modified by passing a transform to the MarkerStyle constructor.
-# Following example shows how a supplied rotation is applied to several marker shapes.
+# Markers can be modified by passing a transform to the MarkerStyle
+# constructor. Following example shows how a supplied rotation is applied to
+# several marker shapes.
 
 common_style = {k: v for k, v in filled_marker_style.items() if k != 'marker'}
 angles = [0, 10, 20, 30, 45, 60, 90]
