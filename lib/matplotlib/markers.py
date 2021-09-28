@@ -82,13 +82,9 @@ Hence the following are equivalent::
     plt.plot([1, 2, 3], marker=11)
     plt.plot([1, 2, 3], marker=matplotlib.markers.CARETDOWNBASE)
 
-Markers have some reasonable default settings for join and cap styles.
-However, those can be overriden when creating a new instance of MarkerStyle.
-Furthermore, the marker shape can be modified by supplying
-`~matplotlib.transforms.Transform` during creation.
-Some markers are created as internally rotated shapes (e.g. triangles).
-For such cases, both internal and user supplied transforms are combined.
-
+Markers join and cap styles can be customized by creating a new instance of MarkerStyle.
+A MarkerStyle can also have a custom
+`~matplotlib.transforms.Transform` allowing it to be arbitrarily rotated or offset.  
 Examples showing the use of markers:
 
 * :doc:`/gallery/lines_bars_and_markers/marker_reference`
@@ -253,16 +249,13 @@ class MarkerStyle:
             One of 'full', 'left', 'right', 'bottom', 'top', 'none'.
 
         transform : Affine2D, default: None
-            User supplied transformation that will be combined with the
-            native transformation of selected marker.
+            Transform that will be combined with the native transform of the marker.
 
         capstyle : CapStyle, default: None
-            User supplied cap style that will override the default cap
-            style of selected marker.
+            Cap style that will override the default cap style of the marker.
 
         joinstyle : JoinStyle, default: None
-            User supplied join style that will override the default cap
-            style of selected marker.
+            Join style that will override the default join style of the marker.
         """
         self._marker_function = None
         self._user_transform = transform
@@ -431,7 +424,7 @@ class MarkerStyle:
 
     def transformed(self, transform: Affine2D):
         """
-        Return new marker with combined transformation.
+        Return a new version of this marker with the transform applied. 
 
         Parameters
         ----------
@@ -447,15 +440,15 @@ class MarkerStyle:
 
     def rotated(self, deg=None, rad=None):
         """
-        Return new marker rotated by specified angle.
+        Return a new version of this marker rotated by specified angle.
 
         Parameters
         ----------
         deg : float, default: None
-            Use this parameter to specify rotation angle in degrees.
+            Rotation angle in degrees.
 
         rad : float, default: None
-            Use this parameter to specify rotation angle in radians.
+            Rotation angle in radians.
 
         .. note:: You must specify exactly one of deg or rad.
         """

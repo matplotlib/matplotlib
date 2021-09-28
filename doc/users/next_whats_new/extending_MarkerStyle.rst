@@ -1,9 +1,8 @@
 New customization of MarkerStyle
 --------------------------------
 
-New MarkerStyle parameters allow control of join style and cap style. 
-The appearance of individual markers can be further controlled by 
-transform supplied during creation.
+New MarkerStyle parameters allow control of join style and cap style, and for
+the user to supply a transformation to be applied to the marker (e.g. a rotation).
 
 .. plot::
     :include-source: true
