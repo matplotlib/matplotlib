@@ -1,14 +1,10 @@
-
-:mod:`matplotlib.backends.backend_tkagg`
-========================================
+:mod:`.backend_tkagg`, :mod:`.backend_tkcairo`
+==============================================
 
 .. automodule:: matplotlib.backends.backend_tkagg
    :members:
    :undoc-members:
    :show-inheritance:
-
-:mod:`matplotlib.backends.backend_tkcairo`
-==========================================
 
 .. automodule:: matplotlib.backends.backend_tkcairo
    :members:
