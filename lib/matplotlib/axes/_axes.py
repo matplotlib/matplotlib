@@ -7041,12 +7041,9 @@ such objects
         self.set_xlabel('Frequency')
         self.set_ylabel('Power Spectral Density (%s)' % psd_units)
         self.grid(True)
+
         vmin, vmax = self.viewLim.intervaly
-        intv = vmax - vmin
-        logi = int(np.log10(intv))
-        if logi == 0:
-            logi = .1
-        step = 10 * logi
+        step = max(10 * int(np.log10(vmax - vmin)), 1)
         ticks = np.arange(math.floor(vmin), math.ceil(vmax) + 1, step)
         self.set_yticks(ticks)
 
@@ -7146,11 +7143,9 @@ such objects
         self.set_xlabel('Frequency')
         self.set_ylabel('Cross Spectrum Magnitude (dB)')
         self.grid(True)
+
         vmin, vmax = self.viewLim.intervaly
-
-        intv = vmax - vmin
-        step = 10 * int(np.log10(intv))
-
+        step = max(10 * int(np.log10(vmax - vmin)), 1)
         ticks = np.arange(math.floor(vmin), math.ceil(vmax) + 1, step)
         self.set_yticks(ticks)
 
@@ -7582,7 +7577,7 @@ such objects
             else:
                 Z = 20. * np.log10(spec)
         else:
-            raise ValueError('Unknown scale %s', scale)
+            raise ValueError(f'Unknown scale {scale!r}')
 
         Z = np.flipud(Z)
 
