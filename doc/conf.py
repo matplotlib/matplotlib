@@ -181,8 +181,7 @@ sphinx_gallery_conf = {
     'thumbnail_size': (320, 224),
     'compress_images': ('thumbnails', 'images') if _doc_release_mode else (),
     'matplotlib_animations': True,
-    # Doc build should not use hidpi images during the testing phase.
-    'image_srcset': ["2x"] if _doc_release_mode else [],
+    'image_srcset': ["2x"],
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
 }
 
