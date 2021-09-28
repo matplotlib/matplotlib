@@ -1,0 +1,10 @@
+``LogLocator`` now respects ``numticks``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The algorithm within `~matplotlib.ticker.LogLocator` has been modified to
+respect the ``numticks`` argument. Whereas previously more ticks than
+``numticks`` could be returned, ``numticks`` is now an upper limit on the
+number of ticks returned.
+
+In some cases, this change results in one more tick being added on a
+log-scaled axis, and correctly adds some ticks to log-scaled errorbar plots
+that were previously missing.
