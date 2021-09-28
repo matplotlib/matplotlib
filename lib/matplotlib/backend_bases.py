@@ -1762,7 +1762,12 @@ class FigureCanvasBase:
         """Blit the canvas in bbox (default entire canvas)."""
 
     def resize(self, w, h):
-        """Set the canvas size in pixels."""
+        """
+        UNUSED: Set the canvas size in pixels.
+
+        Certain backends may implement a similar method internally, but this is
+        not a requirement of, nor is it used by, Matplotlib itself.
+        """
 
     def draw_event(self, renderer):
         """Pass a `DrawEvent` to all functions connected to ``draw_event``."""
@@ -2815,7 +2820,7 @@ class FigureManagerBase:
         pass
 
     def resize(self, w, h):
-        """For GUI backends, resize the window (in pixels)."""
+        """For GUI backends, resize the window (in physical pixels)."""
 
     @_api.deprecated(
         "3.4", alternative="self.canvas.callbacks.process(event.name, event)")

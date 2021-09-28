@@ -421,6 +421,8 @@ class FigureManagerGTK3(FigureManagerBase):
 
     def resize(self, width, height):
         """Set the canvas size in pixels."""
+        width = int(width / self.canvas.device_pixel_ratio)
+        height = int(height / self.canvas.device_pixel_ratio)
         if self.toolbar:
             toolbar_size = self.toolbar.size_request()
             height += toolbar_size.height
