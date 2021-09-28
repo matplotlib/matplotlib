@@ -438,7 +438,7 @@ class MarkerStyle:
             new_marker._user_transform = transform
         return new_marker
 
-    def rotated(self, deg=None, rad=None):
+    def rotated(self, *, deg=None, rad=None):
         """
         Return a new version of this marker rotated by specified angle.
 
@@ -452,9 +452,10 @@ class MarkerStyle:
 
         .. note:: You must specify exactly one of deg or rad.
         """
-        if not (deg is None) ^ (rad is None):
-            raise ValueError("Exactly one of deg or rad shall be used.")
-
+        if deg is None and rad is None:
+            raise ValueError('One of deg or rad is required')
+        if deg is not None and rad is not None:
+            raise ValueError('Only one of deg and rad can be supplied')
         new_marker = MarkerStyle(self)
         if new_marker._user_transform is None:
             new_marker._user_transform = Affine2D()
