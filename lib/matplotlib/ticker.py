@@ -2351,17 +2351,7 @@ class LogLocator(Locator):
         # Get decades between major ticks.
         stride = (max(math.ceil(numdec / (numticks - 1)), 1)
                   if mpl.rcParams['_internal.classic_mode'] else
-                  numdec // numticks)
-
-        if stride > numdec:
-            # If we have decided that the stride is bigger than the range, clip
-            # the stride back to the available range - 1 with a floor of 1.
-            # This prevents getting axis with only 1 tick visible.
-            stride = max(1, numdec)
-        elif stride == 0:
-            # If requesting more ticks than decades, make sure we always have
-            # at least a single stride
-            stride = 1
+                  max(numdec // numticks, 1))
 
         # Does subs include anything other than 1?  Essentially a hack to know
         # whether we're a major or a minor locator.
