@@ -7042,7 +7042,7 @@ such objects
         self.set_ylabel('Power Spectral Density (%s)' % psd_units)
         self.grid(True)
 
-        vmin, vmax = self.viewLim.intervaly
+        vmin, vmax = self.get_ybound()
         step = max(10 * int(np.log10(vmax - vmin)), 1)
         ticks = np.arange(math.floor(vmin), math.ceil(vmax) + 1, step)
         self.set_yticks(ticks)
@@ -7144,7 +7144,7 @@ such objects
         self.set_ylabel('Cross Spectrum Magnitude (dB)')
         self.grid(True)
 
-        vmin, vmax = self.viewLim.intervaly
+        vmin, vmax = self.get_ybound()
         step = max(10 * int(np.log10(vmax - vmin)), 1)
         ticks = np.arange(math.floor(vmin), math.ceil(vmax) + 1, step)
         self.set_yticks(ticks)
