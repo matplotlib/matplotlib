@@ -54,6 +54,12 @@ Videos
 * `Data Visualization Basics with Python (O'Reilly)
   <https://www.oreilly.com/library/view/data-visualization-basics/9781771375573/>`_
   by Randal S. Olson
+* `Matplotlib Introduction
+  <https://www.youtube.com/playlist?list=PLeo1K3hjS3uu4Lr8_kro2AqaO6CFYgKOl>`_
+  by codebasics
+* `Matplotlib
+  <https://www.youtube.com/watch?v=wB9C0Mz9gSo>`_
+  by Derek Banas
 
 =========
 Tutorials
