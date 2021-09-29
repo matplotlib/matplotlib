@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 
 import matplotlib as mpl
-from matplotlib import dviread, pyplot as plt, checkdep_usetex, rcParams
+from matplotlib import pyplot as plt, checkdep_usetex, rcParams
 from matplotlib.cbook import _get_data_path
 from matplotlib.ft2font import FT2Font
 from matplotlib.backends._backend_pdf_ps import get_glyphs_subset
@@ -293,23 +293,6 @@ def test_grayscale_alpha():
     ax.imshow(dd, interpolation='none', cmap='gray_r')
     ax.set_xticks([])
     ax.set_yticks([])
-
-
-# This tests tends to hit a TeX cache lock on AppVeyor.
-@pytest.mark.flaky(reruns=3)
-@needs_usetex
-def test_missing_psfont(monkeypatch):
-    """An error is raised if a TeX font lacks a Type-1 equivalent"""
-    def psfont(*args, **kwargs):
-        return dviread.PsFont(texname='texfont', psname='Some Font',
-                              effects=None, encoding=None, filename=None)
-
-    monkeypatch.setattr(dviread.PsfontsMap, '__getitem__', psfont)
-    rcParams['text.usetex'] = True
-    fig, ax = plt.subplots()
-    ax.text(0.5, 0.5, 'hello')
-    with NamedTemporaryFile() as tmpfile, pytest.raises(ValueError):
-        fig.savefig(tmpfile, format='pdf')
 
 
 @mpl.style.context('default')

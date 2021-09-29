@@ -1,6 +1,5 @@
 import datetime
 from io import BytesIO
-import tempfile
 import xml.etree.ElementTree
 import xml.parsers.expat
 
@@ -8,7 +7,6 @@ import numpy as np
 import pytest
 
 import matplotlib as mpl
-from matplotlib import dviread
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
@@ -179,22 +177,6 @@ def test_count_bitmaps():
         ax5.plot([0, 20], [0, n], "b-", rasterized=True)
     assert count_tag(fig5, "image") == 5
     assert count_tag(fig5, "path") == 1  # axis patch
-
-
-@needs_usetex
-def test_missing_psfont(monkeypatch):
-    """An error is raised if a TeX font lacks a Type-1 equivalent"""
-
-    def psfont(*args, **kwargs):
-        return dviread.PsFont(texname='texfont', psname='Some Font',
-                              effects=None, encoding=None, filename=None)
-
-    monkeypatch.setattr(dviread.PsfontsMap, '__getitem__', psfont)
-    mpl.rc('text', usetex=True)
-    fig, ax = plt.subplots()
-    ax.text(0.5, 0.5, 'hello')
-    with tempfile.TemporaryFile() as tmpfile, pytest.raises(ValueError):
-        fig.savefig(tmpfile, format='svg')
 
 
 # Use Computer Modern Sans Serif, not Helvetica (which has no \textwon).
