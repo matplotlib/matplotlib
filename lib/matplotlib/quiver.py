@@ -605,13 +605,9 @@ class Quiver(mcollections.PolyCollection):
             elif units == 'y':
                 dx0 = self.axes.viewLim.height
                 dx1 = self.axes.bbox.height
-            else:  # 'xy' is assumed
-                dxx0 = self.axes.viewLim.width
-                dxx1 = self.axes.bbox.width
-                dyy0 = self.axes.viewLim.height
-                dyy1 = self.axes.bbox.height
-                dx1 = np.hypot(dxx1, dyy1)
-                dx0 = np.hypot(dxx0, dyy0)
+            else:  # 'xy', i.e. hypot(x, y)
+                dx0 = np.hypot(*self.axes.viewLim.size)
+                dx1 = np.hypot(*self.axes.bbox.size)
             dx = dx1 / dx0
         else:
             if units == 'width':

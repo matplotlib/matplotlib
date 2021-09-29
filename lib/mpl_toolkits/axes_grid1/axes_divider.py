@@ -205,8 +205,7 @@ class Divider:
             hh = (oy[-1] - oy[0]) / fig_h
             pb = mtransforms.Bbox.from_bounds(x, y, w, h)
             pb1 = mtransforms.Bbox.from_bounds(x, y, ww, hh)
-            pb1_anchored = pb1.anchored(self.get_anchor(), pb)
-            x0, y0 = pb1_anchored.x0, pb1_anchored.y0
+            x0, y0 = pb1.anchored(self.get_anchor(), pb).p0
 
         else:
             ox = self._calc_offsets(hsizes, k_h)
@@ -637,8 +636,7 @@ def _locate(x, y, w, h, summed_widths, equal_heights, fig_w, fig_h, anchor):
     hh = (karray[0]*h0_r + h0_a) / fig_h
     pb = mtransforms.Bbox.from_bounds(x, y, w, h)
     pb1 = mtransforms.Bbox.from_bounds(x, y, ww, hh)
-    pb1_anchored = pb1.anchored(anchor, pb)
-    x0, y0 = pb1_anchored.x0, pb1_anchored.y0
+    x0, y0 = pb1.anchored(anchor, pb).p0
 
     return x0, y0, ox, hh
 

@@ -557,7 +557,7 @@ class PaddedBox(OffsetBox):
         self.stale = False
 
     def update_frame(self, bbox, fontsize=None):
-        self.patch.set_bounds(bbox.x0, bbox.y0, bbox.width, bbox.height)
+        self.patch.set_bounds(bbox.bounds)
         if fontsize:
             self.patch.set_mutation_scale(fontsize)
         self.stale = True
@@ -811,7 +811,7 @@ class TextArea(OffsetBox):
             ismath="TeX" if self._text.get_usetex() else False)
 
         bbox, info, yd = self._text._get_layout(renderer)
-        w, h = bbox.width, bbox.height
+        w, h = bbox.size
 
         self._baseline_transform.clear()
 
@@ -1111,7 +1111,7 @@ class AnchoredOffsetbox(OffsetBox):
         self.set_offset(_offset)
 
     def update_frame(self, bbox, fontsize=None):
-        self.patch.set_bounds(bbox.x0, bbox.y0, bbox.width, bbox.height)
+        self.patch.set_bounds(bbox.bounds)
         if fontsize:
             self.patch.set_mutation_scale(fontsize)
 
@@ -1146,8 +1146,7 @@ def _get_anchored_bbox(loc, bbox, parentbbox, borderpad):
     # validated.  If 0 (None), we just let ``bbox.anchored`` raise.
     c = [None, "NE", "NW", "SW", "SE", "E", "W", "E", "S", "N", "C"][loc]
     container = parentbbox.padded(-borderpad)
-    anchored_box = bbox.anchored(c, container=container)
-    return anchored_box.x0, anchored_box.y0
+    return bbox.anchored(c, container=container).p0
 
 
 class AnchoredText(AnchoredOffsetbox):
@@ -1487,8 +1486,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
 
         # update patch position
         bbox = self.offsetbox.get_window_extent(renderer)
-        self.patch.set_bounds(bbox.x0, bbox.y0,
-                              bbox.width, bbox.height)
+        self.patch.set_bounds(bbox.bounds)
 
         x, y = xy_pixel
 

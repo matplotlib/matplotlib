@@ -44,7 +44,7 @@ for ax, (stylename, stylecls) in zip(axs[1:, :].T.flat, styles.items()):
 
 
 def add_fancy_patch_around(ax, bb, **kwargs):
-    fancy = FancyBboxPatch((bb.xmin, bb.ymin), bb.width, bb.height,
+    fancy = FancyBboxPatch(bb.p0, bb.width, bb.height,
                            fc=(1, 0.8, 1, 0.5), ec=(1, 0.5, 1, 0.5),
                            **kwargs)
     ax.add_patch(fancy)
