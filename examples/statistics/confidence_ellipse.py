@@ -34,7 +34,7 @@ import matplotlib.transforms as transforms
 #
 # The radiuses of the ellipse can be controlled by n_std which is the number
 # of standard deviations. The default value is 3 which makes the ellipse
-# enclose 99.4% of the points if the data is normally distributed
+# enclose 98.9% of the points if the data is normally distributed
 # like in these examples (3 standard deviations in 1-D contain 99.7%
 # of the data, which is 98.9% of the data in 2-D).
 
