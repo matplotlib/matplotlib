@@ -57,7 +57,7 @@ Videos
 * `Matplotlib Introduction
   <https://www.youtube.com/playlist?list=PLeo1K3hjS3uu4Lr8_kro2AqaO6CFYgKOl>`_
   by codebasics
-* `Mtaplotlib
+* `Matplotlib
   <https://www.youtube.com/watch?v=wB9C0Mz9gSo>`_
   by Derek Banas
 
