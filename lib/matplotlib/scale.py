@@ -467,54 +467,64 @@ class AsinhScale(ScaleBase):
     logarithmic. The transition between these linear and logarithmic regimes
     is smooth, and has no discontinutities in the function gradient
     in contrast to the "symlog" scale.
+
+    Specifically, the transformation of an axis coordinate :math:`a` is
+    is :math:`a \\rightarrow a_0 \sinh^{-1} (a / a_0)` where :math:`a_0`
+    is the effective width of the linear region of the transformation.
+    In that region, the transformation is
+    :math:`a \\rightarrow a + {\cal O}(a^3)`.
+    For large values of :math:`a` the transformation behaves as
+    :math:`a \\rightarrow a_0 \ln (a) + {\cal O}(1)`.
     """
 
     name = 'asinh'
 
-    def __init__(self, axis, *, a0=1.0, **kwargs):
+    def __init__(self, axis, *, linear_width=1.0, **kwargs):
         """
         Parameters
         ----------
-        a0 : float, default: 1
-            The scale parameter defining the extent of the quasi-linear region.
+        linear_width : float, default: 1
+            The scale parameter defining the extent of the quasi-linear region,
+            and the coordinate values beyond which the transformation
+            becomes asympoticially logarithmic.
         """
         super().__init__(axis)
-        if a0 <= 0.0:
+        if linear_width <= 0.0:
             raise ValueError("Scale parameter 'a0' must be strictly positive")
-        self.a0 = a0
+        self.linear_width = linear_width
 
     def get_transform(self):
-        return self.AsinhTransform(self.a0)
+        return self.AsinhTransform(self.linear_width)
 
     def set_default_locators_and_formatters(self, axis):
-        axis.set(major_locator=AsinhScale.AsinhLocator(self.a0),
+        axis.set(major_locator=AsinhScale.AsinhLocator(self.linear_width),
                  major_formatter='{x:.3g}')
 
     class AsinhTransform(Transform):
         input_dims = output_dims = 1
 
-        def __init__(self, a0):
+        def __init__(self, linear_width):
             super().__init__()
-            self.a0 = a0
+            self.linear_width = linear_width
 
         def transform_non_affine(self, a):
-            return self.a0 * np.arcsinh(a / self.a0)
+            return self.linear_width * np.arcsinh(a / self.linear_width)
 
         def inverted(self):
-            return AsinhScale.InvertedAsinhTransform(self.a0)
+            return AsinhScale.InvertedAsinhTransform(self.linear_width)
 
     class InvertedAsinhTransform(Transform):
         input_dims = output_dims = 1
 
-        def __init__(self, a0):
+        def __init__(self, linear_width):
             super().__init__()
-            self.a0 = a0
+            self.linear_width = linear_width
 
         def transform_non_affine(self, a):
-            return self.a0 * np.sinh(a / self.a0)
+            return self.linear_width * np.sinh(a / self.linear_width)
 
         def inverted(self):
-            return AsinhScale.AsinhTransform(self.a0)
+            return AsinhScale.AsinhTransform(self.linear_width)
 
     class AsinhLocator(Locator):
         """
@@ -522,20 +532,20 @@ class AsinhScale(ScaleBase):
 
         This is very unlikely to have any use beyond the AsinhScale class.
         """
-        def __init__(self, a0, apx_tick_count=12):
+        def __init__(self, linear_width, numticks=12):
             """
             Parameters
             ----------
-            a0 : float
+            linear_width : float
                 The scale parameter defining the extent
                 of the quasi-linear region.
-            apx_tick_count : int, default: 12
+            numticks : int, default: 12
                 The approximate number of major ticks that will fit
                 along the entire axis
             """
             super().__init__()
-            self.a0 = a0
-            self.apx_tick_count = apx_tick_count
+            self.linear_width = linear_width
+            self.numticks = numticks
 
         def __call__(self):
             dmin, dmax = self.axis.get_data_interval()
@@ -544,15 +554,15 @@ class AsinhScale(ScaleBase):
         def tick_values(self, vmin, vmax):
             # Construct a set of "on-screen" locations
             # that are uniformly spaced:
-            ymin, ymax = self.a0 * np.arcsinh(np.array([vmin, vmax]) / self.a0)
-            ys = np.linspace(ymin, ymax, self.apx_tick_count)
+            ymin, ymax = self.linear_width * np.arcsinh(np.array([vmin, vmax]) / self.linear_width)
+            ys = np.linspace(ymin, ymax, self.numticks)
             if (ymin * ymax) < 0:
                 # Ensure that the zero tick-mark is included,
                 # if the axis stradles zero
                 ys = np.hstack([ys, 0.0])
 
             # Transform the "on-screen" grid to the data space:
-            xs = self.a0 * np.sinh(ys / self.a0)
+            xs = self.linear_width * np.sinh(ys / self.linear_width)
             zero_xs = (xs == 0)
 
             # Round the data-space values to be intuitive decimal numbers:
