@@ -582,8 +582,8 @@ link_github = True
 # You can add build old with link_github = False
 
 if link_github:
-    import re
     import inspect
+    from packaging.version import parse
 
     extensions.append('sphinx.ext.linkcode')
 
@@ -634,10 +634,9 @@ if link_github:
         if not fn.startswith(('matplotlib/', 'mpl_toolkits/')):
             return None
 
-        m = re.match(r'^.*post[0-9]+\+\w([a-z0-9]+).\w+$',
-                     matplotlib.__version__)
-        version = m.group(1) if m else f'v{matplotlib.__version__}'
+        version = parse(matplotlib.__version__)
+        tag = 'master' if version.is_devrelease else f'v{version.base_version}'
         return ("https://github.com/matplotlib/matplotlib/blob"
-                f"/{version}/lib/{fn}{linespec}")
+                f"/{tag}/lib/{fn}{linespec}")
 else:
     extensions.append('sphinx.ext.viewcode')

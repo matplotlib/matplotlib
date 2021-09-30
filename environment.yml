@@ -27,6 +27,7 @@ dependencies:
   - ipython
   - ipywidgets
   - numpydoc>=0.8
+  - packaging
   - pydata-sphinx-theme
   - scipy
   - sphinx>=1.8.1,!=2.0.0
