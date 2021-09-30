@@ -148,7 +148,7 @@ __all__ = ('TickHelper', 'Formatter', 'FixedFormatter',
            'Locator', 'IndexLocator', 'FixedLocator', 'NullLocator',
            'LinearLocator', 'LogLocator', 'AutoLocator',
            'MultipleLocator', 'MaxNLocator', 'AutoMinorLocator',
-           'SymmetricalLogLocator', 'LogitLocator')
+           'SymmetricalLogLocator', 'AsinhLocator', 'LogitLocator')
 
 
 class _DummyAxis:
@@ -2605,6 +2605,11 @@ class AsinhLocator(Locator):
         super().__init__()
         self.linear_width = linear_width
         self.numticks = numticks
+
+    def set_params(self, numticks=None):
+        """Set parameters within this locator."""
+        if numticks is not None:
+            self.numticks = numticks
 
     def __call__(self):
         dmin, dmax = self.axis.get_data_interval()
