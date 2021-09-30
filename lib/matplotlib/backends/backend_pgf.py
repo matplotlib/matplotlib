@@ -36,55 +36,61 @@ _log = logging.getLogger(__name__)
 # which is not recognized by TeX.
 
 
+@_api.caching_module_getattr
+class __getattr__:
+    NO_ESCAPE = _api.deprecated("3.6", obj_type="")(
+        property(lambda self: _NO_ESCAPE))
+    re_mathsep = _api.deprecated("3.6", obj_type="")(
+        property(lambda self: _split_math.__self__))
+
+
+@_api.deprecated("3.6")
 def get_fontspec():
     """Build fontspec preamble from rc."""
-    latex_fontspec = []
-    texcommand = mpl.rcParams["pgf.texsystem"]
-
-    if texcommand != "pdflatex":
-        latex_fontspec.append("\\usepackage{fontspec}")
-
-    if texcommand != "pdflatex" and mpl.rcParams["pgf.rcfonts"]:
-        families = ["serif", "sans\\-serif", "monospace"]
-        commands = ["setmainfont", "setsansfont", "setmonofont"]
-        for family, command in zip(families, commands):
-            # 1) Forward slashes also work on Windows, so don't mess with
-            # backslashes.  2) The dirname needs to include a separator.
-            path = pathlib.Path(fm.findfont(family))
-            latex_fontspec.append(r"\%s{%s}[Path=\detokenize{%s}]" % (
-                command, path.name, path.parent.as_posix() + "/"))
-
-    return "\n".join(latex_fontspec)
+    with mpl.rc_context({"pgf.preamble": ""}):
+        return _get_preamble()
 
 
+@_api.deprecated("3.6")
 def get_preamble():
     """Get LaTeX preamble from rc."""
     return mpl.rcParams["pgf.preamble"]
 
-###############################################################################
 
-# This almost made me cry!!!
-# In the end, it's better to use only one unit for all coordinates, since the
+def _get_preamble():
+    """Prepare a LaTeX preamble based on the rcParams configuration."""
+    preamble = [mpl.rcParams["pgf.preamble"]]
+    if mpl.rcParams["pgf.texsystem"] != "pdflatex":
+        preamble.append("\\usepackage{fontspec}")
+        if mpl.rcParams["pgf.rcfonts"]:
+            families = ["serif", "sans\\-serif", "monospace"]
+            commands = ["setmainfont", "setsansfont", "setmonofont"]
+            for family, command in zip(families, commands):
+                # 1) Forward slashes also work on Windows, so don't mess with
+                # backslashes.  2) The dirname needs to include a separator.
+                path = pathlib.Path(fm.findfont(family))
+                preamble.append(r"\%s{%s}[Path=\detokenize{%s}]" % (
+                    command, path.name, path.parent.as_posix() + "/"))
+    return "\n".join(preamble)
+
+
+# It's better to use only one unit for all coordinates, since the
 # arithmetic in latex seems to produce inaccurate conversions.
 latex_pt_to_in = 1. / 72.27
 latex_in_to_pt = 1. / latex_pt_to_in
 mpl_pt_to_in = 1. / 72.
 mpl_in_to_pt = 1. / mpl_pt_to_in
 
-###############################################################################
-# helper functions
 
-NO_ESCAPE = r"(?<!\\)(?:\\\\)*"
-re_mathsep = re.compile(NO_ESCAPE + r"\$")
-
-
+_NO_ESCAPE = r"(?<!\\)(?:\\\\)*"
+_split_math = re.compile(_NO_ESCAPE + r"\$").split
 _replace_escapetext = functools.partial(
     # When the next character is _, ^, $, or % (not preceded by an escape),
     # insert a backslash.
-    re.compile(NO_ESCAPE + "(?=[_^$%])").sub, "\\\\")
+    re.compile(_NO_ESCAPE + "(?=[_^$%])").sub, "\\\\")
 _replace_mathdefault = functools.partial(
     # Replace \mathdefault (when not preceded by an escape) by empty string.
-    re.compile(NO_ESCAPE + r"(\\mathdefault)").sub, "")
+    re.compile(_NO_ESCAPE + r"(\\mathdefault)").sub, "")
 
 
 def common_texification(text):
@@ -103,7 +109,7 @@ def common_texification(text):
     text = _replace_mathdefault(text)
     text = text.replace("\N{MINUS SIGN}", r"\ensuremath{-}")
     # split text into normaltext and inline math parts
-    parts = re_mathsep.split(text)
+    parts = _split_math(text)
     for i, s in enumerate(parts):
         if not i % 2:
             # textmode replacements
@@ -115,7 +121,12 @@ def common_texification(text):
     return "".join(parts)
 
 
+@_api.deprecated("3.6")
 def writeln(fh, line):
+    return _writeln(fh, line)
+
+
+def _writeln(fh, line):
     # Ending lines with a % prevents TeX from inserting spurious spaces
     # (https://tex.stackexchange.com/questions/7453).
     fh.write(line)
@@ -212,8 +223,6 @@ class LatexManager:
 
     @staticmethod
     def _build_latex_header():
-        latex_preamble = get_preamble()
-        latex_fontspec = get_fontspec()
         # Create LaTeX header with some content, else LaTeX will load some math
         # fonts later when we don't expect the additional output on stdout.
         # TODO: is this sufficient?
@@ -224,8 +233,7 @@ class LatexManager:
             rf"% !TeX program = {mpl.rcParams['pgf.texsystem']}",
             # Test whether \includegraphics supports interpolate option.
             r"\usepackage{graphicx}",
-            latex_preamble,
-            latex_fontspec,
+            _get_preamble(),
             r"\begin{document}",
             r"text $math \mu$",  # force latex to load fonts now
             r"\typeout{pgf_backend_query_start}",
@@ -400,7 +408,7 @@ class RendererPgf(RendererBase):
                      rgbFace=None):
         # docstring inherited
 
-        writeln(self.fh, r"\begin{pgfscope}")
+        _writeln(self.fh, r"\begin{pgfscope}")
 
         # convert from display units to in
         f = 1. / self.dpi
@@ -412,13 +420,13 @@ class RendererPgf(RendererBase):
         # build marker definition
         bl, tr = marker_path.get_extents(marker_trans).get_points()
         coords = bl[0] * f, bl[1] * f, tr[0] * f, tr[1] * f
-        writeln(self.fh,
-                r"\pgfsys@defobject{currentmarker}"
-                r"{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}{" % coords)
+        _writeln(self.fh,
+                 r"\pgfsys@defobject{currentmarker}"
+                 r"{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}{" % coords)
         self._print_pgf_path(None, marker_path, marker_trans)
         self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0,
                             fill=rgbFace is not None)
-        writeln(self.fh, r"}")
+        _writeln(self.fh, r"}")
 
         maxcoord = 16383 / 72.27 * self.dpi  # Max dimensions in LaTeX.
         clip = (-maxcoord, -maxcoord, maxcoord, maxcoord)
@@ -427,48 +435,48 @@ class RendererPgf(RendererBase):
         for point, code in path.iter_segments(trans, simplify=False,
                                               clip=clip):
             x, y = point[0] * f, point[1] * f
-            writeln(self.fh, r"\begin{pgfscope}")
-            writeln(self.fh, r"\pgfsys@transformshift{%fin}{%fin}" % (x, y))
-            writeln(self.fh, r"\pgfsys@useobject{currentmarker}{}")
-            writeln(self.fh, r"\end{pgfscope}")
+            _writeln(self.fh, r"\begin{pgfscope}")
+            _writeln(self.fh, r"\pgfsys@transformshift{%fin}{%fin}" % (x, y))
+            _writeln(self.fh, r"\pgfsys@useobject{currentmarker}{}")
+            _writeln(self.fh, r"\end{pgfscope}")
 
-        writeln(self.fh, r"\end{pgfscope}")
+        _writeln(self.fh, r"\end{pgfscope}")
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
-        writeln(self.fh, r"\begin{pgfscope}")
+        _writeln(self.fh, r"\begin{pgfscope}")
         # draw the path
         self._print_pgf_clip(gc)
         self._print_pgf_path_styles(gc, rgbFace)
         self._print_pgf_path(gc, path, transform, rgbFace)
         self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0,
                             fill=rgbFace is not None)
-        writeln(self.fh, r"\end{pgfscope}")
+        _writeln(self.fh, r"\end{pgfscope}")
 
         # if present, draw pattern on top
         if gc.get_hatch():
-            writeln(self.fh, r"\begin{pgfscope}")
+            _writeln(self.fh, r"\begin{pgfscope}")
             self._print_pgf_path_styles(gc, rgbFace)
 
             # combine clip and path for clipping
             self._print_pgf_clip(gc)
             self._print_pgf_path(gc, path, transform, rgbFace)
-            writeln(self.fh, r"\pgfusepath{clip}")
+            _writeln(self.fh, r"\pgfusepath{clip}")
 
             # build pattern definition
-            writeln(self.fh,
-                    r"\pgfsys@defobject{currentpattern}"
-                    r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}{")
-            writeln(self.fh, r"\begin{pgfscope}")
-            writeln(self.fh,
-                    r"\pgfpathrectangle"
-                    r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}")
-            writeln(self.fh, r"\pgfusepath{clip}")
+            _writeln(self.fh,
+                     r"\pgfsys@defobject{currentpattern}"
+                     r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}{")
+            _writeln(self.fh, r"\begin{pgfscope}")
+            _writeln(self.fh,
+                     r"\pgfpathrectangle"
+                     r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}")
+            _writeln(self.fh, r"\pgfusepath{clip}")
             scale = mpl.transforms.Affine2D().scale(self.dpi)
             self._print_pgf_path(None, gc.get_hatch_path(), scale)
             self._pgf_path_draw(stroke=True)
-            writeln(self.fh, r"\end{pgfscope}")
-            writeln(self.fh, r"}")
+            _writeln(self.fh, r"\end{pgfscope}")
+            _writeln(self.fh, r"}")
             # repeat pattern, filling the bounding rect of the path
             f = 1. / self.dpi
             (xmin, ymin), (xmax, ymax) = \
@@ -476,16 +484,16 @@ class RendererPgf(RendererBase):
             xmin, xmax = f * xmin, f * xmax
             ymin, ymax = f * ymin, f * ymax
             repx, repy = math.ceil(xmax - xmin), math.ceil(ymax - ymin)
-            writeln(self.fh,
-                    r"\pgfsys@transformshift{%fin}{%fin}" % (xmin, ymin))
+            _writeln(self.fh,
+                     r"\pgfsys@transformshift{%fin}{%fin}" % (xmin, ymin))
             for iy in range(repy):
                 for ix in range(repx):
-                    writeln(self.fh, r"\pgfsys@useobject{currentpattern}{}")
-                    writeln(self.fh, r"\pgfsys@transformshift{1in}{0in}")
-                writeln(self.fh, r"\pgfsys@transformshift{-%din}{0in}" % repx)
-                writeln(self.fh, r"\pgfsys@transformshift{0in}{1in}")
+                    _writeln(self.fh, r"\pgfsys@useobject{currentpattern}{}")
+                    _writeln(self.fh, r"\pgfsys@transformshift{1in}{0in}")
+                _writeln(self.fh, r"\pgfsys@transformshift{-%din}{0in}" % repx)
+                _writeln(self.fh, r"\pgfsys@transformshift{0in}{1in}")
 
-            writeln(self.fh, r"\end{pgfscope}")
+            _writeln(self.fh, r"\end{pgfscope}")
 
     def _print_pgf_clip(self, gc):
         f = 1. / self.dpi
@@ -495,30 +503,30 @@ class RendererPgf(RendererBase):
             p1, p2 = bbox.get_points()
             w, h = p2 - p1
             coords = p1[0] * f, p1[1] * f, w * f, h * f
-            writeln(self.fh,
-                    r"\pgfpathrectangle"
-                    r"{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}"
-                    % coords)
-            writeln(self.fh, r"\pgfusepath{clip}")
+            _writeln(self.fh,
+                     r"\pgfpathrectangle"
+                     r"{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}"
+                     % coords)
+            _writeln(self.fh, r"\pgfusepath{clip}")
 
         # check for clip path
         clippath, clippath_trans = gc.get_clip_path()
         if clippath is not None:
             self._print_pgf_path(gc, clippath, clippath_trans)
-            writeln(self.fh, r"\pgfusepath{clip}")
+            _writeln(self.fh, r"\pgfusepath{clip}")
 
     def _print_pgf_path_styles(self, gc, rgbFace):
         # cap style
         capstyles = {"butt": r"\pgfsetbuttcap",
                      "round": r"\pgfsetroundcap",
                      "projecting": r"\pgfsetrectcap"}
-        writeln(self.fh, capstyles[gc.get_capstyle()])
+        _writeln(self.fh, capstyles[gc.get_capstyle()])
 
         # join style
         joinstyles = {"miter": r"\pgfsetmiterjoin",
                       "round": r"\pgfsetroundjoin",
                       "bevel": r"\pgfsetbeveljoin"}
-        writeln(self.fh, joinstyles[gc.get_joinstyle()])
+        _writeln(self.fh, joinstyles[gc.get_joinstyle()])
 
         # filling
         has_fill = rgbFace is not None
@@ -530,33 +538,33 @@ class RendererPgf(RendererBase):
             fillopacity = rgbFace[3] if has_fill and len(rgbFace) > 3 else 1.0
 
         if has_fill:
-            writeln(self.fh,
-                    r"\definecolor{currentfill}{rgb}{%f,%f,%f}"
-                    % tuple(rgbFace[:3]))
-            writeln(self.fh, r"\pgfsetfillcolor{currentfill}")
+            _writeln(self.fh,
+                     r"\definecolor{currentfill}{rgb}{%f,%f,%f}"
+                     % tuple(rgbFace[:3]))
+            _writeln(self.fh, r"\pgfsetfillcolor{currentfill}")
         if has_fill and fillopacity != 1.0:
-            writeln(self.fh, r"\pgfsetfillopacity{%f}" % fillopacity)
+            _writeln(self.fh, r"\pgfsetfillopacity{%f}" % fillopacity)
 
         # linewidth and color
         lw = gc.get_linewidth() * mpl_pt_to_in * latex_in_to_pt
         stroke_rgba = gc.get_rgb()
-        writeln(self.fh, r"\pgfsetlinewidth{%fpt}" % lw)
-        writeln(self.fh,
-                r"\definecolor{currentstroke}{rgb}{%f,%f,%f}"
-                % stroke_rgba[:3])
-        writeln(self.fh, r"\pgfsetstrokecolor{currentstroke}")
+        _writeln(self.fh, r"\pgfsetlinewidth{%fpt}" % lw)
+        _writeln(self.fh,
+                 r"\definecolor{currentstroke}{rgb}{%f,%f,%f}"
+                 % stroke_rgba[:3])
+        _writeln(self.fh, r"\pgfsetstrokecolor{currentstroke}")
         if strokeopacity != 1.0:
-            writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % strokeopacity)
+            _writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % strokeopacity)
 
         # line style
         dash_offset, dash_list = gc.get_dashes()
         if dash_list is None:
-            writeln(self.fh, r"\pgfsetdash{}{0pt}")
+            _writeln(self.fh, r"\pgfsetdash{}{0pt}")
         else:
-            writeln(self.fh,
-                    r"\pgfsetdash{%s}{%fpt}"
-                    % ("".join(r"{%fpt}" % dash for dash in dash_list),
-                       dash_offset))
+            _writeln(self.fh,
+                     r"\pgfsetdash{%s}{%fpt}"
+                     % ("".join(r"{%fpt}" % dash for dash in dash_list),
+                        dash_offset))
 
     def _print_pgf_path(self, gc, path, transform, rgbFace=None):
         f = 1. / self.dpi
@@ -573,32 +581,32 @@ class RendererPgf(RendererBase):
         for points, code in path.iter_segments(transform, clip=clip):
             if code == Path.MOVETO:
                 x, y = tuple(points)
-                writeln(self.fh,
-                        r"\pgfpathmoveto{\pgfqpoint{%fin}{%fin}}" %
-                        (f * x, f * y))
+                _writeln(self.fh,
+                         r"\pgfpathmoveto{\pgfqpoint{%fin}{%fin}}" %
+                         (f * x, f * y))
             elif code == Path.CLOSEPOLY:
-                writeln(self.fh, r"\pgfpathclose")
+                _writeln(self.fh, r"\pgfpathclose")
             elif code == Path.LINETO:
                 x, y = tuple(points)
-                writeln(self.fh,
-                        r"\pgfpathlineto{\pgfqpoint{%fin}{%fin}}" %
-                        (f * x, f * y))
+                _writeln(self.fh,
+                         r"\pgfpathlineto{\pgfqpoint{%fin}{%fin}}" %
+                         (f * x, f * y))
             elif code == Path.CURVE3:
                 cx, cy, px, py = tuple(points)
                 coords = cx * f, cy * f, px * f, py * f
-                writeln(self.fh,
-                        r"\pgfpathquadraticcurveto"
-                        r"{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}"
-                        % coords)
+                _writeln(self.fh,
+                         r"\pgfpathquadraticcurveto"
+                         r"{\pgfqpoint{%fin}{%fin}}{\pgfqpoint{%fin}{%fin}}"
+                         % coords)
             elif code == Path.CURVE4:
                 c1x, c1y, c2x, c2y, px, py = tuple(points)
                 coords = c1x * f, c1y * f, c2x * f, c2y * f, px * f, py * f
-                writeln(self.fh,
-                        r"\pgfpathcurveto"
-                        r"{\pgfqpoint{%fin}{%fin}}"
-                        r"{\pgfqpoint{%fin}{%fin}}"
-                        r"{\pgfqpoint{%fin}{%fin}}"
-                        % coords)
+                _writeln(self.fh,
+                         r"\pgfpathcurveto"
+                         r"{\pgfqpoint{%fin}{%fin}}"
+                         r"{\pgfqpoint{%fin}{%fin}}"
+                         r"{\pgfqpoint{%fin}{%fin}}"
+                         % coords)
 
         # apply pgf decorators
         sketch_params = gc.get_sketch_params() if gc else None
@@ -616,13 +624,13 @@ class RendererPgf(RendererBase):
                 length *= 0.5
                 scale *= 2
                 # PGF guarantees that repeated loading is a no-op
-                writeln(self.fh, r"\usepgfmodule{decorations}")
-                writeln(self.fh, r"\usepgflibrary{decorations.pathmorphing}")
-                writeln(self.fh, r"\pgfkeys{/pgf/decoration/.cd, "
-                        f"segment length = {(length * f):f}in, "
-                        f"amplitude = {(scale * f):f}in}}")
-                writeln(self.fh, f"\\pgfmathsetseed{{{int(randomness)}}}")
-                writeln(self.fh, r"\pgfdecoratecurrentpath{random steps}")
+                _writeln(self.fh, r"\usepgfmodule{decorations}")
+                _writeln(self.fh, r"\usepgflibrary{decorations.pathmorphing}")
+                _writeln(self.fh, r"\pgfkeys{/pgf/decoration/.cd, "
+                         f"segment length = {(length * f):f}in, "
+                         f"amplitude = {(scale * f):f}in}}")
+                _writeln(self.fh, f"\\pgfmathsetseed{{{int(randomness)}}}")
+                _writeln(self.fh, r"\pgfdecoratecurrentpath{random steps}")
 
     def _pgf_path_draw(self, stroke=True, fill=False):
         actions = []
@@ -630,7 +638,7 @@ class RendererPgf(RendererBase):
             actions.append("stroke")
         if fill:
             actions.append("fill")
-        writeln(self.fh, r"\pgfusepath{%s}" % ",".join(actions))
+        _writeln(self.fh, r"\pgfusepath{%s}" % ",".join(actions))
 
     def option_scale_image(self):
         # docstring inherited
@@ -659,27 +667,27 @@ class RendererPgf(RendererBase):
         self.image_counter += 1
 
         # reference the image in the pgf picture
-        writeln(self.fh, r"\begin{pgfscope}")
+        _writeln(self.fh, r"\begin{pgfscope}")
         self._print_pgf_clip(gc)
         f = 1. / self.dpi  # from display coords to inch
         if transform is None:
-            writeln(self.fh,
-                    r"\pgfsys@transformshift{%fin}{%fin}" % (x * f, y * f))
+            _writeln(self.fh,
+                     r"\pgfsys@transformshift{%fin}{%fin}" % (x * f, y * f))
             w, h = w * f, h * f
         else:
             tr1, tr2, tr3, tr4, tr5, tr6 = transform.frozen().to_values()
-            writeln(self.fh,
-                    r"\pgfsys@transformcm{%f}{%f}{%f}{%f}{%fin}{%fin}" %
-                    (tr1 * f, tr2 * f, tr3 * f, tr4 * f,
-                     (tr5 + x) * f, (tr6 + y) * f))
+            _writeln(self.fh,
+                     r"\pgfsys@transformcm{%f}{%f}{%f}{%f}{%fin}{%fin}" %
+                     (tr1 * f, tr2 * f, tr3 * f, tr4 * f,
+                      (tr5 + x) * f, (tr6 + y) * f))
             w = h = 1  # scale is already included in the transform
         interp = str(transform is None).lower()  # interpolation in PDF reader
-        writeln(self.fh,
-                r"\pgftext[left,bottom]"
-                r"{%s[interpolate=%s,width=%fin,height=%fin]{%s}}" %
-                (_get_image_inclusion_command(),
-                 interp, w, h, fname_img))
-        writeln(self.fh, r"\end{pgfscope}")
+        _writeln(self.fh,
+                 r"\pgftext[left,bottom]"
+                 r"{%s[interpolate=%s,width=%fin,height=%fin]{%s}}" %
+                 (_get_image_inclusion_command(),
+                  interp, w, h, fname_img))
+        _writeln(self.fh, r"\end{pgfscope}")
 
     def draw_tex(self, gc, x, y, s, prop, angle, ismath="TeX", mtext=None):
         # docstring inherited
@@ -691,16 +699,16 @@ class RendererPgf(RendererBase):
         # prepare string for tex
         s = _escape_and_apply_props(s, prop)
 
-        writeln(self.fh, r"\begin{pgfscope}")
+        _writeln(self.fh, r"\begin{pgfscope}")
 
         alpha = gc.get_alpha()
         if alpha != 1.0:
-            writeln(self.fh, r"\pgfsetfillopacity{%f}" % alpha)
-            writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % alpha)
+            _writeln(self.fh, r"\pgfsetfillopacity{%f}" % alpha)
+            _writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % alpha)
         rgb = tuple(gc.get_rgb())[:3]
-        writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % rgb)
-        writeln(self.fh, r"\pgfsetstrokecolor{textcolor}")
-        writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
+        _writeln(self.fh, r"\definecolor{textcolor}{rgb}{%f,%f,%f}" % rgb)
+        _writeln(self.fh, r"\pgfsetstrokecolor{textcolor}")
+        _writeln(self.fh, r"\pgfsetfillcolor{textcolor}")
         s = r"\color{textcolor}" + s
 
         dpi = self.figure.dpi
@@ -729,8 +737,8 @@ class RendererPgf(RendererBase):
         if angle != 0:
             text_args.append("rotate=%f" % angle)
 
-        writeln(self.fh, r"\pgftext[%s]{%s}" % (",".join(text_args), s))
-        writeln(self.fh, r"\end{pgfscope}")
+        _writeln(self.fh, r"\pgftext[%s]{%s}" % (",".join(text_args), s))
+        _writeln(self.fh, r"\end{pgfscope}")
 
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
@@ -816,9 +824,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 
         # append the preamble used by the backend as a comment for debugging
         header_info_preamble = ["%% Matplotlib used the following preamble"]
-        for line in get_preamble().splitlines():
-            header_info_preamble.append("%%   " + line)
-        for line in get_fontspec().splitlines():
+        for line in _get_preamble().splitlines():
             header_info_preamble.append("%%   " + line)
         header_info_preamble.append("%%")
         header_info_preamble = "\n".join(header_info_preamble)
@@ -831,22 +837,22 @@ class FigureCanvasPgf(FigureCanvasBase):
         fh.write(header_text)
         fh.write(header_info_preamble)
         fh.write("\n")
-        writeln(fh, r"\begingroup")
-        writeln(fh, r"\makeatletter")
-        writeln(fh, r"\begin{pgfpicture}")
-        writeln(fh,
-                r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}"
-                % (w, h))
-        writeln(fh, r"\pgfusepath{use as bounding box, clip}")
+        _writeln(fh, r"\begingroup")
+        _writeln(fh, r"\makeatletter")
+        _writeln(fh, r"\begin{pgfpicture}")
+        _writeln(fh,
+                 r"\pgfpathrectangle{\pgfpointorigin}{\pgfqpoint{%fin}{%fin}}"
+                 % (w, h))
+        _writeln(fh, r"\pgfusepath{use as bounding box, clip}")
         renderer = MixedModeRenderer(self.figure, w, h, dpi,
                                      RendererPgf(self.figure, fh),
                                      bbox_inches_restore=bbox_inches_restore)
         self.figure.draw(renderer)
 
         # end the pgfpicture environment
-        writeln(fh, r"\end{pgfpicture}")
-        writeln(fh, r"\makeatother")
-        writeln(fh, r"\endgroup")
+        _writeln(fh, r"\end{pgfpicture}")
+        _writeln(fh, r"\makeatother")
+        _writeln(fh, r"\endgroup")
 
     def print_pgf(self, fname_or_fh, **kwargs):
         """
@@ -877,8 +883,7 @@ class FigureCanvasPgf(FigureCanvasBase):
                     r"\documentclass[12pt]{minimal}",
                     r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
                     % (w, h),
-                    get_preamble(),
-                    get_fontspec(),
+                    _get_preamble(),
                     r"\usepackage{pgf}",
                     r"\begin{document}",
                     r"\centering",
@@ -989,8 +994,7 @@ class PdfPages:
             r"\documentclass[12pt]{minimal}",
             r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
             % (width_inches, height_inches),
-            get_preamble(),
-            get_fontspec(),
+            _get_preamble(),
             r"\usepackage{pgf}",
             r"\setlength{\parindent}{0pt}",
             r"\begin{document}%",
