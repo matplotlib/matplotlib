@@ -36,6 +36,8 @@ The Locator subclasses defined here are:
 `SymmetricalLogLocator` Locator for use with with the symlog norm; works like
                         `LogLocator` for the part outside of the threshold and
                         adds 0 if inside the limits.
+`AsinhLocator`          Locator for use with the asinh norm, attempting to
+                        space ticks approximately uniformly.
 `LogitLocator`          Locator for logit scaling.
 `AutoMinorLocator`      Locator for minor ticks when the axis is linear and the
                         major ticks are uniformly spaced. Subdivides the major
@@ -2581,6 +2583,57 @@ class SymmetricalLogLocator(Locator):
 
         result = mtransforms.nonsingular(vmin, vmax)
         return result
+
+
+class AsinhLocator(Locator):
+    """
+    An axis tick locator specialized for the inverse-sinh scale
+
+    This is very unlikely to have any use beyond the AsinhScale class.
+    """
+    def __init__(self, linear_width, numticks=12):
+        """
+        Parameters
+        ----------
+        linear_width : float
+            The scale parameter defining the extent
+            of the quasi-linear region.
+        numticks : int, default: 12
+            The approximate number of major ticks that will fit
+            along the entire axis
+        """
+        super().__init__()
+        self.linear_width = linear_width
+        self.numticks = numticks
+
+    def __call__(self):
+        dmin, dmax = self.axis.get_data_interval()
+        return self.tick_values(dmin, dmax)
+
+    def tick_values(self, vmin, vmax):
+        # Construct a set of "on-screen" locations
+        # that are uniformly spaced:
+        ymin, ymax = self.linear_width * np.arcsinh(np.array([vmin, vmax]) / self.linear_width)
+        ys = np.linspace(ymin, ymax, self.numticks)
+        if (ymin * ymax) < 0:
+            # Ensure that the zero tick-mark is included,
+            # if the axis stradles zero
+            ys = np.hstack([ys, 0.0])
+
+        # Transform the "on-screen" grid to the data space:
+        xs = self.linear_width * np.sinh(ys / self.linear_width)
+        zero_xs = (xs == 0)
+
+        # Round the data-space values to be intuitive decimal numbers:
+        decades = (
+            np.where(xs >= 0, 1, -1) *
+            np.power(10, np.where(zero_xs, 1.0,
+                                  np.floor(np.log10(np.abs(xs)
+                                                    + zero_xs*1e-6))))
+        )
+        qs = decades * np.round(xs / decades)
+
+        return np.array(sorted(set(qs)))
 
 
 class LogitLocator(MaxNLocator):

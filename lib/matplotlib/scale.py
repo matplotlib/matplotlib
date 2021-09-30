@@ -23,7 +23,7 @@ from matplotlib import _api, docstring
 from matplotlib.ticker import (
     NullFormatter, ScalarFormatter, LogFormatterSciNotation, LogitFormatter,
     Locator, NullLocator, LogLocator, AutoLocator, AutoMinorLocator,
-    SymmetricalLogLocator, LogitLocator)
+    SymmetricalLogLocator, AsinhLocator, LogitLocator)
 from matplotlib.transforms import Transform, IdentityTransform
 
 
@@ -458,6 +458,34 @@ class SymmetricalLogScale(ScaleBase):
         return self._transform
 
 
+class AsinhTransform(Transform):
+    input_dims = output_dims = 1
+
+    def __init__(self, linear_width):
+        super().__init__()
+        self.linear_width = linear_width
+
+    def transform_non_affine(self, a):
+        return self.linear_width * np.arcsinh(a / self.linear_width)
+
+    def inverted(self):
+        return InvertedAsinhTransform(self.linear_width)
+
+
+class InvertedAsinhTransform(Transform):
+    input_dims = output_dims = 1
+
+    def __init__(self, linear_width):
+        super().__init__()
+        self.linear_width = linear_width
+
+    def transform_non_affine(self, a):
+        return self.linear_width * np.sinh(a / self.linear_width)
+
+    def inverted(self):
+        return AsinhTransform(self.linear_width)
+
+
 class AsinhScale(ScaleBase):
     """
     A quasi-logarithmic scale based on the inverse hyperbolic sine (asinh)
@@ -494,88 +522,11 @@ class AsinhScale(ScaleBase):
         self.linear_width = linear_width
 
     def get_transform(self):
-        return self.AsinhTransform(self.linear_width)
+        return AsinhTransform(self.linear_width)
 
     def set_default_locators_and_formatters(self, axis):
-        axis.set(major_locator=AsinhScale.AsinhLocator(self.linear_width),
+        axis.set(major_locator=AsinhLocator(self.linear_width),
                  major_formatter='{x:.3g}')
-
-    class AsinhTransform(Transform):
-        input_dims = output_dims = 1
-
-        def __init__(self, linear_width):
-            super().__init__()
-            self.linear_width = linear_width
-
-        def transform_non_affine(self, a):
-            return self.linear_width * np.arcsinh(a / self.linear_width)
-
-        def inverted(self):
-            return AsinhScale.InvertedAsinhTransform(self.linear_width)
-
-    class InvertedAsinhTransform(Transform):
-        input_dims = output_dims = 1
-
-        def __init__(self, linear_width):
-            super().__init__()
-            self.linear_width = linear_width
-
-        def transform_non_affine(self, a):
-            return self.linear_width * np.sinh(a / self.linear_width)
-
-        def inverted(self):
-            return AsinhScale.AsinhTransform(self.linear_width)
-
-    class AsinhLocator(Locator):
-        """
-        An axis tick locator specialized for the arcsinh scale
-
-        This is very unlikely to have any use beyond the AsinhScale class.
-        """
-        def __init__(self, linear_width, numticks=12):
-            """
-            Parameters
-            ----------
-            linear_width : float
-                The scale parameter defining the extent
-                of the quasi-linear region.
-            numticks : int, default: 12
-                The approximate number of major ticks that will fit
-                along the entire axis
-            """
-            super().__init__()
-            self.linear_width = linear_width
-            self.numticks = numticks
-
-        def __call__(self):
-            dmin, dmax = self.axis.get_data_interval()
-            return self.tick_values(dmin, dmax)
-
-        def tick_values(self, vmin, vmax):
-            # Construct a set of "on-screen" locations
-            # that are uniformly spaced:
-            ymin, ymax = self.linear_width * np.arcsinh(np.array([vmin, vmax]) / self.linear_width)
-            ys = np.linspace(ymin, ymax, self.numticks)
-            if (ymin * ymax) < 0:
-                # Ensure that the zero tick-mark is included,
-                # if the axis stradles zero
-                ys = np.hstack([ys, 0.0])
-
-            # Transform the "on-screen" grid to the data space:
-            xs = self.linear_width * np.sinh(ys / self.linear_width)
-            zero_xs = (xs == 0)
-
-            # Round the data-space values to be intuitive decimal numbers:
-            decades = (
-                np.where(xs >= 0, 1, -1) *
-                np.power(10, np.where(zero_xs, 1.0,
-                                      np.floor(np.log10(np.abs(xs)
-                                                        + zero_xs*1e-6))))
-            )
-            qs = decades * np.round(xs / decades)
-
-            return np.array(sorted(set(qs)))
-
 
 class LogitTransform(Transform):
     input_dims = output_dims = 1
