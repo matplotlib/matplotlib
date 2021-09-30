@@ -1,3 +1,0 @@
-The ``grid_info`` attribute of ``axisartist`` classes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... has been deprecated.
