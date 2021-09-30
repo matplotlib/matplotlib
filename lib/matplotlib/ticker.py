@@ -2516,7 +2516,7 @@ class SymmetricalLogLocator(Locator):
         has_b = (has_a and vmax > -linthresh) or (has_c and vmin < linthresh)
 
         def get_log_range(lo, hi):
-            lo = np.floor(np.log(lo) / np.log(base))
+            lo = np.ceil(np.log(lo) / np.log(base))
             hi = np.ceil(np.log(hi) / np.log(base))
             return lo, hi
 
@@ -2540,7 +2540,6 @@ class SymmetricalLogLocator(Locator):
         decades = []
         if has_a:
             a = -1 * (base ** (np.arange(a_lo, a_hi, stride)[::-1]))
-            a = a[a <= -linthresh]
             decades.extend(a)
 
         if has_b:
@@ -2548,7 +2547,6 @@ class SymmetricalLogLocator(Locator):
 
         if has_c:
             c = base ** (np.arange(c_lo, c_hi, stride))
-            c = c[c >= linthresh]
             decades.extend(c)
 
         # Add the subticks if requested
