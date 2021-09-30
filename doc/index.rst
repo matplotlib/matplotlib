@@ -78,7 +78,7 @@ Learning resources
     ^^^^^^^^^
 
     - :doc:`API Reference <api/index>`
-    - :doc:`Axes API <api/axes_api>` for *most* plotting methods
+    - :doc:`Axes API <api/axes_api>` for most plotting methods
     - :doc:`Figure API <api/figure_api>` for figure-level methods
     - Top-level interfaces to create:
 
@@ -98,7 +98,7 @@ Matplotlib.
 Contributing
 ------------
 
-Matplotlib is a community project maitained for and by its users.  There are many ways
+Matplotlib is a community project maintained for and by its users.  There are many ways
 you can help!
 
 - Help other users `on discourse <https://discourse.matplotlib.org>`__

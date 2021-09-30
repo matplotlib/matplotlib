@@ -9,7 +9,7 @@ How-to
    :Release: |version|
    :Date: |today|
 
-   Frequently asked questions about matplotlib
+   Frequently asked questions about Matplotlib:
 
 .. toctree::
    :maxdepth: 2
