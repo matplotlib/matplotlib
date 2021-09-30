@@ -23,7 +23,7 @@ from datetime import datetime
 import time
 
 # Release mode enables optimizations and other related options.
-_doc_release_mode = tags.has('release')  # noqa
+is_release_build = tags.has('release')  # noqa
 
 # are we running circle CI?
 CIRCLECI = 'CIRCLECI' in os.environ
@@ -179,7 +179,8 @@ sphinx_gallery_conf = {
     'remove_config_comments': True,
     'min_reported_time': 1,
     'thumbnail_size': (320, 224),
-    'compress_images': ('thumbnails', 'images') if _doc_release_mode else (),
+    # Compression is a significant effort that we skip for local and CI builds.
+    'compress_images': ('thumbnails', 'images') if is_release_build else (),
     'matplotlib_animations': True,
     'image_srcset': ["2x"],
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
@@ -296,7 +297,9 @@ html_theme = "pydata_sphinx_theme"
 html_logo = "_static/logo2.svg"
 html_theme_options = {
     "logo_link": "index",
-    "collapse_navigation": not _doc_release_mode,
+    # collapse_navigation in pydata-sphinx-theme is slow, so skipped for local
+    # and CI builds https://github.com/pydata/pydata-sphinx-theme/pull/386
+    "collapse_navigation": not is_release_build,
     "icon_links": [
         {
             "name": "gitter",
@@ -322,7 +325,7 @@ html_theme_options = {
     "show_prev_next": False,
     "navbar_center": ["mpl_nav_bar.html"],
 }
-include_analytics = _doc_release_mode
+include_analytics = is_release_build
 if include_analytics:
     html_theme_options["google_analytics_id"] = "UA-55954603-1"
 
@@ -542,6 +545,8 @@ graphviz_dot = shutil.which('dot')
 
 
 def reduce_plot_formats(app):
+    # Fox CI and local builds, we don't need all the default plot formats, so
+    # only generate the directly useful one for the current builder.
     if app.builder.name == 'html':
         keep = 'png'
     elif app.builder.name == 'latex':
@@ -560,7 +565,7 @@ def setup(app):
         bld_type = 'rel'
     app.add_config_value('releaselevel', bld_type, 'env')
 
-    if not _doc_release_mode:
+    if not is_release_build:
         app.connect('builder-inited', reduce_plot_formats)
 
 # -----------------------------------------------------------------------------
