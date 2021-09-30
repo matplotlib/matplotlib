@@ -359,7 +359,7 @@ class ScalarMappable:
         self.set_cmap(cmap)  # The Colormap instance of this ScalarMappable.
         #: The last colorbar associated with this ScalarMappable. May be None.
         self.colorbar = None
-        self.callbacks = cbook.CallbackRegistry()
+        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
 
     callbacksSM = _api.deprecated("3.5", alternative="callbacks")(
         property(lambda self: self.callbacks))

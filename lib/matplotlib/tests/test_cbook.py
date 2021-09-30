@@ -363,6 +363,19 @@ def test_callbackregistry_custom_exception_handler(monkeypatch, cb, excp):
         cb.process('foo')
 
 
+def test_callbackregistry_signals():
+    cr = cbook.CallbackRegistry(signals=["foo"])
+    results = []
+    def cb(x): results.append(x)
+    cr.connect("foo", cb)
+    with pytest.raises(ValueError):
+        cr.connect("bar", cb)
+    cr.process("foo", 1)
+    with pytest.raises(ValueError):
+        cr.process("bar", 1)
+    assert results == [1]
+
+
 def test_callbackregistry_blocking():
     # Needs an exception handler for interactive testing environments
     # that would only print this out instead of raising the exception

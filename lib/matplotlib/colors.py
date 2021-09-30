@@ -1132,7 +1132,7 @@ class Normalize:
         self._vmax = _sanitize_extrema(vmax)
         self._clip = clip
         self._scale = None
-        self.callbacks = cbook.CallbackRegistry()
+        self.callbacks = cbook.CallbackRegistry(signals=["changed"])
 
     @property
     def vmin(self):

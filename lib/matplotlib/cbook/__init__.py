@@ -175,13 +175,20 @@ class CallbackRegistry:
        The default handler prints the exception (with `traceback.print_exc`) if
        an interactive event loop is running; it re-raises the exception if no
        interactive event loop is running.
+
+    signals : list, optional
+        If not None, *signals* is a list of signals that this registry handles:
+        attempting to `process` or to `connect` to a signal not in the list
+        throws a `ValueError`.  The default, None, does not restrict the
+        handled signals.
     """
 
     # We maintain two mappings:
     #   callbacks: signal -> {cid -> weakref-to-callback}
     #   _func_cid_map: signal -> {weakref-to-callback -> cid}
 
-    def __init__(self, exception_handler=_exception_printer):
+    def __init__(self, exception_handler=_exception_printer, *, signals=None):
+        self._signals = None if signals is None else list(signals)  # Copy it.
         self.exception_handler = exception_handler
         self.callbacks = {}
         self._cid_gen = itertools.count()
@@ -217,6 +224,8 @@ class CallbackRegistry:
         if signal == "units finalize":
             _api.warn_deprecated(
                 "3.5", name=signal, obj_type="signal", alternative="units")
+        if self._signals is not None:
+            _api.check_in_list(self._signals, signal=signal)
         self._func_cid_map.setdefault(signal, {})
         proxy = _weak_or_strong_ref(func, self._remove_proxy)
         if proxy in self._func_cid_map[signal]:
@@ -280,6 +289,8 @@ class CallbackRegistry:
         All of the functions registered to receive callbacks on *s* will be
         called with ``*args`` and ``**kwargs``.
         """
+        if self._signals is not None:
+            _api.check_in_list(self._signals, signal=s)
         for cid, ref in list(self.callbacks.get(s, {}).items()):
             func = ref()
             if func is not None:

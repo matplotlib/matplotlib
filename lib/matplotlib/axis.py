@@ -655,7 +655,8 @@ class Axis(martist.Artist):
         self.axes = axes
         self.major = Ticker()
         self.minor = Ticker()
-        self.callbacks = cbook.CallbackRegistry()
+        self.callbacks = cbook.CallbackRegistry(
+            signals=["units", "units finalize"])
 
         self._autolabelpos = True
 
@@ -806,7 +807,8 @@ class Axis(martist.Artist):
         self._set_scale('linear')
 
         # Clear the callback registry for this axis, or it may "leak"
-        self.callbacks = cbook.CallbackRegistry()
+        self.callbacks = cbook.CallbackRegistry(
+            signals=["units", "units finalize"])
 
         # whether the grids are on
         self._major_tick_kw['gridOn'] = (

@@ -1199,7 +1199,8 @@ class _AxesBase(martist.Artist):
             spine.clear()
 
         self.ignore_existing_data_limits = True
-        self.callbacks = cbook.CallbackRegistry()
+        self.callbacks = cbook.CallbackRegistry(
+            signals=["xlim_changed", "ylim_changed", "zlim_changed"])
 
         if self._sharex is not None:
             self.sharex(self._sharex)

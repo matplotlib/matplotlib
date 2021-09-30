@@ -183,7 +183,7 @@ class Button(AxesWidget):
                              horizontalalignment='center',
                              transform=ax.transAxes)
 
-        self._observers = cbook.CallbackRegistry()
+        self._observers = cbook.CallbackRegistry(signals=["clicked"])
 
         self.connect_event('button_press_event', self._click)
         self.connect_event('button_release_event', self._release)
@@ -275,7 +275,7 @@ class SliderBase(AxesWidget):
         self.connect_event("button_release_event", self._update)
         if dragging:
             self.connect_event("motion_notify_event", self._update)
-        self._observers = cbook.CallbackRegistry()
+        self._observers = cbook.CallbackRegistry(signals=["changed"])
 
     def _stepped_value(self, val):
         """Return *val* coerced to closest number in the ``valstep`` grid."""
@@ -1031,7 +1031,7 @@ class CheckButtons(AxesWidget):
 
         self.connect_event('button_press_event', self._clicked)
 
-        self._observers = cbook.CallbackRegistry()
+        self._observers = cbook.CallbackRegistry(signals=["clicked"])
 
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
@@ -1160,7 +1160,7 @@ class TextBox(AxesWidget):
             verticalalignment='center', horizontalalignment=textalignment,
             parse_math=False)
 
-        self._observers = cbook.CallbackRegistry()
+        self._observers = cbook.CallbackRegistry(signals=["change", "submit"])
 
         ax.set(
             xlim=(0, 1), ylim=(0, 1),  # s.t. cursor appears from first click.
@@ -1447,7 +1447,7 @@ class RadioButtons(AxesWidget):
 
         self.connect_event('button_press_event', self._clicked)
 
-        self._observers = cbook.CallbackRegistry()
+        self._observers = cbook.CallbackRegistry(signals=["clicked"])
 
     cnt = _api.deprecated("3.4")(property(  # Not real, but close enough.
         lambda self: len(self._observers.callbacks['clicked'])))
