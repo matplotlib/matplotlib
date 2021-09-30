@@ -80,7 +80,7 @@ searched first or last?  To append to an existing environment variable::
   setenv PATH ${PATH}:~/bin  # csh/tcsh
 
 To make your changes available in the future, add the commands to your
-:file:`~/.bashrc`/:file:`.cshrc` file.
+:file:`~/.bashrc` or :file:`~/.cshrc` file.
 
 .. _setting-windows-environment-variables:
 
