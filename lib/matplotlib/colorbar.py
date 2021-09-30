@@ -486,7 +486,7 @@ class Colorbar:
         if np.iterable(ticks):
             self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
         else:
-            self.locator = ticks    # Handle default in _ticker()
+            self.locator = ticks  # Handle default in _ticker()
 
         if isinstance(format, str):
             # Check format between FormatStrFormatter and StrMethodFormatter

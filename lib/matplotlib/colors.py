@@ -1236,7 +1236,7 @@ class Normalize:
         (vmin,), _ = self.process_value(self.vmin)
         (vmax,), _ = self.process_value(self.vmax)
         if vmin == vmax:
-            result.fill(0)   # Or should it be all masked?  Or 0.5?
+            result.fill(0)  # Or should it be all masked?  Or 0.5?
         elif vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
         else:

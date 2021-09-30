@@ -36,9 +36,9 @@ class Axis(maxis.XAxis):
     """An Axis class for the 3D plots."""
     # These points from the unit cube make up the x, y and z-planes
     _PLANES = (
-        (0, 3, 7, 4), (1, 2, 6, 5),     # yz planes
-        (0, 1, 5, 4), (3, 2, 6, 7),     # xz planes
-        (0, 1, 2, 3), (4, 5, 6, 7),     # xy planes
+        (0, 3, 7, 4), (1, 2, 6, 5),  # yz planes
+        (0, 1, 5, 4), (3, 2, 6, 7),  # xz planes
+        (0, 1, 2, 3), (4, 5, 6, 7),  # xy planes
     )
 
     # Some properties for the axes

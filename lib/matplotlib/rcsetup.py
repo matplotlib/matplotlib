@@ -744,12 +744,11 @@ def validate_cycler(s):
     for prop in cycler_inst.keys:
         norm_prop = _prop_aliases.get(prop, prop)
         if norm_prop != prop and norm_prop in cycler_inst.keys:
-            raise ValueError("Cannot specify both '{0}' and alias '{1}'"
-                             " in the same prop_cycle".format(norm_prop, prop))
+            raise ValueError(f"Cannot specify both {norm_prop!r} and alias "
+                             f"{prop!r} in the same prop_cycle")
         if norm_prop in checker:
-            raise ValueError("Another property was already aliased to '{0}'."
-                             " Collision normalizing '{1}'.".format(norm_prop,
-                                                                    prop))
+            raise ValueError(f"Another property was already aliased to "
+                             f"{norm_prop!r}. Collision normalizing {prop!r}.")
         checker.update([norm_prop])
 
     # This is just an extra-careful check, just in case there is some

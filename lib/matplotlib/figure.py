@@ -2756,7 +2756,7 @@ class Figure(FigureBase):
 
         for ax in tuple(self.axes):  # Iterate over the copy.
             ax.cla()
-            self.delaxes(ax)         # removes ax from self._axstack
+            self.delaxes(ax)  # Remove ax from self._axstack.
 
         toolbar = getattr(self.canvas, 'toolbar', None)
         if toolbar is not None:
