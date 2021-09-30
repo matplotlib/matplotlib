@@ -1,3 +1,0 @@
-``hatch.SmallFilledCircles`` now inherits from ``hatch.Circles``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-... rather than from ``hatch.SmallCircles``.

@@ -1,5 +1,0 @@
-``Tick.apply_tickdir`` is deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-``apply_tickdir`` didn't actually update the tick markers on the existing
-Line2D objects used to draw the ticks; use `.Axis.set_tick_params` instead.

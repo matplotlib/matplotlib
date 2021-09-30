@@ -1,3 +1,0 @@
-``ScalarMappable.callbacksSM``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-is deprecated. Use ``ScalarMappable.callbacks`` instead.
