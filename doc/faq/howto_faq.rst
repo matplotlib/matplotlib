@@ -110,33 +110,10 @@ on individual elements, e.g.::
 Save multiple plots to one pdf file
 -----------------------------------
 
-Many image file formats can only have one image per file, but some
-formats support multi-page files. Currently only the pdf backend has
-support for this. To make a multi-page pdf file, first initialize the
-file::
-
-    from matplotlib.backends.backend_pdf import PdfPages
-    pp = PdfPages('multipage.pdf')
-
-You can give the :class:`~matplotlib.backends.backend_pdf.PdfPages`
-object to :func:`~matplotlib.pyplot.savefig`, but you have to specify
-the format::
-
-    plt.savefig(pp, format='pdf')
-
-An easier way is to call
-:meth:`PdfPages.savefig <matplotlib.backends.backend_pdf.PdfPages.savefig>`::
-
-    pp.savefig()
-
-Finally, the multipage pdf object has to be closed::
-
-    pp.close()
-
-The same can be done using the pgf backend::
-
-    from matplotlib.backends.backend_pgf import PdfPages
-
+Many image file formats can only have one image per file, but some formats
+support multi-page files.  Currently, Matplotlib only provides multi-page
+output to pdf files, using either the pdf or pgf backends, via the
+`.backend_pdf.PdfPages` and `.backend_pgf.PdfPages` classes.
 
 .. _howto-auto-adjust:
 
