@@ -235,4 +235,4 @@ def test_asinh_transforms():
     assert_allclose(a_inverted, a)
 
     a_invinv = invinv.transform_non_affine(a)
-    assert_allclose(a_invinv, a0 * numpy.asinh(a / a0))
+    assert_allclose(a_invinv, a0 * np.asinh(a / a0))
