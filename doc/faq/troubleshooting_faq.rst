@@ -46,10 +46,10 @@ locate your :file:`matplotlib/` configuration directory, use
     >>> mpl.get_configdir()
     '/home/darren/.config/matplotlib'
 
-On unix-like systems, this directory is generally located in your
+On Unix-like systems, this directory is generally located in your
 :envvar:`HOME` directory under the :file:`.config/` directory.
 
-In addition, users have a cache directory. On unix-like systems, this is
+In addition, users have a cache directory. On Unix-like systems, this is
 separate from the configuration directory by default. To locate your
 :file:`.cache/` directory, use :func:`matplotlib.get_cachedir`::
 
@@ -57,7 +57,7 @@ separate from the configuration directory by default. To locate your
     >>> mpl.get_cachedir()
     '/home/darren/.cache/matplotlib'
 
-On windows, both the config directory and the cache directory are
+On Windows, both the config directory and the cache directory are
 the same and are in your :file:`Documents and Settings` or :file:`Users`
 directory by default::
 
@@ -93,7 +93,7 @@ If you are unable to find an answer to your question through search, please
 provide the following information in your e-mail to the `mailing list
 <https://mail.python.org/mailman/listinfo/matplotlib-users>`_:
 
-* Your operating system (Linux/UNIX users: post the output of ``uname -a``).
+* Your operating system (Linux/Unix users: post the output of ``uname -a``).
 
 * Matplotlib version::
 
