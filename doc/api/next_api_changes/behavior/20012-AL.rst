@@ -1,5 +1,0 @@
-Default theta tick locations for non-full-circle polar plots have changed
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-For polar plots that don't cover a full circle, the default theta tick
-locations are now at multiples of 10°, 15°, 30°, 45°, 90°, rather than using
-values that mostly make sense for linear plots (20°, 25°, etc.).
