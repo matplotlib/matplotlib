@@ -12,17 +12,10 @@ import numpy as np
 
 plt.style.use('_mpl-gallery-nogrid')
 
-# make full-res data
-X, Y = np.meshgrid(np.linspace(-3, 3, 256), np.linspace(-3, 3, 256))
+# make data with uneven sampling in x
+x = [-3, -2, -1.6, -1.2, -.8, -.5, -.2, .1, .3, .5, .8, 1.1, 1.5, 1.9, 2.3, 3]
+X, Y = np.meshgrid(x, np.linspace(-3, 3, 128))
 Z = (1 - X/2 + X**5 + Y**3) * np.exp(-X**2 - Y**2)
-
-# sample unevenly in x:
-dx = np.sqrt((np.arange(16) - 8)**2) + 6
-dx = np.floor(dx / sum(dx) * 255)
-xint = np.cumsum(dx).astype('int')
-X = X[0, xint]
-Y = Y[::8, 0]
-Z = Z[::8, :][:, xint]
 
 # plot
 fig, ax = plt.subplots()
