@@ -1,8 +1,0 @@
-Make norm from scale now public
-===============================
-
-Downstream libraries can take advantage of `.colors.make_norm_from_scale` 
-to create a `~.colors.Normalize` subclass directly from an existing scale.  
-Usually norms have a scale, and the advantage of having a  `~.scale.ScaleBase` 
-attached to a norm is to provide a scale, and associated tick locators and 
-formatters, for the colorbar.
