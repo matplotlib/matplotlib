@@ -345,7 +345,7 @@ build the docs from the ``ver-doc`` branch.  An easy way to arrange this is::
   pip install -r requirements/doc/doc-requirements.txt
   git checkout v2.0.0-doc
   git clean -xfd
-  make -Cdoc O="-Ainclude_analytics=True -j$(nproc)" html latexpdf LATEXMKOPTS="-silent -f"
+  make -Cdoc O="-t release -j$(nproc)" html latexpdf LATEXMKOPTS="-silent -f"
 
 which will build both the html and pdf version of the documentation.
 
