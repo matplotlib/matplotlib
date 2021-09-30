@@ -29,7 +29,7 @@ population_by_continent = {
 
 fig, ax = plt.subplots()
 ax.stackplot(year, population_by_continent.values(),
-             labels=population_by_continent.keys())
+             labels=population_by_continent.keys(), alpha=0.8)
 ax.legend(loc='upper left')
 ax.set_title('World population')
 ax.set_xlabel('Year')

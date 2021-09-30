@@ -17,9 +17,6 @@ import numpy as np
 import matplotlib.cbook as cbook
 
 
-# Fixing random state for reproducibility
-np.random.seed(19680801)
-
 # load up some sample financial data
 r = (cbook.get_sample_data('goog.npz', np_load=True)['price_data']
      .view(np.recarray))
@@ -29,7 +26,7 @@ fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True)
 pricemin = r.close.min()
 
 ax1.plot(r.date, r.close, lw=2)
-ax2.fill_between(r.date, pricemin, r.close, facecolor='blue', alpha=0.5)
+ax2.fill_between(r.date, pricemin, r.close, alpha=0.7)
 
 for ax in ax1, ax2:
     ax.grid(True)
@@ -52,16 +49,19 @@ fig.autofmt_xdate()
 #
 # Our next example computes two populations of random walkers with a
 # different mean and standard deviation of the normal distributions from
-# which the steps are drawn.  We use shared regions to plot +/- one
+# which the steps are drawn.  We use filled regions to plot +/- one
 # standard deviation of the mean position of the population.  Here the
 # alpha channel is useful, not just aesthetic.
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
 
 Nsteps, Nwalkers = 100, 250
 t = np.arange(Nsteps)
 
 # an (Nsteps x Nwalkers) array of random walk steps
-S1 = 0.002 + 0.01*np.random.randn(Nsteps, Nwalkers)
-S2 = 0.004 + 0.02*np.random.randn(Nsteps, Nwalkers)
+S1 = 0.004 + 0.02*np.random.randn(Nsteps, Nwalkers)
+S2 = 0.002 + 0.01*np.random.randn(Nsteps, Nwalkers)
 
 # an (Nsteps x Nwalkers) array of random walker positions
 X1 = S1.cumsum(axis=0)
@@ -77,10 +77,10 @@ sigma2 = X2.std(axis=1)
 
 # plot it!
 fig, ax = plt.subplots(1)
-ax.plot(t, mu1, lw=2, label='mean population 1', color='blue')
-ax.plot(t, mu2, lw=2, label='mean population 2', color='yellow')
-ax.fill_between(t, mu1+sigma1, mu1-sigma1, facecolor='blue', alpha=0.5)
-ax.fill_between(t, mu2+sigma2, mu2-sigma2, facecolor='yellow', alpha=0.5)
+ax.plot(t, mu1, lw=2, label='mean population 1')
+ax.plot(t, mu2, lw=2, label='mean population 2')
+ax.fill_between(t, mu1+sigma1, mu1-sigma1, facecolor='C0', alpha=0.4)
+ax.fill_between(t, mu2+sigma2, mu2-sigma2, facecolor='C1', alpha=0.4)
 ax.set_title(r'random walkers empirical $\mu$ and $\pm \sigma$ interval')
 ax.legend(loc='upper left')
 ax.set_xlabel('num steps')
@@ -93,11 +93,14 @@ ax.grid()
 # as the x, ymin and ymax arguments, and only fills in the region where
 # the boolean mask is True.  In the example below, we simulate a single
 # random walker and compute the analytic mean and standard deviation of
-# the population positions.  The population mean is shown as the black
-# dashed line, and the plus/minus one sigma deviation from the mean is
-# shown as the yellow filled region.  We use the where mask
-# ``X > upper_bound`` to find the region where the walker is above the one
-# sigma boundary, and shade that region blue.
+# the population positions.  The population mean is shown as the dashed
+# line, and the plus/minus one sigma deviation from the mean is shown
+# as the filled region.  We use the where mask ``X > upper_bound`` to
+# find the region where the walker is outside the one sigma boundary,
+# and shade that region red.
+
+# Fixing random state for reproducibility
+np.random.seed(1)
 
 Nsteps = 500
 t = np.arange(Nsteps)
@@ -114,16 +117,16 @@ lower_bound = mu*t - sigma*np.sqrt(t)
 upper_bound = mu*t + sigma*np.sqrt(t)
 
 fig, ax = plt.subplots(1)
-ax.plot(t, X, lw=2, label='walker position', color='blue')
-ax.plot(t, mu*t, lw=1, label='population mean', color='black', ls='--')
-ax.fill_between(t, lower_bound, upper_bound, facecolor='yellow', alpha=0.5,
+ax.plot(t, X, lw=2, label='walker position')
+ax.plot(t, mu*t, lw=1, label='population mean', color='C0', ls='--')
+ax.fill_between(t, lower_bound, upper_bound, facecolor='C0', alpha=0.4,
                 label='1 sigma range')
 ax.legend(loc='upper left')
 
 # here we use the where argument to only fill the region where the
 # walker is above the population 1 sigma boundary
-ax.fill_between(t, upper_bound, X, where=X > upper_bound, facecolor='blue',
-                alpha=0.5)
+ax.fill_between(t, upper_bound, X, where=X > upper_bound, fc='red', alpha=0.4)
+ax.fill_between(t, lower_bound, X, where=X < lower_bound, fc='red', alpha=0.4)
 ax.set_xlabel('num steps')
 ax.set_ylabel('position')
 ax.grid()
