@@ -1,0 +1,5 @@
+``backend_pgf``
+~~~~~~~~~~~~~~~
+The following API elements have been deprecated with no
+replacement: ``NO_ESCAPE``, ``re_mathsep``, ``get_fontspec``, ``get_preamble``,
+``common_texification``, ``writeln``.
