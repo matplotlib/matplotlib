@@ -53,6 +53,7 @@ def filled_hist(ax, edges, values, bottoms=None, orientation='v',
                          "not {o}".format(o=orientation))
 
     kwargs.setdefault('step', 'post')
+    kwargs.setdefault('alpha', 0.7)
     edges = np.asarray(edges)
     values = np.asarray(values)
     if len(edges) - 1 != len(values):
