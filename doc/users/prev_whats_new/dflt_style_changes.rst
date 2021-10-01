@@ -1,3 +1,5 @@
+.. redirect-from:: /users/dflt_style_changes
+
 ==============================
  Changes to the default style
 ==============================

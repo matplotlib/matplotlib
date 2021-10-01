@@ -1,3 +1,4 @@
+.. redirect-from:: /users/backmatter
 
 Project information
 -------------------

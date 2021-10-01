@@ -2,13 +2,6 @@
 Installation
 ############
 
-.. toctree::
-   :hidden:
-
-   installing_source.rst
-   ../faq/installing_faq.rst
-
-
 ==============================
 Installing an official release
 ==============================

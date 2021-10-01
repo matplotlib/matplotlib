@@ -1,3 +1,5 @@
+.. redirect-from:: /users/event_handling
+
 .. _event-handling-tutorial:
 
 **************************
