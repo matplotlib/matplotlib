@@ -116,11 +116,11 @@ Image interpolation now possible at RGBA stage
 ----------------------------------------------
 
 Images in Matplotlib created via `~.axes.Axes.imshow` are resampled to match
-the resolution of the current canvas. It is useful to apply an anto-aliasing
+the resolution of the current canvas. It is useful to apply an auto-aliasing
 filter when downsampling to reduce Moiré effects. By default, interpolation is
 done on the data, a norm applied, and then the colormapping performed.
 
-However, it is often desireable for the anti-aliasing interpolation to happen
+However, it is often desirable for the anti-aliasing interpolation to happen
 in RGBA space, where the colors are interpolated rather than the data. This
 usually leads to colors outside the colormap, but visually blends adjacent
 colors, and is what browsers and other image processing software do.
@@ -208,7 +208,7 @@ user-friendly setup.
         "font.family": "Helvetica"
     })
 
-Type 42 Subsetting is now enabled for PDF/PS backends
+Type 42 subsetting is now enabled for PDF/PS backends
 -----------------------------------------------------
 
 `~matplotlib.backends.backend_pdf` and `~matplotlib.backends.backend_ps` now
