@@ -2591,7 +2591,7 @@ class AsinhLocator(Locator):
 
     This is very unlikely to have any use beyond the AsinhScale class.
     """
-    def __init__(self, linear_width, numticks=12):
+    def __init__(self, linear_width, numticks=11):
         """
         Parameters
         ----------
@@ -2618,12 +2618,14 @@ class AsinhLocator(Locator):
     def tick_values(self, vmin, vmax):
         # Construct a set of "on-screen" locations
         # that are uniformly spaced:
-        ymin, ymax = self.linear_width * np.arcsinh(np.array([vmin, vmax]) / self.linear_width)
+        ymin, ymax = self.linear_width * np.arcsinh(np.array([vmin, vmax])
+                                                        / self.linear_width)
         ys = np.linspace(ymin, ymax, self.numticks)
-        if (ymin * ymax) < 0:
+        zero_dev = np.abs(ys / (ymax - ymin))
+        if (ymin * ymax) < 0 and min(zero_dev) > 1e-6:
             # Ensure that the zero tick-mark is included,
             # if the axis stradles zero
-            ys = np.hstack([ys, 0.0])
+            ys = np.hstack([ys[(zero_dev > 0.5 / self.numticks)], 0.0])
 
         # Transform the "on-screen" grid to the data space:
         xs = self.linear_width * np.sinh(ys / self.linear_width)
