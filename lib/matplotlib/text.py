@@ -163,6 +163,40 @@ class Text(Artist):
         """
         super().__init__()
         self._x, self._y = x, y
+        self._reset_visual_defaults(
+            text=text,
+            color=color,
+            fontproperties=fontproperties,
+            usetex=usetex,
+            parse_math=parse_math,
+            wrap=wrap,
+            verticalalignment=verticalalignment,
+            horizontalalignment=horizontalalignment,
+            multialignment=multialignment,
+            rotation=rotation,
+            transform_rotates_text=transform_rotates_text,
+            linespacing=linespacing,
+            rotation_mode=rotation_mode,
+            **kwargs,
+        )
+
+    def _reset_visual_defaults(
+        self,
+        text='',
+        color=None,
+        fontproperties=None,
+        usetex=None,
+        parse_math=None,
+        wrap=False,
+        verticalalignment='baseline',
+        horizontalalignment='left',
+        multialignment=None,
+        rotation=None,
+        transform_rotates_text=False,
+        linespacing=None,
+        rotation_mode=None,
+        **kwargs,
+    ):
         self._text = ''
         self.set_text(text)
         self.set_color(

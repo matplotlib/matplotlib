@@ -896,7 +896,11 @@ class Axis(martist.Artist):
         This does not reset tick and tick label visibility.
         """
 
-        self.label.set_text('')  # self.set_label_text would change isDefault_
+        self.label._reset_visual_defaults()
+        self.offsetText._reset_visual_defaults()
+        self.labelpad = mpl.rcParams['axes.labelpad']
+
+        self._set_default()
 
         self._set_scale('linear')
 
@@ -2193,6 +2197,9 @@ class XAxis(Axis):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._set_default()
+
+    def _set_default(self):
         # x in axes coords, y in display coords (to be updated at draw time by
         # _update_label_positions and _update_offset_text_position).
         self.label.set(
@@ -2444,6 +2451,9 @@ class YAxis(Axis):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._set_default()
+
+    def _set_default(self):
         # x in display coords, y in axes coords (to be updated at draw time by
         # _update_label_positions and _update_offset_text_position).
         self.label.set(
