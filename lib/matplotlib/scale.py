@@ -497,12 +497,12 @@ class AsinhScale(ScaleBase):
     in contrast to the "symlog" scale.
 
     Specifically, the transformation of an axis coordinate :math:`a` is
-    is :math:`a \\rightarrow a_0 \sinh^{-1} (a / a_0)` where :math:`a_0`
+    is :math:`a \\rightarrow a_0 \\sinh^{-1} (a / a_0)` where :math:`a_0`
     is the effective width of the linear region of the transformation.
     In that region, the transformation is
-    :math:`a \\rightarrow a + {\cal O}(a^3)`.
+    :math:`a \\rightarrow a + {\\cal O}(a^3)`.
     For large values of :math:`a` the transformation behaves as
-    :math:`a \\rightarrow a_0 \ln (a) + {\cal O}(1)`.
+    :math:`a \\rightarrow a_0 \\ln (a) + {\\cal O}(1)`.
     """
 
     name = 'asinh'

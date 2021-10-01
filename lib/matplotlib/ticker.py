@@ -2640,7 +2640,10 @@ class AsinhLocator(Locator):
         )
         qs = decades * np.round(xs / decades)
 
-        return np.array(sorted(set(qs)))
+        if len(qs) > self.numticks // 2:
+            return np.array(sorted(set(qs)))
+        else:
+            return np.linspace(vmin, vmax, self.numticks)
 
 
 class LogitLocator(MaxNLocator):
