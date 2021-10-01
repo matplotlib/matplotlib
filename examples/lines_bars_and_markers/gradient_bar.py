@@ -70,8 +70,8 @@ fig, ax = plt.subplots()
 ax.set(xlim=xlim, ylim=ylim, autoscale_on=False)
 
 # background image
-gradient_image(ax, direction=0, extent=(0, 1, 0, 1), transform=ax.transAxes,
-               cmap=plt.cm.Oranges, cmap_range=(0.1, 0.6))
+gradient_image(ax, direction=1, extent=(0, 1, 0, 1), transform=ax.transAxes,
+               cmap=plt.cm.RdYlGn, cmap_range=(0.2, 0.8), alpha=0.5)
 
 N = 10
 x = np.arange(N) + 0.15
