@@ -440,11 +440,13 @@ or manually with ::
   logging.basicConfig(level=logging.DEBUG)
   import matplotlib.pyplot as plt
 
-Then they will receive messages like::
+Then they will receive messages like
 
-  DEBUG:matplotlib.backends:backend MacOSX version unknown
-  DEBUG:matplotlib.yourmodulename:Here is some information
-  DEBUG:matplotlib.yourmodulename:Here is some more detailed information
+.. code-block:: none
+
+   DEBUG:matplotlib.backends:backend MacOSX version unknown
+   DEBUG:matplotlib.yourmodulename:Here is some information
+   DEBUG:matplotlib.yourmodulename:Here is some more detailed information
 
 Which logging level to use?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -489,12 +491,10 @@ Matplotlib. For example, for the module::
         if bottom == top:
             warnings.warn('Attempting to set identical bottom==top')
 
-
 running the script::
 
     from matplotlib import my_matplotlib_module
-    my_matplotlib_module.set_range(0, 0)  #set range
-
+    my_matplotlib_module.set_range(0, 0)  # set range
 
 will display::
 
@@ -509,10 +509,12 @@ Modifying the module to use `._api.warn_external`::
         if bottom == top:
             _api.warn_external('Attempting to set identical bottom==top')
 
-and running the same script will display::
+and running the same script will display
 
-  UserWarning: Attempting to set identical bottom==top
-  my_matplotlib_module.set_range(0, 0)  #set range
+.. code-block:: none
+
+   UserWarning: Attempting to set identical bottom==top
+   my_matplotlib_module.set_range(0, 0)  # set range
 
 .. _logging tutorial: https://docs.python.org/3/howto/logging.html#logging-basic-tutorial
 
