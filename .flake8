@@ -85,7 +85,7 @@ per-file-ignores =
     lib/mpl_toolkits/tests/conftest.py: F401
     lib/pylab.py: F401, F403
 
-    doc/conf.py: E402, E501
+    doc/conf.py: E402
     tutorials/advanced/path_tutorial.py: E402
     tutorials/advanced/patheffects_guide.py: E402
     tutorials/advanced/transforms_tutorial.py: E402, E501
