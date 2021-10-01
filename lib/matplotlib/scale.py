@@ -22,7 +22,7 @@ import matplotlib as mpl
 from matplotlib import _api, docstring
 from matplotlib.ticker import (
     NullFormatter, ScalarFormatter, LogFormatterSciNotation, LogitFormatter,
-    Locator, NullLocator, LogLocator, AutoLocator, AutoMinorLocator,
+    NullLocator, LogLocator, AutoLocator, AutoMinorLocator,
     SymmetricalLogLocator, AsinhLocator, LogitLocator)
 from matplotlib.transforms import Transform, IdentityTransform
 

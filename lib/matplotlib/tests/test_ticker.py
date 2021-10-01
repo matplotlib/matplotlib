@@ -444,10 +444,17 @@ class TestSymmetricalLogLocator:
 
 
 class TestAsinhLocator:
+    def test_init(self):
+        lctr = mticker.AsinhLocator(linear_width=2.718, numticks=19)
+        assert lctr.linear_width == 2.718
+        assert lctr.numticks == 19
+
     def test_set_params(self):
         lctr = mticker.AsinhLocator(linear_width=5, numticks=17)
         assert lctr.numticks == 17
         lctr.set_params(numticks=23)
+        assert lctr.numticks == 23
+        lctr.set_params(None)
         assert lctr.numticks == 23
 
 

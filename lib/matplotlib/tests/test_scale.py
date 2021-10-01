@@ -2,7 +2,7 @@ import copy
 
 import matplotlib.pyplot as plt
 from matplotlib.scale import (
-    AsinhTransform,
+    AsinhScale, AsinhTransform,
     LogTransform, InvertedLogTransform,
     SymmetricalLogTransform)
 import matplotlib.scale as mscale
@@ -222,17 +222,38 @@ def test_scale_deepcopy():
     assert sc._transform is not sc2._transform
 
 
-def test_asinh_transforms():
-    a0 = 17.0
-    a = np.linspace(-50, 50, 100)
+class TestAsinhScale:
+    def test_transforms(self):
+        a0 = 17.0
+        a = np.linspace(-50, 50, 100)
 
-    forward = AsinhTransform(a0)
-    inverse = forward.inverted()
-    invinv = inverse.inverted()
+        forward = AsinhTransform(a0)
+        inverse = forward.inverted()
+        invinv = inverse.inverted()
 
-    a_forward = forward.transform_non_affine(a)
-    a_inverted = inverse.transform_non_affine(a_forward)
-    assert_allclose(a_inverted, a)
+        a_forward = forward.transform_non_affine(a)
+        a_inverted = inverse.transform_non_affine(a_forward)
+        assert_allclose(a_inverted, a)
 
-    a_invinv = invinv.transform_non_affine(a)
-    assert_allclose(a_invinv, a0 * np.asinh(a / a0))
+        a_invinv = invinv.transform_non_affine(a)
+        assert_allclose(a_invinv, a0 * np.arcsinh(a / a0))
+
+    def test_init(self):
+        fig, ax = plt.subplots()
+
+        s = AsinhScale(axis=None, linear_width=23.0)
+        assert s.linear_width == 23
+
+        tx = s.get_transform()
+        assert isinstance(tx, AsinhTransform)
+        assert tx.linear_width == s.linear_width
+
+    def test_bad_scale(self):
+        fig, ax = plt.subplots()
+
+        with pytest.raises(ValueError):
+            AsinhScale(axis=None, linear_width=0)
+        with pytest.raises(ValueError):
+            AsinhScale(axis=None, linear_width=-1)
+        s0 = AsinhScale(axis=None, )
+        s1 = AsinhScale(axis=None, linear_width=3.0)
