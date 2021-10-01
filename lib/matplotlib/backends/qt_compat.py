@@ -228,8 +228,20 @@ def _maybe_allow_interrupt(qapp):
             rsock.fileno(), _enum('QtCore.QSocketNotifier.Type').Read
         )
 
+        # We do not actually care about this value other than running some
+        # Python code to ensure that the interpreter has a chance to handle the
+        # signal in Python land.  We also need to drain the socket because it
+        # will be written to as part of the wakeup!  There are some cases where
+        # this may fire too soon / more than once on Windows so we should be
+        # forgiving about reading an empty socket.
+        rsock.setblocking(False)
         # Clear the socket to re-arm the notifier.
-        sn.activated.connect(lambda *args: rsock.recv(1))
+        @sn.activated.connect
+        def _may_clear_sock(*args):
+            try:
+                rsock.recv(1)
+            except BlockingIOError:
+                pass
 
         def handle(*args):
             nonlocal handler_args
