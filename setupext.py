@@ -618,7 +618,8 @@ class FreeType(SetupPackage):
             subprocess.check_call(
                 ["./configure", "--with-zlib=no", "--with-bzip2=no",
                  "--with-png=no", "--with-harfbuzz=no", "--enable-static",
-                 "--disable-shared"],
+                 "--disable-shared",
+                 "--host=" + sysconfig.get_config_var('BUILD_GNU_TYPE')],
                 env=env, cwd=src_path)
             if 'GNUMAKE' in env:
                 make = env['GNUMAKE']
