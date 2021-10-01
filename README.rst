@@ -71,11 +71,11 @@ Read the `testing guide <https://matplotlib.org/devel/testing.html>`_ for more i
 
 Contribute
 ==========
-You've discovered a bug or something else you want to change - excellent!
+You've discovered a bug or something else you want to change - That's excellent!
 
-You've worked out a way to fix it – even better!
+You've worked out a way to fix it – That's even better!
 
-You want to tell us about it – best of all!
+You want to tell us about it – That's best of all!
 
 Start at the `contributing guide <https://matplotlib.org/devdocs/devel/contributing.html>`_!
 
