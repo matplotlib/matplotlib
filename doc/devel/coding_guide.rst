@@ -45,10 +45,12 @@ When making a PR, pay attention to:
   on GitHub.
 * When updating your PR, instead of adding new commits to fix something, please
   consider amending your initial commit(s) to keep the history clean.
-  You can achieve this using::
+  You can achieve this using
 
-      git commit --amend --no-edit
-      git push [your-remote-repo] [your-branch] --force-with-lease
+  .. code-block:: bash
+
+     git commit --amend --no-edit
+     git push [your-remote-repo] [your-branch] --force-with-lease
 
 See also :ref:`contributing` for how to make a PR.
 
@@ -352,22 +354,26 @@ the merge notification) or through the git CLI tools.
 
 Assuming that you already have a local branch ``v2.2.x`` (if not, then
 ``git checkout -b v2.2.x``), and that your remote pointing to
-``https://github.com/matplotlib/matplotlib`` is called ``upstream``::
+``https://github.com/matplotlib/matplotlib`` is called ``upstream``:
 
-  git fetch upstream
-  git checkout v2.2.x  # or include -b if you don't already have this.
-  git reset --hard upstream/v2.2.x
-  git cherry-pick -m 1 TARGET_SHA
-  # resolve conflicts and commit if required
+.. code-block:: bash
+
+   git fetch upstream
+   git checkout v2.2.x  # or include -b if you don't already have this.
+   git reset --hard upstream/v2.2.x
+   git cherry-pick -m 1 TARGET_SHA
+   # resolve conflicts and commit if required
 
 Files with conflicts can be listed by ``git status``,
 and will have to be fixed by hand (search on ``>>>>>``).  Once
 the conflict is resolved, you will have to re-add the file(s) to the branch
-and then continue the cherry pick::
+and then continue the cherry pick:
 
-  git add lib/matplotlib/conflicted_file.py
-  git add lib/matplotlib/conflicted_file2.py
-  git cherry-pick --continue
+.. code-block:: bash
+
+   git add lib/matplotlib/conflicted_file.py
+   git add lib/matplotlib/conflicted_file2.py
+   git cherry-pick --continue
 
 Use your discretion to push directly to upstream or to open a PR; be
 sure to push or PR against the ``v2.2.x`` upstream branch, not ``master``!
