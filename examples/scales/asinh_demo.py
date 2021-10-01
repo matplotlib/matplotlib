@@ -59,8 +59,8 @@ ax1.set_title('asinh')
 
 ########################################
 # Compare "asinh" graphs with different scale parameter "linear_width":
-fig2 = plt.figure()
-axs = fig2.subplots(1, 3, sharex=True, constrained_layout=True)
+fig2 = plt.figure(constrained_layout=True)
+axs = fig2.subplots(1, 3, sharex=True)
 for ax, a0 in zip(axs, (0.2, 1.0, 5.0)):
     ax.set_title('linear_width={:.3g}'.format(a0))
     ax.plot(x, x, label='y=x')

@@ -512,7 +512,8 @@ class AsinhScale(ScaleBase):
         Parameters
         ----------
         linear_width : float, default: 1
-            The scale parameter defining the extent of the quasi-linear region,
+            The scale parameter (elsewhere referred to as :math:`a_0`)
+            defining the extent of the quasi-linear region,
             and the coordinate values beyond which the transformation
             becomes asympoticially logarithmic.
         """

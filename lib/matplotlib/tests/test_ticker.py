@@ -477,6 +477,18 @@ class TestAsinhLocator:
                             [-1000, -100, -20, -3, -0.4,
                              0, 0.4, 3, 20, 100, 1000])
 
+    def test_near_zero(self):
+        """Check that manually injected zero will supersede nearby tick"""
+        lctr = mticker.AsinhLocator(linear_width=100, numticks=3)
+
+        assert_almost_equal(lctr.tick_values(-1.1, 0.9), [ -1.0, 0.0, 0.9])
+
+    def test_fallback(self):
+        lctr = mticker.AsinhLocator(1.0, numticks=11)
+
+        assert_almost_equal(lctr.tick_values(100, 101),
+                            np.arange(100, 101.01, 0.1))
+
 
 class TestScalarFormatter:
     offset_data = [

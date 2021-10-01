@@ -2639,9 +2639,10 @@ class AsinhLocator(Locator):
                                                     + zero_xs*1e-6))))
         )
         qs = decades * np.round(xs / decades)
+        ticks = np.array(sorted(set(qs)))
 
-        if len(qs) > self.numticks // 2:
-            return np.array(sorted(set(qs)))
+        if len(ticks) > self.numticks // 2:
+            return ticks
         else:
             return np.linspace(vmin, vmax, self.numticks)
 
