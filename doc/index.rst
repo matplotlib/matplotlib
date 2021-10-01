@@ -53,7 +53,7 @@ Learning resources
     - :doc:`Quick-start guide <tutorials/introductory/usage>`
     - :doc:`Plot types <plot_types/index>`
     - `Introductory tutorials <../tutorials/index.html#introductory>`_
-    - :doc:`External learning resources <resources/index>`
+    - :doc:`External learning resources <users/resources/index>`
 
     ---
 
@@ -67,7 +67,7 @@ Learning resources
     Understand how Matplotlib works
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    - The :ref:`users-guide-explain` in the :doc:`Usage guide <users/index>`
+    - The :ref:`users-guide-explain` in the :doc:`Users guide <users/index>`
     - Many of the :ref:`Intermediate <tutorials-intermediate>` and
       :ref:`Advanced <tutorials-advanced>` tutorials
       have explanatory material
@@ -106,7 +106,7 @@ you can help!
 - or improve the :ref:`documentation and code <developers-guide-index>`
 
 
-Site map
---------
+Users guide
+-----------
 
-The :ref:`complete contents of the docs <complete_sitemap>`.
+The `contents of the docs <users/index.html>`_.

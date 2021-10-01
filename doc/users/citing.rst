@@ -1,4 +1,5 @@
-:orphan:
+.. redirect-from:: /citing
+
 
 Citing Matplotlib
 =================

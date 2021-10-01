@@ -1,12 +1,16 @@
 .. _users-guide-index:
 
+.. redirect-from:: /contents
+
+
 ###########
-Usage guide
+Users guide
 ###########
 
 .. toctree::
    :maxdepth: 2
 
+   installing.rst
    ../plot_types/index.rst
    ../tutorials/index.rst
    ../gallery/index.rst
@@ -14,7 +18,9 @@ Usage guide
    backends.rst
    performance.rst
    explain.rst
-   ../faq/index.rst
+   faq/index.rst
    ../api/index.rst
-   ../resources/index.rst
-   
+   resources/index.rst
+   ../devel/index.rst
+   backmatter.rst
+   release_notes.rst

@@ -6,6 +6,6 @@ Project information
     :maxdepth: 1
 
     license.rst
-    ../citing.rst
+    citing.rst
     credits.rst
     history.rst

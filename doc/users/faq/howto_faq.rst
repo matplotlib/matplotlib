@@ -1,5 +1,7 @@
 .. _howto-faq:
 
+.. redirect-from:: /faq/howto_faq
+
 ******
 How-to
 ******
