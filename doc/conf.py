@@ -635,7 +635,7 @@ if link_github:
             return None
 
         version = parse(matplotlib.__version__)
-        tag = 'master' if version.is_devrelease else f'v{version.base_version}'
+        tag = 'master' if version.is_devrelease else f'v{version.public}'
         return ("https://github.com/matplotlib/matplotlib/blob"
                 f"/{tag}/lib/{fn}{linespec}")
 else:
