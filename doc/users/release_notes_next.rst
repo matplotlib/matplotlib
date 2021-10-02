@@ -1,3 +1,5 @@
+:orphan:
+
 Next version
 ============
 .. toctree::
