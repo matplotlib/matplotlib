@@ -312,8 +312,10 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
     def wheelEvent(self, event):
         x, y = self.mouseEventCoords(self._get_position(event))
-        # from QWheelEvent::delta doc
-        if event.pixelDelta().x() == 0 and event.pixelDelta().y() == 0:
+        # from QWheelEvent::pixelDelta doc: pixelDelta is sometimes not
+        # provided (`isNull()`) and is unreliable on X11 ("xcb").
+        if (event.pixelDelta().isNull()
+                or QtWidgets.QApplication.instance().platformName() == "xcb"):
             steps = event.angleDelta().y() / 120
         else:
             steps = event.pixelDelta().y()
