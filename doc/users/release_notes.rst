@@ -7,7 +7,7 @@ Release notes
 =============
 
 .. include from another document so that it's easy to exclude this for releases
-.. include:: release_notes_next.rst
+  .. include:: release_notes_next.rst
 
 Version 3.5
 ===========
@@ -16,6 +16,7 @@ Version 3.5
 
     prev_whats_new/whats_new_3.5.0.rst
     ../api/prev_api_changes/api_changes_3.5.0.rst
+    github_stats.rst
 
 Version 3.4
 ===========
