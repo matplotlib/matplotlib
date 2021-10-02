@@ -56,15 +56,15 @@ plt.show()
 # tedious for quick iterations.
 #
 # Because of the default ``rcParams['figure.dpi'] = 100``, one can mentally
-# divide the needed pixel value by 100 [*]_:
+# divide the needed pixel value by 100 [#]_:
 #
 plt.subplots(figsize=(6, 2))
 plt.text(0.5, 0.5, '600px x 200px', **text_kwargs)
 plt.show()
 
 #############################################################################
-# .. [*] Unfortunately, this does not work well for the ``matplotlib inline``
-#        backend in jupyter because that backend uses a different default of
+# .. [#] Unfortunately, this does not work well for the ``matplotlib inline``
+#        backend in Jupyter because that backend uses a different default of
 #        ``rcParams['figure.dpi'] = 72``. Additionally, it saves the figure
 #        with ``bbox_inches='tight'``, which crops the figure and makes the
 #        actual size unpredictable.
