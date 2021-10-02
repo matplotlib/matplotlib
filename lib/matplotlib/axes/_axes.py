@@ -3283,6 +3283,11 @@ class Axes(_AxesBase):
         x, y = np.atleast_1d(x, y)  # Make sure all the args are iterable.
         if len(x) != len(y):
             raise ValueError("'x' and 'y' must have the same size")
+        
+        if xerr is not None and np.any(xerr < 0):
+            raise ValueError("'xerr' must have positive numbers")
+        if yerr is not None and np.any(yerr < 0):
+            raise ValueError("'yerr' must have positive numbers")
 
         if isinstance(errorevery, Integral):
             errorevery = (0, errorevery)
