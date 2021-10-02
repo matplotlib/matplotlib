@@ -1,16 +1,16 @@
 .. _github-stats:
 
-GitHub statistics (Aug 12, 2021)
+GitHub statistics (Oct 01, 2021)
 ================================
 
-GitHub statistics for 2021/03/26 (tag: v3.4.0) - 2021/08/24
+GitHub statistics for 2021/03/26 (tag: v3.4.0) - 2021/10/01
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 127 issues and merged 532 pull requests.
+We closed 157 issues and merged 781 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/59?closed=1>`__
 
-The following 115 authors contributed 2695 commits.
+The following 130 authors contributed 3144 commits.
 
 * Aaron Rogers
 * Abhinav Sagar
@@ -34,11 +34,14 @@ The following 115 authors contributed 2695 commits.
 * dan
 * Dan Zimmerman
 * David Matos
+* David Poznik
 * David Stansby
 * dependabot[bot]
 * Diego Leal Petrola
+* Dmitriy Fishman
 * Ellert van der Velden
 * Elliott Sales de Andrade
+* Engjell Avdiu
 * Eric Firing
 * Eric Larson
 * Eric Prestat
@@ -60,11 +63,14 @@ The following 115 authors contributed 2695 commits.
 * ianhi
 * Illviljan
 * ImportanceOfBeingErnest
+* Isha Mehta
 * iury simoes-sousa
 * Jakub Klus
 * Janakarajan Natarajan
 * Jann Paul Mattern
 * Jash Shah
+* Jay Joshi
+* jayjoshi112711
 * jeffreypaul15
 * Jerome F. Villegas
 * Jerome Villegas
@@ -81,18 +87,23 @@ The following 115 authors contributed 2695 commits.
 * Kent Gauen
 * kentcr
 * kir0ul
+* KIU Shueng Chuan
 * KM Goh
 * Konstantin Popov
 * kyrogon
+* Leeh Peter
 * Leo Singer
+* Liam Toney
 * luz paz
 * luzpaz
 * Madhav Humagain
+* MalikIdreesHasa
 * Marat Kopytjuk
 * Marco Rigobello
 * Marco Salathe
 * Markus Wesslén
 * Matthias Bussonnier
+* MeeseeksMachine
 * Michał Górny
 * Mihai Anton
 * Nico Schlömer
@@ -100,11 +111,13 @@ The following 115 authors contributed 2695 commits.
 * Philip Schiff
 * Philipp Nagel
 * pwohlhart
+* Péter Leéh
 * Quentin Peter
 * Ren Pang
 * rgbmrc
 * Richard Barnes
 * richardsheridan
+* Roberto Toro
 * Ruth Comer
 * Ryan May
 * Sam Van Kooten
@@ -112,6 +125,7 @@ The following 115 authors contributed 2695 commits.
 * Slava Ostroukh
 * Stefan Appelhoff
 * Stefanie Molin
+* takimata
 * tdpetrou
 * theOehrly
 * Thomas A Caswell
@@ -119,6 +133,7 @@ The following 115 authors contributed 2695 commits.
 * tohc1
 * Tom Charrett
 * Tom Neep
+* Tomas Hrnciar
 * Tortar
 * Tranquilled
 * Vagrant Cascadian
@@ -130,8 +145,257 @@ The following 115 authors contributed 2695 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (532):
+Pull Requests (781):
 
+* :ghpull:`21262`: Backport PR #21250 on branch v3.5.x (DOC: Remove examples/README)
+* :ghpull:`21260`: DOC: Fix source links to prereleases
+* :ghpull:`21261`: Backport PR #21240: DOC: Fix source links and flake8 cleanup
+* :ghpull:`21248`: Backport PR #21247 on branch v3.5.x (Fix release notes typos.)
+* :ghpull:`21254`: Backport PR #21249 on branch v3.5.x (Fix some syntax highlights in coding and contributing guide.)
+* :ghpull:`21250`: DOC: Remove examples/README
+* :ghpull:`21249`: Fix some syntax highlights in coding and contributing guide.
+* :ghpull:`20652`: Fixed Comments and Clarification
+* :ghpull:`21240`: DOC: Fix source links and flake8 cleanup
+* :ghpull:`21247`: Fix release notes typos.
+* :ghpull:`21244`: Backport PR #20907 on branch v3.5.x (Move sigint tests into subprocesses)
+* :ghpull:`21245`: Backport PR #21226 on branch v3.5.x (DOC: Adapt some colors in examples)
+* :ghpull:`21226`: DOC: Adapt some colors in examples
+* :ghpull:`20907`: Move sigint tests into subprocesses
+* :ghpull:`21241`: Backport PR #21237 on branch v3.5.x (DOC: Add fill_between to plot_types)
+* :ghpull:`21237`: DOC: Add fill_between to plot_types
+* :ghpull:`21235`: Backport PR #20852 on branch v3.5.x (Prepare docs for 3.5)
+* :ghpull:`20852`: Prepare docs for 3.5
+* :ghpull:`21234`: Backport PR #21221 on branch v3.5.x (Updates to plot types)
+* :ghpull:`21232`: Backport PR #21228 on branch v3.5.x (Small doc nits.)
+* :ghpull:`21233`: Backport PR #21229 on branch v3.5.x (Shorten PdfPages FAQ entry.)
+* :ghpull:`21221`: Updates to plot types
+* :ghpull:`21229`: Shorten PdfPages FAQ entry.
+* :ghpull:`21228`: Small doc nits.
+* :ghpull:`21227`: Backport PR #20730 on branch v3.5.x (DOC: Add a release mode tag)
+* :ghpull:`20730`: DOC: Add a release mode tag
+* :ghpull:`21225`: Backport PR #21223 on branch v3.5.x (Fix nav link for "Usage guide" and remove release/date info from that page)
+* :ghpull:`21223`: Fix nav link for "Usage guide" and remove release/date info from that page
+* :ghpull:`21222`: Backport PR #21211 on branch v3.5.x (updated resources)
+* :ghpull:`21211`: updated resources
+* :ghpull:`21219`: Backport PR #21216 on branch v3.5.x (Use correct confidence interval)
+* :ghpull:`21216`: Use correct confidence interval
+* :ghpull:`21217`: Backport PR #21215 on branch v3.5.x (Fix more edge cases in psd, csd.)
+* :ghpull:`21215`: Fix more edge cases in psd, csd.
+* :ghpull:`21210`: Backport PR #21191 on branch v3.5.x (Fix very-edge case in csd(), plus small additional cleanups.)
+* :ghpull:`21209`: Backport PR #21188 on branch v3.5.x (Rework headers for individual backend docs.)
+* :ghpull:`21191`: Fix very-edge case in csd(), plus small additional cleanups.
+* :ghpull:`21188`: Rework headers for individual backend docs.
+* :ghpull:`21208`: Backport PR #21203 on branch v3.5.x (Rework plot types quiver)
+* :ghpull:`21203`: Rework plot types quiver
+* :ghpull:`21207`: Backport PR #21198 on branch v3.5.x (Update coding_guide.rst)
+* :ghpull:`21206`: Backport PR #21201 on branch v3.5.x (Fix signature of barh() in plot types)
+* :ghpull:`21204`: Backport PR #21193 on branch v3.5.x (Update contributing guide.)
+* :ghpull:`21198`: Update coding_guide.rst
+* :ghpull:`21201`: Fix signature of barh() in plot types
+* :ghpull:`21200`: Backport PR #21196 on branch v3.5.x (Update fonts.rst)
+* :ghpull:`21199`: Backport PR #21026 on branch v3.5.x (Place 3D contourf patches between levels)
+* :ghpull:`21197`: Backport PR #21186 on branch v3.5.x (Fixed typos using codespell. (previous pull request was told not to change the agg files) )
+* :ghpull:`21196`: Update fonts.rst
+* :ghpull:`21026`: Place 3D contourf patches between levels
+* :ghpull:`21186`: Fixed typos using codespell. (previous pull request was told not to change the agg files)
+* :ghpull:`21195`: Backport PR #21189 on branch v3.5.x (Small doc fixes.)
+* :ghpull:`21194`: Backport PR #21192 on branch v3.5.x (Discourage making style changes to extern/.)
+* :ghpull:`21189`: Small doc fixes.
+* :ghpull:`21192`: Discourage making style changes to extern/.
+* :ghpull:`21193`: Update contributing guide.
+* :ghpull:`21184`: Backport PR #21172 on branch v3.5.x (skip QImage leak workaround for PySide2 >= 5.12)
+* :ghpull:`21183`: Backport PR #21081 on branch v3.5.x (Improve docs for to_jshtml())
+* :ghpull:`21172`: skip QImage leak workaround for PySide2 >= 5.12
+* :ghpull:`21181`: Backport PR #21166 on branch v3.5.x (Cleanup contour(f)3d examples.)
+* :ghpull:`21182`: Backport PR #21180 on branch v3.5.x (Remove uninformative ``.. figure::`` titles in docs.)
+* :ghpull:`21081`: Improve docs for to_jshtml()
+* :ghpull:`21180`: Remove uninformative ``.. figure::`` titles in docs.
+* :ghpull:`21166`: Cleanup contour(f)3d examples.
+* :ghpull:`21174`: Backport PR #19343 on branch v3.5.x (Enh improve agg chunks error)
+* :ghpull:`19343`: Enh improve agg chunks error
+* :ghpull:`21171`: Backport PR #20951 on branch v3.5.x ([ENH]: data kwarg support for mplot3d #20912)
+* :ghpull:`21169`: Backport PR #21126 on branch v3.5.x (Deprecate passing formatting parameters positionally to stem())
+* :ghpull:`21126`: Deprecate passing formatting parameters positionally to stem()
+* :ghpull:`21164`: Backport PR #21039 on branch v3.5.x (Fix ``hexbin`` marginals and log scaling)
+* :ghpull:`21039`: Fix ``hexbin`` marginals and log scaling
+* :ghpull:`21160`: Backport PR #21136 on branch v3.5.x (More (minor) plot types gallery fixes.)
+* :ghpull:`21136`: More (minor) plot types gallery fixes.
+* :ghpull:`21158`: Backport PR #21140 on branch v3.5.x (Docstring cleanups around DATA_PARAMETER_PLACEHOLDER.)
+* :ghpull:`21159`: Backport PR #21127 on branch v3.5.x (Simplify argument parsing in stem().)
+* :ghpull:`21157`: Backport PR #21153 on branch v3.5.x (Improve curve_error_band example.)
+* :ghpull:`21156`: Backport PR #21154 on branch v3.5.x (Increase marker size in double_pendulum example.)
+* :ghpull:`21127`: Simplify argument parsing in stem().
+* :ghpull:`21140`: Docstring cleanups around DATA_PARAMETER_PLACEHOLDER.
+* :ghpull:`21153`: Improve curve_error_band example.
+* :ghpull:`21154`: Increase marker size in double_pendulum example.
+* :ghpull:`21149`: Backport PR #21146 on branch v3.5.x (Fix clim handling for pcolor{,mesh}.)
+* :ghpull:`21151`: Backport PR #21141 on branch v3.5.x (Fix DATA_PARAMETER_PLACEHOLDER interpolation for quiver&contour{,f}.)
+* :ghpull:`21150`: Backport PR #21145 on branch v3.5.x (Fix format_cursor_data with nans.)
+* :ghpull:`21141`: Fix DATA_PARAMETER_PLACEHOLDER interpolation for quiver&contour{,f}.
+* :ghpull:`21145`: Fix format_cursor_data with nans.
+* :ghpull:`21146`: Fix clim handling for pcolor{,mesh}.
+* :ghpull:`21148`: Backport PR #21142 on branch v3.5.x (Mac qt ctrl)
+* :ghpull:`21142`: Mac qt ctrl
+* :ghpull:`21144`: Backport PR #21122 on branch v3.5.x (CTRL does not fix aspect in zoom-to-rect mode.)
+* :ghpull:`21143`: Backport PR #19515 on branch v3.5.x (Colorbar axis zoom and pan)
+* :ghpull:`21122`: CTRL does not fix aspect in zoom-to-rect mode.
+* :ghpull:`19515`: Colorbar axis zoom and pan
+* :ghpull:`21138`: Backport PR #21131 on branch v3.5.x (Fix polar() regression on second call failure)
+* :ghpull:`21134`: Backport PR #21124 on branch v3.5.x (Tweak streamplot plot_types example.)
+* :ghpull:`21133`: Backport PR #21114 on branch v3.5.x (Add contour and tricontour plots to plot types)
+* :ghpull:`21132`: Backport PR #21093 on branch v3.5.x (DOC: clarify what we mean by object oriented in pyplot api)
+* :ghpull:`21124`: Tweak streamplot plot_types example.
+* :ghpull:`21114`: Add contour and tricontour plots to plot types
+* :ghpull:`21130`: Backport PR #21129 on branch v3.5.x (Fix decenter of image in gallery thumbnails)
+* :ghpull:`21093`: DOC: clarify what we mean by object oriented in pyplot api
+* :ghpull:`21129`: Fix decenter of image in gallery thumbnails
+* :ghpull:`21125`: Backport PR #21086 on branch v3.5.x (Capitalization fixes in example section titles.)
+* :ghpull:`21128`: Backport PR #21123 on branch v3.5.x (Simplify/uniformize sample data setup in plot_types examples.)
+* :ghpull:`21123`: Simplify/uniformize sample data setup in plot_types examples.
+* :ghpull:`21121`: Backport PR #21111 on branch v3.5.x (Rename section title Gallery -> Examples)
+* :ghpull:`21086`: Capitalization fixes in example section titles.
+* :ghpull:`21120`: Backport PR #21115 on branch v3.5.x (Improve errorbar plot types example)
+* :ghpull:`21119`: Backport PR #21116 on branch v3.5.x (Adapt css so that galleries have four columns)
+* :ghpull:`21116`: Adapt css so that galleries have four columns
+* :ghpull:`21118`: Backport PR #21112 on branch v3.5.x (Fix make_norm_from_scale ``__name__`` when used inline.)
+* :ghpull:`21111`: Rename section title Gallery -> Examples
+* :ghpull:`21112`: Fix make_norm_from_scale ``__name__`` when used inline.
+* :ghpull:`20951`: [ENH]: data kwarg support for mplot3d #20912
+* :ghpull:`21115`: Improve errorbar plot types example
+* :ghpull:`21109`: Backport PR #21104 on branch v3.5.x (Remove the index and module index pages)
+* :ghpull:`21104`: Remove the index and module index pages
+* :ghpull:`21102`: Backport PR #21100 on branch v3.5.x (Cleanup demo_tight_layout.)
+* :ghpull:`21106`: Backport PR #21034 on branch v3.5.x (Make rcParams["backend"] backend fallback check rcParams identity first.)
+* :ghpull:`21105`: Backport PR #21083 on branch v3.5.x (Fix capitalizations)
+* :ghpull:`21103`: Backport PR #21089 on branch v3.5.x (Update sticky_edges docstring to new behavior.)
+* :ghpull:`21034`: Make rcParams["backend"] backend fallback check rcParams identity first.
+* :ghpull:`21083`: Fix capitalizations
+* :ghpull:`21099`: Backport PR #20935 on branch v3.5.x (Add ColormapsRegistry as experimental and add it to pyplot)
+* :ghpull:`21100`: Cleanup demo_tight_layout.
+* :ghpull:`21098`: Backport PR #20903 on branch v3.5.x (Use release-branch version scheme )
+* :ghpull:`20935`: Add ColormapsRegistry as experimental and add it to pyplot
+* :ghpull:`20903`: Use release-branch version scheme
+* :ghpull:`21089`: Update sticky_edges docstring to new behavior.
+* :ghpull:`21084`: Backport PR #20988 on branch v3.5.x (Add HiDPI support in GTK.)
+* :ghpull:`21085`: Backport PR #21082 on branch v3.5.x (Fix layout of sidebar entries)
+* :ghpull:`20345`: ENH: call update_ticks before we return them to the user
+* :ghpull:`21082`: Fix layout of sidebar entries
+* :ghpull:`20988`: Add HiDPI support in GTK.
+* :ghpull:`21080`: Backport PR #19619 on branch v3.5.x (Fix bug in shape assignment)
+* :ghpull:`19619`: Fix bug in shape assignment
+* :ghpull:`21079`: Backport PR #21078 on branch v3.5.x (Cache build dependencies on Circle)
+* :ghpull:`21078`: Cache build dependencies on Circle
+* :ghpull:`21077`: Backport PR #21076 on branch v3.5.x (Break links between twinned axes when removing)
+* :ghpull:`21076`: Break links between twinned axes when removing
+* :ghpull:`21073`: Backport PR #21072 on branch v3.5.x (Use sysconfig directly instead of through distutils)
+* :ghpull:`21072`: Use sysconfig directly instead of through distutils
+* :ghpull:`21071`: Backport PR #21061 on branch v3.5.x (Remove most visible dependencies on distutils.)
+* :ghpull:`21061`: Remove most visible dependencies on distutils.
+* :ghpull:`21070`: Backport PR #21025 on branch v3.5.x (Fix Cairo backends on HiDPI screens)
+* :ghpull:`21065`: Backport PR #20819 on branch v3.5.x (Add CPython 3.10 wheels)
+* :ghpull:`21069`: Backport PR #21051 on branch v3.5.x (set_dashes does not support offset=None anymore.)
+* :ghpull:`21068`: Backport PR #21067 on branch v3.5.x (Remove generated file accidentally added in #20867)
+* :ghpull:`21025`: Fix Cairo backends on HiDPI screens
+* :ghpull:`21051`: set_dashes does not support offset=None anymore.
+* :ghpull:`21067`: Remove generated file accidentally added in #20867
+* :ghpull:`21066`: Backport PR #21060 on branch v3.5.x (Correct the default for fillstyle parameter in MarkerStyle())
+* :ghpull:`20819`: Add CPython 3.10 wheels
+* :ghpull:`21064`: Backport PR #20913 on branch v3.5.x ([Doc] colors.to_hex input & output)
+* :ghpull:`20913`: [Doc] colors.to_hex input & output
+* :ghpull:`21063`: Backport PR #21062 on branch v3.5.x (Fix typo in template of current dev-docs)
+* :ghpull:`21062`: Fix typo in template of current dev-docs
+* :ghpull:`21060`: Correct the default for fillstyle parameter in MarkerStyle()
+* :ghpull:`21058`: Backport PR #21053 on branch v3.5.x (Fix validate_markevery docstring markup.)
+* :ghpull:`21053`: Fix validate_markevery docstring markup.
+* :ghpull:`21052`: Backport PR #20867 on branch v3.5.x ("inner" index reorganization)
+* :ghpull:`21047`: Backport PR #21040 on branch v3.5.x (Document ``handleheight`` parameter of ``Legend`` constructor)
+* :ghpull:`21048`: Backport PR #21044 on branch v3.5.x (Support for forward/back mousebuttons on WX backend)
+* :ghpull:`20867`: "inner" index reorganization
+* :ghpull:`21044`: Support for forward/back mousebuttons on WX backend
+* :ghpull:`21040`: Document ``handleheight`` parameter of ``Legend`` constructor
+* :ghpull:`21045`: Backport PR #21041 on branch v3.5.x (Prefer "none" to "None" in docs, examples and comments.)
+* :ghpull:`21041`: Prefer "none" to "None" in docs, examples and comments.
+* :ghpull:`21037`: Backport PR #20949 on branch v3.5.x (Improve formatting of imshow() cursor data independently of colorbar.)
+* :ghpull:`21035`: Backport PR #21031 on branch v3.5.x (Make date.{converter,interval_multiples} rcvalidators side-effect free.)
+* :ghpull:`20949`: Improve formatting of imshow() cursor data independently of colorbar.
+* :ghpull:`21031`: Make date.{converter,interval_multiples} rcvalidators side-effect free.
+* :ghpull:`21032`: Backport PR #21017 on branch v3.5.x (FIX: Don't subslice lines if non-standard transform)
+* :ghpull:`21030`: Backport PR #20980 on branch v3.5.x (FIX: remove colorbar from list of colorbars on axes)
+* :ghpull:`21029`: Backport PR #21028 on branch v3.5.x (Minor homogeneization of markup for MEP titles.)
+* :ghpull:`21028`: Minor homogeneization of markup for MEP titles.
+* :ghpull:`21022`: Backport PR #20518 on branch v3.5.x ( Support sketch_params in pgf backend)
+* :ghpull:`20518`:  Support sketch_params in pgf backend
+* :ghpull:`21018`: Backport PR #20976 on branch v3.5.x (Separate tick and spine examples)
+* :ghpull:`20976`: Separate tick and spine examples
+* :ghpull:`21014`: Backport PR #20994 on branch v3.5.x (Remove unused icon_filename, window_icon globals.)
+* :ghpull:`21013`: Backport PR #21012 on branch v3.5.x (Use numpydoc for GridSpecFromSubplotSpec.__init__)
+* :ghpull:`20994`: Remove unused icon_filename, window_icon globals.
+* :ghpull:`21012`: Use numpydoc for GridSpecFromSubplotSpec.__init__
+* :ghpull:`21011`: Backport PR #21003 on branch v3.5.x (Deemphasize mpl_toolkits in API docs.)
+* :ghpull:`21003`: Deemphasize mpl_toolkits in API docs.
+* :ghpull:`21002`: Backport PR #20987 on branch v3.5.x (FIX: colorbar with boundary norm, proportional, extend)
+* :ghpull:`20987`: FIX: colorbar with boundary norm, proportional, extend
+* :ghpull:`21000`: Backport PR #20997 on branch v3.5.x (Fix ToolManager + TextBox support.)
+* :ghpull:`20997`: Fix ToolManager + TextBox support.
+* :ghpull:`20985`: Backport PR #20942 on branch v3.5.x (DOC Use 'Axes' instead of 'axes' in axes._base.py)
+* :ghpull:`20983`: Backport PR #20973 on branch v3.5.x (Docstring cleanups.)
+* :ghpull:`20982`: Backport PR #20972 on branch v3.5.x (Cleanup some dviread docstrings.)
+* :ghpull:`20942`: DOC Use 'Axes' instead of 'axes' in axes._base.py
+* :ghpull:`20981`: Backport PR #20975 on branch v3.5.x (Clarify support for 2D coordinate inputs to streamplot.)
+* :ghpull:`20972`: Cleanup some dviread docstrings.
+* :ghpull:`20975`: Clarify support for 2D coordinate inputs to streamplot.
+* :ghpull:`20973`: Docstring cleanups.
+* :ghpull:`20971`: Backport PR #20970 on branch v3.5.x (Build wheels for Apple Silicon.)
+* :ghpull:`20970`: Build wheels for Apple Silicon.
+* :ghpull:`20969`: Backport PR #20321 on branch v3.5.x (Add a GTK4 backend.)
+* :ghpull:`20321`: Add a GTK4 backend.
+* :ghpull:`20966`: Backport PR #19553 on branch v3.5.x (ENH: Adding callbacks to Norms for update signals)
+* :ghpull:`20967`: Backport PR #20965 on branch v3.5.x (BUG: Fix f_back is None handling)
+* :ghpull:`20965`: BUG: Fix f_back is None handling
+* :ghpull:`19553`: ENH: Adding callbacks to Norms for update signals
+* :ghpull:`20960`: Backport PR #20745 on branch v3.5.x (Clean up some Event class docs.)
+* :ghpull:`20745`: Clean up some Event class docs.
+* :ghpull:`20959`: Backport PR #20952 on branch v3.5.x (Redirect to new 3rd party packages page)
+* :ghpull:`20952`: Redirect to new 3rd party packages page
+* :ghpull:`20958`: Backport PR #20956 on branch v3.5.x (Make warning for no-handles legend more explicit.)
+* :ghpull:`20956`: Make warning for no-handles legend more explicit.
+* :ghpull:`20954`: Backport PR #20931 on branch v3.5.x (API: rename draw_no_output to draw_without_rendering)
+* :ghpull:`20931`: API: rename draw_no_output to draw_without_rendering
+* :ghpull:`20934`: Backport PR #20919 on branch v3.5.x (Improve various release notes)"
+* :ghpull:`20948`: Backport PR #20944 on branch v3.5.x (Switch documented deprecations in mathtext by ``__getattr__`` deprecations)
+* :ghpull:`20944`: Switch documented deprecations in mathtext by ``__getattr__`` deprecations
+* :ghpull:`20947`: Backport PR #20941 on branch v3.5.x (Fix variable capitalization in plot types headings)
+* :ghpull:`20941`: Fix variable capitalization in plot types headings
+* :ghpull:`20939`: Backport PR #20937 on branch v3.5.x (Fix documented allowed values for Patch.set_edgecolor.)
+* :ghpull:`20940`: Backport PR #20938 on branch v3.5.x (Fix missorted changelog entry.)
+* :ghpull:`20938`: Fix missorted changelog entry.
+* :ghpull:`20937`: Fix documented allowed values for Patch.set_edgecolor.
+* :ghpull:`20933`: Backport PR #20916 on branch v3.5.x (Improve deleted Animation warning)
+* :ghpull:`20916`: Improve deleted Animation warning
+* :ghpull:`20919`: Improve various release notes
+* :ghpull:`20928`: Backport PR #20889 on branch v3.5.x (Fix clearing selector)
+* :ghpull:`20927`: Backport PR #20924 on branch v3.5.x (Improve ``path.py`` docstrings a bit)
+* :ghpull:`20889`: Fix clearing selector
+* :ghpull:`20922`: Backport PR #20920 on branch v3.5.x (Fix cubic curve code in ``Path.__doc__``)
+* :ghpull:`20925`: Backport PR #20917 on branch v3.5.x (Move installing FAQ to installing page.)
+* :ghpull:`20924`: Improve ``path.py`` docstrings a bit
+* :ghpull:`20917`: Move installing FAQ to installing page.
+* :ghpull:`20920`: Fix cubic curve code in ``Path.__doc__``
+* :ghpull:`20918`: Backport PR #20915 on branch v3.5.x ([Doc] boxplot typo)
+* :ghpull:`20915`: [Doc] boxplot typo
+* :ghpull:`20908`: [Doc] FigureCanvasBase draw
+* :ghpull:`20899`: Backport PR #20885 on branch v3.5.x (Fix broken QApplication init in a test.)
+* :ghpull:`20885`: Fix broken QApplication init in a test.
+* :ghpull:`20894`: Backport PR #20891 on branch v3.5.x (Add dependency link for 3.5)
+* :ghpull:`20893`: Backport PR #20892 on branch v3.5.x (Label pylab as "discouraged" instead of "disapproved")
+* :ghpull:`20891`: Add dependency link for 3.5
+* :ghpull:`20888`: Backport PR #20864 on branch v3.5.x (Add Python 3.10 testing.)
+* :ghpull:`20890`: Backport PR #20693 on branch v3.5.x (Fix setting artists properties of selectors)
+* :ghpull:`20892`: Label pylab as "discouraged" instead of "disapproved"
+* :ghpull:`20693`: Fix setting artists properties of selectors
+* :ghpull:`20864`: Add Python 3.10 testing.
+* :ghpull:`20886`: Backport PR #20884 on branch v3.5.x (Ensure full environment is passed to headless test.)
+* :ghpull:`20884`: Ensure full environment is passed to headless test.
 * :ghpull:`20883`: Make pywin32 optional in Ctrl+C Qt test.
 * :ghpull:`20874`: Add additional external resource.
 * :ghpull:`20875`: Use mpl.colormaps in examples
@@ -665,8 +929,38 @@ Pull Requests (532):
 * :ghpull:`18887`: FIX: Generalize Colorbar Scale Handling
 * :ghpull:`16788`: Adding png image return for inline backend figures with _repr_html_
 
-Issues (127):
+Issues (157):
 
+* :ghissue:`20932`: Qt Ctrl-C broken on windows
+* :ghissue:`21230`: [Doc]: [source] links is devdocs are broken
+* :ghissue:`20906`: 3.5.0b1: ax.contour generates different artists
+* :ghissue:`21161`: [Doc]: In new docs, "Usage guide" entry in the top menu does not link to the "Usage guide"
+* :ghissue:`21016`: [Bug] Error: 'PathCollection' object has no attribute 'do_3d_projection' when doing contourf in 3d with extend = 'both'
+* :ghissue:`21135`: [Doc]: Data parameter description is not always replaced
+* :ghissue:`4132`: Support clim kwarg in pcolor-type plots
+* :ghissue:`21110`: Qt swapping ctrl and cmd on OSX
+* :ghissue:`20912`: [ENH]: data kwarg support for mplot3d
+* :ghissue:`15005`: Cleanup API for setting ticks
+* :ghissue:`21095`: [ENH]: A data-type check is missed in cm.ScalarMappable.set_array()
+* :ghissue:`7711`: Colorbar: changing the norm does not update the Formatter
+* :ghissue:`18925`: Removing axes created by twiny() leads to an error
+* :ghissue:`21057`: [Bug]: distutils deprecation
+* :ghissue:`21024`: [ENH]: Cairo backends do not fully support HiDPI
+* :ghissue:`20811`: Python 3.10 manylinux wheels
+* :ghissue:`11509`: On making the rc-validators function know the rcParam affected instance
+* :ghissue:`20516`: Sketch params ignored when using PGF backend
+* :ghissue:`20963`: [Bug]: broken 'proportional' colorbar when using contourf+cmap+norm+extend
+* :ghissue:`13974`: [DOC] Undocumented behavior in streamplot
+* :ghissue:`16251`: API changes are too hard to find in the rendered docs
+* :ghissue:`20770`: [Doc]: How to replicate behaviour of ``plt.gca(projection=...)``?
+* :ghissue:`17052`: Colorbar update error with clim change in multi_image.py example
+* :ghissue:`4387`: make ``Normalize`` objects notifiy scalar-mappables on changes
+* :ghissue:`20001`: rename fig.draw_no_output
+* :ghissue:`20936`: [Bug]: edgecolor 'auto' doesn't work properly
+* :ghissue:`20909`: [Bug]: Animation error message
+* :ghissue:`6864`: Add release dates to what's new page
+* :ghissue:`20905`: [Bug]: error plotting z-axis array with np.nan -- does not plot with cmap option (surface plot)
+* :ghissue:`20618`: BUG: Lost functionality of interactive selector update
 * :ghissue:`20791`: [Bug]: spines and ticklabels
 * :ghissue:`20723`: Adding a legend to a ``SubFigure`` doesn't work
 * :ghissue:`20637`: PyPy wheels are pinned to v3.3, so pypy-based wheels for latest versions are not available
