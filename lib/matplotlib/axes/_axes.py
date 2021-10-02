@@ -3284,13 +3284,20 @@ class Axes(_AxesBase):
         if len(x) != len(y):
             raise ValueError("'x' and 'y' must have the same size")
 
-        if xerr is not None and np.any(xerr < 0):
-            if yerr is not None and np.any(yerr < 0):
+        def check_if_negative(array):
+            try:
+                if np.any(array < 0):
+                    return True
+            except:
+                pass
+
+        if xerr is not None and check_if_negative(xerr):
+            if yerr is not None and check_if_negative(yerr):
                 raise ValueError(
                     "'xerr' and 'yerr' must have positive numbers")
             else:
                 raise ValueError("'xerr' must have positive numbers")
-        if yerr is not None and np.any(yerr < 0):
+        if check_if_negative(yerr):
             raise ValueError("'yerr' must have positive numbers")
 
         if isinstance(errorevery, Integral):
