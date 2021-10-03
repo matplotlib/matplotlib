@@ -3,7 +3,8 @@
 Asinh Demo
 ============
 
-Illustration of the `asinh` axis scaling, which uses the transformation
+Illustration of the `asinh <.scale.AsinhScale>` axis scaling,
+which uses the transformation
 
 .. math::
 
@@ -22,12 +23,13 @@ but for larger values (i.e. :math:`|a| \gg a_0`, this is asymptotically
 
     a \\rightarrow a_0 \\, {\\rm sgn}(a) \\ln |a| + {\\cal O}(1)
 
-As with the `symlog` scaling, this allows one to plot quantities
+As with the `symlog <.scale.SymmetricalLogScale>` scaling,
+this allows one to plot quantities
 that cover a very wide dynamic range that includes both positive
-and negative values. However, `symlog` involves a tranformation
+and negative values. However, ``symlog`` involves a transformation
 that has discontinuities in its gradient because it is built
 from *separate* linear and logarithmic transformations.
-The `asinh` scaling uses a transformation that is smooth
+The ``asinh`` scaling uses a transformation that is smooth
 for all (finite) values, which is both mathematically cleaner
 and should reduce visual artifacts associated with an abrupt
 transition between linear and logarithmic regions of the plot.
@@ -79,7 +81,7 @@ for ax, a0 in zip(axs, (0.2, 1.0, 5.0)):
 # due to the gradient-discontinuity in "symlog":
 fig3 = plt.figure()
 ax = fig3.subplots(1, 1)
-r = 3 * np.tan(np.random.uniform(-np.pi / 2.01, np.pi / 2.01,
+r = 3 * np.tan(np.random.uniform(-np.pi / 2.02, np.pi / 2.02,
                                  size=(5000,)))
 th = np.random.uniform(0, 2*np.pi, size=r.shape)
 

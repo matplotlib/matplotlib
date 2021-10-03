@@ -450,12 +450,20 @@ class TestAsinhLocator:
         assert lctr.numticks == 19
 
     def test_set_params(self):
-        lctr = mticker.AsinhLocator(linear_width=5, numticks=17)
+        lctr = mticker.AsinhLocator(linear_width=5,
+                                    numticks=17, symthresh=0.125)
         assert lctr.numticks == 17
+        assert lctr.symthresh == 0.125
+
         lctr.set_params(numticks=23)
         assert lctr.numticks == 23
         lctr.set_params(None)
         assert lctr.numticks == 23
+
+        lctr.set_params(symthresh=0.5)
+        assert lctr.symthresh == 0.5
+        lctr.set_params(symthresh=None)
+        assert lctr.symthresh == 0.5
 
     def test_linear_values(self):
         lctr = mticker.AsinhLocator(linear_width=100, numticks=11)
@@ -488,6 +496,28 @@ class TestAsinhLocator:
 
         assert_almost_equal(lctr.tick_values(100, 101),
                             np.arange(100, 101.01, 0.1))
+
+    def test_symmetrizing(self):
+        class DummyAxis:
+            bounds = (-1, 1)
+            @classmethod
+            def get_data_interval(cls): return cls.bounds
+
+        lctr = mticker.AsinhLocator(linear_width=1, numticks=3,
+                                    symthresh=0.25)
+        lctr.axis = DummyAxis
+
+        DummyAxis.bounds = (-1, 2)
+        assert_almost_equal(lctr(), [-1, 0, 2])
+
+        DummyAxis.bounds = (-1, 0.9)
+        assert_almost_equal(lctr(), [-1, 0, 1])
+
+        DummyAxis.bounds = (-0.85, 1.05)
+        assert_almost_equal(lctr(), [-1, 0, 1])
+
+        DummyAxis.bounds = (1, 1.1)
+        assert_almost_equal(lctr(), [1, 1.05, 1.1])
 
 
 class TestScalarFormatter:

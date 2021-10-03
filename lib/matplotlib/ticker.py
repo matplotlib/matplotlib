@@ -2589,31 +2589,44 @@ class AsinhLocator(Locator):
     """
     An axis tick locator specialized for the inverse-sinh scale
 
-    This is very unlikely to have any use beyond the AsinhScale class.
+    This is very unlikely to have any use beyond
+    the `~.scale.AsinhScale` class.
     """
-    def __init__(self, linear_width, numticks=11):
+    def __init__(self, linear_width, numticks=11, symthresh=0.2):
         """
         Parameters
         ----------
         linear_width : float
             The scale parameter defining the extent
             of the quasi-linear region.
-        numticks : int, default: 12
+        numticks : int, default: 11
             The approximate number of major ticks that will fit
             along the entire axis
+        symthresh : float, default: 0.2
+            The fractional threshold beneath which data which covers
+            a range that is approximately symmetric about zero
+            will have ticks that are exactly symmetric.
         """
         super().__init__()
         self.linear_width = linear_width
         self.numticks = numticks
+        self.symthresh = symthresh
 
-    def set_params(self, numticks=None):
+    def set_params(self, numticks=None, symthresh=None):
         """Set parameters within this locator."""
         if numticks is not None:
             self.numticks = numticks
+        if symthresh is not None:
+            self.symthresh = symthresh
 
     def __call__(self):
         dmin, dmax = self.axis.get_data_interval()
-        return self.tick_values(dmin, dmax)
+        if (dmin * dmax) < 0 and abs(1 + dmax / dmin) < self.symthresh:
+            # Data-range appears to be almost symmetric, so round up:
+            bound = max(abs(dmin), abs(dmax))
+            return self.tick_values(-bound, bound)
+        else:
+            return self.tick_values(dmin, dmax)
 
     def tick_values(self, vmin, vmax):
         # Construct a set of "on-screen" locations
@@ -2622,9 +2635,9 @@ class AsinhLocator(Locator):
                                                         / self.linear_width)
         ys = np.linspace(ymin, ymax, self.numticks)
         zero_dev = np.abs(ys / (ymax - ymin))
-        if (ymin * ymax) < 0 and min(zero_dev) > 1e-6:
+        if (ymin * ymax) < 0 and min(zero_dev) > 0:
             # Ensure that the zero tick-mark is included,
-            # if the axis stradles zero
+            # if the axis straddles zero
             ys = np.hstack([ys[(zero_dev > 0.5 / self.numticks)], 0.0])
 
         # Transform the "on-screen" grid to the data space:
