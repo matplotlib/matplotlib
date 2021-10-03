@@ -571,14 +571,14 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ----------
         lw : float or list of floats
         """
-        if lw is None:
-            lw = self._get_default_linewidth()
+        lw_arr = np.atleast_1d(np.asarray(lw, dtype=float))
+        lw_arr[np.isnan(lw_arr)] = self._get_default_linewidth()
         # get the un-scaled/broadcast lw
-        self._us_lw = np.atleast_1d(np.asarray(lw))
-
+        self._us_lw = lw_arr
         # scale all of the dash patterns.
         self._linewidths, self._linestyles = self._bcast_lwls(
-            self._us_lw, self._us_linestyles)
+            self._us_lw, self._us_linestyles
+        )
         self.stale = True
 
     def set_linestyle(self, ls):
@@ -732,8 +732,18 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return mpl.rcParams['patch.facecolor']
 
     def _set_facecolor(self, c):
+        default_c = self._get_default_facecolor()
         if c is None:
-            c = self._get_default_facecolor()
+            c = default_c
+        elif not isinstance(c, str) and np.iterable(c):
+            # Calculate the RGBA array of the default color in case it is
+            # repeated, but without specifying an alpha which will be corrected
+            # in the call to `to_rgba_array`.
+            default_c = mcolors.to_rgba(default_c)
+            c = [default_c if color is None else color for color in c]
+            # For case when array corresponding to a single color is passed:
+            if len(c) == 1:
+                c = c[0]
 
         self._facecolors = mcolors.to_rgba_array(c, self._alpha)
         self.stale = True
@@ -770,18 +780,34 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def _set_edgecolor(self, c):
         set_hatch_color = True
+
+        if (
+            mpl.rcParams['patch.force_edgecolor']
+            or self._edge_default
+            or cbook._str_equal(self._original_facecolor, 'none')
+        ):
+            default_c = self._get_default_edgecolor()
+        else:
+            default_c = 'none'
+            set_hatch_color = False
+
         if c is None:
-            if (mpl.rcParams['patch.force_edgecolor']
-                    or self._edge_default
-                    or cbook._str_equal(self._original_facecolor, 'none')):
-                c = self._get_default_edgecolor()
-            else:
-                c = 'none'
-                set_hatch_color = False
-        if cbook._str_lower_equal(c, 'face'):
+            c = default_c
+        # TODO: Add fast track for float arrays?
+        elif not isinstance(c, str) and np.iterable(c):
+            # Calculate the RGBA array of the default color in case it is
+            # repeated, but without specifying an alpha which will be corrected
+            # in the call to `to_rgba_array`.
+            default_c = mcolors.to_rgba(default_c)
+            c = [default_c if color is None else color for color in c]
+            # For case when array corresponding to a single color is passed:
+            if len(c) == 1:
+                c = c[0]
+        elif cbook._str_lower_equal(c, 'face'):
             self._edgecolors = 'face'
             self.stale = True
             return
+
         self._edgecolors = mcolors.to_rgba_array(c, self._alpha)
         if set_hatch_color and len(self._edgecolors):
             self._hatch_color = tuple(self._edgecolors[0])
