@@ -20,13 +20,13 @@ but for larger values (i.e. :math:`|a| \gg a_0`, this is asymptotically
 
 .. math::
 
-    a \\rightarrow a_0 \\ln (a) + {\\cal O}(1)
+    a \\rightarrow a_0 \\, {\\rm sgn}(a) \\ln |a| + {\\cal O}(1)
 
 As with the `symlog` scaling, this allows one to plot quantities
 that cover a very wide dynamic range that includes both positive
 and negative values. However, `symlog` involves a tranformation
 that has discontinuities in its gradient because it is built
-from *separate* linear and logarithmic transformation.
+from *separate* linear and logarithmic transformations.
 The `asinh` scaling uses a transformation that is smooth
 for all (finite) values, which is both mathematically cleaner
 and should reduce visual artifacts associated with an abrupt
@@ -35,14 +35,15 @@ transition between linear and logarithmic regions of the plot.
 See `~.scale.AsinhScale`, `~.scale.SymmetricalLogScale`.
 """
 
-import numpy
+import numpy as np
 import matplotlib.pyplot as plt
 
 # Prepare sample values for variations on y=x graph:
-x = numpy.linspace(-3, 6, 100)
+x = np.linspace(-3, 6, 100)
 
 ########################################
-# Compare "symlog" and "asinh" behaviour on sample y=x graph:
+# Compare "symlog" and "asinh" behaviour on sample y=x graph,
+# where the discontinuous gradient in "symlog" near y=2 is obvious:
 fig1 = plt.figure()
 ax0, ax1 = fig1.subplots(1, 2, sharex=True)
 
@@ -73,19 +74,23 @@ for ax, a0 in zip(axs, (0.2, 1.0, 5.0)):
 
 ########################################
 # Compare "symlog" and "asinh" scalings
-# on 2D Cauchy-distributed random numbers:
+# on 2D Cauchy-distributed random numbers,
+# where one may be able to see more subtle artifacts near y=2
+# due to the gradient-discontinuity in "symlog":
 fig3 = plt.figure()
 ax = fig3.subplots(1, 1)
-r = numpy.tan(numpy.random.uniform(-numpy.pi / 2.02, numpy.pi / 2.02,
-                                   size=(5000,)))
-th = numpy.random.uniform(0, 2*numpy.pi, size=r.shape)
+r = 3 * np.tan(np.random.uniform(-np.pi / 2.01, np.pi / 2.01,
+                                 size=(5000,)))
+th = np.random.uniform(0, 2*np.pi, size=r.shape)
 
-ax.scatter(r * numpy.cos(th), r * numpy.sin(th), s=4, alpha=0.5)
+ax.scatter(r * np.cos(th), r * np.sin(th), s=4, alpha=0.5)
 ax.set_xscale('asinh')
 ax.set_yscale('symlog')
 ax.set_xlabel('asinh')
 ax.set_ylabel('symlog')
 ax.set_title('2D Cauchy random deviates')
+ax.set_xlim(-50, 50)
+ax.set_ylim(-50, 50)
 ax.grid()
 
 

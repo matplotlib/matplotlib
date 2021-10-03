@@ -459,6 +459,7 @@ class SymmetricalLogScale(ScaleBase):
 
 
 class AsinhTransform(Transform):
+    """Inverse hyperbolic-sine transformation used by `.AsinhScale`"""
     input_dims = output_dims = 1
 
     def __init__(self, linear_width):
@@ -473,6 +474,7 @@ class AsinhTransform(Transform):
 
 
 class InvertedAsinhTransform(Transform):
+    """Hyperbolic-sine transformation used by `.AsinhScale`"""
     input_dims = output_dims = 1
 
     def __init__(self, linear_width):
@@ -493,16 +495,16 @@ class AsinhScale(ScaleBase):
     For values close to zero, this is essentially a linear scale,
     but for larger values (either positive or negative) it is asymptotically
     logarithmic. The transition between these linear and logarithmic regimes
-    is smooth, and has no discontinutities in the function gradient
-    in contrast to the "symlog" scale.
+    is smooth, and has no discontinuities in the function gradient
+    in contrast to the `symlog` scale.
 
     Specifically, the transformation of an axis coordinate :math:`a` is
-    is :math:`a \\rightarrow a_0 \\sinh^{-1} (a / a_0)` where :math:`a_0`
+    :math:`a \\rightarrow a_0 \\sinh^{-1} (a / a_0)` where :math:`a_0`
     is the effective width of the linear region of the transformation.
     In that region, the transformation is
     :math:`a \\rightarrow a + {\\cal O}(a^3)`.
     For large values of :math:`a` the transformation behaves as
-    :math:`a \\rightarrow a_0 \\ln (a) + {\\cal O}(1)`.
+    :math:`a \\rightarrow a_0 \\, {\\rm sgn}(a) \\ln |a| + {\\cal O}(1)`.
     """
 
     name = 'asinh'
@@ -515,7 +517,7 @@ class AsinhScale(ScaleBase):
             The scale parameter (elsewhere referred to as :math:`a_0`)
             defining the extent of the quasi-linear region,
             and the coordinate values beyond which the transformation
-            becomes asympoticially logarithmic.
+            becomes asympotically logarithmic.
         """
         super().__init__(axis)
         if linear_width <= 0.0:
