@@ -41,7 +41,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Prepare sample values for variations on y=x graph:
-x = np.linspace(-3, 6, 100)
+x = np.linspace(-3, 6, 500)
 
 ########################################
 # Compare "symlog" and "asinh" behaviour on sample y=x graph,

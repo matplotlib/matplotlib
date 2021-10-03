@@ -529,7 +529,9 @@ class AsinhScale(ScaleBase):
 
     def set_default_locators_and_formatters(self, axis):
         axis.set(major_locator=AsinhLocator(self.linear_width),
-                 major_formatter='{x:.3g}')
+                 minor_locator=AutoLocator(),
+                 major_formatter='{x:.3g}',
+                 minor_formatter=NullFormatter())
 
 class LogitTransform(Transform):
     input_dims = output_dims = 1

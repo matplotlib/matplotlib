@@ -2635,7 +2635,7 @@ class AsinhLocator(Locator):
                                                         / self.linear_width)
         ys = np.linspace(ymin, ymax, self.numticks)
         zero_dev = np.abs(ys / (ymax - ymin))
-        if (ymin * ymax) < 0 and min(zero_dev) > 0:
+        if (ymin * ymax) < 0:
             # Ensure that the zero tick-mark is included,
             # if the axis straddles zero
             ys = np.hstack([ys[(zero_dev > 0.5 / self.numticks)], 0.0])
@@ -2647,7 +2647,7 @@ class AsinhLocator(Locator):
         # Round the data-space values to be intuitive decimal numbers:
         decades = (
             np.where(xs >= 0, 1, -1) *
-            np.power(10, np.where(zero_xs, 1.0,
+            np.power(10, np.where(zero_xs, 0.0,
                                   np.floor(np.log10(np.abs(xs)
                                                     + zero_xs*1e-6))))
         )
