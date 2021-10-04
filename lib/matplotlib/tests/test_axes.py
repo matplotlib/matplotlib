@@ -3519,9 +3519,11 @@ def test_xerr_yerr_positive():
     with pytest.raises(ValueError,
                        match="'xerr' and 'yerr' must have positive numbers"):
         ax.errorbar(x=[0], y=[0], xerr=[[-0.5], [1]], yerr=[[-0.5], [1]])
-    with pytest.raises(ValueError, match="'xerr' must have positive numbers"):
+    with pytest.raises(ValueError,
+                        match="'xerr' and 'yerr' must have positive numbers"):
         ax.errorbar(x=[0], y=[0], xerr=[[-0.5], [1]])
-    with pytest.raises(ValueError, match="'yerr' must have positive numbers"):
+    with pytest.raises(ValueError,
+                        match="'xerr' and 'yerr' must have positive numbers"):
         ax.errorbar(x=[0], y=[0], yerr=[[-0.5], [1]])
 
 

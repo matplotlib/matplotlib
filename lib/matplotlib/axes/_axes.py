@@ -3285,20 +3285,16 @@ class Axes(_AxesBase):
             raise ValueError("'x' and 'y' must have the same size")
 
         def check_if_negative(array):
+            if array is None:
+                return False
             try:
                 if np.any(array < 0):
                     return True
             except TypeError:   # Don't fail on 'datetime.*' types
                 pass
 
-        if xerr is not None and check_if_negative(xerr):
-            if yerr is not None and check_if_negative(yerr):
-                raise ValueError(
-                    "'xerr' and 'yerr' must have positive numbers")
-            else:
-                raise ValueError("'xerr' must have positive numbers")
-        if check_if_negative(yerr):
-            raise ValueError("'yerr' must have positive numbers")
+        if check_if_negative(xerr) or check_if_negative(yerr):
+            raise ValueError("'xerr' and 'yerr' must have positive numbers")
 
         if isinstance(errorevery, Integral):
             errorevery = (0, errorevery)
