@@ -3,6 +3,7 @@ import itertools
 import logging
 import math
 from numbers import Integral, Number
+from datetime import timedelta
 
 import numpy as np
 from numpy import ma
@@ -3289,8 +3290,8 @@ class Axes(_AxesBase):
                 return False
             try:
                 return np.any(array < 0)
-            except TypeError:
-                pass   # Don't fail on 'datetime.*' types
+            except TypeError:  # if array contains 'datetime.timedelta' types
+                return np.any(array < timedelta(0))
 
         if has_negative_values(xerr) or has_negative_values(yerr):
             raise ValueError(
