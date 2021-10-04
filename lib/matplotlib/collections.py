@@ -789,7 +789,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             default_c = self._get_default_edgecolor()
         else:
             default_c = 'none'
-            set_hatch_color = False
+            if c is None:
+                set_hatch_color = False
 
         if c is None:
             c = default_c
