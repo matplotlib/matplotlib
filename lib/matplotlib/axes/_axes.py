@@ -3294,7 +3294,7 @@ class Axes(_AxesBase):
 
         if has_negative_values(xerr) or has_negative_values(yerr):
             raise ValueError(
-                "'xerr' and 'yerr' must have non-negative numbers")
+                "'xerr' and 'yerr' must have non-negative values")
 
         if isinstance(errorevery, Integral):
             errorevery = (0, errorevery)
