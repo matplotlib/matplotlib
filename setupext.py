@@ -605,16 +605,18 @@ class FreeType(SetupPackage):
         if (src_path / 'objs' / '.libs' / libfreetype).is_file():
             return  # Bail out because we have already built FreeType.
 
-        cc = get_ccompiler()
-
         print(f"Building freetype in {src_path}")
         if sys.platform != 'win32':  # compilation on non-windows
             env = {
                 **env,
-                "CC": (shlex.join(cc.compiler) if sys.version_info >= (3, 8)
-                       else " ".join(shlex.quote(x) for x in cc.compiler)),
-                "CFLAGS": "{} -fPIC".format(env.get("CFLAGS", "")),
+                **{
+                    var: value
+                    for var, value in sysconfig.get_config_vars().items()
+                    if var in {"CC", "CFLAGS", "CXX", "CXXFLAGS", "LD",
+                               "LDFLAGS"}
+                },
             }
+            env["CFLAGS"] = env.get("CFLAGS", "") + " -fPIC"
             subprocess.check_call(
                 ["./configure", "--with-zlib=no", "--with-bzip2=no",
                  "--with-png=no", "--with-harfbuzz=no", "--enable-static",
@@ -668,6 +670,7 @@ class FreeType(SetupPackage):
                 f.truncate()
                 f.write(vcxproj)
 
+            cc = get_ccompiler()
             cc.initialize()  # Get msbuild in the %PATH% of cc.spawn.
             cc.spawn(["msbuild", str(sln_path),
                       "/t:Clean;Build",
