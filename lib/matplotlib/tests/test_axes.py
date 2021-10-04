@@ -3524,6 +3524,12 @@ def test_xerr_yerr_positive():
         ax.errorbar(x=[0], y=[0], xerr=[[-0.5], [1]])
     with pytest.raises(ValueError, match=error_message):
         ax.errorbar(x=[0], y=[0], yerr=[[-0.5], [1]])
+    with pytest.raises(ValueError, match=error_message):
+        x = np.arange(5)
+        y = [datetime.datetime(2021, 9, i * 2 + 1) for i in x]
+        ax.errorbar(x=x,
+                    y=y,
+                    yerr=datetime.timedelta(days=-10))
 
 
 @check_figures_equal()
