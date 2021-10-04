@@ -1092,6 +1092,7 @@ class FontManager:
             font = ft2font.FT2Font(path)
             prop = ttfFontProperty(font)
             self.ttflist.append(prop)
+        self._findfont_cached.cache_clear()
 
     @property
     def defaultFont(self):
