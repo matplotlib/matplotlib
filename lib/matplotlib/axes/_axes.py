@@ -3291,10 +3291,6 @@ class Axes(_AxesBase):
                 return np.any(array < 0)
             except TypeError:
                 pass   # Don't fail on 'datetime.*' types
-                if np.any(array < 0):
-                    return True
-            except TypeError:   # Don't fail on 'datetime.*' types
-                pass
 
         if has_negative_values(xerr) or has_negative_values(yerr):
             raise ValueError(
