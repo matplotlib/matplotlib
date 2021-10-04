@@ -1079,3 +1079,39 @@ def test_set_offset_transform():
     late.set_offset_transform(skew)
 
     assert skew == init.get_offset_transform() == late.get_offset_transform()
+
+
+def test_listlike_lw_with_None():
+    input_lw = [None, 1, None, 2]
+    col = mcollections.Collection(linewidths=input_lw)
+    default_lw = col._get_default_linewidth()
+    expected_lw = [default_lw if lw is None else lw for lw in input_lw]
+    assert_array_equal(col.get_linewidth(), expected_lw)
+
+
+def test_listlike_fc_with_None():
+    input_fc = [None, 'r', None, np.array([1, 0, 0.5])]
+    col = mcollections.Collection(facecolors=input_fc)
+    default_fc = col._get_default_facecolor()
+    interp_fc = [default_fc if fc is None else fc for fc in input_fc]
+    expected_fc = mcolors.to_rgba_array(interp_fc)
+    assert_array_equal(col.get_facecolor(), expected_fc)
+
+    expected_alpha = 0.5
+    col.set_alpha(expected_alpha)
+    expected_fc = mcolors.to_rgba_array(interp_fc, alpha=expected_alpha)
+    assert_array_equal(col.get_facecolor(), expected_fc)
+
+
+def test_listlike_ec_with_None():
+    input_ec = [None, 'r', None, np.array([1, 0, 0.5])]
+    col = mcollections.Collection(edgecolors=input_ec)
+    default_ec = col._get_default_edgecolor()
+    interp_ec = [default_ec if ec is None else ec for ec in input_ec]
+    expected_ec = mcolors.to_rgba_array(interp_ec)
+    assert_array_equal(col.get_edgecolor(), expected_ec)
+
+    expected_alpha = 0.5
+    col.set_alpha(expected_alpha)
+    expected_ec = mcolors.to_rgba_array(interp_ec, alpha=expected_alpha)
+    assert_array_equal(col.get_edgecolor(), expected_ec)
