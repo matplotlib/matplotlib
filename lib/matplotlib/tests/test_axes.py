@@ -3516,14 +3516,13 @@ def test_errorbar_every_invalid():
 def test_xerr_yerr_positive():
     ax = plt.figure().subplots()
 
-    with pytest.raises(ValueError,
-                       match="'xerr' and 'yerr' must have positive numbers"):
+    error_message = "'xerr' and 'yerr' must have non-negative numbers"
+
+    with pytest.raises(ValueError, match=error_message):
         ax.errorbar(x=[0], y=[0], xerr=[[-0.5], [1]], yerr=[[-0.5], [1]])
-    with pytest.raises(ValueError,
-                        match="'xerr' and 'yerr' must have positive numbers"):
+    with pytest.raises(ValueError, match=error_message):
         ax.errorbar(x=[0], y=[0], xerr=[[-0.5], [1]])
-    with pytest.raises(ValueError,
-                        match="'xerr' and 'yerr' must have positive numbers"):
+    with pytest.raises(ValueError, match=error_message):
         ax.errorbar(x=[0], y=[0], yerr=[[-0.5], [1]])
 
 
