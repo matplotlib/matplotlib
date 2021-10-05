@@ -25,14 +25,14 @@ import threading
 
 try:
     import tornado
-except ImportError:
-    raise RuntimeError("The WebAgg backend requires Tornado.")
+except ImportError as err:
+    raise RuntimeError("The WebAgg backend requires Tornado.") from err
 
 import tornado.web
 import tornado.ioloop
 import tornado.websocket
 
-from matplotlib import cbook, rcParams
+import matplotlib as mpl
 from matplotlib.backend_bases import _Backend
 from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
@@ -48,14 +48,7 @@ webagg_server_thread = ServerThread()
 
 
 class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
-    def show(self):
-        # show the figure window
-        global show  # placates pyflakes: created by @_Backend.export below
-        show()
-
-    def new_timer(self, *args, **kwargs):
-        # docstring inherited
-        return TimerTornado(*args, **kwargs)
+    pass
 
 
 class WebAggApplication(tornado.web.Application):
@@ -65,8 +58,8 @@ class WebAggApplication(tornado.web.Application):
     class FavIcon(tornado.web.RequestHandler):
         def get(self):
             self.set_header('Content-Type', 'image/png')
-            self.write(
-                cbook._get_data_path('images/matplotlib.png').read_bytes())
+            self.write(Path(mpl.get_data_path(),
+                            'images/matplotlib.png').read_bytes())
 
     class SingleFigurePage(tornado.web.RequestHandler):
         def __init__(self, application, request, *, url_prefix='', **kwargs):
@@ -171,6 +164,11 @@ class WebAggApplication(tornado.web.Application):
                  tornado.web.StaticFileHandler,
                  {'path': core.FigureManagerWebAgg.get_static_file_path()}),
 
+                # Static images for the toolbar
+                (url_prefix + r'/_images/(.*)',
+                 tornado.web.StaticFileHandler,
+                 {'path': Path(mpl.get_data_path(), 'images')}),
+
                 # A Matplotlib favicon
                 (url_prefix + r'/favicon.ico', self.FavIcon),
 
@@ -219,11 +217,12 @@ class WebAggApplication(tornado.web.Application):
                 yield port + random.randint(-2 * n, 2 * n)
 
         if address is None:
-            cls.address = rcParams['webagg.address']
+            cls.address = mpl.rcParams['webagg.address']
         else:
             cls.address = address
-        cls.port = rcParams['webagg.port']
-        for port in random_ports(cls.port, rcParams['webagg.port_retries']):
+        cls.port = mpl.rcParams['webagg.port']
+        for port in random_ports(cls.port,
+                                 mpl.rcParams['webagg.port_retries']):
             try:
                 app.listen(port, cls.address)
             except socket.error as e:
@@ -303,10 +302,6 @@ class _BackendWebAgg(_Backend):
     FigureManager = core.FigureManagerWebAgg
 
     @staticmethod
-    def trigger_manager_draw(manager):
-        manager.canvas.draw_idle()
-
-    @staticmethod
     def show():
         WebAggApplication.initialize()
 
@@ -315,9 +310,10 @@ class _BackendWebAgg(_Backend):
             port=WebAggApplication.port,
             prefix=WebAggApplication.url_prefix)
 
-        if rcParams['webagg.open_in_browser']:
+        if mpl.rcParams['webagg.open_in_browser']:
             import webbrowser
-            webbrowser.open(url)
+            if not webbrowser.open(url):
+                print("To view figure, visit {0}".format(url))
         else:
             print("To view figure, visit {0}".format(url))
 

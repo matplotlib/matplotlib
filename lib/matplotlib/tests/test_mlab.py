@@ -1,18 +1,9 @@
-import tempfile
-
 from numpy.testing import (assert_allclose, assert_almost_equal,
                            assert_array_equal, assert_array_almost_equal_nulp)
 import numpy as np
-import datetime as datetime
 import pytest
 
-import matplotlib.mlab as mlab
-from matplotlib.cbook.deprecation import MatplotlibDeprecationWarning
-
-
-def _stride_repeat(*args, **kwargs):
-    with pytest.warns(MatplotlibDeprecationWarning):
-        return mlab.stride_repeat(*args, **kwargs)
+from matplotlib import mlab, _api
 
 
 class TestStride:
@@ -22,10 +13,17 @@ class TestStride:
             y = y.base
         return y
 
+    @pytest.fixture(autouse=True)
+    def stride_is_deprecated(self):
+        with _api.suppress_matplotlib_deprecation_warning():
+            yield
+
     def calc_window_target(self, x, NFFT, noverlap=0, axis=0):
-        '''This is an adaptation of the original window extraction
-        algorithm.  This is here to test to make sure the new implementation
-        has the same result'''
+        """
+        This is an adaptation of the original window extraction algorithm.
+        This is here to test to make sure the new implementation has the same
+        result.
+        """
         step = NFFT - noverlap
         ind = np.arange(0, len(x) - NFFT + 1, step)
         n = len(ind)
@@ -53,40 +51,6 @@ class TestStride:
         x = np.arange(10)
         with pytest.raises(ValueError):
             mlab.stride_windows(x, n, noverlap)
-
-    @pytest.mark.parametrize('shape', [(), (10, 1)], ids=['0D', '2D'])
-    def test_stride_repeat_invalid_input_shape(self, shape):
-        x = np.arange(np.prod(shape)).reshape(shape)
-        with pytest.raises(ValueError):
-            _stride_repeat(x, 5)
-
-    @pytest.mark.parametrize('axis', [-1, 2],
-                             ids=['axis less than 0',
-                                  'axis greater than input shape'])
-    def test_stride_repeat_invalid_axis(self, axis):
-        x = np.array(0)
-        with pytest.raises(ValueError):
-            _stride_repeat(x, 5, axis=axis)
-
-    def test_stride_repeat_n_lt_1_ValueError(self):
-        x = np.arange(10)
-        with pytest.raises(ValueError):
-            _stride_repeat(x, 0)
-
-    @pytest.mark.parametrize('axis', [0, 1], ids=['axis0', 'axis1'])
-    @pytest.mark.parametrize('n', [1, 5], ids=['n1', 'n5'])
-    def test_stride_repeat(self, n, axis):
-        x = np.arange(10)
-        y = _stride_repeat(x, n, axis=axis)
-
-        expected_shape = [10, 10]
-        expected_shape[axis] = n
-        yr = np.repeat(np.expand_dims(x, axis), n, axis=axis)
-
-        assert yr.shape == y.shape
-        assert_array_equal(yr, y)
-        assert tuple(expected_shape) == y.shape
-        assert self.get_base(y) is x
 
     @pytest.mark.parametrize('axis', [0, 1], ids=['axis0', 'axis1'])
     @pytest.mark.parametrize('n, noverlap',
@@ -120,323 +84,16 @@ class TestStride:
         assert y.shape == x1.shape
         assert_array_equal(y, x1)
 
-    def test_stride_ensure_integer_type(self):
-        N = 100
-        x = np.full(N + 20, np.nan)
-        y = x[10:-10]
-        y[:] = 0.3
-        # previous to #3845 lead to corrupt access
-        y_strided = mlab.stride_windows(y, n=33, noverlap=0.6)
-        assert_array_equal(y_strided, 0.3)
-        # previous to #3845 lead to corrupt access
-        y_strided = mlab.stride_windows(y, n=33.3, noverlap=0)
-        assert_array_equal(y_strided, 0.3)
-        # even previous to #3845 could not find any problematic
-        # configuration however, let's be sure it's not accidentally
-        # introduced
-        y_strided = _stride_repeat(y, n=33.815)
-        assert_array_equal(y_strided, 0.3)
 
-
-@pytest.fixture
-def tempcsv():
-    with tempfile.TemporaryFile(suffix='csv', mode="w+", newline='') as fd:
-        yield fd
-
-
-def test_csv2rec_names_with_comments(tempcsv):
-    tempcsv.write('# comment\n1,2,3\n4,5,6\n')
-    tempcsv.seek(0)
-    array = mlab._csv2rec(tempcsv, names='a,b,c')
-    assert len(array) == 2
-    assert len(array.dtype) == 3
-
-
-@pytest.mark.parametrize('input, kwargs', [
-    ('01/11/14\n'
-     '03/05/76 12:00:01 AM\n'
-     '07/09/83 5:17:34 PM\n'
-     '06/20/2054 2:31:45 PM\n'
-     '10/31/00 11:50:23 AM\n',
-     {}),
-    ('11/01/14\n'
-     '05/03/76 12:00:01 AM\n'
-     '09/07/83 5:17:34 PM\n'
-     '20/06/2054 2:31:45 PM\n'
-     '31/10/00 11:50:23 AM\n',
-     {'dayfirst': True}),
-    ('14/01/11\n'
-     '76/03/05 12:00:01 AM\n'
-     '83/07/09 5:17:34 PM\n'
-     '2054/06/20 2:31:45 PM\n'
-     '00/10/31 11:50:23 AM\n',
-     {'yearfirst': True}),
-], ids=['usdate', 'dayfirst', 'yearfirst'])
-def test_csv2rec_dates(tempcsv, input, kwargs):
-    tempcsv.write(input)
-    expected = [datetime.datetime(2014, 1, 11, 0, 0),
-                datetime.datetime(1976, 3, 5, 0, 0, 1),
-                datetime.datetime(1983, 7, 9, 17, 17, 34),
-                datetime.datetime(2054, 6, 20, 14, 31, 45),
-                datetime.datetime(2000, 10, 31, 11, 50, 23)]
-    tempcsv.seek(0)
-    array = mlab._csv2rec(tempcsv, names='a', **kwargs)
-    assert_array_equal(array['a'].tolist(), expected)
-
-
-def _apply_window(*args, **kwargs):
-    with pytest.warns(MatplotlibDeprecationWarning):
-        return mlab.apply_window(*args, **kwargs)
-
-
-class TestWindow:
-    def setup(self):
-        np.random.seed(0)
-        n = 1000
-
-        self.sig_rand = np.random.standard_normal(n) + 100.
-        self.sig_ones = np.ones(n)
-
-    def check_window_apply_repeat(self, x, window, NFFT, noverlap):
-        '''This is an adaptation of the original window application
-        algorithm.  This is here to test to make sure the new implementation
-        has the same result'''
-        step = NFFT - noverlap
-        ind = np.arange(0, len(x) - NFFT + 1, step)
-        n = len(ind)
-        result = np.zeros((NFFT, n))
-
-        if np.iterable(window):
-            windowVals = window
-        else:
-            windowVals = window(np.ones(NFFT, x.dtype))
-
-        # do the ffts of the slices
-        for i in range(n):
-            result[:, i] = windowVals * x[ind[i]:ind[i]+NFFT]
-        return result
-
-    def test_window_none_rand(self):
-        res = mlab.window_none(self.sig_ones)
-        assert_array_equal(res, self.sig_ones)
-
-    def test_window_none_ones(self):
-        res = mlab.window_none(self.sig_rand)
-        assert_array_equal(res, self.sig_rand)
-
-    def test_window_hanning_rand(self):
-        targ = np.hanning(len(self.sig_rand)) * self.sig_rand
-        res = mlab.window_hanning(self.sig_rand)
-
-        assert_allclose(targ, res, atol=1e-06)
-
-    def test_window_hanning_ones(self):
-        targ = np.hanning(len(self.sig_ones))
-        res = mlab.window_hanning(self.sig_ones)
-
-        assert_allclose(targ, res, atol=1e-06)
-
-    def test_apply_window_1D_axis1_ValueError(self):
-        x = self.sig_rand
-        window = mlab.window_hanning
-        with pytest.raises(ValueError):
-            _apply_window(x, window, axis=1, return_window=False)
-
-    def test_apply_window_1D_els_wrongsize_ValueError(self):
-        x = self.sig_rand
-        window = mlab.window_hanning(np.ones(x.shape[0]-1))
-        with pytest.raises(ValueError):
-            _apply_window(x, window)
-
-    def test_apply_window_0D_ValueError(self):
-        x = np.array(0)
-        window = mlab.window_hanning
-        with pytest.raises(ValueError):
-            _apply_window(x, window, axis=1, return_window=False)
-
-    def test_apply_window_3D_ValueError(self):
-        x = self.sig_rand[np.newaxis][np.newaxis]
-        window = mlab.window_hanning
-        with pytest.raises(ValueError):
-            _apply_window(x, window, axis=1, return_window=False)
-
-    def test_apply_window_hanning_1D(self):
-        x = self.sig_rand
-        window = mlab.window_hanning
-        window1 = mlab.window_hanning(np.ones(x.shape[0]))
-        y, window2 = _apply_window(x, window, return_window=True)
-        yt = window(x)
-        assert yt.shape == y.shape
-        assert x.shape == y.shape
-        assert_allclose(yt, y, atol=1e-06)
-        assert_array_equal(window1, window2)
-
-    def test_apply_window_hanning_1D_axis0(self):
-        x = self.sig_rand
-        window = mlab.window_hanning
-        y = _apply_window(x, window, axis=0, return_window=False)
-        yt = window(x)
-        assert yt.shape == y.shape
-        assert x.shape == y.shape
-        assert_allclose(yt, y, atol=1e-06)
-
-    def test_apply_window_hanning_els_1D_axis0(self):
-        x = self.sig_rand
-        window = mlab.window_hanning(np.ones(x.shape[0]))
-        window1 = mlab.window_hanning
-        y = _apply_window(x, window, axis=0, return_window=False)
-        yt = window1(x)
-        assert yt.shape == y.shape
-        assert x.shape == y.shape
-        assert_allclose(yt, y, atol=1e-06)
-
-    def test_apply_window_hanning_2D_axis0(self):
-        x = np.random.standard_normal([1000, 10]) + 100.
-        window = mlab.window_hanning
-        y = _apply_window(x, window, axis=0, return_window=False)
-        yt = np.zeros_like(x)
-        for i in range(x.shape[1]):
-            yt[:, i] = window(x[:, i])
-        assert yt.shape == y.shape
-        assert x.shape == y.shape
-        assert_allclose(yt, y, atol=1e-06)
-
-    def test_apply_window_hanning_els1_2D_axis0(self):
-        x = np.random.standard_normal([1000, 10]) + 100.
-        window = mlab.window_hanning(np.ones(x.shape[0]))
-        window1 = mlab.window_hanning
-        y = _apply_window(x, window, axis=0, return_window=False)
-        yt = np.zeros_like(x)
-        for i in range(x.shape[1]):
-            yt[:, i] = window1(x[:, i])
-        assert yt.shape == y.shape
-        assert x.shape == y.shape
-        assert_allclose(yt, y, atol=1e-06)
-
-    def test_apply_window_hanning_els2_2D_axis0(self):
-        x = np.random.standard_normal([1000, 10]) + 100.
-        window = mlab.window_hanning
-        window1 = mlab.window_hanning(np.ones(x.shape[0]))
-        y, window2 = _apply_window(x, window, axis=0, return_window=True)
-        yt = np.zeros_like(x)
-        for i in range(x.shape[1]):
-            yt[:, i] = window1*x[:, i]
-        assert yt.shape == y.shape
-        assert x.shape == y.shape
-        assert_allclose(yt, y, atol=1e-06)
-        assert_array_equal(window1, window2)
-
-    def test_apply_window_hanning_els3_2D_axis0(self):
-        x = np.random.standard_normal([1000, 10]) + 100.
-        window = mlab.window_hanning
-        window1 = mlab.window_hanning(np.ones(x.shape[0]))
-        y, window2 = _apply_window(x, window, axis=0, return_window=True)
-        yt = _apply_window(x, window1, axis=0, return_window=False)
-        assert yt.shape == y.shape
-        assert x.shape == y.shape
-        assert_allclose(yt, y, atol=1e-06)
-        assert_array_equal(window1, window2)
-
-    def test_apply_window_hanning_2D_axis1(self):
-        x = np.random.standard_normal([10, 1000]) + 100.
-        window = mlab.window_hanning
-        y = _apply_window(x, window, axis=1, return_window=False)
-        yt = np.zeros_like(x)
-        for i in range(x.shape[0]):
-            yt[i, :] = window(x[i, :])
-        assert yt.shape == y.shape
-        assert x.shape == y.shape
-        assert_allclose(yt, y, atol=1e-06)
-
-    def test_apply_window_hanning_2D__els1_axis1(self):
-        x = np.random.standard_normal([10, 1000]) + 100.
-        window = mlab.window_hanning(np.ones(x.shape[1]))
-        window1 = mlab.window_hanning
-        y = _apply_window(x, window, axis=1, return_window=False)
-        yt = np.zeros_like(x)
-        for i in range(x.shape[0]):
-            yt[i, :] = window1(x[i, :])
-        assert yt.shape == y.shape
-        assert x.shape == y.shape
-        assert_allclose(yt, y, atol=1e-06)
-
-    def test_apply_window_hanning_2D_els2_axis1(self):
-        x = np.random.standard_normal([10, 1000]) + 100.
-        window = mlab.window_hanning
-        window1 = mlab.window_hanning(np.ones(x.shape[1]))
-        y, window2 = _apply_window(x, window, axis=1, return_window=True)
-        yt = np.zeros_like(x)
-        for i in range(x.shape[0]):
-            yt[i, :] = window1 * x[i, :]
-        assert yt.shape == y.shape
-        assert x.shape == y.shape
-        assert_allclose(yt, y, atol=1e-06)
-        assert_array_equal(window1, window2)
-
-    def test_apply_window_hanning_2D_els3_axis1(self):
-        x = np.random.standard_normal([10, 1000]) + 100.
-        window = mlab.window_hanning
-        window1 = mlab.window_hanning(np.ones(x.shape[1]))
-        y = _apply_window(x, window, axis=1, return_window=False)
-        yt = _apply_window(x, window1, axis=1, return_window=False)
-        assert yt.shape == y.shape
-        assert x.shape == y.shape
-        assert_allclose(yt, y, atol=1e-06)
-
-    def test_apply_window_stride_windows_hanning_2D_n13_noverlapn3_axis0(self):
-        x = self.sig_rand
-        window = mlab.window_hanning
-        yi = mlab.stride_windows(x, n=13, noverlap=2, axis=0)
-        y = _apply_window(yi, window, axis=0, return_window=False)
-        yt = self.check_window_apply_repeat(x, window, 13, 2)
-        assert yt.shape == y.shape
-        assert x.shape != y.shape
-        assert_allclose(yt, y, atol=1e-06)
-
-    def test_apply_window_hanning_2D_stack_axis1(self):
-        ydata = np.arange(32)
-        ydata1 = ydata+5
-        ydata2 = ydata+3.3
-        ycontrol1 = _apply_window(ydata1, mlab.window_hanning)
-        ycontrol2 = mlab.window_hanning(ydata2)
-        ydata = np.vstack([ydata1, ydata2])
-        ycontrol = np.vstack([ycontrol1, ycontrol2])
-        ydata = np.tile(ydata, (20, 1))
-        ycontrol = np.tile(ycontrol, (20, 1))
-        result = _apply_window(ydata, mlab.window_hanning, axis=1,
-                               return_window=False)
-        assert_allclose(ycontrol, result, atol=1e-08)
-
-    def test_apply_window_hanning_2D_stack_windows_axis1(self):
-        ydata = np.arange(32)
-        ydata1 = ydata+5
-        ydata2 = ydata+3.3
-        ycontrol1 = _apply_window(ydata1, mlab.window_hanning)
-        ycontrol2 = mlab.window_hanning(ydata2)
-        ydata = np.vstack([ydata1, ydata2])
-        ycontrol = np.vstack([ycontrol1, ycontrol2])
-        ydata = np.tile(ydata, (20, 1))
-        ycontrol = np.tile(ycontrol, (20, 1))
-        result = _apply_window(ydata, mlab.window_hanning, axis=1,
-                               return_window=False)
-        assert_allclose(ycontrol, result, atol=1e-08)
-
-    def test_apply_window_hanning_2D_stack_windows_axis1_unflatten(self):
-        n = 32
-        ydata = np.arange(n)
-        ydata1 = ydata+5
-        ydata2 = ydata+3.3
-        ycontrol1 = _apply_window(ydata1, mlab.window_hanning)
-        ycontrol2 = mlab.window_hanning(ydata2)
-        ydata = np.vstack([ydata1, ydata2])
-        ycontrol = np.vstack([ycontrol1, ycontrol2])
-        ydata = np.tile(ydata, (20, 1))
-        ycontrol = np.tile(ycontrol, (20, 1))
-        ydata = ydata.flatten()
-        ydata1 = mlab.stride_windows(ydata, 32, noverlap=0, axis=0)
-        result = _apply_window(ydata1, mlab.window_hanning, axis=0,
-                               return_window=False)
-        assert_allclose(ycontrol.T, result, atol=1e-08)
+def test_window():
+    np.random.seed(0)
+    n = 1000
+    rand = np.random.standard_normal(n) + 100
+    ones = np.ones(n)
+    assert_array_equal(mlab.window_none(ones), ones)
+    assert_array_equal(mlab.window_none(rand), rand)
+    assert_array_equal(np.hanning(len(rand)) * rand, mlab.window_hanning(rand))
+    assert_array_equal(np.hanning(len(ones)), mlab.window_hanning(ones))
 
 
 class TestDetrend:
@@ -449,598 +106,147 @@ class TestDetrend:
 
         self.sig_off = self.sig_zeros + 100.
         self.sig_slope = np.linspace(-10., 90., n)
-
         self.sig_slope_mean = x - x.mean()
 
-        sig_rand = np.random.standard_normal(n)
-        sig_sin = np.sin(x*2*np.pi/(n/100))
+        self.sig_base = (
+            np.random.standard_normal(n) + np.sin(x*2*np.pi/(n/100)))
+        self.sig_base -= self.sig_base.mean()
 
-        sig_rand -= sig_rand.mean()
-        sig_sin -= sig_sin.mean()
+    def allclose(self, *args):
+        assert_allclose(*args, atol=1e-8)
 
-        self.sig_base = sig_rand + sig_sin
+    def test_detrend_none(self):
+        assert mlab.detrend_none(0.) == 0.
+        assert mlab.detrend_none(0., axis=1) == 0.
+        assert mlab.detrend(0., key="none") == 0.
+        assert mlab.detrend(0., key=mlab.detrend_none) == 0.
+        for sig in [
+                5.5, self.sig_off, self.sig_slope, self.sig_base,
+                (self.sig_base + self.sig_slope + self.sig_off).tolist(),
+                np.vstack([self.sig_base,  # 2D case.
+                           self.sig_base + self.sig_off,
+                           self.sig_base + self.sig_slope,
+                           self.sig_base + self.sig_off + self.sig_slope]),
+                np.vstack([self.sig_base,  # 2D transposed case.
+                           self.sig_base + self.sig_off,
+                           self.sig_base + self.sig_slope,
+                           self.sig_base + self.sig_off + self.sig_slope]).T,
+        ]:
+            if isinstance(sig, np.ndarray):
+                assert_array_equal(mlab.detrend_none(sig), sig)
+            else:
+                assert mlab.detrend_none(sig) == sig
 
-        self.atol = 1e-08
+    def test_detrend_mean(self):
+        for sig in [0., 5.5]:  # 0D.
+            assert mlab.detrend_mean(sig) == 0.
+            assert mlab.detrend(sig, key="mean") == 0.
+            assert mlab.detrend(sig, key=mlab.detrend_mean) == 0.
+        # 1D.
+        self.allclose(mlab.detrend_mean(self.sig_zeros), self.sig_zeros)
+        self.allclose(mlab.detrend_mean(self.sig_base), self.sig_base)
+        self.allclose(mlab.detrend_mean(self.sig_base + self.sig_off),
+                      self.sig_base)
+        self.allclose(mlab.detrend_mean(self.sig_base + self.sig_slope),
+                      self.sig_base + self.sig_slope_mean)
+        self.allclose(
+            mlab.detrend_mean(self.sig_base + self.sig_slope + self.sig_off),
+            self.sig_base + self.sig_slope_mean)
 
-    def test_detrend_none_0D_zeros(self):
-        input = 0.
-        targ = input
-        mlab.detrend_none(input)
-        assert input == targ
-
-    def test_detrend_none_0D_zeros_axis1(self):
-        input = 0.
-        targ = input
-        mlab.detrend_none(input, axis=1)
-        assert input == targ
-
-    def test_detrend_str_none_0D_zeros(self):
-        input = 0.
-        targ = input
-        mlab.detrend(input, key='none')
-        assert input == targ
-
-    def test_detrend_detrend_none_0D_zeros(self):
-        input = 0.
-        targ = input
-        mlab.detrend(input, key=mlab.detrend_none)
-        assert input == targ
-
-    def test_detrend_none_0D_off(self):
-        input = 5.5
-        targ = input
-        mlab.detrend_none(input)
-        assert input == targ
-
-    def test_detrend_none_1D_off(self):
-        input = self.sig_off
-        targ = input
-        res = mlab.detrend_none(input)
-        assert_array_equal(res, targ)
-
-    def test_detrend_none_1D_slope(self):
-        input = self.sig_slope
-        targ = input
-        res = mlab.detrend_none(input)
-        assert_array_equal(res, targ)
-
-    def test_detrend_none_1D_base(self):
-        input = self.sig_base
-        targ = input
-        res = mlab.detrend_none(input)
-        assert_array_equal(res, targ)
-
-    def test_detrend_none_1D_base_slope_off_list(self):
+    def test_detrend_mean_1d_base_slope_off_list_andor_axis0(self):
         input = self.sig_base + self.sig_slope + self.sig_off
-        targ = input.tolist()
-        res = mlab.detrend_none(input.tolist())
-        assert res == targ
+        target = self.sig_base + self.sig_slope_mean
+        self.allclose(mlab.detrend_mean(input, axis=0), target)
+        self.allclose(mlab.detrend_mean(input.tolist()), target)
+        self.allclose(mlab.detrend_mean(input.tolist(), axis=0), target)
 
-    def test_detrend_none_2D(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        input = np.vstack(arri)
-        targ = input
-        res = mlab.detrend_none(input)
-        assert_array_equal(res, targ)
+    def test_detrend_mean_2d(self):
+        input = np.vstack([self.sig_off,
+                           self.sig_base + self.sig_off])
+        target = np.vstack([self.sig_zeros,
+                            self.sig_base])
+        self.allclose(mlab.detrend_mean(input), target)
+        self.allclose(mlab.detrend_mean(input, axis=None), target)
+        self.allclose(mlab.detrend_mean(input.T, axis=None).T, target)
+        self.allclose(mlab.detrend(input), target)
+        self.allclose(mlab.detrend(input, axis=None), target)
+        self.allclose(
+            mlab.detrend(input.T, key="constant", axis=None), target.T)
 
-    def test_detrend_none_2D_T(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        input = np.vstack(arri)
-        targ = input
-        res = mlab.detrend_none(input.T)
-        assert_array_equal(res.T, targ)
+        input = np.vstack([self.sig_base,
+                           self.sig_base + self.sig_off,
+                           self.sig_base + self.sig_slope,
+                           self.sig_base + self.sig_off + self.sig_slope])
+        target = np.vstack([self.sig_base,
+                            self.sig_base,
+                            self.sig_base + self.sig_slope_mean,
+                            self.sig_base + self.sig_slope_mean])
+        self.allclose(mlab.detrend_mean(input.T, axis=0), target.T)
+        self.allclose(mlab.detrend_mean(input, axis=1), target)
+        self.allclose(mlab.detrend_mean(input, axis=-1), target)
+        self.allclose(mlab.detrend(input, key="default", axis=1), target)
+        self.allclose(mlab.detrend(input.T, key="mean", axis=0), target.T)
+        self.allclose(
+            mlab.detrend(input.T, key=mlab.detrend_mean, axis=0), target.T)
 
-    def test_detrend_mean_0D_zeros(self):
-        input = 0.
-        targ = 0.
-        res = mlab.detrend_mean(input)
-        assert_almost_equal(res, targ)
+    def test_detrend_ValueError(self):
+        for signal, kwargs in [
+                (self.sig_slope[np.newaxis], {"key": "spam"}),
+                (self.sig_slope[np.newaxis], {"key": 5}),
+                (5.5, {"axis": 0}),
+                (self.sig_slope, {"axis": 1}),
+                (self.sig_slope[np.newaxis], {"axis": 2}),
+        ]:
+            with pytest.raises(ValueError):
+                mlab.detrend(signal, **kwargs)
 
-    def test_detrend_str_mean_0D_zeros(self):
-        input = 0.
-        targ = 0.
-        res = mlab.detrend(input, key='mean')
-        assert_almost_equal(res, targ)
+    def test_detrend_mean_ValueError(self):
+        for signal, kwargs in [
+                (5.5, {"axis": 0}),
+                (self.sig_slope, {"axis": 1}),
+                (self.sig_slope[np.newaxis], {"axis": 2}),
+        ]:
+            with pytest.raises(ValueError):
+                mlab.detrend_mean(signal, **kwargs)
 
-    def test_detrend_detrend_mean_0D_zeros(self):
-        input = 0.
-        targ = 0.
-        res = mlab.detrend(input, key=mlab.detrend_mean)
-        assert_almost_equal(res, targ)
-
-    def test_detrend_mean_0D_off(self):
-        input = 5.5
-        targ = 0.
-        res = mlab.detrend_mean(input)
-        assert_almost_equal(res, targ)
-
-    def test_detrend_str_mean_0D_off(self):
-        input = 5.5
-        targ = 0.
-        res = mlab.detrend(input, key='mean')
-        assert_almost_equal(res, targ)
-
-    def test_detrend_detrend_mean_0D_off(self):
-        input = 5.5
-        targ = 0.
-        res = mlab.detrend(input, key=mlab.detrend_mean)
-        assert_almost_equal(res, targ)
-
-    def test_detrend_mean_1D_zeros(self):
-        input = self.sig_zeros
-        targ = self.sig_zeros
-        res = mlab.detrend_mean(input)
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_mean_1D_base(self):
-        input = self.sig_base
-        targ = self.sig_base
-        res = mlab.detrend_mean(input)
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_mean_1D_base_off(self):
-        input = self.sig_base + self.sig_off
-        targ = self.sig_base
-        res = mlab.detrend_mean(input)
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_mean_1D_base_slope(self):
-        input = self.sig_base + self.sig_slope
-        targ = self.sig_base + self.sig_slope_mean
-        res = mlab.detrend_mean(input)
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_mean_1D_base_slope_off(self):
-        input = self.sig_base + self.sig_slope + self.sig_off
-        targ = self.sig_base + self.sig_slope_mean
-        res = mlab.detrend_mean(input)
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_detrend_mean_1D_base_slope_off_axis0(self):
-        input = self.sig_base + self.sig_slope + self.sig_off
-        targ = self.sig_base + self.sig_slope_mean
-        res = mlab.detrend_mean(input, axis=0)
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_detrend_mean_1D_base_slope_off_list(self):
-        input = self.sig_base + self.sig_slope + self.sig_off
-        targ = self.sig_base + self.sig_slope_mean
-        res = mlab.detrend_mean(input.tolist())
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_detrend_mean_1D_base_slope_off_list_axis0(self):
-        input = self.sig_base + self.sig_slope + self.sig_off
-        targ = self.sig_base + self.sig_slope_mean
-        res = mlab.detrend_mean(input.tolist(), axis=0)
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_demean_0D_off(self):
-        input = 5.5
-        targ = 0.
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input, axis=None)
-        assert_almost_equal(res, targ)
-
-    def test_demean_1D_base_slope_off(self):
-        input = self.sig_base + self.sig_slope + self.sig_off
-        targ = self.sig_base + self.sig_slope_mean
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input)
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_demean_1D_base_slope_off_axis0(self):
-        input = self.sig_base + self.sig_slope + self.sig_off
-        targ = self.sig_base + self.sig_slope_mean
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input, axis=0)
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_demean_1D_base_slope_off_list(self):
-        input = self.sig_base + self.sig_slope + self.sig_off
-        targ = self.sig_base + self.sig_slope_mean
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input.tolist())
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_detrend_mean_2D_default(self):
-        arri = [self.sig_off,
-                self.sig_base + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_base]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend_mean(input)
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_detrend_mean_2D_none(self):
-        arri = [self.sig_off,
-                self.sig_base + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_base]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend_mean(input, axis=None)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_detrend_mean_2D_none_T(self):
-        arri = [self.sig_off,
-                self.sig_base + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_base]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt)
-        res = mlab.detrend_mean(input, axis=None)
-        assert_allclose(res.T, targ,
-                        atol=1e-08)
-
-    def test_detrend_mean_2D_axis0(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt).T
-        res = mlab.detrend_mean(input, axis=0)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_detrend_mean_2D_axis1(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend_mean(input, axis=1)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_detrend_mean_2D_axism1(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend_mean(input, axis=-1)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_detrend_2D_default(self):
-        arri = [self.sig_off,
-                self.sig_base + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_base]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend(input)
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_detrend_2D_none(self):
-        arri = [self.sig_off,
-                self.sig_base + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_base]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend(input, axis=None)
-        assert_allclose(res, targ, atol=1e-08)
-
-    def test_detrend_str_mean_2D_axis0(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt).T
-        res = mlab.detrend(input, key='mean', axis=0)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_detrend_str_constant_2D_none_T(self):
-        arri = [self.sig_off,
-                self.sig_base + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_base]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt)
-        res = mlab.detrend(input, key='constant', axis=None)
-        assert_allclose(res.T, targ,
-                        atol=1e-08)
-
-    def test_detrend_str_default_2D_axis1(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend(input, key='default', axis=1)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_detrend_detrend_mean_2D_axis0(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt).T
-        res = mlab.detrend(input, key=mlab.detrend_mean, axis=0)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_demean_2D_default(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt).T
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_demean_2D_none(self):
-        arri = [self.sig_off,
-                self.sig_base + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_base]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input, axis=None)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_demean_2D_axis0(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt).T
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input, axis=0)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_demean_2D_axis1(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input, axis=1)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_demean_2D_axism1(self):
-        arri = [self.sig_base,
-                self.sig_base + self.sig_off,
-                self.sig_base + self.sig_slope,
-                self.sig_base + self.sig_off + self.sig_slope]
-        arrt = [self.sig_base,
-                self.sig_base,
-                self.sig_base + self.sig_slope_mean,
-                self.sig_base + self.sig_slope_mean]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        with pytest.warns(MatplotlibDeprecationWarning):
-            res = mlab.demean(input, axis=-1)
-        assert_allclose(res, targ,
-                        atol=1e-08)
-
-    def test_detrend_bad_key_str_ValueError(self):
-        input = self.sig_slope[np.newaxis]
-        with pytest.raises(ValueError):
-            mlab.detrend(input, key='spam')
-
-    def test_detrend_bad_key_var_ValueError(self):
-        input = self.sig_slope[np.newaxis]
-        with pytest.raises(ValueError):
-            mlab.detrend(input, key=5)
-
-    def test_detrend_mean_0D_d0_ValueError(self):
-        input = 5.5
-        with pytest.raises(ValueError):
-            mlab.detrend_mean(input, axis=0)
-
-    def test_detrend_0D_d0_ValueError(self):
-        input = 5.5
-        with pytest.raises(ValueError):
-            mlab.detrend(input, axis=0)
-
-    def test_detrend_mean_1D_d1_ValueError(self):
-        input = self.sig_slope
-        with pytest.raises(ValueError):
-            mlab.detrend_mean(input, axis=1)
-
-    def test_detrend_1D_d1_ValueError(self):
-        input = self.sig_slope
-        with pytest.raises(ValueError):
-            mlab.detrend(input, axis=1)
-
-    def test_demean_1D_d1_ValueError(self):
-        input = self.sig_slope
-        with pytest.raises(ValueError), \
-             pytest.warns(MatplotlibDeprecationWarning):
-            mlab.demean(input, axis=1)
-
-    def test_detrend_mean_2D_d2_ValueError(self):
-        input = self.sig_slope[np.newaxis]
-        with pytest.raises(ValueError):
-            mlab.detrend_mean(input, axis=2)
-
-    def test_detrend_2D_d2_ValueError(self):
-        input = self.sig_slope[np.newaxis]
-        with pytest.raises(ValueError):
-            mlab.detrend(input, axis=2)
-
-    def test_demean_2D_d2_ValueError(self):
-        input = self.sig_slope[np.newaxis]
-        with pytest.raises(ValueError), \
-             pytest.warns(MatplotlibDeprecationWarning):
-            mlab.demean(input, axis=2)
-
-    def test_detrend_linear_0D_zeros(self):
-        input = 0.
-        targ = 0.
-        res = mlab.detrend_linear(input)
-        assert_almost_equal(res, targ)
-
-    def test_detrend_linear_0D_off(self):
-        input = 5.5
-        targ = 0.
-        res = mlab.detrend_linear(input)
-        assert_almost_equal(res, targ)
-
-    def test_detrend_str_linear_0D_off(self):
-        input = 5.5
-        targ = 0.
-        res = mlab.detrend(input, key='linear')
-        assert_almost_equal(res, targ)
-
-    def test_detrend_detrend_linear_0D_off(self):
-        input = 5.5
-        targ = 0.
-        res = mlab.detrend(input, key=mlab.detrend_linear)
-        assert_almost_equal(res, targ)
-
-    def test_detrend_linear_1d_off(self):
-        input = self.sig_off
-        targ = self.sig_zeros
-        res = mlab.detrend_linear(input)
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_linear_1d_slope(self):
-        input = self.sig_slope
-        targ = self.sig_zeros
-        res = mlab.detrend_linear(input)
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_linear_1d_slope_off(self):
-        input = self.sig_slope + self.sig_off
-        targ = self.sig_zeros
-        res = mlab.detrend_linear(input)
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_str_linear_1d_slope_off(self):
-        input = self.sig_slope + self.sig_off
-        targ = self.sig_zeros
-        res = mlab.detrend(input, key='linear')
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_detrend_linear_1d_slope_off(self):
-        input = self.sig_slope + self.sig_off
-        targ = self.sig_zeros
-        res = mlab.detrend(input, key=mlab.detrend_linear)
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_linear_1d_slope_off_list(self):
-        input = self.sig_slope + self.sig_off
-        targ = self.sig_zeros
-        res = mlab.detrend_linear(input.tolist())
-        assert_allclose(res, targ, atol=self.atol)
-
-    def test_detrend_linear_2D_ValueError(self):
-        input = self.sig_slope[np.newaxis]
-        with pytest.raises(ValueError):
-            mlab.detrend_linear(input)
-
-    def test_detrend_str_linear_2d_slope_off_axis0(self):
-        arri = [self.sig_off,
+    def test_detrend_linear(self):
+        # 0D.
+        assert mlab.detrend_linear(0.) == 0.
+        assert mlab.detrend_linear(5.5) == 0.
+        assert mlab.detrend(5.5, key="linear") == 0.
+        assert mlab.detrend(5.5, key=mlab.detrend_linear) == 0.
+        for sig in [  # 1D.
+                self.sig_off,
                 self.sig_slope,
-                self.sig_slope + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_zeros,
-                self.sig_zeros]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt).T
-        res = mlab.detrend(input, key='linear', axis=0)
-        assert_allclose(res, targ, atol=self.atol)
+                self.sig_slope + self.sig_off,
+        ]:
+            self.allclose(mlab.detrend_linear(sig), self.sig_zeros)
 
-    def test_detrend_detrend_linear_1d_slope_off_axis1(self):
-        arri = [self.sig_off,
-                self.sig_slope,
-                self.sig_slope + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_zeros,
-                self.sig_zeros]
-        input = np.vstack(arri).T
-        targ = np.vstack(arrt).T
-        res = mlab.detrend(input, key=mlab.detrend_linear, axis=0)
-        assert_allclose(res, targ, atol=self.atol)
+    def test_detrend_str_linear_1d(self):
+        input = self.sig_slope + self.sig_off
+        target = self.sig_zeros
+        self.allclose(mlab.detrend(input, key="linear"), target)
+        self.allclose(mlab.detrend(input, key=mlab.detrend_linear), target)
+        self.allclose(mlab.detrend_linear(input.tolist()), target)
 
-    def test_detrend_str_linear_2d_slope_off_axis0_notranspose(self):
-        arri = [self.sig_off,
-                self.sig_slope,
-                self.sig_slope + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_zeros,
-                self.sig_zeros]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend(input, key='linear', axis=1)
-        assert_allclose(res, targ, atol=self.atol)
+    def test_detrend_linear_2d(self):
+        input = np.vstack([self.sig_off,
+                           self.sig_slope,
+                           self.sig_slope + self.sig_off])
+        target = np.vstack([self.sig_zeros,
+                            self.sig_zeros,
+                            self.sig_zeros])
+        self.allclose(
+            mlab.detrend(input.T, key="linear", axis=0), target.T)
+        self.allclose(
+            mlab.detrend(input.T, key=mlab.detrend_linear, axis=0), target.T)
+        self.allclose(
+            mlab.detrend(input, key="linear", axis=1), target)
+        self.allclose(
+            mlab.detrend(input, key=mlab.detrend_linear, axis=1), target)
 
-    def test_detrend_detrend_linear_1d_slope_off_axis1_notranspose(self):
-        arri = [self.sig_off,
-                self.sig_slope,
-                self.sig_slope + self.sig_off]
-        arrt = [self.sig_zeros,
-                self.sig_zeros,
-                self.sig_zeros]
-        input = np.vstack(arri)
-        targ = np.vstack(arrt)
-        res = mlab.detrend(input, key=mlab.detrend_linear, axis=1)
-        assert_allclose(res, targ, atol=self.atol)
+        with pytest.raises(ValueError):
+            mlab.detrend_linear(self.sig_slope[np.newaxis])
 
 
 @pytest.mark.parametrize('iscomplex', [False, True],
@@ -1061,7 +267,7 @@ class TestDetrend:
         ([], 255, 33, -1, -1, None),
         ([], 256, 128, -1, 256, 256),
         ([], None, -1, 32, -1, -1),
-   ],
+    ],
     ids=[
         'nosig',
         'Fs4',
@@ -1153,7 +359,7 @@ class TestSpectral:
                                              num=pad_to_spectrum_real // 2 + 1)
         else:
             # frequencies for specgram, psd, and csd
-            # need to handle even and odd differentl
+            # need to handle even and odd differently
             if pad_to_density_real % 2:
                 freqs_density = np.linspace(-Fs / 2, Fs / 2,
                                             num=2 * pad_to_density_real,
@@ -1259,109 +465,48 @@ class TestSpectral:
             del fstimst[-1]
             spect[maxind-5:maxind+5] = 0
 
-    def test_spectral_helper_raises_complex_same_data(self):
-        # test that mode 'complex' cannot be used if x is not y
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y+1, mode='complex')
+    def test_spectral_helper_raises(self):
+        # We don't use parametrize here to handle ``y = self.y``.
+        for kwargs in [  # Various error conditions:
+            {"y": self.y+1, "mode": "complex"},  # Modes requiring ``x is y``.
+            {"y": self.y+1, "mode": "magnitude"},
+            {"y": self.y+1, "mode": "angle"},
+            {"y": self.y+1, "mode": "phase"},
+            {"mode": "spam"},  # Bad mode.
+            {"y": self.y, "sides": "eggs"},  # Bad sides.
+            {"y": self.y, "NFFT": 10, "noverlap": 20},  # noverlap > NFFT.
+            {"NFFT": 10, "noverlap": 10},  # noverlap == NFFT.
+            {"y": self.y, "NFFT": 10,
+             "window": np.ones(9)},  # len(win) != NFFT.
+        ]:
+            with pytest.raises(ValueError):
+                mlab._spectral_helper(x=self.y, **kwargs)
 
-    def test_spectral_helper_raises_magnitude_same_data(self):
-        # test that mode 'magnitude' cannot be used if x is not y
+    @pytest.mark.parametrize('mode', ['default', 'psd'])
+    def test_single_spectrum_helper_unsupported_modes(self, mode):
         with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y+1, mode='magnitude')
+            mlab._single_spectrum_helper(x=self.y, mode=mode)
 
-    def test_spectral_helper_raises_angle_same_data(self):
-        # test that mode 'angle' cannot be used if x is not y
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y+1, mode='angle')
-
-    def test_spectral_helper_raises_phase_same_data(self):
-        # test that mode 'phase' cannot be used if x is not y
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y+1, mode='phase')
-
-    def test_spectral_helper_raises_unknown_mode(self):
-        # test that unknown value for mode cannot be used
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, mode='spam')
-
-    def test_spectral_helper_raises_unknown_sides(self):
-        # test that unknown value for sides cannot be used
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y, sides='eggs')
-
-    def test_spectral_helper_raises_noverlap_gt_NFFT(self):
-        # test that noverlap cannot be larger than NFFT
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y, NFFT=10, noverlap=20)
-
-    def test_spectral_helper_raises_noverlap_eq_NFFT(self):
-        # test that noverlap cannot be equal to NFFT
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, NFFT=10, noverlap=10)
-
-    def test_spectral_helper_raises_winlen_ne_NFFT(self):
-        # test that the window length cannot be different from NFFT
-        with pytest.raises(ValueError):
-            mlab._spectral_helper(x=self.y, y=self.y, NFFT=10,
-                                  window=np.ones(9))
-
-    def test_single_spectrum_helper_raises_mode_default(self):
-        # test that mode 'default' cannot be used with _single_spectrum_helper
-        with pytest.raises(ValueError):
-            mlab._single_spectrum_helper(x=self.y, mode='default')
-
-    def test_single_spectrum_helper_raises_mode_psd(self):
-        # test that mode 'psd' cannot be used with _single_spectrum_helper
-        with pytest.raises(ValueError):
-            mlab._single_spectrum_helper(x=self.y, mode='psd')
-
-    def test_spectral_helper_psd(self):
-        freqs = self.freqs_density
-        spec, fsp, t = mlab._spectral_helper(x=self.y, y=self.y,
-                                             NFFT=self.NFFT_density,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_density,
-                                             pad_to=self.pad_to_density,
-                                             sides=self.sides,
-                                             mode='psd')
+    @pytest.mark.parametrize("mode, case", [
+        ("psd", "density"),
+        ("magnitude", "specgram"),
+        ("magnitude", "spectrum"),
+    ])
+    def test_spectral_helper_psd(self, mode, case):
+        freqs = getattr(self, f"freqs_{case}")
+        spec, fsp, t = mlab._spectral_helper(
+            x=self.y, y=self.y,
+            NFFT=getattr(self, f"NFFT_{case}"),
+            Fs=self.Fs,
+            noverlap=getattr(self, f"nover_{case}"),
+            pad_to=getattr(self, f"pad_to_{case}"),
+            sides=self.sides,
+            mode=mode)
 
         assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_density, atol=1e-06)
-
+        assert_allclose(t, getattr(self, f"t_{case}"), atol=1e-06)
         assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
-
-    def test_spectral_helper_magnitude_specgram(self):
-        freqs = self.freqs_specgram
-        spec, fsp, t = mlab._spectral_helper(x=self.y, y=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='magnitude')
-
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_specgram, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
-
-    def test_spectral_helper_magnitude_magnitude_spectrum(self):
-        freqs = self.freqs_spectrum
-        spec, fsp, t = mlab._spectral_helper(x=self.y, y=self.y,
-                                             NFFT=self.NFFT_spectrum,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_spectrum,
-                                             pad_to=self.pad_to_spectrum,
-                                             sides=self.sides,
-                                             mode='magnitude')
-
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_spectrum, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == 1
+        assert spec.shape[1] == getattr(self, f"t_{case}").shape[0]
 
     def test_csd(self):
         freqs = self.freqs_density
@@ -1397,10 +542,14 @@ class TestSpectral:
         assert spec.shape == freqs.shape
         self.check_freqs(spec, freqs, fsp, self.fstims)
 
-    def test_psd_detrend_mean_func_offset(self):
+    @pytest.mark.parametrize(
+        'make_data, detrend',
+        [(np.zeros, mlab.detrend_mean), (np.zeros, 'mean'),
+         (np.arange, mlab.detrend_linear), (np.arange, 'linear')])
+    def test_psd_detrend(self, make_data, detrend):
         if self.NFFT_density is None:
             return
-        ydata = np.zeros(self.NFFT_density)
+        ydata = make_data(self.NFFT_density)
         ydata1 = ydata+5
         ydata2 = ydata+3.3
         ydata = np.vstack([ydata1, ydata2])
@@ -1413,118 +562,13 @@ class TestSpectral:
                                  Fs=self.Fs,
                                  noverlap=0,
                                  sides=self.sides,
-                                 detrend=mlab.detrend_mean)
+                                 detrend=detrend)
         spec_b, fsp_b = mlab.psd(x=ydatab,
                                  NFFT=self.NFFT_density,
                                  Fs=self.Fs,
                                  noverlap=0,
                                  sides=self.sides,
-                                 detrend=mlab.detrend_mean)
-        spec_c, fsp_c = mlab.psd(x=ycontrol,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides)
-        assert_array_equal(fsp_g, fsp_c)
-        assert_array_equal(fsp_b, fsp_c)
-        assert_allclose(spec_g, spec_c, atol=1e-08)
-        # these should not be almost equal
-        with pytest.raises(AssertionError):
-            assert_allclose(spec_b, spec_c, atol=1e-08)
-
-    def test_psd_detrend_mean_str_offset(self):
-        if self.NFFT_density is None:
-            return
-        ydata = np.zeros(self.NFFT_density)
-        ydata1 = ydata+5
-        ydata2 = ydata+3.3
-        ydata = np.vstack([ydata1, ydata2])
-        ydata = np.tile(ydata, (20, 1))
-        ydatab = ydata.T.flatten()
-        ydata = ydata.flatten()
-        ycontrol = np.zeros_like(ydata)
-        spec_g, fsp_g = mlab.psd(x=ydata,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides,
-                                 detrend='mean')
-        spec_b, fsp_b = mlab.psd(x=ydatab,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides,
-                                 detrend='mean')
-        spec_c, fsp_c = mlab.psd(x=ycontrol,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides)
-        assert_array_equal(fsp_g, fsp_c)
-        assert_array_equal(fsp_b, fsp_c)
-        assert_allclose(spec_g, spec_c, atol=1e-08)
-        # these should not be almost equal
-        with pytest.raises(AssertionError):
-            assert_allclose(spec_b, spec_c, atol=1e-08)
-
-    def test_psd_detrend_linear_func_trend(self):
-        if self.NFFT_density is None:
-            return
-        ydata = np.arange(self.NFFT_density)
-        ydata1 = ydata+5
-        ydata2 = ydata+3.3
-        ydata = np.vstack([ydata1, ydata2])
-        ydata = np.tile(ydata, (20, 1))
-        ydatab = ydata.T.flatten()
-        ydata = ydata.flatten()
-        ycontrol = np.zeros_like(ydata)
-        spec_g, fsp_g = mlab.psd(x=ydata,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides,
-                                 detrend=mlab.detrend_linear)
-        spec_b, fsp_b = mlab.psd(x=ydatab,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides,
-                                 detrend=mlab.detrend_linear)
-        spec_c, fsp_c = mlab.psd(x=ycontrol,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides)
-        assert_array_equal(fsp_g, fsp_c)
-        assert_array_equal(fsp_b, fsp_c)
-        assert_allclose(spec_g, spec_c, atol=1e-08)
-        # these should not be almost equal
-        with pytest.raises(AssertionError):
-            assert_allclose(spec_b, spec_c, atol=1e-08)
-
-    def test_psd_detrend_linear_str_trend(self):
-        if self.NFFT_density is None:
-            return
-        ydata = np.arange(self.NFFT_density)
-        ydata1 = ydata+5
-        ydata2 = ydata+3.3
-        ydata = np.vstack([ydata1, ydata2])
-        ydata = np.tile(ydata, (20, 1))
-        ydatab = ydata.T.flatten()
-        ydata = ydata.flatten()
-        ycontrol = np.zeros_like(ydata)
-        spec_g, fsp_g = mlab.psd(x=ydata,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides,
-                                 detrend='linear')
-        spec_b, fsp_b = mlab.psd(x=ydatab,
-                                 NFFT=self.NFFT_density,
-                                 Fs=self.Fs,
-                                 noverlap=0,
-                                 sides=self.sides,
-                                 detrend='linear')
+                                 detrend=detrend)
         spec_c, fsp_c = mlab.psd(x=ycontrol,
                                  NFFT=self.NFFT_density,
                                  Fs=self.Fs,
@@ -1543,9 +587,8 @@ class TestSpectral:
         ydata = np.arange(self.NFFT_density)
         ydata1 = ydata+5
         ydata2 = ydata+3.3
-        ycontrol1, windowVals = _apply_window(ydata1,
-                                              mlab.window_hanning,
-                                              return_window=True)
+        windowVals = mlab.window_hanning(np.ones_like(ydata1))
+        ycontrol1 = ydata1 * windowVals
         ycontrol2 = mlab.window_hanning(ydata2)
         ydata = np.vstack([ydata1, ydata2])
         ycontrol = np.vstack([ycontrol1, ycontrol2])
@@ -1589,9 +632,8 @@ class TestSpectral:
         ydata2 = ydata+3.3
         ycontrol1 = ycontrol
         ycontrol2 = ycontrol
-        ycontrol1, windowVals = _apply_window(ycontrol1,
-                                              mlab.window_hanning,
-                                              return_window=True)
+        windowVals = mlab.window_hanning(np.ones_like(ycontrol1))
+        ycontrol1 = ycontrol1 * windowVals
         ycontrol2 = mlab.window_hanning(ycontrol2)
         ydata = np.vstack([ydata1, ydata2])
         ycontrol = np.vstack([ycontrol1, ycontrol2])
@@ -1673,51 +715,34 @@ class TestSpectral:
                         spec_n/self.Fs*win.sum()**2,
                         atol=1e-08)
 
-    def test_complex_spectrum(self):
+    @pytest.mark.parametrize(
+        "kind", ["complex", "magnitude", "angle", "phase"])
+    def test_spectrum(self, kind):
         freqs = self.freqs_spectrum
-        spec, fsp = mlab.complex_spectrum(x=self.y,
-                                          Fs=self.Fs,
-                                          sides=self.sides,
-                                          pad_to=self.pad_to_spectrum)
+        spec, fsp = getattr(mlab, f"{kind}_spectrum")(
+            x=self.y,
+            Fs=self.Fs, sides=self.sides, pad_to=self.pad_to_spectrum)
         assert_allclose(fsp, freqs, atol=1e-06)
         assert spec.shape == freqs.shape
+        if kind == "magnitude":
+            self.check_maxfreq(spec, fsp, self.fstims)
+            self.check_freqs(spec, freqs, fsp, self.fstims)
 
-    def test_magnitude_spectrum(self):
-        freqs = self.freqs_spectrum
-        spec, fsp = mlab.magnitude_spectrum(x=self.y,
-                                            Fs=self.Fs,
-                                            sides=self.sides,
-                                            pad_to=self.pad_to_spectrum)
-        assert spec.shape == freqs.shape
-        self.check_maxfreq(spec, fsp, self.fstims)
-        self.check_freqs(spec, freqs, fsp, self.fstims)
-
-    def test_angle_spectrum(self):
-        freqs = self.freqs_spectrum
-        spec, fsp = mlab.angle_spectrum(x=self.y,
-                                        Fs=self.Fs,
-                                        sides=self.sides,
-                                        pad_to=self.pad_to_spectrum)
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert spec.shape == freqs.shape
-
-    def test_phase_spectrum(self):
-        freqs = self.freqs_spectrum
-        spec, fsp = mlab.phase_spectrum(x=self.y,
-                                        Fs=self.Fs,
-                                        sides=self.sides,
-                                        pad_to=self.pad_to_spectrum)
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert spec.shape == freqs.shape
-
-    def test_specgram_auto(self):
+    @pytest.mark.parametrize(
+        'kwargs',
+        [{}, {'mode': 'default'}, {'mode': 'psd'}, {'mode': 'magnitude'},
+         {'mode': 'complex'}, {'mode': 'angle'}, {'mode': 'phase'}])
+    def test_specgram(self, kwargs):
         freqs = self.freqs_specgram
         spec, fsp, t = mlab.specgram(x=self.y,
                                      NFFT=self.NFFT_specgram,
                                      Fs=self.Fs,
                                      noverlap=self.nover_specgram,
                                      pad_to=self.pad_to_specgram,
-                                     sides=self.sides)
+                                     sides=self.sides,
+                                     **kwargs)
+        if kwargs.get('mode') == 'complex':
+            spec = np.abs(spec)
         specm = np.mean(spec, axis=1)
 
         assert_allclose(fsp, freqs, atol=1e-06)
@@ -1726,129 +751,14 @@ class TestSpectral:
         assert spec.shape[0] == freqs.shape[0]
         assert spec.shape[1] == self.t_specgram.shape[0]
 
-        # since we are using a single freq, all time slices
-        # should be about the same
-        if np.abs(spec.max()) != 0:
-            assert_allclose(np.diff(spec, axis=1).max()/np.abs(spec.max()), 0,
-                            atol=1e-02)
-        self.check_freqs(specm, freqs, fsp, self.fstims)
-
-    def test_specgram_default(self):
-        freqs = self.freqs_specgram
-        spec, fsp, t = mlab.specgram(x=self.y,
-                                     NFFT=self.NFFT_specgram,
-                                     Fs=self.Fs,
-                                     noverlap=self.nover_specgram,
-                                     pad_to=self.pad_to_specgram,
-                                     sides=self.sides,
-                                     mode='default')
-        specm = np.mean(spec, axis=1)
-
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_specgram, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
-
-        # since we are using a single freq, all time slices
-        # should be about the same
-        if np.abs(spec.max()) != 0:
-            assert_allclose(np.diff(spec, axis=1).max()/np.abs(spec.max()), 0,
-                            atol=1e-02)
-        self.check_freqs(specm, freqs, fsp, self.fstims)
-
-    def test_specgram_psd(self):
-        freqs = self.freqs_specgram
-        spec, fsp, t = mlab.specgram(x=self.y,
-                                     NFFT=self.NFFT_specgram,
-                                     Fs=self.Fs,
-                                     noverlap=self.nover_specgram,
-                                     pad_to=self.pad_to_specgram,
-                                     sides=self.sides,
-                                     mode='psd')
-        specm = np.mean(spec, axis=1)
-
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_specgram, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
-        # since we are using a single freq, all time slices
-        # should be about the same
-        if np.abs(spec.max()) != 0:
-            assert_allclose(np.diff(spec, axis=1).max()/np.abs(spec.max()), 0,
-                            atol=1e-02)
-        self.check_freqs(specm, freqs, fsp, self.fstims)
-
-    def test_specgram_complex(self):
-        freqs = self.freqs_specgram
-        spec, fsp, t = mlab.specgram(x=self.y,
-                                     NFFT=self.NFFT_specgram,
-                                     Fs=self.Fs,
-                                     noverlap=self.nover_specgram,
-                                     pad_to=self.pad_to_specgram,
-                                     sides=self.sides,
-                                     mode='complex')
-        specm = np.mean(np.abs(spec), axis=1)
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_specgram, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
-
-        self.check_freqs(specm, freqs, fsp, self.fstims)
-
-    def test_specgram_magnitude(self):
-        freqs = self.freqs_specgram
-        spec, fsp, t = mlab.specgram(x=self.y,
-                                     NFFT=self.NFFT_specgram,
-                                     Fs=self.Fs,
-                                     noverlap=self.nover_specgram,
-                                     pad_to=self.pad_to_specgram,
-                                     sides=self.sides,
-                                     mode='magnitude')
-        specm = np.mean(spec, axis=1)
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_specgram, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
-        # since we are using a single freq, all time slices
-        # should be about the same
-        if np.abs(spec.max()) != 0:
-            assert_allclose(np.diff(spec, axis=1).max()/np.abs(spec.max()), 0,
-                            atol=1e-02)
-        self.check_freqs(specm, freqs, fsp, self.fstims)
-
-    def test_specgram_angle(self):
-        freqs = self.freqs_specgram
-        spec, fsp, t = mlab.specgram(x=self.y,
-                                     NFFT=self.NFFT_specgram,
-                                     Fs=self.Fs,
-                                     noverlap=self.nover_specgram,
-                                     pad_to=self.pad_to_specgram,
-                                     sides=self.sides,
-                                     mode='angle')
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_specgram, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
-
-    def test_specgram_phase(self):
-        freqs = self.freqs_specgram
-        spec, fsp, t = mlab.specgram(x=self.y,
-                                     NFFT=self.NFFT_specgram,
-                                     Fs=self.Fs,
-                                     noverlap=self.nover_specgram,
-                                     pad_to=self.pad_to_specgram,
-                                     sides=self.sides,
-                                     mode='phase')
-        assert_allclose(fsp, freqs, atol=1e-06)
-        assert_allclose(t, self.t_specgram, atol=1e-06)
-
-        assert spec.shape[0] == freqs.shape[0]
-        assert spec.shape[1] == self.t_specgram.shape[0]
+        if kwargs.get('mode') not in ['complex', 'angle', 'phase']:
+            # using a single freq, so all time slices should be about the same
+            if np.abs(spec.max()) != 0:
+                assert_allclose(
+                    np.diff(spec, axis=1).max() / np.abs(spec.max()), 0,
+                    atol=1e-02)
+        if kwargs.get('mode') not in ['angle', 'phase']:
+            self.check_freqs(specm, freqs, fsp, self.fstims)
 
     def test_specgram_warn_only1seg(self):
         """Warning should be raised if len(x) <= NFFT."""
@@ -1871,9 +781,12 @@ class TestSpectral:
         assert_array_almost_equal_nulp(Pxx, Pxy)
         assert_array_equal(freqsxx, freqsxy)
 
-    def test_specgram_auto_default_equal(self):
-        '''test that mlab.specgram without mode and with mode 'default' and
-        'psd' are all the same'''
+    @pytest.mark.parametrize("mode", ["default", "psd"])
+    def test_specgram_auto_default_psd_equal(self, mode):
+        """
+        Test that mlab.specgram without mode and with mode 'default' and 'psd'
+        are all the same.
+        """
         speca, freqspeca, ta = mlab.specgram(x=self.y,
                                              NFFT=self.NFFT_specgram,
                                              Fs=self.Fs,
@@ -1886,32 +799,18 @@ class TestSpectral:
                                              noverlap=self.nover_specgram,
                                              pad_to=self.pad_to_specgram,
                                              sides=self.sides,
-                                             mode='default')
+                                             mode=mode)
         assert_array_equal(speca, specb)
         assert_array_equal(freqspeca, freqspecb)
         assert_array_equal(ta, tb)
 
-    def test_specgram_auto_psd_equal(self):
-        '''test that mlab.specgram without mode and with mode 'default' and
-        'psd' are all the same'''
-        speca, freqspeca, ta = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides)
-        specc, freqspecc, tc = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='psd')
-        assert_array_equal(speca, specc)
-        assert_array_equal(freqspeca, freqspecc)
-        assert_array_equal(ta, tc)
-
-    def test_specgram_complex_mag_equivalent(self):
+    @pytest.mark.parametrize(
+        "mode, conv", [
+            ("magnitude", np.abs),
+            ("angle", np.angle),
+            ("phase", lambda x: np.unwrap(np.angle(x), axis=0))
+        ])
+    def test_specgram_complex_equivalent(self, mode, conv):
         specc, freqspecc, tc = mlab.specgram(x=self.y,
                                              NFFT=self.NFFT_specgram,
                                              Fs=self.Fs,
@@ -1925,73 +824,11 @@ class TestSpectral:
                                              noverlap=self.nover_specgram,
                                              pad_to=self.pad_to_specgram,
                                              sides=self.sides,
-                                             mode='magnitude')
+                                             mode=mode)
 
         assert_array_equal(freqspecc, freqspecm)
         assert_array_equal(tc, tm)
-        assert_allclose(np.abs(specc), specm, atol=1e-06)
-
-    def test_specgram_complex_angle_equivalent(self):
-        specc, freqspecc, tc = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='complex')
-        speca, freqspeca, ta = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='angle')
-
-        assert_array_equal(freqspecc, freqspeca)
-        assert_array_equal(tc, ta)
-        assert_allclose(np.angle(specc), speca, atol=1e-06)
-
-    def test_specgram_complex_phase_equivalent(self):
-        specc, freqspecc, tc = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='complex')
-        specp, freqspecp, tp = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='phase')
-
-        assert_array_equal(freqspecc, freqspecp)
-        assert_array_equal(tc, tp)
-        assert_allclose(np.unwrap(np.angle(specc), axis=0), specp,
-                        atol=1e-06)
-
-    def test_specgram_angle_phase_equivalent(self):
-        speca, freqspeca, ta = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='angle')
-        specp, freqspecp, tp = mlab.specgram(x=self.y,
-                                             NFFT=self.NFFT_specgram,
-                                             Fs=self.Fs,
-                                             noverlap=self.nover_specgram,
-                                             pad_to=self.pad_to_specgram,
-                                             sides=self.sides,
-                                             mode='phase')
-
-        assert_array_equal(freqspeca, freqspecp)
-        assert_array_equal(ta, tp)
-        assert_allclose(np.unwrap(speca, axis=0), specp,
-                        atol=1e-06)
+        assert_allclose(conv(specc), specm, atol=1e-06)
 
     def test_psd_windowarray_equal(self):
         win = mlab.window_hanning(np.ones(self.NFFT_density_real))
@@ -2026,11 +863,11 @@ def test_cohere():
     assert np.isreal(np.mean(cohsq))
 
 
-#*****************************************************************
-# These Tests where taken from SCIPY with some minor modifications
+# *****************************************************************
+# These Tests were taken from SCIPY with some minor modifications
 # this can be retrieved from:
 # https://github.com/scipy/scipy/blob/master/scipy/stats/tests/test_kdeoth.py
-#*****************************************************************
+# *****************************************************************
 
 class TestGaussianKDE:
 
@@ -2089,44 +926,38 @@ class TestGaussianKDECustom:
             mlab.GaussianKDE([42])
 
     def test_silverman_multidim_dataset(self):
-        """Use a multi-dimensional array as the dataset and test silverman's
-        output"""
+        """Test silverman's for a multi-dimensional array."""
         x1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
         with pytest.raises(np.linalg.LinAlgError):
             mlab.GaussianKDE(x1, "silverman")
 
     def test_silverman_singledim_dataset(self):
-        """Use a single dimension list as the dataset and test silverman's
-        output."""
+        """Test silverman's output for a single dimension list."""
         x1 = np.array([-7, -5, 1, 4, 5])
         mygauss = mlab.GaussianKDE(x1, "silverman")
         y_expected = 0.76770389927475502
         assert_almost_equal(mygauss.covariance_factor(), y_expected, 7)
 
     def test_scott_multidim_dataset(self):
-        """Use a multi-dimensional array as the dataset and test scott's output
-        """
+        """Test scott's output for a multi-dimensional array."""
         x1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
         with pytest.raises(np.linalg.LinAlgError):
             mlab.GaussianKDE(x1, "scott")
 
     def test_scott_singledim_dataset(self):
-        """Use a single-dimensional array as the dataset and test scott's
-        output"""
+        """Test scott's output a single-dimensional array."""
         x1 = np.array([-7, -5, 1, 4, 5])
         mygauss = mlab.GaussianKDE(x1, "scott")
         y_expected = 0.72477966367769553
         assert_almost_equal(mygauss.covariance_factor(), y_expected, 7)
 
     def test_scalar_empty_dataset(self):
-        """Use an empty array as the dataset and test the scalar's cov factor
-        """
+        """Test the scalar's cov factor for an empty array."""
         with pytest.raises(ValueError):
             mlab.GaussianKDE([], bw_method=5)
 
     def test_scalar_covariance_dataset(self):
-        """Use a dataset and test a scalar's cov factor
-        """
+        """Test a scalar's cov factor."""
         np.random.seed(8765678)
         n_basesample = 50
         multidim_data = [np.random.randn(n_basesample) for i in range(5)]
@@ -2135,8 +966,7 @@ class TestGaussianKDECustom:
         assert kde.covariance_factor() == 0.5
 
     def test_callable_covariance_dataset(self):
-        """Use a multi-dimensional array as the dataset and test the callable's
-        cov factor"""
+        """Test the callable's cov factor for a multi-dimensional array."""
         np.random.seed(8765678)
         n_basesample = 50
         multidim_data = [np.random.randn(n_basesample) for i in range(5)]
@@ -2147,8 +977,7 @@ class TestGaussianKDECustom:
         assert kde.covariance_factor() == 0.55
 
     def test_callable_singledim_dataset(self):
-        """Use a single-dimensional array as the dataset and test the
-        callable's cov factor"""
+        """Test the callable's cov factor for a single-dimensional array."""
         np.random.seed(8765678)
         n_basesample = 50
         multidim_data = np.random.randn(n_basesample)

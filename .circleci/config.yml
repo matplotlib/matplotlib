@@ -1,89 +1,151 @@
 # Circle CI configuration file
 # https://circleci.com/docs/
 
-version: 2
+version: 2.1
 
 
-###########################################
-# Define some common steps as YAML anchors.
+#######################################
+# Define some common steps as commands.
 #
 
-apt-run:  &apt-install
-  name: Install apt packages
-  command: |
-    sudo apt-get -qq update
-    sudo apt-get install -y \
-      inkscape \
-      ffmpeg \
-      dvipng \
-      lmodern \
-      cm-super \
-      texlive-latex-base \
-      texlive-latex-extra \
-      texlive-fonts-recommended \
-      texlive-latex-recommended \
-      texlive-pictures \
-      texlive-xetex \
-      graphviz \
-      libgeos-dev \
-      fonts-crosextra-carlito \
-      fonts-freefont-otf
+commands:
+  check-skip:
+    steps:
+      - run:
+          name: Check-skip
+          command: |
+            export git_log=$(git log --max-count=1 --pretty=format:"%B" | tr "\n" " ")
+            echo "Got commit message:"
+            echo "${git_log}"
+            if [[ -v CIRCLE_PULL_REQUEST ]] && ([[ "$git_log" == *"[skip circle]"* ]] || [[ "$git_log" == *"[circle skip]"* ]]); then
+              echo "Skip detected, exiting job ${CIRCLE_JOB} for PR ${CIRCLE_PULL_REQUEST}."
+              circleci-agent step halt;
+            fi
 
-fonts-run:  &fonts-install
-  name: Install custom fonts
-  # We manually install Humor-Sans using the package from Ubuntu 14.10.
-  # Unfortunately humor sans is not available in the Ubuntu version used by
-  # CircleCI but we can manually install the deb from a later version since
-  # it is basically just a .ttf file.
-  command: |
-    mkdir -p ~/.local/share/fonts
-    wget -nc https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O ~/.local/share/fonts/Felipa-Regular.ttf || true
-    if [ ! -f ~/.local/share/fonts/Humor-Sans.ttf ]; then
-      wget https://mirrors.kernel.org/ubuntu/pool/universe/f/fonts-humor-sans/fonts-humor-sans_1.0-1_all.deb
-      mkdir tmp
-      dpkg -x fonts-humor-sans_1.0-1_all.deb tmp
-      cp tmp/usr/share/fonts/truetype/humor-sans/Humor-Sans.ttf ~/.local/share/fonts
-      rm -rf tmp
-    else
-      echo "Not downloading Humor-Sans; file already exists."
-    fi
-    fc-cache -f -v
-  save_cache:
-    key: fonts-1
-    paths:
-      - ~/.local/share/fonts/
-  restore_cache:
-    key: fonts-1
+  merge:
+    steps:
+      - run:
+          name: Merge with upstream
+          command: |
+            if ! git remote -v | grep upstream; then
+              git remote add upstream git://github.com/matplotlib/matplotlib.git
+            fi
+            git fetch upstream
+            if [[ "$CIRCLE_BRANCH" != "master" ]] && \
+               [[ "$CIRCLE_PR_NUMBER" != "" ]]; then
+              echo "Merging ${CIRCLE_PR_NUMBER}"
+              git pull --ff-only upstream "refs/pull/${CIRCLE_PR_NUMBER}/merge"
+            fi
 
-pip-run:  &pip-install
-  # Upgrade pip and setuptools and wheel to get as clean an install as possible
-  name: Upgrade pip, setuptools, wheel
-  command: |
-    python -mpip install --upgrade --user pip
-    python -mpip install --upgrade --user wheel
-    python -mpip install --upgrade --user setuptools
+  apt-install:
+    steps:
+      - run:
+          name: Install apt packages
+          command: |
+            sudo apt -qq update
+            sudo apt install -y \
+              inkscape \
+              ffmpeg \
+              dvipng \
+              lmodern \
+              cm-super \
+              texlive-latex-base \
+              texlive-latex-extra \
+              texlive-fonts-recommended \
+              texlive-latex-recommended \
+              texlive-pictures \
+              texlive-xetex \
+              graphviz \
+              fonts-crosextra-carlito \
+              fonts-freefont-otf \
+              fonts-humor-sans \
+              fonts-noto-cjk \
+              optipng
 
-deps-run: &deps-install
-  name: Install Python dependencies
-  command: |
-    python -mpip install --user numpy${NUMPY_VERSION} codecov coverage
-    python -mpip install --user -r requirements/doc/doc-requirements.txt
+  fonts-install:
+    steps:
+      - restore_cache:
+          key: fonts-2
+      - run:
+          name: Install custom fonts
+          command: |
+            mkdir -p ~/.local/share/fonts
+            wget -nc https://github.com/google/fonts/blob/master/ofl/felipa/Felipa-Regular.ttf?raw=true -O ~/.local/share/fonts/Felipa-Regular.ttf || true
+            fc-cache -f -v
+      - save_cache:
+          key: fonts-2
+          paths:
+            - ~/.local/share/fonts/
 
-mpl-run: &mpl-install
-  name: Install Matplotlib
-  command: python -mpip install --user -ve .
+  pip-install:
+    description: Upgrade pip and setuptools and wheel to get as clean an install as possible
+    steps:
+      - run:
+          name: Upgrade pip, setuptools, wheel
+          command: |
+            python -m pip install --upgrade --user pip
+            python -m pip install --upgrade --user wheel
+            python -m pip install --upgrade --user setuptools
 
-doc-run: &doc-build
-  name: Build documentation
-  command: |
-    make html O=-T
-    rm -r build/html/_sources
-  working_directory: doc
+  deps-install:
+    parameters:
+      numpy_version:
+        type: string
+        default: ""
+    steps:
+      - run:
+          name: Install Python dependencies
+          command: |
+            python -m pip install --user \
+                numpy<< parameters.numpy_version >> codecov coverage \
+                -r requirements/doc/doc-requirements.txt
 
-doc-bundle-run: &doc-bundle
-  name: Bundle sphinx-gallery documentation artifacts
-  command: tar cf doc/build/sphinx-gallery-files.tar.gz doc/api/_as_gen doc/gallery doc/tutorials
-  when: always
+  mpl-install:
+    steps:
+      - run:
+          name: Install Matplotlib
+          command: python -m pip install --user -ve .
+      - save_cache:
+          key: build-deps-1
+          paths:
+            # FreeType 2.6.1 tarball.
+            - ~/.cache/matplotlib/0a3c7dfbda6da1e8fce29232e8e96d987ababbbf71ebc8c75659e4132c367014
+            # Qhull 2020.2 tarball.
+            - ~/.cache/matplotlib/b5c2d7eb833278881b952c8a52d20179eab87766b00b865000469a45c1838b7e
+
+  doc-build:
+    steps:
+      - restore_cache:
+          keys:
+            - sphinx-env-v1-{{ .BuildNum }}-{{ .Environment.CIRCLE_JOB }}
+            - sphinx-env-v1-{{ .Environment.CIRCLE_PREVIOUS_BUILD_NUM }}-{{ .Environment.CIRCLE_JOB }}
+      - run:
+          name: Build documentation
+          command: |
+            # Set epoch to date of latest tag.
+            export SOURCE_DATE_EPOCH="$(git log -1 --format=%at $(git describe --abbrev=0))"
+            # Set release mode only when deploying to devdocs.
+            if [ "$CIRCLE_PROJECT_USERNAME" = "matplotlib" ] && \
+               [ "$CIRCLE_BRANCH" = "master" ] && \
+               [ "$CIRCLE_PR_NUMBER" = "" ]; then
+              export RELEASE_TAG='-t release'
+            fi
+            make html O="-T $RELEASE_TAG"
+            rm -r build/html/_sources
+          working_directory: doc
+      - save_cache:
+          key: sphinx-env-v1-{{ .BuildNum }}-{{ .Environment.CIRCLE_JOB }}
+          paths:
+            - doc/build/doctrees
+
+  doc-bundle:
+    steps:
+      - run:
+          name: Bundle sphinx-gallery documentation artifacts
+          command: tar cf doc/build/sphinx-gallery-files.tar.gz doc/api/_as_gen doc/gallery doc/tutorials
+          when: always
+      - store_artifacts:
+          path: doc/build/sphinx-gallery-files.tar.gz
 
 
 ##########################################
@@ -91,89 +153,33 @@ doc-bundle-run: &doc-bundle
 #
 
 jobs:
-  docs-python36:
-    docker:
-      - image: circleci/python:3.6
-    steps:
-      - checkout
-
-      - run: *apt-install
-      - run: *fonts-install
-      - run: *pip-install
-      - run:
-           <<: *deps-install
-           environment:
-             NUMPY_VERSION: "==1.13.0"
-      - run: *mpl-install
-
-      - run: *doc-build
-
-      - run: *doc-bundle
-      - store_artifacts:
-          path: doc/build/sphinx-gallery-files.tar.gz
-
-      - store_artifacts:
-          path: doc/build/html
-
-      - run:
-          name: "Built documentation is available at:"
-          command: echo "${CIRCLE_BUILD_URL}/artifacts/${CIRCLE_NODE_INDEX}/${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/doc/build/html/index.html"
-
-  docs-python37:
-    docker:
-      - image: circleci/python:3.7
-    steps:
-      - checkout
-
-      - run: *apt-install
-      - run: *fonts-install
-      - run: *pip-install
-
-      - run: *deps-install
-      - run: *mpl-install
-
-      - run: *doc-build
-
-      - run: *doc-bundle
-      - store_artifacts:
-          path: doc/build/sphinx-gallery-files.tar.gz
-
-      - store_artifacts:
-          path: doc/build/html
-
-      - run:
-          name: "Built documentation is available at:"
-          command: echo "${CIRCLE_BUILD_URL}/artifacts/${CIRCLE_NODE_INDEX}/${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/doc/build/html/index.html"
-
   docs-python38:
     docker:
-      - image: circleci/python:3.8
+      - image: cimg/python:3.8
     steps:
       - checkout
+      - check-skip
+      - merge
 
-      - run: *apt-install
-      - run: *fonts-install
-      - run: *pip-install
+      - apt-install
+      - fonts-install
+      - pip-install
 
-      - run: *deps-install
-      - run: *mpl-install
+      - deps-install
+      - mpl-install
 
-      - run: *doc-build
+      - doc-build
 
-      - run: *doc-bundle
-      - store_artifacts:
-          path: doc/build/sphinx-gallery-files.tar.gz
+      - doc-bundle
 
       - store_artifacts:
           path: doc/build/html
-
-      - run:
-          name: "Built documentation is available at:"
-          command: echo "${CIRCLE_BUILD_URL}/artifacts/${CIRCLE_NODE_INDEX}/${CIRCLE_WORKING_DIRECTORY/#\~/$HOME}/doc/build/html/index.html"
+      - store_test_results:
+          path: doc/build/test-results
 
       - add_ssh_keys:
           fingerprints:
-            - "78:13:59:08:61:a9:e5:09:af:df:3a:d8:89:c2:84:c0"
+            - "6b:83:76:a5:7d:bd:ce:19:a4:e3:81:e0:80:16:a4:fe"
       - deploy:
           name: "Deploy new docs"
           command: ./.circleci/deploy-docs.sh
@@ -186,6 +192,4 @@ workflows:
   version: 2
   build:
     jobs:
-      - docs-python36
-      - docs-python37
       - docs-python38

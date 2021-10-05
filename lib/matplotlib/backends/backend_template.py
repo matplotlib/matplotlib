@@ -1,5 +1,5 @@
 """
-This is a fully functional do nothing backend to provide a template to backend
+A fully functional, do-nothing backend intended as a template for backend
 writers.  It is fully functional in that you can select it as a backend e.g.
 with ::
 
@@ -8,9 +8,9 @@ with ::
 
 and your program will (should!) run without error, though no output is
 produced.  This provides a starting point for backend writers; you can
-selectively implement drawing methods (`draw_path`, `draw_image`, etc.) and
-slowly see your figure come to life instead having to have a full blown
-implementation before getting any results.
+selectively implement drawing methods (`~.RendererTemplate.draw_path`,
+`~.RendererTemplate.draw_image`, etc.) and slowly see your figure come to life
+instead having to have a full blown implementation before getting any results.
 
 Copy this file to a directory outside of the Matplotlib source tree, somewhere
 where Python can import it (by adding the directory to your ``sys.path`` or by
@@ -29,6 +29,7 @@ method), you can register it as the default handler for a given file type::
     plt.savefig("figure.xyz")
 """
 
+from matplotlib import _api
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
      FigureCanvasBase, FigureManagerBase, GraphicsContextBase, RendererBase)
@@ -100,9 +101,9 @@ class RendererTemplate(RendererBase):
         # if backend doesn't have dpi, e.g., postscript or svg
         return points
         # elif backend assumes a value for pixels_per_inch
-        #return points/72.0 * self.dpi.get() * pixels_per_inch/72.0
+        # return points/72.0 * self.dpi.get() * pixels_per_inch/72.0
         # else
-        #return points/72.0 * self.dpi.get()
+        # return points/72.0 * self.dpi.get()
 
 
 class GraphicsContextTemplate(GraphicsContextBase):
@@ -191,7 +192,14 @@ class FigureCanvasTemplate(FigureCanvasBase):
     """
 
     def draw(self):
-        """Draw the figure using the renderer."""
+        """
+        Draw the figure using the renderer.
+
+        It is important that this method actually walk the artist tree
+        even if not output is produced because this will trigger
+        deferred work (like computing limits auto-limits and tick
+        values) that users may want access to before saving to disk.
+        """
         renderer = RendererTemplate(self.figure.dpi)
         self.figure.draw(renderer)
 
@@ -200,15 +208,20 @@ class FigureCanvasTemplate(FigureCanvasBase):
 
     # If the file type is not in the base set of filetypes,
     # you should add it to the class-scope filetypes dictionary as follows:
-    filetypes = FigureCanvasBase.filetypes.copy()
-    filetypes['foo'] = 'My magic Foo format'
+    filetypes = {**FigureCanvasBase.filetypes, 'foo': 'My magic Foo format'}
 
+    @_api.delete_parameter("3.5", "args")
     def print_foo(self, filename, *args, **kwargs):
         """
-        Write out format foo.  The dpi, facecolor and edgecolor are restored
-        to their original values after this call, so you don't need to
-        save and restore them.
+        Write out format foo.
+
+        This method is normally called via `.Figure.savefig` and
+        `.FigureCanvasBase.print_figure`, which take care of setting the figure
+        facecolor, edgecolor, and dpi to the desired output values, and will
+        restore them to the original values.  Therefore, `print_foo` does not
+        need to handle these settings.
         """
+        self.draw()
 
     def get_default_filetype(self):
         return 'foo'

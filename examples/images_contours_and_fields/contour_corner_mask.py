@@ -39,16 +39,10 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions and methods is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.contour
-matplotlib.pyplot.contour
-matplotlib.axes.Axes.contourf
-matplotlib.pyplot.contourf
+#    - `matplotlib.axes.Axes.contour` / `matplotlib.pyplot.contour`
+#    - `matplotlib.axes.Axes.contourf` / `matplotlib.pyplot.contourf`

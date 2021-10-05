@@ -25,10 +25,10 @@ ax.set_ylim(0, 1), ax.set_yticks([])
 
 # Create rain data
 n_drops = 50
-rain_drops = np.zeros(n_drops, dtype=[('position', float, 2),
-                                      ('size',     float, 1),
-                                      ('growth',   float, 1),
-                                      ('color',    float, 4)])
+rain_drops = np.zeros(n_drops, dtype=[('position', float, (2,)),
+                                      ('size',     float),
+                                      ('growth',   float),
+                                      ('color',    float, (4,))])
 
 # Initialize the raindrops in random positions and with
 # random growth rates.

@@ -40,10 +40,7 @@ class GeoAxes(Axes):
 
         def __call__(self, x, pos=None):
             degrees = round(np.rad2deg(x) / self._round_to) * self._round_to
-            if rcParams['text.usetex'] and not rcParams['text.latex.unicode']:
-                return r"$%0.0f^\circ$" % degrees
-            else:
-                return "%0.0f\N{DEGREE SIGN}" % degrees
+            return f"{degrees:0.0f}\N{DEGREE SIGN}"
 
     RESOLUTION = 75
 
@@ -51,12 +48,12 @@ class GeoAxes(Axes):
         self.xaxis = maxis.XAxis(self)
         self.yaxis = maxis.YAxis(self)
         # Do not register xaxis or yaxis with spines -- as done in
-        # Axes._init_axis() -- until GeoAxes.xaxis.cla() works.
+        # Axes._init_axis() -- until GeoAxes.xaxis.clear() works.
         # self.spines['geo'].register_axis(self.yaxis)
         self._update_transScale()
 
     def cla(self):
-        Axes.cla(self)
+        super().cla()
 
         self.set_longitude_grid(30)
         self.set_latitude_grid(15)
@@ -79,13 +76,13 @@ class GeoAxes(Axes):
 
         # There are three important coordinate spaces going on here:
         #
-        #    1. Data space: The space of the data itself
+        # 1. Data space: The space of the data itself
         #
-        #    2. Axes space: The unit rectangle (0, 0) to (1, 1)
-        #       covering the entire plot area.
+        # 2. Axes space: The unit rectangle (0, 0) to (1, 1)
+        #    covering the entire plot area.
         #
-        #    3. Display space: The coordinates of the resulting image,
-        #       often in pixels or dpi/inch.
+        # 3. Display space: The coordinates of the resulting image,
+        #    often in pixels or dpi/inch.
 
         # This function makes heavy use of the Transform classes in
         # ``lib/matplotlib/transforms.py.`` For more information, see
@@ -260,9 +257,8 @@ class GeoAxes(Axes):
     # set_xlim and set_ylim to ignore any input.  This also applies to
     # interactive panning and zooming in the GUI interfaces.
     def set_xlim(self, *args, **kwargs):
-        raise TypeError("It is not possible to change axes limits "
-                        "for geographic projections. Please consider "
-                        "using Basemap or Cartopy.")
+        raise TypeError("Changing axes limits of a geographic projection is "
+                        "not supported.  Please consider using Cartopy.")
 
     set_ylim = set_xlim
 
@@ -342,14 +338,16 @@ class GeoAxes(Axes):
     # so we override all of the following methods to disable it.
     def can_zoom(self):
         """
-        Return *True* if this axes supports the zoom box button functionality.
+        Return whether this axes supports the zoom box button functionality.
+
         This axes object does not support interactive zoom box.
         """
         return False
 
     def can_pan(self):
         """
-        Return *True* if this axes supports the pan/zoom button functionality.
+        Return whether this axes supports the pan/zoom button functionality.
+
         This axes object does not support interactive pan/zoom.
         """
         return False
@@ -374,16 +372,12 @@ class HammerAxes(GeoAxes):
 
     # The projection must specify a name. This will be used by the
     # user to select the projection,
-    # i.e. ``subplot(111, projection='custom_hammer')``.
+    # i.e. ``subplot(projection='custom_hammer')``.
     name = 'custom_hammer'
 
     class HammerTransform(Transform):
-        """
-        The base Hammer transform.
-        """
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
+        """The base Hammer transform."""
+        input_dims = output_dims = 2
 
         def __init__(self, resolution):
             """
@@ -416,9 +410,7 @@ class HammerAxes(GeoAxes):
             return HammerAxes.InvertedHammerTransform(self._resolution)
 
     class InvertedHammerTransform(Transform):
-        input_dims = 2
-        output_dims = 2
-        is_separable = False
+        input_dims = output_dims = 2
 
         def __init__(self, resolution):
             Transform.__init__(self)
@@ -436,7 +428,7 @@ class HammerAxes(GeoAxes):
 
     def __init__(self, *args, **kwargs):
         self._longitude_cap = np.pi / 2.0
-        GeoAxes.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.set_aspect(0.5, adjustable='box', anchor='C')
         self.cla()
 
@@ -451,8 +443,8 @@ register_projection(HammerAxes)
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
     # Now make a simple example using the custom projection.
-    plt.subplot(111, projection="custom_hammer")
-    p = plt.plot([-1, 1, 1], [-1, -1, 1], "o-")
-    plt.grid(True)
+    fig, ax = plt.subplots(subplot_kw={'projection': 'custom_hammer'})
+    ax.plot([-1, 1, 1], [-1, -1, 1], "o-")
+    ax.grid()
 
     plt.show()

@@ -11,7 +11,7 @@ Matplotlib is a library for making 2D plots of arrays in `Python
 the MATLAB graphics commands, it is
 independent of MATLAB, and can be used in a Pythonic, object oriented
 way.  Although Matplotlib is written primarily in pure Python, it
-makes heavy use of `NumPy <http://www.numpy.org>`_ and other extension
+makes heavy use of `NumPy <https://numpy.org>`_ and other extension
 code to provide good performance even for large arrays.
 
 Matplotlib is designed with the philosophy that you should be able to
@@ -62,7 +62,7 @@ without affecting user code.
 
 The Matplotlib code is conceptually divided into three parts: the
 *pylab interface* is the set of functions provided by
-:mod:`matplotlib.pylab` which allow the user to create plots with code
+:mod:`pylab` which allow the user to create plots with code
 quite similar to MATLAB figure generating code
 (:doc:`/tutorials/introductory/pyplot`).  The *Matplotlib frontend* or *Matplotlib
 API* is the set of classes that do the heavy lifting, creating and
@@ -72,7 +72,7 @@ nothing about output.  The *backends* are device-dependent drawing
 devices, aka renderers, that transform the frontend representation to
 hardcopy or a display device (:ref:`what-is-a-backend`).  Example
 backends: PS creates `PostScript®
-<http://www.adobe.com/products/postscript/>`_ hardcopy, SVG
+<https://www.adobe.com/products/postscript.html>`_ hardcopy, SVG
 creates `Scalable Vector Graphics <https://www.w3.org/Graphics/SVG/>`_
 hardcopy, Agg creates PNG output using the high quality `Anti-Grain
 Geometry <http://antigrain.com/>`_
@@ -80,9 +80,9 @@ library that ships with Matplotlib, GTK embeds Matplotlib in a
 `Gtk+ <https://www.gtk.org/>`_
 application, GTKAgg uses the Anti-Grain renderer to create a figure
 and embed it in a Gtk+ application, and so on for `PDF
-<https://acrobat.adobe.com/us/en/why-adobe/about-adobe-pdf.html>`_, `WxWidgets
+<https://acrobat.adobe.com/us/en/acrobat/about-adobe-pdf.html>`_, `WxWidgets
 <https://www.wxpython.org/>`_, `Tkinter
-<https://docs.python.org/library/tkinter.html>`_, etc.
+<https://docs.python.org/3/library/tkinter.html>`_, etc.
 
 Matplotlib is used by many people in many different contexts.  Some
 people want to automatically generate PostScript files to send

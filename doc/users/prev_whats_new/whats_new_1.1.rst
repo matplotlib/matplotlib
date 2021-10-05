@@ -1,7 +1,7 @@
 .. _whats-new-1-1:
 
-New in matplotlib 1.1
-=====================
+What's new in Matplotlib 1.1 (Nov 02, 2011)
+===========================================
 
 .. contents:: Table of Contents
    :depth: 2
@@ -26,9 +26,6 @@ Kevin Davies has extended Yannick Copin's original Sankey example into a module
    :align: center
    :scale: 50
 
-   Sankey Rankine
-
-
 Animation
 ---------
 
@@ -42,7 +39,7 @@ pendulum <gallery/animation/double_pendulum_sgskip.py>` which uses
 
 .. raw:: html
 
-    <iframe width="420" height="315" src="http://www.youtube.com/embed/32cjc6V0OZY" frameborder="0" allowfullscreen></iframe>
+    <iframe width="420" height="315" src="https://www.youtube.com/embed/32cjc6V0OZY" frameborder="0" allowfullscreen></iframe>
 
 This should be considered as a beta release of the framework;
 please try it and provide feedback.
@@ -125,8 +122,6 @@ examples.
    :align: center
    :scale: 50
 
-   Legend Demo4
-
 mplot3d
 -------
 
@@ -138,7 +133,7 @@ as 2D plotting, Ben Root has made several improvements to the
   improved to bring the class towards feature-parity with regular
   Axes objects
 
-* Documentation for :ref:`toolkit_mplot3d-tutorial` was significantly expanded
+* Documentation for :doc:`/tutorials/toolkits/mplot3d` was significantly expanded
 
 * Axis labels and orientation improved
 
@@ -151,8 +146,6 @@ as 2D plotting, Ben Root has made several improvements to the
    :align: center
    :scale: 50
 
-   Offset
-
 * :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.contourf`
   gains *zdir* and *offset* kwargs. You can now do this:
 
@@ -160,8 +153,6 @@ as 2D plotting, Ben Root has made several improvements to the
    :target: ../../gallery/mplot3d/contourf3d_2.html
    :align: center
    :scale: 50
-
-   Contourf3d 2
 
 Numerix support removed
 -----------------------
@@ -207,8 +198,8 @@ Other improvements
 * *clabel* for :meth:`~matplotlib.pyplot.contour` now accepts a callable.
   Thanks to Daniel Hyams for the original patch.
 
-* Jae-Joon Lee added the :class:`~mpl_toolkits.axes_grid1.axes_divider.HBox`
-  and :class:`~mpl_toolkits.axes_grid1.axes_divider.VBox` classes.
+* Jae-Joon Lee added the `~mpl_toolkits.axes_grid1.axes_divider.HBoxDivider`
+  and `~mpl_toolkits.axes_grid1.axes_divider.VBoxDivider` classes.
 
 * Christoph Gohlke reduced memory usage in :meth:`~matplotlib.pyplot.imshow`.
 

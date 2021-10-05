@@ -152,23 +152,15 @@ static PyTypeObject* PyQuadContourGenerator_init_type(PyObject* m, PyTypeObject*
 
 /* Module */
 
-extern "C" {
+static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT, "_contour" };
 
-static struct PyModuleDef moduledef = {
-    PyModuleDef_HEAD_INIT,
-    "_contour",
-    NULL,
-    0,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL
-};
+#pragma GCC visibility push(default)
 
 PyMODINIT_FUNC PyInit__contour(void)
 {
     PyObject *m;
+
+    import_array();
 
     m = PyModule_Create(&moduledef);
 
@@ -177,12 +169,11 @@ PyMODINIT_FUNC PyInit__contour(void)
     }
 
     if (!PyQuadContourGenerator_init_type(m, &PyQuadContourGeneratorType)) {
+        Py_DECREF(m);
         return NULL;
     }
-
-    import_array();
 
     return m;
 }
 
-} // extern "C"
+#pragma GCC visibility pop

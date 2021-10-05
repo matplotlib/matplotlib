@@ -46,10 +46,9 @@ example_plot(ax, fontsize=24)
 
 ###############################################################################
 # To prevent this, the location of axes needs to be adjusted. For
-# subplots, this can be done by adjusting the subplot params
-# (:ref:`howto-subplots-adjust`). Matplotlib v1.1 introduces a new
-# command :func:`~matplotlib.pyplot.tight_layout` that does this
-# automatically for you.
+# subplots, this can be done manually by adjusting the subplot parameters
+# using `.Figure.subplots_adjust`. `.Figure.tight_layout` does this
+# automatically.
 
 fig, ax = plt.subplots()
 example_plot(ax, fontsize=24)
@@ -59,7 +58,7 @@ plt.tight_layout()
 # Note that :func:`matplotlib.pyplot.tight_layout` will only adjust the
 # subplot params when it is called.  In order to perform this adjustment each
 # time the figure is redrawn, you can call ``fig.set_tight_layout(True)``, or,
-# equivalently, set the ``figure.autolayout`` rcParam to ``True``.
+# equivalently, set :rc:`figure.autolayout` to ``True``.
 #
 # When you have multiple subplots, often you see labels of different
 # axes overlapping each other.
@@ -144,7 +143,7 @@ arr = np.arange(100).reshape((10, 10))
 plt.close('all')
 fig = plt.figure(figsize=(5, 4))
 
-ax = plt.subplot(111)
+ax = plt.subplot()
 im = ax.imshow(arr, interpolation="none")
 
 plt.tight_layout()
@@ -153,24 +152,23 @@ plt.tight_layout()
 # Caveats
 # =======
 #
-#  * :func:`~matplotlib.pyplot.tight_layout` only considers ticklabels, axis
-#    labels, and titles. Thus, other artists may be clipped and also may
-#    overlap.
+# * `~matplotlib.pyplot.tight_layout` considers all artists on the axes by
+#   default.  To remove an artist from the layout calculation you can call
+#   `.Artist.set_in_layout`.
 #
-#  * It assumes that the extra space needed for ticklabels, axis labels,
-#    and titles is independent of original location of axes. This is
-#    often true, but there are rare cases where it is not.
+# * ``tight_layout`` assumes that the extra space needed for artists is
+#   independent of the original location of axes. This is often true, but there
+#   are rare cases where it is not.
 #
-#  * pad=0 clips some of the texts by a few pixels. This may be a bug or
-#    a limitation of the current algorithm and it is not clear why it
-#    happens. Meanwhile, use of pad at least larger than 0.3 is
-#    recommended.
+# * ``pad=0`` can clip some texts by a few pixels. This may be a bug or
+#   a limitation of the current algorithm and it is not clear why it
+#   happens. Meanwhile, use of pad larger than 0.3 is recommended.
 #
 # Use with GridSpec
 # =================
 #
-# GridSpec has its own :func:`~matplotlib.gridspec.GridSpec.tight_layout` method
-# (the pyplot api :func:`~matplotlib.pyplot.tight_layout` also works).
+# GridSpec has its own `.GridSpec.tight_layout` method (the pyplot api
+# `.pyplot.tight_layout` also works).
 
 import matplotlib.gridspec as gridspec
 
@@ -187,9 +185,9 @@ example_plot(ax2)
 gs1.tight_layout(fig)
 
 ###############################################################################
-# You may provide an optional *rect* parameter, which specifies the bounding box
-# that the subplots will be fit inside. The coordinates must be in normalized
-# figure coordinates and the default is (0, 0, 1, 1).
+# You may provide an optional *rect* parameter, which specifies the bounding
+# box that the subplots will be fit inside. The coordinates must be in
+# normalized figure coordinates and the default is (0, 0, 1, 1).
 
 fig = plt.figure()
 
@@ -200,88 +198,15 @@ ax2 = fig.add_subplot(gs1[1])
 example_plot(ax1)
 example_plot(ax2)
 
-gs1.tight_layout(fig, rect=[0, 0, 0.5, 1])
+gs1.tight_layout(fig, rect=[0, 0, 0.5, 1.0])
 
 ###############################################################################
-# For example, this can be used for a figure with multiple gridspecs.
+# However, we do not recommend that this be used to manually construct more
+# complicated layouts, like having one GridSpec in the left and one in the
+# right side of the figure. For these use cases, one should instead take
+# advantage of :doc:`/gallery/subplots_axes_and_figures/gridspec_nested`, or
+# the :doc:`/gallery/subplots_axes_and_figures/subfigures`.
 
-fig = plt.figure()
-
-gs1 = gridspec.GridSpec(2, 1)
-ax1 = fig.add_subplot(gs1[0])
-ax2 = fig.add_subplot(gs1[1])
-
-example_plot(ax1)
-example_plot(ax2)
-
-gs1.tight_layout(fig, rect=[0, 0, 0.5, 1])
-
-gs2 = gridspec.GridSpec(3, 1)
-
-for ss in gs2:
-    ax = fig.add_subplot(ss)
-    example_plot(ax)
-    ax.set_title("")
-    ax.set_xlabel("")
-
-ax.set_xlabel("x-label", fontsize=12)
-
-gs2.tight_layout(fig, rect=[0.5, 0, 1, 1], h_pad=0.5)
-
-# We may try to match the top and bottom of two grids ::
-top = min(gs1.top, gs2.top)
-bottom = max(gs1.bottom, gs2.bottom)
-
-gs1.update(top=top, bottom=bottom)
-gs2.update(top=top, bottom=bottom)
-plt.show()
-
-###############################################################################
-# While this should be mostly good enough, adjusting top and bottom
-# may require adjustment of hspace also.  To update hspace & vspace, we
-# call :func:`~matplotlib.gridspec.GridSpec.tight_layout` again with updated
-# rect argument. Note that the rect argument specifies the area including the
-# ticklabels, etc.  Thus, we will increase the bottom (which is 0 for the normal
-# case) by the difference between the *bottom* from above and the bottom of each
-# gridspec. Same thing for the top.
-
-fig = plt.gcf()
-
-gs1 = gridspec.GridSpec(2, 1)
-ax1 = fig.add_subplot(gs1[0])
-ax2 = fig.add_subplot(gs1[1])
-
-example_plot(ax1)
-example_plot(ax2)
-
-gs1.tight_layout(fig, rect=[0, 0, 0.5, 1])
-
-gs2 = gridspec.GridSpec(3, 1)
-
-for ss in gs2:
-    ax = fig.add_subplot(ss)
-    example_plot(ax)
-    ax.set_title("")
-    ax.set_xlabel("")
-
-ax.set_xlabel("x-label", fontsize=12)
-
-gs2.tight_layout(fig, rect=[0.5, 0, 1, 1], h_pad=0.5)
-
-top = min(gs1.top, gs2.top)
-bottom = max(gs1.bottom, gs2.bottom)
-
-gs1.update(top=top, bottom=bottom)
-gs2.update(top=top, bottom=bottom)
-
-top = min(gs1.top, gs2.top)
-bottom = max(gs1.bottom, gs2.bottom)
-
-gs1.tight_layout(fig, rect=[None, 0 + (bottom-gs1.bottom),
-                            0.5, 1 - (gs1.top-top)])
-gs2.tight_layout(fig, rect=[0.5, 0 + (bottom-gs2.bottom),
-                            None, 1 - (gs2.top-top)],
-                 h_pad=0.5)
 
 ###############################################################################
 # Legends and Annotations
@@ -290,7 +215,7 @@ gs2.tight_layout(fig, rect=[0.5, 0 + (bottom-gs2.bottom),
 # Pre Matplotlib 2.2, legends and annotations were excluded from the bounding
 # box calculations that decide the layout.  Subsequently these artists were
 # added to the calculation, but sometimes it is undesirable to include them.
-# For instance in this case it might be good to have the axes shring a bit
+# For instance in this case it might be good to have the axes shrink a bit
 # to make room for the legend:
 
 fig, ax = plt.subplots(figsize=(4, 3))
@@ -336,23 +261,22 @@ plt.tight_layout()
 # Colorbar
 # ========
 #
-# If you create a colorbar with the :func:`~matplotlib.pyplot.colorbar`
-# command, the created colorbar is an instance of Axes, *not* Subplot, so
-# tight_layout does not work. With Matplotlib v1.1, you may create a
-# colorbar as a subplot using the gridspec.
+# If you create a colorbar with `.Figure.colorbar`, the created colorbar is
+# drawn in a Subplot as long as the parent axes is also a Subplot, so
+# `.Figure.tight_layout` will work.
 
 plt.close('all')
 arr = np.arange(100).reshape((10, 10))
 fig = plt.figure(figsize=(4, 4))
 im = plt.imshow(arr, interpolation="none")
 
-plt.colorbar(im, use_gridspec=True)
+plt.colorbar(im)
 
 plt.tight_layout()
 
 ###############################################################################
-# Another option is to use AxesGrid1 toolkit to
-# explicitly create an axes for colorbar.
+# Another option is to use the AxesGrid1 toolkit to
+# explicitly create an axes for the colorbar.
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 

@@ -8,9 +8,12 @@ import pytest
 
 from matplotlib import (
     collections, path, pyplot as plt, transforms as mtransforms, rcParams)
-from matplotlib.image import imread
+from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.figure import Figure
+from matplotlib.image import imread
+from matplotlib.path import Path
 from matplotlib.testing.decorators import image_comparison
+from matplotlib.transforms import IdentityTransform
 
 
 def test_repeated_save_with_alpha():
@@ -72,10 +75,10 @@ def test_marker_with_nan():
 
 def test_long_path():
     buff = io.BytesIO()
-
-    fig, ax = plt.subplots()
-    np.random.seed(0)
-    points = np.random.rand(70000)
+    fig = Figure()
+    ax = fig.subplots()
+    points = np.ones(100_000)
+    points[::2] *= -1
     ax.plot(points)
     fig.savefig(buff, format='png')
 
@@ -83,7 +86,7 @@ def test_long_path():
 @image_comparison(['agg_filter.png'], remove_text=True)
 def test_agg_filter():
     def smooth1d(x, window_len):
-        # copied from http://www.scipy.org/Cookbook/SignalSmooth
+        # copied from https://scipy-cookbook.readthedocs.io/
         s = np.r_[
             2*x[0] - x[window_len:1:-1], x, 2*x[-1] - x[-1:-window_len:-1]]
         w = np.hanning(window_len)
@@ -101,7 +104,7 @@ def test_agg_filter():
         def get_pad(self, dpi):
             return 0
 
-        def process_image(padded_src, dpi):
+        def process_image(self, padded_src, dpi):
             raise NotImplementedError("Should be overridden by subclasses")
 
         def __call__(self, im, dpi):
@@ -161,30 +164,30 @@ def test_agg_filter():
     fig, ax = plt.subplots()
 
     # draw lines
-    l1, = ax.plot([0.1, 0.5, 0.9], [0.1, 0.9, 0.5], "bo-",
-                  mec="b", mfc="w", lw=5, mew=3, ms=10, label="Line 1")
-    l2, = ax.plot([0.1, 0.5, 0.9], [0.5, 0.2, 0.7], "ro-",
-                  mec="r", mfc="w", lw=5, mew=3, ms=10, label="Line 1")
+    line1, = ax.plot([0.1, 0.5, 0.9], [0.1, 0.9, 0.5], "bo-",
+                     mec="b", mfc="w", lw=5, mew=3, ms=10, label="Line 1")
+    line2, = ax.plot([0.1, 0.5, 0.9], [0.5, 0.2, 0.7], "ro-",
+                     mec="r", mfc="w", lw=5, mew=3, ms=10, label="Line 1")
 
     gauss = DropShadowFilter(4)
 
-    for l in [l1, l2]:
+    for line in [line1, line2]:
 
         # draw shadows with same lines with slight offset.
-        xx = l.get_xdata()
-        yy = l.get_ydata()
+        xx = line.get_xdata()
+        yy = line.get_ydata()
         shadow, = ax.plot(xx, yy)
-        shadow.update_from(l)
+        shadow.update_from(line)
 
         # offset transform
-        ot = mtransforms.offset_copy(l.get_transform(), ax.figure,
+        ot = mtransforms.offset_copy(line.get_transform(), ax.figure,
                                      x=4.0, y=-6.0, units='points')
 
         shadow.set_transform(ot)
 
         # adjust zorder of the shadow lines so that it is drawn below the
         # original lines
-        shadow.set_zorder(l.get_zorder() - 0.5)
+        shadow.set_zorder(line.get_zorder() - 0.5)
         shadow.set_agg_filter(gauss)
         shadow.set_rasterized(True)  # to support mixed-mode renderers
 
@@ -244,3 +247,86 @@ def test_pil_kwargs_tiff():
     im = Image.open(buf)
     tags = {TiffTags.TAGS_V2[k].name: v for k, v in im.tag_v2.items()}
     assert tags["ImageDescription"] == "test image"
+
+
+def test_draw_path_collection_error_handling():
+    fig, ax = plt.subplots()
+    ax.scatter([1], [1]).set_paths(path.Path([(0, 1), (2, 3)]))
+    with pytest.raises(TypeError):
+        fig.canvas.draw()
+
+
+@pytest.fixture
+def chunk_limit_setup():
+    N = 100_000
+    dpi = 500
+    w = 5*dpi
+    h = 6*dpi
+
+    # just fit in the width
+    x = np.linspace(0, w, N)
+    # and go top-to-bottom
+    y = np.ones(N) * h
+    y[::2] = 0
+
+    idt = IdentityTransform()
+    # make a renderer
+    ra = RendererAgg(w, h, dpi)
+    # setup the minimal gc to draw a line
+    gc = ra.new_gc()
+    gc.set_linewidth(1)
+    gc.set_foreground('r')
+    # make a Path
+    p = Path(np.vstack((x, y)).T)
+    # effectively disable path simplification (but leaving it "on")
+    p.simplify_threshold = 0
+
+    return ra, gc, p, idt
+
+
+def test_chunksize_hatch_fail(chunk_limit_setup):
+    ra, gc, p, idt = chunk_limit_setup
+
+    gc.set_hatch('/')
+
+    with pytest.raises(OverflowError, match='hatched path'):
+        ra.draw_path(gc, p, idt)
+
+
+def test_chunksize_rgbFace_fail(chunk_limit_setup):
+    ra, gc, p, idt = chunk_limit_setup
+
+    with pytest.raises(OverflowError, match='filled path'):
+        ra.draw_path(gc, p, idt, (1, 0, 0))
+
+
+def test_chunksize_no_simplify_fail(chunk_limit_setup):
+    ra, gc, p, idt = chunk_limit_setup
+    p.should_simplify = False
+    with pytest.raises(OverflowError, match="should_simplify is False"):
+        ra.draw_path(gc, p, idt)
+
+
+def test_chunksize_zero(chunk_limit_setup):
+    ra, gc, p, idt = chunk_limit_setup
+    # set to zero to disable, currently defaults to 0, but lets be sure
+    rcParams['agg.path.chunksize'] = 0
+    with pytest.raises(OverflowError, match='Please set'):
+        ra.draw_path(gc, p, idt)
+
+
+def test_chunksize_too_big_to_chunk(chunk_limit_setup):
+    ra, gc, p, idt = chunk_limit_setup
+    # set big enough that we do not try to chunk
+    rcParams['agg.path.chunksize'] = 1_000_000
+    with pytest.raises(OverflowError, match='Please reduce'):
+        ra.draw_path(gc, p, idt)
+
+
+def test_chunksize_toobig_chunks(chunk_limit_setup):
+    ra, gc, p, idt = chunk_limit_setup
+    # small enough we will try to chunk, but big enough we will fail
+    # to render
+    rcParams['agg.path.chunksize'] = 90_000
+    with pytest.raises(OverflowError, match='Please reduce'):
+        ra.draw_path(gc, p, idt)

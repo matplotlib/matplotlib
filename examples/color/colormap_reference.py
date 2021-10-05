@@ -37,7 +37,8 @@ cmaps = [('Perceptually Uniform Sequential', [
          ('Miscellaneous', [
             'flag', 'prism', 'ocean', 'gist_earth', 'terrain', 'gist_stern',
             'gnuplot', 'gnuplot2', 'CMRmap', 'cubehelix', 'brg',
-            'gist_rainbow', 'rainbow', 'jet', 'nipy_spectral', 'gist_ncar'])]
+            'gist_rainbow', 'rainbow', 'jet', 'turbo', 'nipy_spectral',
+            'gist_ncar'])]
 
 
 gradient = np.linspace(0, 1, 256)
@@ -53,9 +54,9 @@ def plot_color_gradients(cmap_category, cmap_list):
 
     axs[0].set_title(cmap_category + ' colormaps', fontsize=14)
 
-    for ax, name in zip(axs, cmap_list):
-        ax.imshow(gradient, aspect='auto', cmap=plt.get_cmap(name))
-        ax.text(-.01, .5, name, va='center', ha='right', fontsize=10,
+    for ax, cmap_name in zip(axs, cmap_list):
+        ax.imshow(gradient, aspect='auto', cmap=cmap_name)
+        ax.text(-.01, .5, cmap_name, va='center', ha='right', fontsize=10,
                 transform=ax.transAxes)
 
     # Turn off *all* ticks & spines, not just the ones with colormaps.
@@ -70,16 +71,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.colors
-matplotlib.axes.Axes.imshow
-matplotlib.figure.Figure.text
-matplotlib.axes.Axes.set_axis_off
+#    - `matplotlib.colors`
+#    - `matplotlib.axes.Axes.imshow`
+#    - `matplotlib.figure.Figure.text`
+#    - `matplotlib.axes.Axes.set_axis_off`

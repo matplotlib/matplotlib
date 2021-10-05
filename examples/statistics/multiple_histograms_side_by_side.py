@@ -54,10 +54,18 @@ for x_loc, binned_data in zip(x_locations, binned_data_sets):
     lefts = x_loc - 0.5 * binned_data
     ax.barh(centers, binned_data, height=heights, left=lefts)
 
-ax.set_xticks(x_locations)
-ax.set_xticklabels(labels)
+ax.set_xticks(x_locations, labels)
 
 ax.set_ylabel("Data values")
 ax.set_xlabel("Data sets")
 
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.axes.Axes.barh` / `matplotlib.pyplot.barh`

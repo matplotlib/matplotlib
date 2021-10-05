@@ -1,0 +1,4 @@
+-r ../doc/doc-requirements.txt
+-r ../testing/all.txt
+-r ../testing/extra.txt
+-r ../testing/flake8.txt

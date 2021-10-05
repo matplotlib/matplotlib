@@ -49,7 +49,7 @@ class PythonFileWriter : public TTStreamWriter
             if (decoded == NULL) {
                 throw py::exception();
             }
-            result = PyObject_CallFunction(_write_method, (char *)"O", decoded);
+            result = PyObject_CallFunctionObjArgs(_write_method, decoded, NULL);
             Py_DECREF(decoded);
             if (!result) {
                 throw py::exception();
@@ -150,81 +150,6 @@ static PyObject *convert_ttf_to_ps(PyObject *self, PyObject *args, PyObject *kwd
     return Py_None;
 }
 
-class PythonDictionaryCallback : public TTDictionaryCallback
-{
-    PyObject *_dict;
-
-  public:
-    PythonDictionaryCallback(PyObject *dict)
-    {
-        _dict = dict;
-    }
-
-    virtual void add_pair(const char *a, const char *b)
-    {
-        assert(a != NULL);
-        assert(b != NULL);
-        PyObject *value = PyBytes_FromString(b);
-        if (!value) {
-            throw py::exception();
-        }
-        if (PyDict_SetItemString(_dict, a, value)) {
-            Py_DECREF(value);
-            throw py::exception();
-        }
-        Py_DECREF(value);
-    }
-};
-
-static PyObject *py_get_pdf_charprocs(PyObject *self, PyObject *args, PyObject *kwds)
-{
-    const char *filename;
-    std::vector<int> glyph_ids;
-    PyObject *result;
-
-    static const char *kwlist[] = { "filename", "glyph_ids", NULL };
-    if (!PyArg_ParseTupleAndKeywords(args,
-                                     kwds,
-                                     "y|O&:get_pdf_charprocs",
-                                     (char **)kwlist,
-                                     &filename,
-                                     pyiterable_to_vector_int,
-                                     &glyph_ids)) {
-        return NULL;
-    }
-
-    result = PyDict_New();
-    if (!result) {
-        return NULL;
-    }
-
-    PythonDictionaryCallback dict(result);
-
-    try
-    {
-        ::get_pdf_charprocs(filename, glyph_ids, dict);
-    }
-    catch (TTException &e)
-    {
-        Py_DECREF(result);
-        PyErr_SetString(PyExc_RuntimeError, e.getMessage());
-        return NULL;
-    }
-    catch (const py::exception &)
-    {
-        Py_DECREF(result);
-        return NULL;
-    }
-    catch (...)
-    {
-        Py_DECREF(result);
-        PyErr_SetString(PyExc_RuntimeError, "Unknown C++ exception");
-        return NULL;
-    }
-
-    return result;
-}
-
 static PyMethodDef ttconv_methods[] =
 {
     {
@@ -239,25 +164,11 @@ static PyMethodDef ttconv_methods[] =
         "font data will be written to.\n"
         "fonttype may be either 3 or 42.  Type 3 is a \"raw Postscript\" font. "
         "Type 42 is an embedded Truetype font.  Glyph subsetting is not supported "
-        "for Type 42 fonts.\n"
+        "for Type 42 fonts within this module (needs to be done externally).\n"
         "glyph_ids (optional) is a list of glyph ids (integers) to keep when "
         "subsetting to a Type 3 font.  If glyph_ids is not provided or is None, "
         "then all glyphs will be included.  If any of the glyphs specified are "
         "composite glyphs, then the component glyphs will also be included."
-    },
-    {
-        "get_pdf_charprocs", (PyCFunction)py_get_pdf_charprocs, METH_VARARGS | METH_KEYWORDS,
-        "get_pdf_charprocs(filename, glyph_ids)\n"
-        "\n"
-        "Given a Truetype font file, returns a dictionary containing the PDF Type 3\n"
-        "representation of its paths.  Useful for subsetting a Truetype font inside\n"
-        "of a PDF file.\n"
-        "\n"
-        "filename is the path to a TTF font file.\n"
-        "glyph_ids is a list of the numeric glyph ids to include.\n"
-        "The return value is a dictionary where the keys are glyph names and\n"
-        "the values are the stream content needed to render that glyph.  This\n"
-        "is useful to generate the CharProcs dictionary in a PDF Type 3 font.\n"
     },
     {0, 0, 0, 0}  /* Sentinel */
 };
@@ -273,15 +184,14 @@ static PyModuleDef ttconv_module = {
     module_docstring,
     -1,
     ttconv_methods,
-    NULL, NULL, NULL, NULL
 };
 
+#pragma GCC visibility push(default)
+
 PyMODINIT_FUNC
-PyInit_ttconv(void)
+PyInit__ttconv(void)
 {
-    PyObject* m;
-
-    m = PyModule_Create(&ttconv_module);
-
-    return m;
+    return PyModule_Create(&ttconv_module);
 }
+
+#pragma GCC visibility pop

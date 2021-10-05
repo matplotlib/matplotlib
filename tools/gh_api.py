@@ -24,8 +24,8 @@ class Obj(dict):
     def __getattr__(self, name):
         try:
             return self[name]
-        except KeyError:
-            raise AttributeError(name)
+        except KeyError as err:
+            raise AttributeError(name) from err
 
     def __setattr__(self, name, val):
         self[name] = val

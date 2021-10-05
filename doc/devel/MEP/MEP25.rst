@@ -67,7 +67,7 @@ be able to query for it.
 
 Additional Notes:
 
-* The `raw data` does not necessarily need to be a ``list``,
+* The "raw data" does not necessarily need to be a ``list``,
   ``ndarray``, etc. Rather, it can more abstractly just have a method
   to yield data when needed.
 

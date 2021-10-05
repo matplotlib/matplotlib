@@ -14,6 +14,11 @@
    :no-members:
    :no-undoc-members:
 
+Inheritance
+===========
+.. inheritance-diagram:: matplotlib.axes.Axes
+   :private-bases:
+
 The Axes class
 ==============
 
@@ -61,6 +66,7 @@ Basic
 
    Axes.bar
    Axes.barh
+   Axes.bar_label
 
    Axes.stem
    Axes.eventplot
@@ -132,6 +138,7 @@ Binned
    Axes.hexbin
    Axes.hist
    Axes.hist2d
+   Axes.stairs
 
 Contours
 --------
@@ -145,8 +152,8 @@ Contours
    Axes.contour
    Axes.contourf
 
-Array
------
+2D arrays
+---------
 
 .. autosummary::
    :toctree: _as_gen
@@ -160,7 +167,7 @@ Array
    Axes.pcolormesh
    Axes.spy
 
-Unstructured Triangles
+Unstructured triangles
 ----------------------
 
 .. autosummary::
@@ -174,7 +181,7 @@ Unstructured Triangles
    Axes.tricontourf
 
 
-Text and Annotations
+Text and annotations
 --------------------
 
 .. autosummary::
@@ -193,8 +200,8 @@ Text and Annotations
    Axes.secondary_yaxis
 
 
-Fields
-------
+Vector fields
+-------------
 
 .. autosummary::
    :toctree: _as_gen
@@ -269,7 +276,7 @@ Axis / limits
    Axes.get_xaxis
    Axes.get_yaxis
 
-Axis Limits and direction
+Axis limits and direction
 -------------------------
 
 .. autosummary::
@@ -288,14 +295,13 @@ Axis Limits and direction
    Axes.get_ylim
 
    Axes.update_datalim
-   Axes.update_datalim_bounds
 
    Axes.set_xbound
    Axes.get_xbound
    Axes.set_ybound
    Axes.get_ybound
 
-Axis Labels, title, and legend
+Axis labels, title, and legend
 ------------------------------
 
 .. autosummary::
@@ -429,7 +435,7 @@ Units
    Axes.have_units
 
 
-Adding Artists
+Adding artists
 ==============
 
 .. autosummary::
@@ -447,8 +453,8 @@ Adding Artists
    Axes.add_table
 
 
-Twinning
-========
+Twinning and sharing
+====================
 
 .. autosummary::
    :toctree: _as_gen
@@ -458,11 +464,14 @@ Twinning
    Axes.twinx
    Axes.twiny
 
+   Axes.sharex
+   Axes.sharey
+
    Axes.get_shared_x_axes
    Axes.get_shared_y_axes
 
 
-Axes Position
+Axes position
 =============
 .. autosummary::
    :toctree: _as_gen
@@ -481,7 +490,7 @@ Axes Position
    Axes.set_position
 
 
-Async/Event based
+Async/event based
 =================
 
 .. autosummary::
@@ -524,14 +533,6 @@ Interactive
    Axes.mouseover
    Axes.in_axes
 
-   Axes.pick
-   Axes.pickable
-   Axes.get_picker
-   Axes.set_picker
-
-   Axes.set_contains
-   Axes.get_contains
-
    Axes.contains
    Axes.contains_point
 
@@ -571,78 +572,6 @@ Drawing
    Axes.get_tightbbox
 
 
-Bulk property manipulation
-==========================
-
-.. autosummary::
-   :toctree: _as_gen
-   :template: autosummary.rst
-   :nosignatures:
-
-   Axes.set
-   Axes.update
-   Axes.properties
-   Axes.update_from
-
-
-General Artist Properties
-=========================
-
-.. autosummary::
-   :toctree: _as_gen
-   :template: autosummary.rst
-   :nosignatures:
-
-   Axes.set_agg_filter
-   Axes.set_alpha
-   Axes.set_animated
-   Axes.set_clip_box
-   Axes.set_clip_on
-   Axes.set_clip_path
-   Axes.set_gid
-   Axes.set_label
-   Axes.set_path_effects
-   Axes.set_rasterized
-   Axes.set_sketch_params
-   Axes.set_snap
-   Axes.set_transform
-   Axes.set_url
-   Axes.set_visible
-   Axes.set_zorder
-
-   Axes.get_agg_filter
-   Axes.get_alpha
-   Axes.get_animated
-   Axes.get_clip_box
-   Axes.get_clip_on
-   Axes.get_clip_path
-   Axes.get_gid
-   Axes.get_label
-   Axes.get_path_effects
-   Axes.get_rasterized
-   Axes.get_sketch_params
-   Axes.get_snap
-   Axes.get_transform
-   Axes.get_url
-   Axes.get_visible
-   Axes.get_zorder
-
-   Axes.axes
-   Axes.set_figure
-   Axes.get_figure
-
-Artist Methods
-==============
-
-.. autosummary::
-   :toctree: _as_gen
-   :template: autosummary.rst
-   :nosignatures:
-
-   Axes.remove
-   Axes.is_transform_set
-
-
 Projection
 ==========
 
@@ -658,7 +587,6 @@ non-rectilinear Axes.
    Axes.get_xaxis_transform
    Axes.get_yaxis_transform
    Axes.get_data_ratio
-   Axes.get_data_ratio_log
 
    Axes.get_xaxis_text1_transform
    Axes.get_xaxis_text2_transform
@@ -678,9 +606,4 @@ Other
    Axes.get_default_bbox_extra_artists
    Axes.get_transformed_clip_path_and_affine
    Axes.has_data
-
-
-Inheritance
-===========
-.. inheritance-diagram:: matplotlib.axes.Axes
-   :private-bases:
+   Axes.set

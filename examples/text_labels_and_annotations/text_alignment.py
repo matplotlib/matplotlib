@@ -9,17 +9,17 @@ you some of the alignment and rotation specifications for text layout.
 
 import matplotlib.pyplot as plt
 
+fig, ax = plt.subplots()
+
 # Build a rectangle in axes coords
 left, width = .25, .5
 bottom, height = .25, .5
 right = left + width
 top = bottom + height
-ax = plt.gca()
 p = plt.Rectangle((left, bottom), width, height, fill=False)
 p.set_transform(ax.transAxes)
 p.set_clip_on(False)
 ax.add_patch(p)
-
 
 ax.text(left, bottom, 'left top',
         horizontalalignment='left',
@@ -75,6 +75,6 @@ ax.text(left, top, 'rotated\nwith newlines',
         rotation=45,
         transform=ax.transAxes)
 
-plt.axis('off')
+ax.set_axis_off()
 
 plt.show()

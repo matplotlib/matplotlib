@@ -15,9 +15,7 @@ from matplotlib.patches import ConnectionPatch
 import numpy as np
 
 # make figure and assign axis objects
-fig = plt.figure(figsize=(9, 5))
-ax1 = fig.add_subplot(121)
-ax2 = fig.add_subplot(122)
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 5))
 fig.subplots_adjust(wspace=0)
 
 # pie chart parameters
@@ -58,7 +56,7 @@ bar_height = sum([item.get_height() for item in ax2.patches])
 
 # draw top connecting line
 x = r * np.cos(np.pi / 180 * theta2) + center[0]
-y = np.sin(np.pi / 180 * theta2) + center[1]
+y = r * np.sin(np.pi / 180 * theta2) + center[1]
 con = ConnectionPatch(xyA=(-width / 2, bar_height), coordsA=ax2.transData,
                       xyB=(x, y), coordsB=ax1.transData)
 con.set_color([0, 0, 0])
@@ -67,7 +65,7 @@ ax2.add_artist(con)
 
 # draw bottom connecting line
 x = r * np.cos(np.pi / 180 * theta1) + center[0]
-y = np.sin(np.pi / 180 * theta1) + center[1]
+y = r * np.sin(np.pi / 180 * theta1) + center[1]
 con = ConnectionPatch(xyA=(-width / 2, 0), coordsA=ax2.transData,
                       xyB=(x, y), coordsB=ax1.transData)
 con.set_color([0, 0, 0])
@@ -78,16 +76,11 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.pie
-matplotlib.axes.Axes.bar
-matplotlib.pyplot
-matplotlib.patches.ConnectionPatch
+#    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`
+#    - `matplotlib.axes.Axes.pie` / `matplotlib.pyplot.pie`
+#    - `matplotlib.patches.ConnectionPatch`

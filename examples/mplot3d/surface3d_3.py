@@ -1,18 +1,17 @@
-'''
+"""
 =========================
 3D surface (checkerboard)
 =========================
 
 Demonstrates plotting a 3D surface colored in a checkerboard pattern.
-'''
+"""
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import LinearLocator
 import numpy as np
 
 
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = plt.figure().add_subplot(projection='3d')
 
 # Make data.
 X = np.arange(-5, 5, 0.25)
@@ -29,7 +28,7 @@ colortuple = ('y', 'b')
 colors = np.empty(X.shape, dtype=str)
 for y in range(ylen):
     for x in range(xlen):
-        colors[x, y] = colortuple[(x + y) % len(colortuple)]
+        colors[y, x] = colortuple[(x + y) % len(colortuple)]
 
 # Plot the surface with face colors taken from the array we made.
 surf = ax.plot_surface(X, Y, Z, facecolors=colors, linewidth=0)

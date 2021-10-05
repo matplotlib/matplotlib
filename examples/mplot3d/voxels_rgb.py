@@ -33,8 +33,7 @@ colors[..., 1] = gc
 colors[..., 2] = bc
 
 # and plot everything
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = plt.figure().add_subplot(projection='3d')
 ax.voxels(r, g, b, sphere,
           facecolors=colors,
           edgecolors=np.clip(2*colors - 0.5, 0, 1),  # brighter

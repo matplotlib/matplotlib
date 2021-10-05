@@ -19,22 +19,17 @@ radii = 10 * np.random.rand(N)
 width = np.pi / 4 * np.random.rand(N)
 colors = plt.cm.viridis(radii / 10.)
 
-ax = plt.subplot(111, projection='polar')
+ax = plt.subplot(projection='polar')
 ax.bar(theta, radii, width=width, bottom=0.0, color=colors, alpha=0.5)
 
 plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.bar
-matplotlib.pyplot.bar
-matplotlib.projections.polar
+#    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`
+#    - `matplotlib.projections.polar`

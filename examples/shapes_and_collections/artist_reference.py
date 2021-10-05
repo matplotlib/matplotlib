@@ -86,13 +86,13 @@ patches.append(fancybox)
 label(grid[7], "FancyBboxPatch")
 
 # add a line
-x, y = np.array([[-0.06, 0.0, 0.1], [0.05, -0.05, 0.05]])
+x, y = ([-0.06, 0.0, 0.1], [0.05, -0.05, 0.05])
 line = mlines.Line2D(x + grid[8, 0], y + grid[8, 1], lw=5., alpha=0.3)
 label(grid[8], "Line2D")
 
 colors = np.linspace(0, 1, len(patches))
 collection = PatchCollection(patches, cmap=plt.cm.hsv, alpha=0.3)
-collection.set_array(np.array(colors))
+collection.set_array(colors)
 ax.add_collection(collection)
 ax.add_line(line)
 
@@ -104,30 +104,26 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.path
-matplotlib.path.Path
-matplotlib.lines
-matplotlib.lines.Line2D
-matplotlib.patches
-matplotlib.patches.Circle
-matplotlib.patches.Ellipse
-matplotlib.patches.Wedge
-matplotlib.patches.Rectangle
-matplotlib.patches.Arrow
-matplotlib.patches.PathPatch
-matplotlib.patches.FancyBboxPatch
-matplotlib.patches.RegularPolygon
-matplotlib.collections
-matplotlib.collections.PatchCollection
-matplotlib.cm.ScalarMappable.set_array
-matplotlib.axes.Axes.add_collection
-matplotlib.axes.Axes.add_line
+#    - `matplotlib.path`
+#    - `matplotlib.path.Path`
+#    - `matplotlib.lines`
+#    - `matplotlib.lines.Line2D`
+#    - `matplotlib.patches`
+#    - `matplotlib.patches.Circle`
+#    - `matplotlib.patches.Ellipse`
+#    - `matplotlib.patches.Wedge`
+#    - `matplotlib.patches.Rectangle`
+#    - `matplotlib.patches.Arrow`
+#    - `matplotlib.patches.PathPatch`
+#    - `matplotlib.patches.FancyBboxPatch`
+#    - `matplotlib.patches.RegularPolygon`
+#    - `matplotlib.collections`
+#    - `matplotlib.collections.PatchCollection`
+#    - `matplotlib.cm.ScalarMappable.set_array`
+#    - `matplotlib.axes.Axes.add_collection`
+#    - `matplotlib.axes.Axes.add_line`

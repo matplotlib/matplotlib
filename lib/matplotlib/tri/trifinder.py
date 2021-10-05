@@ -1,6 +1,6 @@
 import numpy as np
 
-from matplotlib import cbook
+from matplotlib import _api
 from matplotlib.tri import Triangulation
 
 
@@ -10,20 +10,20 @@ class TriFinder:
     Triangulation in which (x, y) points lie.
 
     Rather than instantiate an object of a class derived from TriFinder, it is
-    usually better to use the function
-    :func:`matplotlib.tri.Triangulation.get_trifinder`.
+    usually better to use the function `.Triangulation.get_trifinder`.
 
     Derived classes implement __call__(x, y) where x and y are array-like point
     coordinates of the same shape.
     """
+
     def __init__(self, triangulation):
-        cbook._check_isinstance(Triangulation, triangulation=triangulation)
+        _api.check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
 
 
 class TrapezoidMapTriFinder(TriFinder):
     """
-    :class:`~matplotlib.tri.TriFinder` class implemented using the trapezoid
+    `~matplotlib.tri.TriFinder` class implemented using the trapezoid
     map algorithm from the book "Computational Geometry, Algorithms and
     Applications", second edition, by M. de Berg, M. van Kreveld, M. Overmars
     and O. Schwarzkopf.
@@ -33,9 +33,10 @@ class TrapezoidMapTriFinder(TriFinder):
     algorithm has some tolerance to triangles formed from colinear points, but
     this should not be relied upon.
     """
+
     def __init__(self, triangulation):
         from matplotlib import _tri
-        TriFinder.__init__(self, triangulation)
+        super().__init__(triangulation)
         self._cpp_trifinder = _tri.TrapezoidMapTriFinder(
             triangulation.get_cpp_triangulation())
         self._initialize()

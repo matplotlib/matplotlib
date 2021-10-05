@@ -41,3 +41,12 @@ def func(label):
 check.on_clicked(func)
 
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.widgets.CheckButtons`

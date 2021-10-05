@@ -31,7 +31,7 @@ class MandelbrotDisplay:
         self.radius = radius
         self.power = power
 
-    def __call__(self, xstart, xend, ystart, yend):
+    def compute_image(self, xstart, xend, ystart, yend):
         self.x = np.linspace(xstart, xend, self.width)
         self.y = np.linspace(ystart, yend, self.height).reshape(-1, 1)
         c = self.x + 1.0j * self.y
@@ -46,31 +46,30 @@ class MandelbrotDisplay:
 
     def ax_update(self, ax):
         ax.set_autoscale_on(False)  # Otherwise, infinite loop
-
         # Get the number of points from the number of pixels in the window
-        dims = ax.patch.get_window_extent().bounds
-        self.width = int(dims[2] + 0.5)
-        self.height = int(dims[2] + 0.5)
-
+        self.width, self.height = \
+            np.round(ax.patch.get_window_extent().size).astype(int)
         # Get the range for the new area
-        xstart, ystart, xdelta, ydelta = ax.viewLim.bounds
-        xend = xstart + xdelta
-        yend = ystart + ydelta
-
+        vl = ax.viewLim
+        extent = vl.x0, vl.x1, vl.y0, vl.y1
         # Update the image object with our new data and extent
         im = ax.images[-1]
-        im.set_data(self.__call__(xstart, xend, ystart, yend))
-        im.set_extent((xstart, xend, ystart, yend))
+        im.set_data(self.compute_image(*extent))
+        im.set_extent(extent)
         ax.figure.canvas.draw_idle()
 
+
 md = MandelbrotDisplay()
-Z = md(-2., 0.5, -1.25, 1.25)
+Z = md.compute_image(-2., 0.5, -1.25, 1.25)
 
 fig1, (ax1, ax2) = plt.subplots(1, 2)
-ax1.imshow(Z, origin='lower', extent=(md.x.min(), md.x.max(), md.y.min(), md.y.max()))
-ax2.imshow(Z, origin='lower', extent=(md.x.min(), md.x.max(), md.y.min(), md.y.max()))
+ax1.imshow(Z, origin='lower',
+           extent=(md.x.min(), md.x.max(), md.y.min(), md.y.max()))
+ax2.imshow(Z, origin='lower',
+           extent=(md.x.min(), md.x.max(), md.y.min(), md.y.max()))
 
-rect = UpdatingRect([0, 0], 0, 0, facecolor='None', edgecolor='black', linewidth=1.0)
+rect = UpdatingRect(
+    [0, 0], 0, 0, facecolor='none', edgecolor='black', linewidth=1.0)
 rect.set_bounds(*ax2.viewLim.bounds)
 ax1.add_patch(rect)
 

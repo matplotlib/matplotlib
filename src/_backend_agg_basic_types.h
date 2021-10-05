@@ -69,11 +69,6 @@ class Dashes
 
 typedef std::vector<Dashes> DashesVector;
 
-enum e_offset_position {
-    OFFSET_POSITION_FIGURE,
-    OFFSET_POSITION_DATA
-};
-
 class GCAgg
 {
   public:

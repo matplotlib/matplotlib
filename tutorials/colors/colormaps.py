@@ -4,8 +4,9 @@ Choosing Colormaps in Matplotlib
 ********************************
 
 Matplotlib has a number of built-in colormaps accessible via
-`.matplotlib.cm.get_cmap`.  There are also external libraries like
-[palettable]_ and [colorcet]_ that have many extra colormaps.
+`.matplotlib.cm.get_cmap`.  There are also external libraries that
+have many extra colormaps, which can be viewed in the
+`Third-party colormaps`_ section of the Matplotlib documentation.
 Here we briefly discuss how to choose between the many options.  For
 help on creating your own colormaps, see
 :doc:`/tutorials/colors/colormap-manipulation`.
@@ -26,14 +27,15 @@ on many things including:
 
 - If there is a standard in the field the audience may be expecting
 
-For many applications, a perceptually uniform colormap is the best
-choice --- one in which equal steps in data are perceived as equal
+For many applications, a perceptually uniform colormap is the best choice;
+i.e. a colormap in which equal steps in data are perceived as equal
 steps in the color space. Researchers have found that the human brain
 perceives changes in the lightness parameter as changes in the data
 much better than, for example, changes in hue. Therefore, colormaps
 which have monotonically increasing lightness through the colormap
-will be better interpreted by the viewer. A wonderful example of
-perceptually uniform colormaps is [colorcet]_.
+will be better interpreted by the viewer. Wonderful examples of
+perceptually uniform colormaps can be found in the
+`Third-party colormaps`_ section as well.
 
 Color can be represented in 3D space in various ways. One way to represent color
 is using CIELAB. In CIELAB, color space is represented by lightness,
@@ -44,6 +46,8 @@ colormaps will be perceived by viewers.
 An excellent starting resource for learning about human perception of colormaps
 is from [IBM]_.
 
+
+.. _color-colormaps_reference:
 
 Classes of colormaps
 ====================
@@ -78,9 +82,40 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from colorspacious import cspace_converter
-from collections import OrderedDict
 
-cmaps = OrderedDict()
+
+###############################################################################
+#
+# First, we'll show the range of each colormap. Note that some seem
+# to change more "quickly" than others.
+
+cmaps = {}
+
+gradient = np.linspace(0, 1, 256)
+gradient = np.vstack((gradient, gradient))
+
+
+def plot_color_gradients(category, cmap_list):
+    # Create figure and adjust figure height to number of colormaps
+    nrows = len(cmap_list)
+    figh = 0.35 + 0.15 + (nrows + (nrows - 1) * 0.1) * 0.22
+    fig, axs = plt.subplots(nrows=nrows + 1, figsize=(6.4, figh))
+    fig.subplots_adjust(top=1 - 0.35 / figh, bottom=0.15 / figh,
+                        left=0.2, right=0.99)
+    axs[0].set_title(f'{category} colormaps', fontsize=14)
+
+    for ax, name in zip(axs, cmap_list):
+        ax.imshow(gradient, aspect='auto', cmap=plt.get_cmap(name))
+        ax.text(-0.01, 0.5, name, va='center', ha='right', fontsize=10,
+                transform=ax.transAxes)
+
+    # Turn off *all* ticks & spines, not just the ones with colormaps.
+    for ax in axs:
+        ax.set_axis_off()
+
+    # Save colormap list for later.
+    cmaps[category] = cmap_list
+
 
 ###############################################################################
 # Sequential
@@ -94,13 +129,15 @@ cmaps = OrderedDict()
 # amongst the colormaps: some are approximately linear in :math:`L^*` and others
 # are more curved.
 
-cmaps['Perceptually Uniform Sequential'] = [
-            'viridis', 'plasma', 'inferno', 'magma', 'cividis']
+plot_color_gradients('Perceptually Uniform Sequential',
+                     ['viridis', 'plasma', 'inferno', 'magma', 'cividis'])
 
-cmaps['Sequential'] = [
-            'Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds',
-            'YlOrBr', 'YlOrRd', 'OrRd', 'PuRd', 'RdPu', 'BuPu',
-            'GnBu', 'PuBu', 'YlGnBu', 'PuBuGn', 'BuGn', 'YlGn']
+###############################################################################
+
+plot_color_gradients('Sequential',
+                     ['Greys', 'Purples', 'Blues', 'Greens', 'Oranges', 'Reds',
+                      'YlOrBr', 'YlOrRd', 'OrRd', 'PuRd', 'RdPu', 'BuPu',
+                      'GnBu', 'PuBu', 'YlGnBu', 'PuBuGn', 'BuGn', 'YlGn'])
 
 ###############################################################################
 # Sequential2
@@ -114,10 +151,10 @@ cmaps['Sequential'] = [
 # banding of the data in those values in the colormap (see [mycarta-banding]_ for
 # an excellent example of this).
 
-cmaps['Sequential (2)'] = [
-            'binary', 'gist_yarg', 'gist_gray', 'gray', 'bone', 'pink',
-            'spring', 'summer', 'autumn', 'winter', 'cool', 'Wistia',
-            'hot', 'afmhot', 'gist_heat', 'copper']
+plot_color_gradients('Sequential (2)',
+                     ['binary', 'gist_yarg', 'gist_gray', 'gray', 'bone',
+                      'pink', 'spring', 'summer', 'autumn', 'winter', 'cool',
+                      'Wistia', 'hot', 'afmhot', 'gist_heat', 'copper'])
 
 ###############################################################################
 # Diverging
@@ -130,9 +167,9 @@ cmaps['Sequential (2)'] = [
 # measures, BrBG and RdBu are good options. coolwarm is a good option, but it
 # doesn't span a wide range of :math:`L^*` values (see grayscale section below).
 
-cmaps['Diverging'] = [
-            'PiYG', 'PRGn', 'BrBG', 'PuOr', 'RdGy', 'RdBu',
-            'RdYlBu', 'RdYlGn', 'Spectral', 'coolwarm', 'bwr', 'seismic']
+plot_color_gradients('Diverging',
+                     ['PiYG', 'PRGn', 'BrBG', 'PuOr', 'RdGy', 'RdBu', 'RdYlBu',
+                      'RdYlGn', 'Spectral', 'coolwarm', 'bwr', 'seismic'])
 
 ###############################################################################
 # Cyclic
@@ -152,7 +189,7 @@ cmaps['Diverging'] = [
 # for viewers to see perceptually. See an extension on this idea at
 # [mycarta-jet]_.
 
-cmaps['Cyclic'] = ['twilight', 'twilight_shifted', 'hsv']
+plot_color_gradients('Cyclic', ['twilight', 'twilight_shifted', 'hsv'])
 
 ###############################################################################
 # Qualitative
@@ -163,9 +200,10 @@ cmaps['Cyclic'] = ['twilight', 'twilight_shifted', 'hsv']
 # the place throughout the colormap, and are clearly not monotonically increasing.
 # These would not be good options for use as perceptual colormaps.
 
-cmaps['Qualitative'] = ['Pastel1', 'Pastel2', 'Paired', 'Accent',
-                        'Dark2', 'Set1', 'Set2', 'Set3',
-                        'tab10', 'tab20', 'tab20b', 'tab20c']
+plot_color_gradients('Qualitative',
+                     ['Pastel1', 'Pastel2', 'Paired', 'Accent', 'Dark2',
+                      'Set1', 'Set2', 'Set3', 'tab10', 'tab20', 'tab20b',
+                      'tab20c'])
 
 ###############################################################################
 # Miscellaneous
@@ -179,53 +217,25 @@ cmaps['Qualitative'] = ['Pastel1', 'Pastel2', 'Paired', 'Accent',
 # gist_earth and terrain. CMRmap was created to convert well to
 # grayscale, though it does appear to have some small kinks in
 # :math:`L^*`.  cubehelix was created to vary smoothly in both lightness
-# and hue, but appears to have a small hump in the green hue area.
+# and hue, but appears to have a small hump in the green hue area. turbo
+# was created to display depth and disparity data.
 #
 # The often-used jet colormap is included in this set of colormaps. We can see
 # that the :math:`L^*` values vary widely throughout the colormap, making it a
 # poor choice for representing data for viewers to see perceptually. See an
-# extension on this idea at [mycarta-jet]_.
-
-cmaps['Miscellaneous'] = [
-            'flag', 'prism', 'ocean', 'gist_earth', 'terrain', 'gist_stern',
-            'gnuplot', 'gnuplot2', 'CMRmap', 'cubehelix', 'brg',
-            'gist_rainbow', 'rainbow', 'jet', 'nipy_spectral', 'gist_ncar']
-
-###############################################################################
-# .. _color-colormaps_reference:
-#
-# First, we'll show the range of each colormap. Note that some seem
-# to change more "quickly" than others.
-
-nrows = max(len(cmap_list) for cmap_category, cmap_list in cmaps.items())
-gradient = np.linspace(0, 1, 256)
-gradient = np.vstack((gradient, gradient))
+# extension on this idea at [mycarta-jet]_ and [turbo]_.
 
 
-def plot_color_gradients(cmap_category, cmap_list, nrows):
-    fig, axes = plt.subplots(nrows=nrows)
-    fig.subplots_adjust(top=0.95, bottom=0.01, left=0.2, right=0.99)
-    axes[0].set_title(cmap_category + ' colormaps', fontsize=14)
-
-    for ax, name in zip(axes, cmap_list):
-        ax.imshow(gradient, aspect='auto', cmap=plt.get_cmap(name))
-        pos = list(ax.get_position().bounds)
-        x_text = pos[0] - 0.01
-        y_text = pos[1] + pos[3]/2.
-        fig.text(x_text, y_text, name, va='center', ha='right', fontsize=10)
-
-    # Turn off *all* ticks & spines, not just the ones with colormaps.
-    for ax in axes:
-        ax.set_axis_off()
-
-
-for cmap_category, cmap_list in cmaps.items():
-    plot_color_gradients(cmap_category, cmap_list, nrows)
+plot_color_gradients('Miscellaneous',
+                     ['flag', 'prism', 'ocean', 'gist_earth', 'terrain',
+                      'gist_stern', 'gnuplot', 'gnuplot2', 'CMRmap',
+                      'cubehelix', 'brg', 'gist_rainbow', 'rainbow', 'jet',
+                      'turbo', 'nipy_spectral', 'gist_ncar'])
 
 plt.show()
 
 ###############################################################################
-# Lightness of matplotlib colormaps
+# Lightness of Matplotlib colormaps
 # =================================
 #
 # Here we examine the lightness values of the matplotlib colormaps.
@@ -256,10 +266,10 @@ for cmap_category, cmap_list in cmaps.items():
     nsubplots = int(np.ceil(len(cmap_list) / dsub))
 
     # squeeze=False to handle similarly the case of a single subplot
-    fig, axes = plt.subplots(nrows=nsubplots, squeeze=False,
-                             figsize=(7, 2.6*nsubplots))
+    fig, axs = plt.subplots(nrows=nsubplots, squeeze=False,
+                            figsize=(7, 2.6*nsubplots))
 
-    for i, ax in enumerate(axes.flat):
+    for i, ax in enumerate(axs.flat):
 
         locs = []  # locations for text labels
 
@@ -273,7 +283,7 @@ for cmap_category, cmap_list in cmaps.items():
             # Plot colormap L values.  Do separately for each category
             # so each plot can be pretty.  To make scatter markers change
             # color along plot:
-            # http://stackoverflow.com/questions/8202605/
+            # https://stackoverflow.com/q/8202605/
 
             if cmap_category == 'Sequential':
                 # These colormaps all start at high lightness but we want them
@@ -298,7 +308,7 @@ for cmap_category, cmap_list in cmaps.items():
         # Set up the axis limits:
         #   * the 1st subplot is used as a reference for the x-axis limits
         #   * lightness values goes from 0 to 100 (y-axis limits)
-        ax.set_xlim(axes[0, 0].get_xlim())
+        ax.set_xlim(axs[0, 0].get_xlim())
         ax.set_ylim(0.0, 100.0)
 
         # Set up labels for colormaps
@@ -308,10 +318,9 @@ for cmap_category, cmap_list in cmaps.items():
         formatter = mpl.ticker.FixedFormatter(cmap_list[i*dsub:(i+1)*dsub])
         ax.xaxis.set_major_formatter(formatter)
         ax.xaxis.set_tick_params(rotation=50)
+        ax.set_ylabel('Lightness $L^*$', fontsize=12)
 
     ax.set_xlabel(cmap_category + ' colormaps', fontsize=14)
-    fig.text(0.0, 0.55, 'Lightness $L^*$', fontsize=12,
-             transform=fig.transFigure, rotation=90)
 
     fig.tight_layout(h_pad=0.0, pad=1.5)
     plt.show()
@@ -349,8 +358,8 @@ for cmap_category, cmap_list in cmaps.items():
 # overlaid, labeled contours could help differentiate between one side of the
 # colormap vs. the other since color cannot be used once a plot is printed to
 # grayscale. Many of the Qualitative and Miscellaneous colormaps, such as
-# Accent, hsv, and jet, change from darker to lighter and back to darker gray
-# throughout the colormap. This would make it impossible for a viewer to
+# Accent, hsv, jet and turbo, change from darker to lighter and back to darker
+# grey throughout the colormap. This would make it impossible for a viewer to
 # interpret the information in a plot once it is printed in grayscale.
 
 mpl.rcParams.update({'font.size': 14})
@@ -363,12 +372,12 @@ gradient = np.vstack((gradient, gradient))
 
 
 def plot_color_gradients(cmap_category, cmap_list):
-    fig, axes = plt.subplots(nrows=len(cmap_list), ncols=2)
+    fig, axs = plt.subplots(nrows=len(cmap_list), ncols=2)
     fig.subplots_adjust(top=0.95, bottom=0.01, left=0.2, right=0.99,
                         wspace=0.05)
     fig.suptitle(cmap_category + ' colormaps', fontsize=14, y=1.0, x=0.6)
 
-    for ax, name in zip(axes, cmap_list):
+    for ax, name in zip(axs, cmap_list):
 
         # Get RGB values for colormap.
         rgb = cm.get_cmap(plt.get_cmap(name))(x)[np.newaxis, :, :3]
@@ -386,7 +395,7 @@ def plot_color_gradients(cmap_category, cmap_list):
         fig.text(x_text, y_text, name, va='center', ha='right', fontsize=10)
 
     # Turn off *all* ticks & spines, not just the ones with colormaps.
-    for ax in axes.flat:
+    for ax in axs.flat:
         ax.set_axis_off()
 
     plt.show()
@@ -412,14 +421,14 @@ for cmap_category, cmap_list in cmaps.items():
 # References
 # ==========
 #
-# .. [colorcet] https://colorcet.pyviz.org
+# .. _Third-party colormaps: https://matplotlib.org/mpl-third-party/#colormaps-and-styles
 # .. [Ware] http://ccom.unh.edu/sites/default/files/publications/Ware_1988_CGA_Color_sequences_univariate_maps.pdf
 # .. [Moreland] http://www.kennethmoreland.com/color-maps/ColorMapsExpanded.pdf
 # .. [list-colormaps] https://gist.github.com/endolith/2719900#id7
 # .. [mycarta-banding] https://mycarta.wordpress.com/2012/10/14/the-rainbow-is-deadlong-live-the-rainbow-part-4-cie-lab-heated-body/
 # .. [mycarta-jet] https://mycarta.wordpress.com/2012/10/06/the-rainbow-is-deadlong-live-the-rainbow-part-3/
 # .. [kovesi-colormaps] https://arxiv.org/abs/1509.03700
-# .. [bw] http://www.tannerhelland.com/3643/grayscale-image-algorithm-vb6/
+# .. [bw] https://tannerhelland.com/3643/grayscale-image-algorithm-vb6/
 # .. [colorblindness] http://www.color-blindness.com/
 # .. [IBM] https://doi.org/10.1109/VISUAL.1995.480803
-# .. [palettable] https://jiffyclub.github.io/palettable/
+# .. [turbo] https://ai.googleblog.com/2019/08/turbo-improved-rainbow-colormap-for.html

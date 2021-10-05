@@ -14,8 +14,8 @@ import numpy as np
 #
 # Basic usage
 # -----------
-# The parameters *y1* and *y2* can be a scalar, indicating a horizontal
-# boundary a  the given y-values. If only *y1* is given, *y2* defaults to 0.
+# The parameters *y1* and *y2* can be scalars, indicating a horizontal
+# boundary at the given y-values. If only *y1* is given, *y2* defaults to 0.
 
 x = np.arange(0.0, 2, 0.01)
 y1 = np.sin(2 * np.pi * x)
@@ -132,15 +132,10 @@ ax.fill_between(x, 0, 1, where=y > threshold,
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.fill_between
-matplotlib.pyplot.fill_between
-matplotlib.axes.Axes.get_xaxis_transform
+#    - `matplotlib.axes.Axes.fill_between` / `matplotlib.pyplot.fill_between`
+#    - `matplotlib.axes.Axes.get_xaxis_transform`

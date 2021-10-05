@@ -46,8 +46,9 @@ import datetime
 import logging
 from numbers import Integral, Real
 
-from matplotlib import cbook, colors as mcolors
-from matplotlib.backends.qt_compat import QtGui, QtWidgets, QtCore
+from matplotlib import _api, colors as mcolors
+from .. import qt_compat
+from ..qt_compat import QtGui, QtWidgets, QtCore, _enum, _to_int
 
 _log = logging.getLogger(__name__)
 
@@ -61,7 +62,7 @@ class ColorButton(QtWidgets.QPushButton):
     colorChanged = QtCore.Signal(QtGui.QColor)
 
     def __init__(self, parent=None):
-        QtWidgets.QPushButton.__init__(self, parent)
+        super().__init__(parent)
         self.setFixedSize(20, 20)
         self.setIconSize(QtCore.QSize(12, 12))
         self.clicked.connect(self.choose_color)
@@ -95,7 +96,7 @@ def to_qcolor(color):
     try:
         rgba = mcolors.to_rgba(color)
     except ValueError:
-        cbook._warn_external('Ignoring invalid color %r' % color)
+        _api.warn_external(f'Ignoring invalid color {color!r}')
         return qcolor  # return invalid QColor
     qcolor.setRgbF(*rgba)
     return qcolor
@@ -104,7 +105,7 @@ def to_qcolor(color):
 class ColorLayout(QtWidgets.QHBoxLayout):
     """Color-specialized QLineEdit layout"""
     def __init__(self, color, parent=None):
-        QtWidgets.QHBoxLayout.__init__(self)
+        super().__init__()
         assert isinstance(color, QtGui.QColor)
         self.lineedit = QtWidgets.QLineEdit(
             mcolors.to_hex(color.getRgbF(), keep_alpha=True), parent)
@@ -161,7 +162,7 @@ def qfont_to_tuple(font):
 class FontLayout(QtWidgets.QGridLayout):
     """Font selection"""
     def __init__(self, value, parent=None):
-        QtWidgets.QGridLayout.__init__(self)
+        super().__init__()
         font = tuple_to_qfont(value)
         assert font is not None
 
@@ -203,8 +204,7 @@ class FontLayout(QtWidgets.QGridLayout):
 def is_edit_valid(edit):
     text = edit.text()
     state = edit.validator().validate(text, 0)[0]
-
-    return state == QtGui.QDoubleValidator.Acceptable
+    return state == _enum("QtGui.QDoubleValidator.State").Acceptable
 
 
 class FormWidget(QtWidgets.QWidget):
@@ -217,8 +217,7 @@ class FormWidget(QtWidgets.QWidget):
         data : list of (label, value) pairs
             The data to be edited in the form.
         comment : str, optional
-
-        with_margin : bool, optional, default: False
+        with_margin : bool, default: False
             If False, the form elements reach to the border of the widget.
             This is the desired behavior if the FormWidget is used as a widget
             alongside with other widgets such as a QComboBox, which also do
@@ -228,7 +227,7 @@ class FormWidget(QtWidgets.QWidget):
         parent : QWidget or None
             The parent widget.
         """
-        QtWidgets.QWidget.__init__(self, parent)
+        super().__init__(parent)
         self.data = copy.deepcopy(data)
         self.widgets = []
         self.formlayout = QtWidgets.QFormLayout(self)
@@ -292,10 +291,7 @@ class FormWidget(QtWidgets.QWidget):
                 field.setCurrentIndex(selindex)
             elif isinstance(value, bool):
                 field = QtWidgets.QCheckBox(self)
-                if value:
-                    field.setCheckState(QtCore.Qt.Checked)
-                else:
-                    field.setCheckState(QtCore.Qt.Unchecked)
+                field.setChecked(value)
             elif isinstance(value, Integral):
                 field = QtWidgets.QSpinBox(self)
                 field.setRange(-10**9, 10**9)
@@ -337,15 +333,23 @@ class FormWidget(QtWidgets.QWidget):
                 else:
                     value = value[index]
             elif isinstance(value, bool):
-                value = field.checkState() == QtCore.Qt.Checked
+                value = field.isChecked()
             elif isinstance(value, Integral):
                 value = int(field.value())
             elif isinstance(value, Real):
                 value = float(str(field.text()))
             elif isinstance(value, datetime.datetime):
-                value = field.dateTime().toPyDateTime()
+                datetime_ = field.dateTime()
+                if hasattr(datetime_, "toPyDateTime"):
+                    value = datetime_.toPyDateTime()
+                else:
+                    value = datetime_.toPython()
             elif isinstance(value, datetime.date):
-                value = field.date().toPyDate()
+                date_ = field.date()
+                if hasattr(date_, "toPyDate"):
+                    value = date_.toPyDate()
+                else:
+                    value = date_.toPython()
             else:
                 value = eval(str(field.text()))
             valuelist.append(value)
@@ -356,7 +360,7 @@ class FormComboWidget(QtWidgets.QWidget):
     update_buttons = QtCore.Signal()
 
     def __init__(self, datalist, comment="", parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
+        super().__init__(parent)
         layout = QtWidgets.QVBoxLayout()
         self.setLayout(layout)
         self.combobox = QtWidgets.QComboBox()
@@ -386,7 +390,7 @@ class FormTabWidget(QtWidgets.QWidget):
     update_buttons = QtCore.Signal()
 
     def __init__(self, datalist, comment="", parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
+        super().__init__(parent)
         layout = QtWidgets.QVBoxLayout()
         self.tabwidget = QtWidgets.QTabWidget()
         layout.addWidget(self.tabwidget)
@@ -415,7 +419,7 @@ class FormDialog(QtWidgets.QDialog):
     """Form Dialog"""
     def __init__(self, data, title="", comment="",
                  icon=None, parent=None, apply=None):
-        QtWidgets.QDialog.__init__(self, parent)
+        super().__init__(parent)
 
         self.apply_callback = apply
 
@@ -437,10 +441,16 @@ class FormDialog(QtWidgets.QDialog):
 
         # Button box
         self.bbox = bbox = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+            QtWidgets.QDialogButtonBox.StandardButton(
+                _to_int(
+                    _enum("QtWidgets.QDialogButtonBox.StandardButton").Ok) |
+                _to_int(
+                    _enum("QtWidgets.QDialogButtonBox.StandardButton").Cancel)
+            ))
         self.formwidget.update_buttons.connect(self.update_buttons)
         if self.apply_callback is not None:
-            apply_btn = bbox.addButton(QtWidgets.QDialogButtonBox.Apply)
+            apply_btn = bbox.addButton(
+                _enum("QtWidgets.QDialogButtonBox.StandardButton").Apply)
             apply_btn.clicked.connect(self.apply)
 
         bbox.accepted.connect(self.accept)
@@ -463,19 +473,21 @@ class FormDialog(QtWidgets.QDialog):
         for field in self.float_fields:
             if not is_edit_valid(field):
                 valid = False
-        for btn_type in (QtWidgets.QDialogButtonBox.Ok,
-                         QtWidgets.QDialogButtonBox.Apply):
-            btn = self.bbox.button(btn_type)
+        for btn_type in ["Ok", "Apply"]:
+            btn = self.bbox.button(
+                getattr(_enum("QtWidgets.QDialogButtonBox.StandardButton"),
+                        btn_type))
             if btn is not None:
                 btn.setEnabled(valid)
 
     def accept(self):
         self.data = self.formwidget.get()
-        QtWidgets.QDialog.accept(self)
+        self.apply_callback(self.data)
+        super().accept()
 
     def reject(self):
         self.data = None
-        QtWidgets.QDialog.reject(self)
+        super().reject()
 
     def apply(self):
         self.apply_callback(self.formwidget.get())
@@ -519,7 +531,13 @@ def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
     if QtWidgets.QApplication.startingUp():
         _app = QtWidgets.QApplication([])
     dialog = FormDialog(data, title, comment, icon, parent, apply)
-    if dialog.exec_():
+
+    if parent is not None:
+        if hasattr(parent, "_fedit_dialog"):
+            parent._fedit_dialog.close()
+        parent._fedit_dialog = dialog
+
+    if qt_compat._exec(dialog):
         return dialog.get()
 
 
@@ -547,7 +565,7 @@ if __name__ == "__main__":
                 (datalist, "Category 2", "Category 2 comment"),
                 (datalist, "Category 3", "Category 3 comment"))
 
-    #--------- datalist example
+    # --------- datalist example
     datalist = create_datalist_example()
 
     def apply_test(data):
@@ -556,14 +574,14 @@ if __name__ == "__main__":
                            comment="This is just an <b>example</b>.",
                            apply=apply_test))
 
-    #--------- datagroup example
+    # --------- datagroup example
     datagroup = create_datagroup_example()
     print("result:", fedit(datagroup, "Global title"))
 
-    #--------- datagroup inside a datagroup example
+    # --------- datagroup inside a datagroup example
     datalist = create_datalist_example()
     datagroup = create_datagroup_example()
     print("result:", fedit(((datagroup, "Title 1", "Tab 1 comment"),
                             (datalist, "Title 2", "Tab 2 comment"),
                             (datalist, "Title 3", "Tab 3 comment")),
-                            "Global title"))
+                           "Global title"))

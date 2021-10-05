@@ -61,24 +61,16 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.tricontourf
-matplotlib.pyplot.tricontourf
-matplotlib.axes.Axes.triplot
-matplotlib.pyplot.triplot
-matplotlib.axes.Axes.contourf
-matplotlib.pyplot.contourf
-matplotlib.axes.Axes.plot
-matplotlib.pyplot.plot
-matplotlib.tri
-matplotlib.tri.LinearTriInterpolator
-matplotlib.tri.CubicTriInterpolator
-matplotlib.tri.Triangulation
+#    - `matplotlib.axes.Axes.tricontourf` / `matplotlib.pyplot.tricontourf`
+#    - `matplotlib.axes.Axes.triplot` / `matplotlib.pyplot.triplot`
+#    - `matplotlib.axes.Axes.contourf` / `matplotlib.pyplot.contourf`
+#    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`
+#    - `matplotlib.tri`
+#    - `matplotlib.tri.LinearTriInterpolator`
+#    - `matplotlib.tri.CubicTriInterpolator`
+#    - `matplotlib.tri.Triangulation`

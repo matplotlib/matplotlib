@@ -41,9 +41,24 @@ Default values and styling
 
 .. autofunction:: rc_params_from_file
 
+.. autofunction:: get_configdir
+
 .. autofunction:: matplotlib_fname
+
+.. autofunction:: get_data_path
 
 Logging
 =======
 
 .. autofunction:: set_loglevel
+
+Colormaps
+=========
+
+.. autodata:: colormaps
+   :no-value:
+
+Miscellaneous
+=============
+
+.. autofunction:: get_cachedir

@@ -66,34 +66,13 @@
 extern "C" {
 #endif
 
-/* Tcl header excerpts */
-#define TCL_OK 0
-#define TCL_ERROR 1
-
 /*
- * Users of versions of Tcl >= 8.6 encouraged to tread Tcl_Interp as an opaque
+ * Users of versions of Tcl >= 8.6 encouraged to treat Tcl_Interp as an opaque
  * pointer.  The following definition results when TCL_NO_DEPRECATED defined.
  */
 typedef struct Tcl_Interp Tcl_Interp;
 
-typedef struct Tcl_Command_ *Tcl_Command;
-typedef void *ClientData;
-
-typedef int (Tcl_CmdProc) (ClientData clientData, Tcl_Interp
-        *interp, int argc, const char *argv[]);
-typedef void (Tcl_CmdDeleteProc) (ClientData clientData);
-
-/* Typedefs derived from function signatures in Tcl header */
-/* Tcl_CreateCommand */
-typedef Tcl_Command (*Tcl_CreateCommand_t)(Tcl_Interp *interp,
-        const char *cmdName, Tcl_CmdProc *proc,
-        ClientData clientData,
-        Tcl_CmdDeleteProc *deleteProc);
-/* Tcl_AppendResult */
-typedef void (*Tcl_AppendResult_t) (Tcl_Interp *interp, ...);
-
 /* Tk header excerpts */
-typedef struct Tk_Window_ *Tk_Window;
 
 typedef void *Tk_PhotoHandle;
 
@@ -107,21 +86,25 @@ typedef struct Tk_PhotoImageBlock
     int offset[4];
 } Tk_PhotoImageBlock;
 
+#define TK_PHOTO_COMPOSITE_OVERLAY	0  // apply transparency rules pixel-wise
+#define TK_PHOTO_COMPOSITE_SET		1  // set image buffer directly
+#define TCL_OK     0
+#define TCL_ERROR  1
+
 /* Typedefs derived from function signatures in Tk header */
-/* Tk_MainWindow */
-typedef Tk_Window (*Tk_MainWindow_t) (Tcl_Interp *interp);
+/* Tk_FindPhoto typedef */
 typedef Tk_PhotoHandle (*Tk_FindPhoto_t) (Tcl_Interp *interp, const char
         *imageName);
-/* Tk_PhotoPutBLock_NoComposite typedef */
-typedef void (*Tk_PhotoPutBlock_NoComposite_t) (Tk_PhotoHandle handle,
+/* Tk_PhotoPutBLock typedef */
+typedef int (*Tk_PhotoPutBlock_t) (Tcl_Interp *interp, Tk_PhotoHandle handle,
         Tk_PhotoImageBlock *blockPtr, int x, int y,
-        int width, int height);
-/* Tk_PhotoBlank */
-typedef void (*Tk_PhotoBlank_t) (Tk_PhotoHandle handle);
+        int width, int height, int compRule);
 
-/*
- * end block for C++
- */
+#ifdef WIN32_DLL
+/* Typedefs derived from function signatures in Tcl header */
+typedef const char *(*Tcl_SetVar_t)(Tcl_Interp *interp, const char *varName,
+                                    const char *newValue, int flags);
+#endif
 
 #ifdef __cplusplus
 }

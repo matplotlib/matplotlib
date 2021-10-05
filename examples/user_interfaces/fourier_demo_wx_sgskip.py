@@ -70,7 +70,7 @@ class SliderGroup(Knob):
         self.sliderText = wx.TextCtrl(parent, -1, style=wx.TE_PROCESS_ENTER)
         self.slider = wx.Slider(parent, -1)
         # self.slider.SetMax(param.maximum*1000)
-        self.slider.SetRange(0, param.maximum * 1000)
+        self.slider.SetRange(0, int(param.maximum * 1000))
         self.setKnob(param.value)
 
         sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -89,22 +89,22 @@ class SliderGroup(Knob):
         self.param = param
         self.param.attach(self)
 
-    def sliderHandler(self, evt):
-        value = evt.GetInt() / 1000.
+    def sliderHandler(self, event):
+        value = event.GetInt() / 1000.
         self.param.set(value)
 
-    def sliderTextHandler(self, evt):
+    def sliderTextHandler(self, event):
         value = float(self.sliderText.GetValue())
         self.param.set(value)
 
     def setKnob(self, value):
         self.sliderText.SetValue('%g' % value)
-        self.slider.SetValue(value * 1000)
+        self.slider.SetValue(int(value * 1000))
 
 
 class FourierDemoFrame(wx.Frame):
     def __init__(self, *args, **kwargs):
-        wx.Frame.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         panel = wx.Panel(self)
 
         # create the GUI elements
@@ -148,21 +148,21 @@ class FourierDemoFrame(wx.Frame):
         self.amplitudeSliderGroup = SliderGroup(panel, label=' Amplitude a:',
                                                 param=self.A)
 
-    def mouseDown(self, evt):
-        if self.lines[0].contains(evt)[0]:
+    def mouseDown(self, event):
+        if self.lines[0].contains(event)[0]:
             self.state = 'frequency'
-        elif self.lines[1].contains(evt)[0]:
+        elif self.lines[1].contains(event)[0]:
             self.state = 'time'
         else:
             self.state = ''
-        self.mouseInfo = (evt.xdata, evt.ydata,
+        self.mouseInfo = (event.xdata, event.ydata,
                           max(self.f0.value, .1),
                           self.A.value)
 
-    def mouseMotion(self, evt):
+    def mouseMotion(self, event):
         if self.state == '':
             return
-        x, y = evt.xdata, evt.ydata
+        x, y = event.xdata, event.ydata
         if x is None:  # outside the axes
             return
         x0, y0, f0Init, AInit = self.mouseInfo
@@ -173,7 +173,7 @@ class FourierDemoFrame(wx.Frame):
             if (x - x0) / x0 != -1.:
                 self.f0.set(1. / (1. / f0Init + (1. / f0Init * (x - x0) / x0)))
 
-    def mouseUp(self, evt):
+    def mouseUp(self, event):
         self.state = ''
 
     def createPlots(self):
@@ -231,5 +231,7 @@ class App(wx.App):
         self.frame1.Show()
         return True
 
-app = App()
-app.MainLoop()
+
+if __name__ == "__main__":
+    app = App()
+    app.MainLoop()

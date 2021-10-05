@@ -21,9 +21,8 @@ def main():
     x, y = np.mgrid[-5:5:0.05, -5:5:0.05]
     z = 5 * (np.sqrt(x**2 + y**2) + np.sin(x**2 + y**2))
 
-    with cbook.get_sample_data('jacksboro_fault_dem.npz') as file, \
-         np.load(file) as dem:
-        elev = dem['elevation']
+    dem = cbook.get_sample_data('jacksboro_fault_dem.npz', np_load=True)
+    elev = dem['elevation']
 
     fig = compare(z, plt.cm.copper)
     fig.suptitle('HSV Blending Looks Best with Smooth Surfaces', y=0.95)
@@ -65,14 +64,10 @@ if __name__ == '__main__':
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown in this example:
-
-import matplotlib
-matplotlib.colors.LightSource
-matplotlib.axes.Axes.imshow
-matplotlib.pyplot.imshow
+#    - `matplotlib.colors.LightSource`
+#    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`

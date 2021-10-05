@@ -1,11 +1,11 @@
 """
-==============
-Demo Text Path
-==============
+======================
+Using a text as a Path
+======================
 
-Use a text as `.Path`. The tool that allows for such conversion is a
-`~matplotlib.textpath.TextPath`. The resulting path can be employed
-e.g. as a clip path for an image.
+`~matplotlib.textpath.TextPath` creates a `.Path` that is the outline of the
+characters of a text. The resulting path can be employed e.g. as a clip path
+for an image.
 """
 
 import matplotlib.pyplot as plt
@@ -48,19 +48,15 @@ if __name__ == "__main__":
 
     usetex = plt.rcParams["text.usetex"]
 
-    fig = plt.figure()
+    fig, (ax1, ax2) = plt.subplots(2)
 
     # EXAMPLE 1
 
-    ax = plt.subplot(211)
-
-    arr = plt.imread(get_sample_data("grace_hopper.png"))
+    arr = plt.imread(get_sample_data("grace_hopper.jpg"))
 
     text_path = TextPath((0, 0), "!?", size=150)
     p = PathClippedImagePatch(text_path, arr, ec="k",
                               transform=IdentityTransform())
-
-    # p.set_clip_on(False)
 
     # make offset box
     offsetbox = AuxTransformBox(IdentityTransform())
@@ -69,7 +65,7 @@ if __name__ == "__main__":
     # make anchored offset box
     ao = AnchoredOffsetbox(loc='upper left', child=offsetbox, frameon=True,
                            borderpad=0.2)
-    ax.add_artist(ao)
+    ax1.add_artist(ao)
 
     # another text
     from matplotlib.patches import PathPatch
@@ -95,15 +91,12 @@ if __name__ == "__main__":
                         box_alignment=(1., 0.),
                         frameon=False
                         )
-    ax.add_artist(ab)
+    ax1.add_artist(ab)
 
-    ax.imshow([[0, 1, 2], [1, 2, 3]], cmap=plt.cm.gist_gray_r,
-              interpolation="bilinear",
-              aspect="auto")
+    ax1.imshow([[0, 1, 2], [1, 2, 3]], cmap=plt.cm.gist_gray_r,
+               interpolation="bilinear", aspect="auto")
 
     # EXAMPLE 2
-
-    ax = plt.subplot(212)
 
     arr = np.arange(256).reshape(1, 256) / 256
 
@@ -116,8 +109,8 @@ if __name__ == "__main__":
     text_patch = PathClippedImagePatch(text_path, arr, ec="none",
                                        transform=IdentityTransform())
 
-    shadow1 = Shadow(text_patch, 1, -1, props=dict(fc="none", ec="0.6", lw=3))
-    shadow2 = Shadow(text_patch, 1, -1, props=dict(fc="0.3", ec="none"))
+    shadow1 = Shadow(text_patch, 1, -1, fc="none", ec="0.6", lw=3)
+    shadow2 = Shadow(text_patch, 1, -1, fc="0.3", ec="none")
 
     # make offset box
     offsetbox = AuxTransformBox(IdentityTransform())
@@ -131,11 +124,10 @@ if __name__ == "__main__":
                         boxcoords="offset points",
                         box_alignment=(0.5, 0.5),
                         )
-    # text_path.set_size(10)
 
-    ax.add_artist(ab)
+    ax2.add_artist(ab)
 
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
+    ax2.set_xlim(0, 1)
+    ax2.set_ylim(0, 1)
 
     plt.show()

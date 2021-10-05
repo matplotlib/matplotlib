@@ -1,54 +1,123 @@
 import numpy as np
 
-from matplotlib import cbook, ticker as mticker
+from matplotlib import ticker as mticker
 from matplotlib.transforms import Bbox, Transform
-from .clip_path import clip_line_to_rect
 
 
-def _deprecate_factor_none(factor):
-    # After the deprecation period, calls to _deprecate_factor_none can just be
-    # removed.
-    if factor is None:
-        cbook.warn_deprecated(
-            "3.2",
-            message="factor=None is deprecated; use/return factor=1 instead")
-        factor = 1
-    return factor
+def _find_line_box_crossings(xys, bbox):
+    """
+    Find the points where a polyline crosses a bbox, and the crossing angles.
+
+    Parameters
+    ----------
+    xys : (N, 2) array
+        The polyline coordinates.
+    bbox : `.Bbox`
+        The bounding box.
+
+    Returns
+    -------
+    list of ((float, float), float)
+        Four separate lists of crossings, for the left, right, bottom, and top
+        sides of the bbox, respectively.  For each list, the entries are the
+        ``((x, y), ccw_angle_in_degrees)`` of the crossing, where an angle of 0
+        means that the polyline is moving to the right at the crossing point.
+
+        The entries are computed by linearly interpolating at each crossing
+        between the nearest points on either side of the bbox edges.
+    """
+    crossings = []
+    dxys = xys[1:] - xys[:-1]
+    for sl in [slice(None), slice(None, None, -1)]:
+        us, vs = xys.T[sl]  # "this" coord, "other" coord
+        dus, dvs = dxys.T[sl]
+        umin, vmin = bbox.min[sl]
+        umax, vmax = bbox.max[sl]
+        for u0, inside in [(umin, us > umin), (umax, us < umax)]:
+            crossings.append([])
+            idxs, = (inside[:-1] ^ inside[1:]).nonzero()
+            for idx in idxs:
+                v = vs[idx] + (u0 - us[idx]) * dvs[idx] / dus[idx]
+                if not vmin <= v <= vmax:
+                    continue
+                crossing = (u0, v)[sl]
+                theta = np.degrees(np.arctan2(*dxys[idx][::-1]))
+                crossings[-1].append((crossing, theta))
+    return crossings
 
 
-# extremes finder
 class ExtremeFinderSimple:
+    """
+    A helper class to figure out the range of grid lines that need to be drawn.
+    """
+
     def __init__(self, nx, ny):
-        self.nx, self.ny = nx, ny
+        """
+        Parameters
+        ----------
+        nx, ny : int
+            The number of samples in each direction.
+        """
+        self.nx = nx
+        self.ny = ny
 
     def __call__(self, transform_xy, x1, y1, x2, y2):
         """
-        get extreme values.
+        Compute an approximation of the bounding box obtained by applying
+        *transform_xy* to the box delimited by ``(x1, y1, x2, y2)``.
 
-        x1, y1, x2, y2 in image coordinates (0-based)
-        nx, ny : number of division in each axis
+        The intended use is to have ``(x1, y1, x2, y2)`` in axes coordinates,
+        and have *transform_xy* be the transform from axes coordinates to data
+        coordinates; this method then returns the range of data coordinates
+        that span the actual axes.
+
+        The computation is done by sampling ``nx * ny`` equispaced points in
+        the ``(x1, y1, x2, y2)`` box and finding the resulting points with
+        extremal coordinates; then adding some padding to take into account the
+        finite sampling.
+
+        As each sampling step covers a relative range of *1/nx* or *1/ny*,
+        the padding is computed by expanding the span covered by the extremal
+        coordinates by these fractions.
         """
-        x_, y_ = np.linspace(x1, x2, self.nx), np.linspace(y1, y2, self.ny)
-        x, y = np.meshgrid(x_, y_)
-        lon, lat = transform_xy(np.ravel(x), np.ravel(y))
+        x, y = np.meshgrid(
+            np.linspace(x1, x2, self.nx), np.linspace(y1, y2, self.ny))
+        xt, yt = transform_xy(np.ravel(x), np.ravel(y))
+        return self._add_pad(xt.min(), xt.max(), yt.min(), yt.max())
 
-        lon_min, lon_max = lon.min(), lon.max()
-        lat_min, lat_max = lat.min(), lat.max()
+    def _add_pad(self, x_min, x_max, y_min, y_max):
+        """Perform the padding mentioned in `__call__`."""
+        dx = (x_max - x_min) / self.nx
+        dy = (y_max - y_min) / self.ny
+        return x_min - dx, x_max + dx, y_min - dy, y_max + dy
 
-        return self._add_pad(lon_min, lon_max, lat_min, lat_max)
 
-    def _add_pad(self, lon_min, lon_max, lat_min, lat_max):
+class _User2DTransform(Transform):
+    """A transform defined by two user-set functions."""
+
+    input_dims = output_dims = 2
+
+    def __init__(self, forward, backward):
         """
-        A small amount of padding is added because the current clipping
-        algorithms seems to fail when the gridline ends at the bbox boundary.
+        Parameters
+        ----------
+        forward, backward : callable
+            The forward and backward transforms, taking ``x`` and ``y`` as
+            separate arguments and returning ``(tr_x, tr_y)``.
         """
-        dlon = (lon_max - lon_min) / self.nx
-        dlat = (lat_max - lat_min) / self.ny
+        # The normal Matplotlib convention would be to take and return an
+        # (N, 2) array but axisartist uses the transposed version.
+        super().__init__()
+        self._forward = forward
+        self._backward = backward
 
-        lon_min, lon_max = lon_min - dlon, lon_max + dlon
-        lat_min, lat_max = lat_min - dlat, lat_max + dlat
+    def transform_non_affine(self, values):
+        # docstring inherited
+        return np.transpose(self._forward(*np.transpose(values)))
 
-        return lon_min, lon_max, lat_min, lat_max
+    def inverted(self):
+        # docstring inherited
+        return type(self)(self._backward, self._forward)
 
 
 class GridFinder:
@@ -82,7 +151,7 @@ class GridFinder:
         self.grid_locator2 = grid_locator2
         self.tick_formatter1 = tick_formatter1
         self.tick_formatter2 = tick_formatter2
-        self.update_transform(transform)
+        self.set_transform(transform)
 
     def get_grid_info(self, x1, y1, x2, y2):
         """
@@ -99,8 +168,8 @@ class GridFinder:
         lon_levs, lon_n, lon_factor = self.grid_locator1(lon_min, lon_max)
         lat_levs, lat_n, lat_factor = self.grid_locator2(lat_min, lat_max)
 
-        lon_values = lon_levs[:lon_n] / _deprecate_factor_none(lon_factor)
-        lat_values = lat_levs[:lat_n] / _deprecate_factor_none(lat_factor)
+        lon_values = lon_levs[:lon_n] / lon_factor
+        lat_values = lat_levs[:lat_n] / lat_factor
 
         lon_lines, lat_lines = self._get_raw_grid_lines(lon_values,
                                                         lat_values,
@@ -161,63 +230,49 @@ class GridFinder:
         tck_levels = gi["tick_levels"]
         tck_locs = gi["tick_locs"]
         for (lx, ly), v, lev in zip(lines, values, levs):
-            xy, tcks = clip_line_to_rect(lx, ly, bb)
-            if not xy:
-                continue
+            tcks = _find_line_box_crossings(np.column_stack([lx, ly]), bb)
             gi["levels"].append(v)
-            gi["lines"].append(xy)
+            gi["lines"].append([(lx, ly)])
 
             for tck, direction in zip(tcks,
-                                      ["left", "bottom", "right", "top"]):
+                                      ["left", "right", "bottom", "top"]):
                 for t in tck:
                     tck_levels[direction].append(lev)
                     tck_locs[direction].append(t)
 
         return gi
 
-    def update_transform(self, aux_trans):
+    def set_transform(self, aux_trans):
         if isinstance(aux_trans, Transform):
-            def transform_xy(x, y):
-                ll1 = np.column_stack([x, y])
-                ll2 = aux_trans.transform(ll1)
-                lon, lat = ll2[:, 0], ll2[:, 1]
-                return lon, lat
-
-            def inv_transform_xy(x, y):
-                ll1 = np.column_stack([x, y])
-                ll2 = aux_trans.inverted().transform(ll1)
-                lon, lat = ll2[:, 0], ll2[:, 1]
-                return lon, lat
-
+            self._aux_transform = aux_trans
+        elif len(aux_trans) == 2 and all(map(callable, aux_trans)):
+            self._aux_transform = _User2DTransform(*aux_trans)
         else:
-            transform_xy, inv_transform_xy = aux_trans
+            raise TypeError("'aux_trans' must be either a Transform "
+                            "instance or a pair of callables")
 
-        self.transform_xy = transform_xy
-        self.inv_transform_xy = inv_transform_xy
+    def get_transform(self):
+        return self._aux_transform
 
-    def update(self, **kw):
-        for k in kw:
+    update_transform = set_transform  # backcompat alias.
+
+    def transform_xy(self, x, y):
+        return self._aux_transform.transform(np.column_stack([x, y])).T
+
+    def inv_transform_xy(self, x, y):
+        return self._aux_transform.inverted().transform(
+            np.column_stack([x, y])).T
+
+    def update(self, **kwargs):
+        for k, v in kwargs.items():
             if k in ["extreme_finder",
                      "grid_locator1",
                      "grid_locator2",
                      "tick_formatter1",
                      "tick_formatter2"]:
-                setattr(self, k, kw[k])
+                setattr(self, k, v)
             else:
-                raise ValueError("unknown update property '%s'" % k)
-
-
-@cbook.deprecated("3.2")
-class GridFinderBase(GridFinder):
-    def __init__(self,
-                 extreme_finder,
-                 grid_locator1=None,
-                 grid_locator2=None,
-                 tick_formatter1=None,
-                 tick_formatter2=None):
-        super().__init__((None, None), extreme_finder,
-                         grid_locator1, grid_locator2,
-                         tick_formatter1, tick_formatter2)
+                raise ValueError(f"Unknown update property {k!r}")
 
 
 class MaxNLocator(mticker.MaxNLocator):
@@ -227,33 +282,23 @@ class MaxNLocator(mticker.MaxNLocator):
                  symmetric=False,
                  prune=None):
         # trim argument has no effect. It has been left for API compatibility
-        mticker.MaxNLocator.__init__(self, nbins, steps=steps,
-                                     integer=integer,
-                                     symmetric=symmetric, prune=prune)
+        super().__init__(nbins, steps=steps, integer=integer,
+                         symmetric=symmetric, prune=prune)
         self.create_dummy_axis()
-        self._factor = 1
 
     def __call__(self, v1, v2):
-        self.set_bounds(v1 * self._factor, v2 * self._factor)
-        locs = mticker.MaxNLocator.__call__(self)
-        return np.array(locs), len(locs), self._factor
-
-    def set_factor(self, f):
-        self._factor = _deprecate_factor_none(f)
+        locs = super().tick_values(v1, v2)
+        return np.array(locs), len(locs), 1  # 1: factor (see angle_helper)
 
 
 class FixedLocator:
     def __init__(self, locs):
         self._locs = locs
-        self._factor = 1
 
     def __call__(self, v1, v2):
-        v1, v2 = sorted([v1 * self._factor, v2 * self._factor])
+        v1, v2 = sorted([v1, v2])
         locs = np.array([l for l in self._locs if v1 <= l <= v2])
-        return locs, len(locs), self._factor
-
-    def set_factor(self, f):
-        self._factor = _deprecate_factor_none(f)
+        return locs, len(locs), 1  # 1: factor (see angle_helper)
 
 
 # Tick Formatter
@@ -263,11 +308,8 @@ class FormatterPrettyPrint:
         self._fmt = mticker.ScalarFormatter(
             useMathText=useMathText, useOffset=False)
         self._fmt.create_dummy_axis()
-        self._ignore_factor = True
 
     def __call__(self, direction, factor, values):
-        if not self._ignore_factor:
-            values = [v / _deprecate_factor_none(factor) for v in values]
         return self._fmt.format_ticks(values)
 
 

@@ -9,6 +9,7 @@
 
 #include "ft2font.h"
 #include "mplutils.h"
+#include "numpy_cpp.h"
 #include "py_exceptions.h"
 
 #ifndef M_PI
@@ -43,7 +44,7 @@
 FT_Library _ft2Library;
 
 void throw_ft_error(std::string message, FT_Error error) {
-    std::ostringstream os;
+    std::ostringstream os("");
     os << message << " (error code 0x" << std::hex << error << ")";
     throw std::runtime_error(os.str());
 }
@@ -98,13 +99,13 @@ void FT2Image::draw_bitmap(FT_Bitmap *bitmap, FT_Int x, FT_Int y)
     FT_Int char_width = bitmap->width;
     FT_Int char_height = bitmap->rows;
 
-    FT_Int x1 = CLAMP(x, 0, image_width);
-    FT_Int y1 = CLAMP(y, 0, image_height);
-    FT_Int x2 = CLAMP(x + char_width, 0, image_width);
-    FT_Int y2 = CLAMP(y + char_height, 0, image_height);
+    FT_Int x1 = std::min(std::max(x, 0), image_width);
+    FT_Int y1 = std::min(std::max(y, 0), image_height);
+    FT_Int x2 = std::min(std::max(x + char_width, 0), image_width);
+    FT_Int y2 = std::min(std::max(y + char_height, 0), image_height);
 
-    FT_Int x_start = MAX(0, -x);
-    FT_Int y_offset = y1 - MAX(0, -y);
+    FT_Int x_start = std::max(0, -x);
+    FT_Int y_offset = y1 - std::max(0, -y);
 
     if (bitmap->pixel_mode == FT_PIXEL_MODE_GRAY) {
         for (FT_Int i = y1; i < y2; ++i) {
@@ -168,345 +169,154 @@ FT2Image::draw_rect_filled(unsigned long x0, unsigned long y0, unsigned long x1,
     m_dirty = true;
 }
 
-inline double conv(long v)
-{
-    return v / 64.;
-}
-
 static FT_UInt ft_get_char_index_or_warn(FT_Face face, FT_ULong charcode)
 {
     FT_UInt glyph_index = FT_Get_Char_Index(face, charcode);
-    if (!glyph_index) {
-        PyErr_WarnFormat(NULL, 1, "Glyph %lu missing from current font.", charcode);
-        // Apparently PyErr_WarnFormat returns 0 even if the exception propagates
-        // due to running with -Werror, so check the error flag directly instead.
-        if (PyErr_Occurred()) {
-            throw py::exception();
-        }
+    if (glyph_index) {
+        return glyph_index;
     }
-    return glyph_index;
+    PyObject *text_helpers = NULL, *tmp = NULL;
+    if (!(text_helpers = PyImport_ImportModule("matplotlib._text_helpers")) ||
+        !(tmp = PyObject_CallMethod(text_helpers, "warn_on_missing_glyph", "k", charcode))) {
+        goto exit;
+    }
+exit:
+    Py_XDECREF(text_helpers);
+    Py_XDECREF(tmp);
+    if (PyErr_Occurred()) {
+        throw py::exception();
+    }
+    return 0;
 }
 
 
-int FT2Font::get_path_count()
+// ft_outline_decomposer should be passed to FT_Outline_Decompose.  On the
+// first pass, vertices and codes are set to NULL, and index is simply
+// incremented for each vertex that should be inserted, so that it is set, at
+// the end, to the total number of vertices.  On a second pass, vertices and
+// codes should point to correctly sized arrays, and index set again to zero,
+// to get fill vertices and codes with the outline decomposition.
+struct ft_outline_decomposer
 {
-    // get the glyph as a path, a list of (COMMAND, *args) as described in matplotlib.path
-    // this code is from agg's decompose_ft_outline with minor modifications
+    int index;
+    double* vertices;
+    unsigned char* codes;
+};
 
+static int
+ft_outline_move_to(FT_Vector const* to, void* user)
+{
+    ft_outline_decomposer* d = reinterpret_cast<ft_outline_decomposer*>(user);
+    if (d->codes) {
+        if (d->index) {
+            // Appending CLOSEPOLY is important to make patheffects work.
+            *(d->vertices++) = 0;
+            *(d->vertices++) = 0;
+            *(d->codes++) = CLOSEPOLY;
+        }
+        *(d->vertices++) = to->x / 64.;
+        *(d->vertices++) = to->y / 64.;
+        *(d->codes++) = MOVETO;
+    }
+    d->index += d->index ? 2 : 1;
+    return 0;
+}
+
+static int
+ft_outline_line_to(FT_Vector const* to, void* user)
+{
+    ft_outline_decomposer* d = reinterpret_cast<ft_outline_decomposer*>(user);
+    if (d->codes) {
+        *(d->vertices++) = to->x / 64.;
+        *(d->vertices++) = to->y / 64.;
+        *(d->codes++) = LINETO;
+    }
+    d->index++;
+    return 0;
+}
+
+static int
+ft_outline_conic_to(FT_Vector const* control, FT_Vector const* to, void* user)
+{
+    ft_outline_decomposer* d = reinterpret_cast<ft_outline_decomposer*>(user);
+    if (d->codes) {
+        *(d->vertices++) = control->x / 64.;
+        *(d->vertices++) = control->y / 64.;
+        *(d->vertices++) = to->x / 64.;
+        *(d->vertices++) = to->y / 64.;
+        *(d->codes++) = CURVE3;
+        *(d->codes++) = CURVE3;
+    }
+    d->index += 2;
+    return 0;
+}
+
+static int
+ft_outline_cubic_to(
+  FT_Vector const* c1, FT_Vector const* c2, FT_Vector const* to, void* user)
+{
+    ft_outline_decomposer* d = reinterpret_cast<ft_outline_decomposer*>(user);
+    if (d->codes) {
+        *(d->vertices++) = c1->x / 64.;
+        *(d->vertices++) = c1->y / 64.;
+        *(d->vertices++) = c2->x / 64.;
+        *(d->vertices++) = c2->y / 64.;
+        *(d->vertices++) = to->x / 64.;
+        *(d->vertices++) = to->y / 64.;
+        *(d->codes++) = CURVE4;
+        *(d->codes++) = CURVE4;
+        *(d->codes++) = CURVE4;
+    }
+    d->index += 3;
+    return 0;
+}
+
+static FT_Outline_Funcs ft_outline_funcs = {
+    ft_outline_move_to,
+    ft_outline_line_to,
+    ft_outline_conic_to,
+    ft_outline_cubic_to};
+
+PyObject*
+FT2Font::get_path()
+{
     if (!face->glyph) {
-        throw std::runtime_error("No glyph loaded");
+        PyErr_SetString(PyExc_RuntimeError, "No glyph loaded");
+        return NULL;
     }
-
-    FT_Outline &outline = face->glyph->outline;
-
-    FT_Vector v_last;
-    FT_Vector v_control;
-    FT_Vector v_start;
-
-    FT_Vector *point;
-    FT_Vector *limit;
-    char *tags;
-
-    int n;     // index of contour in outline
-    int first; // index of first point in contour
-    char tag;  // current point's state
-    int count;
-
-    count = 0;
-    first = 0;
-    for (n = 0; n < outline.n_contours; n++) {
-        int last; // index of last point in contour
-        bool starts_with_last;
-
-        last = outline.contours[n];
-        limit = outline.points + last;
-
-        v_start = outline.points[first];
-        v_last = outline.points[last];
-
-        v_control = v_start;
-
-        point = outline.points + first;
-        tags = outline.tags + first;
-        tag = FT_CURVE_TAG(tags[0]);
-
-        // A contour cannot start with a cubic control point!
-        if (tag == FT_CURVE_TAG_CUBIC) {
-            throw std::runtime_error("A contour cannot start with a cubic control point");
-        } else if (tag == FT_CURVE_TAG_CONIC) {
-            starts_with_last = true;
-        } else {
-            starts_with_last = false;
-        }
-
-        count++;
-
-        while (point < limit) {
-            if (!starts_with_last) {
-                point++;
-                tags++;
-            }
-            starts_with_last = false;
-
-            tag = FT_CURVE_TAG(tags[0]);
-            switch (tag) {
-            case FT_CURVE_TAG_ON: // emit a single line_to
-            {
-                count++;
-                continue;
-            }
-
-            case FT_CURVE_TAG_CONIC: // consume conic arcs
-            {
-            Count_Do_Conic:
-                if (point < limit) {
-                    point++;
-                    tags++;
-                    tag = FT_CURVE_TAG(tags[0]);
-
-                    if (tag == FT_CURVE_TAG_ON) {
-                        count += 2;
-                        continue;
-                    }
-
-                    if (tag != FT_CURVE_TAG_CONIC) {
-                        throw std::runtime_error("Invalid font");
-                    }
-
-                    count += 2;
-
-                    goto Count_Do_Conic;
-                }
-
-                count += 2;
-
-                goto Count_Close;
-            }
-
-            default: // FT_CURVE_TAG_CUBIC
-            {
-                if (point + 1 > limit || FT_CURVE_TAG(tags[1]) != FT_CURVE_TAG_CUBIC) {
-                    throw std::runtime_error("Invalid font");
-                }
-
-                point += 2;
-                tags += 2;
-
-                if (point <= limit) {
-                    count += 3;
-                    continue;
-                }
-
-                count += 3;
-
-                goto Count_Close;
-            }
-            }
-        }
-
-    Count_Close:
-        count++;
-        first = last + 1;
+    ft_outline_decomposer decomposer = {};
+    if (FT_Error error =
+        FT_Outline_Decompose(
+          &face->glyph->outline, &ft_outline_funcs, &decomposer)) {
+        PyErr_Format(PyExc_RuntimeError,
+                     "FT_Outline_Decompose failed with error 0x%x", error);
+        return NULL;
     }
-
-    return count;
-}
-
-void FT2Font::get_path(double *outpoints, unsigned char *outcodes)
-{
-    FT_Outline &outline = face->glyph->outline;
-    bool flip_y = false; // todo, pass me as kwarg
-
-    FT_Vector v_last;
-    FT_Vector v_control;
-    FT_Vector v_start;
-
-    FT_Vector *point;
-    FT_Vector *limit;
-    char *tags;
-
-    int n;     // index of contour in outline
-    int first; // index of first point in contour
-    char tag;  // current point's state
-
-    first = 0;
-    for (n = 0; n < outline.n_contours; n++) {
-        int last; // index of last point in contour
-        bool starts_with_last;
-
-        last = outline.contours[n];
-        limit = outline.points + last;
-
-        v_start = outline.points[first];
-        v_last = outline.points[last];
-
-        v_control = v_start;
-
-        point = outline.points + first;
-        tags = outline.tags + first;
-        tag = FT_CURVE_TAG(tags[0]);
-
-        double x, y;
-        if (tag != FT_CURVE_TAG_ON) {
-            x = conv(v_last.x);
-            y = flip_y ? -conv(v_last.y) : conv(v_last.y);
-            starts_with_last = true;
-        } else {
-            x = conv(v_start.x);
-            y = flip_y ? -conv(v_start.y) : conv(v_start.y);
-            starts_with_last = false;
-        }
-
-        *(outpoints++) = x;
-        *(outpoints++) = y;
-        *(outcodes++) = MOVETO;
-
-        while (point < limit) {
-            if (!starts_with_last) {
-                point++;
-                tags++;
-            }
-            starts_with_last = false;
-
-            tag = FT_CURVE_TAG(tags[0]);
-            switch (tag) {
-            case FT_CURVE_TAG_ON: // emit a single line_to
-            {
-                double x = conv(point->x);
-                double y = flip_y ? -conv(point->y) : conv(point->y);
-                *(outpoints++) = x;
-                *(outpoints++) = y;
-                *(outcodes++) = LINETO;
-                continue;
-            }
-
-            case FT_CURVE_TAG_CONIC: // consume conic arcs
-            {
-                v_control.x = point->x;
-                v_control.y = point->y;
-
-            Do_Conic:
-                if (point < limit) {
-                    FT_Vector vec;
-                    FT_Vector v_middle;
-
-                    point++;
-                    tags++;
-                    tag = FT_CURVE_TAG(tags[0]);
-
-                    vec.x = point->x;
-                    vec.y = point->y;
-
-                    if (tag == FT_CURVE_TAG_ON) {
-                        double xctl = conv(v_control.x);
-                        double yctl = flip_y ? -conv(v_control.y) : conv(v_control.y);
-                        double xto = conv(vec.x);
-                        double yto = flip_y ? -conv(vec.y) : conv(vec.y);
-                        *(outpoints++) = xctl;
-                        *(outpoints++) = yctl;
-                        *(outpoints++) = xto;
-                        *(outpoints++) = yto;
-                        *(outcodes++) = CURVE3;
-                        *(outcodes++) = CURVE3;
-                        continue;
-                    }
-
-                    v_middle.x = (v_control.x + vec.x) / 2;
-                    v_middle.y = (v_control.y + vec.y) / 2;
-
-                    double xctl = conv(v_control.x);
-                    double yctl = flip_y ? -conv(v_control.y) : conv(v_control.y);
-                    double xto = conv(v_middle.x);
-                    double yto = flip_y ? -conv(v_middle.y) : conv(v_middle.y);
-                    *(outpoints++) = xctl;
-                    *(outpoints++) = yctl;
-                    *(outpoints++) = xto;
-                    *(outpoints++) = yto;
-                    *(outcodes++) = CURVE3;
-                    *(outcodes++) = CURVE3;
-
-                    v_control = vec;
-                    goto Do_Conic;
-                }
-                double xctl = conv(v_control.x);
-                double yctl = flip_y ? -conv(v_control.y) : conv(v_control.y);
-                double xto = conv(v_start.x);
-                double yto = flip_y ? -conv(v_start.y) : conv(v_start.y);
-
-                *(outpoints++) = xctl;
-                *(outpoints++) = yctl;
-                *(outpoints++) = xto;
-                *(outpoints++) = yto;
-                *(outcodes++) = CURVE3;
-                *(outcodes++) = CURVE3;
-
-                goto Close;
-            }
-
-            default: // FT_CURVE_TAG_CUBIC
-            {
-                FT_Vector vec1, vec2;
-
-                vec1.x = point[0].x;
-                vec1.y = point[0].y;
-                vec2.x = point[1].x;
-                vec2.y = point[1].y;
-
-                point += 2;
-                tags += 2;
-
-                if (point <= limit) {
-                    FT_Vector vec;
-
-                    vec.x = point->x;
-                    vec.y = point->y;
-
-                    double xctl1 = conv(vec1.x);
-                    double yctl1 = flip_y ? -conv(vec1.y) : conv(vec1.y);
-                    double xctl2 = conv(vec2.x);
-                    double yctl2 = flip_y ? -conv(vec2.y) : conv(vec2.y);
-                    double xto = conv(vec.x);
-                    double yto = flip_y ? -conv(vec.y) : conv(vec.y);
-
-                    (*outpoints++) = xctl1;
-                    (*outpoints++) = yctl1;
-                    (*outpoints++) = xctl2;
-                    (*outpoints++) = yctl2;
-                    (*outpoints++) = xto;
-                    (*outpoints++) = yto;
-                    (*outcodes++) = CURVE4;
-                    (*outcodes++) = CURVE4;
-                    (*outcodes++) = CURVE4;
-                    continue;
-                }
-
-                double xctl1 = conv(vec1.x);
-                double yctl1 = flip_y ? -conv(vec1.y) : conv(vec1.y);
-                double xctl2 = conv(vec2.x);
-                double yctl2 = flip_y ? -conv(vec2.y) : conv(vec2.y);
-                double xto = conv(v_start.x);
-                double yto = flip_y ? -conv(v_start.y) : conv(v_start.y);
-                (*outpoints++) = xctl1;
-                (*outpoints++) = yctl1;
-                (*outpoints++) = xctl2;
-                (*outpoints++) = yctl2;
-                (*outpoints++) = xto;
-                (*outpoints++) = yto;
-                (*outcodes++) = CURVE4;
-                (*outcodes++) = CURVE4;
-                (*outcodes++) = CURVE4;
-
-                goto Close;
-            }
-            }
-        }
-
-    Close:
-        (*outpoints++) = 0.0;
-        (*outpoints++) = 0.0;
-        (*outcodes++) = ENDPOLY;
-        first = last + 1;
+    if (!decomposer.index) {  // Don't append CLOSEPOLY to null glyphs.
+      npy_intp vertices_dims[2] = { 0, 2 };
+      numpy::array_view<double, 2> vertices(vertices_dims);
+      npy_intp codes_dims[1] = { 0 };
+      numpy::array_view<unsigned char, 1> codes(codes_dims);
+      return Py_BuildValue("NN", vertices.pyobj(), codes.pyobj());
     }
+    npy_intp vertices_dims[2] = { decomposer.index + 1, 2 };
+    numpy::array_view<double, 2> vertices(vertices_dims);
+    npy_intp codes_dims[1] = { decomposer.index + 1 };
+    numpy::array_view<unsigned char, 1> codes(codes_dims);
+    decomposer.index = 0;
+    decomposer.vertices = vertices.data();
+    decomposer.codes = codes.data();
+    if (FT_Error error =
+        FT_Outline_Decompose(
+          &face->glyph->outline, &ft_outline_funcs, &decomposer)) {
+        PyErr_Format(PyExc_RuntimeError,
+                     "FT_Outline_Decompose failed with error 0x%x", error);
+        return NULL;
+    }
+    *(decomposer.vertices++) = 0;
+    *(decomposer.vertices++) = 0;
+    *(decomposer.codes++) = CLOSEPOLY;
+    return Py_BuildValue("NN", vertices.pyobj(), codes.pyobj());
 }
 
 FT2Font::FT2Font(FT_Open_Args &open_args, long hinting_factor_) : image(), face(NULL)

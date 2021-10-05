@@ -5,10 +5,9 @@
 
 Controlling properties of text and its layout with Matplotlib.
 
-The :class:`matplotlib.text.Text` instances have a variety of
-properties which can be configured via keyword arguments to the text
-commands (e.g., :func:`~matplotlib.pyplot.title`,
-:func:`~matplotlib.pyplot.xlabel` and :func:`~matplotlib.pyplot.text`).
+`matplotlib.text.Text` instances have a variety of properties which can be
+configured via keyword arguments to `~.Axes.set_title`, `~.Axes.set_xlabel`,
+`~.Axes.text`, etc.
 
 ==========================  ======================================================================================================================
 Property                    Value Type
@@ -21,19 +20,19 @@ clip_on                     bool
 clip_path                   a `~matplotlib.path.Path` instance and a `~matplotlib.transforms.Transform` instance, a `~matplotlib.patches.Patch`
 color                       any matplotlib :doc:`color </tutorials/colors/colors>`
 family                      [ ``'serif'`` | ``'sans-serif'`` | ``'cursive'`` | ``'fantasy'`` | ``'monospace'`` ]
-fontproperties              a `~matplotlib.font_manager.FontProperties` instance
+fontproperties              `~matplotlib.font_manager.FontProperties`
 horizontalalignment or ha   [ ``'center'`` | ``'right'`` | ``'left'`` ]
 label                       any string
 linespacing                 `float`
 multialignment              [``'left'`` | ``'right'`` | ``'center'`` ]
 name or fontname            string e.g., [``'Sans'`` | ``'Courier'`` | ``'Helvetica'`` ...]
-picker                      [None|float|boolean|callable]
+picker                      [None|float|bool|callable]
 position                    (x, y)
 rotation                    [ angle in degrees | ``'vertical'`` | ``'horizontal'`` ]
 size or fontsize            [ size in points | relative size, e.g., ``'smaller'``, ``'x-large'`` ]
 style or fontstyle          [ ``'normal'`` | ``'italic'`` | ``'oblique'`` ]
 text                        string or anything printable with '%s' conversion
-transform                   a `~matplotlib.transforms.Transform` instance
+transform                   `~matplotlib.transforms.Transform` subclass
 variant                     [ ``'normal'`` | ``'small-caps'`` ]
 verticalalignment or va     [ ``'center'`` | ``'top'`` | ``'bottom'`` | ``'baseline'`` ]
 visible                     bool
@@ -150,9 +149,9 @@ plt.show()
 # +---------------------+----------------------------------------------------+
 # | rcParam             | usage                                              |
 # +=====================+====================================================+
-# | ``'font.family'``   | List of either names of font or ``{'cursive',      |
-# |                     | 'fantasy', 'monospace', 'sans', 'sans serif',      |
-# |                     | 'sans-serif', 'serif'}``.                          |
+# | ``'font.family'``   | List of font families (installed on user's machine)|
+# |                     | and/or ``{'cursive', 'fantasy', 'monospace',       |
+# |                     | 'sans', 'sans serif', 'sans-serif', 'serif'}``.    |
 # |                     |                                                    |
 # +---------------------+----------------------------------------------------+
 # |  ``'font.style'``   | The default style, ex ``'normal'``,                |
@@ -175,13 +174,18 @@ plt.show()
 # |                     | this size.                                         |
 # +---------------------+----------------------------------------------------+
 #
-# The mapping between the family aliases (``{'cursive', 'fantasy',
-# 'monospace', 'sans', 'sans serif', 'sans-serif', 'serif'}``) and actual font names
+# Matplotlib can use font families installed on the user's computer, i.e.
+# Helvetica, Times, etc. Font families can also be specified with
+# generic-family aliases like (``{'cursive', 'fantasy', 'monospace',
+# 'sans', 'sans serif', 'sans-serif', 'serif'}``).
+#
+# The mapping between the generic family aliases and actual font families
+# (mentioned at :doc:`default rcParams </tutorials/introductory/customizing>`)
 # is controlled by the following rcParams:
 #
 #
 # +------------------------------------------+--------------------------------+
-# | family alias                             | rcParam with mappings          |
+# | CSS-based generic-family alias           | rcParam with mappings          |
 # +==========================================+================================+
 # | ``'serif'``                              | ``'font.serif'``               |
 # +------------------------------------------+--------------------------------+
@@ -195,7 +199,15 @@ plt.show()
 # +------------------------------------------+--------------------------------+
 #
 #
-# which are lists of font names.
+# If any of generic family names appear in ``'font.family'``, we replace that entry
+# by all the entries in the corresponding rcParam mapping.
+# For example: ::
+#
+#    matplotlib.rcParams['font.family'] = ['Family1', 'serif', 'Family2']
+#    matplotlib.rcParams['font.serif'] = ['SerifFamily1', 'SerifFamily2']
+#
+#    # This is effectively translated to:
+#    matplotlib.rcParams['font.family'] = ['Family1', 'SerifFamily1', 'SerifFamily2', 'Family2']
 #
 # Text with non-latin glyphs
 # ==========================
@@ -205,17 +217,29 @@ plt.show()
 # Korean, or Japanese.
 #
 # To set the default font to be one that supports the code points you
-# need, prepend the font name to ``'font.family'`` or the desired alias
-# lists ::
+# need, prepend the font name to ``'font.family'`` (recommended), or to the
+# desired alias lists. ::
 #
-#    matplotlib.rcParams['font.sans-serif'] = ['Source Han Sans TW', 'sans-serif']
+#    # first method
+#    matplotlib.rcParams['font.family'] = ['Source Han Sans TW', 'sans-serif']
 #
-# or set it in your :file:`.matplotlibrc` file::
+#    # second method
+#    matplotlib.rcParams['font.family'] = ['sans-serif']
+#    matplotlib.rcParams['sans-serif'] = ['Source Han Sans TW', ...]
 #
-#    font.sans-serif: Source Han Sans TW, Arial, sans-serif
+# The generic family alias lists contain fonts that are either shipped
+# alongside Matplotlib (so they have 100% chance of being found), or fonts
+# which have a very high probability of being present in most systems.
 #
-# To control the font used on per-artist basis use the ``'name'``,
-# ``'fontname'`` or ``'fontproperties'`` kwargs documented :doc:`above
+# A good practice when setting custom font families is to append
+# a generic-family to the font-family list as a last resort.
+#
+# You can also set it in your :file:`.matplotlibrc` file::
+#
+#    font.family: Source Han Sans TW, Arial, sans-serif
+#
+# To control the font used on per-artist basis use the *name*, *fontname* or
+# *fontproperties* keyword arguments documented :doc:`above
 # </tutorials/text/text_props>`.
 #
 #

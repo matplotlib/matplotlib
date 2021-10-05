@@ -37,7 +37,6 @@ from matplotlib import cm
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 
 viridis = cm.get_cmap('viridis', 8)
-print(viridis)
 
 ##############################################################################
 # The object ``viridis`` is a callable, that when passed a float between
@@ -49,7 +48,7 @@ print(viridis(0.56))
 # ListedColormap
 # --------------
 #
-# `.ListedColormap` s store their color values in a ``.colors`` attribute.
+# `.ListedColormap`\s store their color values in a ``.colors`` attribute.
 # The list of colors that comprise the colormap can be directly accessed using
 # the ``colors`` property,
 # or it can be accessed indirectly by calling  ``viridis`` with an array
@@ -69,12 +68,11 @@ print('viridis(np.linspace(0, 1, 12))', viridis(np.linspace(0, 1, 12)))
 ##############################################################################
 # LinearSegmentedColormap
 # -----------------------
-# `.LinearSegmentedColormap` s do not have a ``.colors`` attribute.
+# `.LinearSegmentedColormap`\s do not have a ``.colors`` attribute.
 # However, one may still call the colormap with an integer array, or with a
 # float array between 0 and 1.
 
 copper = cm.get_cmap('copper', 8)
-print(copper)
 
 print('copper(range(8))', copper(range(8)))
 print('copper(np.linspace(0, 1, 8))', copper(np.linspace(0, 1, 8)))
@@ -116,7 +114,7 @@ plot_examples([cmap])
 
 ##############################################################################
 # In fact, that list may contain any valid
-# :doc:`matplotlib color specification </tutorials/colors/colors>`.
+# :doc:`Matplotlib color specification </tutorials/colors/colors>`.
 # Particularly useful for creating custom colormaps are Nx4 numpy arrays.
 # Because with the variety of numpy operations that we can do on a such an
 # array, carpentry of new colormaps from existing colormaps become quite
@@ -138,8 +136,8 @@ plot_examples([viridis, newcmp])
 # middle 0.5 of the colormap.  However, we need to interpolate from a larger
 # colormap, otherwise the new colormap will have repeated values.
 
-viridisBig = cm.get_cmap('viridis', 512)
-newcmp = ListedColormap(viridisBig(np.linspace(0.25, 0.75, 256)))
+viridis_big = cm.get_cmap('viridis', 512)
+newcmp = ListedColormap(viridis_big(np.linspace(0.25, 0.75, 256)))
 plot_examples([viridis, newcmp])
 
 ##############################################################################
@@ -155,8 +153,8 @@ plot_examples([viridis, newcmp])
 
 ##############################################################################
 # Of course we need not start from a named colormap, we just need to create
-# the Nx4 array to pass to `.ListedColormap`. Here we  create a
-# colormap that goes from brown (RGB: 90,40,40) to white (RGB: 255,255,255).
+# the Nx4 array to pass to `.ListedColormap`. Here we create a colormap that
+# goes from brown (RGB: 90, 40, 40) to white (RGB: 255, 255, 255).
 
 N = 256
 vals = np.ones((N, 4))
@@ -170,7 +168,7 @@ plot_examples([viridis, newcmp])
 # Creating linear segmented colormaps
 # ===================================
 #
-# `.LinearSegmentedColormap` class specifies colormaps using anchor points
+# The `.LinearSegmentedColormap` class specifies colormaps using anchor points
 # between which RGB(A) values are interpolated.
 #
 # The format to specify these colormaps allows discontinuities at the anchor
@@ -179,7 +177,7 @@ plot_examples([viridis, newcmp])
 # ``yleft[i]`` and ``yright[i]`` are the values of the color on either
 # side of the anchor point.
 #
-# If there are no discontinuities, then ``yleft[i]=yright[i]``:
+# If there are no discontinuities, then ``yleft[i] == yright[i]``:
 
 cdict = {'red':   [[0.0,  0.0, 0.0],
                    [0.5,  1.0, 1.0],
@@ -223,9 +221,10 @@ plot_linearmap(cdict)
 #
 # In the example below there is a discontinuity in red at 0.5.  The
 # interpolation between 0 and 0.5 goes from 0.3 to 1, and between 0.5 and 1
-# it goes from 0.9 to 1.  Note that red[0, 1], and red[2, 2] are both
-# superfluous to the interpolation because red[0, 1] is the value to the
-# left of 0, and red[2, 2] is the value to the right of 1.0.
+# it goes from 0.9 to 1.  Note that ``red[0, 1]``, and ``red[2, 2]`` are both
+# superfluous to the interpolation because ``red[0, 1]`` (i.e., ``yleft[0]``)
+# is the value to the left of 0, and ``red[2, 2]`` (i.e., ``yright[2]``) is the
+# value to the right of 1, which are outside the color mapping domain.
 
 cdict['red'] = [[0.0,  0.0, 0.3],
                 [0.5,  1.0, 0.9],
@@ -236,7 +235,7 @@ plot_linearmap(cdict)
 # Directly creating a segmented colormap from a list
 # --------------------------------------------------
 #
-# The above described is a very versatile approach, but admitedly a bit
+# The approach described above is very versatile, but admittedly a bit
 # cumbersome to implement. For some basic cases, the use of
 # `.LinearSegmentedColormap.from_list` may be easier. This creates a segmented
 # colormap with equal spacings from a supplied list of colors.
@@ -245,8 +244,8 @@ colors = ["darkorange", "gold", "lawngreen", "lightseagreen"]
 cmap1 = LinearSegmentedColormap.from_list("mycmap", colors)
 
 #############################################################################
-# If desired, the nodes of the colormap can be given as numbers
-# between 0 and 1. E.g. one could have the reddish part take more space in the
+# If desired, the nodes of the colormap can be given as numbers between 0 and
+# 1. For example, one could have the reddish part take more space in the
 # colormap.
 
 nodes = [0.0, 0.4, 0.8, 1.0]
@@ -256,19 +255,15 @@ plot_examples([cmap1, cmap2])
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.pcolormesh
-matplotlib.figure.Figure.colorbar
-matplotlib.colors
-matplotlib.colors.LinearSegmentedColormap
-matplotlib.colors.ListedColormap
-matplotlib.cm
-matplotlib.cm.get_cmap
+#    - `matplotlib.axes.Axes.pcolormesh`
+#    - `matplotlib.figure.Figure.colorbar`
+#    - `matplotlib.colors`
+#    - `matplotlib.colors.LinearSegmentedColormap`
+#    - `matplotlib.colors.ListedColormap`
+#    - `matplotlib.cm`
+#    - `matplotlib.cm.get_cmap`

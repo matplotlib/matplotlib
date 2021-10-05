@@ -6,11 +6,9 @@ Creating a colormap from a list of colors
 For more detail on creating and manipulating colormaps see
 :doc:`/tutorials/colors/colormap-manipulation`.
 
-Creating a :doc:`colormap </tutorials/colors/colormaps>`
-from a list of colors can be done with the
-:meth:`~.colors.LinearSegmentedColormap.from_list` method of
-`.LinearSegmentedColormap`. You must pass a list of RGB tuples that define the
-mixture of colors from 0 to 1.
+Creating a :doc:`colormap </tutorials/colors/colormaps>` from a list of colors
+can be done with the `.LinearSegmentedColormap.from_list` method.  You must
+pass a list of RGB tuples that define the mixture of colors from 0 to 1.
 
 
 Creating custom colormaps
@@ -71,6 +69,7 @@ never used.
 
 """
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
@@ -90,12 +89,11 @@ n_bins = [3, 6, 10, 100]  # Discretizes the interpolation into bins
 cmap_name = 'my_list'
 fig, axs = plt.subplots(2, 2, figsize=(6, 9))
 fig.subplots_adjust(left=0.02, bottom=0.06, right=0.95, top=0.94, wspace=0.05)
-for n_bin, ax in zip(n_bins, axs.ravel()):
+for n_bin, ax in zip(n_bins, axs.flat):
     # Create the colormap
-    cm = LinearSegmentedColormap.from_list(
-        cmap_name, colors, N=n_bin)
+    cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bin)
     # Fewer bins will result in "coarser" colomap interpolation
-    im = ax.imshow(Z, interpolation='nearest', origin='lower', cmap=cm)
+    im = ax.imshow(Z, origin='lower', cmap=cmap)
     ax.set_title("N bins: %s" % n_bin)
     fig.colorbar(im, ax=ax)
 
@@ -150,15 +148,15 @@ cdict3 = {'red':  ((0.0, 0.0, 0.0),
 # in the middle of the range.
 cdict4 = {**cdict3,
           'alpha': ((0.0, 1.0, 1.0),
-                #   (0.25,1.0, 1.0),
+                    # (0.25, 1.0, 1.0),
                     (0.5, 0.3, 0.3),
-                #   (0.75,1.0, 1.0),
+                    # (0.75, 1.0, 1.0),
                     (1.0, 1.0, 1.0)),
           }
 
 
 ###############################################################################
-# Now we will use this example to illustrate 3 ways of
+# Now we will use this example to illustrate 2 ways of
 # handling custom colormaps.
 # First, the most direct and explicit:
 
@@ -170,15 +168,9 @@ blue_red1 = LinearSegmentedColormap('BlueRed1', cdict1)
 # of Colormap, not just
 # a LinearSegmentedColormap:
 
-blue_red2 = LinearSegmentedColormap('BlueRed2', cdict2)
-plt.register_cmap(cmap=blue_red2)
-
-###############################################################################
-# Third, for LinearSegmentedColormap only,
-# leave everything to register_cmap:
-
-plt.register_cmap(name='BlueRed3', data=cdict3)  # optional lut kwarg
-plt.register_cmap(name='BlueRedAlpha', data=cdict4)
+mpl.colormaps.register(LinearSegmentedColormap('BlueRed2', cdict2))
+mpl.colormaps.register(LinearSegmentedColormap('BlueRed3', cdict3))
+mpl.colormaps.register(LinearSegmentedColormap('BlueRedAlpha', cdict4))
 
 ###############################################################################
 # Make the figure:
@@ -188,11 +180,10 @@ fig.subplots_adjust(left=0.02, bottom=0.06, right=0.95, top=0.94, wspace=0.05)
 
 # Make 4 subplots:
 
-im1 = axs[0, 0].imshow(Z, interpolation='nearest', cmap=blue_red1)
+im1 = axs[0, 0].imshow(Z, cmap=blue_red1)
 fig.colorbar(im1, ax=axs[0, 0])
 
-cmap = plt.get_cmap('BlueRed2')
-im2 = axs[1, 0].imshow(Z, interpolation='nearest', cmap=cmap)
+im2 = axs[1, 0].imshow(Z, cmap='BlueRed2')
 fig.colorbar(im2, ax=axs[1, 0])
 
 # Now we will set the third cmap as the default.  One would
@@ -201,7 +192,7 @@ fig.colorbar(im2, ax=axs[1, 0])
 
 plt.rcParams['image.cmap'] = 'BlueRed3'
 
-im3 = axs[0, 1].imshow(Z, interpolation='nearest')
+im3 = axs[0, 1].imshow(Z)
 fig.colorbar(im3, ax=axs[0, 1])
 axs[0, 1].set_title("Alpha = 1")
 
@@ -215,7 +206,7 @@ axs[0, 1].set_title("Alpha = 1")
 # Draw a line with low zorder so it will be behind the image.
 axs[1, 1].plot([0, 10 * np.pi], [0, 20 * np.pi], color='c', lw=20, zorder=-1)
 
-im4 = axs[1, 1].imshow(Z, interpolation='nearest')
+im4 = axs[1, 1].imshow(Z)
 fig.colorbar(im4, ax=axs[1, 1])
 
 # Here it is: changing the colormap for the current image and its
@@ -231,23 +222,16 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.imshow
-matplotlib.pyplot.imshow
-matplotlib.figure.Figure.colorbar
-matplotlib.pyplot.colorbar
-matplotlib.colors
-matplotlib.colors.LinearSegmentedColormap
-matplotlib.colors.LinearSegmentedColormap.from_list
-matplotlib.cm
-matplotlib.cm.ScalarMappable.set_cmap
-matplotlib.pyplot.register_cmap
-matplotlib.cm.register_cmap
+#    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`
+#    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
+#    - `matplotlib.colors`
+#    - `matplotlib.colors.LinearSegmentedColormap`
+#    - `matplotlib.colors.LinearSegmentedColormap.from_list`
+#    - `matplotlib.cm`
+#    - `matplotlib.cm.ScalarMappable.set_cmap`
+#    - `matplotlib.cm.register_cmap`

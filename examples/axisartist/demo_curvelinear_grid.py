@@ -17,8 +17,7 @@ import matplotlib.pyplot as plt
 from matplotlib.projections import PolarAxes
 from matplotlib.transforms import Affine2D
 
-from mpl_toolkits.axisartist import (
-    angle_helper, Subplot, SubplotHost, ParasiteAxesAuxTrans)
+from mpl_toolkits.axisartist import angle_helper, Axes, HostAxes
 from mpl_toolkits.axisartist.grid_helper_curvelinear import (
     GridHelperCurveLinear)
 
@@ -28,26 +27,17 @@ def curvelinear_test1(fig):
     Grid for custom transform.
     """
 
-    def tr(x, y):
-        x, y = np.asarray(x), np.asarray(y)
-        return x, y - x
-
-    def inv_tr(x, y):
-        x, y = np.asarray(x), np.asarray(y)
-        return x, y + x
+    def tr(x, y): return x, y - x
+    def inv_tr(x, y): return x, y + x
 
     grid_helper = GridHelperCurveLinear((tr, inv_tr))
 
-    ax1 = Subplot(fig, 1, 2, 1, grid_helper=grid_helper)
-    # ax1 will have a ticks and gridlines defined by the given
-    # transform (+ transData of the Axes). Note that the transform of
-    # the Axes itself (i.e., transData) is not affected by the given
-    # transform.
-
-    fig.add_subplot(ax1)
-
-    xx, yy = tr([3, 6], [5, 10])
-    ax1.plot(xx, yy, linewidth=2.0)
+    ax1 = fig.add_subplot(1, 2, 1, axes_class=Axes, grid_helper=grid_helper)
+    # ax1 will have ticks and gridlines defined by the given transform (+
+    # transData of the Axes).  Note that the transform of the Axes itself
+    # (i.e., transData) is not affected by the given transform.
+    xx, yy = tr(np.array([3, 6]), np.array([5, 10]))
+    ax1.plot(xx, yy)
 
     ax1.set_aspect(1)
     ax1.set_xlim(0, 10)
@@ -84,7 +74,8 @@ def curvelinear_test2(fig):
     grid_helper = GridHelperCurveLinear(
         tr, extreme_finder=extreme_finder,
         grid_locator1=grid_locator1, tick_formatter1=tick_formatter1)
-    ax1 = SubplotHost(fig, 1, 2, 2, grid_helper=grid_helper)
+    ax1 = fig.add_subplot(
+        1, 2, 2, axes_class=HostAxes, grid_helper=grid_helper)
 
     # make ticklabels of right and top axis visible.
     ax1.axis["right"].major_ticklabels.set_visible(True)
@@ -94,8 +85,6 @@ def curvelinear_test2(fig):
     # let bottom axis shows ticklabels for 2nd coordinate (radius)
     ax1.axis["bottom"].get_helper().nth_coord_ticks = 1
 
-    fig.add_subplot(ax1)
-
     ax1.set_aspect(1)
     ax1.set_xlim(-5, 12)
     ax1.set_ylim(-5, 10)
@@ -103,11 +92,16 @@ def curvelinear_test2(fig):
     ax1.grid(True, zorder=0)
 
     # A parasite axes with given transform
-    ax2 = ParasiteAxesAuxTrans(ax1, tr, "equal")
+    ax2 = ax1.get_aux_axes(tr)
     # note that ax2.transData == tr + ax1.transData
     # Anything you draw in ax2 will match the ticks and grids of ax1.
     ax1.parasites.append(ax2)
     ax2.plot(np.linspace(0, 30, 51), np.linspace(10, 10, 51), linewidth=2)
+
+    ax2.pcolor(np.linspace(0, 90, 4), np.linspace(0, 10, 4),
+               np.arange(9).reshape((3, 3)))
+    ax2.contour(np.linspace(0, 90, 4), np.linspace(0, 10, 4),
+                np.arange(16).reshape((4, 4)), colors="k")
 
 
 if __name__ == "__main__":

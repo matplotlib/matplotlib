@@ -17,7 +17,7 @@ import logging
 
 import numpy as np
 
-from matplotlib import cbook, ticker, units
+from matplotlib import _api, ticker, units
 
 
 _log = logging.getLogger(__name__)
@@ -43,19 +43,26 @@ class StrCategoryConverter(units.ConversionInterface):
 
         Returns
         -------
-        mapped_value : float or ndarray[float]
+        float or ndarray[float]
         """
         if unit is None:
             raise ValueError(
                 'Missing category information for StrCategoryConverter; '
                 'this might be caused by unintendedly mixing categorical and '
                 'numeric data')
+        StrCategoryConverter._validate_unit(unit)
         # dtype = object preserves numerical pass throughs
         values = np.atleast_1d(np.array(value, dtype=object))
         # pass through sequence of non binary numbers
-        if all(units.ConversionInterface.is_numlike(v)
-               and not isinstance(v, (str, bytes))
-               for v in values):
+        with _api.suppress_matplotlib_deprecation_warning():
+            is_numlike = all(units.ConversionInterface.is_numlike(v)
+                             and not isinstance(v, (str, bytes))
+                             for v in values)
+        if is_numlike:
+            _api.warn_deprecated(
+                "3.5", message="Support for passing numbers through unit "
+                "converters is deprecated since %(since)s and support will be "
+                "removed %(removal)s; use Axis.convert_units instead.")
             return np.asarray(values, dtype=float)
         # force an update so it also does type checking
         unit.update(values)
@@ -75,11 +82,12 @@ class StrCategoryConverter(units.ConversionInterface):
 
         Returns
         -------
-        axisinfo : `~matplotlib.units.AxisInfo`
+        `~matplotlib.units.AxisInfo`
             Information to support default tick labeling
 
         .. note: axis is not used
         """
+        StrCategoryConverter._validate_unit(unit)
         # locator and formatter take mapping dict because
         # args need to be pass by reference for updates
         majloc = StrCategoryLocator(unit._mapping)
@@ -99,7 +107,7 @@ class StrCategoryConverter(units.ConversionInterface):
 
         Returns
         -------
-        class : `.UnitData`
+        `.UnitData`
             object storing string to integer mapping
         """
         # the conversion call stack is default_units -> axis_info -> convert
@@ -109,21 +117,31 @@ class StrCategoryConverter(units.ConversionInterface):
             axis.units.update(data)
         return axis.units
 
+    @staticmethod
+    def _validate_unit(unit):
+        if not hasattr(unit, '_mapping'):
+            raise ValueError(
+                f'Provided unit "{unit}" is not valid for a categorical '
+                'converter, as it does not have a _mapping attribute.')
+
 
 class StrCategoryLocator(ticker.Locator):
     """Tick at every integer mapping of the string data."""
     def __init__(self, units_mapping):
         """
         Parameters
-        -----------
-        units_mapping : Dict[str, int]
+        ----------
+        units_mapping : dict
+            Mapping of category names (str) to indices (int).
         """
         self._units = units_mapping
 
     def __call__(self):
+        # docstring inherited
         return list(self._units.values())
 
     def tick_values(self, vmin, vmax):
+        # docstring inherited
         return self()
 
 
@@ -133,14 +151,17 @@ class StrCategoryFormatter(ticker.Formatter):
         """
         Parameters
         ----------
-        units_mapping : Dict[Str, int]
+        units_mapping : dict
+            Mapping of category names (str) to indices (int).
         """
         self._units = units_mapping
 
     def __call__(self, x, pos=None):
-        return '' if pos is None else self.format_ticks([x])[0]
+        # docstring inherited
+        return self.format_ticks([x])[0]
 
     def format_ticks(self, values):
+        # docstring inherited
         r_mapping = {v: self._text(k) for k, v in self._units.items()}
         return [r_mapping.get(round(val), '') for val in values]
 
@@ -179,7 +200,8 @@ class UnitData:
         except ValueError:
             try:
                 dateutil.parser.parse(val)
-            except ValueError:
+            except (ValueError, TypeError):
+                # TypeError if dateutil >= 2.8.1 else ValueError
                 return False
         return True
 
@@ -189,21 +211,19 @@ class UnitData:
 
         Parameters
         ----------
-        data : iterable
-            sequence of string values
+        data : iterable of str or bytes
 
         Raises
         ------
         TypeError
-              If the value in data is not a string, unicode, bytes type
+            If elements in *data* are neither str nor bytes.
         """
         data = np.atleast_1d(np.array(data, dtype=object))
-
         # check if convertible to number:
         convertible = True
         for val in OrderedDict.fromkeys(data):
             # OrderedDict just iterates over unique values in data.
-            cbook._check_isinstance((str, bytes), value=val)
+            _api.check_isinstance((str, bytes), value=val)
             if convertible:
                 # this will only be called so long as convertible is True.
                 convertible = self._str_is_convertible(val)

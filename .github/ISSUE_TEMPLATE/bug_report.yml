@@ -1,0 +1,90 @@
+name: Bug Report
+description: Report a bug or issue with Matplotlib
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        To help us understand and resolve your issue, please fill out the form to the best of your ability. 
+  - type: textarea
+    id: summary
+    attributes:
+      label: Bug summary
+      description: Please provide 1-2 short sentences that succinctly describes the bug
+      placeholder: 
+      value:
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Code for reproduction
+      description: If possible, please provide a minimum self-contained example. 
+      placeholder: Paste your code here
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual outcome
+      description: Please provide the output produced by the above code, which may be a screenshot, console output, etc. 
+      placeholder: if applicable, paste the console output and images here
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected outcome
+      description: Please provide a description (or visual example) of the expected outcome from the code snippet. If this used to work in an earlier version of Matplotlib, please note the version it used to work on
+    validations:
+      required: true
+  - type: input
+    id: operating-system
+    attributes:
+      label: Operating system
+      description: What operating system are you using?
+      placeholder: Windows, OS/X, Arch, Debian, Ubuntu, etc.  
+  - type: input
+    id: matplotlib-version
+    attributes:
+      label: Matplotlib Version
+      placeholder: import matplotlib; print(matplotlib.__version__)
+    validations:
+      required: true
+  - type: input
+    id: matplotlib-backend
+    attributes: 
+      label: Matplotlib Backend
+      placeholder: print(matplotlib.get_backend())
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      placeholder: python --version
+  - type: input
+    id: jupyter-version
+    attributes:
+      label: Jupyter version
+      placeholder: jupyter notebook --version, jupyter lab --version
+  - type: textarea
+    id: other-libraries
+    attributes:
+      label: Other libraries
+      description: please provide the versions of any other libraries that are relevant to this bug report.
+  - type: dropdown
+    id: install
+    attributes:
+      label: Installation
+      description: how did you install matplotlib?
+      options:
+        - pip
+        - conda
+        - Linux package manager (Debian/Fedora/etc.)
+        - source
+  - type: input
+    id: conda-channel
+    attributes:
+      label: Conda channel
+      description: If you installed from conda, please specify which channel you used if not the default?
+      placeholder: conda-forge

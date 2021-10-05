@@ -27,7 +27,7 @@ static int convert_string_enum(PyObject *obj, const char *name, const char **nam
         Py_INCREF(obj);
         bytesobj = obj;
     } else {
-        PyErr_Format(PyExc_TypeError, "%s must be bytes or unicode", name);
+        PyErr_Format(PyExc_TypeError, "%s must be str or bytes", name);
         return 0;
     }
 
@@ -54,9 +54,9 @@ int convert_from_method(PyObject *obj, const char *name, converter func, void *p
 {
     PyObject *value;
 
-    value = PyObject_CallMethod(obj, (char *)name, NULL);
+    value = PyObject_CallMethod(obj, name, NULL);
     if (value == NULL) {
-        if (!PyObject_HasAttrString(obj, (char *)name)) {
+        if (!PyObject_HasAttrString(obj, name)) {
             PyErr_Clear();
             return 1;
         }
@@ -76,9 +76,9 @@ int convert_from_attr(PyObject *obj, const char *name, converter func, void *p)
 {
     PyObject *value;
 
-    value = PyObject_GetAttrString(obj, (char *)name);
+    value = PyObject_GetAttrString(obj, name);
     if (value == NULL) {
-        if (!PyObject_HasAttrString(obj, (char *)name)) {
+        if (!PyObject_HasAttrString(obj, name)) {
             PyErr_Clear();
             return 1;
         }
@@ -92,13 +92,6 @@ int convert_from_attr(PyObject *obj, const char *name, converter func, void *p)
 
     Py_DECREF(value);
     return 1;
-}
-
-int convert_voidptr(PyObject *obj, void *p)
-{
-    void **val = (void **)p;
-    *val = PyLong_AsVoidPtr(obj);
-    return *val != NULL ? 1 : !PyErr_Occurred();
 }
 
 int convert_double(PyObject *obj, void *p)
@@ -219,24 +212,11 @@ int convert_dashes(PyObject *dashobj, void *dashesp)
 {
     Dashes *dashes = (Dashes *)dashesp;
 
-    if (dashobj == NULL && dashobj == Py_None) {
-        return 1;
-    }
-
-    PyObject *dash_offset_obj = NULL;
     double dash_offset = 0.0;
     PyObject *dashes_seq = NULL;
-    Py_ssize_t nentries;
 
-    if (!PyArg_ParseTuple(dashobj, "OO:dashes", &dash_offset_obj, &dashes_seq)) {
+    if (!PyArg_ParseTuple(dashobj, "dO:dashes", &dash_offset, &dashes_seq)) {
         return 0;
-    }
-
-    if (dash_offset_obj != Py_None) {
-        dash_offset = PyFloat_AsDouble(dash_offset_obj);
-        if (PyErr_Occurred()) {
-            return 0;
-        }
     }
 
     if (dashes_seq == Py_None) {
@@ -248,18 +228,17 @@ int convert_dashes(PyObject *dashobj, void *dashesp)
         return 0;
     }
 
-    nentries = PySequence_Size(dashes_seq);
-    if (nentries % 2 != 0) {
-        PyErr_Format(PyExc_ValueError, "dashes sequence must have an even number of elements");
-        return 0;
-    }
+    Py_ssize_t nentries = PySequence_Size(dashes_seq);
+    // If the dashpattern has odd length, iterate through it twice (in
+    // accordance with the pdf/ps/svg specs).
+    Py_ssize_t dash_pattern_length = (nentries % 2) ? 2 * nentries : nentries;
 
-    for (Py_ssize_t i = 0; i < nentries; ++i) {
+    for (Py_ssize_t i = 0; i < dash_pattern_length; ++i) {
         PyObject *item;
         double length;
         double skip;
 
-        item = PySequence_GetItem(dashes_seq, i);
+        item = PySequence_GetItem(dashes_seq, i % nentries);
         if (item == NULL) {
             return 0;
         }
@@ -272,7 +251,7 @@ int convert_dashes(PyObject *dashobj, void *dashesp)
 
         ++i;
 
-        item = PySequence_GetItem(dashes_seq, i);
+        item = PySequence_GetItem(dashes_seq, i % nentries);
         if (item == NULL) {
             return 0;
         }
@@ -416,6 +395,16 @@ exit:
     return status;
 }
 
+int convert_pathgen(PyObject *obj, void *pathgenp)
+{
+    py::PathGenerator *paths = (py::PathGenerator *)pathgenp;
+    if (!paths->set(obj)) {
+        PyErr_SetString(PyExc_TypeError, "Not an iterable of paths");
+        return 0;
+    }
+    return 1;
+}
+
 int convert_clippath(PyObject *clippath_tuple, void *clippathp)
 {
     ClipPath *clippath = (ClipPath *)clippathp;
@@ -489,22 +478,6 @@ int convert_gcagg(PyObject *pygc, void *gcp)
           convert_from_method(pygc, "get_sketch_params", &convert_sketch_params, &gc->sketch))) {
         return 0;
     }
-
-    return 1;
-}
-
-int convert_offset_position(PyObject *obj, void *offsetp)
-{
-    e_offset_position *offset = (e_offset_position *)offsetp;
-    const char *names[] = {"data", NULL};
-    int values[] = {OFFSET_POSITION_DATA};
-    int result = (int)OFFSET_POSITION_FIGURE;
-
-    if (!convert_string_enum(obj, "offset_position", names, values, &result)) {
-        PyErr_Clear();
-    }
-
-    *offset = (e_offset_position)result;
 
     return 1;
 }

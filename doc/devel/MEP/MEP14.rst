@@ -73,16 +73,18 @@ has a number of shortcomings.
 Supporting these things is difficult, and is the "full-time job" of a
 number of other projects:
 
-  - `pango <https://www.pango.org/>`_/`harfbuzz
-    <https://www.freedesktop.org/wiki/Software/HarfBuzz/>`_
-  - `QtTextLayout
-    <https://doc.qt.io/archives/qt-4.8/qtextlayout.html>`_
-  - `Microsoft DirectWrite
-    <https://msdn.microsoft.com/en-us/library/windows/desktop/dd371554(v=vs.85).aspx>`_
-  - `Apple Core Text
-    <https://developer.apple.com/library/content/documentation/StringsTextFonts/Conceptual/CoreText_Programming/Overview/Overview.html>`_
+- pango_/harfbuzz_
+- QtTextLayout_
+- `Microsoft DirectWrite`_
+- `Apple Core Text`_
 
-Of the above options, it should be noted that `harfbuzz` is designed
+.. _pango: https://www.pango.org/
+.. _harfbuzz: https://www.freedesktop.org/wiki/Software/HarfBuzz/
+.. _QtTextLayout: https://doc.qt.io/archives/qt-4.8/qtextlayout.html
+.. _Microsoft DirectWrite: https://docs.microsoft.com/en-ca/windows/win32/directwrite/introducing-directwrite
+.. _Apple Core Text: https://developer.apple.com/library/archive/documentation/StringsTextFonts/Conceptual/CoreText_Programming/Overview/Overview.html
+
+Of the above options, it should be noted that harfbuzz_ is designed
 from the start as a cross platform option with minimal dependencies,
 so therefore is a good candidate for a single option to support.
 
@@ -113,13 +115,13 @@ requires the installation of TeX-specific font packages, for example,
 and can not use TrueType fonts directly.  Unfortunately, despite the
 different semantics for font selection, the same set of font
 properties are used for each.  This is true of both the
-`FontProperties` class and the font-related `rcParams` (which
+`.FontProperties` class and the font-related `.rcParams` (which
 basically share the same code underneath).  Instead, we should define
 a core set of font selection parameters that will work across all text
 engines, and have engine-specific configuration to allow the user to
 do engine-specific things when required.  For example, it is possible
 to directly select a font by name in the "built-in" using
-`font.family`, but the same is not possible with "usetex".  It may be
+:rc:`font.family`, but the same is not possible with "usetex".  It may be
 possible to make it easier to use TrueType fonts by using XeTeX, but
 users will still want to use the traditional metafonts through TeX
 font packages.  So the issue still stands that different text engines
@@ -128,12 +130,11 @@ to the user which configuration will work across text engines and
 which are engine-specific.
 
 Note that even excluding "usetex", there are different ways to find
-fonts.  The default is to use the font list cache in `font_manager.py`
+fonts.  The default is to use the font list cache in :mod:`.font_manager`
 which matches fonts using our own algorithm based on the `CSS font
 matching algorithm <http://www.w3.org/TR/CSS2/fonts.html#algorithm>`_.
 It doesn't always do the same thing as the native font selection
-algorithms on Linux (`fontconfig
-<https://www.freedesktop.org/wiki/Software/fontconfig/>`_), Mac and
+algorithms on Linux (fontconfig_), Mac and
 Windows, and it doesn't always find all of the fonts on the system
 that the OS would normally pick up.  However, it is cross-platform,
 and always finds the fonts that ship with matplotlib.  The Cairo and
@@ -146,13 +147,14 @@ we ship with matplotlib.  (It may be possible to add the fonts to
 their search path, though, or we may need to find a way to install our
 fonts to a location the OS expects to find them).
 
+.. _fontconfig: https://www.freedesktop.org/wiki/Software/fontconfig/
+
 There are also special modes in the PS and PDF to only use the core
 fonts that are always available to those formats.  There, the font
 lookup mechanism must only match against those fonts.  It is unclear
 whether the OS-native font lookup systems can handle this case.
 
-There is also experimental support for using `fontconfig
-<https://www.freedesktop.org/wiki/Software/fontconfig/>`_ for font
+There is also experimental support for using fontconfig_ for font
 selection in matplotlib, turned off by default.  fontconfig is the
 native font selection algorithm on Linux, but is also cross platform
 and works well on the other platforms (though obviously is an
@@ -166,7 +168,7 @@ All of the above seems to suggest that we should move away from our
 self-written font selection algorithm and use the native APIs where
 possible.  That's what Cairo and MacOSX backends already want to use,
 and it will be a requirement of any complex text layout library.  On
-Linux, we already have the bones of a `fontconfig` implementation
+Linux, we already have the bones of a fontconfig_ implementation
 (which could also be accessed through pango).  On Windows and Mac we
 may need to write custom wrappers.  The nice thing is that the API for
 font lookup is relatively small, and essentially consist of "given a
@@ -200,8 +202,10 @@ possible.
 
 Alternative font subsetting options include using the subsetting
 built-in to Cairo (not clear if it can be used without the rest of
-Cairo), or using `fontforge` (which is a heavy and not terribly
+Cairo), or using fontforge_ (which is a heavy and not terribly
 cross-platform dependency).
+
+.. _fontforge: https://fontforge.org
 
 **Freetype wrappers**
 
@@ -252,7 +256,7 @@ arbitrary text engine in another should be possible.
 The text mode is currently set by a global rcParam ("text.usetex") so
 it's either all on or all off.  We should continue to have a global
 rcParam to choose the text engine ("text.layout_engine"), but it
-should under the hood be an overridable property on the `Text` object,
+should under the hood be an overridable property on the `.Text` object,
 so the same figure can combine the results of multiple text layout
 engines if necessary.
 
@@ -261,16 +265,16 @@ Implementation
 ==============
 
 A concept of a "text engine" will be introduced.  Each text engine
-will implement a number of abstract classes.  The `TextFont` interface
+will implement a number of abstract classes.  The ``TextFont`` interface
 will represent text for a given set of font properties.  It isn't
 necessarily limited to a single font file -- if the layout engine
 supports rich text, it may handle a number of font files in a family.
-Given a `TextFont` instance, the user can get a `TextLayout` instance,
+Given a ``TextFont`` instance, the user can get a ``TextLayout`` instance,
 which represents the layout for a given string of text in a given
-font.  From a `TextLayout`, an iterator over `TextSpans` is returned
+font.  From a ``TextLayout``, an iterator over ``TextSpan``\ s is returned
 so the engine can output raw editable text using as few spans as
 possible.  If the engine would rather get individual characters, they
-can be obtained from the `TextSpan` instance::
+can be obtained from the ``TextSpan`` instance::
 
 
   class TextFont(TextFontBase):
@@ -372,10 +376,10 @@ copy of the path for each character will be stored in the file.
 Special casing: The "usetex" functionality currently is able to get
 Postscript directly from TeX to insert directly in a Postscript file,
 but for other backends, parses a DVI file and generates something more
-abstract.  For a case like this, `TextLayout` would implement
-`get_spans` for most backends, but add `get_ps` for the Postscript
+abstract.  For a case like this, ``TextLayout`` would implement
+``get_spans`` for most backends, but add ``get_ps`` for the Postscript
 backend, which would look for the presence of this method and use it
-if available, or fall back to `get_spans`.  This kind of special
+if available, or fall back to ``get_spans``.  This kind of special
 casing may also be necessary, for example, when the graphics backend
 and text engine belong to the same ecosystem, e.g. Cairo and Pango, or
 MacOSX and CoreText.

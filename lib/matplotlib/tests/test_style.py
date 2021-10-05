@@ -1,10 +1,9 @@
-from collections import OrderedDict
 from contextlib import contextmanager
-import gc
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import sys
 
+import numpy as np
 import pytest
 
 import matplotlib as mpl
@@ -36,13 +35,14 @@ def temp_style(style_name, settings=None):
         style.reload_library()
 
 
-def test_invalid_rc_warning_includes_filename(capsys):
+def test_invalid_rc_warning_includes_filename(caplog):
     SETTINGS = {'foo': 'bar'}
     basename = 'basename'
     with temp_style(basename, SETTINGS):
         # style.reload_library() in temp_style() triggers the warning
         pass
-    assert basename in capsys.readouterr().err
+    assert (len(caplog.records) == 1
+            and basename in caplog.records[0].getMessage())
 
 
 def test_available():
@@ -137,10 +137,9 @@ def test_context_with_union_of_dict_and_namedstyle():
 def test_context_with_badparam():
     original_value = 'gray'
     other_value = 'blue'
-    d = OrderedDict([(PARAM, original_value), ('badparam', None)])
     with style.context({PARAM: other_value}):
         assert mpl.rcParams[PARAM] == other_value
-        x = style.context([d])
+        x = style.context({PARAM: original_value, 'badparam': None})
         with pytest.raises(KeyError):
             with x:
                 pass
@@ -166,7 +165,7 @@ def test_xkcd_no_cm():
     assert mpl.rcParams["path.sketch"] is None
     plt.xkcd()
     assert mpl.rcParams["path.sketch"] == (1, 100, 2)
-    gc.collect()
+    np.testing.break_cycles()
     assert mpl.rcParams["path.sketch"] == (1, 100, 2)
 
 

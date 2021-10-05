@@ -1,50 +1,61 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-/*
- * This code is derived from The Python Imaging Library and is covered
- * by the PIL license.
- *
- * See LICENSE/LICENSE.PIL for details.
- *
- */
+// Where is PIL?
+//
+// Many years ago, Matplotlib used to include code from PIL (the Python Imaging
+// Library).  Since then, the code has changed a lot - the organizing principle
+// and methods of operation are now quite different.  Because our review of
+// the codebase showed that all the code that came from PIL was removed or
+// rewritten, we have removed the PIL licensing information.  If you want PIL,
+// you can get it at https://python-pillow.org/
+
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
-#include <cstdlib>
-#include <cstdio>
-#include <sstream>
-
-#include <agg_basics.h> // agg:int8u
 
 #ifdef _WIN32
+#define WIN32_DLL
+#endif
+#ifdef __CYGWIN__
+/*
+ * Unfortunately cygwin's libdl inherits restrictions from the underlying
+ * Windows OS, at least currently. Therefore, a symbol may be loaded from a
+ * module by dlsym() only if it is really located in the given modile,
+ * dependencies are not included. So we have to use native WinAPI on Cygwin
+ * also.
+ */
+#define WIN32_DLL
+#endif
+
+#ifdef WIN32_DLL
+#include <string>
 #include <windows.h>
+#include <commctrl.h>
+#define PSAPI_VERSION 1
+#include <psapi.h>  // Must be linked with 'psapi' library
+#define dlsym GetProcAddress
+#else
+#include <dlfcn.h>
 #endif
 
 // Include our own excerpts from the Tcl / Tk headers
 #include "_tkmini.h"
 
-#include "py_converters.h"
-
-#if defined(_MSC_VER)
-#  define IMG_FORMAT "%d %d %Iu"
-#else
-#  define IMG_FORMAT "%d %d %zu"
-#endif
-#define BBOX_FORMAT "%f %f %f %f"
-
-typedef struct
+static int convert_voidptr(PyObject *obj, void *p)
 {
-    PyObject_HEAD
-    Tcl_Interp *interp;
-} TkappObject;
+    void **val = (void **)p;
+    *val = PyLong_AsVoidPtr(obj);
+    return *val != NULL ? 1 : !PyErr_Occurred();
+}
 
-// Global vars for Tcl / Tk functions.  We load these symbols from the tkinter
-// extension module or loaded Tcl / Tk libraries at run-time.
-static Tcl_CreateCommand_t TCL_CREATE_COMMAND;
-static Tcl_AppendResult_t TCL_APPEND_RESULT;
-static Tk_MainWindow_t TK_MAIN_WINDOW;
+// Global vars for Tk functions.  We load these symbols from the tkinter
+// extension module or loaded Tk libraries at run-time.
 static Tk_FindPhoto_t TK_FIND_PHOTO;
-static Tk_PhotoPutBlock_NoComposite_t TK_PHOTO_PUT_BLOCK_NO_COMPOSITE;
-static Tk_PhotoBlank_t TK_PHOTO_BLANK;
+static Tk_PhotoPutBlock_t TK_PHOTO_PUT_BLOCK;
+#ifdef WIN32_DLL
+// Global vars for Tcl functions.  We load these symbols from the tkinter
+// extension module or loaded Tcl libraries at run-time.
+static Tcl_SetVar_t TCL_SETVAR;
+#endif
 
 static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
 {
@@ -52,13 +63,16 @@ static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
     char const *photo_name;
     int height, width;
     unsigned char *data_ptr;
+    int comp_rule;
+    int put_retval;
     int o0, o1, o2, o3;
     int x1, x2, y1, y2;
     Tk_PhotoHandle photo;
     Tk_PhotoImageBlock block;
-    if (!PyArg_ParseTuple(args, "O&s(iiO&)(iiii)(iiii):blit",
+    if (!PyArg_ParseTuple(args, "O&s(iiO&)i(iiii)(iiii):blit",
                           convert_voidptr, &interp, &photo_name,
                           &height, &width, convert_voidptr, &data_ptr,
+                          &comp_rule,
                           &o0, &o1, &o2, &o3,
                           &x1, &x2, &y1, &y2)) {
         goto exit;
@@ -71,7 +85,12 @@ static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
         PyErr_SetString(PyExc_ValueError, "Attempting to draw out of bounds");
         goto exit;
     }
+    if (comp_rule != TK_PHOTO_COMPOSITE_OVERLAY && comp_rule != TK_PHOTO_COMPOSITE_SET) {
+        PyErr_SetString(PyExc_ValueError, "Invalid comp_rule argument");
+        goto exit;
+    }
 
+    Py_BEGIN_ALLOW_THREADS
     block.pixelPtr = data_ptr + 4 * ((height - y2) * width + x1);
     block.width = x2 - x1;
     block.height = y2 - y1;
@@ -81,8 +100,13 @@ static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
     block.offset[1] = o1;
     block.offset[2] = o2;
     block.offset[3] = o3;
-    TK_PHOTO_PUT_BLOCK_NO_COMPOSITE(
-        photo, &block, x1, height - y2, x2 - x1, y2 - y1);
+    put_retval = TK_PHOTO_PUT_BLOCK(
+        interp, photo, &block, x1, height - y2, x2 - x1, y2 - y1, comp_rule);
+    Py_END_ALLOW_THREADS
+    if (put_retval == TCL_ERROR) {
+        return PyErr_NoMemory();
+    }
+
 exit:
     if (PyErr_Occurred()) {
         return NULL;
@@ -91,206 +115,186 @@ exit:
     }
 }
 
-#ifdef _WIN32
-static PyObject *
-Win32_GetForegroundWindow(PyObject *module, PyObject *args)
+#ifdef WIN32_DLL
+LRESULT CALLBACK
+DpiSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+                UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
-    HWND handle = GetForegroundWindow();
-    if (!PyArg_ParseTuple(args, ":GetForegroundWindow")) {
-        return NULL;
-    }
-    return PyLong_FromSize_t((size_t)handle);
-}
+    switch (uMsg) {
+    case WM_DPICHANGED:
+        // This function is a subclassed window procedure, and so is run during
+        // the Tcl/Tk event loop. Unfortunately, Tkinter has a *second* lock on
+        // Tcl threading that is not exposed publicly, but is currently taken
+        // while we're in the window procedure. So while we can take the GIL to
+        // call Python code, we must not also call *any* Tk code from Python.
+        // So stay with Tcl calls in C only.
+        {
+            // This variable naming must match the name used in
+            // lib/matplotlib/backends/_backend_tk.py:FigureManagerTk.
+            std::string var_name("window_dpi");
+            var_name += std::to_string((unsigned long long)hwnd);
 
-static PyObject *
-Win32_SetForegroundWindow(PyObject *module, PyObject *args)
-{
-    HWND handle;
-    if (!PyArg_ParseTuple(args, "n:SetForegroundWindow", &handle)) {
-        return NULL;
+            // X is high word, Y is low word, but they are always equal.
+            std::string dpi = std::to_string(LOWORD(wParam));
+
+            Tcl_Interp* interp = (Tcl_Interp*)dwRefData;
+            TCL_SETVAR(interp, var_name.c_str(), dpi.c_str(), 0);
+        }
+        return 0;
+    case WM_NCDESTROY:
+        RemoveWindowSubclass(hwnd, DpiSubclassProc, uIdSubclass);
+        break;
     }
-    if (!SetForegroundWindow(handle)) {
-        return PyErr_Format(PyExc_RuntimeError, "Error setting window");
-    }
-    Py_INCREF(Py_None);
-    return Py_None;
+
+    return DefSubclassProc(hwnd, uMsg, wParam, lParam);
 }
 #endif
+
+static PyObject*
+mpl_tk_enable_dpi_awareness(PyObject* self, PyObject*const* args,
+                            Py_ssize_t nargs)
+{
+    if (nargs != 2) {
+        return PyErr_Format(PyExc_TypeError,
+                            "enable_dpi_awareness() takes 2 positional "
+                            "arguments but %zd were given",
+                            nargs);
+    }
+
+#ifdef WIN32_DLL
+    HWND frame_handle = NULL;
+    Tcl_Interp *interp = NULL;
+
+    if (!convert_voidptr(args[0], &frame_handle)) {
+        return NULL;
+    }
+    if (!convert_voidptr(args[1], &interp)) {
+        return NULL;
+    }
+
+#ifdef _DPI_AWARENESS_CONTEXTS_
+    HMODULE user32 = LoadLibrary("user32.dll");
+
+    typedef DPI_AWARENESS_CONTEXT (WINAPI *GetWindowDpiAwarenessContext_t)(HWND);
+    GetWindowDpiAwarenessContext_t GetWindowDpiAwarenessContextPtr =
+        (GetWindowDpiAwarenessContext_t)GetProcAddress(
+            user32, "GetWindowDpiAwarenessContext");
+    if (GetWindowDpiAwarenessContextPtr == NULL) {
+        FreeLibrary(user32);
+        Py_RETURN_FALSE;
+    }
+
+    typedef BOOL (WINAPI *AreDpiAwarenessContextsEqual_t)(DPI_AWARENESS_CONTEXT,
+                                                          DPI_AWARENESS_CONTEXT);
+    AreDpiAwarenessContextsEqual_t AreDpiAwarenessContextsEqualPtr =
+        (AreDpiAwarenessContextsEqual_t)GetProcAddress(
+            user32, "AreDpiAwarenessContextsEqual");
+    if (AreDpiAwarenessContextsEqualPtr == NULL) {
+        FreeLibrary(user32);
+        Py_RETURN_FALSE;
+    }
+
+    DPI_AWARENESS_CONTEXT ctx = GetWindowDpiAwarenessContextPtr(frame_handle);
+    bool per_monitor = (
+        AreDpiAwarenessContextsEqualPtr(
+            ctx, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2) ||
+        AreDpiAwarenessContextsEqualPtr(
+            ctx, DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE));
+
+    if (per_monitor) {
+        // Per monitor aware means we need to handle WM_DPICHANGED by wrapping
+        // the Window Procedure, and the Python side needs to trace the Tk
+        // window_dpi variable stored on interp.
+        SetWindowSubclass(frame_handle, DpiSubclassProc, 0, (DWORD_PTR)interp);
+    }
+    FreeLibrary(user32);
+    return PyBool_FromLong(per_monitor);
+#endif
+#endif
+
+    Py_RETURN_NONE;
+}
 
 static PyMethodDef functions[] = {
-    /* Tkinter interface stuff */
     { "blit", (PyCFunction)mpl_tk_blit, METH_VARARGS },
-#ifdef _WIN32
-    { "Win32_GetForegroundWindow", (PyCFunction)Win32_GetForegroundWindow, METH_VARARGS },
-    { "Win32_SetForegroundWindow", (PyCFunction)Win32_SetForegroundWindow, METH_VARARGS },
-#endif
+    { "enable_dpi_awareness", (PyCFunction)mpl_tk_enable_dpi_awareness,
+      METH_FASTCALL },
     { NULL, NULL } /* sentinel */
 };
 
-// Functions to fill global TCL / Tk function pointers by dynamic loading
-#ifdef _WIN32
+// Functions to fill global Tcl/Tk function pointers by dynamic loading.
 
-/*
- * On Windows, we can't load the tkinter module to get the TCL or Tk symbols,
+template <class T>
+int load_tk(T lib)
+{
+    // Try to fill Tk global vars with function pointers. Return the number of
+    // functions found.
+    return
+        !!(TK_FIND_PHOTO =
+            (Tk_FindPhoto_t)dlsym(lib, "Tk_FindPhoto")) +
+        !!(TK_PHOTO_PUT_BLOCK =
+            (Tk_PhotoPutBlock_t)dlsym(lib, "Tk_PhotoPutBlock"));
+}
+
+#ifdef WIN32_DLL
+
+template <class T>
+int load_tcl(T lib)
+{
+    // Try to fill Tcl global vars with function pointers. Return the number of
+    // functions found.
+    return
+        !!(TCL_SETVAR = (Tcl_SetVar_t)dlsym(lib, "Tcl_SetVar"));
+}
+
+/* On Windows, we can't load the tkinter module to get the Tcl/Tk symbols,
  * because Windows does not load symbols into the library name-space of
  * importing modules. So, knowing that tkinter has already been imported by
- * Python, we scan all modules in the running process for the TCL and Tk
- * function names.
+ * Python, we scan all modules in the running process for the Tcl/Tk function
+ * names.
  */
-#define PSAPI_VERSION 1
-#include <psapi.h>
-// Must be linked with 'psapi' library
-
-FARPROC _dfunc(HMODULE lib_handle, const char *func_name)
-{
-    // Load function `func_name` from `lib_handle`.
-    // Set Python exception if we can't find `func_name` in `lib_handle`.
-    // Returns function pointer or NULL if not present.
-
-    char message[100];
-
-    FARPROC func = GetProcAddress(lib_handle, func_name);
-    if (func == NULL) {
-        sprintf(message, "Cannot load function %s", func_name);
-        PyErr_SetString(PyExc_RuntimeError, message);
-    }
-    return func;
-}
-
-int get_tcl(HMODULE hMod)
-{
-    // Try to fill TCL global vars with function pointers. Return 0 for no
-    // functions found, 1 for all functions found, -1 for some but not all
-    // functions found.
-    TCL_CREATE_COMMAND = (Tcl_CreateCommand_t)
-        GetProcAddress(hMod, "Tcl_CreateCommand");
-    if (TCL_CREATE_COMMAND == NULL) {  // Maybe not TCL module
-        return 0;
-    }
-    TCL_APPEND_RESULT = (Tcl_AppendResult_t) _dfunc(hMod, "Tcl_AppendResult");
-    return (TCL_APPEND_RESULT == NULL) ? -1 : 1;
-}
-
-int get_tk(HMODULE hMod)
-{
-    // Try to fill Tk global vars with function pointers. Return 0 for no
-    // functions found, 1 for all functions found, -1 for some but not all
-    // functions found.
-    TK_MAIN_WINDOW = (Tk_MainWindow_t)
-        GetProcAddress(hMod, "Tk_MainWindow");
-    if (TK_MAIN_WINDOW == NULL) {  // Maybe not Tk module
-        return 0;
-    }
-    return  // -1 if any remaining symbols are NULL
-        ((TK_FIND_PHOTO = (Tk_FindPhoto_t)
-          _dfunc(hMod, "Tk_FindPhoto")) == NULL) ||
-        ((TK_PHOTO_PUT_BLOCK_NO_COMPOSITE = (Tk_PhotoPutBlock_NoComposite_t)
-          _dfunc(hMod, "Tk_PhotoPutBlock_NoComposite")) == NULL) ||
-        ((TK_PHOTO_BLANK = (Tk_PhotoBlank_t)
-          _dfunc(hMod, "Tk_PhotoBlank")) == NULL)
-        ? -1 : 1;
-}
 
 void load_tkinter_funcs(void)
 {
-    // Load TCL and Tk functions by searching all modules in current process.
-    // Sets an error on failure.
-
+    // Load Tcl/Tk functions by searching all modules in current process.
     HMODULE hMods[1024];
     HANDLE hProcess;
     DWORD cbNeeded;
     unsigned int i;
-    int found_tcl = 0;
-    int found_tk = 0;
-
+    bool tcl_ok = false, tk_ok = false;
     // Returns pseudo-handle that does not need to be closed
     hProcess = GetCurrentProcess();
-
-    // Iterate through modules in this process looking for TCL / Tk names
+    // Iterate through modules in this process looking for Tcl/Tk names.
     if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded)) {
         for (i = 0; i < (cbNeeded / sizeof(HMODULE)); i++) {
-            if (!found_tcl) {
-                found_tcl = get_tcl(hMods[i]);
-                if (found_tcl == -1) {
-                    return;
-                }
+            if (!tcl_ok) {
+                tcl_ok = load_tcl(hMods[i]);
             }
-            if (!found_tk) {
-                found_tk = get_tk(hMods[i]);
-                if (found_tk == -1) {
-                    return;
-                }
-            }
-            if (found_tcl && found_tk) {
-                return;
+            if (!tk_ok) {
+                tk_ok = load_tk(hMods[i]);
             }
         }
     }
-
-    if (found_tcl == 0) {
-        PyErr_SetString(PyExc_RuntimeError, "Could not find TCL routines");
-    } else {
-        PyErr_SetString(PyExc_RuntimeError, "Could not find Tk routines");
-    }
-    return;
 }
 
 #else  // not Windows
 
 /*
- * On Unix, we can get the TCL and Tk symbols from the tkinter module, because
- * tkinter uses these symbols, and the symbols are therefore visible in the
- * tkinter dynamic library (module).
+ * On Unix, we can get the Tk symbols from the tkinter module, because tkinter
+ * uses these symbols, and the symbols are therefore visible in the tkinter
+ * dynamic library (module).
  */
-
-#include <dlfcn.h>
-
-void *_dfunc(void *lib_handle, const char *func_name)
-{
-    // Load function `func_name` from `lib_handle`.
-    // Set Python exception if we can't find `func_name` in `lib_handle`.
-    // Returns function pointer or NULL if not present.
-
-    void* func;
-    // Reset errors.
-    dlerror();
-    func = dlsym(lib_handle, func_name);
-    if (func == NULL) {
-        PyErr_SetString(PyExc_RuntimeError, dlerror());
-    }
-    return func;
-}
-
-int _func_loader(void *lib)
-{
-    // Fill global function pointers from dynamic lib.
-    // Return 1 if any pointer is NULL, 0 otherwise.
-    return
-         ((TCL_CREATE_COMMAND = (Tcl_CreateCommand_t)
-           _dfunc(lib, "Tcl_CreateCommand")) == NULL) ||
-         ((TCL_APPEND_RESULT = (Tcl_AppendResult_t)
-           _dfunc(lib, "Tcl_AppendResult")) == NULL) ||
-         ((TK_MAIN_WINDOW = (Tk_MainWindow_t)
-           _dfunc(lib, "Tk_MainWindow")) == NULL) ||
-         ((TK_FIND_PHOTO = (Tk_FindPhoto_t)
-           _dfunc(lib, "Tk_FindPhoto")) == NULL) ||
-         ((TK_PHOTO_PUT_BLOCK_NO_COMPOSITE = (Tk_PhotoPutBlock_NoComposite_t)
-           _dfunc(lib, "Tk_PhotoPutBlock_NoComposite")) == NULL) ||
-         ((TK_PHOTO_BLANK = (Tk_PhotoBlank_t)
-           _dfunc(lib, "Tk_PhotoBlank")) == NULL);
-}
 
 void load_tkinter_funcs(void)
 {
     // Load tkinter global funcs from tkinter compiled module.
-    // Sets an error on failure.
-    void *main_program, *tkinter_lib;
+    void *main_program = NULL, *tkinter_lib = NULL;
     PyObject *module = NULL, *py_path = NULL, *py_path_b = NULL;
     char *path;
 
     // Try loading from the main program namespace first.
     main_program = dlopen(NULL, RTLD_LAZY);
-    if (_func_loader(main_program) == 0) {
+    if (load_tk(main_program)) {
         goto exit;
     }
     // Clear exception triggered when we didn't find symbols above.
@@ -313,11 +317,18 @@ void load_tkinter_funcs(void)
         PyErr_SetString(PyExc_RuntimeError, dlerror());
         goto exit;
     }
-    _func_loader(tkinter_lib);
-    // dlclose is safe because tkinter has been imported.
-    dlclose(tkinter_lib);
-    goto exit;
+    if (load_tk(tkinter_lib)) {
+        goto exit;
+    }
+
 exit:
+    // We don't need to keep a reference open as the main program & tkinter
+    // have been imported.  Use a non-short-circuiting "or" to try closing both
+    // handles before handling errors.
+    if ((main_program && dlclose(main_program))
+        | (tkinter_lib && dlclose(tkinter_lib))) {
+        PyErr_SetString(PyExc_RuntimeError, dlerror());
+    }
     Py_XDECREF(module);
     Py_XDECREF(py_path);
     Py_XDECREF(py_path_b);
@@ -325,11 +336,29 @@ exit:
 #endif // end not Windows
 
 static PyModuleDef _tkagg_module = {
-    PyModuleDef_HEAD_INIT, "_tkagg", "", -1, functions, NULL, NULL, NULL, NULL
+    PyModuleDef_HEAD_INIT, "_tkagg", NULL, -1, functions
 };
+
+#pragma GCC visibility push(default)
 
 PyMODINIT_FUNC PyInit__tkagg(void)
 {
     load_tkinter_funcs();
-    return PyErr_Occurred() ? NULL : PyModule_Create(&_tkagg_module);
+    if (PyErr_Occurred()) {
+        return NULL;
+#ifdef WIN32_DLL
+    } else if (!TCL_SETVAR) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to load Tcl_SetVar");
+        return NULL;
+#endif
+    } else if (!TK_FIND_PHOTO) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to load Tk_FindPhoto");
+        return NULL;
+    } else if (!TK_PHOTO_PUT_BLOCK) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to load Tk_PhotoPutBlock");
+        return NULL;
+    }
+    return PyModule_Create(&_tkagg_module);
 }
+
+#pragma GCC visibility pop

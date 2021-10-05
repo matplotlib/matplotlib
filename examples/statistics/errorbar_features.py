@@ -45,3 +45,12 @@ ax1.errorbar(x, y, xerr=asymmetric_error, fmt='o')
 ax1.set_title('variable, asymmetric error')
 ax1.set_yscale('log')
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.axes.Axes.errorbar` / `matplotlib.pyplot.errorbar`

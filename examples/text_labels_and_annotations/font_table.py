@@ -15,6 +15,7 @@ investigate a font by running ::
 """
 
 import os
+from pathlib import Path
 import unicodedata
 
 import matplotlib.font_manager as fm
@@ -101,7 +102,7 @@ def draw_font_table(path):
     for key, cell in table.get_celld().items():
         row, col = key
         if row > 0 and col > -1:  # Beware of table's idiosyncratic indexing...
-            cell.set_text_props(fontproperties=fm.FontProperties(fname=path))
+            cell.set_text_props(font=Path(path))
 
     fig.tight_layout()
     plt.show()

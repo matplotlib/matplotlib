@@ -69,7 +69,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 fig = plt.figure()
-ax = fig.add_subplot(111)
+ax = fig.add_subplot()
 fig.subplots_adjust(top=0.85)
 
 # Set titles for the figure and the subplot respectively
@@ -153,7 +153,7 @@ plt.show()
 # *position*, via which we can manually specify the label positions.  Here we
 # put the xlabel to the far left of the axis.  Note, that the y-coordinate of
 # this position has no effect - to adjust the y-position we need to use the
-# *labelpad* kwarg.
+# *labelpad* keyword argument.
 
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(bottom=0.15, left=0.2)
@@ -165,8 +165,8 @@ plt.show()
 
 ##############################################################################
 # All the labelling in this tutorial can be changed by manipulating the
-# `matplotlib.font_manager.FontProperties` method, or by named kwargs to
-# `~matplotlib.axes.Axes.set_xlabel`
+# `matplotlib.font_manager.FontProperties` method, or by named keyword
+# arguments to `~matplotlib.axes.Axes.set_xlabel`
 
 from matplotlib.font_manager import FontProperties
 
@@ -272,7 +272,7 @@ axs[0].plot(x1, y1)
 axs[1].plot(x1, y1)
 ticks = np.arange(0., 8.1, 2.)
 # list comprehension to get all tick labels...
-tickla = ['%1.2f' % tick for tick in ticks]
+tickla = [f'{tick:1.2f}' for tick in ticks]
 axs[1].xaxis.set_ticks(ticks)
 axs[1].xaxis.set_ticklabels(tickla)
 axs[1].set_xlim(axs[0].get_xlim())
@@ -285,16 +285,16 @@ plt.show()
 # Instead of making a list of all the tickalbels, we could have
 # used `matplotlib.ticker.StrMethodFormatter` (new-style ``str.format()``
 # format string) or `matplotlib.ticker.FormatStrFormatter` (old-style '%'
-# format string) and passed it to the ``ax.xaxis``.
+# format string) and passed it to the ``ax.xaxis``.  A
+# `matplotlib.ticker.StrMethodFormatter` can also be created by passing a
+# ``str`` without having to explicitly create the formatter.
 
 fig, axs = plt.subplots(2, 1, figsize=(5, 3), tight_layout=True)
 axs[0].plot(x1, y1)
 axs[1].plot(x1, y1)
 ticks = np.arange(0., 8.1, 2.)
-# list comprehension to get all tick labels...
-formatter = matplotlib.ticker.StrMethodFormatter('{x:1.1f}')
 axs[1].xaxis.set_ticks(ticks)
-axs[1].xaxis.set_major_formatter(formatter)
+axs[1].xaxis.set_major_formatter('{x:1.1f}')
 axs[1].set_xlim(axs[0].get_xlim())
 plt.show()
 
@@ -306,10 +306,9 @@ plt.show()
 fig, axs = plt.subplots(2, 1, figsize=(5, 3), tight_layout=True)
 axs[0].plot(x1, y1)
 axs[1].plot(x1, y1)
-formatter = matplotlib.ticker.FormatStrFormatter('%1.1f')
 locator = matplotlib.ticker.FixedLocator(ticks)
 axs[1].xaxis.set_major_locator(locator)
-axs[1].xaxis.set_major_formatter(formatter)
+axs[1].xaxis.set_major_formatter('±{x}°')
 plt.show()
 
 #############################################################################
@@ -350,26 +349,27 @@ plt.show()
 
 ##############################################################################
 #  Finally, we can specify functions for the formatter using
-# `matplotlib.ticker.FuncFormatter`.
+# `matplotlib.ticker.FuncFormatter`.  Further, like
+# `matplotlib.ticker.StrMethodFormatter`, passing a function will
+# automatically create a `matplotlib.ticker.FuncFormatter`.
 
 
 def formatoddticks(x, pos):
-    """Format odd tick positions
-    """
+    """Format odd tick positions."""
     if x % 2:
-        return '%1.2f' % x
+        return f'{x:1.2f}'
     else:
         return ''
 
 
 fig, ax = plt.subplots(figsize=(5, 3), tight_layout=True)
 ax.plot(x1, y1)
-formatter = matplotlib.ticker.FuncFormatter(formatoddticks)
 locator = matplotlib.ticker.MaxNLocator(nbins=6)
-ax.xaxis.set_major_formatter(formatter)
+ax.xaxis.set_major_formatter(formatoddticks)
 ax.xaxis.set_major_locator(locator)
 
 plt.show()
+
 
 ##############################################################################
 # Dateticks

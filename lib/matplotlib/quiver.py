@@ -20,7 +20,7 @@ import weakref
 import numpy as np
 from numpy import ma
 
-from matplotlib import cbook, docstring, font_manager
+from matplotlib import _api, cbook, docstring, font_manager
 import matplotlib.artist as martist
 import matplotlib.collections as mcollections
 from matplotlib.patches import CirclePolygon
@@ -33,10 +33,15 @@ Plot a 2D field of arrows.
 
 Call signature::
 
-  quiver([X, Y], U, V, [C], **kw)
+  quiver([X, Y], U, V, [C], **kwargs)
 
-Where *X*, *Y* define the arrow locations, *U*, *V* define the arrow
-directions, and *C* optionally sets the color.
+*X*, *Y* define the arrow locations, *U*, *V* define the arrow directions, and
+*C* optionally sets the color.
+
+Each arrow is internally represented by a filled polygon with a default edge
+linewidth of 0. As a result, an arrow is rather a filled area, not a line with
+a head, and `.PolyCollection` properties like *linewidth*, *linestyle*,
+*facecolor*, etc. act accordingly.
 
 **Arrow size**
 
@@ -84,7 +89,7 @@ C : 1D or 2D array-like, optional
     use *color* instead.  The size of *C* must match the number of arrow
     locations.
 
-units : {'width', 'height', 'dots', 'inches', 'x', 'y' 'xy'}, default: 'width'
+units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, default: 'width'
     The arrow dimensions (except for *length*) are measured in multiples of
     this unit.
 
@@ -101,7 +106,7 @@ units : {'width', 'height', 'dots', 'inches', 'x', 'y' 'xy'}, default: 'width'
     height of the axes, respectively, when the window is resized;
     for 'dots' or 'inches', resizing does not change the arrows.
 
-angles : {'uv', 'xy'} or array-like, optional, default: 'uv'
+angles : {'uv', 'xy'} or array-like, default: 'uv'
     Method for determining the angle of the arrows.
 
     - 'uv': The arrow axis aspect ratio is 1 so that
@@ -150,24 +155,24 @@ width : float, optional
     above, and number of vectors; a typical starting value is about
     0.005 times the width of the plot.
 
-headwidth : float, optional, default: 3
+headwidth : float, default: 3
     Head width as multiple of shaft width.
 
-headlength : float, optional, default: 5
+headlength : float, default: 5
     Head length as multiple of shaft width.
 
-headaxislength : float, optional, default: 4.5
+headaxislength : float, default: 4.5
     Head length at shaft intersection.
 
-minshaft : float, optional, default: 1
+minshaft : float, default: 1
     Length below which arrow scales, in units of head length. Do not
     set this to less than 1, or small arrows will look terrible!
 
-minlength : float, optional, default: 1
+minlength : float, default: 1
     Minimum length as a multiple of shaft width; if an arrow length
     is less than this, plot a dot (hexagon) of this diameter instead.
 
-pivot : {'tail', 'mid', 'middle', 'tip'}, optional, default: 'tail'
+pivot : {'tail', 'mid', 'middle', 'tip'}, default: 'tail'
     The part of the arrow that is anchored to the *X*, *Y* grid. The arrow
     rotates about this point.
 
@@ -177,19 +182,28 @@ color : color or color sequence, optional
     Explicit color(s) for the arrows. If *C* has been set, *color* has no
     effect.
 
-    This is a synonym for the `~.PolyCollection` *facecolor* parameter.
+    This is a synonym for the `.PolyCollection` *facecolor* parameter.
 
 Other Parameters
 ----------------
+data : indexable object, optional
+    DATA_PARAMETER_PLACEHOLDER
+
 **kwargs : `~matplotlib.collections.PolyCollection` properties, optional
     All other keyword arguments are passed on to `.PolyCollection`:
 
-    %(PolyCollection)s
+    %(PolyCollection:kwdoc)s
+
+Returns
+-------
+`~matplotlib.quiver.Quiver`
 
 See Also
 --------
-quiverkey : Add a key to a quiver plot.
+.Axes.quiverkey : Add a key to a quiver plot.
 """ % docstring.interpd.params
+
+docstring.interpd.update(quiver_doc=_quiver_doc)
 
 
 class QuiverKey(martist.Artist):
@@ -200,8 +214,7 @@ class QuiverKey(martist.Artist):
 
     def __init__(self, Q, X, Y, U, label,
                  *, angle=0, coordinates='axes', color=None, labelsep=0.1,
-                 labelpos='N', labelcolor=None, fontproperties=None,
-                 **kw):
+                 labelpos='N', labelcolor=None, fontproperties=None, **kwargs):
         """
         Add a key to a quiver plot.
 
@@ -249,7 +262,7 @@ class QuiverKey(martist.Artist):
             Any additional keyword arguments are used to override vector
             properties taken from *Q*.
         """
-        martist.Artist.__init__(self)
+        super().__init__()
         self.Q = Q
         self.X = X
         self.Y = Y
@@ -259,7 +272,7 @@ class QuiverKey(martist.Artist):
         self.color = color
         self.label = label
         self._labelsep_inches = labelsep
-        self.labelsep = (self._labelsep_inches * Q.ax.figure.dpi)
+        self.labelsep = (self._labelsep_inches * Q.axes.figure.dpi)
 
         # try to prevent closure over the real self
         weak_self = weakref.ref(self)
@@ -272,20 +285,20 @@ class QuiverKey(martist.Artist):
                 # the start of draw.
                 self_weakref._initialized = False
 
-        self._cid = Q.ax.figure.callbacks.connect('dpi_changed',
-                                                  on_dpi_change)
+        self._cid = Q.axes.figure.callbacks.connect(
+            'dpi_changed', on_dpi_change)
 
         self.labelpos = labelpos
         self.labelcolor = labelcolor
         self.fontproperties = fontproperties or dict()
-        self.kw = kw
+        self.kw = kwargs
         _fp = self.fontproperties
         # boxprops = dict(facecolor='red')
         self.text = mtext.Text(
-                        text=label,  # bbox=boxprops,
-                        horizontalalignment=self.halign[self.labelpos],
-                        verticalalignment=self.valign[self.labelpos],
-                        fontproperties=font_manager.FontProperties(**_fp))
+            text=label,  # bbox=boxprops,
+            horizontalalignment=self.halign[self.labelpos],
+            verticalalignment=self.valign[self.labelpos],
+            fontproperties=font_manager.FontProperties._from_any(_fp))
 
         if self.labelcolor is not None:
             self.text.set_color(self.labelcolor)
@@ -293,38 +306,32 @@ class QuiverKey(martist.Artist):
         self.zorder = Q.zorder + 0.1
 
     def remove(self):
-        """
-        Overload the remove method
-        """
-        self.Q.ax.figure.callbacks.disconnect(self._cid)
+        # docstring inherited
+        self.Q.axes.figure.callbacks.disconnect(self._cid)
         self._cid = None
-        # pass the remove call up the stack
-        martist.Artist.remove(self)
+        super().remove()  # pass the remove call up the stack
 
     def _init(self):
         if True:  # not self._initialized:
             if not self.Q._initialized:
                 self.Q._init()
             self._set_transform()
-            _pivot = self.Q.pivot
-            self.Q.pivot = self.pivot[self.labelpos]
-            # Hack: save and restore the Umask
-            _mask = self.Q.Umask
-            self.Q.Umask = ma.nomask
-            u = self.U * np.cos(np.radians(self.angle))
-            v = self.U * np.sin(np.radians(self.angle))
-            angle = self.Q.angles if isinstance(self.Q.angles, str) else 'uv'
-            self.verts = self.Q._make_verts(
-                np.array([u]), np.array([v]), angle)
-            self.Q.Umask = _mask
-            self.Q.pivot = _pivot
-            kw = self.Q.polykw
-            kw.update(self.kw)
+            with cbook._setattr_cm(self.Q, pivot=self.pivot[self.labelpos],
+                                   # Hack: save and restore the Umask
+                                   Umask=ma.nomask):
+                u = self.U * np.cos(np.radians(self.angle))
+                v = self.U * np.sin(np.radians(self.angle))
+                angle = (self.Q.angles if isinstance(self.Q.angles, str)
+                         else 'uv')
+                self.verts = self.Q._make_verts(
+                    np.array([u]), np.array([v]), angle)
+            kwargs = self.Q.polykw
+            kwargs.update(self.kw)
             self.vector = mcollections.PolyCollection(
                                         self.verts,
                                         offsets=[(self.X, self.Y)],
                                         transOffset=self.get_transform(),
-                                        **kw)
+                                        **kwargs)
             if self.color is not None:
                 self.vector.set_color(self.color)
             self.vector.set_transform(self.Q.get_transform())
@@ -358,19 +365,15 @@ class QuiverKey(martist.Artist):
         self.stale = False
 
     def _set_transform(self):
-        if self.coord == 'data':
-            self.set_transform(self.Q.ax.transData)
-        elif self.coord == 'axes':
-            self.set_transform(self.Q.ax.transAxes)
-        elif self.coord == 'figure':
-            self.set_transform(self.Q.ax.figure.transFigure)
-        elif self.coord == 'inches':
-            self.set_transform(self.Q.ax.figure.dpi_scale_trans)
-        else:
-            raise ValueError('unrecognized coordinates')
+        self.set_transform(_api.check_getitem({
+            "data": self.Q.axes.transData,
+            "axes": self.Q.axes.transAxes,
+            "figure": self.Q.axes.figure.transFigure,
+            "inches": self.Q.axes.figure.dpi_scale_trans,
+        }, coordinates=self.coord))
 
     def set_figure(self, fig):
-        martist.Artist.set_figure(self, fig)
+        super().set_figure(fig)
         self.text.set_figure(fig)
 
     def contains(self, mouseevent):
@@ -383,11 +386,6 @@ class QuiverKey(martist.Artist):
                 self.vector.contains(mouseevent)[0]):
             return True, {}
         return False, {}
-
-    @cbook.deprecated("3.2")
-    @property
-    def quiverkey_doc(self):
-        return self.__init__.__doc__
 
 
 def _parse_args(*args, caller_name='function'):
@@ -473,14 +471,14 @@ class Quiver(mcollections.PolyCollection):
     def __init__(self, ax, *args,
                  scale=None, headwidth=3, headlength=5, headaxislength=4.5,
                  minshaft=1, minlength=1, units='width', scale_units=None,
-                 angles='uv', width=None, color='k', pivot='tail', **kw):
+                 angles='uv', width=None, color='k', pivot='tail', **kwargs):
         """
         The constructor takes one required argument, an Axes
         instance, followed by the args and kwargs described
         by the following pyplot interface documentation:
         %s
         """
-        self.ax = ax
+        self._axes = ax  # The attr actually set by the Artist.axes property.
         X, Y, U, V, C = _parse_args(*args, caller_name='quiver()')
         self.X = X
         self.Y = Y
@@ -500,21 +498,18 @@ class Quiver(mcollections.PolyCollection):
         if pivot.lower() == 'mid':
             pivot = 'middle'
         self.pivot = pivot.lower()
-        cbook._check_in_list(self._PIVOT_VALS, pivot=self.pivot)
+        _api.check_in_list(self._PIVOT_VALS, pivot=self.pivot)
 
-        self.transform = kw.pop('transform', ax.transData)
-        kw.setdefault('facecolors', color)
-        kw.setdefault('linewidths', (0,))
-        mcollections.PolyCollection.__init__(self, [], offsets=self.XY,
-                                             transOffset=self.transform,
-                                             closed=False,
-                                             **kw)
-        self.polykw = kw
+        self.transform = kwargs.pop('transform', ax.transData)
+        kwargs.setdefault('facecolors', color)
+        kwargs.setdefault('linewidths', (0,))
+        super().__init__([], offsets=self.XY, transOffset=self.transform,
+                         closed=False, **kwargs)
+        self.polykw = kwargs
         self.set_UVC(U, V, C)
         self._initialized = False
 
-        # try to prevent closure over the real self
-        weak_self = weakref.ref(self)
+        weak_self = weakref.ref(self)  # Prevent closure over the real self.
 
         def on_dpi_change(fig):
             self_weakref = weak_self()
@@ -525,33 +520,13 @@ class Quiver(mcollections.PolyCollection):
                 # the start of draw.
                 self_weakref._initialized = False
 
-        self._cid = self.ax.figure.callbacks.connect('dpi_changed',
-                                                     on_dpi_change)
-
-    @cbook.deprecated("3.1", alternative="get_facecolor()")
-    @property
-    def color(self):
-        return self.get_facecolor()
-
-    @cbook.deprecated("3.1")
-    @property
-    def keyvec(self):
-        return None
-
-    @cbook.deprecated("3.1")
-    @property
-    def keytext(self):
-        return None
+        self._cid = ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
 
     def remove(self):
-        """
-        Overload the remove method
-        """
-        # disconnect the call back
-        self.ax.figure.callbacks.disconnect(self._cid)
+        # docstring inherited
+        self.axes.figure.callbacks.disconnect(self._cid)
         self._cid = None
-        # pass the remove call up the stack
-        mcollections.PolyCollection.remove(self)
+        super().remove()  # pass the remove call up the stack
 
     def _init(self):
         """
@@ -562,8 +537,7 @@ class Quiver(mcollections.PolyCollection):
         # available to have this work on an as-needed basis at present.
         if True:  # not self._initialized:
             trans = self._set_transform()
-            ax = self.ax
-            self.span = trans.inverted().transform_bbox(ax.bbox).width
+            self.span = trans.inverted().transform_bbox(self.axes.bbox).width
             if self.width is None:
                 sn = np.clip(math.sqrt(self.N), 8, 25)
                 self.width = 0.06 * self.span / sn
@@ -589,7 +563,7 @@ class Quiver(mcollections.PolyCollection):
         verts = self._make_verts(self.U, self.V, self.angles)
         self.set_verts(verts, closed=False)
         self._new_UV = False
-        mcollections.PolyCollection.draw(self, renderer)
+        super().draw(renderer)
         self.stale = False
 
     def set_UVC(self, U, V, C=None):
@@ -600,7 +574,7 @@ class Quiver(mcollections.PolyCollection):
         if C is not None:
             C = ma.masked_invalid(C, copy=True).ravel()
         for name, var in zip(('U', 'V', 'C'), (U, V, C)):
-            if var is not None and var.size != self.N:
+            if not (var is None or var.size == self.N or var.size == 1):
                 raise ValueError(f'Argument {name} has a size {var.size}'
                                  f' which does not match {self.N},'
                                  ' the number of arrow positions')
@@ -624,38 +598,37 @@ class Quiver(mcollections.PolyCollection):
         """
         Return a scale factor for converting from units to pixels
         """
-        ax = self.ax
         if units in ('x', 'y', 'xy'):
             if units == 'x':
-                dx0 = ax.viewLim.width
-                dx1 = ax.bbox.width
+                dx0 = self.axes.viewLim.width
+                dx1 = self.axes.bbox.width
             elif units == 'y':
-                dx0 = ax.viewLim.height
-                dx1 = ax.bbox.height
+                dx0 = self.axes.viewLim.height
+                dx1 = self.axes.bbox.height
             else:  # 'xy' is assumed
-                dxx0 = ax.viewLim.width
-                dxx1 = ax.bbox.width
-                dyy0 = ax.viewLim.height
-                dyy1 = ax.bbox.height
+                dxx0 = self.axes.viewLim.width
+                dxx1 = self.axes.bbox.width
+                dyy0 = self.axes.viewLim.height
+                dyy1 = self.axes.bbox.height
                 dx1 = np.hypot(dxx1, dyy1)
                 dx0 = np.hypot(dxx0, dyy0)
             dx = dx1 / dx0
         else:
             if units == 'width':
-                dx = ax.bbox.width
+                dx = self.axes.bbox.width
             elif units == 'height':
-                dx = ax.bbox.height
+                dx = self.axes.bbox.height
             elif units == 'dots':
                 dx = 1.0
             elif units == 'inches':
-                dx = ax.figure.dpi
+                dx = self.axes.figure.dpi
             else:
                 raise ValueError('unrecognized units')
         return dx
 
     def _set_transform(self):
         """
-        Sets the PolygonCollection transform to go
+        Set the PolyCollection transform to go
         from arrow width units to pixels.
         """
         dx = self._dots_per_unit(self.units)
@@ -665,9 +638,9 @@ class Quiver(mcollections.PolyCollection):
         return trans
 
     def _angles_lengths(self, U, V, eps=1):
-        xy = self.ax.transData.transform(self.XY)
+        xy = self.axes.transData.transform(self.XY)
         uv = np.column_stack((U, V))
-        xyp = self.ax.transData.transform(self.XY + eps * uv)
+        xyp = self.axes.transData.transform(self.XY + eps * uv)
         dxy = xyp - xy
         angles = np.arctan2(dxy[:, 1], dxy[:, 0])
         lengths = np.hypot(*dxy.T) / eps
@@ -685,7 +658,7 @@ class Quiver(mcollections.PolyCollection):
             # Calculate eps based on the extents of the plot
             # so that we don't end up with roundoff error from
             # adding a small number to a large.
-            eps = np.abs(self.ax.dataLim.extents).max() * 0.001
+            eps = np.abs(self.axes.dataLim.extents).max() * 0.001
             angles, lengths = self._angles_lengths(U, V, eps=eps)
         if str_angles and self.scale_units == 'xy':
             a = lengths
@@ -775,7 +748,7 @@ class Quiver(mcollections.PolyCollection):
             # float first, as with 'mid'.
             X = X - X[:, 3, np.newaxis]
         elif self.pivot != 'tail':
-            cbook._check_in_list(["middle", "tip", "tail"], pivot=self.pivot)
+            _api.check_in_list(["middle", "tip", "tail"], pivot=self.pivot)
 
         tooshort = length < self.minlength
         if tooshort.any():
@@ -799,7 +772,7 @@ Plot a 2D field of barbs.
 
 Call signature::
 
-  barbs([X, Y], U, V, [C], **kw)
+  barbs([X, Y], U, V, [C], **kwargs)
 
 Where *X*, *Y* define the barb locations, *U*, *V* define the barb
 directions, and *C* optionally sets the color.
@@ -821,7 +794,6 @@ schematically below::
   :                /      \    \    \
   :               ------------------------------
 
-
 The largest increment is given by a triangle (or "flag"). After those
 come full lines (barbs). The smallest increment is a half line.  There
 is only, of course, ever at most 1 half line.  If the magnitude is
@@ -832,8 +804,6 @@ magnitude for the barb shown above would nominally be 65, using the
 standard increments of 50, 10, and 5.
 
 See also https://en.wikipedia.org/wiki/Wind_barb.
-
-
 
 Parameters
 ----------
@@ -868,18 +838,16 @@ pivot : {'tip', 'middle'} or float, default: 'tip'
     start of the barb that many points away from grid point.
 
 barbcolor : color or color sequence
-    Specifies the color of all parts of the barb except for the flags.  This
-    parameter is analogous to the *edgecolor* parameter for polygons,
-    which can be used instead. However this parameter will override
-    facecolor.
+    The color of all parts of the barb except for the flags.  This parameter
+    is analogous to the *edgecolor* parameter for polygons, which can be used
+    instead. However this parameter will override facecolor.
 
 flagcolor : color or color sequence
-    Specifies the color of any flags on the barb.  This parameter is
-    analogous to the *facecolor* parameter for polygons, which can be
-    used instead. However, this parameter will override facecolor.  If
-    this is not set (and *C* has not either) then *flagcolor* will be
-    set to match *barbcolor* so that the barb has a uniform color. If
-    *C* has been set, *flagcolor* has no effect.
+    The color of any flags on the barb.  This parameter is analogous to the
+    *facecolor* parameter for polygons, which can be used instead. However,
+    this parameter will override facecolor.  If this is not set (and *C* has
+    not either) then *flagcolor* will be set to match *barbcolor* so that the
+    barb has a uniform color. If *C* has been set, *flagcolor* has no effect.
 
 sizes : dict, optional
     A dictionary of coefficients specifying the ratio of a given
@@ -925,18 +893,21 @@ barbs : `~matplotlib.quiver.Barbs`
 
 Other Parameters
 ----------------
+data : indexable object, optional
+    DATA_PARAMETER_PLACEHOLDER
+
 **kwargs
     The barbs can further be customized using `.PolyCollection` keyword
     arguments:
 
-    %(PolyCollection)s
+    %(PolyCollection:kwdoc)s
 """ % docstring.interpd.params
 
 docstring.interpd.update(barbs_doc=_barbs_doc)
 
 
 class Barbs(mcollections.PolyCollection):
-    '''
+    """
     Specialized PolyCollection for barbs.
 
     The only API method is :meth:`set_UVC`, which can be used to
@@ -948,7 +919,7 @@ class Barbs(mcollections.PolyCollection):
     exactly what should be put on the barb given the vector magnitude.
     From there :meth:`_make_barbs` is used to find the vertices of the
     polygon to represent the barb based on this information.
-    '''
+    """
     # This may be an abuse of polygons here to render what is essentially maybe
     # 1 triangle and a series of lines.  It works fine as far as I can tell
     # however.
@@ -956,7 +927,7 @@ class Barbs(mcollections.PolyCollection):
     def __init__(self, ax, *args,
                  pivot='tip', length=7, barbcolor=None, flagcolor=None,
                  sizes=None, fill_empty=False, barb_increments=None,
-                 rounding=True, flip_barb=False, **kw):
+                 rounding=True, flip_barb=False, **kwargs):
         """
         The constructor takes one required argument, an Axes
         instance, followed by the args and kwargs described
@@ -968,7 +939,7 @@ class Barbs(mcollections.PolyCollection):
         self.barb_increments = barb_increments or dict()
         self.rounding = rounding
         self.flip = np.atleast_1d(flip_barb)
-        transform = kw.pop('transform', ax.transData)
+        transform = kwargs.pop('transform', ax.transData)
         self._pivot = pivot
         self._length = length
         barbcolor = barbcolor
@@ -980,22 +951,22 @@ class Barbs(mcollections.PolyCollection):
         # rest of the barb by default
 
         if None in (barbcolor, flagcolor):
-            kw['edgecolors'] = 'face'
+            kwargs['edgecolors'] = 'face'
             if flagcolor:
-                kw['facecolors'] = flagcolor
+                kwargs['facecolors'] = flagcolor
             elif barbcolor:
-                kw['facecolors'] = barbcolor
+                kwargs['facecolors'] = barbcolor
             else:
                 # Set to facecolor passed in or default to black
-                kw.setdefault('facecolors', 'k')
+                kwargs.setdefault('facecolors', 'k')
         else:
-            kw['edgecolors'] = barbcolor
-            kw['facecolors'] = flagcolor
+            kwargs['edgecolors'] = barbcolor
+            kwargs['facecolors'] = flagcolor
 
         # Explicitly set a line width if we're not given one, otherwise
         # polygons are not outlined and we get no barbs
-        if 'linewidth' not in kw and 'lw' not in kw:
-            kw['linewidth'] = 1
+        if 'linewidth' not in kwargs and 'lw' not in kwargs:
+            kwargs['linewidth'] = 1
 
         # Parse out the data arrays from the various configurations supported
         x, y, u, v, c = _parse_args(*args, caller_name='barbs()')
@@ -1005,15 +976,14 @@ class Barbs(mcollections.PolyCollection):
 
         # Make a collection
         barb_size = self._length ** 2 / 4  # Empirically determined
-        mcollections.PolyCollection.__init__(self, [], (barb_size,),
-                                             offsets=xy,
-                                             transOffset=transform, **kw)
+        super().__init__([], (barb_size,), offsets=xy, transOffset=transform,
+                         **kwargs)
         self.set_transform(transforms.IdentityTransform())
 
         self.set_UVC(u, v, c)
 
     def _find_tails(self, mag, rounding=True, half=5, full=10, flag=50):
-        '''
+        """
         Find how many of each of the tail pieces is necessary.  Flag
         specifies the increment for a flag, barb for a full barb, and half for
         half a barb. Mag should be the magnitude of a vector (i.e., >= 0).
@@ -1022,11 +992,11 @@ class Barbs(mcollections.PolyCollection):
 
             (*number of flags*, *number of barbs*, *half_flag*, *empty_flag*)
 
-        *half_flag* is a boolean whether half of a barb is needed,
+        The bool *half_flag* indicates whether half of a barb is needed,
         since there should only ever be one half on a given
         barb. *empty_flag* flag is an array of flags to easily tell if
         a barb is empty (too low to plot any barbs/flags.
-        '''
+        """
 
         # If rounding, round to the nearest multiple of half, the smallest
         # increment
@@ -1046,50 +1016,50 @@ class Barbs(mcollections.PolyCollection):
 
     def _make_barbs(self, u, v, nflags, nbarbs, half_barb, empty_flag, length,
                     pivot, sizes, fill_empty, flip):
-        '''
-        This function actually creates the wind barbs.  *u* and *v*
-        are components of the vector in the *x* and *y* directions,
-        respectively.
+        """
+        Create the wind barbs.
 
-        *nflags*, *nbarbs*, and *half_barb*, empty_flag* are,
-        *respectively, the number of flags, number of barbs, flag for
-        *half a barb, and flag for empty barb, ostensibly obtained
-        *from :meth:`_find_tails`.
+        Parameters
+        ----------
+        u, v
+            Components of the vector in the x and y directions, respectively.
 
-        *length* is the length of the barb staff in points.
+        nflags, nbarbs, half_barb, empty_flag
+            Respectively, the number of flags, number of barbs, flag for
+            half a barb, and flag for empty barb, ostensibly obtained from
+            :meth:`_find_tails`.
 
-        *pivot* specifies the point on the barb around which the
-        entire barb should be rotated.  Right now, valid options are
-        'tip' and 'middle'. Can also be a number, which shifts the start
-        of the barb that many points from the origin.
+        length
+            The length of the barb staff in points.
 
-        *sizes* is a dictionary of coefficients specifying the ratio
-        of a given feature to the length of the barb. These features
-        include:
+        pivot : {"tip", "middle"} or number
+            The point on the barb around which the entire barb should be
+            rotated.  If a number, the start of the barb is shifted by that
+            many points from the origin.
 
-            - *spacing*: space between features (flags, full/half
-               barbs)
+        sizes : dict
+            Coefficients specifying the ratio of a given feature to the length
+            of the barb. These features include:
 
-            - *height*: distance from shaft of top of a flag or full
-               barb
+            - *spacing*: space between features (flags, full/half barbs).
+            - *height*: distance from shaft of top of a flag or full barb.
+            - *width*: width of a flag, twice the width of a full barb.
+            - *emptybarb*: radius of the circle used for low magnitudes.
 
-            - *width* - width of a flag, twice the width of a full barb
+        fill_empty : bool
+            Whether the circle representing an empty barb should be filled or
+            not (this changes the drawing of the polygon).
 
-            - *emptybarb* - radius of the circle used for low
-               magnitudes
+        flip : list of bool
+            Whether the features should be flipped to the other side of the
+            barb (useful for winds in the southern hemisphere).
 
-        *fill_empty* specifies whether the circle representing an
-        empty barb should be filled or not (this changes the drawing
-        of the polygon).
-
-        *flip* is a flag indicating whether the features should be flipped to
-        the other side of the barb (useful for winds in the southern
-        hemisphere).
-
-        This function returns list of arrays of vertices, defining a polygon
-        for each of the wind barbs.  These polygons have been rotated to
-        properly align with the vector direction.
-        '''
+        Returns
+        -------
+        list of arrays of vertices
+            Polygon vertices for each of the wind barbs.  These polygons have
+            been rotated to properly align with the vector direction.
+        """
 
         # These control the spacing and size of barb elements relative to the
         # length of the shaft
@@ -1189,8 +1159,10 @@ class Barbs(mcollections.PolyCollection):
         return barb_list
 
     def set_UVC(self, U, V, C=None):
-        self.u = ma.masked_invalid(U, copy=False).ravel()
-        self.v = ma.masked_invalid(V, copy=False).ravel()
+        # We need to ensure we have a copy, not a reference to an array that
+        # might change before draw().
+        self.u = ma.masked_invalid(U, copy=True).ravel()
+        self.v = ma.masked_invalid(V, copy=True).ravel()
 
         # Flip needs to have the same number of entries as everything else.
         # Use broadcast_to to avoid a bloated array of identical values.
@@ -1201,7 +1173,7 @@ class Barbs(mcollections.PolyCollection):
             flip = self.flip
 
         if C is not None:
-            c = ma.masked_invalid(C, copy=False).ravel()
+            c = ma.masked_invalid(C, copy=True).ravel()
             x, y, u, v, c, flip = cbook.delete_masked_points(
                 self.x.ravel(), self.y.ravel(), self.u, self.v, c,
                 flip.ravel())
@@ -1247,7 +1219,7 @@ class Barbs(mcollections.PolyCollection):
             self.x.ravel(), self.y.ravel(), self.u, self.v)
         _check_consistent_shapes(x, y, u, v)
         xy = np.column_stack((x, y))
-        mcollections.PolyCollection.set_offsets(self, xy)
+        super().set_offsets(xy)
         self.stale = True
 
     barbs_doc = _barbs_doc

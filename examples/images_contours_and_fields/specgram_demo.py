@@ -33,19 +33,14 @@ Pxx, freqs, bins, im = ax2.specgram(x, NFFT=NFFT, Fs=Fs, noverlap=900)
 # - Pxx: the periodogram
 # - freqs: the frequency vector
 # - bins: the centers of the time bins
-# - im: the matplotlib.image.AxesImage instance representing the data in the plot
+# - im: the .image.AxesImage instance representing the data in the plot
 plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.specgram
-matplotlib.pyplot.specgram
+#    - `matplotlib.axes.Axes.specgram` / `matplotlib.pyplot.specgram`

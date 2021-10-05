@@ -174,8 +174,8 @@ namespace agg
     private:
         AGG_INLINE const int8u* pixel() const
         {
-            register int x = m_x;
-            register int y = m_y;
+            int x = m_x;
+            int y = m_y;
             if(x < 0) x = 0;
             if(y < 0) y = 0;
             if(x >= (int)m_pixf->width())  x = m_pixf->width() - 1;

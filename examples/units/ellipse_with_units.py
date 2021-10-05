@@ -30,7 +30,7 @@ R = np.array([
     ])
 
 
-x, y = np.dot(R, np.array([x, y]))
+x, y = np.dot(R, [x, y])
 x += xcenter
 y += ycenter
 

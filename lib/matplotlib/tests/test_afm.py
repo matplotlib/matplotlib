@@ -107,7 +107,7 @@ EncodingScheme FontSpecific""",
 def test_bad_afm(afm_data):
     fh = BytesIO(afm_data)
     with pytest.raises(RuntimeError):
-        header = afm._parse_header(fh)
+        afm._parse_header(fh)
 
 
 @pytest.mark.parametrize(
@@ -132,6 +132,6 @@ StartCharMetrics 3""",
 def test_malformed_header(afm_data, caplog):
     fh = BytesIO(afm_data)
     with caplog.at_level(logging.ERROR):
-        header = afm._parse_header(fh)
+        afm._parse_header(fh)
 
     assert len(caplog.records) == 1

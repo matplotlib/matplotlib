@@ -100,7 +100,8 @@ def test_determinism_check(objects, fmt, usetex):
             [sys.executable, "-R", "-c",
              f"from matplotlib.tests.test_determinism import _save_figure;"
              f"_save_figure({objects!r}, {fmt!r}, {usetex})"],
-            env={**os.environ, "SOURCE_DATE_EPOCH": "946684800"})
+            env={**os.environ, "SOURCE_DATE_EPOCH": "946684800",
+                 "MPLBACKEND": "Agg"})
         for _ in range(3)
     ]
     for p in plots[1:]:
@@ -139,5 +140,6 @@ def test_determinism_source_date_epoch(fmt, string):
         [sys.executable, "-R", "-c",
          f"from matplotlib.tests.test_determinism import _save_figure; "
          f"_save_figure('', {fmt!r})"],
-        env={**os.environ, "SOURCE_DATE_EPOCH": "946684800"})
+        env={**os.environ, "SOURCE_DATE_EPOCH": "946684800",
+             "MPLBACKEND": "Agg"})
     assert string in buf

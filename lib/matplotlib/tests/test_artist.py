@@ -1,6 +1,5 @@
 import io
 from itertools import chain
-import warnings
 
 import numpy as np
 
@@ -13,7 +12,7 @@ import matplotlib.path as mpath
 import matplotlib.transforms as mtransforms
 import matplotlib.collections as mcollections
 import matplotlib.artist as martist
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
 def test_patch_transform_of_none():
@@ -88,8 +87,8 @@ def test_collection_transform_of_none():
     # providing an IdentityTransform puts the ellipse in device coordinates
     e = mpatches.Ellipse(xy_pix, width=100, height=100)
     c = mcollections.PatchCollection([e],
-                                 transform=mtransforms.IdentityTransform(),
-                                 alpha=0.5)
+                                     transform=mtransforms.IdentityTransform(),
+                                     alpha=0.5)
     ax.add_collection(c)
     assert isinstance(c._transOffset, mtransforms.IdentityTransform)
 
@@ -101,21 +100,18 @@ def test_clipping():
     exterior.vertices -= 2
     interior = mpath.Path.unit_circle().deepcopy()
     interior.vertices = interior.vertices[::-1]
-    clip_path = mpath.Path(vertices=np.concatenate([exterior.vertices,
-                                                    interior.vertices]),
-                           codes=np.concatenate([exterior.codes,
-                                                 interior.codes]))
+    clip_path = mpath.Path.make_compound_path(exterior, interior)
 
     star = mpath.Path.unit_regular_star(6).deepcopy()
     star.vertices *= 2.6
 
-    ax1 = plt.subplot(121)
+    fig, (ax1, ax2) = plt.subplots(1, 2, sharex=True, sharey=True)
+
     col = mcollections.PathCollection([star], lw=5, edgecolor='blue',
                                       facecolor='red', alpha=0.7, hatch='*')
     col.set_clip_path(clip_path, ax1.transData)
     ax1.add_collection(col)
 
-    ax2 = plt.subplot(122, sharex=ax1, sharey=ax1)
     patch = mpatches.PathPatch(star, lw=5, edgecolor='blue', facecolor='red',
                                alpha=0.7, hatch='*')
     patch.set_clip_path(clip_path, ax2.transData)
@@ -123,6 +119,25 @@ def test_clipping():
 
     ax1.set_xlim([-3, 3])
     ax1.set_ylim([-3, 3])
+
+
+@check_figures_equal(extensions=['png'])
+def test_clipping_zoom(fig_test, fig_ref):
+    # This test places the Axes and sets its limits such that the clip path is
+    # outside the figure entirely. This should not break the clip path.
+    ax_test = fig_test.add_axes([0, 0, 1, 1])
+    l, = ax_test.plot([-3, 3], [-3, 3])
+    # Explicit Path instead of a Rectangle uses clip path processing, instead
+    # of a clip box optimization.
+    p = mpath.Path([[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]])
+    p = mpatches.PathPatch(p, transform=ax_test.transData)
+    l.set_clip_path(p)
+
+    ax_ref = fig_ref.add_axes([0, 0, 1, 1])
+    ax_ref.plot([-3, 3], [-3, 3])
+
+    ax_ref.set(xlim=(0.5, 0.75), ylim=(0.5, 0.75))
+    ax_test.set(xlim=(0.5, 0.75), ylim=(0.5, 0.75))
 
 
 def test_cull_markers():
@@ -222,11 +237,7 @@ def test_default_edges():
 
 def test_properties():
     ln = mlines.Line2D([], [])
-    with warnings.catch_warnings(record=True) as w:
-        # Cause all warnings to always be triggered.
-        warnings.simplefilter("always")
-        ln.properties()
-        assert len(w) == 0
+    ln.properties()  # Check that no warning is emitted.
 
 
 def test_setp():
@@ -285,3 +296,81 @@ def test_artist_inspector_get_aliases():
     ai = martist.ArtistInspector(mlines.Line2D)
     aliases = ai.get_aliases()
     assert aliases["linewidth"] == {"lw"}
+
+
+def test_set_alpha():
+    art = martist.Artist()
+    with pytest.raises(TypeError, match='^alpha must be numeric or None'):
+        art.set_alpha('string')
+    with pytest.raises(TypeError, match='^alpha must be numeric or None'):
+        art.set_alpha([1, 2, 3])
+    with pytest.raises(ValueError, match="outside 0-1 range"):
+        art.set_alpha(1.1)
+    with pytest.raises(ValueError, match="outside 0-1 range"):
+        art.set_alpha(np.nan)
+
+
+def test_set_alpha_for_array():
+    art = martist.Artist()
+    with pytest.raises(TypeError, match='^alpha must be numeric or None'):
+        art._set_alpha_for_array('string')
+    with pytest.raises(ValueError, match="outside 0-1 range"):
+        art._set_alpha_for_array(1.1)
+    with pytest.raises(ValueError, match="outside 0-1 range"):
+        art._set_alpha_for_array(np.nan)
+    with pytest.raises(ValueError, match="alpha must be between 0 and 1"):
+        art._set_alpha_for_array([0.5, 1.1])
+    with pytest.raises(ValueError, match="alpha must be between 0 and 1"):
+        art._set_alpha_for_array([0.5, np.nan])
+
+
+def test_callbacks():
+    def func(artist):
+        func.counter += 1
+
+    func.counter = 0
+
+    art = martist.Artist()
+    oid = art.add_callback(func)
+    assert func.counter == 0
+    art.pchanged()  # must call the callback
+    assert func.counter == 1
+    art.set_zorder(10)  # setting a property must also call the callback
+    assert func.counter == 2
+    art.remove_callback(oid)
+    art.pchanged()  # must not call the callback anymore
+    assert func.counter == 2
+
+
+def test_set_signature():
+    """Test autogenerated ``set()`` for Artist subclasses."""
+    class MyArtist1(martist.Artist):
+        def set_myparam1(self, val):
+            pass
+
+    assert hasattr(MyArtist1.set, '_autogenerated_signature')
+    assert 'myparam1' in MyArtist1.set.__doc__
+
+    class MyArtist2(MyArtist1):
+        def set_myparam2(self, val):
+            pass
+
+    assert hasattr(MyArtist2.set, '_autogenerated_signature')
+    assert 'myparam1' in MyArtist2.set.__doc__
+    assert 'myparam2' in MyArtist2.set.__doc__
+
+
+def test_set_is_overwritten():
+    """set() defined in Artist subclasses should not be overwritten."""
+    class MyArtist3(martist.Artist):
+
+        def set(self, **kwargs):
+            """Not overwritten."""
+
+    assert not hasattr(MyArtist3.set, '_autogenerated_signature')
+    assert MyArtist3.set.__doc__ == "Not overwritten."
+
+    class MyArtist4(MyArtist3):
+        pass
+
+    assert MyArtist4.set is MyArtist3.set

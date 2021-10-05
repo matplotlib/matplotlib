@@ -7,6 +7,11 @@ This example demonstrates the use of `.pyplot.step` for piece-wise constant
 curves. In particular, it illustrates the effect of the parameter *where*
 on the step position.
 
+.. note::
+
+    For the common case that you know the edge positions, use `.pyplot.stairs`
+    instead.
+
 The circular markers created with `.pyplot.plot` show the actual data
 positions so that it's easier to see the effect of *where*.
 
@@ -51,16 +56,10 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.step
-matplotlib.pyplot.step
-matplotlib.axes.Axes.plot
-matplotlib.pyplot.plot
+#    - `matplotlib.axes.Axes.step` / `matplotlib.pyplot.step`
+#    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`

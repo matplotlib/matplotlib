@@ -12,8 +12,9 @@ can be adjusted by giving ``alpha`` a value between 0 and 1.
 """
 
 import numpy as np
-np.random.seed(19680801)
 import matplotlib.pyplot as plt
+
+np.random.seed(19680801)
 
 
 fig, ax = plt.subplots()
@@ -37,11 +38,9 @@ plt.show()
 # -------------------------
 #
 # Another option for creating a legend for a scatter is to use the
-# :class:`~matplotlib.collections.PathCollection`'s
-# :meth:`~.PathCollection.legend_elements` method.
-# It will automatically try to determine a useful number of legend entries
-# to be shown and return a tuple of handles and labels. Those can be passed
-# to the call to :meth:`~.axes.Axes.legend`.
+# `.PathCollection.legend_elements` method.  It will automatically try to
+# determine a useful number of legend entries to be shown and return a tuple of
+# handles and labels. Those can be passed to the call to `~.axes.Axes.legend`.
 
 
 N = 45
@@ -66,10 +65,9 @@ plt.show()
 
 
 ##############################################################################
-# Further arguments to the :meth:`~.PathCollection.legend_elements` method
+# Further arguments to the `.PathCollection.legend_elements` method
 # can be used to steer how many legend entries are to be created and how they
 # should be labeled. The following shows how to use some of them.
-#
 
 volume = np.random.rayleigh(27, size=40)
 amount = np.random.poisson(10, size=40)
@@ -103,16 +101,11 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The usage of the following functions and methods is shown in this example:
-
-import matplotlib
-matplotlib.axes.Axes.scatter
-matplotlib.pyplot.scatter
-matplotlib.axes.Axes.legend
-matplotlib.pyplot.legend
-matplotlib.collections.PathCollection.legend_elements
+#    - `matplotlib.axes.Axes.scatter` / `matplotlib.pyplot.scatter`
+#    - `matplotlib.axes.Axes.legend` / `matplotlib.pyplot.legend`
+#    - `matplotlib.collections.PathCollection.legend_elements`

@@ -31,7 +31,7 @@ con = ConnectionPatch(
     xyA=xy, coordsA=ax2.transData,
     xyB=xy, coordsB=ax1.transData,
     arrowstyle="->", shrinkB=5)
-ax2.add_artist(con)
+fig.add_artist(con)
 
 # Draw a line between the different points, defined in different coordinate
 # systems.

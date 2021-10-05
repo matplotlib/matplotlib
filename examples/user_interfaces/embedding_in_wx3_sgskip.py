@@ -21,11 +21,11 @@ This was derived from embedding_in_wx and dynamic_image_wxagg.
 Thanks to matplotlib and wx teams for creating such great software!
 """
 
-import matplotlib
 import matplotlib.cm as cm
 import matplotlib.cbook as cbook
-from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg as NavigationToolbar
+from matplotlib.backends.backend_wxagg import (
+    FigureCanvasWxAgg as FigureCanvas,
+    NavigationToolbar2WxAgg as NavigationToolbar)
 from matplotlib.figure import Figure
 import numpy as np
 
@@ -35,12 +35,9 @@ import wx.xrc as xrc
 ERR_TOL = 1e-5  # floating point slop for peak-detection
 
 
-matplotlib.rc('image', origin='lower')
-
-
 class PlotPanel(wx.Panel):
     def __init__(self, parent):
-        wx.Panel.__init__(self, parent, -1)
+        super().__init__(parent, -1)
 
         self.fig = Figure((5, 4), 75)
         self.canvas = FigureCanvas(self, -1, self.fig)
@@ -57,19 +54,19 @@ class PlotPanel(wx.Panel):
         self.Fit()
 
     def init_plot_data(self):
-        a = self.fig.add_subplot(111)
+        ax = self.fig.add_subplot()
 
         x = np.arange(120.0) * 2 * np.pi / 60.0
         y = np.arange(100.0) * 2 * np.pi / 50.0
         self.x, self.y = np.meshgrid(x, y)
         z = np.sin(self.x) + np.cos(self.y)
-        self.im = a.imshow(z, cmap=cm.RdBu)  # , interpolation='nearest')
+        self.im = ax.imshow(z, cmap=cm.RdBu, origin='lower')
 
         zmax = np.max(z) - ERR_TOL
         ymax_i, xmax_i = np.nonzero(z >= zmax)
         if self.im.origin == 'upper':
             ymax_i = z.shape[0] - ymax_i
-        self.lines = a.plot(xmax_i, ymax_i, 'ko')
+        self.lines = ax.plot(xmax_i, ymax_i, 'ko')
 
         self.toolbar.update()  # Not sure why this is needed - ADS
 
@@ -78,7 +75,7 @@ class PlotPanel(wx.Panel):
         # unmanaged toolbar in your frame
         return self.toolbar
 
-    def OnWhiz(self, evt):
+    def OnWhiz(self, event):
         self.x += np.pi / 15
         self.y += np.pi / 20
         z = np.sin(self.x) + np.cos(self.y)
@@ -130,7 +127,7 @@ class MyApp(wx.App):
         bang_button.Bind(wx.EVT_BUTTON, self.OnBang)
 
         # final setup ------------------
-        self.frame.Show(1)
+        self.frame.Show()
 
         self.SetTopWindow(self.frame)
 
@@ -142,6 +139,7 @@ class MyApp(wx.App):
         bangs = int(bangs) + 1
         bang_count.SetValue(str(bangs))
 
+
 if __name__ == '__main__':
-    app = MyApp(0)
+    app = MyApp()
     app.MainLoop()

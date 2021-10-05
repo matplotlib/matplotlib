@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 fig = plt.figure()
 fig.suptitle('bold figure suptitle', fontsize=14, fontweight='bold')
 
-ax = fig.add_subplot(111)
+ax = fig.add_subplot()
 fig.subplots_adjust(top=0.85)
 ax.set_title('axes title')
 
@@ -19,7 +19,7 @@ ax.set_xlabel('xlabel')
 ax.set_ylabel('ylabel')
 
 ax.text(3, 8, 'boxed italics text in data coords', style='italic',
-        bbox={'facecolor':'red', 'alpha':0.5, 'pad':10})
+        bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
 
 ax.text(2, 6, r'an equation: $E=mc^2$', fontsize=15)
 
@@ -41,20 +41,16 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.figure.Figure.suptitle
-matplotlib.figure.Figure.add_subplot
-matplotlib.figure.Figure.subplots_adjust
-matplotlib.axes.Axes.set_title
-matplotlib.axes.Axes.set_xlabel
-matplotlib.axes.Axes.set_ylabel
-matplotlib.axes.Axes.text
-matplotlib.axes.Axes.annotate
+#    - `matplotlib.figure.Figure.suptitle`
+#    - `matplotlib.figure.Figure.add_subplot`
+#    - `matplotlib.figure.Figure.subplots_adjust`
+#    - `matplotlib.axes.Axes.set_title`
+#    - `matplotlib.axes.Axes.set_xlabel`
+#    - `matplotlib.axes.Axes.set_ylabel`
+#    - `matplotlib.axes.Axes.text`
+#    - `matplotlib.axes.Axes.annotate`

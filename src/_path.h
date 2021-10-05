@@ -21,6 +21,11 @@
 #include "_backend_agg_basic_types.h"
 #include "numpy_cpp.h"
 
+/* Compatibility for PyPy3.7 before 7.3.4. */
+#ifndef Py_DTSF_ADD_DOT_0
+#define Py_DTSF_ADD_DOT_0 0x2
+#endif
+
 struct XY
 {
     double x;
@@ -442,7 +447,6 @@ void point_in_path_collection(double x,
                               OffsetArray &offsets,
                               agg::trans_affine &offset_trans,
                               bool filled,
-                              e_offset_position offset_position,
                               std::vector<int> &result)
 {
     size_t Npaths = paths.size();
@@ -478,11 +482,7 @@ void point_in_path_collection(double x,
             double xo = offsets(i % Noffsets, 0);
             double yo = offsets(i % Noffsets, 1);
             offset_trans.transform(&xo, &yo);
-            if (offset_position == OFFSET_POSITION_DATA) {
-                trans = agg::trans_affine_translation(xo, yo) * trans;
-            } else {
-                trans *= agg::trans_affine_translation(xo, yo);
-            }
+            trans *= agg::trans_affine_translation(xo, yo);
         }
 
         if (filled) {
@@ -529,7 +529,7 @@ bool path_in_path(PathIterator1 &a,
 /** The clip_path_to_rect code here is a clean-room implementation of
     the Sutherland-Hodgman clipping algorithm described here:
 
-  http://en.wikipedia.org/wiki/Sutherland-Hodgman_clipping_algorithm
+  https://en.wikipedia.org/wiki/Sutherland-Hodgman_clipping_algorithm
 */
 
 namespace clip_to_rect_filters
@@ -814,8 +814,13 @@ int count_bboxes_overlapping_bbox(agg::rect_d &a, BBoxArray &bboxes)
 }
 
 
-inline bool isclose(double a, double b, double rtol, double atol)
+inline bool isclose(double a, double b)
 {
+    // relative and absolute tolerance values are chosen empirically
+    // it looks the atol value matters here because of round-off errors
+    const double rtol = 1e-10;
+    const double atol = 1e-13;
+
     // as per python's math.isclose
     return fabs(a-b) <= fmax(rtol * fmax(fabs(a), fabs(b)), atol);
 }
@@ -830,45 +835,48 @@ inline bool segments_intersect(const double &x1,
                                const double &x4,
                                const double &y4)
 {
-    // relative and absolute tolerance values are chosen empirically
-    // it looks the atol value matters here bacause of round-off errors
-    const double rtol = 1e-10;
-    const double atol = 1e-13;
     // determinant
     double den = ((y4 - y3) * (x2 - x1)) - ((x4 - x3) * (y2 - y1));
 
-    if (isclose(den, 0.0, rtol, atol)) {  // collinear segments
-        if (x1 == x2 && x2 == x3) { // segments have infinite slope (vertical lines)
-                                    // and lie on the same line
-            return (fmin(y1, y2) <= fmin(y3, y4) && fmin(y3, y4) <= fmax(y1, y2)) ||
-                   (fmin(y3, y4) <= fmin(y1, y2) && fmin(y1, y2) <= fmax(y3, y4));
-        }
-        else {
-            double intercept = (y1*x2 - y2*x1)*(x4 - x3) - (y3*x4 - y4*x3)*(x1 - x2);
-            if (isclose(intercept, 0.0, rtol, atol)) { // segments lie on the same line
+    // If den == 0 we have two possibilities:
+    if (isclose(den, 0.0)) {
+        float t_area = (x2*y3 - x3*y2) - x1*(y3 - y2) + y1*(x3 - x2);
+        // 1 - If the area of the triangle made by the 3 first points (2 from the first segment
+        // plus one from the second) is zero, they are collinear
+        if (isclose(t_area, 0.0)) {
+            if (x1 == x2 && x2 == x3) { // segments have infinite slope (vertical lines)
+                                        // and lie on the same line
+                return (fmin(y1, y2) <= fmin(y3, y4) && fmin(y3, y4) <= fmax(y1, y2)) ||
+                    (fmin(y3, y4) <= fmin(y1, y2) && fmin(y1, y2) <= fmax(y3, y4));
+            }
+            else {
                 return (fmin(x1, x2) <= fmin(x3, x4) && fmin(x3, x4) <= fmax(x1, x2)) ||
-                       (fmin(x3, x4) <= fmin(x1, x2) && fmin(x1, x2) <= fmax(x3, x4));
+                        (fmin(x3, x4) <= fmin(x1, x2) && fmin(x1, x2) <= fmax(x3, x4));
+                
             }
         }
-       
-        return false;
+        // 2 - If t_area is not zero, the segments are parallel, but not collinear
+        else {
+            return false;
+        }
     }
 
-    double n1 = ((x4 - x3) * (y1 - y3)) - ((y4 - y3) * (x1 - x3));
-    double n2 = ((x2 - x1) * (y1 - y3)) - ((y2 - y1) * (x1 - x3));
+    const double n1 = ((x4 - x3) * (y1 - y3)) - ((y4 - y3) * (x1 - x3));
+    const double n2 = ((x2 - x1) * (y1 - y3)) - ((y2 - y1) * (x1 - x3));
 
-    double u1 = n1 / den;
-    double u2 = n2 / den;
+    const double u1 = n1 / den;
+    const double u2 = n2 / den;
 
-    return ((u1 > 0.0 || isclose(u1, 0.0, rtol, atol)) && 
-            (u1 < 1.0 || isclose(u1, 1.0, rtol, atol)) && 
-            (u2 > 0.0 || isclose(u2, 0.0, rtol, atol)) && 
-            (u2 < 1.0 || isclose(u2, 1.0, rtol, atol)));
+    return ((u1 > 0.0 || isclose(u1, 0.0)) &&
+            (u1 < 1.0 || isclose(u1, 1.0)) &&
+            (u2 > 0.0 || isclose(u2, 0.0)) &&
+            (u2 < 1.0 || isclose(u2, 1.0)));
 }
 
 template <class PathIterator1, class PathIterator2>
 bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
 {
+    
     typedef PathNanRemover<py::PathIterator> no_nans_t;
     typedef agg::conv_curve<no_nans_t> curve_t;
 
@@ -887,9 +895,20 @@ bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
 
     c1.vertex(&x11, &y11);
     while (c1.vertex(&x12, &y12) != agg::path_cmd_stop) {
+        // if the segment in path 1 is (almost) 0 length, skip to next vertex
+        if ((isclose((x11 - x12) * (x11 - x12) + (y11 - y12) * (y11 - y12), 0))){
+            continue;
+        }
         c2.rewind(0);
         c2.vertex(&x21, &y21);
+        
+
         while (c2.vertex(&x22, &y22) != agg::path_cmd_stop) {
+            // if the segment in path 2 is (almost) 0 length, skip to next vertex
+            if ((isclose((x21 - x22) * (x21 - x22) + (y21 - y22) * (y21 - y22), 0))){
+                continue;
+            }
+
             if (segments_intersect(x11, y11, x12, y12, x21, y21, x22, y22)) {
                 return true;
             }
@@ -980,7 +999,7 @@ void convert_path_to_polygons(PathIterator &path,
 
     transformed_path_t tpath(path, trans);
     nan_removal_t nan_removed(tpath, true, path.has_curves());
-    clipped_t clipped(nan_removed, do_clip && !path.has_curves(), width, height);
+    clipped_t clipped(nan_removed, do_clip, width, height);
     simplify_t simplified(clipped, simplify, path.simplify_threshold());
     curve_t curve(simplified);
 
@@ -1045,7 +1064,7 @@ void cleanup_path(PathIterator &path,
 
     transformed_path_t tpath(path, trans);
     nan_removal_t nan_removed(tpath, remove_nans, path.has_curves());
-    clipped_t clipped(nan_removed, do_clip && !path.has_curves(), rect);
+    clipped_t clipped(nan_removed, do_clip, rect);
     snapped_t snapped(clipped, snap_mode, path.total_vertices(), stroke_width);
     simplify_t simplified(snapped, do_simplify, path.simplify_threshold());
 
@@ -1079,35 +1098,38 @@ void quad2cubic(double x0, double y0,
 void __add_number(double val, char format_code, int precision,
                   std::string& buffer)
 {
-    char *str = PyOS_double_to_string(val, format_code, precision, 0, NULL);
-
-    // Delete trailing zeros and decimal point
-    char *q = str;
-    for (; *q != 0; ++q) {
-        // Find the end of the string
-    }
-
-    --q;
-    for (; q >= str && *q == '0'; --q) {
-        // Rewind through all the zeros
-    }
-
-    // If the end is a decimal point, delete that too
-    if (q >= str && *q == '.') {
-        --q;
-    }
-
-    // Truncate the string
-    ++q;
-    *q = 0;
-
-    try {
+    if (precision == -1) {
+        // Special-case for compat with old ttconv code, which *truncated*
+        // values with a cast to int instead of rounding them as printf
+        // would do.  The only point where non-integer values arise is from
+        // quad2cubic conversion (as we already perform a first truncation
+        // on Python's side), which can introduce additional floating point
+        // error (by adding 2/3 delta-x and then 1/3 delta-x), so compensate by
+        // first rounding to the closest 1/3 and then truncating.
+        char str[255];
+        PyOS_snprintf(str, 255, "%d", (int)(round(val * 3)) / 3);
         buffer += str;
-    } catch (std::bad_alloc& e) {
+    } else {
+        char *str = PyOS_double_to_string(
+          val, format_code, precision, Py_DTSF_ADD_DOT_0, NULL);
+        // Delete trailing zeros and decimal point
+        char *c = str + strlen(str) - 1;  // Start at last character.
+        // Rewind through all the zeros and, if present, the trailing decimal
+        // point.  Py_DTSF_ADD_DOT_0 ensures we won't go past the start of str.
+        while (*c == '0') {
+            --c;
+        }
+        if (*c == '.') {
+            --c;
+        }
+        try {
+            buffer.append(str, c + 1);
+        } catch (std::bad_alloc& e) {
+            PyMem_Free(str);
+            throw e;
+        }
         PyMem_Free(str);
-        throw e;
     }
-    PyMem_Free(str);
 }
 
 
@@ -1125,15 +1147,14 @@ bool __convert_to_string(PathIterator &path,
     double last_x = 0.0;
     double last_y = 0.0;
 
-    const int sizes[] = { 1, 1, 2, 3 };
     int size = 0;
     unsigned code;
 
     while ((code = path.vertex(&x[0], &y[0])) != agg::path_cmd_stop) {
-        if (code == 0x4f) {
+        if (code == CLOSEPOLY) {
             buffer += codes[4];
         } else if (code < 5) {
-            size = sizes[code - 1];
+            size = NUM_VERTICES[code];
 
             for (int i = 1; i < size; ++i) {
                 unsigned subcode = path.vertex(&x[i], &y[i]);
@@ -1202,7 +1223,7 @@ bool convert_to_string(PathIterator &path,
 
     transformed_path_t tpath(path, trans);
     nan_removal_t nan_removed(tpath, true, path.has_curves());
-    clipped_t clipped(nan_removed, do_clip && !path.has_curves(), clip_rect);
+    clipped_t clipped(nan_removed, do_clip, clip_rect);
     simplify_t simplified(clipped, simplify, path.simplify_threshold());
 
     buffersize = path.total_vertices() * (precision + 5) * 4;

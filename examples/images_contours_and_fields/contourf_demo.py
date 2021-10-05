@@ -3,7 +3,7 @@
 Contourf Demo
 =============
 
-How to use the :meth:`.axes.Axes.contourf` method to create filled contour plots.
+How to use the `.axes.Axes.contourf` method to create filled contour plots.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -41,10 +41,10 @@ Z[interior] = np.ma.masked
 fig1, ax2 = plt.subplots(constrained_layout=True)
 CS = ax2.contourf(X, Y, Z, 10, cmap=plt.cm.bone, origin=origin)
 
-# Note that in the following, we explicitly pass in a subset of
-# the contour levels used for the filled contours.  Alternatively,
-# We could pass in additional levels to provide extra resolution,
-# or leave out the levels kwarg to use all of the original levels.
+# Note that in the following, we explicitly pass in a subset of the contour
+# levels used for the filled contours.  Alternatively, we could pass in
+# additional levels to provide extra resolution, or leave out the *levels*
+# keyword argument to use all of the original levels.
 
 CS2 = ax2.contour(CS, levels=CS.levels[::2], colors='r', origin=origin)
 
@@ -80,15 +80,13 @@ CS4 = ax2.contour(X, Y, Z, levels,
 ax2.set_title('Listed colors (3 masked regions)')
 ax2.clabel(CS4, fmt='%2.1f', colors='w', fontsize=14)
 
-# Notice that the colorbar command gets all the information it
+# Notice that the colorbar gets all the information it
 # needs from the ContourSet object, CS3.
 fig2.colorbar(CS3)
 
 # Illustrate all 4 possible "extend" settings:
 extends = ["neither", "both", "min", "max"]
-cmap = plt.cm.get_cmap("winter")
-cmap.set_under("magenta")
-cmap.set_over("yellow")
+cmap = plt.colormaps["winter"].with_extremes(under="magenta", over="yellow")
 # Note: contouring simply excludes masked or nan regions, so
 # instead of using the "bad" colormap value for them, it draws
 # nothing at all in them.  Therefore the following would have
@@ -97,7 +95,7 @@ cmap.set_over("yellow")
 
 fig, axs = plt.subplots(2, 2, constrained_layout=True)
 
-for ax, extend in zip(axs.ravel(), extends):
+for ax, extend in zip(axs.flat, extends):
     cs = ax.contourf(X, Y, Z, levels, cmap=cmap, extend=extend, origin=origin)
     fig.colorbar(cs, ax=ax, shrink=0.9)
     ax.set_title("extend = %s" % extend)
@@ -107,24 +105,16 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.contour
-matplotlib.pyplot.contour
-matplotlib.axes.Axes.contourf
-matplotlib.pyplot.contourf
-matplotlib.axes.Axes.clabel
-matplotlib.pyplot.clabel
-matplotlib.figure.Figure.colorbar
-matplotlib.pyplot.colorbar
-matplotlib.colors.Colormap
-matplotlib.colors.Colormap.set_bad
-matplotlib.colors.Colormap.set_under
-matplotlib.colors.Colormap.set_over
+#    - `matplotlib.axes.Axes.contour` / `matplotlib.pyplot.contour`
+#    - `matplotlib.axes.Axes.contourf` / `matplotlib.pyplot.contourf`
+#    - `matplotlib.axes.Axes.clabel` / `matplotlib.pyplot.clabel`
+#    - `matplotlib.figure.Figure.colorbar` / `matplotlib.pyplot.colorbar`
+#    - `matplotlib.colors.Colormap`
+#    - `matplotlib.colors.Colormap.set_bad`
+#    - `matplotlib.colors.Colormap.set_under`
+#    - `matplotlib.colors.Colormap.set_over`

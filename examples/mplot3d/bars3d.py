@@ -15,7 +15,7 @@ np.random.seed(19680801)
 
 
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot(projection='3d')
 
 colors = ['r', 'g', 'b', 'y']
 yticks = [3, 2, 1, 0]

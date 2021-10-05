@@ -1,6 +1,3 @@
-from collections import OrderedDict
-
-
 BASE_COLORS = {
     'b': (0, 0, 1),        # blue
     'g': (0, 0.5, 0),      # green
@@ -14,32 +11,29 @@ BASE_COLORS = {
 
 
 # These colors are from Tableau
-TABLEAU_COLORS = (
-    ('blue', '#1f77b4'),
-    ('orange', '#ff7f0e'),
-    ('green', '#2ca02c'),
-    ('red', '#d62728'),
-    ('purple', '#9467bd'),
-    ('brown', '#8c564b'),
-    ('pink', '#e377c2'),
-    ('gray', '#7f7f7f'),
-    ('olive', '#bcbd22'),
-    ('cyan', '#17becf'),
-)
+TABLEAU_COLORS = {
+    'tab:blue': '#1f77b4',
+    'tab:orange': '#ff7f0e',
+    'tab:green': '#2ca02c',
+    'tab:red': '#d62728',
+    'tab:purple': '#9467bd',
+    'tab:brown': '#8c564b',
+    'tab:pink': '#e377c2',
+    'tab:gray': '#7f7f7f',
+    'tab:olive': '#bcbd22',
+    'tab:cyan': '#17becf',
+}
 
-# Normalize name to "tab:<name>" to avoid name collisions.
-TABLEAU_COLORS = OrderedDict(
-    ('tab:' + name, value) for name, value in TABLEAU_COLORS)
 
 # This mapping of color names -> hex values is taken from
 # a survey run by Randall Munroe see:
 # https://blog.xkcd.com/2010/05/03/color-survey-results/
 # for more details.  The results are hosted at
-# https://xkcd.com/color/rgb
+# https://xkcd.com/color/rgb/
 # and also available as a text file at
 # https://xkcd.com/color/rgb.txt
 #
-# License: http://creativecommons.org/publicdomain/zero/1.0/
+# License: https://creativecommons.org/publicdomain/zero/1.0/
 XKCD_COLORS = {
     'cloudy blue': '#acc2d9',
     'dark pastel green': '#56ae57',

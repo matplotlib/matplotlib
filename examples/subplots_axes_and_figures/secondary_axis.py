@@ -8,7 +8,7 @@ radians to degrees on the same plot.  We can do this by making a child
 axes with only one axis visible via `.axes.Axes.secondary_xaxis` and
 `.axes.Axes.secondary_yaxis`.  This secondary axis can have a different scale
 than the main axis by providing both a forward and an inverse conversion
-function in a tuple to the ``functions`` kwarg:
+function in a tuple to the *functions* keyword argument:
 """
 
 import matplotlib.pyplot as plt
@@ -42,7 +42,7 @@ plt.show()
 # Here is the case of converting from wavenumber to wavelength in a
 # log-log scale.
 #
-# .. note ::
+# .. note::
 #
 #   In this case, the xscale of the parent is logarithmic, so the child is
 #   made logarithmic as well.
@@ -57,15 +57,20 @@ ax.set_ylabel('PSD')
 ax.set_title('Random spectrum')
 
 
-def forward(x):
-    return 1 / x
+def one_over(x):
+    """Vectorized 1/x, treating x==0 manually"""
+    x = np.array(x).astype(float)
+    near_zero = np.isclose(x, 0)
+    x[near_zero] = np.inf
+    x[~near_zero] = 1 / x[~near_zero]
+    return x
 
 
-def inverse(x):
-    return 1 / x
+# the function "1/x" is its own inverse
+inverse = one_over
 
 
-secax = ax.secondary_xaxis('top', functions=(forward, inverse))
+secax = ax.secondary_xaxis('top', functions=(one_over, inverse))
 secax.set_xlabel('period [s]')
 plt.show()
 
@@ -74,6 +79,17 @@ plt.show()
 # the data, and is derived empirically.  In that case we can set the
 # forward and inverse transforms functions to be linear interpolations from the
 # one data set to the other.
+#
+# .. note::
+#
+#   In order to properly handle the data margins, the mapping functions
+#   (``forward`` and ``inverse`` in this example) need to be defined beyond the
+#   nominal plot limits.
+#
+#   In the specific case of the numpy linear interpolation, `numpy.interp`,
+#   this condition can be arbitrarily enforced by providing optional keyword
+#   arguments *left*, *right* such that values outside the data range are
+#   mapped well outside the plot limits.
 
 fig, ax = plt.subplots(constrained_layout=True)
 xdata = np.arange(1, 11, 0.4)
@@ -81,7 +97,7 @@ ydata = np.random.randn(len(xdata))
 ax.plot(xdata, ydata, label='Plotted data')
 
 xold = np.arange(0, 11, 0.2)
-# fake data set relating x co-ordinate to another data-derived co-ordinate.
+# fake data set relating x coordinate to another data-derived coordinate.
 # xnew must be monotonic, so we sort...
 xnew = np.sort(10 * np.exp(-xold / 4) + np.random.randn(len(xold)) / 3)
 
@@ -106,12 +122,13 @@ plt.show()
 
 ###########################################################################
 # A final example translates np.datetime64 to yearday on the x axis and
-# from Celsius to Farenheit on the y axis:
-
+# from Celsius to Fahrenheit on the y axis.  Note the addition of a
+# third y axis, and that it can be placed using a float for the
+# location argument
 
 dates = [datetime.datetime(2018, 1, 1) + datetime.timedelta(hours=k * 6)
          for k in range(240)]
-temperature = np.random.randn(len(dates))
+temperature = np.random.randn(len(dates)) * 4 + 6.7
 fig, ax = plt.subplots(constrained_layout=True)
 
 ax.plot(dates, temperature)
@@ -131,33 +148,45 @@ def yday2date(x):
     return y
 
 
-secaxx = ax.secondary_xaxis('top', functions=(date2yday, yday2date))
-secaxx.set_xlabel('yday [2018]')
+secax_x = ax.secondary_xaxis('top', functions=(date2yday, yday2date))
+secax_x.set_xlabel('yday [2018]')
 
 
-def CtoF(x):
+def celsius_to_fahrenheit(x):
     return x * 1.8 + 32
 
 
-def FtoC(x):
+def fahrenheit_to_celsius(x):
     return (x - 32) / 1.8
 
 
-secaxy = ax.secondary_yaxis('right', functions=(CtoF, FtoC))
-secaxy.set_ylabel(r'$T\ [^oF]$')
+secax_y = ax.secondary_yaxis(
+    'right', functions=(celsius_to_fahrenheit, fahrenheit_to_celsius))
+secax_y.set_ylabel(r'$T\ [^oF]$')
+
+
+def celsius_to_anomaly(x):
+    return (x - np.mean(temperature))
+
+
+def anomaly_to_celsius(x):
+    return (x + np.mean(temperature))
+
+
+# use of a float for the position:
+secax_y2 = ax.secondary_yaxis(
+    1.2, functions=(celsius_to_anomaly, anomaly_to_celsius))
+secax_y2.set_ylabel(r'$T - \overline{T}\ [^oC]$')
+
 
 plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions and methods is shown in this example:
-
-import matplotlib
-
-matplotlib.axes.Axes.secondary_xaxis
-matplotlib.axes.Axes.secondary_yaxis
+#    - `matplotlib.axes.Axes.secondary_xaxis`
+#    - `matplotlib.axes.Axes.secondary_yaxis`

@@ -3,10 +3,9 @@
 BboxImage Demo
 ==============
 
-A :class:`~matplotlib.image.BboxImage` can be used to position
-an image according to a bounding box. This demo shows how to
-show an image inside a `.text.Text`'s bounding box as well as
-how to manually create a bounding box for the image.
+A `~matplotlib.image.BboxImage` can be used to position an image according to
+a bounding box. This demo shows how to show an image inside a `.text.Text`'s
+bounding box as well as how to manually create a bounding box for the image.
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -39,18 +38,18 @@ a = np.linspace(0, 1, 256).reshape(1, -1)
 a = np.vstack((a, a))
 
 # List of all colormaps; skip reversed colormaps.
-maps = sorted(m for m in plt.cm.cmap_d if not m.endswith("_r"))
+cmap_names = sorted(m for m in plt.colormaps if not m.endswith("_r"))
 
 ncol = 2
-nrow = len(maps)//ncol + 1
+nrow = len(cmap_names) // ncol + 1
 
 xpad_fraction = 0.3
-dx = 1./(ncol + xpad_fraction*(ncol - 1))
+dx = 1 / (ncol + xpad_fraction * (ncol - 1))
 
 ypad_fraction = 0.3
-dy = 1./(nrow + ypad_fraction*(nrow - 1))
+dy = 1 / (nrow + ypad_fraction * (nrow - 1))
 
-for i, m in enumerate(maps):
+for i, cmap_name in enumerate(cmap_names):
     ix, iy = divmod(i, nrow)
 
     bbox0 = Bbox.from_bounds(ix*dx*(1 + xpad_fraction),
@@ -59,7 +58,7 @@ for i, m in enumerate(maps):
     bbox = TransformedBbox(bbox0, ax2.transAxes)
 
     bbox_image = BboxImage(bbox,
-                           cmap=plt.get_cmap(m),
+                           cmap=cmap_name,
                            norm=None,
                            origin=None,
                            **kwargs
@@ -72,16 +71,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.image.BboxImage
-matplotlib.transforms.Bbox
-matplotlib.transforms.TransformedBbox
-matplotlib.text.Text
+#    - `matplotlib.image.BboxImage`
+#    - `matplotlib.transforms.Bbox`
+#    - `matplotlib.transforms.TransformedBbox`
+#    - `matplotlib.text.Text`

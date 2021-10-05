@@ -7,7 +7,7 @@ This is an example of plotting Edward Lorenz's 1963 `"Deterministic Nonperiodic
 Flow"`_ in a 3-dimensional space using mplot3d.
 
 .. _"Deterministic Nonperiodic Flow":
-   http://journals.ametsoc.org/doi/abs/10.1175/1520-0469%281963%29020%3C0130%3ADNF%3E2.0.CO%3B2
+   https://journals.ametsoc.org/view/journals/atsc/20/2/1520-0469_1963_020_0130_dnf_2_0_co_2.xml
 
 .. note::
    Because this is a simple non-linear ODE, it would be more easily done using
@@ -19,14 +19,14 @@ import matplotlib.pyplot as plt
 
 
 def lorenz(x, y, z, s=10, r=28, b=2.667):
-    '''
+    """
     Given:
        x, y, z: a point of interest in three dimensional space
        s, r, b: parameters defining the lorenz attractor
     Returns:
        x_dot, y_dot, z_dot: values of the lorenz attractor's partial
            derivatives at the point x, y, z
-    '''
+    """
     x_dot = s*(y - x)
     y_dot = r*x - y - x*z
     z_dot = x*y - b*z
@@ -54,8 +54,7 @@ for i in range(num_steps):
 
 
 # Plot
-fig = plt.figure()
-ax = fig.gca(projection='3d')
+ax = plt.figure().add_subplot(projection='3d')
 
 ax.plot(xs, ys, zs, lw=0.5)
 ax.set_xlabel("X Axis")

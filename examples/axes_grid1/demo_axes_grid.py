@@ -6,18 +6,13 @@ Demo Axes Grid
 Grid of 2x2 images with single or own colorbar.
 """
 
+from matplotlib import cbook
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import ImageGrid
 
 
-plt.rcParams["mpl_toolkits.legacy_colorbar"] = False
-
-
 def get_demo_image():
-    import numpy as np
-    from matplotlib.cbook import get_sample_data
-    f = get_sample_data("axes_grid/bivariate_normal.npy", asfileobj=False)
-    z = np.load(f)
+    z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
     # z is a numpy array of 15x15
     return z, (-3, 4, -4, 3)
 
@@ -34,7 +29,7 @@ def demo_simple_grid(fig):
                      )
     Z, extent = get_demo_image()
     for ax in grid:
-        ax.imshow(Z, extent=extent, interpolation="nearest")
+        ax.imshow(Z, extent=extent)
     # This only affects axes in first column and second row as share_all=False.
     grid.axes_llc.set_xticks([-2, 0, 2])
     grid.axes_llc.set_yticks([-2, 0, 2])
@@ -55,7 +50,7 @@ def demo_grid_with_single_cbar(fig):
 
     Z, extent = get_demo_image()
     for ax in grid:
-        im = ax.imshow(Z, extent=extent, interpolation="nearest")
+        im = ax.imshow(Z, extent=extent)
     grid.cbar_axes[0].colorbar(im)
 
     for cax in grid.cbar_axes:
@@ -82,7 +77,7 @@ def demo_grid_with_each_cbar(fig):
                      )
     Z, extent = get_demo_image()
     for ax, cax in zip(grid, grid.cbar_axes):
-        im = ax.imshow(Z, extent=extent, interpolation="nearest")
+        im = ax.imshow(Z, extent=extent)
         cax.colorbar(im)
         cax.toggle_label(False)
 
@@ -110,8 +105,7 @@ def demo_grid_with_each_cbar_labelled(fig):
     # Use a different colorbar range every time
     limits = ((0, 1), (-2, 2), (-1.7, 1.4), (-1.5, 1))
     for ax, cax, vlim in zip(grid, grid.cbar_axes, limits):
-        im = ax.imshow(Z, extent=extent, interpolation="nearest",
-                       vmin=vlim[0], vmax=vlim[1])
+        im = ax.imshow(Z, extent=extent, vmin=vlim[0], vmax=vlim[1])
         cb = cax.colorbar(im)
         cb.set_ticks((vlim[0], vlim[1]))
 

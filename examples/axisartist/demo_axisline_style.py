@@ -4,16 +4,20 @@ Axis line styles
 ================
 
 This example shows some configurations for axis style.
+
+Note: The `mpl_toolkits.axisartist` axes classes may be confusing for new
+users. If the only aim is to obtain arrow heads at the ends of the axes,
+rather check out the :doc:`/gallery/spines/centered_spines_with_arrows`
+example.
 """
 
-from mpl_toolkits.axisartist.axislines import SubplotZero
+from mpl_toolkits.axisartist.axislines import AxesZero
 import matplotlib.pyplot as plt
 import numpy as np
 
 
 fig = plt.figure()
-ax = SubplotZero(fig, 111)
-fig.add_subplot(ax)
+ax = fig.add_subplot(axes_class=AxesZero)
 
 for direction in ["xzero", "yzero"]:
     # adds arrows at the ends of each axis

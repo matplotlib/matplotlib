@@ -11,7 +11,7 @@ It's possible to get a polygon grid by setting GRIDLINE_INTERPOLATION_STEPS in
 matplotlib.axis to the desired number of vertices, but the orientation of the
 polygon is not aligned with the radial axes.
 
-.. [1] http://en.wikipedia.org/wiki/Radar_chart
+.. [1] https://en.wikipedia.org/wiki/Radar_chart
 """
 
 import numpy as np
@@ -26,7 +26,8 @@ from matplotlib.transforms import Affine2D
 
 
 def radar_factory(num_vars, frame='circle'):
-    """Create a radar chart with `num_vars` axes.
+    """
+    Create a radar chart with `num_vars` axes.
 
     This function creates a RadarAxes projection and registers it.
 
@@ -66,8 +67,8 @@ def radar_factory(num_vars, frame='circle'):
             x, y = line.get_data()
             # FIXME: markers at x[0], y[0] get doubled-up
             if x[0] != x[-1]:
-                x = np.concatenate((x, [x[0]]))
-                y = np.concatenate((y, [y[0]]))
+                x = np.append(x, x[0])
+                y = np.append(y, y[0])
                 line.set_data(x, y)
 
         def set_varlabels(self, labels):
@@ -82,7 +83,7 @@ def radar_factory(num_vars, frame='circle'):
                 return RegularPolygon((0.5, 0.5), num_vars,
                                       radius=.5, edgecolor="k")
             else:
-                raise ValueError("unknown value for 'frame': %s" % frame)
+                raise ValueError("Unknown value for 'frame': %s" % frame)
 
         def _gen_axes_spines(self):
             if frame == 'circle':
@@ -99,7 +100,7 @@ def radar_factory(num_vars, frame='circle'):
                                     + self.transAxes)
                 return {'polar': spine}
             else:
-                raise ValueError("unknown value for 'frame': %s" % frame)
+                raise ValueError("Unknown value for 'frame': %s" % frame)
 
     register_projection(RadarAxes)
     return theta
@@ -191,20 +192,16 @@ if __name__ == '__main__':
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.path
-matplotlib.path.Path
-matplotlib.spines
-matplotlib.spines.Spine
-matplotlib.projections
-matplotlib.projections.polar
-matplotlib.projections.polar.PolarAxes
-matplotlib.projections.register_projection
+#    - `matplotlib.path`
+#    - `matplotlib.path.Path`
+#    - `matplotlib.spines`
+#    - `matplotlib.spines.Spine`
+#    - `matplotlib.projections`
+#    - `matplotlib.projections.polar`
+#    - `matplotlib.projections.polar.PolarAxes`
+#    - `matplotlib.projections.register_projection`

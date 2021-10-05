@@ -25,7 +25,7 @@ class DataDisplayDownsampler:
         mask = (self.origXData > xstart) & (self.origXData < xend)
         # dilate the mask by one to catch the points just outside
         # of the view range to not truncate the line
-        mask = np.convolve([1, 1], mask, mode='same').astype(bool)
+        mask = np.convolve([1, 1, 1], mask, mode='same').astype(bool)
         # sort out how many points to drop
         ratio = max(np.sum(mask) // self.max_points, 1)
 
@@ -37,15 +37,14 @@ class DataDisplayDownsampler:
         xdata = xdata[::ratio]
         ydata = ydata[::ratio]
 
-        print("using {} of {} visible points".format(
-            len(ydata), np.sum(mask)))
+        print("using {} of {} visible points".format(len(ydata), np.sum(mask)))
 
         return xdata, ydata
 
     def update(self, ax):
         # Update the line
         lims = ax.viewLim
-        if np.abs(lims.width - self.delta) > 1e-8:
+        if abs(lims.width - self.delta) > 1e-8:
             self.delta = lims.width
             xstart, xend = lims.intervalx
             self.line.set_data(*self.downsample(xstart, xend))

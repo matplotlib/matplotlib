@@ -1,23 +1,16 @@
 .. _users-guide-index:
 
-############
-User's Guide
-############
-
-.. only:: html
-
-    :Release: |version|
-    :Date: |today|
+###########
+Usage guide
+###########
 
 .. toctree::
-    :maxdepth: 2
+   :maxdepth: 2
 
-    installing.rst
-    ../tutorials/index.rst
-    interactive.rst
-    whats_new.rst
-    history.rst
-    github_stats.rst
-    whats_new_old.rst
-    license.rst
-    credits.rst
+   ../plot_types/index.rst
+   ../tutorials/index.rst
+   ../gallery/index.rst
+   explain.rst
+   ../faq/index.rst
+   ../api/index.rst
+   ../resources/index.rst

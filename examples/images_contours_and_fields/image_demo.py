@@ -6,7 +6,7 @@ Image Demo
 Many ways to plot images in Matplotlib.
 
 The most common way to plot images in Matplotlib is with
-:meth:`~.axes.Axes.imshow`. The following examples demonstrate much of the
+`~.axes.Axes.imshow`. The following examples demonstrate much of the
 functionality of imshow and the many images you can create.
 """
 
@@ -16,6 +16,10 @@ import matplotlib.pyplot as plt
 import matplotlib.cbook as cbook
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
+
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
 
 ###############################################################################
 # First we'll generate a simple bivariate normal distribution.
@@ -39,7 +43,7 @@ plt.show()
 # It is also possible to show images of pictures.
 
 # A sample image
-with cbook.get_sample_data('ada.png') as image_file:
+with cbook.get_sample_data('grace_hopper.jpg') as image_file:
     image = plt.imread(image_file)
 
 fig, ax = plt.subplots()
@@ -49,12 +53,11 @@ ax.axis('off')  # clear x-axis and y-axis
 
 # And another image
 
-w, h = 512, 512
-
-with cbook.get_sample_data('ct.raw.gz') as datafile:
+# Data are 256x256 16-bit integers.
+w, h = 256, 256
+with cbook.get_sample_data('s1045.ima.gz') as datafile:
     s = datafile.read()
 A = np.frombuffer(s, np.uint16).astype(float).reshape((w, h))
-A /= A.max()
 
 fig, ax = plt.subplots()
 extent = (0, 25, 0, 25)
@@ -64,7 +67,7 @@ markers = [(15.9, 14.5), (16.8, 15)]
 x, y = zip(*markers)
 ax.plot(x, y, 'o')
 
-ax.set_title('CT density')
+ax.set_title('MRI')
 
 plt.show()
 
@@ -172,16 +175,11 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions and methods is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.imshow
-matplotlib.pyplot.imshow
-matplotlib.artist.Artist.set_clip_path
-matplotlib.patches.PathPatch
+#    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`
+#    - `matplotlib.artist.Artist.set_clip_path`
+#    - `matplotlib.patches.PathPatch`

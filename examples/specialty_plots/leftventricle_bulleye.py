@@ -28,10 +28,9 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
     norm : Normalize or None, optional
         Optional argument to normalize data into the [0.0, 1.0] range
 
-
     Notes
     -----
-    This function create the 17 segment model for the left ventricle according
+    This function creates the 17 segment model for the left ventricle according
     to the American Heart Association (AHA) [1]_
 
     References
@@ -46,7 +45,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
         seg_bold = []
 
     linewidth = 2
-    data = np.array(data).ravel()
+    data = np.ravel(data)
 
     if cmap is None:
         cmap = plt.cm.viridis
@@ -79,7 +78,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
         theta0 = theta[i * 128:i * 128 + 128] + np.deg2rad(60)
         theta0 = np.repeat(theta0[:, np.newaxis], 2, axis=1)
         z = np.ones((128, 2)) * data[i]
-        ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm)
+        ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm, shading='auto')
         if i + 1 in seg_bold:
             ax.plot(theta0, r0, '-k', lw=linewidth + 2)
             ax.plot(theta0[0], [r[2], r[3]], '-k', lw=linewidth + 1)
@@ -93,7 +92,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
         theta0 = theta[i * 128:i * 128 + 128] + np.deg2rad(60)
         theta0 = np.repeat(theta0[:, np.newaxis], 2, axis=1)
         z = np.ones((128, 2)) * data[i + 6]
-        ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm)
+        ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm, shading='auto')
         if i + 7 in seg_bold:
             ax.plot(theta0, r0, '-k', lw=linewidth + 2)
             ax.plot(theta0[0], [r[1], r[2]], '-k', lw=linewidth + 1)
@@ -107,7 +106,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
         theta0 = theta[i * 192:i * 192 + 192] + np.deg2rad(45)
         theta0 = np.repeat(theta0[:, np.newaxis], 2, axis=1)
         z = np.ones((192, 2)) * data[i + 12]
-        ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm)
+        ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm, shading='auto')
         if i + 13 in seg_bold:
             ax.plot(theta0, r0, '-k', lw=linewidth + 2)
             ax.plot(theta0[0], [r[0], r[1]], '-k', lw=linewidth + 1)
@@ -119,7 +118,7 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
         r0 = np.repeat(r0[:, np.newaxis], theta.size, axis=1).T
         theta0 = np.repeat(theta[:, np.newaxis], 2, axis=1)
         z = np.ones((theta.size, 2)) * data[16]
-        ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm)
+        ax.pcolormesh(theta0, r0, z, cmap=cmap, norm=norm, shading='auto')
         if 17 in seg_bold:
             ax.plot(theta0, r0, '-k', lw=linewidth + 2)
 
@@ -129,13 +128,13 @@ def bullseye_plot(ax, data, seg_bold=None, cmap=None, norm=None):
 
 
 # Create the fake data
-data = np.array(range(17)) + 1
+data = np.arange(17) + 1
 
 
 # Make a figure and axes with dimensions as desired.
 fig, ax = plt.subplots(figsize=(12, 8), nrows=1, ncols=3,
                        subplot_kw=dict(projection='polar'))
-fig.canvas.set_window_title('Left Ventricle Bulls Eyes (AHA)')
+fig.canvas.manager.set_window_title('Left Ventricle Bulls Eyes (AHA)')
 
 # Create the axis for the colorbars
 axl = fig.add_axes([0.14, 0.15, 0.2, 0.05])
@@ -147,53 +146,38 @@ axl3 = fig.add_axes([0.69, 0.15, 0.2, 0.05])
 # the colorbar will be used.
 cmap = mpl.cm.viridis
 norm = mpl.colors.Normalize(vmin=1, vmax=17)
-
-# ColorbarBase derives from ScalarMappable and puts a colorbar
-# in a specified axes, so it has everything needed for a
-# standalone colorbar.  There are many more kwargs, but the
-# following gives a basic continuous colorbar with ticks
-# and labels.
-cb1 = mpl.colorbar.ColorbarBase(axl, cmap=cmap, norm=norm,
-                                orientation='horizontal')
-cb1.set_label('Some Units')
+# Create an empty ScalarMappable to set the colorbar's colormap and norm.
+# The following gives a basic continuous colorbar with ticks and labels.
+fig.colorbar(mpl.cm.ScalarMappable(cmap=cmap, norm=norm),
+             cax=axl, orientation='horizontal', label='Some Units')
 
 
-# Set the colormap and norm to correspond to the data for which
-# the colorbar will be used.
+# And again for the second colorbar.
 cmap2 = mpl.cm.cool
 norm2 = mpl.colors.Normalize(vmin=1, vmax=17)
-
-# ColorbarBase derives from ScalarMappable and puts a colorbar
-# in a specified axes, so it has everything needed for a
-# standalone colorbar.  There are many more kwargs, but the
-# following gives a basic continuous colorbar with ticks
-# and labels.
-cb2 = mpl.colorbar.ColorbarBase(axl2, cmap=cmap2, norm=norm2,
-                                orientation='horizontal')
-cb2.set_label('Some other units')
+fig.colorbar(mpl.cm.ScalarMappable(cmap=cmap2, norm=norm2),
+             cax=axl2, orientation='horizontal', label='Some other units')
 
 
 # The second example illustrates the use of a ListedColormap, a
 # BoundaryNorm, and extended ends to show the "over" and "under"
 # value colors.
-cmap3 = mpl.colors.ListedColormap(['r', 'g', 'b', 'c'])
-cmap3.set_over('0.35')
-cmap3.set_under('0.75')
-
+cmap3 = (mpl.colors.ListedColormap(['r', 'g', 'b', 'c'])
+         .with_extremes(over='0.35', under='0.75'))
 # If a ListedColormap is used, the length of the bounds array must be
 # one greater than the length of the color list.  The bounds must be
 # monotonically increasing.
 bounds = [2, 3, 7, 9, 15]
 norm3 = mpl.colors.BoundaryNorm(bounds, cmap3.N)
-cb3 = mpl.colorbar.ColorbarBase(axl3, cmap=cmap3, norm=norm3,
-                                # to use 'extend', you must
-                                # specify two extra boundaries:
-                                boundaries=[0] + bounds + [18],
-                                extend='both',
-                                ticks=bounds,  # optional
-                                spacing='proportional',
-                                orientation='horizontal')
-cb3.set_label('Discrete intervals, some other units')
+fig.colorbar(mpl.cm.ScalarMappable(cmap=cmap3, norm=norm3),
+             cax=axl3,
+             # to use 'extend', you must specify two extra boundaries:
+             boundaries=[0] + bounds + [18],
+             extend='both',
+             ticks=bounds,  # optional
+             spacing='proportional',
+             orientation='horizontal',
+             label='Discrete intervals, some other units')
 
 
 # Create the 17 segment model

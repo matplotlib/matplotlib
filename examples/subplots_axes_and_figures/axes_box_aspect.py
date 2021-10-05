@@ -19,7 +19,6 @@ The following lists a few use cases for `~.Axes.set_box_aspect`.
 #
 # Produce a square axes, no matter what the data limits are.
 
-import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -80,6 +79,7 @@ plt.show()
 
 fig4, (ax, ax2) = plt.subplots(ncols=2, constrained_layout=True)
 
+np.random.seed(19680801)  # Fixing random state for reproducibility
 im = np.random.rand(16, 27)
 ax.imshow(im)
 
@@ -92,21 +92,22 @@ plt.show()
 # Square joint/marginal plot
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# It may be desireable to show marginal distributions next to a plot of joint
+# It may be desirable to show marginal distributions next to a plot of joint
 # data. The following creates a square plot with the box aspect of the
 # marginal axes being equal to the width- and height-ratios of the gridspec.
 # This ensures that all axes align perfectly, independent on the size of the
 # figure.
 
 fig5, axs = plt.subplots(2, 2, sharex="col", sharey="row",
-                        gridspec_kw=dict(height_ratios=[1, 3],
-                                         width_ratios=[3, 1]))
+                         gridspec_kw=dict(height_ratios=[1, 3],
+                                          width_ratios=[3, 1]))
 axs[0, 1].set_visible(False)
 axs[0, 0].set_box_aspect(1/3)
 axs[1, 0].set_box_aspect(1)
 axs[1, 1].set_box_aspect(3/1)
 
-x, y = np.random.randn(2, 400) * np.array([[.5], [180]])
+np.random.seed(19680801)  # Fixing random state for reproducibility
+x, y = np.random.randn(2, 400) * [[.5], [180]]
 axs[1, 0].scatter(x, y)
 axs[0, 0].hist(x)
 axs[1, 1].hist(y, orientation="horizontal")
@@ -138,7 +139,7 @@ plt.show()
 # following creates a 2 by 3 subplot grid with all square axes.
 
 fig7, axs = plt.subplots(2, 3, subplot_kw=dict(box_aspect=1),
-                        sharex=True, sharey=True, constrained_layout=True)
+                         sharex=True, sharey=True, constrained_layout=True)
 
 for i, ax in enumerate(axs.flat):
     ax.scatter(i % 3, -((i // 3) - 0.5)*200, c=[plt.cm.hsv(i / 6)], s=300)
@@ -146,12 +147,9 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-matplotlib.axes.Axes.set_box_aspect
+#    - `matplotlib.axes.Axes.set_box_aspect`

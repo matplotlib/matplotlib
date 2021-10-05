@@ -1,24 +1,24 @@
 .. _resources-index:
 
-*******************
- External Resources
-*******************
+******************
+External resources
+******************
 
 
-=============================
- Books, Chapters and Articles
-=============================
+============================
+Books, chapters and articles
+============================
 
 * `Mastering matplotlib
-  <https://www.packtpub.com/big-data-and-business-intelligence/mastering-matplotlib>`_
+  <https://www.packtpub.com/product/mastering-matplotlib/9781783987542>`_
   by Duncan M. McGreggor
 
 * `Interactive Applications Using Matplotlib
-  <https://www.packtpub.com/application-development/interactive-applications-using-matplotlib>`_
+  <https://www.packtpub.com/product/interactive-applications-using-matplotlib/9781783988846>`_
   by Benjamin Root
 
 * `Matplotlib for Python Developers
-  <https://www.packtpub.com/application-development/matplotlib-python-developers>`_
+  <https://www.packtpub.com/product/matplotlib-for-python-developers/9781847197900>`_
   by Sandro Tosi
 
 * `Matplotlib chapter <http://www.aosabook.org/en/matplotlib.html>`_
@@ -26,16 +26,20 @@
   Applications
 
 * `Ten Simple Rules for Better Figures
-  <http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003833>`_
+  <https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1003833>`_
   by Nicolas P. Rougier, Michael Droettboom and Philip E. Bourne
 
 * `Learning Scientific Programming with Python chapter 7
-  <http://scipython.com/book/chapter-7-matplotlib/>`_
+  <https://scipython.com/book/chapter-7-matplotlib/>`_
   by Christian Hill
 
-=======
- Videos
-=======
+* `Hands-On Data Analysis with Pandas, chapters 5 and 6
+  <https://www.packtpub.com/product/hands-on-data-analysis-with-pandas-second-edition/9781800563452>`_
+  by Stefanie Molin
+
+======
+Videos
+======
 
 * `Plotting with matplotlib <https://www.youtube.com/watch?v=P7SVi0YTIuE>`_
   by Mike Müller
@@ -48,14 +52,24 @@
   by Benjamin Root
 
 * `Data Visualization Basics with Python (O'Reilly)
-  <http://shop.oreilly.com/product/0636920046592.do>`_
+  <https://www.oreilly.com/library/view/data-visualization-basics/9781771375573/>`_
   by Randal S. Olson
+* `Matplotlib Introduction
+  <https://www.youtube.com/playlist?list=PLeo1K3hjS3uu4Lr8_kro2AqaO6CFYgKOl>`_
+  by codebasics
+* `Matplotlib
+  <https://www.youtube.com/watch?v=wB9C0Mz9gSo>`_
+  by Derek Banas
 
-==========
- Tutorials
-==========
+=========
+Tutorials
+=========
 
-* `Matplotlib tutorial <http://www.labri.fr/perso/nrougier/teaching/matplotlib/>`_
+
+* `The Python Graph Gallery <https://www.python-graph-gallery.com>`_
+  by Yan Holtz
+  
+* `Matplotlib tutorial <https://www.labri.fr/perso/nrougier/teaching/matplotlib/>`_
   by Nicolas P. Rougier
 
 * `Anatomy of Matplotlib - IPython Notebooks

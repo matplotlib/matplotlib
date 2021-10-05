@@ -1,27 +1,51 @@
-.. _toolkit_mplot3d-api:
+.. _toolkit_mplot3d-index:
+.. currentmodule:: mpl_toolkits.mplot3d
 
-***********
-mplot3d API
-***********
+************************
+``mpl_toolkits.mplot3d``
+************************
 
-.. contents::
-      :backlinks: none
+The mplot3d toolkit adds simple 3D plotting capabilities (scatter, surface,
+line, mesh, etc.) to Matplotlib by supplying an Axes object that can create
+a 2D projection of a 3D scene.  The resulting graph will have the same look
+and feel as regular 2D plots.  Not the fastest or most feature complete 3D
+library out there, but it ships with Matplotlib and thus may be a lighter
+weight solution for some use cases.
+
+See the :doc:`mplot3d tutorial </tutorials/toolkits/mplot3d>` for
+more information.
+
+.. image:: /_static/demo_mplot3d.png
+   :align: center
+
+The interactive backends also provide the ability to rotate and zoom the 3D
+scene.  One can rotate the 3D scene by simply clicking-and-dragging the scene.
+Zooming is done by right-clicking the scene and dragging the mouse up and down
+(unlike 2D plots, the toolbar zoom button is not used).
+
+.. toctree::
+   :maxdepth: 2
+
+   mplot3d/faq.rst
+
+.. note::
+   `.pyplot` cannot be used to add content to 3D plots, because its function
+   signatures are strictly 2D and cannot handle the additional information
+   needed for 3D. Instead, use the explicit API by calling the respective
+   methods on the `.Axes3D` object.
 
 .. automodule:: mpl_toolkits.mplot3d
    :no-members:
    :no-undoc-members:
 
-
+.. module:: mpl_toolkits.mplot3d.axes3d
 .. currentmodule:: mpl_toolkits.mplot3d
-
-.. _toolkit_mplot3d-axesapi:
 
 :mod:`~mpl_toolkits.mplot3d.axes3d`
 ===================================
 
 .. note::
-   Significant effort went into bringing axes3d to feature-parity with
-   regular axes objects for version 1.1.0. However, more work remains.
+   3D plotting in Matplotlib is still not as mature as the 2D case.
    Please report any functions that do not behave as expected as a bug.
    In addition, help and patches would be greatly appreciated!
 
@@ -32,7 +56,8 @@ mplot3d API
    axes3d.Axes3D
 
 
-.. _toolkit_mplot3d-axisapi:
+.. module:: mpl_toolkits.mplot3d.axis3d
+.. currentmodule:: mpl_toolkits.mplot3d
 
 :mod:`~mpl_toolkits.mplot3d.axis3d`
 ===================================
@@ -53,7 +78,8 @@ mplot3d API
    axis3d.Axis
 
 
-.. _toolkit_mplot3d-artapi:
+.. module:: mpl_toolkits.mplot3d.art3d
+.. currentmodule:: mpl_toolkits.mplot3d
 
 :mod:`~mpl_toolkits.mplot3d.art3d`
 ==================================
@@ -70,36 +96,19 @@ mplot3d API
    art3d.PathPatch3D
    art3d.Poly3DCollection
    art3d.Text3D
-
-
-Art3D Utility Functions
-=======================
-
-.. autosummary::
-   :toctree: ../_as_gen
-   :template: autosummary.rst
-
-   art3d.get_colors
    art3d.get_dir_vector
-   art3d.get_patch_verts
    art3d.juggle_axes
    art3d.line_2d_to_3d
    art3d.line_collection_2d_to_3d
-   art3d.norm_angle
-   art3d.norm_text_angle
    art3d.patch_2d_to_3d
    art3d.patch_collection_2d_to_3d
-   art3d.path_to_3d_segment
-   art3d.path_to_3d_segment_with_codes
    art3d.pathpatch_2d_to_3d
-   art3d.paths_to_3d_segments
-   art3d.paths_to_3d_segments_with_codes
    art3d.poly_collection_2d_to_3d
    art3d.rotate_axes
    art3d.text_2d_to_3d
-   art3d.zalpha
 
-.. _toolkit_mplot3d-projapi:
+.. module:: mpl_toolkits.mplot3d.proj3d
+.. currentmodule:: mpl_toolkits.mplot3d
 
 :mod:`~mpl_toolkits.mplot3d.proj3d`
 ===================================
@@ -109,20 +118,12 @@ Art3D Utility Functions
    :template: autosummary.rst
 
    proj3d.inv_transform
-   proj3d.line2d
-   proj3d.line2d_dist
-   proj3d.line2d_seg_dist
-   proj3d.mod
    proj3d.persp_transformation
    proj3d.proj_points
-   proj3d.proj_trans_clip_points
    proj3d.proj_trans_points
    proj3d.proj_transform
    proj3d.proj_transform_clip
-   proj3d.proj_transform_vec
-   proj3d.proj_transform_vec_clip
    proj3d.rot_x
    proj3d.transform
-   proj3d.vec_pad_ones
    proj3d.view_transformation
    proj3d.world_transformation

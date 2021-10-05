@@ -1,22 +1,29 @@
 import pytest
-
+import sys
 import matplotlib
-from matplotlib import cbook
+from matplotlib import _api, cbook
 
 
 def pytest_configure(config):
     # config is initialized here rather than in pytest.ini so that `pytest
     # --pyargs matplotlib` (which would not find pytest.ini) works.  The only
-    # entries in pytest.ini set minversion (which is checked earlier) and
-    # testpaths/python_files, as they are required to properly find the tests.
+    # entries in pytest.ini set minversion (which is checked earlier),
+    # testpaths/python_files, as they are required to properly find the tests
     for key, value in [
         ("markers", "flaky: (Provided by pytest-rerunfailures.)"),
         ("markers", "timeout: (Provided by pytest-timeout.)"),
         ("markers", "backend: Set alternate Matplotlib backend temporarily."),
-        ("markers", "style: Set alternate Matplotlib style temporarily."),
+        ("markers",
+         "style: Set alternate Matplotlib style temporarily (deprecated)."),
         ("markers", "baseline_images: Compare output against references."),
         ("markers", "pytz: Tests that require pytz to be installed."),
+        ("markers", "network: Tests that reach out to the network."),
         ("filterwarnings", "error"),
+        ("filterwarnings",
+         "ignore:.*The py23 module has been deprecated:DeprecationWarning"),
+        ("filterwarnings",
+         r"ignore:DynamicImporter.find_spec\(\) not found; "
+         r"falling back to find_module\(\):ImportWarning"),
     ]:
         config.addinivalue_line(key, value)
 
@@ -45,30 +52,37 @@ def mpl_test_settings(request):
                 'skip_on_importerror', False)
             prev_backend = matplotlib.get_backend()
 
+            # special case Qt backend importing to avoid conflicts
+            if backend.lower().startswith('qt5'):
+                if any(sys.modules.get(k) for k in ('PyQt4', 'PySide')):
+                    pytest.skip('Qt4 binding already imported')
+
         # Default of cleanup and image_comparison too.
         style = ["classic", "_classic_test_patch"]
         style_marker = request.node.get_closest_marker('style')
         if style_marker is not None:
             assert len(style_marker.args) == 1, \
                 "Marker 'style' must specify 1 style."
+            _api.warn_deprecated("3.5", name="style", obj_type="pytest marker",
+                                 alternative="@mpl.style.context(...)")
             style, = style_marker.args
 
         matplotlib.testing.setup()
-        if backend is not None:
-            # This import must come after setup() so it doesn't load the
-            # default backend prematurely.
-            import matplotlib.pyplot as plt
-            try:
-                plt.switch_backend(backend)
-            except ImportError as exc:
-                # Should only occur for the cairo backend tests, if neither
-                # pycairo nor cairocffi are installed.
-                if 'cairo' in backend.lower() or skip_on_importerror:
-                    pytest.skip("Failed to switch to backend {} ({})."
-                                .format(backend, exc))
-                else:
-                    raise
-        with cbook._suppress_matplotlib_deprecation_warning():
+        with _api.suppress_matplotlib_deprecation_warning():
+            if backend is not None:
+                # This import must come after setup() so it doesn't load the
+                # default backend prematurely.
+                import matplotlib.pyplot as plt
+                try:
+                    plt.switch_backend(backend)
+                except ImportError as exc:
+                    # Should only occur for the cairo backend tests, if neither
+                    # pycairo nor cairocffi are installed.
+                    if 'cairo' in backend.lower() or skip_on_importerror:
+                        pytest.skip("Failed to switch to backend {} ({})."
+                                    .format(backend, exc))
+                    else:
+                        raise
             matplotlib.style.use(style)
         try:
             yield
@@ -78,6 +92,7 @@ def mpl_test_settings(request):
 
 
 @pytest.fixture
+@_api.deprecated("3.5", alternative="none")
 def mpl_image_comparison_parameters(request, extension):
     # This fixture is applied automatically by the image_comparison decorator.
     #

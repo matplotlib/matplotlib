@@ -1,6 +1,6 @@
 """
 ==========
-Polar Demo
+Polar plot
 ==========
 
 Demo of a line plot on a polar axis.
@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 r = np.arange(0, 2, 0.01)
 theta = 2 * np.pi * r
 
-ax = plt.subplot(111, projection='polar')
+fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 ax.plot(theta, r)
 ax.set_rmax(2)
 ax.set_rticks([0.5, 1, 1.5, 2])  # Less radial ticks
@@ -24,18 +24,14 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.plot
-matplotlib.projections.polar
-matplotlib.projections.polar.PolarAxes
-matplotlib.projections.polar.PolarAxes.set_rticks
-matplotlib.projections.polar.PolarAxes.set_rmax
-matplotlib.projections.polar.PolarAxes.set_rlabel_position
+#    - `matplotlib.axes.Axes.plot` / `matplotlib.pyplot.plot`
+#    - `matplotlib.projections.polar`
+#    - `matplotlib.projections.polar.PolarAxes`
+#    - `matplotlib.projections.polar.PolarAxes.set_rticks`
+#    - `matplotlib.projections.polar.PolarAxes.set_rmax`
+#    - `matplotlib.projections.polar.PolarAxes.set_rlabel_position`

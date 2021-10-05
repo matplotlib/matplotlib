@@ -17,6 +17,10 @@ their size is independent of the zoom.
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
 figsrc, axsrc = plt.subplots()
 figzoom, axzoom = plt.subplots()
 axsrc.set(xlim=(0, 1), ylim=(0, 1), autoscale_on=False,
@@ -31,7 +35,7 @@ axsrc.scatter(x, y, s, c)
 axzoom.scatter(x, y, s, c)
 
 
-def onpress(event):
+def on_press(event):
     if event.button != 1:
         return
     x, y = event.xdata, event.ydata
@@ -39,5 +43,5 @@ def onpress(event):
     axzoom.set_ylim(y - 0.1, y + 0.1)
     figzoom.canvas.draw()
 
-figsrc.canvas.mpl_connect('button_press_event', onpress)
+figsrc.canvas.mpl_connect('button_press_event', on_press)
 plt.show()

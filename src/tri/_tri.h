@@ -363,13 +363,16 @@ private:
     void clear_visited_flags(bool include_boundaries);
 
     /* Convert a non-filled Contour from C++ to Python.
-     * Returns new python list [segs0, segs1, ...] where
-     *   segs0: double array of shape (?,2) of point coordinates of first
-     *   contour line, etc. */
-    PyObject* contour_to_segs(const Contour& contour);
+     * Returns new python tuple ([segs0, segs1, ...], [kinds0, kinds1...])
+     * where
+     *   segs0: double array of shape (n_points,2) of point coordinates of first
+     *   contour line, etc.
+     *   kinds0: ubyte array of shape (n_points) of kinds codes of first contour
+     *   line, etc. */
+    PyObject* contour_line_to_segs_and_kinds(const Contour& contour);
 
     /* Convert a filled Contour from C++ to Python.
-     * Returns new python tuple (segs, kinds) where
+     * Returns new python tuple ([segs], [kinds]) where
      *   segs: double array of shape (n_points,2) of all point coordinates,
      *   kinds: ubyte array of shape (n_points) of all point code types. */
     PyObject* contour_to_segs_and_kinds(const Contour& contour);

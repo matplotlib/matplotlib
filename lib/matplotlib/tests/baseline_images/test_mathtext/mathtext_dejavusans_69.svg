@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<!-- Created with matplotlib (http://matplotlib.org/) -->
+<!-- Created with matplotlib (https://matplotlib.org/) -->
 <svg height="54pt" version="1.1" viewBox="0 0 378 54" width="378pt" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
  <defs>
   <style type="text/css">
@@ -18,7 +18,7 @@ z
 " style="fill:#ffffff;"/>
   </g>
   <g id="text_1">
-   <!-- $\mathring{A}  \stackrel{\circ}{A}  \AA$ -->
+   <!-- $\mathring{A}  \AA$ -->
    <defs>
     <path d="M 31.25 40.921875 
 Q 27.34375 40.921875 24.65625 38.203125 
@@ -29,6 +29,7 @@ Q 35.15625 22.421875 37.84375 25.078125
 Q 40.53125 27.734375 40.53125 31.59375 
 Q 40.53125 35.453125 37.8125 38.1875 
 Q 35.109375 40.921875 31.25 40.921875 
+z
 M 31.25 47.21875 
 Q 34.375 47.21875 37.25 46.015625 
 Q 40.140625 44.828125 42.234375 42.578125 
@@ -40,7 +41,8 @@ Q 24.5625 16.21875 20.15625 20.609375
 Q 15.765625 25 15.765625 31.59375 
 Q 15.765625 38.140625 20.25 42.671875 
 Q 24.75 47.21875 31.25 47.21875 
-" id="DejaVuSans-2218"/>
+z
+" id="DejaVuSans-8728"/>
     <path d="M 36.8125 72.90625 
 L 48 72.90625 
 L 61.53125 0 
@@ -54,7 +56,7 @@ M 40.375 63.1875
 L 19.921875 26.90625 
 L 46.6875 26.90625 
 z
-" id="DejaVuSans-Oblique-41"/>
+" id="DejaVuSans-Oblique-65"/>
     <path d="M 49.8125 79.390625 
 Q 49.8125 82.46875 47.625 84.640625 
 Q 45.453125 86.8125 42.390625 86.8125 
@@ -64,6 +66,7 @@ Q 35.015625 76.3125 37.140625 74.15625
 Q 39.265625 72.015625 42.390625 72.015625 
 Q 45.453125 72.015625 47.625 74.15625 
 Q 49.8125 76.3125 49.8125 79.390625 
+z
 M 34.421875 68.703125 
 Q 31.78125 70.515625 30.390625 73.265625 
 Q 29 76.03125 29 79.390625 
@@ -84,14 +87,12 @@ M 40.375 63.1875
 L 19.921875 26.90625 
 L 46.6875 26.90625 
 z
-" id="DejaVuSans-Oblique-c5"/>
+" id="DejaVuSans-Oblique-197"/>
    </defs>
-   <g transform="translate(177.120000 30.720000)scale(0.120000 -0.120000)">
-    <use transform="translate(27.305176 77.625000)scale(0.490000)" xlink:href="#DejaVuSans-2218"/>
-    <use transform="translate(0.000000 0.390625)" xlink:href="#DejaVuSans-Oblique-41"/>
-    <use transform="translate(70.408203 37.937500)scale(0.700000)" xlink:href="#DejaVuSans-2218"/>
-    <use transform="translate(68.408203 -38.096875)scale(0.700000)" xlink:href="#DejaVuSans-Oblique-41"/>
-    <use transform="translate(128.793945 0.390625)" xlink:href="#DejaVuSans-Oblique-c5"/>
+   <g transform="translate(180.78 30.564375)scale(0.12 -0.12)">
+    <use transform="translate(27.305176 77.625)scale(0.49)" xlink:href="#DejaVuSans-8728"/>
+    <use transform="translate(0 0.390625)" xlink:href="#DejaVuSans-Oblique-65"/>
+    <use transform="translate(68.408203 0.390625)" xlink:href="#DejaVuSans-Oblique-197"/>
    </g>
   </g>
  </g>

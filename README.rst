@@ -1,8 +1,11 @@
-|Travis|_ |AzurePipelines|_ |AppVeyor|_ |Codecov|_ |LGTM|_ |PyPi|_ |Gitter|_ |NUMFocus|_ |GitTutorial|_
+|PyPi|_ |Downloads|_ |NUMFocus|_
 
+|DiscourseBadge|_ |Gitter|_ |GitHubIssues|_ |GitTutorial|_
 
-.. |Travis| image:: https://travis-ci.org/matplotlib/matplotlib.svg?branch=master
-.. _Travis: https://travis-ci.org/matplotlib/matplotlib
+|GitHubActions|_ |AzurePipelines|_ |AppVeyor|_ |Codecov|_ |LGTM|_
+
+.. |GitHubActions| image:: https://github.com/matplotlib/matplotlib/workflows/Tests/badge.svg
+.. _GitHubActions: https://github.com/matplotlib/matplotlib/actions?query=workflow%3ATests
 
 .. |AzurePipelines| image:: https://dev.azure.com/matplotlib/matplotlib/_apis/build/status/matplotlib.matplotlib?branchName=master
 .. _AzurePipelines: https://dev.azure.com/matplotlib/matplotlib/_build/latest?definitionId=1&branchName=master
@@ -13,89 +16,113 @@
 .. |Codecov| image:: https://codecov.io/github/matplotlib/matplotlib/badge.svg?branch=master&service=github
 .. _Codecov: https://codecov.io/github/matplotlib/matplotlib?branch=master
 
-.. |LGTM| image:: https://img.shields.io/lgtm/grade/python/g/matplotlib/matplotlib.svg?logo=lgtm&logoWidth=18
+.. |LGTM| image:: https://img.shields.io/lgtm/grade/python/github/matplotlib/matplotlib.svg?logo=lgtm&logoWidth=18
 .. _LGTM: https://lgtm.com/projects/g/matplotlib/matplotlib
 
-.. |PyPi| image:: https://badge.fury.io/py/matplotlib.svg
-.. _PyPi: https://badge.fury.io/py/matplotlib
+.. |DiscourseBadge| image:: https://img.shields.io/badge/help_forum-discourse-blue.svg
+.. _DiscourseBadge: https://discourse.matplotlib.org
 
-.. |Gitter| image:: https://badges.gitter.im/matplotlib/matplotlib.png
+.. |Gitter| image:: https://badges.gitter.im/matplotlib/matplotlib.svg
 .. _Gitter: https://gitter.im/matplotlib/matplotlib
 
-.. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
-.. _NUMFocus: http://www.numfocus.org
+.. |GitHubIssues| image:: https://img.shields.io/badge/issue_tracking-github-blue.svg
+.. _GitHubIssues: https://github.com/matplotlib/matplotlib/issues
 
 .. |GitTutorial| image:: https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?
 .. _GitTutorial: https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project
 
-##########
-Matplotlib
-##########
+.. |PyPi| image:: https://badge.fury.io/py/matplotlib.svg
+.. _PyPi: https://badge.fury.io/py/matplotlib
 
-Matplotlib is a Python 2D plotting library which produces publication-quality
-figures in a variety of hardcopy formats and interactive environments across
-platforms. Matplotlib can be used in Python scripts, the Python and IPython
-shell (à la MATLAB or Mathematica), web application servers, and various
-graphical user interface toolkits.
+.. |Downloads| image:: https://pepy.tech/badge/matplotlib/month
+.. _Downloads: https://pepy.tech/project/matplotlib
 
-NOTE: The current master branch is now Python 3 only.  Python 2 support is
-being dropped.
+.. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
+.. _NUMFocus: https://numfocus.org
 
-`Home page <http://matplotlib.org/>`_
+.. image:: https://matplotlib.org/_static/logo2.svg
+
+Matplotlib is a comprehensive library for creating static, animated, and
+interactive visualizations in Python.
+
+Check out our `home page <https://matplotlib.org/>`_ for more information.
+
+.. image:: https://matplotlib.org/_static/readme_preview.png
+
+Matplotlib produces publication-quality figures in a variety of hardcopy
+formats and interactive environments across platforms. Matplotlib can be used
+in Python scripts, the Python and IPython shell, web application servers, and
+various graphical user interface toolkits.
+
 
 Install
 =======
 
-For installation instructions and requirements, see the INSTALL.rst file or the
-`install <http://matplotlib.org/users/installing.html>`_ documentation. If you
-think you may want to contribute to matplotlib, check out the `guide to
-working with the source code
-<http://matplotlib.org/devel/gitwash/index.html>`_.
+For installation instructions and requirements, see `INSTALL.rst <INSTALL.rst>`_  or the
+`install <https://matplotlib.org/stable/users/installing.html>`_ documentation.
 
 Test
 ====
 
-After installation, you can launch the test suite::
+After installation, launch the test suite::
 
-  pytest
+  python -m pytest
 
-Or from the Python interpreter::
-
-  import matplotlib
-  matplotlib.test()
-
-Consider reading http://matplotlib.org/devel/coding_guide.html#testing for more
-information. Note that the test suite requires pytest. Please install with pip
-or your package manager of choice.
-
-Contact
-=======
-`Discourse <https://discourse.matplotlib.org/>`_ is the discussion forum for general questions and discussions and our recommended starting point. 
-
-Our active mailing lists (which are mirrored on Discourse) are:
-
-* `Users <https://mail.python.org/mailman/listinfo/matplotlib-users>`_ mailing list: matplotlib-users@python.org
-* `Announcement  <https://mail.python.org/mailman/listinfo/matplotlib-announce>`_ mailing list: matplotlib-announce@python.org
-* `Development <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_ mailing list: matplotlib-devel@python.org
-
-
-Gitter_ is for coordinating development and asking questions directly related
-to contributing to matplotlib.
+Read the `testing guide <https://matplotlib.org/stable/devel/testing.html>`_
+for more information and alternatives.
 
 Contribute
 ==========
+
 You've discovered a bug or something else you want to change - excellent!
 
 You've worked out a way to fix it – even better!
 
 You want to tell us about it – best of all!
 
-Start at the `contributing guide <http://matplotlib.org/devdocs/devel/contributing.html>`_!
+Start at the `contributing guide
+<https://matplotlib.org/devdocs/devel/contributing.html>`_!
 
-Developer notes are now at `Developer Discussions <https://github.com/orgs/matplotlib/teams/developers/discussions>`_ (Note: For technical reasons, this is currently only accessible for matplotlib developers.)
+Contact
+=======
+
+`Discourse <https://discourse.matplotlib.org/>`_ is the discussion forum for
+general questions and discussions and our recommended starting point.
+
+Our active mailing lists (which are mirrored on Discourse) are:
+
+* `Users <https://mail.python.org/mailman/listinfo/matplotlib-users>`_ mailing
+  list: matplotlib-users@python.org
+* `Announcement
+  <https://mail.python.org/mailman/listinfo/matplotlib-announce>`_ mailing
+  list: matplotlib-announce@python.org
+* `Development <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_
+  mailing list: matplotlib-devel@python.org
+
+Gitter_ is for coordinating development and asking questions directly related
+to contributing to matplotlib.
+
 
 Citing Matplotlib
 =================
 If Matplotlib contributes to a project that leads to publication, please
 acknowledge this by citing Matplotlib.
-`A ready-made citation entry <https://matplotlib.org/citing.html>`_ is available.
+
+`A ready-made citation entry <https://matplotlib.org/stable/citing.html>`_ is
+available.
+
+Research notice
+~~~~~~~~~~~~~~~
+
+Please note that this repository is participating in a study into
+sustainability of open source projects. Data will be gathered about this
+repository for approximately the next 12 months, starting from June 2021.
+
+Data collected will include number of contributors, number of PRs, time taken
+to close/merge these PRs, and issues closed.
+
+For more information, please visit `the informational page
+<https://sustainable-open-science-and-software.github.io/>`__ or download the
+`participant information sheet
+<https://sustainable-open-science-and-software.github.io/assets/PIS_sustainable_software.pdf>`__.
+

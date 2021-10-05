@@ -1,13 +1,12 @@
 """
-====================
-Demo Fixed Size Axes
-====================
-
+===============================
+Axes with a fixed physical size
+===============================
 """
+
 import matplotlib.pyplot as plt
 
 from mpl_toolkits.axes_grid1 import Divider, Size
-from mpl_toolkits.axes_grid1.mpl_axes import Axes
 
 ###############################################################################
 
@@ -19,13 +18,11 @@ fig = plt.figure(figsize=(6, 6))
 h = [Size.Fixed(1.0), Size.Fixed(4.5)]
 v = [Size.Fixed(0.7), Size.Fixed(5.)]
 
-divider = Divider(fig, (0.0, 0.0, 1., 1.), h, v, aspect=False)
-# the width and height of the rectangle is ignored.
+divider = Divider(fig, (0, 0, 1, 1), h, v, aspect=False)
+# The width and height of the rectangle are ignored.
 
-ax = Axes(fig, divider.get_position())
-ax.set_axes_locator(divider.new_locator(nx=1, ny=1))
-
-fig.add_axes(ax)
+ax = fig.add_axes(divider.get_position(),
+                  axes_locator=divider.new_locator(nx=1, ny=1))
 
 ax.plot([1, 2, 3])
 
@@ -39,12 +36,12 @@ fig = plt.figure(figsize=(6, 6))
 h = [Size.Fixed(1.0), Size.Scaled(1.), Size.Fixed(.2)]
 v = [Size.Fixed(0.7), Size.Scaled(1.), Size.Fixed(.5)]
 
-divider = Divider(fig, (0.0, 0.0, 1., 1.), h, v, aspect=False)
-# the width and height of the rectangle is ignored.
+divider = Divider(fig, (0, 0, 1, 1), h, v, aspect=False)
+# The width and height of the rectangle are ignored.
 
-ax = Axes(fig, divider.get_position())
-ax.set_axes_locator(divider.new_locator(nx=1, ny=1))
-
-fig.add_axes(ax)
+ax = fig.add_axes(divider.get_position(),
+                  axes_locator=divider.new_locator(nx=1, ny=1))
 
 ax.plot([1, 2, 3])
+
+plt.show()

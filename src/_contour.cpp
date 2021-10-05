@@ -11,11 +11,6 @@
 #include <algorithm>
 
 
-// 'kind' codes.
-#define MOVETO 1
-#define LINETO 2
-#define CLOSEPOLY 79
-
 // Point indices from current quad index.
 #define POINT_SW (quad)
 #define POINT_SE (quad+1)
@@ -381,24 +376,52 @@ QuadContourGenerator::~QuadContourGenerator()
     delete [] _cache;
 }
 
-void QuadContourGenerator::append_contour_line_to_vertices(
+void QuadContourGenerator::append_contour_line_to_vertices_and_codes(
     ContourLine& contour_line,
-    PyObject* vertices_list) const
+    PyObject* vertices_list,
+    PyObject* codes_list) const
 {
-    assert(vertices_list != 0 && "Null python vertices_list");
+    // Convert ContourLine to Python equivalent, and clear it for reuse.
+    // This function is called once for each line generated in create_contour().
+    // A line is either a closed line loop (in which case the last point is
+    // identical to the first) or an open line strip.  Two NumPy arrays are
+    // created for each line:
+    //   vertices is a double array of shape (npoints, 2) containing the (x, y)
+    //     coordinates of the points in the line
+    //   codes is a uint8 array of shape (npoints,) containing the 'kind codes'
+    //     which are defined in the Path class
+    // and they are appended to the Python lists vertices_list and codes_list
+    // respectively for return to the Python calling function.
 
-    // Convert ContourLine to python equivalent, and clear it.
-    npy_intp dims[2] = {static_cast<npy_intp>(contour_line.size()), 2};
-    numpy::array_view<double, 2> line(dims);
-    npy_intp i = 0;
+    assert(vertices_list != 0 && "Null python vertices_list");
+    assert(codes_list != 0 && "Null python codes_list");
+
+    npy_intp npoints = static_cast<npy_intp>(contour_line.size());
+
+    npy_intp vertices_dims[2] = {npoints, 2};
+    numpy::array_view<double, 2> vertices(vertices_dims);
+    double* vertices_ptr = vertices.data();
+
+    npy_intp codes_dims[1] = {npoints};
+    numpy::array_view<unsigned char, 1> codes(codes_dims);
+    unsigned char* codes_ptr = codes.data();
+
     for (ContourLine::const_iterator point = contour_line.begin();
-         point != contour_line.end(); ++point, ++i) {
-        line(i, 0) = point->x;
-        line(i, 1) = point->y;
+         point != contour_line.end(); ++point) {
+        *vertices_ptr++ = point->x;
+        *vertices_ptr++ = point->y;
+        *codes_ptr++ = (point == contour_line.begin() ? MOVETO : LINETO);
     }
-    if (PyList_Append(vertices_list, line.pyobj_steal())) {
+
+    // Closed line loop has identical first and last (x, y) points.
+    if (contour_line.size() > 1 && contour_line.front() == contour_line.back())
+        *(codes_ptr-1) = CLOSEPOLY;
+
+    if (PyList_Append(vertices_list, vertices.pyobj_steal()) ||
+        PyList_Append(codes_list, codes.pyobj_steal())) {
         Py_XDECREF(vertices_list);
-        throw std::runtime_error("Unable to add contour line to vertices_list");
+        Py_XDECREF(codes_list);
+        throw std::runtime_error("Unable to add contour line to vertices and codes lists");
     }
 
     contour_line.clear();
@@ -409,6 +432,18 @@ void QuadContourGenerator::append_contour_to_vertices_and_codes(
     PyObject* vertices_list,
     PyObject* codes_list) const
 {
+    // Convert Contour to Python equivalent, and clear it for reuse.
+    // This function is called once for each polygon generated in
+    // create_filled_contour().  A polygon consists of an outer line loop
+    // (called the parent) and zero or more inner line loops or holes (called
+    // the children).  Two NumPy arrays are created for each polygon:
+    //   vertices is a double array of shape (npoints, 2) containing the (x, y)
+    //     coordinates of the points in the polygon (parent plus children)
+    //   codes is a uint8 array of shape (npoints,) containing the 'kind codes'
+    //     which are defined in the Path class
+    // and they are appended to the Python lists vertices_list and codes_list
+    // respectively for return to the Python calling function.
+
     assert(vertices_list != 0 && "Null python vertices_list");
     assert(codes_list != 0 && "Null python codes_list");
 
@@ -512,6 +547,12 @@ PyObject* QuadContourGenerator::create_contour(const double& level)
     if (vertices_list == 0)
         throw std::runtime_error("Failed to create Python list");
 
+    PyObject* codes_list = PyList_New(0);
+    if (codes_list == 0) {
+        Py_XDECREF(vertices_list);
+        throw std::runtime_error("Failed to create Python list");
+    }
+
     // Lines that start and end on boundaries.
     long ichunk, jchunk, istart, iend, jstart, jend;
     for (long ijchunk = 0; ijchunk < _chunk_count; ++ijchunk) {
@@ -523,33 +564,33 @@ PyObject* QuadContourGenerator::create_contour(const double& level)
                 if (EXISTS_NONE(quad) || VISITED(quad,1)) continue;
 
                 if (BOUNDARY_S(quad) && Z_SW >= 1 && Z_SE < 1 &&
-                    start_line(vertices_list, quad, Edge_S, level)) continue;
+                    start_line(vertices_list, codes_list, quad, Edge_S, level)) continue;
 
                 if (BOUNDARY_W(quad) && Z_NW >= 1 && Z_SW < 1 &&
-                    start_line(vertices_list, quad, Edge_W, level)) continue;
+                    start_line(vertices_list, codes_list, quad, Edge_W, level)) continue;
 
                 if (BOUNDARY_N(quad) && Z_NE >= 1 && Z_NW < 1 &&
-                    start_line(vertices_list, quad, Edge_N, level)) continue;
+                    start_line(vertices_list, codes_list, quad, Edge_N, level)) continue;
 
                 if (BOUNDARY_E(quad) && Z_SE >= 1 && Z_NE < 1 &&
-                    start_line(vertices_list, quad, Edge_E, level)) continue;
+                    start_line(vertices_list, codes_list, quad, Edge_E, level)) continue;
 
                 if (_corner_mask) {
                     // Equates to NE boundary.
                     if (EXISTS_SW_CORNER(quad) && Z_SE >= 1 && Z_NW < 1 &&
-                        start_line(vertices_list, quad, Edge_NE, level)) continue;
+                        start_line(vertices_list, codes_list, quad, Edge_NE, level)) continue;
 
                     // Equates to NW boundary.
                     if (EXISTS_SE_CORNER(quad) && Z_NE >= 1 && Z_SW < 1 &&
-                        start_line(vertices_list, quad, Edge_NW, level)) continue;
+                        start_line(vertices_list, codes_list, quad, Edge_NW, level)) continue;
 
                     // Equates to SE boundary.
                     if (EXISTS_NW_CORNER(quad) && Z_SW >= 1 && Z_NE < 1 &&
-                        start_line(vertices_list, quad, Edge_SE, level)) continue;
+                        start_line(vertices_list, codes_list, quad, Edge_SE, level)) continue;
 
                     // Equates to SW boundary.
                     if (EXISTS_NE_CORNER(quad) && Z_NW >= 1 && Z_SE < 1 &&
-                        start_line(vertices_list, quad, Edge_SW, level)) continue;
+                        start_line(vertices_list, codes_list, quad, Edge_SW, level)) continue;
                 }
             }
         }
@@ -581,7 +622,9 @@ PyObject* QuadContourGenerator::create_contour(const double& level)
                                 !ignore_first, &start_quad_edge, 1, false);
                 if (ignore_first && !contour_line.empty())
                     contour_line.push_back(contour_line.front());
-                append_contour_line_to_vertices(contour_line, vertices_list);
+
+                append_contour_line_to_vertices_and_codes(
+                    contour_line, vertices_list, codes_list);
 
                 // Repeat if saddle point but not visited.
                 if (SADDLE(quad,1) && !VISITED(quad,1))
@@ -590,7 +633,18 @@ PyObject* QuadContourGenerator::create_contour(const double& level)
         }
     }
 
-    return vertices_list;
+    PyObject* tuple = PyTuple_New(2);
+    if (tuple == 0) {
+        Py_XDECREF(vertices_list);
+        Py_XDECREF(codes_list);
+        throw std::runtime_error("Failed to create Python tuple");
+    }
+
+    // No error checking here as filling in a brand new pre-allocated tuple.
+    PyTuple_SET_ITEM(tuple, 0, vertices_list);
+    PyTuple_SET_ITEM(tuple, 1, codes_list);
+
+    return tuple;
 }
 
 PyObject* QuadContourGenerator::create_filled_contour(const double& lower_level,
@@ -600,13 +654,13 @@ PyObject* QuadContourGenerator::create_filled_contour(const double& lower_level,
 
     Contour contour;
 
-    PyObject* vertices = PyList_New(0);
-    if (vertices == 0)
+    PyObject* vertices_list = PyList_New(0);
+    if (vertices_list == 0)
         throw std::runtime_error("Failed to create Python list");
 
-    PyObject* codes = PyList_New(0);
-    if (codes == 0) {
-        Py_XDECREF(vertices);
+    PyObject* codes_list = PyList_New(0);
+    if (codes_list == 0) {
+        Py_XDECREF(vertices_list);
         throw std::runtime_error("Failed to create Python list");
     }
 
@@ -637,19 +691,19 @@ PyObject* QuadContourGenerator::create_filled_contour(const double& lower_level,
         }
 
         // Create python objects to return for this chunk.
-        append_contour_to_vertices_and_codes(contour, vertices, codes);
+        append_contour_to_vertices_and_codes(contour, vertices_list, codes_list);
     }
 
     PyObject* tuple = PyTuple_New(2);
     if (tuple == 0) {
-        Py_XDECREF(vertices);
-        Py_XDECREF(codes);
+        Py_XDECREF(vertices_list);
+        Py_XDECREF(codes_list);
         throw std::runtime_error("Failed to create Python tuple");
     }
 
     // No error checking here as filling in a brand new pre-allocated tuple.
-    PyTuple_SET_ITEM(tuple, 0, vertices);
-    PyTuple_SET_ITEM(tuple, 1, codes);
+    PyTuple_SET_ITEM(tuple, 0, vertices_list);
+    PyTuple_SET_ITEM(tuple, 1, codes_list);
 
     return tuple;
 }
@@ -1740,7 +1794,8 @@ ContourLine* QuadContourGenerator::start_filled(
 }
 
 bool QuadContourGenerator::start_line(
-    PyObject* vertices_list, long quad, Edge edge, const double& level)
+    PyObject* vertices_list, PyObject* codes_list, long quad, Edge edge,
+    const double& level)
 {
     assert(vertices_list != 0 && "Null python vertices list");
     assert(is_edge_a_boundary(QuadEdge(quad, edge)) &&
@@ -1749,7 +1804,10 @@ bool QuadContourGenerator::start_line(
     QuadEdge quad_edge(quad, edge);
     ContourLine contour_line(false);
     follow_interior(contour_line, quad_edge, 1, level, true, 0, 1, false);
-    append_contour_line_to_vertices(contour_line, vertices_list);
+
+    append_contour_line_to_vertices_and_codes(
+        contour_line, vertices_list, codes_list);
+
     return VISITED(quad,1);
 }
 

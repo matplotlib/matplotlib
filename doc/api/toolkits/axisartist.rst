@@ -1,15 +1,15 @@
 .. module:: mpl_toolkits.axisartist
 
-Matplotlib axisartist Toolkit
-=============================
+``mpl_toolkits.axisartist``
+===========================
 
-The *axisartist* namespace includes a derived Axes implementation (
-:class:`mpl_toolkits.axisartist.Axes`). The
-biggest difference is that the artists that are responsible for drawing
-axis lines, ticks, ticklabels, and axis labels are separated out from the
-mpl's Axis class. This change was strongly motivated to support curvilinear grid.
+The *axisartist* namespace provides a derived Axes implementation
+(:class:`mpl_toolkits.axisartist.Axes`), designed to support curvilinear
+grids.  The biggest difference is that the artists that are responsible for
+drawing axis lines, ticks, ticklabels, and axis labels are separated out from
+Matplotlib's Axis class.
 
-You can find a tutorial describing usage of axisartist at the 
+You can find a tutorial describing usage of axisartist at the
 :ref:`axisartist_users-guide-index` user guide.
 
 .. figure:: ../../gallery/axisartist/images/sphx_glr_demo_curvelinear_grid_001.png
@@ -37,4 +37,3 @@ You can find a tutorial describing usage of axisartist at the
    axisartist.grid_finder
    axisartist.grid_helper_curvelinear
    axisartist.parasite_axes
-

@@ -5,30 +5,26 @@ Customizing Figure Layouts Using GridSpec and Other Functions
 
 How to create grid-shaped combinations of axes.
 
-    :func:`~matplotlib.pyplot.subplots`
-        Perhaps the primary function used to create figures and axes.
-        It's also similar to :func:`.matplotlib.pyplot.subplot`,
-        but creates and places all axes on the figure at once.  See also
-        `matplotlib.figure.Figure.subplots`.
+`~matplotlib.pyplot.subplots`
+    The primary function used to create figures and axes.  It is similar to
+    `.pyplot.subplot`, but creates and places all axes on the figure at once.
+    See also `.Figure.subplots`.
 
-    :class:`~matplotlib.gridspec.GridSpec`
-        Specifies the geometry of the grid that a subplot will be
-        placed. The number of rows and number of columns of the grid
-        need to be set. Optionally, the subplot layout parameters
-        (e.g., left, right, etc.) can be tuned.
+`~matplotlib.gridspec.GridSpec`
+    Specifies the geometry of the grid that a subplot will be
+    placed. The number of rows and number of columns of the grid
+    need to be set. Optionally, the subplot layout parameters
+    (e.g., left, right, etc.) can be tuned.
 
-    :class:`~matplotlib.gridspec.SubplotSpec`
-        Specifies the location of the subplot in the given *GridSpec*.
+`~matplotlib.gridspec.SubplotSpec`
+    Specifies the location of the subplot in the given `.GridSpec`.
 
-    :func:`~matplotlib.pyplot.subplot2grid`
-        A helper function that is similar to
-        :func:`~matplotlib.pyplot.subplot`,
-        but uses 0-based indexing and let subplot to occupy multiple cells.
-        This function is not covered in this tutorial.
-
+`~matplotlib.pyplot.subplot2grid`
+    A helper function that is similar to `.pyplot.subplot`,
+    but uses 0-based indexing and let subplot to occupy multiple cells.
+    This function is not covered in this tutorial.
 """
 
-import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 
@@ -64,9 +60,9 @@ f2_ax4 = fig2.add_subplot(spec2[1, 1])
 
 #############################################################################
 # The power of gridspec comes in being able to create subplots that span
-# rows and columns.  Note the
-# `Numpy slice <https://docs.scipy.org/doc/numpy/reference/arrays.indexing.html>`_
-# syntax for selecting the part of the gridspec each subplot will occupy.
+# rows and columns.  Note the `NumPy slice syntax
+# <https://numpy.org/doc/stable/reference/arrays.indexing.html>`_
+# for selecting the part of the gridspec each subplot will occupy.
 #
 # Note that we have also used the convenience method `.Figure.add_gridspec`
 # instead of `.gridspec.GridSpec`, potentially saving the user an import,
@@ -226,7 +222,6 @@ for a in range(2):
 # spines in each of the inner 3x3 grids.
 
 import numpy as np
-from itertools import product
 
 
 def squiggle_xy(a, b, c, d, i=np.arange(0.0, 2*np.pi, 0.05)):
@@ -234,49 +229,37 @@ def squiggle_xy(a, b, c, d, i=np.arange(0.0, 2*np.pi, 0.05)):
 
 
 fig11 = plt.figure(figsize=(8, 8), constrained_layout=False)
+outer_grid = fig11.add_gridspec(4, 4, wspace=0, hspace=0)
 
-# gridspec inside gridspec
-outer_grid = fig11.add_gridspec(4, 4, wspace=0.0, hspace=0.0)
-
-for i in range(16):
-    inner_grid = outer_grid[i].subgridspec(3, 3, wspace=0.0, hspace=0.0)
-    a, b = int(i/4)+1, i % 4+1
-    for j, (c, d) in enumerate(product(range(1, 4), repeat=2)):
-        ax = fig11.add_subplot(inner_grid[j])
-        ax.plot(*squiggle_xy(a, b, c, d))
-        ax.set_xticks([])
-        ax.set_yticks([])
-        fig11.add_subplot(ax)
-
-all_axes = fig11.get_axes()
+for a in range(4):
+    for b in range(4):
+        # gridspec inside gridspec
+        inner_grid = outer_grid[a, b].subgridspec(3, 3, wspace=0, hspace=0)
+        axs = inner_grid.subplots()  # Create all subplots for the inner grid.
+        for (c, d), ax in np.ndenumerate(axs):
+            ax.plot(*squiggle_xy(a + 1, b + 1, c + 1, d + 1))
+            ax.set(xticks=[], yticks=[])
 
 # show only the outside spines
-for ax in all_axes:
-    for sp in ax.spines.values():
-        sp.set_visible(False)
-    if ax.is_first_row():
-        ax.spines['top'].set_visible(True)
-    if ax.is_last_row():
-        ax.spines['bottom'].set_visible(True)
-    if ax.is_first_col():
-        ax.spines['left'].set_visible(True)
-    if ax.is_last_col():
-        ax.spines['right'].set_visible(True)
+for ax in fig11.get_axes():
+    ss = ax.get_subplotspec()
+    ax.spines.top.set_visible(ss.is_first_row())
+    ax.spines.bottom.set_visible(ss.is_last_row())
+    ax.spines.left.set_visible(ss.is_first_col())
+    ax.spines.right.set_visible(ss.is_last_col())
 
 plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The usage of the following functions and methods is shown in this example:
-
-matplotlib.pyplot.subplots
-matplotlib.figure.Figure.add_gridspec
-matplotlib.figure.Figure.add_subplot
-matplotlib.gridspec.GridSpec
-matplotlib.gridspec.SubplotSpec.subgridspec
-matplotlib.gridspec.GridSpecFromSubplotSpec
+#    - `matplotlib.pyplot.subplots`
+#    - `matplotlib.figure.Figure.add_gridspec`
+#    - `matplotlib.figure.Figure.add_subplot`
+#    - `matplotlib.gridspec.GridSpec`
+#    - `matplotlib.gridspec.SubplotSpec.subgridspec`
+#    - `matplotlib.gridspec.GridSpecFromSubplotSpec`

@@ -16,14 +16,14 @@ import matplotlib.pyplot as plt
 
 ###############################################################################
 
-f = plt.figure()
+fig = plt.figure()
 s = plt.scatter([1, 2, 3], [4, 5, 6])
-s.set_urls(['http://www.bbc.co.uk/news', 'http://www.google.com', None])
-f.savefig('scatter.svg')
+s.set_urls(['https://www.bbc.co.uk/news', 'https://www.google.com/', None])
+fig.savefig('scatter.svg')
 
 ###############################################################################
 
-f = plt.figure()
+fig = plt.figure()
 delta = 0.025
 x = y = np.arange(-3.0, 3.0, delta)
 X, Y = np.meshgrid(x, y)
@@ -34,5 +34,5 @@ Z = (Z1 - Z2) * 2
 im = plt.imshow(Z, interpolation='bilinear', cmap=cm.gray,
                 origin='lower', extent=[-3, 3, -3, 3])
 
-im.set_url('http://www.google.com')
-f.savefig('image.svg')
+im.set_url('https://www.google.com/')
+fig.savefig('image.svg')

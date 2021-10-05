@@ -10,7 +10,6 @@ See also the :doc:`contour demo example
 </gallery/images_contours_and_fields/contour_demo>`.
 """
 
-import matplotlib
 import numpy as np
 import matplotlib.ticker as ticker
 import matplotlib.pyplot as plt
@@ -27,31 +26,21 @@ Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
 Z = (Z1 - Z2) * 2
 
 ###############################################################################
-# Make contour labels using creative float classes
-# Follows suggestion of Manuel Metz
-
-# Define a class that forces representation of float to look a certain way
-# This remove trailing zero so '1.0' becomes '1'
+# Make contour labels with custom level formatters
 
 
-class nf(float):
-    def __repr__(self):
-        s = f'{self:.1f}'
-        return f'{self:.0f}' if s[-1] == '0' else s
+# This custom formatter removes trailing zeros, e.g. "1.0" becomes "1", and
+# then adds a percent sign.
+def fmt(x):
+    s = f"{x:.1f}"
+    if s.endswith("0"):
+        s = f"{x:.0f}"
+    return rf"{s} \%" if plt.rcParams["text.usetex"] else f"{s} %"
 
 
 # Basic contour plot
 fig, ax = plt.subplots()
 CS = ax.contour(X, Y, Z)
-
-# Recast levels to new class
-CS.levels = [nf(val) for val in CS.levels]
-
-# Label levels with specially formatted floats
-if plt.rcParams["text.usetex"]:
-    fmt = r'%r \%%'
-else:
-    fmt = '%r %%'
 
 ax.clabel(CS, CS.levels, inline=True, fmt=fmt, fontsize=10)
 
@@ -86,17 +75,12 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods and classes is shown
-# in this example:
-
-matplotlib.axes.Axes.contour
-matplotlib.pyplot.contour
-matplotlib.axes.Axes.clabel
-matplotlib.pyplot.clabel
-matplotlib.ticker.LogFormatterMathtext
-matplotlib.ticker.TickHelper.create_dummy_axis
+#    - `matplotlib.axes.Axes.contour` / `matplotlib.pyplot.contour`
+#    - `matplotlib.axes.Axes.clabel` / `matplotlib.pyplot.clabel`
+#    - `matplotlib.ticker.LogFormatterMathtext`
+#    - `matplotlib.ticker.TickHelper.create_dummy_axis`

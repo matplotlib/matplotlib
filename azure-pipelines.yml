@@ -1,59 +1,148 @@
 # Python package
 # Create and test a Python package on multiple Python versions.
 # Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+# https://docs.microsoft.com/en-us/azure/devops/pipelines/ecosystems/python?view=azure-devops
 
-jobs:
+stages:
 
-- job: 'Linux_Test'
-  pool:
-    vmImage: ubuntu-16.04
-  strategy:
-    matrix:
-      Python36:
-        python.version: '3.6'
-      Python37:
-        python.version: '3.7'
-    maxParallel: 4
+- stage: Check
+  jobs:
+  - job: Skip
+    pool:
+      vmImage: 'ubuntu-18.04'
+    variables:
+      DECODE_PERCENTS: 'false'
+      RET: 'true'
+    steps:
+    - bash: |
+        git_log=`git log --max-count=1 --skip=1 --pretty=format:"%B" | tr "\n" " "`
+        echo "##vso[task.setvariable variable=log]$git_log"
+    - bash: echo "##vso[task.setvariable variable=RET]false"
+      condition: or(contains(variables.log, '[skip azp]'), contains(variables.log, '[azp skip]'), contains(variables.log, '[skip ci]'), contains(variables.log, '[ci skip]'))
+    - bash: echo "##vso[task.setvariable variable=start_main;isOutput=true]$RET"
+      name: result
 
-  steps:
-    - template: ci/azure-pipelines-steps.yml
-      parameters:
-        platform: ubuntu
-        installer: apt
+- stage: Main
+  condition: and(succeeded(), eq(dependencies.Check.outputs['Skip.result.start_main'], 'true'))
+  dependsOn: Check
+  jobs:
+    - job: Pytest
+      strategy:
+        matrix:
+          Linux_py37:
+            vmImage: 'ubuntu-18.04'
+            python.version: '3.7'
+          Linux_py38:
+            vmImage: 'ubuntu-18.04'
+            python.version: '3.8'
+          Linux_py39:
+            vmImage: 'ubuntu-18.04'
+            python.version: '3.9'
+          macOS_py37:
+            vmImage: 'macOS-10.15'
+            python.version: '3.7'
+          macOS_py38:
+            vmImage: 'macOS-latest'
+            python.version: '3.8'
+          macOS_py39:
+            vmImage: 'macOS-latest'
+            python.version: '3.9'
+          Windows_py37:
+            vmImage: 'vs2017-win2016'
+            python.version: '3.7'
+          Windows_py38:
+            vmImage: 'windows-latest'
+            python.version: '3.8'
+          Windows_py39:
+            vmImage: 'windows-latest'
+            python.version: '3.9'
+        maxParallel: 4
+      pool:
+        vmImage: '$(vmImage)'
+      steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(python.version)'
+          architecture: 'x64'
+        displayName: 'Use Python $(python.version)'
+        condition: and(succeeded(), ne(variables['python.version'], 'Pre'))
 
-- job: 'Windows_Test'
-  pool:
-    vmImage: vs2017-win2016
-  strategy:
-    matrix:
-      Python36:
-        python.version: '3.6'
-      Python37:
-        python.version: '3.7'
-      PythonPreview:
-        python.version: 'Pre'
-    maxParallel: 4
+      - task: stevedower.python.InstallPython.InstallPython@1
+        displayName: 'Use prerelease Python'
+        inputs:
+          prerelease: true
+        condition: and(succeeded(), eq(variables['python.version'], 'Pre'))
 
-  steps:
-    - template: ci/azure-pipelines-steps.yml
-      parameters:
-        platform: windows
-        installer: nuget
+      - bash: |
+          set -e
+          case "$(python -c 'import sys; print(sys.platform)')" in
+          linux)
+            sudo apt update
+            sudo apt install \
+              cm-super \
+              dvipng \
+              ffmpeg \
+              fonts-noto-cjk \
+              gdb \
+              gir1.2-gtk-3.0 \
+              graphviz \
+              inkscape \
+              libcairo2 \
+              libgirepository-1.0.1 \
+              lmodern \
+              fonts-freefont-otf \
+              poppler-utils \
+              texlive-pictures \
+              texlive-fonts-recommended \
+              texlive-latex-base \
+              texlive-latex-extra \
+              texlive-latex-recommended \
+              texlive-xetex texlive-luatex \
+              ttf-wqy-zenhei
+            ;;
+          darwin)
+            brew install --cask xquartz
+            brew install pkg-config ffmpeg imagemagick mplayer ccache
+            brew tap homebrew/cask-fonts
+            brew install font-noto-sans-cjk-sc
+            ;;
+          win32)
+            ;;
+          *)
+            exit 1
+            ;;
+          esac
+        displayName: 'Install dependencies'
 
-- job: 'macOS_Test'
-  pool:
-    vmImage: xcode9-macos10.13
-  strategy:
-    matrix:
-      Python36:
-        python.version: '3.6'
-      Python37:
-        python.version: '3.7'
-    maxParallel: 4
+      - bash: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements/testing/all.txt -r requirements/testing/extra.txt ||
+            [[ "$PYTHON_VERSION" = 'Pre' ]]
+        displayName: 'Install dependencies with pip'
 
-  steps:
-    - template: ci/azure-pipelines-steps.yml
-      parameters:
-        platform: macos
-        installer: brew
+      - bash: |
+          python -m pip install -ve . ||
+            [[ "$PYTHON_VERSION" = 'Pre' ]]
+        displayName: "Install self"
+
+      - script: env
+        displayName: 'print env'
+
+      - bash: |
+          PYTHONFAULTHANDLER=1 python -m pytest --junitxml=junit/test-results.xml -raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n 2 ||
+            [[ "$PYTHON_VERSION" = 'Pre' ]]
+        displayName: 'pytest'
+
+      - bash: |
+          bash <(curl -s https://codecov.io/bash)  -f "!*.gcov" -X gcov
+        displayName: 'Upload to codecov.io'
+
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFiles: '**/test-results.xml'
+          testRunTitle: 'Python $(python.version)'
+        condition: succeededOrFailed()
+
+      - publish: $(System.DefaultWorkingDirectory)/result_images
+        artifact: $(Agent.JobName)-result_images
+        condition: and(failed(), ne(variables['python.version'], 'Pre'))

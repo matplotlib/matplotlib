@@ -48,3 +48,12 @@ bprev = Button(axprev, 'Previous')
 bprev.on_clicked(callback.prev)
 
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.widgets.Button`

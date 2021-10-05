@@ -23,13 +23,13 @@ def update_polygon(tri):
     polygon.set_xy(np.column_stack([xs, ys]))
 
 
-def motion_notify(event):
+def on_mouse_move(event):
     if event.inaxes is None:
         tri = -1
     else:
         tri = trifinder(event.xdata, event.ydata)
     update_polygon(tri)
-    plt.title('In triangle %i' % tri)
+    ax.set_title(f'In triangle {tri}')
     event.canvas.draw()
 
 
@@ -52,10 +52,10 @@ triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
 trifinder = triang.get_trifinder()
 
 # Setup plot and callbacks.
-plt.subplot(111, aspect='equal')
-plt.triplot(triang, 'bo-')
+fig, ax = plt.subplots(subplot_kw={'aspect': 'equal'})
+ax.triplot(triang, 'bo-')
 polygon = Polygon([[0, 0], [0, 0]], facecolor='y')  # dummy data for (xs, ys)
 update_polygon(-1)
-plt.gca().add_patch(polygon)
-plt.gcf().canvas.mpl_connect('motion_notify_event', motion_notify)
+ax.add_patch(polygon)
+fig.canvas.mpl_connect('motion_notify_event', on_mouse_move)
 plt.show()

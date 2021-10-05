@@ -1,23 +1,15 @@
 .. _environment-variables:
 
 *********************
-Environment Variables
+Environment variables
 *********************
 
 .. contents::
    :backlinks: none
 
-
-.. envvar:: DISPLAY
-
-  The server and screen on which to place windows. This is interpreted by GUI
-  toolkits in a backend-specific manner, but generally refers to an `X.org
-  display name
-  <https://www.x.org/releases/X11R7.7/doc/man/man7/X.7.xhtml#heading5>`_.
-
 .. envvar:: HOME
 
-  The user's home directory. On linux, :envvar:`~ <HOME>` is shorthand for :envvar:`HOME`.
+  The user's home directory. On Linux, :envvar:`~ <HOME>` is shorthand for :envvar:`HOME`.
 
 .. envvar:: MPLBACKEND
 
@@ -26,13 +18,21 @@ Environment Variables
 
 .. envvar:: MPLCONFIGDIR
 
-  This is the directory used to store user customizations to matplotlib, as
-  well as some caches to improve performance. If :envvar:`MPLCONFIGDIR` is not
-  defined, :file:`{HOME}/.config/matplotlib` is generally used on unix-like
-  systems and :file:`{HOME}/.matplotlib` is used on other platforms, if they are
-  writable. Otherwise, the python standard library :func:`tempfile.gettempdir`
-  is used to find a base directory in which the :file:`matplotlib` subdirectory
-  is created.
+  This is the directory used to store user customizations to
+  Matplotlib, as well as some caches to improve performance. If
+  :envvar:`MPLCONFIGDIR` is not defined, :file:`{HOME}/.config/matplotlib`
+  and :file:`{HOME}/.cache/matplotlib` are used on Linux, and
+  :file:`{HOME}/.matplotlib` on other platforms, if they are
+  writable. Otherwise, the Python standard library's `tempfile.gettempdir` is
+  used to find a base directory in which the :file:`matplotlib` subdirectory is
+  created.
+
+.. envvar:: MPLSETUPCFG
+
+   This optional variable can be set to the full path of a :file:`mplsetup.cfg`
+   configuration file used to customize the Matplotlib build.  By default, a
+   :file:`mplsetup.cfg` file in the root of the Matplotlib source tree will be
+   read.  Supported build options are listed in :file:`mplsetup.cfg.template`.
 
 .. envvar:: PATH
 
@@ -50,64 +50,41 @@ Environment Variables
 
 .. _setting-linux-osx-environment-variables:
 
-Setting environment variables in Linux and OS-X
-===============================================
+Setting environment variables in Linux and macOS
+================================================
 
 To list the current value of :envvar:`PYTHONPATH`, which may be empty, try::
 
   echo $PYTHONPATH
 
 The procedure for setting environment variables in depends on what your default
-shell is. :program:`BASH` seems to be the most common, but :program:`CSH` is
-also common. You should be able to determine which by running at the command
-prompt::
+shell is.  Common shells include :program:`bash` and :program:`csh`.  You
+should be able to determine which by running at the command prompt::
 
   echo $SHELL
 
-
-BASH/KSH
---------
-
 To create a new environment variable::
 
-  export PYTHONPATH=~/Python
+  export PYTHONPATH=~/Python  # bash/ksh
+  setenv PYTHONPATH ~/Python  # csh/tcsh
 
 To prepend to an existing environment variable::
 
-  export PATH=~/bin:${PATH}
+  export PATH=~/bin:${PATH}  # bash/ksh
+  setenv PATH ~/bin:${PATH}  # csh/tcsh
 
-The search order may be important to you, do you want :file:`~/bin` to
-be searched first or last? To append to an existing environment
-variable::
+The search order may be important to you, do you want :file:`~/bin` to be
+searched first or last?  To append to an existing environment variable::
 
-  export PATH=${PATH}:~/bin
-
-To make your changes available in the future, add the commands to your
-:file:`~/.bashrc` file.
-
-
-CSH/TCSH
---------
-
-To create a new environment variable::
-
-  setenv PYTHONPATH ~/Python
-
-To prepend to an existing environment variable::
-
-  setenv PATH ~/bin:${PATH}
-
-The search order may be important to you, do you want :file:`~/bin` to be searched
-first or last? To append to an existing environment variable::
-
-  setenv PATH ${PATH}:~/bin
+  export PATH=${PATH}:~/bin  # bash/ksh
+  setenv PATH ${PATH}:~/bin  # csh/tcsh
 
 To make your changes available in the future, add the commands to your
-:file:`~/.cshrc` file.
+:file:`~/.bashrc` or :file:`~/.cshrc` file.
 
 .. _setting-windows-environment-variables:
 
-Setting environment variables in windows
+Setting environment variables in Windows
 ========================================
 
 Open the :program:`Control Panel` (:menuselection:`Start --> Control Panel`),

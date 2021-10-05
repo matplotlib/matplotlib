@@ -4,7 +4,7 @@ Mesh refinement for triangular grids.
 
 import numpy as np
 
-from matplotlib import cbook
+from matplotlib import _api
 from matplotlib.tri.triangulation import Triangulation
 import matplotlib.tri.triinterpolate
 
@@ -16,32 +16,31 @@ class TriRefiner:
     A TriRefiner encapsulates a Triangulation object and provides tools for
     mesh refinement and interpolation.
 
-    Derived classes must implements:
+    Derived classes must implement:
 
-        - ``refine_triangulation(return_tri_index=False, **kwargs)`` , where
-          the optional keyword arguments *kwargs* are defined in each
-          TriRefiner concrete implementation, and which returns:
+    - ``refine_triangulation(return_tri_index=False, **kwargs)`` , where
+      the optional keyword arguments *kwargs* are defined in each
+      TriRefiner concrete implementation, and which returns:
 
-              - a refined triangulation
-              - optionally (depending on *return_tri_index*), for each
-                point of the refined triangulation: the index of
-                the initial triangulation triangle to which it belongs.
+      - a refined triangulation,
+      - optionally (depending on *return_tri_index*), for each
+        point of the refined triangulation: the index of
+        the initial triangulation triangle to which it belongs.
 
-        - ``refine_field(z, triinterpolator=None, **kwargs)`` , where:
+    - ``refine_field(z, triinterpolator=None, **kwargs)``, where:
 
-              - *z* array of field values (to refine) defined at the base
-                triangulation nodes
-              - *triinterpolator* is a
-                :class:`~matplotlib.tri.TriInterpolator` (optional)
-              - the other optional keyword arguments *kwargs* are defined in
-                each TriRefiner concrete implementation
+      - *z* array of field values (to refine) defined at the base
+        triangulation nodes,
+      - *triinterpolator* is an optional `~matplotlib.tri.TriInterpolator`,
+      - the other optional keyword arguments *kwargs* are defined in
+        each TriRefiner concrete implementation;
 
-          and which returns (as a tuple) a refined triangular mesh and the
-          interpolated values of the field at the refined triangulation nodes.
-
+      and which returns (as a tuple) a refined triangular mesh and the
+      interpolated values of the field at the refined triangulation nodes.
     """
+
     def __init__(self, triangulation):
-        cbook._check_isinstance(Triangulation, triangulation=triangulation)
+        _api.check_isinstance(Triangulation, triangulation=triangulation)
         self._triangulation = triangulation
 
 
@@ -51,8 +50,8 @@ class UniformTriRefiner(TriRefiner):
 
     Parameters
     ----------
-    triangulation : :class:`~matplotlib.tri.Triangulation`
-                     The encapsulated triangulation (to be refined)
+    triangulation : `~matplotlib.tri.Triangulation`
+        The encapsulated triangulation (to be refined)
     """
 #    See Also
 #    --------
@@ -60,40 +59,37 @@ class UniformTriRefiner(TriRefiner):
 #    :class:`~matplotlib.tri.TriAnalyzer`.
 #    """
     def __init__(self, triangulation):
-        TriRefiner.__init__(self, triangulation)
+        super().__init__(triangulation)
 
     def refine_triangulation(self, return_tri_index=False, subdiv=3):
         """
-        Computes an uniformly refined triangulation *refi_triangulation* of
+        Compute an uniformly refined triangulation *refi_triangulation* of
         the encapsulated :attr:`triangulation`.
 
         This function refines the encapsulated triangulation by splitting each
         father triangle into 4 child sub-triangles built on the edges midside
-        nodes, recursively (level of recursion *subdiv*).
-        In the end, each triangle is hence divided into ``4**subdiv``
-        child triangles.
-        The default value for *subdiv* is 3 resulting in 64 refined
-        subtriangles for each triangle of the initial triangulation.
+        nodes, recursing *subdiv* times.  In the end, each triangle is hence
+        divided into ``4**subdiv`` child triangles.
 
         Parameters
         ----------
-        return_tri_index : boolean, optional
-            Boolean indicating whether an index table indicating the father
-            triangle index of each point will be returned. Default value
-            False.
-        subdiv : integer, optional
-            Recursion level for the subdivision. Defaults value 3.
-            Each triangle will be divided into ``4**subdiv`` child triangles.
+        return_tri_index : bool, default: False
+            Whether an index table indicating the father triangle index of each
+            point is returned.
+        subdiv : int, default: 3
+            Recursion level for the subdivision.
+            Each triangle is divided into ``4**subdiv`` child triangles;
+            hence, the default results in 64 refined subtriangles for each
+            triangle of the initial triangulation.
 
         Returns
         -------
-        refi_triangulation : :class:`~matplotlib.tri.Triangulation`
-            The returned refined triangulation
-        found_index : array-like of integers
+        refi_triangulation : `~matplotlib.tri.Triangulation`
+            The refined triangulation.
+        found_index : int array
             Index of the initial triangulation containing triangle, for each
             point of *refi_triangulation*.
             Returned only if *return_tri_index* is set to True.
-
         """
         refi_triangulation = self._triangulation
         ntri = refi_triangulation.triangles.shape[0]
@@ -136,38 +132,34 @@ class UniformTriRefiner(TriRefiner):
 
     def refine_field(self, z, triinterpolator=None, subdiv=3):
         """
-        Refines a field defined on the encapsulated triangulation.
-
-        Returns *refi_tri* (refined triangulation), *refi_z* (interpolated
-        values of the field at the node of the refined triangulation).
+        Refine a field defined on the encapsulated triangulation.
 
         Parameters
         ----------
-        z : 1d-array-like of length ``n_points``
+        z : (npoints,) array-like
             Values of the field to refine, defined at the nodes of the
             encapsulated triangulation. (``n_points`` is the number of points
             in the initial triangulation)
-        triinterpolator : :class:`~matplotlib.tri.TriInterpolator`, optional
+        triinterpolator : `~matplotlib.tri.TriInterpolator`, optional
             Interpolator used for field interpolation. If not specified,
-            a :class:`~matplotlib.tri.CubicTriInterpolator` will
-            be used.
-        subdiv : integer, optional
-            Recursion level for the subdivision. Defaults to 3.
-            Each triangle will be divided into ``4**subdiv`` child triangles.
+            a `~matplotlib.tri.CubicTriInterpolator` will be used.
+        subdiv : int, default: 3
+            Recursion level for the subdivision.
+            Each triangle is divided into ``4**subdiv`` child triangles.
 
         Returns
         -------
-        refi_tri : :class:`~matplotlib.tri.Triangulation` object
-                     The returned refined triangulation
-        refi_z : 1d array of length: *refi_tri* node count.
-                   The returned interpolated field (at *refi_tri* nodes)
+        refi_tri : `~matplotlib.tri.Triangulation`
+             The returned refined triangulation.
+        refi_z : 1D array of length: *refi_tri* node count.
+             The returned interpolated field (at *refi_tri* nodes).
         """
         if triinterpolator is None:
             interp = matplotlib.tri.CubicTriInterpolator(
                 self._triangulation, z)
         else:
-            cbook._check_isinstance(matplotlib.tri.TriInterpolator,
-                                    triinterpolator=triinterpolator)
+            _api.check_isinstance(matplotlib.tri.TriInterpolator,
+                                  triinterpolator=triinterpolator)
             interp = triinterpolator
 
         refi_tri, found_index = self.refine_triangulation(
@@ -179,10 +171,10 @@ class UniformTriRefiner(TriRefiner):
     @staticmethod
     def _refine_triangulation_once(triangulation, ancestors=None):
         """
-        This function refines a matplotlib.tri *triangulation* by splitting
-        each triangle into 4 child-masked_triangles built on the edges midside
-        nodes.
-        The masked triangles, if present, are also split but their children
+        Refine a `.Triangulation` by splitting each triangle into 4
+        child-masked_triangles built on the edges midside nodes.
+
+        Masked triangles, if present, are also split, but their children
         returned masked.
 
         If *ancestors* is not provided, returns only a new triangulation:
@@ -194,8 +186,8 @@ class UniformTriRefiner(TriRefiner):
         (child_triangulation, child_ancestors)
         child_ancestors is defined so that the 4 child masked_triangles share
         the same index as their father: child_ancestors.shape = (4 * ntri,).
-
         """
+
         x = triangulation.x
         y = triangulation.y
 

@@ -63,8 +63,8 @@ plt.show()
 ###############################################################################
 # Here we attach legends to more complex plots.
 
-fig, axes = plt.subplots(3, 1, constrained_layout=True)
-top_ax, middle_ax, bottom_ax = axes
+fig, axs = plt.subplots(3, 1, constrained_layout=True)
+top_ax, middle_ax, bottom_ax = axs
 
 top_ax.bar([0, 1, 2], [0.2, 0.3, 0.1], width=0.4, label="Bar 1",
            align="center")
@@ -153,7 +153,7 @@ class HandlerDashedLines(HandlerLineCollection):
                 lw = orig_handle.get_linewidths()[i]
             except IndexError:
                 lw = orig_handle.get_linewidths()[0]
-            if dashes[0] is not None:
+            if dashes[1] is not None:
                 legline.set_dashes(dashes[1])
             legline.set_color(color)
             legline.set_transform(trans)

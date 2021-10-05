@@ -1,0 +1,35 @@
+name: PR Greetings
+
+on: [pull_request_target]
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/first-interaction@v1
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        pr-message: >+
+          Thank you for opening your first PR into Matplotlib!
+
+
+          If you have not heard from us in a while, please feel free to
+          ping `@matplotlib/developers` or anyone who has commented on the
+          PR.  Most of our reviewers are volunteers and sometimes
+          things fall through the cracks.
+
+
+          You can also join us [on
+          gitter](https://gitter.im/matplotlib/matplotlib) for real-time
+          discussion.
+
+
+          For details on testing, writing docs, and our review process,
+          please see [the developer
+          guide](https://matplotlib.org/devdocs/devel/index.html)
+
+
+          We strive to be a welcoming and open project. Please follow our
+          [Code of
+          Conduct](https://github.com/matplotlib/matplotlib/blob/master/CODE_OF_CONDUCT.md).

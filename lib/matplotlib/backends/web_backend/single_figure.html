@@ -3,19 +3,26 @@
     <link rel="stylesheet" href="{{ prefix }}/_static/css/page.css" type="text/css">
     <link rel="stylesheet" href="{{ prefix }}/_static/css/boilerplate.css" type="text/css" />
     <link rel="stylesheet" href="{{ prefix }}/_static/css/fbm.css" type="text/css" />
-    <link rel="stylesheet" href="{{ prefix }}/_static/jquery-ui-1.12.1/jquery-ui.min.css" >
-    <script src="{{ prefix }}/_static/jquery-ui-1.12.1/external/jquery/jquery.js"></script>
-    <script src="{{ prefix }}/_static/jquery-ui-1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="{{ prefix }}/_static/css/mpl.css" type="text/css">
     <script src="{{ prefix }}/_static/js/mpl_tornado.js"></script>
     <script src="{{ prefix }}/js/mpl.js"></script>
     <script>
-      $(document).ready(
-        function() {
+      function ready(fn) {
+        if (document.readyState != "loading") {
+          fn();
+        } else {
+          document.addEventListener("DOMContentLoaded", fn);
+        }
+      }
+
+      ready(
+        function () {
           var websocket_type = mpl.get_websocket_type();
           var websocket = new websocket_type(
-              "{{ ws_uri }}" + {{ repr(str(fig_id)) }} + "/ws");
-	  var fig = new mpl.figure(
-              {{repr(str(fig_id))}}, websocket, mpl_ondownload, $('div#figure'));
+              "{{ ws_uri }}" + {{ str(fig_id) }} + "/ws");
+          var fig = new mpl.figure(
+              {{ str(fig_id) }}, websocket, mpl_ondownload,
+              document.getElementById("figure"));
         }
       );
     </script>

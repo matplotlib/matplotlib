@@ -1,10 +1,9 @@
 from itertools import product
 import platform
 
-import matplotlib
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import cbook
-from matplotlib.cbook import MatplotlibDeprecationWarning
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.colors import LogNorm
 from matplotlib.transforms import Bbox, TransformedBbox
@@ -12,11 +11,15 @@ from matplotlib.testing.decorators import (
     image_comparison, remove_ticks_and_titles)
 
 from mpl_toolkits.axes_grid1 import (
-    host_subplot, make_axes_locatable, AxesGrid, ImageGrid)
+    axes_size as Size,
+    host_subplot, make_axes_locatable,
+    Grid, AxesGrid, ImageGrid)
 from mpl_toolkits.axes_grid1.anchored_artists import (
     AnchoredSizeBar, AnchoredDirectionArrows)
+from mpl_toolkits.axes_grid1.axes_divider import HBoxDivider
 from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch)
+import mpl_toolkits.axes_grid1.mpl_axes
 
 import pytest
 
@@ -24,64 +27,49 @@ import numpy as np
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
 
-@image_comparison(['divider_append_axes'])
 def test_divider_append_axes():
-
-    # the random data
-    np.random.seed(0)
-    x = np.random.randn(1000)
-    y = np.random.randn(1000)
-
-    fig, axScatter = plt.subplots()
-
-    # the scatter plot:
-    axScatter.scatter(x, y)
-
-    # create new axes on the right and on the top of the current axes
-    # The first argument of the new_vertical(new_horizontal) method is
-    # the height (width) of the axes to be created in inches.
-    divider = make_axes_locatable(axScatter)
-    axHistbot = divider.append_axes("bottom", 1.2, pad=0.1, sharex=axScatter)
-    axHistright = divider.append_axes("right", 1.2, pad=0.1, sharey=axScatter)
-    axHistleft = divider.append_axes("left", 1.2, pad=0.1, sharey=axScatter)
-    axHisttop = divider.append_axes("top", 1.2, pad=0.1, sharex=axScatter)
-
-    # now determine nice limits by hand:
-    binwidth = 0.25
-    xymax = max(np.max(np.abs(x)), np.max(np.abs(y)))
-    lim = (int(xymax/binwidth) + 1) * binwidth
-
-    bins = np.arange(-lim, lim + binwidth, binwidth)
-    axHisttop.hist(x, bins=bins)
-    axHistbot.hist(x, bins=bins)
-    axHistleft.hist(y, bins=bins, orientation='horizontal')
-    axHistright.hist(y, bins=bins, orientation='horizontal')
-
-    axHistbot.invert_yaxis()
-    axHistleft.invert_xaxis()
-
-    axHisttop.xaxis.set_ticklabels(())
-    axHistbot.xaxis.set_ticklabels(())
-    axHistleft.yaxis.set_ticklabels(())
-    axHistright.yaxis.set_ticklabels(())
+    fig, ax = plt.subplots()
+    divider = make_axes_locatable(ax)
+    axs = {
+        "main": ax,
+        "top": divider.append_axes("top", 1.2, pad=0.1, sharex=ax),
+        "bottom": divider.append_axes("bottom", 1.2, pad=0.1, sharex=ax),
+        "left": divider.append_axes("left", 1.2, pad=0.1, sharey=ax),
+        "right": divider.append_axes("right", 1.2, pad=0.1, sharey=ax),
+    }
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    bboxes = {k: axs[k].get_window_extent() for k in axs}
+    dpi = fig.dpi
+    assert bboxes["top"].height == pytest.approx(1.2 * dpi)
+    assert bboxes["bottom"].height == pytest.approx(1.2 * dpi)
+    assert bboxes["left"].width == pytest.approx(1.2 * dpi)
+    assert bboxes["right"].width == pytest.approx(1.2 * dpi)
+    assert bboxes["top"].y0 - bboxes["main"].y1 == pytest.approx(0.1 * dpi)
+    assert bboxes["main"].y0 - bboxes["bottom"].y1 == pytest.approx(0.1 * dpi)
+    assert bboxes["main"].x0 - bboxes["left"].x1 == pytest.approx(0.1 * dpi)
+    assert bboxes["right"].x0 - bboxes["main"].x1 == pytest.approx(0.1 * dpi)
+    assert bboxes["left"].y0 == bboxes["main"].y0 == bboxes["right"].y0
+    assert bboxes["left"].y1 == bboxes["main"].y1 == bboxes["right"].y1
+    assert bboxes["top"].x0 == bboxes["main"].x0 == bboxes["bottom"].x0
+    assert bboxes["top"].x1 == bboxes["main"].x1 == bboxes["bottom"].x1
 
 
 @image_comparison(['twin_axes_empty_and_removed'], extensions=["png"], tol=1)
 def test_twin_axes_empty_and_removed():
     # Purely cosmetic font changes (avoid overlap)
-    matplotlib.rcParams.update({"font.size": 8})
-    matplotlib.rcParams.update({"xtick.labelsize": 8})
-    matplotlib.rcParams.update({"ytick.labelsize": 8})
+    mpl.rcParams.update(
+        {"font.size": 8, "xtick.labelsize": 8, "ytick.labelsize": 8})
     generators = ["twinx", "twiny", "twin"]
     modifiers = ["", "host invisible", "twin removed", "twin invisible",
                  "twin removed\nhost invisible"]
     # Unmodified host subplot at the beginning for reference
     h = host_subplot(len(modifiers)+1, len(generators), 2)
-    h.text(0.5, 0.5, "host_subplot", horizontalalignment="center",
-        verticalalignment="center")
+    h.text(0.5, 0.5, "host_subplot",
+           horizontalalignment="center", verticalalignment="center")
     # Host subplots with various modifications (twin*, visibility) applied
     for i, (mod, gen) in enumerate(product(modifiers, generators),
-        len(generators)+1):
+                                   len(generators) + 1):
         h = host_subplot(len(modifiers)+1, len(generators), i)
         t = getattr(h, gen)()
         if "twin invisible" in mod:
@@ -91,14 +79,11 @@ def test_twin_axes_empty_and_removed():
         if "host invisible" in mod:
             h.axis[:].set_visible(False)
         h.text(0.5, 0.5, gen + ("\n" + mod if mod else ""),
-            horizontalalignment="center", verticalalignment="center")
+               horizontalalignment="center", verticalalignment="center")
     plt.subplots_adjust(wspace=0.5, hspace=1)
 
 
-@pytest.mark.parametrize("legacy_colorbar", [False, True])
-def test_axesgrid_colorbar_log_smoketest(legacy_colorbar):
-    matplotlib.rcParams["mpl_toolkits.legacy_colorbar"] = legacy_colorbar
-
+def test_axesgrid_colorbar_log_smoketest():
     fig = plt.figure()
     grid = AxesGrid(fig, 111,  # modified to be only subplot
                     nrows_ncols=(1, 1),
@@ -111,11 +96,7 @@ def test_axesgrid_colorbar_log_smoketest(legacy_colorbar):
     Z = 10000 * np.random.rand(10, 10)
     im = grid[0].imshow(Z, interpolation="nearest", norm=LogNorm())
 
-    if legacy_colorbar:
-        with pytest.warns(MatplotlibDeprecationWarning):
-            grid.cbar_axes[0].colorbar(im)
-    else:
-        grid.cbar_axes[0].colorbar(im)
+    grid.cbar_axes[0].colorbar(im)
 
 
 @image_comparison(['inset_locator.png'], style='default', remove_text=True)
@@ -124,11 +105,11 @@ def test_inset_locator():
 
     # prepare the demo image
     # Z is a 15x15 array
-    Z = np.load(cbook.get_sample_data("axes_grid/bivariate_normal.npy"))
+    Z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
     extent = (-3, 4, -4, 3)
-    Z2 = np.zeros([150, 150], dtype="d")
+    Z2 = np.zeros((150, 150))
     ny, nx = Z.shape
-    Z2[30:30 + ny, 30:30 + nx] = Z
+    Z2[30:30+ny, 30:30+nx] = Z
 
     # extent = [-3, 4, -4, 3]
     ax.imshow(Z2, extent=extent, interpolation="nearest",
@@ -166,11 +147,11 @@ def test_inset_axes():
 
     # prepare the demo image
     # Z is a 15x15 array
-    Z = np.load(cbook.get_sample_data("axes_grid/bivariate_normal.npy"))
+    Z = cbook.get_sample_data("axes_grid/bivariate_normal.npy", np_load=True)
     extent = (-3, 4, -4, 3)
-    Z2 = np.zeros([150, 150], dtype="d")
+    Z2 = np.zeros((150, 150))
     ny, nx = Z.shape
-    Z2[30:30 + ny, 30:30 + nx] = Z
+    Z2[30:30+ny, 30:30+nx] = Z
 
     # extent = [-3, 4, -4, 3]
     ax.imshow(Z2, extent=extent, interpolation="nearest",
@@ -271,8 +252,8 @@ def test_fill_facecolor():
     axins = zoomed_inset_axes(ax[0], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
-    plt.gca().axes.get_xaxis().set_ticks([])
-    plt.gca().axes.get_yaxis().set_ticks([])
+    plt.gca().axes.xaxis.set_ticks([])
+    plt.gca().axes.yaxis.set_ticks([])
     mark_inset(ax[0], axins, loc1=2, loc2=4, fc="b", ec="0.5")
 
     # fill with yellow by setting 'facecolor' field
@@ -288,8 +269,8 @@ def test_fill_facecolor():
     axins = zoomed_inset_axes(ax[1], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
-    plt.gca().axes.get_xaxis().set_ticks([])
-    plt.gca().axes.get_yaxis().set_ticks([])
+    plt.gca().axes.xaxis.set_ticks([])
+    plt.gca().axes.yaxis.set_ticks([])
     mark_inset(ax[1], axins, loc1=2, loc2=4, facecolor="y", ec="0.5")
 
     # fill with green by setting 'color' field
@@ -305,8 +286,8 @@ def test_fill_facecolor():
     axins = zoomed_inset_axes(ax[2], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
-    plt.gca().axes.get_xaxis().set_ticks([])
-    plt.gca().axes.get_yaxis().set_ticks([])
+    plt.gca().axes.xaxis.set_ticks([])
+    plt.gca().axes.yaxis.set_ticks([])
     mark_inset(ax[2], axins, loc1=2, loc2=4, color="g", ec="0.5")
 
     # fill with green but color won't show if set fill to False
@@ -322,8 +303,8 @@ def test_fill_facecolor():
     axins = zoomed_inset_axes(ax[3], 1, loc='upper right')
     axins.set_xlim(0, 0.2)
     axins.set_ylim(0, 0.2)
-    axins.get_xaxis().set_ticks([])
-    axins.get_yaxis().set_ticks([])
+    axins.xaxis.set_ticks([])
+    axins.yaxis.set_ticks([])
     mark_inset(ax[3], axins, loc1=2, loc2=4, fc="g", ec="0.5", fill=False)
 
 
@@ -343,7 +324,7 @@ def test_zooming_with_inverted_axes():
 
 
 @image_comparison(['anchored_direction_arrows.png'],
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
+                  tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_anchored_direction_arrows():
     fig, ax = plt.subplots()
     ax.imshow(np.zeros((10, 10)), interpolation='nearest')
@@ -368,7 +349,8 @@ def test_anchored_direction_arrows_many_args():
 def test_axes_locatable_position():
     fig, ax = plt.subplots()
     divider = make_axes_locatable(ax)
-    cax = divider.append_axes('right', size='5%', pad='2%')
+    with mpl.rc_context({"figure.subplot.wspace": 0.02}):
+        cax = divider.append_axes('right', size='5%')
     fig.canvas.draw()
     assert np.isclose(cax.get_position(original=False).width,
                       0.03621495327102808)
@@ -461,3 +443,54 @@ def test_picking_callbacks_overlap(big_on_axes, small_on_axes, click_on):
     assert big in event_rects
     if click_on == "small":
         assert small in event_rects
+
+
+def test_hbox_divider():
+    arr1 = np.arange(20).reshape((4, 5))
+    arr2 = np.arange(20).reshape((5, 4))
+
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    ax1.imshow(arr1)
+    ax2.imshow(arr2)
+
+    pad = 0.5  # inches.
+    divider = HBoxDivider(
+        fig, 111,  # Position of combined axes.
+        horizontal=[Size.AxesX(ax1), Size.Fixed(pad), Size.AxesX(ax2)],
+        vertical=[Size.AxesY(ax1), Size.Scaled(1), Size.AxesY(ax2)])
+    ax1.set_axes_locator(divider.new_locator(0))
+    ax2.set_axes_locator(divider.new_locator(2))
+
+    fig.canvas.draw()
+    p1 = ax1.get_position()
+    p2 = ax2.get_position()
+    assert p1.height == p2.height
+    assert p2.width / p1.width == pytest.approx((4 / 5) ** 2)
+
+
+def test_axes_class_tuple():
+    fig = plt.figure()
+    axes_class = (mpl_toolkits.axes_grid1.mpl_axes.Axes, {})
+    gr = AxesGrid(fig, 111, nrows_ncols=(1, 1), axes_class=axes_class)
+
+
+def test_grid_axes_lists():
+    """Test Grid axes_all, axes_row and axes_column relationship."""
+    fig = plt.figure()
+    grid = Grid(fig, 111, (2, 3), direction="row")
+    assert_array_equal(grid, grid.axes_all)
+    assert_array_equal(grid.axes_row, np.transpose(grid.axes_column))
+    assert_array_equal(grid, np.ravel(grid.axes_row), "row")
+    grid = Grid(fig, 111, (2, 3), direction="column")
+    assert_array_equal(grid, np.ravel(grid.axes_column), "column")
+
+
+@pytest.mark.parametrize('direction', ('row', 'column'))
+def test_grid_axes_position(direction):
+    """Test positioning of the axes in Grid."""
+    fig = plt.figure()
+    grid = Grid(fig, 111, (2, 2), direction=direction)
+    loc = [ax.get_axes_locator() for ax in np.ravel(grid.axes_row)]
+    assert loc[1]._nx > loc[0]._nx and loc[2]._ny < loc[0]._ny
+    assert loc[0]._nx == loc[2]._nx and loc[0]._ny == loc[1]._ny
+    assert loc[3]._nx == loc[1]._nx and loc[3]._ny == loc[2]._ny

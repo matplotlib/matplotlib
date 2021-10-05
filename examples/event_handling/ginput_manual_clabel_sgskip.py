@@ -27,8 +27,9 @@ def tellme(s):
 # Define a triangle by clicking three points
 
 
-plt.clf()
-plt.setp(plt.gca(), autoscale_on=False)
+plt.figure()
+plt.xlim(0, 1)
+plt.ylim(0, 1)
 
 tellme('You will define a triangle, click to begin')
 

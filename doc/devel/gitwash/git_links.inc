@@ -14,7 +14,7 @@
 .. _github help: https://help.github.com
 .. _msysgit: https://git-scm.com/download/win
 .. _git-osx-installer: https://git-scm.com/download/mac
-.. _subversion: http://subversion.tigris.org/
+.. _subversion: https://subversion.apache.org/
 .. _git cheat sheet: https://help.github.com/git-cheat-sheets/
 .. _pro git book: https://git-scm.com/book/en/v2
 .. _git svn crash course: https://git-scm.com/course/svn.html

@@ -1,0 +1,10 @@
+# Extra pip requirements for the minimum-version CI run
+
+cycler==0.10
+kiwisolver==1.0.1
+numpy==1.17.0
+packaging==20.0
+pillow==6.2.0
+pyparsing==2.2.1
+python-dateutil==2.7
+fonttools==4.22.0

@@ -10,10 +10,14 @@ extern "C" {
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
+#include FT_OUTLINE_H
 #include FT_SFNT_NAMES_H
 #include FT_TYPE1_TABLES_H
 #include FT_TRUETYPE_TABLES_H
 }
+
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
 
 /*
  By definition, FT_FIXED as 2 16bit values stored in a single long.
@@ -87,8 +91,7 @@ class FT2Font
     void draw_glyph_to_bitmap(FT2Image &im, int x, int y, size_t glyphInd, bool antialiased);
     void get_glyph_name(unsigned int glyph_number, char *buffer);
     long get_name_index(char *name);
-    int get_path_count();
-    void get_path(double *outpoints, unsigned char *outcodes);
+    PyObject* get_path();
 
     FT_Face &get_face()
     {

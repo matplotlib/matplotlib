@@ -1,13 +1,15 @@
+import copy
+
 import numpy as np
 from numpy.testing import (assert_allclose, assert_almost_equal,
                            assert_array_equal, assert_array_almost_equal)
 import pytest
 
+from matplotlib import scale
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
 from matplotlib.path import Path
-from matplotlib.scale import LogScale
 from matplotlib.testing.decorators import image_comparison
 
 
@@ -15,14 +17,14 @@ def test_non_affine_caching():
     class AssertingNonAffineTransform(mtransforms.Transform):
         """
         This transform raises an assertion error when called when it
-        shouldn't be and self.raise_on_transform is True.
+        shouldn't be and ``self.raise_on_transform`` is True.
 
         """
         input_dims = output_dims = 2
         is_affine = False
 
         def __init__(self, *args, **kwargs):
-            mtransforms.Transform.__init__(self, *args, **kwargs)
+            super().__init__(*args, **kwargs)
             self.raise_on_transform = False
             self.underlying_transform = mtransforms.Affine2D().scale(10, 10)
 
@@ -67,12 +69,13 @@ def test_external_transform_api():
                     mtransforms.Affine2D().scale(10).get_matrix())
 
 
-@image_comparison(['pre_transform_data'],
-                  tol=0.08, remove_text=True, style='mpl20')
+@image_comparison(['pre_transform_data'], remove_text=True, style='mpl20',
+                  tol=0.05)
 def test_pre_transform_plotting():
     # a catch-all for as many as possible plot layouts which handle
     # pre-transforming the data NOTE: The axis range is important in this
     # plot. It should be x10 what the data suggests it should be
+
     ax = plt.axes()
     times10 = mtransforms.Affine2D().scale(10)
 
@@ -91,9 +94,8 @@ def test_pre_transform_plotting():
     u = 2*np.sin(x) + np.cos(y[:, np.newaxis])
     v = np.sin(x) - np.cos(y[:, np.newaxis])
 
-    df = 25. / 30.   # Compatibility factor for old test image
     ax.streamplot(x, y, u, v, transform=times10 + ax.transData,
-                  density=(df, df), linewidth=u**2 + v**2)
+                  linewidth=np.hypot(u, v))
 
     # reduce the vector data down a bit for barb and quiver plotting
     x, y = x[::3], y[::3]
@@ -119,7 +121,7 @@ def test_pcolor_pre_transform_limits():
     # Based on test_contour_pre_transform_limits()
     ax = plt.axes()
     xs, ys = np.meshgrid(np.linspace(15, 20, 15), np.linspace(12.4, 12.5, 20))
-    ax.pcolor(xs, ys, np.log(xs * ys),
+    ax.pcolor(xs, ys, np.log(xs * ys)[:-1, :-1],
               transform=mtransforms.Affine2D().scale(0.1) + ax.transData)
 
     expected = np.array([[1.5, 1.24],
@@ -131,7 +133,7 @@ def test_pcolormesh_pre_transform_limits():
     # Based on test_contour_pre_transform_limits()
     ax = plt.axes()
     xs, ys = np.meshgrid(np.linspace(15, 20, 15), np.linspace(12.4, 12.5, 20))
-    ax.pcolormesh(xs, ys, np.log(xs * ys),
+    ax.pcolormesh(xs, ys, np.log(xs * ys)[:-1, :-1],
                   transform=mtransforms.Affine2D().scale(0.1) + ax.transData)
 
     expected = np.array([[1.5, 1.24],
@@ -189,21 +191,17 @@ def test_affine_inverted_invalidated():
 
 def test_clipping_of_log():
     # issue 804
-    M, L, C = Path.MOVETO, Path.LINETO, Path.CLOSEPOLY
-    points = [(0.2, -99), (0.4, -99), (0.4, 20), (0.2, 20), (0.2, -99)]
-    codes = [M, L, L, L, C]
-    path = Path(points, codes)
-
+    path = Path([(0.2, -99), (0.4, -99), (0.4, 20), (0.2, 20), (0.2, -99)],
+                closed=True)
     # something like this happens in plotting logarithmic histograms
     trans = mtransforms.BlendedGenericTransform(
-        mtransforms.Affine2D(), LogScale.LogTransform(10, 'clip'))
+        mtransforms.Affine2D(), scale.LogTransform(10, 'clip'))
     tpath = trans.transform_path_non_affine(path)
     result = tpath.iter_segments(trans.get_affine(),
                                  clip=(0, 0, 100, 100),
                                  simplify=False)
-
     tpoints, tcodes = zip(*result)
-    assert_allclose(tcodes, [M, L, L, L, C])
+    assert_allclose(tcodes, path.codes)
 
 
 class NonAffineForTest(mtransforms.Transform):
@@ -219,7 +217,7 @@ class NonAffineForTest(mtransforms.Transform):
 
     def __init__(self, real_trans, *args, **kwargs):
         self.real_trans = real_trans
-        mtransforms.Transform.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def transform_non_affine(self, values):
         return self.real_trans.transform(values)
@@ -400,8 +398,8 @@ class TestTransformPlotInterface:
         # a simple line in (offset + data) coordinates in the y component, and
         # in axes coordinates in the x
         ax = plt.axes()
-        trans = mtransforms.blended_transform_factory(ax.transAxes,
-            mtransforms.Affine2D().scale(10) + ax.transData)
+        trans = mtransforms.blended_transform_factory(
+            ax.transAxes, mtransforms.Affine2D().scale(10) + ax.transData)
         ax.plot([0.1, 1.2, 0.8], [35, -5, 18], transform=trans)
         assert_array_equal(ax.dataLim.get_points(),
                            np.array([[np.inf, -50.], [-np.inf, 350.]]))
@@ -458,6 +456,12 @@ def assert_bbox_eq(bbox1, bbox2):
     assert_array_equal(bbox1.bounds, bbox2.bounds)
 
 
+def test_bbox_frozen_copies_minpos():
+    bbox = mtransforms.Bbox.from_extents(0.0, 0.0, 1.0, 1.0, minpos=1.0)
+    frozen = bbox.frozen()
+    assert_array_equal(frozen.minpos, bbox.minpos)
+
+
 def test_bbox_intersection():
     bbox_from_ext = mtransforms.Bbox.from_extents
     inter = mtransforms.Bbox.intersection
@@ -490,6 +494,56 @@ def test_bbox_as_strings():
     asdict = eval(format(b, fmt), {'Bbox': dict})
     for k, v in asdict.items():
         assert eval(format(getattr(b, k), fmt)) == v
+
+
+def test_str_transform():
+    # The str here should not be considered as "absolutely stable", and may be
+    # reformatted later; this is just a smoketest for __str__.
+    assert str(plt.subplot(projection="polar").transData) == """\
+CompositeGenericTransform(
+    CompositeGenericTransform(
+        CompositeGenericTransform(
+            TransformWrapper(
+                BlendedAffine2D(
+                    IdentityTransform(),
+                    IdentityTransform())),
+            CompositeAffine2D(
+                Affine2D().scale(1.0),
+                Affine2D().scale(1.0))),
+        PolarTransform(
+            PolarAxesSubplot(0.125,0.1;0.775x0.8),
+            use_rmin=True,
+            _apply_theta_transforms=False)),
+    CompositeGenericTransform(
+        CompositeGenericTransform(
+            PolarAffine(
+                TransformWrapper(
+                    BlendedAffine2D(
+                        IdentityTransform(),
+                        IdentityTransform())),
+                LockableBbox(
+                    Bbox(x0=0.0, y0=0.0, x1=6.283185307179586, y1=1.0),
+                    [[-- --]
+                     [-- --]])),
+            BboxTransformFrom(
+                _WedgeBbox(
+                    (0.5, 0.5),
+                    TransformedBbox(
+                        Bbox(x0=0.0, y0=0.0, x1=6.283185307179586, y1=1.0),
+                        CompositeAffine2D(
+                            Affine2D().scale(1.0),
+                            Affine2D().scale(1.0))),
+                    LockableBbox(
+                        Bbox(x0=0.0, y0=0.0, x1=6.283185307179586, y1=1.0),
+                        [[-- --]
+                         [-- --]])))),
+        BboxTransformTo(
+            TransformedBbox(
+                Bbox(x0=0.125, y0=0.09999999999999998, x1=0.9, y1=0.9),
+                BboxTransformTo(
+                    TransformedBbox(
+                        Bbox(x0=0.0, y0=0.0, x1=8.0, y1=6.0),
+                        Affine2D().scale(80.0)))))))"""
 
 
 def test_transform_single_point():
@@ -562,8 +616,7 @@ def test_invalid_arguments():
 
 def test_transformed_path():
     points = [(0, 0), (1, 0), (1, 1), (0, 1)]
-    codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.CLOSEPOLY]
-    path = Path(points, codes)
+    path = Path(points, closed=True)
 
     trans = mtransforms.Affine2D()
     trans_path = mtransforms.TransformedPath(path, trans)
@@ -632,3 +685,41 @@ def test_lockable_bbox(locked_element):
     assert getattr(locked, 'locked_' + locked_element) == 3
     for elem in other_elements:
         assert getattr(locked, elem) == getattr(orig, elem)
+
+
+def test_copy():
+    a = mtransforms.Affine2D()
+    b = mtransforms.Affine2D()
+    s = a + b
+    # Updating a dependee should invalidate a copy of the dependent.
+    s.get_matrix()  # resolve it.
+    s1 = copy.copy(s)
+    assert not s._invalid and not s1._invalid
+    a.translate(1, 2)
+    assert s._invalid and s1._invalid
+    assert (s1.get_matrix() == a.get_matrix()).all()
+    # Updating a copy of a dependee shouldn't invalidate a dependent.
+    s.get_matrix()  # resolve it.
+    b1 = copy.copy(b)
+    b1.translate(3, 4)
+    assert not s._invalid
+    assert (s.get_matrix() == a.get_matrix()).all()
+
+
+def test_deepcopy():
+    a = mtransforms.Affine2D()
+    b = mtransforms.Affine2D()
+    s = a + b
+    # Updating a dependee shouldn't invalidate a deepcopy of the dependent.
+    s.get_matrix()  # resolve it.
+    s1 = copy.deepcopy(s)
+    assert not s._invalid and not s1._invalid
+    a.translate(1, 2)
+    assert s._invalid and not s1._invalid
+    assert (s1.get_matrix() == mtransforms.Affine2D().get_matrix()).all()
+    # Updating a deepcopy of a dependee shouldn't invalidate a dependent.
+    s.get_matrix()  # resolve it.
+    b1 = copy.deepcopy(b)
+    b1.translate(3, 4)
+    assert not s._invalid
+    assert (s.get_matrix() == a.get_matrix()).all()

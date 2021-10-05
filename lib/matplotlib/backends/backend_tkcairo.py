@@ -9,7 +9,7 @@ from ._backend_tk import _BackendTk, FigureCanvasTk
 
 class FigureCanvasTkCairo(FigureCanvasCairo, FigureCanvasTk):
     def __init__(self, *args, **kwargs):
-        super(FigureCanvasTkCairo, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._renderer = RendererCairo(self.figure.dpi)
 
     def draw(self):
@@ -18,12 +18,12 @@ class FigureCanvasTkCairo(FigureCanvasCairo, FigureCanvasTk):
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
         self._renderer.set_ctx_from_surface(surface)
         self._renderer.set_width_height(width, height)
+        self._renderer.dpi = self.figure.dpi
         self.figure.draw(self._renderer)
         buf = np.reshape(surface.get_data(), (height, width, 4))
         _backend_tk.blit(
             self._tkphoto, buf,
             (2, 1, 0, 3) if sys.byteorder == "little" else (1, 2, 3, 0))
-        self._master.update_idletasks()
 
 
 @_BackendTk.export

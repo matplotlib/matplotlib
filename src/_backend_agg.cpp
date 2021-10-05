@@ -29,7 +29,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi)
     : width(width),
       height(height),
       dpi(dpi),
-      NUMBYTES(width * height * 4),
+      NUMBYTES((size_t)width * (size_t)height * 4),
       pixBuffer(NULL),
       renderingBuffer(),
       alphaBuffer(NULL),
@@ -45,7 +45,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi)
       rendererBase(),
       rendererAA(),
       rendererBin(),
-      theRasterizer(8192),
+      theRasterizer(32768),
       lastclippath(NULL),
       _fill_color(agg::rgba(1, 1, 1, 0))
 {
@@ -129,10 +129,17 @@ RendererAgg::restore_region(BufferRegion &region, int xx1, int yy1, int xx2, int
 }
 
 bool RendererAgg::render_clippath(py::PathIterator &clippath,
-                                  const agg::trans_affine &clippath_trans)
+                                  const agg::trans_affine &clippath_trans,
+                                  e_snap_mode snap_mode)
 {
     typedef agg::conv_transform<py::PathIterator> transformed_path_t;
-    typedef agg::conv_curve<transformed_path_t> curve_t;
+    typedef PathNanRemover<transformed_path_t> nan_removed_t;
+    /* Unlike normal Paths, the clip path cannot be clipped to the Figure bbox,
+     * because it needs to remain a complete closed path, so there is no
+     * PathClipper<nan_removed_t> step. */
+    typedef PathSnapper<nan_removed_t> snapped_t;
+    typedef PathSimplifier<snapped_t> simplify_t;
+    typedef agg::conv_curve<simplify_t> curve_t;
 
     bool has_clippath = (clippath.total_vertices() != 0);
 
@@ -145,7 +152,12 @@ bool RendererAgg::render_clippath(py::PathIterator &clippath,
 
         rendererBaseAlphaMask.clear(agg::gray8(0, 0));
         transformed_path_t transformed_clippath(clippath, trans);
-        curve_t curved_clippath(transformed_clippath);
+        nan_removed_t nan_removed_clippath(transformed_clippath, true, clippath.has_curves());
+        snapped_t snapped_clippath(nan_removed_clippath, snap_mode, clippath.total_vertices(), 0.0);
+        simplify_t simplified_clippath(snapped_clippath,
+                                       clippath.should_simplify() && !clippath.has_curves(),
+                                       clippath.simplify_threshold());
+        curve_t curved_clippath(simplified_clippath);
         theRasterizer.add_path(curved_clippath);
         rendererAlphaMask.color(agg::gray8(255, 255));
         agg::render_scanlines(theRasterizer, scanlineAlphaMask, rendererAlphaMask);
@@ -154,41 +166,6 @@ bool RendererAgg::render_clippath(py::PathIterator &clippath,
     }
 
     return has_clippath;
-}
-
-agg::rect_i RendererAgg::get_content_extents()
-{
-    agg::rect_i r(width, height, 0, 0);
-
-    // Looks at the alpha channel to find the minimum extents of the image
-    unsigned char *pixel = pixBuffer + 3;
-    for (int y = 0; y < (int)height; ++y) {
-        for (int x = 0; x < (int)width; ++x) {
-            if (*pixel) {
-                if (x < r.x1)
-                    r.x1 = x;
-                if (y < r.y1)
-                    r.y1 = y;
-                if (x > r.x2)
-                    r.x2 = x;
-                if (y > r.y2)
-                    r.y2 = y;
-            }
-            pixel += 4;
-        }
-    }
-
-    if (r.x1 == (int)width && r.x2 == 0) {
-      // The buffer is completely empty.
-      r.x1 = r.y1 = r.x2 = r.y2 = 0;
-    } else {
-      r.x1 = std::max(0, r.x1);
-      r.y1 = std::max(0, r.y1);
-      r.x2 = std::min(r.x2 + 1, (int)width);
-      r.y2 = std::min(r.y2 + 1, (int)height);
-    }
-
-    return r;
 }
 
 void RendererAgg::clear()

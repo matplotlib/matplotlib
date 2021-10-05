@@ -1,8 +1,8 @@
 .. _whats-new-1-4:
 
 
-New in matplotlib 1.4
-=====================
+What's new in Matplotlib 1.4 (Aug 25, 2014)
+===========================================
 
 Thomas A. Caswell served as the release manager for the 1.4 release.
 
@@ -20,7 +20,7 @@ New colormap
 ------------
 In heatmaps, a green-to-red spectrum is often used to indicate intensity of
 activity, but this can be problematic for the red/green colorblind. A new,
-colorblind-friendly colormap is now available at :class:`matplotlib.cm.Wistia`.
+colorblind-friendly colormap is now available at ``matplotlib.cm.Wistia``.
 This colormap maintains the red/green symbolism while achieving deuteranopic
 legibility through brightness variations. See
 `here <https://github.com/wistia/heatmap-palette>`__
@@ -46,7 +46,7 @@ same way as any other matplotlib backend. Because figures require a connection
 to the IPython notebook server for their interactivity, once the notebook is
 saved, each figure will be rendered as a static image - thus allowing
 non-interactive viewing of figures on services such as
-`nbviewer <http://nbviewer.ipython.org/>`__.
+`nbviewer <https://nbviewer.ipython.org/>`__.
 
 
 
@@ -58,7 +58,7 @@ Power-law normalization
 Ben Gamari added a power-law normalization method,
 :class:`~matplotlib.colors.PowerNorm`. This class maps a range of
 values to the interval [0,1] with power-law scaling with the exponent
-provided by the constructor's `gamma` argument. Power law normalization
+provided by the constructor's *gamma* argument. Power law normalization
 can be useful for, e.g., emphasizing small populations in a histogram.
 
 Fully customizable boxplots
@@ -70,14 +70,14 @@ relies on a new function (:func:`~matplotlib.cbook.boxplot_stats`), which
 accepts any data structure currently compatible with
 :func:`~matplotlib.pyplot.boxplot`, and returns a list of dictionaries
 containing the positions for each element of the boxplots. Then
-a second method, :func:`~matplotlib.Axes.bxp` is called to draw the boxplots
+a second method, `~.Axes.bxp` is called to draw the boxplots
 based on the stats.
 
 The :func:`~matplotlib.pyplot.boxplot` function can be used as before to
 generate boxplots from data in one step. But now the user has the
 flexibility to generate the statistics independently, or to modify the
 output of :func:`~matplotlib.cbook.boxplot_stats` prior to plotting
-with :func:`~matplotlib.Axes.bxp`.
+with `~.Axes.bxp`.
 
 Lastly, each artist (e.g., the box, outliers, cap, notches) can now be
 toggled on or off and their styles can be passed in through individual
@@ -114,40 +114,40 @@ Support for detrending and windowing 2D arrays in mlab
 Todd Jennings added support for 2D arrays in the
 :func:`~matplotlib.mlab.detrend_mean`, :func:`~matplotlib.mlab.detrend_none`,
 and :func:`~matplotlib.mlab.detrend`, as well as adding
-:func:`~matplotlib.mlab.apply_window` which support windowing 2D arrays.
+``matplotlib.mlab.apply_window`` which support windowing 2D arrays.
 
 Support for strides in mlab
 ```````````````````````````
-Todd Jennings added some functions to mlab to make it easier to use numpy
+Todd Jennings added some functions to mlab to make it easier to use NumPy
 strides to create memory-efficient 2D arrays.  This includes
-:func:`~matplotlib.mlab.stride_repeat`, which repeats an array to create a 2D
+``matplotlib.mlab.stride_repeat``, which repeats an array to create a 2D
 array, and :func:`~matplotlib.mlab.stride_windows`, which uses a moving window
 to create a 2D array from a 1D array.
 
 Formatter for new-style formatting strings
 ``````````````````````````````````````````
-Added `FormatStrFormatterNewStyle` which does the same job as
-`FormatStrFormatter`, but accepts new-style formatting strings
+Added `.StrMethodFormatter` which does the same job as
+`.FormatStrFormatter`, but accepts new-style formatting strings
 instead of printf-style formatting strings
 
 Consistent grid sizes in streamplots
 ````````````````````````````````````
 :func:`~matplotlib.pyplot.streamplot` uses a base grid size of 30x30 for both
-`density=1` and `density=(1, 1)`. Previously a grid size of 30x30 was used for
-`density=1`, but a grid size of 25x25 was used for `density=(1, 1)`.
+``density=1`` and ``density=(1, 1)``. Previously a grid size of 30x30 was used for
+``density=1``, but a grid size of 25x25 was used for ``density=(1, 1)``.
 
 Get a list of all tick labels (major and minor)
 ```````````````````````````````````````````````
-Added the `kwarg` 'which' to :func:`~matplotlib.Axes.get_xticklabels`,
-:func:`~matplotlib.Axes.get_yticklabels` and
-:func:`~matplotlib.Axis.get_ticklabels`.  'which' can be 'major', 'minor', or
+Added the kwarg 'which' to `.Axes.get_xticklabels`,
+`.Axes.get_yticklabels` and
+`.Axis.get_ticklabels`.  'which' can be 'major', 'minor', or
 'both' select which ticks to return, like
-:func:`~matplotlib.Axis.set_ticks_position`.  If 'which' is `None` then the old
-behaviour (controlled by the bool `minor`).
+`~.XAxis.set_ticks_position`.  If 'which' is `None` then the old
+behaviour (controlled by the bool *minor*).
 
 Separate horizontal/vertical axes padding support in ImageGrid
 ``````````````````````````````````````````````````````````````
-The `kwarg` 'axes_pad' to :class:`mpl_toolkits.axes_grid1.ImageGrid` can now
+The kwarg 'axes_pad' to :class:`mpl_toolkits.axes_grid1.axes_grid.ImageGrid` can now
 be a tuple if separate horizontal/vertical padding is needed.
 This is supposed to be very helpful when you have a labelled legend next to
 every subplot and you need to make some space for legend's labels.
@@ -155,9 +155,9 @@ every subplot and you need to make some space for legend's labels.
 Support for skewed transformations
 ``````````````````````````````````
 The :class:`~matplotlib.transforms.Affine2D` gained additional methods
-`skew` and `skew_deg` to create skewed transformations. Additionally,
+`.skew` and `.skew_deg` to create skewed transformations. Additionally,
 matplotlib internals were cleaned up to support using such transforms in
-:class:`~matplotlib.Axes`. This transform is important for some plot types,
+`~matplotlib.axes.Axes`. This transform is important for some plot types,
 specifically the Skew-T used in meteorology.
 
 .. figure:: ../../gallery/specialty_plots/images/sphx_glr_skewt_001.png
@@ -165,11 +165,9 @@ specifically the Skew-T used in meteorology.
    :align: center
    :scale: 50
 
-   Skewt
-
 Support for specifying properties of wedge and text in pie charts.
 ``````````````````````````````````````````````````````````````````
-Added the `kwargs` 'wedgeprops' and 'textprops' to :func:`~matplotlib.Axes.pie`
+Added the kwargs 'wedgeprops' and 'textprops' to `~.Axes.pie`
 to accept properties for wedge and text objects in a pie. For example, one can
 specify wedgeprops = {'linewidth':3} to specify the width of the borders of
 the wedges in the pie. For more properties that the user can specify, look at
@@ -195,7 +193,7 @@ plots. Violin plots can be used to represent the distribution of sample data.
 They are similar to box plots, but use a kernel density estimation function to
 present a smooth approximation of the data sample used. The added features are:
 
-:func:`~matplotlib.Axes.violin` - Renders a violin plot from a collection of
+`~.Axes.violin` - Renders a violin plot from a collection of
 statistics.
 :func:`~matplotlib.cbook.violin_stats` - Produces a collection of statistics
 suitable for rendering a violin plot.
@@ -209,18 +207,18 @@ to their liking.
 This feature was implemented for a software engineering course at the
 University of Toronto, Scarborough, run in Winter 2014 by Anya Tafliovich.
 
-More `markevery` options to show only a subset of markers
+More *markevery* options to show only a subset of markers
 `````````````````````````````````````````````````````````
-Rohan Walker extended the `markevery` property in
+Rohan Walker extended the *markevery* property in
 :class:`~matplotlib.lines.Line2D`.  You can now specify a subset of markers to
 show with an int, slice object, numpy fancy indexing, or float. Using a float
 shows markers at approximately equal display-coordinate-distances along the
 line.
 
-Added size related functions to specialized `Collections`
-`````````````````````````````````````````````````````````
+Added size related functions to specialized `.Collection`\s
+```````````````````````````````````````````````````````````
 
-Added the `get_size` and `set_size` functions to control the size of
+Added the ``get_size`` and ``set_size`` functions to control the size of
 elements of specialized collections (
 :class:`~matplotlib.collections.AsteriskPolygonCollection`
 :class:`~matplotlib.collections.BrokenBarHCollection`
@@ -234,7 +232,7 @@ elements of specialized collections (
 Fixed the mouse coordinates giving the wrong theta value in Polar graph
 ```````````````````````````````````````````````````````````````````````
 Added code to
-:func:`~matplotlib.InvertedPolarTransform.transform_non_affine`
+`~.polar.InvertedPolarTransform.transform_non_affine`
 to ensure that the calculated theta value was between the range of 0 and 2 * pi
 since the problem was that the value can become negative after applying the
 direction and rotation to the theta calculation.
@@ -253,12 +251,10 @@ Caradec Bisesar and Vlad Vassilovski.
    :align: center
    :scale: 50
 
-   Quiver3d
-
 polar-plot r-tick locations
 ```````````````````````````
 Added the ability to control the angular position of the r-tick labels
-on a polar plot via :func:`~matplotlib.Axes.axes.set_rlabel_position`.
+on a polar plot via `~.PolarAxes.set_rlabel_position`.
 
 
 Date handling
@@ -280,7 +276,7 @@ Configuration (rcParams)
 ``savefig.transparent`` added
 `````````````````````````````
 Controls whether figures are saved with a transparent
-background by default.  Previously `savefig` always defaulted
+background by default.  Previously `~.Figure.savefig` always defaulted
 to a non-transparent background.
 
 
@@ -290,7 +286,7 @@ Added rcParam to control the weight of the title
 
 ``axes.formatter.useoffset`` added
 ``````````````````````````````````
-Controls the default value of `useOffset` in `ScalarFormatter`.  If
+Controls the default value of *useOffset* in `.ScalarFormatter`.  If
 `True` and the data range is much smaller than the data average, then
 an offset will be determined such that the tick labels are
 meaningful. If `False` then the full number will be formatted in all
@@ -388,7 +384,7 @@ Text
 Text URLs supported by SVG backend
 ``````````````````````````````````
 
-The `svg` backend will now render :class:`~matplotlib.text.Text` objects'
+The SVG backend will now render :class:`~matplotlib.text.Text` objects'
 url as a link in output SVGs.  This allows one to make clickable text in
 saved figures using the url kwarg of the :class:`~matplotlib.text.Text`
 class.
@@ -396,7 +392,7 @@ class.
 Anchored sizebar font
 `````````````````````
 Added the ``fontproperties`` kwarg to
-:class:`~matplotilb.mpl_toolkits.axes_grid.anchored_artists.AnchoredSizeBar` to
+`~mpl_toolkits.axes_grid1.anchored_artists.AnchoredSizeBar` to
 control the font properties.
 
 Sphinx extensions

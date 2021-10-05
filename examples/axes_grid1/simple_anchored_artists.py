@@ -73,7 +73,7 @@ def draw_sizebar(ax):
     ax.add_artist(asb)
 
 
-ax = plt.gca()
+fig, ax = plt.subplots()
 ax.set_aspect(1.)
 
 draw_text(ax)

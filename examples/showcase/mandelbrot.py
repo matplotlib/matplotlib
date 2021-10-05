@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
     # Normalized recount as explained in:
     # https://linas.org/art-gallery/escape/smooth.html
-    # https://www.ibm.com/developerworks/community/blogs/jfp/entry/My_Christmas_Gift
+    # https://web.archive.org/web/20160331171238/https://www.ibm.com/developerworks/community/blogs/jfp/entry/My_Christmas_Gift?lang=en
 
     # This line will generate warnings for null values but it is faster to
     # process them afterwards using the nan_to_num
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     # Some advertisement for matplotlib
     year = time.strftime("%Y")
     text = ("The Mandelbrot fractal set\n"
-            "Rendered with matplotlib %s, %s - http://matplotlib.org"
+            "Rendered with matplotlib %s, %s - https://matplotlib.org"
             % (matplotlib.__version__, year))
     ax.text(xmin+.025, ymin+.025, text, color="white", fontsize=12, alpha=0.5)
 

@@ -61,15 +61,15 @@ This new default may be overridden in either of three ways:
 3. Manually specify a list of artists in the new kwarg ``bbox_extra_artists``.
 
 
-`Text.set_text` with string argument ``None`` sets string to empty
-------------------------------------------------------------------
+`.Text.set_text` with string argument ``None`` sets string to empty
+-------------------------------------------------------------------
 
-`Text.set_text` when passed a string value of ``None`` would set the
-string to ``"None"``, so subsequent calls to `Text.get_text` would return
+`.Text.set_text` when passed a string value of ``None`` would set the
+string to ``"None"``, so subsequent calls to `.Text.get_text` would return
 the ambiguous ``"None"`` string.
 
 This change sets text objects passed ``None`` to have empty strings, so that
-`Text.get_text` returns an empty string.
+`.Text.get_text` returns an empty string.
 
 
 
@@ -106,7 +106,7 @@ Different exception types for undocumented options
 - Passing the undocumented ``xmin`` or ``xmax`` arguments to
   :meth:`~matplotlib.axes.Axes.set_xlim` would silently override the ``left``
   and ``right`` arguments.  :meth:`~matplotlib.axes.Axes.set_ylim` and the
-  3D equivalents (e.g. :meth:`~mpl_toolkits.axes.Axes3D.set_zlim3d`) had a
+  3D equivalents (e.g. `~.Axes3D.set_zlim3d`) had a
   corresponding problem.
   A ``TypeError`` will be raised if they would override the earlier
   limit arguments.  In 3.0 these were kwargs were deprecated, but in 3.1
@@ -116,14 +116,14 @@ Different exception types for undocumented options
 Improved call signature for ``Axes.margins``
 --------------------------------------------
 
-:meth:`matplotlib.axes.Axes.margins` and :meth:`mpl_toolkits.mplot3d.Axes3D.margins`
+`.Axes.margins` and `.Axes3D.margins`
 no longer accept arbitrary keywords. ``TypeError`` will therefore be raised
 if unknown kwargs are passed; previously they would be silently ignored.
 
 If too many positional arguments are passed, ``TypeError`` will be raised
 instead of ``ValueError``, for consistency with other call-signature violations.
 
-``Axes3D.margins`` now raises ``TypeError`` instead of emitting a deprecation
+`.Axes3D.margins` now raises ``TypeError`` instead of emitting a deprecation
 warning if only two positional arguments are passed.  To supply only ``x`` and
 ``y`` margins, use keyword arguments.
 
@@ -140,11 +140,11 @@ now raise ``TypeError`` because ``**kwargs`` has been removed.
 
 - :meth:`matplotlib.axes.Axes.stem` no longer accepts unknown keywords,
   and raises ``TypeError`` instead of emitting a deprecation.
-- :meth:`matplotlib.axex.Axes.stem` now raises TypeError when passed
+- :meth:`matplotlib.axes.Axes.stem` now raises TypeError when passed
   unhandled positional arguments.  If two or more arguments are passed
   (ie X, Y, [linefmt], ...) and Y cannot be cast to an array, an error
   will be raised instead of treating X as Y and Y as linefmt.
-- :meth:`mpl_toolkits.axes_grid1.axes_divider.SubPlotDivider` raises
+- `mpl_toolkits.axes_grid1.axes_divider.SubplotDivider` raises
   ``TypeError`` instead of ``Exception`` when passed unknown kwargs.
 
 
@@ -160,10 +160,10 @@ filter that existed before the test started using ``warnings.catch_warnings``.
 Non-interactive FigureManager classes are now aliases of FigureManagerBase
 --------------------------------------------------------------------------
 
-The `FigureManagerPdf`, `FigureManagerPS`, and `FigureManagerSVG` classes,
-which were previously empty subclasses of `FigureManagerBase` (i.e., not
+The ``FigureManagerPdf``, ``FigureManagerPS``, and ``FigureManagerSVG`` classes,
+which were previously empty subclasses of `.FigureManagerBase` (i.e., not
 adding or overriding any attribute or method), are now direct aliases for
-`FigureManagerBase`.
+`.FigureManagerBase`.
 
 
 Change to the output of `.image.thumbnail`
@@ -171,8 +171,8 @@ Change to the output of `.image.thumbnail`
 
 When called with ``preview=False``, `.image.thumbnail` previously returned an
 figure whose canvas class was set according to the output file extension.  It
-now returns a figure whose canvas class is the base `FigureCanvasBase` (and
-relies on `FigureCanvasBase.print_figure`) to handle the canvas switching
+now returns a figure whose canvas class is the base `.FigureCanvasBase` (and
+relies on `.FigureCanvasBase.print_figure`) to handle the canvas switching
 properly).
 
 As a side effect of this change, `.image.thumbnail` now also supports .ps, .eps,
@@ -204,7 +204,7 @@ When contour is called with levels specified as a target number rather
 than a list, and the 'extend' kwarg is used, the levels are now chosen
 such that some data typically will fall in the extended range.
 
-When contour is called with a `LogNorm` or a `LogLocator`, it will now
+When contour is called with a `.LogNorm` or a `.LogLocator`, it will now
 select colors using the geometric mean rather than the arithmetic mean
 of the contour levels.
 
@@ -213,11 +213,11 @@ Streamplot last row and column fixed
 ------------------------------------
 
 A bug was fixed where the last row and column of data in
-`~.Axes.axes.streamplot` were being dropped.
+`~.Axes.streamplot` were being dropped.
 
 
-Changed default `AutoDateLocator` kwarg *interval_multiples* to ``True``
-------------------------------------------------------------------------
+Changed default `.AutoDateLocator` kwarg *interval_multiples* to ``True``
+-------------------------------------------------------------------------
 
 The default value of the tick locator for dates, `.dates.AutoDateLocator`
 kwarg *interval_multiples* was set to ``False`` which leads to not-nice
@@ -278,7 +278,7 @@ original behavior.
 Colorbar for log-scaled hexbin
 ------------------------------
 
-When using `hexbin` and plotting with a logarithmic color scale, the colorbar
+When using `~.Axes.hexbin` and plotting with a logarithmic color scale, the colorbar
 ticks are now correctly log scaled. Previously the tick values were linear
 scaled log(number of counts).
 
@@ -292,21 +292,22 @@ regardless of the default color. However, this means that there is no way to
 fall back on the default color of the renderer.
 
 
-Blacklisted rcparams no longer updated by `rcdefaults`, `rc_file_defaults`, `rc_file`
--------------------------------------------------------------------------------------
+Blacklisted rcparams no longer updated by `~matplotlib.rcdefaults`, `~matplotlib.rc_file_defaults`, `~matplotlib.rc_file`
+-------------------------------------------------------------------------------------------------------------------------
 
-The rc modifier functions `rcdefaults`, `rc_file_defaults` and `rc_file`
+The rc modifier functions `~matplotlib.rcdefaults`,
+`~matplotlib.rc_file_defaults` and `~matplotlib.rc_file`
 now ignore rcParams in the `matplotlib.style.core.STYLE_BLACKLIST` set.  In
 particular, this prevents the ``backend`` and ``interactive`` rcParams from
 being incorrectly modified by these functions.
 
 
 
-`CallbackRegistry` now stores callbacks using stdlib's `WeakMethod`\s
----------------------------------------------------------------------
+`.CallbackRegistry` now stores callbacks using stdlib's `weakref.WeakMethod`\s
+------------------------------------------------------------------------------
 
 In particular, this implies that ``CallbackRegistry.callbacks[signal]`` is now
-a mapping of callback ids to `WeakMethod`\s (i.e., they need to be first called
+a mapping of callback ids to `weakref.WeakMethod`\s (i.e., they need to be first called
 with no arguments to retrieve the method itself).
 
 
@@ -328,7 +329,7 @@ Return type of ArtistInspector.get_aliases changed
 was used to simulate a set in earlier versions of Python.  It has now been
 replaced by a set, i.e. ``{fullname: {alias1, alias2, ...}}``.
 
-This value is also stored in `ArtistInspector.aliasd`, which has likewise
+This value is also stored in `.ArtistInspector.aliasd`, which has likewise
 changed.
 
 
@@ -349,10 +350,10 @@ Modules
 ```````
 The following modules are deprecated:
 
-- :mod:`matplotlib.compat.subprocess`. This was a python 2 workaround, but all
+- ``matplotlib.compat.subprocess``. This was a python 2 workaround, but all
   the functionality can now be found in the python 3 standard library
   :mod:`subprocess`.
-- :mod:`matplotlib.backends.wx_compat`. Python 3 is only compatible with
+- ``matplotlib.backends.wx_compat``. Python 3 is only compatible with
   wxPython 4, so support for wxPython 3 or earlier can be dropped.
 
 Classes, methods, functions, and attributes
@@ -382,7 +383,7 @@ The following classes, methods, functions, and attributes are deprecated:
 - ``font_manager.TempCache``
 - ``image._ImageBase.iterpnames``, use the ``interpolation_names`` property
   instead. (this affects classes that inherit from ``_ImageBase`` including
-  :class:`FigureImage`, :class:`BboxImage`, and :class:`AxesImage`)
+  `.FigureImage`, `.BboxImage`, and `.AxesImage`)
 - ``mathtext.unichr_safe`` (use ``chr`` instead)
 - ``patches.Polygon.xy``
 - ``table.Table.get_child_artists`` (use ``get_children`` instead)
@@ -395,19 +396,17 @@ The following classes, methods, functions, and attributes are deprecated:
 - ``FigureCanvasWx.macros``
 - ``_ImageBase.iterpnames``, use the ``interpolation_names`` property instead.
   (this affects classes that inherit from ``_ImageBase`` including
-  :class:`FigureImage`, :class:`BboxImage`, and :class:`AxesImage`)
+  `.FigureImage`, `.BboxImage`, and `.AxesImage`)
 - ``patches.Polygon.xy``
 - ``texmanager.dvipng_hack_alpha``
 - ``text.Annotation.arrow``
-- `.Legend.draggable()`, in favor of `.Legend.set_draggable()`
+- ``Legend.draggable()``, in favor of `.Legend.set_draggable()`
    (``Legend.draggable`` may be reintroduced as a property in future releases)
 - ``textpath.TextToPath.tex_font_map``
-- :class:`matplotlib.cbook.deprecation.mplDeprecation` will be removed
+- ``matplotlib.cbook.deprecation.mplDeprecation`` will be removed
   in future versions. It is just an alias for
-  :class:`matplotlib.cbook.deprecation.MatplotlibDeprecationWarning`.
-  Please use the
-  :class:`~matplotlib.cbook.MatplotlibDeprecationWarning` directly if
-  neccessary.
+  ``matplotlib.cbook.deprecation.MatplotlibDeprecationWarning``.  Please
+  use ``matplotlib.cbook.MatplotlibDeprecationWarning`` directly if necessary.
 - The ``matplotlib.cbook.Bunch`` class has been deprecated. Instead, use
   `types.SimpleNamespace` from the standard library which provides the same
   functionality.
@@ -446,7 +445,7 @@ marker styles
 Deprecation of ``LocatableAxes`` in toolkits
 ````````````````````````````````````````````
 
-The ``LocatableAxes`` classes in toolkits have been deprecated. The base `Axes`
+The ``LocatableAxes`` classes in toolkits have been deprecated. The base `~.axes.Axes`
 classes provide the same functionality to all subclasses, thus these mixins are
 no longer necessary. Related functions have also been deprecated. Specifically:
 
@@ -544,8 +543,8 @@ Proprietary sphinx directives
 `````````````````````````````
 
 The matplotlib documentation used the proprietary sphinx directives
-`.. htmlonly::`, and `.. latexonly::`. These have been replaced with the
-standard sphinx directives `.. only:: html` and `.. only:: latex`. This
+``.. htmlonly::``, and ``.. latexonly::``. These have been replaced with the
+standard sphinx directives ``.. only:: html`` and ``.. only:: latex``. This
 change will not affect any users. Only downstream package maintainers, who
 have used the proprietary directives in their docs, will have to switch to the
 sphinx directives.

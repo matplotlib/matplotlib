@@ -8,6 +8,7 @@ Basic Units
 import math
 
 import numpy as np
+from packaging.version import parse as parse_version
 
 import matplotlib.units as units
 import matplotlib.ticker as ticker
@@ -43,7 +44,7 @@ class PassThroughProxy:
 
 class ConvertArgsProxy(PassThroughProxy):
     def __init__(self, fn_name, obj):
-        PassThroughProxy.__init__(self, fn_name, obj)
+        super().__init__(fn_name, obj)
         self.unit = obj.unit
 
     def __call__(self, *args):
@@ -54,23 +55,23 @@ class ConvertArgsProxy(PassThroughProxy):
             except AttributeError:
                 converted_args.append(TaggedValue(a, self.unit))
         converted_args = tuple([c.get_value() for c in converted_args])
-        return PassThroughProxy.__call__(self, *converted_args)
+        return super().__call__(*converted_args)
 
 
 class ConvertReturnProxy(PassThroughProxy):
     def __init__(self, fn_name, obj):
-        PassThroughProxy.__init__(self, fn_name, obj)
+        super().__init__(fn_name, obj)
         self.unit = obj.unit
 
     def __call__(self, *args):
-        ret = PassThroughProxy.__call__(self, *args)
+        ret = super().__call__(*args)
         return (NotImplemented if ret is NotImplemented
                 else TaggedValue(ret, self.unit))
 
 
 class ConvertAllProxy(PassThroughProxy):
     def __init__(self, fn_name, obj):
-        PassThroughProxy.__init__(self, fn_name, obj)
+        super().__init__(fn_name, obj)
         self.unit = obj.unit
 
     def __call__(self, *args):
@@ -78,8 +79,8 @@ class ConvertAllProxy(PassThroughProxy):
         arg_units = [self.unit]
         for a in args:
             if hasattr(a, 'get_unit') and not hasattr(a, 'convert_to'):
-                # if this arg has a unit type but no conversion ability,
-                # this operation is prohibited
+                # If this argument has a unit type but no conversion ability,
+                # this operation is prohibited.
                 return NotImplemented
 
             if hasattr(a, 'convert_to'):
@@ -96,7 +97,7 @@ class ConvertAllProxy(PassThroughProxy):
                 else:
                     arg_units.append(None)
         converted_args = tuple(converted_args)
-        ret = PassThroughProxy.__call__(self, *converted_args)
+        ret = super().__call__(*converted_args)
         if ret is NotImplemented:
             return NotImplemented
         ret_unit = unit_resolver(self.fn_name, arg_units)
@@ -122,12 +123,8 @@ class TaggedValue(metaclass=TaggedValueMeta):
         try:
             subcls = type(f'TaggedValue_of_{value_class.__name__}',
                           (cls, value_class), {})
-            if subcls not in units.registry:
-                units.registry[subcls] = basicConverter
             return object.__new__(subcls)
         except TypeError:
-            if cls not in units.registry:
-                units.registry[cls] = basicConverter
             return object.__new__(cls)
 
     def __init__(self, value, unit):
@@ -157,6 +154,10 @@ class TaggedValue(metaclass=TaggedValueMeta):
 
     def __len__(self):
         return len(self.value)
+
+    if parse_version(np.__version__) >= parse_version('1.20'):
+        def __getitem__(self, key):
+            return TaggedValue(self.value[key], self.unit)
 
     def __iter__(self):
         # Return a generator expression rather than use `yield`, so that
@@ -219,7 +220,7 @@ class BasicUnit:
         return TaggedValue(array, self)
 
     def __array__(self, t=None, context=None):
-        ret = np.array([1])
+        ret = np.array(1)
         if t is not None:
             return ret.astype(t)
         else:
@@ -342,8 +343,6 @@ class BasicUnitConverter(units.ConversionInterface):
 
     @staticmethod
     def convert(val, unit, axis):
-        if units.ConversionInterface.is_numlike(val):
-            return val
         if np.iterable(val):
             if isinstance(val, np.ma.MaskedArray):
                 val = val.astype(float).filled(np.nan)
@@ -378,6 +377,4 @@ def cos(x):
         return math.cos(x.convert_to(radians).get_value())
 
 
-basicConverter = BasicUnitConverter()
-units.registry[BasicUnit] = basicConverter
-units.registry[TaggedValue] = basicConverter
+units.registry[BasicUnit] = units.registry[TaggedValue] = BasicUnitConverter()

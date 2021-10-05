@@ -1,6 +1,6 @@
+.. _complete_sitemap:
 
-
-Overview
+Contents
 ========
 
 .. only:: html
@@ -14,16 +14,12 @@ Overview
 .. toctree::
    :maxdepth: 2
 
+   users/installing.rst
    users/index.rst
-   faq/index.rst
-   api/index.rst
-   resources/index.rst
-   thirdpartypackages/index.rst
+   users/backmatter.rst
    devel/index.rst
-   glossary/index.rst
+   users/release_notes.rst
 
 .. only:: html
 
-  * :ref:`genindex`
-  * :ref:`modindex`
   * :ref:`search`

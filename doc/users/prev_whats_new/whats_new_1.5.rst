@@ -1,7 +1,7 @@
 .. _whats-new-1-5:
 
-New in matplotlib 1.5
-=====================
+What's new in Matplotlib 1.5 (Oct 29, 2015)
+===========================================
 
 .. contents:: Table of Contents
    :depth: 2
@@ -19,10 +19,10 @@ New in matplotlib 1.5
 Interactive OO usage
 --------------------
 
-All `Artists` now keep track of if their internal state has been
+All `.Artist`\s now keep track of if their internal state has been
 changed but not reflected in the display ('stale') by a call to
 ``draw``.  It is thus possible to pragmatically determine if a given
-`Figure` needs to be re-drawn in an interactive session.
+`.Figure` needs to be re-drawn in an interactive session.
 
 To facilitate interactive usage a ``draw_all`` method has been added
 to ``pyplot`` which will redraw all of the figures which are 'stale'.
@@ -97,24 +97,20 @@ This is a more generic form of the now-deprecated ``axes.color_cycle`` param.
 Now, we can cycle more than just colors, but also linestyles, hatches,
 and just about any other artist property. Cycler notation is used for
 defining property cycles. Adding cyclers together will be like you are
-`zip()`-ing together two or more property cycles together::
+`zip`-ing together two or more property cycles together::
 
     axes.prop_cycle: cycler('color', 'rgb') + cycler('lw', [1, 2, 3])
 
-You can even multiply cyclers, which is like using `itertools.product()`
-on two or more property cycles. Remember to use parentheses if writing
-a multi-line `prop_cycle` parameter.
+You can even multiply cyclers, which is like using `itertools.product`
+on two or more property cycles.
 
 .. figure:: ../../tutorials/intermediate/images/sphx_glr_color_cycle_001.png
    :target: ../../tutorials/intermediate/color_cycle.html
    :align: center
    :scale: 50
 
-   Color Cycle
-
-
 New Colormaps
---------------
+-------------
 
 All four of the colormaps proposed as the new default are available
 as ``'viridis'`` (the new default in 2.0), ``'magma'``, ``'plasma'``, and
@@ -175,7 +171,7 @@ wx backend has been updated
 ```````````````````````````
 
 The wx backend can now be used with both wxPython classic and
-`Phoenix <http://wxpython.org/Phoenix/docs/html/main.html>`__.
+`Phoenix <https://wxpython.org/Phoenix/docs/html/main.html>`__.
 
 wxPython classic has to be at least version 2.8.12 and works on Python 2.x. As
 of May 2015 no official release of wxPython Phoenix is available but a
@@ -184,50 +180,52 @@ current snapshot will work on Python 2.7+ and 3.4+.
 If you have multiple versions of wxPython installed, then the user code is
 responsible setting the wxPython version.  How to do this is
 explained in the comment at the beginning of the example
-`examples\user_interfaces\embedding_in_wx2.py`.
+:doc:`/gallery/user_interfaces/embedding_in_wx2_sgskip`.
 
 Configuration (rcParams)
 ------------------------
 
 Some parameters have been added, others have been improved.
 
-+-------------------------+--------------------------------------------------+
-| Parameter               | Description                                      |
-+=========================+==================================================+
-|`{x,y}axis.labelpad`     | mplot3d now respects these parameters            |
-+-------------------------+--------------------------------------------------+
-|`axes.labelpad`          | Default space between the axis and the label     |
-+-------------------------+--------------------------------------------------+
-|`errorbar.capsize`       | Default length of end caps on error bars         |
-+-------------------------+--------------------------------------------------+
-|`{x,y}tick.minor.visible`| Default visibility of minor x/y ticks            |
-+-------------------------+--------------------------------------------------+
-|`legend.framealpha`      | Default transparency of the legend frame box     |
-+-------------------------+--------------------------------------------------+
-|`legend.facecolor`       | Default facecolor of legend frame box (or        |
-|                         | ``'inherit'`` from `axes.facecolor`)             |
-+-------------------------+--------------------------------------------------+
-|`legend.edgecolor`       | Default edgecolor of legend frame box (or        |
-|                         | ``'inherit'`` from `axes.edgecolor`)             |
-+-------------------------+--------------------------------------------------+
-|`figure.titlesize`       | Default font size for figure suptitles           |
-+-------------------------+--------------------------------------------------+
-|`figure.titleweight`     | Default font weight for figure suptitles         |
-+-------------------------+--------------------------------------------------+
-|`image.composite_image`  | Whether a vector graphics backend should         |
-|                         | composite several images into a single image or  |
-|                         | not when saving. Useful when needing to edit the |
-|                         | files further in Inkscape or other programs.     |
-+-------------------------+--------------------------------------------------+
-|`markers.fillstyle`      | Default fillstyle of markers. Possible values    |
-|                         | are ``'full'`` (the default), ``'left'``,        |
-|                         | ``'right'``, ``'bottom'``, ``'top'`` and         |
-|                         | ``'none'``                                       |
-+-------------------------+--------------------------------------------------+
-|`toolbar`                | Added ``'toolmanager'`` as a valid value,        |
-|                         | enabling the experimental ``ToolManager``        |
-|                         | feature.                                         |
-+-------------------------+--------------------------------------------------+
++---------------------------+--------------------------------------------------+
+| Parameter                 | Description                                      |
++===========================+==================================================+
+|:rc:`xaxis.labelpad`,      | mplot3d now respects these parameters            |
+|:rc:`yaxis.labelpad`       |                                                  |
++---------------------------+--------------------------------------------------+
+|:rc:`axes.labelpad`        | Default space between the axis and the label     |
++---------------------------+--------------------------------------------------+
+|:rc:`errorbar.capsize`     | Default length of end caps on error bars         |
++---------------------------+--------------------------------------------------+
+|:rc:`xtick.minor.visible`, | Default visibility of minor x/y ticks            |
+|:rc:`ytick.minor.visible`  |                                                  |
++---------------------------+--------------------------------------------------+
+|:rc:`legend.framealpha`    | Default transparency of the legend frame box     |
++---------------------------+--------------------------------------------------+
+|:rc:`legend.facecolor`     | Default facecolor of legend frame box (or        |
+|                           | ``'inherit'`` from :rc:`axes.facecolor`)         |
++---------------------------+--------------------------------------------------+
+|:rc:`legend.edgecolor`     | Default edgecolor of legend frame box (or        |
+|                           | ``'inherit'`` from :rc:`axes.edgecolor`)         |
++---------------------------+--------------------------------------------------+
+|:rc:`figure.titlesize`     | Default font size for figure suptitles           |
++---------------------------+--------------------------------------------------+
+|:rc:`figure.titleweight`   | Default font weight for figure suptitles         |
++---------------------------+--------------------------------------------------+
+|:rc:`image.composite_image`| Whether a vector graphics backend should         |
+|                           | composite several images into a single image or  |
+|                           | not when saving. Useful when needing to edit the |
+|                           | files further in Inkscape or other programs.     |
++---------------------------+--------------------------------------------------+
+|:rc:`markers.fillstyle`    | Default fillstyle of markers. Possible values    |
+|                           | are ``'full'`` (the default), ``'left'``,        |
+|                           | ``'right'``, ``'bottom'``, ``'top'`` and         |
+|                           | ``'none'``                                       |
++---------------------------+--------------------------------------------------+
+|:rc:`toolbar`              | Added ``'toolmanager'`` as a valid value,        |
+|                           | enabling the experimental ``ToolManager``        |
+|                           | feature.                                         |
++---------------------------+--------------------------------------------------+
 
 
 Widgets
@@ -259,7 +257,7 @@ Example::
 Improved RectangleSelector and new EllipseSelector Widget
 `````````````````````````````````````````````````````````
 
-Adds an `interactive` keyword which enables visible handles for manipulating the shape after it has been drawn.
+Adds an *interactive* keyword which enables visible handles for manipulating the shape after it has been drawn.
 
 Adds keyboard modifiers for:
 
@@ -271,7 +269,7 @@ Adds keyboard modifiers for:
 Allow Artists to Display Pixel Data in Cursor
 `````````````````````````````````````````````
 
-Adds `get_pixel_data` and `format_pixel_data` methods to artists
+Adds `~.Artist.get_cursor_data` and `~.Artist.format_cursor_data` methods to artists
 which can be used to add zdata to the cursor display
 in the status bar.  Also adds an implementation for Images.
 
@@ -315,17 +313,14 @@ specified, the default value is taken from rcParams.
    :align: center
    :scale: 50
 
-   Contour Corner Mask
-
-
-Mostly unified linestyles for `Line2D`, `Patch` and `Collection`
-`````````````````````````````````````````````````````````````````
+Mostly unified linestyles for `.Line2D`, `.Patch` and `.Collection`
+```````````````````````````````````````````````````````````````````
 
 The handling of linestyles for Lines, Patches and Collections has been
 unified.  Now they all support defining linestyles with short symbols,
-like `"--"`, as well as with full names, like ``"dashed"``. Also the
+like "--", as well as with full names, like "dashed". Also the
 definition using a dash pattern (``(0., [3., 3.])``) is supported for all
-methods using `Line2D`, `Patch` or ``Collection``.
+methods using `.Line2D`, `.Patch` or `.Collection`.
 
 
 Legend marker order
@@ -338,7 +333,7 @@ Added ability to place the label before the marker in a legend box with
 Support for legend for PolyCollection and stackplot
 ```````````````````````````````````````````````````
 
-Added a `legend_handler` for :class:`~matplotlib.collections.PolyCollection` as well as a `labels` argument to
+Added a :mod:`.legend_handler` for :class:`~matplotlib.collections.PolyCollection` as well as a *labels* argument to
 :func:`~matplotlib.axes.Axes.stackplot`.
 
 
@@ -365,10 +360,10 @@ for data between 0 and 1 excluded.
 Add step kwargs to fill_between
 ```````````````````````````````
 
-Added ``step`` kwarg to `Axes.fill_between` to allow to fill between
+Added ``step`` kwarg to `.Axes.fill_between` to allow to fill between
 lines drawn using the 'step' draw style.  The values of ``step`` match
-those of the ``where`` kwarg of `Axes.step`.  The asymmetry of of the
-kwargs names is not ideal, but `Axes.fill_between` already has a
+those of the ``where`` kwarg of `.Axes.step`.  The asymmetry of the
+kwargs names is not ideal, but `.Axes.fill_between` already has a
 ``where`` kwarg.
 
 This is particularly useful for plotting pre-binned histograms.
@@ -377,9 +372,6 @@ This is particularly useful for plotting pre-binned histograms.
    :target: ../../gallery/lines_bars_and_markers/filled_step.html
    :align: center
    :scale: 50
-
-   Filled Step
-
 
 Square Plot
 ```````````
@@ -410,20 +402,20 @@ Updated Figure.savefig() can now use figure's dpi
 `````````````````````````````````````````````````
 
 Added support to save the figure with the same dpi as the figure on the
-screen using `dpi='figure'`.
+screen using ``dpi='figure'``:.
 
 Example::
 
-   f = plt.figure(dpi=25)               # dpi set to 25
+   f = plt.figure(dpi=25)  # dpi set to 25
    S = plt.scatter([1,2,3],[4,5,6])
-   f.savefig('output.png', dpi='figure')    # output savefig dpi set to 25 (same as figure)
+   f.savefig('output.png', dpi='figure')  # output savefig dpi set to 25 (same as figure)
 
 
 Updated Table to control edge visibility
 ````````````````````````````````````````
 
 Added the ability to toggle the visibility of lines in Tables.
-Functionality added to the :func:`pyplot.table` factory function under
+Functionality added to the `.pyplot.table` factory function under
 the keyword argument "edges".  Values can be the strings "open", "closed",
 "horizontal", "vertical" or combinations of the letters "L", "R", "T",
 "B" which represent left, right, top, and bottom respectively.
@@ -454,7 +446,7 @@ column line plots.
 Plot bar and barh with labels
 `````````````````````````````
 
-Added kwarg ``"tick_label"`` to `bar` and `barh` to support plotting bar graphs with a
+Added kwarg *tick_label* to `~.Axes.bar` and `~.Axes.barh` to support plotting bar graphs with a
 text label for each bar.
 
 .. plot::
@@ -493,8 +485,7 @@ backends.
 
 DateFormatter strftime
 ``````````````````````
-:class:`~matplotlib.dates.DateFormatter`\ 's
-:meth:`~matplotlib.dates.DateFormatter.__call__` method will format
+:class:`~matplotlib.dates.DateFormatter`\ 's ``__call__`` method will format
 a :class:`datetime.datetime` object with the format string passed to
 the formatter's constructor. This method accepts datetimes with years
 before 1900, unlike :meth:`datetime.datetime.strftime`.
@@ -508,12 +499,12 @@ which allow artist-level control of LaTeX rendering vs. the internal mathtex
 rendering.
 
 
-`ax.remove()` works as expected
-```````````````````````````````
+``Axes.remove()`` works as expected
+```````````````````````````````````
 
 As with artists added to an :class:`~matplotlib.axes.Axes`,
-`Axes` objects can be removed from their figure via
-:meth:`~matplotlib.axes.Axes.remove()`.
+`~.axes.Axes` objects can be removed from their figure via
+`~.Artist.remove()`.
 
 
 API Consistency fix within Locators set_params() function
@@ -521,11 +512,11 @@ API Consistency fix within Locators set_params() function
 
 :meth:`~matplotlib.ticker.Locator.set_params` function, which sets parameters
 within a :class:`~matplotlib.ticker.Locator` type
-instance, is now available to all `Locator` types. The implementation
+instance, is now available to all `.Locator` types. The implementation
 also prevents unsafe usage by strictly defining the parameters that a
 user can set.
 
-To use, call ``set_params()`` on a `Locator` instance with desired arguments:
+To use, call ``set_params()`` on a `.Locator` instance with desired arguments:
 ::
 
     loc = matplotlib.ticker.LogLocator()
@@ -540,8 +531,8 @@ Date Locators
 `````````````
 
 Date Locators (derived from :class:`~matplotlib.dates.DateLocator`) now
-implement the :meth:`~matplotlib.tickers.Locator.tick_values` method.
-This is expected of all Locators derived from :class:`~matplotlib.tickers.Locator`.
+implement the `~matplotlib.ticker.Locator.tick_values` method.
+This is expected of all Locators derived from `~matplotlib.ticker.Locator`.
 
 The Date Locators can now be used easily without creating axes ::
 
@@ -555,22 +546,22 @@ The Date Locators can now be used easily without creating axes ::
 OffsetBoxes now support clipping
 ````````````````````````````````
 
-`Artists` draw onto objects of type :class:`~OffsetBox`
-through :class:`~OffsetBox.DrawingArea` and :class:`~OffsetBox.TextArea`.
-The `TextArea` calculates the required space for the text and so the
+`.Artist`\s draw onto objects of type `.OffsetBox`
+through `~.offsetbox.DrawingArea` and `~.offsetbox.TextArea`.
+The `.TextArea` calculates the required space for the text and so the
 text is always within the bounds, for this nothing has changed.
 
-However, `DrawingArea` acts as a parent for zero or more `Artists` that
-draw on it and may do so beyond the bounds. Now child `Artists` can be
-clipped to the bounds of the `DrawingArea`.
+However, `.DrawingArea` acts as a parent for zero or more `.Artist`\s that
+draw on it and may do so beyond the bounds. Now child `.Artist`\s can be
+clipped to the bounds of the `.DrawingArea`.
 
 
 OffsetBoxes now considered by tight_layout
 ``````````````````````````````````````````
 
-When `~matplotlib.pyplot.tight_layout()` or `Figure.tight_layout()`
-or `GridSpec.tight_layout()` is called, `OffsetBoxes` that are
-anchored outside the axes will not get chopped out. The `OffsetBoxes` will
+When `~matplotlib.pyplot.tight_layout()` or `.Figure.tight_layout`
+or `.GridSpec.tight_layout()` is called, `.OffsetBox`\es that are
+anchored outside the axes will not get chopped out. The `.OffsetBox`\es will
 also not get overlapped by other axes in case of multiple subplots.
 
 Per-page pdf notes in multi-page pdfs (PdfPages)
@@ -584,7 +575,7 @@ viewer that has this facility (Adobe Reader, OSX Preview, Skim,
 etc.). Per default the note itself is kept off-page to prevent it to
 appear in print-outs.
 
-`PdfPages.attach_note` needs to be called before `savefig()` in order to be
+`.PdfPages.attach_note` needs to be called before `~.Figure.savefig` in order to be
 added to the correct figure.
 
 Updated fignum_exists to take figure name
@@ -602,28 +593,28 @@ ToolManager
 -----------
 
 Federico Ariza wrote the new `~matplotlib.backend_managers.ToolManager`
-that comes as replacement for `NavigationToolbar2`
+that comes as replacement for `.NavigationToolbar2`
 
-`ToolManager` offers a new way of looking at the user interactions
-with the figures.  Before we had the `NavigationToolbar2` with its own
-tools like `zoom/pan/home/save/...` and also we had the shortcuts like
-`yscale/grid/quit/....` `Toolmanager` relocate all those actions as
-`Tools` (located in `~matplotlib.backend_tools`), and defines a way to
-`access/trigger/reconfigure` them.
+`.ToolManager` offers a new way of looking at the user interactions
+with the figures.  Before we had the `.NavigationToolbar2` with its own
+tools like ``zoom/pan/home/save/...`` and also we had the shortcuts like
+``yscale/grid/quit/....``. `.ToolManager` relocate all those actions as
+Tools (located in `~matplotlib.backend_tools`), and defines a way to
+access/trigger/reconfigure them.
 
-The `Toolbars` are replaced for `ToolContainers` that are just GUI
-interfaces to `trigger` the tools. But don't worry the default
-backends include a `ToolContainer` called `toolbar`
+The Toolbars are replaced by `.ToolContainerBase`\s that are just GUI
+interfaces to trigger the tools. But don't worry the default
+backends include a `.ToolContainerBase` called ``toolbar``
 
 
 .. note::
     At the moment, we release this primarily for feedback purposes and should
     be treated as experimental until further notice as API changes will occur.
-    For the moment the `ToolManager` works only with the `GTK3` and `Tk` backends.
+    For the moment the `.ToolManager` works only with the GTK3 and Tk backends.
     Make sure you use one of those.
-    Port for the rest of the backends is comming soon.
+    Port for the rest of the backends is coming soon.
 
-    To activate the `ToolManager` include the following at the top of your file ::
+    To activate the `.ToolManager` include the following at the top of your file ::
 
       >>> matplotlib.rcParams['toolbar'] = 'toolmanager'
 
@@ -654,7 +645,7 @@ A very simple tool that prints "You're awesome" would be::
             print("You're awesome")
 
 
-To add this tool to `ToolManager`
+To add this tool to `.ToolManager`
 
  >>> fig.canvas.manager.toolmanager.add_tool('Awesome', AwesomeTool)
 
@@ -671,7 +662,7 @@ To add it to the toolbar inside the group 'foo'
 There is a second class of tools, "Toggleable Tools", this are almost
 the same as our basic tools, just that belong to a group, and are
 mutually exclusive inside that group.  For tools derived from
-`ToolToggleBase` there are two basic methods `enable` and `disable`
+`.ToolToggleBase` there are two basic methods `~.ToolToggleBase.enable` and `~.ToolToggleBase.disable`
 that are called automatically whenever it is toggled.
 
 
@@ -725,7 +716,7 @@ default, performing no display. ``html5`` converts the animation to an
 h264 encoded video, which is embedded directly in the notebook.
 
 Users not wishing to use the ``_repr_html_`` display hook can also manually
-call the `to_html5_video` method to get the HTML and display using
+call the `.to_html5_video` method to get the HTML and display using
 IPython's ``HTML`` display class::
 
     from IPython.display import HTML
@@ -735,8 +726,8 @@ Prefixed pkg-config for building
 --------------------------------
 
 Handling of pkg-config has been fixed in so far as it is now possible to set it
-using the environment variable :envvar:`PKG_CONFIG`. This is important if your
-toolchain is prefixed. This is done in a simpilar way as setting :envvar:`CC`
-or :envvar:`CXX` before building. An example follows.
+using the environment variable ``PKG_CONFIG``. This is important if your
+toolchain is prefixed. This is done in a simpilar way as setting ``CC``
+or ``CXX`` before building. An example follows.
 
     export PKG_CONFIG=x86_64-pc-linux-gnu-pkg-config

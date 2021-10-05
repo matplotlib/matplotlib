@@ -26,16 +26,10 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.acorr
-matplotlib.axes.Axes.xcorr
-matplotlib.pyplot.acorr
-matplotlib.pyplot.xcorr
+#    - `matplotlib.axes.Axes.acorr` / `matplotlib.pyplot.acorr`
+#    - `matplotlib.axes.Axes.xcorr` / `matplotlib.pyplot.xcorr`

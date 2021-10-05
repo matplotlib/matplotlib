@@ -5,46 +5,10 @@ Various transforms used for by the 3D code
 import numpy as np
 import numpy.linalg as linalg
 
-from matplotlib import cbook
-
-
-@cbook.deprecated("3.1")
-def line2d(p0, p1):
-    """
-    Return 2D equation of line in the form ax+by+c = 0
-    """
-    # x + x1  = 0
-    x0, y0 = p0[:2]
-    x1, y1 = p1[:2]
-    #
-    if x0 == x1:
-        a = -1
-        b = 0
-        c = x1
-    elif y0 == y1:
-        a = 0
-        b = 1
-        c = -y1
-    else:
-        a = y0 - y1
-        b = x0 - x1
-        c = x0*y1 - x1*y0
-    return a, b, c
-
-
-@cbook.deprecated("3.1")
-def line2d_dist(l, p):
-    """
-    Distance from line to point
-    line is a tuple of coefficients a, b, c
-    """
-    a, b, c = l
-    x0, y0 = p
-    return abs((a*x0 + b*y0 + c) / np.hypot(a, b))
-
 
 def _line2d_seg_dist(p1, p2, p0):
-    """distance(s) from line defined by p1 - p2 to point(s) p0
+    """
+    Return the distance(s) from line defined by p1 - p2 to point(s) p0.
 
     p0[0] = x(s)
     p0[1] = y(s)
@@ -65,29 +29,22 @@ def _line2d_seg_dist(p1, p2, p0):
     return d
 
 
-@cbook.deprecated("3.1")
-def line2d_seg_dist(p1, p2, p0):
-    """distance(s) from line defined by p1 - p2 to point(s) p0
-
-    p0[0] = x(s)
-    p0[1] = y(s)
-
-    intersection point p = p1 + u*(p2-p1)
-    and intersection point lies within segment if u is between 0 and 1
-    """
-    return _line2d_seg_dist(p1, p2, p0)
-
-
-@cbook.deprecated("3.1", alternative="np.linalg.norm")
-def mod(v):
-    """3d vector length"""
-    return np.sqrt(v[0]**2+v[1]**2+v[2]**2)
-
-
 def world_transformation(xmin, xmax,
                          ymin, ymax,
-                         zmin, zmax):
-    dx, dy, dz = (xmax-xmin), (ymax-ymin), (zmax-zmin)
+                         zmin, zmax, pb_aspect=None):
+    """
+    Produce a matrix that scales homogeneous coords in the specified ranges
+    to [0, 1], or [0, pb_aspect[i]] if the plotbox aspect ratio is specified.
+    """
+    dx = xmax - xmin
+    dy = ymax - ymin
+    dz = zmax - zmin
+    if pb_aspect is not None:
+        ax, ay, az = pb_aspect
+        dx /= ax
+        dy /= ay
+        dz /= az
+
     return np.array([[1/dx, 0,    0,    -xmin/dx],
                      [0,    1/dy, 0,    -ymin/dy],
                      [0,    0,    1/dz, -zmin/dz],
@@ -153,11 +110,6 @@ def _proj_transform_vec(vec, M):
     return txs, tys, tzs
 
 
-@cbook.deprecated("3.1")
-def proj_transform_vec(vec, M):
-    return _proj_transform_vec(vec, M)
-
-
 def _proj_transform_vec_clip(vec, M):
     vecw = np.dot(M, vec)
     w = vecw[3]
@@ -167,11 +119,6 @@ def _proj_transform_vec_clip(vec, M):
     if np.any(tis):
         tis = vecw[1] < 1
     return txs, tys, tzs, tis
-
-
-@cbook.deprecated("3.1")
-def proj_transform_vec_clip(vec, M):
-    return _proj_transform_vec_clip(vec, M)
 
 
 def inv_transform(xs, ys, zs, M):
@@ -187,11 +134,6 @@ def inv_transform(xs, ys, zs, M):
 
 def _vec_pad_ones(xs, ys, zs):
     return np.array([xs, ys, zs, np.ones_like(xs)])
-
-
-@cbook.deprecated("3.1")
-def vec_pad_ones(xs, ys, zs):
-    return _vec_pad_ones(xs, ys, zs)
 
 
 def proj_transform(xs, ys, zs, M):
@@ -222,12 +164,6 @@ def proj_points(points, M):
 def proj_trans_points(points, M):
     xs, ys, zs = zip(*points)
     return proj_transform(xs, ys, zs, M)
-
-
-@cbook.deprecated("3.1")
-def proj_trans_clip_points(points, M):
-    xs, ys, zs = zip(*points)
-    return proj_transform_clip(xs, ys, zs, M)
 
 
 def rot_x(V, alpha):

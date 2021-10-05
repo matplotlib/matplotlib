@@ -1,14 +1,16 @@
 """
-This is a python interface to Adobe Font Metrics Files.  Although a
-number of other python implementations exist, and may be more complete
-than this, it was decided not to go with them because they were either:
+A python interface to Adobe Font Metrics Files.
+
+Although a number of other Python implementations exist, and may be more
+complete than this, it was decided not to go with them because they were
+either:
 
 1) copyrighted or used a non-BSD compatible license
 2) had too many dependencies and a free standing lib was needed
 3) did more than needed and it was easier to write afresh rather than
    figure out how to get just what was needed.
 
-It is pretty easy to use, and requires only built-in python libs:
+It is pretty easy to use, and has no external dependencies:
 
 >>> import matplotlib as mpl
 >>> from pathlib import Path
@@ -36,7 +38,6 @@ being used.
 from collections import namedtuple
 import logging
 import re
-
 
 from ._mathtext_data import uni2type1
 
@@ -86,7 +87,7 @@ def _to_bool(s):
 
 def _parse_header(fh):
     """
-    Reads the font metrics header (up to the char metrics) and returns
+    Read the font metrics header (up to the char metrics) and returns
     a dictionary mapping *key* to *val*.  *val* will be converted to the
     appropriate python type as necessary; e.g.:
 
@@ -100,7 +101,6 @@ def _parse_header(fh):
       ItalicAngle, IsFixedPitch, FontBBox, UnderlinePosition,
       UnderlineThickness, Version, Notice, EncodingScheme, CapHeight,
       XHeight, Ascender, Descender, StartCharMetrics
-
     """
     header_converters = {
         b'StartFontMetrics': _to_float,
@@ -129,8 +129,7 @@ def _parse_header(fh):
         b'StartCharMetrics': _to_int,
         b'CharacterSet': _to_str,
         b'Characters': _to_int,
-        }
-
+    }
     d = {}
     first_line = True
     for line in fh:
@@ -287,13 +286,13 @@ def _parse_composites(fh):
 
     Returns
     -------
-    composites : dict
+    dict
         A dict mapping composite character names to a parts list. The parts
         list is a list of `.CompositePart` entries describing the parts of
         the composite.
 
-    Example
-    -------
+    Examples
+    --------
     A composite definition line::
 
       CC Aacute 2 ; PCC A 0 0 ; PCC acute 160 170 ;
@@ -313,7 +312,7 @@ def _parse_composites(fh):
             return composites
         vals = line.split(b';')
         cc = vals[0].split()
-        name, numParts = cc[1], _to_int(cc[2])
+        name, _num_parts = cc[1], _to_int(cc[2])
         pccParts = []
         for s in vals[1:-1]:
             pcc = s.split()
@@ -408,7 +407,7 @@ class AFM:
         for c in s:
             if c == '\n':
                 continue
-            name = uni2type1.get(ord(c), 'question')
+            name = uni2type1.get(ord(c), f"uni{ord(c):04X}")
             try:
                 wx, _, bbox = self._metrics_by_name[name]
             except KeyError:
@@ -469,6 +468,10 @@ class AFM:
     def get_fontname(self):
         """Return the font name, e.g., 'Times-Roman'."""
         return self._header[b'FontName']
+
+    @property
+    def postscript_name(self):  # For consistency with FT2Font.
+        return self.get_fontname()
 
     def get_fullname(self):
         """Return the font full name, e.g., 'Times-Roman'."""

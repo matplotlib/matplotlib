@@ -14,7 +14,7 @@
 Animation
 =========
 
-The easiest way to make a live animation in matplotlib is to use one of the
+The easiest way to make a live animation in Matplotlib is to use one of the
 `Animation` classes.
 
 .. autosummary::
@@ -29,10 +29,11 @@ In both cases it is critical to keep a reference to the instance
 object.  The animation is advanced by a timer (typically from the host
 GUI framework) which the `Animation` object holds the only reference
 to.  If you do not hold a reference to the `Animation` object, it (and
-hence the timers), will be garbage collected which will stop the
+hence the timers) will be garbage collected which will stop the
 animation.
 
-To save an animation to disk use `Animation.save` or `Animation.to_html5_video`
+To save an animation use `Animation.save`, `Animation.to_html5_video`,
+or `Animation.to_jshtml`.
 
 See :ref:`ani_writer_classes` below for details about what movie formats are
 supported.
@@ -55,7 +56,7 @@ performance), to be non-blocking, not repeatedly start/stop the GUI
 event loop, handle repeats, multiple animated axes, and easily save
 the animation to a movie file.
 
-'Blitting' is a `old technique
+'Blitting' is a `standard technique
 <https://en.wikipedia.org/wiki/Bit_blit>`__ in computer graphics.  The
 general gist is to take an existing bit map (in our case a mostly
 rasterized figure) and then 'blit' one more artist on top.  Thus, by
@@ -135,7 +136,7 @@ Examples
 
    ../gallery/animation/animate_decay
    ../gallery/animation/bayes_update
-   ../gallery/animation/double_pendulum_sgskip
+   ../gallery/animation/double_pendulum
    ../gallery/animation/animated_histogram
    ../gallery/animation/rain
    ../gallery/animation/random_walk
@@ -168,6 +169,14 @@ all data in memory.
 
    PillowWriter
 
+The HTML writer generates JavaScript-based animations.
+
+.. autosummary::
+   :toctree: _as_gen
+   :nosignatures:
+
+   HTMLWriter
+
 The pipe-based writers stream the captured frames over a pipe to an external
 process.  The pipe-based variants tend to be more performant, but may not work
 on all systems.
@@ -178,7 +187,6 @@ on all systems.
 
    FFMpegWriter
    ImageMagickWriter
-   AVConvWriter
 
 The file-based writers save temporary files for each frame which are stitched
 into a single file at the end.  Although slower, these writers can be easier to
@@ -190,7 +198,6 @@ debug.
 
    FFMpegFileWriter
    ImageMagickFileWriter
-   AVConvFileWriter
 
 Fundamentally, a `MovieWriter` provides a way to grab sequential frames
 from the same underlying `~matplotlib.figure.Figure` object.  The base
@@ -204,9 +211,9 @@ at a time and ``finish()`` finalizes the movie and writes the output
 file to disk.  For example ::
 
    moviewriter = MovieWriter(...)
-   moviewriter.setup(fig=fig, 'my_movie.ext', dpi=100)
+   moviewriter.setup(fig, 'my_movie.ext', dpi=100)
    for j in range(n):
-       update_figure(n)
+       update_figure(j)
        moviewriter.grab_frame()
    moviewriter.finish()
 
@@ -215,7 +222,7 @@ strongly encouraged to use the `~MovieWriter.saving` context manager ::
 
   with moviewriter.saving(fig, 'myfile.mp4', dpi=100):
       for j in range(n):
-          update_figure(n)
+          update_figure(j)
           moviewriter.grab_frame()
 
 to ensures that setup and cleanup are performed as necessary.
@@ -275,7 +282,6 @@ and mixins
    :toctree: _as_gen
    :nosignatures:
 
-   AVConvBase
    FFMpegBase
    ImageMagickBase
 
@@ -290,6 +296,6 @@ Inheritance Diagrams
    :private-bases:
    :parts: 1
 
-.. inheritance-diagram:: matplotlib.animation.AVConvFileWriter matplotlib.animation.AVConvWriter matplotlib.animation.FFMpegFileWriter matplotlib.animation.FFMpegWriter matplotlib.animation.ImageMagickFileWriter matplotlib.animation.ImageMagickWriter
+.. inheritance-diagram:: matplotlib.animation.FFMpegFileWriter matplotlib.animation.FFMpegWriter matplotlib.animation.ImageMagickFileWriter matplotlib.animation.ImageMagickWriter
    :private-bases:
    :parts: 1

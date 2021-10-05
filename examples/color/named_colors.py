@@ -14,6 +14,7 @@ For more information on colors in matplotlib see
 * the :doc:`/gallery/color/color_demo`.
 """
 
+from matplotlib.patches import Rectangle
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
@@ -59,15 +60,16 @@ def plot_colortable(colors, title, sort_colors=True, emptycols=0):
         y = row * cell_height
 
         swatch_start_x = cell_width * col
-        swatch_end_x = cell_width * col + swatch_width
         text_pos_x = cell_width * col + swatch_width + 7
 
         ax.text(text_pos_x, y, name, fontsize=14,
                 horizontalalignment='left',
                 verticalalignment='center')
 
-        ax.hlines(y, swatch_start_x, swatch_end_x,
-                  color=colors[name], linewidth=18)
+        ax.add_patch(
+            Rectangle(xy=(swatch_start_x, y-9), width=swatch_width,
+                      height=18, facecolor=colors[name], edgecolor='0.7')
+        )
 
     return fig
 
@@ -76,31 +78,27 @@ plot_colortable(mcolors.BASE_COLORS, "Base Colors",
 plot_colortable(mcolors.TABLEAU_COLORS, "Tableau Palette",
                 sort_colors=False, emptycols=2)
 
-#sphinx_gallery_thumbnail_number = 3
+# sphinx_gallery_thumbnail_number = 3
 plot_colortable(mcolors.CSS4_COLORS, "CSS Colors")
 
 # Optionally plot the XKCD colors (Caution: will produce large figure)
-#xkcd_fig = plot_colortable(mcolors.XKCD_COLORS, "XKCD Colors")
-#xkcd_fig.savefig("XKCD_Colors.png")
+# xkcd_fig = plot_colortable(mcolors.XKCD_COLORS, "XKCD Colors")
+# xkcd_fig.savefig("XKCD_Colors.png")
 
 plt.show()
 
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.colors
-matplotlib.colors.rgb_to_hsv
-matplotlib.colors.to_rgba
-matplotlib.figure.Figure.get_size_inches
-matplotlib.figure.Figure.subplots_adjust
-matplotlib.axes.Axes.text
-matplotlib.axes.Axes.hlines
+#    - `matplotlib.colors`
+#    - `matplotlib.colors.rgb_to_hsv`
+#    - `matplotlib.colors.to_rgba`
+#    - `matplotlib.figure.Figure.get_size_inches`
+#    - `matplotlib.figure.Figure.subplots_adjust`
+#    - `matplotlib.axes.Axes.text`
+#    - `matplotlib.patches.Rectangle`

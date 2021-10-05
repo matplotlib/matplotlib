@@ -16,8 +16,14 @@ def rcparam_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
 
     ref = nodes.reference(rawtext, rendered, refuri=refuri)
     node_list = [nodes.literal('', '', ref)]
-    if text in rcParamsDefault:
-        node_list.append(nodes.Text(f' (default: {rcParamsDefault[text]!r})'))
+    # The default backend would be printed as "agg", but that's not correct (as
+    # the default is actually determined by fallback).
+    if text in rcParamsDefault and text != "backend":
+        node_list.extend([
+            nodes.Text(' (default: '),
+            nodes.literal('', repr(rcParamsDefault[text])),
+            nodes.Text(')'),
+            ])
     return node_list, []
 
 

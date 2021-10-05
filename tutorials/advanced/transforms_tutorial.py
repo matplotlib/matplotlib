@@ -29,6 +29,13 @@ description of that system. In the ``Transformation Object`` column,
 |                |                             |is bottom left of the axes, and    |
 |                |                             |(1, 1) is top right of the axes.   |
 +----------------+-----------------------------+-----------------------------------+
+|"subfigure"     |``subfigure.transSubfigure`` |The coordinate system of the       |
+|                |                             |`.SubFigure`; (0, 0) is bottom left|
+|                |                             |of the subfigure, and (1, 1) is top|
+|                |                             |right of the subfigure.  If a      |
+|                |                             |figure has no subfigures, this is  |
+|                |                             |the same as ``transFigure``.       |
++----------------+-----------------------------+-----------------------------------+
 |"figure"        |``fig.transFigure``          |The coordinate system of the       |
 |                |                             |`.Figure`; (0, 0) is bottom left   |
 |                |                             |of the figure, and (1, 1) is top   |
@@ -145,6 +152,9 @@ ax.set_xlim(0, 10)
 ax.set_ylim(-1, 1)
 
 xdata, ydata = 5, 0
+# This computing the transform now, if anything
+# (figure size, dpi, axes placement, data limits, scales..)
+# changes re-calling transform will get a different value.
 xdisplay, ydisplay = ax.transData.transform((xdata, ydata))
 
 bbox = dict(boxstyle="round", fc="0.8")
@@ -166,7 +176,7 @@ disp = ax.annotate('display = (%.1f, %.1f)' % (xdisplay, ydisplay),
 plt.show()
 
 ###############################################################################
-# .. note::
+# .. warning::
 #
 #   If you run the source code in the example above in a GUI backend,
 #   you may also find that the two arrows for the *data* and *display*
@@ -280,18 +290,13 @@ x = np.random.randn(1000)
 ax.hist(x, 30)
 ax.set_title(r'$\sigma=1 \/ \dots \/ \sigma=2$', fontsize=16)
 
-# the x coords of this transformation are data, and the
-# y coord are axes
+# the x coords of this transformation are data, and the y coord are axes
 trans = transforms.blended_transform_factory(
     ax.transData, ax.transAxes)
-
 # highlight the 1..2 stddev region with a span.
-# We want x to be in data coordinates and y to
-# span from 0..1 in axes coords
-rect = mpatches.Rectangle((1, 0), width=1, height=1,
-                         transform=trans, color='yellow',
-                         alpha=0.5)
-
+# We want x to be in data coordinates and y to span from 0..1 in axes coords.
+rect = mpatches.Rectangle((1, 0), width=1, height=1, transform=trans,
+                          color='yellow', alpha=0.5)
 ax.add_patch(rect)
 
 plt.show()
@@ -494,7 +499,7 @@ plt.show()
 #
 # .. sourcecode:: ipython
 #
-#     In [80]: ax = subplot(111)
+#     In [80]: ax = plt.subplot()
 #
 #     In [81]: ax.set_xlim(0, 10)
 #     Out[81]: (0, 10)
@@ -547,7 +552,7 @@ plt.show()
 # ``transProjection`` handles the projection from the space,
 # e.g., latitude and longitude for map data, or radius and theta for polar
 # data, to a separable Cartesian coordinate system.  There are several
-# projection examples in the ``matplotlib.projections`` package, and the
+# projection examples in the :mod:`matplotlib.projections` package, and the
 # best way to learn more is to open the source for those packages and
 # see how to make your own, since Matplotlib supports extensible axes
 # and projections.  Michael Droettboom has provided a nice tutorial

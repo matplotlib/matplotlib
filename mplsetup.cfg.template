@@ -1,0 +1,38 @@
+# Rename this file to mplsetup.cfg to modify Matplotlib's build options.
+
+[libs]
+# By default, Matplotlib builds with LTO, which may be slow if you re-compile
+# often, and don't need the space saving/speedup.
+#enable_lto = True
+# By default, Matplotlib downloads and builds its own copies of FreeType and of
+# Qhull.  You may set the following to True to instead link against a system
+# FreeType/Qhull.  As an exception, Matplotlib defaults to the system version
+# of FreeType on AIX.
+#system_freetype = False
+#system_qhull = False
+
+[packages]
+# There are a number of data subpackages from Matplotlib that are
+# considered optional. All except 'tests' data (meaning the baseline
+# image files) are installed by default, but that can be changed here.
+#tests = False
+
+[gui_support]
+# Matplotlib supports multiple GUI toolkits, known as backends.
+# The MacOSX backend requires the Cocoa headers included with XCode.
+# You can select whether to build it by uncommenting the following line.
+# It is never built on Linux or Windows, regardless of the config value.
+#
+#macosx = True
+
+[rc_options]
+# User-configurable options
+#
+# Default backend, one of: Agg, Cairo, GTK3Agg, GTK3Cairo, GTK4Agg, GTK4Cairo,
+# MacOSX, Pdf, Ps, QtAgg, QtCairo, SVG, TkAgg, WX, WXAgg.
+#
+# The Agg, Ps, Pdf and SVG backends do not require external dependencies.  Do
+# not choose MacOSX if you have disabled the relevant extension modules.  The
+# default is determined by fallback.
+#
+#backend = Agg

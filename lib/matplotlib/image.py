@@ -3,18 +3,16 @@ The image module supports basic image loading, rescaling and display
 operations.
 """
 
-from io import BytesIO
 import math
 import os
 import logging
-from numbers import Number
 from pathlib import Path
-import urllib.parse
 
 import numpy as np
 import PIL.PngImagePlugin
 
-from matplotlib import rcParams
+import matplotlib as mpl
+from matplotlib import _api
 import matplotlib.artist as martist
 from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
@@ -25,8 +23,9 @@ import matplotlib._image as _image
 # For user convenience, the names from _image are also imported into
 # the image namespace:
 from matplotlib._image import *
-from matplotlib.transforms import (Affine2D, BboxBase, Bbox, BboxTransform,
-                                   IdentityTransform, TransformedBbox)
+from matplotlib.transforms import (
+    Affine2D, BboxBase, Bbox, BboxTransform, BboxTransformTo,
+    IdentityTransform, TransformedBbox)
 
 _log = logging.getLogger(__name__)
 
@@ -59,7 +58,7 @@ interpolations_names = set(_interpd_)
 def composite_images(images, renderer, magnification=1.0):
     """
     Composite a number of RGBA images into one.  The images are
-    composited in the order in which they appear in the `images` list.
+    composited in the order in which they appear in the *images* list.
 
     Parameters
     ----------
@@ -69,20 +68,18 @@ def composite_images(images, renderer, magnification=1.0):
         enforced by this function.  Each image must have a purely
         affine transformation with no shear.
 
-    renderer : RendererBase instance
+    renderer : `.RendererBase`
 
-    magnification : float
+    magnification : float, default: 1
         The additional magnification to apply for the renderer in use.
 
     Returns
     -------
-    tuple : image, offset_x, offset_y
-        Returns the tuple:
-
-        - image: A numpy array of the same type as the input images.
-
-        - offset_x, offset_y: The offset of the image (left, bottom)
-          in the output figure.
+    image : uint8 array (M, N, 4)
+        The composited RGBA image.
+    offset_x, offset_y : float
+        The (left, bottom) offset where the composited image should be placed
+        in the output figure.
     """
     if len(images) == 0:
         return np.empty((0, 0, 4), dtype=np.uint8), 0, 0
@@ -120,7 +117,7 @@ def _draw_list_compositing_images(
     Draw a sorted list of artists, compositing images into a single
     image where possible.
 
-    For internal matplotlib use only: It is here to reduce duplication
+    For internal Matplotlib use only: It is here to reduce duplication
     between `Figure.draw` and `Axes.draw`, but otherwise should not be
     generally useful.
     """
@@ -152,7 +149,8 @@ def _draw_list_compositing_images(
             del image_group[:]
 
         for a in artists:
-            if isinstance(a, _ImageBase) and a.can_composite():
+            if (isinstance(a, _ImageBase) and a.can_composite() and
+                    a.get_clip_on() and not a.get_clip_path()):
                 image_group.append(a)
             else:
                 flush_images()
@@ -240,17 +238,20 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                  filternorm=True,
                  filterrad=4.0,
                  resample=False,
+                 *,
+                 interpolation_stage=None,
                  **kwargs
                  ):
         martist.Artist.__init__(self)
         cm.ScalarMappable.__init__(self, norm, cmap)
-        self._mouseover = True
         if origin is None:
-            origin = rcParams['image.origin']
+            origin = mpl.rcParams['image.origin']
+        _api.check_in_list(["upper", "lower"], origin=origin)
         self.origin = origin
         self.set_filternorm(filternorm)
         self.set_filterrad(filterrad)
         self.set_interpolation(interpolation)
+        self.set_interpolation_stage(interpolation_stage)
         self.set_resample(resample)
         self.axes = ax
 
@@ -277,16 +278,12 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         Parameters
         ----------
-        alpha : float
+        alpha : float or 2D array-like or None
         """
-        if alpha is not None and not isinstance(alpha, Number):
-            alpha = np.asarray(alpha)
-            if alpha.ndim != 2:
-                raise TypeError('alpha must be a float, two-dimensional '
-                                'array, or None')
-        self._alpha = alpha
-        self.pchanged()
-        self.stale = True
+        martist.Artist._set_alpha_for_array(self, alpha)
+        if np.ndim(alpha) not in (0, 2):
+            raise TypeError('alpha must be a float, two-dimensional '
+                            'array, or None')
         self._imcache = None
 
     def _get_scalar_alpha(self):
@@ -304,8 +301,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
     def changed(self):
         """
-        Call this whenever the mappable is changed so observers can
-        update state
+        Call this whenever the mappable is changed so observers can update.
         """
         self._imcache = None
         self._rgbacache = None
@@ -399,56 +395,44 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if not unsampled:
             if not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in (3, 4)):
                 raise ValueError(f"Invalid shape {A.shape} for image data")
-
-            if A.ndim == 2:
+            if A.ndim == 2 and self._interpolation_stage != 'rgba':
                 # if we are a 2D array, then we are running through the
                 # norm + colormap transformation.  However, in general the
                 # input data is not going to match the size on the screen so we
                 # have to resample to the correct number of pixels
 
                 # TODO slice input array first
-                inp_dtype = A.dtype
                 a_min = A.min()
                 a_max = A.max()
-                # figure out the type we should scale to.  For floats,
-                # leave as is.  For integers cast to an appropriate-sized
-                # float.  Small integers get smaller floats in an attempt
-                # to keep the memory footprint reasonable.
-                if a_min is np.ma.masked:
-                    # all masked, so values don't matter
+                if a_min is np.ma.masked:  # All masked; values don't matter.
                     a_min, a_max = np.int32(0), np.int32(1)
-                if inp_dtype.kind == 'f':
-                    scaled_dtype = A.dtype
-                    # Cast to float64
-                    if A.dtype not in (np.float32, np.float16):
-                        if A.dtype != np.float64:
-                            cbook._warn_external(
-                                f"Casting input data from '{A.dtype}' to "
-                                f"'float64' for imshow")
-                        scaled_dtype = np.float64
-                else:
-                    # probably an integer of some type.
+                if A.dtype.kind == 'f':  # Float dtype: scale to same dtype.
+                    scaled_dtype = np.dtype(
+                        np.float64 if A.dtype.itemsize > 4 else np.float32)
+                    if scaled_dtype.itemsize < A.dtype.itemsize:
+                        _api.warn_external(f"Casting input data from {A.dtype}"
+                                           f" to {scaled_dtype} for imshow.")
+                else:  # Int dtype, likely.
+                    # Scale to appropriately sized float: use float32 if the
+                    # dynamic range is small, to limit the memory footprint.
                     da = a_max.astype(np.float64) - a_min.astype(np.float64)
-                    # give more breathing room if a big dynamic range
                     scaled_dtype = np.float64 if da > 1e8 else np.float32
 
-                # scale the input data to [.1, .9].  The Agg
-                # interpolators clip to [0, 1] internally, use a
-                # smaller input scale to identify which of the
-                # interpolated points need to be should be flagged as
-                # over / under.
-                # This may introduce numeric instabilities in very broadly
-                # scaled data
+                # Scale the input data to [.1, .9].  The Agg interpolators clip
+                # to [0, 1] internally, and we use a smaller input scale to
+                # identify the interpolated points that need to be flagged as
+                # over/under.  This may introduce numeric instabilities in very
+                # broadly scaled data.
+
                 # Always copy, and don't allow array subtypes.
                 A_scaled = np.array(A, dtype=scaled_dtype)
-                # clip scaled data around norm if necessary.
-                # This is necessary for big numbers at the edge of
-                # float64's ability to represent changes.  Applying
-                # a norm first would be good, but ruins the interpolation
-                # of over numbers.
+                # Clip scaled data around norm if necessary.  This is necessary
+                # for big numbers at the edge of float64's ability to represent
+                # changes.  Applying a norm first would be good, but ruins the
+                # interpolation of over numbers.
                 self.norm.autoscale_None(A)
                 dv = np.float64(self.norm.vmax) - np.float64(self.norm.vmin)
-                vmid = self.norm.vmin + dv / 2
+                vmid = np.float64(self.norm.vmin) + dv / 2
                 fact = 1e7 if scaled_dtype == np.float64 else 1e4
                 newmin = vmid - dv * fact
                 if newmin < a_min:
@@ -463,28 +447,47 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 if newmax is not None or newmin is not None:
                     np.clip(A_scaled, newmin, newmax, out=A_scaled)
 
+                # Rescale the raw data to [offset, 1-offset] so that the
+                # resampling code will run cleanly.  Using dyadic numbers here
+                # could reduce the error, but would not fully eliminate it and
+                # breaks a number of tests (due to the slightly different
+                # error bouncing some pixels across a boundary in the (very
+                # quantized) colormapping step).
+                offset = .1
+                frac = .8
+                # Run vmin/vmax through the same rescaling as the raw data;
+                # otherwise, data values close or equal to the boundaries can
+                # end up on the wrong side due to floating point error.
+                vmin, vmax = self.norm.vmin, self.norm.vmax
+                if vmin is np.ma.masked:
+                    vmin, vmax = a_min, a_max
+                vrange = np.array([vmin, vmax], dtype=scaled_dtype)
+
                 A_scaled -= a_min
-                # a_min and a_max might be ndarray subclasses so use
-                # item to avoid errors
+                vrange -= a_min
+                # .item() handles a_min/a_max being ndarray subclasses.
                 a_min = a_min.astype(scaled_dtype).item()
                 a_max = a_max.astype(scaled_dtype).item()
 
                 if a_min != a_max:
-                    A_scaled /= ((a_max - a_min) / 0.8)
-                A_scaled += 0.1
+                    A_scaled /= ((a_max - a_min) / frac)
+                    vrange /= ((a_max - a_min) / frac)
+                A_scaled += offset
+                vrange += offset
                 # resample the input data to the correct resolution and shape
                 A_resampled = _resample(self, A_scaled, out_shape, t)
-                # done with A_scaled now, remove from namespace to be sure!
-                del A_scaled
-                # un-scale the resampled data to approximately the
-                # original range things that interpolated to above /
-                # below the original min/max will still be above /
-                # below, but possibly clipped in the case of higher order
-                # interpolation + drastically changing data.
-                A_resampled -= 0.1
+                del A_scaled  # Make sure we don't use A_scaled anymore!
+                # Un-scale the resampled data to approximately the original
+                # range. Things that interpolated to outside the original range
+                # will still be outside, but possibly clipped in the case of
+                # higher order interpolation + drastically changing data.
+                A_resampled -= offset
+                vrange -= offset
                 if a_min != a_max:
-                    A_resampled *= ((a_max - a_min) / 0.8)
+                    A_resampled *= ((a_max - a_min) / frac)
+                    vrange *= ((a_max - a_min) / frac)
                 A_resampled += a_min
+                vrange += a_min
                 # if using NoNorm, cast back to the original datatype
                 if isinstance(self.norm, mcolors.NoNorm):
                     A_resampled = A_resampled.astype(A.dtype)
@@ -495,8 +498,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 # we always have to interpolate the mask to account for
                 # non-affine transformations
                 out_alpha = _resample(self, mask, out_shape, t, resample=True)
-                # done with the mask now, delete from namespace to be sure!
-                del mask
+                del mask  # Make sure we don't use mask anymore!
                 # Agg updates out_alpha in place.  If the pixel has no image
                 # data it will not be updated (and still be 0 as we initialized
                 # it), if input data that would go into that output pixel than
@@ -511,8 +513,22 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     out_alpha *= _resample(self, alpha, out_shape,
                                            t, resample=True)
                 # mask and run through the norm
-                output = self.norm(np.ma.masked_array(A_resampled, out_mask))
+                resampled_masked = np.ma.masked_array(A_resampled, out_mask)
+                # we have re-set the vmin/vmax to account for small errors
+                # that may have moved input values in/out of range
+                s_vmin, s_vmax = vrange
+                if isinstance(self.norm, mcolors.LogNorm) and s_vmin <= 0:
+                    # Don't give 0 or negative values to LogNorm
+                    s_vmin = np.finfo(scaled_dtype).eps
+                # Block the norm from sending an update signal during the
+                # temporary vmin/vmax change
+                with self.norm.callbacks.blocked(), \
+                     cbook._setattr_cm(self.norm, vmin=s_vmin, vmax=s_vmax):
+                    output = self.norm(resampled_masked)
             else:
+                if A.ndim == 2:  # _interpolation_stage == 'rgba'
+                    self.norm.autoscale_None(A)
+                    A = self.to_rgba(A)
                 if A.shape[2] == 3:
                     A = _rgb_to_rgba(A)
                 alpha = self._get_scalar_alpha()
@@ -522,8 +538,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                     self, _rgb_to_rgba(A[..., :3]), out_shape, t, alpha=alpha)
                 output[..., 3] = output_alpha  # recombine rgb and alpha
 
-            # at this point output is either a 2D array of normed data
-            # (of int or float)
+            # output is now either a 2D array of normed (int or float) data
             # or an RGBA array of re-sampled input
             output = self.to_rgba(output, bytes=True, norm=False)
             # output is now a correctly sized RGBA array of uint8
@@ -532,17 +547,15 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             if A.ndim == 2:
                 alpha = self._get_scalar_alpha()
                 alpha_channel = output[:, :, 3]
-                alpha_channel[:] = np.asarray(
-                    np.asarray(alpha_channel, np.float32) * out_alpha * alpha,
-                    np.uint8)
+                alpha_channel[:] = (  # Assignment will cast to uint8.
+                    alpha_channel.astype(np.float32) * out_alpha * alpha)
 
         else:
             if self._imcache is None:
                 self._imcache = self.to_rgba(A, bytes=True, norm=(A.ndim == 2))
             output = self._imcache
 
-            # Subset the input image to only the part that will be
-            # displayed
+            # Subset the input image to only the part that will be displayed.
             subset = TransformedBbox(clip_bbox, t0.inverted()).frozen()
             output = output[
                 int(max(subset.ymin, 0)):
@@ -575,21 +588,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         raise NotImplementedError('The make_image method must be overridden')
 
-    def _draw_unsampled_image(self, renderer, gc):
-        """
-        Draw unsampled image. The renderer should support a draw_image method
-        with scale parameter.
-        """
-        im, l, b, trans = self.make_image(renderer, unsampled=True)
-
-        if im is None:
-            return
-
-        trans = Affine2D().scale(im.shape[1], im.shape[0]) + trans
-
-        renderer.draw_image(gc, l, b, im, trans)
-
-    def _check_unsampled_image(self, renderer):
+    def _check_unsampled_image(self):
         """
         Return whether the image is better to be drawn unsampled.
 
@@ -603,22 +602,23 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         if not self.get_visible():
             self.stale = False
             return
-
         # for empty images, there is nothing to draw!
         if self.get_array().size == 0:
             self.stale = False
             return
-
         # actually render the image.
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
         gc.set_alpha(self._get_scalar_alpha())
         gc.set_url(self.get_url())
         gc.set_gid(self.get_gid())
-
-        if (self._check_unsampled_image(renderer) and
-                self.get_transform().is_affine):
-            self._draw_unsampled_image(renderer, gc)
+        if (renderer.option_scale_image()  # Renderer supports transform kwarg.
+                and self._check_unsampled_image()
+                and self.get_transform().is_affine):
+            im, l, b, trans = self.make_image(renderer, unsampled=True)
+            if im is not None:
+                trans = Affine2D().scale(im.shape[1], im.shape[0]) + trans
+                renderer.draw_image(gc, l, b, im, trans)
         else:
             im, l, b, trans = self.make_image(
                 renderer, renderer.get_image_magnification())
@@ -628,9 +628,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self.stale = False
 
     def contains(self, mouseevent):
-        """
-        Test whether the mouse event occurred within the image.
-        """
+        """Test whether the mouse event occurred within the image."""
         inside, info = self._default_contains(mouseevent)
         if inside is not None:
             return inside, info
@@ -645,7 +643,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         # collection on nonlinear transformed coordinates.
         # TODO: consider returning image coordinates (shouldn't
         # be too difficult given that the image is rectilinear
-        x, y = mouseevent.xdata, mouseevent.ydata
+        trans = self.get_transform().inverted()
+        x, y = trans.transform([mouseevent.x, mouseevent.y])
         xmin, xmax, ymin, ymax = self.get_extent()
         if xmin > xmax:
             xmin, xmax = xmax, xmin
@@ -660,7 +659,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         return inside, {}
 
     def write_png(self, fname):
-        """Write the image to png file with fname"""
+        """Write the image to png file *fname*."""
         im = self.to_rgba(self._A[::-1] if self.origin == 'lower' else self._A,
                           bytes=True, norm=True)
         PIL.Image.fromarray(im).save(fname, format="png")
@@ -684,7 +683,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
             raise TypeError("Image data of dtype {} cannot be converted to "
                             "float".format(self._A.dtype))
 
-        if (self._A.ndim == 3 and self._A.shape[-1] == 1):
+        if self._A.ndim == 3 and self._A.shape[-1] == 1:
             # If just one dimension assume scalar and apply colormap
             self._A = self._A[:, :, 0]
 
@@ -734,7 +733,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric',
         'catrom', 'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos',
         or 'none'.
-
         """
         return self._interpolation
 
@@ -742,23 +740,38 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         Set the interpolation method the image uses when resizing.
 
-        if None, use a value from rc setting. If 'none', the image is
+        If None, use :rc:`image.interpolation`. If 'none', the image is
         shown as is without interpolating. 'none' is only supported in
         agg, ps and pdf backends and will fall back to 'nearest' mode
         for other backends.
 
         Parameters
         ----------
-        s : {'antialiased', 'nearest', 'bilinear', 'bicubic', 'spline16',
+        s : {'antialiased', 'nearest', 'bilinear', 'bicubic', 'spline16', \
 'spline36', 'hanning', 'hamming', 'hermite', 'kaiser', 'quadric', 'catrom', \
-'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos', 'none'}
-
+'gaussian', 'bessel', 'mitchell', 'sinc', 'lanczos', 'none'} or None
         """
         if s is None:
-            s = rcParams['image.interpolation']
+            s = mpl.rcParams['image.interpolation']
         s = s.lower()
-        cbook._check_in_list(_interpd_, interpolation=s)
+        _api.check_in_list(_interpd_, interpolation=s)
         self._interpolation = s
+        self.stale = True
+
+    def set_interpolation_stage(self, s):
+        """
+        Set when interpolation happens during the transform to RGBA.
+
+        Parameters
+        ----------
+        s : {'data', 'rgba'} or None
+            Whether to apply up/downsampling interpolation in data or rgba
+            space.
+        """
+        if s is None:
+            s = "data"  # placeholder for maybe having rcParam
+        _api.check_in_list(['data', 'rgba'])
+        self._interpolation_stage = s
         self.stale = True
 
     def can_composite(self):
@@ -776,10 +789,10 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         Parameters
         ----------
         v : bool or None
-            If None, use :rc:`image.resample` = True.
+            If None, use :rc:`image.resample`.
         """
         if v is None:
-            v = rcParams['image.resample']
+            v = mpl.rcParams['image.resample']
         self._resample = v
         self.stale = True
 
@@ -826,6 +839,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
 class AxesImage(_ImageBase):
     """
+    An image attached to an Axes.
+
     Parameters
     ----------
     ax : `~.axes.Axes`
@@ -839,7 +854,12 @@ class AxesImage(_ImageBase):
         Supported values are 'none', 'antialiased', 'nearest', 'bilinear',
         'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
         'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
-        'sinc', 'lanczos'.
+        'sinc', 'lanczos', 'blackman'.
+    interpolation_stage : {'data', 'rgba'}, default: 'data'
+        If 'data', interpolation
+        is carried out on the data provided by the user.  If 'rgba', the
+        interpolation is carried out after the colormapping has been
+        applied (visual interpolation).
     origin : {'upper', 'lower'}, default: :rc:`image.origin`
         Place the [0, 0] index of the array in the upper left or lower left
         corner of the axes. The convention 'upper' is typically used for
@@ -863,7 +883,6 @@ class AxesImage(_ImageBase):
         When True, use a full resampling method. When False, only resample when
         the output image is larger than the input image.
     **kwargs : `.Artist` properties
-
     """
     def __str__(self):
         return "AxesImage(%g,%g;%gx%g)" % tuple(self.axes.bbox.bounds)
@@ -877,6 +896,8 @@ class AxesImage(_ImageBase):
                  filternorm=True,
                  filterrad=4.0,
                  resample=False,
+                 *,
+                 interpolation_stage=None,
                  **kwargs
                  ):
 
@@ -891,6 +912,7 @@ class AxesImage(_ImageBase):
             filternorm=filternorm,
             filterrad=filterrad,
             resample=resample,
+            interpolation_stage=interpolation_stage,
             **kwargs
         )
 
@@ -906,17 +928,14 @@ class AxesImage(_ImageBase):
         x1, x2, y1, y2 = self.get_extent()
         bbox = Bbox(np.array([[x1, y1], [x2, y2]]))
         transformed_bbox = TransformedBbox(bbox, trans)
-        return self._make_image(
-            self._A, bbox, transformed_bbox,
-            self.get_clip_box() or self.axes.bbox,
-            magnification, unsampled=unsampled)
+        clip = ((self.get_clip_box() or self.axes.bbox) if self.get_clip_on()
+                else self.figure.bbox)
+        return self._make_image(self._A, bbox, transformed_bbox, clip,
+                                magnification, unsampled=unsampled)
 
-    def _check_unsampled_image(self, renderer):
-        """
-        Return whether the image would be better drawn unsampled.
-        """
-        return (self.get_interpolation() == "none"
-                and renderer.option_scale_image())
+    def _check_unsampled_image(self):
+        """Return whether the image would be better drawn unsampled."""
+        return self.get_interpolation() == "none"
 
     def set_extent(self, extent):
         """
@@ -971,36 +990,29 @@ class AxesImage(_ImageBase):
         if self.origin == 'upper':
             ymin, ymax = ymax, ymin
         arr = self.get_array()
-        data_extent = Bbox([[ymin, xmin], [ymax, xmax]])
-        array_extent = Bbox([[0, 0], arr.shape[:2]])
-        trans = BboxTransform(boxin=data_extent, boxout=array_extent)
-        point = trans.transform([event.ydata, event.xdata])
+        data_extent = Bbox([[xmin, ymin], [xmax, ymax]])
+        array_extent = Bbox([[0, 0], [arr.shape[1], arr.shape[0]]])
+        trans = self.get_transform().inverted()
+        trans += BboxTransform(boxin=data_extent, boxout=array_extent)
+        point = trans.transform([event.x, event.y])
         if any(np.isnan(point)):
             return None
-        i, j = point.astype(int)
+        j, i = point.astype(int)
         # Clip the coordinates at array bounds
         if not (0 <= i < arr.shape[0]) or not (0 <= j < arr.shape[1]):
             return None
         else:
             return arr[i, j]
 
-    def format_cursor_data(self, data):
-        if np.ndim(data) == 0 and self.colorbar:
-            return (
-                "["
-                + cbook.strip_math(
-                    self.colorbar.formatter.format_data_short(data)).strip()
-                + "]")
-        else:
-            return super().format_cursor_data(data)
-
 
 class NonUniformImage(AxesImage):
+    mouseover = False  # This class still needs its own get_cursor_data impl.
+
     def __init__(self, ax, *, interpolation='nearest', **kwargs):
         """
         Parameters
         ----------
-        interpolation : {'nearest', 'bilinear'}
+        interpolation : {'nearest', 'bilinear'}, default: 'nearest'
 
         **kwargs
             All other keyword arguments are identical to those of `.AxesImage`.
@@ -1008,14 +1020,9 @@ class NonUniformImage(AxesImage):
         super().__init__(ax, **kwargs)
         self.set_interpolation(interpolation)
 
-    def _check_unsampled_image(self, renderer):
+    def _check_unsampled_image(self):
         """Return False. Do not use unsampled image."""
         return False
-
-    @cbook.deprecated("3.3")
-    @property
-    def is_grayscale(self):
-        return self._is_grayscale
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
@@ -1027,11 +1034,9 @@ class NonUniformImage(AxesImage):
         if A.ndim == 2:
             if A.dtype != np.uint8:
                 A = self.to_rgba(A, bytes=True)
-                self._is_grayscale = self.cmap.is_gray()
             else:
                 A = np.repeat(A[:, :, np.newaxis], 4, 2)
                 A[:, :, 3] = 255
-                self._is_grayscale = True
         else:
             if A.dtype != np.uint8:
                 A = (255*A).astype(np.uint8)
@@ -1040,17 +1045,53 @@ class NonUniformImage(AxesImage):
                 B[:, :, 0:3] = A
                 B[:, :, 3] = 255
                 A = B
-            self._is_grayscale = False
-        x0, y0, v_width, v_height = self.axes.viewLim.bounds
+        vl = self.axes.viewLim
         l, b, r, t = self.axes.bbox.extents
-        width = (round(r) + 0.5) - (round(l) - 0.5)
-        height = (round(t) + 0.5) - (round(b) - 0.5)
-        width *= magnification
-        height *= magnification
-        im = _image.pcolor(self._Ax, self._Ay, A,
-                           int(height), int(width),
-                           (x0, x0+v_width, y0, y0+v_height),
-                           _interpd_[self._interpolation])
+        width = int(((round(r) + 0.5) - (round(l) - 0.5)) * magnification)
+        height = int(((round(t) + 0.5) - (round(b) - 0.5)) * magnification)
+        x_pix = np.linspace(vl.x0, vl.x1, width)
+        y_pix = np.linspace(vl.y0, vl.y1, height)
+        if self._interpolation == "nearest":
+            x_mid = (self._Ax[:-1] + self._Ax[1:]) / 2
+            y_mid = (self._Ay[:-1] + self._Ay[1:]) / 2
+            x_int = x_mid.searchsorted(x_pix)
+            y_int = y_mid.searchsorted(y_pix)
+            # The following is equal to `A[y_int[:, None], x_int[None, :]]`,
+            # but many times faster.  Both casting to uint32 (to have an
+            # effectively 1D array) and manual index flattening matter.
+            im = (
+                np.ascontiguousarray(A).view(np.uint32).ravel()[
+                    np.add.outer(y_int * A.shape[1], x_int)]
+                .view(np.uint8).reshape((height, width, 4)))
+        else:  # self._interpolation == "bilinear"
+            # Use np.interp to compute x_int/x_float has similar speed.
+            x_int = np.clip(
+                self._Ax.searchsorted(x_pix) - 1, 0, len(self._Ax) - 2)
+            y_int = np.clip(
+                self._Ay.searchsorted(y_pix) - 1, 0, len(self._Ay) - 2)
+            idx_int = np.add.outer(y_int * A.shape[1], x_int)
+            x_frac = np.clip(
+                np.divide(x_pix - self._Ax[x_int], np.diff(self._Ax)[x_int],
+                          dtype=np.float32),  # Downcasting helps with speed.
+                0, 1)
+            y_frac = np.clip(
+                np.divide(y_pix - self._Ay[y_int], np.diff(self._Ay)[y_int],
+                          dtype=np.float32),
+                0, 1)
+            f00 = np.outer(1 - y_frac, 1 - x_frac)
+            f10 = np.outer(y_frac, 1 - x_frac)
+            f01 = np.outer(1 - y_frac, x_frac)
+            f11 = np.outer(y_frac, x_frac)
+            im = np.empty((height, width, 4), np.uint8)
+            for chan in range(4):
+                ac = A[:, :, chan].reshape(-1)  # reshape(-1) avoids a copy.
+                # Shifting the buffer start (`ac[offset:]`) avoids an array
+                # addition (`ac[idx_int + offset]`).
+                buf = f00 * ac[idx_int]
+                buf += f10 * ac[A.shape[1]:][idx_int]
+                buf += f01 * ac[1:][idx_int]
+                buf += f11 * ac[A.shape[1] + 1:][idx_int]
+                im[:, :, chan] = buf  # Implicitly casts to uint8.
         return im, l, b, IdentityTransform()
 
     def set_data(self, x, y, A):
@@ -1059,7 +1100,7 @@ class NonUniformImage(AxesImage):
 
         Parameters
         ----------
-        x, y : 1D array-likes
+        x, y : 1D array-like
             Monotonic arrays of shapes (N,) and (M,), respectively, specifying
             pixel centers.
         A : array-like
@@ -1077,7 +1118,7 @@ class NonUniformImage(AxesImage):
             raise TypeError("3D arrays must have three (RGB) "
                             "or four (RGBA) color components")
         if A.ndim == 3 and A.shape[2] == 1:
-            A.shape = A.shape[0:2]
+            A = A.squeeze(axis=-1)
         self._A = A
         self._Ax = x
         self._Ay = y
@@ -1092,13 +1133,13 @@ class NonUniformImage(AxesImage):
         """
         Parameters
         ----------
-        s : str, None
-            Either 'nearest', 'bilinear', or ``None``.
+        s : {'nearest', 'bilinear'} or None
+            If None, use :rc:`image.interpolation`.
         """
         if s is not None and s not in ('nearest', 'bilinear'):
             raise NotImplementedError('Only nearest neighbor and '
                                       'bilinear interpolations are supported')
-        AxesImage.set_interpolation(self, s)
+        super().set_interpolation(s)
 
     def get_extent(self):
         if self._A is None:
@@ -1138,22 +1179,33 @@ class PcolorImage(AxesImage):
                  **kwargs
                  ):
         """
-        cmap defaults to its rc setting
+        Parameters
+        ----------
+        ax : `~.axes.Axes`
+            The axes the image will belong to.
+        x, y : 1D array-like, optional
+            Monotonic arrays of length N+1 and M+1, respectively, specifying
+            rectangle boundaries.  If not given, will default to
+            ``range(N + 1)`` and ``range(M + 1)``, respectively.
+        A : array-like
+            The data to be color-coded. The interpretation depends on the
+            shape:
 
-        cmap is a colors.Colormap instance
-        norm is a colors.Normalize instance to map luminance to 0-1
+            - (M, N) ndarray or masked array: values to be colormapped
+            - (M, N, 3): RGB array
+            - (M, N, 4): RGBA array
 
-        Additional kwargs are matplotlib.artist properties
+        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+            The Colormap instance or registered colormap name used to map
+            scalar data to colors.
+        norm : `~matplotlib.colors.Normalize`
+            Maps luminance to 0-1.
+        **kwargs : `.Artist` properties
         """
         super().__init__(ax, norm=norm, cmap=cmap)
         self.update(kwargs)
         if A is not None:
             self.set_data(x, y, A)
-
-    @cbook.deprecated("3.3")
-    @property
-    def is_grayscale(self):
-        return self._is_grayscale
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         # docstring inherited
@@ -1161,31 +1213,34 @@ class PcolorImage(AxesImage):
             raise RuntimeError('You must first set the image array')
         if unsampled:
             raise ValueError('unsampled not supported on PColorImage')
-        fc = self.axes.patch.get_facecolor()
-        bg = mcolors.to_rgba(fc, 0)
-        bg = (np.array(bg)*255).astype(np.uint8)
+
+        if self._rgbacache is None:
+            A = self.to_rgba(self._A, bytes=True)
+            self._rgbacache = np.pad(A, [(1, 1), (1, 1), (0, 0)], "constant")
+        padded_A = self._rgbacache
+        bg = mcolors.to_rgba(self.axes.patch.get_facecolor(), 0)
+        bg = (np.array(bg) * 255).astype(np.uint8)
+        if (padded_A[0, 0] != bg).all():
+            padded_A[[0, -1], :] = padded_A[:, [0, -1]] = bg
+
         l, b, r, t = self.axes.bbox.extents
         width = (round(r) + 0.5) - (round(l) - 0.5)
         height = (round(t) + 0.5) - (round(b) - 0.5)
-        # The extra cast-to-int is only needed for python2
         width = int(round(width * magnification))
         height = int(round(height * magnification))
-        if self._rgbacache is None:
-            A = self.to_rgba(self._A, bytes=True)
-            self._rgbacache = A
-            if self._A.ndim == 2:
-                self._is_grayscale = self.cmap.is_gray()
-        else:
-            A = self._rgbacache
         vl = self.axes.viewLim
-        im = _image.pcolor2(self._Ax, self._Ay, A,
-                            height,
-                            width,
-                            (vl.x0, vl.x1, vl.y0, vl.y1),
-                            bg)
+
+        x_pix = np.linspace(vl.x0, vl.x1, width)
+        y_pix = np.linspace(vl.y0, vl.y1, height)
+        x_int = self._Ax.searchsorted(x_pix)
+        y_int = self._Ay.searchsorted(y_pix)
+        im = (  # See comment in NonUniformImage.make_image re: performance.
+            padded_A.view(np.uint32).ravel()[
+                np.add.outer(y_int * padded_A.shape[1], x_int)]
+            .view(np.uint8).reshape((height, width, 4)))
         return im, l, b, IdentityTransform()
 
-    def _check_unsampled_image(self, renderer):
+    def _check_unsampled_image(self):
         return False
 
     def set_data(self, x, y, A):
@@ -1194,13 +1249,17 @@ class PcolorImage(AxesImage):
 
         Parameters
         ----------
-        x, y : 1D array-likes or None
-            Monotonic arrays of shapes (N + 1,) and (M + 1,), respectively,
-            specifying rectangle boundaries.  If None, will default to
+        x, y : 1D array-like, optional
+            Monotonic arrays of length N+1 and M+1, respectively, specifying
+            rectangle boundaries.  If not given, will default to
             ``range(N + 1)`` and ``range(M + 1)``, respectively.
         A : array-like
-            (M, N) ndarray or masked array of values to be colormapped, or
-            (M, N, 3) RGB array, or (M, N, 4) RGBA array.
+            The data to be color-coded. The interpretation depends on the
+            shape:
+
+            - (M, N) ndarray or masked array: values to be colormapped
+            - (M, N, 3): RGB array
+            - (M, N, 4): RGBA array
         """
         A = cbook.safe_masked_invalid(A, copy=True)
         if x is None:
@@ -1218,15 +1277,10 @@ class PcolorImage(AxesImage):
                 (A.shape[:2], (y.size - 1, x.size - 1)))
         if A.ndim not in [2, 3]:
             raise ValueError("A must be 2D or 3D")
-        if A.ndim == 3 and A.shape[2] == 1:
-            A.shape = A.shape[:2]
-        self._is_grayscale = False
         if A.ndim == 3:
-            if A.shape[2] in [3, 4]:
-                if ((A[:, :, 0] == A[:, :, 1]).all() and
-                        (A[:, :, 0] == A[:, :, 2]).all()):
-                    self._is_grayscale = True
-            else:
+            if A.shape[2] == 1:
+                A = A.squeeze(axis=-1)
+            elif A.shape[2] not in [3, 4]:
                 raise ValueError("3D arrays must have RGB or RGBA as last dim")
 
         # For efficient cursor readout, ensure x and y are increasing.
@@ -1261,6 +1315,8 @@ class PcolorImage(AxesImage):
 
 
 class FigureImage(_ImageBase):
+    """An image attached to a figure."""
+
     zorder = 0
 
     _interpolation = 'nearest'
@@ -1316,15 +1372,13 @@ class FigureImage(_ImageBase):
 
     def set_data(self, A):
         """Set the image array."""
-        cm.ScalarMappable.set_array(self,
-                                    cbook.safe_masked_invalid(A, copy=True))
+        cm.ScalarMappable.set_array(self, A)
         self.stale = True
 
 
 class BboxImage(_ImageBase):
     """The Image class whose size is determined by the given bbox."""
 
-    @cbook._delete_parameter("3.1", "interp_at_native")
     def __init__(self, bbox,
                  cmap=None,
                  norm=None,
@@ -1333,7 +1387,6 @@ class BboxImage(_ImageBase):
                  filternorm=True,
                  filterrad=4.0,
                  resample=False,
-                 interp_at_native=True,
                  **kwargs
                  ):
         """
@@ -1353,18 +1406,7 @@ class BboxImage(_ImageBase):
             resample=resample,
             **kwargs
         )
-
         self.bbox = bbox
-        self._interp_at_native = interp_at_native
-        self._transform = IdentityTransform()
-
-    @cbook.deprecated("3.1")
-    @property
-    def interp_at_native(self):
-        return self._interp_at_native
-
-    def get_transform(self):
-        return self._transform
 
     def get_window_extent(self, renderer=None):
         if renderer is None:
@@ -1375,7 +1417,7 @@ class BboxImage(_ImageBase):
         elif callable(self.bbox):
             return self.bbox(renderer)
         else:
-            raise ValueError("unknown type of bbox")
+            raise ValueError("Unknown type of bbox")
 
     def contains(self, mouseevent):
         """Test whether the mouse event occurred within the image."""
@@ -1398,7 +1440,7 @@ class BboxImage(_ImageBase):
         bbox_in._points /= [width, height]
         bbox_out = self.get_window_extent(renderer)
         clip = Bbox([[0, 0], [width, height]])
-        self._transform = BboxTransform(Bbox([[0, 0], [1, 1]]), clip)
+        self._transform = BboxTransformTo(clip)
         return self._make_image(
             self._A,
             bbox_in, bbox_out, clip, magnification, unsampled=unsampled)
@@ -1408,35 +1450,52 @@ def imread(fname, format=None):
     """
     Read an image from a file into an array.
 
+    .. note::
+
+        This function exists for historical reasons.  It is recommended to
+        use `PIL.Image.open` instead for loading images.
+
     Parameters
     ----------
     fname : str or file-like
         The image file to read: a filename, a URL or a file-like object opened
         in read-binary mode.
+
+        Passing a URL is deprecated.  Please open the URL
+        for reading and pass the result to Pillow, e.g. with
+        ``PIL.Image.open(urllib.request.urlopen(url))``.
     format : str, optional
-        The image file format assumed for reading the data. If not
-        given, the format is deduced from the filename.  If nothing can
-        be deduced, PNG is tried.
+        The image file format assumed for reading the data.  The image is
+        loaded as a PNG file if *format* is set to "png", if *fname* is a path
+        or opened file with a ".png" extension, or if it is an URL.  In all
+        other cases, *format* is ignored and the format is auto-detected by
+        `PIL.Image.open`.
 
     Returns
     -------
-    imagedata : :class:`numpy.array`
+    `numpy.array`
         The image data. The returned array has shape
 
         - (M, N) for grayscale images.
         - (M, N, 3) for RGB images.
         - (M, N, 4) for RGBA images.
+
+        PNG images are returned as float arrays (0-1).  All other formats are
+        returned as int arrays, with a bit depth determined by the file's
+        contents.
     """
+    # hide imports to speed initial import on systems with slow linkers
+    from urllib import parse
+
     if format is None:
         if isinstance(fname, str):
-            parsed = urllib.parse.urlparse(fname)
+            parsed = parse.urlparse(fname)
             # If the string is a URL (Windows paths appear as if they have a
             # length-1 scheme), assume png.
             if len(parsed.scheme) > 1:
                 ext = 'png'
             else:
-                basename, ext = os.path.splitext(fname)
-                ext = ext.lower()[1:]
+                ext = Path(fname).suffix.lower()[1:]
         elif hasattr(fname, 'geturl'):  # Returned by urlopen().
             # We could try to parse the url's path and use the extension, but
             # returning png is consistent with the block above.  Note that this
@@ -1445,8 +1504,7 @@ def imread(fname, format=None):
             # value "<urllib response>").
             ext = 'png'
         elif hasattr(fname, 'name'):
-            basename, ext = os.path.splitext(fname.name)
-            ext = ext.lower()[1:]
+            ext = Path(fname.name).suffix.lower()[1:]
         else:
             ext = 'png'
     else:
@@ -1454,10 +1512,27 @@ def imread(fname, format=None):
     img_open = (
         PIL.PngImagePlugin.PngImageFile if ext == 'png' else PIL.Image.open)
     if isinstance(fname, str):
-        parsed = urllib.parse.urlparse(fname)
+        parsed = parse.urlparse(fname)
         if len(parsed.scheme) > 1:  # Pillow doesn't handle URLs directly.
+            _api.warn_deprecated(
+                "3.4", message="Directly reading images from URLs is "
+                "deprecated since %(since)s and will no longer be supported "
+                "%(removal)s. Please open the URL for reading and pass the "
+                "result to Pillow, e.g. with "
+                "``PIL.Image.open(urllib.request.urlopen(url))``.")
+            # hide imports to speed initial import on systems with slow linkers
             from urllib import request
-            with urllib.request.urlopen(fname) as response:
+            ssl_ctx = mpl._get_ssl_context()
+            if ssl_ctx is None:
+                _log.debug(
+                    "Could not get certifi ssl context, https may not work."
+                )
+            with request.urlopen(fname, context=ssl_ctx) as response:
+                import io
+                try:
+                    response.seek(0)
+                except (AttributeError, io.UnsupportedOperation):
+                    response = io.BytesIO(response.read())
                 return imread(response, format=ext)
     with img_open(fname) as image:
         return (_pil_png_to_float_array(image)
@@ -1472,7 +1547,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
 
     Parameters
     ----------
-    fname : str or PathLike or file-like
+    fname : str or path-like or file-like
         A path or a file-like object to store the image in.
         If *format* is not set, then the output format is inferred from the
         extension of *fname*, if any, and from :rc:`savefig.format` otherwise.
@@ -1480,40 +1555,39 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
     arr : array-like
         The image data. The shape can be one of
         MxN (luminance), MxNx3 (RGB) or MxNx4 (RGBA).
-    vmin, vmax : scalar, optional
+    vmin, vmax : float, optional
         *vmin* and *vmax* set the color scaling for the image by fixing the
         values that map to the colormap color limits. If either *vmin*
         or *vmax* is None, that limit is determined from the *arr*
         min/max value.
-    cmap : str or `~matplotlib.colors.Colormap`, optional
+    cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
         A Colormap instance or registered colormap name. The colormap
         maps scalar data to colors. It is ignored for RGB(A) data.
-        Defaults to :rc:`image.cmap` ('viridis').
     format : str, optional
         The file format, e.g. 'png', 'pdf', 'svg', ...  The behavior when this
         is unset is documented under *fname*.
-    origin : {'upper', 'lower'}, optional
+    origin : {'upper', 'lower'}, default: :rc:`image.origin`
         Indicates whether the ``(0, 0)`` index of the array is in the upper
-        left or lower left corner of the axes.  Defaults to :rc:`image.origin`
-        ('upper').
-    dpi : int
+        left or lower left corner of the axes.
+    dpi : float
         The DPI to store in the metadata of the file.  This does not affect the
-        resolution of the output image.
+        resolution of the output image.  Depending on file format, this may be
+        rounded to the nearest integer.
     metadata : dict, optional
         Metadata in the image file.  The supported keys depend on the output
         format, see the documentation of the respective backends for more
         information.
     pil_kwargs : dict, optional
-        Keyword arguments passed to `PIL.Image.save`.  If the 'pnginfo' key is
-        present, it completely overrides *metadata*, including the default
-        'Software' key.
+        Keyword arguments passed to `PIL.Image.Image.save`.  If the 'pnginfo'
+        key is present, it completely overrides *metadata*, including the
+        default 'Software' key.
     """
     from matplotlib.figure import Figure
     if isinstance(fname, os.PathLike):
         fname = os.fspath(fname)
     if format is None:
         format = (Path(fname).suffix[1:] if isinstance(fname, str)
-                  else rcParams["savefig.format"]).lower()
+                  else mpl.rcParams["savefig.format"]).lower()
     if format in ["pdf", "ps", "eps", "svg"]:
         # Vector formats that are not handled by PIL.
         if pil_kwargs is not None:
@@ -1530,26 +1604,46 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         sm = cm.ScalarMappable(cmap=cmap)
         sm.set_clim(vmin, vmax)
         if origin is None:
-            origin = rcParams["image.origin"]
+            origin = mpl.rcParams["image.origin"]
         if origin == "lower":
             arr = arr[::-1]
-        rgba = sm.to_rgba(arr, bytes=True)
+        if (isinstance(arr, memoryview) and arr.format == "B"
+                and arr.ndim == 3 and arr.shape[-1] == 4):
+            # Such an ``arr`` would also be handled fine by sm.to_rgba (after
+            # casting with asarray), but it is useful to special-case it
+            # because that's what backend_agg passes, and can be in fact used
+            # as is, saving a few operations.
+            rgba = arr
+        else:
+            rgba = sm.to_rgba(arr, bytes=True)
         if pil_kwargs is None:
             pil_kwargs = {}
         pil_shape = (rgba.shape[1], rgba.shape[0])
         image = PIL.Image.frombuffer(
             "RGBA", pil_shape, rgba, "raw", "RGBA", 0, 1)
-        if format == "png" and metadata is not None:
-            # cf. backend_agg's print_png.
-            pnginfo = PIL.PngImagePlugin.PngInfo()
-            for k, v in metadata.items():
-                pnginfo.add_text(k, v)
-            pil_kwargs["pnginfo"] = pnginfo
+        if format == "png":
+            # Only use the metadata kwarg if pnginfo is not set, because the
+            # semantics of duplicate keys in pnginfo is unclear.
+            if "pnginfo" in pil_kwargs:
+                if metadata:
+                    _api.warn_external("'metadata' is overridden by the "
+                                       "'pnginfo' entry in 'pil_kwargs'.")
+            else:
+                metadata = {
+                    "Software": (f"Matplotlib version{mpl.__version__}, "
+                                 f"https://matplotlib.org/"),
+                    **(metadata if metadata is not None else {}),
+                }
+                pil_kwargs["pnginfo"] = pnginfo = PIL.PngImagePlugin.PngInfo()
+                for k, v in metadata.items():
+                    if v is not None:
+                        pnginfo.add_text(k, v)
         if format in ["jpg", "jpeg"]:
             format = "jpeg"  # Pillow doesn't recognize "jpg".
-            color = tuple(
-                int(x * 255)
-                for x in mcolors.to_rgb(rcParams["savefig.facecolor"]))
+            facecolor = mpl.rcParams["savefig.facecolor"]
+            if cbook._str_equal(facecolor, "auto"):
+                facecolor = mpl.rcParams["figure.facecolor"]
+            color = tuple(int(x * 255) for x in mcolors.to_rgb(facecolor))
             background = PIL.Image.new("RGB", pil_shape, color)
             background.paste(image, image)
             image = background
@@ -1559,7 +1653,8 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
 
 
 def pil_to_array(pilImage):
-    """Load a `PIL image`_ and return it as a numpy int array.
+    """
+    Load a `PIL image`_ and return it as a numpy int array.
 
     .. _PIL image: https://pillow.readthedocs.io/en/latest/reference/Image.html
 
@@ -1587,8 +1682,8 @@ def pil_to_array(pilImage):
     else:  # try to convert to an rgba image
         try:
             pilImage = pilImage.convert('RGBA')
-        except ValueError:
-            raise RuntimeError('Unknown image mode')
+        except ValueError as err:
+            raise RuntimeError('Unknown image mode') from err
         return np.asarray(pilImage)  # return MxNx4 RGBA array
 
 
@@ -1602,7 +1697,7 @@ def _pil_png_to_float_array(pil_png):
     mode = pil_png.mode
     rawmode = pil_png.png.im_rawmode
     if rawmode == "1":  # Grayscale.
-        return np.asarray(pil_png, np.float32)
+        return np.asarray(pil_png).astype(np.float32)
     if rawmode == "L;2":  # Grayscale.
         return np.divide(pil_png, 2**2 - 1, dtype=np.float32)
     if rawmode == "L;4":  # Grayscale.
@@ -1636,28 +1731,28 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
         thus supports a wide range of file formats, including PNG, JPG, TIFF
         and others.
 
-        .. _Pillow: http://python-pillow.org/
+        .. _Pillow: https://python-pillow.org/
 
     thumbfile : str or file-like
         The thumbnail filename.
 
-    scale : float, optional
+    scale : float, default: 0.1
         The scale factor for the thumbnail.
 
-    interpolation : str, optional
+    interpolation : str, default: 'bilinear'
         The interpolation scheme used in the resampling. See the
         *interpolation* parameter of `~.Axes.imshow` for possible values.
 
-    preview : bool, optional
+    preview : bool, default: False
         If True, the default backend (presumably a user interface
         backend) will be used which will cause a figure to be raised if
         `~matplotlib.pyplot.show` is called.  If it is False, the figure is
-        created using `FigureCanvasBase` and the drawing backend is selected
-        as `~matplotlib.figure.savefig` would normally do.
+        created using `.FigureCanvasBase` and the drawing backend is selected
+        as `.Figure.savefig` would normally do.
 
     Returns
     -------
-    figure : `~.figure.Figure`
+    `~.figure.Figure`
         The figure instance containing the thumbnail.
     """
 

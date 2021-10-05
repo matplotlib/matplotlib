@@ -1,6 +1,6 @@
 #include "mplutils.h"
 #include "_image_resample.h"
-#include "_image.h"
+#include "numpy_cpp.h"
 #include "py_converters.h"
 
 
@@ -66,8 +66,7 @@ _get_transform_mesh(PyObject *py_affine, npy_intp *dims)
     out_dims[0] = dims[0] * dims[1];
     out_dims[1] = 2;
 
-    py_inverse = PyObject_CallMethod(
-        py_affine, (char *)"inverted", (char *)"", NULL);
+    py_inverse = PyObject_CallMethod(py_affine, "inverted", NULL);
     if (py_inverse == NULL) {
         return NULL;
     }
@@ -82,10 +81,8 @@ _get_transform_mesh(PyObject *py_affine, npy_intp *dims)
         }
     }
 
-    PyObject *output_mesh =
-        PyObject_CallMethod(
-            py_inverse, (char *)"transform", (char *)"O",
-            (char *)input_mesh.pyobj(), NULL);
+    PyObject *output_mesh = PyObject_CallMethod(
+        py_inverse, "transform", "O", input_mesh.pyobj_steal());
 
     Py_DECREF(py_inverse);
 
@@ -107,6 +104,19 @@ _get_transform_mesh(PyObject *py_affine, npy_intp *dims)
 }
 
 
+template<class T>
+static void
+resample(PyArrayObject* input, PyArrayObject* output, resample_params_t params)
+{
+    Py_BEGIN_ALLOW_THREADS
+    resample(
+        (T*)PyArray_DATA(input), PyArray_DIM(input, 1), PyArray_DIM(input, 0),
+        (T*)PyArray_DATA(output), PyArray_DIM(output, 1), PyArray_DIM(output, 0),
+        params);
+    Py_END_ALLOW_THREADS
+}
+
+
 static PyObject *
 image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
 {
@@ -119,7 +129,12 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
     PyArrayObject *output_array = NULL;
     PyArrayObject *transform_mesh_array = NULL;
 
+    params.interpolation = NEAREST;
     params.transform_mesh = NULL;
+    params.resample = false;
+    params.norm = false;
+    params.radius = 1.0;
+    params.alpha = 1.0;
 
     const char *kwlist[] = {
         "input_array", "output_array", "transform", "interpolation",
@@ -145,9 +160,18 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
         goto error;
     }
 
-    output_array = (PyArrayObject *)PyArray_FromAny(
-        py_output_array, NULL, 2, 3, NPY_ARRAY_C_CONTIGUOUS, NULL);
-    if (output_array == NULL) {
+    if (!PyArray_Check(py_output_array)) {
+        PyErr_SetString(PyExc_ValueError, "output array must be a NumPy array");
+        goto error;
+    }
+    output_array = (PyArrayObject *)py_output_array;
+    if (!PyArray_IS_C_CONTIGUOUS(output_array)) {
+        PyErr_SetString(PyExc_ValueError, "output array must be C-contiguous");
+        goto error;
+    }
+    if (PyArray_NDIM(output_array) < 2 || PyArray_NDIM(output_array) > 3) {
+        PyErr_SetString(PyExc_ValueError,
+                        "output array must be 2- or 3-dimensional");
         goto error;
     }
 
@@ -204,56 +228,20 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
         }
 
         if (PyArray_DIM(input_array, 2) == 4) {
-            switch(PyArray_TYPE(input_array)) {
-            case NPY_BYTE:
+            switch (PyArray_TYPE(input_array)) {
             case NPY_UINT8:
-                Py_BEGIN_ALLOW_THREADS
-                resample(
-                    (agg::rgba8 *)PyArray_DATA(input_array),
-                    PyArray_DIM(input_array, 1),
-                    PyArray_DIM(input_array, 0),
-                    (agg::rgba8 *)PyArray_DATA(output_array),
-                    PyArray_DIM(output_array, 1),
-                    PyArray_DIM(output_array, 0),
-                    params);
-                Py_END_ALLOW_THREADS
+            case NPY_INT8:
+                resample<agg::rgba8>(input_array, output_array, params);
                 break;
             case NPY_UINT16:
             case NPY_INT16:
-                Py_BEGIN_ALLOW_THREADS
-                resample(
-                    (agg::rgba16 *)PyArray_DATA(input_array),
-                    PyArray_DIM(input_array, 1),
-                    PyArray_DIM(input_array, 0),
-                    (agg::rgba16 *)PyArray_DATA(output_array),
-                    PyArray_DIM(output_array, 1),
-                    PyArray_DIM(output_array, 0),
-                    params);
-                Py_END_ALLOW_THREADS
+                resample<agg::rgba16>(input_array, output_array, params);
                 break;
             case NPY_FLOAT32:
-                Py_BEGIN_ALLOW_THREADS
-                resample(
-                    (agg::rgba32 *)PyArray_DATA(input_array),
-                    PyArray_DIM(input_array, 1),
-                    PyArray_DIM(input_array, 0),
-                    (agg::rgba32 *)PyArray_DATA(output_array),
-                    PyArray_DIM(output_array, 1),
-                    PyArray_DIM(output_array, 0),
-                    params);
-                Py_END_ALLOW_THREADS
+                resample<agg::rgba32>(input_array, output_array, params);
                 break;
             case NPY_FLOAT64:
-                Py_BEGIN_ALLOW_THREADS
-                resample(
-                    (agg::rgba64 *)PyArray_DATA(input_array),
-                    PyArray_DIM(input_array, 1),
-                    PyArray_DIM(input_array, 0),
-                    (agg::rgba64 *)PyArray_DATA(output_array),
-                    PyArray_DIM(output_array, 1),
-                    PyArray_DIM(output_array, 0),
-                    params);
-                Py_END_ALLOW_THREADS
+                resample<agg::rgba64>(input_array, output_array, params);
                 break;
             default:
                 PyErr_SetString(
@@ -272,54 +260,18 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
     } else { // NDIM == 2
         switch (PyArray_TYPE(input_array)) {
         case NPY_DOUBLE:
-            Py_BEGIN_ALLOW_THREADS
-            resample(
-                (double *)PyArray_DATA(input_array),
-                PyArray_DIM(input_array, 1),
-                PyArray_DIM(input_array, 0),
-                (double *)PyArray_DATA(output_array),
-                PyArray_DIM(output_array, 1),
-                PyArray_DIM(output_array, 0),
-                params);
-            Py_END_ALLOW_THREADS
+            resample<double>(input_array, output_array, params);
             break;
         case NPY_FLOAT:
-            Py_BEGIN_ALLOW_THREADS
-            resample(
-                (float *)PyArray_DATA(input_array),
-                PyArray_DIM(input_array, 1),
-                PyArray_DIM(input_array, 0),
-                (float *)PyArray_DATA(output_array),
-                PyArray_DIM(output_array, 1),
-                PyArray_DIM(output_array, 0),
-                params);
-            Py_END_ALLOW_THREADS
+            resample<float>(input_array, output_array, params);
             break;
         case NPY_UINT8:
-        case NPY_BYTE:
-            Py_BEGIN_ALLOW_THREADS
-            resample(
-                (unsigned char *)PyArray_DATA(input_array),
-                PyArray_DIM(input_array, 1),
-                PyArray_DIM(input_array, 0),
-                (unsigned char *)PyArray_DATA(output_array),
-                PyArray_DIM(output_array, 1),
-                PyArray_DIM(output_array, 0),
-                params);
-            Py_END_ALLOW_THREADS
+        case NPY_INT8:
+            resample<unsigned char>(input_array, output_array, params);
             break;
         case NPY_UINT16:
         case NPY_INT16:
-            Py_BEGIN_ALLOW_THREADS
-            resample(
-                (unsigned short *)PyArray_DATA(input_array),
-                PyArray_DIM(input_array, 1),
-                PyArray_DIM(input_array, 0),
-                (unsigned short *)PyArray_DATA(output_array),
-                PyArray_DIM(output_array, 1),
-                PyArray_DIM(output_array, 0),
-                params);
-            Py_END_ALLOW_THREADS
+            resample<unsigned short>(input_array, output_array, params);
             break;
         default:
             PyErr_SetString(PyExc_ValueError, "Unsupported dtype");
@@ -329,127 +281,30 @@ image_resample(PyObject *self, PyObject* args, PyObject *kwargs)
 
     Py_DECREF(input_array);
     Py_XDECREF(transform_mesh_array);
-    return (PyObject *)output_array;
+    Py_RETURN_NONE;
 
  error:
     Py_XDECREF(input_array);
-    Py_XDECREF(output_array);
     Py_XDECREF(transform_mesh_array);
     return NULL;
 }
 
-
-const char *image_pcolor__doc__ =
-    "pcolor(x, y, data, rows, cols, bounds)\n"
-    "\n"
-    "Generate a pseudo-color image from data on a non-uniform grid using\n"
-    "nearest neighbour or linear interpolation.\n"
-    "bounds = (x_min, x_max, y_min, y_max)\n"
-    "interpolation = NEAREST or BILINEAR \n";
-
-static PyObject *image_pcolor(PyObject *self, PyObject *args, PyObject *kwds)
-{
-    numpy::array_view<const float, 1> x;
-    numpy::array_view<const float, 1> y;
-    numpy::array_view<const agg::int8u, 3> d;
-    npy_intp rows, cols;
-    float bounds[4];
-    int interpolation;
-
-    if (!PyArg_ParseTuple(args,
-                          "O&O&O&nn(ffff)i:pcolor",
-                          &x.converter,
-                          &x,
-                          &y.converter,
-                          &y,
-                          &d.converter_contiguous,
-                          &d,
-                          &rows,
-                          &cols,
-                          &bounds[0],
-                          &bounds[1],
-                          &bounds[2],
-                          &bounds[3],
-                          &interpolation)) {
-        return NULL;
-    }
-
-    npy_intp dim[3] = {rows, cols, 4};
-    numpy::array_view<const agg::int8u, 3> output(dim);
-
-    CALL_CPP("pcolor", (pcolor(x, y, d, rows, cols, bounds, interpolation, output)));
-
-    return output.pyobj();
-}
-
-const char *image_pcolor2__doc__ =
-    "pcolor2(x, y, data, rows, cols, bounds, bg)\n"
-    "\n"
-    "Generate a pseudo-color image from data on a non-uniform grid\n"
-    "specified by its cell boundaries.\n"
-    "bounds = (x_left, x_right, y_bot, y_top)\n"
-    "bg = ndarray of 4 uint8 representing background rgba\n";
-
-static PyObject *image_pcolor2(PyObject *self, PyObject *args, PyObject *kwds)
-{
-    numpy::array_view<const double, 1> x;
-    numpy::array_view<const double, 1> y;
-    numpy::array_view<const agg::int8u, 3> d;
-    npy_intp rows, cols;
-    float bounds[4];
-    numpy::array_view<const agg::int8u, 1> bg;
-
-    if (!PyArg_ParseTuple(args,
-                          "O&O&O&nn(ffff)O&:pcolor2",
-                          &x.converter_contiguous,
-                          &x,
-                          &y.converter_contiguous,
-                          &y,
-                          &d.converter_contiguous,
-                          &d,
-                          &rows,
-                          &cols,
-                          &bounds[0],
-                          &bounds[1],
-                          &bounds[2],
-                          &bounds[3],
-                          &bg.converter,
-                          &bg)) {
-        return NULL;
-    }
-
-    npy_intp dim[3] = {rows, cols, 4};
-    numpy::array_view<const agg::int8u, 3> output(dim);
-
-    CALL_CPP("pcolor2", (pcolor2(x, y, d, rows, cols, bounds, bg, output)));
-
-    return output.pyobj();
-}
-
 static PyMethodDef module_functions[] = {
     {"resample", (PyCFunction)image_resample, METH_VARARGS|METH_KEYWORDS, image_resample__doc__},
-    {"pcolor", (PyCFunction)image_pcolor, METH_VARARGS, image_pcolor__doc__},
-    {"pcolor2", (PyCFunction)image_pcolor2, METH_VARARGS, image_pcolor2__doc__},
     {NULL}
 };
 
-extern "C" {
-
 static struct PyModuleDef moduledef = {
-    PyModuleDef_HEAD_INIT,
-    "_image",
-    NULL,
-    0,
-    module_functions,
-    NULL,
-    NULL,
-    NULL,
-    NULL
+    PyModuleDef_HEAD_INIT, "_image", NULL, 0, module_functions,
 };
+
+#pragma GCC visibility push(default)
 
 PyMODINIT_FUNC PyInit__image(void)
 {
     PyObject *m;
+
+    import_array();
 
     m = PyModule_Create(&moduledef);
 
@@ -475,12 +330,11 @@ PyMODINIT_FUNC PyInit__image(void)
         PyModule_AddIntConstant(m, "LANCZOS", LANCZOS) ||
         PyModule_AddIntConstant(m, "BLACKMAN", BLACKMAN) ||
         PyModule_AddIntConstant(m, "_n_interpolation", _n_interpolation)) {
+        Py_DECREF(m);
         return NULL;
     }
-
-    import_array();
 
     return m;
 }
 
-} // extern "C"
+#pragma GCC visibility pop

@@ -30,7 +30,7 @@ The original pcolor and scatter functions are retained as
 pcolor_classic and scatter_classic.
 
 The return value from pcolor is a PolyCollection.  Most of the
-propertes that are available on rectangles or other patches are also
+properties that are available on rectangles or other patches are also
 available on PolyCollections, e.g., you can say::
 
   c = scatter(blah, blah)

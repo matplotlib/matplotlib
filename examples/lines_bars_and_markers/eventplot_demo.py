@@ -24,7 +24,7 @@ colors1 = ['C{}'.format(i) for i in range(6)]
 
 # set different line properties for each set of positions
 # note that some overlap
-lineoffsets1 = np.array([-15, -3, 1, 1.5, 6, 10])
+lineoffsets1 = [-15, -3, 1, 1.5, 6, 10]
 linelengths1 = [5, 2, 1, 1, 3, 1.5]
 
 fig, axs = plt.subplots(2, 2)
@@ -38,7 +38,7 @@ axs[1, 0].eventplot(data1, colors=colors1, lineoffsets=lineoffsets1,
                     linelengths=linelengths1, orientation='vertical')
 
 # create another set of random data.
-# the gamma distribution is only used fo aesthetic purposes
+# the gamma distribution is only used for aesthetic purposes
 data2 = np.random.gamma(4, size=[60, 50])
 
 # use individual values for the parameters this time

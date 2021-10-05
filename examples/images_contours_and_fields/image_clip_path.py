@@ -10,7 +10,7 @@ import matplotlib.patches as patches
 import matplotlib.cbook as cbook
 
 
-with cbook.get_sample_data('grace_hopper.png') as image_file:
+with cbook.get_sample_data('grace_hopper.jpg') as image_file:
     image = plt.imread(image_file)
 
 fig, ax = plt.subplots()
@@ -23,15 +23,10 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions and methods is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.imshow
-matplotlib.pyplot.imshow
-matplotlib.artist.Artist.set_clip_path
+#    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`
+#    - `matplotlib.artist.Artist.set_clip_path`

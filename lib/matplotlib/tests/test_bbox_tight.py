@@ -1,5 +1,6 @@
-import numpy as np
 from io import BytesIO
+
+import numpy as np
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
@@ -9,7 +10,7 @@ from matplotlib.ticker import FuncFormatter
 
 
 @image_comparison(['bbox_inches_tight'], remove_text=True,
-                  savefig_kwarg=dict(bbox_inches='tight'))
+                  savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_tight():
     #: Test that a figure saved using bbox_inches='tight' is clipped correctly
     data = [[66386, 174296, 75131, 577908, 32015],
@@ -18,25 +19,26 @@ def test_bbox_inches_tight():
             [78415, 81858, 150656, 193263, 69638],
             [139361, 331509, 343164, 781380, 52269]]
 
-    colLabels = rowLabels = [''] * 5
+    col_labels = row_labels = [''] * 5
 
     rows = len(data)
-    ind = np.arange(len(colLabels)) + 0.3  # the x locations for the groups
-    cellText = []
+    ind = np.arange(len(col_labels)) + 0.3  # the x locations for the groups
+    cell_text = []
     width = 0.4     # the width of the bars
-    yoff = np.zeros(len(colLabels))
+    yoff = np.zeros(len(col_labels))
     # the bottom values for stacked bar chart
     fig, ax = plt.subplots(1, 1)
     for row in range(rows):
         ax.bar(ind, data[row], width, bottom=yoff, align='edge', color='b')
         yoff = yoff + data[row]
-        cellText.append([''])
+        cell_text.append([''])
     plt.xticks([])
     plt.xlim(0, 5)
     plt.legend([''] * 5, loc=(1.2, 0.2))
+    fig.legend([''] * 5, bbox_to_anchor=(0, 0.2), loc='lower left')
     # Add a table at the bottom of the axes
-    cellText.reverse()
-    plt.table(cellText=cellText, rowLabels=rowLabels, colLabels=colLabels,
+    cell_text.reverse()
+    plt.table(cellText=cell_text, rowLabels=row_labels, colLabels=col_labels,
               loc='bottom')
 
 
@@ -57,6 +59,14 @@ def test_bbox_inches_tight_suptile_legend():
     plt.gca().yaxis.set_major_formatter(FuncFormatter(y_formatter))
 
     plt.xlabel('X axis')
+
+
+@image_comparison(['bbox_inches_tight_suptile_non_default.png'],
+                  remove_text=False, savefig_kwarg={'bbox_inches': 'tight'},
+                  tol=0.1)  # large tolerance because only testing clipping.
+def test_bbox_inches_tight_suptitle_non_default():
+    fig, ax = plt.subplots()
+    fig.suptitle('Booo', x=0.5, y=1.1)
 
 
 @image_comparison(['bbox_inches_tight_clipping'],
@@ -84,8 +94,7 @@ def test_bbox_inches_tight_clipping():
                   remove_text=True, savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_tight_raster():
     """Test rasterization with tight_layout"""
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     ax.plot([1.0, 2.0], rasterized=True)
 
 
@@ -108,3 +117,32 @@ def test_tight_pcolorfast():
     # Previously, the bbox would include the area of the image clipped out by
     # the axes, resulting in a very tall image given the y limits of (0, 0.1).
     assert width > height
+
+
+def test_noop_tight_bbox():
+    from PIL import Image
+    x_size, y_size = (10, 7)
+    dpi = 100
+    # make the figure just the right size up front
+    fig = plt.figure(frameon=False, dpi=dpi, figsize=(x_size/dpi, y_size/dpi))
+    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    fig.add_axes(ax)
+    ax.set_axis_off()
+    ax.xaxis.set_visible(False)
+    ax.yaxis.set_visible(False)
+
+    data = np.arange(x_size * y_size).reshape(y_size, x_size)
+    ax.imshow(data, rasterized=True)
+
+    # When a rasterized Artist is included, a mixed-mode renderer does
+    # additional bbox adjustment. It should also be a no-op, and not affect the
+    # next save.
+    fig.savefig(BytesIO(), bbox_inches='tight', pad_inches=0, format='pdf')
+
+    out = BytesIO()
+    fig.savefig(out, bbox_inches='tight', pad_inches=0)
+    out.seek(0)
+    im = np.asarray(Image.open(out))
+    assert (im[:, :, 3] == 255).all()
+    assert not (im[:, :, :3] == 255).all()
+    assert im.shape == (7, 10, 4)

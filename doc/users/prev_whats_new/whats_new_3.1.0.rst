@@ -1,6 +1,7 @@
+.. _whats-new-3-1-0:
 
-What's new in Matplotlib 3.1
-============================
+What's new in Matplotlib 3.1 (May 18, 2019)
+===========================================
 
 For a list of all of the issues and pull requests since the last
 revision, see the :ref:`github-stats`.
@@ -96,7 +97,7 @@ show in the legend manually.  Now,
 handles and labels for a scatter plot in an automated way. This makes
 creating a legend for a scatter plot as easy as
 
-.. plot ::
+.. plot::
 
     scatter = plt.scatter([1,2,3], [4,5,6], c=[7,2,3])
     plt.legend(*scatter.legend_elements())
@@ -130,10 +131,10 @@ now directly forwards to the visibility of the underlying Rectangle artist
 
 Matplotlib uses Pillow to handle saving to the JPEG and TIFF formats.  The
 `~.Figure.savefig()` function gained a *pil_kwargs* keyword argument, which can
-be used to forward arguments to Pillow's `pillow.Image.save()`.
+be used to forward arguments to Pillow's `PIL.Image.Image.save`.
 
 The *pil_kwargs* argument can also be used when saving to PNG.  In that case,
-Matplotlib also uses Pillow's `pillow.Image.save()` instead of going through its
+Matplotlib also uses Pillow's `PIL.Image.Image.save` instead of going through its
 own builtin PNG support.
 
 
@@ -168,19 +169,18 @@ Return type of ArtistInspector.get_aliases changed
 was used to simulate a set in earlier versions of Python.  It has now been
 replaced by a set, i.e. ``{fullname: {alias1, alias2, ...}}``.
 
-This value is also stored in `.ArtistInspector.aliasd`, which has likewise
+This value is also stored in ``ArtistInspector.aliasd``, which has likewise
 changed.
 
 
 `.ConnectionPatch` accepts arbitrary transforms
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Alternatively to strings like ``"data"`` or ``"axes fraction"``
-`ConnectionPatch` now accepts any `~matplotlib.transforms.Transform`
-as input for the ``coordsA`` and ``coordsB`` argument. This allows to
-draw lines between points defined in different user defined coordinate
-systems. Also see the :doc:`Connect Simple01 example
-</gallery/userdemo/connect_simple01>`.
+Alternatively to strings like ``"data"`` or ``"axes fraction"``,
+`.ConnectionPatch` now accepts any `~matplotlib.transforms.Transform` as input
+for the *coordsA* and *coordsB* arguments. This allows to draw lines between
+points defined in different user defined coordinate systems. Also see the
+:doc:`Connect Simple01 example </gallery/userdemo/connect_simple01>`.
 
 
 mplot3d Line3D now allows {set,get}_data_3d
@@ -196,11 +196,11 @@ an existing Line3D.
 ``Axes3D.voxels`` now shades the resulting voxels
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The :meth:`~mpl_toolkits.mplot3d.Axes3D.voxels` method now takes a
+The `.Axes3D.voxels` method now takes a
 *shade* parameter that defaults to `True`. This shades faces based
 on their orientation, behaving just like the matching parameters to
-:meth:`~mpl_toolkits.mplot3d.Axes3D.trisurf` and
-:meth:`~mpl_toolkits.mplot3d.Axes3D.bar3d`.  The plot below shows how
+:meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.plot_trisurf` and
+:meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.bar3d`.  The plot below shows how
 this affects the output.
 
 .. plot::
@@ -244,11 +244,10 @@ The `.Axis.get_inverted` and `.Axis.set_inverted` methods query and set whether
 the axis uses "inverted" orientation (i.e. increasing to the left for the
 x-axis and to the bottom for the y-axis).
 
-They perform tasks similar to `.Axes.xaxis_inverted`,
-`.Axes.yaxis_inverted`, `.Axes.invert_xaxis`, and
-`.Axes.invert_yaxis`, with the specific difference that
-`.Axes..set_inverted` makes it easier to set the invertedness of an
-axis regardless of whether it had previously been inverted before.
+They perform tasks similar to `.Axes.xaxis_inverted`, `.Axes.yaxis_inverted`,
+`.Axes.invert_xaxis`, and `.Axes.invert_yaxis`, with the specific difference
+that `.Axis.set_inverted` makes it easier to set the inversion of an axis
+regardless of whether it had previously been inverted before.
 
 Adjust default minor tick spacing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -257,22 +256,21 @@ Default minor tick spacing was changed from 0.625 to 0.5 for major ticks spaced
 2.5 units apart.
 
 
-`.EngFormatter` now accepts `usetex`, `useMathText` as keyword only arguments
+`.EngFormatter` now accepts *usetex*, *useMathText* as keyword only arguments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A public API has been added to `EngFormatter` to control how the
-numbers in the ticklabels will be rendered. By default,
-``useMathText`` evaluates to
-:rc:`axes.formatter.use_mathtext'` and ``usetex`` evaluates
-to :rc:`'text.usetex'`.
+A public API has been added to `.EngFormatter` to control how the numbers in
+the ticklabels will be rendered. By default, *useMathText* evaluates to
+:rc:`axes.formatter.use_mathtext'` and *usetex* evaluates to
+:rc:`'text.usetex'`.
 
 If either is `True` then the numbers will be encapsulated by ``$``
 signs.  When using ``TeX`` this implies that the numbers will be shown
 in TeX's math font. When using mathtext, the ``$`` signs around
-numbers will ensure unicode rendering (as implied by mathtext). This
+numbers will ensure Unicode rendering (as implied by mathtext). This
 will make sure that the minus signs in the ticks are rendered as the
-unicode=minus (U+2212) when using mathtext (without relying on the
-`~.Fomatter.fix_minus` method).
+Unicode minus (U+2212) when using mathtext (without relying on the
+`~.Formatter.fix_minus` method).
 
 
 
@@ -311,9 +309,9 @@ caching; thereby, this new argument provides a fix for issue
 Endless Looping GIFs with PillowWriter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We acknowledge that most people want to watch a gif more than
-once. Saving an animation as a gif with PillowWriter now produces an
-endless looping gif.
+We acknowledge that most people want to watch a GIF more than
+once. Saving an animation as a GIF with PillowWriter now produces an
+endless looping GIF.
 
 
 Adjusted `.matplotlib.widgets.Slider` to have vertical orientation
@@ -335,12 +333,12 @@ were previously displayed as ``1e+04``.
 MouseEvent button attribute is now an IntEnum
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The :attr:`button` attribute of `~.MouseEvent` instances can take the values
+The ``button`` attribute of `~.MouseEvent` instances can take the values
 None, 1 (left button), 2 (middle button), 3 (right button), "up" (scroll), and
 "down" (scroll).  For better legibility, the 1, 2, and 3 values are now
-represented using the `IntEnum` class `matplotlib.backend_bases.MouseButton`,
-with the values `MouseButton.LEFT` (``== 1``), `MouseButton.MIDDLE` (``== 2``),
-and `MouseButton.RIGHT` (``== 3``).
+represented using the `enum.IntEnum` class `matplotlib.backend_bases.MouseButton`,
+with the values `.MouseButton.LEFT` (``== 1``), `.MouseButton.MIDDLE` (``== 2``),
+and `.MouseButton.RIGHT` (``== 3``).
 
 
 Configuration, Install, and Development

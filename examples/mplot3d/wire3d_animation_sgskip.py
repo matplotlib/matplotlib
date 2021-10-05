@@ -15,15 +15,15 @@ import time
 
 
 def generate(X, Y, phi):
-    '''
+    """
     Generates Z data for the points in the X, Y meshgrid and parameter phi.
-    '''
+    """
     R = 1 - np.sqrt(X**2 + Y**2)
     return np.cos(2 * np.pi * X + phi) * R
 
 
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot(projection='3d')
 
 # Make the X, Y meshgrid.
 xs = np.linspace(-1, 1, 50)

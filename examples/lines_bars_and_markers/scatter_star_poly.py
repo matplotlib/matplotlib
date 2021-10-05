@@ -1,11 +1,11 @@
 """
-=================
-Scatter Star Poly
-=================
+===============
+Marker examples
+===============
 
-Create multiple scatter plots with different
-star symbols.
+Example with different ways to specify markers.
 
+For a list of all markers see also the `matplotlib.markers` documentation.
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,28 +13,36 @@ import matplotlib.pyplot as plt
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
-
 x = np.random.rand(10)
 y = np.random.rand(10)
 z = np.sqrt(x**2 + y**2)
 
-plt.subplot(321)
-plt.scatter(x, y, s=80, c=z, marker=">")
+fig, axs = plt.subplots(2, 3, sharex=True, sharey=True)
 
-plt.subplot(322)
-plt.scatter(x, y, s=80, c=z, marker=(5, 0))
+# marker symbol
+axs[0, 0].scatter(x, y, s=80, c=z, marker=">")
+axs[0, 0].set_title("marker='>'")
 
-verts = np.array([[-1, -1], [1, -1], [1, 1], [-1, -1]])
-plt.subplot(323)
-plt.scatter(x, y, s=80, c=z, marker=verts)
+# marker from TeX
+axs[0, 1].scatter(x, y, s=80, c=z, marker=r'$\alpha$')
+axs[0, 1].set_title(r"marker=r'\$\alpha\$'")
 
-plt.subplot(324)
-plt.scatter(x, y, s=80, c=z, marker=(5, 1))
+# marker from path
+verts = [[-1, -1], [1, -1], [1, 1], [-1, -1]]
+axs[0, 2].scatter(x, y, s=80, c=z, marker=verts)
+axs[0, 2].set_title("marker=verts")
 
-plt.subplot(325)
-plt.scatter(x, y, s=80, c=z, marker='+')
+# regular polygon marker
+axs[1, 0].scatter(x, y, s=80, c=z, marker=(5, 0))
+axs[1, 0].set_title("marker=(5, 0)")
 
-plt.subplot(326)
-plt.scatter(x, y, s=80, c=z, marker=(5, 2))
+# regular star marker
+axs[1, 1].scatter(x, y, s=80, c=z, marker=(5, 1))
+axs[1, 1].set_title("marker=(5, 1)")
 
+# regular asterisk marker
+axs[1, 2].scatter(x, y, s=80, c=z, marker=(5, 2))
+axs[1, 2].set_title("marker=(5, 2)")
+
+plt.tight_layout()
 plt.show()

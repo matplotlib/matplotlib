@@ -2,15 +2,13 @@ r"""
 Writing mathematical expressions
 ================================
 
-An introduction to writing mathematical expressions in Matplotlib.
-
-You can use a subset TeX markup in any matplotlib text string by placing it
+You can use a subset of TeX markup in any Matplotlib text string by placing it
 inside a pair of dollar signs ($).
 
 Note that you do not need to have TeX installed, since Matplotlib ships
 its own TeX expression parser, layout engine, and fonts.  The layout engine
 is a fairly direct adaptation of the layout algorithms in Donald Knuth's
-TeX, so the quality is quite good (matplotlib also provides a ``usetex``
+TeX, so the quality is quite good (Matplotlib also provides a ``usetex``
 option for those who do want to call out to TeX to generate their text (see
 :doc:`/tutorials/text/usetex`).
 
@@ -51,13 +49,11 @@ produces ":mathmpl:`\alpha > \beta`".
      # $ % & ~ _ ^ \ { } \( \) \[ \]
 
    have special meaning outside of math mode in TeX.  Therefore, these
-   characters will behave differently depending on the rcParam ``text.usetex``
-   flag.  See the :doc:`usetex tutorial </tutorials/text/usetex>` for more
-   information.
+   characters will behave differently depending on :rc:`text.usetex`.  See the
+   :doc:`usetex tutorial </tutorials/text/usetex>` for more information.
 
 Subscripts and superscripts
 ---------------------------
-
 To make subscripts and superscripts, use the ``'_'`` and ``'^'`` symbols::
 
     r'$\alpha_i > \beta_i$'
@@ -87,7 +83,6 @@ operator.  For example, to write the sum of :mathmpl:`x_i` from :mathmpl:`0` to
 
 Fractions, binomials, and stacked numbers
 -----------------------------------------
-
 Fractions, binomials, and stacked numbers can be created with the
 ``\frac{}{}``, ``\binom{}{}`` and ``\genfrac{}{}{}{}{}{}`` commands,
 respectively::
@@ -98,7 +93,7 @@ produces
 
 .. math::
 
-    \frac{3}{4} \binom{3}{4} \stackrel{}{}{0}{}{3}{4}
+    \frac{3}{4} \binom{3}{4} \genfrac{}{}{0pt}{}{3}{4}
 
 Fractions can be arbitrarily nested::
 
@@ -131,7 +126,6 @@ the parser that those brackets encompass the entire object.::
 
 Radicals
 --------
-
 Radicals can be produced with the ``\sqrt[]{}`` command.  For example::
 
     r'$\sqrt{2}$'
@@ -154,12 +148,11 @@ fractions or sub/superscripts::
 
 Fonts
 -----
-
 The default font is *italics* for mathematical symbols.
 
 .. note::
 
-   This default can be changed using the ``mathtext.default`` rcParam.  This is
+   This default can be changed using :rc:`mathtext.default`.  This is
    useful, for example, to use the same font as regular non-math text for math
    text, by setting it to ``regular``.
 
@@ -224,21 +217,44 @@ choice of:
     ``\mathrm{\mathsf{sansserif}}``  :math-stix:`\mathrm{\mathsf{sansserif}}`
     ================================ =========================================
 
-There are also three global "font sets" to choose from, which are
+There are also five global "font sets" to choose from, which are
 selected using the ``mathtext.fontset`` parameter in :ref:`matplotlibrc
 <matplotlibrc-sample>`.
 
-``cm``: **Computer Modern (TeX)**
+``dejavusans``: DejaVu Sans
 
-.. image:: ../../_static/cm_fontset.png
+    .. mathmpl::
+       :fontset: dejavusans
 
-``stix``: **STIX** (designed to blend well with Times)
+       \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
 
-.. image:: ../../_static/stix_fontset.png
+``dejavuserif``: DejaVu Serif
 
-``stixsans``: **STIX sans-serif**
+    .. mathmpl::
+       :fontset: dejavuserif
 
-.. image:: ../../_static/stixsans_fontset.png
+       \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
+
+``cm``: Computer Modern (TeX)
+
+    .. mathmpl::
+       :fontset: cm
+
+       \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
+
+``stix``: STIX (designed to blend well with Times)
+
+    .. mathmpl::
+       :fontset: stix
+
+       \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
+
+``stixsans``: STIX sans-serif
+
+    .. mathmpl::
+       :fontset: stixsans
+
+       \mathcal{R} \prod_{i=\alpha}^{\infty} a_i \sin\left(2\pi fx_i\right)
 
 Additionally, you can use ``\mathdefault{...}`` or its alias
 ``\mathregular{...}`` to use the font used for regular text outside of
@@ -248,10 +264,9 @@ expressions blend well with other text in the plot.
 
 Custom fonts
 ~~~~~~~~~~~~
-
 mathtext also provides a way to use custom fonts for math.  This method is
 fairly tricky to use, and should be considered an experimental feature for
-patient users only.  By setting the rcParam ``mathtext.fontset`` to ``custom``,
+patient users only.  By setting :rc:`mathtext.fontset` to ``custom``,
 you can then set the following parameters, which control which font file to use
 for a particular set of math characters.
 
@@ -273,9 +288,10 @@ yet-to-be-written font chapter).
 
 The fonts used should have a Unicode mapping in order to find any
 non-Latin characters, such as Greek.  If you want to use a math symbol
-that is not contained in your custom fonts, you can set the rcParam
-``mathtext.fallback_to_cm`` to ``True`` which will cause the mathtext system
-to use characters from the default Computer Modern fonts whenever a particular
+that is not contained in your custom fonts, you can set
+:rc:`mathtext.fallback` to either ``'cm'``, ``'stix'`` or ``'stixsans'``
+which will cause the mathtext system to use
+characters from an alternative font whenever a particular
 character can not be found in the custom font.
 
 Note that the math glyphs specified in Unicode have evolved over time, and many
@@ -283,7 +299,6 @@ fonts may not have glyphs in the correct place for mathtext.
 
 Accents
 -------
-
 An accent command may precede any symbol to add an accent above it.  There are
 long and short forms for some of them.
 
@@ -293,8 +308,10 @@ long and short forms for some of them.
     ``\acute a`` or ``\'a``        :mathmpl:`\acute a`
     ``\bar a``                     :mathmpl:`\bar a`
     ``\breve a``                   :mathmpl:`\breve a`
-    ``\ddot a`` or ``\''a``        :mathmpl:`\ddot a`
     ``\dot a`` or ``\.a``          :mathmpl:`\dot a`
+    ``\ddot a`` or ``\''a``        :mathmpl:`\ddot a`
+    ``\dddot a``                   :mathmpl:`\dddot a`
+    ``\ddddot a``                  :mathmpl:`\ddddot a`
     ``\grave a`` or ``\`a``        :mathmpl:`\grave a`
     ``\hat a`` or ``\^a``          :mathmpl:`\hat a`
     ``\tilde a`` or ``\~a``        :mathmpl:`\tilde a`
@@ -323,7 +340,6 @@ in the following ``\imath`` is used to avoid the extra dot over the i::
 
 Symbols
 -------
-
 You can also use a large number of the TeX symbols, as in ``\infty``,
 ``\leftarrow``, ``\sum``, ``\int``.
 
@@ -336,13 +352,9 @@ obscure symbols in the STIX fonts), Unicode characters can also be used::
 
 Example
 -------
-
 Here is an example illustrating many of these features in context.
 
 .. figure:: ../../gallery/pyplots/images/sphx_glr_pyplot_mathtext_001.png
    :target: ../../gallery/pyplots/pyplot_mathtext.html
    :align: center
-   :scale: 50
-
-   Pyplot Mathtext
 """

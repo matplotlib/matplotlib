@@ -1,6 +1,5 @@
 from io import BytesIO
 import pickle
-import platform
 
 import numpy as np
 import pytest
@@ -10,6 +9,8 @@ from matplotlib.testing.decorators import image_comparison
 from matplotlib.dates import rrulewrapper
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
+import matplotlib.figure as mfigure
+from mpl_toolkits.axes_grid1 import parasite_axes
 
 
 def test_simple():
@@ -39,9 +40,12 @@ def test_simple():
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
 
-@image_comparison(['multi_pickle.png'], remove_text=True, style='mpl20',
-                  tol={'aarch64': 0.02}.get(platform.machine(), 0.0))
+@image_comparison(
+    ['multi_pickle.png'], remove_text=True, style='mpl20', tol=0.082)
 def test_complete():
+    # Remove this line when this test image is regenerated.
+    plt.rcParams['pcolormesh.snap'] = False
+
     fig = plt.figure('Figure with a label?', figsize=(10, 6))
 
     plt.suptitle('Can you fit any more in a figure?')
@@ -109,9 +113,7 @@ def test_complete():
 def test_no_pyplot():
     # tests pickle-ability of a figure not created with pyplot
     from matplotlib.backends.backend_pdf import FigureCanvasPdf
-    from matplotlib.figure import Figure
-
-    fig = Figure()
+    fig = mfigure.Figure()
     _ = FigureCanvasPdf(fig)
     ax = fig.add_subplot(1, 1, 1)
     ax.plot([1, 2, 3], [1, 2, 3])
@@ -137,7 +139,7 @@ def test_image():
 
 
 def test_polar():
-    plt.subplot(111, polar=True)
+    plt.subplot(polar=True)
     fig = plt.gcf()
     pf = pickle.dumps(fig)
     pickle.loads(pf)
@@ -191,6 +193,28 @@ def test_shared():
     assert fig.axes[1].get_xlim() == (10, 20)
 
 
-@pytest.mark.parametrize("cmap", cm.cmap_d.values())
+def test_inset_and_secondary():
+    fig, ax = plt.subplots()
+    ax.inset_axes([.1, .1, .3, .3])
+    ax.secondary_xaxis("top", functions=(np.square, np.sqrt))
+    pickle.loads(pickle.dumps(fig))
+
+
+@pytest.mark.parametrize("cmap", cm._cmap_registry.values())
 def test_cmap(cmap):
     pickle.dumps(cmap)
+
+
+def test_unpickle_canvas():
+    fig = mfigure.Figure()
+    assert fig.canvas is not None
+    out = BytesIO()
+    pickle.dump(fig, out)
+    out.seek(0)
+    fig2 = pickle.load(out)
+    assert fig2.canvas is not None
+
+
+def test_mpl_toolkits():
+    ax = parasite_axes.host_axes([0, 0, 1, 1])
+    assert type(pickle.loads(pickle.dumps(ax))) == parasite_axes.HostAxes

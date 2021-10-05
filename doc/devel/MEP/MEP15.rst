@@ -1,6 +1,6 @@
-==========================================================================
- MEP15 - Fix axis autoscaling when limits are specified for one axis only
-==========================================================================
+=========================================================================
+ MEP15: Fix axis autoscaling when limits are specified for one axis only
+=========================================================================
 
 .. contents::
    :local:
@@ -18,15 +18,15 @@ None so far.
 Abstract
 ========
 
-When one axis of a 2-dimensional plot if overridden via `xlim` or `ylim`,
-automatic scaling of the remaining axis should be based on the data that falls
-within the specified limits of the first axis.
+When one Axis of a 2-dimensional plot is overridden via `~.Axes.set_xlim` or
+`~.Axes.set_ylim`, automatic scaling of the remaining Axis should be based on
+the data that falls within the specified limits of the first Axis.
 
 Detailed description
 ====================
 
-When axis limits for a 2-D plot are specified for one axis only (via `xlim` or
-`ylim`), matplotlib currently does not currently rescale the other axis.  The
+When axis limits for a 2-D plot are specified for one axis only (via `~.Axes.set_xlim` or
+`~.Axes.set_ylim`), matplotlib currently does not currently rescale the other axis.  The
 result is that the displayed curves or symbols may be compressed into a tiny
 portion of the available area, so that the final plot conveys much less
 information than it would with appropriate axis scaling.

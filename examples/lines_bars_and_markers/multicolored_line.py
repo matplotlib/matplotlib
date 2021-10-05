@@ -1,11 +1,11 @@
-'''
+"""
 ==================
 Multicolored lines
 ==================
 
 This example shows how to make a multi-colored line. In this example, the line
 is colored based on its derivative.
-'''
+"""
 
 import numpy as np
 import matplotlib.pyplot as plt

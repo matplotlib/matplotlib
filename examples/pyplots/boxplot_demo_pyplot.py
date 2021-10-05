@@ -65,8 +65,6 @@ center = np.ones(25) * 40
 flier_high = np.random.rand(10) * 100 + 100
 flier_low = np.random.rand(10) * -100
 d2 = np.concatenate((spread, center, flier_high, flier_low))
-data.shape = (-1, 1)
-d2.shape = (-1, 1)
 
 ###############################################################################
 # Making a 2-D array only works if all the columns are the
@@ -74,7 +72,7 @@ d2.shape = (-1, 1)
 # This is actually more efficient because boxplot converts
 # a 2-D array into a list of vectors internally anyway.
 
-data = [data, d2, d2[::2, 0]]
+data = [data, d2, d2[::2]]
 fig7, ax7 = plt.subplots()
 ax7.set_title('Multiple Samples with Different sizes')
 ax7.boxplot(data)
@@ -83,14 +81,9 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.boxplot
-matplotlib.pyplot.boxplot
+#    - `matplotlib.axes.Axes.boxplot` / `matplotlib.pyplot.boxplot`

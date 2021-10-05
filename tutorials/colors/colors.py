@@ -3,59 +3,115 @@
 Specifying Colors
 *****************
 
-Matplotlib recognizes the following formats to specify a color:
+Matplotlib recognizes the following formats to specify a color.
 
-* an RGB or RGBA (red, green, blue, alpha) tuple of float values in closed
-  interval ``[0, 1]`` (e.g., ``(0.1, 0.2, 0.5)`` or ``(0.1, 0.2, 0.5, 0.3)``);
-* a hex RGB or RGBA string (e.g., ``'#0f0f0f'`` or ``'#0f0f0f80'``;
-  case-insensitive);
-* a shorthand hex RGB or RGBA string, equivalent to the hex RGB or RGBA
-  string obtained by duplicating each character, (e.g., ``'#abc'``, equivalent
-  to ``'#aabbcc'``, or ``'#abcd'``, equivalent to ``'#aabbccdd'``;
-  case-insensitive);
-* a string representation of a float value in ``[0, 1]`` inclusive for gray
-  level (e.g., ``'0.5'``);
-* one of ``{'b', 'g', 'r', 'c', 'm', 'y', 'k', 'w'}``, they are the single
-  character short-hand notations for blue, green, red, cyan, magenta, yellow,
-  black, and white.
-* a X11/CSS4 color name (case-insensitive);
-* a name from the `xkcd color survey`_, prefixed with ``'xkcd:'`` (e.g.,
-  ``'xkcd:sky blue'``; case insensitive);
-* one of the Tableau Colors from the 'T10' categorical palette (the default
-  color cycle): ``{'tab:blue', 'tab:orange', 'tab:green', 'tab:red',
-  'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray', 'tab:olive', 'tab:cyan'}``
-  (case-insensitive);
-* a "CN" color spec, i.e. ``'C'`` followed by a number, which is an index into
-  the default property cycle (``matplotlib.rcParams['axes.prop_cycle']``); the
-  indexing is intended to occur at rendering time, and defaults to black if the
-  cycle does not include color.
++--------------------------------------+--------------------------------------+
+| Format                               | Example                              |
++======================================+======================================+
+| RGB or RGBA (red, green, blue, alpha)| - ``(0.1, 0.2, 0.5)``                |
+| tuple of float values in a closed    | - ``(0.1, 0.2, 0.5, 0.3)``           |
+| interval [0, 1].                     |                                      |
++--------------------------------------+--------------------------------------+
+| Case-insensitive hex RGB or RGBA     | - ``'#0f0f0f'``                      |
+| string.                              | - ``'#0f0f0f80'``                    |
++--------------------------------------+--------------------------------------+
+| Case-insensitive RGB or RGBA string  | - ``'#abc'`` as ``'#aabbcc'``        |
+| equivalent hex shorthand of          | - ``'#fb1'`` as ``'#ffbb11'``        |
+| duplicated characters.               |                                      |
++--------------------------------------+--------------------------------------+
+| String representation of float value | - ``'0'`` as black                   |
+| in closed interval ``[0, 1]`` for    | - ``'1'`` as white                   |
+| grayscale values.                    | - ``'0.8'`` as light gray            |
++--------------------------------------+--------------------------------------+
+| Single character shorthand notation  | - ``'b'`` as blue                    |
+| for some basic colors.               | - ``'g'`` as green                   |
+|                                      | - ``'r'`` as red                     |
+| .. note::                            | - ``'c'`` as cyan                    |
+|    The colors green, cyan, magenta,  | - ``'m'`` as magenta                 |
+|    and yellow do not coincide with   | - ``'y'`` as yellow                  |
+|    X11/CSS4 colors. Their particular | - ``'k'`` as black                   |
+|    shades were chosen for better     | - ``'w'`` as white                   |
+|    visibility of colored lines       |                                      |
+|    against typical backgrounds.      |                                      |
++--------------------------------------+--------------------------------------+
+| Case-insensitive X11/CSS4 color name | - ``'aquamarine'``                   |
+| with no spaces.                      | - ``'mediumseagreen'``               |
++--------------------------------------+--------------------------------------+
+| Case-insensitive color name from     | - ``'xkcd:sky blue'``                |
+| `xkcd color survey`_ with ``'xkcd:'``| - ``'xkcd:eggshell'``                |
+| prefix.                              |                                      |
++--------------------------------------+--------------------------------------+
+| Case-insensitive Tableau Colors from | - ``'tab:blue'``                     |
+| 'T10' categorical palette.           | - ``'tab:orange'``                   |
+|                                      | - ``'tab:green'``                    |
+|                                      | - ``'tab:red'``                      |
+|                                      | - ``'tab:purple'``                   |
+| .. note:: This is the default color  | - ``'tab:brown'``                    |
+|           cycle.                     | - ``'tab:pink'``                     |
+|                                      | - ``'tab:gray'``                     |
+|                                      | - ``'tab:olive'``                    |
+|                                      | - ``'tab:cyan'``                     |
++--------------------------------------+--------------------------------------+
+| "CN" color spec where ``'C'``        | - ``'C0'``                           |
+| precedes a number acting as an index | - ``'C1'``                           |
+| into the default property cycle.     +--------------------------------------+
+|                                      | :rc:`axes.prop_cycle`                |
+| .. note:: Matplotlib indexes color   |                                      |
+|           at draw time and defaults  |                                      |
+|           to black if cycle does not |                                      |
+|           include color.             |                                      |
++--------------------------------------+--------------------------------------+
 
 .. _xkcd color survey: https://xkcd.com/color/rgb/
 
-"Red", "Green", and "Blue" are the intensities of those colors, the combination
-of which span the colorspace.
+.. seealso::
 
-How "Alpha" behaves depends on the ``zorder`` of the Artist.  Higher
-``zorder`` Artists are drawn on top of lower Artists, and "Alpha" determines
-whether the lower artist is covered by the higher.
-If the old RGB of a pixel is ``RGBold`` and the RGB of the
-pixel of the Artist being added is ``RGBnew`` with Alpha ``alpha``,
-then the RGB of the pixel is updated to:
-``RGB = RGBOld * (1 - Alpha) + RGBnew * Alpha``.  Alpha
-of 1 means the old color is completely covered by the new Artist, Alpha of 0
-means that pixel of the Artist is transparent.
+    The following links provide more information on colors in Matplotlib.
+        * :doc:`/gallery/color/color_demo` Example
+        * `matplotlib.colors` API
+        * :doc:`/gallery/color/named_colors` Example
 
-For more information on colors in matplotlib see
+"Red", "Green", and "Blue" are the intensities of those colors. In combination,
+they represent the colorspace.
 
-* the :doc:`/gallery/color/color_demo` example;
-* the `matplotlib.colors` API;
-* the :doc:`/gallery/color/named_colors` example.
+Matplotlib draws Artists based on the ``zorder`` parameter. If there are no
+specified values, Matplotlib defaults to the order of the Artists added to the
+Axes.
+
+The alpha for an Artist controls opacity. It indicates how the RGB color of the
+new Artist combines with RGB colors already on the Axes.
+
+The two Artists combine with alpha compositing. Matplotlib uses the equation
+below to compute the result of blending a new Artist.
+
+::
+
+    RGB_{new} = RGB_{below} * (1 - \\alpha) + RGB_{artist} * \\alpha
+
+Alpha of 1 indicates the new Artist completely covers the previous color.
+Alpha of 0 for top color is not visible; however, it contributes to blending
+for intermediate values as the cumulative result of all previous Artists. The
+following table contains examples.
+
++---------------+-------------------------------------------------------------+
+| Alpha value   | Visual                                                      |
++===============+=============================================================+
+| ``0.3``       | .. image:: ../../_static/color_zorder_A.png                 |
++---------------+-------------------------------------------------------------+
+| ``1``         | .. image:: ../../_static/color_zorder_B.png                 |
++---------------+-------------------------------------------------------------+
+
+.. note::
+
+    Re-ordering Artists is not commutative in Matplotlib.
+
 
 "CN" color selection
 --------------------
 
-"CN" colors are converted to RGBA as soon as the artist is created.  For
-example,
+Matplotlib converts "CN" colors to RGBA when drawing Artists. The
+:doc:`/tutorials/intermediate/color_cycle` section contains additional
+information about controlling colors and style properties.
 """
 
 
@@ -76,60 +132,74 @@ def demo(sty):
     ax.plot(th, np.sin(th), 'C2', label='C2')
     ax.legend()
 
+
 demo('default')
 demo('seaborn')
 
 ###############################################################################
-# will use the first color for the title and then plot using the second
-# and third colors of each style's ``mpl.rcParams['axes.prop_cycle']``.
-#
+# The first color ``'C0'`` is the title. Each plot uses the second and third
+# colors of each style's :rc:`axes.prop_cycle`. They are ``'C1'`` and ``'C2'``,
+# respectively.
 #
 # .. _xkcd-colors:
 #
-# xkcd v X11/CSS4
-# ---------------
+# Comparison between X11/CSS4 and xkcd colors
+# -------------------------------------------
 #
-# The xkcd colors are derived from a user survey conducted by the
-# webcomic xkcd.  `Details of the survey are available on the xkcd blog
+# The xkcd colors come from a `user survey conducted by the webcomic xkcd
 # <https://blog.xkcd.com/2010/05/03/color-survey-results/>`__.
 #
-# Out of 148 colors in the CSS color list, there are 95 name collisions
-# between the X11/CSS4 names and the xkcd names, all but 3 of which have
-# different hex values.  For example ``'blue'`` maps to ``'#0000FF'``
-# where as ``'xkcd:blue'`` maps to ``'#0343DF'``.  Due to these name
-# collisions all of the xkcd colors have ``'xkcd:'`` prefixed.  As noted in
-# the blog post, while it might be interesting to re-define the X11/CSS4 names
-# based on such a survey, we do not do so unilaterally.
+# 95 out of the 148 X11/CSS4 color names also appear in the xkcd color survey.
+# Almost all of them map to different color values in the X11/CSS4 and in
+# the xkcd palette. Only 'black', 'white' and 'cyan' are identical.
 #
-# The name collisions are shown in the table below; the color names
-# where the hex values agree are shown in bold.
+# For example, ``'blue'`` maps to ``'#0000FF'`` whereas ``'xkcd:blue'`` maps to
+# ``'#0343DF'``.  Due to these name collisions, all xkcd colors have the
+# ``'xkcd:'`` prefix.
+#
+# The visual below shows name collisions. Color names where color values agree
+# are in bold.
 
-import matplotlib._color_data as mcd
+import matplotlib.colors as mcolors
 import matplotlib.patches as mpatch
 
-overlap = {name for name in mcd.CSS4_COLORS
-           if "xkcd:" + name in mcd.XKCD_COLORS}
+overlap = {name for name in mcolors.CSS4_COLORS
+           if f'xkcd:{name}' in mcolors.XKCD_COLORS}
 
-fig = plt.figure(figsize=[4.8, 16])
+fig = plt.figure(figsize=[9, 5])
 ax = fig.add_axes([0, 0, 1, 1])
 
-for j, n in enumerate(sorted(overlap, reverse=True)):
-    weight = None
-    cn = mcd.CSS4_COLORS[n]
-    xkcd = mcd.XKCD_COLORS["xkcd:" + n].upper()
-    if cn == xkcd:
-        weight = 'bold'
+n_groups = 3
+n_rows = len(overlap) // n_groups + 1
 
-    r1 = mpatch.Rectangle((0, j), 1, 1, color=cn)
-    r2 = mpatch.Rectangle((1, j), 1, 1, color=xkcd)
-    txt = ax.text(2, j+.5, '  ' + n, va='center', fontsize=10,
-                  weight=weight)
-    ax.add_patch(r1)
-    ax.add_patch(r2)
-    ax.axhline(j, color='k')
+for j, color_name in enumerate(sorted(overlap)):
+    css4 = mcolors.CSS4_COLORS[color_name]
+    xkcd = mcolors.XKCD_COLORS[f'xkcd:{color_name}'].upper()
 
-ax.text(.5, j + 1.5, 'X11', ha='center', va='center')
-ax.text(1.5, j + 1.5, 'xkcd', ha='center', va='center')
-ax.set_xlim(0, 3)
-ax.set_ylim(0, j + 2)
+    # Pick text colour based on perceived luminance.
+    rgba = mcolors.to_rgba_array([css4, xkcd])
+    luma = 0.299 * rgba[:, 0] + 0.587 * rgba[:, 1] + 0.114 * rgba[:, 2]
+    css4_text_color = 'k' if luma[0] > 0.5 else 'w'
+    xkcd_text_color = 'k' if luma[1] > 0.5 else 'w'
+
+    col_shift = (j // n_rows) * 3
+    y_pos = j % n_rows
+    text_args = dict(fontsize=10, weight='bold' if css4 == xkcd else None)
+    ax.add_patch(mpatch.Rectangle((0 + col_shift, y_pos), 1, 1, color=css4))
+    ax.add_patch(mpatch.Rectangle((1 + col_shift, y_pos), 1, 1, color=xkcd))
+    ax.text(0.5 + col_shift, y_pos + .7, css4,
+            color=css4_text_color, ha='center', **text_args)
+    ax.text(1.5 + col_shift, y_pos + .7, xkcd,
+            color=xkcd_text_color, ha='center', **text_args)
+    ax.text(2 + col_shift, y_pos + .7, f'  {color_name}', **text_args)
+
+for g in range(n_groups):
+    ax.hlines(range(n_rows), 3*g, 3*g + 2.8, color='0.7', linewidth=1)
+    ax.text(0.5 + 3*g, -0.3, 'X11/CSS4', ha='center')
+    ax.text(1.5 + 3*g, -0.3, 'xkcd', ha='center')
+
+ax.set_xlim(0, 3 * n_groups)
+ax.set_ylim(n_rows, -1)
 ax.axis('off')
+
+plt.show()

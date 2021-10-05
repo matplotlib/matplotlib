@@ -29,28 +29,21 @@
 
 #include <Python.h>
 
-#undef CLAMP
-#define CLAMP(x, low, high) (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
-
-#undef MAX
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
-
 inline double mpl_round(double v)
 {
     return (double)(int)(v + ((v >= 0.0) ? 0.5 : -0.5));
 }
 
+// 'kind' codes for paths.
 enum {
     STOP = 0,
     MOVETO = 1,
     LINETO = 2,
     CURVE3 = 3,
     CURVE4 = 4,
-    ENDPOLY = 0x4f
+    CLOSEPOLY = 0x4f
 };
 
 const size_t NUM_VERTICES[] = { 1, 1, 1, 2, 3, 1 };
-
-extern "C" int add_dict_int(PyObject *dict, const char *key, long val);
 
 #endif

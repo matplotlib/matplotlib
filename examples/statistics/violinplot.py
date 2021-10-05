@@ -13,7 +13,7 @@ modify the number of points at which the KDE is evaluated (``points``)
 and how to modify the band-width of the KDE (``bw_method``).
 
 For more information on violin plots and KDE, the scikit-learn docs
-have a great section: http://scikit-learn.org/stable/modules/density.html
+have a great section: https://scikit-learn.org/stable/modules/density.html
 """
 
 import numpy as np
@@ -85,3 +85,12 @@ for ax in axs.flat:
 fig.suptitle("Violin Plotting Examples")
 fig.subplots_adjust(hspace=0.4)
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.axes.Axes.violinplot` / `matplotlib.pyplot.violinplot`

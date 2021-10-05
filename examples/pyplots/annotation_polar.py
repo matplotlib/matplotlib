@@ -12,7 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 fig = plt.figure()
-ax = fig.add_subplot(111, polar=True)
+ax = fig.add_subplot(projection='polar')
 r = np.arange(0, 1, 0.001)
 theta = 2 * 2*np.pi * r
 line, = ax.plot(theta, r, color='#ee8d18', lw=3)
@@ -32,15 +32,10 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions, methods, classes and modules is shown
-# in this example:
-
-import matplotlib
-matplotlib.projections.polar
-matplotlib.axes.Axes.annotate
-matplotlib.pyplot.annotate
+#    - `matplotlib.projections.polar`
+#    - `matplotlib.axes.Axes.annotate` / `matplotlib.pyplot.annotate`

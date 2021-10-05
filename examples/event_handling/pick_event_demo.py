@@ -8,32 +8,27 @@ You can enable picking by setting the "picker" property of an artist
 (for example, a matplotlib Line2D, Text, Patch, Polygon, AxesImage,
 etc...)
 
-There are a variety of meanings of the picker property
+There are a variety of meanings of the picker property:
 
-    None -  picking is disabled for this artist (default)
+* *None* - picking is disabled for this artist (default)
 
-    boolean - if True then picking will be enabled and the
-      artist will fire a pick event if the mouse event is over
-      the artist
+* bool - if *True* then picking will be enabled and the artist will fire a pick
+  event if the mouse event is over the artist.
 
-    float - if picker is a number it is interpreted as an
-      epsilon tolerance in points and the artist will fire
-      off an event if it's data is within epsilon of the mouse
-      event.  For some artists like lines and patch collections,
-      the artist may provide additional data to the pick event
-      that is generated, for example, the indices of the data within
-      epsilon of the pick event
+  Setting ``pickradius`` will add an epsilon tolerance in points and the artist
+  will fire off an event if its data is within epsilon of the mouse event.  For
+  some artists like lines and patch collections, the artist may provide
+  additional data to the pick event that is generated, for example, the indices
+  of the data within epsilon of the pick event
 
-    function - if picker is callable, it is a user supplied
-      function which determines whether the artist is hit by the
-      mouse event.
+* function - if picker is callable, it is a user supplied function which
+  determines whether the artist is hit by the mouse event.
 
-         hit, props = picker(artist, mouseevent)
+     hit, props = picker(artist, mouseevent)
 
-      to determine the hit test.  If the mouse event is over the
-      artist, return hit=True and props is a dictionary of properties
-      you want added to the PickEvent attributes
-
+  to determine the hit test.  If the mouse event is over the artist, return
+  hit=True and props is a dictionary of properties you want added to the
+  PickEvent attributes.
 
 After you have enabled an artist for picking by setting the "picker"
 property, you need to connect to the figure canvas pick_event to get
@@ -75,12 +70,16 @@ import numpy as np
 from numpy.random import rand
 
 
+# Fixing random state for reproducibility
+np.random.seed(19680801)
+
+
 def pick_simple():
     # simple picking, lines, rectangles and text
     fig, (ax1, ax2) = plt.subplots(2, 1)
     ax1.set_title('click on points, rectangles or text', picker=True)
     ax1.set_ylabel('ylabel', picker=True, bbox=dict(facecolor='red'))
-    line, = ax1.plot(rand(100), 'o', picker=5)  # 5 points tolerance
+    line, = ax1.plot(rand(100), 'o', picker=True, pickradius=5)
 
     # pick the rectangle
     ax2.bar(range(10), rand(10), picker=True)

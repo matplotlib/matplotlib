@@ -4,6 +4,7 @@ from numpy.testing import (
 import numpy.ma.testutils as matest
 import pytest
 
+import matplotlib as mpl
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
@@ -729,7 +730,7 @@ def test_triinterp_transformations():
             matest.assert_array_almost_equal(interpz, interp_z0[interp_key])
 
 
-@image_comparison(['tri_smooth_contouring.png'], remove_text=True, tol=0.07)
+@image_comparison(['tri_smooth_contouring.png'], remove_text=True, tol=0.072)
 def test_tri_smooth_contouring():
     # Image comparison based on example tricontour_smooth_user.
     n_angles = 20
@@ -934,6 +935,24 @@ def test_trirefine():
     assert_array_almost_equal(xyz_data[0], xyz_data[1])
 
 
+@pytest.mark.parametrize('interpolator',
+                         [mtri.LinearTriInterpolator,
+                          mtri.CubicTriInterpolator],
+                         ids=['linear', 'cubic'])
+def test_trirefine_masked(interpolator):
+    # Repeated points means we will have fewer triangles than points, and thus
+    # get masking.
+    x, y = np.mgrid[:2, :2]
+    x = np.repeat(x.flatten(), 2)
+    y = np.repeat(y.flatten(), 2)
+
+    z = np.zeros_like(x)
+    tri = mtri.Triangulation(x, y)
+    refiner = mtri.UniformTriRefiner(tri)
+    interp = interpolator(tri, z)
+    refiner.refine_field(z, triinterpolator=interp, subdiv=2)
+
+
 def meshgrid_triangles(n):
     """
     Return (2*(N-1)**2, 3) array of triangles to mesh (N, N)-point np.meshgrid.
@@ -941,7 +960,7 @@ def meshgrid_triangles(n):
     tri = []
     for i in range(n-1):
         for j in range(n-1):
-            a = i + j*(n)
+            a = i + j*n
             b = (i+1) + j*n
             c = i + (j+1)*n
             d = (i+1) + (j+1)*n
@@ -951,8 +970,7 @@ def meshgrid_triangles(n):
 
 def test_triplot_return():
     # Check that triplot returns the artists it adds
-    from matplotlib.figure import Figure
-    ax = Figure().add_axes([0.1, 0.1, 0.7, 0.7])
+    ax = plt.figure().add_subplot()
     triang = mtri.Triangulation(
         [0.0, 1.0, 0.0, 1.0], [0.0, 0.0, 1.0, 1.0],
         triangles=[[0, 1, 3], [3, 2, 0]])
@@ -1031,77 +1049,85 @@ def test_tricontourf_decreasing_levels():
 
 def test_internal_cpp_api():
     # Following github issue 8197.
-    import matplotlib._tri as _tri
+    from matplotlib import _tri  # noqa: ensure lazy-loaded module *is* loaded.
 
     # C++ Triangulation.
-    with pytest.raises(TypeError) as excinfo:
-        triang = _tri.Triangulation()
-    excinfo.match(r'function takes exactly 7 arguments \(0 given\)')
+    with pytest.raises(
+            TypeError,
+            match=r'function takes exactly 7 arguments \(0 given\)'):
+        mpl._tri.Triangulation()
 
-    with pytest.raises(ValueError) as excinfo:
-        triang = _tri.Triangulation([], [1], [[]], None, None, None, False)
-    excinfo.match(r'x and y must be 1D arrays of the same length')
+    with pytest.raises(
+            ValueError, match=r'x and y must be 1D arrays of the same length'):
+        mpl._tri.Triangulation([], [1], [[]], None, None, None, False)
 
     x = [0, 1, 1]
     y = [0, 0, 1]
-    with pytest.raises(ValueError) as excinfo:
-        triang = _tri.Triangulation(x, y, [[0, 1]], None, None, None, False)
-    excinfo.match(r'triangles must be a 2D array of shape \(\?,3\)')
+    with pytest.raises(
+            ValueError,
+            match=r'triangles must be a 2D array of shape \(\?,3\)'):
+        mpl._tri.Triangulation(x, y, [[0, 1]], None, None, None, False)
 
     tris = [[0, 1, 2]]
-    with pytest.raises(ValueError) as excinfo:
-        triang = _tri.Triangulation(x, y, tris, [0, 1], None, None, False)
-    excinfo.match(r'mask must be a 1D array with the same length as the ' +
-                  r'triangles array')
+    with pytest.raises(
+            ValueError,
+            match=r'mask must be a 1D array with the same length as the '
+                  r'triangles array'):
+        mpl._tri.Triangulation(x, y, tris, [0, 1], None, None, False)
 
-    with pytest.raises(ValueError) as excinfo:
-        triang = _tri.Triangulation(x, y, tris, None, [[1]], None, False)
-    excinfo.match(r'edges must be a 2D array with shape \(\?,2\)')
+    with pytest.raises(
+            ValueError, match=r'edges must be a 2D array with shape \(\?,2\)'):
+        mpl._tri.Triangulation(x, y, tris, None, [[1]], None, False)
 
-    with pytest.raises(ValueError) as excinfo:
-        triang = _tri.Triangulation(x, y, tris, None, None, [[-1]], False)
-    excinfo.match(r'neighbors must be a 2D array with the same shape as the ' +
-                  r'triangles array')
+    with pytest.raises(
+            ValueError,
+            match=r'neighbors must be a 2D array with the same shape as the '
+                  r'triangles array'):
+        mpl._tri.Triangulation(x, y, tris, None, None, [[-1]], False)
 
-    triang = _tri.Triangulation(x, y, tris, None, None, None, False)
+    triang = mpl._tri.Triangulation(x, y, tris, None, None, None, False)
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(
+            ValueError,
+            match=r'z array must have same length as triangulation x and y '
+                  r'array'):
         triang.calculate_plane_coefficients([])
-    excinfo.match(r'z array must have same length as triangulation x and y ' +
-                  r'arrays')
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(
+            ValueError,
+            match=r'mask must be a 1D array with the same length as the '
+                  r'triangles array'):
         triang.set_mask([0, 1])
-    excinfo.match(r'mask must be a 1D array with the same length as the ' +
-                  r'triangles array')
 
     # C++ TriContourGenerator.
-    with pytest.raises(TypeError) as excinfo:
-        tcg = _tri.TriContourGenerator()
-    excinfo.match(r'function takes exactly 2 arguments \(0 given\)')
+    with pytest.raises(
+            TypeError,
+            match=r'function takes exactly 2 arguments \(0 given\)'):
+        mpl._tri.TriContourGenerator()
 
-    with pytest.raises(ValueError) as excinfo:
-        tcg = _tri.TriContourGenerator(triang, [1])
-    excinfo.match(r'z must be a 1D array with the same length as the x and ' +
-                  r'y arrays')
+    with pytest.raises(
+            ValueError,
+            match=r'z must be a 1D array with the same length as the x and y '
+                  r'arrays'):
+        mpl._tri.TriContourGenerator(triang, [1])
 
     z = [0, 1, 2]
-    tcg = _tri.TriContourGenerator(triang, z)
+    tcg = mpl._tri.TriContourGenerator(triang, z)
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(
+            ValueError, match=r'filled contour levels must be increasing'):
         tcg.create_filled_contour(1, 0)
-    excinfo.match(r'filled contour levels must be increasing')
 
     # C++ TrapezoidMapTriFinder.
-    with pytest.raises(TypeError) as excinfo:
-        trifinder = _tri.TrapezoidMapTriFinder()
-    excinfo.match(r'function takes exactly 1 argument \(0 given\)')
+    with pytest.raises(
+            TypeError, match=r'function takes exactly 1 argument \(0 given\)'):
+        mpl._tri.TrapezoidMapTriFinder()
 
-    trifinder = _tri.TrapezoidMapTriFinder(triang)
+    trifinder = mpl._tri.TrapezoidMapTriFinder(triang)
 
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(
+            ValueError, match=r'x and y must be array-like with same shape'):
         trifinder.find_many([0], [0, 1])
-    excinfo.match(r'x and y must be array-like with same shape')
 
 
 def test_qhull_large_offset():
@@ -1137,3 +1163,17 @@ def test_tricontour_non_finite_z():
     with pytest.raises(ValueError, match='z must not contain masked points '
                                          'within the triangulation'):
         plt.tricontourf(triang, np.ma.array([0, 1, 2, 3], mask=[1, 0, 0, 0]))
+
+
+def test_tricontourset_reuse():
+    # If TriContourSet returned from one tricontour(f) call is passed as first
+    # argument to another the underlying C++ contour generator will be reused.
+    x = [0.0, 0.5, 1.0]
+    y = [0.0, 1.0, 0.0]
+    z = [1.0, 2.0, 3.0]
+    fig, ax = plt.subplots()
+    tcs1 = ax.tricontourf(x, y, z)
+    tcs2 = ax.tricontour(x, y, z)
+    assert tcs2._contour_generator != tcs1._contour_generator
+    tcs3 = ax.tricontour(tcs1, z)
+    assert tcs3._contour_generator == tcs1._contour_generator

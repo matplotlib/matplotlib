@@ -21,7 +21,7 @@ np.random.seed(19680801)
 fig = plt.figure(figsize=(8, 8), facecolor='black')
 
 # Add a subplot with no frame
-ax = plt.subplot(111, frameon=False)
+ax = plt.subplot(frameon=False)
 
 # Generate random data
 data = np.random.uniform(0, 1, (64, 75))

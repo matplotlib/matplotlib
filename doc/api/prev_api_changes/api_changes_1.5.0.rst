@@ -1,6 +1,6 @@
 
-Changes in 1.5.0
-================
+API Changes in 1.5.0
+====================
 
 Code Changes
 ------------
@@ -60,7 +60,7 @@ by the new keyword argument *corner_mask*, or if this is not specified then
 the new :rc:`contour.corner_mask` instead.  The new default behaviour is
 equivalent to using ``corner_mask=True``; the previous behaviour can be obtained
 using ``corner_mask=False`` or by changing the rcParam.  The example
-http://matplotlib.org/examples/pylab_examples/contour_corner_mask.html
+https://matplotlib.org/examples/pylab_examples/contour_corner_mask.html
 demonstrates the difference.  Use of the old contouring algorithm, which is
 obtained with ``corner_mask='legacy'``, is now deprecated.
 

@@ -40,10 +40,8 @@ for ax, (label, (x, y)) in zip(axs.flat, datasets.items()):
     ax.plot(x, y, 'o')
 
     # linear regression
-    p1, p0 = np.polyfit(x, y, deg=1)
-    x_lin = np.array([np.min(x), np.max(x)])
-    y_lin = p1 * x_lin + p0
-    ax.plot(x_lin, y_lin, 'r-', lw=2)
+    p1, p0 = np.polyfit(x, y, deg=1)  # slope, intercept
+    ax.axline(xy1=(0, p0), slope=p1, color='r', lw=2)
 
     # add text box for the statistics
     stats = (f'$\\mu$ = {np.mean(y):.2f}\n'
@@ -54,3 +52,14 @@ for ax, (label, (x, y)) in zip(axs.flat, datasets.items()):
             transform=ax.transAxes, horizontalalignment='right')
 
 plt.show()
+
+#############################################################################
+#
+# .. admonition:: References
+#
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
+#
+#    - `matplotlib.axes.Axes.axline` / `matplotlib.pyplot.axline`
+#    - `matplotlib.axes.Axes.text` / `matplotlib.pyplot.text`
+#    - `matplotlib.axes.Axes.tick_params` / matplotlib.pyplot.tick_params`

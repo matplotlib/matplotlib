@@ -49,7 +49,7 @@ class LassoManager:
 
         ax.add_collection(self.collection)
 
-        self.cid = self.canvas.mpl_connect('button_press_event', self.onpress)
+        self.cid = self.canvas.mpl_connect('button_press_event', self.on_press)
 
     def callback(self, verts):
         facecolors = self.collection.get_facecolors()
@@ -65,7 +65,7 @@ class LassoManager:
         self.canvas.widgetlock.release(self.lasso)
         del self.lasso
 
-    def onpress(self, event):
+    def on_press(self, event):
         if self.canvas.widgetlock.locked():
             return
         if event.inaxes is None:

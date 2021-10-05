@@ -1,5 +1,5 @@
 """
-matplotlib includes a framework for arbitrary geometric
+Matplotlib includes a framework for arbitrary geometric
 transformations that is used determine the final position of all
 elements drawn on the canvas.
 
@@ -33,13 +33,16 @@ themselves.
 # `np.minimum` instead of the builtin `min`, and likewise for `max`.  This is
 # done so that `nan`s are propagated, instead of being silently dropped.
 
-import re
+import copy
+import functools
+import textwrap
 import weakref
+import math
 
 import numpy as np
 from numpy.linalg import inv
 
-from matplotlib import cbook
+from matplotlib import _api
 from matplotlib._path import (
     affine_transform, count_bboxes_overlapping_bbox, update_path_extents)
 from .path import Path
@@ -47,19 +50,41 @@ from .path import Path
 DEBUG = False
 
 
-def _indent_str(obj):  # textwrap.indent(str(obj), 4) on Py3.
-    return re.sub("(^|\n)", r"\1    ", str(obj))
+def _make_str_method(*args, **kwargs):
+    """
+    Generate a ``__str__`` method for a `.Transform` subclass.
+
+    After ::
+
+        class T:
+            __str__ = _make_str_method("attr", key="other")
+
+    ``str(T(...))`` will be
+
+    .. code-block:: text
+
+        {type(T).__name__}(
+            {self.attr},
+            key={self.other})
+    """
+    indent = functools.partial(textwrap.indent, prefix=" " * 4)
+    def strrepr(x): return repr(x) if isinstance(x, str) else str(x)
+    return lambda self: (
+        type(self).__name__ + "("
+        + ",".join([*(indent("\n" + strrepr(getattr(self, arg)))
+                      for arg in args),
+                    *(indent("\n" + k + "=" + strrepr(getattr(self, arg)))
+                      for k, arg in kwargs.items())])
+        + ")")
 
 
 class TransformNode:
     """
-    :class:`TransformNode` is the base class for anything that
-    participates in the transform tree and needs to invalidate its
-    parents or be invalidated.  This includes classes that are not
-    really transforms, such as bounding boxes, since some transforms
-    depend on bounding boxes to compute their values.
+    The base class for anything that participates in the transform tree
+    and needs to invalidate its parents or be invalidated.  This includes
+    classes that are not really transforms, such as bounding boxes, since some
+    transforms depend on bounding boxes to compute their values.
     """
-    _gid = 0
 
     # Invalidation may affect only the affine part.  If the
     # invalidation was "affine-only", the _invalid member is set to
@@ -81,8 +106,6 @@ class TransformNode:
 
     def __init__(self, shorthand_name=None):
         """
-        Creates a new :class:`TransformNode`.
-
         Parameters
         ----------
         shorthand_name : str
@@ -112,16 +135,37 @@ class TransformNode:
         # turn the normal dictionary back into a dictionary with weak values
         # The extra lambda is to provide a callback to remove dead
         # weakrefs from the dictionary when garbage collection is done.
-        self._parents = {k: weakref.ref(v, lambda ref, sid=k,
-                                                  target=self._parents:
-                                                        target.pop(sid))
-                         for k, v in self._parents.items() if v is not None}
+        self._parents = {
+            k: weakref.ref(v, lambda _, pop=self._parents.pop, k=k: pop(k))
+            for k, v in self._parents.items() if v is not None}
 
-    def __copy__(self, *args):
-        raise NotImplementedError(
-            "TransformNode instances can not be copied. "
-            "Consider using frozen() instead.")
-    __deepcopy__ = __copy__
+    def __copy__(self):
+        other = copy.copy(super())
+        # If `c = a + b; a1 = copy(a)`, then modifications to `a1` do not
+        # propagate back to `c`, i.e. we need to clear the parents of `a1`.
+        other._parents = {}
+        # If `c = a + b; c1 = copy(c)`, then modifications to `a` also need to
+        # be propagated to `c1`.
+        for key, val in vars(self).items():
+            if isinstance(val, TransformNode) and id(self) in val._parents:
+                other.set_children(val)  # val == getattr(other, key)
+        return other
+
+    def __deepcopy__(self, memo):
+        # We could deepcopy the entire transform tree, but nothing except
+        # `self` is accessible publicly, so we may as well just freeze `self`.
+        other = self.frozen()
+        if other is not self:
+            return other
+        # Some classes implement frozen() as returning self, which is not
+        # acceptable for deepcopying, so we need to handle them separately.
+        other = copy.deepcopy(super(), memo)
+        # If `c = a + b; a1 = copy(a)`, then modifications to `a1` do not
+        # propagate back to `c`, i.e. we need to clear the parents of `a1`.
+        other._parents = {}
+        # If `c = a + b; c1 = copy(c)`, this creates a separate tree
+        # (`c1 = a1 + b1`) so nothing needs to be done.
+        return other
 
     def invalidate(self):
         """
@@ -174,90 +218,32 @@ class TransformNode:
             # Use weak references so this dictionary won't keep obsolete nodes
             # alive; the callback deletes the dictionary entry. This is a
             # performance improvement over using WeakValueDictionary.
-            ref = weakref.ref(self, lambda ref, sid=id(self),
-                                        target=child._parents: target.pop(sid))
+            ref = weakref.ref(
+                self, lambda _, pop=child._parents.pop, k=id(self): pop(k))
             child._parents[id(self)] = ref
-
-    if DEBUG:
-        _set_children = set_children
-
-        def set_children(self, *children):
-            self._set_children(*children)
-            self._children = children
-        set_children.__doc__ = _set_children.__doc__
 
     def frozen(self):
         """
-        Returns a frozen copy of this transform node.  The frozen copy
-        will not update when its children change.  Useful for storing
-        a previously known state of a transform where
-        ``copy.deepcopy()`` might normally be used.
+        Return a frozen copy of this transform node.  The frozen copy will not
+        be updated when its children change.  Useful for storing a previously
+        known state of a transform where ``copy.deepcopy()`` might normally be
+        used.
         """
         return self
-
-    if DEBUG:
-        def write_graphviz(self, fobj, highlight=[]):
-            """
-            For debugging purposes.
-
-            Writes the transform tree rooted at 'self' to a graphviz "dot"
-            format file.  This file can be run through the "dot" utility
-            to produce a graph of the transform tree.
-
-            Affine transforms are marked in blue.  Bounding boxes are
-            marked in yellow.
-
-            *fobj*: A Python file-like object
-
-            Once the "dot" file has been created, it can be turned into a
-            png easily with::
-
-                $> dot -Tpng -o $OUTPUT_FILE $DOT_FILE
-
-            """
-            seen = set()
-
-            def recurse(root):
-                if root in seen:
-                    return
-                seen.add(root)
-                props = {}
-                label = root.__class__.__name__
-                if root._invalid:
-                    label = '[%s]' % label
-                if root in highlight:
-                    props['style'] = 'bold'
-                props['shape'] = 'box'
-                props['label'] = '"%s"' % label
-                props = ' '.join(map('{0[0]}={0[1]}'.format, props.items()))
-
-                fobj.write('%s [%s];\n' % (hash(root), props))
-
-                if hasattr(root, '_children'):
-                    for child in root._children:
-                        name = next((key for key, val in root.__dict__.items()
-                                     if val is child), '?')
-                        fobj.write('"%s" -> "%s" [label="%s", fontsize=10];\n'
-                                    % (hash(root),
-                                    hash(child),
-                                    name))
-                        recurse(child)
-
-            fobj.write("digraph G {\n")
-            recurse(self)
-            fobj.write("}\n")
 
 
 class BboxBase(TransformNode):
     """
-    This is the base class of all bounding boxes, and provides read-only access
-    to its data.  A mutable bounding box is provided by the `Bbox` class.
+    The base class of all bounding boxes.
+
+    This class is immutable; `Bbox` is a mutable subclass.
 
     The canonical representation is as two points, with no
     restrictions on their ordering.  Convenience properties are
     provided to get the left, bottom, right and top edges and width
     and height, but these are not stored explicitly.
     """
+
     is_bbox = True
     is_affine = True
 
@@ -265,11 +251,10 @@ class BboxBase(TransformNode):
         @staticmethod
         def _check(points):
             if isinstance(points, np.ma.MaskedArray):
-                cbook._warn_external("Bbox bounds are a masked array.")
+                _api.warn_external("Bbox bounds are a masked array.")
             points = np.asarray(points)
-            if (points[1, 0] - points[0, 0] == 0 or
-                points[1, 1] - points[0, 1] == 0):
-                cbook._warn_external("Singular Bbox.")
+            if any((points[1, :] - points[0, :]) == 0):
+                _api.warn_external("Singular Bbox.")
 
     def frozen(self):
         return Bbox(self.get_points().copy())
@@ -277,11 +262,6 @@ class BboxBase(TransformNode):
 
     def __array__(self, *args, **kwargs):
         return self.get_points()
-
-    @cbook.deprecated("3.2")
-    def is_unit(self):
-        """Return whether this is the unit box (from (0, 0) to (1, 1))."""
-        return self.get_points().tolist() == [[0., 0.], [1., 1.]]
 
     @property
     def x0(self):
@@ -509,16 +489,9 @@ class BboxBase(TransformNode):
         Construct a `Bbox` by statically transforming this one by *transform*.
         """
         pts = self.get_points()
-        ll, ul, lr = transform.transform(np.array([pts[0],
-            [pts[0, 0], pts[1, 1]], [pts[1, 0], pts[0, 1]]]))
+        ll, ul, lr = transform.transform(np.array(
+            [pts[0], [pts[0, 0], pts[1, 1]], [pts[1, 0], pts[0, 1]]]))
         return Bbox([ll, [lr[0], ul[1]]])
-
-    def inverse_transformed(self, transform):
-        """
-        Construct a `Bbox` by statically transforming this one by the inverse
-        of *transform*.
-        """
-        return self.transformed(transform.inverted())
 
     coefs = {'C':  (0.5, 0.5),
              'SW': (0, 0),
@@ -532,26 +505,21 @@ class BboxBase(TransformNode):
 
     def anchored(self, c, container=None):
         """
-        Return a copy of the `Bbox` shifted to position *c* within *container*.
+        Return a copy of the `Bbox` anchored to *c* within *container*.
 
         Parameters
         ----------
-        c : (float, float) or str
-            May be either:
+        c : (float, float) or {'C', 'SW', 'S', 'SE', 'E', 'NE', ...}
+            Either an (*x*, *y*) pair of relative coordinates (0 is left or
+            bottom, 1 is right or top), 'C' (center), or a cardinal direction
+            ('SW', southwest, is bottom left, etc.).
+        container : `Bbox`, optional
+            The box within which the `Bbox` is positioned; it defaults
+            to the initial `Bbox`.
 
-            * A sequence (*cx*, *cy*) where *cx* and *cy* range from 0
-              to 1, where 0 is left or bottom and 1 is right or top
-
-            * a string:
-              - 'C' for centered
-              - 'S' for bottom-center
-              - 'SE' for bottom-left
-              - 'E' for left
-              - etc.
-
-        container : Bbox, optional
-            The box within which the :class:`Bbox` is positioned; it defaults
-            to the initial :class:`Bbox`.
+        See Also
+        --------
+        .Axes.set_anchor
         """
         if container is None:
             container = self
@@ -567,21 +535,21 @@ class BboxBase(TransformNode):
 
     def shrunk(self, mx, my):
         """
-        Return a copy of the :class:`Bbox`, shrunk by the factor *mx*
+        Return a copy of the `Bbox`, shrunk by the factor *mx*
         in the *x* direction and the factor *my* in the *y* direction.
         The lower left corner of the box remains unchanged.  Normally
         *mx* and *my* will be less than 1, but this is not enforced.
         """
         w, h = self.size
         return Bbox([self._points[0],
-                    self._points[0] + [mx * w, my * h]])
+                     self._points[0] + [mx * w, my * h]])
 
     def shrunk_to_aspect(self, box_aspect, container=None, fig_aspect=1.0):
         """
-        Return a copy of the :class:`Bbox`, shrunk so that it is as
+        Return a copy of the `Bbox`, shrunk so that it is as
         large as it can be while having the desired aspect ratio,
-        *box_aspect*.  If the box coordinates are relative---that
-        is, fractions of a larger box such as a figure---then the
+        *box_aspect*.  If the box coordinates are relative (i.e.
+        fractions of a larger box such as a figure) then the
         physical aspect ratio of that figure is specified with
         *fig_aspect*, so that *box_aspect* can also be given as a
         ratio of the absolute dimensions, not the relative dimensions.
@@ -624,7 +592,7 @@ class BboxBase(TransformNode):
 
     def count_contains(self, vertices):
         """
-        Count the number of vertices contained in the :class:`Bbox`.
+        Count the number of vertices contained in the `Bbox`.
         Any vertices with a non-finite x or y value are ignored.
 
         Parameters
@@ -682,9 +650,8 @@ class BboxBase(TransformNode):
 
     def rotated(self, radians):
         """
-        Return a new bounding box that bounds a rotated version of
-        this bounding box by the given radians.  The new bounding box
-        is still aligned with the axes, of course.
+        Return the axes-aligned bounding box that bounds the result of rotating
+        this `Bbox` by an angle of *radians*.
         """
         corners = self.corners()
         corners_rotated = Affine2D().rotate(radians).transform(corners)
@@ -697,13 +664,10 @@ class BboxBase(TransformNode):
         """Return a `Bbox` that contains all of the given *bboxes*."""
         if not len(bboxes):
             raise ValueError("'bboxes' cannot be empty")
-        # needed for 1.14.4 < numpy_version < 1.15
-        # can remove once we are at numpy >= 1.15
-        with np.errstate(invalid='ignore'):
-            x0 = np.min([bbox.xmin for bbox in bboxes])
-            x1 = np.max([bbox.xmax for bbox in bboxes])
-            y0 = np.min([bbox.ymin for bbox in bboxes])
-            y1 = np.max([bbox.ymax for bbox in bboxes])
+        x0 = np.min([bbox.xmin for bbox in bboxes])
+        x1 = np.max([bbox.xmax for bbox in bboxes])
+        y0 = np.min([bbox.ymin for bbox in bboxes])
+        y1 = np.max([bbox.ymax for bbox in bboxes])
         return Bbox([[x0, y0], [x1, y1]])
 
     @staticmethod
@@ -722,6 +686,82 @@ class BboxBase(TransformNode):
 class Bbox(BboxBase):
     """
     A mutable bounding box.
+
+    Examples
+    --------
+    **Create from known bounds**
+
+    The default constructor takes the boundary "points" ``[[xmin, ymin],
+    [xmax, ymax]]``.
+
+        >>> Bbox([[1, 1], [3, 7]])
+        Bbox([[1.0, 1.0], [3.0, 7.0]])
+
+    Alternatively, a Bbox can be created from the flattened points array, the
+    so-called "extents" ``(xmin, ymin, xmax, ymax)``
+
+        >>> Bbox.from_extents(1, 1, 3, 7)
+        Bbox([[1.0, 1.0], [3.0, 7.0]])
+
+    or from the "bounds" ``(xmin, ymin, width, height)``.
+
+        >>> Bbox.from_bounds(1, 1, 2, 6)
+        Bbox([[1.0, 1.0], [3.0, 7.0]])
+
+    **Create from collections of points**
+
+    The "empty" object for accumulating Bboxs is the null bbox, which is a
+    stand-in for the empty set.
+
+        >>> Bbox.null()
+        Bbox([[inf, inf], [-inf, -inf]])
+
+    Adding points to the null bbox will give you the bbox of those points.
+
+        >>> box = Bbox.null()
+        >>> box.update_from_data_xy([[1, 1]])
+        >>> box
+        Bbox([[1.0, 1.0], [1.0, 1.0]])
+        >>> box.update_from_data_xy([[2, 3], [3, 2]], ignore=False)
+        >>> box
+        Bbox([[1.0, 1.0], [3.0, 3.0]])
+
+    Setting ``ignore=True`` is equivalent to starting over from a null bbox.
+
+        >>> box.update_from_data_xy([[1, 1]], ignore=True)
+        >>> box
+        Bbox([[1.0, 1.0], [1.0, 1.0]])
+
+    .. warning::
+
+        It is recommended to always specify ``ignore`` explicitly.  If not, the
+        default value of ``ignore`` can be changed at any time by code with
+        access to your Bbox, for example using the method `~.Bbox.ignore`.
+
+    **Properties of the ``null`` bbox**
+
+    .. note::
+
+        The current behavior of `Bbox.null()` may be surprising as it does
+        not have all of the properties of the "empty set", and as such does
+        not behave like a "zero" object in the mathematical sense. We may
+        change that in the future (with a deprecation period).
+
+    The null bbox is the identity for intersections
+
+        >>> Bbox.intersection(Bbox([[1, 1], [3, 7]]), Bbox.null())
+        Bbox([[1.0, 1.0], [3.0, 7.0]])
+
+    except with itself, where it returns the full space.
+
+        >>> Bbox.intersection(Bbox.null(), Bbox.null())
+        Bbox([[-inf, -inf], [inf, inf]])
+
+    A union containing null will always return the full space (not the other
+    set!)
+
+        >>> Bbox.union([Bbox([[0, 0], [0, 0]]), Bbox.null()])
+        Bbox([[-inf, -inf], [inf, inf]])
     """
 
     def __init__(self, points, **kwargs):
@@ -730,14 +770,8 @@ class Bbox(BboxBase):
         ----------
         points : ndarray
             A 2x2 numpy array of the form ``[[x0, y0], [x1, y1]]``.
-
-        Notes
-        -----
-        If you need to create a :class:`Bbox` object from another form
-        of data, consider the static methods :meth:`unit`,
-        :meth:`from_bounds` and :meth:`from_extents`.
         """
-        BboxBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         points = np.asarray(points, float)
         if points.shape != (2, 2):
             raise ValueError('Bbox points must be of the form '
@@ -758,17 +792,23 @@ class Bbox(BboxBase):
 
         def invalidate(self):
             self._check(self._points)
-            TransformNode.invalidate(self)
+            super().invalidate()
+
+    def frozen(self):
+        # docstring inherited
+        frozen_bbox = super().frozen()
+        frozen_bbox._minpos = self.minpos.copy()
+        return frozen_bbox
 
     @staticmethod
     def unit():
         """Create a new unit `Bbox` from (0, 0) to (1, 1)."""
-        return Bbox(np.array([[0.0, 0.0], [1.0, 1.0]], float))
+        return Bbox([[0, 0], [1, 1]])
 
     @staticmethod
     def null():
         """Create a new null `Bbox` from (inf, inf) to (-inf, -inf)."""
-        return Bbox(np.array([[np.inf, np.inf], [-np.inf, -np.inf]], float))
+        return Bbox([[np.inf, np.inf], [-np.inf, -np.inf]])
 
     @staticmethod
     def from_bounds(x0, y0, width, height):
@@ -780,14 +820,26 @@ class Bbox(BboxBase):
         return Bbox.from_extents(x0, y0, x0 + width, y0 + height)
 
     @staticmethod
-    def from_extents(*args):
+    def from_extents(*args, minpos=None):
         """
         Create a new Bbox from *left*, *bottom*, *right* and *top*.
 
         The *y*-axis increases upwards.
+
+        Parameters
+        ----------
+        left, bottom, right, top : float
+            The four extents of the bounding box.
+
+        minpos : float or None
+           If this is supplied, the Bbox will have a minimum positive value
+           set. This is useful when dealing with logarithmic scales and other
+           scales where negative bounds result in floating point errors.
         """
-        points = np.array(args, dtype=float).reshape(2, 2)
-        return Bbox(points)
+        bbox = Bbox(np.reshape(args, (2, 2)))
+        if minpos is not None:
+            bbox._minpos[:] = minpos
+        return bbox
 
     def __format__(self, fmt):
         return (
@@ -807,29 +859,29 @@ class Bbox(BboxBase):
 
         value : bool
            - When ``True``, subsequent calls to :meth:`update_from_data_xy`
-             will ignore the existing bounds of the :class:`Bbox`.
+             will ignore the existing bounds of the `Bbox`.
 
            - When ``False``, subsequent calls to :meth:`update_from_data_xy`
-             will include the existing bounds of the :class:`Bbox`.
+             will include the existing bounds of the `Bbox`.
         """
         self._ignore = value
 
     def update_from_path(self, path, ignore=None, updatex=True, updatey=True):
         """
-        Update the bounds of the :class:`Bbox` based on the passed in
-        data.  After updating, the bounds will have positive *width*
+        Update the bounds of the `Bbox` to contain the vertices of the
+        provided path. After updating, the bounds will have positive *width*
         and *height*; *x0* and *y0* will be the minimal values.
 
         Parameters
         ----------
-        path : :class:`~matplotlib.path.Path`
+        path : `~matplotlib.path.Path`
 
         ignore : bool, optional
-           - when ``True``, ignore the existing bounds of the :class:`Bbox`.
-           - when ``False``, include the existing bounds of the :class:`Bbox`.
+           - when ``True``, ignore the existing bounds of the `Bbox`.
+           - when ``False``, include the existing bounds of the `Bbox`.
            - when ``None``, use the last value passed to :meth:`ignore`.
 
-        updatex, updatey : bool, optional
+        updatex, updatey : bool, default: True
             When ``True``, update the x/y values.
         """
         if ignore is None:
@@ -852,7 +904,7 @@ class Bbox(BboxBase):
 
     def update_from_data_xy(self, xy, ignore=None, updatex=True, updatey=True):
         """
-        Update the bounds of the :class:`Bbox` based on the passed in
+        Update the bounds of the `Bbox` based on the passed in
         data.  After updating, the bounds will have positive *width*
         and *height*; *x0* and *y0* will be the minimal values.
 
@@ -862,11 +914,11 @@ class Bbox(BboxBase):
             A numpy array of 2D points.
 
         ignore : bool, optional
-           - When ``True``, ignore the existing bounds of the :class:`Bbox`.
-           - When ``False``, include the existing bounds of the :class:`Bbox`.
+           - When ``True``, ignore the existing bounds of the `Bbox`.
+           - When ``False``, include the existing bounds of the `Bbox`.
            - When ``None``, use the last value passed to :meth:`ignore`.
 
-        updatex, updatey : bool, optional
+        updatex, updatey : bool, default: True
             When ``True``, update the x/y values.
         """
         if len(xy) == 0:
@@ -926,14 +978,35 @@ class Bbox(BboxBase):
 
     @property
     def minpos(self):
+        """
+        The minimum positive value in both directions within the Bbox.
+
+        This is useful when dealing with logarithmic scales and other scales
+        where negative bounds result in floating point errors, and will be used
+        as the minimum extent instead of *p0*.
+        """
         return self._minpos
 
     @property
     def minposx(self):
+        """
+        The minimum positive value in the *x*-direction within the Bbox.
+
+        This is useful when dealing with logarithmic scales and other scales
+        where negative bounds result in floating point errors, and will be used
+        as the minimum *x*-extent instead of *x0*.
+        """
         return self._minpos[0]
 
     @property
     def minposy(self):
+        """
+        The minimum positive value in the *y*-direction within the Bbox.
+
+        This is useful when dealing with logarithmic scales and other scales
+        where negative bounds result in floating point errors, and will be used
+        as the minimum *y*-extent instead of *y0*.
+        """
         return self._minpos[1]
 
     def get_points(self):
@@ -963,54 +1036,48 @@ class Bbox(BboxBase):
             self.invalidate()
 
     def mutated(self):
-        'Return whether the bbox has changed since init.'
+        """Return whether the bbox has changed since init."""
         return self.mutatedx() or self.mutatedy()
 
     def mutatedx(self):
-        'Return whether the x-limits have changed since init.'
+        """Return whether the x-limits have changed since init."""
         return (self._points[0, 0] != self._points_orig[0, 0] or
                 self._points[1, 0] != self._points_orig[1, 0])
 
     def mutatedy(self):
-        'Return whether the y-limits have changed since init.'
+        """Return whether the y-limits have changed since init."""
         return (self._points[0, 1] != self._points_orig[0, 1] or
                 self._points[1, 1] != self._points_orig[1, 1])
 
 
 class TransformedBbox(BboxBase):
     """
-    A :class:`Bbox` that is automatically transformed by a given
+    A `Bbox` that is automatically transformed by a given
     transform.  When either the child bounding box or transform
     changes, the bounds of this bbox will update accordingly.
     """
+
     def __init__(self, bbox, transform, **kwargs):
         """
         Parameters
         ----------
-        bbox : :class:`Bbox`
-
-        transform : :class:`Transform`
+        bbox : `Bbox`
+        transform : `Transform`
         """
         if not bbox.is_bbox:
             raise ValueError("'bbox' is not a bbox")
-        cbook._check_isinstance(Transform, transform=transform)
+        _api.check_isinstance(Transform, transform=transform)
         if transform.input_dims != 2 or transform.output_dims != 2:
             raise ValueError(
                 "The input and output dimensions of 'transform' must be 2")
 
-        BboxBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._bbox = bbox
         self._transform = transform
         self.set_children(bbox, transform)
         self._points = None
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._bbox),
-                        _indent_str(self._transform)))
+    __str__ = _make_str_method("_bbox", "_transform")
 
     def get_points(self):
         # docstring inherited
@@ -1053,7 +1120,7 @@ class TransformedBbox(BboxBase):
 
 class LockableBbox(BboxBase):
     """
-    A :class:`Bbox` where some elements may be locked at certain values.
+    A `Bbox` where some elements may be locked at certain values.
 
     When the child bounding box changes, the bounds of this bbox will update
     accordingly with the exception of the locked elements.
@@ -1062,7 +1129,7 @@ class LockableBbox(BboxBase):
         """
         Parameters
         ----------
-        bbox : Bbox
+        bbox : `Bbox`
             The child bounding box to wrap.
 
         x0 : float or None
@@ -1081,7 +1148,7 @@ class LockableBbox(BboxBase):
         if not bbox.is_bbox:
             raise ValueError("'bbox' is not a bbox")
 
-        BboxBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._bbox = bbox
         self.set_children(bbox)
         self._points = None
@@ -1089,13 +1156,7 @@ class LockableBbox(BboxBase):
         mask = [val is None for val in fp]
         self._locked_points = np.ma.array(fp, float, mask=mask).reshape((2, 2))
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._bbox),
-                        _indent_str(self._locked_points)))
+    __str__ = _make_str_method("_bbox", "_locked_points")
 
     def get_points(self):
         # docstring inherited
@@ -1182,7 +1243,7 @@ class LockableBbox(BboxBase):
 
 class Transform(TransformNode):
     """
-    The base class of all :class:`TransformNode` instances that
+    The base class of all `TransformNode` instances that
     actually perform a transformation.
 
     All non-affine transformations should be subclasses of this class.
@@ -1198,13 +1259,13 @@ class Transform(TransformNode):
 
     The following attributes may be overridden if the default is unsuitable:
 
-    - :attr:`is_separable` (defaults to True for 1d -> 1d transforms, False
+    - :attr:`is_separable` (defaults to True for 1D -> 1D transforms, False
       otherwise)
     - :attr:`has_inverse` (defaults to True if :meth:`inverted` is overridden,
       False otherwise)
 
     If the transform needs to do something non-standard with
-    :class:`matplotlib.path.Path` objects, such as adding curves
+    `matplotlib.path.Path` objects, such as adding curves
     where there were once line segments, it should override:
 
     - :meth:`transform_path`
@@ -1246,23 +1307,14 @@ class Transform(TransformNode):
 
     def __add__(self, other):
         """
-        Composes two transforms together such that *self* is followed
-        by *other*.
-        """
-        if isinstance(other, Transform):
-            return composite_transform_factory(self, other)
-        raise TypeError(
-            "Can not add Transform to object of type '%s'" % type(other))
+        Compose two transforms together so that *self* is followed by *other*.
 
-    def __radd__(self, other):
+        ``A + B`` returns a transform ``C`` so that
+        ``C.transform(x) == B.transform(A.transform(x))``.
         """
-        Composes two transforms together such that *self* is followed
-        by *other*.
-        """
-        if isinstance(other, Transform):
-            return composite_transform_factory(other, self)
-        raise TypeError(
-            "Can not add Transform to object of type '%s'" % type(other))
+        return (composite_transform_factory(self, other)
+                if isinstance(other, Transform) else
+                NotImplemented)
 
     # Equality is based on object identity for `Transform`s (so we don't
     # override `__eq__`), but some subclasses, such as TransformWrapper &
@@ -1270,21 +1322,20 @@ class Transform(TransformNode):
 
     def _iter_break_from_left_to_right(self):
         """
-        Returns an iterator breaking down this transform stack from left to
+        Return an iterator breaking down this transform stack from left to
         right recursively. If self == ((A, N), A) then the result will be an
         iterator which yields I : ((A, N), A), followed by A : (N, A),
         followed by (A, N) : (A), but not ((A, N), A) : I.
 
         This is equivalent to flattening the stack then yielding
         ``flat_stack[:i], flat_stack[i:]`` where i=0..(n-1).
-
         """
         yield IdentityTransform(), self
 
     @property
     def depth(self):
         """
-        Returns the number of transforms which have been chained
+        Return the number of transforms which have been chained
         together to form this Transform instance.
 
         .. note::
@@ -1304,7 +1355,6 @@ class Transform(TransformNode):
 
         For the case where the given transform represents the whole
         of this transform, returns True.
-
         """
         if self.depth < other.depth:
             return False
@@ -1317,7 +1367,7 @@ class Transform(TransformNode):
 
     def contains_branch_seperately(self, other_transform):
         """
-        Returns whether the given branch is a sub-tree of this transform on
+        Return whether the given branch is a sub-tree of this transform on
         each separate dimension.
 
         A common use for this method is to identify if a transform is a blended
@@ -1335,34 +1385,39 @@ class Transform(TransformNode):
 
     def __sub__(self, other):
         """
-        Returns a transform stack which goes all the way down self's transform
-        stack, and then ascends back up other's stack. If it can, this is
-        optimised::
+        Compose *self* with the inverse of *other*, cancelling identical terms
+        if any::
 
-            # normally
-            A - B == a + b.inverted()
+            # In general:
+            A - B == A + B.inverted()
+            # (but see note regarding frozen transforms below).
 
-            # sometimes, when A contains the tree B there is no need to
-            # descend all the way down to the base of A (via B), instead we
-            # can just stop at B.
+            # If A "ends with" B (i.e. A == A' + B for some A') we can cancel
+            # out B:
+            (A' + B) - B == A'
 
-            (A + B) - (B)^-1 == A
+            # Likewise, if B "starts with" A (B = A + B'), we can cancel out A:
+            A - (A + B') == B'.inverted() == B'^-1
 
-            # similarly, when B contains tree A, we can avoid descending A at
-            # all, basically:
-            A - (A + B) == ((B + A) - A).inverted() or B^-1
+        Cancellation (rather than naively returning ``A + B.inverted()``) is
+        important for multiple reasons:
 
-        For clarity, the result of ``(A + B) - B + B == (A + B)``.
-
+        - It avoids floating-point inaccuracies when computing the inverse of
+          B: ``B - B`` is guaranteed to cancel out exactly (resulting in the
+          identity transform), whereas ``B + B.inverted()`` may differ by a
+          small epsilon.
+        - ``B.inverted()`` always returns a frozen transform: if one computes
+          ``A + B + B.inverted()`` and later mutates ``B``, then
+          ``B.inverted()`` won't be updated and the last two terms won't cancel
+          out anymore; on the other hand, ``A + B - B`` will always be equal to
+          ``A`` even if ``B`` is mutated.
         """
         # we only know how to do this operation if other is a Transform.
         if not isinstance(other, Transform):
             return NotImplemented
-
         for remainder, sub_tree in self._iter_break_from_left_to_right():
             if sub_tree == other:
                 return remainder
-
         for remainder, sub_tree in other._iter_break_from_left_to_right():
             if sub_tree == self:
                 if not remainder.has_inverse:
@@ -1370,7 +1425,6 @@ class Transform(TransformNode):
                         "The shortcut cannot be computed since 'other' "
                         "includes a non-invertible component")
                 return remainder.inverted()
-
         # if we have got this far, then there was no shortcut possible
         if other.has_inverse:
             return self + other.inverted()
@@ -1380,20 +1434,24 @@ class Transform(TransformNode):
                              'shortcut possible.')
 
     def __array__(self, *args, **kwargs):
-        """
-        Array interface to get at this Transform's affine matrix.
-        """
+        """Array interface to get at this Transform's affine matrix."""
         return self.get_affine().get_matrix()
 
     def transform(self, values):
         """
-        Performs the transformation on the given array of values.
+        Apply this transformation on the given array of *values*.
 
-        Accepts a numpy array of shape (N x :attr:`input_dims`) and
-        returns a numpy array of shape (N x :attr:`output_dims`).
+        Parameters
+        ----------
+        values : array
+            The input values as NumPy array of length :attr:`input_dims` or
+            shape (N x :attr:`input_dims`).
 
-        Alternatively, accepts a numpy array of length :attr:`input_dims`
-        and returns a numpy array of length :attr:`output_dims`.
+        Returns
+        -------
+        array
+            The output values as NumPy array of length :attr:`input_dims` or
+            shape (N x :attr:`output_dims`), depending on the input.
         """
         # Ensure that values is a 2d array (but remember whether
         # we started with a 1d or 2d array).
@@ -1418,7 +1476,7 @@ class Transform(TransformNode):
 
     def transform_affine(self, values):
         """
-        Performs only the affine part of this transformation on the
+        Apply only the affine part of this transformation on the
         given array of values.
 
         ``transform(values)`` is always equivalent to
@@ -1436,7 +1494,7 @@ class Transform(TransformNode):
 
         Returns
         -------
-        values : array
+        array
             The output values as NumPy array of length :attr:`input_dims` or
             shape (N x :attr:`output_dims`), depending on the input.
         """
@@ -1444,7 +1502,7 @@ class Transform(TransformNode):
 
     def transform_non_affine(self, values):
         """
-        Performs only the non-affine part of the transformation.
+        Apply only the non-affine part of this transformation.
 
         ``transform(values)`` is always equivalent to
         ``transform_affine(transform_non_affine(values))``.
@@ -1461,7 +1519,7 @@ class Transform(TransformNode):
 
         Returns
         -------
-        values : array
+        array
             The output values as NumPy array of length :attr:`input_dims` or
             shape (N x :attr:`output_dims`), depending on the input.
         """
@@ -1471,23 +1529,17 @@ class Transform(TransformNode):
         """
         Transform the given bounding box.
 
-        Note, for smarter transforms including caching (a common
-        requirement for matplotlib figures), see :class:`TransformedBbox`.
+        For smarter transforms including caching (a common requirement in
+        Matplotlib), see `TransformedBbox`.
         """
         return Bbox(self.transform(bbox.get_points()))
 
     def get_affine(self):
-        """
-        Get the affine part of this transform.
-        """
+        """Get the affine part of this transform."""
         return IdentityTransform()
 
     def get_matrix(self):
-        """
-        Get the Affine transformation array for the affine part
-        of this transform.
-
-        """
+        """Get the matrix for the affine part of this transform."""
         return self.get_affine().get_matrix()
 
     def transform_point(self, point):
@@ -1508,9 +1560,7 @@ class Transform(TransformNode):
 
     def transform_path(self, path):
         """
-        Returns a transformed path.
-
-        *path*: a :class:`~matplotlib.path.Path` instance.
+        Apply the transform to `.Path` *path*, returning a new `.Path`.
 
         In some cases, this transform may insert curves into the path
         that began as line segments.
@@ -1519,10 +1569,8 @@ class Transform(TransformNode):
 
     def transform_path_affine(self, path):
         """
-        Returns a path, transformed only by the affine part of
-        this transform.
-
-        *path*: a :class:`~matplotlib.path.Path` instance.
+        Apply the affine part of this transform to `.Path` *path*, returning a
+        new `.Path`.
 
         ``transform_path(path)`` is equivalent to
         ``transform_path_affine(transform_path_non_affine(values))``.
@@ -1531,10 +1579,8 @@ class Transform(TransformNode):
 
     def transform_path_non_affine(self, path):
         """
-        Returns a path, transformed only by the non-affine
-        part of this transform.
-
-        *path*: a :class:`~matplotlib.path.Path` instance.
+        Apply the non-affine part of this transform to `.Path` *path*,
+        returning a new `.Path`.
 
         ``transform_path(path)`` is equivalent to
         ``transform_path_affine(transform_path_non_affine(values))``.
@@ -1544,7 +1590,7 @@ class Transform(TransformNode):
 
     def transform_angles(self, angles, pts, radians=False, pushoff=1e-5):
         """
-        Transforms a set of angles anchored at specific locations.
+        Transform a set of angles anchored at specific locations.
 
         Parameters
         ----------
@@ -1563,7 +1609,7 @@ class Transform(TransformNode):
 
         Returns
         -------
-        transformed_angles : (N,) array
+        (N,) array
         """
         # Must be 2D
         if self.input_dims != 2 or self.output_dims != 2:
@@ -1579,7 +1625,8 @@ class Transform(TransformNode):
         if not radians:
             angles = np.deg2rad(angles)
         # Move a short distance away
-        pts2 = pts + pushoff * np.c_[np.cos(angles), np.sin(angles)]
+        pts2 = pts + pushoff * np.column_stack([np.cos(angles),
+                                                np.sin(angles)])
         # Transform both sets of points
         tpts = self.transform(pts)
         tpts2 = self.transform(pts2)
@@ -1613,19 +1660,19 @@ class TransformWrapper(Transform):
     run time with a transform of a different type.  This class allows
     that replacement to correctly trigger invalidation.
 
-    Note that :class:`TransformWrapper` instances must have the same
-    input and output dimensions during their entire lifetime, so the
-    child transform may only be replaced with another child transform
-    of the same dimensions.
+    `TransformWrapper` instances must have the same input and output dimensions
+    during their entire lifetime, so the child transform may only be replaced
+    with another child transform of the same dimensions.
     """
+
     pass_through = True
 
     def __init__(self, child):
         """
-        *child*: A class:`Transform` instance.  This child may later
+        *child*: A `Transform` instance.  This child may later
         be replaced with :meth:`set`.
         """
-        cbook._check_isinstance(Transform, child=child)
+        _api.check_isinstance(Transform, child=child)
         self._init(child)
         self.set_children(child)
 
@@ -1639,11 +1686,7 @@ class TransformWrapper(Transform):
     def __eq__(self, other):
         return self._child.__eq__(other)
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._child)))
+    __str__ = _make_str_method("_child")
 
     def frozen(self):
         # docstring inherited
@@ -1693,13 +1736,12 @@ class TransformWrapper(Transform):
 
 class AffineBase(Transform):
     """
-    The base class of all affine transformations of any number of
-    dimensions.
+    The base class of all affine transformations of any number of dimensions.
     """
     is_affine = True
 
     def __init__(self, *args, **kwargs):
-        Transform.__init__(self, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._inverted = None
 
     def __array__(self, *args, **kwargs):
@@ -1707,7 +1749,7 @@ class AffineBase(Transform):
         return self.get_matrix()
 
     def __eq__(self, other):
-        if getattr(other, "is_affine", False):
+        if getattr(other, "is_affine", False) and hasattr(other, "get_matrix"):
             return np.all(self.get_matrix() == other.get_matrix())
         return NotImplemented
 
@@ -1753,7 +1795,7 @@ class Affine2DBase(AffineBase):
         0 0 1
 
     This class provides the read-only interface.  For a mutable 2D
-    affine transformation, use :class:`Affine2D`.
+    affine transformation, use `Affine2D`.
 
     Subclasses of this class will generally only need to override a
     constructor and :meth:`get_matrix` that generates a custom 3x3 matrix.
@@ -1777,19 +1819,6 @@ class Affine2DBase(AffineBase):
         mtx = self.get_matrix()
         return tuple(mtx[:2].swapaxes(0, 1).flat)
 
-    @staticmethod
-    @cbook.deprecated(
-        "3.2", alternative="Affine2D.from_values(...).get_matrix()")
-    def matrix_from_values(a, b, c, d, e, f):
-        """
-        Create a new transformation matrix as a 3x3 numpy array of the form::
-
-          a c e
-          b d f
-          0 0 1
-        """
-        return np.array([[a, c, e], [b, d, f], [0.0, 0.0, 1.0]], float)
-
     def transform_affine(self, points):
         mtx = self.get_matrix()
         if isinstance(points, np.ma.MaskedArray):
@@ -1806,7 +1835,7 @@ class Affine2DBase(AffineBase):
             # points to an array in the first place.  If we can use
             # more arrays upstream, that should help here.
             if not isinstance(points, (np.ma.MaskedArray, np.ndarray)):
-                cbook._warn_external(
+                _api.warn_external(
                     f'A non-numpy array of type {type(points)} was passed in '
                     f'for transformation, which results in poor performance.')
             return self._transform_affine(points)
@@ -1838,18 +1867,21 @@ class Affine2D(Affine2DBase):
 
         If *matrix* is None, initialize with the identity transform.
         """
-        Affine2DBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         if matrix is None:
             # A bit faster than np.identity(3).
             matrix = IdentityTransform._mtx.copy()
-        self._mtx = matrix
+        self._mtx = matrix.copy()
         self._invalid = 0
 
+    _base_str = _make_str_method("_mtx")
+
     def __str__(self):
-        return ("{}(\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._mtx)))
+        return (self._base_str()
+                if (self._mtx != np.diag(np.diag(self._mtx))).any()
+                else f"Affine2D().scale({self._mtx[0, 0]}, {self._mtx[1, 1]})"
+                if self._mtx[0, 0] != self._mtx[1, 1]
+                else f"Affine2D().scale({self._mtx[0, 0]})")
 
     @staticmethod
     def from_values(a, b, c, d, e, f):
@@ -1896,9 +1928,9 @@ class Affine2D(Affine2DBase):
     def set(self, other):
         """
         Set this transformation from the frozen copy of another
-        :class:`Affine2DBase` object.
+        `Affine2DBase` object.
         """
-        cbook._check_isinstance(Affine2DBase, other=other)
+        _api.check_isinstance(Affine2DBase, other=other)
         self._mtx = other.get_matrix()
         self.invalidate()
 
@@ -1908,7 +1940,7 @@ class Affine2D(Affine2DBase):
         Return a new `Affine2D` object that is the identity transform.
 
         Unless this transform will be mutated later on, consider using
-        the faster :class:`IdentityTransform` class instead.
+        the faster `IdentityTransform` class instead.
         """
         return Affine2D()
 
@@ -1929,8 +1961,8 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        a = np.cos(theta)
-        b = np.sin(theta)
+        a = math.cos(theta)
+        b = math.sin(theta)
         rotate_mtx = np.array([[a, -b, 0.0], [b, a, 0.0], [0.0, 0.0, 1.0]],
                               float)
         self._mtx = np.dot(rotate_mtx, self._mtx)
@@ -1945,7 +1977,7 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        return self.rotate(np.deg2rad(degrees))
+        return self.rotate(math.radians(degrees))
 
     def rotate_around(self, x, y, theta):
         """
@@ -1971,21 +2003,20 @@ class Affine2D(Affine2DBase):
 
     def translate(self, tx, ty):
         """
-        Adds a translation in place.
+        Add a translation in place.
 
         Returns *self*, so this method can easily be chained with more
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        translate_mtx = np.array(
-            [[1.0, 0.0, tx], [0.0, 1.0, ty], [0.0, 0.0, 1.0]], float)
-        self._mtx = np.dot(translate_mtx, self._mtx)
+        self._mtx[0, 2] += tx
+        self._mtx[1, 2] += ty
         self.invalidate()
         return self
 
     def scale(self, sx, sy=None):
         """
-        Adds a scale in place.
+        Add a scale in place.
 
         If *sy* is None, the same scale is applied in both the *x*- and
         *y*-directions.
@@ -1996,15 +2027,19 @@ class Affine2D(Affine2DBase):
         """
         if sy is None:
             sy = sx
-        scale_mtx = np.array(
-            [[sx, 0.0, 0.0], [0.0, sy, 0.0], [0.0, 0.0, 1.0]], float)
-        self._mtx = np.dot(scale_mtx, self._mtx)
+        # explicit element-wise scaling is fastest
+        self._mtx[0, 0] *= sx
+        self._mtx[0, 1] *= sx
+        self._mtx[0, 2] *= sx
+        self._mtx[1, 0] *= sy
+        self._mtx[1, 1] *= sy
+        self._mtx[1, 2] *= sy
         self.invalidate()
         return self
 
     def skew(self, xShear, yShear):
         """
-        Adds a skew in place.
+        Add a skew in place.
 
         *xShear* and *yShear* are the shear angles along the *x*- and
         *y*-axes, respectively, in radians.
@@ -2013,8 +2048,8 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        rotX = np.tan(xShear)
-        rotY = np.tan(yShear)
+        rotX = math.tan(xShear)
+        rotY = math.tan(yShear)
         skew_mtx = np.array(
             [[1.0, rotX, 0.0], [rotY, 1.0, 0.0], [0.0, 0.0, 1.0]], float)
         self._mtx = np.dot(skew_mtx, self._mtx)
@@ -2023,7 +2058,7 @@ class Affine2D(Affine2DBase):
 
     def skew_deg(self, xShear, yShear):
         """
-        Adds a skew in place.
+        Add a skew in place.
 
         *xShear* and *yShear* are the shear angles along the *x*- and
         *y*-axes, respectively, in degrees.
@@ -2032,7 +2067,7 @@ class Affine2D(Affine2DBase):
         calls to :meth:`rotate`, :meth:`rotate_deg`, :meth:`translate`
         and :meth:`scale`.
         """
-        return self.skew(np.deg2rad(xShear), np.deg2rad(yShear))
+        return self.skew(math.radians(xShear), math.radians(yShear))
 
 
 class IdentityTransform(Affine2DBase):
@@ -2046,9 +2081,7 @@ class IdentityTransform(Affine2DBase):
         # docstring inherited
         return self
 
-    def __str__(self):
-        return ("{}()"
-                .format(type(self).__name__))
+    __str__ = _make_str_method()
 
     def get_matrix(self):
         # docstring inherited
@@ -2102,13 +2135,7 @@ class _BlendedMixin:
         return (self._x.contains_branch(transform),
                 self._y.contains_branch(transform))
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._x),
-                        _indent_str(self._y)))
+    __str__ = _make_str_method("_x", "_y")
 
 
 class BlendedGenericTransform(_BlendedMixin, Transform):
@@ -2126,16 +2153,13 @@ class BlendedGenericTransform(_BlendedMixin, Transform):
 
     def __init__(self, x_transform, y_transform, **kwargs):
         """
-        Create a new "blended" transform using *x_transform* to
-        transform the *x*-axis and *y_transform* to transform the
-        *y*-axis.
+        Create a new "blended" transform using *x_transform* to transform the
+        *x*-axis and *y_transform* to transform the *y*-axis.
 
         You will generally not call this constructor directly but use the
         `blended_transform_factory` function instead, which can determine
         automatically which kind of blended transform to create.
         """
-        # Here we ask: "Does it blend?"
-
         Transform.__init__(self, **kwargs)
         self._x = x_transform
         self._y = y_transform
@@ -2199,10 +2223,9 @@ class BlendedGenericTransform(_BlendedMixin, Transform):
             else:
                 x_mtx = self._x.get_affine().get_matrix()
                 y_mtx = self._y.get_affine().get_matrix()
-                # This works because we already know the transforms are
-                # separable, though normally one would want to set b and
-                # c to zero.
-                mtx = np.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
+                # We already know the transforms are separable, so we can skip
+                # setting b and c to zero.
+                mtx = np.array([x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]])
                 self._affine = Affine2D(mtx)
             self._invalid = 0
         return self._affine
@@ -2214,18 +2237,17 @@ class BlendedAffine2D(_BlendedMixin, Affine2DBase):
     another transform for the *y*-direction.
 
     This version is an optimization for the case where both child
-    transforms are of type :class:`Affine2DBase`.
+    transforms are of type `Affine2DBase`.
     """
+
     is_separable = True
 
     def __init__(self, x_transform, y_transform, **kwargs):
         """
-        Create a new "blended" transform using *x_transform* to
-        transform the *x*-axis and *y_transform* to transform the
-        *y*-axis.
+        Create a new "blended" transform using *x_transform* to transform the
+        *x*-axis and *y_transform* to transform the *y*-axis.
 
-        Both *x_transform* and *y_transform* must be 2D affine
-        transforms.
+        Both *x_transform* and *y_transform* must be 2D affine transforms.
 
         You will generally not call this constructor directly but use the
         `blended_transform_factory` function instead, which can determine
@@ -2254,10 +2276,9 @@ class BlendedAffine2D(_BlendedMixin, Affine2DBase):
             else:
                 x_mtx = self._x.get_matrix()
                 y_mtx = self._y.get_matrix()
-                # This works because we already know the transforms are
-                # separable, though normally one would want to set b and
-                # c to zero.
-                self._mtx = np.vstack((x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]))
+                # We already know the transforms are separable, so we can skip
+                # setting b and c to zero.
+                self._mtx = np.array([x_mtx[0], y_mtx[1], [0.0, 0.0, 1.0]])
             self._inverted = None
             self._invalid = 0
         return self._mtx
@@ -2271,8 +2292,8 @@ def blended_transform_factory(x_transform, y_transform):
     A faster version of the blended transform is returned for the case
     where both child transforms are affine.
     """
-    if (isinstance(x_transform, Affine2DBase)
-        and isinstance(y_transform, Affine2DBase)):
+    if (isinstance(x_transform, Affine2DBase) and
+            isinstance(y_transform, Affine2DBase)):
         return BlendedAffine2D(x_transform, y_transform)
     return BlendedGenericTransform(x_transform, y_transform)
 
@@ -2292,9 +2313,9 @@ class CompositeGenericTransform(Transform):
         Create a new composite transform that is the result of
         applying transform *a* then transform *b*.
 
-        You will generally not call this constructor directly but use the
-        `composite_transform_factory` function instead, which can automatically
-        choose the best kind of composite transform instance to create.
+        You will generally not call this constructor directly but write ``a +
+        b`` instead, which will automatically choose the best kind of composite
+        transform instance to create.
         """
         if a.output_dims != b.input_dims:
             raise ValueError("The output dimension of 'a' must be equal to "
@@ -2302,7 +2323,7 @@ class CompositeGenericTransform(Transform):
         self.input_dims = a.input_dims
         self.output_dims = b.output_dims
 
-        Transform.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._a = a
         self._b = b
         self.set_children(a, b)
@@ -2323,14 +2344,13 @@ class CompositeGenericTransform(Transform):
         # either:
         # (a) the left hand transform is non affine
         # (b) it is the left hand node which has triggered the invalidation
-        if value == Transform.INVALID_AFFINE \
-            and not self._b.is_affine \
-            and (not self._a.is_affine or invalidating_node is self._a):
-
+        if (value == Transform.INVALID_AFFINE and
+                not self._b.is_affine and
+                (not self._a.is_affine or invalidating_node is self._a)):
             value = Transform.INVALID
 
-        Transform._invalidate_internal(self, value=value,
-                                       invalidating_node=invalidating_node)
+        super()._invalidate_internal(value=value,
+                                     invalidating_node=invalidating_node)
 
     def __eq__(self, other):
         if isinstance(other, (CompositeGenericTransform, CompositeAffine2D)):
@@ -2352,13 +2372,7 @@ class CompositeGenericTransform(Transform):
     has_inverse = property(
         lambda self: self._a.has_inverse and self._b.has_inverse)
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._a),
-                        _indent_str(self._b)))
+    __str__ = _make_str_method("_a", "_b")
 
     def transform_affine(self, points):
         # docstring inherited
@@ -2390,7 +2404,7 @@ class CompositeGenericTransform(Transform):
             return self._b.get_affine()
         else:
             return Affine2D(np.dot(self._b.get_affine().get_matrix(),
-                                self._a.get_affine().get_matrix()))
+                                   self._a.get_affine().get_matrix()))
 
     def inverted(self):
         # docstring inherited
@@ -2408,13 +2422,11 @@ class CompositeAffine2D(Affine2DBase):
     def __init__(self, a, b, **kwargs):
         """
         Create a new composite transform that is the result of
-        applying transform *a* then transform *b*.
+        applying `Affine2DBase` *a* then `Affine2DBase` *b*.
 
-        Both *a* and *b* must be instances of :class:`Affine2DBase`.
-
-        You will generally not call this constructor directly but use the
-        `composite_transform_factory` function instead, which can automatically
-        choose the best kind of composite transform instance to create.
+        You will generally not call this constructor directly but write ``a +
+        b`` instead, which will automatically choose the best kind of composite
+        transform instance to create.
         """
         if not a.is_affine or not b.is_affine:
             raise ValueError("'a' and 'b' must be affine transforms")
@@ -2424,7 +2436,7 @@ class CompositeAffine2D(Affine2DBase):
         self.input_dims = a.input_dims
         self.output_dims = b.output_dims
 
-        Affine2DBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._a = a
         self._b = b
         self.set_children(a, b)
@@ -2440,13 +2452,7 @@ class CompositeAffine2D(Affine2DBase):
         for left, right in self._b._iter_break_from_left_to_right():
             yield self._a + left, right
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._a),
-                        _indent_str(self._b)))
+    __str__ = _make_str_method("_a", "_b")
 
     def get_matrix(self):
         # docstring inherited
@@ -2490,30 +2496,25 @@ class BboxTransform(Affine2DBase):
     """
     `BboxTransform` linearly transforms points from one `Bbox` to another.
     """
+
     is_separable = True
 
     def __init__(self, boxin, boxout, **kwargs):
         """
-        Create a new :class:`BboxTransform` that linearly transforms
+        Create a new `BboxTransform` that linearly transforms
         points from *boxin* to *boxout*.
         """
         if not boxin.is_bbox or not boxout.is_bbox:
             raise ValueError("'boxin' and 'boxout' must be bbox")
 
-        Affine2DBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._boxin = boxin
         self._boxout = boxout
         self.set_children(boxin, boxout)
         self._mtx = None
         self._inverted = None
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{},\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._boxin),
-                        _indent_str(self._boxout)))
+    __str__ = _make_str_method("_boxin", "_boxout")
 
     def get_matrix(self):
         # docstring inherited
@@ -2539,27 +2540,24 @@ class BboxTransformTo(Affine2DBase):
     `BboxTransformTo` is a transformation that linearly transforms points from
     the unit bounding box to a given `Bbox`.
     """
+
     is_separable = True
 
     def __init__(self, boxout, **kwargs):
         """
-        Create a new :class:`BboxTransformTo` that linearly transforms
+        Create a new `BboxTransformTo` that linearly transforms
         points from the unit bounding box to *boxout*.
         """
         if not boxout.is_bbox:
             raise ValueError("'boxout' must be bbox")
 
-        Affine2DBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._boxout = boxout
         self.set_children(boxout)
         self._mtx = None
         self._inverted = None
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._boxout)))
+    __str__ = _make_str_method("_boxout")
 
     def get_matrix(self):
         # docstring inherited
@@ -2570,7 +2568,7 @@ class BboxTransformTo(Affine2DBase):
             self._mtx = np.array([[outw,  0.0, outl],
                                   [ 0.0, outh, outb],
                                   [ 0.0,  0.0,  1.0]],
-                                  float)
+                                 float)
             self._inverted = None
             self._invalid = 0
         return self._mtx
@@ -2607,17 +2605,13 @@ class BboxTransformFrom(Affine2DBase):
         if not boxin.is_bbox:
             raise ValueError("'boxin' must be bbox")
 
-        Affine2DBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._boxin = boxin
         self.set_children(boxin)
         self._mtx = None
         self._inverted = None
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._boxin)))
+    __str__ = _make_str_method("_boxin")
 
     def get_matrix(self):
         # docstring inherited
@@ -2642,18 +2636,14 @@ class ScaledTranslation(Affine2DBase):
     have been transformed by *scale_trans*.
     """
     def __init__(self, xt, yt, scale_trans, **kwargs):
-        Affine2DBase.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self._t = (xt, yt)
         self._scale_trans = scale_trans
         self.set_children(scale_trans)
         self._mtx = None
         self._inverted = None
 
-    def __str__(self):
-        return ("{}(\n"
-                    "{})"
-                .format(type(self).__name__,
-                        _indent_str(self._t)))
+    __str__ = _make_str_method("_t")
 
     def get_matrix(self):
         # docstring inherited
@@ -2663,6 +2653,36 @@ class ScaledTranslation(Affine2DBase):
             self._mtx[:2, 2] = self._scale_trans.transform(self._t)
             self._invalid = 0
             self._inverted = None
+        return self._mtx
+
+
+class AffineDeltaTransform(Affine2DBase):
+    r"""
+    A transform wrapper for transforming displacements between pairs of points.
+
+    This class is intended to be used to transform displacements ("position
+    deltas") between pairs of points (e.g., as the ``offset_transform``
+    of `.Collection`\s): given a transform ``t`` such that ``t =
+    AffineDeltaTransform(t) + offset``, ``AffineDeltaTransform``
+    satisfies ``AffineDeltaTransform(a - b) == AffineDeltaTransform(a) -
+    AffineDeltaTransform(b)``.
+
+    This is implemented by forcing the offset components of the transform
+    matrix to zero.
+
+    This class is experimental as of 3.3, and the API may change.
+    """
+
+    def __init__(self, transform, **kwargs):
+        super().__init__(**kwargs)
+        self._base_transform = transform
+
+    __str__ = _make_str_method("_base_transform")
+
+    def get_matrix(self):
+        if self._invalid:
+            self._mtx = self._base_transform.get_matrix().copy()
+            self._mtx[:2, -1] = 0
         return self._mtx
 
 
@@ -2685,8 +2705,8 @@ class TransformedPath(TransformNode):
         path : `~.path.Path`
         transform : `Transform`
         """
-        cbook._check_isinstance(Transform, transform=transform)
-        TransformNode.__init__(self)
+        _api.check_isinstance(Transform, transform=transform)
+        super().__init__()
         self._path = path
         self._transform = transform
         self.set_children(transform)
@@ -2697,7 +2717,7 @@ class TransformedPath(TransformNode):
         # only recompute if the invalidation includes the non_affine part of
         # the transform
         if (self._invalid & self.INVALID_NON_AFFINE == self.INVALID_NON_AFFINE
-            or self._transformed_path is None):
+                or self._transformed_path is None):
             self._transformed_path = \
                 self._transform.transform_path_non_affine(self._path)
             self._transformed_points = \
@@ -2740,7 +2760,7 @@ class TransformedPath(TransformNode):
 class TransformedPatchPath(TransformedPath):
     """
     A `TransformedPatchPath` caches a non-affine transformed copy of the
-    `~.patch.Patch`. This cached copy is automatically updated when the
+    `~.patches.Patch`. This cached copy is automatically updated when the
     non-affine part of the transform or the patch changes.
     """
     def __init__(self, patch):
@@ -2784,16 +2804,16 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     ----------
     vmin, vmax : float
         The initial endpoints.
-    expander : float, optional, default: 0.001
+    expander : float, default: 0.001
         Fractional amount by which *vmin* and *vmax* are expanded if
         the original interval is too small, based on *tiny*.
-    tiny : float, optional, default: 1e-15
+    tiny : float, default: 1e-15
         Threshold for the ratio of the interval to the maximum absolute
         value of its endpoints.  If the interval is smaller than
         this, it will be expanded.  This value should be around
         1e-15 or larger; otherwise the interval will be approaching
         the double precision resolution limit.
-    increasing : bool, optional, default: True
+    increasing : bool, default: True
         If True, swap *vmin*, *vmax* if *vmin* > *vmax*.
 
     Returns
@@ -2811,6 +2831,10 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     if vmax < vmin:
         vmin, vmax = vmax, vmin
         swapped = True
+
+    # Expand vmin, vmax to float: if they were integer types, they can wrap
+    # around in abs (abs(np.int8(-128)) == -128) and vmax - vmin can overflow.
+    vmin, vmax = map(float, [vmin, vmax])
 
     maxabsvalue = max(abs(vmin), abs(vmax))
     if maxabsvalue < (1e6 / tiny) * np.finfo(float).tiny:
@@ -2836,15 +2860,15 @@ def interval_contains(interval, val):
 
     Parameters
     ----------
-    interval : sequence of scalar
-        A 2-length sequence, endpoints that define the interval.
-    val : scalar
+    interval : (float, float)
+        The endpoints of the interval.
+    val : float
         Value to check is within interval.
 
     Returns
     -------
     bool
-        Returns *True* if given *val* is within the *interval*.
+        Whether *val* is within the *interval*.
     """
     a, b = interval
     if a > b:
@@ -2859,18 +2883,20 @@ def _interval_contains_close(interval, val, rtol=1e-10):
 
     Parameters
     ----------
-    interval : sequence of scalar
-        A 2-length sequence, endpoints that define the interval.
-    val : scalar
+    interval : (float, float)
+        The endpoints of the interval.
+    val : float
         Value to check is within interval.
-    rtol : scalar
-        Tolerance slippage allowed outside of this interval.  Default
-        1e-10 * (b - a).
+    rtol : float, default: 1e-10
+        Relative tolerance slippage allowed outside of the interval.
+        For an interval ``[a, b]``, values
+        ``a - rtol * (b - a) <= val <= b + rtol * (b - a)`` are considered
+        inside the interval.
 
     Returns
     -------
     bool
-        Returns *True* if given *val* is within the *interval* (with tolerance)
+        Whether *val* is within the *interval* (with tolerance).
     """
     a, b = interval
     if a > b:
@@ -2885,15 +2911,15 @@ def interval_contains_open(interval, val):
 
     Parameters
     ----------
-    interval : sequence of scalar
-        A 2-length sequence, endpoints that define the interval.
-    val : scalar
+    interval : (float, float)
+        The endpoints of the interval.
+    val : float
         Value to check is within interval.
 
     Returns
     -------
     bool
-        Returns true if given val is within the interval.
+        Whether *val* is within the *interval*.
     """
     a, b = interval
     return a < val < b or a > val > b
@@ -2905,18 +2931,18 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
 
     Parameters
     ----------
-    trans : :class:`Transform` instance
+    trans : `Transform` subclass
         Any transform, to which offset will be applied.
-    fig : :class:`~matplotlib.figure.Figure`, optional, default: None
+    fig : `~matplotlib.figure.Figure`, default: None
         Current figure. It can be None if *units* are 'dots'.
-    x, y : float, optional, default: 0.0
-        Specifies the offset to apply.
-    units : {'inches', 'points', 'dots'}, optional
+    x, y : float, default: 0.0
+        The offset to apply.
+    units : {'inches', 'points', 'dots'}, default: 'inches'
         Units of the offset.
 
     Returns
     -------
-    trans : :class:`Transform` instance
+    `Transform` subclass
         Transform with applied offset.
     """
     if units == 'dots':
@@ -2929,5 +2955,5 @@ def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):
     elif units == 'inches':
         pass
     else:
-        cbook._check_in_list(['dots', 'points', 'inches'], units=units)
+        _api.check_in_list(['dots', 'points', 'inches'], units=units)
     return trans + ScaledTranslation(x, y, fig.dpi_scale_trans)

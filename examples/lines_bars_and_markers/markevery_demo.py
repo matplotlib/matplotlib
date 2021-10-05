@@ -53,7 +53,7 @@ def trim_axs(axs, N):
 ###############################################################################
 # Plot each markevery case for linear x and y scales
 
-fig1, axs = plt.subplots(rows, cols, figsize=figsize, constrained_layout=True)
+axs = plt.figure(figsize=figsize, constrained_layout=True).subplots(rows, cols)
 axs = trim_axs(axs, len(cases))
 for ax, case in zip(axs, cases):
     ax.set_title('markevery=%s' % str(case))
@@ -62,7 +62,7 @@ for ax, case in zip(axs, cases):
 ###############################################################################
 # Plot each markevery case for log x and y scales
 
-fig2, axs = plt.subplots(rows, cols, figsize=figsize, constrained_layout=True)
+axs = plt.figure(figsize=figsize, constrained_layout=True).subplots(rows, cols)
 axs = trim_axs(axs, len(cases))
 for ax, case in zip(axs, cases):
     ax.set_title('markevery=%s' % str(case))
@@ -76,7 +76,7 @@ for ax, case in zip(axs, cases):
 # it is always interpreted with respect to the first data point which might be
 # different to the first visible data point.
 
-fig3, axs = plt.subplots(rows, cols, figsize=figsize, constrained_layout=True)
+axs = plt.figure(figsize=figsize, constrained_layout=True).subplots(rows, cols)
 axs = trim_axs(axs, len(cases))
 for ax, case in zip(axs, cases):
     ax.set_title('markevery=%s' % str(case))
@@ -91,8 +91,8 @@ theta = 2 * np.pi * r
 ###############################################################################
 # Plot each markevery case for polar plots
 
-fig4, axs = plt.subplots(rows, cols, figsize=figsize,
-        subplot_kw={'projection': 'polar'}, constrained_layout=True)
+axs = plt.figure(figsize=figsize, constrained_layout=True).subplots(
+    rows, cols, subplot_kw={'projection': 'polar'})
 axs = trim_axs(axs, len(cases))
 for ax, case in zip(axs, cases):
     ax.set_title('markevery=%s' % str(case))

@@ -32,12 +32,12 @@ people commonly use a specific argument to the %matplotlib magic:
 This turns on inline plotting, where plot graphics will appear in your
 notebook.  This has important implications for interactivity.  For inline plotting, commands in
 cells below the cell that outputs a plot will not affect the plot.  For example,
-changing the color map is not possible from cells below the cell that creates a plot.
-However, for other backends, such as Qt5, that open a separate window,
+changing the colormap is not possible from cells below the cell that creates a plot.
+However, for other backends, such as Qt, that open a separate window,
 cells below those that create the plot will change the plot - it is a
 live object in memory.
 
-This tutorial will use matplotlib's imperative-style plotting
+This tutorial will use Matplotlib's imperative-style plotting
 interface, pyplot.  This interface maintains global state, and is very
 useful for quickly and easily experimenting with various plot
 settings.  The alternative is the object-oriented interface, which is also
@@ -55,15 +55,11 @@ import matplotlib.image as mpimg
 # .. _importing_data:
 #
 # Importing image data into Numpy arrays
-# ===============================================
+# ======================================
 #
-# Loading image data is supported by the `Pillow
-# <https://pillow.readthedocs.io/en/latest/>`_ library.  Natively, Matplotlib
-# only supports PNG images.  The commands shown below fall back on Pillow if
-# the native read fails.
+# Matplotlib relies on the Pillow_ library to load image data.
 #
-# The image used in this example is a PNG file, but keep that Pillow
-# requirement in mind for your own data.
+# .. _Pillow: https://pillow.readthedocs.io/en/latest/
 #
 # Here's the image we're going to play with:
 #
@@ -72,9 +68,9 @@ import matplotlib.image as mpimg
 # It's a 24-bit RGB PNG image (8 bits for each of R, G, B).  Depending
 # on where you get your data, the other kinds of image that you'll most
 # likely encounter are RGBA images, which allow for transparency, or
-# single-channel grayscale (luminosity) images.  You can right click on
-# it and choose "Save image as" to download it to your computer for the
-# rest of this tutorial.
+# single-channel grayscale (luminosity) images.  Download `stinkbug.png
+# <https://raw.githubusercontent.com/matplotlib/matplotlib/master/doc/_static/stinkbug.png>`_
+# to your computer for the rest of this tutorial.
 #
 # And here we go...
 
@@ -98,8 +94,8 @@ print(img)
 # similar.  An RGBA (where A is alpha, or transparency), has 4 values
 # per inner list, and a simple luminance image just has one value (and
 # is thus only a 2-D array, not a 3-D array).  For RGB and RGBA images,
-# matplotlib supports float32 and uint8 data types.  For grayscale,
-# matplotlib supports only float32.  If your array data does not meet
+# Matplotlib supports float32 and uint8 data types.  For grayscale,
+# Matplotlib supports only float32.  If your array data does not meet
 # one of these descriptions, you need to rescale it.
 #
 # .. _plotting_data:
@@ -136,7 +132,7 @@ imgplot = plt.imshow(img)
 lum_img = img[:, :, 0]
 
 # This is array slicing.  You can read more in the `Numpy tutorial
-# <https://docs.scipy.org/doc/numpy/user/quickstart.html>`_.
+# <https://numpy.org/doc/stable/user/quickstart.html>`_.
 
 plt.imshow(lum_img)
 
@@ -175,17 +171,12 @@ imgplot.set_cmap('nipy_spectral')
 # ------------------------
 #
 # It's helpful to have an idea of what value a color represents.  We can
-# do that by adding color bars.
+# do that by adding a color bar to your figure:
 
 imgplot = plt.imshow(lum_img)
 plt.colorbar()
 
 ###############################################################################
-# This adds a colorbar to your existing figure.  This won't
-# automatically change if you change you switch to a different
-# colormap - you have to re-create your plot, and add in the colorbar
-# again.
-#
 # .. _`Data ranges`:
 #
 # Examining a specific data range
@@ -219,14 +210,14 @@ imgplot = plt.imshow(lum_img, clim=(0.0, 0.7))
 ###############################################################################
 # You can also specify the clim using the returned object
 fig = plt.figure()
-a = fig.add_subplot(1, 2, 1)
+ax = fig.add_subplot(1, 2, 1)
 imgplot = plt.imshow(lum_img)
-a.set_title('Before')
+ax.set_title('Before')
 plt.colorbar(ticks=[0.1, 0.3, 0.5, 0.7], orientation='horizontal')
-a = fig.add_subplot(1, 2, 2)
+ax = fig.add_subplot(1, 2, 2)
 imgplot = plt.imshow(lum_img)
 imgplot.set_clim(0.0, 0.7)
-a.set_title('After')
+ax.set_title('After')
 plt.colorbar(ticks=[0.1, 0.3, 0.5, 0.7], orientation='horizontal')
 
 ###############################################################################

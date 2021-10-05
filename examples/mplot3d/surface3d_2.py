@@ -1,17 +1,17 @@
-'''
+"""
 ========================
 3D surface (solid color)
 ========================
 
 Demonstrates a very basic plot of a 3D surface using a solid color.
-'''
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot(projection='3d')
 
 # Make data
 u = np.linspace(0, 2 * np.pi, 100)

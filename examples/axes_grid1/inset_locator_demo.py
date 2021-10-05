@@ -44,7 +44,7 @@ plt.show()
 
 
 ###############################################################################
-# The arguments *bbox_to_anchor* and *bbox_transfrom* can be used for a more
+# The parameters *bbox_to_anchor* and *bbox_transform* can be used for a more
 # fine grained control over the inset position and size or even to position
 # the inset at completely arbitrary positions.
 # The *bbox_to_anchor* sets the bounding box in coordinates according to the
@@ -69,7 +69,7 @@ axins = inset_axes(ax, width="50%", height="75%",
                    bbox_transform=ax.transAxes, loc=3)
 
 # For visualization purposes we mark the bounding box by a rectangle
-ax.add_patch(plt.Rectangle((.2, .4), .6, .5, ls="--", ec="c", fc="None",
+ax.add_patch(plt.Rectangle((.2, .4), .6, .5, ls="--", ec="c", fc="none",
                            transform=ax.transAxes))
 
 # We set the axis limits to something other than the default, in order to not
@@ -89,9 +89,9 @@ axins3 = inset_axes(ax3, width="100%", height="100%",
                     bbox_transform=ax3.transAxes)
 
 # For visualization purposes we mark the bounding box by a rectangle
-ax2.add_patch(plt.Rectangle((0, 0), 1, 1, ls="--", lw=2, ec="c", fc="None"))
+ax2.add_patch(plt.Rectangle((0, 0), 1, 1, ls="--", lw=2, ec="c", fc="none"))
 ax3.add_patch(plt.Rectangle((.7, .5), .3, .5, ls="--", lw=2,
-                            ec="c", fc="None"))
+                            ec="c", fc="none"))
 
 # Turn ticklabels off
 for axi in [axins2, axins3, ax2, ax3]:
@@ -135,7 +135,7 @@ axins3 = inset_axes(ax2, width="100%", height="100%",
 
 # Create an inset horizontally centered in figure coordinates and vertically
 # bound to line up with the axes.
-from matplotlib.transforms import blended_transform_factory
+from matplotlib.transforms import blended_transform_factory  # noqa
 transform = blended_transform_factory(fig.transFigure, ax2.transAxes)
 axins4 = inset_axes(ax2, width="16%", height="34%",
                     bbox_to_anchor=(0, 0, 1, 1),

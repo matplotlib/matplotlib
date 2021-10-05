@@ -1,9 +1,9 @@
 """
-===============
-Axis Equal Demo
-===============
+=======================
+Equal axis aspect ratio
+=======================
 
-How to set and adjust plots with equal axis ratios.
+How to set and adjust plots with equal axis aspect ratios.
 """
 
 import matplotlib.pyplot as plt

@@ -17,22 +17,14 @@ regardless of whether `matplotlib.pyplot` has been imported. If the user
 tries to switch from an already-started interactive backend to a different
 interactive backend, an `ImportError` will be raised.
 
-mplot3d auto-registration
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-`mpl_toolkits.mplot3d` is always registered by default now. It is no
-longer necessary to import mplot3d to create 3d axes with ::
-
-  ax = fig.add_subplot(111, projection="3d")
-
 Invalid points in PathCollections
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 PathCollections created with `~.Axes.scatter` now keep track of invalid points.
 Previously, points with nonfinite (infinite or nan) coordinates would not be
-included in the offsets (as returned by `PathCollection.get_offsets`) of a
-`PathCollection` created by `~.Axes.scatter`, and points with nonfinite values
+included in the offsets (as returned by `.PathCollection.get_offsets`) of a
+`.PathCollection` created by `~.Axes.scatter`, and points with nonfinite values
 (as specified by the *c* kwarg) would not be included in the array (as returned
-by `PathCollection.get_array`)
+by `.PathCollection.get_array`)
 
 Such points are now included, but masked out by returning a masked array.
 
@@ -56,9 +48,9 @@ instead of adding a decade only to the right.
 
 Log-scaled axes
 ~~~~~~~~~~~~~~~
-When the default `LogLocator` would generate no ticks for an axis (e.g., an
+When the default `.LogLocator` would generate no ticks for an axis (e.g., an
 axis with limits from 0.31 to 0.39) or only a single tick, it now instead falls
-back on the linear `AutoLocator` to pick reasonable tick positions.
+back on the linear `.AutoLocator` to pick reasonable tick positions.
 
 `.Figure.add_subplot` with no arguments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -82,7 +74,7 @@ Previously, certain locator classes (`~.ticker.LogLocator`,
 tick locations that collided with major ticks when they were used as
 minor locators.  This logic has now moved to the `~.axis.Axis` class,
 and is used regardless of the locator class.  You can control this
-behavior via the `~.Axis.remove_overlaping_locs` attribute on
+behavior via the `~.Axis.remove_overlapping_locs` attribute on
 `~.axis.Axis`.
 
 If you were relying on both the major and minor tick labels to appear
@@ -124,7 +116,7 @@ would be::
 
 usetex support
 ~~~~~~~~~~~~~~
-Previously, if :rc:`text.usetex` was True, then constructing a `TextPath` on
+Previously, if :rc:`text.usetex` was True, then constructing a `.TextPath` on
 a non-mathtext string with ``usetex=False`` would rely on the mathtext parser
 (but not on usetex support!) to parse the string.  The mathtext parser is not
 invoked anymore, which may cause slight changes in glyph positioning.
@@ -244,18 +236,18 @@ Input that consists of multiple empty lists will now return a list of histogram
 values for each one of the lists. For example, an input of ``[[],[]]`` will
 return 2 lists of histogram values. Previously, a single list was returned.
 
-`.backend_bases.Timer.remove_callback` future signature change
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``backend_bases.TimerBase.remove_callback`` future signature change
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Currently, `.backend_bases.Timer.remove_callback(func, *args,
-**kwargs)` removes a callback previously added by
-`.backend_bases.Timer.add_callback(func, *args, **kwargs)`, but if
-``*args, **kwargs`` is not passed in (ex,
-``Timer.remove_callback(func)``), then the first callback with a
+Currently, ``backend_bases.TimerBase.remove_callback(func, *args,
+**kwargs)`` removes a callback previously added by
+``backend_bases.Timer.add_callback(func, *args, **kwargs)``, but if
+``*args, **kwargs`` is not passed in (i.e.,
+``TimerBase.remove_callback(func)``), then the first callback with a
 matching ``func`` is removed, regardless of whether it was added with
 or without ``*args, **kwargs``.
 
-In a future version, ``Timer.remove_callback`` will always use the latter
+In a future version, `.TimerBase.remove_callback` will always use the latter
 behavior (not consider ``*args, **kwargs``); to specifically consider them, add
 the callback as a `functools.partial` object ::
 
@@ -264,20 +256,20 @@ the callback as a `functools.partial` object ::
    # later
    timer.remove_callback(cb)
 
-`.backend_bases.Timer.add_callback` was modified to return *func* to
+`.TimerBase.add_callback` was modified to return *func* to
 simplify the above usage (previously it returned None); this also
 allows using it as a decorator.
 
 The new API is modelled after `atexit.register` / `atexit.unregister`.
 
-`~.collections.StemContainer` performance increase
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`~.container.StemContainer` performance increase
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`~.collections.StemContainer` objects can now store a
+`~.container.StemContainer` objects can now store a
 `~.collections.LineCollection` object instead of a list of
 `~.lines.Line2D` objects for stem lines plotted using
 `~.Axes.stem`. This gives a very large performance boost to displaying
-and moving `~Axes.stem` plots.
+and moving `~.Axes.stem` plots.
 
 This will become the default behaviour in Matplotlib 3.3. To use it
 now, the *use_line_collection* keyword argument to `~.Axes.stem` can
@@ -287,7 +279,7 @@ be set to `True` ::
 
 Individual line segments can be extracted from the
 `~.collections.LineCollection` using
-`~.collections.LineCollection.get_segements()`. See the
+`~.collections.LineCollection.get_segments()`. See the
 `~.collections.LineCollection` documentation for other methods to
 retrieve the collection properties.
 
@@ -299,7 +291,7 @@ retrieve the collection properties.
 `.cm.ScalarMappable`.  This inheritance lead to a confusing situation
 where the `.cm.ScalarMappable` passed to `matplotlib.colorbar.Colorbar`
 (`~.Figure.colorbar`) had a ``set_norm`` method, as did the colorbar.
-The colorbar is now purely a follower to the `ScalarMappable` norm and
+The colorbar is now purely a follower to the `.ScalarMappable` norm and
 colormap, and the old inherited methods
 `~matplotlib.colorbar.ColorbarBase.set_norm`,
 `~matplotlib.colorbar.ColorbarBase.set_cmap`,
@@ -316,7 +308,7 @@ FreeType or libpng are not in the compiler or linker's default path, set the
 standard environment variables ``CFLAGS``/``LDFLAGS`` on Linux or OSX, or
 ``CL``/``LINK`` on Windows, to indicate the relevant paths.
 
-See details in `Installing`.
+See details in :doc:`/users/installing`.
 
 Setting artist properties twice or more in the same call
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -364,7 +356,7 @@ them.
 Furthermore, `.Axes.spy` spy does now allow for an *extent* argument
 (was silently ignored so far).
 
-A bug with `.Axes.spy(..., origin='lower')` is fixed.  Previously this
+A bug with ``Axes.spy(..., origin='lower')`` is fixed.  Previously this
 flipped the data but not the y-axis resulting in a mismatch between
 axes labels and actual data indices. Now, *origin='lower'* flips both
 the data and the y-axis labels.
@@ -383,7 +375,7 @@ limits, ticks, and tick labels.
 
 MouseEvents
 ~~~~~~~~~~~
-MouseEvents now include the event name in their `str()`.
+MouseEvents now include the event name in their ``str()``.
 Previously they contained the prefix "MPL MouseEvent".
 
 RGBA buffer return type
@@ -411,8 +403,8 @@ non-callable), the exception would be silently ignored and the default
 formatter be used instead.  This is no longer the case; the exception
 is now propagated out.
 
-Deprecation of redundant `Tick` attributes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Deprecation of redundant `.Tick` attributes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``gridOn``, ``tick1On``, ``tick2On``, ``label1On``, and ``label2On``
 `~.Tick` attributes have been deprecated.  Directly get and set the visibility
@@ -502,7 +494,7 @@ Classes and methods
   ``backend_bases.FigureManagerBase.show_popup`` (this never did anything)
 - ``backend_wx.SubplotToolWx`` (no replacement)
 - ``backend_wx.Toolbar`` (use ``backend_wx.NavigationToolbar2Wx`` instead)
-- ``cbook.align_iterators`` (no replacment)
+- ``cbook.align_iterators`` (no replacement)
 - ``contour.ContourLabeler.get_real_label_width`` (no replacement)
 - ``legend.Legend.draggable`` (use `legend.Legend.set_draggable()` instead)
 - ``texmanager.TexManager.postscriptd``, ``texmanager.TexManager.pscnt``,
@@ -539,7 +531,11 @@ The following miscellaneous API elements have been removed
 
     import logging
     logger = logging.getLogger('matplotlib')
-    logger.set_level(logging.INFO)
+    logger.setLevel(logging.INFO)
+    # configure log handling: Either include it into your ``logging`` hierarchy,
+    # e.g. by configuring a root looger using ``logging.basicConfig()``,
+    # or add a standalone handler to the matplotlib logger:
+    logger.addHandler(logging.StreamHandler())
 
 - ``__version__numpy__``
 - ``collections.CIRCLE_AREA_FACTOR``
@@ -621,11 +617,11 @@ in Matplotlib 2.2 has been removed. See below for a list:
   ``mlab.FormatFormatStr``, ``mlab.FormatString``, ``mlab.FormatObj``
 - ``mlab.donothing_callback``
 
-:mod:`matplotlib.pylab` removals
---------------------------------
+`pylab` removals
+----------------
 Lots of code inside the :mod:`matplotlib.mlab` module which was deprecated
 in Matplotlib 2.2 has been removed. This means the following functions are
-no longer available in the `matplotlib.pylab` module:
+no longer available in the `pylab` module:
 
 - ``amap``
 - ``base_repr``
@@ -731,10 +727,10 @@ Mathtext changes
 
 Deprecations
 ~~~~~~~~~~~~
-- The ``\stackrel`` mathtext command hsa been deprecated (it behaved differently
+- The ``\stackrel`` mathtext command has been deprecated (it behaved differently
   from LaTeX's ``\stackrel``.  To stack two mathtext expressions, use
   ``\genfrac{left-delim}{right-delim}{fraction-bar-thickness}{}{top}{bottom}``.
-- The `\mathcircled` mathtext command (which is not a real TeX command)
+- The ``\mathcircled`` mathtext command (which is not a real TeX command)
   is deprecated.  Directly use unicode characters (e.g.
   ``"\N{CIRCLED LATIN CAPITAL LETTER A}"`` or ``"\u24b6"``) instead.
 - Support for setting :rc:`mathtext.default` to circled is deprecated.
@@ -771,11 +767,12 @@ The following signature related behaviours are deprecated:
   keyword.
 - The *interp_at_native* parameter to `.BboxImage`, which has had no effect
   since Matplotlib 2.0, is deprecated.
-- All arguments to the `.cbook.deprecated` decorator and `.cbook.warn_deprecated`
-  function, except the first one (the version where the deprecation occurred),
-  are now keyword-only.  The goal is to avoid accidentally setting the "message"
-  argument when the "name" (or "alternative") argument was intended, as this has
-  repeatedly occurred in the past.
+- All arguments to the ``matplotlib.cbook.deprecation.deprecated`` decorator
+  and ``matplotlib.cbook.deprecation.warn_deprecated`` function, except the
+  first one (the version where the deprecation occurred), are now keyword-only.
+  The goal is to avoid accidentally setting the "message" argument when the
+  "name" (or "alternative") argument was intended, as this has repeatedly
+  occurred in the past.
 - The arguments of `matplotlib.testing.compare.calculate_rms` have been renamed
   from ``expectedImage, actualImage``, to ``expected_image, actual_image``.
 - Passing positional arguments to `.Axis.set_ticklabels` beyond *ticklabels*
@@ -795,14 +792,14 @@ Changes in parameter names
   This will only affect cases where that parameter has been set
   as a keyword argument. The common usage pattern as a positional argument
   ``matplotlib.use('Qt5Agg')`` is not affected.
-- The *normed* parameter to `Axes.hist2d` has been renamed to *density*.
-- The *s* parameter to `Annotation` (and indirectly `Axes.annotation`) has
+- The *normed* parameter to `.Axes.hist2d` has been renamed to *density*.
+- The *s* parameter to `.Annotation` (and indirectly `.Axes.annotate`) has
   been renamed to *text*.
 - The *tolerence* parameter to
-  `bezier.find_bezier_t_intersecting_with_closedpath`,
-  `bezier.split_bezier_intersecting_with_closedpath`,
-  `bezier.find_r_to_boundary_of_closedpath`,
-  `bezier.split_path_inout` and `bezier.check_if_parallel` has been renamed to
+  `.bezier.find_bezier_t_intersecting_with_closedpath`,
+  `.bezier.split_bezier_intersecting_with_closedpath`,
+  ``bezier.find_r_to_boundary_of_closedpath``,
+  `.bezier.split_path_inout` and `.bezier.check_if_parallel` has been renamed to
   *tolerance*.
 
 In each case, the old parameter name remains supported (it cannot be used
@@ -820,62 +817,62 @@ suggest that custom backends let their ``GraphicsContext`` class
 inherit from `.GraphicsContextBase`, to at least provide stubs for all
 required methods.
 
-- `.spine.Spine.is_frame_like`
+- ``spine.Spine.is_frame_like``
 
 This has not been used in the codebase since its addition in 2009.
 
-- `.axis3d.Axis.get_tick_positions`
+- ``axis3d.Axis.get_tick_positions``
 
   This has never been used internally, there is no equivalent method exists on
   the 2D Axis classes, and despite the similar name, it has a completely
   different behavior from the 2D Axis' `axis.Axis.get_ticks_position` method.
-- `.backend_pgf.LatexManagerFactory`
+- ``.backend_pgf.LatexManagerFactory``
 
-- `.mpl_toolkits.axisartist.axislines.SimpleChainedObjects`
-- `.mpl_toolkits.Axes.AxisDict`
+- ``mpl_toolkits.axisartist.axislines.SimpleChainedObjects``
+- ``mpl_toolkits.Axes.AxisDict``
 
 Internal Helper Functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- `.checkdep_dvipng`
-- `.checkdep_ghostscript`
-- `.checkdep_pdftops`
-- `.checkdep_inkscape`
+- ``checkdep_dvipng``
+- ``checkdep_ghostscript``
+- ``checkdep_pdftops``
+- ``checkdep_inkscape``
 
 
-- `.ticker.decade_up`
-- `.ticker.decade_down`
+- ``ticker.decade_up``
+- ``ticker.decade_down``
 
 
-- `.cbook.dedent`
-- `.docstring.Appender`
-- `.docstring.dedent`
-- `.docstring.copy_dedent`
+- ``cbook.dedent``
+- ``docstring.Appender``
+- ``docstring.dedent``
+- ``docstring.copy_dedent``
 
 Use the standard library's docstring manipulation tools instead, such as
 `inspect.cleandoc` and `inspect.getdoc`.
 
 
 
-- `matplotlib.scale.get_scale_docs()`
-- `matplotlib.pyplot.get_scale_docs()`
+- ``matplotlib.scale.get_scale_docs()``
+- ``matplotlib.pyplot.get_scale_docs()``
 
 These are considered internal and will be removed from the public API in a
 future version.
 
-- `.projections.process_projection_requirements`
+- ``projections.process_projection_requirements``
 
 - ``backend_ps.PsBackendHelper``
 - ``backend_ps.ps_backend_helper``,
 
-- `.cbook.iterable`
-- `.cbook.get_label`
-- `.cbook.safezip`
+- ``cbook.iterable``
+- ``cbook.get_label``
+- ``cbook.safezip``
   Manually check the lengths of the inputs instead, or rely on NumPy to do it.
-- `.cbook.is_hashable`
+- ``cbook.is_hashable``
   Use ``isinstance(..., collections.abc.Hashable)`` instead.
 
-- The `.backend_bases.RendererBase.strip_math`.  Use
+- The ``.backend_bases.RendererBase.strip_math``.  Use
   `.cbook.strip_math` instead.
 
 Multiple internal functions that were exposed as part of the public API
@@ -883,26 +880,26 @@ of `.mpl_toolkits.mplot3d` are deprecated,
 
 **mpl_toolkits.mplot3d.art3d**
 
-- :func:`mpl_toolkits.mplot3d.art3d.norm_angle`
-- :func:`mpl_toolkits.mplot3d.art3d.norm_text_angle`
-- :func:`mpl_toolkits.mplot3d.art3d.path_to_3d_segment`
-- :func:`mpl_toolkits.mplot3d.art3d.paths_to_3d_segments`
-- :func:`mpl_toolkits.mplot3d.art3d.path_to_3d_segment_with_codes`
-- :func:`mpl_toolkits.mplot3d.art3d.paths_to_3d_segments_with_codes`
-- :func:`mpl_toolkits.mplot3d.art3d.get_patch_verts`
-- :func:`mpl_toolkits.mplot3d.art3d.get_colors`
-- :func:`mpl_toolkits.mplot3d.art3d.zalpha`
+- ``mpl_toolkits.mplot3d.art3d.norm_angle``
+- ``mpl_toolkits.mplot3d.art3d.norm_text_angle``
+- ``mpl_toolkits.mplot3d.art3d.path_to_3d_segment``
+- ``mpl_toolkits.mplot3d.art3d.paths_to_3d_segments``
+- ``mpl_toolkits.mplot3d.art3d.path_to_3d_segment_with_codes``
+- ``mpl_toolkits.mplot3d.art3d.paths_to_3d_segments_with_codes``
+- ``mpl_toolkits.mplot3d.art3d.get_patch_verts``
+- ``mpl_toolkits.mplot3d.art3d.get_colors``
+- ``mpl_toolkits.mplot3d.art3d.zalpha``
 
 **mpl_toolkits.mplot3d.proj3d**
 
-- :func:`mpl_toolkits.mplot3d.proj3d.line2d`
-- :func:`mpl_toolkits.mplot3d.proj3d.line2d_dist`
-- :func:`mpl_toolkits.mplot3d.proj3d.line2d_seg_dist`
-- :func:`mpl_toolkits.mplot3d.proj3d.mod`
-- :func:`mpl_toolkits.mplot3d.proj3d.proj_transform_vec`
-- :func:`mpl_toolkits.mplot3d.proj3d.proj_transform_vec_clip`
-- :func:`mpl_toolkits.mplot3d.proj3d.vec_pad_ones`
-- :func:`mpl_toolkits.mplot3d.proj3d.proj_trans_clip_points`
+- ``mpl_toolkits.mplot3d.proj3d.line2d``
+- ``mpl_toolkits.mplot3d.proj3d.line2d_dist``
+- ``mpl_toolkits.mplot3d.proj3d.line2d_seg_dist``
+- ``mpl_toolkits.mplot3d.proj3d.mod``
+- ``mpl_toolkits.mplot3d.proj3d.proj_transform_vec``
+- ``mpl_toolkits.mplot3d.proj3d.proj_transform_vec_clip``
+- ``mpl_toolkits.mplot3d.proj3d.vec_pad_ones``
+- ``mpl_toolkits.mplot3d.proj3d.proj_trans_clip_points``
 
 If your project relies on these functions, consider vendoring them.
 
@@ -910,21 +907,22 @@ If your project relies on these functions, consider vendoring them.
 Font Handling
 ~~~~~~~~~~~~~
 
-- `.backend_pdf.RendererPdf.afm_font_cache`
-- `.backend_ps.RendererPS.afmfontd`
-- `.font_manager.OSXInstalledFonts`
-- `.TextToPath.glyph_to_path` (Instead call ``font.get_path()`` and manually transform the path.)
+- ``backend_pdf.RendererPdf.afm_font_cache``
+- ``backend_ps.RendererPS.afmfontd``
+- ``font_manager.OSXInstalledFonts``
+- ``.TextToPath.glyph_to_path`` (Instead call ``font.get_path()`` and manually
+  transform the path.)
 
 
 Date related functions
 ~~~~~~~~~~~~~~~~~~~~~~
 
-- `.dates.seconds()`
-- `.dates.minutes()`
-- `.dates.hours()`
-- `.dates.weeks()`
-- `.dates.strpdate2num`
-- `.dates.bytespdate2num`
+- ``dates.seconds()``
+- ``dates.minutes()``
+- ``dates.hours()``
+- ``dates.weeks()``
+- ``dates.strpdate2num``
+- ``dates.bytespdate2num``
 
 These are brittle in the presence of locale changes.  Use standard datetime
 parsers such as `time.strptime` or `dateutil.parser.parse`, and additionally
@@ -944,17 +942,17 @@ instead.
 Testing
 ~~~~~~~
 
-- `matplotlib.testing.decorators.switch_backend` decorator
+- ``matplotlib.testing.decorators.switch_backend`` decorator
 
-Test functions should use `pytest.mark.backend(...)`, and the mark will be
+Test functions should use ``pytest.mark.backend``, and the mark will be
 picked up by the `matplotlib.testing.conftest.mpl_test_settings` fixture.
 
 Quiver
 ~~~~~~
 
-- ``.color`` attribute of `Quiver` objects
+- ``.color`` attribute of `.Quiver` objects
 
-Instead, use (as for any `Collection`) the ``get_facecolor`` method.
+Instead, use (as for any `.Collection`) the ``get_facecolor`` method.
 Note that setting to the ``.color`` attribute did not update the quiver artist,
 whereas calling ``set_facecolor`` does.
 
@@ -963,15 +961,15 @@ GUI / backend details
 
 - ``.get_py2exe_datafiles``
 - ``.tk_window_focus``
-- `.backend_gtk3.FileChooserDialog`
-- `.backend_gtk3.NavigationToolbar2GTK3.get_filechooser`
-- `.backend_gtk3.SaveFigureGTK3.get_filechooser`
-- `.NavigationToolbar2QT.adj_window` attribute. This is unused and always ``None``.
-- `.backend_wx.IDLE_DELAY` global variable
+- ``.backend_gtk3.FileChooserDialog``
+- ``.backend_gtk3.NavigationToolbar2GTK3.get_filechooser``
+- ``.backend_gtk3.SaveFigureGTK3.get_filechooser``
+- ``.NavigationToolbar2QT.adj_window`` attribute. This is unused and always ``None``.
+- ``.backend_wx.IDLE_DELAY`` global variable
   This is unused and only relevant to the now removed wx "idling" code (note that
   as it is a module-level global, no deprecation warning is emitted when
   accessing it).
-- `.mlab.demean`
+- ``mlab.demean``
 - ``backend_gtk3cairo.FigureCanvasGTK3Cairo``,
 - ``backend_wx.debug_on_error``, ``backend_wx.fake_stderr``,
   ``backend_wx.raise_msg_to_str``, ``backend_wx.MenuButtonWx``,
@@ -983,7 +981,7 @@ available on PyPI. Install that module separately if you need it.
 
 .. _formlayout: https://pypi.org/project/formlayout/
 
-- `.GraphicsContextPS.shouldstroke`
+- ``GraphicsContextPS.shouldstroke``
 
 
 Transforms / scales
@@ -998,8 +996,8 @@ Transforms / scales
 - ``InvertedLog2Transform``
 - ``InvertedNaturalLogTransform``
 
-These classes defined in :mod:`matplotlib.scales` are deprecated.
-As a replacement, use the general `LogTransform` and `InvertedLogTransform`
+These classes defined in :mod:`matplotlib.scale` are deprecated.
+As a replacement, use the general `~.scale.LogTransform` and `~.scale.InvertedLogTransform`
 classes, whose constructors take a *base* argument.
 
 Locators / Formatters
@@ -1015,34 +1013,34 @@ formatter classes.
 Path tools
 ~~~~~~~~~~
 
-- `.path.get_paths_extents`
+- ``path.get_paths_extents``
 
 Use `~.path.get_path_collection_extents` instead.
 
-- `.Path.has_nonfinite` attribute
+- ``.Path.has_nonfinite`` attribute
 
 Use ``not np.isfinite(path.vertices).all()`` instead.
 
-- `.bezier.find_r_to_boundary_of_closedpath` function is deprecated
+- ``.bezier.find_r_to_boundary_of_closedpath`` function is deprecated
 
 This has always returned None instead of the requested radius.
 
 Text
 ~~~~
 
-- `.text.TextWithDash`
-- `.Text.is_math_text`
-- `.TextPath.is_math_text`
-- `.TextPath.text_get_vertices_codes` (As an alternative, construct a new ``TextPath`` object.)
+- ``text.TextWithDash``
+- ``Text.is_math_text``
+- ``TextPath.is_math_text``
+- ``TextPath.text_get_vertices_codes`` (As an alternative, construct a new ``TextPath`` object.)
 
 Unused attributes
 ~~~~~~~~~~~~~~~~~
 
-- `.NavigationToolbar2QT.buttons`
-- `.Line2D.verticalOffset`
-- `.Quiver.keytext`
-- `.Quiver.keyvec`
-- `.SpanSelector.buttonDown`
+- ``NavigationToolbar2QT.buttons``
+- ``Line2D.verticalOffset``
+- ``Quiver.keytext``
+- ``Quiver.keyvec``
+- ``SpanSelector.buttonDown``
 
 These are unused and never updated.
 
@@ -1069,25 +1067,26 @@ Environmental Variables
 Axis
 ~~~~
 
-- `.Axis.iter_ticks`
+- ``Axis.iter_ticks``
 
 This only served as a helper to the private `.Axis._update_ticks`
 
 
 Undeprecations
 --------------
-The following API elements have bee un-deprecated:
+The following API elements have been un-deprecated:
 
-- The *obj_type* kwarg to the `.cbook.deprecated` decorator.
-- *xmin*, *xmax* kwargs to `.Axes.set_xlim` and *ymin*, *ymax* kwargs
-  to `.Axes.set_ylim`
+- The *obj_type* keyword argument to the
+  ``matplotlib.cbook.deprecation.deprecated`` decorator.
+- *xmin*, *xmax* keyword arguments to `.Axes.set_xlim` and *ymin*, *ymax*
+  keyword arguments to `.Axes.set_ylim`
 
 
 New features
 ------------
 
-`Text` now has a ``c`` alias for the ``color`` property
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`.Text` now has a ``c`` alias for the ``color`` property
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 For consistency with `.Line2D`, the `~.text.Text` class has gained the ``c``
 alias for the ``color`` property. For example, one can now write ::
 
@@ -1153,7 +1152,7 @@ will throw an exception in a future version.
 *verticalalignment* kwargs, and used to ignore them with a warning.  This
 behavior is deprecated and will throw an exception in a future version.
 
-Passing steps less than 1 or greater than 10 to `~ticker..MaxNLocator` used to
+Passing steps less than 1 or greater than 10 to `~.ticker.MaxNLocator` used to
 result in undefined behavior.  It now throws a `ValueError`.
 
 The signature of the (private) ``Axis._update_ticks`` has been changed to not

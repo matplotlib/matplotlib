@@ -2,7 +2,10 @@
 Common functionality between the PDF and PS backends.
 """
 
+from io import BytesIO
 import functools
+
+from fontTools import subset
 
 import matplotlib as mpl
 from .. import font_manager, ft2font
@@ -16,10 +19,64 @@ def _cached_get_afm_from_fname(fname):
         return AFM(fh)
 
 
+def get_glyphs_subset(fontfile, characters):
+    """
+    Subset a TTF font
+
+    Reads the named fontfile and restricts the font to the characters.
+    Returns a serialization of the subset font as file-like object.
+
+    Parameters
+    ----------
+    symbol : str
+        Path to the font file
+    characters : str
+        Continuous set of characters to include in subset
+    """
+
+    options = subset.Options(glyph_names=True, recommended_glyphs=True)
+
+    # prevent subsetting FontForge Timestamp and other tables
+    options.drop_tables += ['FFTM', 'PfEd']
+
+    with subset.load_font(fontfile, options) as font:
+        subsetter = subset.Subsetter(options=options)
+        subsetter.populate(text=characters)
+        subsetter.subset(font)
+        fh = BytesIO()
+        font.save(fh, reorderTables=False)
+        return fh
+
+
+class CharacterTracker:
+    """
+    Helper for font subsetting by the pdf and ps backends.
+
+    Maintains a mapping of font paths to the set of character codepoints that
+    are being used from that font.
+    """
+
+    def __init__(self):
+        self.used = {}
+
+    def track(self, font, s):
+        """Record that string *s* is being typeset using font *font*."""
+        self.used.setdefault(font.fname, set()).update(map(ord, s))
+
+    def track_glyph(self, font, glyph):
+        """Record that codepoint *glyph* is being typeset using font *font*."""
+        self.used.setdefault(font.fname, set()).add(glyph)
+
+
 class RendererPDFPSBase(RendererBase):
     # The following attributes must be defined by the subclasses:
     # - _afm_font_dir
     # - _use_afm_rc_name
+
+    def __init__(self, width, height):
+        super().__init__()
+        self.width = width
+        self.height = height
 
     def flipy(self):
         # docstring inherited
@@ -40,14 +97,19 @@ class RendererPDFPSBase(RendererBase):
 
     def get_text_width_height_descent(self, s, prop, ismath):
         # docstring inherited
-        if mpl.rcParams["text.usetex"]:
+        if ismath == "TeX":
             texmanager = self.get_texmanager()
             fontsize = prop.get_size_in_points()
             w, h, d = texmanager.get_text_width_height_descent(
                 s, fontsize, renderer=self)
             return w, h, d
         elif ismath:
-            parse = self.mathtext_parser.parse(s, 72, prop)
+            # Circular import.
+            from matplotlib.backends.backend_ps import RendererPS
+            parse = self._text2path.mathtext_parser.parse(
+                s, 72, prop,
+                _force_standard_ps_fonts=(isinstance(self, RendererPS)
+                                          and mpl.rcParams["ps.useafm"]))
             return parse.width, parse.height, parse.depth
         elif mpl.rcParams[self._use_afm_rc_name]:
             font = self._get_font_afm(prop)
@@ -69,11 +131,8 @@ class RendererPDFPSBase(RendererBase):
             return w, h, d
 
     def _get_font_afm(self, prop):
-        fname = (
-            font_manager.findfont(
-                prop, fontext="afm", directory=self._afm_font_dir)
-            or font_manager.findfont(
-                "Helvetica", fontext="afm", directory=self._afm_font_dir))
+        fname = font_manager.findfont(
+            prop, fontext="afm", directory=self._afm_font_dir)
         return _cached_get_afm_from_fname(fname)
 
     def _get_font_ttf(self, prop):

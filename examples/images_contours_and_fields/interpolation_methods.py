@@ -4,7 +4,7 @@ Interpolations for imshow
 =========================
 
 This example displays the difference between interpolation methods for
-:meth:`~.axes.Axes.imshow`.
+`~.axes.Axes.imshow`.
 
 If *interpolation* is None, it defaults to the :rc:`image.interpolation`.
 If the interpolation is ``'none'``, then no interpolation is performed for the
@@ -42,14 +42,9 @@ plt.show()
 
 #############################################################################
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions and methods is shown
-# in this example:
-
-import matplotlib
-matplotlib.axes.Axes.imshow
-matplotlib.pyplot.imshow
+#    - `matplotlib.axes.Axes.imshow` / `matplotlib.pyplot.imshow`
