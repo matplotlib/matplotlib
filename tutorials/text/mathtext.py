@@ -317,6 +317,7 @@ long and short forms for some of them.
     ``\tilde a`` or ``\~a``        :mathmpl:`\tilde a`
     ``\vec a``                     :mathmpl:`\vec a`
     ``\overline{abc}``             :mathmpl:`\overline{abc}`
+    ``\\underline{abc}``           :mathmpl:`\\underline{abc}`
     ============================== =================================
 
 In addition, there are two special accents that automatically adjust to the
