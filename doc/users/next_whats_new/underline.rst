@@ -1,3 +1,3 @@
-MathJax support added for \underline
+mathtext support added for \underline
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ... so text can be underlined in plots.
