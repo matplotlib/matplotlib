@@ -19,8 +19,10 @@ For example usages see
 .. redirect-from:: /gallery/shapes_and_collections/marker_path
 """
 
+from matplotlib.markers import MarkerStyle
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
+from matplotlib.transforms import Affine2D
 
 
 text_style = dict(horizontalalignment='right', verticalalignment='center',
@@ -156,6 +158,99 @@ markers = {'star': star, 'circle': circle, 'cut_star': cut_star}
 for y, (name, marker) in enumerate(markers.items()):
     ax.text(-0.5, y, name, **text_style)
     ax.plot([y] * 3, marker=marker, **marker_style)
+format_axes(ax)
+
+plt.show()
+
+###############################################################################
+# Advanced marker modifications with transform
+# ============================================
+#
+# Markers can be modified by passing a transform to the MarkerStyle
+# constructor. Following example shows how a supplied rotation is applied to
+# several marker shapes.
+
+common_style = {k: v for k, v in filled_marker_style.items() if k != 'marker'}
+angles = [0, 10, 20, 30, 45, 60, 90]
+
+fig, ax = plt.subplots()
+fig.suptitle('Rotated markers', fontsize=14)
+
+ax.text(-0.5, 0, 'Filled marker', **text_style)
+for x, theta in enumerate(angles):
+    t = Affine2D().rotate_deg(theta)
+    ax.plot(x, 0, marker=MarkerStyle('o', 'left', t), **common_style)
+
+ax.text(-0.5, 1, 'Un-filled marker', **text_style)
+for x, theta in enumerate(angles):
+    t = Affine2D().rotate_deg(theta)
+    ax.plot(x, 1, marker=MarkerStyle('1', 'left', t), **common_style)
+
+ax.text(-0.5, 2, 'Equation marker', **text_style)
+for x, theta in enumerate(angles):
+    t = Affine2D().rotate_deg(theta)
+    eq = r'$\frac{1}{x}$'
+    ax.plot(x, 2, marker=MarkerStyle(eq, 'left', t), **common_style)
+
+for x, theta in enumerate(angles):
+    ax.text(x, 2.5, f"{theta}°", horizontalalignment="center")
+format_axes(ax)
+
+fig.tight_layout()
+plt.show()
+
+###############################################################################
+# Setting marker cap style and join style
+# =======================================
+#
+# Markers have default cap and join styles, but these can be
+# customized when creating a MarkerStyle.
+
+from matplotlib.markers import JoinStyle, CapStyle
+
+marker_inner = dict(markersize=35,
+                    markerfacecolor='tab:blue',
+                    markerfacecoloralt='lightsteelblue',
+                    markeredgecolor='brown',
+                    markeredgewidth=8,
+                    )
+
+marker_outer = dict(markersize=35,
+                    markerfacecolor='tab:blue',
+                    markerfacecoloralt='lightsteelblue',
+                    markeredgecolor='white',
+                    markeredgewidth=1,
+                    )
+
+fig, ax = plt.subplots()
+fig.suptitle('Marker CapStyle', fontsize=14)
+fig.subplots_adjust(left=0.1)
+
+for y, cap_style in enumerate(CapStyle):
+    ax.text(-0.5, y, cap_style.name, **text_style)
+    for x, theta in enumerate(angles):
+        t = Affine2D().rotate_deg(theta)
+        m = MarkerStyle('1', transform=t, capstyle=cap_style)
+        ax.plot(x, y, marker=m, **marker_inner)
+        ax.plot(x, y, marker=m, **marker_outer)
+        ax.text(x, len(CapStyle) - .5, f'{theta}°', ha='center')
+format_axes(ax)
+plt.show()
+
+###############################################################################
+# Modifying the join style:
+
+fig, ax = plt.subplots()
+fig.suptitle('Marker JoinStyle', fontsize=14)
+fig.subplots_adjust(left=0.05)
+
+for y, join_style in enumerate(JoinStyle):
+    ax.text(-0.5, y, join_style.name, **text_style)
+    for x, theta in enumerate(angles):
+        t = Affine2D().rotate_deg(theta)
+        m = MarkerStyle('*', transform=t, joinstyle=join_style)
+        ax.plot(x, y, marker=m, **marker_inner)
+        ax.text(x, len(JoinStyle) - .5, f'{theta}°', ha='center')
 format_axes(ax)
 
 plt.show()

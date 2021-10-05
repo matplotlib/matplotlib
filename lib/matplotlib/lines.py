@@ -370,7 +370,10 @@ class Line2D(Artist):
         self.set_color(color)
         if marker is None:
             marker = 'none'  # Default.
-        self._marker = MarkerStyle(marker, fillstyle)
+        if not isinstance(marker, MarkerStyle):
+            self._marker = MarkerStyle(marker, fillstyle)
+        else:
+            self._marker = marker
 
         self._markevery = None
         self._markersize = None
