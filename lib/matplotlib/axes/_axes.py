@@ -3,6 +3,7 @@ import itertools
 import logging
 import math
 from numbers import Integral, Number
+from datetime import timedelta
 
 import numpy as np
 from numpy import ma
@@ -3180,7 +3181,7 @@ class Axes(_AxesBase):
               errors.
             - *None*: No errorbar.
 
-            Note that all error arrays should have *positive* values.
+            Note that all error arrays should have *non-negative* values.
 
             See :doc:`/gallery/statistics/errorbar_features`
             for an example on the usage of ``xerr`` and ``yerr``.
@@ -3283,6 +3284,18 @@ class Axes(_AxesBase):
         x, y = np.atleast_1d(x, y)  # Make sure all the args are iterable.
         if len(x) != len(y):
             raise ValueError("'x' and 'y' must have the same size")
+
+        def has_negative_values(array):
+            if array is None:
+                return False
+            try:
+                return np.any(array < 0)
+            except TypeError:  # if array contains 'datetime.timedelta' types
+                return np.any(array < timedelta(0))
+
+        if has_negative_values(xerr) or has_negative_values(yerr):
+            raise ValueError(
+                "'xerr' and 'yerr' must have non-negative values")
 
         if isinstance(errorevery, Integral):
             errorevery = (0, errorevery)
