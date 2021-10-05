@@ -272,13 +272,10 @@ class Path:
         Return a deepcopy of the `Path`.  The `Path` will not be
         readonly, even if the source `Path` is.
         """
-        try:
-            codes = self.codes.copy()
-        except AttributeError:
-            codes = None
-        return self.__class__(
-            self.vertices.copy(), codes,
-            _interpolation_steps=self._interpolation_steps)
+        # Deepcopying arrays (vertices, codes) strips the writeable=False flag.
+        p = copy.deepcopy(super(), memo)
+        p._readonly = False
+        return p
 
     deepcopy = __deepcopy__
 
