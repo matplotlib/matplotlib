@@ -302,7 +302,7 @@ class Artist:
 
     def get_window_extent(self, renderer):
         """
-        Get the axes bounding box in display space.
+        Get the artist's bounding box in display space.
 
         The bounding box' width and height are nonnegative.
 
