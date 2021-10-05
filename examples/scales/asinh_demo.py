@@ -17,7 +17,7 @@ the "linear width" :math:`a_0`), this leaves values essentially unchanged:
 
     a \\rightarrow a + {\\cal O}(a^3)
 
-but for larger values (i.e. :math:`|a| \gg a_0`, this is asymptotically
+but for larger values (i.e. :math:`|a| \\gg a_0`, this is asymptotically
 
 .. math::
 

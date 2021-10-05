@@ -533,6 +533,7 @@ class AsinhScale(ScaleBase):
                  major_formatter='{x:.3g}',
                  minor_formatter=NullFormatter())
 
+
 class LogitTransform(Transform):
     input_dims = output_dims = 1
 
