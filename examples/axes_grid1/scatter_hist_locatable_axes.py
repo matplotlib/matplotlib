@@ -3,16 +3,16 @@
 Scatter Histogram (Locatable Axes)
 ==================================
 
-Show the marginal distributions of a scatter as histograms at the sides of
+Show the marginal distributions of a scatter plot as histograms at the sides of
 the plot.
 
 For a nice alignment of the main axes with the marginals, the axes positions
-are defined by a ``Divider``, produced via `.make_axes_locatable`.
+are defined by a ``Divider``, produced via `.make_axes_locatable`.  Note that
+the ``Divider`` API allows setting axes sizes and pads in inches, which is its
+main feature.
 
-An alternative method to produce a similar figure is shown in the
-:doc:`/gallery/lines_bars_and_markers/scatter_hist` example. The advantage of
-the locatable axes method shown below is that the marginal axes follow the
-fixed aspect ratio of the main axes.
+If one wants to set axes sizes and pads relative to the main Figure, see the
+:doc:`/gallery/lines_bars_and_markers/scatter_hist` example.
 """
 
 import numpy as np
