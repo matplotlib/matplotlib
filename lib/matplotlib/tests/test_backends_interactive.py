@@ -222,8 +222,14 @@ for param in _thread_safe_backends:
         param.marks.append(
             pytest.mark.xfail(raises=subprocess.CalledProcessError))
     elif backend == "macosx":
-        param.marks.append(
-            pytest.mark.xfail(raises=subprocess.TimeoutExpired, strict=True))
+        from packaging.version import parse
+        mac_ver = platform.mac_ver()[0]
+        # Note, macOS Big Sur is both 11 and 10.16, depending on SDK that
+        # Python was compiled against.
+        if mac_ver and parse(mac_ver) < parse('10.16'):
+            param.marks.append(
+                pytest.mark.xfail(raises=subprocess.TimeoutExpired,
+                                  strict=True))
     elif param.values[0].get("QT_API") == "PySide2":
         param.marks.append(
             pytest.mark.xfail(raises=subprocess.CalledProcessError))
