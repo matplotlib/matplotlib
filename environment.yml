@@ -32,13 +32,10 @@ dependencies:
   - scipy
   - sphinx>=1.8.1,!=2.0.0
   - sphinx-copybutton
+  - sphinx-gallery>=0.10
   - pip
   - pip:
-    - sphinxcontrib-svg2pdfconverter
-    # b41e328 is PR 808 which adds the image_srcset directive.  When this is
-    # released with sphinx gallery, we can change to the last release w/o this feature:
-    # sphinx-gallery>0.9
-    - git+git://github.com/sphinx-gallery/sphinx-gallery@b41e328#egg=sphinx-gallery
+      - sphinxcontrib-svg2pdfconverter
   # testing
   - coverage
   - flake8>=3.8
