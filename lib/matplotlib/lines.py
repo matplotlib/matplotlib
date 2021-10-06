@@ -16,6 +16,7 @@ from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, BboxTransformTo, TransformedPath
 from ._enums import JoinStyle, CapStyle
+import copy
 
 # Imported here for backward compatibility, even though they don't
 # really belong.
@@ -1230,7 +1231,7 @@ class Line2D(Artist):
         ----------
         x : 1D array
         """
-        self._xorig = x
+        self._xorig = copy.copy(x)
         self._invalidx = True
         self.stale = True
 
@@ -1242,7 +1243,7 @@ class Line2D(Artist):
         ----------
         y : 1D array
         """
-        self._yorig = y
+        self._yorig = copy.copy(y)
         self._invalidy = True
         self.stale = True
 
