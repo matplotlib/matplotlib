@@ -51,6 +51,7 @@ def _mpl_to_gtk_cursor(mpl_cursor):
 
 class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
     required_interactive_framework = "gtk4"
+    supports_blit = False
     _timer_cls = TimerGTK4
     _context_is_scaled = False
 
