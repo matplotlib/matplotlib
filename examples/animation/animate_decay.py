@@ -4,6 +4,7 @@ Decay
 =====
 
 This example showcases:
+
 - using a generator to drive an animation,
 - changing axes limits during an animation.
 """
