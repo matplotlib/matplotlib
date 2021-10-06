@@ -4,6 +4,7 @@ Pausing and Resuming an Animation
 =================================
 
 This example showcases:
+
 - using the Animation.pause() method to pause an animation.
 - using the Animation.resume() method to resume an animation.
 """
