@@ -6016,9 +6016,10 @@ default: :rc:`scatter.edgecolors`
         # convert to one dimensional array
         C = C.ravel()
 
-        snap = kwargs.get('snap', rcParams['pcolormesh.snap'])
+        kwargs.setdefault('snap', rcParams['pcolormesh.snap'])
+
         collection = mcoll.QuadMesh(
-            coords, antialiased=antialiased, shading=shading, snap=snap,
+            coords, antialiased=antialiased, shading=shading,
             array=C, cmap=cmap, norm=norm, alpha=alpha, **kwargs)
         collection._scale_norm(norm, vmin, vmax)
         self._pcolor_grid_deprecation_helper()
