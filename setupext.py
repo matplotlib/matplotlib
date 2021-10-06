@@ -607,12 +607,25 @@ class FreeType(SetupPackage):
 
         print(f"Building freetype in {src_path}")
         if sys.platform != 'win32':  # compilation on non-windows
-            env = {**env, "CFLAGS": "{} -fPIC".format(env.get("CFLAGS", ""))}
-            subprocess.check_call(
-                ["./configure", "--with-zlib=no", "--with-bzip2=no",
-                 "--with-png=no", "--with-harfbuzz=no", "--enable-static",
-                 "--disable-shared"],
-                env=env, cwd=src_path)
+            env = {
+                **env,
+                **{
+                    var: value
+                    for var, value in sysconfig.get_config_vars().items()
+                    if var in {"CC", "CFLAGS", "CXX", "CXXFLAGS", "LD",
+                               "LDFLAGS"}
+                },
+            }
+            env["CFLAGS"] = env.get("CFLAGS", "") + " -fPIC"
+            configure = [
+                "./configure", "--with-zlib=no", "--with-bzip2=no",
+                "--with-png=no", "--with-harfbuzz=no", "--enable-static",
+                "--disable-shared"
+            ]
+            host = sysconfig.get_config_var('BUILD_GNU_TYPE')
+            if host is not None:  # May be unset on PyPy.
+                configure.append(f"--host={host}")
+            subprocess.check_call(configure, env=env, cwd=src_path)
             if 'GNUMAKE' in env:
                 make = env['GNUMAKE']
             elif 'MAKE' in env:
