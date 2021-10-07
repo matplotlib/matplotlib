@@ -102,6 +102,7 @@ jobs:
           CIBW_BUILD: "pp37-*"
           CIBW_BEFORE_BUILD: pip install certifi numpy==${{ env.min-numpy-version }}
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
+          PIP_USE_FEATURE: in-tree-build
         if: matrix.cibw_archs != 'aarch64'
 
       - name: Validate that LICENSE files are included in wheels
