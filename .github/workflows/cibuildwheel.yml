@@ -18,7 +18,7 @@ jobs:
       CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
     strategy:
       matrix:
-        os: [ubuntu-18.04, windows-latest, macos-latest]
+        os: [ubuntu-18.04, windows-latest, macos-10.15]
         cibw_archs: ["auto"]
         include:
           - os: ubuntu-18.04
@@ -64,7 +64,7 @@ jobs:
       - name: Build wheels for CPython 3.10
         run: |
           python -m cibuildwheel --output-dir dist
-        if: matrix.os != 'macos-latest'
+        if: matrix.os != 'macos-10.15'
         env:
           CIBW_BUILD: "cp310-*"
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
