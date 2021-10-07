@@ -75,7 +75,7 @@ backends: PS creates `PostScript®
 <https://www.adobe.com/products/postscript.html>`_ hardcopy, SVG
 creates `Scalable Vector Graphics <https://www.w3.org/Graphics/SVG/>`_
 hardcopy, Agg creates PNG output using the high quality `Anti-Grain
-Geometry <http://antigrain.com/>`_
+Geometry <http://agg.sourceforge.net/antigrain.com/>`_
 library that ships with Matplotlib, GTK embeds Matplotlib in a
 `Gtk+ <https://www.gtk.org/>`_
 application, GTKAgg uses the Anti-Grain renderer to create a figure

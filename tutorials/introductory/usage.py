@@ -444,7 +444,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 #    The names of builtin backends case-insensitive; e.g., 'QtAgg' and
 #    'qtagg' are equivalent.
 #
-# .. _`Anti-Grain Geometry`: http://antigrain.com/
+# .. _`Anti-Grain Geometry`: http://agg.sourceforge.net/antigrain.com/
 # .. _`Portable Document Format`: https://en.wikipedia.org/wiki/Portable_Document_Format
 # .. _Postscript: https://en.wikipedia.org/wiki/PostScript
 # .. _`Scalable Vector Graphics`: https://en.wikipedia.org/wiki/Scalable_Vector_Graphics
