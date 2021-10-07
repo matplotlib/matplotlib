@@ -15,11 +15,7 @@ numpydoc>=0.8
 packaging>=20
 pydata-sphinx-theme>=0.6.0
 sphinxcontrib-svg2pdfconverter>=1.1.0
-# sphinx-gallery>=0.7
-# b41e328 is PR 808 which adds the image_srcset directive.  When this is
-# released with sphinx gallery, we can change to the last release w/o this feature:
-# sphinx-gallery>0.90
-git+git://github.com/sphinx-gallery/sphinx-gallery@b41e328#egg=sphinx-gallery
+sphinx-gallery>=0.10
 sphinx-copybutton
 sphinx-panels
 scipy
