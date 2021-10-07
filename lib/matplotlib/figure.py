@@ -1595,7 +1595,10 @@ default: %(va)s
 
     def get_tightbbox(self, renderer, bbox_extra_artists=None):
         """
-        Return a (tight) bounding box of the figure in inches.
+        Return a (tight) bounding box of the figure *in inches*.
+
+        Note that `.FigureBase` differs from all other artists, which return
+        their `.Bbox` in pixels.
 
         Artists that have ``artist.set_in_layout(False)`` are not included
         in the bbox.
