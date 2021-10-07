@@ -20,7 +20,7 @@
  To improve the hinting of the fonts, this code uses a hack
  presented here:
 
- http://antigrain.com/research/font_rasterization/index.html
+ http://agg.sourceforge.net/antigrain.com/research/font_rasterization/index.html
 
  The idea is to limit the effect of hinting in the x-direction, while
  preserving hinting in the y-direction.  Since freetype does not
