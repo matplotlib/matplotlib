@@ -698,7 +698,7 @@ class PdfFile:
         self._soft_mask_states = {}
         self._soft_mask_seq = (Name(f'SM{i}') for i in itertools.count(1))
         self._soft_mask_groups = []
-        self.hatchPatterns = {}
+        self._hatch_patterns = {}
         self._hatch_pattern_seq = (Name(f'H{i}') for i in itertools.count(1))
         self.gouraudTriangles = []
 
@@ -1508,25 +1508,27 @@ end"""
     def hatchPattern(self, hatch_style):
         # The colors may come in as numpy arrays, which aren't hashable
         if hatch_style is not None:
-            edge, face, hatch = hatch_style
+            edge, face, hatch, lw = hatch_style
             if edge is not None:
                 edge = tuple(edge)
             if face is not None:
                 face = tuple(face)
-            hatch_style = (edge, face, hatch)
+            hatch_style = (edge, face, hatch, lw)
 
-        pattern = self.hatchPatterns.get(hatch_style, None)
+        pattern = self._hatch_patterns.get(hatch_style, None)
         if pattern is not None:
             return pattern
 
         name = next(self._hatch_pattern_seq)
-        self.hatchPatterns[hatch_style] = name
+        self._hatch_patterns[hatch_style] = name
         return name
+
+    hatchPatterns = _api.deprecated("3.6")(property(lambda self:{k: (e, f, h) for k, (e, f, h, l) in self._hatch_patterns}))
 
     def writeHatches(self):
         hatchDict = dict()
         sidelen = 72.0
-        for hatch_style, name in self.hatchPatterns.items():
+        for hatch_style, name in self._hatch_patterns.items():
             ob = self.reserveObject('hatch pattern')
             hatchDict[name] = ob
             res = {'Procsets':
@@ -1541,7 +1543,7 @@ end"""
                  # Change origin to match Agg at top-left.
                  'Matrix': [1, 0, 0, 1, 0, self.height * 72]})
 
-            stroke_rgb, fill_rgb, hatch = hatch_style
+            stroke_rgb, fill_rgb, hatch, lw = hatch_style
             self.output(stroke_rgb[0], stroke_rgb[1], stroke_rgb[2],
                         Op.setrgb_stroke)
             if fill_rgb is not None:
@@ -1550,8 +1552,8 @@ end"""
                             0, 0, sidelen, sidelen, Op.rectangle,
                             Op.fill)
 
-            self.output(mpl.rcParams['hatch.linewidth'], Op.setlinewidth)
-
+            self.output(lw, Op.setlinewidth)
+            
             self.output(*self.pathOperations(
                 Path.hatch(hatch),
                 Affine2D().scale(sidelen),
@@ -2502,14 +2504,14 @@ class GraphicsContextPdf(GraphicsContextBase):
         name = self.file.alphaState(effective_alphas)
         return [name, Op.setgstate]
 
-    def hatch_cmd(self, hatch, hatch_color):
+    def hatch_cmd(self, hatch, hatch_color, hatch_linewidth):
         if not hatch:
             if self._fillcolor is not None:
                 return self.fillcolor_cmd(self._fillcolor)
             else:
                 return [Name('DeviceRGB'), Op.setcolorspace_nonstroke]
         else:
-            hatch_style = (hatch_color, self._fillcolor, hatch)
+            hatch_style = (hatch_color, self._fillcolor, hatch, hatch_linewidth)
             name = self.file.hatchPattern(hatch_style)
             return [Name('Pattern'), Op.setcolorspace_nonstroke,
                     name, Op.setcolor_nonstroke]
@@ -2574,8 +2576,8 @@ class GraphicsContextPdf(GraphicsContextBase):
         (('_dashes',), dash_cmd),
         (('_rgb',), rgb_cmd),
         # must come after fillcolor and rgb
-        (('_hatch', '_hatch_color'), hatch_cmd),
-        )
+        (('_hatch', '_hatch_color', '_hatch_linewidth'), hatch_cmd),
+         )
 
     def delta(self, other):
         """
@@ -2603,11 +2605,11 @@ class GraphicsContextPdf(GraphicsContextBase):
                     break
 
             # Need to update hatching if we also updated fillcolor
-            if params == ('_hatch', '_hatch_color') and fill_performed:
+            if cmd.__name__ == 'hatch_cmd' and fill_performed:
                 different = True
 
             if different:
-                if params == ('_fillcolor',):
+                if cmd.__name__ == 'fillcolor_cmd':
                     fill_performed = True
                 theirs = [getattr(other, p) for p in params]
                 cmds.extend(cmd(self, *theirs))
