@@ -1941,8 +1941,10 @@ class _AxesBase(martist.Artist):
         shared_y = self in self._shared_axes["y"]
         # Not sure whether we need this check:
         if shared_x and shared_y:
-            raise RuntimeError("adjustable='datalim' is not allowed when both "
-                               "axes are shared")
+            raise RuntimeError("set_aspect(..., adjustable='datalim') or "
+                               "axis('equal') are not allowed when both axes "
+                               "are shared.  Try set_aspect(..., "
+                               "adjustable='box').")
 
         # If y is shared, then we are only allowed to change x, etc.
         if shared_y:
@@ -2044,7 +2046,11 @@ class _AxesBase(martist.Artist):
                 self.autoscale_view(tight=False)
                 # self.apply_aspect()
                 if s == 'equal':
-                    self.set_aspect('equal', adjustable='datalim')
+                    try:
+                        self.set_aspect('equal', adjustable='datalim')
+                    except RuntimeError:
+                        raise RuntimeError("'equal' is not allowed on shared "
+                                           "axes, try 'scaled' instead.")
                 elif s == 'scaled':
                     self.set_aspect('equal', adjustable='box', anchor='C')
                     self.set_autoscale_on(False)  # Req. by Mark Bakker
