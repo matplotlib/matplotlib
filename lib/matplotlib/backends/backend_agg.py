@@ -1,5 +1,5 @@
 """
-An `Anti-Grain Geometry <http://antigrain.com>`_ (AGG) backend.
+An `Anti-Grain Geometry`_ (AGG) backend.
 
 Features that are implemented:
 
@@ -17,6 +17,8 @@ Features that are implemented:
 Still TODO:
 
 * integrate screen dpi w/ ppi and text
+
+.. _Anti-Grain Geometry: http://agg.sourceforge.net/antigrain.com
 """
 
 try:
