@@ -2104,17 +2104,15 @@ class Axes3D(Axes):
         Parameters
         ----------
         X, Y : array-like,
-            The coordinates of the values in *Z*.
-
-            *X* and *Y* must both be 2D with the same shape as *Z* (e.g.
-            created via `numpy.meshgrid`), or they must both be 1-D such
-            that ``len(X) == N`` is the number of columns in *Z* and
-            ``len(Y) == M`` is the number of rows in *Z*.
-
-            If not given, they are assumed to be integer indices, i.e.
-            ``X = range(N)``, ``Y = range(M)``.
-        Z : (M, N) array-like
-            The height values over which the contour is drawn.
+            *X* and *Y* are x-y coordinates, specified as 2D arrays of the same
+            size as *Z*. `numpy.meshgrid` function could be used to create *X*
+            and *Y* coordinate matrices from coordinate vectors.
+            If ``size(Z) == [N, N]`` the *X* and *Y* matrices could be
+            specified as 1D arrays, where ``len(X) == len(Y) == N``
+        Z : array-like,
+            *Z* is a 2D array that specifies the height values at each x-y
+            coordinate over which the contour is drawn. Z must have at least
+            two rows and two columns.
         extend3d : bool, default: False
             Whether to extend contour in 3D.
         stride : int
