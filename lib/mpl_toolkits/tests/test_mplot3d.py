@@ -127,6 +127,15 @@ def test_contour3d():
     ax.set_zlim(-100, 100)
 
 
+def test_contour3d_1dxy():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    X = np.linspace(-10, 10, 30)
+    Y = np.linspace(-10, 10, 20)
+    Z = np.cos(X[np.newaxis, :]) * np.sin(Y[:, np.newaxis])
+    ax.contour(X, Y, Z, zdir="z")
+
+
 @mpl3d_image_comparison(['contourf3d.png'])
 def test_contourf3d():
     fig = plt.figure()
