@@ -222,3 +222,12 @@ def get_path(hatchpattern, density=6):
             cursor += pattern.num_vertices
 
     return Path(vertices, codes)
+def _set_hatch_linewidth(gc, hatch_linewidth):
+    if hasattr(gc, "set_hatch_linewidth"):
+        gc.set_hatch_linewidth(hatch_linewidth)
+    else:
+        _api.warn_deprecated(
+            "3.6", message="The current backend does not define "
+            "GraphicsContextRenderer.set_hatch_linewidth; support for such "
+            "backends is deprecated since %(since)s and will be removed "
+            "%(removal)s.")
