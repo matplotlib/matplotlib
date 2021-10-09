@@ -10,6 +10,7 @@ Usage guide
    ../plot_types/index.rst
    ../tutorials/index.rst
    ../gallery/index.rst
+   getting_started.rst
    explain.rst
    ../faq/index.rst
    ../api/index.rst
