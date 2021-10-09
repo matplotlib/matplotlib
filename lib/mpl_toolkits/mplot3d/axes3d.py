@@ -2103,16 +2103,9 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        X, Y : array-like,
-            *X* and *Y* are x-y coordinates, specified as 2D arrays of the same
-            size as *Z*. `numpy.meshgrid` function could be used to create *X*
-            and *Y* coordinate matrices from coordinate vectors.
-            If ``size(Z) == [N, N]`` the *X* and *Y* matrices could be
-            specified as 1D arrays, where ``len(X) == len(Y) == N``
-        Z : array-like,
-            *Z* is a 2D array that specifies the height values at each x-y
-            coordinate over which the contour is drawn. Z must have at least
-            two rows and two columns.
+        X, Y, Z : array-like,
+            Input data. See `~matplotlib.axes.Axes.contour` for acceptable
+            data shapes.
         extend3d : bool, default: False
             Whether to extend contour in 3D.
         stride : int
@@ -2156,7 +2149,8 @@ class Axes3D(Axes):
         Parameters
         ----------
         X, Y, Z : array-like
-            Input data.
+            Input data. See `~matplotlib.axes.Axes.tricontour` for acceptable
+            data shapes.
         extend3d : bool, default: False
             Whether to extend contour in 3D.
         stride : int
@@ -2214,7 +2208,8 @@ class Axes3D(Axes):
         Parameters
         ----------
         X, Y, Z : array-like
-            Input data.
+            Input data. See `~matplotlib.axes.Axes.contourf` for acceptable
+            data shapes.
         zdir : {'x', 'y', 'z'}, default: 'z'
             The direction to use.
         offset : float, optional
@@ -2252,7 +2247,8 @@ class Axes3D(Axes):
         Parameters
         ----------
         X, Y, Z : array-like
-            Input data.
+            Input data. See `~matplotlib.axes.Axes.tricontourf` for acceptable
+            data shapes.
         zdir : {'x', 'y', 'z'}, default: 'z'
             The direction to use.
         offset : float, optional
@@ -2333,7 +2329,7 @@ class Axes3D(Axes):
         Parameters
         ----------
         xs, ys : array-like
-             The data positions.
+            The data positions.
         zs : float or array-like, default: 0
             The z-positions. Either an array of the same length as *xs* and
             *ys* or a single value to place all points in the same plane.
