@@ -231,3 +231,17 @@ table.property-table td {
     /* fix width to width of cheatsheet */
     width: 210px;
 }
+
+/* Two columns for install code blocks */
+div.twocol {
+    padding-left: 0;
+    padding-right: 0;
+    display: flex;
+    gap: 20px;
+}
+
+div.twocol > div {
+    flex-grow: 1;
+    padding: 0;
+    margin: 0;
+}
