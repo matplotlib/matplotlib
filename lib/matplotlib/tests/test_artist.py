@@ -562,3 +562,10 @@ def test_draw_wraper_forward_input():
 
     assert 'aardvark' == art.draw(renderer, 'aardvark')
     assert 'aardvark' == art.draw(renderer, extra='aardvark')
+
+
+def test_set_aria():
+    art = martist.Artist()
+    with pytest.raises(TypeError, match='^aria must be dict'):
+        art.set_aria([])
+    art.set_aria(dict(label="artist alt text"))

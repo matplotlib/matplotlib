@@ -192,6 +192,7 @@ class Artist:
         self._clippath = None
         self._clipon = True
         self._label = ''
+        self._aria = None
         self._picker = None
         self._rasterized = False
         self._agg_filter = None
@@ -1084,6 +1085,35 @@ class Artist:
         in_layout : bool
         """
         self._in_layout = in_layout
+
+    def get_aria(self):
+        """Return any ARIA properties assigned to the artist"""
+        return dict(self._aria)
+
+    def set_aria(self, aria):
+        """
+        Set ARIA properties to the artist.
+
+        A primary use of this method is to attach aria-label to the artist to
+        provide alt text to figures.
+
+        Parameters
+        ----------
+        aria : dict
+
+        """
+        # TODO validation
+        if not isinstance(aria, dict):
+            if aria is not None:
+                raise TypeError(
+                    f'aria must be dict or None, not {type(aria)}')
+        self._aria = aria
+
+    def update_aria(self, **aria):
+        """Update WAI-ARIA properties on the artist."""
+        # TODO validation
+        for k, v in aria.items():
+            self._aria[k] = v
 
     def get_label(self):
         """Return the label used for this artist in the legend."""
