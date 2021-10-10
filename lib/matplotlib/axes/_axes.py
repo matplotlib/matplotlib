@@ -5643,7 +5643,7 @@ default: :rc:`scatter.edgecolors`
             rectangular grid.
 
         shading : {'flat', 'nearest', 'auto'}, optional
-            The fill style for the quadrilateral; defaults to 'flat' or
+            The fill style for the quadrilateral; defaults to 'auto' or
             :rc:`pcolor.shading`. Possible values:
 
             - 'flat': A solid color is used for each quad. The color of the
