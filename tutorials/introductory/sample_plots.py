@@ -42,7 +42,7 @@ horizontal dimensions) using the :func:`~matplotlib.pyplot.imshow` function.
    :target: ../../gallery/images_contours_and_fields/image_demo.html
    :align: center
 
-   Example of using :func:`~matplotlib.pyplot.imshow` to display a CT scan
+   Example of using :func:`~matplotlib.pyplot.imshow` to display an MRI
 
 .. _screenshots_pcolormesh_demo:
 
