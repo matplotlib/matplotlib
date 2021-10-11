@@ -248,6 +248,7 @@ def test_pil_kwargs_tiff():
     tags = {TiffTags.TAGS_V2[k].name: v for k, v in im.tag_v2.items()}
     assert tags["ImageDescription"] == "test image"
 
+
 def test_pil_kwargs_webp():
     plt.plot([0, 1, 2], [0, 1, 0])
     buf_small = io.BytesIO()
@@ -258,13 +259,13 @@ def test_pil_kwargs_webp():
     plt.savefig(buf_large, format="webp", pil_kwargs=pil_kwargs_high)
     assert buf_large.getbuffer().nbytes > buf_small.getbuffer().nbytes
 
+
 def test_webp_alpha():
     plt.plot([0, 1, 2], [0, 1, 0])
     buf = io.BytesIO()
     plt.savefig(buf, format="webp", transparent=True)
     im = Image.open(buf)
     assert im.mode == "RGBA"
-      
 
 
 def test_draw_path_collection_error_handling():
