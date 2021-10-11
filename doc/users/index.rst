@@ -8,7 +8,7 @@ Users guide
 ###########
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    getting_started/index.rst
    installing/index.rst

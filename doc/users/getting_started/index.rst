@@ -1,8 +1,8 @@
 Getting started
 ===============
 
-Installation
-------------
+Installation quick-start
+------------------------
 
 .. container:: twocol
 
