@@ -28,7 +28,7 @@ Further details are available in the :doc:`Installation Guide </users/installing
 Draw a first plot
 -----------------
 
-Here is a minimal example plot you can try out:
+Here is a minimal example plot:
 
 .. plot::
    :include-source:
