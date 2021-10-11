@@ -2103,8 +2103,9 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        X, Y, Z : array-like
-            Input data.
+        X, Y, Z : array-like,
+            Input data. See `~matplotlib.axes.Axes.contour` for acceptable
+            data shapes.
         extend3d : bool, default: False
             Whether to extend contour in 3D.
         stride : int
@@ -2148,7 +2149,8 @@ class Axes3D(Axes):
         Parameters
         ----------
         X, Y, Z : array-like
-            Input data.
+            Input data. See `~matplotlib.axes.Axes.tricontour` for acceptable
+            data shapes.
         extend3d : bool, default: False
             Whether to extend contour in 3D.
         stride : int
@@ -2206,7 +2208,8 @@ class Axes3D(Axes):
         Parameters
         ----------
         X, Y, Z : array-like
-            Input data.
+            Input data. See `~matplotlib.axes.Axes.contourf` for acceptable
+            data shapes.
         zdir : {'x', 'y', 'z'}, default: 'z'
             The direction to use.
         offset : float, optional
@@ -2244,7 +2247,8 @@ class Axes3D(Axes):
         Parameters
         ----------
         X, Y, Z : array-like
-            Input data.
+            Input data. See `~matplotlib.axes.Axes.tricontourf` for acceptable
+            data shapes.
         zdir : {'x', 'y', 'z'}, default: 'z'
             The direction to use.
         offset : float, optional
@@ -2325,7 +2329,7 @@ class Axes3D(Axes):
         Parameters
         ----------
         xs, ys : array-like
-             The data positions.
+            The data positions.
         zs : float or array-like, default: 0
             The z-positions. Either an array of the same length as *xs* and
             *ys* or a single value to place all points in the same plane.
