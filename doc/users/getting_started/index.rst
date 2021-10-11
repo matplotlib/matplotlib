@@ -22,7 +22,8 @@ Installation
 
             conda install matplotlib
 
-Further details are available in the :doc:`Installation Guide </users/installing>`.  
+Further details are available in the :doc:`Installation Guide </users/installing/index>`.
+
 
 Draw a first plot
 -----------------
