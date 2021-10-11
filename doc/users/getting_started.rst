@@ -24,6 +24,12 @@ Installation
 
 Further details are available in the :doc:`Installation Guide </users/installing>`.
 
+Choosing a backend
+------------------
+
+Matplotlib needs a "backend" to render your figure, either in its own GUI window,
+as part of a notebook, or saved as an image to disk.  If you need more information on 
+choosing a backend, see :ref:`backends`.
 
 Draw a first plot
 -----------------
