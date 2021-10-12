@@ -738,6 +738,10 @@ class Rectangle(Patch):
         self.angle = float(angle)
         self.rotate_around_center = rotate_around_center
         # Required for RectangleSelector with axes aspect ratio != 1
+        # The patch is defined in data coordinates and when changing the
+        # selector with square modifier and not in data coordinates, we need
+        # to correct for the aspect ratio difference between the data and
+        # display coordinate systems.
         self._aspect_ratio_correction = 1.0
         self._convert_units()  # Validate the inputs.
 

@@ -1,4 +1,4 @@
 Selector widget state internals
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*state_modifier_keys* have to be defined when creating the selector widget. The 
-*state_modifier_keys* attribute is deprecated.
+*state_modifier_keys* now have to be defined when creating a selector widget.
+The *state_modifier_keys* attribute is deprecated.
