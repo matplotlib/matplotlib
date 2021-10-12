@@ -1016,7 +1016,7 @@ class Artist:
 
         If True, the artist is excluded from regular drawing of the figure.
         You have to call `.Figure.draw_artist` / `.Axes.draw_artist`
-        explicitly on the artist. This appoach is used to speed up animations
+        explicitly on the artist. This approach is used to speed up animations
         using blitting.
 
         See also `matplotlib.animation` and
