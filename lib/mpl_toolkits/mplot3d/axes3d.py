@@ -2124,15 +2124,15 @@ class Axes3D(Axes):
         -------
         matplotlib.contour.QuadContourSet
         """
+        if np.ndim(X) == 1 and np.ndim(Y) == 1 and len(X) != len(Y):
+            # auto_scale_xyz expects X.size == Y.size
+            X, Y = np.meshgrid(X, Y)
         had_data = self.has_data()
 
         jX, jY, jZ = art3d.rotate_axes(X, Y, Z, zdir)
         cset = super().contour(jX, jY, jZ, *args, **kwargs)
         self.add_contour_set(cset, extend3d, stride, zdir, offset)
 
-        if np.ndim(X) == 1 and np.ndim(Y) == 1 and len(X) != len(Y):
-            # auto_scale_xyz expects X.size == Y.size
-            X, Y = np.meshgrid(X, Y)
         self.auto_scale_xyz(X, Y, Z, had_data)
         return cset
 
