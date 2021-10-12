@@ -192,7 +192,7 @@ class Artist:
         self._clippath = None
         self._clipon = True
         self._label = ''
-        self._aria = None
+        self._aria = {}
         self._picker = None
         self._rasterized = False
         self._agg_filter = None
