@@ -7,10 +7,10 @@ similarly to pdfTeX and friends. There is no support yet for subsetting.
 
 Usage::
 
-   >>> font = Type1Font(filename)
-   >>> clear_part, encrypted_part, finale = font.parts
-   >>> slanted_font = font.transform({'slant': 0.167})
-   >>> extended_font = font.transform({'extend': 1.2})
+    font = Type1Font(filename)
+    clear_part, encrypted_part, finale = font.parts
+    slanted_font = font.transform({'slant': 0.167})
+    extended_font = font.transform({'extend': 1.2})
 
 Sources:
 
@@ -38,18 +38,16 @@ _log = logging.getLogger(__name__)
 
 class _Token:
     """
-    A token in a PostScript stream
+    A token in a PostScript stream.
 
     Attributes
     ----------
     pos : int
-        position, i.e. offset from the beginning of the data
-
+        Position, i.e. offset from the beginning of the data.
     raw : str
-        the raw text of the token
-
+        Raw text of the token.
     kind : str
-        description of the token (for debugging or testing)
+        Description of the token (for debugging or testing).
     """
     __slots__ = ('pos', 'raw')
     kind = '?'
@@ -177,9 +175,8 @@ def _tokenize(data: bytes, skip_ws: bool):
     """
     A generator that produces _Token instances from Type-1 font code.
 
-    The consumer of the generator may send an integer to the tokenizer
-    to indicate that the next token should be _BinaryToken of the given
-    length.
+    The consumer of the generator may send an integer to the tokenizer to
+    indicate that the next token should be _BinaryToken of the given length.
 
     Parameters
     ----------
@@ -279,18 +276,16 @@ class _BalancedExpression(_Token):
 
 def _expression(initial, tokens, data):
     """
-    Consume some number of tokens and return a balanced PostScript expression
+    Consume some number of tokens and return a balanced PostScript expression.
 
     Parameters
     ----------
     initial : _Token
-        the token that triggered parsing a balanced expression
-
+        The token that triggered parsing a balanced expression.
     tokens : iterator of _Token
-        following tokens
-
+        Following tokens.
     data : bytes
-        underlying data that the token positions point to
+        Underlying data that the token positions point to.
 
     Returns
     -------
@@ -332,17 +327,20 @@ class Type1Font:
     parts : tuple
         A 3-tuple of the cleartext part, the encrypted part, and the finale of
         zeros.
+
     decrypted : bytes
-        The decrypted form of parts[1].
+        The decrypted form of ``parts[1]``.
+
     prop : dict[str, Any]
         A dictionary of font properties. Noteworthy keys include:
-          FontName - PostScript name of the font
-          Encoding - dict from numeric codes to glyph names
-          FontMatrix - bytes object encoding a matrix
-          UniqueID - optional font identifier, dropped when modifying the font
-          CharStrings - dict from glyph names to byte code
-          Subrs - array of byte code subroutines
-          OtherSubrs - bytes object encoding some PostScript code
+
+        - FontName: PostScript name of the font
+        - Encoding: dict from numeric codes to glyph names
+        - FontMatrix: bytes object encoding a matrix
+        - UniqueID: optional font identifier, dropped when modifying the font
+        - CharStrings: dict from glyph names to byte code
+        - Subrs: array of byte code subroutines
+        - OtherSubrs: bytes object encoding some PostScript code
     """
     __slots__ = ('parts', 'decrypted', 'prop', '_pos', '_abbr')
     # the _pos dict contains (begin, end) indices to parts[0] + decrypted
@@ -445,7 +443,7 @@ class Type1Font:
     @staticmethod
     def _decrypt(ciphertext, key, ndiscard=4):
         """
-        Decrypt ciphertext using the Type-1 font algorithm
+        Decrypt ciphertext using the Type-1 font algorithm.
 
         The algorithm is described in Adobe's "Adobe Type 1 Font Format".
         The key argument can be an integer, or one of the strings
@@ -467,7 +465,7 @@ class Type1Font:
     @staticmethod
     def _encrypt(plaintext, key, ndiscard=4):
         """
-        Encrypt plaintext using the Type-1 font algorithm
+        Encrypt plaintext using the Type-1 font algorithm.
 
         The algorithm is described in Adobe's "Adobe Type 1 Font Format".
         The key argument can be an integer, or one of the strings
