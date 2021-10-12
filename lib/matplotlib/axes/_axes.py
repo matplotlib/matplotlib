@@ -5642,9 +5642,8 @@ default: :rc:`scatter.edgecolors`
             expanded as needed into the appropriate 2D arrays, making a
             rectangular grid.
 
-        shading : {'flat', 'nearest', 'auto'}, optional
-            The fill style for the quadrilateral; defaults to 'flat' or
-            :rc:`pcolor.shading`. Possible values:
+        shading : {'flat', 'nearest', 'auto'}, default: :rc:`pcolor.shading`
+            The fill style for the quadrilateral. Possible values:
 
             - 'flat': A solid color is used for each quad. The color of the
               quad (i, j), (i+1, j), (i, j+1), (i+1, j+1) is given by
