@@ -1839,6 +1839,15 @@ class _SelectorWidget(AxesWidget):
         if active:
             self.update_background(None)
 
+    def _get_animated_artists(self):
+        """Convenience method to get all animated artists of a figure."""
+        axes = self.ax.get_figure().get_axes()
+        animated_artists = tuple()
+        for ax in axes:
+            artists = sorted(ax.get_children(), key=lambda x: x.zorder)
+            animated_artists += tuple(a for a in artists if a.get_animated())
+        return animated_artists
+
     def update_background(self, event):
         """Force an update of the background."""
         # If you add a call to `ignore` here, you'll want to check edge case:
@@ -1848,15 +1857,16 @@ class _SelectorWidget(AxesWidget):
         # Make sure that widget artists don't get accidentally included in the
         # background, by re-rendering the background if needed (and then
         # re-re-rendering the canvas with the visible widget artists).
-        needs_redraw = any(artist.get_visible() for artist in self.artists)
+        artists = self.artists + self._get_animated_artists()
+        needs_redraw = any(artist.get_visible() for artist in artists)
         with ExitStack() as stack:
             if needs_redraw:
-                for artist in self.artists:
+                for artist in artists:
                     stack.enter_context(artist._cm_set(visible=False))
                 self.canvas.draw()
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         if needs_redraw:
-            for artist in self.artists:
+            for artist in artists:
                 self.ax.draw_artist(artist)
 
     def connect_default_events(self):
@@ -1903,8 +1913,9 @@ class _SelectorWidget(AxesWidget):
                 self.canvas.restore_region(self.background)
             else:
                 self.update_background(None)
-            for artist in self.artists:
-                self.ax.draw_artist(artist)
+            for artist in self.artists + self._get_animated_artists():
+                if artist.stale:
+                    self.ax.draw_artist(artist)
             self.canvas.blit(self.ax.bbox)
         else:
             self.canvas.draw_idle()
