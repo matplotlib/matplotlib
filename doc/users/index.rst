@@ -13,7 +13,6 @@ Usage guide
    getting_started.rst
    backends.rst
    performance.rst
-   ../gallery/usage.rst
    explain.rst
    ../faq/index.rst
    ../api/index.rst
