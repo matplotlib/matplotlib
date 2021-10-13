@@ -190,7 +190,7 @@ Troubleshooting
 * Various math font are compiled and rendered only if corresponding font
   packages are loaded. Specifically, when using ``\mathbf{}`` on Greek letters,
   the default computer modern font may not contain them, in which case such
-  font is not rendered. Is such scenarios, the ``lmodern`` package should be
+  font is not rendered. In such scenarios, the ``lmodern`` package should be
   loaded.
 
 * If you still need help, please see :ref:`reporting-problems`
