@@ -777,8 +777,8 @@ class FigureCanvasPgf(FigureCanvasBase):
 %% Make sure the required packages are loaded in your preamble
 %%   \\usepackage{pgf}
 %%
-%% Also ensure that all the required font packages are loaded; for instance, 
-%% the lmodern package is often necessary when using math font.
+%% Also ensure that all the required font packages are loaded; for instance,
+%% the lmodern package is sometimes necessary when using math font.
 %%   \\usepackage{lmodern}
 %%
 %% Figures using additional raster images can only be included by \\input if
