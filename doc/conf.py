@@ -189,7 +189,6 @@ sphinx_gallery_conf = {
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
 }
 
-plot_gallery = 'True'
 mathmpl_fontsize = 11.0
 mathmpl_srcset = ['2x']
 
