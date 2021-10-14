@@ -300,7 +300,7 @@ class Artist:
         if val and self.stale_callback is not None:
             self.stale_callback(self, val)
 
-    def get_window_extent(self, renderer=None):
+    def get_window_extent(self):
         """
         Get the axes bounding box in display space.
 
