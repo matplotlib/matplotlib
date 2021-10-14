@@ -61,16 +61,6 @@ Install
 For installation instructions and requirements, see `INSTALL.rst <INSTALL.rst>`_  or the
 `install <https://matplotlib.org/stable/users/installing.html>`_ documentation.
 
-Test
-====
-
-After installation, launch the test suite::
-
-  python -m pytest
-
-Read the `testing guide <https://matplotlib.org/stable/devel/testing.html>`_
-for more information and alternatives.
-
 Contribute
 ==========
 
