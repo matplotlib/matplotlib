@@ -1,0 +1,5 @@
+In the future, ``dviread.find_tex_file`` will raise a ``FileNotFoundError`` for missing files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, it would return an empty string in such cases.  Raising an
+exception allows attaching a user-friendly message instead.  During the
+transition period, a warning is raised.
