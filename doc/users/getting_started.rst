@@ -43,8 +43,7 @@ Here is a minimal example plot you can try out:
    ax.plot(x, y)
    plt.show()
 
-If a plot does not show up, we probably could not automatically find an appropriate backend; 
-please check :ref:`troubleshooting-faq`.  
+If a plot does not show up please check :ref:`troubleshooting-faq`.  
 
 Where to go next
 ----------------
