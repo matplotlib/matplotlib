@@ -470,13 +470,12 @@ class Dvi:
         n = self.file.read(a + l)
         fontname = n[-l:].decode('ascii')
         tfm = _tfmfile(fontname)
-        if tfm is None:
-            raise FileNotFoundError("missing font metrics file: %s" % fontname)
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
             raise ValueError('tfm checksum mismatch: %s' % n)
-
-        vf = _vffile(fontname)
-
+        try:
+            vf = _vffile(fontname)
+        except FileNotFoundError:
+            vf = None
         self.fonts[k] = DviFont(scale=s, tfm=tfm, texname=n, vf=vf)
 
     @_dispatch(247, state=_dvistate.pre, args=('u1', 'u4', 'u4', 'u4', 'u1'))
@@ -938,9 +937,9 @@ class PsfontsMap:
         if basename is None:
             basename = tfmname
         if encodingfile is not None:
-            encodingfile = find_tex_file(encodingfile)
+            encodingfile = _find_tex_file(encodingfile)
         if fontfile is not None:
-            fontfile = find_tex_file(fontfile)
+            fontfile = _find_tex_file(fontfile)
         self._parsed[tfmname] = PsFont(
             texname=tfmname, psname=basename, effects=effects,
             encoding=encodingfile, filename=fontfile)
@@ -992,21 +991,20 @@ class _LuatexKpsewhich:
         self._proc.stdin.write(os.fsencode(filename) + b"\n")
         self._proc.stdin.flush()
         out = self._proc.stdout.readline().rstrip()
-        return "" if out == b"nil" else os.fsdecode(out)
+        return None if out == b"nil" else os.fsdecode(out)
 
 
 @lru_cache()
 @_api.delete_parameter("3.5", "format")
-def find_tex_file(filename, format=None):
+def _find_tex_file(filename, format=None):
     """
-    Find a file in the texmf tree.
+    Find a file in the texmf tree using kpathsea_.
 
-    Calls :program:`kpsewhich` which is an interface to the kpathsea
-    library [1]_. Most existing TeX distributions on Unix-like systems use
-    kpathsea. It is also available as part of MikTeX, a popular
-    distribution on Windows.
+    The kpathsea library, provided by most existing TeX distributions, both
+    on Unix-like systems and on Windows (MikTeX), is invoked via a long-lived
+    luatex process if luatex is installed, or via kpsewhich otherwise.
 
-    *If the file is not found, an empty string is returned*.
+    .. _kpathsea: https://www.tug.org/kpathsea/
 
     Parameters
     ----------
@@ -1016,10 +1014,10 @@ def find_tex_file(filename, format=None):
         Could be e.g. 'tfm' or 'vf' to limit the search to that type of files.
         Deprecated.
 
-    References
-    ----------
-    .. [1] `Kpathsea documentation <http://www.tug.org/kpathsea/>`_
-        The library that :program:`kpsewhich` is part of.
+    Raises
+    ------
+    FileNotFoundError
+        If the file is not found.
     """
 
     # we expect these to always be ascii encoded, but use utf-8
@@ -1029,39 +1027,63 @@ def find_tex_file(filename, format=None):
     if isinstance(format, bytes):
         format = format.decode('utf-8', errors='replace')
 
-    if format is None:
-        try:
-            lk = _LuatexKpsewhich()
-        except FileNotFoundError:
-            pass  # Fallback to directly calling kpsewhich, as below.
-        else:
-            return lk.search(filename)
-
-    if os.name == 'nt':
-        # On Windows only, kpathsea can use utf-8 for cmd args and output.
-        # The `command_line_encoding` environment variable is set to force it
-        # to always use utf-8 encoding.  See Matplotlib issue #11848.
-        kwargs = {'env': {**os.environ, 'command_line_encoding': 'utf-8'},
-                  'encoding': 'utf-8'}
-    else:  # On POSIX, run through the equivalent of os.fsdecode().
-        kwargs = {'encoding': sys.getfilesystemencoding(),
-                  'errors': 'surrogatescape'}
-
-    cmd = ['kpsewhich']
-    if format is not None:
-        cmd += ['--format=' + format]
-    cmd += [filename]
     try:
-        result = cbook._check_and_log_subprocess(cmd, _log, **kwargs)
-    except (FileNotFoundError, RuntimeError):
-        return ''
-    return result.rstrip('\n')
+        lk = _LuatexKpsewhich()
+    except FileNotFoundError:
+        lk = None  # Fallback to directly calling kpsewhich, as below.
+
+    if lk and format is None:
+        path = lk.search(filename)
+
+    else:
+        if os.name == 'nt':
+            # On Windows only, kpathsea can use utf-8 for cmd args and output.
+            # The `command_line_encoding` environment variable is set to force
+            # it to always use utf-8 encoding.  See Matplotlib issue #11848.
+            kwargs = {'env': {**os.environ, 'command_line_encoding': 'utf-8'},
+                      'encoding': 'utf-8'}
+        else:  # On POSIX, run through the equivalent of os.fsdecode().
+            kwargs = {'encoding': sys.getfilesystemencoding(),
+                      'errors': 'surrogateescape'}
+
+        cmd = ['kpsewhich']
+        if format is not None:
+            cmd += ['--format=' + format]
+        cmd += [filename]
+        try:
+            path = (cbook._check_and_log_subprocess(cmd, _log, **kwargs)
+                    .rstrip('\n'))
+        except (FileNotFoundError, RuntimeError):
+            path = None
+
+    if path:
+        return path
+    else:
+        raise FileNotFoundError(
+            f"Matplotlib's TeX implementation searched for a file named "
+            f"{filename!r} in your texmf tree, but could not find it")
+
+
+# After the deprecation period elapses, delete this shim and rename
+# _find_tex_file to find_tex_file everywhere.
+@_api.delete_parameter("3.5", "format")
+def find_tex_file(filename, format=None):
+    try:
+        return (_find_tex_file(filename, format) if format is not None else
+                _find_tex_file(filename))
+    except FileNotFoundError as exc:
+        _api.warn_deprecated(
+            "3.6", message=f"{exc.args[0]}; in the future, this will raise a "
+            f"FileNotFoundError.")
+        return ""
+
+
+find_tex_file.__doc__ = _find_tex_file.__doc__
 
 
 @lru_cache()
 def _fontfile(cls, suffix, texname):
-    filename = find_tex_file(texname + suffix)
-    return cls(filename) if filename else None
+    return cls(_find_tex_file(texname + suffix))
 
 
 _tfmfile = partial(_fontfile, Tfm, ".tfm")
@@ -1077,7 +1099,7 @@ if __name__ == '__main__':
     parser.add_argument("dpi", nargs="?", type=float, default=None)
     args = parser.parse_args()
     with Dvi(args.filename, args.dpi) as dvi:
-        fontmap = PsfontsMap(find_tex_file('pdftex.map'))
+        fontmap = PsfontsMap(_find_tex_file('pdftex.map'))
         for page in dvi:
             print(f"=== new page === "
                   f"(w: {page.width}, h: {page.height}, d: {page.descent})")
