@@ -11,7 +11,10 @@ Usage guide
    ../tutorials/index.rst
    ../gallery/index.rst
    getting_started.rst
+   backends.rst
+   performance.rst
    explain.rst
    ../faq/index.rst
    ../api/index.rst
    ../resources/index.rst
+   
