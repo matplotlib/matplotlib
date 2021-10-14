@@ -22,14 +22,9 @@ Installation
 
             conda install matplotlib
 
-Further details are available in the :doc:`Installation Guide </users/installing>`.
-
-Choosing a backend
-------------------
-
-Matplotlib needs a "backend" to render your figure, either in its own GUI window,
-as part of a notebook, or saved as an image to disk.  If you need more information on 
-choosing a backend, see :ref:`backends`.
+Further details are available in the :doc:`Installation Guide </users/installing>`.  If a 
+plot does not show up, we probably could not automatically find an appropriate backend; please 
+check :ref:`troubleshooting-faq`.  
 
 Draw a first plot
 -----------------
