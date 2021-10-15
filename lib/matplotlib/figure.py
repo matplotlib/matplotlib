@@ -317,9 +317,7 @@ class FigureBase(Artist):
         return inside, {}
 
     def get_window_extent(self, *args, **kwargs):
-        """
-        Return the figure bounding box in display space. Arguments are ignored.
-        """
+        # docstring inherited
         return self.bbox
 
     def _suplabels(self, t, info, **kwargs):
