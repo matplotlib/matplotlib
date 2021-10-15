@@ -22,8 +22,7 @@ Installation
 
             conda install matplotlib
 
-Further details are available in the :doc:`Installation Guide </users/installing>`.
-
+Further details are available in the :doc:`Installation Guide </users/installing>`.  
 
 Draw a first plot
 -----------------
@@ -44,6 +43,7 @@ Here is a minimal example plot you can try out:
    ax.plot(x, y)
    plt.show()
 
+If a plot does not show up please check :ref:`troubleshooting-faq`.  
 
 Where to go next
 ----------------
