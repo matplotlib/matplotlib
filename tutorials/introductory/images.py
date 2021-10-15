@@ -69,7 +69,7 @@ import matplotlib.image as mpimg
 # on where you get your data, the other kinds of image that you'll most
 # likely encounter are RGBA images, which allow for transparency, or
 # single-channel grayscale (luminosity) images.  Download `stinkbug.png
-# <https://raw.githubusercontent.com/matplotlib/matplotlib/master/doc/_static/stinkbug.png>`_
+# <https://raw.githubusercontent.com/matplotlib/matplotlib/main/doc/_static/stinkbug.png>`_
 # to your computer for the rest of this tutorial.
 #
 # And here we go...

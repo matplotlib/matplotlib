@@ -199,7 +199,7 @@ with the tag [#]_::
 
 Finally, push the tag to GitHub::
 
-  git push DANGER master v2.0.0
+  git push DANGER main v2.0.0
 
 Congratulations, the scariest part is done!
 
@@ -352,12 +352,12 @@ which will build both the html and pdf version of the documentation.
 
 The built documentation exists in the `matplotlib.github.com
 <https://github.com/matplotlib/matplotlib.github.com/>`__ repository.
-Pushing changes to master automatically updates the website.
+Pushing changes to main automatically updates the website.
 
 The documentation is organized by version.  At the root of the tree is always
 the documentation for the latest stable release.  Under that, there are
 directories containing the documentation for older versions.  The documentation
-for current master is built on Circle CI and pushed to the `devdocs
+for current main is built on Circle CI and pushed to the `devdocs
 <https://github.com/matplotlib/devdocs/>`__ repository.  These are available at
 `matplotlib.org/devdocs <https://matplotlib.org/devdocs/>`__.
 
@@ -382,7 +382,7 @@ the newly released version.  Now commit and push everything to GitHub ::
 
   git add *
   git commit -a -m 'Updating docs for v2.0.0'
-  git push DANGER master
+  git push DANGER main
 
 Congratulations you have now done the third scariest part!
 

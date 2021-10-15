@@ -811,7 +811,7 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
         else:
             # __version__ must be looked up as an attribute to trigger the
             # module-level __getattr__.
-            version = ('master' if '.post' in mpl.__version__
+            version = ('main' if '.post' in mpl.__version__
                        else f'v{mpl.__version__}')
             _log.warning("""
 Bad key %(key)s in file %(fname)s, line %(line_no)s (%(line)r)

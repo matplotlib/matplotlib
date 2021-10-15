@@ -67,7 +67,7 @@ great!]:
 
 **Documentation**
 
-Documentation of master is now built by travis and uploaded to https://matplotlib.org/devdocs/index.html
+Documentation of main is now built by travis and uploaded to https://matplotlib.org/devdocs/index.html
 
 @NelleV, I believe, generates the docs automatically and posts them on
 the web to chart MEP10 progress.

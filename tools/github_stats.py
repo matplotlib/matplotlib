@@ -78,8 +78,8 @@ def issues_closed_since(period=timedelta(days=365), project="matplotlib/matplotl
     filtered = [ i for i in allclosed if _parse_datetime(i['closed_at']) > since ]
     if pulls:
         filtered = [ i for i in filtered if _parse_datetime(i['merged_at']) > since ]
-        # filter out PRs not against master (backports)
-        filtered = [ i for i in filtered if i['base']['ref'] == 'master' ]
+        # filter out PRs not against main (backports)
+        filtered = [ i for i in filtered if i['base']['ref'] == 'main' ]
     else:
         filtered = [ i for i in filtered if not is_pull_request(i) ]
 

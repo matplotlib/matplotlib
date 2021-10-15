@@ -7,7 +7,7 @@ Contributing
 This project is a community effort, and everyone is welcome to
 contribute. Everyone within the community
 is expected to abide by our
-`code of conduct <https://github.com/matplotlib/matplotlib/blob/master/CODE_OF_CONDUCT.md>`_.
+`code of conduct <https://github.com/matplotlib/matplotlib/blob/main/CODE_OF_CONDUCT.md>`_.
 
 The project is hosted on
 https://github.com/matplotlib/matplotlib
@@ -133,9 +133,9 @@ A brief overview is:
 
 5. Create a branch to hold your changes::
 
-      git checkout -b my-feature origin/master
+      git checkout -b my-feature origin/main
 
-   and start making changes. Never work in the ``master`` branch!
+   and start making changes. Never work in the ``main`` branch!
 
 6. Work on this copy, on your computer, using Git to do the version control.
    When you're done editing e.g., ``lib/matplotlib/collections.py``, do::

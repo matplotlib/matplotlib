@@ -31,7 +31,7 @@ commands:
               git remote add upstream git://github.com/matplotlib/matplotlib.git
             fi
             git fetch upstream
-            if [[ "$CIRCLE_BRANCH" != "master" ]] && \
+            if [[ "$CIRCLE_BRANCH" != "main" ]] && \
                [[ "$CIRCLE_PR_NUMBER" != "" ]]; then
               echo "Merging ${CIRCLE_PR_NUMBER}"
               git pull --ff-only upstream "refs/pull/${CIRCLE_PR_NUMBER}/merge"
@@ -126,7 +126,7 @@ commands:
             export SOURCE_DATE_EPOCH="$(git log -1 --format=%at $(git describe --abbrev=0))"
             # Set release mode only when deploying to devdocs.
             if [ "$CIRCLE_PROJECT_USERNAME" = "matplotlib" ] && \
-               [ "$CIRCLE_BRANCH" = "master" ] && \
+               [ "$CIRCLE_BRANCH" = "main" ] && \
                [ "$CIRCLE_PR_NUMBER" = "" ]; then
               export RELEASE_TAG='-t release'
             fi

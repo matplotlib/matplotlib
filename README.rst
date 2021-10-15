@@ -7,14 +7,14 @@
 .. |GitHubActions| image:: https://github.com/matplotlib/matplotlib/workflows/Tests/badge.svg
 .. _GitHubActions: https://github.com/matplotlib/matplotlib/actions?query=workflow%3ATests
 
-.. |AzurePipelines| image:: https://dev.azure.com/matplotlib/matplotlib/_apis/build/status/matplotlib.matplotlib?branchName=master
-.. _AzurePipelines: https://dev.azure.com/matplotlib/matplotlib/_build/latest?definitionId=1&branchName=master
+.. |AzurePipelines| image:: https://dev.azure.com/matplotlib/matplotlib/_apis/build/status/matplotlib.matplotlib?branchName=main
+.. _AzurePipelines: https://dev.azure.com/matplotlib/matplotlib/_build/latest?definitionId=1&branchName=main
 
-.. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/github/matplotlib/matplotlib?branch=master&svg=true
+.. |AppVeyor| image:: https://ci.appveyor.com/api/projects/status/github/matplotlib/matplotlib?branch=main&svg=true
 .. _AppVeyor: https://ci.appveyor.com/project/matplotlib/matplotlib
 
-.. |Codecov| image:: https://codecov.io/github/matplotlib/matplotlib/badge.svg?branch=master&service=github
-.. _Codecov: https://codecov.io/github/matplotlib/matplotlib?branch=master
+.. |Codecov| image:: https://codecov.io/github/matplotlib/matplotlib/badge.svg?branch=main&service=github
+.. _Codecov: https://codecov.io/github/matplotlib/matplotlib?branch=main
 
 .. |LGTM| image:: https://img.shields.io/lgtm/grade/python/github/matplotlib/matplotlib.svg?logo=lgtm&logoWidth=18
 .. _LGTM: https://lgtm.com/projects/g/matplotlib/matplotlib
