@@ -4938,6 +4938,13 @@ def test_shared_with_aspect_3():
             assert round(expected, 4) == round(ax.get_aspect(), 4)
 
 
+def test_shared_aspect_error():
+    fig, axes = plt.subplots(1, 2, sharex=True, sharey=True)
+    axes[0].axis("equal")
+    with pytest.raises(RuntimeError, match=r"set_aspect\(..., adjustable="):
+        fig.draw_without_rendering()
+
+
 @pytest.mark.parametrize('twin', ('x', 'y'))
 def test_twin_with_aspect(twin):
     fig, ax = plt.subplots()
