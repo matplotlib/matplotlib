@@ -1987,18 +1987,7 @@ class Annotation(Text, _AnnotationBase):
         Text.draw(self, renderer)
 
     def get_window_extent(self, renderer=None):
-        """
-        Return the `.Bbox` bounding the text and arrow, in display units.
-
-        Parameters
-        ----------
-        renderer : Renderer, optional
-            A renderer is needed to compute the bounding box.  If the artist
-            has already been drawn, the renderer is cached; thus, it is only
-            necessary to pass this argument when calling `get_window_extent`
-            before the first `draw`.  In practice, it is usually easier to
-            trigger a draw first (e.g. by saving the figure).
-        """
+        # docstring inherited
         # This block is the same as in Text.get_window_extent, but we need to
         # set the renderer before calling update_positions().
         if not self.get_visible() or not self._check_xy(renderer):
