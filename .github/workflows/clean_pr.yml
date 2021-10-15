@@ -1,0 +1,22 @@
+name: PR cleanliness
+on: [pull_request]
+
+jobs:
+  pr_clean:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+      - name: Check for added-and-deleted files
+        run: |
+          git fetch --quiet origin "$GITHUB_BASE_REF"
+          base="$(git merge-base "origin/$GITHUB_BASE_REF" 'HEAD^2')"
+          ad="$(git log "$base..HEAD^2" --pretty=tformat: --name-status --diff-filter=AD |
+                cut --fields 2 | sort | uniq --repeated)"
+          if [[ -n "$ad" ]]; then
+            printf 'The following files were both added and deleted in this PR:\n%s\n' "$ad"
+            exit 1
+          fi
+
