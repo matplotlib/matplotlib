@@ -76,8 +76,8 @@ for an axes::
 `.AxesDivider.append_axes` can then be used to create a new axes on a given
 side ("left", "right", "top", "bottom") of the original axes.
 
-colorbar whose height (or width) in sync with the master axes
--------------------------------------------------------------
+colorbar whose height (or width) in sync with the main axes
+-----------------------------------------------------------
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_colorbar_001.png
    :target: ../../gallery/axes_grid1/simple_colorbar.html
