@@ -41,7 +41,7 @@ STYLE_BLACKLIST = {
     'interactive', 'backend', 'webagg.port', 'webagg.address',
     'webagg.port_retries', 'webagg.open_in_browser', 'backend_fallback',
     'toolbar', 'timezone', 'datapath', 'figure.max_open_warning',
-    'figure.raise_window', 'savefig.directory', 'tk.window_focus',
+    'figure.raise_window', 'gui.save.directory', 'tk.window_focus',
     'docstring.hardcopy', 'date.epoch'}
 
 

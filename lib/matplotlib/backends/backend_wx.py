@@ -1156,7 +1156,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         default_file = self.canvas.get_default_filename()
         dialog = wx.FileDialog(
             self.canvas.GetParent(), "Save to file",
-            mpl.rcParams["savefig.directory"], default_file, filetypes,
+            mpl.rcParams['gui.save.directory'], default_file, filetypes,
             wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         dialog.SetFilterIndex(filter_index)
         if dialog.ShowModal() == wx.ID_OK:
@@ -1172,8 +1172,8 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                              ext, fmt, ext)
                 fmt = ext
             # Save dir for next time, unless empty str (which means use cwd).
-            if mpl.rcParams["savefig.directory"]:
-                mpl.rcParams["savefig.directory"] = str(path.parent)
+            if mpl.rcParams['gui.save.directory']:
+                mpl.rcParams['gui.save.directory'] = str(path.parent)
             try:
                 self.canvas.figure.savefig(str(path), format=fmt)
             except Exception as e:

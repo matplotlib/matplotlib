@@ -511,7 +511,7 @@ class NavigationToolbar2GTK3(_NavigationToolbar2GTK, Gtk.Toolbar):
             dialog.set_current_name(
                 str(Path(dialog.get_current_name()).with_suffix(f'.{fmt}')))
 
-        dialog.set_current_folder(mpl.rcParams["savefig.directory"])
+        dialog.set_current_folder(mpl.rcParams['gui.save.directory'])
         dialog.set_current_name(self.canvas.get_default_filename())
         dialog.set_do_overwrite_confirmation(True)
 

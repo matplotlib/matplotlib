@@ -1,0 +1,3 @@
+``rcParams['savefig.directory']``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated. Use ``rcParams['gui.save.directory']`` instead.

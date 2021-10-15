@@ -214,7 +214,7 @@ validate_floatlist = _listify_validator(
 
 def _validate_pathlike(s):
     if isinstance(s, (str, os.PathLike)):
-        # Store value as str because savefig.directory needs to distinguish
+        # Store value as str because gui.save.directory needs to distinguish
         # between "" (cwd) and "." (cwd, but gets updated by user selections).
         return os.fsdecode(s)
     else:
@@ -1147,7 +1147,7 @@ _validators = {
     "savefig.bbox":         validate_bbox,  # "tight", or "standard" (= None)
     "savefig.pad_inches":   validate_float,
     # default directory in savefig dialog box
-    "savefig.directory":    _validate_pathlike,
+    "gui.save.directory":    _validate_pathlike,
     "savefig.transparent":  validate_bool,
 
     "tk.window_focus": validate_bool,  # Maintain shell focus for TkAgg
