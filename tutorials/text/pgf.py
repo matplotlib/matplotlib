@@ -187,10 +187,10 @@ Troubleshooting
   using either the ``rasterized=True`` keyword, or ``.set_rasterized(True)`` as
   per :doc:`this example </gallery/misc/rasterization_demo>`.
 
-* Various math font are compiled and rendered only if corresponding font
+* Various math fonts are compiled and rendered only if corresponding font
   packages are loaded. Specifically, when using ``\mathbf{}`` on Greek letters,
-  the default computer modern font may not contain them, in which case such
-  font is not rendered. In such scenarios, the ``lmodern`` package should be
+  the default computer modern font may not contain them, in which case the
+  letter is not rendered. In such scenarios, the ``lmodern`` package should be
   loaded.
 
 * If you still need help, please see :ref:`reporting-problems`
