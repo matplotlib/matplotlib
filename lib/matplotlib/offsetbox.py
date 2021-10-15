@@ -346,7 +346,7 @@ class OffsetBox(martist.Artist):
         return w, h, xd, yd
 
     def get_window_extent(self, renderer):
-        """Return the bounding box (`.Bbox`) in display space."""
+        # docstring inherited
         w, h, xd, yd, offsets = self.get_extent_offsets(renderer)
         px, py = self.get_offset(w, h, xd, yd, renderer)
         return mtransforms.Bbox.from_bounds(px - xd, py - yd, w, h)
@@ -640,7 +640,7 @@ class DrawingArea(OffsetBox):
         return self._offset
 
     def get_window_extent(self, renderer):
-        """Return the bounding box in display space."""
+        # docstring inherited
         w, h, xd, yd = self.get_extent(renderer)
         ox, oy = self.get_offset()  # w, h, xd, yd)
 
@@ -800,7 +800,7 @@ class TextArea(OffsetBox):
         return self._offset
 
     def get_window_extent(self, renderer):
-        """Return the bounding box in display space."""
+        # docstring inherited
         w, h, xd, yd = self.get_extent(renderer)
         ox, oy = self.get_offset()
         return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
@@ -901,7 +901,7 @@ class AuxTransformBox(OffsetBox):
         return self._offset
 
     def get_window_extent(self, renderer):
-        """Return the bounding box in display space."""
+        # docstring inherited
         w, h, xd, yd = self.get_extent(renderer)
         ox, oy = self.get_offset()  # w, h, xd, yd)
         return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
@@ -1085,7 +1085,7 @@ class AnchoredOffsetbox(OffsetBox):
         self.stale = True
 
     def get_window_extent(self, renderer):
-        """Return the bounding box in display space."""
+        # docstring inherited
         self._update_offset_func(renderer)
         w, h, xd, yd = self.get_extent(renderer)
         ox, oy = self.get_offset(w, h, xd, yd, renderer)
@@ -1249,7 +1249,7 @@ class OffsetImage(OffsetBox):
         return [self.image]
 
     def get_window_extent(self, renderer):
-        """Return the bounding box in display space."""
+        # docstring inherited
         w, h, xd, yd = self.get_extent(renderer)
         ox, oy = self.get_offset()
         return mtransforms.Bbox.from_bounds(ox - xd, oy - yd, w, h)
@@ -1440,18 +1440,14 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         return self.prop.get_size_in_points()
 
     def get_window_extent(self, renderer):
-        """
-        get the bounding box in display space.
-        """
+        # docstring inherited
         bboxes = [child.get_window_extent(renderer)
                   for child in self.get_children()]
 
         return Bbox.union(bboxes)
 
     def get_tightbbox(self, renderer):
-        """
-        get tight bounding box in display space.
-        """
+        # docstring inherited
         bboxes = [child.get_tightbbox(renderer)
                   for child in self.get_children()]
 
