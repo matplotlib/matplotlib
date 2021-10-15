@@ -596,6 +596,28 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     print_tiff = print_tif
 
+    @_check_savefig_extra_args
+    def print_webp(self, filename_or_obj, *, pil_kwargs=None):
+        """
+        Write the figure to a WebP file.
+
+        Parameters
+        ----------
+        filename_or_obj : str or path-like or file-like
+            The file to write to.
+
+        Other Parameters
+        ----------------
+        pil_kwargs : dict, optional
+            Additional keyword arguments that are passed to
+            `PIL.Image.Image.save` when saving the figure.
+        """
+        FigureCanvasAgg.draw(self)
+        if pil_kwargs is None:
+            pil_kwargs = {}
+        return (Image.fromarray(np.asarray(self.buffer_rgba()))
+                .save(filename_or_obj, format='webp', **pil_kwargs))
+
 
 @_Backend.export
 class _BackendAgg(_Backend):

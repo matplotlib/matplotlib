@@ -69,6 +69,7 @@ _default_filetypes = {
     'svgz': 'Scalable Vector Graphics',
     'tif': 'Tagged Image File Format',
     'tiff': 'Tagged Image File Format',
+    'webp': 'WebP Image Format',
 }
 _default_backends = {
     'eps': 'matplotlib.backends.backend_ps',
@@ -84,6 +85,7 @@ _default_backends = {
     'svgz': 'matplotlib.backends.backend_svg',
     'tif': 'matplotlib.backends.backend_agg',
     'tiff': 'matplotlib.backends.backend_agg',
+    'webp': 'matplotlib.backends.backend_agg',
 }
 
 
