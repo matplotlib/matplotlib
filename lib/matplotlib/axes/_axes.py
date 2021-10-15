@@ -3181,7 +3181,7 @@ class Axes(_AxesBase):
               errors.
             - *None*: No errorbar.
 
-            Note that all error arrays should have *non-negative* values.
+            All values must be >= 0.
 
             See :doc:`/gallery/statistics/errorbar_features`
             for an example on the usage of ``xerr`` and ``yerr``.
@@ -3293,9 +3293,10 @@ class Axes(_AxesBase):
             except TypeError:  # if array contains 'datetime.timedelta' types
                 return np.any(array < timedelta(0))
 
-        if has_negative_values(xerr) or has_negative_values(yerr):
-            raise ValueError(
-                "'xerr' and 'yerr' must have non-negative values")
+        if has_negative_values(xerr):
+            raise ValueError("'xerr' must not contain negative values")
+        if has_negative_values(yerr):
+            raise ValueError("'yerr' must not contain negative values")
 
         if isinstance(errorevery, Integral):
             errorevery = (0, errorevery)
