@@ -249,4 +249,3 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 
 ###############################################################################
 # These examples provide convenience for more complex graphs.
-
