@@ -25,17 +25,17 @@ N = 100
 X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
 Z1 = np.exp(-X**2 - Y**2)
 Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
-Z = (5 * Z1 - Z2) * 2
+Z = 5 * Z1 - Z2
 
 fig, ax = plt.subplots(2, 1)
 
 pcm = ax[0].pcolormesh(X, Y, Z,
-                       norm=colors.SymLogNorm(linthresh=0.03, linscale=0.03,
-                                              vmin=-1.0, vmax=1.0, base=10),
+                       norm=colors.SymLogNorm(linthresh=0.5, linscale=1,
+                                              vmin=-5, vmax=5, base=10),
                        cmap='RdBu_r', shading='nearest')
 fig.colorbar(pcm, ax=ax[0], extend='both')
 
-pcm = ax[1].pcolormesh(X, Y, Z, cmap='RdBu_r', vmin=-np.max(Z),
+pcm = ax[1].pcolormesh(X, Y, Z, cmap='RdBu_r', vmin=-5, vmax=5,
                        shading='nearest')
 fig.colorbar(pcm, ax=ax[1], extend='both')
 
