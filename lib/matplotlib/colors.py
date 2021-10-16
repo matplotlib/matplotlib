@@ -1662,6 +1662,12 @@ class AsinhNorm(Normalize):
     or negative values. Unlike the `SymLogNorm`, the transition between
     these linear and logarithmic regions is smooth, which may reduce
     the risk of visual artifacts.
+
+    Parameters
+    ----------
+    linear_width : float, default: 1
+        The effective width of the linear region, beyond which
+        the transformation becomes asymptotically logarithmic
     """
 
     @property
