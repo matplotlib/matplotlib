@@ -464,6 +464,8 @@ class AsinhTransform(Transform):
 
     def __init__(self, linear_width):
         super().__init__()
+        if linear_width <= 0.0:
+            raise ValueError("Scale parameter 'a0' must be strictly positive")
         self.linear_width = linear_width
 
     def transform_non_affine(self, a):
@@ -509,7 +511,8 @@ class AsinhScale(ScaleBase):
 
     name = 'asinh'
 
-    def __init__(self, axis, *, linear_width=1.0, **kwargs):
+    def __init__(self, axis, *, linear_width=1.0,
+                 base=10, subs=(2, 5), **kwargs):
         """
         Parameters
         ----------
@@ -520,18 +523,26 @@ class AsinhScale(ScaleBase):
             becomes asympotically logarithmic.
         """
         super().__init__(axis)
-        if linear_width <= 0.0:
-            raise ValueError("Scale parameter 'a0' must be strictly positive")
-        self.linear_width = linear_width
+        self._transform = AsinhTransform(linear_width)
+        self._base = int(base)
+        self._subs = subs
+
+    linear_width = property(lambda self: self._transform.linear_width)
 
     def get_transform(self):
-        return AsinhTransform(self.linear_width)
+        return self._transform
 
     def set_default_locators_and_formatters(self, axis):
-        axis.set(major_locator=AsinhLocator(self.linear_width),
-                 minor_locator=AutoLocator(),
-                 major_formatter='{x:.3g}',
+        axis.set(major_locator=AsinhLocator(self.linear_width,
+                                            base=self._base),
+                 minor_locator=AsinhLocator(self.linear_width,
+                                            base=self._base,
+                                            subs=self._subs),
                  minor_formatter=NullFormatter())
+        if self._base > 1:
+            axis.set_major_formatter(LogFormatterSciNotation(self._base))
+        else:
+            axis.set_major_formatter('{x:.3g}'),
 
 
 class LogitTransform(Transform):

@@ -2592,7 +2592,8 @@ class AsinhLocator(Locator):
     This is very unlikely to have any use beyond
     the `~.scale.AsinhScale` class.
     """
-    def __init__(self, linear_width, numticks=11, symthresh=0.2):
+    def __init__(self, linear_width, numticks=11, symthresh=0.2,
+                 base=0, subs=None):
         """
         Parameters
         ----------
@@ -2611,6 +2612,8 @@ class AsinhLocator(Locator):
         self.linear_width = linear_width
         self.numticks = numticks
         self.symthresh = symthresh
+        self.base = base
+        self.subs = subs
 
     def set_params(self, numticks=None, symthresh=None):
         """Set parameters within this locator."""
@@ -2642,19 +2645,33 @@ class AsinhLocator(Locator):
 
         # Transform the "on-screen" grid to the data space:
         xs = self.linear_width * np.sinh(ys / self.linear_width)
-        zero_xs = (xs == 0)
+        zero_xs = (ys == 0)
 
-        # Round the data-space values to be intuitive decimal numbers:
-        decades = (
-            np.where(xs >= 0, 1, -1) *
-            np.power(10, np.where(zero_xs, 0.0,
-                                  np.floor(np.log10(np.abs(xs)
-                                                    + zero_xs*1e-6))))
-        )
-        qs = decades * np.round(xs / decades)
+        # Round the data-space values to be intuitive base-n numbers:
+        if self.base > 1:
+            log_base = math.log(self.base)
+            powers = (
+                np.where(zero_xs, 0, np.where(xs >=0, 1, -1)) *
+                np.power(self.base,
+                         np.where(zero_xs, 0.0,
+                                  np.floor(np.log(np.abs(xs) + zero_xs*1e-6)
+                                                / log_base)))
+            )
+            if self.subs:
+                qs = np.outer(powers, self.subs).flatten()
+            else:
+                qs = powers
+        else:
+            powers = (
+                np.where(xs >= 0, 1, -1) *
+                np.power(10, np.where(zero_xs, 0.0,
+                                      np.floor(np.log10(np.abs(xs)
+                                                        + zero_xs*1e-6))))
+            )
+            qs = powers * np.round(xs / powers)
         ticks = np.array(sorted(set(qs)))
 
-        if len(ticks) > self.numticks // 2:
+        if len(ticks) >=  2:
             return ticks
         else:
             return np.linspace(vmin, vmax, self.numticks)
