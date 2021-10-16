@@ -2607,6 +2607,14 @@ class AsinhLocator(Locator):
             The fractional threshold beneath which data which covers
             a range that is approximately symmetric about zero
             will have ticks that are exactly symmetric.
+        base : int, default: 0
+            The number base used for rounding tick locations
+            on a logarithmic scale. If this is less than one,
+            then rounding is to the nearest integer multiple
+            of powers of ten.
+        subs : tuple, default: None
+            Multiples of the number base, typically used
+            for the minor ticks, e.g. (2, 5) when base=10.
         """
         super().__init__()
         self.linear_width = linear_width
@@ -2615,12 +2623,17 @@ class AsinhLocator(Locator):
         self.base = base
         self.subs = subs
 
-    def set_params(self, numticks=None, symthresh=None):
+    def set_params(self, numticks=None, symthresh=None,
+                   base=None, subs=None):
         """Set parameters within this locator."""
         if numticks is not None:
             self.numticks = numticks
         if symthresh is not None:
             self.symthresh = symthresh
+        if base is not None:
+            self.base = base
+        if subs is not None:
+            self.subs = subs if len(subs) > 0 else None
 
     def __call__(self):
         dmin, dmax = self.axis.get_data_interval()

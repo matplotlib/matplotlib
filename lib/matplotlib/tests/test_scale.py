@@ -243,10 +243,23 @@ class TestAsinhScale:
 
         s = AsinhScale(axis=None, linear_width=23.0)
         assert s.linear_width == 23
+        assert s._base == 10
+        assert s._subs == (2, 5)
 
         tx = s.get_transform()
         assert isinstance(tx, AsinhTransform)
         assert tx.linear_width == s.linear_width
+
+    def test_base_init(self):
+        fig, ax = plt.subplots()
+
+        s3 = AsinhScale(axis=None, base=3)
+        assert s3._base == 3
+        assert s3._subs == (2,)
+
+        s7 = AsinhScale(axis=None, base=7)
+        assert s7._base == 7
+        assert s7._subs == (2, 5)
 
     def test_bad_scale(self):
         fig, ax = plt.subplots()

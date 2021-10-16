@@ -511,8 +511,18 @@ class AsinhScale(ScaleBase):
 
     name = 'asinh'
 
+    auto_tick_multipliers = {
+        3: (2, ),
+        4: (2, ),
+        5: (2, ),
+        8: (2, 4),
+        10: (2, 5),
+        16: (2, 4, 8),
+        64: (4, 16),
+        1024: (256, 512) }
+
     def __init__(self, axis, *, linear_width=1.0,
-                 base=10, subs=(2, 5), **kwargs):
+                 base=10, subs='auto', **kwargs):
         """
         Parameters
         ----------
@@ -521,11 +531,23 @@ class AsinhScale(ScaleBase):
             defining the extent of the quasi-linear region,
             and the coordinate values beyond which the transformation
             becomes asympotically logarithmic.
+        base : int, default: 10
+            The number base used for rounding tick locations
+            on a logarithmic scale. If this is less than one,
+            then rounding is to the nearest integer multiple
+            of powers of ten.
+        subs : sequence of int
+            Multiples of the number base used for minor ticks.
+            If set to 'auto', this will use built-in defaults,
+            e.g. (2, 5) for base=10.
         """
         super().__init__(axis)
         self._transform = AsinhTransform(linear_width)
         self._base = int(base)
-        self._subs = subs
+        if subs == 'auto':
+            self._subs = self.auto_tick_multipliers.get(self._base)
+        else:
+            self._subs = subs
 
     linear_width = property(lambda self: self._transform.linear_width)
 

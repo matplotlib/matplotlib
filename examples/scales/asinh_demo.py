@@ -64,12 +64,12 @@ ax1.set_title('asinh')
 # Compare "asinh" graphs with different scale parameter "linear_width":
 fig2 = plt.figure(constrained_layout=True)
 axs = fig2.subplots(1, 3, sharex=True)
-for ax, a0 in zip(axs, (0.2, 1.0, 5.0)):
+for ax, (a0, base) in zip(axs, ((0.2, 2), (1.0, 0), (5.0, 3))):
     ax.set_title('linear_width={:.3g}'.format(a0))
     ax.plot(x, x, label='y=x')
     ax.plot(x, 10*x, label='y=10x')
     ax.plot(x, 100*x, label='y=100x')
-    ax.set_yscale('asinh', linear_width=a0)
+    ax.set_yscale('asinh', linear_width=a0, base=base)
     ax.grid()
     ax.legend(loc='best', fontsize='small')
 
