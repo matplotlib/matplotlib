@@ -2664,7 +2664,7 @@ class AsinhLocator(Locator):
         if self.base > 1:
             log_base = math.log(self.base)
             powers = (
-                np.where(zero_xs, 0, np.where(xs >=0, 1, -1)) *
+                np.where(zero_xs, 0, np.where(xs >= 0, 1, -1)) *
                 np.power(self.base,
                          np.where(zero_xs, 0.0,
                                   np.floor(np.log(np.abs(xs) + zero_xs*1e-6)
@@ -2684,7 +2684,7 @@ class AsinhLocator(Locator):
             qs = powers * np.round(xs / powers)
         ticks = np.array(sorted(set(qs)))
 
-        if len(ticks) >=  2:
+        if len(ticks) >= 2:
             return ticks
         else:
             return np.linspace(vmin, vmax, self.numticks)

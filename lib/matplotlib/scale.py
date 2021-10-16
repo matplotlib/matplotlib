@@ -519,7 +519,8 @@ class AsinhScale(ScaleBase):
         10: (2, 5),
         16: (2, 4, 8),
         64: (4, 16),
-        1024: (256, 512) }
+        1024: (256, 512)
+    }
 
     def __init__(self, axis, *, linear_width=1.0,
                  base=10, subs='auto', **kwargs):

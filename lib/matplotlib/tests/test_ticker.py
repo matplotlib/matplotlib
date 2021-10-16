@@ -549,7 +549,6 @@ class TestAsinhLocator:
                              0.2, 1, 5, 25, 125, 625])
 
 
-
 class TestScalarFormatter:
     offset_data = [
         (123, 189, 0),

@@ -25,7 +25,7 @@ N = 100
 X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]
 Z1 = np.exp(-X**2 - Y**2)
 Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
-Z = (Z1 - Z2) * 2
+Z = (5 * Z1 - Z2) * 2
 
 fig, ax = plt.subplots(2, 1)
 

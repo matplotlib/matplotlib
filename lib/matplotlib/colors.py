@@ -1652,6 +1652,27 @@ class SymLogNorm(Normalize):
         self._scale.linthresh = value
 
 
+@make_norm_from_scale(
+    scale.AsinhScale,
+    init=lambda linear_width=1, vmin=None, vmax=None, clip=False: None)
+class AsinhNorm(Normalize):
+    """
+    The inverse hyperbolic sine scale is approximately linear near
+    the origin, but becomes logarithmic for larger positive
+    or negative values. Unlike the `SymLogNorm`, the transition between
+    these linear and logarithmic regions is smooth, which may reduce
+    the risk of visual artifacts.
+    """
+
+    @property
+    def linear_width(self):
+        return self._scale.linear_width
+
+    @linear_width.setter
+    def linear_width(self, value):
+        self._scale.linear_width = value
+
+
 class PowerNorm(Normalize):
     """
     Linearly map a given value to the 0-1 range and then apply
