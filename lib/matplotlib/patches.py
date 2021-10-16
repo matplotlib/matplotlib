@@ -706,8 +706,8 @@ class Rectangle(Patch):
         return fmt % pars
 
     @docstring.dedent_interpd
-    def __init__(self, xy, width, height, angle=0.0,
-                 rotate_around_center=False, **kwargs):
+    def __init__(self, xy, width, height, angle=0.0, *,
+                 rotation_point='xy', **kwargs):
         """
         Parameters
         ----------
@@ -718,12 +718,11 @@ class Rectangle(Patch):
         height : float
             Rectangle height.
         angle : float, default: 0
-            Rotation in degrees anti-clockwise about *xy* if
-            *rotate_around_center* if False, otherwise rotate around the
-            center of the rectangle
-        rotate_around_center : bool, default: False
-            If True, the rotation is performed around the center of the
-            rectangle.
+            Rotation in degrees anti-clockwise about the rotation point.
+        rotation_point : {'xy', 'center', (number, number)}, default: 'xy'
+            If ``'xy'``, rotate around the anchor point. If ``'center'`` rotate
+            around the center. If 2-tuple of number, rotate around these
+            coordinate.
 
         Other Parameters
         ----------------
@@ -736,7 +735,7 @@ class Rectangle(Patch):
         self._width = width
         self._height = height
         self.angle = float(angle)
-        self.rotate_around_center = rotate_around_center
+        self.rotation_point = rotation_point
         # Required for RectangleSelector with axes aspect ratio != 1
         # The patch is defined in data coordinates and when changing the
         # selector with square modifier and not in data coordinates, we need
@@ -763,11 +762,14 @@ class Rectangle(Patch):
         # important to call the accessor method and not directly access the
         # transformation member variable.
         bbox = self.get_bbox()
-        if self.rotate_around_center:
+        if self.rotation_point == 'center':
             width, height = bbox.x1 - bbox.x0, bbox.y1 - bbox.y0
             rotation_point = bbox.x0 + width / 2., bbox.y0 + height / 2.
-        else:
+        elif self.rotation_point == 'xy':
             rotation_point = bbox.x0, bbox.y0
+        elif (isinstance(self.rotation_point[0], Number) and
+                  isinstance(self.rotation_point[1], Number)):
+            rotation_point = self.rotation_point
         return transforms.BboxTransformTo(bbox) \
                 + transforms.Affine2D() \
                 .translate(-rotation_point[0], -rotation_point[1]) \
@@ -1534,6 +1536,10 @@ class Ellipse(Patch):
         self._angle = angle
         self._path = Path.unit_circle()
         # Required for EllipseSelector with axes aspect ratio != 1
+        # The patch is defined in data coordinates and when changing the
+        # selector with square modifier and not in data coordinates, we need
+        # to correct for the aspect ratio difference between the data and
+        # display coordinate systems.
         self._aspect_ratio_correction = 1.0
         # Note: This cannot be calculated until this is added to an Axes
         self._patch_transform = transforms.IdentityTransform()

@@ -2948,7 +2948,7 @@ class RectangleSelector(_SelectorWidget):
 
     def _init_shape(self, **props):
         return Rectangle((0, 0), 0, 1, visible=False,
-                         rotate_around_center=True, **props)
+                         rotation_point='center', **props)
 
     def _press(self, event):
         """Button press event handler."""
