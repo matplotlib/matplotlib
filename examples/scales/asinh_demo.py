@@ -95,5 +95,12 @@ ax.set_xlim(-50, 50)
 ax.set_ylim(-50, 50)
 ax.grid()
 
-
 plt.show()
+
+########################################
+#
+# .. admonition:: References
+#
+#    - `matplotlib.scale.AsinhScale`
+#    - `matplotlib.ticker.AsinhLocator`
+#    - `matplotlib.scale.SymmetricalLogScale`
