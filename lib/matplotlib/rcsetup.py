@@ -1146,9 +1146,10 @@ _validators = {
     "savefig.format":       validate_string,
     "savefig.bbox":         validate_bbox,  # "tight", or "standard" (= None)
     "savefig.pad_inches":   validate_float,
+    "savefig.transparent":  validate_bool,
+
     # default directory in savefig dialog box
     "gui.save.directory":   _validate_pathlike,
-    "savefig.transparent":  validate_bool,
 
     "tk.window_focus": validate_bool,  # Maintain shell focus for TkAgg
 

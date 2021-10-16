@@ -675,11 +675,13 @@
                                 # backends (e.g. 'ffmpeg') but will work with those
                                 # based on temporary files (e.g. 'ffmpeg_file')
 #savefig.pad_inches:   0.1      # Padding to be used when bbox is set to 'tight'
-#gui.save.directory:   ~        # default directory in savefig dialog box,
-                                # leave empty to always use current working directory
 #savefig.transparent: False     # setting that controls whether figures are saved with a
                                 # transparent background by default
 #savefig.orientation: portrait  # Orientation of saved figure
+
+### saving params
+#gui.save.directory:   ~        # default directory in savefig dialog box,
+                                # leave empty to always use current working directory
 
 ### tk backend params
 #tk.window_focus:   False  # Maintain shell focus for TkAgg
