@@ -2376,6 +2376,13 @@ class Figure(FigureBase):
 
     get_axes = axes.fget
 
+    def _get_cachedRenderer(self, error_if_none=True):
+        # Get the cached renderer, raising an error if it doesn't exist yet
+        if error_if_none and self._cachedRenderer is None:
+            raise RuntimeError("This code can only be used after an "
+                               "initial draw which caches the renderer.")
+        return self._cachedRenderer
+
     def _get_dpi(self):
         return self._dpi
 
@@ -2829,10 +2836,7 @@ class Figure(FigureBase):
         This method can only be used after an initial draw of the figure,
         because that creates and caches the renderer needed here.
         """
-        if self._cachedRenderer is None:
-            raise AttributeError("draw_artist can only be used after an "
-                                 "initial draw which caches the renderer")
-        a.draw(self._cachedRenderer)
+        a.draw(self._get_cachedRenderer())
 
     def __getstate__(self):
         state = super().__getstate__()

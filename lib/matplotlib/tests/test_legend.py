@@ -880,3 +880,11 @@ def test_subfigure_legend():
     ax.plot([0, 1], [0, 1], label="line")
     leg = subfig.legend()
     assert leg.figure is subfig
+
+
+def test_no_renderer_error():
+    leg = plt.legend()
+    with pytest.raises(
+            RuntimeError,
+            match='This code can only be used after an initial draw'):
+        leg.get_window_extent()
