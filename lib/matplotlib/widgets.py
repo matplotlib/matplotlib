@@ -1840,12 +1840,19 @@ class _SelectorWidget(AxesWidget):
             self.update_background(None)
 
     def _get_animated_artists(self):
-        """Convenience method to get all animated artists of a figure."""
+        """
+        Convenience method to get all animated artists of a figure, except
+        those already present in self.artists.
+        """
         axes = self.ax.get_figure().get_axes()
         animated_artists = tuple()
         for ax in axes:
-            artists = sorted(ax.get_children(), key=lambda x: x.zorder)
-            animated_artists += tuple(a for a in artists if a.get_animated())
+            # Make sure we don't get the artists already in self.artists
+            artists = filter(
+                lambda a: a.get_animated() and a not in self.artists,
+                ax.get_children()
+                )
+            animated_artists += tuple(sorted(artists, key=lambda a: a.zorder))
         return animated_artists
 
     def update_background(self, event):
@@ -1857,6 +1864,9 @@ class _SelectorWidget(AxesWidget):
         # Make sure that widget artists don't get accidentally included in the
         # background, by re-rendering the background if needed (and then
         # re-re-rendering the canvas with the visible widget artists).
+        # We need to remove all artists which will be drawn when updating
+        # the selector: if we have animated artists in the figure, it is safer
+        # to redrawn by default, in case they have updated by the callback
         artists = self.artists + self._get_animated_artists()
         needs_redraw = any(artist.get_visible() for artist in artists)
         with ExitStack() as stack:
@@ -1913,9 +1923,10 @@ class _SelectorWidget(AxesWidget):
                 self.canvas.restore_region(self.background)
             else:
                 self.update_background(None)
+            # We need to draw all artists, which are not included in the
+            # background, therefore we add self._get_animated_artists()
             for artist in self.artists + self._get_animated_artists():
-                if artist.stale:
-                    self.ax.draw_artist(artist)
+                self.ax.draw_artist(artist)
             self.canvas.blit(self.ax.bbox)
         else:
             self.canvas.draw_idle()

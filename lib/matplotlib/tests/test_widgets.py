@@ -916,6 +916,55 @@ def test_span_selector_bound(direction):
     assert tool._edge_handles.positions == handle_positions
 
 
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_span_selector_animated_artists_callback():
+    """Check that the animated artists changed in callbacks are updated."""
+    x = np.linspace(0, 2 * np.pi, 100)
+    values = np.sin(x)
+
+    fig, ax = plt.subplots()
+    (ln,) = ax.plot(x, values, animated=True)
+    (ln2, ) = ax.plot([], animated=True)
+
+    plt.pause(0.1)
+    ax.draw_artist(ln)
+    fig.canvas.blit(fig.bbox)
+
+    def mean(vmin, vmax):
+        indmin, indmax = np.searchsorted(x, (vmin, vmax))
+        v = values[indmin:indmax].mean()
+        print('here', x, v)
+        ln2.set_data(x, v)
+
+    span = widgets.SpanSelector(ax, mean, direction='horizontal',
+                                onmove_callback=mean,
+                                interactive=True,
+                                drag_from_anywhere=True,
+                                useblit=True)
+    press_data = [1, 2]
+    move_data = [2, 2]
+    do_event(span, 'press', xdata=press_data[0], ydata=press_data[1], button=1)
+    do_event(span, 'onmove', xdata=move_data[0], ydata=move_data[1], button=1)
+    assert span._get_animated_artists() == (ln, ln2)
+    assert ln.stale is False
+    assert ln2.stale
+    assert ln2.get_ydata() == 0.9547335049088455
+    span.update()
+    assert ln2.stale is False
+
+    press_data = [4, 2]
+    move_data = [5, 2]
+    release_data = [5, 2]
+    do_event(span, 'press', xdata=press_data[0], ydata=press_data[1], button=1)
+    do_event(span, 'onmove', xdata=move_data[0], ydata=move_data[1], button=1)
+    assert ln.stale is False
+    assert ln2.stale
+    assert ln2.get_ydata() == -0.9424150707548072
+    do_event(span, 'release', xdata=release_data[0],
+             ydata=release_data[1], button=1)
+    assert ln2.stale is False
+
+
 def check_lasso_selector(**kwargs):
     ax = get_ax()
 
