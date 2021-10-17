@@ -1844,16 +1844,13 @@ class _SelectorWidget(AxesWidget):
         Convenience method to get all animated artists of a figure, except
         those already present in self.artists.
         """
-        axes = self.ax.get_figure().get_axes()
-        animated_artists = tuple()
-        for ax in axes:
+        animated_artists = []
+        for ax in self.ax.get_figure().get_axes():
             # Make sure we don't get the artists already in self.artists
-            artists = filter(
-                lambda a: a.get_animated() and a not in self.artists,
-                ax.get_children()
-                )
-            animated_artists += tuple(sorted(artists, key=lambda a: a.zorder))
-        return animated_artists
+            l = [a for a in ax.get_children()
+                 if (a.get_animated() and a not in self.artists)]
+            animated_artists.extend(sorted(l, key=lambda a: a.zorder))
+        return tuple(animated_artists)
 
     def update_background(self, event):
         """Force an update of the background."""
