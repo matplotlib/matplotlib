@@ -1842,15 +1842,11 @@ class _SelectorWidget(AxesWidget):
     def _get_animated_artists(self):
         """
         Convenience method to get all animated artists of a figure, except
-        those already present in self.artists.
+        those already present in self.artists. 'z_order' is ignored.
         """
-        animated_artists = []
-        for ax in self.ax.get_figure().get_axes():
-            # Make sure we don't get the artists already in self.artists
-            l = [a for a in ax.get_children()
-                 if (a.get_animated() and a not in self.artists)]
-            animated_artists.extend(sorted(l, key=lambda a: a.zorder))
-        return tuple(animated_artists)
+        return tuple([a for ax_ in self.ax.get_figure().get_axes()
+                      for a in ax_.get_children()
+                      if a.get_animated() and a not in self.artists])
 
     def update_background(self, event):
         """Force an update of the background."""
@@ -1864,7 +1860,9 @@ class _SelectorWidget(AxesWidget):
         # We need to remove all artists which will be drawn when updating
         # the selector: if we have animated artists in the figure, it is safer
         # to redrawn by default, in case they have updated by the callback
-        artists = self.artists + self._get_animated_artists()
+        # zorder needs to be respected when redrawing
+        artists = sorted(self.artists + self._get_animated_artists(),
+                         key=lambda a: a.get_zorder())
         needs_redraw = any(artist.get_visible() for artist in artists)
         with ExitStack() as stack:
             if needs_redraw:
@@ -1921,8 +1919,11 @@ class _SelectorWidget(AxesWidget):
             else:
                 self.update_background(None)
             # We need to draw all artists, which are not included in the
-            # background, therefore we add self._get_animated_artists()
-            for artist in self.artists + self._get_animated_artists():
+            # background, therefore we also draw self._get_animated_artists()
+            # and we make sure that we respect z_order
+            artists = sorted(self.artists + self._get_animated_artists(),
+                             key=lambda a: a.get_zorder())
+            for artist in artists:
                 self.ax.draw_artist(artist)
             self.canvas.blit(self.ax.bbox)
         else:
