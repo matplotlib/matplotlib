@@ -236,8 +236,8 @@ def test_marker_init_captyle():
         Affine2D().translate(1, 1)),
     (markers.MarkerStyle("o", transform=Affine2D().translate(1, 1)),
         Affine2D().translate(1, 1), Affine2D().translate(2, 2)),
-    # (markers.MarkerStyle("$|||$", transform=Affine2D().translate(1, 1)),
-    #  Affine2D().translate(1, 1), Affine2D().translate(2, 2)),
+    (markers.MarkerStyle("$|||$", transform=Affine2D().translate(1, 1)),
+     Affine2D().translate(1, 1), Affine2D().translate(2, 2)),
     (markers.MarkerStyle(
         markers.TICKLEFT, transform=Affine2D().translate(1, 1)),
         Affine2D().translate(1, 1), Affine2D().translate(2, 2)),
@@ -264,8 +264,8 @@ def test_marker_rotated_invalid():
         10, None, Affine2D().translate(1, 1).rotate_deg(10)),
     (markers.MarkerStyle("o", transform=Affine2D().translate(1, 1)),
         None, 0.01, Affine2D().translate(1, 1).rotate(0.01)),
-    # (markers.MarkerStyle("$|||$", transform=Affine2D().translate(1, 1)),
-    #   10, None, Affine2D().translate(1, 1).rotate_deg(10)),
+    (markers.MarkerStyle("$|||$", transform=Affine2D().translate(1, 1)),
+      10, None, Affine2D().translate(1, 1).rotate_deg(10)),
     (markers.MarkerStyle(
         markers.TICKLEFT, transform=Affine2D().translate(1, 1)),
         10, None, Affine2D().translate(1, 1).rotate_deg(10)),
