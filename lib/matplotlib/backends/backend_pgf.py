@@ -18,8 +18,8 @@ from PIL import Image
 import matplotlib as mpl
 from matplotlib import _api, cbook, font_manager as fm
 from matplotlib.backend_bases import (
-    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, RendererBase
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
+    RendererBase
 )
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.backends.backend_pdf import (
@@ -790,7 +790,6 @@ class FigureCanvasPgf(FigureCanvasBase):
     def get_default_filetype(self):
         return 'pdf'
 
-    @_check_savefig_extra_args
     def _print_pgf_to_fh(self, fh, *, bbox_inches_restore=None):
 
         header_text = """%% Creator: Matplotlib, PGF backend

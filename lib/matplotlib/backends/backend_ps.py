@@ -24,8 +24,8 @@ import matplotlib as mpl
 from matplotlib import _api, cbook, _path, _text_helpers
 from matplotlib.afm import AFM
 from matplotlib.backend_bases import (
-    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, RendererBase)
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
+    RendererBase)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import get_font
 from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_NO_SCALE, FT2Font
@@ -888,7 +888,6 @@ class FigureCanvasPS(FigureCanvasBase):
         printer(outfile, format, dpi=dpi, dsc_comments=dsc_comments,
                 orientation=orientation, papertype=papertype, **kwargs)
 
-    @_check_savefig_extra_args
     def _print_figure(
             self, outfile, format, *,
             dpi, dsc_comments, orientation, papertype,
@@ -1026,7 +1025,6 @@ class FigureCanvasPS(FigureCanvasBase):
                     file = codecs.getwriter("latin-1")(file)
                 print_figure_impl(file)
 
-    @_check_savefig_extra_args
     def _print_figure_tex(
             self, outfile, format, *,
             dpi, dsc_comments, orientation, papertype,

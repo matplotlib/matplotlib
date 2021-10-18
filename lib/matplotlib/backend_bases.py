@@ -34,10 +34,8 @@ import inspect
 import io
 import logging
 import os
-import re
 import sys
 import time
-import traceback
 from weakref import WeakKeyDictionary
 
 import numpy as np
@@ -1534,14 +1532,14 @@ def _get_renderer(figure, print_method=None):
 
     def _draw(renderer): raise Done(renderer)
 
-    with cbook._setattr_cm(figure, draw=_draw):
+    with cbook._setattr_cm(figure, draw=_draw), ExitStack() as stack:
         orig_canvas = figure.canvas
         if print_method is None:
             fmt = figure.canvas.get_default_filetype()
             # Even for a canvas' default output type, a canvas switch may be
             # needed, e.g. for FigureCanvasBase.
-            print_method = getattr(
-                figure.canvas._get_output_canvas(None, fmt), f"print_{fmt}")
+            print_method = stack.enter_context(
+                figure.canvas._switch_canvas_and_return_print_method(fmt))
         try:
             print_method(io.BytesIO())
         except Done as exc:
@@ -1550,8 +1548,6 @@ def _get_renderer(figure, print_method=None):
         else:
             raise RuntimeError(f"{print_method} did not call Figure.draw, so "
                                f"no renderer is available")
-        finally:
-            figure.canvas = orig_canvas
 
 
 def _no_output_draw(figure):
@@ -1572,84 +1568,6 @@ def _is_non_interactive_terminal_ipython(ip):
     return (hasattr(ip, 'parent')
             and (ip.parent is not None)
             and getattr(ip.parent, 'interact', None) is False)
-
-
-def _check_savefig_extra_args(func=None, extra_kwargs=()):
-    """
-    Decorator for the final print_* methods that accept keyword arguments.
-
-    If any unused keyword arguments are left, this decorator will warn about
-    them, and as part of the warning, will attempt to specify the function that
-    the user actually called, instead of the backend-specific method. If unable
-    to determine which function the user called, it will specify `.savefig`.
-
-    For compatibility across backends, this does not warn about keyword
-    arguments added by `FigureCanvasBase.print_figure` for use in a subset of
-    backends, because the user would not have added them directly.
-    """
-
-    if func is None:
-        return functools.partial(_check_savefig_extra_args,
-                                 extra_kwargs=extra_kwargs)
-
-    old_sig = inspect.signature(func)
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        name = 'savefig'  # Reasonable default guess.
-        public_api = re.compile(
-            r'^savefig|print_[A-Za-z0-9]+|_no_output_draw$'
-        )
-        seen_print_figure = False
-        if sys.version_info < (3, 11):
-            current_frame = None
-        else:
-            import inspect
-            current_frame = inspect.currentframe()
-        for frame, line in traceback.walk_stack(current_frame):
-            if frame is None:
-                # when called in embedded context may hit frame is None.
-                break
-            # Work around sphinx-gallery not setting __name__.
-            frame_name = frame.f_globals.get('__name__', '')
-            if re.match(r'\A(matplotlib|mpl_toolkits)(\Z|\.(?!tests\.))',
-                        frame_name):
-                name = frame.f_code.co_name
-                if public_api.match(name):
-                    if name in ('print_figure', '_no_output_draw'):
-                        seen_print_figure = True
-
-            elif frame_name == '_functools':
-                # PyPy adds an extra frame without module prefix for this
-                # functools wrapper, which we ignore to assume we're still in
-                # Matplotlib code.
-                continue
-            else:
-                break
-
-        accepted_kwargs = {*old_sig.parameters, *extra_kwargs}
-        if seen_print_figure:
-            for kw in ['dpi', 'facecolor', 'edgecolor', 'orientation',
-                       'bbox_inches_restore']:
-                # Ignore keyword arguments that are passed in by print_figure
-                # for the use of other renderers.
-                if kw not in accepted_kwargs:
-                    kwargs.pop(kw, None)
-
-        for arg in list(kwargs):
-            if arg in accepted_kwargs:
-                continue
-            _api.warn_deprecated(
-                '3.3', name=name, removal='3.6',
-                message='%(name)s() got unexpected keyword argument "'
-                        + arg + '" which is no longer supported as of '
-                        '%(since)s and will become an error '
-                        '%(removal)s')
-            kwargs.pop(arg)
-
-        return func(*args, **kwargs)
-
-    return wrapper
 
 
 class FigureCanvasBase:
@@ -2155,21 +2073,30 @@ class FigureCanvasBase:
             groupings[name].sort()
         return groupings
 
-    def _get_output_canvas(self, backend, fmt):
+    @contextmanager
+    def _switch_canvas_and_return_print_method(self, fmt, backend=None):
         """
-        Set the canvas in preparation for saving the figure.
+        Context manager temporarily setting the canvas for saving the figure::
+
+            with canvas._switch_canvas_and_return_print_method(fmt, backend) \\
+                    as print_method:
+                # ``print_method`` is a suitable ``print_{fmt}`` method, and
+                # the figure's canvas is temporarily switched to the method's
+                # canvas within the with... block.  ``print_method`` is also
+                # wrapped to suppress extra kwargs passed by ``print_figure``.
 
         Parameters
         ----------
-        backend : str or None
-            If not None, switch the figure canvas to the ``FigureCanvas`` class
-            of the given backend.
         fmt : str
             If *backend* is None, then determine a suitable canvas class for
             saving to format *fmt* -- either the current canvas class, if it
             supports *fmt*, or whatever `get_registered_canvas_class` returns;
             switch the figure canvas to that canvas class.
+        backend : str or None, default: None
+            If not None, switch the figure canvas to the ``FigureCanvas`` class
+            of the given backend.
         """
+        canvas = None
         if backend is not None:
             # Return a specific canvas class, if requested.
             canvas_class = (
@@ -2180,16 +2107,34 @@ class FigureCanvasBase:
                     f"The {backend!r} backend does not support {fmt} output")
         elif hasattr(self, f"print_{fmt}"):
             # Return the current canvas if it supports the requested format.
-            return self
+            canvas = self
+            canvas_class = None  # Skip call to switch_backends.
         else:
             # Return a default canvas for the requested format, if it exists.
             canvas_class = get_registered_canvas_class(fmt)
         if canvas_class:
-            return self.switch_backends(canvas_class)
-        # Else report error for unsupported format.
-        raise ValueError(
-            "Format {!r} is not supported (supported formats: {})"
-            .format(fmt, ", ".join(sorted(self.get_supported_filetypes()))))
+            canvas = self.switch_backends(canvas_class)
+        if canvas is None:
+            raise ValueError(
+                "Format {!r} is not supported (supported formats: {})".format(
+                    fmt, ", ".join(sorted(self.get_supported_filetypes()))))
+        meth = getattr(canvas, f"print_{fmt}")
+        mod = (meth.func.__module__
+               if hasattr(meth, "func")  # partialmethod, e.g. backend_wx.
+               else meth.__module__)
+        if mod.startswith(("matplotlib.", "mpl_toolkits.")):
+            optional_kws = {  # Passed by print_figure for other renderers.
+                "dpi", "facecolor", "edgecolor", "orientation",
+                "bbox_inches_restore"}
+            skip = optional_kws - {*inspect.signature(meth).parameters}
+            print_method = functools.wraps(meth)(lambda *args, **kwargs: meth(
+                *args, **{k: v for k, v in kwargs.items() if k not in skip}))
+        else:  # Let third-parties do as they see fit.
+            print_method = meth
+        try:
+            yield print_method
+        finally:
+            self.figure.canvas = self
 
     def print_figure(
             self, filename, dpi=None, facecolor=None, edgecolor=None,
@@ -2257,10 +2202,6 @@ class FigureCanvasBase:
                     filename = filename.rstrip('.') + '.' + format
         format = format.lower()
 
-        # get canvas object and print method for format
-        canvas = self._get_output_canvas(backend, format)
-        print_method = getattr(canvas, 'print_%s' % format)
-
         if dpi is None:
             dpi = rcParams['savefig.dpi']
         if dpi == 'figure':
@@ -2268,9 +2209,11 @@ class FigureCanvasBase:
 
         # Remove the figure manager, if any, to avoid resizing the GUI widget.
         with cbook._setattr_cm(self, manager=None), \
+             self._switch_canvas_and_return_print_method(format, backend) \
+                 as print_method, \
              cbook._setattr_cm(self.figure, dpi=dpi), \
-             cbook._setattr_cm(canvas, _device_pixel_ratio=1), \
-             cbook._setattr_cm(canvas, _is_saving=True), \
+             cbook._setattr_cm(self.figure.canvas, _device_pixel_ratio=1), \
+             cbook._setattr_cm(self.figure.canvas, _is_saving=True), \
              ExitStack() as stack:
 
             for prop in ["facecolor", "edgecolor"]:
@@ -2305,8 +2248,8 @@ class FigureCanvasBase:
                     bbox_inches = bbox_inches.padded(pad_inches)
 
                 # call adjust_bbox to save only the given area
-                restore_bbox = tight_bbox.adjust_bbox(self.figure, bbox_inches,
-                                                      canvas.fixed_dpi)
+                restore_bbox = tight_bbox.adjust_bbox(
+                    self.figure, bbox_inches, self.figure.canvas.fixed_dpi)
 
                 _bbox_inches_restore = (bbox_inches, restore_bbox)
             else:
@@ -2329,7 +2272,6 @@ class FigureCanvasBase:
                 if bbox_inches and restore_bbox:
                     restore_bbox()
 
-                self.figure.set_canvas(self)
             return result
 
     @classmethod
