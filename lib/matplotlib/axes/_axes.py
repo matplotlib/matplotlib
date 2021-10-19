@@ -4507,7 +4507,7 @@ default: :rc:`scatter.edgecolors`
             Use a linear or log10 scale on the vertical axis.
 
         mincnt : int > 0, default: *None*
-            If not *None*, only display cells with more than *mincnt*
+            If not *None*, only display cells with at least *mincnt*
             number of points in the cell.
 
         marginals : bool, default: *False*
