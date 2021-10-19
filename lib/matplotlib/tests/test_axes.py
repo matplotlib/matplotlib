@@ -427,7 +427,7 @@ def test_inverted_cla():
     ax0.cla()
     assert not ax1.yaxis_inverted()
     ax1.cla()
-    # 6. clearing the nonleader should not touch limits
+    # 6. clearing the follower should not touch limits
     ax0.imshow(img)
     ax1.plot(x, np.cos(x))
     ax1.cla()
