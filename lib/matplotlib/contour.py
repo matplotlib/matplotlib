@@ -1065,7 +1065,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         Return ``(lowers, uppers)`` for filled contours.
         """
         lowers = self._levels[:-1]
-        if self.zmin == lowers[0]:
+        if self.zmin <= lowers[0]:
             # Include minimum values in lowest interval
             lowers = lowers.copy()  # so we don't change self._levels
             if self.logscale:
