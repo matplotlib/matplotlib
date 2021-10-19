@@ -4696,14 +4696,14 @@ default: :rc:`scatter.edgecolors`
             for i in range(nx1):
                 for j in range(ny1):
                     vals = lattice1[i, j]
-                    if len(vals) > mincnt:
+                    if len(vals) >= mincnt:
                         lattice1[i, j] = reduce_C_function(vals)
                     else:
                         lattice1[i, j] = np.nan
             for i in range(nx2):
                 for j in range(ny2):
                     vals = lattice2[i, j]
-                    if len(vals) > mincnt:
+                    if len(vals) >= mincnt:
                         lattice2[i, j] = reduce_C_function(vals)
                     else:
                         lattice2[i, j] = np.nan
