@@ -330,6 +330,8 @@ class GridSpec(GridSpecBase):
     The location of the grid cells is determined in a similar way to
     `~.figure.SubplotParams` using *left*, *right*, *top*, *bottom*, *wspace*
     and *hspace*.
+
+    Indexing a GridSpec instance returns a `.SubplotSpec`.
     """
     def __init__(self, nrows, ncols, figure=None,
                  left=None, bottom=None, right=None, top=None,
