@@ -487,6 +487,16 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     print_rgba = print_raw
 
+    def _print_pil(self, filename_or_obj, fmt, pil_kwargs, metadata=None):
+        """
+        Draw the canvas, then save it using `.image.imsave` (to which
+        *pil_kwargs* and *metadata* are forwarded).
+        """
+        FigureCanvasAgg.draw(self)
+        mpl.image.imsave(
+            filename_or_obj, self.buffer_rgba(), format=fmt, origin="upper",
+            dpi=self.figure.dpi, metadata=metadata, pil_kwargs=pil_kwargs)
+
     @_check_savefig_extra_args
     @_api.delete_parameter("3.5", "args")
     def print_png(self, filename_or_obj, *args,
@@ -537,10 +547,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             If the 'pnginfo' key is present, it completely overrides
             *metadata*, including the default 'Software' key.
         """
-        FigureCanvasAgg.draw(self)
-        mpl.image.imsave(
-            filename_or_obj, self.buffer_rgba(), format="png", origin="upper",
-            dpi=self.figure.dpi, metadata=metadata, pil_kwargs=pil_kwargs)
+        self._print_pil(filename_or_obj, "png", pil_kwargs, metadata)
 
     def print_to_buffer(self):
         FigureCanvasAgg.draw(self)
@@ -555,68 +562,38 @@ class FigureCanvasAgg(FigureCanvasBase):
     @_check_savefig_extra_args()
     @_api.delete_parameter("3.5", "args")
     def print_jpg(self, filename_or_obj, *args, pil_kwargs=None, **kwargs):
-        """
-        Write the figure to a JPEG file.
-
-        Parameters
-        ----------
-        filename_or_obj : str or path-like or file-like
-            The file to write to.
-
-        Other Parameters
-        ----------------
-        pil_kwargs : dict, optional
-            Additional keyword arguments that are passed to
-            `PIL.Image.Image.save` when saving the figure.
-        """
         # Remove transparency by alpha-blending on an assumed white background.
         r, g, b, a = mcolors.to_rgba(self.figure.get_facecolor())
         try:
             self.figure.set_facecolor(a * np.array([r, g, b]) + 1 - a)
-            FigureCanvasAgg.draw(self)
+            self._print_pil(filename_or_obj, "jpeg", pil_kwargs)
         finally:
             self.figure.set_facecolor((r, g, b, a))
-        if pil_kwargs is None:
-            pil_kwargs = {}
-        pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
-        # Drop alpha channel now.
-        return (Image.fromarray(np.asarray(self.buffer_rgba())[..., :3])
-                .save(filename_or_obj, format='jpeg', **pil_kwargs))
 
     print_jpeg = print_jpg
 
     @_check_savefig_extra_args
     def print_tif(self, filename_or_obj, *, pil_kwargs=None):
-        FigureCanvasAgg.draw(self)
-        if pil_kwargs is None:
-            pil_kwargs = {}
-        pil_kwargs.setdefault("dpi", (self.figure.dpi, self.figure.dpi))
-        return (Image.fromarray(np.asarray(self.buffer_rgba()))
-                .save(filename_or_obj, format='tiff', **pil_kwargs))
+        self._print_pil(filename_or_obj, "tiff", pil_kwargs)
 
     print_tiff = print_tif
 
     @_check_savefig_extra_args
     def print_webp(self, filename_or_obj, *, pil_kwargs=None):
+        self._print_pil(filename_or_obj, "webp", pil_kwargs)
+
+    print_jpg.__doc__, print_tif.__doc__, print_webp.__doc__ = map(
         """
-        Write the figure to a WebP file.
+        Write the figure to a {} file.
 
         Parameters
         ----------
         filename_or_obj : str or path-like or file-like
             The file to write to.
-
-        Other Parameters
-        ----------------
         pil_kwargs : dict, optional
             Additional keyword arguments that are passed to
             `PIL.Image.Image.save` when saving the figure.
-        """
-        FigureCanvasAgg.draw(self)
-        if pil_kwargs is None:
-            pil_kwargs = {}
-        return (Image.fromarray(np.asarray(self.buffer_rgba()))
-                .save(filename_or_obj, format='webp', **pil_kwargs))
+        """.format, ["JPEG", "TIFF", "WebP"])
 
 
 @_Backend.export
