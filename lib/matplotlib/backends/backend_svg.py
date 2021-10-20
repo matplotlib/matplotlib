@@ -249,8 +249,8 @@ class XMLWriter:
         pass  # replaced by the constructor
 
 
-def generate_transform(transform_list=[]):
-    if len(transform_list):
+def generate_transform(transform_list=None):
+    if transform_list:
         output = StringIO()
         for type, value in transform_list:
             if (type == 'scale' and (value == (1,) or value == (1, 1))

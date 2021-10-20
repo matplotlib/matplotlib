@@ -76,7 +76,9 @@ class AnnotatedCursor(Cursor):
     """
 
     def __init__(self, line, numberformat="{0:.4g};{1:.4g}", offset=(5, 5),
-                 dataaxis='x', textprops={}, **cursorargs):
+                 dataaxis='x', textprops=None, **cursorargs):
+        if textprops is None:
+            textprops = {}
         # The line object, for which the coordinates are displayed
         self.line = line
         # The format string, on which .format() is called for creating the text
