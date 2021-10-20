@@ -589,8 +589,10 @@ class FigureManagerQT(FigureManagerBase):
         return toolbar
 
     def resize(self, width, height):
-        # these are Qt methods so they return sizes in 'virtual' pixels
-        # so we do not need to worry about dpi scaling here.
+        # The Qt methods return sizes in 'virtual' pixels so we do need to
+        # rescale from physical to logical pixels.
+        width = int(width / self.canvas.device_pixel_ratio)
+        height = int(height / self.canvas.device_pixel_ratio)
         extra_width = self.window.width() - self.canvas.width()
         extra_height = self.window.height() - self.canvas.height()
         self.canvas.resize(width, height)
