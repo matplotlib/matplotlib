@@ -21,7 +21,7 @@ consider the following points:
 - Help with git and github is available at
   https://matplotlib.org/devel/gitwash/development_workflow.html.
 
-- Do not create the PR out of master, but out of a separate branch.
+- Do not create the PR out of main, but out of a separate branch.
 
 - The PR title should summarize the changes, for example "Raise ValueError on
   non-numeric input to set_xlim".  Avoid non-descriptive titles such as

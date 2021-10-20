@@ -26,7 +26,7 @@ Integrating changes
 *******************
 
 Let's say you have some changes that need to go into trunk
-(``upstream-rw/master``).
+(``upstream-rw/main``).
 
 The changes are in some branch that you are currently on.  For example, you are
 looking at someone's changes like this::
@@ -47,7 +47,7 @@ If there are only a few commits, consider rebasing to upstream::
     # Fetch upstream changes
     git fetch upstream-rw
     # rebase
-    git rebase upstream-rw/master
+    git rebase upstream-rw/main
 
 Remember that, if you do a rebase, and push that, you'll have to close any
 github pull requests manually, because github will not be able to detect the
@@ -59,7 +59,7 @@ A long series of commits
 If there are a longer series of related commits, consider a merge instead::
 
     git fetch upstream-rw
-    git merge --no-ff upstream-rw/master
+    git merge --no-ff upstream-rw/main
 
 The merge will be detected by github, and should close any related pull requests
 automatically.
@@ -76,11 +76,11 @@ Now, in either case, you should check that the history is sensible and you have
 the right commits::
 
     git log --oneline --graph
-    git log -p upstream-rw/master..
+    git log -p upstream-rw/main..
 
 The first line above just shows the history in a compact way, with a text
 representation of the history graph. The second line shows the log of commits
-excluding those that can be reached from trunk (``upstream-rw/master``), and
+excluding those that can be reached from trunk (``upstream-rw/main``), and
 including those that can be reached from current HEAD (implied with the ``..``
 at the end). So, it shows the commits unique to this branch compared to trunk.
 The ``-p`` option shows the diff for these commits in patch form.
@@ -90,9 +90,9 @@ Push to trunk
 
 ::
 
-    git push upstream-rw my-new-feature:master
+    git push upstream-rw my-new-feature:main
 
-This pushes the ``my-new-feature`` branch in this repository to the ``master``
+This pushes the ``my-new-feature`` branch in this repository to the ``main``
 branch in the ``upstream-rw`` repository.
 
 .. include:: links.inc

@@ -416,8 +416,8 @@ def test_inverted_cla():
     assert not ax.xaxis_inverted()
     assert ax.yaxis_inverted()
 
-    # 5. two shared axes. Inverting the master axis should invert the shared
-    # axes; clearing the master axis should bring axes in shared
+    # 5. two shared axes. Inverting the leader axis should invert the shared
+    # axes; clearing the leader axis should bring axes in shared
     # axes back to normal.
     ax0 = plt.subplot(211)
     ax1 = plt.subplot(212, sharey=ax0)
@@ -427,7 +427,7 @@ def test_inverted_cla():
     ax0.cla()
     assert not ax1.yaxis_inverted()
     ax1.cla()
-    # 6. clearing the nonmaster should not touch limits
+    # 6. clearing the follower should not touch limits
     ax0.imshow(img)
     ax1.plot(x, np.cos(x))
     ax1.cla()
@@ -507,7 +507,7 @@ def test_use_sticky_edges():
 @check_figures_equal(extensions=["png"])
 def test_sticky_shared_axes(fig_test, fig_ref):
     # Check that sticky edges work whether they are set in an axes that is a
-    # "master" in a share, or an axes that is a "follower".
+    # "leader" in a share, or an axes that is a "follower".
     Z = np.arange(15).reshape(3, 5)
 
     ax0 = fig_test.add_subplot(211)
