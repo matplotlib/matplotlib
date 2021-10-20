@@ -2981,13 +2981,13 @@ class _AxesBase(martist.Artist):
                     axs = axs + [ax]
             top = -np.Inf
             for ax in axs:
+                bb = None
                 if (ax.xaxis.get_ticks_position() in ['top', 'unknown']
                         or ax.xaxis.get_label_position() == 'top'):
                     bb = ax.xaxis.get_tightbbox(renderer)
-                else:
+                if bb is None:
                     bb = ax.get_window_extent(renderer)
-                if bb is not None:
-                    top = max(top, bb.ymax)
+                top = max(top, bb.ymax)
             if top < 0:
                 # the top of Axes is not even on the figure, so don't try and
                 # automatically place it.
