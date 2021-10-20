@@ -21,8 +21,7 @@ class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
         height = int(self.device_pixel_ratio * self.height())
         if (width, height) != self._renderer.get_canvas_width_height():
             surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-            self._renderer.set_ctx_from_surface(surface)
-            self._renderer.set_width_height(width, height)
+            self._renderer.set_context(cairo.Context(surface))
             self._renderer.dpi = self.figure.dpi
             self.figure.draw(self._renderer)
         buf = self._renderer.gc.ctx.get_target().get_data()
