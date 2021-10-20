@@ -162,16 +162,16 @@ class PathNanRemover : protected EmbeddedQueue<4>
 {
     VertexSource *m_source;
     bool m_remove_nans;
-    bool m_has_curves;
+    bool m_has_codes;
     bool valid_segment_exists;
 
   public:
-    /* has_curves should be true if the path contains bezier curve
-       segments, as this requires a slower algorithm to remove the
-       NaNs.  When in doubt, set to true.
+    /* has_codes should be true if the path contains bezier curve segments, or
+     * closed loops, as this requires a slower algorithm to remove the NaNs.
+     * When in doubt, set to true.
      */
-    PathNanRemover(VertexSource &source, bool remove_nans, bool has_curves)
-        : m_source(&source), m_remove_nans(remove_nans), m_has_curves(has_curves)
+    PathNanRemover(VertexSource &source, bool remove_nans, bool has_codes)
+        : m_source(&source), m_remove_nans(remove_nans), m_has_codes(has_codes)
     {
         // ignore all close/end_poly commands until after the first valid
         // (nan-free) command is encountered
@@ -192,8 +192,9 @@ class PathNanRemover : protected EmbeddedQueue<4>
             return m_source->vertex(x, y);
         }
 
-        if (m_has_curves) {
-            /* This is the slow method for when there might be curves. */
+        if (m_has_codes) {
+	    /* This is the slow method for when there might be curves or closed
+	     * loops. */
             if (queue_pop(&code, x, y)) {
                 return code;
             }
@@ -254,9 +255,9 @@ class PathNanRemover : protected EmbeddedQueue<4>
             } else {
                 return agg::path_cmd_stop;
             }
-        } else // !m_has_curves
+        } else // !m_has_codes
         {
-            /* This is the fast path for when we know we have no curves */
+            /* This is the fast path for when we know we have no codes. */
             code = m_source->vertex(x, y);
 
             if (code == agg::path_cmd_stop ||
