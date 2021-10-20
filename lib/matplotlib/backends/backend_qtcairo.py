@@ -6,10 +6,6 @@ from .qt_compat import QT_API, _enum, _setDevicePixelRatio
 
 
 class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
-    def __init__(self, figure=None):
-        super().__init__(figure=figure)
-        self._renderer.set_width_height(-1, -1)  # Invalid values.
-
     def draw(self):
         if hasattr(self._renderer.gc, "ctx"):
             self._renderer.dpi = self.figure.dpi

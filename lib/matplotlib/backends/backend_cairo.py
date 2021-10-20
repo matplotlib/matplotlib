@@ -129,6 +129,8 @@ class RendererCairo(RendererBase):
     def __init__(self, dpi):
         self.dpi = dpi
         self.gc = GraphicsContextCairo(renderer=self)
+        self.width = None
+        self.height = None
         self.text_ctx = cairo.Context(
            cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))
         super().__init__()
