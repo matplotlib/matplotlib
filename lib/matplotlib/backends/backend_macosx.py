@@ -30,14 +30,6 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         FigureCanvasBase.__init__(self, figure)
         width, height = self.get_width_height()
         _macosx.FigureCanvas.__init__(self, width, height)
-        self._dpi_ratio = 1.0
-
-    def _set_device_scale(self, value):
-        if self._dpi_ratio != value:
-            # Need the new value in place before setting figure.dpi, which
-            # will trigger a resize
-            self._dpi_ratio, old_value = value, self._dpi_ratio
-            self.figure.dpi = self.figure.dpi / old_value * self._dpi_ratio
 
     def set_cursor(self, cursor):
         # docstring inherited
@@ -60,12 +52,11 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         self.draw_idle()
 
     def resize(self, width, height):
-        dpi = self.figure.dpi
-        width /= dpi
-        height /= dpi
-        self.figure.set_size_inches(width * self._dpi_ratio,
-                                    height * self._dpi_ratio,
-                                    forward=False)
+        # Size from macOS is logical pixels, dpi is physical.
+        scale = self.figure.dpi / self.device_pixel_ratio
+        width /= scale
+        height /= scale
+        self.figure.set_size_inches(width, height, forward=False)
         FigureCanvasBase.resize_event(self)
         self.draw_idle()
 
