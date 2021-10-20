@@ -18,11 +18,12 @@ ax.plot(t, s)
 
 
 def on_move(event):
-    # get the x and y pixel coords
-    x, y = event.x, event.y
     if event.inaxes:
+        # get the x and y pixel coords
+        x, y = event.x, event.y
         ax = event.inaxes  # the axes instance
-        print('data coords %f %f' % (event.xdata, event.ydata))
+        print('data coords %f %f, pixel coords %f %f'
+                % (event.xdata, event.ydata, x, y))
 
 
 def on_click(event):
