@@ -2658,10 +2658,9 @@ class Figure(FigureBase):
         if forward:
             canvas = getattr(self, 'canvas')
             if canvas is not None:
-                dpi_ratio = getattr(canvas, '_dpi_ratio', 1)
                 manager = getattr(canvas, 'manager', None)
                 if manager is not None:
-                    manager.resize(*(size * self.dpi / dpi_ratio).astype(int))
+                    manager.resize(*(size * self.dpi).astype(int))
         self.stale = True
 
     def get_size_inches(self):

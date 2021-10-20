@@ -373,18 +373,13 @@ class FigureManagerGTK4(FigureManagerBase):
 
     def resize(self, width, height):
         """Set the canvas size in pixels."""
+        width = int(width / self.canvas.device_pixel_ratio)
+        height = int(height / self.canvas.device_pixel_ratio)
         if self.toolbar:
-            toolbar_size = self.toolbar.size_request()
-            height += toolbar_size.height
+            min_size, nat_size = self.toolbar.get_preferred_size()
+            height += nat_size.height
         canvas_size = self.canvas.get_allocation()
-        if canvas_size.width == canvas_size.height == 1:
-            # A canvas size of (1, 1) cannot exist in most cases, because
-            # window decorations would prevent such a small window. This call
-            # must be before the window has been mapped and widgets have been
-            # sized, so just change the window's starting size.
-            self.window.set_default_size(width, height)
-        else:
-            self.window.resize(width, height)
+        self.window.set_default_size(width, height)
 
 
 class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
