@@ -280,8 +280,8 @@ from matplotlib import pyplot as plt
 #    :target: ../../gallery/userdemo/annotate_simple04.html
 #    :align: center
 #
-# Placing Artist at the anchored location of the Axes
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Placing Artist at anchored Axes locations
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # There are classes of artists that can be placed at an anchored
 # location in the Axes.  A common example is the legend.  This type
@@ -359,8 +359,8 @@ ax.add_artist(box)
 # Note that unlike the legend, the ``bbox_transform`` is set
 # to IdentityTransform by default.
 #
-# Using Complex Coordinates with Annotations
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Coordinate systems for Annotations
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
 # The Annotation in matplotlib supports several types of coordinates as
 # described in :ref:`annotations-tutorial`. For an advanced user who wants
