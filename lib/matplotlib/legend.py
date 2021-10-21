@@ -621,7 +621,7 @@ class Legend(Artist):
         # update the location and size of the legend. This needs to
         # be done in any case to clip the figure right.
         bbox = self._legend_box.get_window_extent(renderer)
-        self.legendPatch.set_bounds(bbox.x0, bbox.y0, bbox.width, bbox.height)
+        self.legendPatch.set_bounds(bbox.bounds)
         self.legendPatch.set_mutation_scale(fontsize)
 
         if self.shadow:

@@ -1627,7 +1627,7 @@ default: %(va)s
 
         for a in artists:
             bbox = a.get_tightbbox(renderer)
-            if bbox is not None and (bbox.width != 0 or bbox.height != 0):
+            if bbox is not None:
                 bb.append(bbox)
 
         for ax in self.axes:
