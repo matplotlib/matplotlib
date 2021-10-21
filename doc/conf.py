@@ -161,6 +161,7 @@ intersphinx_mapping = {
     'pytest': ('https://pytest.org/en/stable/', None),
     'python': ('https://docs.python.org/3/', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
+    'tornado': ('https://www.tornadoweb.org/en/stable/', None),
 }
 
 
