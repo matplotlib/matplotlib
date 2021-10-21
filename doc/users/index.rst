@@ -37,5 +37,5 @@ Reference
 
    ../api/index.rst
    ../devel/index.rst
-   backmatter/index.rst
+   project/index.rst
    release_notes.rst
