@@ -1,5 +1,7 @@
 .. _installing-faq:
 
+.. redirect-from:: /faq/installing_faq
+
 **************
 Installing FAQ
 **************

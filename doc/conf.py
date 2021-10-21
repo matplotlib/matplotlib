@@ -213,7 +213,7 @@ source_suffix = '.rst'
 source_encoding = "utf-8"
 
 # The master toctree document.
-master_doc = 'contents'
+master_doc = 'users/index'
 
 # General substitutions.
 try:
