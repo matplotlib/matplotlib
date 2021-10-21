@@ -194,14 +194,9 @@ class Axes3D(Axes):
 
     def _init_axis(self):
         """Init 3D axes; overrides creation of regular X/Y axes."""
-        self.xaxis = axis3d.XAxis('x', self.xy_viewLim.intervalx,
-                                  self.xy_dataLim.intervalx, self)
-        self.yaxis = axis3d.YAxis('y', self.xy_viewLim.intervaly,
-                                  self.xy_dataLim.intervaly, self)
-        self.zaxis = axis3d.ZAxis('z', self.zz_viewLim.intervalx,
-                                  self.zz_dataLim.intervalx, self)
-        for ax in self.xaxis, self.yaxis, self.zaxis:
-            ax.init3d()
+        self.xaxis = axis3d.XAxis(self)
+        self.yaxis = axis3d.YAxis(self)
+        self.zaxis = axis3d.ZAxis(self)
 
     def get_zaxis(self):
         """Return the ``ZAxis`` (`~.axis3d.Axis`) instance."""

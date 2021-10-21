@@ -1,0 +1,15 @@
+3D Axis
+~~~~~~~
+The previous constructor of `.axis3d.Axis`, with signature
+``(self, adir, v_intervalx, d_intervalx, axes, *args, rotate_label=None, **kwargs)``
+is deprecated in favor of a new signature closer to the one of 2D Axis; it
+is now ``(self, axes, *, rotate_label=None, **kwargs)`` where ``kwargs`` are
+forwarded to the 2D Axis constructor.  The axis direction is now inferred from
+the axis class' ``axis_name`` attribute (as in the 2D case); the ``adir``
+attribute is deprecated.
+
+The ``init3d`` method of 3D Axis is also deprecated; all the relevant
+initialization is done as part of the constructor.
+
+The ``d_interval`` and ``v_interval`` attributes of 3D Axis are deprecated; use
+``get_data_interval`` and ``get_view_interval`` instead.
