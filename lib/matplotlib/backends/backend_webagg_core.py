@@ -8,8 +8,9 @@ Displays Agg images in the browser, with interactivity
 #   way over a web socket.
 #
 # - `backend_webagg.py` contains a concrete implementation of a basic
-#   application, implemented with tornado.
+#   application, implemented with asyncio.
 
+import asyncio
 import datetime
 from io import BytesIO, StringIO
 import json
@@ -19,7 +20,6 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image
-import tornado
 
 from matplotlib import _api, backend_bases, backend_tools
 from matplotlib.backends import backend_agg
@@ -85,6 +85,8 @@ class TimerTornado(backend_bases.TimerBase):
         super().__init__(*args, **kwargs)
 
     def _timer_start(self):
+        import tornado
+
         self._timer_stop()
         if self._single:
             ioloop = tornado.ioloop.IOLoop.instance()
@@ -98,6 +100,8 @@ class TimerTornado(backend_bases.TimerBase):
             self._timer.start()
 
     def _timer_stop(self):
+        import tornado
+
         if self._timer is None:
             return
         elif self._single:
@@ -114,8 +118,43 @@ class TimerTornado(backend_bases.TimerBase):
             self._timer_start()
 
 
+class TimerAsyncio(backend_bases.TimerBase):
+    def __init__(self, *args, **kwargs):
+        self._task = None
+        super().__init__(*args, **kwargs)
+
+    async def _timer_task(self, interval):
+        while True:
+            try:
+                await asyncio.sleep(interval)
+                self._on_timer()
+
+                if self._single:
+                    break
+            except asyncio.CancelledError:
+                break
+
+    def _timer_start(self):
+        self._timer_stop()
+
+        self._task = asyncio.ensure_future(
+            self._timer_task(max(self.interval / 1_000., 1e-6))
+        )
+
+    def _timer_stop(self):
+        if self._task is not None:
+            self._task.cancel()
+        self._task = None
+
+    def _timer_set_interval(self):
+        # Only stop and restart it if the timer has already been started
+        if self._task is not None:
+            self._timer_stop()
+            self._timer_start()
+
+
 class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
-    _timer_cls = TimerTornado
+    _timer_cls = TimerAsyncio
     # Webagg and friends having the right methods, but still
     # having bugs in practice.  Do not advertise that it works until
     # we can debug this.
