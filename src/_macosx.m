@@ -237,6 +237,8 @@ static int wait_for_stdin(void)
 }
 - (void)dealloc;
 - (void)drawRect:(NSRect)rect;
+- (void)updateDevicePixelRatio:(double)scale;
+- (void)windowDidChangeBackingProperties:(NSNotification*)notification;
 - (void)windowDidResize:(NSNotification*)notification;
 - (View*)initWithFrame:(NSRect)rect;
 - (void)setCanvas: (PyObject*)newCanvas;
@@ -706,6 +708,7 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     [window setDelegate: view];
     [window makeFirstResponder: view];
     [[window contentView] addSubview: view];
+    [view updateDevicePixelRatio: [window backingScaleFactor]];
 
     return 0;
 }
@@ -801,6 +804,9 @@ FigureManager_resize(FigureManager* self, PyObject *args, PyObject *kwds)
     Window* window = self->window;
     if(window)
     {
+        CGFloat device_pixel_ratio = [window backingScaleFactor];
+        width /= device_pixel_ratio;
+        height /= device_pixel_ratio;
         // 36 comes from hard-coded size of toolbar later in code
         [window setContentSize: NSMakeSize(width, height + 36.)];
     }
@@ -1654,15 +1660,6 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
     CGContextRef cr = [[NSGraphicsContext currentContext] CGContext];
 
-    double new_device_scale = _get_device_scale(cr);
-
-    if (device_scale != new_device_scale) {
-        device_scale = new_device_scale;
-        if (!PyObject_CallMethod(canvas, "_set_device_scale", "d", device_scale, NULL)) {
-            PyErr_Print();
-            goto exit;
-        }
-    }
     if (!(renderer = PyObject_CallMethod(canvas, "_draw", "", NULL))
         || !(renderer_buffer = PyObject_GetAttrString(renderer, "_renderer"))) {
         PyErr_Print();
@@ -1681,6 +1678,33 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     Py_XDECREF(renderer);
 
     PyGILState_Release(gstate);
+}
+
+- (void)updateDevicePixelRatio:(double)scale
+{
+    PyObject* change = NULL;
+    PyGILState_STATE gstate = PyGILState_Ensure();
+
+    device_scale = scale;
+    if (!(change = PyObject_CallMethod(canvas, "_set_device_pixel_ratio", "d", device_scale, NULL))) {
+        PyErr_Print();
+        goto exit;
+    }
+    if (PyObject_IsTrue(change)) {
+        [self setNeedsDisplay: YES];
+    }
+
+  exit:
+    Py_XDECREF(change);
+
+    PyGILState_Release(gstate);
+}
+
+- (void)windowDidChangeBackingProperties:(NSNotification *)notification
+{
+    Window* window = [notification object];
+
+    [self updateDevicePixelRatio: [window backingScaleFactor]];
 }
 
 - (void)windowDidResize: (NSNotification*)notification
