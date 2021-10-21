@@ -1,5 +1,7 @@
 .. _interactive_figures_and_eventloops:
 
+.. redirect-from:: /users/interactive_guide
+
 .. currentmodule:: matplotlib
 
 

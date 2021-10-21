@@ -1,3 +1,5 @@
+.. redirect-from:: /users/interactive
+
 .. currentmodule:: matplotlib
 
 .. _mpl-shell:

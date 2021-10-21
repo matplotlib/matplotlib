@@ -1,5 +1,7 @@
 .. _environment-variables:
 
+.. redirect-from:: /faq/environment_variables_faq
+
 *********************
 Environment variables
 *********************

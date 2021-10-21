@@ -275,7 +275,7 @@ Other ways to contribute
 It also helps us if you spread the word: reference the project from your blog
 and articles or link to it from your website!  If Matplotlib contributes to a
 project that leads to a scientific publication, please follow the
-:doc:`/citing` guidelines.
+:doc:`/users/backmatter/citing` guidelines.
 
 .. _coding_guidelines:
 
