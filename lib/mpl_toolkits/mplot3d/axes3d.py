@@ -130,6 +130,9 @@ class Axes3D(Axes):
         self.set_axis_on()
         self.M = None
 
+        # Change the y-axis ticks to be on the right side
+        self.yaxis.set_ticks_position("right")
+
         # func used to format z -- fall back on major formatters
         self.fmt_zdata = None
 

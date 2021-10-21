@@ -32,7 +32,7 @@ def tick_update_position(tick, tickxs, tickys, labelpos):
     tick.gridline.set_data(0, 0)
 
 
-class Axis(maxis.XAxis):
+class Axis(maxis.Axis):
     """An Axis class for the 3D plots."""
     # These points from the unit cube make up the x, y and z-planes
     _PLANES = (
@@ -516,21 +516,21 @@ class Axis(maxis.XAxis):
 # Use classes to look at different data limits
 
 
-class XAxis(Axis):
+class XAxis(Axis, maxis.XAxis):
     get_view_interval, set_view_interval = maxis._make_getset_interval(
         "view", "xy_viewLim", "intervalx")
     get_data_interval, set_data_interval = maxis._make_getset_interval(
         "data", "xy_dataLim", "intervalx")
 
 
-class YAxis(Axis):
+class YAxis(Axis, maxis.YAxis):
     get_view_interval, set_view_interval = maxis._make_getset_interval(
         "view", "xy_viewLim", "intervaly")
     get_data_interval, set_data_interval = maxis._make_getset_interval(
         "data", "xy_dataLim", "intervaly")
 
 
-class ZAxis(Axis):
+class ZAxis(Axis, maxis.XAxis):
     get_view_interval, set_view_interval = maxis._make_getset_interval(
         "view", "zz_viewLim", "intervalx")
     get_data_interval, set_data_interval = maxis._make_getset_interval(
