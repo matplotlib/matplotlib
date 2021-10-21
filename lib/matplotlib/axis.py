@@ -2259,9 +2259,8 @@ class XAxis(Axis):
         self.stale = True
 
     def get_tick_space(self):
-        ends = mtransforms.Bbox.from_bounds(0, 0, 1, 1)
-        ends = ends.transformed(self.axes.transAxes -
-                                self.figure.dpi_scale_trans)
+        ends = mtransforms.Bbox.unit().transformed(
+            self.axes.transAxes - self.figure.dpi_scale_trans)
         length = ends.width * 72
         # There is a heuristic here that the aspect ratio of tick text
         # is no more than 3:1
@@ -2521,9 +2520,8 @@ class YAxis(Axis):
         self.stale = True
 
     def get_tick_space(self):
-        ends = mtransforms.Bbox.from_bounds(0, 0, 1, 1)
-        ends = ends.transformed(self.axes.transAxes -
-                                self.figure.dpi_scale_trans)
+        ends = mtransforms.Bbox.unit().transformed(
+            self.axes.transAxes - self.figure.dpi_scale_trans)
         length = ends.height * 72
         # Having a spacing of at least 2 just looks good.
         size = self._get_tick_label_size('y') * 2
