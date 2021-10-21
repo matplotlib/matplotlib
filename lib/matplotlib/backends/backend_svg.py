@@ -1160,17 +1160,15 @@ class RendererSVG(RendererBase):
                 attrib['x'] = short_float_fmt(ax)
                 attrib['y'] = short_float_fmt(ay)
                 attrib['style'] = _generate_css(style)
-                attrib['transform'] = "rotate(%s, %s, %s)" % (
-                    short_float_fmt(-angle),
-                    short_float_fmt(ax),
-                    short_float_fmt(ay))
-                writer.element('text', s, attrib=attrib)
+                attrib['transform'] = _generate_transform([
+                    ("rotate", (-angle, ax, ay))])
+
             else:
                 attrib['transform'] = _generate_transform([
                     ('translate', (x, y)),
                     ('rotate', (-angle,))])
 
-                writer.element('text', s, attrib=attrib)
+            writer.element('text', s, attrib=attrib)
 
         else:
             writer.comment(s)
