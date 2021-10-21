@@ -258,7 +258,6 @@ typedef struct
 {
     PyObject_HEAD
     FT2Font *x;
-    PyObject *fname;
     PyObject *py_file;
     FT_StreamRec stream;
     Py_ssize_t shape[2];
@@ -317,7 +316,6 @@ static PyObject *PyFT2Font_new(PyTypeObject *type, PyObject *args, PyObject *kwd
     PyFT2Font *self;
     self = (PyFT2Font *)type->tp_alloc(type, 0);
     self->x = NULL;
-    self->fname = NULL;
     self->py_file = NULL;
     memset(&self->stream, 0, sizeof(FT_StreamRec));
     return (PyObject *)self;
@@ -408,9 +406,6 @@ static int PyFT2Font_init(PyFT2Font *self, PyObject *args, PyObject *kwds)
 
     CALL_CPP_INIT("FT2Font->set_kerning_factor", (self->x->set_kerning_factor(kerning_factor)));
 
-    Py_INCREF(filename);
-    self->fname = filename;
-
 exit:
     return PyErr_Occurred() ? -1 : 0;
 }
@@ -419,7 +414,6 @@ static void PyFT2Font_dealloc(PyFT2Font *self)
 {
     delete self->x;
     Py_XDECREF(self->py_file);
-    Py_XDECREF(self->fname);
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
@@ -1420,12 +1414,12 @@ static PyObject *PyFT2Font_underline_thickness(PyFT2Font *self, void *closure)
 
 static PyObject *PyFT2Font_fname(PyFT2Font *self, void *closure)
 {
-    if (self->fname) {
-        Py_INCREF(self->fname);
-        return self->fname;
+    if (self->stream.close) {  // Called passed a filename to the constructor.
+        return PyObject_GetAttrString(self->py_file, "name");
+    } else {
+        Py_INCREF(self->py_file);
+        return self->py_file;
     }
-
-    Py_RETURN_NONE;
 }
 
 static int PyFT2Font_get_buffer(PyFT2Font *self, Py_buffer *buf, int flags)
