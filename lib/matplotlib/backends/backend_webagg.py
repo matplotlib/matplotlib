@@ -36,7 +36,7 @@ import matplotlib as mpl
 from matplotlib.backend_bases import _Backend
 from matplotlib._pylab_helpers import Gcf
 from . import backend_webagg_core as core
-from .backend_webagg_core import TimerTornado
+from .backend_webagg_core import TimerAsyncio, TimerTornado
 
 
 class ServerThread(threading.Thread):

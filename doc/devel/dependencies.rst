@@ -46,7 +46,7 @@ and the capabilities they provide.
 * wxPython_ (>= 4) [#]_: for the wx-based backends.
 * pycairo_ (>= 1.11.0) or cairocffi_ (>= 0.8): for the GTK and/or cairo-based
   backends.
-* Tornado_: for the WebAgg backend.
+* Tornado_ (>=5): for the WebAgg backend.
 
 .. _Tk: https://docs.python.org/3/library/tk.html
 .. _PyQt5: https://pypi.org/project/PyQt5/
