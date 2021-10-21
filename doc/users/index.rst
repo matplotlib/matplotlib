@@ -7,6 +7,15 @@
 Users guide
 ###########
 
+Tutorials and examples
+######################
+
+.. toctree::
+   :maxdepth: 1
+
+   ../plot_types/index.rst
+   ../tutorials/index.rst
+   ../gallery/index.rst
 
 General
 #######
@@ -30,14 +39,3 @@ Reference
    ../devel/index.rst
    backmatter/index.rst
    release_notes.rst
-
-
-Tutorials and examples
-######################
-
-.. toctree::
-   :maxdepth: 1
-
-   ../plot_types/index.rst
-   ../tutorials/index.rst
-   ../gallery/index.rst
