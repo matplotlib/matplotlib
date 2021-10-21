@@ -4,7 +4,7 @@ Project information
 -------------------
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
 
     license.rst
     citing.rst

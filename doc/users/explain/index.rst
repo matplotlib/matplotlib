@@ -6,7 +6,11 @@ Explanations
 ------------
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
 
+    backends.rst
     interactive.rst
     fonts.rst
+    event_handling.rst
+    performance.rst
+    interactive_guide.rst
