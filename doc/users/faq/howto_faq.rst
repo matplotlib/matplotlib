@@ -1,5 +1,7 @@
 .. _howto-faq:
 
+.. redirect-from:: /faq/howto_faq
+
 ******
 How-to
 ******
@@ -148,8 +150,8 @@ behavior by specifying the coordinates of the label.  The example
 below shows the default behavior in the left subplots, and the manual
 setting in the right subplots.
 
-.. figure:: ../gallery/pyplots/images/sphx_glr_align_ylabels_001.png
-   :target: ../gallery/pyplots/align_ylabels.html
+.. figure:: ../../gallery/pyplots/images/sphx_glr_align_ylabels_001.png
+   :target: ../../gallery/pyplots/align_ylabels.html
    :align: center
    :scale: 50
 

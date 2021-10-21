@@ -1,5 +1,7 @@
 .. _resources-index:
 
+.. redirect-from:: /resources/index
+
 ******************
 External resources
 ******************

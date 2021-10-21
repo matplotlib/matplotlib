@@ -1,5 +1,7 @@
 .. _troubleshooting-faq:
 
+.. redirect-from:: /faq/troubleshooting_faq
+
 ***************
 Troubleshooting
 ***************

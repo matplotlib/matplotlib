@@ -1,5 +1,5 @@
-Reference
-=========
+API Reference
+=============
 
 When using the library you will typically create
 :doc:`Figure <figure_api>` and :doc:`Axes <axes_api>` objects and

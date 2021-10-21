@@ -29,8 +29,11 @@ Version 3.4
     prev_whats_new/github_stats_3.4.1.rst
     prev_whats_new/github_stats_3.4.0.rst
 
+Past versions
+=============
+
 Version 3.3
-===========
+~~~~~~~~~~~
 .. toctree::
     :maxdepth: 1
 
@@ -44,7 +47,7 @@ Version 3.3
     prev_whats_new/github_stats_3.3.0.rst
 
 Version 3.2
-===========
+~~~~~~~~~~~
 .. toctree::
     :maxdepth: 1
 
@@ -55,7 +58,7 @@ Version 3.2
     prev_whats_new/github_stats_3.2.0.rst
 
 Version 3.1
-===========
+~~~~~~~~~~~
 .. toctree::
     :maxdepth: 1
 
@@ -68,7 +71,7 @@ Version 3.1
     prev_whats_new/github_stats_3.1.0.rst
 
 Version 3.0
-===========
+~~~~~~~~~~~
 .. toctree::
     :maxdepth: 1
 
@@ -81,7 +84,7 @@ Version 3.0
     prev_whats_new/github_stats_3.0.0.rst
 
 Version 2.2
-===========
+~~~~~~~~~~~
 .. toctree::
     :maxdepth: 1
 
@@ -89,7 +92,7 @@ Version 2.2
     ../api/prev_api_changes/api_changes_2.2.0.rst
 
 Version 2.1
-===========
+~~~~~~~~~~~
 .. toctree::
     :maxdepth: 1
 
@@ -99,7 +102,7 @@ Version 2.1
     ../api/prev_api_changes/api_changes_2.1.0.rst
 
 Version 2.0
-===========
+~~~~~~~~~~~
 .. toctree::
     :maxdepth: 1
 
@@ -108,7 +111,7 @@ Version 2.0
     ../api/prev_api_changes/api_changes_2.0.0.rst
 
 Version 1.5
-===========
+~~~~~~~~~~~
 .. toctree::
     :maxdepth: 1
 
@@ -118,7 +121,7 @@ Version 1.5
     ../api/prev_api_changes/api_changes_1.5.0.rst
 
 Version 1.4
-===========
+~~~~~~~~~~~
 .. toctree::
     :maxdepth: 1
 
@@ -126,7 +129,7 @@ Version 1.4
     ../api/prev_api_changes/api_changes_1.4.x.rst
 
 Version 1.3
-===========
+~~~~~~~~~~~
 .. toctree::
     :maxdepth: 1
 
@@ -134,7 +137,7 @@ Version 1.3
     ../api/prev_api_changes/api_changes_1.3.x.rst
 
 Version 1.2
-===========
+~~~~~~~~~~~
 .. toctree::
     :maxdepth: 1
 
@@ -143,7 +146,7 @@ Version 1.2
     ../api/prev_api_changes/api_changes_1.2.x.rst
 
 Version 1.1
-===========
+~~~~~~~~~~~
 .. toctree::
     :maxdepth: 1
 
@@ -151,14 +154,14 @@ Version 1.1
     ../api/prev_api_changes/api_changes_1.1.x.rst
 
 Version 1.0
-===========
+~~~~~~~~~~~
 .. toctree::
     :maxdepth: 1
 
     prev_whats_new/whats_new_1.0.rst
 
 Version 0.x
-===========
+~~~~~~~~~~~
 .. toctree::
     :maxdepth: 1
 

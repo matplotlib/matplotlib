@@ -1,3 +1,5 @@
+.. redirect-from:: /users/history
+
 History
 =======
 
