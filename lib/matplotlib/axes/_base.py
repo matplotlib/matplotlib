@@ -1877,7 +1877,7 @@ class _AxesBase(martist.Artist):
             return
 
         trans = self.get_figure().transSubfigure
-        bb = mtransforms.Bbox.from_bounds(0, 0, 1, 1).transformed(trans)
+        bb = mtransforms.Bbox.unit().transformed(trans)
         # this is the physical aspect of the panel (or figure):
         fig_aspect = bb.height / bb.width
 
