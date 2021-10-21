@@ -5118,6 +5118,18 @@ def test_twin_with_aspect(twin):
                        ax_twin.bbox.extents)
 
 
+@pytest.mark.parametrize('twin', ('x', 'y'))
+def test_twin_moved(twin):
+    fig, ax = plt.subplots()
+    ax.set_position([0.2, 0.2, 0.5, 0.5])
+    # test twinx or twiny
+    ax_twin = getattr(ax, 'twin{}'.format(twin))()
+    fig.draw_without_rendering()
+
+    assert_array_equal(ax.bbox.extents,
+                       ax_twin.bbox.extents)
+
+
 def test_relim_visible_only():
     x1 = (0., 10.)
     y1 = (0., 10.)
