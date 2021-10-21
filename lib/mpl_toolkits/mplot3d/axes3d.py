@@ -107,6 +107,7 @@ class Axes3D(Axes):
         self.xy_viewLim = Bbox.unit()
         self.zz_viewLim = Bbox.unit()
         self.xy_dataLim = Bbox.unit()
+        # z-limits are encoded in the x-component of the Bbox, y is un-used
         self.zz_dataLim = Bbox.unit()
 
         # inhibit autoscale_view until the axes are defined
@@ -643,14 +644,14 @@ class Axes3D(Axes):
     def auto_scale_xyz(self, X, Y, Z=None, had_data=None):
         # This updates the bounding boxes as to keep a record as to what the
         # minimum sized rectangular volume holds the data.
-        X = np.reshape(X, -1)
-        Y = np.reshape(Y, -1)
-        self.xy_dataLim.update_from_data_xy(
-            np.column_stack([X, Y]), not had_data)
+        if np.shape(X) == np.shape(Y):
+            self.xy_dataLim.update_from_data_xy(
+                np.column_stack([np.ravel(X), np.ravel(Y)]), not had_data)
+        else:
+            self.xy_dataLim.update_from_data_x(X, not had_data)
+            self.xy_dataLim.update_from_data_y(Y, not had_data)
         if Z is not None:
-            Z = np.reshape(Z, -1)
-            self.zz_dataLim.update_from_data_xy(
-                np.column_stack([Z, Z]), not had_data)
+            self.zz_dataLim.update_from_data_x(Z, not had_data)
         # Let autoscale_view figure out how to use this data.
         self.autoscale_view()
 

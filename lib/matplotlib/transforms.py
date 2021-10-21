@@ -902,11 +902,51 @@ class Bbox(BboxBase):
                 self._points[:, 1] = points[:, 1]
                 self._minpos[1] = minpos[1]
 
+    def update_from_data_x(self, x, ignore=None):
+        """
+        Update the x-bounds of the `Bbox` based on the passed in data. After
+        updating, the bounds will have positive *width*, and *x0* will be the
+        minimal value.
+
+        Parameters
+        ----------
+        x : ndarray
+            Array of x-values.
+
+        ignore : bool, optional
+           - When ``True``, ignore the existing bounds of the `Bbox`.
+           - When ``False``, include the existing bounds of the `Bbox`.
+           - When ``None``, use the last value passed to :meth:`ignore`.
+        """
+        x = np.ravel(x)
+        self.update_from_data_xy(np.column_stack([x, np.ones(x.size)]),
+                                 ignore=ignore, updatey=False)
+
+    def update_from_data_y(self, y, ignore=None):
+        """
+        Update the y-bounds of the `Bbox` based on the passed in data. After
+        updating, the bounds will have positive *height*, and *y0* will be the
+        minimal value.
+
+        Parameters
+        ----------
+        y : ndarray
+            Array of y-values.
+
+        ignore : bool, optional
+           - When ``True``, ignore the existing bounds of the `Bbox`.
+           - When ``False``, include the existing bounds of the `Bbox`.
+           - When ``None``, use the last value passed to :meth:`ignore`.
+        """
+        y = np.array(y).ravel()
+        self.update_from_data_xy(np.column_stack([np.ones(y.size), y]),
+                                 ignore=ignore, updatex=False)
+
     def update_from_data_xy(self, xy, ignore=None, updatex=True, updatey=True):
         """
-        Update the bounds of the `Bbox` based on the passed in
-        data.  After updating, the bounds will have positive *width*
-        and *height*; *x0* and *y0* will be the minimal values.
+        Update the bounds of the `Bbox` based on the passed in data. After
+        updating, the bounds will have positive *width* and *height*;
+        *x0* and *y0* will be the minimal values.
 
         Parameters
         ----------
