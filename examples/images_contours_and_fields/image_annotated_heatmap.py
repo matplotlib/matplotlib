@@ -97,7 +97,7 @@ plt.show()
 
 
 def heatmap(data, row_labels, col_labels, ax=None,
-            cbar_kw={}, cbarlabel="", **kwargs):
+            cbar_kw=None, cbarlabel="", **kwargs):
     """
     Create a heatmap from a numpy array and two lists of labels.
 
@@ -120,8 +120,11 @@ def heatmap(data, row_labels, col_labels, ax=None,
         All other arguments are forwarded to `imshow`.
     """
 
-    if not ax:
+    if ax is None:
         ax = plt.gca()
+
+    if cbar_kw is None:
+        cbar_kw = {}
 
     # Plot the heatmap
     im = ax.imshow(data, **kwargs)
