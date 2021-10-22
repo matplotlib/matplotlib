@@ -106,7 +106,7 @@ if __name__ == "__main__":
     }
     doc_dir = Path(__file__).parent.parent.absolute() / "doc"
     target_dir = doc_dir / "_static/zenodo_cache"
-    citing = doc_dir / "users/backmatter/citing.rst"
+    citing = doc_dir / "users/project/citing.rst"
     target_dir.mkdir(exist_ok=True, parents=True)
     header = []
     footer = []
