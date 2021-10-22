@@ -938,7 +938,7 @@ class Axis(martist.Artist):
         self.stale = True
 
     def get_view_interval(self):
-        """Return the view limits ``(min, max)`` of this axis."""
+        """Return the ``(min, max)`` view limits of this axis."""
         raise NotImplementedError('Derived must override')
 
     def set_view_interval(self, vmin, vmax, ignore=False):
@@ -957,7 +957,7 @@ class Axis(martist.Artist):
         raise NotImplementedError('Derived must override')
 
     def get_data_interval(self):
-        """Return the Interval instance for this axis data limits."""
+        """Return the ``(min, max)`` data limits of this axis."""
         raise NotImplementedError('Derived must override')
 
     def set_data_interval(self, vmin, vmax, ignore=False):
