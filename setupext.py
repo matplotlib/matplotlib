@@ -321,7 +321,6 @@ class SetupPackage:
 
 
 class OptionalPackage(SetupPackage):
-    config_category = "packages"
     default_config = True
 
     def check(self):
@@ -330,7 +329,7 @@ class OptionalPackage(SetupPackage):
 
         May be overridden by subclasses for additional checks.
         """
-        if config.getboolean(self.config_category, self.name,
+        if config.getboolean("packages", self.name,
                              fallback=self.default_config):
             return "installing"
         else:  # Configuration opt-out by user
@@ -717,7 +716,6 @@ class Qhull(SetupPackage):
 
 
 class BackendMacOSX(OptionalPackage):
-    config_category = 'gui_support'
     name = 'macosx'
 
     def check(self):
@@ -726,10 +724,10 @@ class BackendMacOSX(OptionalPackage):
         return super().check()
 
     def get_extensions(self):
-        sources = [
-            'src/_macosx.m'
-            ]
-        ext = Extension('matplotlib.backends._macosx', sources)
+        ext = Extension(
+            'matplotlib.backends._macosx', [
+                'src/_macosx.m'
+            ])
         ext.extra_compile_args.extend(['-Werror=unguarded-availability'])
         ext.extra_link_args.extend(['-framework', 'Cocoa'])
         if platform.python_implementation().lower() == 'pypy':
