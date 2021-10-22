@@ -793,6 +793,27 @@ def test_hexbin_log_clim():
     assert h.get_clim() == (2, 100)
 
 
+def test_hexbin_mincnt_withC():
+    # Issue #20877: Tests mincnt working the same with/without weights C
+    np.random.seed(19680801)
+    n = 20000
+
+    x = np.random.normal(loc=0, scale=2, size=n)
+    y = np.random.randint(0, 100, n)
+
+    fig, axes = plt.subplots(2, 1)
+
+    ax = axes[0]
+    res1 = ax.hexbin(x, y, mincnt=1, extent=[-8, 8, 0, 100], gridsize=150)
+
+    ax = axes[1]
+    res2 = ax.hexbin(x, y, mincnt=1, extent=[-8, 8, 0, 100], gridsize=150,
+                     C=5*np.ones(len(x)), reduce_C_function=np.sum)
+
+    assert len(res1.get_array()) == len(res2.get_array())
+    assert 5*sum(res1.get_array()) == sum(res2.get_array())
+
+
 def test_inverted_limits():
     # Test gh:1553
     # Calling invert_xaxis prior to plotting should not disable autoscaling
