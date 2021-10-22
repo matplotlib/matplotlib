@@ -771,7 +771,6 @@ def test_quadmesh_deprecated_positional(fig_test, fig_ref):
     X += 0.2 * Y
     coords = np.stack([X, Y], axis=-1)
     assert coords.shape == (3, 4, 2)
-    coords_flat = coords.copy().reshape(-1, 2)
     C = np.linspace(0, 2, 12).reshape(3, 4)
 
     ax = fig_test.add_subplot()
