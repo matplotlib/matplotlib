@@ -783,7 +783,7 @@ def test_quadmesh_deprecated_positional(fig_test, fig_ref):
     ax = fig_ref.add_subplot()
     ax.set(xlim=(0, 5), ylim=(0, 4))
     with pytest.warns(MatplotlibDeprecationWarning):
-        qmesh = QuadMesh(4 - 1, 3 - 1, coords.copy().reshape(-1, 2),
+        qmesh = QuadMesh(4 - 1, 3 - 1, coords_flat,
                          False, 'gouraud')
     qmesh.set_array(C)
     ax.add_collection(qmesh)
