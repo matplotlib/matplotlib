@@ -165,6 +165,9 @@ class PathNanRemover : protected EmbeddedQueue<4>
     bool m_has_codes;
     bool valid_segment_exists;
     bool m_last_segment_valid;
+    bool m_was_broken;
+    double m_initX;
+    double m_initY;
 
   public:
     /* has_codes should be true if the path contains bezier curve segments, or
@@ -173,7 +176,8 @@ class PathNanRemover : protected EmbeddedQueue<4>
      */
     PathNanRemover(VertexSource &source, bool remove_nans, bool has_codes)
         : m_source(&source), m_remove_nans(remove_nans), m_has_codes(has_codes),
-          m_last_segment_valid(false)
+          m_last_segment_valid(false), m_was_broken(false),
+          m_initX(nan("")), m_initY(nan(""))
     {
         // ignore all close/end_poly commands until after the first valid
         // (nan-free) command is encountered
@@ -208,14 +212,41 @@ class PathNanRemover : protected EmbeddedQueue<4>
                    are found along the way, the queue is emptied, and
                    the next curve segment is handled. */
                 code = m_source->vertex(x, y);
-                /* The vertices attached to STOP and CLOSEPOLY left are never
-                   used, so we leave them as-is even if NaN. However, CLOSEPOLY
-                   only makes sense if a valid MOVETO command has already been
-                   emitted. */
-                if (code == agg::path_cmd_stop ||
-                    (code == (agg::path_cmd_end_poly | agg::path_flags_close) &&
-                     valid_segment_exists)) {
+                /* The vertices attached to STOP and CLOSEPOLY are never used,
+                 * so we leave them as-is even if NaN. */
+                if (code == agg::path_cmd_stop) {
                     return code;
+                } else if (code == (agg::path_cmd_end_poly |
+                                    agg::path_flags_close) &&
+                           valid_segment_exists) {
+                    /* However, CLOSEPOLY only makes sense if a valid MOVETO
+                     * command has already been emitted. But if a NaN was
+                     * removed in the path, then we cannot close it as it is no
+                     * longer a loop. We must emulate that by inserting a
+                     * LINETO instead. */
+                    if (m_was_broken) {
+                        if (m_last_segment_valid && (
+                                std::isfinite(m_initX) &&
+                                std::isfinite(m_initY))) {
+                            /* Join to start if both ends are valid. */
+                            queue_push(agg::path_cmd_line_to, m_initX, m_initY);
+                            break;
+                        } else {
+                            /* Skip the close, in case there are additional
+                             * subpaths. */
+                            continue;
+                        }
+                        m_was_broken = false;
+                        break;
+                    } else {
+                        return code;
+                    }
+                } else if (code == agg::path_cmd_move_to) {
+                    /* Save the initial point in order to produce the last
+                     * segment closing a loop, *if* we broke the loop. */
+                    m_initX = *x;
+                    m_initY = *y;
+                    m_was_broken = false;
                 }
 
                 if (needs_move_to) {
@@ -240,6 +271,7 @@ class PathNanRemover : protected EmbeddedQueue<4>
                     break;
                 }
 
+                m_was_broken = true;
                 queue_clear();
 
                 /* If the last point is finite, we use that for the
