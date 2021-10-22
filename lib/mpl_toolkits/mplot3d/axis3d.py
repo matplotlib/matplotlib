@@ -485,7 +485,7 @@ class Axis(maxis.XAxis):
 
         ticks = ticks_to_draw
 
-        bb_1, bb_2 = self._get_tick_bboxes(ticks, renderer)
+        bb_1, bb_2 = self._get_ticklabel_bboxes(ticks, renderer)
         other = []
 
         if self.line.get_visible():
