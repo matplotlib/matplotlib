@@ -13,7 +13,7 @@ Matplotlib was written by John D. Hunter, with contributions from an
 ever-increasing number of users and developers.  The current lead developer is
 Thomas A. Caswell, who is assisted by many `active developers
 <https://www.openhub.net/p/matplotlib/contributors>`_.
-Please also see our instructions on :doc:`/users/backmatter/citing`.
+Please also see our instructions on :doc:`/users/project/citing`.
 
 The following is a list of contributors extracted from the
 git revision control history of the project:
