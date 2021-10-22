@@ -1801,13 +1801,10 @@ class Axis(martist.Artist):
                 break
         else:
             shared = [self]
-        for axis in shared:
-            if len(ticks) > 1:
-                xleft, xright = axis.get_view_interval()
-                if xright > xleft:
-                    axis.set_view_interval(min(ticks), max(ticks))
-                else:
-                    axis.set_view_interval(max(ticks), min(ticks))
+        if len(ticks):
+            for axis in shared:
+                # set_view_interval maintains any preexisting inversion.
+                axis.set_view_interval(min(ticks), max(ticks))
         self.axes.stale = True
         if minor:
             self.set_minor_locator(mticker.FixedLocator(ticks))
