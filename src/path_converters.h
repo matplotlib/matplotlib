@@ -164,6 +164,7 @@ class PathNanRemover : protected EmbeddedQueue<4>
     bool m_remove_nans;
     bool m_has_codes;
     bool valid_segment_exists;
+    bool m_last_segment_valid;
 
   public:
     /* has_codes should be true if the path contains bezier curve segments, or
@@ -171,7 +172,8 @@ class PathNanRemover : protected EmbeddedQueue<4>
      * When in doubt, set to true.
      */
     PathNanRemover(VertexSource &source, bool remove_nans, bool has_codes)
-        : m_source(&source), m_remove_nans(remove_nans), m_has_codes(has_codes)
+        : m_source(&source), m_remove_nans(remove_nans), m_has_codes(has_codes),
+          m_last_segment_valid(false)
     {
         // ignore all close/end_poly commands until after the first valid
         // (nan-free) command is encountered
@@ -221,18 +223,19 @@ class PathNanRemover : protected EmbeddedQueue<4>
                 }
 
                 size_t num_extra_points = num_extra_points_map[code & 0xF];
-                bool has_nan = (!(std::isfinite(*x) && std::isfinite(*y)));
+                m_last_segment_valid = (std::isfinite(*x) && std::isfinite(*y));
                 queue_push(code, *x, *y);
 
                 /* Note: this test can not be short-circuited, since we need to
                    advance through the entire curve no matter what */
                 for (size_t i = 0; i < num_extra_points; ++i) {
                     m_source->vertex(x, y);
-                    has_nan = has_nan || !(std::isfinite(*x) && std::isfinite(*y));
+                    m_last_segment_valid = m_last_segment_valid &&
+                        (std::isfinite(*x) && std::isfinite(*y));
                     queue_push(code, *x, *y);
                 }
 
-                if (!has_nan) {
+                if (m_last_segment_valid) {
                     valid_segment_exists = true;
                     break;
                 }
