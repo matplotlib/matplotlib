@@ -1004,6 +1004,14 @@ Example:
    :parts: 2
 
 
+Navbar and style
+----------------
+
+Matplotlib has a few subprojects that share the same navbar and style, so these 
+are centralized as a sphinx theme at
+`mpl_sphinx_theme <https://github.com/matplotlib/mpl-sphinx-theme>`_.  Changes to the 
+style or topbar should be made there to propagate across all subprojects.  
+
 .. TODO: Add section about uploading docs
 
 .. _ReST: https://docutils.sourceforge.io/rst.html
