@@ -245,3 +245,11 @@ div.twocol > div {
     padding: 0;
     margin: 0;
 }
+
+/* Fix selection of parameter names; remove when fixed in the theme
+ * https://github.com/sphinx-doc/sphinx/pull/9763
+ */
+.classifier:before {
+    display: inline-block;
+    margin: 0 0.5em;
+}
