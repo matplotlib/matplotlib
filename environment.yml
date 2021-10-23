@@ -33,6 +33,7 @@ dependencies:
   - sphinx>=1.8.1,!=2.0.0
   - sphinx-copybutton
   - sphinx-gallery>=0.10
+  - sphinx-panels
   - pip
   - pip:
       - sphinxcontrib-svg2pdfconverter
