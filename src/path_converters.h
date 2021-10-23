@@ -336,6 +336,7 @@ class PathClipper : public EmbeddedQueue<3>
     double m_initX;
     double m_initY;
     bool m_has_init;
+    bool m_was_clipped;
 
   public:
     PathClipper(VertexSource &source, bool do_clipping, double width, double height)
@@ -347,7 +348,8 @@ class PathClipper : public EmbeddedQueue<3>
           m_moveto(true),
           m_initX(nan("")),
           m_initY(nan("")),
-          m_has_init(false)
+          m_has_init(false),
+          m_was_clipped(false)
     {
         // empty
     }
@@ -361,7 +363,8 @@ class PathClipper : public EmbeddedQueue<3>
           m_moveto(true),
           m_initX(nan("")),
           m_initY(nan("")),
-          m_has_init(false)
+          m_has_init(false),
+          m_was_clipped(false)
     {
         m_cliprect.x1 -= 1.0;
         m_cliprect.y1 -= 1.0;
@@ -372,21 +375,29 @@ class PathClipper : public EmbeddedQueue<3>
     inline void rewind(unsigned path_id)
     {
         m_has_init = false;
+        m_was_clipped = false;
         m_moveto = true;
         m_source->rewind(path_id);
     }
 
-    int draw_clipped_line(double x0, double y0, double x1, double y1)
+    int draw_clipped_line(double x0, double y0, double x1, double y1,
+                          bool closed=false)
     {
         unsigned moved = agg::clip_line_segment(&x0, &y0, &x1, &y1, m_cliprect);
         // moved >= 4 - Fully clipped
         // moved & 1 != 0 - First point has been moved
         // moved & 2 != 0 - Second point has been moved
+        m_was_clipped = m_was_clipped || (moved != 0);
         if (moved < 4) {
             if (moved & 1 || m_moveto) {
                 queue_push(agg::path_cmd_move_to, x0, y0);
             }
             queue_push(agg::path_cmd_line_to, x1, y1);
+            if (closed && !m_was_clipped) {
+                // Close the path only if the end point hasn't moved.
+                queue_push(agg::path_cmd_end_poly | agg::path_flags_close,
+                           x1, y1);
+            }
 
             m_moveto = false;
             return 1;
@@ -417,12 +428,23 @@ class PathClipper : public EmbeddedQueue<3>
             switch (code) {
             case (agg::path_cmd_end_poly | agg::path_flags_close):
                 if (m_has_init) {
-                    draw_clipped_line(m_lastX, m_lastY, m_initX, m_initY);
+                    // Queue the line from last point to the initial point, and
+                    // if never clipped, add a close code.
+                    draw_clipped_line(m_lastX, m_lastY, m_initX, m_initY,
+                                      true);
+                } else {
+                    // An empty path that is immediately closed.
+                    queue_push(
+                        agg::path_cmd_end_poly | agg::path_flags_close,
+                        m_lastX, m_lastY);
                 }
-                queue_push(
-                    agg::path_cmd_end_poly | agg::path_flags_close,
-                    m_lastX, m_lastY);
-                goto exit_loop;
+                // If paths were not clipped, then the above code queued
+                // something, and we should exit the loop. Otherwise, continue
+                // to the next point, as there may be a new subpath.
+                if (queue_nonempty()) {
+                    goto exit_loop;
+                }
+                break;
 
             case agg::path_cmd_move_to:
 
@@ -444,6 +466,7 @@ class PathClipper : public EmbeddedQueue<3>
                 m_initY = m_lastY = *y;
                 m_has_init = true;
                 m_moveto = true;
+                m_was_clipped = false;
                 // if the last command was moveto exit the loop to emit the code
                 if (emit_moveto) {
                     goto exit_loop;
