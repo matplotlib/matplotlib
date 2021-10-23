@@ -976,9 +976,9 @@ class AxesImage(_ImageBase):
         self.axes.update_datalim(corners)
         self.sticky_edges.x[:] = [xmin, xmax]
         self.sticky_edges.y[:] = [ymin, ymax]
-        if self.axes._autoscaleXon:
+        if self.axes.get_autoscalex_on():
             self.axes.set_xlim((xmin, xmax), auto=None)
-        if self.axes._autoscaleYon:
+        if self.axes.get_autoscaley_on():
             self.axes.set_ylim((ymin, ymax), auto=None)
         self.stale = True
 

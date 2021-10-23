@@ -1212,6 +1212,7 @@ class _AxesBase(martist.Artist):
                 self.set_xlim(0, 1)
             except TypeError:
                 pass
+            self.set_autoscalex_on(True)
         if self._sharey is not None:
             self.sharey(self._sharey)
         else:
@@ -1220,6 +1221,7 @@ class _AxesBase(martist.Artist):
                 self.set_ylim(0, 1)
             except TypeError:
                 pass
+            self.set_autoscaley_on(True)
 
         # update the minor locator for x and y axis based on rcParams
         if mpl.rcParams['xtick.minor.visible']:
@@ -1227,10 +1229,6 @@ class _AxesBase(martist.Artist):
         if mpl.rcParams['ytick.minor.visible']:
             self.yaxis.set_minor_locator(mticker.AutoMinorLocator())
 
-        if self._sharex is None:
-            self._autoscaleXon = True
-        if self._sharey is None:
-            self._autoscaleYon = True
         self._xmargin = mpl.rcParams['axes.xmargin']
         self._ymargin = mpl.rcParams['axes.ymargin']
         self._tight = None
@@ -2561,17 +2559,15 @@ class _AxesBase(martist.Artist):
         """
         return self.patch.contains(mouseevent)[0]
 
+    get_autoscalex_on = _axis_method_wrapper("xaxis", "_get_autoscale_on")
+    get_autoscaley_on = _axis_method_wrapper("yaxis", "_get_autoscale_on")
+    set_autoscalex_on = _axis_method_wrapper("xaxis", "_set_autoscale_on")
+    set_autoscaley_on = _axis_method_wrapper("yaxis", "_set_autoscale_on")
+
     def get_autoscale_on(self):
         """Return True if each axis is autoscaled, False otherwise."""
-        return self._autoscaleXon and self._autoscaleYon
-
-    def get_autoscalex_on(self):
-        """Return whether the x-axis is autoscaled."""
-        return self._autoscaleXon
-
-    def get_autoscaley_on(self):
-        """Return whether the y-axis is autoscaled."""
-        return self._autoscaleYon
+        return all(axis._get_autoscale_on()
+                   for axis in self._get_axis_map().values())
 
     def set_autoscale_on(self, b):
         """
@@ -2582,30 +2578,8 @@ class _AxesBase(martist.Artist):
         ----------
         b : bool
         """
-        self._autoscaleXon = b
-        self._autoscaleYon = b
-
-    def set_autoscalex_on(self, b):
-        """
-        Set whether the x-axis is autoscaled on the next draw or call to
-        `.Axes.autoscale_view`.
-
-        Parameters
-        ----------
-        b : bool
-        """
-        self._autoscaleXon = b
-
-    def set_autoscaley_on(self, b):
-        """
-        Set whether the y-axis is autoscaled on the next draw or call to
-        `.Axes.autoscale_view`.
-
-        Parameters
-        ----------
-        b : bool
-        """
-        self._autoscaleYon = b
+        for axis in self._get_axis_map().values():
+            axis._set_autoscale_on(b)
 
     @property
     def use_sticky_edges(self):
@@ -2798,14 +2772,16 @@ class _AxesBase(martist.Artist):
             scalex = True
             scaley = True
         else:
-            scalex = False
-            scaley = False
             if axis in ['x', 'both']:
-                self._autoscaleXon = bool(enable)
-                scalex = self._autoscaleXon
+                self.set_autoscalex_on(bool(enable))
+                scalex = self.get_autoscalex_on()
+            else:
+                scalex = False
             if axis in ['y', 'both']:
-                self._autoscaleYon = bool(enable)
-                scaley = self._autoscaleYon
+                self.set_autoscaley_on(bool(enable))
+                scaley = self.get_autoscaley_on()
+            else:
+                scaley = False
         if tight and scalex:
             self._xmargin = 0
         if tight and scaley:
@@ -2864,13 +2840,13 @@ class _AxesBase(martist.Artist):
             # called very early in the Axes init process (e.g., for twin Axes)
             # when these attributes don't even exist yet, in which case
             # `get_children` would raise an AttributeError.
-            if self._xmargin and scalex and self._autoscaleXon:
+            if self._xmargin and scalex and self.get_autoscalex_on():
                 x_stickies = np.sort(np.concatenate([
                     artist.sticky_edges.x
                     for ax in self._shared_axes["x"].get_siblings(self)
                     if hasattr(ax, "_children")
                     for artist in ax.get_children()]))
-            if self._ymargin and scaley and self._autoscaleYon:
+            if self._ymargin and scaley and self.get_autoscaley_on():
                 y_stickies = np.sort(np.concatenate([
                     artist.sticky_edges.y
                     for ax in self._shared_axes["y"].get_siblings(self)
@@ -2881,10 +2857,10 @@ class _AxesBase(martist.Artist):
         if self.get_yscale() == 'log':
             y_stickies = y_stickies[y_stickies > 0]
 
-        def handle_single_axis(scale, autoscaleon, shared_axes, name,
-                               axis, margin, stickies, set_bound):
+        def handle_single_axis(
+                scale, shared_axes, name, axis, margin, stickies, set_bound):
 
-            if not (scale and autoscaleon):
+            if not (scale and axis._get_autoscale_on()):
                 return  # nothing to do...
 
             shared = shared_axes.get_siblings(self)
@@ -2947,11 +2923,11 @@ class _AxesBase(martist.Artist):
             # End of definition of internal function 'handle_single_axis'.
 
         handle_single_axis(
-            scalex, self._autoscaleXon, self._shared_axes["x"], 'x',
-            self.xaxis, self._xmargin, x_stickies, self.set_xbound)
+            scalex, self._shared_axes["x"], 'x', self.xaxis, self._xmargin,
+            x_stickies, self.set_xbound)
         handle_single_axis(
-            scaley, self._autoscaleYon, self._shared_axes["y"], 'y',
-            self.yaxis, self._ymargin, y_stickies, self.set_ybound)
+            scaley, self._shared_axes["y"], 'y', self.yaxis, self._ymargin,
+            y_stickies, self.set_ybound)
 
     def _get_axis_list(self):
         return tuple(getattr(self, f"{name}axis") for name in self._axis_names)

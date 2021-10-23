@@ -462,29 +462,8 @@ class Axes3D(Axes):
     def update_datalim(self, xys, **kwargs):
         pass
 
-    def get_autoscale_on(self):
-        # docstring inherited
-        return super().get_autoscale_on() and self.get_autoscalez_on()
-
-    def get_autoscalez_on(self):
-        """Return whether the z-axis is autoscaled."""
-        return self._autoscaleZon
-
-    def set_autoscale_on(self, b):
-        # docstring inherited
-        super().set_autoscale_on(b)
-        self.set_autoscalez_on(b)
-
-    def set_autoscalez_on(self, b):
-        """
-        Set whether the z-axis is autoscaled on the next draw or call to
-        `.Axes.autoscale_view`.
-
-        Parameters
-        ----------
-        b : bool
-        """
-        self._autoscaleZon = b
+    get_autoscalez_on = _axis_method_wrapper("zaxis", "_get_autoscale_on")
+    set_autoscalez_on = _axis_method_wrapper("zaxis", "_set_autoscale_on")
 
     def set_zmargin(self, m):
         """
@@ -558,15 +537,18 @@ class Axes3D(Axes):
             scalez = True
         else:
             if axis in ['x', 'both']:
-                self._autoscaleXon = scalex = bool(enable)
+                self.set_autoscalex_on(bool(enable))
+                scalex = self.get_autoscalex_on()
             else:
                 scalex = False
             if axis in ['y', 'both']:
-                self._autoscaleYon = scaley = bool(enable)
+                self.set_autoscaley_on(bool(enable))
+                scaley = self.get_autoscaley_on()
             else:
                 scaley = False
             if axis in ['z', 'both']:
-                self._autoscaleZon = scalez = bool(enable)
+                self.set_autoscalez_on(bool(enable))
+                scalez = self.get_autoscalez_on()
             else:
                 scalez = False
         if scalex:
@@ -613,7 +595,7 @@ class Axes3D(Axes):
         else:
             _tight = self._tight = bool(tight)
 
-        if scalex and self._autoscaleXon:
+        if scalex and self.get_autoscalex_on():
             self._shared_axes["x"].clean()
             x0, x1 = self.xy_dataLim.intervalx
             xlocator = self.xaxis.get_major_locator()
@@ -626,7 +608,7 @@ class Axes3D(Axes):
                 x0, x1 = xlocator.view_limits(x0, x1)
             self.set_xbound(x0, x1)
 
-        if scaley and self._autoscaleYon:
+        if scaley and self.get_autoscaley_on():
             self._shared_axes["y"].clean()
             y0, y1 = self.xy_dataLim.intervaly
             ylocator = self.yaxis.get_major_locator()
@@ -639,7 +621,7 @@ class Axes3D(Axes):
                 y0, y1 = ylocator.view_limits(y0, y1)
             self.set_ybound(y0, y1)
 
-        if scalez and self._autoscaleZon:
+        if scalez and self.get_autoscalez_on():
             self._shared_axes["z"].clean()
             z0, z1 = self.zz_dataLim.intervalx
             zlocator = self.zaxis.get_major_locator()
@@ -976,7 +958,7 @@ class Axes3D(Axes):
             except TypeError:
                 pass
 
-        self._autoscaleZon = True
+        self.set_autoscalez_on(True)
         if self._focal_length == np.inf:
             self._zmargin = rcParams['axes.zmargin']
         else:
