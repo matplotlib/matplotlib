@@ -64,12 +64,11 @@ jobs:
       - name: Build wheels for CPython 3.10
         run: |
           python -m cibuildwheel --output-dir dist
-        if: matrix.os != 'macos-10.15'
         env:
           CIBW_BUILD: "cp310-*"
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
           CIBW_MANYLINUX_I686_IMAGE: manylinux2014
-          CIBW_BEFORE_BUILD: pip install certifi numpy==1.21.2
+          CIBW_BEFORE_BUILD: pip install certifi numpy==1.21.3
           MPL_DISABLE_FH4: "yes"
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
