@@ -3654,9 +3654,8 @@ class _AxesBase(martist.Artist):
             False turns off, None leaves unchanged.
 
         xmin, xmax : float, optional
-            They are equivalent to left and right respectively,
-            and it is an error to pass both *xmin* and *left* or
-            *xmax* and *right*.
+            They are equivalent to left and right respectively, and it is an
+            error to pass both *xmin* and *left* or *xmax* and *right*.
 
         Returns
         -------
@@ -3691,76 +3690,10 @@ class _AxesBase(martist.Artist):
         present is on the right.
 
         >>> set_xlim(5000, 0)
-
         """
-        if right is None and np.iterable(left):
-            left, right = left
-        if xmin is not None:
-            if left is not None:
-                raise TypeError('Cannot pass both `xmin` and `left`')
-            left = xmin
-        if xmax is not None:
-            if right is not None:
-                raise TypeError('Cannot pass both `xmax` and `right`')
-            right = xmax
-
-        self._process_unit_info([("x", (left, right))], convert=False)
-        left = self._validate_converted_limits(left, self.convert_xunits)
-        right = self._validate_converted_limits(right, self.convert_xunits)
-
-        if left is None or right is None:
-            # Axes init calls set_xlim(0, 1) before get_xlim() can be called,
-            # so only grab the limits if we really need them.
-            old_left, old_right = self.get_xlim()
-            if left is None:
-                left = old_left
-            if right is None:
-                right = old_right
-
-        if self.get_xscale() == 'log' and (left <= 0 or right <= 0):
-            # Axes init calls set_xlim(0, 1) before get_xlim() can be called,
-            # so only grab the limits if we really need them.
-            old_left, old_right = self.get_xlim()
-            if left <= 0:
-                _api.warn_external(
-                    'Attempted to set non-positive left xlim on a '
-                    'log-scaled axis.\n'
-                    'Invalid limit will be ignored.')
-                left = old_left
-            if right <= 0:
-                _api.warn_external(
-                    'Attempted to set non-positive right xlim on a '
-                    'log-scaled axis.\n'
-                    'Invalid limit will be ignored.')
-                right = old_right
-        if left == right:
-            _api.warn_external(
-                f"Attempting to set identical left == right == {left} results "
-                f"in singular transformations; automatically expanding.")
-        reverse = left > right
-        left, right = self.xaxis.get_major_locator().nonsingular(left, right)
-        left, right = self.xaxis.limit_range_for_scale(left, right)
-        # cast to bool to avoid bad interaction between python 3.8 and np.bool_
-        left, right = sorted([left, right], reverse=bool(reverse))
-
-        self._viewLim.intervalx = (left, right)
-        # Mark viewlims as no longer stale without triggering an autoscale.
-        for ax in self._shared_axes["x"].get_siblings(self):
-            ax._stale_viewlims["x"] = False
-        if auto is not None:
-            self._autoscaleXon = bool(auto)
-
-        if emit:
-            self.callbacks.process('xlim_changed', self)
-            # Call all of the other x-axes that are shared with this one
-            for other in self._shared_axes["x"].get_siblings(self):
-                if other is not self:
-                    other.set_xlim(self.viewLim.intervalx,
-                                   emit=False, auto=auto)
-                    if other.figure != self.figure:
-                        other.figure.canvas.draw_idle()
-        self.stale = True
-        return left, right
+        return self.xaxis._set_lim(
+            left, right, xmin, xmax, emit=emit, auto=auto,
+            names=("left", "right"))
 
     get_xscale = _axis_method_wrapper("xaxis", "get_scale")
 
@@ -3985,9 +3918,8 @@ class _AxesBase(martist.Artist):
             *False* turns off, *None* leaves unchanged.
 
         ymin, ymax : float, optional
-            They are equivalent to bottom and top respectively,
-            and it is an error to pass both *ymin* and *bottom* or
-            *ymax* and *top*.
+            They are equivalent to bottom and top respectively, and it is an
+            error to pass both *ymin* and *bottom* or *ymax* and *top*.
 
         Returns
         -------
@@ -4023,75 +3955,9 @@ class _AxesBase(martist.Artist):
 
         >>> set_ylim(5000, 0)
         """
-        if top is None and np.iterable(bottom):
-            bottom, top = bottom
-        if ymin is not None:
-            if bottom is not None:
-                raise TypeError('Cannot pass both `ymin` and `bottom`')
-            bottom = ymin
-        if ymax is not None:
-            if top is not None:
-                raise TypeError('Cannot pass both `ymax` and `top`')
-            top = ymax
-
-        self._process_unit_info([("y", (bottom, top))], convert=False)
-        bottom = self._validate_converted_limits(bottom, self.convert_yunits)
-        top = self._validate_converted_limits(top, self.convert_yunits)
-
-        if bottom is None or top is None:
-            # Axes init calls set_ylim(0, 1) before get_ylim() can be called,
-            # so only grab the limits if we really need them.
-            old_bottom, old_top = self.get_ylim()
-            if bottom is None:
-                bottom = old_bottom
-            if top is None:
-                top = old_top
-
-        if self.get_yscale() == 'log' and (bottom <= 0 or top <= 0):
-            # Axes init calls set_xlim(0, 1) before get_xlim() can be called,
-            # so only grab the limits if we really need them.
-            old_bottom, old_top = self.get_ylim()
-            if bottom <= 0:
-                _api.warn_external(
-                    'Attempted to set non-positive bottom ylim on a '
-                    'log-scaled axis.\n'
-                    'Invalid limit will be ignored.')
-                bottom = old_bottom
-            if top <= 0:
-                _api.warn_external(
-                    'Attempted to set non-positive top ylim on a '
-                    'log-scaled axis.\n'
-                    'Invalid limit will be ignored.')
-                top = old_top
-        if bottom == top:
-            _api.warn_external(
-                f"Attempting to set identical bottom == top == {bottom} "
-                f"results in singular transformations; automatically "
-                f"expanding.")
-        reverse = bottom > top
-        bottom, top = self.yaxis.get_major_locator().nonsingular(bottom, top)
-        bottom, top = self.yaxis.limit_range_for_scale(bottom, top)
-        # cast to bool to avoid bad interaction between python 3.8 and np.bool_
-        bottom, top = sorted([bottom, top], reverse=bool(reverse))
-
-        self._viewLim.intervaly = (bottom, top)
-        # Mark viewlims as no longer stale without triggering an autoscale.
-        for ax in self._shared_axes["y"].get_siblings(self):
-            ax._stale_viewlims["y"] = False
-        if auto is not None:
-            self._autoscaleYon = bool(auto)
-
-        if emit:
-            self.callbacks.process('ylim_changed', self)
-            # Call all of the other y-axes that are shared with this one
-            for other in self._shared_axes["y"].get_siblings(self):
-                if other is not self:
-                    other.set_ylim(self.viewLim.intervaly,
-                                   emit=False, auto=auto)
-                    if other.figure != self.figure:
-                        other.figure.canvas.draw_idle()
-        self.stale = True
-        return bottom, top
+        return self.yaxis._set_lim(
+            bottom, top, ymin, ymax, emit=emit, auto=auto,
+            names=("bottom", "top"))
 
     get_yscale = _axis_method_wrapper("yaxis", "get_scale")
 
