@@ -36,6 +36,7 @@ dependencies:
   - sphinx-panels
   - pip
   - pip:
+      - mpl-sphinx-theme
       - sphinxcontrib-svg2pdfconverter
   # testing
   - coverage
