@@ -12,7 +12,7 @@ plt.style.use('_mpl-gallery')
 # make data:
 np.random.seed(3)
 x = 0.5 + np.arange(8)
-y = np.random.uniform(2, 7, len(x))
+y = np.random.uniform(3, 10, len(x))
 
 # plot
 fig, ax = plt.subplots()
