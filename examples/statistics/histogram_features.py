@@ -20,12 +20,12 @@ parameters.
 import numpy as np
 import matplotlib.pyplot as plt
 
-np.random.seed(19680801)
+rng = np.random.default_rng(seed=19680801)
 
 # example data
 mu = 100  # mean of distribution
 sigma = 15  # standard deviation of distribution
-x = mu + sigma * np.random.randn(437)
+x = mu + sigma * rng.standard_normal(437)
 
 num_bins = 50
 
