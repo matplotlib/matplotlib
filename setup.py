@@ -319,7 +319,7 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         "numpy>=1.17",
         "packaging>=20.0",
         "pillow>=6.2.0",
-        "pyparsing>=2.2.1",
+        "pyparsing>=2.2.1,<3.0.0",
         "python-dateutil>=2.7",
     ] + (
         # Installing from a git checkout.
