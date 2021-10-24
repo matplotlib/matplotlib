@@ -14,29 +14,23 @@ and interactive visualizations in Python.
 Installation
 ============
 
-.. panels::
-    :card: + install-card
-    :column: col-lg-6 col-md-6 col-sm-12 col-xs-12 p-3
+.. container:: twocol
 
-    Installing using `conda <https://docs.continuum.io/anaconda/>`__
-    ^^^^^^^^^^^^^^^^^^^^^^
+    .. container::
 
+        Install using `pip <https://pypi.org/project/matplotlib>`__:
 
+        .. code-block:: bash
 
-    .. code-block:: bash
+            pip install matplotlib
 
-        conda install matplotlib
+    .. container::
 
-    ---
+        Install using `conda <https://docs.continuum.io/anaconda/>`__:
 
-    Installing using `pip <https://pypi.org/project/matplotlib>`__
-    ^^^^^^^^^^^^^^^^^^^^
+        .. code-block:: bash
 
-
-    .. code-block:: bash
-
-        pip install matplotlib
-
+            conda install matplotlib
 
 Further details are available in the :doc:`Installation Guide <users/installing/index>`.
 
