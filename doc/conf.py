@@ -291,7 +291,7 @@ html_css_files = [
     f"mpl.css?{SHA}",
 ]
 
-html_theme = "pydata_sphinx_theme"
+html_theme = "mpl_sphinx_theme"
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -301,34 +301,12 @@ html_theme = "pydata_sphinx_theme"
 # the sidebar.
 html_logo = "_static/logo2.svg"
 html_theme_options = {
+    "native_site": True,
     "logo_link": "index",
     # collapse_navigation in pydata-sphinx-theme is slow, so skipped for local
     # and CI builds https://github.com/pydata/pydata-sphinx-theme/pull/386
     "collapse_navigation": not is_release_build,
-    "icon_links": [
-        {
-            "name": "gitter",
-            "url": "https://gitter.im/matplotlib",
-            "icon": "fab fa-gitter",
-        },
-        {
-            "name": "discourse",
-            "url": "https://discourse.matplotlib.org",
-            "icon": "fab fa-discourse",
-        },
-        {
-            "name": "GitHub",
-            "url": "https://github.com/matplotlib/matplotlib",
-            "icon": "fab fa-github-square",
-        },
-        {
-            "name": "twitter",
-            "url": "https://twitter.com/matplotlib/",
-            "icon": "fab fa-twitter-square",
-        },
-    ],
     "show_prev_next": False,
-    "navbar_center": ["mpl_nav_bar.html"],
 }
 include_analytics = is_release_build
 if include_analytics:
