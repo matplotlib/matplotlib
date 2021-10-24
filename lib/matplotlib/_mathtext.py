@@ -13,7 +13,7 @@ import unicodedata
 
 import numpy as np
 from pyparsing import (
-    Combine, Empty, FollowedBy, Forward, Group, Literal, oneOf, OneOrMore,
+    Combine, Empty, Forward, Group, Literal, oneOf, OneOrMore,
     Optional, ParseBaseException, ParseFatalException, ParserElement,
     ParseResults, QuotedString, Regex, StringEnd, Suppress, ZeroOrMore)
 
@@ -2044,7 +2044,7 @@ class Parser:
         p.accentprefixed <<= Suppress(p.bslash) + oneOf(self._accentprefixed)
         p.symbol_name   <<= (
             Combine(p.bslash + oneOf(list(tex2uni)))
-            + FollowedBy(Regex("[^A-Za-z]").leaveWhitespace() | StringEnd())
+            + Suppress(Regex("(?=[^A-Za-z]|$)").leaveWhitespace())
         )
         p.symbol        <<= (p.single_symbol | p.symbol_name).leaveWhitespace()
 
