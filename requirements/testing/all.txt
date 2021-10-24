@@ -2,6 +2,7 @@
 
 certifi
 coverage
+pyparsing<3.0.0
 pytest!=4.6.0,!=5.4.0
 pytest-cov
 pytest-rerunfailures
