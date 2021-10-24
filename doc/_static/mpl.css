@@ -225,6 +225,18 @@ div.sphx-glr-download-link-note {
     visibility: hidden;
 }
 
+/* re-style the download button */
+div.sphx-glr-download a {
+    background-color: #E3F0F6;
+    background-image: none;
+    color: #11557c;
+    border: 0;
+}
+
+div.sphx-glr-download a:hover {
+    background-color: #BCD4DF;
+}
+
 table.property-table th,
 table.property-table td {
     padding: 4px 10px;
