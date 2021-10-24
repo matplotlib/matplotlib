@@ -9,6 +9,7 @@ jobs:
     steps:
     - uses: actions/first-interaction@v1
       with:
+        add-labels: "status: needs workflow approval"
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         pr-message: >+
           Thank you for opening your first PR into Matplotlib!
