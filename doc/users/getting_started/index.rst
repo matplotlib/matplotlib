@@ -8,7 +8,7 @@ Installation quick-start
 
     .. container::
 
-        Install using pip:
+        Install using `pip <https://pypi.org/project/matplotlib>`__:
 
         .. code-block:: bash
 
@@ -16,7 +16,7 @@ Installation quick-start
 
     .. container::
 
-        Install using conda:
+        Install using `conda <https://docs.continuum.io/anaconda/>`__:
 
         .. code-block:: bash
 
