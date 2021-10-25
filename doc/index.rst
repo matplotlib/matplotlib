@@ -5,14 +5,16 @@
 .. module:: matplotlib
 
 
+##################################
 Matplotlib |release| documentation
-----------------------------------
+##################################
 
 Matplotlib is a comprehensive library for creating static, animated,
 and interactive visualizations in Python.
 
+************
 Installation
-============
+************
 
 .. container:: twocol
 
@@ -35,9 +37,9 @@ Installation
 Further details are available in the :doc:`Installation Guide <users/installing/index>`.
 
 
+******************
 Learning resources
-==================
-
+******************
 
 .. panels::
 
@@ -81,16 +83,18 @@ Learning resources
 
 
 
+********************
 Third-party packages
---------------------
+********************
 
 There are many `Third-party packages
 <https://matplotlib.org/mpl-third-party/>`_ built on top of and extending
 Matplotlib.
 
 
+************
 Contributing
-------------
+************
 
 Matplotlib is a community project maintained for and by its users.  There are many ways
 you can help!
@@ -98,9 +102,3 @@ you can help!
 - Help other users `on discourse <https://discourse.matplotlib.org>`__
 - report a bug or request a feature `on GitHub <https://github.com/matplotlib/matplotlib/issues>`__
 - or improve the :ref:`documentation and code <developers-guide-index>`
-
-
-Users guide
------------
-
-The `contents of the docs <users/index.html>`_.

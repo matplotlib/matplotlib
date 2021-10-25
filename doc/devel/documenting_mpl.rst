@@ -138,12 +138,27 @@ Formatting and style conventions
 It is useful to strive for consistency in the Matplotlib documentation.  Here
 are some formatting and style conventions that are used.
 
-Section name formatting
-~~~~~~~~~~~~~~~~~~~~~~~
+Section formatting
+~~~~~~~~~~~~~~~~~~
 
 For everything but top-level chapters,  use ``Upper lower`` for
 section titles, e.g., ``Possible hangups`` rather than ``Possible
 Hangups``
+
+We aim to follow the recommendations from the
+`Python documentation <https://devguide.python.org/documenting/#sections>`_
+and the `Sphinx reStructuredText documentation <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#sections>`_
+for section markup characters, i.e.:
+
+- ``#`` with overline, for parts. This is reserved for the main title in
+  ``index.rst``. All other pages should start with "chapter" or lower.
+- ``*`` with overline, for chapters
+- ``=``, for sections
+- ``-``, for subsections
+- ``^``, for subsubsections
+- ``"``, for paragraphs
+
+This may not yet be applied consistently in existing docs.
 
 Function arguments
 ~~~~~~~~~~~~~~~~~~
