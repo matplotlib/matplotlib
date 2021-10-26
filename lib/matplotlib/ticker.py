@@ -2666,7 +2666,7 @@ class AsinhLocator(Locator):
         if self.base > 1:
             log_base = math.log(self.base)
             powers = (
-                np.where(zero_xs, 0, np.where(xs >= 0, 1, -1)) *
+                np.where(zero_xs, 0, np.sign(xs)) *
                 np.power(self.base,
                          np.where(zero_xs, 0.0,
                                   np.floor(np.log(np.abs(xs) + zero_xs*1e-6)
