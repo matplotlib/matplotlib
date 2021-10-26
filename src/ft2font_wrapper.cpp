@@ -296,6 +296,8 @@ exit:
 
 static void close_file_callback(FT_Stream stream)
 {
+    PyObject *type, *value, *traceback;
+    PyErr_Fetch(&type, &value, &traceback);
     PyFT2Font *self = (PyFT2Font *)stream->descriptor.pointer;
     PyObject *close_result = NULL;
     if (!(close_result = PyObject_CallMethod(self->py_file, "close", ""))) {
@@ -307,6 +309,7 @@ exit:
     if (PyErr_Occurred()) {
         PyErr_WriteUnraisable((PyObject*)self);
     }
+    PyErr_Restore(type, value, traceback);
 }
 
 static PyTypeObject PyFT2FontType;
