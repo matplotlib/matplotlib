@@ -517,7 +517,7 @@ class TestAsinhLocator:
         class DummyAxis:
             bounds = (-1, 1)
             @classmethod
-            def get_data_interval(cls): return cls.bounds
+            def get_view_interval(cls): return cls.bounds
 
         lctr = mticker.AsinhLocator(linear_width=1, numticks=3,
                                     symthresh=0.25, base=0)

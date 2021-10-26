@@ -35,7 +35,7 @@ Z = gain * Z1 - Z2
 
 shadeopts = {'cmap': 'PRGn', 'shading': 'gouraud'}
 colormap = 'PRGn'
-lnrwidth = 0.2
+lnrwidth = 0.5
 
 fig, ax = plt.subplots(2, 1, sharex=True, sharey=True)
 
@@ -60,23 +60,23 @@ ax[1].text(-2.5, 1.5, 'linear')
 # the option of using the `~.colors.AsinhNorm`, which has a smoother
 # transition between the linear and logarithmic regions of the transformation
 # applied to the "z" axis.
-# In the plots below, it may be possible to see ring-like artifacts
-# in the lower-amplitude, negative, hump shown in purple despite
-# there being no sharp features in the dataset itself.
-# The ``asinh`` scaling shows a smoother shading of each hump.
+# In the plots below, it may be possible to see contour-like artifacts
+# around each hump despite there being no sharp features
+# in the dataset itself. The ``asinh`` scaling shows a smoother shading
+# of each hump.
 
 fig, ax = plt.subplots(2, 1, sharex=True, sharey=True)
 
 pcm = ax[0].pcolormesh(X, Y, Z,
                        norm=colors.SymLogNorm(linthresh=lnrwidth, linscale=1,
-                                              vmin=-2, vmax=gain, base=10),
+                                              vmin=-gain, vmax=gain, base=10),
                        **shadeopts)
 fig.colorbar(pcm, ax=ax[0], extend='both')
 ax[0].text(-2.5, 1.5, 'symlog')
 
 pcm = ax[1].pcolormesh(X, Y, Z,
                        norm=colors.AsinhNorm(linear_width=lnrwidth,
-                                             vmin=-2, vmax=gain),
+                                             vmin=-gain, vmax=gain),
                        **shadeopts)
 fig.colorbar(pcm, ax=ax[1], extend='both')
 ax[1].text(-2.5, 1.5, 'asinh')

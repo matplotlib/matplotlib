@@ -2636,13 +2636,13 @@ class AsinhLocator(Locator):
             self.subs = subs if len(subs) > 0 else None
 
     def __call__(self):
-        dmin, dmax = self.axis.get_data_interval()
-        if (dmin * dmax) < 0 and abs(1 + dmax / dmin) < self.symthresh:
+        vmin, vmax = self.axis.get_view_interval()
+        if (vmin * vmax) < 0 and abs(1 + vmax / vmin) < self.symthresh:
             # Data-range appears to be almost symmetric, so round up:
-            bound = max(abs(dmin), abs(dmax))
+            bound = max(abs(vmin), abs(vmax))
             return self.tick_values(-bound, bound)
         else:
-            return self.tick_values(dmin, dmax)
+            return self.tick_values(vmin, vmax)
 
     def tick_values(self, vmin, vmax):
         # Construct a set of "on-screen" locations
@@ -2660,7 +2660,9 @@ class AsinhLocator(Locator):
         xs = self.linear_width * np.sinh(ys / self.linear_width)
         zero_xs = (ys == 0)
 
-        # Round the data-space values to be intuitive base-n numbers:
+        # Round the data-space values to be intuitive base-n numbers,
+        # keeping track of positive and negative values separately,
+        # but giving careful treatment to the zero value:
         if self.base > 1:
             log_base = math.log(self.base)
             powers = (
