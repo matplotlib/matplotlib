@@ -923,10 +923,8 @@ class StandardPsFonts(Fonts):
 # Note that (as TeX) y increases downward, unlike many other parts of
 # matplotlib.
 
-# How much text shrinks when going to the next-smallest level.  GROW_FACTOR
-# must be the inverse of SHRINK_FACTOR.
+# How much text shrinks when going to the next-smallest level.
 SHRINK_FACTOR   = 0.7
-GROW_FACTOR     = 1 / SHRINK_FACTOR
 # The number of different sizes of chars to use, beyond which they will not
 # get any smaller
 NUM_SIZE_LEVELS = 6
@@ -1059,13 +1057,6 @@ class Node:
         """
         self.size += 1
 
-    def grow(self):
-        """
-        Grows one level larger.  There is no limit to how big
-        something can get.
-        """
-        self.size -= 1
-
     def render(self, x, y):
         pass
 
@@ -1085,12 +1076,6 @@ class Box(Node):
             self.width  *= SHRINK_FACTOR
             self.height *= SHRINK_FACTOR
             self.depth  *= SHRINK_FACTOR
-
-    def grow(self):
-        super().grow()
-        self.width  *= GROW_FACTOR
-        self.height *= GROW_FACTOR
-        self.depth  *= GROW_FACTOR
 
     def render(self, x1, y1, x2, y2):
         pass
@@ -1185,13 +1170,6 @@ class Char(Node):
             self.height   *= SHRINK_FACTOR
             self.depth    *= SHRINK_FACTOR
 
-    def grow(self):
-        super().grow()
-        self.fontsize *= GROW_FACTOR
-        self.width    *= GROW_FACTOR
-        self.height   *= GROW_FACTOR
-        self.depth    *= GROW_FACTOR
-
 
 class Accent(Char):
     """
@@ -1208,10 +1186,6 @@ class Accent(Char):
 
     def shrink(self):
         super().shrink()
-        self._update_metrics()
-
-    def grow(self):
-        super().grow()
         self._update_metrics()
 
     def render(self, x, y):
@@ -1275,13 +1249,6 @@ class List(Box):
         if self.size < NUM_SIZE_LEVELS:
             self.shift_amount *= SHRINK_FACTOR
             self.glue_set     *= SHRINK_FACTOR
-
-    def grow(self):
-        for child in self.children:
-            child.grow()
-        super().grow()
-        self.shift_amount *= GROW_FACTOR
-        self.glue_set     *= GROW_FACTOR
 
 
 class Hlist(List):
@@ -1551,11 +1518,6 @@ class Glue(Node):
             g = self.glue_spec
             self.glue_spec = g._replace(width=g.width * SHRINK_FACTOR)
 
-    def grow(self):
-        super().grow()
-        g = self.glue_spec
-        self.glue_spec = g._replace(width=g.width * GROW_FACTOR)
-
 
 class HCentered(Hlist):
     """
@@ -1602,10 +1564,6 @@ class Kern(Node):
         super().shrink()
         if self.size < NUM_SIZE_LEVELS:
             self.width *= SHRINK_FACTOR
-
-    def grow(self):
-        super().grow()
-        self.width *= GROW_FACTOR
 
 
 class SubSuperCluster(Hlist):
