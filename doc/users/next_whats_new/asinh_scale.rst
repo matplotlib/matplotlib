@@ -4,13 +4,13 @@ New axis scale ``asinh``
 The new ``asinh`` axis scale offers an alternative to ``symlog`` that
 smoothly transitions between the quasi-linear and asymptotically logarithmic
 regions of the scale. This is based on an arcsinh transformation that
-allows plotting both positive and negative values than span many orders
+allows plotting both positive and negative values that span many orders
 of magnitude. A scale parameter is provided to allow the user
 to tune the width of the linear region of the scale.
 
 .. plot::
 
-    from matplotlib import pyplot as plt
+    import matplotlib.pyplot as plt
     import numpy
 
     fig, (ax0, ax1) = plt.subplots(1, 2, sharex=True)

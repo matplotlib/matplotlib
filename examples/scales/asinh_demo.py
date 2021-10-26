@@ -31,7 +31,7 @@ that has discontinuities in its gradient because it is built
 from *separate* linear and logarithmic transformations.
 The ``asinh`` scaling uses a transformation that is smooth
 for all (finite) values, which is both mathematically cleaner
-and should reduce visual artifacts associated with an abrupt
+and reduces visual artifacts associated with an abrupt
 transition between linear and logarithmic regions of the plot.
 
 See `~.scale.AsinhScale`, `~.scale.SymmetricalLogScale`.
@@ -45,7 +45,7 @@ x = np.linspace(-3, 6, 500)
 
 ########################################
 # Compare "symlog" and "asinh" behaviour on sample y=x graph,
-# where the discontinuous gradient in "symlog" near y=2 is obvious:
+# where there is a discontinuous gradient in "symlog" near y=2:
 fig1 = plt.figure()
 ax0, ax1 = fig1.subplots(1, 2, sharex=True)
 
