@@ -20,6 +20,7 @@ from matplotlib import docstring
 from . import _api, backend_tools, cbook, colors, ticker
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
+from .transforms import TransformedPatchPath
 
 
 class LockDraw:
@@ -439,7 +440,10 @@ class Slider(SliderBase):
             )
             ax.add_patch(self.track)
             self.poly = ax.axhspan(valmin, valinit, .25, .75, **kwargs)
-            self.hline = ax.axhline(valinit, .15, .85, color=initcolor, lw=1)
+            # Drawing a longer line and clipping it to the track avoids
+            # pixellization-related asymmetries.
+            self.hline = ax.axhline(valinit, 0, 1, color=initcolor, lw=1,
+                                    clip_path=TransformedPatchPath(self.track))
             handleXY = [[0.5], [valinit]]
         else:
             self.track = Rectangle(
@@ -449,12 +453,8 @@ class Slider(SliderBase):
             )
             ax.add_patch(self.track)
             self.poly = ax.axvspan(valmin, valinit, .25, .75, **kwargs)
-            # These asymmetric limits (.2, .9) minimize the asymmetry
-            # above and below the *poly* when rendered to pixels.
-            # This seems to be different for Horizontal and Vertical lines.
-            # For discussion see:
-            # https://github.com/matplotlib/matplotlib/pull/19265
-            self.vline = ax.axvline(valinit, .2, .9, color=initcolor, lw=1)
+            self.vline = ax.axvline(valinit, 0, 1, color=initcolor, lw=1,
+                                    clip_path=TransformedPatchPath(self.track))
             handleXY = [[valinit], [0.5]]
         self._handle, = ax.plot(
             *handleXY,
