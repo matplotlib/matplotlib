@@ -593,6 +593,9 @@ translate
     @_log_if_debug_on
     def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         # docstring inherited
+        if self._is_transparent(gc.get_rgb()):
+            return  # Special handling for fully transparent.
+
         if not hasattr(self, "psfrag"):
             self._logwarn_once(
                 "The PS backend determines usetex status solely based on "
