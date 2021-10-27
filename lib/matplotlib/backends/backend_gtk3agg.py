@@ -70,8 +70,10 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         self.queue_draw_area(x, y, width, height)
 
     def draw(self):
+        # Call these explicitly because GTK's draw is a GObject method which
+        # isn't cooperative with Python class methods.
         backend_agg.FigureCanvasAgg.draw(self)
-        super().draw()
+        backend_gtk3.FigureCanvasGTK3.draw(self)
 
 
 class FigureManagerGTK3Agg(backend_gtk3.FigureManagerGTK3):
