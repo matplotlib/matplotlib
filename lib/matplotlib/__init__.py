@@ -578,7 +578,7 @@ _deprecated_map = {}
 # rcParams deprecated; some can manually be mapped to another key.
 # Values are tuples of (version, new_name_or_None).
 _deprecated_ignore_map = {'savefig.directory':
-                          ('v3.6.0', 'gui.save.directory')}
+                          ('3.6', 'gui.save.directory')}
 # rcParams deprecated; can use None to suppress warnings; remain actually
 # listed in the rcParams.
 # Values are tuples of (version,)
