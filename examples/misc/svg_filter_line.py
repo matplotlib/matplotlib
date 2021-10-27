@@ -3,9 +3,9 @@
 SVG Filter Line
 ===============
 
-Demonstrate SVG filtering effects which might be used with mpl.
+Demonstrate SVG filtering effects which might be used with Matplotlib.
 
-Note that the filtering effects are only effective if your svg renderer
+Note that the filtering effects are only effective if your SVG renderer
 support it.
 """
 
