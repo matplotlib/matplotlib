@@ -3,10 +3,10 @@
 SVG Filter Pie
 ==============
 
-Demonstrate SVG filtering effects which might be used with mpl.
+Demonstrate SVG filtering effects which might be used with Matplotlib.
 The pie chart drawing code is borrowed from pie_demo.py
 
-Note that the filtering effects are only effective if your svg renderer
+Note that the filtering effects are only effective if your SVG renderer
 support it.
 """
 
@@ -26,7 +26,7 @@ fracs = [15, 30, 45, 10]
 explode = (0, 0.05, 0, 0)
 
 # We want to draw the shadow for each pie but we will not use "shadow"
-# option as it does'n save the references to the shadow patches.
+# option as it doesn't save the references to the shadow patches.
 pies = ax.pie(fracs, explode=explode, labels=labels, autopct='%1.1f%%')
 
 for w in pies[0]:
@@ -49,12 +49,11 @@ f = io.BytesIO()
 plt.savefig(f, format="svg")
 
 
-# filter definition for shadow using a gaussian blur
-# and lightening effect.
-# The lightening filter is copied from http://www.w3.org/TR/SVG/filters.html
+# Filter definition for shadow using a gaussian blur and lighting effect.
+# The lighting filter is copied from http://www.w3.org/TR/SVG/filters.html
 
 # I tested it with Inkscape and Firefox3. "Gaussian blur" is supported
-# in both, but the lightening effect only in the Inkscape. Also note
+# in both, but the lighting effect only in Inkscape. Also note
 # that, Inkscape's exporting also may not support it.
 
 filter_def = """
