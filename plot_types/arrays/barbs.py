@@ -1,7 +1,7 @@
 """
-================
-barbs(X, Y U, V)
-================
+=================
+barbs(X, Y, U, V)
+=================
 
 See `~matplotlib.axes.Axes.barbs`.
 """
@@ -26,7 +26,7 @@ V = amplitude * np.cos(angle)
 # plot:
 fig, ax = plt.subplots()
 
-ax.barbs(X, Y, U, V, barbcolor="C0", flagcolor="C0", length=7, linewidth=1.5)
+ax.barbs(X, Y, U, V, barbcolor='C0', flagcolor='C0', length=7, linewidth=1.5)
 
 ax.set(xlim=(0, 4.5), ylim=(0, 4.5))
 
