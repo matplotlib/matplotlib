@@ -27,7 +27,7 @@ class FigureCanvasGTK4Agg(backend_gtk4.FigureCanvasGTK4,
         ctx = backend_cairo._to_context(ctx)
 
         buf = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(
-            np.asarray(self.renderer.buffer_rgba()))
+            np.asarray(self.get_renderer().buffer_rgba()))
         height, width, _ = buf.shape
         image = cairo.ImageSurface.create_for_data(
             buf.ravel().data, cairo.FORMAT_ARGB32, width, height)
@@ -38,8 +38,10 @@ class FigureCanvasGTK4Agg(backend_gtk4.FigureCanvasGTK4,
         return False
 
     def draw(self):
+        # Call these explicitly because GTK's draw is a GObject method which
+        # isn't cooperative with Python class methods.
         backend_agg.FigureCanvasAgg.draw(self)
-        super().draw()
+        backend_gtk4.FigureCanvasGTK4.draw(self)
 
 
 class FigureManagerGTK4Agg(backend_gtk4.FigureManagerGTK4):
