@@ -259,7 +259,7 @@ inline void points_in_path(PointArray &points,
     }
 
     transformed_path_t trans_path(path, trans);
-    no_nans_t no_nans_path(trans_path, true, path.has_curves());
+    no_nans_t no_nans_path(trans_path, true, path.has_codes());
     curve_t curved_path(no_nans_path);
     if (r != 0.0) {
         contour_t contoured_path(curved_path);
@@ -305,7 +305,7 @@ void points_on_path(PointArray &points,
     }
 
     transformed_path_t trans_path(path, trans);
-    no_nans_t nan_removed_path(trans_path, true, path.has_curves());
+    no_nans_t nan_removed_path(trans_path, true, path.has_codes());
     curve_t curved_path(nan_removed_path);
     stroke_t stroked_path(curved_path);
     stroked_path.width(r * 2.0);
@@ -378,7 +378,7 @@ void update_path_extents(PathIterator &path, agg::trans_affine &trans, extent_li
     unsigned code;
 
     transformed_path_t tpath(path, trans);
-    nan_removed_t nan_removed(tpath, true, path.has_curves());
+    nan_removed_t nan_removed(tpath, true, path.has_codes());
 
     nan_removed.rewind(0);
 
@@ -512,7 +512,7 @@ bool path_in_path(PathIterator1 &a,
     }
 
     transformed_path_t b_path_trans(b, btrans);
-    no_nans_t b_no_nans(b_path_trans, true, b.has_curves());
+    no_nans_t b_no_nans(b_path_trans, true, b.has_codes());
     curve_t b_curved(b_no_nans);
 
     double x, y;
@@ -884,8 +884,8 @@ bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
         return false;
     }
 
-    no_nans_t n1(p1, true, p1.has_curves());
-    no_nans_t n2(p2, true, p2.has_curves());
+    no_nans_t n1(p1, true, p1.has_codes());
+    no_nans_t n2(p2, true, p2.has_codes());
 
     curve_t c1(n1);
     curve_t c2(n2);
@@ -949,7 +949,7 @@ bool path_intersects_rectangle(PathIterator &path,
         return false;
     }
 
-    no_nans_t no_nans(path, true, path.has_curves());
+    no_nans_t no_nans(path, true, path.has_codes());
     curve_t curve(no_nans);
 
     double cx = (rect_x1 + rect_x2) * 0.5, cy = (rect_y1 + rect_y2) * 0.5;
@@ -998,7 +998,7 @@ void convert_path_to_polygons(PathIterator &path,
     bool simplify = path.should_simplify();
 
     transformed_path_t tpath(path, trans);
-    nan_removal_t nan_removed(tpath, true, path.has_curves());
+    nan_removal_t nan_removed(tpath, true, path.has_codes());
     clipped_t clipped(nan_removed, do_clip, width, height);
     simplify_t simplified(clipped, simplify, path.simplify_threshold());
     curve_t curve(simplified);
@@ -1063,7 +1063,7 @@ void cleanup_path(PathIterator &path,
     typedef Sketch<curve_t> sketch_t;
 
     transformed_path_t tpath(path, trans);
-    nan_removal_t nan_removed(tpath, remove_nans, path.has_curves());
+    nan_removal_t nan_removed(tpath, remove_nans, path.has_codes());
     clipped_t clipped(nan_removed, do_clip, rect);
     snapped_t snapped(clipped, snap_mode, path.total_vertices(), stroke_width);
     simplify_t simplified(snapped, do_simplify, path.simplify_threshold());
@@ -1222,7 +1222,7 @@ bool convert_to_string(PathIterator &path,
     bool do_clip = (clip_rect.x1 < clip_rect.x2 && clip_rect.y1 < clip_rect.y2);
 
     transformed_path_t tpath(path, trans);
-    nan_removal_t nan_removed(tpath, true, path.has_curves());
+    nan_removal_t nan_removed(tpath, true, path.has_codes());
     clipped_t clipped(nan_removed, do_clip, clip_rect);
     simplify_t simplified(clipped, simplify, path.simplify_threshold());
 

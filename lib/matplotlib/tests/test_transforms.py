@@ -201,7 +201,7 @@ def test_clipping_of_log():
                                  clip=(0, 0, 100, 100),
                                  simplify=False)
     tpoints, tcodes = zip(*result)
-    assert_allclose(tcodes, path.codes)
+    assert_allclose(tcodes, path.codes[:-1])  # No longer closed.
 
 
 class NonAffineForTest(mtransforms.Transform):

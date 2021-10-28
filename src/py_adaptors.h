@@ -175,7 +175,7 @@ class PathIterator
         return m_simplify_threshold;
     }
 
-    inline bool has_curves() const
+    inline bool has_codes() const
     {
         return m_codes != NULL;
     }
