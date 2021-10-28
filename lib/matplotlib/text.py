@@ -1232,7 +1232,8 @@ class Text(Artist):
         - If *self* is configured to use TeX, return *s* unchanged except that
           a single space gets escaped, and the flag "TeX".
         - Otherwise, if *s* is mathtext (has an even number of unescaped dollar
-          signs), return *s* and the flag True.
+          signs) and ``parse_math`` is not set to False, return *s* and the
+          flag True.
         - Otherwise, return *s* with dollar signs unescaped, and the flag
           False.
         """
@@ -1281,21 +1282,18 @@ class Text(Artist):
 
     def set_parse_math(self, parse_math):
         """
-        Override switch to enable/disable any mathtext
-        parsing for the given `Text` object.
+        Override switch to disable any mathtext parsing for this `Text`.
 
         Parameters
         ----------
         parse_math : bool
-            Whether to consider mathtext parsing for the string
+            If False, this `Text` will never use mathtext.  If True, mathtext
+            will be used if there is an even number of unescaped dollar signs.
         """
         self._parse_math = bool(parse_math)
 
     def get_parse_math(self):
-        """
-        Return whether mathtext parsing is considered
-        for this `Text` object.
-        """
+        """Return whether mathtext parsing is considered for this `Text`."""
         return self._parse_math
 
     def set_fontname(self, fontname):
