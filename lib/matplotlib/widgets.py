@@ -1679,7 +1679,7 @@ class MultiCursor(Widget):
 
     Parameters
     ----------
-    canvas : `matplotlib.backend_bases.FigureCanvasBase` 
+    canvas : `matplotlib.backend_bases.FigureCanvasBase`
         The FigureCanvas that contains all the axes.
 
     axes : list of `matplotlib.axes.Axes`
@@ -1704,7 +1704,6 @@ class MultiCursor(Widget):
     --------
     See :doc:`/gallery/widgets/multicursor`.
     """
-
 
     def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True,
                  **lineprops):
