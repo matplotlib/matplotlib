@@ -1593,6 +1593,8 @@ X, Y : array-like, optional
     that ``len(X) == N`` is the number of columns in *Z* and
     ``len(Y) == M`` is the number of rows in *Z*.
 
+    *X* and *Y* must both be ordered monotonically.
+
     If not given, they are assumed to be integer indices, i.e.
     ``X = range(N)``, ``Y = range(M)``.
 
