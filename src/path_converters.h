@@ -162,16 +162,22 @@ class PathNanRemover : protected EmbeddedQueue<4>
 {
     VertexSource *m_source;
     bool m_remove_nans;
-    bool m_has_curves;
+    bool m_has_codes;
     bool valid_segment_exists;
+    bool m_last_segment_valid;
+    bool m_was_broken;
+    double m_initX;
+    double m_initY;
 
   public:
-    /* has_curves should be true if the path contains bezier curve
-       segments, as this requires a slower algorithm to remove the
-       NaNs.  When in doubt, set to true.
+    /* has_codes should be true if the path contains bezier curve segments, or
+     * closed loops, as this requires a slower algorithm to remove the NaNs.
+     * When in doubt, set to true.
      */
-    PathNanRemover(VertexSource &source, bool remove_nans, bool has_curves)
-        : m_source(&source), m_remove_nans(remove_nans), m_has_curves(has_curves)
+    PathNanRemover(VertexSource &source, bool remove_nans, bool has_codes)
+        : m_source(&source), m_remove_nans(remove_nans), m_has_codes(has_codes),
+          m_last_segment_valid(false), m_was_broken(false),
+          m_initX(nan("")), m_initY(nan(""))
     {
         // ignore all close/end_poly commands until after the first valid
         // (nan-free) command is encountered
@@ -192,8 +198,9 @@ class PathNanRemover : protected EmbeddedQueue<4>
             return m_source->vertex(x, y);
         }
 
-        if (m_has_curves) {
-            /* This is the slow method for when there might be curves. */
+        if (m_has_codes) {
+            /* This is the slow method for when there might be curves or closed
+             * loops. */
             if (queue_pop(&code, x, y)) {
                 return code;
             }
@@ -205,14 +212,41 @@ class PathNanRemover : protected EmbeddedQueue<4>
                    are found along the way, the queue is emptied, and
                    the next curve segment is handled. */
                 code = m_source->vertex(x, y);
-                /* The vertices attached to STOP and CLOSEPOLY left are never
-                   used, so we leave them as-is even if NaN. However, CLOSEPOLY
-                   only makes sense if a valid MOVETO command has already been
-                   emitted. */
-                if (code == agg::path_cmd_stop ||
-                    (code == (agg::path_cmd_end_poly | agg::path_flags_close) &&
-                     valid_segment_exists)) {
+                /* The vertices attached to STOP and CLOSEPOLY are never used,
+                 * so we leave them as-is even if NaN. */
+                if (code == agg::path_cmd_stop) {
                     return code;
+                } else if (code == (agg::path_cmd_end_poly |
+                                    agg::path_flags_close) &&
+                           valid_segment_exists) {
+                    /* However, CLOSEPOLY only makes sense if a valid MOVETO
+                     * command has already been emitted. But if a NaN was
+                     * removed in the path, then we cannot close it as it is no
+                     * longer a loop. We must emulate that by inserting a
+                     * LINETO instead. */
+                    if (m_was_broken) {
+                        if (m_last_segment_valid && (
+                                std::isfinite(m_initX) &&
+                                std::isfinite(m_initY))) {
+                            /* Join to start if both ends are valid. */
+                            queue_push(agg::path_cmd_line_to, m_initX, m_initY);
+                            break;
+                        } else {
+                            /* Skip the close, in case there are additional
+                             * subpaths. */
+                            continue;
+                        }
+                        m_was_broken = false;
+                        break;
+                    } else {
+                        return code;
+                    }
+                } else if (code == agg::path_cmd_move_to) {
+                    /* Save the initial point in order to produce the last
+                     * segment closing a loop, *if* we broke the loop. */
+                    m_initX = *x;
+                    m_initY = *y;
+                    m_was_broken = false;
                 }
 
                 if (needs_move_to) {
@@ -220,22 +254,24 @@ class PathNanRemover : protected EmbeddedQueue<4>
                 }
 
                 size_t num_extra_points = num_extra_points_map[code & 0xF];
-                bool has_nan = (!(std::isfinite(*x) && std::isfinite(*y)));
+                m_last_segment_valid = (std::isfinite(*x) && std::isfinite(*y));
                 queue_push(code, *x, *y);
 
                 /* Note: this test can not be short-circuited, since we need to
                    advance through the entire curve no matter what */
                 for (size_t i = 0; i < num_extra_points; ++i) {
                     m_source->vertex(x, y);
-                    has_nan = has_nan || !(std::isfinite(*x) && std::isfinite(*y));
+                    m_last_segment_valid = m_last_segment_valid &&
+                        (std::isfinite(*x) && std::isfinite(*y));
                     queue_push(code, *x, *y);
                 }
 
-                if (!has_nan) {
+                if (m_last_segment_valid) {
                     valid_segment_exists = true;
                     break;
                 }
 
+                m_was_broken = true;
                 queue_clear();
 
                 /* If the last point is finite, we use that for the
@@ -254,9 +290,9 @@ class PathNanRemover : protected EmbeddedQueue<4>
             } else {
                 return agg::path_cmd_stop;
             }
-        } else // !m_has_curves
+        } else // !m_has_codes
         {
-            /* This is the fast path for when we know we have no curves */
+            /* This is the fast path for when we know we have no codes. */
             code = m_source->vertex(x, y);
 
             if (code == agg::path_cmd_stop ||
@@ -300,6 +336,7 @@ class PathClipper : public EmbeddedQueue<3>
     double m_initX;
     double m_initY;
     bool m_has_init;
+    bool m_was_clipped;
 
   public:
     PathClipper(VertexSource &source, bool do_clipping, double width, double height)
@@ -311,7 +348,8 @@ class PathClipper : public EmbeddedQueue<3>
           m_moveto(true),
           m_initX(nan("")),
           m_initY(nan("")),
-          m_has_init(false)
+          m_has_init(false),
+          m_was_clipped(false)
     {
         // empty
     }
@@ -325,7 +363,8 @@ class PathClipper : public EmbeddedQueue<3>
           m_moveto(true),
           m_initX(nan("")),
           m_initY(nan("")),
-          m_has_init(false)
+          m_has_init(false),
+          m_was_clipped(false)
     {
         m_cliprect.x1 -= 1.0;
         m_cliprect.y1 -= 1.0;
@@ -336,21 +375,29 @@ class PathClipper : public EmbeddedQueue<3>
     inline void rewind(unsigned path_id)
     {
         m_has_init = false;
+        m_was_clipped = false;
         m_moveto = true;
         m_source->rewind(path_id);
     }
 
-    int draw_clipped_line(double x0, double y0, double x1, double y1)
+    int draw_clipped_line(double x0, double y0, double x1, double y1,
+                          bool closed=false)
     {
         unsigned moved = agg::clip_line_segment(&x0, &y0, &x1, &y1, m_cliprect);
         // moved >= 4 - Fully clipped
         // moved & 1 != 0 - First point has been moved
         // moved & 2 != 0 - Second point has been moved
+        m_was_clipped = m_was_clipped || (moved != 0);
         if (moved < 4) {
             if (moved & 1 || m_moveto) {
                 queue_push(agg::path_cmd_move_to, x0, y0);
             }
             queue_push(agg::path_cmd_line_to, x1, y1);
+            if (closed && !m_was_clipped) {
+                // Close the path only if the end point hasn't moved.
+                queue_push(agg::path_cmd_end_poly | agg::path_flags_close,
+                           x1, y1);
+            }
 
             m_moveto = false;
             return 1;
@@ -364,75 +411,91 @@ class PathClipper : public EmbeddedQueue<3>
         unsigned code;
         bool emit_moveto = false;
 
-        if (m_do_clipping) {
-            /* This is the slow path where we actually do clipping */
+        if (!m_do_clipping) {
+            // If not doing any clipping, just pass along the vertices verbatim
+            return m_source->vertex(x, y);
+        }
 
-            if (queue_pop(&code, x, y)) {
-                return code;
-            }
+        /* This is the slow path where we actually do clipping */
 
-            while ((code = m_source->vertex(x, y)) != agg::path_cmd_stop) {
-                emit_moveto = false;
+        if (queue_pop(&code, x, y)) {
+            return code;
+        }
 
-                switch (code) {
-                case (agg::path_cmd_end_poly | agg::path_flags_close):
-                    if (m_has_init) {
-                        draw_clipped_line(m_lastX, m_lastY, m_initX, m_initY);
-                    }
+        while ((code = m_source->vertex(x, y)) != agg::path_cmd_stop) {
+            emit_moveto = false;
+
+            switch (code) {
+            case (agg::path_cmd_end_poly | agg::path_flags_close):
+                if (m_has_init) {
+                    // Queue the line from last point to the initial point, and
+                    // if never clipped, add a close code.
+                    draw_clipped_line(m_lastX, m_lastY, m_initX, m_initY,
+                                      true);
+                } else {
+                    // An empty path that is immediately closed.
                     queue_push(
                         agg::path_cmd_end_poly | agg::path_flags_close,
                         m_lastX, m_lastY);
+                }
+                // If paths were not clipped, then the above code queued
+                // something, and we should exit the loop. Otherwise, continue
+                // to the next point, as there may be a new subpath.
+                if (queue_nonempty()) {
                     goto exit_loop;
+                }
+                break;
 
-                case agg::path_cmd_move_to:
+            case agg::path_cmd_move_to:
 
-                    // was the last command a moveto (and we have
-                    // seen at least one command ?
-                    // if so, shove it in the queue if in clip box
-                    if (m_moveto && m_has_init &&
-                        m_lastX >= m_cliprect.x1 &&
-                        m_lastX <= m_cliprect.x2 &&
-                        m_lastY >= m_cliprect.y1 &&
-                        m_lastY <= m_cliprect.y2) {
-                        // push the last moveto onto the queue
-                        queue_push(agg::path_cmd_move_to, m_lastX, m_lastY);
-                        // flag that we need to emit it
-                        emit_moveto = true;
-                    }
-                    // update the internal state for this moveto
-                    m_initX = m_lastX = *x;
-                    m_initY = m_lastY = *y;
-                    m_has_init = true;
-                    m_moveto = true;
-                    // if the last command was moveto exit the loop to emit the code
-                    if (emit_moveto) {
-                        goto exit_loop;
-                    }
-                    // else, break and get the next point
-                    break;
+                // was the last command a moveto (and we have
+                // seen at least one command ?
+                // if so, shove it in the queue if in clip box
+                if (m_moveto && m_has_init &&
+                    m_lastX >= m_cliprect.x1 &&
+                    m_lastX <= m_cliprect.x2 &&
+                    m_lastY >= m_cliprect.y1 &&
+                    m_lastY <= m_cliprect.y2) {
+                    // push the last moveto onto the queue
+                    queue_push(agg::path_cmd_move_to, m_lastX, m_lastY);
+                    // flag that we need to emit it
+                    emit_moveto = true;
+                }
+                // update the internal state for this moveto
+                m_initX = m_lastX = *x;
+                m_initY = m_lastY = *y;
+                m_has_init = true;
+                m_moveto = true;
+                m_was_clipped = false;
+                // if the last command was moveto exit the loop to emit the code
+                if (emit_moveto) {
+                    goto exit_loop;
+                }
+                // else, break and get the next point
+                break;
 
-                case agg::path_cmd_line_to:
-                    if (draw_clipped_line(m_lastX, m_lastY, *x, *y)) {
-                        m_lastX = *x;
-                        m_lastY = *y;
-                        goto exit_loop;
-                    }
-                    m_lastX = *x;
-                    m_lastY = *y;
-                    break;
-
-                default:
-                    if (m_moveto) {
-                        queue_push(agg::path_cmd_move_to, m_lastX, m_lastY);
-                        m_moveto = false;
-                    }
-
-                    queue_push(code, *x, *y);
+            case agg::path_cmd_line_to:
+                if (draw_clipped_line(m_lastX, m_lastY, *x, *y)) {
                     m_lastX = *x;
                     m_lastY = *y;
                     goto exit_loop;
                 }
+                m_lastX = *x;
+                m_lastY = *y;
+                break;
+
+            default:
+                if (m_moveto) {
+                    queue_push(agg::path_cmd_move_to, m_lastX, m_lastY);
+                    m_moveto = false;
+                }
+
+                queue_push(code, *x, *y);
+                m_lastX = *x;
+                m_lastY = *y;
+                goto exit_loop;
             }
+        }
 
         exit_loop:
 
@@ -452,11 +515,6 @@ class PathClipper : public EmbeddedQueue<3>
             }
 
             return agg::path_cmd_stop;
-        } else {
-            // If not doing any clipping, just pass along the vertices
-            // verbatim
-            return m_source->vertex(x, y);
-        }
     }
 };
 

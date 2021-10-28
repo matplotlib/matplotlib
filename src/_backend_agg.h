@@ -277,7 +277,7 @@ class RendererAgg
                                        DashesVector &linestyles,
                                        AntialiasedArray &antialiaseds,
                                        bool check_snap,
-                                       bool has_curves);
+                                       bool has_codes);
 
     template <class PointArray, class ColorArray>
     void _draw_gouraud_triangle(PointArray &points,
@@ -478,7 +478,7 @@ RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, 
     }
 
     transformed_path_t tpath(path, trans);
-    nan_removed_t nan_removed(tpath, true, path.has_curves());
+    nan_removed_t nan_removed(tpath, true, path.has_codes());
     clipped_t clipped(nan_removed, clip, width, height);
     snapped_t snapped(clipped, gc.snap_mode, path.total_vertices(), snapping_linewidth);
     simplify_t simplified(snapped, simplify, path.simplify_threshold());
@@ -512,7 +512,7 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
     trans *= agg::trans_affine_translation(0.5, (double)height + 0.5);
 
     transformed_path_t marker_path_transformed(marker_path, marker_trans);
-    nan_removed_t marker_path_nan_removed(marker_path_transformed, true, marker_path.has_curves());
+    nan_removed_t marker_path_nan_removed(marker_path_transformed, true, marker_path.has_codes());
     snap_t marker_path_snapped(marker_path_nan_removed,
                                gc.snap_mode,
                                marker_path.total_vertices(),
@@ -910,7 +910,7 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
                                                        DashesVector &linestyles,
                                                        AntialiasedArray &antialiaseds,
                                                        bool check_snap,
-                                                       bool has_curves)
+                                                       bool has_codes)
 {
     typedef agg::conv_transform<typename PathGenerator::path_iterator> transformed_path_t;
     typedef PathNanRemover<transformed_path_t> nan_removed_t;
@@ -998,11 +998,11 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
             gc.isaa = antialiaseds(i % Naa);
 
             transformed_path_t tpath(path, trans);
-            nan_removed_t nan_removed(tpath, true, has_curves);
+            nan_removed_t nan_removed(tpath, true, has_codes);
             clipped_t clipped(nan_removed, do_clip, width, height);
             snapped_t snapped(
                 clipped, gc.snap_mode, path.total_vertices(), points_to_pixels(gc.linewidth));
-            if (has_curves) {
+            if (has_codes) {
                 snapped_curve_t curve(snapped);
                 _draw_path(curve, has_clippath, face, gc);
             } else {
@@ -1012,9 +1012,9 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
             gc.isaa = antialiaseds(i % Naa);
 
             transformed_path_t tpath(path, trans);
-            nan_removed_t nan_removed(tpath, true, has_curves);
+            nan_removed_t nan_removed(tpath, true, has_codes);
             clipped_t clipped(nan_removed, do_clip, width, height);
-            if (has_curves) {
+            if (has_codes) {
                 curve_t curve(clipped);
                 _draw_path(curve, has_clippath, face, gc);
             } else {

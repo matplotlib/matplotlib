@@ -152,10 +152,10 @@ bool RendererAgg::render_clippath(py::PathIterator &clippath,
 
         rendererBaseAlphaMask.clear(agg::gray8(0, 0));
         transformed_path_t transformed_clippath(clippath, trans);
-        nan_removed_t nan_removed_clippath(transformed_clippath, true, clippath.has_curves());
+        nan_removed_t nan_removed_clippath(transformed_clippath, true, clippath.has_codes());
         snapped_t snapped_clippath(nan_removed_clippath, snap_mode, clippath.total_vertices(), 0.0);
         simplify_t simplified_clippath(snapped_clippath,
-                                       clippath.should_simplify() && !clippath.has_curves(),
+                                       clippath.should_simplify() && !clippath.has_codes(),
                                        clippath.simplify_threshold());
         curve_t curved_clippath(simplified_clippath);
         theRasterizer.add_path(curved_clippath);
