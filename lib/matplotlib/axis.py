@@ -1706,10 +1706,10 @@ class Axis(martist.Artist):
         if isinstance(locator, mticker.FixedLocator):
             # Passing [] as a list of ticklabels is often used as a way to
             # remove all tick labels, so only error for > 0 ticklabels
-            if len(locator.locs) != len(ticklabels) and len(ticklabels) != 0:
+            if locator.nbins - 1 != len(ticklabels) and len(ticklabels) != 0:
                 raise ValueError(
                     "The number of FixedLocator locations"
-                    f" ({len(locator.locs)}), usually from a call to"
+                    f" ({locator.nbins}), usually from a call to"
                     " set_ticks, does not match"
                     f" the number of ticklabels ({len(ticklabels)}).")
             tickd = {loc: lab for loc, lab in zip(locator.locs, ticklabels)}
