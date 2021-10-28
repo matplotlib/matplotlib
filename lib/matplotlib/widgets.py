@@ -1677,25 +1677,37 @@ class MultiCursor(Widget):
 
     For the cursor to remain responsive you must keep a reference to it.
 
-    Example usage::
+    Parameters
+    ----------
+    canvas : `matplotlib.backend_bases.FigureCanvasBase` 
+        The FigureCanvas that contains all the axes.
 
-        from matplotlib.widgets import MultiCursor
-        import matplotlib.pyplot as plt
-        import numpy as np
+    axes : list of `matplotlib.axes.Axes`
+        The `~.axes.Axes` to attach the cursor to.
 
-        fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True)
-        t = np.arange(0.0, 2.0, 0.01)
-        ax1.plot(t, np.sin(2*np.pi*t))
-        ax2.plot(t, np.sin(4*np.pi*t))
+    useblit : bool, default: True
+        Use blitting for faster drawing if supported by the backend.
 
-        multi = MultiCursor(fig.canvas, (ax1, ax2), color='r', lw=1,
-                            horizOn=False, vertOn=True)
-        plt.show()
+    horizOn : bool, default: False
+        Whether to draw the horizontal line.
 
+    vertOn: bool, default: True
+        Whether to draw the vertical line.
+
+    Other Parameters
+    ----------------
+    **lineprops
+        `.Line2D` properties that control the appearance of the lines.
+        See also `~.Axes.axhline`.
+
+    Examples
+    --------
+    See :doc:`/gallery/widgets/multicursor`.
     """
+
+
     def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True,
                  **lineprops):
-
         self.canvas = canvas
         self.axes = axes
         self.horizOn = horizOn
