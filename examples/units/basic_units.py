@@ -132,6 +132,9 @@ class TaggedValue(metaclass=TaggedValueMeta):
         self.unit = unit
         self.proxy_target = self.value
 
+    def __copy__(self):
+        return TaggedValue(self.value, self.unit)
+
     def __getattribute__(self, name):
         if name.startswith('__'):
             return object.__getattribute__(self, name)
