@@ -1688,7 +1688,8 @@ class MultiCursor(Widget):
 
     useblit : bool, default: True
         Use blitting for faster drawing if supported by the backend.
-        See the tutorial :doc:`/tutorials/advanced/blitting` for details.
+        See the tutorial :doc:`/tutorials/advanced/blitting`
+        for details.
 
     horizOn : bool, default: False
         Whether to draw the horizontal line.
