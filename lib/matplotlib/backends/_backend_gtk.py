@@ -43,7 +43,7 @@ def _create_application():
 
     if _application is None:
         app = Gio.Application.get_default()
-        if app is None or getattr(app, '_created_by_matplotlib'):
+        if app is None or getattr(app, '_created_by_matplotlib', False):
             # display_is_valid returns False only if on Linux and neither X11
             # nor Wayland display can be opened.
             if not mpl._c_internal_utils.display_is_valid():
