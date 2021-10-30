@@ -2,6 +2,8 @@
 2D lines with support for a variety of line styles, markers, colors, etc.
 """
 
+import copy
+
 from numbers import Integral, Number, Real
 import logging
 
@@ -16,7 +18,6 @@ from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, BboxTransformTo, TransformedPath
 from ._enums import JoinStyle, CapStyle
-import copy
 
 # Imported here for backward compatibility, even though they don't
 # really belong.
