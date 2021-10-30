@@ -77,6 +77,29 @@ Two new styles ``']->'`` and ``'<-['`` are also added via this mechanism.
 `.ConnectionPatch`, which accepts arrow styles though its *arrowstyle*
 parameter, also accepts these new styles.
 
+.. plot::
+
+    import matplotlib.patches as mpatches
+
+    fig, ax = plt.subplots(figsize=(4, 4))
+
+    ax.plot([0.75, 0.75], [0.25, 0.75], 'ok')
+    ax.set(xlim=(0, 1), ylim=(0, 1), title='New ArrowStyle options')
+
+    ax.annotate(']->', (0.75, 0.25), (0.25, 0.25),
+                arrowprops=dict(
+                    arrowstyle=']->', connectionstyle="arc3,rad=-0.05",
+                    shrinkA=5, shrinkB=5,
+                ),
+                bbox=dict(boxstyle='square', fc='w'), size='large')
+
+    ax.annotate('<-[', (0.75, 0.75), (0.25, 0.75),
+                arrowprops=dict(
+                    arrowstyle='<-[', connectionstyle="arc3,rad=-0.05",
+                    shrinkA=5, shrinkB=5,
+                ),
+                bbox=dict(boxstyle='square', fc='w'), size='large')
+
 Setting collection offset transform after initialization
 --------------------------------------------------------
 
@@ -130,6 +153,11 @@ A new keyword argument *interpolation_stage* is provided for
 happens. The default is the current behaviour of "data", with the alternative
 being "rgba" for the newly-available behavior.
 
+.. figure:: /gallery/images_contours_and_fields/images/sphx_glr_image_antialiasing_001.png
+   :target: /gallery/images_contours_and_fields/image_antialiasing.html
+
+   Example of the interpolation stage options.
+
 For more details see the discussion of the new keyword argument in
 :doc:`/gallery/images_contours_and_fields/image_antialiasing`.
 
@@ -153,11 +181,19 @@ Settings tick positions and labels simultaneously in ``set_ticks``
 and labels simultaneously.
 
 Previously, setting tick labels was done using `.Axis.set_ticklabels` (or
-the corresponding `.Axes.set_xticklabels` / `.Axes.set_yticklabels`). This
+the corresponding `.Axes.set_xticklabels` / `.Axes.set_yticklabels`); this
 usually only makes sense if tick positions were previously fixed with
-`~.Axis.set_ticks`. The combined functionality is now available in
-`~.Axis.set_ticks`. The use of `.Axis.set_ticklabels` is discouraged, but it
-will stay available for backward compatibility.
+`~.Axis.set_ticks`::
+
+    ax.set_xticks([1, 2, 3])
+    ax.set_xticklabels(['a', 'b', 'c'])
+
+The combined functionality is now available in `~.Axis.set_ticks`::
+
+    ax.set_xticks([1, 2, 3], ['a', 'b', 'c'])
+
+The use of `.Axis.set_ticklabels` is discouraged, but it will stay available
+for backward compatibility.
 
 Note: This addition makes the API of `~.Axis.set_ticks` also more similar to
 `.pyplot.xticks` / `.pyplot.yticks`, which already had the additional *labels*
@@ -241,7 +277,6 @@ A new :rc:`legend.labelcolor` sets the default *labelcolor* argument for
 'mfc'), or 'markeredgecolor' (or 'mec') will cause the legend text to match the
 corresponding color of marker.
 
-
 .. plot::
 
     plt.rcParams['legend.labelcolor'] = 'linecolor'
@@ -269,11 +304,65 @@ The `~mpl_toolkits.mplot3d.axes3d.Axes3D` class now has *computed_zorder*
 parameter. When set to False, Artists are drawn using their ``zorder``
 attribute.
 
+.. plot::
+
+    import matplotlib.patches as mpatches
+    from mpl_toolkits.mplot3d import art3d
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6.4, 3),
+                                   subplot_kw=dict(projection='3d'))
+
+    ax1.set_title('computed_zorder = True (default)')
+    ax2.set_title('computed_zorder = False')
+    ax2.computed_zorder = False
+
+    corners = ((0, 0, 0), (0, 5, 0), (5, 5, 0), (5, 0, 0))
+    for ax in (ax1, ax2):
+        tri = art3d.Poly3DCollection([corners],
+                                     facecolors='white',
+                                     edgecolors='black',
+                                     zorder=1)
+        ax.add_collection3d(tri)
+        line, = ax.plot((2, 2), (2, 2), (0, 4), c='red', zorder=2,
+                        label='zorder=2')
+        points = ax.scatter((3, 3), (1, 3), (1, 3), c='red', zorder=10,
+                            label='zorder=10')
+
+        ax.set_xlim((0, 5))
+        ax.set_ylim((0, 5))
+        ax.set_zlim((0, 2.5))
+
+    plane = mpatches.Patch(facecolor='white', edgecolor='black',
+                           label='zorder=1')
+    fig.legend(handles=[plane, line, points], loc='lower center')
+
 Allow changing the vertical axis in 3d plots
 ----------------------------------------------
 
 `~mpl_toolkits.mplot3d.axes3d.Axes3D.view_init` now has the parameter
 *vertical_axis* which allows switching which axis is aligned vertically.
+
+.. plot::
+
+    Nphi, Nr = 18, 8
+    phi = np.linspace(0, np.pi, Nphi)
+    r = np.arange(Nr)
+    phi = np.tile(phi, Nr).flatten()
+    r = np.repeat(r, Nphi).flatten()
+
+    x = r * np.sin(phi)
+    y = r * np.cos(phi)
+    z = Nr - r
+
+    fig, axs = plt.subplots(1, 3, figsize=(7, 3),
+                            subplot_kw=dict(projection='3d'),
+                            gridspec_kw=dict(wspace=0.4, left=0.08, right=0.98,
+                                             bottom=0, top=1))
+    for vert_a, ax in zip(['z', 'y', 'x'], axs):
+        pc = ax.scatter(x, y, z, c=z)
+        ax.view_init(azim=30, elev=30, vertical_axis=vert_a)
+        ax.set(xlabel='x', ylabel='y', zlabel='z',
+               title=f'vertical_axis={vert_a!r}')
 
 Interactive tool improvements
 =============================
