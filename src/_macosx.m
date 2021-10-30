@@ -247,7 +247,7 @@ static int wait_for_stdin(void)
 - (void)keyUp:(NSEvent*)event;
 - (void)scrollWheel:(NSEvent *)event;
 - (BOOL)acceptsFirstResponder;
-//- (void)flagsChanged:(NSEvent*)event;
+- (void)flagsChanged:(NSEvent*)event;
 @end
 
 /* ---------------------------- Python classes ---------------------------- */
@@ -1711,21 +1711,24 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     return YES;
 }
 
-/* This is all wrong. Address of pointer is being passed instead of pointer, keynames don't
-   match up with what the front-end and does the front-end even handle modifier keys by themselves?
-
-- (void)flagsChanged:(NSEvent*)event
+// flagsChanged gets called on single modifier keypresses
+// The modifier + second key gets handled in convertKeyEvent in KeyUp/KeyDown
+- (void)flagsChanged:(NSEvent *)event
 {
     const char *s = NULL;
-    if (([event modifierFlags] & NSControlKeyMask) == NSControlKeyMask)
+    if ([event modifierFlags] & NSEventModifierFlagControl)
         s = "control";
-    else if (([event modifierFlags] & NSShiftKeyMask) == NSShiftKeyMask)
+    else if ([event modifierFlags] & NSEventModifierFlagShift)
         s = "shift";
-    else if (([event modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask)
+    else if ([event modifierFlags] & NSEventModifierFlagOption)
         s = "alt";
+    else if ([event modifierFlags] & NSEventModifierFlagCommand)
+        s = "cmd";
+    else if ([event modifierFlags] & NSEventModifierFlagCapsLock)
+        s = "caps_lock";
     else return;
     PyGILState_STATE gstate = PyGILState_Ensure();
-    PyObject* result = PyObject_CallMethod(canvas, "key_press_event", "s", &s);
+    PyObject* result = PyObject_CallMethod(canvas, "key_press_event", "s", s);
     if (result)
         Py_DECREF(result);
     else
@@ -1733,7 +1736,6 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
     PyGILState_Release(gstate);
 }
- */
 @end
 
 static PyObject*
