@@ -560,3 +560,10 @@ def test_suplabels():
     pos = ax.get_tightbbox(fig.canvas.get_renderer())
     assert pos.y0 > pos0.y0 + 10.0
     assert pos.x0 > pos0.x0 + 10.0
+
+
+def test_gridspec_addressing():
+    fig = plt.figure()
+    gs = fig.add_gridspec(3, 3)
+    sp = fig.add_subplot(gs[0:, 1:])
+    fig.draw_without_rendering()
