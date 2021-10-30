@@ -169,7 +169,8 @@ class LayoutGrid:
                 self.solver.addConstraint(c | 'required')
 
     def add_child(self, child, i=0, j=0):
-        self.children[i, j] = child
+        # np.ix_ returns the cross product of i and j indices
+        self.children[np.ix_(np.atleast_1d(i), np.atleast_1d(j))] = child
 
     def parent_constraints(self):
         # constraints that are due to the parent...

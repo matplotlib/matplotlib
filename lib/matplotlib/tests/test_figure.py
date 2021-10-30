@@ -1073,6 +1073,7 @@ def test_subfigure_spanning():
         fig.add_subfigure(gs[0, 0]),
         fig.add_subfigure(gs[0:2, 1]),
         fig.add_subfigure(gs[2, 1:3]),
+        fig.add_subfigure(gs[0:, 1:])
     ]
 
     w = 640
@@ -1085,6 +1086,12 @@ def test_subfigure_spanning():
 
     np.testing.assert_allclose(sub_figs[2].bbox.min, [w / 3, 0])
     np.testing.assert_allclose(sub_figs[2].bbox.max, [w, h / 3])
+
+    # check here that slicing actually works.  Last sub_fig
+    # with open slices failed, but only on draw...
+    for i in range(4):
+        sub_figs[i].add_subplot()
+    fig.draw_without_rendering()
 
 
 @mpl.style.context('mpl20')
