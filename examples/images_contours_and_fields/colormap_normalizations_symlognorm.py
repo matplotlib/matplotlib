@@ -53,13 +53,12 @@ ax[1].text(-2.5, 1.5, 'linear')
 
 
 ########################################
-# Clearly, tt may be necessary to experiment with multiple different
-# colorscales in order to find the best visualization for
-# any particular dataset.
+# In order to find the best visualization for any particular dataset,
+# it may be necessary to experiment with multiple different color scales.
 # As well as the `~.colors.SymLogNorm` scaling, there is also
 # the option of using the `~.colors.AsinhNorm`, which has a smoother
 # transition between the linear and logarithmic regions of the transformation
-# applied to the "z" axis.
+# applied to the data values, "Z".
 # In the plots below, it may be possible to see contour-like artifacts
 # around each hump despite there being no sharp features
 # in the dataset itself. The ``asinh`` scaling shows a smoother shading

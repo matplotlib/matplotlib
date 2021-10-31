@@ -477,7 +477,7 @@ class AsinhTransform(Transform):
 
 
 class InvertedAsinhTransform(Transform):
-    """Hyperbolic-sine transformation used by `.AsinhScale`"""
+    """Hyperbolic sine transformation used by `.AsinhScale`"""
     input_dims = output_dims = 1
 
     def __init__(self, linear_width):
@@ -496,7 +496,7 @@ class AsinhScale(ScaleBase):
     A quasi-logarithmic scale based on the inverse hyperbolic sine (asinh)
 
     For values close to zero, this is essentially a linear scale,
-    but for larger values (either positive or negative) it is asymptotically
+    but for large magnitude values (either positive or negative) it is asymptotically
     logarithmic. The transition between these linear and logarithmic regimes
     is smooth, and has no discontinuities in the function gradient
     in contrast to the `.SymmetricalLogScale` ("symlog") scale.
