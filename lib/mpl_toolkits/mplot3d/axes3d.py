@@ -476,17 +476,6 @@ class Axes3D(Axes):
         zhigh = tc[0][2] > tc[2][2]
         return xhigh, yhigh, zhigh
 
-    def _unit_change_handler(self, axis_name, event=None):
-        # docstring inherited
-        if event is None:  # Allow connecting `self._unit_change_handler(name)`
-            return functools.partial(
-                self._unit_change_handler, axis_name, event=object())
-        _api.check_in_list(self._get_axis_map(), axis_name=axis_name)
-        self.relim()
-        self._request_autoscale_view(scalex=(axis_name == "x"),
-                                     scaley=(axis_name == "y"),
-                                     scalez=(axis_name == "z"))
-
     def update_datalim(self, xys, **kwargs):
         pass
 
@@ -514,24 +503,6 @@ class Axes3D(Axes):
         """
         self._autoscaleZon = b
 
-    def set_xmargin(self, m):
-        # docstring inherited
-        scalez = self._stale_viewlims["z"]
-        super().set_xmargin(m)
-        # Superclass is 2D and will call _request_autoscale_view with defaults
-        # for unknown Axis, which would be scalez=True, but it shouldn't be for
-        # this call, so restore it.
-        self._stale_viewlims["z"] = scalez
-
-    def set_ymargin(self, m):
-        # docstring inherited
-        scalez = self._stale_viewlims["z"]
-        super().set_ymargin(m)
-        # Superclass is 2D and will call _request_autoscale_view with defaults
-        # for unknown Axis, which would be scalez=True, but it shouldn't be for
-        # this call, so restore it.
-        self._stale_viewlims["z"] = scalez
-
     def set_zmargin(self, m):
         """
         Set padding of Z data limits prior to autoscaling.
@@ -544,7 +515,7 @@ class Axes3D(Axes):
         if m < 0 or m > 1:
             raise ValueError("margin must be in range 0 to 1")
         self._zmargin = m
-        self._request_autoscale_view(scalex=False, scaley=False, scalez=True)
+        self._request_autoscale_view("z")
         self.stale = True
 
     def margins(self, *margins, x=None, y=None, z=None, tight=True):
@@ -638,8 +609,12 @@ class Axes3D(Axes):
                 self._autoscaleZon = scalez = bool(enable)
             else:
                 scalez = False
-        self._request_autoscale_view(tight=tight, scalex=scalex, scaley=scaley,
-                                     scalez=scalez)
+        if scalex:
+            self._request_autoscale_view("x", tight=tight)
+        if scaley:
+            self._request_autoscale_view("y", tight=tight)
+        if scalez:
+            self._request_autoscale_view("z", tight=tight)
 
     def auto_scale_xyz(self, X, Y, Z=None, had_data=None):
         # This updates the bounding boxes as to keep a record as to what the
@@ -1342,29 +1317,6 @@ class Axes3D(Axes):
             visible = True
         self._draw_grid = visible
         self.stale = True
-
-    def locator_params(self, axis='both', tight=None, **kwargs):
-        """
-        Convenience method for controlling tick locators.
-
-        See :meth:`matplotlib.axes.Axes.locator_params` for full
-        documentation.  Note that this is for Axes3D objects,
-        therefore, setting *axis* to 'both' will result in the
-        parameters being set for all three axes.  Also, *axis*
-        can also take a value of 'z' to apply parameters to the
-        z axis.
-        """
-        _x = axis in ['x', 'both']
-        _y = axis in ['y', 'both']
-        _z = axis in ['z', 'both']
-        if _x:
-            self.xaxis.get_major_locator().set_params(**kwargs)
-        if _y:
-            self.yaxis.get_major_locator().set_params(**kwargs)
-        if _z:
-            self.zaxis.get_major_locator().set_params(**kwargs)
-        self._request_autoscale_view(tight=tight, scalex=_x, scaley=_y,
-                                     scalez=_z)
 
     def tick_params(self, axis='both', **kwargs):
         """

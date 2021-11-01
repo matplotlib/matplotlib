@@ -737,7 +737,8 @@ class Axes(_AxesBase):
         trans = self.get_yaxis_transform(which='grid')
         l = mlines.Line2D([xmin, xmax], [y, y], transform=trans, **kwargs)
         self.add_line(l)
-        self._request_autoscale_view(scalex=False, scaley=scaley)
+        if scaley:
+            self._request_autoscale_view("y")
         return l
 
     @docstring.dedent_interpd
@@ -804,7 +805,8 @@ class Axes(_AxesBase):
         trans = self.get_xaxis_transform(which='grid')
         l = mlines.Line2D([x, x], [ymin, ymax], transform=trans, **kwargs)
         self.add_line(l)
-        self._request_autoscale_view(scalex=scalex, scaley=False)
+        if scalex:
+            self._request_autoscale_view("x")
         return l
 
     @staticmethod
@@ -934,7 +936,7 @@ class Axes(_AxesBase):
         p = mpatches.Polygon(verts, **kwargs)
         p.set_transform(self.get_yaxis_transform(which="grid"))
         self.add_patch(p)
-        self._request_autoscale_view(scalex=False)
+        self._request_autoscale_view("y")
         return p
 
     @docstring.dedent_interpd
@@ -991,7 +993,7 @@ class Axes(_AxesBase):
         p.set_transform(self.get_xaxis_transform(which="grid"))
         p.get_path()._interpolation_steps = 100
         self.add_patch(p)
-        self._request_autoscale_view(scaley=False)
+        self._request_autoscale_view("x")
         return p
 
     @_preprocess_data(replace_names=["y", "xmin", "xmax", "colors"],
@@ -1627,7 +1629,10 @@ class Axes(_AxesBase):
         lines = [*self._get_lines(*args, data=data, **kwargs)]
         for line in lines:
             self.add_line(line)
-        self._request_autoscale_view(scalex=scalex, scaley=scaley)
+        if scalex:
+            self._request_autoscale_view("x")
+        if scaley:
+            self._request_autoscale_view("y")
         return lines
 
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
@@ -4045,8 +4050,7 @@ class Axes(_AxesBase):
                 axis.set_major_formatter(formatter)
             formatter.seq = [*formatter.seq, *datalabels]
 
-            self._request_autoscale_view(
-                scalex=self._autoscaleXon, scaley=self._autoscaleYon)
+            self._request_autoscale_view()
 
         return dict(whiskers=whiskers, caps=caps, boxes=boxes,
                     medians=medians, fliers=fliers, means=means)
