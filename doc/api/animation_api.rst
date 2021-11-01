@@ -2,14 +2,6 @@
 ``matplotlib.animation``
 ************************
 
-.. inheritance-diagram:: matplotlib.animation.FuncAnimation matplotlib.animation.ArtistAnimation
-   :private-bases:
-   :parts: 1
-
-.. inheritance-diagram:: matplotlib.animation.FFMpegFileWriter matplotlib.animation.FFMpegWriter matplotlib.animation.ImageMagickFileWriter matplotlib.animation.ImageMagickWriter
-   :private-bases:
-   :parts: 1
-
 .. automodule:: matplotlib.animation
    :no-members:
    :no-undoc-members:
@@ -18,6 +10,18 @@
    :depth: 1
    :local:
    :backlinks: entry
+
+
+Inheritance Diagrams
+====================
+
+.. inheritance-diagram:: matplotlib.animation.FuncAnimation matplotlib.animation.ArtistAnimation
+   :private-bases:
+   :parts: 1
+
+.. inheritance-diagram:: matplotlib.animation.FFMpegFileWriter matplotlib.animation.FFMpegWriter matplotlib.animation.ImageMagickFileWriter matplotlib.animation.ImageMagickWriter
+   :private-bases:
+   :parts: 1
 
 Animation
 =========
@@ -296,4 +300,3 @@ and mixins
 are provided.
 
 See the source code for how to easily implement new `MovieWriter` classes.
-
