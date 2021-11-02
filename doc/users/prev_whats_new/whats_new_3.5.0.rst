@@ -503,9 +503,9 @@ Backend-specific improvements
 Version information
 ===================
 
-We switched to the `release-branch-semver`_ version scheme. This only affects,
-the version information for development builds. Their version number now
-describes the targeted release, i.e. 3.5.0.dev820+g6768ef8c4c.d20210520 is 820
+We switched to the `release-branch-semver`_ version scheme of setuptools-scm.
+This only affects the version information for development builds. Their version
+number now describes the targeted release, i.e. 3.5.0.dev820+g6768ef8c4c is 820
 commits after the previous release and is scheduled to be officially released
 as 3.5.0 later.
 
