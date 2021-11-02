@@ -39,6 +39,18 @@ The `setuptools-scm-git-archive
 <https://pypi.org/project/setuptools-scm-git-archive/>`__ plugin is also used
 for consistent version export.
 
+Data directory is no longer optional
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Historically, the ``mpl-data`` directory has been optional (example files were
+unnecessary, and fonts could be deleted if a suitable dependency on a system
+font were provided). Though example files are still optional, they have been
+substantially pared down, and we now consider the directory to be required.
+
+Specifically, the ``matplotlibrc`` file found there is used for runtime
+verifications and must exist. Packagers may still symlink fonts to system
+versions if needed.
+
 New runtime dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
