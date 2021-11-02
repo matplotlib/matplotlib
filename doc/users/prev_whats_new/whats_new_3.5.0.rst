@@ -125,9 +125,8 @@ Setting collection offset transform after initialization
 
 The added `.collections.Collection.set_offset_transform` may be used to set the
 offset transform after initialization. This can be helpful when creating a
-`.collections.Collection` outside an Axes object and later adding it with
-`.Axes.add_collection()` and settings the offset transform to
-`.Axes.transData`.
+`.collections.Collection` outside an Axes object, and later adding it with
+`.Axes.add_collection()` and setting the offset transform to `.Axes.transData`.
 
 Colors and colormaps
 ====================
@@ -138,7 +137,7 @@ Colormap registry (experimental)
 Colormaps are now managed via `matplotlib.colormaps` (or `.pyplot.colormaps`),
 which is a `.ColormapRegistry`. While we are confident that the API is final,
 we formally mark it as experimental for 3.5 because we want to keep the option
-to still adapt the API for 3.6 should the need arise.
+to still modify the API for 3.6 should the need arise.
 
 Colormaps can be obtained using item access::
 
@@ -188,7 +187,7 @@ The `~.axes.Axes.imshow` method now supports half-float arrays, i.e., NumPy
 arrays with dtype ``np.float16``.
 
 A callback registry has been added to Normalize objects
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------------
 
 `.colors.Normalize` objects now have a callback registry, ``callbacks``, that
 can be connected to by other objects to be notified when the norm is updated.
@@ -273,8 +272,9 @@ of the text inside the Axes of the `.TextBox` widget.
     from matplotlib import pyplot as plt
     from matplotlib.widgets import TextBox
 
+    fig = plt.figure(figsize=(4, 3))
     for i, alignment in enumerate(['left', 'center', 'right']):
-            box_input = plt.axes([0.2, 0.7 - i*0.2, 0.6, 0.1])
+            box_input = fig.add_axes([0.1, 0.7 - i*0.3, 0.8, 0.2])
             text_box = TextBox(ax=box_input, initial=f'{alignment} alignment',
                                label='', textalignment=alignment)
 
