@@ -14,6 +14,26 @@ the :ref:`github-stats`.
 Figure and Axes creation / management
 =====================================
 
+``subplot_mosaic`` supports simple Axes sharing
+-----------------------------------------------
+
+`.Figure.subplot_mosaic`, `.pyplot.subplot_mosaic` support *simple* Axes
+sharing (i.e., only `True`/`False` may be passed to *sharex*/*sharey*). When
+`True`, tick label visibility and Axis units will be shared.
+
+.. plot::
+    :include-source:
+
+    mosaic = [
+        ['A', [['B', 'C'],
+               ['D', 'E']]],
+        ['F', 'G'],
+    ]
+    fig = plt.figure(constrained_layout=True)
+    ax_dict = fig.subplot_mosaic(mosaic, sharex=True, sharey=True)
+    # All Axes use these scales after this call.
+    ax_dict['A'].set(xscale='log', yscale='logit')
+
 Figure now has ``draw_without_rendering`` method
 ------------------------------------------------
 
@@ -161,6 +181,12 @@ being "rgba" for the newly-available behavior.
 For more details see the discussion of the new keyword argument in
 :doc:`/gallery/images_contours_and_fields/image_antialiasing`.
 
+``imshow`` supports half-float arrays
+-------------------------------------
+
+The `~.axes.Axes.imshow` method now supports half-float arrays, i.e., NumPy
+arrays with dtype ``np.float16``.
+
 A callback registry has been added to Normalize objects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -202,6 +228,19 @@ parameter.
 Fonts and Text
 ==============
 
+Triple and quadruple dot mathtext accents
+-----------------------------------------
+
+In addition to single and double dot accents, mathtext now supports triple and
+quadruple dot accents.
+
+.. plot::
+    :include-source:
+
+    fig = plt.figure(figsize=(3, 1))
+    fig.text(0.5, 0.5, r'$\dot{a} \ddot{b} \dddot{c} \ddddot{d}$', fontsize=40,
+             horizontalalignment='center', verticalalignment='center')
+
 Font properties of legend title are configurable
 ------------------------------------------------
 
@@ -214,6 +253,14 @@ argument, for example:
     ax.plot(range(10), label='point')
     ax.legend(title='Points',
               title_fontproperties={'family': 'serif', 'size': 20})
+
+``Text`` and ``TextBox`` added *parse_math* option
+--------------------------------------------------
+
+`.Text` and `.TextBox` objects now allow a *parse_math* keyword-only argument
+which controls whether math should be parsed from the displayed string. If
+*True*, the string will be parsed as a math text object. If *False*, the string
+will be considered a literal and no parsing will occur.
 
 Text can be positioned inside TextBox widget
 --------------------------------------------
@@ -364,8 +411,60 @@ Allow changing the vertical axis in 3d plots
         ax.set(xlabel='x', ylabel='y', zlabel='z',
                title=f'vertical_axis={vert_a!r}')
 
+``plot_surface`` supports masked arrays and NaNs
+------------------------------------------------
+
+`.axes3d.Axes3D.plot_surface` supports masked arrays and NaNs, and will now
+hide quads that contain masked or NaN points. The behaviour is similar to
+`.Axes.contour` with ``corner_mask=True``.
+
+.. plot::
+
+    import matplotlib
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw={'projection': '3d'},
+                           constrained_layout=True)
+
+    x, y = np.mgrid[1:10:1, 1:10:1]
+    z = x ** 3 + y ** 3 - 500
+    z = np.ma.masked_array(z, z < 0)
+
+    ax.plot_surface(x, y, z, rstride=1, cstride=1, linewidth=0, cmap='inferno')
+    ax.view_init(35, -90)
+
+3D plotting methods support *data* keyword argument
+---------------------------------------------------
+
+To match all 2D plotting methods, the 3D Axes now support the *data* keyword
+argument. This allows passing arguments indirectly from a DataFrame-like
+structure. ::
+
+    data = {  # A labelled data set, or e.g., Pandas DataFrame.
+        'x': ...,
+        'y': ...,
+        'z': ...,
+        'width': ...,
+        'depth': ...,
+        'top': ...,
+    }
+
+    fig, ax = plt.subplots(subplot_kw={'projection': '3d')
+    ax.bar3d('x', 'y', 'z', 'width', 'depth', 'top', data=data)
+
 Interactive tool improvements
 =============================
+
+Colorbars now have pan and zoom functionality
+---------------------------------------------
+
+Interactive plots with colorbars can now be zoomed and panned on the colorbar
+axis. This adjusts the *vmin* and *vmax* of the ``ScalarMappable`` associated
+with the colorbar. This is currently only enabled for continuous norms. Norms
+used with contourf and categoricals, such as ``BoundaryNorm`` and ``NoNorm``,
+have the interactive capability disabled by default. ``cb.ax.set_navigate()``
+can be used to set whether a colorbar axes is interactive or not.
 
 Updated the appearance of Slider widgets
 ----------------------------------------
@@ -479,6 +578,14 @@ from being processed and let all other signals pass.
     # Only block key press events
     with fig.canvas.callbacks.blocked(signal="key_press_event"):
         plt.show()
+
+Directional sizing cursors
+--------------------------
+
+Canvases now support setting directional sizing cursors, i.e., horizontal and
+vertical double arrows. These are used in e.g., selector widgets. Try the
+:doc:`/gallery/widgets/mouse_cursor` example to see the cursor in your desired
+backend.
 
 Sphinx extensions
 =================
