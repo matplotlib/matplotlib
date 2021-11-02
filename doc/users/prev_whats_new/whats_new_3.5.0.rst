@@ -500,6 +500,62 @@ configuration options that may be specified in your ``conf.py``:
 Backend-specific improvements
 =============================
 
+GTK backend
+-----------
+
+A backend supporting GTK4_ has been added. Both Agg and Cairo renderers are
+supported. The GTK4 backends may be selected as GTK4Agg or GTK4Cairo.
+
+.. _GTK4: https://www.gtk.org/
+
+Qt backends
+-----------
+
+Support for Qt6 (using either PyQt6_ or PySide6_) has been added, with either
+the Agg or Cairo renderers. Simultaneously, support for Qt4 has been dropped.
+Both Qt6 and Qt5 are supported by a combined backend (QtAgg or QtCairo), and
+the loaded version is determined by modules already imported, the
+:envvar:`QT_API` environment variable, and available packages. See
+:ref:`QT_API-usage` for details. The versioned Qt5 backend names (Qt5Agg or
+Qt5Cairo) remain supported for backwards compatibility.
+
+.. _PyQt6: https://www.riverbankcomputing.com/static/Docs/PyQt6/
+.. _PySide6: https://doc.qt.io/qtforpython/
+
+HiDPI support in Cairo-based, GTK, and Tk backends
+--------------------------------------------------
+
+The GTK3 backends now support HiDPI fully, including mixed monitor cases (on
+Wayland only). The newly added GTK4 backends also support HiDPI.
+
+The TkAgg backend now supports HiDPI **on Windows only**, including mixed
+monitor cases.
+
+All Cairo-based backends correctly support HiDPI as well as their Agg
+counterparts did (i.e., if the toolkit supports HiDPI, then the \*Cairo backend
+will now support it, but not otherwise.)
+
+Qt figure options editor improvements
+-------------------------------------
+
+The figure options editor in the Qt backend now also supports editing the left
+and right titles (plus the existing centre title). Editing Axis limits is
+better supported when using a date converter. The ``symlog`` option is now
+available in Axis scaling options. All entries with the same label are now
+shown in the Curves tab.
+
+WX backends support mouse navigation buttons
+--------------------------------------------
+
+The WX backends now support navigating through view states using the mouse
+forward/backward buttons, as in other backends.
+
+WebAgg uses asyncio instead of Tornado
+--------------------------------------
+
+The WebAgg backend defaults to using `asyncio` over Tornado for timer support.
+This allows using the WebAgg backend in JupyterLite.
+
 Version information
 ===================
 
