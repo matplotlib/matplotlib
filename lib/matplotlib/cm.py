@@ -299,7 +299,7 @@ def unregister_cmap(name):
     If the named colormap is not registered, returns with no error, raises
     if you try to de-register a default colormap.
 
-    .. warning ::
+    .. warning::
 
       Colormap names are currently a shared namespace that may be used
       by multiple packages. Use `unregister_cmap` only if you know you

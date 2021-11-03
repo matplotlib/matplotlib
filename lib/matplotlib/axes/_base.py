@@ -4215,7 +4215,7 @@ class _AxesBase(martist.Artist):
         """
         Set the navigation toolbar button status.
 
-        .. warning ::
+        .. warning::
             this is not a user-API function.
 
         """

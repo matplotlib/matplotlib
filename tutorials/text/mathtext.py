@@ -111,7 +111,7 @@ small::
 
     r'$(\frac{5 - \frac{1}{x}}{4})$'
 
-.. math ::
+.. math::
 
     (\frac{5 - \frac{1}{x}}{4})
 
@@ -120,7 +120,7 @@ the parser that those brackets encompass the entire object.::
 
     r'$\left(\frac{5 - \frac{1}{x}}{4}\right)$'
 
-.. math ::
+.. math::
 
     \left(\frac{5 - \frac{1}{x}}{4}\right)
 
@@ -130,7 +130,7 @@ Radicals can be produced with the ``\sqrt[]{}`` command.  For example::
 
     r'$\sqrt{2}$'
 
-.. math ::
+.. math::
 
     \sqrt{2}
 
@@ -140,7 +140,7 @@ fractions or sub/superscripts::
 
     r'$\sqrt[3]{x}$'
 
-.. math ::
+.. math::
 
     \sqrt[3]{x}
 
