@@ -1674,7 +1674,7 @@ default: %(va)s
 
         This is a helper function to build complex GridSpec layouts visually.
 
-        .. note ::
+        .. note::
 
            This API is provisional and may be revised in the future based on
            early user feedback.
