@@ -1592,6 +1592,7 @@ class Cursor(AxesWidget):
         Whether to draw the vertical line.
     useblit : bool, default: False
         Use blitting for faster drawing if supported by the backend.
+        See the tutorial :doc:`/tutorials/advanced/blitting` for details.
 
     Other Parameters
     ----------------
@@ -1687,6 +1688,8 @@ class MultiCursor(Widget):
 
     useblit : bool, default: True
         Use blitting for faster drawing if supported by the backend.
+        See the tutorial :doc:`/tutorials/advanced/blitting`
+        for details.
 
     horizOn : bool, default: False
         Whether to draw the horizontal line.
@@ -2093,7 +2096,8 @@ class SpanSelector(_SelectorWidget):
 
     useblit : bool, default: False
         If True, use the backend-dependent blitting features for faster
-        canvas updates.
+        canvas updates. See the tutorial :doc:`/tutorials/advanced/blitting`
+        for details.
 
     props : dict, optional
         Dictionary of `matplotlib.patches.Patch` properties.
@@ -2502,7 +2506,8 @@ class ToolLineHandles:
         Additional line properties. See `matplotlib.lines.Line2D`.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend).
+        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        for details.
     """
 
     def __init__(self, ax, positions, direction, line_props=None,
@@ -2609,7 +2614,8 @@ class ToolHandles:
         Additional marker properties. See `matplotlib.lines.Line2D`.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend).
+        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        for details.
     """
 
     def __init__(self, ax, x, y, marker='o', marker_props=None, useblit=True):
@@ -2684,7 +2690,8 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
 
     useblit : bool, default: False
         Whether to use blitting for faster drawing (if supported by the
-        backend).
+        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        for details.
 
     props : dict, optional
         Properties with which the __ARTIST_NAME__ is drawn. See
@@ -3240,7 +3247,8 @@ class LassoSelector(_SelectorWidget):
         passed the vertices of the selected path.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend).
+        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        for details.
     props : dict, optional
         Properties with which the line is drawn, see `matplotlib.lines.Line2D`
         for valid properties. Default values are defined in ``mpl.rcParams``.
@@ -3322,7 +3330,8 @@ class PolygonSelector(_SelectorWidget):
 
     useblit : bool, default: False
         Whether to use blitting for faster drawing (if supported by the
-        backend).
+        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        for details.
 
     props : dict, optional
         Properties with which the line is drawn, see `matplotlib.lines.Line2D`
@@ -3589,7 +3598,8 @@ class Lasso(AxesWidget):
         Coordinates of the start of the lasso.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend).
+        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        for details.
     callback : callable
         Whenever the lasso is released, the *callback* function is called and
         passed the vertices of the selected path.
