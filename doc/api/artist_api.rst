@@ -35,6 +35,8 @@ Interactive
    Artist.pchanged
    Artist.get_cursor_data
    Artist.format_cursor_data
+   Artist.set_mouseover
+   Artist.get_mouseover
    Artist.mouseover
    Artist.contains
    Artist.pick
