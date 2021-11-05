@@ -1212,20 +1212,19 @@ default: %(va)s
     def set_subplotpars(self, subplotparams = {}):
         """
         Set the subplot layout parameters.
-        Accepts either a SubplotParams object, from which the relevant
+        Accepts either a `.SubplotParams` object, from which the relevant
         parameters are copied, or a dictionary of subplot layout parameters.
         If a dictionary is provided, this function is a convenience wrapper for
-        matplotlib.figure.Figure.subplots_adjust
+        `matplotlib.figure.Figure.subplots_adjust`
 
         Parameters
         ----------
-        subplotparams : `~matplotlib.figure.SubplotParams` or dict, optional
+        subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys \
+"left", "bottom", "right", 'top", "wspace", "hspace"] , optional
             SubplotParams object to copy new subplot parameters from, or a dict 
-            of SubplotParams constructor arguments, i.e., a dictionary with 
-            any of ["left", "bottom", "right", 'top", "wspace", "hspace"] as its
-            keys. 
+            of SubplotParams constructor arguments.
             By default, an empty dictionary is passed, which maintains the 
-            current state of the figure's SubplotParams
+            current state of the figure's `.SubplotParams`
 
         See Also
         --------
@@ -1257,7 +1256,7 @@ default: %(va)s
 
     def get_subplotpars(self):
         """
-        Return the SubplotParams object associated with the Figure.
+        Return the `.SubplotParams` object associated with the Figure.
 
         Returns
         -------
@@ -2470,21 +2469,23 @@ class Figure(FigureBase):
                    constrained_layout=None):
         """
         Set the figure layout specification. (Optionally) sets how
-        `.tight_layout` or `.constrained_layout` is called when a dict is
-        provided to tight_layout or constrained_layout.
+        `.tight_layout` or `.set_constrained_layout` is used when a dict is
+        provided to *tight_layout* or *constrained_layout*.
         
 
-        If `layout` is not None, the layout solver is determined exclusively by
-        `layout`, regardless of `tight_layout` or `constrained_layout`,
-         but optional padding parameters stored in `tight_layout` or
-         `constrained_layout` are used with the respective layout. For instance,
-         if `layout`=='tight', 'tight_layout==False', and `constrained_layout`==
-         True, `tight_layout` with default paddings is used to format the figure.
-         If `layout`=='constrained', `tight_layout`=={'pad':1}, and 
-         `constrained_layout`=={'w_pad':1}, then
-         `.constrained_layout` is called with padding parameters {'w_pad':1}.
-        If `layout` is None, `tight_layout` and `constrained_layout` are 
-        mutually exclusive.  That is, only one can be True or a dict.
+        If *layout* is not *None*, the layout solver is determined exclusively by
+        *layout*, regardless of *tight_layout* or *constrained_layout*,
+        but optional padding parameters stored in *tight_layout* or
+        *constrained_layout* are used with the respective layout. For instance,
+        if *layout* is *'tight'*, *tight_layout* is *False*, and 
+        *constrained_layout* is *True*, `.tight_layout` with default paddings 
+        is used to format the figure.
+        If *layout* is *'constrained'*, *tight_layout* is *{'pad':1}*, and 
+        *constrained_layout* is *{'w_pad':1}*, then
+        `.set_constrained_layout` is called with padding parameters {'w_pad':1}.
+        If *layout* is None, *tight_layout* and *constrained_layout* are 
+        mutually exclusive.  That is, only one can be True or a dict, as 
+        resolving the case where both are True is ambiguous.
 
         Parameters
         ----------
@@ -2508,16 +2509,17 @@ class Figure(FigureBase):
             If not given, fall back to using the parameters *tight_layout* and
             *constrained_layout*, including their config defaults
             :rc:`figure.autolayout` and :rc:`figure.constrained_layout.use`.
-        tight_layout : bool or dict with keys "pad", "w_pad", "h_pad", "rect" or None
+        tight_layout : bool or dict with keys "pad", "w_pad", "h_pad", "rect", \
+or None
             If a bool, sets whether to call `.tight_layout` upon drawing.
             If ``None``, use :rc:`figure.autolayout` instead.
             If a dict, pass it as kwargs to `.tight_layout`, overriding the
             default paddings.
-        constrained_layout : bool or dict with keys "w_pad", "h_pad", "wspace",
-            "hspace" or None
-            If a bool, sets whether to call `.constrained_layout` upon drawing.
+        constrained_layout : bool or dict with keys "w_pad", "h_pad", "wspace", \
+"hspace" or None
+            If a bool, sets whether to use ``constrained_layout`` upon drawing.
             If ``None``, use :rc:`figure.autolayout` instead.
-            If a dict, pass it as kwargs to `.constrained_layout`, overriding the
+            If a dict, pass it as kwargs to `.set_constrained_layout`, overriding the
             default paddings.
         """
         if (
@@ -2881,7 +2883,7 @@ class Figure(FigureBase):
     def set_figsize(self, w, h = None):
         """
         Set the figure size in inches.
-        Convenience wrapper for matplotlib.figure.Figure.set_size_inches.
+        Convenience wrapper for `~matplotlib.figure.Figure.set_size_inches`.
 
         Call signatures::
 
@@ -2895,9 +2897,6 @@ class Figure(FigureBase):
             argument) or width.
         h : float
             Height in inches.
-        forward : bool, default: True
-            If ``True``, the canvas size is automatically updated, e.g.,
-            you can resize the figure window from the shell.
 
         See Also
         --------
@@ -2915,7 +2914,7 @@ class Figure(FigureBase):
     def get_figsize(self):
         """
         Return the current size of the figure in inches. 
-        Convenience wrapper for matplotlib.figure.Figure.get_size_inches.
+        Convenience wrapper for `~matplotlib.figure.Figure.get_size_inches`.
 
         Returns
         -------

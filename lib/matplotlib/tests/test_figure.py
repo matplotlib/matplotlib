@@ -548,10 +548,25 @@ def test_valid_layouts():
     assert fig.get_tight_layout()
     assert not fig.get_constrained_layout()
 
+    fig = Figure(tight_layout = True)
+    assert fig.get_tight_layout()
+    assert not fig.get_constrained_layout()
+
+    fig = Figure(tight_layout = True, constrained_layout=False)
+    assert fig.get_tight_layout()
+    assert not fig.get_constrained_layout()
+
     fig = Figure(constrained_layout = {'w_pad':1})
     assert not fig.get_tight_layout()
     assert fig.get_constrained_layout()
 
+    fig = Figure(constrained_layout = True)
+    assert not fig.get_tight_layout()
+    assert fig.get_constrained_layout()
+
+    fig = Figure(constrained_layout = True,tight_layout=False)
+    assert not fig.get_tight_layout()
+    assert fig.get_constrained_layout()
 
     fig = Figure(layout='tight', tight_layout = {'pad':1})
     assert fig.get_tight_layout()
@@ -565,12 +580,15 @@ def test_valid_layouts():
         constrained_layout=False)
     assert fig.get_tight_layout()
     assert not fig.get_constrained_layout() 
-    
+
     fig = Figure(layout = 'constrained', constrained_layout = {'w_pad':1},
         tight_layout=False)
     assert not fig.get_tight_layout()
     assert fig.get_constrained_layout()
-
+    fig = Figure(layout = None, constrained_layout = False,
+        tight_layout=False)
+    assert not fig.get_tight_layout()
+    assert not fig.get_constrained_layout()
 def test_invalid_layouts():
 
     def assert_is_tight(fig):
@@ -763,7 +781,14 @@ def test_invalid_layouts():
                        match="Cannot set 'tight_layout' and "
                        "'constrained_layout' simultaneously."):
        fig = Figure(tight_layout = {'w':1},constrained_layout = {'w_pad':1})
-
+    with pytest.raises(ValueError,
+                       match="Cannot set 'tight_layout' and "
+                       "'constrained_layout' simultaneously."):
+       fig = Figure(tight_layout = True,constrained_layout = {'w_pad':1})
+    with pytest.raises(ValueError,
+                       match="Cannot set 'tight_layout' and "
+                       "'constrained_layout' simultaneously."):
+       fig = Figure(tight_layout = True,constrained_layout = True)
 def test_set_subplotpars():
     subplotparams_keys = ["left", "bottom", "right", "top", "wspace", "hspace"]
     fig = plt.figure()
