@@ -1451,6 +1451,9 @@ def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
        This API is provisional and may be revised in the future based on
        early user feedback.
 
+    See :doc:`/tutorials/provisional/mosaic.py` 
+    for an examplary usage and provisional API documentation
+
     Parameters
     ----------
     mosaic : list of list of {hashable or nested} or str
