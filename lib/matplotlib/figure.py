@@ -2472,20 +2472,26 @@ class Figure(FigureBase):
         provided to *tight_layout* or *constrained_layout*.
 
 
-        If *layout* is not *None*, the layout solver is determined exclusively
-        by *layout*, regardless of *tight_layout* or *constrained_layout*,
-        but optional padding parameters stored in *tight_layout* or
-        *constrained_layout* are used with the respective layout. For instance,
-        if *layout* is *'tight'*, *tight_layout* is *False*, and
-        *constrained_layout* is *True*, `.tight_layout` with default paddings
-        is used to format the figure.
-        If *layout* is *'constrained'*, *tight_layout* is *{'pad':1}*, and
-        *constrained_layout* is *{'w_pad':1}*, then
-        `.set_constrained_layout` is called with padding parameters
-        *{'w_pad':1}*.
-        If *layout* is None, *tight_layout* and *constrained_layout* are
-        mutually exclusive.  That is, only one can be True or a dict, as
-        resolving the case where both are True is ambiguous.
+        - If *layout* is not *None*, the layout solver is determined 
+          exclusively by *layout*, regardless of *tight_layout* or 
+          *constrained_layout*, but optional padding parameters stored in 
+          *tight_layout* or *constrained_layout* are used with the respective 
+          layout. 
+        For instance:
+
+        - if *layout* is *'tight'*, *tight_layout* is *False*, and
+          *constrained_layout* is *True*, `.tight_layout` with default paddings
+          is used to format the figure.
+
+        - If *layout* is *'constrained'*, *tight_layout* is *{'pad':1}*, and
+          *constrained_layout* is *{'w_pad':1}*, then
+          `.set_constrained_layout` is called with padding parameters
+          *{'w_pad':1}*.
+
+        - If *layout* is None, *tight_layout* and *constrained_layout* are
+          mutually exclusive.  That is, only one can be *True* or a dict, as
+          resolving the case where both are not *False* and *layout* is *None*
+          is ambiguous.
 
         Parameters
         ----------
