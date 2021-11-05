@@ -1072,8 +1072,13 @@ def test_set_offsets_late():
 
 
 def test_set_offset_transform():
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match='.transOffset. without .offsets. has no effect'):
+        mcollections.Collection([],
+                                transOffset=mtransforms.IdentityTransform())
+
     skew = mtransforms.Affine2D().skew(2, 2)
-    init = mcollections.Collection([], transOffset=skew)
+    init = mcollections.Collection([], offsets=[], transOffset=skew)
 
     late = mcollections.Collection([])
     late.set_offset_transform(skew)

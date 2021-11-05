@@ -202,6 +202,18 @@ class Collection(artist.Artist, cm.ScalarMappable):
             if offsets.shape == (2,):
                 offsets = offsets[None, :]
             self._offsets = offsets
+        elif transOffset is not None:
+            _api.warn_deprecated(
+                '3.5',
+                removal='3.6',
+                message='Passing *transOffset* without *offsets* has no '
+                        'effect. This behavior is deprecated since %(since)s '
+                        'and %(removal)s, *transOffset* will begin having an '
+                        'effect regardless of *offsets*. In the meantime, if '
+                        'you wish to set *transOffset*, call '
+                        'collection.set_offset_transform(transOffset) '
+                        'explicitly.')
+            transOffset = None
 
         self._transOffset = transOffset
 
