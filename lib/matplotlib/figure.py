@@ -1204,6 +1204,32 @@ default: %(va)s
                 ax._set_position(ax.get_subplotspec().get_position(self))
         self.stale = True
 
+    def set_subplotpars(self, subplotparams = {}):
+        subplotparams_args = ["left", "bottom", "right",
+                             "top", "wspace", "hspace"]
+        kwargs = {}
+        if isinstance(subplotparams,SubplotParams):
+            for key in subplotparams_args:
+                kwargs[key] = getattr(subplotparams,key)
+        elif isinstance(subplotparams,dict):
+            for key in subplotparams.keys():
+                if key in subplotparams_args:
+                    kwargs[key] = subplotparams[key]
+                else:
+                    _api.warn_external(
+                        f"'{key}' is not a valid key for set_subplotpars;"
+                        " this key was ignored.")
+        else:
+            raise TypeError(
+                "subplotpars must be a dictionary of keyword-argument pairs or "
+                "an instance of SubplotParams()")
+        if kwargs == {}:
+            self.set_subplotpars(self.get_subplotpars())
+        self.subplots_adjust(**kwargs)
+
+    def get_subplotpars(self):
+        return self.subplotpars
+
     def align_xlabels(self, axs=None):
         """
         Align the xlabels of subplots in the same subplot column if label
@@ -2231,24 +2257,6 @@ class Figure(FigureBase):
         """
         super().__init__(**kwargs)
 
-        if layout is not None:
-            if tight_layout is not None:
-                _api.warn_external(
-                    "The Figure parameters 'layout' and 'tight_layout' "
-                    "cannot be used together. Please use 'layout' only.")
-            if constrained_layout is not None:
-                _api.warn_external(
-                    "The Figure parameters 'layout' and 'constrained_layout' "
-                    "cannot be used together. Please use 'layout' only.")
-            if layout == 'constrained':
-                tight_layout = False
-                constrained_layout = True
-            elif layout == 'tight':
-                tight_layout = True
-                constrained_layout = False
-            else:
-                _api.check_in_list(['constrained', 'tight'], layout=layout)
-
         self.callbacks = cbook.CallbackRegistry()
         # Callbacks traditionally associated with the canvas (and exposed with
         # a proxy property), but that actually need to be on the figure for
@@ -2299,15 +2307,12 @@ class Figure(FigureBase):
         self.subplotpars = subplotpars
 
         # constrained_layout:
-        self._constrained = False
-
-        self.set_tight_layout(tight_layout)
+        
 
         self._axstack = _AxesStack()  # track all figure axes and current axes
         self.clf()
         self._cachedRenderer = None
-
-        self.set_constrained_layout(constrained_layout)
+        self.set_layout(layout,tight_layout,constrained_layout)
 
         # list of child gridspecs for this figure
         self._gridspecs = []
@@ -2399,11 +2404,96 @@ class Figure(FigureBase):
 
     dpi = property(_get_dpi, _set_dpi, doc="The resolution in dots per inch.")
 
+    @property
+    def layout(self):
+        if hasattr(self,'_constrained'):
+            if self.get_constrained_layout():
+                layout = 'constrained'
+            elif self.get_tight_layout():
+                layout = 'tight'
+            else:
+                layout = None
+        else:
+            layout = None
+        return layout
+
+    def get_layout(self):
+        return self.layout
+
+    def set_layout(self,layout=None, tight_layout=None,constrained_layout=None):
+        if (
+            layout is None and 
+            tight_layout is None and 
+            constrained_layout is None
+            ):
+            layout = self.get_layout()
+
+        if layout is not None:
+            layout_clash = False
+            bool_conflict = False
+            type_conflict = False
+
+            if layout == 'constrained':
+                layoutstr = 'constrained_layout'
+                falselayoutstr = 'tight_layout'
+                layout_clash = tight_layout not in [False,None]
+                tight_layout=False
+                bool_conflict = (
+                    isinstance(constrained_layout,bool) and
+                    not constrained_layout
+                    )
+                type_conflict = not isinstance(constrained_layout,
+                                     (dict, bool, type(None)))
+                if bool_conflict or type_conflict or constrained_layout is None:
+                    constrained_layout=True
+
+
+            elif layout == 'tight':
+                layoutstr = 'tight_layout'
+                falselayoutstr = 'constrained_layout'
+                layout_clash = constrained_layout not in [False,None]
+                constrained_layout = False
+                bool_conflict = (
+                    isinstance(tight_layout,bool) and
+                    not tight_layout
+                    )
+                type_conflict = not isinstance(tight_layout, 
+                                (dict, bool, type(None)))
+                if bool_conflict or type_conflict or tight_layout is None:
+                    tight_layout=True
+            else:
+                _api.check_in_list(['constrained', 'tight'], layout=layout)
+
+            if layout_clash:
+                 _api.warn_external(f"Figure parameters "
+                        f"'layout'=='{layout}' and "
+                        f"'{falselayoutstr}'==True cannot "
+                        f"be used together. " 
+                        f"Please use 'layout' only.")
+            if bool_conflict:
+                _api.warn_external(f"Figure parameters "
+                    f"'layout'=='{layout}' and "
+                    f"'{layoutstr}'==False cannot be "
+                    f"used together. "
+                    f"Please use 'layout' only.")
+            if type_conflict:
+                _api.warn_external(f"Figure parameters "
+                    f"'layout'=='{layout}' and "
+                    f"'{layoutstr}' cannot be "
+                    f"used together if '{layoutstr}' is "
+                    f"not True or a dictionary of "
+                    f"{layoutstr} arguments. "
+                    f"Please use 'layout' only.")
+
+        self._constrained = False
+        self.set_tight_layout(tight_layout)
+        self.set_constrained_layout(constrained_layout)
+
     def get_tight_layout(self):
         """Return whether `.tight_layout` is called when drawing."""
         return self._tight
 
-    def set_tight_layout(self, tight):
+    def set_tight_layout(self, tight = None):
         """
         Set whether and how `.tight_layout` is called when drawing.
 
@@ -2429,7 +2519,7 @@ class Figure(FigureBase):
         """
         return self._constrained
 
-    def set_constrained_layout(self, constrained):
+    def set_constrained_layout(self, constrained = None):
         """
         Set whether ``constrained_layout`` is used upon drawing. If None,
         :rc:`figure.constrained_layout.use` value will be used.
@@ -2683,6 +2773,63 @@ class Figure(FigureBase):
         The size in pixels can be obtained by multiplying with `Figure.dpi`.
         """
         return np.array(self.bbox_inches.p1)
+
+    def set_figsize(self, w, h = None):
+        """
+        Set the figure size in inches.
+        Convenience wrapper for matplotlib.figure.Figure.set_size_inches.
+
+        Call signatures::
+
+             fig.set_figsize(w, h)  # OR
+             fig.set_figsize((w, h))
+
+        Parameters
+        ----------
+        w : (float, float) or float
+            Width and height in inches (if height not specified as a separate
+            argument) or width.
+        h : float
+            Height in inches.
+        forward : bool, default: True
+            If ``True``, the canvas size is automatically updated, e.g.,
+            you can resize the figure window from the shell.
+
+        See Also
+        --------
+        matplotlib.figure.Figure.get_figsize
+        matplotlib.figure.Figure.set_size_inches
+        matplotlib.figure.Figure.set_figwidth
+        matplotlib.figure.Figure.set_figheight
+
+        Notes
+        -----
+        To transform from pixels to inches divide by `Figure.dpi`.
+        """
+        self.set_size_inches(w,h)
+
+    def get_figsize(self):
+        """
+        Return the current size of the figure in inches. 
+        Convenience wrapper for matplotlib.figure.Figure.get_size_inches.
+
+        Returns
+        -------
+        ndarray
+           The size (width, height) of the figure in inches.
+
+        See Also
+        --------
+        matplotlib.figure.Figure.set_figsize
+        matplotlib.figure.Figure.get_size_inches
+        matplotlib.figure.Figure.get_figwidth
+        matplotlib.figure.Figure.get_figheight
+
+        Notes
+        -----
+        The size in pixels can be obtained by multiplying with `Figure.dpi`.
+        """
+        return self.get_size_inches()
 
     def get_figwidth(self):
         """Return the figure width in inches."""
