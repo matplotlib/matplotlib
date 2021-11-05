@@ -2446,6 +2446,9 @@ class Figure(FigureBase):
 
     @property
     def layout(self):
+        """
+        Return the current figure layout solver.
+        """
         if hasattr(self,'_constrained'):
             if self.get_constrained_layout():
                 layout = 'constrained'
@@ -2458,14 +2461,64 @@ class Figure(FigureBase):
         return layout
 
     def get_layout(self):
+        """
+        Return the current figure layout solver.
+        """
         return self.layout
 
     def set_layout(self,layout=None, tight_layout=None, 
                    constrained_layout=None):
         """
-        Set the figure layout specification, optionally setting how the layout
-        is called.
-        When providing a dict to tight_layout
+        Set the figure layout specification. (Optionally) sets how
+        `.tight_layout` or `.constrained_layout` is called when a dict is
+        provided to tight_layout or constrained_layout.
+        
+
+        If `layout` is not None, the layout solver is determined exclusively by
+        `layout`, regardless of `tight_layout` or `constrained_layout`,
+         but optional padding parameters stored in `tight_layout` or
+         `constrained_layout` are used with the respective layout. For instance,
+         if `layout`=='tight', 'tight_layout==False', and `constrained_layout`==
+         True, `tight_layout` with default paddings is used to format the figure.
+         If `layout`=='constrained', `tight_layout`=={'pad':1}, and 
+         `constrained_layout`=={'w_pad':1}, then
+         `.constrained_layout` is called with padding parameters {'w_pad':1}.
+        If `layout` is None, `tight_layout` and `constrained_layout` are 
+        mutually exclusive.  That is, only one can be True or a dict.
+
+        Parameters
+        ----------
+        layout : {'constrained', 'tight', None}, optional
+            The layout mechanism for positioning of plot elements.
+            Supported values:
+
+            - 'constrained': The constrained layout solver usually gives the
+              best layout results and is thus recommended. However, it is
+              computationally expensive and can be slow for complex figures
+              with many elements.
+
+              See :doc:`/tutorials/intermediate/constrainedlayout_guide`
+              for examples.
+
+            - 'tight': Use the tight layout mechanism. This is a relatively
+              simple algorithm, that adjusts the subplot parameters so that
+              decorations like tick labels, axis labels and titles have enough
+              space. See `.Figure.set_tight_layout` for further details.
+
+            If not given, fall back to using the parameters *tight_layout* and
+            *constrained_layout*, including their config defaults
+            :rc:`figure.autolayout` and :rc:`figure.constrained_layout.use`.
+        tight_layout : bool or dict with keys "pad", "w_pad", "h_pad", "rect" or None
+            If a bool, sets whether to call `.tight_layout` upon drawing.
+            If ``None``, use :rc:`figure.autolayout` instead.
+            If a dict, pass it as kwargs to `.tight_layout`, overriding the
+            default paddings.
+        constrained_layout : bool or dict with keys "w_pad", "h_pad", "wspace",
+            "hspace" or None
+            If a bool, sets whether to call `.constrained_layout` upon drawing.
+            If ``None``, use :rc:`figure.autolayout` instead.
+            If a dict, pass it as kwargs to `.constrained_layout`, overriding the
+            default paddings.
         """
         if (
             layout is None and 
@@ -2475,6 +2528,7 @@ class Figure(FigureBase):
             layout = self.get_layout()
 
         if layout is not None:
+            # these will store the state of any warnings we need to pop
             layout_clash = False
             bool_conflict = False
             type_conflict = False
@@ -2513,7 +2567,7 @@ class Figure(FigureBase):
             if layout_clash:
                  _api.warn_external(f"Figure parameters "
                         f"'layout'=='{layout}' and "
-                        f"'{falselayoutstr}'==True cannot "
+                        f"'{falselayoutstr}'!=False cannot "
                         f"be used together. " 
                         f"Please use 'layout' only.")
             if bool_conflict:
@@ -2530,7 +2584,11 @@ class Figure(FigureBase):
                     f"not True or a dictionary of "
                     f"{layoutstr} arguments. "
                     f"Please use 'layout' only.")
-
+        else:
+            #layout is None
+            if all([tight_layout, constrained_layout]):
+                raise ValueError("Cannot set 'tight_layout' and "
+                    "'constrained_layout' simultaneously.")
         self._constrained = False
         self.set_tight_layout(tight_layout)
         self.set_constrained_layout(constrained_layout)
