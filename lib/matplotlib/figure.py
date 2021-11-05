@@ -183,6 +183,7 @@ class FigureBase(Artist):
     Base class for `.figure.Figure` and `.figure.SubFigure` containing the
     methods that add artists to the figure or subfigure, create Axes, etc.
     """
+
     def __init__(self, **kwargs):
         super().__init__()
         # remove the non-figure artist _axes property
@@ -1051,9 +1052,9 @@ default: %(va)s
         """
 
         handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
-                self.axes,
-                *args,
-                **kwargs)
+            self.axes,
+            *args,
+            **kwargs)
         # check for third arg
         if len(extra_args):
             # _api.warn_deprecated(
@@ -1209,7 +1210,7 @@ default: %(va)s
                 ax._set_position(ax.get_subplotspec().get_position(self))
         self.stale = True
 
-    def set_subplotpars(self, subplotparams = {}):
+    def set_subplotpars(self, subplotparams={}):
         """
         Set the subplot layout parameters.
         Accepts either a `.SubplotParams` object, from which the relevant
@@ -1221,24 +1222,23 @@ default: %(va)s
         ----------
         subplotparams : `~matplotlib.figure.SubplotParams` or dict with keys \
 "left", "bottom", "right", 'top", "wspace", "hspace"] , optional
-            SubplotParams object to copy new subplot parameters from, or a dict 
-            of SubplotParams constructor arguments.
-            By default, an empty dictionary is passed, which maintains the 
-            current state of the figure's `.SubplotParams`
+            SubplotParams object to copy new subplot parameters from, or a dict
+             of SubplotParams constructor arguments.
+            By default, an empty dictionary is passed, which maintains the
+             current state of the figure's `.SubplotParams`
 
         See Also
         --------
         matplotlib.figure.Figure.subplots_adjust
         matplotlib.figure.Figure.get_subplotpars
         """
-        
         subplotparams_args = ["left", "bottom", "right",
-                             "top", "wspace", "hspace"]
+                              "top", "wspace", "hspace"]
         kwargs = {}
-        if isinstance(subplotparams,SubplotParams):
+        if isinstance(subplotparams, SubplotParams):
             for key in subplotparams_args:
-                kwargs[key] = getattr(subplotparams,key)
-        elif isinstance(subplotparams,dict):
+                kwargs[key] = getattr(subplotparams, key)
+        elif isinstance(subplotparams, dict):
             for key in subplotparams.keys():
                 if key in subplotparams_args:
                     kwargs[key] = subplotparams[key]
@@ -1248,8 +1248,8 @@ default: %(va)s
                         " this key was ignored.")
         else:
             raise TypeError(
-                "subplotpars must be a dictionary of keyword-argument pairs or "
-                "an instance of SubplotParams()")
+                "subplotpars must be a dictionary of keyword-argument pairs or"
+                " an instance of SubplotParams()")
         if kwargs == {}:
             self.set_subplotpars(self.get_subplotpars())
         self.subplots_adjust(**kwargs)
@@ -2346,12 +2346,11 @@ class Figure(FigureBase):
         self.subplotpars = subplotpars
 
         # constrained_layout:
-        
 
         self._axstack = _AxesStack()  # track all figure axes and current axes
         self.clf()
         self._cachedRenderer = None
-        self.set_layout(layout,tight_layout,constrained_layout)
+        self.set_layout(layout, tight_layout, constrained_layout)
 
         # list of child gridspecs for this figure
         self._gridspecs = []
@@ -2448,7 +2447,7 @@ class Figure(FigureBase):
         """
         Return the current figure layout solver.
         """
-        if hasattr(self,'_constrained'):
+        if hasattr(self, '_constrained'):
             if self.get_constrained_layout():
                 layout = 'constrained'
             elif self.get_tight_layout():
@@ -2465,26 +2464,27 @@ class Figure(FigureBase):
         """
         return self.layout
 
-    def set_layout(self,layout=None, tight_layout=None, 
+    def set_layout(self, layout=None, tight_layout=None,
                    constrained_layout=None):
         """
         Set the figure layout specification. (Optionally) sets how
         `.tight_layout` or `.set_constrained_layout` is used when a dict is
         provided to *tight_layout* or *constrained_layout*.
-        
 
-        If *layout* is not *None*, the layout solver is determined exclusively by
-        *layout*, regardless of *tight_layout* or *constrained_layout*,
+
+        If *layout* is not *None*, the layout solver is determined exclusively
+        by *layout*, regardless of *tight_layout* or *constrained_layout*,
         but optional padding parameters stored in *tight_layout* or
         *constrained_layout* are used with the respective layout. For instance,
-        if *layout* is *'tight'*, *tight_layout* is *False*, and 
-        *constrained_layout* is *True*, `.tight_layout` with default paddings 
+        if *layout* is *'tight'*, *tight_layout* is *False*, and
+        *constrained_layout* is *True*, `.tight_layout` with default paddings
         is used to format the figure.
-        If *layout* is *'constrained'*, *tight_layout* is *{'pad':1}*, and 
+        If *layout* is *'constrained'*, *tight_layout* is *{'pad':1}*, and
         *constrained_layout* is *{'w_pad':1}*, then
-        `.set_constrained_layout` is called with padding parameters {'w_pad':1}.
-        If *layout* is None, *tight_layout* and *constrained_layout* are 
-        mutually exclusive.  That is, only one can be True or a dict, as 
+        `.set_constrained_layout` is called with padding parameters
+        *{'w_pad':1}*.
+        If *layout* is None, *tight_layout* and *constrained_layout* are
+        mutually exclusive.  That is, only one can be True or a dict, as
         resolving the case where both are True is ambiguous.
 
         Parameters
@@ -2509,24 +2509,24 @@ class Figure(FigureBase):
             If not given, fall back to using the parameters *tight_layout* and
             *constrained_layout*, including their config defaults
             :rc:`figure.autolayout` and :rc:`figure.constrained_layout.use`.
-        tight_layout : bool or dict with keys "pad", "w_pad", "h_pad", "rect", \
-or None
+        tight_layout : bool or dict with keys "pad", "w_pad", "h_pad", \
+"rect", or None
             If a bool, sets whether to call `.tight_layout` upon drawing.
             If ``None``, use :rc:`figure.autolayout` instead.
             If a dict, pass it as kwargs to `.tight_layout`, overriding the
             default paddings.
-        constrained_layout : bool or dict with keys "w_pad", "h_pad", "wspace", \
-"hspace" or None
+        constrained_layout : bool or dict with keys "w_pad", "h_pad", \
+"wspace", "hspace" or None
             If a bool, sets whether to use ``constrained_layout`` upon drawing.
             If ``None``, use :rc:`figure.autolayout` instead.
-            If a dict, pass it as kwargs to `.set_constrained_layout`, overriding the
-            default paddings.
+            If a dict, pass it as kwargs to `.set_constrained_layout`,
+            overriding the default paddings.
         """
         if (
-            layout is None and 
-            tight_layout is None and 
+            layout is None and
+            tight_layout is None and
             constrained_layout is None
-            ):
+        ):
             layout = self.get_layout()
 
         if layout is not None:
@@ -2538,59 +2538,61 @@ or None
             if layout == 'constrained':
                 layoutstr = 'constrained_layout'
                 falselayoutstr = 'tight_layout'
-                layout_clash = tight_layout not in [False,None]
-                tight_layout=False
+                layout_clash = tight_layout not in [False, None]
+                tight_layout = False
                 bool_conflict = (
-                    isinstance(constrained_layout,bool) and
+                    isinstance(constrained_layout, bool) and
                     not constrained_layout
-                    )
+                )
                 type_conflict = not isinstance(constrained_layout,
-                                     (dict, bool, type(None)))
-                if bool_conflict or type_conflict or constrained_layout is None:
-                    constrained_layout=True
-
+                                               (dict, bool, type(None)))
+                if (
+                    bool_conflict or
+                    type_conflict or
+                    constrained_layout is None
+                   ):
+                    constrained_layout = True
 
             elif layout == 'tight':
                 layoutstr = 'tight_layout'
                 falselayoutstr = 'constrained_layout'
-                layout_clash = constrained_layout not in [False,None]
+                layout_clash = constrained_layout not in [False, None]
                 constrained_layout = False
                 bool_conflict = (
-                    isinstance(tight_layout,bool) and
+                    isinstance(tight_layout, bool) and
                     not tight_layout
-                    )
-                type_conflict = not isinstance(tight_layout, 
-                                (dict, bool, type(None)))
+                )
+                type_conflict = not isinstance(tight_layout,
+                                               (dict, bool, type(None)))
                 if bool_conflict or type_conflict or tight_layout is None:
-                    tight_layout=True
+                    tight_layout = True
             else:
                 _api.check_in_list(['constrained', 'tight'], layout=layout)
 
             if layout_clash:
-                 _api.warn_external(f"Figure parameters "
-                        f"'layout'=='{layout}' and "
-                        f"'{falselayoutstr}'!=False cannot "
-                        f"be used together. " 
-                        f"Please use 'layout' only.")
+                _api.warn_external(f"Figure parameters "
+                                   f"'layout'=='{layout}' and "
+                                   f"'{falselayoutstr}'!=False cannot "
+                                   f"be used together. "
+                                   f"Please use 'layout' only.")
             if bool_conflict:
                 _api.warn_external(f"Figure parameters "
-                    f"'layout'=='{layout}' and "
-                    f"'{layoutstr}'==False cannot be "
-                    f"used together. "
-                    f"Please use 'layout' only.")
+                                   f"'layout'=='{layout}' and "
+                                   f"'{layoutstr}'==False cannot be "
+                                   f"used together. "
+                                   f"Please use 'layout' only.")
             if type_conflict:
                 _api.warn_external(f"Figure parameters "
-                    f"'layout'=='{layout}' and "
-                    f"'{layoutstr}' cannot be "
-                    f"used together if '{layoutstr}' is "
-                    f"not True or a dictionary of "
-                    f"{layoutstr} arguments. "
-                    f"Please use 'layout' only.")
+                                   f"'layout'=='{layout}' and "
+                                   f"'{layoutstr}' cannot be "
+                                   f"used together if '{layoutstr}' is "
+                                   f"not True or a dictionary of "
+                                   f"{layoutstr} arguments. "
+                                   f"Please use 'layout' only.")
         else:
-            #layout is None
             if all([tight_layout, constrained_layout]):
                 raise ValueError("Cannot set 'tight_layout' and "
-                    "'constrained_layout' simultaneously.")
+                                 "'constrained_layout' simultaneously.")
         self._constrained = False
         self.set_tight_layout(tight_layout)
         self.set_constrained_layout(constrained_layout)
@@ -2599,7 +2601,7 @@ or None
         """Return whether `.tight_layout` is called when drawing."""
         return self._tight
 
-    def set_tight_layout(self, tight = None):
+    def set_tight_layout(self, tight=None):
         """
         Set whether and how `.tight_layout` is called when drawing.
 
@@ -2625,7 +2627,7 @@ or None
         """
         return self._constrained
 
-    def set_constrained_layout(self, constrained = None):
+    def set_constrained_layout(self, constrained=None):
         """
         Set whether ``constrained_layout`` is used upon drawing. If None,
         :rc:`figure.constrained_layout.use` value will be used.
@@ -2880,7 +2882,7 @@ or None
         """
         return np.array(self.bbox_inches.p1)
 
-    def set_figsize(self, w, h = None):
+    def set_figsize(self, w, h=None):
         """
         Set the figure size in inches.
         Convenience wrapper for `~matplotlib.figure.Figure.set_size_inches`.
@@ -2909,11 +2911,11 @@ or None
         -----
         To transform from pixels to inches divide by `Figure.dpi`.
         """
-        self.set_size_inches(w,h)
+        self.set_size_inches(w, h)
 
     def get_figsize(self):
         """
-        Return the current size of the figure in inches. 
+        Return the current size of the figure in inches.
         Convenience wrapper for `~matplotlib.figure.Figure.get_size_inches`.
 
         Returns
