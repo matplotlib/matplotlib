@@ -3520,7 +3520,8 @@ class Axes(_AxesBase):
                 showbox=None, showfliers=None, boxprops=None,
                 labels=None, flierprops=None, medianprops=None,
                 meanprops=None, capprops=None, whiskerprops=None,
-                manage_ticks=True, autorange=False, zorder=None):
+                manage_ticks=True, autorange=False, zorder=None,
+                capwidths=None):
         """
         Draw a box and whisker plot.
 
@@ -3687,6 +3688,8 @@ class Axes(_AxesBase):
             Show the arithmetic means.
         capprops : dict, default: None
             The style of the caps.
+        capwidths : float or array, default: None
+            The widths of the caps.
         boxprops : dict, default: None
             The style of the box.
         whiskerprops : dict, default: None
@@ -3815,7 +3818,8 @@ class Axes(_AxesBase):
                            medianprops=medianprops, meanprops=meanprops,
                            meanline=meanline, showfliers=showfliers,
                            capprops=capprops, whiskerprops=whiskerprops,
-                           manage_ticks=manage_ticks, zorder=zorder)
+                           manage_ticks=manage_ticks, zorder=zorder,
+                           capwidths=capwidths)
         return artists
 
     def bxp(self, bxpstats, positions=None, widths=None, vert=True,
@@ -3823,7 +3827,8 @@ class Axes(_AxesBase):
             showcaps=True, showbox=True, showfliers=True,
             boxprops=None, whiskerprops=None, flierprops=None,
             medianprops=None, capprops=None, meanprops=None,
-            meanline=False, manage_ticks=True, zorder=None):
+            meanline=False, manage_ticks=True, zorder=None,
+            capwidths=None):
         """
         Drawing function for box and whisker plots.
 
@@ -3860,6 +3865,10 @@ class Axes(_AxesBase):
         widths : float or array-like, default: None
           The widths of the boxes.  The default is
           ``clip(0.15*(distance between extreme positions), 0.15, 0.5)``.
+
+        capwidths : float or array-like, default: None
+          Either a scalar or a vector and sets the width of each cap.
+          The default is ``0.5*(with of the box)``, see *widths*.
 
         vert : bool, default: True
           If `True` (default), makes the boxes vertical.
@@ -3993,7 +4002,16 @@ class Axes(_AxesBase):
         elif len(widths) != N:
             raise ValueError(datashape_message.format("widths"))
 
-        for pos, width, stats in zip(positions, widths, bxpstats):
+        # capwidth
+        if capwidths is None:
+            capwidths = 0.5 * np.array(widths)
+        elif np.isscalar(capwidths):
+            capwidths = [capwidths] * N
+        elif len(capwidths) != N:
+            raise ValueError(datashape_message.format("capwidths"))
+
+        for pos, width, stats, capwidth in zip(positions, widths, bxpstats,
+                                               capwidths):
             # try to find a new label
             datalabels.append(stats.get('label', pos))
 
@@ -4002,8 +4020,8 @@ class Axes(_AxesBase):
             whislo_y = [stats['q1'], stats['whislo']]
             whishi_y = [stats['q3'], stats['whishi']]
             # cap coords
-            cap_left = pos - width * 0.25
-            cap_right = pos + width * 0.25
+            cap_left = pos - capwidth * 0.5
+            cap_right = pos + capwidth * 0.5
             cap_x = [cap_left, cap_right]
             cap_lo = np.full(2, stats['whislo'])
             cap_hi = np.full(2, stats['whishi'])
@@ -4013,14 +4031,16 @@ class Axes(_AxesBase):
             med_y = [stats['med'], stats['med']]
             # notched boxes
             if shownotches:
-                box_x = [box_left, box_right, box_right, cap_right, box_right,
-                         box_right, box_left, box_left, cap_left, box_left,
-                         box_left]
+                notch_left = pos - width * 0.25
+                notch_right = pos + width * 0.25
+                box_x = [box_left, box_right, box_right, notch_right,
+                         box_right, box_right, box_left, box_left, notch_left,
+                         box_left, box_left]
                 box_y = [stats['q1'], stats['q1'], stats['cilo'],
                          stats['med'], stats['cihi'], stats['q3'],
                          stats['q3'], stats['cihi'], stats['med'],
                          stats['cilo'], stats['q1']]
-                med_x = cap_x
+                med_x = [notch_left, notch_right]
             # plain boxes
             else:
                 box_x = [box_left, box_right, box_right, box_left, box_left]
