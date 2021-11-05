@@ -1191,6 +1191,11 @@ default: %(va)s
         hspace : float, optional
             The height of the padding between subplots,
             as a fraction of the average Axes height.
+
+        See Also
+        --------
+        matplotlib.figure.Figure.set_subplotpars
+        matplotlib.figure.Figure.get_subplotpars
         """
         if self.get_constrained_layout():
             self.set_constrained_layout(False)
@@ -1205,6 +1210,29 @@ default: %(va)s
         self.stale = True
 
     def set_subplotpars(self, subplotparams = {}):
+        """
+        Set the subplot layout parameters.
+        Accepts either a SubplotParams object, from which the relevant
+        parameters are copied, or a dictionary of subplot layout parameters.
+        If a dictionary is provided, this function is a convenience wrapper for
+        matplotlib.figure.Figure.subplots_adjust
+
+        Parameters
+        ----------
+        subplotparams : `~matplotlib.figure.SubplotParams` or dict, optional
+            SubplotParams object to copy new subplot parameters from, or a dict 
+            of SubplotParams constructor arguments, i.e., a dictionary with 
+            any of ["left", "bottom", "right", 'top", "wspace", "hspace"] as its
+            keys. 
+            By default, an empty dictionary is passed, which maintains the 
+            current state of the figure's SubplotParams
+
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotpars
+        """
+        
         subplotparams_args = ["left", "bottom", "right",
                              "top", "wspace", "hspace"]
         kwargs = {}
@@ -1228,6 +1256,18 @@ default: %(va)s
         self.subplots_adjust(**kwargs)
 
     def get_subplotpars(self):
+        """
+        Return the SubplotParams object associated with the Figure.
+
+        Returns
+        -------
+        `.SubplotParams`
+
+        See Also
+        --------
+        matplotlib.figure.Figure.subplots_adjust
+        matplotlib.figure.Figure.get_subplotpars
+        """
         return self.subplotpars
 
     def align_xlabels(self, axs=None):
@@ -2420,7 +2460,13 @@ class Figure(FigureBase):
     def get_layout(self):
         return self.layout
 
-    def set_layout(self,layout=None, tight_layout=None,constrained_layout=None):
+    def set_layout(self,layout=None, tight_layout=None, 
+                   constrained_layout=None):
+        """
+        Set the figure layout specification, optionally setting how the layout
+        is called.
+        When providing a dict to tight_layout
+        """
         if (
             layout is None and 
             tight_layout is None and 

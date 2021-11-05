@@ -544,6 +544,10 @@ def test_valid_layouts():
     assert not fig.get_tight_layout()
     assert fig.get_constrained_layout()
 
+    fig = Figure(constrained_layout = {'pad':1})
+    assert not fig.get_tight_layout()
+    assert fig.get_constrained_layout()
+    
 
 def test_invalid_layouts():
 
@@ -1391,4 +1395,3 @@ def test_fig_get_set():
         getfunc = getattr(fig,f"get_{var}")
         setfunc = getattr(fig,f"set_{var}")
         
-
