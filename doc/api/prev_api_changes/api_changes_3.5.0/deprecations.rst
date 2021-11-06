@@ -269,6 +269,10 @@ Miscellaneous deprecations
 - ``cm.LUTSIZE`` is deprecated. Use :rc:`image.lut` instead. This value only
   affects colormap quantization levels for default colormaps generated at
   module import time.
+- ``Collection.__init__`` previously ignored *transOffset* without *offsets* also
+  being specified. In the future, *transOffset* will begin having an effect
+  regardless of *offsets*. In the meantime, if you wish to set *transOffset*,
+  call `.Collection.set_offset_transform` explicitly.
 - ``Colorbar.patch`` is deprecated; this attribute is not correctly updated
   anymore.
 - ``ContourLabeler.get_label_width`` is deprecated.
