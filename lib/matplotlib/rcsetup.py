@@ -700,6 +700,13 @@ def cycler(*args, **kwargs):
     return reduce(operator.add, (ccycler(k, v) for k, v in validated))
 
 
+class _DunderChecker(ast.NodeVisitor):
+    def visit_Attribute(self, node):
+        if node.attr.startswith("__") and node.attr.endswith("__"):
+            raise ValueError("cycler strings with dunders are forbidden")
+        self.generic_visit(node)
+
+
 def validate_cycler(s):
     """Return a Cycler object from a string repr or the object itself."""
     if isinstance(s, str):
@@ -715,9 +722,7 @@ def validate_cycler(s):
         # We should replace this eval with a combo of PyParsing and
         # ast.literal_eval()
         try:
-            if '.__' in s.replace(' ', ''):
-                raise ValueError("'%s' seems to have dunder methods. Raising"
-                                 " an exception for your safety")
+            _DunderChecker().visit(ast.parse(s))
             s = eval(s, {'cycler': cycler, '__builtins__': {}})
         except BaseException as e:
             raise ValueError("'%s' is not a valid cycler construction: %s" %
