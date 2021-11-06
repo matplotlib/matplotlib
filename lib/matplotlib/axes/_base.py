@@ -1103,7 +1103,7 @@ class _AxesBase(martist.Artist):
             a.set_transform(self.transData)
 
         a.axes = self
-        if a.mouseover:
+        if a.get_mouseover():
             self._mouseover_set.add(a)
 
     def _gen_axes_patch(self):
