@@ -1452,7 +1452,7 @@ def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
        early user feedback.
 
     See :doc:`/tutorials/provisional/mosaic`
-    for an examplary usage and provisional API documentation
+    for an example of its usage and provisional API documentation
 
     Parameters
     ----------

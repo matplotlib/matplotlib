@@ -1680,7 +1680,7 @@ default: %(va)s
            early user feedback.
 
         See :doc:`/tutorials/provisional/mosaic`
-        for an examplary usage and provisional API documentation
+        for an example of its usage and provisional API documentation
 
         Parameters
         ----------
