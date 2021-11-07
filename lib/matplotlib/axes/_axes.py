@@ -1254,10 +1254,11 @@ class Axes(_AxesBase):
         --------
         .. plot:: gallery/lines_bars_and_markers/eventplot_demo.py
         """
-        # We do the conversion first since not all unitized data is uniform
-        positions, lineoffsets, linelengths = self._process_unit_info(
-            [("x", positions), ("y", lineoffsets), ("y", linelengths)], kwargs)
 
+        lineoffsets, linelengths = self._process_unit_info(
+                [("y", lineoffsets), ("y", linelengths)], kwargs)
+
+        # fix positions, noting that it can be a list of lists:
         if not np.iterable(positions):
             positions = [positions]
         elif any(np.iterable(position) for position in positions):
@@ -1267,6 +1268,11 @@ class Axes(_AxesBase):
 
         if len(positions) == 0:
             return []
+
+        poss = []
+        for position in positions:
+            poss += self._process_unit_info([("x", position)], kwargs)
+        positions = poss
 
         # prevent 'singular' keys from **kwargs dict from overriding the effect
         # of 'plural' keyword arguments (e.g. 'color' overriding 'colors')
@@ -4322,9 +4328,7 @@ default: :rc:`scatter.edgecolors`
 
         """
         # Process **kwargs to handle aliases, conflicts with explicit kwargs:
-
         x, y = self._process_unit_info([("x", x), ("y", y)], kwargs)
-
         # np.ma.ravel yields an ndarray, not a masked array,
         # unless its argument is a masked array.
         x = np.ma.ravel(x)
