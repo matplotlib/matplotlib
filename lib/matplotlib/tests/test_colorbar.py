@@ -608,6 +608,7 @@ def test_colorbar_inverted_ticks():
     cbar.minorticks_on()
     ticks = cbar.get_ticks()
     minorticks = cbar.get_ticks(minor=True)
+    assert isinstance(minorticks, np.ndarray)
     cbar.ax.invert_yaxis()
     np.testing.assert_allclose(ticks, cbar.get_ticks())
     np.testing.assert_allclose(minorticks, cbar.get_ticks(minor=True))
