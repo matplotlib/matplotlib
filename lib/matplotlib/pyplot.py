@@ -1059,8 +1059,12 @@ def axes(arg=None, **kwargs):
         plt.axes((left, bottom, width, height), facecolor='w')
     """
     fig = gcf()
+    pos = kwargs.pop('position', None)
     if arg is None:
-        return fig.add_subplot(**kwargs)
+        if pos is None:
+            return fig.add_subplot(**kwargs)
+        else:
+            return fig.add_axes(pos, **kwargs)
     else:
         return fig.add_axes(arg, **kwargs)
 
