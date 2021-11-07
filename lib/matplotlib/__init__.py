@@ -302,8 +302,8 @@ def _get_executable_info(name):
     ----------
     name : str
         The executable to query.  The following values are currently supported:
-        "dvipng", "gs", "inkscape", "magick", "pdftops".  This list is subject
-        to change without notice.
+        "dvipng", "gs", "inkscape", "magick", "pdftocairo", "pdftops".  This
+        list is subject to change without notice.
 
     Returns
     -------
@@ -315,7 +315,10 @@ def _get_executable_info(name):
     ------
     ExecutableNotFoundError
         If the executable is not found or older than the oldest version
-        supported by Matplotlib.
+        supported by Matplotlib.  For debugging purposes, it is also
+        possible to "hide" an executable from Matplotlib by adding it to the
+        :envvar:`_MPLHIDEEXECUTABLES` environment variable (a comma-separated
+        list), which must be set prior to any calls to this function.
     ValueError
         If the executable is not one that we know how to query.
     """
@@ -349,6 +352,9 @@ def _get_executable_info(name):
             raise ExecutableNotFoundError(
                 f"Failed to determine the version of {args[0]} from "
                 f"{' '.join(args)}, which output {output}")
+
+    if name in os.environ.get("_MPLHIDEEXECUTABLES", "").split(","):
+        raise ExecutableNotFoundError(f"{name} was hidden")
 
     if name == "dvipng":
         return impl(["dvipng", "-version"], "(?m)^dvipng(?: .*)? (.+)", "1.6")
@@ -406,6 +412,8 @@ def _get_executable_info(name):
             raise ExecutableNotFoundError(
                 f"You have ImageMagick {info.version}, which is unsupported")
         return info
+    elif name == "pdftocairo":
+        return impl(["pdftocairo", "-v"], "pdftocairo version (.*)")
     elif name == "pdftops":
         info = impl(["pdftops", "-v"], "^pdftops version (.*)",
                     ignore_exit_code=True)
