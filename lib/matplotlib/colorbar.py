@@ -489,7 +489,7 @@ class Colorbar:
             self.locator = ticks    # Handle default in _ticker()
 
         if isinstance(format, str):
-            # Check format type between FormatStrFormatter and StrMethodFormatter
+            # Check format between FormatStrFormatter and StrMethodFormatter
             try:
                 self.formatter = ticker.FormatStrFormatter(format)
                 _ = self.formatter(0)
