@@ -83,7 +83,7 @@ class BlockingInput:
         self.n = n
         self.events = []
 
-        if hasattr(self.fig.canvas, "manager"):
+        if self.figure.canvas.manager:
             # Ensure that the figure is shown, if we are managing it.
             self.fig.show()
         # Connect the events to the on_event function call.
