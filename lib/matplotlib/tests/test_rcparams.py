@@ -278,6 +278,17 @@ def generate_validator_testcases(valid):
                   ('cycler("bleh, [])', ValueError),  # syntax error
                   ('Cycler("linewidth", [1, 2, 3])',
                    ValueError),  # only 'cycler()' function is allowed
+                  # do not allow dunder in string literals
+                  ("cycler('c', [j.__class__(j) for j in ['r', 'b']])",
+                   ValueError),
+                  ("cycler('c', [j. __class__(j) for j in ['r', 'b']])",
+                   ValueError),
+                  ("cycler('c', [j.\t__class__(j) for j in ['r', 'b']])",
+                   ValueError),
+                  ("cycler('c', [j.\u000c__class__(j) for j in ['r', 'b']])",
+                   ValueError),
+                  ("cycler('c', [j.__class__(j).lower() for j in ['r', 'b']])",
+                   ValueError),
                   ('1 + 2', ValueError),  # doesn't produce a Cycler object
                   ('os.system("echo Gotcha")', ValueError),  # os not available
                   ('import os', ValueError),  # should not be able to import
