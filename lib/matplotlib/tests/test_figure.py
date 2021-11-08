@@ -351,7 +351,7 @@ def test_set_fig_size():
     assert fig.get_figwidth() == 1
     assert fig.get_figheight() == 3
 
-    fig.set_figsize(2,4)
+    fig.set_figsize(2, 4)
     assert fig.get_figsize()[0] == 2
     assert fig.get_figsize()[1] == 4
 
@@ -544,61 +544,65 @@ def test_valid_layouts():
     assert not fig.get_tight_layout()
     assert fig.get_constrained_layout()
 
-    fig = Figure(tight_layout = {'pad':1})
+    fig = Figure(tight_layout={'pad': 1})
     assert fig.get_tight_layout()
     assert not fig.get_constrained_layout()
 
-    fig = Figure(tight_layout = True)
+    fig = Figure(tight_layout=True)
     assert fig.get_tight_layout()
     assert not fig.get_constrained_layout()
 
-    fig = Figure(tight_layout = True, constrained_layout=False)
+    fig = Figure(tight_layout=True, constrained_layout=False)
     assert fig.get_tight_layout()
     assert not fig.get_constrained_layout()
 
-    fig = Figure(constrained_layout = {'w_pad':1})
+    fig = Figure(constrained_layout={'w_pad': 1})
     assert not fig.get_tight_layout()
     assert fig.get_constrained_layout()
 
-    fig = Figure(constrained_layout = True)
+    fig = Figure(constrained_layout=True)
     assert not fig.get_tight_layout()
     assert fig.get_constrained_layout()
 
-    fig = Figure(constrained_layout = True,tight_layout=False)
+    fig = Figure(constrained_layout=True, tight_layout=False)
     assert not fig.get_tight_layout()
     assert fig.get_constrained_layout()
 
-    fig = Figure(layout='tight', tight_layout = {'pad':1})
+    fig = Figure(layout='tight', tight_layout={'pad': 1})
     assert fig.get_tight_layout()
     assert not fig.get_constrained_layout()
 
-    fig = Figure(layout = 'constrained', constrained_layout = {'w_pad':1})
+    fig = Figure(layout='constrained', constrained_layout={'w_pad': 1})
     assert not fig.get_tight_layout()
     assert fig.get_constrained_layout()
 
-    fig = Figure(layout='tight', tight_layout = {'pad':1},
-        constrained_layout=False)
+    fig = Figure(layout='tight', tight_layout={'pad': 1},
+                 constrained_layout=False)
     assert fig.get_tight_layout()
-    assert not fig.get_constrained_layout() 
+    assert not fig.get_constrained_layout()
 
-    fig = Figure(layout = 'constrained', constrained_layout = {'w_pad':1},
-        tight_layout=False)
+    fig = Figure(layout='constrained', constrained_layout={'w_pad': 1},
+                 tight_layout=False)
     assert not fig.get_tight_layout()
     assert fig.get_constrained_layout()
-    fig = Figure(layout = None, constrained_layout = False,
-        tight_layout=False)
+    fig = Figure(layout=None, constrained_layout=False,
+                 tight_layout=False)
     assert not fig.get_tight_layout()
     assert not fig.get_constrained_layout()
+
+
 def test_invalid_layouts():
 
     def assert_is_tight(fig):
         assert fig.get_tight_layout()
         assert not fig.get_constrained_layout()
         assert fig.layout == 'tight'
+
     def assert_is_constrained(fig):
         assert not fig.get_tight_layout()
         assert fig.get_constrained_layout()
         assert fig.layout == 'constrained'
+
     def assert_neither(fig):
         assert not fig.get_tight_layout()
         assert not fig.get_constrained_layout()
@@ -612,106 +616,113 @@ def test_invalid_layouts():
     # precedence.
 
     # check the set_layout function on figure construction:
-    with pytest.warns(UserWarning, match="Figure parameters 'layout'=='tight' "
-        "and 'tight_layout'==False cannot"):
+    with pytest.warns(UserWarning, match="Figure parameters 'layout'=='tight'"
+                      " and 'tight_layout'==False cannot"):
         fig = Figure(layout='tight', tight_layout=False)
     assert_is_tight(fig)
 
     with pytest.warns(UserWarning, match="Figure parameters "
-        "'layout'=='constrained' and 'constrained_layout'==False cannot"):
+                      "'layout'=='constrained' and "
+                      "'constrained_layout'==False cannot"):
         fig = Figure(layout='constrained', constrained_layout=False)
     assert_is_constrained(fig)
 
     with pytest.warns(UserWarning, match="Figure parameters "
-            "'layout'=='tight' and 'constrained_layout'!=False cannot"):
-            fig = Figure(layout='tight', constrained_layout=True)
+                      "'layout'=='tight' and "
+                      "'constrained_layout'!=False cannot"):
+        fig = Figure(layout='tight', constrained_layout=True)
     assert_is_tight(fig)
 
     with pytest.warns(UserWarning, match="Figure parameters "
-        "'layout'=='constrained' and 'tight_layout'!=False cannot"):
+                      "'layout'=='constrained' and "
+                      "'tight_layout'!=False cannot"):
         fig = Figure(layout='constrained', tight_layout=True)
     assert_is_constrained(fig)
 
-
     with pytest.warns(UserWarning, match="Figure parameters "
-            "'layout'=='tight' and 'constrained_layout'!=False cannot"):
-            fig = Figure(layout='tight', tight_layout = True,
-                constrained_layout=True)
+                      "'layout'=='tight' and "
+                      "'constrained_layout'!=False cannot"):
+        fig = Figure(layout='tight', tight_layout=True,
+                     constrained_layout=True)
     assert_is_tight(fig)
 
     with pytest.warns(UserWarning, match="Figure parameters "
-            "'layout'=='tight' and 'constrained_layout'!=False cannot"):
-            fig = Figure(layout='tight', tight_layout ={'pad':1},
-                constrained_layout=True)
-    assert_is_tight(fig)
-
-
-    with pytest.warns(UserWarning, match="Figure parameters "
-            "'layout'=='tight' and 'constrained_layout'!=False cannot"):
-            fig = Figure(layout='tight', tight_layout ={'pad':1},
-                constrained_layout={'w_pad':1})
+                      "'layout'=='tight' and "
+                      "'constrained_layout'!=False cannot"):
+        fig = Figure(layout='tight', tight_layout={'pad': 1},
+                     constrained_layout=True)
     assert_is_tight(fig)
 
     with pytest.warns(UserWarning, match="Figure parameters "
-            "'layout'=='tight' and 'constrained_layout'!=False cannot"):
-            fig = Figure(layout='tight', tight_layout = True,
-                constrained_layout={'w_pad':1})
+                      "'layout'=='tight' and "
+                      "'constrained_layout'!=False cannot"):
+        fig = Figure(layout='tight', tight_layout={'pad': 1},
+                     constrained_layout={'w_pad': 1})
     assert_is_tight(fig)
 
+    with pytest.warns(UserWarning, match="Figure parameters "
+                      "'layout'=='tight' and "
+                      "'constrained_layout'!=False cannot"):
+        fig = Figure(layout='tight', tight_layout=True,
+                     constrained_layout={'w_pad': 1})
+    assert_is_tight(fig)
 
     with pytest.warns(UserWarning, match="Figure parameters "
-        "'layout'=='constrained' and 'tight_layout'!=False cannot"):
+                      "'layout'=='constrained' and "
+                      "'tight_layout'!=False cannot"):
         fig = Figure(layout='constrained', constrained_layout=True,
-            tight_layout=True)
+                     tight_layout=True)
     assert_is_constrained(fig)
 
     with pytest.warns(UserWarning, match="Figure parameters "
-        "'layout'=='constrained' and 'tight_layout'!=False cannot"):
-        fig = Figure(layout='constrained', constrained_layout={'w_pad':1},
-            tight_layout=True)
+                      "'layout'=='constrained' and "
+                      "'tight_layout'!=False cannot"):
+        fig = Figure(layout='constrained', constrained_layout={'w_pad': 1},
+                     tight_layout=True)
     assert_is_constrained(fig)
 
     with pytest.warns(UserWarning, match="Figure parameters "
-        "'layout'=='constrained' and 'tight_layout'!=False cannot"):
-        fig = Figure(layout='constrained', constrained_layout={'w_pad':1},
-            tight_layout={'pad':1})
+                      "'layout'=='constrained' and "
+                      "'tight_layout'!=False cannot"):
+        fig = Figure(layout='constrained', constrained_layout={'w_pad': 1},
+                     tight_layout={'pad': 1})
     assert_is_constrained(fig)
 
     with pytest.warns(UserWarning, match="Figure parameters "
-        "'layout'=='constrained' and 'tight_layout'!=False cannot"):
+                      "'layout'=='constrained' and "
+                      "'tight_layout'!=False cannot"):
         fig = Figure(layout='constrained', constrained_layout=True,
-            tight_layout={'pad':1})
+                     tight_layout={'pad': 1})
     assert_is_constrained(fig)
 
     with pytest.warns(Warning) as warninfo:
-        fig = Figure(layout='tight', 
-            tight_layout=False,
-            constrained_layout=True)
+        fig = Figure(layout='tight',
+                     tight_layout=False,
+                     constrained_layout=True)
     warns = {(warn.category, warn.message.args[0]) for warn in warninfo}
     expected = {
         (UserWarning, "Figure parameters 'layout'=='tight' "
-        "and 'tight_layout'==False cannot be used together. "
-        "Please use 'layout' only."),
-        (UserWarning,"Figure parameters 'layout'=='tight' "
-        "and 'constrained_layout'!=False cannot be used together. "
-        "Please use 'layout' only.")}
+         "and 'tight_layout'==False cannot be used together. "
+         "Please use 'layout' only."),
+        (UserWarning, "Figure parameters 'layout'=='tight' "
+         "and 'constrained_layout'!=False cannot be used together. "
+         "Please use 'layout' only.")}
     assert_is_tight(fig)
-    assert warns==expected
+    assert warns == expected
     with pytest.warns(Warning) as warninfo:
-        fig = Figure(layout='constrained', 
-            tight_layout=True,
-            constrained_layout=False)
+        fig = Figure(layout='constrained',
+                     tight_layout=True,
+                     constrained_layout=False)
     warns = {(warn.category, warn.message.args[0]) for warn in warninfo}
     expected = {
         (UserWarning, "Figure parameters 'layout'=='constrained' "
-        "and 'tight_layout'!=False cannot be used together. "
-        "Please use 'layout' only."),
-        (UserWarning,"Figure parameters 'layout'=='constrained' "
-        "and 'constrained_layout'==False cannot be used together. "
-        "Please use 'layout' only.")}
+         "and 'tight_layout'!=False cannot be used together. "
+         "Please use 'layout' only."),
+        (UserWarning, "Figure parameters 'layout'=='constrained' "
+         "and 'constrained_layout'==False cannot be used together. "
+         "Please use 'layout' only.")}
     assert_is_constrained(fig)
-    assert warns==expected
-
+    assert warns == expected
 
     with pytest.raises(ValueError,
                        match="'foobar' is not a valid value for layout"):
@@ -720,75 +731,82 @@ def test_invalid_layouts():
 
     fig = Figure(layout='tight')
     with pytest.warns(UserWarning, match="Figure parameters 'layout'=='tight' "
-        "and 'tight_layout'==False cannot"):
+                      "and 'tight_layout'==False cannot"):
         fig.set_layout(layout='tight', tight_layout=False)
     assert_is_tight(fig)
 
     with pytest.warns(UserWarning, match="Figure parameters "
-        "'layout'=='constrained' and 'constrained_layout'==False cannot"):
+                      "'layout'=='constrained' and "
+                      "'constrained_layout'==False cannot"):
         fig.set_layout(layout='constrained', constrained_layout=False)
     assert_is_constrained(fig)
 
     with pytest.warns(UserWarning, match="Figure parameters "
-            "'layout'=='tight' and 'constrained_layout'!=False cannot"):
-            fig.set_layout(layout='tight', constrained_layout=True)
+                      "'layout'=='tight' and "
+                      "'constrained_layout'!=False cannot"):
+        fig.set_layout(layout='tight', constrained_layout=True)
     assert_is_tight(fig)
 
     with pytest.warns(UserWarning, match="Figure parameters "
-        "'layout'=='constrained' and 'tight_layout'!=False cannot"):
+                      "'layout'=='constrained' and "
+                      "'tight_layout'!=False cannot"):
         fig.set_layout(layout='constrained', tight_layout=True)
     assert_is_constrained(fig)
 
     with pytest.warns(UserWarning, match="Figure parameters "
-        "'layout'=='tight' and 'constrained_layout'!=False cannot"):
-        fig.set_layout(layout='tight', constrained_layout={'pad':1})
+                      "'layout'=='tight' and "
+                      "'constrained_layout'!=False cannot"):
+        fig.set_layout(layout='tight', constrained_layout={'pad': 1})
     assert_is_tight(fig)
     with pytest.warns(UserWarning, match="Figure parameters "
-        "'layout'=='constrained' and 'tight_layout'!=False cannot"):
-        fig.set_layout(layout='constrained', tight_layout={'pad':1})
+                      "'layout'=='constrained' and "
+                      "'tight_layout'!=False cannot"):
+        fig.set_layout(layout='constrained', tight_layout={'pad': 1})
     assert_is_constrained(fig)
 
     with pytest.warns(Warning) as warninfo:
-        fig.set_layout(layout='tight', 
-            tight_layout=False,
-            constrained_layout=True)
+        fig.set_layout(layout='tight',
+                       tight_layout=False,
+                       constrained_layout=True)
     warns = {(warn.category, warn.message.args[0]) for warn in warninfo}
     expected = {
         (UserWarning, "Figure parameters 'layout'=='tight' "
-        "and 'tight_layout'==False cannot be used together. "
-        "Please use 'layout' only."),
-        (UserWarning,"Figure parameters 'layout'=='tight' "
-        "and 'constrained_layout'!=False cannot be used together. "
-        "Please use 'layout' only.")}
+         "and 'tight_layout'==False cannot be used together. "
+         "Please use 'layout' only."),
+        (UserWarning, "Figure parameters 'layout'=='tight' "
+         "and 'constrained_layout'!=False cannot be used together. "
+         "Please use 'layout' only.")}
     assert_is_tight(fig)
-    assert warns==expected
+    assert warns == expected
     with pytest.warns(Warning) as warninfo:
-        fig.set_layout(layout='constrained', 
-            tight_layout=True,
-            constrained_layout=False)
+        fig.set_layout(layout='constrained',
+                       tight_layout=True,
+                       constrained_layout=False)
     warns = {(warn.category, warn.message.args[0]) for warn in warninfo}
     expected = {
         (UserWarning, "Figure parameters 'layout'=='constrained' "
-        "and 'tight_layout'!=False cannot be used together. "
-        "Please use 'layout' only."),
-        (UserWarning,"Figure parameters 'layout'=='constrained' "
-        "and 'constrained_layout'==False cannot be used together. "
-        "Please use 'layout' only.")}
+         "and 'tight_layout'!=False cannot be used together. "
+         "Please use 'layout' only."),
+        (UserWarning, "Figure parameters 'layout'=='constrained' "
+         "and 'constrained_layout'==False cannot be used together. "
+         "Please use 'layout' only.")}
     assert_is_constrained(fig)
-    assert warns==expected
+    assert warns == expected
 
     with pytest.raises(ValueError,
                        match="Cannot set 'tight_layout' and "
                        "'constrained_layout' simultaneously."):
-       fig = Figure(tight_layout = {'w':1},constrained_layout = {'w_pad':1})
+        fig = Figure(tight_layout={'w': 1}, constrained_layout={'w_pad': 1})
     with pytest.raises(ValueError,
                        match="Cannot set 'tight_layout' and "
                        "'constrained_layout' simultaneously."):
-       fig = Figure(tight_layout = True,constrained_layout = {'w_pad':1})
+        fig = Figure(tight_layout=True, constrained_layout={'w_pad': 1})
     with pytest.raises(ValueError,
                        match="Cannot set 'tight_layout' and "
                        "'constrained_layout' simultaneously."):
-       fig = Figure(tight_layout = True,constrained_layout = True)
+        fig = Figure(tight_layout=True, constrained_layout=True)
+
+
 def test_set_subplotpars():
     subplotparams_keys = ["left", "bottom", "right", "top", "wspace", "hspace"]
     fig = plt.figure()
@@ -796,7 +814,7 @@ def test_set_subplotpars():
     test_dict = {}
     default_dict = {}
     for key in subplotparams_keys:
-        attr = getattr(subplotparams,key)
+        attr = getattr(subplotparams, key)
         assert attr == mpl.rcParams[f"figure.subplot.{key}"]
         default_dict[key] = attr
         test_dict[key] = attr * 2
@@ -809,33 +827,35 @@ def test_set_subplotpars():
 
     fig.set_subplotpars(test_dict)
     for key, value in test_dict.items():
-        assert getattr(fig.get_subplotpars(),key) == value
+        assert getattr(fig.get_subplotpars(), key) == value
 
     test_subplotparams = SubplotParams()
     fig.set_subplotpars(test_subplotparams)
-    for key,value in default_dict.items():
-        assert getattr(fig.get_subplotpars(),key) == value
+    for key, value in default_dict.items():
+        assert getattr(fig.get_subplotpars(), key) == value
 
     fig.set_subplotpars(test_dict)
-    for key,value in test_dict.items():
-        assert getattr(fig.get_subplotpars(),key) == value
+    for key, value in test_dict.items():
+        assert getattr(fig.get_subplotpars(), key) == value
 
     test_dict['foo'] = 'bar'
-    with pytest.warns(UserWarning, 
-        match ="'foo' is not a valid key for set_subplotpars;"
-        " this key was ignored"):
+    with pytest.warns(UserWarning,
+                      match="'foo' is not a valid key for set_subplotpars;"
+                      " this key was ignored"):
         fig.set_subplotpars(test_dict)
 
     with pytest.raises(TypeError,
-        match="subplotpars must be a dictionary of keyword-argument pairs or "
-                "an instance of SubplotParams()"):
+                       match="subplotpars must be a dictionary of "
+                       "keyword-argument pairs or "
+                       "an instance of SubplotParams()"):
         fig.set_subplotpars(['foo'])
 
     fig.set_subplotpars({})
-    with pytest.raises(AttributeError): # test_dict['foo'] = 'bar' 
-    # but fig.get_subplotpars().foo should be invalid
-        for key,value in test_dict.items():
-            assert getattr(fig.get_subplotpars(),key) == value
+    with pytest.raises(AttributeError):  # test_dict['foo'] = 'bar'
+        # but fig.get_subplotpars().foo should be invalid
+        for key, value in test_dict.items():
+            assert getattr(fig.get_subplotpars(), key) == value
+
 
 @check_figures_equal(extensions=["png", "pdf"])
 def test_add_artist(fig_test, fig_ref):
@@ -1267,7 +1287,7 @@ def test_subfigure_tightbbox():
     sub = fig.subfigures(1, 2)
 
     np.testing.assert_allclose(
-            fig.get_tightbbox(fig.canvas.get_renderer()).width, 0.1)
+        fig.get_tightbbox(fig.canvas.get_renderer()).width, 0.1)
 
 
 @image_comparison(['test_subfigure_ss.png'], style='mpl20',
@@ -1350,11 +1370,11 @@ def test_subfigure_spanning():
 
     w = 640
     h = 480
-    np.testing.assert_allclose(sub_figs[0].bbox.min, [0., h * 2/3])
+    np.testing.assert_allclose(sub_figs[0].bbox.min, [0., h * 2 / 3])
     np.testing.assert_allclose(sub_figs[0].bbox.max, [w / 3, h])
 
     np.testing.assert_allclose(sub_figs[1].bbox.min, [w / 3, h / 3])
-    np.testing.assert_allclose(sub_figs[1].bbox.max, [w * 2/3, h])
+    np.testing.assert_allclose(sub_figs[1].bbox.max, [w * 2 / 3, h])
 
     np.testing.assert_allclose(sub_figs[2].bbox.min, [w / 3, 0])
     np.testing.assert_allclose(sub_figs[2].bbox.max, [w, h / 3])
@@ -1395,7 +1415,7 @@ def test_subfigure_ticks():
 
 
 @image_comparison(['test_subfigure_scatter_size.png'], style='mpl20',
-                   remove_text=True)
+                  remove_text=True)
 def test_subfigure_scatter_size():
     # markers in the left- and right-most subplots should be the same
     fig = plt.figure()
@@ -1499,12 +1519,12 @@ def test_kwargs_pass():
     assert fig.get_label() == 'whole Figure'
     assert sub_fig.get_label() == 'sub figure'
 
+
 def test_fig_get_set():
-    varnames = filter(lambda var: var not in ['self','kwargs','args'],
-        Figure.__init__.__code__.co_varnames)
+    varnames = filter(lambda var: var not in ['self', 'kwargs', 'args'],
+                      Figure.__init__.__code__.co_varnames)
     fig = plt.figure()
     for var in varnames:
         # if getattr fails then the getter and setter does not exist
-        getfunc = getattr(fig,f"get_{var}")
-        setfunc = getattr(fig,f"set_{var}")
-        
+        getfunc = getattr(fig, f"get_{var}")
+        setfunc = getattr(fig, f"set_{var}")

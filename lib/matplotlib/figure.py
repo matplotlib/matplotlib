@@ -2180,6 +2180,9 @@ class SubFigure(FigureBase):
 
 
 @docstring.interpd
+@cbook._define_aliases({
+    "size_inches": ["figsize"]
+})
 class Figure(FigureBase):
     """
     The top level container for all the plot elements.
@@ -2472,11 +2475,11 @@ class Figure(FigureBase):
         provided to *tight_layout* or *constrained_layout*.
 
 
-        - If *layout* is not *None*, the layout solver is determined 
-          exclusively by *layout*, regardless of *tight_layout* or 
-          *constrained_layout*, but optional padding parameters stored in 
-          *tight_layout* or *constrained_layout* are used with the respective 
-          layout. 
+        - If *layout* is not *None*, the layout solver is determined
+          exclusively by *layout*, regardless of *tight_layout* or
+          *constrained_layout*, but optional padding parameters stored in
+          *tight_layout* or *constrained_layout* are used with the respective
+          layout.
         For instance:
 
         - if *layout* is *'tight'*, *tight_layout* is *False*, and
@@ -2556,7 +2559,7 @@ class Figure(FigureBase):
                     bool_conflict or
                     type_conflict or
                     constrained_layout is None
-                   ):
+                ):
                     constrained_layout = True
 
             elif layout == 'tight':
@@ -2887,60 +2890,6 @@ class Figure(FigureBase):
         The size in pixels can be obtained by multiplying with `Figure.dpi`.
         """
         return np.array(self.bbox_inches.p1)
-
-    def set_figsize(self, w, h=None):
-        """
-        Set the figure size in inches.
-        Convenience wrapper for `~matplotlib.figure.Figure.set_size_inches`.
-
-        Call signatures::
-
-             fig.set_figsize(w, h)  # OR
-             fig.set_figsize((w, h))
-
-        Parameters
-        ----------
-        w : (float, float) or float
-            Width and height in inches (if height not specified as a separate
-            argument) or width.
-        h : float
-            Height in inches.
-
-        See Also
-        --------
-        matplotlib.figure.Figure.get_figsize
-        matplotlib.figure.Figure.set_size_inches
-        matplotlib.figure.Figure.set_figwidth
-        matplotlib.figure.Figure.set_figheight
-
-        Notes
-        -----
-        To transform from pixels to inches divide by `Figure.dpi`.
-        """
-        self.set_size_inches(w, h)
-
-    def get_figsize(self):
-        """
-        Return the current size of the figure in inches.
-        Convenience wrapper for `~matplotlib.figure.Figure.get_size_inches`.
-
-        Returns
-        -------
-        ndarray
-           The size (width, height) of the figure in inches.
-
-        See Also
-        --------
-        matplotlib.figure.Figure.set_figsize
-        matplotlib.figure.Figure.get_size_inches
-        matplotlib.figure.Figure.get_figwidth
-        matplotlib.figure.Figure.get_figheight
-
-        Notes
-        -----
-        The size in pixels can be obtained by multiplying with `Figure.dpi`.
-        """
-        return self.get_size_inches()
 
     def get_figwidth(self):
         """Return the figure width in inches."""
