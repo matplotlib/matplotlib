@@ -312,7 +312,7 @@ static PyObject *Py_get_path_collection_extents(PyObject *self, PyObject *args, 
 const char *Py_point_in_path_collection__doc__ =
     "point_in_path_collection("
     "x, y, radius, master_transform, paths, transforms, offsets, "
-    "offset_trans, filled, offset_position)\n"
+    "offset_trans, filled)\n"
     "--\n\n";
 
 static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyObject *kwds)
@@ -324,11 +324,10 @@ static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyO
     numpy::array_view<const double, 2> offsets;
     agg::trans_affine offset_trans;
     bool filled;
-    PyObject *offset_position; // no longer used
     std::vector<int> result;
 
     if (!PyArg_ParseTuple(args,
-                          "dddO&O&O&O&O&O&O:point_in_path_collection",
+                          "dddO&O&O&O&O&O&:point_in_path_collection",
                           &x,
                           &y,
                           &radius,
@@ -343,8 +342,7 @@ static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyO
                           &convert_trans_affine,
                           &offset_trans,
                           &convert_bool,
-                          &filled,
-                          &offset_position)) {
+                          &filled)) {
         return NULL;
     }
 
