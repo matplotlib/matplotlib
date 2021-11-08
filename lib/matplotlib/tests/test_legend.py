@@ -493,6 +493,15 @@ def test_handler_numpoints():
     ax.legend(numpoints=0.5)
 
 
+def test_text_nohandler_warning():
+    """Test that Text artists with labels raise a warning"""
+    fig, ax = plt.subplots()
+    ax.text(x=0, y=0, s="text", label="label")
+    with pytest.warns(UserWarning) as record:
+        ax.legend()
+    assert len(record) == 1
+
+
 def test_empty_bar_chart_with_legend():
     """Test legend when bar chart is empty with a label."""
     # related to issue #13003. Calling plt.legend() should not
