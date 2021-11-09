@@ -352,6 +352,8 @@ class Colorbar:
     ticks : `~matplotlib.ticker.Locator` or array-like of float
 
     format : str or `~matplotlib.ticker.Formatter`
+        If string, it supports '%' operator and `str.format` formats:
+        e.g. ``"%4.2e"`` or ``"{x:.2e}"``.
 
     drawedges : bool
 
@@ -487,7 +489,12 @@ class Colorbar:
             self.locator = ticks    # Handle default in _ticker()
 
         if isinstance(format, str):
-            self.formatter = ticker.FormatStrFormatter(format)
+            # Check format between FormatStrFormatter and StrMethodFormatter
+            try:
+                self.formatter = ticker.FormatStrFormatter(format)
+                _ = self.formatter(0)
+            except TypeError:
+                self.formatter = ticker.StrMethodFormatter(format)
         else:
             self.formatter = format  # Assume it is a Formatter or None
         self.draw_all()
