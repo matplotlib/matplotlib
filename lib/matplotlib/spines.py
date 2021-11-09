@@ -550,7 +550,7 @@ class Spines(MutableMapping):
         try:
             return self._dict[name]
         except KeyError:
-            raise ValueError(
+            raise AttributeError(
                 f"'Spines' object does not contain a '{name}' spine")
 
     def __getitem__(self, key):
