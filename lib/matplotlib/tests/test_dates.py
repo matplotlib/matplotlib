@@ -328,8 +328,12 @@ def test_date_formatter_callable():
      [r'Jan$\mathdefault{\;%02d\;1990}$' % day for day in range(1, 32, 3)]),
     (datetime.timedelta(hours=20),
      [r'$\mathdefault{%02d{:}00{:}00}$' % hour for hour in range(0, 21, 2)]),
+    (datetime.timedelta(minutes=10),
+     [r'$\mathdefault{01\;00{:}%02d}$' % minu for minu in range(0, 11)]),
 ])
 def test_date_formatter_usetex(delta, expected):
+    plt.rcParams["date.autoformatter.minute"] = "%d %H:%M"
+
     d1 = datetime.datetime(1990, 1, 1)
     d2 = d1 + delta
 
