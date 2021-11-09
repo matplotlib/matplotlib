@@ -259,6 +259,19 @@ def test_strmethodformatter_auto_formatter():
 
     assert ax.yaxis.get_minor_formatter().fmt == targ_strformatter.fmt
 
+def test_twinning():
+    ax1 = plt.axes()
+
+    pos1 = ax1.get_position() # get the currently position
+    pos2 = [pos1.x0, pos1.y0,  pos1.width, pos1.height * 0.6]
+    # the line above changes pos1
+
+    ax2 = ax1.twiny()
+
+    ax2.set_position(pos2) # set a new position
+
+    # Assert that the positions are the same, and the twinning don't change them
+    assert ax2.get_position() == pos2
 
 @image_comparison(["twin_axis_locators_formatters"])
 def test_twin_axis_locators_formatters():

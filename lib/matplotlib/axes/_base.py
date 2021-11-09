@@ -4695,6 +4695,13 @@ class _AxesBase(martist.Artist):
         self.yaxis.tick_left()
         ax2.xaxis.set_visible(False)
         ax2.patch.set_visible(False)
+
+        @ax2.set_axes_locator
+        def axes_locator(_, renderer):
+            self_locator = self.get_axes_locator()
+            if self_locator is not None:
+                return self_locator(self, renderer)
+
         return ax2
 
     def twiny(self):
@@ -4724,6 +4731,13 @@ class _AxesBase(martist.Artist):
         self.xaxis.tick_bottom()
         ax2.yaxis.set_visible(False)
         ax2.patch.set_visible(False)
+
+        @ax2.set_axes_locator
+        def axes_locator(_, renderer):
+            self_locator = self.get_axes_locator()
+            if self_locator is not None:
+                return self_locator(self, renderer)
+
         return ax2
 
     def get_shared_x_axes(self):
