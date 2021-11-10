@@ -62,7 +62,6 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
         self.set_vexpand(True)
 
         self._idle_draw_id = 0
-        self._lastCursor = None
         self._rubberband_rect = None
 
         self.set_draw_func(self._draw_func)
