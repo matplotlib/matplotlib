@@ -394,12 +394,10 @@ class FigureManagerGTK3(FigureManagerBase):
                 _api.warn_external("Cannot raise window yet to be setup")
 
     def full_screen_toggle(self):
-        self._full_screen_flag = not self._full_screen_flag
-        if self._full_screen_flag:
-            self.window.fullscreen()
-        else:
+        if self.window.get_window().get_state() & Gdk.WindowState.FULLSCREEN:
             self.window.unfullscreen()
-    _full_screen_flag = False
+        else:
+            self.window.fullscreen()
 
     def _get_toolbar(self):
         # must be inited after the window, drawingArea and figure
