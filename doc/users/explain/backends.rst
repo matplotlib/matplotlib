@@ -232,15 +232,19 @@ for more details.
 
 .. _QT_API-usage:
 
-How do I select PyQt5 or PySide2?
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How do I select the Qt implementation?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The :envvar:`QT_API` environment variable can be set to either ``pyqt5`` or
-``pyside2`` to use ``PyQt5`` or ``PySide2``, respectively.
+The QtAgg and QtCairo backends support both Qt 5 and 6, as well as both Python
+bindings (`PyQt`_ or `Qt for Python`_, a.k.a. PySide). If any binding has
+already been loaded, then it will be used for the Qt backend. Otherwise, the
+first available binding is used, in the order: PyQt6, PySide6, PyQt5, PySide2.
 
-Since the default value for the bindings to be used is ``PyQt5``, Matplotlib
-first tries to import it. If the import fails, it tries to import
-``PySide2``.
+The :envvar:`QT_API` environment variable can be set to override the search
+when nothing has already been loaded. It may be set to (case-insensitively)
+PyQt6, PySide6, PyQt5, or PySide2 to pick the version and binding to use. If
+the chosen implementation is unavailable, the Qt backend will fail to load
+without attempting any other Qt implementations.
 
 Using non-builtin backends
 --------------------------

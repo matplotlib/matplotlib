@@ -414,7 +414,7 @@ def validate_whiskers(s):
         try:
             return float(s)
         except ValueError as e:
-            raise ValueError("Not a valid whisker value ['range', float, "
+            raise ValueError("Not a valid whisker value [float, "
                              "(float, float)]") from e
 
 
