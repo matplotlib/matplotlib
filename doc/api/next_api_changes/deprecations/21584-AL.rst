@@ -1,0 +1,6 @@
+Modifications to the Groupers returned by ``get_shared_x_axes`` and ``get_shared_y_axes``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated.  In the future, these methods will return immutable views
+on the grouper structures.  Note that previously, calling e.g. ``join()``
+would already fail to set up the correct structures for sharing axes; use
+`.Axes.sharex` or `.Axes.sharey` instead.
