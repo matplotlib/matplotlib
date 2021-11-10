@@ -259,19 +259,29 @@ def test_strmethodformatter_auto_formatter():
 
     assert ax.yaxis.get_minor_formatter().fmt == targ_strformatter.fmt
 
+
 def test_twinning():
+    # plot the axis
     ax1 = plt.axes()
 
-    pos1 = ax1.get_position() # get the currently position
-    pos2 = [pos1.x0, pos1.y0,  pos1.width, pos1.height * 0.6]
-    # the line above changes pos1
+    # get the currently position
+    pos1 = ax1.get_position()
+    # pos2 takes pos1 coords, and, alter the height by multiplying it by 0.6
+    pos2 = mtransforms.Bbox.from_extents([pos1.x0, pos1.y0,  pos1.width, pos1.height * 0.6])
+    
+    # twiny() ax1
+    ax1.twiny()
 
-    ax2 = ax1.twiny()
+    # set a new position
+    ax1.set_position(pos2)
 
-    ax2.set_position(pos2) # set a new position
+    # it gets the position, in a np.array, of ax1 after the twiny and the set_position
+    array1 = np.any(mtransforms.Bbox.get_points(ax1.get_position()))
+    # it gets the np.array of the point of pos2
+    array2 = np.any(mtransforms.Bbox.get_points(pos2))
 
     # Assert that the positions are the same, and the twinning don't change them
-    assert ax2.get_position() == pos2
+    assert array1 == array2
 
 @image_comparison(["twin_axis_locators_formatters"])
 def test_twin_axis_locators_formatters():
