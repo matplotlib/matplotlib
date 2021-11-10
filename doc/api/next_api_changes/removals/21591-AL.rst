@@ -1,0 +1,6 @@
+``backend_tools.ToolFullScreen`` now inherits from ``ToolBase``, not from ``ToolToggleBase``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`.ToolFullScreen` can only switch between the non-fullscreen
+and fullscreen states, but not unconditionally put the window in a given state;
+hence the ``enable`` and ``disable`` methods were misleadingly named.  Thus,
+the `.ToolToggleBase`-related API (``enable``, ``disable``, etc.) was removed.

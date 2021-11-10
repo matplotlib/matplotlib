@@ -428,16 +428,13 @@ class ToolMinorGrid(ToolBase):
             mpl.backend_bases.key_press_handler(event, self.figure.canvas)
 
 
-class ToolFullScreen(ToolToggleBase):
+class ToolFullScreen(ToolBase):
     """Tool to toggle full screen."""
 
     description = 'Toggle fullscreen mode'
     default_keymap = mpl.rcParams['keymap.fullscreen']
 
-    def enable(self, event):
-        self.figure.canvas.manager.full_screen_toggle()
-
-    def disable(self, event):
+    def trigger(self, sender, event, data=None):
         self.figure.canvas.manager.full_screen_toggle()
 
 
