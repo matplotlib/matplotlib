@@ -14,6 +14,26 @@ the :ref:`github-stats`.
 Figure and Axes creation / management
 =====================================
 
+``subplot_mosaic`` supports simple Axes sharing
+-----------------------------------------------
+
+`.Figure.subplot_mosaic`, `.pyplot.subplot_mosaic` support *simple* Axes
+sharing (i.e., only `True`/`False` may be passed to *sharex*/*sharey*). When
+`True`, tick label visibility and Axis units will be shared.
+
+.. plot::
+    :include-source:
+
+    mosaic = [
+        ['A', [['B', 'C'],
+               ['D', 'E']]],
+        ['F', 'G'],
+    ]
+    fig = plt.figure(constrained_layout=True)
+    ax_dict = fig.subplot_mosaic(mosaic, sharex=True, sharey=True)
+    # All Axes use these scales after this call.
+    ax_dict['A'].set(xscale='log', yscale='logit')
+
 Figure now has ``draw_without_rendering`` method
 ------------------------------------------------
 
@@ -77,14 +97,36 @@ Two new styles ``']->'`` and ``'<-['`` are also added via this mechanism.
 `.ConnectionPatch`, which accepts arrow styles though its *arrowstyle*
 parameter, also accepts these new styles.
 
+.. plot::
+
+    import matplotlib.patches as mpatches
+
+    fig, ax = plt.subplots(figsize=(4, 4))
+
+    ax.plot([0.75, 0.75], [0.25, 0.75], 'ok')
+    ax.set(xlim=(0, 1), ylim=(0, 1), title='New ArrowStyle options')
+
+    ax.annotate(']->', (0.75, 0.25), (0.25, 0.25),
+                arrowprops=dict(
+                    arrowstyle=']->', connectionstyle="arc3,rad=-0.05",
+                    shrinkA=5, shrinkB=5,
+                ),
+                bbox=dict(boxstyle='square', fc='w'), size='large')
+
+    ax.annotate('<-[', (0.75, 0.75), (0.25, 0.75),
+                arrowprops=dict(
+                    arrowstyle='<-[', connectionstyle="arc3,rad=-0.05",
+                    shrinkA=5, shrinkB=5,
+                ),
+                bbox=dict(boxstyle='square', fc='w'), size='large')
+
 Setting collection offset transform after initialization
 --------------------------------------------------------
 
 The added `.collections.Collection.set_offset_transform` may be used to set the
 offset transform after initialization. This can be helpful when creating a
-`.collections.Collection` outside an Axes object and later adding it with
-`.Axes.add_collection()` and settings the offset transform to
-`.Axes.transData`.
+`.collections.Collection` outside an Axes object, and later adding it with
+`.Axes.add_collection()` and setting the offset transform to `.Axes.transData`.
 
 Colors and colormaps
 ====================
@@ -95,7 +137,7 @@ Colormap registry (experimental)
 Colormaps are now managed via `matplotlib.colormaps` (or `.pyplot.colormaps`),
 which is a `.ColormapRegistry`. While we are confident that the API is final,
 we formally mark it as experimental for 3.5 because we want to keep the option
-to still adapt the API for 3.6 should the need arise.
+to still modify the API for 3.6 should the need arise.
 
 Colormaps can be obtained using item access::
 
@@ -130,11 +172,22 @@ A new keyword argument *interpolation_stage* is provided for
 happens. The default is the current behaviour of "data", with the alternative
 being "rgba" for the newly-available behavior.
 
+.. figure:: /gallery/images_contours_and_fields/images/sphx_glr_image_antialiasing_001.png
+   :target: /gallery/images_contours_and_fields/image_antialiasing.html
+
+   Example of the interpolation stage options.
+
 For more details see the discussion of the new keyword argument in
 :doc:`/gallery/images_contours_and_fields/image_antialiasing`.
 
+``imshow`` supports half-float arrays
+-------------------------------------
+
+The `~.axes.Axes.imshow` method now supports half-float arrays, i.e., NumPy
+arrays with dtype ``np.float16``.
+
 A callback registry has been added to Normalize objects
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------------
 
 `.colors.Normalize` objects now have a callback registry, ``callbacks``, that
 can be connected to by other objects to be notified when the norm is updated.
@@ -153,11 +206,19 @@ Settings tick positions and labels simultaneously in ``set_ticks``
 and labels simultaneously.
 
 Previously, setting tick labels was done using `.Axis.set_ticklabels` (or
-the corresponding `.Axes.set_xticklabels` / `.Axes.set_yticklabels`). This
+the corresponding `.Axes.set_xticklabels` / `.Axes.set_yticklabels`); this
 usually only makes sense if tick positions were previously fixed with
-`~.Axis.set_ticks`. The combined functionality is now available in
-`~.Axis.set_ticks`. The use of `.Axis.set_ticklabels` is discouraged, but it
-will stay available for backward compatibility.
+`~.Axis.set_ticks`::
+
+    ax.set_xticks([1, 2, 3])
+    ax.set_xticklabels(['a', 'b', 'c'])
+
+The combined functionality is now available in `~.Axis.set_ticks`::
+
+    ax.set_xticks([1, 2, 3], ['a', 'b', 'c'])
+
+The use of `.Axis.set_ticklabels` is discouraged, but it will stay available
+for backward compatibility.
 
 Note: This addition makes the API of `~.Axis.set_ticks` also more similar to
 `.pyplot.xticks` / `.pyplot.yticks`, which already had the additional *labels*
@@ -165,6 +226,19 @@ parameter.
 
 Fonts and Text
 ==============
+
+Triple and quadruple dot mathtext accents
+-----------------------------------------
+
+In addition to single and double dot accents, mathtext now supports triple and
+quadruple dot accents.
+
+.. plot::
+    :include-source:
+
+    fig = plt.figure(figsize=(3, 1))
+    fig.text(0.5, 0.5, r'$\dot{a} \ddot{b} \dddot{c} \ddddot{d}$', fontsize=40,
+             horizontalalignment='center', verticalalignment='center')
 
 Font properties of legend title are configurable
 ------------------------------------------------
@@ -179,6 +253,14 @@ argument, for example:
     ax.legend(title='Points',
               title_fontproperties={'family': 'serif', 'size': 20})
 
+``Text`` and ``TextBox`` added *parse_math* option
+--------------------------------------------------
+
+`.Text` and `.TextBox` objects now allow a *parse_math* keyword-only argument
+which controls whether math should be parsed from the displayed string. If
+*True*, the string will be parsed as a math text object. If *False*, the string
+will be considered a literal and no parsing will occur.
+
 Text can be positioned inside TextBox widget
 --------------------------------------------
 
@@ -190,8 +272,9 @@ of the text inside the Axes of the `.TextBox` widget.
     from matplotlib import pyplot as plt
     from matplotlib.widgets import TextBox
 
+    fig = plt.figure(figsize=(4, 3))
     for i, alignment in enumerate(['left', 'center', 'right']):
-            box_input = plt.axes([0.2, 0.7 - i*0.2, 0.6, 0.1])
+            box_input = fig.add_axes([0.1, 0.7 - i*0.3, 0.8, 0.2])
             text_box = TextBox(ax=box_input, initial=f'{alignment} alignment',
                                label='', textalignment=alignment)
 
@@ -241,7 +324,6 @@ A new :rc:`legend.labelcolor` sets the default *labelcolor* argument for
 'mfc'), or 'markeredgecolor' (or 'mec') will cause the legend text to match the
 corresponding color of marker.
 
-
 .. plot::
 
     plt.rcParams['legend.labelcolor'] = 'linecolor'
@@ -269,14 +351,120 @@ The `~mpl_toolkits.mplot3d.axes3d.Axes3D` class now has *computed_zorder*
 parameter. When set to False, Artists are drawn using their ``zorder``
 attribute.
 
+.. plot::
+
+    import matplotlib.patches as mpatches
+    from mpl_toolkits.mplot3d import art3d
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(6.4, 3),
+                                   subplot_kw=dict(projection='3d'))
+
+    ax1.set_title('computed_zorder = True (default)')
+    ax2.set_title('computed_zorder = False')
+    ax2.computed_zorder = False
+
+    corners = ((0, 0, 0), (0, 5, 0), (5, 5, 0), (5, 0, 0))
+    for ax in (ax1, ax2):
+        tri = art3d.Poly3DCollection([corners],
+                                     facecolors='white',
+                                     edgecolors='black',
+                                     zorder=1)
+        ax.add_collection3d(tri)
+        line, = ax.plot((2, 2), (2, 2), (0, 4), c='red', zorder=2,
+                        label='zorder=2')
+        points = ax.scatter((3, 3), (1, 3), (1, 3), c='red', zorder=10,
+                            label='zorder=10')
+
+        ax.set_xlim((0, 5))
+        ax.set_ylim((0, 5))
+        ax.set_zlim((0, 2.5))
+
+    plane = mpatches.Patch(facecolor='white', edgecolor='black',
+                           label='zorder=1')
+    fig.legend(handles=[plane, line, points], loc='lower center')
+
 Allow changing the vertical axis in 3d plots
 ----------------------------------------------
 
 `~mpl_toolkits.mplot3d.axes3d.Axes3D.view_init` now has the parameter
 *vertical_axis* which allows switching which axis is aligned vertically.
 
+.. plot::
+
+    Nphi, Nr = 18, 8
+    phi = np.linspace(0, np.pi, Nphi)
+    r = np.arange(Nr)
+    phi = np.tile(phi, Nr).flatten()
+    r = np.repeat(r, Nphi).flatten()
+
+    x = r * np.sin(phi)
+    y = r * np.cos(phi)
+    z = Nr - r
+
+    fig, axs = plt.subplots(1, 3, figsize=(7, 3),
+                            subplot_kw=dict(projection='3d'),
+                            gridspec_kw=dict(wspace=0.4, left=0.08, right=0.98,
+                                             bottom=0, top=1))
+    for vert_a, ax in zip(['z', 'y', 'x'], axs):
+        pc = ax.scatter(x, y, z, c=z)
+        ax.view_init(azim=30, elev=30, vertical_axis=vert_a)
+        ax.set(xlabel='x', ylabel='y', zlabel='z',
+               title=f'vertical_axis={vert_a!r}')
+
+``plot_surface`` supports masked arrays and NaNs
+------------------------------------------------
+
+`.axes3d.Axes3D.plot_surface` supports masked arrays and NaNs, and will now
+hide quads that contain masked or NaN points. The behaviour is similar to
+`.Axes.contour` with ``corner_mask=True``.
+
+.. plot::
+
+    import matplotlib
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw={'projection': '3d'},
+                           constrained_layout=True)
+
+    x, y = np.mgrid[1:10:1, 1:10:1]
+    z = x ** 3 + y ** 3 - 500
+    z = np.ma.masked_array(z, z < 0)
+
+    ax.plot_surface(x, y, z, rstride=1, cstride=1, linewidth=0, cmap='inferno')
+    ax.view_init(35, -90)
+
+3D plotting methods support *data* keyword argument
+---------------------------------------------------
+
+To match all 2D plotting methods, the 3D Axes now support the *data* keyword
+argument. This allows passing arguments indirectly from a DataFrame-like
+structure. ::
+
+    data = {  # A labelled data set, or e.g., Pandas DataFrame.
+        'x': ...,
+        'y': ...,
+        'z': ...,
+        'width': ...,
+        'depth': ...,
+        'top': ...,
+    }
+
+    fig, ax = plt.subplots(subplot_kw={'projection': '3d')
+    ax.bar3d('x', 'y', 'z', 'width', 'depth', 'top', data=data)
+
 Interactive tool improvements
 =============================
+
+Colorbars now have pan and zoom functionality
+---------------------------------------------
+
+Interactive plots with colorbars can now be zoomed and panned on the colorbar
+axis. This adjusts the *vmin* and *vmax* of the ``ScalarMappable`` associated
+with the colorbar. This is currently only enabled for continuous norms. Norms
+used with contourf and categoricals, such as ``BoundaryNorm`` and ``NoNorm``,
+have the interactive capability disabled by default. ``cb.ax.set_navigate()``
+can be used to set whether a colorbar axes is interactive or not.
 
 Updated the appearance of Slider widgets
 ----------------------------------------
@@ -391,6 +579,14 @@ from being processed and let all other signals pass.
     with fig.canvas.callbacks.blocked(signal="key_press_event"):
         plt.show()
 
+Directional sizing cursors
+--------------------------
+
+Canvases now support setting directional sizing cursors, i.e., horizontal and
+vertical double arrows. These are used in e.g., selector widgets. Try the
+:doc:`/gallery/widgets/mouse_cursor` example to see the cursor in your desired
+backend.
+
 Sphinx extensions
 =================
 
@@ -411,12 +607,68 @@ configuration options that may be specified in your ``conf.py``:
 Backend-specific improvements
 =============================
 
+GTK backend
+-----------
+
+A backend supporting GTK4_ has been added. Both Agg and Cairo renderers are
+supported. The GTK4 backends may be selected as GTK4Agg or GTK4Cairo.
+
+.. _GTK4: https://www.gtk.org/
+
+Qt backends
+-----------
+
+Support for Qt6 (using either PyQt6_ or PySide6_) has been added, with either
+the Agg or Cairo renderers. Simultaneously, support for Qt4 has been dropped.
+Both Qt6 and Qt5 are supported by a combined backend (QtAgg or QtCairo), and
+the loaded version is determined by modules already imported, the
+:envvar:`QT_API` environment variable, and available packages. See
+:ref:`QT_API-usage` for details. The versioned Qt5 backend names (Qt5Agg or
+Qt5Cairo) remain supported for backwards compatibility.
+
+.. _PyQt6: https://www.riverbankcomputing.com/static/Docs/PyQt6/
+.. _PySide6: https://doc.qt.io/qtforpython/
+
+HiDPI support in Cairo-based, GTK, and Tk backends
+--------------------------------------------------
+
+The GTK3 backends now support HiDPI fully, including mixed monitor cases (on
+Wayland only). The newly added GTK4 backends also support HiDPI.
+
+The TkAgg backend now supports HiDPI **on Windows only**, including mixed
+monitor cases.
+
+All Cairo-based backends correctly support HiDPI as well as their Agg
+counterparts did (i.e., if the toolkit supports HiDPI, then the \*Cairo backend
+will now support it, but not otherwise.)
+
+Qt figure options editor improvements
+-------------------------------------
+
+The figure options editor in the Qt backend now also supports editing the left
+and right titles (plus the existing centre title). Editing Axis limits is
+better supported when using a date converter. The ``symlog`` option is now
+available in Axis scaling options. All entries with the same label are now
+shown in the Curves tab.
+
+WX backends support mouse navigation buttons
+--------------------------------------------
+
+The WX backends now support navigating through view states using the mouse
+forward/backward buttons, as in other backends.
+
+WebAgg uses asyncio instead of Tornado
+--------------------------------------
+
+The WebAgg backend defaults to using `asyncio` over Tornado for timer support.
+This allows using the WebAgg backend in JupyterLite.
+
 Version information
 ===================
 
-We switched to the `release-branch-semver`_ version scheme. This only affects,
-the version information for development builds. Their version number now
-describes the targeted release, i.e. 3.5.0.dev820+g6768ef8c4c.d20210520 is 820
+We switched to the `release-branch-semver`_ version scheme of setuptools-scm.
+This only affects the version information for development builds. Their version
+number now describes the targeted release, i.e. 3.5.0.dev820+g6768ef8c4c is 820
 commits after the previous release and is scheduled to be officially released
 as 3.5.0 later.
 
