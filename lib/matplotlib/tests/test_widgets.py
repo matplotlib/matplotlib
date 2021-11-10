@@ -298,6 +298,14 @@ def test_slider_horizontal_vertical():
     assert_allclose(box.bounds, [0, 0, 1, 10/24])
 
 
+def test_slider_reset():
+    fig, ax = plt.subplots()
+    slider = widgets.Slider(ax=ax, label='', valmin=0, valmax=1, valinit=.5)
+    slider.set_val(0.75)
+    slider.reset()
+    assert slider.val == 0.5
+
+
 @pytest.mark.parametrize("orientation", ["horizontal", "vertical"])
 def test_range_slider(orientation):
     if orientation == "vertical":
@@ -327,6 +335,9 @@ def test_range_slider(orientation):
 
     slider.set_val((-1, 10))
     assert_allclose(slider.val, (0, 1))
+
+    slider.reset()
+    assert_allclose(slider.val, [0.1, 0.34])
 
 
 def check_polygon_selector(event_sequence, expected_result, selections_count):
