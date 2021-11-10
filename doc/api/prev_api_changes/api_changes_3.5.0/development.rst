@@ -18,6 +18,39 @@ some :ref:`optional dependencies <optional_dependencies>` are being bumped:
 This is consistent with our :ref:`min_deps_policy` and `NEP29
 <https://numpy.org/neps/nep-0029-deprecation_policy.html>`__
 
+New wheel architectures
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Wheels have been added for:
+
+- Python 3.10
+- PyPy 3.7
+- macOS on Apple Silicon (both arm64 and universal2)
+
+New build dependencies
+~~~~~~~~~~~~~~~~~~~~~~
+
+Versioning has been switched from bundled versioneer to `setuptools-scm
+<https://github.com/pypa/setuptools_scm/>`__ using the
+``release-branch-semver`` version scheme. The latter is well-maintained, but
+may require slight modification to packaging scripts.
+
+The `setuptools-scm-git-archive
+<https://pypi.org/project/setuptools-scm-git-archive/>`__ plugin is also used
+for consistent version export.
+
+Data directory is no longer optional
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Historically, the ``mpl-data`` directory has been optional (example files were
+unnecessary, and fonts could be deleted if a suitable dependency on a system
+font were provided). Though example files are still optional, they have been
+substantially pared down, and we now consider the directory to be required.
+
+Specifically, the ``matplotlibrc`` file found there is used for runtime
+verifications and must exist. Packagers may still symlink fonts to system
+versions if needed.
+
 New runtime dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
