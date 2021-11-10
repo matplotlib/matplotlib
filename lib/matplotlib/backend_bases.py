@@ -2929,7 +2929,7 @@ class NavigationToolbar2:
         canvas.toolbar = self
         self._nav_stack = cbook.Stack()
         # This cursor will be set after the initial draw.
-        self._lastCursor = tools.Cursors.POINTER
+        self._last_cursor = tools.Cursors.POINTER
 
         self._id_press = self.canvas.mpl_connect(
             'button_press_event', self._zoom_pan_handler)
@@ -2998,16 +2998,16 @@ class NavigationToolbar2:
         """
         if self.mode and event.inaxes and event.inaxes.get_navigate():
             if (self.mode == _Mode.ZOOM
-                    and self._lastCursor != tools.Cursors.SELECT_REGION):
+                    and self._last_cursor != tools.Cursors.SELECT_REGION):
                 self.canvas.set_cursor(tools.Cursors.SELECT_REGION)
-                self._lastCursor = tools.Cursors.SELECT_REGION
+                self._last_cursor = tools.Cursors.SELECT_REGION
             elif (self.mode == _Mode.PAN
-                  and self._lastCursor != tools.Cursors.MOVE):
+                  and self._last_cursor != tools.Cursors.MOVE):
                 self.canvas.set_cursor(tools.Cursors.MOVE)
-                self._lastCursor = tools.Cursors.MOVE
-        elif self._lastCursor != tools.Cursors.POINTER:
+                self._last_cursor = tools.Cursors.MOVE
+        elif self._last_cursor != tools.Cursors.POINTER:
             self.canvas.set_cursor(tools.Cursors.POINTER)
-            self._lastCursor = tools.Cursors.POINTER
+            self._last_cursor = tools.Cursors.POINTER
 
     @contextmanager
     def _wait_cursor_for_draw_cm(self):
@@ -3027,7 +3027,7 @@ class NavigationToolbar2:
                 self.canvas.set_cursor(tools.Cursors.WAIT)
                 yield
             finally:
-                self.canvas.set_cursor(self._lastCursor)
+                self.canvas.set_cursor(self._last_cursor)
         else:
             yield
 

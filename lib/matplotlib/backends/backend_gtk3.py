@@ -100,7 +100,6 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         GObject.GObject.__init__(self)
 
         self._idle_draw_id = 0
-        self._lastCursor = None
         self._rubberband_rect = None
 
         self.connect('scroll_event',         self.scroll_event)
