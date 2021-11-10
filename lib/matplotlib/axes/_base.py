@@ -4603,9 +4603,9 @@ class _AxesBase(martist.Artist):
         return ax2
 
     def get_shared_x_axes(self):
-        """Return a reference to the shared axes Grouper object for x axes."""
-        return self._shared_axes["x"]
+        """Return an immutable view on the shared x-axes Grouper."""
+        return cbook.GrouperView(self._shared_axes["x"])
 
     def get_shared_y_axes(self):
-        """Return a reference to the shared axes Grouper object for y axes."""
-        return self._shared_axes["y"]
+        """Return an immutable view on the shared y-axes Grouper."""
+        return cbook.GrouperView(self._shared_axes["y"])
