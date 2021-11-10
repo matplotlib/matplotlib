@@ -52,7 +52,7 @@ ax.set_title("Anatomy of a figure", fontsize=20, verticalalignment='bottom')
 ax.set_xlabel("X axis label")
 ax.set_ylabel("Y axis label")
 
-ax.legend()
+ax.legend(loc="upper right")
 
 
 def circle(x, y, radius=0.15):
