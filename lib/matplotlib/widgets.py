@@ -305,7 +305,7 @@ class SliderBase(AxesWidget):
 
     def reset(self):
         """Reset the slider to the initial value."""
-        if self.val != self.valinit:
+        if np.any(self.val != self.valinit):
             self.set_val(self.valinit)
 
 
