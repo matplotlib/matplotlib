@@ -2970,8 +2970,8 @@ class RectangleSelector(_SelectorWidget):
         # resize an existing shape
         if self._active_handle and self._active_handle != 'C':
             x0, x1, y0, y1 = self._extents_on_press
-            sizepress = [x1 - x0, y1 - y0]
-            center = [x0 + sizepress[0] / 2, y0 + sizepress[1] / 2]
+            size_on_press = [x1 - x0, y1 - y0]
+            center = [x0 + size_on_press[0] / 2, y0 + size_on_press[1] / 2]
             dx = event.xdata - self._eventpress.xdata
             dy = event.ydata - self._eventpress.ydata
 
@@ -2987,9 +2987,10 @@ class RectangleSelector(_SelectorWidget):
                 dy *= y_factor
                 y0 = y1
 
-            # from center
+            # Keeping the center fixed
             if 'center' in state:
                 if 'square' in state:
+                    # Force the same change in dx and dy
                     if self._active_handle in ['E', 'W']:
                         # using E, W handle we need to update dy accordingly
                         dy = dx
@@ -2999,24 +3000,26 @@ class RectangleSelector(_SelectorWidget):
                     else:
                         dx = dy = max(dx, dy, key=abs)
 
-                dw = sizepress[0] / 2 + dx
-                dh = sizepress[1] / 2 + dy
+                # new half-width and half-height
+                hw = size_on_press[0] / 2 + dx
+                hh = size_on_press[1] / 2 + dy
 
                 if 'square' not in state:
                     # cancel changes in perpendicular direction
                     if self._active_handle in ['E', 'W']:
-                        dh = sizepress[1] / 2
+                        hh = size_on_press[1] / 2
                     if self._active_handle in ['N', 'S']:
-                        dw = sizepress[0] / 2
+                        hw = size_on_press[0] / 2
 
-                x0, x1, y0, y1 = (center[0] - dw, center[0] + dw,
-                                  center[1] - dh, center[1] + dh)
+                x0, x1, y0, y1 = (center[0] - hw, center[0] + hw,
+                                  center[1] - hh, center[1] + hh)
 
             else:
+                # Keeping the opposite corner/edge fixed
                 if 'square' in state:
                     dx = dy = max(dx, dy, key=abs)
-                    x1 = x0 + x_factor * (dx + sizepress[0])
-                    y1 = y0 + y_factor * (dy + sizepress[1])
+                    x1 = x0 + x_factor * (dx + size_on_press[0])
+                    y1 = y0 + y_factor * (dy + size_on_press[1])
                 else:
                     if self._active_handle in ['E', 'W'] + self._corner_order:
                         x1 = event.xdata
