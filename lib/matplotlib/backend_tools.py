@@ -989,12 +989,10 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'help': ToolHelpBase,
                  'copy': ToolCopyToClipboardBase,
                  }
-"""Default tools"""
 
 default_toolbar_tools = [['navigation', ['home', 'back', 'forward']],
                          ['zoompan', ['pan', 'zoom', 'subplots']],
                          ['io', ['save', 'help']]]
-"""Default tools in the toolbar"""
 
 
 def add_tools_to_manager(toolmanager, tools=default_tools):

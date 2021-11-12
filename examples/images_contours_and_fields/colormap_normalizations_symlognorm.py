@@ -5,6 +5,11 @@ Colormap Normalizations Symlognorm
 
 Demonstration of using norm to map colormaps onto data in non-linear ways.
 
+Here we plot data that has two humps, one negative and one positive.
+The positive hump has 5-times the amplitude of the negative.
+With a linear scale you cannot see detail in the negative hump.
+So we logarithmically scale the positive and negative data separately.
+
 .. redirect-from:: /gallery/userdemo/colormap_normalization_symlognorm
 """
 
@@ -12,14 +17,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
-"""
-SymLogNorm: two humps, one negative and one positive, The positive
-with 5-times the amplitude. Linearly, you cannot see detail in the
-negative hump.  Here we logarithmically scale the positive and
-negative data separately.
-
-Note that colorbar labels do not come out looking very good.
-"""
 
 N = 100
 X, Y = np.mgrid[-3:3:complex(0, N), -2:2:complex(0, N)]

@@ -24,44 +24,42 @@ import matplotlib._layoutgrid as mlayoutgrid
 
 _log = logging.getLogger(__name__)
 
-"""
-General idea:
--------------
+# #############################################################################
+# General idea:
+# -------------
+#
+# First, a figure has a gridspec that divides the figure into nrows and ncols,
+# with heights and widths set by ``height_ratios`` and ``width_ratios``,
+# often just set to 1 for an equal grid.
+#
+# Subplotspecs that are derived from this gridspec can contain either a
+# ``SubPanel``, a ``GridSpecFromSubplotSpec``, or an axes.  The ``SubPanel``
+# and ``GridSpecFromSubplotSpec`` are dealt with recursively and each contain
+# an analogous layout.
+#
+# Each ``GridSpec`` has a ``_layoutgrid`` attached to it.  The ``_layoutgrid``
+# has the same logical layout as the ``GridSpec``.   Each row of the grid spec
+# has a top and bottom "margin" and each column has a left and right "margin".
+# The "inner" height of each row is constrained to be the same (or as modified
+# by ``height_ratio``), and the "inner" width of each column is
+# constrained to be the same (as modified by ``width_ratio``), where "inner"
+# is the width or height of each column/row minus the size of the margins.
+#
+# Then the size of the margins for each row and column are determined as the
+# max width of the decorators on each axes that has decorators in that margin.
+# For instance, a normal axes would have a left margin that includes the
+# left ticklabels, and the ylabel if it exists.  The right margin may include a
+# colorbar, the bottom margin the xaxis decorations, and the top margin the
+# title.
+#
+# With these constraints, the solver then finds appropriate bounds for the
+# columns and rows.  It's possible that the margins take up the whole figure,
+# in which case the algorithm is not applied and a warning is raised.
+#
+# See the tutorial doc:`/tutorials/intermediate/constrainedlayout_guide`
+# for more discussion of the algorithm with examples.
 
-First, a figure has a gridspec that divides the figure into nrows and ncols,
-with heights and widths set by ``height_ratios`` and ``width_ratios``,
-often just set to 1 for an equal grid.
 
-Subplotspecs that are derived from this gridspec can contain either a
-``SubPanel``, a ``GridSpecFromSubplotSpec``, or an axes.  The ``SubPanel`` and
-``GridSpecFromSubplotSpec`` are dealt with recursively and each contain an
-analogous layout.
-
-Each ``GridSpec`` has a ``_layoutgrid`` attached to it.  The ``_layoutgrid``
-has the same logical layout as the ``GridSpec``.   Each row of the grid spec
-has a top and bottom "margin" and each column has a left and right "margin".
-The "inner" height of each row is constrained to be the same (or as modified
-by ``height_ratio``), and the "inner" width of each column is
-constrained to be the same (as modified by ``width_ratio``), where "inner"
-is the width or height of each column/row minus the size of the margins.
-
-Then the size of the margins for each row and column are determined as the
-max width of the decorators on each axes that has decorators in that margin.
-For instance, a normal axes would have a left margin that includes the
-left ticklabels, and the ylabel if it exists.  The right margin may include a
-colorbar, the bottom margin the xaxis decorations, and the top margin the
-title.
-
-With these constraints, the solver then finds appropriate bounds for the
-columns and rows.  It's possible that the margins take up the whole figure,
-in which case the algorithm is not applied and a warning is raised.
-
-See the tutorial doc:`/tutorials/intermediate/constrainedlayout_guide`
-for more discussion of the algorithm with examples.
-"""
-
-
-######################################################
 def do_constrained_layout(fig, renderer, h_pad, w_pad,
                           hspace=None, wspace=None):
     """
