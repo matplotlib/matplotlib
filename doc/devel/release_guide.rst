@@ -172,6 +172,19 @@ Python3 yet.  You will need to create a Python2 environment with
 Address any issues which may arise.  The internal links are checked on Circle
 CI, this should only flag failed external links.
 
+
+Update supported versions in SECURITY.md
+----------------------------------------
+
+For minor version release update the table in :file:`SECURITY.md` to specify
+that the 2 most recent minor releases in the current major version series are
+supported.
+
+For a major version release update the table in :file:`SECURITY.md` to specify
+that the last minor version in the previous major version series is still
+supported.  Dropping support for the last version of a major version series
+will be handled on an ad-hoc basis.
+
 .. _release_tag:
 
 Create release commit and tag
