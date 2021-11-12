@@ -1,16 +1,17 @@
-import io
+from collections import Counter
 from pathlib import Path
+import io
 import re
 import tempfile
 
 import pytest
 
+from matplotlib import cbook, patheffects
+from matplotlib.cbook import MatplotlibDeprecationWarning
+from matplotlib.figure import Figure
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib import cbook, patheffects
-from matplotlib.testing.decorators import check_figures_equal, image_comparison
-from matplotlib.cbook import MatplotlibDeprecationWarning
-
 
 needs_ghostscript = pytest.mark.skipif(
     "eps" not in mpl.testing.compare.converter,
@@ -244,3 +245,23 @@ def test_linedash():
     fig.savefig(buf, format="ps")
 
     assert buf.tell() > 0
+
+
+def test_no_definintion():
+
+    fig = Figure()
+    axs = fig.subplots(4, 4, subplot_kw=dict(projection="polar"))
+    for ax in axs.flat:
+        ax.set(xticks=[], yticks=[])
+        ax.plot([1, 2])
+    fig.suptitle("hello, world")
+
+    buf = io.StringIO()
+    fig.savefig(buf, format='eps')
+    buf.seek(0)
+
+    wds = [ln.partition(' ')[0] for
+           ln in buf.readlines()
+           if ln.startswith('/')]
+
+    assert max(Counter(wds).values()) == 1
