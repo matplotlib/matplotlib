@@ -26,7 +26,7 @@ typedef struct
  * BufferRegion
  * */
 
-static PyObject *PyBufferRegion_new(PyTypeObject *type, PyObject *args, PyObject* kwds)
+static PyObject *PyBufferRegion_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PyBufferRegion *self;
     self = (PyBufferRegion *)type->tp_alloc(type, 0);
