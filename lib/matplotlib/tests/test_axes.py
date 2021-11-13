@@ -786,7 +786,7 @@ def test_hexbin_log():
     plt.colorbar(h)
 
 
-image_comparison(baseline_images=['hexbin_linear'],
+@image_comparison(baseline_images=['hexbin_linear'],
                   extensions=['png'], style='mpl20')
 def test_hexbin_linear():
 
