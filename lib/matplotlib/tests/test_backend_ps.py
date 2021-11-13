@@ -247,7 +247,7 @@ def test_linedash():
     assert buf.tell() > 0
 
 
-def test_no_definintion():
+def test_no_duplicate_definition():
 
     fig = Figure()
     axs = fig.subplots(4, 4, subplot_kw=dict(projection="polar"))
