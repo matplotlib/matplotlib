@@ -103,7 +103,7 @@ const char* PyTriangulation_calculate_plane_coefficients__doc__ =
     "--\n\n"
     "Calculate plane equation coefficients for all unmasked triangles";
 
-static PyObject* PyTriangulation_calculate_plane_coefficients(PyTriangulation* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTriangulation_calculate_plane_coefficients(PyTriangulation* self, PyObject* args)
 {
     Triangulation::CoordinateArray z;
     if (!PyArg_ParseTuple(args, "O&:calculate_plane_coefficients",
@@ -162,7 +162,7 @@ const char* PyTriangulation_set_mask__doc__ =
     "--\n\n"
     "Set or clear the mask array.";
 
-static PyObject* PyTriangulation_set_mask(PyTriangulation* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTriangulation_set_mask(PyTriangulation* self, PyObject* args)
 {
     Triangulation::MaskArray mask;
 
@@ -278,7 +278,7 @@ const char* PyTriContourGenerator_create_contour__doc__ =
     "\n"
     "Create and return a non-filled contour.";
 
-static PyObject* PyTriContourGenerator_create_contour(PyTriContourGenerator* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTriContourGenerator_create_contour(PyTriContourGenerator* self, PyObject* args)
 {
     double level;
     if (!PyArg_ParseTuple(args, "d:create_contour", &level)) {
@@ -295,7 +295,7 @@ const char* PyTriContourGenerator_create_filled_contour__doc__ =
     "\n"
     "Create and return a filled contour";
 
-static PyObject* PyTriContourGenerator_create_filled_contour(PyTriContourGenerator* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTriContourGenerator_create_filled_contour(PyTriContourGenerator* self, PyObject* args)
 {
     double lower_level, upper_level;
     if (!PyArg_ParseTuple(args, "dd:create_filled_contour",
@@ -404,7 +404,7 @@ const char* PyTrapezoidMapTriFinder_find_many__doc__ =
     "\n"
     "Find indices of triangles containing the point coordinates (x, y)";
 
-static PyObject* PyTrapezoidMapTriFinder_find_many(PyTrapezoidMapTriFinder* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTrapezoidMapTriFinder_find_many(PyTrapezoidMapTriFinder* self, PyObject* args)
 {
     TrapezoidMapTriFinder::CoordinateArray x, y;
     if (!PyArg_ParseTuple(args, "O&O&:find_many",

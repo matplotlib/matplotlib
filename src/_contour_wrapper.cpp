@@ -81,7 +81,7 @@ const char* PyQuadContourGenerator_create_contour__doc__ =
     "--\n\n"
     "Create and return a non-filled contour.";
 
-static PyObject* PyQuadContourGenerator_create_contour(PyQuadContourGenerator* self, PyObject* args, PyObject* kwds)
+static PyObject* PyQuadContourGenerator_create_contour(PyQuadContourGenerator* self, PyObject* args)
 {
     double level;
     if (!PyArg_ParseTuple(args, "d:create_contour", &level)) {
@@ -98,7 +98,7 @@ const char* PyQuadContourGenerator_create_filled_contour__doc__ =
     "--\n\n"
     "Create and return a filled contour";
 
-static PyObject* PyQuadContourGenerator_create_filled_contour(PyQuadContourGenerator* self, PyObject* args, PyObject* kwds)
+static PyObject* PyQuadContourGenerator_create_filled_contour(PyQuadContourGenerator* self, PyObject* args)
 {
     double lower_level, upper_level;
     if (!PyArg_ParseTuple(args, "dd:create_filled_contour",

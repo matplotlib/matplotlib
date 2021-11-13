@@ -23,10 +23,10 @@ typedef struct
 
 
 /**********************************************************************
- * BufferRegion
+ * BufferRegion, PyObject *
  * */
 
-static PyObject *PyBufferRegion_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+static PyObject *PyBufferRegion_new(PyTypeObject *type, PyObject *args)
 {
     PyBufferRegion *self;
     self = (PyBufferRegion *)type->tp_alloc(type, 0);
@@ -40,7 +40,7 @@ static void PyBufferRegion_dealloc(PyBufferRegion *self)
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
-static PyObject *PyBufferRegion_to_string(PyBufferRegion *self, PyObject *args, PyObject *kwds)
+static PyObject *PyBufferRegion_to_string(PyBufferRegion *self, PyObject *args)
 {
     return PyBytes_FromStringAndSize((const char *)self->x->get_data(),
                                      self->x->get_height() * self->x->get_stride());
@@ -48,7 +48,7 @@ static PyObject *PyBufferRegion_to_string(PyBufferRegion *self, PyObject *args, 
 
 /* TODO: This doesn't seem to be used internally.  Remove? */
 
-static PyObject *PyBufferRegion_set_x(PyBufferRegion *self, PyObject *args, PyObject *kwds)
+static PyObject *PyBufferRegion_set_x(PyBufferRegion *self, PyObject *args)
 {
     int x;
     if (!PyArg_ParseTuple(args, "i:set_x", &x)) {
@@ -59,7 +59,7 @@ static PyObject *PyBufferRegion_set_x(PyBufferRegion *self, PyObject *args, PyOb
     Py_RETURN_NONE;
 }
 
-static PyObject *PyBufferRegion_set_y(PyBufferRegion *self, PyObject *args, PyObject *kwds)
+static PyObject *PyBufferRegion_set_y(PyBufferRegion *self, PyObject *args)
 {
     int y;
     if (!PyArg_ParseTuple(args, "i:set_y", &y)) {
@@ -70,14 +70,14 @@ static PyObject *PyBufferRegion_set_y(PyBufferRegion *self, PyObject *args, PyOb
     Py_RETURN_NONE;
 }
 
-static PyObject *PyBufferRegion_get_extents(PyBufferRegion *self, PyObject *args, PyObject *kwds)
+static PyObject *PyBufferRegion_get_extents(PyBufferRegion *self, PyObject *args)
 {
     agg::rect_i rect = self->x->get_rect();
 
     return Py_BuildValue("IIII", rect.x1, rect.y1, rect.x2, rect.y2);
 }
 
-static PyObject *PyBufferRegion_to_string_argb(PyBufferRegion *self, PyObject *args, PyObject *kwds)
+static PyObject *PyBufferRegion_to_string_argb(PyBufferRegion *self, PyObject *args)
 {
     PyObject *bufobj;
     uint8_t *buf;
@@ -154,7 +154,7 @@ static PyTypeObject *PyBufferRegion_init_type(PyObject *m, PyTypeObject *type)
  * RendererAgg
  * */
 
-static PyObject *PyRendererAgg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+static PyObject *PyRendererAgg_new(PyTypeObject *type, PyObject *args)
 {
     PyRendererAgg *self;
     self = (PyRendererAgg *)type->tp_alloc(type, 0);
@@ -162,7 +162,7 @@ static PyObject *PyRendererAgg_new(PyTypeObject *type, PyObject *args, PyObject 
     return (PyObject *)self;
 }
 
-static int PyRendererAgg_init(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+static int PyRendererAgg_init(PyRendererAgg *self, PyObject *args)
 {
     unsigned int width;
     unsigned int height;
@@ -198,7 +198,7 @@ static void PyRendererAgg_dealloc(PyRendererAgg *self)
     Py_TYPE(self)->tp_free((PyObject *)self);
 }
 
-static PyObject *PyRendererAgg_draw_path(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+static PyObject *PyRendererAgg_draw_path(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
     py::PathIterator path;
@@ -227,7 +227,7 @@ static PyObject *PyRendererAgg_draw_path(PyRendererAgg *self, PyObject *args, Py
     Py_RETURN_NONE;
 }
 
-static PyObject *PyRendererAgg_draw_text_image(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+static PyObject *PyRendererAgg_draw_text_image(PyRendererAgg *self, PyObject *args)
 {
     numpy::array_view<agg::int8u, 2> image;
     double x;
@@ -252,7 +252,7 @@ static PyObject *PyRendererAgg_draw_text_image(PyRendererAgg *self, PyObject *ar
     Py_RETURN_NONE;
 }
 
-PyObject *PyRendererAgg_draw_markers(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+PyObject *PyRendererAgg_draw_markers(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
     py::PathIterator marker_path;
@@ -288,7 +288,7 @@ PyObject *PyRendererAgg_draw_markers(PyRendererAgg *self, PyObject *args, PyObje
     Py_RETURN_NONE;
 }
 
-static PyObject *PyRendererAgg_draw_image(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+static PyObject *PyRendererAgg_draw_image(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
     double x;
@@ -316,7 +316,7 @@ static PyObject *PyRendererAgg_draw_image(PyRendererAgg *self, PyObject *args, P
 }
 
 static PyObject *
-PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
     agg::trans_affine master_transform;
@@ -377,7 +377,7 @@ PyRendererAgg_draw_path_collection(PyRendererAgg *self, PyObject *args, PyObject
     Py_RETURN_NONE;
 }
 
-static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
     agg::trans_affine master_transform;
@@ -429,7 +429,7 @@ static PyObject *PyRendererAgg_draw_quad_mesh(PyRendererAgg *self, PyObject *arg
 }
 
 static PyObject *
-PyRendererAgg_draw_gouraud_triangle(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+PyRendererAgg_draw_gouraud_triangle(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
     numpy::array_view<const double, 2> points;
@@ -470,7 +470,7 @@ PyRendererAgg_draw_gouraud_triangle(PyRendererAgg *self, PyObject *args, PyObjec
 }
 
 static PyObject *
-PyRendererAgg_draw_gouraud_triangles(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+PyRendererAgg_draw_gouraud_triangles(PyRendererAgg *self, PyObject *args)
 {
     GCAgg gc;
     numpy::array_view<const double, 3> points;
@@ -540,14 +540,14 @@ int PyRendererAgg_get_buffer(PyRendererAgg *self, Py_buffer *buf, int flags)
     return 1;
 }
 
-static PyObject *PyRendererAgg_clear(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+static PyObject *PyRendererAgg_clear(PyRendererAgg *self, PyObject *args)
 {
     CALL_CPP("clear", self->x->clear());
 
     Py_RETURN_NONE;
 }
 
-static PyObject *PyRendererAgg_copy_from_bbox(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+static PyObject *PyRendererAgg_copy_from_bbox(PyRendererAgg *self, PyObject *args)
 {
     agg::rect_d bbox;
     BufferRegion *reg;
@@ -565,7 +565,7 @@ static PyObject *PyRendererAgg_copy_from_bbox(PyRendererAgg *self, PyObject *arg
     return regobj;
 }
 
-static PyObject *PyRendererAgg_restore_region(PyRendererAgg *self, PyObject *args, PyObject *kwds)
+static PyObject *PyRendererAgg_restore_region(PyRendererAgg *self, PyObject *args)
 {
     PyBufferRegion *regobj;
     int xx1 = 0, yy1 = 0, xx2 = 0, yy2 = 0, x = 0, y = 0;
