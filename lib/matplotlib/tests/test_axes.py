@@ -786,21 +786,17 @@ def test_hexbin_log():
     plt.colorbar(h)
 
 
-@image_comparison(['hexbin_linear.png'], style='mpl20')
+image_comparison(baseline_images=['hexbin_linear'],
+                  extensions=['png'], style='mpl20')
 def test_hexbin_linear():
-    # Issue #21165 (add a hexbin_linear test)
-
-    plt.rcParams['pcolormesh.snap'] = False
 
     np.random.seed(19680801)
     n = 100000
     x = np.random.standard_normal(n)
     y = 2.0 + 3.0 * x + 4.0 * np.random.standard_normal(n)
-    y = np.power(2, y * 0.5)
 
     fig, ax = plt.subplots()
-    h = ax.hexbin(x, y, yscale='log', bins='log',
-                  marginals=True, reduce_C_function=np.sum)
+    h = ax.hexbin(x, y, marginals=True, reduce_C_function=np.sum)
     plt.colorbar(h)
 
 
