@@ -23,10 +23,10 @@ typedef struct
 
 
 /**********************************************************************
- * BufferRegion, PyObject *
+ * BufferRegion
  * */
 
-static PyObject *PyBufferRegion_new(PyTypeObject *type, PyObject *args)
+static PyObject *PyBufferRegion_new(PyTypeObject *type, PyObject *args, PyObject* kwds)
 {
     PyBufferRegion *self;
     self = (PyBufferRegion *)type->tp_alloc(type, 0);
@@ -154,7 +154,7 @@ static PyTypeObject *PyBufferRegion_init_type(PyObject *m, PyTypeObject *type)
  * RendererAgg
  * */
 
-static PyObject *PyRendererAgg_new(PyTypeObject *type, PyObject *args)
+static PyObject *PyRendererAgg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PyRendererAgg *self;
     self = (PyRendererAgg *)type->tp_alloc(type, 0);
@@ -162,7 +162,7 @@ static PyObject *PyRendererAgg_new(PyTypeObject *type, PyObject *args)
     return (PyObject *)self;
 }
 
-static int PyRendererAgg_init(PyRendererAgg *self, PyObject *args)
+static int PyRendererAgg_init(PyRendererAgg *self, PyObject *args, PyObject *kwds)
 {
     unsigned int width;
     unsigned int height;
