@@ -285,8 +285,12 @@ Coding guidelines
 API changes
 -----------
 
-Changes to the public API must follow a standard deprecation procedure to
-prevent unexpected breaking of code that uses Matplotlib.
+Generally, API consistency and stability are of great value. Therefore, API
+changes (e.g. Removals, Behavior Changes) should only be conducted if the
+resulting value is worth the effort. Deprecating an API before changing it
+(marking it as outdated) is therefore mandatory and done in accordance with
+a standard Deprecation procedure to prevent unexpected breaking of code that
+uses Matplotlib.
 
 - Definition of Deprecation
   - Deprecations are Announcements of future changes, stating that the status
@@ -299,27 +303,31 @@ prevent unexpected breaking of code that uses Matplotlib.
     which release forward the argument will be removed.
 
 - Deprecation Process
-  - Deprecations must be announced via a new file in a new file in
-    :file:`doc/api/next_api_changes/deprecations/` with naming convention
-    ``99999-ABC.rst`` where ``99999`` is the pull request number and ``ABC``
-    are the contributor's initials.
-  - Deprecations are targeted at the next point-release (i.e. 3.x.0).
-  - The deprecated API should, to the maximum extent possible, remain fully
-    functional during the deprecation period. In cases where this is not
-    possible, the deprecation must never make a given piece of code do something
-    different than it was before; at least an exception should be raised.
-  - If possible, usage of a deprecated API should emit a
-    `.MatplotlibDeprecationWarning`. There are a number of helper tools for this:
-
-    - Use ``_api.warn_deprecated()`` for general deprecation warnings.
-    - Use the decorator ``@_api.deprecated`` to deprecate classes, functions,
-    methods, or properties.
-    - To warn on changes of the function signature, use the decorators
-      ``@_api.delete_parameter``, ``@_api.rename_parameter``, and
-      ``@_api.make_keyword_only``.
-
-  - Deprecated API may be removed two point-releases after they were deprecated.
-
+   - Rules
+      - Deprecations are targeted at the next point.release (e.g. 3.x.0)
+      - Deprecated API may be removed two point-releases after their initial
+        Deprecation
+      - The old API must remain fully functional during the Deprecation period
+      - If valid alternatives to the deprecated API exist, they should be available
+        during the Deprecation period 
+      - If in doubt, decisions about API changes are finally made by the
+        API consistency lead developer
+    - Process Schema
+      1. Deprecation Announcement via a new file in a new file in
+         :file:`doc/api/next_api_changes/deprecations/` with naming convention
+         ``99999-ABC.rst`` where ``99999`` is the pull request number and ``ABC``
+         are the contributor's initials
+      2. Deprecations are then targeted at the next point-release (e.g. 3.x.0)
+      3. The continuing usage of a deprecated API should result in a
+         Runtime Warming (`.MatplotlibDeprecationWarning`). There are a number
+         of helper tools for this:
+            - Use ``_api.warn_deprecated()`` for general deprecation warnings
+            - Use the decorator ``@_api.deprecated`` to deprecate classes, functions,
+              methods, or properties
+            - To warn on changes of the function signature, use the decorators
+              ``@_api.delete_parameter``, ``@_api.rename_parameter``, and
+              ``@_api.make_keyword_only``
+       4. Deprecated API gets removed two point-releases after initial Deprecation
 
 Adding new API
 --------------
