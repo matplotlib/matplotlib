@@ -136,9 +136,7 @@ class _GSConverter(_Converter):
         self._proc.stdin.flush()
         # GS> if nothing left on the stack; GS<n> if n items left on the stack.
         err = self._read_until((b"GS<", b"GS>"))
-        stack = ""
-        if err.endswith(b"GS<"):
-            stack = self._read_until(b">")
+        stack = self._read_until(b">") if err.endswith(b"GS<") else b""
         if stack or not os.path.exists(dest):
             stack_size = int(stack[:-1]) if stack else 0
             self._proc.stdin.write(b"pop\n" * stack_size)
