@@ -15,7 +15,7 @@ import numpy as np
 from pyparsing import (
     Combine, Empty, Forward, Group, Literal, oneOf, OneOrMore,
     Optional, ParseBaseException, ParseFatalException, ParserElement,
-    ParseResults, QuotedString, Regex, StringEnd, Suppress, ZeroOrMore)
+    ParseResults, QuotedString, Regex, StringEnd, Suppress, White, ZeroOrMore)
 
 import matplotlib as mpl
 from . import _api, cbook
@@ -2058,6 +2058,7 @@ class Parser:
         p.accent        <<= Group(
             Suppress(p.bslash)
             + oneOf([*self._accent_map, *self._wide_accents])
+            + Suppress(Optional(White()))
             - p.placeable
         )
 
