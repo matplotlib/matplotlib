@@ -8,6 +8,9 @@ on:
   pull_request:
     branches-ignore:
       - v[0-9]+.[0-9]+.[0-9x]+-doc
+  schedule:
+    # 3:47 UTC on Saturdays
+    - cron: "47 3 * * 6"
 
 env:
   NO_AT_BRIDGE: 1  # Necessary for GTK3 interactive test.
@@ -209,6 +212,20 @@ jobs:
             echo 'wxPython is available' ||
             echo 'wxPython is not available'
 
+      - name: Install the nightly dependencies
+        # Only install the nightly dependencies during the scheduled event
+        if: ${{ github.event_name == 'schedule' && matrix.name-suffix != '(Minimum Versions)' }}
+        run: |
+          python -m pip install -i https://pypi.anaconda.org/scipy-wheels-nightly/simple --upgrade numpy pandas
+
+          # Turn all warnings to errors, except ignore the distutils deprecations and the find_spec warning
+          cat >> pytest.ini << EOF
+          filterwarnings =
+              error
+              ignore:.*distutils:DeprecationWarning
+              ignore:DynamicImporter.find_spec\(\) not found; falling back to find_module\(\):ImportWarning
+          EOF
+
       - name: Install Matplotlib
         run: |
           ccache -s
@@ -266,3 +283,18 @@ jobs:
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }} result images"
           path: ./result_images
+
+      - name: Create issue on failure
+        uses: imjohnbo/issue-bot@v3
+        if: ${{ failure() && github.event_name == 'schedule' }}
+        with:
+          title: "[TST] Upcoming dependency test failures"
+          body: |
+            The weekly build with nightly wheels from numpy and pandas
+            has failed. Check the logs for any updates that need to be
+            made in matplotlib.
+
+          pinned: false
+          close-previous: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
