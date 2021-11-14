@@ -66,7 +66,7 @@ const char *PyFT2Image_draw_rect__doc__ =
     "--\n\n"
     "Draw an empty rectangle to the image.\n";
 
-static PyObject *PyFT2Image_draw_rect(PyFT2Image *self, PyObject *args
+static PyObject *PyFT2Image_draw_rect(PyFT2Image *self, PyObject *args)
 {
     double x0, y0, x1, y1;
 
