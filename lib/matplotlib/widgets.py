@@ -1810,7 +1810,8 @@ class _SelectorWidget(AxesWidget):
         self.connect_default_events()
 
         self._state_modifier_keys = dict(move=' ', clear='escape',
-                                         square='shift', center='control')
+                                         square='shift', center='control',
+                                         data_coordinates='d')
         self._state_modifier_keys.update(state_modifier_keys or {})
 
         self.background = None
@@ -1996,6 +1997,12 @@ class _SelectorWidget(AxesWidget):
             if key == self._state_modifier_keys['clear']:
                 self.clear()
                 return
+            if key == 'd' and key in self._state_modifier_keys.values():
+                modifier = 'data_coordinates'
+                if modifier in self._default_state:
+                    self._default_state.remove(modifier)
+                else:
+                    self.add_default_state(modifier)
             for (state, modifier) in self._state_modifier_keys.items():
                 if modifier in key:
                     self._state.add(state)
@@ -2204,7 +2211,8 @@ class SpanSelector(_SelectorWidget):
         if state_modifier_keys is None:
             state_modifier_keys = dict(clear='escape',
                                        square='not-applicable',
-                                       center='not-applicable')
+                                       center='not-applicable',
+                                       data_coordinates='not-applicable')
         super().__init__(ax, onselect, useblit=useblit, button=button,
                          state_modifier_keys=state_modifier_keys)
 
@@ -2778,8 +2786,12 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         - "clear": Clear the current shape, default: "escape".
         - "square": Make the shape square, default: "shift".
         - "center": change the shape around its center, default: "ctrl".
+        - "data_coordinates": define if data or figure coordinates should be
+          used to define the square shape, default: "d"
 
-        "square" and "center" can be combined.
+        "square" and "center" can be combined. The square shape can be defined
+        in data or figure coordinates as determined by the ``data_coordinates``
+        modifier, which can be enable and disable by pressing the 'd' key.
 
     drag_from_anywhere : bool, default: False
         If `True`, the widget can be moved by clicking anywhere within
@@ -3014,64 +3026,75 @@ class RectangleSelector(_SelectorWidget):
         """Motion notify event handler."""
 
         state = self._state | self._default_state
+
+        dx = event.xdata - self._eventpress.xdata
+        dy = event.ydata - self._eventpress.ydata
+        refmax = None
+        if 'data_coordinates' in state:
+            aspect_ratio = 1
+            refx, refy = dx, dy
+        else:
+            figure_size = self.ax.get_figure().get_size_inches()
+            ll, ur = self.ax.get_position() * figure_size
+            width, height = ur - ll
+            aspect_ratio = height / width * self.ax.get_data_ratio()
+            refx = event.xdata / (self._eventpress.xdata + 1e-6)
+            refy = event.ydata / (self._eventpress.ydata + 1e-6)
+
         # resize an existing shape
         if self._active_handle and self._active_handle != 'C':
             x0, x1, y0, y1 = self._extents_on_press
             size_on_press = [x1 - x0, y1 - y0]
             center = [x0 + size_on_press[0] / 2, y0 + size_on_press[1] / 2]
-            dx = event.xdata - self._eventpress.xdata
-            dy = event.ydata - self._eventpress.ydata
-
-            # change sign of relative changes to simplify calculation
-            # Switch variables so that only x1 and/or y1 are updated on move
-            x_factor = y_factor = 1
-            if 'W' in self._active_handle:
-                x_factor *= -1
-                dx *= x_factor
-                x0 = x1
-            if 'S' in self._active_handle:
-                y_factor *= -1
-                dy *= y_factor
-                y0 = y1
 
             # Keeping the center fixed
             if 'center' in state:
                 if 'square' in state:
-                    # Force the same change in dx and dy
-                    if self._active_handle in ['E', 'W']:
-                        # using E, W handle we need to update dy accordingly
-                        dy = dx
-                    elif self._active_handle in ['S', 'N']:
-                        # using S, N handle, we need to update dx accordingly
-                        dx = dy
+                    # when using a corner, find which reference to use
+                    if self._active_handle in self._corner_order:
+                        refmax = max(refx, refy, key=abs)
+                    if self._active_handle in ['E', 'W'] or refmax == refx:
+                        hw = event.xdata - center[0]
+                        hh = hw / aspect_ratio
                     else:
-                        dx = dy = max(dx, dy, key=abs)
-
-                # new half-width and half-height
-                hw = size_on_press[0] / 2 + dx
-                hh = size_on_press[1] / 2 + dy
-
-                if 'square' not in state:
+                        hh = event.ydata - center[1]
+                        hw = hh * aspect_ratio
+                else:
+                    hw = size_on_press[0] / 2
+                    hh = size_on_press[1] / 2
                     # cancel changes in perpendicular direction
-                    if self._active_handle in ['E', 'W']:
-                        hh = size_on_press[1] / 2
-                    if self._active_handle in ['N', 'S']:
-                        hw = size_on_press[0] / 2
+                    if self._active_handle in ['E', 'W'] + self._corner_order:
+                        hw = abs(event.xdata - center[0])
+                    if self._active_handle in ['N', 'S'] + self._corner_order:
+                        hh = abs(event.ydata - center[1])
 
                 x0, x1, y0, y1 = (center[0] - hw, center[0] + hw,
                                   center[1] - hh, center[1] + hh)
 
             else:
-                # Keeping the opposite corner/edge fixed
+                # change sign of relative changes to simplify calculation
+                # Switch variables so that x1 and/or y1 are updated on move
+                x_factor = y_factor = 1
+                if 'W' in self._active_handle:
+                    x0 = x1
+                    x_factor *= -1
+                if 'S' in self._active_handle:
+                    y0 = y1
+                    y_factor *= -1
+                if self._active_handle in ['E', 'W'] + self._corner_order:
+                    x1 = event.xdata
+                if self._active_handle in ['N', 'S'] + self._corner_order:
+                    y1 = event.ydata
                 if 'square' in state:
-                    dx = dy = max(dx, dy, key=abs)
-                    x1 = x0 + x_factor * (dx + size_on_press[0])
-                    y1 = y0 + y_factor * (dy + size_on_press[1])
-                else:
-                    if self._active_handle in ['E', 'W'] + self._corner_order:
-                        x1 = event.xdata
-                    if self._active_handle in ['N', 'S'] + self._corner_order:
-                        y1 = event.ydata
+                    # when using a corner, find which reference to use
+                    if self._active_handle in self._corner_order:
+                        refmax = max(refx, refy, key=abs)
+                    if self._active_handle in ['E', 'W'] or refmax == refx:
+                        sign = np.sign(event.ydata - y0)
+                        y1 = y0 + sign * abs(x1 - x0) / aspect_ratio
+                    else:
+                        sign = np.sign(event.xdata - x0)
+                        x1 = x0 + sign * abs(y1 - y0) * aspect_ratio
 
         # move existing shape
         elif self._active_handle == 'C':
@@ -3090,21 +3113,16 @@ class RectangleSelector(_SelectorWidget):
             if self.ignore_event_outside and self._selection_completed:
                 return
             center = [self._eventpress.xdata, self._eventpress.ydata]
-            center_pix = [self._eventpress.x, self._eventpress.y]
             dx = (event.xdata - center[0]) / 2.
             dy = (event.ydata - center[1]) / 2.
 
             # square shape
             if 'square' in state:
-                dx_pix = abs(event.x - center_pix[0])
-                dy_pix = abs(event.y - center_pix[1])
-                if not dx_pix:
-                    return
-                maxd = max(abs(dx_pix), abs(dy_pix))
-                if abs(dx_pix) < maxd:
-                    dx *= maxd / (abs(dx_pix) + 1e-6)
-                if abs(dy_pix) < maxd:
-                    dy *= maxd / (abs(dy_pix) + 1e-6)
+                refmax = max(refx, refy, key=abs)
+                if refmax == refx:
+                    dy = dx / aspect_ratio
+                else:
+                    dx = dy * aspect_ratio
 
             # from center
             if 'center' in state:
@@ -3464,7 +3482,8 @@ class PolygonSelector(_SelectorWidget):
         state_modifier_keys = dict(clear='escape', move_vertex='control',
                                    move_all='shift', move='not-applicable',
                                    square='not-applicable',
-                                   center='not-applicable')
+                                   center='not-applicable',
+                                   data_coordinates='not-applicable')
         super().__init__(ax, onselect, useblit=useblit,
                          state_modifier_keys=state_modifier_keys)
 

@@ -189,6 +189,7 @@ def test_rectangle_add_default_state():
     tool.add_default_state('move')
     tool.add_default_state('square')
     tool.add_default_state('center')
+    tool.add_default_state('data_coordinates')
 
 
 @pytest.mark.parametrize('use_default_state', [True, False])
@@ -405,6 +406,42 @@ def test_rectangle_resize_square_center():
                             ydata_new, extents[3] - ydiff)
 
 
+def test_rectangle_resize_square_center_aspect():
+    ax = get_ax()
+    ax.set_aspect(0.8)
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = widgets.RectangleSelector(ax, onselect, interactive=True)
+    # Create rectangle
+    _resize_rectangle(tool, 70, 65, 120, 115)
+    tool.add_default_state('square')
+    tool.add_default_state('center')
+    assert tool.extents == (70.0, 120.0, 65.0, 115.0)
+
+    # resize E handle
+    extents = tool.extents
+    xdata, ydata = extents[1], extents[3]
+    xdiff = 10
+    xdata_new, ydata_new = xdata + xdiff, ydata
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    assert_allclose(tool.extents, [extents[0] - xdiff, xdata_new,
+                                   46.25, 133.75])
+
+    # use data coordinates
+    do_event(tool, 'on_key_press', key='d')
+    # resize E handle
+    extents = tool.extents
+    xdata, ydata, width = extents[1], extents[3], extents[1] - extents[0]
+    xdiff, ycenter = 10,  extents[2] + (extents[3] - extents[2]) / 2
+    xdata_new, ydata_new = xdata + xdiff, ydata
+    ychange = width / 2 + xdiff
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    assert_allclose(tool.extents, [extents[0] - xdiff, xdata_new,
+                                   ycenter - ychange, ycenter + ychange])
+
+
 def test_ellipse():
     """For ellipse, test out the key modifiers"""
     ax = get_ax()
@@ -443,7 +480,7 @@ def test_ellipse():
     do_event(tool, 'on_key_release', xdata=10, ydata=10, button=1,
              key='shift')
     extents = [int(e) for e in tool.extents]
-    assert extents == [10, 35, 10, 34]
+    assert extents == [10, 35, 10, 35]
 
     # create a square from center
     do_event(tool, 'on_key_press', xdata=100, ydata=100, button=1,
@@ -454,7 +491,7 @@ def test_ellipse():
     do_event(tool, 'on_key_release', xdata=100, ydata=100, button=1,
              key='ctrl+shift')
     extents = [int(e) for e in tool.extents]
-    assert extents == [70, 129, 70, 130]
+    assert extents == [70, 130, 70, 130]
 
     assert tool.geometry.shape == (2, 73)
     assert_allclose(tool.geometry[:, 0], [70., 100])
