@@ -112,3 +112,8 @@ jobs:
         with:
           name: wheels
           path: ./dist/*.whl
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: manylinux_x86_64
+          path: ./dist/*x86_64.manylinux1*.whl
