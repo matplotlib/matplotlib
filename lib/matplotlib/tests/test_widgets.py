@@ -55,6 +55,19 @@ def test_rectangle_selector():
     check_rectangle(props=dict(fill=True))
 
 
+def _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new,
+                      use_key=None):
+    do_event(tool, 'press', xdata=xdata, ydata=ydata, button=1)
+    if use_key is not None:
+        do_event(tool, 'on_key_press', key=use_key)
+    do_event(tool, 'onmove', xdata=xdata_new, ydata=ydata_new, button=1)
+    if use_key is not None:
+        do_event(tool, 'on_key_release', key=use_key)
+    do_event(tool, 'release', xdata=xdata_new, ydata=ydata_new, button=1)
+
+    return tool
+
+
 @pytest.mark.parametrize('drag_from_anywhere, new_center',
                          [[True, (60, 75)],
                           [False, (30, 20)]])
@@ -116,6 +129,260 @@ def test_rectangle_selector_set_props_handle_props():
     for artist in tool._handles_artists:
         assert artist.get_markeredgecolor() == 'r'
         assert artist.get_alpha() == 0.3
+
+
+def test_rectangle_resize():
+    ax = get_ax()
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = widgets.RectangleSelector(ax, onselect, interactive=True)
+    # Create rectangle
+    _resize_rectangle(tool, 0, 10, 100, 120)
+    assert tool.extents == (0.0, 100.0, 10.0, 120.0)
+
+    # resize NE handle
+    extents = tool.extents
+    xdata, ydata = extents[1], extents[3]
+    xdata_new, ydata_new = xdata + 10, ydata + 5
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    assert tool.extents == (extents[0], xdata_new, extents[2], ydata_new)
+
+    # resize E handle
+    extents = tool.extents
+    xdata, ydata = extents[1], extents[2] + (extents[3] - extents[2]) / 2
+    xdata_new, ydata_new = xdata + 10, ydata
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    assert tool.extents == (extents[0], xdata_new, extents[2], extents[3])
+
+    # resize W handle
+    extents = tool.extents
+    xdata, ydata = extents[0], extents[2] + (extents[3] - extents[2]) / 2
+    xdata_new, ydata_new = xdata + 15, ydata
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    assert tool.extents == (xdata_new, extents[1], extents[2], extents[3])
+
+    # resize SW handle
+    extents = tool.extents
+    xdata, ydata = extents[0], extents[2]
+    xdata_new, ydata_new = xdata + 20, ydata + 25
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    assert tool.extents == (xdata_new, extents[1], ydata_new, extents[3])
+
+
+@pytest.mark.parametrize('use_default_state', [True, False])
+def test_rectangle_resize_center(use_default_state):
+    ax = get_ax()
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = widgets.RectangleSelector(ax, onselect, interactive=True)
+    # Create rectangle
+    _resize_rectangle(tool, 70, 65, 125, 130)
+    assert tool.extents == (70.0, 125.0, 65.0, 130.0)
+
+    if use_default_state:
+        tool._default_state.add('center')
+        use_key = None
+    else:
+        use_key = 'control'
+
+    # resize NE handle
+    extents = tool.extents
+    xdata, ydata = extents[1], extents[3]
+    xdiff, ydiff = 10, 5
+    xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    assert tool.extents == (extents[0] - xdiff, xdata_new,
+                            extents[2] - ydiff, ydata_new)
+
+    # resize E handle
+    extents = tool.extents
+    xdata, ydata = extents[1], extents[2] + (extents[3] - extents[2]) / 2
+    xdiff = 10
+    xdata_new, ydata_new = xdata + xdiff, ydata
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    assert tool.extents == (extents[0] - xdiff, xdata_new,
+                            extents[2], extents[3])
+
+    # resize E handle negative diff
+    extents = tool.extents
+    xdata, ydata = extents[1], extents[2] + (extents[3] - extents[2]) / 2
+    xdiff = -20
+    xdata_new, ydata_new = xdata + xdiff, ydata
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    assert tool.extents == (extents[0] - xdiff, xdata_new,
+                            extents[2], extents[3])
+
+    # resize W handle
+    extents = tool.extents
+    xdata, ydata = extents[0], extents[2] + (extents[3] - extents[2]) / 2
+    xdiff = 15
+    xdata_new, ydata_new = xdata + xdiff, ydata
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    assert tool.extents == (xdata_new, extents[1] - xdiff,
+                            extents[2], extents[3])
+
+    # resize W handle negative diff
+    extents = tool.extents
+    xdata, ydata = extents[0], extents[2] + (extents[3] - extents[2]) / 2
+    xdiff = -25
+    xdata_new, ydata_new = xdata + xdiff, ydata
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    assert tool.extents == (xdata_new, extents[1] - xdiff,
+                            extents[2], extents[3])
+
+    # resize SW handle
+    extents = tool.extents
+    xdata, ydata = extents[0], extents[2]
+    xdiff, ydiff = 20, 25
+    xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    assert tool.extents == (xdata_new, extents[1] - xdiff,
+                            ydata_new, extents[3] - ydiff)
+
+
+@pytest.mark.parametrize('use_default_state', [True, False])
+def test_rectangle_resize_square(use_default_state):
+    ax = get_ax()
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = widgets.RectangleSelector(ax, onselect, interactive=True)
+    # Create rectangle
+    _resize_rectangle(tool, 70, 65, 120, 115)
+    assert tool.extents == (70.0, 120.0, 65.0, 115.0)
+
+    if use_default_state:
+        tool._default_state.add('square')
+        use_key = None
+    else:
+        use_key = 'shift'
+
+    # resize NE handle
+    extents = tool.extents
+    xdata, ydata = extents[1], extents[3]
+    xdiff, ydiff = 10, 5
+    xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    assert tool.extents == (extents[0], xdata_new,
+                            extents[2], extents[3] + xdiff)
+
+    # resize E handle
+    extents = tool.extents
+    xdata, ydata = extents[1], extents[2] + (extents[3] - extents[2]) / 2
+    xdiff = 10
+    xdata_new, ydata_new = xdata + xdiff, ydata
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    assert tool.extents == (extents[0], xdata_new,
+                            extents[2], extents[3] + xdiff)
+
+    # resize E handle negative diff
+    extents = tool.extents
+    xdata, ydata = extents[1], extents[2] + (extents[3] - extents[2]) / 2
+    xdiff = -20
+    xdata_new, ydata_new = xdata + xdiff, ydata
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    assert tool.extents == (extents[0], xdata_new,
+                            extents[2], extents[3] + xdiff)
+
+    # resize W handle
+    extents = tool.extents
+    xdata, ydata = extents[0], extents[2] + (extents[3] - extents[2]) / 2
+    xdiff = 15
+    xdata_new, ydata_new = xdata + xdiff, ydata
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    assert tool.extents == (xdata_new, extents[1],
+                            extents[2], extents[3] - xdiff)
+
+    # resize W handle negative diff
+    extents = tool.extents
+    xdata, ydata = extents[0], extents[2] + (extents[3] - extents[2]) / 2
+    xdiff = -25
+    xdata_new, ydata_new = xdata + xdiff, ydata
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    assert tool.extents == (xdata_new, extents[1],
+                            extents[2], extents[3] - xdiff)
+
+    # resize SW handle
+    extents = tool.extents
+    xdata, ydata = extents[0], extents[2]
+    xdiff, ydiff = 20, 25
+    xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    assert tool.extents == (extents[0] + ydiff, extents[1],
+                            ydata_new, extents[3])
+
+
+def test_rectangle_resize_square_center():
+    ax = get_ax()
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = widgets.RectangleSelector(ax, onselect, interactive=True)
+    # Create rectangle
+    _resize_rectangle(tool, 70, 65, 120, 115)
+    tool._default_state.add('square')
+    tool._default_state.add('center')
+    assert tool.extents == (70.0, 120.0, 65.0, 115.0)
+
+    # resize NE handle
+    extents = tool.extents
+    xdata, ydata = extents[1], extents[3]
+    xdiff, ydiff = 10, 5
+    xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    assert tool.extents == (extents[0] - xdiff, xdata_new,
+                            extents[2] - xdiff, extents[3] + xdiff)
+
+    # resize E handle
+    extents = tool.extents
+    xdata, ydata = extents[1], extents[2] + (extents[3] - extents[2]) / 2
+    xdiff = 10
+    xdata_new, ydata_new = xdata + xdiff, ydata
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    assert tool.extents == (extents[0] - xdiff, xdata_new,
+                            extents[2] - xdiff, extents[3] + xdiff)
+
+    # resize E handle negative diff
+    extents = tool.extents
+    xdata, ydata = extents[1], extents[2] + (extents[3] - extents[2]) / 2
+    xdiff = -20
+    xdata_new, ydata_new = xdata + xdiff, ydata
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    assert tool.extents == (extents[0] - xdiff, xdata_new,
+                            extents[2] - xdiff, extents[3] + xdiff)
+
+    # resize W handle
+    extents = tool.extents
+    xdata, ydata = extents[0], extents[2] + (extents[3] - extents[2]) / 2
+    xdiff = 5
+    xdata_new, ydata_new = xdata + xdiff, ydata
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    assert tool.extents == (xdata_new, extents[1] - xdiff,
+                            extents[2] + xdiff, extents[3] - xdiff)
+
+    # resize W handle negative diff
+    extents = tool.extents
+    xdata, ydata = extents[0], extents[2] + (extents[3] - extents[2]) / 2
+    xdiff = -25
+    xdata_new, ydata_new = xdata + xdiff, ydata
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    assert tool.extents == (xdata_new, extents[1] - xdiff,
+                            extents[2] + xdiff, extents[3] - xdiff)
+
+    # resize SW handle
+    extents = tool.extents
+    xdata, ydata = extents[0], extents[2]
+    xdiff, ydiff = 20, 25
+    xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
+    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    assert tool.extents == (extents[0] + ydiff, extents[1] - ydiff,
+                            ydata_new, extents[3] - ydiff)
 
 
 def test_ellipse():
