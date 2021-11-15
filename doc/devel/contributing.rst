@@ -289,9 +289,10 @@ API consistency and stability are of great value. Therefore, API changes
 (e.g. signature changes, behavior changes, removals) will only be conducted
 if the added benefit is worth the user effort for adapting.
 
-All API changes in Matplotlib have to be performed following the below
-deprecation process. This ensures that users are notified before the change
-will take effect and thus prevents unexpected breaking of code.
+API changes in Matplotlib have to be performed following the deprecation process
+below, except in very rare circumstances as deemed necessary by the development team.
+This ensures that users are notified before the change will take effect and thus
+prevents unexpected breaking of code.
 
 Rules
 ~~~~~
