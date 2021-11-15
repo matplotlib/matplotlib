@@ -32,7 +32,7 @@ const char *Py_point_in_path__doc__ =
     "point_in_path(x, y, radius, path, trans)\n"
     "--\n\n";
 
-static PyObject *Py_point_in_path(PyObject *self, PyObject *args, PyObject *kwds)
+static PyObject *Py_point_in_path(PyObject *self, PyObject *args)
 {
     double x, y, r;
     py::PathIterator path;
@@ -64,7 +64,7 @@ const char *Py_points_in_path__doc__ =
     "points_in_path(points, radius, path, trans)\n"
     "--\n\n";
 
-static PyObject *Py_points_in_path(PyObject *self, PyObject *args, PyObject *kwds)
+static PyObject *Py_points_in_path(PyObject *self, PyObject *args)
 {
     numpy::array_view<const double, 2> points;
     double r;
@@ -95,7 +95,7 @@ const char *Py_point_on_path__doc__ =
     "point_on_path(x, y, radius, path, trans)\n"
     "--\n\n";
 
-static PyObject *Py_point_on_path(PyObject *self, PyObject *args, PyObject *kwds)
+static PyObject *Py_point_on_path(PyObject *self, PyObject *args)
 {
     double x, y, r;
     py::PathIterator path;
@@ -127,7 +127,7 @@ const char *Py_points_on_path__doc__ =
     "points_on_path(points, radius, path, trans)\n"
     "--\n\n";
 
-static PyObject *Py_points_on_path(PyObject *self, PyObject *args, PyObject *kwds)
+static PyObject *Py_points_on_path(PyObject *self, PyObject *args)
 {
     numpy::array_view<const double, 2> points;
     double r;
@@ -158,7 +158,7 @@ const char *Py_get_path_extents__doc__ =
     "get_path_extents(path, trans)\n"
     "--\n\n";
 
-static PyObject *Py_get_path_extents(PyObject *self, PyObject *args, PyObject *kwds)
+static PyObject *Py_get_path_extents(PyObject *self, PyObject *args)
 {
     py::PathIterator path;
     agg::trans_affine trans;
@@ -187,7 +187,7 @@ const char *Py_update_path_extents__doc__ =
     "update_path_extents(path, trans, rect, minpos, ignore)\n"
     "--\n\n";
 
-static PyObject *Py_update_path_extents(PyObject *self, PyObject *args, PyObject *kwds)
+static PyObject *Py_update_path_extents(PyObject *self, PyObject *args)
 {
     py::PathIterator path;
     agg::trans_affine trans;
@@ -266,7 +266,7 @@ const char *Py_get_path_collection_extents__doc__ =
     "master_transform, paths, transforms, offsets, offset_transform)\n"
     "--\n\n";
 
-static PyObject *Py_get_path_collection_extents(PyObject *self, PyObject *args, PyObject *kwds)
+static PyObject *Py_get_path_collection_extents(PyObject *self, PyObject *args)
 {
     agg::trans_affine master_transform;
     py::PathGenerator paths;
@@ -315,7 +315,7 @@ const char *Py_point_in_path_collection__doc__ =
     "offset_trans, filled, offset_position)\n"
     "--\n\n";
 
-static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args, PyObject *kwds)
+static PyObject *Py_point_in_path_collection(PyObject *self, PyObject *args)
 {
     double x, y, radius;
     agg::trans_affine master_transform;
@@ -372,7 +372,7 @@ const char *Py_path_in_path__doc__ =
     "path_in_path(path_a, trans_a, path_b, trans_b)\n"
     "--\n\n";
 
-static PyObject *Py_path_in_path(PyObject *self, PyObject *args, PyObject *kwds)
+static PyObject *Py_path_in_path(PyObject *self, PyObject *args)
 {
     py::PathIterator a;
     agg::trans_affine atrans;
@@ -406,7 +406,7 @@ const char *Py_clip_path_to_rect__doc__ =
     "clip_path_to_rect(path, rect, inside)\n"
     "--\n\n";
 
-static PyObject *Py_clip_path_to_rect(PyObject *self, PyObject *args, PyObject *kwds)
+static PyObject *Py_clip_path_to_rect(PyObject *self, PyObject *args)
 {
     py::PathIterator path;
     agg::rect_d rect;
@@ -433,7 +433,7 @@ const char *Py_affine_transform__doc__ =
     "affine_transform(points, trans)\n"
     "--\n\n";
 
-static PyObject *Py_affine_transform(PyObject *self, PyObject *args, PyObject *kwds)
+static PyObject *Py_affine_transform(PyObject *self, PyObject *args)
 {
     PyObject *vertices_obj;
     agg::trans_affine trans;
@@ -474,7 +474,7 @@ const char *Py_count_bboxes_overlapping_bbox__doc__ =
     "count_bboxes_overlapping_bbox(bbox, bboxes)\n"
     "--\n\n";
 
-static PyObject *Py_count_bboxes_overlapping_bbox(PyObject *self, PyObject *args, PyObject *kwds)
+static PyObject *Py_count_bboxes_overlapping_bbox(PyObject *self, PyObject *args)
 {
     agg::rect_d bbox;
     numpy::array_view<const double, 3> bboxes;
@@ -616,7 +616,7 @@ const char *Py_cleanup_path__doc__ =
     "return_curves, sketch)\n"
     "--\n\n";
 
-static PyObject *Py_cleanup_path(PyObject *self, PyObject *args, PyObject *kwds)
+static PyObject *Py_cleanup_path(PyObject *self, PyObject *args)
 {
     py::PathIterator path;
     agg::trans_affine trans;
@@ -723,7 +723,7 @@ const char *Py_convert_to_string__doc__ =
     "    Whether the opcode comes after the values (True) or before (False).\n"
     ;
 
-static PyObject *Py_convert_to_string(PyObject *self, PyObject *args, PyObject *kwds)
+static PyObject *Py_convert_to_string(PyObject *self, PyObject *args)
 {
     py::PathIterator path;
     agg::trans_affine trans;
