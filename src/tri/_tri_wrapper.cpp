@@ -103,7 +103,7 @@ const char* PyTriangulation_calculate_plane_coefficients__doc__ =
     "--\n\n"
     "Calculate plane equation coefficients for all unmasked triangles";
 
-static PyObject* PyTriangulation_calculate_plane_coefficients(PyTriangulation* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTriangulation_calculate_plane_coefficients(PyTriangulation* self, PyObject* args)
 {
     Triangulation::CoordinateArray z;
     if (!PyArg_ParseTuple(args, "O&:calculate_plane_coefficients",
@@ -128,7 +128,7 @@ const char* PyTriangulation_get_edges__doc__ =
     "--\n\n"
     "Return edges array";
 
-static PyObject* PyTriangulation_get_edges(PyTriangulation* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTriangulation_get_edges(PyTriangulation* self, PyObject* args)
 {
     Triangulation::EdgeArray* result;
     CALL_CPP("get_edges", (result = &self->ptr->get_edges()));
@@ -145,7 +145,7 @@ const char* PyTriangulation_get_neighbors__doc__ =
     "--\n\n"
     "Return neighbors array";
 
-static PyObject* PyTriangulation_get_neighbors(PyTriangulation* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTriangulation_get_neighbors(PyTriangulation* self, PyObject* args)
 {
     Triangulation::NeighborArray* result;
     CALL_CPP("get_neighbors", (result = &self->ptr->get_neighbors()));
@@ -162,7 +162,7 @@ const char* PyTriangulation_set_mask__doc__ =
     "--\n\n"
     "Set or clear the mask array.";
 
-static PyObject* PyTriangulation_set_mask(PyTriangulation* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTriangulation_set_mask(PyTriangulation* self, PyObject* args)
 {
     Triangulation::MaskArray mask;
 
@@ -278,7 +278,7 @@ const char* PyTriContourGenerator_create_contour__doc__ =
     "\n"
     "Create and return a non-filled contour.";
 
-static PyObject* PyTriContourGenerator_create_contour(PyTriContourGenerator* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTriContourGenerator_create_contour(PyTriContourGenerator* self, PyObject* args)
 {
     double level;
     if (!PyArg_ParseTuple(args, "d:create_contour", &level)) {
@@ -295,7 +295,7 @@ const char* PyTriContourGenerator_create_filled_contour__doc__ =
     "\n"
     "Create and return a filled contour";
 
-static PyObject* PyTriContourGenerator_create_filled_contour(PyTriContourGenerator* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTriContourGenerator_create_filled_contour(PyTriContourGenerator* self, PyObject* args)
 {
     double lower_level, upper_level;
     if (!PyArg_ParseTuple(args, "dd:create_filled_contour",
@@ -404,7 +404,7 @@ const char* PyTrapezoidMapTriFinder_find_many__doc__ =
     "\n"
     "Find indices of triangles containing the point coordinates (x, y)";
 
-static PyObject* PyTrapezoidMapTriFinder_find_many(PyTrapezoidMapTriFinder* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTrapezoidMapTriFinder_find_many(PyTrapezoidMapTriFinder* self, PyObject* args)
 {
     TrapezoidMapTriFinder::CoordinateArray x, y;
     if (!PyArg_ParseTuple(args, "O&O&:find_many",
@@ -429,7 +429,7 @@ const char* PyTrapezoidMapTriFinder_get_tree_stats__doc__ =
     "\n"
     "Return statistics about the tree used by the trapezoid map";
 
-static PyObject* PyTrapezoidMapTriFinder_get_tree_stats(PyTrapezoidMapTriFinder* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTrapezoidMapTriFinder_get_tree_stats(PyTrapezoidMapTriFinder* self, PyObject* args)
 {
     PyObject* result;
     CALL_CPP("get_tree_stats", (result = self->ptr->get_tree_stats()));
@@ -441,7 +441,7 @@ const char* PyTrapezoidMapTriFinder_initialize__doc__ =
     "\n"
     "Initialize this object, creating the trapezoid map from the triangulation";
 
-static PyObject* PyTrapezoidMapTriFinder_initialize(PyTrapezoidMapTriFinder* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTrapezoidMapTriFinder_initialize(PyTrapezoidMapTriFinder* self, PyObject* args)
 {
     CALL_CPP("initialize", (self->ptr->initialize()));
     Py_RETURN_NONE;
@@ -452,7 +452,7 @@ const char* PyTrapezoidMapTriFinder_print_tree__doc__ =
     "\n"
     "Print the search tree as text to stdout; useful for debug purposes";
 
-static PyObject* PyTrapezoidMapTriFinder_print_tree(PyTrapezoidMapTriFinder* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTrapezoidMapTriFinder_print_tree(PyTrapezoidMapTriFinder* self, PyObject* args)
 {
     CALL_CPP("print_tree", (self->ptr->print_tree()));
     Py_RETURN_NONE;
