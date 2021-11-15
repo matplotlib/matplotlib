@@ -285,12 +285,13 @@ Coding guidelines
 API changes
 -----------
 
-Generally, API consistency and stability are of great value. Therefore, API
-changes (e.g. Removals, Behavior Changes) should only be conducted if the
-resulting value is worth the effort. Deprecating an API before changing it
-(marking it as outdated) is therefore mandatory and done in accordance with
-a standard Deprecation procedure to prevent unexpected breaking of code that
-uses Matplotlib.
+API consistency and stability are of great value. Therefore, API changes
+(e.g. signature changes, behavior changes, removals) will only be conducted
+if the added benefit is worth the user effort for adapting.
+
+All API changes in Matplotlib have to be performed following the below
+deprecation process. This ensures that users are notified before the change
+will take effect and thus prevents unexpected breaking of code.
 
 - Definition of Deprecation
   - Deprecations are Announcements of future changes, stating that the status
