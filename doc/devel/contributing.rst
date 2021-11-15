@@ -293,42 +293,49 @@ All API changes in Matplotlib have to be performed following the below
 deprecation process. This ensures that users are notified before the change
 will take effect and thus prevents unexpected breaking of code.
 
-- Definition of Deprecation
-  - Deprecations are Announcements of future changes, stating that the status
-    quo will be outdated in the future and replaced by a new standard
-  - Users are advised to change their code in order to guarantee compatibility
-    with future Matplotlib releases.
-  - The Deprecation date is marked by the ``since`` argument, specifying from
-    which release forward the argument is or was deprecated. The Deprecation
-    date is not to be confused with the ``removal`` argument, specifying from
-    which release forward the argument will be removed.
+Deprecation process
+~~~~~~~~~~~~~~~~~~~
 
-- Deprecation Process
-   - Rules
-      - Deprecations are targeted at the next point.release (e.g. 3.x.0)
-      - Deprecated API may be removed two point-releases after their initial
-        Deprecation
-      - The old API must remain fully functional during the Deprecation period
-      - If valid alternatives to the deprecated API exist, they should be available
-        during the Deprecation period 
-      - If in doubt, decisions about API changes are finally made by the
-        API consistency lead developer
-    - Process Schema
-      1. Deprecation Announcement via a new file in a new file in
-         :file:`doc/api/next_api_changes/deprecations/` with naming convention
-         ``99999-ABC.rst`` where ``99999`` is the pull request number and ``ABC``
-         are the contributor's initials
-      2. Deprecations are then targeted at the next point-release (e.g. 3.x.0)
-      3. The continuing usage of a deprecated API should result in a
-         Runtime Warming (`.MatplotlibDeprecationWarning`). There are a number
-         of helper tools for this:
-            - Use ``_api.warn_deprecated()`` for general deprecation warnings
-            - Use the decorator ``@_api.deprecated`` to deprecate classes, functions,
-              methods, or properties
-            - To warn on changes of the function signature, use the decorators
-              ``@_api.delete_parameter``, ``@_api.rename_parameter``, and
-              ``@_api.make_keyword_only``
-       4. Deprecated API gets removed two point-releases after initial Deprecation
+Rules:
+
+- Deprecations are targeted at the next point.release (e.g. 3.x)
+- Deprecated API is generally removed two two point-releases after introduction
+  of the deprecation. Longer deprecations can be imposed by core developers on
+  a case-by-case basis to give more time for the transition
+- The old API must remain fully functional during the deprecation period
+- If alternatives to the deprecated API exist, they should be available
+  during the deprecation period
+- If in doubt, decisions about API changes are finally made by the
+  API consistency lead developer
+
+Introducing a deprecation:
+
+1. Announce the deprecation in a new file
+   :file:`doc/api/next_api_changes/deprecations/99999-ABC.rst` where ``99999``
+   is the pull request number and ``ABC`` are the contributor's initials.
+2. If possible, issue a `.MatplotlibDeprecationWarning` when the deprecated
+   API is used. There are a number of helper tools for this:
+
+   - Use ``_api.warn_deprecated()`` for general deprecation warnings
+   - Use the decorator ``@_api.deprecated`` to deprecate classes, functions,
+     methods, or properties
+   - To warn on changes of the function signature, use the decorators
+     ``@_api.delete_parameter``, ``@_api.rename_parameter``, and
+     ``@_api.make_keyword_only``
+
+   All these helpers take a first parameter *since*, which should be set to
+   the next point release, e.g. "3.x".
+
+Expiring a deprecation:
+
+1. Announce the API changes in a new file
+   :file:`doc/api/next_api_changes/[kind]/99999-ABC.rst` where ``99999``
+   is the pull request number and ``ABC`` are the contributor's initials, and
+   ``[kind]`` is one of the folders :file:`behavior`, :file:`development`,
+   :file:`removals`. See :file:`doc/api/next_api_changes/README.rst` for more
+   information. For the content, you can usually copy the deprecation notice
+   and adapt it slightly.
+2. Change the code functionality and remove any related deprecation warnings.
 
 Adding new API
 --------------
