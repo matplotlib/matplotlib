@@ -293,10 +293,8 @@ All API changes in Matplotlib have to be performed following the below
 deprecation process. This ensures that users are notified before the change
 will take effect and thus prevents unexpected breaking of code.
 
-Deprecation process
-~~~~~~~~~~~~~~~~~~~
-
-Rules:
+Rules
+~~~~~
 
 - Deprecations are targeted at the next point.release (e.g. 3.x)
 - Deprecated API is generally removed two two point-releases after introduction
@@ -308,7 +306,8 @@ Rules:
 - If in doubt, decisions about API changes are finally made by the
   API consistency lead developer
 
-Introducing a deprecation:
+Introducing
+~~~~~~~~~~~
 
 1. Announce the deprecation in a new file
    :file:`doc/api/next_api_changes/deprecations/99999-ABC.rst` where ``99999``
@@ -326,7 +325,8 @@ Introducing a deprecation:
    All these helpers take a first parameter *since*, which should be set to
    the next point release, e.g. "3.x".
 
-Expiring a deprecation:
+Expiring
+~~~~~~~~
 
 1. Announce the API changes in a new file
    :file:`doc/api/next_api_changes/[kind]/99999-ABC.rst` where ``99999``
