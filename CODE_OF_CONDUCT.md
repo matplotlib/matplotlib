@@ -62,7 +62,7 @@ representative at an online or offline event.
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community leaders responsible for enforcement at
 matplotlib@numfocus.org (monitored by Thomas Caswell (\@tacaswell) and Hannah
-Aizenman (\@story645)) or a report can be made using the [NumFOCUS Code of Conduct report form][numfocus form]. 
+Aizenman (\@story645)) or a report can be made using the [NumFOCUS Code of Conduct report form][numfocus form].
 If community leaders cannot come to a resolution about enforcement, reports will be escalated to the NumFocus Code of Conduct committee (conduct@numfocus.org).
 All complaints will be reviewed and investigated promptly and fairly.
 

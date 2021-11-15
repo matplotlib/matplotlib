@@ -852,7 +852,7 @@ inline bool segments_intersect(const double &x1,
             else {
                 return (fmin(x1, x2) <= fmin(x3, x4) && fmin(x3, x4) <= fmax(x1, x2)) ||
                         (fmin(x3, x4) <= fmin(x1, x2) && fmin(x1, x2) <= fmax(x3, x4));
-                
+
             }
         }
         // 2 - If t_area is not zero, the segments are parallel, but not collinear
@@ -876,7 +876,7 @@ inline bool segments_intersect(const double &x1,
 template <class PathIterator1, class PathIterator2>
 bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
 {
-    
+
     typedef PathNanRemover<py::PathIterator> no_nans_t;
     typedef agg::conv_curve<no_nans_t> curve_t;
 
@@ -901,7 +901,7 @@ bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
         }
         c2.rewind(0);
         c2.vertex(&x21, &y21);
-        
+
 
         while (c2.vertex(&x22, &y22) != agg::path_cmd_stop) {
             // if the segment in path 2 is (almost) 0 length, skip to next vertex

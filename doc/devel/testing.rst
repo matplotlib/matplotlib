@@ -256,4 +256,3 @@ The test discovery scope can be narrowed to single test modules or even single
 functions::
 
     python -m pytest --pyargs matplotlib.tests.test_simplification.py::test_clipping
-

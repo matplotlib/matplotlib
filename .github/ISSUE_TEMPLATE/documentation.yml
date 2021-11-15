@@ -15,7 +15,7 @@ body:
     id: problem
     attributes:
       label: Problem
-      description: What is missing, unclear, or wrong in the documentation? 
+      description: What is missing, unclear, or wrong in the documentation?
       placeholder: |
         * I found [...] to be unclear because [...]
         * [...] made me think that [...] when really it should be [...]

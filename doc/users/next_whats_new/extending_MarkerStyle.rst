@@ -6,7 +6,7 @@ the user to supply a transformation to be applied to the marker (e.g. a rotation
 
 .. plot::
     :include-source: true
-    
+
     import matplotlib.pyplot as plt
     from matplotlib.markers import MarkerStyle
     from matplotlib.transforms import Affine2D

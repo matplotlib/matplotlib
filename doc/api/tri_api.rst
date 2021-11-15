@@ -17,7 +17,7 @@
     :show-inheritance:
 
 .. autoclass:: matplotlib.tri.TriInterpolator
-   
+
 .. autoclass:: matplotlib.tri.LinearTriInterpolator
     :members: __call__, gradient
     :show-inheritance:
@@ -30,7 +30,7 @@
 
 .. autoclass:: matplotlib.tri.UniformTriRefiner
     :show-inheritance:
-    :members: 
+    :members:
 
 .. autoclass:: matplotlib.tri.TriAnalyzer
-    :members: 
+    :members:

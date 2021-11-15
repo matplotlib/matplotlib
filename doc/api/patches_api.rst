@@ -48,4 +48,3 @@ Functions
 
    bbox_artist
    draw_bbox
-   

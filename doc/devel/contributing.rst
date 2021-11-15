@@ -40,15 +40,15 @@ difficulty. ``Difficulty: Easy`` is suited for people with little Python experie
 ``Difficulty: Medium`` and ``Difficulty: Hard`` are not trivial to solve and
 require more thought and programming experience.
 
-In general, the Matplotlib project does not assign issues. Issues are 
-"assigned" or "claimed" by opening a PR; there is no other assignment 
-mechanism. If you have opened such a PR, please comment on the issue thread to 
-avoid duplication of work. Please check if there is an existing PR for the 
-issue you are addressing. If there is, try to work with the author by 
-submitting reviews of their code or commenting on the PR rather than opening 
-a new PR; duplicate PRs are subject to being closed.  However, if the existing 
-PR is an outline, unlikely to work, or stalled, and the original author is 
-unresponsive, feel free to open a new PR referencing the old one. 
+In general, the Matplotlib project does not assign issues. Issues are
+"assigned" or "claimed" by opening a PR; there is no other assignment
+mechanism. If you have opened such a PR, please comment on the issue thread to
+avoid duplication of work. Please check if there is an existing PR for the
+issue you are addressing. If there is, try to work with the author by
+submitting reviews of their code or commenting on the PR rather than opening
+a new PR; duplicate PRs are subject to being closed.  However, if the existing
+PR is an outline, unlikely to work, or stalled, and the original author is
+unresponsive, feel free to open a new PR referencing the old one.
 
 .. _submitting-a-bug-report:
 

@@ -5,7 +5,7 @@
    treat this separately (sphinx-doc/sphinx/issues/4874)
 .. automodule:: {{ fullname }}
    :members:
-   
+
 {% else %}
 
 .. automodule:: {{ fullname }}
@@ -18,7 +18,7 @@
 Classes
 -------
 
-.. autosummary:: 
+.. autosummary::
    :template: autosummary.rst
    :toctree:
 {% for item in classes %}{% if item not in ['zip', 'map', 'reduce'] %}
@@ -32,7 +32,7 @@ Classes
 Functions
 ---------
 
-.. autosummary:: 
+.. autosummary::
    :template: autosummary.rst
    :toctree:
 

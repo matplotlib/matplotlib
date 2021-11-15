@@ -44,7 +44,7 @@ Here is a minimal example plot:
    ax.plot(x, y)
    plt.show()
 
-If a plot does not show up please check :ref:`troubleshooting-faq`.  
+If a plot does not show up please check :ref:`troubleshooting-faq`.
 
 Where to go next
 ----------------

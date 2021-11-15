@@ -406,4 +406,3 @@ resources contain common best practices for writing documentation.
 * `Google Developer Style Guide <https://developers.google.com/style>`_
 * `IBM Style Guide <https://www.oreilly.com/library/view/the-ibm-style/9780132118989/>`_
 * `Red Hat Style Guide <https://stylepedia.net/style/#grammar>`_
-

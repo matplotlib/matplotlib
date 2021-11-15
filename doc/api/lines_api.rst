@@ -26,4 +26,3 @@ Functions
    :template: autosummary.rst
 
    segment_hits
-   

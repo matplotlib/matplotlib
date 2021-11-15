@@ -29,7 +29,7 @@ General
    faq/index.rst
    resources/index.rst
 
-Reference 
+Reference
 #########
 
 .. toctree::

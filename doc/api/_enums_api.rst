@@ -12,4 +12,3 @@
    .. autoclass:: CapStyle
       :members: demo
       :exclude-members: butt, round, projecting, input_description
-
