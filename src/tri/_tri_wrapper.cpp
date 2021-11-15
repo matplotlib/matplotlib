@@ -128,7 +128,7 @@ const char* PyTriangulation_get_edges__doc__ =
     "--\n\n"
     "Return edges array";
 
-static PyObject* PyTriangulation_get_edges(PyTriangulation* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTriangulation_get_edges(PyTriangulation* self, PyObject* args)
 {
     Triangulation::EdgeArray* result;
     CALL_CPP("get_edges", (result = &self->ptr->get_edges()));
@@ -145,7 +145,7 @@ const char* PyTriangulation_get_neighbors__doc__ =
     "--\n\n"
     "Return neighbors array";
 
-static PyObject* PyTriangulation_get_neighbors(PyTriangulation* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTriangulation_get_neighbors(PyTriangulation* self, PyObject* args)
 {
     Triangulation::NeighborArray* result;
     CALL_CPP("get_neighbors", (result = &self->ptr->get_neighbors()));
@@ -429,7 +429,7 @@ const char* PyTrapezoidMapTriFinder_get_tree_stats__doc__ =
     "\n"
     "Return statistics about the tree used by the trapezoid map";
 
-static PyObject* PyTrapezoidMapTriFinder_get_tree_stats(PyTrapezoidMapTriFinder* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTrapezoidMapTriFinder_get_tree_stats(PyTrapezoidMapTriFinder* self, PyObject* args)
 {
     PyObject* result;
     CALL_CPP("get_tree_stats", (result = self->ptr->get_tree_stats()));
@@ -441,7 +441,7 @@ const char* PyTrapezoidMapTriFinder_initialize__doc__ =
     "\n"
     "Initialize this object, creating the trapezoid map from the triangulation";
 
-static PyObject* PyTrapezoidMapTriFinder_initialize(PyTrapezoidMapTriFinder* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTrapezoidMapTriFinder_initialize(PyTrapezoidMapTriFinder* self, PyObject* args)
 {
     CALL_CPP("initialize", (self->ptr->initialize()));
     Py_RETURN_NONE;
@@ -452,7 +452,7 @@ const char* PyTrapezoidMapTriFinder_print_tree__doc__ =
     "\n"
     "Print the search tree as text to stdout; useful for debug purposes";
 
-static PyObject* PyTrapezoidMapTriFinder_print_tree(PyTrapezoidMapTriFinder* self, PyObject* args, PyObject* kwds)
+static PyObject* PyTrapezoidMapTriFinder_print_tree(PyTrapezoidMapTriFinder* self, PyObject* args)
 {
     CALL_CPP("print_tree", (self->ptr->print_tree()));
     Py_RETURN_NONE;
