@@ -195,13 +195,42 @@ class ToolToggleBase(ToolBase):
         super().__init__(*args, **kwargs)
 
     def trigger(self, sender, event, data=None):
-        """Calls `enable` or `disable` based on `toggled` value."""
-        if self._toggled:
-            self.disable(event)
+        """Calls `on_toggle` if `toggled` changes."""
+        self.on_toggle(self._toggled, event)
+
+        if not self._toggled:
+            enable = cbook._deprecate_method_override(
+                __class__.enable, self, since="3.3", message="Calling an "
+                "overridden enable() at ToolToggleBase is deprecated since "
+                "%(since)s; override on_toggle() instead."
+            )
+            if enable is not None:
+                enable(event)
         else:
-            self.enable(event)
+            disable = cbook._deprecate_method_override(
+                __class__.disable, self, since="3.3", message="Calling an "
+                "overridden disable() at ToolToggleBase is deprecated since "
+                "%(since)s; override on_toggle() instead."
+            )
+            if disable is not None:
+                disable(event)
+
         self._toggled = not self._toggled
 
+    def on_toggle(self, state, event=None):
+        """
+        Call this function whenever `toggled` changes.
+
+        Parameters
+        ----------
+        state : bool
+            Whether the state of `toggled` is True.
+        event : `.Event`
+            The canvas event that caused this tool to be called.
+        """
+        pass
+
+    @cbook.deprecated("3.3")
     def enable(self, event=None):
         """
         Enable the toggle tool.
@@ -210,6 +239,7 @@ class ToolToggleBase(ToolBase):
         """
         pass
 
+    @cbook.deprecated("3.3")
     def disable(self, event=None):
         """
         Disable the toggle tool.
@@ -434,10 +464,7 @@ class ToolFullScreen(ToolToggleBase):
     description = 'Toggle fullscreen mode'
     default_keymap = mpl.rcParams['keymap.fullscreen']
 
-    def enable(self, event):
-        self.figure.canvas.manager.full_screen_toggle()
-
-    def disable(self, event):
+    def on_toggle(self, state, event):
         self.figure.canvas.manager.full_screen_toggle()
 
 
@@ -449,13 +476,13 @@ class AxisScaleBase(ToolToggleBase):
             return
         super().trigger(sender, event, data)
 
-    def enable(self, event):
-        self.set_scale(event.inaxes, 'log')
-        self.figure.canvas.draw_idle()
-
-    def disable(self, event):
-        self.set_scale(event.inaxes, 'linear')
-        self.figure.canvas.draw_idle()
+    def on_toggle(self, state, event):
+        if not state:
+            self.set_scale(event.inaxes, 'log')
+            self.figure.canvas.draw_idle()
+        else:
+            self.set_scale(event.inaxes, 'linear')
+            self.figure.canvas.draw_idle()
 
 
 class ToolYScale(AxisScaleBase):
@@ -676,23 +703,23 @@ class ZoomPanBase(ToolToggleBase):
         self.scrollthresh = .5  # .5 second scroll threshold
         self.lastscroll = time.time()-self.scrollthresh
 
-    def enable(self, event):
-        """Connect press/release events and lock the canvas."""
-        self.figure.canvas.widgetlock(self)
-        self._idPress = self.figure.canvas.mpl_connect(
-            'button_press_event', self._press)
-        self._idRelease = self.figure.canvas.mpl_connect(
-            'button_release_event', self._release)
-        self._idScroll = self.figure.canvas.mpl_connect(
-            'scroll_event', self.scroll_zoom)
-
-    def disable(self, event):
-        """Release the canvas and disconnect press/release events."""
-        self._cancel_action()
-        self.figure.canvas.widgetlock.release(self)
-        self.figure.canvas.mpl_disconnect(self._idPress)
-        self.figure.canvas.mpl_disconnect(self._idRelease)
-        self.figure.canvas.mpl_disconnect(self._idScroll)
+    def on_toggle(self, state, event):
+        if not state:
+            # Connect press/release events and lock the canvas.
+            self.figure.canvas.widgetlock(self)
+            self._idPress = self.figure.canvas.mpl_connect(
+                'button_press_event', self._press)
+            self._idRelease = self.figure.canvas.mpl_connect(
+                'button_release_event', self._release)
+            self._idScroll = self.figure.canvas.mpl_connect(
+                'scroll_event', self.scroll_zoom)
+        else:
+            # Release the canvas and disconnect press/release events.
+            self._cancel_action()
+            self.figure.canvas.widgetlock.release(self)
+            self.figure.canvas.mpl_disconnect(self._idPress)
+            self.figure.canvas.mpl_disconnect(self._idRelease)
+            self.figure.canvas.mpl_disconnect(self._idScroll)
 
     def trigger(self, sender, event, data=None):
         self.toolmanager.get_tool(_views_positions).add_figure(self.figure)
