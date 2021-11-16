@@ -212,8 +212,8 @@ source_suffix = '.rst'
 # This is the default encoding, but it doesn't hurt to be explicit
 source_encoding = "utf-8"
 
-# The master toctree document.
-master_doc = 'users/index'
+# The toplevel toctree document (renamed to root_doc in Sphinx 4.0)
+root_doc = master_doc = 'users/index'
 
 # General substitutions.
 try:
@@ -378,7 +378,7 @@ latex_paper_size = 'letter'
 #    document class [howto/manual])
 
 latex_documents = [
-    ('contents', 'Matplotlib.tex', 'Matplotlib',
+    (root_doc, 'Matplotlib.tex', 'Matplotlib',
      'John Hunter\\and Darren Dale\\and Eric Firing\\and Michael Droettboom'
      '\\and and the matplotlib development team', 'manual'),
 ]
@@ -508,7 +508,7 @@ latex_toplevel_sectioning = 'part'
 autoclass_content = 'both'
 
 texinfo_documents = [
-    ("contents", 'matplotlib', 'Matplotlib Documentation',
+    (root_doc, 'matplotlib', 'Matplotlib Documentation',
      'John Hunter@*Darren Dale@*Eric Firing@*Michael Droettboom@*'
      'The matplotlib development team',
      'Matplotlib', "Python plotting package", 'Programming',
