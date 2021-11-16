@@ -1,16 +1,16 @@
 .. _github-stats:
 
-GitHub statistics (Oct 01, 2021)
+GitHub statistics (Nov 15, 2021)
 ================================
 
-GitHub statistics for 2021/03/26 (tag: v3.4.0) - 2021/10/01
+GitHub statistics for 2021/03/26 (tag: v3.4.0) - 2021/11/15
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 157 issues and merged 781 pull requests.
+We closed 187 issues and merged 939 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/59?closed=1>`__
 
-The following 130 authors contributed 3144 commits.
+The following 144 authors contributed 3406 commits.
 
 * Aaron Rogers
 * Abhinav Sagar
@@ -46,6 +46,8 @@ The following 130 authors contributed 3144 commits.
 * Eric Larson
 * Eric Prestat
 * Ewan Sutherland
+* Felix Nößler
+* Fernando
 * fourpoints
 * Frank Sauerburger
 * Gleb Fedorov
@@ -58,6 +60,7 @@ The following 130 authors contributed 3144 commits.
 * Harutaka Kawamura
 * Hildo Guillardi Júnior
 * Holtz Yan
+* Hood
 * Ian Hunt-Isaak
 * Ian Thomas
 * ianhi
@@ -65,7 +68,9 @@ The following 130 authors contributed 3144 commits.
 * ImportanceOfBeingErnest
 * Isha Mehta
 * iury simoes-sousa
+* Jake Bowhay
 * Jakub Klus
+* Jan-Hendrik Müller
 * Janakarajan Natarajan
 * Jann Paul Mattern
 * Jash Shah
@@ -87,12 +92,14 @@ The following 130 authors contributed 3144 commits.
 * Kent Gauen
 * kentcr
 * kir0ul
+* kislovskiy
 * KIU Shueng Chuan
 * KM Goh
 * Konstantin Popov
 * kyrogon
 * Leeh Peter
 * Leo Singer
+* lgfunderburk
 * Liam Toney
 * luz paz
 * luzpaz
@@ -102,10 +109,12 @@ The following 130 authors contributed 3144 commits.
 * Marco Rigobello
 * Marco Salathe
 * Markus Wesslén
+* martinRenou
 * Matthias Bussonnier
 * MeeseeksMachine
 * Michał Górny
 * Mihai Anton
+* Navid C. Constantinou
 * Nico Schlömer
 * Phil Nagel
 * Philip Schiff
@@ -117,11 +126,14 @@ The following 130 authors contributed 3144 commits.
 * rgbmrc
 * Richard Barnes
 * richardsheridan
+* Rike-Benjamin Schuppner
 * Roberto Toro
 * Ruth Comer
+* ryahern
 * Ryan May
 * Sam Van Kooten
 * sandipanpanda
+* Simon Hoxbro
 * Slava Ostroukh
 * Stefan Appelhoff
 * Stefanie Molin
@@ -138,15 +150,175 @@ The following 130 authors contributed 3144 commits.
 * Tranquilled
 * Vagrant Cascadian
 * Viacheslav Ostroukh
+* Vishnu V K
 * Xianxiang Li
+* Yannic Schroeder
 * Yo Yehudi
 * Zexi
 * znstrider
 
 GitHub issues and pull requests:
 
-Pull Requests (781):
+Pull Requests (939):
 
+* :ghpull:`21645`: Backport PR #21628 on branch v3.5.x (Fix METH_VARARGS method signatures )
+* :ghpull:`21644`: Backport PR #21640 on branch v3.5.x (DOC: remove sample_plots from tutorials)
+* :ghpull:`21628`: Fix METH_VARARGS method signatures
+* :ghpull:`21640`: DOC: remove sample_plots from tutorials
+* :ghpull:`21636`: Backport PR #21604 on branch v3.5.x (Fix centre square rectangle selector part 1)
+* :ghpull:`21604`: Fix centre square rectangle selector part 1
+* :ghpull:`21633`: Backport PR #21501 on branch v3.5.x (Refix for pyparsing compat.)
+* :ghpull:`21606`: BLD: limit support of pyparsing to <3
+* :ghpull:`21501`: Refix for pyparsing compat.
+* :ghpull:`21624`: Backport PR #21621 on branch v3.5.x (Fix GhostScript error handling types)
+* :ghpull:`21625`: Backport PR #21568 on branch v3.5.x (Enhancing support for tex and datetimes)
+* :ghpull:`21568`: Enhancing support for tex and datetimes
+* :ghpull:`21621`: Fix GhostScript error handling types
+* :ghpull:`21623`: Backport PR #21619 on branch v3.5.x (Revert "Pin sphinx to fix sphinx-gallery")
+* :ghpull:`21619`: Revert "Pin sphinx to fix sphinx-gallery"
+* :ghpull:`21618`: Backport PR #21617 on branch v3.5.x (FIX: Make sure we do not over-write eps short cuts)
+* :ghpull:`21622`: Backport PR #21350 on branch v3.5.x (Remove plot_gallery setting from conf.py)
+* :ghpull:`21617`: FIX: Make sure we do not over-write eps short cuts
+* :ghpull:`21616`: Backport PR #21613 on branch v3.5.x (SEC/DOC update supported versions)
+* :ghpull:`21615`: Backport PR #21607 on branch v3.5.x (DOC: link to cheatsheets site, not github repo)
+* :ghpull:`21614`: Backport PR #21609 on branch v3.5.x (Fix documentation link with renaming ``voxels`` to ``voxelarray``)
+* :ghpull:`21613`: SEC/DOC update supported versions
+* :ghpull:`21607`: DOC: link to cheatsheets site, not github repo
+* :ghpull:`21609`: Fix documentation link with renaming ``voxels`` to ``voxelarray``
+* :ghpull:`21605`: Backport PR #21317 on branch v3.5.x (Move label hiding rectilinear-only check into _label_outer_{x,y}axis.)
+* :ghpull:`21317`: Move label hiding rectilinear-only check into _label_outer_{x,y}axis.
+* :ghpull:`21602`: Backport PR #21586 on branch v3.5.x (Defer enforcement of hatch validation)
+* :ghpull:`21601`: Backport PR #21530 on branch v3.5.x (Fix interrupting GTK on plain Python)
+* :ghpull:`21603`: Backport PR #21596 on branch v3.5.x (Pin sphinx to fix sphinx-gallery)
+* :ghpull:`21586`: Defer enforcement of hatch validation
+* :ghpull:`21530`: Fix interrupting GTK on plain Python
+* :ghpull:`21397`: Support for pre 2.7.1 freetype savannah versions
+* :ghpull:`21599`: Backport PR #21592 on branch v3.5.x ([BUG in 3.5.0rc1] - Anatomy of a Figure has the legend in the wrong spot)
+* :ghpull:`21587`: Backport PR #21581 on branch v3.5.x (Fix RangeSlider.reset)
+* :ghpull:`21592`: [BUG in 3.5.0rc1] - Anatomy of a Figure has the legend in the wrong spot
+* :ghpull:`21596`: Pin sphinx to fix sphinx-gallery
+* :ghpull:`21577`: Backport PR #21527 on branch v3.5.x (Add more 3.5 release notes)
+* :ghpull:`21527`: Add more 3.5 release notes
+* :ghpull:`21573`: Backport PR #21570 on branch v3.5.x (Raise correct exception out of Spines.__getattr__)
+* :ghpull:`21563`: Backport PR #21559 on branch v3.5.x (Fix eventplot units)
+* :ghpull:`21560`: Backport PR #21553 on branch v3.5.x (Fix check for manager presence in blocking_input.)
+* :ghpull:`21561`: Backport PR #21555 on branch v3.5.x (MNT: reject more possibly unsafe strings in validate_cycler)
+* :ghpull:`21555`: MNT: reject more possibly unsafe strings in validate_cycler
+* :ghpull:`21553`: Fix check for manager presence in blocking_input.
+* :ghpull:`21559`: Fix eventplot units
+* :ghpull:`21543`: Backport PR #21443 on branch v3.5.x (FIX: re-instate ability to have position in axes)
+* :ghpull:`21550`: Ignore transOffset if no offsets passed to Collection
+* :ghpull:`21443`: FIX: re-instate ability to have position in axes
+* :ghpull:`21531`: Backport PR #21491 on branch v3.5.x (Relocate inheritance diagram to the top of the document)
+* :ghpull:`21491`: Relocate inheritance diagram to the top of the document
+* :ghpull:`21504`: Backport PR #21481 on branch v3.5.x (FIX: spanning subfigures)
+* :ghpull:`21481`: FIX: spanning subfigures
+* :ghpull:`21483`: Backport PR #21387 on branch v3.5.x (Fix path simplification of closed loops)
+* :ghpull:`21486`: Backport PR #21478 on branch v3.5.x (Fix GTK4 embedding example)
+* :ghpull:`21497`: Backport PR #21484 on branch v3.5.x (Replacement for imread should return an array)
+* :ghpull:`21484`: Replacement for imread should return an array
+* :ghpull:`21495`: Backport PR #21492 on branch v3.5.x (added parameter documentation for MultiCursor)
+* :ghpull:`21493`: Backport PR #21488 on branch v3.5.x (Added to contour docs)
+* :ghpull:`21492`: added parameter documentation for MultiCursor
+* :ghpull:`21488`: Added to contour docs
+* :ghpull:`21478`: Fix GTK4 embedding example
+* :ghpull:`21387`: Fix path simplification of closed loops
+* :ghpull:`21479`: Backport PR #21472 on branch v3.5.x (Clarify set_parse_math documentation.)
+* :ghpull:`21472`: Clarify set_parse_math documentation.
+* :ghpull:`21471`: Backport PR #21470 on branch v3.5.x (Hide fully transparent latex text in PS output)
+* :ghpull:`21470`: Hide fully transparent latex text in PS output
+* :ghpull:`21469`: Backport PR #21468 on branch v3.5.x (Fix some typos in examples)
+* :ghpull:`21468`: Fix some typos in examples
+* :ghpull:`21461`: Backport #21429 from jklymak/doc-use-mpl-sphinx
+* :ghpull:`21464`: Backport PR #21460 on branch v3.5.x (Clip slider init marker to slider track.)
+* :ghpull:`21460`: Clip slider init marker to slider track.
+* :ghpull:`21458`: Backport:  #21429 from jklymak/doc-use-mpl-sphinx
+* :ghpull:`21454`: Fix error with pyparsing 3 for 3.5.x
+* :ghpull:`21459`: Backport PR #21423 on branch v3.5.x (Change CircleCI job title to "Rendered docs")
+* :ghpull:`21423`: Change CircleCI job title to "Rendered docs"
+* :ghpull:`21457`: Backport PR #21455 on branch v3.5.x (Hide note linking to the download section at the bottom of galleries)
+* :ghpull:`21456`: Backport PR #21453 on branch v3.5.x (Cleanup index.rst sectioning)
+* :ghpull:`21455`: Hide note linking to the download section at the bottom of galleries
+* :ghpull:`21453`: Cleanup index.rst sectioning
+* :ghpull:`21224`: DOC: Nav-bar: Add icon linking to contents
+* :ghpull:`21451`: Backport PR #21445 on branch v3.5.x (Mnt pin pyparsing)
+* :ghpull:`21429`: DOC: use mpl-sphinx-theme for navbar, social, logo
+* :ghpull:`21450`: Backport PR #21449 on branch v3.5.x (Less verbose install info on index page)
+* :ghpull:`21449`: Less verbose install info on index page
+* :ghpull:`21446`: Also exclude pyparsing 3.0.0 in setup.py.
+* :ghpull:`21445`: Mnt pin pyparsing
+* :ghpull:`21439`: Backport PR #21420 on branch v3.5.x (Enable Python 3.10 wheel building on all systems)
+* :ghpull:`21438`: Backport PR #21427 on branch v3.5.x (Update docstrings of get_{view,data}_interval.)
+* :ghpull:`21437`: Backport PR #21435 on branch v3.5.x (DOC: Fix selection of parameter names in HTML theme)
+* :ghpull:`21420`: Enable Python 3.10 wheel building on all systems
+* :ghpull:`21427`: Update docstrings of get_{view,data}_interval.
+* :ghpull:`21435`: DOC: Fix selection of parameter names in HTML theme
+* :ghpull:`21428`: Backport PR #21422 on branch v3.5.x (More doc reorganization)
+* :ghpull:`21422`: More doc reorganization
+* :ghpull:`21421`: Backport PR #21411 on branch v3.5.x (Document webagg in docs.)
+* :ghpull:`21419`: Backport PR #21251 on branch v3.5.x (DOC: more site re-org)
+* :ghpull:`21411`: Document webagg in docs.
+* :ghpull:`21251`: DOC: more site re-org
+* :ghpull:`21416`: Backport PR #21326 on branch v3.5.x (Add ability to scale BBox with just x or y values)
+* :ghpull:`21418`: Backport PR #21414 on branch v3.5.x (Support pathological tmpdirs in TexManager.)
+* :ghpull:`21410`: Backport PR #20591 on branch v3.5.x (Webagg backend: get rid of tornado)
+* :ghpull:`21414`: Support pathological tmpdirs in TexManager.
+* :ghpull:`21326`: Add ability to scale BBox with just x or y values
+* :ghpull:`20591`: Webagg backend: get rid of tornado
+* :ghpull:`21406`: Backport PR #21212 on branch v3.5.x (Fix set_size_inches on HiDPI and also GTK4)
+* :ghpull:`21405`: Backport PR #21365 on branch v3.5.x (Convert macosx backend to use device_pixel_ratio)
+* :ghpull:`18274`: Improve initial macosx device scale
+* :ghpull:`21212`: Fix set_size_inches on HiDPI and also GTK4
+* :ghpull:`21365`: Convert macosx backend to use device_pixel_ratio
+* :ghpull:`21372`: Backport PR #20708 on branch v3.5.x (Describe possible need for loading the 'lmodern' package when using PGF files)
+* :ghpull:`20708`: Describe possible need for loading the 'lmodern' package when using PGF files
+* :ghpull:`21359`: Add GHA testing whether files were added and deleted in the same PR.
+* :ghpull:`21360`: Backport PR #21335 on branch v3.5.x (DOC: move usage tutorial info to Users guide rst)
+* :ghpull:`21363`: Backport PR #21287 on branch v3.5.x (Inherit more docstrings.)
+* :ghpull:`21361`: Fix flake8 from #21335
+* :ghpull:`21287`: Inherit more docstrings.
+* :ghpull:`21335`: DOC: move usage tutorial info to Users guide rst
+* :ghpull:`21358`: Backport PR #21357 on branch v3.5.x (DOC: remove test from README.rst)
+* :ghpull:`21357`: DOC: remove test from README.rst
+* :ghpull:`21350`: Remove plot_gallery setting from conf.py
+* :ghpull:`21340`: Backport PR #21332 on branch v3.5.x (Fix default value for ``shading`` in``pyplot.pcolormesh`` docstring)
+* :ghpull:`21332`: Fix default value for ``shading`` in``pyplot.pcolormesh`` docstring
+* :ghpull:`21334`: Backport PR #21330 on branch v3.5.x (Fix medical image caption in tutorial)
+* :ghpull:`21329`: Backport PR #21321 on branch v3.5.x (DOC Update description of ax.contour method, resolves #21310)
+* :ghpull:`21330`: Fix medical image caption in tutorial
+* :ghpull:`21321`: DOC Update description of ax.contour method, resolves #21310
+* :ghpull:`21327`: Backport PR #21313 on branch v3.5.x (DOC: Minimal getting started page)
+* :ghpull:`21313`: DOC: Minimal getting started page
+* :ghpull:`21316`: Backport PR #21312 on branch v3.5.x (Update link to Agg website)
+* :ghpull:`21312`: Update link to Agg website
+* :ghpull:`21308`: Backport PR #21307 on branch v3.5.x (Use in-tree builds for PyPy wheels)
+* :ghpull:`21307`: Use in-tree builds for PyPy wheels
+* :ghpull:`21306`: Backport PR #21303 on branch v3.5.x (Pin macOS to 10.15 for wheels)
+* :ghpull:`21305`: Backport PR #21286 on branch v3.5.x (Clarify FigureBase.tight_bbox as different from all other artists.)
+* :ghpull:`21286`: Clarify FigureBase.tight_bbox as different from all other artists.
+* :ghpull:`21302`: Backport PR #21291 on branch v3.5.x (DOC: Bump to the sphinx-gallery release)
+* :ghpull:`21304`: Backport PR #21294 on branch v3.5.x (Disable blitting on GTK4 backends)
+* :ghpull:`21294`: Disable blitting on GTK4 backends
+* :ghpull:`21277`: Backport PR #21263 on branch v3.5.x (Ensure internal FreeType matches Python compile)
+* :ghpull:`21291`: DOC: Bump to the sphinx-gallery release
+* :ghpull:`21296`: Backport PR #21288 on branch v3.5.x (Allow macosx thread safety test on macOS11)
+* :ghpull:`21297`: Backport PR #21293 on branch v3.5.x (Fix snap argument to pcolormesh)
+* :ghpull:`21293`: Fix snap argument to pcolormesh
+* :ghpull:`21288`: Allow macosx thread safety test on macOS11
+* :ghpull:`21279`: Fix freetype wheel building
+* :ghpull:`21292`: Backport PR #21290 on branch v3.5.x (DOC: Fix some lists in animation examples)
+* :ghpull:`21290`: DOC: Fix some lists in animation examples
+* :ghpull:`21284`: Backport PR #21282 on branch v3.5.x (Fix incorrect markup in example.)
+* :ghpull:`21282`: Fix incorrect markup in example.
+* :ghpull:`21281`: Backport PR #21275 on branch v3.5.x (Fix format_cursor_data for values close to float resolution.)
+* :ghpull:`21275`: Fix format_cursor_data for values close to float resolution.
+* :ghpull:`21263`: Ensure internal FreeType matches Python compile
+* :ghpull:`21273`: Backport PR #21269 on branch v3.5.x (Don't use pixelDelta() on X11.)
+* :ghpull:`21269`: Don't use pixelDelta() on X11.
+* :ghpull:`21268`: Backport PR #21236: DOC: Update interactive colormap example
+* :ghpull:`21265`: Backport PR #21264 on branch v3.5.x (DOC: Fix footnote that breaks PDF builds)
+* :ghpull:`21264`: DOC: Fix footnote that breaks PDF builds
+* :ghpull:`21236`: DOC: Update interactive colormap example
 * :ghpull:`21262`: Backport PR #21250 on branch v3.5.x (DOC: Remove examples/README)
 * :ghpull:`21260`: DOC: Fix source links to prereleases
 * :ghpull:`21261`: Backport PR #21240: DOC: Fix source links and flake8 cleanup
@@ -929,8 +1101,39 @@ Pull Requests (781):
 * :ghpull:`18887`: FIX: Generalize Colorbar Scale Handling
 * :ghpull:`16788`: Adding png image return for inline backend figures with _repr_html_
 
-Issues (157):
+Issues (187):
 
+* :ghissue:`21518`: [Bug]: Datetime axis with usetex is unclear
+* :ghissue:`21509`: [Bug]: Text sometimes is missing when figure saved to EPS
+* :ghissue:`21569`: [Bug]: AttributeError: 'NoneType' object has no attribute 'dpi' after drawing and removing contours inside artist
+* :ghissue:`21612`: [Bug]: Security.md out of date
+* :ghissue:`21608`: [Doc]: ``ax.voxels`` links to wrong method.
+* :ghissue:`21528`: [Doc]: Outdated QT_API docs
+* :ghissue:`21517`: [Bug]: this example shows ok on matplotlib-3.4.3, but not in matplotlib-3.5.0 master of october 30th
+* :ghissue:`21548`: [Bug]: blocking_input
+* :ghissue:`21552`: [Bug]: eventplot cannot handle multiple datetime-based series
+* :ghissue:`21441`: [Bug]: axes(position = [...]) behavior
+* :ghissue:`10346`: Passing clim as keyword argument to pcolormesh does not change limits.
+* :ghissue:`21480`: [Bug]: Subfigure breaks for some ``Gridspec`` slices when using ``constrained_layout``
+* :ghissue:`20989`: [Bug]: regression with setting ticklabels for colorbars in matplotlib 3.5.0b1
+* :ghissue:`21474`: [Doc]: Suggestion to use PIL.image.open is not a 1:1 replacement for imread
+* :ghissue:`19634`: Multicursor docstring missing a Parameters Section
+* :ghissue:`20847`: [Bug]: Contourf not filling contours.
+* :ghissue:`21300`: [Bug]: zooming in on contour plot gives false extra contour lines
+* :ghissue:`21466`: [Bug]: EPS export shows hidden tick labels when using tex for text rendering
+* :ghissue:`21463`: [Bug]: Plotting lables with Greek latters in math mode produces Parsing error when plt.show() runs
+* :ghissue:`20534`: Document formatting for for sections
+* :ghissue:`21246`: [Doc]: Install info takes up too much room on new front page
+* :ghissue:`21432`: [Doc]: Double clicking parameter name also highlights next item of text
+* :ghissue:`21310`: [Bug]: contour on 3d plot fails if x and y are 1d and different lengths
+* :ghissue:`18213`: Figure out why test_interactive_backend fails on Travis macOS
+* :ghissue:`21090`: [MNT]: Should set_size_inches be updated to use device_pixel_ratio?
+* :ghissue:`13948`: Allow colorbar.ax.set_ylim to set the colorbar limits?
+* :ghissue:`21314`: Inconsistensy in ``pyplot.pcolormesh`` docstring regarding default value for ``shading``
+* :ghissue:`21320`: [Doc]: Incorrect image caption in imshow() example
+* :ghissue:`21311`: [Doc]: dead link for agg
+* :ghissue:`20929`: [Bug]: PyPy Win64 wheels use incorrect version
+* :ghissue:`21202`: [Bug]: python3.7/site-packages/matplotlib/ft2font.so: Undefined symbol "FT_Done_Glyph"
 * :ghissue:`20932`: Qt Ctrl-C broken on windows
 * :ghissue:`21230`: [Doc]: [source] links is devdocs are broken
 * :ghissue:`20906`: 3.5.0b1: ax.contour generates different artists
@@ -1024,7 +1227,6 @@ Issues (157):
 * :ghissue:`20370`: Test Coverage for TextBox
 * :ghissue:`20522`: Improve 'Writing ReST Pages' section on docs
 * :ghissue:`19259`: Set legend title font properties
-* :ghissue:`18305`: Support simple axes shares in subplot_mosaic
 * :ghissue:`20049`: add legend.labelcolor "argument" to mplstyle stylesheet
 * :ghissue:`20452`: Wrong/not useful error message when plotting incompatible x and y
 * :ghissue:`20266`: "$$" can not be displayed by ax.text()
