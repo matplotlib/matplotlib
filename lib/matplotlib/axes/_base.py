@@ -4698,7 +4698,7 @@ class _AxesBase(martist.Artist):
 
         @ax2.set_axes_locator
         def axes_locator(_, renderer):
-            self_locator = self.get_axes_locator()
+            self_locator = self._TransformedBoundsLocator()
             if self_locator is not None:
                 return self_locator(self, renderer)
 
@@ -4734,7 +4734,7 @@ class _AxesBase(martist.Artist):
 
         @ax2.set_axes_locator
         def axes_locator(_, renderer):
-            self_locator = self.get_axes_locator()
+            self_locator = self._TransformedBoundsLocator()
             if self_locator is not None:
                 return self_locator(self, renderer)
 

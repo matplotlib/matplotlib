@@ -276,12 +276,12 @@ def test_twinning():
     ax1.set_position(pos2)
 
     # it gets the position, in a np.array, of ax1 after the twiny and the set_position
-    array1 = np.any(mtransforms.Bbox.get_points(ax1.get_position()))
+    array1 = np.all(mtransforms.Bbox.get_points(ax1.get_position()))
     # it gets the np.array of the point of pos2
-    array2 = np.any(mtransforms.Bbox.get_points(pos2))
+    array2 = np.all(mtransforms.Bbox.get_points(pos2))
 
     # Assert that the positions are the same, and the twinning don't change them
-    assert array1 == array2
+    assert np.array_equal(array1, array2)
 
 @image_comparison(["twin_axis_locators_formatters"])
 def test_twin_axis_locators_formatters():
