@@ -3,6 +3,8 @@
 Legend guide
 ============
 
+.. redirect-from:: /tutorials/text/legend_guide.py
+
 Generating legends flexibly in Matplotlib.
 
 .. currentmodule:: matplotlib.pyplot

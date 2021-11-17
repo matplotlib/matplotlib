@@ -291,7 +291,7 @@ class Axes(_AxesBase):
         Notes
         -----
         Some artists are not supported by this function.  See
-        :doc:`/tutorials/intermediate/legend_guide` for details.
+        :doc:`/tutorials/text/legend_guide.py` for details.
 
         Examples
         --------

@@ -7,7 +7,7 @@ drawing legends associated with axes and/or figures.
     It is unlikely that you would ever create a Legend instance manually.
     Most users would normally create a legend via the `~.Axes.legend`
     function. For more details on legends there is also a :doc:`legend guide
-    </tutorials/intermediate/legend_guide>`.
+    </tutorials/text/legend_guide.py>`.
 
 The `Legend` class is a container of legend handles and legend texts.
 
@@ -17,7 +17,7 @@ defined in the :mod:`~matplotlib.legend_handler` module. While not all artist
 types are covered by the default legend handlers, custom legend handlers can be
 defined to support arbitrary objects.
 
-See the :doc:`legend guide </tutorials/intermediate/legend_guide>` for more
+See the :doc:`legend guide </tutorials/text/legend_guide.py>` for more
 information.
 """
 

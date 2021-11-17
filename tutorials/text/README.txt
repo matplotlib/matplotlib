@@ -1,9 +1,9 @@
 .. _tutorials-text:
 
-Text
-----
+Labelling plots
+---------------
 
-matplotlib has extensive text support, including support for
+Matplotlib has extensive text support, including support for
 mathematical expressions, truetype support for raster and
 vector outputs, newline separated text with arbitrary
 rotations, and unicode support. These tutorials cover

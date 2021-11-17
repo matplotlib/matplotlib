@@ -1047,7 +1047,7 @@ default: %(va)s
         Notes
         -----
         Some artists are not supported by this function.  See
-        :doc:`/tutorials/intermediate/legend_guide` for details.
+        :doc:`/tutorials/text/legend_guide.py` for details.
         """
 
         handles, labels, extra_args, kwargs = mlegend._parse_legend_args(
