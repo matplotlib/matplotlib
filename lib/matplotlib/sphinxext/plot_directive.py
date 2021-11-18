@@ -342,21 +342,25 @@ def split_code_at_show(text):
     return _split_code_at_show(text)[1]
 
 
-def _split_code_at_show(text):
+def _split_code_at_show(text, function_name):
     """Split code at plt.show()."""
-    parts = []
+
     is_doctest = contains_doctest(text)
-    part = []
-    for line in text.split("\n"):
-        if (not is_doctest and line.startswith('plt.show')) or \
-               (is_doctest and line.strip() == '>>> plt.show()'):
-            part.append(line)
+    if function_name is None:
+        parts = []
+        part = []
+        for line in text.split("\n"):
+            if (not is_doctest and line.startswith('plt.show')) or \
+                   (is_doctest and line.strip() == '>>> plt.show()'):
+                part.append(line)
+                parts.append("\n".join(part))
+                part = []
+            else:
+                part.append(line)
+        if "\n".join(part).strip():
             parts.append("\n".join(part))
-            part = []
-        else:
-            part.append(line)
-    if "\n".join(part).strip():
-        parts.append("\n".join(part))
+    else:
+        parts = [text]
     return is_doctest, parts
 
 
@@ -572,7 +576,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
 
     # Try to determine if all images already exist
 
-    is_doctest, code_pieces = _split_code_at_show(code)
+    is_doctest, code_pieces = _split_code_at_show(code, function_name)
 
     # Look for single-figure output files first
     all_exists = True
