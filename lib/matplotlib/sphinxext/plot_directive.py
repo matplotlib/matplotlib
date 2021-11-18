@@ -348,7 +348,7 @@ def _split_code_at_show(text):
     is_doctest = contains_doctest(text)
     part = []
     for line in text.split("\n"):
-        if (not is_doctest and line.strip() == 'plt.show()') or \
+        if (not is_doctest and line.startswith('plt.show')) or \
                (is_doctest and line.strip() == '>>> plt.show()'):
             part.append(line)
             parts.append("\n".join(part))
