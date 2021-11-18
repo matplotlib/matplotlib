@@ -591,7 +591,9 @@ class FreeType(SetupPackage):
                 (f'https://downloads.sourceforge.net/project/freetype'
                  f'/freetype2/{LOCAL_FREETYPE_VERSION}/{tarball}'),
                 (f'https://download.savannah.gnu.org/releases/freetype'
-                 f'/{tarball}')
+                 f'/{tarball}'),
+                (f'https://download.savannah.gnu.org/releases/freetype'
+                 f'/freetype-old/{tarball}')
             ],
             sha=LOCAL_FREETYPE_HASH,
             dirname=f'freetype-{LOCAL_FREETYPE_VERSION}',
