@@ -566,6 +566,8 @@ def render_figures(code, code_path, output_dir, output_base, context,
     Save the images under *output_dir* with file names derived from
     *output_base*
     """
+    if function_name is not None:
+        output_base = f'{output_base}_{function_name}'
     formats = get_plot_formats(config)
 
     # Try to determine if all images already exist
