@@ -461,6 +461,8 @@ latex_elements['passoptionstopackages'] = r"""
 
 # Additional stuff for the LaTeX preamble.
 latex_elements['preamble'] = r"""
+   % Show Parts and Chapters in Table of Contents
+   \setcounter{tocdepth}{0}
    % One line per author on title page
    \DeclareRobustCommand{\and}%
      {\end{tabular}\kern-\tabcolsep\\\begin{tabular}[t]{c}}%
