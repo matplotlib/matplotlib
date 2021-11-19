@@ -714,6 +714,12 @@ class Poly3DCollection(PolyCollection):
         and _edgecolors properties.
         """
         super().__init__(verts, *args, **kwargs)
+        if isinstance(verts, np.ndarray):
+            if verts.ndim != 3:
+                raise ValueError('verts must be a list of (N, 3) array-like')
+        else:
+            if any(len(np.shape(vert)) != 2 for vert in verts):
+                raise ValueError('verts must be a list of (N, 3) array-like')
         self.set_zsort(zsort)
         self._codes3d = None
 
