@@ -74,7 +74,7 @@ from matplotlib.colors import Normalize
 from matplotlib.lines import Line2D
 from matplotlib.text import Text, Annotation
 from matplotlib.patches import Polygon, Rectangle, Circle, Arrow
-from matplotlib.widgets import SubplotTool, Button, Slider, Widget
+from matplotlib.widgets import Button, Slider, Widget
 
 from .ticker import (
     TickHelper, Formatter, FixedFormatter, NullFormatter, FuncFormatter,
@@ -1627,20 +1627,20 @@ def subplot_tool(targetfig=None):
     """
     Launch a subplot tool window for a figure.
 
-    A `matplotlib.widgets.SubplotTool` instance is returned. You must maintain
-    a reference to the instance to keep the associated callbacks alive.
+    Returns
+    -------
+    `matplotlib.widgets.SubplotTool`
     """
     if targetfig is None:
         targetfig = gcf()
-    with rc_context({"toolbar": "none"}):  # No navbar for the toolfig.
-        # Use new_figure_manager() instead of figure() so that the figure
-        # doesn't get registered with pyplot.
-        manager = new_figure_manager(-1, (6, 3))
-    manager.set_window_title("Subplot configuration tool")
-    tool_fig = manager.canvas.figure
-    tool_fig.subplots_adjust(top=0.9)
-    manager.show()
-    return SubplotTool(targetfig, tool_fig)
+    tb = targetfig.canvas.manager.toolbar
+    if hasattr(tb, "configure_subplots"):  # toolbar2
+        return tb.configure_subplots()
+    elif hasattr(tb, "trigger_tool"):  # toolmanager
+        return tb.trigger_tool("subplots")
+    else:
+        raise ValueError("subplot_tool can only be launched for figures with "
+                         "an associated toolbar")
 
 
 def box(on=None):
