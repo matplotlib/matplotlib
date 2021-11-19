@@ -721,7 +721,7 @@ class Rectangle(Patch):
             Rotation in degrees anti-clockwise about the rotation point.
         rotation_point : {'xy', 'center', (number, number)}, default: 'xy'
             If ``'xy'``, rotate around the anchor point. If ``'center'`` rotate
-            around the center. If 2-tuple of number, rotate around these
+            around the center. If 2-tuple of number, rotate around this
             coordinate.
 
         Other Parameters
@@ -740,7 +740,8 @@ class Rectangle(Patch):
         # The patch is defined in data coordinates and when changing the
         # selector with square modifier and not in data coordinates, we need
         # to correct for the aspect ratio difference between the data and
-        # display coordinate systems.
+        # display coordinate systems. Its value is typically provide by
+        # Axes._get_aspect_ratio()
         self._aspect_ratio_correction = 1.0
         self._convert_units()  # Validate the inputs.
 

@@ -3048,10 +3048,13 @@ class RectangleSelector(_SelectorWidget):
 
         dx = event.xdata - eventpress.xdata
         dy = event.ydata - eventpress.ydata
+        # refmax is used when moving the corner handle with the square state
+        # and is the maximum between refx and refy
         refmax = None
         if 'data_coordinates' in state:
             refx, refy = dx, dy
         else:
+            # Add 1e-6 to avoid divided by zero error
             refx = event.xdata / (eventpress.xdata + 1e-6)
             refy = event.ydata / (eventpress.ydata + 1e-6)
 

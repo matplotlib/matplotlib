@@ -440,7 +440,6 @@ def test_rectangle_rotate(selector_class):
     tool.rotation = 45
     assert tool.rotation == 45
     # Corners should move
-    # The third corner is at (100, 145)
     assert_allclose(tool.corners,
                     np.array([[118.53, 139.75, 111.46, 90.25],
                               [95.25, 116.46, 144.75, 123.54]]), atol=0.01)
