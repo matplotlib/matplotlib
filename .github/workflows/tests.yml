@@ -222,6 +222,13 @@ jobs:
             fi
           fi
 
+          cat <<EOT >> mplsetup.cfg
+          [rc_options]
+          backend=Agg
+          EOT
+
+          cat mplsetup.cfg
+
           # All dependencies must have been pre-installed, so that the minver
           # constraints are held.
           python -m pip install --no-deps -e .
