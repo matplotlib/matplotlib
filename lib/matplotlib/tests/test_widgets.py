@@ -172,7 +172,7 @@ def test_rectangle_resize():
     assert tool.extents == (xdata_new, extents[1], ydata_new, extents[3])
 
 
-def test_rectangle_add_default_state():
+def test_rectangle_add_state():
     ax = get_ax()
 
     def onselect(epress, erelease):
@@ -183,18 +183,18 @@ def test_rectangle_add_default_state():
     _resize_rectangle(tool, 70, 65, 125, 130)
 
     with pytest.raises(ValueError):
-        tool.add_default_state('unsupported_state')
+        tool.add_state('unsupported_state')
 
     with pytest.raises(ValueError):
-        tool.add_default_state('clear')
-    tool.add_default_state('move')
-    tool.add_default_state('square')
-    tool.add_default_state('center')
-    tool.add_default_state('data_coordinates')
+        tool.add_state('clear')
+    tool.add_state('move')
+    tool.add_state('square')
+    tool.add_state('center')
+    tool.add_state('data_coordinates')
 
 
-@pytest.mark.parametrize('use_default_state', [True, False])
-def test_rectangle_resize_center(use_default_state):
+@pytest.mark.parametrize('add_state', [True, False])
+def test_rectangle_resize_center(add_state):
     ax = get_ax()
 
     def onselect(epress, erelease):
@@ -205,8 +205,8 @@ def test_rectangle_resize_center(use_default_state):
     _resize_rectangle(tool, 70, 65, 125, 130)
     assert tool.extents == (70.0, 125.0, 65.0, 130.0)
 
-    if use_default_state:
-        tool.add_default_state('center')
+    if add_state:
+        tool.add_state('center')
         use_key = None
     else:
         use_key = 'control'
@@ -266,8 +266,8 @@ def test_rectangle_resize_center(use_default_state):
                             ydata_new, extents[3] - ydiff)
 
 
-@pytest.mark.parametrize('use_default_state', [True, False])
-def test_rectangle_resize_square(use_default_state):
+@pytest.mark.parametrize('add_state', [True, False])
+def test_rectangle_resize_square(add_state):
     ax = get_ax()
 
     def onselect(epress, erelease):
@@ -278,8 +278,8 @@ def test_rectangle_resize_square(use_default_state):
     _resize_rectangle(tool, 70, 65, 120, 115)
     assert tool.extents == (70.0, 120.0, 65.0, 115.0)
 
-    if use_default_state:
-        tool.add_default_state('square')
+    if add_state:
+        tool.add_state('square')
         use_key = None
     else:
         use_key = 'shift'
@@ -348,8 +348,8 @@ def test_rectangle_resize_square_center():
     tool = widgets.RectangleSelector(ax, onselect, interactive=True)
     # Create rectangle
     _resize_rectangle(tool, 70, 65, 120, 115)
-    tool.add_default_state('square')
-    tool.add_default_state('center')
+    tool.add_state('square')
+    tool.add_state('center')
     assert_allclose(tool.extents, (70.0, 120.0, 65.0, 115.0))
 
     # resize NE handle
@@ -421,18 +421,16 @@ def test_rectangle_rotate(selector_class):
     do_event(tool, 'onmove', xdata=130, ydata=140)
     do_event(tool, 'release', xdata=130, ydata=140)
     assert tool.extents == (100, 130, 100, 140)
-    assert len(tool._default_state) == 0
     assert len(tool._state) == 0
 
     # Rotate anticlockwise using top-right corner
     do_event(tool, 'on_key_press', key='r')
-    assert tool._default_state == set(['rotate'])
-    assert len(tool._state) == 0
+    assert tool._state == set(['rotate'])
+    assert len(tool._state) == 1
     do_event(tool, 'press', xdata=130, ydata=140)
     do_event(tool, 'onmove', xdata=120, ydata=145)
     do_event(tool, 'release', xdata=120, ydata=145)
     do_event(tool, 'on_key_press', key='r')
-    assert len(tool._default_state) == 0
     assert len(tool._state) == 0
     # Extents shouldn't change (as shape of rectangle hasn't changed)
     assert tool.extents == (100, 130, 100, 140)
@@ -450,6 +448,30 @@ def test_rectangle_rotate(selector_class):
     do_event(tool, 'release', xdata=110, ydata=160)
     assert_allclose(tool.extents, (100, 139.75, 100, 151.82), atol=0.01)
 
+    if selector_class == widgets.RectangleSelector:
+        with pytest.raises(ValueError):
+            tool._selection_artist.rotation_point = 'unvalid_value'
+
+
+def test_rectange_add_remove_set():
+    ax = get_ax()
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = widgets.RectangleSelector(ax, onselect=onselect, interactive=True)
+    # Draw rectangle
+    do_event(tool, 'press', xdata=100, ydata=100)
+    do_event(tool, 'onmove', xdata=130, ydata=140)
+    do_event(tool, 'release', xdata=130, ydata=140)
+    assert tool.extents == (100, 130, 100, 140)
+    assert len(tool._state) == 0
+    for state in ['rotate', 'data_coordinates', 'square', 'center']:
+        tool.add_state(state)
+        assert len(tool._state) == 1
+        tool.remove_state(state)
+        assert len(tool._state) == 0
+
 
 def test_rectangle_resize_square_center_aspect():
     ax = get_ax()
@@ -461,8 +483,8 @@ def test_rectangle_resize_square_center_aspect():
     tool = widgets.RectangleSelector(ax, onselect, interactive=True)
     # Create rectangle
     _resize_rectangle(tool, 70, 65, 120, 115)
-    tool.add_default_state('square')
-    tool.add_default_state('center')
+    tool.add_state('square')
+    tool.add_state('center')
     assert tool.extents == (70.0, 120.0, 65.0, 115.0)
 
     # resize E handle
@@ -905,7 +927,7 @@ def test_selector_clear_method(selector):
         assert tool.extents == (10, 50)
 
 
-def test_span_selector_add_default_state():
+def test_span_selector_add_state():
     ax = get_ax()
 
     def onselect(*args):
@@ -914,13 +936,13 @@ def test_span_selector_add_default_state():
     tool = widgets.SpanSelector(ax, onselect, 'horizontal', interactive=True)
 
     with pytest.raises(ValueError):
-        tool.add_default_state('unsupported_state')
+        tool.add_state('unsupported_state')
     with pytest.raises(ValueError):
-        tool.add_default_state('center')
+        tool.add_state('center')
     with pytest.raises(ValueError):
-        tool.add_default_state('square')
+        tool.add_state('square')
 
-    tool.add_default_state('move')
+    tool.add_state('move')
 
 
 def test_tool_line_handle():

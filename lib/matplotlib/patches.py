@@ -768,8 +768,7 @@ class Rectangle(Patch):
             rotation_point = bbox.x0 + width / 2., bbox.y0 + height / 2.
         elif self.rotation_point == 'xy':
             rotation_point = bbox.x0, bbox.y0
-        elif (isinstance(self.rotation_point[0], Number) and
-                  isinstance(self.rotation_point[1], Number)):
+        else:
             rotation_point = self.rotation_point
         return transforms.BboxTransformTo(bbox) \
                 + transforms.Affine2D() \
@@ -778,6 +777,21 @@ class Rectangle(Patch):
                 .rotate_deg(self.angle) \
                 .scale(1, 1 / self._aspect_ratio_correction) \
                 .translate(*rotation_point)
+
+    @property
+    def rotation_point(self):
+        return self._rotation_point
+
+    @rotation_point.setter
+    def rotation_point(self, value):
+        if value in ['center', 'xy'] or (
+                isinstance(value, tuple) and len(value) == 2 and
+                isinstance(value[0], Number) and isinstance(value[1], Number)
+                ):
+            self._rotation_point = value
+        else:
+            raise ValueError("`rotation_point` must be one of "
+                             "{'xy', 'center', (number, number)}.")
 
     def get_x(self):
         """Return the left coordinate of the rectangle."""

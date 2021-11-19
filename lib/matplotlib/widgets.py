@@ -1831,7 +1831,6 @@ class _SelectorWidget(AxesWidget):
         self._eventrelease = None
         self._prev_event = None
         self._state = set()
-        self._default_state = set()
 
     eventpress = _api.deprecate_privatize_attribute("3.5")
     eventrelease = _api.deprecate_privatize_attribute("3.5")
@@ -1999,10 +1998,18 @@ class _SelectorWidget(AxesWidget):
                 self.clear()
                 return
             for (state, modifier) in self._state_modifier_keys.items():
-                # 'rotate' and 'data_coordinates' are added in _default_state
-                if (modifier in key.split('+') and
-                        state not in ['rotate', 'data_coordinates']):
-                    self._state.add(state)
+                if modifier in key.split('+'):
+                    # 'rotate' and 'data_coordinates' are changing _state on
+                    # press and are not removed from _state when releasing
+                    if state in ['rotate', 'data_coordinates']:
+                        if state in self._state:
+                            self._state.discard(state)
+                        else:
+                            self._state.add(state)
+                    else:
+                        self._state.add(state)
+                    if 'data_coordinates' in state:
+                        self._set_aspect_ratio_correction()
             self._on_key_press(event)
 
     def _on_key_press(self, event):
@@ -2014,7 +2021,10 @@ class _SelectorWidget(AxesWidget):
             key = event.key or ''
             key = key.replace('ctrl', 'control')
             for (state, modifier) in self._state_modifier_keys.items():
-                if modifier in key.split('+'):
+                # 'rotate' and 'data_coordinates' are changing _state on
+                # press and are not removed from _state when releasing
+                if (modifier in key.split('+') and
+                        state not in ['rotate', 'data_coordinates']):
                     self._state.discard(state)
             self._on_key_release(event)
 
@@ -2068,17 +2078,19 @@ class _SelectorWidget(AxesWidget):
             self.update()
         self._handle_props.update(handle_props)
 
-    @property
-    def default_state(self):
-        """
-        Default state of the selector, which affect the widget's behavior. See
-        the `state_modifier_keys` parameters for details.
-        """
-        return tuple(self._default_state)
+    def _validate_state(self, value):
+        supported_state = [
+            key for key, value in self._state_modifier_keys.items()
+            if key != 'clear' and value != 'not-applicable'
+            ]
+        if value not in supported_state:
+            keys = ', '.join(supported_state)
+            raise ValueError('Setting default state must be one of the '
+                             f'following: {keys}.')
 
-    def add_default_state(self, value):
+    def add_state(self, value):
         """
-        Add a default state to define the widget's behavior. See the
+        Add a state to define the widget's behavior. See the
         `state_modifier_keys` parameters for details.
 
         Parameters
@@ -2093,15 +2105,28 @@ class _SelectorWidget(AxesWidget):
             When the value is not supported by the selector.
 
         """
-        supported_default_state = [
-            key for key, value in self._state_modifier_keys.items()
-            if key != 'clear' and value != 'not-applicable'
-            ]
-        if value not in supported_default_state:
-            keys = ', '.join(supported_default_state)
-            raise ValueError('Setting default state must be one of the '
-                             f'following: {keys}.')
-        self._default_state.add(value)
+        self._validate_state(value)
+        self._state.add(value)
+
+    def remove_state(self, value):
+        """
+        Remove a state to define the widget's behavior. See the
+        `state_modifier_keys` parameters for details.
+
+        Parameters
+        ----------
+        value : str
+            Must be a supported state of the selector. See the
+            `state_modifier_keys` parameters for details.
+
+        Raises
+        ------
+        ValueError
+            When the value is not supported by the selector.
+
+        """
+        self._validate_state(value)
+        self._state.remove(value)
 
 
 class SpanSelector(_SelectorWidget):
@@ -2501,7 +2526,7 @@ class SpanSelector(_SelectorWidget):
 
         # Prioritise center handle over other handles
         # Use 'C' to match the notation used in the RectangleSelector
-        if 'move' in self._state | self._default_state:
+        if 'move' in self._state:
             self._active_handle = 'C'
         elif e_dist > self.grab_range:
             # Not close to any handles
@@ -3032,7 +3057,7 @@ class RectangleSelector(_SelectorWidget):
     def _onmove(self, event):
         """Motion notify event handler."""
 
-        state = self._state | self._default_state
+        state = self._state
         rotate = ('rotate' in state and
                   self._active_handle in self._corner_order)
         eventpress = self._eventpress
@@ -3169,18 +3194,6 @@ class RectangleSelector(_SelectorWidget):
 
         self.extents = x0, x1, y0, y1
 
-    def _on_key_press(self, event):
-        key = event.key or ''
-        key = key.replace('ctrl', 'control')
-        for (state, modifier) in self._state_modifier_keys.items():
-            if modifier in key.split('+'):
-                if state in ['rotate', 'data_coordinates']:
-                    if state in self._default_state:
-                        self._default_state.discard(state)
-                    else:
-                        self._default_state.add(state)
-                    self._set_aspect_ratio_correction()
-
     @property
     def _rect_bbox(self):
         if self._drawtype == 'box':
@@ -3200,7 +3213,7 @@ class RectangleSelector(_SelectorWidget):
             return
 
         self._selection_artist._aspect_ratio_correction = aspect_ratio
-        if 'data_coordinates' in self._state | self._default_state:
+        if 'data_coordinates' in self._state:
             self._aspect_ratio_correction = 1
         else:
             self._aspect_ratio_correction = aspect_ratio
@@ -3309,7 +3322,7 @@ class RectangleSelector(_SelectorWidget):
         e_idx, e_dist = self._edge_handles.closest(event.x, event.y)
         m_idx, m_dist = self._center_handle.closest(event.x, event.y)
 
-        if 'move' in self._state | self._default_state:
+        if 'move' in self._state:
             self._active_handle = 'C'
         # Set active handle as closest handle, if mouse click is close enough.
         elif m_dist < self.grab_range * 2:
