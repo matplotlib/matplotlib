@@ -5787,18 +5787,21 @@ def test_adjust_numtick_aspect():
     assert len(ax.yaxis.get_major_locator()()) > 2
 
 
-@image_comparison(["auto_numticks.png"], style='default')
+@mpl.style.context("default")
 def test_auto_numticks():
-    # Make tiny, empty subplots, verify that there are only 3 ticks.
-    plt.subplots(4, 4)
+    axs = plt.figure().subplots(4, 4)
+    for ax in axs.flat:  # Tiny, empty subplots have only 3 ticks.
+        assert [*ax.get_xticks()] == [*ax.get_yticks()] == [0, 0.5, 1]
 
 
-@image_comparison(["auto_numticks_log.png"], style='default')
+@mpl.style.context("default")
 def test_auto_numticks_log():
     # Verify that there are not too many ticks with a large log range.
     fig, ax = plt.subplots()
-    matplotlib.rcParams['axes.autolimit_mode'] = 'round_numbers'
+    mpl.rcParams['axes.autolimit_mode'] = 'round_numbers'
     ax.loglog([1e-20, 1e5], [1e-16, 10])
+    assert (np.log10(ax.get_xticks()) == np.arange(-26, 18, 4)).all()
+    assert (np.log10(ax.get_yticks()) == np.arange(-20, 10, 3)).all()
 
 
 def test_broken_barh_empty():
