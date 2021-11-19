@@ -3,7 +3,6 @@ import itertools
 import logging
 import math
 from numbers import Integral, Number
-from datetime import timedelta
 
 import numpy as np
 from numpy import ma
@@ -3291,19 +3290,6 @@ class Axes(_AxesBase):
         if len(x) != len(y):
             raise ValueError("'x' and 'y' must have the same size")
 
-        def has_negative_values(array):
-            if array is None:
-                return False
-            try:
-                return np.any(array < 0)
-            except TypeError:  # if array contains 'datetime.timedelta' types
-                return np.any(array < timedelta(0))
-
-        if has_negative_values(xerr):
-            raise ValueError("'xerr' must not contain negative values")
-        if has_negative_values(yerr):
-            raise ValueError("'yerr' must not contain negative values")
-
         if isinstance(errorevery, Integral):
             errorevery = (0, errorevery)
         if isinstance(errorevery, tuple):
@@ -3426,6 +3412,9 @@ class Axes(_AxesBase):
                     f"'{dep_axis}err' (shape: {np.shape(err)}) must be a "
                     f"scalar or a 1D or (2, n) array-like whose shape matches "
                     f"'{dep_axis}' (shape: {np.shape(dep)})") from None
+            if np.any(err < -err):  # like err<0, but also works for timedelta.
+                raise ValueError(
+                    f"'{dep_axis}err' must not contain negative values")
             # This is like
             #     elow, ehigh = np.broadcast_to(...)
             #     return dep - elow * ~lolims, dep + ehigh * ~uplims
