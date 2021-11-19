@@ -212,7 +212,7 @@ def update_matplotlibrc(path):
         idx for idx, line in enumerate(template_lines)
         if "#backend:" in line]
     template_lines[backend_line_idx] = (
-        "#backend: {}".format(setupext.options["backend"])
+        "#backend: {}\n".format(setupext.options["backend"])
         if setupext.options["backend"]
         else "##backend: Agg")
     path.write_text("".join(template_lines))
