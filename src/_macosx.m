@@ -62,6 +62,20 @@
    Needed to know when to stop the NSApp */
 static long FigureWindowCount = 0;
 
+/* Keep track of modifier key states for flagsChanged
+   to keep track of press vs release */
+static bool lastCommand = false;
+static bool lastControl = false;
+static bool lastShift = false;
+static bool lastOption = false;
+static bool lastCapsLock = false;
+/* Keep track of whether this specific key modifier was pressed or not */
+static bool keyChangeCommand = false;
+static bool keyChangeControl = false;
+static bool keyChangeShift = false;
+static bool keyChangeOption = false;
+static bool keyChangeCapsLock = false;
+
 /* -------------------------- Helper function ---------------------------- */
 
 static void
@@ -1641,8 +1655,6 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
         }
         [returnkey appendString:specialchar];
     }
-    else
-        [returnkey appendString:[event charactersIgnoringModifiers]];
 
     return [returnkey UTF8String];
 }
@@ -1711,30 +1723,86 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     return YES;
 }
 
-// flagsChanged gets called on single modifier keypresses
-// The modifier + second key gets handled in convertKeyEvent in KeyUp/KeyDown
+// flagsChanged gets called whenever a  modifier key is pressed OR released
+// so we need to handle both cases here
 - (void)flagsChanged:(NSEvent *)event
 {
-    const char *s = NULL;
-    if ([event modifierFlags] & NSEventModifierFlagControl)
-        s = "control";
-    else if ([event modifierFlags] & NSEventModifierFlagShift)
-        s = "shift";
-    else if ([event modifierFlags] & NSEventModifierFlagOption)
-        s = "alt";
-    else if ([event modifierFlags] & NSEventModifierFlagCommand)
-        s = "cmd";
-    else if ([event modifierFlags] & NSEventModifierFlagCapsLock)
-        s = "caps_lock";
-    else return;
-    PyGILState_STATE gstate = PyGILState_Ensure();
-    PyObject* result = PyObject_CallMethod(canvas, "key_press_event", "s", s);
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
+    bool keypress = false;
+    bool keyrelease = false;
+    if (([event modifierFlags] & NSEventModifierFlagCommand) && !lastCommand) {
+        // Command pressed
+        lastCommand = true;
+        keyChangeCommand = true;
+        keypress = true;
+    }
+    else if (!([event modifierFlags] & NSEventModifierFlagCommand) && lastCommand) {
+        // Command released
+        lastCommand = false;
+        keyChangeCommand = true;
+        keyrelease = true;
+    }
+    else if (([event modifierFlags] & NSEventModifierFlagControl) && !lastControl) {
+        // Control pressed
+        lastControl = true;
+        keyChangeControl = true;
+        keypress = true;
+    }
+    else if (!([event modifierFlags] & NSEventModifierFlagControl) && lastControl) {
+        // Control released
+        lastControl = false;
+        keyChangeControl = true;
+        keyrelease = true;
+    }
+    else if (([event modifierFlags] & NSEventModifierFlagShift) && !lastShift) {
+        // Shift pressed
+        lastShift = true;
+        keyChangeShift = true;
+        keypress = true;
+    }
+    else if (!([event modifierFlags] & NSEventModifierFlagShift) && lastShift) {
+        // Shift released
+        lastShift = false;
+        keyChangeShift = true;
+        keyrelease = true;
+    }
+    else if (([event modifierFlags] & NSEventModifierFlagOption) && !lastOption) {
+        // Option pressed
+        lastOption = true;
+        keyChangeOption = true;
+        keypress = true;
+    }
+    else if (!([event modifierFlags] & NSEventModifierFlagOption) && lastOption) {
+        // Option released
+        lastOption = false;
+        keyChangeOption = true;
+        keyrelease = true;
+    }
+    else if (([event modifierFlags] & NSEventModifierFlagCapsLock) && !lastCapsLock) {
+        // Capslock pressed
+        lastCapsLock = true;
+        keyChangeCapsLock = true;
+        keypress = true;
+    }
+    else if (!([event modifierFlags] & NSEventModifierFlagCapsLock) && lastCapsLock) {
+        // Capslock released
+        lastCapsLock = false;
+        keyChangeCapsLock = true;
+        keyrelease = true;
+    }
 
-    PyGILState_Release(gstate);
+    if (keypress) {
+        [self keyDown: event];
+    }
+    else if (keyrelease) {
+        [self keyUp: event];
+    }
+
+    // Reset the state for the key changes after handling the event
+    keyChangeCommand = false;
+    keyChangeControl = false;
+    keyChangeShift = false;
+    keyChangeOption = false;
+    keyChangeCapsLock = false;
 }
 @end
 
