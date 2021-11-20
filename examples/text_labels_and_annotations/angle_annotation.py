@@ -134,8 +134,7 @@ class AngleAnnotation(Arc):
         if self.unit == "points":
             factor = self.ax.figure.dpi / 72.
         elif self.unit[:4] == "axes":
-            b = TransformedBbox(Bbox.from_bounds(0, 0, 1, 1),
-                                self.ax.transAxes)
+            b = TransformedBbox(Bbox.unit(), self.ax.transAxes)
             dic = {"max": max(b.width, b.height),
                    "min": min(b.width, b.height),
                    "width": b.width, "height": b.height}

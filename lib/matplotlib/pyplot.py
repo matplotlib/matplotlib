@@ -1059,8 +1059,12 @@ def axes(arg=None, **kwargs):
         plt.axes((left, bottom, width, height), facecolor='w')
     """
     fig = gcf()
+    pos = kwargs.pop('position', None)
     if arg is None:
-        return fig.add_subplot(**kwargs)
+        if pos is None:
+            return fig.add_subplot(**kwargs)
+        else:
+            return fig.add_axes(pos, **kwargs)
     else:
         return fig.add_axes(arg, **kwargs)
 
@@ -1442,10 +1446,13 @@ def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
 
     This is a helper function to build complex GridSpec layouts visually.
 
-    .. note ::
+    .. note::
 
        This API is provisional and may be revised in the future based on
        early user feedback.
+
+    See :doc:`/tutorials/provisional/mosaic`
+    for an example and full API documentation
 
     Parameters
     ----------

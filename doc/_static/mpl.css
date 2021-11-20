@@ -204,7 +204,6 @@ does not float with it.
 */
 .sphx-glr-thumbcontainer p.caption:hover > a.headerlink{
     visibility: hidden;
-
 }
 
 /* slightly reduce horizontal margin compared to gallery.css to
@@ -216,6 +215,26 @@ does not float with it.
 /* workaround: the default padding decenters the image inside the frame */
 .sphx-glr-thumbcontainer .figure {
     padding: 0;
+}
+
+/* hide note linking to the download section at the bottom of galleries
+ * as suggested in https://github.com/sphinx-gallery/sphinx-gallery/issues/760
+ */
+div.sphx-glr-download-link-note {
+    height: 0px;
+    visibility: hidden;
+}
+
+/* re-style the download button */
+div.sphx-glr-download a {
+    background-color: #E3F0F6;
+    background-image: none;
+    color: #11557c;
+    border: 0;
+}
+
+div.sphx-glr-download a:hover {
+    background-color: #BCD4DF;
 }
 
 table.property-table th,
@@ -244,4 +263,12 @@ div.twocol > div {
     flex-grow: 1;
     padding: 0;
     margin: 0;
+}
+
+/* Fix selection of parameter names; remove when fixed in the theme
+ * https://github.com/sphinx-doc/sphinx/pull/9763
+ */
+.classifier:before {
+    display: inline-block;
+    margin: 0 0.5em;
 }

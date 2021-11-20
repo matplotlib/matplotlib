@@ -180,7 +180,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self.set_pickradius(pickradius)
         self.set_urls(urls)
         self.set_hatch(hatch)
-        self._offset_position = "screen"
         self.set_zorder(zorder)
 
         if capstyle:
@@ -417,7 +416,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 self.get_facecolor(), self.get_edgecolor(),
                 self._linewidths, self._linestyles,
                 self._antialiaseds, self._urls,
-                self._offset_position)
+                "screen")  # offset_position, kept for backcompat.
 
         gc.restore()
         renderer.close_group(self.__class__.__name__)
@@ -470,8 +469,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ind = _path.point_in_path_collection(
             mouseevent.x, mouseevent.y, pickradius,
             transform.frozen(), paths, self.get_transforms(),
-            offsets, transOffset, pickradius <= 0,
-            self._offset_position)
+            offsets, transOffset, pickradius <= 0)
 
         return len(ind) > 0, dict(ind=ind)
 

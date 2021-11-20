@@ -18,7 +18,7 @@ def blocking_input_loop(figure, event_names, timeout, handler):
         Function called for each event; it can force an early exit of the event
         loop by calling ``canvas.stop_event_loop()``.
     """
-    if hasattr(figure.canvas, "manager"):
+    if figure.canvas.manager:
         figure.show()  # Ensure that the figure is shown if we are managing it.
     # Connect the events to the on_event function call.
     cids = [figure.canvas.mpl_connect(name, handler) for name in event_names]

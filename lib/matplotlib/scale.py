@@ -496,10 +496,11 @@ class AsinhScale(ScaleBase):
     A quasi-logarithmic scale based on the inverse hyperbolic sine (asinh)
 
     For values close to zero, this is essentially a linear scale,
-    but for large magnitude values (either positive or negative) it is asymptotically
-    logarithmic. The transition between these linear and logarithmic regimes
-    is smooth, and has no discontinuities in the function gradient
-    in contrast to the `.SymmetricalLogScale` ("symlog") scale.
+    but for large magnitude values (either positive or negative)
+    it is asymptotically logarithmic. The transition between these
+    linear and logarithmic regimes is smooth, and has no discontinuities
+    in the function gradient in contrast to
+    the `.SymmetricalLogScale` ("symlog") scale.
 
     Specifically, the transformation of an axis coordinate :math:`a` is
     :math:`a \\rightarrow a_0 \\sinh^{-1} (a / a_0)` where :math:`a_0`

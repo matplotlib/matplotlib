@@ -2593,7 +2593,7 @@ class AsinhLocator(Locator):
     the `~.scale.AsinhScale` class.
     """
     def __init__(self, linear_width, numticks=11, symthresh=0.2,
-                 base=0, subs=None):
+                 base=10, subs=None):
         """
         Parameters
         ----------
@@ -2607,7 +2607,7 @@ class AsinhLocator(Locator):
             The fractional threshold beneath which data which covers
             a range that is approximately symmetric about zero
             will have ticks that are exactly symmetric.
-        base : int, default: 0
+        base : int, default: 10
             The number base used for rounding tick locations
             on a logarithmic scale. If this is less than one,
             then rounding is to the nearest integer multiple

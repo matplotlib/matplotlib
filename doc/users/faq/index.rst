@@ -1,8 +1,10 @@
 .. _faq-index:
 
-######
-How-to
-######
+.. redirect-from:: /faq/index
+
+##########################
+How-to and troubleshooting 
+##########################
 
 .. only:: html
 

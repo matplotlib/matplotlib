@@ -1,14 +1,14 @@
 Getting started
 ===============
 
-Installation
-------------
+Installation quick-start
+------------------------
 
 .. container:: twocol
 
     .. container::
 
-        Install using pip:
+        Install using `pip <https://pypi.org/project/matplotlib>`__:
 
         .. code-block:: bash
 
@@ -16,18 +16,19 @@ Installation
 
     .. container::
 
-        Install using conda:
+        Install using `conda <https://docs.continuum.io/anaconda/>`__:
 
         .. code-block:: bash
 
             conda install matplotlib
 
-Further details are available in the :doc:`Installation Guide </users/installing>`.  
+Further details are available in the :doc:`Installation Guide </users/installing/index>`.
+
 
 Draw a first plot
 -----------------
 
-Here is a minimal example plot you can try out:
+Here is a minimal example plot:
 
 .. plot::
    :include-source:

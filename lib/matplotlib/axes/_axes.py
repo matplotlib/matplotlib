@@ -3,7 +3,6 @@ import itertools
 import logging
 import math
 from numbers import Integral, Number
-from datetime import timedelta
 
 import numpy as np
 from numpy import ma
@@ -1254,10 +1253,11 @@ class Axes(_AxesBase):
         --------
         .. plot:: gallery/lines_bars_and_markers/eventplot_demo.py
         """
-        # We do the conversion first since not all unitized data is uniform
-        positions, lineoffsets, linelengths = self._process_unit_info(
-            [("x", positions), ("y", lineoffsets), ("y", linelengths)], kwargs)
 
+        lineoffsets, linelengths = self._process_unit_info(
+                [("y", lineoffsets), ("y", linelengths)], kwargs)
+
+        # fix positions, noting that it can be a list of lists:
         if not np.iterable(positions):
             positions = [positions]
         elif any(np.iterable(position) for position in positions):
@@ -1267,6 +1267,11 @@ class Axes(_AxesBase):
 
         if len(positions) == 0:
             return []
+
+        poss = []
+        for position in positions:
+            poss += self._process_unit_info([("x", position)], kwargs)
+        positions = poss
 
         # prevent 'singular' keys from **kwargs dict from overriding the effect
         # of 'plural' keyword arguments (e.g. 'color' overriding 'colors')
@@ -3285,19 +3290,6 @@ class Axes(_AxesBase):
         if len(x) != len(y):
             raise ValueError("'x' and 'y' must have the same size")
 
-        def has_negative_values(array):
-            if array is None:
-                return False
-            try:
-                return np.any(array < 0)
-            except TypeError:  # if array contains 'datetime.timedelta' types
-                return np.any(array < timedelta(0))
-
-        if has_negative_values(xerr):
-            raise ValueError("'xerr' must not contain negative values")
-        if has_negative_values(yerr):
-            raise ValueError("'yerr' must not contain negative values")
-
         if isinstance(errorevery, Integral):
             errorevery = (0, errorevery)
         if isinstance(errorevery, tuple):
@@ -3420,6 +3412,9 @@ class Axes(_AxesBase):
                     f"'{dep_axis}err' (shape: {np.shape(err)}) must be a "
                     f"scalar or a 1D or (2, n) array-like whose shape matches "
                     f"'{dep_axis}' (shape: {np.shape(dep)})") from None
+            if np.any(err < -err):  # like err<0, but also works for timedelta.
+                raise ValueError(
+                    f"'{dep_axis}err' must not contain negative values")
             # This is like
             #     elow, ehigh = np.broadcast_to(...)
             #     return dep - elow * ~lolims, dep + ehigh * ~uplims
@@ -4322,9 +4317,7 @@ default: :rc:`scatter.edgecolors`
 
         """
         # Process **kwargs to handle aliases, conflicts with explicit kwargs:
-
         x, y = self._process_unit_info([("x", x), ("y", y)], kwargs)
-
         # np.ma.ravel yields an ndarray, not a masked array,
         # unless its argument is a masked array.
         x = np.ma.ravel(x)

@@ -429,7 +429,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
             key = (path, id(trf))
             custom_clip_cmd = self._clip_paths.get(key)
             if custom_clip_cmd is None:
-                custom_clip_cmd = "c%x" % len(self._clip_paths)
+                custom_clip_cmd = "c%d" % len(self._clip_paths)
                 self._pswriter.write(f"""\
 /{custom_clip_cmd} {{
 {self._convert_path(path, trf, simplify=False)}
@@ -570,7 +570,7 @@ grestore
         path_codes = []
         for i, (path, transform) in enumerate(self._iter_collection_raw_paths(
                 master_transform, paths, all_transforms)):
-            name = 'p%x_%x' % (self._path_collection_id, i)
+            name = 'p%d_%d' % (self._path_collection_id, i)
             path_bytes = self._convert_path(path, transform, simplify=False)
             self._pswriter.write(f"""\
 /{name} {{
@@ -593,6 +593,9 @@ translate
     @_log_if_debug_on
     def draw_tex(self, gc, x, y, s, prop, angle, *, mtext=None):
         # docstring inherited
+        if self._is_transparent(gc.get_rgb()):
+            return  # Special handling for fully transparent.
+
         if not hasattr(self, "psfrag"):
             self._logwarn_once(
                 "The PS backend determines usetex status solely based on "

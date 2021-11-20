@@ -4,8 +4,9 @@ import pickle
 import numpy as np
 import pytest
 
+import matplotlib as mpl
 from matplotlib import cm
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal
 from matplotlib.dates import rrulewrapper
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
@@ -40,13 +41,11 @@ def test_simple():
     pickle.dump(fig, BytesIO(), pickle.HIGHEST_PROTOCOL)
 
 
-@image_comparison(
-    ['multi_pickle.png'], remove_text=True, style='mpl20', tol=0.082)
-def test_complete():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
-    fig = plt.figure('Figure with a label?', figsize=(10, 6))
+@mpl.style.context("default")
+@check_figures_equal(extensions=["png"])
+def test_complete(fig_test, fig_ref):
+    fig_ref.set_size_inches((10, 6))
+    plt.figure(fig_ref)
 
     plt.suptitle('Can you fit any more in a figure?')
 
@@ -89,25 +88,27 @@ def test_complete():
     plt.subplot(3, 3, 9)
     plt.errorbar(x, x * -0.5, xerr=0.2, yerr=0.4)
 
-    #
     # plotting is done, now test its pickle-ability
-    #
-    result_fh = BytesIO()
-    pickle.dump(fig, result_fh, pickle.HIGHEST_PROTOCOL)
+    pkl = BytesIO()
+    pickle.dump(fig_ref, pkl, pickle.HIGHEST_PROTOCOL)
+    loaded = pickle.loads(pkl.getbuffer())
+    loaded.canvas.draw()
 
-    plt.close('all')
+    fig_test.set_size_inches(loaded.get_size_inches())
+    fig_test.figimage(loaded.canvas.renderer.buffer_rgba())
 
-    # make doubly sure that there are no figures left
-    assert plt._pylab_helpers.Gcf.figs == {}
+    plt.close(loaded)
 
-    # wind back the fh and load in the figure
-    result_fh.seek(0)
-    fig = pickle.load(result_fh)
 
-    # make sure there is now a figure manager
-    assert plt._pylab_helpers.Gcf.figs != {}
-
-    assert fig.get_label() == 'Figure with a label?'
+def test_gcf():
+    fig = plt.figure("a label")
+    buf = BytesIO()
+    pickle.dump(fig, buf, pickle.HIGHEST_PROTOCOL)
+    plt.close("all")
+    assert plt._pylab_helpers.Gcf.figs == {}  # No figures must be left.
+    fig = pickle.loads(buf.getbuffer())
+    assert plt._pylab_helpers.Gcf.figs != {}  # A manager is there again.
+    assert fig.get_label() == "a label"
 
 
 def test_no_pyplot():

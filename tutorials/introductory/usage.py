@@ -182,7 +182,7 @@ plt.legend()
 #
 # Matplotlib's documentation and examples use both the OO and the pyplot
 # approaches (which are equally powerful), and you should feel free to use
-# either (however, it is preferable pick one of them and stick to it, instead
+# either (however, it is preferable to pick one of them and stick to it, instead
 # of mixing them).  In general, we suggest to restrict pyplot to interactive
 # plotting (e.g., in a Jupyter notebook), and to prefer the OO-style for
 # non-interactive plotting (in functions and scripts that are intended to be

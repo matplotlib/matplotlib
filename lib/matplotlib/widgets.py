@@ -20,6 +20,7 @@ from matplotlib import docstring
 from . import _api, backend_tools, cbook, colors, ticker
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
+from .transforms import TransformedPatchPath
 
 
 class LockDraw:
@@ -304,7 +305,7 @@ class SliderBase(AxesWidget):
 
     def reset(self):
         """Reset the slider to the initial value."""
-        if self.val != self.valinit:
+        if np.any(self.val != self.valinit):
             self.set_val(self.valinit)
 
 
@@ -439,7 +440,10 @@ class Slider(SliderBase):
             )
             ax.add_patch(self.track)
             self.poly = ax.axhspan(valmin, valinit, .25, .75, **kwargs)
-            self.hline = ax.axhline(valinit, .15, .85, color=initcolor, lw=1)
+            # Drawing a longer line and clipping it to the track avoids
+            # pixellization-related asymmetries.
+            self.hline = ax.axhline(valinit, 0, 1, color=initcolor, lw=1,
+                                    clip_path=TransformedPatchPath(self.track))
             handleXY = [[0.5], [valinit]]
         else:
             self.track = Rectangle(
@@ -449,12 +453,8 @@ class Slider(SliderBase):
             )
             ax.add_patch(self.track)
             self.poly = ax.axvspan(valmin, valinit, .25, .75, **kwargs)
-            # These asymmetric limits (.2, .9) minimize the asymmetry
-            # above and below the *poly* when rendered to pixels.
-            # This seems to be different for Horizontal and Vertical lines.
-            # For discussion see:
-            # https://github.com/matplotlib/matplotlib/pull/19265
-            self.vline = ax.axvline(valinit, .2, .9, color=initcolor, lw=1)
+            self.vline = ax.axvline(valinit, 0, 1, color=initcolor, lw=1,
+                                    clip_path=TransformedPatchPath(self.track))
             handleXY = [[valinit], [0.5]]
         self._handle, = ax.plot(
             *handleXY,
@@ -1592,6 +1592,7 @@ class Cursor(AxesWidget):
         Whether to draw the vertical line.
     useblit : bool, default: False
         Use blitting for faster drawing if supported by the backend.
+        See the tutorial :doc:`/tutorials/advanced/blitting` for details.
 
     Other Parameters
     ----------------
@@ -1677,25 +1678,38 @@ class MultiCursor(Widget):
 
     For the cursor to remain responsive you must keep a reference to it.
 
-    Example usage::
+    Parameters
+    ----------
+    canvas : `matplotlib.backend_bases.FigureCanvasBase`
+        The FigureCanvas that contains all the axes.
 
-        from matplotlib.widgets import MultiCursor
-        import matplotlib.pyplot as plt
-        import numpy as np
+    axes : list of `matplotlib.axes.Axes`
+        The `~.axes.Axes` to attach the cursor to.
 
-        fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True)
-        t = np.arange(0.0, 2.0, 0.01)
-        ax1.plot(t, np.sin(2*np.pi*t))
-        ax2.plot(t, np.sin(4*np.pi*t))
+    useblit : bool, default: True
+        Use blitting for faster drawing if supported by the backend.
+        See the tutorial :doc:`/tutorials/advanced/blitting`
+        for details.
 
-        multi = MultiCursor(fig.canvas, (ax1, ax2), color='r', lw=1,
-                            horizOn=False, vertOn=True)
-        plt.show()
+    horizOn : bool, default: False
+        Whether to draw the horizontal line.
 
+    vertOn: bool, default: True
+        Whether to draw the vertical line.
+
+    Other Parameters
+    ----------------
+    **lineprops
+        `.Line2D` properties that control the appearance of the lines.
+        See also `~.Axes.axhline`.
+
+    Examples
+    --------
+    See :doc:`/gallery/widgets/multicursor`.
     """
+
     def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True,
                  **lineprops):
-
         self.canvas = canvas
         self.axes = axes
         self.horizOn = horizOn
@@ -1815,6 +1829,7 @@ class _SelectorWidget(AxesWidget):
         self._eventrelease = None
         self._prev_event = None
         self._state = set()
+        self._default_state = set()
 
     eventpress = _api.deprecate_privatize_attribute("3.5")
     eventrelease = _api.deprecate_privatize_attribute("3.5")
@@ -2082,7 +2097,8 @@ class SpanSelector(_SelectorWidget):
 
     useblit : bool, default: False
         If True, use the backend-dependent blitting features for faster
-        canvas updates.
+        canvas updates. See the tutorial :doc:`/tutorials/advanced/blitting`
+        for details.
 
     props : dict, optional
         Dictionary of `matplotlib.patches.Patch` properties.
@@ -2491,7 +2507,8 @@ class ToolLineHandles:
         Additional line properties. See `matplotlib.lines.Line2D`.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend).
+        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        for details.
     """
 
     def __init__(self, ax, positions, direction, line_props=None,
@@ -2598,7 +2615,8 @@ class ToolHandles:
         Additional marker properties. See `matplotlib.lines.Line2D`.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend).
+        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        for details.
     """
 
     def __init__(self, ax, x, y, marker='o', marker_props=None, useblit=True):
@@ -2673,7 +2691,8 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
 
     useblit : bool, default: False
         Whether to use blitting for faster drawing (if supported by the
-        backend).
+        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        for details.
 
     props : dict, optional
         Properties with which the __ARTIST_NAME__ is drawn. See
@@ -2828,13 +2847,13 @@ class RectangleSelector(_SelectorWidget):
                     'edgecolor', 'black'),
                 **cbook.normalize_kwargs(handle_props, Line2D)}
 
-            self._corner_order = ['NW', 'NE', 'SE', 'SW']
+            self._corner_order = ['SW', 'SE', 'NE', 'NW']
             xc, yc = self.corners
             self._corner_handles = ToolHandles(self.ax, xc, yc,
                                                marker_props=self._handle_props,
                                                useblit=self.useblit)
 
-            self._edge_order = ['W', 'N', 'E', 'S']
+            self._edge_order = ['W', 'S', 'E', 'N']
             xe, ye = self.edge_centers
             self._edge_handles = ToolHandles(self.ax, xe, ye, marker='s',
                                              marker_props=self._handle_props,
@@ -2874,6 +2893,7 @@ class RectangleSelector(_SelectorWidget):
         # button, ...
         if self._interactive and self._selection_artist.get_visible():
             self._set_active_handle(event)
+            self._extents_on_press = self.extents
         else:
             self._active_handle = None
 
@@ -2939,22 +2959,76 @@ class RectangleSelector(_SelectorWidget):
 
         self.update()
         self._active_handle = None
+        self._extents_on_press = None
 
         return False
 
     def _onmove(self, event):
         """Motion notify event handler."""
+
+        state = self._state | self._default_state
         # resize an existing shape
         if self._active_handle and self._active_handle != 'C':
             x0, x1, y0, y1 = self._extents_on_press
-            if self._active_handle in ['E', 'W'] + self._corner_order:
-                x1 = event.xdata
-            if self._active_handle in ['N', 'S'] + self._corner_order:
-                y1 = event.ydata
+            size_on_press = [x1 - x0, y1 - y0]
+            center = [x0 + size_on_press[0] / 2, y0 + size_on_press[1] / 2]
+            dx = event.xdata - self._eventpress.xdata
+            dy = event.ydata - self._eventpress.ydata
+
+            # change sign of relative changes to simplify calculation
+            # Switch variables so that only x1 and/or y1 are updated on move
+            x_factor = y_factor = 1
+            if 'W' in self._active_handle:
+                x_factor *= -1
+                dx *= x_factor
+                x0 = x1
+            if 'S' in self._active_handle:
+                y_factor *= -1
+                dy *= y_factor
+                y0 = y1
+
+            # Keeping the center fixed
+            if 'center' in state:
+                if 'square' in state:
+                    # Force the same change in dx and dy
+                    if self._active_handle in ['E', 'W']:
+                        # using E, W handle we need to update dy accordingly
+                        dy = dx
+                    elif self._active_handle in ['S', 'N']:
+                        # using S, N handle, we need to update dx accordingly
+                        dx = dy
+                    else:
+                        dx = dy = max(dx, dy, key=abs)
+
+                # new half-width and half-height
+                hw = size_on_press[0] / 2 + dx
+                hh = size_on_press[1] / 2 + dy
+
+                if 'square' not in state:
+                    # cancel changes in perpendicular direction
+                    if self._active_handle in ['E', 'W']:
+                        hh = size_on_press[1] / 2
+                    if self._active_handle in ['N', 'S']:
+                        hw = size_on_press[0] / 2
+
+                x0, x1, y0, y1 = (center[0] - hw, center[0] + hw,
+                                  center[1] - hh, center[1] + hh)
+
+            else:
+                # Keeping the opposite corner/edge fixed
+                if 'square' in state:
+                    dx = dy = max(dx, dy, key=abs)
+                    x1 = x0 + x_factor * (dx + size_on_press[0])
+                    y1 = y0 + y_factor * (dy + size_on_press[1])
+                else:
+                    if self._active_handle in ['E', 'W'] + self._corner_order:
+                        x1 = event.xdata
+                    if self._active_handle in ['N', 'S'] + self._corner_order:
+                        y1 = event.ydata
 
         # move existing shape
-        elif (('move' in self._state or self._active_handle == 'C' or
-               (self.drag_from_anywhere and self._contains(event))) and
+        elif (self._active_handle == 'C' or
+              (self.drag_from_anywhere and self._contains(event)) and
               self._extents_on_press is not None):
             x0, x1, y0, y1 = self._extents_on_press
             dx = event.xdata - self._eventpress.xdata
@@ -2976,7 +3050,7 @@ class RectangleSelector(_SelectorWidget):
             dy = (event.ydata - center[1]) / 2.
 
             # square shape
-            if 'square' in self._state:
+            if 'square' in state:
                 dx_pix = abs(event.x - center_pix[0])
                 dy_pix = abs(event.y - center_pix[1])
                 if not dx_pix:
@@ -2988,7 +3062,7 @@ class RectangleSelector(_SelectorWidget):
                     dy *= maxd / (abs(dy_pix) + 1e-6)
 
             # from center
-            if 'center' in self._state:
+            if 'center' in state:
                 dx *= 2
                 dy *= 2
 
@@ -3092,7 +3166,6 @@ class RectangleSelector(_SelectorWidget):
 
         if 'move' in self._state:
             self._active_handle = 'C'
-            self._extents_on_press = self.extents
         # Set active handle as closest handle, if mouse click is close enough.
         elif m_dist < self.grab_range * 2:
             # Prioritise center handle over other handles
@@ -3103,7 +3176,6 @@ class RectangleSelector(_SelectorWidget):
             if self.drag_from_anywhere and self._contains(event):
                 # Check if we've clicked inside the region
                 self._active_handle = 'C'
-                self._extents_on_press = self.extents
             else:
                 self._active_handle = None
                 return
@@ -3113,15 +3185,6 @@ class RectangleSelector(_SelectorWidget):
         else:
             # Closest to an edge handle
             self._active_handle = self._edge_order[e_idx]
-
-        # Save coordinates of rectangle at the start of handle movement.
-        x0, x1, y0, y1 = self.extents
-        # Switch variables so that only x1 and/or y1 are updated on move.
-        if self._active_handle in ['W', 'SW', 'NW']:
-            x0, x1 = x1, event.xdata
-        if self._active_handle in ['N', 'NW', 'NE']:
-            y0, y1 = y1, event.ydata
-        self._extents_on_press = x0, x1, y0, y1
 
     def _contains(self, event):
         """Return True if event is within the patch."""
@@ -3229,7 +3292,8 @@ class LassoSelector(_SelectorWidget):
         passed the vertices of the selected path.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend).
+        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        for details.
     props : dict, optional
         Properties with which the line is drawn, see `matplotlib.lines.Line2D`
         for valid properties. Default values are defined in ``mpl.rcParams``.
@@ -3311,7 +3375,8 @@ class PolygonSelector(_SelectorWidget):
 
     useblit : bool, default: False
         Whether to use blitting for faster drawing (if supported by the
-        backend).
+        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        for details.
 
     props : dict, optional
         Properties with which the line is drawn, see `matplotlib.lines.Line2D`
@@ -3578,7 +3643,8 @@ class Lasso(AxesWidget):
         Coordinates of the start of the lasso.
     useblit : bool, default: True
         Whether to use blitting for faster drawing (if supported by the
-        backend).
+        backend). See the tutorial :doc:`/tutorials/advanced/blitting`
+        for details.
     callback : callable
         Whenever the lasso is released, the *callback* function is called and
         passed the vertices of the selected path.

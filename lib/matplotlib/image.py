@@ -1463,7 +1463,7 @@ def imread(fname, format=None):
 
         Passing a URL is deprecated.  Please open the URL
         for reading and pass the result to Pillow, e.g. with
-        ``PIL.Image.open(urllib.request.urlopen(url))``.
+        ``np.array(PIL.Image.open(urllib.request.urlopen(url)))``.
     format : str, optional
         The image file format assumed for reading the data.  The image is
         loaded as a PNG file if *format* is set to "png", if *fname* is a path
@@ -1519,7 +1519,7 @@ def imread(fname, format=None):
                 "deprecated since %(since)s and will no longer be supported "
                 "%(removal)s. Please open the URL for reading and pass the "
                 "result to Pillow, e.g. with "
-                "``PIL.Image.open(urllib.request.urlopen(url))``.")
+                "``np.array(PIL.Image.open(urllib.request.urlopen(url)))``.")
             # hide imports to speed initial import on systems with slow linkers
             from urllib import request
             ssl_ctx = mpl._get_ssl_context()

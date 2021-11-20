@@ -1,3 +1,4 @@
+import matplotlib as mpl
 from matplotlib import _api, cbook
 from matplotlib.axes._axes import Axes
 from matplotlib.gridspec import GridSpec, SubplotSpec
@@ -109,10 +110,13 @@ class SubplotBase:
         labels are on the top side); y-labels only for subplots on the first
         column (or last column, if labels are on the right side).
         """
-        self._label_outer_xaxis()
-        self._label_outer_yaxis()
+        self._label_outer_xaxis(check_patch=False)
+        self._label_outer_yaxis(check_patch=False)
 
-    def _label_outer_xaxis(self):
+    def _label_outer_xaxis(self, *, check_patch):
+        # see documentation in label_outer.
+        if check_patch and not isinstance(self.patch, mpl.patches.Rectangle):
+            return
         ss = self.get_subplotspec()
         label_position = self.xaxis.get_label_position()
         if not ss.is_first_row():  # Remove top label/ticklabels/offsettext.
@@ -128,7 +132,10 @@ class SubplotBase:
             if self.xaxis.offsetText.get_position()[1] == 0:
                 self.xaxis.offsetText.set_visible(False)
 
-    def _label_outer_yaxis(self):
+    def _label_outer_yaxis(self, *, check_patch):
+        # see documentation in label_outer.
+        if check_patch and not isinstance(self.patch, mpl.patches.Rectangle):
+            return
         ss = self.get_subplotspec()
         label_position = self.yaxis.get_label_position()
         if not ss.is_first_col():  # Remove left label/ticklabels/offsettext.

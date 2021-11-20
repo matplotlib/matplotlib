@@ -17,7 +17,7 @@ The major changes in v2.0 are related to overhauling the default styles.
 .. toctree::
    :maxdepth: 2
 
-   ../dflt_style_changes
+   dflt_style_changes
 
 
 Improved color conversion API and RGBA support

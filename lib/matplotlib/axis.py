@@ -938,7 +938,7 @@ class Axis(martist.Artist):
         self.stale = True
 
     def get_view_interval(self):
-        """Return the view limits ``(min, max)`` of this axis."""
+        """Return the ``(min, max)`` view limits of this axis."""
         raise NotImplementedError('Derived must override')
 
     def set_view_interval(self, vmin, vmax, ignore=False):
@@ -957,7 +957,7 @@ class Axis(martist.Artist):
         raise NotImplementedError('Derived must override')
 
     def get_data_interval(self):
-        """Return the Interval instance for this axis data limits."""
+        """Return the ``(min, max)`` data limits of this axis."""
         raise NotImplementedError('Derived must override')
 
     def set_data_interval(self, vmin, vmax, ignore=False):
@@ -1018,24 +1018,18 @@ class Axis(martist.Artist):
         a.set_figure(self.figure)
 
     def get_ticklabel_extents(self, renderer):
-        """
-        Get the extents of the tick labels on either side
-        of the axes.
-        """
-
+        """Get the extents of the tick labels on either side of the axes."""
         ticks_to_draw = self._update_ticks()
-        ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(ticks_to_draw,
-                                                                renderer)
-
-        if len(ticklabelBoxes):
-            bbox = mtransforms.Bbox.union(ticklabelBoxes)
+        tlb1, tlb2 = self._get_ticklabel_bboxes(ticks_to_draw, renderer)
+        if len(tlb1):
+            bbox1 = mtransforms.Bbox.union(tlb1)
         else:
-            bbox = mtransforms.Bbox.from_extents(0, 0, 0, 0)
-        if len(ticklabelBoxes2):
-            bbox2 = mtransforms.Bbox.union(ticklabelBoxes2)
+            bbox1 = mtransforms.Bbox.from_extents(0, 0, 0, 0)
+        if len(tlb2):
+            bbox2 = mtransforms.Bbox.union(tlb2)
         else:
             bbox2 = mtransforms.Bbox.from_extents(0, 0, 0, 0)
-        return bbox, bbox2
+        return bbox1, bbox2
 
     def _update_ticks(self):
         """
@@ -1080,7 +1074,7 @@ class Axis(martist.Artist):
 
         return ticks_to_draw
 
-    def _get_tick_bboxes(self, ticks, renderer):
+    def _get_ticklabel_bboxes(self, ticks, renderer):
         """Return lists of bboxes for ticks' label1's and label2's."""
         return ([tick.label1.get_window_extent(renderer)
                  for tick in ticks if tick.label1.get_visible()],
@@ -1105,18 +1099,16 @@ class Axis(martist.Artist):
         self._update_label_position(renderer)
 
         # go back to just this axis's tick labels
-        ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(
-                    ticks_to_draw, renderer)
+        tlb1, tlb2 = self._get_ticklabel_bboxes(ticks_to_draw, renderer)
 
-        self._update_offset_text_position(ticklabelBoxes, ticklabelBoxes2)
+        self._update_offset_text_position(tlb1, tlb2)
         self.offsetText.set_text(self.major.formatter.get_offset())
 
         bboxes = [
             *(a.get_window_extent(renderer)
               for a in [self.offsetText]
               if a.get_visible()),
-            *ticklabelBoxes,
-            *ticklabelBoxes2,
+            *tlb1, *tlb2,
         ]
         # take care of label
         if self.label.get_visible():
@@ -1156,22 +1148,20 @@ class Axis(martist.Artist):
         renderer.open_group(__name__, gid=self.get_gid())
 
         ticks_to_draw = self._update_ticks()
-        ticklabelBoxes, ticklabelBoxes2 = self._get_tick_bboxes(ticks_to_draw,
-                                                                renderer)
+        tlb1, tlb2 = self._get_ticklabel_bboxes(ticks_to_draw, renderer)
 
         for tick in ticks_to_draw:
             tick.draw(renderer)
 
-        # scale up the axis label box to also find the neighbors, not
-        # just the tick labels that actually overlap note we need a
-        # *copy* of the axis label box because we don't want to scale
-        # the actual bbox
+        # Scale up the axis label box to also find the neighbors, not just the
+        # tick labels that actually overlap.  We need a *copy* of the axis
+        # label box because we don't want to scale the actual bbox.
 
         self._update_label_position(renderer)
 
         self.label.draw(renderer)
 
-        self._update_offset_text_position(ticklabelBoxes, ticklabelBoxes2)
+        self._update_offset_text_position(tlb1, tlb2)
         self.offsetText.set_text(self.major.formatter.get_offset())
         self.offsetText.draw(renderer)
 
@@ -1279,19 +1269,19 @@ class Axis(martist.Artist):
     def get_minorticklocs(self):
         """Return this Axis' minor tick locations in data coordinates."""
         # Remove minor ticks duplicating major ticks.
-        major_locs = self.major.locator()
-        minor_locs = self.minor.locator()
-        transform = self._scale.get_transform()
-        tr_minor_locs = transform.transform(minor_locs)
-        tr_major_locs = transform.transform(major_locs)
-        lo, hi = sorted(transform.transform(self.get_view_interval()))
-        # Use the transformed view limits as scale.  1e-5 is the default rtol
-        # for np.isclose.
-        tol = (hi - lo) * 1e-5
+        minor_locs = np.asarray(self.minor.locator())
         if self.remove_overlapping_locs:
-            minor_locs = [
-                loc for loc, tr_loc in zip(minor_locs, tr_minor_locs)
-                if ~np.isclose(tr_loc, tr_major_locs, atol=tol, rtol=0).any()]
+            major_locs = self.major.locator()
+            transform = self._scale.get_transform()
+            tr_minor_locs = transform.transform(minor_locs)
+            tr_major_locs = transform.transform(major_locs)
+            lo, hi = sorted(transform.transform(self.get_view_interval()))
+            # Use the transformed view limits as scale.  1e-5 is the default
+            # rtol for np.isclose.
+            tol = (hi - lo) * 1e-5
+            mask = np.isclose(tr_minor_locs[:, None], tr_major_locs[None, :],
+                              atol=tol, rtol=0).any(axis=1)
+            minor_locs = minor_locs[~mask]
         return minor_locs
 
     def get_ticklocs(self, *, minor=False):
@@ -1811,13 +1801,10 @@ class Axis(martist.Artist):
                 break
         else:
             shared = [self]
-        for axis in shared:
-            if len(ticks) > 1:
-                xleft, xright = axis.get_view_interval()
-                if xright > xleft:
-                    axis.set_view_interval(min(ticks), max(ticks))
-                else:
-                    axis.set_view_interval(max(ticks), min(ticks))
+        if len(ticks):
+            for axis in shared:
+                # set_view_interval maintains any preexisting inversion.
+                axis.set_view_interval(min(ticks), max(ticks))
         self.axes.stale = True
         if minor:
             self.set_minor_locator(mticker.FixedLocator(ticks))
@@ -1878,7 +1865,7 @@ class Axis(martist.Artist):
         for ax in grouper.get_siblings(self.axes):
             axis = getattr(ax, f"{axis_name}axis")
             ticks_to_draw = axis._update_ticks()
-            tlb, tlb2 = axis._get_tick_bboxes(ticks_to_draw, renderer)
+            tlb, tlb2 = axis._get_ticklabel_bboxes(ticks_to_draw, renderer)
             bboxes.extend(tlb)
             bboxes2.extend(tlb2)
         return bboxes, bboxes2
@@ -2144,19 +2131,19 @@ class XAxis(Axis):
         """
         bbox, bbox2 = self.get_ticklabel_extents(renderer)
         # MGDTODO: Need a better way to get the pad
-        padPixels = self.majorTicks[0].get_pad_pixels()
+        pad_pixels = self.majorTicks[0].get_pad_pixels()
 
         above = 0.0
         if bbox2.height:
-            above += bbox2.height + padPixels
+            above += bbox2.height + pad_pixels
         below = 0.0
         if bbox.height:
-            below += bbox.height + padPixels
+            below += bbox.height + pad_pixels
 
         if self.get_label_position() == 'top':
-            above += self.label.get_window_extent(renderer).height + padPixels
+            above += self.label.get_window_extent(renderer).height + pad_pixels
         else:
-            below += self.label.get_window_extent(renderer).height + padPixels
+            below += self.label.get_window_extent(renderer).height + pad_pixels
         return above, below
 
     def set_ticks_position(self, position):
@@ -2259,9 +2246,8 @@ class XAxis(Axis):
         self.stale = True
 
     def get_tick_space(self):
-        ends = mtransforms.Bbox.from_bounds(0, 0, 1, 1)
-        ends = ends.transformed(self.axes.transAxes -
-                                self.figure.dpi_scale_trans)
+        ends = mtransforms.Bbox.unit().transformed(
+            self.axes.transAxes - self.figure.dpi_scale_trans)
         length = ends.width * 72
         # There is a heuristic here that the aspect ratio of tick text
         # is no more than 3:1
@@ -2408,19 +2394,19 @@ class YAxis(Axis):
     def get_text_widths(self, renderer):
         bbox, bbox2 = self.get_ticklabel_extents(renderer)
         # MGDTODO: Need a better way to get the pad
-        padPixels = self.majorTicks[0].get_pad_pixels()
+        pad_pixels = self.majorTicks[0].get_pad_pixels()
 
         left = 0.0
         if bbox.width:
-            left += bbox.width + padPixels
+            left += bbox.width + pad_pixels
         right = 0.0
         if bbox2.width:
-            right += bbox2.width + padPixels
+            right += bbox2.width + pad_pixels
 
         if self.get_label_position() == 'left':
-            left += self.label.get_window_extent(renderer).width + padPixels
+            left += self.label.get_window_extent(renderer).width + pad_pixels
         else:
-            right += self.label.get_window_extent(renderer).width + padPixels
+            right += self.label.get_window_extent(renderer).width + pad_pixels
         return left, right
 
     def set_ticks_position(self, position):
@@ -2521,9 +2507,8 @@ class YAxis(Axis):
         self.stale = True
 
     def get_tick_space(self):
-        ends = mtransforms.Bbox.from_bounds(0, 0, 1, 1)
-        ends = ends.transformed(self.axes.transAxes -
-                                self.figure.dpi_scale_trans)
+        ends = mtransforms.Bbox.unit().transformed(
+            self.axes.transAxes - self.figure.dpi_scale_trans)
         length = ends.height * 72
         # Having a spacing of at least 2 just looks good.
         size = self._get_tick_label_size('y') * 2

@@ -1674,10 +1674,13 @@ default: %(va)s
 
         This is a helper function to build complex GridSpec layouts visually.
 
-        .. note ::
+        .. note::
 
            This API is provisional and may be revised in the future based on
            early user feedback.
+
+        See :doc:`/tutorials/provisional/mosaic`
+        for an example and full API documentation
 
         Parameters
         ----------
@@ -1910,10 +1913,10 @@ default: %(va)s
         for ax in ret.values():
             if sharex:
                 ax.sharex(ax0)
-                ax._label_outer_xaxis()
+                ax._label_outer_xaxis(check_patch=True)
             if sharey:
                 ax.sharey(ax0)
-                ax._label_outer_yaxis()
+                ax._label_outer_yaxis(check_patch=True)
         for k, ax in ret.items():
             if isinstance(k, str):
                 ax.set_label(k)

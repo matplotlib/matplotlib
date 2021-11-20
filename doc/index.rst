@@ -5,45 +5,41 @@
 .. module:: matplotlib
 
 
+##################################
 Matplotlib |release| documentation
-----------------------------------
+##################################
 
 Matplotlib is a comprehensive library for creating static, animated,
 and interactive visualizations in Python.
 
+************
 Installation
-============
+************
 
-.. panels::
-    :card: + install-card
-    :column: col-lg-6 col-md-6 col-sm-12 col-xs-12 p-3
+.. container:: twocol
 
-    Installing using `conda <https://docs.continuum.io/anaconda/>`__
-    ^^^^^^^^^^^^^^^^^^^^^^
+    .. container::
 
+        Install using `pip <https://pypi.org/project/matplotlib>`__:
 
+        .. code-block:: bash
 
-    .. code-block:: bash
+            pip install matplotlib
 
-        conda install matplotlib
+    .. container::
 
-    ---
+        Install using `conda <https://docs.continuum.io/anaconda/>`__:
 
-    Installing using `pip <https://pypi.org/project/matplotlib>`__
-    ^^^^^^^^^^^^^^^^^^^^
+        .. code-block:: bash
 
+            conda install matplotlib
 
-    .. code-block:: bash
-
-        pip install matplotlib
+Further details are available in the :doc:`Installation Guide <users/installing/index>`.
 
 
-Further details are available in the :doc:`Installation Guide <users/installing>`.
-
-
+******************
 Learning resources
-==================
-
+******************
 
 .. panels::
 
@@ -53,7 +49,7 @@ Learning resources
     - :doc:`Quick-start guide <tutorials/introductory/usage>`
     - :doc:`Plot types <plot_types/index>`
     - `Introductory tutorials <../tutorials/index.html#introductory>`_
-    - :doc:`External learning resources <resources/index>`
+    - :doc:`External learning resources <users/resources/index>`
 
     ---
 
@@ -67,7 +63,7 @@ Learning resources
     Understand how Matplotlib works
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    - The :ref:`users-guide-explain` in the :doc:`Usage guide <users/index>`
+    - The :ref:`users-guide-explain` in the :doc:`Users guide <users/index>`
     - Many of the :ref:`Intermediate <tutorials-intermediate>` and
       :ref:`Advanced <tutorials-advanced>` tutorials
       have explanatory material
@@ -87,16 +83,18 @@ Learning resources
 
 
 
+********************
 Third-party packages
---------------------
+********************
 
 There are many `Third-party packages
 <https://matplotlib.org/mpl-third-party/>`_ built on top of and extending
 Matplotlib.
 
 
+************
 Contributing
-------------
+************
 
 Matplotlib is a community project maintained for and by its users.  There are many ways
 you can help!
@@ -104,9 +102,3 @@ you can help!
 - Help other users `on discourse <https://discourse.matplotlib.org>`__
 - report a bug or request a feature `on GitHub <https://github.com/matplotlib/matplotlib/issues>`__
 - or improve the :ref:`documentation and code <developers-guide-index>`
-
-
-Site map
---------
-
-The :ref:`complete contents of the docs <complete_sitemap>`.

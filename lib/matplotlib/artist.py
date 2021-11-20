@@ -1295,27 +1295,37 @@ class Artist:
                                  if isinstance(item, Number))
             return "[" + data_str + "]"
 
-    @property
-    def mouseover(self):
+    def get_mouseover(self):
         """
-        If this property is set to *True*, the artist will be queried for
-        custom context information when the mouse cursor moves over it.
-
-        See also :meth:`get_cursor_data`, :class:`.ToolCursorPosition` and
-        :class:`.NavigationToolbar2`.
+        Return whether this artist is queried for custom context information
+        when the mouse cursor moves over it.
         """
         return self._mouseover
 
-    @mouseover.setter
-    def mouseover(self, val):
-        val = bool(val)
-        self._mouseover = val
+    def set_mouseover(self, mouseover):
+        """
+        Set whether this artist is queried for custom context information when
+        the mouse cursor moves over it.
+
+        Parameters
+        ----------
+        mouseover : bool
+
+        See Also
+        --------
+        get_cursor_data
+        .ToolCursorPosition
+        .NavigationToolbar2
+        """
+        self._mouseover = bool(mouseover)
         ax = self.axes
         if ax:
-            if val:
+            if self._mouseover:
                 ax._mouseover_set.add(self)
             else:
                 ax._mouseover_set.discard(self)
+
+    mouseover = property(get_mouseover, set_mouseover)  # backcompat.
 
 
 def _get_tightbbox_for_layout_only(obj, *args, **kwargs):

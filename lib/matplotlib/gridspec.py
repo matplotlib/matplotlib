@@ -306,13 +306,12 @@ class GridSpecBase:
                     self[row, col], **subplot_kw)
 
         # turn off redundant tick labeling
-        if all(ax.name == "rectilinear" for ax in axarr.flat):
-            if sharex in ["col", "all"]:
-                for ax in axarr.flat:
-                    ax._label_outer_xaxis()
-            if sharey in ["row", "all"]:
-                for ax in axarr.flat:
-                    ax._label_outer_yaxis()
+        if sharex in ["col", "all"]:
+            for ax in axarr.flat:
+                ax._label_outer_xaxis(check_patch=True)
+        if sharey in ["row", "all"]:
+            for ax in axarr.flat:
+                ax._label_outer_yaxis(check_patch=True)
 
         if squeeze:
             # Discarding unneeded dimensions that equal 1.  If we only have one

@@ -1,16 +1,12 @@
 name: Bug Report
-description: Report a bug or issue with Matplotlib
+description: Report a bug or issue with Matplotlib.
 title: "[Bug]: "
 body:
-  - type: markdown
-    attributes:
-      value: |
-        To help us understand and resolve your issue, please fill out the form to the best of your ability. 
   - type: textarea
     id: summary
     attributes:
       label: Bug summary
-      description: Please provide 1-2 short sentences that succinctly describes the bug
+      description:  Describe the bug in 1-2 short sentences 
       placeholder: 
       value:
     validations:
@@ -28,63 +24,62 @@ body:
     id: actual
     attributes:
       label: Actual outcome
-      description: Please provide the output produced by the above code, which may be a screenshot, console output, etc. 
-      placeholder: if applicable, paste the console output and images here
+      description: |
+        Paste the output produced by the code provided above, e.g.
+        console output, images/videos produced by the code, any relevant screenshots/screencasts, etc.
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
       label: Expected outcome
-      description: Please provide a description (or visual example) of the expected outcome from the code snippet. If this used to work in an earlier version of Matplotlib, please note the version it used to work on
+      description: Describe (or provide a visual example of) the expected outcome from the code snippet.
     validations:
       required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Additional information
+      description: |
+        - What are the conditions under which this bug happens? input parameters, edge cases, etc?
+        - Has this worked in earlier versions?
+        - Do you know why this bug is happening?
+        - Do you maybe even know a fix?
   - type: input
     id: operating-system
     attributes:
       label: Operating system
-      description: What operating system are you using?
-      placeholder: Windows, OS/X, Arch, Debian, Ubuntu, etc.  
+      description: Windows, OS/X, Arch, Debian, Ubuntu, etc.
   - type: input
     id: matplotlib-version
     attributes:
       label: Matplotlib Version
-      placeholder: import matplotlib; print(matplotlib.__version__)
+      description: "From Python prompt: `import matplotlib; print(matplotlib.__version__)`"
     validations:
       required: true
   - type: input
     id: matplotlib-backend
     attributes: 
       label: Matplotlib Backend
-      placeholder: print(matplotlib.get_backend())
+      description: "From Python prompt: `import matplotlib; print(matplotlib.get_backend())`"
   - type: input
     id: python-version
     attributes:
       label: Python version
-      placeholder: python --version
+      description: "In console: `python --version`"
   - type: input
     id: jupyter-version
     attributes:
       label: Jupyter version
-      placeholder: jupyter notebook --version, jupyter lab --version
-  - type: textarea
-    id: other-libraries
-    attributes:
-      label: Other libraries
-      description: please provide the versions of any other libraries that are relevant to this bug report.
+      description: "In console: `jupyter notebook --version` or `jupyter lab --version`"
   - type: dropdown
     id: install
     attributes:
       label: Installation
-      description: how did you install matplotlib?
+      description: How did you install matplotlib?
       options:
         - pip
         - conda
-        - Linux package manager (Debian/Fedora/etc.)
-        - source
-  - type: input
-    id: conda-channel
-    attributes:
-      label: Conda channel
-      description: If you installed from conda, please specify which channel you used if not the default?
-      placeholder: conda-forge
+        - Linux package manager
+        - from source (.tar.gz)
+        - git checkout

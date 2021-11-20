@@ -205,7 +205,7 @@ def update_matplotlibrc(path):
         idx for idx, line in enumerate(template_lines)
         if "#backend:" in line]
     template_lines[backend_line_idx] = (
-        "#backend: {}".format(setupext.options["backend"])
+        "#backend: {}\n".format(setupext.options["backend"])
         if setupext.options["backend"]
         else "##backend: Agg")
     path.write_text("".join(template_lines))
@@ -319,7 +319,7 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         "numpy>=1.17",
         "packaging>=20.0",
         "pillow>=6.2.0",
-        "pyparsing>=2.2.1",
+        "pyparsing>=2.2.1,<3.0.0",
         "python-dateutil>=2.7",
     ] + (
         # Installing from a git checkout.

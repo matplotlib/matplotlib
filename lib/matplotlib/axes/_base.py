@@ -1103,7 +1103,7 @@ class _AxesBase(martist.Artist):
             a.set_transform(self.transData)
 
         a.axes = self
-        if a.mouseover:
+        if a.get_mouseover():
             self._mouseover_set.add(a)
 
     def _gen_axes_patch(self):
@@ -1877,7 +1877,7 @@ class _AxesBase(martist.Artist):
             return
 
         trans = self.get_figure().transSubfigure
-        bb = mtransforms.Bbox.from_bounds(0, 0, 1, 1).transformed(trans)
+        bb = mtransforms.Bbox.unit().transformed(trans)
         # this is the physical aspect of the panel (or figure):
         fig_aspect = bb.height / bb.width
 
@@ -2618,14 +2618,13 @@ class _AxesBase(martist.Artist):
         """
         Set padding of X data limits prior to autoscaling.
 
-        *m* times the data interval will be added to each
-        end of that interval before it is used in autoscaling.
-        For example, if your data is in the range [0, 2], a factor of
-        ``m = 0.1`` will result in a range [-0.2, 2.2].
+        *m* times the data interval will be added to each end of that interval
+        before it is used in autoscaling.  If *m* is negative, this will clip
+        the data range instead of expanding it.
 
-        Negative values -0.5 < m < 0 will result in clipping of the data range.
-        I.e. for a data range [0, 2], a factor of ``m = -0.1`` will result in
-        a range [0.2, 1.8].
+        For example, if your data is in the range [0, 2], a margin of 0.1 will
+        result in a range [-0.2, 2.2]; a margin of -0.1 will result in a range
+        of [0.2, 1.8].
 
         Parameters
         ----------
@@ -2641,14 +2640,13 @@ class _AxesBase(martist.Artist):
         """
         Set padding of Y data limits prior to autoscaling.
 
-        *m* times the data interval will be added to each
-        end of that interval before it is used in autoscaling.
-        For example, if your data is in the range [0, 2], a factor of
-        ``m = 0.1`` will result in a range [-0.2, 2.2].
+        *m* times the data interval will be added to each end of that interval
+        before it is used in autoscaling.  If *m* is negative, this will clip
+        the data range instead of expanding it.
 
-        Negative values -0.5 < m < 0 will result in clipping of the data range.
-        I.e. for a data range [0, 2], a factor of ``m = -0.1`` will result in
-        a range [0.2, 1.8].
+        For example, if your data is in the range [0, 2], a margin of 0.1 will
+        result in a range [-0.2, 2.2]; a margin of -0.1 will result in a range
+        of [0.2, 1.8].
 
         Parameters
         ----------
@@ -4215,8 +4213,8 @@ class _AxesBase(martist.Artist):
         """
         Set the navigation toolbar button status.
 
-        .. warning ::
-            this is not a user-API function.
+        .. warning::
+            This is not a user-API function.
 
         """
         self._navigate_mode = b

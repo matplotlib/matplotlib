@@ -1,5 +1,7 @@
 .. _license:
 
+.. redirect-from:: /users/license
+
 *******
 License
 *******
@@ -44,5 +46,5 @@ control logs.
 License agreement
 =================
 
-.. literalinclude:: ../../LICENSE/LICENSE
+.. literalinclude:: ../../../LICENSE/LICENSE
    :language: none

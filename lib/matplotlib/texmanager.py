@@ -29,7 +29,6 @@ import subprocess
 from tempfile import TemporaryDirectory
 
 import numpy as np
-from packaging.version import parse as parse_version
 
 import matplotlib as mpl
 from matplotlib import _api, cbook, dviread, rcParams
@@ -258,16 +257,19 @@ class TexManager:
         basefile = self.get_basefile(tex, fontsize)
         dvifile = '%s.dvi' % basefile
         if not os.path.exists(dvifile):
-            texfile = self.make_tex(tex, fontsize)
+            texfile = Path(self.make_tex(tex, fontsize))
             # Generate the dvi in a temporary directory to avoid race
             # conditions e.g. if multiple processes try to process the same tex
             # string at the same time.  Having tmpdir be a subdirectory of the
             # final output dir ensures that they are on the same filesystem,
-            # and thus replace() works atomically.
+            # and thus replace() works atomically.  It also allows referring to
+            # the texfile with a relative path (for pathological MPLCONFIGDIRs,
+            # the absolute path may contain characters (e.g. ~) that TeX does
+            # not support.)
             with TemporaryDirectory(dir=Path(dvifile).parent) as tmpdir:
                 self._run_checked_subprocess(
                     ["latex", "-interaction=nonstopmode", "--halt-on-error",
-                     texfile], tex, cwd=tmpdir)
+                     f"../{texfile.name}"], tex, cwd=tmpdir)
                 (Path(tmpdir) / Path(dvifile).name).replace(dvifile)
         return dvifile
 
@@ -288,9 +290,8 @@ class TexManager:
             # dvipng 1.16 has a bug (fixed in f3ff241) that breaks --freetype0
             # mode, so for it we keep FreeType enabled; the image will be
             # slightly off.
-            bad_ver = parse_version("1.16")
-            if (getattr(mpl, "_called_from_pytest", False)
-                    and mpl._get_executable_info("dvipng").version != bad_ver):
+            if (getattr(mpl, "_called_from_pytest", False) and
+                    mpl._get_executable_info("dvipng").raw_version != "1.16"):
                 cmd.insert(1, "--freetype0")
             self._run_checked_subprocess(cmd, tex)
         return pngfile

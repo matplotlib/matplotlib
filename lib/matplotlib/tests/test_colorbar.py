@@ -543,14 +543,15 @@ def test_colorbar_renorm():
     assert np.isclose(cbar.vmax, z.max() * 1000)
 
 
-def test_colorbar_format():
+@pytest.mark.parametrize('fmt', ['%4.2e', '{x:.2e}'])
+def test_colorbar_format(fmt):
     # make sure that format is passed properly
     x, y = np.ogrid[-4:4:31j, -4:4:31j]
     z = 120000*np.exp(-x**2 - y**2)
 
     fig, ax = plt.subplots()
     im = ax.imshow(z)
-    cbar = fig.colorbar(im, format='%4.2e')
+    cbar = fig.colorbar(im, format=fmt)
     fig.canvas.draw()
     assert cbar.ax.yaxis.get_ticklabels()[4].get_text() == '8.00e+04'
 
@@ -608,6 +609,7 @@ def test_colorbar_inverted_ticks():
     cbar.minorticks_on()
     ticks = cbar.get_ticks()
     minorticks = cbar.get_ticks(minor=True)
+    assert isinstance(minorticks, np.ndarray)
     cbar.ax.invert_yaxis()
     np.testing.assert_allclose(ticks, cbar.get_ticks())
     np.testing.assert_allclose(minorticks, cbar.get_ticks(minor=True))
