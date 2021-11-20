@@ -1146,16 +1146,21 @@ class Colorbar:
             return (Y, X, extendlen)
 
     def _forward_boundaries(self, x):
+        # map boundaries equally between 0 and 1...
         b = self._boundaries
-        y = np.interp(x, b, np.linspace(0, b[-1], len(b)))
+        y = np.interp(x, b, np.linspace(0, 1, len(b)))
+        # the following avoids ticks in the extends:
         eps = (b[-1] - b[0]) * 1e-6
+        # map these _well_ out of bounds to keep any ticks out
+        # of the extends region...
         y[x < b[0]-eps] = -1
         y[x > b[-1]+eps] = 2
         return y
 
     def _inverse_boundaries(self, x):
+        # invert the above...
         b = self._boundaries
-        return np.interp(x, np.linspace(0, b[-1], len(b)), b)
+        return np.interp(x, np.linspace(0, 1, len(b)), b)
 
     def _reset_locator_formatter_scale(self):
         """
