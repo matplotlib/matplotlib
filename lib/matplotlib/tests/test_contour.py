@@ -305,8 +305,12 @@ def test_clabel_zorder(use_clabeltext, contour_zorder, clabel_zorder):
         assert clabel.get_zorder() == expected_clabel_zorder
 
 
+# tol because ticks happen to fall on pixel boundaries so small
+# floating point changes in tick location flip which pixel gets
+# the tick.
 @image_comparison(['contour_log_extension.png'],
-                  remove_text=True, style='mpl20')
+                  remove_text=True, style='mpl20',
+                  tol=1.444)
 def test_contourf_log_extension():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
