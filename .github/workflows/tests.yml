@@ -14,6 +14,7 @@ env:
 
 jobs:
   test:
+    if: "github.repository == 'matplotlib/matplotlib' && !contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip github]')"
     name: "Python ${{ matrix.python-version }} on ${{ matrix.os }} ${{ matrix.name-suffix }}"
     runs-on: ${{ matrix.os }}
 
@@ -249,7 +250,7 @@ jobs:
         run: |
           ${{ matrix.XVFB_RUN }} python -mpytest -raR -n auto \
             --maxfail=50 --timeout=300 --durations=25 \
-            --cov-report=xml --cov=lib --log-level=DEBUG
+            --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
       - name: Filter C coverage
         run: |
