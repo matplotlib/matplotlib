@@ -790,8 +790,6 @@ class Colorbar:
         xy[[2, 3], 1] += fac
         # back to axes units...
         xy = self.ax.transAxes.inverted().transform(inches.transform(xy))
-        if self.orientation == 'horizontal':
-            xy = xy.T
         col.set_clip_path(mpath.Path(xy, closed=True),
                           self.ax.transAxes)
         self.ax.add_collection(col)
