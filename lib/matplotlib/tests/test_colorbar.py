@@ -185,6 +185,17 @@ def test_colorbar_positioning(use_gridspec):
                  anchor=(0.8, 0.5), shrink=0.6, use_gridspec=use_gridspec)
 
 
+@image_comparison(['contour_colorbar.png'], remove_text=True)
+def test_contour_colorbar():
+    fig, ax = plt.subplots(figsize=(4, 2))
+    data = np.arange(1200).reshape(30, 40) - 500
+    levels = np.array([0, 200, 400, 600, 800, 1000, 1200]) - 500
+
+    CS = ax.contour(data, levels=levels, extend='both')
+    fig.colorbar(CS, orientation='horizontal', extend='both')
+    fig.colorbar(CS, orientation='vertical')
+
+
 @image_comparison(['cbar_with_subplots_adjust.png'], remove_text=True,
                   savefig_kwarg={'dpi': 40})
 def test_gridspec_make_colorbar():
