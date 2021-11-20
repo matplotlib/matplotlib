@@ -8,9 +8,8 @@ The rotation is enabled or disable by striking the *r* key
 *selector.add_state('rotate')*.
 
 The aspect ratio of the axes can now be taken into account when using the
-"square" state. This can be enable or disable by striking the *d* key
-(default value of 'data_coordinates' in *state_modifier_keys*)
-or by calling *selector.add_state('rotate')*.
+"square" state. This is enable by specifying *use_data_coordinates='True'* when
+the selector is initialized.
 
 In addition to changing selector state interactively using the modifier keys
 defined in *state_modifier_keys*, the selector state can now be changed
@@ -29,12 +28,12 @@ programmatically using the *add_state* and *remove_state* method.
     ax = fig.add_subplot()
     ax.plot(values, values)
 
-    selector = RectangleSelector(ax, print, interactive=True, drag_from_anywhere=True)
+    selector = RectangleSelector(ax, print, interactive=True,
+                                 drag_from_anywhere=True,
+                                 use_data_coordinates=True)
     selector.add_state('rotate') # alternatively press 'r' key
     # rotate the selector interactively
 
     selector.remove_state('rotate') # alternatively press 'r' key
 
     selector.add_state('square')
-    # to keep the aspect ratio in data coordinates
-    selector.add_state('data_coordinates')

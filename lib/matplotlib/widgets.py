@@ -1801,7 +1801,7 @@ class MultiCursor(Widget):
 class _SelectorWidget(AxesWidget):
 
     def __init__(self, ax, onselect, useblit=False, button=None,
-                 state_modifier_keys=None):
+                 state_modifier_keys=None, use_data_coordinates=False):
         super().__init__(ax)
 
         self.visible = True
@@ -1811,9 +1811,9 @@ class _SelectorWidget(AxesWidget):
 
         self._state_modifier_keys = dict(move=' ', clear='escape',
                                          square='shift', center='control',
-                                         data_coordinates='d',
                                          rotate='r')
         self._state_modifier_keys.update(state_modifier_keys or {})
+        self._use_data_coordinates = use_data_coordinates
 
         self.background = None
 
@@ -1999,17 +1999,15 @@ class _SelectorWidget(AxesWidget):
                 return
             for (state, modifier) in self._state_modifier_keys.items():
                 if modifier in key.split('+'):
-                    # 'rotate' and 'data_coordinates' are changing _state on
-                    # press and are not removed from _state when releasing
-                    if state in ['rotate', 'data_coordinates']:
+                    # 'rotate' is changing _state on press and is not removed
+                    # from _state when releasing
+                    if state == 'rotate':
                         if state in self._state:
                             self._state.discard(state)
                         else:
                             self._state.add(state)
                     else:
                         self._state.add(state)
-                    if 'data_coordinates' in state:
-                        self._set_aspect_ratio_correction()
             self._on_key_press(event)
 
     def _on_key_press(self, event):
@@ -2019,12 +2017,10 @@ class _SelectorWidget(AxesWidget):
         """Key release event handler and validator."""
         if self.active:
             key = event.key or ''
-            key = key.replace('ctrl', 'control')
             for (state, modifier) in self._state_modifier_keys.items():
-                # 'rotate' and 'data_coordinates' are changing _state on
-                # press and are not removed from _state when releasing
-                if (modifier in key.split('+') and
-                        state not in ['rotate', 'data_coordinates']):
+                # 'rotate' is changing _state on press and is not removed
+                # from _state when releasing
+                if modifier in key.split('+') and state != 'rotate':
                     self._state.discard(state)
             self._on_key_release(event)
 
@@ -2236,7 +2232,6 @@ class SpanSelector(_SelectorWidget):
             state_modifier_keys = dict(clear='escape',
                                        square='not-applicable',
                                        center='not-applicable',
-                                       data_coordinates='not-applicable',
                                        rotate='not-applicable')
         super().__init__(ax, onselect, useblit=useblit, button=button,
                          state_modifier_keys=state_modifier_keys)
@@ -2811,13 +2806,11 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         - "clear": Clear the current shape, default: "escape".
         - "square": Make the shape square, default: "shift".
         - "center": change the shape around its center, default: "ctrl".
-        - "data_coordinates": define if data or figure coordinates should be
-          used to define the square shape, default: "d"
         - "rotate": Rotate the shape around its center, default: "r".
 
         "square" and "center" can be combined. The square shape can be defined
-        in data or figure coordinates as determined by the ``data_coordinates``
-        modifier, which can be enable and disable by pressing the 'd' key.
+        in data or figure coordinates as determined by the
+        ``use_data_coordinates`` argument specified when creating the selector.
 
     drag_from_anywhere : bool, default: False
         If `True`, the widget can be moved by clicking anywhere within
@@ -2826,6 +2819,10 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     ignore_event_outside : bool, default: False
         If `True`, the event triggered outside the span selector will be
         ignored.
+
+    use_data_coordinates : bool, default: False
+        If `True`, the "square" shape of the selector is defined in
+        data coordinates instead of figure coordinates.
 
     """
 
@@ -2871,9 +2868,11 @@ class RectangleSelector(_SelectorWidget):
                  lineprops=None, props=None, spancoords='data',
                  button=None, grab_range=10, handle_props=None,
                  interactive=False, state_modifier_keys=None,
-                 drag_from_anywhere=False, ignore_event_outside=False):
+                 drag_from_anywhere=False, ignore_event_outside=False,
+                 use_data_coordinates=False):
         super().__init__(ax, onselect, useblit=useblit, button=button,
-                         state_modifier_keys=state_modifier_keys)
+                         state_modifier_keys=state_modifier_keys,
+                         use_data_coordinates=use_data_coordinates)
 
         self.visible = True
         self._interactive = interactive
@@ -3076,7 +3075,7 @@ class RectangleSelector(_SelectorWidget):
         # refmax is used when moving the corner handle with the square state
         # and is the maximum between refx and refy
         refmax = None
-        if 'data_coordinates' in state:
+        if self._use_data_coordinates:
             refx, refy = dx, dy
         else:
             # Add 1e-6 to avoid divided by zero error
@@ -3213,7 +3212,7 @@ class RectangleSelector(_SelectorWidget):
             return
 
         self._selection_artist._aspect_ratio_correction = aspect_ratio
-        if 'data_coordinates' in self._state:
+        if self._use_data_coordinates:
             self._aspect_ratio_correction = 1
         else:
             self._aspect_ratio_correction = aspect_ratio
@@ -3581,7 +3580,6 @@ class PolygonSelector(_SelectorWidget):
                                    move_all='shift', move='not-applicable',
                                    square='not-applicable',
                                    center='not-applicable',
-                                   data_coordinates='not-applicable',
                                    rotate='not-applicable')
         super().__init__(ax, onselect, useblit=useblit,
                          state_modifier_keys=state_modifier_keys)

@@ -190,7 +190,6 @@ def test_rectangle_add_state():
     tool.add_state('move')
     tool.add_state('square')
     tool.add_state('center')
-    tool.add_state('data_coordinates')
 
 
 @pytest.mark.parametrize('add_state', [True, False])
@@ -466,48 +465,49 @@ def test_rectange_add_remove_set():
     do_event(tool, 'release', xdata=130, ydata=140)
     assert tool.extents == (100, 130, 100, 140)
     assert len(tool._state) == 0
-    for state in ['rotate', 'data_coordinates', 'square', 'center']:
+    for state in ['rotate', 'square', 'center']:
         tool.add_state(state)
         assert len(tool._state) == 1
         tool.remove_state(state)
         assert len(tool._state) == 0
 
 
-def test_rectangle_resize_square_center_aspect():
+@pytest.mark.parametrize('use_data_coordinates', [False, True])
+def test_rectangle_resize_square_center_aspect(use_data_coordinates):
     ax = get_ax()
     ax.set_aspect(0.8)
 
     def onselect(epress, erelease):
         pass
 
-    tool = widgets.RectangleSelector(ax, onselect, interactive=True)
+    tool = widgets.RectangleSelector(ax, onselect, interactive=True,
+                                     use_data_coordinates=use_data_coordinates)
     # Create rectangle
     _resize_rectangle(tool, 70, 65, 120, 115)
+    assert tool.extents == (70.0, 120.0, 65.0, 115.0)
     tool.add_state('square')
     tool.add_state('center')
-    assert tool.extents == (70.0, 120.0, 65.0, 115.0)
 
-    # resize E handle
-    extents = tool.extents
-    xdata, ydata = extents[1], extents[3]
-    xdiff = 10
-    xdata_new, ydata_new = xdata + xdiff, ydata
-    ychange = xdiff * 1 / tool._aspect_ratio_correction
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
-    assert_allclose(tool.extents, [extents[0] - xdiff, xdata_new,
-                                   46.25, 133.75])
-
-    # use data coordinates
-    do_event(tool, 'on_key_press', key='d')
-    # resize E handle
-    extents = tool.extents
-    xdata, ydata, width = extents[1], extents[3], extents[1] - extents[0]
-    xdiff, ycenter = 10,  extents[2] + (extents[3] - extents[2]) / 2
-    xdata_new, ydata_new = xdata + xdiff, ydata
-    ychange = width / 2 + xdiff
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
-    assert_allclose(tool.extents, [extents[0] - xdiff, xdata_new,
-                                   ycenter - ychange, ycenter + ychange])
+    if use_data_coordinates:
+        # resize E handle
+        extents = tool.extents
+        xdata, ydata, width = extents[1], extents[3], extents[1] - extents[0]
+        xdiff, ycenter = 10,  extents[2] + (extents[3] - extents[2]) / 2
+        xdata_new, ydata_new = xdata + xdiff, ydata
+        ychange = width / 2 + xdiff
+        _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+        assert_allclose(tool.extents, [extents[0] - xdiff, xdata_new,
+                                       ycenter - ychange, ycenter + ychange])
+    else:
+        # resize E handle
+        extents = tool.extents
+        xdata, ydata = extents[1], extents[3]
+        xdiff = 10
+        xdata_new, ydata_new = xdata + xdiff, ydata
+        ychange = xdiff * 1 / tool._aspect_ratio_correction
+        _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+        assert_allclose(tool.extents, [extents[0] - xdiff, xdata_new,
+                                       46.25, 133.75])
 
 
 def test_ellipse():
