@@ -15,13 +15,13 @@
 #if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
 #define COMPILING_FOR_10_7
 #endif
-#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 101000
-#define COMPILING_FOR_10_10
-#endif
 
+/* Renamed symbols cause deprecation warnings, so define macros for the new
+ * names if we are compiling on an older SDK */
+#if __MAC_OS_X_VERSION_MIN_REQUIRED < 101000
+#define NSModalResponseOK                    NSOKButton
+#endif
 #if __MAC_OS_X_VERSION_MIN_REQUIRED < 101200
-/* A lot of symbols were renamed in Sierra and cause deprecation warnings
-   so define macros for the new names if we are compiling on an older SDK */
 #define NSEventMaskAny                       NSAnyEventMask
 #define NSEventTypeApplicationDefined        NSApplicationDefined
 #define NSEventModifierFlagCommand           NSCommandKeyMask
@@ -45,9 +45,7 @@
 #define NSWindowStyleMaskResizable           NSResizableWindowMask
 #define NSWindowStyleMaskTitled              NSTitledWindowMask
 #endif
-
 #if __MAC_OS_X_VERSION_MIN_REQUIRED < 101400
-/* A few more deprecations in Mojave */
 #define NSButtonTypeMomentaryLight           NSMomentaryLightButton
 #define NSButtonTypePushOnPushOff            NSPushOnPushOffButton
 #define NSBezelStyleShadowlessSquare         NSShadowlessSquareBezelStyle
@@ -96,7 +94,8 @@ static void _sigint_callback(CFSocketRef s,
     CFRunLoopStop(runloop);
 }
 
-static CGEventRef _eventtap_callback(CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon)
+static CGEventRef _eventtap_callback(
+    CGEventTapProxy proxy, CGEventType type, CGEventRef event, void *refcon)
 {
     CFRunLoopRef runloop = refcon;
     CFRunLoopStop(runloop);
@@ -121,8 +120,8 @@ static int wait_for_stdin(void)
 #ifdef PYOSINPUTHOOK_REPETITIVE
     if (!CFReadStreamHasBytesAvailable(stream))
     /* This is possible because of how PyOS_InputHook is called from Python */
-    {
 #endif
+    {
         int error;
         int channel[2];
         CFSocketRef sigint_socket = NULL;
@@ -135,8 +134,7 @@ static int wait_for_stdin(void)
                               &clientContext);
         CFReadStreamScheduleWithRunLoop(stream, runloop, kCFRunLoopDefaultMode);
         error = socketpair(AF_UNIX, SOCK_STREAM, 0, channel);
-        if (error==0)
-        {
+        if (!error) {
             CFSocketContext context;
             context.version = 0;
             context.info = &interrupted;
@@ -150,15 +148,11 @@ static int wait_for_stdin(void)
                 kCFSocketReadCallBack,
                 _sigint_callback,
                 &context);
-            if (sigint_socket)
-            {
-                CFRunLoopSourceRef source;
-                source = CFSocketCreateRunLoopSource(kCFAllocatorDefault,
-                                                     sigint_socket,
-                                                     0);
+            if (sigint_socket) {
+                CFRunLoopSourceRef source = CFSocketCreateRunLoopSource(
+                    kCFAllocatorDefault, sigint_socket, 0);
                 CFRelease(sigint_socket);
-                if (source)
-                {
+                if (source) {
                     CFRunLoopAddSource(runloop, source, kCFRunLoopDefaultMode);
                     CFRelease(source);
                     sigint_fd = channel[0];
@@ -174,25 +168,22 @@ static int wait_for_stdin(void)
                                            untilDate: [NSDate distantPast]
                                               inMode: NSDefaultRunLoopMode
                                              dequeue: YES];
-                if (!event) break;
+                if (!event) { break; }
                 [NSApp sendEvent: event];
             }
             CFRunLoopRun();
-            if (interrupted || CFReadStreamHasBytesAvailable(stream)) break;
+            if (interrupted || CFReadStreamHasBytesAvailable(stream)) { break; }
         }
 
-        if (py_sigint_handler) PyOS_setsig(SIGINT, py_sigint_handler);
-        CFReadStreamUnscheduleFromRunLoop(stream,
-                                          runloop,
-                                          kCFRunLoopCommonModes);
-        if (sigint_socket) CFSocketInvalidate(sigint_socket);
-        if (error==0) {
+        if (py_sigint_handler) { PyOS_setsig(SIGINT, py_sigint_handler); }
+        CFReadStreamUnscheduleFromRunLoop(
+            stream, runloop, kCFRunLoopCommonModes);
+        if (sigint_socket) { CFSocketInvalidate(sigint_socket); }
+        if (!error) {
             close(channel[0]);
             close(channel[1]);
         }
-#ifdef PYOSINPUTHOOK_REPETITIVE
     }
-#endif
     CFReadStreamClose(stream);
     CFRelease(stream);
     if (interrupted) {
@@ -272,9 +263,7 @@ static int wait_for_stdin(void)
 static bool backend_inited = false;
 
 static void lazy_init(void) {
-    if (backend_inited) {
-        return;
-    }
+    if (backend_inited) { return; }
     backend_inited = true;
 
     NSApp = [NSApplication sharedApplication];
@@ -321,7 +310,7 @@ FigureCanvas_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     lazy_init();
     FigureCanvas *self = (FigureCanvas*)type->tp_alloc(type, 0);
-    if (!self) return NULL;
+    if (!self) { return NULL; }
     self->view = [View alloc];
     return (PyObject*)self;
 }
@@ -331,13 +320,11 @@ FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
 {
     int width;
     int height;
-    if(!self->view)
-    {
+    if (!self->view) {
         PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return -1;
     }
-
-    if(!PyArg_ParseTuple(args, "ii", &width, &height)) return -1;
+    if (!PyArg_ParseTuple(args, "ii", &width, &height)) { return -1; }
 
     NSRect rect = NSMakeRect(0.0, 0.0, width, height);
     self->view = [self->view initWithFrame: rect];
@@ -356,8 +343,7 @@ FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
 static void
 FigureCanvas_dealloc(FigureCanvas* self)
 {
-    if (self->view)
-    {
+    if (self->view) {
         [self->view setCanvas: NULL];
         [self->view release];
     }
@@ -375,12 +361,9 @@ static PyObject*
 FigureCanvas_draw(FigureCanvas* self)
 {
     View* view = self->view;
-
-    if(view) /* The figure may have been closed already */
-    {
+    if (view) {  /* The figure may have been closed already */
         [view display];
     }
-
     Py_RETURN_NONE;
 }
 
@@ -388,8 +371,7 @@ static PyObject*
 FigureCanvas_draw_idle(FigureCanvas* self)
 {
     View* view = self->view;
-    if(!view)
-    {
+    if (!view) {
         PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return NULL;
     }
@@ -401,8 +383,7 @@ static PyObject*
 FigureCanvas_flush_events(FigureCanvas* self)
 {
     View* view = self->view;
-    if(!view)
-    {
+    if (!view) {
         PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return NULL;
     }
@@ -416,35 +397,28 @@ FigureCanvas_set_rubberband(FigureCanvas* self, PyObject *args)
     View* view = self->view;
     int x0, y0, x1, y1;
     NSRect rubberband;
-    if(!view)
-    {
+    if (!view) {
         PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return NULL;
     }
-    if(!PyArg_ParseTuple(args, "iiii", &x0, &y0, &x1, &y1)) return NULL;
+    if (!PyArg_ParseTuple(args, "iiii", &x0, &y0, &x1, &y1)) { return NULL; }
 
     x0 /= view->device_scale;
     x1 /= view->device_scale;
     y0 /= view->device_scale;
     y1 /= view->device_scale;
 
-    if (x1 > x0)
-    {
+    if (x1 > x0) {
         rubberband.origin.x = x0;
         rubberband.size.width = x1 - x0;
-    }
-    else
-    {
+    } else {
         rubberband.origin.x = x1;
         rubberband.size.width = x0 - x1;
     }
-    if (y1 > y0)
-    {
+    if (y1 > y0) {
         rubberband.origin.y = y0;
         rubberband.size.height = y1 - y0;
-    }
-    else
-    {
+    } else {
         rubberband.origin.y = y1;
         rubberband.size.height = y0 - y1;
     }
@@ -457,8 +431,7 @@ static PyObject*
 FigureCanvas_remove_rubberband(FigureCanvas* self)
 {
     View* view = self->view;
-    if(!view)
-    {
+    if (!view) {
         PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return NULL;
     }
@@ -472,8 +445,9 @@ FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keyw
     float timeout = 0.0;
 
     static char* kwlist[] = {"timeout", NULL};
-    if(!PyArg_ParseTupleAndKeywords(args, keywords, "f", kwlist, &timeout))
+    if (!PyArg_ParseTupleAndKeywords(args, keywords, "f", kwlist, &timeout)) {
         return NULL;
+    }
 
     int error;
     int interrupted = 0;
@@ -484,8 +458,7 @@ FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keyw
     CFRunLoopRef runloop = CFRunLoopGetCurrent();
 
     error = pipe(channel);
-    if (error==0)
-    {
+    if (!error) {
         CFSocketContext context = {0, NULL, NULL, NULL, NULL};
         fcntl(channel[1], F_SETFL, O_WRONLY | O_NONBLOCK);
 
@@ -495,15 +468,11 @@ FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keyw
                                                  kCFSocketReadCallBack,
                                                  _sigint_callback,
                                                  &context);
-        if (sigint_socket)
-        {
-            CFRunLoopSourceRef source;
-            source = CFSocketCreateRunLoopSource(kCFAllocatorDefault,
-                                                 sigint_socket,
-                                                 0);
+        if (sigint_socket) {
+            CFRunLoopSourceRef source = CFSocketCreateRunLoopSource(
+                kCFAllocatorDefault, sigint_socket, 0);
             CFRelease(sigint_socket);
-            if (source)
-            {
+            if (source) {
                 CFRunLoopAddSource(runloop, source, kCFRunLoopDefaultMode);
                 CFRelease(source);
                 sigint_fd = channel[1];
@@ -522,15 +491,14 @@ FigureCanvas_start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keyw
                                             untilDate: date
                                                inMode: NSDefaultRunLoopMode
                                               dequeue: YES];
-       if (!event || [event type]==NSEventTypeApplicationDefined) break;
+       if (!event || [event type]==NSEventTypeApplicationDefined) { break; }
        [NSApp sendEvent: event];
     }
 
-    if (py_sigint_handler) PyOS_setsig(SIGINT, py_sigint_handler);
-
-    if (sigint_socket) CFSocketInvalidate(sigint_socket);
-    if (error==0) close(channel[1]);
-    if (interrupted) raise(SIGINT);
+    if (py_sigint_handler) { PyOS_setsig(SIGINT, py_sigint_handler); }
+    if (sigint_socket) { CFSocketInvalidate(sigint_socket); }
+    if (!error) { close(channel[1]); }
+    if (interrupted) { raise(SIGINT); }
 
     Py_RETURN_NONE;
 }
@@ -644,10 +612,9 @@ FigureManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     lazy_init();
     Window* window = [Window alloc];
-    if (!window) return NULL;
+    if (!window) { return NULL; }
     FigureManager *self = (FigureManager*)type->tp_alloc(type, 0);
-    if (!self)
-    {
+    if (!self) {
         [window release];
         return NULL;
     }
@@ -667,27 +634,25 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     PyObject* obj;
     FigureCanvas* canvas;
 
-    if(!self->window)
-    {
+    if (!self->window) {
         PyErr_SetString(PyExc_RuntimeError, "NSWindow* is NULL");
         return -1;
     }
 
-    if(!PyArg_ParseTuple(args, "O", &obj)) return -1;
+    if (!PyArg_ParseTuple(args, "O", &obj)) { return -1; }
 
     canvas = (FigureCanvas*)obj;
     view = canvas->view;
-    if (!view) /* Something really weird going on */
-    {
+    if (!view) { /* Something really weird going on */
         PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return -1;
     }
 
     size = PyObject_CallMethod(obj, "get_width_height", "");
-    if(!size) return -1;
-    if(!PyArg_ParseTuple(size, "ii", &width, &height))
-    {    Py_DECREF(size);
-         return -1;
+    if (!size) { return -1; }
+    if (!PyArg_ParseTuple(size, "ii", &width, &height)) {
+        Py_DECREF(size);
+        return -1;
     }
     Py_DECREF(size);
 
@@ -724,8 +689,7 @@ static void
 FigureManager_dealloc(FigureManager* self)
 {
     Window* window = self->window;
-    if(window)
-    {
+    if (window) {
         [window close];
     }
     Py_TYPE(self)->tp_free((PyObject*)self);
@@ -735,8 +699,7 @@ static PyObject*
 FigureManager_show(FigureManager* self)
 {
     Window* window = self->window;
-    if(window)
-    {
+    if (window) {
         [window makeKeyAndOrderFront: nil];
         [window orderFrontRegardless];
     }
@@ -747,8 +710,7 @@ static PyObject*
 FigureManager_destroy(FigureManager* self)
 {
     Window* window = self->window;
-    if(window)
-    {
+    if (window) {
         [window close];
         self->window = NULL;
     }
@@ -764,8 +726,7 @@ FigureManager_set_window_title(FigureManager* self,
         return NULL;
     }
     Window* window = self->window;
-    if(window)
-    {
+    if (window) {
         NSString* ns_title = [[[NSString alloc]
                                initWithCString: title
                                encoding: NSUTF8StringEncoding] autorelease];
@@ -779,8 +740,7 @@ FigureManager_get_window_title(FigureManager* self)
 {
     Window* window = self->window;
     PyObject* result = NULL;
-    if(window)
-    {
+    if (window) {
         NSString* title = [window title];
         if (title) {
             const char* cTitle = [title UTF8String];
@@ -802,8 +762,7 @@ FigureManager_resize(FigureManager* self, PyObject *args, PyObject *kwds)
         return NULL;
     }
     Window* window = self->window;
-    if(window)
-    {
+    if (window) {
         CGFloat device_pixel_ratio = [window backingScaleFactor];
         width /= device_pixel_ratio;
         height /= device_pixel_ratio;
@@ -926,8 +885,8 @@ typedef struct {
         NSButton* button = buttons[i];
         [button setTarget: self];
         [button setAction: action];
-        if (action==@selector(pan:)) panbutton = button;
-        if (action==@selector(zoom:)) zoombutton = button;
+        if (action==@selector(pan:)) { panbutton = button; }
+        if (action==@selector(zoom:)) { zoombutton = button; }
     }
 }
 
@@ -936,7 +895,7 @@ typedef struct {
     PyGILState_STATE gstate;
     gstate = PyGILState_Ensure();
     result = PyObject_CallMethod(toolbar, "home", "");
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -948,7 +907,7 @@ typedef struct {
     PyGILState_STATE gstate;
     gstate = PyGILState_Ensure();
     result = PyObject_CallMethod(toolbar, "back", "");
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -960,7 +919,7 @@ typedef struct {
     PyGILState_STATE gstate;
     gstate = PyGILState_Ensure();
     result = PyObject_CallMethod(toolbar, "forward", "");
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -976,7 +935,7 @@ typedef struct {
     }
     gstate = PyGILState_Ensure();
     result = PyObject_CallMethod(toolbar, "pan", "");
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -992,7 +951,7 @@ typedef struct {
     }
     gstate = PyGILState_Ensure();
     result = PyObject_CallMethod(toolbar, "zoom", "");
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -1017,7 +976,7 @@ typedef struct {
         return;
     }
     canvas = PyObject_CallMethod(toolbar, "prepare_configure_subplots", "");
-    if(!canvas)
+    if (!canvas)
     {
         PyErr_Print();
         Py_DECREF(master);
@@ -1038,7 +997,7 @@ typedef struct {
 
     size = PyObject_CallMethod(canvas, "get_width_height", "");
     Py_DECREF(canvas);
-    if(!size)
+    if (!size)
     {
         PyErr_Print();
         Py_DECREF(master);
@@ -1075,7 +1034,7 @@ typedef struct {
     PyGILState_STATE gstate;
     gstate = PyGILState_Ensure();
     result = PyObject_CallMethod(toolbar, "save_figure", "");
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -1088,10 +1047,9 @@ NavigationToolbar2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     lazy_init();
     NavigationToolbar2Handler* handler = [NavigationToolbar2Handler alloc];
-    if (!handler) return NULL;
+    if (!handler) { return NULL; }
     NavigationToolbar2 *self = (NavigationToolbar2*)type->tp_alloc(type, 0);
-    if (!self)
-    {
+    if (!self) {
         [handler release];
         return NULL;
     }
@@ -1118,21 +1076,18 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     self->height = height;
 
     obj = PyObject_GetAttrString((PyObject*)self, "canvas");
-    if (obj==NULL)
-    {
+    if (!obj) {
         PyErr_SetString(PyExc_AttributeError, "Attempt to install toolbar for NULL canvas");
         return -1;
     }
     Py_DECREF(obj); /* Don't increase the reference count */
-    if (!PyObject_IsInstance(obj, (PyObject*) &FigureCanvasType))
-    {
+    if (!PyObject_IsInstance(obj, (PyObject*) &FigureCanvasType)) {
         PyErr_SetString(PyExc_TypeError, "Attempt to install toolbar for object that is not a FigureCanvas");
         return -1;
     }
     canvas = (FigureCanvas*)obj;
     view = canvas->view;
-    if(!view)
-    {
+    if (!view) {
         PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return -1;
     }
@@ -1257,12 +1212,11 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
 {
     const char* message;
 
-    if(!PyArg_ParseTuple(args, "y", &message)) return NULL;
+    if (!PyArg_ParseTuple(args, "y", &message)) { return NULL; }
 
     NSTextView* messagebox = self->messagebox;
 
-    if (messagebox)
-    {
+    if (messagebox) {
         NSString* text = [NSString stringWithUTF8String: message];
         [messagebox setString: text];
 
@@ -1352,12 +1306,7 @@ choose_save_file(PyObject* unused, PyObject* args)
     [panel setNameFieldStringValue: ns_default_filename];
     result = [panel runModal];
     [ns_default_filename release];
-#ifdef COMPILING_FOR_10_10
-    if (result == NSModalResponseOK)
-#else
-    if (result == NSOKButton)
-#endif
-    {
+    if (result == NSModalResponseOK) {
         NSURL* url = [panel URL];
         NSString* filename = [url path];
         if (!filename) {
@@ -1378,7 +1327,7 @@ static PyObject*
 set_cursor(PyObject* unused, PyObject* args)
 {
     int i;
-    if(!PyArg_ParseTuple(args, "i", &i)) return NULL;
+    if (!PyArg_ParseTuple(args, "i", &i)) { return NULL; }
     switch (i) {
       case 1: [[NSCursor arrowCursor] set]; break;
       case 2: [[NSCursor pointingHandCursor] set]; break;
@@ -1398,8 +1347,7 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
 
 + (WindowServerConnectionManager *)sharedManager
 {
-    if (sharedWindowServerConnectionManager == nil)
-    {
+    if (sharedWindowServerConnectionManager == nil) {
         sharedWindowServerConnectionManager = [[super allocWithZone:NULL] init];
     }
     return sharedWindowServerConnectionManager;
@@ -1441,8 +1389,8 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
     CFMachPortRef port;
     CFRunLoopSourceRef source;
     NSDictionary* dictionary = [notification userInfo];
-    if (! [[dictionary valueForKey:@"NSApplicationName"]
-           isEqualToString:@"Python"])
+    if (![[dictionary valueForKey:@"NSApplicationName"]
+          isEqualToString:@"Python"])
         return;
     NSNumber* psnLow = [dictionary valueForKey: @"NSApplicationProcessSerialNumberLow"];
     NSNumber* psnHigh = [dictionary valueForKey: @"NSApplicationProcessSerialNumberHigh"];
@@ -1492,7 +1440,7 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
     PyGILState_STATE gstate;
     gstate = PyGILState_Ensure();
     result = PyObject_CallMethod(manager, "close", "");
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -1571,7 +1519,7 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
 - (void)dealloc
 {
     FigureCanvas* fc = (FigureCanvas*)canvas;
-    if (fc) fc->view = NULL;
+    if (fc) { fc->view = NULL; }
     [super dealloc];
 }
 
@@ -1721,7 +1669,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject* result = PyObject_CallMethod(
             canvas, "resize", "ii", width, height);
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -1736,7 +1684,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
     gstate = PyGILState_Ensure();
     result = PyObject_CallMethod(canvas, "close_event", "");
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -1756,10 +1704,10 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
                                            data1: 0
                                            data2: 0];
     [NSApp postEvent: event atStart: true];
-    if ([window respondsToSelector: @selector(closeButtonPressed)])
-    { BOOL closed = [((Window*) window) closeButtonPressed];
-      /* If closed, the window has already been closed via the manager. */
-      if (closed) return NO;
+    if ([window respondsToSelector: @selector(closeButtonPressed)]) {
+        BOOL closed = [((Window*) window) closeButtonPressed];
+        /* If closed, the window has already been closed via the manager. */
+        if (closed) { return NO; }
     }
     return YES;
 }
@@ -1779,7 +1727,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     result = PyObject_CallMethod(canvas, "enter_notify_event", "O(ii)",
             Py_None, x, y);
 
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -1793,7 +1741,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
     gstate = PyGILState_Ensure();
     result = PyObject_CallMethod(canvas, "leave_notify_event", "");
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -1837,7 +1785,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     }
     gstate = PyGILState_Ensure();
     result = PyObject_CallMethod(canvas, "button_press_event", "iiii", x, y, num, dblclick);
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -1867,7 +1815,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     }
     gstate = PyGILState_Ensure();
     result = PyObject_CallMethod(canvas, "button_release_event", "iii", x, y, num);
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -1884,7 +1832,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     y = location.y * device_scale;
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject* result = PyObject_CallMethod(canvas, "motion_notify_event", "ii", x, y);
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -1901,7 +1849,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     y = location.y * device_scale;
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject* result = PyObject_CallMethod(canvas, "motion_notify_event", "ii", x, y);
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -1918,19 +1866,17 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
 - (void)setRubberband:(NSRect)rect
 {
-    if (!NSIsEmptyRect(rubberband)) [self setNeedsDisplayInRect: rubberband];
+    if (!NSIsEmptyRect(rubberband)) { [self setNeedsDisplayInRect: rubberband]; }
     rubberband = rect;
     [self setNeedsDisplayInRect: rubberband];
 }
 
 - (void)removeRubberband
 {
-    if (NSIsEmptyRect(rubberband)) return;
+    if (NSIsEmptyRect(rubberband)) { return; }
     [self setNeedsDisplayInRect: rubberband];
     rubberband = NSZeroRect;
 }
-
-
 
 - (const char*)convertKeyEvent:(NSEvent*)event
 {
@@ -1976,18 +1922,22 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
                                         ];
 
     NSMutableString* returnkey = [NSMutableString string];
-    if ([event modifierFlags] & NSEventModifierFlagControl)
+    if ([event modifierFlags] & NSEventModifierFlagControl) {
         [returnkey appendString:@"ctrl+" ];
-    if ([event modifierFlags] & NSEventModifierFlagOption)
+    }
+    if ([event modifierFlags] & NSEventModifierFlagOption) {
         [returnkey appendString:@"alt+" ];
-    if ([event modifierFlags] & NSEventModifierFlagCommand)
+    }
+    if ([event modifierFlags] & NSEventModifierFlagCommand) {
         [returnkey appendString:@"cmd+" ];
+    }
 
     unichar uc = [[event charactersIgnoringModifiers] characterAtIndex:0];
     NSString* specialchar = [specialkeymappings objectForKey:[NSNumber numberWithUnsignedLong:uc]];
-    if (specialchar){
-        if ([event modifierFlags] & NSEventModifierFlagShift)
+    if (specialchar) {
+        if ([event modifierFlags] & NSEventModifierFlagShift) {
             [returnkey appendString:@"shift+" ];
+        }
         [returnkey appendString:specialchar];
     }
     else
@@ -2001,15 +1951,12 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     PyObject* result;
     const char* s = [self convertKeyEvent: event];
     PyGILState_STATE gstate = PyGILState_Ensure();
-    if (s==NULL)
-    {
+    if (!s) {
         result = PyObject_CallMethod(canvas, "key_press_event", "O", Py_None);
-    }
-    else
-    {
+    } else {
         result = PyObject_CallMethod(canvas, "key_press_event", "s", s);
     }
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -2022,15 +1969,12 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     PyObject* result;
     const char* s = [self convertKeyEvent: event];
     PyGILState_STATE gstate = PyGILState_Ensure();
-    if (s==NULL)
-    {
+    if (!s) {
         result = PyObject_CallMethod(canvas, "key_release_event", "O", Py_None);
-    }
-    else
-    {
+    } else {
         result = PyObject_CallMethod(canvas, "key_release_event", "s", s);
     }
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -2042,8 +1986,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 {
     int step;
     float d = [event deltaY];
-    if (d > 0) step = 1;
-    else if (d < 0) step = -1;
+    if (d > 0) { step = 1; }
+    else if (d < 0) { step = -1; }
     else return;
     NSPoint location = [event locationInWindow];
     NSPoint point = [self convertPoint: location fromView: nil];
@@ -2053,7 +1997,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     PyObject* result;
     PyGILState_STATE gstate = PyGILState_Ensure();
     result = PyObject_CallMethod(canvas, "scroll_event", "iii", x, y, step);
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -2081,7 +2025,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     else return;
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject* result = PyObject_CallMethod(canvas, "key_press_event", "s", &s);
-    if(result)
+    if (result)
         Py_DECREF(result);
     else
         PyErr_Print();
@@ -2117,7 +2061,7 @@ Timer_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
 {
     lazy_init();
     Timer* self = (Timer*)type->tp_alloc(type, 0);
-    if (!self) return NULL;
+    if (!self) { return NULL; }
     self->timer = NULL;
     return (PyObject*) self;
 }
@@ -2335,8 +2279,9 @@ PyObject* PyInit__macosx(void)
         return NULL;
 
     module = PyModule_Create(&moduledef);
-    if (!module)
+    if (!module) {
         return NULL;
+    }
 
     Py_INCREF(&FigureCanvasType);
     Py_INCREF(&FigureManagerType);
