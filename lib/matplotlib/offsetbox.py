@@ -1066,29 +1066,21 @@ class AnchoredOffsetbox(OffsetBox):
         if renderer is None:
             renderer = self.figure._get_renderer()
 
-        self._update_offset_func(renderer)
-        w, h, xd, yd = self.get_extent(renderer)
-        ox, oy = self.get_offset(w, h, xd, yd, renderer)
-        return Bbox.from_bounds(ox - xd, oy - yd, w, h)
-
-    def _update_offset_func(self, renderer, fontsize=None):
-        """
-        Update the offset func which depends on the dpi of the
-        renderer (because of the padding).
-        """
-        if fontsize is None:
-            fontsize = renderer.points_to_pixels(
-                self.prop.get_size_in_points())
+        # Update the offset func, which depends on the dpi of the renderer
+        # (because of the padding).
+        fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
 
         def _offset(w, h, xd, yd, renderer):
             bbox = Bbox.from_bounds(0, 0, w, h)
-            borderpad = self.borderpad * fontsize
+            pad = self.borderpad * fontsize
             bbox_to_anchor = self.get_bbox_to_anchor()
-            x0, y0 = _get_anchored_bbox(
-                self.loc, bbox, bbox_to_anchor, borderpad)
+            x0, y0 = _get_anchored_bbox(self.loc, bbox, bbox_to_anchor, pad)
             return x0 + xd, y0 + yd
 
         self.set_offset(_offset)
+        w, h, xd, yd = self.get_extent(renderer)
+        ox, oy = self.get_offset(w, h, xd, yd, renderer)
+        return Bbox.from_bounds(ox - xd, oy - yd, w, h)
 
     def update_frame(self, bbox, fontsize=None):
         self.patch.set_bounds(bbox.bounds)
@@ -1100,11 +1092,9 @@ class AnchoredOffsetbox(OffsetBox):
         if not self.get_visible():
             return
 
-        fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
-        self._update_offset_func(renderer, fontsize)
-
         # update the location and size of the legend
         bbox = self.get_window_extent(renderer)
+        fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
         self.update_frame(bbox, fontsize)
         self.patch.draw(renderer)
 
