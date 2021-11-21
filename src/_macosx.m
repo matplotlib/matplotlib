@@ -400,34 +400,20 @@ static PyObject*
 FigureCanvas_set_rubberband(FigureCanvas* self, PyObject *args)
 {
     View* view = self->view;
-    int x0, y0, x1, y1;
-    NSRect rubberband;
     if (!view) {
         PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return NULL;
     }
-    if (!PyArg_ParseTuple(args, "iiii", &x0, &y0, &x1, &y1)) { return NULL; }
-
+    int x0, y0, x1, y1;
+    if (!PyArg_ParseTuple(args, "iiii", &x0, &y0, &x1, &y1)) {
+        return NULL;
+    }
     x0 /= view->device_scale;
     x1 /= view->device_scale;
     y0 /= view->device_scale;
     y1 /= view->device_scale;
-
-    if (x1 > x0) {
-        rubberband.origin.x = x0;
-        rubberband.size.width = x1 - x0;
-    } else {
-        rubberband.origin.x = x1;
-        rubberband.size.width = x0 - x1;
-    }
-    if (y1 > y0) {
-        rubberband.origin.y = y0;
-        rubberband.size.height = y1 - y0;
-    } else {
-        rubberband.origin.y = y1;
-        rubberband.size.height = y0 - y1;
-    }
-
+    NSRect rubberband = NSMakeRect(x0 < x1 ? x0 : x1, y0 < y1 ? y0 : y1,
+                                   abs(x1 - x0), abs(y1 - y0));
     [view setRubberband: rubberband];
     Py_RETURN_NONE;
 }
@@ -586,35 +572,26 @@ FigureManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
 {
-    NSRect rect;
-    Window* window;
-    View* view;
-    PyObject* size;
-    int width, height;
-    PyObject* obj;
-    FigureCanvas* canvas;
+    PyObject* canvas;
+    if (!PyArg_ParseTuple(args, "O", &canvas)) {
+        return -1;
+    }
 
-    if (!PyArg_ParseTuple(args, "O", &obj)) { return -1; }
-
-    canvas = (FigureCanvas*)obj;
-    view = canvas->view;
-    if (!view) { /* Something really weird going on */
+    View* view = ((FigureCanvas*)canvas)->view;
+    if (!view) {  /* Something really weird going on */
         PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return -1;
     }
 
-    size = PyObject_CallMethod(obj, "get_width_height", "");
-    if (!size) { return -1; }
-    if (!PyArg_ParseTuple(size, "ii", &width, &height)) {
-        Py_DECREF(size);
+    PyObject* size = PyObject_CallMethod(canvas, "get_width_height", "");
+    int width, height;
+    if (!size || !PyArg_ParseTuple(size, "ii", &width, &height)) {
+        Py_XDECREF(size);
         return -1;
     }
     Py_DECREF(size);
 
-    rect.origin.x = 100;
-    rect.origin.y = 350;
-    rect.size.height = height;
-    rect.size.width = width;
+    NSRect rect = NSMakeRect( /* x */ 100, /* y */ 350, height, width);
 
     self->window = [self->window initWithContentRect: rect
                                          styleMask: NSWindowStyleMaskTitled
@@ -624,7 +601,7 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
                                            backing: NSBackingStoreBuffered
                                              defer: YES
                                        withManager: (PyObject*)self];
-    window = self->window;
+    Window* window = self->window;
     [window setDelegate: view];
     [window makeFirstResponder: view];
     [[window contentView] addSubview: view];
