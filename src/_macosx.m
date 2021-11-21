@@ -1727,73 +1727,51 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 // so we need to handle both cases here
 - (void)flagsChanged:(NSEvent *)event
 {
-    bool keypress = false;
-    bool keyrelease = false;
-    if (([event modifierFlags] & NSEventModifierFlagCommand) && !lastCommand) {
-        // Command pressed
-        lastCommand = true;
+    bool isPress = false; // true if key is pressed, false is released
+    if ((([event modifierFlags] & NSEventModifierFlagCommand) && !lastCommand) ||
+        (!([event modifierFlags] & NSEventModifierFlagCommand) && lastCommand)) {
+        // Command pressed/released
+        lastCommand = !lastCommand;
         keyChangeCommand = true;
-        keypress = true;
+        isPress = lastCommand;
     }
-    else if (!([event modifierFlags] & NSEventModifierFlagCommand) && lastCommand) {
-        // Command released
-        lastCommand = false;
-        keyChangeCommand = true;
-        keyrelease = true;
-    }
-    else if (([event modifierFlags] & NSEventModifierFlagControl) && !lastControl) {
-        // Control pressed
-        lastControl = true;
+    else if ((([event modifierFlags] & NSEventModifierFlagControl) && !lastControl) ||
+             (!([event modifierFlags] & NSEventModifierFlagControl) && lastControl)) {
+        // Control pressed/released
+        lastControl = !lastControl;
         keyChangeControl = true;
-        keypress = true;
+        isPress = lastControl;
     }
-    else if (!([event modifierFlags] & NSEventModifierFlagControl) && lastControl) {
-        // Control released
-        lastControl = false;
-        keyChangeControl = true;
-        keyrelease = true;
-    }
-    else if (([event modifierFlags] & NSEventModifierFlagShift) && !lastShift) {
-        // Shift pressed
-        lastShift = true;
+    else if ((([event modifierFlags] & NSEventModifierFlagShift) && !lastShift) ||
+             (!([event modifierFlags] & NSEventModifierFlagShift) && lastShift)) {
+        // Shift pressed/released
+        lastShift = !lastShift;
         keyChangeShift = true;
-        keypress = true;
+        isPress = lastShift;
     }
-    else if (!([event modifierFlags] & NSEventModifierFlagShift) && lastShift) {
-        // Shift released
-        lastShift = false;
-        keyChangeShift = true;
-        keyrelease = true;
-    }
-    else if (([event modifierFlags] & NSEventModifierFlagOption) && !lastOption) {
-        // Option pressed
-        lastOption = true;
+    else if ((([event modifierFlags] & NSEventModifierFlagOption) && !lastOption) ||
+             (!([event modifierFlags] & NSEventModifierFlagOption) && lastOption)) {
+        // Option pressed/released
+        lastOption = !lastOption;
         keyChangeOption = true;
-        keypress = true;
+        isPress = lastOption;
     }
-    else if (!([event modifierFlags] & NSEventModifierFlagOption) && lastOption) {
-        // Option released
-        lastOption = false;
-        keyChangeOption = true;
-        keyrelease = true;
-    }
-    else if (([event modifierFlags] & NSEventModifierFlagCapsLock) && !lastCapsLock) {
-        // Capslock pressed
-        lastCapsLock = true;
+    else if ((([event modifierFlags] & NSEventModifierFlagCapsLock) && !lastCapsLock) ||
+             (!([event modifierFlags] & NSEventModifierFlagCapsLock) && lastCapsLock)) {
+        // Capslock pressed/released
+        lastCapsLock = !lastCapsLock;
         keyChangeCapsLock = true;
-        keypress = true;
+        isPress = lastCapsLock;
     }
-    else if (!([event modifierFlags] & NSEventModifierFlagCapsLock) && lastCapsLock) {
-        // Capslock released
-        lastCapsLock = false;
-        keyChangeCapsLock = true;
-        keyrelease = true;
+    else{
+        // flag we don't handle
+        return;
     }
 
-    if (keypress) {
+    if (isPress) {
         [self keyDown: event];
     }
-    else if (keyrelease) {
+    else {
         [self keyUp: event];
     }
 
