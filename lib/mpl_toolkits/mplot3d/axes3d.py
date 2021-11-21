@@ -428,12 +428,15 @@ class Axes3D(Axes):
                     # deprecation has expired.
                     return artist.do_3d_projection()
 
-                _api.warn_deprecated(
-                    "3.4",
-                    message="The 'renderer' parameter of "
-                    "do_3d_projection() was deprecated in Matplotlib "
-                    "%(since)s and will be removed %(removal)s.")
-                return artist.do_3d_projection(renderer)
+                try:
+                    return artist.do_3d_projection()
+                except TypeError:
+                    _api.warn_deprecated(
+                        "3.4",
+                        message="The 'renderer' parameter of "
+                        "do_3d_projection() was deprecated in Matplotlib "
+                        "%(since)s and will be removed %(removal)s.")
+                    return artist.do_3d_projection(renderer)
 
             collections_and_patches = (
                 artist for artist in self._children

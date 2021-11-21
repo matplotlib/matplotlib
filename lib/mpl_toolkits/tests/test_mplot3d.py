@@ -1711,3 +1711,49 @@ def test_view_init_vertical_axis(
         tickdir_expected = tickdirs_expected[i]
         tickdir_actual = axis._get_tickdir()
         np.testing.assert_array_equal(tickdir_expected, tickdir_actual)
+
+
+def test_do_3d_projection_renderer_deprecation_warn():
+    from matplotlib.patches import FancyArrowPatch
+    class Arrow3D(FancyArrowPatch):
+        def __init__(self, xs, ys, zs, *args, **kwargs):
+            super().__init__((0, 0), (0, 0), *args, **kwargs)
+            self._verts3d = xs, ys, zs
+
+        def do_3d_projection(self, render):
+            xs3d, ys3d, zs3d = self._verts3d
+            xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, self.axes.M)
+            self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
+
+            return np.min(zs)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    arrow_prop_dict = dict(mutation_scale=20, arrowstyle='-|>', color='k')
+    a = Arrow3D([0, 10], [0, 0], [0, 0], **arrow_prop_dict)
+    ax.add_artist(a)
+
+    with pytest.warns(MatplotlibDeprecationWarning):
+        fig.canvas.draw()
+
+
+def test_do_3d_projection_renderer_deprecation_nowarn():
+    from matplotlib.patches import FancyArrowPatch
+    class Arrow3D(FancyArrowPatch):
+        def __init__(self, xs, ys, zs, *args, **kwargs):
+            super().__init__((0, 0), (0, 0), *args, **kwargs)
+            self._verts3d = xs, ys, zs
+
+        def do_3d_projection(self):
+            xs3d, ys3d, zs3d = self._verts3d
+            xs, ys, zs = proj3d.proj_transform(xs3d, ys3d, zs3d, self.axes.M)
+            self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
+
+            return np.min(zs)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    arrow_prop_dict = dict(mutation_scale=20, arrowstyle='-|>', color='k')
+    a = Arrow3D([0, 10], [0, 0], [0, 0], **arrow_prop_dict)
+    ax.add_artist(a)
+    fig.canvas.draw()
