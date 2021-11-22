@@ -893,11 +893,8 @@ class RangeSlider(SliderBase):
         ----------
         val : tuple or array-like of float
         """
-        val = np.sort(np.asanyarray(val))
-        if val.shape != (2,):
-            raise ValueError(
-                f"val must have shape (2,) but has shape {val.shape}"
-            )
+        val = np.sort(val)
+        _api.check_shape((2,), val=val)
         val[0] = self._min_in_bounds(val[0])
         val[1] = self._max_in_bounds(val[1])
         xy = self.poly.xy
