@@ -1,6 +1,7 @@
 from collections import namedtuple
 import datetime
 from decimal import Decimal
+from functools import partial
 import io
 from itertools import product
 import platform
@@ -7289,7 +7290,13 @@ def test_empty_line_plots():
 
 def test_clim():
     ax = plt.figure().add_subplot()
-    for plot_method in [ax.imshow, ax.pcolor, ax.pcolormesh, ax.pcolorfast]:
+    for plot_method in [
+            partial(ax.scatter, range(3), range(3), c=range(3)),
+            partial(ax.imshow, [[0, 1], [2, 3]]),
+            partial(ax.pcolor,  [[0, 1], [2, 3]]),
+            partial(ax.pcolormesh, [[0, 1], [2, 3]]),
+            partial(ax.pcolorfast, [[0, 1], [2, 3]]),
+    ]:
         clim = (7, 8)
-        norm = plot_method([[0, 1], [2, 3]], clim=clim).norm
+        norm = plot_method(clim=clim).norm
         assert (norm.vmin, norm.vmax) == clim

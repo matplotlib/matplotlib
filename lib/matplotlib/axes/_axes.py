@@ -4422,13 +4422,12 @@ default: :rc:`scatter.edgecolors`
                 alpha=alpha
                 )
         collection.set_transform(mtransforms.IdentityTransform())
-        collection.update(kwargs)
-
         if colors is None:
             collection.set_array(c)
             collection.set_cmap(cmap)
             collection.set_norm(norm)
             collection._scale_norm(norm, vmin, vmax)
+        collection.update(kwargs)
 
         # Classic mode only:
         # ensure there are margins to allow for the
