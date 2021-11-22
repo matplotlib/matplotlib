@@ -714,10 +714,11 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         else:
             key = None
 
-        for meth, prefix, key_name in (
-                [event.ControlDown, 'ctrl', 'control'],
-                [event.AltDown, 'alt', 'alt'],
-                [event.ShiftDown, 'shift', 'shift'],):
+        for meth, prefix, key_name in [
+                (event.ControlDown, 'ctrl', 'control'),
+                (event.AltDown, 'alt', 'alt'),
+                (event.ShiftDown, 'shift', 'shift'),
+        ]:
             if meth() and key_name != key:
                 if not (key_name == 'shift' and key.isupper()):
                     key = '{0}+{1}'.format(prefix, key)

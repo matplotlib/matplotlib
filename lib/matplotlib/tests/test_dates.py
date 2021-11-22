@@ -878,7 +878,7 @@ def _test_date2num_dst(date_range, tz_convert):
     # Interval is 0b0.0000011 days, to prevent float rounding issues
     dtstart = datetime.datetime(2014, 3, 30, 0, 0, tzinfo=UTC)
     interval = datetime.timedelta(minutes=33, seconds=45)
-    interval_days = 0.0234375   # 2025 / 86400 seconds
+    interval_days = interval.seconds / 86400
     N = 8
 
     dt_utc = date_range(start=dtstart, freq=interval, periods=N)

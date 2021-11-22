@@ -356,15 +356,11 @@ class OffsetBox(martist.Artist):
         Update the location of children if necessary and draw them
         to the given *renderer*.
         """
-        width, height, xdescent, ydescent, offsets = self.get_extent_offsets(
-                                                        renderer)
-
-        px, py = self.get_offset(width, height, xdescent, ydescent, renderer)
-
+        w, h, xdescent, ydescent, offsets = self.get_extent_offsets(renderer)
+        px, py = self.get_offset(w, h, xdescent, ydescent, renderer)
         for c, (ox, oy) in zip(self.get_visible_children(), offsets):
             c.set_offset((px + ox, py + oy))
             c.draw(renderer)
-
         bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
         self.stale = False
 
@@ -541,11 +537,8 @@ class PaddedBox(OffsetBox):
 
     def draw(self, renderer):
         # docstring inherited
-        width, height, xdescent, ydescent, offsets = self.get_extent_offsets(
-                                                        renderer)
-
-        px, py = self.get_offset(width, height, xdescent, ydescent, renderer)
-
+        w, h, xdescent, ydescent, offsets = self.get_extent_offsets(renderer)
+        px, py = self.get_offset(w, h, xdescent, ydescent, renderer)
         for c, (ox, oy) in zip(self.get_visible_children(), offsets):
             c.set_offset((px + ox, py + oy))
 
@@ -576,8 +569,7 @@ class DrawingArea(OffsetBox):
     boundaries of the parent.
     """
 
-    def __init__(self, width, height, xdescent=0.,
-                 ydescent=0., clip=False):
+    def __init__(self, width, height, xdescent=0., ydescent=0., clip=False):
         """
         Parameters
         ----------
@@ -1055,8 +1047,7 @@ class AnchoredOffsetbox(OffsetBox):
             if transform is None:
                 return self._bbox_to_anchor
             else:
-                return TransformedBbox(self._bbox_to_anchor,
-                                       transform)
+                return TransformedBbox(self._bbox_to_anchor, transform)
 
     def set_bbox_to_anchor(self, bbox, transform=None):
         """
@@ -1342,22 +1333,12 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
                                        xy,
                                        xycoords=xycoords,
                                        annotation_clip=annotation_clip)
-
         self.offsetbox = offsetbox
-
         self.arrowprops = arrowprops
-
         self.set_fontsize(fontsize)
-
-        if xybox is None:
-            self.xybox = xy
-        else:
-            self.xybox = xybox
-
-        if boxcoords is None:
-            self.boxcoords = xycoords
-        else:
-            self.boxcoords = boxcoords
+        self.xybox = xybox if xybox is not None else xy
+        self.boxcoords = boxcoords if boxcoords is not None else xycoords
+        self._box_alignment = box_alignment
 
         if arrowprops is not None:
             self._arrow_relpos = self.arrowprops.pop("relpos", (0.5, 0.5))
@@ -1367,10 +1348,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
             self._arrow_relpos = None
             self.arrow_patch = None
 
-        self._box_alignment = box_alignment
-
-        # frame
-        self.patch = FancyBboxPatch(
+        self.patch = FancyBboxPatch(  # frame
             xy=(0.0, 0.0), width=1., height=1.,
             facecolor='w', edgecolor='k',
             mutation_scale=self.prop.get_size_in_points(),
@@ -1488,28 +1466,24 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         bbox = self.offsetbox.get_window_extent(renderer)
         self.patch.set_bounds(bbox.bounds)
 
-        x, y = xy_pixel
-
-        ox1, oy1 = x, y
+        ox1, oy1 = xy_pixel
 
         if self.arrowprops:
             d = self.arrowprops.copy()
 
             # Use FancyArrowPatch if self.arrowprops has "arrowstyle" key.
 
-            # adjust the starting point of the arrow relative to
-            # the textbox.
-            # TODO : Rotation needs to be accounted.
+            # Adjust the starting point of the arrow relative to the textbox.
+            # TODO: Rotation needs to be accounted.
             relpos = self._arrow_relpos
 
             ox0 = bbox.x0 + bbox.width * relpos[0]
             oy0 = bbox.y0 + bbox.height * relpos[1]
 
-            # The arrow will be drawn from (ox0, oy0) to (ox1,
-            # oy1). It will be first clipped by patchA and patchB.
-            # Then it will be shrunk by shrinkA and shrinkB
-            # (in points). If patch A is not set, self.bbox_patch
-            # is used.
+            # The arrow will be drawn from (ox0, oy0) to (ox1, oy1).
+            # It will be first clipped by patchA and patchB.
+            # Then it will be shrunk by shrinkA and shrinkB (in points).
+            # If patch A is not set, self.bbox_patch is used.
 
             self.arrow_patch.set_positions((ox0, oy0), (ox1, oy1))
             fs = self.prop.get_size_in_points()

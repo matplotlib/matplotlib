@@ -146,13 +146,13 @@ class CallbackRegistry:
         drink 123
         >>> callbacks.process('eat', 456)
         eat 456
-        >>> callbacks.process('be merry', 456) # nothing will be called
+        >>> callbacks.process('be merry', 456)   # nothing will be called
 
         >>> callbacks.disconnect(id_eat)
-        >>> callbacks.process('eat', 456)      # nothing will be called
+        >>> callbacks.process('eat', 456)        # nothing will be called
 
         >>> with callbacks.blocked(signal='drink'):
-        ...     callbacks.process('drink', 123) # nothing will be called
+        ...     callbacks.process('drink', 123)  # nothing will be called
         >>> callbacks.process('drink', 123)
         drink 123
 
@@ -948,7 +948,7 @@ def delete_masked_points(*args):
             else:
                 x = np.asarray(x)
         margs.append(x)
-    masks = []    # list of masks that are True where good
+    masks = []  # List of masks that are True where good.
     for i, x in enumerate(margs):
         if seqlist[i]:
             if x.ndim > 1:

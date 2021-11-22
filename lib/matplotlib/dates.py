@@ -1224,7 +1224,7 @@ class RRuleLocator(DateLocator):
             return 1.0 / SEC_PER_DAY
         else:
             # error
-            return -1   # or should this just return '1'?
+            return -1  # or should this just return '1'?
 
     def _get_interval(self):
         return self.rule._rrule._interval
@@ -1377,7 +1377,7 @@ class AutoDateLocator(DateLocator):
         # whenever possible.
         numYears = float(delta.years)
         numMonths = numYears * MONTHS_PER_YEAR + delta.months
-        numDays = tdelta.days   # Avoids estimates of days/month, days/year
+        numDays = tdelta.days  # Avoids estimates of days/month, days/year.
         numHours = numDays * HOURS_PER_DAY + delta.hours
         numMinutes = numHours * MIN_PER_HOUR + delta.minutes
         numSeconds = np.floor(tdelta.total_seconds())

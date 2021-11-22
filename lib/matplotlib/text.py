@@ -154,7 +154,7 @@ class Text(Artist):
         self._bbox_patch = None  # a FancyBboxPatch instance
         self._renderer = None
         if linespacing is None:
-            linespacing = 1.2   # Maybe use rcParam later.
+            linespacing = 1.2  # Maybe use rcParam later.
         self._linespacing = linespacing
         self.set_rotation_mode(rotation_mode)
         self.update(kwargs)
@@ -1976,7 +1976,7 @@ class Annotation(Text, _AnnotationBase):
         # FancyArrowPatch is correctly positioned.
         self.update_positions(renderer)
         self.update_bbox_position_size(renderer)
-        if self.arrow_patch is not None:   # FancyArrowPatch
+        if self.arrow_patch is not None:  # FancyArrowPatch
             if self.arrow_patch.figure is None and self.figure is not None:
                 self.arrow_patch.figure = self.figure
             self.arrow_patch.draw(renderer)
