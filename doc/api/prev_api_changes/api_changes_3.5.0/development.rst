@@ -74,7 +74,8 @@ Matplotlib-specific build options moved from ``setup.cfg`` to ``mplsetup.cfg``
 
 In order to avoid conflicting with the use of :file:`setup.cfg` by
 ``setuptools``, the Matplotlib-specific build options have moved from
-``setup.cfg`` to ``mplsetup.cfg``
+``setup.cfg`` to ``mplsetup.cfg``.  The :file:`setup.cfg.template` has been
+correspondingly been renamed to :file:`mplsetup.cfg.template`.
 
 Note that the path to this configuration file can still be set via the
 :envvar:`MPLSETUPCFG` environment variable, which allows one to keep using the
