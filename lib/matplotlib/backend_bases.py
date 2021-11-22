@@ -1640,7 +1640,7 @@ def _check_savefig_extra_args(func=None, extra_kwargs=()):
             if arg in accepted_kwargs:
                 continue
             _api.warn_deprecated(
-                '3.3', name=name,
+                '3.3', name=name, removal='3.6',
                 message='%(name)s() got unexpected keyword argument "'
                         + arg + '" which is no longer supported as of '
                         '%(since)s and will become an error '
