@@ -385,7 +385,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
 
      /PaintProc {{
         pop
-        {linewidth:f} setlinewidth
+        {linewidth:g} setlinewidth
 {self._convert_path(
     Path.hatch(hatch), Affine2D().scale(sidelen), simplify=False)}
         gsave
@@ -395,7 +395,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
      }} bind
    >>
    matrix
-   0.0 {pageheight:f} translate
+   0 {pageheight:g} translate
    makepattern
    /{name} exch def
 """)
@@ -472,9 +472,9 @@ newpath
         self._pswriter.write(f"""\
 gsave
 {self._get_clip_cmd(gc)}
-{x:f} {y:f} translate
+{x:g} {y:g} translate
 [{matrix}] concat
-{xscale:f} {yscale:f} scale
+{xscale:g} {yscale:g} scale
 /DataString {w:d} string def
 {w:d} {h:d} 8 [ {w:d} 0 0 -{h:d} 0 {h:d} ]
 {{
@@ -674,13 +674,13 @@ grestore
         ps_name = (font.postscript_name
                    .encode("ascii", "replace").decode("ascii"))
         self.set_font(ps_name, prop.get_size_in_points())
-        thetext = "\n".join(f"{x:f} 0 m /{name:s} glyphshow"
+        thetext = "\n".join(f"{x:g} 0 m /{name:s} glyphshow"
                             for x, name in xs_names)
         self._pswriter.write(f"""\
 gsave
 {self._get_clip_cmd(gc)}
-{x:f} {y:f} translate
-{angle:f} rotate
+{x:g} {y:g} translate
+{angle:g} rotate
 {thetext}
 grestore
 """)
@@ -695,8 +695,8 @@ grestore
         self.set_color(*gc.get_rgb())
         self._pswriter.write(
             f"gsave\n"
-            f"{x:f} {y:f} translate\n"
-            f"{angle:f} rotate\n")
+            f"{x:g} {y:g} translate\n"
+            f"{angle:g} rotate\n")
         lastfont = None
         for font, fontsize, num, ox, oy in glyphs:
             self._character_tracker.track_glyph(font, num)
@@ -708,7 +708,7 @@ grestore
                 font.get_name_char(chr(num)) if isinstance(font, AFM) else
                 font.get_glyph_name(font.get_char_index(num)))
             self._pswriter.write(
-                f"{ox:f} {oy:f} moveto\n"
+                f"{ox:g} {oy:g} moveto\n"
                 f"/{glyph_name} glyphshow\n")
         for ox, oy, w, h in rects:
             self._pswriter.write(f"{ox} {oy} {w} {h} rectfill\n")
@@ -756,7 +756,7 @@ gsave
    /BitsPerComponent 8
    /BitsPerFlag 8
    /AntiAlias true
-   /Decode [ {xmin:f} {xmax:f} {ymin:f} {ymax:f} 0 1 0 1 0 1 ]
+   /Decode [ {xmin:g} {xmax:g} {ymin:g} {ymax:g} 0 1 0 1 0 1 ]
    /DataSource ({stream})
 >>
 shfill
