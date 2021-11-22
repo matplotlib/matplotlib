@@ -1637,23 +1637,44 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
                                         ];
 
     NSMutableString* returnkey = [NSMutableString string];
-    if ([event modifierFlags] & NSEventModifierFlagControl) {
-        [returnkey appendString:@"ctrl+" ];
+    if (keyChangeControl) {
+        // When control is the key that was pressed, return the full word
+        [returnkey appendString:@"control+"];
+    } else if (([event modifierFlags] & NSEventModifierFlagControl)) {
+        // If control is already pressed, return the shortened version
+        [returnkey appendString:@"ctrl+"];
     }
-    if ([event modifierFlags] & NSEventModifierFlagOption) {
+    if (([event modifierFlags] & NSEventModifierFlagOption) || keyChangeOption) {
         [returnkey appendString:@"alt+" ];
     }
-    if ([event modifierFlags] & NSEventModifierFlagCommand) {
+    if (([event modifierFlags] & NSEventModifierFlagCommand) || keyChangeCommand) {
         [returnkey appendString:@"cmd+" ];
     }
+    // Don't print caps_lock unless it was the key that got pressed
+    if (keyChangeCapsLock) {
+        [returnkey appendString:@"caps_lock+" ];
+    }
 
-    unichar uc = [[event charactersIgnoringModifiers] characterAtIndex:0];
-    NSString* specialchar = [specialkeymappings objectForKey:[NSNumber numberWithUnsignedLong:uc]];
-    if (specialchar) {
-        if ([event modifierFlags] & NSEventModifierFlagShift) {
-            [returnkey appendString:@"shift+" ];
+    // flagsChanged event can't handle charactersIgnoringModifiers
+    // because it was a modifier key that was pressed/released
+    if (event.type != NSEventTypeFlagsChanged) {
+        unichar uc = [[event charactersIgnoringModifiers] characterAtIndex:0];
+        NSString *specialchar = [specialkeymappings objectForKey:[NSNumber numberWithUnsignedLong:uc]];
+        if (specialchar) {
+            if (([event modifierFlags] & NSEventModifierFlagShift) || keyChangeShift) {
+                [returnkey appendString:@"shift+"];
+            }
+            [returnkey appendString:specialchar];
+        } else {
+            [returnkey appendString:[event charactersIgnoringModifiers]];
         }
-        [returnkey appendString:specialchar];
+    } else {
+        if (([event modifierFlags] & NSEventModifierFlagShift) || keyChangeShift) {
+            [returnkey appendString:@"shift+"];
+        }
+        // Since it was a modifier event trim the final character of the string
+        // because we added in "+" earlier
+        [returnkey setString: [returnkey substringToIndex:[returnkey length] - 1]];
     }
 
     return [returnkey UTF8String];
@@ -1727,52 +1748,47 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 // so we need to handle both cases here
 - (void)flagsChanged:(NSEvent *)event
 {
-    bool isPress = false; // true if key is pressed, false is released
-    if ((([event modifierFlags] & NSEventModifierFlagCommand) && !lastCommand) ||
-        (!([event modifierFlags] & NSEventModifierFlagCommand) && lastCommand)) {
+    bool isPress = false; // true if key is pressed, false if key was released
+
+    // Each if clause tests the two cases for each of the keys we can handle
+    // 1. If the modifier flag "command key" is pressed and it was not previously
+    // 2. If the modifier flag "command key" is not pressed and it was previously
+    // !! converts the result of the bitwise & operator to a logical boolean,
+    // which allows us to then bitwise xor (^) the result with a boolean (lastCommand).
+    if (!!([event modifierFlags] & NSEventModifierFlagCommand) ^ lastCommand) {
         // Command pressed/released
         lastCommand = !lastCommand;
         keyChangeCommand = true;
         isPress = lastCommand;
-    }
-    else if ((([event modifierFlags] & NSEventModifierFlagControl) && !lastControl) ||
-             (!([event modifierFlags] & NSEventModifierFlagControl) && lastControl)) {
+    } else if (!!([event modifierFlags] & NSEventModifierFlagControl) ^ lastControl) {
         // Control pressed/released
         lastControl = !lastControl;
         keyChangeControl = true;
         isPress = lastControl;
-    }
-    else if ((([event modifierFlags] & NSEventModifierFlagShift) && !lastShift) ||
-             (!([event modifierFlags] & NSEventModifierFlagShift) && lastShift)) {
+    } else if (!!([event modifierFlags] & NSEventModifierFlagShift) ^ lastShift) {
         // Shift pressed/released
         lastShift = !lastShift;
         keyChangeShift = true;
         isPress = lastShift;
-    }
-    else if ((([event modifierFlags] & NSEventModifierFlagOption) && !lastOption) ||
-             (!([event modifierFlags] & NSEventModifierFlagOption) && lastOption)) {
+    } else if (!!([event modifierFlags] & NSEventModifierFlagOption) ^ lastOption) {
         // Option pressed/released
         lastOption = !lastOption;
         keyChangeOption = true;
         isPress = lastOption;
-    }
-    else if ((([event modifierFlags] & NSEventModifierFlagCapsLock) && !lastCapsLock) ||
-             (!([event modifierFlags] & NSEventModifierFlagCapsLock) && lastCapsLock)) {
+    } else if (!!([event modifierFlags] & NSEventModifierFlagCapsLock) ^ lastCapsLock) {
         // Capslock pressed/released
         lastCapsLock = !lastCapsLock;
         keyChangeCapsLock = true;
         isPress = lastCapsLock;
-    }
-    else{
+    } else {
         // flag we don't handle
         return;
     }
 
     if (isPress) {
-        [self keyDown: event];
-    }
-    else {
-        [self keyUp: event];
+        [self keyDown:event];
+    } else {
+        [self keyUp:event];
     }
 
     // Reset the state for the key changes after handling the event
