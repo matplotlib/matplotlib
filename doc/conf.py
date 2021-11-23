@@ -230,9 +230,9 @@ html_context = {
 
 project = 'Matplotlib'
 copyright = (
-    '2002 - 2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom '
+    '2002–2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom '
     'and the Matplotlib development team; '
-    f'2012 - {sourceyear} The Matplotlib development team'
+    f'2012–{sourceyear} The Matplotlib development team'
 )
 
 
