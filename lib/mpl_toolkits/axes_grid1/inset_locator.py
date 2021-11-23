@@ -579,6 +579,22 @@ def zoomed_inset_axes(parent_axes, zoom, loc='upper right',
     return inset_axes
 
 
+class _TransformedBboxWithCallback(TransformedBbox):
+    """
+    Variant of `.TransformBbox` which calls *callback* before returning points.
+
+    Used by `.mark_inset` to unstale the parent axes' viewlim as needed.
+    """
+
+    def __init__(self, *args, callback, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._callback = callback
+
+    def get_points(self):
+        self._callback()
+        return super().get_points()
+
+
 @docstring.dedent_interpd
 def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
     """
@@ -613,7 +629,9 @@ def mark_inset(parent_axes, inset_axes, loc1, loc2, **kwargs):
     p1, p2 : `matplotlib.patches.Patch`
         The patches connecting two corners of the inset axes and its area.
     """
-    rect = TransformedBbox(inset_axes.viewLim, parent_axes.transData)
+    rect = _TransformedBboxWithCallback(
+        inset_axes.viewLim, parent_axes.transData,
+        callback=parent_axes._unstale_viewLim)
 
     if 'fill' in kwargs:
         pp = BboxPatch(rect, **kwargs)
