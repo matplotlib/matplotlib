@@ -610,13 +610,13 @@ class FreeType(SetupPackage):
         print(f"Building freetype in {src_path}")
         if sys.platform != 'win32':  # compilation on non-windows
             env = {
-                **env,
                 **{
                     var: value
                     for var, value in sysconfig.get_config_vars().items()
                     if var in {"CC", "CFLAGS", "CXX", "CXXFLAGS", "LD",
                                "LDFLAGS"}
                 },
+                **env,
             }
             env["CFLAGS"] = env.get("CFLAGS", "") + " -fPIC"
             configure = [
