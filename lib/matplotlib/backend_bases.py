@@ -3256,9 +3256,24 @@ class NavigationToolbar2:
         self.canvas.draw_idle()
 
     def configure_subplots(self, *args):
+        if hasattr(self, "subplot_tool"):
+            self.subplot_tool.figure.canvas.manager.show()
+            return
         plt = _safe_pyplot_import()
-        self.subplot_tool = plt.subplot_tool(self.canvas.figure)
-        self.subplot_tool.figure.canvas.manager.show()
+        with mpl.rc_context({"toolbar": "none"}):  # No navbar for the toolfig.
+            # Use new_figure_manager() instead of figure() so that the figure
+            # doesn't get registered with pyplot.
+            manager = plt.new_figure_manager(-1, (6, 3))
+        manager.set_window_title("Subplot configuration tool")
+        tool_fig = manager.canvas.figure
+        tool_fig.subplots_adjust(top=0.9)
+        self.subplot_tool = widgets.SubplotTool(self.canvas.figure, tool_fig)
+        tool_fig.canvas.mpl_connect(
+            "close_event", lambda e: delattr(self, "subplot_tool"))
+        self.canvas.mpl_connect(
+            "close_event", lambda e: manager.destroy())
+        manager.show()
+        return self.subplot_tool
 
     def save_figure(self, *args):
         """Save the current figure."""
