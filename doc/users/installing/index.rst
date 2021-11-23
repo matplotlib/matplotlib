@@ -1,10 +1,6 @@
 .. redirect-from:: /installing
+.. redirect-from:: /faq/installing_faq
+.. redirect-from:: installing_source
 
-
-.. toctree::
-   :hidden:
-
-   installing_source.rst
-   ../faq/installing_faq.rst
 
 .. include:: ../../../INSTALL.rst
