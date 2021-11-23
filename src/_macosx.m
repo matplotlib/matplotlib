@@ -212,14 +212,6 @@ static int wait_for_stdin(void)
 - (void)dealloc;
 @end
 
-@interface ToolWindow : NSWindow
-{
-}
-- (ToolWindow*)initWithContentRect:(NSRect)rect master:(NSWindow*)window;
-- (void)masterCloses:(NSNotification*)notification;
-- (void)close;
-@end
-
 @interface View : NSView <NSWindowDelegate>
 {   PyObject* canvas;
     NSRect rubberband;
@@ -959,74 +951,17 @@ typedef struct {
 }
 
 -(void)configure_subplots:(id)sender
-{   PyObject* canvas;
-    View* view;
-    PyObject* size;
-    NSRect rect;
-    int width, height;
-
-    rect.origin.x = 100;
-    rect.origin.y = 350;
-    PyGILState_STATE gstate = PyGILState_Ensure();
-    PyObject* master = PyObject_GetAttrString(toolbar, "canvas");
-    if (master==nil)
-    {
+{
+    PyObject* result;
+    PyGILState_STATE gstate;
+    gstate = PyGILState_Ensure();
+    result = PyObject_CallMethod(toolbar, "configure_subplots", NULL);
+    if (result) {
+        Py_DECREF(result);
+    } else {
         PyErr_Print();
-        PyGILState_Release(gstate);
-        return;
     }
-    canvas = PyObject_CallMethod(toolbar, "prepare_configure_subplots", "");
-    if (!canvas)
-    {
-        PyErr_Print();
-        Py_DECREF(master);
-        PyGILState_Release(gstate);
-        return;
-    }
-
-    view = ((FigureCanvas*)canvas)->view;
-    if (!view) /* Something really weird going on */
-    {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
-        PyErr_Print();
-        Py_DECREF(canvas);
-        Py_DECREF(master);
-        PyGILState_Release(gstate);
-        return;
-    }
-
-    size = PyObject_CallMethod(canvas, "get_width_height", "");
-    Py_DECREF(canvas);
-    if (!size)
-    {
-        PyErr_Print();
-        Py_DECREF(master);
-        PyGILState_Release(gstate);
-        return;
-    }
-
-    int ok = PyArg_ParseTuple(size, "ii", &width, &height);
-    Py_DECREF(size);
-    if (!ok)
-    {
-        PyErr_Print();
-        Py_DECREF(master);
-        PyGILState_Release(gstate);
-        return;
-    }
-
-    NSWindow* mw = [((FigureCanvas*)master)->view window];
-    Py_DECREF(master);
     PyGILState_Release(gstate);
-
-    rect.size.width = width;
-    rect.size.height = height;
-
-    ToolWindow* window = [ [ToolWindow alloc] initWithContentRect: rect
-                                                           master: mw];
-    [window setContentView: view];
-    [view release];
-    [window makeKeyAndOrderFront: nil];
 }
 
 -(void)save_figure:(id)sender
@@ -1452,36 +1387,6 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
      * and is decreased during the call to [super dealloc].
      */
     [super dealloc];
-}
-@end
-
-@implementation ToolWindow
-- (ToolWindow*)initWithContentRect:(NSRect)rect master:(NSWindow*)window
-{
-    [self initWithContentRect: rect
-                    styleMask: NSWindowStyleMaskTitled
-                             | NSWindowStyleMaskClosable
-                             | NSWindowStyleMaskResizable
-                             | NSWindowStyleMaskMiniaturizable
-                      backing: NSBackingStoreBuffered
-                        defer: YES];
-    [self setTitle: @"Subplot Configuration Tool"];
-    [[NSNotificationCenter defaultCenter] addObserver: self
-                                             selector: @selector(masterCloses:)
-                                                 name: NSWindowWillCloseNotification
-                                               object: window];
-    return self;
-}
-
-- (void)masterCloses:(NSNotification*)notification
-{
-    [self close];
-}
-
-- (void)close
-{
-    [[NSNotificationCenter defaultCenter] removeObserver: self];
-    [super close];
 }
 @end
 
