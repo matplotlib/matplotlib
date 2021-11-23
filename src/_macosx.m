@@ -1060,37 +1060,30 @@ NavigationToolbar2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds)
 {
-    PyObject* obj;
     FigureCanvas* canvas;
-    View* view;
-
-    int i;
-    NSRect rect;
-    NSSize size;
-    NSSize scale;
+    const char* images[7];
+    const char* tooltips[7];
 
     const float gap = 2;
     const int height = 36;
     const int imagesize = 24;
 
-    self->height = height;
+    if (!PyArg_ParseTuple(args, "O!(sssssss)(sssssss)",
+                &FigureCanvasType, &canvas,
+                &images[0], &images[1], &images[2], &images[3],
+                &images[4], &images[5], &images[6],
+                &tooltips[0], &tooltips[1], &tooltips[2], &tooltips[3],
+                &tooltips[4], &tooltips[5], &tooltips[6])) {
+        return -1;
+    }
 
-    obj = PyObject_GetAttrString((PyObject*)self, "canvas");
-    if (!obj) {
-        PyErr_SetString(PyExc_AttributeError, "Attempt to install toolbar for NULL canvas");
-        return -1;
-    }
-    Py_DECREF(obj); /* Don't increase the reference count */
-    if (!PyObject_IsInstance(obj, (PyObject*) &FigureCanvasType)) {
-        PyErr_SetString(PyExc_TypeError, "Attempt to install toolbar for object that is not a FigureCanvas");
-        return -1;
-    }
-    canvas = (FigureCanvas*)obj;
-    view = canvas->view;
+    View* view = canvas->view;
     if (!view) {
         PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return -1;
     }
+
+    self->height = height;
 
     NSRect bounds = [view bounds];
     NSWindow* window = [view window];
@@ -1100,16 +1093,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
 
     bounds.size.height += height;
     [window setContentSize: bounds.size];
-
-    const char* images[7];
-    const char* tooltips[7];
-    if (!PyArg_ParseTuple(args, "(sssssss)(sssssss)",
-                &images[0], &images[1], &images[2], &images[3],
-                &images[4], &images[5], &images[6],
-                &tooltips[0], &tooltips[1], &tooltips[2], &tooltips[3],
-                &tooltips[4], &tooltips[5], &tooltips[6])) {
-        return -1;
-    }
 
     NSButton* buttons[7];
     SEL actions[7] = {@selector(home:),
@@ -1127,23 +1110,23 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
                                    NSButtonTypeMomentaryLight,
                                    NSButtonTypeMomentaryLight};
 
-    rect.origin.x = 0;
-    rect.origin.y = 0;
-    rect.size.width = imagesize;
-    rect.size.height = imagesize;
+    NSRect rect;
+    NSSize size;
+    NSSize scale;
+
+    rect = NSMakeRect(0, 0, imagesize, imagesize);
 #ifdef COMPILING_FOR_10_7
     rect = [window convertRectToBacking: rect];
 #endif
     size = rect.size;
-    scale.width = imagesize / size.width;
-    scale.height = imagesize / size.height;
+    scale = NSMakeSize(imagesize / size.width, imagesize / size.height);
 
     rect.size.width = 32;
     rect.size.height = 32;
     rect.origin.x = gap;
     rect.origin.y = 0.5*(height - rect.size.height);
 
-    for (i = 0; i < 7; i++) {
+    for (int i = 0; i < 7; i++) {
         NSString* filename = [NSString stringWithCString: images[i]
                                                 encoding: NSUTF8StringEncoding];
         NSString* tooltip = [NSString stringWithCString: tooltips[i]
