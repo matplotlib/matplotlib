@@ -252,6 +252,20 @@ static int wait_for_stdin(void)
 
 /* ---------------------------- Python classes ---------------------------- */
 
+// Acquire the GIL, call a method with no args, discarding the result and
+// printing any exception.
+static void gil_call_method(PyObject* obj, const char* name)
+{
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    PyObject* result = PyObject_CallMethod(obj, name, NULL);
+    if (result) {
+        Py_DECREF(result);
+    } else {
+        PyErr_Print();
+    }
+    PyGILState_Release(gstate);
+}
+
 static bool backend_inited = false;
 
 static void lazy_init(void) {
@@ -837,13 +851,13 @@ static PyTypeObject FigureManagerType = {
     FigureManager_new,          /* tp_new */
 };
 
-@interface NavigationToolbar2Handler : NSObject
-{   PyObject* toolbar;
+@interface NavigationToolbar2Handler : NSObject {
+    PyObject* toolbar;
     NSButton* panbutton;
     NSButton* zoombutton;
 }
 - (NavigationToolbar2Handler*)initWithToolbar:(PyObject*)toolbar;
-- (void)installCallbacks:(SEL[7])actions forButtons: (NSButton*[7])buttons;
+- (void)installCallbacks:(SEL[7])actions forButtons:(NSButton*[7])buttons;
 - (void)home:(id)sender;
 - (void)back:(id)sender;
 - (void)forward:(id)sender;
@@ -863,118 +877,43 @@ typedef struct {
 
 @implementation NavigationToolbar2Handler
 - (NavigationToolbar2Handler*)initWithToolbar:(PyObject*)theToolbar
-{   [self init];
+{
+    [self init];
     toolbar = theToolbar;
     return self;
 }
 
-- (void)installCallbacks:(SEL[7])actions forButtons: (NSButton*[7])buttons
+- (void)installCallbacks:(SEL[7])actions forButtons:(NSButton*[7])buttons
 {
     int i;
-    for (i = 0; i < 7; i++)
-    {
+    for (i = 0; i < 7; i++) {
         SEL action = actions[i];
         NSButton* button = buttons[i];
         [button setTarget: self];
         [button setAction: action];
-        if (action==@selector(pan:)) { panbutton = button; }
-        if (action==@selector(zoom:)) { zoombutton = button; }
+        if (action == @selector(pan:)) { panbutton = button; }
+        if (action == @selector(zoom:)) { zoombutton = button; }
     }
 }
 
--(void)home:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "home", "");
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
-
--(void)back:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "back", "");
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
-
--(void)forward:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "forward", "");
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
+-(void)home:(id)sender { gil_call_method(toolbar, "home"); }
+-(void)back:(id)sender { gil_call_method(toolbar, "back"); }
+-(void)forward:(id)sender { gil_call_method(toolbar, "forward"); }
 
 -(void)pan:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    if ([sender state])
-    {
-        if (zoombutton) [zoombutton setState: NO];
-    }
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "pan", "");
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
+{
+    if ([sender state]) { [zoombutton setState:NO]; }
+    gil_call_method(toolbar, "pan");
 }
 
 -(void)zoom:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    if ([sender state])
-    {
-        if (panbutton) [panbutton setState: NO];
-    }
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "zoom", "");
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
-
--(void)configure_subplots:(id)sender
 {
-    PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "configure_subplots", NULL);
-    if (result) {
-        Py_DECREF(result);
-    } else {
-        PyErr_Print();
-    }
-    PyGILState_Release(gstate);
+    if ([sender state]) { [panbutton setState:NO]; }
+    gil_call_method(toolbar, "zoom");
 }
 
--(void)save_figure:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "save_figure", "");
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
+-(void)configure_subplots:(id)sender { gil_call_method(toolbar, "configure_subplots"); }
+-(void)save_figure:(id)sender { gil_call_method(toolbar, "save_figure"); }
 @end
 
 static PyObject*
@@ -1352,19 +1291,7 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
     return suggested;
 }
 
-- (BOOL)closeButtonPressed
-{
-    PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(manager, "close", "");
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-    return YES;
-}
+- (BOOL)closeButtonPressed { gil_call_method(manager, "close"); }
 
 - (void)close
 {
@@ -1966,15 +1893,7 @@ static char Timer_doc[] =
 
 static void timer_callback(CFRunLoopTimerRef timer, void* info)
 {
-    PyObject* method = info;
-    PyGILState_STATE gstate = PyGILState_Ensure();
-    PyObject* result = PyObject_CallFunction(method, NULL);
-    if (result) {
-        Py_DECREF(result);
-    } else {
-        PyErr_Print();
-    }
-    PyGILState_Release(gstate);
+    gil_call_method(info, "_on_timer");
 }
 
 static void context_cleanup(const void* info)
@@ -2013,12 +1932,12 @@ Timer__timer_start(Timer* self, PyObject* args)
         PyErr_SetString(PyExc_RuntimeError, "_on_timer should be a Python method");
         goto exit;
     }
-    Py_INCREF(py_on_timer);
+    Py_INCREF(self);
     context.version = 0;
     context.retain = NULL;
     context.release = context_cleanup;
     context.copyDescription = NULL;
-    context.info = py_on_timer;
+    context.info = self;
     timer = CFRunLoopTimerCreate(kCFAllocatorDefault,
                                  firstFire,
                                  interval,
