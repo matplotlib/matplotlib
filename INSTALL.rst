@@ -158,8 +158,6 @@ See :ref:`installing_for_devs`.
 
 .. _installing-faq:
 
-.. redirect-from:: /faq/installing_faq
-
 **************
 Installing FAQ
 **************
