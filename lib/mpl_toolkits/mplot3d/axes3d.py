@@ -65,11 +65,18 @@ class Axes3D(Axes):
         rect : (float, float, float, float)
             The ``(left, bottom, width, height)`` axes position.
         elev : float, default: 30
-            Elevation viewing angle.
+            The elevation angle in degrees rotates the camera above and below
+            the x-y plane, with a positive angle corresponding to a location
+            above the plane.
         azim : float, default: -60
-            Azimuthal viewing angle.
+            The azimuthal angle in degrees rotates the camera about the z axis,
+            with a positive angle corresponding to a right-handed rotation. In
+            other words, a positive azimuth rotates the camera about the origin
+            from its location along the +x axis towards the +y axis.
         roll : float, default: 0
-            Roll viewing angle.
+            The roll angle in degrees rotates the camera about the viewing
+            axis. A positive angle spins the camera clockwise, causing the
+            scene to rotate counter-clockwise.
         sharez : Axes3D, optional
             Other axes to share z-limits with.
         proj_type : {'persp', 'ortho'}
@@ -988,16 +995,26 @@ class Axes3D(Axes):
         Parameters
         ----------
         elev : float, default: None
-            The elevation angle in the vertical plane in degrees.
-            If None then the initial value as specified in the `Axes3D`
+            The elevation angle in degrees rotates the camera above the plane
+            pierced by the vertical axis, with a positive angle corresponding
+            to a location above that plane. For example, with the default
+            vertical axis of 'z', the elevation defines the angle of the camera
+            location above the x-y plane.
+            If None, then the initial value as specified in the `Axes3D`
             constructor is used.
         azim : float, default: None
-            The azimuth angle in the horizontal plane in degrees.
-            If None then the initial value as specified in the `Axes3D`
+            The azimuthal angle in degrees rotates the camera about the
+            vertical axis, with a positive angle corresponding to a
+            right-handed rotation. For example, with the default vertical axis
+            of 'z', a positive azimuth rotates the camera about the origin from
+            its location along the +x axis towards the +y axis.
+            If None, then the initial value as specified in the `Axes3D`
             constructor is used.
         roll : float, default: None
-            The roll angle about the viewing direction in degrees.
-            If None then the initial value as specified in the `Axes3D`
+            The roll angle in degrees rotates the camera about the viewing
+            axis. A positive angle spins the camera clockwise, causing the
+            scene to rotate counter-clockwise.
+            If None, then the initial value as specified in the `Axes3D`
             constructor is used.
         vertical_axis : {"z", "x", "y"}, default: "z"
             The axis to align vertically. *azim* rotates about this axis.
