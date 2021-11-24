@@ -132,12 +132,14 @@ newcmp = ListedColormap(newcolors)
 plot_examples([viridis, newcmp])
 
 ##############################################################################
-# We can easily reduce the dynamic range of a colormap; here we choose the
-# middle 0.5 of the colormap.  However, we need to interpolate from a larger
-# colormap, otherwise the new colormap will have repeated values.
+# We can reduce the dynamic range of a colormap; here we choose the
+# middle half of the colormap.  Note, however, that because viridis is a
+# listed colormap, we will end up with 128 discrete values instead of the 256
+# values that were in the original colormap. This method does not interpolate
+# in color-space to add new colors.
 
-viridis_big = cm.get_cmap('viridis', 512)
-newcmp = ListedColormap(viridis_big(np.linspace(0.25, 0.75, 256)))
+viridis_big = cm.get_cmap('viridis')
+newcmp = ListedColormap(viridis_big(np.linspace(0.25, 0.75, 128)))
 plot_examples([viridis, newcmp])
 
 ##############################################################################
