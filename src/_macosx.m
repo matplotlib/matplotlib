@@ -303,7 +303,7 @@ FigureCanvas_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     lazy_init();
     FigureCanvas *self = (FigureCanvas*)type->tp_alloc(type, 0);
     if (!self) { return NULL; }
-    self->view = [View alloc];
+    self->view = [[View alloc] autorelease];
     return (PyObject*)self;
 }
 
@@ -337,7 +337,6 @@ FigureCanvas_dealloc(FigureCanvas* self)
 {
     if (self->view) {
         [self->view setCanvas: NULL];
-        [self->view release];
     }
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -603,11 +602,10 @@ static PyObject*
 FigureManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     lazy_init();
-    Window* window = [Window alloc];
+    Window* window = [[Window alloc] autorelease];
     if (!window) { return NULL; }
     FigureManager *self = (FigureManager*)type->tp_alloc(type, 0);
     if (!self) {
-        [window release];
         return NULL;
     }
     self->window = window;
@@ -719,9 +717,7 @@ FigureManager_set_window_title(FigureManager* self,
     }
     Window* window = self->window;
     if (window) {
-        NSString* ns_title = [[[NSString alloc]
-                               initWithCString: title
-                               encoding: NSUTF8StringEncoding] autorelease];
+        NSString* ns_title = [NSString stringWithUTF8String: title];
         [window setTitle: ns_title];
     }
     Py_RETURN_NONE;
@@ -981,11 +977,10 @@ static PyObject*
 NavigationToolbar2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     lazy_init();
-    NavigationToolbar2Handler* handler = [NavigationToolbar2Handler alloc];
+    NavigationToolbar2Handler* handler = [[NavigationToolbar2Handler alloc] autorelease];
     if (!handler) { return NULL; }
     NavigationToolbar2 *self = (NavigationToolbar2*)type->tp_alloc(type, 0);
     if (!self) {
-        [handler release];
         return NULL;
     }
     self->handler = handler;
@@ -1062,12 +1057,10 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     rect.origin.y = 0.5*(height - rect.size.height);
 
     for (int i = 0; i < 7; i++) {
-        NSString* filename = [NSString stringWithCString: images[i]
-                                                encoding: NSUTF8StringEncoding];
-        NSString* tooltip = [NSString stringWithCString: tooltips[i]
-                                               encoding: NSUTF8StringEncoding];
-        NSImage* image = [[NSImage alloc] initWithContentsOfFile: filename];
-        buttons[i] = [[NSButton alloc] initWithFrame: rect];
+        NSString* filename = [NSString stringWithUTF8String: images[i]];
+        NSString* tooltip = [NSString stringWithUTF8String: tooltips[i]];
+        NSImage* image = [[[NSImage alloc] initWithContentsOfFile: filename] autorelease];
+        buttons[i] = [[[NSButton alloc] initWithFrame: rect] autorelease];
         [image setSize: size];
         [buttons[i] setBezelStyle: NSBezelStyleShadowlessSquare];
         [buttons[i] setButtonType: buttontypes[i]];
@@ -1076,8 +1069,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
         [buttons[i] setImagePosition: NSImageOnly];
         [buttons[i] setToolTip: tooltip];
         [[window contentView] addSubview: buttons[i]];
-        [buttons[i] release];
-        [image release];
         rect.origin.x += rect.size.width + gap;
     }
 
@@ -1102,7 +1093,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     rect.origin.y = 0.5 * (height - rect.size.height);
     [messagebox setFrameOrigin: rect.origin];
     [[window contentView] addSubview: messagebox];
-    [messagebox release];
     [[window contentView] display];
 
     self->messagebox = messagebox;
@@ -1112,7 +1102,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
 static void
 NavigationToolbar2_dealloc(NavigationToolbar2 *self)
 {
-    [self->handler release];
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1215,15 +1204,10 @@ choose_save_file(PyObject* unused, PyObject* args)
         return NULL;
     }
     NSSavePanel* panel = [NSSavePanel savePanel];
-    [panel setTitle: [NSString stringWithCString: title
-                                        encoding: NSASCIIStringEncoding]];
-    NSString* ns_default_filename =
-        [[NSString alloc]
-         initWithCString: default_filename
-         encoding: NSUTF8StringEncoding];
+    [panel setTitle: [NSString stringWithUTF8String: title]];
+    NSString* ns_default_filename = [NSString stringWithUTF8String: default_filename];
     [panel setNameFieldStringValue: ns_default_filename];
     result = [panel runModal];
-    [ns_default_filename release];
     if (result == NSModalResponseOK) {
         NSURL* url = [panel URL];
         NSString* filename = [url path];
