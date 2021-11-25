@@ -297,8 +297,7 @@ def pdfRepr(obj):
     elif isinstance(obj, dict):
         return fill([
             b"<<",
-            *[Name(key).pdfRepr() + b" " + pdfRepr(obj[key])
-              for key in sorted(obj)],
+            *[Name(k).pdfRepr() + b" " + pdfRepr(v) for k, v in obj.items()],
             b">>",
         ])
 
