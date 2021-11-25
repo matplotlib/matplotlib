@@ -129,9 +129,6 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
         _tool = SubplotTool(self.canvas.figure, toolfig)
         return canvas
 
-    def set_message(self, message):
-        _macosx.NavigationToolbar2.set_message(self, message.encode('utf-8'))
-
 
 class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     _toolbar2_class = NavigationToolbar2Mac

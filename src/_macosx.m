@@ -934,20 +934,19 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     [self->handler installCallbacks: actions forButtons: buttons];
 
     NSFont* font = [NSFont systemFontOfSize: 0.0];
-    rect.size.width = 300;
-    rect.size.height = 0;
-    rect.origin.x += height;
-    NSTextView* messagebox = [[NSTextView alloc] initWithFrame: rect];
+    // rect.origin.x is now at the far right edge of the buttons
+    // we want the messagebox to take up the rest of the toolbar area
+    rect.size.width = bounds.size.width - rect.origin.x;
+    rect.origin.x = bounds.size.width - rect.size.width;
+    NSTextView* messagebox = [[[NSTextView alloc] initWithFrame: rect] autorelease];
     messagebox.textContainer.maximumNumberOfLines = 2;
     messagebox.textContainer.lineBreakMode = NSLineBreakByTruncatingTail;
+    messagebox.alignment = NSTextAlignmentRight;
     [messagebox setFont: font];
     [messagebox setDrawsBackground: NO];
     [messagebox setSelectable: NO];
     /* if selectable, the messagebox can become first responder,
      * which is not supposed to happen */
-    rect = [messagebox frame];
-    rect.origin.y = 0.5 * (height - rect.size.height);
-    [messagebox setFrameOrigin: rect.origin];
     [[window contentView] addSubview: messagebox];
     [messagebox release];
     [[window contentView] display];
@@ -974,7 +973,7 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
 {
     const char* message;
 
-    if (!PyArg_ParseTuple(args, "y", &message)) { return NULL; }
+    if (!PyArg_ParseTuple(args, "s", &message)) { return NULL; }
 
     NSTextView* messagebox = self->messagebox;
 
@@ -982,17 +981,21 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
         NSString* text = [NSString stringWithUTF8String: message];
         [messagebox setString: text];
 
-        // Adjust width with the window size
+        // Adjust width and height with the window size and content
         NSRect rectWindow = [messagebox.superview frame];
         NSRect rect = [messagebox frame];
+        // Entire region to the right of the buttons
         rect.size.width = rectWindow.size.width - rect.origin.x;
         [messagebox setFrame: rect];
-
-        // Adjust height with the content size
+        // We want to control the vertical position of
+        // the rect by the content size to center it vertically
+        // TODO: This seems to disable the cursor updates with newlines that
+        //       are included in the image hover text. It is only when trying
+        //       to set the frame height based on the contentRect's size.
         [messagebox.layoutManager ensureLayoutForTextContainer: messagebox.textContainer];
-        NSRect contentSize = [messagebox.layoutManager usedRectForTextContainer: messagebox.textContainer];
-        rect = [messagebox frame];
-        rect.origin.y = 0.5 * (self->height - contentSize.size.height);
+        NSRect contentRect = [messagebox.layoutManager usedRectForTextContainer: messagebox.textContainer];
+        rect.origin.y = 0.5 * (self->height - contentRect.size.height);
+        rect.size.height = contentRect.size.height;
         [messagebox setFrame: rect];
     }
 
