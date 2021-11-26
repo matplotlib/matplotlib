@@ -58,8 +58,9 @@ various graphical user interface toolkits.
 Install
 =======
 
-For installation instructions and requirements, see `INSTALL.rst <INSTALL.rst>`_  or the
-`install <https://matplotlib.org/stable/users/installing.html>`_ documentation.
+For installation instructions and requirements, see the `install documentation
+<https://matplotlib.org/stable/users/installing/index.html>`_ or
+`installing.rst <doc/users/installing/index.rst>`_ in the source.
 
 Contribute
 ==========
