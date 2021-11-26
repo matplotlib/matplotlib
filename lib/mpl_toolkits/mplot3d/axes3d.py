@@ -12,6 +12,7 @@ Module containing Axes3D, an object which can plot 3D objects on a
 
 from collections import defaultdict
 import functools
+import inspect
 import itertools
 import math
 from numbers import Integral
@@ -417,23 +418,26 @@ class Axes3D(Axes):
                 Call `do_3d_projection` on an *artist*, and warn if passing
                 *renderer*.
 
-                For our Artists, never pass *renderer*. For external Artists,
-                in lieu of more complicated signature parsing, always pass
-                *renderer* and raise a warning.
+                Attempt to bind the empty signature first, so external Artists
+                can avoid the deprecation warning if they support the new
+                calling convention.
                 """
-
-                if artist.__module__ == 'mpl_toolkits.mplot3d.art3d':
-                    # Our 3D Artists have deprecated the renderer parameter, so
-                    # avoid passing it to them; call this directly once the
-                    # deprecation has expired.
+                try:
+                    signature = inspect.signature(artist.do_3d_projection)
+                    signature.bind()
+                # ValueError if `inspect.signature` cannot provide a signature
+                # and TypeError if the binding fails or the object does not
+                # appear to be callable - the next call will then re-raise.
+                except (ValueError, TypeError):
+                    _api.warn_deprecated(
+                        "3.4",
+                        message="The 'renderer' parameter of "
+                        "do_3d_projection() was deprecated in Matplotlib "
+                        "%(since)s and will be removed %(removal)s.")
+                    return artist.do_3d_projection(renderer)
+                else:
+                    # Call this directly once the deprecation period expires.
                     return artist.do_3d_projection()
-
-                _api.warn_deprecated(
-                    "3.4",
-                    message="The 'renderer' parameter of "
-                    "do_3d_projection() was deprecated in Matplotlib "
-                    "%(since)s and will be removed %(removal)s.")
-                return artist.do_3d_projection(renderer)
 
             collections_and_patches = (
                 artist for artist in self._children
