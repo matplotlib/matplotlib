@@ -1248,6 +1248,8 @@ default: %(va)s
         if axs is None:
             axs = self.axes
         axs = np.ravel(axs)
+        axs = [ax for ax in axs if hasattr(ax, 'get_subplotspec')]
+
         for ax in axs:
             _log.debug(' Working on: %s', ax.get_xlabel())
             rowspan = ax.get_subplotspec().rowspan
@@ -1308,6 +1310,8 @@ default: %(va)s
         if axs is None:
             axs = self.axes
         axs = np.ravel(axs)
+        axs = [ax for ax in axs if hasattr(ax, 'get_subplotspec')]
+
         for ax in axs:
             _log.debug(' Working on: %s', ax.get_ylabel())
             colspan = ax.get_subplotspec().colspan
