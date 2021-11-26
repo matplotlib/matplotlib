@@ -525,7 +525,7 @@ static PyMethodDef FigureCanvas_methods[] = {
     {"flush_events",
      (PyCFunction)FigureCanvas_flush_events,
      METH_NOARGS,
-     "Flush the GUI events for the figure."
+     NULL,  // docstring inherited.
     },
     {"set_rubberband",
      (PyCFunction)FigureCanvas_set_rubberband,
@@ -540,12 +540,12 @@ static PyMethodDef FigureCanvas_methods[] = {
     {"start_event_loop",
      (PyCFunction)FigureCanvas_start_event_loop,
      METH_KEYWORDS | METH_VARARGS,
-     "Runs the event loop until the timeout or until stop_event_loop is called.\n",
+     NULL,  // docstring inherited.
     },
     {"stop_event_loop",
      (PyCFunction)FigureCanvas_stop_event_loop,
      METH_NOARGS,
-     "Stops the event loop that was started by start_event_loop.\n",
+     NULL,  // docstring inherited.
     },
     {NULL}  /* Sentinel */
 };
@@ -768,27 +768,27 @@ static PyMethodDef FigureManager_methods[] = {
     {"show",
      (PyCFunction)FigureManager_show,
      METH_NOARGS,
-     "Shows the window associated with the figure manager."
+     NULL,  // docstring inherited.
     },
     {"destroy",
      (PyCFunction)FigureManager_destroy,
      METH_NOARGS,
-     "Closes the window associated with the figure manager."
+     NULL,  // docstring inherited.
     },
     {"set_window_title",
      (PyCFunction)FigureManager_set_window_title,
      METH_VARARGS,
-     "Sets the title of the window associated with the figure manager."
+     NULL,  // docstring inherited.
     },
     {"get_window_title",
      (PyCFunction)FigureManager_get_window_title,
      METH_NOARGS,
-     "Returns the title of the window associated with the figure manager."
+     NULL,  // docstring inherited.
     },
     {"resize",
      (PyCFunction)FigureManager_resize,
      METH_VARARGS,
-     "Resize the window (in pixels)."
+     NULL,  // docstring inherited.
     },
     {NULL}  /* Sentinel */
 };
@@ -1159,7 +1159,7 @@ static PyMethodDef NavigationToolbar2_methods[] = {
     {"set_message",
      (PyCFunction)NavigationToolbar2_set_message,
      METH_VARARGS,
-     "Set the message to be displayed on the toolbar."
+     NULL,  // docstring inherited.
     },
     {NULL}  /* Sentinel */
 };
@@ -2072,12 +2072,12 @@ static PyMethodDef Timer_methods[] = {
     {"_timer_start",
      (PyCFunction)Timer__timer_start,
      METH_VARARGS,
-     "Initialize and start the timer."
+     NULL,  // docstring inherited.
     },
     {"_timer_stop",
      (PyCFunction)Timer__timer_stop,
      METH_NOARGS,
-     "Stop the timer."
+     NULL,  // docstring inherited.
     },
     {NULL}  /* Sentinel */
 };
