@@ -105,6 +105,30 @@ def test_label_loc_rc(fig_test, fig_ref):
     cbar.set_label("Z Label", x=1, ha='right')
 
 
+def test_label_shift():
+    fig, ax = plt.subplots()
+
+    # Test label re-centering on x-axis
+    ax.set_xlabel("Test label", loc="left")
+    ax.set_xlabel("Test label", loc="center")
+    assert ax.xaxis.get_label()._x == 0.5
+    ax.set_xlabel("Test label", loc="right")
+    assert ax.xaxis.get_label()._x == 1.0
+    ax.set_xlabel("Test label", loc="center")
+    assert ax.xaxis.get_label()._x == 0.5
+
+    # Test label re-centering on y-axis
+    ax.set_ylabel("Test label", loc="top")
+    ax.set_ylabel("Test label", loc="center")
+    assert ax.yaxis.get_label()._y == 0.5
+    ax.set_ylabel("Test label", loc="bottom")
+    assert ax.yaxis.get_label()._y == 0.0
+    ax.set_ylabel("Test label", loc="center")
+    assert ax.yaxis.get_label()._y == 0.5
+
+    plt.close()
+
+
 @check_figures_equal(extensions=["png"])
 def test_acorr(fig_test, fig_ref):
     np.random.seed(19680801)
