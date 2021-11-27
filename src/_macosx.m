@@ -354,6 +354,9 @@ FigureCanvas_update(FigureCanvas* self)
 static PyObject*
 FigureCanvas_flush_events(FigureCanvas* self)
 {
+    // We need to allow the runloop to run very briefly
+    // to allow the view to be displayed when used in a fast updating animation
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.0]];
     [self->view displayIfNeeded];
     Py_RETURN_NONE;
 }
