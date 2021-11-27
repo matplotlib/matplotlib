@@ -1903,11 +1903,11 @@ static struct PyModuleDef moduledef = {
         {"choose_save_file",
          (PyCFunction)choose_save_file,
          METH_VARARGS,
-         "Closes the window."},
+         "Query the user for a location where to save a file."},
         {"set_cursor",
          (PyCFunction)set_cursor,
          METH_VARARGS,
-         "Sets the active cursor."},
+         "Set the active cursor."},
         {}  /* Sentinel */
     },
 };
