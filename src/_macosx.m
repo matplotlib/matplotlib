@@ -393,6 +393,9 @@ FigureCanvas_flush_events(FigureCanvas* self)
         PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return NULL;
     }
+    // We need to interrupt the runloop very briefly to allow the view to be
+    // displayed when used in a fast updating animation
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.0]];
     [view displayIfNeeded];
     Py_RETURN_NONE;
 }
