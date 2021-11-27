@@ -88,8 +88,8 @@ plt.show()
 # ----------------
 #
 # We may equally define a gridspec with unequal width- and height-ratios to
-# achieve desired layout. Also see the :doc:`/tutorials/intermediate/gridspec`
-# tutorial.
+# achieve desired layout. Also see the
+# :doc:`/tutorials/intermediate/arranging_axes` tutorial.
 
 # start with a square Figure
 fig = plt.figure(figsize=(8, 8))
