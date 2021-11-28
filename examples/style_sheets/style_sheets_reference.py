@@ -98,20 +98,12 @@ def plot_histograms(ax, prng, nb_samples=10000):
     return ax
 
 
-def plot_figure(style_label=""):
+def plot_figure(axs, style_label=""):
     """Setup and plot the demonstration figure with a given style."""
     # Use a dedicated RandomState instance to draw the same "random" values
     # across the different figures.
     prng = np.random.RandomState(96917002)
 
-    # Tweak the figure size to be better suited for a row of numerous plots:
-    # double the width and halve the height. NB: use relative changes because
-    # some styles may have a figure size different from the default one.
-    (fig_width, fig_height) = plt.rcParams['figure.figsize']
-    fig_size = [fig_width * 2, fig_height / 2]
-
-    fig, axs = plt.subplots(ncols=6, nrows=1, num=style_label,
-                            figsize=fig_size, squeeze=True)
     axs[0].set_ylabel(style_label)
 
     plot_scatter(axs[0], prng)
@@ -121,10 +113,6 @@ def plot_figure(style_label=""):
     plot_colored_sinusoidal_lines(axs[4])
     plot_histograms(axs[5], prng)
 
-    fig.tight_layout()
-
-    return fig
-
 
 if __name__ == "__main__":
 
@@ -133,11 +121,14 @@ if __name__ == "__main__":
     # first and second position.
     style_list = ['default', 'classic'] + sorted(
         style for style in plt.style.available if style != 'classic')
+    nstyles = len(style_list)
 
+    fig, axs = plt.subplots(ncols=6, nrows=nstyles, figsize=(12, 3 * nstyles))
     # Plot a demonstration figure for every available style sheet.
-    for style_label in style_list:
+    for axs_row, style_label in zip(axs, style_list):
         with plt.rc_context({"figure.max_open_warning": len(style_list)}):
             with plt.style.context(style_label):
-                fig = plot_figure(style_label=style_label)
+                plot_figure(axs_row, style_label=style_label)
 
+    fig.tight_layout()
     plt.show()
