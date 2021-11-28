@@ -3492,6 +3492,7 @@ class _AxesBase(martist.Artist):
             loc = (loc if loc is not None
                    else mpl.rcParams['xaxis.labellocation'])
         _api.check_in_list(('left', 'center', 'right'), loc=loc)
+        kwargs.pop('ha', None)
         if loc == 'left':
             kwargs.update(x=0, horizontalalignment='left')
         elif loc == 'center':
@@ -3838,6 +3839,7 @@ class _AxesBase(martist.Artist):
             loc = (loc if loc is not None
                    else mpl.rcParams['yaxis.labellocation'])
         _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
+        kwargs.pop('ha', None)
         if loc == 'bottom':
             kwargs.update(y=0, horizontalalignment='left')
         elif loc == 'center':
