@@ -1599,7 +1599,12 @@ def _check_savefig_extra_args(func=None, extra_kwargs=()):
             r'^savefig|print_[A-Za-z0-9]+|_no_output_draw$'
         )
         seen_print_figure = False
-        for frame, line in traceback.walk_stack(None):
+        if sys.version_info < (3, 11):
+            current_frame = None
+        else:
+            import inspect
+            current_frame = inspect.currentframe()
+        for frame, line in traceback.walk_stack(current_frame):
             if frame is None:
                 # when called in embedded context may hit frame is None.
                 break
@@ -1633,7 +1638,7 @@ def _check_savefig_extra_args(func=None, extra_kwargs=()):
             if arg in accepted_kwargs:
                 continue
             _api.warn_deprecated(
-                '3.3', name=name,
+                '3.3', name=name, removal='3.6',
                 message='%(name)s() got unexpected keyword argument "'
                         + arg + '" which is no longer supported as of '
                         '%(since)s and will become an error '
