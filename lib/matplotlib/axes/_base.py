@@ -3839,11 +3839,11 @@ class _AxesBase(martist.Artist):
                    else mpl.rcParams['yaxis.labellocation'])
         _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
         if loc == 'bottom':
-            kwargs.update(y=0, verticalalignment='bottom')
+            kwargs.update(y=0, horizontalalignment='left')
         elif loc == 'center':
-            kwargs.update(y=0.5, verticalalignment='center')
+            kwargs.update(y=0.5, horizontalalignment='center')
         elif loc == 'top':
-            kwargs.update(y=1, verticalalignment='top')
+            kwargs.update(y=1, horizontalalignment='right')
         return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
 
     def invert_yaxis(self):

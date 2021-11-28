@@ -111,20 +111,20 @@ def test_label_shift():
     # Test label re-centering on x-axis
     ax.set_xlabel("Test label", loc="left")
     ax.set_xlabel("Test label", loc="center")
-    assert ax.xaxis.get_label()._x == 0.5
+    assert ax.xaxis.get_label().get_horizontalalignment() == "center"
     ax.set_xlabel("Test label", loc="right")
-    assert ax.xaxis.get_label()._x == 1.0
+    assert ax.xaxis.get_label().get_horizontalalignment() == "right"
     ax.set_xlabel("Test label", loc="center")
-    assert ax.xaxis.get_label()._x == 0.5
+    assert ax.xaxis.get_label().get_horizontalalignment() == "center"
 
     # Test label re-centering on y-axis
     ax.set_ylabel("Test label", loc="top")
     ax.set_ylabel("Test label", loc="center")
-    assert ax.yaxis.get_label()._y == 0.5
+    assert ax.yaxis.get_label().get_horizontalalignment() == "center"
     ax.set_ylabel("Test label", loc="bottom")
-    assert ax.yaxis.get_label()._y == 0.0
+    assert ax.yaxis.get_label().get_horizontalalignment() == "left"
     ax.set_ylabel("Test label", loc="center")
-    assert ax.yaxis.get_label()._y == 0.5
+    assert ax.yaxis.get_label().get_horizontalalignment() == "center"
 
     plt.close()
 
