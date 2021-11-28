@@ -1,7 +1,6 @@
 import functools
 import operator
 import os
-import signal
 import sys
 import traceback
 
@@ -121,6 +120,10 @@ def _create_qApp():
             except AttributeError:  # Only for Qt>=5.14.
                 pass
             qApp = QtWidgets.QApplication(["matplotlib"])
+            if sys.platform == "darwin":
+                image = str(cbook._get_data_path('images/matplotlib.svg'))
+                icon = QtGui.QIcon(image)
+                qApp.setWindowIcon(icon)
             qApp.lastWindowClosed.connect(qApp.quit)
             cbook._setup_new_guiapp()
         else:
@@ -519,8 +522,10 @@ class FigureManagerQT(FigureManagerBase):
         self.window.closing.connect(canvas.close_event)
         self.window.closing.connect(self._widgetclosed)
 
-        image = str(cbook._get_data_path('images/matplotlib.svg'))
-        self.window.setWindowIcon(QtGui.QIcon(image))
+        if sys.platform != "darwin":
+            image = str(cbook._get_data_path('images/matplotlib.svg'))
+            icon = QtGui.QIcon(image)
+            self.window.setWindowIcon(icon)
 
         self.window._destroying = False
 
