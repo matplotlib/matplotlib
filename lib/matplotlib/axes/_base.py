@@ -3493,13 +3493,14 @@ class _AxesBase(martist.Artist):
                    else mpl.rcParams['xaxis.labellocation'])
         _api.check_in_list(('left', 'center', 'right'), loc=loc)
         ha = None or kwargs.get('horizontalalignment') or kwargs.get('ha')
+        x = None or kwargs.get('x')
         kwargs.pop('horizontalalignment', None)
         if loc == 'left':
-            kwargs.update(x=0, ha=ha or 'left')
+            kwargs.update(x=x or 0, ha=ha or 'left')
         elif loc == 'center':
-            kwargs.update(x=0.5, ha=ha or 'center')
+            kwargs.update(x=x or 0.5, ha=ha or 'center')
         elif loc == 'right':
-            kwargs.update(x=1, ha=ha or 'right')
+            kwargs.update(x=x or 1, ha=ha or 'right')
         return self.xaxis.set_label_text(xlabel, fontdict, **kwargs)
 
     def invert_xaxis(self):
@@ -3841,13 +3842,14 @@ class _AxesBase(martist.Artist):
                    else mpl.rcParams['yaxis.labellocation'])
         _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
         ha = None or kwargs.get('horizontalalignment') or kwargs.get('ha')
+        y = None or kwargs.get('y')
         kwargs.pop('horizontalalignment', None)
         if loc == 'bottom':
-            kwargs.update(y=0, ha=ha or 'left')
+            kwargs.update(y=y or 0, ha=ha or 'left')
         elif loc == 'center':
-            kwargs.update(y=0.5, ha=ha or 'center')
+            kwargs.update(y=y or 0.5, ha=ha or 'center')
         elif loc == 'top':
-            kwargs.update(y=1, ha=ha or 'right')
+            kwargs.update(y=y or 1, ha=ha or 'right')
         return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
 
     def invert_yaxis(self):
