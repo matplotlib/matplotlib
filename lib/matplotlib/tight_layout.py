@@ -232,13 +232,14 @@ def get_subplotspec_list(axes_list, grid_spec=None):
 
         if hasattr(axes_or_locator, "get_subplotspec"):
             subplotspec = axes_or_locator.get_subplotspec()
-            subplotspec = subplotspec.get_topmost_subplotspec()
-            gs = subplotspec.get_gridspec()
-            if grid_spec is not None:
-                if gs != grid_spec:
+            if subplotspec is not None:
+                subplotspec = subplotspec.get_topmost_subplotspec()
+                gs = subplotspec.get_gridspec()
+                if grid_spec is not None:
+                    if gs != grid_spec:
+                        subplotspec = None
+                elif gs.locally_modified_subplot_params():
                     subplotspec = None
-            elif gs.locally_modified_subplot_params():
-                subplotspec = None
         else:
             subplotspec = None
 
