@@ -12,9 +12,9 @@ that underpin how Axes are organized, and mention some of the older tools.
 .. note::
 
     Matplotlib uses *Axes* to refer to the drawing area that contains
-    data, x- and y-axis, ticks, labels, title, etc. See <figure_parts>_ for
-    more details.  Another term that is often used is "subplot", which refers
-    to an Axes that is in a grid with other Axes objects.
+    data, x- and y-axis, ticks, labels, title, etc. See :ref:`figure_parts`
+    for more details.  Another term that is often used is "subplot", which
+    refers to an Axes that is in a grid with other Axes objects.
 
 Overview
 ========
