@@ -345,14 +345,7 @@ FigureCanvas_repr(FigureCanvas* self)
 }
 
 static PyObject*
-FigureCanvas_draw(FigureCanvas* self)
-{
-    [self->view display];
-    Py_RETURN_NONE;
-}
-
-static PyObject*
-FigureCanvas_draw_idle(FigureCanvas* self)
+FigureCanvas_update(FigureCanvas* self)
 {
     [self->view setNeedsDisplay: YES];
     Py_RETURN_NONE;
@@ -485,12 +478,8 @@ static PyTypeObject FigureCanvasType = {
     .tp_new = (newfunc)FigureCanvas_new,
     .tp_doc = "A FigureCanvas object wraps a Cocoa NSView object.",
     .tp_methods = (PyMethodDef[]){
-        {"draw",
-         (PyCFunction)FigureCanvas_draw,
-         METH_NOARGS,
-         NULL},  // docstring inherited
-        {"draw_idle",
-         (PyCFunction)FigureCanvas_draw_idle,
+        {"update",
+         (PyCFunction)FigureCanvas_update,
          METH_NOARGS,
          NULL},  // docstring inherited
         {"flush_events",
@@ -1263,7 +1252,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
     CGContextRef cr = [[NSGraphicsContext currentContext] CGContext];
 
-    if (!(renderer = PyObject_CallMethod(canvas, "_draw", ""))
+    if (!(renderer = PyObject_CallMethod(canvas, "get_renderer", ""))
         || !(renderer_buffer = PyObject_GetAttrString(renderer, "_renderer"))) {
         PyErr_Print();
         goto exit;

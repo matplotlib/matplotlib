@@ -30,27 +30,37 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         FigureCanvasBase.__init__(self, figure)
         width, height = self.get_width_height()
         _macosx.FigureCanvas.__init__(self, width, height)
+        self._draw_pending = False
+        self._is_drawing = False
 
     def set_cursor(self, cursor):
         # docstring inherited
         _macosx.set_cursor(cursor)
 
-    def _draw(self):
-        renderer = self.get_renderer()
-        if self.figure.stale:
-            renderer.clear()
-            self.figure.draw(renderer)
-        return renderer
-
     def draw(self):
-        # docstring inherited
-        self._draw()
-        self.flush_events()
+        """Render the figure and update the macosx canvas."""
+        # The renderer draw is done here; delaying causes problems with code
+        # that uses the result of the draw() to update plot elements.
+        if self._is_drawing:
+            return
+        with cbook._setattr_cm(self, _is_drawing=True):
+            super().draw()
+        self.update()
 
-    # draw_idle is provided by _macosx.FigureCanvas
+    def draw_idle(self):
+        # docstring inherited
+        if (getattr(self, '_draw_pending', False) or
+                getattr(self, '_is_drawing', False)):
+            return
+        self._draw_pending = True
+        with self._idle_draw_cntx():
+            self._draw_pending = False
+            self.draw()
 
     def blit(self, bbox=None):
-        self.draw_idle()
+        # docstring inherited
+        super().blit(bbox)
+        self.update()
 
     def resize(self, width, height):
         # Size from macOS is logical pixels, dpi is physical.
