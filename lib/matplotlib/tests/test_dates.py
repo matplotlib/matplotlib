@@ -604,6 +604,28 @@ def test_concise_formatter_show_offset(t_delta, expected):
     assert formatter.get_offset() == expected
 
 
+def test_offset_changes():
+    fig, ax = plt.subplots()
+
+    d1 = datetime.datetime(1997, 1, 1)
+    d2 = d1 + datetime.timedelta(weeks=520)
+
+    locator = mdates.AutoDateLocator()
+    formatter = mdates.ConciseDateFormatter(locator)
+    ax.xaxis.set_major_locator(locator)
+    ax.xaxis.set_major_formatter(formatter)
+
+    ax.plot([d1, d2], [0, 0])
+    fig.draw_without_rendering()
+    assert formatter.get_offset() == ''
+    ax.set_xlim(d1, d1 + datetime.timedelta(weeks=3))
+    fig.draw_without_rendering()
+    assert formatter.get_offset() == '1997-Jan'
+    ax.set_xlim(d1, d1 + datetime.timedelta(weeks=520))
+    fig.draw_without_rendering()
+    assert formatter.get_offset() == ''
+
+
 @pytest.mark.parametrize('t_delta, expected', [
     (datetime.timedelta(weeks=52 * 200),
      ['$\\mathdefault{%d}$' % (t, ) for t in range(1980, 2201, 20)]),
