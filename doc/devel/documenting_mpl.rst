@@ -197,7 +197,7 @@ Documents can be linked with the ``:doc:`` directive:
 
 .. code-block:: rst
 
-   See the :doc:`/users/faq/installing_faq`
+   See the :doc:`/users/installing/index`
 
    See the tutorial :doc:`/tutorials/introductory/usage`
 
@@ -205,14 +205,14 @@ Documents can be linked with the ``:doc:`` directive:
 
 will render as:
 
-  See the :doc:`/users/faq/installing_faq`
+  See the :doc:`/users/installing/index`
 
   See the tutorial :doc:`/tutorials/introductory/usage`
 
   See the example :doc:`/gallery/lines_bars_and_markers/simple_plot`
 
 Sections can also be given reference names.  For instance from the
-:doc:`/users/faq/installing_faq` link:
+:doc:`/users/installing/index` link:
 
 .. code-block:: rst
 
