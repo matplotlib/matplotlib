@@ -26,6 +26,7 @@ import numpy as np
 
 fig, ax = plt.subplots()  # Create a figure containing a single axes.
 ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
+plt.show()
 
 ###############################################################################
 # .. _figure_parts:
@@ -124,6 +125,7 @@ fig, ax = plt.subplots(figsize=(5, 2.7), constrained_layout=True)
 ax.scatter('a', 'b', c='c', s='d', data=data)
 ax.set_xlabel('entry a')
 ax.set_ylabel('entry b')
+plt.show()
 
 ##############################################################################
 # .. _coding_styles:
@@ -154,6 +156,7 @@ ax.set_xlabel('x label')  # Add an x-label to the axes.
 ax.set_ylabel('y label')  # Add a y-label to the axes.
 ax.set_title("Simple Plot")  # Add a title to the axes.
 ax.legend()  # Add a legend.
+plt.show()
 
 ###############################################################################
 # or the pyplot-style:
@@ -168,6 +171,7 @@ plt.xlabel('x label')
 plt.ylabel('y label')
 plt.title("Simple Plot")
 plt.legend()
+plt.show()
 
 ###############################################################################
 # (In addition, there is a third approach, for the case when embedding
@@ -209,6 +213,7 @@ xdata = np.arange(len(data1))  # make an ordinal for this
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(5, 2.7))
 my_plotter(ax1, data1, data2, {'marker': 'x'})
 my_plotter(ax2, data3, data4, {'marker': 'o'})
+plt.show()
 
 ###############################################################################
 # Note that if you want to install these as a python package, or any other
@@ -231,6 +236,7 @@ x = np.arange(len(data1))
 ax.plot(x, np.cumsum(data1), color='blue', linewidth=3, linestyle='--')
 l, = ax.plot(x, np.cumsum(data2), color='orange', linewidth=2)
 l.set_linestyle(':')
+plt.show()
 
 ###############################################################################
 # Colors
@@ -245,6 +251,7 @@ l.set_linestyle(':')
 fig, ax = plt.subplots(figsize=(5, 2.7))
 x = np.arange(len(data1))
 ax.scatter(data1, data2, s=50, facecolor='C0', edgecolor='k')
+plt.show()
 
 ###############################################################################
 # Linewidths, linestyles, and markersizes
@@ -269,6 +276,7 @@ ax.plot(data2, 'd', label='data2')
 ax.plot(data3, 'v', label='data3')
 ax.plot(data4, 's', label='data4')
 ax.legend()
+plt.show()
 
 ################################################################################
 #
@@ -340,6 +348,7 @@ ax.annotate('local max', xy=(2, 1), xytext=(3, 1.5),
             arrowprops=dict(facecolor='black', shrink=0.05))
 
 ax.set_ylim(-2, 2)
+plt.show()
 
 ###############################################################################
 # In this basic example, both *xy* and *xytext* are in data coordinates.
@@ -358,6 +367,7 @@ ax.plot(np.arange(len(data1)), data1, label='data1')
 ax.plot(np.arange(len(data2)), data2, label='data2')
 ax.plot(np.arange(len(data3)), data3, 'd', label='data3')
 ax.legend()
+plt.show()
 
 ##############################################################################
 # Legends in Matplotlib are quite flexible in layout, placement, and what
@@ -387,6 +397,7 @@ axs[0].plot(xdata, data)
 
 axs[1].set_yscale('log')
 axs[1].plot(xdata, data)
+plt.show()
 
 ##############################################################################
 # The scale sets the mapping from data values to spacing along the Axis. This
@@ -408,6 +419,7 @@ axs[1].plot(xdata, data1)
 axs[1].set_xticks(np.arange(0, 100, 30), ['zero', '30', 'sixty', '90'])
 axs[1].set_yticks([-1.5, 0, 1.5])  # note that we don't need to specify labels
 axs[1].set_title('Manual ticks')
+plt.show()
 
 ##############################################################################
 # Different scales can have different locators and formatters; for instance
@@ -428,6 +440,7 @@ dates = np.arange(np.datetime64('2021-11-15'), np.datetime64('2021-12-25'),
                   np.timedelta64(1, 'h'))
 data = np.cumsum(np.random.randn(len(dates)))
 ax.plot(dates, data)
+plt.show()
 
 ##############################################################################
 # For more information see the date examples
@@ -440,6 +453,7 @@ fig, ax = plt.subplots(figsize=(5, 2.7), constrained_layout=True)
 categories = ['turnips', 'rutabega', 'cucumber', 'pumpkins']
 
 ax.bar(categories, np.random.rand(len(categories)))
+plt.show()
 
 ##############################################################################
 # One caveat about categorical plotting is that some methods of parsing
@@ -473,6 +487,7 @@ axs[1, 0].set_title('imshow() with LogNorm()')
 pc = axs[1, 1].scatter(data1, data2, c=data3, cmap='RdBu_r')
 fig.colorbar(pc, ax=axs[1, 1], extend='both')
 axs[1, 1].set_title('scatter()')
+plt.show()
 
 ##############################################################################
 # Colormaps
