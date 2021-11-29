@@ -1291,7 +1291,11 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
     return suggested;
 }
 
-- (BOOL)closeButtonPressed { gil_call_method(manager, "close"); }
+- (BOOL)closeButtonPressed
+{
+    gil_call_method(manager, "close");
+    return YES;
+}
 
 - (void)close
 {
