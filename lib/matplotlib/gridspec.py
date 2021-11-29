@@ -369,7 +369,7 @@ class GridSpec(GridSpecBase):
             If not given, all columns will have the same width.
 
         height_ratios : array-like of length *nrows*, optional
-            Defines the relative heights of the rows. Each column gets a
+            Defines the relative heights of the rows. Each row gets a
             relative height of ``height_ratios[i] / sum(height_ratios)``.
             If not given, all rows will have the same height.
 
