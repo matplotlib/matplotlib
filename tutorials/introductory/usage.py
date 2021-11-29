@@ -367,7 +367,8 @@ ax.legend();
 #
 # Each Axes has two (or three) `~.axis.Axis` objects representing the x- and
 # y-axis. These control the *scale* of the Axis, the tick *locators* and the
-# tick *formatters*.
+# tick *formatters*. Additional Axes can be attached to display further Axis
+# objects.
 #
 # Scales
 # ------
@@ -449,6 +450,34 @@ ax.bar(categories, np.random.rand(len(categories)));
 # numbers or dates.  If you pass 1000 strings, Matplotlib will think you
 # meant 1000 categories and will add 1000 ticks to your plot!
 #
+#
+# Additional Axis objects
+# ------------------------
+#
+# Plotting data of different magnitude in one chart may require
+# an additional y-axis. Such an Axis can be created by using
+# `~.Axes.twinx` to add a new Axes with an invisible x-axis and a y-axis
+# positioned at the right (analogously for `~.Axes.twiny`). See
+# :doc:`/gallery/subplots_axes_and_figures/two_scales` for another example.
+#
+# Similarly, you can add a `~.Axes.secondary_xaxis` or
+# `~.Axes.secondary_yaxis` having a different scale than the main Axis to
+# represent the data in different scales or units. See
+# :doc:`/gallery/subplots_axes_and_figures/secondary_axis` for further
+# examples.
+
+fig, (ax1, ax3) = plt.subplots(1, 2, figsize=(8, 2.7), constrained_layout=True)
+l1, = ax1.plot(t, s)
+ax2 = ax1.twinx()
+l2, = ax2.plot(t, range(len(t)), 'C1')
+ax2.legend([l1, l2], ['Sine (left)', 'Straight (right)'])
+
+ax3.plot(t, s)
+ax3.set_xlabel('Angle [°]')
+ax4 = ax3.secondary_xaxis('top', functions=(np.rad2deg, np.deg2rad))
+ax4.set_xlabel('Angle [rad]')
+
+##############################################################################
 # Color mapped data
 # =================
 #
