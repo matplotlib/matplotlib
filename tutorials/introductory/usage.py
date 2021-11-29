@@ -25,8 +25,7 @@ import numpy as np
 # `.Axes.plot` to draw some data on the axes:
 
 fig, ax = plt.subplots()  # Create a figure containing a single axes.
-ax.plot([1, 2, 3, 4], [1, 4, 2, 3])  # Plot some data on the axes.
-plt.show()
+ax.plot([1, 2, 3, 4], [1, 4, 2, 3]);  # Plot some data on the axes.
 
 ###############################################################################
 # .. _figure_parts:
@@ -124,8 +123,7 @@ data['d'] = np.abs(data['d']) * 100
 fig, ax = plt.subplots(figsize=(5, 2.7), constrained_layout=True)
 ax.scatter('a', 'b', c='c', s='d', data=data)
 ax.set_xlabel('entry a')
-ax.set_ylabel('entry b')
-plt.show()
+ax.set_ylabel('entry b');
 
 ##############################################################################
 # .. _coding_styles:
@@ -155,8 +153,7 @@ ax.plot(x, x**3, label='cubic')  # ... and some more.
 ax.set_xlabel('x label')  # Add an x-label to the axes.
 ax.set_ylabel('y label')  # Add a y-label to the axes.
 ax.set_title("Simple Plot")  # Add a title to the axes.
-ax.legend()  # Add a legend.
-plt.show()
+ax.legend();  # Add a legend.
 
 ###############################################################################
 # or the pyplot-style:
@@ -170,8 +167,7 @@ plt.plot(x, x**3, label='cubic')
 plt.xlabel('x label')
 plt.ylabel('y label')
 plt.title("Simple Plot")
-plt.legend()
-plt.show()
+plt.legend();
 
 ###############################################################################
 # (In addition, there is a third approach, for the case when embedding
@@ -182,8 +178,8 @@ plt.show()
 # Matplotlib's documentation and examples use both the OO and the pyplot
 # styles.  In general, we suggest using the OO style, particularly for
 # complicated plots, and functions and scripts that are intended to be reused
-# as part of a larger project. However, the pyplot style can be very conveneient
-# for quick interactive work.
+# as part of a larger project. However, the pyplot style can be very
+# conveneient for quick interactive work.
 #
 # .. note::
 #
@@ -193,9 +189,9 @@ plt.show()
 # Making a helper functions
 # -------------------------
 #
-# If you need to make the same plots over and over again with different data sets,
-# or want to easily wrap Matplotlib methods, use the recommended signature function
-# below.
+# If you need to make the same plots over and over again with different data
+# sets, or want to easily wrap Matplotlib methods, use the recommended
+# signature function below.
 
 
 def my_plotter(ax, data1, data2, param_dict):
@@ -212,8 +208,7 @@ data1, data2, data3, data4 = np.random.randn(4, 100)  # make 4 random data sets
 xdata = np.arange(len(data1))  # make an ordinal for this
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(5, 2.7))
 my_plotter(ax1, data1, data2, {'marker': 'x'})
-my_plotter(ax2, data3, data4, {'marker': 'o'})
-plt.show()
+my_plotter(ax2, data3, data4, {'marker': 'o'});
 
 ###############################################################################
 # Note that if you want to install these as a python package, or any other
@@ -235,8 +230,7 @@ fig, ax = plt.subplots(figsize=(5, 2.7))
 x = np.arange(len(data1))
 ax.plot(x, np.cumsum(data1), color='blue', linewidth=3, linestyle='--')
 l, = ax.plot(x, np.cumsum(data2), color='orange', linewidth=2)
-l.set_linestyle(':')
-plt.show()
+l.set_linestyle(':');
 
 ###############################################################################
 # Colors
@@ -250,8 +244,7 @@ plt.show()
 
 fig, ax = plt.subplots(figsize=(5, 2.7))
 x = np.arange(len(data1))
-ax.scatter(data1, data2, s=50, facecolor='C0', edgecolor='k')
-plt.show()
+ax.scatter(data1, data2, s=50, facecolor='C0', edgecolor='k');
 
 ###############################################################################
 # Linewidths, linestyles, and markersizes
@@ -275,10 +268,9 @@ ax.plot(data1, 'o', label='data1')
 ax.plot(data2, 'd', label='data2')
 ax.plot(data3, 'v', label='data3')
 ax.plot(data4, 's', label='data4')
-ax.legend()
-plt.show()
+ax.legend();
 
-################################################################################
+###############################################################################
 #
 # Labelling plots
 # ===============
@@ -287,8 +279,8 @@ plt.show()
 # --------------------
 #
 # `~.Axes.set_xlabel`, `~.Axes.set_ylabel`, and `~.Axes.set_title` are used to
-# add text in the indicated locations (see :doc:`/tutorials/text/text_intro` for
-# more discussion).  Text can also be directly added to plots using
+# add text in the indicated locations (see :doc:`/tutorials/text/text_intro`
+# for more discussion).  Text can also be directly added to plots using
 # `~.Axes.text`:
 
 mu, sigma = 115, 15
@@ -302,8 +294,7 @@ ax.set_ylabel('Probability')
 ax.set_title('Aardvark lengths\n (not really)')
 ax.text(75, .025, r'$\mu=115,\ \sigma=15$')
 ax.axis([55, 175, 0, 0.03])
-ax.grid(True)
-plt.show()
+ax.grid(True);
 
 ###############################################################################
 # All of the `~.Axes.text` functions return a `matplotlib.text.Text`
@@ -347,8 +338,7 @@ line, = ax.plot(t, s, lw=2)
 ax.annotate('local max', xy=(2, 1), xytext=(3, 1.5),
             arrowprops=dict(facecolor='black', shrink=0.05))
 
-ax.set_ylim(-2, 2)
-plt.show()
+ax.set_ylim(-2, 2);
 
 ###############################################################################
 # In this basic example, both *xy* and *xytext* are in data coordinates.
@@ -366,8 +356,7 @@ fig, ax = plt.subplots(figsize=(5, 2.7))
 ax.plot(np.arange(len(data1)), data1, label='data1')
 ax.plot(np.arange(len(data2)), data2, label='data2')
 ax.plot(np.arange(len(data3)), data3, 'd', label='data3')
-ax.legend()
-plt.show()
+ax.legend();
 
 ##############################################################################
 # Legends in Matplotlib are quite flexible in layout, placement, and what
@@ -377,9 +366,9 @@ plt.show()
 # Axis scales and ticks
 # =====================
 #
-# Each Axes has two (or three) `~.axis.Axis` objects represnting the x- and y-axis.
-# These control the *scale* of the axis, the tick *Locators* and the tick
-# *Formatters*.
+# Each Axes has two (or three) `~.axis.Axis` objects represnting the x- and
+# y-axis. These control the *scale* of the axis, the tick *Locators* and the
+# tick *Formatters*.
 #
 # Scales
 # ------
@@ -396,8 +385,7 @@ data = 10**data1
 axs[0].plot(xdata, data)
 
 axs[1].set_yscale('log')
-axs[1].plot(xdata, data)
-plt.show()
+axs[1].plot(xdata, data);
 
 ##############################################################################
 # The scale sets the mapping from data values to spacing along the Axis. This
@@ -418,8 +406,7 @@ axs[0].set_title('Automatic ticks')
 axs[1].plot(xdata, data1)
 axs[1].set_xticks(np.arange(0, 100, 30), ['zero', '30', 'sixty', '90'])
 axs[1].set_yticks([-1.5, 0, 1.5])  # note that we don't need to specify labels
-axs[1].set_title('Manual ticks')
-plt.show()
+axs[1].set_title('Manual ticks');
 
 ##############################################################################
 # Different scales can have different locators and formatters; for instance
@@ -439,8 +426,7 @@ fig, ax = plt.subplots(figsize=(5, 3.7), constrained_layout=True)
 dates = np.arange(np.datetime64('2021-11-15'), np.datetime64('2021-12-25'),
                   np.timedelta64(1, 'h'))
 data = np.cumsum(np.random.randn(len(dates)))
-ax.plot(dates, data)
-plt.show()
+ax.plot(dates, data);
 
 ##############################################################################
 # For more information see the date examples
@@ -452,8 +438,7 @@ plt.show()
 fig, ax = plt.subplots(figsize=(5, 2.7), constrained_layout=True)
 categories = ['turnips', 'rutabega', 'cucumber', 'pumpkins']
 
-ax.bar(categories, np.random.rand(len(categories)))
-plt.show()
+ax.bar(categories, np.random.rand(len(categories)));
 
 ##############################################################################
 # One caveat about categorical plotting is that some methods of parsing
@@ -486,8 +471,7 @@ axs[1, 0].set_title('imshow() with LogNorm()')
 
 pc = axs[1, 1].scatter(data1, data2, c=data3, cmap='RdBu_r')
 fig.colorbar(pc, ax=axs[1, 1], extend='both')
-axs[1, 1].set_title('scatter()')
-plt.show()
+axs[1, 1].set_title('scatter()');
 
 ##############################################################################
 # Colormaps
