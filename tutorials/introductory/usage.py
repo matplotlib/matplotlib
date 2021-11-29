@@ -130,7 +130,7 @@ ax.set_ylabel('entry b')
 #
 # Coding styles
 # =============
-
+#
 # The object-oriented and the pyplot interfaces
 # ---------------------------------------------
 #
@@ -172,8 +172,8 @@ plt.legend()
 ###############################################################################
 # (In addition, there is a third approach, for the case when embedding
 # Matplotlib in a GUI application, which completely drops pyplot, even for
-# figure creation. See the corresponding section in the gallery for more info
-# (:ref:`user_interfaces`).)
+# figure creation. See the corresponding section in the gallery for more info:
+# :ref:`user_interfaces`.)
 #
 # Matplotlib's documentation and examples use both the OO and the pyplot
 # styles.  In general, we suggest using the OO style, particularly for
@@ -211,8 +211,6 @@ my_plotter(ax1, data1, data2, {'marker': 'x'})
 my_plotter(ax2, data3, data4, {'marker': 'o'})
 
 ###############################################################################
-# These examples provide convenience for more complex graphs.
-#
 # Note that if you want to install these as a python package, or any other
 # customizations you could use use one of the many templates on the web;
 # Matplotlib has one at `mpl-cookiecutter
@@ -260,8 +258,8 @@ ax.scatter(data1, data2, s=50, facecolor='C0', edgecolor='k')
 # Marker size depends on the method being used.  `~.Axes.plot` specifies
 # markersize in points, and is generally the "diameter" or width of the
 # marker.  `~.Axes.scatter` specifies markersize as approximately
-# proportional to the visual area of the marker.  There are also an array of
-# markerstyles available as string codes (see :mod:`~.matplotlib.markers`) or
+# proportional to the visual area of the marker.  There is an array of
+# markerstyles available as string codes (see :mod:`~.matplotlib.markers`), or
 # users can define their own `~.MarkerStyle` (see
 # :doc:`/gallery/lines_bars_and_markers/marker_reference`):
 
@@ -280,7 +278,7 @@ ax.legend()
 # Axes labels and text
 # --------------------
 #
-# `~.Axes.set_xlabel`, `~.Axes.set_ylabel` and `~.Axes.set_title` are used to
+# `~.Axes.set_xlabel`, `~.Axes.set_ylabel`, and `~.Axes.set_title` are used to
 # add text in the indicated locations (see :doc:`/tutorials/text/text_intro` for
 # more discussion).  Text can also be directly added to plots using
 # `~.Axes.text`:
@@ -421,7 +419,7 @@ axs[1].set_title('Manual ticks')
 # Plotting dates and strings
 # --------------------------
 #
-# Matplotlib can handle plotting arrays of dates and arrays of strings as
+# Matplotlib can handle plotting arrays of dates and arrays of strings, as
 # well as floating point numbers.  These get special locators and formatters
 # as appropriate.  For dates:
 
@@ -446,8 +444,8 @@ ax.bar(categories, np.random.rand(len(categories)))
 ##############################################################################
 # One caveat about categorical plotting is that some methods of parsing
 # text files return a list of strings, even if the strings all represent
-# numbers or dates.  If you pass 1000 strings Matplotlib will think you
-# meant 1000 categories and will add 1000 ticks to your plot.
+# numbers or dates.  If you pass 1000 strings, Matplotlib will think you
+# meant 1000 categories and will add 1000 ticks to your plot!
 #
 # Color mapped data
 # =================
@@ -507,7 +505,9 @@ axs[1, 1].set_title('scatter()')
 # :doc:`/gallery/subplots_axes_and_figures/colorbar_placement` for
 # details.  You can also change the appearance of colorbars with the
 # *extend* keyword to add arrows to the ends, and *shrink* and *aspect* to
-# control the size.
+# control the size.  Finally, the colorbar will have default Locators
+# and Formatters appropriate to the Norm.  These can be changed as for
+# other axis objects.
 #
 #
 # Working with multiple figures and axes
