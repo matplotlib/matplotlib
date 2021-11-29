@@ -11,6 +11,7 @@ line plot and histogram,
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
@@ -112,7 +113,13 @@ def plot_figure(axs, style_label=""):
     plot_colored_circles(axs[3], prng)
     plot_colored_sinusoidal_lines(axs[4])
     plot_histograms(axs[5], prng)
-
+    col = np.array([19, 6, 84])/256
+    back = mcolors.rgb_to_hsv(
+        mcolors.to_rgb(plt.rcParams['figure.facecolor']))[2]
+    if back < 0.5:
+        col = [0.8, 0.8, 1]
+    axs[0].figure.suptitle(style_label, x=0.03, fontsize=12,
+                           ha='left', color=col)
 
 if __name__ == "__main__":
 
@@ -133,5 +140,4 @@ if __name__ == "__main__":
             with plt.style.context(style_label):
                 ax = sfig.subplots(1, 6)
                 plot_figure(ax, style_label=style_label)
-                sfig.suptitle(style_label)
     plt.show()
