@@ -98,21 +98,13 @@ def plot_histograms(ax, prng, nb_samples=10000):
     return ax
 
 
-def plot_figure(style_label=""):
+def plot_figure(axs, style_label=""):
     """Setup and plot the demonstration figure with a given style."""
     # Use a dedicated RandomState instance to draw the same "random" values
     # across the different figures.
     prng = np.random.RandomState(96917002)
-
-    # Tweak the figure size to be better suited for a row of numerous plots:
-    # double the width and halve the height. NB: use relative changes because
-    # some styles may have a figure size different from the default one.
-    (fig_width, fig_height) = plt.rcParams['figure.figsize']
-    fig_size = [fig_width * 2, fig_height / 2]
-
-    fig, axs = plt.subplots(ncols=6, nrows=1, num=style_label,
-                            figsize=fig_size, squeeze=True)
-    axs[0].set_ylabel(style_label)
+    axs[0].figure.set_facecolor(plt.rcParams['figure.facecolor'])
+    axs[0].set_ylabel('ylabel')
 
     plot_scatter(axs[0], prng)
     plot_image_and_patch(axs[1], prng)
@@ -121,23 +113,25 @@ def plot_figure(style_label=""):
     plot_colored_sinusoidal_lines(axs[4])
     plot_histograms(axs[5], prng)
 
-    fig.tight_layout()
-
-    return fig
-
 
 if __name__ == "__main__":
 
     # Setup a list of all available styles, in alphabetical order but
-    # the `default` and `classic` ones, which will be forced resp. in
-    # first and second position.
+    # the `default`, `classic`, which will be forced
+    # resp. in first and second position.
     style_list = ['default', 'classic'] + sorted(
-        style for style in plt.style.available if style != 'classic')
+        style for style in plt.style.available if
+        ((style != 'classic') and (style[0] != '_')))
+    nstyles = len(style_list)
 
+    fig = plt.figure(figsize=(7, nstyles*2), constrained_layout=True)
+    subfigs = fig.subfigures(nstyles, 1)
     # Plot a demonstration figure for every available style sheet.
-    for style_label in style_list:
+    for sfig, style_label in zip(subfigs, style_list):
+
         with plt.rc_context({"figure.max_open_warning": len(style_list)}):
             with plt.style.context(style_label):
-                fig = plot_figure(style_label=style_label)
-
+                ax = sfig.subplots(1, 6)
+                plot_figure(ax, style_label=style_label)
+                sfig.suptitle(style_label)
     plt.show()
