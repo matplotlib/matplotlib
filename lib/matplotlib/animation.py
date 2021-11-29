@@ -1166,13 +1166,13 @@ class Animation:
             view, bg = self._blit_cache.get(ax, (object(), None))
             if cur_view != view:
                 self._blit_cache[ax] = (
-                    cur_view, ax.figure.canvas.copy_from_bbox(ax.bbox))
+                    cur_view, ax.figure.canvas.copy_from_bbox(ax.figure.bbox))
         # Make a separate pass to draw foreground.
         for a in artists:
             a.axes.draw_artist(a)
         # After rendering all the needed artists, blit each axes individually.
         for ax in updated_ax:
-            ax.figure.canvas.blit(ax.bbox)
+            ax.figure.canvas.blit(ax.figure.bbox)
 
     def _blit_clear(self, artists):
         # Get a list of the axes that need clearing from the artists that
