@@ -21,8 +21,8 @@ import numpy as np
 # widgets, etc.), each of which can contain one or more `~.axes.Axes`, an
 # area where points can be specified in terms of x-y coordinates (or theta-r
 # in a polar plot, x-y-z in a 3D plot, etc).  The simplest way of
-# creating a figure with an axes is using `.pyplot.subplots`. We can then use
-# `.Axes.plot` to draw some data on the axes:
+# creating a Figure with an Axes is using `.pyplot.subplots`. We can then use
+# `.Axes.plot` to draw some data on the Axes:
 
 fig, ax = plt.subplots()  # Create a figure containing a single axes.
 ax.plot([1, 2, 3, 4], [1, 4, 2, 3]);  # Plot some data on the axes.
@@ -33,33 +33,33 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3]);  # Plot some data on the axes.
 # Parts of a Figure
 # =================
 #
-# Here are the components of a Matplotlib figure.
+# Here are the components of a Matplotlib Figure.
 #
 # .. image:: ../../_static/anatomy.png
 #
 # :class:`~matplotlib.figure.Figure`
 # ----------------------------------
 #
-# The **whole** figure.  The figure keeps
+# The **whole** figure.  The Figure keeps
 # track of all the child :class:`~matplotlib.axes.Axes`, a group of
-# 'special' artists (titles, figure legends, colorbars, etc), and
+# 'special' Artists (titles, figure legends, colorbars, etc), and
 # even nested subfigures.
 #
-# The easiest way to create a new figure is with pyplot::
+# The easiest way to create a new Figure is with pyplot::
 #
 #    fig = plt.figure()  # an empty figure with no Axes
 #    fig, ax = plt.subplots()  # a figure with a single Axes
 #    fig, axs = plt.subplots(2, 2)  # a figure with a 2x2 grid of Axes
 #
-# It is often convenient to create the axes together with the figure, but you
-# can also manually add axes later on.  Note that many
+# It is often convenient to create the Axes together with the Figure, but you
+# can also manually add Axes later on.  Note that many
 # :doc:`Matplotlib backends </users/explain/backends>` support zooming and
 # panning on figure windows.
 #
 # :class:`~matplotlib.axes.Axes`
 # ------------------------------
 #
-# An Axes is an artist attached to a figure that contains a region for
+# An Axes is an Artist attached to a Figure that contains a region for
 # plotting data, and usually includes two (or three in the case of 3D)
 # :class:`~matplotlib.axis.Axis` objects (be aware of the difference
 # between **Axes** and **Axis**) that provide ticks and tick labels to
@@ -70,7 +70,7 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3]);  # Plot some data on the axes.
 # :meth:`~matplotlib.axes.Axes.set_ylabel`).
 #
 # The :class:`~.axes.Axes` class and its member functions are the primary
-# entry point to working with the OO interface, and have most of the
+# entry point to working with the OOP interface, and have most of the
 # plotting methods defined on them (e.g. ``ax.plot()``, shown above, uses
 # the `~.Axes.plot` method)
 #
@@ -78,7 +78,7 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3]);  # Plot some data on the axes.
 # ------------------------------
 #
 # These objects set the scale and limits and generate ticks (the marks
-# on the axis) and ticklabels (strings labeling the ticks).  The location
+# on the Axis) and ticklabels (strings labeling the ticks).  The location
 # of the ticks is determined by a `~matplotlib.ticker.Locator` object and the
 # ticklabel strings are formatted by a `~matplotlib.ticker.Formatter`.  The
 # combination of the correct `.Locator` and `.Formatter` gives very fine
@@ -87,11 +87,11 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3]);  # Plot some data on the axes.
 # :class:`~matplotlib.artist.Artist`
 # ----------------------------------
 #
-# Basically, everything visible on the figure is an artist (even
+# Basically, everything visible on the Figure is an Artist (even
 # `.Figure`, `Axes <.axes.Axes>`, and `~.axis.Axis` objects).  This includes
 # `.Text` objects, `.Line2D` objects, :mod:`.collections` objects, `.Patch`
-# objects, etc... When the figure is rendered, all of the
-# artists are drawn to the **canvas**.  Most Artists are tied to an Axes; such
+# objects, etc. When the Figure is rendered, all of the
+# Artists are drawn to the **canvas**.  Most Artists are tied to an Axes; such
 # an Artist cannot be shared by multiple Axes, or moved from one to another.
 #
 # .. _input_types:
@@ -109,7 +109,7 @@ ax.plot([1, 2, 3, 4], [1, 4, 2, 3]);  # Plot some data on the axes.
 #   b = np.matrix([[1, 2], [3, 4]])
 #   b_asarray = np.asarray(b)
 #
-# Most methods will also parse an addressible object like a *dict*, a
+# Most methods will also parse an addressable object like a *dict*, a
 # `numpy.recarray`, or a `pandas.DataFrame`.  Matplotlib allows you provide
 # the ``data`` keyword argument and generate plots passing the strings
 # corresponding to the *x* and *y* variables.
@@ -131,21 +131,22 @@ ax.set_ylabel('entry b');
 # Coding styles
 # =============
 #
-# The object-oriented and the pyplot interfaces
-# ---------------------------------------------
+# The explicit and the implicit approach of programming
+# -----------------------------------------------------
 #
 # As noted above, there are essentially two ways to use Matplotlib:
 #
-# - Explicitly create figures and axes, and call methods on them (the
-#   "object-oriented (OO) style").
-# - Rely on pyplot to automatically create and manage the figures and axes, and
-#   use pyplot functions for plotting.
+# - Explicitly create Figures and Axes, and call methods on them (the explicit
+#   or "object oriented programming (OOP) style").
+# - Rely on pyplot to automatically create and manage the Figures and Axes, and
+#   use pyplot functions for plotting (the implicit style).
 #
-# So one can use the OO-style
+# So one can use the explicit style
 
 x = np.linspace(0, 2, 100)  # Sample data.
 
-# Note that even in the OO-style, we use `.pyplot.figure` to create the figure.
+# Note that even in the explicit style, we use `.pyplot.figure` to create the
+# Figure.
 fig, ax = plt.subplots(figsize=(5, 2.7), constrained_layout=True)
 ax.plot(x, x, label='linear')  # Plot some data on the axes.
 ax.plot(x, x**2, label='quadratic')  # Plot more data on the axes...
@@ -156,7 +157,7 @@ ax.set_title("Simple Plot")  # Add a title to the axes.
 ax.legend();  # Add a legend.
 
 ###############################################################################
-# or the pyplot-style:
+# or the implicit style:
 
 x = np.linspace(0, 2, 100)  # Sample data.
 
@@ -175,11 +176,11 @@ plt.legend();
 # figure creation. See the corresponding section in the gallery for more info:
 # :ref:`user_interfaces`.)
 #
-# Matplotlib's documentation and examples use both the OO and the pyplot
-# styles.  In general, we suggest using the OO style, particularly for
-# complicated plots, and functions and scripts that are intended to be reused
-# as part of a larger project. However, the pyplot style can be very
-# conveneient for quick interactive work.
+# Matplotlib's documentation and examples use both the explicit and the
+# implicit styles. In general, we suggest using the explicit style,
+# particularly for complicated plots, and functions and scripts that are
+# intended to be reused as part of a larger project. However, the implicit
+# style can be very convenient for quick interactive work.
 #
 # .. note::
 #
@@ -205,14 +206,13 @@ def my_plotter(ax, data1, data2, param_dict):
 # which you would then use twice to populate two subplots:
 
 data1, data2, data3, data4 = np.random.randn(4, 100)  # make 4 random data sets
-xdata = np.arange(len(data1))  # make an ordinal for this
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(5, 2.7))
 my_plotter(ax1, data1, data2, {'marker': 'x'})
 my_plotter(ax2, data3, data4, {'marker': 'o'});
 
 ###############################################################################
 # Note that if you want to install these as a python package, or any other
-# customizations you could use use one of the many templates on the web;
+# customizations you could use one of the many templates on the web;
 # Matplotlib has one at `mpl-cookiecutter
 # <https://github.com/matplotlib/matplotlib-extension-cookiecutter>`_
 #
@@ -221,9 +221,9 @@ my_plotter(ax2, data3, data4, {'marker': 'o'});
 # ===============
 #
 # Most plotting methods have styling options for the Artists, accessible either
-# when a plotting method is called, or from a "setter" on the artist.  In the
-# plot below we manaully set the *color*, *linewidth*, and *linestyle* of the
-# artists created by `~.Axes.plot`, and we set the linestyle of the second line
+# when a plotting method is called, or from a "setter" on the Artist.  In the
+# plot below we manually set the *color*, *linewidth*, and *linestyle* of the
+# Artists created by `~.Axes.plot`, and we set the linestyle of the second line
 # after the fact with `~.Line2D.set_linestyle`.
 
 fig, ax = plt.subplots(figsize=(5, 2.7))
@@ -237,13 +237,12 @@ l.set_linestyle(':');
 # ------
 #
 # Matplotlib has a very flexible array of colors that are accepted for most
-# artists; see the :doc:`colors tutorial </tutorials/colors/colors>` for a
+# Artists; see the :doc:`colors tutorial </tutorials/colors/colors>` for a
 # list of specifications. Some Artists will take multiple colors.  i.e. for
 # a `~.Axes.scatter` plot, the edge of the markers can be different colors
 # from the interior:
 
 fig, ax = plt.subplots(figsize=(5, 2.7))
-x = np.arange(len(data1))
 ax.scatter(data1, data2, s=50, facecolor='C0', edgecolor='k');
 
 ###############################################################################
@@ -251,7 +250,7 @@ ax.scatter(data1, data2, s=50, facecolor='C0', edgecolor='k');
 # ---------------------------------------
 #
 # Line widths are typically in typographic points (1 pt = 1/72 inch) and
-# available for artists that have stroked lines.  Similarly, stroked lines
+# available for Artists that have stroked lines.  Similarly, stroked lines
 # can have a linestyle.  See the :doc:`linestyles example
 # </gallery/lines_bars_and_markers/linestyles>`.
 #
@@ -318,21 +317,21 @@ ax.grid(True);
 # where the ``r`` preceding the title string signifies that the string is a
 # *raw* string and not to treat backslashes as python escapes.
 # Matplotlib has a built-in TeX expression parser and
-# layout engine, and ships its own math fonts -- for details see
+# layout engine, and ships its own math fonts – for details see
 # :doc:`/tutorials/text/mathtext`.  You can also use LaTeX directly to format
 # your text and incorporate the output directly into your display figures or
-# saved postscript -- see :doc:`/tutorials/text/usetex`.
+# saved postscript – see :doc:`/tutorials/text/usetex`.
 #
 # Annotations
 # -----------
 #
-# We can also annotate points on a plot, odten by connecting an arrow pointing
+# We can also annotate points on a plot, often by connecting an arrow pointing
 # to *xy*, to a piece of text at *xytext*:
 
 fig, ax = plt.subplots(figsize=(5, 2.7))
 
 t = np.arange(0.0, 5.0, 0.01)
-s = np.cos(2*np.pi*t)
+s = np.cos(2 * np.pi * t)
 line, = ax.plot(t, s, lw=2)
 
 ax.annotate('local max', xy=(2, 1), xytext=(3, 1.5),
@@ -366,9 +365,9 @@ ax.legend();
 # Axis scales and ticks
 # =====================
 #
-# Each Axes has two (or three) `~.axis.Axis` objects represnting the x- and
-# y-axis. These control the *scale* of the axis, the tick *Locators* and the
-# tick *Formatters*.
+# Each Axes has two (or three) `~.axis.Axis` objects representing the x- and
+# y-axis. These control the *scale* of the Axis, the tick *locators* and the
+# tick *formatters*.
 #
 # Scales
 # ------
@@ -381,6 +380,7 @@ ax.legend();
 # manually:
 
 fig, axs = plt.subplots(1, 2, figsize=(5, 2.7), constrained_layout=True)
+xdata = np.arange(len(data1))  # make an ordinal for this
 data = 10**data1
 axs[0].plot(xdata, data)
 
@@ -390,14 +390,15 @@ axs[1].plot(xdata, data);
 ##############################################################################
 # The scale sets the mapping from data values to spacing along the Axis. This
 # happens in both directions, and gets combined into a *transform*, which
-# is the way that Matplotlib maps from data co-ordinates to Axes, Figure, or
-# screen co-ordinates.  See :doc:`/tutorials/advanced/transforms_tutorial`.
+# is the way that Matplotlib maps from data coordinates to Axes, Figure, or
+# screen coordinates.  See :doc:`/tutorials/advanced/transforms_tutorial`.
 #
 # Tick locators and formatters
 # ----------------------------
 #
 # Each Axis has a tick *locator* and *formatter* that choose where along the
-# axes to put tick marks.  A simple interface to this is `~.Axes.set_xticks`:
+# Axis objects to put tick marks.  A simple interface to this is
+# `~.Axes.set_xticks`:
 
 fig, axs = plt.subplots(2, 1, constrained_layout=True)
 axs[0].plot(xdata, data1)
@@ -422,11 +423,13 @@ axs[1].set_title('Manual ticks');
 # well as floating point numbers.  These get special locators and formatters
 # as appropriate.  For dates:
 
-fig, ax = plt.subplots(figsize=(5, 3.7), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(5, 2.7), constrained_layout=True)
 dates = np.arange(np.datetime64('2021-11-15'), np.datetime64('2021-12-25'),
                   np.timedelta64(1, 'h'))
 data = np.cumsum(np.random.randn(len(dates)))
-ax.plot(dates, data);
+ax.plot(dates, data)
+cdf = mpl.dates.ConciseDateFormatter(ax.xaxis.get_major_locator())
+ax.xaxis.set_major_formatter(cdf);
 
 ##############################################################################
 # For more information see the date examples
@@ -436,7 +439,7 @@ ax.plot(dates, data);
 # :doc:`/gallery/lines_bars_and_markers/categorical_variables`).
 
 fig, ax = plt.subplots(figsize=(5, 2.7), constrained_layout=True)
-categories = ['turnips', 'rutabega', 'cucumber', 'pumpkins']
+categories = ['turnips', 'rutabaga', 'cucumber', 'pumpkins']
 
 ax.bar(categories, np.random.rand(len(categories)));
 
@@ -499,36 +502,35 @@ axs[1, 1].set_title('scatter()');
 # Adding a `~.Figure.colorbar` gives a key to relate the color back to the
 # underlying data. Colorbars are figure-level Artists, and are attached to
 # a ScalarMappable (where they get their information about the norm and
-# colormap) and usually steal space from a parent axes.  Placement of
+# colormap) and usually steal space from a parent Axes.  Placement of
 # colorbars can be complex: see
 # :doc:`/gallery/subplots_axes_and_figures/colorbar_placement` for
 # details.  You can also change the appearance of colorbars with the
 # *extend* keyword to add arrows to the ends, and *shrink* and *aspect* to
-# control the size.  Finally, the colorbar will have default Locators
-# and Formatters appropriate to the Norm.  These can be changed as for
-# other axis objects.
+# control the size.  Finally, the colorbar will have default locators
+# and formatters appropriate to the norm.  These can be changed as for
+# other Axis objects.
 #
 #
-# Working with multiple figures and axes
+# Working with multiple Figures and Axes
 # ======================================
 #
-# You can open multiple figures with multiple calls to
+# You can open multiple Figures with multiple calls to
 # ``fig = plt.figure()`` or ``fig2, ax = plt.subplots()``.  By keeping the
-# object references you can add artists to either figure.
+# object references you can add Artists to either Figure.
 #
-# Multiple axes can be added a number of ways, but the most basic is
+# Multiple Axes can be added a number of ways, but the most basic is
 # ``plt.subplots()`` as used above.  One can achieve more complex layouts,
-# with axes spanning columns or rows, using `~.pyplot.subplot_mosaic`.
+# with Axes objects spanning columns or rows, using `~.pyplot.subplot_mosaic`.
 
 fig, axd = plt.subplot_mosaic([['upleft', 'right'],
                                ['lowleft', 'right']], constrained_layout=True)
 axd['upleft'].set_title('upleft')
 axd['lowleft'].set_title('lowleft')
-axd['right'].set_title('right')
-plt.show()
+axd['right'].set_title('right');
 
 ###############################################################################
-# Matplotlib has quite sophisticated tools for arranging axes: See
+# Matplotlib has quite sophisticated tools for arranging Axes: See
 # :doc:`/tutorials/intermediate/arranging_axes` and
 # :doc:`/tutorials/provisional/mosaic`.
 #
@@ -536,6 +538,6 @@ plt.show()
 # More reading
 # ============
 #
-# - For more plot types see :doc:`Plot types </plot_types/index>` and the
-#   :doc:`API reference </api/index>`, in particlar the
-#   :doc:`Axes API </api/axes_api>`.
+# For more plot types see :doc:`Plot types </plot_types/index>` and the
+# :doc:`API reference </api/index>`, in particlar the
+# :doc:`Axes API </api/axes_api>`.
