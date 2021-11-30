@@ -545,9 +545,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ----------
         offsets : (N, 2) or (2,) array-like
         """
-        offsets = np.asanyarray(offsets, float)
+        offsets = np.asanyarray(offsets)
         if offsets.shape == (2,):  # Broadcast (2,) -> (1, 2) but nothing else.
             offsets = offsets[None, :]
+        offsets[:, 0] = self.convert_xunits(offsets[:, 0])
+        offsets[:, 1] = self.convert_yunits(offsets[:, 1])
+        offsets = np.asarray(offsets, 'float')
         self._offsets = offsets
         self.stale = True
 
