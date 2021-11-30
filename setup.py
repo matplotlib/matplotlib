@@ -311,6 +311,7 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         "numpy>=1.17",
         "setuptools_scm>=4",
         "setuptools_scm_git_archive",
+        "wheel"
     ],
     install_requires=[
         "cycler>=0.10",
@@ -321,11 +322,7 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         "pillow>=6.2.0",
         "pyparsing>=2.2.1,<3.0.0",
         "python-dateutil>=2.7",
-    ] + (
-        # Installing from a git checkout.
-        ["setuptools_scm>=4"] if Path(__file__).with_name(".git").exists()
-        else []
-    ),
+    ],
     use_scm_version={
         "version_scheme": "release-branch-semver",
         "local_scheme": "node-and-date",
