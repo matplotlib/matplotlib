@@ -3492,9 +3492,9 @@ class _AxesBase(martist.Artist):
             loc = (loc if loc is not None
                    else mpl.rcParams['xaxis.labellocation'])
         _api.check_in_list(('left', 'center', 'right'), loc=loc)
-        x = None or kwargs.get('x')
-        ha = None or kwargs.get('ha')
-        horizontalalignment = None or kwargs.get('horizontalalignment')
+        x = kwargs.get('x')
+        ha = kwargs.get('ha')
+        horizontalalignment = kwargs.get('horizontalalignment')
         ha_to_use = horizontalalignment or ha
 
         # Use ha_to_use under the ha alias moving forward
@@ -3853,9 +3853,9 @@ class _AxesBase(martist.Artist):
             loc = (loc if loc is not None
                    else mpl.rcParams['yaxis.labellocation'])
         _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
-        y = None or kwargs.get('y')
-        ha = None or kwargs.get('ha')
-        horizontalalignment = None or kwargs.get('horizontalalignment')
+        y = kwargs.get('y')
+        ha = kwargs.get('ha')
+        horizontalalignment = kwargs.get('horizontalalignment')
         ha_to_use = horizontalalignment or ha
 
         # Use ha_to_use under the ha alias moving forward
