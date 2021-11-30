@@ -525,87 +525,47 @@ FigureCanvas_stop_event_loop(FigureCanvas* self)
     Py_RETURN_NONE;
 }
 
-static PyMethodDef FigureCanvas_methods[] = {
-    {"draw",
-     (PyCFunction)FigureCanvas_draw,
-     METH_NOARGS,
-     NULL,  // docstring inherited.
-    },
-    {"draw_idle",
-     (PyCFunction)FigureCanvas_draw_idle,
-     METH_NOARGS,
-     NULL,  // docstring inherited.
-    },
-    {"flush_events",
-     (PyCFunction)FigureCanvas_flush_events,
-     METH_NOARGS,
-     NULL,  // docstring inherited.
-    },
-    {"set_rubberband",
-     (PyCFunction)FigureCanvas_set_rubberband,
-     METH_VARARGS,
-     "Specifies a new rubberband rectangle and invalidates it."
-    },
-    {"remove_rubberband",
-     (PyCFunction)FigureCanvas_remove_rubberband,
-     METH_NOARGS,
-     "Removes the current rubberband rectangle."
-    },
-    {"start_event_loop",
-     (PyCFunction)FigureCanvas_start_event_loop,
-     METH_KEYWORDS | METH_VARARGS,
-     NULL,  // docstring inherited.
-    },
-    {"stop_event_loop",
-     (PyCFunction)FigureCanvas_stop_event_loop,
-     METH_NOARGS,
-     NULL,  // docstring inherited.
-    },
-    {NULL}  /* Sentinel */
-};
-
-static char FigureCanvas_doc[] =
-"A FigureCanvas object wraps a Cocoa NSView object.\n";
-
 static PyTypeObject FigureCanvasType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "_macosx.FigureCanvas",    /*tp_name*/
-    sizeof(FigureCanvas),      /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)FigureCanvas_dealloc,     /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    (reprfunc)FigureCanvas_repr,     /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    FigureCanvas_doc,          /* tp_doc */
-    0,                         /* tp_traverse */
-    0,                         /* tp_clear */
-    0,                         /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    0,                         /* tp_iter */
-    0,                         /* tp_iternext */
-    FigureCanvas_methods,      /* tp_methods */
-    0,                         /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    (initproc)FigureCanvas_init,      /* tp_init */
-    0,                         /* tp_alloc */
-    FigureCanvas_new,          /* tp_new */
+    .tp_name = "_macosx.FigureCanvas",
+    .tp_basicsize = sizeof(FigureCanvas),
+    .tp_dealloc = (destructor)FigureCanvas_dealloc,
+    .tp_repr = (reprfunc)FigureCanvas_repr,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_init = (initproc)FigureCanvas_init,
+    .tp_new = (newfunc)FigureCanvas_new,
+    .tp_doc = "A FigureCanvas object wraps a Cocoa NSView object.",
+    .tp_methods = (PyMethodDef[]){
+        {"draw",
+         (PyCFunction)FigureCanvas_draw,
+         METH_NOARGS,
+         NULL},  // docstring inherited
+        {"draw_idle",
+         (PyCFunction)FigureCanvas_draw_idle,
+         METH_NOARGS,
+         NULL},  // docstring inherited
+        {"flush_events",
+         (PyCFunction)FigureCanvas_flush_events,
+         METH_NOARGS,
+         NULL},  // docstring inherited
+        {"set_rubberband",
+         (PyCFunction)FigureCanvas_set_rubberband,
+         METH_VARARGS,
+         "Specifies a new rubberband rectangle and invalidates it."},
+        {"remove_rubberband",
+         (PyCFunction)FigureCanvas_remove_rubberband,
+         METH_NOARGS,
+         "Removes the current rubberband rectangle."},
+        {"start_event_loop",
+         (PyCFunction)FigureCanvas_start_event_loop,
+         METH_KEYWORDS | METH_VARARGS,
+         NULL},  // docstring inherited
+        {"stop_event_loop",
+         (PyCFunction)FigureCanvas_stop_event_loop,
+         METH_NOARGS,
+         NULL},  // docstring inherited
+        {}  // sentinel
+    },
 };
 
 typedef struct {
@@ -778,81 +738,38 @@ FigureManager_resize(FigureManager* self, PyObject *args, PyObject *kwds)
     Py_RETURN_NONE;
 }
 
-static PyMethodDef FigureManager_methods[] = {
-    {"show",
-     (PyCFunction)FigureManager_show,
-     METH_NOARGS,
-     NULL,  // docstring inherited.
-    },
-    {"destroy",
-     (PyCFunction)FigureManager_destroy,
-     METH_NOARGS,
-     NULL,  // docstring inherited.
-    },
-    {"set_window_title",
-     (PyCFunction)FigureManager_set_window_title,
-     METH_VARARGS,
-     NULL,  // docstring inherited.
-    },
-    {"get_window_title",
-     (PyCFunction)FigureManager_get_window_title,
-     METH_NOARGS,
-     NULL,  // docstring inherited.
-    },
-    {"resize",
-     (PyCFunction)FigureManager_resize,
-     METH_VARARGS,
-     NULL,  // docstring inherited.
-    },
-    {NULL}  /* Sentinel */
-};
-
-static char FigureManager_doc[] =
-"A FigureManager object wraps a Cocoa NSWindow object.\n";
-
 static PyTypeObject FigureManagerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "_macosx.FigureManager",   /*tp_name*/
-    sizeof(FigureManager),     /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)FigureManager_dealloc,     /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    (reprfunc)FigureManager_repr,     /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    FigureManager_doc,         /* tp_doc */
-    0,                         /* tp_traverse */
-    0,                         /* tp_clear */
-    0,                         /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    0,                         /* tp_iter */
-    0,                         /* tp_iternext */
-    FigureManager_methods,     /* tp_methods */
-    0,                         /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    (initproc)FigureManager_init,      /* tp_init */
-    0,                         /* tp_alloc */
-    FigureManager_new,          /* tp_new */
+    .tp_name = "_macosx.FigureManager",
+    .tp_basicsize = sizeof(FigureManager),
+    .tp_dealloc = (destructor)FigureManager_dealloc,
+    .tp_repr = (reprfunc)FigureManager_repr,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_init = (initproc)FigureManager_init,
+    .tp_new = (newfunc)FigureManager_new,
+    .tp_doc = "A FigureManager object wraps a Cocoa NSWindow object.",
+    .tp_methods = (PyMethodDef[]){  // All docstrings are inherited.
+        {"show",
+         (PyCFunction)FigureManager_show,
+         METH_NOARGS},
+        {"destroy",
+         (PyCFunction)FigureManager_destroy,
+         METH_NOARGS},
+        {"set_window_title",
+         (PyCFunction)FigureManager_set_window_title,
+         METH_VARARGS},
+        {"get_window_title",
+         (PyCFunction)FigureManager_get_window_title,
+         METH_NOARGS},
+        {"resize",
+         (PyCFunction)FigureManager_resize,
+         METH_VARARGS},
+        {}  // sentinel
+    },
 };
 
-@interface NavigationToolbar2Handler : NSObject {
-    PyObject* toolbar;
+@interface NavigationToolbar2Handler : NSObject
+{   PyObject* toolbar;
     NSButton* panbutton;
     NSButton* zoombutton;
 }
@@ -1061,9 +978,6 @@ NavigationToolbar2_repr(NavigationToolbar2* self)
     return PyUnicode_FromFormat("NavigationToolbar2 object %p", (void*)self);
 }
 
-static char NavigationToolbar2_doc[] =
-"NavigationToolbar2\n";
-
 static PyObject*
 NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
 {
@@ -1094,54 +1008,22 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
     Py_RETURN_NONE;
 }
 
-static PyMethodDef NavigationToolbar2_methods[] = {
-    {"set_message",
-     (PyCFunction)NavigationToolbar2_set_message,
-     METH_VARARGS,
-     NULL,  // docstring inherited.
-    },
-    {NULL}  /* Sentinel */
-};
-
 static PyTypeObject NavigationToolbar2Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "_macosx.NavigationToolbar2", /*tp_name*/
-    sizeof(NavigationToolbar2), /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)NavigationToolbar2_dealloc,     /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    (reprfunc)NavigationToolbar2_repr,     /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    NavigationToolbar2_doc,    /* tp_doc */
-    0,                         /* tp_traverse */
-    0,                         /* tp_clear */
-    0,                         /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    0,                         /* tp_iter */
-    0,                         /* tp_iternext */
-    NavigationToolbar2_methods, /* tp_methods */
-    0,                         /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    (initproc)NavigationToolbar2_init,      /* tp_init */
-    0,                         /* tp_alloc */
-    NavigationToolbar2_new,    /* tp_new */
+    .tp_name = "_macosx.NavigationToolbar2",
+    .tp_basicsize = sizeof(NavigationToolbar2),
+    .tp_dealloc = (destructor)NavigationToolbar2_dealloc,
+    .tp_repr = (reprfunc)NavigationToolbar2_repr,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_init = (initproc)NavigationToolbar2_init,
+    .tp_new = (newfunc)NavigationToolbar2_new,
+    .tp_doc = "NavigationToolbar2",
+    .tp_methods = (PyMethodDef[]){  // All docstrings are inherited.
+        {"set_message",
+         (PyCFunction)NavigationToolbar2_set_message,
+         METH_VARARGS},
+        {}  // sentinel
+    },
 };
 
 static PyObject*
@@ -1892,9 +1774,6 @@ Timer_repr(Timer* self)
                                (void*) self, (void*)(self->timer));
 }
 
-static char Timer_doc[] =
-"A Timer object wraps a CFRunLoopTimerRef and can add it to the event loop.\n";
-
 static void timer_callback(CFRunLoopTimerRef timer, void* info)
 {
     gil_call_method(info, "_on_timer");
@@ -1991,113 +1870,67 @@ Timer_dealloc(Timer* self)
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
-static PyMethodDef Timer_methods[] = {
-    {"_timer_start",
-     (PyCFunction)Timer__timer_start,
-     METH_VARARGS,
-     NULL,  // docstring inherited.
-    },
-    {"_timer_stop",
-     (PyCFunction)Timer__timer_stop,
-     METH_NOARGS,
-     NULL,  // docstring inherited.
-    },
-    {NULL}  /* Sentinel */
-};
-
 static PyTypeObject TimerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "_macosx.Timer",           /*tp_name*/
-    sizeof(Timer),             /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Timer_dealloc,     /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    (reprfunc)Timer_repr,      /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    Timer_doc,                 /* tp_doc */
-    0,                         /* tp_traverse */
-    0,                         /* tp_clear */
-    0,                         /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    0,                         /* tp_iter */
-    0,                         /* tp_iternext */
-    Timer_methods,             /* tp_methods */
-    0,                         /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,                         /* tp_init */
-    0,                         /* tp_alloc */
-    Timer_new,                 /* tp_new */
-};
-
-static struct PyMethodDef methods[] = {
-   {"event_loop_is_running",
-    (PyCFunction)event_loop_is_running,
-    METH_NOARGS,
-    "Return whether the OSX backend has set up the NSApp main event loop."
-   },
-   {"show",
-    (PyCFunction)show,
-    METH_NOARGS,
-    "Show all the figures and enter the main loop.\n"
-    "\n"
-    "This function does not return until all Matplotlib windows are closed,\n"
-    "and is normally not needed in interactive sessions."
-   },
-   {"choose_save_file",
-    (PyCFunction)choose_save_file,
-    METH_VARARGS,
-    "Closes the window."
-   },
-   {"set_cursor",
-    (PyCFunction)set_cursor,
-    METH_VARARGS,
-    "Sets the active cursor."
-   },
-   {NULL, NULL, 0, NULL} /* sentinel */
+    .tp_name = "_macosx.Timer",
+    .tp_basicsize = sizeof(Timer),
+    .tp_dealloc = (destructor)Timer_dealloc,
+    .tp_repr = (reprfunc)Timer_repr,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_new = (newfunc)Timer_new,
+    .tp_doc = "A Timer object wraps a CFRunLoopTimerRef and can add it to the event loop.",
+    .tp_methods = (PyMethodDef[]){  // All docstrings are inherited.
+        {"_timer_start",
+         (PyCFunction)Timer__timer_start,
+         METH_VARARGS},
+        {"_timer_stop",
+         (PyCFunction)Timer__timer_stop,
+         METH_NOARGS},
+        {}  // sentinel
+    },
 };
 
 static struct PyModuleDef moduledef = {
-    PyModuleDef_HEAD_INIT, "_macosx", "Mac OS X native backend", -1, methods
+    PyModuleDef_HEAD_INIT, "_macosx", "Mac OS X native backend", -1,
+    (PyMethodDef[]){
+        {"event_loop_is_running",
+         (PyCFunction)event_loop_is_running,
+         METH_NOARGS,
+         "Return whether the OSX backend has set up the NSApp main event loop."},
+        {"show",
+         (PyCFunction)show,
+         METH_NOARGS,
+         "Show all the figures and enter the main loop.\n"
+         "\n"
+         "This function does not return until all Matplotlib windows are closed,\n"
+         "and is normally not needed in interactive sessions."},
+        {"choose_save_file",
+         (PyCFunction)choose_save_file,
+         METH_VARARGS,
+         "Query the user for a location where to save a file."},
+        {"set_cursor",
+         (PyCFunction)set_cursor,
+         METH_VARARGS,
+         "Set the active cursor."},
+        {}  /* Sentinel */
+    },
 };
 
 #pragma GCC visibility push(default)
 
 PyObject* PyInit__macosx(void)
 {
-    PyObject *module;
-
     if (PyType_Ready(&FigureCanvasType) < 0
      || PyType_Ready(&FigureManagerType) < 0
      || PyType_Ready(&NavigationToolbar2Type) < 0
      || PyType_Ready(&TimerType) < 0)
         return NULL;
 
-    module = PyModule_Create(&moduledef);
+    PyObject *module = PyModule_Create(&moduledef);
     if (!module) {
         return NULL;
     }
 
-    Py_INCREF(&FigureCanvasType);
-    Py_INCREF(&FigureManagerType);
-    Py_INCREF(&NavigationToolbar2Type);
-    Py_INCREF(&TimerType);
     PyModule_AddObject(module, "FigureCanvas", (PyObject*) &FigureCanvasType);
     PyModule_AddObject(module, "FigureManager", (PyObject*) &FigureManagerType);
     PyModule_AddObject(module, "NavigationToolbar2", (PyObject*) &NavigationToolbar2Type);
