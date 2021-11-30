@@ -1,4 +1,4 @@
-.. redirect-from:: /citing
+.. redirect-from:: /users/citing
 
 Citing Matplotlib
 =================
