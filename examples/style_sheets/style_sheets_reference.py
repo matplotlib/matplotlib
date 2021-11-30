@@ -104,6 +104,8 @@ def plot_figure(axs, style_label=""):
     # Use a dedicated RandomState instance to draw the same "random" values
     # across the different figures.
     prng = np.random.RandomState(96917002)
+    # the facecolor rcparam is not applied to subfigures, so
+    # do so manually here:
     axs[0].figure.set_facecolor(plt.rcParams['figure.facecolor'])
     axs[0].set_ylabel('ylabel')
 
@@ -113,13 +115,17 @@ def plot_figure(axs, style_label=""):
     plot_colored_circles(axs[3], prng)
     plot_colored_sinusoidal_lines(axs[4])
     plot_histograms(axs[5], prng)
+    # make a suptitle, in the same style for all subfigures,
+    # except those with dark backgrounds, which get a lighter
+    # color:
     col = np.array([19, 6, 84])/256
     back = mcolors.rgb_to_hsv(
         mcolors.to_rgb(plt.rcParams['figure.facecolor']))[2]
     if back < 0.5:
         col = [0.8, 0.8, 1]
-    axs[0].figure.suptitle(style_label, x=0.03, fontsize=12,
-                           ha='left', color=col)
+    axs[0].figure.suptitle(style_label, x=0.015, fontsize=14, ha='left',
+                           color=col, fontfamily='DejaVu Sans',
+                           fontweight='normal')
 
 if __name__ == "__main__":
 
