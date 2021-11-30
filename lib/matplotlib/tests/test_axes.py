@@ -126,8 +126,6 @@ def test_label_shift():
     ax.set_ylabel("Test label", loc="center")
     assert ax.yaxis.get_label().get_horizontalalignment() == "center"
 
-    plt.close()
-
 
 @check_figures_equal(extensions=["png"])
 def test_acorr(fig_test, fig_ref):
