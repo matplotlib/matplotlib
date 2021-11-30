@@ -62,6 +62,20 @@
    Needed to know when to stop the NSApp */
 static long FigureWindowCount = 0;
 
+/* Keep track of modifier key states for flagsChanged
+   to keep track of press vs release */
+static bool lastCommand = false;
+static bool lastControl = false;
+static bool lastShift = false;
+static bool lastOption = false;
+static bool lastCapsLock = false;
+/* Keep track of whether this specific key modifier was pressed or not */
+static bool keyChangeCommand = false;
+static bool keyChangeControl = false;
+static bool keyChangeShift = false;
+static bool keyChangeOption = false;
+static bool keyChangeCapsLock = false;
+
 /* -------------------------- Helper function ---------------------------- */
 
 static void
@@ -247,7 +261,7 @@ static int wait_for_stdin(void)
 - (void)keyUp:(NSEvent*)event;
 - (void)scrollWheel:(NSEvent *)event;
 - (BOOL)acceptsFirstResponder;
-//- (void)flagsChanged:(NSEvent*)event;
+- (void)flagsChanged:(NSEvent*)event;
 @end
 
 /* ---------------------------- Python classes ---------------------------- */
@@ -1623,26 +1637,45 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
                                         ];
 
     NSMutableString* returnkey = [NSMutableString string];
-    if ([event modifierFlags] & NSEventModifierFlagControl) {
-        [returnkey appendString:@"ctrl+" ];
+    if (keyChangeControl) {
+        // When control is the key that was pressed, return the full word
+        [returnkey appendString:@"control+"];
+    } else if (([event modifierFlags] & NSEventModifierFlagControl)) {
+        // If control is already pressed, return the shortened version
+        [returnkey appendString:@"ctrl+"];
     }
-    if ([event modifierFlags] & NSEventModifierFlagOption) {
+    if (([event modifierFlags] & NSEventModifierFlagOption) || keyChangeOption) {
         [returnkey appendString:@"alt+" ];
     }
-    if ([event modifierFlags] & NSEventModifierFlagCommand) {
+    if (([event modifierFlags] & NSEventModifierFlagCommand) || keyChangeCommand) {
         [returnkey appendString:@"cmd+" ];
     }
-
-    unichar uc = [[event charactersIgnoringModifiers] characterAtIndex:0];
-    NSString* specialchar = [specialkeymappings objectForKey:[NSNumber numberWithUnsignedLong:uc]];
-    if (specialchar) {
-        if ([event modifierFlags] & NSEventModifierFlagShift) {
-            [returnkey appendString:@"shift+" ];
-        }
-        [returnkey appendString:specialchar];
+    // Don't print caps_lock unless it was the key that got pressed
+    if (keyChangeCapsLock) {
+        [returnkey appendString:@"caps_lock+" ];
     }
-    else
-        [returnkey appendString:[event charactersIgnoringModifiers]];
+
+    // flagsChanged event can't handle charactersIgnoringModifiers
+    // because it was a modifier key that was pressed/released
+    if (event.type != NSEventTypeFlagsChanged) {
+        unichar uc = [[event charactersIgnoringModifiers] characterAtIndex:0];
+        NSString *specialchar = [specialkeymappings objectForKey:[NSNumber numberWithUnsignedLong:uc]];
+        if (specialchar) {
+            if (([event modifierFlags] & NSEventModifierFlagShift) || keyChangeShift) {
+                [returnkey appendString:@"shift+"];
+            }
+            [returnkey appendString:specialchar];
+        } else {
+            [returnkey appendString:[event charactersIgnoringModifiers]];
+        }
+    } else {
+        if (([event modifierFlags] & NSEventModifierFlagShift) || keyChangeShift) {
+            [returnkey appendString:@"shift+"];
+        }
+        // Since it was a modifier event trim the final character of the string
+        // because we added in "+" earlier
+        [returnkey setString: [returnkey substringToIndex:[returnkey length] - 1]];
+    }
 
     return [returnkey UTF8String];
 }
@@ -1711,29 +1744,60 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     return YES;
 }
 
-/* This is all wrong. Address of pointer is being passed instead of pointer, keynames don't
-   match up with what the front-end and does the front-end even handle modifier keys by themselves?
-
-- (void)flagsChanged:(NSEvent*)event
+// flagsChanged gets called whenever a  modifier key is pressed OR released
+// so we need to handle both cases here
+- (void)flagsChanged:(NSEvent *)event
 {
-    const char *s = NULL;
-    if (([event modifierFlags] & NSControlKeyMask) == NSControlKeyMask)
-        s = "control";
-    else if (([event modifierFlags] & NSShiftKeyMask) == NSShiftKeyMask)
-        s = "shift";
-    else if (([event modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask)
-        s = "alt";
-    else return;
-    PyGILState_STATE gstate = PyGILState_Ensure();
-    PyObject* result = PyObject_CallMethod(canvas, "key_press_event", "s", &s);
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
+    bool isPress = false; // true if key is pressed, false if key was released
 
-    PyGILState_Release(gstate);
+    // Each if clause tests the two cases for each of the keys we can handle
+    // 1. If the modifier flag "command key" is pressed and it was not previously
+    // 2. If the modifier flag "command key" is not pressed and it was previously
+    // !! converts the result of the bitwise & operator to a logical boolean,
+    // which allows us to then bitwise xor (^) the result with a boolean (lastCommand).
+    if (!!([event modifierFlags] & NSEventModifierFlagCommand) ^ lastCommand) {
+        // Command pressed/released
+        lastCommand = !lastCommand;
+        keyChangeCommand = true;
+        isPress = lastCommand;
+    } else if (!!([event modifierFlags] & NSEventModifierFlagControl) ^ lastControl) {
+        // Control pressed/released
+        lastControl = !lastControl;
+        keyChangeControl = true;
+        isPress = lastControl;
+    } else if (!!([event modifierFlags] & NSEventModifierFlagShift) ^ lastShift) {
+        // Shift pressed/released
+        lastShift = !lastShift;
+        keyChangeShift = true;
+        isPress = lastShift;
+    } else if (!!([event modifierFlags] & NSEventModifierFlagOption) ^ lastOption) {
+        // Option pressed/released
+        lastOption = !lastOption;
+        keyChangeOption = true;
+        isPress = lastOption;
+    } else if (!!([event modifierFlags] & NSEventModifierFlagCapsLock) ^ lastCapsLock) {
+        // Capslock pressed/released
+        lastCapsLock = !lastCapsLock;
+        keyChangeCapsLock = true;
+        isPress = lastCapsLock;
+    } else {
+        // flag we don't handle
+        return;
+    }
+
+    if (isPress) {
+        [self keyDown:event];
+    } else {
+        [self keyUp:event];
+    }
+
+    // Reset the state for the key changes after handling the event
+    keyChangeCommand = false;
+    keyChangeControl = false;
+    keyChangeShift = false;
+    keyChangeOption = false;
+    keyChangeCapsLock = false;
 }
- */
 @end
 
 static PyObject*
