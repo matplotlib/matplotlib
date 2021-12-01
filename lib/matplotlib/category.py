@@ -80,12 +80,13 @@ class StrCategoryConverter(units.ConversionInterface):
         axis : `~matplotlib.axis.Axis`
             axis for which information is being set
 
+            .. note:: *axis* is not used
+
         Returns
         -------
         `~matplotlib.units.AxisInfo`
             Information to support default tick labeling
 
-        .. note: axis is not used
         """
         StrCategoryConverter._validate_unit(unit)
         # locator and formatter take mapping dict because
