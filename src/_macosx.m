@@ -1595,47 +1595,6 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
 - (const char*)convertKeyEvent:(NSEvent*)event
 {
-    NSDictionary* specialkeymappings = [NSDictionary dictionaryWithObjectsAndKeys:
-                                        @"left", [NSNumber numberWithUnsignedLong:NSLeftArrowFunctionKey],
-                                        @"right", [NSNumber numberWithUnsignedLong:NSRightArrowFunctionKey],
-                                        @"up", [NSNumber numberWithUnsignedLong:NSUpArrowFunctionKey],
-                                        @"down", [NSNumber numberWithUnsignedLong:NSDownArrowFunctionKey],
-                                        @"f1", [NSNumber numberWithUnsignedLong:NSF1FunctionKey],
-                                        @"f2", [NSNumber numberWithUnsignedLong:NSF2FunctionKey],
-                                        @"f3", [NSNumber numberWithUnsignedLong:NSF3FunctionKey],
-                                        @"f4", [NSNumber numberWithUnsignedLong:NSF4FunctionKey],
-                                        @"f5", [NSNumber numberWithUnsignedLong:NSF5FunctionKey],
-                                        @"f6", [NSNumber numberWithUnsignedLong:NSF6FunctionKey],
-                                        @"f7", [NSNumber numberWithUnsignedLong:NSF7FunctionKey],
-                                        @"f8", [NSNumber numberWithUnsignedLong:NSF8FunctionKey],
-                                        @"f9", [NSNumber numberWithUnsignedLong:NSF9FunctionKey],
-                                        @"f10", [NSNumber numberWithUnsignedLong:NSF10FunctionKey],
-                                        @"f11", [NSNumber numberWithUnsignedLong:NSF11FunctionKey],
-                                        @"f12", [NSNumber numberWithUnsignedLong:NSF12FunctionKey],
-                                        @"f13", [NSNumber numberWithUnsignedLong:NSF13FunctionKey],
-                                        @"f14", [NSNumber numberWithUnsignedLong:NSF14FunctionKey],
-                                        @"f15", [NSNumber numberWithUnsignedLong:NSF15FunctionKey],
-                                        @"f16", [NSNumber numberWithUnsignedLong:NSF16FunctionKey],
-                                        @"f17", [NSNumber numberWithUnsignedLong:NSF17FunctionKey],
-                                        @"f18", [NSNumber numberWithUnsignedLong:NSF18FunctionKey],
-                                        @"f19", [NSNumber numberWithUnsignedLong:NSF19FunctionKey],
-                                        @"scroll_lock", [NSNumber numberWithUnsignedLong:NSScrollLockFunctionKey],
-                                        @"break", [NSNumber numberWithUnsignedLong:NSBreakFunctionKey],
-                                        @"insert", [NSNumber numberWithUnsignedLong:NSInsertFunctionKey],
-                                        @"delete", [NSNumber numberWithUnsignedLong:NSDeleteFunctionKey],
-                                        @"home", [NSNumber numberWithUnsignedLong:NSHomeFunctionKey],
-                                        @"end", [NSNumber numberWithUnsignedLong:NSEndFunctionKey],
-                                        @"pagedown", [NSNumber numberWithUnsignedLong:NSPageDownFunctionKey],
-                                        @"pageup", [NSNumber numberWithUnsignedLong:NSPageUpFunctionKey],
-                                        @"backspace", [NSNumber numberWithUnsignedLong:NSDeleteCharacter],
-                                        @"enter", [NSNumber numberWithUnsignedLong:NSEnterCharacter],
-                                        @"tab", [NSNumber numberWithUnsignedLong:NSTabCharacter],
-                                        @"enter", [NSNumber numberWithUnsignedLong:NSCarriageReturnCharacter],
-                                        @"backtab", [NSNumber numberWithUnsignedLong:NSBackTabCharacter],
-                                        @"escape", [NSNumber numberWithUnsignedLong:27],
-                                        nil
-                                        ];
-
     NSMutableString* returnkey = [NSMutableString string];
     if (keyChangeControl) {
         // When control is the key that was pressed, return the full word
@@ -1658,8 +1617,47 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     // flagsChanged event can't handle charactersIgnoringModifiers
     // because it was a modifier key that was pressed/released
     if (event.type != NSEventTypeFlagsChanged) {
-        unichar uc = [[event charactersIgnoringModifiers] characterAtIndex:0];
-        NSString *specialchar = [specialkeymappings objectForKey:[NSNumber numberWithUnsignedLong:uc]];
+        NSString* specialchar;
+        switch ([[event charactersIgnoringModifiers] characterAtIndex:0]) {
+            case NSLeftArrowFunctionKey: specialchar = @"left"; break;
+            case NSRightArrowFunctionKey: specialchar = @"right"; break;
+            case NSUpArrowFunctionKey: specialchar = @"up"; break;
+            case NSDownArrowFunctionKey: specialchar = @"down"; break;
+            case NSF1FunctionKey: specialchar = @"f1"; break;
+            case NSF2FunctionKey: specialchar = @"f2"; break;
+            case NSF3FunctionKey: specialchar = @"f3"; break;
+            case NSF4FunctionKey: specialchar = @"f4"; break;
+            case NSF5FunctionKey: specialchar = @"f5"; break;
+            case NSF6FunctionKey: specialchar = @"f6"; break;
+            case NSF7FunctionKey: specialchar = @"f7"; break;
+            case NSF8FunctionKey: specialchar = @"f8"; break;
+            case NSF9FunctionKey: specialchar = @"f9"; break;
+            case NSF10FunctionKey: specialchar = @"f10"; break;
+            case NSF11FunctionKey: specialchar = @"f11"; break;
+            case NSF12FunctionKey: specialchar = @"f12"; break;
+            case NSF13FunctionKey: specialchar = @"f13"; break;
+            case NSF14FunctionKey: specialchar = @"f14"; break;
+            case NSF15FunctionKey: specialchar = @"f15"; break;
+            case NSF16FunctionKey: specialchar = @"f16"; break;
+            case NSF17FunctionKey: specialchar = @"f17"; break;
+            case NSF18FunctionKey: specialchar = @"f18"; break;
+            case NSF19FunctionKey: specialchar = @"f19"; break;
+            case NSScrollLockFunctionKey: specialchar = @"scroll_lock"; break;
+            case NSBreakFunctionKey: specialchar = @"break"; break;
+            case NSInsertFunctionKey: specialchar = @"insert"; break;
+            case NSDeleteFunctionKey: specialchar = @"delete"; break;
+            case NSHomeFunctionKey: specialchar = @"home"; break;
+            case NSEndFunctionKey: specialchar = @"end"; break;
+            case NSPageDownFunctionKey: specialchar = @"pagedown"; break;
+            case NSPageUpFunctionKey: specialchar = @"pageup"; break;
+            case NSDeleteCharacter: specialchar = @"backspace"; break;
+            case NSEnterCharacter: specialchar = @"enter"; break;
+            case NSTabCharacter: specialchar = @"tab"; break;
+            case NSCarriageReturnCharacter: specialchar = @"enter"; break;
+            case NSBackTabCharacter: specialchar = @"backtab"; break;
+            case 27: specialchar = @"escape"; break;
+            default: specialchar = nil;
+        }
         if (specialchar) {
             if (([event modifierFlags] & NSEventModifierFlagShift) || keyChangeShift) {
                 [returnkey appendString:@"shift+"];
