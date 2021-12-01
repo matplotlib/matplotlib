@@ -131,22 +131,21 @@ ax.set_ylabel('entry b');
 # Coding styles
 # =============
 #
-# The explicit and the implicit approach of programming
-# -----------------------------------------------------
+# The object-oriented and the pyplot interfaces
+# ---------------------------------------------
 #
 # As noted above, there are essentially two ways to use Matplotlib:
 #
-# - Explicitly create Figures and Axes, and call methods on them (the explicit
-#   or "object oriented programming (OOP) style").
+# - Explicitly create Figures and Axes, and call methods on them (the
+#   "object-oriented (OO) style").
 # - Rely on pyplot to automatically create and manage the Figures and Axes, and
-#   use pyplot functions for plotting (the implicit style).
+#   use pyplot functions for plotting.
 #
-# So one can use the explicit style
+# So one can use the OO-style
 
 x = np.linspace(0, 2, 100)  # Sample data.
 
-# Note that even in the explicit style, we use `.pyplot.figure` to create the
-# Figure.
+# Note that even in the OO-style, we use `.pyplot.figure` to create the Figure.
 fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
 ax.plot(x, x, label='linear')  # Plot some data on the axes.
 ax.plot(x, x**2, label='quadratic')  # Plot more data on the axes...
@@ -157,7 +156,7 @@ ax.set_title("Simple Plot")  # Add a title to the axes.
 ax.legend();  # Add a legend.
 
 ###############################################################################
-# or the implicit style:
+# or the pyplot-style:
 
 x = np.linspace(0, 2, 100)  # Sample data.
 
@@ -176,11 +175,11 @@ plt.legend();
 # figure creation. See the corresponding section in the gallery for more info:
 # :ref:`user_interfaces`.)
 #
-# Matplotlib's documentation and examples use both the explicit and the
-# implicit styles. In general, we suggest using the explicit style,
-# particularly for complicated plots, and functions and scripts that are
-# intended to be reused as part of a larger project. However, the implicit
-# style can be very convenient for quick interactive work.
+# Matplotlib's documentation and examples use both the OO and the pyplot
+# styles. In general, we suggest using the OO style, particularly for
+# complicated plots, and functions and scripts that are intended to be reused
+# as part of a larger project. However, the pyplot style can be very convenient
+# for quick interactive work.
 #
 # .. note::
 #
