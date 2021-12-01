@@ -3492,26 +3492,21 @@ class _AxesBase(martist.Artist):
             loc = (loc if loc is not None
                    else mpl.rcParams['xaxis.labellocation'])
         _api.check_in_list(('left', 'center', 'right'), loc=loc)
+        kwargs = cbook.normalize_kwargs(kwargs, mtext.Text)
         x = kwargs.get('x')
-        ha = kwargs.get('ha')
-        horizontalalignment = kwargs.get('horizontalalignment')
-        ha_to_use = horizontalalignment or ha
-
-        # Use ha_to_use under the ha alias moving forward
-        if not (ha and horizontalalignment):
-            kwargs.pop('horizontalalignment', None)
+        ha = kwargs.get('horizontalalignment')
 
         if loc == 'left':
             kwargs.update(x=0 if x is None else x,
-                          ha='left' if ha_to_use is None else ha_to_use)
+                          horizontalalignment='left' if ha is None else ha)
 
         elif loc == 'center':
             kwargs.update(x=0.5 if x is None else x,
-                          ha='center' if ha_to_use is None else ha_to_use)
+                          horizontalalignment='center' if ha is None else ha)
 
         elif loc == 'right':
             kwargs.update(x=1 if x is None else x,
-                          ha='right' if ha_to_use is None else ha_to_use)
+                          horizontalalignment='right' if ha is None else ha)
 
         return self.xaxis.set_label_text(xlabel, fontdict, **kwargs)
 
@@ -3853,26 +3848,21 @@ class _AxesBase(martist.Artist):
             loc = (loc if loc is not None
                    else mpl.rcParams['yaxis.labellocation'])
         _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
+        kwargs = cbook.normalize_kwargs(kwargs, mtext.Text)
         y = kwargs.get('y')
-        ha = kwargs.get('ha')
-        horizontalalignment = kwargs.get('horizontalalignment')
-        ha_to_use = horizontalalignment or ha
-
-        # Use ha_to_use under the ha alias moving forward
-        if not (ha and horizontalalignment):
-            kwargs.pop('horizontalalignment', None)
+        ha = kwargs.get('horizontalalignment')
 
         if loc == 'bottom':
             kwargs.update(y=0 if y is None else y,
-                          ha='left' if ha_to_use is None else ha_to_use)
+                          horizontalalignment='left' if ha is None else ha)
 
         elif loc == 'center':
             kwargs.update(y=0.5 if y is None else y,
-                          ha='center' if ha_to_use is None else ha_to_use)
+                          horizontalalignment='center' if ha is None else ha)
 
         elif loc == 'top':
             kwargs.update(y=1 if y is None else y,
-                          ha='right' if ha_to_use is None else ha_to_use)
+                          horizontalalignment='right' if ha is None else ha)
 
         return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
 
