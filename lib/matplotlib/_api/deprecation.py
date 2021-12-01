@@ -3,7 +3,7 @@ Helper functions for deprecating parts of the Matplotlib API.
 
 This documentation is only relevant for Matplotlib developers, not for users.
 
-.. warning:
+.. warning::
 
     This module is for internal use only.  Do not use it in your own code.
     We may change the API at any time with no warning.
