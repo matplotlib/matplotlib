@@ -117,7 +117,7 @@ plt.tight_layout()
 ###############################################################################
 # It works with subplots created with
 # :func:`~matplotlib.pyplot.subplot2grid`. In general, subplots created
-# from the gridspec (:doc:`/tutorials/intermediate/arranging_axes`) will work.
+# from the gridspec (:doc:`/tutorials/intermediate/gridspec`) will work.
 
 plt.close('all')
 fig = plt.figure()

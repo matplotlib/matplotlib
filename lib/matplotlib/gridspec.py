@@ -5,10 +5,8 @@ r"""
 The `GridSpec` specifies the overall grid structure. Individual cells within
 the grid are referenced by `SubplotSpec`\s.
 
-Often, users need not access this module directly, and can use higher-level
-methods like `~.pyplot.subplots`, `~.pyplot.subplot_mosaic` and
-`~.Figure.subfigures`. See the tutorial
-:doc:`/tutorials/intermediate/arranging_axes` for a guide.
+See the tutorial :doc:`/tutorials/intermediate/gridspec` for a comprehensive
+usage guide.
 """
 
 import copy
