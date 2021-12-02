@@ -295,7 +295,7 @@ delaunay(PyObject *self, PyObject *args)
 
 /* Return qhull version string for assistance in debugging. */
 static PyObject*
-version(void)
+version(PyObject *self, PyObject *arg)
 {
     return PyBytes_FromString(qh_version);
 }
