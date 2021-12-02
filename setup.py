@@ -329,9 +329,11 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         "pyparsing>=2.2.1",
         "python-dateutil>=2.7",
     ] + (
-        # Installing from a git checkout.
-        ["setuptools_scm>=4"] if Path(__file__).with_name(".git").exists()
-        else []
+        # Installing from a git checkout that is not producing a wheel.
+        ["setuptools_scm>=4"] if (
+            Path(__file__).with_name(".git").exists() and
+            os.environ.get("CIBUILDWHEEL", "0") != "1"
+        ) else []
     ),
     use_scm_version={
         "version_scheme": "release-branch-semver",
