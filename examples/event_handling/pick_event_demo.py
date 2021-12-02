@@ -3,7 +3,6 @@
 Pick Event Demo
 ===============
 
-
 You can enable picking by setting the "picker" property of an artist
 (for example, a matplotlib Line2D, Text, Patch, Polygon, AxesImage,
 etc...)
@@ -59,6 +58,14 @@ the picker criteria (for example, all the points in the line that are within
 the specified epsilon tolerance)
 
 The examples below illustrate each of these methods.
+
+.. note::
+    These examples exercises the interactive capabilities of Matplotlib, and
+    this will not appear in the static documentation. Please run this code on
+    your machine to see the interactivity.
+
+    You can copy and paste individual parts, or download the entire example
+    using the link at the bottom of the page.
 """
 
 import matplotlib.pyplot as plt
