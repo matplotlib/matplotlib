@@ -31,6 +31,7 @@ ax4 = fig.add_subplot(gs[3])
 
 annotate_axes(fig)
 
+#############################################################################
 
 fig = plt.figure()
 fig.suptitle("Controlling spacing around and between subplots")

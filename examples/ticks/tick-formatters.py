@@ -34,12 +34,13 @@ def setup(ax, title):
             fontsize=14, fontname='Monospace', color='tab:blue')
 
 
+#############################################################################
 # Tick formatters can be set in one of two ways, either by passing a ``str``
 # or function to `~.Axis.set_major_formatter` or `~.Axis.set_minor_formatter`,
 # or by creating an instance of one of the various `~.ticker.Formatter` classes
 # and providing that to `~.Axis.set_major_formatter` or
 # `~.Axis.set_minor_formatter`.
-
+#
 # The first two examples directly pass a ``str`` or function.
 
 fig0, axs0 = plt.subplots(2, 1, figsize=(8, 2))
@@ -53,14 +54,15 @@ axs0[0].xaxis.set_major_formatter('{x} km')
 
 # A function can also be used directly as a formatter. The function must take
 # two arguments: ``x`` for the tick value and ``pos`` for the tick position,
-# and must return a ``str``  This creates a FuncFormatter automatically.
+# and must return a ``str``. This creates a FuncFormatter automatically.
 setup(axs0[1], title="lambda x, pos: str(x-5)")
 axs0[1].xaxis.set_major_formatter(lambda x, pos: str(x-5))
 
 fig0.tight_layout()
 
 
-# The remaining examples use Formatter objects.
+#############################################################################
+# The remaining examples use `.Formatter` objects.
 
 fig1, axs1 = plt.subplots(7, 1, figsize=(8, 6))
 fig1.suptitle('Formatter Object Formatting')
