@@ -29,8 +29,8 @@ import numpy as np
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
-figsrc, axsrc = plt.subplots()
-figzoom, axzoom = plt.subplots()
+figsrc, axsrc = plt.subplots(figsize=(3.7, 3.7))
+figzoom, axzoom = plt.subplots(figsize=(3.7, 3.7))
 axsrc.set(xlim=(0, 1), ylim=(0, 1), autoscale_on=False,
           title='Click to zoom')
 axzoom.set(xlim=(0.45, 0.55), ylim=(0.4, 0.6), autoscale_on=False,
