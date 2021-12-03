@@ -1030,7 +1030,8 @@ def test_subfigure_tightbbox():
     sub = fig.subfigures(1, 2)
 
     np.testing.assert_allclose(
-            fig.get_tightbbox(fig.canvas.get_renderer()).width, 0.1)
+            fig.get_tightbbox(fig.canvas.get_renderer()).width,
+            8.0)
 
 
 @image_comparison(['test_subfigure_ss.png'], style='mpl20',
