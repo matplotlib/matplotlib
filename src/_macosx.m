@@ -698,6 +698,41 @@ FigureManager_destroy(FigureManager* self)
 }
 
 static PyObject*
+FigureManager_set_icon(PyObject* null, PyObject* args, PyObject* kwds) {
+    PyObject* icon_path;
+    static char* kwlist[3] = { "icon_path", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&", kwlist,
+	  &PyUnicode_FSDecoder, &icon_path)) {
+	return NULL;
+    }
+    const char* icon_path_ptr = PyUnicode_AsUTF8(icon_path);
+    if (!icon_path_ptr) {
+        Py_DECREF(icon_path);
+        return NULL;
+    }
+    @autoreleasepool {
+        NSString* ns_icon_path = [NSString stringWithUTF8String: icon_path_ptr];
+	Py_DECREF(icon_path);
+        if (!ns_icon_path) {
+            PyErr_SetString(PyExc_RuntimeError, "Could not convert to NSString*");
+            return NULL;
+        }
+        NSImage* image = [[[NSImage alloc] initByReferencingFile: ns_icon_path] autorelease];
+        if (!image) {
+            PyErr_SetString(PyExc_RuntimeError, "Could not create NSImage*");
+            return NULL;
+        }
+        if (!image.valid) {
+            PyErr_SetString(PyExc_RuntimeError, "Image is not valid");
+            return NULL;
+        }
+        NSApplication* app = [NSApplication sharedApplication];
+        app.applicationIconImage = image;
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject*
 FigureManager_set_window_title(FigureManager* self,
                                PyObject *args, PyObject *kwds)
 {
@@ -769,6 +804,10 @@ static PyTypeObject FigureManagerType = {
         {"destroy",
          (PyCFunction)FigureManager_destroy,
          METH_NOARGS},
+	{"set_icon",
+    	 (PyCFunction)FigureManager_set_icon,
+    	 METH_STATIC | METH_VARARGS | METH_KEYWORDS,
+	 "Set application icon"},
         {"set_window_title",
          (PyCFunction)FigureManager_set_window_title,
          METH_VARARGS},

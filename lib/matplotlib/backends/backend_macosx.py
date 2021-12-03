@@ -67,6 +67,8 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     """
     def __init__(self, canvas, num):
         _macosx.FigureManager.__init__(self, canvas)
+        icon_path = str(cbook._get_data_path('images/matplotlib.pdf'))
+        _macosx.FigureManager.set_icon(icon_path)
         FigureManagerBase.__init__(self, canvas, num)
         if mpl.rcParams['toolbar'] == 'toolbar2':
             self.toolbar = NavigationToolbar2Mac(canvas)
