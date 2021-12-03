@@ -311,6 +311,7 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         "numpy>=1.17",
         "setuptools_scm>=4",
         "setuptools_scm_git_archive",
+        "wheel",
     ],
     install_requires=[
         "cycler>=0.10",
