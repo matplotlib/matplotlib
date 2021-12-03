@@ -23,6 +23,6 @@ ax.plot_wireframe(X, Y, Z, rstride=5, cstride=5)
 
 # rotate the axes and update
 for angle in range(0, 360):
-    ax.view_init(30, angle)
+    ax.view_init(30, angle, 0)
     plt.draw()
     plt.pause(.001)
