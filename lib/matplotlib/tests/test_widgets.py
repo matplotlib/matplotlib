@@ -1132,7 +1132,7 @@ def check_polygon_selector(event_sequence, expected_result, selections_count,
     selections_count : int
         Wait for the tool to call its `onselect` function `selections_count`
         times, before comparing the result to the `expected_result`
-    kwargs :
+    **kwargs
         Keyword arguments are passed to PolygonSelector.
     """
     ax = get_ax()
@@ -1394,6 +1394,56 @@ def test_polygon_selector_verts_setter(fig_test, fig_ref):
                       polygon_place_vertex(*verts[0]))
     for (etype, event_args) in event_sequence:
         do_event(tool_ref, etype, **event_args)
+
+
+def test_polygon_selector_box():
+    # Create a diamond shape
+    verts = [(20, 0), (0, 20), (20, 40), (40, 20)]
+    event_sequence = (polygon_place_vertex(*verts[0]) +
+                      polygon_place_vertex(*verts[1]) +
+                      polygon_place_vertex(*verts[2]) +
+                      polygon_place_vertex(*verts[3]) +
+                      polygon_place_vertex(*verts[0]))
+
+    ax = get_ax()
+
+    def onselect(vertices):
+        pass
+
+    # Create selector
+    tool = widgets.PolygonSelector(ax, onselect, draw_box=True)
+    for (etype, event_args) in event_sequence:
+        do_event(tool, etype, **event_args)
+
+    # In order to trigger the correct callbacks, trigger events on the canvas
+    # instead of the individual tools
+    t = ax.transData
+    canvas = ax.figure.canvas
+
+    # Scale to half size using the top right corner of the bounding box
+    canvas.button_press_event(*t.transform((40, 40)), 1)
+    canvas.motion_notify_event(*t.transform((20, 20)))
+    canvas.button_release_event(*t.transform((20, 20)), 1)
+    np.testing.assert_allclose(
+        tool.verts, [(10, 0), (0, 10), (10, 20), (20, 10)])
+
+    # Move using the center of the bounding box
+    canvas.button_press_event(*t.transform((10, 10)), 1)
+    canvas.motion_notify_event(*t.transform((30, 30)))
+    canvas.button_release_event(*t.transform((30, 30)), 1)
+    np.testing.assert_allclose(
+        tool.verts, [(30, 20), (20, 30), (30, 40), (40, 30)])
+
+    # Remove a point from the polygon and check that the box extents update
+    np.testing.assert_allclose(
+        tool._box.extents, (20.0, 40.0, 20.0, 40.0))
+
+    canvas.button_press_event(*t.transform((30, 20)), 3)
+    canvas.button_release_event(*t.transform((30, 20)), 3)
+    np.testing.assert_allclose(
+        tool.verts, [(20, 30), (30, 40), (40, 30)])
+    np.testing.assert_allclose(
+        tool._box.extents, (20.0, 40.0, 30.0, 40.0))
 
 
 @pytest.mark.parametrize(
