@@ -698,11 +698,9 @@ FigureManager_destroy(FigureManager* self)
 }
 
 static PyObject*
-FigureManager_set_icon(PyObject* null, PyObject* args, PyObject* kwds) {
+FigureManager_set_icon(PyObject* null, PyObject* args) {
     PyObject* icon_path;
-    static char* kwlist[3] = { "icon_path", NULL };
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O&", kwlist,
-	  &PyUnicode_FSDecoder, &icon_path)) {
+    if (!PyArg_ParseTuple(args, "O&", &PyUnicode_FSDecoder, &icon_path)) {
 	return NULL;
     }
     const char* icon_path_ptr = PyUnicode_AsUTF8(icon_path);
@@ -726,8 +724,14 @@ FigureManager_set_icon(PyObject* null, PyObject* args, PyObject* kwds) {
             PyErr_SetString(PyExc_RuntimeError, "Image is not valid");
             return NULL;
         }
-        NSApplication* app = [NSApplication sharedApplication];
-        app.applicationIconImage = image;
+	@try {
+	  NSApplication* app = [NSApplication sharedApplication];
+	  app.applicationIconImage = image;
+	}
+	@catch (NSException* exception) {
+	    PyErr_SetString(PyExc_RuntimeError, exception.reason.UTF8String);
+	    return NULL;
+	}
     }
     Py_RETURN_NONE;
 }
@@ -806,7 +810,7 @@ static PyTypeObject FigureManagerType = {
          METH_NOARGS},
 	{"set_icon",
     	 (PyCFunction)FigureManager_set_icon,
-    	 METH_STATIC | METH_VARARGS | METH_KEYWORDS,
+    	 METH_STATIC | METH_VARARGS,
 	 "Set application icon"},
         {"set_window_title",
          (PyCFunction)FigureManager_set_window_title,
