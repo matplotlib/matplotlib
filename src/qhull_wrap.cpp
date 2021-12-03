@@ -301,8 +301,8 @@ version(PyObject *self, PyObject *arg)
 }
 
 static PyMethodDef qhull_methods[] = {
-    {"delaunay", (PyCFunction)delaunay, METH_VARARGS, ""},
-    {"version", (PyCFunction)version, METH_NOARGS, ""},
+    {"delaunay", delaunay, METH_VARARGS, ""},
+    {"version", version, METH_NOARGS, ""},
     {NULL, NULL, 0, NULL}
 };
 
