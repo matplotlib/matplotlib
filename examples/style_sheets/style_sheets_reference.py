@@ -11,6 +11,7 @@ line plot and histogram,
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 
 # Fixing random state for reproducibility
 np.random.seed(19680801)
@@ -26,15 +27,19 @@ def plot_scatter(ax, prng, nb_samples=100):
     return ax
 
 
-def plot_colored_sinusoidal_lines(ax):
-    """Plot sinusoidal lines with colors following the style color cycle."""
-    L = 2 * np.pi
-    x = np.linspace(0, L)
+def plot_colored_lines(ax):
+    """Plot lines with colors following the style color cycle."""
+    t = np.linspace(-10, 10, 100)
+
+    def sigmoid(t, t0):
+        return 1 / (1 + np.exp(-(t - t0)))
+
     nb_colors = len(plt.rcParams['axes.prop_cycle'])
-    shift = np.linspace(0, L, nb_colors, endpoint=False)
-    for s in shift:
-        ax.plot(x, np.sin(x + s), '-')
-    ax.set_xlim([x[0], x[-1]])
+    shifts = np.linspace(-5, 5, nb_colors)
+    amplitudes = np.linspace(1, 1.5, nb_colors)
+    for t0, a in zip(shifts, amplitudes):
+        ax.plot(t, a * sigmoid(t, t0), '-')
+    ax.set_xlim(-10, 10)
     return ax
 
 
@@ -108,22 +113,29 @@ def plot_figure(style_label=""):
     # double the width and halve the height. NB: use relative changes because
     # some styles may have a figure size different from the default one.
     (fig_width, fig_height) = plt.rcParams['figure.figsize']
-    fig_size = [fig_width * 2, fig_height / 2]
+    fig_size = [fig_width * 2, fig_height / 1.75]
 
     fig, axs = plt.subplots(ncols=6, nrows=1, num=style_label,
-                            figsize=fig_size, squeeze=True)
-    axs[0].set_ylabel(style_label, fontsize=13, fontweight='bold')
+                            figsize=fig_size, constrained_layout=True)
+
+    # make a suptitle, in the same style for all subfigures,
+    # except those with dark backgrounds, which get a lighter
+    # color:
+    col = np.array([19, 6, 84])/256
+    back = mcolors.rgb_to_hsv(
+        mcolors.to_rgb(plt.rcParams['figure.facecolor']))[2]
+    if back < 0.5:
+        col = [0.8, 0.8, 1]
+    fig.suptitle(style_label, x=0.01, fontsize=14, ha='left',
+                 color=col, fontfamily='DejaVu Sans',
+                 fontweight='normal')
 
     plot_scatter(axs[0], prng)
     plot_image_and_patch(axs[1], prng)
     plot_bar_graphs(axs[2], prng)
     plot_colored_circles(axs[3], prng)
-    plot_colored_sinusoidal_lines(axs[4])
+    plot_colored_lines(axs[4])
     plot_histograms(axs[5], prng)
-
-    fig.tight_layout()
-
-    return fig
 
 
 if __name__ == "__main__":
@@ -141,6 +153,6 @@ if __name__ == "__main__":
     for style_label in style_list:
         with plt.rc_context({"figure.max_open_warning": len(style_list)}):
             with plt.style.context(style_label):
-                fig = plot_figure(style_label=style_label)
+                plot_figure(style_label=style_label)
 
     plt.show()
