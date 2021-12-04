@@ -237,6 +237,11 @@ div.sphx-glr-download a:hover {
     background-color: #BCD4DF;
 }
 
+/* Do not fold multiple figures in examples into two column layout. */
+img.sphx-glr-multi-img {
+    max-width: 100%;
+}
+
 table.property-table th,
 table.property-table td {
     padding: 4px 10px;

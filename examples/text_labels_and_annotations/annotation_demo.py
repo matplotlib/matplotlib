@@ -125,6 +125,7 @@ ax.annotate('a polar annotation',
             horizontalalignment='left',
             verticalalignment='bottom')
 
+#############################################################################
 # You can also use polar notation on a cartesian axes.  Here the native
 # coordinate system ('data') is cartesian, so you need to specify the
 # xycoords and textcoords as 'polar' if you want to use (theta, radius).
@@ -230,6 +231,7 @@ ax.annotate('', xy=(4., 1.), xycoords='data',
 
 ax.set(xlim=(-1, 5), ylim=(-4, 3))
 
+#############################################################################
 # We'll create another figure so that it doesn't get too cluttered
 fig, ax = plt.subplots()
 
