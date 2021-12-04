@@ -112,7 +112,7 @@ def plot_figure(style_label=""):
 
     fig, axs = plt.subplots(ncols=6, nrows=1, num=style_label,
                             figsize=fig_size, squeeze=True)
-    axs[0].set_ylabel(style_label)
+    axs[0].set_ylabel(style_label, fontsize=13, fontweight='bold')
 
     plot_scatter(axs[0], prng)
     plot_image_and_patch(axs[1], prng)
@@ -131,8 +131,11 @@ if __name__ == "__main__":
     # Setup a list of all available styles, in alphabetical order but
     # the `default` and `classic` ones, which will be forced resp. in
     # first and second position.
+    # styles with leading underscores are for internal use such as testing
+    # and plot types gallery. These are excluded here.
     style_list = ['default', 'classic'] + sorted(
-        style for style in plt.style.available if style != 'classic')
+        style for style in plt.style.available
+        if style != 'classic' and not style.startswith('_'))
 
     # Plot a demonstration figure for every available style sheet.
     for style_label in style_list:
