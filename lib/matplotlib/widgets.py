@@ -2074,37 +2074,34 @@ class _SelectorWidget(AxesWidget):
             self.update()
         self._handle_props.update(handle_props)
 
-    def _validate_state(self, value):
+    def _validate_state(self, state):
         supported_state = [
             key for key, value in self._state_modifier_keys.items()
             if key != 'clear' and value != 'not-applicable'
             ]
-        if value not in supported_state:
-            keys = ', '.join(supported_state)
-            raise ValueError('Setting default state must be one of the '
-                             f'following: {keys}.')
+        _api.check_in_list(supported_state, state=state)
 
-    def add_state(self, value):
+    def add_state(self, state):
         """
         Add a state to define the widget's behavior. See the
         `state_modifier_keys` parameters for details.
 
         Parameters
         ----------
-        value : str
+        state : str
             Must be a supported state of the selector. See the
             `state_modifier_keys` parameters for details.
 
         Raises
         ------
         ValueError
-            When the value is not supported by the selector.
+            When the state is not supported by the selector.
 
         """
-        self._validate_state(value)
-        self._state.add(value)
+        self._validate_state(state)
+        self._state.add(state)
 
-    def remove_state(self, value):
+    def remove_state(self, state):
         """
         Remove a state to define the widget's behavior. See the
         `state_modifier_keys` parameters for details.
@@ -2118,11 +2115,11 @@ class _SelectorWidget(AxesWidget):
         Raises
         ------
         ValueError
-            When the value is not supported by the selector.
+            When the state is not supported by the selector.
 
         """
-        self._validate_state(value)
-        self._state.remove(value)
+        self._validate_state(state)
+        self._state.remove(state)
 
 
 class SpanSelector(_SelectorWidget):
@@ -2193,7 +2190,7 @@ class SpanSelector(_SelectorWidget):
 
     state_modifier_keys : dict, optional
         Keyboard modifiers which affect the widget's behavior.  Values
-        amend the defaults.
+        amend the defaults, which are:
 
         - "clear": Clear the current shape, default: "escape".
 
@@ -2800,7 +2797,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
 
     state_modifier_keys : dict, optional
         Keyboard modifiers which affect the widget's behavior.  Values
-        amend the defaults.
+        amend the defaults, which are:
 
         - "move": Move the existing shape, default: no modifier.
         - "clear": Clear the current shape, default: "escape".
@@ -2854,6 +2851,8 @@ class RectangleSelector(_SelectorWidget):
     >>> rect = mwidgets.RectangleSelector(ax, onselect, interactive=True,
                                           props=props)
     >>> fig.show()
+
+    >>> selector.add_state('square')
 
     See also: :doc:`/gallery/widgets/rectangle_selector`
     """

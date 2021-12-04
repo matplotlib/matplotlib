@@ -780,6 +780,7 @@ class Rectangle(Patch):
 
     @property
     def rotation_point(self):
+        """The rotation point of the patch."""
         return self._rotation_point
 
     @rotation_point.setter
