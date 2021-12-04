@@ -62,6 +62,20 @@
    Needed to know when to stop the NSApp */
 static long FigureWindowCount = 0;
 
+/* Keep track of modifier key states for flagsChanged
+   to keep track of press vs release */
+static bool lastCommand = false;
+static bool lastControl = false;
+static bool lastShift = false;
+static bool lastOption = false;
+static bool lastCapsLock = false;
+/* Keep track of whether this specific key modifier was pressed or not */
+static bool keyChangeCommand = false;
+static bool keyChangeControl = false;
+static bool keyChangeShift = false;
+static bool keyChangeOption = false;
+static bool keyChangeCapsLock = false;
+
 /* -------------------------- Helper function ---------------------------- */
 
 static void
@@ -247,10 +261,24 @@ static int wait_for_stdin(void)
 - (void)keyUp:(NSEvent*)event;
 - (void)scrollWheel:(NSEvent *)event;
 - (BOOL)acceptsFirstResponder;
-//- (void)flagsChanged:(NSEvent*)event;
+- (void)flagsChanged:(NSEvent*)event;
 @end
 
 /* ---------------------------- Python classes ---------------------------- */
+
+// Acquire the GIL, call a method with no args, discarding the result and
+// printing any exception.
+static void gil_call_method(PyObject* obj, const char* name)
+{
+    PyGILState_STATE gstate = PyGILState_Ensure();
+    PyObject* result = PyObject_CallMethod(obj, name, NULL);
+    if (result) {
+        Py_DECREF(result);
+    } else {
+        PyErr_Print();
+    }
+    PyGILState_Release(gstate);
+}
 
 static bool backend_inited = false;
 
@@ -511,87 +539,47 @@ FigureCanvas_stop_event_loop(FigureCanvas* self)
     Py_RETURN_NONE;
 }
 
-static PyMethodDef FigureCanvas_methods[] = {
-    {"draw",
-     (PyCFunction)FigureCanvas_draw,
-     METH_NOARGS,
-     NULL,  // docstring inherited.
-    },
-    {"draw_idle",
-     (PyCFunction)FigureCanvas_draw_idle,
-     METH_NOARGS,
-     NULL,  // docstring inherited.
-    },
-    {"flush_events",
-     (PyCFunction)FigureCanvas_flush_events,
-     METH_NOARGS,
-     "Flush the GUI events for the figure."
-    },
-    {"set_rubberband",
-     (PyCFunction)FigureCanvas_set_rubberband,
-     METH_VARARGS,
-     "Specifies a new rubberband rectangle and invalidates it."
-    },
-    {"remove_rubberband",
-     (PyCFunction)FigureCanvas_remove_rubberband,
-     METH_NOARGS,
-     "Removes the current rubberband rectangle."
-    },
-    {"start_event_loop",
-     (PyCFunction)FigureCanvas_start_event_loop,
-     METH_KEYWORDS | METH_VARARGS,
-     "Runs the event loop until the timeout or until stop_event_loop is called.\n",
-    },
-    {"stop_event_loop",
-     (PyCFunction)FigureCanvas_stop_event_loop,
-     METH_NOARGS,
-     "Stops the event loop that was started by start_event_loop.\n",
-    },
-    {NULL}  /* Sentinel */
-};
-
-static char FigureCanvas_doc[] =
-"A FigureCanvas object wraps a Cocoa NSView object.\n";
-
 static PyTypeObject FigureCanvasType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "_macosx.FigureCanvas",    /*tp_name*/
-    sizeof(FigureCanvas),      /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)FigureCanvas_dealloc,     /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    (reprfunc)FigureCanvas_repr,     /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    FigureCanvas_doc,          /* tp_doc */
-    0,                         /* tp_traverse */
-    0,                         /* tp_clear */
-    0,                         /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    0,                         /* tp_iter */
-    0,                         /* tp_iternext */
-    FigureCanvas_methods,      /* tp_methods */
-    0,                         /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    (initproc)FigureCanvas_init,      /* tp_init */
-    0,                         /* tp_alloc */
-    FigureCanvas_new,          /* tp_new */
+    .tp_name = "_macosx.FigureCanvas",
+    .tp_basicsize = sizeof(FigureCanvas),
+    .tp_dealloc = (destructor)FigureCanvas_dealloc,
+    .tp_repr = (reprfunc)FigureCanvas_repr,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_init = (initproc)FigureCanvas_init,
+    .tp_new = (newfunc)FigureCanvas_new,
+    .tp_doc = "A FigureCanvas object wraps a Cocoa NSView object.",
+    .tp_methods = (PyMethodDef[]){
+        {"draw",
+         (PyCFunction)FigureCanvas_draw,
+         METH_NOARGS,
+         NULL},  // docstring inherited
+        {"draw_idle",
+         (PyCFunction)FigureCanvas_draw_idle,
+         METH_NOARGS,
+         NULL},  // docstring inherited
+        {"flush_events",
+         (PyCFunction)FigureCanvas_flush_events,
+         METH_NOARGS,
+         NULL},  // docstring inherited
+        {"set_rubberband",
+         (PyCFunction)FigureCanvas_set_rubberband,
+         METH_VARARGS,
+         "Specifies a new rubberband rectangle and invalidates it."},
+        {"remove_rubberband",
+         (PyCFunction)FigureCanvas_remove_rubberband,
+         METH_NOARGS,
+         "Removes the current rubberband rectangle."},
+        {"start_event_loop",
+         (PyCFunction)FigureCanvas_start_event_loop,
+         METH_KEYWORDS | METH_VARARGS,
+         NULL},  // docstring inherited
+        {"stop_event_loop",
+         (PyCFunction)FigureCanvas_stop_event_loop,
+         METH_NOARGS,
+         NULL},  // docstring inherited
+        {}  // sentinel
+    },
 };
 
 typedef struct {
@@ -764,77 +752,34 @@ FigureManager_resize(FigureManager* self, PyObject *args, PyObject *kwds)
     Py_RETURN_NONE;
 }
 
-static PyMethodDef FigureManager_methods[] = {
-    {"show",
-     (PyCFunction)FigureManager_show,
-     METH_NOARGS,
-     "Shows the window associated with the figure manager."
-    },
-    {"destroy",
-     (PyCFunction)FigureManager_destroy,
-     METH_NOARGS,
-     "Closes the window associated with the figure manager."
-    },
-    {"set_window_title",
-     (PyCFunction)FigureManager_set_window_title,
-     METH_VARARGS,
-     "Sets the title of the window associated with the figure manager."
-    },
-    {"get_window_title",
-     (PyCFunction)FigureManager_get_window_title,
-     METH_NOARGS,
-     "Returns the title of the window associated with the figure manager."
-    },
-    {"resize",
-     (PyCFunction)FigureManager_resize,
-     METH_VARARGS,
-     "Resize the window (in pixels)."
-    },
-    {NULL}  /* Sentinel */
-};
-
-static char FigureManager_doc[] =
-"A FigureManager object wraps a Cocoa NSWindow object.\n";
-
 static PyTypeObject FigureManagerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "_macosx.FigureManager",   /*tp_name*/
-    sizeof(FigureManager),     /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)FigureManager_dealloc,     /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    (reprfunc)FigureManager_repr,     /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    FigureManager_doc,         /* tp_doc */
-    0,                         /* tp_traverse */
-    0,                         /* tp_clear */
-    0,                         /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    0,                         /* tp_iter */
-    0,                         /* tp_iternext */
-    FigureManager_methods,     /* tp_methods */
-    0,                         /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    (initproc)FigureManager_init,      /* tp_init */
-    0,                         /* tp_alloc */
-    FigureManager_new,          /* tp_new */
+    .tp_name = "_macosx.FigureManager",
+    .tp_basicsize = sizeof(FigureManager),
+    .tp_dealloc = (destructor)FigureManager_dealloc,
+    .tp_repr = (reprfunc)FigureManager_repr,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_init = (initproc)FigureManager_init,
+    .tp_new = (newfunc)FigureManager_new,
+    .tp_doc = "A FigureManager object wraps a Cocoa NSWindow object.",
+    .tp_methods = (PyMethodDef[]){  // All docstrings are inherited.
+        {"show",
+         (PyCFunction)FigureManager_show,
+         METH_NOARGS},
+        {"destroy",
+         (PyCFunction)FigureManager_destroy,
+         METH_NOARGS},
+        {"set_window_title",
+         (PyCFunction)FigureManager_set_window_title,
+         METH_VARARGS},
+        {"get_window_title",
+         (PyCFunction)FigureManager_get_window_title,
+         METH_NOARGS},
+        {"resize",
+         (PyCFunction)FigureManager_resize,
+         METH_VARARGS},
+        {}  // sentinel
+    },
 };
 
 @interface NavigationToolbar2Handler : NSObject
@@ -843,7 +788,7 @@ static PyTypeObject FigureManagerType = {
     NSButton* zoombutton;
 }
 - (NavigationToolbar2Handler*)initWithToolbar:(PyObject*)toolbar;
-- (void)installCallbacks:(SEL[7])actions forButtons: (NSButton*[7])buttons;
+- (void)installCallbacks:(SEL[7])actions forButtons:(NSButton*[7])buttons;
 - (void)home:(id)sender;
 - (void)back:(id)sender;
 - (void)forward:(id)sender;
@@ -863,118 +808,43 @@ typedef struct {
 
 @implementation NavigationToolbar2Handler
 - (NavigationToolbar2Handler*)initWithToolbar:(PyObject*)theToolbar
-{   [self init];
+{
+    [self init];
     toolbar = theToolbar;
     return self;
 }
 
-- (void)installCallbacks:(SEL[7])actions forButtons: (NSButton*[7])buttons
+- (void)installCallbacks:(SEL[7])actions forButtons:(NSButton*[7])buttons
 {
     int i;
-    for (i = 0; i < 7; i++)
-    {
+    for (i = 0; i < 7; i++) {
         SEL action = actions[i];
         NSButton* button = buttons[i];
         [button setTarget: self];
         [button setAction: action];
-        if (action==@selector(pan:)) { panbutton = button; }
-        if (action==@selector(zoom:)) { zoombutton = button; }
+        if (action == @selector(pan:)) { panbutton = button; }
+        if (action == @selector(zoom:)) { zoombutton = button; }
     }
 }
 
--(void)home:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "home", "");
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
-
--(void)back:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "back", "");
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
-
--(void)forward:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "forward", "");
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
+-(void)home:(id)sender { gil_call_method(toolbar, "home"); }
+-(void)back:(id)sender { gil_call_method(toolbar, "back"); }
+-(void)forward:(id)sender { gil_call_method(toolbar, "forward"); }
 
 -(void)pan:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    if ([sender state])
-    {
-        if (zoombutton) [zoombutton setState: NO];
-    }
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "pan", "");
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
+{
+    if ([sender state]) { [zoombutton setState:NO]; }
+    gil_call_method(toolbar, "pan");
 }
 
 -(void)zoom:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    if ([sender state])
-    {
-        if (panbutton) [panbutton setState: NO];
-    }
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "zoom", "");
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
-
--(void)configure_subplots:(id)sender
 {
-    PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "configure_subplots", NULL);
-    if (result) {
-        Py_DECREF(result);
-    } else {
-        PyErr_Print();
-    }
-    PyGILState_Release(gstate);
+    if ([sender state]) { [panbutton setState:NO]; }
+    gil_call_method(toolbar, "zoom");
 }
 
--(void)save_figure:(id)sender
-{   PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(toolbar, "save_figure", "");
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
-}
+-(void)configure_subplots:(id)sender { gil_call_method(toolbar, "configure_subplots"); }
+-(void)save_figure:(id)sender { gil_call_method(toolbar, "save_figure"); }
 @end
 
 static PyObject*
@@ -1122,9 +992,6 @@ NavigationToolbar2_repr(NavigationToolbar2* self)
     return PyUnicode_FromFormat("NavigationToolbar2 object %p", (void*)self);
 }
 
-static char NavigationToolbar2_doc[] =
-"NavigationToolbar2\n";
-
 static PyObject*
 NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
 {
@@ -1155,54 +1022,22 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
     Py_RETURN_NONE;
 }
 
-static PyMethodDef NavigationToolbar2_methods[] = {
-    {"set_message",
-     (PyCFunction)NavigationToolbar2_set_message,
-     METH_VARARGS,
-     "Set the message to be displayed on the toolbar."
-    },
-    {NULL}  /* Sentinel */
-};
-
 static PyTypeObject NavigationToolbar2Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "_macosx.NavigationToolbar2", /*tp_name*/
-    sizeof(NavigationToolbar2), /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)NavigationToolbar2_dealloc,     /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    (reprfunc)NavigationToolbar2_repr,     /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    NavigationToolbar2_doc,    /* tp_doc */
-    0,                         /* tp_traverse */
-    0,                         /* tp_clear */
-    0,                         /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    0,                         /* tp_iter */
-    0,                         /* tp_iternext */
-    NavigationToolbar2_methods, /* tp_methods */
-    0,                         /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    (initproc)NavigationToolbar2_init,      /* tp_init */
-    0,                         /* tp_alloc */
-    NavigationToolbar2_new,    /* tp_new */
+    .tp_name = "_macosx.NavigationToolbar2",
+    .tp_basicsize = sizeof(NavigationToolbar2),
+    .tp_dealloc = (destructor)NavigationToolbar2_dealloc,
+    .tp_repr = (reprfunc)NavigationToolbar2_repr,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_init = (initproc)NavigationToolbar2_init,
+    .tp_new = (newfunc)NavigationToolbar2_new,
+    .tp_doc = "NavigationToolbar2",
+    .tp_methods = (PyMethodDef[]){  // All docstrings are inherited.
+        {"set_message",
+         (PyCFunction)NavigationToolbar2_set_message,
+         METH_VARARGS},
+        {}  // sentinel
+    },
 };
 
 static PyObject*
@@ -1354,15 +1189,7 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
 
 - (BOOL)closeButtonPressed
 {
-    PyObject* result;
-    PyGILState_STATE gstate;
-    gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(manager, "close", "");
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
-    PyGILState_Release(gstate);
+    gil_call_method(manager, "close");
     return YES;
 }
 
@@ -1768,68 +1595,85 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
 - (const char*)convertKeyEvent:(NSEvent*)event
 {
-    NSDictionary* specialkeymappings = [NSDictionary dictionaryWithObjectsAndKeys:
-                                        @"left", [NSNumber numberWithUnsignedLong:NSLeftArrowFunctionKey],
-                                        @"right", [NSNumber numberWithUnsignedLong:NSRightArrowFunctionKey],
-                                        @"up", [NSNumber numberWithUnsignedLong:NSUpArrowFunctionKey],
-                                        @"down", [NSNumber numberWithUnsignedLong:NSDownArrowFunctionKey],
-                                        @"f1", [NSNumber numberWithUnsignedLong:NSF1FunctionKey],
-                                        @"f2", [NSNumber numberWithUnsignedLong:NSF2FunctionKey],
-                                        @"f3", [NSNumber numberWithUnsignedLong:NSF3FunctionKey],
-                                        @"f4", [NSNumber numberWithUnsignedLong:NSF4FunctionKey],
-                                        @"f5", [NSNumber numberWithUnsignedLong:NSF5FunctionKey],
-                                        @"f6", [NSNumber numberWithUnsignedLong:NSF6FunctionKey],
-                                        @"f7", [NSNumber numberWithUnsignedLong:NSF7FunctionKey],
-                                        @"f8", [NSNumber numberWithUnsignedLong:NSF8FunctionKey],
-                                        @"f9", [NSNumber numberWithUnsignedLong:NSF9FunctionKey],
-                                        @"f10", [NSNumber numberWithUnsignedLong:NSF10FunctionKey],
-                                        @"f11", [NSNumber numberWithUnsignedLong:NSF11FunctionKey],
-                                        @"f12", [NSNumber numberWithUnsignedLong:NSF12FunctionKey],
-                                        @"f13", [NSNumber numberWithUnsignedLong:NSF13FunctionKey],
-                                        @"f14", [NSNumber numberWithUnsignedLong:NSF14FunctionKey],
-                                        @"f15", [NSNumber numberWithUnsignedLong:NSF15FunctionKey],
-                                        @"f16", [NSNumber numberWithUnsignedLong:NSF16FunctionKey],
-                                        @"f17", [NSNumber numberWithUnsignedLong:NSF17FunctionKey],
-                                        @"f18", [NSNumber numberWithUnsignedLong:NSF18FunctionKey],
-                                        @"f19", [NSNumber numberWithUnsignedLong:NSF19FunctionKey],
-                                        @"scroll_lock", [NSNumber numberWithUnsignedLong:NSScrollLockFunctionKey],
-                                        @"break", [NSNumber numberWithUnsignedLong:NSBreakFunctionKey],
-                                        @"insert", [NSNumber numberWithUnsignedLong:NSInsertFunctionKey],
-                                        @"delete", [NSNumber numberWithUnsignedLong:NSDeleteFunctionKey],
-                                        @"home", [NSNumber numberWithUnsignedLong:NSHomeFunctionKey],
-                                        @"end", [NSNumber numberWithUnsignedLong:NSEndFunctionKey],
-                                        @"pagedown", [NSNumber numberWithUnsignedLong:NSPageDownFunctionKey],
-                                        @"pageup", [NSNumber numberWithUnsignedLong:NSPageUpFunctionKey],
-                                        @"backspace", [NSNumber numberWithUnsignedLong:NSDeleteCharacter],
-                                        @"enter", [NSNumber numberWithUnsignedLong:NSEnterCharacter],
-                                        @"tab", [NSNumber numberWithUnsignedLong:NSTabCharacter],
-                                        @"enter", [NSNumber numberWithUnsignedLong:NSCarriageReturnCharacter],
-                                        @"backtab", [NSNumber numberWithUnsignedLong:NSBackTabCharacter],
-                                        @"escape", [NSNumber numberWithUnsignedLong:27],
-                                        nil
-                                        ];
-
     NSMutableString* returnkey = [NSMutableString string];
-    if ([event modifierFlags] & NSEventModifierFlagControl) {
-        [returnkey appendString:@"ctrl+" ];
+    if (keyChangeControl) {
+        // When control is the key that was pressed, return the full word
+        [returnkey appendString:@"control+"];
+    } else if (([event modifierFlags] & NSEventModifierFlagControl)) {
+        // If control is already pressed, return the shortened version
+        [returnkey appendString:@"ctrl+"];
     }
-    if ([event modifierFlags] & NSEventModifierFlagOption) {
+    if (([event modifierFlags] & NSEventModifierFlagOption) || keyChangeOption) {
         [returnkey appendString:@"alt+" ];
     }
-    if ([event modifierFlags] & NSEventModifierFlagCommand) {
+    if (([event modifierFlags] & NSEventModifierFlagCommand) || keyChangeCommand) {
         [returnkey appendString:@"cmd+" ];
     }
-
-    unichar uc = [[event charactersIgnoringModifiers] characterAtIndex:0];
-    NSString* specialchar = [specialkeymappings objectForKey:[NSNumber numberWithUnsignedLong:uc]];
-    if (specialchar) {
-        if ([event modifierFlags] & NSEventModifierFlagShift) {
-            [returnkey appendString:@"shift+" ];
-        }
-        [returnkey appendString:specialchar];
+    // Don't print caps_lock unless it was the key that got pressed
+    if (keyChangeCapsLock) {
+        [returnkey appendString:@"caps_lock+" ];
     }
-    else
-        [returnkey appendString:[event charactersIgnoringModifiers]];
+
+    // flagsChanged event can't handle charactersIgnoringModifiers
+    // because it was a modifier key that was pressed/released
+    if (event.type != NSEventTypeFlagsChanged) {
+        NSString* specialchar;
+        switch ([[event charactersIgnoringModifiers] characterAtIndex:0]) {
+            case NSLeftArrowFunctionKey: specialchar = @"left"; break;
+            case NSRightArrowFunctionKey: specialchar = @"right"; break;
+            case NSUpArrowFunctionKey: specialchar = @"up"; break;
+            case NSDownArrowFunctionKey: specialchar = @"down"; break;
+            case NSF1FunctionKey: specialchar = @"f1"; break;
+            case NSF2FunctionKey: specialchar = @"f2"; break;
+            case NSF3FunctionKey: specialchar = @"f3"; break;
+            case NSF4FunctionKey: specialchar = @"f4"; break;
+            case NSF5FunctionKey: specialchar = @"f5"; break;
+            case NSF6FunctionKey: specialchar = @"f6"; break;
+            case NSF7FunctionKey: specialchar = @"f7"; break;
+            case NSF8FunctionKey: specialchar = @"f8"; break;
+            case NSF9FunctionKey: specialchar = @"f9"; break;
+            case NSF10FunctionKey: specialchar = @"f10"; break;
+            case NSF11FunctionKey: specialchar = @"f11"; break;
+            case NSF12FunctionKey: specialchar = @"f12"; break;
+            case NSF13FunctionKey: specialchar = @"f13"; break;
+            case NSF14FunctionKey: specialchar = @"f14"; break;
+            case NSF15FunctionKey: specialchar = @"f15"; break;
+            case NSF16FunctionKey: specialchar = @"f16"; break;
+            case NSF17FunctionKey: specialchar = @"f17"; break;
+            case NSF18FunctionKey: specialchar = @"f18"; break;
+            case NSF19FunctionKey: specialchar = @"f19"; break;
+            case NSScrollLockFunctionKey: specialchar = @"scroll_lock"; break;
+            case NSBreakFunctionKey: specialchar = @"break"; break;
+            case NSInsertFunctionKey: specialchar = @"insert"; break;
+            case NSDeleteFunctionKey: specialchar = @"delete"; break;
+            case NSHomeFunctionKey: specialchar = @"home"; break;
+            case NSEndFunctionKey: specialchar = @"end"; break;
+            case NSPageDownFunctionKey: specialchar = @"pagedown"; break;
+            case NSPageUpFunctionKey: specialchar = @"pageup"; break;
+            case NSDeleteCharacter: specialchar = @"backspace"; break;
+            case NSEnterCharacter: specialchar = @"enter"; break;
+            case NSTabCharacter: specialchar = @"tab"; break;
+            case NSCarriageReturnCharacter: specialchar = @"enter"; break;
+            case NSBackTabCharacter: specialchar = @"backtab"; break;
+            case 27: specialchar = @"escape"; break;
+            default: specialchar = nil;
+        }
+        if (specialchar) {
+            if (([event modifierFlags] & NSEventModifierFlagShift) || keyChangeShift) {
+                [returnkey appendString:@"shift+"];
+            }
+            [returnkey appendString:specialchar];
+        } else {
+            [returnkey appendString:[event charactersIgnoringModifiers]];
+        }
+    } else {
+        if (([event modifierFlags] & NSEventModifierFlagShift) || keyChangeShift) {
+            [returnkey appendString:@"shift+"];
+        }
+        // Since it was a modifier event trim the final character of the string
+        // because we added in "+" earlier
+        [returnkey setString: [returnkey substringToIndex:[returnkey length] - 1]];
+    }
 
     return [returnkey UTF8String];
 }
@@ -1898,29 +1742,60 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     return YES;
 }
 
-/* This is all wrong. Address of pointer is being passed instead of pointer, keynames don't
-   match up with what the front-end and does the front-end even handle modifier keys by themselves?
-
-- (void)flagsChanged:(NSEvent*)event
+// flagsChanged gets called whenever a  modifier key is pressed OR released
+// so we need to handle both cases here
+- (void)flagsChanged:(NSEvent *)event
 {
-    const char *s = NULL;
-    if (([event modifierFlags] & NSControlKeyMask) == NSControlKeyMask)
-        s = "control";
-    else if (([event modifierFlags] & NSShiftKeyMask) == NSShiftKeyMask)
-        s = "shift";
-    else if (([event modifierFlags] & NSAlternateKeyMask) == NSAlternateKeyMask)
-        s = "alt";
-    else return;
-    PyGILState_STATE gstate = PyGILState_Ensure();
-    PyObject* result = PyObject_CallMethod(canvas, "key_press_event", "s", &s);
-    if (result)
-        Py_DECREF(result);
-    else
-        PyErr_Print();
+    bool isPress = false; // true if key is pressed, false if key was released
 
-    PyGILState_Release(gstate);
+    // Each if clause tests the two cases for each of the keys we can handle
+    // 1. If the modifier flag "command key" is pressed and it was not previously
+    // 2. If the modifier flag "command key" is not pressed and it was previously
+    // !! converts the result of the bitwise & operator to a logical boolean,
+    // which allows us to then bitwise xor (^) the result with a boolean (lastCommand).
+    if (!!([event modifierFlags] & NSEventModifierFlagCommand) ^ lastCommand) {
+        // Command pressed/released
+        lastCommand = !lastCommand;
+        keyChangeCommand = true;
+        isPress = lastCommand;
+    } else if (!!([event modifierFlags] & NSEventModifierFlagControl) ^ lastControl) {
+        // Control pressed/released
+        lastControl = !lastControl;
+        keyChangeControl = true;
+        isPress = lastControl;
+    } else if (!!([event modifierFlags] & NSEventModifierFlagShift) ^ lastShift) {
+        // Shift pressed/released
+        lastShift = !lastShift;
+        keyChangeShift = true;
+        isPress = lastShift;
+    } else if (!!([event modifierFlags] & NSEventModifierFlagOption) ^ lastOption) {
+        // Option pressed/released
+        lastOption = !lastOption;
+        keyChangeOption = true;
+        isPress = lastOption;
+    } else if (!!([event modifierFlags] & NSEventModifierFlagCapsLock) ^ lastCapsLock) {
+        // Capslock pressed/released
+        lastCapsLock = !lastCapsLock;
+        keyChangeCapsLock = true;
+        isPress = lastCapsLock;
+    } else {
+        // flag we don't handle
+        return;
+    }
+
+    if (isPress) {
+        [self keyDown:event];
+    } else {
+        [self keyUp:event];
+    }
+
+    // Reset the state for the key changes after handling the event
+    keyChangeCommand = false;
+    keyChangeControl = false;
+    keyChangeShift = false;
+    keyChangeOption = false;
+    keyChangeCapsLock = false;
 }
- */
 @end
 
 static PyObject*
@@ -1961,20 +1836,9 @@ Timer_repr(Timer* self)
                                (void*) self, (void*)(self->timer));
 }
 
-static char Timer_doc[] =
-"A Timer object wraps a CFRunLoopTimerRef and can add it to the event loop.\n";
-
 static void timer_callback(CFRunLoopTimerRef timer, void* info)
 {
-    PyObject* method = info;
-    PyGILState_STATE gstate = PyGILState_Ensure();
-    PyObject* result = PyObject_CallFunction(method, NULL);
-    if (result) {
-        Py_DECREF(result);
-    } else {
-        PyErr_Print();
-    }
-    PyGILState_Release(gstate);
+    gil_call_method(info, "_on_timer");
 }
 
 static void context_cleanup(const void* info)
@@ -2013,12 +1877,12 @@ Timer__timer_start(Timer* self, PyObject* args)
         PyErr_SetString(PyExc_RuntimeError, "_on_timer should be a Python method");
         goto exit;
     }
-    Py_INCREF(py_on_timer);
+    Py_INCREF(self);
     context.version = 0;
     context.retain = NULL;
     context.release = context_cleanup;
     context.copyDescription = NULL;
-    context.info = py_on_timer;
+    context.info = self;
     timer = CFRunLoopTimerCreate(kCFAllocatorDefault,
                                  firstFire,
                                  interval,
@@ -2068,113 +1932,67 @@ Timer_dealloc(Timer* self)
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
-static PyMethodDef Timer_methods[] = {
-    {"_timer_start",
-     (PyCFunction)Timer__timer_start,
-     METH_VARARGS,
-     "Initialize and start the timer."
-    },
-    {"_timer_stop",
-     (PyCFunction)Timer__timer_stop,
-     METH_NOARGS,
-     "Stop the timer."
-    },
-    {NULL}  /* Sentinel */
-};
-
 static PyTypeObject TimerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "_macosx.Timer",           /*tp_name*/
-    sizeof(Timer),             /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)Timer_dealloc,     /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    (reprfunc)Timer_repr,      /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
-    Timer_doc,                 /* tp_doc */
-    0,                         /* tp_traverse */
-    0,                         /* tp_clear */
-    0,                         /* tp_richcompare */
-    0,                         /* tp_weaklistoffset */
-    0,                         /* tp_iter */
-    0,                         /* tp_iternext */
-    Timer_methods,             /* tp_methods */
-    0,                         /* tp_members */
-    0,                         /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    0,                         /* tp_init */
-    0,                         /* tp_alloc */
-    Timer_new,                 /* tp_new */
-};
-
-static struct PyMethodDef methods[] = {
-   {"event_loop_is_running",
-    (PyCFunction)event_loop_is_running,
-    METH_NOARGS,
-    "Return whether the OSX backend has set up the NSApp main event loop."
-   },
-   {"show",
-    (PyCFunction)show,
-    METH_NOARGS,
-    "Show all the figures and enter the main loop.\n"
-    "\n"
-    "This function does not return until all Matplotlib windows are closed,\n"
-    "and is normally not needed in interactive sessions."
-   },
-   {"choose_save_file",
-    (PyCFunction)choose_save_file,
-    METH_VARARGS,
-    "Closes the window."
-   },
-   {"set_cursor",
-    (PyCFunction)set_cursor,
-    METH_VARARGS,
-    "Sets the active cursor."
-   },
-   {NULL, NULL, 0, NULL} /* sentinel */
+    .tp_name = "_macosx.Timer",
+    .tp_basicsize = sizeof(Timer),
+    .tp_dealloc = (destructor)Timer_dealloc,
+    .tp_repr = (reprfunc)Timer_repr,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_new = (newfunc)Timer_new,
+    .tp_doc = "A Timer object wraps a CFRunLoopTimerRef and can add it to the event loop.",
+    .tp_methods = (PyMethodDef[]){  // All docstrings are inherited.
+        {"_timer_start",
+         (PyCFunction)Timer__timer_start,
+         METH_VARARGS},
+        {"_timer_stop",
+         (PyCFunction)Timer__timer_stop,
+         METH_NOARGS},
+        {}  // sentinel
+    },
 };
 
 static struct PyModuleDef moduledef = {
-    PyModuleDef_HEAD_INIT, "_macosx", "Mac OS X native backend", -1, methods
+    PyModuleDef_HEAD_INIT, "_macosx", "Mac OS X native backend", -1,
+    (PyMethodDef[]){
+        {"event_loop_is_running",
+         (PyCFunction)event_loop_is_running,
+         METH_NOARGS,
+         "Return whether the OSX backend has set up the NSApp main event loop."},
+        {"show",
+         (PyCFunction)show,
+         METH_NOARGS,
+         "Show all the figures and enter the main loop.\n"
+         "\n"
+         "This function does not return until all Matplotlib windows are closed,\n"
+         "and is normally not needed in interactive sessions."},
+        {"choose_save_file",
+         (PyCFunction)choose_save_file,
+         METH_VARARGS,
+         "Query the user for a location where to save a file."},
+        {"set_cursor",
+         (PyCFunction)set_cursor,
+         METH_VARARGS,
+         "Set the active cursor."},
+        {}  /* Sentinel */
+    },
 };
 
 #pragma GCC visibility push(default)
 
 PyObject* PyInit__macosx(void)
 {
-    PyObject *module;
-
     if (PyType_Ready(&FigureCanvasType) < 0
      || PyType_Ready(&FigureManagerType) < 0
      || PyType_Ready(&NavigationToolbar2Type) < 0
      || PyType_Ready(&TimerType) < 0)
         return NULL;
 
-    module = PyModule_Create(&moduledef);
+    PyObject *module = PyModule_Create(&moduledef);
     if (!module) {
         return NULL;
     }
 
-    Py_INCREF(&FigureCanvasType);
-    Py_INCREF(&FigureManagerType);
-    Py_INCREF(&NavigationToolbar2Type);
-    Py_INCREF(&TimerType);
     PyModule_AddObject(module, "FigureCanvas", (PyObject*) &FigureCanvasType);
     PyModule_AddObject(module, "FigureManager", (PyObject*) &FigureManagerType);
     PyModule_AddObject(module, "NavigationToolbar2", (PyObject*) &NavigationToolbar2Type);

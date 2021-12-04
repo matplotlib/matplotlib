@@ -43,6 +43,6 @@ ax.set_zlabel('Z')
 
 # Customize the view angle so it's easier to see that the scatter points lie
 # on the plane y=0
-ax.view_init(elev=20., azim=-35)
+ax.view_init(elev=20., azim=-35, roll=0)
 
 plt.show()

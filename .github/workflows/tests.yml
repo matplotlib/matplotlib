@@ -235,7 +235,7 @@ jobs:
 
           # All dependencies must have been pre-installed, so that the minver
           # constraints are held.
-          python -m pip install --no-deps -e .
+          python -m pip install --no-deps -ve .
 
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
             unset CPPFLAGS

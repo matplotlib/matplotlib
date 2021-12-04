@@ -43,7 +43,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
 
     def draw(self):
         # docstring inherited
-        self.draw_idle()
+        self._draw()
         self.flush_events()
 
     # draw_idle is provided by _macosx.FigureCanvas

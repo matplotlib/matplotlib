@@ -68,7 +68,7 @@ ax.set(
 )
 
 # Set distance and angle view
-ax.view_init(40, -30)
+ax.view_init(40, -30, 0)
 ax.dist = 11
 
 # Colorbar

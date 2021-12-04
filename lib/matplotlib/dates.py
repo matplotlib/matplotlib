@@ -791,15 +791,15 @@ class ConciseDateFormatter(ticker.Formatter):
         # offset fmt are for the offset in the upper left of the
         # or lower right of the axis.
         offsetfmts = self.offset_formats
+        show_offset = self.show_offset
 
         # determine the level we will label at:
         # mostly 0: years,  1: months,  2: days,
         # 3: hours, 4: minutes, 5: seconds, 6: microseconds
         for level in range(5, -1, -1):
             if len(np.unique(tickdate[:, level])) > 1:
-                # level is less than 2 so a year is already present in the axis
-                if (level < 2):
-                    self.show_offset = False
+                if level < 2:
+                    show_offset = False
                 break
             elif level == 0:
                 # all tickdate are the same, so only micros might be different
@@ -839,11 +839,13 @@ class ConciseDateFormatter(ticker.Formatter):
                     if '.' in labels[nn]:
                         labels[nn] = labels[nn][:-trailing_zeros].rstrip('.')
 
-        if self.show_offset:
+        if show_offset:
             # set the offset string:
             self.offset_string = tickdatetime[-1].strftime(offsetfmts[level])
             if self._usetex:
                 self.offset_string = _wrap_in_tex(self.offset_string)
+        else:
+            self.offset_string = ''
 
         if self._usetex:
             return [_wrap_in_tex(l) for l in labels]

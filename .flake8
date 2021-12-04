@@ -94,14 +94,13 @@ per-file-ignores =
     tutorials/colors/colormap-manipulation.py: E402
     tutorials/intermediate/artists.py: E402
     tutorials/intermediate/constrainedlayout_guide.py: E402
-    tutorials/intermediate/gridspec.py: E402
     tutorials/intermediate/legend_guide.py: E402
     tutorials/intermediate/tight_layout_guide.py: E402
     tutorials/introductory/customizing.py: E501
     tutorials/introductory/images.py: E402, E501
     tutorials/introductory/pyplot.py: E402, E501
     tutorials/introductory/sample_plots.py: E501
-    tutorials/introductory/usage.py: E501
+    tutorials/introductory/usage.py: E703
     tutorials/text/annotations.py: E402, E501
     tutorials/text/text_intro.py: E402
     tutorials/text/text_props.py: E501

@@ -5,8 +5,10 @@ r"""
 The `GridSpec` specifies the overall grid structure. Individual cells within
 the grid are referenced by `SubplotSpec`\s.
 
-See the tutorial :doc:`/tutorials/intermediate/gridspec` for a comprehensive
-usage guide.
+Often, users need not access this module directly, and can use higher-level
+methods like `~.pyplot.subplots`, `~.pyplot.subplot_mosaic` and
+`~.Figure.subfigures`. See the tutorial
+:doc:`/tutorials/intermediate/arranging_axes` for a guide.
 """
 
 import copy
@@ -369,7 +371,7 @@ class GridSpec(GridSpecBase):
             If not given, all columns will have the same width.
 
         height_ratios : array-like of length *nrows*, optional
-            Defines the relative heights of the rows. Each column gets a
+            Defines the relative heights of the rows. Each row gets a
             relative height of ``height_ratios[i] / sum(height_ratios)``.
             If not given, all rows will have the same height.
 

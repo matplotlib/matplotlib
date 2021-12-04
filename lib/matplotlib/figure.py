@@ -1248,6 +1248,8 @@ default: %(va)s
         if axs is None:
             axs = self.axes
         axs = np.ravel(axs)
+        axs = [ax for ax in axs if hasattr(ax, 'get_subplotspec')]
+
         for ax in axs:
             _log.debug(' Working on: %s', ax.get_xlabel())
             rowspan = ax.get_subplotspec().rowspan
@@ -1308,6 +1310,8 @@ default: %(va)s
         if axs is None:
             axs = self.axes
         axs = np.ravel(axs)
+        axs = [ax for ax in axs if hasattr(ax, 'get_subplotspec')]
+
         for ax in axs:
             _log.debug(' Working on: %s', ax.get_ylabel())
             colspan = ax.get_subplotspec().colspan
@@ -1644,8 +1648,9 @@ default: %(va)s
               if (np.isfinite(b.width) and np.isfinite(b.height)
                   and (b.width != 0 or b.height != 0))]
 
+        isfigure = hasattr(self, 'bbox_inches')
         if len(bb) == 0:
-            if hasattr(self, 'bbox_inches'):
+            if isfigure:
                 return self.bbox_inches
             else:
                 # subfigures do not have bbox_inches, but do have a bbox
@@ -1653,9 +1658,11 @@ default: %(va)s
 
         _bbox = Bbox.union(bb)
 
-        bbox_inches = TransformedBbox(_bbox, Affine2D().scale(1 / self.dpi))
+        if isfigure:
+            # transform from pixels to inches...
+            _bbox = TransformedBbox(_bbox, self.dpi_scale_trans.inverted())
 
-        return bbox_inches
+        return _bbox
 
     @staticmethod
     def _normalize_grid_string(layout):
