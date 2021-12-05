@@ -20,6 +20,15 @@ import matplotlib.transforms as mtransforms
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
+@pytest.fixture
+def cases():
+    """Define a list of markevery cases to plot."""
+    cases = [None, 8, (30, 8), [16, 24, 30], [0, -1],
+             slice(100, 200, 3), 0.1, 0.3, 1.5,
+             (0.0, 0.1), (0.45, 0.1)]
+    return cases
+
+
 def test_segment_hits():
     """Test a problematic case."""
     cx, cy = 553, 902
@@ -343,3 +352,25 @@ def test_input_copy(fig_test, fig_ref):
     # Trigger cache invalidation
     l.set_drawstyle("steps")
     fig_ref.add_subplot().plot([0, 2, 4], [0, 2, 4], ".-", drawstyle="steps")
+
+
+@check_figures_equal(extensions=["png"])
+def test_markevery_prop_cycle(fig_test, fig_ref, cases):
+
+    cmap = plt.get_cmap('jet')
+    colors = cmap(np.linspace(0.2, 0.8, 100))[:len(cases)]
+
+    x = np.linspace(0, 2 * np.pi)
+    offsets = np.linspace(0, 2 * np.pi, 11, endpoint=False)
+    yy = np.transpose([np.sin(x + phi) for phi in offsets])
+
+    axs = fig_ref.add_axes([0.1, 0.1, 0.6, 0.75])
+    for i in range(len(cases)):
+        axs.plot(yy[:, i], markevery=cases[i],  c=colors[i])
+
+    matplotlib.rcParams['axes.prop_cycle'] = cycler(markevery=cases,
+                                                    color=colors)
+
+    ax = fig_test.add_axes([0.1, 0.1, 0.6, 0.75])
+    for i in range(len(cases)):
+        ax.plot(yy[:, i])
