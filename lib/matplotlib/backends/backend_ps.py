@@ -838,17 +838,10 @@ class FigureCanvasPS(FigureCanvasBase):
     def get_default_filetype(self):
         return 'ps'
 
-    @_api.delete_parameter("3.5", "args")
-    def print_ps(self, outfile, *args, **kwargs):
-        return self._print_ps(outfile, 'ps', **kwargs)
-
-    @_api.delete_parameter("3.5", "args")
-    def print_eps(self, outfile, *args, **kwargs):
-        return self._print_ps(outfile, 'eps', **kwargs)
-
     @_api.delete_parameter("3.4", "dpi")
+    @_api.delete_parameter("3.5", "args")
     def _print_ps(
-            self, outfile, format, *,
+            self, fmt, outfile, *args,
             dpi=None, metadata=None, papertype=None, orientation='portrait',
             **kwargs):
 
@@ -885,12 +878,12 @@ class FigureCanvasPS(FigureCanvasBase):
         printer = (self._print_figure_tex
                    if mpl.rcParams['text.usetex'] else
                    self._print_figure)
-        printer(outfile, format, dpi=dpi, dsc_comments=dsc_comments,
+        printer(fmt, outfile, dpi=dpi, dsc_comments=dsc_comments,
                 orientation=orientation, papertype=papertype, **kwargs)
 
     @_check_savefig_extra_args
     def _print_figure(
-            self, outfile, format, *,
+            self, fmt, outfile, *,
             dpi, dsc_comments, orientation, papertype,
             bbox_inches_restore=None):
         """
@@ -900,7 +893,7 @@ class FigureCanvasPS(FigureCanvasBase):
         all string containing Document Structuring Convention comments,
         generated from the *metadata* parameter to `.print_figure`.
         """
-        is_eps = format == 'eps'
+        is_eps = fmt == 'eps'
         if not (isinstance(outfile, (str, os.PathLike))
                 or is_writable_file_like(outfile)):
             raise ValueError("outfile must be a path or a file-like object")
@@ -1028,7 +1021,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
     @_check_savefig_extra_args
     def _print_figure_tex(
-            self, outfile, format, *,
+            self, fmt, outfile, *,
             dpi, dsc_comments, orientation, papertype,
             bbox_inches_restore=None):
         """
@@ -1038,7 +1031,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
         The rest of the behavior is as for `._print_figure`.
         """
-        is_eps = format == 'eps'
+        is_eps = fmt == 'eps'
 
         width, height = self.figure.get_size_inches()
         xo = 0
@@ -1120,6 +1113,9 @@ showpage
                              rotated=psfrag_rotated)
 
             _move_path_to_path_or_stream(tmpfile, outfile)
+
+    print_ps = functools.partialmethod(_print_ps, "ps")
+    print_eps = functools.partialmethod(_print_ps, "eps")
 
     def draw(self):
         self.figure.draw_without_rendering()
