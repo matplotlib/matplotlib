@@ -367,5 +367,4 @@ def test_markevery_prop_cycle(fig_test, fig_ref):
 
     ax = fig_test.add_subplot()
     for i, _ in enumerate(cases):
-	    ax.plot(y - i, 'o-')
-
+        ax.plot(y - i, 'o-')
