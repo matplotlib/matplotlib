@@ -824,6 +824,12 @@ class Colorbar:
             b = self.norm.boundaries
             if locator is None:
                 locator = ticker.FixedLocator(b, nbins=10)
+        elif isinstance(self.norm, colors.NoNorm):
+            if locator is None:
+                # put ticks on integers between the boundaries of NoNorm
+                nv = len(self._values)
+                base = 1 + int(nv / 10)
+                locator = ticker.IndexLocator(base=base, offset=.5)
         elif self.boundaries is not None:
             b = self._boundaries[self._inside]
             if locator is None:
@@ -835,12 +841,6 @@ class Colorbar:
                 locator = self._long_axis().get_major_locator()
             if minorlocator is None:
                 minorlocator = self._long_axis().get_minor_locator()
-            if isinstance(self.norm, colors.NoNorm):
-                # default locator:
-                nv = len(self._values)
-                base = 1 + int(nv / 10)
-                # put ticks on integers between the boundaries of NoNorm...
-                locator = ticker.IndexLocator(base=base, offset=.5)
 
         if minorlocator is None:
             minorlocator = ticker.NullLocator()
