@@ -358,7 +358,7 @@ def test_input_copy(fig_test, fig_ref):
 def test_markevery_prop_cycle(fig_test, fig_ref, cases):
 
     cmap = plt.get_cmap('jet')
-    colors = cmap(np.linspace(0.2, 0.8, 100))[:len(cases)]
+    colors = cmap(np.linspace(0.2, 0.8, len(cases)))
 
     x = np.linspace(0, 2 * np.pi)
     offsets = np.linspace(0, 2 * np.pi, 11, endpoint=False)
