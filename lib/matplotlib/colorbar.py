@@ -839,7 +839,8 @@ class Colorbar:
                 # default locator:
                 nv = len(self._values)
                 base = 1 + int(nv / 10)
-                locator = ticker.IndexLocator(base=base, offset=0)
+                # put ticks on integers between the boundaries of NoNorm...
+                locator = ticker.IndexLocator(base=base, offset=.5)
 
         if minorlocator is None:
             minorlocator = ticker.NullLocator()
@@ -1097,6 +1098,9 @@ class Colorbar:
         # otherwise values are set from the boundaries
         if isinstance(self.norm, colors.BoundaryNorm):
             b = self.norm.boundaries
+        elif isinstance(self.norm, colors.NoNorm):
+            # NoNorm has N blocks, so N+1 boundaries, centered on integers:
+            b = np.arange(self.cmap.N + 1) - .5
         else:
             # otherwise make the boundaries from the size of the cmap:
             N = self.cmap.N + 1
