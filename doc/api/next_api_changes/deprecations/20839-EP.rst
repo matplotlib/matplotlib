@@ -1,4 +1,4 @@
 Selector widget state internals
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*state_modifier_keys* are immutable now. They can be set when creating the
-widget, but cannot be changed afterwards anymore.
+The *state_modifier_keys* attribute have been privatized and the modifier keys
+needs to be set when creating the widget.

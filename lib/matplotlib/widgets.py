@@ -1835,7 +1835,7 @@ class _SelectorWidget(AxesWidget):
     eventpress = _api.deprecate_privatize_attribute("3.5")
     eventrelease = _api.deprecate_privatize_attribute("3.5")
     state = _api.deprecate_privatize_attribute("3.5")
-    state_modifier_keys = _api.deprecate_privatize_attribute("3.5")
+    state_modifier_keys = _api.deprecate_privatize_attribute("3.6")
 
     def set_active(self, active):
         super().set_active(active)
@@ -2803,7 +2803,8 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         - "clear": Clear the current shape, default: "escape".
         - "square": Make the shape square, default: "shift".
         - "center": change the shape around its center, default: "ctrl".
-        - "rotate": Rotate the shape around its center, default: "r".
+        - "rotate": Rotate the shape around its center between -45° and 45°,
+          default: "r".
 
         "square" and "center" can be combined. The square shape can be defined
         in data or figure coordinates as determined by the
@@ -3061,7 +3062,8 @@ class RectangleSelector(_SelectorWidget):
         eventpress = self._eventpress
         # The calculations are done for rotation at zero: we apply inverse
         # transformation to events except when we rotate and move
-        if not (self._active_handle == 'C' or rotate):
+        move = self._active_handle == 'C'
+        if not move and not rotate:
             inv_tr = self._get_rotation_transform().inverted()
             event.xdata, event.ydata = inv_tr.transform(
                 [event.xdata, event.ydata])
@@ -3078,8 +3080,8 @@ class RectangleSelector(_SelectorWidget):
             refx, refy = dx, dy
         else:
             # Add 1e-6 to avoid divided by zero error
-            refx = event.xdata / (eventpress.xdata + 1e-6)
-            refy = event.ydata / (eventpress.ydata + 1e-6)
+            refx = event.xdata / (eventpress.xdata or 1E-6)
+            refy = event.ydata / (eventpress.ydata or 1E-6)
 
         x0, x1, y0, y1 = self._extents_on_press
         # rotate an existing shape
@@ -3099,6 +3101,7 @@ class RectangleSelector(_SelectorWidget):
 
             # Keeping the center fixed
             if 'center' in state:
+                # hh, hw are half-height and half-width
                 if 'square' in state:
                     # when using a corner, find which reference to use
                     if self._active_handle in self._corner_order:
@@ -3277,14 +3280,17 @@ class RectangleSelector(_SelectorWidget):
 
     @property
     def rotation(self):
-        """Rotation in degree in interval [0, 45]."""
+        """
+        Rotation in degree in interval [-45°, 45°]. The rotation is limited in
+        range to keep the implementation simple.
+        """
         return np.rad2deg(self._rotation)
 
     @rotation.setter
     def rotation(self, value):
-        # Restrict to a limited range of rotation [0, 45] to avoid changing
+        # Restrict to a limited range of rotation [-45°, 45°] to avoid changing
         # order of handles
-        if 0 <= value and value <= 45:
+        if -45 <= value and value <= 45:
             self._rotation = np.deg2rad(value)
             # call extents setter to draw shape and update handles positions
             self.extents = self.extents
