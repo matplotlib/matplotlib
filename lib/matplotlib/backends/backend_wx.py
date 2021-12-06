@@ -332,8 +332,7 @@ class GraphicsContextWx(GraphicsContextBase):
 
         dc, gfx_ctx = self._cache.get(bitmap, (None, None))
         if dc is None:
-            dc = wx.MemoryDC()
-            dc.SelectObject(bitmap)
+            dc = wx.MemoryDC(bitmap)
             gfx_ctx = wx.GraphicsContext.Create(dc)
             gfx_ctx._lastcliprect = None
             self._cache[bitmap] = dc, gfx_ctx

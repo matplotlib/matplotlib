@@ -27,63 +27,30 @@ class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
         Render the figure using agg.
         """
         FigureCanvasAgg.draw(self)
-
-        self.bitmap = _convert_agg_to_wx_bitmap(self.get_renderer(), None)
+        self.bitmap = _rgba_to_wx_bitmap(self.get_renderer().buffer_rgba())
         self._isDrawn = True
         self.gui_repaint(drawDC=drawDC)
 
     def blit(self, bbox=None):
         # docstring inherited
+        bitmap = _rgba_to_wx_bitmap(self.get_renderer().buffer_rgba())
         if bbox is None:
-            self.bitmap = _convert_agg_to_wx_bitmap(self.get_renderer(), None)
-            self.gui_repaint()
-            return
-
-        srcBmp = _convert_agg_to_wx_bitmap(self.get_renderer(), None)
-        srcDC = wx.MemoryDC()
-        srcDC.SelectObject(srcBmp)
-
-        destDC = wx.MemoryDC()
-        destDC.SelectObject(self.bitmap)
-
-        x = int(bbox.x0)
-        y = int(self.bitmap.GetHeight() - bbox.y1)
-        destDC.Blit(x, y, int(bbox.width), int(bbox.height), srcDC, x, y)
-
-        destDC.SelectObject(wx.NullBitmap)
-        srcDC.SelectObject(wx.NullBitmap)
+            self.bitmap = bitmap
+        else:
+            srcDC = wx.MemoryDC(bitmap)
+            destDC = wx.MemoryDC(self.bitmap)
+            x = int(bbox.x0)
+            y = int(self.bitmap.GetHeight() - bbox.y1)
+            destDC.Blit(x, y, int(bbox.width), int(bbox.height), srcDC, x, y)
+            destDC.SelectObject(wx.NullBitmap)
+            srcDC.SelectObject(wx.NullBitmap)
         self.gui_repaint()
 
 
-def _convert_agg_to_wx_bitmap(agg, bbox):
-    """
-    Convert the region of the agg buffer bounded by bbox to a wx.Bitmap.  If
-    bbox is None, the entire buffer is converted.
-    Note: agg must be a backend_agg.RendererAgg instance.
-    """
-    if bbox is None:
-        # agg => rgba buffer -> bitmap
-        return wx.Bitmap.FromBufferRGBA(int(agg.width), int(agg.height),
-                                        agg.buffer_rgba())
-    else:
-        # agg => rgba buffer -> bitmap => clipped bitmap
-        srcBmp = wx.Bitmap.FromBufferRGBA(int(agg.width), int(agg.height),
-                                          agg.buffer_rgba())
-        srcDC = wx.MemoryDC()
-        srcDC.SelectObject(srcBmp)
-
-        destBmp = wx.Bitmap(int(bbox.width), int(bbox.height))
-        destDC = wx.MemoryDC()
-        destDC.SelectObject(destBmp)
-
-        x = int(bbox.x0)
-        y = int(int(agg.height) - bbox.y1)
-        destDC.Blit(0, 0, int(bbox.width), int(bbox.height), srcDC, x, y)
-
-        srcDC.SelectObject(wx.NullBitmap)
-        destDC.SelectObject(wx.NullBitmap)
-
-        return destBmp
+def _rgba_to_wx_bitmap(rgba):
+    """Convert an RGBA buffer to a wx.Bitmap."""
+    h, w, _ = rgba.shape
+    return wx.Bitmap.FromBufferRGBA(w, h, rgba)
 
 
 @_BackendWx.export
