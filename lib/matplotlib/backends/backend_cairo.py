@@ -28,8 +28,8 @@ except ImportError:
 import matplotlib as mpl
 from .. import _api, cbook, font_manager
 from matplotlib.backend_bases import (
-    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, RendererBase)
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
+    RendererBase)
 from matplotlib.font_manager import ttfFontProperty
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
@@ -448,11 +448,9 @@ class FigureCanvasCairo(FigureCanvasBase):
         surface.mark_dirty_rectangle(
             slx.start, sly.start, slx.stop - slx.start, sly.stop - sly.start)
 
-    @_check_savefig_extra_args
     def print_png(self, fobj):
         self._get_printed_image_surface().write_to_png(fobj)
 
-    @_check_savefig_extra_args
     def print_rgba(self, fobj):
         width, height = self.get_width_height()
         buf = self._get_printed_image_surface().get_data()
@@ -470,7 +468,6 @@ class FigureCanvasCairo(FigureCanvasBase):
         self.figure.draw(renderer)
         return surface
 
-    @_check_savefig_extra_args
     def _save(self, fmt, fobj, *, orientation='portrait'):
         # save PDF/PS/SVG
 

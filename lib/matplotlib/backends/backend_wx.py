@@ -19,9 +19,9 @@ import PIL
 
 import matplotlib as mpl
 from matplotlib.backend_bases import (
-    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, MouseButton, NavigationToolbar2, RendererBase,
-    TimerBase, ToolContainerBase, cursors)
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
+    MouseButton, NavigationToolbar2, RendererBase, TimerBase,
+    ToolContainerBase, cursors)
 
 from matplotlib import _api, cbook, backend_tools
 from matplotlib._pylab_helpers import Gcf
@@ -840,7 +840,6 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         self._isDrawn = True
         self.gui_repaint(drawDC=drawDC)
 
-    @_check_savefig_extra_args
     def _print_image(self, filetype, filename):
         origBitmap = self.bitmap
 

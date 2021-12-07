@@ -29,8 +29,8 @@ import matplotlib as mpl
 from matplotlib import _api, _text_helpers, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
-    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, RendererBase)
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
+    RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
@@ -2747,7 +2747,6 @@ class FigureCanvasPdf(FigureCanvasBase):
     def get_default_filetype(self):
         return 'pdf'
 
-    @_check_savefig_extra_args
     @_api.delete_parameter("3.4", "dpi")
     def print_pdf(self, filename, *,
                   dpi=None,  # dpi to use for images
