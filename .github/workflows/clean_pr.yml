@@ -25,7 +25,7 @@ jobs:
           base="$(git merge-base "origin/$GITHUB_BASE_REF" 'HEAD^2')"
           am="$(git log "$base..HEAD^2" --pretty=tformat: --name-status --diff-filter=AM |
                 cut --fields 2 | sort | uniq --repeated |
-                grep -E '.(png|pdf|ps|eps|svg)' || true)"
+                grep -E '\.(png|pdf|ps|eps|svg)' || true)"
           if [[ -n "$am" ]]; then
             printf 'The following images were both added and modified in this PR:\n%s\n' "$am"
             exit 1

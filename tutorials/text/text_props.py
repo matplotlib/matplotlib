@@ -179,6 +179,11 @@ plt.show()
 # generic-family aliases like (``{'cursive', 'fantasy', 'monospace',
 # 'sans', 'sans serif', 'sans-serif', 'serif'}``).
 #
+# .. note::
+#    To access the full list of available fonts: ::
+#
+#       matplotlib.font_manager.get_font_names()
+#
 # The mapping between the generic family aliases and actual font families
 # (mentioned at :doc:`default rcParams </tutorials/introductory/customizing>`)
 # is controlled by the following rcParams:
@@ -208,6 +213,7 @@ plt.show()
 #
 #    # This is effectively translated to:
 #    matplotlib.rcParams['font.family'] = ['Family1', 'SerifFamily1', 'SerifFamily2', 'Family2']
+#
 #
 # Text with non-latin glyphs
 # ==========================
