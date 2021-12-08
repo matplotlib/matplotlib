@@ -3282,10 +3282,34 @@ class Axes(_AxesBase):
             x = np.asarray(x, dtype=object)
         if not isinstance(y, np.ndarray):
             y = np.asarray(y, dtype=object)
+
+        def _upcast_err(err):
+            """
+            Safely handle tuple of containers that carry units.
+
+            If the units are carried on the values then casting to object
+            arrays preserves the units, but if the units are on the containers
+            this will not work.
+
+            This function covers the case where the input to the xerr/yerr is a
+            length 2 tuple of equal length ndarray-subclasses that carry the
+            unit information in the container.
+
+            We defer coercing the units to be consistent to the underlying unit
+            library (and implicitly the broadcasting).
+
+            If we do not have a tuple of nested numpy array (subclasses),
+            fallback to casting to an object array.
+
+            """
+            if np.iterable(err) and isinstance(err[0], np.ndarray):
+                return type(err[0])(err)
+            return np.asarray(err, dtype=object)
+
         if xerr is not None and not isinstance(xerr, np.ndarray):
-            xerr = np.asarray(xerr, dtype=object)
+            xerr = _upcast_err(xerr)
         if yerr is not None and not isinstance(yerr, np.ndarray):
-            yerr = np.asarray(yerr, dtype=object)
+            yerr = _upcast_err(yerr)
         x, y = np.atleast_1d(x, y)  # Make sure all the args are iterable.
         if len(x) != len(y):
             raise ValueError("'x' and 'y' must have the same size")
