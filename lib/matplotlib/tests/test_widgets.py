@@ -1442,6 +1442,28 @@ def test_polygon_selector_redraw():
     assert tool.verts == verts[0:2]
 
 
+@check_figures_equal()
+def test_polygon_selector_verts_setter(fig_test, fig_ref):
+    verts = [(0.1, 0.4), (0.5, 0.9), (0.3, 0.2)]
+    ax_test = fig_test.add_subplot()
+
+    def onselect(vertices):
+        pass
+
+    tool_test = widgets.PolygonSelector(ax_test, onselect)
+    tool_test.verts = verts
+    assert tool_test.verts == verts
+
+    ax_ref = fig_ref.add_subplot()
+    tool_ref = widgets.PolygonSelector(ax_ref, onselect)
+    event_sequence = (polygon_place_vertex(*verts[0]) +
+                      polygon_place_vertex(*verts[1]) +
+                      polygon_place_vertex(*verts[2]) +
+                      polygon_place_vertex(*verts[0]))
+    for (etype, event_args) in event_sequence:
+        do_event(tool_ref, etype, **event_args)
+
+
 @pytest.mark.parametrize(
     "horizOn, vertOn",
     [(True, True), (True, False), (False, True)],
