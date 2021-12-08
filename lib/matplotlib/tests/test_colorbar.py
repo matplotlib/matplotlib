@@ -7,10 +7,11 @@ import matplotlib.colors as mcolors
 from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from matplotlib.colors import BoundaryNorm, LogNorm, PowerNorm, Normalize
+from matplotlib.colors import (
+    BoundaryNorm, LogNorm, PowerNorm, Normalize, NoNorm
+)
 from matplotlib.colorbar import Colorbar
 from matplotlib.ticker import FixedLocator
-
 from matplotlib.testing.decorators import check_figures_equal
 
 
@@ -911,3 +912,18 @@ def test_negative_boundarynorm():
     cb = fig.colorbar(cm.ScalarMappable(cmap=cmap, norm=norm), cax=ax)
     np.testing.assert_allclose(cb.ax.get_ylim(), [clevs[0], clevs[-1]])
     np.testing.assert_allclose(cb.ax.get_yticks(), clevs)
+
+
+@image_comparison(['nonorm_colorbars.svg'], remove_text=False,
+                  style='mpl20')
+def test_nonorm():
+    plt.rcParams['svg.fonttype'] = 'none'
+    data = [1, 2, 3, 4, 5]
+
+    fig, ax = plt.subplots(figsize=(6, 1))
+    fig.subplots_adjust(bottom=0.5)
+
+    norm = NoNorm(vmin=min(data), vmax=max(data))
+    cmap = cm.get_cmap("viridis", len(data))
+    mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
+    cbar = fig.colorbar(mappable, cax=ax, orientation="horizontal")
