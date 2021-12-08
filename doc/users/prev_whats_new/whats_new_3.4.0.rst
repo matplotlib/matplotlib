@@ -166,7 +166,7 @@ New automatic labeling for bar charts
 A new `.Axes.bar_label` method has been added for auto-labeling bar charts.
 
 .. figure:: /gallery/lines_bars_and_markers/images/sphx_glr_bar_label_demo_001.png
-   :target: /gallery/lines_bars_and_markers/bar_label_demo.html
+   :target: ../../gallery/lines_bars_and_markers/bar_label_demo.html
 
    Example of the new automatic labeling.
 
@@ -396,7 +396,7 @@ style. This can be used to, e.g., distinguish the valid and invalid sides of
 the constraint boundaries in the solution space of optimizations.
 
 .. figure:: /gallery/misc/images/sphx_glr_tickedstroke_demo_002.png
-   :target: /gallery/misc/tickedstroke_demo.html
+   :target: ../../gallery/misc/tickedstroke_demo.html
 
 
 Colors and colormaps
@@ -702,7 +702,7 @@ The new `.Text` parameter ``transform_rotates_text`` now sets whether rotations
 of the transform affect the text direction.
 
 .. figure:: /gallery/text_labels_and_annotations/images/sphx_glr_text_rotation_relative_to_line_001.png
-   :target: /gallery/text_labels_and_annotations/text_rotation_relative_to_line.html
+   :target: ../../gallery/text_labels_and_annotations/text_rotation_relative_to_line.html
 
    Example of the new *transform_rotates_text* parameter
 
@@ -726,7 +726,7 @@ for each individual text element in a plot. If no parameter is set, the global
 value :rc:`mathtext.fontset` will be used.
 
 .. figure:: /gallery/text_labels_and_annotations/images/sphx_glr_mathtext_fontfamily_example_001.png
-   :target: /gallery/text_labels_and_annotations/mathtext_fontfamily_example.html
+   :target: ../../gallery/text_labels_and_annotations/mathtext_fontfamily_example.html
 
 ``TextArea``/``AnchoredText`` support *horizontalalignment*
 -----------------------------------------------------------
@@ -860,7 +860,7 @@ its entirety, supporting features such as custom styling for error lines and
 cap marks, control over errorbar spacing, upper and lower limit marks.
 
 .. figure:: /gallery/mplot3d/images/sphx_glr_errorbar3d_001.png
-   :target: /gallery/mplot3d/errorbar3d.html
+   :target: ../../gallery/mplot3d/errorbar3d.html
 
 Stem plots in 3D Axes
 ---------------------
