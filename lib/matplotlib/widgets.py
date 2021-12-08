@@ -3087,8 +3087,9 @@ class RectangleSelector(_SelectorWidget):
             a = np.array([eventpress.xdata, eventpress.ydata])
             b = np.array(self.center)
             c = np.array([event.xdata, event.ydata])
-            angle = (np.arctan2(c[1]-b[1], c[0]-b[0]) -
-                     np.arctan2(a[1]-b[1], a[0]-b[0]))
+            ax_corr = self.ax._get_aspect_ratio()
+            angle = (np.arctan2((c[1]-b[1]) * ax_corr, c[0]-b[0]) -
+                     np.arctan2((a[1]-b[1]) * ax_corr, a[0]-b[0]))
             self.rotation = np.rad2deg(self._rotation_on_press + angle)
 
         # resize an existing shape

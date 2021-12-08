@@ -452,6 +452,29 @@ def test_rectangle_rotate(selector_class):
             tool._selection_artist.rotation_point = 'unvalid_value'
 
 
+def test_rectangle_rotate_aspect_ratio():
+    _, ax = plt.subplots()
+    ax.plot([1, 2, 3], [10, 20, 30])
+
+    def onselect(epress, erelease):
+        pass
+
+    tool = widgets.RectangleSelector(ax, onselect=onselect, interactive=True)
+
+    # Draw rectangle
+    do_event(tool, 'press', xdata=1, ydata=10)
+    do_event(tool, 'onmove', xdata=1.5, ydata=14)
+    do_event(tool, 'release', xdata=1.5, ydata=14)
+    assert tool.extents == (1.0, 1.5, 10.0, 14.0)
+
+    # Rotate clockwise using bottom-right corner
+    do_event(tool, 'on_key_press', key='r')
+    do_event(tool, 'press', xdata=1.5, ydata=10)
+    do_event(tool, 'onmove', xdata=1.4, ydata=8.7)
+    do_event(tool, 'release', xdata=1.4, ydata=8.7)
+    assert_allclose(tool.rotation, -27.8, rtol=0.1)
+
+
 def test_rectange_add_remove_set():
     ax = get_ax()
 
