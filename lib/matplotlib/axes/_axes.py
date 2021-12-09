@@ -3302,8 +3302,30 @@ class Axes(_AxesBase):
             fallback to casting to an object array.
 
             """
-            if np.iterable(err) and isinstance(err[0], np.ndarray):
-                return type(err[0])(err)
+
+            # we are here because we the container is not a numpy array, but it
+            # _is_ iterable (likely a list or a tuple but maybe something more
+            # exotic)
+
+            if (
+                    # make sure it is not a scalar
+                    np.iterable(err) and
+                    # and it is not empty
+                    len(err) > 0 and
+                    # and the first element is an array sub-class use
+                    # safe_first_element because getitem is index-first not
+                    # location first on pandas objects so err[0] almost always
+                    # fails.
+                    isinstance(cbook.safe_first_element(err), np.ndarray)
+            ):
+                # grab the type of the first element, we will try to promote
+                # the outer container to match the inner container
+                atype = type(cbook.safe_first_element(err))
+                # you can not directly pass data to the init of `np.ndarray`
+                if atype is np.ndarray:
+                    return np.asarray(err, dtype=object)
+                # but you can for unyt and astropy uints
+                return atype(err)
             return np.asarray(err, dtype=object)
 
         if xerr is not None and not isinstance(xerr, np.ndarray):
