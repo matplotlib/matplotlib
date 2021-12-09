@@ -3786,6 +3786,22 @@ class PolygonSelector(_SelectorWidget):
         """The polygon vertices, as a list of ``(x, y)`` pairs."""
         return list(zip(self._xs[:-1], self._ys[:-1]))
 
+    @verts.setter
+    def verts(self, xys):
+        """
+        Set the polygon vertices.
+
+        This will remove any pre-existing vertices, creating a complete polygon
+        with the new vertices.
+        """
+        self._xs = [xy[0] for xy in xys]
+        self._xs.append(self._xs[0])
+        self._ys = [xy[1] for xy in xys]
+        self._ys.append(self._ys[0])
+        self._selection_completed = True
+        self.set_visible(True)
+        self._draw_polygon()
+
 
 class Lasso(AxesWidget):
     """
