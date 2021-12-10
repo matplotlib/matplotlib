@@ -12,6 +12,7 @@ Module containing Axes3D, an object which can plot 3D objects on a
 
 from collections import defaultdict
 import functools
+import inspect
 import itertools
 import math
 from numbers import Integral
@@ -54,7 +55,7 @@ class Axes3D(Axes):
 
     def __init__(
             self, fig, rect=None, *args,
-            azim=-60, elev=30, sharez=None, proj_type='persp',
+            elev=30, azim=-60, roll=0, sharez=None, proj_type='persp',
             box_aspect=None, computed_zorder=True,
             **kwargs):
         """
@@ -64,10 +65,19 @@ class Axes3D(Axes):
             The parent figure.
         rect : (float, float, float, float)
             The ``(left, bottom, width, height)`` axes position.
-        azim : float, default: -60
-            Azimuthal viewing angle.
         elev : float, default: 30
-            Elevation viewing angle.
+            The elevation angle in degrees rotates the camera above and below
+            the x-y plane, with a positive angle corresponding to a location
+            above the plane.
+        azim : float, default: -60
+            The azimuthal angle in degrees rotates the camera about the z axis,
+            with a positive angle corresponding to a right-handed rotation. In
+            other words, a positive azimuth rotates the camera about the origin
+            from its location along the +x axis towards the +y axis.
+        roll : float, default: 0
+            The roll angle in degrees rotates the camera about the viewing
+            axis. A positive angle spins the camera clockwise, causing the
+            scene to rotate counter-clockwise.
         sharez : Axes3D, optional
             Other axes to share z-limits with.
         proj_type : {'persp', 'ortho'}
@@ -101,6 +111,7 @@ class Axes3D(Axes):
 
         self.initial_azim = azim
         self.initial_elev = elev
+        self.initial_roll = roll
         self.set_proj_type(proj_type)
         self.computed_zorder = computed_zorder
 
@@ -112,7 +123,7 @@ class Axes3D(Axes):
 
         # inhibit autoscale_view until the axes are defined
         # they can't be defined until Axes.__init__ has been called
-        self.view_init(self.initial_elev, self.initial_azim)
+        self.view_init(self.initial_elev, self.initial_azim, self.initial_roll)
 
         self._sharez = sharez
         if sharez is not None:
@@ -343,13 +354,8 @@ class Axes3D(Axes):
         if aspect is None:
             aspect = np.asarray((4, 4, 3), dtype=float)
         else:
-            orig_aspect = aspect
             aspect = np.asarray(aspect, dtype=float)
-            if aspect.shape != (3,):
-                raise ValueError(
-                    "You must pass a 3-tuple that can be cast to floats. "
-                    f"You passed {orig_aspect!r}"
-                )
+            _api.check_shape((3,), aspect=aspect)
         # default scale tuned to match the mpl32 appearance.
         aspect *= 1.8294640721620434 * zoom / np.linalg.norm(aspect)
 
@@ -417,23 +423,26 @@ class Axes3D(Axes):
                 Call `do_3d_projection` on an *artist*, and warn if passing
                 *renderer*.
 
-                For our Artists, never pass *renderer*. For external Artists,
-                in lieu of more complicated signature parsing, always pass
-                *renderer* and raise a warning.
+                Attempt to bind the empty signature first, so external Artists
+                can avoid the deprecation warning if they support the new
+                calling convention.
                 """
-
-                if artist.__module__ == 'mpl_toolkits.mplot3d.art3d':
-                    # Our 3D Artists have deprecated the renderer parameter, so
-                    # avoid passing it to them; call this directly once the
-                    # deprecation has expired.
+                try:
+                    signature = inspect.signature(artist.do_3d_projection)
+                    signature.bind()
+                # ValueError if `inspect.signature` cannot provide a signature
+                # and TypeError if the binding fails or the object does not
+                # appear to be callable - the next call will then re-raise.
+                except (ValueError, TypeError):
+                    _api.warn_deprecated(
+                        "3.4",
+                        message="The 'renderer' parameter of "
+                        "do_3d_projection() was deprecated in Matplotlib "
+                        "%(since)s and will be removed %(removal)s.")
+                    return artist.do_3d_projection(renderer)
+                else:
+                    # Call this directly once the deprecation period expires.
                     return artist.do_3d_projection()
-
-                _api.warn_deprecated(
-                    "3.4",
-                    message="The 'renderer' parameter of "
-                    "do_3d_projection() was deprecated in Matplotlib "
-                    "%(since)s and will be removed %(removal)s.")
-                return artist.do_3d_projection(renderer)
 
             collections_and_patches = (
                 artist for artist in self._children
@@ -984,7 +993,7 @@ class Axes3D(Axes):
         """Currently not implemented for 3D axes, and returns *None*."""
         return None
 
-    def view_init(self, elev=None, azim=None, vertical_axis="z"):
+    def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z"):
         """
         Set the elevation and azimuth of the axes in degrees (not radians).
 
@@ -993,12 +1002,26 @@ class Axes3D(Axes):
         Parameters
         ----------
         elev : float, default: None
-            The elevation angle in the vertical plane in degrees.
-            If None then the initial value as specified in the `Axes3D`
+            The elevation angle in degrees rotates the camera above the plane
+            pierced by the vertical axis, with a positive angle corresponding
+            to a location above that plane. For example, with the default
+            vertical axis of 'z', the elevation defines the angle of the camera
+            location above the x-y plane.
+            If None, then the initial value as specified in the `Axes3D`
             constructor is used.
         azim : float, default: None
-            The azimuth angle in the horizontal plane in degrees.
-            If None then the initial value as specified in the `Axes3D`
+            The azimuthal angle in degrees rotates the camera about the
+            vertical axis, with a positive angle corresponding to a
+            right-handed rotation. For example, with the default vertical axis
+            of 'z', a positive azimuth rotates the camera about the origin from
+            its location along the +x axis towards the +y axis.
+            If None, then the initial value as specified in the `Axes3D`
+            constructor is used.
+        roll : float, default: None
+            The roll angle in degrees rotates the camera about the viewing
+            axis. A positive angle spins the camera clockwise, causing the
+            scene to rotate counter-clockwise.
+            If None, then the initial value as specified in the `Axes3D`
             constructor is used.
         vertical_axis : {"z", "x", "y"}, default: "z"
             The axis to align vertically. *azim* rotates about this axis.
@@ -1015,6 +1038,11 @@ class Axes3D(Axes):
             self.azim = self.initial_azim
         else:
             self.azim = azim
+
+        if roll is None:
+            self.roll = self.initial_roll
+        else:
+            self.roll = roll
 
         self._vertical_axis = _api.check_getitem(
             dict(x=0, y=1, z=2), vertical_axis=vertical_axis
@@ -1054,8 +1082,10 @@ class Axes3D(Axes):
 
         # elev stores the elevation angle in the z plane
         # azim stores the azimuth angle in the x,y plane
-        elev_rad = np.deg2rad(self.elev)
-        azim_rad = np.deg2rad(self.azim)
+        # roll stores the roll angle about the view axis
+        elev_rad = np.deg2rad(art3d._norm_angle(self.elev))
+        azim_rad = np.deg2rad(art3d._norm_angle(self.azim))
+        roll_rad = np.deg2rad(art3d._norm_angle(self.roll))
 
         # Coordinates for a point that rotates around the box of data.
         # p0, p1 corresponds to rotating the box only around the
@@ -1085,7 +1115,7 @@ class Axes3D(Axes):
         V = np.zeros(3)
         V[self._vertical_axis] = -1 if abs(elev_rad) > 0.5 * np.pi else 1
 
-        viewM = proj3d.view_transformation(eye, R, V)
+        viewM = proj3d.view_transformation(eye, R, V, roll_rad)
         projM = self._projection(-self.dist, self.dist)
         M0 = np.dot(viewM, worldM)
         M = np.dot(projM, M0)
@@ -1173,14 +1203,15 @@ class Axes3D(Axes):
     def _get_view(self):
         # docstring inherited
         return (self.get_xlim(), self.get_ylim(), self.get_zlim(),
-                self.elev, self.azim)
+                self.elev, self.azim, self.roll)
 
     def _set_view(self, view):
         # docstring inherited
-        xlim, ylim, zlim, elev, azim = view
+        xlim, ylim, zlim, elev, azim, roll = view
         self.set(xlim=xlim, ylim=ylim, zlim=zlim)
         self.elev = elev
         self.azim = azim
+        self.roll = roll
 
     def format_zdata(self, z):
         """
@@ -1207,8 +1238,12 @@ class Axes3D(Axes):
 
         if self.button_pressed in self._rotate_btn:
             # ignore xd and yd and display angles instead
-            return (f"azimuth={self.azim:.0f}\N{DEGREE SIGN}, "
-                    f"elevation={self.elev:.0f}\N{DEGREE SIGN}"
+            norm_elev = art3d._norm_angle(self.elev)
+            norm_azim = art3d._norm_angle(self.azim)
+            norm_roll = art3d._norm_angle(self.roll)
+            return (f"elevation={norm_elev:.0f}\N{DEGREE SIGN}, "
+                    f"azimuth={norm_azim:.0f}\N{DEGREE SIGN}, "
+                    f"roll={norm_roll:.0f}\N{DEGREE SIGN}"
                     ).replace("-", "\N{MINUS SIGN}")
 
         # nearest edge
@@ -1261,8 +1296,12 @@ class Axes3D(Axes):
             # get the x and y pixel coords
             if dx == 0 and dy == 0:
                 return
-            self.elev = art3d._norm_angle(self.elev - (dy/h)*180)
-            self.azim = art3d._norm_angle(self.azim - (dx/w)*180)
+
+            roll = np.deg2rad(self.roll)
+            delev = -(dy/h)*180*np.cos(roll) + (dx/w)*180*np.sin(roll)
+            dazim = -(dy/h)*180*np.sin(roll) - (dx/w)*180*np.cos(roll)
+            self.elev = self.elev + delev
+            self.azim = self.azim + dazim
             self.get_proj()
             self.stale = True
             self.figure.canvas.draw_idle()
@@ -1275,7 +1314,8 @@ class Axes3D(Axes):
             minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
             dx = 1-((w - dx)/w)
             dy = 1-((h - dy)/h)
-            elev, azim = np.deg2rad(self.elev), np.deg2rad(self.azim)
+            elev = np.deg2rad(self.elev)
+            azim = np.deg2rad(self.azim)
             # project xv, yv, zv -> xw, yw, zw
             dxx = (maxx-minx)*(dy*np.sin(elev)*np.cos(azim) + dx*np.sin(azim))
             dyy = (maxy-miny)*(-dx*np.cos(azim) + dy*np.sin(elev)*np.sin(azim))
@@ -3257,11 +3297,11 @@ pivot='tail', normalize=False, **kwargs)
         quiversize = np.mean(np.diff(quiversize, axis=0))
         # quiversize is now in Axes coordinates, and to convert back to data
         # coordinates, we need to run it through the inverse 3D transform. For
-        # consistency, this uses a fixed azimuth and elevation.
-        with cbook._setattr_cm(self, azim=0, elev=0):
+        # consistency, this uses a fixed elevation, azimuth, and roll.
+        with cbook._setattr_cm(self, elev=0, azim=0, roll=0):
             invM = np.linalg.inv(self.get_proj())
-        # azim=elev=0 produces the Y-Z plane, so quiversize in 2D 'x' is 'y' in
-        # 3D, hence the 1 index.
+        # elev=azim=roll=0 produces the Y-Z plane, so quiversize in 2D 'x' is
+        # 'y' in 3D, hence the 1 index.
         quiversize = np.dot(invM, np.array([quiversize, 0, 0, 0]))[1]
         # Quivers use a fixed 15-degree arrow head, so scale up the length so
         # that the size corresponds to the base. In other words, this constant

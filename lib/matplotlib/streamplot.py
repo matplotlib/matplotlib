@@ -171,6 +171,13 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
 
         for xs, ys in sp2:
             xg, yg = dmap.data2grid(xs, ys)
+            # Floating point issues can cause xg, yg to be slightly out of
+            # bounds for xs, ys on the upper boundaries. Because we have
+            # already checked that the starting points are within the original
+            # grid, clip the xg, yg to the grid to work around this issue
+            xg = np.clip(xg, 0, grid.nx - 1)
+            yg = np.clip(yg, 0, grid.ny - 1)
+
             t = integrate(xg, yg)
             if t is not None:
                 trajectories.append(t)

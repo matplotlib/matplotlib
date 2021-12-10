@@ -26,6 +26,9 @@ class Quantity:
         else:
             return Quantity(self.magnitude, self.units)
 
+    def __copy__(self):
+        return Quantity(self.magnitude, self.units)
+
     def __getattr__(self, attr):
         return getattr(self.magnitude, attr)
 

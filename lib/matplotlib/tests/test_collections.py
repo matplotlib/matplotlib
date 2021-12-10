@@ -1078,3 +1078,23 @@ def test_set_offset_transform():
     late.set_offset_transform(skew)
 
     assert skew == init.get_offset_transform() == late.get_offset_transform()
+
+
+def test_set_offset_units():
+    # passing the offsets in initially (i.e. via scatter)
+    # should yield the same results as `set_offsets`
+    x = np.linspace(0, 10, 5)
+    y = np.sin(x)
+    d = x * np.timedelta64(24, 'h') + np.datetime64('2021-11-29')
+
+    sc = plt.scatter(d, y)
+    off0 = sc.get_offsets()
+    sc.set_offsets(list(zip(d, y)))
+    np.testing.assert_allclose(off0, sc.get_offsets())
+
+    # try the other way around
+    fig, ax = plt.subplots()
+    sc = ax.scatter(y, d)
+    off0 = sc.get_offsets()
+    sc.set_offsets(list(zip(y, d)))
+    np.testing.assert_allclose(off0, sc.get_offsets())

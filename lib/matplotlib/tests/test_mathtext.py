@@ -250,7 +250,9 @@ def test_fontinfo():
         (r'$\leftF$', r'Expected a delimiter'),
         (r'$\rightF$', r'Unknown symbol: \rightF'),
         (r'$\left(\right$', r'Expected a delimiter'),
-        (r'$\left($', r'Expected "\right"'),
+        # PyParsing 2 uses double quotes, PyParsing 3 uses single quotes and an
+        # extra backslash.
+        (r'$\left($', re.compile(r'Expected ("|\'\\)\\right["\']')),
         (r'$\dfrac$', r'Expected \dfrac{num}{den}'),
         (r'$\dfrac{}{}$', r'Expected \dfrac{num}{den}'),
         (r'$\overset$', r'Expected \overset{body}{annotation}'),
@@ -281,8 +283,8 @@ def test_fontinfo():
 )
 def test_mathtext_exceptions(math, msg):
     parser = mathtext.MathTextParser('agg')
-
-    with pytest.raises(ValueError, match=re.escape(msg)):
+    match = re.escape(msg) if isinstance(msg, str) else msg
+    with pytest.raises(ValueError, match=match):
         parser.parse(math)
 
 

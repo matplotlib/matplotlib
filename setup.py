@@ -205,7 +205,7 @@ def update_matplotlibrc(path):
         idx for idx, line in enumerate(template_lines)
         if "#backend:" in line]
     template_lines[backend_line_idx] = (
-        "#backend: {}".format(setupext.options["backend"])
+        "#backend: {}\n".format(setupext.options["backend"])
         if setupext.options["backend"]
         else "##backend: Agg")
     path.write_text("".join(template_lines))
@@ -322,9 +322,11 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         "pyparsing>=2.2.1,<3.0.0",
         "python-dateutil>=2.7",
     ] + (
-        # Installing from a git checkout.
-        ["setuptools_scm>=4"] if Path(__file__).with_name(".git").exists()
-        else []
+        # Installing from a git checkout that is not producing a wheel.
+        ["setuptools_scm>=4"] if (
+            Path(__file__).with_name(".git").exists() and
+            os.environ.get("CIBUILDWHEEL", "0") != "1"
+        ) else []
     ),
     use_scm_version={
         "version_scheme": "release-branch-semver",

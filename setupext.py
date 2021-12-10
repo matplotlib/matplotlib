@@ -591,7 +591,9 @@ class FreeType(SetupPackage):
                 (f'https://downloads.sourceforge.net/project/freetype'
                  f'/freetype2/{LOCAL_FREETYPE_VERSION}/{tarball}'),
                 (f'https://download.savannah.gnu.org/releases/freetype'
-                 f'/{tarball}')
+                 f'/{tarball}'),
+                (f'https://download.savannah.gnu.org/releases/freetype'
+                 f'/freetype-old/{tarball}')
             ],
             sha=LOCAL_FREETYPE_HASH,
             dirname=f'freetype-{LOCAL_FREETYPE_VERSION}',
@@ -607,13 +609,13 @@ class FreeType(SetupPackage):
         print(f"Building freetype in {src_path}")
         if sys.platform != 'win32':  # compilation on non-windows
             env = {
-                **env,
                 **{
                     var: value
                     for var, value in sysconfig.get_config_vars().items()
                     if var in {"CC", "CFLAGS", "CXX", "CXXFLAGS", "LD",
                                "LDFLAGS"}
                 },
+                **env,
             }
             env["CFLAGS"] = env.get("CFLAGS", "") + " -fPIC"
             configure = [
@@ -728,7 +730,7 @@ class BackendMacOSX(OptionalPackage):
             'matplotlib.backends._macosx', [
                 'src/_macosx.m'
             ])
-        ext.extra_compile_args.extend(['-Werror=unguarded-availability'])
+        ext.extra_compile_args.extend(['-Werror'])
         ext.extra_link_args.extend(['-framework', 'Cocoa'])
         if platform.python_implementation().lower() == 'pypy':
             ext.extra_compile_args.append('-DPYPY=1')

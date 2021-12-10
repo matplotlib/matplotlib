@@ -1,7 +1,6 @@
 import functools
 import operator
 import os
-import signal
 import sys
 import traceback
 
@@ -121,6 +120,10 @@ def _create_qApp():
             except AttributeError:  # Only for Qt>=5.14.
                 pass
             qApp = QtWidgets.QApplication(["matplotlib"])
+            if sys.platform == "darwin":
+                image = str(cbook._get_data_path('images/matplotlib.svg'))
+                icon = QtGui.QIcon(image)
+                qApp.setWindowIcon(icon)
             qApp.lastWindowClosed.connect(qApp.quit)
             cbook._setup_new_guiapp()
         else:
@@ -519,8 +522,10 @@ class FigureManagerQT(FigureManagerBase):
         self.window.closing.connect(canvas.close_event)
         self.window.closing.connect(self._widgetclosed)
 
-        image = str(cbook._get_data_path('images/matplotlib.svg'))
-        self.window.setWindowIcon(QtGui.QIcon(image))
+        if sys.platform != "darwin":
+            image = str(cbook._get_data_path('images/matplotlib.svg'))
+            icon = QtGui.QIcon(image)
+            self.window.setWindowIcon(icon)
 
         self.window._destroying = False
 
@@ -750,11 +755,14 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self.canvas.drawRectangle(None)
 
     def configure_subplots(self):
-        image = str(cbook._get_data_path('images/matplotlib.png'))
-        self._subplot_dialog = SubplotToolQt(
-            self.canvas.figure, self.canvas.parent())
-        self._subplot_dialog.setWindowIcon(QtGui.QIcon(image))
+        if self._subplot_dialog is None:
+            self._subplot_dialog = SubplotToolQt(
+                self.canvas.figure, self.canvas.parent())
+            self.canvas.mpl_connect(
+                "close_event", lambda e: self._subplot_dialog.reject())
+        self._subplot_dialog.update_from_current_subplotpars()
         self._subplot_dialog.show()
+        return self._subplot_dialog
 
     def save_figure(self, *args):
         filetypes = self.canvas.get_supported_filetypes_grouped()
@@ -799,6 +807,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 class SubplotToolQt(QtWidgets.QDialog):
     def __init__(self, targetfig, parent):
         super().__init__()
+        self.setWindowIcon(QtGui.QIcon(
+            str(cbook._get_data_path("images/matplotlib.png"))))
         self.setObjectName("SubplotTool")
         self._spinboxes = {}
         main_layout = QtWidgets.QHBoxLayout()
@@ -819,7 +829,6 @@ class SubplotToolQt(QtWidgets.QDialog):
             inner = QtWidgets.QFormLayout(box)
             for name in spinboxes:
                 self._spinboxes[name] = spinbox = QtWidgets.QDoubleSpinBox()
-                spinbox.setValue(getattr(targetfig.subplotpars, name))
                 spinbox.setRange(0, 1)
                 spinbox.setDecimals(3)
                 spinbox.setSingleStep(0.005)
@@ -836,9 +845,14 @@ class SubplotToolQt(QtWidgets.QDialog):
                 if name == "Close":
                     button.setFocus()
         self._figure = targetfig
-        self._defaults = {spinbox: vars(self._figure.subplotpars)[attr]
-                          for attr, spinbox in self._spinboxes.items()}
+        self._defaults = {}
         self._export_values_dialog = None
+        self.update_from_current_subplotpars()
+
+    def update_from_current_subplotpars(self):
+        self._defaults = {spinbox: getattr(self._figure.subplotpars, name)
+                          for name, spinbox in self._spinboxes.items()}
+        self._reset()  # Set spinbox current values without triggering signals.
 
     def _export_values(self):
         # Explicitly round to 3 decimals (which is also the spinbox precision)

@@ -504,9 +504,7 @@ def _create_lookup_table(N, data, gamma=1.0):
         adata = np.array(data)
     except Exception as err:
         raise TypeError("data must be convertible to an array") from err
-    shape = adata.shape
-    if len(shape) != 2 or shape[1] != 3:
-        raise ValueError("data must be nx3 format")
+    _api.check_shape((None, 3), data=adata)
 
     x = adata[:, 0]
     y0 = adata[:, 1]
@@ -1236,7 +1234,7 @@ class Normalize:
         (vmin,), _ = self.process_value(self.vmin)
         (vmax,), _ = self.process_value(self.vmax)
         if vmin == vmax:
-            result.fill(0)   # Or should it be all masked?  Or 0.5?
+            result.fill(0)  # Or should it be all masked?  Or 0.5?
         elif vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
         else:

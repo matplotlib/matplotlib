@@ -26,9 +26,12 @@ ax2.set_xlabel('x')
 ax3.fill_betweenx(y, x1, x2)
 ax3.set_title('between (x1, x2)')
 
-# now fill between x1 and x2 where a logical condition is met.  Note
-# this is different than calling
+#############################################################################
+# Now fill between x1 and x2 where a logical condition is met. Note this is
+# different than calling::
+#
 #   fill_between(y[where], x1[where], x2[where])
+#
 # because of edge effects over multiple contiguous regions.
 
 fig, [ax, ax1] = plt.subplots(1, 2, sharey=True, figsize=(6, 6))
@@ -44,9 +47,9 @@ ax1.fill_betweenx(y, x1, x2, where=x2 >= x1, facecolor='green')
 ax1.fill_betweenx(y, x1, x2, where=x2 <= x1, facecolor='red')
 ax1.set_title('regions with x2 > 1 are masked')
 
-# This example illustrates a problem; because of the data
-# gridding, there are undesired unfilled triangles at the crossover
-# points.  A brute-force solution would be to interpolate all
-# arrays to a very fine grid before plotting.
+#############################################################################
+# This example illustrates a problem; because of the data gridding, there are
+# undesired unfilled triangles at the crossover points. A brute-force solution
+# would be to interpolate all arrays to a very fine grid before plotting.
 
 plt.show()

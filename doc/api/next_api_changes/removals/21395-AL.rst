@@ -1,0 +1,3 @@
+Unknown keyword arguments to ``savefig`` and ``FigureCanvas.print_foo`` methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... now raise a TypeError, instead of being ignored.

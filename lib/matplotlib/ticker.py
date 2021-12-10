@@ -1412,13 +1412,13 @@ class EngFormatter(Formatter):
         representing the power of 1000 of the original number.
         Some examples:
 
-        >>> format_eng(0)       # for self.places = 0
+        >>> format_eng(0)        # for self.places = 0
         '0'
 
-        >>> format_eng(1000000) # for self.places = 1
+        >>> format_eng(1000000)  # for self.places = 1
         '1.0 M'
 
-        >>> format_eng("-1e-6") # for self.places = 2
+        >>> format_eng("-1e-6")  # for self.places = 2
         '-1.00 \N{MICRO SIGN}'
         """
         sign = 1

@@ -154,7 +154,7 @@ class Text(Artist):
         self._bbox_patch = None  # a FancyBboxPatch instance
         self._renderer = None
         if linespacing is None:
-            linespacing = 1.2   # Maybe use rcParam later.
+            linespacing = 1.2  # Maybe use rcParam later.
         self._linespacing = linespacing
         self.set_rotation_mode(rotation_mode)
         self.update(kwargs)
@@ -1710,9 +1710,13 @@ class Annotation(Text, _AnnotationBase):
 
         arrowprops : dict, optional
             The properties used to draw a `.FancyArrowPatch` arrow between the
-            positions *xy* and *xytext*. Note that the edge of the arrow
-            pointing to *xytext* will be centered on the text itself and may
-            not point directly to the coordinates given in *xytext*.
+            positions *xy* and *xytext*.  Defaults to None, i.e. no arrow is
+            drawn.
+
+            For historical reasons there are two different ways to specify
+            arrows, "simple" and "fancy":
+
+            **Simple arrow:**
 
             If *arrowprops* does not contain the key 'arrowstyle' the
             allowed keys are:
@@ -1727,35 +1731,22 @@ class Annotation(Text, _AnnotationBase):
             ?            Any key to :class:`matplotlib.patches.FancyArrowPatch`
             ==========   ======================================================
 
-            If *arrowprops* contains the key 'arrowstyle' the
-            above keys are forbidden.  The allowed values of
-            ``'arrowstyle'`` are:
+            The arrow is attached to the edge of the text box, the exact
+            position (corners or centers) depending on where it's pointing to.
 
-            ============   =============================================
-            Name           Attrs
-            ============   =============================================
-            ``'-'``        None
-            ``'->'``       head_length=0.4,head_width=0.2
-            ``'-['``       widthB=1.0,lengthB=0.2,angleB=None
-            ``'|-|'``      widthA=1.0,widthB=1.0
-            ``'-|>'``      head_length=0.4,head_width=0.2
-            ``'<-'``       head_length=0.4,head_width=0.2
-            ``'<->'``      head_length=0.4,head_width=0.2
-            ``'<|-'``      head_length=0.4,head_width=0.2
-            ``'<|-|>'``    head_length=0.4,head_width=0.2
-            ``'fancy'``    head_length=0.4,head_width=0.4,tail_width=0.4
-            ``'simple'``   head_length=0.5,head_width=0.5,tail_width=0.2
-            ``'wedge'``    tail_width=0.3,shrink_factor=0.5
-            ============   =============================================
+            **Fancy arrow:**
 
-            Valid keys for `~matplotlib.patches.FancyArrowPatch` are:
+            This is used if 'arrowstyle' is provided in the *arrowprops*.
+
+            Valid keys are the following `~matplotlib.patches.FancyArrowPatch`
+            parameters:
 
             ===============  ==================================================
             Key              Description
             ===============  ==================================================
             arrowstyle       the arrow style
             connectionstyle  the connection style
-            relpos           default is (0.5, 0.5)
+            relpos           see below; default is (0.5, 0.5)
             patchA           default is bounding box of the text
             patchB           default is None
             shrinkA          default is 2 points
@@ -1765,7 +1756,12 @@ class Annotation(Text, _AnnotationBase):
             ?                any key for :class:`matplotlib.patches.PathPatch`
             ===============  ==================================================
 
-            Defaults to None, i.e. no arrow is drawn.
+            The exact starting point position of the arrow is defined by
+            *relpos*. It's a tuple of relative coordinates of the text box,
+            where (0, 0) is the lower left corner and (1, 1) is the upper
+            right corner. Values <0 and >1 are supported and specify points
+            outside the text box. By default (0.5, 0.5) the starting point is
+            centered in the text box.
 
         annotation_clip : bool or None, default: None
             Whether to draw the annotation when the annotation point *xy* is
@@ -1976,7 +1972,7 @@ class Annotation(Text, _AnnotationBase):
         # FancyArrowPatch is correctly positioned.
         self.update_positions(renderer)
         self.update_bbox_position_size(renderer)
-        if self.arrow_patch is not None:   # FancyArrowPatch
+        if self.arrow_patch is not None:  # FancyArrowPatch
             if self.arrow_patch.figure is None and self.figure is not None:
                 self.arrow_patch.figure = self.figure
             self.arrow_patch.draw(renderer)
