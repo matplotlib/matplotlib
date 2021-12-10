@@ -219,3 +219,10 @@ def test_unpickle_canvas():
 def test_mpl_toolkits():
     ax = parasite_axes.host_axes([0, 0, 1, 1])
     assert type(pickle.loads(pickle.dumps(ax))) == parasite_axes.HostAxes
+
+
+def test_dynamic_norm():
+    logit_norm_instance = mpl.colors.make_norm_from_scale(
+        mpl.scale.LogitScale, mpl.colors.Normalize)()
+    assert type(pickle.loads(pickle.dumps(logit_norm_instance))) \
+        == type(logit_norm_instance)
