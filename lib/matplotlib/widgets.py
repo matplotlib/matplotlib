@@ -2804,7 +2804,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
           default: "r".
 
         "square" and "center" can be combined. The square shape can be defined
-        in data or figure coordinates as determined by the
+        in data or display coordinates as determined by the
         ``use_data_coordinates`` argument specified when creating the selector.
 
     drag_from_anywhere : bool, default: False
@@ -2817,8 +2817,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
 
     use_data_coordinates : bool, default: False
         If `True`, the "square" shape of the selector is defined in
-        data coordinates instead of figure coordinates.
-
+        data coordinates instead of display coordinates.
     """
 
 
