@@ -11,7 +11,7 @@ import pytest
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import cbook, rcParams
+from matplotlib import rcParams
 from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
@@ -61,6 +61,41 @@ def test_align_labels():
                 tick.set_rotation(90)
 
     fig.align_labels()
+
+
+def test_align_labels_stray_axes():
+    fig, axs = plt.subplots(2, 2)
+    for nn, ax in enumerate(axs.flat):
+        ax.set_xlabel('Boo')
+        ax.set_xlabel('Who')
+        ax.plot(np.arange(4)**nn, np.arange(4)**nn)
+    fig.align_ylabels()
+    fig.align_xlabels()
+    fig.draw_without_rendering()
+    xn = np.zeros(4)
+    yn = np.zeros(4)
+    for nn, ax in enumerate(axs.flat):
+        yn[nn] = ax.xaxis.label.get_position()[1]
+        xn[nn] = ax.yaxis.label.get_position()[0]
+    np.testing.assert_allclose(xn[:2], xn[2:])
+    np.testing.assert_allclose(yn[::2], yn[1::2])
+
+    fig, axs = plt.subplots(2, 2, constrained_layout=True)
+    for nn, ax in enumerate(axs.flat):
+        ax.set_xlabel('Boo')
+        ax.set_xlabel('Who')
+        pc = ax.pcolormesh(np.random.randn(10, 10))
+    fig.colorbar(pc, ax=ax)
+    fig.align_ylabels()
+    fig.align_xlabels()
+    fig.draw_without_rendering()
+    xn = np.zeros(4)
+    yn = np.zeros(4)
+    for nn, ax in enumerate(axs.flat):
+        yn[nn] = ax.xaxis.label.get_position()[1]
+        xn[nn] = ax.yaxis.label.get_position()[0]
+    np.testing.assert_allclose(xn[:2], xn[2:])
+    np.testing.assert_allclose(yn[::2], yn[1::2])
 
 
 def test_figure_label():
@@ -482,9 +517,8 @@ def test_savefig():
 
 def test_savefig_warns():
     fig = plt.figure()
-    msg = r'savefig\(\) got unexpected keyword argument "non_existent_kwarg"'
     for format in ['png', 'pdf', 'svg', 'tif', 'jpg']:
-        with pytest.warns(cbook.MatplotlibDeprecationWarning, match=msg):
+        with pytest.raises(TypeError):
             fig.savefig(io.BytesIO(), format=format, non_existent_kwarg=True)
 
 
@@ -995,7 +1029,8 @@ def test_subfigure_tightbbox():
     sub = fig.subfigures(1, 2)
 
     np.testing.assert_allclose(
-            fig.get_tightbbox(fig.canvas.get_renderer()).width, 0.1)
+            fig.get_tightbbox(fig.canvas.get_renderer()).width,
+            8.0)
 
 
 @image_comparison(['test_subfigure_ss.png'], style='mpl20',

@@ -2,6 +2,8 @@
 2D lines with support for a variety of line styles, markers, colors, etc.
 """
 
+import copy
+
 from numbers import Integral, Number, Real
 import logging
 
@@ -1230,7 +1232,7 @@ class Line2D(Artist):
         ----------
         x : 1D array
         """
-        self._xorig = x
+        self._xorig = copy.copy(x)
         self._invalidx = True
         self.stale = True
 
@@ -1242,7 +1244,7 @@ class Line2D(Artist):
         ----------
         y : 1D array
         """
-        self._yorig = y
+        self._yorig = copy.copy(y)
         self._invalidy = True
         self.stale = True
 

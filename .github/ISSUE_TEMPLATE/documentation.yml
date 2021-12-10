@@ -3,16 +3,14 @@ description: Create a report to help us improve the documentation
 title: "[Doc]: "
 labels: [Documentation]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        To help us understand and resolve your issue, please fill out the form to the best of your ability.
   - type: input
     id: link
     attributes:
       label: Documentation Link
-      description: Please provide a link to any documentation or examples that you are referencing.  
-      placeholder: https://matplotlib.org/devdocs/
+      description: |
+        Link to any documentation or examples that you are referencing.
+        Suggested improvements should be based on the development version of the docs: https://matplotlib.org/devdocs/
+      placeholder: https://matplotlib.org/devdocs/...
   - type: textarea
     id: problem
     attributes:
@@ -28,7 +26,6 @@ body:
     id: improvement
     attributes:
       label: Suggested improvement
-      description: How can we improve the documentation?
       placeholder: |
         * This line should be be changed to say [...]
         * Include a paragraph explaining [...]
@@ -37,15 +34,6 @@ body:
     id: matplotlib-version
     attributes:
       label: Matplotlib Version
-      placeholder: import matplotlib; print(matplotlib.__version__)
+      description: "From Python prompt: `import matplotlib; print(matplotlib.__version__)`"
     validations:
       required: true
-  - type: input
-    id: matplotlib-doc-version
-    attributes:
-      label: Matplotlib documentation version
-      placeholder: check under the logo
-    validations:
-      required: true
-
-  

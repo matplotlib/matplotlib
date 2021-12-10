@@ -13,7 +13,8 @@ import pytest
 from matplotlib.font_manager import (
     findfont, findSystemFonts, FontEntry, FontProperties, fontManager,
     json_dump, json_load, get_font, is_opentype_cff_font,
-    MSUserFontDirectories, _get_fontconfig_fonts)
+    MSUserFontDirectories, _get_fontconfig_fonts, ft2font,
+    ttfFontProperty, cbook)
 from matplotlib import pyplot as plt, rc_context
 
 has_fclist = shutil.which('fc-list') is not None
@@ -273,3 +274,22 @@ def test_fontentry_dataclass():
 
     assert type(entry.__doc__) == str
     assert entry._repr_html_() == "<span style='font-family:font-name'>font-name</span>"  # noqa: E501
+
+
+@pytest.mark.skipif(sys.platform == 'win32', reason='Linux or OS only')
+def test_get_font_names():
+    paths_mpl = [cbook._get_data_path('fonts', subdir) for subdir in ['ttf']]
+    fonts_mpl = findSystemFonts(paths_mpl, fontext='ttf')
+    fonts_system = findSystemFonts(fontext='ttf')
+    ttf_fonts = []
+    for path in fonts_mpl + fonts_system:
+        try:
+            font = ft2font.FT2Font(path)
+            prop = ttfFontProperty(font)
+            ttf_fonts.append(prop.name)
+        except:
+            pass
+    available_fonts = sorted(list(set(ttf_fonts)))
+    mpl_font_names = sorted(fontManager.get_font_names())
+    assert len(available_fonts) == len(mpl_font_names)
+    assert available_fonts == mpl_font_names

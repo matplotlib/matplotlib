@@ -24,7 +24,7 @@ def test_bbox_inches_tight():
     rows = len(data)
     ind = np.arange(len(col_labels)) + 0.3  # the x locations for the groups
     cell_text = []
-    width = 0.4     # the width of the bars
+    width = 0.4  # the width of the bars
     yoff = np.zeros(len(col_labels))
     # the bottom values for stacked bar chart
     fig, ax = plt.subplots(1, 1)

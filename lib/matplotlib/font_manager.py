@@ -1312,6 +1312,10 @@ class FontManager:
             prop, fontext, directory, fallback_to_default, rebuild_if_missing,
             rc_params)
 
+    def get_font_names(self):
+        """Return the list of available fonts."""
+        return list(set([font.name for font in self.ttflist]))
+
     @lru_cache()
     def _findfont_cached(self, prop, fontext, directory, fallback_to_default,
                          rebuild_if_missing, rc_params):
@@ -1450,3 +1454,4 @@ def _load_fontmanager(*, try_read_cache=True):
 
 fontManager = _load_fontmanager()
 findfont = fontManager.findfont
+get_font_names = fontManager.get_font_names

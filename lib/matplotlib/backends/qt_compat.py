@@ -134,9 +134,8 @@ else:  # We should not get there.
 # https://bugreports.qt.io/browse/QTBUG-87014, fixed in qt 5.15.2
 if (sys.platform == 'darwin' and
         parse_version(platform.mac_ver()[0]) >= parse_version("10.16") and
-        parse_version(QtCore.qVersion()) < parse_version("5.15.2") and
-        "QT_MAC_WANTS_LAYER" not in os.environ):
-    os.environ["QT_MAC_WANTS_LAYER"] = "1"
+        QtCore.QLibraryInfo.version().segments() <= [5, 15, 2]):
+    os.environ.setdefault("QT_MAC_WANTS_LAYER", "1")
 
 
 # PyQt6 enum compat helpers.

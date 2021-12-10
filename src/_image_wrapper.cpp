@@ -9,7 +9,8 @@
  * */
 
 const char* image_resample__doc__ =
-"resample(input_array, output_array, matrix, interpolation=NEAREST, alpha=1.0, norm=False, radius=1)\n\n"
+"resample(input_array, output_array, matrix, interpolation=NEAREST, alpha=1.0, norm=False, radius=1)\n"
+"--\n\n"
 
 "Resample input_array, blending it in-place into output_array, using an\n"
 "affine transformation.\n\n"

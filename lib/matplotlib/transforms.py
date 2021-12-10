@@ -1656,11 +1656,10 @@ class Transform(TransformNode):
             raise NotImplementedError('Only defined in 2D')
         angles = np.asarray(angles)
         pts = np.asarray(pts)
-        if angles.ndim != 1 or angles.shape[0] != pts.shape[0]:
-            raise ValueError("'angles' must be a column vector and have same "
-                             "number of rows as 'pts'")
-        if pts.shape[1] != 2:
-            raise ValueError("'pts' must be array with 2 columns for x, y")
+        _api.check_shape((None, 2), pts=pts)
+        _api.check_shape((None,), angles=angles)
+        if len(angles) != len(pts):
+            raise ValueError("There must be as many 'angles' as 'pts'")
         # Convert to radians if desired
         if not radians:
             angles = np.deg2rad(angles)

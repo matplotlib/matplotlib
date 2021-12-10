@@ -19,9 +19,9 @@ import PIL
 
 import matplotlib as mpl
 from matplotlib.backend_bases import (
-    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, MouseButton, NavigationToolbar2, RendererBase,
-    TimerBase, ToolContainerBase, cursors)
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
+    MouseButton, NavigationToolbar2, RendererBase, TimerBase,
+    ToolContainerBase, cursors)
 
 from matplotlib import _api, cbook, backend_tools
 from matplotlib._pylab_helpers import Gcf
@@ -332,8 +332,7 @@ class GraphicsContextWx(GraphicsContextBase):
 
         dc, gfx_ctx = self._cache.get(bitmap, (None, None))
         if dc is None:
-            dc = wx.MemoryDC()
-            dc.SelectObject(bitmap)
+            dc = wx.MemoryDC(bitmap)
             gfx_ctx = wx.GraphicsContext.Create(dc)
             gfx_ctx._lastcliprect = None
             self._cache[bitmap] = dc, gfx_ctx
@@ -714,10 +713,11 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         else:
             key = None
 
-        for meth, prefix, key_name in (
-                [event.ControlDown, 'ctrl', 'control'],
-                [event.AltDown, 'alt', 'alt'],
-                [event.ShiftDown, 'shift', 'shift'],):
+        for meth, prefix, key_name in [
+                (event.ControlDown, 'ctrl', 'control'),
+                (event.AltDown, 'alt', 'alt'),
+                (event.ShiftDown, 'shift', 'shift'),
+        ]:
             if meth() and key_name != key:
                 if not (key_name == 'shift' and key.isupper()):
                     key = '{0}+{1}'.format(prefix, key)
@@ -840,7 +840,6 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         self._isDrawn = True
         self.gui_repaint(drawDC=drawDC)
 
-    @_check_savefig_extra_args
     def _print_image(self, filetype, filename):
         origBitmap = self.bitmap
 

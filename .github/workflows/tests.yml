@@ -14,6 +14,7 @@ env:
 
 jobs:
   test:
+    if: "github.repository == 'matplotlib/matplotlib' && !contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip github]')"
     name: "Python ${{ matrix.python-version }} on ${{ matrix.os }} ${{ matrix.name-suffix }}"
     runs-on: ${{ matrix.os }}
 
@@ -225,9 +226,16 @@ jobs:
             fi
           fi
 
+          cat <<EOT >> mplsetup.cfg
+          [rc_options]
+          backend=Agg
+          EOT
+
+          cat mplsetup.cfg
+
           # All dependencies must have been pre-installed, so that the minver
           # constraints are held.
-          python -m pip install --no-deps -e .
+          python -m pip install --no-deps -ve .
 
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
             unset CPPFLAGS
@@ -242,7 +250,7 @@ jobs:
         run: |
           ${{ matrix.XVFB_RUN }} python -mpytest -raR -n auto \
             --maxfail=50 --timeout=300 --durations=25 \
-            --cov-report=xml --cov=lib --log-level=DEBUG
+            --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
       - name: Filter C coverage
         run: |

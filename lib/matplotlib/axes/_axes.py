@@ -3,7 +3,6 @@ import itertools
 import logging
 import math
 from numbers import Integral, Number
-from datetime import timedelta
 
 import numpy as np
 from numpy import ma
@@ -3283,26 +3282,59 @@ class Axes(_AxesBase):
             x = np.asarray(x, dtype=object)
         if not isinstance(y, np.ndarray):
             y = np.asarray(y, dtype=object)
+
+        def _upcast_err(err):
+            """
+            Safely handle tuple of containers that carry units.
+
+            If the units are carried on the values then casting to object
+            arrays preserves the units, but if the units are on the containers
+            this will not work.
+
+            This function covers the case where the input to the xerr/yerr is a
+            length 2 tuple of equal length ndarray-subclasses that carry the
+            unit information in the container.
+
+            We defer coercing the units to be consistent to the underlying unit
+            library (and implicitly the broadcasting).
+
+            If we do not have a tuple of nested numpy array (subclasses),
+            fallback to casting to an object array.
+
+            """
+
+            # we are here because we the container is not a numpy array, but it
+            # _is_ iterable (likely a list or a tuple but maybe something more
+            # exotic)
+
+            if (
+                    # make sure it is not a scalar
+                    np.iterable(err) and
+                    # and it is not empty
+                    len(err) > 0 and
+                    # and the first element is an array sub-class use
+                    # safe_first_element because getitem is index-first not
+                    # location first on pandas objects so err[0] almost always
+                    # fails.
+                    isinstance(cbook.safe_first_element(err), np.ndarray)
+            ):
+                # grab the type of the first element, we will try to promote
+                # the outer container to match the inner container
+                atype = type(cbook.safe_first_element(err))
+                # you can not directly pass data to the init of `np.ndarray`
+                if atype is np.ndarray:
+                    return np.asarray(err, dtype=object)
+                # but you can for unyt and astropy uints
+                return atype(err)
+            return np.asarray(err, dtype=object)
+
         if xerr is not None and not isinstance(xerr, np.ndarray):
-            xerr = np.asarray(xerr, dtype=object)
+            xerr = _upcast_err(xerr)
         if yerr is not None and not isinstance(yerr, np.ndarray):
-            yerr = np.asarray(yerr, dtype=object)
+            yerr = _upcast_err(yerr)
         x, y = np.atleast_1d(x, y)  # Make sure all the args are iterable.
         if len(x) != len(y):
             raise ValueError("'x' and 'y' must have the same size")
-
-        def has_negative_values(array):
-            if array is None:
-                return False
-            try:
-                return np.any(array < 0)
-            except TypeError:  # if array contains 'datetime.timedelta' types
-                return np.any(array < timedelta(0))
-
-        if has_negative_values(xerr):
-            raise ValueError("'xerr' must not contain negative values")
-        if has_negative_values(yerr):
-            raise ValueError("'yerr' must not contain negative values")
 
         if isinstance(errorevery, Integral):
             errorevery = (0, errorevery)
@@ -3426,6 +3458,9 @@ class Axes(_AxesBase):
                     f"'{dep_axis}err' (shape: {np.shape(err)}) must be a "
                     f"scalar or a 1D or (2, n) array-like whose shape matches "
                     f"'{dep_axis}' (shape: {np.shape(dep)})") from None
+            if np.any(err < -err):  # like err<0, but also works for timedelta.
+                raise ValueError(
+                    f"'{dep_axis}err' must not contain negative values")
             # This is like
             #     elow, ehigh = np.broadcast_to(...)
             #     return dep - elow * ~lolims, dep + ehigh * ~uplims
@@ -4433,13 +4468,12 @@ default: :rc:`scatter.edgecolors`
                 alpha=alpha
                 )
         collection.set_transform(mtransforms.IdentityTransform())
-        collection.update(kwargs)
-
         if colors is None:
             collection.set_array(c)
             collection.set_cmap(cmap)
             collection.set_norm(norm)
             collection._scale_norm(norm, vmin, vmax)
+        collection.update(kwargs)
 
         # Classic mode only:
         # ensure there are margins to allow for the
@@ -8094,3 +8128,13 @@ such objects
     tricontourf = mtri.tricontourf
     tripcolor = mtri.tripcolor
     triplot = mtri.triplot
+
+    def _get_aspect_ratio(self):
+        """
+        Convenience method to calculate the aspect ratio of the axes in
+        the display coordinate system.
+        """
+        figure_size = self.get_figure().get_size_inches()
+        ll, ur = self.get_position() * figure_size
+        width, height = ur - ll
+        return height / (width * self.get_data_ratio())

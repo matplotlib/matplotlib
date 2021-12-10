@@ -109,17 +109,14 @@ def zoom_effect02(ax1, ax2, **kwargs):
     return c1, c2, bbox_patch1, bbox_patch2, p
 
 
-plt.figure(figsize=(5, 5))
-ax1 = plt.subplot(221)
-ax2 = plt.subplot(212)
-ax2.set_xlim(0, 1)
-ax2.set_xlim(0, 5)
-zoom_effect01(ax1, ax2, 0.2, 0.8)
+axs = plt.figure().subplot_mosaic([
+    ["zoom1", "zoom2"],
+    ["main", "main"],
+])
 
-
-ax1 = plt.subplot(222)
-ax1.set_xlim(2, 3)
-ax2.set_xlim(0, 5)
-zoom_effect02(ax1, ax2)
+axs["main"].set(xlim=(0, 5))
+zoom_effect01(axs["zoom1"], axs["main"], 0.2, 0.8)
+axs["zoom2"].set(xlim=(2, 3))
+zoom_effect02(axs["zoom2"], axs["main"])
 
 plt.show()

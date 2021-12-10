@@ -706,7 +706,8 @@ class Rectangle(Patch):
         return fmt % pars
 
     @docstring.dedent_interpd
-    def __init__(self, xy, width, height, angle=0.0, **kwargs):
+    def __init__(self, xy, width, height, angle=0.0, *,
+                 rotation_point='xy', **kwargs):
         """
         Parameters
         ----------
@@ -717,7 +718,11 @@ class Rectangle(Patch):
         height : float
             Rectangle height.
         angle : float, default: 0
-            Rotation in degrees anti-clockwise about *xy*.
+            Rotation in degrees anti-clockwise about the rotation point.
+        rotation_point : {'xy', 'center', (number, number)}, default: 'xy'
+            If ``'xy'``, rotate around the anchor point. If ``'center'`` rotate
+            around the center. If 2-tuple of number, rotate around this
+            coordinate.
 
         Other Parameters
         ----------------
@@ -730,6 +735,14 @@ class Rectangle(Patch):
         self._width = width
         self._height = height
         self.angle = float(angle)
+        self.rotation_point = rotation_point
+        # Required for RectangleSelector with axes aspect ratio != 1
+        # The patch is defined in data coordinates and when changing the
+        # selector with square modifier and not in data coordinates, we need
+        # to correct for the aspect ratio difference between the data and
+        # display coordinate systems. Its value is typically provide by
+        # Axes._get_aspect_ratio()
+        self._aspect_ratio_correction = 1.0
         self._convert_units()  # Validate the inputs.
 
     def get_path(self):
@@ -750,9 +763,36 @@ class Rectangle(Patch):
         # important to call the accessor method and not directly access the
         # transformation member variable.
         bbox = self.get_bbox()
-        return (transforms.BboxTransformTo(bbox)
-                + transforms.Affine2D().rotate_deg_around(
-                    bbox.x0, bbox.y0, self.angle))
+        if self.rotation_point == 'center':
+            width, height = bbox.x1 - bbox.x0, bbox.y1 - bbox.y0
+            rotation_point = bbox.x0 + width / 2., bbox.y0 + height / 2.
+        elif self.rotation_point == 'xy':
+            rotation_point = bbox.x0, bbox.y0
+        else:
+            rotation_point = self.rotation_point
+        return transforms.BboxTransformTo(bbox) \
+                + transforms.Affine2D() \
+                .translate(-rotation_point[0], -rotation_point[1]) \
+                .scale(1, self._aspect_ratio_correction) \
+                .rotate_deg(self.angle) \
+                .scale(1, 1 / self._aspect_ratio_correction) \
+                .translate(*rotation_point)
+
+    @property
+    def rotation_point(self):
+        """The rotation point of the patch."""
+        return self._rotation_point
+
+    @rotation_point.setter
+    def rotation_point(self, value):
+        if value in ['center', 'xy'] or (
+                isinstance(value, tuple) and len(value) == 2 and
+                isinstance(value[0], Number) and isinstance(value[1], Number)
+                ):
+            self._rotation_point = value
+        else:
+            raise ValueError("`rotation_point` must be one of "
+                             "{'xy', 'center', (number, number)}.")
 
     def get_x(self):
         """Return the left coordinate of the rectangle."""
@@ -1511,6 +1551,12 @@ class Ellipse(Patch):
         self._width, self._height = width, height
         self._angle = angle
         self._path = Path.unit_circle()
+        # Required for EllipseSelector with axes aspect ratio != 1
+        # The patch is defined in data coordinates and when changing the
+        # selector with square modifier and not in data coordinates, we need
+        # to correct for the aspect ratio difference between the data and
+        # display coordinate systems.
+        self._aspect_ratio_correction = 1.0
         # Note: This cannot be calculated until this is added to an Axes
         self._patch_transform = transforms.IdentityTransform()
 
@@ -1528,8 +1574,9 @@ class Ellipse(Patch):
         width = self.convert_xunits(self._width)
         height = self.convert_yunits(self._height)
         self._patch_transform = transforms.Affine2D() \
-            .scale(width * 0.5, height * 0.5) \
+            .scale(width * 0.5, height * 0.5 * self._aspect_ratio_correction) \
             .rotate_deg(self.angle) \
+            .scale(1, 1 / self._aspect_ratio_correction) \
             .translate(*center)
 
     def get_path(self):

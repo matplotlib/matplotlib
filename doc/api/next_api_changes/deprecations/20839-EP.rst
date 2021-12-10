@@ -1,0 +1,4 @@
+Selector widget state internals
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *state_modifier_keys* attribute have been privatized and the modifier keys
+needs to be set when creating the widget.

@@ -278,7 +278,7 @@ def _logged_cached(fmt, func=None):
     return wrapper
 
 
-_ExecInfo = namedtuple("_ExecInfo", "executable version")
+_ExecInfo = namedtuple("_ExecInfo", "executable raw_version version")
 
 
 class ExecutableNotFoundError(FileNotFoundError):
@@ -339,12 +339,13 @@ def _get_executable_info(name):
             raise ExecutableNotFoundError(str(_ose)) from _ose
         match = re.search(regex, output)
         if match:
-            version = parse_version(match.group(1))
+            raw_version = match.group(1)
+            version = parse_version(raw_version)
             if min_ver is not None and version < parse_version(min_ver):
                 raise ExecutableNotFoundError(
                     f"You have {args[0]} version {version} but the minimum "
                     f"version supported by Matplotlib is {min_ver}")
-            return _ExecInfo(args[0], version)
+            return _ExecInfo(args[0], raw_version, version)
         else:
             raise ExecutableNotFoundError(
                 f"Failed to determine the version of {args[0]} from "
@@ -401,7 +402,7 @@ def _get_executable_info(name):
         else:
             path = "convert"
         info = impl([path, "--version"], r"^Version: ImageMagick (\S*)")
-        if info.version == parse_version("7.0.10-34"):
+        if info.raw_version == "7.0.10-34":
             # https://github.com/ImageMagick/ImageMagick/issues/2720
             raise ExecutableNotFoundError(
                 f"You have ImageMagick {info.version}, which is unsupported")
