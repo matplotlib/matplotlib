@@ -3076,9 +3076,9 @@ class RectangleSelector(_SelectorWidget):
         if self._use_data_coordinates:
             refx, refy = dx, dy
         else:
-            # Add 1e-6 to avoid divided by zero error
-            refx = event.xdata / (eventpress.xdata or 1E-6)
-            refy = event.ydata / (eventpress.ydata or 1E-6)
+            # Get dx/dy in display coordinates
+            refx = event.x - eventpress.x
+            refy = event.y - eventpress.y
 
         x0, x1, y0, y1 = self._extents_on_press
         # rotate an existing shape
