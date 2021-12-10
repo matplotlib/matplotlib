@@ -546,37 +546,39 @@ class Line2D(Artist):
 (float, float) or list[bool]
             Which markers to plot.
 
-            - every=None, every point will be plotted.
-            - every=N, every N-th marker will be plotted starting with
+            - ``every=None``: every point will be plotted.
+            - ``every=N``: every N-th marker will be plotted starting with
               marker 0.
-            - every=(start, N), every N-th marker, starting at point
-              start, will be plotted.
-            - every=slice(start, end, N), every N-th marker, starting at
-              point start, up to but not including point end, will be plotted.
-            - every=[i, j, m, n], only markers at points i, j, m, and n
-              will be plotted.
-            - every=[True, False, True], positions that are True will be
+            - ``every=(start, N)``: every N-th marker, starting at index
+              *start*, will be plotted.
+            - ``every=slice(start, end, N)``: every N-th marker, starting at
+              index *start*, up to but not including index *end*, will be
               plotted.
-            - every=0.1, (i.e. a float) then markers will be spaced at
-              approximately equal distances along the line; the distance
+            - ``every=[i, j, m, ...]``: only markers at the given indices
+              will be plotted.
+            - ``every=[True, False, True, ...]``: only positions that are True
+              will be plotted. The list must have the same length as the data
+              points.
+            - ``every=0.1``, (i.e. a float): markers will be spaced at
+              approximately equal visual distances along the line; the distance
               along the line between markers is determined by multiplying the
               display-coordinate distance of the axes bounding-box diagonal
-              by the value of every.
-            - every=(0.5, 0.1) (i.e. a length-2 tuple of float), the same
-              functionality as every=0.1 is exhibited but the first marker will
-              be 0.5 multiplied by the display-coordinate-diagonal-distance
-              along the line.
+              by the value of *every*.
+            - ``every=(0.5, 0.1)`` (i.e. a length-2 tuple of float): similar
+              to ``every=0.1`` but the first marker will be offset along the
+              line by 0.5 multiplied by the
+              display-coordinate-diagonal-distance along the line.
 
             For examples see
             :doc:`/gallery/lines_bars_and_markers/markevery_demo`.
 
         Notes
         -----
-        Setting the markevery property will only show markers at actual data
-        points.  When using float arguments to set the markevery property
-        on irregularly spaced data, the markers will likely not appear evenly
-        spaced because the actual data points do not coincide with the
-        theoretical spacing between markers.
+        Setting *markevery* will still only draw markers at actual data points.
+        While the float argument form aims for uniform visual spacing, it has
+        to coerce from the ideal spacing to the nearest available data point.
+        Depending on the number and distribution of data points, the result
+        may still not look evenly spaced.
 
         When using a start offset to specify the first marker, the offset will
         be from the first data point which may be different from the first
