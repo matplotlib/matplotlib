@@ -395,7 +395,10 @@ FontEntry = dataclasses.make_dataclass(
     A class for storing Font properties.
 
     It is used when populating the font lookup dictionary.
-    """})
+    """,
+        '_repr_html_': lambda self: f"<span style='font-family:{self.name}'>{self.name}</span>",  # noqa: E501
+    }
+)
 
 
 def ttfFontProperty(font):
