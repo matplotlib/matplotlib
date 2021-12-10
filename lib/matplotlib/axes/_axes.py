@@ -3282,10 +3282,56 @@ class Axes(_AxesBase):
             x = np.asarray(x, dtype=object)
         if not isinstance(y, np.ndarray):
             y = np.asarray(y, dtype=object)
+
+        def _upcast_err(err):
+            """
+            Safely handle tuple of containers that carry units.
+
+            If the units are carried on the values then casting to object
+            arrays preserves the units, but if the units are on the containers
+            this will not work.
+
+            This function covers the case where the input to the xerr/yerr is a
+            length 2 tuple of equal length ndarray-subclasses that carry the
+            unit information in the container.
+
+            We defer coercing the units to be consistent to the underlying unit
+            library (and implicitly the broadcasting).
+
+            If we do not have a tuple of nested numpy array (subclasses),
+            fallback to casting to an object array.
+
+            """
+
+            # we are here because we the container is not a numpy array, but it
+            # _is_ iterable (likely a list or a tuple but maybe something more
+            # exotic)
+
+            if (
+                    # make sure it is not a scalar
+                    np.iterable(err) and
+                    # and it is not empty
+                    len(err) > 0 and
+                    # and the first element is an array sub-class use
+                    # safe_first_element because getitem is index-first not
+                    # location first on pandas objects so err[0] almost always
+                    # fails.
+                    isinstance(cbook.safe_first_element(err), np.ndarray)
+            ):
+                # grab the type of the first element, we will try to promote
+                # the outer container to match the inner container
+                atype = type(cbook.safe_first_element(err))
+                # you can not directly pass data to the init of `np.ndarray`
+                if atype is np.ndarray:
+                    return np.asarray(err, dtype=object)
+                # but you can for unyt and astropy uints
+                return atype(err)
+            return np.asarray(err, dtype=object)
+
         if xerr is not None and not isinstance(xerr, np.ndarray):
-            xerr = np.asarray(xerr, dtype=object)
+            xerr = _upcast_err(xerr)
         if yerr is not None and not isinstance(yerr, np.ndarray):
-            yerr = np.asarray(yerr, dtype=object)
+            yerr = _upcast_err(yerr)
         x, y = np.atleast_1d(x, y)  # Make sure all the args are iterable.
         if len(x) != len(y):
             raise ValueError("'x' and 'y' must have the same size")
