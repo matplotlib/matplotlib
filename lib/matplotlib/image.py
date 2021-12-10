@@ -260,10 +260,8 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         self.update(kwargs)
 
     def __getstate__(self):
-        state = super().__getstate__()
-        # We can't pickle the C Image cached object.
-        state['_imcache'] = None
-        return state
+        # Save some space on the pickle by not saving the cache.
+        return {**super().__getstate__(), "_imcache": None}
 
     def get_size(self):
         """Return the size of the image as tuple (numrows, numcols)."""
@@ -304,7 +302,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         Call this whenever the mappable is changed so observers can update.
         """
         self._imcache = None
-        self._rgbacache = None
         cm.ScalarMappable.changed(self)
 
     def _make_image(self, A, in_bbox, out_bbox, clip_bbox, magnification=1.0,
@@ -710,7 +707,6 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
                 self._A = self._A.astype(np.uint8)
 
         self._imcache = None
-        self._rgbacache = None
         self.stale = True
 
     def set_array(self, A):
@@ -1214,10 +1210,10 @@ class PcolorImage(AxesImage):
         if unsampled:
             raise ValueError('unsampled not supported on PColorImage')
 
-        if self._rgbacache is None:
+        if self._imcache is None:
             A = self.to_rgba(self._A, bytes=True)
-            self._rgbacache = np.pad(A, [(1, 1), (1, 1), (0, 0)], "constant")
-        padded_A = self._rgbacache
+            self._imcache = np.pad(A, [(1, 1), (1, 1), (0, 0)], "constant")
+        padded_A = self._imcache
         bg = mcolors.to_rgba(self.axes.patch.get_facecolor(), 0)
         bg = (np.array(bg) * 255).astype(np.uint8)
         if (padded_A[0, 0] != bg).all():
@@ -1294,7 +1290,7 @@ class PcolorImage(AxesImage):
         self._A = A
         self._Ax = x
         self._Ay = y
-        self._rgbacache = None
+        self._imcache = None
         self.stale = True
 
     def set_array(self, *args):
