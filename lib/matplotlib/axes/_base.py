@@ -3488,15 +3488,19 @@ class _AxesBase(martist.Artist):
                                 f"its corresponding low level keyword "
                                 f"arguments ({protected_kw}) are also "
                                 f"supplied")
-            loc = 'center'
+
         else:
             loc = (loc if loc is not None
                    else mpl.rcParams['xaxis.labellocation'])
-        _api.check_in_list(('left', 'center', 'right'), loc=loc)
-        if loc == 'left':
-            kwargs.update(x=0, horizontalalignment='left')
-        elif loc == 'right':
-            kwargs.update(x=1, horizontalalignment='right')
+            _api.check_in_list(('left', 'center', 'right'), loc=loc)
+
+            if loc == 'left':
+                kwargs.update(x=0, horizontalalignment='left')
+            elif loc == 'center':
+                kwargs.update(x=0.5, horizontalalignment='center')
+            elif loc == 'right':
+                kwargs.update(x=1, horizontalalignment='right')
+
         return self.xaxis.set_label_text(xlabel, fontdict, **kwargs)
 
     def invert_xaxis(self):
@@ -3832,15 +3836,19 @@ class _AxesBase(martist.Artist):
                                 f"its corresponding low level keyword "
                                 f"arguments ({protected_kw}) are also "
                                 f"supplied")
-            loc = 'center'
+
         else:
             loc = (loc if loc is not None
                    else mpl.rcParams['yaxis.labellocation'])
-        _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
-        if loc == 'bottom':
-            kwargs.update(y=0, horizontalalignment='left')
-        elif loc == 'top':
-            kwargs.update(y=1, horizontalalignment='right')
+            _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
+
+            if loc == 'bottom':
+                kwargs.update(y=0, horizontalalignment='left')
+            elif loc == 'center':
+                kwargs.update(y=0.5, horizontalalignment='center')
+            elif loc == 'top':
+                kwargs.update(y=1, horizontalalignment='right')
+
         return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
 
     def invert_yaxis(self):
