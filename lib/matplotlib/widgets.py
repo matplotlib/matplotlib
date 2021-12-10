@@ -3124,13 +3124,10 @@ class RectangleSelector(_SelectorWidget):
             else:
                 # change sign of relative changes to simplify calculation
                 # Switch variables so that x1 and/or y1 are updated on move
-                x_factor = y_factor = 1
                 if 'W' in self._active_handle:
                     x0 = x1
-                    x_factor *= -1
                 if 'S' in self._active_handle:
                     y0 = y1
-                    y_factor *= -1
                 if self._active_handle in ['E', 'W'] + self._corner_order:
                     x1 = event.xdata
                 if self._active_handle in ['N', 'S'] + self._corner_order:
