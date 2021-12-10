@@ -1094,6 +1094,8 @@ class Colorbar:
         elif isinstance(self.norm, colors.NoNorm):
             # NoNorm has N blocks, so N+1 boundaries, centered on integers:
             b = np.arange(self.cmap.N + 1) - .5
+        elif self.boundaries is not None:
+            b = self.boundaries
         else:
             # otherwise make the boundaries from the size of the cmap:
             N = self.cmap.N + 1
@@ -1110,7 +1112,8 @@ class Colorbar:
             self.norm.vmax = 1
         self.norm.vmin, self.norm.vmax = mtransforms.nonsingular(
             self.norm.vmin, self.norm.vmax, expander=0.1)
-        if not isinstance(self.norm, colors.BoundaryNorm):
+        if (not isinstance(self.norm, colors.BoundaryNorm) and
+                (self.boundaries is None)):
             b = self.norm.inverse(b)
 
         self._boundaries = np.asarray(b, dtype=float)
@@ -1134,7 +1137,8 @@ class Colorbar:
         norm.vmax = self.vmax
         y, extendlen = self._proportional_y()
         # invert:
-        if isinstance(norm, (colors.BoundaryNorm, colors.NoNorm)):
+        if (isinstance(norm, (colors.BoundaryNorm, colors.NoNorm)) or
+                self.boundaries is not None):
             y = y * (self.vmax - self.vmin) + self.vmin  # not using a norm.
         else:
             y = norm.inverse(y)
@@ -1230,7 +1234,8 @@ class Colorbar:
         Return colorbar data coordinates for the boundaries of
         a proportional colorbar, plus extension lengths if required:
         """
-        if isinstance(self.norm, colors.BoundaryNorm):
+        if (isinstance(self.norm, colors.BoundaryNorm) or
+                self.boundaries is not None):
             y = (self._boundaries - self._boundaries[self._inside][0])
             y = y / (self._boundaries[self._inside][-1] -
                      self._boundaries[self._inside][0])
