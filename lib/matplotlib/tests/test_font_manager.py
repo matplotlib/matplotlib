@@ -11,9 +11,9 @@ import numpy as np
 import pytest
 
 from matplotlib.font_manager import (
-    findfont, findSystemFonts, FontEntry, FontProperties, fontManager, json_dump,
-    json_load, get_font, is_opentype_cff_font, MSUserFontDirectories,
-    _get_fontconfig_fonts)
+    findfont, findSystemFonts, FontEntry, FontProperties, fontManager,
+    json_dump, json_load, get_font, is_opentype_cff_font,
+    MSUserFontDirectories, _get_fontconfig_fonts)
 from matplotlib import pyplot as plt, rc_context
 
 has_fclist = shutil.which('fc-list') is not None
@@ -272,4 +272,4 @@ def test_fontentry_dataclass():
     entry = FontEntry(name="font-name")
 
     assert type(entry.__doc__) == str
-    assert entry._repr_html_() == "<span style='font-family:font-name'>font-name</span>"
+    assert entry._repr_html_() == "<span style='font-family:font-name'>font-name</span>"  # noqa: E501
