@@ -1094,6 +1094,8 @@ class Colorbar:
         elif isinstance(self.norm, colors.NoNorm):
             # NoNorm has N blocks, so N+1 boundaries, centered on integers:
             b = np.arange(self.cmap.N + 1) - .5
+        elif self.boundaries is not None:
+            b = self.boundaries
         else:
             # otherwise make the boundaries from the size of the cmap:
             N = self.cmap.N + 1
@@ -1110,7 +1112,8 @@ class Colorbar:
             self.norm.vmax = 1
         self.norm.vmin, self.norm.vmax = mtransforms.nonsingular(
             self.norm.vmin, self.norm.vmax, expander=0.1)
-        if not isinstance(self.norm, colors.BoundaryNorm):
+        if (not isinstance(self.norm, colors.BoundaryNorm) and
+                (self.boundaries is None)):
             b = self.norm.inverse(b)
 
         self._boundaries = np.asarray(b, dtype=float)
@@ -1132,18 +1135,15 @@ class Colorbar:
         norm = copy.deepcopy(self.norm)
         norm.vmin = self.vmin
         norm.vmax = self.vmax
-        x = np.array([0.0, 1.0])
         y, extendlen = self._proportional_y()
         # invert:
         if (isinstance(norm, (colors.BoundaryNorm, colors.NoNorm)) or
-                (self.__scale == 'manual')):
-            # if a norm doesn't have a named scale, or we are not using a norm:
-            dv = self.vmax - self.vmin
-            y = y * dv + self.vmin
+                self.boundaries is not None):
+            y = y * (self.vmax - self.vmin) + self.vmin  # not using a norm.
         else:
             y = norm.inverse(y)
         self._y = y
-        X, Y = np.meshgrid(x, y)
+        X, Y = np.meshgrid([0., 1.], y)
         if self.orientation == 'vertical':
             return (X, Y, extendlen)
         else:
@@ -1183,8 +1183,8 @@ class Colorbar:
                 self._set_scale('function', functions=funcs)
             elif self.spacing == 'proportional':
                 self._set_scale('linear')
-        elif hasattr(self.norm, '_scale') and self.norm._scale is not None:
-            # use the norm's scale:
+        elif getattr(self.norm, '_scale', None):
+            # use the norm's scale (if it exists and is not None):
             self._set_scale(self.norm._scale)
         elif type(self.norm) is colors.Normalize:
             # plain Normalize:
@@ -1234,7 +1234,8 @@ class Colorbar:
         Return colorbar data coordinates for the boundaries of
         a proportional colorbar, plus extension lengths if required:
         """
-        if isinstance(self.norm, colors.BoundaryNorm):
+        if (isinstance(self.norm, colors.BoundaryNorm) or
+                self.boundaries is not None):
             y = (self._boundaries - self._boundaries[self._inside][0])
             y = y / (self._boundaries[self._inside][-1] -
                      self._boundaries[self._inside][0])
