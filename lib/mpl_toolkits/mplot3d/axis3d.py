@@ -32,7 +32,7 @@ def tick_update_position(tick, tickxs, tickys, labelpos):
     tick.gridline.set_data(0, 0)
 
 
-class Axis(maxis.XAxis):
+class Axis(maxis.Axis):
     """An Axis class for the 3D plots."""
     # These points from the unit cube make up the x, y and z-planes
     _PLANES = (
@@ -516,21 +516,44 @@ class Axis(maxis.XAxis):
 # Use classes to look at different data limits
 
 
-class XAxis(Axis):
+class XAxis(Axis, maxis.XAxis):
     get_view_interval, set_view_interval = maxis._make_getset_interval(
         "view", "xy_viewLim", "intervalx")
     get_data_interval, set_data_interval = maxis._make_getset_interval(
         "data", "xy_dataLim", "intervalx")
 
 
-class YAxis(Axis):
+class YAxis(Axis, maxis.YAxis):
     get_view_interval, set_view_interval = maxis._make_getset_interval(
         "view", "xy_viewLim", "intervaly")
     get_data_interval, set_data_interval = maxis._make_getset_interval(
         "data", "xy_dataLim", "intervaly")
 
+    def get_tick_space(self):
+        ends = mtransforms.Bbox.from_bounds(0, 0, 1, 1)
+        ends = ends.transformed(self.axes.transAxes -
+                                self.figure.dpi_scale_trans)
+        length = ends.height * 72
+        # The spacing must be the same as in the XAxis method (3).
+        size = self._get_tick_label_size('y') * 3
+        if size > 0:
+            return int(np.floor(length / size))
+        else:
+            return 2**31 - 1
 
-class ZAxis(Axis):
+    def clear(self):
+        #The padding of the Yticks must be the same as for the XTicks.
+        super().clear()
+        self.majorTicks[0].label1.set(horizontalalignment='center',
+        verticalalignment='top')
+        self.minorTicks[0].label1.set(horizontalalignment='center',
+        verticalalignment='top')
+        self.majorTicks[0].label2.set(horizontalalignment='center',
+        verticalalignment='top')
+        self.minorTicks[0].label2.set(horizontalalignment='center',
+        verticalalignment='top')
+
+class ZAxis(Axis, maxis.XAxis):
     get_view_interval, set_view_interval = maxis._make_getset_interval(
         "view", "zz_viewLim", "intervalx")
     get_data_interval, set_data_interval = maxis._make_getset_interval(
