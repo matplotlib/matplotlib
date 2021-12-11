@@ -2985,6 +2985,7 @@ class RectangleSelector(_SelectorWidget):
             self.update()
 
         if self._active_handle is None and not self.ignore_event_outside:
+            # Start drawing a new rectangle
             x = event.xdata
             y = event.ydata
             self.visible = False
@@ -3051,16 +3052,28 @@ class RectangleSelector(_SelectorWidget):
         return False
 
     def _onmove(self, event):
-        """Motion notify event handler."""
+        """
+        Motion notify event handler.
 
+        This can do one of four things:
+        - Translate
+        - Rotate
+        - Re-size
+        - Continue the creation of a new shape
+        """
         state = self._state
         rotate = ('rotate' in state and
                   self._active_handle in self._corner_order)
         eventpress = self._eventpress
         # The calculations are done for rotation at zero: we apply inverse
         # transformation to events except when we rotate and move
+        state = self._state
+        rotate = ('rotate' in state and
+                  self._active_handle in self._corner_order)
         move = self._active_handle == 'C'
-        if not move and not rotate:
+        resize = self._active_handle and not move
+
+        if resize:
             inv_tr = self._get_rotation_transform().inverted()
             event.xdata, event.ydata = inv_tr.transform(
                 [event.xdata, event.ydata])
@@ -3091,8 +3104,7 @@ class RectangleSelector(_SelectorWidget):
                      np.arctan2(a[1]-b[1], a[0]-b[0]))
             self.rotation = np.rad2deg(self._rotation_on_press + angle)
 
-        # resize an existing shape
-        elif self._active_handle and self._active_handle != 'C':
+        elif resize:
             size_on_press = [x1 - x0, y1 - y0]
             center = [x0 + size_on_press[0] / 2, y0 + size_on_press[1] / 2]
 
@@ -3145,8 +3157,7 @@ class RectangleSelector(_SelectorWidget):
                         x1 = x0 + sign * abs(y1 - y0) * \
                             self._aspect_ratio_correction
 
-        # move existing shape
-        elif self._active_handle == 'C':
+        elif move:
             x0, x1, y0, y1 = self._extents_on_press
             dx = event.xdata - eventpress.xdata
             dy = event.ydata - eventpress.ydata
@@ -3155,8 +3166,8 @@ class RectangleSelector(_SelectorWidget):
             y0 += dy
             y1 += dy
 
-        # new shape
         else:
+            # Create a new shape
             self._rotation = 0
             # Don't create a new rectangle if there is already one when
             # ignore_event_outside=True
