@@ -2804,7 +2804,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
           default: "r".
 
         "square" and "center" can be combined. The square shape can be defined
-        in data or figure coordinates as determined by the
+        in data or display coordinates as determined by the
         ``use_data_coordinates`` argument specified when creating the selector.
 
     drag_from_anywhere : bool, default: False
@@ -2817,8 +2817,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
 
     use_data_coordinates : bool, default: False
         If `True`, the "square" shape of the selector is defined in
-        data coordinates instead of figure coordinates.
-
+        data coordinates instead of display coordinates.
     """
 
 
@@ -3076,9 +3075,9 @@ class RectangleSelector(_SelectorWidget):
         if self._use_data_coordinates:
             refx, refy = dx, dy
         else:
-            # Add 1e-6 to avoid divided by zero error
-            refx = event.xdata / (eventpress.xdata or 1E-6)
-            refy = event.ydata / (eventpress.ydata or 1E-6)
+            # Get dx/dy in display coordinates
+            refx = event.x - eventpress.x
+            refy = event.y - eventpress.y
 
         x0, x1, y0, y1 = self._extents_on_press
         # rotate an existing shape

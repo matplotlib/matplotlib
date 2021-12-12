@@ -502,7 +502,7 @@ def _image_directories(func):
     ``$(pwd)/result_images/test_baz``.  The result directory is created if it
     doesn't exist.
     """
-    module_path = Path(sys.modules[func.__module__].__file__)
+    module_path = Path(inspect.getfile(func))
     baseline_dir = module_path.parent / "baseline_images" / module_path.stem
     result_dir = Path().resolve() / "result_images" / module_path.stem
     result_dir.mkdir(parents=True, exist_ok=True)
