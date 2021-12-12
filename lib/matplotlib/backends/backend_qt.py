@@ -222,6 +222,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     def __init__(self, figure=None):
         _create_qApp()
         super().__init__(figure=figure)
+        self._update_pixel_ratio()
 
         self._draw_pending = False
         self._is_drawing = False
