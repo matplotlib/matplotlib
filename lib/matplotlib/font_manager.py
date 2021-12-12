@@ -380,6 +380,25 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     return [fname for fname in fontfiles if os.path.exists(fname)]
 
 
+def fontentry_helper_repr_html_(fontent):
+    html = (f"<span style='font-family:{fontent.name}'>"
+            f'{fontent.name}'
+            '</span>')
+
+    if fontent.fname == '':
+        return html
+    else:
+        return ('<span>'
+                '<style>'
+                '@font-face { '
+                f'font-family: {fontent.name}; '
+                f'src: url({fontent.fname}); '
+                '} '
+                '</style>'
+                f'{html}'
+                '</span>')
+
+
 FontEntry = dataclasses.make_dataclass(
     'FontEntry', [
         ('fname', str, dataclasses.field(default='')),
@@ -396,7 +415,7 @@ FontEntry = dataclasses.make_dataclass(
 
     It is used when populating the font lookup dictionary.
     """,
-        '_repr_html_': lambda self: f"<span style='font-family:{self.name}'>{self.name}</span>",  # noqa: E501
+        '_repr_html_': lambda self: fontentry_helper_repr_html_(self),
     }
 )
 

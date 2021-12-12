@@ -270,10 +270,12 @@ def test_fontcache_thread_safe():
 
 
 def test_fontentry_dataclass():
-    entry = FontEntry(name="font-name")
+    fontent1 = FontEntry(name='font-name')
+    fontent2 = FontEntry(fname='/random', name='font-name')
 
-    assert type(entry.__doc__) == str
-    assert entry._repr_html_() == "<span style='font-family:font-name'>font-name</span>"  # noqa: E501
+    assert type(fontent1.__doc__) == str
+    assert '@font-face' not in fontent1._repr_html_()
+    assert '@font-face' in fontent2._repr_html_()
 
 
 @pytest.mark.skipif(sys.platform == 'win32', reason='Linux or OS only')
