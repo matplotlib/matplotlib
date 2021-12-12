@@ -500,7 +500,7 @@ class Colorbar:
                 self.formatter = ticker.StrMethodFormatter(format)
         else:
             self.formatter = format  # Assume it is a Formatter or None
-        self.draw_all()
+        self._draw_all()
 
         if isinstance(mappable, contour.ContourSet) and not mappable.filled:
             self.add_lines(mappable)
@@ -554,14 +554,22 @@ class Colorbar:
             self.norm = mappable.norm
             self._reset_locator_formatter_scale()
 
-        self.draw_all()
+        self._draw_all()
         if isinstance(self.mappable, contour.ContourSet):
             CS = self.mappable
             if not CS.filled:
                 self.add_lines(CS)
         self.stale = True
 
+    @_api.deprecated("3.6", alternative="fig.draw_without_rendering()")
     def draw_all(self):
+        """
+        Calculate any free parameters based on the current cmap and norm,
+        and do all the drawing.
+        """
+        self._draw_all()
+
+    def _draw_all(self):
         """
         Calculate any free parameters based on the current cmap and norm,
         and do all the drawing.
