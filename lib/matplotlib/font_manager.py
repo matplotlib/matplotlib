@@ -1414,7 +1414,8 @@ def _get_font(filename, hinting_factor, *, _kerning_factor, thread_id):
 # FT2Font objects cannot be used across fork()s because they reference the same
 # FT_Library object.  While invalidating *all* existing FT2Fonts after a fork
 # would be too complicated to be worth it, the main way FT2Fonts get reused is
-# via the cache of _get_font, which we can empty upon forking (in Py3.7+).
+# via the cache of _get_font, which we can empty upon forking (not on Windows,
+# which has no fork() or register_at_fork()).
 if hasattr(os, "register_at_fork"):
     os.register_at_fork(after_in_child=_get_font.cache_clear)
 
