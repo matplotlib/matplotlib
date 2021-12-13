@@ -23,8 +23,10 @@ Future versions may implement the Level 2 or 2.1 specifications.
 #   - setWeights function needs improvement
 #   - 'light' is an invalid weight value, remove it.
 
+from base64 import b64encode
 import dataclasses
 from functools import lru_cache
+from io import BytesIO
 import json
 import logging
 from numbers import Number
@@ -380,23 +382,20 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     return [fname for fname in fontfiles if os.path.exists(fname)]
 
 
-def fontentry_helper_repr_html_(fontent):
-    html = (f"<span style='font-family:{fontent.name}'>"
-            f'{fontent.name}'
-            '</span>')
+def fontentry_helper_repr_png_(fontent):
+    from matplotlib.figure import Figure  # Circular import.
+    fig = Figure()
+    font_path = Path(fontent.fname) if fontent.fname != '' else None
+    fig.text(0, 0, fontent.name, font=font_path)
+    with BytesIO() as buf:
+        fig.savefig(buf, bbox_inches='tight', transparent=True)
+        return buf.getvalue()
 
-    if fontent.fname == '':
-        return html
-    else:
-        return ('<span>'
-                '<style>'
-                '@font-face { '
-                f'font-family: {fontent.name}; '
-                f'src: url({fontent.fname}); '
-                '} '
-                '</style>'
-                f'{html}'
-                '</span>')
+
+def fontentry_helper_repr_html_(fontent):
+    png_stream = fontentry_helper_repr_png_(fontent)
+    png_b64 = b64encode(png_stream).decode()
+    return f"<img src=\"data:image/png;base64, {png_b64}\" />"
 
 
 FontEntry = dataclasses.make_dataclass(
@@ -416,6 +415,7 @@ FontEntry = dataclasses.make_dataclass(
     It is used when populating the font lookup dictionary.
     """,
         '_repr_html_': lambda self: fontentry_helper_repr_html_(self),
+        '_repr_png_': lambda self: fontentry_helper_repr_png_(self),
     }
 )
 

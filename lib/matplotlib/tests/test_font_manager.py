@@ -2,6 +2,7 @@ from io import BytesIO, StringIO
 import multiprocessing
 import os
 from pathlib import Path
+from PIL import Image
 import shutil
 import subprocess
 import sys
@@ -270,12 +271,24 @@ def test_fontcache_thread_safe():
 
 
 def test_fontentry_dataclass():
-    fontent1 = FontEntry(name='font-name')
-    fontent2 = FontEntry(fname='/random', name='font-name')
+    fontent = FontEntry(name='font-name')
 
-    assert type(fontent1.__doc__) == str
-    assert '@font-face' not in fontent1._repr_html_()
-    assert '@font-face' in fontent2._repr_html_()
+    assert type(fontent.__doc__) == str
+
+    png = fontent._repr_png_()
+    html = fontent._repr_html_()
+
+    img = Image.open(BytesIO(png))
+    assert img.width > 0
+    assert img.height > 0
+
+    assert html.startswith("<img src=\"data:image/png;base64")
+
+
+def test_fontentry_dataclass_invalid_path():
+    with pytest.raises(FileNotFoundError):
+        fontent = FontEntry(fname='/random', name='font-name')
+        fontent._repr_html_()
 
 
 @pytest.mark.skipif(sys.platform == 'win32', reason='Linux or OS only')
