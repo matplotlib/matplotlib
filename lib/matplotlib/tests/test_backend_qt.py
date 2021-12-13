@@ -344,7 +344,7 @@ def test_device_pixel_ratio_change():
 
     prop = 'matplotlib.backends.backend_qt.FigureCanvasQT.devicePixelRatioF'
     with mock.patch(prop) as p:
-        p.return_value = 3
+        p.return_value = 1
 
         fig = plt.figure(figsize=(5, 2), dpi=120)
         qt_canvas = fig.canvas
@@ -368,8 +368,13 @@ def test_device_pixel_ratio_change():
         qt_canvas.manager.show()
         size = qt_canvas.size()
         screen = qt_canvas.window().windowHandle().screen()
-        set_device_pixel_ratio(3)
 
+        set_device_pixel_ratio(1)
+        assert fig.dpi == 120
+        assert qt_canvas.renderer.width == 600
+        assert qt_canvas.renderer.height == 240
+
+        set_device_pixel_ratio(3)
         # The DPI and the renderer width/height change
         assert fig.dpi == 360
         assert qt_canvas.renderer.width == 1800
@@ -382,7 +387,6 @@ def test_device_pixel_ratio_change():
         assert (fig.get_size_inches() == (5, 2)).all()
 
         set_device_pixel_ratio(2)
-
         # The DPI and the renderer width/height change
         assert fig.dpi == 240
         assert qt_canvas.renderer.width == 1200
