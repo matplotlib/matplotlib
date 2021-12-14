@@ -682,8 +682,6 @@ class _AxesBase(martist.Artist):
             which='major')
 
     def __getstate__(self):
-        # The renderer should be re-created by the figure, and then cached at
-        # that point.
         state = super().__getstate__()
         # Prune the sharing & twinning info to only contain the current group.
         state["_shared_axes"] = {

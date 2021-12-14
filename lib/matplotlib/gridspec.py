@@ -623,9 +623,6 @@ class SubplotSpec:
     def num2(self, value):
         self._num2 = value
 
-    def __getstate__(self):
-        return {**self.__dict__}
-
     def get_gridspec(self):
         return self._gridspec
 
