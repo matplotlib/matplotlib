@@ -1,7 +1,7 @@
 .. _github-stats-3-4-3:
 
-GitHub statistics for Matpltlib 3.4.3
-=====================================
+GitHub statistics for 3.4.3 (August 21, 2021)
+=============================================
 
 GitHub statistics for 2021/05/08 - 2021/08/12 (tag: v3.4.2)
 

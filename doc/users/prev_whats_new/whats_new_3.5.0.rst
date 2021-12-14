@@ -1,6 +1,6 @@
-==============================
-What's new in Matplotlib 3.5.0
-==============================
+=============================================
+What's new in Matplotlib 3.5.0 (Nov 15, 2021)
+=============================================
 
 For a list of all of the issues and pull requests since the last revision, see
 the :ref:`github-stats`.
