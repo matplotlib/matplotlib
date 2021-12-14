@@ -47,11 +47,8 @@ collected. `.Figure`\s can be closed and deregistered from `.pyplot` individuall
 
 For more discussion of Matplotlib's event system and integrated event loops, please read:
 
-.. toctree::
-    :maxdepth: 1
-
-    interactive_guide.rst
-    event_handling.rst
+   - :ref:`interactive_figures_and_eventloops`
+   - :ref:`event-handling-tutorial`
 
 
 .. _ipython-pylab:
