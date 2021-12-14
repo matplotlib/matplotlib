@@ -3,7 +3,8 @@ import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
-from matplotlib.testing.widgets import do_event, get_ax, mock_event
+from matplotlib.testing.widgets import (click_and_drag, do_event, get_ax,
+                                        mock_event)
 
 import numpy as np
 from numpy.testing import assert_allclose
@@ -56,19 +57,6 @@ def test_rectangle_selector():
     check_rectangle(props=dict(fill=True))
 
 
-def _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new,
-                      use_key=None):
-    do_event(tool, 'press', xdata=xdata, ydata=ydata, button=1)
-    if use_key is not None:
-        do_event(tool, 'on_key_press', key=use_key)
-    do_event(tool, 'onmove', xdata=xdata_new, ydata=ydata_new, button=1)
-    if use_key is not None:
-        do_event(tool, 'on_key_release', key=use_key)
-    do_event(tool, 'release', xdata=xdata_new, ydata=ydata_new, button=1)
-
-    return tool
-
-
 @pytest.mark.parametrize('drag_from_anywhere, new_center',
                          [[True, (60, 75)],
                           [False, (30, 20)]])
@@ -81,9 +69,7 @@ def test_rectangle_drag(drag_from_anywhere, new_center):
     tool = widgets.RectangleSelector(ax, onselect, interactive=True,
                                      drag_from_anywhere=drag_from_anywhere)
     # Create rectangle
-    do_event(tool, 'press', xdata=0, ydata=10, button=1)
-    do_event(tool, 'onmove', xdata=100, ydata=120, button=1)
-    do_event(tool, 'release', xdata=100, ydata=120, button=1)
+    click_and_drag(tool, start=(0, 10), end=(100, 120))
     assert tool.center == (50, 65)
     # Drag inside rectangle, but away from centre handle
     #
@@ -92,15 +78,11 @@ def test_rectangle_drag(drag_from_anywhere, new_center):
     #
     # If drag_from_anywhere == False, this will create a new rectangle with
     # center (30, 20)
-    do_event(tool, 'press', xdata=25, ydata=15, button=1)
-    do_event(tool, 'onmove', xdata=35, ydata=25, button=1)
-    do_event(tool, 'release', xdata=35, ydata=25, button=1)
+    click_and_drag(tool, start=(25, 15), end=(35, 25))
     assert tool.center == new_center
     # Check that in both cases, dragging outside the rectangle draws a new
     # rectangle
-    do_event(tool, 'press', xdata=175, ydata=185, button=1)
-    do_event(tool, 'onmove', xdata=185, ydata=195, button=1)
-    do_event(tool, 'release', xdata=185, ydata=195, button=1)
+    click_and_drag(tool, start=(175, 185), end=(185, 195))
     assert tool.center == (180, 190)
 
 
@@ -114,9 +96,7 @@ def test_rectangle_selector_set_props_handle_props():
                                      props=dict(facecolor='b', alpha=0.2),
                                      handle_props=dict(alpha=0.5))
     # Create rectangle
-    do_event(tool, 'press', xdata=0, ydata=10, button=1)
-    do_event(tool, 'onmove', xdata=100, ydata=120, button=1)
-    do_event(tool, 'release', xdata=100, ydata=120, button=1)
+    click_and_drag(tool, start=(0, 10), end=(100, 120))
 
     artist = tool._selection_artist
     assert artist.get_facecolor() == mcolors.to_rgba('b', alpha=0.2)
@@ -140,35 +120,35 @@ def test_rectangle_resize():
 
     tool = widgets.RectangleSelector(ax, onselect, interactive=True)
     # Create rectangle
-    _resize_rectangle(tool, 0, 10, 100, 120)
+    click_and_drag(tool, start=(0, 10), end=(100, 120))
     assert tool.extents == (0.0, 100.0, 10.0, 120.0)
 
     # resize NE handle
     extents = tool.extents
     xdata, ydata = extents[1], extents[3]
     xdata_new, ydata_new = xdata + 10, ydata + 5
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
     assert tool.extents == (extents[0], xdata_new, extents[2], ydata_new)
 
     # resize E handle
     extents = tool.extents
     xdata, ydata = extents[1], extents[2] + (extents[3] - extents[2]) / 2
     xdata_new, ydata_new = xdata + 10, ydata
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
     assert tool.extents == (extents[0], xdata_new, extents[2], extents[3])
 
     # resize W handle
     extents = tool.extents
     xdata, ydata = extents[0], extents[2] + (extents[3] - extents[2]) / 2
     xdata_new, ydata_new = xdata + 15, ydata
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
     assert tool.extents == (xdata_new, extents[1], extents[2], extents[3])
 
     # resize SW handle
     extents = tool.extents
     xdata, ydata = extents[0], extents[2]
     xdata_new, ydata_new = xdata + 20, ydata + 25
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
     assert tool.extents == (xdata_new, extents[1], ydata_new, extents[3])
 
 
@@ -180,7 +160,7 @@ def test_rectangle_add_state():
 
     tool = widgets.RectangleSelector(ax, onselect, interactive=True)
     # Create rectangle
-    _resize_rectangle(tool, 70, 65, 125, 130)
+    click_and_drag(tool, start=(70, 65), end=(125, 130))
 
     with pytest.raises(ValueError):
         tool.add_state('unsupported_state')
@@ -201,7 +181,7 @@ def test_rectangle_resize_center(add_state):
 
     tool = widgets.RectangleSelector(ax, onselect, interactive=True)
     # Create rectangle
-    _resize_rectangle(tool, 70, 65, 125, 130)
+    click_and_drag(tool, start=(70, 65), end=(125, 130))
     assert tool.extents == (70.0, 125.0, 65.0, 130.0)
 
     if add_state:
@@ -215,7 +195,8 @@ def test_rectangle_resize_center(add_state):
     xdata, ydata = extents[1], extents[3]
     xdiff, ydiff = 10, 5
     xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
+                   key=use_key)
     assert tool.extents == (extents[0] - xdiff, xdata_new,
                             extents[2] - ydiff, ydata_new)
 
@@ -224,7 +205,8 @@ def test_rectangle_resize_center(add_state):
     xdata, ydata = extents[1], extents[2] + (extents[3] - extents[2]) / 2
     xdiff = 10
     xdata_new, ydata_new = xdata + xdiff, ydata
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
+                   key=use_key)
     assert tool.extents == (extents[0] - xdiff, xdata_new,
                             extents[2], extents[3])
 
@@ -233,7 +215,8 @@ def test_rectangle_resize_center(add_state):
     xdata, ydata = extents[1], extents[2] + (extents[3] - extents[2]) / 2
     xdiff = -20
     xdata_new, ydata_new = xdata + xdiff, ydata
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
+                   key=use_key)
     assert tool.extents == (extents[0] - xdiff, xdata_new,
                             extents[2], extents[3])
 
@@ -242,7 +225,8 @@ def test_rectangle_resize_center(add_state):
     xdata, ydata = extents[0], extents[2] + (extents[3] - extents[2]) / 2
     xdiff = 15
     xdata_new, ydata_new = xdata + xdiff, ydata
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
+                   key=use_key)
     assert tool.extents == (xdata_new, extents[1] - xdiff,
                             extents[2], extents[3])
 
@@ -251,7 +235,8 @@ def test_rectangle_resize_center(add_state):
     xdata, ydata = extents[0], extents[2] + (extents[3] - extents[2]) / 2
     xdiff = -25
     xdata_new, ydata_new = xdata + xdiff, ydata
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
+                   key=use_key)
     assert tool.extents == (xdata_new, extents[1] - xdiff,
                             extents[2], extents[3])
 
@@ -260,7 +245,8 @@ def test_rectangle_resize_center(add_state):
     xdata, ydata = extents[0], extents[2]
     xdiff, ydiff = 20, 25
     xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
+                   key=use_key)
     assert tool.extents == (xdata_new, extents[1] - xdiff,
                             ydata_new, extents[3] - ydiff)
 
@@ -274,7 +260,7 @@ def test_rectangle_resize_square(add_state):
 
     tool = widgets.RectangleSelector(ax, onselect, interactive=True)
     # Create rectangle
-    _resize_rectangle(tool, 70, 65, 120, 115)
+    click_and_drag(tool, start=(70, 65), end=(120, 115))
     assert tool.extents == (70.0, 120.0, 65.0, 115.0)
 
     if add_state:
@@ -288,7 +274,8 @@ def test_rectangle_resize_square(add_state):
     xdata, ydata = extents[1], extents[3]
     xdiff, ydiff = 10, 5
     xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
+                   key=use_key)
     assert tool.extents == (extents[0], xdata_new,
                             extents[2], extents[3] + xdiff)
 
@@ -297,7 +284,8 @@ def test_rectangle_resize_square(add_state):
     xdata, ydata = extents[1], extents[2] + (extents[3] - extents[2]) / 2
     xdiff = 10
     xdata_new, ydata_new = xdata + xdiff, ydata
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
+                   key=use_key)
     assert tool.extents == (extents[0], xdata_new,
                             extents[2], extents[3] + xdiff)
 
@@ -306,7 +294,8 @@ def test_rectangle_resize_square(add_state):
     xdata, ydata = extents[1], extents[2] + (extents[3] - extents[2]) / 2
     xdiff = -20
     xdata_new, ydata_new = xdata + xdiff, ydata
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
+                   key=use_key)
     assert tool.extents == (extents[0], xdata_new,
                             extents[2], extents[3] + xdiff)
 
@@ -315,7 +304,8 @@ def test_rectangle_resize_square(add_state):
     xdata, ydata = extents[0], extents[2] + (extents[3] - extents[2]) / 2
     xdiff = 15
     xdata_new, ydata_new = xdata + xdiff, ydata
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
+                   key=use_key)
     assert tool.extents == (xdata_new, extents[1],
                             extents[2], extents[3] - xdiff)
 
@@ -324,7 +314,8 @@ def test_rectangle_resize_square(add_state):
     xdata, ydata = extents[0], extents[2] + (extents[3] - extents[2]) / 2
     xdiff = -25
     xdata_new, ydata_new = xdata + xdiff, ydata
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
+                   key=use_key)
     assert tool.extents == (xdata_new, extents[1],
                             extents[2], extents[3] - xdiff)
 
@@ -333,7 +324,8 @@ def test_rectangle_resize_square(add_state):
     xdata, ydata = extents[0], extents[2]
     xdiff, ydiff = 20, 25
     xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new, use_key)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
+                   key=use_key)
     assert tool.extents == (extents[0] + ydiff, extents[1],
                             ydata_new, extents[3])
 
@@ -346,7 +338,7 @@ def test_rectangle_resize_square_center():
 
     tool = widgets.RectangleSelector(ax, onselect, interactive=True)
     # Create rectangle
-    _resize_rectangle(tool, 70, 65, 120, 115)
+    click_and_drag(tool, start=(70, 65), end=(120, 115))
     tool.add_state('square')
     tool.add_state('center')
     assert_allclose(tool.extents, (70.0, 120.0, 65.0, 115.0))
@@ -356,7 +348,7 @@ def test_rectangle_resize_square_center():
     xdata, ydata = extents[1], extents[3]
     xdiff, ydiff = 10, 5
     xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
     assert_allclose(tool.extents, (extents[0] - xdiff, xdata_new,
                                    extents[2] - xdiff, extents[3] + xdiff))
 
@@ -365,7 +357,7 @@ def test_rectangle_resize_square_center():
     xdata, ydata = extents[1], extents[2] + (extents[3] - extents[2]) / 2
     xdiff = 10
     xdata_new, ydata_new = xdata + xdiff, ydata
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
     assert_allclose(tool.extents, (extents[0] - xdiff, xdata_new,
                                    extents[2] - xdiff, extents[3] + xdiff))
 
@@ -374,7 +366,7 @@ def test_rectangle_resize_square_center():
     xdata, ydata = extents[1], extents[2] + (extents[3] - extents[2]) / 2
     xdiff = -20
     xdata_new, ydata_new = xdata + xdiff, ydata
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
     assert_allclose(tool.extents, (extents[0] - xdiff, xdata_new,
                                    extents[2] - xdiff, extents[3] + xdiff))
 
@@ -383,7 +375,7 @@ def test_rectangle_resize_square_center():
     xdata, ydata = extents[0], extents[2] + (extents[3] - extents[2]) / 2
     xdiff = 5
     xdata_new, ydata_new = xdata + xdiff, ydata
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
     assert_allclose(tool.extents, (xdata_new, extents[1] - xdiff,
                                    extents[2] + xdiff, extents[3] - xdiff))
 
@@ -392,7 +384,7 @@ def test_rectangle_resize_square_center():
     xdata, ydata = extents[0], extents[2] + (extents[3] - extents[2]) / 2
     xdiff = -25
     xdata_new, ydata_new = xdata + xdiff, ydata
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
     assert_allclose(tool.extents, (xdata_new, extents[1] - xdiff,
                                    extents[2] + xdiff, extents[3] - xdiff))
 
@@ -401,7 +393,7 @@ def test_rectangle_resize_square_center():
     xdata, ydata = extents[0], extents[2]
     xdiff, ydiff = 20, 25
     xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
-    _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
     assert_allclose(tool.extents, (extents[0] + ydiff, extents[1] - ydiff,
                                    ydata_new, extents[3] - ydiff))
 
@@ -416,9 +408,7 @@ def test_rectangle_rotate(selector_class):
 
     tool = selector_class(ax, onselect=onselect, interactive=True)
     # Draw rectangle
-    do_event(tool, 'press', xdata=100, ydata=100)
-    do_event(tool, 'onmove', xdata=130, ydata=140)
-    do_event(tool, 'release', xdata=130, ydata=140)
+    click_and_drag(tool, start=(100, 100), end=(130, 140))
     assert tool.extents == (100, 130, 100, 140)
     assert len(tool._state) == 0
 
@@ -426,9 +416,7 @@ def test_rectangle_rotate(selector_class):
     do_event(tool, 'on_key_press', key='r')
     assert tool._state == set(['rotate'])
     assert len(tool._state) == 1
-    do_event(tool, 'press', xdata=130, ydata=140)
-    do_event(tool, 'onmove', xdata=120, ydata=145)
-    do_event(tool, 'release', xdata=120, ydata=145)
+    click_and_drag(tool, start=(130, 140), end=(120, 145))
     do_event(tool, 'on_key_press', key='r')
     assert len(tool._state) == 0
     # Extents shouldn't change (as shape of rectangle hasn't changed)
@@ -442,9 +430,7 @@ def test_rectangle_rotate(selector_class):
                               [95.25, 116.46, 144.75, 123.54]]), atol=0.01)
 
     # Scale using top-right corner
-    do_event(tool, 'press', xdata=110, ydata=145)
-    do_event(tool, 'onmove', xdata=110, ydata=160)
-    do_event(tool, 'release', xdata=110, ydata=160)
+    click_and_drag(tool, start=(110, 145), end=(110, 160))
     assert_allclose(tool.extents, (100, 139.75, 100, 151.82), atol=0.01)
 
     if selector_class == widgets.RectangleSelector:
@@ -460,9 +446,7 @@ def test_rectange_add_remove_set():
 
     tool = widgets.RectangleSelector(ax, onselect=onselect, interactive=True)
     # Draw rectangle
-    do_event(tool, 'press', xdata=100, ydata=100)
-    do_event(tool, 'onmove', xdata=130, ydata=140)
-    do_event(tool, 'release', xdata=130, ydata=140)
+    click_and_drag(tool, start=(100, 100), end=(130, 140))
     assert tool.extents == (100, 130, 100, 140)
     assert len(tool._state) == 0
     for state in ['rotate', 'square', 'center']:
@@ -483,7 +467,7 @@ def test_rectangle_resize_square_center_aspect(use_data_coordinates):
     tool = widgets.RectangleSelector(ax, onselect, interactive=True,
                                      use_data_coordinates=use_data_coordinates)
     # Create rectangle
-    _resize_rectangle(tool, 70, 65, 120, 115)
+    click_and_drag(tool, start=(70, 65), end=(120, 115))
     assert tool.extents == (70.0, 120.0, 65.0, 115.0)
     tool.add_state('square')
     tool.add_state('center')
@@ -495,7 +479,7 @@ def test_rectangle_resize_square_center_aspect(use_data_coordinates):
         xdiff, ycenter = 10,  extents[2] + (extents[3] - extents[2]) / 2
         xdata_new, ydata_new = xdata + xdiff, ydata
         ychange = width / 2 + xdiff
-        _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+        click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
         assert_allclose(tool.extents, [extents[0] - xdiff, xdata_new,
                                        ycenter - ychange, ycenter + ychange])
     else:
@@ -505,7 +489,7 @@ def test_rectangle_resize_square_center_aspect(use_data_coordinates):
         xdiff = 10
         xdata_new, ydata_new = xdata + xdiff, ydata
         ychange = xdiff * 1 / tool._aspect_ratio_correction
-        _resize_rectangle(tool, xdata, ydata, xdata_new, ydata_new)
+        click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
         assert_allclose(tool.extents, [extents[0] - xdiff, xdata_new,
                                        46.25, 133.75])
 
@@ -522,42 +506,20 @@ def test_ellipse():
     tool.extents = (100, 150, 100, 150)
 
     # drag the rectangle
-    do_event(tool, 'press', xdata=10, ydata=10, button=1,
-             key=' ')
-
-    do_event(tool, 'onmove', xdata=30, ydata=30, button=1)
-    do_event(tool, 'release', xdata=30, ydata=30, button=1)
+    click_and_drag(tool, start=(125, 125), end=(145, 145))
     assert tool.extents == (120, 170, 120, 170)
 
     # create from center
-    do_event(tool, 'on_key_press', xdata=100, ydata=100, button=1,
-             key='control')
-    do_event(tool, 'press', xdata=100, ydata=100, button=1)
-    do_event(tool, 'onmove', xdata=125, ydata=125, button=1)
-    do_event(tool, 'release', xdata=125, ydata=125, button=1)
-    do_event(tool, 'on_key_release', xdata=100, ydata=100, button=1,
-             key='control')
+    click_and_drag(tool, start=(100, 100), end=(125, 125), key='control')
     assert tool.extents == (75, 125, 75, 125)
 
     # create a square
-    do_event(tool, 'on_key_press', xdata=10, ydata=10, button=1,
-             key='shift')
-    do_event(tool, 'press', xdata=10, ydata=10, button=1)
-    do_event(tool, 'onmove', xdata=35, ydata=30, button=1)
-    do_event(tool, 'release', xdata=35, ydata=30, button=1)
-    do_event(tool, 'on_key_release', xdata=10, ydata=10, button=1,
-             key='shift')
+    click_and_drag(tool, start=(10, 10), end=(35, 30), key='shift')
     extents = [int(e) for e in tool.extents]
     assert extents == [10, 35, 10, 35]
 
     # create a square from center
-    do_event(tool, 'on_key_press', xdata=100, ydata=100, button=1,
-             key='ctrl+shift')
-    do_event(tool, 'press', xdata=100, ydata=100, button=1)
-    do_event(tool, 'onmove', xdata=125, ydata=130, button=1)
-    do_event(tool, 'release', xdata=125, ydata=130, button=1)
-    do_event(tool, 'on_key_release', xdata=100, ydata=100, button=1,
-             key='ctrl+shift')
+    click_and_drag(tool, start=(100, 100), end=(125, 130), key='ctrl+shift')
     extents = [int(e) for e in tool.extents]
     assert extents == [70, 130, 70, 130]
 
@@ -585,21 +547,15 @@ def test_rectangle_handles():
     assert tool.extents == (100, 150, 100, 150)
 
     # grab a corner and move it
-    do_event(tool, 'press', xdata=100, ydata=100)
-    do_event(tool, 'onmove', xdata=120, ydata=120)
-    do_event(tool, 'release', xdata=120, ydata=120)
+    click_and_drag(tool, start=(100, 100), end=(120, 120))
     assert tool.extents == (120, 150, 120, 150)
 
     # grab the center and move it
-    do_event(tool, 'press', xdata=132, ydata=132)
-    do_event(tool, 'onmove', xdata=120, ydata=120)
-    do_event(tool, 'release', xdata=120, ydata=120)
+    click_and_drag(tool, start=(132, 132), end=(120, 120))
     assert tool.extents == (108, 138, 108, 138)
 
     # create a new rectangle
-    do_event(tool, 'press', xdata=10, ydata=10)
-    do_event(tool, 'onmove', xdata=100, ydata=100)
-    do_event(tool, 'release', xdata=100, ydata=100)
+    click_and_drag(tool, start=(10, 10), end=(100, 100))
     assert tool.extents == (10, 100, 10, 100)
 
     # Check that marker_props worked.
@@ -618,19 +574,15 @@ def test_rectangle_selector_onselect(interactive):
         ax._got_onselect = True
 
     tool = widgets.RectangleSelector(ax, onselect, interactive=interactive)
-    do_event(tool, 'press', xdata=100, ydata=110, button=1)
     # move outside of axis
-    do_event(tool, 'onmove', xdata=150, ydata=120, button=1)
-    do_event(tool, 'release', xdata=150, ydata=120, button=1)
+    click_and_drag(tool, start=(100, 110), end=(150, 120))
 
     assert tool.ax._got_onselect
     assert tool.extents == (100.0, 150.0, 110.0, 120.0)
 
     # Reset tool.ax._got_onselect
     tool.ax._got_onselect = False
-
-    do_event(tool, 'press', xdata=10, ydata=100, button=1)
-    do_event(tool, 'release', xdata=10, ydata=100, button=1)
+    click_and_drag(tool, start=(10, 100), end=(10, 100))
 
     assert tool.ax._got_onselect
 
@@ -643,19 +595,14 @@ def test_rectangle_selector_ignore_outside(ignore_event_outside):
 
     tool = widgets.RectangleSelector(ax, onselect,
                                      ignore_event_outside=ignore_event_outside)
-    do_event(tool, 'press', xdata=100, ydata=110, button=1)
-    do_event(tool, 'onmove', xdata=150, ydata=120, button=1)
-    do_event(tool, 'release', xdata=150, ydata=120, button=1)
-
+    click_and_drag(tool, start=(100, 110), end=(150, 120))
     assert tool.ax._got_onselect
     assert tool.extents == (100.0, 150.0, 110.0, 120.0)
 
     # Reset
     ax._got_onselect = False
     # Trigger event outside of span
-    do_event(tool, 'press', xdata=150, ydata=150, button=1)
-    do_event(tool, 'onmove', xdata=160, ydata=160, button=1)
-    do_event(tool, 'release', xdata=160, ydata=160, button=1)
+    click_and_drag(tool, start=(150, 150), end=(160, 160))
     if ignore_event_outside:
         # event have been ignored and span haven't changed.
         assert not ax._got_onselect
@@ -711,20 +658,14 @@ def test_span_selector_onselect(interactive):
 
     tool = widgets.SpanSelector(ax, onselect, 'horizontal',
                                 interactive=interactive)
-    do_event(tool, 'press', xdata=100, ydata=100, button=1)
     # move outside of axis
-    do_event(tool, 'onmove', xdata=150, ydata=100, button=1)
-    do_event(tool, 'release', xdata=150, ydata=100, button=1)
-
+    click_and_drag(tool, start=(100, 100), end=(150, 100))
     assert tool.ax._got_onselect
     assert tool.extents == (100, 150)
 
     # Reset tool.ax._got_onselect
     tool.ax._got_onselect = False
-
-    do_event(tool, 'press', xdata=10, ydata=100, button=1)
-    do_event(tool, 'release', xdata=10, ydata=100, button=1)
-
+    click_and_drag(tool, start=(10, 100), end=(10, 100))
     assert tool.ax._got_onselect
 
 
@@ -740,9 +681,7 @@ def test_span_selector_ignore_outside(ignore_event_outside):
     tool = widgets.SpanSelector(ax, onselect, 'horizontal',
                                 onmove_callback=onmove,
                                 ignore_event_outside=ignore_event_outside)
-    do_event(tool, 'press', xdata=100, ydata=100, button=1)
-    do_event(tool, 'onmove', xdata=125, ydata=125, button=1)
-    do_event(tool, 'release', xdata=125, ydata=125, button=1)
+    click_and_drag(tool, start=(100, 100), end=(125, 125))
     assert ax._got_onselect
     assert ax._got_on_move
     assert tool.extents == (100, 125)
@@ -751,9 +690,7 @@ def test_span_selector_ignore_outside(ignore_event_outside):
     ax._got_onselect = False
     ax._got_on_move = False
     # Trigger event outside of span
-    do_event(tool, 'press', xdata=150, ydata=150, button=1)
-    do_event(tool, 'onmove', xdata=160, ydata=160, button=1)
-    do_event(tool, 'release', xdata=160, ydata=160, button=1)
+    click_and_drag(tool, start=(150, 150), end=(160, 160))
     if ignore_event_outside:
         # event have been ignored and span haven't changed.
         assert not ax._got_onselect
@@ -776,9 +713,7 @@ def test_span_selector_drag(drag_from_anywhere):
     # Create span
     tool = widgets.SpanSelector(ax, onselect, 'horizontal', interactive=True,
                                 drag_from_anywhere=drag_from_anywhere)
-    do_event(tool, 'press', xdata=10, ydata=10, button=1)
-    do_event(tool, 'onmove', xdata=100, ydata=120, button=1)
-    do_event(tool, 'release', xdata=100, ydata=120, button=1)
+    click_and_drag(tool, start=(10, 10), end=(100, 120))
     assert tool.extents == (10, 100)
     # Drag inside span
     #
@@ -787,18 +722,14 @@ def test_span_selector_drag(drag_from_anywhere):
     #
     # If drag_from_anywhere == False, this will create a new span with
     # value extents = 25, 35
-    do_event(tool, 'press', xdata=25, ydata=15, button=1)
-    do_event(tool, 'onmove', xdata=35, ydata=25, button=1)
-    do_event(tool, 'release', xdata=35, ydata=25, button=1)
+    click_and_drag(tool, start=(25, 15), end=(35, 25))
     if drag_from_anywhere:
         assert tool.extents == (20, 110)
     else:
         assert tool.extents == (25, 35)
 
     # Check that in both cases, dragging outside the span draws a new span
-    do_event(tool, 'press', xdata=175, ydata=185, button=1)
-    do_event(tool, 'onmove', xdata=185, ydata=195, button=1)
-    do_event(tool, 'release', xdata=185, ydata=195, button=1)
+    click_and_drag(tool, start=(175, 185), end=(185, 195))
     assert tool.extents == (175, 185)
 
 
@@ -833,9 +764,7 @@ def test_span_selector_set_props_handle_props():
                                 props=dict(facecolor='b', alpha=0.2),
                                 handle_props=dict(alpha=0.5))
     # Create rectangle
-    do_event(tool, 'press', xdata=0, ydata=10, button=1)
-    do_event(tool, 'onmove', xdata=100, ydata=120, button=1)
-    do_event(tool, 'release', xdata=100, ydata=120, button=1)
+    click_and_drag(tool, start=(0, 10), end=(100, 120))
 
     artist = tool._selection_artist
     assert artist.get_facecolor() == mcolors.to_rgba('b', alpha=0.2)
@@ -866,26 +795,20 @@ def test_selector_clear(selector):
         Selector = widgets.RectangleSelector
 
     tool = Selector(**kwargs)
-    do_event(tool, 'press', xdata=10, ydata=10, button=1)
-    do_event(tool, 'onmove', xdata=100, ydata=120, button=1)
-    do_event(tool, 'release', xdata=100, ydata=120, button=1)
+    click_and_drag(tool, start=(10, 10), end=(100, 120))
 
     # press-release event outside the selector to clear the selector
-    do_event(tool, 'press', xdata=130, ydata=130, button=1)
-    do_event(tool, 'release', xdata=130, ydata=130, button=1)
+    click_and_drag(tool, start=(130, 130), end=(130, 130))
     assert not tool._selection_completed
 
     ax = get_ax()
     kwargs['ignore_event_outside'] = True
     tool = Selector(**kwargs)
     assert tool.ignore_event_outside
-    do_event(tool, 'press', xdata=10, ydata=10, button=1)
-    do_event(tool, 'onmove', xdata=100, ydata=120, button=1)
-    do_event(tool, 'release', xdata=100, ydata=120, button=1)
+    click_and_drag(tool, start=(10, 10), end=(100, 120))
 
     # press-release event outside the selector ignored
-    do_event(tool, 'press', xdata=130, ydata=130, button=1)
-    do_event(tool, 'release', xdata=130, ydata=130, button=1)
+    click_and_drag(tool, start=(130, 130), end=(130, 130))
     assert tool._selection_completed
 
     do_event(tool, 'on_key_press', key='escape')
@@ -905,9 +828,7 @@ def test_selector_clear_method(selector):
                                     ignore_event_outside=True)
     else:
         tool = widgets.RectangleSelector(ax, onselect, interactive=True)
-    do_event(tool, 'press', xdata=10, ydata=10, button=1)
-    do_event(tool, 'onmove', xdata=100, ydata=120, button=1)
-    do_event(tool, 'release', xdata=100, ydata=120, button=1)
+    click_and_drag(tool, start=(10, 10), end=(100, 120))
     assert tool._selection_completed
     assert tool.visible
     if selector == 'span':
@@ -918,9 +839,7 @@ def test_selector_clear_method(selector):
     assert not tool.visible
 
     # Do another cycle of events to make sure we can
-    do_event(tool, 'press', xdata=10, ydata=10, button=1)
-    do_event(tool, 'onmove', xdata=50, ydata=120, button=1)
-    do_event(tool, 'release', xdata=50, ydata=120, button=1)
+    click_and_drag(tool, start=(10, 10), end=(50, 120))
     assert tool._selection_completed
     assert tool.visible
     if selector == 'span':
@@ -985,8 +904,7 @@ def test_span_selector_bound(direction):
     press_data = [10.5, 11.5]
     move_data = [11, 13]  # Updating selector is done in onmove
     release_data = move_data
-    do_event(tool, 'press', xdata=press_data[0], ydata=press_data[1], button=1)
-    do_event(tool, 'onmove', xdata=move_data[0], ydata=move_data[1], button=1)
+    click_and_drag(tool, start=press_data, end=move_data)
 
     assert ax.get_xbound() == x_bound
     assert ax.get_ybound() == y_bound
