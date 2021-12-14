@@ -151,20 +151,20 @@ class RendererBase:
     An abstract base class to handle drawing/rendering operations.
 
     The following methods must be implemented in the backend for full
-    functionality (though just implementing :meth:`draw_path` alone would
-    give a highly capable backend):
+    functionality (though just implementing `draw_path` alone would give a
+    highly capable backend):
 
-    * :meth:`draw_path`
-    * :meth:`draw_image`
-    * :meth:`draw_gouraud_triangle`
+    * `draw_path`
+    * `draw_image`
+    * `draw_gouraud_triangle`
 
     The following methods *should* be implemented in the backend for
     optimization reasons:
 
-    * :meth:`draw_text`
-    * :meth:`draw_markers`
-    * :meth:`draw_path_collection`
-    * :meth:`draw_quad_mesh`
+    * `draw_text`
+    * `draw_markers`
+    * `draw_path_collection`
+    * `draw_quad_mesh`
     """
 
     def __init__(self):
@@ -197,10 +197,9 @@ class RendererBase:
         """
         Draw a marker at each of *path*'s vertices (excluding control points).
 
-        This provides a fallback implementation of draw_markers that
-        makes multiple calls to :meth:`draw_path`.  Some backends may
-        want to override this method in order to draw the marker only
-        once and reuse it multiple times.
+        The base (fallback) implementation makes multiple calls to `draw_path`.
+        Backends may want to override this method in order to draw the marker
+        only once and reuse it multiple times.
 
         Parameters
         ----------
@@ -234,17 +233,14 @@ class RendererBase:
         *offset_position* is unused now, but the argument is kept for
         backwards compatibility.
 
-        This provides a fallback implementation of
-        :meth:`draw_path_collection` that makes multiple calls to
-        :meth:`draw_path`.  Some backends may want to override this in
-        order to render each set of path data only once, and then
-        reference that path multiple times with the different offsets,
-        colors, styles etc.  The generator methods
-        :meth:`_iter_collection_raw_paths` and
-        :meth:`_iter_collection` are provided to help with (and
-        standardize) the implementation across backends.  It is highly
-        recommended to use those generators, so that changes to the
-        behavior of :meth:`draw_path_collection` can be made globally.
+        The base (fallback) implementation makes multiple calls to `draw_path`.
+        Backends may want to override this in order to render each set of
+        path data only once, and then reference that path multiple times with
+        the different offsets, colors, styles etc.  The generator methods
+        `_iter_collection_raw_paths` and `_iter_collection` are provided to
+        help with (and standardize) the implementation across backends.  It
+        is highly recommended to use those generators, so that changes to the
+        behavior of `draw_path_collection` can be made globally.
         """
         path_ids = self._iter_collection_raw_paths(master_transform,
                                                    paths, all_transforms)
@@ -268,8 +264,10 @@ class RendererBase:
                        coordinates, offsets, offsetTrans, facecolors,
                        antialiased, edgecolors):
         """
-        Fallback implementation of :meth:`draw_quad_mesh` that generates paths
-        and then calls :meth:`draw_path_collection`.
+        Draw a quadmesh.
+
+        The base (fallback) implementation converts the quadmesh to paths and
+        then calls `draw_path_collection`.
         """
 
         from matplotlib.collections import QuadMesh
@@ -321,18 +319,17 @@ class RendererBase:
     def _iter_collection_raw_paths(self, master_transform, paths,
                                    all_transforms):
         """
-        Helper method (along with :meth:`_iter_collection`) to implement
-        :meth:`draw_path_collection` in a space-efficient manner.
+        Helper method (along with `_iter_collection`) to implement
+        `draw_path_collection` in a memory-efficient manner.
 
-        This method yields all of the base path/transform
-        combinations, given a master transform, a list of paths and
-        list of transforms.
+        This method yields all of the base path/transform combinations, given a
+        master transform, a list of paths and list of transforms.
 
         The arguments should be exactly what is passed in to
-        :meth:`draw_path_collection`.
+        `draw_path_collection`.
 
-        The backend should take each yielded path and transform and
-        create an object that can be referenced (reused) later.
+        The backend should take each yielded path and transform and create an
+        object that can be referenced (reused) later.
         """
         Npaths = len(paths)
         Ntransforms = len(all_transforms)
@@ -352,8 +349,8 @@ class RendererBase:
                                        offsets, facecolors, edgecolors):
         """
         Compute how many times each raw path object returned by
-        _iter_collection_raw_paths would be used when calling
-        _iter_collection. This is intended for the backend to decide
+        `_iter_collection_raw_paths` would be used when calling
+        `_iter_collection`. This is intended for the backend to decide
         on the tradeoff between using the paths in-line and storing
         them once and reusing. Rounds up in case the number of uses
         is not the same for every path.
@@ -370,19 +367,18 @@ class RendererBase:
                          edgecolors, linewidths, linestyles,
                          antialiaseds, urls, offset_position):
         """
-        Helper method (along with :meth:`_iter_collection_raw_paths`) to
-        implement :meth:`draw_path_collection` in a space-efficient manner.
+        Helper method (along with `_iter_collection_raw_paths`) to implement
+        `draw_path_collection` in a memory-efficient manner.
 
-        This method yields all of the path, offset and graphics
-        context combinations to draw the path collection.  The caller
-        should already have looped over the results of
-        :meth:`_iter_collection_raw_paths` to draw this collection.
+        This method yields all of the path, offset and graphics context
+        combinations to draw the path collection.  The caller should already
+        have looped over the results of `_iter_collection_raw_paths` to draw
+        this collection.
 
         The arguments should be the same as that passed into
-        :meth:`draw_path_collection`, with the exception of
-        *path_ids*, which is a list of arbitrary objects that the
-        backend will use to reference one of the paths created in the
-        :meth:`_iter_collection_raw_paths` stage.
+        `draw_path_collection`, with the exception of *path_ids*, which is a
+        list of arbitrary objects that the backend will use to reference one of
+        the paths created in the `_iter_collection_raw_paths` stage.
 
         Each yielded result is of the form::
 
@@ -451,7 +447,7 @@ class RendererBase:
 
     def get_image_magnification(self):
         """
-        Get the factor by which to magnify images passed to :meth:`draw_image`.
+        Get the factor by which to magnify images passed to `draw_image`.
         Allows a backend to have images at a different resolution to other
         artists.
         """
@@ -479,14 +475,13 @@ class RendererBase:
 
         transform : `matplotlib.transforms.Affine2DBase`
             If and only if the concrete backend is written such that
-            :meth:`option_scale_image` returns ``True``, an affine
-            transformation (i.e., an `.Affine2DBase`) *may* be passed to
-            :meth:`draw_image`.  The translation vector of the transformation
-            is given in physical units (i.e., dots or pixels). Note that
-            the transformation does not override *x* and *y*, and has to be
-            applied *before* translating the result by *x* and *y* (this can
-            be accomplished by adding *x* and *y* to the translation vector
-            defined by *transform*).
+            `option_scale_image` returns ``True``, an affine transformation
+            (i.e., an `.Affine2DBase`) *may* be passed to `draw_image`.  The
+            translation vector of the transformation is given in physical units
+            (i.e., dots or pixels). Note that the transformation does not
+            override *x* and *y*, and has to be applied *before* translating
+            the result by *x* and *y* (this can be accomplished by adding *x*
+            and *y* to the translation vector defined by *transform*).
         """
         raise NotImplementedError
 
@@ -502,8 +497,8 @@ class RendererBase:
 
     def option_scale_image(self):
         """
-        Return whether arbitrary affine transformations in :meth:`draw_image`
-        are supported (True for most vector backends).
+        Return whether arbitrary affine transformations in `draw_image` are
+        supported (True for most vector backends).
         """
         return False
 
@@ -514,7 +509,7 @@ class RendererBase:
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         """
-        Draw the text instance.
+        Draw a text instance.
 
         Parameters
         ----------
