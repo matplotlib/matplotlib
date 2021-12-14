@@ -9,6 +9,68 @@ How-to
 .. contents::
    :backlinks: none
 
+
+_how-to-too-many-ticks
+
+Why do I have so many ticks, and/or why are they out of order?
+--------------------------------------------------------------
+
+Sometimes Matplotlib will unexpectedly plot with a tick for each data point,
+and/or the ticks will be out of numerical order. This is usually a sign that you
+have passed in a list of strings rather than a list or array of floats or
+datetime objects.  This will often happen when reading in a comma-delimited text
+file. Matplotlib treats lists of strings as "categorical" variables
+(:doc:`/gallery/lines_bars_and_markers/categorical_variables`), and by default
+puts one tick per "category", and plots them in the order in which they are
+supplied.
+
+In the example below, the upper row plots are plotted using strings for *x*;
+note that each string gets a tick, and they are in the order of the list passed
+to Matplotlib. In the lower row the data is converted to either floats or
+datetime64; note that the ticks are now ordered and spaced numerically.
+
+.. plot::
+    :include-source:
+    :align: center
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    fig, ax = plt.subplots(2, 2, constrained_layout=True, figsize=(6, 6))
+    x = ['1', '5', '2', '3']
+    y = [1, 4, 2, 3]
+    ax[0, 0].plot(x, y, 'd')
+    ax[0, 0].set_xlabel('Categories')
+    # convert to numbers:
+    x = np.asarray(x, dtype='float')
+    ax[1, 0].plot(x, y, 'd')
+    ax[1, 0].set_xlabel('Floats')
+
+    x = ['2021-10-01', '2021-11-02', '2021-12-03', '2021-10-04']
+    y = [0, 2, 3, 1]
+    ax[0, 1].plot(x, y, 'd')
+    ax[0, 1].tick_params(axis='x', labelrotation=45)
+    # convert to datetime64
+    x = np.asarray(x, dtype='datetime64[s]')
+    ax[1, 1].plot(x, y, 'd')
+    ax[1, 1].tick_params(axis='x', labelrotation=45)
+
+If *x* has 100 elements, all strings, then we would have 100 (unreadable)
+ticks:
+
+.. plot::
+    :include-source:
+    :align: center
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    fig, ax = plt.subplots(figsize=(6, 2.5))
+    x = [f'{xx}' for xx in np.arange(100)]
+    y = np.arange(100)
+    ax.plot(x, y)
+
+
 .. _howto-figure-empty:
 
 Check whether a figure is empty
