@@ -69,7 +69,7 @@ def test_rectangle_drag(drag_from_anywhere, new_center):
     tool = widgets.RectangleSelector(ax, onselect, interactive=True,
                                      drag_from_anywhere=drag_from_anywhere)
     # Create rectangle
-    click_and_drag(tool, start=[0, 10], end=[100, 120])
+    click_and_drag(tool, start=(0, 10), end=(100, 120))
     assert tool.center == (50, 65)
     # Drag inside rectangle, but away from centre handle
     #
@@ -78,11 +78,11 @@ def test_rectangle_drag(drag_from_anywhere, new_center):
     #
     # If drag_from_anywhere == False, this will create a new rectangle with
     # center (30, 20)
-    click_and_drag(tool, start=[25, 15], end=[35, 25])
+    click_and_drag(tool, start=(25, 15), end=(35, 25))
     assert tool.center == new_center
     # Check that in both cases, dragging outside the rectangle draws a new
     # rectangle
-    click_and_drag(tool, start=[175, 185], end=[185, 195])
+    click_and_drag(tool, start=(175, 185), end=(185, 195))
     assert tool.center == (180, 190)
 
 
@@ -96,7 +96,7 @@ def test_rectangle_selector_set_props_handle_props():
                                      props=dict(facecolor='b', alpha=0.2),
                                      handle_props=dict(alpha=0.5))
     # Create rectangle
-    click_and_drag(tool, start=[0, 10], end=[100, 120])
+    click_and_drag(tool, start=(0, 10), end=(100, 120))
 
     artist = tool._selection_artist
     assert artist.get_facecolor() == mcolors.to_rgba('b', alpha=0.2)
@@ -506,20 +506,20 @@ def test_ellipse():
     tool.extents = (100, 150, 100, 150)
 
     # drag the rectangle
-    click_and_drag(tool, start=[125, 125], end=[145, 145])
+    click_and_drag(tool, start=(125, 125), end=(145, 145))
     assert tool.extents == (120, 170, 120, 170)
 
     # create from center
-    click_and_drag(tool, start=[100, 100], end=[125, 125], key='control')
+    click_and_drag(tool, start=(100, 100), end=(125, 125), key='control')
     assert tool.extents == (75, 125, 75, 125)
 
     # create a square
-    click_and_drag(tool, start=[10, 10], end=[35, 30], key='shift')
+    click_and_drag(tool, start=(10, 10), end=(35, 30), key='shift')
     extents = [int(e) for e in tool.extents]
     assert extents == [10, 35, 10, 35]
 
     # create a square from center
-    click_and_drag(tool, start=[100, 100], end=[125, 130], key='ctrl+shift')
+    click_and_drag(tool, start=(100, 100), end=(125, 130), key='ctrl+shift')
     extents = [int(e) for e in tool.extents]
     assert extents == [70, 130, 70, 130]
 
@@ -547,15 +547,15 @@ def test_rectangle_handles():
     assert tool.extents == (100, 150, 100, 150)
 
     # grab a corner and move it
-    click_and_drag(tool, start=[100, 100], end=[120, 120])
+    click_and_drag(tool, start=(100, 100), end=(120, 120))
     assert tool.extents == (120, 150, 120, 150)
 
     # grab the center and move it
-    click_and_drag(tool, start=[132, 132], end=[120, 120])
+    click_and_drag(tool, start=(132, 132), end=(120, 120))
     assert tool.extents == (108, 138, 108, 138)
 
     # create a new rectangle
-    click_and_drag(tool, start=[10, 10], end=[100, 100])
+    click_and_drag(tool, start=(10, 10), end=(100, 100))
     assert tool.extents == (10, 100, 10, 100)
 
     # Check that marker_props worked.
@@ -575,14 +575,14 @@ def test_rectangle_selector_onselect(interactive):
 
     tool = widgets.RectangleSelector(ax, onselect, interactive=interactive)
     # move outside of axis
-    click_and_drag(tool, start=[100, 110], end=[150, 120])
+    click_and_drag(tool, start=(100, 110), end=(150, 120))
 
     assert tool.ax._got_onselect
     assert tool.extents == (100.0, 150.0, 110.0, 120.0)
 
     # Reset tool.ax._got_onselect
     tool.ax._got_onselect = False
-    click_and_drag(tool, start=[10, 100], end=[10, 100])
+    click_and_drag(tool, start=(10, 100), end=(10, 100))
 
     assert tool.ax._got_onselect
 
@@ -595,14 +595,14 @@ def test_rectangle_selector_ignore_outside(ignore_event_outside):
 
     tool = widgets.RectangleSelector(ax, onselect,
                                      ignore_event_outside=ignore_event_outside)
-    click_and_drag(tool, start=[100, 110], end=[150, 120])
+    click_and_drag(tool, start=(100, 110), end=(150, 120))
     assert tool.ax._got_onselect
     assert tool.extents == (100.0, 150.0, 110.0, 120.0)
 
     # Reset
     ax._got_onselect = False
     # Trigger event outside of span
-    click_and_drag(tool, start=[150, 150], end=[160, 160])
+    click_and_drag(tool, start=(150, 150), end=(160, 160))
     if ignore_event_outside:
         # event have been ignored and span haven't changed.
         assert not ax._got_onselect
@@ -659,13 +659,13 @@ def test_span_selector_onselect(interactive):
     tool = widgets.SpanSelector(ax, onselect, 'horizontal',
                                 interactive=interactive)
     # move outside of axis
-    click_and_drag(tool, start=[100, 100], end=[150, 100])
+    click_and_drag(tool, start=(100, 100), end=(150, 100))
     assert tool.ax._got_onselect
     assert tool.extents == (100, 150)
 
     # Reset tool.ax._got_onselect
     tool.ax._got_onselect = False
-    click_and_drag(tool, start=[10, 100], end=[10, 100])
+    click_and_drag(tool, start=(10, 100), end=(10, 100))
     assert tool.ax._got_onselect
 
 
@@ -681,7 +681,7 @@ def test_span_selector_ignore_outside(ignore_event_outside):
     tool = widgets.SpanSelector(ax, onselect, 'horizontal',
                                 onmove_callback=onmove,
                                 ignore_event_outside=ignore_event_outside)
-    click_and_drag(tool, start=[100, 100], end=[125, 125])
+    click_and_drag(tool, start=(100, 100), end=(125, 125))
     assert ax._got_onselect
     assert ax._got_on_move
     assert tool.extents == (100, 125)
@@ -690,7 +690,7 @@ def test_span_selector_ignore_outside(ignore_event_outside):
     ax._got_onselect = False
     ax._got_on_move = False
     # Trigger event outside of span
-    click_and_drag(tool, start=[150, 150], end=[160, 160])
+    click_and_drag(tool, start=(150, 150), end=(160, 160))
     if ignore_event_outside:
         # event have been ignored and span haven't changed.
         assert not ax._got_onselect
@@ -713,7 +713,7 @@ def test_span_selector_drag(drag_from_anywhere):
     # Create span
     tool = widgets.SpanSelector(ax, onselect, 'horizontal', interactive=True,
                                 drag_from_anywhere=drag_from_anywhere)
-    click_and_drag(tool, start=[10, 10], end=[100, 120])
+    click_and_drag(tool, start=(10, 10), end=(100, 120))
     assert tool.extents == (10, 100)
     # Drag inside span
     #
@@ -722,14 +722,14 @@ def test_span_selector_drag(drag_from_anywhere):
     #
     # If drag_from_anywhere == False, this will create a new span with
     # value extents = 25, 35
-    click_and_drag(tool, start=[25, 15], end=[35, 25])
+    click_and_drag(tool, start=(25, 15), end=(35, 25))
     if drag_from_anywhere:
         assert tool.extents == (20, 110)
     else:
         assert tool.extents == (25, 35)
 
     # Check that in both cases, dragging outside the span draws a new span
-    click_and_drag(tool, start=[175, 185], end=[185, 195])
+    click_and_drag(tool, start=(175, 185), end=(185, 195))
     assert tool.extents == (175, 185)
 
 
@@ -764,7 +764,7 @@ def test_span_selector_set_props_handle_props():
                                 props=dict(facecolor='b', alpha=0.2),
                                 handle_props=dict(alpha=0.5))
     # Create rectangle
-    click_and_drag(tool, start=[0, 10], end=[100, 120])
+    click_and_drag(tool, start=(0, 10), end=(100, 120))
 
     artist = tool._selection_artist
     assert artist.get_facecolor() == mcolors.to_rgba('b', alpha=0.2)
@@ -795,20 +795,20 @@ def test_selector_clear(selector):
         Selector = widgets.RectangleSelector
 
     tool = Selector(**kwargs)
-    click_and_drag(tool, start=[10, 10], end=[100, 120])
+    click_and_drag(tool, start=(10, 10), end=(100, 120))
 
     # press-release event outside the selector to clear the selector
-    click_and_drag(tool, start=[130, 130], end=[130, 130])
+    click_and_drag(tool, start=(130, 130), end=(130, 130))
     assert not tool._selection_completed
 
     ax = get_ax()
     kwargs['ignore_event_outside'] = True
     tool = Selector(**kwargs)
     assert tool.ignore_event_outside
-    click_and_drag(tool, start=[10, 10], end=[100, 120])
+    click_and_drag(tool, start=(10, 10), end=(100, 120))
 
     # press-release event outside the selector ignored
-    click_and_drag(tool, start=[130, 130], end=[130, 130])
+    click_and_drag(tool, start=(130, 130), end=(130, 130))
     assert tool._selection_completed
 
     do_event(tool, 'on_key_press', key='escape')
@@ -828,7 +828,7 @@ def test_selector_clear_method(selector):
                                     ignore_event_outside=True)
     else:
         tool = widgets.RectangleSelector(ax, onselect, interactive=True)
-    click_and_drag(tool, start=[10, 10], end=[100, 120])
+    click_and_drag(tool, start=(10, 10), end=(100, 120))
     assert tool._selection_completed
     assert tool.visible
     if selector == 'span':
@@ -839,7 +839,7 @@ def test_selector_clear_method(selector):
     assert not tool.visible
 
     # Do another cycle of events to make sure we can
-    click_and_drag(tool, start=[10, 10], end=[50, 120])
+    click_and_drag(tool, start=(10, 10), end=(50, 120))
     assert tool._selection_completed
     assert tool.visible
     if selector == 'span':
