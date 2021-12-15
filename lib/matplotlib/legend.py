@@ -829,8 +829,8 @@ class Legend(Artist):
                 bboxes.append(
                     artist.get_path().get_extents(artist.get_transform()))
             elif isinstance(artist, Collection):
-                _, transOffset, hoffsets, _ = artist._prepare_points()
-                for offset in transOffset.transform(hoffsets):
+                _, offset_trf, hoffsets, _ = artist._prepare_points()
+                for offset in offset_trf.transform(hoffsets):
                     offsets.append(offset)
         return bboxes, lines, offsets
 

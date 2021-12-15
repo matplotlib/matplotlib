@@ -64,7 +64,7 @@ for i in range(n_rows):
 offsets = np.zeros((n_rows, 2), dtype=float)
 offsets[:, 1] = ticklocs
 
-lines = LineCollection(segs, offsets=offsets, transOffset=None)
+lines = LineCollection(segs, offsets=offsets, offset_transform=None)
 ax2.add_collection(lines)
 
 # Set the yticks to use axes coordinates on the y axis

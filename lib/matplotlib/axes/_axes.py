@@ -4463,14 +4463,14 @@ default: :rc:`scatter.edgecolors`
         offsets = np.ma.column_stack([x, y])
 
         collection = mcoll.PathCollection(
-                (path,), scales,
-                facecolors=colors,
-                edgecolors=edgecolors,
-                linewidths=linewidths,
-                offsets=offsets,
-                transOffset=kwargs.pop('transform', self.transData),
-                alpha=alpha
-                )
+            (path,), scales,
+            facecolors=colors,
+            edgecolors=edgecolors,
+            linewidths=linewidths,
+            offsets=offsets,
+            offset_transform=kwargs.pop('transform', self.transData),
+            alpha=alpha,
+        )
         collection.set_transform(mtransforms.IdentityTransform())
         if colors is None:
             collection.set_array(c)
@@ -4796,8 +4796,9 @@ default: :rc:`scatter.edgecolors`
                 edgecolors=edgecolors,
                 linewidths=linewidths,
                 offsets=offsets,
-                transOffset=mtransforms.AffineDeltaTransform(self.transData),
-                )
+                offset_transform=mtransforms.AffineDeltaTransform(
+                    self.transData),
+            )
 
         # Set normalizer if bins is 'log'
         if bins == 'log':
