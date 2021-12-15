@@ -520,8 +520,8 @@ class FFMpegBase:
     """
     Mixin class for FFMpeg output.
 
-    To be useful this must be multiply-inherited from with a
-    `MovieWriterBase` sub-class.
+    This is a base class for the concrete `FFMpegWriter` and `FFMpegFileWriter`
+    classes.
     """
 
     _exec_key = 'animation.ffmpeg_path'
@@ -618,22 +618,41 @@ class ImageMagickBase:
     """
     Mixin class for ImageMagick output.
 
-    To be useful this must be multiply-inherited from with a
-    `MovieWriterBase` sub-class.
+    This is a base class for the concrete `ImageMagickWriter` and
+    `ImageMagickFileWriter` classes, which define an ``input_names`` attribute
+    (or property) specifying the input names passed to ImageMagick.
     """
 
     _exec_key = 'animation.convert_path'
     _args_key = 'animation.convert_args'
 
+    @_api.deprecated("3.6")
     @property
     def delay(self):
         return 100. / self.fps
 
+    @_api.deprecated("3.6")
     @property
     def output_args(self):
         extra_args = (self.extra_args if self.extra_args is not None
                       else mpl.rcParams[self._args_key])
         return [*extra_args, self.outfile]
+
+    def _args(self):
+        # ImageMagick does not recognize "raw".
+        fmt = "rgba" if self.frame_format == "raw" else self.frame_format
+        extra_args = (self.extra_args if self.extra_args is not None
+                      else mpl.rcParams[self._args_key])
+        return [
+            self.bin_path(),
+            "-size", "%ix%i" % self.frame_size,
+            "-depth", "8",
+            "-delay", str(100 / self.fps),
+            "-loop", "0",
+            f"{fmt}:{self.input_names}",
+            *extra_args,
+            self.outfile,
+        ]
 
     @classmethod
     def bin_path(cls):
@@ -660,14 +679,9 @@ class ImageMagickWriter(ImageMagickBase, MovieWriter):
 
     Frames are streamed directly to ImageMagick via a pipe and written
     in a single pass.
-
     """
-    def _args(self):
-        return ([self.bin_path(),
-                 '-size', '%ix%i' % self.frame_size, '-depth', '8',
-                 '-delay', str(self.delay), '-loop', '0',
-                 '%s:-' % self.frame_format]
-                + self.output_args)
+
+    input_names = "-"  # stdin
 
 
 # Combine ImageMagick options with temp file-based writing
@@ -681,15 +695,8 @@ class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
     """
 
     supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
-
-    def _args(self):
-        # Force format: ImageMagick does not recognize 'raw'.
-        fmt = 'rgba:' if self.frame_format == 'raw' else ''
-        return ([self.bin_path(),
-                 '-size', '%ix%i' % self.frame_size, '-depth', '8',
-                 '-delay', str(self.delay), '-loop', '0',
-                 '%s%s*.%s' % (fmt, self.temp_prefix, self.frame_format)]
-                + self.output_args)
+    input_names = property(
+        lambda self: f'{self.temp_prefix}*.{self.frame_format}')
 
 
 # Taken directly from jakevdp's JSAnimation package at
