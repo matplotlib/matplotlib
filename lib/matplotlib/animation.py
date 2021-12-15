@@ -156,19 +156,17 @@ writers = MovieWriterRegistry()
 
 class AbstractMovieWriter(abc.ABC):
     """
-    Abstract base class for writing movies. Fundamentally, what a MovieWriter
-    does is provide is a way to grab frames by calling grab_frame().
+    Abstract base class for writing movies, providing a way to grab frames by
+    calling `~AbstractMovieWriter.grab_frame`.
 
-    setup() is called to start the process and finish() is called afterwards.
-
-    This class is set up to provide for writing movie frame data to a pipe.
-    saving() is provided as a context manager to facilitate this process as::
+    `setup` is called to start the process and `finish` is called afterwards.
+    `saving` is provided as a context manager to facilitate this process as ::
 
         with moviewriter.saving(fig, outfile='myfile.mp4', dpi=100):
             # Iterate over frames
             moviewriter.grab_frame(**savefig_kwargs)
 
-    The use of the context manager ensures that setup() and finish() are
+    The use of the context manager ensures that `setup` and `finish` are
     performed as necessary.
 
     An instance of a concrete subclass of this class can be given as the
