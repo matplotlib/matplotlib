@@ -761,12 +761,13 @@ def test_pdf_chars_beyond_bmp():
 def test_cache_large_labels():
     """Test to verify cache helps when ticks are too large"""
     times = []
+    fig, _ = plt.subplots()
     for pow in range(1, 5):
         labels = [i for i in range(10**pow)]
         t0 = time.perf_counter()
-        plt.figure()
         plt.xticks(labels)
         plt.yticks(labels)
+        fig.draw_without_rendering()
         times.append(time.perf_counter()-t0)
     assert times[-1] > times[0]
     assert times[-1] > times[-2]

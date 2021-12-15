@@ -157,7 +157,7 @@ class Text(Artist):
         self._linespacing = linespacing
         self.set_rotation_mode(rotation_mode)
         self.update(kwargs)
-        self._cached = cbook.maxdict(50)
+        self._cached = dict()
 
     def update(self, kwargs):
         # docstring inherited
@@ -182,7 +182,7 @@ class Text(Artist):
 
     def __setstate__(self, state):
         self.__dict__.update(state)
-        self._cached = cbook.maxdict(50)
+        self._cached = dict()
 
     def contains(self, mouseevent):
         """
