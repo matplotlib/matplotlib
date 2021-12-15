@@ -779,24 +779,26 @@ class _AxesBase(martist.Artist):
         self._unstale_viewLim()
         return self._viewLim
 
-    # API could be better, right now this is just to match the old calls to
-    # autoscale_view() after each plotting method.
-    def _request_autoscale_view(self, tight=None, **kwargs):
-        # kwargs are "scalex", "scaley" (& "scalez" for 3D) and default to True
-        want_scale = {name: True for name in self._axis_names}
-        for k, v in kwargs.items():  # Validate args before changing anything.
-            if k.startswith("scale"):
-                name = k[5:]
-                if name in want_scale:
-                    want_scale[name] = v
-                    continue
-            raise TypeError(
-                f"_request_autoscale_view() got an unexpected argument {k!r}")
+    def _request_autoscale_view(self, axis="all", tight=None):
+        """
+        Mark a single axis, or all of them, as stale wrt. autoscaling.
+
+        No computation is performed until the next autoscaling; thus, separate
+        calls to control individual axises incur negligible performance cost.
+
+        Parameters
+        ----------
+        axis : str, default: "all"
+            Either an element of ``self._axis_names``, or "all".
+        tight : bool or None, default: None
+        """
+        axis_names = _api.check_getitem(
+            {**{k: [k] for k in self._axis_names}, "all": self._axis_names},
+            axis=axis)
+        for name in axis_names:
+            self._stale_viewlims[name] = True
         if tight is not None:
             self._tight = tight
-        for k, v in want_scale.items():
-            if v:
-                self._stale_viewlims[k] = True  # Else keep old state.
 
     def _set_lim_and_transforms(self):
         """
@@ -2424,8 +2426,7 @@ class _AxesBase(martist.Artist):
         for line in self.lines:
             line.recache_always()
         self.relim()
-        self._request_autoscale_view(scalex=(axis_name == "x"),
-                                     scaley=(axis_name == "y"))
+        self._request_autoscale_view(axis_name)
 
     def relim(self, visible_only=False):
         """
@@ -2632,7 +2633,7 @@ class _AxesBase(martist.Artist):
         if m <= -0.5:
             raise ValueError("margin must be greater than -0.5")
         self._xmargin = m
-        self._request_autoscale_view(scalex=True, scaley=False)
+        self._request_autoscale_view("x")
         self.stale = True
 
     def set_ymargin(self, m):
@@ -2654,7 +2655,7 @@ class _AxesBase(martist.Artist):
         if m <= -0.5:
             raise ValueError("margin must be greater than -0.5")
         self._ymargin = m
-        self._request_autoscale_view(scalex=False, scaley=True)
+        self._request_autoscale_view("y")
         self.stale = True
 
     def margins(self, *margins, x=None, y=None, tight=True):
@@ -2771,7 +2772,8 @@ class _AxesBase(martist.Artist):
             True turns autoscaling on, False turns it off.
             None leaves the autoscaling state unchanged.
         axis : {'both', 'x', 'y'}, default: 'both'
-            Which axis to operate on.
+            The axis on which to operate.  (For 3D axes, *axis* can also be set
+            to 'z', and 'both' refers to all three axes.)
         tight : bool or None, default: None
             If True, first set the margins to zero.  Then, this argument is
             forwarded to `autoscale_view` (regardless of its value); see the
@@ -2793,7 +2795,10 @@ class _AxesBase(martist.Artist):
             self._xmargin = 0
         if tight and scaley:
             self._ymargin = 0
-        self._request_autoscale_view(tight=tight, scalex=scalex, scaley=scaley)
+        if scalex:
+            self._request_autoscale_view("x", tight=tight)
+        if scaley:
+            self._request_autoscale_view("y", tight=tight)
 
     def autoscale_view(self, tight=None, scalex=True, scaley=True):
         """
@@ -3309,8 +3314,8 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         axis : {'both', 'x', 'y'}, default: 'both'
-            The axis on which to operate.
-
+            The axis on which to operate.  (For 3D axes, *axis* can also be
+            set to 'z', and 'both' refers to all three axes.)
         tight : bool or None, optional
             Parameter passed to `~.Axes.autoscale_view`.
             Default is None, for no change.
@@ -3332,15 +3337,12 @@ class _AxesBase(martist.Artist):
             ax.locator_params(tight=True, nbins=4)
 
         """
-        _api.check_in_list(['x', 'y', 'both'], axis=axis)
-        update_x = axis in ['x', 'both']
-        update_y = axis in ['y', 'both']
-        if update_x:
-            self.xaxis.get_major_locator().set_params(**kwargs)
-        if update_y:
-            self.yaxis.get_major_locator().set_params(**kwargs)
-        self._request_autoscale_view(tight=tight,
-                                     scalex=update_x, scaley=update_y)
+        _api.check_in_list([*self._axis_names, "both"], axis=axis)
+        for name in self._axis_names:
+            if axis in [name, "both"]:
+                loc = self._get_axis_map()[name].get_major_locator()
+                loc.set_params(**kwargs)
+                self._request_autoscale_view(name, tight=tight)
         self.stale = True
 
     def tick_params(self, axis='both', **kwargs):
