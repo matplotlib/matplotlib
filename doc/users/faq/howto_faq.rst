@@ -71,6 +71,18 @@ ticks:
     ax.plot(x, y)
 
 
+.. _howto-determine-artist-extent:
+
+Determine the extent of Artists on the Figure
+---------------------------------------------
+
+Sometimes we want to know the extent of an Artist.  Matplotlib `.Artist` objects
+have a method `.Artist.get_window_extent` that will usually return the extent of
+the artist in pixels.  However, some artists, in particular text, must be
+rendered at least once before their extent is known.  Matplotlib supplies
+`.Figure.draw_without_rendering`, which should be called before calling
+``get_window_extent``.
+
 .. _howto-figure-empty:
 
 Check whether a figure is empty
