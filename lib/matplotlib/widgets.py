@@ -3234,7 +3234,7 @@ class RectangleSelector(_SelectorWidget):
     @property
     def corners(self):
         """
-        Corners of rectangle from lower left in data coordinates,
+        Corners of rectangle in data coordinates from lower left,
         moving clockwise.
         """
         x0, y0, width, height = self._rect_bbox
