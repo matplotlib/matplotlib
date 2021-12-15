@@ -118,7 +118,7 @@ The unused ``Locator.autoscale`` method is deprecated (pass the axis limits to
 
 Animation
 ~~~~~~~~~
-The following methods and attributes of the `MovieWriterRegistry` class are
+The following methods and attributes of the `.MovieWriterRegistry` class are
 deprecated: ``set_dirty``, ``ensure_not_dirty``, ``reset_available_writers``,
 ``avail``.
 

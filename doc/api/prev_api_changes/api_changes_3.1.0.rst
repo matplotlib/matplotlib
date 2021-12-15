@@ -496,7 +496,7 @@ Classes and methods
 - ``backend_wx.Toolbar`` (use ``backend_wx.NavigationToolbar2Wx`` instead)
 - ``cbook.align_iterators`` (no replacement)
 - ``contour.ContourLabeler.get_real_label_width`` (no replacement)
-- ``legend.Legend.draggable`` (use `legend.Legend.set_draggable()` instead)
+- ``legend.Legend.draggable`` (use `.legend.Legend.set_draggable()` instead)
 - ``texmanager.TexManager.postscriptd``, ``texmanager.TexManager.pscnt``,
   ``texmanager.TexManager.make_ps``, ``texmanager.TexManager.get_ps_bbox``
   (no replacements)

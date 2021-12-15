@@ -41,7 +41,7 @@ class RendererTemplate(RendererBase):
     The renderer handles drawing/rendering operations.
 
     This is a minimal do-nothing class that can be used to get started when
-    writing a new backend.  Refer to `backend_bases.RendererBase` for
+    writing a new backend.  Refer to `.backend_bases.RendererBase` for
     documentation of the methods.
     """
 
