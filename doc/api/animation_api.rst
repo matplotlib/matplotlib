@@ -12,22 +12,14 @@
    :backlinks: entry
 
 
-Inheritance Diagrams
-====================
-
-.. inheritance-diagram:: matplotlib.animation.FuncAnimation matplotlib.animation.ArtistAnimation
-   :private-bases:
-   :parts: 1
-
-.. inheritance-diagram:: matplotlib.animation.FFMpegFileWriter matplotlib.animation.FFMpegWriter matplotlib.animation.ImageMagickFileWriter matplotlib.animation.ImageMagickWriter
-   :private-bases:
-   :parts: 1
-
 Animation
 =========
 
 The easiest way to make a live animation in Matplotlib is to use one of the
 `Animation` classes.
+
+.. inheritance-diagram:: matplotlib.animation.FuncAnimation matplotlib.animation.ArtistAnimation
+   :parts: 1
 
 .. autosummary::
    :toctree: _as_gen
@@ -169,6 +161,10 @@ Examples
 
 Writer Classes
 ==============
+
+.. inheritance-diagram:: matplotlib.animation.FFMpegFileWriter matplotlib.animation.FFMpegWriter matplotlib.animation.ImageMagickFileWriter matplotlib.animation.ImageMagickWriter matplotlib.animation.PillowWriter matplotlib.animation.HTMLWriter
+   :top-classes: matplotlib.animation.AbstractMovieWriter
+   :parts: 1
 
 The provided writers fall into a few broad categories.
 
