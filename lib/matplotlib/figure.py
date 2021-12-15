@@ -2444,7 +2444,7 @@ class Figure(FigureBase):
         Set whether ``constrained_layout`` is used upon drawing. If None,
         :rc:`figure.constrained_layout.use` value will be used.
 
-        When providing a dict containing the keys `w_pad`, `h_pad`
+        When providing a dict containing the keys ``w_pad``, ``h_pad``
         the default ``constrained_layout`` paddings will be
         overridden.  These pads are in inches and default to 3.0/72.0.
         ``w_pad`` is the width padding and ``h_pad`` is the height padding.

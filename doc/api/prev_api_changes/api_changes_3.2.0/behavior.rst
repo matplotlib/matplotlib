@@ -46,9 +46,9 @@ highest.
 Code that worked around the normalization between 0 and 1 will need to be
 modified.
 
-`MovieWriterRegistry`
-~~~~~~~~~~~~~~~~~~~~~
-`MovieWriterRegistry` now always checks the availability of the writer classes
+``MovieWriterRegistry``
+~~~~~~~~~~~~~~~~~~~~~~~
+`.MovieWriterRegistry` now always checks the availability of the writer classes
 before returning them.  If one wishes, for example, to get the first available
 writer, without performing the availability check on subsequent writers, it is
 now possible to iterate over the registry, which will yield the names of the

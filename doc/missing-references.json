@@ -631,11 +631,6 @@
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.FFMpegBase:4",
       "lib/matplotlib/animation.py:docstring of matplotlib.animation.ImageMagickBase:4"
     ],
-    "MovieWriterRegistry": [
-      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:49",
-      "doc/api/prev_api_changes/api_changes_3.2.0/behavior.rst:51",
-      "doc/api/prev_api_changes/api_changes_3.2.0/deprecations.rst:121"
-    ],
     "QuadContourSet.changed()": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.contour:133",
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.contourf:133",
@@ -717,9 +712,6 @@
     "axis.Axis.get_ticks_position": [
       "doc/api/prev_api_changes/api_changes_3.1.0.rst:826"
     ],
-    "backend_bases.RendererBase": [
-      "lib/matplotlib/backends/backend_template.py:docstring of matplotlib.backends.backend_template.RendererTemplate:4"
-    ],
     "backend_bases.ToolContainerBase": [
       "lib/matplotlib/backend_tools.py:docstring of matplotlib.backend_tools.add_tools_to_container:8"
     ],
@@ -742,9 +734,6 @@
     "draw_image": [
       "lib/matplotlib/backends/backend_agg.py:docstring of matplotlib.backends.backend_agg.RendererAgg.option_scale_image:2"
     ],
-    "fc-list": [
-      "lib/matplotlib/font_manager.py:docstring of matplotlib.font_manager.get_fontconfig_fonts:2"
-    ],
     "figure.bbox": [
       "lib/matplotlib/axes/_axes.py:docstring of matplotlib.axes._axes.Axes.legend:140",
       "lib/matplotlib/figure.py:docstring of matplotlib.figure.FigureBase.legend:141",
@@ -761,9 +750,6 @@
     "fmt_ydata": [
       "lib/matplotlib/axes/_base.py:docstring of matplotlib.axes._base._AxesBase.format_ydata:4"
     ],
-    "gaussian_kde": [
-      "lib/matplotlib/mlab.py:docstring of matplotlib.mlab.GaussianKDE:32"
-    ],
     "get_size": [
       "lib/mpl_toolkits/axes_grid1/axes_size.py:docstring of mpl_toolkits.axes_grid1.axes_size:1"
     ],
@@ -772,9 +758,6 @@
     ],
     "get_ybound": [
       "lib/mpl_toolkits/mplot3d/axes3d.py:docstring of mpl_toolkits.mplot3d.axes3d.Axes3D.get_ylim3d:22"
-    ],
-    "h_pad": [
-      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.set_constrained_layout:5"
     ],
     "image": [
       "lib/matplotlib/sphinxext/plot_directive.py:docstring of matplotlib.sphinxext.plot_directive:79"
@@ -800,12 +783,6 @@
       "lib/matplotlib/mlab.py:docstring of matplotlib.mlab.GaussianKDE:12",
       "lib/matplotlib/mlab.py:docstring of matplotlib.mlab.GaussianKDE:45",
       "lib/matplotlib/pyplot.py:docstring of matplotlib.pyplot.violinplot:46"
-    ],
-    "legend.Legend.set_draggable()": [
-      "doc/api/prev_api_changes/api_changes_3.1.0.rst:499"
-    ],
-    "levels": [
-      "doc/api/prev_api_changes/api_changes_3.0.0.rst:197"
     ],
     "load_char": [
       "doc/gallery/misc/ftface_props.rst:25"
@@ -1119,9 +1096,6 @@
     ],
     "tool_removed_event": [
       "lib/matplotlib/backend_bases.py:docstring of matplotlib.backend_bases.ToolContainerBase.remove_toolitem:6"
-    ],
-    "w_pad": [
-      "lib/matplotlib/figure.py:docstring of matplotlib.figure.Figure.set_constrained_layout:5"
     ],
     "whats_new.rst": [
       "doc/users/next_whats_new/README.rst:6"
