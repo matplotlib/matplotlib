@@ -5,7 +5,7 @@ import warnings
 import numpy as np
 from numpy.testing import assert_almost_equal
 import pytest
-
+import time
 import matplotlib as mpl
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.font_manager import FontProperties
@@ -756,3 +756,17 @@ def test_pdf_chars_beyond_bmp():
     plt.rcParams['mathtext.fontset'] = 'stixsans'
     plt.figure()
     plt.figtext(0.1, 0.5, "Mass $m$ \U00010308", size=30)
+
+
+def test_cache_large_labels():
+    """Test to verify cache helps when ticks are too large"""
+    times = []
+    for pow in range(1, 5):
+        labels = [i for i in range(10**pow)]
+        t0 = time.perf_counter()
+        plt.figure()
+        plt.xticks(labels)
+        plt.yticks(labels)
+        times.append(time.perf_counter()-t0)
+    assert times[-1] > times[0]
+    assert times[-1] > times[-2]
