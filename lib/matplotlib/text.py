@@ -177,7 +177,12 @@ class Text(Artist):
         d = super().__getstate__()
         # remove the cached _renderer (if it exists)
         d['_renderer'] = None
+        d['_cached'] = None
         return d
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self._cached = cbook.maxdict(50)
 
     def contains(self, mouseevent):
         """
