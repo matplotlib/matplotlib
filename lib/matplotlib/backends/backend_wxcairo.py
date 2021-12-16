@@ -1,11 +1,14 @@
 import wx.lib.wxcairo as wxcairo
 
+from .. import _api
 from .backend_cairo import cairo, FigureCanvasCairo
 from .backend_wx import (
     _BackendWx, _FigureCanvasWxBase, FigureFrameWx,
     NavigationToolbar2Wx as NavigationToolbar2WxCairo)
 
 
+@_api.deprecated(
+    "3.6", alternative="FigureFrameWx(..., canvas_class=FigureCanvasWxCairo)")
 class FigureFrameWxCairo(FigureFrameWx):
     def get_canvas(self, fig):
         return FigureCanvasWxCairo(self, -1, fig)
@@ -36,4 +39,3 @@ class FigureCanvasWxCairo(_FigureCanvasWxBase, FigureCanvasCairo):
 @_BackendWx.export
 class _BackendWxCairo(_BackendWx):
     FigureCanvas = FigureCanvasWxCairo
-    _frame_class = FigureFrameWxCairo

@@ -892,7 +892,7 @@ class FigureCanvasWx(_FigureCanvasWxBase):
 
 
 class FigureFrameWx(wx.Frame):
-    def __init__(self, num, fig):
+    def __init__(self, num, fig, *, canvas_class=None):
         # On non-Windows platform, explicitly set the position - fix
         # positioning bug on some Linux platforms
         if wx.Platform == '__WXMSW__':
@@ -905,7 +905,15 @@ class FigureFrameWx(wx.Frame):
         self.num = num
         _set_frame_icon(self)
 
-        self.canvas = self.get_canvas(fig)
+        # The parameter will become required after the deprecation elapses.
+        if canvas_class is not None:
+            self.canvas = canvas_class(self, -1, fig)
+        else:
+            _api.warn_deprecated(
+                "3.6", message="The canvas_class parameter will become "
+                "required after the deprecation period starting in Matplotlib "
+                "%(since)s elapses.")
+            self.canvas = self.get_canvas(fig)
         w, h = map(math.ceil, fig.bbox.size)
         self.canvas.SetInitialSize(wx.Size(w, h))
         self.canvas.SetFocus()
@@ -953,6 +961,8 @@ class FigureFrameWx(wx.Frame):
             toolbar = None
         return toolbar
 
+    @_api.deprecated(
+        "3.6", alternative="the canvas_class constructor parameter")
     def get_canvas(self, fig):
         return FigureCanvasWx(self, -1, fig)
 
@@ -1393,7 +1403,6 @@ class ToolCopyToClipboardWx(backend_tools.ToolCopyToClipboardBase):
 class _BackendWx(_Backend):
     FigureCanvas = FigureCanvasWx
     FigureManager = FigureManagerWx
-    _frame_class = FigureFrameWx
 
     @classmethod
     def new_figure_manager(cls, num, *args, **kwargs):
@@ -1410,7 +1419,7 @@ class _BackendWx(_Backend):
 
     @classmethod
     def new_figure_manager_given_figure(cls, num, figure):
-        frame = cls._frame_class(num, figure)
+        frame = FigureFrameWx(num, figure, canvas_class=cls.FigureCanvas)
         figmgr = frame.get_figure_manager()
         if mpl.is_interactive():
             figmgr.frame.Show()

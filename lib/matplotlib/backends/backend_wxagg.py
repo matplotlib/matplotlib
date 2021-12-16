@@ -1,11 +1,14 @@
 import wx
 
+from .. import _api
 from .backend_agg import FigureCanvasAgg
 from .backend_wx import (
     _BackendWx, _FigureCanvasWxBase, FigureFrameWx,
     NavigationToolbar2Wx as NavigationToolbar2WxAgg)
 
 
+@_api.deprecated(
+    "3.6", alternative="FigureFrameWx(..., canvas_class=FigureCanvasWxAgg)")
 class FigureFrameWxAgg(FigureFrameWx):
     def get_canvas(self, fig):
         return FigureCanvasWxAgg(self, -1, fig)
@@ -56,4 +59,3 @@ def _rgba_to_wx_bitmap(rgba):
 @_BackendWx.export
 class _BackendWxAgg(_BackendWx):
     FigureCanvas = FigureCanvasWxAgg
-    _frame_class = FigureFrameWxAgg
