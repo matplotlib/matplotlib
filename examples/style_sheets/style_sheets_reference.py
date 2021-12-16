@@ -109,26 +109,19 @@ def plot_figure(style_label=""):
     # across the different figures.
     prng = np.random.RandomState(96917002)
 
-    # Tweak the figure size to be better suited for a row of numerous plots:
-    # double the width and halve the height. NB: use relative changes because
-    # some styles may have a figure size different from the default one.
-    (fig_width, fig_height) = plt.rcParams['figure.figsize']
-    fig_size = [fig_width * 2, fig_height / 1.75]
-
     fig, axs = plt.subplots(ncols=6, nrows=1, num=style_label,
-                            figsize=fig_size, constrained_layout=True)
+                            figsize=(14.8, 2.7), constrained_layout=True)
 
     # make a suptitle, in the same style for all subfigures,
-    # except those with dark backgrounds, which get a lighter
-    # color:
-    col = np.array([19, 6, 84])/256
-    back = mcolors.rgb_to_hsv(
+    # except those with dark backgrounds, which get a lighter color:
+    background_color = mcolors.rgb_to_hsv(
         mcolors.to_rgb(plt.rcParams['figure.facecolor']))[2]
-    if back < 0.5:
-        col = [0.8, 0.8, 1]
-    fig.suptitle(style_label, x=0.01, fontsize=14, ha='left',
-                 color=col, fontfamily='DejaVu Sans',
-                 fontweight='normal')
+    if background_color < 0.5:
+        title_color = [0.8, 0.8, 1]
+    else:
+        title_color = np.array([19, 6, 84]) / 256
+    fig.suptitle(style_label, x=0.01, ha='left', color=title_color,
+                 fontsize=14, fontfamily='DejaVu Sans', fontweight='normal')
 
     plot_scatter(axs[0], prng)
     plot_image_and_patch(axs[1], prng)
