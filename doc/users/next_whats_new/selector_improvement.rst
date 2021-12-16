@@ -2,8 +2,7 @@ Selectors improvement: rotation, aspect ratio correction and add/remove state
 -----------------------------------------------------------------------------
 
 The `~matplotlib.widgets.RectangleSelector` and
-`~matplotlib.widgets.EllipseSelector` can now be rotated interactively between
--45° and 45°. The range limits are currently dictated by the implementation.
+`~matplotlib.widgets.EllipseSelector` can now be rotated.
 The rotation is enabled or disabled by striking the *r* key
 ('r' is the default key mapped to 'rotate' in *state_modifier_keys*) or by calling
 ``selector.add_state('rotate')``.
