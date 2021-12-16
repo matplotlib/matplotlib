@@ -3233,7 +3233,10 @@ class RectangleSelector(_SelectorWidget):
 
     @property
     def corners(self):
-        """Corners of rectangle from lower left, moving clockwise."""
+        """
+        Corners of rectangle in data coordinates from lower left,
+        moving clockwise.
+        """
         x0, y0, width, height = self._rect_bbox
         xc = x0, x0 + width, x0 + width, x0
         yc = y0, y0, y0 + height, y0 + height
@@ -3243,7 +3246,10 @@ class RectangleSelector(_SelectorWidget):
 
     @property
     def edge_centers(self):
-        """Midpoint of rectangle edges from left, moving anti-clockwise."""
+        """
+        Midpoint of rectangle edges in data coordiantes from left,
+        moving anti-clockwise.
+        """
         x0, y0, width, height = self._rect_bbox
         w = width / 2.
         h = height / 2.
@@ -3255,15 +3261,15 @@ class RectangleSelector(_SelectorWidget):
 
     @property
     def center(self):
-        """Center of rectangle."""
+        """Center of rectangle in data coordinates."""
         x0, y0, width, height = self._rect_bbox
         return x0 + width / 2., y0 + height / 2.
 
     @property
     def extents(self):
         """
-        Return (xmin, xmax, ymin, ymax) as defined by the bounding box before
-        rotation.
+        Return (xmin, xmax, ymin, ymax) in data coordinates as defined by the
+        bounding box before rotation.
         """
         x0, y0, width, height = self._rect_bbox
         xmin, xmax = sorted([x0, x0 + width])
@@ -3360,9 +3366,8 @@ class RectangleSelector(_SelectorWidget):
         """
         Return an array of shape (2, 5) containing the
         x (``RectangleSelector.geometry[1, :]``) and
-        y (``RectangleSelector.geometry[0, :]``) coordinates
-        of the four corners of the rectangle starting and ending
-        in the top left corner.
+        y (``RectangleSelector.geometry[0, :]``) data coordinates of the four
+        corners of the rectangle starting and ending in the top left corner.
         """
         if hasattr(self._selection_artist, 'get_verts'):
             xfm = self.ax.transData.inverted()
