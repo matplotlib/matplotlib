@@ -481,8 +481,7 @@ def test_linecollection_scaled_dashes():
     h1, h2, h3 = leg.legendHandles
 
     for oh, lh in zip((lc1, lc2, lc3), (h1, h2, h3)):
-        assert oh.get_linestyles()[0][1] == lh._dashSeq
-        assert oh.get_linestyles()[0][0] == lh._dashOffset
+        assert oh.get_linestyles()[0] == lh._dash_pattern
 
 
 def test_handler_numpoints():
