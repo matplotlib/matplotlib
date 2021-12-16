@@ -120,7 +120,7 @@ data = {'a': np.arange(50),
 data['b'] = data['a'] + 10 * np.random.randn(50)
 data['d'] = np.abs(data['d']) * 100
 
-fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
+fig, ax = plt.subplots(figsize=(5, 2.7), constrained_layout=True)
 ax.scatter('a', 'b', c='c', s='d', data=data)
 ax.set_xlabel('entry a')
 ax.set_ylabel('entry b');
@@ -146,7 +146,7 @@ ax.set_ylabel('entry b');
 x = np.linspace(0, 2, 100)  # Sample data.
 
 # Note that even in the OO-style, we use `.pyplot.figure` to create the Figure.
-fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
+fig, ax = plt.subplots(figsize=(5, 2.7), constrained_layout=True)
 ax.plot(x, x, label='linear')  # Plot some data on the axes.
 ax.plot(x, x**2, label='quadratic')  # Plot more data on the axes...
 ax.plot(x, x**3, label='cubic')  # ... and some more.
@@ -160,7 +160,7 @@ ax.legend();  # Add a legend.
 
 x = np.linspace(0, 2, 100)  # Sample data.
 
-plt.figure(figsize=(5, 2.7), layout='constrained')
+plt.figure(figsize=(5, 2.7), constrained_layout=True)
 plt.plot(x, x, label='linear')  # Plot some data on the (implicit) axes.
 plt.plot(x, x**2, label='quadratic')  # etc.
 plt.plot(x, x**3, label='cubic')
@@ -283,7 +283,7 @@ ax.legend();
 
 mu, sigma = 115, 15
 x = mu + sigma * np.random.randn(10000)
-fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
+fig, ax = plt.subplots(figsize=(5, 2.7), constrained_layout=True)
 # the histogram of the data
 n, bins, patches = ax.hist(x, 50, density=1, facecolor='C0', alpha=0.75)
 
@@ -379,7 +379,7 @@ ax.legend();
 # :doc:`/gallery/scales/scales` for other examples).  Here we set the scale
 # manually:
 
-fig, axs = plt.subplots(1, 2, figsize=(5, 2.7), layout='constrained')
+fig, axs = plt.subplots(1, 2, figsize=(5, 2.7), constrained_layout=True)
 xdata = np.arange(len(data1))  # make an ordinal for this
 data = 10**data1
 axs[0].plot(xdata, data)
@@ -400,7 +400,7 @@ axs[1].plot(xdata, data);
 # Axis objects to put tick marks.  A simple interface to this is
 # `~.Axes.set_xticks`:
 
-fig, axs = plt.subplots(2, 1, layout='constrained')
+fig, axs = plt.subplots(2, 1, constrained_layout=True)
 axs[0].plot(xdata, data1)
 axs[0].set_title('Automatic ticks')
 
@@ -423,7 +423,7 @@ axs[1].set_title('Manual ticks');
 # well as floating point numbers.  These get special locators and formatters
 # as appropriate.  For dates:
 
-fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
+fig, ax = plt.subplots(figsize=(5, 2.7), constrained_layout=True)
 dates = np.arange(np.datetime64('2021-11-15'), np.datetime64('2021-12-25'),
                   np.timedelta64(1, 'h'))
 data = np.cumsum(np.random.randn(len(dates)))
@@ -438,7 +438,7 @@ ax.xaxis.set_major_formatter(cdf);
 # For strings, we get categorical plotting (see:
 # :doc:`/gallery/lines_bars_and_markers/categorical_variables`).
 
-fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
+fig, ax = plt.subplots(figsize=(5, 2.7), constrained_layout=True)
 categories = ['turnips', 'rutabaga', 'cucumber', 'pumpkins']
 
 ax.bar(categories, np.random.rand(len(categories)));
@@ -465,7 +465,7 @@ ax.bar(categories, np.random.rand(len(categories)));
 # :doc:`/gallery/subplots_axes_and_figures/secondary_axis` for further
 # examples.
 
-fig, (ax1, ax3) = plt.subplots(1, 2, figsize=(8, 2.7), layout='constrained')
+fig, (ax1, ax3) = plt.subplots(1, 2, figsize=(8, 2.7), constrained_layout=True)
 l1, = ax1.plot(t, s)
 ax2 = ax1.twinx()
 l2, = ax2.plot(t, range(len(t)), 'C1')
@@ -486,7 +486,7 @@ ax4.set_xlabel('Angle [rad]')
 X, Y = np.meshgrid(np.linspace(-3, 3, 128), np.linspace(-3, 3, 128))
 Z = (1 - X/2 + X**5 + Y**3) * np.exp(-X**2 - Y**2)
 
-fig, axs = plt.subplots(2, 2, layout='constrained')
+fig, axs = plt.subplots(2, 2, constrained_layout=True)
 pc = axs[0, 0].pcolormesh(X, Y, Z, vmin=-1, vmax=1, cmap='RdBu_r')
 fig.colorbar(pc, ax=axs[0, 0])
 axs[0, 0].set_title('pcolormesh()')
