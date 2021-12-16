@@ -273,15 +273,12 @@ def test_fontcache_thread_safe():
 def test_fontentry_dataclass():
     fontent = FontEntry(name='font-name')
 
-    assert type(fontent.__doc__) == str
-
     png = fontent._repr_png_()
-    html = fontent._repr_html_()
-
     img = Image.open(BytesIO(png))
     assert img.width > 0
     assert img.height > 0
 
+    html = fontent._repr_html_()
     assert html.startswith("<img src=\"data:image/png;base64")
 
 
