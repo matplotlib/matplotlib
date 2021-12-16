@@ -180,7 +180,6 @@ class Text(Artist):
         d['_cached'] = {}
         return d
 
-
     def contains(self, mouseevent):
         """
         Return whether the mouse event occurred inside the axis-aligned
