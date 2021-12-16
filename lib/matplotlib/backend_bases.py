@@ -224,12 +224,15 @@ class RendererBase:
                              linewidths, linestyles, antialiaseds, urls,
                              offset_position):
         """
-        Draw a collection of paths selecting drawing properties from
-        the lists *facecolors*, *edgecolors*, *linewidths*,
-        *linestyles* and *antialiaseds*. *offsets* is a list of
-        offsets to apply to each of the paths.  The offsets in
-        *offsets* are first transformed by *offsetTrans* before being
-        applied.
+        Draw a collection of *paths*.
+
+        Each path is first transformed by the corresponding entry
+        in *all_transforms* (a list of (3, 3) matrices) and then by
+        *master_transform*.  They are then translated by the corresponding
+        entry in *offsets*, which has been first transformed by *offsetTrans*.
+
+        *facecolors*, *edgecolors*, *linewidths*, *linestyles*, and
+        *antialiased* are lists that set the corresponding properties.
 
         *offset_position* is unused now, but the argument is kept for
         backwards compatibility.
