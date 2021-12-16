@@ -1,0 +1,4 @@
+``FigureManagerGTK3Agg`` and ``FigureManagerGTK4Agg``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated; directly use ``FigureManagerGTK3`` and
+``FigureManagerGTK4`` instead.
