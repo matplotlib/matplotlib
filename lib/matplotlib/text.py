@@ -177,12 +177,9 @@ class Text(Artist):
         d = super().__getstate__()
         # remove the cached _renderer (if it exists)
         d['_renderer'] = None
-        d['_cached'] = None
+        d['_cached'] = {}
         return d
 
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-        self._cached = dict()
 
     def contains(self, mouseevent):
         """
