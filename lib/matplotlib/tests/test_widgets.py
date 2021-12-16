@@ -9,9 +9,15 @@ from matplotlib.testing.widgets import (click_and_drag, do_event, get_ax,
                                         mock_event)
 
 import numpy as np
-from numpy.testing import assert_allclose
 
 import pytest
+
+
+# Set default tolerances for checking coordinates. These are needed due to
+# small innacuracies in floating point conversions between data/display
+# coordinates
+assert_allclose = functools.partial(
+    np.testing.assert_allclose, atol=1e-12, rtol=1e-7)
 
 
 def check_rectangle(**kwargs):
@@ -112,7 +118,7 @@ def test_rectangle_drag(drag_from_anywhere, new_center):
                                      drag_from_anywhere=drag_from_anywhere)
     # Create rectangle
     click_and_drag(tool, start=(0, 10), end=(100, 120))
-    assert tool.center == (50, 65)
+    assert_allclose(tool.center, (50, 65))
     # Drag inside rectangle, but away from centre handle
     #
     # If drag_from_anywhere == True, this will move the rectangle by (10, 10),
@@ -121,11 +127,11 @@ def test_rectangle_drag(drag_from_anywhere, new_center):
     # If drag_from_anywhere == False, this will create a new rectangle with
     # center (30, 20)
     click_and_drag(tool, start=(25, 15), end=(35, 25))
-    assert tool.center == new_center
+    assert_allclose(tool.center, new_center)
     # Check that in both cases, dragging outside the rectangle draws a new
     # rectangle
     click_and_drag(tool, start=(175, 185), end=(185, 195))
-    assert tool.center == (180, 190)
+    assert_allclose(tool.center, (180, 190))
 
 
 def test_rectangle_selector_set_props_handle_props():
@@ -163,35 +169,39 @@ def test_rectangle_resize():
     tool = widgets.RectangleSelector(ax, onselect, interactive=True)
     # Create rectangle
     click_and_drag(tool, start=(0, 10), end=(100, 120))
-    assert tool.extents == (0.0, 100.0, 10.0, 120.0)
+    assert_allclose(tool.extents, (0.0, 100.0, 10.0, 120.0))
 
     # resize NE handle
     extents = tool.extents
     xdata, ydata = extents[1], extents[3]
     xdata_new, ydata_new = xdata + 10, ydata + 5
     click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
-    assert tool.extents == (extents[0], xdata_new, extents[2], ydata_new)
+    assert_allclose(
+        tool.extents, (extents[0], xdata_new, extents[2], ydata_new))
 
     # resize E handle
     extents = tool.extents
     xdata, ydata = extents[1], extents[2] + (extents[3] - extents[2]) / 2
     xdata_new, ydata_new = xdata + 10, ydata
     click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
-    assert tool.extents == (extents[0], xdata_new, extents[2], extents[3])
+    np.testing.assert_allclose(
+        tool.extents, (extents[0], xdata_new, extents[2], extents[3]))
 
     # resize W handle
     extents = tool.extents
     xdata, ydata = extents[0], extents[2] + (extents[3] - extents[2]) / 2
     xdata_new, ydata_new = xdata + 15, ydata
     click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
-    assert tool.extents == (xdata_new, extents[1], extents[2], extents[3])
+    assert_allclose(
+        tool.extents, (xdata_new, extents[1], extents[2], extents[3]))
 
     # resize SW handle
     extents = tool.extents
     xdata, ydata = extents[0], extents[2]
     xdata_new, ydata_new = xdata + 20, ydata + 25
     click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
-    assert tool.extents == (xdata_new, extents[1], ydata_new, extents[3])
+    assert_allclose(
+        tool.extents, (xdata_new, extents[1], ydata_new, extents[3]))
 
 
 def test_rectangle_add_state():
@@ -239,8 +249,8 @@ def test_rectangle_resize_center(add_state):
     xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
     click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
                    key=use_key)
-    assert tool.extents == (extents[0] - xdiff, xdata_new,
-                            extents[2] - ydiff, ydata_new)
+    assert_allclose(tool.extents, (extents[0] - xdiff, xdata_new,
+                                   extents[2] - ydiff, ydata_new))
 
     # resize E handle
     extents = tool.extents
@@ -249,8 +259,8 @@ def test_rectangle_resize_center(add_state):
     xdata_new, ydata_new = xdata + xdiff, ydata
     click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
                    key=use_key)
-    assert tool.extents == (extents[0] - xdiff, xdata_new,
-                            extents[2], extents[3])
+    assert_allclose(tool.extents, (extents[0] - xdiff, xdata_new,
+                                   extents[2], extents[3]))
 
     # resize E handle negative diff
     extents = tool.extents
@@ -259,8 +269,8 @@ def test_rectangle_resize_center(add_state):
     xdata_new, ydata_new = xdata + xdiff, ydata
     click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
                    key=use_key)
-    assert tool.extents == (extents[0] - xdiff, xdata_new,
-                            extents[2], extents[3])
+    assert_allclose(tool.extents, (extents[0] - xdiff, xdata_new,
+                                   extents[2], extents[3]))
 
     # resize W handle
     extents = tool.extents
@@ -269,8 +279,8 @@ def test_rectangle_resize_center(add_state):
     xdata_new, ydata_new = xdata + xdiff, ydata
     click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
                    key=use_key)
-    assert tool.extents == (xdata_new, extents[1] - xdiff,
-                            extents[2], extents[3])
+    assert_allclose(tool.extents, (xdata_new, extents[1] - xdiff,
+                                   extents[2], extents[3]))
 
     # resize W handle negative diff
     extents = tool.extents
@@ -279,8 +289,8 @@ def test_rectangle_resize_center(add_state):
     xdata_new, ydata_new = xdata + xdiff, ydata
     click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
                    key=use_key)
-    assert tool.extents == (xdata_new, extents[1] - xdiff,
-                            extents[2], extents[3])
+    assert_allclose(tool.extents, (xdata_new, extents[1] - xdiff,
+                                   extents[2], extents[3]))
 
     # resize SW handle
     extents = tool.extents
@@ -328,8 +338,8 @@ def test_rectangle_resize_square(add_state):
     xdata_new, ydata_new = xdata + xdiff, ydata
     click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
                    key=use_key)
-    assert tool.extents == (extents[0], xdata_new,
-                            extents[2], extents[3] + xdiff)
+    assert_allclose(tool.extents, (extents[0], xdata_new,
+                                   extents[2], extents[3] + xdiff))
 
     # resize E handle negative diff
     extents = tool.extents
@@ -338,8 +348,8 @@ def test_rectangle_resize_square(add_state):
     xdata_new, ydata_new = xdata + xdiff, ydata
     click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
                    key=use_key)
-    assert tool.extents == (extents[0], xdata_new,
-                            extents[2], extents[3] + xdiff)
+    assert_allclose(tool.extents, (extents[0], xdata_new,
+                                   extents[2], extents[3] + xdiff))
 
     # resize W handle
     extents = tool.extents
@@ -348,8 +358,8 @@ def test_rectangle_resize_square(add_state):
     xdata_new, ydata_new = xdata + xdiff, ydata
     click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
                    key=use_key)
-    assert tool.extents == (xdata_new, extents[1],
-                            extents[2], extents[3] - xdiff)
+    assert_allclose(tool.extents, (xdata_new, extents[1],
+                                   extents[2], extents[3] - xdiff))
 
     # resize W handle negative diff
     extents = tool.extents
@@ -358,8 +368,8 @@ def test_rectangle_resize_square(add_state):
     xdata_new, ydata_new = xdata + xdiff, ydata
     click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
                    key=use_key)
-    assert tool.extents == (xdata_new, extents[1],
-                            extents[2], extents[3] - xdiff)
+    assert_allclose(tool.extents, (xdata_new, extents[1],
+                                   extents[2], extents[3] - xdiff))
 
     # resize SW handle
     extents = tool.extents
@@ -368,8 +378,8 @@ def test_rectangle_resize_square(add_state):
     xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
     click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
                    key=use_key)
-    assert tool.extents == (extents[0] + ydiff, extents[1],
-                            ydata_new, extents[3])
+    assert_allclose(tool.extents, (extents[0] + ydiff, extents[1],
+                                   ydata_new, extents[3]))
 
 
 def test_rectangle_resize_square_center():
@@ -451,7 +461,7 @@ def test_rectangle_rotate(selector_class):
     tool = selector_class(ax, onselect=onselect, interactive=True)
     # Draw rectangle
     click_and_drag(tool, start=(100, 100), end=(130, 140))
-    assert tool.extents == (100, 130, 100, 140)
+    assert_allclose(tool.extents, (100, 130, 100, 140))
     assert len(tool._state) == 0
 
     # Rotate anticlockwise using top-right corner
@@ -489,7 +499,7 @@ def test_rectange_add_remove_set():
     tool = widgets.RectangleSelector(ax, onselect=onselect, interactive=True)
     # Draw rectangle
     click_and_drag(tool, start=(100, 100), end=(130, 140))
-    assert tool.extents == (100, 130, 100, 140)
+    assert_allclose(tool.extents, (100, 130, 100, 140))
     assert len(tool._state) == 0
     for state in ['rotate', 'square', 'center']:
         tool.add_state(state)
@@ -510,7 +520,7 @@ def test_rectangle_resize_square_center_aspect(use_data_coordinates):
                                      use_data_coordinates=use_data_coordinates)
     # Create rectangle
     click_and_drag(tool, start=(70, 65), end=(120, 115))
-    assert tool.extents == (70.0, 120.0, 65.0, 115.0)
+    assert_allclose(tool.extents, (70.0, 120.0, 65.0, 115.0))
     tool.add_state('square')
     tool.add_state('center')
 
@@ -518,7 +528,7 @@ def test_rectangle_resize_square_center_aspect(use_data_coordinates):
         # resize E handle
         extents = tool.extents
         xdata, ydata, width = extents[1], extents[3], extents[1] - extents[0]
-        xdiff, ycenter = 10,  extents[2] + (extents[3] - extents[2]) / 2
+        xdiff, ycenter = 10, extents[2] + (extents[3] - extents[2]) / 2
         xdata_new, ydata_new = xdata + xdiff, ydata
         ychange = width / 2 + xdiff
         click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
@@ -549,24 +559,22 @@ def test_ellipse():
 
     # drag the rectangle
     click_and_drag(tool, start=(125, 125), end=(145, 145))
-    assert tool.extents == (120, 170, 120, 170)
+    assert_allclose(tool.extents, (120, 170, 120, 170))
 
     # create from center
     click_and_drag(tool, start=(100, 100), end=(125, 125), key='control')
-    assert tool.extents == (75, 125, 75, 125)
+    assert_allclose(tool.extents, (75, 125, 75, 125))
 
     # create a square
     click_and_drag(tool, start=(10, 10), end=(35, 30), key='shift')
-    extents = [int(e) for e in tool.extents]
-    assert extents == [10, 35, 10, 35]
+    assert_allclose(tool.extents, (10, 35, 10, 35))
 
     # create a square from center
     click_and_drag(tool, start=(100, 100), end=(125, 130), key='ctrl+shift')
-    extents = [int(e) for e in tool.extents]
-    assert extents == [70, 130, 70, 130]
+    assert_allclose(tool.extents, (70, 130, 70, 130))
 
     assert tool.geometry.shape == (2, 73)
-    assert_allclose(tool.geometry[:, 0], [70., 100])
+    assert_allclose(tool.geometry[:, 0], (70, 100))
 
 
 def test_rectangle_handles():
@@ -583,22 +591,22 @@ def test_rectangle_handles():
     tool.extents = (100, 150, 100, 150)
 
     assert_allclose(tool.corners, ((100, 150, 150, 100), (100, 100, 150, 150)))
-    assert tool.extents == (100, 150, 100, 150)
+    assert_allclose(tool.extents, (100, 150, 100, 150))
     assert_allclose(tool.edge_centers,
                     ((100, 125.0, 150, 125.0), (125.0, 100, 125.0, 150)))
-    assert tool.extents == (100, 150, 100, 150)
+    assert_allclose(tool.extents, (100, 150, 100, 150))
 
     # grab a corner and move it
     click_and_drag(tool, start=(100, 100), end=(120, 120))
-    assert tool.extents == (120, 150, 120, 150)
+    assert_allclose(tool.extents, (120, 150, 120, 150))
 
     # grab the center and move it
     click_and_drag(tool, start=(132, 132), end=(120, 120))
-    assert tool.extents == (108, 138, 108, 138)
+    assert_allclose(tool.extents, (108, 138, 108, 138))
 
     # create a new rectangle
     click_and_drag(tool, start=(10, 10), end=(100, 100))
-    assert tool.extents == (10, 100, 10, 100)
+    assert_allclose(tool.extents, (10, 100, 10, 100))
 
     # Check that marker_props worked.
     assert mcolors.same_color(
@@ -620,7 +628,7 @@ def test_rectangle_selector_onselect(interactive):
     click_and_drag(tool, start=(100, 110), end=(150, 120))
 
     assert tool.ax._got_onselect
-    assert tool.extents == (100.0, 150.0, 110.0, 120.0)
+    assert_allclose(tool.extents, (100.0, 150.0, 110.0, 120.0))
 
     # Reset tool.ax._got_onselect
     tool.ax._got_onselect = False
@@ -639,7 +647,7 @@ def test_rectangle_selector_ignore_outside(ignore_event_outside):
                                      ignore_event_outside=ignore_event_outside)
     click_and_drag(tool, start=(100, 110), end=(150, 120))
     assert tool.ax._got_onselect
-    assert tool.extents == (100.0, 150.0, 110.0, 120.0)
+    assert_allclose(tool.extents, (100.0, 150.0, 110.0, 120.0))
 
     # Reset
     ax._got_onselect = False
@@ -648,11 +656,11 @@ def test_rectangle_selector_ignore_outside(ignore_event_outside):
     if ignore_event_outside:
         # event have been ignored and span haven't changed.
         assert not ax._got_onselect
-        assert tool.extents == (100.0, 150.0, 110.0, 120.0)
+        assert_allclose(tool.extents, (100.0, 150.0, 110.0, 120.0))
     else:
         # A new shape is created
         assert ax._got_onselect
-        assert tool.extents == (150.0, 160.0, 150.0, 160.0)
+        assert_allclose(tool.extents, (150.0, 160.0, 150.0, 160.0))
 
 
 def check_span(*args, **kwargs):
