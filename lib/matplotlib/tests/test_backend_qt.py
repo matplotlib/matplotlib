@@ -14,11 +14,13 @@ import pytest
 import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib._pylab_helpers import Gcf
-from matplotlib import _c_internal_utils
+from matplotlib import _c_internal_utils, cbook
 
 
 try:
+    from matplotlib.backend_managers import ToolManager
     from matplotlib.backends.qt_compat import QtGui, QtWidgets
+    from matplotlib.backends_qt import MainWindow, ToolbarQt
     from matplotlib.backends.qt_editor import _formlayout
 except ImportError:
     pytestmark = pytest.mark.skip('No usable Qt bindings')
@@ -642,3 +644,24 @@ def test_enums_available(env):
         env={**os.environ, "SOURCE_DATE_EPOCH": "0", **env},
         timeout=_test_timeout, check=True,
         stdout=subprocess.PIPE, universal_newlines=True)
+
+
+def test_toolbar_qt():
+    if sys.platform != 'darwin':
+        image = str(cbook._get_data._get_data_path('images/matplotlib.svg'))
+        icon = QtGui.QIcon(image)
+        window = MainWindow()
+        window.setWindowIcon(icon)
+
+        qt = ToolbarQt(toolmanager=ToolManager(), parent=window)
+        qt.add_toolitem(
+            name="random",
+            group="qt",
+            position="right",
+            image_file="images/matplotlib.svg",
+            description="random",
+            toggle="random",
+        )
+        qt.toggle_toolitem(name="random")
+        qt.remove_toolitem(name="random")
+        qt.set_message("random")
