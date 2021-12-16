@@ -27,20 +27,19 @@ def check_rectangle(**kwargs):
         ax._got_onselect = True
         assert epress.xdata == 100
         assert epress.ydata == 100
-        assert erelease.xdata == 199
-        assert erelease.ydata == 199
+        assert erelease.xdata == 200
+        assert erelease.ydata == 200
 
     tool = widgets.RectangleSelector(ax, onselect, **kwargs)
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
-    do_event(tool, 'onmove', xdata=199, ydata=199, button=1)
-
+    do_event(tool, 'onmove', xdata=250, ydata=250, button=1)
     # purposely drag outside of axis for release
     do_event(tool, 'release', xdata=250, ydata=250, button=1)
 
     if kwargs.get('drawtype', None) not in ['line', 'none']:
         assert_allclose(tool.geometry,
-                        [[100., 100, 199, 199, 100],
-                         [100, 199, 199, 100, 100]],
+                        [[100., 100, 200, 200, 100],
+                         [100, 200, 200, 100, 100]],
                         err_msg=tool.geometry)
 
     assert ax._got_onselect
@@ -299,8 +298,8 @@ def test_rectangle_resize_center(add_state):
     xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
     click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
                    key=use_key)
-    assert tool.extents == (xdata_new, extents[1] - xdiff,
-                            ydata_new, extents[3] - ydiff)
+    assert_allclose(tool.extents, (xdata_new, extents[1] - xdiff,
+                                   ydata_new, extents[3] - ydiff))
 
 
 @pytest.mark.parametrize('add_state', [True, False])
@@ -313,7 +312,7 @@ def test_rectangle_resize_square(add_state):
     tool = widgets.RectangleSelector(ax, onselect, interactive=True)
     # Create rectangle
     click_and_drag(tool, start=(70, 65), end=(120, 115))
-    assert tool.extents == (70.0, 120.0, 65.0, 115.0)
+    assert_allclose(tool.extents, (70.0, 120.0, 65.0, 115.0))
 
     if add_state:
         tool.add_state('square')
@@ -328,8 +327,8 @@ def test_rectangle_resize_square(add_state):
     xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
     click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
                    key=use_key)
-    assert tool.extents == (extents[0], xdata_new,
-                            extents[2], extents[3] + xdiff)
+    assert_allclose(tool.extents, (extents[0], xdata_new,
+                                   extents[2], extents[3] + xdiff))
 
     # resize E handle
     extents = tool.extents
@@ -378,12 +377,13 @@ def test_rectangle_resize_square(add_state):
     xdata_new, ydata_new = xdata + xdiff, ydata + ydiff
     click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new),
                    key=use_key)
-    assert_allclose(tool.extents, (extents[0] + ydiff, extents[1],
-                                   ydata_new, extents[3]))
+    assert_allclose(tool.extents, (xdata_new, extents[1],
+                                   extents[2] + xdiff, extents[3]))
 
 
 def test_rectangle_resize_square_center():
     ax = get_ax()
+    ax.set_aspect(1)
 
     def onselect(epress, erelease):
         pass
@@ -454,6 +454,7 @@ def test_rectangle_resize_square_center():
                          [widgets.RectangleSelector, widgets.EllipseSelector])
 def test_rectangle_rotate(selector_class):
     ax = get_ax()
+    ax.set_aspect(1)
 
     def onselect(epress, erelease):
         pass
@@ -471,19 +472,19 @@ def test_rectangle_rotate(selector_class):
     click_and_drag(tool, start=(130, 140), end=(120, 145))
     do_event(tool, 'on_key_press', key='r')
     assert len(tool._state) == 0
-    # Extents shouldn't change (as shape of rectangle hasn't changed)
-    assert tool.extents == (100, 130, 100, 140)
+    # Extents change as the selector remains rigid in display coordinates
+    assert_allclose(tool.extents, (110.10, 119.90, 95.49, 144.51), atol=0.01)
     assert_allclose(tool.rotation, 25.56, atol=0.01)
     tool.rotation = 45
     assert tool.rotation == 45
     # Corners should move
     assert_allclose(tool.corners,
-                    np.array([[118.53, 139.75, 111.46, 90.25],
-                              [95.25, 116.46, 144.75, 123.54]]), atol=0.01)
+                    np.array([[110.10, 131.31, 103.03, 81.81],
+                              [95.49, 116.70, 144.98, 123.77]]), atol=0.01)
 
     # Scale using top-right corner
     click_and_drag(tool, start=(110, 145), end=(110, 160))
-    assert_allclose(tool.extents, (100, 139.75, 100, 151.82), atol=0.01)
+    assert_allclose(tool.extents, (110, 110, 145, 160), atol=0.01)
 
     if selector_class == widgets.RectangleSelector:
         with pytest.raises(ValueError):
@@ -511,39 +512,40 @@ def test_rectange_add_remove_set():
 @pytest.mark.parametrize('use_data_coordinates', [False, True])
 def test_rectangle_resize_square_center_aspect(use_data_coordinates):
     ax = get_ax()
-    ax.set_aspect(0.8)
+    ax.set_aspect(0.5)
+    # Need to call a draw to update ax.transData
+    plt.gcf().canvas.draw()
 
     def onselect(epress, erelease):
         pass
 
     tool = widgets.RectangleSelector(ax, onselect, interactive=True,
                                      use_data_coordinates=use_data_coordinates)
-    # Create rectangle
-    click_and_drag(tool, start=(70, 65), end=(120, 115))
-    assert_allclose(tool.extents, (70.0, 120.0, 65.0, 115.0))
     tool.add_state('square')
     tool.add_state('center')
+    # Create rectangle, width 50 in data coordinates
+    click_and_drag(tool, start=(70, 65), end=(120, 65))
 
     if use_data_coordinates:
-        # resize E handle
-        extents = tool.extents
-        xdata, ydata, width = extents[1], extents[3], extents[1] - extents[0]
-        xdiff, ycenter = 10, extents[2] + (extents[3] - extents[2]) / 2
-        xdata_new, ydata_new = xdata + xdiff, ydata
-        ychange = width / 2 + xdiff
-        click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
-        assert_allclose(tool.extents, [extents[0] - xdiff, xdata_new,
-                                       ycenter - ychange, ycenter + ychange])
+        assert_allclose(tool.extents, (20, 120, 15, 115))
     else:
-        # resize E handle
-        extents = tool.extents
-        xdata, ydata = extents[1], extents[3]
-        xdiff = 10
-        xdata_new, ydata_new = xdata + xdiff, ydata
-        ychange = xdiff * 1 / tool._aspect_ratio_correction
-        click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
-        assert_allclose(tool.extents, [extents[0] - xdiff, xdata_new,
-                                       46.25, 133.75])
+        assert_allclose(tool.extents, (20, 120, -35, 165))
+
+    # resize E handle
+    extents = tool.extents
+    xdata, ydata = extents[1], extents[3]
+    xdiff = 10
+    xdata_new, ydata_new = xdata + xdiff, ydata
+    if use_data_coordinates:
+        # In data coordinates the difference should be equal in both directions
+        ydiff = xdiff
+    else:
+        # In display coordiantes, the change in data coordinates should be
+        # different in each direction
+        ydiff = xdiff / tool.ax._get_aspect_ratio()
+    click_and_drag(tool, start=(xdata, ydata), end=(xdata_new, ydata_new))
+    assert_allclose(tool.extents, [extents[0] - xdiff, xdata_new,
+                                   extents[2] - ydiff, extents[3] + ydiff])
 
 
 def test_ellipse():
@@ -1457,6 +1459,13 @@ def test_polygon_selector_box():
                       polygon_place_vertex(*verts[0]))
 
     ax = get_ax()
+    # Set smaller axes limits to reduce errors in converting from data to
+    # display coords. The canvas size is 640 x 640, so we need a tolerance of
+    # (data width / canvas width) = 50 / 640 ~ 0.08 when comparing points in
+    # data space
+    ax.set_xlim(0, 50)
+    ax.set_ylim(0, 50)
+    atol = 0.08
 
     def onselect(vertices):
         pass
@@ -1476,25 +1485,25 @@ def test_polygon_selector_box():
     canvas.motion_notify_event(*t.transform((20, 20)))
     canvas.button_release_event(*t.transform((20, 20)), 1)
     np.testing.assert_allclose(
-        tool.verts, [(10, 0), (0, 10), (10, 20), (20, 10)])
+        tool.verts, [(10, 0), (0, 10), (10, 20), (20, 10)], atol=atol)
 
     # Move using the center of the bounding box
     canvas.button_press_event(*t.transform((10, 10)), 1)
     canvas.motion_notify_event(*t.transform((30, 30)))
     canvas.button_release_event(*t.transform((30, 30)), 1)
     np.testing.assert_allclose(
-        tool.verts, [(30, 20), (20, 30), (30, 40), (40, 30)])
+        tool.verts, [(30, 20), (20, 30), (30, 40), (40, 30)], atol=atol)
 
     # Remove a point from the polygon and check that the box extents update
     np.testing.assert_allclose(
-        tool._box.extents, (20.0, 40.0, 20.0, 40.0))
+        tool._box.extents, (20.0, 40.0, 20.0, 40.0), atol=atol)
 
     canvas.button_press_event(*t.transform((30, 20)), 3)
     canvas.button_release_event(*t.transform((30, 20)), 3)
     np.testing.assert_allclose(
-        tool.verts, [(20, 30), (30, 40), (40, 30)])
+        tool.verts, [(20, 30), (30, 40), (40, 30)], atol=atol)
     np.testing.assert_allclose(
-        tool._box.extents, (20.0, 40.0, 30.0, 40.0))
+        tool._box.extents, (20.0, 40.0, 30.0, 40.0), atol=atol)
 
 
 @pytest.mark.parametrize(
