@@ -6,6 +6,14 @@ Pick Event Demo2
 Compute the mean (mu) and standard deviation (sigma) of 100 data sets and plot
 mu vs. sigma.  When you click on one of the (mu, sigma) points, plot the raw
 data from the dataset that generated this point.
+
+.. note::
+    This example exercises the interactive capabilities of Matplotlib, and this
+    will not appear in the static documentation. Please run this code on your
+    machine to see the interactivity.
+
+    You can copy and paste individual parts, or download the entire example
+    using the link at the bottom of the page.
 """
 import numpy as np
 import matplotlib.pyplot as plt

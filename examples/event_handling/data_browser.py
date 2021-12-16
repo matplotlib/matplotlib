@@ -8,6 +8,14 @@ Connecting data between multiple canvases.
 This example covers how to interact data with multiple canvases. This
 let's you select and highlight a point on one axis, and generating the
 data of that point on the other axis.
+
+.. note::
+    This example exercises the interactive capabilities of Matplotlib, and this
+    will not appear in the static documentation. Please run this code on your
+    machine to see the interactivity.
+
+    You can copy and paste individual parts, or download the entire example
+    using the link at the bottom of the page.
 """
 import numpy as np
 
