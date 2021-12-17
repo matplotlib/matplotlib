@@ -980,6 +980,11 @@ class AutoDateFormatter(ticker.Formatter):
 
 
 class rrulewrapper:
+    """
+    A simple wrapper around a ``dateutil.rrule`` allowing almost
+    arbitrary date tick specifications.
+    """
+    
     def __init__(self, freq, tzinfo=None, **kwargs):
         kwargs['freq'] = freq
         self._base_tzinfo = tzinfo
