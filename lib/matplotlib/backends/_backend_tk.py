@@ -410,13 +410,7 @@ class FigureManagerTk(FigureManagerBase):
         self.window.withdraw()
         # packing toolbar first, because if space is getting low, last packed
         # widget is getting shrunk first (-> the canvas)
-        self.toolbar = self._get_toolbar()
         self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)
-
-        if self.toolmanager:
-            backend_tools.add_tools_to_manager(self.toolmanager)
-            if self.toolbar:
-                backend_tools.add_tools_to_container(self.toolbar)
 
         # If the window has per-monitor DPI awareness, then setup a Tk variable
         # to store the DPI, which will be updated by the C code, and the trace
@@ -429,15 +423,6 @@ class FigureManagerTk(FigureManagerBase):
             window_dpi.trace_add('write', self._update_window_dpi)
 
         self._shown = False
-
-    def _get_toolbar(self):
-        if mpl.rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2Tk(self.canvas)
-        elif mpl.rcParams['toolbar'] == 'toolmanager':
-            toolbar = ToolbarTk(self.toolmanager)
-        else:
-            toolbar = None
-        return toolbar
 
     def _update_window_dpi(self, *args):
         newdpi = self._window_dpi.get()
@@ -898,6 +883,8 @@ class HelpTk(backend_tools.ToolHelpBase):
 
 
 Toolbar = ToolbarTk
+FigureManagerTk._toolbar2_class = NavigationToolbar2Tk
+FigureManagerTk._toolmanager_toolbar_class = ToolbarTk
 
 
 @_Backend.export

@@ -901,13 +901,9 @@ class FigureFrameWx(wx.Frame):
 
         self.figmgr = FigureManagerWx(self.canvas, num, self)
 
-        self.toolbar = self._get_toolbar()
-        if self.figmgr.toolmanager:
-            backend_tools.add_tools_to_manager(self.figmgr.toolmanager)
-            if self.toolbar:
-                backend_tools.add_tools_to_container(self.toolbar)
-        if self.toolbar is not None:
-            self.SetToolBar(self.toolbar)
+        toolbar = self.canvas.manager.toolbar
+        if toolbar is not None:
+            self.SetToolBar(toolbar)
 
         # On Windows, canvas sizing must occur after toolbar addition;
         # otherwise the toolbar further resizes the canvas.
@@ -920,18 +916,8 @@ class FigureFrameWx(wx.Frame):
 
         self.Bind(wx.EVT_CLOSE, self._on_close)
 
-    @property
-    def toolmanager(self):
-        return self.figmgr.toolmanager
-
-    def _get_toolbar(self):
-        if mpl.rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2Wx(self.canvas)
-        elif mpl.rcParams['toolbar'] == 'toolmanager':
-            toolbar = ToolbarWx(self.toolmanager)
-        else:
-            toolbar = None
-        return toolbar
+    toolmanager = property(lambda self: self.figmgr.toolmanager)
+    toolbar = property(lambda self: self.GetToolBar())  # backcompat
 
     @_api.deprecated(
         "3.6", alternative="the canvas_class constructor parameter")
@@ -956,7 +942,7 @@ class FigureFrameWx(wx.Frame):
 
     def Destroy(self, *args, **kwargs):
         try:
-            self.canvas.mpl_disconnect(self.toolbar._id_drag)
+            self.canvas.mpl_disconnect(self.canvas.manager.toolbar._id_drag)
             # Rationale for line above: see issue 2941338.
         except AttributeError:
             pass  # classic toolbar lacks the attribute
@@ -965,8 +951,8 @@ class FigureFrameWx(wx.Frame):
         # MPLBACKEND=wxagg python -c 'from pylab import *; plot()'.
         if self and not self.IsBeingDeleted():
             super().Destroy(*args, **kwargs)
-            # self.toolbar.Destroy() should not be necessary if the close event
-            # is allowed to propagate.
+            # toolbar.Destroy() should not be necessary if the close event is
+            # allowed to propagate.
         return True
 
 
@@ -988,20 +974,7 @@ class FigureManagerWx(FigureManagerBase):
     def __init__(self, canvas, num, frame):
         _log.debug("%s - __init__()", type(self))
         self.frame = self.window = frame
-        self._initializing = True
         super().__init__(canvas, num)
-        self._initializing = False
-
-    @property
-    def toolbar(self):
-        return self.frame.GetToolBar()
-
-    @toolbar.setter
-    def toolbar(self, value):
-        # Never allow this, except that base class inits this to None before
-        # the frame is set up.
-        if not self._initializing:
-            raise AttributeError("can't set attribute")
 
     def show(self):
         # docstring inherited
@@ -1371,6 +1344,10 @@ class ToolCopyToClipboardWx(backend_tools.ToolCopyToClipboardBase):
             wx.TheClipboard.SetData(wx.BitmapDataObject(self.canvas.bitmap))
         finally:
             wx.TheClipboard.Close()
+
+
+FigureManagerWx._toolbar2_class = NavigationToolbar2Wx
+FigureManagerWx._toolmanager_toolbar_class = ToolbarWx
 
 
 @_Backend.export

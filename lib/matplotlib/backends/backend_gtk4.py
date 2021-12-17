@@ -279,13 +279,6 @@ class FigureManagerGTK4(FigureManagerBase):
         # calculate size for window
         w, h = self.canvas.get_width_height()
 
-        self.toolbar = self._get_toolbar()
-
-        if self.toolmanager:
-            backend_tools.add_tools_to_manager(self.toolmanager)
-            if self.toolbar:
-                backend_tools.add_tools_to_container(self.toolbar)
-
         if self.toolbar is not None:
             sw = Gtk.ScrolledWindow(vscrollbar_policy=Gtk.PolicyType.NEVER)
             sw.set_child(self.toolbar)
@@ -334,17 +327,6 @@ class FigureManagerGTK4(FigureManagerBase):
             self.window.fullscreen()
         else:
             self.window.unfullscreen()
-
-    def _get_toolbar(self):
-        # must be inited after the window, drawingArea and figure
-        # attrs are set
-        if mpl.rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2GTK4(self.canvas)
-        elif mpl.rcParams['toolbar'] == 'toolmanager':
-            toolbar = ToolbarGTK4(self.toolmanager)
-        else:
-            toolbar = None
-        return toolbar
 
     def get_window_title(self):
         return self.window.get_title()
@@ -673,6 +655,8 @@ backend_tools._register_tool_class(
 backend_tools._register_tool_class(
     FigureCanvasGTK4, _backend_gtk.RubberbandGTK)
 Toolbar = ToolbarGTK4
+FigureManagerGTK4._toolbar2_class = NavigationToolbar2GTK4
+FigureManagerGTK4._toolmanager_toolbar_class = ToolbarGTK4
 
 
 @_BackendGTK.export

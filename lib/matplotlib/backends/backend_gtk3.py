@@ -331,13 +331,6 @@ class FigureManagerGTK3(FigureManagerBase):
         # calculate size for window
         w, h = self.canvas.get_width_height()
 
-        self.toolbar = self._get_toolbar()
-
-        if self.toolmanager:
-            backend_tools.add_tools_to_manager(self.toolmanager)
-            if self.toolbar:
-                backend_tools.add_tools_to_container(self.toolbar)
-
         if self.toolbar is not None:
             self.toolbar.show()
             self.vbox.pack_end(self.toolbar, False, False, 0)
@@ -737,6 +730,8 @@ backend_tools._register_tool_class(
     FigureCanvasGTK3, _backend_gtk.ConfigureSubplotsGTK)
 backend_tools._register_tool_class(
     FigureCanvasGTK3, _backend_gtk.RubberbandGTK)
+FigureManagerGTK3._toolbar2_class = NavigationToolbar2GTK3
+FigureManagerGTK3._toolmanager_toolbar_class = ToolbarGTK3
 
 
 @_BackendGTK.export

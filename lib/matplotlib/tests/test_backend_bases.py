@@ -4,8 +4,6 @@ from matplotlib.testing import _check_for_pgf
 from matplotlib.backend_bases import (
     FigureCanvasBase, LocationEvent, MouseButton, MouseEvent,
     NavigationToolbar2, RendererBase)
-from matplotlib.backend_tools import (ToolZoom, ToolPan, RubberbandBase,
-                                      ToolViewsPositions, _views_positions)
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
@@ -250,14 +248,6 @@ def test_toolbar_zoompan():
         plt.rcParams['toolbar'] = 'toolmanager'
     ax = plt.gca()
     assert ax.get_navigate_mode() is None
-    ax.figure.canvas.manager.toolmanager.add_tool(name="zoom",
-                                                  tool=ToolZoom)
-    ax.figure.canvas.manager.toolmanager.add_tool(name="pan",
-                                                  tool=ToolPan)
-    ax.figure.canvas.manager.toolmanager.add_tool(name=_views_positions,
-                                                  tool=ToolViewsPositions)
-    ax.figure.canvas.manager.toolmanager.add_tool(name='rubberband',
-                                                  tool=RubberbandBase)
     ax.figure.canvas.manager.toolmanager.trigger_tool('zoom')
     assert ax.get_navigate_mode() == "ZOOM"
     ax.figure.canvas.manager.toolmanager.trigger_tool('pan')

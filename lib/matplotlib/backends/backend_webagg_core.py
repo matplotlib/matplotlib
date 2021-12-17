@@ -453,19 +453,14 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
 
 
 class FigureManagerWebAgg(backend_bases.FigureManagerBase):
-    ToolbarCls = NavigationToolbar2WebAgg
+    _toolbar2_class = ToolbarCls = NavigationToolbar2WebAgg
 
     def __init__(self, canvas, num):
         self.web_sockets = set()
         super().__init__(canvas, num)
-        self.toolbar = self._get_toolbar(canvas)
 
     def show(self):
         pass
-
-    def _get_toolbar(self, canvas):
-        toolbar = self.ToolbarCls(canvas)
-        return toolbar
 
     def resize(self, w, h, forward=True):
         self._send_event(
