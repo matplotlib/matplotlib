@@ -2212,22 +2212,22 @@ class Figure(FigureBase):
                 The use of this parameter is discouraged. Please use
                 ``layout='constrained'`` instead.
 
-        layout : {'constrained', 'tight'}, optional
-            The layout mechanism for positioning of plot elements.
-            Supported values:
+        layout : {'constrained', 'tight'}, optional, default: None
+            The layout mechanism for positioning of plot elements to avoid
+            overlapping Axes decorations (labels, ticks, etc). Note that
+            layout managers can have significant performance penalties.
 
-            - 'constrained': The constrained layout solver usually gives the
-              best layout results and is thus recommended. However, it is
-              computationally expensive and can be slow for complex figures
-              with many elements.
+            - 'constrained': The constrained layout solver adjusts axes sizes
+               to avoid overlapping axes decorations.  Can handle complex plot
+               layouts and colorbars, and is thus recommended.
 
               See :doc:`/tutorials/intermediate/constrainedlayout_guide`
               for examples.
 
             - 'tight': Use the tight layout mechanism. This is a relatively
-              simple algorithm, that adjusts the subplot parameters so that
-              decorations like tick labels, axis labels and titles have enough
-              space. See `.Figure.set_tight_layout` for further details.
+              simple algorithm that adjusts the subplot parameters so that
+              decorations do not overlap. See `.Figure.set_tight_layout` for
+              further details.
 
             If not given, fall back to using the parameters *tight_layout* and
             *constrained_layout*, including their config defaults

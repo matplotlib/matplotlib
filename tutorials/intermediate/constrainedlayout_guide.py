@@ -29,15 +29,6 @@ a figure. Two ways of doing so are
 
 Those are described in detail throughout the following sections.
 
-.. warning::
-
-    Currently Constrained Layout is **experimental**.  The
-    behaviour and API are subject to change, or the whole functionality
-    may be removed without a deprecation period.  If you *require* your
-    plots to be absolutely reproducible, get the Axes positions after
-    running Constrained Layout and use ``ax.set_position()`` in your code
-    with ``constrained_layout=False``.
-
 Simple Example
 ==============
 
