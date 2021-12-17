@@ -2212,10 +2212,8 @@ class TestScatter:
             plt.scatter([1, 2], [1, 2], color=[0.1, 0.2])
         with pytest.raises(ValueError):
             plt.scatter([1, 2, 3], [1, 2, 3], color=[1, 2, 3])
-        with pytest.raises(ValueError, match=f"'c' argument must be a color, "
-                           f"a sequence of colors, or a sequence of numbers, "
-                           f"not {c!r}"):
-            plt.scatter([1, 2], [1, 2], color='blue\n')
+        with pytest.raises(ValueError, match=f"{c!r}"):
+            plt.scatter([1, 2], [1, 2], color='\n')
 
     def test_scatter_unfilled(self):
         coll = plt.scatter([0, 1, 2], [1, 3, 2], c=['0.1', '0.3', '0.5'],
