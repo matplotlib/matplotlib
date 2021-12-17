@@ -12,7 +12,7 @@ import types
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, docstring
+from matplotlib import _api, cbook, docstring, offsetbox
 import matplotlib.artist as martist
 import matplotlib.axis as maxis
 from matplotlib.cbook import _OrderedSet, _check_1d, index_of
@@ -4541,21 +4541,26 @@ class _AxesBase(martist.Artist):
 
         artists = self.get_children()
 
+        for _axis in self._get_axis_list():
+            # axis tight bboxes are calculated separately inside
+            # Axes.get_tightbbox() using for_layout_only=True
+            artists.remove(_axis)
         if not (self.axison and self._frameon):
             # don't do bbox on spines if frame not on.
             for spine in self.spines.values():
                 artists.remove(spine)
 
-        if not self.axison:
-            for _axis in self._get_axis_list():
-                artists.remove(_axis)
-
         artists.remove(self.title)
         artists.remove(self._left_title)
         artists.remove(self._right_title)
 
-        return [artist for artist in artists
-                if (artist.get_visible() and artist.get_in_layout())]
+        # always include types that do not internally implement clipping
+        # to axes. may have clip_on set to True and clip_box equivalent
+        # to ax.bbox but then ignore these properties during draws.
+        noclip = (_AxesBase, maxis.Axis,
+                  offsetbox.AnnotationBbox, offsetbox.OffsetBox)
+        return [a for a in artists if a.get_visible() and a.get_in_layout()
+                and (isinstance(a, noclip) or not a._fully_clipped_to_axes())]
 
     def get_tightbbox(self, renderer, call_axes_locator=True,
                       bbox_extra_artists=None, *, for_layout_only=False):
@@ -4612,17 +4617,11 @@ class _AxesBase(martist.Artist):
         else:
             self.apply_aspect()
 
-        if self.axison:
-            if self.xaxis.get_visible():
-                bb_xaxis = martist._get_tightbbox_for_layout_only(
-                    self.xaxis, renderer)
-                if bb_xaxis:
-                    bb.append(bb_xaxis)
-            if self.yaxis.get_visible():
-                bb_yaxis = martist._get_tightbbox_for_layout_only(
-                    self.yaxis, renderer)
-                if bb_yaxis:
-                    bb.append(bb_yaxis)
+        for axis in self._get_axis_list():
+            if self.axison and axis.get_visible():
+                ba = martist._get_tightbbox_for_layout_only(axis, renderer)
+                if ba:
+                    bb.append(ba)
         self._update_title_position(renderer)
         axbbox = self.get_window_extent(renderer)
         bb.append(axbbox)
@@ -4643,17 +4642,6 @@ class _AxesBase(martist.Artist):
             bbox_artists = self.get_default_bbox_extra_artists()
 
         for a in bbox_artists:
-            # Extra check here to quickly see if clipping is on and
-            # contained in the Axes.  If it is, don't get the tightbbox for
-            # this artist because this can be expensive:
-            clip_extent = a._get_clipping_extent_bbox()
-            if clip_extent is not None:
-                clip_extent = mtransforms.Bbox.intersection(
-                    clip_extent, axbbox)
-                if np.all(clip_extent.extents == axbbox.extents):
-                    # clip extent is inside the Axes bbox so don't check
-                    # this artist
-                    continue
             bbox = a.get_tightbbox(renderer)
             if (bbox is not None
                     and 0 < bbox.width < np.inf
