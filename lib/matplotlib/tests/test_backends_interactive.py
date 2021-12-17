@@ -128,6 +128,8 @@ def _test_interactive_impl():
         "matplotlib.backends.backend_{}".format(backend))
 
     ax.plot([0, 1], [2, 3])
+    if fig.canvas.toolbar:  # i.e toolbar2.
+        fig.canvas.toolbar.draw_rubberband(None, 1., 1, 2., 2)
 
     timer = fig.canvas.new_timer(1.)  # Test floats casting to int as needed.
     timer.add_callback(FigureCanvasBase.key_press_event, fig.canvas, "q")
