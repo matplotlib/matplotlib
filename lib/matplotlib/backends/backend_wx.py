@@ -502,32 +502,32 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         self._isDrawn = False
         self._rubberband_rect = None
 
-        self.Bind(wx.EVT_SIZE, self._onSize)
-        self.Bind(wx.EVT_PAINT, self._onPaint)
-        self.Bind(wx.EVT_CHAR_HOOK, self._onKeyDown)
-        self.Bind(wx.EVT_KEY_UP, self._onKeyUp)
-        self.Bind(wx.EVT_LEFT_DOWN, self._onMouseButton)
-        self.Bind(wx.EVT_LEFT_DCLICK, self._onMouseButton)
-        self.Bind(wx.EVT_LEFT_UP, self._onMouseButton)
-        self.Bind(wx.EVT_MIDDLE_DOWN, self._onMouseButton)
-        self.Bind(wx.EVT_MIDDLE_DCLICK, self._onMouseButton)
-        self.Bind(wx.EVT_MIDDLE_UP, self._onMouseButton)
-        self.Bind(wx.EVT_RIGHT_DOWN, self._onMouseButton)
-        self.Bind(wx.EVT_RIGHT_DCLICK, self._onMouseButton)
-        self.Bind(wx.EVT_RIGHT_UP, self._onMouseButton)
-        self.Bind(wx.EVT_MOUSE_AUX1_DOWN, self._onMouseButton)
-        self.Bind(wx.EVT_MOUSE_AUX1_UP, self._onMouseButton)
-        self.Bind(wx.EVT_MOUSE_AUX2_DOWN, self._onMouseButton)
-        self.Bind(wx.EVT_MOUSE_AUX2_UP, self._onMouseButton)
-        self.Bind(wx.EVT_MOUSE_AUX1_DCLICK, self._onMouseButton)
-        self.Bind(wx.EVT_MOUSE_AUX2_DCLICK, self._onMouseButton)
-        self.Bind(wx.EVT_MOUSEWHEEL, self._onMouseWheel)
-        self.Bind(wx.EVT_MOTION, self._onMotion)
-        self.Bind(wx.EVT_LEAVE_WINDOW, self._onLeave)
-        self.Bind(wx.EVT_ENTER_WINDOW, self._onEnter)
+        self.Bind(wx.EVT_SIZE, self._on_size)
+        self.Bind(wx.EVT_PAINT, self._on_paint)
+        self.Bind(wx.EVT_CHAR_HOOK, self._on_key_down)
+        self.Bind(wx.EVT_KEY_UP, self._on_key_up)
+        self.Bind(wx.EVT_LEFT_DOWN, self._on_mouse_button)
+        self.Bind(wx.EVT_LEFT_DCLICK, self._on_mouse_button)
+        self.Bind(wx.EVT_LEFT_UP, self._on_mouse_button)
+        self.Bind(wx.EVT_MIDDLE_DOWN, self._on_mouse_button)
+        self.Bind(wx.EVT_MIDDLE_DCLICK, self._on_mouse_button)
+        self.Bind(wx.EVT_MIDDLE_UP, self._on_mouse_button)
+        self.Bind(wx.EVT_RIGHT_DOWN, self._on_mouse_button)
+        self.Bind(wx.EVT_RIGHT_DCLICK, self._on_mouse_button)
+        self.Bind(wx.EVT_RIGHT_UP, self._on_mouse_button)
+        self.Bind(wx.EVT_MOUSE_AUX1_DOWN, self._on_mouse_button)
+        self.Bind(wx.EVT_MOUSE_AUX1_UP, self._on_mouse_button)
+        self.Bind(wx.EVT_MOUSE_AUX2_DOWN, self._on_mouse_button)
+        self.Bind(wx.EVT_MOUSE_AUX2_UP, self._on_mouse_button)
+        self.Bind(wx.EVT_MOUSE_AUX1_DCLICK, self._on_mouse_button)
+        self.Bind(wx.EVT_MOUSE_AUX2_DCLICK, self._on_mouse_button)
+        self.Bind(wx.EVT_MOUSEWHEEL, self._on_mouse_wheel)
+        self.Bind(wx.EVT_MOTION, self._on_motion)
+        self.Bind(wx.EVT_LEAVE_WINDOW, self._on_leave)
+        self.Bind(wx.EVT_ENTER_WINDOW, self._on_enter)
 
-        self.Bind(wx.EVT_MOUSE_CAPTURE_CHANGED, self._onCaptureLost)
-        self.Bind(wx.EVT_MOUSE_CAPTURE_LOST, self._onCaptureLost)
+        self.Bind(wx.EVT_MOUSE_CAPTURE_CHANGED, self._on_capture_lost)
+        self.Bind(wx.EVT_MOUSE_CAPTURE_LOST, self._on_capture_lost)
 
         self.SetBackgroundStyle(wx.BG_STYLE_PAINT)  # Reduce flicker.
         self.SetBackgroundColour(wx.WHITE)
@@ -645,9 +645,9 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         if self._isDrawn:
             self.draw()
 
-    def _onPaint(self, event):
+    def _on_paint(self, event):
         """Called when wxPaintEvt is generated."""
-        _log.debug("%s - _onPaint()", type(self))
+        _log.debug("%s - _on_paint()", type(self))
         drawDC = wx.PaintDC(self)
         if not self._isDrawn:
             self.draw(drawDC=drawDC)
@@ -655,7 +655,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             self.gui_repaint(drawDC=drawDC)
         drawDC.Destroy()
 
-    def _onSize(self, event):
+    def _on_size(self, event):
         """
         Called when wxEventSize is generated.
 
@@ -663,7 +663,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         is better to take the performance hit and redraw the whole window.
         """
 
-        _log.debug("%s - _onSize()", type(self))
+        _log.debug("%s - _on_size()", type(self))
         sz = self.GetParent().GetSizer()
         if sz:
             si = sz.GetItem(self)
@@ -724,14 +724,14 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
         return key
 
-    def _onKeyDown(self, event):
+    def _on_key_down(self, event):
         """Capture key press."""
         key = self._get_key(event)
         FigureCanvasBase.key_press_event(self, key, guiEvent=event)
         if self:
             event.Skip()
 
-    def _onKeyUp(self, event):
+    def _on_key_up(self, event):
         """Release key."""
         key = self._get_key(event)
         FigureCanvasBase.key_release_event(self, key, guiEvent=event)
@@ -759,11 +759,11 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         if capture:
             self.CaptureMouse()
 
-    def _onCaptureLost(self, event):
+    def _on_capture_lost(self, event):
         """Capture changed or lost"""
         self._set_capture(False)
 
-    def _onMouseButton(self, event):
+    def _on_mouse_button(self, event):
         """Start measuring on an axis."""
         event.Skip()
         self._set_capture(event.ButtonDown() or event.ButtonDClick())
@@ -786,7 +786,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         elif event.ButtonUp():
             self.button_release_event(x, y, button, guiEvent=event)
 
-    def _onMouseWheel(self, event):
+    def _on_mouse_wheel(self, event):
         """Translate mouse wheel events into matplotlib events"""
         # Determine mouse location
         x = event.GetX()
@@ -806,19 +806,19 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
                 self._skipwheelevent = True
         FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=event)
 
-    def _onMotion(self, event):
+    def _on_motion(self, event):
         """Start measuring on an axis."""
         x = event.GetX()
         y = self.figure.bbox.height - event.GetY()
         event.Skip()
         FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
 
-    def _onLeave(self, event):
+    def _on_leave(self, event):
         """Mouse has left the window."""
         event.Skip()
         FigureCanvasBase.leave_notify_event(self, guiEvent=event)
 
-    def _onEnter(self, event):
+    def _on_enter(self, event):
         """Mouse has entered the window."""
         x = event.GetX()
         y = self.figure.bbox.height - event.GetY()
@@ -937,7 +937,7 @@ class FigureFrameWx(wx.Frame):
 
         self.canvas.SetMinSize((2, 2))
 
-        self.Bind(wx.EVT_CLOSE, self._onClose)
+        self.Bind(wx.EVT_CLOSE, self._on_close)
 
     @property
     def toolmanager(self):
@@ -959,8 +959,8 @@ class FigureFrameWx(wx.Frame):
         _log.debug("%s - get_figure_manager()", type(self))
         return self.figmgr
 
-    def _onClose(self, event):
-        _log.debug("%s - onClose()", type(self))
+    def _on_close(self, event):
+        _log.debug("%s - on_close()", type(self))
         self.canvas.close_event()
         self.canvas.stop_event_loop()
         # set FigureManagerWx.frame to None to prevent repeated attempts to
@@ -1345,15 +1345,15 @@ class _HelpDialog(wx.Dialog):
                 grid_sizer.Add(label, 0, 0, 0)
         # finalize layout, create button
         sizer.Add(grid_sizer, 0, wx.ALL, 6)
-        OK = wx.Button(self, wx.ID_OK)
-        sizer.Add(OK, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 8)
+        ok = wx.Button(self, wx.ID_OK)
+        sizer.Add(ok, 0, wx.ALIGN_CENTER_HORIZONTAL | wx.ALL, 8)
         self.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()
-        self.Bind(wx.EVT_CLOSE, self.OnClose)
-        OK.Bind(wx.EVT_BUTTON, self.OnClose)
+        self.Bind(wx.EVT_CLOSE, self._on_close)
+        ok.Bind(wx.EVT_BUTTON, self._on_close)
 
-    def OnClose(self, event):
+    def _on_close(self, event):
         _HelpDialog._instance = None  # remove global reference
         self.DestroyLater()
         event.Skip()
