@@ -1229,7 +1229,8 @@ class Normalize:
 
         result, is_scalar = self.process_value(value)
 
-        self.autoscale_None(result)
+        if self.vmin is None or self.vmax is None:
+            self.autoscale_None(result)
         # Convert at least to float, without losing precision.
         (vmin,), _ = self.process_value(self.vmin)
         (vmax,), _ = self.process_value(self.vmax)
@@ -1520,7 +1521,8 @@ def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
 
         def __call__(self, value, clip=None):
             value, is_scalar = self.process_value(value)
-            self.autoscale_None(value)
+            if self.vmin is None or self.vmax is None:
+                self.autoscale_None(value)
             if self.vmin > self.vmax:
                 raise ValueError("vmin must be less or equal to vmax")
             if self.vmin == self.vmax:
@@ -1554,6 +1556,15 @@ def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
                      .transform(rescaled)
                      .reshape(np.shape(value)))
             return value[0] if is_scalar else value
+
+        def autoscale(self, A):
+            # i.e. A[np.isfinite(...)], but also for non-array A's
+            in_trf_domain = np.extract(np.isfinite(self._trf.transform(A)), A)
+            return super().autoscale(in_trf_domain)
+
+        def autoscale_None(self, A):
+            in_trf_domain = np.extract(np.isfinite(self._trf.transform(A)), A)
+            return super().autoscale_None(in_trf_domain)
 
     Norm.__name__ = (f"{scale_cls.__name__}Norm" if base_norm_cls is Normalize
                      else base_norm_cls.__name__)
@@ -1602,14 +1613,6 @@ class FuncNorm(Normalize):
 @make_norm_from_scale(functools.partial(scale.LogScale, nonpositive="mask"))
 class LogNorm(Normalize):
     """Normalize a given value to the 0-1 range on a log scale."""
-
-    def autoscale(self, A):
-        # docstring inherited.
-        super().autoscale(np.ma.array(A, mask=(A <= 0)))
-
-    def autoscale_None(self, A):
-        # docstring inherited.
-        super().autoscale_None(np.ma.array(A, mask=(A <= 0)))
 
 
 @make_norm_from_scale(
