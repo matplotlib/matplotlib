@@ -928,7 +928,7 @@ class FigureFrameWx(wx.Frame):
         if mpl.rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2Wx(self.canvas)
         elif mpl.rcParams['toolbar'] == 'toolmanager':
-            toolbar = ToolbarWx(self.toolmanager, self)
+            toolbar = ToolbarWx(self.toolmanager)
         else:
             toolbar = None
         return toolbar
@@ -1190,7 +1190,9 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 # tools for matplotlib.backend_managers.ToolManager:
 
 class ToolbarWx(ToolContainerBase, wx.ToolBar):
-    def __init__(self, toolmanager, parent, style=wx.TB_BOTTOM):
+    def __init__(self, toolmanager, parent=None, style=wx.TB_BOTTOM):
+        if parent is None:
+            parent = toolmanager.canvas.GetParent()
         ToolContainerBase.__init__(self, toolmanager)
         wx.ToolBar.__init__(self, parent, -1, style=style)
         self._space = self.AddStretchableSpace()

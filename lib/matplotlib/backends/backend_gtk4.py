@@ -339,7 +339,7 @@ class FigureManagerGTK4(FigureManagerBase):
         # must be inited after the window, drawingArea and figure
         # attrs are set
         if mpl.rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2GTK4(self.canvas, self.window)
+            toolbar = NavigationToolbar2GTK4(self.canvas)
         elif mpl.rcParams['toolbar'] == 'toolmanager':
             toolbar = ToolbarGTK4(self.toolmanager)
         else:
@@ -364,8 +364,9 @@ class FigureManagerGTK4(FigureManagerBase):
 
 
 class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
-    def __init__(self, canvas, window):
-        self.win = window
+    @_api.delete_parameter("3.6", "window")
+    def __init__(self, canvas, window=None):
+        self._win = window
         Gtk.Box.__init__(self)
 
         self.add_css_class('toolbar')
@@ -406,6 +407,8 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
         self.append(self.message)
 
         _NavigationToolbar2GTK.__init__(self, canvas)
+
+    win = _api.deprecated("3.6")(property(lambda self: self._win))
 
     def save_figure(self, *args):
         dialog = Gtk.FileChooserNative(

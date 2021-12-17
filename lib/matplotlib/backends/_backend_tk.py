@@ -432,9 +432,9 @@ class FigureManagerTk(FigureManagerBase):
 
     def _get_toolbar(self):
         if mpl.rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2Tk(self.canvas, self.window)
+            toolbar = NavigationToolbar2Tk(self.canvas)
         elif mpl.rcParams['toolbar'] == 'toolmanager':
-            toolbar = ToolbarTk(self.toolmanager, self.window)
+            toolbar = ToolbarTk(self.toolmanager)
         else:
             toolbar = None
         return toolbar
@@ -506,24 +506,26 @@ class FigureManagerTk(FigureManagerBase):
 
 
 class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
-    """
-    Attributes
-    ----------
-    canvas : `FigureCanvas`
-        The figure canvas on which to operate.
-    win : tk.Window
-        The tk.Window which owns this toolbar.
-    pack_toolbar : bool, default: True
-        If True, add the toolbar to the parent's pack manager's packing list
-        during initialization with ``side='bottom'`` and ``fill='x'``.
-        If you want to use the toolbar with a different layout manager, use
-        ``pack_toolbar=False``.
-    """
-    def __init__(self, canvas, window, *, pack_toolbar=True):
-        # Avoid using self.window (prefer self.canvas.get_tk_widget().master),
-        # so that Tool implementations can reuse the methods.
-        self.window = window
+    window = _api.deprecated("3.6", alternative="self.master")(
+        property(lambda self: self.master))
 
+    def __init__(self, canvas, window=None, *, pack_toolbar=True):
+        """
+        Parameters
+        ----------
+        canvas : `FigureCanvas`
+            The figure canvas on which to operate.
+        window : tk.Window
+            The tk.Window which owns this toolbar.
+        pack_toolbar : bool, default: True
+            If True, add the toolbar to the parent's pack manager's packing
+            list during initialization with ``side="bottom"`` and ``fill="x"``.
+            If you want to use the toolbar with a different layout manager, use
+            ``pack_toolbar=False``.
+        """
+
+        if window is None:
+            window = canvas.get_tk_widget().master
         tk.Frame.__init__(self, master=window, borderwidth=2,
                           width=int(canvas.figure.bbox.width), height=50)
 
@@ -809,8 +811,10 @@ class SetCursorTk(backend_tools.SetCursorBase):
 
 
 class ToolbarTk(ToolContainerBase, tk.Frame):
-    def __init__(self, toolmanager, window):
+    def __init__(self, toolmanager, window=None):
         ToolContainerBase.__init__(self, toolmanager)
+        if window is None:
+            window = self.toolmanager.canvas.get_tk_widget().master
         xmin, xmax = self.toolmanager.canvas.figure.bbox.intervalx
         height, width = 50, xmax - xmin
         tk.Frame.__init__(self, master=window,
