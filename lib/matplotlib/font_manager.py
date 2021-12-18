@@ -420,7 +420,7 @@ FontEntry = dataclasses.make_dataclass(
 )
 
 
-def ttfFontProperty(font):
+def ttfFontProperty(font, path=None):
     """
     Extract information from a TrueType font file.
 
@@ -428,6 +428,9 @@ def ttfFontProperty(font):
     ----------
     font : `.FT2Font`
         The TrueType font file from which information will be extracted.
+    path : str, default None
+        String specifying the file path of font file if file-like object
+        passed to FT2Font
 
     Returns
     -------
@@ -544,7 +547,7 @@ def ttfFontProperty(font):
         raise NotImplementedError("Non-scalable fonts are not supported")
     size = 'scalable'
 
-    return FontEntry(font.fname, name, style, variant, weight, stretch, size)
+    return FontEntry(path or font.fname, name, style, variant, weight, stretch, size)
 
 
 def afmFontProperty(fontpath, font):
@@ -1114,7 +1117,7 @@ class FontManager:
             with open(path, "rb") as fh:
                 bio = BytesIO(fh.read())
             font = ft2font.FT2Font(bio)
-            prop = ttfFontProperty(font)
+            prop = ttfFontProperty(font, path)
             self.ttflist.append(prop)
         self._findfont_cached.cache_clear()
 
