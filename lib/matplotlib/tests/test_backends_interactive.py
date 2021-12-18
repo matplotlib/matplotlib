@@ -503,3 +503,46 @@ def test_blitting_events(env):
     # blitting is not properly implemented
     ndraws = proc.stdout.count("DrawEvent")
     assert 0 < ndraws < 5
+
+
+# The source of this function gets extracted and run in another process, so it
+# must be fully self-contained.
+def _test_figure_leak():
+    import sys
+
+    import psutil
+    from matplotlib import pyplot as plt
+    # Second argument is pause length, but if zero we should skip pausing
+    t = float(sys.argv[1])
+
+    # Warmup cycle, this reasonably allocates a lot
+    p = psutil.Process()
+    fig = plt.figure()
+    if t:
+        plt.pause(t)
+    plt.close(fig)
+    mem = p.memory_full_info().uss
+
+    for _ in range(5):
+        fig = plt.figure()
+        if t:
+            plt.pause(t)
+        plt.close(fig)
+    growth = p.memory_full_info().uss - mem
+
+    print(growth)
+
+
+@pytest.mark.parametrize("env", _get_testable_interactive_backends())
+@pytest.mark.parametrize("time", ["0.0", "0.1"])
+def test_figure_leak_20490(env, time):
+    pytest.importorskip("psutil", reason="psutil needed to run this test")
+
+    # We can't yet directly identify the leak
+    # so test with a memory growth threshold
+    acceptable_memory_leakage = 2_000_000
+
+    result = _run_helper(_test_figure_leak, time, timeout=_test_timeout, **env)
+
+    growth = int(result.stdout)
+    assert growth <= acceptable_memory_leakage
