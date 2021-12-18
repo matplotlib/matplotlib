@@ -1111,7 +1111,9 @@ class FontManager:
             prop = afmFontProperty(path, font)
             self.afmlist.append(prop)
         else:
-            font = ft2font.FT2Font(path)
+            with open(path, "rb") as fh:
+                bio = BytesIO(fh.read())
+            font = ft2font.FT2Font(bio)
             prop = ttfFontProperty(font)
             self.ttflist.append(prop)
         self._findfont_cached.cache_clear()
@@ -1429,8 +1431,10 @@ def is_opentype_cff_font(filename):
 
 @lru_cache(64)
 def _get_font(filename, hinting_factor, *, _kerning_factor, thread_id):
+    with open(filename, "rb") as fh:
+        bio = BytesIO(fh.read())
     return ft2font.FT2Font(
-        filename, hinting_factor, _kerning_factor=_kerning_factor)
+        bio, hinting_factor, _kerning_factor=_kerning_factor)
 
 
 # FT2Font objects cannot be used across fork()s because they reference the same
