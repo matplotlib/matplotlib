@@ -3,6 +3,7 @@ from matplotlib.tri.triangulation import Triangulation
 import matplotlib.cbook as cbook
 import matplotlib.lines as mlines
 
+
 def triplot(ax, *args, **kwargs):
     """
     Draw a unstructured triangular grid as lines and/or markers.
