@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib.tri.triangulation import Triangulation
-
+import matplotlib.cbook as cbook
+import matplotlib.lines as mlines
 
 def triplot(ax, *args, **kwargs):
     """
@@ -42,6 +43,7 @@ def triplot(ax, *args, **kwargs):
     linestyle, marker, color = matplotlib.axes._base._process_plot_format(fmt)
 
     # Insert plot format string into a copy of kwargs (kwargs values prevail).
+    kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
     kw = kwargs.copy()
     for key, val in zip(('linestyle', 'marker', 'color'),
                         (linestyle, marker, color)):
