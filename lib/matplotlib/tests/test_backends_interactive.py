@@ -195,8 +195,7 @@ def _test_thread_impl():
     future = ThreadPoolExecutor().submit(fig.canvas.draw)
     plt.pause(0.5)  # flush_events fails here on at least Tkagg (bpo-41176)
     future.result()  # Joins the thread; rethrows any exception.
-    plt.close()
-    fig.canvas.flush_events()  # pause doesn't process events after close
+    plt.close()  # backend is responsible for flushing any events here
 
 
 _thread_safe_backends = _get_testable_interactive_backends()
