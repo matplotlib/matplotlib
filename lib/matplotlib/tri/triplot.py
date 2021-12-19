@@ -48,7 +48,7 @@ def triplot(ax, *args, **kwargs):
     for key, val in zip(('linestyle', 'marker', 'color'),
                         (linestyle, marker, color)):
         if val is not None:
-            kw[key] = kwargs.get(key, val)
+            kw[key] = kw.get(key, val)
 
     # Draw lines without markers.
     # Note 1: If we drew markers here, most markers would be drawn more than
