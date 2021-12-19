@@ -57,7 +57,12 @@ elif sys.modules.get("PySide2.QtCore"):
 # requested backend actually matches).  Use dict.__getitem__ to avoid
 # triggering backend resolution (which can result in a partially but
 # incompletely imported backend_qt5).
-elif dict.__getitem__(mpl.rcParams, "backend") in ["Qt5Agg", "Qt5Cairo"]:
+elif (
+        isinstance(dict.__getitem__(mpl.rcParams, "backend"), str) and
+        dict.__getitem__(mpl.rcParams, "backend").lower() in [
+            "qt5agg", "qt5cairo"
+        ]
+):
     if QT_API_ENV in ["pyqt5", "pyside2"]:
         QT_API = _ETS[QT_API_ENV]
     else:
