@@ -373,6 +373,7 @@ def test_mathtext_fallback(fallback, fontlist):
 def test_math_to_image(tmpdir):
     mathtext.math_to_image('$x^2$', str(tmpdir.join('example.png')))
     mathtext.math_to_image('$x^2$', io.BytesIO())
+    mathtext.math_to_image('$x^2$', io.BytesIO(), color='Maroon')
 
 
 def test_mathtext_to_png(tmpdir):

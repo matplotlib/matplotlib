@@ -563,7 +563,8 @@ class MathTextParser:
         return depth
 
 
-def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None):
+def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None,
+                  color=None):
     """
     Given a math expression, renders it in a closely-clipped bounding
     box to an image file.
@@ -582,6 +583,8 @@ def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None):
     format : str, optional
         The output format, e.g., 'svg', 'pdf', 'ps' or 'png'.  If not set, the
         format is determined as for `.Figure.savefig`.
+    color : str, optional
+        Foreground color, if not set the color is determined by rc params.
     """
     from matplotlib import figure
 
@@ -589,7 +592,7 @@ def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None):
     width, height, depth, _, _ = parser.parse(s, dpi=72, prop=prop)
 
     fig = figure.Figure(figsize=(width / 72.0, height / 72.0))
-    fig.text(0, depth/height, s, fontproperties=prop)
+    fig.text(0, depth/height, s, fontproperties=prop, color=color)
     fig.savefig(filename_or_obj, dpi=dpi, format=format)
 
     return depth
