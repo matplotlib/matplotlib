@@ -7,14 +7,20 @@ import platform
 import signal
 import subprocess
 import sys
+import textwrap
 import time
 import urllib.request
-import textwrap
 
 import pytest
 
 import matplotlib as mpl
 from matplotlib import _c_internal_utils
+
+
+def _run_function_in_subprocess(func):
+    func_source = textwrap.dedent(inspect.getsource(func))
+    func_source = func_source[func_source.index('\n')+1:]  # Remove decorator
+    return f"{func_source}\n{func.__name__}()"
 
 
 # Minimal smoke-testing of the backends for which the dependencies are
@@ -258,6 +264,7 @@ def test_interactive_thread_safety(env):
 
 def test_lazy_auto_backend_selection():
 
+    @_run_function_in_subprocess
     def _impl():
         import matplotlib
         import matplotlib.pyplot as plt
@@ -272,8 +279,66 @@ def test_lazy_auto_backend_selection():
         assert isinstance(bk, str)
 
     proc = subprocess.run(
-        [sys.executable, "-c",
-         textwrap.dedent(inspect.getsource(_impl)) + "\n_impl()"],
+        [sys.executable, "-c", _impl],
+        env={**os.environ, "SOURCE_DATE_EPOCH": "0"},
+        timeout=_test_timeout, check=True,
+        stdout=subprocess.PIPE, universal_newlines=True)
+
+
+def test_qt5backends_uses_qt5():
+
+    qt5_bindings = [
+        dep for dep in ['PyQt5', 'pyside2']
+        if importlib.util.find_spec(dep) is not None
+    ]
+    qt6_bindings = [
+        dep for dep in ['PyQt6', 'pyside6']
+        if importlib.util.find_spec(dep) is not None
+    ]
+    if len(qt5_bindings) == 0 or len(qt6_bindings) == 0:
+        pytest.skip('need both QT6 and QT5 bindings')
+
+    @_run_function_in_subprocess
+    def _implagg():
+        import matplotlib.backends.backend_qt5agg  # noqa
+        import sys
+
+        assert 'PyQt6' not in sys.modules
+        assert 'pyside6' not in sys.modules
+        assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
+
+    @_run_function_in_subprocess
+    def _implcairo():
+        import matplotlib.backends.backend_qt5cairo # noqa
+        import sys
+
+        assert 'PyQt6' not in sys.modules
+        assert 'pyside6' not in sys.modules
+        assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
+
+    @_run_function_in_subprocess
+    def _implcore():
+        import matplotlib.backends.backend_qt5 # noqa
+        import sys
+
+        assert 'PyQt6' not in sys.modules
+        assert 'pyside6' not in sys.modules
+        assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
+
+    subprocess.run(
+        [sys.executable, "-c", _implagg],
+        env={**os.environ, "SOURCE_DATE_EPOCH": "0"},
+        timeout=_test_timeout, check=True,
+        stdout=subprocess.PIPE, universal_newlines=True)
+
+    subprocess.run(
+        [sys.executable, "-c", _implcairo],
+        env={**os.environ, "SOURCE_DATE_EPOCH": "0"},
+        timeout=_test_timeout, check=True,
+        stdout=subprocess.PIPE, universal_newlines=True)
+
+    subprocess.run(
+        [sys.executable, "-c", _implcore],
         env={**os.environ, "SOURCE_DATE_EPOCH": "0"},
         timeout=_test_timeout, check=True,
         stdout=subprocess.PIPE, universal_newlines=True)

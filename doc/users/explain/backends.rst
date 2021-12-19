@@ -244,7 +244,8 @@ The :envvar:`QT_API` environment variable can be set to override the search
 when nothing has already been loaded. It may be set to (case-insensitively)
 PyQt6, PySide6, PyQt5, or PySide2 to pick the version and binding to use. If
 the chosen implementation is unavailable, the Qt backend will fail to load
-without attempting any other Qt implementations.
+without attempting any other Qt implementations.  See :ref:`QT_bindings` for
+more details.
 
 Using non-builtin backends
 --------------------------
