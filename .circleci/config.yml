@@ -138,6 +138,14 @@ commands:
           paths:
             - doc/build/doctrees
 
+  doc-linkcheck:
+    steps:
+      - run:
+          name: Check documentation links
+          command: |
+            make linkcheck
+          working_directory: doc
+
   doc-bundle:
     steps:
       - run:
@@ -169,6 +177,7 @@ jobs:
       - mpl-install
 
       - doc-build
+      - doc-linkcheck
 
       - doc-bundle
 
