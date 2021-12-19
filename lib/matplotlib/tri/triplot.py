@@ -44,8 +44,7 @@ def triplot(ax, *args, **kwargs):
     linestyle, marker, color = matplotlib.axes._base._process_plot_format(fmt)
 
     # Insert plot format string into a copy of kwargs (kwargs values prevail).
-    kwargs = cbook.normalize_kwargs(kwargs, mlines.Line2D)
-    kw = kwargs.copy()
+    kw = cbook.normalize_kwargs(kwargs, mlines.Line2D)
     for key, val in zip(('linestyle', 'marker', 'color'),
                         (linestyle, marker, color)):
         if val is not None:
