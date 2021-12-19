@@ -139,10 +139,7 @@ Examples
    :maxdepth: 1
 
    ../gallery/animation/animate_decay
-   ../gallery/animation/bayes_update
-   ../gallery/animation/double_pendulum
    ../gallery/animation/animated_histogram
-   ../gallery/animation/rain
    ../gallery/animation/random_walk
    ../gallery/animation/simple_anim
    ../gallery/animation/strip_chart

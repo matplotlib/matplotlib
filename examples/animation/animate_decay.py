@@ -3,10 +3,7 @@
 Decay
 =====
 
-This example showcases:
-
-- using a generator to drive an animation,
-- changing axes limits during an animation.
+This example showcases using a generator to drive an animation,
 """
 
 import itertools
@@ -50,5 +47,5 @@ def run(data):
 
     return line,
 
-ani = animation.FuncAnimation(fig, run, data_gen, interval=10, init_func=init)
+ani = animation.FuncAnimation(fig, run, data_gen, interval=5, init_func=init)
 plt.show()

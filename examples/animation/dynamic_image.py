@@ -15,6 +15,7 @@ fig, ax = plt.subplots()
 def f(x, y):
     return np.sin(x) + np.cos(y)
 
+
 x = np.linspace(0, 2 * np.pi, 120)
 y = np.linspace(0, 2 * np.pi, 100).reshape(-1, 1)
 
