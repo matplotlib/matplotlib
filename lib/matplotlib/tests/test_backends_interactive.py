@@ -9,6 +9,7 @@ import subprocess
 import sys
 import time
 import urllib.request
+import textwrap
 
 import pytest
 
@@ -253,6 +254,29 @@ def test_interactive_thread_safety(env):
         timeout=_test_timeout, check=True,
         stdout=subprocess.PIPE, universal_newlines=True)
     assert proc.stdout.count("CloseEvent") == 1
+
+
+def test_lazy_auto_backend_selection():
+
+    def _impl():
+        import matplotlib
+        import matplotlib.pyplot as plt
+        # just importing pyplot should not be enough to trigger resolution
+        bk = dict.__getitem__(matplotlib.rcParams, 'backend')
+        assert not isinstance(bk, str)
+        assert plt._backend_mod is None
+        # but actually plotting should
+        plt.plot(5)
+        assert plt._backend_mod is not None
+        bk = dict.__getitem__(matplotlib.rcParams, 'backend')
+        assert isinstance(bk, str)
+
+    proc = subprocess.run(
+        [sys.executable, "-c",
+         textwrap.dedent(inspect.getsource(_impl)) + "\n_impl()"],
+        env={**os.environ, "SOURCE_DATE_EPOCH": "0"},
+        timeout=_test_timeout, check=True,
+        stdout=subprocess.PIPE, universal_newlines=True)
 
 
 @pytest.mark.skipif('TF_BUILD' in os.environ,
