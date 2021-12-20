@@ -9,7 +9,7 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
 from matplotlib.path import Path
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
 def test_delaunay():
@@ -19,9 +19,9 @@ def test_delaunay():
     x, y = np.meshgrid(np.linspace(0.0, 1.0, nx), np.linspace(0.0, 1.0, ny))
     x = x.ravel()
     y = y.ravel()
-    npoints = nx*ny
-    ntriangles = 2 * (nx-1) * (ny-1)
-    nedges = 3*nx*ny - 2*nx - 2*ny + 1
+    npoints = nx * ny
+    ntriangles = 2 * (nx - 1) * (ny - 1)
+    nedges = 3 * nx * ny - 2 * nx - 2 * ny + 1
 
     # Create delaunay triangulation.
     triang = mtri.Triangulation(x, y)
@@ -36,12 +36,12 @@ def test_delaunay():
     # Triangles - integers.
     assert len(triang.triangles) == ntriangles
     assert np.min(triang.triangles) == 0
-    assert np.max(triang.triangles) == npoints-1
+    assert np.max(triang.triangles) == npoints - 1
 
     # Edges - integers.
     assert len(triang.edges) == nedges
     assert np.min(triang.edges) == 0
-    assert np.max(triang.edges) == npoints-1
+    assert np.max(triang.edges) == npoints - 1
 
     # Neighbors - integers.
     # Check that neighbors calculated by C++ triangulation class are the same
@@ -151,8 +151,8 @@ def test_delaunay_robust():
 
 @image_comparison(['tripcolor1.png'])
 def test_tripcolor():
-    x = np.asarray([0, 0.5, 1, 0,   0.5, 1,   0, 0.5, 1, 0.75])
-    y = np.asarray([0, 0,   0, 0.5, 0.5, 0.5, 1, 1,   1, 0.75])
+    x = np.asarray([0, 0.5, 1, 0, 0.5, 1, 0, 0.5, 1, 0.75])
+    y = np.asarray([0, 0, 0, 0.5, 0.5, 0.5, 1, 1, 1, 0.75])
     triangles = np.asarray([
         [0, 1, 3], [1, 4, 3],
         [1, 2, 4], [2, 5, 4],
@@ -162,11 +162,11 @@ def test_tripcolor():
     # Triangulation with same number of points and triangles.
     triang = mtri.Triangulation(x, y, triangles)
 
-    Cpoints = x + 0.5*y
+    Cpoints = x + 0.5 * y
 
     xmid = x[triang.triangles].mean(axis=1)
     ymid = y[triang.triangles].mean(axis=1)
-    Cfaces = 0.5*xmid + ymid
+    Cfaces = 0.5 * xmid + ymid
 
     plt.subplot(121)
     plt.tripcolor(triang, Cpoints, edgecolors='k')
@@ -209,7 +209,7 @@ def test_trifinder():
     tris = trifinder(xs, ys)
     assert_array_equal(tris, [0, 2, 4, -1, 6, -1, 10, -1,
                               12, 14, 16, -1, -1, -1, -1, -1])
-    tris = trifinder(xs-0.5, ys-0.5)
+    tris = trifinder(xs - 0.5, ys - 0.5)
     assert_array_equal(tris, [-1, -1, -1, -1, -1, 1, 3, 5,
                               -1, 7, -1, 11, -1, 13, 15, 17])
 
@@ -234,8 +234,8 @@ def test_trifinder():
     # if zero have colinear points but should pass tests anyway.
     delta = 0.0
 
-    x = [1.5, 0,  1,  2, 3, 1.5,   1.5]
-    y = [-1,  0,  0,  0, 0, delta, 1]
+    x = [1.5, 0, 1, 2, 3, 1.5, 1.5]
+    y = [-1, 0, 0, 0, 0, delta, 1]
     triangles = [[0, 2, 1], [0, 3, 2], [0, 4, 3], [1, 2, 5], [2, 3, 5],
                  [3, 4, 5], [1, 5, 6], [4, 6, 5]]
     triang = mtri.Triangulation(x, y, triangles)
@@ -257,8 +257,8 @@ def test_trifinder():
     # if zero have colinear points but should pass tests anyway.
     delta = 0.0
 
-    x = [-1, -delta, 0,  0,  0, 0, 1]
-    y = [1.5, 1.5,   0,  1,  2, 3, 1.5]
+    x = [-1, -delta, 0, 0, 0, 0, 1]
+    y = [1.5, 1.5, 0, 1, 2, 3, 1.5]
     triangles = [[0, 1, 2], [0, 1, 5], [1, 2, 3], [1, 3, 4], [1, 4, 5],
                  [2, 6, 3], [3, 6, 4], [4, 6, 5]]
     triang = mtri.Triangulation(x, y, triangles)
@@ -295,7 +295,7 @@ def test_triinterp():
     x, y = np.meshgrid(np.arange(4), np.arange(4))
     x = x.ravel()
     y = y.ravel()
-    z = 1.23*x - 4.79*y
+    z = 1.23 * x - 4.79 * y
     triangles = [[0, 1, 4], [1, 5, 4], [1, 2, 5], [2, 6, 5], [2, 3, 6],
                  [3, 7, 6], [4, 5, 8], [5, 9, 8], [5, 6, 9], [6, 10, 9],
                  [6, 7, 10], [7, 11, 10], [8, 9, 12], [9, 13, 12], [9, 10, 13],
@@ -312,7 +312,7 @@ def test_triinterp():
     xs, ys = np.meshgrid(xs, ys)  # Testing arrays with array.ndim = 2
     for interp in (linear_interp, cubic_min_E, cubic_geom):
         zs = interp(xs, ys)
-        assert_array_almost_equal(zs, (1.23*xs - 4.79*ys))
+        assert_array_almost_equal(zs, (1.23 * xs - 4.79 * ys))
 
     # Test points outside triangulation.
     xs = [-0.25, 1.25, 1.75, 3.25]
@@ -320,7 +320,7 @@ def test_triinterp():
     xs, ys = np.meshgrid(xs, ys)
     for interp in (linear_interp, cubic_min_E, cubic_geom):
         zs = linear_interp(xs, ys)
-        assert_array_equal(zs.mask, [[True]*4]*4)
+        assert_array_equal(zs.mask, [[True] * 4] * 4)
 
     # Test mixed configuration (outside / inside).
     xs = np.linspace(0.25, 1.75, 6)
@@ -328,7 +328,7 @@ def test_triinterp():
     xs, ys = np.meshgrid(xs, ys)
     for interp in (linear_interp, cubic_min_E, cubic_geom):
         zs = interp(xs, ys)
-        matest.assert_array_almost_equal(zs, (1.23*xs - 4.79*ys))
+        matest.assert_array_almost_equal(zs, (1.23 * xs - 4.79 * ys))
         mask = (xs >= 1) * (xs <= 2) * (ys >= 1) * (ys <= 2)
         assert_array_equal(zs.mask, mask)
 
@@ -338,10 +338,10 @@ def test_triinterp():
     (a, b, c) = (1.23, -4.79, 0.6)
 
     def quad(x, y):
-        return a*(x-0.5)**2 + b*(y-0.5)**2 + c*x*y
+        return a * (x - 0.5)**2 + b * (y - 0.5)**2 + c * x * y
 
     def gradient_quad(x, y):
-        return (2*a*(x-0.5) + c*y, 2*b*(y-0.5) + c*x)
+        return (2 * a * (x - 0.5) + c * y, 2 * b * (y - 0.5) + c * x)
 
     x = np.array([0.2, 0.33367, 0.669, 0., 1., 1., 0.])
     y = np.array([0.3, 0.80755, 0.4335, 0., 0., 1., 1.])
@@ -365,11 +365,11 @@ def test_triinterp():
     # Cubic improvement: cubic interpolation shall perform better than linear
     # on a sufficiently dense mesh for a quadratic function.
     n = 11
-    x, y = np.meshgrid(np.linspace(0., 1., n+1), np.linspace(0., 1., n+1))
+    x, y = np.meshgrid(np.linspace(0., 1., n + 1), np.linspace(0., 1., n + 1))
     x = x.ravel()
     y = y.ravel()
     z = quad(x, y)
-    triang = mtri.Triangulation(x, y, triangles=meshgrid_triangles(n+1))
+    triang = mtri.Triangulation(x, y, triangles=meshgrid_triangles(n + 1))
     xs, ys = np.meshgrid(np.linspace(0.1, 0.9, 5), np.linspace(0.1, 0.9, 5))
     xs = xs.ravel()
     ys = ys.ravel()
@@ -414,8 +414,8 @@ def test_triinterpcubic_C1_continuity():
         epsilon = 1.e-10  # Distance for loc boundary
         k = 100.          # Continuity coefficient
         (loc_x, loc_y) = loc
-        star_x = loc_x + epsilon*np.cos(np.linspace(0., 2*np.pi, n_star))
-        star_y = loc_y + epsilon*np.sin(np.linspace(0., 2*np.pi, n_star))
+        star_x = loc_x + epsilon * np.cos(np.linspace(0., 2 * np.pi, n_star))
+        star_y = loc_y + epsilon * np.sin(np.linspace(0., 2 * np.pi, n_star))
         z = interpolator([loc_x], [loc_y])[0]
         (dzx, dzy) = interpolator.gradient([loc_x], [loc_y])
         if values is not None:
@@ -426,9 +426,9 @@ def test_triinterpcubic_C1_continuity():
         (tab_dzx, tab_dzy) = interpolator.gradient(star_x, star_y)
         diff_dzx = tab_dzx - dzx
         diff_dzy = tab_dzy - dzy
-        assert_array_less(diff_z, epsilon*k)
-        assert_array_less(diff_dzx, epsilon*k)
-        assert_array_less(diff_dzy, epsilon*k)
+        assert_array_less(diff_z, epsilon * k)
+        assert_array_less(diff_dzx, epsilon * k)
+        assert_array_less(diff_dzy, epsilon * k)
 
     # Drawing arbitrary triangle (a, b, c) inside a unit square.
     (ax, ay) = (0.2, 0.3)
@@ -445,7 +445,7 @@ def test_triinterpcubic_C1_continuity():
         dzx = np.zeros(7, dtype=np.float64)
         dzy = np.zeros(7, dtype=np.float64)
         values = np.zeros([3, 3], dtype=np.float64)
-        case = idof//3
+        case = idof // 3
         values[case, idof % 3] = 1.0
         if case == 0:
             z[idof] = 1.0
@@ -460,15 +460,18 @@ def test_triinterpcubic_C1_continuity():
         check_continuity(interp, (bx, by), values[:, 1])
         check_continuity(interp, (cx, cy), values[:, 2])
         # Test 2) Checking continuity at midside nodes
-        check_continuity(interp, ((ax+bx)*0.5, (ay+by)*0.5))
-        check_continuity(interp, ((ax+cx)*0.5, (ay+cy)*0.5))
-        check_continuity(interp, ((cx+bx)*0.5, (cy+by)*0.5))
+        check_continuity(interp, ((ax + bx) * 0.5, (ay + by) * 0.5))
+        check_continuity(interp, ((ax + cx) * 0.5, (ay + cy) * 0.5))
+        check_continuity(interp, ((cx + bx) * 0.5, (cy + by) * 0.5))
         # Test 3) Checking continuity at barycenter
-        check_continuity(interp, ((ax+bx+cx)/3., (ay+by+cy)/3.))
+        check_continuity(interp, ((ax + bx + cx) / 3., (ay + by + cy) / 3.))
         # Test 4) Checking continuity at median 1/3-point
-        check_continuity(interp, ((4.*ax+bx+cx)/6., (4.*ay+by+cy)/6.))
-        check_continuity(interp, ((ax+4.*bx+cx)/6., (ay+4.*by+cy)/6.))
-        check_continuity(interp, ((ax+bx+4.*cx)/6., (ay+by+4.*cy)/6.))
+        check_continuity(interp, ((4. * ax + bx + cx) /
+                         6., (4. * ay + by + cy) / 6.))
+        check_continuity(interp, ((ax + 4. * bx + cx) /
+                         6., (ay + 4. * by + cy) / 6.))
+        check_continuity(interp, ((ax + bx + 4. * cx) /
+                         6., (ay + by + 4. * cy) / 6.))
 
 
 def test_triinterpcubic_cg_solver():
@@ -481,23 +484,25 @@ def test_triinterpcubic_cg_solver():
         discretisation of the 2-dimensional Poisson equation according to a
         finite difference numerical scheme on a uniform (n, m) grid.
         """
-        l = m*n
+        l = m * n
         rows = np.concatenate([
             np.arange(l, dtype=np.int32),
-            np.arange(l-1, dtype=np.int32), np.arange(1, l, dtype=np.int32),
-            np.arange(l-n, dtype=np.int32), np.arange(n, l, dtype=np.int32)])
+            np.arange(l - 1, dtype=np.int32), np.arange(1, l, dtype=np.int32),
+            np.arange(l - n, dtype=np.int32), np.arange(n, l, dtype=np.int32)])
         cols = np.concatenate([
             np.arange(l, dtype=np.int32),
-            np.arange(1, l, dtype=np.int32), np.arange(l-1, dtype=np.int32),
-            np.arange(n, l, dtype=np.int32), np.arange(l-n, dtype=np.int32)])
+            np.arange(1, l, dtype=np.int32), np.arange(l - 1, dtype=np.int32),
+            np.arange(n, l, dtype=np.int32), np.arange(l - n, dtype=np.int32)])
         vals = np.concatenate([
-            4*np.ones(l, dtype=np.float64),
-            -np.ones(l-1, dtype=np.float64), -np.ones(l-1, dtype=np.float64),
-            -np.ones(l-n, dtype=np.float64), -np.ones(l-n, dtype=np.float64)])
+            4 * np.ones(l, dtype=np.float64),
+            -np.ones(l - 1, dtype=np.float64), -
+            np.ones(l - 1, dtype=np.float64),
+            -np.ones(l - n, dtype=np.float64), -
+            np.ones(l - n, dtype=np.float64)])
         # In fact +1 and -1 diags have some zeros
-        vals[l:2*l-1][m-1::m] = 0.
-        vals[2*l-1:3*l-2][m-1::m] = 0.
-        return vals, rows, cols, (n*m, n*m)
+        vals[l:2 * l - 1][m - 1::m] = 0.
+        vals[2 * l - 1:3 * l - 2][m - 1::m] = 0.
+        return vals, rows, cols, (n * m, n * m)
 
     # Instantiating a sparse Poisson matrix of size 48 x 48:
     (n, m) = (12, 4)
@@ -505,10 +510,10 @@ def test_triinterpcubic_cg_solver():
     mat.compress_csc()
     mat_dense = mat.to_dense()
     # Testing a sparse solve for all 48 basis vector
-    for itest in range(n*m):
-        b = np.zeros(n*m, dtype=np.float64)
+    for itest in range(n * m):
+        b = np.zeros(n * m, dtype=np.float64)
         b[itest] = 1.
-        x, _ = mtri.triinterpolate._cg(A=mat, b=b, x0=np.zeros(n*m),
+        x, _ = mtri.triinterpolate._cg(A=mat, b=b, x0=np.zeros(n * m),
                                        tol=1.e-10)
         assert_array_almost_equal(np.dot(mat_dense, x), b)
 
@@ -516,21 +521,21 @@ def test_triinterpcubic_cg_solver():
     # (but still linked with the rest of the matrix by extra-diag terms)
     (i_zero, j_zero) = (12, 49)
     vals, rows, cols, _ = poisson_sparse_matrix(n, m)
-    rows = rows + 1*(rows >= i_zero) + 1*(rows >= j_zero)
-    cols = cols + 1*(cols >= i_zero) + 1*(cols >= j_zero)
+    rows = rows + 1 * (rows >= i_zero) + 1 * (rows >= j_zero)
+    cols = cols + 1 * (cols >= i_zero) + 1 * (cols >= j_zero)
     # adding extra-diag terms
-    rows = np.concatenate([rows, [i_zero, i_zero-1, j_zero, j_zero-1]])
-    cols = np.concatenate([cols, [i_zero-1, i_zero, j_zero-1, j_zero]])
+    rows = np.concatenate([rows, [i_zero, i_zero - 1, j_zero, j_zero - 1]])
+    cols = np.concatenate([cols, [i_zero - 1, i_zero, j_zero - 1, j_zero]])
     vals = np.concatenate([vals, [1., 1., 1., 1.]])
     mat = mtri.triinterpolate._Sparse_Matrix_coo(vals, rows, cols,
-                                                 (n*m + 2, n*m + 2))
+                                                 (n * m + 2, n * m + 2))
     mat.compress_csc()
     mat_dense = mat.to_dense()
     # Testing a sparse solve for all 50 basis vec
-    for itest in range(n*m + 2):
-        b = np.zeros(n*m + 2, dtype=np.float64)
+    for itest in range(n * m + 2):
+        b = np.zeros(n * m + 2, dtype=np.float64)
         b[itest] = 1.
-        x, _ = mtri.triinterpolate._cg(A=mat, b=b, x0=np.ones(n*m + 2),
+        x, _ = mtri.triinterpolate._cg(A=mat, b=b, x0=np.ones(n * m + 2),
                                        tol=1.e-10)
         assert_array_almost_equal(np.dot(mat_dense, x), b)
 
@@ -555,14 +560,14 @@ def test_triinterpcubic_geom_weights():
     # or (2*w_i) where w_i = 1-alpha_i/np.pi is the weight of apex i; alpha_i
     # is the apex angle > 90 degrees.
     (ax, ay) = (0., 1.687)
-    x = np.array([ax, 0.5*ax, 0., 1.])
+    x = np.array([ax, 0.5 * ax, 0., 1.])
     y = np.array([ay, -ay, 0., 0.])
     z = np.zeros(4, dtype=np.float64)
     triangles = [[0, 2, 3], [1, 3, 2]]
     sum_w = np.zeros([4, 2])  # 4 possibilities; 2 triangles
-    for theta in np.linspace(0., 2*np.pi, 14):  # rotating the figure...
-        x_rot = np.cos(theta)*x + np.sin(theta)*y
-        y_rot = -np.sin(theta)*x + np.cos(theta)*y
+    for theta in np.linspace(0., 2 * np.pi, 14):  # rotating the figure...
+        x_rot = np.cos(theta) * x + np.sin(theta) * y
+        y_rot = -np.sin(theta) * x + np.cos(theta) * y
         triang = mtri.Triangulation(x_rot, y_rot, triangles)
         cubic_geom = mtri.CubicTriInterpolator(triang, z, kind='geom')
         dof_estimator = mtri.triinterpolate._DOF_estimator_geom(cubic_geom)
@@ -570,7 +575,7 @@ def test_triinterpcubic_geom_weights():
         # Testing for the 4 possibilities...
         sum_w[0, :] = np.sum(weights, 1) - 1
         for itri in range(3):
-            sum_w[itri+1, :] = np.sum(weights, 1) - 2*weights[:, itri]
+            sum_w[itri + 1, :] = np.sum(weights, 1) - 2 * weights[:, itri]
         assert_array_almost_equal(np.min(np.abs(sum_w), axis=0),
                                   np.array([0., 0.], dtype=np.float64))
 
@@ -591,8 +596,8 @@ def test_triinterp_colinear():
     # if zero have colinear points but should pass tests anyway.
     delta = 0.
 
-    x0 = np.array([1.5, 0,  1,  2, 3, 1.5,   1.5])
-    y0 = np.array([-1,  0,  0,  0, 0, delta, 1])
+    x0 = np.array([1.5, 0, 1, 2, 3, 1.5, 1.5])
+    y0 = np.array([-1, 0, 0, 0, 0, delta, 1])
 
     # We test different affine transformations of the initial figure; to
     # avoid issues related to round-off errors we only use integer
@@ -600,10 +605,10 @@ def test_triinterp_colinear():
     # delta == 0).
     transformations = [[1, 0], [0, 1], [1, 1], [1, 2], [-2, -1], [-2, 1]]
     for transformation in transformations:
-        x_rot = transformation[0]*x0 + transformation[1]*y0
-        y_rot = -transformation[1]*x0 + transformation[0]*y0
+        x_rot = transformation[0] * x0 + transformation[1] * y0
+        y_rot = -transformation[1] * x0 + transformation[0] * y0
         (x, y) = (x_rot, y_rot)
-        z = 1.23*x - 4.79*y
+        z = 1.23 * x - 4.79 * y
         triangles = [[0, 2, 1], [0, 3, 2], [0, 4, 3], [1, 2, 5], [2, 3, 5],
                      [3, 4, 5], [1, 5, 6], [4, 6, 5]]
         triang = mtri.Triangulation(x, y, triangles)
@@ -613,7 +618,7 @@ def test_triinterp_colinear():
         xs = xs.ravel()
         ys = ys.ravel()
         mask_out = (triang.get_trifinder()(xs, ys) == -1)
-        zs_target = np.ma.array(1.23*xs - 4.79*ys, mask=mask_out)
+        zs_target = np.ma.array(1.23 * xs - 4.79 * ys, mask=mask_out)
 
         linear_interp = mtri.LinearTriInterpolator(triang, z)
         cubic_min_E = mtri.CubicTriInterpolator(triang, z)
@@ -630,10 +635,10 @@ def test_triinterp_colinear():
         pt2 = triang.triangles[itri, 1]
         xs = np.linspace(triang.x[pt1], triang.x[pt2], 10)
         ys = np.linspace(triang.y[pt1], triang.y[pt2], 10)
-        zs_target = 1.23*xs - 4.79*ys
+        zs_target = 1.23 * xs - 4.79 * ys
         for interp in (linear_interp, cubic_min_E, cubic_geom):
             zs, = interp._interpolate_multikeys(
-                xs, ys, tri_index=itri*np.ones(10, dtype=np.int32))
+                xs, ys, tri_index=itri * np.ones(10, dtype=np.int32))
             assert_array_almost_equal(zs_target, zs)
 
 
@@ -656,19 +661,19 @@ def test_triinterp_transformations():
         theta1 = np.arctan2(0.5 - x, 0.5 - y)
         r2 = np.hypot(-x - 0.2, -y - 0.2)
         theta2 = np.arctan2(-x - 0.2, -y - 0.2)
-        z = -(2*(np.exp((r1/10)**2)-1)*30. * np.cos(7.*theta1) +
-              (np.exp((r2/10)**2)-1)*30. * np.cos(11.*theta2) +
-              0.7*(x**2 + y**2))
-        return (np.max(z)-z)/(np.max(z)-np.min(z))
+        z = -(2 * (np.exp((r1 / 10)**2) - 1) * 30. * np.cos(7. * theta1) +
+              (np.exp((r2 / 10)**2) - 1) * 30. * np.cos(11. * theta2) +
+              0.7 * (x**2 + y**2))
+        return (np.max(z) - z) / (np.max(z) - np.min(z))
 
     # First create the x and y coordinates of the points.
     radii = np.linspace(min_radius, 0.95, n_radii)
-    angles = np.linspace(0 + n_angles, 2*np.pi + n_angles,
+    angles = np.linspace(0 + n_angles, 2 * np.pi + n_angles,
                          n_angles, endpoint=False)
     angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
-    angles[:, 1::2] += np.pi/n_angles
-    x0 = (radii*np.cos(angles)).flatten()
-    y0 = (radii*np.sin(angles)).flatten()
+    angles[:, 1::2] += np.pi / n_angles
+    x0 = (radii * np.cos(angles)).flatten()
+    y0 = (radii * np.sin(angles)).flatten()
     triang0 = mtri.Triangulation(x0, y0)  # Delaunay triangulation
     z0 = z(x0, y0)
 
@@ -682,11 +687,11 @@ def test_triinterp_transformations():
     interp_z0 = {}
     for i_angle in range(2):
         # Rotating everything
-        theta = 2*np.pi / n_angles * i_angle
-        x = np.cos(theta)*x0 + np.sin(theta)*y0
-        y = -np.sin(theta)*x0 + np.cos(theta)*y0
-        xs = np.cos(theta)*xs0 + np.sin(theta)*ys0
-        ys = -np.sin(theta)*xs0 + np.cos(theta)*ys0
+        theta = 2 * np.pi / n_angles * i_angle
+        x = np.cos(theta) * x0 + np.sin(theta) * y0
+        y = -np.sin(theta) * x0 + np.cos(theta) * y0
+        xs = np.cos(theta) * xs0 + np.sin(theta) * ys0
+        ys = -np.sin(theta) * xs0 + np.cos(theta) * ys0
         triang = mtri.Triangulation(x, y, triang0.triangles)
         linear_interp = mtri.LinearTriInterpolator(triang, z0)
         cubic_min_E = mtri.CubicTriInterpolator(triang, z0)
@@ -742,19 +747,19 @@ def test_tri_smooth_contouring():
         theta1 = np.arctan2(0.5 - x, 0.5 - y)
         r2 = np.hypot(-x - 0.2, -y - 0.2)
         theta2 = np.arctan2(-x - 0.2, -y - 0.2)
-        z = -(2*(np.exp((r1/10)**2)-1)*30. * np.cos(7.*theta1) +
-              (np.exp((r2/10)**2)-1)*30. * np.cos(11.*theta2) +
-              0.7*(x**2 + y**2))
-        return (np.max(z)-z)/(np.max(z)-np.min(z))
+        z = -(2 * (np.exp((r1 / 10)**2) - 1) * 30. * np.cos(7. * theta1) +
+              (np.exp((r2 / 10)**2) - 1) * 30. * np.cos(11. * theta2) +
+              0.7 * (x**2 + y**2))
+        return (np.max(z) - z) / (np.max(z) - np.min(z))
 
     # First create the x and y coordinates of the points.
     radii = np.linspace(min_radius, 0.95, n_radii)
-    angles = np.linspace(0 + n_angles, 2*np.pi + n_angles,
+    angles = np.linspace(0 + n_angles, 2 * np.pi + n_angles,
                          n_angles, endpoint=False)
     angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
-    angles[:, 1::2] += np.pi/n_angles
-    x0 = (radii*np.cos(angles)).flatten()
-    y0 = (radii*np.sin(angles)).flatten()
+    angles[:, 1::2] += np.pi / n_angles
+    x0 = (radii * np.cos(angles)).flatten()
+    y0 = (radii * np.sin(angles)).flatten()
     triang0 = mtri.Triangulation(x0, y0)  # Delaunay triangulation
     z0 = z(x0, y0)
     triang0.set_mask(np.hypot(x0[triang0.triangles].mean(axis=1),
@@ -777,19 +782,19 @@ def test_tri_smooth_gradient():
         """An electric dipole potential V."""
         r_sq = x**2 + y**2
         theta = np.arctan2(y, x)
-        z = np.cos(theta)/r_sq
-        return (np.max(z)-z) / (np.max(z)-np.min(z))
+        z = np.cos(theta) / r_sq
+        return (np.max(z) - z) / (np.max(z) - np.min(z))
 
     # Creating a Triangulation
     n_angles = 30
     n_radii = 10
     min_radius = 0.2
     radii = np.linspace(min_radius, 0.95, n_radii)
-    angles = np.linspace(0, 2*np.pi, n_angles, endpoint=False)
+    angles = np.linspace(0, 2 * np.pi, n_angles, endpoint=False)
     angles = np.repeat(angles[..., np.newaxis], n_radii, axis=1)
-    angles[:, 1::2] += np.pi/n_angles
-    x = (radii*np.cos(angles)).flatten()
-    y = (radii*np.sin(angles)).flatten()
+    angles[:, 1::2] += np.pi / n_angles
+    x = (radii * np.cos(angles)).flatten()
+    y = (radii * np.sin(angles)).flatten()
     V = dipole_potential(x, y)
     triang = mtri.Triangulation(x, y)
     triang.set_mask(np.hypot(x[triang.triangles].mean(axis=1),
@@ -815,7 +820,7 @@ def test_tri_smooth_gradient():
     plt.tricontour(tri_refi, z_test_refi, levels=levels, cmap=cmap,
                    linewidths=[2.0, 1.0, 1.0, 1.0])
     # Plots direction of the electrical vector field
-    plt.quiver(triang.x, triang.y, Ex/E_norm, Ey/E_norm,
+    plt.quiver(triang.x, triang.y, Ex / E_norm, Ey / E_norm,
                units='xy', scale=10., zorder=3, color='blue',
                width=0.007, headwidth=3., headlength=4.)
     # We are leaving ax.use_sticky_margins as True, so the
@@ -826,20 +831,20 @@ def test_tritools():
     # Tests TriAnalyzer.scale_factors on masked triangulation
     # Tests circle_ratios on equilateral and right-angled triangle.
     x = np.array([0., 1., 0.5, 0., 2.])
-    y = np.array([0., 0., 0.5*np.sqrt(3.), -1., 1.])
+    y = np.array([0., 0., 0.5 * np.sqrt(3.), -1., 1.])
     triangles = np.array([[0, 1, 2], [0, 1, 3], [1, 2, 4]], dtype=np.int32)
     mask = np.array([False, False, True], dtype=bool)
     triang = mtri.Triangulation(x, y, triangles, mask=mask)
     analyser = mtri.TriAnalyzer(triang)
     assert_array_almost_equal(analyser.scale_factors,
-                              np.array([1., 1./(1.+0.5*np.sqrt(3.))]))
+                              np.array([1., 1. / (1. + 0.5 * np.sqrt(3.))]))
     assert_array_almost_equal(
         analyser.circle_ratios(rescale=False),
-        np.ma.masked_array([0.5, 1./(1.+np.sqrt(2.)), np.nan], mask))
+        np.ma.masked_array([0.5, 1. / (1. + np.sqrt(2.)), np.nan], mask))
 
     # Tests circle ratio of a flat triangle
     x = np.array([0., 1., 2.])
-    y = np.array([1., 1.+3., 1.+6.])
+    y = np.array([1., 1. + 3., 1. + 6.])
     triangles = np.array([[0, 1, 2]], dtype=np.int32)
     triang = mtri.Triangulation(x, y, triangles)
     analyser = mtri.TriAnalyzer(triang)
@@ -852,14 +857,14 @@ def test_tritools():
     n = 9
 
     def power(x, a):
-        return np.abs(x)**a*np.sign(x)
+        return np.abs(x)**a * np.sign(x)
 
-    x = np.linspace(-1., 1., n+1)
+    x = np.linspace(-1., 1., n + 1)
     x, y = np.meshgrid(power(x, 2.), power(x, 0.25))
     x = x.ravel()
     y = y.ravel()
 
-    triang = mtri.Triangulation(x, y, triangles=meshgrid_triangles(n+1))
+    triang = mtri.Triangulation(x, y, triangles=meshgrid_triangles(n + 1))
     analyser = mtri.TriAnalyzer(triang)
     mask_flat = analyser.get_flat_tri_mask(0.2)
     verif_mask = np.zeros(162, dtype=bool)
@@ -883,13 +888,13 @@ def test_trirefine():
     # Testing subdiv=2 refinement
     n = 3
     subdiv = 2
-    x = np.linspace(-1., 1., n+1)
+    x = np.linspace(-1., 1., n + 1)
     x, y = np.meshgrid(x, x)
     x = x.ravel()
     y = y.ravel()
-    mask = np.zeros(2*n**2, dtype=bool)
+    mask = np.zeros(2 * n**2, dtype=bool)
     mask[n**2:] = True
-    triang = mtri.Triangulation(x, y, triangles=meshgrid_triangles(n+1),
+    triang = mtri.Triangulation(x, y, triangles=meshgrid_triangles(n + 1),
                                 mask=mask)
     refiner = mtri.UniformTriRefiner(triang)
     refi_triang = refiner.refine_triangulation(subdiv=subdiv)
@@ -897,12 +902,12 @@ def test_trirefine():
     y_refi = refi_triang.y
 
     n_refi = n * subdiv**2
-    x_verif = np.linspace(-1., 1., n_refi+1)
+    x_verif = np.linspace(-1., 1., n_refi + 1)
     x_verif, y_verif = np.meshgrid(x_verif, x_verif)
     x_verif = x_verif.ravel()
     y_verif = y_verif.ravel()
-    ind1d = np.in1d(np.around(x_verif*(2.5+y_verif), 8),
-                    np.around(x_refi*(2.5+y_refi), 8))
+    ind1d = np.in1d(np.around(x_verif * (2.5 + y_verif), 8),
+                    np.around(x_refi * (2.5 + y_refi), 8))
     assert_array_equal(ind1d, True)
 
     # Testing the mask of the refined triangulation
@@ -958,12 +963,12 @@ def meshgrid_triangles(n):
     Return (2*(N-1)**2, 3) array of triangles to mesh (N, N)-point np.meshgrid.
     """
     tri = []
-    for i in range(n-1):
-        for j in range(n-1):
-            a = i + j*n
-            b = (i+1) + j*n
-            c = i + (j+1)*n
-            d = (i+1) + (j+1)*n
+    for i in range(n - 1):
+        for j in range(n - 1):
+            a = i + j * n
+            b = (i + 1) + j * n
+            c = i + (j + 1) * n
+            d = (i + 1) + (j + 1) * n
             tri += [[a, b, d], [a, d, c]]
     return np.array(tri, dtype=np.int32)
 
@@ -1008,8 +1013,8 @@ def test_qhull_triangle_orientation():
     w = (x > y - 1) & (x < -1.95) & (y > -1.2)
     x, y = x[w], y[w]
     theta = np.radians(25)
-    x1 = x*np.cos(theta) - y*np.sin(theta)
-    y1 = x*np.sin(theta) + y*np.cos(theta)
+    x1 = x * np.cos(theta) - y * np.sin(theta)
+    y1 = x * np.sin(theta) + y * np.cos(theta)
 
     # Calculate Delaunay triangulation using Qhull.
     triang = mtri.Triangulation(x1, y1)
@@ -1027,7 +1032,7 @@ def test_qhull_triangle_orientation():
 def test_trianalyzer_mismatched_indices():
     # github issue 4999.
     x = np.array([0., 1., 0.5, 0., 2.])
-    y = np.array([0., 0., 0.5*np.sqrt(3.), -1., 1.])
+    y = np.array([0., 0., 0.5 * np.sqrt(3.), -1., 1.])
     triangles = np.array([[0, 1, 2], [0, 1, 3], [1, 2, 4]], dtype=np.int32)
     mask = np.array([False, False, True], dtype=bool)
     triang = mtri.Triangulation(x, y, triangles, mask=mask)
@@ -1177,3 +1182,10 @@ def test_tricontourset_reuse():
     assert tcs2._contour_generator != tcs1._contour_generator
     tcs3 = ax.tricontour(tcs1, z)
     assert tcs3._contour_generator == tcs1._contour_generator
+
+
+@check_figures_equal()
+def test_triplot_with_ls(fig_test, fig_ref):
+    fig_test.subplots().triplot([0, 2, 1], [0, 0, 1], [[0, 1, 2]], ls='--')
+    fig_ref.subplots().triplot([0, 2, 1], [0, 0, 1], [
+        [0, 1, 2]], linestyle='--')
