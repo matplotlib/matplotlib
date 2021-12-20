@@ -151,10 +151,7 @@ class RubberbandGTK(backend_tools.RubberbandBase):
             self._make_classic_style_pseudo_toolbar())
 
 
-class ConfigureSubplotsGTK(backend_tools.ConfigureSubplotsBase, Gtk.Window):
-    def _get_canvas(self, fig):
-        return self.canvas.__class__(fig)
-
+class ConfigureSubplotsGTK(backend_tools.ConfigureSubplotsBase):
     def trigger(self, *args):
         _NavigationToolbar2GTK.configure_subplots(
             self._make_classic_style_pseudo_toolbar(), None)

@@ -615,11 +615,8 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
 @backend_tools._register_tool_class(FigureCanvasGTK3)
 class SaveFigureGTK3(backend_tools.SaveFigureBase):
     def trigger(self, *args, **kwargs):
-
-        class PseudoToolbar:
-            canvas = self.figure.canvas
-
-        return NavigationToolbar2GTK3.save_figure(PseudoToolbar())
+        NavigationToolbar2GTK3.save_figure(
+            self._make_classic_style_pseudo_toolbar())
 
 
 @_api.deprecated("3.5", alternative="ToolSetCursor")
