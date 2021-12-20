@@ -534,7 +534,9 @@ running the script::
     from matplotlib import my_matplotlib_module
     my_matplotlib_module.set_range(0, 0)  # set range
 
-will display::
+will display
+
+.. code-block:: none
 
     UserWarning: Attempting to set identical bottom==top
     warnings.warn('Attempting to set identical bottom==top')
