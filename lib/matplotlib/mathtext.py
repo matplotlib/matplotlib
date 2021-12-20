@@ -564,7 +564,7 @@ class MathTextParser:
 
 
 def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None,
-                  color=None):
+                  *, color=None):
     """
     Given a math expression, renders it in a closely-clipped bounding
     box to an image file.
