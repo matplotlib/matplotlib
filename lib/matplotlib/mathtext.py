@@ -584,7 +584,7 @@ def math_to_image(s, filename_or_obj, prop=None, dpi=None, format=None,
         The output format, e.g., 'svg', 'pdf', 'ps' or 'png'.  If not set, the
         format is determined as for `.Figure.savefig`.
     color : str, optional
-        Foreground color, if not set the color is determined by rc params.
+        Foreground color, defaults to :rc:`text.color`.
     """
     from matplotlib import figure
 
