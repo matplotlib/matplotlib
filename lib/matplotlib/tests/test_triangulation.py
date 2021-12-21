@@ -9,7 +9,7 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
 from matplotlib.path import Path
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
 def test_delaunay():
@@ -1177,3 +1177,10 @@ def test_tricontourset_reuse():
     assert tcs2._contour_generator != tcs1._contour_generator
     tcs3 = ax.tricontour(tcs1, z)
     assert tcs3._contour_generator == tcs1._contour_generator
+
+
+@check_figures_equal()
+def test_triplot_with_ls(fig_test, fig_ref):
+    fig_test.subplots().triplot([0, 2, 1], [0, 0, 1], [[0, 1, 2]], ls='--')
+    fig_ref.subplots().triplot([0, 2, 1], [0, 0, 1], [
+        [0, 1, 2]], linestyle='--')
