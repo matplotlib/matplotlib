@@ -8,10 +8,12 @@ many plotting functions:
 """
 import matplotlib.pyplot as plt
 
+# Example data
 data = {'apple': 10, 'orange': 15, 'lemon': 5, 'lime': 20}
 names = list(data.keys())
 values = list(data.values())
 
+# Plot example on three separate subplots with a shared y-axis
 fig, axs = plt.subplots(1, 3, figsize=(9, 3), sharey=True)
 axs[0].bar(names, values)
 axs[1].scatter(names, values)
@@ -22,10 +24,12 @@ fig.suptitle('Categorical Plotting')
 ###############################################################################
 # This works on both axes:
 
+# Example data
 cat = ["bored", "happy", "bored", "bored", "happy", "bored"]
 dog = ["happy", "happy", "happy", "happy", "bored", "bored"]
 activity = ["combing", "drinking", "feeding", "napping", "playing", "washing"]
 
+# Plot example with just one subplot
 fig, ax = plt.subplots()
 ax.plot(activity, dog, label="dog")
 ax.plot(activity, cat, label="cat")
