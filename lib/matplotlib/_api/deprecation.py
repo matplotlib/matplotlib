@@ -14,6 +14,7 @@ import contextlib
 import functools
 import inspect
 import math
+import re
 import warnings
 
 
@@ -47,6 +48,10 @@ def _generate_deprecation_warning(
             + (" %(addendum)s" if addendum else ""))
     warning_cls = (PendingDeprecationWarning if pending
                    else MatplotlibDeprecationWarning)
+    # remove backticks, optional leading dot and replace reference by caption
+    if alternative:
+        alternative = re.sub(r"`([^`]*?) *<.*?>`|`\.?(.+?)`", r"\1\2",
+                             alternative)
     return warning_cls(message % dict(
         func=name, name=name, obj_type=obj_type, since=since, removal=removal,
         alternative=alternative, addendum=addendum))
@@ -207,10 +212,13 @@ def deprecated(since, *, message='', name='', alternative='', pending=False,
         old_doc = inspect.cleandoc(old_doc or '').strip('\n')
 
         notes_header = '\nNotes\n-----'
+        second_arg = ' '.join([t.strip() for t in
+                               (message, f"Use {alternative} instead."
+                                if alternative else "", addendum) if t])
         new_doc = (f"[*Deprecated*] {old_doc}\n"
                    f"{notes_header if notes_header not in old_doc else ''}\n"
                    f".. deprecated:: {since}\n"
-                   f"   {message.strip()}")
+                   f"   {second_arg}")
 
         if not old_doc:
             # This is to prevent a spurious 'unexpected unindent' warning from
