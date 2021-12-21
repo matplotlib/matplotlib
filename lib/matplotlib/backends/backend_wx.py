@@ -937,23 +937,12 @@ class FigureFrameWx(wx.Frame):
         self.figmgr.frame = None
         # remove figure manager from Gcf.figs
         Gcf.destroy(self.figmgr)
+        try:  # See issue 2941338.
+            self.canvas.mpl_disconnect(self.canvas.toolbar._id_drag)
+        except AttributeError:  # If there's no toolbar.
+            pass
         # Carry on with close event propagation, frame & children destruction
         event.Skip()
-
-    def Destroy(self, *args, **kwargs):
-        try:
-            self.canvas.mpl_disconnect(self.canvas.manager.toolbar._id_drag)
-            # Rationale for line above: see issue 2941338.
-        except AttributeError:
-            pass  # classic toolbar lacks the attribute
-        # The "if self" check avoids a "wrapped C/C++ object has been deleted"
-        # RuntimeError at exit with e.g.
-        # MPLBACKEND=wxagg python -c 'from pylab import *; plot()'.
-        if self and not self.IsBeingDeleted():
-            super().Destroy(*args, **kwargs)
-            # toolbar.Destroy() should not be necessary if the close event is
-            # allowed to propagate.
-        return True
 
 
 class FigureManagerWx(FigureManagerBase):
