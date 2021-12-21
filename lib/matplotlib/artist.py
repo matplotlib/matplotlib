@@ -320,23 +320,6 @@ class Artist:
         """
         return Bbox([[0, 0], [0, 0]])
 
-    def _get_clipping_extent_bbox(self):
-        """
-        Return a bbox with the extents of the intersection of the clip_path
-        and clip_box for this artist, or None if both of these are
-        None, or ``get_clip_on`` is False.
-        """
-        bbox = None
-        if self.get_clip_on():
-            clip_box = self.get_clip_box()
-            if clip_box is not None:
-                bbox = clip_box
-            clip_path = self.get_clip_path()
-            if clip_path is not None and bbox is not None:
-                clip_path = clip_path.get_fully_transformed_path()
-                bbox = Bbox.intersection(bbox, clip_path.get_extents())
-        return bbox
-
     def get_tightbbox(self, renderer):
         """
         Like `.Artist.get_window_extent`, but includes any clipping.
@@ -358,7 +341,7 @@ class Artist:
             if clip_box is not None:
                 bbox = Bbox.intersection(bbox, clip_box)
             clip_path = self.get_clip_path()
-            if clip_path is not None and bbox is not None:
+            if clip_path is not None:
                 clip_path = clip_path.get_fully_transformed_path()
                 bbox = Bbox.intersection(bbox, clip_path.get_extents())
         return bbox
@@ -843,6 +826,30 @@ class Artist:
         ``fig.savefig(fname, bbox_inches='tight')``.
         """
         return self._in_layout
+
+    def _fully_clipped_to_axes(self):
+        """
+        Return a boolean flag, ``True`` if the artist is clipped to the axes
+        and can thus be skipped in layout calculations. Requires `get_clip_on`
+        is True, one of `clip_box` or `clip_path` is set, ``clip_box.extents``
+        is equivalent to ``ax.bbox.extents`` (if set), and ``clip_path._patch``
+        is equivalent to ``ax.patch`` (if set).
+        """
+        # Note that ``clip_path.get_fully_transformed_path().get_extents()``
+        # cannot be directly compared to ``axes.bbox.extents`` because the
+        # extents may be undefined (i.e. equivalent to ``Bbox.null()``)
+        # before the associated artist is drawn, and this method is meant
+        # to determine whether ``axes.get_tightbbox()`` may bypass drawing
+        clip_box = self.get_clip_box()
+        clip_path = self.get_clip_path()
+        return (self.axes is not None
+                and self.get_clip_on()
+                and (clip_box is not None or clip_path is not None)
+                and (clip_box is None
+                     or np.all(clip_box.extents == self.axes.bbox.extents))
+                and (clip_path is None
+                     or isinstance(clip_path, TransformedPatchPath)
+                     and clip_path._patch is self.axes.patch))
 
     def get_clip_on(self):
         """Return whether the artist uses clipping."""
