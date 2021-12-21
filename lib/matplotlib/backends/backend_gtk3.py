@@ -8,11 +8,9 @@ import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase, ToolContainerBase)
+    FigureCanvasBase, FigureManagerBase, ToolContainerBase)
 from matplotlib.backend_tools import Cursors
 from matplotlib.figure import Figure
-from matplotlib.widgets import SubplotTool
 
 try:
     import gi
@@ -31,7 +29,6 @@ except ValueError as e:
 from gi.repository import Gio, GLib, GObject, Gtk, Gdk
 from . import _backend_gtk
 from ._backend_gtk import (
-    _create_application, _shutdown_application,
     backend_version, _BackendGTK, _NavigationToolbar2GTK,
     TimerGTK as TimerGTK3,
 )
@@ -68,16 +65,9 @@ class __getattr__:
 
 @functools.lru_cache()
 def _mpl_to_gtk_cursor(mpl_cursor):
-    name = _api.check_getitem({
-        Cursors.MOVE: "move",
-        Cursors.HAND: "pointer",
-        Cursors.POINTER: "default",
-        Cursors.SELECT_REGION: "crosshair",
-        Cursors.WAIT: "wait",
-        Cursors.RESIZE_HORIZONTAL: "ew-resize",
-        Cursors.RESIZE_VERTICAL: "ns-resize",
-    }, cursor=mpl_cursor)
-    return Gdk.Cursor.new_from_name(Gdk.Display.get_default(), name)
+    return Gdk.Cursor.new_from_name(
+        Gdk.Display.get_default(),
+        _backend_gtk.mpl_to_gtk_cursor_name(mpl_cursor))
 
 
 class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
@@ -317,10 +307,10 @@ class FigureManagerGTK3(FigureManagerBase):
         The Gtk.VBox containing the canvas and toolbar
     window : Gtk.Window
         The Gtk.Window
-
     """
+
     def __init__(self, canvas, num):
-        app = _create_application()
+        app = _backend_gtk._create_application()
         self.window = Gtk.Window()
         app.add_window(self.window)
         super().__init__(canvas, num)
@@ -481,7 +471,7 @@ class NavigationToolbar2GTK3(_NavigationToolbar2GTK, Gtk.Toolbar):
 
         self.show_all()
 
-        NavigationToolbar2.__init__(self, canvas)
+        _NavigationToolbar2GTK.__init__(self, canvas)
 
     def save_figure(self, *args):
         dialog = Gtk.FileChooserDialog(
@@ -744,7 +734,7 @@ backend_tools._register_tool_class(
     FigureCanvasGTK3, _backend_gtk.RubberbandGTK)
 
 
-@_Backend.export
+@_BackendGTK.export
 class _BackendGTK3(_BackendGTK):
     FigureCanvas = FigureCanvasGTK3
     FigureManager = FigureManagerGTK3
