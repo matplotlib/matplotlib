@@ -1181,6 +1181,8 @@ def test_tricontourset_reuse():
 
 @check_figures_equal()
 def test_triplot_with_ls(fig_test, fig_ref):
-    fig_test.subplots().triplot([0, 2, 1], [0, 0, 1], [[0, 1, 2]], ls='--')
-    fig_ref.subplots().triplot([0, 2, 1], [0, 0, 1], [
-        [0, 1, 2]], linestyle='--')
+    x = [0, 2, 1]
+    y = [0, 0, 1]
+    data = [[0, 1, 2]]
+    fig_test.subplots().triplot(x, y, data, ls='--')
+    fig_ref.subplots().triplot(x, y, data, linestyle='--')
