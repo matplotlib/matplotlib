@@ -604,6 +604,8 @@ if link_github:
             except AttributeError:
                 return None
 
+        if inspect.isfunction(obj):
+            obj = inspect.unwrap(obj)
         try:
             fn = inspect.getsourcefile(obj)
         except TypeError:
