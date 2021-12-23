@@ -872,7 +872,7 @@ def _test_proj_make_M():
     V = np.array([0, 0, 1])
     roll = 0
     viewM = proj3d.view_transformation(E, R, V, roll)
-    perspM = proj3d.persp_transformation(100, -100)
+    perspM = proj3d.persp_transformation(100, -100, 1)
     M = np.dot(perspM, viewM)
     return M
 
@@ -1035,6 +1035,13 @@ def test_unautoscale(axis, auto):
     assert post_auto == get_autoscale_on()
     fig.canvas.draw()
     np.testing.assert_array_equal(get_lim(), (-0.5, 0.5))
+
+
+@mpl3d_image_comparison(['axes3d_focal_length.png'], remove_text=False)
+def test_axes3d_focal_length():
+    fig, axs = plt.subplots(1, 2, subplot_kw={'projection': '3d'})
+    axs[0].set_proj_type('persp', focal_length=np.inf)
+    axs[1].set_proj_type('persp', focal_length=0.15)
 
 
 @mpl3d_image_comparison(['axes3d_ortho.png'], remove_text=False)

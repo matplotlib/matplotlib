@@ -56,7 +56,7 @@ class Axes3D(Axes):
     def __init__(
             self, fig, rect=None, *args,
             elev=30, azim=-60, roll=0, sharez=None, proj_type='persp',
-            box_aspect=None, computed_zorder=True,
+            box_aspect=None, computed_zorder=True, focal_length=None,
             **kwargs):
         """
         Parameters
@@ -103,6 +103,11 @@ class Axes3D(Axes):
             This behavior is deprecated in 3.4, the default will
             change to False in 3.5.  The keyword will be undocumented
             and a non-False value will be an error in 3.6.
+        focal_length : float, default: None
+            For a projection type of 'persp', the focal length of the virtual
+            camera. Must be > 0. If None, defaults to 1.
+            The focal length can be computed from a desired Field Of View via
+            the equation: focal_length = 1/tan(FOV/2)
 
         **kwargs
             Other optional keyword arguments:
@@ -116,7 +121,7 @@ class Axes3D(Axes):
         self.initial_azim = azim
         self.initial_elev = elev
         self.initial_roll = roll
-        self.set_proj_type(proj_type)
+        self.set_proj_type(proj_type, focal_length)
         self.computed_zorder = computed_zorder
 
         self.xy_viewLim = Bbox.unit()
@@ -1027,18 +1032,36 @@ class Axes3D(Axes):
             dict(x=0, y=1, z=2), vertical_axis=vertical_axis
         )
 
-    def set_proj_type(self, proj_type):
+    def set_proj_type(self, proj_type, focal_length=None):
         """
         Set the projection type.
 
         Parameters
         ----------
         proj_type : {'persp', 'ortho'}
+            The projection type.
+        focal_length : float, default: None
+            For a projection type of 'persp', the focal length of the virtual
+            camera. Must be > 0. If None, defaults to 1.
+            The focal length can be computed from a desired Field Of View via
+            the equation: focal_length = 1/tan(FOV/2)
         """
-        self._projection = _api.check_getitem({
-            'persp': proj3d.persp_transformation,
-            'ortho': proj3d.ortho_transformation,
-        }, proj_type=proj_type)
+        if proj_type == 'persp':
+            if focal_length is None:
+                self.focal_length = 1
+            else:
+                if focal_length <= 0:
+                    raise ValueError(f"focal_length = {focal_length} must be" +
+                                     " greater than 0")
+                self.focal_length = focal_length
+        elif proj_type == 'ortho':
+            if focal_length not in (None, np.inf):
+                raise ValueError(f"focal_length = {focal_length} must be" +
+                                 f"None for proj_type = {proj_type}")
+            self.focal_length = np.inf
+        else:
+            raise ValueError(f"proj_type = {proj_type} must be in" +
+                             f"{'persp', 'ortho'}")
 
     def _roll_to_vertical(self, arr):
         """Roll arrays to match the different vertical axis."""
@@ -1094,8 +1117,21 @@ class Axes3D(Axes):
         V = np.zeros(3)
         V[self._vertical_axis] = -1 if abs(elev_rad) > 0.5 * np.pi else 1
 
-        viewM = proj3d.view_transformation(eye, R, V, roll_rad)
-        projM = self._projection(-self.dist, self.dist)
+        # Generate the view and projection transformation matrices
+        if self.focal_length == np.inf:
+            # Orthographic projection
+            viewM = proj3d.view_transformation(eye, R, V, roll_rad)
+            projM = proj3d.ortho_transformation(-self.dist, self.dist)
+        else:
+            # Perspective projection
+            # Scale the eye dist to compensate for the focal length zoom effect
+            eye_focal = R + self.dist * ps * self.focal_length
+            viewM = proj3d.view_transformation(eye_focal, R, V, roll_rad)
+            projM = proj3d.persp_transformation(-self.dist,
+                                                self.dist,
+                                                self.focal_length)
+
+        # Combine all the transformation matrices to get the final projection
         M0 = np.dot(viewM, worldM)
         M = np.dot(projM, M0)
         return M
@@ -1158,7 +1194,7 @@ class Axes3D(Axes):
                 pass
 
         self._autoscaleZon = True
-        if self._projection is proj3d.ortho_transformation:
+        if self.focal_length == np.inf:
             self._zmargin = rcParams['axes.zmargin']
         else:
             self._zmargin = 0.
