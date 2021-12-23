@@ -82,6 +82,10 @@ class Axes3D(Axes):
             Other axes to share z-limits with.
         proj_type : {'persp', 'ortho'}
             The projection type, default 'persp'.
+        box_aspect : 3-tuple of floats, default: None
+            Changes the physical dimensions of the Axes3D, such that the ratio
+            of the axis lengths in display units is x:y:z.
+            If None, defaults to 4:4:3
         computed_zorder : bool, default: True
             If True, the draw order is computed based on the average position
             of the `.Artist`\\s along the view direction.
