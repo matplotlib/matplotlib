@@ -3576,7 +3576,7 @@ class PolygonSelector(_SelectorWidget):
         A vertex is selected (to complete the polygon or to move a vertex) if
         the mouse click is within *grab_range* pixels of the vertex.
 
-    draw_box : bool, optional
+    draw_bounding_box : bool, optional
         If `True`, a bounding box will be drawn around the polygon selector
         once it is complete. This box can be used to move and resize the
         selector.
@@ -3605,7 +3605,7 @@ class PolygonSelector(_SelectorWidget):
     @_api.rename_parameter("3.5", "vertex_select_radius", "grab_range")
     def __init__(self, ax, onselect, useblit=False,
                  props=None, handle_props=None, grab_range=10, *,
-                 draw_box=False, box_handle_props=None,
+                 draw_bounding_box=False, box_handle_props=None,
                  box_props=None):
         # The state modifiers 'move', 'square', and 'center' are expected by
         # _SelectorWidget but are not supported by PolygonSelector
@@ -3642,7 +3642,7 @@ class PolygonSelector(_SelectorWidget):
         self.grab_range = grab_range
 
         self.set_visible(True)
-        self._draw_box = draw_box
+        self._draw_box = draw_bounding_box
         self._box = None
 
         if box_handle_props is None:

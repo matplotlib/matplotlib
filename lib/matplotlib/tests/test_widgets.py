@@ -1164,10 +1164,10 @@ def polygon_remove_vertex(xdata, ydata):
             ('release', dict(xdata=xdata, ydata=ydata, button=3))]
 
 
-@pytest.mark.parametrize('draw_box', [False, True])
-def test_polygon_selector(draw_box):
+@pytest.mark.parametrize('draw_bounding_box', [False, True])
+def test_polygon_selector(draw_bounding_box):
     check_selector = functools.partial(
-        check_polygon_selector, draw_box=draw_box)
+        check_polygon_selector, draw_bounding_box=draw_bounding_box)
 
     # Simple polygon
     expected_result = [(50, 50), (150, 50), (50, 150)]
@@ -1264,8 +1264,8 @@ def test_polygon_selector(draw_box):
     check_selector(event_sequence, expected_result, 1)
 
 
-@pytest.mark.parametrize('draw_box', [False, True])
-def test_polygon_selector_set_props_handle_props(draw_box):
+@pytest.mark.parametrize('draw_bounding_box', [False, True])
+def test_polygon_selector_set_props_handle_props(draw_bounding_box):
     ax = get_ax()
 
     ax._selections_count = 0
@@ -1277,7 +1277,7 @@ def test_polygon_selector_set_props_handle_props(draw_box):
     tool = widgets.PolygonSelector(ax, onselect,
                                    props=dict(color='b', alpha=0.2),
                                    handle_props=dict(alpha=0.5),
-                                   draw_box=draw_box)
+                                   draw_bounding_box=draw_bounding_box)
 
     event_sequence = (polygon_place_vertex(50, 50)
                       + polygon_place_vertex(150, 50)
@@ -1319,8 +1319,8 @@ def test_rect_visibility(fig_test, fig_ref):
 
 # Change the order that the extra point is inserted in
 @pytest.mark.parametrize('idx', [1, 2, 3])
-@pytest.mark.parametrize('draw_box', [False, True])
-def test_polygon_selector_remove(idx, draw_box):
+@pytest.mark.parametrize('draw_bounding_box', [False, True])
+def test_polygon_selector_remove(idx, draw_bounding_box):
     verts = [(50, 50), (150, 50), (50, 150)]
     event_sequence = [polygon_place_vertex(*verts[0]),
                       polygon_place_vertex(*verts[1]),
@@ -1333,22 +1333,24 @@ def test_polygon_selector_remove(idx, draw_box):
     event_sequence.append(polygon_remove_vertex(200, 200))
     # Flatten list of lists
     event_sequence = sum(event_sequence, [])
-    check_polygon_selector(event_sequence, verts, 2, draw_box=draw_box)
+    check_polygon_selector(event_sequence, verts, 2,
+                           draw_bounding_box=draw_bounding_box)
 
 
-@pytest.mark.parametrize('draw_box', [False, True])
-def test_polygon_selector_remove_first_point(draw_box):
+@pytest.mark.parametrize('draw_bounding_box', [False, True])
+def test_polygon_selector_remove_first_point(draw_bounding_box):
     verts = [(50, 50), (150, 50), (50, 150)]
     event_sequence = (polygon_place_vertex(*verts[0]) +
                       polygon_place_vertex(*verts[1]) +
                       polygon_place_vertex(*verts[2]) +
                       polygon_place_vertex(*verts[0]) +
                       polygon_remove_vertex(*verts[0]))
-    check_polygon_selector(event_sequence, verts[1:], 2, draw_box=draw_box)
+    check_polygon_selector(event_sequence, verts[1:], 2,
+                           draw_bounding_box=draw_bounding_box)
 
 
-@pytest.mark.parametrize('draw_box', [False, True])
-def test_polygon_selector_redraw(draw_box):
+@pytest.mark.parametrize('draw_bounding_box', [False, True])
+def test_polygon_selector_redraw(draw_bounding_box):
     verts = [(50, 50), (150, 50), (50, 150)]
     event_sequence = (polygon_place_vertex(*verts[0]) +
                       polygon_place_vertex(*verts[1]) +
@@ -1366,7 +1368,8 @@ def test_polygon_selector_redraw(draw_box):
     def onselect(vertices):
         pass
 
-    tool = widgets.PolygonSelector(ax, onselect, draw_box=draw_box)
+    tool = widgets.PolygonSelector(ax, onselect,
+                                   draw_bounding_box=draw_bounding_box)
     for (etype, event_args) in event_sequence:
         do_event(tool, etype, **event_args)
     # After removing two verts, only one remains, and the
@@ -1411,7 +1414,7 @@ def test_polygon_selector_box():
         pass
 
     # Create selector
-    tool = widgets.PolygonSelector(ax, onselect, draw_box=True)
+    tool = widgets.PolygonSelector(ax, onselect, draw_bounding_box=True)
     for (etype, event_args) in event_sequence:
         do_event(tool, etype, **event_args)
 
