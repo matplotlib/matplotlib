@@ -842,34 +842,18 @@ class FigureCanvasWx(_FigureCanvasWxBase):
         self.gui_repaint(drawDC=drawDC)
 
     def _print_image(self, filetype, filename):
-        origBitmap = self.bitmap
-
-        self.bitmap = wx.Bitmap(math.ceil(self.figure.bbox.width),
-                                math.ceil(self.figure.bbox.height))
-        renderer = RendererWx(self.bitmap, self.figure.dpi)
-
-        gc = renderer.new_gc()
-        self.figure.draw(renderer)
-
-        # image is the object that we call SaveFile on.
-        image = self.bitmap
-
-        # Now that we have rendered into the bitmap, save it to the appropriate
-        # file type and clean up.
-        if (cbook.is_writable_file_like(filename) and
-                not isinstance(image, wx.Image)):
-            image = image.ConvertToImage()
-        if not image.SaveFile(filename, filetype):
+        bitmap = wx.Bitmap(math.ceil(self.figure.bbox.width),
+                           math.ceil(self.figure.bbox.height))
+        self.figure.draw(RendererWx(bitmap, self.figure.dpi))
+        saved_obj = (bitmap.ConvertToImage()
+                     if cbook.is_writable_file_like(filename)
+                     else bitmap)
+        if not saved_obj.SaveFile(filename, filetype):
             raise RuntimeError(f'Could not save figure to {filename}')
-
-        # Restore everything to normal
-        self.bitmap = origBitmap
-
-        # Note: draw is required here since bits of state about the
-        # last renderer are strewn about the artist draw methods.  Do
-        # not remove the draw without first verifying that these have
-        # been cleaned up.  The artist contains() methods will fail
-        # otherwise.
+        # draw() is required here since bits of state about the last renderer
+        # are strewn about the artist draw methods.  Do not remove the draw
+        # without first verifying that these have been cleaned up.  The artist
+        # contains() methods will fail otherwise.
         if self._isDrawn:
             self.draw()
         # The "if self" check avoids a "wrapped C/C++ object has been deleted"
@@ -892,7 +876,7 @@ class FigureCanvasWx(_FigureCanvasWxBase):
 
 
 class FigureFrameWx(wx.Frame):
-    def __init__(self, num, fig):
+    def __init__(self, num, fig, *, canvas_class=None):
         # On non-Windows platform, explicitly set the position - fix
         # positioning bug on some Linux platforms
         if wx.Platform == '__WXMSW__':
@@ -905,7 +889,15 @@ class FigureFrameWx(wx.Frame):
         self.num = num
         _set_frame_icon(self)
 
-        self.canvas = self.get_canvas(fig)
+        # The parameter will become required after the deprecation elapses.
+        if canvas_class is not None:
+            self.canvas = canvas_class(self, -1, fig)
+        else:
+            _api.warn_deprecated(
+                "3.6", message="The canvas_class parameter will become "
+                "required after the deprecation period starting in Matplotlib "
+                "%(since)s elapses.")
+            self.canvas = self.get_canvas(fig)
         w, h = map(math.ceil, fig.bbox.size)
         self.canvas.SetInitialSize(wx.Size(w, h))
         self.canvas.SetFocus()
@@ -953,6 +945,8 @@ class FigureFrameWx(wx.Frame):
             toolbar = None
         return toolbar
 
+    @_api.deprecated(
+        "3.6", alternative="the canvas_class constructor parameter")
     def get_canvas(self, fig):
         return FigureCanvasWx(self, -1, fig)
 
@@ -1393,7 +1387,6 @@ class ToolCopyToClipboardWx(backend_tools.ToolCopyToClipboardBase):
 class _BackendWx(_Backend):
     FigureCanvas = FigureCanvasWx
     FigureManager = FigureManagerWx
-    _frame_class = FigureFrameWx
 
     @classmethod
     def new_figure_manager(cls, num, *args, **kwargs):
@@ -1410,7 +1403,7 @@ class _BackendWx(_Backend):
 
     @classmethod
     def new_figure_manager_given_figure(cls, num, figure):
-        frame = cls._frame_class(num, figure)
+        frame = FigureFrameWx(num, figure, canvas_class=cls.FigureCanvas)
         figmgr = frame.get_figure_manager()
         if mpl.is_interactive():
             figmgr.frame.Show()

@@ -1,11 +1,14 @@
 import wx.lib.wxcairo as wxcairo
 
-from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
+from .. import _api
+from .backend_cairo import cairo, FigureCanvasCairo
 from .backend_wx import (
     _BackendWx, _FigureCanvasWxBase, FigureFrameWx,
     NavigationToolbar2Wx as NavigationToolbar2WxCairo)
 
 
+@_api.deprecated(
+    "3.6", alternative="FigureFrameWx(..., canvas_class=FigureCanvasWxCairo)")
 class FigureFrameWxCairo(FigureFrameWx):
     def get_canvas(self, fig):
         return FigureCanvasWxCairo(self, -1, fig)
@@ -20,14 +23,6 @@ class FigureCanvasWxCairo(_FigureCanvasWxBase, FigureCanvasCairo):
     probably implements a wxSizer to control the displayed control size - but
     we give a hint as to our preferred minimum size.
     """
-
-    def __init__(self, parent, id, figure):
-        # _FigureCanvasWxBase should be fixed to have the same signature as
-        # every other FigureCanvas and use cooperative inheritance, but in the
-        # meantime the following will make do.
-        _FigureCanvasWxBase.__init__(self, parent, id, figure)
-        FigureCanvasCairo.__init__(self, figure)
-        self._renderer = RendererCairo(self.figure.dpi)
 
     def draw(self, drawDC=None):
         size = self.figure.bbox.size.astype(int)
@@ -44,4 +39,3 @@ class FigureCanvasWxCairo(_FigureCanvasWxBase, FigureCanvasCairo):
 @_BackendWx.export
 class _BackendWxCairo(_BackendWx):
     FigureCanvas = FigureCanvasWxCairo
-    _frame_class = FigureFrameWxCairo

@@ -1507,9 +1507,26 @@ def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
 
     if init is None:
         def init(vmin=None, vmax=None, clip=False): pass
-    bound_init_signature = inspect.signature(init)
+
+    return _make_norm_from_scale(
+        scale_cls, base_norm_cls, inspect.signature(init))
+
+
+@functools.lru_cache(None)
+def _make_norm_from_scale(scale_cls, base_norm_cls, bound_init_signature):
+    """
+    Helper for `make_norm_from_scale`.
+
+    This function is split out so that it takes a signature object as third
+    argument (as signatures are picklable, contrary to arbitrary lambdas);
+    caching is also used so that different unpickles reuse the same class.
+    """
 
     class Norm(base_norm_cls):
+        def __reduce__(self):
+            return (_picklable_norm_constructor,
+                    (scale_cls, base_norm_cls, bound_init_signature),
+                    self.__dict__)
 
         def __init__(self, *args, **kwargs):
             ba = bound_init_signature.bind(*args, **kwargs)
@@ -1518,6 +1535,10 @@ def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
                 **{k: ba.arguments.pop(k) for k in ["vmin", "vmax", "clip"]})
             self._scale = scale_cls(axis=None, **ba.arguments)
             self._trf = self._scale.get_transform()
+
+        __init__.__signature__ = bound_init_signature.replace(parameters=[
+            inspect.Parameter("self", inspect.Parameter.POSITIONAL_OR_KEYWORD),
+            *bound_init_signature.parameters.values()])
 
         def __call__(self, value, clip=None):
             value, is_scalar = self.process_value(value)
@@ -1566,15 +1587,21 @@ def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
             in_trf_domain = np.extract(np.isfinite(self._trf.transform(A)), A)
             return super().autoscale_None(in_trf_domain)
 
-    Norm.__name__ = (f"{scale_cls.__name__}Norm" if base_norm_cls is Normalize
-                     else base_norm_cls.__name__)
-    Norm.__qualname__ = base_norm_cls.__qualname__
+    Norm.__name__ = (
+            f"{scale_cls.__name__}Norm" if base_norm_cls is Normalize
+            else base_norm_cls.__name__)
+    Norm.__qualname__ = (
+            f"{scale_cls.__qualname__}Norm" if base_norm_cls is Normalize
+            else base_norm_cls.__qualname__)
     Norm.__module__ = base_norm_cls.__module__
     Norm.__doc__ = base_norm_cls.__doc__
-    Norm.__init__.__signature__ = bound_init_signature.replace(parameters=[
-        inspect.Parameter("self", inspect.Parameter.POSITIONAL_OR_KEYWORD),
-        *bound_init_signature.parameters.values()])
+
     return Norm
+
+
+def _picklable_norm_constructor(*args):
+    cls = _make_norm_from_scale(*args)
+    return cls.__new__(cls)
 
 
 @make_norm_from_scale(

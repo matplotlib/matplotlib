@@ -1,0 +1,8 @@
+``FigureFrameWx`` constructor, subclasses, and ``get_canvas``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``FigureCanvasWx`` constructor gained a *canvas_class* keyword-only
+parameter which specifies the canvas class that should be used.  This
+parameter will become required in the future.  The ``get_canvas`` method,
+which was previously used to customize canvas creation, is deprecated.  The
+``FigureFrameWxAgg`` and ``FigureFrameWxCairo`` subclasses, which overrode
+``get_canvas``, are deprecated.

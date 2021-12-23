@@ -129,9 +129,14 @@ class RendererCairo(RendererBase):
     def __init__(self, dpi):
         self.dpi = dpi
         self.gc = GraphicsContextCairo(renderer=self)
+        self.width = None
+        self.height = None
         self.text_ctx = cairo.Context(
            cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1))
         super().__init__()
+
+    def set_context(self, ctx):
+        self.gc.ctx = _to_context(ctx)
 
     def set_ctx_from_surface(self, surface):
         self.gc.ctx = cairo.Context(surface)
@@ -414,6 +419,15 @@ class _CairoRegion:
 
 
 class FigureCanvasCairo(FigureCanvasBase):
+    @property
+    def _renderer(self):
+        # In theory, _renderer should be set in __init__, but GUI canvas
+        # subclasses (FigureCanvasFooCairo) don't always interact well with
+        # multiple inheritance (FigureCanvasFoo inits but doesn't super-init
+        # FigureCanvasCairo), so initialize it in the getter instead.
+        if not hasattr(self, "_cached_renderer"):
+            self._cached_renderer = RendererCairo(self.figure.dpi)
+        return self._cached_renderer
 
     def copy_from_bbox(self, bbox):
         surface = self._renderer.gc.ctx.get_target()
@@ -460,12 +474,12 @@ class FigureCanvasCairo(FigureCanvasBase):
     print_raw = print_rgba
 
     def _get_printed_image_surface(self):
+        self._renderer.dpi = self.figure.dpi
         width, height = self.get_width_height()
-        renderer = RendererCairo(self.figure.dpi)
-        renderer.set_width_height(width, height)
+        self._renderer.set_width_height(width, height)
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-        renderer.set_ctx_from_surface(surface)
-        self.figure.draw(renderer)
+        self._renderer.set_ctx_from_surface(surface)
+        self.figure.draw(self._renderer)
         return surface
 
     def _save(self, fmt, fobj, *, orientation='portrait'):
@@ -503,18 +517,17 @@ class FigureCanvasCairo(FigureCanvasBase):
         else:
             raise ValueError("Unknown format: {!r}".format(fmt))
 
-        # surface.set_dpi() can be used
-        renderer = RendererCairo(self.figure.dpi)
-        renderer.set_width_height(width_in_points, height_in_points)
-        renderer.set_ctx_from_surface(surface)
-        ctx = renderer.gc.ctx
+        self._renderer.dpi = self.figure.dpi
+        self._renderer.set_width_height(width_in_points, height_in_points)
+        self._renderer.set_ctx_from_surface(surface)
+        ctx = self._renderer.gc.ctx
 
         if orientation == 'landscape':
             ctx.rotate(np.pi / 2)
             ctx.translate(0, -height_in_points)
             # Perhaps add an '%%Orientation: Landscape' comment?
 
-        self.figure.draw(renderer)
+        self.figure.draw(self._renderer)
 
         ctx.show_page()
         surface.finish()

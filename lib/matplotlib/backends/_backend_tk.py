@@ -19,8 +19,6 @@ from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     TimerBase, ToolContainerBase, cursors, _Mode)
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.figure import Figure
-from matplotlib.widgets import SubplotTool
 from . import _tkagg
 
 
@@ -210,6 +208,8 @@ class FigureCanvasTk(FigureCanvasBase):
         root.bind("<Destroy>", filter_destroy, "+")
 
         self._tkcanvas.focus_set()
+
+        self._rubberband_rect = None
 
     def _update_device_pixel_ratio(self, event=None):
         # Tk gives scaling with respect to 72 DPI, but most (all?) screens are
@@ -609,16 +609,22 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         self.message.set(s)
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        self.remove_rubberband()
+        # Block copied from remove_rubberband for backend_tools convenience.
+        if self.canvas._rubberband_rect:
+            self.canvas._tkcanvas.delete(self.canvas._rubberband_rect)
         height = self.canvas.figure.bbox.height
         y0 = height - y0
         y1 = height - y1
-        self.lastrect = self.canvas._tkcanvas.create_rectangle(x0, y0, x1, y1)
+        self.canvas._rubberband_rect = self.canvas._tkcanvas.create_rectangle(
+            x0, y0, x1, y1)
 
     def remove_rubberband(self):
-        if hasattr(self, "lastrect"):
-            self.canvas._tkcanvas.delete(self.lastrect)
-            del self.lastrect
+        if self.canvas._rubberband_rect:
+            self.canvas._tkcanvas.delete(self.canvas._rubberband_rect)
+            self.canvas._rubberband_rect = None
+
+    lastrect = _api.deprecated("3.6")(
+        property(lambda self: self.canvas._rubberband_rect))
 
     def set_cursor(self, cursor):
         window = self.canvas.get_tk_widget().master
@@ -777,17 +783,15 @@ class ToolTip:
 @backend_tools._register_tool_class(FigureCanvasTk)
 class RubberbandTk(backend_tools.RubberbandBase):
     def draw_rubberband(self, x0, y0, x1, y1):
-        self.remove_rubberband()
-        height = self.figure.canvas.figure.bbox.height
-        y0 = height - y0
-        y1 = height - y1
-        self.lastrect = self.figure.canvas._tkcanvas.create_rectangle(
-            x0, y0, x1, y1)
+        NavigationToolbar2Tk.draw_rubberband(
+            self._make_classic_style_pseudo_toolbar(), None, x0, y0, x1, y1)
 
     def remove_rubberband(self):
-        if hasattr(self, "lastrect"):
-            self.figure.canvas._tkcanvas.delete(self.lastrect)
-            del self.lastrect
+        NavigationToolbar2Tk.remove_rubberband(
+            self._make_classic_style_pseudo_toolbar())
+
+    lastrect = _api.deprecated("3.6")(
+        property(lambda self: self.figure.canvas._rubberband_rect))
 
 
 @_api.deprecated("3.5", alternative="ToolSetCursor")
@@ -869,32 +873,9 @@ class SaveFigureTk(backend_tools.SaveFigureBase):
 
 @backend_tools._register_tool_class(FigureCanvasTk)
 class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.window = None
-
     def trigger(self, *args):
-        self.init_window()
-        self.window.lift()
-
-    def init_window(self):
-        if self.window:
-            return
-
-        toolfig = Figure(figsize=(6, 3))
-        self.window = tk.Tk()
-
-        canvas = type(self.canvas)(toolfig, master=self.window)
-        toolfig.subplots_adjust(top=0.9)
-        SubplotTool(self.figure, toolfig)
-        canvas.draw()
-        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
-        self.window.protocol("WM_DELETE_WINDOW", self.destroy)
-
-    def destroy(self, *args, **kwargs):
-        if self.window is not None:
-            self.window.destroy()
-            self.window = None
+        NavigationToolbar2Tk.configure_subplots(
+            self._make_classic_style_pseudo_toolbar())
 
 
 @backend_tools._register_tool_class(FigureCanvasTk)

@@ -3,15 +3,11 @@ import sys
 import numpy as np
 
 from . import _backend_tk
-from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
+from .backend_cairo import cairo, FigureCanvasCairo
 from ._backend_tk import _BackendTk, FigureCanvasTk
 
 
 class FigureCanvasTkCairo(FigureCanvasCairo, FigureCanvasTk):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._renderer = RendererCairo(self.figure.dpi)
-
     def draw(self):
         width = int(self.figure.bbox.width)
         height = int(self.figure.bbox.height)
