@@ -382,7 +382,7 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     return [fname for fname in fontfiles if os.path.exists(fname)]
 
 
-def fontentry_helper_repr_png_(fontent):
+def _fontentry_helper_repr_png(fontent):
     from matplotlib.figure import Figure  # Circular import.
     fig = Figure()
     font_path = Path(fontent.fname) if fontent.fname != '' else None
@@ -392,8 +392,8 @@ def fontentry_helper_repr_png_(fontent):
         return buf.getvalue()
 
 
-def fontentry_helper_repr_html_(fontent):
-    png_stream = fontentry_helper_repr_png_(fontent)
+def _fontentry_helper_repr_html(fontent):
+    png_stream = _fontentry_helper_repr_png(fontent)
     png_b64 = b64encode(png_stream).decode()
     return f"<img src=\"data:image/png;base64, {png_b64}\" />"
 
@@ -414,8 +414,8 @@ FontEntry = dataclasses.make_dataclass(
 
     It is used when populating the font lookup dictionary.
     """,
-        '_repr_html_': lambda self: fontentry_helper_repr_html_(self),
-        '_repr_png_': lambda self: fontentry_helper_repr_png_(self),
+        '_repr_html_': lambda self: _fontentry_helper_repr_html(self),
+        '_repr_png_': lambda self: _fontentry_helper_repr_png(self),
     }
 )
 
