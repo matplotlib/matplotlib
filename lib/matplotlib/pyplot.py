@@ -199,8 +199,13 @@ def findobj(o=None, match=None, include_self=True):
 
 
 def _get_required_interactive_framework(backend_mod):
-    return getattr(
-        backend_mod.FigureCanvas, "required_interactive_framework", None)
+    if not hasattr(backend_mod.FigureCanvas, "required_interactive_framework"):
+        _api.warn_deprecated(
+            "3.6", name="Support for FigureCanvases without a "
+            "required_interactive_framework attribute")
+        return None
+    # Inline this once the deprecation elapses.
+    return backend_mod.FigureCanvas.required_interactive_framework
 
 
 def switch_backend(newbackend):

@@ -1,0 +1,4 @@
+``FigureCanvas`` without a ``required_interactive_framework`` attribute
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Support for such canvas classes is deprecated.  Note that canvas classes which
+inherit from ``FigureCanvasBase`` always have such an attribute.
