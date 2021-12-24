@@ -1679,6 +1679,7 @@ class FigureCanvasBase:
     def blit(self, bbox=None):
         """Blit the canvas in bbox (default entire canvas)."""
 
+    @_api.deprecated("3.6", alternative="FigureManagerBase.resize")
     def resize(self, w, h):
         """
         UNUSED: Set the canvas size in pixels.
