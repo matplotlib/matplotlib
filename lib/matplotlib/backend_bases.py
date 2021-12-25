@@ -1650,9 +1650,13 @@ class FigureCanvasBase:
             # In case we ever move the patch to IPython and remove these APIs,
             # don't break on our side.
             return
-        rif = getattr(cls, "required_interactive_framework", None)
-        backend2gui_rif = {"qt": "qt", "gtk3": "gtk3", "gtk4": "gtk4",
-                           "wx": "wx", "macosx": "osx"}.get(rif)
+        backend2gui_rif = {
+            "qt": "qt",
+            "gtk3": "gtk3",
+            "gtk4": "gtk4",
+            "wx": "wx",
+            "macosx": "osx",
+        }.get(cls.required_interactive_framework)
         if backend2gui_rif:
             if _is_non_interactive_terminal_ipython(ip):
                 ip.enable_gui(backend2gui_rif)
