@@ -3,7 +3,7 @@
 
 To easily support external libraries that rely on the MathText rendering of
 Matplotlib to generate equation images, a *color* keyword argument was added
-to`~matplotlib.mathtext.math_to_image`.
+to `~matplotlib.mathtext.math_to_image`.
 
 .. code-block:: python
 
