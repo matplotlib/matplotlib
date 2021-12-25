@@ -10,7 +10,7 @@ import numpy as np
 class _TransformRenderer(RendererBase):
     """
     A matplotlib renderer which performs transforms to change the final location of plotted
-    elements, and then defers drawing work to the original renderer. Used to produce zooming effects...
+    elements, and then defers drawing work to the original renderer.
     """
     def __init__(self, base_renderer: RendererBase, mock_transform: Transform, transform: Transform,
                  bounding_axes: Axes):
@@ -171,7 +171,6 @@ class _TransformRenderer(RendererBase):
         else:
             self.__renderer.draw_image(gc, x, y, out_arr)
 
-
 class ZoomViewAxes(Axes):
     """
     A zoom axes which automatically displays all of the elements it is currently zoomed in on. Does not require
@@ -184,11 +183,12 @@ class ZoomViewAxes(Axes):
         """
         Construct a new zoom axes.
 
-        :param axes_of_zoom: The axes to zoom in on, which this axes will be nested inside.
+        :param axes_of_zoom: The axes to zoom in on which this axes will be nested inside.
         :param rect: The bounding box to place this axes in, within the parent axes.
         :param transform: The transform to use when placing this axes in the parent axes. Defaults to
                           'axes_of_zoom.transData'.
-        :param zorder: An integer, the z-order of the axes. Defaults to 5.
+        :param zorder: An integer, the z-order of the axes. Defaults to 5, which means it is drawn on top of most
+                       object in the plot.
         :param kwargs: Any other keyword arguments which the Axes class accepts.
         """
         if(transform is None):
@@ -226,15 +226,15 @@ class ZoomViewAxes(Axes):
             *self.__zoom_axes.child_axes
         ]
 
-        img_boxes = []
-        # We need to temporarily disable the clip boxes of all of the images, in order to allow us to continue
-        # rendering them it even if it is outside of the parent axes (they might still be visible in this zoom axes).
-        for img in self.__zoom_axes.images:
-            img_boxes.append(img.get_clip_box())
-            img.set_clip_box(img.get_window_extent(renderer))
-
         # Sort all rendered item by their z-order so the render in layers correctly...
         axes_children.sort(key=lambda obj: obj.get_zorder())
+
+        artist_boxes = []
+        # We need to temporarily disable the clip boxes of all of the artists, in order to allow us to continue
+        # rendering them it even if it is outside of the parent axes (they might still be visible in this zoom axes).
+        for a in axes_children:
+            artist_boxes.append(a.get_clip_box())
+            a.set_clip_box(a.get_window_extent(renderer))
 
         # Construct mock renderer and draw all artists to it.
         mock_renderer = _TransformRenderer(renderer, self.__zoom_axes.transData, self.transData, self)
@@ -244,13 +244,13 @@ class ZoomViewAxes(Axes):
 
         for artist in axes_children:
             # If the artist is this or it does not land in the area we are drawing artists from, do not draw it,
-            # otherwise go ahead.
+            # otherwise go ahead. Done to improve performance...
             if((artist is not self) and (Bbox.intersection(artist.get_window_extent(renderer), axes_box) is not None)):
                 artist.draw(mock_renderer)
 
-        # Reset all of the image clip boxes...
-        for img, box in zip(self.__zoom_axes.images, img_boxes):
-            img.set_clip_box(box)
+        # Reset all of the artist clip boxes...
+        for a, box in zip(axes_children, artist_boxes):
+            a.set_clip_box(box)
 
         # We need to redraw the splines if enabled, as we have finally drawn everything... This avoids other objects
         # being drawn over the splines
