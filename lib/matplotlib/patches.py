@@ -484,7 +484,7 @@ class Patch(artist.Artist):
 
     def get_capstyle(self):
         """Return the capstyle."""
-        return self._capstyle
+        return self._capstyle.name
 
     @docstring.interpd
     def set_joinstyle(self, s):
@@ -501,7 +501,7 @@ class Patch(artist.Artist):
 
     def get_joinstyle(self):
         """Return the joinstyle."""
-        return self._joinstyle
+        return self._joinstyle.name
 
     def set_hatch(self, hatch):
         r"""
