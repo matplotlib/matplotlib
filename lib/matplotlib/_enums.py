@@ -128,6 +128,9 @@ class CapStyle(str, _AutoStringNameEnum):
     For a visual impression of each *CapStyle*, `view these docs online
     <CapStyle>` or run `CapStyle.demo`.
 
+    By default, `~.backend_bases.GraphicsContextBase` draws a stroked line as
+    squared off at its endpoints.
+
     **Supported values:**
 
     .. rst-class:: value-list
@@ -168,7 +171,6 @@ class CapStyle(str, _AutoStringNameEnum):
             ax.plot(xx, yy, lw=12, color='tab:blue', solid_capstyle=style)
             ax.plot(xx, yy, lw=1, color='black')
             ax.plot(xx, yy, 'o', color='tab:red', markersize=3)
-        ax.text(2.25, 0.55, '(default)', ha='center')
 
         ax.set_ylim(-.5, 1.5)
         ax.set_axis_off()
