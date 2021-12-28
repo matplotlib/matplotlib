@@ -369,8 +369,8 @@ class Axes(_AxesBase):
 
     def inset_zoom_axes(self, bounds, *, transform=None, zorder=5, **kwargs):
         """
-        Add a child inset Axes to this existing Axes, which automatically plots artists contained within the parent
-        Axes.
+        Add a child inset Axes to this existing Axes, which automatically plots
+        artists contained within the parent Axes.
 
         Parameters
         ----------
@@ -399,7 +399,8 @@ class Axes(_AxesBase):
         See `~.axes.Axes.inset_zoom` method for examples.
         """
         from ._zoom_axes import ZoomViewAxes
-        return ZoomViewAxes(self, mtransforms.Bbox.from_bounds(*bounds), transform, zorder, **kwargs)
+        return ZoomViewAxes(self, mtransforms.Bbox.from_bounds(*bounds),
+                            transform, zorder, **kwargs)
 
     @docstring.dedent_interpd
     def indicate_inset(self, bounds, inset_ax=None, *, transform=None,
