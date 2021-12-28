@@ -22,7 +22,6 @@ import matplotlib.font_manager as font_manager
 import matplotlib.image as mimage
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
-import matplotlib.path as mpath
 from matplotlib.rcsetup import cycler, validate_axisbelow
 import matplotlib.spines as mspines
 import matplotlib.table as mtable
@@ -2375,10 +2374,18 @@ class _AxesBase(martist.Artist):
                 ((not patch.get_width()) and (not patch.get_height()))):
             return
         p = patch.get_path()
-        vertices = p.vertices if p.codes is None else p.vertices[np.isin(
-            p.codes, (mpath.Path.CLOSEPOLY, mpath.Path.STOP), invert=True)]
-        if not vertices.size:
-            return
+        # Get all vertices on the path
+        # Loop through each sement to get extrema for Bezier curve sections
+        vertices = []
+        for curve, code in p.iter_bezier():
+            # Get distance along the curve of any extrema
+            _, dzeros = curve.axis_aligned_extrema()
+            # Calculate vertcies of start, end and any extrema in between
+            vertices.append(curve([0, *dzeros, 1]))
+
+        if len(vertices):
+            vertices = np.row_stack(vertices)
+
         patch_trf = patch.get_transform()
         updatex, updatey = patch_trf.contains_branch_seperately(self.transData)
         if not (updatex or updatey):
