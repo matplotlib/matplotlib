@@ -312,14 +312,6 @@ class Line3DCollection(LineCollection):
             minz = min(minz, min(zs))
         return minz
 
-    @artist.allow_rasterization
-    @_api.delete_parameter('3.4', 'project',
-                           alternative='Line3DCollection.do_3d_projection')
-    def draw(self, renderer, project=False):
-        if project:
-            self.do_3d_projection()
-        super().draw(renderer)
-
 
 def line_collection_2d_to_3d(col, zs=0, zdir='z'):
     """Convert a LineCollection to a Line3DCollection object."""
