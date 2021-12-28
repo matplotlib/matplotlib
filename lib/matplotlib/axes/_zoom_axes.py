@@ -1,9 +1,12 @@
+from typing import Optional
+
 from matplotlib.path import Path
 from matplotlib.axes import Axes
 from matplotlib.axes._axes import _TransformedBoundsLocator
 from matplotlib.transforms import Bbox, Transform, IdentityTransform, Affine2D
 from matplotlib.backend_bases import RendererBase
 import matplotlib._image as _image
+import matplotlib.docstring as docstring
 import numpy as np
 
 
@@ -17,15 +20,29 @@ class _TransformRenderer(RendererBase):
         """
         Constructs a new TransformRender.
 
-        :param base_renderer: The renderer to use for finally drawing objects.
-        :param mock_transform: The transform or coordinate space which all passed paths/triangles/images will be
-                               converted to before being placed back into display coordinates by the main transform.
-                               For example if the parent axes transData is passed, all objects will be converted to
-                               the parent axes data coordinate space before being transformed via the main transform
-                               back into coordinate space.
-        :param transform: The main transform to be used for plotting all objects once converted into the mock_transform
-                          coordinate space. Typically this is the child axes data coordinate space (transData).
-        :param bounding_axes: The axes to plot everything within. Everything outside of this axes will be clipped.
+        Parameters
+        ----------
+        base_renderer: `~matplotlib.backend_bases.RenderBase`
+            The renderer to use for drawing objects after applying transforms.
+
+        mock_transform: `~matplotlib.transforms.Transform`
+            The transform or coordinate space which all passed paths/triangles/images will be
+            converted to before being placed back into display coordinates by the main transform.
+            For example if the parent axes transData is passed, all objects will be converted to
+            the parent axes data coordinate space before being transformed via the main transform
+            back into coordinate space.
+
+        transform: `~matplotlib.transforms.Transform`
+            The main transform to be used for plotting all objects once converted into the mock_transform
+            coordinate space. Typically this is the child axes data coordinate space (transData).
+
+        bounding_axes: `~matplotlib.axes.Axes`
+            The axes to plot everything within. Everything outside of this axes will be clipped.
+
+        Returns
+        -------
+        `~._zoom_axes._TransformRenderer`
+            The new transform renderer.
         """
         super().__init__()
         self.__renderer = base_renderer
@@ -39,15 +56,21 @@ class _TransformRenderer(RendererBase):
         """
         return self.__bounding_axes.patch.get_bbox().transformed(self.__bounding_axes.transAxes)
 
-    def _get_transfer_transform(self, orig_transform):
+    def _get_transfer_transform(self, orig_transform: Transform) -> Transform:
         """
         Private method, returns the transform which translates and scales coordinates as if they were originally
         plotted on the child axes instead of the parent axes.
 
-        :param orig_transform: The transform that was going to be originally used by the object/path/text/image.
+        Parameters
+        ----------
+        orig_transform: `~matplotlib.transforms.Transform`
+            The transform that was going to be originally used by the object/path/text/image.
 
-        :return: A matplotlib transform which goes from original point data -> display coordinates if the data was
-                 originally plotted on the child axes instead of the parent axes.
+        Returns
+        -------
+        `~matplotlib.transforms.Transform`
+            A matplotlib transform which goes from original point data -> display coordinates if the data was
+            originally plotted on the child axes instead of the parent axes.
         """
         # We apply the original transform to go to display coordinates, then apply the parent data transform inverted
         # to go to the parent axes coordinate space (data space), then apply the child axes data transform to
@@ -171,28 +194,48 @@ class _TransformRenderer(RendererBase):
         else:
             self.__renderer.draw_image(gc, x, y, out_arr)
 
+
+@docstring.interpd
 class ZoomViewAxes(Axes):
     """
-    A zoom axes which automatically displays all of the elements it is currently zoomed in on. Does not require
-    Artists to be plotted twice.
+    An inset axes which automatically displays elements of the parent axes it is currently placed inside.
+    Does not require Artists to be plotted twice.
     """
     MAX_RENDER_DEPTH = 1  # The number of allowed recursions in the draw method.
     # Allows for zoom axes to zoom in on zoom axes
 
-    def __init__(self, axes_of_zoom: Axes, rect: Bbox, transform = None, zorder = 5, **kwargs):
+    def __init__(self, axes_of_zoom: Axes, rect: Bbox, transform: Optional[Transform] = None,
+                 zorder: int = 5, **kwargs):
         """
-        Construct a new zoom axes.
+        Construct a new zoomed inset axes.
 
-        :param axes_of_zoom: The axes to zoom in on which this axes will be nested inside.
-        :param rect: The bounding box to place this axes in, within the parent axes.
-        :param transform: The transform to use when placing this axes in the parent axes. Defaults to
-                          'axes_of_zoom.transData'.
-        :param zorder: An integer, the z-order of the axes. Defaults to 5, which means it is drawn on top of most
-                       object in the plot.
-        :param kwargs: Any other keyword arguments which the Axes class accepts.
+        Parameters
+        ----------
+        axes_of_zoom: `~.axes.Axes`
+            The axes to zoom in on which this axes will be nested inside.
+
+        rect: `~matplotlib.transforms.Bbox`
+            The bounding box to place this axes in, within the parent axes.
+
+        transform: `~matplotlib.transforms.Transform` or None
+            The transform to use when placing this axes in the parent axes. Defaults to
+            'axes_of_zoom.transAxes'.
+
+        zorder: int
+            An integer, the z-order of the axes. Defaults to 5.
+
+        **kwargs
+            Other optional keyword arguments:
+
+            %(Axes:kwdoc)s
+
+        Returns
+        -------
+        `~.axes.ZoomViewAxes`
+            The new zoom view axes instance...
         """
         if(transform is None):
-            transform = axes_of_zoom.transData
+            transform = axes_of_zoom.transAxes
 
         inset_loc = _TransformedBoundsLocator(rect.bounds, transform)
         bb = inset_loc(axes_of_zoom, None)

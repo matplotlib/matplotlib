@@ -367,6 +367,40 @@ class Axes(_AxesBase):
 
         return inset_ax
 
+    def inset_zoom_axes(self, bounds, *, transform=None, zorder=5, **kwargs):
+        """
+        Add a child inset Axes to this existing Axes, which automatically plots artists contained within the parent
+        Axes.
+
+        Parameters
+        ----------
+        bounds : [x0, y0, width, height]
+            Lower-left corner of inset Axes, and its width and height.
+
+        transform : `.Transform`
+            Defaults to `ax.transAxes`, i.e. the units of *rect* are in
+            Axes-relative coordinates.
+
+        zorder : number
+            Defaults to 5 (same as `.Axes.legend`).  Adjust higher or lower
+            to change whether it is above or below data plotted on the
+            parent Axes.
+
+        **kwargs
+            Other keyword arguments are passed on to the child `.Axes`.
+
+        Returns
+        -------
+        ax
+            The created `~.axes.Axes` instance.
+
+        Examples
+        --------
+        See `~.axes.Axes.inset_zoom` method for examples.
+        """
+        from ._zoom_axes import ZoomViewAxes
+        return ZoomViewAxes(self, mtransforms.Bbox.from_bounds(*bounds), transform, zorder, **kwargs)
+
     @docstring.dedent_interpd
     def indicate_inset(self, bounds, inset_ax=None, *, transform=None,
                        facecolor='none', edgecolor='0.5', alpha=0.5,
