@@ -27,8 +27,7 @@ Z2[30:30+ny, 30:30+nx] = Z
 ax.imshow(Z2, extent=extent, origin="lower")
 
 # inset axes....
-axins = ax.inset_axes([0.5, 0.5, 0.47, 0.47])
-axins.imshow(Z2, extent=extent, origin="lower")
+axins = ax.inset_zoom_axes([0.5, 0.5, 0.47, 0.47])
 # sub region of the original image
 x1, x2, y1, y2 = -1.5, -0.9, -2.5, -1.9
 axins.set_xlim(x1, x2)
@@ -47,6 +46,6 @@ plt.show()
 #    The use of the following functions, methods, classes and modules is shown
 #    in this example:
 #
-#    - `matplotlib.axes.Axes.inset_axes`
+#    - `matplotlib.axes.Axes.inset_zoom_axes`
 #    - `matplotlib.axes.Axes.indicate_inset_zoom`
 #    - `matplotlib.axes.Axes.imshow`
