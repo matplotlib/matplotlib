@@ -4,6 +4,7 @@ Classes for including text in a figure.
 
 import logging
 import math
+import numbers
 import weakref
 
 import numpy as np
@@ -149,7 +150,7 @@ class Text(Artist):
         self.set_verticalalignment(verticalalignment)
         self.set_horizontalalignment(horizontalalignment)
         self._multialignment = multialignment
-        self._rotation = rotation
+        self.set_rotation(rotation)
         self._transform_rotates_text = transform_rotates_text
         self._bbox_patch = None  # a FancyBboxPatch instance
         self._renderer = None
@@ -1177,6 +1178,11 @@ class Text(Artist):
             The rotation angle in degrees in mathematically positive direction
             (counterclockwise). 'horizontal' equals 0, 'vertical' equals 90.
         """
+        if (s is not None and
+                not isinstance(s, numbers.Real) and
+                s not in ['vertical', 'horizontal']):
+            raise ValueError("rotation must be 'vertical', 'horizontal' or "
+                             f"a number, not {s}")
         self._rotation = s
         self.stale = True
 
