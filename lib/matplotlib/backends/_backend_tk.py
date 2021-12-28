@@ -279,6 +279,9 @@ class FigureCanvasTk(FigureCanvasBase):
             guiEvent=event, xy=self._event_mpl_coords(event))
 
     def button_press_event(self, event, dblclick=False):
+        # set focus to the canvas so that it can receive keyboard events
+        self._tkcanvas.focus_set()
+
         num = getattr(event, 'num', None)
         if sys.platform == 'darwin':  # 2 and 3 are reversed.
             num = {2: 3, 3: 2}.get(num, num)
@@ -467,6 +470,7 @@ class FigureManagerTk(FigureManagerBase):
                     Gcf.destroy(self)
                 self.window.protocol("WM_DELETE_WINDOW", destroy)
                 self.window.deiconify()
+                self.canvas._tkcanvas.focus_set()
             else:
                 self.canvas.draw_idle()
             if mpl.rcParams['figure.raise_window']:
