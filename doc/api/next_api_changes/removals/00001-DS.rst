@@ -11,3 +11,7 @@ The deprecated ``renderer`` arguments have been removed from:
 
 The deprecated ``project`` argument has also been removed from
 ``Line3DCollection.draw()``.
+
+Passing arguments not specifically listed in the signatures of
+`.Axes3D.plot_surface` and `.Axes3D.plot_wireframe` is no longer supported.
+Pass any extra arguments as keyword arguments instead.
