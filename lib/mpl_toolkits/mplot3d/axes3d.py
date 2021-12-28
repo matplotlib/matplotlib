@@ -424,29 +424,9 @@ class Axes3D(Axes):
         with cbook._setattr_cm(type(renderer), **props3d):
             def do_3d_projection(artist):
                 """
-                Call `do_3d_projection` on an *artist*, and warn if passing
-                *renderer*.
-
-                Attempt to bind the empty signature first, so external Artists
-                can avoid the deprecation warning if they support the new
-                calling convention.
+                Call `do_3d_projection` on an *artist*.
                 """
-                try:
-                    signature = inspect.signature(artist.do_3d_projection)
-                    signature.bind()
-                # ValueError if `inspect.signature` cannot provide a signature
-                # and TypeError if the binding fails or the object does not
-                # appear to be callable - the next call will then re-raise.
-                except (ValueError, TypeError):
-                    _api.warn_deprecated(
-                        "3.4",
-                        message="The 'renderer' parameter of "
-                        "do_3d_projection() was deprecated in Matplotlib "
-                        "%(since)s and will be removed %(removal)s.")
-                    return artist.do_3d_projection(renderer)
-                else:
-                    # Call this directly once the deprecation period expires.
-                    return artist.do_3d_projection()
+                return artist.do_3d_projection()
 
             collections_and_patches = (
                 artist for artist in self._children

@@ -1,0 +1,10 @@
+Removal of ``renderer`` arguments in mplot3d
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The deprecated ``renderer`` arguments have been removed from:
+
+- `.Line3DCollection.do_3d_projection`
+- `.Patch3D.do_3d_projection`
+- `.PathPatch3D.do_3d_projection`
+- `.Path3DCollection.do_3d_projection`
+- `.Patch3DCollection.do_3d_projection`
+- `.Poly3DCollection.do_3d_projection`
