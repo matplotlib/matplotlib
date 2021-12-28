@@ -806,6 +806,18 @@ class Rectangle(Patch):
         """Return the left and bottom coords of the rectangle as a tuple."""
         return self._x0, self._y0
 
+    def get_corners(self):
+        """
+        Return the corners of the rectangle, moving anti-clockwise from
+        (x0, y0).
+        """
+        return self.get_patch_transform().transform(
+            [(0, 0), (1, 0), (1, 1), (0, 1)])
+
+    def get_center(self):
+        """Return the centre of the rectangle."""
+        return self.get_patch_transform().transform((0.5, 0.5))
+
     def get_width(self):
         """Return the width of the rectangle."""
         return self._width
@@ -1656,6 +1668,16 @@ class Ellipse(Patch):
         return self._angle
 
     angle = property(get_angle, set_angle)
+
+    def get_corners(self):
+        """
+        Return the corners of the ellipse bounding box.
+
+        The bounding box orientation is moving anti-clockwise from the
+        lower left corner defined before rotation.
+        """
+        return self.get_patch_transform().transform(
+            [(-1, -1), (1, -1), (1, 1), (-1, 1)])
 
 
 class Annulus(Patch):
