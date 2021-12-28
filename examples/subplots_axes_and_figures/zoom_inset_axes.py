@@ -24,7 +24,7 @@ Z2 = np.zeros((150, 150))
 ny, nx = Z.shape
 Z2[30:30+ny, 30:30+nx] = Z
 
-ax.imshow(Z2, extent=extent, origin="lower")
+ax.imshow(Z2, extent=extent, interpolation='nearest', origin="lower")
 
 # inset axes....
 axins = ax.inset_zoom_axes([0.5, 0.5, 0.47, 0.47])
