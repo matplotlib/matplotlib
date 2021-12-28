@@ -194,6 +194,7 @@ Text and annotations
    Axes.table
    Axes.arrow
    Axes.inset_axes
+   Axes.inset_zoom_axes
    Axes.indicate_inset
    Axes.indicate_inset_zoom
    Axes.secondary_xaxis
