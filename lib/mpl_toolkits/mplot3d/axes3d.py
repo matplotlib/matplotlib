@@ -405,62 +405,41 @@ class Axes3D(Axes):
 
         # add the projection matrix to the renderer
         self.M = self.get_proj()
-        props3d = {
-            # To raise a deprecation, we need to wrap the attribute in a
-            # function, but binding that to an instance does not work, as you
-            # would end up with an instance-specific method. Properties are
-            # class-level attributes which *are* functions, so we do that
-            # instead.
-            # This dictionary comprehension creates deprecated properties for
-            # the attributes listed below, and they are temporarily attached to
-            # the _class_ in the `_setattr_cm` call. These can both be removed
-            # once the deprecation expires
-            name: _api.deprecated('3.4', name=name,
-                                  alternative=f'self.axes.{name}')(
-                property(lambda self, _value=getattr(self, name): _value))
-            for name in ['M', 'vvec', 'eye', 'get_axis_position']
-        }
 
-        with cbook._setattr_cm(type(renderer), **props3d):
-            def do_3d_projection(artist):
-                """
-                Call `do_3d_projection` on an *artist*.
-                """
-                return artist.do_3d_projection()
+        collections_and_patches = (
+            artist for artist in self._children
+            if isinstance(artist, (mcoll.Collection, mpatches.Patch))
+            and artist.get_visible())
+        if self.computed_zorder:
+            # Calculate projection of collections and patches and zorder
+            # them. Make sure they are drawn above the grids.
+            zorder_offset = max(axis.get_zorder()
+                                for axis in self._get_axis_list()) + 1
+            collection_zorder = patch_zorder = zorder_offset
 
-            collections_and_patches = (
-                artist for artist in self._children
-                if isinstance(artist, (mcoll.Collection, mpatches.Patch))
-                and artist.get_visible())
-            if self.computed_zorder:
-                # Calculate projection of collections and patches and zorder
-                # them. Make sure they are drawn above the grids.
-                zorder_offset = max(axis.get_zorder()
-                                    for axis in self._get_axis_list()) + 1
-                collection_zorder = patch_zorder = zorder_offset
-                for artist in sorted(collections_and_patches,
-                                     key=do_3d_projection,
-                                     reverse=True):
-                    if isinstance(artist, mcoll.Collection):
-                        artist.zorder = collection_zorder
-                        collection_zorder += 1
-                    elif isinstance(artist, mpatches.Patch):
-                        artist.zorder = patch_zorder
-                        patch_zorder += 1
-            else:
-                for artist in collections_and_patches:
-                    artist.do_3d_projection()
+            for artist in sorted(collections_and_patches,
+                                 key=lambda artist: artist.do_3d_projection(),
+                                 reverse=True):
+                if isinstance(artist, mcoll.Collection):
+                    artist.zorder = collection_zorder
+                    collection_zorder += 1
+                elif isinstance(artist, mpatches.Patch):
+                    artist.zorder = patch_zorder
+                    patch_zorder += 1
+        else:
+            for artist in collections_and_patches:
+                artist.do_3d_projection()
 
-            if self._axis3don:
-                # Draw panes first
-                for axis in self._get_axis_list():
-                    axis.draw_pane(renderer)
-                # Then axes
-                for axis in self._get_axis_list():
-                    axis.draw(renderer)
+        if self._axis3don:
+            # Draw panes first
+            for axis in self._get_axis_list():
+                axis.draw_pane(renderer)
+            # Then axes
+            for axis in self._get_axis_list():
+                axis.draw(renderer)
 
-            # Then rest
-            super().draw(renderer)
+        # Then rest
+        super().draw(renderer)
 
     def get_axis_position(self):
         vals = self.get_w_lims()
