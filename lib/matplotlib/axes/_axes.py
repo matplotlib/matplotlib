@@ -370,7 +370,7 @@ class Axes(_AxesBase):
 
     def inset_zoom_axes(self, bounds, *, transform=None, zorder=5,
                         image_interpolation="nearest", **kwargs):
-        f"""
+        """
         Add a child inset Axes to this existing Axes, which automatically plots
         artists contained within the parent Axes.
 
@@ -389,9 +389,12 @@ class Axes(_AxesBase):
             parent Axes.
 
         image_interpolation: string
-            Supported options are: {set(mimage._interpd_)}
-            The default value is 'nearest'. This determines the interpolation
-            used when attempting to render a zoomed version of an image.
+            Supported options are 'antialiased', 'nearest', 'bilinear',
+            'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
+            'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
+            'sinc', 'lanczos', or 'none'. The default value is 'nearest'. This
+            determines the interpolation used when attempting to render a
+            zoomed version of an image.
 
         **kwargs
             Other keyword arguments are passed on to the child `.Axes`.

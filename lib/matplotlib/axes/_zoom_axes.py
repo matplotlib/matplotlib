@@ -25,7 +25,7 @@ class _TransformRenderer(RendererBase):
         bounding_axes: Axes,
         image_interpolation: str = "nearest"
     ):
-        f"""
+        """
         Constructs a new TransformRender.
 
         Parameters
@@ -51,9 +51,12 @@ class _TransformRenderer(RendererBase):
             axes will be clipped.
             
         image_interpolation: string
-            Supported options are: {set(_interpd_)}
-            The default value is 'nearest'. This determines the interpolation
-            used when attempting to render a zoomed version of an image.
+            Supported options are 'antialiased', 'nearest', 'bilinear',
+            'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
+            'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
+            'sinc', 'lanczos', or 'none'. The default value is 'nearest'. This
+            determines the interpolation used when attempting to render a
+            zoomed version of an image.
 
         Returns
         -------
@@ -261,7 +264,7 @@ class ZoomViewAxes(Axes):
         image_interpolation: str = "nearest",
         **kwargs
     ):
-        f"""
+        """
         Construct a new zoomed inset axes.
 
         Parameters
@@ -280,9 +283,12 @@ class ZoomViewAxes(Axes):
             An integer, the z-order of the axes. Defaults to 5.
 
         image_interpolation: string
-            Supported options are: {set(_interpd_)}
-            The default value is 'nearest'. This determines the interpolation
-            used when attempting to render a zoomed version of an image.
+            Supported options are 'antialiased', 'nearest', 'bilinear', 
+            'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 
+            'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 
+            'sinc', 'lanczos', or 'none'. The default value is 'nearest'. This 
+            determines the interpolation used when attempting to render a 
+            zoomed version of an image.
 
         **kwargs
             Other optional keyword arguments:
