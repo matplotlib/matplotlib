@@ -6121,6 +6121,36 @@ def test_title_xticks_top_both():
     assert ax.title.get_position()[1] > 1.04
 
 
+@pytest.mark.parametrize(
+    'left, center', [
+        ('left', ''),
+        ('', 'center'),
+        ('left', 'center')
+    ], ids=[
+        'left title moved',
+        'center title kept',
+        'both titles aligned'
+    ]
+)
+def test_title_above_offset(left, center):
+    # Test that title moves if overlaps with yaxis offset text.
+    mpl.rcParams['axes.titley'] = None
+    fig, ax = plt.subplots()
+    ax.set_ylim(1e11)
+    ax.set_title(left, loc='left')
+    ax.set_title(center)
+    fig.draw_without_rendering()
+    if left and not center:
+        assert ax._left_title.get_position()[1] > 1.0
+    elif not left and center:
+        assert ax.title.get_position()[1] == 1.0
+    else:
+        yleft = ax._left_title.get_position()[1]
+        ycenter = ax.title.get_position()[1]
+        assert yleft > 1.0
+        assert ycenter == yleft
+
+
 def test_title_no_move_off_page():
     # If an axes is off the figure (ie. if it is cropped during a save)
     # make sure that the automatic title repositioning does not get done.

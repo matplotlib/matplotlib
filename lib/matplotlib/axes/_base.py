@@ -2990,6 +2990,12 @@ class _AxesBase(martist.Artist):
                 if bb is None:
                     bb = ax.get_window_extent(renderer)
                 top = max(top, bb.ymax)
+                if title.get_text():
+                    ax.yaxis.get_tightbbox(renderer)  # update offsetText
+                    if ax.yaxis.offsetText.get_text():
+                        bb = ax.yaxis.offsetText.get_tightbbox(renderer)
+                        if bb.intersection(title.get_tightbbox(renderer), bb):
+                            top = bb.ymax
             if top < 0:
                 # the top of Axes is not even on the figure, so don't try and
                 # automatically place it.
