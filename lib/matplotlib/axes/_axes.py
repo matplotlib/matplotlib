@@ -119,8 +119,8 @@ class Axes(_AxesBase):
 
         y : float, default: :rc:`axes.titley`
             Vertical Axes loation for the title (1.0 is the top).  If
-            None (the default), y is determined automatically to avoid
-            decorators on the Axes.
+            None (the default) and :rc:`axes.titley` is also None, y is
+            determined automatically to avoid decorators on the Axes.
 
         pad : float, default: :rc:`axes.titlepad`
             The offset of the title from the top of the Axes, in points.
