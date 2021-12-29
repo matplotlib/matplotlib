@@ -10,6 +10,7 @@ import matplotlib.docstring as docstring
 import numpy as np
 from matplotlib.image import _interpd_
 
+
 class _TransformRenderer(RendererBase):
     """
     A matplotlib renderer which performs transforms to change the final
@@ -49,7 +50,7 @@ class _TransformRenderer(RendererBase):
         bounding_axes: `~matplotlib.axes.Axes`
             The axes to plot everything within. Everything outside of this
             axes will be clipped.
-            
+
         image_interpolation: string
             Supported options are 'antialiased', 'nearest', 'bilinear',
             'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
@@ -283,11 +284,11 @@ class ZoomViewAxes(Axes):
             An integer, the z-order of the axes. Defaults to 5.
 
         image_interpolation: string
-            Supported options are 'antialiased', 'nearest', 'bilinear', 
-            'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite', 
-            'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell', 
-            'sinc', 'lanczos', or 'none'. The default value is 'nearest'. This 
-            determines the interpolation used when attempting to render a 
+            Supported options are 'antialiased', 'nearest', 'bilinear',
+            'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
+            'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
+            'sinc', 'lanczos', or 'none'. The default value is 'nearest'. This
+            determines the interpolation used when attempting to render a
             zoomed version of an image.
 
         **kwargs

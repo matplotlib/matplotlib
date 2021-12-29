@@ -30,7 +30,6 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 import matplotlib.units as munits
-import matplotlib.image as mimage
 from matplotlib import _api, _preprocess_data, rcParams
 from matplotlib.axes._base import (
     _AxesBase, _TransformedBoundsLocator, _process_plot_format)
