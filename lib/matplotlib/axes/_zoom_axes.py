@@ -8,7 +8,7 @@ from matplotlib.backend_bases import RendererBase
 import matplotlib._image as _image
 import matplotlib.docstring as docstring
 import numpy as np
-
+from matplotlib.image import _interpd_
 
 class _TransformRenderer(RendererBase):
     """
@@ -16,14 +16,16 @@ class _TransformRenderer(RendererBase):
     location of plotted elements, and then defers drawing work to the
     original renderer.
     """
+
     def __init__(
         self,
         base_renderer: RendererBase,
         mock_transform: Transform,
         transform: Transform,
-        bounding_axes: Axes
+        bounding_axes: Axes,
+        image_interpolation: str = "nearest"
     ):
-        """
+        f"""
         Constructs a new TransformRender.
 
         Parameters
@@ -47,6 +49,11 @@ class _TransformRenderer(RendererBase):
         bounding_axes: `~matplotlib.axes.Axes`
             The axes to plot everything within. Everything outside of this
             axes will be clipped.
+            
+        image_interpolation: string
+            Supported options are: {set(_interpd_)}
+            The default value is 'nearest'. This determines the interpolation
+            used when attempting to render a zoomed version of an image.
 
         Returns
         -------
@@ -58,6 +65,13 @@ class _TransformRenderer(RendererBase):
         self.__mock_trans = mock_transform
         self.__core_trans = transform
         self.__bounding_axes = bounding_axes
+
+        try:
+            self.__img_inter = _interpd_[image_interpolation.lower()]
+        except KeyError:
+            raise ValueError(
+                f"Invalid Interpolation Mode: {image_interpolation}"
+            )
 
     def _get_axes_display_box(self) -> Bbox:
         """
@@ -215,8 +229,8 @@ class _TransformRenderer(RendererBase):
         out_arr = np.zeros((out_h, out_w, im.shape[2]), dtype=im.dtype)
         trans_msk = np.zeros((out_h, out_w), dtype=im.dtype)
 
-        _image.resample(im, out_arr, img_trans, _image.NEAREST, alpha=1)
-        _image.resample(im[:, :, 3], trans_msk, img_trans, _image.NEAREST,
+        _image.resample(im, out_arr, img_trans, self.__img_inter, alpha=1)
+        _image.resample(im[:, :, 3], trans_msk, img_trans, self.__img_inter,
                         alpha=1)
         out_arr[:, :, 3] = trans_msk
 
@@ -244,9 +258,10 @@ class ZoomViewAxes(Axes):
         rect: Bbox,
         transform: Optional[Transform] = None,
         zorder: int = 5,
+        image_interpolation: str = "nearest",
         **kwargs
     ):
-        """
+        f"""
         Construct a new zoomed inset axes.
 
         Parameters
@@ -263,6 +278,11 @@ class ZoomViewAxes(Axes):
 
         zorder: int
             An integer, the z-order of the axes. Defaults to 5.
+
+        image_interpolation: string
+            Supported options are: {set(_interpd_)}
+            The default value is 'nearest'. This determines the interpolation
+            used when attempting to render a zoomed version of an image.
 
         **kwargs
             Other optional keyword arguments:
@@ -284,6 +304,7 @@ class ZoomViewAxes(Axes):
                          **kwargs)
 
         self.__zoom_axes = axes_of_zoom
+        self.__image_interpolation = image_interpolation
         self.set_axes_locator(inset_loc)
 
         self._render_depth = 0
@@ -325,7 +346,8 @@ class ZoomViewAxes(Axes):
 
         # Construct mock renderer and draw all artists to it.
         mock_renderer = _TransformRenderer(
-            renderer, self.__zoom_axes.transData, self.transData, self
+            renderer, self.__zoom_axes.transData, self.transData, self,
+            self.__image_interpolation
         )
         x1, x2 = self.get_xlim()
         y1, y2 = self.get_ylim()

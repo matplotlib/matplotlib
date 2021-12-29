@@ -30,6 +30,7 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 import matplotlib.units as munits
+import matplotlib.image as mimage
 from matplotlib import _api, _preprocess_data, rcParams
 from matplotlib.axes._base import (
     _AxesBase, _TransformedBoundsLocator, _process_plot_format)
@@ -367,8 +368,9 @@ class Axes(_AxesBase):
 
         return inset_ax
 
-    def inset_zoom_axes(self, bounds, *, transform=None, zorder=5, **kwargs):
-        """
+    def inset_zoom_axes(self, bounds, *, transform=None, zorder=5,
+                        image_interpolation="nearest", **kwargs):
+        f"""
         Add a child inset Axes to this existing Axes, which automatically plots
         artists contained within the parent Axes.
 
@@ -386,6 +388,11 @@ class Axes(_AxesBase):
             to change whether it is above or below data plotted on the
             parent Axes.
 
+        image_interpolation: string
+            Supported options are: {set(mimage._interpd_)}
+            The default value is 'nearest'. This determines the interpolation
+            used when attempting to render a zoomed version of an image.
+
         **kwargs
             Other keyword arguments are passed on to the child `.Axes`.
 
@@ -400,7 +407,7 @@ class Axes(_AxesBase):
         """
         from ._zoom_axes import ZoomViewAxes
         return ZoomViewAxes(self, mtransforms.Bbox.from_bounds(*bounds),
-                            transform, zorder, **kwargs)
+                            transform, zorder, image_interpolation, **kwargs)
 
     @docstring.dedent_interpd
     def indicate_inset(self, bounds, inset_ax=None, *, transform=None,
