@@ -14,7 +14,6 @@ import contextlib
 import functools
 import inspect
 import math
-import re
 import warnings
 
 
@@ -48,10 +47,6 @@ def _generate_deprecation_warning(
             + (" %(addendum)s" if addendum else ""))
     warning_cls = (PendingDeprecationWarning if pending
                    else MatplotlibDeprecationWarning)
-    # remove backticks, optional leading dot and replace reference by caption
-    if alternative:
-        alternative = re.sub(r"`([^`]*?) *<.*?>`|`\.?(.+?)`", r"\1\2",
-                             alternative)
     return warning_cls(message % dict(
         func=name, name=name, obj_type=obj_type, since=since, removal=removal,
         alternative=alternative, addendum=addendum))

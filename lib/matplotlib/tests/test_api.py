@@ -93,6 +93,3 @@ def test_deprecation_alternative():
     def f():
         pass
     assert alternative in f.__doc__
-    with pytest.warns(_api.MatplotlibDeprecationWarning,
-                      match=r".* f1, f2, f3\(x\) or f4\(x\)"):
-        f()
