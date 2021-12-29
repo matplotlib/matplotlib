@@ -406,7 +406,7 @@ class Axes(_AxesBase):
 
         Examples
         --------
-        See `~.axes.Axes.inset_zoom` method for examples.
+        See `Axes.inset_axes` method for examples.
         """
         from ._zoom_axes import ZoomViewAxes
         return ZoomViewAxes(self, mtransforms.Bbox.from_bounds(*bounds),
