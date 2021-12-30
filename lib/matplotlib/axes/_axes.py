@@ -407,9 +407,18 @@ class Axes(_AxesBase):
         --------
         See `Axes.inset_axes` method for examples.
         """
-        from ._zoom_axes import ZoomViewAxes
-        return ZoomViewAxes(self, mtransforms.Bbox.from_bounds(*bounds),
-                            transform, zorder, image_interpolation, **kwargs)
+        if(transform is None):
+            transform = self.transAxes
+
+        inset_loc = _TransformedBoundsLocator(bounds, transform)
+        bb = inset_loc(self, None)
+
+        from ._zoom_axes import ViewAxes
+        axin = ViewAxes(self, bb.bounds, zorder, image_interpolation, **kwargs)
+        axin.set_axes_locator(inset_loc)
+        self.add_child_axes(axin)
+
+        return axin
 
     @docstring.dedent_interpd
     def indicate_inset(self, bounds, inset_ax=None, *, transform=None,

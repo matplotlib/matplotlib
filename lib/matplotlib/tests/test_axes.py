@@ -6429,6 +6429,7 @@ def test_auto_zoom_inset(fig_test, fig_ref):
     ax_test.imshow(im_data, origin="lower", cmap="Blues", alpha=0.5,
                    interpolation="nearest")
     axins_test = ax_test.inset_zoom_axes([0.5, 0.5, 0.48, 0.48])
+    axins_test.set_linescaling(False)
     axins_test.set_xlim(1, 5)
     axins_test.set_ylim(1, 5)
     ax_test.indicate_inset_zoom(axins_test, edgecolor="black")

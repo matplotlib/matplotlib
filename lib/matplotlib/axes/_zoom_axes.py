@@ -1,10 +1,7 @@
-from typing import Optional
-
 from matplotlib.path import Path
 from matplotlib.axes import Axes
-from matplotlib.axes._axes import _TransformedBoundsLocator
 from matplotlib.transforms import Bbox, Transform, IdentityTransform, Affine2D
-from matplotlib.backend_bases import RendererBase
+from matplotlib.backend_bases import RendererBase, GraphicsContextBase
 import matplotlib._image as _image
 import matplotlib.docstring as docstring
 import numpy as np
@@ -24,7 +21,8 @@ class _TransformRenderer(RendererBase):
         mock_transform: Transform,
         transform: Transform,
         bounding_axes: Axes,
-        image_interpolation: str = "nearest"
+        image_interpolation: str = "nearest",
+        scale_linewidths: bool = True
     ):
         """
         Constructs a new TransformRender.
@@ -59,6 +57,10 @@ class _TransformRenderer(RendererBase):
             determines the interpolation used when attempting to render a
             zoomed version of an image.
 
+        scale_linewidths: bool, default is True
+            Specifies if line widths should be scaled, in addition to the
+            paths themselves.
+
         Returns
         -------
         `~._zoom_axes._TransformRenderer`
@@ -69,6 +71,7 @@ class _TransformRenderer(RendererBase):
         self.__mock_trans = mock_transform
         self.__core_trans = transform
         self.__bounding_axes = bounding_axes
+        self.__scale_widths = scale_linewidths
 
         try:
             self.__img_inter = _interpd_[image_interpolation.lower()]
@@ -76,6 +79,23 @@ class _TransformRenderer(RendererBase):
             raise ValueError(
                 f"Invalid Interpolation Mode: {image_interpolation}"
             )
+
+    def _scale_gc(
+        self,
+        gc: GraphicsContextBase
+    ) -> GraphicsContextBase:
+        transfer_transform = self._get_transfer_transform(IdentityTransform())
+        new_gc = self.__renderer.new_gc()
+        new_gc.copy_properties(gc)
+
+        unit_box = Bbox.from_bounds(0, 0, 1, 1)
+        unit_box = transfer_transform.transform_bbox(unit_box)
+        mult_factor = np.sqrt(unit_box.width * unit_box.height)
+
+        new_gc.set_linewidth(gc.get_linewidth() * mult_factor)
+        new_gc._hatch_linewidth = gc.get_hatch_linewidth() * mult_factor
+
+        return new_gc
 
     def _get_axes_display_box(self) -> Bbox:
         """
@@ -149,6 +169,9 @@ class _TransformRenderer(RendererBase):
     def flipy(self):
         return self.__renderer.flipy()
 
+    def new_gc(self):
+        return self.__renderer.new_gc()
+
     # Actual drawing methods below:
     def draw_path(self, gc, path: Path, transform: Transform, rgbFace=None):
         # Convert the path to display coordinates, but if it was originally
@@ -164,6 +187,9 @@ class _TransformRenderer(RendererBase):
         if(not path.intersects_bbox(bbox, True)):
             return
 
+        if(self.__scale_widths):
+            gc = self._scale_gc(gc)
+
         # Change the clip to the sub-axes box
         gc.set_clip_rectangle(bbox)
 
@@ -173,6 +199,7 @@ class _TransformRenderer(RendererBase):
         # If the text field is empty, don't even try rendering it...
         if((s is None) or (s.strip() == "")):
             return
+
         # Call the super class instance, which works for all cases except one
         # checked above... (Above case causes error)
         super()._draw_text_as_path(gc, x, y, s, prop, angle, ismath)
@@ -186,6 +213,9 @@ class _TransformRenderer(RendererBase):
 
         if(not path.intersects_bbox(bbox, True)):
             return
+
+        if(self.__scale_widths):
+            gc = self._scale_gc(gc)
 
         gc.set_clip_rectangle(bbox)
 
@@ -238,6 +268,9 @@ class _TransformRenderer(RendererBase):
                         alpha=1)
         out_arr[:, :, 3] = trans_msk
 
+        if(self.__scale_widths):
+            gc = self._scale_gc(gc)
+
         gc.set_clip_rectangle(clipped_out_box)
 
         x, y = clipped_out_box.x0, clipped_out_box.y0
@@ -249,36 +282,31 @@ class _TransformRenderer(RendererBase):
 
 
 @docstring.interpd
-class ZoomViewAxes(Axes):
+class ViewAxes(Axes):
     """
-    An inset axes which automatically displays elements of the parent axes it
-    is currently placed inside. Does not require Artists to be plotted twice.
+    An axes which automatically displays elements of another axes. Does not
+    require Artists to be plotted twice.
     """
     MAX_RENDER_DEPTH = 1  # The number of allowed recursions in the draw method
 
     def __init__(
         self,
-        axes_of_zoom: Axes,
-        rect: Bbox,
-        transform: Optional[Transform] = None,
-        zorder: int = 5,
-        image_interpolation: str = "nearest",
+        axes_to_view,
+        rect,
+        zorder=5,
+        image_interpolation="nearest",
         **kwargs
     ):
         """
-        Construct a new zoomed inset axes.
+        Construct a new view axes.
 
         Parameters
         ----------
-        axes_of_zoom: `~.axes.Axes`
+        axes_to_view: `~.axes.Axes`
             The axes to zoom in on which this axes will be nested inside.
 
-        rect: `~matplotlib.transforms.Bbox`
-            The bounding box to place this axes in, within the parent axes.
-
-        transform: `~matplotlib.transforms.Transform` or None
-            The transform to use when placing this axes in the parent axes.
-            Defaults to 'axes_of_zoom.transAxes'.
+        rect: [left, bottom, width, height]
+            The Axes is built in the rectangle *rect*.
 
         zorder: int
             An integer, the z-order of the axes. Defaults to 5.
@@ -289,7 +317,7 @@ class ZoomViewAxes(Axes):
             'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
             'sinc', 'lanczos', or 'none'. The default value is 'nearest'. This
             determines the interpolation used when attempting to render a
-            zoomed version of an image.
+            view of an image.
 
         **kwargs
             Other optional keyword arguments:
@@ -301,22 +329,13 @@ class ZoomViewAxes(Axes):
         `~.axes.ZoomViewAxes`
             The new zoom view axes instance...
         """
-        if(transform is None):
-            transform = axes_of_zoom.transAxes
-
-        inset_loc = _TransformedBoundsLocator(rect.bounds, transform)
-        bb = inset_loc(axes_of_zoom, None)
-
-        super().__init__(axes_of_zoom.figure, bb.bounds, zorder=zorder,
+        super().__init__(axes_to_view.figure, rect, zorder=zorder,
                          **kwargs)
 
-        self.__zoom_axes = axes_of_zoom
+        self.__view_axes = axes_to_view
         self.__image_interpolation = image_interpolation
-        self.set_axes_locator(inset_loc)
-
         self._render_depth = 0
-
-        axes_of_zoom.add_child_axes(self)
+        self.__scale_lines = True
 
     def draw(self, renderer=None):
         if(self._render_depth >= self.MAX_RENDER_DEPTH):
@@ -329,13 +348,13 @@ class ZoomViewAxes(Axes):
             return
 
         axes_children = [
-            *self.__zoom_axes.collections,
-            *self.__zoom_axes.patches,
-            *self.__zoom_axes.lines,
-            *self.__zoom_axes.texts,
-            *self.__zoom_axes.artists,
-            *self.__zoom_axes.images,
-            *self.__zoom_axes.child_axes
+            *self.__view_axes.collections,
+            *self.__view_axes.patches,
+            *self.__view_axes.lines,
+            *self.__view_axes.texts,
+            *self.__view_axes.artists,
+            *self.__view_axes.images,
+            *self.__view_axes.child_axes
         ]
 
         # Sort all rendered item by their z-order so the render in layers
@@ -353,13 +372,13 @@ class ZoomViewAxes(Axes):
 
         # Construct mock renderer and draw all artists to it.
         mock_renderer = _TransformRenderer(
-            renderer, self.__zoom_axes.transData, self.transData, self,
-            self.__image_interpolation
+            renderer, self.__view_axes.transData, self.transData, self,
+            self.__image_interpolation, self.__scale_lines
         )
         x1, x2 = self.get_xlim()
         y1, y2 = self.get_ylim()
         axes_box = Bbox.from_extents(x1, y1, x2, y2).transformed(
-            self.__zoom_axes.transData
+            self.__view_axes.transData
         )
 
         for artist in axes_children:
@@ -384,3 +403,27 @@ class ZoomViewAxes(Axes):
                 spine.draw(renderer)
 
         self._render_depth -= 1
+
+    def get_linescaling(self) -> bool:
+        """
+        Get if line width scaling is enabled.
+
+        Returns
+        -------
+        bool
+            If line width scaling is enabled returns True, otherwise False.
+        """
+        return self.__scale_lines
+
+    def set_linescaling(self, value: bool):
+        """
+        Set whether line widths should be scaled when rendering a view of an
+        axes.
+
+        Parameters
+        ----------
+        value: bool
+            If true, scale line widths in the view to match zoom level.
+            Otherwise don't.
+        """
+        self.__scale_lines = value

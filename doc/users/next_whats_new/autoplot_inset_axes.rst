@@ -15,7 +15,7 @@ compatible with the `~matplotlib.axes.Axes.inset_axes` method.
     np.random.seed(1)
     fig = plt.figure()
     ax = fig.gca()
-    ax.plot([i for i in range(10)], "r")
+    ax.plot([i for i in range(10)], "r-o")
     ax.text(3, 2.5, "Hello World!", ha="center")
     ax.imshow(np.random.rand(30, 30), origin="lower", cmap="Blues", alpha=0.5)
     axins = ax.inset_zoom_axes([0.5, 0.5, 0.48, 0.48])
