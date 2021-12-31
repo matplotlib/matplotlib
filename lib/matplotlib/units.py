@@ -29,7 +29,7 @@ datetime objects::
                 return None
             majloc = dates.AutoDateLocator()
             majfmt = dates.AutoDateFormatter(majloc)
-            return AxisInfo(majloc=majloc, majfmt=majfmt, label='date')
+            return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='date')
 
         @staticmethod
         def default_units(x, axis):
