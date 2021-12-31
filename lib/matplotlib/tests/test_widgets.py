@@ -926,14 +926,17 @@ def test_span_selector_animated_artists_callback():
     (ln,) = ax.plot(x, values, animated=True)
     (ln2, ) = ax.plot([], animated=True)
 
+    # spin the event loop to let the backend process any pending operations
+    # before drawing artists
+    # See blitting tutorial
     plt.pause(0.1)
     ax.draw_artist(ln)
     fig.canvas.blit(fig.bbox)
 
     def mean(vmin, vmax):
+        # Return mean of values in x between *vmin* and *vmax*
         indmin, indmax = np.searchsorted(x, (vmin, vmax))
         v = values[indmin:indmax].mean()
-        print('here', x, v)
         ln2.set_data(x, v)
 
     span = widgets.SpanSelector(ax, mean, direction='horizontal',
@@ -941,6 +944,9 @@ def test_span_selector_animated_artists_callback():
                                 interactive=True,
                                 drag_from_anywhere=True,
                                 useblit=True)
+
+    # Add span selector and check that the line is draw after it was updated
+    # by the callback
     press_data = [1, 2]
     move_data = [2, 2]
     do_event(span, 'press', xdata=press_data[0], ydata=press_data[1], button=1)
@@ -952,6 +958,8 @@ def test_span_selector_animated_artists_callback():
     span.update()
     assert ln2.stale is False
 
+    # Change span selector and check that the line is drawn/updated after its
+    # value was updated by the callback
     press_data = [4, 2]
     move_data = [5, 2]
     release_data = [5, 2]
