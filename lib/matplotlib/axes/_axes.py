@@ -118,7 +118,7 @@ class Axes(_AxesBase):
             Which title to set.
 
         y : float, default: :rc:`axes.titley`
-            Vertical Axes loation for the title (1.0 is the top).  If
+            Vertical Axes location for the title (1.0 is the top).  If
             None (the default) and :rc:`axes.titley` is also None, y is
             determined automatically to avoid decorators on the Axes.
 
