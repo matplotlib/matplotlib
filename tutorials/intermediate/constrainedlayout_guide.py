@@ -142,7 +142,7 @@ fig.colorbar(im, ax=axs[:, -1], shrink=0.6)
 # Suptitle
 # =========
 #
-# ``constrained_layout`` can also make room for `~.figure.Figure.suptitle`.
+# ``constrained_layout`` can also make room for `~.Figure.suptitle`.
 
 fig, axs = plt.subplots(2, 2, figsize=(4, 4), constrained_layout=True)
 for ax in axs.flat:
@@ -228,7 +228,7 @@ fig.savefig('../../doc/_static/constrained_layout_2b.png',
 #
 # Padding between axes is controlled in the horizontal by *w_pad* and
 # *wspace*, and vertical by *h_pad* and *hspace*.  These can be edited
-# via `~.figure.Figure.set_constrained_layout_pads`.  *w/h_pad* are
+# via `~.Figure.set_constrained_layout_pads`.  *w/h_pad* are
 # the minimum space around the axes in units of inches:
 
 fig, axs = plt.subplots(2, 2, constrained_layout=True)

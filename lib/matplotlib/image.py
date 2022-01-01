@@ -1748,7 +1748,7 @@ def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
 
     Returns
     -------
-    `~.figure.Figure`
+    `.Figure`
         The figure instance containing the thumbnail.
     """
 

@@ -28,15 +28,15 @@ that include interactive tools, a toolbar, a tool-tip, and
 :ref:`key bindings <key-event-handling>`:
 
 `.pyplot.figure`
-    Creates a new empty `.figure.Figure` or selects an existing figure
+    Creates a new empty `.Figure` or selects an existing figure
 
 `.pyplot.subplots`
-    Creates a new `.figure.Figure` and fills it with a grid of `.axes.Axes`
+    Creates a new `.Figure` and fills it with a grid of `~.axes.Axes`
 
 `.pyplot` has a notion of "The Current Figure" which can be accessed
 through `.pyplot.gcf` and a notion of "The Current Axes" accessed
 through `.pyplot.gca`.  Almost all of the functions in `.pyplot` pass
-through the current `.Figure` / `.axes.Axes` (or create one) as
+through the current `.Figure` / `~.axes.Axes` (or create one) as
 appropriate.
 
 Matplotlib keeps a reference to all of the open figures
@@ -184,7 +184,7 @@ the GUI main loop in some other way.
 
 .. warning::
 
-   Using `.figure.Figure.show` it is possible to display a figure on
+   Using `.Figure.show` it is possible to display a figure on
    the screen without starting the event loop and without being in
    interactive mode.  This may work (depending on the GUI toolkit) but
    will likely result in a non-responsive figure.

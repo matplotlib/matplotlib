@@ -344,7 +344,7 @@ class GridSpec(GridSpecBase):
         nrows, ncols : int
             The number of rows and columns of the grid.
 
-        figure : `~.figure.Figure`, optional
+        figure : `.Figure`, optional
             Only used for constrained layout to create a proper layoutgrid.
 
         left, right, top, bottom : float, optional
