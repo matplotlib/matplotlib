@@ -242,7 +242,7 @@ Simple quiver plot for mplot3d toolkit
 A team of students in an *Engineering Large Software Systems* course, taught
 by Prof. Anya Tafliovich at the University of Toronto, implemented a simple
 version of a quiver plot in 3D space for the mplot3d toolkit as one of their
-term project. This feature is documented in :func:`~mpl_toolkits.mplot3d.Axes3D.quiver`.
+term project. This feature is documented in `~.Axes3D.quiver`.
 The team members are: Ryan Steve D'Souza, Victor B, xbtsw, Yang Wang, David,
 Caradec Bisesar and Vlad Vassilovski.
 
