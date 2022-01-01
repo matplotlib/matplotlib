@@ -354,7 +354,7 @@ class ViewAxes(Axes):
             *self.__view_axes.child_axes
         ]
 
-        # Sort all rendered item by their z-order so the render in layers
+        # Sort all rendered items by their z-order so they render in layers
         # correctly...
         axes_children.sort(key=lambda obj: obj.get_zorder())
 
@@ -394,7 +394,7 @@ class ViewAxes(Axes):
             a.set_clip_box(box)
 
         # We need to redraw the splines if enabled, as we have finally drawn
-        # everything... This avoids other objects being drawn over the splines
+        # everything... This avoids other objects being drawn over the splines.
         if(self.axison and self._frameon):
             for spine in self.spines.values():
                 spine.draw(renderer)
