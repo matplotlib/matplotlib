@@ -12,7 +12,6 @@ Module containing Axes3D, an object which can plot 3D objects on a
 
 from collections import defaultdict
 import functools
-import inspect
 import itertools
 import math
 from numbers import Integral

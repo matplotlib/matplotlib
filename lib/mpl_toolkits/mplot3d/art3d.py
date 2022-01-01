@@ -12,8 +12,7 @@ import math
 import numpy as np
 
 from matplotlib import (
-    _api, artist, cbook, colors as mcolors, lines, text as mtext,
-    path as mpath)
+    artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
 from matplotlib.collections import (
     LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.colors import Normalize
