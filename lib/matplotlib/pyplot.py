@@ -1363,13 +1363,12 @@ def subplots(nrows=1, ncols=1, *, sharex=False, sharey=False, squeeze=True,
 
     Returns
     -------
-    fig : `~.figure.Figure`
+    fig : `.Figure`
 
-    ax : `.axes.Axes` or array of Axes
-        *ax* can be either a single `~matplotlib.axes.Axes` object or an
-        array of Axes objects if more than one subplot was created.  The
-        dimensions of the resulting array can be controlled with the squeeze
-        keyword, see above.
+    ax : `~.axes.Axes` or array of Axes
+        *ax* can be either a single `~.axes.Axes` object, or an array of Axes
+        objects if more than one subplot was created.  The dimensions of the
+        resulting array can be controlled with the squeeze keyword, see above.
 
         Typical idioms for handling the return value are::
 
@@ -1516,7 +1515,7 @@ def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
 
     Returns
     -------
-    fig : `~.figure.Figure`
+    fig : `.Figure`
        The new figure
 
     dict[label, Axes]

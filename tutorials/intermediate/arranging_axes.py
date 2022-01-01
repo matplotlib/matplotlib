@@ -1,7 +1,7 @@
 """
-=====================================
+===================================
 Arranging multiple Axes in a Figure
-=====================================
+===================================
 
 Often more than one Axes is wanted on a figure at a time, usually
 organized into a regular grid.  Matplotlib has a variety of tools for
@@ -37,7 +37,7 @@ or
     `.Figure.subplot_mosaic` and :doc:`/tutorials/provisional/mosaic`.
 
 Sometimes it is natural to have more than one distinct group of Axes grids,
-in which case Matplotlib has the concept of `~.figure.SubFigure`:
+in which case Matplotlib has the concept of `.SubFigure`:
 
 `~matplotlib.figure.SubFigure`
     A virtual figure within a figure.
