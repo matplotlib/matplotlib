@@ -1,7 +1,7 @@
 from matplotlib.path import Path
 from matplotlib.axes import Axes
-from matplotlib.transforms import Bbox, Transform, IdentityTransform, Affine2D
-from matplotlib.backend_bases import RendererBase, GraphicsContextBase
+from matplotlib.transforms import Bbox, IdentityTransform, Affine2D
+from matplotlib.backend_bases import RendererBase
 import matplotlib._image as _image
 import matplotlib.docstring as docstring
 import numpy as np
@@ -17,12 +17,12 @@ class _TransformRenderer(RendererBase):
 
     def __init__(
         self,
-        base_renderer: RendererBase,
-        mock_transform: Transform,
-        transform: Transform,
-        bounding_axes: Axes,
-        image_interpolation: str = "nearest",
-        scale_linewidths: bool = True
+        base_renderer,
+        mock_transform,
+        transform,
+        bounding_axes,
+        image_interpolation="nearest",
+        scale_linewidths=True
     ):
         """
         Constructs a new TransformRender.
@@ -80,10 +80,7 @@ class _TransformRenderer(RendererBase):
                 f"Invalid Interpolation Mode: {image_interpolation}"
             )
 
-    def _scale_gc(
-        self,
-        gc: GraphicsContextBase
-    ) -> GraphicsContextBase:
+    def _scale_gc(self, gc):
         transfer_transform = self._get_transfer_transform(IdentityTransform())
         new_gc = self.__renderer.new_gc()
         new_gc.copy_properties(gc)
@@ -97,7 +94,7 @@ class _TransformRenderer(RendererBase):
 
         return new_gc
 
-    def _get_axes_display_box(self) -> Bbox:
+    def _get_axes_display_box(self):
         """
         Private method, get the bounding box of the child axes in display
         coordinates.
@@ -106,7 +103,7 @@ class _TransformRenderer(RendererBase):
             self.__bounding_axes.transAxes
         )
 
-    def _get_transfer_transform(self, orig_transform: Transform) -> Transform:
+    def _get_transfer_transform(self, orig_transform):
         """
         Private method, returns the transform which translates and scales
         coordinates as if they were originally plotted on the child axes
@@ -173,7 +170,7 @@ class _TransformRenderer(RendererBase):
         return self.__renderer.new_gc()
 
     # Actual drawing methods below:
-    def draw_path(self, gc, path: Path, transform: Transform, rgbFace=None):
+    def draw_path(self, gc, path, transform, rgbFace=None):
         # Convert the path to display coordinates, but if it was originally
         # drawn on the child axes.
         path = path.deepcopy()
@@ -195,7 +192,7 @@ class _TransformRenderer(RendererBase):
 
         self.__renderer.draw_path(gc, path, IdentityTransform(), rgbFace)
 
-    def _draw_text_as_path(self, gc, x, y, s: str, prop, angle, ismath):
+    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
         # If the text field is empty, don't even try rendering it...
         if((s is None) or (s.strip() == "")):
             return
@@ -404,7 +401,7 @@ class ViewAxes(Axes):
 
         self._render_depth -= 1
 
-    def get_linescaling(self) -> bool:
+    def get_linescaling(self):
         """
         Get if line width scaling is enabled.
 
@@ -415,7 +412,7 @@ class ViewAxes(Axes):
         """
         return self.__scale_lines
 
-    def set_linescaling(self, value: bool):
+    def set_linescaling(self, value):
         """
         Set whether line widths should be scaled when rendering a view of an
         axes.
