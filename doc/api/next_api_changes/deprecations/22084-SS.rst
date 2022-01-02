@@ -1,0 +1,4 @@
+``Axes3D.dist``
+~~~~~~~~~~~~~~~
+... has been privatized. Use the ``zoom`` keyword argument in
+`.Axes3D.set_box_aspect` instead.
