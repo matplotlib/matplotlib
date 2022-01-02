@@ -340,7 +340,7 @@ Added a :mod:`.legend_handler` for :class:`~matplotlib.collections.PolyCollectio
 Support for alternate pivots in mplot3d quiver plot
 ```````````````````````````````````````````````````
 
-Added a :code:`pivot` kwarg to :func:`~mpl_toolkits.mplot3d.Axes3D.quiver`
+Added a :code:`pivot` kwarg to `~.Axes3D.quiver`
 that controls the pivot point around which the quiver line rotates. This also
 determines the placement of the arrow head along the quiver line.
 
