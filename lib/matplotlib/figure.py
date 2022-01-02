@@ -1129,15 +1129,7 @@ default: %(va)s
             self, mappable, cax=None, ax=None, use_gridspec=True, **kwargs):
         """%(colorbar_doc)s"""
         if ax is None:
-            ax = self.gca()
-            if (hasattr(mappable, "axes") and ax is not mappable.axes
-                    and cax is None):
-                _api.warn_deprecated(
-                    "3.4", message="Starting from Matplotlib 3.6, colorbar() "
-                    "will steal space from the mappable's axes, rather than "
-                    "from the current axes, to place the colorbar.  To "
-                    "silence this warning, explicitly pass the 'ax' argument "
-                    "to colorbar().")
+            ax = getattr(mappable, "axes", self.gca())
 
         # Store the value of gca so that we can set it back later on.
         if cax is None:
