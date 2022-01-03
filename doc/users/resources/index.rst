@@ -77,3 +77,7 @@ Tutorials
 * `Anatomy of Matplotlib - IPython Notebooks
   <https://github.com/WeatherGod/AnatomyOfMatplotlib>`_
   by Benjamin Root
+
+* `Beyond the Basics: Data Visualization in Python
+  <https://github.com/stefmolin/python-data-viz-workshop>`_
+  by Stefanie Molin
