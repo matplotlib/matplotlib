@@ -1465,6 +1465,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
         anchor=anchor,
         panchor=panchor,
         fraction=fraction,
+        aspect=aspect0,
         pad=pad)
     # and we need to set the aspect ratio by hand...
     cax.set_anchor(anchor)
