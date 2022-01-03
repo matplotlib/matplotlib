@@ -56,7 +56,7 @@ Learning resources
     How-tos
     ^^^^^^^
     - :doc:`Example gallery <gallery/index>`
-    - :doc:`Matplotlib FAQ <faq/index>`
+    - :doc:`Matplotlib FAQ <users/faq/index>`
 
     ---
 
