@@ -1410,10 +1410,13 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     anchor = kwargs.pop('anchor', loc_settings['anchor'])
     panchor = kwargs.pop('panchor', loc_settings['panchor'])
     aspect0 = aspect
-    # turn parents into a list if it is not already. We do this w/ np
-    # because `plt.subplots` can return an ndarray and is natural to
-    # pass to `colorbar`.
-    parents = np.atleast_1d(parents).ravel()
+    # turn parents into a list if it is not already.  Note we cannot
+    # use .flatten or .ravel as these copy the references rather than
+    # reuse them, leading to a memory leak
+    if isinstance(parents, np.ndarray):
+        parents = [parent for parent in parents.flat]
+    if not isinstance(parents, list):
+        parents = [parents]
     fig = parents[0].get_figure()
 
     pad0 = 0.05 if fig.get_constrained_layout() else loc_settings['pad']
@@ -1461,8 +1464,8 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
         # tell the parent it has a colorbar
         a._colorbars += [cax]
     cax._colorbar_info = dict(
-        location=location,
         parents=parents,
+        location=location,
         shrink=shrink,
         anchor=anchor,
         panchor=panchor,
@@ -1586,6 +1589,7 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
         fraction=fraction,
         aspect=aspect0,
         pad=pad)
+
     return cax, kwargs
 
 
