@@ -624,11 +624,6 @@ class AxisArtist(martist.Artist):
 
     zorder = 2.5
 
-    @_api.deprecated("3.4")
-    @_api.classproperty
-    def ZORDER(cls):
-        return cls.zorder
-
     @property
     def LABELPAD(self):
         return self.label.get_pad()

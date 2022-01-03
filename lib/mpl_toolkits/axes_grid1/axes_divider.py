@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import _api
 from matplotlib.axes import SubplotBase
-from matplotlib.gridspec import SubplotSpec, GridSpec
+from matplotlib.gridspec import SubplotSpec
 import matplotlib.transforms as mtransforms
 from . import axes_size as Size
 
@@ -367,30 +367,6 @@ class SubplotDivider(Divider):
     def get_position(self):
         """Return the bounds of the subplot box."""
         return self.get_subplotspec().get_position(self.figure).bounds
-
-    @_api.deprecated("3.4")
-    @property
-    def figbox(self):
-        return self.get_subplotspec().get_position(self.figure)
-
-    @_api.deprecated("3.4")
-    def update_params(self):
-        pass
-
-    @_api.deprecated(
-        "3.4", alternative="get_subplotspec",
-        addendum="(get_subplotspec returns a SubplotSpec instance.)")
-    def get_geometry(self):
-        """Get the subplot geometry, e.g., (2, 2, 3)."""
-        rows, cols, num1, num2 = self.get_subplotspec().get_geometry()
-        return rows, cols, num1 + 1  # for compatibility
-
-    @_api.deprecated("3.4", alternative="set_subplotspec")
-    def change_geometry(self, numrows, numcols, num):
-        """Change subplot geometry, e.g., from (1, 1, 1) to (2, 2, 3)."""
-        self._subplotspec = GridSpec(numrows, numcols)[num-1]
-        self.update_params()
-        self.set_position(self.figbox)
 
     def get_subplotspec(self):
         """Get the SubplotSpec instance."""

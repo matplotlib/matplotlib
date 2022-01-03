@@ -1,0 +1,13 @@
+``axes_grid`` and ``axisartist`` removals
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following deprecated APIs have been removed:
+
+- ``SubplotDivider.figbox``, ``SubplotDivider.update_params``,
+- ``SubplotDivider.get_geometry`` (use ``get_subplotspec`` instead),
+- ``change_geometry`` (use ``set_subplotspec`` instead),
+- ``ParasiteAxesBase.update_viewlim`` (use ``apply_aspect`` instead),
+- ``ParasiteAxesAuxTransBase`` (use ``ParasiteAxesBase`` instead),
+- ``parasite_axes_auxtrans_class_factory`` (use ``parasite_axes_class_factory``
+  instead),
+-  ``ParasiteAxesAuxTrans`` (use ``ParasiteAxes`` instead),
