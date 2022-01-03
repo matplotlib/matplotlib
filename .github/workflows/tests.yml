@@ -157,7 +157,7 @@ jobs:
 
           # Install dependencies from PyPI.
           python -m pip install --upgrade $PRE \
-            cycler fonttools kiwisolver numpy packaging pillow pyparsing \
+            cycler fonttools kiwisolver "numpy<1.22" packaging pillow pyparsing \
             python-dateutil setuptools-scm \
             -r requirements/testing/all.txt \
             ${{ matrix.extra-requirements }}
