@@ -261,7 +261,6 @@ class _ColorbarAxesLocator:
         # we need to reset the aspect ratio of the axes to account
         # of the extends...
 
-        aspect = ax.get_box_aspect()
         ax._colorbar_info['aspect'] = aspect
         # now shrink and/or offset to take into account the
         # extend tri/rectangles.
