@@ -260,10 +260,9 @@ class _ColorbarAxesLocator:
         offset = extendlen[0] / len
         # we need to reset the aspect ratio of the axes to account
         # of the extends...
-        if hasattr(ax, '_colorbar_info'):
-            aspect = ax._colorbar_info['aspect']
-        else:
-            aspect = False
+
+        aspect = ax.get_box_aspect()
+        ax._colorbar_info['aspect'] = aspect
         # now shrink and/or offset to take into account the
         # extend tri/rectangles.
         if self._cbar.orientation == 'vertical':
@@ -1467,7 +1466,6 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
         anchor=anchor,
         panchor=panchor,
         fraction=fraction,
-        aspect=aspect0,
         pad=pad)
     # and we need to set the aspect ratio by hand...
     cax.set_anchor(anchor)
