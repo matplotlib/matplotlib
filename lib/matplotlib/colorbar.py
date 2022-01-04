@@ -1414,8 +1414,8 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     # use .flatten or .ravel as these copy the references rather than
     # reuse them, leading to a memory leak
     if isinstance(parents, np.ndarray):
-        parents = [parent for parent in parents.flat]
-    if not isinstance(parents, list):
+        parents = list(parents.flat)
+    elif not isinstance(parents, list):
         parents = [parents]
     fig = parents[0].get_figure()
 
