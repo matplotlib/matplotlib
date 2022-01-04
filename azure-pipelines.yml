@@ -129,6 +129,7 @@ stages:
         displayName: 'print env'
 
       - bash: |
+          export NPY_DISABLE_CPU_FEATURES="AVX512F,AVX512CD,AVX512VL,AVX512BW,AVX512DQ,AVX512_SKX"
           PYTHONFAULTHANDLER=1 python -m pytest --junitxml=junit/test-results.xml -raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n 2 ||
             [[ "$PYTHON_VERSION" = 'Pre' ]]
         displayName: 'pytest'
