@@ -1035,6 +1035,16 @@ class Colorbar:
         self.ax.set_box_aspect(aspect)
         self.ax.set_aspect('auto')
 
+    def get_aspect(self):
+        """
+        Get the ratio of long to short axis for the colorbar.
+        """
+        if hasattr(self.ax, '_colorbar_info'):
+            return self.ax._colorbar_info['aspect']
+        else:
+            return self.ax.get_box_aspect()
+
+
     def remove(self):
         """
         Remove this colorbar from the figure.
