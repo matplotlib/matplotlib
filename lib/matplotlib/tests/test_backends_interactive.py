@@ -23,6 +23,7 @@ def _run_function_in_subprocess(func):
     return f"{func_source}\n{func.__name__}()"
 
 
+
 # Minimal smoke-testing of the backends for which the dependencies are
 # PyPI-installable on CI.  They are not available for all tested Python
 # versions so we don't fail on missing backends.
@@ -342,6 +343,50 @@ def test_qt5backends_uses_qt5():
         env={**os.environ, "SOURCE_DATE_EPOCH": "0"},
         timeout=_test_timeout, check=True,
         stdout=subprocess.PIPE, universal_newlines=True)
+
+
+def _impl_test_cross_Qt_imports():
+    import sys
+    import importlib
+    import pytest
+
+    _, host_binding, mpl_binding = sys.argv
+    # import the mpl binding.  This will force us to use that binding
+    importlib.import_module(f'{mpl_binding}.QtCore')
+    mpl_binding_qwidgets = importlib.import_module(f'{mpl_binding}.QtWidgets')
+    import matplotlib.backends.backend_qt
+    host_qwidgets = importlib.import_module(f'{host_binding}.QtWidgets')
+
+    host_app = host_qwidgets.QApplication(["mpl testing"])
+    with pytest.warns(UserWarning, match="Mixing Qt major"):
+        matplotlib.backends.backend_qt._create_qApp()
+
+
+def test_cross_Qt_imports():
+    qt5_bindings = [
+        dep for dep in ['PyQt5', 'PySide2']
+        if importlib.util.find_spec(dep) is not None
+    ]
+    qt6_bindings = [
+        dep for dep in ['PyQt6', 'PySide6']
+        if importlib.util.find_spec(dep) is not None
+    ]
+    if len(qt5_bindings) == 0 or len(qt6_bindings) == 0:
+        pytest.skip('need both QT6 and QT5 bindings')
+
+    for qt5 in qt5_bindings:
+        for qt6 in qt6_bindings:
+            for pair in ([qt5, qt6], [qt6, qt5]):
+                try:
+                    _run_helper(__name__, _impl_test_cross_Qt_imports,
+                                *pair,
+                                timeout=_test_timeout)
+                except subprocess.CalledProcessError as ex:
+                    # if segfauldt, carry on.  We do try to warn the user they
+                    # are doing something that we do not expect to work
+                    if ex.returncode == -11:
+                        continue
+                    raise
 
 
 @pytest.mark.skipif('TF_BUILD' in os.environ,
