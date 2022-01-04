@@ -28,7 +28,8 @@ def test_tinypages(tmpdir):
     # coverage anyways); hide them using GCOV_ERROR_FILE.
     proc = Popen(
         cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True,
-        env={**os.environ, "MPLBACKEND": "", "GCOV_ERROR_FILE": os.devnull})
+        env={**os.environ, "MPLBACKEND": "", "GCOV_ERROR_FILE": os.devnull,
+             "NPY_DISABLE_CPU_FEATURES": ""})
     out, err = proc.communicate()
 
     # Build the pages with warnings turned into errors
@@ -128,7 +129,8 @@ def build_sphinx_html(source_dir, doctree_dir, html_dir, extra_args=None):
     cmd = [sys.executable, '-msphinx', '-W', '-b', 'html',
            '-d', str(doctree_dir), str(source_dir), str(html_dir), *extra_args]
     proc = Popen(cmd, stdout=PIPE, stderr=PIPE, universal_newlines=True,
-                 env={**os.environ, "MPLBACKEND": ""})
+                 env={**os.environ, "MPLBACKEND": "",
+                      "NPY_DISABLE_CPU_FEATURES": ""})
     out, err = proc.communicate()
 
     assert proc.returncode == 0, \
