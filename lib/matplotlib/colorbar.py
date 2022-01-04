@@ -1015,6 +1015,26 @@ class Colorbar:
         else:
             self.__scale = scale
 
+    def set_aspect(self, aspect):
+        """
+        Set ratio of the long axis to short axis.  Note this only works for axes
+        created by `~.FigureBase.colorbar`, `~.colorbar.make_axes`, or
+        `~.colorbar.make_axes_grdispec`.  User-created axes should be changed by
+        the user.
+
+        Parameters:
+        -----------
+        aspect : float
+        """
+        if not hasattr(self.ax, '_colorbar_info'):
+            raise RuntimeError('Colorbar cannot change the aspect ratio of '
+                               'user-defined axes.')
+        self.ax._colorbar_info['aspect'] = aspect
+        if self.orientation == 'horizontal':
+            aspect = 1 / aspect
+        self.ax.set_box_aspect(aspect)
+        self.ax.set_aspect('auto')
+
     def remove(self):
         """
         Remove this colorbar from the figure.
