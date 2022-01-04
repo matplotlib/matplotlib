@@ -1,10 +1,13 @@
 """
-***********
-Basic Usage
-***********
+*****************
+Quick start guide
+*****************
 
 This tutorial covers some basic usage patterns and best practices to
 help you get started with Matplotlib.
+
+.. redirect-from:: /tutorials/introductory/usage
+
 """
 
 # sphinx_gallery_thumbnail_number = 3

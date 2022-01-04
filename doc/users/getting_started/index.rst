@@ -44,7 +44,7 @@ Here is a minimal example plot:
    ax.plot(x, y)
    plt.show()
 
-If a plot does not show up please check :ref:`troubleshooting-faq`.  
+If a plot does not show up please check :ref:`troubleshooting-faq`.
 
 Where to go next
 ----------------
@@ -52,4 +52,4 @@ Where to go next
 - Check out :doc:`Plot types </plot_types/index>` to get an overview of the
   types of plots you can create with Matplotlib.
 - Learn Matplotlib from the ground up in the
-  :doc:`Quick-start guide </tutorials/introductory/usage>`.
+  :doc:`Quick-start guide </tutorials/introductory/quick_start>`.
