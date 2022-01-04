@@ -235,7 +235,7 @@ yet parsed, but this is a prerequisite for implementing subsetting.
 3D contourf polygons placed between levels
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The polygons used in a 3D `~mpl_toolkits.mplot3d.Axes3D.contourf` plot are now
+The polygons used in a 3D `~.Axes3D.contourf` plot are now
 placed halfway between the contour levels, as each polygon represents the
 location of values that lie between two levels.
 

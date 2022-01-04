@@ -17,7 +17,7 @@ import numpy as np
 # A simple example
 # ================
 #
-# Matplotlib graphs your data on `~.figure.Figure`\s (e.g., windows, Jupyter
+# Matplotlib graphs your data on `.Figure`\s (e.g., windows, Jupyter
 # widgets, etc.), each of which can contain one or more `~.axes.Axes`, an
 # area where points can be specified in terms of x-y coordinates (or theta-r
 # in a polar plot, x-y-z in a 3D plot, etc).  The simplest way of

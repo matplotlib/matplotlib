@@ -180,8 +180,8 @@ class SubplotParams:
 
 class FigureBase(Artist):
     """
-    Base class for `.figure.Figure` and `.figure.SubFigure` containing the
-    methods that add artists to the figure or subfigure, create Axes, etc.
+    Base class for `.Figure` and `.SubFigure` containing the methods that add
+    artists to the figure or subfigure, create Axes, etc.
     """
     def __init__(self, **kwargs):
         super().__init__()
@@ -1453,8 +1453,7 @@ default: %(va)s
 
     def add_subfigure(self, subplotspec, **kwargs):
         """
-        Add a `~.figure.SubFigure` to the figure as part of a subplot
-        arrangement.
+        Add a `.SubFigure` to the figure as part of a subplot arrangement.
 
         Parameters
         ----------
@@ -1464,12 +1463,12 @@ default: %(va)s
 
         Returns
         -------
-        `.figure.SubFigure`
+        `.SubFigure`
 
         Other Parameters
         ----------------
         **kwargs
-            Are passed to the `~.figure.SubFigure` object.
+            Are passed to the `.SubFigure` object.
 
         See Also
         --------
@@ -1964,7 +1963,7 @@ class SubFigure(FigureBase):
         """
         Parameters
         ----------
-        parent : `.figure.Figure` or `.figure.SubFigure`
+        parent : `.Figure` or `.SubFigure`
             Figure or subfigure that contains the SubFigure.  SubFigures
             can be nested.
 

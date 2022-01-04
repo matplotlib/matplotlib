@@ -5,7 +5,8 @@ The mplot3d Toolkit
 
 Generating 3D plots using the mplot3d toolkit.
 
-.. currentmodule:: mpl_toolkits.mplot3d
+This tutorial showcases various 3D plots. Click on the figures to see each full
+gallery example with the code that generates the figures.
 
 .. contents::
    :backlinks: none
@@ -39,78 +40,71 @@ toolkit.
 
 Line plots
 ==========
+See `.Axes3D.plot` for API documentation.
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_lines3d_001.png
    :target: ../../gallery/mplot3d/lines3d.html
    :align: center
 
-.. automethod:: Axes3D.plot
-
 .. _scatter3d:
 
 Scatter plots
 =============
+See `.Axes3D.scatter` for API documentation.
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_scatter3d_001.png
    :target: ../../gallery/mplot3d/scatter3d.html
    :align: center
 
-.. automethod:: Axes3D.scatter
-
 .. _wireframe:
 
 Wireframe plots
 ===============
+See `.Axes3D.plot_wireframe` for API documentation.
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_wire3d_001.png
    :target: ../../gallery/mplot3d/wire3d.html
    :align: center
 
-.. automethod:: Axes3D.plot_wireframe
-
 .. _surface:
 
 Surface plots
 =============
+See `.Axes3D.plot_surface` for API documentation.
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_surface3d_001.png
    :target: ../../gallery/mplot3d/surface3d.html
    :align: center
 
-.. automethod:: Axes3D.plot_surface
-
 .. _trisurface:
 
 Tri-Surface plots
 =================
+See `.Axes3D.plot_trisurf` for API documentation.
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_trisurf3d_001.png
    :target: ../../gallery/mplot3d/trisurf3d.html
    :align: center
 
-.. automethod:: Axes3D.plot_trisurf
-
 .. _contour3d:
 
 Contour plots
 =============
+See `.Axes3D.contour` for API documentation.
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_contour3d_001.png
    :target: ../../gallery/mplot3d/contour3d.html
    :align: center
 
-.. automethod:: Axes3D.contour
-
 .. _contourf3d:
 
 Filled contour plots
 ====================
+See `.Axes3D.contourf` for API documentation.
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_contourf3d_001.png
    :target: ../../gallery/mplot3d/contourf3d.html
    :align: center
-
-.. automethod:: Axes3D.contourf
 
 .. versionadded:: 1.1.0
    The feature demoed in the second contourf3d example was enabled as a
@@ -120,34 +114,31 @@ Filled contour plots
 
 Polygon plots
 =============
+See `.Axes3D.add_collection3d` for API documentation.
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_polys3d_001.png
    :target: ../../gallery/mplot3d/polys3d.html
    :align: center
 
-.. automethod:: Axes3D.add_collection3d
-
 .. _bar3d:
 
 Bar plots
 =========
+See `.Axes3D.bar` for API documentation.
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_bars3d_001.png
    :target: ../../gallery/mplot3d/bars3d.html
    :align: center
 
-.. automethod:: Axes3D.bar
-
 .. _quiver3d:
 
 Quiver
 ======
+See `.Axes3D.quiver` for API documentation.
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_quiver3d_001.png
    :target: ../../gallery/mplot3d/quiver3d.html
    :align: center
-
-.. automethod:: Axes3D.quiver
 
 .. _2dcollections3d:
 
@@ -161,10 +152,9 @@ Quiver
 
 Text
 ====
+See `.Axes3D.text` for API documentation.
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_text3d_001.png
    :target: ../../gallery/mplot3d/text3d.html
    :align: center
-
-.. automethod:: Axes3D.text
 """

@@ -148,9 +148,9 @@ class CapStyle(str, _AutoStringNameEnum):
         CapStyle.demo()
 
     """
-    butt = 'butt'
-    projecting = 'projecting'
-    round = 'round'
+    butt = auto()
+    projecting = auto()
+    round = auto()
 
     @staticmethod
     def demo():

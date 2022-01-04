@@ -213,7 +213,7 @@ Blocking functions
 ------------------
 
 If you only need to collect points in an Axes you can use
-`.figure.Figure.ginput` or more generally the tools from
+`.Figure.ginput` or more generally the tools from
 `.blocking_input` the tools will take care of starting and stopping
 the event loop for you.  However if you have written some custom event
 handling or are using `.widgets` you will need to manually run the GUI
@@ -315,7 +315,7 @@ Artists (as of Matplotlib 1.5) have a **stale** attribute which is
 `True` if the internal state of the artist has changed since the last
 time it was rendered. By default the stale state is propagated up to
 the Artists parents in the draw tree, e.g., if the color of a `.Line2D`
-instance is changed, the `.axes.Axes` and `.figure.Figure` that
+instance is changed, the `~.axes.Axes` and `.Figure` that
 contain it will also be marked as "stale".  Thus, ``fig.stale`` will
 report if any artist in the figure has been modified and is out of sync
 with what is displayed on the screen.  This is intended to be used to
@@ -332,11 +332,11 @@ which by default is set to a function that forwards the stale state to
 the artist's parent.   If you wish to suppress a given artist from propagating
 set this attribute to None.
 
-`.figure.Figure` instances do not have a containing artist and their
+`.Figure` instances do not have a containing artist and their
 default callback is `None`.  If you call `.pyplot.ion` and are not in
 ``IPython`` we will install a callback to invoke
 `~.backend_bases.FigureCanvasBase.draw_idle` whenever the
-`.figure.Figure` becomes stale.  In ``IPython`` we use the
+`.Figure` becomes stale.  In ``IPython`` we use the
 ``'post_execute'`` hook to invoke
 `~.backend_bases.FigureCanvasBase.draw_idle` on any stale figures
 after having executed the user's input, but before returning the prompt

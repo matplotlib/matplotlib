@@ -1,9 +1,7 @@
 r"""
-*********************************
-Typesetting with XeLaTeX/LuaLaTeX
-*********************************
-
-How to typeset text with the ``pgf`` backend in Matplotlib.
+*********************************************************
+Typesetting with XeLaTeX/LuaLaTeX via the ``pgf`` backend
+*********************************************************
 
 Using the ``pgf`` backend, Matplotlib can export figures as pgf drawing
 commands that can be processed with pdflatex, xelatex or lualatex. XeLaTeX and
@@ -53,7 +51,13 @@ for all applications must be located on your :envvar:`PATH`.
 
    Generally, these characters must be escaped correctly. For convenience,
    some characters (_, ^, %) are automatically escaped outside of math
-   environments.
+   environments. Other characters are not escaped as they are commonly needed
+   in actual TeX expressions. However, one can configure TeX to treat them as
+   "normal" characters (known as "catcode 12" to TeX) via a custom preamble,
+   such as::
+
+     plt.rcParams["pgf.preamble"] = (
+         r"\AtBeginDocument{\catcode`\&=12\catcode`\#=12}")
 
 .. _pgf-rcfonts:
 

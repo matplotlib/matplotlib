@@ -199,8 +199,13 @@ def findobj(o=None, match=None, include_self=True):
 
 
 def _get_required_interactive_framework(backend_mod):
-    return getattr(
-        backend_mod.FigureCanvas, "required_interactive_framework", None)
+    if not hasattr(backend_mod.FigureCanvas, "required_interactive_framework"):
+        _api.warn_deprecated(
+            "3.6", name="Support for FigureCanvases without a "
+            "required_interactive_framework attribute")
+        return None
+    # Inline this once the deprecation elapses.
+    return backend_mod.FigureCanvas.required_interactive_framework
 
 
 def switch_backend(newbackend):
@@ -1358,13 +1363,12 @@ def subplots(nrows=1, ncols=1, *, sharex=False, sharey=False, squeeze=True,
 
     Returns
     -------
-    fig : `~.figure.Figure`
+    fig : `.Figure`
 
-    ax : `.axes.Axes` or array of Axes
-        *ax* can be either a single `~matplotlib.axes.Axes` object or an
-        array of Axes objects if more than one subplot was created.  The
-        dimensions of the resulting array can be controlled with the squeeze
-        keyword, see above.
+    ax : `~.axes.Axes` or array of Axes
+        *ax* can be either a single `~.axes.Axes` object, or an array of Axes
+        objects if more than one subplot was created.  The dimensions of the
+        resulting array can be controlled with the squeeze keyword, see above.
 
         Typical idioms for handling the return value are::
 
@@ -1511,7 +1515,7 @@ def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
 
     Returns
     -------
-    fig : `~.figure.Figure`
+    fig : `.Figure`
        The new figure
 
     dict[label, Axes]
