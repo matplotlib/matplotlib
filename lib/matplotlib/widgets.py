@@ -17,7 +17,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import docstring
-from . import _api, backend_tools, cbook, colors, ticker
+from . import _api, backend_tools, cbook, colors, ticker, transforms
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
 from .transforms import TransformedPatchPath, Affine2D
@@ -2877,6 +2877,11 @@ class RectangleSelector(_SelectorWidget):
         self._rotation = 0.0
         self._aspect_ratio_correction = 1.0
 
+        # State to allow the option of an interactive selector that can't be
+        # interactively drawn. This is used in PolygonSelector as an
+        # interactive bounding box to allow the polygon to be easily resized
+        self._allow_creation = True
+
         if drawtype == 'none':  # draw a line but make it invisible
             _api.warn_deprecated(
                 "3.5", message="Support for drawtype='none' is deprecated "
@@ -2979,12 +2984,13 @@ class RectangleSelector(_SelectorWidget):
         else:
             self._active_handle = None
 
-        if self._active_handle is None or not self._interactive:
+        if ((self._active_handle is None or not self._interactive) and
+                self._allow_creation):
             # Clear previous rectangle before drawing new rectangle.
             self.update()
 
-        if self._active_handle is None and not self.ignore_event_outside:
-            # Start drawing a new rectangle
+        if (self._active_handle is None and not self.ignore_event_outside and
+                self._allow_creation):
             x = event.xdata
             y = event.ydata
             self.visible = False
@@ -3170,7 +3176,8 @@ class RectangleSelector(_SelectorWidget):
             self._rotation = 0
             # Don't create a new rectangle if there is already one when
             # ignore_event_outside=True
-            if self.ignore_event_outside and self._selection_completed:
+            if ((self.ignore_event_outside and self._selection_completed) or
+                    not self._allow_creation):
                 return
             center = [eventpress.xdata, eventpress.ydata]
             dx = (event.xdata - center[0]) / 2.
@@ -3569,6 +3576,19 @@ class PolygonSelector(_SelectorWidget):
         A vertex is selected (to complete the polygon or to move a vertex) if
         the mouse click is within *grab_range* pixels of the vertex.
 
+    draw_bounding_box : bool, optional
+        If `True`, a bounding box will be drawn around the polygon selector
+        once it is complete. This box can be used to move and resize the
+        selector.
+
+    box_handle_props : dict, optional
+        Properties to set for the box handles. See the documentation for the
+        *handle_props* argument to `RectangleSelector` for more info.
+
+    box_props : dict, optional
+        Properties to set for the box. See the documentation for the *props*
+        argument to `RectangleSelector` for more info.
+
     Examples
     --------
     :doc:`/gallery/widgets/polygon_selector_demo`
@@ -3584,7 +3604,9 @@ class PolygonSelector(_SelectorWidget):
     @_api.rename_parameter("3.5", "markerprops", "handle_props")
     @_api.rename_parameter("3.5", "vertex_select_radius", "grab_range")
     def __init__(self, ax, onselect, useblit=False,
-                 props=None, handle_props=None, grab_range=10):
+                 props=None, handle_props=None, grab_range=10, *,
+                 draw_bounding_box=False, box_handle_props=None,
+                 box_props=None):
         # The state modifiers 'move', 'square', and 'center' are expected by
         # _SelectorWidget but are not supported by PolygonSelector
         # Note: could not use the existing 'move' state modifier in-place of
@@ -3620,6 +3642,75 @@ class PolygonSelector(_SelectorWidget):
         self.grab_range = grab_range
 
         self.set_visible(True)
+        self._draw_box = draw_bounding_box
+        self._box = None
+
+        if box_handle_props is None:
+            box_handle_props = {}
+        self._box_handle_props = self._handle_props.update(box_handle_props)
+        self._box_props = box_props
+
+    def _get_bbox(self):
+        return self._selection_artist.get_bbox()
+
+    def _add_box(self):
+        self._box = RectangleSelector(self.ax,
+                                      onselect=lambda *args, **kwargs: None,
+                                      useblit=self.useblit,
+                                      grab_range=self.grab_range,
+                                      handle_props=self._box_handle_props,
+                                      props=self._box_props,
+                                      interactive=True)
+        self._box._state_modifier_keys.pop('rotate')
+        self._box.connect_event('motion_notify_event', self._scale_polygon)
+        self._update_box()
+        # Set state that prevents the RectangleSelector from being created
+        # by the user
+        self._box._allow_creation = False
+        self._box._selection_completed = True
+        self._draw_polygon()
+
+    def _remove_box(self):
+        if self._box is not None:
+            self._box.set_visible(False)
+            self._box = None
+
+    def _update_box(self):
+        # Update selection box extents to the extents of the polygon
+        if self._box is not None:
+            bbox = self._get_bbox()
+            self._box.extents = [bbox.x0, bbox.x1, bbox.y0, bbox.y1]
+            # Save a copy
+            self._old_box_extents = self._box.extents
+
+    def _scale_polygon(self, event):
+        """
+        Scale the polygon selector points when the bounding box is moved or
+        scaled.
+
+        This is set as a callback on the bounding box RectangleSelector.
+        """
+        if not self._selection_completed:
+            return
+
+        if self._old_box_extents == self._box.extents:
+            return
+
+        # Create transform from old box to new box
+        x1, y1, w1, h1 = self._box._rect_bbox
+        old_bbox = self._get_bbox()
+        t = (transforms.Affine2D()
+             .translate(-old_bbox.x0, -old_bbox.y0)
+             .scale(1 / old_bbox.width, 1 / old_bbox.height)
+             .scale(w1, h1)
+             .translate(x1, y1))
+
+        # Update polygon verts
+        new_verts = t.transform(np.array(self.verts))
+        self._xs = list(np.append(new_verts[:, 0], new_verts[0, 0]))
+        self._ys = list(np.append(new_verts[:, 1], new_verts[0, 1]))
+        self._draw_polygon()
+        self._old_box_extents = self._box.extents
 
     line = _api.deprecated("3.5")(
         property(lambda self: self._selection_artist)
@@ -3661,6 +3752,7 @@ class PolygonSelector(_SelectorWidget):
             # If only one point left, return to incomplete state to let user
             # start drawing again
             self._selection_completed = False
+            self._remove_box()
 
     def _press(self, event):
         """Button press event handler."""
@@ -3688,6 +3780,8 @@ class PolygonSelector(_SelectorWidget):
               and self._xs[-1] == self._xs[0]
               and self._ys[-1] == self._ys[0]):
             self._selection_completed = True
+            if self._draw_box and self._box is None:
+                self._add_box()
 
         # Place new vertex.
         elif (not self._selection_completed
@@ -3776,11 +3870,13 @@ class PolygonSelector(_SelectorWidget):
             event = self._clean_event(event)
             self._xs, self._ys = [event.xdata], [event.ydata]
             self._selection_completed = False
+            self._remove_box()
             self.set_visible(True)
 
     def _draw_polygon(self):
         """Redraw the polygon based on the new vertex positions."""
         self._selection_artist.set_data(self._xs, self._ys)
+        self._update_box()
         # Only show one tool handle at the start and end vertex of the polygon
         # if the polygon is completed or the user is locked on to the start
         # vertex.

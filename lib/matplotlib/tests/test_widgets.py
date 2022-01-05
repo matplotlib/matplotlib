@@ -1,3 +1,5 @@
+import functools
+
 from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
@@ -1112,7 +1114,8 @@ def test_range_slider(orientation):
     assert_allclose(slider.val, [0.1, 0.34])
 
 
-def check_polygon_selector(event_sequence, expected_result, selections_count):
+def check_polygon_selector(event_sequence, expected_result, selections_count,
+                           **kwargs):
     """
     Helper function to test Polygon Selector.
 
@@ -1129,6 +1132,8 @@ def check_polygon_selector(event_sequence, expected_result, selections_count):
     selections_count : int
         Wait for the tool to call its `onselect` function `selections_count`
         times, before comparing the result to the `expected_result`
+    **kwargs
+        Keyword arguments are passed to PolygonSelector.
     """
     ax = get_ax()
 
@@ -1138,7 +1143,7 @@ def check_polygon_selector(event_sequence, expected_result, selections_count):
         ax._selections_count += 1
         ax._current_result = vertices
 
-    tool = widgets.PolygonSelector(ax, onselect)
+    tool = widgets.PolygonSelector(ax, onselect, **kwargs)
 
     for (etype, event_args) in event_sequence:
         do_event(tool, etype, **event_args)
@@ -1159,14 +1164,18 @@ def polygon_remove_vertex(xdata, ydata):
             ('release', dict(xdata=xdata, ydata=ydata, button=3))]
 
 
-def test_polygon_selector():
+@pytest.mark.parametrize('draw_bounding_box', [False, True])
+def test_polygon_selector(draw_bounding_box):
+    check_selector = functools.partial(
+        check_polygon_selector, draw_bounding_box=draw_bounding_box)
+
     # Simple polygon
     expected_result = [(50, 50), (150, 50), (50, 150)]
     event_sequence = (polygon_place_vertex(50, 50)
                       + polygon_place_vertex(150, 50)
                       + polygon_place_vertex(50, 150)
                       + polygon_place_vertex(50, 50))
-    check_polygon_selector(event_sequence, expected_result, 1)
+    check_selector(event_sequence, expected_result, 1)
 
     # Move first vertex before completing the polygon.
     expected_result = [(75, 50), (150, 50), (50, 150)]
@@ -1180,7 +1189,7 @@ def test_polygon_selector():
                          ('on_key_release', dict(key='control'))]
                       + polygon_place_vertex(50, 150)
                       + polygon_place_vertex(75, 50))
-    check_polygon_selector(event_sequence, expected_result, 1)
+    check_selector(event_sequence, expected_result, 1)
 
     # Move first two vertices at once before completing the polygon.
     expected_result = [(50, 75), (150, 75), (50, 150)]
@@ -1194,7 +1203,7 @@ def test_polygon_selector():
                          ('on_key_release', dict(key='shift'))]
                       + polygon_place_vertex(50, 150)
                       + polygon_place_vertex(50, 75))
-    check_polygon_selector(event_sequence, expected_result, 1)
+    check_selector(event_sequence, expected_result, 1)
 
     # Move first vertex after completing the polygon.
     expected_result = [(75, 50), (150, 50), (50, 150)]
@@ -1206,7 +1215,7 @@ def test_polygon_selector():
                          ('press', dict(xdata=50, ydata=50)),
                          ('onmove', dict(xdata=75, ydata=50)),
                          ('release', dict(xdata=75, ydata=50))])
-    check_polygon_selector(event_sequence, expected_result, 2)
+    check_selector(event_sequence, expected_result, 2)
 
     # Move all vertices after completing the polygon.
     expected_result = [(75, 75), (175, 75), (75, 175)]
@@ -1220,7 +1229,7 @@ def test_polygon_selector():
                          ('onmove', dict(xdata=125, ydata=125)),
                          ('release', dict(xdata=125, ydata=125)),
                          ('on_key_release', dict(key='shift'))])
-    check_polygon_selector(event_sequence, expected_result, 2)
+    check_selector(event_sequence, expected_result, 2)
 
     # Try to move a vertex and move all before placing any vertices.
     expected_result = [(50, 50), (150, 50), (50, 150)]
@@ -1240,7 +1249,7 @@ def test_polygon_selector():
                       + polygon_place_vertex(150, 50)
                       + polygon_place_vertex(50, 150)
                       + polygon_place_vertex(50, 50))
-    check_polygon_selector(event_sequence, expected_result, 1)
+    check_selector(event_sequence, expected_result, 1)
 
     # Try to place vertex out-of-bounds, then reset, and start a new polygon.
     expected_result = [(50, 50), (150, 50), (50, 150)]
@@ -1252,10 +1261,11 @@ def test_polygon_selector():
                       + polygon_place_vertex(150, 50)
                       + polygon_place_vertex(50, 150)
                       + polygon_place_vertex(50, 50))
-    check_polygon_selector(event_sequence, expected_result, 1)
+    check_selector(event_sequence, expected_result, 1)
 
 
-def test_polygon_selector_set_props_handle_props():
+@pytest.mark.parametrize('draw_bounding_box', [False, True])
+def test_polygon_selector_set_props_handle_props(draw_bounding_box):
     ax = get_ax()
 
     ax._selections_count = 0
@@ -1266,7 +1276,8 @@ def test_polygon_selector_set_props_handle_props():
 
     tool = widgets.PolygonSelector(ax, onselect,
                                    props=dict(color='b', alpha=0.2),
-                                   handle_props=dict(alpha=0.5))
+                                   handle_props=dict(alpha=0.5),
+                                   draw_bounding_box=draw_bounding_box)
 
     event_sequence = (polygon_place_vertex(50, 50)
                       + polygon_place_vertex(150, 50)
@@ -1308,7 +1319,8 @@ def test_rect_visibility(fig_test, fig_ref):
 
 # Change the order that the extra point is inserted in
 @pytest.mark.parametrize('idx', [1, 2, 3])
-def test_polygon_selector_remove(idx):
+@pytest.mark.parametrize('draw_bounding_box', [False, True])
+def test_polygon_selector_remove(idx, draw_bounding_box):
     verts = [(50, 50), (150, 50), (50, 150)]
     event_sequence = [polygon_place_vertex(*verts[0]),
                       polygon_place_vertex(*verts[1]),
@@ -1321,20 +1333,24 @@ def test_polygon_selector_remove(idx):
     event_sequence.append(polygon_remove_vertex(200, 200))
     # Flatten list of lists
     event_sequence = sum(event_sequence, [])
-    check_polygon_selector(event_sequence, verts, 2)
+    check_polygon_selector(event_sequence, verts, 2,
+                           draw_bounding_box=draw_bounding_box)
 
 
-def test_polygon_selector_remove_first_point():
+@pytest.mark.parametrize('draw_bounding_box', [False, True])
+def test_polygon_selector_remove_first_point(draw_bounding_box):
     verts = [(50, 50), (150, 50), (50, 150)]
     event_sequence = (polygon_place_vertex(*verts[0]) +
                       polygon_place_vertex(*verts[1]) +
                       polygon_place_vertex(*verts[2]) +
                       polygon_place_vertex(*verts[0]) +
                       polygon_remove_vertex(*verts[0]))
-    check_polygon_selector(event_sequence, verts[1:], 2)
+    check_polygon_selector(event_sequence, verts[1:], 2,
+                           draw_bounding_box=draw_bounding_box)
 
 
-def test_polygon_selector_redraw():
+@pytest.mark.parametrize('draw_bounding_box', [False, True])
+def test_polygon_selector_redraw(draw_bounding_box):
     verts = [(50, 50), (150, 50), (50, 150)]
     event_sequence = (polygon_place_vertex(*verts[0]) +
                       polygon_place_vertex(*verts[1]) +
@@ -1352,7 +1368,8 @@ def test_polygon_selector_redraw():
     def onselect(vertices):
         pass
 
-    tool = widgets.PolygonSelector(ax, onselect)
+    tool = widgets.PolygonSelector(ax, onselect,
+                                   draw_bounding_box=draw_bounding_box)
     for (etype, event_args) in event_sequence:
         do_event(tool, etype, **event_args)
     # After removing two verts, only one remains, and the
@@ -1380,6 +1397,56 @@ def test_polygon_selector_verts_setter(fig_test, fig_ref):
                       polygon_place_vertex(*verts[0]))
     for (etype, event_args) in event_sequence:
         do_event(tool_ref, etype, **event_args)
+
+
+def test_polygon_selector_box():
+    # Create a diamond shape
+    verts = [(20, 0), (0, 20), (20, 40), (40, 20)]
+    event_sequence = (polygon_place_vertex(*verts[0]) +
+                      polygon_place_vertex(*verts[1]) +
+                      polygon_place_vertex(*verts[2]) +
+                      polygon_place_vertex(*verts[3]) +
+                      polygon_place_vertex(*verts[0]))
+
+    ax = get_ax()
+
+    def onselect(vertices):
+        pass
+
+    # Create selector
+    tool = widgets.PolygonSelector(ax, onselect, draw_bounding_box=True)
+    for (etype, event_args) in event_sequence:
+        do_event(tool, etype, **event_args)
+
+    # In order to trigger the correct callbacks, trigger events on the canvas
+    # instead of the individual tools
+    t = ax.transData
+    canvas = ax.figure.canvas
+
+    # Scale to half size using the top right corner of the bounding box
+    canvas.button_press_event(*t.transform((40, 40)), 1)
+    canvas.motion_notify_event(*t.transform((20, 20)))
+    canvas.button_release_event(*t.transform((20, 20)), 1)
+    np.testing.assert_allclose(
+        tool.verts, [(10, 0), (0, 10), (10, 20), (20, 10)])
+
+    # Move using the center of the bounding box
+    canvas.button_press_event(*t.transform((10, 10)), 1)
+    canvas.motion_notify_event(*t.transform((30, 30)))
+    canvas.button_release_event(*t.transform((30, 30)), 1)
+    np.testing.assert_allclose(
+        tool.verts, [(30, 20), (20, 30), (30, 40), (40, 30)])
+
+    # Remove a point from the polygon and check that the box extents update
+    np.testing.assert_allclose(
+        tool._box.extents, (20.0, 40.0, 20.0, 40.0))
+
+    canvas.button_press_event(*t.transform((30, 20)), 3)
+    canvas.button_release_event(*t.transform((30, 20)), 3)
+    np.testing.assert_allclose(
+        tool.verts, [(20, 30), (30, 40), (40, 30)])
+    np.testing.assert_allclose(
+        tool._box.extents, (20.0, 40.0, 30.0, 40.0))
 
 
 @pytest.mark.parametrize(
