@@ -10,7 +10,7 @@ import pytest
 import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
-from matplotlib import _api, mathtext
+from matplotlib import mathtext
 
 
 # If test is removed, use None as placeholder
@@ -109,7 +109,7 @@ math_tests = [
     r'${xyz}^k{x}_{k}{x}^{p}{y}^{p-2} {d}_{i}^{j}{b}_{j}{c}_{k}{d} {x}^{j}_{i}{E}^{0}{E}^0_u$',
     r'${\int}_x^x x\oint_x^x x\int_{X}^{X}x\int_x x \int^x x \int_{x} x\int^{x}{\int}_{x} x{\int}^{x}_{x}x$',
     r'testing$^{123}$',
-    ' '.join('$\\' + p + '$' for p in sorted(mathtext.Parser._accentprefixed)),
+    None,
     r'$6-2$; $-2$; $ -2$; ${-2}$; ${  -2}$; $20^{+3}_{-2}$',
     r'$\overline{\omega}^x \frac{1}{2}_0^x$',  # github issue #5444
     r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$',  # github issue 5799
@@ -374,13 +374,6 @@ def test_math_to_image(tmpdir):
     mathtext.math_to_image('$x^2$', str(tmpdir.join('example.png')))
     mathtext.math_to_image('$x^2$', io.BytesIO())
     mathtext.math_to_image('$x^2$', io.BytesIO(), color='Maroon')
-
-
-def test_mathtext_to_png(tmpdir):
-    with _api.suppress_matplotlib_deprecation_warning():
-        mt = mathtext.MathTextParser('bitmap')
-        mt.to_png(str(tmpdir.join('example.png')), '$x^2$')
-        mt.to_png(io.BytesIO(), '$x^2$')
 
 
 @image_comparison(baseline_images=['math_fontfamily_image.png'],

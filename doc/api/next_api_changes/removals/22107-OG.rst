@@ -1,0 +1,44 @@
+Removal of deprecated ``mathtext`` APIs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following :mod:`.mathtext` APIs have been removed:
+``MathtextBackendBitmap``,
+``MathtextBackendPs``,
+``MathtextBackendPdf``,
+``MathtextBackendSvg``,
+``MathtextBackendCairo``,
+``ship``,
+``Fonts``,
+``TruetypeFonts``,
+``StandardPsFonts``,
+``FontConstantsBase``,
+``ComputerModernFontConstants``,
+``STIXFontConstants``,
+``STIXSansFontConstants``,
+``DejaVuSerifFontConstants``,
+``DejaVuSansFontConstants``,
+``FontConstantsBase``,
+``Node``,
+``Box``,
+``Char``,
+``Glue``,
+``Kern``,
+``Ship``,
+``Parser``,
+``SHRINK_FACTOR``,
+``GROW_FACTOR``,
+``NUM_SIZE_LEVELS``,
+``latex_to_bakoma``,
+``latex_to_cmex``,
+``latex_to_standard``,
+``stix_virtual_fonts``, and
+``tex2uni``
+
+The methods ``to_mask``, ``to_rgba``, ``to_png``, and ``get_depth`` of
+``MathTextParser`` have been removed. Use ``mathtext.math_to_image`` instead.
+
+The named keyword argument ``_force_standard_ps_fonts`` of
+``MathTextParser.parse`` has been removed.
+
+The following :mod:.`_mathtext` APIs have been removed:
+``Fonts.destroy()``, ``TruetypeFonts.destroy()``, and ``StandardPsFonts.pswriter()``

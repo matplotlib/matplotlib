@@ -689,9 +689,7 @@ grestore
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """Draw the math text using matplotlib.mathtext."""
         width, height, descent, glyphs, rects = \
-            self._text2path.mathtext_parser.parse(
-                s, 72, prop,
-                _force_standard_ps_fonts=mpl.rcParams["ps.useafm"])
+            self._text2path.mathtext_parser.parse(s, 72, prop)
         self.set_color(*gc.get_rgb())
         self._pswriter.write(
             f"gsave\n"
