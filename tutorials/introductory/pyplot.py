@@ -3,7 +3,8 @@
 Pyplot tutorial
 ===============
 
-An introduction to the pyplot interface.
+An introduction to the pyplot interface.  Please also see
+:doc:`/tutorials/introductory/quick_start` for an overview of how Matplotlib works.
 """
 
 ###############################################################################
