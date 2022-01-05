@@ -26,10 +26,10 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.cbook as cbook
 
-# Load a numpy structured array from yahoo csv data with fields date, open,
-# close, volume, adj_close from the mpl-data/example directory.  This array
-# stores the date as an np.datetime64 with a day unit ('D') in the 'date'
-# column.
+# Load a numpy record array from yahoo csv data with fields date, open, high,
+# low, close, volume, adj_close from the mpl-data/sample_data directory. The
+# record array stores the date as an np.datetime64 with a day unit ('D') in
+# the date column.
 data = cbook.get_sample_data('goog.npz', np_load=True)['price_data']
 
 fig, axs = plt.subplots(3, 1, figsize=(6.4, 7), constrained_layout=True)
