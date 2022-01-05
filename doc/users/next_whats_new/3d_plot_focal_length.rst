@@ -3,13 +3,16 @@ Give the 3D camera a custom focal length
 
 Users can now better mimic real-world cameras by specifying the focal length of
 the virtual camera in 3D plots. An increasing focal length between 1 and
-+infinity "flattens" the image, while a decreasing focal length between 1 and 0
+infinity "flattens" the image, while a decreasing focal length between 1 and 0
 exaggerates the perspective and gives the image more apparent depth. The
 default focal length of 1 corresponds to a Field of View (FOV) of 90 deg, and
 is backwards-compatible with existing 3D plots.
 
 The focal length can be calculated from a desired FOV via the equation:
-| ``focal_length = 1/tan(FOV/2)``
+
+.. mathmpl::
+
+    focal\_length = 1/tan(FOV/2)
 
 .. plot::
     :include-source: true

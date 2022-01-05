@@ -7,18 +7,25 @@ Demonstrates the different camera projections for 3D plots, and the effects of
 changing the focal length for a perspective projection. Note that matplotlib
 corrects for the 'zoom' effect of changing the focal length.
 
-An increasing focal length between 1 and +infinity "flattens" the image, while
+An increasing focal length between 1 and infinity "flattens" the image, while
 a decreasing focal length between 1 and 0 exaggerates the perspective and gives
 the image more apparent depth. The default focal length of 1 corresponds to a
 Field of View (FOV) of 90 deg. In the limiting case, a focal length of
-+infinity corresponds to an orthographic projection after correction of the
+infinity corresponds to an orthographic projection after correction of the
 zoom effect.
 
 You can calculate focal length from a FOV via the equation:
-focal_length = 1/tan(FOV/2)
+
+.. mathmpl::
+
+    1 / \tan (FOV / 2)
 
 Or vice versa:
-FOV = 2*atan(1/focal_length)
+
+.. mathmpl::
+
+    FOV = 2 * \atan (1 / focal length)
+
 """
 
 from mpl_toolkits.mplot3d import axes3d
@@ -36,7 +43,7 @@ for ax in axs:
 
 # Set the orthographic projection.
 axs[0].set_proj_type('ortho')  # FOV = 0 deg
-axs[0].set_title("'ortho'\nfocal_length = +∞", fontsize=10)
+axs[0].set_title("'ortho'\nfocal_length = ∞", fontsize=10)
 
 # Set the perspective projections
 axs[1].set_proj_type('persp')  # FOV = 90 deg
