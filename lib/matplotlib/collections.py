@@ -936,6 +936,10 @@ class _CollectionWithSizes(Collection):
     """
     _factor = 1.0
 
+    def __init__(self, ignore_scale=False, **kwargs):
+        super().__init__(**kwargs)
+        self._ignore_scale = ignore_scale
+
     def get_sizes(self):
         """
         Return the sizes ('areas') of the elements in the collection.
@@ -965,7 +969,10 @@ class _CollectionWithSizes(Collection):
         else:
             self._sizes = np.asarray(sizes)
             self._transforms = np.zeros((len(self._sizes), 3, 3))
-            scale = np.sqrt(self._sizes) * dpi / 72.0 * self._factor
+            if self._ignore_scale:
+                scale = 1
+            else:
+                scale = np.sqrt(self._sizes) * dpi / 72.0 * self._factor
             self._transforms[:, 0, 0] = scale
             self._transforms[:, 1, 1] = scale
             self._transforms[:, 2, 2] = 1.0
