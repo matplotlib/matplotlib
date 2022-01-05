@@ -500,6 +500,13 @@ class TestScalarFormatter:
         [12.3, "12.300"],
     ]
 
+    format_data = [
+        (.1, "1e-1"),
+        (.11, "1.1e-1"),
+        (1e8, "1e8"),
+        (1.1e8, "1.1e8"),
+    ]
+
     @pytest.mark.parametrize('unicode_minus, result',
                              [(True, "\N{MINUS SIGN}1"), (False, "-1")])
     def test_unicode_minus(self, unicode_minus, result):
@@ -560,6 +567,12 @@ class TestScalarFormatter:
 
         tmp_form.set_locs(ax.yaxis.get_majorticklocs())
         assert orderOfMag == tmp_form.orderOfMagnitude
+
+    @pytest.mark.parametrize('value, expected', format_data)
+    def test_format_data(self, value, expected):
+        mpl.rcParams['axes.unicode_minus'] = False
+        sf = mticker.ScalarFormatter()
+        assert sf.format_data(value) == expected
 
     @pytest.mark.parametrize('data, expected', cursor_data)
     def test_cursor_precision(self, data, expected):

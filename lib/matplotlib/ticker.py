@@ -664,7 +664,7 @@ class ScalarFormatter(Formatter):
         s = round(value / 10**e, 10)
         exponent = self._format_maybe_minus_and_locale("%d", e)
         significand = self._format_maybe_minus_and_locale(
-            "%d" if s % 1 == 0 else "%1.10f", s)
+            "%d" if s % 1 == 0 else "%1.10g", s)
         if e == 0:
             return significand
         elif self._useMathText or self._usetex:
