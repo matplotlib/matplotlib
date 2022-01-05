@@ -1467,7 +1467,7 @@ class _AxesBase(martist.Artist):
 
     @property
     def texts(self):
-        return self.ArtistList(self, 'texts', 'add_text',
+        return self.ArtistList(self, 'texts', 'add_artist',
                                valid_types=mtext.Text)
 
     def clear(self):
