@@ -554,7 +554,8 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
         self.message = tk.StringVar(master=self)
         self._message_label = tk.Label(master=self, font=self._label_font,
-                                       textvariable=self.message)
+                                       textvariable=self.message,
+                                       justify=tk.RIGHT)
         self._message_label.pack(side=tk.RIGHT)
 
         NavigationToolbar2.__init__(self, canvas)
