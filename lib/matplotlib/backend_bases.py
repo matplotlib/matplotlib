@@ -2285,8 +2285,8 @@ class FigureCanvasBase:
         """
         return rcParams['savefig.format']
 
-    @_api.deprecated(
-        "3.4", alternative="manager.get_window_title or GUI-specific methods")
+    @_api.deprecated("3.4", alternative="`.FigureManagerBase.get_window_title`"
+                     " or GUI-specific methods")
     def get_window_title(self):
         """
         Return the title text of the window containing the figure, or None
@@ -2295,8 +2295,8 @@ class FigureCanvasBase:
         if self.manager is not None:
             return self.manager.get_window_title()
 
-    @_api.deprecated(
-        "3.4", alternative="manager.set_window_title or GUI-specific methods")
+    @_api.deprecated("3.4", alternative="`.FigureManagerBase.set_window_title`"
+                     " or GUI-specific methods")
     def set_window_title(self, title):
         """
         Set the title text of the window containing the figure.  Note that
@@ -3228,7 +3228,7 @@ class NavigationToolbar2:
         """Save the current figure."""
         raise NotImplementedError
 
-    @_api.deprecated("3.5", alternative="canvas.set_cursor")
+    @_api.deprecated("3.5", alternative="`.FigureCanvasBase.set_cursor`")
     def set_cursor(self, cursor):
         """
         Set the current cursor to one of the :class:`Cursors` enums values.

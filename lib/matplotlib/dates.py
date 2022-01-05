@@ -1685,12 +1685,12 @@ class MicrosecondLocator(DateLocator):
         self._wrapped_locator.set_axis(axis)
         return super().set_axis(axis)
 
-    @_api.deprecated("3.5", alternative=".axis.set_view_interval")
+    @_api.deprecated("3.5", alternative="`.Axis.set_view_interval`")
     def set_view_interval(self, vmin, vmax):
         self._wrapped_locator.set_view_interval(vmin, vmax)
         return super().set_view_interval(vmin, vmax)
 
-    @_api.deprecated("3.5", alternative=".axis.set_data_interval")
+    @_api.deprecated("3.5", alternative="`.Axis.set_data_interval`")
     def set_data_interval(self, vmin, vmax):
         self._wrapped_locator.set_data_interval(vmin, vmax)
         return super().set_data_interval(vmin, vmax)
@@ -1726,8 +1726,9 @@ class MicrosecondLocator(DateLocator):
         return self._interval
 
 
-@_api.deprecated("3.5",
-                 alternative="mdates.date2num(datetime.utcfromtimestamp(e))")
+@_api.deprecated(
+    "3.5",
+    alternative="`date2num(datetime.utcfromtimestamp(e))<.date2num>`")
 def epoch2num(e):
     """
     Convert UNIX time to days since Matplotlib epoch.
@@ -1749,7 +1750,7 @@ def epoch2num(e):
     return (dt + np.asarray(e)) / SEC_PER_DAY
 
 
-@_api.deprecated("3.5", alternative="mdates.num2date(e).timestamp()")
+@_api.deprecated("3.5", alternative="`num2date(e).timestamp()<.num2date>`")
 def num2epoch(d):
     """
     Convert days since Matplotlib epoch to UNIX time.

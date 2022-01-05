@@ -222,7 +222,7 @@ class Spine(mpatches.Patch):
         if self.axis is not None:
             self.axis.clear()
 
-    @_api.deprecated("3.4", alternative="Spine.clear()")
+    @_api.deprecated("3.4", alternative="`.Spine.clear`")
     def cla(self):
         self.clear()
 

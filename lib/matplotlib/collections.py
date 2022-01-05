@@ -2076,7 +2076,8 @@ class QuadMesh(Collection):
         return self._coordinates
 
     @staticmethod
-    @_api.deprecated("3.5", alternative="QuadMesh(coordinates).get_paths()")
+    @_api.deprecated("3.5", alternative="`QuadMesh(coordinates).get_paths()"
+                     "<.QuadMesh.get_paths>`")
     def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
         return QuadMesh._convert_mesh_to_paths(coordinates)
 
