@@ -1098,7 +1098,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self._coordinates = coordinates
         if self._coordinates:
             self.AddStretchableSpace()
-            self._label_text = wx.StaticText(self)
+            self._label_text = wx.StaticText(self, style=wx.ALIGN_RIGHT)
             self.AddControl(self._label_text)
 
         self.Realize()
@@ -1206,7 +1206,7 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
         ToolContainerBase.__init__(self, toolmanager)
         wx.ToolBar.__init__(self, parent, -1, style=style)
         self._space = self.AddStretchableSpace()
-        self._label_text = wx.StaticText(self)
+        self._label_text = wx.StaticText(self, style=wx.ALIGN_RIGHT)
         self.AddControl(self._label_text)
         self._toolitems = {}
         self._groups = {}  # Mapping of groups to the separator after them.
