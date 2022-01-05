@@ -1,0 +1,11 @@
+colorbar defaults to stealing space from the mappable's axes rather than the current axes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Pass ``ax=plt.gca()`` to restore the previous behavior.
+
+Removal of deprecated ``colorbar`` APIs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following deprecated :mod:`.colorbar` APIs have been removed:
+``ColorbarPatch`` and ``colorbar_factory`` (use `.Colorbar` instead);
+``colorbar_doc``, ``colorbar_kw_doc``, ``make_axes_kw_doc``.
