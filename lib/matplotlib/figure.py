@@ -1009,7 +1009,7 @@ default: %(va)s
         To make a legend for all artists on all Axes, call this function with
         an iterable of strings, one for each legend item. For example::
 
-            fig, (ax1, ax2)  = plt.subplots(1, 2)
+            fig, (ax1, ax2) = plt.subplots(1, 2)
             ax1.plot([1, 3, 5], color='blue')
             ax2.plot([2, 4, 6], color='red')
             fig.legend(['the blues', 'the reds'])
