@@ -203,7 +203,7 @@ class FigureBase(Artist):
         self.figure = self
         # list of child gridspecs for this figure
         self._gridspecs = []
-        self._localaxes = _AxesStack()  # track all axes and current axes
+        self._localaxes = []  # track all axes
         self.artists = []
         self.lines = []
         self.patches = []
@@ -229,7 +229,7 @@ class FigureBase(Artist):
         artists = sorted(
             (artist for artist in artists if not artist.get_animated()),
             key=lambda artist: artist.get_zorder())
-        for ax in self._localaxes.as_list():
+        for ax in self._localaxes:
             locator = ax.get_axes_locator()
             if locator:
                 pos = locator(ax, renderer)
@@ -294,7 +294,7 @@ class FigureBase(Artist):
         """Get a list of artists contained in the figure."""
         return [self.patch,
                 *self.artists,
-                *self._localaxes.as_list(),
+                *self._localaxes,
                 *self.lines,
                 *self.patches,
                 *self.texts,
@@ -776,7 +776,8 @@ default: %(va)s
     def _add_axes_internal(self, ax, key):
         """Private helper for `add_axes` and `add_subplot`."""
         self._axstack.add(ax)
-        self._localaxes.add(ax)
+        if ax not in self._localaxes:
+            self._localaxes.append(ax)
         self.sca(ax)
         ax._remove_method = self.delaxes
         # this is to support plt.subplot's re-selection logic
@@ -2081,14 +2082,14 @@ class SubFigure(FigureBase):
         List of Axes in the SubFigure.  You can access and modify the Axes
         in the SubFigure through this list.
 
-        Do not modify the list itself. Instead, use `~.SubFigure.add_axes`,
+        Modifying this list has no effect. Instead, use `~.SubFigure.add_axes`,
         `~.SubFigure.add_subplot` or `~.SubFigure.delaxes` to add or remove an
         Axes.
 
         Note: The `.SubFigure.axes` property and `~.SubFigure.get_axes` method
         are equivalent.
         """
-        return self._localaxes.as_list()
+        return self._localaxes[:]
 
     get_axes = axes.fget
 
