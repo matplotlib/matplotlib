@@ -316,7 +316,9 @@ class FigureBase(Artist):
         inside = self.bbox.contains(mouseevent.x, mouseevent.y)
         return inside, {}
 
-    def get_window_extent(self, *args, **kwargs):
+    @_api.delete_parameter("3.6", "args")
+    @_api.delete_parameter("3.6", "kwargs")
+    def get_window_extent(self, renderer=None, *args, **kwargs):
         # docstring inherited
         return self.bbox
 
