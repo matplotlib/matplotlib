@@ -10,7 +10,7 @@ How-to
    :backlinks: none
 
 
-_how-to-too-many-ticks
+.. _how-to-too-many-ticks:
 
 Why do I have so many ticks, and/or why are they out of order?
 --------------------------------------------------------------
@@ -25,50 +25,66 @@ supplied.
 
 In the example below, the upper row plots are plotted using strings for *x*;
 note that each string gets a tick, and they are in the order of the list passed
-to Matplotlib. In the lower row the data is converted to either floats or
-datetime64; note that the ticks are now ordered and spaced numerically.
+to Matplotlib.  If this is not desired, we need to change *x* to an array of
+numbers.
 
 .. plot::
     :include-source:
     :align: center
 
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    fig, ax = plt.subplots(2, 2, constrained_layout=True, figsize=(6, 6))
+    fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(6, 2.5))
     x = ['1', '5', '2', '3']
     y = [1, 4, 2, 3]
-    ax[0, 0].plot(x, y, 'd')
-    ax[0, 0].set_xlabel('Categories')
+    ax[0].plot(x, y, 'd')
+    ax[0].tick_params(axis='x', color='r', labelcolor='r')
+    ax[0].set_xlabel('Categories')
+    ax[0].set_title('Ticks seem out of order / misplaced')
+
     # convert to numbers:
     x = np.asarray(x, dtype='float')
-    ax[1, 0].plot(x, y, 'd')
-    ax[1, 0].set_xlabel('Floats')
-
-    x = ['2021-10-01', '2021-11-02', '2021-12-03', '2021-10-04']
-    y = [0, 2, 3, 1]
-    ax[0, 1].plot(x, y, 'd')
-    ax[0, 1].tick_params(axis='x', labelrotation=45)
-    # convert to datetime64
-    x = np.asarray(x, dtype='datetime64[s]')
-    ax[1, 1].plot(x, y, 'd')
-    ax[1, 1].tick_params(axis='x', labelrotation=45)
+    ax[1].plot(x, y, 'd')
+    ax[1].set_xlabel('Floats')
+    ax[1].set_title('Ticks as expected')
 
 If *x* has 100 elements, all strings, then we would have 100 (unreadable)
-ticks:
+ticks, and again the solution is to convert the strings to floats:
 
 .. plot::
     :include-source:
     :align: center
 
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    fig, ax = plt.subplots(figsize=(6, 2.5))
+    fig, ax = plt.subplots(1, 2, figsize=(6, 2.5))
     x = [f'{xx}' for xx in np.arange(100)]
     y = np.arange(100)
-    ax.plot(x, y)
+    ax[0].plot(x, y)
+    ax[0].tick_params(axis='x', color='r', labelcolor='r')
+    ax[0].set_title('Too many ticks')
+    ax[0].set_xlabel('Categories')
 
+    ax[1].plot(np.asarray(x, float), y)
+    ax[1].set_title('x converted to numbers')
+    ax[1].set_xlabel('Floats')
+
+A common case is when dates are read from a CSV file, they need to be
+converted from strings to datetime objects to get the proper date locators
+and formatters.
+
+.. plot::
+    :include-source:
+    :align: center
+
+    fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(6, 3.5))
+    x = ['2021-10-01', '2021-11-02', '2021-12-03', '2021-10-04']
+    y = [0, 2, 3, 1]
+    ax[0].plot(x, y, 'd')
+    ax[0].tick_params(axis='x', labelrotation=90, color='r', labelcolor='r')
+    ax[0].set_title('Dates out of order')
+
+    # convert to datetime64
+    x = np.asarray(x, dtype='datetime64[s]')
+    ax[1].plot(x, y, 'd')
+    ax[1].tick_params(axis='x', labelrotation=90)
+    ax[1].set_title('x converted to datetimes')
 
 .. _howto-determine-artist-extent:
 
