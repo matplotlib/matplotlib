@@ -1,6 +1,5 @@
 import functools
 import itertools
-import platform
 
 import pytest
 
@@ -547,7 +546,7 @@ def test_text3d_modification(fig_ref, fig_test):
         ax_ref.text(x, y, z, f'({x}, {y}, {z}), dir={zdir}', zdir=zdir)
 
 
-@mpl3d_image_comparison(['trisurf3d.png'], tol=0.03)
+@mpl3d_image_comparison(['trisurf3d.png'], tol=0.061)
 def test_trisurf3d():
     n_angles = 36
     n_radii = 8
@@ -1369,7 +1368,7 @@ def test_errorbar3d():
 
 
 @image_comparison(['stem3d.png'], style='mpl20',
-                  tol=0.0 if platform.machine() == 'x86_64' else 0.003)
+                  tol=0.003)
 def test_stem3d():
     fig, axs = plt.subplots(2, 3, figsize=(8, 6),
                             constrained_layout=True,

@@ -140,7 +140,7 @@ def test_polar_box():
     ax1.grid(True)
 
 
-@image_comparison(['axis_direction.png'], style='default', tol=0.07)
+@image_comparison(['axis_direction.png'], style='default', tol=0.071)
 def test_axis_direction():
     # Remove this line when this test image is regenerated.
     plt.rcParams['text.kerning_factor'] = 6
