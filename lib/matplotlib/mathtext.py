@@ -21,8 +21,7 @@ import logging
 
 import numpy as np
 
-from matplotlib import (
-    _api, rcParams, _mathtext)
+from matplotlib import _api, rcParams, _mathtext
 from matplotlib.ft2font import FT2Image, LOAD_NO_HINTING
 from matplotlib.font_manager import FontProperties
 

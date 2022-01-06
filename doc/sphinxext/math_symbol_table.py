@@ -104,7 +104,7 @@ def run(state_machine):
         if sym.startswith("\\"):
             sym = sym[1:]
             if sym not in (_mathtext.Parser._overunder_functions |
-                           {*_mathtext.Parser._function_names}):
+                           _mathtext.Parser._function_names):
                 sym = chr(_mathtext_data.tex2uni[sym])
         return f'\\{sym}' if sym in ('\\', '|') else sym
 

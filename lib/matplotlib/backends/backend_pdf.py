@@ -39,7 +39,6 @@ import matplotlib.type1font as type1font
 import matplotlib.dviread as dviread
 from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
                                 LOAD_NO_HINTING, KERNING_UNFITTED, FT2Font)
-from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
 from matplotlib.dates import UTC
@@ -1899,11 +1898,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         self.file = file
         self.gc = self.new_gc()
         self.image_dpi = image_dpi
-
-    @_api.deprecated("3.4")
-    @property
-    def mathtext_parser(self):
-        return MathTextParser("Pdf")
 
     def finalize(self):
         self.file.output(*self.gc.finalize())
