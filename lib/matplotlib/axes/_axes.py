@@ -813,8 +813,8 @@ class Axes(_AxesBase):
         # Helper method to check that vals are not unitized
         for val, name in zip(vals, names):
             if not munits._is_natively_supported(val):
-                raise ValueError(f"{name} must be a single scalar value, "
-                                 f"but got {val}")
+                raise ValueError(f"{name!r} must be a single scalar value, "
+                                 f"but got {val!r}")
 
     @docstring.dedent_interpd
     def axline(self, xy1, xy2=None, *, slope=None, **kwargs):
@@ -3075,7 +3075,7 @@ class Axes(_AxesBase):
 
         _api.check_isinstance(Number, radius=radius, startangle=startangle)
         if radius <= 0:
-            raise ValueError(f'radius must be a positive number, not {radius}')
+            raise ValueError(f'radius must be a positive number, not {radius!r}')
 
         # Starting theta1 is the start fraction of the circle
         theta1 = startangle / 360
@@ -6600,7 +6600,7 @@ such objects
             if len(color) != nx:
                 raise ValueError(f"The 'color' keyword argument must have one "
                                  f"color per dataset, but {nx} datasets and "
-                                 f"{len(color)} colors were provided")
+                                 f"{len(color!r)} colors were provided")
 
         hist_kwargs = dict()
 
