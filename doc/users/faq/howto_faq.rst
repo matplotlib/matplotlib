@@ -72,7 +72,7 @@ ticks:
 
 .. _howto-determine-artist-extent:
 
-Determine the extent of Artists on the Figure
+Determine the extent of Artists in the Figure
 ---------------------------------------------
 
 Sometimes we want to know the extent of an Artist.  Matplotlib `.Artist` objects
