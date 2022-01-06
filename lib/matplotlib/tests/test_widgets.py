@@ -155,10 +155,16 @@ def test_rectangle_selector_set_props_handle_props(ax):
         assert artist.get_alpha() == 0.3
 
 
-def test_rectangle_resize(ax):
+# Should give same results if rectangle is created from any two
+# opposite corners
+@pytest.mark.parametrize('start, end', [[(0, 10), (100, 120)],
+                                        [(100, 120), (0, 10)],
+                                        [(0, 120), (100, 10)],
+                                        [(100, 10), (0, 120)]])
+def test_rectangle_resize(ax, start, end):
     tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
     # Create rectangle
-    click_and_drag(tool, start=(0, 10), end=(100, 120))
+    click_and_drag(tool, start=start, end=end)
     assert_allclose(tool.extents, (0.0, 100.0, 10.0, 120.0))
 
     # resize NE handle
