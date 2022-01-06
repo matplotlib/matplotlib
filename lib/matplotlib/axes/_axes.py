@@ -6600,7 +6600,7 @@ such objects
             if len(color) != nx:
                 raise ValueError(f"The 'color' keyword argument must have one "
                                  f"color per dataset, but {nx} datasets and "
-                                 f"{len(color!r)} colors were provided")
+                                 f"{len(color)} colors were provided")
 
         hist_kwargs = dict()
 
