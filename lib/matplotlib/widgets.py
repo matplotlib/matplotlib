@@ -2952,6 +2952,9 @@ class RectangleSelector(_SelectorWidget):
             # so the selector is defined in display coordinates, which makes
             # it much easier to handle rotation and scaling
             to_draw.set_transform(None)
+            # Becasue the transform in display coords, need to manually
+            # add a resize callback for when the axes are reszied
+            self.ax.figure.canvas.mpl_connect('resize_event', self._on_resize)
 
         if drawtype == 'line':
             _api.warn_deprecated(
@@ -3017,6 +3020,10 @@ class RectangleSelector(_SelectorWidget):
     maxdist = _api.deprecated("3.5", name="maxdist", alternative="grab_range")(
         property(lambda self: self.grab_range,
                  lambda self, value: setattr(self, "grab_range", value)))
+
+    def _on_resize(self, event):
+        # Callback for an Axes resize
+        self._update_handles()
 
     @property
     def _position_state(self):
@@ -3437,12 +3444,14 @@ class RectangleSelector(_SelectorWidget):
             self._selection_artist.set_data([xy0[0], xy1[0]], [xy0[1], xy1[1]])
 
         if self._interactive:
-            # Update displayed handles
-            self._corner_handles.set_data(*self.corners)
-            self._edge_handles.set_data(*self.edge_centers)
-            self._center_handle.set_data(*self.center)
+            self._update_handles()
 
         self.update()
+
+    def _update_handles(self):
+        self._corner_handles.set_data(*self.corners)
+        self._edge_handles.set_data(*self.edge_centers)
+        self._center_handle.set_data(*self.center)
 
     def _set_active_handle(self, event):
         """Set active handle based on the location of the mouse event."""
