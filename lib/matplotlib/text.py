@@ -882,8 +882,9 @@ class Text(Artist):
             A renderer is needed to compute the bounding box.  If the artist
             has already been drawn, the renderer is cached; thus, it is only
             necessary to pass this argument when calling `get_window_extent`
-            before the first `draw`.  In practice, it is usually easier to
-            trigger a draw first (e.g. by saving the figure).
+            before the first draw.  In practice, it is usually easier to
+            trigger a draw first, e.g. by calling
+            `~.Figure.draw_without_rendering` or ``plt.show()``.
 
         dpi : float, optional
             The dpi value for computing the bbox, defaults to
@@ -904,7 +905,9 @@ class Text(Artist):
         if self._renderer is None:
             self._renderer = self.figure._cachedRenderer
         if self._renderer is None:
-            raise RuntimeError('Cannot get window extent w/o renderer')
+            raise RuntimeError(
+                "Cannot get window extent of text w/o renderer. You likely "
+                "want to call 'figure.draw_without_rendering()' first.")
 
         with cbook._setattr_cm(self.figure, dpi=dpi):
             bbox, info, descent = self._get_layout(self._renderer)
