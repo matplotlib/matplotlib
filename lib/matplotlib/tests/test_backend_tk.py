@@ -36,8 +36,7 @@ def _isolated_tk_test(success_count, func=None):
         try:
             proc = subprocess.run(
                 [sys.executable, "-c", f"{source}\n{func.__name__}()"],
-                env={**os.environ, "MPLBACKEND": "TkAgg",
-                     "NPY_DISABLE_CPU_FEATURES": ""},
+                env={**os.environ, "MPLBACKEND": "TkAgg"},
                 timeout=_test_timeout,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
