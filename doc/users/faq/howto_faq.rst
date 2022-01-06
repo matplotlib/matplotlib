@@ -15,11 +15,10 @@ _how-to-too-many-ticks
 Why do I have so many ticks, and/or why are they out of order?
 --------------------------------------------------------------
 
-Sometimes Matplotlib will unexpectedly plot with a tick for each data point,
-and/or the ticks will be out of numerical order. This is usually a sign that you
-have passed in a list of strings rather than a list or array of floats or
-datetime objects.  This will often happen when reading in a comma-delimited text
-file. Matplotlib treats lists of strings as "categorical" variables
+One common cause for unexpected tick behavior is passing a list of strings
+instead of numbers or datetime objects. This can easily happen without notice
+when reading in a comma-delimited text file. Matplotlib treats lists of strings
+as "categorical" variables
 (:doc:`/gallery/lines_bars_and_markers/categorical_variables`), and by default
 puts one tick per "category", and plots them in the order in which they are
 supplied.
