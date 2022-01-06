@@ -15,7 +15,7 @@ import matplotlib as mpl
 from matplotlib import _api, cbook, docstring, offsetbox
 import matplotlib.artist as martist
 import matplotlib.axis as maxis
-from matplotlib.cbook import _OrderedSet, _check_1d, index_of
+from matplotlib.cbook import _OrderedSet, index_of
 import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.font_manager as font_manager
@@ -484,8 +484,8 @@ class _process_plot_var_args:
                 kw[prop_name] = val
 
         if len(xy) == 2:
-            x = _check_1d(xy[0])
-            y = _check_1d(xy[1])
+            x = np.atleast_1d(xy[0])
+            y = np.atleast_1d(xy[1])
         else:
             x, y = index_of(xy[-1])
 
