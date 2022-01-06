@@ -719,7 +719,9 @@ class _AxesBase(martist.Artist):
             fields += [f"ylabel={self.get_ylabel()!r}"]
         return f"<{self.__class__.__name__}:" + ", ".join(fields) + ">"
 
-    def get_window_extent(self, *args, **kwargs):
+    @_api.delete_parameter("3.6", "args")
+    @_api.delete_parameter("3.6", "kwargs")
+    def get_window_extent(self, renderer=None, *args, **kwargs):
         """
         Return the Axes bounding box in display space; *args* and *kwargs*
         are empty.
