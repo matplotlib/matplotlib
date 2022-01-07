@@ -577,7 +577,7 @@ def test_colorbar_format(fmt):
     im.set_norm(LogNorm(vmin=0.1, vmax=10))
     fig.canvas.draw()
     assert (cbar.ax.yaxis.get_ticklabels()[0].get_text() ==
-            r'$\mathdefault{10^{-2}}$')
+            '$\\mathdefault{10^{\N{Minus Sign}2}}$')
 
 
 def test_colorbar_scale_reset():
