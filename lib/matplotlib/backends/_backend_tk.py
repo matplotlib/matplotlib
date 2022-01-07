@@ -907,14 +907,21 @@ class _BackendTk(_Backend):
             window.withdraw()
 
             # Put a Matplotlib icon on the window rather than the default tk
-            # icon.  Tkinter doesn't allow colour icons on linux systems, but
-            # tk>=8.5 has a iconphoto command which we call directly.  See
-            # https://mail.python.org/pipermail/tkinter-discuss/2006-November/000954.html
+            # icon. See https://www.tcl.tk/man/tcl/TkCmd/wm.html#M50
+            #
+            # `ImageTk` can be replaced with `tk` whenever the minimum
+            # supported Tk version is increased to 8.6, as Tk 8.6+ natively
+            # supports PNG images.
             icon_fname = str(cbook._get_data_path(
-                'images/matplotlib_128.ppm'))
-            icon_img = tk.PhotoImage(file=icon_fname, master=window)
+                'images/matplotlib.png'))
+            icon_img = ImageTk.PhotoImage(file=icon_fname, master=window)
+
+            icon_fname_large = str(cbook._get_data_path(
+                'images/matplotlib_large.png'))
+            icon_img_large = ImageTk.PhotoImage(
+                file=icon_fname_large, master=window)
             try:
-                window.iconphoto(False, icon_img)
+                window.iconphoto(False, icon_img_large, icon_img)
             except Exception as exc:
                 # log the failure (due e.g. to Tk version), but carry on
                 _log.info('Could not load matplotlib icon: %s', exc)
