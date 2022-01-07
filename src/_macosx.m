@@ -591,7 +591,7 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     }
     Py_DECREF(size);
 
-    NSRect rect = NSMakeRect( /* x */ 100, /* y */ 350, height, width);
+    NSRect rect = NSMakeRect( /* x */ 100, /* y */ 350, width, height);
 
     self->window = [self->window initWithContentRect: rect
                                          styleMask: NSWindowStyleMaskTitled
