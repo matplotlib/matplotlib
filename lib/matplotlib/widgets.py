@@ -3005,6 +3005,19 @@ class RectangleSelector(_SelectorWidget):
 
         return False
 
+    def _selector_too_small(self):
+        # Return True if selector is smaller than minimum allowed size
+        if self.spancoords == 'data':
+            spanx = self._eventpress.xdata - self._eventrelease.xdata
+            spany = self._eventpress.ydata - self._eventrelease.ydata
+        elif self.spancoords == 'pixels':
+            spanx = self._eventpress.x - self._eventrelease.x
+            spany = self._eventpress.y - self._eventrelease.y
+        else:
+            _api.check_in_list(['data', 'pixels'],
+                               spancoords=self.spancoords)
+        return abs(spanx) <= self.minspanx or abs(spany) <= self.minspany
+
     def _release(self, event):
         """Button release event handler."""
         if not self._interactive:
@@ -3026,20 +3039,7 @@ class RectangleSelector(_SelectorWidget):
         xy1 = self.ax.transData.transform([x1, y1])
         self._eventrelease.x, self._eventrelease.y = xy1
 
-        # calculate dimensions of box or line
-        if self.spancoords == 'data':
-            spanx = abs(self._eventpress.xdata - self._eventrelease.xdata)
-            spany = abs(self._eventpress.ydata - self._eventrelease.ydata)
-        elif self.spancoords == 'pixels':
-            spanx = abs(self._eventpress.x - self._eventrelease.x)
-            spany = abs(self._eventpress.y - self._eventrelease.y)
-        else:
-            _api.check_in_list(['data', 'pixels'],
-                               spancoords=self.spancoords)
-        # check if drawn distance (if it exists) is not too small in
-        # either x or y-direction
-        minspanxy = (spanx <= self.minspanx or spany <= self.minspany)
-        if (self._drawtype != 'none' and minspanxy):
+        if self._drawtype != 'none' and self._selector_too_small():
             for artist in self.artists:
                 artist.set_visible(False)
             if self._selection_completed:
