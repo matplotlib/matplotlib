@@ -31,7 +31,6 @@ from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
 from matplotlib.font_manager import ttfFontProperty
-from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 
@@ -123,9 +122,6 @@ _f_angles = {
 
 
 class RendererCairo(RendererBase):
-    mathtext_parser = _api.deprecated("3.4")(
-        property(lambda self: MathTextParser('Cairo')))
-
     def __init__(self, dpi):
         self.dpi = dpi
         self.gc = GraphicsContextCairo(renderer=self)

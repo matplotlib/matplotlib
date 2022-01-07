@@ -5,7 +5,6 @@ Implementation details for :mod:`.mathtext`.
 from collections import namedtuple
 import enum
 import functools
-from io import StringIO
 import logging
 import os
 import types
@@ -91,14 +90,6 @@ class Fonts:
         self.default_font_prop = default_font_prop
         self.mathtext_backend = mathtext_backend
         self.used_characters = {}
-
-    @_api.deprecated("3.4")
-    def destroy(self):
-        """
-        Fix any cyclical references before the object is about
-        to be destroyed.
-        """
-        self.used_characters = None
 
     def get_kern(self, font1, fontclass1, sym1, fontsize1,
                  font2, fontclass2, sym2, fontsize2, dpi):
@@ -203,11 +194,6 @@ class Fonts:
         """
         result = self.mathtext_backend.get_results(
             box, self.get_used_characters())
-        if self.destroy != TruetypeFonts.destroy.__get__(self):
-            destroy = _api.deprecate_method_override(
-                __class__.destroy, self, since="3.4")
-            if destroy:
-                destroy()
         return result
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
@@ -234,11 +220,6 @@ class TruetypeFonts(Fonts):
         default_font = get_font(filename)
         self._fonts['default'] = default_font
         self._fonts['regular'] = default_font
-
-    @_api.deprecated("3.4")
-    def destroy(self):
-        self.glyphd = None
-        super().destroy()
 
     def _get_font(self, font):
         if font in self.fontmap:
@@ -802,8 +783,6 @@ class StandardPsFonts(Fonts):
 
         self.fonts['default'] = default_font
         self.fonts['regular'] = default_font
-
-    pswriter = _api.deprecated("3.4")(property(lambda self: StringIO()))
 
     def _get_font(self, font):
         if font in self.fontmap:

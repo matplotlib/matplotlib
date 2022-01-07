@@ -20,7 +20,6 @@ from matplotlib.backend_bases import (
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.colors import rgb2hex
 from matplotlib.dates import UTC
-from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib import _path
 from matplotlib.transforms import Affine2D, Affine2DBase
@@ -317,11 +316,6 @@ class RendererSVG(RendererBase):
             attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"})
         self._write_metadata(metadata)
         self._write_default_style()
-
-    @_api.deprecated("3.4")
-    @property
-    def mathtext_parser(self):
-        return MathTextParser('SVG')
 
     def finalize(self):
         self._write_clips()

@@ -7,12 +7,11 @@ import datetime
 from enum import Enum
 import functools
 import glob
-from io import StringIO, TextIOWrapper
+from io import StringIO
 import logging
 import math
 import os
 import pathlib
-import tempfile
 import re
 import shutil
 from tempfile import TemporaryDirectory
@@ -30,7 +29,6 @@ from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import get_font
 from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_NO_SCALE, FT2Font
 from matplotlib._ttconv import convert_ttf_to_ps
-from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.path import Path
 from matplotlib.texmanager import TexManager
@@ -262,9 +260,6 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
 
     _afm_font_dir = cbook._get_data_path("fonts/afm")
     _use_afm_rc_name = "ps.useafm"
-
-    mathtext_parser = _api.deprecated("3.4")(property(
-        lambda self: MathTextParser("PS")))
 
     def __init__(self, width, height, pswriter, imagedpi=72):
         # Although postscript itself is dpi independent, we need to inform the
@@ -689,9 +684,7 @@ grestore
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """Draw the math text using matplotlib.mathtext."""
         width, height, descent, glyphs, rects = \
-            self._text2path.mathtext_parser.parse(
-                s, 72, prop,
-                _force_standard_ps_fonts=mpl.rcParams["ps.useafm"])
+            self._text2path.mathtext_parser.parse(s, 72, prop)
         self.set_color(*gc.get_rgb())
         self._pswriter.write(
             f"gsave\n"
