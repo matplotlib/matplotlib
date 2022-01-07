@@ -3040,12 +3040,10 @@ class RectangleSelector(_SelectorWidget):
         self._eventrelease.x, self._eventrelease.y = xy1
 
         if self._drawtype != 'none' and self._selector_too_small():
-            for artist in self.artists:
-                artist.set_visible(False)
             if self._selection_completed:
                 # Call onselect, only when the selection is already existing
                 self.onselect(self._eventpress, self._eventrelease)
-            self._selection_completed = False
+            self.clear()
         else:
             self.onselect(self._eventpress, self._eventrelease)
             self._selection_completed = True
