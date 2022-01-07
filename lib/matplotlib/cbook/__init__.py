@@ -1339,7 +1339,8 @@ def _check_1d(x):
         # AssertionError for some Series objects, but should be
         # IndexError as described in
         # https://github.com/pandas-dev/pandas/issues/35527
-        except (AssertionError, IndexError, TypeError):
+        # ValueError: https://github.com/matplotlib/matplotlib/issues/22125
+        except (AssertionError, IndexError, TypeError, ValueError):
             return np.atleast_1d(x)
 
 
@@ -1649,7 +1650,7 @@ def index_of(y):
        The x and y values to plot.
     """
     try:
-        return y.index.values, y.values
+        return y.index.to_numpy(), y.to_numpy()
     except AttributeError:
         pass
     try:
