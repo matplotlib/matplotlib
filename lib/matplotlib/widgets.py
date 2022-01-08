@@ -3227,7 +3227,8 @@ class RectangleSelector(_SelectorWidget):
                         width = height = max(event.x - x0, event.y - y0)
                     elif self._active_handle == 'SW':
                         # Keep x0 + width, y0 + height a fixed point
-                        new_wh = max(x0 + width - event.x, y0 + height - event.y)
+                        new_wh = max(x0 + width - event.x,
+                                     y0 + height - event.y)
                         x0 += width - new_wh
                         y0 += height - new_wh
                         width = height = new_wh
