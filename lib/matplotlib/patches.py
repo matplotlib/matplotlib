@@ -13,7 +13,7 @@ from collections import namedtuple
 import numpy as np
 
 import matplotlib as mpl
-from . import (_api, artist, cbook, colors, docstring, hatch as mhatch,
+from . import (_api, artist, cbook, colors, _docstring, hatch as mhatch,
                lines as mlines, transforms)
 from .bezier import (
     NonIntersectingPathException, get_cos_sin, get_intersection,
@@ -23,7 +23,7 @@ from .path import Path
 from ._enums import JoinStyle, CapStyle
 
 
-@docstring.interpd
+@_docstring.interpd
 @_api.define_aliases({
     "antialiased": ["aa"],
     "edgecolor": ["ec"],
@@ -451,7 +451,7 @@ class Patch(artist.Artist):
     # attribute.
     fill = property(get_fill, set_fill)
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_capstyle(self, s):
         """
         Set the `.CapStyle`.
@@ -471,7 +471,7 @@ class Patch(artist.Artist):
         """Return the capstyle."""
         return self._capstyle.name
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_joinstyle(self, s):
         """
         Set the `.JoinStyle`.
@@ -617,7 +617,7 @@ class Shadow(Patch):
     def __str__(self):
         return "Shadow(%s)" % (str(self.patch))
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, patch, ox, oy, **kwargs):
         """
         Create a shadow of the given *patch*.
@@ -689,7 +689,7 @@ class Rectangle(Patch):
         fmt = "Rectangle(xy=(%g, %g), width=%g, height=%g, angle=%g)"
         return fmt % pars
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0.0, *,
                  rotation_point='xy', **kwargs):
         """
@@ -891,7 +891,7 @@ class RegularPolygon(Patch):
         return s % (self.xy[0], self.xy[1], self.numvertices, self.radius,
                     self.orientation)
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, xy, numVertices, radius=5, orientation=0,
                  **kwargs):
         """
@@ -941,7 +941,7 @@ class PathPatch(Patch):
         s = "PathPatch%d((%g, %g) ...)"
         return s % (len(self._path.vertices), *tuple(self._path.vertices[0]))
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, path, **kwargs):
         """
         *path* is a `~.path.Path` object.
@@ -970,7 +970,7 @@ class StepPatch(PathPatch):
 
     _edge_default = False
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, values, edges, *,
                  orientation='vertical', baseline=0, **kwargs):
         """
@@ -1078,7 +1078,7 @@ class Polygon(Patch):
         else:
             return "Polygon0()"
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, xy, closed=True, **kwargs):
         """
         *xy* is a numpy array with shape Nx2.
@@ -1174,7 +1174,7 @@ class Wedge(Patch):
         fmt = "Wedge(center=(%g, %g), r=%g, theta1=%g, theta2=%g, width=%s)"
         return fmt % pars
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, center, r, theta1, theta2, width=None, **kwargs):
         """
         A wedge centered at *x*, *y* center with radius *r* that
@@ -1270,7 +1270,7 @@ class Arrow(Patch):
                   [0.8, 0.1], [0.0, 0.1]],
                  closed=True)
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, x, y, dx, dy, width=1.0, **kwargs):
         """
         Draws an arrow from (*x*, *y*) to (*x* + *dx*, *y* + *dy*).
@@ -1325,7 +1325,7 @@ class FancyArrow(Polygon):
     def __str__(self):
         return "FancyArrow()"
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, x, y, dx, dy, width=0.001, length_includes_head=False,
                  head_width=None, head_length=None, shape='full', overhang=0,
                  head_starts_at_zero=False, **kwargs):
@@ -1483,7 +1483,7 @@ class FancyArrow(Polygon):
             ]
 
 
-docstring.interpd.update(
+_docstring.interpd.update(
     FancyArrow="\n".join(
         (inspect.getdoc(FancyArrow.__init__) or "").splitlines()[2:]))
 
@@ -1495,7 +1495,7 @@ class CirclePolygon(RegularPolygon):
         s = "CirclePolygon((%g, %g), radius=%g, resolution=%d)"
         return s % (self.xy[0], self.xy[1], self.radius, self.numvertices)
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, xy, radius=5,
                  resolution=20,  # the number of vertices
                  ** kwargs):
@@ -1521,7 +1521,7 @@ class Ellipse(Patch):
         fmt = "Ellipse(xy=(%s, %s), width=%s, height=%s, angle=%s)"
         return fmt % pars
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0, **kwargs):
         """
         Parameters
@@ -1669,7 +1669,7 @@ class Annulus(Patch):
     An elliptical annulus.
     """
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, xy, r, width, angle=0.0, **kwargs):
         """
         Parameters
@@ -1860,7 +1860,7 @@ class Circle(Ellipse):
         fmt = "Circle(xy=(%g, %g), radius=%g)"
         return fmt % pars
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, xy, radius=5, **kwargs):
         """
         Create a true circle at center *xy* = (*x*, *y*) with given *radius*.
@@ -1912,7 +1912,7 @@ class Arc(Ellipse):
                "height=%g, angle=%g, theta1=%g, theta2=%g)")
         return fmt % pars
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0.0,
                  theta1=0.0, theta2=360.0, **kwargs):
         """
@@ -3892,15 +3892,15 @@ class ArrowStyle(_Style):
             return path, True
 
 
-docstring.interpd.update(
+_docstring.interpd.update(
     AvailableBoxstyles=BoxStyle.pprint_styles(),
     ListBoxstyles=_simpleprint_styles(BoxStyle._style_list),
     AvailableArrowstyles=ArrowStyle.pprint_styles(),
     AvailableConnectorstyles=ConnectionStyle.pprint_styles(),
 )
-docstring.dedent_interpd(BoxStyle)
-docstring.dedent_interpd(ArrowStyle)
-docstring.dedent_interpd(ConnectionStyle)
+_docstring.dedent_interpd(BoxStyle)
+_docstring.dedent_interpd(ArrowStyle)
+_docstring.dedent_interpd(ConnectionStyle)
 
 
 class FancyBboxPatch(Patch):
@@ -3919,7 +3919,7 @@ class FancyBboxPatch(Patch):
         s = self.__class__.__name__ + "((%g, %g), width=%g, height=%g)"
         return s % (self._x, self._y, self._width, self._height)
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     @_api.delete_parameter("3.4", "bbox_transmuter", alternative="boxstyle")
     def __init__(self, xy, width, height,
                  boxstyle="round", bbox_transmuter=None,
@@ -3989,7 +3989,7 @@ class FancyBboxPatch(Patch):
 
         self.stale = True
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def set_boxstyle(self, boxstyle=None, **kwargs):
         """
         Set the box style.
@@ -4210,7 +4210,7 @@ class FancyArrowPatch(Patch):
         else:
             return f"{type(self).__name__}({self._path_original})"
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, posA=None, posB=None, path=None,
                  arrowstyle="simple", connectionstyle="arc3",
                  patchA=None, patchB=None,
@@ -4525,7 +4525,7 @@ class ConnectionPatch(FancyArrowPatch):
         return "ConnectionPatch((%g, %g), (%g, %g))" % \
                (self.xy1[0], self.xy1[1], self.xy2[0], self.xy2[1])
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, xyA, xyB, coordsA, coordsB=None,
                  axesA=None, axesB=None,
                  arrowstyle="-",

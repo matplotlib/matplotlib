@@ -19,7 +19,7 @@ import textwrap
 
 import numpy as np
 
-from matplotlib import _api, cbook, docstring, _preprocess_data
+from matplotlib import _api, cbook, _docstring, _preprocess_data
 import matplotlib.artist as martist
 import matplotlib.axes as maxes
 import matplotlib.collections as mcoll
@@ -40,7 +40,7 @@ from . import proj3d
 from . import axis3d
 
 
-@docstring.interpd
+@_docstring.interpd
 @_api.define_aliases({
     "xlim": ["xlim3d"], "ylim": ["ylim3d"], "zlim": ["zlim3d"]})
 class Axes3D(Axes):

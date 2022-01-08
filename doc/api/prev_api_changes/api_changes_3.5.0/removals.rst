@@ -214,7 +214,7 @@ The following class methods have been removed:
 - ``Colorbar.on_mappable_changed`` and ``Colorbar.update_bruteforce``; use
   ``Colorbar.update_normal()`` instead
 - ``docstring.Substitution.from_params`` has been removed; directly assign to
-  ``params`` of `.Substitution` instead
+  ``params`` of ``docstring.Substitution`` instead
 - ``DraggableBase.artist_picker``; set the artist's picker instead
 - ``DraggableBase.on_motion_blit``; use `.DraggableBase.on_motion` instead
 - ``FigureCanvasGTK3._renderer_init``

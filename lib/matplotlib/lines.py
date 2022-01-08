@@ -9,8 +9,7 @@ import logging
 
 import numpy as np
 
-import matplotlib as mpl
-from . import _api, artist, cbook, colors as mcolors, docstring, rcParams
+from . import _api, cbook, colors as mcolors, _docstring, rcParams
 from .artist import Artist, allow_rasterization
 from .cbook import (
     _to_unmasked_float_array, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
@@ -197,7 +196,7 @@ def _mark_every_path(markevery, tpath, affine, ax):
         raise ValueError(f"markevery={markevery!r} is not a recognized value")
 
 
-@docstring.interpd
+@_docstring.interpd
 @_api.define_aliases({
     "antialiased": ["aa"],
     "color": ["c"],
@@ -1123,7 +1122,7 @@ class Line2D(Artist):
             *self._unscaled_dash_pattern, self._linewidth)
         self.stale = True
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_marker(self, marker):
         """
         Set the line marker.
@@ -1277,7 +1276,7 @@ class Line2D(Artist):
         self._marker = MarkerStyle(marker=other._marker)
         self._drawstyle = other._drawstyle
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_dash_joinstyle(self, s):
         """
         How to join segments of the line if it `~Line2D.is_dashed`.
@@ -1293,7 +1292,7 @@ class Line2D(Artist):
             self.stale = True
         self._dashjoinstyle = js
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_solid_joinstyle(self, s):
         """
         How to join segments if the line is solid (not `~Line2D.is_dashed`).
@@ -1325,7 +1324,7 @@ class Line2D(Artist):
         """
         return self._solidjoinstyle.name
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_dash_capstyle(self, s):
         """
         How to draw the end caps if the line is `~Line2D.is_dashed`.
@@ -1341,7 +1340,7 @@ class Line2D(Artist):
             self.stale = True
         self._dashcapstyle = cs
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_solid_capstyle(self, s):
         """
         How to draw the end caps if the line is solid (not `~Line2D.is_dashed`)

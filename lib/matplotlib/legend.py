@@ -28,7 +28,7 @@ import time
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, docstring, colors, offsetbox
+from matplotlib import _api, _docstring, colors, offsetbox
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list
 from matplotlib.font_manager import FontProperties
@@ -94,7 +94,7 @@ class DraggableLegend(DraggableOffsetBox):
         self.legend.set_bbox_to_anchor(loc_in_bbox)
 
 
-docstring.interpd.update(_legend_kw_doc="""
+_docstring.interpd.update(_legend_kw_doc="""
 loc : str or pair of floats, default: :rc:`legend.loc` ('best' for axes, \
 'upper right' for figures)
     The location of the legend.
@@ -294,7 +294,7 @@ class Legend(Artist):
     def __str__(self):
         return "Legend"
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(
         self, parent, handles, labels,
         loc=None,

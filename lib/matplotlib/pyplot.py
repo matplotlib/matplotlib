@@ -52,7 +52,7 @@ from matplotlib import _api
 from matplotlib import rcsetup, style
 from matplotlib import _pylab_helpers, interactive
 from matplotlib import cbook
-from matplotlib import docstring
+from matplotlib import _docstring
 from matplotlib.backend_bases import FigureCanvasBase, MouseButton
 from matplotlib.figure import Figure, figaspect
 from matplotlib.gridspec import GridSpec, SubplotSpec
@@ -88,7 +88,7 @@ _log = logging.getLogger(__name__)
 def _copy_docstring_and_deprecators(method, func=None):
     if func is None:
         return functools.partial(_copy_docstring_and_deprecators, method)
-    decorators = [docstring.copy(method)]
+    decorators = [_docstring.copy(method)]
     # Check whether the definition of *method* includes @_api.rename_parameter
     # or @_api.make_keyword_only decorators; if so, propagate them to the
     # pyplot wrapper as well.
@@ -990,7 +990,7 @@ if Figure.legend.__doc__:
 
 ## Axes ##
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def axes(arg=None, **kwargs):
     """
     Add an Axes to the current figure and make it the current Axes.
@@ -1113,7 +1113,7 @@ def cla():
 
 ## More ways of creating axes ##
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def subplot(*args, **kwargs):
     """
     Add an Axes to the current figure or retrieve an existing Axes.

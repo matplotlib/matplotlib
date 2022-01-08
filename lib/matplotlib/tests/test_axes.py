@@ -6800,7 +6800,7 @@ def color_boxes(fig, ax):
     for nn, axx in enumerate([ax.xaxis, ax.yaxis]):
         bb = axx.get_tightbbox(renderer)
         if bb:
-            axisr = plt.Rectangle(
+            axisr = mpatches.Rectangle(
                 (bb.x0, bb.y0), width=bb.width, height=bb.height,
                 linewidth=0.7, edgecolor='y', facecolor="none", transform=None,
                 zorder=3)
@@ -6810,7 +6810,7 @@ def color_boxes(fig, ax):
     bbspines = []
     for nn, a in enumerate(['bottom', 'top', 'left', 'right']):
         bb = ax.spines[a].get_window_extent(renderer)
-        spiner = plt.Rectangle(
+        spiner = mpatches.Rectangle(
             (bb.x0, bb.y0), width=bb.width, height=bb.height,
             linewidth=0.7, edgecolor="green", facecolor="none", transform=None,
             zorder=3)
@@ -6818,7 +6818,7 @@ def color_boxes(fig, ax):
         bbspines += [bb]
 
     bb = ax.get_window_extent()
-    rect2 = plt.Rectangle(
+    rect2 = mpatches.Rectangle(
         (bb.x0, bb.y0), width=bb.width, height=bb.height,
         linewidth=1.5, edgecolor="magenta", facecolor="none", transform=None,
         zorder=2)
@@ -6826,7 +6826,7 @@ def color_boxes(fig, ax):
     bbax = bb
 
     bb2 = ax.get_tightbbox(renderer)
-    rect2 = plt.Rectangle(
+    rect2 = mpatches.Rectangle(
         (bb2.x0, bb2.y0), width=bb2.width, height=bb2.height,
         linewidth=3, edgecolor="red", facecolor="none", transform=None,
         zorder=1)

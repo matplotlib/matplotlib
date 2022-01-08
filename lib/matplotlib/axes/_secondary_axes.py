@@ -1,7 +1,6 @@
 import numpy as np
 
-from matplotlib import _api
-import matplotlib.docstring as docstring
+from matplotlib import _api, _docstring
 import matplotlib.ticker as mticker
 from matplotlib.axes._base import _AxesBase, _TransformedBoundsLocator
 from matplotlib.axis import Axis
@@ -124,7 +123,7 @@ class SecondaryAxis(_AxesBase):
         self._set_lims()
         super().apply_aspect(position)
 
-    @docstring.copy(Axis.set_ticks)
+    @_docstring.copy(Axis.set_ticks)
     def set_ticks(self, ticks, labels=None, *, minor=False, **kwargs):
         ret = self._axis.set_ticks(ticks, labels, minor=minor, **kwargs)
         self.stale = True
@@ -294,4 +293,4 @@ Other Parameters
 **kwargs : `~matplotlib.axes.Axes` properties.
     Other miscellaneous axes parameters.
 '''
-docstring.interpd.update(_secax_docstring=_secax_docstring)
+_docstring.interpd.update(_secax_docstring=_secax_docstring)

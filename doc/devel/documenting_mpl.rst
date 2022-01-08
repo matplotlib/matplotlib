@@ -684,14 +684,14 @@ are:
 2. as automated as possible so that as properties change, the docs
    are updated automatically.
 
-The ``@docstring.interpd`` decorator implements this.  Any function accepting
+The ``@_docstring.interpd`` decorator implements this.  Any function accepting
 `.Line2D` pass-through ``kwargs``, e.g., `matplotlib.axes.Axes.plot`, can list
 a summary of the `.Line2D` properties, as follows:
 
 .. code-block:: python
 
   # in axes.py
-  @docstring.interpd
+  @_docstring.interpd
   def plot(self, *args, **kwargs):
       """
       Some stuff omitted
@@ -726,7 +726,7 @@ gets interpolated into the docstring.
 
 Note that this scheme does not work for decorating an Artist's ``__init__``, as
 the subclass and its properties are not defined yet at that point.  Instead,
-``@docstring.interpd`` can be used to decorate the class itself -- at that
+``@_docstring.interpd`` can be used to decorate the class itself -- at that
 point, `.kwdoc` can list the properties and interpolate them into
 ``__init__.__doc__``.
 

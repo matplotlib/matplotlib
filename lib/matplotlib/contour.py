@@ -9,7 +9,7 @@ import numpy as np
 from numpy import ma
 
 import matplotlib as mpl
-from matplotlib import _api, docstring
+from matplotlib import _api, _docstring
 from matplotlib.backend_bases import MouseButton
 import matplotlib.path as mpath
 import matplotlib.ticker as ticker
@@ -656,7 +656,7 @@ def _find_closest_point_on_path(xys, p):
     return (d2s[imin], projs[imin], (imin, imin+1))
 
 
-docstring.interpd.update(contour_set_attributes=r"""
+_docstring.interpd.update(contour_set_attributes=r"""
 Attributes
 ----------
 ax : `~matplotlib.axes.Axes`
@@ -675,7 +675,7 @@ layers : array
 """)
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 class ContourSet(cm.ScalarMappable, ContourLabeler):
     """
     Store a set of contour lines or filled regions.
@@ -1404,7 +1404,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         return (conmin, segmin, imin, xmin, ymin, d2min)
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 class QuadContourSet(ContourSet):
     """
     Create and store a set of contour lines or filled regions.
@@ -1575,7 +1575,7 @@ class QuadContourSet(ContourSet):
         return np.meshgrid(x, y)
 
 
-docstring.interpd.update(contour_doc="""
+_docstring.interpd.update(contour_doc="""
 `.contour` and `.contourf` draw contour lines and filled contours,
 respectively.  Except as noted, function signatures and return values
 are the same for both versions.

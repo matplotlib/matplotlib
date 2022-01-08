@@ -527,7 +527,7 @@ class MarkerStyle:
 
         Submitted by tcb
         """
-        from matplotlib.text import TextPath
+        from matplotlib.textpath import TextPath
 
         # again, the properties could be initialised just once outside
         # this function
