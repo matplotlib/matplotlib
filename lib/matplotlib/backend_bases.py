@@ -44,7 +44,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import (
     _api, backend_tools as tools, cbook, colors, docstring, textpath,
-    tight_bbox, transforms, widgets, get_backend, is_interactive, rcParams)
+    _tight_bbox, transforms, widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import _setattr_cm
@@ -2248,7 +2248,7 @@ class FigureCanvasBase:
                     bbox_inches = bbox_inches.padded(pad_inches)
 
                 # call adjust_bbox to save only the given area
-                restore_bbox = tight_bbox.adjust_bbox(
+                restore_bbox = _tight_bbox.adjust_bbox(
                     self.figure, bbox_inches, self.figure.canvas.fixed_dpi)
 
                 _bbox_inches_restore = (bbox_inches, restore_bbox)

@@ -159,7 +159,7 @@ If `.MovieWriterRegistry` can't find the requested `.MovieWriter`, a
 more helpful `RuntimeError` message is now raised instead of the
 previously raised `KeyError`.
 
-`~.tight_layout.auto_adjust_subplotpars` now raises `ValueError`
+``matplotlib.tight_layout.auto_adjust_subplotpars`` now raises `ValueError`
 instead of `RuntimeError` when sizes of input lists don't match
 
 

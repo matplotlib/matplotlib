@@ -1,0 +1,5 @@
+Modules ``tight_bbox`` and ``tight_layout`` deprecated
+------------------------------------------------------
+
+The modules ``matplotlib.tight_bbox`` and ``matplotlib.tight_layout`` are
+considered internal and public access is deprecated.

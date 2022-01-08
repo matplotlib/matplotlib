@@ -3181,7 +3181,7 @@ class Figure(FigureBase):
         .pyplot.tight_layout
         """
         from contextlib import nullcontext
-        from .tight_layout import (
+        from ._tight_layout import (
             get_subplotspec_list, get_tight_layout_figure)
         subplotspec_list = get_subplotspec_list(self.axes)
         if None in subplotspec_list:
