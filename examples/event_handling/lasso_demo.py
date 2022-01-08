@@ -53,7 +53,7 @@ class LassoManager:
             6, sizes=(100,),
             facecolors=facecolors,
             offsets=self.xys,
-            transOffset=ax.transData)
+            offset_transform=ax.transData)
 
         ax.add_collection(self.collection)
 
