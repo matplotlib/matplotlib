@@ -764,7 +764,7 @@ class ToolTip:
         if self.tipwindow or not self.text:
             return
         x, y, _, _ = self.widget.bbox("insert")
-        x = x + self.widget.winfo_rootx() + 27
+        x = x + self.widget.winfo_rootx() + self.widget.winfo_width()
         y = y + self.widget.winfo_rooty()
         self.tipwindow = tw = tk.Toplevel(self.widget)
         tw.wm_overrideredirect(1)
