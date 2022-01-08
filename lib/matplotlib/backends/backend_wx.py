@@ -1134,15 +1134,19 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def get_canvas(self, frame, fig):
         return type(self.canvas)(frame, -1, fig)
 
+    def _update_buttons_checked(self):
+        if "Pan" in self.wx_ids:
+            self.ToggleTool(self.wx_ids["Pan"], self.mode.name == "PAN")
+        if "Zoom" in self.wx_ids:
+            self.ToggleTool(self.wx_ids["Zoom"], self.mode.name == "ZOOM")
+
     def zoom(self, *args):
-        tool = self.wx_ids['Zoom']
-        self.ToggleTool(tool, not self.GetToolState(tool))
         super().zoom(*args)
+        self._update_buttons_checked()
 
     def pan(self, *args):
-        tool = self.wx_ids['Pan']
-        self.ToggleTool(tool, not self.GetToolState(tool))
         super().pan(*args)
+        self._update_buttons_checked()
 
     def save_figure(self, *args):
         # Fetch the required filename and file type.
