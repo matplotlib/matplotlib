@@ -21,7 +21,7 @@ from matplotlib import docstring
 from . import _api, backend_tools, cbook, colors, ticker, transforms
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
-from .transforms import TransformedPatchPath, Affine2D
+from .transforms import TransformedPatchPath, Affine2D, Bbox
 
 
 class LockDraw:
@@ -3752,13 +3752,14 @@ class PolygonSelector(_SelectorWidget):
                                       interactive=True)
         self._box._state_modifier_keys.pop('rotate')
         self._box.connect_event('motion_notify_event', self._scale_polygon)
-        self._update_box()
         self._box.set_visible(True)
         # Set state that prevents the RectangleSelector from being created
         # by the user
         self._box._allow_creation = False
         self._box._selection_completed = True
-        self._draw_polygon()
+        self._box_state = None
+        # Set box extents
+        self._update_box()
 
     def _remove_box(self):
         if self._box is not None:
@@ -3768,10 +3769,21 @@ class PolygonSelector(_SelectorWidget):
     def _update_box(self):
         # Update selection box extents to the extents of the polygon
         if self._box is not None:
-            bbox = self._get_bbox()
-            self._box.extents = [bbox.x0, bbox.x1, bbox.y0, bbox.y1]
-            # Save a copy
-            self._old_box_extents = self._box.extents
+            box_state = self._box._position_state
+            if box_state == self._box_state:
+                return
+
+            rot_tr = Affine2D().rotate(-box_state.rotation)
+            verts = self.ax.transData.transform(self.verts)
+            bbox = Bbox.null()
+            bbox.update_from_data_xy(verts)
+
+            box_state.x0 = bbox.xmin
+            box_state.y0 = bbox.ymin
+            box_state.width = bbox.width
+            box_state.height = bbox.height
+            self._box._position_state = box_state
+            self._box_state = box_state
 
     def _scale_polygon(self, event):
         """
@@ -3782,25 +3794,27 @@ class PolygonSelector(_SelectorWidget):
         """
         if not self._selection_completed:
             return
-
-        if self._old_box_extents == self._box.extents:
+        if self._box._active_handle is None:
             return
 
+        old_box_state = self._box_state
+        new_box_state = self._box._position_state
+
         # Create transform from old box to new box
-        xmin, xmax, ymin, ymax = self._box.extents
-        old_bbox = self._get_bbox()
         t = (transforms.Affine2D()
-             .translate(-old_bbox.x0, -old_bbox.y0)
-             .scale(1 / old_bbox.width, 1 / old_bbox.height)
-             .scale(xmax - xmin, ymax - ymin)
-             .translate(xmin, ymin))
+             .translate(-old_box_state.x0, -old_box_state.y0)
+             .scale(1 / old_box_state.width, 1 / old_box_state.height)
+             .scale(new_box_state.width, new_box_state.height)
+             .translate(new_box_state.x0, new_box_state.y0))
 
         # Update polygon verts
-        new_verts = t.transform(np.array(self.verts))
+        verts = self.ax.transData.transform(self.verts)
+        new_verts = t.transform(verts)
+        new_verts = self.ax.transData.inverted().transform(new_verts)
         self._xs = list(np.append(new_verts[:, 0], new_verts[0, 0]))
         self._ys = list(np.append(new_verts[:, 1], new_verts[0, 1]))
         self._draw_polygon()
-        self._old_box_extents = self._box.extents
+        self._box_state = new_box_state
 
     line = _api.deprecated("3.5")(
         property(lambda self: self._selection_artist)
@@ -3967,6 +3981,7 @@ class PolygonSelector(_SelectorWidget):
         """Redraw the polygon based on the new vertex positions."""
         if self._selection_artist.get_data() == (self._xs, self._ys):
             return
+
         self._selection_artist.set_data(self._xs, self._ys)
         self._update_box()
         # Only show one tool handle at the start and end vertex of the polygon
