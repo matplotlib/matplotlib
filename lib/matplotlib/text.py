@@ -352,7 +352,6 @@ class Text(Artist):
         xmax = width
         ymax = 0
         ymin = ys[-1] - descent  # baseline of last line minus its descent
-        height = ymax - ymin
 
         # get the rotation matrix
         M = Affine2D().rotate_deg(self.get_rotation())

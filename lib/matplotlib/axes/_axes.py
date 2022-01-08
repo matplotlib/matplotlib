@@ -2153,7 +2153,7 @@ class Axes(_AxesBase):
             try:
                 x0 = cbook.safe_first_element(x0)
             except (TypeError, IndexError, KeyError):
-                x0 = x0
+                pass
 
             try:
                 x = cbook.safe_first_element(xconv)
@@ -5516,7 +5516,7 @@ default: :rc:`scatter.edgecolors`
         _valid_shading = ['gouraud', 'nearest', 'flat', 'auto']
         try:
             _api.check_in_list(_valid_shading, shading=shading)
-        except ValueError as err:
+        except ValueError:
             _api.warn_external(f"shading value '{shading}' not in list of "
                                f"valid values {_valid_shading}. Setting "
                                "shading='auto'.")
