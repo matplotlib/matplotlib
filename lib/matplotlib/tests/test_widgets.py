@@ -59,6 +59,46 @@ def test_rectangle_selector():
     check_rectangle(props=dict(fill=True))
 
 
+@pytest.mark.parametrize('spancoords', ['data', 'pixels'])
+@pytest.mark.parametrize('minspanx, x1', [[0, 10], [1, 10.5]])
+@pytest.mark.parametrize('minspany, y1', [[0, 10], [1, 10.5]])
+def test_rectangle_minspan(spancoords, minspanx, x1, minspany, y1):
+    ax = get_ax()
+    ax._n_onselect = 0
+
+    def onselect(epress, erelease):
+        ax._n_onselect += 1
+        ax._epress = epress
+        ax._erelease = erelease
+
+    x0, y0 = (10, 10)
+    if spancoords == 'pixels':
+        minspanx, minspany = (ax.transData.transform((x1, y1)) -
+                              ax.transData.transform((x0, y0)))
+
+    tool = widgets.RectangleSelector(ax, onselect, interactive=True,
+                                     spancoords=spancoords,
+                                     minspanx=minspanx, minspany=minspany)
+    # Too small to create a selector
+    click_and_drag(tool, start=(x0, x1), end=(y0, y1))
+    assert not tool._selection_completed
+    assert ax._n_onselect == 0
+
+    click_and_drag(tool, start=(20, 20), end=(30, 30))
+    assert tool._selection_completed
+    assert ax._n_onselect == 1
+
+    # Too small to create a selector. Should clear exising selector, and
+    # trigger onselect because there was a pre-exisiting selector
+    click_and_drag(tool, start=(x0, y0), end=(x1, y1))
+    assert not tool._selection_completed
+    assert ax._n_onselect == 2
+    assert ax._epress.xdata == x0
+    assert ax._epress.ydata == y0
+    assert ax._erelease.xdata == x1
+    assert ax._erelease.ydata == y1
+
+
 @pytest.mark.parametrize('drag_from_anywhere, new_center',
                          [[True, (60, 75)],
                           [False, (30, 20)]])
