@@ -2931,7 +2931,8 @@ class RectangleSelector(_SelectorWidget):
             to_draw.set_transform(None)
             # Becasue the transform in display coords, need to manually
             # add a resize callback for when the axes are reszied
-            self.ax.figure.canvas.mpl_connect('resize_event', self._on_resize)
+            self._resize_cid = self.ax.figure.canvas.mpl_connect(
+                'resize_event', self._on_resize)
 
         if drawtype == 'line':
             _api.warn_deprecated(
@@ -3757,6 +3758,9 @@ class PolygonSelector(_SelectorWidget):
         self._box._allow_creation = False
         self._box._selection_completed = True
         self._box_state = None
+        # Repalce the default canvas resize
+        self.ax.figure.canvas.mpl_disconnect(self._box._resize_cid)
+        self.ax.figure.canvas.mpl_connect('resize_event', self._update_box)
         # Set box extents
         self._update_box()
 
@@ -3765,7 +3769,7 @@ class PolygonSelector(_SelectorWidget):
             self._box.set_visible(False)
             self._box = None
 
-    def _update_box(self):
+    def _update_box(self, event=None):
         # Update selection box extents to the extents of the polygon
         if self._box is not None:
             box_state = self._box._position_state
