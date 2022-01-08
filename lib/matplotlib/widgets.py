@@ -3053,6 +3053,8 @@ class RectangleSelector(_SelectorWidget):
         self.set_visible(True)
 
         self._pos_state_on_press = self._position_state
+        if self._drawtype == 'box':
+            self._center_on_press = self._selection_artist.get_center()
         return False
 
     def _release(self, event):
@@ -3144,7 +3146,7 @@ class RectangleSelector(_SelectorWidget):
         if rotate:
             # calculate angle abc
             a = [eventpress.x, eventpress.y]
-            b = self.ax.transData.transform(self.center)
+            b = self._center_on_press
             c = [event.x, event.y]
             angle = (np.arctan2(c[1]-b[1], c[0]-b[0]) -
                      np.arctan2(a[1]-b[1], a[0]-b[0]))
