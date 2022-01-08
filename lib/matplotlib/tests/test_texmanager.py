@@ -2,7 +2,7 @@ from pathlib import Path
 import re
 
 import matplotlib.pyplot as plt
-from matplotlib.texmanager import TexManager
+from matplotlib._texmanager import TexManager
 import pytest
 
 

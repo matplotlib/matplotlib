@@ -79,7 +79,7 @@ def _check_for_pgf(texsystem):
 
 def _has_tex_package(package):
     try:
-        mpl.dviread._find_tex_file(f"{package}.sty")
+        mpl._dviread._find_tex_file(f"{package}.sty")
         return True
     except FileNotFoundError:
         return False

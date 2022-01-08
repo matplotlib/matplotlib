@@ -33,7 +33,7 @@ from matplotlib._ttconv import convert_ttf_to_ps
 from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.path import Path
-from matplotlib.texmanager import TexManager
+from matplotlib._texmanager import TexManager
 from matplotlib.transforms import Affine2D
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from . import _backend_pdf_ps

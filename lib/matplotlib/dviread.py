@@ -18,19 +18,15 @@ Interface::
 """
 
 from collections import namedtuple
+from functools import lru_cache, partial
 import enum
-from functools import lru_cache, partial, wraps
 import logging
 import os
-from pathlib import Path
 import re
-import struct
-import subprocess
-import sys
 
 import numpy as np
 
-from matplotlib import _api, cbook
+from matplotlib import _api, cbook, _dviread, _dviread_vf
 
 _log = logging.getLogger(__name__)
 
@@ -56,123 +52,6 @@ _log = logging.getLogger(__name__)
 
 _dvistate = enum.Enum('DviState', 'pre outer inpage post_post finale')
 
-# The marks on a page consist of text and boxes. A page also has dimensions.
-Page = namedtuple('Page', 'text boxes height width descent')
-Text = namedtuple('Text', 'x y font glyph width')
-Box = namedtuple('Box', 'x y height width')
-
-
-# Opcode argument parsing
-#
-# Each of the following functions takes a Dvi object and delta,
-# which is the difference between the opcode and the minimum opcode
-# with the same meaning. Dvi opcodes often encode the number of
-# argument bytes in this delta.
-
-def _arg_raw(dvi, delta):
-    """Return *delta* without reading anything more from the dvi file."""
-    return delta
-
-
-def _arg(nbytes, signed, dvi, _):
-    """
-    Read *nbytes* bytes, returning the bytes interpreted as a signed integer
-    if *signed* is true, unsigned otherwise.
-    """
-    return dvi._arg(nbytes, signed)
-
-
-def _arg_slen(dvi, delta):
-    """
-    Read *delta* bytes, returning None if *delta* is zero, and the bytes
-    interpreted as a signed integer otherwise.
-    """
-    if delta == 0:
-        return None
-    return dvi._arg(delta, True)
-
-
-def _arg_slen1(dvi, delta):
-    """
-    Read *delta*+1 bytes, returning the bytes interpreted as signed.
-    """
-    return dvi._arg(delta + 1, True)
-
-
-def _arg_ulen1(dvi, delta):
-    """
-    Read *delta*+1 bytes, returning the bytes interpreted as unsigned.
-    """
-    return dvi._arg(delta + 1, False)
-
-
-def _arg_olen1(dvi, delta):
-    """
-    Read *delta*+1 bytes, returning the bytes interpreted as
-    unsigned integer for 0<=*delta*<3 and signed if *delta*==3.
-    """
-    return dvi._arg(delta + 1, delta == 3)
-
-
-_arg_mapping = dict(raw=_arg_raw,
-                    u1=partial(_arg, 1, False),
-                    u4=partial(_arg, 4, False),
-                    s4=partial(_arg, 4, True),
-                    slen=_arg_slen,
-                    olen1=_arg_olen1,
-                    slen1=_arg_slen1,
-                    ulen1=_arg_ulen1)
-
-
-def _dispatch(table, min, max=None, state=None, args=('raw',)):
-    """
-    Decorator for dispatch by opcode. Sets the values in *table*
-    from *min* to *max* to this method, adds a check that the Dvi state
-    matches *state* if not None, reads arguments from the file according
-    to *args*.
-
-    Parameters
-    ----------
-    table : dict[int, callable]
-        The dispatch table to be filled in.
-
-    min, max : int
-        Range of opcodes that calls the registered function; *max* defaults to
-        *min*.
-
-    state : _dvistate, optional
-        State of the Dvi object in which these opcodes are allowed.
-
-    args : list[str], default: ['raw']
-        Sequence of argument specifications:
-
-        - 'raw': opcode minus minimum
-        - 'u1': read one unsigned byte
-        - 'u4': read four bytes, treat as an unsigned number
-        - 's4': read four bytes, treat as a signed number
-        - 'slen': read (opcode - minimum) bytes, treat as signed
-        - 'slen1': read (opcode - minimum + 1) bytes, treat as signed
-        - 'ulen1': read (opcode - minimum + 1) bytes, treat as unsigned
-        - 'olen1': read (opcode - minimum + 1) bytes, treat as unsigned
-          if under four bytes, signed if four bytes
-    """
-    def decorate(method):
-        get_args = [_arg_mapping[x] for x in args]
-
-        @wraps(method)
-        def wrapper(self, byte):
-            if state is not None and self.state != state:
-                raise ValueError("state precondition failed")
-            return method(self, *[f(self, byte-min) for f in get_args])
-        if max is None:
-            table[min] = wrapper
-        else:
-            for i in range(min, max+1):
-                assert table[i] is None
-                table[i] = wrapper
-        return wrapper
-    return decorate
-
 
 class Dvi:
     """
@@ -191,7 +70,7 @@ class Dvi:
     """
     # dispatch table
     _dtable = [None] * 256
-    _dispatch = partial(_dispatch, _dtable)
+    _dispatch = partial(_dviread._dispatch, _dtable)
 
     def __init__(self, filename, dpi):
         """
@@ -250,7 +129,7 @@ class Dvi:
         minx, miny, maxx, maxy = np.inf, np.inf, -np.inf, -np.inf
         maxy_pure = -np.inf
         for elt in self.text + self.boxes:
-            if isinstance(elt, Box):
+            if isinstance(elt, _dviread.Box):
                 x, y, h, w = elt
                 e = 0  # zero depth
             else:  # glyph
@@ -266,25 +145,26 @@ class Dvi:
             self._baseline_v = None
 
         if not self.text and not self.boxes:  # Avoid infs/nans from inf+/-inf.
-            return Page(text=[], boxes=[], width=0, height=0, descent=0)
+            return _dviread.Page(text=[], boxes=[], width=0,
+                                 height=0, descent=0)
 
         if self.dpi is None:
             # special case for ease of debugging: output raw dvi coordinates
-            return Page(text=self.text, boxes=self.boxes,
-                        width=maxx-minx, height=maxy_pure-miny,
-                        descent=maxy-maxy_pure)
+            return _dviread.Page(text=self.text, boxes=self.boxes,
+                                 width=maxx-minx, height=maxy_pure-miny,
+                                 descent=maxy-maxy_pure)
 
         # convert from TeX's "scaled points" to dpi units
         d = self.dpi / (72.27 * 2**16)
         descent = (maxy - maxy_pure) * d
 
-        text = [Text((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
+        text = [_dviread.Text((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
                 for (x, y, f, g, w) in self.text]
-        boxes = [Box((x-minx)*d, (maxy-y)*d - descent, h*d, w*d)
+        boxes = [_dviread.Box((x-minx)*d, (maxy-y)*d - descent, h*d, w*d)
                  for (x, y, h, w) in self.boxes]
 
-        return Page(text=text, boxes=boxes, width=(maxx-minx)*d,
-                    height=(maxy_pure-miny)*d, descent=descent)
+        return _dviread.Page(text=text, boxes=boxes, width=(maxx-minx)*d,
+                             height=(maxy_pure-miny)*d, descent=descent)
 
     def _read(self):
         """
@@ -366,20 +246,24 @@ class Dvi:
     def _put_char_real(self, char):
         font = self.fonts[self.f]
         if font._vf is None:
-            self.text.append(Text(self.h, self.v, font, char,
-                                  font._width_of(char)))
+            self.text.append(_dviread.Text(self.h, self.v, font, char,
+                                           font._width_of(char)))
         else:
             scale = font._scale
             for x, y, f, g, w in font._vf[char].text:
-                newf = DviFont(scale=_mul2012(scale, f._scale),
-                               tfm=f._tfm, texname=f.texname, vf=f._vf)
-                self.text.append(Text(self.h + _mul2012(x, scale),
-                                      self.v + _mul2012(y, scale),
-                                      newf, g, newf._width_of(g)))
-            self.boxes.extend([Box(self.h + _mul2012(x, scale),
-                                   self.v + _mul2012(y, scale),
-                                   _mul2012(a, scale), _mul2012(b, scale))
-                               for x, y, a, b in font._vf[char].boxes])
+                newf = _dviread.DviFont(
+                    scale=_dviread._mul2012(scale, f._scale),
+                    tfm=f._tfm, texname=f.texname, vf=f._vf)
+                self.text.append(_dviread.Text(
+                    self.h + _dviread._mul2012(x, scale),
+                    self.v + _dviread._mul2012(y, scale),
+                    newf, g, newf._width_of(g)))
+            self.boxes.extend(
+                [_dviread.Box(self.h + _dviread._mul2012(x, scale),
+                              self.v + _dviread._mul2012(y, scale),
+                              _dviread._mul2012(a, scale),
+                              _dviread._mul2012(b, scale))
+                 for x, y, a, b in font._vf[char].boxes])
 
     @_dispatch(137, state=_dvistate.inpage, args=('s4', 's4'))
     def _put_rule(self, a, b):
@@ -387,7 +271,7 @@ class Dvi:
 
     def _put_rule_real(self, a, b):
         if a > 0 and b > 0:
-            self.boxes.append(Box(self.h, self.v, a, b))
+            self.boxes.append(_dviread.Box(self.h, self.v, a, b))
 
     @_dispatch(138)
     def _nop(self, _):
@@ -469,14 +353,14 @@ class Dvi:
     def _fnt_def_real(self, k, c, s, d, a, l):
         n = self.file.read(a + l)
         fontname = n[-l:].decode('ascii')
-        tfm = _tfmfile(fontname)
+        tfm = _dviread._tfmfile(fontname)
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
             raise ValueError('tfm checksum mismatch: %s' % n)
         try:
-            vf = _vffile(fontname)
+            vf = _dviread_vf._vffile(fontname)
         except FileNotFoundError:
             vf = None
-        self.fonts[k] = DviFont(scale=s, tfm=tfm, texname=n, vf=vf)
+        self.fonts[k] = _dviread.DviFont(scale=s, tfm=tfm, texname=n, vf=vf)
 
     @_dispatch(247, state=_dvistate.pre, args=('u1', 'u4', 'u4', 'u4', 'u1'))
     def _pre(self, i, num, den, mag, k):
@@ -509,261 +393,6 @@ class Dvi:
     @_dispatch(min=250, max=255)
     def _malformed(self, offset):
         raise ValueError(f"unknown command: byte {250 + offset}")
-
-
-class DviFont:
-    """
-    Encapsulation of a font that a DVI file can refer to.
-
-    This class holds a font's texname and size, supports comparison,
-    and knows the widths of glyphs in the same units as the AFM file.
-    There are also internal attributes (for use by dviread.py) that
-    are *not* used for comparison.
-
-    The size is in Adobe points (converted from TeX points).
-
-    Parameters
-    ----------
-    scale : float
-        Factor by which the font is scaled from its natural size.
-    tfm : Tfm
-        TeX font metrics for this font
-    texname : bytes
-       Name of the font as used internally by TeX and friends, as an ASCII
-       bytestring.  This is usually very different from any external font
-       names; `PsfontsMap` can be used to find the external name of the font.
-    vf : Vf
-       A TeX "virtual font" file, or None if this font is not virtual.
-
-    Attributes
-    ----------
-    texname : bytes
-    size : float
-       Size of the font in Adobe points, converted from the slightly
-       smaller TeX points.
-    widths : list
-       Widths of glyphs in glyph-space units, typically 1/1000ths of
-       the point size.
-
-    """
-    __slots__ = ('texname', 'size', 'widths', '_scale', '_vf', '_tfm')
-
-    def __init__(self, scale, tfm, texname, vf):
-        _api.check_isinstance(bytes, texname=texname)
-        self._scale = scale
-        self._tfm = tfm
-        self.texname = texname
-        self._vf = vf
-        self.size = scale * (72.0 / (72.27 * 2**16))
-        try:
-            nchars = max(tfm.width) + 1
-        except ValueError:
-            nchars = 0
-        self.widths = [(1000*tfm.width.get(char, 0)) >> 20
-                       for char in range(nchars)]
-
-    def __eq__(self, other):
-        return (type(self) == type(other)
-                and self.texname == other.texname and self.size == other.size)
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __repr__(self):
-        return "<{}: {}>".format(type(self).__name__, self.texname)
-
-    def _width_of(self, char):
-        """Width of char in dvi units."""
-        width = self._tfm.width.get(char, None)
-        if width is not None:
-            return _mul2012(width, self._scale)
-        _log.debug('No width for char %d in font %s.', char, self.texname)
-        return 0
-
-    def _height_depth_of(self, char):
-        """Height and depth of char in dvi units."""
-        result = []
-        for metric, name in ((self._tfm.height, "height"),
-                             (self._tfm.depth, "depth")):
-            value = metric.get(char, None)
-            if value is None:
-                _log.debug('No %s for char %d in font %s',
-                           name, char, self.texname)
-                result.append(0)
-            else:
-                result.append(_mul2012(value, self._scale))
-        # cmsyXX (symbols font) glyph 0 ("minus") has a nonzero descent
-        # so that TeX aligns equations properly
-        # (https://tex.stackexchange.com/q/526103/)
-        # but we actually care about the rasterization depth to align
-        # the dvipng-generated images.
-        if re.match(br'^cmsy\d+$', self.texname) and char == 0:
-            result[-1] = 0
-        return result
-
-
-class Vf(Dvi):
-    r"""
-    A virtual font (\*.vf file) containing subroutines for dvi files.
-
-    Parameters
-    ----------
-    filename : str or path-like
-
-    Notes
-    -----
-    The virtual font format is a derivative of dvi:
-    http://mirrors.ctan.org/info/knuth/virtual-fonts
-    This class reuses some of the machinery of `Dvi`
-    but replaces the `_read` loop and dispatch mechanism.
-
-    Examples
-    --------
-    ::
-
-        vf = Vf(filename)
-        glyph = vf[code]
-        glyph.text, glyph.boxes, glyph.width
-    """
-
-    def __init__(self, filename):
-        super().__init__(filename, 0)
-        try:
-            self._first_font = None
-            self._chars = {}
-            self._read()
-        finally:
-            self.close()
-
-    def __getitem__(self, code):
-        return self._chars[code]
-
-    def _read(self):
-        """
-        Read one page from the file. Return True if successful,
-        False if there were no more pages.
-        """
-        packet_char, packet_ends = None, None
-        packet_len, packet_width = None, None
-        while True:
-            byte = self.file.read(1)[0]
-            # If we are in a packet, execute the dvi instructions
-            if self.state is _dvistate.inpage:
-                byte_at = self.file.tell()-1
-                if byte_at == packet_ends:
-                    self._finalize_packet(packet_char, packet_width)
-                    packet_len, packet_char, packet_width = None, None, None
-                    # fall through to out-of-packet code
-                elif byte_at > packet_ends:
-                    raise ValueError("Packet length mismatch in vf file")
-                else:
-                    if byte in (139, 140) or byte >= 243:
-                        raise ValueError(
-                            "Inappropriate opcode %d in vf file" % byte)
-                    Dvi._dtable[byte](self, byte)
-                    continue
-
-            # We are outside a packet
-            if byte < 242:          # a short packet (length given by byte)
-                packet_len = byte
-                packet_char, packet_width = self._arg(1), self._arg(3)
-                packet_ends = self._init_packet(byte)
-                self.state = _dvistate.inpage
-            elif byte == 242:       # a long packet
-                packet_len, packet_char, packet_width = \
-                            [self._arg(x) for x in (4, 4, 4)]
-                self._init_packet(packet_len)
-            elif 243 <= byte <= 246:
-                k = self._arg(byte - 242, byte == 246)
-                c, s, d, a, l = [self._arg(x) for x in (4, 4, 4, 1, 1)]
-                self._fnt_def_real(k, c, s, d, a, l)
-                if self._first_font is None:
-                    self._first_font = k
-            elif byte == 247:       # preamble
-                i, k = self._arg(1), self._arg(1)
-                x = self.file.read(k)
-                cs, ds = self._arg(4), self._arg(4)
-                self._pre(i, x, cs, ds)
-            elif byte == 248:       # postamble (just some number of 248s)
-                break
-            else:
-                raise ValueError("Unknown vf opcode %d" % byte)
-
-    def _init_packet(self, pl):
-        if self.state != _dvistate.outer:
-            raise ValueError("Misplaced packet in vf file")
-        self.h, self.v, self.w, self.x, self.y, self.z = 0, 0, 0, 0, 0, 0
-        self.stack, self.text, self.boxes = [], [], []
-        self.f = self._first_font
-        return self.file.tell() + pl
-
-    def _finalize_packet(self, packet_char, packet_width):
-        self._chars[packet_char] = Page(
-            text=self.text, boxes=self.boxes, width=packet_width,
-            height=None, descent=None)
-        self.state = _dvistate.outer
-
-    def _pre(self, i, x, cs, ds):
-        if self.state is not _dvistate.pre:
-            raise ValueError("pre command in middle of vf file")
-        if i != 202:
-            raise ValueError("Unknown vf format %d" % i)
-        if len(x):
-            _log.debug('vf file comment: %s', x)
-        self.state = _dvistate.outer
-        # cs = checksum, ds = design size
-
-
-def _mul2012(num1, num2):
-    """Multiply two numbers in 20.12 fixed point format."""
-    # Separated into a function because >> has surprising precedence
-    return (num1*num2) >> 20
-
-
-class Tfm:
-    """
-    A TeX Font Metric file.
-
-    This implementation covers only the bare minimum needed by the Dvi class.
-
-    Parameters
-    ----------
-    filename : str or path-like
-
-    Attributes
-    ----------
-    checksum : int
-       Used for verifying against the dvi file.
-    design_size : int
-       Design size of the font (unknown units)
-    width, height, depth : dict
-       Dimensions of each character, need to be scaled by the factor
-       specified in the dvi file. These are dicts because indexing may
-       not start from 0.
-    """
-    __slots__ = ('checksum', 'design_size', 'width', 'height', 'depth')
-
-    def __init__(self, filename):
-        _log.debug('opening tfm file %s', filename)
-        with open(filename, 'rb') as file:
-            header1 = file.read(24)
-            lh, bc, ec, nw, nh, nd = struct.unpack('!6H', header1[2:14])
-            _log.debug('lh=%d, bc=%d, ec=%d, nw=%d, nh=%d, nd=%d',
-                       lh, bc, ec, nw, nh, nd)
-            header2 = file.read(4*lh)
-            self.checksum, self.design_size = struct.unpack('!2I', header2[:8])
-            # there is also encoding information etc.
-            char_info = file.read(4*(ec-bc+1))
-            widths = struct.unpack(f'!{nw}i', file.read(4*nw))
-            heights = struct.unpack(f'!{nh}i', file.read(4*nh))
-            depths = struct.unpack(f'!{nd}i', file.read(4*nd))
-        self.width, self.height, self.depth = {}, {}, {}
-        for idx, char in enumerate(range(bc, ec+1)):
-            byte0 = char_info[4*idx]
-            byte1 = char_info[4*idx+1]
-            self.width[char] = widths[byte0]
-            self.height[char] = heights[byte1 >> 4]
-            self.depth[char] = depths[byte1 & 0xf]
 
 
 PsFont = namedtuple('PsFont', 'texname psname effects encoding filename')
@@ -937,157 +566,13 @@ class PsfontsMap:
         if basename is None:
             basename = tfmname
         if encodingfile is not None:
-            encodingfile = _find_tex_file(encodingfile)
+            encodingfile = _dviread._find_tex_file(encodingfile)
         if fontfile is not None:
-            fontfile = _find_tex_file(fontfile)
+            fontfile = _dviread._find_tex_file(fontfile)
         self._parsed[tfmname] = PsFont(
             texname=tfmname, psname=basename, effects=effects,
             encoding=encodingfile, filename=fontfile)
         return True
-
-
-def _parse_enc(path):
-    r"""
-    Parse a \*.enc file referenced from a psfonts.map style file.
-
-    The format supported by this function is a tiny subset of PostScript.
-
-    Parameters
-    ----------
-    path : os.PathLike
-
-    Returns
-    -------
-    list
-        The nth entry of the list is the PostScript glyph name of the nth
-        glyph.
-    """
-    no_comments = re.sub("%.*", "", Path(path).read_text(encoding="ascii"))
-    array = re.search(r"(?s)\[(.*)\]", no_comments).group(1)
-    lines = [line for line in array.split() if line]
-    if all(line.startswith("/") for line in lines):
-        return [line[1:] for line in lines]
-    else:
-        raise ValueError(
-            "Failed to parse {} as Postscript encoding".format(path))
-
-
-class _LuatexKpsewhich:
-    @lru_cache()  # A singleton.
-    def __new__(cls):
-        self = object.__new__(cls)
-        self._proc = self._new_proc()
-        return self
-
-    def _new_proc(self):
-        return subprocess.Popen(
-            ["luatex", "--luaonly",
-             str(cbook._get_data_path("kpsewhich.lua"))],
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-
-    def search(self, filename):
-        if self._proc.poll() is not None:  # Dead, restart it.
-            self._proc = self._new_proc()
-        self._proc.stdin.write(os.fsencode(filename) + b"\n")
-        self._proc.stdin.flush()
-        out = self._proc.stdout.readline().rstrip()
-        return None if out == b"nil" else os.fsdecode(out)
-
-
-@lru_cache()
-@_api.delete_parameter("3.5", "format")
-def _find_tex_file(filename, format=None):
-    """
-    Find a file in the texmf tree using kpathsea_.
-
-    The kpathsea library, provided by most existing TeX distributions, both
-    on Unix-like systems and on Windows (MikTeX), is invoked via a long-lived
-    luatex process if luatex is installed, or via kpsewhich otherwise.
-
-    .. _kpathsea: https://www.tug.org/kpathsea/
-
-    Parameters
-    ----------
-    filename : str or path-like
-    format : str or bytes
-        Used as the value of the ``--format`` option to :program:`kpsewhich`.
-        Could be e.g. 'tfm' or 'vf' to limit the search to that type of files.
-        Deprecated.
-
-    Raises
-    ------
-    FileNotFoundError
-        If the file is not found.
-    """
-
-    # we expect these to always be ascii encoded, but use utf-8
-    # out of caution
-    if isinstance(filename, bytes):
-        filename = filename.decode('utf-8', errors='replace')
-    if isinstance(format, bytes):
-        format = format.decode('utf-8', errors='replace')
-
-    try:
-        lk = _LuatexKpsewhich()
-    except FileNotFoundError:
-        lk = None  # Fallback to directly calling kpsewhich, as below.
-
-    if lk and format is None:
-        path = lk.search(filename)
-
-    else:
-        if os.name == 'nt':
-            # On Windows only, kpathsea can use utf-8 for cmd args and output.
-            # The `command_line_encoding` environment variable is set to force
-            # it to always use utf-8 encoding.  See Matplotlib issue #11848.
-            kwargs = {'env': {**os.environ, 'command_line_encoding': 'utf-8'},
-                      'encoding': 'utf-8'}
-        else:  # On POSIX, run through the equivalent of os.fsdecode().
-            kwargs = {'encoding': sys.getfilesystemencoding(),
-                      'errors': 'surrogateescape'}
-
-        cmd = ['kpsewhich']
-        if format is not None:
-            cmd += ['--format=' + format]
-        cmd += [filename]
-        try:
-            path = (cbook._check_and_log_subprocess(cmd, _log, **kwargs)
-                    .rstrip('\n'))
-        except (FileNotFoundError, RuntimeError):
-            path = None
-
-    if path:
-        return path
-    else:
-        raise FileNotFoundError(
-            f"Matplotlib's TeX implementation searched for a file named "
-            f"{filename!r} in your texmf tree, but could not find it")
-
-
-# After the deprecation period elapses, delete this shim and rename
-# _find_tex_file to find_tex_file everywhere.
-@_api.delete_parameter("3.5", "format")
-def find_tex_file(filename, format=None):
-    try:
-        return (_find_tex_file(filename, format) if format is not None else
-                _find_tex_file(filename))
-    except FileNotFoundError as exc:
-        _api.warn_deprecated(
-            "3.6", message=f"{exc.args[0]}; in the future, this will raise a "
-            f"FileNotFoundError.")
-        return ""
-
-
-find_tex_file.__doc__ = _find_tex_file.__doc__
-
-
-@lru_cache()
-def _fontfile(cls, suffix, texname):
-    return cls(_find_tex_file(texname + suffix))
-
-
-_tfmfile = partial(_fontfile, Tfm, ".tfm")
-_vffile = partial(_fontfile, Vf, ".vf")
 
 
 if __name__ == '__main__':
@@ -1099,7 +584,7 @@ if __name__ == '__main__':
     parser.add_argument("dpi", nargs="?", type=float, default=None)
     args = parser.parse_args()
     with Dvi(args.filename, args.dpi) as dvi:
-        fontmap = PsfontsMap(_find_tex_file('pdftex.map'))
+        fontmap = PsfontsMap(_dviread._find_tex_file('pdftex.map'))
         for page in dvi:
             print(f"=== new page === "
                   f"(w: {page.width}, h: {page.height}, d: {page.descent})")

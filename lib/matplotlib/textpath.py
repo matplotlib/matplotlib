@@ -5,7 +5,7 @@ import urllib.parse
 
 import numpy as np
 
-from matplotlib import _text_helpers, dviread, font_manager
+from matplotlib import _text_helpers, dviread, font_manager, _dviread
 from matplotlib.font_manager import FontProperties, get_font
 from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_TARGET_LIGHT
 from matplotlib.mathtext import MathTextParser
@@ -218,7 +218,7 @@ class TextToPath:
     def get_texmanager(self):
         """Return the cached `~.texmanager.TexManager` instance."""
         if self._texmanager is None:
-            from matplotlib.texmanager import TexManager
+            from matplotlib._texmanager import TexManager
             self._texmanager = TexManager()
         return self._texmanager
 
@@ -279,7 +279,7 @@ class TextToPath:
     @staticmethod
     @functools.lru_cache(50)
     def _get_ps_font_and_encoding(texname):
-        tex_font_map = dviread.PsfontsMap(dviread._find_tex_file('pdftex.map'))
+        tex_font_map = dviread.get_tex_font_map('pdftex.map')
         psfont = tex_font_map[texname]
         if psfont.filename is None:
             raise ValueError(
@@ -296,7 +296,7 @@ class TextToPath:
             # FT_Get_Name_Index/get_name_index), and load the glyph using
             # FT_Load_Glyph/load_glyph.  (That charmap has a coverage at least
             # as good as, and possibly better than, the native charmaps.)
-            enc = dviread._parse_enc(psfont.encoding)
+            enc = _dviread._parse_enc(psfont.encoding)
         else:
             # If psfonts.map specifies no encoding, the indices directly
             # map to the font's "native" charmap; so don't use the

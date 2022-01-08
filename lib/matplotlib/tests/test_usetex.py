@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 import matplotlib as mpl
-from matplotlib import dviread
+from matplotlib import _dviread
 from matplotlib.testing import _has_tex_package
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
@@ -129,8 +129,8 @@ def test_usetex_with_underscore():
 def test_missing_psfont(fmt, monkeypatch):
     """An error is raised if a TeX font lacks a Type-1 equivalent"""
     monkeypatch.setattr(
-        dviread.PsfontsMap, '__getitem__',
-        lambda self, k: dviread.PsFont(
+        _dviread.PsfontsMap, '__getitem__',
+        lambda self, k: _dviread.PsFont(
             texname='texfont', psname='Some Font',
             effects=None, encoding=None, filename=None))
     mpl.rcParams['text.usetex'] = True

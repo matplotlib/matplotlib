@@ -3,14 +3,19 @@ from pathlib import Path
 import shutil
 
 import matplotlib.dviread as dr
+import matplotlib._dviread as _dr
 import pytest
 
 
 def test_PsfontsMap(monkeypatch):
-    monkeypatch.setattr(dr, '_find_tex_file', lambda x: x)
+    monkeypatch.setattr(_dr, '_find_tex_file', lambda x: x)
 
     filename = str(Path(__file__).parent / 'baseline_images/dviread/test.map')
-    fontmap = dr.PsfontsMap(filename)
+    fontmap = _dr.PsfontsMap(filename)
+    fontmap2 = dr.get_tex_font_map(filename)
+
+    assert fontmap == fontmap2
+
     # Check all properties of a few fonts
     for n in [1, 2, 3, 4, 5]:
         key = b'TeXfont%d' % n
