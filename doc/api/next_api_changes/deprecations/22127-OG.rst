@@ -1,0 +1,22 @@
+Classes, functions, and named tuples in ``dviread`` deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The classes
+- ``DviFont``,
+- ``Vf``,
+- ``Tfm``,
+the function
+- ``find_tex_file``
+and the named tuples
+- ``Box``,
+- ``Page``,
+- ``Text``
+from the module ``matplotlib.dviread`` are considered internal and public
+access is deprecated.
+
+
+Module ``texmanager`` deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The module ``matplotlib.texmanager`` is considered internal and public access
+is deprecated.

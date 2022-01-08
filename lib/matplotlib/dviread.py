@@ -26,9 +26,27 @@ import re
 
 import numpy as np
 
-from matplotlib import _api, cbook, _dviread, _dviread_vf
+from matplotlib import _api, _dviread
 
 _log = logging.getLogger(__name__)
+
+
+@_api.caching_module_getattr
+class __getattr__:
+    locals().update({
+        name: _api.deprecated("3.6")(
+            property(lambda self, _mod=_dviread,
+                     _name=name: getattr(_mod, _name)))
+        for name in ["Book", "Page", "Text", "DviFont", "Tfm",
+                     "find_tex_file"]})
+
+
+@_api.deprecated("3.6")
+class Vf:
+    def __init__(self, filename):
+        from matplotlib import _vf
+        return _vf.Vf(filename)
+
 
 # Many dvi related files are looked for by external processes, require
 # additional parsing, and are used many times per rendering, which is why they
@@ -357,7 +375,8 @@ class Dvi:
         if c != 0 and tfm.checksum != 0 and c != tfm.checksum:
             raise ValueError('tfm checksum mismatch: %s' % n)
         try:
-            vf = _dviread_vf._vffile(fontname)
+            from matplotlib._vf import _vffile
+            vf = _vffile(fontname)
         except FileNotFoundError:
             vf = None
         self.fonts[k] = _dviread.DviFont(scale=s, tfm=tfm, texname=n, vf=vf)
@@ -406,6 +425,10 @@ class PsfontsMap:
     ----------
     filename : str or path-like
 
+    find_tex_file : bool (default False)
+        If ``True``, *filename* is looked up in the tex build directory.
+        If ``False`` (default), *filename* must be a fully qualified path.
+
     Notes
     -----
     For historical reasons, TeX knows many Type-1 fonts by different
@@ -430,7 +453,7 @@ class PsfontsMap:
 
     Examples
     --------
-    >>> map = PsfontsMap(find_tex_file('pdftex.map'))
+    >>> map = PsfontsMap('pdftex.map', find_tex_file=True)
     >>> entry = map[b'ptmbo8r']
     >>> entry.texname
     b'ptmbo8r'
@@ -448,9 +471,12 @@ class PsfontsMap:
     # `PsfontsMap(filename)` with the same filename a second time immediately
     # returns the same object.
     @lru_cache()
-    def __new__(cls, filename):
+    def __new__(cls, filename, *, find_tex_file=False):
         self = object.__new__(cls)
-        self._filename = os.fsdecode(filename)
+        if find_tex_file:
+            self._filename = os.fsdecode(_dviread.find_tex_file(filename))
+        else:
+            self._filename = os.fsdecode(filename)
         # Some TeX distributions have enormous pdftex.map files which would
         # take hundreds of milliseconds to parse, but it is easy enough to just
         # store the unparsed lines (keyed by the first word, which is the
@@ -584,7 +610,7 @@ if __name__ == '__main__':
     parser.add_argument("dpi", nargs="?", type=float, default=None)
     args = parser.parse_args()
     with Dvi(args.filename, args.dpi) as dvi:
-        fontmap = PsfontsMap(_dviread._find_tex_file('pdftex.map'))
+        fontmap = PsfontsMap("pdftex.map", find_tex_file=True)
         for page in dvi:
             print(f"=== new page === "
                   f"(w: {page.width}, h: {page.height}, d: {page.descent})")

@@ -279,7 +279,7 @@ class TextToPath:
     @staticmethod
     @functools.lru_cache(50)
     def _get_ps_font_and_encoding(texname):
-        tex_font_map = dviread.get_tex_font_map('pdftex.map')
+        tex_font_map = dviread.PsfontsMap('pdftex.map', find_tex_file=True)
         psfont = tex_font_map[texname]
         if psfont.filename is None:
             raise ValueError(

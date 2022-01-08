@@ -26,7 +26,7 @@ import numpy as np
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import _api, _text_helpers, cbook
+from matplotlib import _api, _dviread, _text_helpers, cbook, dviread
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
@@ -36,8 +36,6 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
 from matplotlib.afm import AFM
 import matplotlib.type1font as type1font
-import matplotlib._dviread as _dviread
-import matplotlib.dviread as dviread
 from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
                                 LOAD_NO_HINTING, KERNING_UNFITTED, FT2Font)
 from matplotlib.mathtext import MathTextParser
@@ -892,8 +890,7 @@ class PdfFile:
         if dvi_info is not None:
             return dvi_info.pdfname
 
-        tex_font_map = _dviread.PsfontsMap(
-            _dviread._find_tex_file('pdftex.map'))
+        tex_font_map = dviread.PsfontsMap()
         psfont = tex_font_map[dvifont.texname]
         if psfont.filename is None:
             raise ValueError(
