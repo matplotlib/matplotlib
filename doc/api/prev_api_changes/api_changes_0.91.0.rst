@@ -36,7 +36,7 @@ Changes for 0.91.0
   pfa/pfb file, to get metrics and kerning information for a Type 1
   font.
 
-* The :class:`.AFM` class now supports querying CapHeight and stem
+* The ``AFM`` class now supports querying CapHeight and stem
   widths. The get_name_char method now has an isord kwarg like
   get_width_char.
 

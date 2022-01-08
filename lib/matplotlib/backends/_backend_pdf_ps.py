@@ -9,7 +9,7 @@ from fontTools import subset
 
 import matplotlib as mpl
 from .. import font_manager, ft2font
-from ..afm import AFM
+from .._afm import AFM
 from ..backend_bases import RendererBase
 
 

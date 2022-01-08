@@ -229,8 +229,8 @@ defaults to *False*.
 
 Type 1 fonts have a large part of their code encrypted as an obsolete
 copy-protection measure. This part is now available decrypted as the
-``decrypted`` attribute of `~.type1font.Type1Font`. This decrypted data is not
-yet parsed, but this is a prerequisite for implementing subsetting.
+``decrypted`` attribute of ``matplotlib.type1font.Type1Font``. This decrypted
+data is not yet parsed, but this is a prerequisite for implementing subsetting.
 
 3D contourf polygons placed between levels
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
