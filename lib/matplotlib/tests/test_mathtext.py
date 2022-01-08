@@ -257,6 +257,11 @@ def test_fontinfo():
         (r'$\dfrac{}{}$', r'Expected \dfrac{num}{den}'),
         (r'$\overset$', r'Expected \overset{body}{annotation}'),
         (r'$\underset$', r'Expected \underset{body}{annotation}'),
+        (r'$\foo$', r'Unknown symbol: \foo'),
+        (r'$a^2^2$', r'Double superscript'),
+        (r'$a_2_2$', r'Double subscript'),
+        (r'$a^2_a^2$', r'Subscript/superscript sequence is too long.'\
+            r' Use braces { } to remove ambiguity.'),
     ],
     ids=[
         'hspace without value',
@@ -279,6 +284,10 @@ def test_fontinfo():
         'dfrac with empty parameters',
         'overset without parameters',
         'underset without parameters',
+        'unknown symbol',
+        'double superscript',
+        'double subscript',
+        'super on sub without braces'
     ]
 )
 def test_mathtext_exceptions(math, msg):
@@ -286,6 +295,11 @@ def test_mathtext_exceptions(math, msg):
     match = re.escape(msg) if isinstance(msg, str) else msg
     with pytest.raises(ValueError, match=match):
         parser.parse(math)
+
+
+def test_get_unicode_index_exception():
+    with pytest.raises(ValueError):
+        _mathtext.get_unicode_index(r'\foo')
 
 
 def test_single_minus_sign():
