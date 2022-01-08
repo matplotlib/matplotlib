@@ -3964,6 +3964,8 @@ class PolygonSelector(_SelectorWidget):
 
     def _draw_polygon(self):
         """Redraw the polygon based on the new vertex positions."""
+        if self._selection_artist.get_data() == (self._xs, self._ys):
+            return
         self._selection_artist.set_data(self._xs, self._ys)
         self._update_box()
         # Only show one tool handle at the start and end vertex of the polygon
