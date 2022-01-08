@@ -3753,6 +3753,7 @@ class PolygonSelector(_SelectorWidget):
         self._box._state_modifier_keys.pop('rotate')
         self._box.connect_event('motion_notify_event', self._scale_polygon)
         self._update_box()
+        self._box.set_visible(True)
         # Set state that prevents the RectangleSelector from being created
         # by the user
         self._box._allow_creation = False
@@ -4000,6 +4001,8 @@ class PolygonSelector(_SelectorWidget):
         self._selection_completed = True
         self.set_visible(True)
         self._draw_polygon()
+        if self._draw_box and self._box is None:
+            self._add_box()
 
 
 class Lasso(AxesWidget):
