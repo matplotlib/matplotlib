@@ -3750,7 +3750,6 @@ class PolygonSelector(_SelectorWidget):
                                       handle_props=self._box_handle_props,
                                       props=self._box_props,
                                       interactive=True)
-        self._box._state_modifier_keys.pop('rotate')
         self._box.connect_event('motion_notify_event', self._scale_polygon)
         self._box.set_visible(True)
         # Set state that prevents the RectangleSelector from being created
@@ -3770,16 +3769,17 @@ class PolygonSelector(_SelectorWidget):
         # Update selection box extents to the extents of the polygon
         if self._box is not None:
             box_state = self._box._position_state
-            if box_state == self._box_state:
-                return
 
             rot_tr = Affine2D().rotate(-box_state.rotation)
             verts = self.ax.transData.transform(self.verts)
+            verts = rot_tr.transform(verts)
             bbox = Bbox.null()
             bbox.update_from_data_xy(verts)
 
-            box_state.x0 = bbox.xmin
-            box_state.y0 = bbox.ymin
+            x0, y0 = rot_tr.inverted().transform((bbox.xmin, bbox.ymin))
+
+            box_state.x0 = x0
+            box_state.y0 = y0
             box_state.width = bbox.width
             box_state.height = bbox.height
             self._box._position_state = box_state
@@ -3799,12 +3799,16 @@ class PolygonSelector(_SelectorWidget):
 
         old_box_state = self._box_state
         new_box_state = self._box._position_state
+        if old_box_state == new_box_state:
+            return
 
         # Create transform from old box to new box
         t = (transforms.Affine2D()
              .translate(-old_box_state.x0, -old_box_state.y0)
+             .rotate(-old_box_state.rotation)
              .scale(1 / old_box_state.width, 1 / old_box_state.height)
              .scale(new_box_state.width, new_box_state.height)
+             .rotate(new_box_state.rotation)
              .translate(new_box_state.x0, new_box_state.y0))
 
         # Update polygon verts
@@ -3813,8 +3817,8 @@ class PolygonSelector(_SelectorWidget):
         new_verts = self.ax.transData.inverted().transform(new_verts)
         self._xs = list(np.append(new_verts[:, 0], new_verts[0, 0]))
         self._ys = list(np.append(new_verts[:, 1], new_verts[0, 1]))
-        self._draw_polygon()
         self._box_state = new_box_state
+        self._draw_polygon(update_box=False)
 
     line = _api.deprecated("3.5")(
         property(lambda self: self._selection_artist)
@@ -3977,13 +3981,14 @@ class PolygonSelector(_SelectorWidget):
             self._remove_box()
             self.set_visible(True)
 
-    def _draw_polygon(self):
+    def _draw_polygon(self, update_box=True):
         """Redraw the polygon based on the new vertex positions."""
         if self._selection_artist.get_data() == (self._xs, self._ys):
             return
 
         self._selection_artist.set_data(self._xs, self._ys)
-        self._update_box()
+        if update_box:
+            self._update_box()
         # Only show one tool handle at the start and end vertex of the polygon
         # if the polygon is completed or the user is locked on to the start
         # vertex.
