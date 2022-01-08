@@ -643,9 +643,15 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         if button._image_file is None:
             return
 
+        # Allow _image_file to be relative to Matplotlib's "images" data
+        # directory.
+        path_regular = cbook._get_data_path('images', button._image_file)
+        path_large = path_regular.with_name(
+            path_regular.name.replace('.png', '_large.png'))
         size = button.winfo_pixels('18p')
-        with Image.open(button._image_file.replace('.png', '_large.png')
-                        if size > 24 else button._image_file) as im:
+        # Use the high-resolution (48x48 px) icon if it exists and is needed
+        with Image.open(path_large if (size > 24 and path_large.exists())
+                        else path_regular) as im:
             image = ImageTk.PhotoImage(im.resize((size, size)), master=self)
         button.configure(image=image, height='18p', width='18p')
         button._ntimage = image  # Prevent garbage collection.
