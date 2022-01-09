@@ -11,6 +11,7 @@ wide and tall you want your Axes to be to accommodate your widget.
 
 from contextlib import ExitStack
 import copy
+from dataclasses import dataclass
 from numbers import Integral, Number
 
 import numpy as np
@@ -20,7 +21,7 @@ from matplotlib import docstring
 from . import _api, backend_tools, cbook, colors, ticker, transforms
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
-from .transforms import TransformedPatchPath, Affine2D
+from .transforms import TransformedPatchPath, Affine2D, Bbox
 
 
 class LockDraw:
@@ -2844,6 +2845,23 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     """
 
 
+@dataclass
+class _RectState:
+    x0: float
+    y0: float
+    width: float
+    height: float
+    rotation: float
+
+    @property
+    def xy(self):
+        return (self.x0, self.y0)
+
+    @xy.setter
+    def xy(self, xy):
+        self.x0, self.y0 = xy
+
+
 @docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING.replace(
     '__ARTIST_NAME__', 'rectangle'))
 class RectangleSelector(_SelectorWidget):
@@ -2897,13 +2915,20 @@ class RectangleSelector(_SelectorWidget):
         self._interactive = interactive
         self.drag_from_anywhere = drag_from_anywhere
         self.ignore_event_outside = ignore_event_outside
-        self._rotation = 0.0
-        self._aspect_ratio_correction = 1.0
+
+        # State that determines the position of the selector
+        # All of this state is defined in display coordinates
+        self._x0 = 0
+        self._y0 = 0
+        self._width = 0
+        self._height = 0
+        self._rotation = 0
 
         # State to allow the option of an interactive selector that can't be
         # interactively drawn. This is used in PolygonSelector as an
         # interactive bounding box to allow the polygon to be easily resized
         self._allow_creation = True
+        self._drawing_new = False
 
         if drawtype == 'none':  # draw a line but make it invisible
             _api.warn_deprecated(
@@ -2923,6 +2948,15 @@ class RectangleSelector(_SelectorWidget):
             self._props = props
             to_draw = self._init_shape(**self._props)
             self.ax.add_patch(to_draw)
+            # ax.add_patch sets the transform to ax.transData. Override to None
+            # so the selector is defined in display coordinates, which makes
+            # it much easier to handle rotation and scaling
+            to_draw.set_transform(None)
+            # Becasue the transform in display coords, need to manually
+            # add a resize callback for when the axes are reszied
+            self._resize_cid = self.ax.figure.canvas.mpl_connect(
+                'resize_event', self._on_resize)
+
         if drawtype == 'line':
             _api.warn_deprecated(
                 "3.5", message="Support for drawtype='line' is deprecated "
@@ -2937,7 +2971,6 @@ class RectangleSelector(_SelectorWidget):
             self.ax.add_line(to_draw)
 
         self._selection_artist = to_draw
-        self._set_aspect_ratio_correction()
 
         self.minspanx = minspanx
         self.minspany = minspany
@@ -2989,6 +3022,25 @@ class RectangleSelector(_SelectorWidget):
         property(lambda self: self.grab_range,
                  lambda self, value: setattr(self, "grab_range", value)))
 
+    def _on_resize(self, event):
+        # Callback for an Axes resize
+        self._update_handles()
+
+    @property
+    def _position_state(self):
+        """Return a named tuple containing all position state attributes."""
+        return _RectState(
+            self._x0, self._y0, self._width, self._height, self._rotation)
+
+    @_position_state.setter
+    def _position_state(self, state):
+        self._x0 = state.x0
+        self._y0 = state.y0
+        self._width = state.width
+        self._height = state.height
+        self._rotation = state.rotation
+        self._update_selection_artist()
+
     @property
     def _handles_artists(self):
         return (*self._center_handle.artists, *self._corner_handles.artists,
@@ -2996,7 +3048,7 @@ class RectangleSelector(_SelectorWidget):
 
     def _init_shape(self, **props):
         return Rectangle((0, 0), 0, 1, visible=False,
-                         rotation_point='center', **props)
+                         rotation_point='xy', **props)
 
     def _press(self, event):
         """Button press event handler."""
@@ -3014,18 +3066,19 @@ class RectangleSelector(_SelectorWidget):
 
         if (self._active_handle is None and not self.ignore_event_outside and
                 self._allow_creation):
-            x = event.xdata
-            y = event.ydata
-            self.visible = False
-            self.extents = x, x, y, y
-            self.visible = True
-        else:
-            self.set_visible(True)
+            # Start drawing a new rectangle
+            self._x0 = event.x
+            self._y0 = event.y
+            self._width = 0
+            self._height = 0
+            self._rotation = 0
+            self._drawing_new = True
 
-        self._extents_on_press = self.extents
-        self._rotation_on_press = self._rotation
-        self._set_aspect_ratio_correction()
+        self.set_visible(True)
 
+        self._pos_state_on_press = self._position_state
+        if self._drawtype == 'box':
+            self._center_on_press = self._selection_artist.get_center()
         return False
 
     def _release(self, event):
@@ -3037,31 +3090,29 @@ class RectangleSelector(_SelectorWidget):
                 self.ignore_event_outside):
             return
 
-        # update the eventpress and eventrelease with the resulting extents
-        x0, x1, y0, y1 = self.extents
-        self._eventpress.xdata = x0
-        self._eventpress.ydata = y0
-        xy0 = self.ax.transData.transform([x0, y0])
-        self._eventpress.x, self._eventpress.y = xy0
-
-        self._eventrelease.xdata = x1
-        self._eventrelease.ydata = y1
-        xy1 = self.ax.transData.transform([x1, y1])
-        self._eventrelease.x, self._eventrelease.y = xy1
+        self._eventrelease.xdata = event.xdata
+        self._eventrelease.ydata = event.ydata
+        self._eventrelease.x = event.x
+        self._eventrelease.y = event.y
 
         # calculate dimensions of box or line
         if self.spancoords == 'data':
-            spanx = abs(self._eventpress.xdata - self._eventrelease.xdata)
-            spany = abs(self._eventpress.ydata - self._eventrelease.ydata)
+            # Can't use self.extents, as these are the tool handle locations
+            # that will be in old locations if a selector pre-exists
+            inv_tr = self.ax.transData.inverted()
+            x1, y1 = (self._x0 + self._width,
+                      self._y0 + self._height)
+            spanx, spany = (inv_tr.transform((x1, y1)) -
+                            inv_tr.transform((self._x0, self._y0)))
         elif self.spancoords == 'pixels':
-            spanx = abs(self._eventpress.x - self._eventrelease.x)
-            spany = abs(self._eventpress.y - self._eventrelease.y)
+            spanx = self._width
+            spany = self._height
         else:
             _api.check_in_list(['data', 'pixels'],
                                spancoords=self.spancoords)
         # check if drawn distance (if it exists) is not too small in
         # either x or y-direction
-        minspanxy = (spanx <= self.minspanx or spany <= self.minspany)
+        minspanxy = abs(spanx) <= self.minspanx or abs(spany) <= self.minspany
         if (self._drawtype != 'none' and minspanxy):
             for artist in self.artists:
                 artist.set_visible(False)
@@ -3072,10 +3123,23 @@ class RectangleSelector(_SelectorWidget):
         else:
             self.onselect(self._eventpress, self._eventrelease)
             self._selection_completed = True
+            if self._drawing_new and self._drawtype == 'box':
+                # When finished drawing, make sure width, height are positive,
+                # and put reference corner in lower left. This ensures that the
+                # orientation of the corners and edges is always anti-clockwise
+                c = self._selection_artist.get_corners()
+                cx, cy = c[:, 0], c[:, 1]
+                new_pos_state = self._position_state
+                new_pos_state.x0 = np.min(cx)
+                new_pos_state.y0 = np.min(cy)
+                new_pos_state.width = np.max(cx) - np.min(cx)
+                new_pos_state.height = np.max(cy) - np.min(cy)
+                self._position_state = new_pos_state
 
         self.update()
         self._active_handle = None
         self._extents_on_press = None
+        self._drawing_new = False
 
         return False
 
@@ -3089,130 +3153,162 @@ class RectangleSelector(_SelectorWidget):
         - Re-size
         - Continue the creation of a new shape
         """
-        state = self._state
-        rotate = ('rotate' in state and
-                  self._active_handle in self._corner_order)
         eventpress = self._eventpress
-        # The calculations are done for rotation at zero: we apply inverse
-        # transformation to events except when we rotate and move
+        event.x, event.y = self._clip_to_axes(event.x, event.y)
+
+        # Decide which action to carry out
         state = self._state
         rotate = ('rotate' in state and
                   self._active_handle in self._corner_order)
         move = self._active_handle == 'C'
         resize = self._active_handle and not move
 
-        if resize:
-            inv_tr = self._get_rotation_transform().inverted()
-            event.xdata, event.ydata = inv_tr.transform(
-                [event.xdata, event.ydata])
-            eventpress.xdata, eventpress.ydata = inv_tr.transform(
-                [eventpress.xdata, eventpress.ydata]
-                )
+        # Create a variable for the new position after this move
+        new_pos_state = copy.copy(self._pos_state_on_press)
 
-        dx = event.xdata - eventpress.xdata
-        dy = event.ydata - eventpress.ydata
-        # refmax is used when moving the corner handle with the square state
-        # and is the maximum between refx and refy
-        refmax = None
-        if self._use_data_coordinates:
-            refx, refy = dx, dy
-        else:
-            # Get dx/dy in display coordinates
-            refx = event.x - eventpress.x
-            refy = event.y - eventpress.y
-
-        x0, x1, y0, y1 = self._extents_on_press
         # rotate an existing shape
         if rotate:
             # calculate angle abc
-            a = np.array([eventpress.xdata, eventpress.ydata])
-            b = np.array(self.center)
-            c = np.array([event.xdata, event.ydata])
+            a = [eventpress.x, eventpress.y]
+            b = self._center_on_press
+            c = [event.x, event.y]
             angle = (np.arctan2(c[1]-b[1], c[0]-b[0]) -
                      np.arctan2(a[1]-b[1], a[0]-b[0]))
-            self.rotation = np.rad2deg(self._rotation_on_press + angle)
+            new_pos_state.rotation = self._pos_state_on_press.rotation + angle
+            # Transform the rectangle corner so we are rotating about the
+            # center of the rectangle
+            new_pos_state.xy = Affine2D().rotate_around(*b, angle).transform(
+                self._pos_state_on_press.xy)
 
         elif resize:
-            size_on_press = [x1 - x0, y1 - y0]
-            center = [x0 + size_on_press[0] / 2, y0 + size_on_press[1] / 2]
+            # Do resizing in a de-rotated frame
+            t = Affine2D().rotate(-self._rotation)
+            press_x, press_y = t.transform((eventpress.x, eventpress.y))
+            event.x, event.y = t.transform((event.x, event.y))
+            x0, y0 = t.transform((self._pos_state_on_press.x0,
+                                  self._pos_state_on_press.y0))
+            dx = event.x - press_x
+            dy = event.y - press_y
 
             # Keeping the center fixed
             if 'center' in state:
+                size_on_press = [self._pos_state_on_press.width,
+                                 self._pos_state_on_press.height]
+                center = [x0 + size_on_press[0] / 2,
+                          y0 + size_on_press[1] / 2]
                 # hh, hw are half-height and half-width
                 if 'square' in state:
-                    # when using a corner, find which reference to use
+                    refmax = None
                     if self._active_handle in self._corner_order:
-                        refmax = max(refx, refy, key=abs)
-                    if self._active_handle in ['E', 'W'] or refmax == refx:
-                        hw = event.xdata - center[0]
-                        hh = hw / self._aspect_ratio_correction
+                        # When using a corner, use the maximum change in x/y
+                        refmax = max(dx, dy, key=abs)
+                    if self._active_handle in ['E', 'W'] or refmax == dx:
+                        hw = hh = abs(event.x - center[0])
+                        if self._use_data_coordinates:
+                            hh *= self.ax._get_aspect_ratio()
                     else:
-                        hh = event.ydata - center[1]
-                        hw = hh * self._aspect_ratio_correction
+                        hw = hh = abs(event.y - center[1])
+                        if self._use_data_coordinates:
+                            hw /= self.ax._get_aspect_ratio()
+
                 else:
                     hw = size_on_press[0] / 2
                     hh = size_on_press[1] / 2
                     # cancel changes in perpendicular direction
                     if self._active_handle in ['E', 'W'] + self._corner_order:
-                        hw = abs(event.xdata - center[0])
+                        hw = abs(event.x - center[0])
                     if self._active_handle in ['N', 'S'] + self._corner_order:
-                        hh = abs(event.ydata - center[1])
+                        hh = abs(event.y - center[1])
 
-                x0, x1, y0, y1 = (center[0] - hw, center[0] + hw,
-                                  center[1] - hh, center[1] + hh)
+                x0 = center[0] - hw
+                y0 = center[1] - hh
+                width = 2 * hw
+                height = 2 * hh
 
             else:
-                # change sign of relative changes to simplify calculation
-                # Switch variables so that x1 and/or y1 are updated on move
-                if 'W' in self._active_handle:
-                    x0 = x1
-                if 'S' in self._active_handle:
-                    y0 = y1
-                if self._active_handle in ['E', 'W'] + self._corner_order:
-                    x1 = event.xdata
-                if self._active_handle in ['N', 'S'] + self._corner_order:
-                    y1 = event.ydata
+                # center not in state
+                width = self._pos_state_on_press.width
+                height = self._pos_state_on_press.height
+
+                if 'N' in self._active_handle:
+                    height += dy
+                elif 'S' in self._active_handle:
+                    height -= dy
+                    y0 += dy
+
+                if 'E' in self._active_handle:
+                    width += dx
+                elif 'W' in self._active_handle:
+                    width -= dx
+                    x0 += dx
+
                 if 'square' in state:
-                    # when using a corner, find which reference to use
-                    if self._active_handle in self._corner_order:
-                        refmax = max(refx, refy, key=abs)
-                    if self._active_handle in ['E', 'W'] or refmax == refx:
-                        sign = np.sign(event.ydata - y0)
-                        y1 = y0 + sign * abs(x1 - x0) / \
-                            self._aspect_ratio_correction
-                    else:
-                        sign = np.sign(event.xdata - x0)
-                        x1 = x0 + sign * abs(y1 - y0) * \
-                            self._aspect_ratio_correction
+                    if self._active_handle in ['E', 'W']:
+                        height = width
+                    elif self._active_handle in ['N', 'S']:
+                        width = height
+                    elif self._active_handle == 'NE':
+                        width = height = max(event.x - x0, event.y - y0)
+                    elif self._active_handle == 'SW':
+                        # Keep x0 + width, y0 + height a fixed point
+                        new_wh = max(x0 + width - event.x,
+                                     y0 + height - event.y)
+                        x0 += width - new_wh
+                        y0 += height - new_wh
+                        width = height = new_wh
+                    elif self._active_handle == 'SE':
+                        # Keep x0, y0 + height a fixed point
+                        new_wh = max(event.x - x0, y0 + height - event.y)
+                        y0 += height - new_wh
+                        width = height = new_wh
+                    elif self._active_handle == 'NW':
+                        # Keep x0 + width, y0 a fixed point
+                        new_wh = max(x0 + width - event.x, event.y - y0)
+                        x0 += width - new_wh
+                        width = height = new_wh
+
+            # Transform back into de-rotated display coordiantes
+            new_pos_state.x0, new_pos_state.y0 = t.inverted().transform(
+                (x0, y0))
+            # Width and height are invariant under the rotation, so no need
+            # to transform
+            new_pos_state.width = width
+            new_pos_state.height = height
 
         elif move:
-            x0, x1, y0, y1 = self._extents_on_press
-            dx = event.xdata - eventpress.xdata
-            dy = event.ydata - eventpress.ydata
-            x0 += dx
-            x1 += dx
-            y0 += dy
-            y1 += dy
+            dx = event.x - eventpress.x
+            dy = event.y - eventpress.y
+            new_pos_state.x0 += dx
+            new_pos_state.y0 += dy
 
         else:
             # Create a new shape
-            self._rotation = 0
+
             # Don't create a new rectangle if there is already one when
             # ignore_event_outside=True
             if ((self.ignore_event_outside and self._selection_completed) or
                     not self._allow_creation):
                 return
-            center = [eventpress.xdata, eventpress.ydata]
-            dx = (event.xdata - center[0]) / 2.
-            dy = (event.ydata - center[1]) / 2.
+            center = [eventpress.x, eventpress.y]
+            dx = (event.x - center[0]) / 2
+            dy = (event.y - center[1]) / 2
 
             # square shape
             if 'square' in state:
+                refx = event.x - eventpress.x
+                refy = event.y - eventpress.y
                 refmax = max(refx, refy, key=abs)
+
                 if refmax == refx:
-                    dy = np.sign(dy) * abs(dx) / self._aspect_ratio_correction
+                    sign = np.sign(dy) or 1
+                    dy = sign * abs(dx)
+                    if self._use_data_coordinates:
+                        dy *= self.ax._get_aspect_ratio()
                 else:
-                    dx = np.sign(dx) * abs(dy) * self._aspect_ratio_correction
+                    sign = np.sign(dx) or 1
+                    dx = sign * abs(dy)
+                    if self._use_data_coordinates:
+                        dx /= self.ax._get_aspect_ratio()
 
             # from center
             if 'center' in state:
@@ -3224,41 +3320,17 @@ class RectangleSelector(_SelectorWidget):
                 center[0] += dx
                 center[1] += dy
 
-            x0, x1, y0, y1 = (center[0] - dx, center[0] + dx,
-                              center[1] - dy, center[1] + dy)
+            new_pos_state.x0 = center[0] - dx
+            new_pos_state.y0 = center[1] - dy
+            new_pos_state.width = 2 * dx
+            new_pos_state.height = 2 * dy
+            new_pos_state.rotation = 0
 
-        self.extents = x0, x1, y0, y1
-
-    @property
-    def _rect_bbox(self):
-        if self._drawtype == 'box':
-            return self._selection_artist.get_bbox().bounds
-        else:
-            x, y = self._selection_artist.get_data()
-            x0, x1 = min(x), max(x)
-            y0, y1 = min(y), max(y)
-            return x0, y0, x1 - x0, y1 - y0
-
-    def _set_aspect_ratio_correction(self):
-        aspect_ratio = self.ax._get_aspect_ratio()
-        if not hasattr(self._selection_artist, '_aspect_ratio_correction'):
-            # Aspect ratio correction is not supported with deprecated
-            # drawtype='line'. Remove this block in matplotlib 3.7
-            self._aspect_ratio_correction = 1
-            return
-
-        self._selection_artist._aspect_ratio_correction = aspect_ratio
-        if self._use_data_coordinates:
-            self._aspect_ratio_correction = 1
-        else:
-            self._aspect_ratio_correction = aspect_ratio
+        self._position_state = new_pos_state
 
     def _get_rotation_transform(self):
-        aspect_ratio = self.ax._get_aspect_ratio()
         return Affine2D().translate(-self.center[0], -self.center[1]) \
-                .scale(1, aspect_ratio) \
                 .rotate(self._rotation) \
-                .scale(1, 1 / aspect_ratio) \
                 .translate(*self.center)
 
     @property
@@ -3267,12 +3339,15 @@ class RectangleSelector(_SelectorWidget):
         Corners of rectangle in data coordinates from lower left,
         moving clockwise.
         """
-        x0, y0, width, height = self._rect_bbox
-        xc = x0, x0 + width, x0 + width, x0
-        yc = y0, y0, y0 + height, y0 + height
-        transform = self._get_rotation_transform()
-        coords = transform.transform(np.array([xc, yc]).T).T
-        return coords[0], coords[1]
+        if self._drawtype == 'box':
+            c = self._selection_artist.get_corners()
+            # Convert from display to data coordinates
+            c = self.ax.transData.inverted().transform(c)
+            return c[:, 0], c[:, 1]
+        elif self._drawtype == 'line':
+            x, y = self._selection_artist.get_data()
+            return (np.array([x[0], x[0], x[1], x[1]]),
+                    np.array([y[0], y[1], y[1], y[0]]))
 
     @property
     def edge_centers(self):
@@ -3280,20 +3355,16 @@ class RectangleSelector(_SelectorWidget):
         Midpoint of rectangle edges in data coordiantes from left,
         moving anti-clockwise.
         """
-        x0, y0, width, height = self._rect_bbox
-        w = width / 2.
-        h = height / 2.
-        xe = x0, x0 + w, x0 + width, x0 + w
-        ye = y0 + h, y0, y0 + h, y0 + height
-        transform = self._get_rotation_transform()
-        coords = transform.transform(np.array([xe, ye]).T).T
-        return coords[0], coords[1]
+        c = self._selection_artist._get_edge_midpoints()
+        c = self.ax.transData.inverted().transform(c)
+        return c[:, 0], c[:, 1]
 
     @property
     def center(self):
         """Center of rectangle in data coordinates."""
-        x0, y0, width, height = self._rect_bbox
-        return x0 + width / 2., y0 + height / 2.
+        c = self._selection_artist.get_center()
+        # Convert from display to data coordinates
+        return self.ax.transData.inverted().transform(c)
 
     @property
     def extents(self):
@@ -3301,63 +3372,87 @@ class RectangleSelector(_SelectorWidget):
         Return (xmin, xmax, ymin, ymax) in data coordinates as defined by the
         bounding box before rotation.
         """
-        x0, y0, width, height = self._rect_bbox
-        xmin, xmax = sorted([x0, x0 + width])
-        ymin, ymax = sorted([y0, y0 + height])
-        return xmin, xmax, ymin, ymax
+        cx, cy = self.corners
+        return cx[0], cx[2], cy[0], cy[2]
 
     @extents.setter
     def extents(self, extents):
+        # Convert from data to figure coordinates
+        corner_min = self.ax.transData.transform((extents[0], extents[2]))
+        corner_max = self.ax.transData.transform((extents[1], extents[3]))
         # Update displayed shape
-        self._draw_shape(extents)
-        if self._interactive:
-            # Update displayed handles
-            self._corner_handles.set_data(*self.corners)
-            self._edge_handles.set_data(*self.edge_centers)
-            self._center_handle.set_data(*self.center)
+        self._draw_shape((corner_min[0], corner_max[0],
+                          corner_min[1], corner_max[1]))
         self.set_visible(self.visible)
         self.update()
 
     @property
     def rotation(self):
         """
-        Rotation in degree in interval [-45°, 45°]. The rotation is limited in
-        range to keep the implementation simple.
+        Rotation in degrees.
         """
         return np.rad2deg(self._rotation)
 
     @rotation.setter
     def rotation(self, value):
-        # Restrict to a limited range of rotation [-45°, 45°] to avoid changing
-        # order of handles
-        if -45 <= value and value <= 45:
-            self._rotation = np.deg2rad(value)
-            # call extents setter to draw shape and update handles positions
-            self.extents = self.extents
+        self._rotation = np.deg2rad(value)
+        self._update_selection_artist()
 
+    def _clip_to_axes(self, x, y):
+        """
+        Clip x and y values in diplay coordinates to the limits of the current
+        Axes.
+        """
+        xlim = sorted(self.ax.get_xlim())
+        ylim = sorted(self.ax.get_ylim())
+
+        min_lim = (xlim[0], ylim[0])
+        max_lim = (xlim[1], ylim[1])
+        # Axes limits in display coordinates
+        min_lim = self.ax.transData.transform(min_lim)
+        max_lim = self.ax.transData.transform(max_lim)
+
+        x = np.clip(x, min_lim[0], max_lim[0])
+        y = np.clip(y, min_lim[1], max_lim[1])
+        return x, y
+
+    # TODO: _draw_shape can be removed in 3.7
     draw_shape = _api.deprecate_privatize_attribute('3.5')
 
     def _draw_shape(self, extents):
         x0, x1, y0, y1 = extents
-        xmin, xmax = sorted([x0, x1])
-        ymin, ymax = sorted([y0, y1])
-        xlim = sorted(self.ax.get_xlim())
-        ylim = sorted(self.ax.get_ylim())
+        self._x0 = x0
+        self._y0 = y0
+        self._width = x1 - x0
+        self._height = y1 - y0
+        self._update_selection_artist()
 
-        xmin = max(xlim[0], xmin)
-        ymin = max(ylim[0], ymin)
-        xmax = min(xmax, xlim[1])
-        ymax = min(ymax, ylim[1])
-
+    def _update_selection_artist(self):
+        """
+        Update the selection artists from the current position state.
+        """
         if self._drawtype == 'box':
-            self._selection_artist.set_x(xmin)
-            self._selection_artist.set_y(ymin)
-            self._selection_artist.set_width(xmax - xmin)
-            self._selection_artist.set_height(ymax - ymin)
+            self._selection_artist.set_x(self._x0)
+            self._selection_artist.set_y(self._y0)
+            self._selection_artist.set_width(self._width)
+            self._selection_artist.set_height(self._height)
             self._selection_artist.set_angle(self.rotation)
 
         elif self._drawtype == 'line':
-            self._selection_artist.set_data([xmin, xmax], [ymin, ymax])
+            xy0 = self._x0, self._y0
+            xy1 = self._x0 + self._width, self._y0 + self._height
+            xy1 = Affine2D().rotate_around(*xy0, self._rotation).transform(xy1)
+            self._selection_artist.set_data([xy0[0], xy1[0]], [xy0[1], xy1[1]])
+
+        if self._interactive:
+            self._update_handles()
+
+        self.update()
+
+    def _update_handles(self):
+        self._corner_handles.set_data(*self.corners)
+        self._edge_handles.set_data(*self.edge_centers)
+        self._center_handle.set_data(*self.center)
 
     def _set_active_handle(self, event):
         """Set active handle based on the location of the mouse event."""
@@ -3431,37 +3526,32 @@ class EllipseSelector(RectangleSelector):
     def _init_shape(self, **props):
         return Ellipse((0, 0), 0, 1, visible=False, **props)
 
-    def _draw_shape(self, extents):
-        x0, x1, y0, y1 = extents
-        xmin, xmax = sorted([x0, x1])
-        ymin, ymax = sorted([y0, y1])
-        center = [x0 + (x1 - x0) / 2., y0 + (y1 - y0) / 2.]
-        a = (xmax - xmin) / 2.
-        b = (ymax - ymin) / 2.
-
+    def _update_selection_artist(self):
+        """
+        Update the selection artists from the current position state.
+        """
+        center = (self._x0 + self._width / 2,
+                  self._y0 + self._height / 2)
+        center = Affine2D().rotate_around(
+            self._x0, self._y0, self._rotation).transform(center)
         if self._drawtype == 'box':
             self._selection_artist.center = center
-            self._selection_artist.width = 2 * a
-            self._selection_artist.height = 2 * b
+            self._selection_artist.width = self._width
+            self._selection_artist.height = self._height
             self._selection_artist.angle = self.rotation
         else:
             rad = np.deg2rad(np.arange(31) * 12)
-            x = a * np.cos(rad) + center[0]
-            y = b * np.sin(rad) + center[1]
+            x = self._width / 2 * np.cos(rad) + center[0]
+            y = self._height / 2 * np.sin(rad) + center[1]
             self._selection_artist.set_data(x, y)
 
-    @property
-    def _rect_bbox(self):
-        if self._drawtype == 'box':
-            x, y = self._selection_artist.center
-            width = self._selection_artist.width
-            height = self._selection_artist.height
-            return x - width / 2., y - height / 2., width, height
-        else:
-            x, y = self._selection_artist.get_data()
-            x0, x1 = min(x), max(x)
-            y0, y1 = min(y), max(y)
-            return x0, y0, x1 - x0, y1 - y0
+        if self._interactive:
+            # Update displayed handles
+            self._corner_handles.set_data(*self.corners)
+            self._edge_handles.set_data(*self.edge_centers)
+            self._center_handle.set_data(*self.center)
+
+        self.update()
 
 
 class LassoSelector(_SelectorWidget):
@@ -3684,27 +3774,43 @@ class PolygonSelector(_SelectorWidget):
                                       handle_props=self._box_handle_props,
                                       props=self._box_props,
                                       interactive=True)
-        self._box._state_modifier_keys.pop('rotate')
         self._box.connect_event('motion_notify_event', self._scale_polygon)
-        self._update_box()
+        self._box.set_visible(True)
         # Set state that prevents the RectangleSelector from being created
         # by the user
         self._box._allow_creation = False
         self._box._selection_completed = True
-        self._draw_polygon()
+        self._box_state = None
+        # Repalce the default canvas resize
+        self.ax.figure.canvas.mpl_disconnect(self._box._resize_cid)
+        self.ax.figure.canvas.mpl_connect('resize_event', self._update_box)
+        # Set box extents
+        self._update_box()
 
     def _remove_box(self):
         if self._box is not None:
             self._box.set_visible(False)
             self._box = None
 
-    def _update_box(self):
+    def _update_box(self, event=None):
         # Update selection box extents to the extents of the polygon
         if self._box is not None:
-            bbox = self._get_bbox()
-            self._box.extents = [bbox.x0, bbox.x1, bbox.y0, bbox.y1]
-            # Save a copy
-            self._old_box_extents = self._box.extents
+            box_state = self._box._position_state
+
+            rot_tr = Affine2D().rotate(-box_state.rotation)
+            verts = self.ax.transData.transform(self.verts)
+            verts = rot_tr.transform(verts)
+            bbox = Bbox.null()
+            bbox.update_from_data_xy(verts)
+
+            x0, y0 = rot_tr.inverted().transform((bbox.xmin, bbox.ymin))
+
+            box_state.x0 = x0
+            box_state.y0 = y0
+            box_state.width = bbox.width
+            box_state.height = bbox.height
+            self._box._position_state = box_state
+            self._box_state = box_state
 
     def _scale_polygon(self, event):
         """
@@ -3715,25 +3821,31 @@ class PolygonSelector(_SelectorWidget):
         """
         if not self._selection_completed:
             return
+        if self._box._active_handle is None:
+            return
 
-        if self._old_box_extents == self._box.extents:
+        old_box_state = self._box_state
+        new_box_state = self._box._position_state
+        if old_box_state == new_box_state:
             return
 
         # Create transform from old box to new box
-        x1, y1, w1, h1 = self._box._rect_bbox
-        old_bbox = self._get_bbox()
         t = (transforms.Affine2D()
-             .translate(-old_bbox.x0, -old_bbox.y0)
-             .scale(1 / old_bbox.width, 1 / old_bbox.height)
-             .scale(w1, h1)
-             .translate(x1, y1))
+             .translate(-old_box_state.x0, -old_box_state.y0)
+             .rotate(-old_box_state.rotation)
+             .scale(1 / old_box_state.width, 1 / old_box_state.height)
+             .scale(new_box_state.width, new_box_state.height)
+             .rotate(new_box_state.rotation)
+             .translate(new_box_state.x0, new_box_state.y0))
 
         # Update polygon verts
-        new_verts = t.transform(np.array(self.verts))
+        verts = self.ax.transData.transform(self.verts)
+        new_verts = t.transform(verts)
+        new_verts = self.ax.transData.inverted().transform(new_verts)
         self._xs = list(np.append(new_verts[:, 0], new_verts[0, 0]))
         self._ys = list(np.append(new_verts[:, 1], new_verts[0, 1]))
-        self._draw_polygon()
-        self._old_box_extents = self._box.extents
+        self._box_state = new_box_state
+        self._draw_polygon(update_box=False)
 
     line = _api.deprecated("3.5")(
         property(lambda self: self._selection_artist)
@@ -3896,10 +4008,14 @@ class PolygonSelector(_SelectorWidget):
             self._remove_box()
             self.set_visible(True)
 
-    def _draw_polygon(self):
+    def _draw_polygon(self, update_box=True):
         """Redraw the polygon based on the new vertex positions."""
+        if self._selection_artist.get_data() == (self._xs, self._ys):
+            return
+
         self._selection_artist.set_data(self._xs, self._ys)
-        self._update_box()
+        if update_box:
+            self._update_box()
         # Only show one tool handle at the start and end vertex of the polygon
         # if the polygon is completed or the user is locked on to the start
         # vertex.
@@ -3932,6 +4048,8 @@ class PolygonSelector(_SelectorWidget):
         self._selection_completed = True
         self.set_visible(True)
         self._draw_polygon()
+        if self._draw_box and self._box is None:
+            self._add_box()
 
 
 class Lasso(AxesWidget):
