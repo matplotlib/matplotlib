@@ -1116,6 +1116,7 @@ tex2uni = {
     'cwopencirclearrow'        : 8635,
     'geqq'                     : 8807,
     'rightleftarrows'          : 8644,
+    'aa'                       : 229,
     'ac'                       : 8766,
     'ae'                       : 230,
     'int'                      : 8747,
