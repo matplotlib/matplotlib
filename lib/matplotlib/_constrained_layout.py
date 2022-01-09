@@ -203,9 +203,9 @@ def make_layoutgrids_gs(layoutgrids, gs):
         if parentgs not in layoutgrids:
             layoutgrids = make_layoutgrids_gs(layoutgrids, parentgs)
         subspeclb = layoutgrids[parentgs]
-        # get a unique representation:
-        rep = object.__repr__(gs) + 'top'
         # gridspecfromsubplotspec need an outer container:
+        # get a unique representation:
+        rep = (gs, 'top')
         if rep not in layoutgrids:
             layoutgrids[rep] = mlayoutgrid.LayoutGrid(
                 parent=subspeclb,
