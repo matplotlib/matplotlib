@@ -1329,6 +1329,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
         goto exit;
     }
     if (PyObject_IsTrue(change)) {
+        // Notify that there was a resize_event that took place
+        gil_call_method(canvas, "resize_event");
         [self setNeedsDisplay: YES];
     }
 
