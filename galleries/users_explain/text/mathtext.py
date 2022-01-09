@@ -272,6 +272,10 @@ mathtext.  There are a number of limitations to this approach, most notably
 that far fewer symbols will be available, but it can be useful to make math
 expressions blend well with other text in the plot.
 
+For compatibility with popular packages, ``\text{...}`` is available and uses the
+``\mathrm{...}`` font, but otherwise retains spaces and renders - as a dash
+(not minus).
+
 Custom fonts
 ~~~~~~~~~~~~
 mathtext also provides a way to use custom fonts for math.  This method is
