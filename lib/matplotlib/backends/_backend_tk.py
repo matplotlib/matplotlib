@@ -658,7 +658,10 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
     def _Button(self, text, image_file, toggle, command):
         if not toggle:
-            b = tk.Button(master=self, text=text, command=command)
+            b = tk.Button(
+                master=self, text=text, command=command,
+                relief="flat", overrelief="groove", borderwidth=1,
+            )
         else:
             # There is a bug in tkinter included in some python 3.6 versions
             # that without this variable, produces a "visual" toggling of
@@ -667,8 +670,10 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             # https://bugs.python.org/issue25684
             var = tk.IntVar(master=self)
             b = tk.Checkbutton(
-                master=self, text=text, command=command,
-                indicatoron=False, variable=var)
+                master=self, text=text, command=command, indicatoron=False,
+                variable=var, offrelief="flat", overrelief="groove",
+                borderwidth=1
+            )
             b.var = var
         b._image_file = image_file
         if image_file is not None:
