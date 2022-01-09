@@ -19,6 +19,10 @@ def get_ax():
     return ax
 
 
+def noop(*args, **kwargs):
+    pass
+
+
 def mock_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
     r"""
     Create a mock event that can stand in for `.Event` and its subclasses.
