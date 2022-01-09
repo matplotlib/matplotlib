@@ -49,11 +49,38 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
 
     def draw_idle(self):
         # docstring inherited
-        if (getattr(self, '_draw_pending', False) or
+        if not (getattr(self, '_draw_pending', False) or
                 getattr(self, '_is_drawing', False)):
-            return
-        self._draw_pending = True
+            self._draw_pending = True
+            # Add a singleshot timer to the eventloop that will call back
+            # into the Python method _draw_idle to take care of the draw
+            self._single_shot_timer(self._draw_idle)
+
+    def _single_shot_timer(self, callback):
+        """Add a single shot timer with the given callback"""
+        # We need to explicitly stop (called from delete) the timer after
+        # firing, otherwise segfaults will occur when trying to deallocate
+        # the singleshot timers.
+        def callback_func(callback, timer):
+            callback()
+            del timer
+        timer = self.new_timer(interval=0)
+        timer.add_callback(callback_func, callback, timer)
+        timer.start()
+
+    def _draw_idle(self):
+        """
+        Draw method for singleshot timer
+
+        This draw method can be added to a singleshot timer, which can
+        accumulate draws while the eventloop is spinning. This method will
+        then only draw the first time and short-circuit the others.
+        """
         with self._idle_draw_cntx():
+            if not self._draw_pending:
+                # Short-circuit because our draw request has already been
+                # taken care of
+                return
             self._draw_pending = False
             self.draw()
 
