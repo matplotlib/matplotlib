@@ -2545,6 +2545,9 @@ def test_pyplot_axes():
 
 @image_comparison(['log_scales'])
 def test_log_scales():
+    # Remove this if regenerating the image.
+    plt.rcParams['axes.unicode_minus'] = False
+
     fig, ax = plt.subplots()
     ax.plot(np.log(np.linspace(0.1, 100)))
     ax.set_yscale('log', base=5.5)
