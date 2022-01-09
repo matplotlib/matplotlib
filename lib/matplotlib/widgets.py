@@ -3611,6 +3611,7 @@ class PolygonSelector(_SelectorWidget):
 
     Examples
     --------
+    :doc:`/gallery/widgets/polygon_selector_simple`
     :doc:`/gallery/widgets/polygon_selector_demo`
 
     Notes
