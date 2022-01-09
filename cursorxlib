@@ -1,0 +1,258 @@
+from matplotlib.patches import BoxStyle, Rectangle
+from matplotlib.path import Path
+import matplotlib.pyplot as plt
+import numpy as np
+
+class MyStyle2:
+    """A LEFT pointy box."""
+
+    def __init__(self, pad=0.3):
+        """
+        The arguments must be floats and have default values.
+
+        Parameters
+        ----------
+        pad : float
+            amount of padding
+        """
+        self.pad = pad
+        super().__init__()
+
+    def __call__(self, x0, y0, width, height, mutation_size):
+        """
+        Given the location and size of the box, return the path of the box
+        around it.
+
+        Rotation is automatically taken care of.
+
+        Parameters
+        ----------
+        x0, y0, width, height : float
+            Box location and size.
+        mutation_size : float
+            Reference scale for the mutation, typically the text font size.
+        """
+        # padding
+        pad = mutation_size * self.pad
+        # width and height with padding added
+        width = width
+        height = height + 2.*pad
+        # boundary of the padded box
+        x0, y0 = x0 + pad, y0 - pad
+        x1, y1 = x0 + width, y0 + height
+
+        # return the new path for "pointy box"
+        # (x0, y0) : lower left corner of rectangle
+        # (x1, y1) : upper right corner of rectangle
+        return Path([(x0, y0),
+                     (x1, y0), (x1, y1), (x0, y1),(x0,(y0+y1)*.75),
+                     (x0-pad, (y0+y1)/2.), (x0,(y0+y1)*.25), (x0, y0)],
+                     closed=True)
+
+        
+class SnaptoCursorEx:
+    """
+    Like Cursor but the crosshair snaps to the nearest x,y point
+    For simplicity, I'm assuming x is sorted
+    """
+
+    def __init__(self, ax, x, y):
+
+        self.fig = plt.gcf()
+
+        self.ax = ax
+        self.nOfLines = len(ax.lines)
+
+        self.xm = len(x)
+        
+        self.renderer1 = plt.gcf().canvas.get_renderer()
+        self.transf = ax.transData.inverted()
+
+        self.fig.canvas.draw()              # 
+        self.background = self.fig.canvas.copy_from_bbox(self.fig.bbox) 
+
+        self.crossMarker, = ax.plot(0, 0, linewidth=0, marker="o", color="red",
+                                    markersize=np.sqrt(300), markerfacecolor='none', 
+                                    markeredgewidth=3, visible=False)
+
+        self.lx = ax.axhline(color='k', lw=0.8, ls="--")  # the horiz line
+        self.ly = ax.axvline(color='k', lw=0.8, ls="--")  # the vert line
+        self.x = x
+        self.y = y
+          
+        self.old_size = self.fig.bbox.width, self.fig.bbox.height
+        
+        self.preExstTxts = self.ax.texts
+        self.ntxts = len(self.preExstTxts)
+        
+        BoxStyle._style_list["lpointy"] = MyStyle2  # Register the custom style.
+        
+        self.start_again()
+
+    
+    def start_again(self):
+
+        txt_font_size = 8
+        fpad= 0.3
+        
+        yt= -0.999
+        dta_fmt = f'{yt:>7,.3f}'
+        
+        if len(self.ax.texts) > self.ntxts:
+            for ii, aax in enumerate(self.ax.texts[self.ntxts:][::-1]):
+                aax.remove()
+
+        self.lx.remove()
+        self.ly.remove()
+        
+        self.fig.canvas.draw()
+        
+        self.tv = [None]*self.nOfLines
+        self.tvCx = [None]*self.nOfLines
+        self.dist_offst = [None] * self.nOfLines
+
+        self.background = self.fig.canvas.copy_from_bbox(self.fig.bbox)
+
+        # draw from start again
+        self.lx = self.ax.axhline(color='k', lw=0.8, ls="--")  # the horiz line
+        self.ly = self.ax.axvline(color='k', lw=0.8, ls="--")  # the vert line
+        
+        ## annotations
+        for ii in range(self.nOfLines):
+            
+            self.tv[ii] = self.ax.text(0.5, 0.8, dta_fmt, size=txt_font_size,
+                                    color='w', va="center", ha="left", rotation=0,
+                                    bbox=dict(boxstyle=f"lpointy, pad={fpad}",
+                                    alpha=1, lw=0.5, fc=self.ax.lines[ii].get_color()))
+            
+            self.ax.draw_artist(self.tv[ii])
+                    
+            val_bx_crners = self.ax.transData.inverted().transform(self.tv[ii].get_bbox_patch().get_extents())
+            x_separate = val_bx_crners[1][0]-self.tv[ii].get_position()[0]
+            
+            line_labels = f" {self.ax.lines[ii].get_label()}"
+            self.tvCx[ii] = self.ax.text(val_bx_crners[1][0], self.tv[ii].
+                                            get_position()[1] , line_labels,
+                                            size=txt_font_size, rotation=0,
+                                            va="center", ha="left",
+                                            bbox=dict(boxstyle=f"square, pad={fpad}",
+                                            alpha=1, lw=0.5, fc="w", ec="b"),
+                                            visible=True) # add a beginning space
+
+            self.ax.draw_artist(self.tvCx[ii])
+            
+            added_txbx_crners = self.ax.transData.inverted().transform(
+                                     self.tvCx[ii].get_bbox_patch().get_extents())
+            offst = val_bx_crners[1][0]-added_txbx_crners[0,0]
+
+            self.dist_offst[ii] = x_separate + offst
+            new_x_pos = (self.tv[ii].get_position()[0]+self.dist_offst[ii],
+                            self.tv[ii].get_position()[1])
+            self.tvCx[ii].set_position(new_x_pos)
+        
+        # x-axis label
+        self.th = self.ax.text(
+            0, 0, '', ha="center", va="top", rotation=0, size=10, color='w',
+            bbox=dict(boxstyle="square,pad=0.0", fc="none", ec="b", lw=0.5))
+        bb = self.th.get_bbox_patch()
+        bb.set_boxstyle("square", pad=0.0)
+        self.th.set_bbox(dict(alpha=0.5, fc="red", ec="none", lw=0.5))
+
+
+    def on_mouse_move(self, event):
+
+        if not event.inaxes: return
+
+        self.current_size = self.fig.bbox.width, self.fig.bbox.height
+
+        if self.old_size != self.current_size:
+            self.old_size = self.current_size
+            self.start_again()
+            
+        xpos, ypos = event.xdata, event.ydata     # mouse x and y pos in data coordinates, if over an axes
+
+        indx = np.searchsorted(self.x, [xpos])[0]
+
+        if indx < self.xm:
+            pass
+        elif indx == self.xm:
+            indx -= 1
+        xpos = self.x[indx]
+        ypos = self.y[indx]
+        
+        # update the line positions
+        self.lx.set_ydata(ypos)
+        self.ly.set_xdata(xpos)
+
+        self.crossMarker.set_data(xpos, ypos)
+
+        self.update_annote(self.ax, indx)
+        
+    def update_annote(self, ax, indx):
+
+        x, y = ax.lines[0].get_xydata()[indx]
+
+        self.fig.canvas.restore_region(self.background)
+
+        self.ax.draw_artist(self.lx)
+        self.ax.draw_artist(self.ly)
+        
+        bottom, top = ax.get_ylim()
+        dy = (top-bottom)*0.01
+        
+        self.th.set_text("{0:4d}".format(int(x)))
+        self.th.set_position((x, bottom-dy))
+
+        left, right = ax.get_xlim()
+        dx = (right-left)*0.01
+        ax.draw_artist(self.th)
+
+        for ii in range(self.nOfLines):
+            
+            yt = ax.lines[ii].get_ydata()[indx]
+            self.tv[ii].set_text(f"{yt:>7.3f}")
+            self.tv[ii].set_position((x+dx, yt))         # cross point x-offset +3*dx (marker size)
+            self.tv[ii].set_ha('left')                   # left text alignment
+            ax.draw_artist(self.tv[ii])
+
+            new_x_pos = (x+dx+self.dist_offst[ii], yt)
+            self.tvCx[ii].set_position(new_x_pos)
+
+            ax.draw_artist(self.tvCx[ii])
+            
+        ax.draw_artist(self.lx)
+        ax.draw_artist(self.ly)
+        self.fig.canvas.blit(self.fig.bbox)
+        
+if __name__ == "__main__": 
+
+    plt.style.use('fivethirtyeight')
+
+    x = np.linspace(0, 10)
+                                 
+                                 
+
+    # Fixing random state for reproducibility
+    np.random.seed(19680801)
+
+    fig, ax = plt.subplots()
+
+    ax.plot(x, np.sin(x) + x + np.random.randn(50))
+    ax.plot(x, np.sin(x) + 0.5 * x + np.random.randn(50))
+    ax.plot(x, np.sin(x) + 2 * x + np.random.randn(50))
+    ax.plot(x, np.sin(x) - 0.5 * x + np.random.randn(50))
+    ax.plot(x, np.sin(x) - 2 * x + np.random.randn(50))
+    ax.plot(x, np.sin(x) + np.random.randn(50))
+    ax.set_title("fivethirtyeight with hovering data text")   
+
+    l_labels = ['sin(x)','sin(x)+0.5x','sin(x)+2x','sin(x)-0.5x','sin(x)-2x','sin(x)+rndn']
+    for ii, aax in enumerate(ax.lines):
+        aax.set_label(l_labels[ii])
+        
+    cursor = SnaptoCursorEx(ax, x, ax.lines[0].get_ydata())
+    
+    # ax.autoscale(False)             ## autoscale OFF
+    plt.gcf().canvas.mpl_connect('motion_notify_event', cursor.on_mouse_move)
+
+
+    plt.show()
