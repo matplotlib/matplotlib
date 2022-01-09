@@ -1958,6 +1958,7 @@ class Parser:
         p.customspace      = Forward()
         p.end_group        = Forward()
         p.float_literal    = Forward()
+        p.float_with_wo_unit = Forward()
         p.font             = Forward()
         p.frac             = Forward()
         p.dfrac            = Forward()
@@ -1995,6 +1996,7 @@ class Parser:
         p.symbol_name      = Forward()
         p.token            = Forward()
         p.underset         = Forward()
+        p.unit             = Forward()
         p.unknown_symbol   = Forward()
 
         # Set names on everything -- very useful for debugging
@@ -2004,6 +2006,10 @@ class Parser:
 
         p.float_literal <<= Regex(r"[-+]?([0-9]+\.?[0-9]*|\.[0-9]+)")
         p.int_literal   <<= Regex("[-+]?[0-9]+")
+        p.unit          <<= Regex("(pt|mm|cm|in|em|mu|"
+                                  "sp|bp|dd|pc|nc|nd|cc)")
+        p.float_with_wo_unit <<= Group((p.float_literal + p.unit) |
+                                       p.float_literal)
 
         p.lbrace        <<= Literal('{').suppress()
         p.rbrace        <<= Literal('}').suppress()
@@ -2093,7 +2099,7 @@ class Parser:
                 + (p.lbrace
                    + Optional(p.ambi_delim | p.right_delim_safe, default='')
                    + p.rbrace)
-                + (p.lbrace + p.float_literal + p.rbrace)
+                + (p.lbrace + p.float_with_wo_unit + p.rbrace)
                 + p.simple_group + p.required_group + p.required_group)
                | Error("Expected "
                        r"\genfrac{ldelim}{rdelim}{rulesize}{style}{num}{den}"))
@@ -2321,6 +2327,22 @@ class Parser:
         r'\qquad':     2,         # 2 em = 36 mu
         r'\!':         -0.16667,  # -3/18 em = -3 mu
     }
+
+    _unit_multipliers = {
+         # pt|mm|cm|in|mu|sp|bp|dd|pc|nc|nd|cc
+        "pt": 1,
+        'mm': 7227/2540,
+        'cm': 7227/254,
+        'in': 7227/100,
+        'mu': 7227/2540000,
+        'sp': 1/65536,
+        'bp': 803/800,
+        'dd': 1238/1157,
+        'pc': 12,
+        'nc': 1370/107,
+        'nd': 685/642,
+        'cc': 14856/1157
+        }
 
     def space(self, s, loc, toks):
         tok, = toks
@@ -2741,7 +2763,7 @@ class Parser:
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
 
-        rule = float(rule)
+        rule = self._get_float_with_unit(rule, state.fontsize)
 
         if style is not self._MathStyle.DISPLAYSTYLE:
             num.shrink()
@@ -2786,7 +2808,7 @@ class Parser:
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
         (num, den), = toks
-        return self._genfrac('', '', thickness, self._MathStyle.TEXTSTYLE,
+        return self._genfrac('', '', [thickness], self._MathStyle.TEXTSTYLE,
                              num, den)
 
     def dfrac(self, s, loc, toks):
@@ -2794,13 +2816,24 @@ class Parser:
         thickness = state.font_output.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
         (num, den), = toks
-        return self._genfrac('', '', thickness, self._MathStyle.DISPLAYSTYLE,
+        return self._genfrac('', '', [thickness], self._MathStyle.DISPLAYSTYLE,
                              num, den)
 
     def binom(self, s, loc, toks):
         (num, den), = toks
-        return self._genfrac('(', ')', 0.0, self._MathStyle.TEXTSTYLE,
+        return self._genfrac('(', ')', [0.0], self._MathStyle.TEXTSTYLE,
                              num, den)
+
+    def _get_float_with_unit(self, val, fontsize):
+        ret = float(val[0])
+        if len(val) == 2:
+            if val[1].lower() == 'em':
+                # "1 em is a distance equal to the type size"
+                ret = ret*fontsize
+            else:
+                # Remaining units
+                ret = ret*self._unit_multipliers[val[1]]
+        return ret
 
     def _genset(self, s, loc, toks):
         (annotation, body), = toks
