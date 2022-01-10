@@ -7488,7 +7488,8 @@ such objects
         """
         cxy, freqs = mlab.cohere(x=x, y=y, NFFT=NFFT, Fs=Fs, detrend=detrend,
                                  window=window, noverlap=noverlap,
-                                 scale_by_freq=scale_by_freq)
+                                 scale_by_freq=scale_by_freq, sides=sides,
+                                 pad_to=pad_to)
         freqs += Fc
 
         self.plot(freqs, cxy, **kwargs)
