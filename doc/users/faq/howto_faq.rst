@@ -45,10 +45,8 @@ supplied.
     ax[1].tick_params(axis='x', labelcolor='red', labelsize=14)
 
 The solution is to convert the list of strings to numbers or
-datetime objects (often ``np.asarray(['2', '5', '1'], dtype='float')`` or::
-
-    np.asarray(['2021-10-01', '2021-11-02', '2021-12-03'],
-               dtype='datetime64[s]')
+datetime objects (often ``np.asarray(numeric_strings, dtype='float')`` or
+``np.asarray(datetime_strings, dtype='datetime64[s]')``).
 
 For more information see :doc:`/gallery/ticks/ticks_too_many`.
 
