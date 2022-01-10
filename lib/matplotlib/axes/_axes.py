@@ -675,7 +675,7 @@ class Axes(_AxesBase):
     @docstring.dedent_interpd
     def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
         """
-        Add a horizontal line across the axis.
+        Add a horizontal line across the Axes.
 
         Parameters
         ----------
