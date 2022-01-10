@@ -1540,7 +1540,9 @@ def test_nan_bar_values():
 
 def test_bar_ticklabel_fail():
     fig, ax = plt.subplots()
-    ax.bar([], [])
+    bc = ax.bar([], [])
+    # Issue 21506
+    assert len(bc.patches) == 1
 
 
 @image_comparison(['bar_tick_label_multiple.png'])
