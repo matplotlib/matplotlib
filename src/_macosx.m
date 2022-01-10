@@ -1118,7 +1118,7 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
     CFRunLoopSourceRef source;
     NSDictionary* dictionary = [notification userInfo];
     if (![[dictionary valueForKey:@"NSApplicationName"]
-          isEqualToString:@"Python"])
+            localizedCaseInsensitiveContainsString:@"python"])
         return;
     NSNumber* psnLow = [dictionary valueForKey: @"NSApplicationProcessSerialNumberLow"];
     NSNumber* psnHigh = [dictionary valueForKey: @"NSApplicationProcessSerialNumberHigh"];
