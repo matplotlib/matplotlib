@@ -980,33 +980,24 @@ choose_save_file(PyObject* unused, PyObject* args)
 {
     int result;
     const char* title;
+    const char* directory;
     const char* default_filename;
-    if (!PyArg_ParseTuple(args, "ss", &title, &default_filename)) {
+    if (!PyArg_ParseTuple(args, "sss", &title, &directory, &default_filename)) {
         return NULL;
     }
     NSSavePanel* panel = [NSSavePanel savePanel];
-    [panel setTitle: [NSString stringWithCString: title
-                                        encoding: NSASCIIStringEncoding]];
-    NSString* ns_default_filename =
-        [[NSString alloc]
-         initWithCString: default_filename
-         encoding: NSUTF8StringEncoding];
-    [panel setNameFieldStringValue: ns_default_filename];
+    [panel setTitle: [NSString stringWithUTF8String: title]];
+    [panel setDirectoryURL: [NSURL fileURLWithPath: [NSString stringWithUTF8String: directory]
+                                       isDirectory: YES]];
+    [panel setNameFieldStringValue: [NSString stringWithUTF8String: default_filename]];
     result = [panel runModal];
-    [ns_default_filename release];
     if (result == NSModalResponseOK) {
-        NSURL* url = [panel URL];
-        NSString* filename = [url path];
+        NSString *filename = [[panel URL] path];
         if (!filename) {
             PyErr_SetString(PyExc_RuntimeError, "Failed to obtain filename");
             return 0;
         }
-        unsigned int n = [filename length];
-        unichar* buffer = malloc(n*sizeof(unichar));
-        [filename getCharacters: buffer];
-        PyObject* string = PyUnicode_FromKindAndData(PyUnicode_2BYTE_KIND, buffer, n);
-        free(buffer);
-        return string;
+        return PyUnicode_FromString([filename UTF8String]);
     }
     Py_RETURN_NONE;
 }
