@@ -3089,9 +3089,6 @@ class RectangleSelector(_SelectorWidget):
         - Re-size
         - Continue the creation of a new shape
         """
-        state = self._state
-        rotate = ('rotate' in state and
-                  self._active_handle in self._corner_order)
         eventpress = self._eventpress
         # The calculations are done for rotation at zero: we apply inverse
         # transformation to events except when we rotate and move

@@ -938,8 +938,6 @@ class Barbs(mcollections.PolyCollection):
         transform = kwargs.pop('transform', ax.transData)
         self._pivot = pivot
         self._length = length
-        barbcolor = barbcolor
-        flagcolor = flagcolor
 
         # Flagcolor and barbcolor provide convenience parameters for
         # setting the facecolor and edgecolor, respectively, of the barb
