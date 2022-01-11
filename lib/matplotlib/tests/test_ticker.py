@@ -637,6 +637,7 @@ class TestLogFormatterExponent:
         formatter.axis = FakeAxis(1, base**exponent)
         vals = base**locs
         labels = [formatter(x, pos) for (x, pos) in zip(vals, positions)]
+        expected = [label.replace('-', '\N{Minus Sign}') for label in expected]
         assert labels == expected
 
     def test_blank(self):
@@ -662,7 +663,7 @@ class TestLogFormatterMathtext:
     @pytest.mark.parametrize('min_exponent, value, expected', test_data)
     def test_min_exponent(self, min_exponent, value, expected):
         with mpl.rc_context({'axes.formatter.min_exponent': min_exponent}):
-            assert self.fmt(value) == expected
+            assert self.fmt(value) == expected.replace('-', '\N{Minus Sign}')
 
 
 class TestLogFormatterSciNotation:
@@ -691,7 +692,7 @@ class TestLogFormatterSciNotation:
         formatter = mticker.LogFormatterSciNotation(base=base)
         formatter.sublabel = {1, 2, 5, 1.2}
         with mpl.rc_context({'text.usetex': False}):
-            assert formatter(value) == expected
+            assert formatter(value) == expected.replace('-', '\N{Minus Sign}')
 
 
 class TestLogFormatter:
@@ -907,19 +908,21 @@ class TestLogitFormatter:
         float 1.41e-4, as '0.5' or as r'$\mathdefault{\frac{1}{2}}$' in float
         0.5,
         """
+        # Can inline the Unicode escapes to the raw strings in Python 3.8+
         match = re.match(
             r"[^\d]*"
-            r"(?P<comp>1-)?"
+            r"(?P<comp>1" "[-\N{Minus Sign}]" r")?"
             r"(?P<mant>\d*\.?\d*)?"
             r"(?:\\cdot)?"
-            r"(?:10\^\{(?P<expo>-?\d*)})?"
+            r"(?:10\^\{(?P<expo>" "[-\N{Minus Sign}]" r"?\d*)})?"
             r"[^\d]*$",
             string,
         )
         if match:
             comp = match["comp"] is not None
             mantissa = float(match["mant"]) if match["mant"] else 1
-            expo = int(match["expo"]) if match["expo"] is not None else 0
+            expo = (int(match["expo"].replace("\N{Minus Sign}", "-"))
+                    if match["expo"] is not None else 0)
             value = mantissa * 10 ** expo
             if match["mant"] or match["expo"] is not None:
                 if comp:
@@ -1044,8 +1047,8 @@ class TestLogitFormatter:
         Test the parameter use_overline
         """
         x = 1 - 1e-2
-        fx1 = r"$\mathdefault{1-10^{-2}}$"
-        fx2 = r"$\mathdefault{\overline{10^{-2}}}$"
+        fx1 = "$\\mathdefault{1\N{Minus Sign}10^{\N{Minus Sign}2}}$"
+        fx2 = "$\\mathdefault{\\overline{10^{\N{Minus Sign}2}}}$"
         form = mticker.LogitFormatter(use_overline=False)
         assert form(x) == fx1
         form.use_overline(True)

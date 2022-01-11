@@ -52,6 +52,8 @@ class Axes3D(Axes):
     _axis_names = ("x", "y", "z")
     Axes._shared_axes["z"] = cbook.Grouper()
 
+    dist = _api.deprecate_privatize_attribute("3.6")
+
     def __init__(
             self, fig, rect=None, *args,
             elev=30, azim=-60, roll=0, sharez=None, proj_type='persp',
@@ -197,10 +199,10 @@ class Axes3D(Axes):
     def set_top_view(self):
         # this happens to be the right view for the viewing coordinates
         # moved up and to the left slightly to fit labels and axes
-        xdwl = 0.95 / self.dist
-        xdw = 0.9 / self.dist
-        ydwl = 0.95 / self.dist
-        ydw = 0.9 / self.dist
+        xdwl = 0.95 / self._dist
+        xdw = 0.9 / self._dist
+        ydwl = 0.95 / self._dist
+        ydw = 0.9 / self._dist
         # This is purposely using the 2D Axes's set_xlim and set_ylim,
         # because we are trying to place our viewing pane.
         super().set_xlim(-xdwl, xdw, auto=None)
@@ -348,12 +350,14 @@ class Axes3D(Axes):
         aspect : 3-tuple of floats or None
             Changes the physical dimensions of the Axes3D, such that the ratio
             of the axis lengths in display units is x:y:z.
+            If None, defaults to (4,4,3).
 
-            If None, defaults to 4:4:3
-
-        zoom : float
-            Control overall size of the Axes3D in the figure.
+        zoom : float, default: 1
+            Control overall size of the Axes3D in the figure. Must be > 0.
         """
+        if zoom <= 0:
+            raise ValueError(f'Argument zoom = {zoom} must be > 0')
+
         if aspect is None:
             aspect = np.asarray((4, 4, 3), dtype=float)
         else:
@@ -964,7 +968,7 @@ class Axes3D(Axes):
             The axis to align vertically. *azim* rotates about this axis.
         """
 
-        self.dist = 10
+        self._dist = 10  # The camera distance from origin. Behaves like zoom
 
         if elev is None:
             self.elev = self.initial_elev
@@ -1039,7 +1043,7 @@ class Axes3D(Axes):
 
         # The coordinates for the eye viewing point. The eye is looking
         # towards the middle of the box of data from a distance:
-        eye = R + self.dist * ps
+        eye = R + self._dist * ps
 
         # TODO: Is this being used somewhere? Can it be removed?
         self.eye = eye
@@ -1053,7 +1057,7 @@ class Axes3D(Axes):
         V[self._vertical_axis] = -1 if abs(elev_rad) > 0.5 * np.pi else 1
 
         viewM = proj3d.view_transformation(eye, R, V, roll_rad)
-        projM = self._projection(-self.dist, self.dist)
+        projM = self._projection(-self._dist, self._dist)
         M0 = np.dot(viewM, worldM)
         M = np.dot(projM, M0)
         return M

@@ -18,7 +18,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, _pylab_helpers, tight_layout, rcParams
+from matplotlib import _api, _pylab_helpers, _tight_layout, rcParams
 from matplotlib.transforms import Bbox
 
 _log = logging.getLogger(__name__)
@@ -466,7 +466,7 @@ class GridSpec(GridSpecBase):
             fit into.
         """
 
-        subplotspec_list = tight_layout.get_subplotspec_list(
+        subplotspec_list = _tight_layout.get_subplotspec_list(
             figure.axes, grid_spec=self)
         if None in subplotspec_list:
             _api.warn_external("This figure includes Axes that are not "
@@ -474,9 +474,9 @@ class GridSpec(GridSpecBase):
                                "might be incorrect.")
 
         if renderer is None:
-            renderer = tight_layout.get_renderer(figure)
+            renderer = _tight_layout.get_renderer(figure)
 
-        kwargs = tight_layout.get_tight_layout_figure(
+        kwargs = _tight_layout.get_tight_layout_figure(
             figure, figure.axes, subplotspec_list, renderer,
             pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
         if kwargs:

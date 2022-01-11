@@ -9,6 +9,59 @@ How-to
 .. contents::
    :backlinks: none
 
+
+.. _how-to-too-many-ticks:
+
+Why do I have so many ticks, and/or why are they out of order?
+--------------------------------------------------------------
+
+One common cause for unexpected tick behavior is passing a *list of strings
+instead of numbers or datetime objects*. This can easily happen without notice
+when reading in a comma-delimited text file. Matplotlib treats lists of strings
+as *categorical* variables
+(:doc:`/gallery/lines_bars_and_markers/categorical_variables`), and by default
+puts one tick per category, and plots them in the order in which they are
+supplied.
+
+.. plot::
+    :include-source:
+    :align: center
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    fig, ax = plt.subplots(1, 2, constrained_layout=True, figsize=(6, 2))
+
+    ax[0].set_title('Ticks seem out of order / misplaced')
+    x = ['5', '20', '1', '9']  # strings
+    y = [5, 20, 1, 9]
+    ax[0].plot(x, y, 'd')
+    ax[0].tick_params(axis='x', labelcolor='red', labelsize=14)
+
+    ax[1].set_title('Many ticks')
+    x = [str(xx) for xx in np.arange(100)]  # strings
+    y = np.arange(100)
+    ax[1].plot(x, y)
+    ax[1].tick_params(axis='x', labelcolor='red', labelsize=14)
+
+The solution is to convert the list of strings to numbers or
+datetime objects (often ``np.asarray(numeric_strings, dtype='float')`` or
+``np.asarray(datetime_strings, dtype='datetime64[s]')``).
+
+For more information see :doc:`/gallery/ticks/ticks_too_many`.
+
+.. _howto-determine-artist-extent:
+
+Determine the extent of Artists in the Figure
+---------------------------------------------
+
+Sometimes we want to know the extent of an Artist.  Matplotlib `.Artist` objects
+have a method `.Artist.get_window_extent` that will usually return the extent of
+the artist in pixels.  However, some artists, in particular text, must be
+rendered at least once before their extent is known.  Matplotlib supplies
+`.Figure.draw_without_rendering`, which should be called before calling
+``get_window_extent``.
+
 .. _howto-figure-empty:
 
 Check whether a figure is empty

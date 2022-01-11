@@ -1229,7 +1229,6 @@ def test(verbosity=None, coverage=False, **kwargs):
         return -1
 
     old_backend = get_backend()
-    old_recursionlimit = sys.getrecursionlimit()
     try:
         use('agg')
 

@@ -149,9 +149,9 @@ original location:
   ``drawRect`` from ``FigureCanvasQTAgg``; they were always an
   implementation detail of the (preserved) ``drawRectangle()`` function.
 
-* The function signatures of `.tight_bbox.adjust_bbox` and
-  `.tight_bbox.process_figure_for_rasterizing` have been changed. A new
-  *fixed_dpi* parameter allows for overriding the ``figure.dpi`` setting
+* The function signatures of ``matplotlib.tight_bbox.adjust_bbox`` and
+  ``matplotlib.tight_bbox.process_figure_for_rasterizing`` have been changed.
+  A new *fixed_dpi* parameter allows for overriding the ``figure.dpi`` setting
   instead of trying to deduce the intended behaviour from the file format.
 
 * Added support for horizontal/vertical axes padding to
