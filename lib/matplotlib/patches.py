@@ -479,6 +479,9 @@ class Patch(artist.Artist):
         """
         Set the `.CapStyle`.
 
+        The default capstyle is 'round' for `.FancyArrowPatch` and 'butt' for
+        all other patches.
+
         Parameters
         ----------
         s : `.CapStyle` or %(CapStyle)s

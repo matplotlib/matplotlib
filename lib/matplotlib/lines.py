@@ -1337,6 +1337,8 @@ class Line2D(Artist):
         """
         How to draw the end caps if the line is `~Line2D.is_dashed`.
 
+        The default capstyle is :rc:`lines.dash_capstyle`.
+
         Parameters
         ----------
         s : `.CapStyle` or %(CapStyle)s
@@ -1350,6 +1352,8 @@ class Line2D(Artist):
     def set_solid_capstyle(self, s):
         """
         How to draw the end caps if the line is solid (not `~Line2D.is_dashed`)
+
+        The default capstyle is :rc:`lines.solid_capstyle`.
 
         Parameters
         ----------
