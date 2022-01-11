@@ -198,8 +198,8 @@ This affects `.ContourSet` itself and its subclasses, `.QuadContourSet`
 ``hatch.SmallFilledCircles`` inherits from ``hatch.Circles``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``hatch.SmallFilledCircles`` class now inherits from ``hatch.Circles``
-rather than from ``hatch.SmallCircles``.
+The `.hatch.SmallFilledCircles` class now inherits from `.hatch.Circles` rather
+than from `.hatch.SmallCircles`.
 
 hexbin with a log norm
 ~~~~~~~~~~~~~~~~~~~~~~
