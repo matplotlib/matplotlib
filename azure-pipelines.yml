@@ -38,33 +38,33 @@ stages:
     - job: Pytest
       strategy:
         matrix:
-          Linux_py37:
-            vmImage: 'ubuntu-18.04'
-            python.version: '3.7'
           Linux_py38:
             vmImage: 'ubuntu-18.04'
             python.version: '3.8'
           Linux_py39:
             vmImage: 'ubuntu-18.04'
             python.version: '3.9'
-          macOS_py37:
-            vmImage: 'macOS-10.15'
-            python.version: '3.7'
+          Linux_py310:
+            vmImage: 'ubuntu-18.04'
+            python.version: '3.10'
           macOS_py38:
             vmImage: 'macOS-latest'
             python.version: '3.8'
           macOS_py39:
             vmImage: 'macOS-latest'
             python.version: '3.9'
-          Windows_py37:
-            vmImage: 'vs2017-win2016'
-            python.version: '3.7'
+          macOS_py310:
+            vmImage: 'macOS-latest'
+            python.version: '3.10'
           Windows_py38:
             vmImage: 'windows-latest'
             python.version: '3.8'
           Windows_py39:
             vmImage: 'windows-latest'
             python.version: '3.9'
+          Windows_py310:
+            vmImage: 'vs2017-win2016'
+            python.version: '3.10'
         maxParallel: 4
       pool:
         vmImage: '$(vmImage)'

@@ -14,7 +14,7 @@ When installing through a package manager like ``pip`` or ``conda``, the
 mandatory dependencies are automatically installed. This list is mainly for
 reference.
 
-* `Python <https://www.python.org/downloads/>`_ (>= 3.7)
+* `Python <https://www.python.org/downloads/>`_ (>= 3.8)
 * `NumPy <https://numpy.org>`_ (>= 1.19)
 * `setuptools <https://setuptools.readthedocs.io/en/latest/>`_
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
