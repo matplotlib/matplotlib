@@ -68,7 +68,7 @@ def demo_locatable_axes_easy(ax):
 
     divider = make_axes_locatable(ax)
 
-    ax_cb = divider.new_horizontal(size="5%", pad=0.05)
+    ax_cb = divider.append_axes("right", size="5%", pad=0.05)
     fig = ax.get_figure()
     fig.add_axes(ax_cb)
 
@@ -86,7 +86,7 @@ def demo_images_side_by_side(ax):
     divider = make_axes_locatable(ax)
 
     Z, extent = get_demo_image()
-    ax2 = divider.new_horizontal(size="100%", pad=0.05)
+    ax2 = divider.append_axes("right", size="100%", pad=0.05)
     fig1 = ax.get_figure()
     fig1.add_axes(ax2)
 

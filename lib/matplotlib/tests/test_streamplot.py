@@ -78,7 +78,7 @@ def test_maxlength():
 
 
 @image_comparison(['streamplot_direction.png'],
-                  remove_text=True, style='mpl20', tol=0.056)
+                  remove_text=True, style='mpl20', tol=0.073)
 def test_direction():
     x, y, U, V = swirl_velocity_field()
     plt.streamplot(x, y, U, V, integration_direction='backward',

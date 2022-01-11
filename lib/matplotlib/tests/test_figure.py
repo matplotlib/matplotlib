@@ -303,7 +303,7 @@ def test_add_subplot_invalid():
 def test_suptitle():
     fig, _ = plt.subplots()
     fig.suptitle('hello', color='r')
-    fig.suptitle('title', color='g', rotation='30')
+    fig.suptitle('title', color='g', rotation=30)
 
 
 def test_suptitle_fontproperties():

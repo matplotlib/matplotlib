@@ -554,7 +554,8 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
         self.message = tk.StringVar(master=self)
         self._message_label = tk.Label(master=self, font=self._label_font,
-                                       textvariable=self.message)
+                                       textvariable=self.message,
+                                       justify=tk.RIGHT)
         self._message_label.pack(side=tk.RIGHT)
 
         NavigationToolbar2.__init__(self, canvas)
@@ -642,9 +643,15 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         if button._image_file is None:
             return
 
+        # Allow _image_file to be relative to Matplotlib's "images" data
+        # directory.
+        path_regular = cbook._get_data_path('images', button._image_file)
+        path_large = path_regular.with_name(
+            path_regular.name.replace('.png', '_large.png'))
         size = button.winfo_pixels('18p')
-        with Image.open(button._image_file.replace('.png', '_large.png')
-                        if size > 24 else button._image_file) as im:
+        # Use the high-resolution (48x48 px) icon if it exists and is needed
+        with Image.open(path_large if (size > 24 and path_large.exists())
+                        else path_regular) as im:
             image = ImageTk.PhotoImage(im.resize((size, size)), master=self)
         button.configure(image=image, height='18p', width='18p')
         button._ntimage = image  # Prevent garbage collection.
@@ -757,7 +764,7 @@ class ToolTip:
         if self.tipwindow or not self.text:
             return
         x, y, _, _ = self.widget.bbox("insert")
-        x = x + self.widget.winfo_rootx() + 27
+        x = x + self.widget.winfo_rootx() + self.widget.winfo_width()
         y = y + self.widget.winfo_rooty()
         self.tipwindow = tw = tk.Toplevel(self.widget)
         tw.wm_overrideredirect(1)
@@ -906,14 +913,21 @@ class _BackendTk(_Backend):
             window.withdraw()
 
             # Put a Matplotlib icon on the window rather than the default tk
-            # icon.  Tkinter doesn't allow colour icons on linux systems, but
-            # tk>=8.5 has a iconphoto command which we call directly.  See
-            # https://mail.python.org/pipermail/tkinter-discuss/2006-November/000954.html
+            # icon. See https://www.tcl.tk/man/tcl/TkCmd/wm.html#M50
+            #
+            # `ImageTk` can be replaced with `tk` whenever the minimum
+            # supported Tk version is increased to 8.6, as Tk 8.6+ natively
+            # supports PNG images.
             icon_fname = str(cbook._get_data_path(
-                'images/matplotlib_128.ppm'))
-            icon_img = tk.PhotoImage(file=icon_fname, master=window)
+                'images/matplotlib.png'))
+            icon_img = ImageTk.PhotoImage(file=icon_fname, master=window)
+
+            icon_fname_large = str(cbook._get_data_path(
+                'images/matplotlib_large.png'))
+            icon_img_large = ImageTk.PhotoImage(
+                file=icon_fname_large, master=window)
             try:
-                window.iconphoto(False, icon_img)
+                window.iconphoto(False, icon_img_large, icon_img)
             except Exception as exc:
                 # log the failure (due e.g. to Tk version), but carry on
                 _log.info('Could not load matplotlib icon: %s', exc)

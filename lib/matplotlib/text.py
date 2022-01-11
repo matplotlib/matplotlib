@@ -4,6 +4,7 @@ Classes for including text in a figure.
 
 import logging
 import math
+import numbers
 import weakref
 
 import numpy as np
@@ -149,7 +150,7 @@ class Text(Artist):
         self.set_verticalalignment(verticalalignment)
         self.set_horizontalalignment(horizontalalignment)
         self._multialignment = multialignment
-        self._rotation = rotation
+        self.set_rotation(rotation)
         self._transform_rotates_text = transform_rotates_text
         self._bbox_patch = None  # a FancyBboxPatch instance
         self._renderer = None
@@ -351,7 +352,6 @@ class Text(Artist):
         xmax = width
         ymax = 0
         ymin = ys[-1] - descent  # baseline of last line minus its descent
-        height = ymax - ymin
 
         # get the rotation matrix
         M = Affine2D().rotate_deg(self.get_rotation())
@@ -881,8 +881,9 @@ class Text(Artist):
             A renderer is needed to compute the bounding box.  If the artist
             has already been drawn, the renderer is cached; thus, it is only
             necessary to pass this argument when calling `get_window_extent`
-            before the first `draw`.  In practice, it is usually easier to
-            trigger a draw first (e.g. by saving the figure).
+            before the first draw.  In practice, it is usually easier to
+            trigger a draw first, e.g. by calling
+            `~.Figure.draw_without_rendering` or ``plt.show()``.
 
         dpi : float, optional
             The dpi value for computing the bbox, defaults to
@@ -903,7 +904,9 @@ class Text(Artist):
         if self._renderer is None:
             self._renderer = self.figure._cachedRenderer
         if self._renderer is None:
-            raise RuntimeError('Cannot get window extent w/o renderer')
+            raise RuntimeError(
+                "Cannot get window extent of text w/o renderer. You likely "
+                "want to call 'figure.draw_without_rendering()' first.")
 
         with cbook._setattr_cm(self.figure, dpi=dpi):
             bbox, info, descent = self._get_layout(self._renderer)
@@ -1177,6 +1180,11 @@ class Text(Artist):
             The rotation angle in degrees in mathematically positive direction
             (counterclockwise). 'horizontal' equals 0, 'vertical' equals 90.
         """
+        if (s is not None and
+                not isinstance(s, numbers.Real) and
+                s not in ['vertical', 'horizontal']):
+            raise ValueError("rotation must be 'vertical', 'horizontal' or "
+                             f"a number, not {s}")
         self._rotation = s
         self.stale = True
 

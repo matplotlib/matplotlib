@@ -1,0 +1,28 @@
+Removal of mplot3d deprecations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The deprecated ``renderer`` arguments have been removed from:
+
+- `.Line3DCollection.do_3d_projection`
+- `.Patch3D.do_3d_projection`
+- `.PathPatch3D.do_3d_projection`
+- `.Path3DCollection.do_3d_projection`
+- `.Patch3DCollection.do_3d_projection`
+- `.Poly3DCollection.do_3d_projection`
+
+The deprecated ``project`` argument has also been removed from
+``Line3DCollection.draw()``.
+
+Passing arguments not specifically listed in the signatures of
+`.Axes3D.plot_surface` and `.Axes3D.plot_wireframe` is no longer supported.
+Pass any extra arguments as keyword arguments instead.
+
+These properties of the 3D Axes that were placed on the Renderer during draw
+have been removed:
+
+* ``renderer.M``
+* ``renderer.eye``
+* ``renderer.vvec``
+* ``renderer.get_axis_position``
+
+These attributes are all available via `.Axes3D`, which can be accessed via
+``self.axes`` on all `.Artist`\s.

@@ -242,6 +242,6 @@ location of values that lie between two levels.
 ``AxesDivider`` now defaults to rcParams-specified pads
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`.AxesDivider.append_axes`, `.AxesDivider.new_horizontal`, and
-`.AxesDivider.new_vertical` now default to paddings specified by
+`.AxesDivider.append_axes`, ``AxesDivider.new_horizontal``, and
+``AxesDivider.new_vertical`` now default to paddings specified by
 :rc:`figure.subplot.wspace` and :rc:`figure.subplot.hspace` rather than zero.

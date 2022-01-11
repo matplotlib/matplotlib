@@ -282,7 +282,7 @@ class ContourLabeler:
                       figure=fig,
                       size=self.labelFontSizeList[nth],
                       fontproperties=self.labelFontProps)
-            .get_window_extent(mpl.tight_layout.get_renderer(fig)).width)
+            .get_window_extent(mpl._tight_layout.get_renderer(fig)).width)
 
     @_api.deprecated("3.5")
     def get_label_width(self, lev, fmt, fsize):
@@ -292,7 +292,7 @@ class ContourLabeler:
         fig = self.axes.figure
         width = (text.Text(0, 0, lev, figure=fig,
                            size=fsize, fontproperties=self.labelFontProps)
-                 .get_window_extent(mpl.tight_layout.get_renderer(fig)).width)
+                 .get_window_extent(mpl._tight_layout.get_renderer(fig)).width)
         width *= 72 / fig.dpi
         return width
 
@@ -928,10 +928,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             )
 
     def get_transform(self):
-        """
-        Return the :class:`~matplotlib.transforms.Transform`
-        instance used by this ContourSet.
-        """
+        """Return the `.Transform` instance used by this ContourSet."""
         if self._transform is None:
             self._transform = self.axes.transData
         elif (not isinstance(self._transform, mtransforms.Transform)

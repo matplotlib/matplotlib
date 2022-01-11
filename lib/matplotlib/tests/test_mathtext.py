@@ -10,7 +10,7 @@ import pytest
 import matplotlib as mpl
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.pyplot as plt
-from matplotlib import _api, mathtext
+from matplotlib import mathtext, _mathtext
 
 
 # If test is removed, use None as placeholder
@@ -109,7 +109,7 @@ math_tests = [
     r'${xyz}^k{x}_{k}{x}^{p}{y}^{p-2} {d}_{i}^{j}{b}_{j}{c}_{k}{d} {x}^{j}_{i}{E}^{0}{E}^0_u$',
     r'${\int}_x^x x\oint_x^x x\int_{X}^{X}x\int_x x \int^x x \int_{x} x\int^{x}{\int}_{x} x{\int}^{x}_{x}x$',
     r'testing$^{123}$',
-    ' '.join('$\\' + p + '$' for p in sorted(mathtext.Parser._accentprefixed)),
+    ' '.join('$\\' + p + '$' for p in sorted(_mathtext.Parser._accentprefixed)),
     r'$6-2$; $-2$; $ -2$; ${-2}$; ${  -2}$; $20^{+3}_{-2}$',
     r'$\overline{\omega}^x \frac{1}{2}_0^x$',  # github issue #5444
     r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$',  # github issue 5799
@@ -257,6 +257,11 @@ def test_fontinfo():
         (r'$\dfrac{}{}$', r'Expected \dfrac{num}{den}'),
         (r'$\overset$', r'Expected \overset{body}{annotation}'),
         (r'$\underset$', r'Expected \underset{body}{annotation}'),
+        (r'$\foo$', r'Unknown symbol: \foo'),
+        (r'$a^2^2$', r'Double superscript'),
+        (r'$a_2_2$', r'Double subscript'),
+        (r'$a^2_a^2$', r'Subscript/superscript sequence is too long.'\
+            r' Use braces { } to remove ambiguity.'),
     ],
     ids=[
         'hspace without value',
@@ -279,6 +284,10 @@ def test_fontinfo():
         'dfrac with empty parameters',
         'overset without parameters',
         'underset without parameters',
+        'unknown symbol',
+        'double superscript',
+        'double subscript',
+        'super on sub without braces'
     ]
 )
 def test_mathtext_exceptions(math, msg):
@@ -286,6 +295,11 @@ def test_mathtext_exceptions(math, msg):
     match = re.escape(msg) if isinstance(msg, str) else msg
     with pytest.raises(ValueError, match=match):
         parser.parse(math)
+
+
+def test_get_unicode_index_exception():
+    with pytest.raises(ValueError):
+        _mathtext.get_unicode_index(r'\foo')
 
 
 def test_single_minus_sign():
@@ -373,13 +387,7 @@ def test_mathtext_fallback(fallback, fontlist):
 def test_math_to_image(tmpdir):
     mathtext.math_to_image('$x^2$', str(tmpdir.join('example.png')))
     mathtext.math_to_image('$x^2$', io.BytesIO())
-
-
-def test_mathtext_to_png(tmpdir):
-    with _api.suppress_matplotlib_deprecation_warning():
-        mt = mathtext.MathTextParser('bitmap')
-        mt.to_png(str(tmpdir.join('example.png')), '$x^2$')
-        mt.to_png(io.BytesIO(), '$x^2$')
+    mathtext.math_to_image('$x^2$', io.BytesIO(), color='Maroon')
 
 
 @image_comparison(baseline_images=['math_fontfamily_image.png'],

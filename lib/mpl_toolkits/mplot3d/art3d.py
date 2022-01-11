@@ -12,8 +12,7 @@ import math
 import numpy as np
 
 from matplotlib import (
-    _api, artist, cbook, colors as mcolors, lines, text as mtext,
-    path as mpath)
+    artist, cbook, colors as mcolors, lines, text as mtext, path as mpath)
 from matplotlib.collections import (
     LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.colors import Normalize
@@ -297,8 +296,7 @@ class Line3DCollection(LineCollection):
         self._segments3d = segments
         super().set_segments([])
 
-    @_api.delete_parameter('3.4', 'renderer')
-    def do_3d_projection(self, renderer=None):
+    def do_3d_projection(self):
         """
         Project the points according to renderer matrix.
         """
@@ -312,14 +310,6 @@ class Line3DCollection(LineCollection):
         for xs, ys, zs in xyslist:
             minz = min(minz, min(zs))
         return minz
-
-    @artist.allow_rasterization
-    @_api.delete_parameter('3.4', 'project',
-                           alternative='Line3DCollection.do_3d_projection')
-    def draw(self, renderer, project=False):
-        if project:
-            self.do_3d_projection()
-        super().draw(renderer)
 
 
 def line_collection_2d_to_3d(col, zs=0, zdir='z'):
@@ -346,8 +336,7 @@ class Patch3D(Patch):
     def get_path(self):
         return self._path2d
 
-    @_api.delete_parameter('3.4', 'renderer')
-    def do_3d_projection(self, renderer=None):
+    def do_3d_projection(self):
         s = self._segment3d
         xs, ys, zs = zip(*s)
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
@@ -370,8 +359,7 @@ class PathPatch3D(Patch3D):
         Patch3D.set_3d_properties(self, path.vertices, zs=zs, zdir=zdir)
         self._code3d = path.codes
 
-    @_api.delete_parameter('3.4', 'renderer')
-    def do_3d_projection(self, renderer=None):
+    def do_3d_projection(self):
         s = self._segment3d
         xs, ys, zs = zip(*s)
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
@@ -466,8 +454,7 @@ class Patch3DCollection(PatchCollection):
         self._vzs = None
         self.stale = True
 
-    @_api.delete_parameter('3.4', 'renderer')
-    def do_3d_projection(self, renderer=None):
+    def do_3d_projection(self):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
                                                         self.axes.M)
@@ -594,8 +581,7 @@ class Path3DCollection(PathCollection):
         self._depthshade = depthshade
         self.stale = True
 
-    @_api.delete_parameter('3.4', 'renderer')
-    def do_3d_projection(self, renderer=None):
+    def do_3d_projection(self):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
                                                         self.axes.M)
@@ -786,8 +772,7 @@ class Poly3DCollection(PolyCollection):
         self._sort_zpos = val
         self.stale = True
 
-    @_api.delete_parameter('3.4', 'renderer')
-    def do_3d_projection(self, renderer=None):
+    def do_3d_projection(self):
         """
         Perform the 3D projection for this object.
         """

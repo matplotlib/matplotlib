@@ -675,7 +675,7 @@ class Axes(_AxesBase):
     @docstring.dedent_interpd
     def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
         """
-        Add a horizontal line across the axis.
+        Add a horizontal line across the Axes.
 
         Parameters
         ----------
@@ -2153,7 +2153,7 @@ class Axes(_AxesBase):
             try:
                 x0 = cbook.safe_first_element(x0)
             except (TypeError, IndexError, KeyError):
-                x0 = x0
+                pass
 
             try:
                 x = cbook.safe_first_element(xconv)
@@ -4463,14 +4463,14 @@ default: :rc:`scatter.edgecolors`
         offsets = np.ma.column_stack([x, y])
 
         collection = mcoll.PathCollection(
-                (path,), scales,
-                facecolors=colors,
-                edgecolors=edgecolors,
-                linewidths=linewidths,
-                offsets=offsets,
-                transOffset=kwargs.pop('transform', self.transData),
-                alpha=alpha
-                )
+            (path,), scales,
+            facecolors=colors,
+            edgecolors=edgecolors,
+            linewidths=linewidths,
+            offsets=offsets,
+            offset_transform=kwargs.pop('transform', self.transData),
+            alpha=alpha,
+        )
         collection.set_transform(mtransforms.IdentityTransform())
         if colors is None:
             collection.set_array(c)
@@ -4796,8 +4796,9 @@ default: :rc:`scatter.edgecolors`
                 edgecolors=edgecolors,
                 linewidths=linewidths,
                 offsets=offsets,
-                transOffset=mtransforms.AffineDeltaTransform(self.transData),
-                )
+                offset_transform=mtransforms.AffineDeltaTransform(
+                    self.transData),
+            )
 
         # Set normalizer if bins is 'log'
         if bins == 'log':
@@ -5516,7 +5517,7 @@ default: :rc:`scatter.edgecolors`
         _valid_shading = ['gouraud', 'nearest', 'flat', 'auto']
         try:
             _api.check_in_list(_valid_shading, shading=shading)
-        except ValueError as err:
+        except ValueError:
             _api.warn_external(f"shading value '{shading}' not in list of "
                                f"valid values {_valid_shading}. Setting "
                                "shading='auto'.")
@@ -7488,7 +7489,8 @@ such objects
         """
         cxy, freqs = mlab.cohere(x=x, y=y, NFFT=NFFT, Fs=Fs, detrend=detrend,
                                  window=window, noverlap=noverlap,
-                                 scale_by_freq=scale_by_freq)
+                                 scale_by_freq=scale_by_freq, sides=sides,
+                                 pad_to=pad_to)
         freqs += Fc
 
         self.plot(freqs, cxy, **kwargs)

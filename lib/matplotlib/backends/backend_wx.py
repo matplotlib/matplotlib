@@ -898,37 +898,25 @@ class FigureFrameWx(wx.Frame):
                 "required after the deprecation period starting in Matplotlib "
                 "%(since)s elapses.")
             self.canvas = self.get_canvas(fig)
-        w, h = map(math.ceil, fig.bbox.size)
-        self.canvas.SetInitialSize(wx.Size(w, h))
-        self.canvas.SetFocus()
-        self.sizer = wx.BoxSizer(wx.VERTICAL)
-        self.sizer.Add(self.canvas, 1, wx.TOP | wx.LEFT | wx.EXPAND)
-        # By adding toolbar in sizer, we are able to put it at the bottom
-        # of the frame - so appearance is closer to GTK version
 
         self.figmgr = FigureManagerWx(self.canvas, num, self)
 
         self.toolbar = self._get_toolbar()
-
         if self.figmgr.toolmanager:
             backend_tools.add_tools_to_manager(self.figmgr.toolmanager)
             if self.toolbar:
                 backend_tools.add_tools_to_container(self.toolbar)
-
         if self.toolbar is not None:
-            self.toolbar.Realize()
-            # On Windows platform, default window size is incorrect, so set
-            # toolbar width to figure width.
-            tw, th = self.toolbar.GetSize()
-            fw, fh = self.canvas.GetSize()
-            # By adding toolbar in sizer, we are able to put it at the bottom
-            # of the frame - so appearance is closer to GTK version.
-            self.toolbar.SetSize(wx.Size(fw, th))
-            self.sizer.Add(self.toolbar, 0, wx.LEFT | wx.EXPAND)
-        self.SetSizer(self.sizer)
-        self.Fit()
+            self.SetToolBar(self.toolbar)
 
+        # On Windows, canvas sizing must occur after toolbar addition;
+        # otherwise the toolbar further resizes the canvas.
+        w, h = map(math.ceil, fig.bbox.size)
+        self.canvas.SetInitialSize(wx.Size(w, h))
         self.canvas.SetMinSize((2, 2))
+        self.canvas.SetFocus()
+
+        self.Fit()
 
         self.Bind(wx.EVT_CLOSE, self._on_close)
 
@@ -965,10 +953,6 @@ class FigureFrameWx(wx.Frame):
         Gcf.destroy(self.figmgr)
         # Carry on with close event propagation, frame & children destruction
         event.Skip()
-
-    def GetToolBar(self):
-        """Override wxFrame::GetToolBar as we don't have managed toolbar"""
-        return self.toolbar
 
     def Destroy(self, *args, **kwargs):
         try:
@@ -1049,9 +1033,9 @@ class FigureManagerWx(FigureManagerBase):
 
     def resize(self, width, height):
         # docstring inherited
-        self.canvas.SetInitialSize(
-            wx.Size(math.ceil(width), math.ceil(height)))
-        self.window.GetSizer().Fit(self.window)
+        # Directly using SetClientSize doesn't handle the toolbar on Windows.
+        self.window.SetSize(self.window.ClientToWindowSize(wx.Size(
+            math.ceil(width), math.ceil(height))))
 
 
 def _load_bitmap(filename):
@@ -1073,8 +1057,8 @@ def _set_frame_icon(frame):
 
 
 class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
-    def __init__(self, canvas, coordinates=True):
-        wx.ToolBar.__init__(self, canvas.GetParent(), -1)
+    def __init__(self, canvas, coordinates=True, *, style=wx.TB_BOTTOM):
+        wx.ToolBar.__init__(self, canvas.GetParent(), -1, style=style)
 
         if 'wxMac' in wx.PlatformInfo:
             self.SetToolBitmapSize((24, 24))
@@ -1098,7 +1082,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         self._coordinates = coordinates
         if self._coordinates:
             self.AddStretchableSpace()
-            self._label_text = wx.StaticText(self)
+            self._label_text = wx.StaticText(self, style=wx.ALIGN_RIGHT)
             self.AddControl(self._label_text)
 
         self.Realize()
@@ -1134,15 +1118,19 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
     def get_canvas(self, frame, fig):
         return type(self.canvas)(frame, -1, fig)
 
+    def _update_buttons_checked(self):
+        if "Pan" in self.wx_ids:
+            self.ToggleTool(self.wx_ids["Pan"], self.mode.name == "PAN")
+        if "Zoom" in self.wx_ids:
+            self.ToggleTool(self.wx_ids["Zoom"], self.mode.name == "ZOOM")
+
     def zoom(self, *args):
-        tool = self.wx_ids['Zoom']
-        self.ToggleTool(tool, not self.GetToolState(tool))
         super().zoom(*args)
+        self._update_buttons_checked()
 
     def pan(self, *args):
-        tool = self.wx_ids['Pan']
-        self.ToggleTool(tool, not self.GetToolState(tool))
         super().pan(*args)
+        self._update_buttons_checked()
 
     def save_figure(self, *args):
         # Fetch the required filename and file type.
@@ -1202,11 +1190,11 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
 # tools for matplotlib.backend_managers.ToolManager:
 
 class ToolbarWx(ToolContainerBase, wx.ToolBar):
-    def __init__(self, toolmanager, parent, style=wx.TB_HORIZONTAL):
+    def __init__(self, toolmanager, parent, style=wx.TB_BOTTOM):
         ToolContainerBase.__init__(self, toolmanager)
         wx.ToolBar.__init__(self, parent, -1, style=style)
         self._space = self.AddStretchableSpace()
-        self._label_text = wx.StaticText(self)
+        self._label_text = wx.StaticText(self, style=wx.ALIGN_RIGHT)
         self.AddControl(self._label_text)
         self._toolitems = {}
         self._groups = {}  # Mapping of groups to the separator after them.

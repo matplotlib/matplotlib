@@ -1,6 +1,5 @@
 import functools
 import itertools
-import platform
 
 import pytest
 
@@ -547,7 +546,7 @@ def test_text3d_modification(fig_ref, fig_test):
         ax_ref.text(x, y, z, f'({x}, {y}, {z}), dir={zdir}', zdir=zdir)
 
 
-@mpl3d_image_comparison(['trisurf3d.png'], tol=0.03)
+@mpl3d_image_comparison(['trisurf3d.png'], tol=0.061)
 def test_trisurf3d():
     n_angles = 36
     n_radii = 8
@@ -1376,7 +1375,7 @@ def test_errorbar3d():
 
 
 @image_comparison(['stem3d.png'], style='mpl20',
-                  tol=0.0 if platform.machine() == 'x86_64' else 0.003)
+                  tol=0.003)
 def test_stem3d():
     fig, axs = plt.subplots(2, 3, figsize=(8, 6),
                             constrained_layout=True,
@@ -1720,63 +1719,3 @@ def test_view_init_vertical_axis(
         tickdir_expected = tickdirs_expected[i]
         tickdir_actual = axis._get_tickdir()
         np.testing.assert_array_equal(tickdir_expected, tickdir_actual)
-
-
-def test_do_3d_projection_renderer_deprecation_warn_on_argument():
-    """
-    Test that an external artist with an old-style calling convention raises
-    a suitable deprecation warning.
-    """
-    class DummyPatch(art3d.Patch3D):
-        def do_3d_projection(self, renderer):
-            return 0
-
-        def draw(self, renderer):
-            pass
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    artist = DummyPatch()
-    ax.add_artist(artist)
-
-    match = r"The 'renderer' parameter of do_3d_projection\(\) was deprecated"
-    with pytest.warns(MatplotlibDeprecationWarning, match=match):
-        fig.canvas.draw()
-
-
-def test_do_3d_projection_renderer_deprecation_nowarn_on_optional_argument():
-    """
-    Test that an external artist with a calling convention compatible with
-    both v3.3 and v3.4 does not raise a deprecation warning.
-    """
-    class DummyPatch(art3d.Patch3D):
-        def do_3d_projection(self, renderer=None):
-            return 0
-
-        def draw(self, renderer):
-            pass
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    artist = DummyPatch()
-    ax.add_artist(artist)
-    fig.canvas.draw()
-
-
-def test_do_3d_projection_renderer_deprecation_nowarn_on_no_argument():
-    """
-    Test that an external artist with a calling convention compatible with
-    only v3.4 does not raise a deprecation warning.
-    """
-    class DummyPatch(art3d.Patch3D):
-        def do_3d_projection(self):
-            return 0
-
-        def draw(self, renderer):
-            pass
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    artist = DummyPatch()
-    ax.add_artist(artist)
-    fig.canvas.draw()

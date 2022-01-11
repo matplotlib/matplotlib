@@ -40,7 +40,7 @@ fig = plt.figure()
 ax1 = plt.axes([0, 0, 1, 1])
 divider = make_axes_locatable(ax1)
 
-ax2 = divider.new_horizontal("100%", pad=0.3, sharey=ax1)
+ax2 = divider.append_axes("right", "100%", pad=0.3, sharey=ax1)
 ax2.tick_params(labelleft=False)
 fig.add_axes(ax2)
 

@@ -90,7 +90,7 @@ def test_collection_transform_of_none():
                                      transform=mtransforms.IdentityTransform(),
                                      alpha=0.5)
     ax.add_collection(c)
-    assert isinstance(c._transOffset, mtransforms.IdentityTransform)
+    assert isinstance(c.get_offset_transform(), mtransforms.IdentityTransform)
 
 
 @image_comparison(["clip_path_clipping"], remove_text=True)
@@ -165,20 +165,18 @@ def test_hatching():
     rect1 = mpatches.Rectangle((0, 0), 3, 4, hatch='/')
     ax.add_patch(rect1)
 
-    rect2 = mcollections.RegularPolyCollection(4, sizes=[16000],
-                                               offsets=[(1.5, 6.5)],
-                                               transOffset=ax.transData,
-                                               hatch='/')
+    rect2 = mcollections.RegularPolyCollection(
+        4, sizes=[16000], offsets=[(1.5, 6.5)], offset_transform=ax.transData,
+        hatch='/')
     ax.add_collection(rect2)
 
     # Ensure edge color is not applied to hatching.
     rect3 = mpatches.Rectangle((4, 0), 3, 4, hatch='/', edgecolor='C1')
     ax.add_patch(rect3)
 
-    rect4 = mcollections.RegularPolyCollection(4, sizes=[16000],
-                                               offsets=[(5.5, 6.5)],
-                                               transOffset=ax.transData,
-                                               hatch='/', edgecolor='C1')
+    rect4 = mcollections.RegularPolyCollection(
+        4, sizes=[16000], offsets=[(5.5, 6.5)], offset_transform=ax.transData,
+        hatch='/', edgecolor='C1')
     ax.add_collection(rect4)
 
     ax.set_xlim(0, 7)

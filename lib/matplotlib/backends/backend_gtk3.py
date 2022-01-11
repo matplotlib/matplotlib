@@ -467,6 +467,7 @@ class NavigationToolbar2GTK3(_NavigationToolbar2GTK, Gtk.Toolbar):
         toolitem = Gtk.ToolItem()
         self.insert(toolitem, -1)
         self.message = Gtk.Label()
+        self.message.set_justify(Gtk.Justification.RIGHT)
         toolitem.add(self.message)
 
         self.show_all()
@@ -530,6 +531,7 @@ class ToolbarGTK3(ToolContainerBase, Gtk.Box):
         Gtk.Box.__init__(self)
         self.set_property('orientation', Gtk.Orientation.HORIZONTAL)
         self._message = Gtk.Label()
+        self._message.set_justify(Gtk.Justification.RIGHT)
         self.pack_end(self._message, False, False, 0)
         self.show_all()
         self._groups = {}

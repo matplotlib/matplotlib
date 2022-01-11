@@ -9,7 +9,6 @@ on:
 
 env:
   NO_AT_BRIDGE: 1  # Necessary for GTK3 interactive test.
-  NPY_DISABLE_CPU_FEATURES: "AVX512F,AVX512CD,AVX512VL,AVX512BW,AVX512DQ,AVX512_SKX"
   OPENBLAS_NUM_THREADS: 1
   PYTHONFAULTHANDLER: 1
 
@@ -44,7 +43,7 @@ jobs:
             extra-requirements: '-r requirements/testing/extra.txt'
             XVFB_RUN: xvfb-run -a
           - os: ubuntu-20.04
-            python-version: '3.10-dev'
+            python-version: '3.10'
             # Re-add this when extra dependencies have wheels.
             # extra-requirements: '-r requirements/testing/extra.txt'
             XVFB_RUN: xvfb-run -a

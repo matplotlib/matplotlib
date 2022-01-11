@@ -326,6 +326,8 @@ Introducing
    All these helpers take a first parameter *since*, which should be set to
    the next point release, e.g. "3.x".
 
+   You can use standard rst cross references in *alternative*.
+
 Expiring
 ~~~~~~~~
 

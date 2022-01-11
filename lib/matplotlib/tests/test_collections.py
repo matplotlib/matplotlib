@@ -374,11 +374,9 @@ def test_EllipseCollection():
     hh = Y / y[-1]
     aa = np.ones_like(ww) * 20  # first axis is 20 degrees CCW from x axis
 
-    ec = mcollections.EllipseCollection(ww, hh, aa,
-                                        units='x',
-                                        offsets=XY,
-                                        transOffset=ax.transData,
-                                        facecolors='none')
+    ec = mcollections.EllipseCollection(
+        ww, hh, aa, units='x', offsets=XY, offset_transform=ax.transData,
+        facecolors='none')
     ax.add_collection(ec)
     ax.autoscale_view()
 
@@ -430,7 +428,7 @@ def test_regularpolycollection_rotate():
     for xy, alpha in zip(xy_points, rotations):
         col = mcollections.RegularPolyCollection(
             4, sizes=(100,), rotation=alpha,
-            offsets=[xy], transOffset=ax.transData)
+            offsets=[xy], offset_transform=ax.transData)
         ax.add_collection(col, autolim=True)
     ax.autoscale_view()
 
@@ -458,8 +456,8 @@ def test_regularpolycollection_scale():
     xy = [(0, 0)]
     # Unit square has a half-diagonal of `1/sqrt(2)`, so `pi * r**2` equals...
     circle_areas = [np.pi / 2]
-    squares = SquareCollection(sizes=circle_areas, offsets=xy,
-                               transOffset=ax.transData)
+    squares = SquareCollection(
+        sizes=circle_areas, offsets=xy, offset_transform=ax.transData)
     ax.add_collection(squares, autolim=True)
     ax.axis([-1, 1, -1, 1])
 
@@ -487,10 +485,8 @@ def test_size_in_xy():
     widths = 10, 10
     coords = [(10, 10), (15, 15)]
     e = mcollections.EllipseCollection(
-        widths, heights, angles,
-        units='xy',
-        offsets=coords,
-        transOffset=ax.transData)
+        widths, heights, angles, units='xy',
+        offsets=coords, offset_transform=ax.transData)
 
     ax.add_collection(e)
 
@@ -1072,7 +1068,7 @@ def test_set_offsets_late():
 
 def test_set_offset_transform():
     skew = mtransforms.Affine2D().skew(2, 2)
-    init = mcollections.Collection([], transOffset=skew)
+    init = mcollections.Collection([], offset_transform=skew)
 
     late = mcollections.Collection([])
     late.set_offset_transform(skew)

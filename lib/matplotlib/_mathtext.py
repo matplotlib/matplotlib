@@ -5,7 +5,6 @@ Implementation details for :mod:`.mathtext`.
 from collections import namedtuple
 import enum
 import functools
-from io import StringIO
 import logging
 import os
 import types
@@ -91,14 +90,6 @@ class Fonts:
         self.default_font_prop = default_font_prop
         self.mathtext_backend = mathtext_backend
         self.used_characters = {}
-
-    @_api.deprecated("3.4")
-    def destroy(self):
-        """
-        Fix any cyclical references before the object is about
-        to be destroyed.
-        """
-        self.used_characters = None
 
     def get_kern(self, font1, fontclass1, sym1, fontsize1,
                  font2, fontclass2, sym2, fontsize2, dpi):
@@ -203,11 +194,6 @@ class Fonts:
         """
         result = self.mathtext_backend.get_results(
             box, self.get_used_characters())
-        if self.destroy != TruetypeFonts.destroy.__get__(self):
-            destroy = _api.deprecate_method_override(
-                __class__.destroy, self, since="3.4")
-            if destroy:
-                destroy()
         return result
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
@@ -234,11 +220,6 @@ class TruetypeFonts(Fonts):
         default_font = get_font(filename)
         self._fonts['default'] = default_font
         self._fonts['regular'] = default_font
-
-    @_api.deprecated("3.4")
-    def destroy(self):
-        self.glyphd = None
-        super().destroy()
 
     def _get_font(self, font):
         if font in self.fontmap:
@@ -802,8 +783,6 @@ class StandardPsFonts(Fonts):
 
         self.fonts['default'] = default_font
         self.fonts['regular'] = default_font
-
-    pswriter = _api.deprecated("3.4")(property(lambda self: StringIO()))
 
     def _get_font(self, font):
         if font in self.fontmap:
@@ -1975,7 +1954,6 @@ class Parser:
         p.auto_delim       = Forward()
         p.binom            = Forward()
         p.bslash           = Forward()
-        p.c_over_c         = Forward()
         p.customspace      = Forward()
         p.end_group        = Forward()
         p.float_literal    = Forward()
@@ -2051,11 +2029,6 @@ class Parser:
         p.symbol        <<= (p.single_symbol | p.symbol_name).leaveWhitespace()
 
         p.apostrophe    <<= Regex("'+")
-
-        p.c_over_c      <<= (
-            Suppress(p.bslash)
-            + oneOf(list(self._char_over_chars))
-        )
 
         p.accent        <<= Group(
             Suppress(p.bslash)
@@ -2159,7 +2132,6 @@ class Parser:
             | p.accent   # Must be before symbol as all accents are symbols
             | p.symbol   # Must be third to catch all named symbols and single
                          # chars not in a group
-            | p.c_over_c
             | p.function
             | p.group
             | p.frac
@@ -2395,50 +2367,6 @@ class Parser:
     def unknown_symbol(self, s, loc, toks):
         c, = toks
         raise ParseFatalException(s, loc, "Unknown symbol: %s" % c)
-
-    _char_over_chars = {
-        # The first 2 entries in the tuple are (font, char, sizescale) for
-        # the two symbols under and over.  The third element is the space
-        # (in multiples of underline height)
-        r'AA': (('it', 'A', 1.0), (None, '\\circ', 0.5), 0.0),
-    }
-
-    def c_over_c(self, s, loc, toks):
-        sym, = toks
-        state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
-
-        under_desc, over_desc, space = \
-            self._char_over_chars.get(sym, (None, None, 0.0))
-        if under_desc is None:
-            raise ParseFatalException("Error parsing symbol")
-
-        over_state = state.copy()
-        if over_desc[0] is not None:
-            over_state.font = over_desc[0]
-        over_state.fontsize *= over_desc[2]
-        over = Accent(over_desc[1], over_state)
-
-        under_state = state.copy()
-        if under_desc[0] is not None:
-            under_state.font = under_desc[0]
-        under_state.fontsize *= under_desc[2]
-        under = Char(under_desc[1], under_state)
-
-        width = max(over.width, under.width)
-
-        over_centered = HCentered([over])
-        over_centered.hpack(width, 'exactly')
-
-        under_centered = HCentered([under])
-        under_centered.hpack(width, 'exactly')
-
-        return Vlist([
-                over_centered,
-                Vbox(0., thickness * space),
-                under_centered
-                ])
 
     _accent_map = {
         r'hat':            r'\circumflexaccent',

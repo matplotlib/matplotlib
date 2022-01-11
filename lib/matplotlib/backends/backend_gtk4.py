@@ -402,6 +402,7 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
         self.append(label)
 
         self.message = Gtk.Label()
+        self.message.set_justify(Gtk.Justification.RIGHT)
         self.append(self.message)
 
         _NavigationToolbar2GTK.__init__(self, canvas)
@@ -494,6 +495,7 @@ class ToolbarGTK4(ToolContainerBase, Gtk.Box):
         self.append(label)
 
         self._message = Gtk.Label()
+        self._message.set_justify(Gtk.Justification.RIGHT)
         self.append(self._message)
 
     def add_toolitem(self, name, group, position, image_file, description,

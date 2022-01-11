@@ -167,7 +167,7 @@ def make_layoutgrids(fig, layoutgrids):
         layoutgrids = make_layoutgrids(sfig, layoutgrids)
 
     # for each axes at the local level add its gridspec:
-    for ax in fig._localaxes.as_list():
+    for ax in fig._localaxes:
         if hasattr(ax, 'get_subplotspec'):
             gs = ax.get_subplotspec().get_gridspec()
             layoutgrids = make_layoutgrids_gs(layoutgrids, gs)
@@ -204,14 +204,16 @@ def make_layoutgrids_gs(layoutgrids, gs):
             layoutgrids = make_layoutgrids_gs(layoutgrids, parentgs)
         subspeclb = layoutgrids[parentgs]
         # gridspecfromsubplotspec need an outer container:
-        if f'{gs}top' not in layoutgrids:
-            layoutgrids[f'{gs}top'] = mlayoutgrid.LayoutGrid(
+        # get a unique representation:
+        rep = (gs, 'top')
+        if rep not in layoutgrids:
+            layoutgrids[rep] = mlayoutgrid.LayoutGrid(
                 parent=subspeclb,
                 name='top',
                 nrows=1, ncols=1,
                 parent_pos=(subplot_spec.rowspan, subplot_spec.colspan))
         layoutgrids[gs] = mlayoutgrid.LayoutGrid(
-                parent=layoutgrids[f'{gs}top'],
+                parent=layoutgrids[rep],
                 name='gridspec',
                 nrows=gs._nrows, ncols=gs._ncols,
                 width_ratios=gs.get_width_ratios(),
@@ -298,7 +300,7 @@ def make_layout_margins(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0,
                                           hspace=hspace, wspace=wspace)
         layoutgrids[sfig].parent.edit_outer_margin_mins(margins, ss)
 
-    for ax in fig._localaxes.as_list():
+    for ax in fig._localaxes:
         if not hasattr(ax, 'get_subplotspec') or not ax.get_in_layout():
             continue
 
@@ -561,7 +563,7 @@ def reposition_axes(layoutgrids, fig, renderer, *,
                         w_pad=w_pad, h_pad=h_pad,
                         wspace=wspace, hspace=hspace)
 
-    for ax in fig._localaxes.as_list():
+    for ax in fig._localaxes:
         if not hasattr(ax, 'get_subplotspec') or not ax.get_in_layout():
             continue
 

@@ -293,7 +293,6 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
         Return (N, 2) array of (x, y) coordinate of the boundary.
         """
         x0, x1, y0, y1 = self._extremes
-        tr = self._aux_trans
 
         xx = np.linspace(x0, x1, 100)
         yy0 = np.full_like(xx, y0)
@@ -304,9 +303,8 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
 
         xxx = np.concatenate([xx[:-1], xx1[:-1], xx[-1:0:-1], xx0])
         yyy = np.concatenate([yy0[:-1], yy[:-1], yy1[:-1], yy[::-1]])
-        t = tr.transform(np.array([xxx, yyy]).transpose())
 
-        return t
+        return self._aux_trans.transform(np.column_stack([xxx, yyy]))
 
 
 class FloatingAxesBase:

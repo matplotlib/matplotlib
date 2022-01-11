@@ -12,7 +12,6 @@ Module containing Axes3D, an object which can plot 3D objects on a
 
 from collections import defaultdict
 import functools
-import inspect
 import itertools
 import math
 from numbers import Integral
@@ -52,6 +51,8 @@ class Axes3D(Axes):
 
     _axis_names = ("x", "y", "z")
     Axes._shared_axes["z"] = cbook.Grouper()
+
+    dist = _api.deprecate_privatize_attribute("3.6")
 
     def __init__(
             self, fig, rect=None, *args,
@@ -203,10 +204,10 @@ class Axes3D(Axes):
     def set_top_view(self):
         # this happens to be the right view for the viewing coordinates
         # moved up and to the left slightly to fit labels and axes
-        xdwl = 0.95 / self.dist
-        xdw = 0.9 / self.dist
-        ydwl = 0.95 / self.dist
-        ydw = 0.9 / self.dist
+        xdwl = 0.95 / self._dist
+        xdw = 0.9 / self._dist
+        ydwl = 0.95 / self._dist
+        ydw = 0.9 / self._dist
         # This is purposely using the 2D Axes's set_xlim and set_ylim,
         # because we are trying to place our viewing pane.
         super().set_xlim(-xdwl, xdw, auto=None)
@@ -354,12 +355,14 @@ class Axes3D(Axes):
         aspect : 3-tuple of floats or None
             Changes the physical dimensions of the Axes3D, such that the ratio
             of the axis lengths in display units is x:y:z.
+            If None, defaults to (4,4,3).
 
-            If None, defaults to 4:4:3
-
-        zoom : float
-            Control overall size of the Axes3D in the figure.
+        zoom : float, default: 1
+            Control overall size of the Axes3D in the figure. Must be > 0.
         """
+        if zoom <= 0:
+            raise ValueError(f'Argument zoom = {zoom} must be > 0')
+
         if aspect is None:
             aspect = np.asarray((4, 4, 3), dtype=float)
         else:
@@ -410,82 +413,41 @@ class Axes3D(Axes):
 
         # add the projection matrix to the renderer
         self.M = self.get_proj()
-        props3d = {
-            # To raise a deprecation, we need to wrap the attribute in a
-            # function, but binding that to an instance does not work, as you
-            # would end up with an instance-specific method. Properties are
-            # class-level attributes which *are* functions, so we do that
-            # instead.
-            # This dictionary comprehension creates deprecated properties for
-            # the attributes listed below, and they are temporarily attached to
-            # the _class_ in the `_setattr_cm` call. These can both be removed
-            # once the deprecation expires
-            name: _api.deprecated('3.4', name=name,
-                                  alternative=f'self.axes.{name}')(
-                property(lambda self, _value=getattr(self, name): _value))
-            for name in ['M', 'vvec', 'eye', 'get_axis_position']
-        }
 
-        with cbook._setattr_cm(type(renderer), **props3d):
-            def do_3d_projection(artist):
-                """
-                Call `do_3d_projection` on an *artist*, and warn if passing
-                *renderer*.
+        collections_and_patches = (
+            artist for artist in self._children
+            if isinstance(artist, (mcoll.Collection, mpatches.Patch))
+            and artist.get_visible())
+        if self.computed_zorder:
+            # Calculate projection of collections and patches and zorder
+            # them. Make sure they are drawn above the grids.
+            zorder_offset = max(axis.get_zorder()
+                                for axis in self._get_axis_list()) + 1
+            collection_zorder = patch_zorder = zorder_offset
 
-                Attempt to bind the empty signature first, so external Artists
-                can avoid the deprecation warning if they support the new
-                calling convention.
-                """
-                try:
-                    signature = inspect.signature(artist.do_3d_projection)
-                    signature.bind()
-                # ValueError if `inspect.signature` cannot provide a signature
-                # and TypeError if the binding fails or the object does not
-                # appear to be callable - the next call will then re-raise.
-                except (ValueError, TypeError):
-                    _api.warn_deprecated(
-                        "3.4",
-                        message="The 'renderer' parameter of "
-                        "do_3d_projection() was deprecated in Matplotlib "
-                        "%(since)s and will be removed %(removal)s.")
-                    return artist.do_3d_projection(renderer)
-                else:
-                    # Call this directly once the deprecation period expires.
-                    return artist.do_3d_projection()
+            for artist in sorted(collections_and_patches,
+                                 key=lambda artist: artist.do_3d_projection(),
+                                 reverse=True):
+                if isinstance(artist, mcoll.Collection):
+                    artist.zorder = collection_zorder
+                    collection_zorder += 1
+                elif isinstance(artist, mpatches.Patch):
+                    artist.zorder = patch_zorder
+                    patch_zorder += 1
+        else:
+            for artist in collections_and_patches:
+                artist.do_3d_projection()
 
-            collections_and_patches = (
-                artist for artist in self._children
-                if isinstance(artist, (mcoll.Collection, mpatches.Patch))
-                and artist.get_visible())
-            if self.computed_zorder:
-                # Calculate projection of collections and patches and zorder
-                # them. Make sure they are drawn above the grids.
-                zorder_offset = max(axis.get_zorder()
-                                    for axis in self._get_axis_list()) + 1
-                collection_zorder = patch_zorder = zorder_offset
-                for artist in sorted(collections_and_patches,
-                                     key=do_3d_projection,
-                                     reverse=True):
-                    if isinstance(artist, mcoll.Collection):
-                        artist.zorder = collection_zorder
-                        collection_zorder += 1
-                    elif isinstance(artist, mpatches.Patch):
-                        artist.zorder = patch_zorder
-                        patch_zorder += 1
-            else:
-                for artist in collections_and_patches:
-                    artist.do_3d_projection()
+        if self._axis3don:
+            # Draw panes first
+            for axis in self._get_axis_list():
+                axis.draw_pane(renderer)
+            # Then axes
+            for axis in self._get_axis_list():
+                axis.draw(renderer)
 
-            if self._axis3don:
-                # Draw panes first
-                for axis in self._get_axis_list():
-                    axis.draw_pane(renderer)
-                # Then axes
-                for axis in self._get_axis_list():
-                    axis.draw(renderer)
-
-            # Then rest
-            super().draw(renderer)
+        # Then rest
+        super().draw(renderer)
 
     def get_axis_position(self):
         vals = self.get_w_lims()
@@ -1011,7 +973,7 @@ class Axes3D(Axes):
             The axis to align vertically. *azim* rotates about this axis.
         """
 
-        self.dist = 10
+        self._dist = 10  # The camera distance from origin. Behaves like zoom
 
         if elev is None:
             self.elev = self.initial_elev
@@ -1102,7 +1064,7 @@ class Axes3D(Axes):
 
         # The coordinates for the eye viewing point. The eye is looking
         # towards the middle of the box of data from a distance:
-        eye = R + self.dist * ps
+        eye = R + self._dist * ps
 
         # TODO: Is this being used somewhere? Can it be removed?
         self.eye = eye
@@ -1119,14 +1081,14 @@ class Axes3D(Axes):
         if self._focal_length == np.inf:
             # Orthographic projection
             viewM = proj3d.view_transformation(eye, R, V, roll_rad)
-            projM = proj3d.ortho_transformation(-self.dist, self.dist)
+            projM = proj3d.ortho_transformation(-self._dist, self._dist)
         else:
             # Perspective projection
             # Scale the eye dist to compensate for the focal length zoom effect
-            eye_focal = R + self.dist * ps * self._focal_length
+            eye_focal = R + self._dist * ps * self._focal_length
             viewM = proj3d.view_transformation(eye_focal, R, V, roll_rad)
-            projM = proj3d.persp_transformation(-self.dist,
-                                                self.dist,
+            projM = proj3d.persp_transformation(-self._dist,
+                                                self._dist,
                                                 self._focal_length)
 
         # Combine all the transformation matrices to get the final projection
@@ -1538,8 +1500,7 @@ class Axes3D(Axes):
 
     plot3D = plot
 
-    @_api.delete_parameter("3.4", "args", alternative="kwargs")
-    def plot_surface(self, X, Y, Z, *args, norm=None, vmin=None,
+    def plot_surface(self, X, Y, Z, *, norm=None, vmin=None,
                      vmax=None, lightsource=None, **kwargs):
         """
         Create a surface plot.
@@ -1713,7 +1674,7 @@ class Axes3D(Axes):
 
         # note that the striding causes some polygons to have more coordinates
         # than others
-        polyc = art3d.Poly3DCollection(polys, *args, **kwargs)
+        polyc = art3d.Poly3DCollection(polys, **kwargs)
 
         if fcolors is not None:
             if shade:
@@ -1824,8 +1785,7 @@ class Axes3D(Axes):
 
         return colors
 
-    @_api.delete_parameter("3.4", "args", alternative="kwargs")
-    def plot_wireframe(self, X, Y, Z, *args, **kwargs):
+    def plot_wireframe(self, X, Y, Z, **kwargs):
         """
         Plot a 3D wireframe.
 
@@ -1937,7 +1897,7 @@ class Axes3D(Axes):
                  + [list(zip(xl, yl, zl))
                  for xl, yl, zl in zip(txlines, tylines, tzlines)])
 
-        linec = art3d.Line3DCollection(lines, *args, **kwargs)
+        linec = art3d.Line3DCollection(lines, **kwargs)
         self.add_collection(linec)
         self.auto_scale_xyz(X, Y, Z, had_data)
 

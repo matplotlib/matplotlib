@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import _api
 from matplotlib.axes import SubplotBase
-from matplotlib.gridspec import SubplotSpec, GridSpec
+from matplotlib.gridspec import SubplotSpec
 import matplotlib.transforms as mtransforms
 from . import axes_size as Size
 
@@ -368,30 +368,6 @@ class SubplotDivider(Divider):
         """Return the bounds of the subplot box."""
         return self.get_subplotspec().get_position(self.figure).bounds
 
-    @_api.deprecated("3.4")
-    @property
-    def figbox(self):
-        return self.get_subplotspec().get_position(self.figure)
-
-    @_api.deprecated("3.4")
-    def update_params(self):
-        pass
-
-    @_api.deprecated(
-        "3.4", alternative="get_subplotspec",
-        addendum="(get_subplotspec returns a SubplotSpec instance.)")
-    def get_geometry(self):
-        """Get the subplot geometry, e.g., (2, 2, 3)."""
-        rows, cols, num1, num2 = self.get_subplotspec().get_geometry()
-        return rows, cols, num1 + 1  # for compatibility
-
-    @_api.deprecated("3.4", alternative="set_subplotspec")
-    def change_geometry(self, numrows, numcols, num):
-        """Change subplot geometry, e.g., from (1, 1, 1) to (2, 2, 3)."""
-        self._subplotspec = GridSpec(numrows, numcols)[num-1]
-        self.update_params()
-        self.set_position(self.figbox)
-
     def get_subplotspec(self):
         """Get the SubplotSpec instance."""
         return self._subplotspec
@@ -441,26 +417,11 @@ class AxesDivider(Divider):
 
     def new_horizontal(self, size, pad=None, pack_start=False, **kwargs):
         """
-        Add a new axes on the right (or left) side of the main axes.
+        Helper method for ``append_axes("left")`` and ``append_axes("right")``.
 
-        Parameters
-        ----------
-        size : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
-            The axes width.  float or str arguments are interpreted as
-            ``axes_size.from_any(size, AxesX(<main_axes>))``.
-        pad : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
-            Padding between the axes.  float or str arguments are interpreted
-            as ``axes_size.from_any(size, AxesX(<main_axes>))``.  Defaults to
-            :rc:`figure.subplot.wspace` times the main axes width.
-        pack_start : bool
-            If False, the new axes is appended at the end
-            of the list, i.e., it became the right-most axes. If True, it is
-            inserted at the start of the list, and becomes the left-most axes.
-        **kwargs
-            All extra keywords arguments are passed to the created axes.
-            If *axes_class* is given, the new axes will be created as an
-            instance of the given class. Otherwise, the same class of the
-            main axes will be used.
+        See the documentation of `append_axes` for more details.
+
+        :meta private:
         """
         if pad is None:
             pad = mpl.rcParams["figure.subplot.wspace"] * self._xref
@@ -488,26 +449,11 @@ class AxesDivider(Divider):
 
     def new_vertical(self, size, pad=None, pack_start=False, **kwargs):
         """
-        Add a new axes on the top (or bottom) side of the main axes.
+        Helper method for ``append_axes("top")`` and ``append_axes("bottom")``.
 
-        Parameters
-        ----------
-        size : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
-            The axes height.  float or str arguments are interpreted as
-            ``axes_size.from_any(size, AxesY(<main_axes>))``.
-        pad : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
-            Padding between the axes.  float or str arguments are interpreted
-            as ``axes_size.from_any(size, AxesY(<main_axes>))``.  Defaults to
-            :rc:`figure.subplot.hspace` times the main axes height.
-        pack_start : bool
-            If False, the new axes is appended at the end
-            of the list, i.e., it became the right-most axes. If True, it is
-            inserted at the start of the list, and becomes the left-most axes.
-        **kwargs
-            All extra keywords arguments are passed to the created axes.
-            If *axes_class* is given, the new axes will be created as an
-            instance of the given class. Otherwise, the same class of the
-            main axes will be used.
+        See the documentation of `append_axes` for more details.
+
+        :meta private:
         """
         if pad is None:
             pad = mpl.rcParams["figure.subplot.hspace"] * self._yref
@@ -528,31 +474,47 @@ class AxesDivider(Divider):
         else:
             self._vertical.append(size)
             locator = self.new_locator(
-                nx=self._xrefindex, ny=len(self._vertical)-1)
+                nx=self._xrefindex, ny=len(self._vertical) - 1)
         ax = self._get_new_axes(**kwargs)
         ax.set_axes_locator(locator)
         return ax
 
     @_api.delete_parameter("3.5", "add_to_figure", alternative="ax.remove()")
-    def append_axes(self, position, size, pad=None, add_to_figure=True,
-                    **kwargs):
+    def append_axes(self, position, size, pad=None, add_to_figure=True, *,
+                    axes_class=None, **kwargs):
         """
-        Create an axes at the given *position* with the same height
-        (or width) of the main axes.
+        Add a new axes on a given side of the main axes.
 
-         *position*
-           ["left"|"right"|"bottom"|"top"]
-
-         *size* and *pad* should be axes_grid.axes_size compatible.
+        Parameters
+        ----------
+        position : {"left", "right", "bottom", "top"}
+            Where the new axes is positioned relative to the main axes.
+        size : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
+            The axes width or height.  float or str arguments are interpreted
+            as ``axes_size.from_any(size, AxesX(<main_axes>))`` for left or
+            right axes, and likewise with ``AxesY`` for bottom or top axes.
+        pad : :mod:`~mpl_toolkits.axes_grid1.axes_size` or float or str
+            Padding between the axes.  float or str arguments are interpreted
+            as for *size*.  Defaults to :rc:`figure.subplot.wspace` times the
+            main axes width (left or right axes) or :rc:`figure.subplot.hspace`
+            times the main axes height (bottom or top axes).
+        axes_class : subclass type of `~.axes.Axes`, optional
+            The type of the new axes.  Defaults to the type of the main axes.
+        **kwargs
+            All extra keywords arguments are passed to the created axes.
         """
         if position == "left":
-            ax = self.new_horizontal(size, pad, pack_start=True, **kwargs)
+            ax = self.new_horizontal(
+                size, pad, pack_start=True, axes_class=axes_class, **kwargs)
         elif position == "right":
-            ax = self.new_horizontal(size, pad, pack_start=False, **kwargs)
+            ax = self.new_horizontal(
+                size, pad, pack_start=False, axes_class=axes_class, **kwargs)
         elif position == "bottom":
-            ax = self.new_vertical(size, pad, pack_start=True, **kwargs)
+            ax = self.new_vertical(
+                size, pad, pack_start=True, axes_class=axes_class, **kwargs)
         elif position == "top":
-            ax = self.new_vertical(size, pad, pack_start=False, **kwargs)
+            ax = self.new_vertical(
+                size, pad, pack_start=False, axes_class=axes_class, **kwargs)
         else:
             _api.check_in_list(["left", "right", "bottom", "top"],
                                position=position)

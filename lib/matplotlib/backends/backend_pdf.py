@@ -39,7 +39,6 @@ import matplotlib.type1font as type1font
 import matplotlib.dviread as dviread
 from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
                                 LOAD_NO_HINTING, KERNING_UNFITTED, FT2Font)
-from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
 from matplotlib.dates import UTC
@@ -1709,10 +1708,9 @@ end"""
                 if bit_depth is None or palette is None:
                     raise RuntimeError("invalid PNG header")
                 palette = palette[:num_colors * 3]  # Trim padding
-                palette = pdfRepr(palette)
-                obj['ColorSpace'] = Verbatim(b'[/Indexed /DeviceRGB '
-                                             + str(num_colors - 1).encode()
-                                             + b' ' + palette + b']')
+                obj['ColorSpace'] = Verbatim(
+                    b'[/Indexed /DeviceRGB %d %s]'
+                    % (num_colors - 1, pdfRepr(palette)))
                 obj['BitsPerComponent'] = bit_depth
                 color_channels = 1
             else:
@@ -1900,11 +1898,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         self.file = file
         self.gc = self.new_gc()
         self.image_dpi = image_dpi
-
-    @_api.deprecated("3.4")
-    @property
-    def mathtext_parser(self):
-        return MathTextParser("Pdf")
 
     def finalize(self):
         self.file.output(*self.gc.finalize())

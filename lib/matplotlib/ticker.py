@@ -187,17 +187,17 @@ class TickHelper:
         if self.axis is None:
             self.axis = _DummyAxis(**kwargs)
 
-    @_api.deprecated("3.5", alternative=".axis.set_view_interval")
+    @_api.deprecated("3.5", alternative="`.Axis.set_view_interval`")
     def set_view_interval(self, vmin, vmax):
         self.axis.set_view_interval(vmin, vmax)
 
-    @_api.deprecated("3.5", alternative=".axis.set_data_interval")
+    @_api.deprecated("3.5", alternative="`.Axis.set_data_interval`")
     def set_data_interval(self, vmin, vmax):
         self.axis.set_data_interval(vmin, vmax)
 
     @_api.deprecated(
         "3.5",
-        alternative=".axis.set_view_interval and .axis.set_data_interval")
+        alternative="`.Axis.set_view_interval` and `.Axis.set_data_interval`")
     def set_bounds(self, vmin, vmax):
         self.set_view_interval(vmin, vmax)
         self.set_data_interval(vmin, vmax)
@@ -1000,7 +1000,7 @@ class LogFormatter(Formatter):
         vmin, vmax = self.axis.get_view_interval()
         vmin, vmax = mtransforms.nonsingular(vmin, vmax, expander=0.05)
         s = self._num_to_string(x, vmin, vmax)
-        return s
+        return self.fix_minus(s)
 
     def format_data(self, value):
         with cbook._setattr_cm(self, labelOnlyBase=False):
@@ -1090,11 +1090,12 @@ class LogFormatterMathtext(LogFormatter):
             base = '%s' % b
 
         if abs(fx) < min_exp:
-            return r'$\mathdefault{%s%g}$' % (sign_string, x)
+            s = r'$\mathdefault{%s%g}$' % (sign_string, x)
         elif not is_x_decade:
-            return self._non_decade_format(sign_string, base, fx, usetex)
+            s = self._non_decade_format(sign_string, base, fx, usetex)
         else:
-            return r'$\mathdefault{%s%s^{%d}}$' % (sign_string, base, fx)
+            s = r'$\mathdefault{%s%s^{%d}}$' % (sign_string, base, fx)
+        return self.fix_minus(s)
 
 
 class LogFormatterSciNotation(LogFormatterMathtext):
@@ -1296,7 +1297,7 @@ class LogitFormatter(Formatter):
             s = self._one_minus(self._format_value(1-x, 1-self.locs))
         else:
             s = self._format_value(x, self.locs, sci_notation=False)
-        return r"$\mathdefault{%s}$" % s
+        return r"$\mathdefault{%s}$" % self.fix_minus(s)
 
     def format_data_short(self, value):
         # docstring inherited

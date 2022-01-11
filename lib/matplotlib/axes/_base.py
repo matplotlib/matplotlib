@@ -719,7 +719,9 @@ class _AxesBase(martist.Artist):
             fields += [f"ylabel={self.get_ylabel()!r}"]
         return f"<{self.__class__.__name__}:" + ", ".join(fields) + ">"
 
-    def get_window_extent(self, *args, **kwargs):
+    @_api.delete_parameter("3.6", "args")
+    @_api.delete_parameter("3.6", "kwargs")
+    def get_window_extent(self, renderer=None, *args, **kwargs):
         """
         Return the Axes bounding box in display space; *args* and *kwargs*
         are empty.
@@ -1072,7 +1074,7 @@ class _AxesBase(martist.Artist):
         """
         Reset the active position to the original position.
 
-        This resets the a possible position change due to aspect constraints.
+        This resets the possible position change due to aspect constraints.
         For an explanation of the positions see `.set_position`.
         """
         for ax in self._twinned_axes.get_siblings(self):
@@ -1467,7 +1469,7 @@ class _AxesBase(martist.Artist):
 
     @property
     def texts(self):
-        return self.ArtistList(self, 'texts', 'add_text',
+        return self.ArtistList(self, 'texts', 'add_artist',
                                valid_types=mtext.Text)
 
     def clear(self):
@@ -2990,6 +2992,12 @@ class _AxesBase(martist.Artist):
                 if bb is None:
                     bb = ax.get_window_extent(renderer)
                 top = max(top, bb.ymax)
+                if title.get_text():
+                    ax.yaxis.get_tightbbox(renderer)  # update offsetText
+                    if ax.yaxis.offsetText.get_text():
+                        bb = ax.yaxis.offsetText.get_tightbbox(renderer)
+                        if bb.intersection(title.get_tightbbox(renderer), bb):
+                            top = bb.ymax
             if top < 0:
                 # the top of Axes is not even on the figure, so don't try and
                 # automatically place it.

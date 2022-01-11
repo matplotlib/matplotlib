@@ -2545,6 +2545,9 @@ def test_pyplot_axes():
 
 @image_comparison(['log_scales'])
 def test_log_scales():
+    # Remove this if regenerating the image.
+    plt.rcParams['axes.unicode_minus'] = False
+
     fig, ax = plt.subplots()
     ax.plot(np.log(np.linspace(0.1, 100)))
     ax.set_yscale('log', base=5.5)
@@ -3327,7 +3330,9 @@ def test_tick_space_size_0():
 
 @image_comparison(['errorbar_basic', 'errorbar_mixed', 'errorbar_basic'])
 def test_errorbar():
-    x = np.arange(0.1, 4, 0.5)
+    # longdouble due to floating point rounding issues with certain
+    # computer chipsets
+    x = np.arange(0.1, 4, 0.5, dtype=np.longdouble)
     y = np.exp(-x)
 
     yerr = 0.1 + 0.2*np.sqrt(x)
@@ -6121,6 +6126,36 @@ def test_title_xticks_top_both():
     assert ax.title.get_position()[1] > 1.04
 
 
+@pytest.mark.parametrize(
+    'left, center', [
+        ('left', ''),
+        ('', 'center'),
+        ('left', 'center')
+    ], ids=[
+        'left title moved',
+        'center title kept',
+        'both titles aligned'
+    ]
+)
+def test_title_above_offset(left, center):
+    # Test that title moves if overlaps with yaxis offset text.
+    mpl.rcParams['axes.titley'] = None
+    fig, ax = plt.subplots()
+    ax.set_ylim(1e11)
+    ax.set_title(left, loc='left')
+    ax.set_title(center)
+    fig.draw_without_rendering()
+    if left and not center:
+        assert ax._left_title.get_position()[1] > 1.0
+    elif not left and center:
+        assert ax.title.get_position()[1] == 1.0
+    else:
+        yleft = ax._left_title.get_position()[1]
+        ycenter = ax.title.get_position()[1]
+        assert yleft > 1.0
+        assert ycenter == yleft
+
+
 def test_title_no_move_off_page():
     # If an axes is off the figure (ie. if it is cropped during a save)
     # make sure that the automatic title repositioning does not get done.
@@ -7284,6 +7319,24 @@ def test_artist_sublists():
     # Everything else should remain empty.
     assert not ax.lines
     assert not ax.tables
+
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match='modification of the Axes.texts property'):
+        ax.texts.append(text)
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match='modification of the Axes.collections property'):
+        ax.collections.append(col)
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match='modification of the Axes.images property'):
+        ax.images.append(im)
+    with pytest.warns(MatplotlibDeprecationWarning,
+                      match='modification of the Axes.patches property'):
+        ax.patches.append(patch)
+    # verify things are back
+    assert list(ax.collections) == [col]
+    assert list(ax.images) == [im]
+    assert list(ax.patches) == [patch]
+    assert list(ax.texts) == [text]
 
     # Adding items should warn.
     with pytest.warns(MatplotlibDeprecationWarning,

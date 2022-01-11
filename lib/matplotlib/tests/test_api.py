@@ -85,3 +85,11 @@ def test_make_keyword_only():
         func(1, 2)
     with pytest.warns(_api.MatplotlibDeprecationWarning):
         func(1, 2, 3)
+
+
+def test_deprecation_alternative():
+    alternative = "`.f1`, `f2`, `f3(x) <.f3>` or `f4(x)<f4>`"
+    @_api.deprecated("1", alternative=alternative)
+    def f():
+        pass
+    assert alternative in f.__doc__

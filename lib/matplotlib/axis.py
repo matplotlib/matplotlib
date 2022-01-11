@@ -211,7 +211,7 @@ class Tick(martist.Artist):
         self._tickdir = tickdir
         self._pad = self._base_pad + self.get_tick_padding()
 
-    @_api.deprecated("3.5", alternative="axis.set_tick_params")
+    @_api.deprecated("3.5", alternative="`.Axis.set_tick_params`")
     def apply_tickdir(self, tickdir):
         self._apply_tickdir(tickdir)
         self.stale = True
@@ -822,7 +822,7 @@ class Axis(martist.Artist):
         self.set_units(None)
         self.stale = True
 
-    @_api.deprecated("3.4", alternative="Axis.clear()")
+    @_api.deprecated("3.4", alternative="`.Axis.clear`")
     def cla(self):
         """Clear this axis."""
         return self.clear()
