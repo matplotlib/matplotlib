@@ -443,6 +443,12 @@ def test_auto_date_locator():
         locator = _create_auto_date_locator(d1, d2)
         assert list(map(str, mdates.num2date(locator()))) == expected
 
+    locator = mdates.AutoDateLocator(interval_multiples=False)
+    assert locator.maxticks == {0: 11, 1: 12, 3: 11, 4: 12, 5: 11, 6: 11, 7: 8}
+
+    locator = mdates.AutoDateLocator(maxticks=5)
+    assert locator.maxticks == {0: 5, 1: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5}
+
 
 @_new_epoch_decorator
 def test_auto_date_locator_intmult():
@@ -1097,7 +1103,7 @@ def test_DayLocator():
 
 def test_tz_utc():
     dt = datetime.datetime(1970, 1, 1, tzinfo=mdates.UTC)
-    dt.tzname()
+    assert dt.tzname() == 'UTC'
 
 
 @pytest.mark.parametrize("x, tdelta",
@@ -1226,3 +1232,58 @@ def test_julian2num():
     mdates.set_epoch('1970-01-01T00:00:00')
     assert mdates.julian2num(2440588.5) == 1.0
     assert mdates.num2julian(2.0) == 2440589.5
+
+
+def test_rcparams_timezone():
+    assert mdates._get_rc_timezone() == mdates.UTC
+    tz = 'Europe/Iceland'
+    assert mdates._get_rc_timezone() != dateutil.tz.gettz(tz)
+
+    plt.rcParams['timezone'] = tz
+
+    assert mdates._get_rc_timezone() == dateutil.tz.gettz(tz)
+
+
+def test_datestr2num():
+    assert mdates.datestr2num('2022-01-10') == 19002.0
+    dt = datetime.date(year=2022, month=1, day=10)
+    assert mdates.datestr2num('2022-01', default=dt) == 19002.0
+    assert np.all(mdates.datestr2num(
+        ['2022-01', '2022-02'], default=dt
+        ) == np.array([19002., 19033.]))
+    assert mdates.datestr2num([]).size == 0
+    assert mdates.datestr2num([], datetime.date(year=2022,
+                                                month=1, day=10)).size == 0
+
+
+def test_concise_formatter_exceptions():
+    locator = mdates.AutoDateLocator()
+    with pytest.raises(ValueError):
+        mdates.ConciseDateFormatter(locator, formats=['', '%Y'])
+
+    with pytest.raises(ValueError):
+        mdates.ConciseDateFormatter(locator, zero_formats=['', '%Y'])
+
+    with pytest.raises(ValueError):
+        mdates.ConciseDateFormatter(locator, offset_formats=['', '%Y'])
+
+
+def test_concise_formatter_call():
+    locator = mdates.AutoDateLocator()
+    formatter = mdates.ConciseDateFormatter(locator)
+    assert formatter(19002.0) == '2022'
+    assert formatter.format_data_short(19002.0) == '2022-01-10 00:00:00'
+
+
+def test_date_ticker_factory():
+    data = (
+        (0.02, mdates.MinuteLocator),
+        (1, mdates.HourLocator),
+        (19, mdates.DayLocator),
+        (40, mdates.WeekdayLocator),
+        (200, mdates.MonthLocator),
+        (2000, mdates.YearLocator),
+        )
+    for span, expected_locator in data:
+        locator, _ = mdates.date_ticker_factory(span)
+        assert isinstance(locator, expected_locator)

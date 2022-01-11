@@ -395,7 +395,9 @@ def datestr2num(d, default=None):
         return date2num(dt)
     else:
         if default is not None:
-            d = [dateutil.parser.parse(s, default=default) for s in d]
+            d = [date2num(dateutil.parser.parse(s, default=default))
+                 for s in d]
+            return np.asarray(d)
         d = np.asarray(d)
         if not d.size:
             return d
