@@ -61,7 +61,7 @@ We will support at least minor versions of the development
 dependencies released in the 12 months prior to our planned release.
 
 We will only bump these as needed or versions no longer support our
-minimum Python and numpy.
+minimum Python and NumPy.
 
 System and C-dependencies
 =========================
@@ -83,6 +83,7 @@ specification of the dependencies.
 ==========  ========  ======
 Matplotlib  Python    NumPy
 ==========  ========  ======
+`3.6`_      3.7       1.19.0
 `3.5`_      3.7       1.17.0
 `3.4`_      3.7       1.16.0
 `3.3`_      3.6       1.15.0
@@ -100,6 +101,7 @@ Matplotlib  Python    NumPy
 1.0         2.4       1.1
 ==========  ========  ======
 
+.. _`3.6`: https://matplotlib.org/3.6.0/devel/dependencies.html
 .. _`3.5`: https://matplotlib.org/3.5.0/devel/dependencies.html
 .. _`3.4`: https://matplotlib.org/3.4.0/devel/dependencies.html
 .. _`3.3`: https://matplotlib.org/3.3.0/users/installing.html#dependencies
