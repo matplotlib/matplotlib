@@ -17,7 +17,7 @@ from pyparsing import (
     ParseResults, QuotedString, Regex, StringEnd, Suppress, White, ZeroOrMore)
 
 import matplotlib as mpl
-from . import _api, cbook
+from . import cbook
 from ._mathtext_data import (
     latex_to_bakoma, latex_to_standard, stix_glyph_fixes, stix_virtual_fonts,
     tex2uni)
@@ -140,7 +140,6 @@ class Fonts:
         info = self._get_info(font, font_class, sym, fontsize, dpi, math)
         return info.metrics
 
-    @_api.rename_parameter("3.4", "facename", "font")
     def render_glyph(self, ox, oy, font, font_class, sym, fontsize, dpi):
         """
         At position (*ox*, *oy*), draw the glyph specified by the remaining
