@@ -1,5 +1,3 @@
-import functools
-
 from matplotlib import _api, cbook
 import matplotlib.artist as martist
 import matplotlib.image as mimage
@@ -71,10 +69,6 @@ class ParasiteAxesBase:
     def get_viewlim_mode(self):
         return self._viewlim_mode
 
-    @_api.deprecated("3.4", alternative="apply_aspect")
-    def update_viewlim(self):
-        return self._update_viewlim
-
     def _update_viewlim(self):  # Inline after deprecation elapses.
         viewlim = self._parent_axes.viewLim.frozen()
         mode = self.get_viewlim_mode()
@@ -98,68 +92,6 @@ class ParasiteAxesBase:
 parasite_axes_class_factory = cbook._make_class_factory(
     ParasiteAxesBase, "{}Parasite")
 ParasiteAxes = parasite_axes_class_factory(Axes)
-
-
-@_api.deprecated("3.4", alternative="ParasiteAxesBase")
-class ParasiteAxesAuxTransBase:
-    def __init__(self, parent_axes, aux_transform, viewlim_mode=None,
-                 **kwargs):
-        # Explicit wrapper for deprecation to work.
-        super().__init__(parent_axes, aux_transform,
-                         viewlim_mode=viewlim_mode, **kwargs)
-
-    def _set_lim_and_transforms(self):
-        self.transAxes = self._parent_axes.transAxes
-        self.transData = self.transAux + self._parent_axes.transData
-        self._xaxis_transform = mtransforms.blended_transform_factory(
-            self.transData, self.transAxes)
-        self._yaxis_transform = mtransforms.blended_transform_factory(
-            self.transAxes, self.transData)
-
-    def set_viewlim_mode(self, mode):
-        _api.check_in_list([None, "equal", "transform"], mode=mode)
-        self._viewlim_mode = mode
-
-    def get_viewlim_mode(self):
-        return self._viewlim_mode
-
-    @_api.deprecated("3.4", alternative="apply_aspect")
-    def update_viewlim(self):
-        return self._update_viewlim()
-
-    def _update_viewlim(self):  # Inline after deprecation elapses.
-        viewlim = self._parent_axes.viewLim.frozen()
-        mode = self.get_viewlim_mode()
-        if mode is None:
-            pass
-        elif mode == "equal":
-            self.axes.viewLim.set(viewlim)
-        elif mode == "transform":
-            self.axes.viewLim.set(
-                viewlim.transformed(self.transAux.inverted()))
-        else:
-            _api.check_in_list([None, "equal", "transform"], mode=mode)
-
-    def apply_aspect(self, position=None):
-        self._update_viewlim()
-        super().apply_aspect()
-
-
-@_api.deprecated("3.4", alternative="parasite_axes_class_factory")
-@functools.lru_cache(None)
-def parasite_axes_auxtrans_class_factory(axes_class):
-    if not issubclass(axes_class, ParasiteAxesBase):
-        parasite_axes_class = parasite_axes_class_factory(axes_class)
-    else:
-        parasite_axes_class = axes_class
-    return type("%sParasiteAuxTrans" % parasite_axes_class.__name__,
-                (ParasiteAxesAuxTransBase, parasite_axes_class),
-                {'name': 'parasite_axes'})
-
-
-# Also deprecated.
-with _api.suppress_matplotlib_deprecation_warning():
-    ParasiteAxesAuxTrans = parasite_axes_auxtrans_class_factory(ParasiteAxes)
 
 
 class HostAxesBase:
