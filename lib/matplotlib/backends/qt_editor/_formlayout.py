@@ -47,7 +47,6 @@ import logging
 from numbers import Integral, Real
 
 from matplotlib import _api, colors as mcolors
-from .. import qt_compat
 from ..qt_compat import QtGui, QtWidgets, QtCore, _enum, _to_int
 
 _log = logging.getLogger(__name__)
