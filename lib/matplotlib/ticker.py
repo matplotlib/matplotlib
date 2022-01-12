@@ -1100,12 +1100,11 @@ class LogFormatterMathtext(LogFormatter):
             base = '%s' % b
 
         if abs(fx) < min_exp:
-            s = r'$\mathdefault{%s%g}$' % (sign_string, x)
+            return r'$\mathdefault{%s%g}$' % (sign_string, x)
         elif not is_x_decade:
-            s = self._non_decade_format(sign_string, base, fx, usetex)
+            return self._non_decade_format(sign_string, base, fx, usetex)
         else:
-            s = r'$\mathdefault{%s%s^{%d}}$' % (sign_string, base, fx)
-        return self.fix_minus(s)
+            return r'$\mathdefault{%s%s^{%d}}$' % (sign_string, base, fx)
 
 
 class LogFormatterSciNotation(LogFormatterMathtext):
@@ -1308,7 +1307,7 @@ class LogitFormatter(Formatter):
             s = self._one_minus(self._format_value(1-x, 1-self.locs))
         else:
             s = self._format_value(x, self.locs, sci_notation=False)
-        return r"$\mathdefault{%s}$" % self.fix_minus(s)
+        return r"$\mathdefault{%s}$" % s
 
     def format_data_short(self, value):
         # docstring inherited

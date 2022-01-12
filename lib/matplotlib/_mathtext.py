@@ -18,7 +18,7 @@ from pyparsing import (
     QuotedString, Regex, StringEnd, ZeroOrMore, pyparsing_common)
 
 import matplotlib as mpl
-from . import cbook
+from . import _api, cbook
 from ._mathtext_data import (
     latex_to_bakoma, stix_glyph_fixes, stix_virtual_fonts, tex2uni)
 from .font_manager import FontProperties, findfont, get_font
@@ -33,7 +33,8 @@ _log = logging.getLogger("matplotlib.mathtext")
 # FONTS
 
 
-def get_unicode_index(symbol, math=True):
+@_api.delete_parameter("3.6", "math")
+def get_unicode_index(symbol, math=True):  # Publicly exported.
     r"""
     Return the integer index (from the Unicode table) of *symbol*.
 
@@ -45,15 +46,13 @@ def get_unicode_index(symbol, math=True):
     math : bool, default: True
         If False, always treat as a single Unicode character.
     """
-    # for a non-math symbol, simply return its Unicode index
-    if not math:
-        return ord(symbol)
     # From UTF #25: U+2212 minus sign is the preferred
     # representation of the unary and binary minus sign rather than
     # the ASCII-derived U+002D hyphen-minus, because minus sign is
     # unambiguous and because it is rendered with a more desirable
     # length, usually longer than a hyphen.
-    if symbol == '-':
+    # Remove this block when the 'math' parameter is deleted.
+    if math and symbol == '-':
         return 0x2212
     try:  # This will succeed if symbol is a single Unicode char
         return ord(symbol)
@@ -98,7 +97,7 @@ class Fonts:
         """
         return 0.
 
-    def get_metrics(self, font, font_class, sym, fontsize, dpi, math=True):
+    def get_metrics(self, font, font_class, sym, fontsize, dpi):
         r"""
         Parameters
         ----------
@@ -117,8 +116,6 @@ class Fonts:
             Font size in points.
         dpi : float
             Rendering dots-per-inch.
-        math : bool
-            Whether we are currently in math mode or not.
 
         Returns
         -------
@@ -136,7 +133,7 @@ class Fonts:
             - *slanted*: Whether the glyph should be considered as "slanted"
               (currently used for kerning sub/superscripts).
         """
-        info = self._get_info(font, font_class, sym, fontsize, dpi, math)
+        info = self._get_info(font, font_class, sym, fontsize, dpi)
         return info.metrics
 
     def render_glyph(self, ox, oy, font, font_class, sym, fontsize, dpi):
@@ -217,14 +214,14 @@ class TruetypeFonts(Fonts):
             return (glyph.height / 64 / 2) + (fontsize/3 * dpi/72)
         return 0.
 
-    def _get_info(self, fontname, font_class, sym, fontsize, dpi, math=True):
+    def _get_info(self, fontname, font_class, sym, fontsize, dpi):
         key = fontname, font_class, sym, fontsize, dpi
         bunch = self.glyphd.get(key)
         if bunch is not None:
             return bunch
 
         font, num, slanted = self._get_glyph(
-            fontname, font_class, sym, fontsize, math)
+            fontname, font_class, sym, fontsize)
 
         font.set_size(fontsize, dpi)
         glyph = font.load_char(
@@ -314,7 +311,7 @@ class BakomaFonts(TruetypeFonts):
 
     _slanted_symbols = set(r"\int \oint".split())
 
-    def _get_glyph(self, fontname, font_class, sym, fontsize, math=True):
+    def _get_glyph(self, fontname, font_class, sym, fontsize):
         font = None
         if fontname in self.fontmap and sym in latex_to_bakoma:
             basename, num = latex_to_bakoma[sym]
@@ -329,7 +326,7 @@ class BakomaFonts(TruetypeFonts):
             return font, num, slanted
         else:
             return self._stix_fallback._get_glyph(
-                fontname, font_class, sym, fontsize, math)
+                fontname, font_class, sym, fontsize)
 
     # The Bakoma fonts contain many pre-sized alternatives for the
     # delimiters.  The AutoSizedChar class will use these alternatives
@@ -442,9 +439,9 @@ class UnicodeFonts(TruetypeFonts):
     def _map_virtual_font(self, fontname, font_class, uniindex):
         return fontname, uniindex
 
-    def _get_glyph(self, fontname, font_class, sym, fontsize, math=True):
+    def _get_glyph(self, fontname, font_class, sym, fontsize):
         try:
-            uniindex = get_unicode_index(sym, math)
+            uniindex = get_unicode_index(sym)
             found_symbol = True
         except ValueError:
             uniindex = ord('?')
@@ -536,11 +533,10 @@ class DejaVuFonts(UnicodeFonts):
             self.fontmap[key] = fullpath
             self.fontmap[name] = fullpath
 
-    def _get_glyph(self, fontname, font_class, sym, fontsize, math=True):
+    def _get_glyph(self, fontname, font_class, sym, fontsize):
         # Override prime symbol to use Bakoma.
         if sym == r'\prime':
-            return self.bakoma._get_glyph(
-                fontname, font_class, sym, fontsize, math)
+            return self.bakoma._get_glyph(fontname, font_class, sym, fontsize)
         else:
             # check whether the glyph is available in the display font
             uniindex = get_unicode_index(sym)
@@ -548,11 +544,9 @@ class DejaVuFonts(UnicodeFonts):
             if font is not None:
                 glyphindex = font.get_char_index(uniindex)
                 if glyphindex != 0:
-                    return super()._get_glyph(
-                        'ex', font_class, sym, fontsize, math)
+                    return super()._get_glyph('ex', font_class, sym, fontsize)
             # otherwise return regular glyph
-            return super()._get_glyph(
-                fontname, font_class, sym, fontsize, math)
+            return super()._get_glyph(fontname, font_class, sym, fontsize)
 
 
 class DejaVuSerifFonts(DejaVuFonts):
@@ -913,7 +907,7 @@ class Char(Node):
     `Hlist`.
     """
 
-    def __init__(self, c, state, math=True):
+    def __init__(self, c, state):
         super().__init__()
         self.c = c
         self.font_output = state.font_output
@@ -921,7 +915,6 @@ class Char(Node):
         self.font_class = state.font_class
         self.fontsize = state.fontsize
         self.dpi = state.dpi
-        self.math = math
         # The real width, height and depth will be set during the
         # pack phase, after we know the real fontsize
         self._update_metrics()
@@ -931,8 +924,7 @@ class Char(Node):
 
     def _update_metrics(self):
         metrics = self._metrics = self.font_output.get_metrics(
-            self.font, self.font_class, self.c, self.fontsize, self.dpi,
-            self.math)
+            self.font, self.font_class, self.c, self.fontsize, self.dpi)
         if self.c == ' ':
             self.width = metrics.advance
         else:
@@ -1624,8 +1616,9 @@ class Parser:
         SCRIPTSTYLE = enum.auto()
         SCRIPTSCRIPTSTYLE = enum.auto()
 
-    _binary_operators = set(r'''
-      + * -
+    _binary_operators = set(
+      '+ * - \N{MINUS SIGN}'
+      r'''
       \pm             \sqcap                   \rhd
       \mp             \sqcup                   \unlhd
       \times          \vee                     \unrhd
@@ -1922,7 +1915,7 @@ class Parser:
 
     def non_math(self, s, loc, toks):
         s = toks[0].replace(r'\$', '$')
-        symbols = [Char(c, self.get_state(), math=False) for c in s]
+        symbols = [Char(c, self.get_state()) for c in s]
         hlist = Hlist(symbols)
         # We're going into math now, so set font to 'it'
         self.push_state()
@@ -1969,6 +1962,13 @@ class Parser:
 
     def symbol(self, s, loc, toks):
         c = toks["sym"]
+        if c == "-":
+            # "U+2212 minus sign is the preferred representation of the unary
+            # and binary minus sign rather than the ASCII-derived U+002D
+            # hyphen-minus, because minus sign is unambiguous and because it
+            # is rendered with a more desirable length, usually longer than a
+            # hyphen." (https://www.unicode.org/reports/tr25/)
+            c = "\N{MINUS SIGN}"
         try:
             char = Char(c, self.get_state())
         except ValueError as err:
