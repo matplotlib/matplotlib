@@ -9,8 +9,15 @@ from .backend_qt import (
     FigureCanvasBase,  FigureManagerBase, MouseButton, NavigationToolbar2,
     TimerBase, ToolContainerBase, figureoptions, Gcf
 )
+from . import backend_qt as _backend_qt  # noqa
 
 
 @_BackendQT.export
 class _BackendQT5(_BackendQT):
     pass
+
+
+def __getattr__(name):
+    if name == 'qApp':
+        return _backend_qt.qApp
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
