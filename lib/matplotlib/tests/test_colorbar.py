@@ -938,3 +938,15 @@ def test_boundaries():
     fig, ax = plt.subplots(figsize=(2, 2))
     pc = ax.pcolormesh(np.random.randn(10, 10), cmap='RdBu_r')
     cb = fig.colorbar(pc, ax=ax, boundaries=np.linspace(-3, 3, 7))
+
+
+def test_colorbar_no_warning_rcparams_grid_true():
+    # github issue #21723 - If mpl style has 'axes.grid' = True,
+    # fig.colorbar raises a warning about Auto-removal of grids
+    # by pcolor() and pcolormesh(). This is fixed by PR #22216.
+    plt.rcParams['axes.grid'] = True
+    fig, ax = plt.subplots()
+    ax.grid(False)
+    im = ax.pcolormesh([0, 1], [0, 1], [[1]])
+    # make sure that no warning is raised by fig.colorbar
+    fig.colorbar(im)
