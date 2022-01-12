@@ -22,7 +22,7 @@ is desired.
 
 Packaging DLLs
 ~~~~~~~~~~~~~~
-Previously, it was possible to package Windows DLLs into the Maptlotlib
+Previously, it was possible to package Windows DLLs into the Matplotlib
 wheel (or sdist) by copying them into the source tree and setting the
 ``package_data.dlls`` entry in ``setup.cfg``.
 

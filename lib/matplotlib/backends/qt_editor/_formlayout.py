@@ -47,7 +47,6 @@ import logging
 from numbers import Integral, Real
 
 from matplotlib import _api, colors as mcolors
-from .. import qt_compat
 from ..qt_compat import QtGui, QtWidgets, QtCore, _enum, _to_int
 
 _log = logging.getLogger(__name__)
@@ -537,8 +536,7 @@ def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
             parent._fedit_dialog.close()
         parent._fedit_dialog = dialog
 
-    if qt_compat._exec(dialog):
-        return dialog.get()
+    dialog.show()
 
 
 if __name__ == "__main__":

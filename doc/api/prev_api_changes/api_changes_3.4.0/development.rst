@@ -4,7 +4,7 @@ Development changes
 Increase to minimum supported versions of Python and dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For Maptlotlib 3.4, the :ref:`minimum supported versions <dependencies>` are
+For Matplotlib 3.4, the :ref:`minimum supported versions <dependencies>` are
 being bumped:
 
 +------------+-----------------+---------------+
