@@ -2628,16 +2628,48 @@ def test_pyplot_axes():
     plt.close(fig2)
 
 
-@image_comparison(['log_scales'])
 def test_log_scales():
-    # Remove this if regenerating the image.
-    plt.rcParams['axes.unicode_minus'] = False
-
     fig, ax = plt.subplots()
     ax.plot(np.log(np.linspace(0.1, 100)))
     ax.set_yscale('log', base=5.5)
     ax.invert_yaxis()
     ax.set_xscale('log', base=9.0)
+    xticks, yticks = [
+        [(t.get_loc(), t.label1.get_text()) for t in axis._update_ticks()]
+        for axis in [ax.xaxis, ax.yaxis]
+    ]
+    assert xticks == [
+        (1.0, '$\\mathdefault{9^{0}}$'),
+        (9.0, '$\\mathdefault{9^{1}}$'),
+        (81.0, '$\\mathdefault{9^{2}}$'),
+        (2.0, ''),
+        (3.0, ''),
+        (4.0, ''),
+        (5.0, ''),
+        (6.0, ''),
+        (7.0, ''),
+        (8.0, ''),
+        (18.0, ''),
+        (27.0, ''),
+        (36.0, ''),
+        (45.0, ''),
+        (54.0, ''),
+        (63.0, ''),
+        (72.0, ''),
+    ]
+    assert yticks == [
+        (0.18181818181818182, '$\\mathdefault{5.5^{-1}}$'),
+        (1.0, '$\\mathdefault{5.5^{0}}$'),
+        (5.5, '$\\mathdefault{5.5^{1}}$'),
+        (0.36363636363636365, ''),
+        (0.5454545454545454, ''),
+        (0.7272727272727273, ''),
+        (0.9090909090909092, ''),
+        (2.0, ''),
+        (3.0, ''),
+        (4.0, ''),
+        (5.0, ''),
+    ]
 
 
 def test_log_scales_no_data():
