@@ -1500,8 +1500,7 @@ class Hrule(Rule):
 
     def __init__(self, state, thickness=None):
         if thickness is None:
-            thickness = state.font_output.get_underline_thickness(
-                state.font, state.fontsize, state.dpi)
+            thickness = state.get_current_underline_thickness()
         height = depth = thickness * 0.5
         super().__init__(np.inf, height, depth, state)
 
@@ -1510,8 +1509,7 @@ class Vrule(Rule):
     """Convenience class to create a vertical rule."""
 
     def __init__(self, state):
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = state.get_current_underline_thickness()
         super().__init__(thickness, np.inf, np.inf, state)
 
 
@@ -2255,6 +2253,11 @@ class Parser:
                 self.font_class = name
             self._font = name
 
+        def get_current_underline_thickness(self):
+            """Return the underline thickness for this state."""
+            return self.font_output.get_underline_thickness(
+                self.font, self.fontsize, self.dpi)
+
     def get_state(self):
         """Get the current `State` of the parser."""
         return self._state_stack[-1]
@@ -2401,8 +2404,7 @@ class Parser:
 
     def accent(self, s, loc, toks):
         state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = state.get_current_underline_thickness()
         (accent, sym), = toks
         if accent in self._wide_accents:
             accent_box = AutoWidthChar(
@@ -2687,8 +2689,7 @@ class Parser:
 
     def _genfrac(self, ldelim, rdelim, rule, style, num, den):
         state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = state.get_current_underline_thickness()
 
         rule = float(rule)
 
@@ -2731,17 +2732,13 @@ class Parser:
         return self._genfrac(*args)
 
     def frac(self, s, loc, toks):
-        state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = self.get_state().get_current_underline_thickness()
         (num, den), = toks
         return self._genfrac('', '', thickness, self._MathStyle.TEXTSTYLE,
                              num, den)
 
     def dfrac(self, s, loc, toks):
-        state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = self.get_state().get_current_underline_thickness()
         (num, den), = toks
         return self._genfrac('', '', thickness, self._MathStyle.DISPLAYSTYLE,
                              num, den)
@@ -2753,9 +2750,7 @@ class Parser:
 
     def _genset(self, s, loc, toks):
         (annotation, body), = toks
-        state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = self.get_state().get_current_underline_thickness()
 
         annotation.shrink()
         cannotation = HCentered([annotation])
@@ -2787,8 +2782,7 @@ class Parser:
     def sqrt(self, s, loc, toks):
         (root, body), = toks
         state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = state.get_current_underline_thickness()
 
         # Determine the height of the body, and add a little extra to
         # the height so it doesn't seem cramped
@@ -2828,8 +2822,7 @@ class Parser:
         (body,), = toks
 
         state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = state.get_current_underline_thickness()
 
         height = body.height - body.shift_amount + thickness * 3.0
         depth = body.depth + body.shift_amount
