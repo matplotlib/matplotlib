@@ -5,8 +5,6 @@
 
 """Module that provides a GUI-based editor for Matplotlib's figure options."""
 
-import re
-
 from matplotlib import cbook, cm, colors as mcolors, markers, image as mimage
 from matplotlib.backends.qt_compat import QtGui
 from matplotlib.backends.qt_editor import _formlayout
@@ -65,18 +63,6 @@ def figure_edit(axes, parent=None):
     xunits = axes.xaxis.get_units()
     yunits = axes.yaxis.get_units()
 
-    # Sorting for default labels (_lineXXX, _imageXXX).
-    def cmp_key(label):
-        """
-        Label should be a tuple consisting of the string label,
-        and the object being sorted by label.
-        """
-        match = re.match(r"(_line|_image)(\d+)", label[0])
-        if match:
-            return match.group(1), int(match.group(2))
-        else:
-            return label[0], 0
-
     # Get / Curves
     labeled_lines = []
     for line in axes.get_lines():
@@ -113,7 +99,7 @@ def figure_edit(axes, parent=None):
                 sorted(short2name.items(),
                        key=lambda short_and_name: short_and_name[1]))
 
-    for label, line in sorted(labeled_lines, key=cmp_key):
+    for label, line in labeled_lines:
         color = mcolors.to_hex(
             mcolors.to_rgba(line.get_color(), line.get_alpha()),
             keep_alpha=True)
@@ -150,7 +136,7 @@ def figure_edit(axes, parent=None):
         labeled_mappables.append((label, mappable))
     mappables = []
     cmaps = [(cmap, name) for name, cmap in sorted(cm._cmap_registry.items())]
-    for label, mappable in sorted(labeled_mappables, key=cmp_key):
+    for label, mappable in labeled_mappables:
         cmap = mappable.get_cmap()
         if cmap not in cm._cmap_registry.values():
             cmaps = [(cmap, cmap.name), *cmaps]
