@@ -499,6 +499,9 @@ class Patch(artist.Artist):
         """
         Set the `.JoinStyle`.
 
+        The default joinstyle is 'round' for `.FancyArrowPatch` and 'miter' for
+        all other patches.
+
         Parameters
         ----------
         s : `.JoinStyle` or %(JoinStyle)s
