@@ -1,6 +1,6 @@
 """
 Matplotlib provides sophisticated date plotting capabilities, standing on the
-shoulders of python :mod:`datetime` and the add-on module :mod:`dateutil`.
+shoulders of python :mod:`datetime` and the add-on module dateutil_.
 
 By default, Matplotlib uses the units machinery described in
 `~matplotlib.units` to convert `datetime.datetime`, and `numpy.datetime64`
@@ -83,10 +83,11 @@ objects and Matplotlib dates:
      Out[1]: 732401
 
 All the Matplotlib date converters, tickers and formatters are timezone aware.
-If no explicit timezone is provided, :rc:`timezone` is assumed.  If you want to
-use a custom time zone, pass a `datetime.tzinfo` instance with the tz keyword
-argument to `num2date`, `.Axis.axis_date`, and any custom date tickers or
-locators you create.
+If no explicit timezone is provided, :rc:`timezone` is assumed, provided as a
+string.  If you want to use a different timezone, pass the *tz* keyword
+argument of `num2date` to any date tickers or locators you create.  This can
+be either a `datetime.tzinfo` instance or a string with the timezone name that
+can be parsed by `~dateutil.tz.gettz`.
 
 A wide range of specific and general purpose date tick locators and
 formatters are provided in this module.  See
@@ -141,10 +142,10 @@ The available date tickers are:
 
 * `YearLocator`: Locate years that are multiples of base.
 
-* `RRuleLocator`: Locate using a `matplotlib.dates.rrulewrapper`.
-  `.rrulewrapper` is a simple wrapper around dateutil_'s `dateutil.rrule` which
-  allow almost arbitrary date tick specifications.  See :doc:`rrule example
-  </gallery/ticks/date_demo_rrule>`.
+* `RRuleLocator`: Locate using a ``matplotlib.dates.rrulewrapper``.
+  ``rrulewrapper`` is a simple wrapper around dateutil_'s `dateutil.rrule`
+  which allow almost arbitrary date tick specifications.
+  See :doc:`rrule example </gallery/ticks/date_demo_rrule>`.
 
 * `AutoDateLocator`: On autoscale, this class picks the best `DateLocator`
   (e.g., `RRuleLocator`) to set the view limits and the tick locations.  If
@@ -202,12 +203,24 @@ _log = logging.getLogger(__name__)
 UTC = datetime.timezone.utc
 
 
-def _get_rc_timezone():
-    """Retrieve the preferred timezone from the rcParams dictionary."""
-    s = mpl.rcParams['timezone']
-    if s == 'UTC':
-        return UTC
-    return dateutil.tz.gettz(s)
+def _get_tzinfo(tz=None):
+    """
+    Generate tzinfo from a string or return tzinfo. If None,
+    retrieve the preferred timezone from the rcParams dictionary.
+    """
+    if tz is None:
+        tz = mpl.rcParams['timezone']
+        if tz == 'UTC':
+            return UTC
+    if isinstance(tz, str):
+        tzinfo = dateutil.tz.gettz(tz)
+        if tzinfo is None:
+            raise ValueError(f"{tz} is not a valid timezone as parsed by"
+                             " dateutil.tz.gettz.")
+        return tzinfo
+    if isinstance(tz, datetime.tzinfo):
+        return tz
+    raise TypeError("tz must be string or tzinfo subclass.")
 
 
 """
@@ -341,8 +354,7 @@ def _from_ordinalf(x, tz=None):
     :rc:`timezone`.
     """
 
-    if tz is None:
-        tz = _get_rc_timezone()
+    tz = _get_tzinfo(tz)
 
     dt = (np.datetime64(get_epoch()) +
           np.timedelta64(int(np.round(x * MUSECONDS_PER_DAY)), 'us'))
@@ -508,8 +520,8 @@ def num2date(x, tz=None):
         Number of days (fraction part represents hours, minutes, seconds)
         since the epoch.  See `.get_epoch` for the
         epoch, which can be changed by :rc:`date.epoch` or `.set_epoch`.
-    tz : str, default: :rc:`timezone`
-        Timezone of *x*.
+    tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+        Timezone of *x*. If a string, *tz* is passed to `dateutil.tz`.
 
     Returns
     -------
@@ -525,8 +537,7 @@ def num2date(x, tz=None):
     Gregorian calendar is assumed; this is not universal practice.
     For details, see the module docstring.
     """
-    if tz is None:
-        tz = _get_rc_timezone()
+    tz = _get_tzinfo(tz)
     return _from_ordinalf_np_vectorized(x, tz).tolist()
 
 
@@ -621,16 +632,14 @@ class DateFormatter(ticker.Formatter):
         ----------
         fmt : str
             `~datetime.datetime.strftime` format string
-        tz : `datetime.tzinfo`, default: :rc:`timezone`
+        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
             Ticks timezone.
         usetex : bool, default: :rc:`text.usetex`
             To enable/disable the use of TeX's math mode for rendering the
             results of the formatter.
         """
-        if tz is None:
-            tz = _get_rc_timezone()
+        self.tz = _get_tzinfo(tz)
         self.fmt = fmt
-        self.tz = tz
         self._usetex = (usetex if usetex is not None else
                         mpl.rcParams['text.usetex'])
 
@@ -639,7 +648,7 @@ class DateFormatter(ticker.Formatter):
         return _wrap_in_tex(result) if self._usetex else result
 
     def set_tzinfo(self, tz):
-        self.tz = tz
+        self.tz = _get_tzinfo(tz)
 
 
 class ConciseDateFormatter(ticker.Formatter):
@@ -656,8 +665,8 @@ class ConciseDateFormatter(ticker.Formatter):
     locator : `.ticker.Locator`
         Locator that this axis is using.
 
-    tz : str, optional
-        Passed to `.dates.date2num`.
+    tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+        Passed to `.dates.num2date`.
 
     formats : list of 6 strings, optional
         Format strings for 6 levels of tick labelling: mostly years,
@@ -757,7 +766,7 @@ class ConciseDateFormatter(ticker.Formatter):
 
         if offset_formats:
             if len(offset_formats) != 6:
-                raise ValueError('offsetfmts argument must be a list of '
+                raise ValueError('offset_formats argument must be a list of '
                                  '6 format strings (or None)')
             self.offset_formats = offset_formats
         else:
@@ -927,8 +936,8 @@ class AutoDateFormatter(ticker.Formatter):
         locator : `.ticker.Locator`
             Locator that this axis is using.
 
-        tz : str, optional
-            Passed to `.dates.date2num`.
+        tz : str or `~datetime.tzinfo`, optional
+            Passed to `.dates.num2date`.
 
         defaultfmt : str
             The default format to use if none of the values in ``self.scaled``
@@ -1000,7 +1009,7 @@ class rrulewrapper:
     def _update_rrule(self, **kwargs):
         tzinfo = self._base_tzinfo
 
-        # rrule does not play nicely with time zones - especially pytz time
+        # rrule does not play nicely with timezones - especially pytz time
         # zones, it's best to use naive zones and attach timezones once the
         # datetimes are returned
         if 'dtstart' in kwargs:
@@ -1103,17 +1112,15 @@ class DateLocator(ticker.Locator):
         """
         Parameters
         ----------
-        tz : `datetime.tzinfo`
+        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
         """
-        if tz is None:
-            tz = _get_rc_timezone()
-        self.tz = tz
+        self.tz = _get_tzinfo(tz)
 
     def set_tzinfo(self, tz):
         """
-        Set time zone info.
+        Set timezone info. str or `~datetime.tzinfo`.
         """
-        self.tz = tz
+        self.tz = _get_tzinfo(tz)
 
     def datalim_to_dt(self):
         """Convert axis data interval to datetime objects."""
@@ -1283,7 +1290,7 @@ class AutoDateLocator(DateLocator):
         """
         Parameters
         ----------
-        tz : `datetime.tzinfo`
+        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
             Ticks timezone.
         minticks : int
             The minimum number of ticks desired; controls whether ticks occur
@@ -1303,7 +1310,7 @@ class AutoDateLocator(DateLocator):
             the ticks to be at hours 0, 6, 12, 18 when hourly ticking is done
             at 6 hour intervals.
         """
-        super().__init__(tz)
+        super().__init__(tz=tz)
         self._freq = YEARLY
         self._freqs = [YEARLY, MONTHLY, DAILY, HOURLY, MINUTELY,
                        SECONDLY, MICROSECONDLY]
@@ -1457,7 +1464,7 @@ class AutoDateLocator(DateLocator):
                                  byhour=byhour, byminute=byminute,
                                  bysecond=bysecond)
 
-            locator = RRuleLocator(rrule, self.tz)
+            locator = RRuleLocator(rrule, tz=self.tz)
         else:
             locator = MicrosecondLocator(interval, tz=self.tz)
             if date2num(dmin) > 70 * 365 and interval < 1000:
@@ -1490,7 +1497,7 @@ class YearLocator(RRuleLocator):
         """
         rule = rrulewrapper(YEARLY, interval=base, bymonth=month,
                             bymonthday=day, **self.hms0d)
-        super().__init__(rule, tz)
+        super().__init__(rule, tz=tz)
         self.base = ticker._Edge_integer(base, 0)
 
     def _create_rrule(self, vmin, vmax):
@@ -1534,7 +1541,7 @@ class MonthLocator(RRuleLocator):
 
         rule = rrulewrapper(MONTHLY, bymonth=bymonth, bymonthday=bymonthday,
                             interval=interval, **self.hms0d)
-        super().__init__(rule, tz)
+        super().__init__(rule, tz=tz)
 
 
 class WeekdayLocator(RRuleLocator):
@@ -1562,7 +1569,7 @@ class WeekdayLocator(RRuleLocator):
 
         rule = rrulewrapper(DAILY, byweekday=byweekday,
                             interval=interval, **self.hms0d)
-        super().__init__(rule, tz)
+        super().__init__(rule, tz=tz)
 
 
 class DayLocator(RRuleLocator):
@@ -1588,7 +1595,7 @@ class DayLocator(RRuleLocator):
 
         rule = rrulewrapper(DAILY, bymonthday=bymonthday,
                             interval=interval, **self.hms0d)
-        super().__init__(rule, tz)
+        super().__init__(rule, tz=tz)
 
 
 class HourLocator(RRuleLocator):
@@ -1608,7 +1615,7 @@ class HourLocator(RRuleLocator):
 
         rule = rrulewrapper(HOURLY, byhour=byhour, interval=interval,
                             byminute=0, bysecond=0)
-        super().__init__(rule, tz)
+        super().__init__(rule, tz=tz)
 
 
 class MinuteLocator(RRuleLocator):
@@ -1628,7 +1635,7 @@ class MinuteLocator(RRuleLocator):
 
         rule = rrulewrapper(MINUTELY, byminute=byminute, interval=interval,
                             bysecond=0)
-        super().__init__(rule, tz)
+        super().__init__(rule, tz=tz)
 
 
 class SecondLocator(RRuleLocator):
@@ -1648,7 +1655,7 @@ class SecondLocator(RRuleLocator):
             bysecond = range(60)
 
         rule = rrulewrapper(SECONDLY, bysecond=bysecond, interval=interval)
-        super().__init__(rule, tz)
+        super().__init__(rule, tz=tz)
 
 
 class MicrosecondLocator(DateLocator):

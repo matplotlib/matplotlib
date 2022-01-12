@@ -446,6 +446,9 @@ def test_auto_date_locator():
     locator = mdates.AutoDateLocator(interval_multiples=False)
     assert locator.maxticks == {0: 11, 1: 12, 3: 11, 4: 12, 5: 11, 6: 11, 7: 8}
 
+    locator = mdates.AutoDateLocator(maxticks={dateutil.rrule.MONTHLY: 5})
+    assert locator.maxticks == {0: 11, 1: 5, 3: 11, 4: 12, 5: 11, 6: 11, 7: 8}
+
     locator = mdates.AutoDateLocator(maxticks=5)
     assert locator.maxticks == {0: 5, 1: 5, 3: 5, 4: 5, 5: 5, 6: 5, 7: 5}
 
@@ -976,7 +979,7 @@ def test_date2num_dst():
 
         return [dtstart + (i * freq) for i in range(periods)]
 
-    # Define a tz_convert function that converts a list to a new time zone.
+    # Define a tz_convert function that converts a list to a new timezone.
     def tz_convert(dt_list, tzinfo):
         return [d.astimezone(tzinfo) for d in dt_list]
 
@@ -1234,14 +1237,50 @@ def test_julian2num():
     assert mdates.num2julian(2.0) == 2440589.5
 
 
-def test_rcparams_timezone():
-    assert mdates._get_rc_timezone() == mdates.UTC
-    tz = 'Europe/Iceland'
-    assert mdates._get_rc_timezone() != dateutil.tz.gettz(tz)
+def test_DateLocator():
+    locator = mdates.DateLocator()
+    # Test nonsingular
+    assert locator.nonsingular(0, np.inf) == (10957.0, 14610.0)
+    assert locator.nonsingular(0, 1) == (0, 1)
+    assert locator.nonsingular(1, 0) == (0, 1)
+    assert locator.nonsingular(0, 0) == (-2, 2)
+    locator.create_dummy_axis()
+    # default values
+    assert locator.datalim_to_dt() == (
+        datetime.datetime(1970, 1, 1, 0, 0, tzinfo=datetime.timezone.utc),
+        datetime.datetime(1970, 1, 2, 0, 0, tzinfo=datetime.timezone.utc))
 
-    plt.rcParams['timezone'] = tz
+    # Check default is UTC
+    assert locator.tz == mdates.UTC
+    tz_str = 'Iceland'
+    iceland_tz = dateutil.tz.gettz(tz_str)
+    # Check not Iceland
+    assert locator.tz != iceland_tz
+    # Set it to to Iceland
+    locator.set_tzinfo('Iceland')
+    # Check now it is Iceland
+    assert locator.tz == iceland_tz
+    locator.create_dummy_axis()
+    locator.axis.set_data_interval(*mdates.date2num(["2022-01-10",
+                                                     "2022-01-08"]))
+    assert locator.datalim_to_dt() == (
+        datetime.datetime(2022, 1, 8, 0, 0, tzinfo=iceland_tz),
+        datetime.datetime(2022, 1, 10, 0, 0, tzinfo=iceland_tz))
 
-    assert mdates._get_rc_timezone() == dateutil.tz.gettz(tz)
+    # Set rcParam
+    plt.rcParams['timezone'] = tz_str
+
+    # Create a new one in a similar way
+    locator = mdates.DateLocator()
+    # Check now it is Iceland
+    assert locator.tz == iceland_tz
+
+    # Test invalid tz values
+    with pytest.raises(ValueError, match="Aiceland is not a valid timezone"):
+        mdates.DateLocator(tz="Aiceland")
+    with pytest.raises(TypeError,
+                       match="tz must be string or tzinfo subclass."):
+        mdates.DateLocator(tz=1)
 
 
 def test_datestr2num():
@@ -1258,13 +1297,15 @@ def test_datestr2num():
 
 def test_concise_formatter_exceptions():
     locator = mdates.AutoDateLocator()
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="formats argument must be a list"):
         mdates.ConciseDateFormatter(locator, formats=['', '%Y'])
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError,
+                       match="zero_formats argument must be a list"):
         mdates.ConciseDateFormatter(locator, zero_formats=['', '%Y'])
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError,
+                       match="offset_formats argument must be a list"):
         mdates.ConciseDateFormatter(locator, offset_formats=['', '%Y'])
 
 
@@ -1275,15 +1316,13 @@ def test_concise_formatter_call():
     assert formatter.format_data_short(19002.0) == '2022-01-10 00:00:00'
 
 
-def test_date_ticker_factory():
-    data = (
-        (0.02, mdates.MinuteLocator),
-        (1, mdates.HourLocator),
-        (19, mdates.DayLocator),
-        (40, mdates.WeekdayLocator),
-        (200, mdates.MonthLocator),
-        (2000, mdates.YearLocator),
-        )
-    for span, expected_locator in data:
-        locator, _ = mdates.date_ticker_factory(span)
-        assert isinstance(locator, expected_locator)
+@pytest.mark.parametrize('span, expected_locator',
+                         ((0.02, mdates.MinuteLocator),
+                          (1, mdates.HourLocator),
+                          (19, mdates.DayLocator),
+                          (40, mdates.WeekdayLocator),
+                          (200, mdates.MonthLocator),
+                          (2000, mdates.YearLocator)))
+def test_date_ticker_factory(span, expected_locator):
+    locator, _ = mdates.date_ticker_factory(span)
+    assert isinstance(locator, expected_locator)

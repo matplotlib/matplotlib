@@ -1594,7 +1594,7 @@ class Locator(TickHelper):
 
         .. note::
             To get tick locations with the vmin and vmax values defined
-            automatically for the associated :attr:`axis` simply call
+            automatically for the associated ``axis`` simply call
             the Locator instance::
 
                 >>> print(type(loc))
