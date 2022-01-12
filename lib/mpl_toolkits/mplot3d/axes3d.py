@@ -16,6 +16,7 @@ import itertools
 import math
 from numbers import Integral
 import textwrap
+from matplotlib.testing.jpl_units.UnitDbl import UnitDbl
 from matplotlib.testing.jpl_units.UnitDblConverter import UnitDblConverter
 
 import numpy as np
@@ -1442,8 +1443,10 @@ class Axes3D(Axes):
         **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.plot`.
         """
-        xs = UnitDblConverter.convert(xs, None, self)
-        ys = UnitDblConverter.convert(ys, None, self)
+        xs = [UnitDblConverter.convert(x, None, self)
+                if isinstance(x, UnitDbl) else x for x in xs]
+        ys = [UnitDblConverter.convert(y, None, self)
+                if isinstance(y, UnitDbl) else y for y in ys]
 
         had_data = self.has_data()
 
@@ -1456,7 +1459,8 @@ class Axes3D(Axes):
                 raise TypeError("plot() for multiple values for argument 'z'")
         else:
             zs = kwargs.pop('zs', 0)
-        zs = UnitDblConverter.convert(zs, None, self)
+        zs = [UnitDblConverter.convert(z, None, self)
+                if isinstance(z, UnitDbl) else z for z in zs]
         # Match length
         zs = np.broadcast_to(zs, np.shape(xs))
 
