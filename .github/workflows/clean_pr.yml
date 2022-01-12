@@ -30,3 +30,14 @@ jobs:
             printf 'The following images were both added and modified in this PR:\n%s\n' "$am"
             exit 1
           fi
+      - name: Check for invalid backports to -doc branches
+        if: endsWith(github.base_ref, '-doc')
+        run: |
+          git fetch --quiet origin "$GITHUB_BASE_REF"
+          base="$(git merge-base "origin/$GITHUB_BASE_REF" 'HEAD^2')"
+          lib="$(git log "$base..HEAD^2" --pretty=tformat: --name-status -- lib src |
+                 cut --fields 2 | sort || true)"
+          if [[ -n "$lib" ]]; then
+            printf 'Changes to the following files have no effect and should not be backported:\n%s\n' "$lib"
+            exit 1
+          fi

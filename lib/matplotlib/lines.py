@@ -1292,6 +1292,8 @@ class Line2D(Artist):
         """
         How to join segments of the line if it `~Line2D.is_dashed`.
 
+        The default joinstyle is :rc:`lines.dash_joinstyle`.
+
         Parameters
         ----------
         s : `.JoinStyle` or %(JoinStyle)s
@@ -1305,6 +1307,8 @@ class Line2D(Artist):
     def set_solid_joinstyle(self, s):
         """
         How to join segments if the line is solid (not `~Line2D.is_dashed`).
+
+        The default joinstyle is :rc:`lines.solid_joinstyle`.
 
         Parameters
         ----------
