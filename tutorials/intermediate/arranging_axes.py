@@ -178,7 +178,7 @@ fig.suptitle('plt.subplot_mosaic()')
 # -------------------
 #
 # Sometimes it is helpful to have two or more grids of Axes that
-# may not need to be related to one another.  The most simple way toin
+# may not need to be related to one another.  The most simple way to
 # accomplish this is to use `.Figure.subfigures`.  Note that the subfigure
 # layouts are independent, so the Axes spines in each subfigure are not
 # necessarily aligned.  See below for a more verbose way to achieve the same
