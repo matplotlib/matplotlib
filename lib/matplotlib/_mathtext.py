@@ -2,6 +2,7 @@
 Implementation details for :mod:`.mathtext`.
 """
 
+import copy
 from collections import namedtuple
 import enum
 import functools
@@ -1783,6 +1784,43 @@ def Error(msg):
     return empty
 
 
+class ParserState:
+    """
+    Parser state.
+
+    States are pushed and popped from a stack as necessary, and the "current"
+    state is always at the top of the stack.
+
+    Upon entering and leaving a group { } or math/non-math, the stack is pushed
+    and popped accordingly.
+    """
+
+    def __init__(self, font_output, font, font_class, fontsize, dpi):
+        self.font_output = font_output
+        self._font = font
+        self.font_class = font_class
+        self.fontsize = fontsize
+        self.dpi = dpi
+
+    def copy(self):
+        return copy.copy(self)
+
+    @property
+    def font(self):
+        return self._font
+
+    @font.setter
+    def font(self, name):
+        if name in ('rm', 'it', 'bf'):
+            self.font_class = name
+        self._font = name
+
+    def get_current_underline_thickness(self):
+        """Return the underline thickness for this state."""
+        return self.font_output.get_underline_thickness(
+            self.font, self.fontsize, self.dpi)
+
+
 class Parser:
     """
     A pyparsing-based parser for strings containing math expressions.
@@ -2128,7 +2166,7 @@ class Parser:
         Returns the parse tree of `Node` instances.
         """
         self._state_stack = [
-            self.State(fonts_object, 'default', 'rm', fontsize, dpi)]
+            ParserState(fonts_object, 'default', 'rm', fontsize, dpi)]
         self._em_width_cache = {}
         try:
             result = self._expression.parseString(s)
@@ -2141,47 +2179,6 @@ class Parser:
         self._em_width_cache = {}
         self._expression.resetCache()
         return result[0]
-
-    # The state of the parser is maintained in a stack.  Upon
-    # entering and leaving a group { } or math/non-math, the stack
-    # is pushed and popped accordingly.  The current state always
-    # exists in the top element of the stack.
-    class State:
-        """
-        Stores the state of the parser.
-
-        States are pushed and popped from a stack as necessary, and
-        the "current" state is always at the top of the stack.
-        """
-        def __init__(self, font_output, font, font_class, fontsize, dpi):
-            self.font_output = font_output
-            self._font = font
-            self.font_class = font_class
-            self.fontsize = fontsize
-            self.dpi = dpi
-
-        def copy(self):
-            return Parser.State(
-                self.font_output,
-                self.font,
-                self.font_class,
-                self.fontsize,
-                self.dpi)
-
-        @property
-        def font(self):
-            return self._font
-
-        @font.setter
-        def font(self, name):
-            if name in ('rm', 'it', 'bf'):
-                self.font_class = name
-            self._font = name
-
-        def get_current_underline_thickness(self):
-            """Return the underline thickness for this state."""
-            return self.font_output.get_underline_thickness(
-                self.font, self.fontsize, self.dpi)
 
     def get_state(self):
         """Get the current `State` of the parser."""
