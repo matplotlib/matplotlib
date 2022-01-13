@@ -2660,11 +2660,9 @@ class Figure(FigureBase):
             raise ValueError(f'figure size must be positive finite not {size}')
         self.bbox_inches.p1 = size
         if forward:
-            canvas = getattr(self, 'canvas')
-            if canvas is not None:
-                manager = getattr(canvas, 'manager', None)
-                if manager is not None:
-                    manager.resize(*(size * self.dpi).astype(int))
+            manager = self.canvas.manager
+            if manager is not None:
+                manager.resize(*(size * self.dpi).astype(int))
         self.stale = True
 
     def get_size_inches(self):
@@ -2759,7 +2757,7 @@ class Figure(FigureBase):
             ax.cla()
             self.delaxes(ax)  # Remove ax from self._axstack.
 
-        toolbar = getattr(self.canvas, 'toolbar', None)
+        toolbar = self.canvas.toolbar
         if toolbar is not None:
             toolbar.update()
         self._axstack.clear()
@@ -2854,8 +2852,7 @@ class Figure(FigureBase):
 
         # check whether the figure manager (if any) is registered with pyplot
         from matplotlib import _pylab_helpers
-        if getattr(self.canvas, 'manager', None) \
-                in _pylab_helpers.Gcf.figs.values():
+        if self.canvas.manager in _pylab_helpers.Gcf.figs.values():
             state['_restore_to_pylab'] = True
         return state
 
