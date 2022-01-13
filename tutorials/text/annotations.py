@@ -362,9 +362,8 @@ ax.add_artist(box)
 # Coordinate systems for Annotations
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# The Annotation in matplotlib supports several types of coordinates as
-# described in :ref:`annotations-tutorial`. For an advanced user who wants
-# more control, it supports a few other options.
+# Matplotlib Annotations support several types of coordinates.  Some are
+# described in :ref:`annotations-tutorial`; more advanced options are
 #
 # 1. A `.Transform` instance.  For example, ::
 #
