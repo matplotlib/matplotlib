@@ -98,7 +98,7 @@ jobs:
           CIBW_BEFORE_BUILD: pip install certifi oldest-supported-numpy
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
           PIP_USE_FEATURE: in-tree-build
-        if: matrix.cibw_archs != 'aarch64'
+        if: false && matrix.cibw_archs != 'aarch64'
 
       - name: Validate that LICENSE files are included in wheels
         run: |
