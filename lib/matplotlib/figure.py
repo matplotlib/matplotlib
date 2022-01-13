@@ -2594,7 +2594,7 @@ class Figure(FigureBase):
         hspace = info['hspace']
 
         if relative and (w_pad is not None or h_pad is not None):
-            renderer = _get_renderer(self).dpi
+            renderer = _get_renderer(self)
             dpi = renderer.dpi
             w_pad = w_pad * dpi / renderer.width
             h_pad = h_pad * dpi / renderer.height
