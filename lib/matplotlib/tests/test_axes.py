@@ -7360,6 +7360,10 @@ def test_artist_sublists():
     assert ax.lines + [1, 2, 3] == [*lines, 1, 2, 3]
     assert [1, 2, 3] + ax.lines == [1, 2, 3, *lines]
 
+    for ln in ax.lines:
+        ln.remove()
+    assert len(ax.lines) == 0
+
 
 def test_empty_line_plots():
     # Incompatible nr columns, plot "nothing"
