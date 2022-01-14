@@ -1147,6 +1147,7 @@ default: %(va)s
                 cax, kwargs = cbar.make_axes_gridspec(ax, **kwargs)
             else:
                 cax, kwargs = cbar.make_axes(ax, **kwargs)
+            cax.grid(visible=False, which='both', axis='both')
         else:
             userax = True
 
