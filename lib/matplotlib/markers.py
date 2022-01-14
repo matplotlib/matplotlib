@@ -322,10 +322,10 @@ class MarkerStyle:
         self._recache()
 
     def get_joinstyle(self):
-        return self._joinstyle
+        return self._joinstyle.name
 
     def get_capstyle(self):
-        return self._capstyle
+        return self._capstyle.name
 
     def get_marker(self):
         return self._marker
