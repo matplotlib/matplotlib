@@ -5555,6 +5555,7 @@ default: :rc:`scatter.edgecolors`
 
         extent : floats (left, right, bottom, top), optional
             The bounding box in data coordinates that the image will fill.
+            These values may be unitful and match the units of the Axes.
             The image is stretched individually along x and y to fill the box.
 
             The default extent is determined by the following conditions.
