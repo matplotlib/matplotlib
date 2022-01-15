@@ -1,15 +1,30 @@
 name: Build CI wheels
 
 on:
+  # Save CI by only running this on release branches or tags.
   push:
     branches:
       - main
       - v[0-9]+.[0-9]+.x
     tags:
       - v*
+  # Also allow running this action on PRs if requested by applying the
+  # "Run cibuildwheel" label.
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
 
 jobs:
   build_wheels:
+    if: |
+      (
+        github.event.action == 'labeled' &&
+        github.event.label.name == 'Run cibuildwheel'
+      ) ||
+      contains(github.event.pull_request.labels.*.name, 'Run cibuildwheel')
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:
