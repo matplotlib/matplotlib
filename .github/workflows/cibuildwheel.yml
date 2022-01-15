@@ -30,6 +30,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
+      MACOSX_DEPLOYMENT_TARGET: "10.12"
     strategy:
       matrix:
         os: [ubuntu-18.04, windows-latest, macos-10.15]
