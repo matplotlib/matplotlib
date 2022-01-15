@@ -1039,7 +1039,7 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         pos : [left, bottom, width, height] or `~matplotlib.transforms.Bbox`
-            The new position of the in `.Figure` coordinates.
+            The new position of the Axes in `.Figure` coordinates.
 
         which : {'both', 'active', 'original'}, default: 'both'
             Determines which position variables to change.
@@ -1058,7 +1058,7 @@ class _AxesBase(martist.Artist):
         """
         Private version of set_position.
 
-        Call this internally to get the same functionality of `get_position`,
+        Call this internally to get the same functionality of `set_position`,
         but not to take the axis out of the constrained_layout hierarchy.
         """
         if not isinstance(pos, mtransforms.BboxBase):
