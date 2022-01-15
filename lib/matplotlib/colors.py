@@ -121,6 +121,12 @@ def is_color_like(c):
         return True
 
 
+def _has_alpha_channel(c):
+    """Return whether *c* is a color with an alpha channel."""
+    # 4-element sequences are interpreted as r, g, b, a
+    return not isinstance(c, str) and len(c) == 4
+
+
 def _check_color_like(**kwargs):
     """
     For each *key, value* pair in *kwargs*, check that *value* is color-like.
