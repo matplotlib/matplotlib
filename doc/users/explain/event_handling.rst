@@ -74,7 +74,7 @@ Event name             Class            Description
 'figure_enter_event'   `.LocationEvent` mouse enters a new figure
 'figure_leave_event'   `.LocationEvent` mouse leaves a figure
 'axes_enter_event'     `.LocationEvent` mouse enters a new axes
-'axes_leave_event'     `.LocationEvent` mouse leaves an axes
+'axes_leave_event'     `.LocationEvent` mouse leaves an axis
 ====================== ================ ======================================
 
 .. note::

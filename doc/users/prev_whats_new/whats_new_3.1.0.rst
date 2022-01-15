@@ -142,7 +142,7 @@ Add ``inaxes`` method to `.FigureCanvasBase`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The `.FigureCanvasBase` class has now an `~.FigureCanvasBase.inaxes`
-method to check whether a point is in an axes and returns the topmost
+method to check whether a point is in an axis and returns the topmost
 axes, else None.
 
 cairo backend defaults to pycairo instead of cairocffi

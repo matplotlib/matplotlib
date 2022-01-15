@@ -184,7 +184,7 @@ original location:
 
 * The use of the index 0 in `.pyplot.subplot` and related commands is
   deprecated.  Due to a lack of validation, calling ``plt.subplots(2, 2, 0)``
-  does not raise an exception, but puts an axes in the _last_
+  does not raise an exception, but puts an axis in the _last_
   position.  This is due to the indexing in subplot being 1-based (to
   mirror MATLAB) so before indexing into the `.GridSpec` object used to
   determine where the axes should go, 1 is subtracted off.  Passing in

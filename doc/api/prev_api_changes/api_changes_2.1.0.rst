@@ -324,7 +324,7 @@ from ``mpl_toolkits.axes_grid`` based on ``Axis`` from
 ``Axes`` collision in ``Figure.add_axes``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Adding an axes instance to a figure by using the same arguments as for
+Adding an axis instance to a figure by using the same arguments as for
 a previous axes instance currently reuses the earlier instance.  This
 behavior has been deprecated in Matplotlib 2.1. In a future version, a
 *new* instance will always be created and returned.  Meanwhile, in such

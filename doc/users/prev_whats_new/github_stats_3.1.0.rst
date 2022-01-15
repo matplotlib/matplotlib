@@ -569,7 +569,7 @@ Pull Requests (918):
 * :ghpull:`13402`: Fix empty reshape2d
 * :ghpull:`11683`: Reuse axes_grid1's AxisDict in axisartist, instead of duplicating it.
 * :ghpull:`12141`: Let digits toggle axes nav only if they correspond to an existing axes.
-* :ghpull:`9845`: Add inaxes method to FigureCanvas to check whether point is in an axes.
+* :ghpull:`9845`: Add inaxes method to FigureCanvas to check whether point is in an axis.
 * :ghpull:`13396`: mpl_toolkits style fixes.
 * :ghpull:`11497`: Make CI fail if interactive toolkits can't be tested
 * :ghpull:`11595`: test doc rendering

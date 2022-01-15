@@ -470,7 +470,7 @@ Hold machinery
 
 Setting or unsetting ``hold`` (:ref:`deprecated in version 2.0<v200_deprecate_hold>`) has now
 been completely removed. Matplotlib now always behaves as if ``hold=True``.
-To clear an axes you can manually use :meth:`~.axes.Axes.cla()`,
+To clear an axis you can manually use :meth:`~.axes.Axes.cla()`,
 or to clear an entire figure use :meth:`~.figure.Figure.clf()`.
 
 

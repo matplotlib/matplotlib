@@ -207,7 +207,7 @@ errorbars.
 ---------------------------------
 
 The method `.Axes.set_title` now has a *pad* kwarg, that specifies the
-distance from the top of an axes to where the title is drawn.  The units
+distance from the top of an axis to where the title is drawn.  The units
 of *pad* is points, and the default is the value of the (already-existing)
 :rc:`axes.titlepad`.
 

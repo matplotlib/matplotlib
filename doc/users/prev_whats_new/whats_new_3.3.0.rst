@@ -136,7 +136,7 @@ From now on, the ``suptitle`` will be considered:
 Setting axes box aspect
 -----------------------
 
-It is now possible to set the aspect of an axes box directly via
+It is now possible to set the aspect of an axis box directly via
 `~.Axes.set_box_aspect`. The box aspect is the ratio between axes height and
 axes width in physical units, independent of the data limits. This is useful
 to, e.g., produce a square plot, independent of the data it contains, or to

@@ -102,7 +102,7 @@ API Changes in 1.2.x
   any artist's transform can be interrogated with
   ``artist_instance.get_transform().contains_branch(ax.transData)``
 
-* Lines added to an axes now take into account their transform when updating the
+* Lines added to an axis now take into account their transform when updating the
   data and view limits. This means transforms can now be used as a pre-transform.
   For instance::
 

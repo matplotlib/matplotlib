@@ -135,7 +135,7 @@ The pgf backend now also supports multi-page PDF files.
 Pie charts are now circular by default
 --------------------------------------
 We acknowledge that the majority of people do not like egg-shaped pies.
-Therefore, an axes to which a pie chart is plotted will be set to have
+Therefore, an axis to which a pie chart is plotted will be set to have
 equal aspect ratio by default. This ensures that the pie appears circular
 independent on the axes size or units. To revert to the previous behaviour
 set the axes' aspect ratio to automatic by using ``ax.set_aspect("auto")`` or
@@ -145,7 +145,7 @@ Add ``ax.get_gridspec`` to `.SubplotBase`
 -----------------------------------------
 
 New method `.SubplotBase.get_gridspec` is added so that users can
-easily get the gridspec that went into making an axes:
+easily get the gridspec that went into making an axis:
 
   .. code::
 
@@ -166,7 +166,7 @@ easily get the gridspec that went into making an axes:
 Axes titles will no longer overlap xaxis
 ----------------------------------------
 
-Previously an axes title had to be moved manually if an xaxis overlapped
+Previously an axis title had to be moved manually if an xaxis overlapped
 (usually when the xaxis was put on the top of the axes).  Now, the title
 will be automatically moved above the xaxis and its decorators (including
 the xlabel) if they are at the top.
