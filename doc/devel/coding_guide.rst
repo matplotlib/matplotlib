@@ -123,6 +123,8 @@ Labels
 
 * If you have the rights to set labels, tag the PR with descriptive labels.
   See the `list of labels <https://github.com/matplotlib/matplotlib/labels>`__.
+* If the PR makes changes to the wheel building Action, add the
+  "Run cibuildwheel" label to enable testing wheels.
 
 .. _pr-milestones:
 
