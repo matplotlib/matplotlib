@@ -490,14 +490,14 @@ class Colorbar:
     @property
     def locator(self):
         """
-        Major locator being used for colorbar
+        Major `~.Locator` being used for colorbar.
         """
         return self._long_axis().get_major_locator()
 
     @locator.setter
     def locator(self, loc):
         """
-        Set the major locator being used for colorbar
+        Set the major `~.Locator` being used for colorbar.
         """
         self._long_axis().set_major_locator(loc)
         self._locator = loc
@@ -505,14 +505,14 @@ class Colorbar:
     @property
     def minorlocator(self):
         """
-        Minor locator being used for colorbar
+        Minor `~.Locator` being used for colorbar.
         """
         return self._long_axis().get_minor_locator()
 
     @minorlocator.setter
     def minorlocator(self, loc):
         """
-        Set minor locator being used for colorbar
+        Set minor `~.Locator` being used for colorbar.
         """
         self._long_axis().set_minor_locator(loc)
         self._minorlocator = loc
@@ -520,14 +520,14 @@ class Colorbar:
     @property
     def formatter(self):
         """
-        Major formatter being used for colorbar
+        Major `~.Formatter` being used for colorbar.
         """
         return self._long_axis().get_major_formatter()
 
     @formatter.setter
     def formatter(self, fmt):
         """
-        Set major formatter being used for colorbar
+        Set major `~.Formatter` being used for colorbar.
         """
         self._long_axis().set_major_formatter(fmt)
         self._locator = fmt
@@ -535,14 +535,14 @@ class Colorbar:
     @property
     def minorformatter(self):
         """
-        Minor formatter being used for colorbar
+        Minor `~.Formatter` being used for colorbar
         """
         return self._long_axis().get_minor_formatter()
 
     @minorformatter.setter
     def minorformatter(self, fmt):
         """
-        Set minor formatter being used for colorbar
+        Set minor `~.Formatter` being used for colorbar
         """
         self._long_axis().set_minor_formatter(fmt)
         self._minorformatter = fmt
