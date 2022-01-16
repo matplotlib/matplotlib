@@ -131,7 +131,7 @@ def test_missing_psfont(fmt, monkeypatch):
     monkeypatch.setattr(
         dviread.PsfontsMap, '__getitem__',
         lambda self, k: dviread.PsFont(
-            texname='texfont', psname='Some Font',
+            texname=b'texfont', psname=b'Some Font',
             effects=None, encoding=None, filename=None))
     mpl.rcParams['text.usetex'] = True
     fig, ax = plt.subplots()
