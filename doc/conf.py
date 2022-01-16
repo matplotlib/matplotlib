@@ -326,7 +326,8 @@ html_theme_options = {
     "switcher": {
         "json_url": "https://matplotlib.org/en/latest/_static/switcher.json",
         "url_template": "https://matplotlib.org/{version}/"
-    }
+    },
+    "navbar_end": ["version-switcher"]
 }
 include_analytics = is_release_build
 if include_analytics:
