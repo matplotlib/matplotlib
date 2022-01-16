@@ -1,0 +1,4 @@
+*cleared* parameter of ``get_renderer``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This parameter, which only existed for agg-based backends, has been deprecated.
+Use ``renderer.clear()`` instead to explicitly clear the renderer buffer.

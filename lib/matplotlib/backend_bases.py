@@ -2226,7 +2226,7 @@ class FigureCanvasBase:
             if bbox_inches is None:
                 bbox_inches = rcParams['savefig.bbox']
 
-            if (self.figure.get_constrained_layout() or
+            if (self.figure.get_layout_engine() is not None or
                     bbox_inches == "tight"):
                 # we need to trigger a draw before printing to make sure
                 # CL works.  "tight" also needs a draw to get the right
@@ -2255,8 +2255,8 @@ class FigureCanvasBase:
             else:
                 _bbox_inches_restore = None
 
-            # we have already done CL above, so turn it off:
-            stack.enter_context(self.figure._cm_set(constrained_layout=False))
+            # we have already done layout above, so turn it off:
+            stack.enter_context(self.figure._cm_set(layout_engine=None))
             try:
                 # _get_renderer may change the figure dpi (as vector formats
                 # force the figure dpi to 72), so we need to set it again here.

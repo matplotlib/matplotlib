@@ -17,10 +17,9 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
     """
     origBbox = fig.bbox
     origBboxInches = fig.bbox_inches
-    orig_tight_layout = fig.get_tight_layout()
+    orig_layout = fig.get_layout_engine()
+    fig.set_layout_engine(None)
     _boxout = fig.transFigure._boxout
-
-    fig.set_tight_layout(False)
 
     old_aspect = []
     locator_list = []
@@ -47,7 +46,7 @@ def adjust_bbox(fig, bbox_inches, fixed_dpi=None):
 
         fig.bbox = origBbox
         fig.bbox_inches = origBboxInches
-        fig.set_tight_layout(orig_tight_layout)
+        fig.set_layout_engine(orig_layout)
         fig.transFigure._boxout = _boxout
         fig.transFigure.invalidate()
         fig.patch.set_bounds(0, 0, 1, 1)

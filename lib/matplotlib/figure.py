@@ -34,6 +34,8 @@ import matplotlib.image as mimage
 
 from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
 from matplotlib.gridspec import GridSpec
+from matplotlib.layout_engine import (ConstrainedLayoutEngine,
+                                      TightLayoutEngine, LayoutEngine)
 import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
 from matplotlib.text import Text
@@ -1134,15 +1136,18 @@ default: %(va)s
         if ax is None:
             ax = getattr(mappable, "axes", self.gca())
 
+        if (self.get_layout_engine() is not None and
+                not self.get_layout_engine().colorbar_gridspec):
+            use_gridspec = False
         # Store the value of gca so that we can set it back later on.
         if cax is None:
             current_ax = self.gca()
             userax = False
-            if (use_gridspec and isinstance(ax, SubplotBase)
-                    and not self.get_constrained_layout()):
+            if (use_gridspec and isinstance(ax, SubplotBase)):
                 cax, kwargs = cbar.make_axes_gridspec(ax, **kwargs)
             else:
                 cax, kwargs = cbar.make_axes(ax, **kwargs)
+            cax.grid(visible=False, which='both', axis='both')
         else:
             userax = True
 
@@ -1187,12 +1192,13 @@ default: %(va)s
             The height of the padding between subplots,
             as a fraction of the average Axes height.
         """
-        if self.get_constrained_layout():
-            self.set_constrained_layout(False)
+        if (self.get_layout_engine() is not None and
+                not self.get_layout_engine().adjust_compatible):
             _api.warn_external(
-                "This figure was using constrained_layout, but that is "
+                "This figure was using a layout engine that is "
                 "incompatible with subplots_adjust and/or tight_layout; "
-                "disabling constrained_layout.")
+                "not calling subplots_adjust.")
+            return
         self.subplotpars.update(left, bottom, right, top, wspace, hspace)
         for ax in self.axes:
             if hasattr(ax, 'get_subplotspec'):
@@ -2078,6 +2084,9 @@ class SubFigure(FigureBase):
         """
         return self._parent.get_constrained_layout_pads(relative=relative)
 
+    def get_layout_engine(self):
+        return self._parent.get_layout_engine()
+
     @property
     def axes(self):
         """
@@ -2206,10 +2215,11 @@ class Figure(FigureBase):
                 The use of this parameter is discouraged. Please use
                 ``layout='constrained'`` instead.
 
-        layout : {'constrained', 'tight'}, optional, default: None
+        layout : {'constrained', 'tight', `.LayoutEngine`, None}, optional
             The layout mechanism for positioning of plot elements to avoid
             overlapping Axes decorations (labels, ticks, etc). Note that
             layout managers can have significant performance penalties.
+            Defaults to *None*.
 
             - 'constrained': The constrained layout solver adjusts axes sizes
                to avoid overlapping axes decorations.  Can handle complex plot
@@ -2223,6 +2233,11 @@ class Figure(FigureBase):
               decorations do not overlap. See `.Figure.set_tight_layout` for
               further details.
 
+            - A `.LayoutEngine` instance. Builtin layout classes are
+              `.ConstrainedLayoutEngine` and `.TightLayoutEngine`, more easily
+              accessible by 'constrained' and 'tight'.  Passing an instance
+              allows third parties to provide their own layout engine.
+
             If not given, fall back to using the parameters *tight_layout* and
             *constrained_layout*, including their config defaults
             :rc:`figure.autolayout` and :rc:`figure.constrained_layout.use`.
@@ -2234,24 +2249,34 @@ class Figure(FigureBase):
             %(Figure:kwdoc)s
         """
         super().__init__(**kwargs)
+        self._layout_engine = None
 
         if layout is not None:
-            if tight_layout is not None:
+            if (tight_layout is not None):
                 _api.warn_external(
-                    "The Figure parameters 'layout' and 'tight_layout' "
-                    "cannot be used together. Please use 'layout' only.")
-            if constrained_layout is not None:
+                    "The Figure parameters 'layout' and 'tight_layout' cannot "
+                    "be used together. Please use 'layout' only.")
+            if (constrained_layout is not None):
                 _api.warn_external(
                     "The Figure parameters 'layout' and 'constrained_layout' "
                     "cannot be used together. Please use 'layout' only.")
-            if layout == 'constrained':
-                tight_layout = False
-                constrained_layout = True
-            elif layout == 'tight':
-                tight_layout = True
-                constrained_layout = False
-            else:
-                _api.check_in_list(['constrained', 'tight'], layout=layout)
+            self.set_layout_engine(layout=layout)
+        elif tight_layout is not None:
+            if constrained_layout is not None:
+                _api.warn_external(
+                    "The Figure parameters 'tight_layout' and "
+                    "'constrained_layout' cannot be used together. Please use "
+                    "'layout' parameter")
+            self.set_layout_engine(layout='tight')
+            if isinstance(tight_layout, dict):
+                self.get_layout_engine().set(**tight_layout)
+        elif constrained_layout is not None:
+            self.set_layout_engine(layout='constrained')
+            if isinstance(constrained_layout, dict):
+                self.get_layout_engine().set(**constrained_layout)
+        else:
+            # everything is None, so use default:
+            self.set_layout_engine(layout=layout)
 
         self.callbacks = cbook.CallbackRegistry()
         # Callbacks traditionally associated with the canvas (and exposed with
@@ -2302,19 +2327,71 @@ class Figure(FigureBase):
 
         self.subplotpars = subplotpars
 
-        # constrained_layout:
-        self._constrained = False
-
-        self.set_tight_layout(tight_layout)
-
         self._axstack = _AxesStack()  # track all figure axes and current axes
         self.clf()
         self._cachedRenderer = None
 
-        self.set_constrained_layout(constrained_layout)
-
         # list of child gridspecs for this figure
         self._gridspecs = []
+
+    def _check_layout_engines_compat(self, old, new):
+        """
+        Helper for set_layout engine
+
+        If the figure has used the old engine and added a colorbar then the
+        value of colorbar_gridspec must be the same on the new engine.
+        """
+        if old is None or old.colorbar_gridspec == new.colorbar_gridspec:
+            return True
+        # colorbar layout different, so check if any colorbars are on the
+        # figure...
+        for ax in self.axes:
+            if hasattr(ax, '_colorbar'):
+                # colorbars list themselvs as a colorbar.
+                return False
+        return True
+
+    def set_layout_engine(self, layout=None, **kwargs):
+        """
+        Set the layout engine for this figure.
+
+        Parameters
+        ----------
+        layout: {'constrained', 'tight'} or `~.LayoutEngine`
+            'constrained' will use `~.ConstrainedLayoutEngine`, 'tight' will
+            use `~.TightLayoutEngine`.  Users and libraries can define their
+            own layout engines as well.
+        kwargs: dict
+            The keyword arguments are passed to the layout engine to set things
+            like padding and margin sizes.  Only used if *layout* is a string.
+        """
+        if layout is None:
+            if mpl.rcParams['figure.autolayout']:
+                layout = 'tight'
+            elif mpl.rcParams['figure.constrained_layout.use']:
+                layout = 'constrained'
+            else:
+                self._layout_engine = None
+                return
+        if layout == 'tight':
+            new_layout_engine = TightLayoutEngine(**kwargs)
+        elif layout == 'constrained':
+            new_layout_engine = ConstrainedLayoutEngine(**kwargs)
+        elif isinstance(layout, LayoutEngine):
+            new_layout_engine = layout
+        else:
+            raise ValueError(f"Invalid value for 'layout': {layout!r}")
+
+        if self._check_layout_engines_compat(self._layout_engine,
+                                             new_layout_engine):
+            self._layout_engine = new_layout_engine
+        else:
+            raise RuntimeError('Colorbar layout of new layout engine not '
+                               'compatible with old engine, and a colorbar '
+                               'has been created.  Engine not changed.')
+
+    def get_layout_engine(self):
+        return self._layout_engine
 
     # TODO: I'd like to dynamically add the _repr_html_ method
     # to the figure in the right context, but then IPython doesn't
@@ -2405,8 +2482,9 @@ class Figure(FigureBase):
 
     def get_tight_layout(self):
         """Return whether `.tight_layout` is called when drawing."""
-        return self._tight
+        return isinstance(self.get_layout_engine(), TightLayoutEngine)
 
+    @_api.deprecated("3.6", alternative="set_layout_engine")
     def set_tight_layout(self, tight):
         """
         Set whether and how `.tight_layout` is called when drawing.
@@ -2421,8 +2499,9 @@ class Figure(FigureBase):
         """
         if tight is None:
             tight = mpl.rcParams['figure.autolayout']
-        self._tight = bool(tight)
-        self._tight_parameters = tight if isinstance(tight, dict) else {}
+        _tight_parameters = tight if isinstance(tight, dict) else {}
+        if bool(tight):
+            self.set_layout_engine(TightLayoutEngine(**_tight_parameters))
         self.stale = True
 
     def get_constrained_layout(self):
@@ -2431,8 +2510,9 @@ class Figure(FigureBase):
 
         See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
         """
-        return self._constrained
+        return isinstance(self.get_layout_engine(), ConstrainedLayoutEngine)
 
+    @_api.deprecated("3.6", alternative="set_layout_engine('constrained')")
     def set_constrained_layout(self, constrained):
         """
         Set whether ``constrained_layout`` is used upon drawing. If None,
@@ -2449,22 +2529,17 @@ class Figure(FigureBase):
         ----------
         constrained : bool or dict or None
         """
-        self._constrained_layout_pads = dict()
-        self._constrained_layout_pads['w_pad'] = None
-        self._constrained_layout_pads['h_pad'] = None
-        self._constrained_layout_pads['wspace'] = None
-        self._constrained_layout_pads['hspace'] = None
         if constrained is None:
             constrained = mpl.rcParams['figure.constrained_layout.use']
-        self._constrained = bool(constrained)
-        if isinstance(constrained, dict):
-            self.set_constrained_layout_pads(**constrained)
-        else:
-            self.set_constrained_layout_pads()
+        _constrained = bool(constrained)
+        _parameters = constrained if isinstance(constrained, dict) else {}
+        if _constrained:
+            self.set_layout_engine(ConstrainedLayoutEngine(**_parameters))
         self.stale = True
 
-    def set_constrained_layout_pads(self, *, w_pad=None, h_pad=None,
-                                    wspace=None, hspace=None):
+    @_api.deprecated(
+         "3.6", alternative="figure.get_layout_engine().set()")
+    def set_constrained_layout_pads(self, **kwargs):
         """
         Set padding for ``constrained_layout``.
 
@@ -2492,21 +2567,17 @@ class Figure(FigureBase):
             subplot width. The total padding ends up being h_pad + hspace.
 
         """
+        if isinstance(self.get_layout_engine(), ConstrainedLayoutEngine):
+            self.get_layout_engine().set(**kwargs)
 
-        for name, size in zip(['w_pad', 'h_pad', 'wspace', 'hspace'],
-                              [w_pad, h_pad, wspace, hspace]):
-            if size is not None:
-                self._constrained_layout_pads[name] = size
-            else:
-                self._constrained_layout_pads[name] = (
-                    mpl.rcParams[f'figure.constrained_layout.{name}'])
-
+    @_api.deprecated("3.6", alternative="fig.get_layout_engine().get_info()")
     def get_constrained_layout_pads(self, relative=False):
         """
         Get padding for ``constrained_layout``.
 
         Returns a list of ``w_pad, h_pad`` in inches and
         ``wspace`` and ``hspace`` as fractions of the subplot.
+        All values are None if ``constrained_layout`` is not used.
 
         See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
 
@@ -2515,10 +2586,13 @@ class Figure(FigureBase):
         relative : bool
             If `True`, then convert from inches to figure relative.
         """
-        w_pad = self._constrained_layout_pads['w_pad']
-        h_pad = self._constrained_layout_pads['h_pad']
-        wspace = self._constrained_layout_pads['wspace']
-        hspace = self._constrained_layout_pads['hspace']
+        if not isinstance(self.get_layout_engine(), ConstrainedLayoutEngine):
+            return None, None, None, None
+        info = self.get_layout_engine().get_info()
+        w_pad = info['w_pad']
+        h_pad = info['h_pad']
+        wspace = info['wspace']
+        hspace = info['hspace']
 
         if relative and (w_pad is not None or h_pad is not None):
             renderer = _get_renderer(self)
@@ -2660,11 +2734,9 @@ class Figure(FigureBase):
             raise ValueError(f'figure size must be positive finite not {size}')
         self.bbox_inches.p1 = size
         if forward:
-            canvas = getattr(self, 'canvas')
-            if canvas is not None:
-                manager = getattr(canvas, 'manager', None)
-                if manager is not None:
-                    manager.resize(*(size * self.dpi).astype(int))
+            manager = self.canvas.manager
+            if manager is not None:
+                manager.resize(*(size * self.dpi).astype(int))
         self.stale = True
 
     def get_size_inches(self):
@@ -2759,7 +2831,7 @@ class Figure(FigureBase):
             ax.cla()
             self.delaxes(ax)  # Remove ax from self._axstack.
 
-        toolbar = getattr(self.canvas, 'toolbar', None)
+        toolbar = self.canvas.toolbar
         if toolbar is not None:
             toolbar.update()
         self._axstack.clear()
@@ -2792,14 +2864,11 @@ class Figure(FigureBase):
             return
 
         artists = self._get_draw_artists(renderer)
-
         try:
             renderer.open_group('figure', gid=self.get_gid())
-            if self.get_constrained_layout() and self.axes:
-                self.execute_constrained_layout(renderer)
-            if self.get_tight_layout() and self.axes:
+            if self.axes and self.get_layout_engine() is not None:
                 try:
-                    self.tight_layout(**self._tight_parameters)
+                    self.get_layout_engine().execute(self)
                 except ValueError:
                     pass
                     # ValueError can occur when resizing a window.
@@ -2854,8 +2923,7 @@ class Figure(FigureBase):
 
         # check whether the figure manager (if any) is registered with pyplot
         from matplotlib import _pylab_helpers
-        if getattr(self.canvas, 'manager', None) \
-                in _pylab_helpers.Gcf.figs.values():
+        if self.canvas.manager in _pylab_helpers.Gcf.figs.values():
             state['_restore_to_pylab'] = True
         return state
 
@@ -3132,6 +3200,7 @@ class Figure(FigureBase):
 
         return None if event is None else event.name == "key_press_event"
 
+    @_api.deprecated("3.6", alternative="figure.get_layout_engine().execute()")
     def execute_constrained_layout(self, renderer=None):
         """
         Use ``layoutgrid`` to determine pos positions within Axes.
@@ -3142,20 +3211,9 @@ class Figure(FigureBase):
         -------
         layoutgrid : private debugging object
         """
-
-        from matplotlib._constrained_layout import do_constrained_layout
-
-        _log.debug('Executing constrainedlayout')
-        w_pad, h_pad, wspace, hspace = self.get_constrained_layout_pads()
-        # convert to unit-relative lengths
-        fig = self
-        width, height = fig.get_size_inches()
-        w_pad = w_pad / width
-        h_pad = h_pad / height
-        if renderer is None:
-            renderer = _get_renderer(fig)
-        return do_constrained_layout(fig, renderer, h_pad, w_pad,
-                                     hspace, wspace)
+        if not isinstance(self.get_layout_engine(), ConstrainedLayoutEngine):
+            return None
+        return self.get_layout_engine().execute(self)
 
     def tight_layout(self, *, pad=1.08, h_pad=None, w_pad=None, rect=None):
         """
@@ -3179,24 +3237,25 @@ class Figure(FigureBase):
 
         See Also
         --------
-        .Figure.set_tight_layout
+        .Figure.set_layout_engine
         .pyplot.tight_layout
         """
-        from contextlib import nullcontext
-        from ._tight_layout import (
-            get_subplotspec_list, get_tight_layout_figure)
+        from ._tight_layout import get_subplotspec_list
         subplotspec_list = get_subplotspec_list(self.axes)
         if None in subplotspec_list:
             _api.warn_external("This figure includes Axes that are not "
                                "compatible with tight_layout, so results "
                                "might be incorrect.")
-        renderer = _get_renderer(self)
-        with getattr(renderer, "_draw_disabled", nullcontext)():
-            kwargs = get_tight_layout_figure(
-                self, self.axes, subplotspec_list, renderer,
-                pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
-        if kwargs:
-            self.subplots_adjust(**kwargs)
+        # note that here we do not permanently set the figures engine to
+        # tight_layout but rather just perform the layout in place and remove
+        # any previous engines.
+        engine = TightLayoutEngine(pad=pad, h_pad=h_pad, w_pad=w_pad,
+                                   rect=rect)
+        try:
+            self.set_layout_engine(engine)
+            engine.execute(self)
+        finally:
+            self.set_layout_engine(None)
 
 
 def figaspect(arg):

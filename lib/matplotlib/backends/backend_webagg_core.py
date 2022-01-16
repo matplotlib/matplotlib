@@ -255,6 +255,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 Image.fromarray(data).save(png, format="png")
                 return png.getvalue()
 
+    @_api.delete_parameter("3.6", "cleared", alternative="renderer.clear()")
     def get_renderer(self, cleared=None):
         # Mirrors super.get_renderer, but caches the old one so that we can do
         # things such as produce a diff image in get_diff_image.

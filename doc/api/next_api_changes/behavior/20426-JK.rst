@@ -1,0 +1,5 @@
+Incompatible layout engines raise
+---------------------------------
+``tight_layout`` and ``constrained_layout`` are incompatible if
+a colorbar has been added to the figure.  Invoking the incompatible layout
+engine used to warn, but now raises with a ``RuntimeError``.
