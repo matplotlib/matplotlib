@@ -544,7 +544,7 @@ class Colorbar:
         """
         Set minor formatter being used for colorbar
         """
-        self._long_axis().set_minor_locator(fmt)
+        self._long_axis().set_minor_formatter(fmt)
         self._minorformatter = fmt
 
     def _cbar_cla(self):

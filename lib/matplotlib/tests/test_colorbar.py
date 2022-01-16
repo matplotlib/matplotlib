@@ -11,7 +11,7 @@ from matplotlib.colors import (
     BoundaryNorm, LogNorm, PowerNorm, Normalize, NoNorm
 )
 from matplotlib.colorbar import Colorbar
-from matplotlib.ticker import FixedLocator
+from matplotlib.ticker import FixedLocator, LogFormatter
 from matplotlib.testing.decorators import check_figures_equal
 
 
@@ -950,3 +950,32 @@ def test_colorbar_no_warning_rcparams_grid_true():
     im = ax.pcolormesh([0, 1], [0, 1], [[1]])
     # make sure that no warning is raised by fig.colorbar
     fig.colorbar(im)
+
+
+def test_colorbar_set_formatter_locator():
+    # check that the locator properties echo what is on the axis:
+    fig, ax = plt.subplots()
+    pc = ax.pcolormesh(np.random.randn(10, 10))
+    cb = fig.colorbar(pc)
+    cb.ax.yaxis.set_major_locator(FixedLocator(np.arange(10)))
+    cb.ax.yaxis.set_minor_locator(FixedLocator(np.arange(0, 10, 0.2)))
+    assert cb.locator == cb.ax.yaxis.get_major_locator()
+    assert cb.minorlocator == cb.ax.yaxis.get_minor_locator()
+    cb.ax.yaxis.set_major_formatter(LogFormatter())
+    cb.ax.yaxis.set_minor_formatter(LogFormatter())
+    assert cb.formatter == cb.ax.yaxis.get_major_formatter()
+    assert cb.minorformatter == cb.ax.yaxis.get_minor_formatter()
+
+    # check that the setter works as expected:
+    loc = FixedLocator(np.arange(7))
+    cb.locator = loc
+    assert cb.ax.yaxis.get_major_locator() == loc
+    loc = FixedLocator(np.arange(0, 7, 0.1))
+    cb.minorlocator = loc
+    assert cb.ax.yaxis.get_minor_locator() == loc
+    fmt = LogFormatter()
+    cb.formatter = fmt
+    assert cb.ax.yaxis.get_major_formatter() == fmt
+    fmt = LogFormatter()
+    cb.minorformatter = fmt
+    assert cb.ax.yaxis.get_minor_formatter() == fmt
