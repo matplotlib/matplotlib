@@ -323,6 +323,10 @@ html_theme_options = {
     # and CI builds https://github.com/pydata/pydata-sphinx-theme/pull/386
     "collapse_navigation": not is_release_build,
     "show_prev_next": False,
+    "switcher": {
+        "json_url": "https://matplotlib.org/en/latest/_static/switcher.json",
+        "url_template": "https://matplotlib.org/{version}/"
+    }
 }
 include_analytics = is_release_build
 if include_analytics:

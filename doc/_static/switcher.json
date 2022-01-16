@@ -1,0 +1,33 @@
+[
+    {
+        "name": "stable",
+        "version": "stable"
+    },
+    {
+        "name": "devel",
+        "version": "devel"
+    },
+    {
+        "version": "3.5.0"
+    },
+    {
+        "name": "3.4",
+        "version": "3.4.3"
+    },
+    {
+        "name": "3.3",
+        "version": "3.3.4"
+    },
+    {
+        "name": "3.2",
+        "version": "3.2.2"
+    },
+    {
+        "name": "3.1",
+        "version": "3.1.3"
+    },
+    {
+        "name": "3.0",
+        "version": "3.0.3"
+    },
+]
