@@ -440,9 +440,10 @@ class Colorbar:
             linewidths=[0.5 * mpl.rcParams['axes.linewidth']])
         self.ax.add_collection(self.dividers)
 
-        self.locator = None
-        self.minorlocator = None
-        self.formatter = None
+        self._locator = None
+        self._minorlocator = None
+        self._formatter = None
+        self._minorformatter = None
         self.__scale = None  # linear, log10 for now.  Hopefully more?
 
         if ticklocation == 'auto':
@@ -453,19 +454,19 @@ class Colorbar:
         self._reset_locator_formatter_scale()
 
         if np.iterable(ticks):
-            self.locator = ticker.FixedLocator(ticks, nbins=len(ticks))
+            self._locator = ticker.FixedLocator(ticks, nbins=len(ticks))
         else:
-            self.locator = ticks  # Handle default in _ticker()
+            self._locator = ticks  # Handle default in _ticker()
 
         if isinstance(format, str):
             # Check format between FormatStrFormatter and StrMethodFormatter
             try:
-                self.formatter = ticker.FormatStrFormatter(format)
-                _ = self.formatter(0)
+                self._formatter = ticker.FormatStrFormatter(format)
+                _ = self._formatter(0)
             except TypeError:
-                self.formatter = ticker.StrMethodFormatter(format)
+                self._formatter = ticker.StrMethodFormatter(format)
         else:
-            self.formatter = format  # Assume it is a Formatter or None
+            self._formatter = format  # Assume it is a Formatter or None
         self._draw_all()
 
         if isinstance(mappable, contour.ContourSet) and not mappable.filled:
@@ -485,6 +486,66 @@ class Colorbar:
             setattr(self.ax, x, getattr(self, x))
         # Set the cla function to the cbar's method to override it
         self.ax.cla = self._cbar_cla
+
+    @property
+    def locator(self):
+        """
+        Major locator being used for colorbar
+        """
+        return self._long_axis().get_major_locator()
+
+    @locator.setter
+    def locator(self, loc):
+        """
+        Set the major locator being used for colorbar
+        """
+        self._long_axis().set_major_locator(loc)
+        self._locator = loc
+
+    @property
+    def minorlocator(self):
+        """
+        Minor locator being used for colorbar
+        """
+        return self._long_axis().get_minor_locator()
+
+    @minorlocator.setter
+    def minorlocator(self, loc):
+        """
+        Set minor locator being used for colorbar
+        """
+        self._long_axis().set_minor_locator(loc)
+        self._minorlocator = loc
+
+    @property
+    def formatter(self):
+        """
+        Major formatter being used for colorbar
+        """
+        return self._long_axis().get_major_formatter()
+
+    @formatter.setter
+    def formatter(self, fmt):
+        """
+        Set major formatter being used for colorbar
+        """
+        self._long_axis().set_major_formatter(fmt)
+        self._locator = fmt
+
+    @property
+    def minorformatter(self):
+        """
+        Minor formatter being used for colorbar
+        """
+        return self._long_axis().get_minor_formatter()
+
+    @minorformatter.setter
+    def minorformatter(self, fmt):
+        """
+        Set minor formatter being used for colorbar
+        """
+        self._long_axis().set_minor_locator(fmt)
+        self._minorformatter = fmt
 
     def _cbar_cla(self):
         """Function to clear the interactive colorbar state."""
@@ -778,11 +839,11 @@ class Colorbar:
         """
         Setup the ticks and ticklabels. This should not be needed by users.
         """
-        # Get the locator and formatter; defaults to self.locator if not None.
+        # Get the locator and formatter; defaults to self._locator if not None.
         self._get_ticker_locator_formatter()
-        self._long_axis().set_major_locator(self.locator)
-        self._long_axis().set_minor_locator(self.minorlocator)
-        self._long_axis().set_major_formatter(self.formatter)
+        self._long_axis().set_major_locator(self._locator)
+        self._long_axis().set_minor_locator(self._minorlocator)
+        self._long_axis().set_major_formatter(self._formatter)
 
     def _get_ticker_locator_formatter(self):
         """
@@ -794,13 +855,15 @@ class Colorbar:
 
         Called by update_ticks...
         """
-        locator = self.locator
-        formatter = self.formatter
-        minorlocator = self.minorlocator
+        locator = self._locator
+        formatter = self._formatter
+        minorlocator = self._minorlocator
         if isinstance(self.norm, colors.BoundaryNorm):
             b = self.norm.boundaries
             if locator is None:
                 locator = ticker.FixedLocator(b, nbins=10)
+            if minorlocator is None:
+                minorlocator = ticker.FixedLocator(b)
         elif isinstance(self.norm, colors.NoNorm):
             if locator is None:
                 # put ticks on integers between the boundaries of NoNorm
@@ -825,9 +888,9 @@ class Colorbar:
         if formatter is None:
             formatter = self._long_axis().get_major_formatter()
 
-        self.locator = locator
-        self.formatter = formatter
-        self.minorlocator = minorlocator
+        self._locator = locator
+        self._formatter = formatter
+        self._minorlocator = minorlocator
         _log.debug('locator: %r', locator)
 
     @_api.delete_parameter("3.5", "update_ticks")
@@ -851,10 +914,10 @@ class Colorbar:
         if np.iterable(ticks):
             self._long_axis().set_ticks(ticks, labels=labels, minor=minor,
                                         **kwargs)
-            self.locator = self._long_axis().get_major_locator()
+            self._locator = self._long_axis().get_major_locator()
         else:
-            self.locator = ticks
-            self._long_axis().set_major_locator(self.locator)
+            self._locator = ticks
+            self._long_axis().set_major_locator(self._locator)
         self.stale = True
 
     def get_ticks(self, minor=False):
@@ -912,14 +975,14 @@ class Colorbar:
         """
         Turn on colorbar minor ticks.
         """
+        print(self._minorlocator)
         self.ax.minorticks_on()
-        self.minorlocator = self._long_axis().get_minor_locator()
         self._short_axis().set_minor_locator(ticker.NullLocator())
 
     def minorticks_off(self):
         """Turn the minor ticks of the colorbar off."""
-        self.minorlocator = ticker.NullLocator()
-        self._long_axis().set_minor_locator(self.minorlocator)
+        self._minorlocator = ticker.NullLocator()
+        self._long_axis().set_minor_locator(self._minorlocator)
 
     def set_label(self, label, *, loc=None, **kwargs):
         """
@@ -1157,9 +1220,9 @@ class Colorbar:
         the mappable normal gets changed: Colorbar.update_normal)
         """
         self._process_values()
-        self.locator = None
-        self.minorlocator = None
-        self.formatter = None
+        self._locator = None
+        self._minorlocator = None
+        self._formatter = None
         if (self.boundaries is not None or
                 isinstance(self.norm, colors.BoundaryNorm)):
             if self.spacing == 'uniform':
