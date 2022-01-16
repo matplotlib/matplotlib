@@ -16,8 +16,6 @@ import itertools
 import math
 from numbers import Integral
 import textwrap
-from matplotlib.testing.jpl_units.UnitDbl import UnitDbl
-from matplotlib.testing.jpl_units.UnitDblConverter import UnitDblConverter
 
 import numpy as np
 
@@ -1443,10 +1441,6 @@ class Axes3D(Axes):
         **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.plot`.
         """
-        xs = [UnitDblConverter.convert(x, None, self)
-                if isinstance(x, UnitDbl) else x for x in xs]
-        ys = [UnitDblConverter.convert(y, None, self)
-                if isinstance(y, UnitDbl) else y for y in ys]
 
         had_data = self.has_data()
 
@@ -1459,15 +1453,24 @@ class Axes3D(Axes):
                 raise TypeError("plot() for multiple values for argument 'z'")
         else:
             zs = kwargs.pop('zs', 0)
-        zs = [UnitDblConverter.convert(z, None, self)
-                if isinstance(z, UnitDbl) else z for z in zs]
         # Match length
         zs = np.broadcast_to(zs, np.shape(xs))
+
+        axis_map = self._get_axis_map()
+        if xs is not None:
+            xaxis = axis_map["x"]
+            xs = xaxis.convert_units(xs)
+        if ys is not None:
+            yaxis = axis_map["y"]
+            ys = yaxis.convert_units(ys)  
+        if zs is not None:
+            zaxis = axis_map["z"]
+            zs = zaxis.convert_units(zs)
 
         lines = super().plot(xs, ys, *args, **kwargs)
         for line in lines:
             art3d.line_2d_to_3d(line, zs=zs, zdir=zdir)
-
+            
         xs, ys, zs = art3d.juggle_axes(xs, ys, zs, zdir)
         self.auto_scale_xyz(xs, ys, zs, had_data)
         return lines
