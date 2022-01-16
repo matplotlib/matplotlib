@@ -185,7 +185,7 @@ class Artist:
     def __getstate__(self):
         d = self.__dict__.copy()
         # remove the unpicklable remove method, this will get re-added on load
-        # (by the axes) if the artist lives on an axes.
+        # (by the Axes) if the artist lives on an Axes.
         d['stale_callback'] = None
         return d
 
@@ -516,7 +516,7 @@ class Artist:
             if (mouseevent.inaxes is None or ax is None
                     or mouseevent.inaxes == ax):
                 # we need to check if mouseevent.inaxes is None
-                # because some objects associated with an axes (e.g., a
+                # because some objects associated with an Axes (e.g., a
                 # tick label) can be outside the bounding box of the
                 # axes and inaxes will be None
                 # also check that ax is None so that it traverse objects

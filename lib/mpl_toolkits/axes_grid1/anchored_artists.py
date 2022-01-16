@@ -52,7 +52,7 @@ class AnchoredDrawingArea(AnchoredOffsetbox):
         Examples
         --------
         To display blue and red circles of different sizes in the upper right
-        of an axes *ax*:
+        of an Axes *ax*:
 
         >>> ada = AnchoredDrawingArea(20, 20, 0, 0,
         ...                           loc='upper right', frameon=False)

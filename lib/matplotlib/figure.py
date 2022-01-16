@@ -188,7 +188,7 @@ class FigureBase(Artist):
     def __init__(self, **kwargs):
         super().__init__()
         # remove the non-figure artist _axes property
-        # as it makes no sense for a figure to be _in_ an axes
+        # as it makes no sense for a figure to be _in_ an Axes
         # this is used by the property methods in the artist base class
         # which are over-ridden in this class
         del self._axes
@@ -1879,7 +1879,7 @@ default: %(va)s
                 name, arg, method = this_level[key]
                 # we are doing some hokey function dispatch here based
                 # on the 'method' string stashed above to sort out if this
-                # element is an axes or a nested mosaic.
+                # element is an Axes or a nested mosaic.
                 if method == 'axes':
                     slc = arg
                     # add a single axes

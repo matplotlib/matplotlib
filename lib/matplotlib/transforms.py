@@ -1411,7 +1411,7 @@ class Transform(TransformNode):
         each separate dimension.
 
         A common use for this method is to identify if a transform is a blended
-        transform containing an axes' data transform. e.g.::
+        transform containing an Axes' data transform. e.g.::
 
             x_isdata, y_isdata = trans.contains_branch_seperately(ax.transData)
 

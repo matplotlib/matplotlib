@@ -1426,7 +1426,7 @@ def test_MultiCursor(horizOn, vertOn):
     for l in multi.hlines:
         assert l.get_ydata() == (.25, .25)
 
-    # test a move event in an axes not part of the MultiCursor
+    # test a move event in an Axes not part of the MultiCursor
     # the lines in ax1 and ax2 should not have moved.
     event = mock_event(ax3, xdata=.75, ydata=.75)
     multi.onmove(event)

@@ -421,7 +421,7 @@ docomplicated()
 # Manually setting axes positions
 # ================================
 #
-# There can be good reasons to manually set an axes position.  A manual call
+# There can be good reasons to manually set an Axes position.  A manual call
 # to `~.axes.Axes.set_position` will set the axes so constrained_layout has
 # no effect on it anymore. (Note that ``constrained_layout`` still leaves the
 # space for the axes that is moved).

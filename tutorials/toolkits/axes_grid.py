@@ -68,7 +68,7 @@ location of the axes at drawing time.
 Users typically do not need to directly instantiate dividers
 by calling `~.axes_grid1.axes_divider.AxesDivider`; instead,
 `~.axes_grid1.axes_divider.make_axes_locatable` can be used to create a divider
-for an axes::
+for an Axes::
 
   ax = subplot(1, 1, 1)
   divider = make_axes_locatable(ax)
@@ -119,7 +119,7 @@ x-axis or y-axis is shared accordingly.
 ParasiteAxes
 ------------
 
-The ParasiteAxes is an axes whose location is identical to its host
+The ParasiteAxes is an Axes whose location is identical to its host
 axes. The location is adjusted in the drawing time, thus it works even
 if the host change its location (e.g., images).
 

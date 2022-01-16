@@ -2848,7 +2848,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     '__ARTIST_NAME__', 'rectangle'))
 class RectangleSelector(_SelectorWidget):
     """
-    Select a rectangular region of an axes.
+    Select a rectangular region of an Axes.
 
     For the cursor to remain responsive you must keep a reference to it.
 
@@ -3408,7 +3408,7 @@ class RectangleSelector(_SelectorWidget):
     '__ARTIST_NAME__', 'ellipse'))
 class EllipseSelector(RectangleSelector):
     """
-    Select an elliptical region of an axes.
+    Select an elliptical region of an Axes.
 
     For the cursor to remain responsive you must keep a reference to it.
 
@@ -3546,7 +3546,7 @@ class LassoSelector(_SelectorWidget):
 
 class PolygonSelector(_SelectorWidget):
     """
-    Select a polygon region of an axes.
+    Select a polygon region of an Axes.
 
     Place vertices with each mouse click, and make the selection by completing
     the polygon (clicking on the first vertex). Once drawn individual vertices
