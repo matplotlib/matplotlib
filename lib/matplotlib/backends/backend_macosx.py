@@ -36,8 +36,9 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         _macosx.set_cursor(cursor)
 
     def _draw(self):
-        renderer = self.get_renderer(cleared=self.figure.stale)
+        renderer = self.get_renderer()
         if self.figure.stale:
+            renderer.clear()
             self.figure.draw(renderer)
         return renderer
 

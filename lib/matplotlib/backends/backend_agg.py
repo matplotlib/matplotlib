@@ -427,7 +427,8 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     def draw(self):
         # docstring inherited
-        self.renderer = self.get_renderer(cleared=True)
+        self.renderer = self.get_renderer()
+        self.renderer.clear()
         # Acquire a lock on the shared font cache.
         with RendererAgg.lock, \
              (self.toolbar._wait_cursor_for_draw_cm() if self.toolbar
@@ -437,6 +438,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             # don't forget to call the superclass.
             super().draw()
 
+    @_api.delete_parameter("3.6", "cleared", alternative="renderer.clear()")
     def get_renderer(self, cleared=False):
         w, h = self.figure.bbox.size
         key = w, h, self.figure.dpi
