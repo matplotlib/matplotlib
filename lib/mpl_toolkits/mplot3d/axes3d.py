@@ -1441,7 +1441,6 @@ class Axes3D(Axes):
         **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.plot`.
         """
-
         had_data = self.has_data()
 
         # `zs` can be passed positionally or as keyword; checking whether
@@ -1462,7 +1461,7 @@ class Axes3D(Axes):
             xs = xaxis.convert_units(xs)
         if ys is not None:
             yaxis = axis_map["y"]
-            ys = yaxis.convert_units(ys)  
+            ys = yaxis.convert_units(ys)
         if zs is not None:
             zaxis = axis_map["z"]
             zs = zaxis.convert_units(zs)
