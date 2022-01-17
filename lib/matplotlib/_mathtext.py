@@ -21,7 +21,7 @@ from . import _api, cbook
 from ._mathtext_data import (
     latex_to_bakoma, latex_to_standard, stix_glyph_fixes, stix_virtual_fonts,
     tex2uni)
-from .afm import AFM
+from ._afm import AFM
 from .font_manager import FontProperties, findfont, get_font
 from .ft2font import KERNING_DEFAULT
 

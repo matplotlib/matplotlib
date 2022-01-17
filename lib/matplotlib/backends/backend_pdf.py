@@ -26,7 +26,7 @@ import numpy as np
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import _api, _text_helpers, cbook
+from matplotlib import _api, _text_helpers, _type1font, cbook, dviread
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
@@ -34,9 +34,7 @@ from matplotlib.backend_bases import (
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
-from matplotlib.afm import AFM
-import matplotlib.type1font as type1font
-import matplotlib.dviread as dviread
+from matplotlib._afm import AFM
 from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
                                 LOAD_NO_HINTING, KERNING_UNFITTED, FT2Font)
 from matplotlib.transforms import Affine2D, BboxBase
@@ -981,7 +979,7 @@ class PdfFile:
             return fontdictObject
 
         # We have a font file to embed - read it in and apply any effects
-        t1font = type1font.Type1Font(fontinfo.fontfile)
+        t1font = _type1font.Type1Font(fontinfo.fontfile)
         if fontinfo.effects:
             t1font = t1font.transform(fontinfo.effects)
         fontdict['BaseFont'] = Name(t1font.prop['FontName'])

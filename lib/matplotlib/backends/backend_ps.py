@@ -21,7 +21,7 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import _api, cbook, _path, _text_helpers
-from matplotlib.afm import AFM
+from matplotlib._afm import AFM
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)

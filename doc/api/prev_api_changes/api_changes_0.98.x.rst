@@ -63,8 +63,8 @@ Changes for 0.98.x
   :meth:`matplotlib.axes.Axes.set_ylim` now return a copy of the
   ``viewlim`` array to avoid modify-in-place surprises.
 
-* :meth:`matplotlib.afm.AFM.get_fullname` and
-  :meth:`matplotlib.afm.AFM.get_familyname` no longer raise an
+* ``matplotlib.afm.AFM.get_fullname`` and
+  ``matplotlib.afm.AFM.get_familyname`` no longer raise an
   exception if the AFM file does not specify these optional
   attributes, but returns a guess based on the required FontName
   attribute.
