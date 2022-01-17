@@ -586,9 +586,9 @@ class FigureManagerQT(FigureManagerBase):
         # must be inited after the window, drawingArea and figure
         # attrs are set
         if mpl.rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2QT(canvas, parent, True)
+            toolbar = NavigationToolbar2QT(canvas)
         elif mpl.rcParams['toolbar'] == 'toolmanager':
-            toolbar = ToolbarQt(self.toolmanager, self.window)
+            toolbar = ToolbarQt(self.toolmanager)
         else:
             toolbar = None
         return toolbar
@@ -637,7 +637,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         ("Customize", "Edit axis, curve and image parameters",
          "qt4_editor_options", "edit_parameters"))
 
-    def __init__(self, canvas, parent, coordinates=True):
+    def __init__(self, canvas, parent=None, coordinates=True):
         """coordinates: should we show the coordinates on the right?"""
         QtWidgets.QToolBar.__init__(self, parent)
         self.setAllowedAreas(QtCore.Qt.ToolBarArea(
@@ -909,7 +909,7 @@ class SubplotToolQt(QtWidgets.QDialog):
 
 
 class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
-    def __init__(self, toolmanager, parent):
+    def __init__(self, toolmanager, parent=None):
         ToolContainerBase.__init__(self, toolmanager)
         QtWidgets.QToolBar.__init__(self, parent)
         self.setAllowedAreas(QtCore.Qt.ToolBarArea(
