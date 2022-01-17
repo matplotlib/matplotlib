@@ -43,9 +43,23 @@
 
 FT_Library _ft2Library;
 
+// FreeType error codes; loaded as per fterror.h.
+static char const* ft_error_string(FT_Error error) {
+#undef __FTERRORS_H__
+#define FT_ERROR_START_LIST     switch (error) {
+#define FT_ERRORDEF( e, v, s )    case v: return s;
+#define FT_ERROR_END_LIST         default: return NULL; }
+#include FT_ERRORS_H
+}
+
 void throw_ft_error(std::string message, FT_Error error) {
+    char const* s = ft_error_string(error);
     std::ostringstream os("");
-    os << message << " (error code 0x" << std::hex << error << ")";
+    if (s) {
+        os << message << " (" << s << "; error code 0x" << std::hex << error << ")";
+    } else {  // Should not occur, but don't add another error from failed lookup.
+        os << message << " (error code 0x" << std::hex << error << ")";
+    }
     throw std::runtime_error(os.str());
 }
 
@@ -324,14 +338,7 @@ FT2Font::FT2Font(FT_Open_Args &open_args, long hinting_factor_) : image(), face(
     clear();
 
     FT_Error error = FT_Open_Face(_ft2Library, &open_args, 0, &face);
-
-    if (error == FT_Err_Unknown_File_Format) {
-        throw std::runtime_error("Can not load face.  Unknown file format.");
-    } else if (error == FT_Err_Cannot_Open_Resource) {
-        throw std::runtime_error("Can not load face.  Can not open resource.");
-    } else if (error == FT_Err_Invalid_File_Format) {
-        throw std::runtime_error("Can not load face.  Invalid file format.");
-    } else if (error) {
+    if (error) {
         throw_ft_error("Can not load face", error);
     }
 
