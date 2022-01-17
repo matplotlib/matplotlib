@@ -89,7 +89,7 @@ def create_icon_axes(fig, ax_position, lw_bars, lw_grid, lw_border, rgrid):
 
 
 def create_text_axes(fig, height_px):
-    """Create an axes in *fig* that contains 'matplotlib' as Text."""
+    """Create an Axes in *fig* that contains 'matplotlib' as Text."""
     ax = fig.add_axes((0, 0, 1, 1))
     ax.set_aspect("equal")
     ax.set_axis_off()

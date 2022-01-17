@@ -191,7 +191,7 @@ class Axes3D(Axes):
 
     def convert_zunits(self, z):
         """
-        For artists in an axes, if the zaxis has units support,
+        For artists in an Axes, if the zaxis has units support,
         convert *z* using zaxis unit type
         """
         return self.zaxis.convert_units(z)

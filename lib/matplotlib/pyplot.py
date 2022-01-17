@@ -20,7 +20,7 @@ The explicit (object-oriented) API is recommended for complex plots, though
 pyplot is still usually used to create the figure and often the axes in the
 figure. See `.pyplot.figure`, `.pyplot.subplots`, and
 `.pyplot.subplot_mosaic` to create figures, and
-:doc:`Axes API <../axes_api>` for the plotting methods on an axes::
+:doc:`Axes API <../axes_api>` for the plotting methods on an Axes::
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -979,7 +979,7 @@ if Figure.legend.__doc__:
 @docstring.dedent_interpd
 def axes(arg=None, **kwargs):
     """
-    Add an axes to the current figure and make it the current axes.
+    Add an Axes to the current figure and make it the current Axes.
 
     Call signatures::
 
@@ -992,10 +992,10 @@ def axes(arg=None, **kwargs):
     arg : None or 4-tuple
         The exact behavior of this function depends on the type:
 
-        - *None*: A new full window axes is added using
+        - *None*: A new full window Axes is added using
           ``subplot(**kwargs)``.
         - 4-tuple of floats *rect* = ``[left, bottom, width, height]``.
-          A new axes is added with dimensions *rect* in normalized
+          A new Axes is added with dimensions *rect* in normalized
           (0, 1) units using `~.Figure.add_axes` on the current figure.
 
     projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
@@ -1010,10 +1010,10 @@ def axes(arg=None, **kwargs):
     sharex, sharey : `~.axes.Axes`, optional
         Share the x or y `~matplotlib.axis` with sharex and/or sharey.
         The axis will have the same limits, ticks, and scale as the axis
-        of the shared axes.
+        of the shared Axes.
 
     label : str
-        A label for the returned axes.
+        A label for the returned Axes.
 
     Returns
     -------
@@ -1026,23 +1026,23 @@ def axes(arg=None, **kwargs):
     ----------------
     **kwargs
         This method also takes the keyword arguments for
-        the returned axes class. The keyword arguments for the
-        rectilinear axes class `~.axes.Axes` can be found in
+        the returned Axes class. The keyword arguments for the
+        rectilinear Axes class `~.axes.Axes` can be found in
         the following table but there might also be other keyword
-        arguments if another projection is used, see the actual axes
+        arguments if another projection is used, see the actual Axes
         class.
 
         %(Axes:kwdoc)s
 
     Notes
     -----
-    If the figure already has a axes with key (*args*,
+    If the figure already has an Axes with key (*args*,
     *kwargs*) then it will simply make that axes current and
     return it.  This behavior is deprecated. Meanwhile, if you do
     not want this behavior (i.e., you want to force the creation of a
-    new axes), you must use a unique set of args and kwargs.  The axes
+    new axes), you must use a unique set of args and kwargs.  The Axes
     *label* attribute has been exposed for this purpose: if you want
-    two axes that are otherwise identical to be added to the figure,
+    two Axes that are otherwise identical to be added to the figure,
     make sure you give them unique labels.
 
     See Also
@@ -1057,11 +1057,11 @@ def axes(arg=None, **kwargs):
     --------
     ::
 
-        # Creating a new full window axes
+        # Creating a new full window Axes
         plt.axes()
 
-        # Creating a new axes with specified dimensions and some kwargs
-        plt.axes((left, bottom, width, height), facecolor='w')
+        # Creating a new Axes with specified dimensions and a grey background
+        plt.axes((left, bottom, width, height), facecolor='grey')
     """
     fig = gcf()
     pos = kwargs.pop('position', None)
@@ -1273,7 +1273,7 @@ def subplot(*args, **kwargs):
     key = SubplotSpec._from_subplot_args(fig, args)
 
     for ax in fig.axes:
-        # if we found an axes at the position sort out if we can re-use it
+        # if we found an Axes at the position sort out if we can re-use it
         if hasattr(ax, 'get_subplotspec') and ax.get_subplotspec() == key:
             # if the user passed no kwargs, re-use
             if kwargs == {}:

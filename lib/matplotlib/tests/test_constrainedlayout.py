@@ -423,7 +423,7 @@ def test_colorbar_location():
 
 
 def test_hidden_axes():
-    # test that if we make an axes not visible that constrained_layout
+    # test that if we make an Axes not visible that constrained_layout
     # still works.  Note the axes still takes space in the layout
     # (as does a gridspec slot that is empty)
     fig, axs = plt.subplots(2, 2, layout="constrained")

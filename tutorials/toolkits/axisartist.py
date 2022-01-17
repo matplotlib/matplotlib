@@ -45,7 +45,7 @@ dictionary that contains artists (note that ax.axis is still a
 callable method and it behaves as an original Axes.axis method in
 Matplotlib).
 
-To create an axes, ::
+To create an Axes, ::
 
   import mpl_toolkits.axisartist as AA
   fig = plt.figure()
@@ -84,7 +84,7 @@ axisartist with ParasiteAxes
 ----------------------------
 
 Most commands in the axes_grid1 toolkit can take an axes_class keyword
-argument, and the commands create an axes of the given class. For example,
+argument, and the commands create an Axes of the given class. For example,
 to create a host subplot with axisartist.Axes, ::
 
   import mpl_toolkits.axisartist as AA

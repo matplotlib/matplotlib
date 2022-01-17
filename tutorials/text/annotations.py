@@ -160,7 +160,7 @@ from matplotlib import pyplot as plt
 # Annotating with Arrow
 # ~~~~~~~~~~~~~~~~~~~~~
 #
-# `~.Axes.annotate` draws an arrow connecting two points in an axes::
+# `~.Axes.annotate` draws an arrow connecting two points in an Axes::
 #
 #     ax.annotate("Annotation",
 #                 xy=(x1, y1), xycoords='data',

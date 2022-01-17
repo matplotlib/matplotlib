@@ -138,7 +138,7 @@ def test_rotate_rect_draw(fig_test, fig_ref):
     ax_ref.add_patch(rect_ref)
     assert rect_ref.get_angle() == angle
 
-    # Check that when the angle is updated after adding to an axes, that the
+    # Check that when the angle is updated after adding to an Axes, that the
     # patch is marked stale and redrawn in the correct location
     rect_test = Rectangle(loc, width, height)
     assert rect_test.get_angle() == 0

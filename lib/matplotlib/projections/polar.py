@@ -1024,7 +1024,7 @@ class PolarAxes(Axes):
         where minval and maxval are the minimum and maximum limits. Values are
         wrapped in to the range :math:`[0, 2\pi]` (in radians), so for example
         it is possible to do ``set_thetalim(-np.pi / 2, np.pi / 2)`` to have
-        an axes symmetric around 0. A ValueError is raised if the absolute
+        an axis symmetric around 0. A ValueError is raised if the absolute
         angle difference is larger than a full circle.
         """
         orig_lim = self.get_xlim()  # in radians

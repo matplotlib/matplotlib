@@ -34,8 +34,8 @@ with heights and widths set by ``height_ratios`` and ``width_ratios``,
 often just set to 1 for an equal grid.
 
 Subplotspecs that are derived from this gridspec can contain either a
-``SubPanel``, a ``GridSpecFromSubplotSpec``, or an axes.  The ``SubPanel`` and
-``GridSpecFromSubplotSpec`` are dealt with recursively and each contain an
+``SubPanel``, a ``GridSpecFromSubplotSpec``, or an ``Axes``.  The ``SubPanel``
+and ``GridSpecFromSubplotSpec`` are dealt with recursively and each contain an
 analogous layout.
 
 Each ``GridSpec`` has a ``_layoutgrid`` attached to it.  The ``_layoutgrid``

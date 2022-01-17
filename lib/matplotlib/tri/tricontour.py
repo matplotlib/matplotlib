@@ -22,7 +22,7 @@ class TriContourSet(ContourSet):
         depending on whether keyword arg 'filled' is False
         (default) or True.
 
-        The first argument of the initializer must be an axes
+        The first argument of the initializer must be an `~.axes.Axes`
         object.  The remaining arguments and keyword arguments
         are described in the docstring of `~.Axes.tricontour`.
         """

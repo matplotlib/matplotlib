@@ -2491,7 +2491,7 @@ def key_press_handler(event, canvas=None, toolbar=None):
         back-compatibility, but, if set, should always be equal to
         ``event.canvas.toolbar``.
     """
-    # these bindings happen whether you are over an axes or not
+    # these bindings happen whether you are over an Axes or not
 
     if event.key is None:
         return
@@ -2554,7 +2554,7 @@ def key_press_handler(event, canvas=None, toolbar=None):
     if event.inaxes is None:
         return
 
-    # these bindings require the mouse to be over an axes to trigger
+    # these bindings require the mouse to be over an Axes to trigger
     def _get_uniform_gridstate(ticks):
         # Return True/False if all grid lines are on or off, None if they are
         # not all in the same state.
