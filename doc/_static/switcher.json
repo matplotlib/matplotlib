@@ -1,11 +1,11 @@
 [
     {
-        "name": "stable/3.5.1",
+        "name": "3.5.1 (stable)",
         "version": "stable"
     },
     {
-        "name": "devel/3.6",
-        "version": "devel"
+        "name": "3.6 (devdocs)",
+        "version": "devdocs"
     },
     {
         "version": "3.5.0"
