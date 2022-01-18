@@ -141,7 +141,6 @@ Update :file:`doc/users/release_notes.rst`:
          prev_whats_new/whats_new_X.Y.0.rst
          ../api/prev_api_changes/api_changes_X.Y.0.rst
          prev_whats_new/github_stats_X.Y.0.rst
-
 - For bugfix releases add the GitHub stats and (if present) the API changes to
   the existing X.Y section
 
@@ -149,6 +148,15 @@ Update :file:`doc/users/release_notes.rst`:
 
      ../api/prev_api_changes/api_changes_X.Y.Z.rst
      prev_whats_new/github_stats_X.Y.Z.rst
+
+Update version switcher
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Update ``doc/_static/switcher.json``.  If a minor release, ``X.Y.Z``, create
+a new entry ``version: X.Y.(Z-1)``, and change the name of stable
+``name: stable/X.Y.Z``.  If a major release, ``X.Y.0``, change the name
+of ``name: devel/X.(Y+1)`` and ``name: stable/X.Y.0`` as well as adding
+a new version for the previous stable.
 
 Verify that docs build
 ----------------------
