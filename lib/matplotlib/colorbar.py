@@ -530,7 +530,7 @@ class Colorbar:
         Set major `~.Formatter` being used for colorbar.
         """
         self._long_axis().set_major_formatter(fmt)
-        self._locator = fmt
+        self._formatter = fmt
 
     @property
     def minorformatter(self):
@@ -975,7 +975,6 @@ class Colorbar:
         """
         Turn on colorbar minor ticks.
         """
-        print(self._minorlocator)
         self.ax.minorticks_on()
         self._short_axis().set_minor_locator(ticker.NullLocator())
 
