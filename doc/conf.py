@@ -324,8 +324,9 @@ html_theme_options = {
     "collapse_navigation": not is_release_build,
     "show_prev_next": False,
     "switcher": {
-        "json_url": "https://matplotlib.org/en/devdocs/_static/switcher.json",
-        "url_template": "https://matplotlib.org/{version}/"
+        "json_url": "https://matplotlib.org/devdocs/_static/switcher.json",
+        "url_template": "https://matplotlib.org/{version}/",
+        "version_match": version,
     },
     "navbar_end": ["version-switcher", "mpl_icon_links"]
 }
