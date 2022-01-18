@@ -1036,6 +1036,15 @@ def test_unautoscale(axis, auto):
     np.testing.assert_array_equal(get_lim(), (-0.5, 0.5))
 
 
+def test_axes3d_focal_length_checks():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    with pytest.raises(ValueError):
+        ax.set_proj_type('persp', focal_length=0)
+    with pytest.raises(ValueError):
+        ax.set_proj_type('ortho', focal_length=1)
+
+
 @mpl3d_image_comparison(['axes3d_focal_length.png'], remove_text=False)
 def test_axes3d_focal_length():
     fig, axs = plt.subplots(1, 2, subplot_kw={'projection': '3d'})

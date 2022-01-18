@@ -107,6 +107,8 @@ class Axes3D(Axes):
         focal_length : float, default: None
             For a projection type of 'persp', the focal length of the virtual
             camera. Must be > 0. If None, defaults to 1.
+            For a projection type of 'ortho', must be set to either None
+            or infinity (numpy.inf). If None, defaults to infinity.
             The focal length can be computed from a desired Field Of View via
             the equation: focal_length = 1/tan(FOV/2)
 
@@ -1019,7 +1021,7 @@ class Axes3D(Axes):
                 self._focal_length = focal_length
         elif proj_type == 'ortho':
             if focal_length not in (None, np.inf):
-                raise ValueError(f"focal_length = {focal_length} must be"
+                raise ValueError(f"focal_length = {focal_length} must be "
                                  f"None for proj_type = {proj_type}")
             self._focal_length = np.inf
 
