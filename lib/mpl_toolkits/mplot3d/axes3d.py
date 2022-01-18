@@ -1013,12 +1013,11 @@ class Axes3D(Axes):
         _api.check_in_list(['persp', 'ortho'], proj_type=proj_type)
         if proj_type == 'persp':
             if focal_length is None:
-                self._focal_length = 1
-            else:
-                if focal_length <= 0:
-                    raise ValueError(f"focal_length = {focal_length} must be"
-                                     " greater than 0")
-                self._focal_length = focal_length
+                focal_length = 1
+            elif focal_length <= 0:
+                raise ValueError(f"focal_length = {focal_length} must be "
+                                 "greater than 0")
+            self._focal_length = focal_length
         elif proj_type == 'ortho':
             if focal_length not in (None, np.inf):
                 raise ValueError(f"focal_length = {focal_length} must be "

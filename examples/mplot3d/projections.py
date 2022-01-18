@@ -4,13 +4,13 @@
 ========================
 
 Demonstrates the different camera projections for 3D plots, and the effects of
-changing the focal length for a perspective projection. Note that matplotlib
+changing the focal length for a perspective projection. Note that Matplotlib
 corrects for the 'zoom' effect of changing the focal length.
 
-An increasing focal length between 1 and infinity "flattens" the image, while
-a decreasing focal length between 1 and 0 exaggerates the perspective and gives
-the image more apparent depth. The default focal length of 1 corresponds to a
-Field of View (FOV) of 90 deg. In the limiting case, a focal length of
+The default focal length of 1 corresponds to a Field of View (FOV) of 90 deg.
+An increased focal length between 1 and infinity "flattens" the image, while a
+decreased focal length between 1 and 0 exaggerates the perspective and gives
+the image more apparent depth. In the limiting case, a focal length of
 infinity corresponds to an orthographic projection after correction of the
 zoom effect.
 
