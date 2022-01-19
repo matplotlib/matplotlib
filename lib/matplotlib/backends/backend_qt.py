@@ -794,7 +794,8 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             except Exception as e:
                 QtWidgets.QMessageBox.critical(
                     self, "Error saving file", str(e),
-                    QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.NoButton)
+                    _enum("QtWidgets.QMessageBox.StandardButton").Ok,
+                    _enum("QtWidgets.QMessageBox.StandardButton").NoButton)
 
     def set_history_buttons(self):
         can_backward = self._nav_stack._pos > 0
