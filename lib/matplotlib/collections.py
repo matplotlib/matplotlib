@@ -2011,6 +2011,7 @@ class QuadMesh(Collection):
         self._shading = shading
         self._bbox = transforms.Bbox.unit()
         self._bbox.update_from_data_xy(self._coordinates.reshape(-1, 2))
+        self._show_cursor_data = False
         # super init delayed after own init because array kwarg requires
         # self._coordinates and self._shading
         super().__init__(**kwargs)
@@ -2207,7 +2208,23 @@ class QuadMesh(Collection):
         renderer.close_group(self.__class__.__name__)
         self.stale = False
 
+    def set_show_cursor_data(self, show_cursor_data):
+        """
+        Set whether cursor data should be shown.
+
+        Notes
+        -----
+        This is set to `False` by default for new quad meshes. Showing cursor
+        data can have significant performance impacts for large meshes.
+        """
+        self._show_cursor_data = show_cursor_data
+
+    def get_show_cursor_data(self):
+        return self._show_cursor_data
+
     def get_cursor_data(self, event):
+        if not self._show_cursor_data:
+            return
         contained, info = self.contains(event)
         if len(info["ind"]) == 1:
             ind, = info["ind"]
