@@ -90,23 +90,27 @@ def view_transformation(E, R, V, roll):
     return np.dot(Mr, Mt)
 
 
-def persp_transformation(zfront, zback):
-    a = (zfront+zback)/(zfront-zback)
-    b = -2*(zfront*zback)/(zfront-zback)
-    return np.array([[1, 0, 0, 0],
-                     [0, 1, 0, 0],
-                     [0, 0, a, b],
-                     [0, 0, -1, 0]])
+def persp_transformation(zfront, zback, focal_length):
+    e = focal_length
+    a = 1  # aspect ratio
+    b = (zfront+zback)/(zfront-zback)
+    c = -2*(zfront*zback)/(zfront-zback)
+    proj_matrix = np.array([[e,   0,  0, 0],
+                            [0, e/a,  0, 0],
+                            [0,   0,  b, c],
+                            [0,   0, -1, 0]])
+    return proj_matrix
 
 
 def ortho_transformation(zfront, zback):
     # note: w component in the resulting vector will be (zback-zfront), not 1
     a = -(zfront + zback)
     b = -(zfront - zback)
-    return np.array([[2, 0, 0, 0],
-                     [0, 2, 0, 0],
-                     [0, 0, -2, 0],
-                     [0, 0, a, b]])
+    proj_matrix = np.array([[2, 0,  0, 0],
+                            [0, 2,  0, 0],
+                            [0, 0, -2, 0],
+                            [0, 0,  a, b]])
+    return proj_matrix
 
 
 def _proj_transform_vec(vec, M):
