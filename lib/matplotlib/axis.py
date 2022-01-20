@@ -1823,24 +1823,10 @@ class Axis(martist.Artist):
         Parameters
         ----------
         ticks : list of floats
-            List of tick locations.
+            List of tick locations.  The axis `.Locator` is replaced by a `.FixedLocator`.  Some  
+            default tick formatters will not label arbitrary ticks, so pass *label* if needed.  
         labels : list of str, optional
-            List of tick labels. If not set, the labels show the data value.
-
-            .. warning::
-                Setting *labels=None* does not guarantee that labels for all
-                set ticks will be automatically generated - this depends
-                on the :class:`~matplotlib.ticker.Formatter` of the axis.
-                Some tick label formatters, e.g.
-                :class:`~matplotlib.ticker.ScalarFormatter` (default for
-                plots made with :meth:`~.Axes.plot`) will make
-                labels for custom ticks, while
-                others like e.g.
-                :class:`~matplotlib.ticker.LogFormatterSciNotation`
-                (default for :meth:`~.Axes.semilogy` plots) may not.
-                Supply all tick labels in the *labels* parameter if you
-                want to be sure.
-
+            List of tick labels. If not set, the labels are generated with the axis tick `.Formatter`.
         minor : bool, default: False
             If ``False``, set the major ticks; if ``True``, the minor ticks.
         **kwargs
