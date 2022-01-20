@@ -489,61 +489,41 @@ class Colorbar:
 
     @property
     def locator(self):
-        """
-        Major `~.Locator` being used for colorbar.
-        """
+        """Major tick `.Locator` for the colorbar."""
         return self._long_axis().get_major_locator()
 
     @locator.setter
     def locator(self, loc):
-        """
-        Set the major `~.Locator` being used for colorbar.
-        """
         self._long_axis().set_major_locator(loc)
         self._locator = loc
 
     @property
     def minorlocator(self):
-        """
-        Minor `~.Locator` being used for colorbar.
-        """
+        """Minor tick `.Locator` for the colorbar."""
         return self._long_axis().get_minor_locator()
 
     @minorlocator.setter
     def minorlocator(self, loc):
-        """
-        Set minor `~.Locator` being used for colorbar.
-        """
         self._long_axis().set_minor_locator(loc)
         self._minorlocator = loc
 
     @property
     def formatter(self):
-        """
-        Major `~.Formatter` being used for colorbar.
-        """
+        """Major tick label `.Formatter` for the colorbar."""
         return self._long_axis().get_major_formatter()
 
     @formatter.setter
     def formatter(self, fmt):
-        """
-        Set major `~.Formatter` being used for colorbar.
-        """
         self._long_axis().set_major_formatter(fmt)
         self._formatter = fmt
 
     @property
     def minorformatter(self):
-        """
-        Minor `~.Formatter` being used for colorbar
-        """
+        """Minor tick `.Formatter` for the colorbar."""
         return self._long_axis().get_minor_formatter()
 
     @minorformatter.setter
     def minorformatter(self, fmt):
-        """
-        Set minor `~.Formatter` being used for colorbar
-        """
         self._long_axis().set_minor_formatter(fmt)
         self._minorformatter = fmt
 
