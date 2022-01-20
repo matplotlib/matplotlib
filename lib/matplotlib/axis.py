@@ -1842,8 +1842,8 @@ class Axis(martist.Artist):
         other limits, you should set the limits explicitly after setting the
         ticks.
 
-        Do not add ticks manually to an automatically ticked axis (as with
-        *labels=None*). See :ghissue:`22262` for discussion.
+        Do not mix automatically and manually placed ticks with this method.
+        See :ghissue:`22262` for discussion.
         """
         result = self._set_tick_locations(ticks, minor=minor)
         if labels is not None:
