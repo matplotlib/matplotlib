@@ -29,7 +29,7 @@ from matplotlib import docstring
 
 _log = logging.getLogger(__name__)
 
-_make_axes_param_doc = """
+_make_axes_kw_doc = """
 location : None or {'left', 'right', 'top', 'bottom'}
     The location, relative to the parent axes, where the colorbar axes
     is created.  It also determines the *orientation* of the colorbar
@@ -37,23 +37,28 @@ location : None or {'left', 'right', 'top', 'bottom'}
     and bottom are horizontal).  If None, the location will come from the
     *orientation* if it is set (vertical colorbars on the right, horizontal
     ones at the bottom), or default to 'right' if *orientation* is unset.
+
 orientation : None or {'vertical', 'horizontal'}
     The orientation of the colorbar.  It is preferable to set the *location*
     of the colorbar, as that also determines the *orientation*; passing
     incompatible values for *location* and *orientation* raises an exception.
+
 fraction : float, default: 0.15
     Fraction of original axes to use for colorbar.
+
 shrink : float, default: 1.0
     Fraction by which to multiply the size of the colorbar.
+
 aspect : float, default: 20
     Ratio of long to short dimensions.
-"""
-_make_axes_other_param_doc = """
+
 pad : float, default: 0.05 if vertical, 0.15 if horizontal
     Fraction of original axes between colorbar and new image axes.
+
 anchor : (float, float), optional
     The anchor point of the colorbar axes.
     Defaults to (0.0, 0.5) if vertical; (0.5, 1.0) if horizontal.
+
 panchor : (float, float), or *False*, optional
     The anchor point of the colorbar parent axes. If *False*, the parent
     axes' anchor will be unchanged.
@@ -61,66 +66,56 @@ panchor : (float, float), or *False*, optional
 """
 
 _colormap_kw_doc = """
+extend : {'neither', 'both', 'min', 'max'}
+    Make pointed end(s) for out-of-range values (unless 'neither').  These are
+    set for a given colormap using the colormap set_under and set_over methods.
 
-    ============  ====================================================
-    Property      Description
-    ============  ====================================================
-    *extend*      {'neither', 'both', 'min', 'max'}
-                  If not 'neither', make pointed end(s) for out-of-
-                  range values.  These are set for a given colormap
-                  using the colormap set_under and set_over methods.
-    *extendfrac*  {*None*, 'auto', length, lengths}
-                  If set to *None*, both the minimum and maximum
-                  triangular colorbar extensions with have a length of
-                  5% of the interior colorbar length (this is the
-                  default setting). If set to 'auto', makes the
-                  triangular colorbar extensions the same lengths as
-                  the interior boxes (when *spacing* is set to
-                  'uniform') or the same lengths as the respective
-                  adjacent interior boxes (when *spacing* is set to
-                  'proportional'). If a scalar, indicates the length
-                  of both the minimum and maximum triangular colorbar
-                  extensions as a fraction of the interior colorbar
-                  length. A two-element sequence of fractions may also
-                  be given, indicating the lengths of the minimum and
-                  maximum colorbar extensions respectively as a
-                  fraction of the interior colorbar length.
-    *extendrect*  bool
-                  If *False* the minimum and maximum colorbar extensions
-                  will be triangular (the default). If *True* the
-                  extensions will be rectangular.
-    *spacing*     {'uniform', 'proportional'}
-                  Uniform spacing gives each discrete color the same
-                  space; proportional makes the space proportional to
-                  the data interval.
-    *ticks*       *None* or list of ticks or Locator
-                  If None, ticks are determined automatically from the
-                  input.
-    *format*      None or str or Formatter
-                  If None, `~.ticker.ScalarFormatter` is used.
-                  If a format string is given, e.g., '%.3f', that is used.
-                  An alternative `~.ticker.Formatter` may be given instead.
-    *drawedges*   bool
-                  Whether to draw lines at color boundaries.
-    *label*       str
-                  The label on the colorbar's long axis.
-    ============  ====================================================
+extendfrac : {*None*, 'auto', length, lengths}
+    If set to *None*, both the minimum and maximum triangular colorbar
+    extensions will have a length of 5% of the interior colorbar length (this
+    is the default setting).
 
-    The following will probably be useful only in the context of
-    indexed colors (that is, when the mappable has norm=NoNorm()),
-    or other unusual circumstances.
+    If set to 'auto', makes the triangular colorbar extensions the same lengths
+    as the interior boxes (when *spacing* is set to 'uniform') or the same
+    lengths as the respective adjacent interior boxes (when *spacing* is set to
+    'proportional').
 
-    ============   ===================================================
-    Property       Description
-    ============   ===================================================
-    *boundaries*   None or a sequence
-    *values*       None or a sequence which must be of length 1 less
-                   than the sequence of *boundaries*. For each region
-                   delimited by adjacent entries in *boundaries*, the
-                   colormapped to the corresponding value in values
-                   will be used.
-    ============   ===================================================
+    If a scalar, indicates the length of both the minimum and maximum
+    triangular colorbar extensions as a fraction of the interior colorbar
+    length.  A two-element sequence of fractions may also be given, indicating
+    the lengths of the minimum and maximum colorbar extensions respectively as
+    a fraction of the interior colorbar length.
 
+extendrect : bool
+    If *False* the minimum and maximum colorbar extensions will be triangular
+    (the default).  If *True* the extensions will be rectangular.
+
+spacing : {'uniform', 'proportional'}
+    For discrete colorbars (`.BoundaryNorm` or contours), 'uniform' gives each
+    color the same space; 'proportional' makes the space proportional to the
+    data interval.
+
+ticks : None or list of ticks or Locator
+    If None, ticks are determined automatically from the input.
+
+format : None or str or Formatter
+    If None, `~.ticker.ScalarFormatter` is used.
+    Format strings, e.g., ``"%4.2e"`` or ``"{x:.2e}"``, are supported.
+    An alternative `~.ticker.Formatter` may be given instead.
+
+drawedges : bool
+    Whether to draw lines at color boundaries.
+
+label : str
+    The label on the colorbar's long axis.
+
+boundaries, values : None or a sequence
+    If unset, the colormap will be displayed on a 0-1 scale.
+    If sequences, *values* must have a length 1 less than *boundaries*.  For
+    each region delimited by adjacent entries in *boundaries*, the color mapped
+    to the corresponding value in values will be used.
+    Normally only useful for indexed colors (i.e. ``norm=NoNorm()``) or other
+    unusual circumstances.
 """
 
 docstring.interpd.update(colorbar_doc="""
@@ -162,7 +157,6 @@ Additional keyword arguments are of two kinds:
 
   axes properties:
 %s
-%s
   colorbar properties:
 %s
 
@@ -189,9 +183,8 @@ segments::
 However this has negative consequences in other circumstances, e.g. with
 semi-transparent images (alpha < 1) and colorbar extensions; therefore, this
 workaround is not used by default (see issue #1188).
-""" % (textwrap.indent(_make_axes_param_doc, "    "),
-       textwrap.indent(_make_axes_other_param_doc, "    "),
-       _colormap_kw_doc))
+""" % (textwrap.indent(_make_axes_kw_doc, "    "),
+       textwrap.indent(_colormap_kw_doc, "    ")))
 
 
 def _set_ticks_on_axis_warn(*args, **kwargs):
@@ -278,6 +271,7 @@ class _ColorbarAxesLocator:
         return ss
 
 
+@docstring.Substitution(_colormap_kw_doc)
 class Colorbar:
     r"""
     Draw a colorbar in an existing axes.
@@ -330,32 +324,14 @@ class Colorbar:
     alpha : float
         The colorbar transparency between 0 (transparent) and 1 (opaque).
 
-    values, boundaries
-        If unset, the colormap will be displayed on a 0-1 scale.
-
     orientation : {'vertical', 'horizontal'}
 
     ticklocation : {'auto', 'left', 'right', 'top', 'bottom'}
 
-    extend : {'neither', 'both', 'min', 'max'}
-
-    spacing : {'uniform', 'proportional'}
-
-    ticks : `~matplotlib.ticker.Locator` or array-like of float
-
-    format : str or `~matplotlib.ticker.Formatter`
-        If string, it supports '%' operator and `str.format` formats:
-        e.g. ``"%4.2e"`` or ``"{x:.2e}"``.
-
     drawedges : bool
 
     filled : bool
-
-    extendfrac
-
-    extendrec
-
-    label : str
+    %s
     """
 
     n_rasterize = 50  # rasterize solids if number of colors >= n_rasterize
@@ -1375,7 +1351,7 @@ def _normalize_location_orientation(location, orientation):
     return loc_settings
 
 
-@docstring.Substitution(_make_axes_param_doc, _make_axes_other_param_doc)
+@docstring.Substitution(_make_axes_kw_doc)
 def make_axes(parents, location=None, orientation=None, fraction=0.15,
               shrink=1.0, aspect=20, **kwargs):
     """
@@ -1397,10 +1373,6 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     kwargs : dict
         The reduced keyword dictionary to be passed when creating the colorbar
         instance.
-
-    Other Parameters
-    ----------------
-    %s
     """
     loc_settings = _normalize_location_orientation(location, orientation)
     # put appropriate values into the kwargs dict for passing back to
@@ -1481,7 +1453,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     return cax, kwargs
 
 
-@docstring.Substitution(_make_axes_param_doc, _make_axes_other_param_doc)
+@docstring.Substitution(_make_axes_kw_doc)
 def make_axes_gridspec(parent, *, location=None, orientation=None,
                        fraction=0.15, shrink=1.0, aspect=20, **kwargs):
     """
@@ -1516,10 +1488,6 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
     kwargs : dict
         The reduced keyword dictionary to be passed when creating the colorbar
         instance.
-
-    Other Parameters
-    ----------------
-    %s
     """
 
     loc_settings = _normalize_location_orientation(location, orientation)
