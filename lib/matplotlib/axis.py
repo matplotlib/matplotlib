@@ -1826,7 +1826,7 @@ class Axis(martist.Artist):
             List of tick locations.
         labels : list of str, optional
             List of tick labels. If not set, the labels show the data value.
-            
+
             .. warning::
                 Setting *labels=None* does not guarantee that labels for all
                 set ticks will be automatically generated - this depends
@@ -1853,20 +1853,20 @@ class Axis(martist.Artist):
         choice to prevent the surprise of a non-visible tick. If you need
         other limits, you should set the limits explicitly after setting the
         ticks.
-        
+
         This method implicitly calls :meth:`.set_major_locator` (or
         :meth:`.set_minor_locator` if *minor=True*) with a newly-constructed
         :class:`~matplotlib.ticker.FixedLocator` initialized to the provided
         tick locations.
-        
+
         Do not add ticks manually to an automatically ticked axis
         by e.g. doing::
-        
+
             special_ticks = [1.1, 2.5, 3.7]
             ticks = axes.get_yticks()
             ticks_ext = np.append(ticklist, special_ticks)
             axes.set_yticks(ticks_ext)
-            
+
         as this may give unpredictable results.
         See :ghissue:`22262` for discussion.
         """
