@@ -360,6 +360,7 @@ class Colorbar:
 
     n_rasterize = 50  # rasterize solids if number of colors >= n_rasterize
 
+    @_api.delete_parameter("3.6", "filled")
     def __init__(self, ax, mappable=None, *, cmap=None,
                  norm=None,
                  alpha=None,
@@ -440,7 +441,7 @@ class Colorbar:
         self.spacing = spacing
         self.orientation = orientation
         self.drawedges = drawedges
-        self.filled = filled
+        self._filled = filled
         self.extendfrac = extendfrac
         self.extendrect = extendrect
         self.solids = None
@@ -489,7 +490,7 @@ class Colorbar:
                 self.formatter = ticker.StrMethodFormatter(format)
         else:
             self.formatter = format  # Assume it is a Formatter or None
-        self.draw_all()
+        self._draw_all()
 
         if isinstance(mappable, contour.ContourSet) and not mappable.filled:
             self.add_lines(mappable)
@@ -520,6 +521,8 @@ class Colorbar:
     # Also remove ._patch after deprecation elapses.
     patch = _api.deprecate_privatize_attribute("3.5", alternative="ax")
 
+    filled = _api.deprecate_privatize_attribute("3.6")
+
     def update_normal(self, mappable):
         """
         Update solid patches, lines, etc.
@@ -541,14 +544,22 @@ class Colorbar:
             self.norm = mappable.norm
             self._reset_locator_formatter_scale()
 
-        self.draw_all()
+        self._draw_all()
         if isinstance(self.mappable, contour.ContourSet):
             CS = self.mappable
             if not CS.filled:
                 self.add_lines(CS)
         self.stale = True
 
+    @_api.deprecated("3.6", alternative="fig.draw_without_rendering()")
     def draw_all(self):
+        """
+        Calculate any free parameters based on the current cmap and norm,
+        and do all the drawing.
+        """
+        self._draw_all()
+
+    def _draw_all(self):
         """
         Calculate any free parameters based on the current cmap and norm,
         and do all the drawing.
@@ -589,7 +600,7 @@ class Colorbar:
         # boundary norms + uniform spacing requires a manual locator.
         self.update_ticks()
 
-        if self.filled:
+        if self._filled:
             ind = np.arange(len(self._values))
             if self._extend_lower():
                 ind = ind[1:]
@@ -661,7 +672,7 @@ class Colorbar:
 
         # xyout is the path for the spine:
         self.outline.set_xy(xyout)
-        if not self.filled:
+        if not self._filled:
             return
 
         # Make extend triangles or rectangles filled patches.  These are
