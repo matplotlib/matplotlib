@@ -1860,14 +1860,26 @@ class Axis(martist.Artist):
         tick locations.
 
         Do not add ticks manually to an automatically ticked axis
-        by e.g. doing::
+        by e.g. doing (for the *y* axis, in this example)::
 
-            special_ticks = [1.1, 2.5, 3.7]
+            special_ticks = [1.1, 2.5, 3.7] # arbitrary tick locations
             ticks = axes.get_yticks()
             ticks_ext = np.append(ticklist, special_ticks)
             axes.set_yticks(ticks_ext)
 
-        as this may give unpredictable results.
+        as this may give unpredictable results. Instead, create a secondary
+        axis with :meth:`.Axes.secondary_yaxis` and set its ticks and tick
+        labels manually::
+
+            special_ticks = [1.1, 2.5, 3.7] # arbitrary tick locations
+            special_labels = [f"{tick:g}" for tick in special_ticks]
+            secaxis = axes.secondary_yaxis("left") # or "right", according to\
+preference
+            # Manually setting the labels, as outlined in the warning.
+            secaxis.set_yticks(special_ticks, labels=special_labels)
+
+        Note that there is no limit to the number of secondary axes and it
+        is possible to overlay a secondary axis on another axis.
         See :ghissue:`22262` for discussion.
         """
         result = self._set_tick_locations(ticks, minor=minor)
