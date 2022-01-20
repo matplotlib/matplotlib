@@ -1823,10 +1823,12 @@ class Axis(martist.Artist):
         Parameters
         ----------
         ticks : list of floats
-            List of tick locations.  The axis `.Locator` is replaced by a `.FixedLocator`.  Some  
-            default tick formatters will not label arbitrary ticks, so pass *label* if needed.  
+            List of tick locations.  The axis `.Locator` is replaced by a
+            `.FixedLocator`.  Some default tick formatters will not label
+            arbitrary ticks, so pass *label* to ensure labels are visible.
         labels : list of str, optional
-            List of tick labels. If not set, the labels are generated with the axis tick `.Formatter`.
+            List of tick labels. If not set, the labels are generated with
+            the axis tick `.Formatter`.
         minor : bool, default: False
             If ``False``, set the major ticks; if ``True``, the minor ticks.
         **kwargs
@@ -1840,33 +1842,8 @@ class Axis(martist.Artist):
         other limits, you should set the limits explicitly after setting the
         ticks.
 
-        This method implicitly calls :meth:`.set_major_locator` (or
-        :meth:`.set_minor_locator` if *minor=True*) with a newly-constructed
-        :class:`~matplotlib.ticker.FixedLocator` initialized to the provided
-        tick locations.
-
-        Do not add ticks manually to an automatically ticked axis
-        by e.g. doing (for the *y* axis, in this example)::
-
-            special_ticks = [1.1, 2.5, 3.7] # arbitrary tick locations
-            ticks = axes.get_yticks()
-            ticks_ext = np.append(ticklist, special_ticks)
-            axes.set_yticks(ticks_ext)
-
-        as this may give unpredictable results. Instead, create a secondary
-        axis with :meth:`.Axes.secondary_yaxis` and set its ticks and tick
-        labels manually::
-
-            special_ticks = [1.1, 2.5, 3.7] # arbitrary tick locations
-            special_labels = [f"{tick:g}" for tick in special_ticks]
-            secaxis = axes.secondary_yaxis("left") # or "right", according to\
-preference
-            # Manually setting the labels, as outlined in the warning.
-            secaxis.set_yticks(special_ticks, labels=special_labels)
-
-        Note that there is no limit to the number of secondary axes and it
-        is possible to overlay a secondary axis on another axis.
-        See :ghissue:`22262` for discussion.
+        Do not add ticks manually to an automatically ticked axis (as with
+        *labels=None*). See :ghissue:`22262` for discussion.
         """
         result = self._set_tick_locations(ticks, minor=minor)
         if labels is not None:
