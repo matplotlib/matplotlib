@@ -24,6 +24,7 @@ Future versions may implement the Level 2 or 2.1 specifications.
 #   - 'light' is an invalid weight value, remove it.
 
 from base64 import b64encode
+import copy
 import dataclasses
 from functools import lru_cache
 from io import BytesIO
@@ -964,9 +965,7 @@ class FontProperties:
 
     def copy(self):
         """Return a copy of self."""
-        new = type(self)()
-        vars(new).update(vars(self))
-        return new
+        return copy.copy(self)
 
 
 class _JSONEncoder(json.JSONEncoder):
