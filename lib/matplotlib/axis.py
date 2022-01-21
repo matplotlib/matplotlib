@@ -1825,7 +1825,7 @@ class Axis(martist.Artist):
         ticks : list of floats
             List of tick locations.  The axis `.Locator` is replaced by a
             `.FixedLocator`.
-            
+
             Some tick formatters will not label arbitrary tick positions;
             e.g. log formatters only label decade ticks by default. In
             such a case you can set a formatter explicitly on the axis
