@@ -1841,9 +1841,6 @@ class Axis(martist.Artist):
         choice to prevent the surprise of a non-visible tick. If you need
         other limits, you should set the limits explicitly after setting the
         ticks.
-
-        Do not mix automatically and manually placed ticks with this method.
-        See :ghissue:`22262` for discussion.
         """
         result = self._set_tick_locations(ticks, minor=minor)
         if labels is not None:
