@@ -708,9 +708,10 @@ class _AxesBase(martist.Artist):
             fields += [f"label={self.get_label()!r}"]
         titles = []
         for k in ["left", "center", "right"]:
-            title = self.get_title(loc=k)
-            if title:
-                titles.append(f"{k!r}:{title!r}")
+            if hasattr(self, 'get_title'):
+                title = self.get_title(loc=k)
+                if title:
+                    titles.append(f"{k!r}:{title!r}")
         if titles:
             fields += ["title={" + ",".join(titles) + "}"]
         if self.get_xlabel():
