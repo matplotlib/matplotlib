@@ -2245,7 +2245,7 @@ class Figure(FigureBase):
                 The use of this parameter is discouraged. Please use
                 ``layout='constrained'`` instead.
 
-        layout : {'constrained', 'tight', `.LayoutEngine`, None}, optional
+        layout : {'constrained', 'compressed', 'tight', `.LayoutEngine`, None}
             The layout mechanism for positioning of plot elements to avoid
             overlapping Axes decorations (labels, ticks, etc). Note that
             layout managers can have significant performance penalties.
@@ -2257,6 +2257,10 @@ class Figure(FigureBase):
 
               See :doc:`/tutorials/intermediate/constrainedlayout_guide`
               for examples.
+
+            - 'compressed': uses the same algorithm as 'constrained', but
+              removes extra space between fixed-aspect-ratio Axes.  Best for
+              simple grids of axes.
 
             - 'tight': Use the tight layout mechanism. This is a relatively
               simple algorithm that adjusts the subplot parameters so that
@@ -2388,11 +2392,13 @@ class Figure(FigureBase):
 
         Parameters
         ----------
-        layout : {'constrained', 'tight'} or `~.LayoutEngine`
-            'constrained' will use `~.ConstrainedLayoutEngine`, 'tight' will
-            use `~.TightLayoutEngine`.  Users and libraries can define their
-            own layout engines as well.
-        kwargs : dict
+        layout: {'constrained', 'compressed', 'tight'} or `~.LayoutEngine`
+            'constrained' will use `~.ConstrainedLayoutEngine`,
+            'compressed' will also use ConstrainedLayoutEngine, but with a
+            correction that attempts to make a good layout for fixed-aspect
+            ratio Axes. 'tight' uses `~.TightLayoutEngine`.  Users and
+            libraries can define their own layout engines as well.
+        kwargs: dict
             The keyword arguments are passed to the layout engine to set things
             like padding and margin sizes.  Only used if *layout* is a string.
         """
@@ -2408,6 +2414,9 @@ class Figure(FigureBase):
             new_layout_engine = TightLayoutEngine(**kwargs)
         elif layout == 'constrained':
             new_layout_engine = ConstrainedLayoutEngine(**kwargs)
+        elif layout == 'compressed':
+            new_layout_engine = ConstrainedLayoutEngine(compress=True,
+                                                        **kwargs)
         elif isinstance(layout, LayoutEngine):
             new_layout_engine = layout
         else:

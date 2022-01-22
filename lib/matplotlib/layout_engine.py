@@ -180,7 +180,7 @@ class ConstrainedLayoutEngine(LayoutEngine):
 
     def __init__(self, *, h_pad=None, w_pad=None,
                  hspace=None, wspace=None, rect=(0, 0, 1, 1),
-                 **kwargs):
+                 compress=False, **kwargs):
         """
         Initialize ``constrained_layout`` settings.
 
@@ -201,6 +201,10 @@ class ConstrainedLayoutEngine(LayoutEngine):
         rect : tuple of 4 floats
             Rectangle in figure coordinates to perform constrained layout in
             (left, bottom, width, height), each from 0-1.
+        compress : bool
+            Whether to shift Axes so that white space in between them is
+            removed. This is useful for simple grids of fixed-aspect Axes (e.g.
+            a grid of images).  See :ref:`compressed_layout`.
         """
         super().__init__(**kwargs)
         # set the defaults:
@@ -212,6 +216,7 @@ class ConstrainedLayoutEngine(LayoutEngine):
         # set anything that was passed in (None will be ignored):
         self.set(w_pad=w_pad, h_pad=h_pad, wspace=wspace, hspace=hspace,
                  rect=rect)
+        self._compress = compress
 
     def execute(self, fig):
         """
@@ -229,7 +234,8 @@ class ConstrainedLayoutEngine(LayoutEngine):
         return do_constrained_layout(fig, w_pad=w_pad, h_pad=h_pad,
                                      wspace=self._params['wspace'],
                                      hspace=self._params['hspace'],
-                                     rect=self._params['rect'])
+                                     rect=self._params['rect'],
+                                     compress=self._compress)
 
     def set(self, *, h_pad=None, w_pad=None,
             hspace=None, wspace=None, rect=None):
