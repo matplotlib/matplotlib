@@ -172,7 +172,6 @@ def find_bezier_t_intersecting_with_closedpath(
         if start_inside ^ middle_inside:
             t1 = middle_t
             end = middle
-            end_inside = middle_inside
         else:
             t0 = middle_t
             start = middle

@@ -1528,7 +1528,6 @@ def _get_renderer(figure, print_method=None):
     def _draw(renderer): raise Done(renderer)
 
     with cbook._setattr_cm(figure, draw=_draw), ExitStack() as stack:
-        orig_canvas = figure.canvas
         if print_method is None:
             fmt = figure.canvas.get_default_filetype()
             # Even for a canvas' default output type, a canvas switch may be

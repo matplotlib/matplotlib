@@ -40,9 +40,7 @@ class Axes(maxes.Axes):
         def __call__(self, *v, **kwargs):
             return maxes.Axes.axis(self.axes, *v, **kwargs)
 
-    def _init_axis_artists(self, axes=None):
-        if axes is None:
-            axes = self
+    def _init_axis_artists(self):
         self._axislines = self.AxisDict(self)
         self._axislines.update(
             bottom=SimpleAxisArtist(self.xaxis, 1, self.spines["bottom"]),
