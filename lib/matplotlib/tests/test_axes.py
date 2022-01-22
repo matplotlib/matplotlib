@@ -490,18 +490,18 @@ def test_autoscale_tight():
     assert_allclose(ax.get_ylim(), (1.0, 4.0))
 
     # Check that autoscale is on
-    assert ax.get_autoscalex_on() is True
-    assert ax.get_autoscaley_on() is True
-    assert ax.get_autoscale_on() is True
+    assert ax.get_autoscalex_on()
+    assert ax.get_autoscaley_on()
+    assert ax.get_autoscale_on()
     # Set enable to None
     ax.autoscale(enable=None)
     # Same limits
     assert_allclose(ax.get_xlim(), (-0.15, 3.15))
     assert_allclose(ax.get_ylim(), (1.0, 4.0))
     # autoscale still on
-    assert ax.get_autoscalex_on() is True
-    assert ax.get_autoscaley_on() is True
-    assert ax.get_autoscale_on() is True
+    assert ax.get_autoscalex_on()
+    assert ax.get_autoscaley_on()
+    assert ax.get_autoscale_on()
 
 
 @mpl.style.context('default')
