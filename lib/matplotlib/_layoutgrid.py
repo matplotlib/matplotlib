@@ -519,7 +519,7 @@ def plot_children(fig, lg=None, level=0, printit=False):
     import matplotlib.patches as mpatches
 
     if lg is None:
-        _layoutgrids = fig.execute_constrained_layout()
+        _layoutgrids = fig.get_layout_engine().execute(fig)
         lg = _layoutgrids[fig]
     colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
     col = colors[level]
