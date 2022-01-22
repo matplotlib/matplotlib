@@ -489,6 +489,20 @@ def test_autoscale_tight():
     assert_allclose(ax.get_xlim(), (-0.15, 3.15))
     assert_allclose(ax.get_ylim(), (1.0, 4.0))
 
+    # Check that autoscale is on
+    assert ax.get_autoscalex_on() is True
+    assert ax.get_autoscaley_on() is True
+    assert ax.get_autoscale_on() is True
+    # Set enable to None
+    ax.autoscale(enable=None)
+    # Same limits
+    assert_allclose(ax.get_xlim(), (-0.15, 3.15))
+    assert_allclose(ax.get_ylim(), (1.0, 4.0))
+    # autoscale still on
+    assert ax.get_autoscalex_on() is True
+    assert ax.get_autoscaley_on() is True
+    assert ax.get_autoscale_on() is True
+
 
 @mpl.style.context('default')
 def test_autoscale_log_shared():
@@ -4982,6 +4996,23 @@ def test_shared_aspect_error():
         fig.draw_without_rendering()
 
 
+@pytest.mark.parametrize('err, args, kwargs, match',
+                         ((TypeError, (1, 2), {},
+                           r"axis\(\) takes 0 or 1 positional arguments but 2"
+                           " were given"),
+                          (ValueError, ('foo', ), {},
+                           "Unrecognized string foo to axis; try on or off"),
+                          (TypeError, ([1, 2], ), {},
+                           "the first argument to axis*"),
+                          (TypeError, tuple(), {'foo': None},
+                           r"axis\(\) got an unexpected keyword argument "
+                           "'foo'"),
+                          ))
+def test_axis_errors(err, args, kwargs, match):
+    with pytest.raises(err, match=match):
+        plt.axis(*args, **kwargs)
+
+
 @pytest.mark.parametrize('twin', ('x', 'y'))
 def test_twin_with_aspect(twin):
     fig, ax = plt.subplots()
@@ -5375,10 +5406,56 @@ def test_set_margin_updates_limits():
     assert ax.get_xlim() == (1, 2)
 
 
+@pytest.mark.parametrize('err, args, kwargs, match',
+                         ((ValueError, (-1,), {},
+                           'margin must be greater than -0.5'),
+                          (ValueError, (1, -1), {},
+                           'margin must be greater than -0.5'),
+                          (ValueError, tuple(), {'x': -1},
+                           'margin must be greater than -0.5'),
+                          (ValueError, tuple(), {'y': -1},
+                           'margin must be greater than -0.5'),
+                          (TypeError, (1, ), {'x': 1, 'y': 1},
+                           'Cannot pass both positional and keyword '
+                           'arguments for x and/or y.'),
+                          (TypeError, (1, 1, 1), {},
+                           'Must pass a single positional argument for all*'),
+                          ))
+def test_margins_errors(err, args, kwargs, match):
+    with pytest.raises(err, match=match):
+        fig = plt.figure()
+        ax = fig.add_subplot()
+        ax.margins(*args, **kwargs)
+
+
 def test_length_one_hist():
     fig, ax = plt.subplots()
     ax.hist(1)
     ax.hist([1])
+
+
+def test_set_xy_bound():
+    fig = plt.figure()
+    ax = fig.add_subplot()
+    ax.set_xbound(2.0, 3.0)
+    assert ax.get_xbound() == (2.0, 3.0)
+    assert ax.get_xlim() == (2.0, 3.0)
+    ax.set_xbound(upper=4.0)
+    assert ax.get_xbound() == (2.0, 4.0)
+    assert ax.get_xlim() == (2.0, 4.0)
+    ax.set_xbound(lower=3.0)
+    assert ax.get_xbound() == (3.0, 4.0)
+    assert ax.get_xlim() == (3.0, 4.0)
+
+    ax.set_ybound(2.0, 3.0)
+    assert ax.get_ybound() == (2.0, 3.0)
+    assert ax.get_ylim() == (2.0, 3.0)
+    ax.set_ybound(upper=4.0)
+    assert ax.get_ybound() == (2.0, 4.0)
+    assert ax.get_ylim() == (2.0, 4.0)
+    ax.set_ybound(lower=3.0)
+    assert ax.get_ybound() == (3.0, 4.0)
+    assert ax.get_ylim() == (3.0, 4.0)
 
 
 def test_pathological_hexbin():
@@ -6067,6 +6144,7 @@ def test_axisbelow():
                        left=False, right=False)
         ax.spines[:].set_visible(False)
         ax.set_axisbelow(setting)
+        assert ax.get_axisbelow() == setting
 
 
 def test_titletwiny():
@@ -6613,6 +6691,12 @@ def test_secondary_formatter():
         secax.xaxis.get_major_formatter(), mticker.ScalarFormatter)
 
 
+def test_secondary_repr():
+    fig, ax = plt.subplots()
+    secax = ax.secondary_xaxis("top")
+    assert repr(secax) == '<SecondaryAxis:>'
+
+
 def color_boxes(fig, ax):
     """
     Helper for the tests below that test the extents of various axes elements
@@ -6827,6 +6911,23 @@ def test_axis_extent_arg():
     ymin = 15
     ymax = 20
     extent = ax.axis([xmin, xmax, ymin, ymax])
+
+    # test that the docstring is correct
+    assert tuple(extent) == (xmin, xmax, ymin, ymax)
+
+    # test that limits were set per the docstring
+    assert (xmin, xmax) == ax.get_xlim()
+    assert (ymin, ymax) == ax.get_ylim()
+
+
+def test_axis_extent_arg2():
+    # Same as test_axis_extent_arg, but with keyword arguments
+    fig, ax = plt.subplots()
+    xmin = 5
+    xmax = 10
+    ymin = 15
+    ymax = 20
+    extent = ax.axis(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax)
 
     # test that the docstring is correct
     assert tuple(extent) == (xmin, xmax, ymin, ymax)
