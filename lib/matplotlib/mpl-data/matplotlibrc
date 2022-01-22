@@ -103,6 +103,7 @@
 #backend_fallback: True
 
 #interactive: False
+#figure.hooks:          # list of dotted.module.name:dotted.callable.name
 #toolbar:     toolbar2  # {None, toolbar2, toolmanager}
 #timezone:    UTC       # a pytz timezone string, e.g., US/Central or Europe/Paris
 

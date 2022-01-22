@@ -816,6 +816,7 @@ def _convert_validator_spec(key, conv):
 _validators = {
     "backend":           validate_backend,
     "backend_fallback":  validate_bool,
+    "figure.hooks":      validate_stringlist,
     "toolbar":           _validate_toolbar,
     "interactive":       validate_bool,
     "timezone":          validate_string,
