@@ -1202,6 +1202,7 @@ class Colorbar:
         self._locator = None
         self._minorlocator = None
         self._formatter = None
+        self._minorformatter = None
         if (self.boundaries is not None or
                 isinstance(self.norm, colors.BoundaryNorm)):
             if self.spacing == 'uniform':
