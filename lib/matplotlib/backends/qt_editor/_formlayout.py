@@ -498,8 +498,7 @@ class FormDialog(QtWidgets.QDialog):
 
 def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
     """
-    Create form dialog and return result
-    (if Cancel button is pressed, return None)
+    Create form dialog
 
     data: datalist, datagroup
     title: str
