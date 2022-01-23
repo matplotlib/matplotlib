@@ -197,7 +197,7 @@ def _process_plot_format(fmt):
             i += 2
         else:
             raise ValueError(
-                'Unrecognized character %c in format string' % c)
+                f'Unrecognized character {c} in format string {fmt!r}')
 
     if linestyle is None and marker is None:
         linestyle = mpl.rcParams['lines.linestyle']
