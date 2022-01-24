@@ -1,0 +1,4 @@
+``matplotlib.cbook.maxdict`` is deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This class has been deprecated in favor of the standard library
+``functools.lru_cache``.

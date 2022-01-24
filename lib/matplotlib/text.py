@@ -2,6 +2,7 @@
 Classes for including text in a figure.
 """
 
+import functools
 import logging
 import math
 import numbers
@@ -108,7 +109,6 @@ class Text(Artist):
     """Handle storing and drawing of text in window or data coordinates."""
 
     zorder = 3
-    _cached = cbook.maxdict(50)
 
     def __repr__(self):
         return "Text(%s, %s, %s)" % (self._x, self._y, repr(self._text))
@@ -294,9 +294,13 @@ class Text(Artist):
         of a rotated text when necessary.
         """
         key = self._get_layout_cache_key(renderer=renderer)
-        if key in self._cached:
-            return self._cached[key]
+        return self._get_layout_cache(key, renderer)
 
+    @functools.lru_cache(maxsize=50)
+    def _get_layout_cache(self, key, renderer):
+        """
+        Return the layout using a lru_cache decorator
+        """
         thisx, thisy = 0.0, 0.0
         lines = self.get_text().split("\n")  # Ensures lines is not empty.
 
@@ -440,7 +444,6 @@ class Text(Artist):
         xys = M.transform(offset_layout) - (offsetx, offsety)
 
         ret = bbox, list(zip(lines, zip(ws, hs), *xys.T)), descent
-        self._cached[key] = ret
         return ret
 
     def set_bbox(self, rectprops):
