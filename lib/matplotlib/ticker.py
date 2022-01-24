@@ -441,8 +441,9 @@ class ScalarFormatter(Formatter):
             useMathText = mpl.rcParams['axes.formatter.use_mathtext']
             if useMathText is False:
                 try:
-                    ufont = mpl.font_manager.findfont(
-                        mpl.font_manager.FontProperties(
+                    from matplotlib import font_manager
+                    ufont = font_manager.findfont(
+                        font_manager.FontProperties(
                             mpl.rcParams["font.family"]
                         ),
                         fallback_to_default=False,
