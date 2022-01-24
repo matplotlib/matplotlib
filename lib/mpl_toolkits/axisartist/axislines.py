@@ -41,6 +41,7 @@ from the axis as some gridlines can never pass any axis.
 
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib import _api, rcParams
 import matplotlib.axes as maxes
 from matplotlib.path import Path
@@ -98,11 +99,14 @@ class AxisArtistHelper:
 
     class _Base:
         """Base class for axis helper."""
-        def __init__(self):
-            self.delta1, self.delta2 = 0.00001, 0.00001
 
         def update_lim(self, axes):
             pass
+
+        delta1 = _api.deprecated("3.6")(
+            property(lambda self: 0.00001, lambda self, value: None))
+        delta2 = _api.deprecated("3.6")(
+            property(lambda self: 0.00001, lambda self, value: None))
 
     class Fixed(_Base):
         """Helper class for a fixed (in the axes coordinate) axis."""
@@ -204,10 +208,7 @@ class AxisArtistHelperRectlinear:
 
         def get_tick_iterators(self, axes):
             """tick_loc, tick_angle, tick_label"""
-
-            loc = self._loc
-
-            if loc in ["bottom", "top"]:
+            if self._loc in ["bottom", "top"]:
                 angle_normal, angle_tangent = 90, 0
             else:
                 angle_normal, angle_tangent = 0, 90
@@ -224,15 +225,12 @@ class AxisArtistHelperRectlinear:
 
             def _f(locs, labels):
                 for x, l in zip(locs, labels):
-
                     c = list(self.passthru_pt)  # copy
                     c[self.nth_coord] = x
-
                     # check if the tick point is inside axes
                     c2 = tick_to_axes.transform(c)
-                    if (0 - self.delta1
-                            <= c2[self.nth_coord]
-                            <= 1 + self.delta2):
+                    if mpl.transforms._interval_contains_close(
+                            (0, 1), c2[self.nth_coord]):
                         yield c, angle_normal, angle_tangent, l
 
             return _f(majorLocs, majorLabels), _f(minorLocs, minorLabels)
@@ -303,10 +301,7 @@ class AxisArtistHelperRectlinear:
                     c = [self._value, self._value]
                     c[self.nth_coord] = x
                     c1, c2 = data_to_axes.transform(c)
-                    if (0 <= c1 <= 1 and 0 <= c2 <= 1
-                            and 0 - self.delta1
-                                <= [c1, c2][self.nth_coord]
-                                <= 1 + self.delta2):
+                    if 0 <= c1 <= 1 and 0 <= c2 <= 1:
                         yield c, angle_normal, angle_tangent, l
 
             return _f(majorLocs, majorLabels), _f(minorLocs, minorLabels)
