@@ -540,6 +540,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield from flatten(item, scalarp)
 
 
+@_api.deprecated("3.6", alternative="functools.lru_cache")
 class maxdict(dict):
     """
     A dictionary with a maximum size.
