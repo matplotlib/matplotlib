@@ -2086,8 +2086,7 @@ class XAxis(Axis):
         if self.label_position == 'bottom':
             try:
                 spine = self.axes.spines['bottom']
-                spinebbox = spine.get_transform().transform_path(
-                    spine.get_path()).get_extents()
+                spinebbox = spine.get_window_extent()
             except KeyError:
                 # use axes if spine doesn't exist
                 spinebbox = self.axes.bbox
@@ -2097,12 +2096,10 @@ class XAxis(Axis):
             self.label.set_position(
                 (x, bottom - self.labelpad * self.figure.dpi / 72)
             )
-
         else:
             try:
                 spine = self.axes.spines['top']
-                spinebbox = spine.get_transform().transform_path(
-                    spine.get_path()).get_extents()
+                spinebbox = spine.get_window_extent()
             except KeyError:
                 # use axes if spine doesn't exist
                 spinebbox = self.axes.bbox
@@ -2350,13 +2347,11 @@ class YAxis(Axis):
         # get bounding boxes for this axis and any siblings
         # that have been set by `fig.align_ylabels()`
         bboxes, bboxes2 = self._get_tick_boxes_siblings(renderer=renderer)
-
         x, y = self.label.get_position()
         if self.label_position == 'left':
             try:
                 spine = self.axes.spines['left']
-                spinebbox = spine.get_transform().transform_path(
-                    spine.get_path()).get_extents()
+                spinebbox = spine.get_window_extent()
             except KeyError:
                 # use axes if spine doesn't exist
                 spinebbox = self.axes.bbox
@@ -2369,14 +2364,13 @@ class YAxis(Axis):
         else:
             try:
                 spine = self.axes.spines['right']
-                spinebbox = spine.get_transform().transform_path(
-                    spine.get_path()).get_extents()
+                spinebbox = spine.get_window_extent()
             except KeyError:
                 # use axes if spine doesn't exist
                 spinebbox = self.axes.bbox
+
             bbox = mtransforms.Bbox.union(bboxes2 + [spinebbox])
             right = bbox.x1
-
             self.label.set_position(
                 (right + self.labelpad * self.figure.dpi / 72, y)
             )
