@@ -79,13 +79,11 @@ Continuing with our example::
     line, = ax.plot(t, s, color='blue', lw=2)
 
 In this example, ``ax`` is the ``Axes`` instance created by the
-``fig.add_subplot`` call above (remember ``Subplot`` is just a
-subclass of ``Axes``) and when you call ``ax.plot``, it creates a
-``Line2D`` instance and adds it to the :attr:`Axes.lines
-<matplotlib.axes.Axes.lines>` list.  In the interactive `IPython
-<https://ipython.org/>`_ session below, you can see that the
-``Axes.lines`` list is length one and contains the same line that was
-returned by the ``line, = ax.plot...`` call:
+``fig.add_subplot`` call above (remember ``Subplot`` is just a subclass of
+``Axes``) and when you call ``ax.plot``, it creates a ``Line2D`` instance and
+adds it to the ``Axes``.  In the interactive `IPython <https://ipython.org/>`_
+session below, you can see that the ``Axes.lines`` list is length one and
+contains the same line that was returned by the ``line, = ax.plot...`` call:
 
 .. sourcecode:: ipython
 
@@ -97,11 +95,10 @@ returned by the ``line, = ax.plot...`` call:
 
 If you make subsequent calls to ``ax.plot`` (and the hold state is "on"
 which is the default) then additional lines will be added to the list.
-You can remove lines later simply by calling the list methods; either
-of these will work::
+You can remove a line later by calling its ``remove`` method::
 
-    del ax.lines[0]
-    ax.lines.remove(line)  # one or the other, not both!
+    line = ax.lines[0]
+    line.remove()
 
 The Axes also has helper methods to configure and decorate the x-axis
 and y-axis tick, tick labels and axis labels::
@@ -386,11 +383,10 @@ plt.show()
 #     rect.set_facecolor('green')
 #
 # When you call a plotting method, e.g., the canonical
-# :meth:`~matplotlib.axes.Axes.plot` and pass in arrays or lists of
-# values, the method will create a :meth:`matplotlib.lines.Line2D`
-# instance, update the line with all the ``Line2D`` properties passed as
-# keyword arguments, add the line to the :attr:`Axes.lines
-# <matplotlib.axes.Axes.lines>` container, and returns it to you:
+# `~matplotlib.axes.Axes.plot` and pass in arrays or lists of values, the
+# method will create a `matplotlib.lines.Line2D` instance, update the line with
+# all the ``Line2D`` properties passed as keyword arguments, add the line to
+# the ``Axes``, and return it to you:
 #
 # .. sourcecode:: ipython
 #
@@ -423,19 +419,20 @@ plt.show()
 #     In [235]: print(len(ax.patches))
 #     Out[235]: 50
 #
-# You should not add objects directly to the ``Axes.lines`` or
-# ``Axes.patches`` lists unless you know exactly what you are doing,
-# because the ``Axes`` needs to do a few things when it creates and adds
-# an object.  It sets the figure and axes property of the ``Artist``, as
-# well as the default ``Axes`` transformation (unless a transformation
-# is set).  It also inspects the data contained in the ``Artist`` to
-# update the data structures controlling auto-scaling, so that the view
-# limits can be adjusted to contain the plotted data.  You can,
-# nonetheless, create objects yourself and add them directly to the
-# ``Axes`` using helper methods like
-# :meth:`~matplotlib.axes.Axes.add_line` and
-# :meth:`~matplotlib.axes.Axes.add_patch`.  Here is an annotated
-# interactive session illustrating what is going on:
+# You should not add objects directly to the ``Axes.lines`` or ``Axes.patches``
+# lists, because the ``Axes`` needs to do a few things when it creates and adds
+# an object:
+#
+# - It sets the ``figure`` and ``axes`` property of the ``Artist``;
+# - It sets the default ``Axes`` transformation (unless one is already set);
+# - It inspects the data contained in the ``Artist`` to update the data
+#   structures controlling auto-scaling, so that the view limits can be
+#   adjusted to contain the plotted data.
+#
+# You can, nonetheless, create objects yourself and add them directly to the
+# ``Axes`` using helper methods like `~matplotlib.axes.Axes.add_line` and
+# `~matplotlib.axes.Axes.add_patch`.  Here is an annotated interactive session
+# illustrating what is going on:
 #
 # .. sourcecode:: ipython
 #
