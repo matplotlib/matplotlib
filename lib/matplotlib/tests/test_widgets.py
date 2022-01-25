@@ -1,4 +1,5 @@
 import functools
+from unittest import mock
 
 from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 from matplotlib.backend_bases import MouseEvent
@@ -23,12 +24,7 @@ def ax():
 def check_rectangle(**kwargs):
     ax = get_ax()
 
-    def onselect(epress, erelease):
-        ax._got_onselect = True
-        assert epress.xdata == 100
-        assert epress.ydata == 100
-        assert erelease.xdata == 199
-        assert erelease.ydata == 199
+    onselect = mock.Mock(spec=noop, return_value=None)
 
     tool = widgets.RectangleSelector(ax, onselect, **kwargs)
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
@@ -43,7 +39,13 @@ def check_rectangle(**kwargs):
                          [100, 199, 199, 100, 100]],
                         err_msg=tool.geometry)
 
-    assert ax._got_onselect
+    onselect.assert_called_once()
+    (epress, erelease), kwargs = onselect.call_args
+    assert epress.xdata == 100
+    assert epress.ydata == 100
+    assert erelease.xdata == 199
+    assert erelease.ydata == 199
+    assert kwargs == {}
 
 
 def test_rectangle_selector():
@@ -69,13 +71,8 @@ def test_rectangle_selector():
 @pytest.mark.parametrize('minspanx, x1', [[0, 10], [1, 10.5], [1, 11]])
 @pytest.mark.parametrize('minspany, y1', [[0, 10], [1, 10.5], [1, 11]])
 def test_rectangle_minspan(ax, spancoords, minspanx, x1, minspany, y1):
-    # attribute to track number of onselect calls
-    ax._n_onselect = 0
 
-    def onselect(epress, erelease):
-        ax._n_onselect += 1
-        ax._epress = epress
-        ax._erelease = erelease
+    onselect = mock.Mock(spec=noop, return_value=None)
 
     x0, y0 = (10, 10)
     if spancoords == 'pixels':
@@ -88,21 +85,24 @@ def test_rectangle_minspan(ax, spancoords, minspanx, x1, minspany, y1):
     # Too small to create a selector
     click_and_drag(tool, start=(x0, x1), end=(y0, y1))
     assert not tool._selection_completed
-    assert ax._n_onselect == 0
+    onselect.assert_not_called()
 
     click_and_drag(tool, start=(20, 20), end=(30, 30))
     assert tool._selection_completed
-    assert ax._n_onselect == 1
+    onselect.assert_called_once()
 
     # Too small to create a selector. Should clear existing selector, and
     # trigger onselect because there was a preexisting selector
+    onselect.reset_mock()
     click_and_drag(tool, start=(x0, y0), end=(x1, y1))
     assert not tool._selection_completed
-    assert ax._n_onselect == 2
-    assert ax._epress.xdata == x0
-    assert ax._epress.ydata == y0
-    assert ax._erelease.xdata == x1
-    assert ax._erelease.ydata == y1
+    onselect.assert_called_once()
+    (epress, erelease), kwargs = onselect.call_args
+    assert epress.xdata == x0
+    assert epress.ydata == y0
+    assert erelease.xdata == x1
+    assert erelease.ydata == y1
+    assert kwargs == {}
 
 
 def test_deprecation_selector_visible_attribute():
@@ -570,62 +570,49 @@ def test_rectangle_handles(ax):
 @pytest.mark.parametrize('interactive', [True, False])
 def test_rectangle_selector_onselect(ax, interactive):
     # check when press and release events take place at the same position
-    def onselect(vmin, vmax):
-        ax._got_onselect = True
+    onselect = mock.Mock(spec=noop, return_value=None)
 
     tool = widgets.RectangleSelector(ax, onselect, interactive=interactive)
     # move outside of axis
     click_and_drag(tool, start=(100, 110), end=(150, 120))
 
-    assert tool.ax._got_onselect
+    onselect.assert_called_once()
     assert tool.extents == (100.0, 150.0, 110.0, 120.0)
 
-    # Reset tool.ax._got_onselect
-    tool.ax._got_onselect = False
+    onselect.reset_mock()
     click_and_drag(tool, start=(10, 100), end=(10, 100))
-
-    assert tool.ax._got_onselect
+    onselect.assert_called_once()
 
 
 @pytest.mark.parametrize('ignore_event_outside', [True, False])
 def test_rectangle_selector_ignore_outside(ax, ignore_event_outside):
-    def onselect(vmin, vmax):
-        ax._got_onselect = True
+    onselect = mock.Mock(spec=noop, return_value=None)
 
     tool = widgets.RectangleSelector(ax, onselect,
                                      ignore_event_outside=ignore_event_outside)
     click_and_drag(tool, start=(100, 110), end=(150, 120))
-    assert tool.ax._got_onselect
+    onselect.assert_called_once()
     assert tool.extents == (100.0, 150.0, 110.0, 120.0)
 
-    # Reset
-    ax._got_onselect = False
+    onselect.reset_mock()
     # Trigger event outside of span
     click_and_drag(tool, start=(150, 150), end=(160, 160))
     if ignore_event_outside:
         # event have been ignored and span haven't changed.
-        assert not ax._got_onselect
+        onselect.assert_not_called()
         assert tool.extents == (100.0, 150.0, 110.0, 120.0)
     else:
         # A new shape is created
-        assert ax._got_onselect
+        onselect.assert_called_once()
         assert tool.extents == (150.0, 160.0, 150.0, 160.0)
 
 
-def check_span(*args, **kwargs):
+def check_span(*args, onmove_callback=True, **kwargs):
     ax = get_ax()
 
-    def onselect(vmin, vmax):
-        ax._got_onselect = True
-        assert vmin == 100
-        assert vmax == 199
-
-    def onmove(vmin, vmax):
-        assert vmin == 100
-        assert vmax == 199
-        ax._got_on_move = True
-
-    if 'onmove_callback' in kwargs:
+    onselect = mock.Mock(spec=noop, return_value=None)
+    onmove = mock.Mock(spec=noop, return_value=None)
+    if onmove_callback:
         kwargs['onmove_callback'] = onmove
 
     tool = widgets.SpanSelector(ax, onselect, *args, **kwargs)
@@ -634,10 +621,9 @@ def check_span(*args, **kwargs):
     do_event(tool, 'onmove', xdata=199, ydata=199, button=1)
     do_event(tool, 'release', xdata=250, ydata=250, button=1)
 
-    assert ax._got_onselect
-
-    if 'onmove_callback' in kwargs:
-        assert ax._got_on_move
+    onselect.assert_called_once_with(100, 199)
+    if onmove_callback:
+        onmove.assert_called_once_with(100, 199)
 
 
 def test_span_selector():
@@ -649,52 +635,46 @@ def test_span_selector():
 
 @pytest.mark.parametrize('interactive', [True, False])
 def test_span_selector_onselect(ax, interactive):
-    def onselect(vmin, vmax):
-        ax._got_onselect = True
+    onselect = mock.Mock(spec=noop, return_value=None)
 
     tool = widgets.SpanSelector(ax, onselect, 'horizontal',
                                 interactive=interactive)
     # move outside of axis
     click_and_drag(tool, start=(100, 100), end=(150, 100))
-    assert tool.ax._got_onselect
+    onselect.assert_called_once()
     assert tool.extents == (100, 150)
 
-    # Reset tool.ax._got_onselect
-    tool.ax._got_onselect = False
+    onselect.reset_mock()
     click_and_drag(tool, start=(10, 100), end=(10, 100))
-    assert tool.ax._got_onselect
+    onselect.assert_called_once()
 
 
 @pytest.mark.parametrize('ignore_event_outside', [True, False])
 def test_span_selector_ignore_outside(ax, ignore_event_outside):
-    def onselect(vmin, vmax):
-        ax._got_onselect = True
-
-    def onmove(vmin, vmax):
-        ax._got_on_move = True
+    onselect = mock.Mock(spec=noop, return_value=None)
+    onmove = mock.Mock(spec=noop, return_value=None)
 
     tool = widgets.SpanSelector(ax, onselect, 'horizontal',
                                 onmove_callback=onmove,
                                 ignore_event_outside=ignore_event_outside)
     click_and_drag(tool, start=(100, 100), end=(125, 125))
-    assert ax._got_onselect
-    assert ax._got_on_move
+    onselect.assert_called_once()
+    onmove.assert_called_once()
     assert tool.extents == (100, 125)
 
-    # Reset
-    ax._got_onselect = False
-    ax._got_on_move = False
+    onselect.reset_mock()
+    onmove.reset_mock()
     # Trigger event outside of span
     click_and_drag(tool, start=(150, 150), end=(160, 160))
     if ignore_event_outside:
         # event have been ignored and span haven't changed.
-        assert not ax._got_onselect
-        assert not ax._got_on_move
+        onselect.assert_not_called()
+        onmove.assert_not_called()
         assert tool.extents == (100, 125)
     else:
         # A new shape is created
-        assert ax._got_onselect
-        assert ax._got_on_move
+        onselect.assert_called_once()
+        onmove.assert_called_once()
         assert tool.extents == (150, 160)
 
 
@@ -971,16 +951,14 @@ def test_span_selector_snap(ax):
 def check_lasso_selector(**kwargs):
     ax = get_ax()
 
-    def onselect(verts):
-        ax._got_onselect = True
-        assert verts == [(100, 100), (125, 125), (150, 150)]
+    onselect = mock.Mock(spec=noop, return_value=None)
 
     tool = widgets.LassoSelector(ax, onselect, **kwargs)
     do_event(tool, 'press', xdata=100, ydata=100, button=1)
     do_event(tool, 'onmove', xdata=125, ydata=125, button=1)
     do_event(tool, 'release', xdata=150, ydata=150, button=1)
 
-    assert ax._got_onselect
+    onselect.assert_called_once_with([(100, 100), (125, 125), (150, 150)])
 
 
 def test_lasso_selector():
@@ -1004,9 +982,8 @@ def test_TextBox(ax, toolbar):
     # Avoid "toolmanager is provisional" warning.
     dict.__setitem__(plt.rcParams, "toolbar", toolbar)
 
-    from unittest.mock import Mock
-    submit_event = Mock()
-    text_change_event = Mock()
+    submit_event = mock.Mock(spec=noop, return_value=None)
+    text_change_event = mock.Mock(spec=noop, return_value=None)
     tool = widgets.TextBox(ax, '')
     tool.on_submit(submit_event)
     tool.on_text_change(text_change_event)
@@ -1215,19 +1192,15 @@ def check_polygon_selector(event_sequence, expected_result, selections_count,
     """
     ax = get_ax()
 
-    ax._selections_count = 0
-
-    def onselect(vertices):
-        ax._selections_count += 1
-        ax._current_result = vertices
+    onselect = mock.Mock(spec=noop, return_value=None)
 
     tool = widgets.PolygonSelector(ax, onselect, **kwargs)
 
     for (etype, event_args) in event_sequence:
         do_event(tool, etype, **event_args)
 
-    assert ax._selections_count == selections_count
-    assert ax._current_result == expected_result
+    assert onselect.call_count == selections_count
+    assert onselect.call_args == ((expected_result, ), {})
 
 
 def polygon_place_vertex(xdata, ydata):
@@ -1358,13 +1331,7 @@ def test_polygon_selector(draw_bounding_box):
 
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
 def test_polygon_selector_set_props_handle_props(ax, draw_bounding_box):
-    ax._selections_count = 0
-
-    def onselect(vertices):
-        ax._selections_count += 1
-        ax._current_result = vertices
-
-    tool = widgets.PolygonSelector(ax, onselect,
+    tool = widgets.PolygonSelector(ax, onselect=noop,
                                    props=dict(color='b', alpha=0.2),
                                    handle_props=dict(alpha=0.5),
                                    draw_bounding_box=draw_bounding_box)
