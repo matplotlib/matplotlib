@@ -75,7 +75,7 @@ This can be convenient, particularly when doing interactive work or simple
 scripts.  A reference to the current Figure can be retrieved using
 `~.pyplot.gcf` and to the current Axes by `~.pyplot.gca`.  The `~.pyplot` module
 retains a list of Figures, and each Figure retains a list of Axes on the figure
-for the user so that the following are all equivalent:
+for the user so that the following:
 
 .. plot::
     :include-source:
@@ -89,7 +89,7 @@ for the user so that the following are all equivalent:
     plt.subplot(1, 2, 2)
     plt.plot([3, 2, 1], [0, 0.5, 0.2])
 
-is equivalent to
+is equivalent to:
 
 .. plot::
     :include-source:
@@ -203,7 +203,7 @@ and then implements a ``plot`` method:
     import matplotlib.pyplot as plt
 
     # supplied by downstream library:
-    class DataContainer():
+    class DataContainer:
 
         def __init__(self, x, y):
             """
@@ -260,7 +260,7 @@ Similarly, the declarative interfaces provided by partner libraries use the
 objects accessible by the "Axes" interface, and often accept these as arguments
 or pass them back from methods.  It is usually essential to use the explicit
 "Axes" interface to perform any customization of the default visualization, or
-to unpack the data into numpy arrays and pass directly to Matplotlib.
+to unpack the data into NumPy arrays and pass directly to Matplotlib.
 
 Appendix: "Axes" interface with data structures
 -----------------------------------------------
