@@ -764,3 +764,27 @@ def test_pdf_chars_beyond_bmp():
     plt.rcParams['mathtext.fontset'] = 'stixsans'
     plt.figure()
     plt.figtext(0.1, 0.5, "Mass $m$ \U00010308", size=30)
+
+
+@needs_usetex
+def test_metrics_cache():
+    fig = plt.figure()
+    fig.text(.3, .5, "foo\nbar")
+    fig.text(.3, .5, "foo\nbar", usetex=True)
+    fig.text(.5, .5, "foo\nbar", usetex=True)
+    fig.canvas.draw()
+    renderer = fig._cachedRenderer
+    ys = {}  # mapping of strings to where they were drawn in y with draw_tex.
+
+    def call(*args, **kwargs):
+        renderer, x, y, s, *_ = args
+        ys.setdefault(s, set()).add(y)
+
+    renderer.draw_tex = call
+    fig.canvas.draw()
+    assert [*ys] == ["foo", "bar"]
+    # Check that both TeX strings were drawn with the same y-position for both
+    # single-line substrings.  Previously, there used to be an incorrect cache
+    # collision with the non-TeX string (drawn first here) whose metrics would
+    # get incorrectly reused by the first TeX string.
+    assert len(ys["foo"]) == len(ys["bar"]) == 1
