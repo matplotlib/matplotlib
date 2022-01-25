@@ -102,17 +102,45 @@ def use(style):
 
     %s
     """
-    style_alias = {'mpl20': 'default',
-                   'mpl15': 'classic'}
     if isinstance(style, (str, Path)) or hasattr(style, 'keys'):
         # If name is a single str, Path or dict, make it a single element list.
         styles = [style]
     else:
         styles = style
 
-    styles = (style_alias.get(s, s) if isinstance(s, str) else s
-              for s in styles)
-    for style in styles:
+    style_alias = {'mpl20': 'default', 'mpl15': 'classic'}
+
+    def fix_style(s):
+        if isinstance(s, str):
+            s = style_alias.get(s, s)
+            if s in [
+                "seaborn",
+                "seaborn-bright",
+                "seaborn-colorblind",
+                "seaborn-dark",
+                "seaborn-darkgrid",
+                "seaborn-dark-palette",
+                "seaborn-deep",
+                "seaborn-muted",
+                "seaborn-notebook",
+                "seaborn-paper",
+                "seaborn-pastel",
+                "seaborn-poster",
+                "seaborn-talk",
+                "seaborn-ticks",
+                "seaborn-white",
+                "seaborn-whitegrid",
+            ]:
+                _api.warn_deprecated(
+                    "3.6", message="The seaborn styles shipped by Matplotlib "
+                    "are deprecated since %(since)s, as they no longer "
+                    "correspond to the styles shipped by seaborn. However, "
+                    "they will remain available as 'seaborn0.8-<style>'. "
+                    "Alternatively, directly use the seaborn API instead.")
+                s = s.replace("seaborn", "seaborn0.8")
+        return s
+
+    for style in map(fix_style, styles):
         if not isinstance(style, (str, Path)):
             _apply_style(style)
         elif style == 'default':
