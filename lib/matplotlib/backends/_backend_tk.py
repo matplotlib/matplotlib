@@ -387,6 +387,12 @@ class FigureCanvasTk(FigureCanvasBase):
             self._event_loop_id = None
         self._tkcanvas.quit()
 
+    def set_cursor(self, cursor):
+        try:
+            self._tkcanvas.configure(cursor=cursord[cursor])
+        except tkinter.TclError:
+            pass
+
 
 class FigureManagerTk(FigureManagerBase):
     """
@@ -619,13 +625,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         if hasattr(self, "lastrect"):
             self.canvas._tkcanvas.delete(self.lastrect)
             del self.lastrect
-
-    def set_cursor(self, cursor):
-        window = self.canvas.get_tk_widget().master
-        try:
-            window.configure(cursor=cursord[cursor])
-        except tkinter.TclError:
-            pass
 
     def _set_image_for_button(self, button):
         """
