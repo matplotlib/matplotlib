@@ -47,7 +47,8 @@ import logging
 from numbers import Integral, Real
 
 from matplotlib import _api, colors as mcolors
-from ..qt_compat import QtGui, QtWidgets, QtCore, _enum, _to_int
+from matplotlib.backends.qt_compat import (
+    QtGui, QtWidgets, QtCore, _enum, _to_int)
 
 _log = logging.getLogger(__name__)
 
@@ -540,6 +541,8 @@ def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
 
 if __name__ == "__main__":
 
+    _app = QtWidgets.QApplication([])
+
     def create_datalist_example():
         return [('str', 'this is a string'),
                 ('list', [0, '1', '3', '4']),
@@ -567,18 +570,24 @@ if __name__ == "__main__":
 
     def apply_test(data):
         print("data:", data)
-    print("result:", fedit(datalist, title="Example",
-                           comment="This is just an <b>example</b>.",
-                           apply=apply_test))
+    fedit(datalist, title="Example",
+          comment="This is just an <b>example</b>.",
+          apply=apply_test)
+
+    _app.exec()
 
     # --------- datagroup example
     datagroup = create_datagroup_example()
-    print("result:", fedit(datagroup, "Global title"))
+    fedit(datagroup, "Global title",
+          apply=apply_test)
+    _app.exec()
 
     # --------- datagroup inside a datagroup example
     datalist = create_datalist_example()
     datagroup = create_datagroup_example()
-    print("result:", fedit(((datagroup, "Title 1", "Tab 1 comment"),
-                            (datalist, "Title 2", "Tab 2 comment"),
-                            (datalist, "Title 3", "Tab 3 comment")),
-                           "Global title"))
+    fedit(((datagroup, "Title 1", "Tab 1 comment"),
+           (datalist, "Title 2", "Tab 2 comment"),
+           (datalist, "Title 3", "Tab 3 comment")),
+          "Global title",
+          apply=apply_test)
+    _app.exec()
