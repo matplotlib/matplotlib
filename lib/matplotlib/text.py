@@ -273,19 +273,22 @@ class Text(Artist):
         self._linespacing = other._linespacing
         self.stale = True
 
-    def _get_layout_cache_key(self, renderer):
+    def _get_text_metrics_with_cache(
+            self, renderer, text, fontproperties, ismath):
         """
-        Return a hashable tuple of properties that lets `_get_layout` know
-        whether a previously computed layout can be reused.
+        Call ``renderer.get_text_width_height_descent``, caching the results.
         """
-        return (
-            self.get_unitless_position(), self.get_text(),
-            hash(self._fontproperties),
-            self._verticalalignment, self._horizontalalignment,
-            self._linespacing,
-            self._rotation, self._rotation_mode, self._transform_rotates_text,
-            self.figure.dpi, weakref.ref(renderer),
+        cache_key = (
+            weakref.ref(renderer),
+            text,
+            hash(fontproperties),
+            ismath,
+            self.figure.dpi,
         )
+        if cache_key not in self._cached:
+            self._cached[cache_key] = renderer.get_text_width_height_descent(
+                text, fontproperties, ismath)
+        return self._cached[cache_key]
 
     def _get_layout(self, renderer):
         """
@@ -293,10 +296,6 @@ class Text(Artist):
         multiple-alignment information. Note that it returns an extent
         of a rotated text when necessary.
         """
-        key = self._get_layout_cache_key(renderer=renderer)
-        if key in self._cached:
-            return self._cached[key]
-
         thisx, thisy = 0.0, 0.0
         lines = self.get_text().split("\n")  # Ensures lines is not empty.
 
@@ -306,16 +305,16 @@ class Text(Artist):
         ys = []
 
         # Full vertical extent of font, including ascenders and descenders:
-        _, lp_h, lp_d = renderer.get_text_width_height_descent(
-            "lp", self._fontproperties,
+        _, lp_h, lp_d = self._get_text_metrics_with_cache(
+            renderer, "lp", self._fontproperties,
             ismath="TeX" if self.get_usetex() else False)
         min_dy = (lp_h - lp_d) * self._linespacing
 
         for i, line in enumerate(lines):
             clean_line, ismath = self._preprocess_math(line)
             if clean_line:
-                w, h, d = renderer.get_text_width_height_descent(
-                    clean_line, self._fontproperties, ismath=ismath)
+                w, h, d = self._get_text_metrics_with_cache(
+                    renderer, clean_line, self._fontproperties, ismath)
             else:
                 w = h = d = 0
 
@@ -439,9 +438,7 @@ class Text(Artist):
         # now rotate the positions around the first (x, y) position
         xys = M.transform(offset_layout) - (offsetx, offsety)
 
-        ret = bbox, list(zip(lines, zip(ws, hs), *xys.T)), descent
-        self._cached[key] = ret
-        return ret
+        return bbox, list(zip(lines, zip(ws, hs), *xys.T)), descent
 
     def set_bbox(self, rectprops):
         """

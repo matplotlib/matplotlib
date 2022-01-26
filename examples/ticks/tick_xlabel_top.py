@@ -1,27 +1,32 @@
 """
-==========================================
-Set default x-axis tick labels on the top
-==========================================
+==================================
+Move x-axis tick labels to the top
+==================================
 
-We can use :rc:`xtick.labeltop` and :rc:`xtick.top` and :rc:`xtick.labelbottom`
-and :rc:`xtick.bottom` to control where on the axes ticks and their labels
-appear.
+`~.axes.Axes.tick_params` can be used to configure the ticks. *top* and
+*labeltop* control the visibility tick lines and labels at the top x-axis.
+To move x-axis ticks from bottom to top, we have to activate the top ticks
+and deactivate the bottom ticks::
 
-These properties can also be set in ``.matplotlib/matplotlibrc``.
+    ax.tick_params(top=True, labeltop=True, bottom=False, labelbottom=False)
+
+.. note::
+
+    If the change should be made for all future plots and not only the current
+    Axes, you can adapt the respective config parameters
+
+    - :rc:`xtick.top`
+    - :rc:`xtick.labeltop`
+    - :rc:`xtick.bottom`
+    - :rc:`xtick.labelbottom`
+
 """
 
 import matplotlib.pyplot as plt
-import numpy as np
-
-
-plt.rcParams['xtick.bottom'] = plt.rcParams['xtick.labelbottom'] = False
-plt.rcParams['xtick.top'] = plt.rcParams['xtick.labeltop'] = True
-
-x = np.arange(10)
 
 fig, ax = plt.subplots()
-
-ax.plot(x)
-ax.set_title('xlabel top')  # Note title moves to make room for ticks
+ax.plot(range(10))
+ax.tick_params(top=True, labeltop=True, bottom=False, labelbottom=False)
+ax.set_title('x-ticks moved to the top')
 
 plt.show()

@@ -573,7 +573,6 @@ def reposition_axes(layoutgrids, fig, renderer, *,
         # coordinates...
         ss = ax.get_subplotspec()
         gs = ss.get_gridspec()
-        nrows, ncols = gs.get_geometry()
         if gs not in layoutgrids:
             return
 

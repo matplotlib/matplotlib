@@ -279,6 +279,9 @@ class FigureCanvasTk(FigureCanvasBase):
             guiEvent=event, xy=self._event_mpl_coords(event))
 
     def button_press_event(self, event, dblclick=False):
+        # set focus to the canvas so that it can receive keyboard events
+        self._tkcanvas.focus_set()
+
         num = getattr(event, 'num', None)
         if sys.platform == 'darwin':  # 2 and 3 are reversed.
             num = {2: 3, 3: 2}.get(num, num)
@@ -387,6 +390,12 @@ class FigureCanvasTk(FigureCanvasBase):
             self._event_loop_id = None
         self._tkcanvas.quit()
 
+    def set_cursor(self, cursor):
+        try:
+            self._tkcanvas.configure(cursor=cursord[cursor])
+        except tkinter.TclError:
+            pass
+
 
 class FigureManagerTk(FigureManagerBase):
     """
@@ -467,6 +476,7 @@ class FigureManagerTk(FigureManagerBase):
                     Gcf.destroy(self)
                 self.window.protocol("WM_DELETE_WINDOW", destroy)
                 self.window.deiconify()
+                self.canvas._tkcanvas.focus_set()
             else:
                 self.canvas.draw_idle()
             if mpl.rcParams['figure.raise_window']:
@@ -628,13 +638,6 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
 
     lastrect = _api.deprecated("3.6")(
         property(lambda self: self.canvas._rubberband_rect))
-
-    def set_cursor(self, cursor):
-        window = self.canvas.get_tk_widget().master
-        try:
-            window.configure(cursor=cursord[cursor])
-        except tkinter.TclError:
-            pass
 
     def _set_image_for_button(self, button):
         """
@@ -840,8 +843,14 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
     def add_toolitem(
             self, name, group, position, image_file, description, toggle):
         frame = self._get_groupframe(group)
-        button = NavigationToolbar2Tk._Button(self, name, image_file, toggle,
+        buttons = frame.pack_slaves()
+        if position >= len(buttons) or position < 0:
+            before = None
+        else:
+            before = buttons[position]
+        button = NavigationToolbar2Tk._Button(frame, name, image_file, toggle,
                                               lambda: self._button_click(name))
+        button.pack_configure(before=before)
         if description is not None:
             ToolTip.createToolTip(button, description)
         self._toolitems.setdefault(name, [])
@@ -853,6 +862,7 @@ class ToolbarTk(ToolContainerBase, tk.Frame):
                 self._add_separator()
             frame = tk.Frame(master=self, borderwidth=0)
             frame.pack(side=tk.LEFT, fill=tk.Y)
+            frame._label_font = self._label_font
             self._groups[group] = frame
         return self._groups[group]
 

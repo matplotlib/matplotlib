@@ -8,7 +8,6 @@ import hashlib
 import logging
 import os
 from pathlib import Path
-import re
 import shutil
 import subprocess
 import sys
@@ -62,15 +61,6 @@ def get_file_hash(path, block_size=2 ** 20):
                    .encode('utf-8'))
 
     return md5.hexdigest()
-
-
-# Modified from https://bugs.python.org/issue25567.
-_find_unsafe_bytes = re.compile(br'[^a-zA-Z0-9_@%+=:,./-]').search
-
-
-def _shlex_quote_bytes(b):
-    return (b if _find_unsafe_bytes(b) is None
-            else b"'" + b.replace(b"'", b"'\"'\"'") + b"'")
 
 
 class _ConverterError(Exception):

@@ -1823,9 +1823,17 @@ class Axis(martist.Artist):
         Parameters
         ----------
         ticks : list of floats
-            List of tick locations.
+            List of tick locations.  The axis `.Locator` is replaced by a
+            `~.ticker.FixedLocator`.
+
+            Some tick formatters will not label arbitrary tick positions;
+            e.g. log formatters only label decade ticks by default. In
+            such a case you can set a formatter explicitly on the axis
+            using `.Axis.set_major_formatter` or provide formatted
+            *labels* yourself.
         labels : list of str, optional
-            List of tick labels. If not set, the labels show the data value.
+            List of tick labels. If not set, the labels are generated with
+            the axis tick `.Formatter`.
         minor : bool, default: False
             If ``False``, set the major ticks; if ``True``, the minor ticks.
         **kwargs
@@ -2073,8 +2081,7 @@ class XAxis(Axis):
         if self.label_position == 'bottom':
             try:
                 spine = self.axes.spines['bottom']
-                spinebbox = spine.get_transform().transform_path(
-                    spine.get_path()).get_extents()
+                spinebbox = spine.get_window_extent()
             except KeyError:
                 # use axes if spine doesn't exist
                 spinebbox = self.axes.bbox
@@ -2084,12 +2091,10 @@ class XAxis(Axis):
             self.label.set_position(
                 (x, bottom - self.labelpad * self.figure.dpi / 72)
             )
-
         else:
             try:
                 spine = self.axes.spines['top']
-                spinebbox = spine.get_transform().transform_path(
-                    spine.get_path()).get_extents()
+                spinebbox = spine.get_window_extent()
             except KeyError:
                 # use axes if spine doesn't exist
                 spinebbox = self.axes.bbox
@@ -2336,13 +2341,11 @@ class YAxis(Axis):
         # get bounding boxes for this axis and any siblings
         # that have been set by `fig.align_ylabels()`
         bboxes, bboxes2 = self._get_tick_boxes_siblings(renderer=renderer)
-
         x, y = self.label.get_position()
         if self.label_position == 'left':
             try:
                 spine = self.axes.spines['left']
-                spinebbox = spine.get_transform().transform_path(
-                    spine.get_path()).get_extents()
+                spinebbox = spine.get_window_extent()
             except KeyError:
                 # use axes if spine doesn't exist
                 spinebbox = self.axes.bbox
@@ -2355,14 +2358,13 @@ class YAxis(Axis):
         else:
             try:
                 spine = self.axes.spines['right']
-                spinebbox = spine.get_transform().transform_path(
-                    spine.get_path()).get_extents()
+                spinebbox = spine.get_window_extent()
             except KeyError:
                 # use axes if spine doesn't exist
                 spinebbox = self.axes.bbox
+
             bbox = mtransforms.Bbox.union(bboxes2 + [spinebbox])
             right = bbox.x1
-
             self.label.set_position(
                 (right + self.labelpad * self.figure.dpi / 72, y)
             )
