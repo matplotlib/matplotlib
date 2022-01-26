@@ -1,7 +1,7 @@
 # pip requirements for all the CI builds
 
 certifi
-coverage
+coverage!=6.3
 pytest!=4.6.0,!=5.4.0
 pytest-cov
 pytest-rerunfailures
