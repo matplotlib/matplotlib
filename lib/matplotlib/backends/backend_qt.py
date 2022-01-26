@@ -529,13 +529,6 @@ class FigureManagerQT(FigureManagerBase):
 
         self.window._destroying = False
 
-        self.toolbar = self._get_toolbar(self.canvas, self.window)
-
-        if self.toolmanager:
-            backend_tools.add_tools_to_manager(self.toolmanager)
-            if self.toolbar:
-                backend_tools.add_tools_to_container(self.toolbar)
-
         if self.toolbar:
             self.window.addToolBar(self.toolbar)
             tbs_height = self.toolbar.sizeHint().height()
@@ -581,17 +574,6 @@ class FigureManagerQT(FigureManagerBase):
             # It seems that when the python session is killed,
             # Gcf can get destroyed before the Gcf.destroy
             # line is run, leading to a useless AttributeError.
-
-    def _get_toolbar(self, canvas, parent):
-        # must be inited after the window, drawingArea and figure
-        # attrs are set
-        if mpl.rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2QT(canvas)
-        elif mpl.rcParams['toolbar'] == 'toolmanager':
-            toolbar = ToolbarQt(self.toolmanager)
-        else:
-            toolbar = None
-        return toolbar
 
     def resize(self, width, height):
         # The Qt methods return sizes in 'virtual' pixels so we do need to
@@ -1020,6 +1002,10 @@ class ToolCopyToClipboardQT(backend_tools.ToolCopyToClipboardBase):
     def trigger(self, *args, **kwargs):
         pixmap = self.canvas.grab()
         qApp.clipboard().setPixmap(pixmap)
+
+
+FigureManagerQT._toolbar2_class = NavigationToolbar2QT
+FigureManagerQT._toolmanager_toolbar_class = ToolbarQt
 
 
 @_Backend.export

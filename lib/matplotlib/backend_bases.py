@@ -2716,6 +2716,9 @@ class FigureManagerBase:
                 figure.canvas.manager.button_press_handler_id)
     """
 
+    _toolbar2_class = None
+    _toolmanager_toolbar_class = None
+
     def __init__(self, canvas, num):
         self.canvas = canvas
         canvas.manager = self  # store a pointer to parent
@@ -2733,7 +2736,19 @@ class FigureManagerBase:
         self.toolmanager = (ToolManager(canvas.figure)
                             if mpl.rcParams['toolbar'] == 'toolmanager'
                             else None)
-        self.toolbar = None
+        if (mpl.rcParams["toolbar"] == "toolbar2"
+                and self._toolbar2_class):
+            self.toolbar = self._toolbar2_class(self.canvas)
+        elif (mpl.rcParams["toolbar"] == "toolmanager"
+                and self._toolmanager_toolbar_class):
+            self.toolbar = self._toolmanager_toolbar_class(self.toolmanager)
+        else:
+            self.toolbar = None
+
+        if self.toolmanager:
+            tools.add_tools_to_manager(self.toolmanager)
+            if self.toolbar:
+                tools.add_tools_to_container(self.toolbar)
 
         @self.canvas.figure.add_axobserver
         def notify_axes_change(fig):

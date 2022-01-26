@@ -72,7 +72,7 @@ class NavigationIPy(NavigationToolbar2WebAgg):
 
 
 class FigureManagerNbAgg(FigureManagerWebAgg):
-    ToolbarCls = NavigationIPy
+    _toolbar2_class = ToolbarCls = NavigationIPy
 
     def __init__(self, canvas, num):
         self._shown = False
