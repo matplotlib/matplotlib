@@ -7,7 +7,7 @@ from numpy.testing import assert_array_almost_equal
 import matplotlib as mpl
 from matplotlib.testing.decorators import image_comparison
 from matplotlib import pyplot as plt, rc_context
-from matplotlib.colors import LogNorm
+from matplotlib.colors import LogNorm, same_color
 import pytest
 
 
@@ -478,3 +478,43 @@ def test_contour_autolabel_beyond_powerlimits():
     ax.clabel(cs)
     # Currently, the exponent is missing, but that may be fixed in the future.
     assert {text.get_text() for text in ax.texts} == {"0.25", "1.00", "4.00"}
+
+
+def test_contourf_legend_elements():
+    from matplotlib.patches import Rectangle
+    x = np.arange(1, 10)
+    y = x.reshape(-1, 1)
+    h = x * y
+
+    cs = plt.contourf(h, levels=[10, 30, 50],
+                      colors=['#FFFF00', '#FF00FF', '#00FFFF'],
+                      extend='both')
+    cs.cmap.set_over('red')
+    cs.cmap.set_under('blue')
+    cs.changed()
+    artists, labels = cs.legend_elements()
+    assert labels == ['$x \\leq -1e+250s$',
+                      '$10.0 < x \\leq 30.0$',
+                      '$30.0 < x \\leq 50.0$',
+                      '$x > 1e+250s$']
+    expected_colors = ('blue', '#FFFF00', '#FF00FF', 'red')
+    assert all(isinstance(a, Rectangle) for a in artists)
+    assert all(same_color(a.get_facecolor(), c)
+               for a, c in zip(artists, expected_colors))
+
+
+def test_contour_legend_elements():
+    from matplotlib.collections import LineCollection
+    x = np.arange(1, 10)
+    y = x.reshape(-1, 1)
+    h = x * y
+
+    colors = ['blue', '#00FF00', 'red']
+    cs = plt.contour(h, levels=[10, 30, 50],
+                     colors=colors,
+                     extend='both')
+    artists, labels = cs.legend_elements()
+    assert labels == ['$x = 10.0$', '$x = 30.0$', '$x = 50.0$']
+    assert all(isinstance(a, LineCollection) for a in artists)
+    assert all(same_color(a.get_color(), c)
+               for a, c in zip(artists, colors))
