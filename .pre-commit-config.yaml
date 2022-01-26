@@ -1,0 +1,29 @@
+ci:
+  autofix_prs: false
+  autoupdate_schedule: 'quarterly'
+exclude: |
+  (?x)^(
+    extern|
+    lib/matplotlib/mpl-data|
+    doc/devel/gitwash|
+    doc/users/prev|
+    doc/api/prev|
+    lib/matplotlib/tests/tinypages
+    )
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: check-added-large-files
+      - id: check-docstring-first
+      - id: end-of-file-fixer
+        exclude_types: [svg]
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+        exclude_types: [svg]
+  - repo: https://github.com/pycqa/flake8
+    rev: 3.9.2
+    hooks:
+      - id: flake8
+        additional_dependencies: [pydocstyle>5.1.0, flake8-docstrings>1.4.0]
+        args: ["--docstring-convention=all"]
