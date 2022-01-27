@@ -1373,17 +1373,20 @@ def test_polygon_selector_redraw(ax, draw_bounding_box):
     assert tool.verts == verts[0:2]
 
 
-@check_figures_equal()
-def test_polygon_selector_verts_setter(fig_test, fig_ref):
+@pytest.mark.parametrize('draw_bounding_box', [False, True])
+@check_figures_equal(extensions=['png'])
+def test_polygon_selector_verts_setter(fig_test, fig_ref, draw_bounding_box):
     verts = [(0.1, 0.4), (0.5, 0.9), (0.3, 0.2)]
     ax_test = fig_test.add_subplot()
 
-    tool_test = widgets.PolygonSelector(ax_test, onselect=noop)
+    tool_test = widgets.PolygonSelector(
+        ax_test, onselect=noop, draw_bounding_box=draw_bounding_box)
     tool_test.verts = verts
     assert tool_test.verts == verts
 
     ax_ref = fig_ref.add_subplot()
-    tool_ref = widgets.PolygonSelector(ax_ref, onselect=noop)
+    tool_ref = widgets.PolygonSelector(
+        ax_ref, onselect=noop, draw_bounding_box=draw_bounding_box)
     event_sequence = (polygon_place_vertex(*verts[0]) +
                       polygon_place_vertex(*verts[1]) +
                       polygon_place_vertex(*verts[2]) +
