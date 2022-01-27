@@ -871,7 +871,7 @@ def test_span_selector_animated_artists_callback():
         # Return mean of values in x between *vmin* and *vmax*
         indmin, indmax = np.searchsorted(x, (vmin, vmax))
         v = values[indmin:indmax].mean()
-        ln2.set_data(x, v)
+        ln2.set_data(x, np.full_like(x, v))
 
     span = widgets.SpanSelector(ax, mean, direction='horizontal',
                                 onmove_callback=mean,
@@ -888,7 +888,7 @@ def test_span_selector_animated_artists_callback():
     assert span._get_animated_artists() == (ln, ln2)
     assert ln.stale is False
     assert ln2.stale
-    assert ln2.get_ydata() == 0.9547335049088455
+    assert_allclose(ln2.get_ydata(), 0.9547335049088455)
     span.update()
     assert ln2.stale is False
 
@@ -901,7 +901,7 @@ def test_span_selector_animated_artists_callback():
     do_event(span, 'onmove', xdata=move_data[0], ydata=move_data[1], button=1)
     assert ln.stale is False
     assert ln2.stale
-    assert ln2.get_ydata() == -0.9424150707548072
+    assert_allclose(ln2.get_ydata(), -0.9424150707548072)
     do_event(span, 'release', xdata=release_data[0],
              ydata=release_data[1], button=1)
     assert ln2.stale is False
