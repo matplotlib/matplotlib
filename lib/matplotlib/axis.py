@@ -220,7 +220,7 @@ class Tick(martist.Artist):
         return self._tickdir
 
     def get_tick_padding(self):
-        """Get the length of the tick outside of the axes."""
+        """Get the length of the tick outside of the Axes."""
         padding = {
             'in': 0.0,
             'inout': 0.5,
@@ -1869,7 +1869,7 @@ class Axis(martist.Artist):
         grouper = self.figure._align_label_groups[axis_name]
         bboxes = []
         bboxes2 = []
-        # If we want to align labels from other axes:
+        # If we want to align labels from other Axes:
         for ax in grouper.get_siblings(self.axes):
             axis = getattr(ax, f"{axis_name}axis")
             ticks_to_draw = axis._update_ticks()
@@ -2083,7 +2083,7 @@ class XAxis(Axis):
                 spine = self.axes.spines['bottom']
                 spinebbox = spine.get_window_extent()
             except KeyError:
-                # use axes if spine doesn't exist
+                # use Axes if spine doesn't exist
                 spinebbox = self.axes.bbox
             bbox = mtransforms.Bbox.union(bboxes + [spinebbox])
             bottom = bbox.y0
@@ -2096,7 +2096,7 @@ class XAxis(Axis):
                 spine = self.axes.spines['top']
                 spinebbox = spine.get_window_extent()
             except KeyError:
-                # use axes if spine doesn't exist
+                # use Axes if spine doesn't exist
                 spinebbox = self.axes.bbox
             bbox = mtransforms.Bbox.union(bboxes2 + [spinebbox])
             top = bbox.y1
@@ -2132,7 +2132,7 @@ class XAxis(Axis):
     def get_text_heights(self, renderer):
         """
         Return how much space should be reserved for text above and below the
-        axes, as a pair of floats.
+        Axes, as a pair of floats.
         """
         bbox, bbox2 = self.get_ticklabel_extents(renderer)
         # MGDTODO: Need a better way to get the pad
@@ -2193,7 +2193,7 @@ class XAxis(Axis):
 
     def tick_top(self):
         """
-        Move ticks and ticklabels (if present) to the top of the axes.
+        Move ticks and ticklabels (if present) to the top of the Axes.
         """
         label = True
         if 'label1On' in self._major_tick_kw:
@@ -2205,7 +2205,7 @@ class XAxis(Axis):
 
     def tick_bottom(self):
         """
-        Move ticks and ticklabels (if present) to the bottom of the axes.
+        Move ticks and ticklabels (if present) to the bottom of the Axes.
         """
         label = True
         if 'label1On' in self._major_tick_kw:
@@ -2347,7 +2347,7 @@ class YAxis(Axis):
                 spine = self.axes.spines['left']
                 spinebbox = spine.get_window_extent()
             except KeyError:
-                # use axes if spine doesn't exist
+                # use Axes if spine doesn't exist
                 spinebbox = self.axes.bbox
             bbox = mtransforms.Bbox.union(bboxes + [spinebbox])
             left = bbox.x0
@@ -2360,7 +2360,7 @@ class YAxis(Axis):
                 spine = self.axes.spines['right']
                 spinebbox = spine.get_window_extent()
             except KeyError:
-                # use axes if spine doesn't exist
+                # use Axes if spine doesn't exist
                 spinebbox = self.axes.bbox
 
             bbox = mtransforms.Bbox.union(bboxes2 + [spinebbox])
@@ -2449,7 +2449,7 @@ class YAxis(Axis):
 
     def tick_right(self):
         """
-        Move ticks and ticklabels (if present) to the right of the axes.
+        Move ticks and ticklabels (if present) to the right of the Axes.
         """
         label = True
         if 'label1On' in self._major_tick_kw:
@@ -2462,7 +2462,7 @@ class YAxis(Axis):
 
     def tick_left(self):
         """
-        Move ticks and ticklabels (if present) to the left of the axes.
+        Move ticks and ticklabels (if present) to the left of the Axes.
         """
         label = True
         if 'label1On' in self._major_tick_kw:
