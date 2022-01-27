@@ -1,0 +1,8 @@
+Large ``imshow`` images are now downsampled
+-------------------------------------------
+When showing an image using `~matplotlib.axes.Axes.imshow` that has more than
+:math:`2^{24}` columns or :math:`2^{23}` rows, the image will now be downsampled
+to below this resolution before being resampled for display by the AGG renderer.
+Previously such a large image would be shown incorrectly. To prevent this
+downsampling and the warning it raises, manually downsample your data before
+handing it to `~matplotlib.axes.Axes.imshow`

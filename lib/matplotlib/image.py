@@ -7,6 +7,7 @@ import math
 import os
 import logging
 from pathlib import Path
+import warnings
 
 import numpy as np
 import PIL.PngImagePlugin
@@ -166,7 +167,22 @@ def _resample(
     allocating the output array and fetching the relevant properties from the
     Image object *image_obj*.
     """
-
+    # AGG can only handle coordinates smaller than 24-bit signed integers,
+    # so raise errors if the input data is larger than _image.resample can
+    # handle.
+    msg = ('Data with more than {n} cannot be accurately displayed. '
+           'Downsampling to less than {n} before displaying. '
+           'To remove this warning, manually downsample your data.')
+    if data.shape[1] > 2**23:
+        warnings.warn(msg.format(n='2**23 columns'))
+        step = int(np.ceil(data.shape[1] / 2**23))
+        data = data[:, ::step]
+        transform = Affine2D().scale(step, 1) + transform
+    if data.shape[0] > 2**24:
+        warnings.warn(msg.format(n='2**24 rows'))
+        step = int(np.ceil(data.shape[0] / 2**24))
+        data = data[::step, :]
+        transform = Affine2D().scale(1, step) + transform
     # decide if we need to apply anti-aliasing if the data is upsampled:
     # compare the number of displayed pixels to the number of
     # the data pixels.
