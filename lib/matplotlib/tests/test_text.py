@@ -768,6 +768,8 @@ def test_pdf_chars_beyond_bmp():
 
 @needs_usetex
 def test_metrics_cache():
+    mpl.text._get_text_metrics_with_cache_impl.cache_clear()
+
     fig = plt.figure()
     fig.text(.3, .5, "foo\nbar")
     fig.text(.3, .5, "foo\nbar", usetex=True)
@@ -788,3 +790,8 @@ def test_metrics_cache():
     # collision with the non-TeX string (drawn first here) whose metrics would
     # get incorrectly reused by the first TeX string.
     assert len(ys["foo"]) == len(ys["bar"]) == 1
+
+    info = mpl.text._get_text_metrics_with_cache_impl.cache_info()
+    # Every string gets a miss for the first layouting (extents), then a hit
+    # when drawing, but "foo\nbar" gets two hits as it's drawn twice.
+    assert info.hits > info.misses

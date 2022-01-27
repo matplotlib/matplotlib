@@ -2,6 +2,7 @@
 Classes for including text in a figure.
 """
 
+import functools
 import logging
 import math
 import numbers
@@ -89,6 +90,21 @@ def _get_textbox(text, renderer):
     return x_box, y_box, w_box, h_box
 
 
+def _get_text_metrics_with_cache(renderer, text, fontprop, ismath, dpi):
+    """Call ``renderer.get_text_width_height_descent``, caching the results."""
+    # Cached based on a copy of fontprop so that later in-place mutations of
+    # the passed-in argument do not mess up the cache.
+    return _get_text_metrics_with_cache_impl(
+        weakref.ref(renderer), text, fontprop.copy(), ismath, dpi)
+
+
+@functools.lru_cache(4096)
+def _get_text_metrics_with_cache_impl(
+        renderer_ref, text, fontprop, ismath, dpi):
+    # dpi is unused, but participates in cache invalidation (via the renderer).
+    return renderer_ref().get_text_width_height_descent(text, fontprop, ismath)
+
+
 @docstring.interpd
 @cbook._define_aliases({
     "color": ["c"],
@@ -108,7 +124,6 @@ class Text(Artist):
     """Handle storing and drawing of text in window or data coordinates."""
 
     zorder = 3
-    _cached = cbook.maxdict(50)
 
     def __repr__(self):
         return "Text(%s, %s, %s)" % (self._x, self._y, repr(self._text))
@@ -273,23 +288,6 @@ class Text(Artist):
         self._linespacing = other._linespacing
         self.stale = True
 
-    def _get_text_metrics_with_cache(
-            self, renderer, text, fontproperties, ismath):
-        """
-        Call ``renderer.get_text_width_height_descent``, caching the results.
-        """
-        cache_key = (
-            weakref.ref(renderer),
-            text,
-            hash(fontproperties),
-            ismath,
-            self.figure.dpi,
-        )
-        if cache_key not in self._cached:
-            self._cached[cache_key] = renderer.get_text_width_height_descent(
-                text, fontproperties, ismath)
-        return self._cached[cache_key]
-
     def _get_layout(self, renderer):
         """
         Return the extent (bbox) of the text together with
@@ -305,16 +303,17 @@ class Text(Artist):
         ys = []
 
         # Full vertical extent of font, including ascenders and descenders:
-        _, lp_h, lp_d = self._get_text_metrics_with_cache(
+        _, lp_h, lp_d = _get_text_metrics_with_cache(
             renderer, "lp", self._fontproperties,
-            ismath="TeX" if self.get_usetex() else False)
+            ismath="TeX" if self.get_usetex() else False, dpi=self.figure.dpi)
         min_dy = (lp_h - lp_d) * self._linespacing
 
         for i, line in enumerate(lines):
             clean_line, ismath = self._preprocess_math(line)
             if clean_line:
-                w, h, d = self._get_text_metrics_with_cache(
-                    renderer, clean_line, self._fontproperties, ismath)
+                w, h, d = _get_text_metrics_with_cache(
+                    renderer, clean_line, self._fontproperties,
+                    ismath=ismath, dpi=self.figure.dpi)
             else:
                 w = h = d = 0
 
