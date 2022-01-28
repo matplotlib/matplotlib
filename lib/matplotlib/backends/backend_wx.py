@@ -1356,7 +1356,7 @@ class _BackendWx(_Backend):
     FigureManager = FigureManagerWx
 
     @classmethod
-    def new_figure_manager(cls, num, *args, **kwargs):
+    def new_figure_manager_given_figure(cls, num, figure):
         # Create a wx.App instance if it has not been created so far.
         wxapp = wx.GetApp()
         if wxapp is None:
@@ -1366,10 +1366,6 @@ class _BackendWx(_Backend):
             # Retain a reference to the app object so that it does not get
             # garbage collected.
             _BackendWx._theWxApp = wxapp
-        return super().new_figure_manager(num, *args, **kwargs)
-
-    @classmethod
-    def new_figure_manager_given_figure(cls, num, figure):
         frame = FigureFrameWx(num, figure, canvas_class=cls.FigureCanvas)
         figmgr = frame.get_figure_manager()
         if mpl.is_interactive():
