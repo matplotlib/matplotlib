@@ -99,7 +99,7 @@ class _TransformedBoundsLocator:
     Axes locator for `.Axes.inset_axes` and similarly positioned Axes.
 
     The locator is a callable object used in `.Axes.set_aspect` to compute the
-    axes location depending on the renderer.
+    Axes location depending on the renderer.
     """
 
     def __init__(self, bounds, transform):
@@ -1117,7 +1117,7 @@ class _AxesBase(martist.Artist):
             The patch used to draw the background of the Axes.  It is also used
             as the clipping path for any data elements on the Axes.
 
-            In the standard axes, this is a rectangle, but in other projections
+            In the standard Axes, this is a rectangle, but in other projections
             it may not be.
 
         Notes
@@ -1149,7 +1149,7 @@ class _AxesBase(martist.Artist):
         Share the x-axis with *other*.
 
         This is equivalent to passing ``sharex=other`` when constructing the
-        axes, and cannot be used if the x-axis is already being shared with
+        Axes, and cannot be used if the x-axis is already being shared with
         another Axes.
         """
         _api.check_isinstance(_AxesBase, other=other)
@@ -1168,7 +1168,7 @@ class _AxesBase(martist.Artist):
         Share the y-axis with *other*.
 
         This is equivalent to passing ``sharey=other`` when constructing the
-        axes, and cannot be used if the y-axis is already being shared with
+        Axes, and cannot be used if the y-axis is already being shared with
         another Axes.
         """
         _api.check_isinstance(_AxesBase, other=other)
@@ -2413,7 +2413,7 @@ class _AxesBase(martist.Artist):
 
     def add_container(self, container):
         """
-        Add a `.Container` to the axes' containers; return the container.
+        Add a `.Container` to the Axes' containers; return the container.
         """
         label = container.get_label()
         if not label:
@@ -2499,8 +2499,8 @@ class _AxesBase(martist.Artist):
             (which gets passed through).
         kwargs : dict
             Other parameters from which unit info (i.e., the *xunits*,
-            *yunits*, *zunits* (for 3D axes), *runits* and *thetaunits* (for
-            polar axes) entries) is popped, if present.  Note that this dict is
+            *yunits*, *zunits* (for 3D Axes), *runits* and *thetaunits* (for
+            polar) entries) is popped, if present.  Note that this dict is
             mutated in-place!
         convert : bool, default: True
             Whether to return the original datasets or the converted ones.
@@ -2779,7 +2779,7 @@ class _AxesBase(martist.Artist):
             True turns autoscaling on, False turns it off.
             None leaves the autoscaling state unchanged.
         axis : {'both', 'x', 'y'}, default: 'both'
-            The axis on which to operate.  (For 3D axes, *axis* can also be set
+            The axis on which to operate.  (For 3D Axes, *axis* can also be set
             to 'z', and 'both' refers to all three axes.)
         tight : bool or None, default: None
             If True, first set the margins to zero.  Then, this argument is
@@ -2853,7 +2853,7 @@ class _AxesBase(martist.Artist):
         if self.use_sticky_edges:
             # Only iterate over Axes and artists if needed.  The check for
             # ``hasattr(ax, "_children")`` is necessary because this can be
-            # called very early in the Axes init process (e.g., for twin axes)
+            # called very early in the Axes init process (e.g., for twin Axes)
             # when these attributes don't even exist yet, in which case
             # `get_children` would raise an AttributeError.
             if self._xmargin and scalex and self._autoscaleXon:
@@ -2953,7 +2953,7 @@ class _AxesBase(martist.Artist):
         Return a mapping of `Axis` "names" to `Axis` instances.
 
         The `Axis` name is derived from the attribute under which the instance
-        is stored, so e.g. for polar axes, the theta-axis is still named "x"
+        is stored, so e.g. for polar Axes, the theta-axis is still named "x"
         and the r-axis is still named "y" (for back-compatibility).
 
         In practice, this means that the entries are typically "x" and "y", and
@@ -3245,7 +3245,7 @@ class _AxesBase(martist.Artist):
     def ticklabel_format(self, *, axis='both', style='', scilimits=None,
                          useOffset=None, useLocale=None, useMathText=None):
         r"""
-        Configure the `.ScalarFormatter` used by default for linear axes.
+        Configure the `.ScalarFormatter` used by default for linear Axes.
 
         If a parameter is not set, the corresponding property of the formatter
         is left unchanged.
@@ -3327,7 +3327,7 @@ class _AxesBase(martist.Artist):
         Parameters
         ----------
         axis : {'both', 'x', 'y'}, default: 'both'
-            The axis on which to operate.  (For 3D axes, *axis* can also be
+            The axis on which to operate.  (For 3D Axes, *axis* can also be
             set to 'z', and 'both' refers to all three axes.)
         tight : bool or None, optional
             Parameter passed to `~.Axes.autoscale_view`.
@@ -3340,7 +3340,7 @@ class _AxesBase(martist.Artist):
             ``set_params()`` method of the locator. Supported keywords depend
             on the type of the locator. See for example
             `~.ticker.MaxNLocator.set_params` for the `.ticker.MaxNLocator`
-            used by default for linear axes.
+            used by default for linear.
 
         Examples
         --------
@@ -3377,7 +3377,7 @@ class _AxesBase(martist.Artist):
         Other Parameters
         ----------------
         direction : {'in', 'out', 'inout'}
-            Puts ticks inside the axes, outside the axes, or both.
+            Puts ticks inside the Axes, outside the Axes, or both.
         length : float
             Tick length in points.
         width : float
@@ -4538,7 +4538,7 @@ class _AxesBase(martist.Artist):
 
     def contains_point(self, point):
         """
-        Return whether *point* (pair of pixel coordinates) is inside the axes
+        Return whether *point* (pair of pixel coordinates) is inside the Axes
         patch.
         """
         return self.patch.contains_point(point, radius=1.0)
@@ -4568,7 +4568,7 @@ class _AxesBase(martist.Artist):
         artists.remove(self._right_title)
 
         # always include types that do not internally implement clipping
-        # to axes. may have clip_on set to True and clip_box equivalent
+        # to Axes. may have clip_on set to True and clip_box equivalent
         # to ax.bbox but then ignore these properties during draws.
         noclip = (_AxesBase, maxis.Axis,
                   offsetbox.AnnotationBbox, offsetbox.OffsetBox)
@@ -4578,7 +4578,7 @@ class _AxesBase(martist.Artist):
     def get_tightbbox(self, renderer, call_axes_locator=True,
                       bbox_extra_artists=None, *, for_layout_only=False):
         """
-        Return the tight bounding box of the axes, including axis and their
+        Return the tight bounding box of the Axes, including axis and their
         decorators (xlabel, title, etc).
 
         Artists that have ``artist.set_in_layout(False)`` are not included

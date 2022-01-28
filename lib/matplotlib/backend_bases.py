@@ -1301,12 +1301,12 @@ class LocationEvent(Event):
         self.x = int(x) if x is not None else x
         # y position - pixels from right of canvas
         self.y = int(y) if y is not None else y
-        self.inaxes = None  # the Axes instance if mouse us over axes
+        self.inaxes = None  # the Axes instance the mouse is over
         self.xdata = None   # x coord of mouse in data coords
         self.ydata = None   # y coord of mouse in data coords
 
         if x is None or y is None:
-            # cannot check if event was in axes if no (x, y) info
+            # cannot check if event was in Axes if no (x, y) info
             self._update_enter_leave()
             return
 
@@ -1332,7 +1332,7 @@ class LocationEvent(Event):
         if LocationEvent.lastevent is not None:
             last = LocationEvent.lastevent
             if last.inaxes != self.inaxes:
-                # process axes enter/leave events
+                # process Axes enter/leave events
                 try:
                     if last.inaxes is not None:
                         last.canvas.callbacks.process('axes_leave_event', last)
@@ -1619,7 +1619,7 @@ class FigureCanvasBase:
         self._button = None  # the button pressed
         self._key = None  # the key pressed
         self._lastx, self._lasty = None, None
-        self.mouse_grabber = None  # the axes currently grabbing mouse
+        self.mouse_grabber = None  # the Axes currently grabbing mouse
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_idle_drawing = False
         # We don't want to scale up the figure DPI more than once.
@@ -1901,7 +1901,8 @@ class FigureCanvasBase:
         Returns
         -------
         `~matplotlib.axes.Axes` or None
-            The topmost visible axes containing the point, or None if no axes.
+            The topmost visible Axes containing the point, or None if there
+            is no Axes at the point.
         """
         axes_list = [a for a in self.figure.get_axes()
                      if a.patch.contains_point(xy) and a.get_visible()]
@@ -1917,7 +1918,7 @@ class FigureCanvasBase:
         Set the child `~.axes.Axes` which is grabbing the mouse events.
 
         Usually called by the widgets themselves. It is an error to call this
-        if the mouse is already grabbed by another axes.
+        if the mouse is already grabbed by another Axes.
         """
         if self.mouse_grabber not in (None, ax):
             raise RuntimeError("Another Axes already grabs mouse input")
@@ -2360,7 +2361,7 @@ class FigureCanvasBase:
                 def func(event: Event) -> Any
 
             For the location events (button and key press/release), if the
-            mouse is over the axes, the ``inaxes`` attribute of the event will
+            mouse is over the Axes, the ``inaxes`` attribute of the event will
             be set to the `~matplotlib.axes.Axes` the event occurs is over, and
             additionally, the variables ``xdata`` and ``ydata`` attributes will
             be set to the mouse location in data coordinates.  See `.KeyEvent`
@@ -2565,7 +2566,7 @@ def key_press_handler(event, canvas=None, toolbar=None):
             return None
 
     ax = event.inaxes
-    # toggle major grids in current axes (default key 'g')
+    # toggle major grids in current Axes (default key 'g')
     # Both here and below (for 'G'), we do nothing if *any* grid (major or
     # minor, x or y) is not in a uniform state, to avoid messing up user
     # customization.
@@ -2587,7 +2588,7 @@ def key_press_handler(event, canvas=None, toolbar=None):
             ax.grid(x_state, which="major" if x_state else "both", axis="x")
             ax.grid(y_state, which="major" if y_state else "both", axis="y")
             canvas.draw_idle()
-    # toggle major and minor grids in current axes (default key 'G')
+    # toggle major and minor grids in current Axes (default key 'G')
     if (event.key in grid_minor_keys
             # Exclude major grids not in a uniform state.
             and None not in [_get_uniform_gridstate(ax.xaxis.majorTicks),
@@ -2752,7 +2753,7 @@ class FigureManagerBase:
 
         @self.canvas.figure.add_axobserver
         def notify_axes_change(fig):
-            # Called whenever the current axes is changed.
+            # Called whenever the current Axes is changed.
             if self.toolmanager is None and self.toolbar is not None:
                 self.toolbar.update()
 
@@ -3119,7 +3120,7 @@ class NavigationToolbar2:
         id_zoom = self.canvas.mpl_connect(
             "motion_notify_event", self.drag_zoom)
         # A colorbar is one-dimensional, so we extend the zoom rectangle out
-        # to the edge of the axes bbox in the other dimension. To do that we
+        # to the edge of the Axes bbox in the other dimension. To do that we
         # store the orientation of the colorbar for later.
         if hasattr(axes[0], "_colorbar"):
             cbar = axes[0]._colorbar.orientation
@@ -3175,8 +3176,8 @@ class NavigationToolbar2:
             return
 
         for i, ax in enumerate(self._zoom_info.axes):
-            # Detect whether this axes is twinned with an earlier axes in the
-            # list of zoomed axes, to avoid double zooming.
+            # Detect whether this Axes is twinned with an earlier Axes in the
+            # list of zoomed Axes, to avoid double zooming.
             twinx = any(ax.get_shared_x_axes().joined(ax, prev)
                         for prev in self._zoom_info.axes[:i])
             twiny = any(ax.get_shared_y_axes().joined(ax, prev)
@@ -3203,7 +3204,7 @@ class NavigationToolbar2:
     def _update_view(self):
         """
         Update the viewlim and position from the view and position stack for
-        each axes.
+        each Axes.
         """
         nav_info = self._nav_stack()
         if nav_info is None:
@@ -3255,7 +3256,7 @@ class NavigationToolbar2:
         self.canvas.set_cursor(cursor)
 
     def update(self):
-        """Reset the axes stack."""
+        """Reset the Axes stack."""
         self._nav_stack.clear()
         self.set_history_buttons()
 

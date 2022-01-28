@@ -215,10 +215,8 @@ class Artist:
             if hasattr(self, 'axes') and self.axes:
                 # remove from the mouse hit list
                 self.axes._mouseover_set.discard(self)
-                # mark the axes as stale
                 self.axes.stale = True
-                # decouple the artist from the axes
-                self.axes = None
+                self.axes = None  # decouple the artist from the Axes
                 _ax_flag = True
 
             if self.figure:
@@ -511,14 +509,14 @@ class Artist:
 
         # Pick children
         for a in self.get_children():
-            # make sure the event happened in the same axes
+            # make sure the event happened in the same Axes
             ax = getattr(a, 'axes', None)
             if (mouseevent.inaxes is None or ax is None
                     or mouseevent.inaxes == ax):
                 # we need to check if mouseevent.inaxes is None
                 # because some objects associated with an Axes (e.g., a
                 # tick label) can be outside the bounding box of the
-                # axes and inaxes will be None
+                # Axes and inaxes will be None
                 # also check that ax is None so that it traverse objects
                 # which do no have an axes property but children might
                 a.pick(mouseevent)
@@ -829,7 +827,7 @@ class Artist:
 
     def _fully_clipped_to_axes(self):
         """
-        Return a boolean flag, ``True`` if the artist is clipped to the axes
+        Return a boolean flag, ``True`` if the artist is clipped to the Axes
         and can thus be skipped in layout calculations. Requires `get_clip_on`
         is True, one of `clip_box` or `clip_path` is set, ``clip_box.extents``
         is equivalent to ``ax.bbox.extents`` (if set), and ``clip_path._patch``
@@ -877,7 +875,7 @@ class Artist:
         """
         Set whether the artist uses clipping.
 
-        When False artists will be visible outside of the axes which
+        When False artists will be visible outside of the Axes which
         can lead to unexpected results.
 
         Parameters
