@@ -309,7 +309,7 @@ static PyMethodDef qhull_methods[] = {
      "Parameters\n"
      "----------\n"
      "x, y : 1d arrays\n"
-     "    The coordinates of the point set, which must consist of at least \n"
+     "    The coordinates of the point set, which must consist of at least\n"
      "    three unique points.\n"
      "\n"
      "Returns\n"
