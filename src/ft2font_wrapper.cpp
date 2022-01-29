@@ -1536,32 +1536,25 @@ static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT, "ft2font" };
 
 PyMODINIT_FUNC PyInit_ft2font(void)
 {
-    PyObject *m;
-
     import_array();
 
-    m = PyModule_Create(&moduledef);
-
-    if (m == NULL) {
-        return NULL;
+    if (FT_Init_FreeType(&_ft2Library)) {  // initialize library
+        return PyErr_Format(
+            PyExc_RuntimeError, "Could not initialize the freetype2 library");
     }
+    FT_Int major, minor, patch;
+    char version_string[64];
+    FT_Library_Version(_ft2Library, &major, &minor, &patch);
+    sprintf(version_string, "%d.%d.%d", major, minor, patch);
 
-    if (!PyFT2Image_init_type(m, &PyFT2ImageType)) {
-        Py_DECREF(m);
-        return NULL;
-    }
-
-    if (!PyGlyph_init_type(m, &PyGlyphType)) {
-        Py_DECREF(m);
-        return NULL;
-    }
-
-    if (!PyFT2Font_init_type(m, &PyFT2FontType)) {
-        Py_DECREF(m);
-        return NULL;
-    }
-
-    if (PyModule_AddIntConstant(m, "SCALABLE", FT_FACE_FLAG_SCALABLE) ||
+    PyObject *m = PyModule_Create(&moduledef);
+    if (!m ||
+        !PyFT2Image_init_type(m, &PyFT2ImageType) ||
+        !PyGlyph_init_type(m, &PyGlyphType) ||
+        !PyFT2Font_init_type(m, &PyFT2FontType) ||
+        PyModule_AddStringConstant(m, "__freetype_version__", version_string) ||
+        PyModule_AddStringConstant(m, "__freetype_build_type__", STRINGIFY(FREETYPE_BUILD_TYPE)) ||
+        PyModule_AddIntConstant(m, "SCALABLE", FT_FACE_FLAG_SCALABLE) ||
         PyModule_AddIntConstant(m, "FIXED_SIZES", FT_FACE_FLAG_FIXED_SIZES) ||
         PyModule_AddIntConstant(m, "FIXED_WIDTH", FT_FACE_FLAG_FIXED_WIDTH) ||
         PyModule_AddIntConstant(m, "SFNT", FT_FACE_FLAG_SFNT) ||
@@ -1597,33 +1590,8 @@ PyMODINIT_FUNC PyInit_ft2font(void)
         PyModule_AddIntConstant(m, "LOAD_TARGET_MONO", (unsigned long)FT_LOAD_TARGET_MONO) ||
         PyModule_AddIntConstant(m, "LOAD_TARGET_LCD", (unsigned long)FT_LOAD_TARGET_LCD) ||
         PyModule_AddIntConstant(m, "LOAD_TARGET_LCD_V", (unsigned long)FT_LOAD_TARGET_LCD_V)) {
-        Py_DECREF(m);
-        return NULL;
-    }
-
-    // initialize library
-    int error = FT_Init_FreeType(&_ft2Library);
-
-    if (error) {
-        PyErr_SetString(PyExc_RuntimeError, "Could not initialize the freetype2 library");
-        Py_DECREF(m);
-        return NULL;
-    }
-
-    {
-        FT_Int major, minor, patch;
-        char version_string[64];
-
-        FT_Library_Version(_ft2Library, &major, &minor, &patch);
-        sprintf(version_string, "%d.%d.%d", major, minor, patch);
-        if (PyModule_AddStringConstant(m, "__freetype_version__", version_string)) {
-            Py_DECREF(m);
-            return NULL;
-        }
-    }
-
-    if (PyModule_AddStringConstant(m, "__freetype_build_type__", STRINGIFY(FREETYPE_BUILD_TYPE))) {
-        Py_DECREF(m);
+        FT_Done_FreeType(_ft2Library);
+        Py_XDECREF(m);
         return NULL;
     }
 
