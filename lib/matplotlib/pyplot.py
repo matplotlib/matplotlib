@@ -3085,3 +3085,5 @@ def nipy_spectral(): set_cmap('nipy_spectral')
 
 
 _setup_pyplot_info_docstrings()
+
+from matplotlib import use_locale_font
