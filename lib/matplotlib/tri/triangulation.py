@@ -43,7 +43,9 @@ class Triangulation:
         self.x = np.asarray(x, dtype=np.float64)
         self.y = np.asarray(y, dtype=np.float64)
         if self.x.shape != self.y.shape or self.x.ndim != 1:
-            raise ValueError("x and y must be equal-length 1D arrays")
+            raise ValueError("x and y must be equal-length 1D arrays, but "
+                             f"found shapes {self.x.shape!r} and "
+                             f"{self.y.shape!r}")
 
         self.mask = None
         self._edges = None
@@ -58,13 +60,25 @@ class Triangulation:
         else:
             # Triangulation specified. Copy, since we may correct triangle
             # orientation.
-            self.triangles = np.array(triangles, dtype=np.int32, order='C')
+            try:
+                self.triangles = np.array(triangles, dtype=np.int32, order='C')
+            except ValueError as e:
+                raise ValueError('triangles must be a (N, 3) int array, not '
+                                 f'{triangles!r}') from e
             if self.triangles.ndim != 2 or self.triangles.shape[1] != 3:
-                raise ValueError('triangles must be a (?, 3) array')
+                raise ValueError(
+                    'triangles must be a (N, 3) int array, but found shape '
+                    f'{self.triangles.shape!r}')
             if self.triangles.max() >= len(self.x):
-                raise ValueError('triangles max element is out of bounds')
+                raise ValueError(
+                    'triangles are indices into the points and must be in the '
+                    f'range 0 <= i < {len(self.x)} but found value '
+                    f'{self.triangles.max()}')
             if self.triangles.min() < 0:
-                raise ValueError('triangles min element is out of bounds')
+                raise ValueError(
+                    'triangles are indices into the points and must be in the '
+                    f'range 0 <= i < {len(self.x)} but found value '
+                    f'{self.triangles.min()}')
 
         if mask is not None:
             self.mask = np.asarray(mask, dtype=bool)
