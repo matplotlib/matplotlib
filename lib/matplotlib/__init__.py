@@ -1450,4 +1450,4 @@ _log.debug('platform is %s', sys.platform)
 # colormap creation depends on rcParams
 from matplotlib.cm import _colormaps as colormaps
 
-from locale_font import use_locale_font
+from matplotlib.locale_font import use_locale_font

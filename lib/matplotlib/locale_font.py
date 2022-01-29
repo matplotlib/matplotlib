@@ -5,13 +5,12 @@ See "examples/pyplots/locale_font.py" for usage example.
 """
 
 from locale import getdefaultlocale
-from os.path import sep, join
+from os.path import join
 from os import listdir
 from sys import stderr
 
 from matplotlib import rcParams, get_data_path
-from matplotlib.font_manager import fontManager
-from matplotlib.style import available
+from matplotlib.font_manager import fontManager\
 
 """
 Fonts corresponds to each locales.
@@ -112,4 +111,3 @@ def use_locale_font():
                          f"{join(get_data_path(), 'fonts', 'ttf')}")
     else:
         stderr.write(f"Locale {lc} is not configured\n")
-
