@@ -87,6 +87,10 @@ class TimerWx(TimerBase):
             self._timer_start()  # Restart with new interval.
 
 
+@_api.deprecated(
+    "2.0", name="wx", obj_type="backend", removal="the future",
+    alternative="wxagg",
+    addendum="See the Matplotlib usage FAQ for more info on backends.")
 class RendererWx(RendererBase):
     """
     The renderer handles all the drawing primitives using a graphics
@@ -141,10 +145,6 @@ class RendererWx(RendererBase):
 
     def __init__(self, bitmap, dpi):
         """Initialise a wxWindows renderer instance."""
-        _api.warn_deprecated(
-            "2.0", name="wx", obj_type="backend", removal="the future",
-            alternative="wxagg", addendum="See the Matplotlib usage FAQ for "
-            "more info on backends.")
         super().__init__()
         _log.debug("%s - __init__()", type(self))
         self.width = bitmap.GetWidth()
@@ -158,6 +158,7 @@ class RendererWx(RendererBase):
         # docstring inherited
         return True
 
+    @_api.deprecated("3.6")
     def offset_text_height(self):
         return True
 
@@ -886,7 +887,6 @@ class FigureFrameWx(wx.Frame):
         super().__init__(parent=None, id=-1, pos=pos)
         # Frame will be sized later by the Fit method
         _log.debug("%s - __init__()", type(self))
-        self.num = num
         _set_frame_icon(self)
 
         # The parameter will become required after the deprecation elapses.
@@ -899,7 +899,8 @@ class FigureFrameWx(wx.Frame):
                 "%(since)s elapses.")
             self.canvas = self.get_canvas(fig)
 
-        self.figmgr = FigureManagerWx(self.canvas, num, self)
+        # Auto-attaches itself to self.canvas.manager
+        manager = FigureManagerWx(self.canvas, num, self)
 
         toolbar = self.canvas.manager.toolbar
         if toolbar is not None:
@@ -916,17 +917,27 @@ class FigureFrameWx(wx.Frame):
 
         self.Bind(wx.EVT_CLOSE, self._on_close)
 
-    toolmanager = property(lambda self: self.figmgr.toolmanager)
-    toolbar = property(lambda self: self.GetToolBar())  # backcompat
+    sizer = _api.deprecated("3.6", alternative="frame.GetSizer()")(
+        property(lambda self: self.GetSizer()))
+    figmgr = _api.deprecated("3.6", alternative="frame.canvas.manager")(
+        property(lambda self: self.canvas.manager))
+    num = _api.deprecated("3.6", alternative="frame.canvas.manager.num")(
+        property(lambda self: self.canvas.manager.num))
+    toolbar = _api.deprecated("3.6", alternative="frame.GetToolBar()")(
+        property(lambda self: self.GetToolBar()))
+    toolmanager = _api.deprecated(
+        "3.6", alternative="frame.canvas.manager.toolmanager")(
+            property(lambda self: self.canvas.manager.toolmanager))
 
     @_api.deprecated(
         "3.6", alternative="the canvas_class constructor parameter")
     def get_canvas(self, fig):
         return FigureCanvasWx(self, -1, fig)
 
+    @_api.deprecated("3.6", alternative="frame.canvas.manager")
     def get_figure_manager(self):
         _log.debug("%s - get_figure_manager()", type(self))
-        return self.figmgr
+        return self.canvas.manager
 
     def _on_close(self, event):
         _log.debug("%s - on_close()", type(self))
@@ -934,9 +945,9 @@ class FigureFrameWx(wx.Frame):
         self.canvas.stop_event_loop()
         # set FigureManagerWx.frame to None to prevent repeated attempts to
         # close this frame from FigureManagerWx.destroy()
-        self.figmgr.frame = None
+        self.canvas.manager.frame = None
         # remove figure manager from Gcf.figs
-        Gcf.destroy(self.figmgr)
+        Gcf.destroy(self.canvas.manager)
         try:  # See issue 2941338.
             self.canvas.mpl_disconnect(self.canvas.toolbar._id_drag)
         except AttributeError:  # If there's no toolbar.
@@ -1355,12 +1366,12 @@ class _BackendWx(_Backend):
             # Retain a reference to the app object so that it does not get
             # garbage collected.
             _BackendWx._theWxApp = wxapp
+        # Attaches figure.canvas, figure.canvas.manager.
         frame = FigureFrameWx(num, figure, canvas_class=cls.FigureCanvas)
-        figmgr = frame.get_figure_manager()
         if mpl.is_interactive():
-            figmgr.frame.Show()
+            frame.Show()
             figure.canvas.draw_idle()
-        return figmgr
+        return figure.canvas.manager
 
     @staticmethod
     def mainloop():
