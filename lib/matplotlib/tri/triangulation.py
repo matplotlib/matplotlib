@@ -1,5 +1,7 @@
 import numpy as np
 
+from matplotlib import _api
+
 
 class Triangulation:
     """
@@ -135,6 +137,14 @@ class Triangulation:
         """
         if isinstance(args[0], Triangulation):
             triangulation, *args = args
+            if 'triangles' in kwargs:
+                _api.warn_external(
+                    "Passing the keyword 'triangles' has no effect when also "
+                    "passing a Triangulation")
+            if 'mask' in kwargs:
+                _api.warn_external(
+                    "Passing the keyword 'mask' has no effect when also "
+                    "passing a Triangulation")
         else:
             x, y, triangles, mask, args, kwargs = \
                 Triangulation._extract_triangulation_params(args, kwargs)

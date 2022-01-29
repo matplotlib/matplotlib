@@ -11,22 +11,24 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
     """
     Create a pseudocolor plot of an unstructured triangular grid.
 
-    The triangulation can be specified in one of two ways; either::
+    Call signatures::
 
-      tripcolor(triangulation, ...)
+      tripcolor(triangulation, C, *, ...)
+      tripcolor(x, y, C, *, [triangles=triangles], [mask=mask], ...)
 
-    where triangulation is a `.Triangulation` object, or
+    The triangular grid can be specified either by passing a `.Triangulation`
+    object as the first parameter, or by passing the points *x*, *y* and
+    optionally the *triangles* and a *mask*. See `.Triangulation` for an
+    explanation of these parameters.
 
-    ::
+    Parameters
+    ----------
+    triangulation : `.Triangulation`
+        An already created triangular grid.
+    x, y, triangles, mask
+        Parameters specifying defining the triangular grid. See
+        `.Triangulation`.
 
-      tripcolor(x, y, ...)
-      tripcolor(x, y, triangles, ...)
-      tripcolor(x, y, triangles=triangles, ...)
-      tripcolor(x, y, mask=mask, ...)
-      tripcolor(x, y, triangles, mask=mask, ...)
-
-    in which case a Triangulation object will be created.  See `.Triangulation`
-    for a explanation of these possibilities.
 
     The next argument must be *C*, the array of color values, either
     one per point in the triangulation if color values are defined at
@@ -41,6 +43,11 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
     used for each triangle are from the mean C of the triangle's
     three points. If *shading* is 'gouraud' then color values must be
     defined at points.
+
+
+
+    tripcolor(x, y, [triangles], C, [mask=mask], ...)
+
 
     The remaining kwargs are the same as for `~.Axes.pcolor`.
     """
