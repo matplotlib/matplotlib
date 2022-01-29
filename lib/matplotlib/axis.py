@@ -855,7 +855,7 @@ class Axis(martist.Artist):
         :meth:`matplotlib.axes.Axes.tick_params`.
         """
         _api.check_in_list(['major', 'minor', 'both'], which=which)
-        kwtrans = self._translate_tick_kw(kwargs)
+        kwtrans = self._translate_tick_params(kwargs)
 
         # the kwargs are stored in self._major/minor_tick_kw so that any
         # future new ticks will automatically get them
@@ -887,47 +887,56 @@ class Axis(martist.Artist):
         self.stale = True
 
     @staticmethod
-    def _translate_tick_kw(kw):
+    def _translate_tick_params(kw):
+        """
+        Translate the kwargs supported by `.Axis.set_tick_params` to kwargs
+        supported by `.Tick._apply_params`.
+
+        In particular, this maps axis specific names like 'top', 'left'
+        to the generic tick1, tick2 logic of the axis. Additionally, there
+        are some other name translations.
+
+        Returns a new dict of translated kwargs.
+
+        Note: The input *kwargs* are currently modified, but that's ok for
+        the only caller.
+        """
         # The following lists may be moved to a more accessible location.
-        kwkeys = ['size', 'width', 'color', 'tickdir', 'pad',
-                  'labelsize', 'labelcolor', 'zorder', 'gridOn',
-                  'tick1On', 'tick2On', 'label1On', 'label2On',
-                  'length', 'direction', 'left', 'bottom', 'right', 'top',
-                  'labelleft', 'labelbottom', 'labelright', 'labeltop',
-                  'labelrotation'] + _gridline_param_names
-        kwtrans = {}
-        if 'length' in kw:
-            kwtrans['size'] = kw.pop('length')
-        if 'direction' in kw:
-            kwtrans['tickdir'] = kw.pop('direction')
-        if 'rotation' in kw:
-            kwtrans['labelrotation'] = kw.pop('rotation')
-        if 'left' in kw:
-            kwtrans['tick1On'] = kw.pop('left')
-        if 'bottom' in kw:
-            kwtrans['tick1On'] = kw.pop('bottom')
-        if 'right' in kw:
-            kwtrans['tick2On'] = kw.pop('right')
-        if 'top' in kw:
-            kwtrans['tick2On'] = kw.pop('top')
-        if 'labelleft' in kw:
-            kwtrans['label1On'] = kw.pop('labelleft')
-        if 'labelbottom' in kw:
-            kwtrans['label1On'] = kw.pop('labelbottom')
-        if 'labelright' in kw:
-            kwtrans['label2On'] = kw.pop('labelright')
-        if 'labeltop' in kw:
-            kwtrans['label2On'] = kw.pop('labeltop')
+        allowed_keys = [
+            'size', 'width', 'color', 'tickdir', 'pad',
+            'labelsize', 'labelcolor', 'zorder', 'gridOn',
+            'tick1On', 'tick2On', 'label1On', 'label2On',
+            'length', 'direction', 'left', 'bottom', 'right', 'top',
+            'labelleft', 'labelbottom', 'labelright', 'labeltop',
+            'labelrotation',
+            *_gridline_param_names]
+
+        keymap = {
+            # tick_params key -> axis key
+            'length': 'size',
+            'direction': 'tickdir',
+            'rotation': 'labelrotation',
+            'left': 'tick1On',
+            'bottom': 'tick1On',
+            'right': 'tick2On',
+            'top': 'tick2On',
+            'labelleft': 'label1On',
+            'labelbottom': 'label1On',
+            'labelright': 'label2On',
+            'labeltop': 'label2On',
+        }
+        kwtrans = {newkey: kw.pop(oldkey)
+                   for oldkey, newkey in keymap.items() if oldkey in kw}
         if 'colors' in kw:
             c = kw.pop('colors')
             kwtrans['color'] = c
             kwtrans['labelcolor'] = c
         # Maybe move the checking up to the caller of this method.
         for key in kw:
-            if key not in kwkeys:
+            if key not in allowed_keys:
                 raise ValueError(
                     "keyword %s is not recognized; valid keywords are %s"
-                    % (key, kwkeys))
+                    % (key, allowed_keys))
         kwtrans.update(kw)
         return kwtrans
 
