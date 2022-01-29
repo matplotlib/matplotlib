@@ -136,33 +136,33 @@ class Triangulation:
         if isinstance(args[0], Triangulation):
             triangulation, *args = args
         else:
-            x, y, *args = args
-
-            # Check triangles in kwargs then args.
-            triangles = kwargs.pop('triangles', None)
-            from_args = False
-            if triangles is None and args:
-                triangles = args[0]
-                from_args = True
-
-            if triangles is not None:
-                try:
-                    triangles = np.asarray(triangles, dtype=np.int32)
-                except ValueError:
-                    triangles = None
-
-            if triangles is not None and (triangles.ndim != 2 or
-                                          triangles.shape[1] != 3):
-                triangles = None
-
-            if triangles is not None and from_args:
-                args = args[1:]  # Consumed first item in args.
-
-            # Check for mask in kwargs.
-            mask = kwargs.pop('mask', None)
-
+            x, y, triangles, mask, args, kwargs = \
+                Triangulation._extract_triangulation_params(args, kwargs)
             triangulation = Triangulation(x, y, triangles, mask)
         return triangulation, args, kwargs
+
+    @staticmethod
+    def _extract_triangulation_params(args, kwargs):
+        x, y, *args = args
+        # Check triangles in kwargs then args.
+        triangles = kwargs.pop('triangles', None)
+        from_args = False
+        if triangles is None and args:
+            triangles = args[0]
+            from_args = True
+        if triangles is not None:
+            try:
+                triangles = np.asarray(triangles, dtype=np.int32)
+            except ValueError:
+                triangles = None
+        if triangles is not None and (triangles.ndim != 2 or
+                                      triangles.shape[1] != 3):
+            triangles = None
+        if triangles is not None and from_args:
+            args = args[1:]  # Consumed first item in args.
+        # Check for mask in kwargs.
+        mask = kwargs.pop('mask', None)
+        return x, y, triangles, mask, args, kwargs
 
     def get_trifinder(self):
         """

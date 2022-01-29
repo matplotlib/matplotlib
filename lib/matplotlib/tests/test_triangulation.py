@@ -12,6 +12,52 @@ from matplotlib.path import Path
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
+x = [-1, 0, 1, 0]
+y = [0, -1, 0, 1]
+triangles = [[0, 1, 2], [0, 2, 3]]
+mask = [False, True]
+
+
+@pytest.mark.parametrize('args, kwargs, expected', [
+    ([x, y], {}, [x, y, None, None]),
+    ([x, y, triangles], {}, [x, y, triangles, None]),
+    ([x, y], dict(triangles=triangles), [x, y, triangles, None]),
+    ([x, y], dict(mask=mask), [x, y, None, mask]),
+    ([x, y, triangles], dict(mask=mask), [x, y, triangles, mask]),
+    ([x, y], dict(triangles=triangles, mask=mask), [x, y, triangles, mask]),
+])
+def test_extract_triangulation_params(args, kwargs, expected):
+    other_args = [1, 2]
+    other_kwargs = {'a': 3, 'b': '4'}
+    x_, y_, triangles_, mask_, args_, kwargs_ = \
+        mtri.Triangulation._extract_triangulation_params(
+            args + other_args, {**kwargs, **other_kwargs})
+    x, y, triangles, mask = expected
+    assert x_ is x
+    assert y_ is y
+    assert_array_equal(triangles_, triangles)
+    assert mask_ is mask
+    assert args_ == other_args
+    assert kwargs_ == other_kwargs
+
+
+def test_extract_triangulation_positional_mask():
+    global x, y, triangles, mask
+    # mask cannot be passed positionally
+    x_, y_, triangles_, mask_, args_, kwargs_ = \
+        mtri.Triangulation._extract_triangulation_params(x, y, triangles, mask)
+    assert mask_ is None
+    assert args_ == [mask]
+    # the positional mask has to be catched downstream because this must pass
+    # unknown args through
+
+
+del x
+del y
+del triangles
+del mask
+
+
 def test_delaunay():
     # No duplicate points, regular grid.
     nx = 5
