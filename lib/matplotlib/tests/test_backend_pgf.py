@@ -11,7 +11,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.testing import _has_tex_package, _check_for_pgf
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
-from matplotlib.backends.backend_pgf import PdfPages, common_texification
+from matplotlib.backends.backend_pgf import PdfPages, _tex_escape
 from matplotlib.testing.decorators import (_image_directories,
                                            check_figures_equal,
                                            image_comparison)
@@ -73,8 +73,8 @@ def create_figure():
     ('% not a comment', r'\% not a comment'),
     ('^not', r'\^not'),
 ])
-def test_common_texification(plain_text, escaped_text):
-    assert common_texification(plain_text) == escaped_text
+def test_tex_escape(plain_text, escaped_text):
+    assert _tex_escape(plain_text) == escaped_text
 
 
 # test compiling a figure to pdf with xelatex
