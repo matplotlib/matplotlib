@@ -1449,3 +1449,5 @@ _log.debug('platform is %s', sys.platform)
 # workaround: we must defer colormaps import to after loading rcParams, because
 # colormap creation depends on rcParams
 from matplotlib.cm import _colormaps as colormaps
+
+from locale_font import use_locale_font
