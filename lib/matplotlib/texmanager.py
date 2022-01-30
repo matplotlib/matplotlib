@@ -217,7 +217,7 @@ class TexManager:
 %% when using psfrag which gets confused by it.
 \fontsize{%(fontsize)f}{%(baselineskip)f}%%
 \ifdefined\psfrag\else\hbox{}\fi%%
-{%(fontcmd)s %(tex)s}
+{%(fontcmd)s %(tex)s}\special{matplotlibbaselinemarker}
 \end{document}
 """
         Path(texfile).write_text(tex_template % {
