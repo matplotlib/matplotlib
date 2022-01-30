@@ -161,10 +161,9 @@ class TexManager:
         """
         Return a filename based on a hash of the string, fontsize, and dpi.
         """
-        s = ''.join([tex, self.get_font_config(), '%f' % fontsize,
-                     self.get_custom_preamble(), str(dpi or '')])
+        src = self._get_tex_source(tex, fontsize) + str(dpi)
         return os.path.join(
-            self.texcache, hashlib.md5(s.encode('utf-8')).hexdigest())
+            self.texcache, hashlib.md5(src.encode('utf-8')).hexdigest())
 
     def get_font_preamble(self):
         """
@@ -176,7 +175,13 @@ class TexManager:
         """Return a string containing user additions to the tex preamble."""
         return rcParams['text.latex.preamble']
 
-    def _get_preamble(self):
+    def _get_tex_source(self, tex, fontsize):
+        """Return the complete TeX source for processing a TeX string."""
+        self.get_font_config()  # Updates self._font_preamble.
+        baselineskip = 1.25 * fontsize
+        fontcmd = (r'\sffamily' if self._font_family == 'sans-serif' else
+                   r'\ttfamily' if self._font_family == 'monospace' else
+                   r'\rmfamily')
         return "\n".join([
             r"\documentclass{article}",
             # Pass-through \mathdefault, which is used in non-usetex mode to
@@ -196,6 +201,15 @@ class TexManager:
             # Custom packages (e.g. newtxtext) may already have loaded textcomp
             # with different options.
             _usepackage_if_not_loaded("textcomp"),
+            r"\pagestyle{empty}",
+            r"\begin{document}",
+            r"% The empty hbox ensures that a page is printed even for empty ",
+            r"% inputs, except when using psfrag which gets confused by it.",
+            r"\fontsize{%f}{%f}%%" % (fontsize, baselineskip),
+            r"\ifdefined\psfrag\else\hbox{}\fi%",
+            r"{\obeylines%s %s}\special{matplotlibbaselinemarker}"
+            % (fontcmd, tex),
+            r"\end{document}",
         ])
 
     def make_tex(self, tex, fontsize):
@@ -204,30 +218,8 @@ class TexManager:
 
         Return the file name.
         """
-        basefile = self.get_basefile(tex, fontsize)
-        texfile = '%s.tex' % basefile
-        fontcmd = (r'\sffamily' if self._font_family == 'sans-serif' else
-                   r'\ttfamily' if self._font_family == 'monospace' else
-                   r'\rmfamily')
-        tex_template = r"""
-%(preamble)s
-\pagestyle{empty}
-\begin{document}
-%% The empty hbox ensures that a page is printed even for empty inputs, except
-%% when using psfrag which gets confused by it.
-\fontsize{%(fontsize)f}{%(baselineskip)f}%%
-\ifdefined\psfrag\else\hbox{}\fi%%
-{\obeylines%(fontcmd)s %(tex)s}\special{matplotlibbaselinemarker}
-\end{document}
-"""
-        Path(texfile).write_text(tex_template % {
-            "preamble": self._get_preamble(),
-            "fontsize": fontsize,
-            "baselineskip": fontsize * 1.25,
-            "fontcmd": fontcmd,
-            "tex": tex,
-        }, encoding="utf-8")
-
+        texfile = self.get_basefile(tex, fontsize) + ".tex"
+        Path(texfile).write_text(self._get_tex_source(tex, fontsize))
         return texfile
 
     def _run_checked_subprocess(self, command, tex, *, cwd=None):
