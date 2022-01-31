@@ -2490,6 +2490,10 @@ class Figure(FigureBase):
         """
         Set whether and how `.tight_layout` is called when drawing.
 
+        .. admonition:: Discouraged
+
+            This method is discouraged in favor of `~.set_layout_engine`.
+
         Parameters
         ----------
         tight : bool or dict with keys "pad", "w_pad", "h_pad", "rect" or None
@@ -2525,7 +2529,9 @@ class Figure(FigureBase):
         overridden.  These pads are in inches and default to 3.0/72.0.
         ``w_pad`` is the width padding and ``h_pad`` is the height padding.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        .. admonition:: Discouraged
+
+            This method is discouraged in favor of `~.set_layout_engine`.
 
         Parameters
         ----------
