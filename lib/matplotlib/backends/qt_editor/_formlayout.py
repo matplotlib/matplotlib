@@ -517,7 +517,7 @@ def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
        box) for each member of a datagroup inside a datagroup
 
     Supported types for field_value:
-      - int, float, str, unicode, bool
+      - int, float, str, bool
       - colors: in Qt-compatible text form, i.e. in hex format or name
                 (red, ...) (automatically detected from a string)
       - list/tuple:

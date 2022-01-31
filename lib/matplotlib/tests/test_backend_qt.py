@@ -512,7 +512,7 @@ def _test_enums_impl():
 
     _enum("QtGui.QImage.Format").Format_ARGB32_Premultiplied
     _enum("QtGui.QImage.Format").Format_ARGB32_Premultiplied
-    # SPECIAL_KEYS are Qt::Key that do *not* return their unicode name instead
+    # SPECIAL_KEYS are Qt::Key that do *not* return their Unicode name instead
     # they have manually specified names.
     SPECIAL_KEYS = {
         _to_int(getattr(_enum("QtCore.Qt.Key"), k)): v

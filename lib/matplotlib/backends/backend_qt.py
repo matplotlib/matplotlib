@@ -22,7 +22,7 @@ from .qt_compat import (
 
 backend_version = __version__
 
-# SPECIAL_KEYS are Qt::Key that do *not* return their unicode name
+# SPECIAL_KEYS are Qt::Key that do *not* return their Unicode name
 # instead they have manually specified names.
 SPECIAL_KEYS = {
     _to_int(getattr(_enum("QtCore.Qt.Key"), k)): v for k, v in [
@@ -374,12 +374,12 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
                 if event_key != key and event_mods & mod]
         try:
             # for certain keys (enter, left, backspace, etc) use a word for the
-            # key, rather than unicode
+            # key, rather than Unicode
             key = SPECIAL_KEYS[event_key]
         except KeyError:
-            # unicode defines code points up to 0x10ffff (sys.maxunicode)
+            # Unicode defines code points up to 0x10ffff (sys.maxunicode)
             # QT will use Key_Codes larger than that for keyboard keys that are
-            # are not unicode characters (like multimedia keys)
+            # are not Unicode characters (like multimedia keys)
             # skip these
             # if you really want them, you should add them to SPECIAL_KEYS
             if event_key > sys.maxunicode:

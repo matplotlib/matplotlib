@@ -41,12 +41,12 @@ def get_unicode_index(symbol, math=True):
     Parameters
     ----------
     symbol : str
-        A single unicode character, a TeX command (e.g. r'\pi') or a Type1
+        A single (Unicode) character, a TeX command (e.g. r'\pi') or a Type1
         symbol name (e.g. 'phi').
     math : bool, default: True
-        If False, always treat as a single unicode character.
+        If False, always treat as a single Unicode character.
     """
-    # for a non-math symbol, simply return its unicode index
+    # for a non-math symbol, simply return its Unicode index
     if not math:
         return ord(symbol)
     # From UTF #25: U+2212 minus sign is the preferred
@@ -56,7 +56,7 @@ def get_unicode_index(symbol, math=True):
     # length, usually longer than a hyphen.
     if symbol == '-':
         return 0x2212
-    try:  # This will succeed if symbol is a single unicode char
+    try:  # This will succeed if symbol is a single Unicode char
         return ord(symbol)
     except TypeError:
         pass
@@ -482,7 +482,7 @@ class UnicodeFonts(TruetypeFonts):
         except ValueError:
             uniindex = ord('?')
             found_symbol = False
-            _log.warning("No TeX to unicode mapping for {!a}.".format(sym))
+            _log.warning("No TeX to Unicode mapping for {!a}.".format(sym))
 
         fontname, uniindex = self._map_virtual_font(
             fontname, font_class, uniindex)

@@ -254,7 +254,7 @@ class Formatter(TickHelper):
     def fix_minus(s):
         """
         Some classes may want to replace a hyphen for minus with the proper
-        unicode symbol (U+2212) for typographical correctness.  This is a
+        Unicode symbol (U+2212) for typographical correctness.  This is a
         helper method to perform such a replacement when it is enabled via
         :rc:`axes.unicode_minus`.
         """
@@ -344,9 +344,9 @@ class FormatStrFormatter(Formatter):
     The format string should have a single variable format (%) in it.
     It will be applied to the value (not the position) of the tick.
 
-    Negative numeric values will use a dash not a unicode minus,
-    use mathtext to get a unicode minus by wrappping the format specifier
-    with $ (e.g. "$%g$").
+    Negative numeric values will use a dash, not a Unicode minus; use mathtext
+    to get a Unicode minus by wrappping the format specifier with $ (e.g.
+    "$%g$").
     """
     def __init__(self, fmt):
         self.fmt = fmt
@@ -542,7 +542,7 @@ class ScalarFormatter(Formatter):
 
     def _format_maybe_minus_and_locale(self, fmt, arg):
         """
-        Format *arg* with *fmt*, applying unicode minus and locale if desired.
+        Format *arg* with *fmt*, applying Unicode minus and locale if desired.
         """
         return self.fix_minus(locale.format_string(fmt, (arg,), True)
                               if self._useLocale else fmt % arg)
