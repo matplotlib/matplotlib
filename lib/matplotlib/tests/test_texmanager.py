@@ -7,17 +7,14 @@ import pytest
 
 
 def test_fontconfig_preamble():
-    """Test that the preamble is included in _fontconfig."""
+    """Test that the preamble is included in the source."""
     plt.rcParams['text.usetex'] = True
 
-    tm1 = TexManager()
-    font_config1 = tm1.get_font_config()
-
+    src1 = TexManager()._get_tex_source("", fontsize=12)
     plt.rcParams['text.latex.preamble'] = '\\usepackage{txfonts}'
-    tm2 = TexManager()
-    font_config2 = tm2.get_font_config()
+    src2 = TexManager()._get_tex_source("", fontsize=12)
 
-    assert font_config1 != font_config2
+    assert src1 != src2
 
 
 @pytest.mark.parametrize(
