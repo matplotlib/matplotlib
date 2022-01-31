@@ -87,7 +87,7 @@ _log = logging.getLogger(__name__)
 
 # TODOs:
 #
-# * encoding of fonts, including mathtext fonts and unicode support
+# * encoding of fonts, including mathtext fonts and Unicode support
 # * TTF support has lots of small TODOs, e.g., how do you know if a font
 #   is serif/sans-serif, or symbolic/non-symbolic?
 # * draw_quad_mesh

@@ -1183,7 +1183,7 @@ class TestEngFormatter:
             assert _formatter(input) == _exp_output
 
         # Test several non default separators: no separator, a narrow
-        # no-break space (unicode character) and an extravagant string.
+        # no-break space (Unicode character) and an extravagant string.
         for _sep in ("", "\N{NARROW NO-BREAK SPACE}", "@_@"):
             # Case 2: unit=UNIT and sep=_sep.
             # Replace the default space separator from the reference case

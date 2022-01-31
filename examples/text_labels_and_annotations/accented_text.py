@@ -1,9 +1,9 @@
 r"""
 =================================
-Using accented text in matplotlib
+Using accented text in Matplotlib
 =================================
 
-Matplotlib supports accented characters via TeX mathtext or unicode.
+Matplotlib supports accented characters via TeX mathtext or Unicode.
 
 Using mathtext, the following accents are provided: \\hat, \\breve, \\grave,
 \\bar, \\acute, \\tilde, \\vec, \\dot, \\ddot.  All of them have the same

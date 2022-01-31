@@ -128,7 +128,7 @@ def subset_font_raw(font_in, font_out, unicodes, opts):
         print("Clear()", file=pe)
 
     if '--move-display' in opts:
-        print("Moving display glyphs into unicode ranges...")
+        print("Moving display glyphs into Unicode ranges...")
         font.familyname += " Display"
         font.fullname += " Display"
         font.fontname += "Display"

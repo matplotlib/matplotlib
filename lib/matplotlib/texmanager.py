@@ -79,7 +79,7 @@ class TexManager:
         'avant garde': ('pag', r'\usepackage{avant}'),
         'courier': ('pcr', r'\usepackage{courier}'),
         # Loading the type1ec package ensures that cm-super is installed, which
-        # is necessary for unicode computer modern.  (It also allows the use of
+        # is necessary for Unicode computer modern.  (It also allows the use of
         # computer modern at arbitrary sizes, but that's just a side effect.)
         'monospace': ('cmtt', r'\usepackage{type1ec}'),
         'computer modern roman': ('cmr', r'\usepackage{type1ec}'),

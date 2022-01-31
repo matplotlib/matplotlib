@@ -207,7 +207,7 @@ axes.formatter.offset_threshold : 2      # When useoffset is True, the offset
                                          # at least this number of significant
                                          # digits from tick labels.
 
-axes.unicode_minus  : True    # use unicode for the minus symbol
+axes.unicode_minus  : True    # use Unicode for the minus symbol
                               # rather than hyphen.  See
                               # https://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes
 axes.prop_cycle    : cycler('color', 'bgrcmyk')
