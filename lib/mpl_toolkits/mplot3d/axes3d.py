@@ -1617,12 +1617,7 @@ class Axes3D(Axes):
         cmap = kwargs.get('cmap', None)
         shade = kwargs.pop('shade', cmap is None)
         if shade is None:
-            _api.warn_deprecated(
-                "3.1",
-                message="Passing shade=None to Axes3D.plot_surface() is "
-                        "deprecated since matplotlib 3.1 and will change its "
-                        "semantic or raise an error in matplotlib 3.3. "
-                        "Please use shade=False instead.")
+            raise ValueError("shade cannot be None.")
 
         colset = []  # the sampled facecolor
         if (rows - 1) % rstride == 0 and \
