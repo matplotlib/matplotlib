@@ -9,16 +9,16 @@ Note that you do not need to have TeX installed, since Matplotlib ships
 its own TeX expression parser, layout engine, and fonts.  The layout engine
 is a fairly direct adaptation of the layout algorithms in Donald Knuth's
 TeX, so the quality is quite good (Matplotlib also provides a ``usetex``
-option for those who do want to call out to TeX to generate their text (see
+option for those who do want to call out to TeX to generate their text; see
 :doc:`/tutorials/text/usetex`).
 
 Any text element can use math text.  You should use raw strings (precede the
 quotes with an ``'r'``), and surround the math text with dollar signs ($), as
 in TeX. Regular text and mathtext can be interleaved within the same string.
 Mathtext can use DejaVu Sans (default), DejaVu Serif, the Computer Modern fonts
-(from (La)TeX), `STIX <http://www.stixfonts.org/>`_ fonts (with are designed
+(from (La)TeX), `STIX <http://www.stixfonts.org/>`_ fonts (which are designed
 to blend well with Times), or a Unicode font that you provide.  The mathtext
-font can be selected with the customization variable ``mathtext.fontset`` (see
+font can be selected via :rc:`mathtext.fontset` (see
 :doc:`/tutorials/introductory/customizing`)
 
 Here is a simple example::
