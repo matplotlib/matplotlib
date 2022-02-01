@@ -18,7 +18,7 @@ environment:
     PYTHONIOENCODING: UTF-8
     PYTEST_ARGS: -raR --numprocesses=auto --timeout=300 --durations=25
                  --cov-report= --cov=lib --log-level=DEBUG
-    PINNEDVERS: "pyzmq!=21.0.0 pyzmq!=22.0.0"
+    PINNEDVERS: "pyzmq!=21.0.0,!=22.0.0"
 
   matrix:
     # In theory we could use a single CONDA_INSTALL_LOCN because we construct
