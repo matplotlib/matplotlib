@@ -55,7 +55,7 @@ install:
   - conda config --prepend channels conda-forge
 
   # For building, use a new environment
-  - conda create -q -n test-environment python=%PYTHON_VERSION% tk
+  - conda create -q -n test-environment python=%PYTHON_VERSION% tk "pip<22.0"
   - activate test-environment
   # pull pywin32 from conda because on py38 there is something wrong with finding
   # the dlls when insalled from pip
