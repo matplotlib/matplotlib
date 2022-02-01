@@ -18,7 +18,7 @@ environment:
     PYTHONIOENCODING: UTF-8
     PYTEST_ARGS: -raR --numprocesses=auto --timeout=300 --durations=25
                  --cov-report= --cov=lib --log-level=DEBUG
-    PINNEDVERS: "pyzmq!=21.0.0 pyzmq!=22.0.0"
+    PINNEDVERS: "pyzmq!=21.0.0,!=22.0.0"
 
   matrix:
     # In theory we could use a single CONDA_INSTALL_LOCN because we construct
@@ -55,7 +55,7 @@ install:
   - conda config --prepend channels conda-forge
 
   # For building, use a new environment
-  - conda create -q -n test-environment python=%PYTHON_VERSION% tk
+  - conda create -q -n test-environment python=%PYTHON_VERSION% tk "pip<22.0"
   - activate test-environment
   # pull pywin32 from conda because on py38 there is something wrong with finding
   # the dlls when insalled from pip
