@@ -1,0 +1,10 @@
+``ticker`` functions deprecated
+-------------------------------
+
+The functions ``matplotlib.ticker.is_decade`` and
+``matplotlib.ticker.is_close_to_int`` are considered internal and public access
+is deprecated.
+
+For ``is_close_to_int`` use ``math.isclose(x, round(x))`` instead.
+For ``is_decade`` use
+``y = numpy.log(x)/numpy.log(base); numpy.isclose(y, numpy.round(y))``
