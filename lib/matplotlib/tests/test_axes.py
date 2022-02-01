@@ -24,6 +24,7 @@ from matplotlib.figure import Figure
 import matplotlib.font_manager as mfont_manager
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
+import matplotlib.path as mpath
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
@@ -5119,7 +5120,7 @@ def test_pie_default():
 
 
 @image_comparison(['pie_linewidth_0', 'pie_linewidth_0', 'pie_linewidth_0'],
-                  extensions=['png'])
+                  extensions=['png'], style='mpl20')
 def test_pie_linewidth_0():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -5151,7 +5152,7 @@ def test_pie_linewidth_0():
     plt.axis('equal')
 
 
-@image_comparison(['pie_center_radius.png'])
+@image_comparison(['pie_center_radius.png'], style='mpl20')
 def test_pie_center_radius():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -5171,7 +5172,7 @@ def test_pie_center_radius():
     plt.axis('equal')
 
 
-@image_comparison(['pie_linewidth_2.png'])
+@image_comparison(['pie_linewidth_2.png'], style='mpl20')
 def test_pie_linewidth_2():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -5186,7 +5187,7 @@ def test_pie_linewidth_2():
     plt.axis('equal')
 
 
-@image_comparison(['pie_ccw_true.png'])
+@image_comparison(['pie_ccw_true.png'], style='mpl20')
 def test_pie_ccw_true():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -5201,7 +5202,7 @@ def test_pie_ccw_true():
     plt.axis('equal')
 
 
-@image_comparison(['pie_frame_grid.png'])
+@image_comparison(['pie_frame_grid.png'], style='mpl20')
 def test_pie_frame_grid():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -5228,7 +5229,7 @@ def test_pie_frame_grid():
     plt.axis('equal')
 
 
-@image_comparison(['pie_rotatelabels_true.png'])
+@image_comparison(['pie_rotatelabels_true.png'], style='mpl20')
 def test_pie_rotatelabels_true():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Hogwarts', 'Frogs', 'Dogs', 'Logs'
@@ -7539,3 +7540,24 @@ def test_clim():
         clim = (7, 8)
         norm = plot_method(clim=clim).norm
         assert (norm.vmin, norm.vmax) == clim
+
+
+def test_bezier_autoscale():
+    # Check that bezier curves autoscale to their curves, and not their
+    # control points
+    verts = [[-1, 0],
+             [0, -1],
+             [1, 0],
+             [1, 0]]
+    codes = [mpath.Path.MOVETO,
+             mpath.Path.CURVE3,
+             mpath.Path.CURVE3,
+             mpath.Path.CLOSEPOLY]
+    p = mpath.Path(verts, codes)
+
+    fig, ax = plt.subplots()
+    ax.add_patch(mpatches.PathPatch(p))
+    ax.autoscale()
+    # Bottom ylim should be at the edge of the curve (-0.5), and not include
+    # the control point (at -1)
+    assert ax.get_ylim()[0] == -0.5
