@@ -508,6 +508,11 @@ class AsinhScale(ScaleBase):
     :math:`a \\rightarrow a + {\\cal O}(a^3)`.
     For large values of :math:`a` the transformation behaves as
     :math:`a \\rightarrow a_0 \\, {\\rm sgn}(a) \\ln |a| + {\\cal O}(1)`.
+
+    .. note::
+
+       This API is provisional and may be revised in the future
+       based on early user feedback.
     """
 
     name = 'asinh'

@@ -2613,6 +2613,11 @@ class AsinhLocator(Locator):
 
     This is very unlikely to have any use beyond
     the `~.scale.AsinhScale` class.
+
+    .. note::
+
+       This API is provisional and may be revised in the future
+       based on early user feedback.
     """
     def __init__(self, linear_width, numticks=11, symthresh=0.2,
                  base=10, subs=None):

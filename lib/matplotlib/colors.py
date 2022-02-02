@@ -1691,6 +1691,11 @@ class AsinhNorm(Normalize):
     these linear and logarithmic regions is smooth, which may reduce
     the risk of visual artifacts.
 
+    .. note::
+
+       This API is provisional and may be revised in the future
+       based on early user feedback.
+
     Parameters
     ----------
     linear_width : float, default: 1
