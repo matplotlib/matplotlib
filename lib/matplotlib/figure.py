@@ -2249,11 +2249,12 @@ class Figure(FigureBase):
             # everything is None, so use default:
             self.set_layout_engine(layout=layout)
 
-        self.callbacks = cbook.CallbackRegistry()
+        self.callbacks = cbook.CallbackRegistry(signals=["dpi_changed"])
         # Callbacks traditionally associated with the canvas (and exposed with
         # a proxy property), but that actually need to be on the figure for
         # pickling.
-        self._canvas_callbacks = cbook.CallbackRegistry()
+        self._canvas_callbacks = cbook.CallbackRegistry(
+            signals=FigureCanvasBase.events)
         self._button_pick_id = self._canvas_callbacks.connect(
             'button_press_event', lambda event: self.canvas.pick(event))
         self._scroll_pick_id = self._canvas_callbacks.connect(

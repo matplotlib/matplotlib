@@ -167,7 +167,7 @@ class Artist:
         # Normally, artist classes need to be queried for mouseover info if and
         # only if they override get_cursor_data.
         self._mouseover = type(self).get_cursor_data != Artist.get_cursor_data
-        self._callbacks = cbook.CallbackRegistry()
+        self._callbacks = cbook.CallbackRegistry(signals=["pchanged"])
         try:
             self.axes = None
         except AttributeError:

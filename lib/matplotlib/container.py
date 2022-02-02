@@ -18,7 +18,7 @@ class Container(tuple):
         return tuple.__new__(cls, args[0])
 
     def __init__(self, kl, label=None):
-        self._callbacks = cbook.CallbackRegistry()
+        self._callbacks = cbook.CallbackRegistry(signals=["pchanged"])
         self._remove_method = None
         self.set_label(label)
 

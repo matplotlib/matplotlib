@@ -1,0 +1,6 @@
+``CallbackRegistry`` raises on unknown signals
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+When Matplotlib instantiates a `.CallbackRegistry`, it now limits callbacks
+to the signals that the registry knows about.  In practice, this means that
+calling `~.FigureCanvasBase.mpl_connect` with an invalid signal name now raises
+a `ValueError`.
