@@ -269,8 +269,16 @@ def switch_backend(newbackend):
 
     backend_name = cbook._backend_module_name(newbackend)
 
-    class backend_mod(matplotlib.backend_bases._Backend):
-        locals().update(vars(importlib.import_module(backend_name)))
+    backend_mod = importlib.import_module(backend_name)
+    if hasattr(backend_mod, "Backend"):
+        backend_mod = backend_mod.Backend
+    else:
+        class backend_mod(matplotlib.backend_bases._Backend):
+            locals().update(vars(backend_mod))
+
+            @classmethod
+            def mainloop(cls):
+                return backend_mod.Show().mainloop()
 
     required_framework = _get_required_interactive_framework(backend_mod)
     if required_framework is not None:

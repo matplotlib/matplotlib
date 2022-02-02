@@ -3523,6 +3523,9 @@ class _Backend:
             def mainloop(self):
                 return cls.mainloop()
 
+        if not hasattr(sys.modules[cls.__module__], "Backend"):
+            setattr(sys.modules[cls.__module__], "Backend", cls)
+
         setattr(sys.modules[cls.__module__], "Show", Show)
         return cls
 
