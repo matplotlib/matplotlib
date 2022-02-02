@@ -1,0 +1,5 @@
+``transOffset`` parameter name
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The ``transOffset`` parameter of `.Collection.set_offset_transform` and the
+various ``create_collection`` methods of legend handlers has been renamed to
+``offset_transform`` (consistently with the property name).

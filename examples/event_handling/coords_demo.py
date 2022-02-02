@@ -5,6 +5,14 @@ Mouse move and click events
 
 An example of how to interact with the plotting canvas by connecting to move
 and click events.
+
+.. note::
+    This example exercises the interactive capabilities of Matplotlib, and this
+    will not appear in the static documentation. Please run this code on your
+    machine to see the interactivity.
+
+    You can copy and paste individual parts, or download the entire example
+    using the link at the bottom of the page.
 """
 
 from matplotlib.backend_bases import MouseButton

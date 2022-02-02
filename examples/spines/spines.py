@@ -5,9 +5,9 @@ Spines
 
 This demo compares:
 
-- normal axes, with spines on all four sides;
-- an axes with spines only on the left and bottom;
-- an axes using custom bounds to limit the extent of the spine.
+- normal Axes, with spines on all four sides;
+- an Axes with spines only on the left and bottom;
+- an Axes using custom bounds to limit the extent of the spine.
 """
 import numpy as np
 import matplotlib.pyplot as plt

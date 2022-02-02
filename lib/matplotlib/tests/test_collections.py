@@ -374,11 +374,9 @@ def test_EllipseCollection():
     hh = Y / y[-1]
     aa = np.ones_like(ww) * 20  # first axis is 20 degrees CCW from x axis
 
-    ec = mcollections.EllipseCollection(ww, hh, aa,
-                                        units='x',
-                                        offsets=XY,
-                                        transOffset=ax.transData,
-                                        facecolors='none')
+    ec = mcollections.EllipseCollection(
+        ww, hh, aa, units='x', offsets=XY, offset_transform=ax.transData,
+        facecolors='none')
     ax.add_collection(ec)
     ax.autoscale_view()
 
@@ -430,7 +428,7 @@ def test_regularpolycollection_rotate():
     for xy, alpha in zip(xy_points, rotations):
         col = mcollections.RegularPolyCollection(
             4, sizes=(100,), rotation=alpha,
-            offsets=[xy], transOffset=ax.transData)
+            offsets=[xy], offset_transform=ax.transData)
         ax.add_collection(col, autolim=True)
     ax.autoscale_view()
 
@@ -458,8 +456,8 @@ def test_regularpolycollection_scale():
     xy = [(0, 0)]
     # Unit square has a half-diagonal of `1/sqrt(2)`, so `pi * r**2` equals...
     circle_areas = [np.pi / 2]
-    squares = SquareCollection(sizes=circle_areas, offsets=xy,
-                               transOffset=ax.transData)
+    squares = SquareCollection(
+        sizes=circle_areas, offsets=xy, offset_transform=ax.transData)
     ax.add_collection(squares, autolim=True)
     ax.axis([-1, 1, -1, 1])
 
@@ -487,10 +485,8 @@ def test_size_in_xy():
     widths = 10, 10
     coords = [(10, 10), (15, 15)]
     e = mcollections.EllipseCollection(
-        widths, heights, angles,
-        units='xy',
-        offsets=coords,
-        transOffset=ax.transData)
+        widths, heights, angles, units='xy',
+        offsets=coords, offset_transform=ax.transData)
 
     ax.add_collection(e)
 
@@ -1031,13 +1027,20 @@ def test_quadmesh_cursor_data():
     fig, ax = plt.subplots()
     *_, qm = ax.hist2d(
         np.arange(11)**2, 100 + np.arange(11)**2)  # width-10 bins
+
     x, y = ax.transData.transform([1, 101])
     event = MouseEvent('motion_notify_event', fig.canvas, x, y)
+
+    assert qm.get_show_cursor_data() is False
+    assert qm.get_cursor_data(event) is None
+
+    qm.set_show_cursor_data(True)
     assert qm.get_cursor_data(event) == 4  # (0**2, 1**2, 2**2, 3**2)
-    for out_xydata in []:
-        x, y = ax.transData.transform([-1, 101])
-        event = MouseEvent('motion_notify_event', fig.canvas, x, y)
-        assert qm.get_cursor_data(event) is None
+
+    # Outside the quadmesh bounds
+    x, y = ax.transData.transform([-1, 101])
+    event = MouseEvent('motion_notify_event', fig.canvas, x, y)
+    assert qm.get_cursor_data(event) is None
 
 
 def test_get_segments():
@@ -1072,9 +1075,29 @@ def test_set_offsets_late():
 
 def test_set_offset_transform():
     skew = mtransforms.Affine2D().skew(2, 2)
-    init = mcollections.Collection([], transOffset=skew)
+    init = mcollections.Collection([], offset_transform=skew)
 
     late = mcollections.Collection([])
     late.set_offset_transform(skew)
 
     assert skew == init.get_offset_transform() == late.get_offset_transform()
+
+
+def test_set_offset_units():
+    # passing the offsets in initially (i.e. via scatter)
+    # should yield the same results as `set_offsets`
+    x = np.linspace(0, 10, 5)
+    y = np.sin(x)
+    d = x * np.timedelta64(24, 'h') + np.datetime64('2021-11-29')
+
+    sc = plt.scatter(d, y)
+    off0 = sc.get_offsets()
+    sc.set_offsets(list(zip(d, y)))
+    np.testing.assert_allclose(off0, sc.get_offsets())
+
+    # try the other way around
+    fig, ax = plt.subplots()
+    sc = ax.scatter(y, d)
+    off0 = sc.get_offsets()
+    sc.set_offsets(list(zip(y, d)))
+    np.testing.assert_allclose(off0, sc.get_offsets())

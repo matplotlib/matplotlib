@@ -51,55 +51,66 @@ def world_transformation(xmin, xmax,
                      [0,    0,    0,    1]])
 
 
-def view_transformation(E, R, V):
-    n = (E - R)
-    ## new
-#    n /= np.linalg.norm(n)
-#    u = np.cross(V, n)
-#    u /= np.linalg.norm(u)
-#    v = np.cross(n, u)
-#    Mr = np.diag([1.] * 4)
-#    Mt = np.diag([1.] * 4)
-#    Mr[:3,:3] = u, v, n
-#    Mt[:3,-1] = -E
-    ## end new
+def rotation_about_vector(v, angle):
+    """
+    Produce a rotation matrix for an angle in radians about a vector.
+    """
+    vx, vy, vz = v / np.linalg.norm(v)
+    s = np.sin(angle)
+    c = np.cos(angle)
+    t = 2*np.sin(angle/2)**2  # more numerically stable than t = 1-c
 
-    ## old
-    n = n / np.linalg.norm(n)
+    R = np.array([
+        [t*vx*vx + c,    t*vx*vy - vz*s, t*vx*vz + vy*s],
+        [t*vy*vx + vz*s, t*vy*vy + c,    t*vy*vz - vx*s],
+        [t*vz*vx - vy*s, t*vz*vy + vx*s, t*vz*vz + c]])
+
+    return R
+
+
+def view_transformation(E, R, V, roll):
+    n = (E - R)
+    n = n/np.linalg.norm(n)
     u = np.cross(V, n)
-    u = u / np.linalg.norm(u)
-    v = np.cross(n, u)
-    Mr = [[u[0], u[1], u[2], 0],
-          [v[0], v[1], v[2], 0],
-          [n[0], n[1], n[2], 0],
-          [0,    0,    0,    1]]
-    #
-    Mt = [[1, 0, 0, -E[0]],
-          [0, 1, 0, -E[1]],
-          [0, 0, 1, -E[2]],
-          [0, 0, 0, 1]]
-    ## end old
+    u = u/np.linalg.norm(u)
+    v = np.cross(n, u)  # Will be a unit vector
+
+    # Save some computation for the default roll=0
+    if roll != 0:
+        # A positive rotation of the camera is a negative rotation of the world
+        Rroll = rotation_about_vector(n, -roll)
+        u = np.dot(Rroll, u)
+        v = np.dot(Rroll, v)
+
+    Mr = np.eye(4)
+    Mt = np.eye(4)
+    Mr[:3, :3] = [u, v, n]
+    Mt[:3, -1] = -E
 
     return np.dot(Mr, Mt)
 
 
-def persp_transformation(zfront, zback):
-    a = (zfront+zback)/(zfront-zback)
-    b = -2*(zfront*zback)/(zfront-zback)
-    return np.array([[1, 0, 0, 0],
-                     [0, 1, 0, 0],
-                     [0, 0, a, b],
-                     [0, 0, -1, 0]])
+def persp_transformation(zfront, zback, focal_length):
+    e = focal_length
+    a = 1  # aspect ratio
+    b = (zfront+zback)/(zfront-zback)
+    c = -2*(zfront*zback)/(zfront-zback)
+    proj_matrix = np.array([[e,   0,  0, 0],
+                            [0, e/a,  0, 0],
+                            [0,   0,  b, c],
+                            [0,   0, -1, 0]])
+    return proj_matrix
 
 
 def ortho_transformation(zfront, zback):
     # note: w component in the resulting vector will be (zback-zfront), not 1
     a = -(zfront + zback)
     b = -(zfront - zback)
-    return np.array([[2, 0, 0, 0],
-                     [0, 2, 0, 0],
-                     [0, 0, -2, 0],
-                     [0, 0, a, b]])
+    proj_matrix = np.array([[2, 0,  0, 0],
+                            [0, 2,  0, 0],
+                            [0, 0, -2, 0],
+                            [0, 0,  a, b]])
+    return proj_matrix
 
 
 def _proj_transform_vec(vec, M):

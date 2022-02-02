@@ -19,6 +19,10 @@ def get_ax():
     return ax
 
 
+def noop(*args, **kwargs):
+    pass
+
+
 def mock_event(ax, button=1, xdata=0, ydata=0, key=None, step=1):
     r"""
     Create a mock event that can stand in for `.Event` and its subclasses.
@@ -83,3 +87,32 @@ def do_event(tool, etype, button=1, xdata=0, ydata=0, key=None, step=1):
     event = mock_event(tool.ax, button, xdata, ydata, key, step)
     func = getattr(tool, etype)
     func(event)
+
+
+def click_and_drag(tool, start, end, key=None):
+    """
+    Helper to simulate a mouse drag operation.
+
+    Parameters
+    ----------
+    tool : `matplotlib.widgets.Widget`
+    start : [float, float]
+        Starting point in data coordinates.
+    end : [float, float]
+        End point in data coordinates.
+    key : None or str
+         An optional key that is pressed during the whole operation
+         (see also `.KeyEvent`).
+    """
+    if key is not None:
+        # Press key
+        do_event(tool, 'on_key_press', xdata=start[0], ydata=start[1],
+                 button=1, key=key)
+    # Click, move, and release mouse
+    do_event(tool, 'press', xdata=start[0], ydata=start[1], button=1)
+    do_event(tool, 'onmove', xdata=end[0], ydata=end[1], button=1)
+    do_event(tool, 'release', xdata=end[0], ydata=end[1], button=1)
+    if key is not None:
+        # Release key
+        do_event(tool, 'on_key_release', xdata=end[0], ydata=end[1],
+                 button=1, key=key)

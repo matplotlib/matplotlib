@@ -267,8 +267,8 @@ class ToolManager:
         tool_obj = tool_cls(self, name, *args, **kwargs)
         self._tools[name] = tool_obj
 
-        if tool_cls.default_keymap is not None:
-            self.update_keymap(name, tool_cls.default_keymap)
+        if tool_obj.default_keymap is not None:
+            self.update_keymap(name, tool_obj.default_keymap)
 
         # For toggle tools init the radio_group in self._toggled
         if isinstance(tool_obj, backend_tools.ToolToggleBase):

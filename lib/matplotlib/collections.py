@@ -30,6 +30,7 @@ from ._enums import JoinStyle, CapStyle
     "facecolor": ["facecolors", "fc"],
     "linestyle": ["linestyles", "dashes", "ls"],
     "linewidth": ["linewidths", "lw"],
+    "offset_transform": ["transOffset"],
 })
 class Collection(artist.Artist, cm.ScalarMappable):
     r"""
@@ -84,7 +85,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  joinstyle=None,
                  antialiaseds=None,
                  offsets=None,
-                 transOffset=None,
+                 offset_transform=None,
                  norm=None,  # optional for ScalarMappable
                  cmap=None,  # ditto
                  pickradius=5.0,
@@ -127,7 +128,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             A vector by which to translate each patch after rendering (default
             is no translation). The translation is performed in screen (pixel)
             coordinates (i.e. after the Artist's transform is applied).
-        transOffset : `~.transforms.Transform`, default: `.IdentityTransform`
+        offset_transform : `~.Transform`, default: `.IdentityTransform`
             A single transform which will be applied to each *offsets* vector
             before it is used.
         norm : `~.colors.Normalize`, optional
@@ -202,7 +203,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 offsets = offsets[None, :]
             self._offsets = offsets
 
-        self._transOffset = transOffset
+        self._offset_transform = offset_transform
 
         self._path_effects = None
         self.update(kwargs)
@@ -219,22 +220,24 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def get_offset_transform(self):
         """Return the `.Transform` instance used by this artist offset."""
-        if self._transOffset is None:
-            self._transOffset = transforms.IdentityTransform()
-        elif (not isinstance(self._transOffset, transforms.Transform)
-              and hasattr(self._transOffset, '_as_mpl_transform')):
-            self._transOffset = self._transOffset._as_mpl_transform(self.axes)
-        return self._transOffset
+        if self._offset_transform is None:
+            self._offset_transform = transforms.IdentityTransform()
+        elif (not isinstance(self._offset_transform, transforms.Transform)
+              and hasattr(self._offset_transform, '_as_mpl_transform')):
+            self._offset_transform = \
+                self._offset_transform._as_mpl_transform(self.axes)
+        return self._offset_transform
 
-    def set_offset_transform(self, transOffset):
+    @_api.rename_parameter("3.6", "transOffset", "offset_transform")
+    def set_offset_transform(self, offset_transform):
         """
         Set the artist offset transform.
 
         Parameters
         ----------
-        transOffset : `.Transform`
+        offset_transform : `.Transform`
         """
-        self._transOffset = transOffset
+        self._offset_transform = offset_transform
 
     def get_datalim(self, transData):
         # Calculate the data limits and return them as a `.Bbox`.
@@ -254,9 +257,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # 3. otherwise return a null Bbox.
 
         transform = self.get_transform()
-        transOffset = self.get_offset_transform()
-        hasOffsets = np.any(self._offsets)  # True if any non-zero offsets
-        if hasOffsets and not transOffset.contains_branch(transData):
+        offset_trf = self.get_offset_transform()
+        has_offsets = np.any(self._offsets)  # True if any non-zero offsets
+        if has_offsets and not offset_trf.contains_branch(transData):
             # if there are offsets but in some coords other than data,
             # then don't use them for autoscaling.
             return transforms.Bbox.null()
@@ -284,16 +287,16 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 return mpath.get_path_collection_extents(
                     transform.get_affine() - transData, paths,
                     self.get_transforms(),
-                    transOffset.transform_non_affine(offsets),
-                    transOffset.get_affine().frozen())
-            if hasOffsets:
+                    offset_trf.transform_non_affine(offsets),
+                    offset_trf.get_affine().frozen())
+            if has_offsets:
                 # this is for collections that have their paths (shapes)
                 # in physical, axes-relative, or figure-relative units
                 # (i.e. like scatter). We can't uniquely set limits based on
                 # those shapes, so we just set the limits based on their
                 # location.
 
-                offsets = (transOffset - transData).transform(offsets)
+                offsets = (offset_trf - transData).transform(offsets)
                 # note A-B means A B^{-1}
                 offsets = np.ma.masked_invalid(offsets)
                 if not offsets.mask.all():
@@ -311,7 +314,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         # Helper for drawing and hit testing.
 
         transform = self.get_transform()
-        transOffset = self.get_offset_transform()
+        offset_trf = self.get_offset_transform()
         offsets = self._offsets
         paths = self.get_paths()
 
@@ -332,17 +335,17 @@ class Collection(artist.Artist, cm.ScalarMappable):
             paths = [transform.transform_path_non_affine(path)
                      for path in paths]
             transform = transform.get_affine()
-        if not transOffset.is_affine:
-            offsets = transOffset.transform_non_affine(offsets)
+        if not offset_trf.is_affine:
+            offsets = offset_trf.transform_non_affine(offsets)
             # This might have changed an ndarray into a masked array.
-            transOffset = transOffset.get_affine()
+            offset_trf = offset_trf.get_affine()
 
         if isinstance(offsets, np.ma.MaskedArray):
             offsets = offsets.filled(np.nan)
             # Changing from a masked array to nan-filled ndarray
             # is probably most efficient at this point.
 
-        return transform, transOffset, offsets, paths
+        return transform, offset_trf, offsets, paths
 
     @artist.allow_rasterization
     def draw(self, renderer):
@@ -352,7 +355,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         self.update_scalarmappable()
 
-        transform, transOffset, offsets, paths = self._prepare_points()
+        transform, offset_trf, offsets, paths = self._prepare_points()
 
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
@@ -408,11 +411,11 @@ class Collection(artist.Artist, cm.ScalarMappable):
             gc.set_url(self._urls[0])
             renderer.draw_markers(
                 gc, paths[0], combined_transform.frozen(),
-                mpath.Path(offsets), transOffset, tuple(facecolors[0]))
+                mpath.Path(offsets), offset_trf, tuple(facecolors[0]))
         else:
             renderer.draw_path_collection(
                 gc, transform.frozen(), paths,
-                self.get_transforms(), offsets, transOffset,
+                self.get_transforms(), offsets, offset_trf,
                 self.get_facecolor(), self.get_edgecolor(),
                 self._linewidths, self._linestyles,
                 self._antialiaseds, self._urls,
@@ -459,7 +462,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if self.axes:
             self.axes._unstale_viewLim()
 
-        transform, transOffset, offsets, paths = self._prepare_points()
+        transform, offset_trf, offsets, paths = self._prepare_points()
 
         # Tests if the point is contained on one of the polygons formed
         # by the control points of each of the paths. A point is considered
@@ -469,7 +472,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ind = _path.point_in_path_collection(
             mouseevent.x, mouseevent.y, pickradius,
             transform.frozen(), paths, self.get_transforms(),
-            offsets, transOffset, pickradius <= 0)
+            offsets, offset_trf, pickradius <= 0)
 
         return len(ind) > 0, dict(ind=ind)
 
@@ -545,10 +548,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
         ----------
         offsets : (N, 2) or (2,) array-like
         """
-        offsets = np.asanyarray(offsets, float)
+        offsets = np.asanyarray(offsets)
         if offsets.shape == (2,):  # Broadcast (2,) -> (1, 2) but nothing else.
             offsets = offsets[None, :]
-        self._offsets = offsets
+        self._offsets = np.column_stack(
+            (np.asarray(self.convert_xunits(offsets[:, 0]), 'float'),
+             np.asarray(self.convert_yunits(offsets[:, 1]), 'float')))
         self.stale = True
 
     def get_offsets(self):
@@ -1315,7 +1320,7 @@ class RegularPolyCollection(_CollectionWithSizes):
                 edgecolors=("black",),
                 linewidths=(1,),
                 offsets=offsets,
-                transOffset=ax.transData,
+                offset_transform=ax.transData,
                 )
         """
         super().__init__(**kwargs)
@@ -1995,6 +2000,7 @@ class QuadMesh(Collection):
         self._shading = shading
         self._bbox = transforms.Bbox.unit()
         self._bbox.update_from_data_xy(self._coordinates.reshape(-1, 2))
+        self._show_cursor_data = False
         # super init delayed after own init because array kwarg requires
         # self._coordinates and self._shading
         super().__init__(**kwargs)
@@ -2074,7 +2080,8 @@ class QuadMesh(Collection):
         return self._coordinates
 
     @staticmethod
-    @_api.deprecated("3.5", alternative="QuadMesh(coordinates).get_paths()")
+    @_api.deprecated("3.5", alternative="`QuadMesh(coordinates).get_paths()"
+                     "<.QuadMesh.get_paths>`")
     def convert_mesh_to_paths(meshWidth, meshHeight, coordinates):
         return QuadMesh._convert_mesh_to_paths(coordinates)
 
@@ -2147,7 +2154,7 @@ class QuadMesh(Collection):
             return
         renderer.open_group(self.__class__.__name__, self.get_gid())
         transform = self.get_transform()
-        transOffset = self.get_offset_transform()
+        offset_trf = self.get_offset_transform()
         offsets = self._offsets
 
         if self.have_units():
@@ -2166,9 +2173,9 @@ class QuadMesh(Collection):
         else:
             coordinates = self._coordinates
 
-        if not transOffset.is_affine:
-            offsets = transOffset.transform_non_affine(offsets)
-            transOffset = transOffset.get_affine()
+        if not offset_trf.is_affine:
+            offsets = offset_trf.transform_non_affine(offsets)
+            offset_trf = offset_trf.get_affine()
 
         gc = renderer.new_gc()
         gc.set_snap(self.get_snap())
@@ -2183,7 +2190,7 @@ class QuadMesh(Collection):
             renderer.draw_quad_mesh(
                 gc, transform.frozen(),
                 coordinates.shape[1] - 1, coordinates.shape[0] - 1,
-                coordinates, offsets, transOffset,
+                coordinates, offsets, offset_trf,
                 # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
                 self.get_facecolor().reshape((-1, 4)),
                 self._antialiased, self.get_edgecolors().reshape((-1, 4)))
@@ -2191,7 +2198,23 @@ class QuadMesh(Collection):
         renderer.close_group(self.__class__.__name__)
         self.stale = False
 
+    def set_show_cursor_data(self, show_cursor_data):
+        """
+        Set whether cursor data should be shown.
+
+        Notes
+        -----
+        This is set to `False` by default for new quad meshes. Showing cursor
+        data can have significant performance impacts for large meshes.
+        """
+        self._show_cursor_data = show_cursor_data
+
+    def get_show_cursor_data(self):
+        return self._show_cursor_data
+
     def get_cursor_data(self, event):
+        if not self._show_cursor_data:
+            return
         contained, info = self.contains(event)
         if len(info["ind"]) == 1:
             ind, = info["ind"]

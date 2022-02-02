@@ -18,13 +18,13 @@ fig.subplots_adjust(wspace=0.5)
 
 im1 = ax1.imshow([[1, 2], [3, 4]])
 ax1_divider = make_axes_locatable(ax1)
-# Add an axes to the right of the main axes.
+# Add an Axes to the right of the main Axes.
 cax1 = ax1_divider.append_axes("right", size="7%", pad="2%")
 cb1 = fig.colorbar(im1, cax=cax1)
 
 im2 = ax2.imshow([[1, 2], [3, 4]])
 ax2_divider = make_axes_locatable(ax2)
-# Add an axes above the main axes.
+# Add an Axes above the main Axes.
 cax2 = ax2_divider.append_axes("top", size="7%", pad="2%")
 cb2 = fig.colorbar(im2, cax=cax2, orientation="horizontal")
 # Change tick position to top (with the default tick position "bottom", ticks

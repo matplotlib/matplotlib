@@ -26,20 +26,17 @@ import numpy as np
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import _api, _text_helpers, cbook
+from matplotlib import _api, _text_helpers, _type1font, cbook, dviread
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
-    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, RendererBase)
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
+    RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
 from matplotlib.figure import Figure
 from matplotlib.font_manager import findfont, get_font
-from matplotlib.afm import AFM
-import matplotlib.type1font as type1font
-import matplotlib.dviread as dviread
+from matplotlib._afm import AFM
 from matplotlib.ft2font import (FIXED_WIDTH, ITALIC, LOAD_NO_SCALE,
                                 LOAD_NO_HINTING, KERNING_UNFITTED, FT2Font)
-from matplotlib.mathtext import MathTextParser
 from matplotlib.transforms import Affine2D, BboxBase
 from matplotlib.path import Path
 from matplotlib.dates import UTC
@@ -90,7 +87,7 @@ _log = logging.getLogger(__name__)
 
 # TODOs:
 #
-# * encoding of fonts, including mathtext fonts and unicode support
+# * encoding of fonts, including mathtext fonts and Unicode support
 # * TTF support has lots of small TODOs, e.g., how do you know if a font
 #   is serif/sans-serif, or symbolic/non-symbolic?
 # * draw_quad_mesh
@@ -297,8 +294,7 @@ def pdfRepr(obj):
     elif isinstance(obj, dict):
         return fill([
             b"<<",
-            *[Name(key).pdfRepr() + b" " + pdfRepr(obj[key])
-              for key in sorted(obj)],
+            *[Name(k).pdfRepr() + b" " + pdfRepr(v) for k, v in obj.items()],
             b">>",
         ])
 
@@ -849,6 +845,11 @@ class PdfFile:
             self.currentstream.end()
             self.currentstream = None
 
+    def outputStream(self, ref, data, *, extra=None):
+        self.beginStream(ref.id, None, extra)
+        self.currentstream.write(data)
+        self.endStream()
+
     def _write_annotations(self):
         for annotsObject, annotations in self._annotations:
             self.writeObject(annotsObject, annotations)
@@ -978,7 +979,7 @@ class PdfFile:
             return fontdictObject
 
         # We have a font file to embed - read it in and apply any effects
-        t1font = type1font.Type1Font(fontinfo.fontfile)
+        t1font = _type1font.Type1Font(fontinfo.fontfile)
         if fontinfo.effects:
             t1font = t1font.transform(fontinfo.effects)
         fontdict['BaseFont'] = Name(t1font.prop['FontName'])
@@ -1053,13 +1054,10 @@ class PdfFile:
 
         self.writeObject(fontdescObject, descriptor)
 
-        self.beginStream(fontfileObject.id, None,
-                         {'Length1': len(t1font.parts[0]),
-                          'Length2': len(t1font.parts[1]),
-                          'Length3': 0})
-        self.currentstream.write(t1font.parts[0])
-        self.currentstream.write(t1font.parts[1])
-        self.endStream()
+        self.outputStream(fontfileObject, b"".join(t1font.parts[:2]),
+                          extra={'Length1': len(t1font.parts[0]),
+                                 'Length2': len(t1font.parts[1]),
+                                 'Length3': 0})
 
         return fontdescObject
 
@@ -1182,13 +1180,13 @@ end"""
             charprocs = {}
             for charname in sorted(rawcharprocs):
                 stream = rawcharprocs[charname]
-                charprocDict = {'Length': len(stream)}
+                charprocDict = {}
                 # The 2-byte characters are used as XObjects, so they
                 # need extra info in their dictionary
                 if charname in multi_byte_chars:
-                    charprocDict['Type'] = Name('XObject')
-                    charprocDict['Subtype'] = Name('Form')
-                    charprocDict['BBox'] = bbox
+                    charprocDict = {'Type': Name('XObject'),
+                                    'Subtype': Name('Form'),
+                                    'BBox': bbox}
                     # Each glyph includes bounding box information,
                     # but xpdf and ghostscript can't handle it in a
                     # Form XObject (they segfault!!!), so we remove it
@@ -1197,9 +1195,7 @@ end"""
                     # value.
                     stream = stream[stream.find(b"d1") + 2:]
                 charprocObject = self.reserveObject('charProc')
-                self.beginStream(charprocObject.id, None, charprocDict)
-                self.currentstream.write(stream)
-                self.endStream()
+                self.outputStream(charprocObject, stream, extra=charprocDict)
 
                 # Send the glyphs with ccode > 255 to the XObject dictionary,
                 # and the others to the font itself
@@ -1267,12 +1263,9 @@ end"""
 
             # Make fontfile stream
             descriptor['FontFile2'] = fontfileObject
-            self.beginStream(
-                fontfileObject.id,
-                self.reserveObject('length of font stream'),
-                {'Length1': fontdata.getbuffer().nbytes})
-            self.currentstream.write(fontdata.getvalue())
-            self.endStream()
+            self.outputStream(
+                fontfileObject, fontdata.getvalue(),
+                extra={'Length1': fontdata.getbuffer().nbytes})
 
             # Make the 'W' (Widths) array, CidToGidMap and ToUnicode CMap
             # at the same time
@@ -1331,10 +1324,9 @@ end"""
             rawcharprocs = _get_pdf_charprocs(filename, glyph_ids)
             for charname in sorted(rawcharprocs):
                 stream = rawcharprocs[charname]
-                charprocDict = {'Length': len(stream)}
-                charprocDict['Type'] = Name('XObject')
-                charprocDict['Subtype'] = Name('Form')
-                charprocDict['BBox'] = bbox
+                charprocDict = {'Type': Name('XObject'),
+                                'Subtype': Name('Form'),
+                                'BBox': bbox}
                 # Each glyph includes bounding box information,
                 # but xpdf and ghostscript can't handle it in a
                 # Form XObject (they segfault!!!), so we remove it
@@ -1343,27 +1335,17 @@ end"""
                 # value.
                 stream = stream[stream.find(b"d1") + 2:]
                 charprocObject = self.reserveObject('charProc')
-                self.beginStream(charprocObject.id, None, charprocDict)
-                self.currentstream.write(stream)
-                self.endStream()
+                self.outputStream(charprocObject, stream, extra=charprocDict)
 
                 name = self._get_xobject_glyph_name(filename, charname)
                 self.multi_byte_charprocs[name] = charprocObject
 
             # CIDToGIDMap stream
             cid_to_gid_map = "".join(cid_to_gid_map).encode("utf-16be")
-            self.beginStream(cidToGidMapObject.id,
-                             None,
-                             {'Length': len(cid_to_gid_map)})
-            self.currentstream.write(cid_to_gid_map)
-            self.endStream()
+            self.outputStream(cidToGidMapObject, cid_to_gid_map)
 
             # ToUnicode CMap
-            self.beginStream(toUnicodeMapObject.id,
-                             None,
-                             {'Length': unicode_cmap})
-            self.currentstream.write(unicode_cmap)
-            self.endStream()
+            self.outputStream(toUnicodeMapObject, unicode_cmap)
 
             descriptor['MaxWidth'] = max_width
 
@@ -1724,10 +1706,9 @@ end"""
                 if bit_depth is None or palette is None:
                     raise RuntimeError("invalid PNG header")
                 palette = palette[:num_colors * 3]  # Trim padding
-                palette = pdfRepr(palette)
-                obj['ColorSpace'] = Verbatim(b'[/Indexed /DeviceRGB '
-                                             + str(num_colors - 1).encode()
-                                             + b' ' + palette + b']')
+                obj['ColorSpace'] = Verbatim(
+                    b'[/Indexed /DeviceRGB %d %s]'
+                    % (num_colors - 1, pdfRepr(palette)))
                 obj['BitsPerComponent'] = bit_depth
                 color_channels = 1
             else:
@@ -1915,11 +1896,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         self.file = file
         self.gc = self.new_gc()
         self.image_dpi = image_dpi
-
-    @_api.deprecated("3.4")
-    @property
-    def mathtext_parser(self):
-        return MathTextParser("Pdf")
 
     def finalize(self):
         self.file.output(*self.gc.finalize())
@@ -2762,7 +2738,6 @@ class FigureCanvasPdf(FigureCanvasBase):
     def get_default_filetype(self):
         return 'pdf'
 
-    @_check_savefig_extra_args
     @_api.delete_parameter("3.4", "dpi")
     def print_pdf(self, filename, *,
                   dpi=None,  # dpi to use for images

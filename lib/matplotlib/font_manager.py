@@ -23,8 +23,11 @@ Future versions may implement the Level 2 or 2.1 specifications.
 #   - setWeights function needs improvement
 #   - 'light' is an invalid weight value, remove it.
 
+from base64 import b64encode
+import copy
 import dataclasses
 from functools import lru_cache
+from io import BytesIO
 import json
 import logging
 from numbers import Number
@@ -41,8 +44,8 @@ except ImportError:
     from dummy_threading import Timer
 
 import matplotlib as mpl
-from matplotlib import _api, afm, cbook, ft2font, rcParams
-from matplotlib.fontconfig_pattern import (
+from matplotlib import _api, _afm, cbook, ft2font, rcParams
+from matplotlib._fontconfig_pattern import (
     parse_fontconfig_pattern, generate_fontconfig_pattern)
 from matplotlib.rcsetup import _validators
 
@@ -327,7 +330,7 @@ def _get_win32_installed_fonts():
 
 @lru_cache()
 def _get_fontconfig_fonts():
-    """Cache and list the font paths known to `fc-list`."""
+    """Cache and list the font paths known to ``fc-list``."""
     try:
         if b'--format' not in subprocess.check_output(['fc-list', '--help']):
             _log.warning(  # fontconfig 2.7 implemented --format.
@@ -341,7 +344,7 @@ def _get_fontconfig_fonts():
 
 @_api.deprecated("3.5")
 def get_fontconfig_fonts(fontext='ttf'):
-    """List font filenames known to `fc-list` having the given extension."""
+    """List font filenames known to ``fc-list`` having the given extension."""
     fontext = ['.' + ext for ext in get_fontext_synonyms(fontext)]
     return [str(path) for path in _get_fontconfig_fonts()
             if path.suffix.lower() in fontext]
@@ -380,6 +383,22 @@ def findSystemFonts(fontpaths=None, fontext='ttf'):
     return [fname for fname in fontfiles if os.path.exists(fname)]
 
 
+def _fontentry_helper_repr_png(fontent):
+    from matplotlib.figure import Figure  # Circular import.
+    fig = Figure()
+    font_path = Path(fontent.fname) if fontent.fname != '' else None
+    fig.text(0, 0, fontent.name, font=font_path)
+    with BytesIO() as buf:
+        fig.savefig(buf, bbox_inches='tight', transparent=True)
+        return buf.getvalue()
+
+
+def _fontentry_helper_repr_html(fontent):
+    png_stream = _fontentry_helper_repr_png(fontent)
+    png_b64 = b64encode(png_stream).decode()
+    return f"<img src=\"data:image/png;base64, {png_b64}\" />"
+
+
 FontEntry = dataclasses.make_dataclass(
     'FontEntry', [
         ('fname', str, dataclasses.field(default='')),
@@ -395,7 +414,11 @@ FontEntry = dataclasses.make_dataclass(
     A class for storing Font properties.
 
     It is used when populating the font lookup dictionary.
-    """})
+    """,
+        '_repr_html_': lambda self: _fontentry_helper_repr_html(self),
+        '_repr_png_': lambda self: _fontentry_helper_repr_png(self),
+    }
+)
 
 
 def ttfFontProperty(font):
@@ -531,7 +554,7 @@ def afmFontProperty(fontpath, font):
 
     Parameters
     ----------
-    font : `.AFM`
+    font : AFM
         The AFM font file from which information will be extracted.
 
     Returns
@@ -942,9 +965,7 @@ class FontProperties:
 
     def copy(self):
         """Return a copy of self."""
-        new = type(self)()
-        vars(new).update(vars(self))
-        return new
+        return copy.copy(self)
 
 
 class _JSONEncoder(json.JSONEncoder):
@@ -1085,7 +1106,7 @@ class FontManager:
         """
         if Path(path).suffix.lower() == ".afm":
             with open(path, "rb") as fh:
-                font = afm.AFM(fh)
+                font = _afm.AFM(fh)
             prop = afmFontProperty(path, font)
             self.afmlist.append(prop)
         else:
@@ -1309,6 +1330,10 @@ class FontManager:
             prop, fontext, directory, fallback_to_default, rebuild_if_missing,
             rc_params)
 
+    def get_font_names(self):
+        """Return the list of available fonts."""
+        return list(set([font.name for font in self.ttflist]))
+
     @lru_cache()
     def _findfont_cached(self, prop, fontext, directory, fallback_to_default,
                          rebuild_if_missing, rc_params):
@@ -1410,7 +1435,8 @@ def _get_font(filename, hinting_factor, *, _kerning_factor, thread_id):
 # FT2Font objects cannot be used across fork()s because they reference the same
 # FT_Library object.  While invalidating *all* existing FT2Fonts after a fork
 # would be too complicated to be worth it, the main way FT2Fonts get reused is
-# via the cache of _get_font, which we can empty upon forking (in Py3.7+).
+# via the cache of _get_font, which we can empty upon forking (not on Windows,
+# which has no fork() or register_at_fork()).
 if hasattr(os, "register_at_fork"):
     os.register_at_fork(after_in_child=_get_font.cache_clear)
 
@@ -1447,3 +1473,4 @@ def _load_fontmanager(*, try_read_cache=True):
 
 fontManager = _load_fontmanager()
 findfont = fontManager.findfont
+get_font_names = fontManager.get_font_names

@@ -1,0 +1,7 @@
+Move Axes title to not overlap with y axis offset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously, Axes titles could overlap the y-axis offset text, which is often
+in the upper left corner of the axes.  Now titles are moved above the offset
+text if overlapping, and autopositioning is in effect (i.e. if *y* in
+`.Axes.set_title` is *None* and :rc:`axes.titley` is also *None*).

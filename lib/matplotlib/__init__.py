@@ -196,7 +196,7 @@ def _check_versions():
             ("cycler", "0.10"),
             ("dateutil", "2.7"),
             ("kiwisolver", "1.0.1"),
-            ("numpy", "1.17"),
+            ("numpy", "1.19"),
             ("pyparsing", "2.2.1"),
     ]:
         module = importlib.import_module(modname)
@@ -302,8 +302,8 @@ def _get_executable_info(name):
     ----------
     name : str
         The executable to query.  The following values are currently supported:
-        "dvipng", "gs", "inkscape", "magick", "pdftops".  This list is subject
-        to change without notice.
+        "dvipng", "gs", "inkscape", "magick", "pdftocairo", "pdftops".  This
+        list is subject to change without notice.
 
     Returns
     -------
@@ -315,7 +315,10 @@ def _get_executable_info(name):
     ------
     ExecutableNotFoundError
         If the executable is not found or older than the oldest version
-        supported by Matplotlib.
+        supported by Matplotlib.  For debugging purposes, it is also
+        possible to "hide" an executable from Matplotlib by adding it to the
+        :envvar:`_MPLHIDEEXECUTABLES` environment variable (a comma-separated
+        list), which must be set prior to any calls to this function.
     ValueError
         If the executable is not one that we know how to query.
     """
@@ -350,6 +353,9 @@ def _get_executable_info(name):
             raise ExecutableNotFoundError(
                 f"Failed to determine the version of {args[0]} from "
                 f"{' '.join(args)}, which output {output}")
+
+    if name in os.environ.get("_MPLHIDEEXECUTABLES", "").split(","):
+        raise ExecutableNotFoundError(f"{name} was hidden")
 
     if name == "dvipng":
         return impl(["dvipng", "-version"], "(?m)^dvipng(?: .*)? (.+)", "1.6")
@@ -407,6 +413,8 @@ def _get_executable_info(name):
             raise ExecutableNotFoundError(
                 f"You have ImageMagick {info.version}, which is unsupported")
         return info
+    elif name == "pdftocairo":
+        return impl(["pdftocairo", "-v"], "pdftocairo version (.*)")
     elif name == "pdftops":
         info = impl(["pdftops", "-v"], "^pdftops version (.*)",
                     ignore_exit_code=True)
@@ -700,7 +708,10 @@ class RcParams(MutableMapping, dict):
                         if pattern_re.search(key))
 
     def copy(self):
-        return {k: dict.__getitem__(self, k) for k in self}
+        rccopy = RcParams()
+        for k in self:  # Skip deprecations and revalidation.
+            dict.__setitem__(rccopy, k, dict.__getitem__(self, k))
+        return rccopy
 
 
 def rc_params(fail_on_error=False):
@@ -878,8 +889,8 @@ dict.setdefault(rcParamsDefault, "backend", rcsetup._auto_backend_sentinel)
 rcParams = RcParams()  # The global instance.
 dict.update(rcParams, dict.items(rcParamsDefault))
 dict.update(rcParams, _rc_params_in_file(matplotlib_fname()))
+rcParamsOrig = rcParams.copy()
 with _api.suppress_matplotlib_deprecation_warning():
-    rcParamsOrig = RcParams(rcParams.copy())
     # This also checks that all rcParams are indeed listed in the template.
     # Assigning to rcsetup.defaultParams is left only for backcompat.
     defaultParams = rcsetup.defaultParams = {
@@ -1218,7 +1229,6 @@ def test(verbosity=None, coverage=False, **kwargs):
         return -1
 
     old_backend = get_backend()
-    old_recursionlimit = sys.getrecursionlimit()
     try:
         use('agg')
 
@@ -1434,7 +1444,6 @@ def _preprocess_data(func=None, *, replace_names=None, label_namer=None):
 
 _log.debug('interactive is %s', is_interactive())
 _log.debug('platform is %s', sys.platform)
-_log.debug('loaded modules: %s', list(sys.modules))
 
 
 # workaround: we must defer colormaps import to after loading rcParams, because

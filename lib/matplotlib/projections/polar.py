@@ -193,7 +193,7 @@ class ThetaFormatter(mticker.Formatter):
         vmin, vmax = self.axis.get_view_interval()
         d = np.rad2deg(abs(vmax - vmin))
         digits = max(-int(np.log10(d) - 1.5), 0)
-        # Use unicode rather than mathtext with \circ, so that it will work
+        # Use Unicode rather than mathtext with \circ, so that it will work
         # correctly with any arbitrary font (assuming it has a degree sign),
         # whereas $5\circ$ will only work correctly with one of the supported
         # math fonts (Computer Modern and STIX).
@@ -1024,7 +1024,7 @@ class PolarAxes(Axes):
         where minval and maxval are the minimum and maximum limits. Values are
         wrapped in to the range :math:`[0, 2\pi]` (in radians), so for example
         it is possible to do ``set_thetalim(-np.pi / 2, np.pi / 2)`` to have
-        an axes symmetric around 0. A ValueError is raised if the absolute
+        an axis symmetric around 0. A ValueError is raised if the absolute
         angle difference is larger than a full circle.
         """
         orig_lim = self.get_xlim()  # in radians

@@ -254,7 +254,7 @@ def test_gca_kwargs():
     assert ax1.name == 'polar'
     plt.close()
 
-    # plt.gca() ignores keyword arguments if an axes already exists.
+    # plt.gca() ignores keyword arguments if an Axes already exists.
     plt.figure()
     ax = plt.gca()
     with pytest.warns(
@@ -268,7 +268,7 @@ def test_gca_kwargs():
 
 
 def test_subplot_projection_reuse():
-    # create an axes
+    # create an Axes
     ax1 = plt.subplot(111)
     # check that it is current
     assert ax1 is plt.gca()

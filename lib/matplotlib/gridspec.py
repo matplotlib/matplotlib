@@ -5,8 +5,10 @@ r"""
 The `GridSpec` specifies the overall grid structure. Individual cells within
 the grid are referenced by `SubplotSpec`\s.
 
-See the tutorial :doc:`/tutorials/intermediate/gridspec` for a comprehensive
-usage guide.
+Often, users need not access this module directly, and can use higher-level
+methods like `~.pyplot.subplots`, `~.pyplot.subplot_mosaic` and
+`~.Figure.subfigures`. See the tutorial
+:doc:`/tutorials/intermediate/arranging_axes` for a guide.
 """
 
 import copy
@@ -16,7 +18,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, _pylab_helpers, tight_layout, rcParams
+from matplotlib import _api, _pylab_helpers, _tight_layout, rcParams
 from matplotlib.transforms import Bbox
 
 _log = logging.getLogger(__name__)
@@ -39,7 +41,7 @@ class GridSpecBase:
             relative width of ``width_ratios[i] / sum(width_ratios)``.
             If not given, all columns will have the same width.
         height_ratios : array-like of length *nrows*, optional
-            Defines the relative heights of the rows. Each column gets a
+            Defines the relative heights of the rows. Each row gets a
             relative height of ``height_ratios[i] / sum(height_ratios)``.
             If not given, all rows will have the same height.
         """
@@ -342,7 +344,7 @@ class GridSpec(GridSpecBase):
         nrows, ncols : int
             The number of rows and columns of the grid.
 
-        figure : `~.figure.Figure`, optional
+        figure : `.Figure`, optional
             Only used for constrained layout to create a proper layoutgrid.
 
         left, right, top, bottom : float, optional
@@ -369,7 +371,7 @@ class GridSpec(GridSpecBase):
             If not given, all columns will have the same width.
 
         height_ratios : array-like of length *nrows*, optional
-            Defines the relative heights of the rows. Each column gets a
+            Defines the relative heights of the rows. Each row gets a
             relative height of ``height_ratios[i] / sum(height_ratios)``.
             If not given, all rows will have the same height.
 
@@ -464,7 +466,7 @@ class GridSpec(GridSpecBase):
             fit into.
         """
 
-        subplotspec_list = tight_layout.get_subplotspec_list(
+        subplotspec_list = _tight_layout.get_subplotspec_list(
             figure.axes, grid_spec=self)
         if None in subplotspec_list:
             _api.warn_external("This figure includes Axes that are not "
@@ -472,9 +474,9 @@ class GridSpec(GridSpecBase):
                                "might be incorrect.")
 
         if renderer is None:
-            renderer = tight_layout.get_renderer(figure)
+            renderer = _tight_layout.get_renderer(figure)
 
-        kwargs = tight_layout.get_tight_layout_figure(
+        kwargs = _tight_layout.get_tight_layout_figure(
             figure, figure.axes, subplotspec_list, renderer,
             pad=pad, h_pad=h_pad, w_pad=w_pad, rect=rect)
         if kwargs:
@@ -620,9 +622,6 @@ class SubplotSpec:
     @num2.setter
     def num2(self, value):
         self._num2 = value
-
-    def __getstate__(self):
-        return {**self.__dict__}
 
     def get_gridspec(self):
         return self._gridspec

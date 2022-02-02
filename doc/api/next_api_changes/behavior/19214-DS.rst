@@ -1,0 +1,5 @@
+Improved autoscaling for bezier curves
+--------------------------------------
+Bezier curves are now autoscaled to their extents - previously they were
+autoscaled to their ends and control points, which in some cases led to
+unnecessarily large limits.

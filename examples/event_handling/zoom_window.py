@@ -12,6 +12,14 @@ the (x, y) coordinates of the clicked point.
 
 Note the diameter of the circles in the scatter are defined in points**2, so
 their size is independent of the zoom.
+
+.. note::
+    This example exercises the interactive capabilities of Matplotlib, and this
+    will not appear in the static documentation. Please run this code on your
+    machine to see the interactivity.
+
+    You can copy and paste individual parts, or download the entire example
+    using the link at the bottom of the page.
 """
 
 import matplotlib.pyplot as plt
@@ -21,8 +29,8 @@ import numpy as np
 # Fixing random state for reproducibility
 np.random.seed(19680801)
 
-figsrc, axsrc = plt.subplots()
-figzoom, axzoom = plt.subplots()
+figsrc, axsrc = plt.subplots(figsize=(3.7, 3.7))
+figzoom, axzoom = plt.subplots(figsize=(3.7, 3.7))
 axsrc.set(xlim=(0, 1), ylim=(0, 1), autoscale_on=False,
           title='Click to zoom')
 axzoom.set(xlim=(0.45, 0.55), ylim=(0.4, 0.6), autoscale_on=False,

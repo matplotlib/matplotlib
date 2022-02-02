@@ -28,7 +28,7 @@ commands:
           name: Merge with upstream
           command: |
             if ! git remote -v | grep upstream; then
-              git remote add upstream git://github.com/matplotlib/matplotlib.git
+              git remote add upstream https://github.com/matplotlib/matplotlib.git
             fi
             git fetch upstream
             if [[ "$CIRCLE_BRANCH" != "main" ]] && \
@@ -85,7 +85,7 @@ commands:
           command: |
             python -m pip install --upgrade --user pip
             python -m pip install --upgrade --user wheel
-            python -m pip install --upgrade --user setuptools
+            python -m pip install --upgrade --user 'setuptools!=60.6.0'
 
   deps-install:
     parameters:
@@ -104,7 +104,15 @@ commands:
     steps:
       - run:
           name: Install Matplotlib
-          command: python -m pip install --user -ve .
+          command: |
+            if [[ "$CIRCLE_BRANCH" == v*-doc ]]; then
+              # The v*-doc branches must build against the specified release.
+              version=${CIRCLE_BRANCH%-doc}
+              version=${version#v}
+              python -m pip install matplotlib==${version}
+            else
+              python -m pip install --user -ve .
+            fi
       - save_cache:
           key: build-deps-1
           paths:

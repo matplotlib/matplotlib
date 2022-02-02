@@ -156,19 +156,17 @@ writers = MovieWriterRegistry()
 
 class AbstractMovieWriter(abc.ABC):
     """
-    Abstract base class for writing movies. Fundamentally, what a MovieWriter
-    does is provide is a way to grab frames by calling grab_frame().
+    Abstract base class for writing movies, providing a way to grab frames by
+    calling `~AbstractMovieWriter.grab_frame`.
 
-    setup() is called to start the process and finish() is called afterwards.
-
-    This class is set up to provide for writing movie frame data to a pipe.
-    saving() is provided as a context manager to facilitate this process as::
+    `setup` is called to start the process and `finish` is called afterwards.
+    `saving` is provided as a context manager to facilitate this process as ::
 
         with moviewriter.saving(fig, outfile='myfile.mp4', dpi=100):
             # Iterate over frames
             moviewriter.grab_frame(**savefig_kwargs)
 
-    The use of the context manager ensures that setup() and finish() are
+    The use of the context manager ensures that `setup` and `finish` are
     performed as necessary.
 
     An instance of a concrete subclass of this class can be given as the
@@ -336,29 +334,6 @@ class MovieWriter(AbstractMovieWriter):
 
     def finish(self):
         """Finish any processing for writing the movie."""
-        overridden_cleanup = _api.deprecate_method_override(
-            __class__.cleanup, self, since="3.4", alternative="finish()")
-        if overridden_cleanup is not None:
-            overridden_cleanup()
-        else:
-            self._cleanup()  # Inline _cleanup() once cleanup() is removed.
-
-    def grab_frame(self, **savefig_kwargs):
-        # docstring inherited
-        _log.debug('MovieWriter.grab_frame: Grabbing frame.')
-        # Readjust the figure size in case it has been changed by the user.
-        # All frames must have the same size to save the movie correctly.
-        self.fig.set_size_inches(self._w, self._h)
-        # Save the figure data to the sink, using the frame format and dpi.
-        self.fig.savefig(self._proc.stdin, format=self.frame_format,
-                         dpi=self.dpi, **savefig_kwargs)
-
-    def _args(self):
-        """Assemble list of encoder-specific command-line arguments."""
-        return NotImplementedError("args needs to be implemented by subclass.")
-
-    def _cleanup(self):  # Inline to finish() once cleanup() is removed.
-        """Clean-up and collect the process used to write the movie file."""
         out, err = self._proc.communicate()
         # Use the encoding/errors that universal_newlines would use.
         out = TextIOWrapper(BytesIO(out)).read()
@@ -375,9 +350,19 @@ class MovieWriter(AbstractMovieWriter):
             raise subprocess.CalledProcessError(
                 self._proc.returncode, self._proc.args, out, err)
 
-    @_api.deprecated("3.4")
-    def cleanup(self):
-        self._cleanup()
+    def grab_frame(self, **savefig_kwargs):
+        # docstring inherited
+        _log.debug('MovieWriter.grab_frame: Grabbing frame.')
+        # Readjust the figure size in case it has been changed by the user.
+        # All frames must have the same size to save the movie correctly.
+        self.fig.set_size_inches(self._w, self._h)
+        # Save the figure data to the sink, using the frame format and dpi.
+        self.fig.savefig(self._proc.stdin, format=self.frame_format,
+                         dpi=self.dpi, **savefig_kwargs)
+
+    def _args(self):
+        """Assemble list of encoder-specific command-line arguments."""
+        return NotImplementedError("args needs to be implemented by subclass.")
 
     @classmethod
     def bin_path(cls):
@@ -522,8 +507,8 @@ class FFMpegBase:
     """
     Mixin class for FFMpeg output.
 
-    To be useful this must be multiply-inherited from with a
-    `MovieWriterBase` sub-class.
+    This is a base class for the concrete `FFMpegWriter` and `FFMpegFileWriter`
+    classes.
     """
 
     _exec_key = 'animation.ffmpeg_path'
@@ -620,22 +605,41 @@ class ImageMagickBase:
     """
     Mixin class for ImageMagick output.
 
-    To be useful this must be multiply-inherited from with a
-    `MovieWriterBase` sub-class.
+    This is a base class for the concrete `ImageMagickWriter` and
+    `ImageMagickFileWriter` classes, which define an ``input_names`` attribute
+    (or property) specifying the input names passed to ImageMagick.
     """
 
     _exec_key = 'animation.convert_path'
     _args_key = 'animation.convert_args'
 
+    @_api.deprecated("3.6")
     @property
     def delay(self):
         return 100. / self.fps
 
+    @_api.deprecated("3.6")
     @property
     def output_args(self):
         extra_args = (self.extra_args if self.extra_args is not None
                       else mpl.rcParams[self._args_key])
         return [*extra_args, self.outfile]
+
+    def _args(self):
+        # ImageMagick does not recognize "raw".
+        fmt = "rgba" if self.frame_format == "raw" else self.frame_format
+        extra_args = (self.extra_args if self.extra_args is not None
+                      else mpl.rcParams[self._args_key])
+        return [
+            self.bin_path(),
+            "-size", "%ix%i" % self.frame_size,
+            "-depth", "8",
+            "-delay", str(100 / self.fps),
+            "-loop", "0",
+            f"{fmt}:{self.input_names}",
+            *extra_args,
+            self.outfile,
+        ]
 
     @classmethod
     def bin_path(cls):
@@ -662,14 +666,9 @@ class ImageMagickWriter(ImageMagickBase, MovieWriter):
 
     Frames are streamed directly to ImageMagick via a pipe and written
     in a single pass.
-
     """
-    def _args(self):
-        return ([self.bin_path(),
-                 '-size', '%ix%i' % self.frame_size, '-depth', '8',
-                 '-delay', str(self.delay), '-loop', '0',
-                 '%s:-' % self.frame_format]
-                + self.output_args)
+
+    input_names = "-"  # stdin
 
 
 # Combine ImageMagick options with temp file-based writing
@@ -683,15 +682,8 @@ class ImageMagickFileWriter(ImageMagickBase, FileMovieWriter):
     """
 
     supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
-
-    def _args(self):
-        # Force format: ImageMagick does not recognize 'raw'.
-        fmt = 'rgba:' if self.frame_format == 'raw' else ''
-        return ([self.bin_path(),
-                 '-size', '%ix%i' % self.frame_size, '-depth', '8',
-                 '-delay', str(self.delay), '-loop', '0',
-                 '%s%s*.%s' % (fmt, self.temp_prefix, self.frame_format)]
-                + self.output_args)
+    input_names = property(
+        lambda self: f'{self.temp_prefix}*.{self.frame_format}')
 
 
 # Taken directly from jakevdp's JSAnimation package at
@@ -1156,11 +1148,11 @@ class Animation:
         # Handles blitted drawing, which renders only the artists given instead
         # of the entire figure.
         updated_ax = {a.axes for a in artists}
-        # Enumerate artists to cache axes' backgrounds. We do not draw
+        # Enumerate artists to cache Axes backgrounds. We do not draw
         # artists yet to not cache foreground from plots with shared axes
         for ax in updated_ax:
             # If we haven't cached the background for the current view of this
-            # axes object, do so now. This might not always be reliable, but
+            # Axes object, do so now. This might not always be reliable, but
             # it's an attempt to automate the process.
             cur_view = ax._get_view()
             view, bg = self._blit_cache.get(ax, (object(), None))
@@ -1170,12 +1162,12 @@ class Animation:
         # Make a separate pass to draw foreground.
         for a in artists:
             a.axes.draw_artist(a)
-        # After rendering all the needed artists, blit each axes individually.
+        # After rendering all the needed artists, blit each Axes individually.
         for ax in updated_ax:
             ax.figure.canvas.blit(ax.bbox)
 
     def _blit_clear(self, artists):
-        # Get a list of the axes that need clearing from the artists that
+        # Get a list of the Axes that need clearing from the artists that
         # have been drawn. Grab the appropriate saved background from the
         # cache and restore.
         axes = {a.axes for a in artists}
@@ -1190,8 +1182,7 @@ class Animation:
                 self._blit_cache.pop(ax)
 
     def _setup_blit(self):
-        # Setting up the blit requires: a cache of the background for the
-        # axes
+        # Setting up the blit requires: a cache of the background for the Axes
         self._blit_cache = dict()
         self._drawn_artists = []
         self._resize_id = self._fig.canvas.mpl_connect('resize_event',

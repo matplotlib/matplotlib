@@ -2,8 +2,10 @@
 Classes for including text in a figure.
 """
 
+import functools
 import logging
 import math
+import numbers
 import weakref
 
 import numpy as np
@@ -88,6 +90,21 @@ def _get_textbox(text, renderer):
     return x_box, y_box, w_box, h_box
 
 
+def _get_text_metrics_with_cache(renderer, text, fontprop, ismath, dpi):
+    """Call ``renderer.get_text_width_height_descent``, caching the results."""
+    # Cached based on a copy of fontprop so that later in-place mutations of
+    # the passed-in argument do not mess up the cache.
+    return _get_text_metrics_with_cache_impl(
+        weakref.ref(renderer), text, fontprop.copy(), ismath, dpi)
+
+
+@functools.lru_cache(4096)
+def _get_text_metrics_with_cache_impl(
+        renderer_ref, text, fontprop, ismath, dpi):
+    # dpi is unused, but participates in cache invalidation (via the renderer).
+    return renderer_ref().get_text_width_height_descent(text, fontprop, ismath)
+
+
 @docstring.interpd
 @cbook._define_aliases({
     "color": ["c"],
@@ -107,7 +124,6 @@ class Text(Artist):
     """Handle storing and drawing of text in window or data coordinates."""
 
     zorder = 3
-    _cached = cbook.maxdict(50)
 
     def __repr__(self):
         return "Text(%s, %s, %s)" % (self._x, self._y, repr(self._text))
@@ -149,12 +165,12 @@ class Text(Artist):
         self.set_verticalalignment(verticalalignment)
         self.set_horizontalalignment(horizontalalignment)
         self._multialignment = multialignment
-        self._rotation = rotation
+        self.set_rotation(rotation)
         self._transform_rotates_text = transform_rotates_text
         self._bbox_patch = None  # a FancyBboxPatch instance
         self._renderer = None
         if linespacing is None:
-            linespacing = 1.2   # Maybe use rcParam later.
+            linespacing = 1.2  # Maybe use rcParam later.
         self._linespacing = linespacing
         self.set_rotation_mode(rotation_mode)
         self.update(kwargs)
@@ -272,31 +288,12 @@ class Text(Artist):
         self._linespacing = other._linespacing
         self.stale = True
 
-    def _get_layout_cache_key(self, renderer=None):
-        """
-        Return a hashable tuple of properties that lets `_get_layout` know
-        whether a previously computed layout can be reused.
-        """
-        x, y = self.get_unitless_position()
-        renderer = renderer or self._renderer
-        return (
-            x, y, self.get_text(), hash(self._fontproperties),
-            self._verticalalignment, self._horizontalalignment,
-            self._linespacing,
-            self._rotation, self._rotation_mode, self._transform_rotates_text,
-            self.figure.dpi, weakref.ref(renderer),
-        )
-
     def _get_layout(self, renderer):
         """
         Return the extent (bbox) of the text together with
         multiple-alignment information. Note that it returns an extent
         of a rotated text when necessary.
         """
-        key = self._get_layout_cache_key(renderer=renderer)
-        if key in self._cached:
-            return self._cached[key]
-
         thisx, thisy = 0.0, 0.0
         lines = self.get_text().split("\n")  # Ensures lines is not empty.
 
@@ -306,16 +303,17 @@ class Text(Artist):
         ys = []
 
         # Full vertical extent of font, including ascenders and descenders:
-        _, lp_h, lp_d = renderer.get_text_width_height_descent(
-            "lp", self._fontproperties,
-            ismath="TeX" if self.get_usetex() else False)
+        _, lp_h, lp_d = _get_text_metrics_with_cache(
+            renderer, "lp", self._fontproperties,
+            ismath="TeX" if self.get_usetex() else False, dpi=self.figure.dpi)
         min_dy = (lp_h - lp_d) * self._linespacing
 
         for i, line in enumerate(lines):
             clean_line, ismath = self._preprocess_math(line)
             if clean_line:
-                w, h, d = renderer.get_text_width_height_descent(
-                    clean_line, self._fontproperties, ismath=ismath)
+                w, h, d = _get_text_metrics_with_cache(
+                    renderer, clean_line, self._fontproperties,
+                    ismath=ismath, dpi=self.figure.dpi)
             else:
                 w = h = d = 0
 
@@ -352,7 +350,6 @@ class Text(Artist):
         xmax = width
         ymax = 0
         ymin = ys[-1] - descent  # baseline of last line minus its descent
-        height = ymax - ymin
 
         # get the rotation matrix
         M = Affine2D().rotate_deg(self.get_rotation())
@@ -440,9 +437,7 @@ class Text(Artist):
         # now rotate the positions around the first (x, y) position
         xys = M.transform(offset_layout) - (offsetx, offsety)
 
-        ret = bbox, list(zip(lines, zip(ws, hs), *xys.T)), descent
-        self._cached[key] = ret
-        return ret
+        return bbox, list(zip(lines, zip(ws, hs), *xys.T)), descent
 
     def set_bbox(self, rectprops):
         """
@@ -882,8 +877,9 @@ class Text(Artist):
             A renderer is needed to compute the bounding box.  If the artist
             has already been drawn, the renderer is cached; thus, it is only
             necessary to pass this argument when calling `get_window_extent`
-            before the first `draw`.  In practice, it is usually easier to
-            trigger a draw first (e.g. by saving the figure).
+            before the first draw.  In practice, it is usually easier to
+            trigger a draw first, e.g. by calling
+            `~.Figure.draw_without_rendering` or ``plt.show()``.
 
         dpi : float, optional
             The dpi value for computing the bbox, defaults to
@@ -904,7 +900,9 @@ class Text(Artist):
         if self._renderer is None:
             self._renderer = self.figure._cachedRenderer
         if self._renderer is None:
-            raise RuntimeError('Cannot get window extent w/o renderer')
+            raise RuntimeError(
+                "Cannot get window extent of text w/o renderer. You likely "
+                "want to call 'figure.draw_without_rendering()' first.")
 
         with cbook._setattr_cm(self.figure, dpi=dpi):
             bbox, info, descent = self._get_layout(self._renderer)
@@ -1178,6 +1176,11 @@ class Text(Artist):
             The rotation angle in degrees in mathematically positive direction
             (counterclockwise). 'horizontal' equals 0, 'vertical' equals 90.
         """
+        if (s is not None and
+                not isinstance(s, numbers.Real) and
+                s not in ['vertical', 'horizontal']):
+            raise ValueError("rotation must be 'vertical', 'horizontal' or "
+                             f"a number, not {s}")
         self._rotation = s
         self.stale = True
 
@@ -1710,9 +1713,13 @@ class Annotation(Text, _AnnotationBase):
 
         arrowprops : dict, optional
             The properties used to draw a `.FancyArrowPatch` arrow between the
-            positions *xy* and *xytext*. Note that the edge of the arrow
-            pointing to *xytext* will be centered on the text itself and may
-            not point directly to the coordinates given in *xytext*.
+            positions *xy* and *xytext*.  Defaults to None, i.e. no arrow is
+            drawn.
+
+            For historical reasons there are two different ways to specify
+            arrows, "simple" and "fancy":
+
+            **Simple arrow:**
 
             If *arrowprops* does not contain the key 'arrowstyle' the
             allowed keys are:
@@ -1727,35 +1734,22 @@ class Annotation(Text, _AnnotationBase):
             ?            Any key to :class:`matplotlib.patches.FancyArrowPatch`
             ==========   ======================================================
 
-            If *arrowprops* contains the key 'arrowstyle' the
-            above keys are forbidden.  The allowed values of
-            ``'arrowstyle'`` are:
+            The arrow is attached to the edge of the text box, the exact
+            position (corners or centers) depending on where it's pointing to.
 
-            ============   =============================================
-            Name           Attrs
-            ============   =============================================
-            ``'-'``        None
-            ``'->'``       head_length=0.4,head_width=0.2
-            ``'-['``       widthB=1.0,lengthB=0.2,angleB=None
-            ``'|-|'``      widthA=1.0,widthB=1.0
-            ``'-|>'``      head_length=0.4,head_width=0.2
-            ``'<-'``       head_length=0.4,head_width=0.2
-            ``'<->'``      head_length=0.4,head_width=0.2
-            ``'<|-'``      head_length=0.4,head_width=0.2
-            ``'<|-|>'``    head_length=0.4,head_width=0.2
-            ``'fancy'``    head_length=0.4,head_width=0.4,tail_width=0.4
-            ``'simple'``   head_length=0.5,head_width=0.5,tail_width=0.2
-            ``'wedge'``    tail_width=0.3,shrink_factor=0.5
-            ============   =============================================
+            **Fancy arrow:**
 
-            Valid keys for `~matplotlib.patches.FancyArrowPatch` are:
+            This is used if 'arrowstyle' is provided in the *arrowprops*.
+
+            Valid keys are the following `~matplotlib.patches.FancyArrowPatch`
+            parameters:
 
             ===============  ==================================================
             Key              Description
             ===============  ==================================================
             arrowstyle       the arrow style
             connectionstyle  the connection style
-            relpos           default is (0.5, 0.5)
+            relpos           see below; default is (0.5, 0.5)
             patchA           default is bounding box of the text
             patchB           default is None
             shrinkA          default is 2 points
@@ -1765,7 +1759,12 @@ class Annotation(Text, _AnnotationBase):
             ?                any key for :class:`matplotlib.patches.PathPatch`
             ===============  ==================================================
 
-            Defaults to None, i.e. no arrow is drawn.
+            The exact starting point position of the arrow is defined by
+            *relpos*. It's a tuple of relative coordinates of the text box,
+            where (0, 0) is the lower left corner and (1, 1) is the upper
+            right corner. Values <0 and >1 are supported and specify points
+            outside the text box. By default (0.5, 0.5) the starting point is
+            centered in the text box.
 
         annotation_clip : bool or None, default: None
             Whether to draw the annotation when the annotation point *xy* is
@@ -1976,7 +1975,7 @@ class Annotation(Text, _AnnotationBase):
         # FancyArrowPatch is correctly positioned.
         self.update_positions(renderer)
         self.update_bbox_position_size(renderer)
-        if self.arrow_patch is not None:   # FancyArrowPatch
+        if self.arrow_patch is not None:  # FancyArrowPatch
             if self.arrow_patch.figure is None and self.figure is not None:
                 self.arrow_patch.figure = self.figure
             self.arrow_patch.draw(renderer)

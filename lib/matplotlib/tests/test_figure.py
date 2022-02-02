@@ -1,3 +1,4 @@
+import copy
 from datetime import datetime
 import io
 from pathlib import Path
@@ -11,11 +12,13 @@ import pytest
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import cbook, rcParams
+from matplotlib import rcParams
 from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from matplotlib.layout_engine import (ConstrainedLayoutEngine,
+                                      TightLayoutEngine)
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -25,7 +28,7 @@ import matplotlib.gridspec as gridspec
 @image_comparison(['figure_align_labels'], extensions=['png', 'svg'],
                   tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_align_labels():
-    fig = plt.figure(tight_layout=True)
+    fig = plt.figure(layout='tight')
     gs = gridspec.GridSpec(3, 3)
 
     ax = fig.add_subplot(gs[0, :2])
@@ -61,6 +64,41 @@ def test_align_labels():
                 tick.set_rotation(90)
 
     fig.align_labels()
+
+
+def test_align_labels_stray_axes():
+    fig, axs = plt.subplots(2, 2)
+    for nn, ax in enumerate(axs.flat):
+        ax.set_xlabel('Boo')
+        ax.set_xlabel('Who')
+        ax.plot(np.arange(4)**nn, np.arange(4)**nn)
+    fig.align_ylabels()
+    fig.align_xlabels()
+    fig.draw_without_rendering()
+    xn = np.zeros(4)
+    yn = np.zeros(4)
+    for nn, ax in enumerate(axs.flat):
+        yn[nn] = ax.xaxis.label.get_position()[1]
+        xn[nn] = ax.yaxis.label.get_position()[0]
+    np.testing.assert_allclose(xn[:2], xn[2:])
+    np.testing.assert_allclose(yn[::2], yn[1::2])
+
+    fig, axs = plt.subplots(2, 2, constrained_layout=True)
+    for nn, ax in enumerate(axs.flat):
+        ax.set_xlabel('Boo')
+        ax.set_xlabel('Who')
+        pc = ax.pcolormesh(np.random.randn(10, 10))
+    fig.colorbar(pc, ax=ax)
+    fig.align_ylabels()
+    fig.align_xlabels()
+    fig.draw_without_rendering()
+    xn = np.zeros(4)
+    yn = np.zeros(4)
+    for nn, ax in enumerate(axs.flat):
+        yn[nn] = ax.xaxis.label.get_position()[1]
+        xn[nn] = ax.yaxis.label.get_position()[0]
+    np.testing.assert_allclose(xn[:2], xn[2:])
+    np.testing.assert_allclose(yn[::2], yn[1::2])
 
 
 def test_figure_label():
@@ -268,7 +306,7 @@ def test_add_subplot_invalid():
 def test_suptitle():
     fig, _ = plt.subplots()
     fig.suptitle('hello', color='r')
-    fig.suptitle('title', color='g', rotation='30')
+    fig.suptitle('title', color='g', rotation=30)
 
 
 def test_suptitle_fontproperties():
@@ -482,9 +520,8 @@ def test_savefig():
 
 def test_savefig_warns():
     fig = plt.figure()
-    msg = r'savefig\(\) got unexpected keyword argument "non_existent_kwarg"'
     for format in ['png', 'pdf', 'svg', 'tif', 'jpg']:
-        with pytest.warns(cbook.MatplotlibDeprecationWarning, match=msg):
+        with pytest.raises(TypeError):
             fig.savefig(io.BytesIO(), format=format, non_existent_kwarg=True)
 
 
@@ -541,28 +578,47 @@ def test_valid_layouts():
 
 
 def test_invalid_layouts():
-    fig, ax = plt.subplots(constrained_layout=True)
+    fig, ax = plt.subplots(layout="constrained")
     with pytest.warns(UserWarning):
         # this should warn,
         fig.subplots_adjust(top=0.8)
-    assert not(fig.get_constrained_layout())
+    assert isinstance(fig.get_layout_engine(), ConstrainedLayoutEngine)
 
     # Using layout + (tight|constrained)_layout warns, but the former takes
     # precedence.
-    with pytest.warns(UserWarning, match="Figure parameters 'layout' and "
-                      "'tight_layout' cannot"):
+    wst = "The Figure parameters 'layout' and 'tight_layout'"
+    with pytest.warns(UserWarning, match=wst):
         fig = Figure(layout='tight', tight_layout=False)
-    assert fig.get_tight_layout()
-    assert not fig.get_constrained_layout()
-    with pytest.warns(UserWarning, match="Figure parameters 'layout' and "
-                      "'constrained_layout' cannot"):
+    assert isinstance(fig.get_layout_engine(), TightLayoutEngine)
+    wst = "The Figure parameters 'layout' and 'constrained_layout'"
+    with pytest.warns(UserWarning, match=wst):
         fig = Figure(layout='constrained', constrained_layout=False)
-    assert not fig.get_tight_layout()
-    assert fig.get_constrained_layout()
+    assert not isinstance(fig.get_layout_engine(), TightLayoutEngine)
+    assert isinstance(fig.get_layout_engine(), ConstrainedLayoutEngine)
 
     with pytest.raises(ValueError,
-                       match="'foobar' is not a valid value for layout"):
+                       match="Invalid value for 'layout'"):
         Figure(layout='foobar')
+
+    # test that layouts can be swapped if no colorbar:
+    fig, ax = plt.subplots(layout="constrained")
+    fig.set_layout_engine("tight")
+    assert isinstance(fig.get_layout_engine(), TightLayoutEngine)
+    fig.set_layout_engine("constrained")
+    assert isinstance(fig.get_layout_engine(), ConstrainedLayoutEngine)
+
+    # test that layouts cannot be swapped if there is a colorbar:
+    fig, ax = plt.subplots(layout="constrained")
+    pc = ax.pcolormesh(np.random.randn(2, 2))
+    fig.colorbar(pc)
+    with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
+        fig.set_layout_engine("tight")
+
+    fig, ax = plt.subplots(layout="tight")
+    pc = ax.pcolormesh(np.random.randn(2, 2))
+    fig.colorbar(pc)
+    with pytest.raises(RuntimeError, match='Colorbar layout of new layout'):
+        fig.set_layout_engine("constrained")
 
 
 @check_figures_equal(extensions=["png", "pdf"])
@@ -741,8 +797,8 @@ class TestSubplotMosaic:
         x = [["A", "B"], ["C", "D"]]
         y = [["E", "F"], ["G", "H"]]
 
-        fig_ref.set_constrained_layout(True)
-        fig_test.set_constrained_layout(True)
+        fig_ref.set_layout_engine("constrained")
+        fig_test.set_layout_engine("constrained")
 
         grid_axes = fig_test.subplot_mosaic([[x, y]])
         for ax in grid_axes.values():
@@ -762,8 +818,8 @@ class TestSubplotMosaic:
     @check_figures_equal(extensions=["png"])
     def test_nested(self, fig_test, fig_ref):
 
-        fig_ref.set_constrained_layout(True)
-        fig_test.set_constrained_layout(True)
+        fig_ref.set_layout_engine("constrained")
+        fig_test.set_layout_engine("constrained")
 
         x = [["A", "B"], ["C", "D"]]
 
@@ -971,7 +1027,7 @@ def test_reused_gridspec():
                   remove_text=False)
 def test_subfigure():
     np.random.seed(19680801)
-    fig = plt.figure(constrained_layout=True)
+    fig = plt.figure(layout='constrained')
     sub = fig.subfigures(1, 2)
 
     axs = sub[0].subplots(2, 2)
@@ -991,11 +1047,12 @@ def test_subfigure():
 
 def test_subfigure_tightbbox():
     # test that we can get the tightbbox with a subfigure...
-    fig = plt.figure(constrained_layout=True)
+    fig = plt.figure(layout='constrained')
     sub = fig.subfigures(1, 2)
 
     np.testing.assert_allclose(
-            fig.get_tightbbox(fig.canvas.get_renderer()).width, 0.1)
+            fig.get_tightbbox(fig.canvas.get_renderer()).width,
+            8.0)
 
 
 @image_comparison(['test_subfigure_ss.png'], style='mpl20',
@@ -1004,7 +1061,7 @@ def test_subfigure_tightbbox():
 def test_subfigure_ss():
     # test assigning the subfigure via subplotspec
     np.random.seed(19680801)
-    fig = plt.figure(constrained_layout=True)
+    fig = plt.figure(layout='constrained')
     gs = fig.add_gridspec(1, 2)
 
     sub = fig.add_subfigure(gs[0], facecolor='pink')
@@ -1029,7 +1086,7 @@ def test_subfigure_double():
     # test assigning the subfigure via subplotspec
     np.random.seed(19680801)
 
-    fig = plt.figure(constrained_layout=True, figsize=(10, 8))
+    fig = plt.figure(layout='constrained', figsize=(10, 8))
 
     fig.suptitle('fig')
 
@@ -1226,3 +1283,28 @@ def test_kwargs_pass():
 
     assert fig.get_label() == 'whole Figure'
     assert sub_fig.get_label() == 'sub figure'
+
+
+def test_deepcopy():
+    fig1, ax = plt.subplots()
+    ax.plot([0, 1], [2, 3])
+    ax.set_yscale('log')
+
+    fig2 = copy.deepcopy(fig1)
+
+    # Make sure it is a new object
+    assert fig2.axes[0] is not ax
+    # And that the axis scale got propagated
+    assert fig2.axes[0].get_yscale() == 'log'
+    # Update the deepcopy and check the original isn't modified
+    fig2.axes[0].set_yscale('linear')
+    assert ax.get_yscale() == 'log'
+
+    # And test the limits of the axes don't get propagated
+    ax.set_xlim(1e-1, 1e2)
+    # Draw these to make sure limits are updated
+    fig1.draw_without_rendering()
+    fig2.draw_without_rendering()
+
+    assert ax.get_xlim() == (1e-1, 1e2)
+    assert fig2.axes[0].get_xlim() == (0, 1)

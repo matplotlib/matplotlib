@@ -504,9 +504,7 @@ def _create_lookup_table(N, data, gamma=1.0):
         adata = np.array(data)
     except Exception as err:
         raise TypeError("data must be convertible to an array") from err
-    shape = adata.shape
-    if len(shape) != 2 or shape[1] != 3:
-        raise ValueError("data must be nx3 format")
+    _api.check_shape((None, 3), data=adata)
 
     x = adata[:, 0]
     y0 = adata[:, 1]
@@ -1231,12 +1229,13 @@ class Normalize:
 
         result, is_scalar = self.process_value(value)
 
-        self.autoscale_None(result)
+        if self.vmin is None or self.vmax is None:
+            self.autoscale_None(result)
         # Convert at least to float, without losing precision.
         (vmin,), _ = self.process_value(self.vmin)
         (vmax,), _ = self.process_value(self.vmax)
         if vmin == vmax:
-            result.fill(0)   # Or should it be all masked?  Or 0.5?
+            result.fill(0)  # Or should it be all masked?  Or 0.5?
         elif vmin > vmax:
             raise ValueError("minvalue must be less than or equal to maxvalue")
         else:
@@ -1508,9 +1507,26 @@ def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
 
     if init is None:
         def init(vmin=None, vmax=None, clip=False): pass
-    bound_init_signature = inspect.signature(init)
+
+    return _make_norm_from_scale(
+        scale_cls, base_norm_cls, inspect.signature(init))
+
+
+@functools.lru_cache(None)
+def _make_norm_from_scale(scale_cls, base_norm_cls, bound_init_signature):
+    """
+    Helper for `make_norm_from_scale`.
+
+    This function is split out so that it takes a signature object as third
+    argument (as signatures are picklable, contrary to arbitrary lambdas);
+    caching is also used so that different unpickles reuse the same class.
+    """
 
     class Norm(base_norm_cls):
+        def __reduce__(self):
+            return (_picklable_norm_constructor,
+                    (scale_cls, base_norm_cls, bound_init_signature),
+                    self.__dict__)
 
         def __init__(self, *args, **kwargs):
             ba = bound_init_signature.bind(*args, **kwargs)
@@ -1520,9 +1536,14 @@ def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
             self._scale = scale_cls(axis=None, **ba.arguments)
             self._trf = self._scale.get_transform()
 
+        __init__.__signature__ = bound_init_signature.replace(parameters=[
+            inspect.Parameter("self", inspect.Parameter.POSITIONAL_OR_KEYWORD),
+            *bound_init_signature.parameters.values()])
+
         def __call__(self, value, clip=None):
             value, is_scalar = self.process_value(value)
-            self.autoscale_None(value)
+            if self.vmin is None or self.vmax is None:
+                self.autoscale_None(value)
             if self.vmin > self.vmax:
                 raise ValueError("vmin must be less or equal to vmax")
             if self.vmin == self.vmax:
@@ -1557,15 +1578,30 @@ def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
                      .reshape(np.shape(value)))
             return value[0] if is_scalar else value
 
-    Norm.__name__ = (f"{scale_cls.__name__}Norm" if base_norm_cls is Normalize
-                     else base_norm_cls.__name__)
-    Norm.__qualname__ = base_norm_cls.__qualname__
+        def autoscale(self, A):
+            # i.e. A[np.isfinite(...)], but also for non-array A's
+            in_trf_domain = np.extract(np.isfinite(self._trf.transform(A)), A)
+            return super().autoscale(in_trf_domain)
+
+        def autoscale_None(self, A):
+            in_trf_domain = np.extract(np.isfinite(self._trf.transform(A)), A)
+            return super().autoscale_None(in_trf_domain)
+
+    Norm.__name__ = (
+            f"{scale_cls.__name__}Norm" if base_norm_cls is Normalize
+            else base_norm_cls.__name__)
+    Norm.__qualname__ = (
+            f"{scale_cls.__qualname__}Norm" if base_norm_cls is Normalize
+            else base_norm_cls.__qualname__)
     Norm.__module__ = base_norm_cls.__module__
     Norm.__doc__ = base_norm_cls.__doc__
-    Norm.__init__.__signature__ = bound_init_signature.replace(parameters=[
-        inspect.Parameter("self", inspect.Parameter.POSITIONAL_OR_KEYWORD),
-        *bound_init_signature.parameters.values()])
+
     return Norm
+
+
+def _picklable_norm_constructor(*args):
+    cls = _make_norm_from_scale(*args)
+    return cls.__new__(cls)
 
 
 @make_norm_from_scale(
@@ -1604,14 +1640,6 @@ class FuncNorm(Normalize):
 @make_norm_from_scale(functools.partial(scale.LogScale, nonpositive="mask"))
 class LogNorm(Normalize):
     """Normalize a given value to the 0-1 range on a log scale."""
-
-    def autoscale(self, A):
-        # docstring inherited.
-        super().autoscale(np.ma.array(A, mask=(A <= 0)))
-
-    def autoscale_None(self, A):
-        # docstring inherited.
-        super().autoscale_None(np.ma.array(A, mask=(A <= 0)))
 
 
 @make_norm_from_scale(

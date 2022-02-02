@@ -557,3 +557,8 @@ def test_deprecation(monkeypatch):
         mpl.rcParams["svg.hashsalt"] = "foobar"
     assert mpl.rcParams["svg.hashsalt"] == "foobar"  # Doesn't warn.
     mpl.rcParams["svg.hashsalt"] = None  # Doesn't warn.
+
+    mpl.rcParams.update(mpl.rcParams.copy())  # Doesn't warn.
+    # Note that the warning suppression actually arises from the
+    # iteration over the updater rcParams being protected by
+    # suppress_matplotlib_deprecation_warning, rather than any explicit check.

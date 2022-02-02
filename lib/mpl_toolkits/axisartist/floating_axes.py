@@ -5,8 +5,11 @@ An experimental support for curvilinear grid.
 # TODO :
 # see if tick_iterator method can be simplified by reusing the parent method.
 
+import functools
+
 import numpy as np
 
+import matplotlib as mpl
 from matplotlib import _api, cbook
 import matplotlib.axes as maxes
 import matplotlib.patches as mpatches
@@ -121,10 +124,11 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             dd[mm] = dd2[mm] + np.pi / 2
 
             tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
+            in_01 = functools.partial(
+                mpl.transforms._interval_contains_close, (0, 1))
             for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
                 c2 = tick_to_axes.transform((x, y))
-                delta = 0.00001
-                if 0-delta <= c2[0] <= 1+delta and 0-delta <= c2[1] <= 1+delta:
+                if in_01(c2[0]) and in_01(c2[1]):
                     d1, d2 = np.rad2deg([d, d2])
                     yield [x, y], d1, d2, lab
 
@@ -293,7 +297,6 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
         Return (N, 2) array of (x, y) coordinate of the boundary.
         """
         x0, x1, y0, y1 = self._extremes
-        tr = self._aux_trans
 
         xx = np.linspace(x0, x1, 100)
         yy0 = np.full_like(xx, y0)
@@ -304,9 +307,8 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
 
         xxx = np.concatenate([xx[:-1], xx1[:-1], xx[-1:0:-1], xx0])
         yyy = np.concatenate([yy0[:-1], yy[:-1], yy1[:-1], yy[::-1]])
-        t = tr.transform(np.array([xxx, yyy]).transpose())
 
-        return t
+        return self._aux_trans.transform(np.column_stack([xxx, yyy]))
 
 
 class FloatingAxesBase:

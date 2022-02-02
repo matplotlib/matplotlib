@@ -5,7 +5,6 @@ Implementation details for :mod:`.mathtext`.
 from collections import namedtuple
 import enum
 import functools
-from io import StringIO
 import logging
 import os
 import types
@@ -22,7 +21,7 @@ from . import _api, cbook
 from ._mathtext_data import (
     latex_to_bakoma, latex_to_standard, stix_glyph_fixes, stix_virtual_fonts,
     tex2uni)
-from .afm import AFM
+from ._afm import AFM
 from .font_manager import FontProperties, findfont, get_font
 from .ft2font import KERNING_DEFAULT
 
@@ -42,12 +41,12 @@ def get_unicode_index(symbol, math=True):
     Parameters
     ----------
     symbol : str
-        A single unicode character, a TeX command (e.g. r'\pi') or a Type1
+        A single (Unicode) character, a TeX command (e.g. r'\pi') or a Type1
         symbol name (e.g. 'phi').
     math : bool, default: True
-        If False, always treat as a single unicode character.
+        If False, always treat as a single Unicode character.
     """
-    # for a non-math symbol, simply return its unicode index
+    # for a non-math symbol, simply return its Unicode index
     if not math:
         return ord(symbol)
     # From UTF #25: U+2212 minus sign is the preferred
@@ -57,7 +56,7 @@ def get_unicode_index(symbol, math=True):
     # length, usually longer than a hyphen.
     if symbol == '-':
         return 0x2212
-    try:  # This will succeed if symbol is a single unicode char
+    try:  # This will succeed if symbol is a single Unicode char
         return ord(symbol)
     except TypeError:
         pass
@@ -91,14 +90,6 @@ class Fonts:
         self.default_font_prop = default_font_prop
         self.mathtext_backend = mathtext_backend
         self.used_characters = {}
-
-    @_api.deprecated("3.4")
-    def destroy(self):
-        """
-        Fix any cyclical references before the object is about
-        to be destroyed.
-        """
-        self.used_characters = None
 
     def get_kern(self, font1, fontclass1, sym1, fontsize1,
                  font2, fontclass2, sym2, fontsize2, dpi):
@@ -203,11 +194,6 @@ class Fonts:
         """
         result = self.mathtext_backend.get_results(
             box, self.get_used_characters())
-        if self.destroy != TruetypeFonts.destroy.__get__(self):
-            destroy = _api.deprecate_method_override(
-                __class__.destroy, self, since="3.4")
-            if destroy:
-                destroy()
         return result
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
@@ -234,11 +220,6 @@ class TruetypeFonts(Fonts):
         default_font = get_font(filename)
         self._fonts['default'] = default_font
         self._fonts['regular'] = default_font
-
-    @_api.deprecated("3.4")
-    def destroy(self):
-        self.glyphd = None
-        super().destroy()
 
     def _get_font(self, font):
         if font in self.fontmap:
@@ -501,7 +482,7 @@ class UnicodeFonts(TruetypeFonts):
         except ValueError:
             uniindex = ord('?')
             found_symbol = False
-            _log.warning("No TeX to unicode mapping for {!a}.".format(sym))
+            _log.warning("No TeX to Unicode mapping for {!a}.".format(sym))
 
         fontname, uniindex = self._map_virtual_font(
             fontname, font_class, uniindex)
@@ -802,8 +783,6 @@ class StandardPsFonts(Fonts):
 
         self.fonts['default'] = default_font
         self.fonts['regular'] = default_font
-
-    pswriter = _api.deprecated("3.4")(property(lambda self: StringIO()))
 
     def _get_font(self, font):
         if font in self.fontmap:
@@ -1521,8 +1500,7 @@ class Hrule(Rule):
 
     def __init__(self, state, thickness=None):
         if thickness is None:
-            thickness = state.font_output.get_underline_thickness(
-                state.font, state.fontsize, state.dpi)
+            thickness = state.get_current_underline_thickness()
         height = depth = thickness * 0.5
         super().__init__(np.inf, height, depth, state)
 
@@ -1531,8 +1509,7 @@ class Vrule(Rule):
     """Convenience class to create a vertical rule."""
 
     def __init__(self, state):
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = state.get_current_underline_thickness()
         super().__init__(thickness, np.inf, np.inf, state)
 
 
@@ -1975,7 +1952,6 @@ class Parser:
         p.auto_delim       = Forward()
         p.binom            = Forward()
         p.bslash           = Forward()
-        p.c_over_c         = Forward()
         p.customspace      = Forward()
         p.end_group        = Forward()
         p.float_literal    = Forward()
@@ -2051,11 +2027,6 @@ class Parser:
         p.symbol        <<= (p.single_symbol | p.symbol_name).leaveWhitespace()
 
         p.apostrophe    <<= Regex("'+")
-
-        p.c_over_c      <<= (
-            Suppress(p.bslash)
-            + oneOf(list(self._char_over_chars))
-        )
 
         p.accent        <<= Group(
             Suppress(p.bslash)
@@ -2159,7 +2130,6 @@ class Parser:
             | p.accent   # Must be before symbol as all accents are symbols
             | p.symbol   # Must be third to catch all named symbols and single
                          # chars not in a group
-            | p.c_over_c
             | p.function
             | p.group
             | p.frac
@@ -2283,6 +2253,11 @@ class Parser:
                 self.font_class = name
             self._font = name
 
+        def get_current_underline_thickness(self):
+            """Return the underline thickness for this state."""
+            return self.font_output.get_underline_thickness(
+                self.font, self.fontsize, self.dpi)
+
     def get_state(self):
         """Get the current `State` of the parser."""
         return self._state_stack[-1]
@@ -2396,50 +2371,6 @@ class Parser:
         c, = toks
         raise ParseFatalException(s, loc, "Unknown symbol: %s" % c)
 
-    _char_over_chars = {
-        # The first 2 entries in the tuple are (font, char, sizescale) for
-        # the two symbols under and over.  The third element is the space
-        # (in multiples of underline height)
-        r'AA': (('it', 'A', 1.0), (None, '\\circ', 0.5), 0.0),
-    }
-
-    def c_over_c(self, s, loc, toks):
-        sym, = toks
-        state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
-
-        under_desc, over_desc, space = \
-            self._char_over_chars.get(sym, (None, None, 0.0))
-        if under_desc is None:
-            raise ParseFatalException("Error parsing symbol")
-
-        over_state = state.copy()
-        if over_desc[0] is not None:
-            over_state.font = over_desc[0]
-        over_state.fontsize *= over_desc[2]
-        over = Accent(over_desc[1], over_state)
-
-        under_state = state.copy()
-        if under_desc[0] is not None:
-            under_state.font = under_desc[0]
-        under_state.fontsize *= under_desc[2]
-        under = Char(under_desc[1], under_state)
-
-        width = max(over.width, under.width)
-
-        over_centered = HCentered([over])
-        over_centered.hpack(width, 'exactly')
-
-        under_centered = HCentered([under])
-        under_centered.hpack(width, 'exactly')
-
-        return Vlist([
-                over_centered,
-                Vbox(0., thickness * space),
-                under_centered
-                ])
-
     _accent_map = {
         r'hat':            r'\circumflexaccent',
         r'breve':          r'\combiningbreve',
@@ -2473,8 +2404,7 @@ class Parser:
 
     def accent(self, s, loc, toks):
         state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = state.get_current_underline_thickness()
         (accent, sym), = toks
         if accent in self._wide_accents:
             accent_box = AutoWidthChar(
@@ -2759,8 +2689,7 @@ class Parser:
 
     def _genfrac(self, ldelim, rdelim, rule, style, num, den):
         state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = state.get_current_underline_thickness()
 
         rule = float(rule)
 
@@ -2803,17 +2732,13 @@ class Parser:
         return self._genfrac(*args)
 
     def frac(self, s, loc, toks):
-        state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = self.get_state().get_current_underline_thickness()
         (num, den), = toks
         return self._genfrac('', '', thickness, self._MathStyle.TEXTSTYLE,
                              num, den)
 
     def dfrac(self, s, loc, toks):
-        state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = self.get_state().get_current_underline_thickness()
         (num, den), = toks
         return self._genfrac('', '', thickness, self._MathStyle.DISPLAYSTYLE,
                              num, den)
@@ -2825,9 +2750,7 @@ class Parser:
 
     def _genset(self, s, loc, toks):
         (annotation, body), = toks
-        state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = self.get_state().get_current_underline_thickness()
 
         annotation.shrink()
         cannotation = HCentered([annotation])
@@ -2859,8 +2782,7 @@ class Parser:
     def sqrt(self, s, loc, toks):
         (root, body), = toks
         state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = state.get_current_underline_thickness()
 
         # Determine the height of the body, and add a little extra to
         # the height so it doesn't seem cramped
@@ -2900,8 +2822,7 @@ class Parser:
         (body,), = toks
 
         state = self.get_state()
-        thickness = state.font_output.get_underline_thickness(
-            state.font, state.fontsize, state.dpi)
+        thickness = state.get_current_underline_thickness()
 
         height = body.height - body.shift_amount + thickness * 3.0
         depth = body.depth + body.shift_amount

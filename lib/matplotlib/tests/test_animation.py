@@ -138,8 +138,6 @@ class RegisteredNullMovieWriter(NullMovieWriter):
 WRITER_OUTPUT = [
     ('ffmpeg', 'movie.mp4'),
     ('ffmpeg_file', 'movie.mp4'),
-    ('avconv', 'movie.mp4'),
-    ('avconv_file', 'movie.mp4'),
     ('imagemagick', 'movie.gif'),
     ('imagemagick_file', 'movie.gif'),
     ('pillow', 'movie.gif'),

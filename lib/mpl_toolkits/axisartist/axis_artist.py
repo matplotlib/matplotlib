@@ -609,10 +609,7 @@ class GridlinesCollection(LineCollection):
         if self._grid_helper is not None:
             self._grid_helper.update_lim(self.axes)
             gl = self._grid_helper.get_gridlines(self._which, self._axis)
-            if gl:
-                self.set_segments([np.transpose(l) for l in gl])
-            else:
-                self.set_segments([])
+            self.set_segments([np.transpose(l) for l in gl])
         super().draw(renderer)
 
 
@@ -623,11 +620,6 @@ class AxisArtist(martist.Artist):
     """
 
     zorder = 2.5
-
-    @_api.deprecated("3.4")
-    @_api.classproperty
-    def ZORDER(cls):
-        return cls.zorder
 
     @property
     def LABELPAD(self):

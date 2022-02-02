@@ -8,7 +8,7 @@ Introduction to plotting and working with text in Matplotlib.
 Matplotlib has extensive text support, including support for
 mathematical expressions, truetype support for raster and
 vector outputs, newline separated text with arbitrary
-rotations, and unicode support.
+rotations, and Unicode support.
 
 Because it embeds fonts directly in output documents, e.g., for postscript
 or PDF, what you see on the screen is what you get in the hardcopy.
@@ -87,7 +87,7 @@ ax.text(3, 8, 'boxed italics text in data coords', style='italic',
 
 ax.text(2, 6, r'an equation: $E=mc^2$', fontsize=15)
 
-ax.text(3, 2, 'unicode: Institut für Festkörperphysik')
+ax.text(3, 2, 'Unicode: Institut für Festkörperphysik')
 
 ax.text(0.95, 0.01, 'colored text in axes coords',
         verticalalignment='bottom', horizontalalignment='right',

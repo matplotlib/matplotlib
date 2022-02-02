@@ -1,16 +1,11 @@
 import ctypes
 
-from .backend_cairo import cairo, FigureCanvasCairo, RendererCairo
+from .backend_cairo import cairo, FigureCanvasCairo
 from .backend_qt import QtCore, QtGui, _BackendQT, FigureCanvasQT
 from .qt_compat import QT_API, _enum, _setDevicePixelRatio
 
 
 class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
-    def __init__(self, figure=None):
-        super().__init__(figure=figure)
-        self._renderer = RendererCairo(self.figure.dpi)
-        self._renderer.set_width_height(-1, -1)  # Invalid values.
-
     def draw(self):
         if hasattr(self._renderer.gc, "ctx"):
             self._renderer.dpi = self.figure.dpi

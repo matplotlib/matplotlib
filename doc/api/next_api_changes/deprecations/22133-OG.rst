@@ -1,0 +1,6 @@
+``AFM``, ``configfont_pattern`` and ``Type1Font`` deprecated
+------------------------------------------------------------
+
+The modules ``matplotlib.AFM``, ``matplotlib.configfont_pattern``, and
+``matplotlib.Type1Font`` are considered internal and public access is
+deprecated.

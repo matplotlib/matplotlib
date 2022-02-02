@@ -52,10 +52,12 @@ class Axes3D(Axes):
     _axis_names = ("x", "y", "z")
     Axes._shared_axes["z"] = cbook.Grouper()
 
+    dist = _api.deprecate_privatize_attribute("3.6")
+
     def __init__(
             self, fig, rect=None, *args,
-            azim=-60, elev=30, sharez=None, proj_type='persp',
-            box_aspect=None, computed_zorder=True,
+            elev=30, azim=-60, roll=0, sharez=None, proj_type='persp',
+            box_aspect=None, computed_zorder=True, focal_length=None,
             **kwargs):
         """
         Parameters
@@ -64,14 +66,27 @@ class Axes3D(Axes):
             The parent figure.
         rect : (float, float, float, float)
             The ``(left, bottom, width, height)`` axes position.
-        azim : float, default: -60
-            Azimuthal viewing angle.
         elev : float, default: 30
-            Elevation viewing angle.
+            The elevation angle in degrees rotates the camera above and below
+            the x-y plane, with a positive angle corresponding to a location
+            above the plane.
+        azim : float, default: -60
+            The azimuthal angle in degrees rotates the camera about the z axis,
+            with a positive angle corresponding to a right-handed rotation. In
+            other words, a positive azimuth rotates the camera about the origin
+            from its location along the +x axis towards the +y axis.
+        roll : float, default: 0
+            The roll angle in degrees rotates the camera about the viewing
+            axis. A positive angle spins the camera clockwise, causing the
+            scene to rotate counter-clockwise.
         sharez : Axes3D, optional
             Other axes to share z-limits with.
         proj_type : {'persp', 'ortho'}
             The projection type, default 'persp'.
+        box_aspect : 3-tuple of floats, default: None
+            Changes the physical dimensions of the Axes3D, such that the ratio
+            of the axis lengths in display units is x:y:z.
+            If None, defaults to 4:4:3
         computed_zorder : bool, default: True
             If True, the draw order is computed based on the average position
             of the `.Artist`\\s along the view direction.
@@ -89,6 +104,13 @@ class Axes3D(Axes):
             This behavior is deprecated in 3.4, the default will
             change to False in 3.5.  The keyword will be undocumented
             and a non-False value will be an error in 3.6.
+        focal_length : float, default: None
+            For a projection type of 'persp', the focal length of the virtual
+            camera. Must be > 0. If None, defaults to 1.
+            For a projection type of 'ortho', must be set to either None
+            or infinity (numpy.inf). If None, defaults to infinity.
+            The focal length can be computed from a desired Field Of View via
+            the equation: focal_length = 1/tan(FOV/2)
 
         **kwargs
             Other optional keyword arguments:
@@ -101,7 +123,8 @@ class Axes3D(Axes):
 
         self.initial_azim = azim
         self.initial_elev = elev
-        self.set_proj_type(proj_type)
+        self.initial_roll = roll
+        self.set_proj_type(proj_type, focal_length)
         self.computed_zorder = computed_zorder
 
         self.xy_viewLim = Bbox.unit()
@@ -112,7 +135,7 @@ class Axes3D(Axes):
 
         # inhibit autoscale_view until the axes are defined
         # they can't be defined until Axes.__init__ has been called
-        self.view_init(self.initial_elev, self.initial_azim)
+        self.view_init(self.initial_elev, self.initial_azim, self.initial_roll)
 
         self._sharez = sharez
         if sharez is not None:
@@ -175,7 +198,7 @@ class Axes3D(Axes):
 
     def convert_zunits(self, z):
         """
-        For artists in an axes, if the zaxis has units support,
+        For artists in an Axes, if the zaxis has units support,
         convert *z* using zaxis unit type
         """
         return self.zaxis.convert_units(z)
@@ -183,10 +206,10 @@ class Axes3D(Axes):
     def set_top_view(self):
         # this happens to be the right view for the viewing coordinates
         # moved up and to the left slightly to fit labels and axes
-        xdwl = 0.95 / self.dist
-        xdw = 0.9 / self.dist
-        ydwl = 0.95 / self.dist
-        ydw = 0.9 / self.dist
+        xdwl = 0.95 / self._dist
+        xdw = 0.9 / self._dist
+        ydwl = 0.95 / self._dist
+        ydw = 0.9 / self._dist
         # This is purposely using the 2D Axes's set_xlim and set_ylim,
         # because we are trying to place our viewing pane.
         super().set_xlim(-xdwl, xdw, auto=None)
@@ -334,22 +357,19 @@ class Axes3D(Axes):
         aspect : 3-tuple of floats or None
             Changes the physical dimensions of the Axes3D, such that the ratio
             of the axis lengths in display units is x:y:z.
+            If None, defaults to (4,4,3).
 
-            If None, defaults to 4:4:3
-
-        zoom : float
-            Control overall size of the Axes3D in the figure.
+        zoom : float, default: 1
+            Control overall size of the Axes3D in the figure. Must be > 0.
         """
+        if zoom <= 0:
+            raise ValueError(f'Argument zoom = {zoom} must be > 0')
+
         if aspect is None:
             aspect = np.asarray((4, 4, 3), dtype=float)
         else:
-            orig_aspect = aspect
             aspect = np.asarray(aspect, dtype=float)
-            if aspect.shape != (3,):
-                raise ValueError(
-                    "You must pass a 3-tuple that can be cast to floats. "
-                    f"You passed {orig_aspect!r}"
-                )
+            _api.check_shape((3,), aspect=aspect)
         # default scale tuned to match the mpl32 appearance.
         aspect *= 1.8294640721620434 * zoom / np.linalg.norm(aspect)
 
@@ -395,79 +415,41 @@ class Axes3D(Axes):
 
         # add the projection matrix to the renderer
         self.M = self.get_proj()
-        props3d = {
-            # To raise a deprecation, we need to wrap the attribute in a
-            # function, but binding that to an instance does not work, as you
-            # would end up with an instance-specific method. Properties are
-            # class-level attributes which *are* functions, so we do that
-            # instead.
-            # This dictionary comprehension creates deprecated properties for
-            # the attributes listed below, and they are temporarily attached to
-            # the _class_ in the `_setattr_cm` call. These can both be removed
-            # once the deprecation expires
-            name: _api.deprecated('3.4', name=name,
-                                  alternative=f'self.axes.{name}')(
-                property(lambda self, _value=getattr(self, name): _value))
-            for name in ['M', 'vvec', 'eye', 'get_axis_position']
-        }
 
-        with cbook._setattr_cm(type(renderer), **props3d):
-            def do_3d_projection(artist):
-                """
-                Call `do_3d_projection` on an *artist*, and warn if passing
-                *renderer*.
+        collections_and_patches = (
+            artist for artist in self._children
+            if isinstance(artist, (mcoll.Collection, mpatches.Patch))
+            and artist.get_visible())
+        if self.computed_zorder:
+            # Calculate projection of collections and patches and zorder
+            # them. Make sure they are drawn above the grids.
+            zorder_offset = max(axis.get_zorder()
+                                for axis in self._get_axis_list()) + 1
+            collection_zorder = patch_zorder = zorder_offset
 
-                For our Artists, never pass *renderer*. For external Artists,
-                in lieu of more complicated signature parsing, always pass
-                *renderer* and raise a warning.
-                """
+            for artist in sorted(collections_and_patches,
+                                 key=lambda artist: artist.do_3d_projection(),
+                                 reverse=True):
+                if isinstance(artist, mcoll.Collection):
+                    artist.zorder = collection_zorder
+                    collection_zorder += 1
+                elif isinstance(artist, mpatches.Patch):
+                    artist.zorder = patch_zorder
+                    patch_zorder += 1
+        else:
+            for artist in collections_and_patches:
+                artist.do_3d_projection()
 
-                if artist.__module__ == 'mpl_toolkits.mplot3d.art3d':
-                    # Our 3D Artists have deprecated the renderer parameter, so
-                    # avoid passing it to them; call this directly once the
-                    # deprecation has expired.
-                    return artist.do_3d_projection()
+        if self._axis3don:
+            # Draw panes first
+            for axis in self._get_axis_list():
+                axis.draw_pane(renderer)
+            # Then axes
+            for axis in self._get_axis_list():
+                axis.draw(renderer)
 
-                _api.warn_deprecated(
-                    "3.4",
-                    message="The 'renderer' parameter of "
-                    "do_3d_projection() was deprecated in Matplotlib "
-                    "%(since)s and will be removed %(removal)s.")
-                return artist.do_3d_projection(renderer)
-
-            collections_and_patches = (
-                artist for artist in self._children
-                if isinstance(artist, (mcoll.Collection, mpatches.Patch))
-                and artist.get_visible())
-            if self.computed_zorder:
-                # Calculate projection of collections and patches and zorder
-                # them. Make sure they are drawn above the grids.
-                zorder_offset = max(axis.get_zorder()
-                                    for axis in self._get_axis_list()) + 1
-                collection_zorder = patch_zorder = zorder_offset
-                for artist in sorted(collections_and_patches,
-                                     key=do_3d_projection,
-                                     reverse=True):
-                    if isinstance(artist, mcoll.Collection):
-                        artist.zorder = collection_zorder
-                        collection_zorder += 1
-                    elif isinstance(artist, mpatches.Patch):
-                        artist.zorder = patch_zorder
-                        patch_zorder += 1
-            else:
-                for artist in collections_and_patches:
-                    artist.do_3d_projection()
-
-            if self._axis3don:
-                # Draw panes first
-                for axis in self._get_axis_list():
-                    axis.draw_pane(renderer)
-                # Then axes
-                for axis in self._get_axis_list():
-                    axis.draw(renderer)
-
-            # Then rest
-            super().draw(renderer)
+        # Then rest
+        super().draw(renderer)
 
     def get_axis_position(self):
         vals = self.get_w_lims()
@@ -476,17 +458,6 @@ class Axes3D(Axes):
         yhigh = tc[3][2] > tc[2][2]
         zhigh = tc[0][2] > tc[2][2]
         return xhigh, yhigh, zhigh
-
-    def _unit_change_handler(self, axis_name, event=None):
-        # docstring inherited
-        if event is None:  # Allow connecting `self._unit_change_handler(name)`
-            return functools.partial(
-                self._unit_change_handler, axis_name, event=object())
-        _api.check_in_list(self._get_axis_map(), axis_name=axis_name)
-        self.relim()
-        self._request_autoscale_view(scalex=(axis_name == "x"),
-                                     scaley=(axis_name == "y"),
-                                     scalez=(axis_name == "z"))
 
     def update_datalim(self, xys, **kwargs):
         pass
@@ -515,24 +486,6 @@ class Axes3D(Axes):
         """
         self._autoscaleZon = b
 
-    def set_xmargin(self, m):
-        # docstring inherited
-        scalez = self._stale_viewlims["z"]
-        super().set_xmargin(m)
-        # Superclass is 2D and will call _request_autoscale_view with defaults
-        # for unknown Axis, which would be scalez=True, but it shouldn't be for
-        # this call, so restore it.
-        self._stale_viewlims["z"] = scalez
-
-    def set_ymargin(self, m):
-        # docstring inherited
-        scalez = self._stale_viewlims["z"]
-        super().set_ymargin(m)
-        # Superclass is 2D and will call _request_autoscale_view with defaults
-        # for unknown Axis, which would be scalez=True, but it shouldn't be for
-        # this call, so restore it.
-        self._stale_viewlims["z"] = scalez
-
     def set_zmargin(self, m):
         """
         Set padding of Z data limits prior to autoscaling.
@@ -552,7 +505,7 @@ class Axes3D(Axes):
         if m <= -0.5:
             raise ValueError("margin must be greater than -0.5")
         self._zmargin = m
-        self._request_autoscale_view(scalex=False, scaley=False, scalez=True)
+        self._request_autoscale_view("z")
         self.stale = True
 
     def margins(self, *margins, x=None, y=None, z=None, tight=True):
@@ -646,8 +599,12 @@ class Axes3D(Axes):
                 self._autoscaleZon = scalez = bool(enable)
             else:
                 scalez = False
-        self._request_autoscale_view(tight=tight, scalex=scalex, scaley=scaley,
-                                     scalez=scalez)
+        if scalex:
+            self._request_autoscale_view("x", tight=tight)
+        if scaley:
+            self._request_autoscale_view("y", tight=tight)
+        if scalez:
+            self._request_autoscale_view("z", tight=tight)
 
     def auto_scale_xyz(self, X, Y, Z=None, had_data=None):
         # This updates the bounding boxes as to keep a record as to what the
@@ -984,7 +941,7 @@ class Axes3D(Axes):
         """Currently not implemented for 3D axes, and returns *None*."""
         return None
 
-    def view_init(self, elev=None, azim=None, vertical_axis="z"):
+    def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z"):
         """
         Set the elevation and azimuth of the axes in degrees (not radians).
 
@@ -993,18 +950,32 @@ class Axes3D(Axes):
         Parameters
         ----------
         elev : float, default: None
-            The elevation angle in the vertical plane in degrees.
-            If None then the initial value as specified in the `Axes3D`
+            The elevation angle in degrees rotates the camera above the plane
+            pierced by the vertical axis, with a positive angle corresponding
+            to a location above that plane. For example, with the default
+            vertical axis of 'z', the elevation defines the angle of the camera
+            location above the x-y plane.
+            If None, then the initial value as specified in the `Axes3D`
             constructor is used.
         azim : float, default: None
-            The azimuth angle in the horizontal plane in degrees.
-            If None then the initial value as specified in the `Axes3D`
+            The azimuthal angle in degrees rotates the camera about the
+            vertical axis, with a positive angle corresponding to a
+            right-handed rotation. For example, with the default vertical axis
+            of 'z', a positive azimuth rotates the camera about the origin from
+            its location along the +x axis towards the +y axis.
+            If None, then the initial value as specified in the `Axes3D`
+            constructor is used.
+        roll : float, default: None
+            The roll angle in degrees rotates the camera about the viewing
+            axis. A positive angle spins the camera clockwise, causing the
+            scene to rotate counter-clockwise.
+            If None, then the initial value as specified in the `Axes3D`
             constructor is used.
         vertical_axis : {"z", "x", "y"}, default: "z"
             The axis to align vertically. *azim* rotates about this axis.
         """
 
-        self.dist = 10
+        self._dist = 10  # The camera distance from origin. Behaves like zoom
 
         if elev is None:
             self.elev = self.initial_elev
@@ -1016,22 +987,42 @@ class Axes3D(Axes):
         else:
             self.azim = azim
 
+        if roll is None:
+            self.roll = self.initial_roll
+        else:
+            self.roll = roll
+
         self._vertical_axis = _api.check_getitem(
             dict(x=0, y=1, z=2), vertical_axis=vertical_axis
         )
 
-    def set_proj_type(self, proj_type):
+    def set_proj_type(self, proj_type, focal_length=None):
         """
         Set the projection type.
 
         Parameters
         ----------
         proj_type : {'persp', 'ortho'}
+            The projection type.
+        focal_length : float, default: None
+            For a projection type of 'persp', the focal length of the virtual
+            camera. Must be > 0. If None, defaults to 1.
+            The focal length can be computed from a desired Field Of View via
+            the equation: focal_length = 1/tan(FOV/2)
         """
-        self._projection = _api.check_getitem({
-            'persp': proj3d.persp_transformation,
-            'ortho': proj3d.ortho_transformation,
-        }, proj_type=proj_type)
+        _api.check_in_list(['persp', 'ortho'], proj_type=proj_type)
+        if proj_type == 'persp':
+            if focal_length is None:
+                focal_length = 1
+            elif focal_length <= 0:
+                raise ValueError(f"focal_length = {focal_length} must be "
+                                 "greater than 0")
+            self._focal_length = focal_length
+        elif proj_type == 'ortho':
+            if focal_length not in (None, np.inf):
+                raise ValueError(f"focal_length = {focal_length} must be "
+                                 f"None for proj_type = {proj_type}")
+            self._focal_length = np.inf
 
     def _roll_to_vertical(self, arr):
         """Roll arrays to match the different vertical axis."""
@@ -1054,8 +1045,10 @@ class Axes3D(Axes):
 
         # elev stores the elevation angle in the z plane
         # azim stores the azimuth angle in the x,y plane
-        elev_rad = np.deg2rad(self.elev)
-        azim_rad = np.deg2rad(self.azim)
+        # roll stores the roll angle about the view axis
+        elev_rad = np.deg2rad(art3d._norm_angle(self.elev))
+        azim_rad = np.deg2rad(art3d._norm_angle(self.azim))
+        roll_rad = np.deg2rad(art3d._norm_angle(self.roll))
 
         # Coordinates for a point that rotates around the box of data.
         # p0, p1 corresponds to rotating the box only around the
@@ -1072,7 +1065,7 @@ class Axes3D(Axes):
 
         # The coordinates for the eye viewing point. The eye is looking
         # towards the middle of the box of data from a distance:
-        eye = R + self.dist * ps
+        eye = R + self._dist * ps
 
         # TODO: Is this being used somewhere? Can it be removed?
         self.eye = eye
@@ -1085,8 +1078,21 @@ class Axes3D(Axes):
         V = np.zeros(3)
         V[self._vertical_axis] = -1 if abs(elev_rad) > 0.5 * np.pi else 1
 
-        viewM = proj3d.view_transformation(eye, R, V)
-        projM = self._projection(-self.dist, self.dist)
+        # Generate the view and projection transformation matrices
+        if self._focal_length == np.inf:
+            # Orthographic projection
+            viewM = proj3d.view_transformation(eye, R, V, roll_rad)
+            projM = proj3d.ortho_transformation(-self._dist, self._dist)
+        else:
+            # Perspective projection
+            # Scale the eye dist to compensate for the focal length zoom effect
+            eye_focal = R + self._dist * ps * self._focal_length
+            viewM = proj3d.view_transformation(eye_focal, R, V, roll_rad)
+            projM = proj3d.persp_transformation(-self._dist,
+                                                self._dist,
+                                                self._focal_length)
+
+        # Combine all the transformation matrices to get the final projection
         M0 = np.dot(viewM, worldM)
         M = np.dot(projM, M0)
         return M
@@ -1149,7 +1155,7 @@ class Axes3D(Axes):
                 pass
 
         self._autoscaleZon = True
-        if self._projection is proj3d.ortho_transformation:
+        if self._focal_length == np.inf:
             self._zmargin = rcParams['axes.zmargin']
         else:
             self._zmargin = 0.
@@ -1173,14 +1179,15 @@ class Axes3D(Axes):
     def _get_view(self):
         # docstring inherited
         return (self.get_xlim(), self.get_ylim(), self.get_zlim(),
-                self.elev, self.azim)
+                self.elev, self.azim, self.roll)
 
     def _set_view(self, view):
         # docstring inherited
-        xlim, ylim, zlim, elev, azim = view
+        xlim, ylim, zlim, elev, azim, roll = view
         self.set(xlim=xlim, ylim=ylim, zlim=zlim)
         self.elev = elev
         self.azim = azim
+        self.roll = roll
 
     def format_zdata(self, z):
         """
@@ -1207,8 +1214,12 @@ class Axes3D(Axes):
 
         if self.button_pressed in self._rotate_btn:
             # ignore xd and yd and display angles instead
-            return (f"azimuth={self.azim:.0f}\N{DEGREE SIGN}, "
-                    f"elevation={self.elev:.0f}\N{DEGREE SIGN}"
+            norm_elev = art3d._norm_angle(self.elev)
+            norm_azim = art3d._norm_angle(self.azim)
+            norm_roll = art3d._norm_angle(self.roll)
+            return (f"elevation={norm_elev:.0f}\N{DEGREE SIGN}, "
+                    f"azimuth={norm_azim:.0f}\N{DEGREE SIGN}, "
+                    f"roll={norm_roll:.0f}\N{DEGREE SIGN}"
                     ).replace("-", "\N{MINUS SIGN}")
 
         # nearest edge
@@ -1261,8 +1272,12 @@ class Axes3D(Axes):
             # get the x and y pixel coords
             if dx == 0 and dy == 0:
                 return
-            self.elev = art3d._norm_angle(self.elev - (dy/h)*180)
-            self.azim = art3d._norm_angle(self.azim - (dx/w)*180)
+
+            roll = np.deg2rad(self.roll)
+            delev = -(dy/h)*180*np.cos(roll) + (dx/w)*180*np.sin(roll)
+            dazim = -(dy/h)*180*np.sin(roll) - (dx/w)*180*np.cos(roll)
+            self.elev = self.elev + delev
+            self.azim = self.azim + dazim
             self.get_proj()
             self.stale = True
             self.figure.canvas.draw_idle()
@@ -1275,7 +1290,8 @@ class Axes3D(Axes):
             minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
             dx = 1-((w - dx)/w)
             dy = 1-((h - dy)/h)
-            elev, azim = np.deg2rad(self.elev), np.deg2rad(self.azim)
+            elev = np.deg2rad(self.elev)
+            azim = np.deg2rad(self.azim)
             # project xv, yv, zv -> xw, yw, zw
             dxx = (maxx-minx)*(dy*np.sin(elev)*np.cos(azim) + dx*np.sin(azim))
             dyy = (maxy-miny)*(-dx*np.cos(azim) + dy*np.sin(elev)*np.sin(azim))
@@ -1350,29 +1366,6 @@ class Axes3D(Axes):
             visible = True
         self._draw_grid = visible
         self.stale = True
-
-    def locator_params(self, axis='both', tight=None, **kwargs):
-        """
-        Convenience method for controlling tick locators.
-
-        See :meth:`matplotlib.axes.Axes.locator_params` for full
-        documentation.  Note that this is for Axes3D objects,
-        therefore, setting *axis* to 'both' will result in the
-        parameters being set for all three axes.  Also, *axis*
-        can also take a value of 'z' to apply parameters to the
-        z axis.
-        """
-        _x = axis in ['x', 'both']
-        _y = axis in ['y', 'both']
-        _z = axis in ['z', 'both']
-        if _x:
-            self.xaxis.get_major_locator().set_params(**kwargs)
-        if _y:
-            self.yaxis.get_major_locator().set_params(**kwargs)
-        if _z:
-            self.zaxis.get_major_locator().set_params(**kwargs)
-        self._request_autoscale_view(tight=tight, scalex=_x, scaley=_y,
-                                     scalez=_z)
 
     def tick_params(self, axis='both', **kwargs):
         """
@@ -1508,8 +1501,7 @@ class Axes3D(Axes):
 
     plot3D = plot
 
-    @_api.delete_parameter("3.4", "args", alternative="kwargs")
-    def plot_surface(self, X, Y, Z, *args, norm=None, vmin=None,
+    def plot_surface(self, X, Y, Z, *, norm=None, vmin=None,
                      vmax=None, lightsource=None, **kwargs):
         """
         Create a surface plot.
@@ -1683,7 +1675,7 @@ class Axes3D(Axes):
 
         # note that the striding causes some polygons to have more coordinates
         # than others
-        polyc = art3d.Poly3DCollection(polys, *args, **kwargs)
+        polyc = art3d.Poly3DCollection(polys, **kwargs)
 
         if fcolors is not None:
             if shade:
@@ -1794,8 +1786,7 @@ class Axes3D(Axes):
 
         return colors
 
-    @_api.delete_parameter("3.4", "args", alternative="kwargs")
-    def plot_wireframe(self, X, Y, Z, *args, **kwargs):
+    def plot_wireframe(self, X, Y, Z, **kwargs):
         """
         Plot a 3D wireframe.
 
@@ -1907,7 +1898,7 @@ class Axes3D(Axes):
                  + [list(zip(xl, yl, zl))
                  for xl, yl, zl in zip(txlines, tylines, tzlines)])
 
-        linec = art3d.Line3DCollection(lines, *args, **kwargs)
+        linec = art3d.Line3DCollection(lines, **kwargs)
         self.add_collection(linec)
         self.auto_scale_xyz(X, Y, Z, had_data)
 
@@ -3257,11 +3248,11 @@ pivot='tail', normalize=False, **kwargs)
         quiversize = np.mean(np.diff(quiversize, axis=0))
         # quiversize is now in Axes coordinates, and to convert back to data
         # coordinates, we need to run it through the inverse 3D transform. For
-        # consistency, this uses a fixed azimuth and elevation.
-        with cbook._setattr_cm(self, azim=0, elev=0):
+        # consistency, this uses a fixed elevation, azimuth, and roll.
+        with cbook._setattr_cm(self, elev=0, azim=0, roll=0):
             invM = np.linalg.inv(self.get_proj())
-        # azim=elev=0 produces the Y-Z plane, so quiversize in 2D 'x' is 'y' in
-        # 3D, hence the 1 index.
+        # elev=azim=roll=0 produces the Y-Z plane, so quiversize in 2D 'x' is
+        # 'y' in 3D, hence the 1 index.
         quiversize = np.dot(invM, np.array([quiversize, 0, 0, 0]))[1]
         # Quivers use a fixed 15-degree arrow head, so scale up the length so
         # that the size corresponds to the base. In other words, this constant

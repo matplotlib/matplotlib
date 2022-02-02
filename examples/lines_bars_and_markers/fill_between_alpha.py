@@ -133,7 +133,7 @@ ax.grid()
 
 ###############################################################################
 # Another handy use of filled regions is to highlight horizontal or vertical
-# spans of an axes -- for that Matplotlib has the helper functions
+# spans of an Axes -- for that Matplotlib has the helper functions
 # `~matplotlib.axes.Axes.axhspan` and `~matplotlib.axes.Axes.axvspan`.  See
 # :doc:`/gallery/subplots_axes_and_figures/axhspan_demo`.
 

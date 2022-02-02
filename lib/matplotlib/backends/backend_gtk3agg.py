@@ -1,6 +1,6 @@
 import numpy as np
 
-from .. import cbook
+from .. import _api, cbook
 try:
     from . import backend_cairo
 except ImportError as e:
@@ -76,6 +76,7 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
         backend_gtk3.FigureCanvasGTK3.draw(self)
 
 
+@_api.deprecated("3.6", alternative="backend_gtk3.FigureManagerGTK3")
 class FigureManagerGTK3Agg(backend_gtk3.FigureManagerGTK3):
     pass
 
@@ -83,4 +84,3 @@ class FigureManagerGTK3Agg(backend_gtk3.FigureManagerGTK3):
 @_BackendGTK3.export
 class _BackendGTK3Cairo(_BackendGTK3):
     FigureCanvas = FigureCanvasGTK3Agg
-    FigureManager = FigureManagerGTK3Agg

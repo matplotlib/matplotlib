@@ -47,8 +47,8 @@ import logging
 from numbers import Integral, Real
 
 from matplotlib import _api, colors as mcolors
-from .. import qt_compat
-from ..qt_compat import QtGui, QtWidgets, QtCore, _enum, _to_int
+from matplotlib.backends.qt_compat import (
+    QtGui, QtWidgets, QtCore, _enum, _to_int)
 
 _log = logging.getLogger(__name__)
 
@@ -499,8 +499,7 @@ class FormDialog(QtWidgets.QDialog):
 
 def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
     """
-    Create form dialog and return result
-    (if Cancel button is pressed, return None)
+    Create form dialog
 
     data: datalist, datagroup
     title: str
@@ -518,7 +517,7 @@ def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
        box) for each member of a datagroup inside a datagroup
 
     Supported types for field_value:
-      - int, float, str, unicode, bool
+      - int, float, str, bool
       - colors: in Qt-compatible text form, i.e. in hex format or name
                 (red, ...) (automatically detected from a string)
       - list/tuple:
@@ -537,11 +536,12 @@ def fedit(data, title="", comment="", icon=None, parent=None, apply=None):
             parent._fedit_dialog.close()
         parent._fedit_dialog = dialog
 
-    if qt_compat._exec(dialog):
-        return dialog.get()
+    dialog.show()
 
 
 if __name__ == "__main__":
+
+    _app = QtWidgets.QApplication([])
 
     def create_datalist_example():
         return [('str', 'this is a string'),
@@ -570,18 +570,24 @@ if __name__ == "__main__":
 
     def apply_test(data):
         print("data:", data)
-    print("result:", fedit(datalist, title="Example",
-                           comment="This is just an <b>example</b>.",
-                           apply=apply_test))
+    fedit(datalist, title="Example",
+          comment="This is just an <b>example</b>.",
+          apply=apply_test)
+
+    _app.exec()
 
     # --------- datagroup example
     datagroup = create_datagroup_example()
-    print("result:", fedit(datagroup, "Global title"))
+    fedit(datagroup, "Global title",
+          apply=apply_test)
+    _app.exec()
 
     # --------- datagroup inside a datagroup example
     datalist = create_datalist_example()
     datagroup = create_datagroup_example()
-    print("result:", fedit(((datagroup, "Title 1", "Tab 1 comment"),
-                            (datalist, "Title 2", "Tab 2 comment"),
-                            (datalist, "Title 3", "Tab 3 comment")),
-                           "Global title"))
+    fedit(((datagroup, "Title 1", "Tab 1 comment"),
+           (datalist, "Title 2", "Tab 2 comment"),
+           (datalist, "Title 3", "Tab 3 comment")),
+          "Global title",
+          apply=apply_test)
+    _app.exec()

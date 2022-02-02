@@ -1,0 +1,4 @@
+``Axes.get_window_extent`` and ``Figure.get_window_extent`` won't accept parameters other than *renderer* anymore
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This aligns the API with the general `.Artist.get_window_extent` API.
+All parameters were ignored anyway.

@@ -12,22 +12,14 @@
    :backlinks: entry
 
 
-Inheritance Diagrams
-====================
-
-.. inheritance-diagram:: matplotlib.animation.FuncAnimation matplotlib.animation.ArtistAnimation
-   :private-bases:
-   :parts: 1
-
-.. inheritance-diagram:: matplotlib.animation.FFMpegFileWriter matplotlib.animation.FFMpegWriter matplotlib.animation.ImageMagickFileWriter matplotlib.animation.ImageMagickWriter
-   :private-bases:
-   :parts: 1
-
 Animation
 =========
 
 The easiest way to make a live animation in Matplotlib is to use one of the
 `Animation` classes.
+
+.. inheritance-diagram:: matplotlib.animation.FuncAnimation matplotlib.animation.ArtistAnimation
+   :parts: 1
 
 .. autosummary::
    :toctree: _as_gen
@@ -59,9 +51,9 @@ supported.
 The inner workings of `FuncAnimation` is more-or-less::
 
   for d in frames:
-     artists = func(d, *fargs)
-     fig.canvas.draw_idle()
-     fig.canvas.start_event_loop(interval)
+      artists = func(d, *fargs)
+      fig.canvas.draw_idle()
+      fig.canvas.start_event_loop(interval)
 
 with details to handle 'blitting' (to dramatically improve the live
 performance), to be non-blocking, not repeatedly start/stop the GUI
@@ -170,6 +162,10 @@ Examples
 Writer Classes
 ==============
 
+.. inheritance-diagram:: matplotlib.animation.FFMpegFileWriter matplotlib.animation.FFMpegWriter matplotlib.animation.ImageMagickFileWriter matplotlib.animation.ImageMagickWriter matplotlib.animation.PillowWriter matplotlib.animation.HTMLWriter
+   :top-classes: matplotlib.animation.AbstractMovieWriter
+   :parts: 1
+
 The provided writers fall into a few broad categories.
 
 The Pillow writer relies on the Pillow library to write the animation, keeping
@@ -211,16 +207,18 @@ debug.
    FFMpegFileWriter
    ImageMagickFileWriter
 
-Fundamentally, a `MovieWriter` provides a way to grab sequential frames
-from the same underlying `~matplotlib.figure.Figure` object.  The base
-class `MovieWriter` implements 3 methods and a context manager.  The
-only difference between the pipe-based and file-based writers is in the
-arguments to their respective ``setup`` methods.
+The writer classes provide a way to grab sequential frames from the same
+underlying `~matplotlib.figure.Figure`.  They all provide three methods that
+must be called in sequence:
 
-The ``setup()`` method is used to prepare the writer (possibly opening
-a pipe), successive calls to ``grab_frame()`` capture a single frame
-at a time and ``finish()`` finalizes the movie and writes the output
-file to disk.  For example ::
+- `~.AbstractMovieWriter.setup` prepares the writer (e.g. opening a pipe).
+  Pipe-based and file-based writers take different arguments to ``setup()``.
+- `~.AbstractMovieWriter.grab_frame` can then be called as often as
+  needed to capture a single frame at a time
+- `~.AbstractMovieWriter.finish` finalizes the movie and writes the output
+  file to disk.
+
+Example::
 
    moviewriter = MovieWriter(...)
    moviewriter.setup(fig, 'my_movie.ext', dpi=100)
@@ -230,14 +228,14 @@ file to disk.  For example ::
    moviewriter.finish()
 
 If using the writer classes directly (not through `Animation.save`), it is
-strongly encouraged to use the `~MovieWriter.saving` context manager ::
+strongly encouraged to use the `~.AbstractMovieWriter.saving` context manager::
 
   with moviewriter.saving(fig, 'myfile.mp4', dpi=100):
       for j in range(n):
           update_figure(j)
           moviewriter.grab_frame()
 
-to ensures that setup and cleanup are performed as necessary.
+to ensure that setup and cleanup are performed as necessary.
 
 Examples
 --------

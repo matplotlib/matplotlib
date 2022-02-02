@@ -1,0 +1,9 @@
+``NavigationToolbar2GTK3`` window
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *window* parameter to ``NavigationToolbar2GTK3`` had no effect, and is now
+deprecated; likewise, the ``win`` attribute is deprecated.
+
+``NavigationToolbar2Tk`` window
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The *window* attribute to ``NavigationToolbar2GTK3`` is deprecated.  Use
+``toolbar.master`` instead.

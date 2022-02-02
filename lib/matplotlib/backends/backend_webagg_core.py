@@ -255,6 +255,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 Image.fromarray(data).save(png, format="png")
                 return png.getvalue()
 
+    @_api.delete_parameter("3.6", "cleared", alternative="renderer.clear()")
     def get_renderer(self, cleared=None):
         # Mirrors super.get_renderer, but caches the old one so that we can do
         # things such as produce a diff image in get_diff_image.
@@ -452,19 +453,14 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
 
 
 class FigureManagerWebAgg(backend_bases.FigureManagerBase):
-    ToolbarCls = NavigationToolbar2WebAgg
+    _toolbar2_class = ToolbarCls = NavigationToolbar2WebAgg
 
     def __init__(self, canvas, num):
         self.web_sockets = set()
         super().__init__(canvas, num)
-        self.toolbar = self._get_toolbar(canvas)
 
     def show(self):
         pass
-
-    def _get_toolbar(self, canvas):
-        toolbar = self.ToolbarCls(canvas)
-        return toolbar
 
     def resize(self, w, h, forward=True):
         self._send_event(

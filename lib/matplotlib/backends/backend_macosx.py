@@ -36,14 +36,15 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         _macosx.set_cursor(cursor)
 
     def _draw(self):
-        renderer = self.get_renderer(cleared=self.figure.stale)
+        renderer = self.get_renderer()
         if self.figure.stale:
+            renderer.clear()
             self.figure.draw(renderer)
         return renderer
 
     def draw(self):
         # docstring inherited
-        self.draw_idle()
+        self._draw()
         self.flush_events()
 
     # draw_idle is provided by _macosx.FigureCanvas
@@ -61,36 +62,13 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         self.draw_idle()
 
 
-class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
-    """
-    Wrap everything up into a window for the pylab interface
-    """
-    def __init__(self, canvas, num):
-        _macosx.FigureManager.__init__(self, canvas)
-        FigureManagerBase.__init__(self, canvas, num)
-        if mpl.rcParams['toolbar'] == 'toolbar2':
-            self.toolbar = NavigationToolbar2Mac(canvas)
-        else:
-            self.toolbar = None
-        if self.toolbar is not None:
-            self.toolbar.update()
-
-        if mpl.is_interactive():
-            self.show()
-            self.canvas.draw_idle()
-
-    def close(self):
-        Gcf.destroy(self)
-
-
 class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
 
     def __init__(self, canvas):
-        self.canvas = canvas  # Needed by the _macosx __init__.
         data_path = cbook._get_data_path('images')
         _, tooltips, image_names, _ = zip(*NavigationToolbar2.toolitems)
         _macosx.NavigationToolbar2.__init__(
-            self,
+            self, canvas,
             tuple(str(data_path / image_name) + ".pdf"
                   for image_name in image_names if image_name is not None),
             tuple(tooltip for tooltip in tooltips if tooltip is not None))
@@ -119,6 +97,24 @@ class NavigationToolbar2Mac(_macosx.NavigationToolbar2, NavigationToolbar2):
 
     def set_message(self, message):
         _macosx.NavigationToolbar2.set_message(self, message.encode('utf-8'))
+
+
+class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
+    _toolbar2_class = NavigationToolbar2Mac
+
+    def __init__(self, canvas, num):
+        _macosx.FigureManager.__init__(self, canvas)
+        icon_path = str(cbook._get_data_path('images/matplotlib.pdf'))
+        _macosx.FigureManager.set_icon(icon_path)
+        FigureManagerBase.__init__(self, canvas, num)
+        if self.toolbar is not None:
+            self.toolbar.update()
+        if mpl.is_interactive():
+            self.show()
+            self.canvas.draw_idle()
+
+    def close(self):
+        Gcf.destroy(self)
 
 
 @_Backend.export

@@ -20,7 +20,7 @@ The explicit (object-oriented) API is recommended for complex plots, though
 pyplot is still usually used to create the figure and often the axes in the
 figure. See `.pyplot.figure`, `.pyplot.subplots`, and
 `.pyplot.subplot_mosaic` to create figures, and
-:doc:`Axes API <../axes_api>` for the plotting methods on an axes::
+:doc:`Axes API <../axes_api>` for the plotting methods on an Axes::
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -74,7 +74,7 @@ from matplotlib.colors import Normalize
 from matplotlib.lines import Line2D
 from matplotlib.text import Text, Annotation
 from matplotlib.patches import Polygon, Rectangle, Circle, Arrow
-from matplotlib.widgets import SubplotTool, Button, Slider, Widget
+from matplotlib.widgets import Button, Slider, Widget
 
 from .ticker import (
     TickHelper, Formatter, FixedFormatter, NullFormatter, FuncFormatter,
@@ -199,8 +199,13 @@ def findobj(o=None, match=None, include_self=True):
 
 
 def _get_required_interactive_framework(backend_mod):
-    return getattr(
-        backend_mod.FigureCanvas, "required_interactive_framework", None)
+    if not hasattr(backend_mod.FigureCanvas, "required_interactive_framework"):
+        _api.warn_deprecated(
+            "3.6", name="Support for FigureCanvases without a "
+            "required_interactive_framework attribute")
+        return None
+    # Inline this once the deprecation elapses.
+    return backend_mod.FigureCanvas.required_interactive_framework
 
 
 def switch_backend(newbackend):
@@ -956,7 +961,7 @@ def draw():
 def savefig(*args, **kwargs):
     fig = gcf()
     res = fig.savefig(*args, **kwargs)
-    fig.canvas.draw_idle()   # need this if 'transparent=True' to reset colors
+    fig.canvas.draw_idle()  # Need this if 'transparent=True', to reset colors.
     return res
 
 
@@ -974,7 +979,7 @@ if Figure.legend.__doc__:
 @docstring.dedent_interpd
 def axes(arg=None, **kwargs):
     """
-    Add an axes to the current figure and make it the current axes.
+    Add an Axes to the current figure and make it the current Axes.
 
     Call signatures::
 
@@ -987,10 +992,10 @@ def axes(arg=None, **kwargs):
     arg : None or 4-tuple
         The exact behavior of this function depends on the type:
 
-        - *None*: A new full window axes is added using
+        - *None*: A new full window Axes is added using
           ``subplot(**kwargs)``.
         - 4-tuple of floats *rect* = ``[left, bottom, width, height]``.
-          A new axes is added with dimensions *rect* in normalized
+          A new Axes is added with dimensions *rect* in normalized
           (0, 1) units using `~.Figure.add_axes` on the current figure.
 
     projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
@@ -1005,10 +1010,10 @@ def axes(arg=None, **kwargs):
     sharex, sharey : `~.axes.Axes`, optional
         Share the x or y `~matplotlib.axis` with sharex and/or sharey.
         The axis will have the same limits, ticks, and scale as the axis
-        of the shared axes.
+        of the shared Axes.
 
     label : str
-        A label for the returned axes.
+        A label for the returned Axes.
 
     Returns
     -------
@@ -1021,23 +1026,23 @@ def axes(arg=None, **kwargs):
     ----------------
     **kwargs
         This method also takes the keyword arguments for
-        the returned axes class. The keyword arguments for the
-        rectilinear axes class `~.axes.Axes` can be found in
+        the returned Axes class. The keyword arguments for the
+        rectilinear Axes class `~.axes.Axes` can be found in
         the following table but there might also be other keyword
-        arguments if another projection is used, see the actual axes
+        arguments if another projection is used, see the actual Axes
         class.
 
         %(Axes:kwdoc)s
 
     Notes
     -----
-    If the figure already has a axes with key (*args*,
+    If the figure already has an Axes with key (*args*,
     *kwargs*) then it will simply make that axes current and
     return it.  This behavior is deprecated. Meanwhile, if you do
     not want this behavior (i.e., you want to force the creation of a
-    new axes), you must use a unique set of args and kwargs.  The axes
+    new axes), you must use a unique set of args and kwargs.  The Axes
     *label* attribute has been exposed for this purpose: if you want
-    two axes that are otherwise identical to be added to the figure,
+    two Axes that are otherwise identical to be added to the figure,
     make sure you give them unique labels.
 
     See Also
@@ -1052,11 +1057,11 @@ def axes(arg=None, **kwargs):
     --------
     ::
 
-        # Creating a new full window axes
+        # Creating a new full window Axes
         plt.axes()
 
-        # Creating a new axes with specified dimensions and some kwargs
-        plt.axes((left, bottom, width, height), facecolor='w')
+        # Creating a new Axes with specified dimensions and a grey background
+        plt.axes((left, bottom, width, height), facecolor='grey')
     """
     fig = gcf()
     pos = kwargs.pop('position', None)
@@ -1268,7 +1273,7 @@ def subplot(*args, **kwargs):
     key = SubplotSpec._from_subplot_args(fig, args)
 
     for ax in fig.axes:
-        # if we found an axes at the position sort out if we can re-use it
+        # if we found an Axes at the position sort out if we can re-use it
         if hasattr(ax, 'get_subplotspec') and ax.get_subplotspec() == key:
             # if the user passed no kwargs, re-use
             if kwargs == {}:
@@ -1358,13 +1363,12 @@ def subplots(nrows=1, ncols=1, *, sharex=False, sharey=False, squeeze=True,
 
     Returns
     -------
-    fig : `~.figure.Figure`
+    fig : `.Figure`
 
-    ax : `.axes.Axes` or array of Axes
-        *ax* can be either a single `~matplotlib.axes.Axes` object or an
-        array of Axes objects if more than one subplot was created.  The
-        dimensions of the resulting array can be controlled with the squeeze
-        keyword, see above.
+    ax : `~.axes.Axes` or array of Axes
+        *ax* can be either a single `~.axes.Axes` object, or an array of Axes
+        objects if more than one subplot was created.  The dimensions of the
+        resulting array can be controlled with the squeeze keyword, see above.
 
         Typical idioms for handling the return value are::
 
@@ -1511,7 +1515,7 @@ def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
 
     Returns
     -------
-    fig : `~.figure.Figure`
+    fig : `.Figure`
        The new figure
 
     dict[label, Axes]
@@ -1627,20 +1631,20 @@ def subplot_tool(targetfig=None):
     """
     Launch a subplot tool window for a figure.
 
-    A `matplotlib.widgets.SubplotTool` instance is returned. You must maintain
-    a reference to the instance to keep the associated callbacks alive.
+    Returns
+    -------
+    `matplotlib.widgets.SubplotTool`
     """
     if targetfig is None:
         targetfig = gcf()
-    with rc_context({"toolbar": "none"}):  # No navbar for the toolfig.
-        # Use new_figure_manager() instead of figure() so that the figure
-        # doesn't get registered with pyplot.
-        manager = new_figure_manager(-1, (6, 3))
-    manager.set_window_title("Subplot configuration tool")
-    tool_fig = manager.canvas.figure
-    tool_fig.subplots_adjust(top=0.9)
-    manager.show()
-    return SubplotTool(targetfig, tool_fig)
+    tb = targetfig.canvas.manager.toolbar
+    if hasattr(tb, "configure_subplots"):  # toolbar2
+        return tb.configure_subplots()
+    elif hasattr(tb, "trigger_tool"):  # toolmanager
+        return tb.trigger_tool("subplots")
+    else:
+        raise ValueError("subplot_tool can only be launched for figures with "
+                         "an associated toolbar")
 
 
 def box(on=None):
@@ -2427,7 +2431,7 @@ def boxplot(
         showfliers=None, boxprops=None, labels=None, flierprops=None,
         medianprops=None, meanprops=None, capprops=None,
         whiskerprops=None, manage_ticks=True, autorange=False,
-        zorder=None, *, data=None):
+        zorder=None, capwidths=None, *, data=None):
     return gca().boxplot(
         x, notch=notch, sym=sym, vert=vert, whis=whis,
         positions=positions, widths=widths, patch_artist=patch_artist,
@@ -2438,7 +2442,7 @@ def boxplot(
         flierprops=flierprops, medianprops=medianprops,
         meanprops=meanprops, capprops=capprops,
         whiskerprops=whiskerprops, manage_ticks=manage_ticks,
-        autorange=autorange, zorder=zorder,
+        autorange=autorange, zorder=zorder, capwidths=capwidths,
         **({"data": data} if data is not None else {}))
 
 

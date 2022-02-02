@@ -7,12 +7,11 @@ import datetime
 from enum import Enum
 import functools
 import glob
-from io import StringIO, TextIOWrapper
+from io import StringIO
 import logging
 import math
 import os
 import pathlib
-import tempfile
 import re
 import shutil
 from tempfile import TemporaryDirectory
@@ -22,15 +21,14 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import _api, cbook, _path, _text_helpers
-from matplotlib.afm import AFM
+from matplotlib._afm import AFM
 from matplotlib.backend_bases import (
-    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    GraphicsContextBase, RendererBase)
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
+    RendererBase)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import get_font
 from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_NO_SCALE, FT2Font
 from matplotlib._ttconv import convert_ttf_to_ps
-from matplotlib.mathtext import MathTextParser
 from matplotlib._mathtext_data import uni2type1
 from matplotlib.path import Path
 from matplotlib.texmanager import TexManager
@@ -263,9 +261,6 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
     _afm_font_dir = cbook._get_data_path("fonts/afm")
     _use_afm_rc_name = "ps.useafm"
 
-    mathtext_parser = _api.deprecated("3.4")(property(
-        lambda self: MathTextParser("PS")))
-
     def __init__(self, width, height, pswriter, imagedpi=72):
         # Although postscript itself is dpi independent, we need to inform the
         # image code about a requested dpi to generate high resolution images
@@ -385,7 +380,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
 
      /PaintProc {{
         pop
-        {linewidth:f} setlinewidth
+        {linewidth:g} setlinewidth
 {self._convert_path(
     Path.hatch(hatch), Affine2D().scale(sidelen), simplify=False)}
         gsave
@@ -395,7 +390,7 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
      }} bind
    >>
    matrix
-   0.0 {pageheight:f} translate
+   0 {pageheight:g} translate
    makepattern
    /{name} exch def
 """)
@@ -472,9 +467,9 @@ newpath
         self._pswriter.write(f"""\
 gsave
 {self._get_clip_cmd(gc)}
-{x:f} {y:f} translate
+{x:g} {y:g} translate
 [{matrix}] concat
-{xscale:f} {yscale:f} scale
+{xscale:g} {yscale:g} scale
 /DataString {w:d} string def
 {w:d} {h:d} 8 [ {w:d} 0 0 -{h:d} 0 {h:d} ]
 {{
@@ -674,13 +669,13 @@ grestore
         ps_name = (font.postscript_name
                    .encode("ascii", "replace").decode("ascii"))
         self.set_font(ps_name, prop.get_size_in_points())
-        thetext = "\n".join(f"{x:f} 0 m /{name:s} glyphshow"
+        thetext = "\n".join(f"{x:g} 0 m /{name:s} glyphshow"
                             for x, name in xs_names)
         self._pswriter.write(f"""\
 gsave
 {self._get_clip_cmd(gc)}
-{x:f} {y:f} translate
-{angle:f} rotate
+{x:g} {y:g} translate
+{angle:g} rotate
 {thetext}
 grestore
 """)
@@ -689,14 +684,12 @@ grestore
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """Draw the math text using matplotlib.mathtext."""
         width, height, descent, glyphs, rects = \
-            self._text2path.mathtext_parser.parse(
-                s, 72, prop,
-                _force_standard_ps_fonts=mpl.rcParams["ps.useafm"])
+            self._text2path.mathtext_parser.parse(s, 72, prop)
         self.set_color(*gc.get_rgb())
         self._pswriter.write(
             f"gsave\n"
-            f"{x:f} {y:f} translate\n"
-            f"{angle:f} rotate\n")
+            f"{x:g} {y:g} translate\n"
+            f"{angle:g} rotate\n")
         lastfont = None
         for font, fontsize, num, ox, oy in glyphs:
             self._character_tracker.track_glyph(font, num)
@@ -708,7 +701,7 @@ grestore
                 font.get_name_char(chr(num)) if isinstance(font, AFM) else
                 font.get_glyph_name(font.get_char_index(num)))
             self._pswriter.write(
-                f"{ox:f} {oy:f} moveto\n"
+                f"{ox:g} {oy:g} moveto\n"
                 f"/{glyph_name} glyphshow\n")
         for ox, oy, w, h in rects:
             self._pswriter.write(f"{ox} {oy} {w} {h} rectfill\n")
@@ -756,7 +749,7 @@ gsave
    /BitsPerComponent 8
    /BitsPerFlag 8
    /AntiAlias true
-   /Decode [ {xmin:f} {xmax:f} {ymin:f} {ymax:f} 0 1 0 1 0 1 ]
+   /Decode [ {xmin:g} {xmax:g} {ymin:g} {ymax:g} 0 1 0 1 0 1 ]
    /DataSource ({stream})
 >>
 shfill
@@ -838,17 +831,10 @@ class FigureCanvasPS(FigureCanvasBase):
     def get_default_filetype(self):
         return 'ps'
 
-    @_api.delete_parameter("3.5", "args")
-    def print_ps(self, outfile, *args, **kwargs):
-        return self._print_ps(outfile, 'ps', **kwargs)
-
-    @_api.delete_parameter("3.5", "args")
-    def print_eps(self, outfile, *args, **kwargs):
-        return self._print_ps(outfile, 'eps', **kwargs)
-
     @_api.delete_parameter("3.4", "dpi")
+    @_api.delete_parameter("3.5", "args")
     def _print_ps(
-            self, outfile, format, *,
+            self, fmt, outfile, *args,
             dpi=None, metadata=None, papertype=None, orientation='portrait',
             **kwargs):
 
@@ -885,12 +871,11 @@ class FigureCanvasPS(FigureCanvasBase):
         printer = (self._print_figure_tex
                    if mpl.rcParams['text.usetex'] else
                    self._print_figure)
-        printer(outfile, format, dpi=dpi, dsc_comments=dsc_comments,
+        printer(fmt, outfile, dpi=dpi, dsc_comments=dsc_comments,
                 orientation=orientation, papertype=papertype, **kwargs)
 
-    @_check_savefig_extra_args
     def _print_figure(
-            self, outfile, format, *,
+            self, fmt, outfile, *,
             dpi, dsc_comments, orientation, papertype,
             bbox_inches_restore=None):
         """
@@ -900,7 +885,7 @@ class FigureCanvasPS(FigureCanvasBase):
         all string containing Document Structuring Convention comments,
         generated from the *metadata* parameter to `.print_figure`.
         """
-        is_eps = format == 'eps'
+        is_eps = fmt == 'eps'
         if not (isinstance(outfile, (str, os.PathLike))
                 or is_writable_file_like(outfile)):
             raise ValueError("outfile must be a path or a file-like object")
@@ -1026,9 +1011,8 @@ class FigureCanvasPS(FigureCanvasBase):
                     file = codecs.getwriter("latin-1")(file)
                 print_figure_impl(file)
 
-    @_check_savefig_extra_args
     def _print_figure_tex(
-            self, outfile, format, *,
+            self, fmt, outfile, *,
             dpi, dsc_comments, orientation, papertype,
             bbox_inches_restore=None):
         """
@@ -1038,7 +1022,7 @@ class FigureCanvasPS(FigureCanvasBase):
 
         The rest of the behavior is as for `._print_figure`.
         """
-        is_eps = format == 'eps'
+        is_eps = fmt == 'eps'
 
         width, height = self.figure.get_size_inches()
         xo = 0
@@ -1120,6 +1104,9 @@ showpage
                              rotated=psfrag_rotated)
 
             _move_path_to_path_or_stream(tmpfile, outfile)
+
+    print_ps = functools.partialmethod(_print_ps, "ps")
+    print_eps = functools.partialmethod(_print_ps, "eps")
 
     def draw(self):
         self.figure.draw_without_rendering()

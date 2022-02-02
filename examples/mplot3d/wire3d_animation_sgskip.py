@@ -1,7 +1,7 @@
 """
-==========================
-Rotating 3D wireframe plot
-==========================
+=============================
+Animating a 3D wireframe plot
+=============================
 
 A very simple 'animation' of a 3D plot.  See also rotate_axes3d_demo.
 
@@ -39,7 +39,7 @@ tstart = time.time()
 for phi in np.linspace(0, 180. / np.pi, 100):
     # If a line collection is already remove it before drawing.
     if wframe:
-        ax.collections.remove(wframe)
+        wframe.remove()
 
     # Plot the new wireframe and pause briefly before continuing.
     Z = generate(X, Y, phi)

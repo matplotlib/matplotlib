@@ -5,10 +5,9 @@ Common code for GTK3 and GTK4 backends.
 import logging
 
 import matplotlib as mpl
-from matplotlib import backend_tools, cbook
-from matplotlib.backend_bases import (
-    _Backend, NavigationToolbar2, TimerBase,
-)
+from matplotlib import _api, backend_tools, cbook
+from matplotlib.backend_bases import _Backend, NavigationToolbar2, TimerBase
+from matplotlib.backend_tools import Cursors
 
 # The GTK3/GTK4 backends will have already called `gi.require_version` to set
 # the desired GTK.
@@ -60,6 +59,18 @@ def _create_application():
             _application = app
 
     return _application
+
+
+def mpl_to_gtk_cursor_name(mpl_cursor):
+    return _api.check_getitem({
+        Cursors.MOVE: "move",
+        Cursors.HAND: "pointer",
+        Cursors.POINTER: "default",
+        Cursors.SELECT_REGION: "crosshair",
+        Cursors.WAIT: "wait",
+        Cursors.RESIZE_HORIZONTAL: "ew-resize",
+        Cursors.RESIZE_VERTICAL: "ns-resize",
+    }, cursor=mpl_cursor)
 
 
 class TimerGTK(TimerBase):
@@ -151,10 +162,7 @@ class RubberbandGTK(backend_tools.RubberbandBase):
             self._make_classic_style_pseudo_toolbar())
 
 
-class ConfigureSubplotsGTK(backend_tools.ConfigureSubplotsBase, Gtk.Window):
-    def _get_canvas(self, fig):
-        return self.canvas.__class__(fig)
-
+class ConfigureSubplotsGTK(backend_tools.ConfigureSubplotsBase):
     def trigger(self, *args):
         _NavigationToolbar2GTK.configure_subplots(
             self._make_classic_style_pseudo_toolbar(), None)

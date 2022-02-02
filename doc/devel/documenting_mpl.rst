@@ -197,22 +197,22 @@ Documents can be linked with the ``:doc:`` directive:
 
 .. code-block:: rst
 
-   See the :doc:`/users/faq/installing_faq`
+   See the :doc:`/users/installing/index`
 
-   See the tutorial :doc:`/tutorials/introductory/usage`
+   See the tutorial :doc:`/tutorials/introductory/quick_start`
 
    See the example :doc:`/gallery/lines_bars_and_markers/simple_plot`
 
 will render as:
 
-  See the :doc:`/users/faq/installing_faq`
+  See the :doc:`/users/installing/index`
 
-  See the tutorial :doc:`/tutorials/introductory/usage`
+  See the tutorial :doc:`/tutorials/introductory/quick_start`
 
   See the example :doc:`/gallery/lines_bars_and_markers/simple_plot`
 
 Sections can also be given reference names.  For instance from the
-:doc:`/users/faq/installing_faq` link:
+:doc:`/users/installing/index` link:
 
 .. code-block:: rst
 
@@ -847,7 +847,7 @@ render as comments in :doc:`/gallery/lines_bars_and_markers/simple_plot`.
 
 Tutorials are made with the exact same mechanism, except they are longer, and
 typically have more than one comment block (i.e.
-:doc:`/tutorials/introductory/usage`).  The first comment block
+:doc:`/tutorials/introductory/quick_start`).  The first comment block
 can be the same as the example above.  Subsequent blocks of ReST text
 are delimited by a line of ``###`` characters:
 

@@ -32,12 +32,11 @@ import functools
 import importlib
 import inspect
 import io
+import itertools
 import logging
 import os
-import re
 import sys
 import time
-import traceback
 from weakref import WeakKeyDictionary
 
 import numpy as np
@@ -45,7 +44,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import (
     _api, backend_tools as tools, cbook, colors, docstring, textpath,
-    tight_bbox, transforms, widgets, get_backend, is_interactive, rcParams)
+    _tight_bbox, transforms, widgets, get_backend, is_interactive, rcParams)
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import _setattr_cm
@@ -153,20 +152,20 @@ class RendererBase:
     An abstract base class to handle drawing/rendering operations.
 
     The following methods must be implemented in the backend for full
-    functionality (though just implementing :meth:`draw_path` alone would
-    give a highly capable backend):
+    functionality (though just implementing `draw_path` alone would give a
+    highly capable backend):
 
-    * :meth:`draw_path`
-    * :meth:`draw_image`
-    * :meth:`draw_gouraud_triangle`
+    * `draw_path`
+    * `draw_image`
+    * `draw_gouraud_triangle`
 
     The following methods *should* be implemented in the backend for
     optimization reasons:
 
-    * :meth:`draw_text`
-    * :meth:`draw_markers`
-    * :meth:`draw_path_collection`
-    * :meth:`draw_quad_mesh`
+    * `draw_text`
+    * `draw_markers`
+    * `draw_path_collection`
+    * `draw_quad_mesh`
     """
 
     def __init__(self):
@@ -199,10 +198,9 @@ class RendererBase:
         """
         Draw a marker at each of *path*'s vertices (excluding control points).
 
-        This provides a fallback implementation of draw_markers that
-        makes multiple calls to :meth:`draw_path`.  Some backends may
-        want to override this method in order to draw the marker only
-        once and reuse it multiple times.
+        The base (fallback) implementation makes multiple calls to `draw_path`.
+        Backends may want to override this method in order to draw the marker
+        only once and reuse it multiple times.
 
         Parameters
         ----------
@@ -226,27 +224,27 @@ class RendererBase:
                              linewidths, linestyles, antialiaseds, urls,
                              offset_position):
         """
-        Draw a collection of paths selecting drawing properties from
-        the lists *facecolors*, *edgecolors*, *linewidths*,
-        *linestyles* and *antialiaseds*. *offsets* is a list of
-        offsets to apply to each of the paths.  The offsets in
-        *offsets* are first transformed by *offsetTrans* before being
-        applied.
+        Draw a collection of *paths*.
+
+        Each path is first transformed by the corresponding entry
+        in *all_transforms* (a list of (3, 3) matrices) and then by
+        *master_transform*.  They are then translated by the corresponding
+        entry in *offsets*, which has been first transformed by *offsetTrans*.
+
+        *facecolors*, *edgecolors*, *linewidths*, *linestyles*, and
+        *antialiased* are lists that set the corresponding properties.
 
         *offset_position* is unused now, but the argument is kept for
         backwards compatibility.
 
-        This provides a fallback implementation of
-        :meth:`draw_path_collection` that makes multiple calls to
-        :meth:`draw_path`.  Some backends may want to override this in
-        order to render each set of path data only once, and then
-        reference that path multiple times with the different offsets,
-        colors, styles etc.  The generator methods
-        :meth:`_iter_collection_raw_paths` and
-        :meth:`_iter_collection` are provided to help with (and
-        standardize) the implementation across backends.  It is highly
-        recommended to use those generators, so that changes to the
-        behavior of :meth:`draw_path_collection` can be made globally.
+        The base (fallback) implementation makes multiple calls to `draw_path`.
+        Backends may want to override this in order to render each set of
+        path data only once, and then reference that path multiple times with
+        the different offsets, colors, styles etc.  The generator methods
+        `_iter_collection_raw_paths` and `_iter_collection` are provided to
+        help with (and standardize) the implementation across backends.  It
+        is highly recommended to use those generators, so that changes to the
+        behavior of `draw_path_collection` can be made globally.
         """
         path_ids = self._iter_collection_raw_paths(master_transform,
                                                    paths, all_transforms)
@@ -270,8 +268,10 @@ class RendererBase:
                        coordinates, offsets, offsetTrans, facecolors,
                        antialiased, edgecolors):
         """
-        Fallback implementation of :meth:`draw_quad_mesh` that generates paths
-        and then calls :meth:`draw_path_collection`.
+        Draw a quadmesh.
+
+        The base (fallback) implementation converts the quadmesh to paths and
+        then calls `draw_path_collection`.
         """
 
         from matplotlib.collections import QuadMesh
@@ -323,18 +323,17 @@ class RendererBase:
     def _iter_collection_raw_paths(self, master_transform, paths,
                                    all_transforms):
         """
-        Helper method (along with :meth:`_iter_collection`) to implement
-        :meth:`draw_path_collection` in a space-efficient manner.
+        Helper method (along with `_iter_collection`) to implement
+        `draw_path_collection` in a memory-efficient manner.
 
-        This method yields all of the base path/transform
-        combinations, given a master transform, a list of paths and
-        list of transforms.
+        This method yields all of the base path/transform combinations, given a
+        master transform, a list of paths and list of transforms.
 
         The arguments should be exactly what is passed in to
-        :meth:`draw_path_collection`.
+        `draw_path_collection`.
 
-        The backend should take each yielded path and transform and
-        create an object that can be referenced (reused) later.
+        The backend should take each yielded path and transform and create an
+        object that can be referenced (reused) later.
         """
         Npaths = len(paths)
         Ntransforms = len(all_transforms)
@@ -354,8 +353,8 @@ class RendererBase:
                                        offsets, facecolors, edgecolors):
         """
         Compute how many times each raw path object returned by
-        _iter_collection_raw_paths would be used when calling
-        _iter_collection. This is intended for the backend to decide
+        `_iter_collection_raw_paths` would be used when calling
+        `_iter_collection`. This is intended for the backend to decide
         on the tradeoff between using the paths in-line and storing
         them once and reusing. Rounds up in case the number of uses
         is not the same for every path.
@@ -372,19 +371,18 @@ class RendererBase:
                          edgecolors, linewidths, linestyles,
                          antialiaseds, urls, offset_position):
         """
-        Helper method (along with :meth:`_iter_collection_raw_paths`) to
-        implement :meth:`draw_path_collection` in a space-efficient manner.
+        Helper method (along with `_iter_collection_raw_paths`) to implement
+        `draw_path_collection` in a memory-efficient manner.
 
-        This method yields all of the path, offset and graphics
-        context combinations to draw the path collection.  The caller
-        should already have looped over the results of
-        :meth:`_iter_collection_raw_paths` to draw this collection.
+        This method yields all of the path, offset and graphics context
+        combinations to draw the path collection.  The caller should already
+        have looped over the results of `_iter_collection_raw_paths` to draw
+        this collection.
 
         The arguments should be the same as that passed into
-        :meth:`draw_path_collection`, with the exception of
-        *path_ids*, which is a list of arbitrary objects that the
-        backend will use to reference one of the paths created in the
-        :meth:`_iter_collection_raw_paths` stage.
+        `draw_path_collection`, with the exception of *path_ids*, which is a
+        list of arbitrary objects that the backend will use to reference one of
+        the paths created in the `_iter_collection_raw_paths` stage.
 
         Each yielded result is of the form::
 
@@ -394,7 +392,6 @@ class RendererBase:
         *path_ids*; *gc* is a graphics context and *rgbFace* is a color to
         use for filling the path.
         """
-        Ntransforms = len(all_transforms)
         Npaths = len(path_ids)
         Noffsets = len(offsets)
         N = max(Npaths, Noffsets)
@@ -402,58 +399,55 @@ class RendererBase:
         Nedgecolors = len(edgecolors)
         Nlinewidths = len(linewidths)
         Nlinestyles = len(linestyles)
-        Naa = len(antialiaseds)
         Nurls = len(urls)
 
         if (Nfacecolors == 0 and Nedgecolors == 0) or Npaths == 0:
             return
-        if Noffsets:
-            toffsets = offsetTrans.transform(offsets)
 
         gc0 = self.new_gc()
         gc0.copy_properties(gc)
 
-        if Nfacecolors == 0:
-            rgbFace = None
+        def cycle_or_default(seq, default=None):
+            # Cycle over *seq* if it is not empty; else always yield *default*.
+            return (itertools.cycle(seq) if len(seq)
+                    else itertools.repeat(default))
+
+        pathids = cycle_or_default(path_ids)
+        toffsets = cycle_or_default(offsetTrans.transform(offsets), (0, 0))
+        fcs = cycle_or_default(facecolors)
+        ecs = cycle_or_default(edgecolors)
+        lws = cycle_or_default(linewidths)
+        lss = cycle_or_default(linestyles)
+        aas = cycle_or_default(antialiaseds)
+        urls = cycle_or_default(urls)
 
         if Nedgecolors == 0:
             gc0.set_linewidth(0.0)
 
-        xo, yo = 0, 0
-        for i in range(N):
-            path_id = path_ids[i % Npaths]
-            if Noffsets:
-                xo, yo = toffsets[i % Noffsets]
+        for pathid, (xo, yo), fc, ec, lw, ls, aa, url in itertools.islice(
+                zip(pathids, toffsets, fcs, ecs, lws, lss, aas, urls), N):
             if not (np.isfinite(xo) and np.isfinite(yo)):
                 continue
-            if Nfacecolors:
-                rgbFace = facecolors[i % Nfacecolors]
             if Nedgecolors:
                 if Nlinewidths:
-                    gc0.set_linewidth(linewidths[i % Nlinewidths])
+                    gc0.set_linewidth(lw)
                 if Nlinestyles:
-                    gc0.set_dashes(*linestyles[i % Nlinestyles])
-                fg = edgecolors[i % Nedgecolors]
-                if len(fg) == 4:
-                    if fg[3] == 0.0:
-                        gc0.set_linewidth(0)
-                    else:
-                        gc0.set_foreground(fg)
+                    gc0.set_dashes(*ls)
+                if len(ec) == 4 and ec[3] == 0.0:
+                    gc0.set_linewidth(0)
                 else:
-                    gc0.set_foreground(fg)
-            if rgbFace is not None and len(rgbFace) == 4:
-                if rgbFace[3] == 0:
-                    rgbFace = None
-            gc0.set_antialiased(antialiaseds[i % Naa])
+                    gc0.set_foreground(ec)
+            if fc is not None and len(fc) == 4 and fc[3] == 0:
+                fc = None
+            gc0.set_antialiased(aa)
             if Nurls:
-                gc0.set_url(urls[i % Nurls])
-
-            yield xo, yo, path_id, gc0, rgbFace
+                gc0.set_url(url)
+            yield xo, yo, pathid, gc0, fc
         gc0.restore()
 
     def get_image_magnification(self):
         """
-        Get the factor by which to magnify images passed to :meth:`draw_image`.
+        Get the factor by which to magnify images passed to `draw_image`.
         Allows a backend to have images at a different resolution to other
         artists.
         """
@@ -481,14 +475,13 @@ class RendererBase:
 
         transform : `matplotlib.transforms.Affine2DBase`
             If and only if the concrete backend is written such that
-            :meth:`option_scale_image` returns ``True``, an affine
-            transformation (i.e., an `.Affine2DBase`) *may* be passed to
-            :meth:`draw_image`.  The translation vector of the transformation
-            is given in physical units (i.e., dots or pixels). Note that
-            the transformation does not override *x* and *y*, and has to be
-            applied *before* translating the result by *x* and *y* (this can
-            be accomplished by adding *x* and *y* to the translation vector
-            defined by *transform*).
+            `option_scale_image` returns ``True``, an affine transformation
+            (i.e., an `.Affine2DBase`) *may* be passed to `draw_image`.  The
+            translation vector of the transformation is given in physical units
+            (i.e., dots or pixels). Note that the transformation does not
+            override *x* and *y*, and has to be applied *before* translating
+            the result by *x* and *y* (this can be accomplished by adding *x*
+            and *y* to the translation vector defined by *transform*).
         """
         raise NotImplementedError
 
@@ -504,8 +497,8 @@ class RendererBase:
 
     def option_scale_image(self):
         """
-        Return whether arbitrary affine transformations in :meth:`draw_image`
-        are supported (True for most vector backends).
+        Return whether arbitrary affine transformations in `draw_image` are
+        supported (True for most vector backends).
         """
         return False
 
@@ -516,7 +509,7 @@ class RendererBase:
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         """
-        Draw the text instance.
+        Draw a text instance.
 
         Parameters
         ----------
@@ -642,7 +635,7 @@ class RendererBase:
         """
         Return whether y values increase from top to bottom.
 
-        Note that this only affects drawing of texts and images.
+        Note that this only affects drawing of texts.
         """
         return True
 
@@ -1308,12 +1301,12 @@ class LocationEvent(Event):
         self.x = int(x) if x is not None else x
         # y position - pixels from right of canvas
         self.y = int(y) if y is not None else y
-        self.inaxes = None  # the Axes instance if mouse us over axes
+        self.inaxes = None  # the Axes instance the mouse is over
         self.xdata = None   # x coord of mouse in data coords
         self.ydata = None   # y coord of mouse in data coords
 
         if x is None or y is None:
-            # cannot check if event was in axes if no (x, y) info
+            # cannot check if event was in Axes if no (x, y) info
             self._update_enter_leave()
             return
 
@@ -1339,7 +1332,7 @@ class LocationEvent(Event):
         if LocationEvent.lastevent is not None:
             last = LocationEvent.lastevent
             if last.inaxes != self.inaxes:
-                # process axes enter/leave events
+                # process Axes enter/leave events
                 try:
                     if last.inaxes is not None:
                         last.canvas.callbacks.process('axes_leave_event', last)
@@ -1534,14 +1527,13 @@ def _get_renderer(figure, print_method=None):
 
     def _draw(renderer): raise Done(renderer)
 
-    with cbook._setattr_cm(figure, draw=_draw):
-        orig_canvas = figure.canvas
+    with cbook._setattr_cm(figure, draw=_draw), ExitStack() as stack:
         if print_method is None:
             fmt = figure.canvas.get_default_filetype()
             # Even for a canvas' default output type, a canvas switch may be
             # needed, e.g. for FigureCanvasBase.
-            print_method = getattr(
-                figure.canvas._get_output_canvas(None, fmt), f"print_{fmt}")
+            print_method = stack.enter_context(
+                figure.canvas._switch_canvas_and_return_print_method(fmt))
         try:
             print_method(io.BytesIO())
         except Done as exc:
@@ -1550,8 +1542,6 @@ def _get_renderer(figure, print_method=None):
         else:
             raise RuntimeError(f"{print_method} did not call Figure.draw, so "
                                f"no renderer is available")
-        finally:
-            figure.canvas = orig_canvas
 
 
 def _no_output_draw(figure):
@@ -1572,79 +1562,6 @@ def _is_non_interactive_terminal_ipython(ip):
     return (hasattr(ip, 'parent')
             and (ip.parent is not None)
             and getattr(ip.parent, 'interact', None) is False)
-
-
-def _check_savefig_extra_args(func=None, extra_kwargs=()):
-    """
-    Decorator for the final print_* methods that accept keyword arguments.
-
-    If any unused keyword arguments are left, this decorator will warn about
-    them, and as part of the warning, will attempt to specify the function that
-    the user actually called, instead of the backend-specific method. If unable
-    to determine which function the user called, it will specify `.savefig`.
-
-    For compatibility across backends, this does not warn about keyword
-    arguments added by `FigureCanvasBase.print_figure` for use in a subset of
-    backends, because the user would not have added them directly.
-    """
-
-    if func is None:
-        return functools.partial(_check_savefig_extra_args,
-                                 extra_kwargs=extra_kwargs)
-
-    old_sig = inspect.signature(func)
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        name = 'savefig'  # Reasonable default guess.
-        public_api = re.compile(
-            r'^savefig|print_[A-Za-z0-9]+|_no_output_draw$'
-        )
-        seen_print_figure = False
-        for frame, line in traceback.walk_stack(None):
-            if frame is None:
-                # when called in embedded context may hit frame is None.
-                break
-            # Work around sphinx-gallery not setting __name__.
-            frame_name = frame.f_globals.get('__name__', '')
-            if re.match(r'\A(matplotlib|mpl_toolkits)(\Z|\.(?!tests\.))',
-                        frame_name):
-                name = frame.f_code.co_name
-                if public_api.match(name):
-                    if name in ('print_figure', '_no_output_draw'):
-                        seen_print_figure = True
-
-            elif frame_name == '_functools':
-                # PyPy adds an extra frame without module prefix for this
-                # functools wrapper, which we ignore to assume we're still in
-                # Matplotlib code.
-                continue
-            else:
-                break
-
-        accepted_kwargs = {*old_sig.parameters, *extra_kwargs}
-        if seen_print_figure:
-            for kw in ['dpi', 'facecolor', 'edgecolor', 'orientation',
-                       'bbox_inches_restore']:
-                # Ignore keyword arguments that are passed in by print_figure
-                # for the use of other renderers.
-                if kw not in accepted_kwargs:
-                    kwargs.pop(kw, None)
-
-        for arg in list(kwargs):
-            if arg in accepted_kwargs:
-                continue
-            _api.warn_deprecated(
-                '3.3', name=name,
-                message='%(name)s() got unexpected keyword argument "'
-                        + arg + '" which is no longer supported as of '
-                        '%(since)s and will become an error '
-                        '%(removal)s')
-            kwargs.pop(arg)
-
-        return func(*args, **kwargs)
-
-    return wrapper
 
 
 class FigureCanvasBase:
@@ -1702,7 +1619,7 @@ class FigureCanvasBase:
         self._button = None  # the button pressed
         self._key = None  # the key pressed
         self._lastx, self._lasty = None, None
-        self.mouse_grabber = None  # the axes currently grabbing mouse
+        self.mouse_grabber = None  # the Axes currently grabbing mouse
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_idle_drawing = False
         # We don't want to scale up the figure DPI more than once.
@@ -1732,9 +1649,13 @@ class FigureCanvasBase:
             # In case we ever move the patch to IPython and remove these APIs,
             # don't break on our side.
             return
-        rif = getattr(cls, "required_interactive_framework", None)
-        backend2gui_rif = {"qt": "qt", "gtk3": "gtk3", "gtk4": "gtk4",
-                           "wx": "wx", "macosx": "osx"}.get(rif)
+        backend2gui_rif = {
+            "qt": "qt",
+            "gtk3": "gtk3",
+            "gtk4": "gtk4",
+            "wx": "wx",
+            "macosx": "osx",
+        }.get(cls.required_interactive_framework)
         if backend2gui_rif:
             if _is_non_interactive_terminal_ipython(ip):
                 ip.enable_gui(backend2gui_rif)
@@ -1761,6 +1682,7 @@ class FigureCanvasBase:
     def blit(self, bbox=None):
         """Blit the canvas in bbox (default entire canvas)."""
 
+    @_api.deprecated("3.6", alternative="FigureManagerBase.resize")
     def resize(self, w, h):
         """
         UNUSED: Set the canvas size in pixels.
@@ -1979,7 +1901,8 @@ class FigureCanvasBase:
         Returns
         -------
         `~matplotlib.axes.Axes` or None
-            The topmost visible axes containing the point, or None if no axes.
+            The topmost visible Axes containing the point, or None if there
+            is no Axes at the point.
         """
         axes_list = [a for a in self.figure.get_axes()
                      if a.patch.contains_point(xy) and a.get_visible()]
@@ -1995,7 +1918,7 @@ class FigureCanvasBase:
         Set the child `~.axes.Axes` which is grabbing the mouse events.
 
         Usually called by the widgets themselves. It is an error to call this
-        if the mouse is already grabbed by another axes.
+        if the mouse is already grabbed by another Axes.
         """
         if self.mouse_grabber not in (None, ax):
             raise RuntimeError("Another Axes already grabs mouse input")
@@ -2150,21 +2073,30 @@ class FigureCanvasBase:
             groupings[name].sort()
         return groupings
 
-    def _get_output_canvas(self, backend, fmt):
+    @contextmanager
+    def _switch_canvas_and_return_print_method(self, fmt, backend=None):
         """
-        Set the canvas in preparation for saving the figure.
+        Context manager temporarily setting the canvas for saving the figure::
+
+            with canvas._switch_canvas_and_return_print_method(fmt, backend) \\
+                    as print_method:
+                # ``print_method`` is a suitable ``print_{fmt}`` method, and
+                # the figure's canvas is temporarily switched to the method's
+                # canvas within the with... block.  ``print_method`` is also
+                # wrapped to suppress extra kwargs passed by ``print_figure``.
 
         Parameters
         ----------
-        backend : str or None
-            If not None, switch the figure canvas to the ``FigureCanvas`` class
-            of the given backend.
         fmt : str
             If *backend* is None, then determine a suitable canvas class for
             saving to format *fmt* -- either the current canvas class, if it
             supports *fmt*, or whatever `get_registered_canvas_class` returns;
             switch the figure canvas to that canvas class.
+        backend : str or None, default: None
+            If not None, switch the figure canvas to the ``FigureCanvas`` class
+            of the given backend.
         """
+        canvas = None
         if backend is not None:
             # Return a specific canvas class, if requested.
             canvas_class = (
@@ -2175,16 +2107,34 @@ class FigureCanvasBase:
                     f"The {backend!r} backend does not support {fmt} output")
         elif hasattr(self, f"print_{fmt}"):
             # Return the current canvas if it supports the requested format.
-            return self
+            canvas = self
+            canvas_class = None  # Skip call to switch_backends.
         else:
             # Return a default canvas for the requested format, if it exists.
             canvas_class = get_registered_canvas_class(fmt)
         if canvas_class:
-            return self.switch_backends(canvas_class)
-        # Else report error for unsupported format.
-        raise ValueError(
-            "Format {!r} is not supported (supported formats: {})"
-            .format(fmt, ", ".join(sorted(self.get_supported_filetypes()))))
+            canvas = self.switch_backends(canvas_class)
+        if canvas is None:
+            raise ValueError(
+                "Format {!r} is not supported (supported formats: {})".format(
+                    fmt, ", ".join(sorted(self.get_supported_filetypes()))))
+        meth = getattr(canvas, f"print_{fmt}")
+        mod = (meth.func.__module__
+               if hasattr(meth, "func")  # partialmethod, e.g. backend_wx.
+               else meth.__module__)
+        if mod.startswith(("matplotlib.", "mpl_toolkits.")):
+            optional_kws = {  # Passed by print_figure for other renderers.
+                "dpi", "facecolor", "edgecolor", "orientation",
+                "bbox_inches_restore"}
+            skip = optional_kws - {*inspect.signature(meth).parameters}
+            print_method = functools.wraps(meth)(lambda *args, **kwargs: meth(
+                *args, **{k: v for k, v in kwargs.items() if k not in skip}))
+        else:  # Let third-parties do as they see fit.
+            print_method = meth
+        try:
+            yield print_method
+        finally:
+            self.figure.canvas = self
 
     def print_figure(
             self, filename, dpi=None, facecolor=None, edgecolor=None,
@@ -2252,10 +2202,6 @@ class FigureCanvasBase:
                     filename = filename.rstrip('.') + '.' + format
         format = format.lower()
 
-        # get canvas object and print method for format
-        canvas = self._get_output_canvas(backend, format)
-        print_method = getattr(canvas, 'print_%s' % format)
-
         if dpi is None:
             dpi = rcParams['savefig.dpi']
         if dpi == 'figure':
@@ -2263,9 +2209,11 @@ class FigureCanvasBase:
 
         # Remove the figure manager, if any, to avoid resizing the GUI widget.
         with cbook._setattr_cm(self, manager=None), \
+             self._switch_canvas_and_return_print_method(format, backend) \
+                 as print_method, \
              cbook._setattr_cm(self.figure, dpi=dpi), \
-             cbook._setattr_cm(canvas, _device_pixel_ratio=1), \
-             cbook._setattr_cm(canvas, _is_saving=True), \
+             cbook._setattr_cm(self.figure.canvas, _device_pixel_ratio=1), \
+             cbook._setattr_cm(self.figure.canvas, _is_saving=True), \
              ExitStack() as stack:
 
             for prop in ["facecolor", "edgecolor"]:
@@ -2278,7 +2226,7 @@ class FigureCanvasBase:
             if bbox_inches is None:
                 bbox_inches = rcParams['savefig.bbox']
 
-            if (self.figure.get_constrained_layout() or
+            if (self.figure.get_layout_engine() is not None or
                     bbox_inches == "tight"):
                 # we need to trigger a draw before printing to make sure
                 # CL works.  "tight" also needs a draw to get the right
@@ -2300,15 +2248,15 @@ class FigureCanvasBase:
                     bbox_inches = bbox_inches.padded(pad_inches)
 
                 # call adjust_bbox to save only the given area
-                restore_bbox = tight_bbox.adjust_bbox(self.figure, bbox_inches,
-                                                      canvas.fixed_dpi)
+                restore_bbox = _tight_bbox.adjust_bbox(
+                    self.figure, bbox_inches, self.figure.canvas.fixed_dpi)
 
                 _bbox_inches_restore = (bbox_inches, restore_bbox)
             else:
                 _bbox_inches_restore = None
 
-            # we have already done CL above, so turn it off:
-            stack.enter_context(self.figure._cm_set(constrained_layout=False))
+            # we have already done layout above, so turn it off:
+            stack.enter_context(self.figure._cm_set(layout_engine=None))
             try:
                 # _get_renderer may change the figure dpi (as vector formats
                 # force the figure dpi to 72), so we need to set it again here.
@@ -2324,7 +2272,6 @@ class FigureCanvasBase:
                 if bbox_inches and restore_bbox:
                     restore_bbox()
 
-                self.figure.set_canvas(self)
             return result
 
     @classmethod
@@ -2338,8 +2285,8 @@ class FigureCanvasBase:
         """
         return rcParams['savefig.format']
 
-    @_api.deprecated(
-        "3.4", alternative="manager.get_window_title or GUI-specific methods")
+    @_api.deprecated("3.4", alternative="`.FigureManagerBase.get_window_title`"
+                     " or GUI-specific methods")
     def get_window_title(self):
         """
         Return the title text of the window containing the figure, or None
@@ -2348,8 +2295,8 @@ class FigureCanvasBase:
         if self.manager is not None:
             return self.manager.get_window_title()
 
-    @_api.deprecated(
-        "3.4", alternative="manager.set_window_title or GUI-specific methods")
+    @_api.deprecated("3.4", alternative="`.FigureManagerBase.set_window_title`"
+                     " or GUI-specific methods")
     def set_window_title(self, title):
         """
         Set the title text of the window containing the figure.  Note that
@@ -2414,7 +2361,7 @@ class FigureCanvasBase:
                 def func(event: Event) -> Any
 
             For the location events (button and key press/release), if the
-            mouse is over the axes, the ``inaxes`` attribute of the event will
+            mouse is over the Axes, the ``inaxes`` attribute of the event will
             be set to the `~matplotlib.axes.Axes` the event occurs is over, and
             additionally, the variables ``xdata`` and ``ydata`` attributes will
             be set to the mouse location in data coordinates.  See `.KeyEvent`
@@ -2544,7 +2491,7 @@ def key_press_handler(event, canvas=None, toolbar=None):
         back-compatibility, but, if set, should always be equal to
         ``event.canvas.toolbar``.
     """
-    # these bindings happen whether you are over an axes or not
+    # these bindings happen whether you are over an Axes or not
 
     if event.key is None:
         return
@@ -2607,7 +2554,7 @@ def key_press_handler(event, canvas=None, toolbar=None):
     if event.inaxes is None:
         return
 
-    # these bindings require the mouse to be over an axes to trigger
+    # these bindings require the mouse to be over an Axes to trigger
     def _get_uniform_gridstate(ticks):
         # Return True/False if all grid lines are on or off, None if they are
         # not all in the same state.
@@ -2619,7 +2566,7 @@ def key_press_handler(event, canvas=None, toolbar=None):
             return None
 
     ax = event.inaxes
-    # toggle major grids in current axes (default key 'g')
+    # toggle major grids in current Axes (default key 'g')
     # Both here and below (for 'G'), we do nothing if *any* grid (major or
     # minor, x or y) is not in a uniform state, to avoid messing up user
     # customization.
@@ -2641,7 +2588,7 @@ def key_press_handler(event, canvas=None, toolbar=None):
             ax.grid(x_state, which="major" if x_state else "both", axis="x")
             ax.grid(y_state, which="major" if y_state else "both", axis="y")
             canvas.draw_idle()
-    # toggle major and minor grids in current axes (default key 'G')
+    # toggle major and minor grids in current Axes (default key 'G')
     if (event.key in grid_minor_keys
             # Exclude major grids not in a uniform state.
             and None not in [_get_uniform_gridstate(ax.xaxis.majorTicks),
@@ -2770,6 +2717,9 @@ class FigureManagerBase:
                 figure.canvas.manager.button_press_handler_id)
     """
 
+    _toolbar2_class = None
+    _toolmanager_toolbar_class = None
+
     def __init__(self, canvas, num):
         self.canvas = canvas
         canvas.manager = self  # store a pointer to parent
@@ -2787,11 +2737,23 @@ class FigureManagerBase:
         self.toolmanager = (ToolManager(canvas.figure)
                             if mpl.rcParams['toolbar'] == 'toolmanager'
                             else None)
-        self.toolbar = None
+        if (mpl.rcParams["toolbar"] == "toolbar2"
+                and self._toolbar2_class):
+            self.toolbar = self._toolbar2_class(self.canvas)
+        elif (mpl.rcParams["toolbar"] == "toolmanager"
+                and self._toolmanager_toolbar_class):
+            self.toolbar = self._toolmanager_toolbar_class(self.toolmanager)
+        else:
+            self.toolbar = None
+
+        if self.toolmanager:
+            tools.add_tools_to_manager(self.toolmanager)
+            if self.toolbar:
+                tools.add_tools_to_container(self.toolbar)
 
         @self.canvas.figure.add_axobserver
         def notify_axes_change(fig):
-            # Called whenever the current axes is changed.
+            # Called whenever the current Axes is changed.
             if self.toolmanager is None and self.toolbar is not None:
                 self.toolbar.update()
 
@@ -3158,7 +3120,7 @@ class NavigationToolbar2:
         id_zoom = self.canvas.mpl_connect(
             "motion_notify_event", self.drag_zoom)
         # A colorbar is one-dimensional, so we extend the zoom rectangle out
-        # to the edge of the axes bbox in the other dimension. To do that we
+        # to the edge of the Axes bbox in the other dimension. To do that we
         # store the orientation of the colorbar for later.
         if hasattr(axes[0], "_colorbar"):
             cbar = axes[0]._colorbar.orientation
@@ -3214,8 +3176,8 @@ class NavigationToolbar2:
             return
 
         for i, ax in enumerate(self._zoom_info.axes):
-            # Detect whether this axes is twinned with an earlier axes in the
-            # list of zoomed axes, to avoid double zooming.
+            # Detect whether this Axes is twinned with an earlier Axes in the
+            # list of zoomed Axes, to avoid double zooming.
             twinx = any(ax.get_shared_x_axes().joined(ax, prev)
                         for prev in self._zoom_info.axes[:i])
             twiny = any(ax.get_shared_y_axes().joined(ax, prev)
@@ -3242,7 +3204,7 @@ class NavigationToolbar2:
     def _update_view(self):
         """
         Update the viewlim and position from the view and position stack for
-        each axes.
+        each Axes.
         """
         nav_info = self._nav_stack()
         if nav_info is None:
@@ -3258,15 +3220,30 @@ class NavigationToolbar2:
         self.canvas.draw_idle()
 
     def configure_subplots(self, *args):
+        if hasattr(self, "subplot_tool"):
+            self.subplot_tool.figure.canvas.manager.show()
+            return
         plt = _safe_pyplot_import()
-        self.subplot_tool = plt.subplot_tool(self.canvas.figure)
-        self.subplot_tool.figure.canvas.manager.show()
+        with mpl.rc_context({"toolbar": "none"}):  # No navbar for the toolfig.
+            # Use new_figure_manager() instead of figure() so that the figure
+            # doesn't get registered with pyplot.
+            manager = plt.new_figure_manager(-1, (6, 3))
+        manager.set_window_title("Subplot configuration tool")
+        tool_fig = manager.canvas.figure
+        tool_fig.subplots_adjust(top=0.9)
+        self.subplot_tool = widgets.SubplotTool(self.canvas.figure, tool_fig)
+        tool_fig.canvas.mpl_connect(
+            "close_event", lambda e: delattr(self, "subplot_tool"))
+        self.canvas.mpl_connect(
+            "close_event", lambda e: manager.destroy())
+        manager.show()
+        return self.subplot_tool
 
     def save_figure(self, *args):
         """Save the current figure."""
         raise NotImplementedError
 
-    @_api.deprecated("3.5", alternative="canvas.set_cursor")
+    @_api.deprecated("3.5", alternative="`.FigureCanvasBase.set_cursor`")
     def set_cursor(self, cursor):
         """
         Set the current cursor to one of the :class:`Cursors` enums values.
@@ -3279,7 +3256,7 @@ class NavigationToolbar2:
         self.canvas.set_cursor(cursor)
 
     def update(self):
-        """Reset the axes stack."""
+        """Reset the Axes stack."""
         self._nav_stack.clear()
         self.set_history_buttons()
 

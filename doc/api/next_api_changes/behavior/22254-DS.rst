@@ -1,0 +1,5 @@
+QuadMesh cursor data disabled by default
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Showing the cursor data of a `.QuadMesh` is now disabled by default, as it has
+significant performance issues with large meshes. To manually enable this
+use :meth:`.QuadMesh.set_show_cursor_data`.

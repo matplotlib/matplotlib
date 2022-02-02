@@ -16,7 +16,6 @@ import inspect
 import textwrap
 
 import numpy as np
-from numpy import ma
 
 import matplotlib as mpl
 from matplotlib import _api, docstring
@@ -251,7 +250,7 @@ class InvertedLogTransform(Transform):
         return "{}(base={})".format(type(self).__name__, self.base)
 
     def transform_non_affine(self, a):
-        return ma.power(self.base, a)
+        return np.power(self.base, a)
 
     def inverted(self):
         return LogTransform(self.base)

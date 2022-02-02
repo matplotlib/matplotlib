@@ -97,9 +97,10 @@ class Patch(artist.Artist):
         else:
             self.set_edgecolor(edgecolor)
             self.set_facecolor(facecolor)
-        # unscaled dashes.  Needed to scale dash patterns by lw
-        self._us_dashes = None
+
         self._linewidth = 0
+        self._unscaled_dash_pattern = (0, None)  # offset, dash
+        self._dash_pattern = (0, None)  # offset, dash (scaled by linewidth)
 
         self.set_fill(fill)
         self.set_linestyle(linestyle)
@@ -259,9 +260,8 @@ class Patch(artist.Artist):
         self._fill = other._fill
         self._hatch = other._hatch
         self._hatch_color = other._hatch_color
-        # copy the unscaled dash pattern
-        self._us_dashes = other._us_dashes
-        self.set_linewidth(other._linewidth)  # also sets dash properties
+        self._unscaled_dash_pattern = other._unscaled_dash_pattern
+        self.set_linewidth(other._linewidth)  # also sets scaled dashes
         self.set_transform(other.get_data_transform())
         # If the transform of other needs further initialization, then it will
         # be the case for this artist too.
@@ -407,12 +407,9 @@ class Patch(artist.Artist):
             w = mpl.rcParams['patch.linewidth']
             if w is None:
                 w = mpl.rcParams['axes.linewidth']
-
         self._linewidth = float(w)
-        # scale the dash pattern by the linewidth
-        offset, ls = self._us_dashes
-        self._dashoffset, self._dashes = mlines._scale_dashes(
-            offset, ls, self._linewidth)
+        self._dash_pattern = mlines._scale_dashes(
+            *self._unscaled_dash_pattern, w)
         self.stale = True
 
     def set_linestyle(self, ls):
@@ -445,11 +442,9 @@ class Patch(artist.Artist):
         if ls in [' ', '', 'none']:
             ls = 'None'
         self._linestyle = ls
-        # get the unscaled dash pattern
-        offset, ls = self._us_dashes = mlines._get_dash_pattern(ls)
-        # scale the dash pattern by the linewidth
-        self._dashoffset, self._dashes = mlines._scale_dashes(
-            offset, ls, self._linewidth)
+        self._unscaled_dash_pattern = mlines._get_dash_pattern(ls)
+        self._dash_pattern = mlines._scale_dashes(
+            *self._unscaled_dash_pattern, self._linewidth)
         self.stale = True
 
     def set_fill(self, b):
@@ -479,6 +474,9 @@ class Patch(artist.Artist):
         """
         Set the `.CapStyle`.
 
+        The default capstyle is 'round' for `.FancyArrowPatch` and 'butt' for
+        all other patches.
+
         Parameters
         ----------
         s : `.CapStyle` or %(CapStyle)s
@@ -489,12 +487,15 @@ class Patch(artist.Artist):
 
     def get_capstyle(self):
         """Return the capstyle."""
-        return self._capstyle
+        return self._capstyle.name
 
     @docstring.interpd
     def set_joinstyle(self, s):
         """
         Set the `.JoinStyle`.
+
+        The default joinstyle is 'round' for `.FancyArrowPatch` and 'miter' for
+        all other patches.
 
         Parameters
         ----------
@@ -506,7 +507,7 @@ class Patch(artist.Artist):
 
     def get_joinstyle(self):
         """Return the joinstyle."""
-        return self._joinstyle
+        return self._joinstyle.name
 
     def set_hatch(self, hatch):
         r"""
@@ -565,7 +566,7 @@ class Patch(artist.Artist):
         if self._edgecolor[3] == 0 or self._linestyle == 'None':
             lw = 0
         gc.set_linewidth(lw)
-        gc.set_dashes(self._dashoffset, self._dashes)
+        gc.set_dashes(*self._dash_pattern)
         gc.set_capstyle(self._capstyle)
         gc.set_joinstyle(self._joinstyle)
 
@@ -603,8 +604,9 @@ class Patch(artist.Artist):
         if not self.get_visible():
             return
         # Patch has traditionally ignored the dashoffset.
-        with cbook._setattr_cm(self, _dashoffset=0), \
-                self._bind_draw_path_function(renderer) as draw_path:
+        with cbook._setattr_cm(
+                 self, _dash_pattern=(0, self._dash_pattern[1])), \
+             self._bind_draw_path_function(renderer) as draw_path:
             path = self.get_path()
             transform = self.get_transform()
             tpath = transform.transform_path_non_affine(path)
@@ -706,7 +708,8 @@ class Rectangle(Patch):
         return fmt % pars
 
     @docstring.dedent_interpd
-    def __init__(self, xy, width, height, angle=0.0, **kwargs):
+    def __init__(self, xy, width, height, angle=0.0, *,
+                 rotation_point='xy', **kwargs):
         """
         Parameters
         ----------
@@ -717,7 +720,11 @@ class Rectangle(Patch):
         height : float
             Rectangle height.
         angle : float, default: 0
-            Rotation in degrees anti-clockwise about *xy*.
+            Rotation in degrees anti-clockwise about the rotation point.
+        rotation_point : {'xy', 'center', (number, number)}, default: 'xy'
+            If ``'xy'``, rotate around the anchor point. If ``'center'`` rotate
+            around the center. If 2-tuple of number, rotate around this
+            coordinate.
 
         Other Parameters
         ----------------
@@ -730,6 +737,14 @@ class Rectangle(Patch):
         self._width = width
         self._height = height
         self.angle = float(angle)
+        self.rotation_point = rotation_point
+        # Required for RectangleSelector with axes aspect ratio != 1
+        # The patch is defined in data coordinates and when changing the
+        # selector with square modifier and not in data coordinates, we need
+        # to correct for the aspect ratio difference between the data and
+        # display coordinate systems. Its value is typically provide by
+        # Axes._get_aspect_ratio()
+        self._aspect_ratio_correction = 1.0
         self._convert_units()  # Validate the inputs.
 
     def get_path(self):
@@ -750,9 +765,36 @@ class Rectangle(Patch):
         # important to call the accessor method and not directly access the
         # transformation member variable.
         bbox = self.get_bbox()
-        return (transforms.BboxTransformTo(bbox)
-                + transforms.Affine2D().rotate_deg_around(
-                    bbox.x0, bbox.y0, self.angle))
+        if self.rotation_point == 'center':
+            width, height = bbox.x1 - bbox.x0, bbox.y1 - bbox.y0
+            rotation_point = bbox.x0 + width / 2., bbox.y0 + height / 2.
+        elif self.rotation_point == 'xy':
+            rotation_point = bbox.x0, bbox.y0
+        else:
+            rotation_point = self.rotation_point
+        return transforms.BboxTransformTo(bbox) \
+                + transforms.Affine2D() \
+                .translate(-rotation_point[0], -rotation_point[1]) \
+                .scale(1, self._aspect_ratio_correction) \
+                .rotate_deg(self.angle) \
+                .scale(1, 1 / self._aspect_ratio_correction) \
+                .translate(*rotation_point)
+
+    @property
+    def rotation_point(self):
+        """The rotation point of the patch."""
+        return self._rotation_point
+
+    @rotation_point.setter
+    def rotation_point(self, value):
+        if value in ['center', 'xy'] or (
+                isinstance(value, tuple) and len(value) == 2 and
+                isinstance(value[0], Number) and isinstance(value[1], Number)
+                ):
+            self._rotation_point = value
+        else:
+            raise ValueError("`rotation_point` must be one of "
+                             "{'xy', 'center', (number, number)}.")
 
     def get_x(self):
         """Return the left coordinate of the rectangle."""
@@ -765,6 +807,18 @@ class Rectangle(Patch):
     def get_xy(self):
         """Return the left and bottom coords of the rectangle as a tuple."""
         return self._x0, self._y0
+
+    def get_corners(self):
+        """
+        Return the corners of the rectangle, moving anti-clockwise from
+        (x0, y0).
+        """
+        return self.get_patch_transform().transform(
+            [(0, 0), (1, 0), (1, 1), (0, 1)])
+
+    def get_center(self):
+        """Return the centre of the rectangle."""
+        return self.get_patch_transform().transform((0.5, 0.5))
 
     def get_width(self):
         """Return the width of the rectangle."""
@@ -1511,6 +1565,12 @@ class Ellipse(Patch):
         self._width, self._height = width, height
         self._angle = angle
         self._path = Path.unit_circle()
+        # Required for EllipseSelector with axes aspect ratio != 1
+        # The patch is defined in data coordinates and when changing the
+        # selector with square modifier and not in data coordinates, we need
+        # to correct for the aspect ratio difference between the data and
+        # display coordinate systems.
+        self._aspect_ratio_correction = 1.0
         # Note: This cannot be calculated until this is added to an Axes
         self._patch_transform = transforms.IdentityTransform()
 
@@ -1528,8 +1588,9 @@ class Ellipse(Patch):
         width = self.convert_xunits(self._width)
         height = self.convert_yunits(self._height)
         self._patch_transform = transforms.Affine2D() \
-            .scale(width * 0.5, height * 0.5) \
+            .scale(width * 0.5, height * 0.5 * self._aspect_ratio_correction) \
             .rotate_deg(self.angle) \
+            .scale(1, 1 / self._aspect_ratio_correction) \
             .translate(*center)
 
     def get_path(self):
@@ -1609,6 +1670,16 @@ class Ellipse(Patch):
         return self._angle
 
     angle = property(get_angle, set_angle)
+
+    def get_corners(self):
+        """
+        Return the corners of the ellipse bounding box.
+
+        The bounding box orientation is moving anti-clockwise from the
+        lower left corner defined before rotation.
+        """
+        return self.get_patch_transform().transform(
+            [(-1, -1), (1, -1), (1, 1), (-1, 1)])
 
 
 class Annulus(Patch):

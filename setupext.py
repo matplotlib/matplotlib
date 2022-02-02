@@ -480,6 +480,7 @@ class Tests(OptionalPackage):
                 *_pkg_data_helper('matplotlib', 'tests/tinypages'),
                 'tests/cmr10.pfb',
                 'tests/mpltest.ttf',
+                'tests/test_*.ipynb',
             ],
             'mpl_toolkits': [
                 *_pkg_data_helper('mpl_toolkits', 'tests/baseline_images'),
@@ -609,13 +610,13 @@ class FreeType(SetupPackage):
         print(f"Building freetype in {src_path}")
         if sys.platform != 'win32':  # compilation on non-windows
             env = {
-                **env,
                 **{
                     var: value
                     for var, value in sysconfig.get_config_vars().items()
                     if var in {"CC", "CFLAGS", "CXX", "CXXFLAGS", "LD",
                                "LDFLAGS"}
                 },
+                **env,
             }
             env["CFLAGS"] = env.get("CFLAGS", "") + " -fPIC"
             configure = [
@@ -730,7 +731,7 @@ class BackendMacOSX(OptionalPackage):
             'matplotlib.backends._macosx', [
                 'src/_macosx.m'
             ])
-        ext.extra_compile_args.extend(['-Werror=unguarded-availability'])
+        ext.extra_compile_args.extend(['-Werror'])
         ext.extra_link_args.extend(['-framework', 'Cocoa'])
         if platform.python_implementation().lower() == 'pypy':
             ext.extra_compile_args.append('-DPYPY=1')

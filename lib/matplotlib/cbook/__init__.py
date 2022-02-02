@@ -146,13 +146,13 @@ class CallbackRegistry:
         drink 123
         >>> callbacks.process('eat', 456)
         eat 456
-        >>> callbacks.process('be merry', 456) # nothing will be called
+        >>> callbacks.process('be merry', 456)   # nothing will be called
 
         >>> callbacks.disconnect(id_eat)
-        >>> callbacks.process('eat', 456)      # nothing will be called
+        >>> callbacks.process('eat', 456)        # nothing will be called
 
         >>> with callbacks.blocked(signal='drink'):
-        ...     callbacks.process('drink', 123) # nothing will be called
+        ...     callbacks.process('drink', 123)  # nothing will be called
         >>> callbacks.process('drink', 123)
         drink 123
 
@@ -540,6 +540,7 @@ def flatten(seq, scalarp=is_scalar_or_string):
             yield from flatten(item, scalarp)
 
 
+@_api.deprecated("3.6", alternative="functools.lru_cache")
 class maxdict(dict):
     """
     A dictionary with a maximum size.
@@ -948,7 +949,7 @@ def delete_masked_points(*args):
             else:
                 x = np.asarray(x)
         margs.append(x)
-    masks = []    # list of masks that are True where good
+    masks = []  # List of masks that are True where good.
     for i, x in enumerate(margs):
         if seqlist[i]:
             if x.ndim > 1:
@@ -1389,9 +1390,13 @@ def _reshape_2D(X, name):
     for xi in X:
         # check if this is iterable, except for strings which we
         # treat as singletons.
-        if (isinstance(xi, collections.abc.Iterable) and
-                not isinstance(xi, str)):
-            is_1d = False
+        if not isinstance(xi, str):
+            try:
+                iter(xi)
+            except TypeError:
+                pass
+            else:
+                is_1d = False
         xi = np.asanyarray(xi)
         nd = np.ndim(xi)
         if nd > 1:

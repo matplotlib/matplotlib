@@ -326,6 +326,8 @@ Introducing
    All these helpers take a first parameter *since*, which should be set to
    the next point release, e.g. "3.x".
 
+   You can use standard rst cross references in *alternative*.
+
 Expiring
 ~~~~~~~~
 
@@ -534,7 +536,9 @@ running the script::
     from matplotlib import my_matplotlib_module
     my_matplotlib_module.set_range(0, 0)  # set range
 
-will display::
+will display
+
+.. code-block:: none
 
     UserWarning: Attempting to set identical bottom==top
     warnings.warn('Attempting to set identical bottom==top')

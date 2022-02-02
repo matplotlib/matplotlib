@@ -328,10 +328,10 @@ class QuiverKey(martist.Artist):
             kwargs = self.Q.polykw
             kwargs.update(self.kw)
             self.vector = mcollections.PolyCollection(
-                                        self.verts,
-                                        offsets=[(self.X, self.Y)],
-                                        transOffset=self.get_transform(),
-                                        **kwargs)
+                self.verts,
+                offsets=[(self.X, self.Y)],
+                offset_transform=self.get_transform(),
+                **kwargs)
             if self.color is not None:
                 self.vector.set_color(self.color)
             self.vector.set_transform(self.Q.get_transform())
@@ -503,7 +503,7 @@ class Quiver(mcollections.PolyCollection):
         self.transform = kwargs.pop('transform', ax.transData)
         kwargs.setdefault('facecolors', color)
         kwargs.setdefault('linewidths', (0,))
-        super().__init__([], offsets=self.XY, transOffset=self.transform,
+        super().__init__([], offsets=self.XY, offset_transform=self.transform,
                          closed=False, **kwargs)
         self.polykw = kwargs
         self.set_UVC(U, V, C)
@@ -550,8 +550,8 @@ class Quiver(mcollections.PolyCollection):
 
     def get_datalim(self, transData):
         trans = self.get_transform()
-        transOffset = self.get_offset_transform()
-        full_transform = (trans - transData) + (transOffset - transData)
+        offset_trf = self.get_offset_transform()
+        full_transform = (trans - transData) + (offset_trf - transData)
         XY = full_transform.transform(self.XY)
         bbox = transforms.Bbox.null()
         bbox.update_from_data_xy(XY, ignore=True)
@@ -938,8 +938,6 @@ class Barbs(mcollections.PolyCollection):
         transform = kwargs.pop('transform', ax.transData)
         self._pivot = pivot
         self._length = length
-        barbcolor = barbcolor
-        flagcolor = flagcolor
 
         # Flagcolor and barbcolor provide convenience parameters for
         # setting the facecolor and edgecolor, respectively, of the barb
@@ -972,8 +970,8 @@ class Barbs(mcollections.PolyCollection):
 
         # Make a collection
         barb_size = self._length ** 2 / 4  # Empirically determined
-        super().__init__([], (barb_size,), offsets=xy, transOffset=transform,
-                         **kwargs)
+        super().__init__(
+            [], (barb_size,), offsets=xy, offset_transform=transform, **kwargs)
         self.set_transform(transforms.IdentityTransform())
 
         self.set_UVC(u, v, c)

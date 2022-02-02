@@ -6,6 +6,8 @@ on:
       - auto-backport-of-pr-[0-9]+
       - v[0-9]+.[0-9]+.[0-9x]+-doc
   pull_request:
+    branches-ignore:
+      - v[0-9]+.[0-9]+.[0-9x]+-doc
 
 env:
   NO_AT_BRIDGE: 1  # Necessary for GTK3 interactive test.
@@ -14,6 +16,7 @@ env:
 
 jobs:
   test:
+    if: "github.repository == 'matplotlib/matplotlib' && !contains(github.event.head_commit.message, '[ci skip]') && !contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[skip github]')"
     name: "Python ${{ matrix.python-version }} on ${{ matrix.os }} ${{ matrix.name-suffix }}"
     runs-on: ${{ matrix.os }}
 
@@ -42,7 +45,7 @@ jobs:
             extra-requirements: '-r requirements/testing/extra.txt'
             XVFB_RUN: xvfb-run -a
           - os: ubuntu-20.04
-            python-version: '3.10-dev'
+            python-version: '3.10'
             # Re-add this when extra dependencies have wheels.
             # extra-requirements: '-r requirements/testing/extra.txt'
             XVFB_RUN: xvfb-run -a
@@ -234,7 +237,7 @@ jobs:
 
           # All dependencies must have been pre-installed, so that the minver
           # constraints are held.
-          python -m pip install --no-deps -e .
+          python -m pip install --no-deps -ve .
 
           if [[ "${{ runner.os }}" != 'macOS' ]]; then
             unset CPPFLAGS
@@ -249,7 +252,7 @@ jobs:
         run: |
           ${{ matrix.XVFB_RUN }} python -mpytest -raR -n auto \
             --maxfail=50 --timeout=300 --durations=25 \
-            --cov-report=xml --cov=lib --log-level=DEBUG
+            --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
       - name: Filter C coverage
         run: |

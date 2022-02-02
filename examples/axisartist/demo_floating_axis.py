@@ -29,8 +29,7 @@ def curvelinear_test2(fig):
                                                      lon_cycle=360,
                                                      lat_cycle=None,
                                                      lon_minmax=None,
-                                                     lat_minmax=(0,
-                                                                 np.inf),
+                                                     lat_minmax=(0, np.inf),
                                                      )
 
     grid_locator1 = angle_helper.LocatorDMS(12)

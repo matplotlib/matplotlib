@@ -199,7 +199,7 @@ def test_antialiasing():
 def test_afm_kerning():
     fn = mpl.font_manager.findfont("Helvetica", fontext="afm")
     with open(fn, 'rb') as fh:
-        afm = mpl.afm.AFM(fh)
+        afm = mpl._afm.AFM(fh)
     assert afm.string_width_height('VAVAVAVAVAVA') == (7174.0, 718)
 
 
@@ -240,7 +240,7 @@ def test_annotation_contains():
     fig, ax = plt.subplots()
     ann = ax.annotate(
         "hello", xy=(.4, .4), xytext=(.6, .6), arrowprops={"arrowstyle": "->"})
-    fig.canvas.draw()   # Needed for the same reason as in test_contains.
+    fig.canvas.draw()  # Needed for the same reason as in test_contains.
     event = MouseEvent(
         "button_press_event", fig.canvas, *ax.transData.transform((.5, .6)))
     assert ann.contains(event) == (False, {})
@@ -711,6 +711,14 @@ def test_update_mutate_input():
     assert inp['bbox'] == cache['bbox']
 
 
+@pytest.mark.parametrize('rotation', ['invalid string', [90]])
+def test_invalid_rotation_values(rotation):
+    with pytest.raises(
+            ValueError,
+            match=("rotation must be 'vertical', 'horizontal' or a number")):
+        Text(0, 0, 'foo', rotation=rotation)
+
+
 def test_invalid_color():
     with pytest.raises(ValueError):
         plt.figtext(.5, .5, "foo", c="foobar")
@@ -756,3 +764,34 @@ def test_pdf_chars_beyond_bmp():
     plt.rcParams['mathtext.fontset'] = 'stixsans'
     plt.figure()
     plt.figtext(0.1, 0.5, "Mass $m$ \U00010308", size=30)
+
+
+@needs_usetex
+def test_metrics_cache():
+    mpl.text._get_text_metrics_with_cache_impl.cache_clear()
+
+    fig = plt.figure()
+    fig.text(.3, .5, "foo\nbar")
+    fig.text(.3, .5, "foo\nbar", usetex=True)
+    fig.text(.5, .5, "foo\nbar", usetex=True)
+    fig.canvas.draw()
+    renderer = fig._cachedRenderer
+    ys = {}  # mapping of strings to where they were drawn in y with draw_tex.
+
+    def call(*args, **kwargs):
+        renderer, x, y, s, *_ = args
+        ys.setdefault(s, set()).add(y)
+
+    renderer.draw_tex = call
+    fig.canvas.draw()
+    assert [*ys] == ["foo", "bar"]
+    # Check that both TeX strings were drawn with the same y-position for both
+    # single-line substrings.  Previously, there used to be an incorrect cache
+    # collision with the non-TeX string (drawn first here) whose metrics would
+    # get incorrectly reused by the first TeX string.
+    assert len(ys["foo"]) == len(ys["bar"]) == 1
+
+    info = mpl.text._get_text_metrics_with_cache_impl.cache_info()
+    # Every string gets a miss for the first layouting (extents), then a hit
+    # when drawing, but "foo\nbar" gets two hits as it's drawn twice.
+    assert info.hits > info.misses

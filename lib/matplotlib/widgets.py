@@ -17,10 +17,10 @@ import numpy as np
 
 import matplotlib as mpl
 from matplotlib import docstring
-from . import _api, backend_tools, cbook, colors, ticker
+from . import _api, backend_tools, cbook, colors, ticker, transforms
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
-from .transforms import TransformedPatchPath
+from .transforms import TransformedPatchPath, Affine2D
 
 
 class LockDraw:
@@ -893,11 +893,8 @@ class RangeSlider(SliderBase):
         ----------
         val : tuple or array-like of float
         """
-        val = np.sort(np.asanyarray(val))
-        if val.shape != (2,):
-            raise ValueError(
-                f"val must have shape (2,) but has shape {val.shape}"
-            )
+        val = np.sort(val)
+        _api.check_shape((2,), val=val)
         val[0] = self._min_in_bounds(val[0])
         val[1] = self._max_in_bounds(val[1])
         xy = self.poly.xy
@@ -1801,7 +1798,7 @@ class MultiCursor(Widget):
 class _SelectorWidget(AxesWidget):
 
     def __init__(self, ax, onselect, useblit=False, button=None,
-                 state_modifier_keys=None):
+                 state_modifier_keys=None, use_data_coordinates=False):
         super().__init__(ax)
 
         self.visible = True
@@ -1809,9 +1806,11 @@ class _SelectorWidget(AxesWidget):
         self.useblit = useblit and self.canvas.supports_blit
         self.connect_default_events()
 
-        self.state_modifier_keys = dict(move=' ', clear='escape',
-                                        square='shift', center='control')
-        self.state_modifier_keys.update(state_modifier_keys or {})
+        self._state_modifier_keys = dict(move=' ', clear='escape',
+                                         square='shift', center='control',
+                                         rotate='r')
+        self._state_modifier_keys.update(state_modifier_keys or {})
+        self._use_data_coordinates = use_data_coordinates
 
         self.background = None
 
@@ -1829,16 +1828,28 @@ class _SelectorWidget(AxesWidget):
         self._eventrelease = None
         self._prev_event = None
         self._state = set()
-        self._default_state = set()
 
     eventpress = _api.deprecate_privatize_attribute("3.5")
     eventrelease = _api.deprecate_privatize_attribute("3.5")
     state = _api.deprecate_privatize_attribute("3.5")
+    state_modifier_keys = _api.deprecate_privatize_attribute("3.6")
 
     def set_active(self, active):
         super().set_active(active)
         if active:
             self.update_background(None)
+
+    def _get_animated_artists(self):
+        """
+        Convenience method to get all animated artists of the figure containing
+        this widget, excluding those already present in self.artists.
+        The returned tuple is not sorted by 'z_order': z_order sorting is
+        valid only when considering all artists and not only a subset of all
+        artists.
+        """
+        return tuple(a for ax_ in self.ax.get_figure().get_axes()
+                     for a in ax_.get_children()
+                     if a.get_animated() and a not in self.artists)
 
     def update_background(self, event):
         """Force an update of the background."""
@@ -1849,15 +1860,21 @@ class _SelectorWidget(AxesWidget):
         # Make sure that widget artists don't get accidentally included in the
         # background, by re-rendering the background if needed (and then
         # re-re-rendering the canvas with the visible widget artists).
-        needs_redraw = any(artist.get_visible() for artist in self.artists)
+        # We need to remove all artists which will be drawn when updating
+        # the selector: if we have animated artists in the figure, it is safer
+        # to redrawn by default, in case they have updated by the callback
+        # zorder needs to be respected when redrawing
+        artists = sorted(self.artists + self._get_animated_artists(),
+                         key=lambda a: a.get_zorder())
+        needs_redraw = any(artist.get_visible() for artist in artists)
         with ExitStack() as stack:
             if needs_redraw:
-                for artist in self.artists:
+                for artist in artists:
                     stack.enter_context(artist._cm_set(visible=False))
                 self.canvas.draw()
             self.background = self.canvas.copy_from_bbox(self.ax.bbox)
         if needs_redraw:
-            for artist in self.artists:
+            for artist in artists:
                 self.ax.draw_artist(artist)
 
     def connect_default_events(self):
@@ -1904,7 +1921,12 @@ class _SelectorWidget(AxesWidget):
                 self.canvas.restore_region(self.background)
             else:
                 self.update_background(None)
-            for artist in self.artists:
+            # We need to draw all artists, which are not included in the
+            # background, therefore we also draw self._get_animated_artists()
+            # and we make sure that we respect z_order
+            artists = sorted(self.artists + self._get_animated_artists(),
+                             key=lambda a: a.get_zorder())
+            for artist in artists:
                 self.ax.draw_artist(artist)
             self.canvas.blit(self.ax.bbox)
         else:
@@ -1944,7 +1966,7 @@ class _SelectorWidget(AxesWidget):
             key = event.key or ''
             key = key.replace('ctrl', 'control')
             # move state is locked in on a button press
-            if key == self.state_modifier_keys['move']:
+            if key == self._state_modifier_keys['move']:
                 self._state.add('move')
             self._press(event)
             return True
@@ -1992,12 +2014,20 @@ class _SelectorWidget(AxesWidget):
         if self.active:
             key = event.key or ''
             key = key.replace('ctrl', 'control')
-            if key == self.state_modifier_keys['clear']:
+            if key == self._state_modifier_keys['clear']:
                 self.clear()
                 return
-            for (state, modifier) in self.state_modifier_keys.items():
-                if modifier in key:
-                    self._state.add(state)
+            for (state, modifier) in self._state_modifier_keys.items():
+                if modifier in key.split('+'):
+                    # 'rotate' is changing _state on press and is not removed
+                    # from _state when releasing
+                    if state == 'rotate':
+                        if state in self._state:
+                            self._state.discard(state)
+                        else:
+                            self._state.add(state)
+                    else:
+                        self._state.add(state)
             self._on_key_press(event)
 
     def _on_key_press(self, event):
@@ -2007,8 +2037,10 @@ class _SelectorWidget(AxesWidget):
         """Key release event handler and validator."""
         if self.active:
             key = event.key or ''
-            for (state, modifier) in self.state_modifier_keys.items():
-                if modifier in key:
+            for (state, modifier) in self._state_modifier_keys.items():
+                # 'rotate' is changing _state on press and is not removed
+                # from _state when releasing
+                if modifier in key.split('+') and state != 'rotate':
                     self._state.discard(state)
             self._on_key_release(event)
 
@@ -2061,6 +2093,53 @@ class _SelectorWidget(AxesWidget):
         if self.useblit:
             self.update()
         self._handle_props.update(handle_props)
+
+    def _validate_state(self, state):
+        supported_state = [
+            key for key, value in self._state_modifier_keys.items()
+            if key != 'clear' and value != 'not-applicable'
+            ]
+        _api.check_in_list(supported_state, state=state)
+
+    def add_state(self, state):
+        """
+        Add a state to define the widget's behavior. See the
+        `state_modifier_keys` parameters for details.
+
+        Parameters
+        ----------
+        state : str
+            Must be a supported state of the selector. See the
+            `state_modifier_keys` parameters for details.
+
+        Raises
+        ------
+        ValueError
+            When the state is not supported by the selector.
+
+        """
+        self._validate_state(state)
+        self._state.add(state)
+
+    def remove_state(self, state):
+        """
+        Remove a state to define the widget's behavior. See the
+        `state_modifier_keys` parameters for details.
+
+        Parameters
+        ----------
+        value : str
+            Must be a supported state of the selector. See the
+            `state_modifier_keys` parameters for details.
+
+        Raises
+        ------
+        ValueError
+            When the state is not supported by the selector.
+
+        """
+        self._validate_state(state)
+        self._state.remove(state)
 
 
 class SpanSelector(_SelectorWidget):
@@ -2129,6 +2208,12 @@ class SpanSelector(_SelectorWidget):
         Distance in pixels within which the interactive tool handles can be
         activated.
 
+    state_modifier_keys : dict, optional
+        Keyboard modifiers which affect the widget's behavior.  Values
+        amend the defaults, which are:
+
+        - "clear": Clear the current shape, default: "escape".
+
     drag_from_anywhere : bool, default: False
         If `True`, the widget can be moved by clicking anywhere within
         its bounds.
@@ -2157,9 +2242,16 @@ class SpanSelector(_SelectorWidget):
     def __init__(self, ax, onselect, direction, minspan=0, useblit=False,
                  props=None, onmove_callback=None, interactive=False,
                  button=None, handle_props=None, grab_range=10,
-                 drag_from_anywhere=False, ignore_event_outside=False):
+                 state_modifier_keys=None, drag_from_anywhere=False,
+                 ignore_event_outside=False):
 
-        super().__init__(ax, onselect, useblit=useblit, button=button)
+        if state_modifier_keys is None:
+            state_modifier_keys = dict(clear='escape',
+                                       square='not-applicable',
+                                       center='not-applicable',
+                                       rotate='not-applicable')
+        super().__init__(ax, onselect, useblit=useblit, button=button,
+                         state_modifier_keys=state_modifier_keys)
 
         if props is None:
             props = dict(facecolor='red', alpha=0.5)
@@ -2725,15 +2817,18 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
 
     state_modifier_keys : dict, optional
         Keyboard modifiers which affect the widget's behavior.  Values
-        amend the defaults.
+        amend the defaults, which are:
 
         - "move": Move the existing shape, default: no modifier.
         - "clear": Clear the current shape, default: "escape".
         - "square": Make the shape square, default: "shift".
-        - "center": Make the initial point the center of the shape,
-          default: "ctrl".
+        - "center": change the shape around its center, default: "ctrl".
+        - "rotate": Rotate the shape around its center between -45° and 45°,
+          default: "r".
 
-        "square" and "center" can be combined.
+        "square" and "center" can be combined. The square shape can be defined
+        in data or display coordinates as determined by the
+        ``use_data_coordinates`` argument specified when creating the selector.
 
     drag_from_anywhere : bool, default: False
         If `True`, the widget can be moved by clicking anywhere within
@@ -2743,6 +2838,9 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
         If `True`, the event triggered outside the span selector will be
         ignored.
 
+    use_data_coordinates : bool, default: False
+        If `True`, the "square" shape of the selector is defined in
+        data coordinates instead of display coordinates.
     """
 
 
@@ -2750,7 +2848,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     '__ARTIST_NAME__', 'rectangle'))
 class RectangleSelector(_SelectorWidget):
     """
-    Select a rectangular region of an axes.
+    Select a rectangular region of an Axes.
 
     For the cursor to remain responsive you must keep a reference to it.
 
@@ -2774,10 +2872,10 @@ class RectangleSelector(_SelectorWidget):
                                           props=props)
     >>> fig.show()
 
+    >>> selector.add_state('square')
+
     See also: :doc:`/gallery/widgets/rectangle_selector`
     """
-
-    _shape_klass = Rectangle
 
     @_api.rename_parameter("3.5", "maxdist", "grab_range")
     @_api.rename_parameter("3.5", "marker_props", "handle_props")
@@ -2789,14 +2887,23 @@ class RectangleSelector(_SelectorWidget):
                  lineprops=None, props=None, spancoords='data',
                  button=None, grab_range=10, handle_props=None,
                  interactive=False, state_modifier_keys=None,
-                 drag_from_anywhere=False, ignore_event_outside=False):
+                 drag_from_anywhere=False, ignore_event_outside=False,
+                 use_data_coordinates=False):
         super().__init__(ax, onselect, useblit=useblit, button=button,
-                         state_modifier_keys=state_modifier_keys)
+                         state_modifier_keys=state_modifier_keys,
+                         use_data_coordinates=use_data_coordinates)
 
         self.visible = True
         self._interactive = interactive
         self.drag_from_anywhere = drag_from_anywhere
         self.ignore_event_outside = ignore_event_outside
+        self._rotation = 0.0
+        self._aspect_ratio_correction = 1.0
+
+        # State to allow the option of an interactive selector that can't be
+        # interactively drawn. This is used in PolygonSelector as an
+        # interactive bounding box to allow the polygon to be easily resized
+        self._allow_creation = True
 
         if drawtype == 'none':  # draw a line but make it invisible
             _api.warn_deprecated(
@@ -2814,8 +2921,7 @@ class RectangleSelector(_SelectorWidget):
             props['animated'] = self.useblit
             self.visible = props.pop('visible', self.visible)
             self._props = props
-            to_draw = self._shape_klass((0, 0), 0, 1, visible=False,
-                                        **self._props)
+            to_draw = self._init_shape(**self._props)
             self.ax.add_patch(to_draw)
         if drawtype == 'line':
             _api.warn_deprecated(
@@ -2831,6 +2937,7 @@ class RectangleSelector(_SelectorWidget):
             self.ax.add_line(to_draw)
 
         self._selection_artist = to_draw
+        self._set_aspect_ratio_correction()
 
         self.minspanx = minspanx
         self.minspany = minspany
@@ -2887,21 +2994,26 @@ class RectangleSelector(_SelectorWidget):
         return (*self._center_handle.artists, *self._corner_handles.artists,
                 *self._edge_handles.artists)
 
+    def _init_shape(self, **props):
+        return Rectangle((0, 0), 0, 1, visible=False,
+                         rotation_point='center', **props)
+
     def _press(self, event):
         """Button press event handler."""
         # make the drawn box/line visible get the click-coordinates,
         # button, ...
         if self._interactive and self._selection_artist.get_visible():
             self._set_active_handle(event)
-            self._extents_on_press = self.extents
         else:
             self._active_handle = None
 
-        if self._active_handle is None or not self._interactive:
+        if ((self._active_handle is None or not self._interactive) and
+                self._allow_creation):
             # Clear previous rectangle before drawing new rectangle.
             self.update()
 
-        if self._active_handle is None and not self.ignore_event_outside:
+        if (self._active_handle is None and not self.ignore_event_outside and
+                self._allow_creation):
             x = event.xdata
             y = event.ydata
             self.visible = False
@@ -2909,6 +3021,10 @@ class RectangleSelector(_SelectorWidget):
             self.visible = True
         else:
             self.set_visible(True)
+
+        self._extents_on_press = self.extents
+        self._rotation_on_press = self._rotation
+        self._set_aspect_ratio_correction()
 
         return False
 
@@ -2964,102 +3080,136 @@ class RectangleSelector(_SelectorWidget):
         return False
 
     def _onmove(self, event):
-        """Motion notify event handler."""
+        """
+        Motion notify event handler.
 
-        state = self._state | self._default_state
-        # resize an existing shape
-        if self._active_handle and self._active_handle != 'C':
-            x0, x1, y0, y1 = self._extents_on_press
+        This can do one of four things:
+        - Translate
+        - Rotate
+        - Re-size
+        - Continue the creation of a new shape
+        """
+        eventpress = self._eventpress
+        # The calculations are done for rotation at zero: we apply inverse
+        # transformation to events except when we rotate and move
+        state = self._state
+        rotate = ('rotate' in state and
+                  self._active_handle in self._corner_order)
+        move = self._active_handle == 'C'
+        resize = self._active_handle and not move
+
+        if resize:
+            inv_tr = self._get_rotation_transform().inverted()
+            event.xdata, event.ydata = inv_tr.transform(
+                [event.xdata, event.ydata])
+            eventpress.xdata, eventpress.ydata = inv_tr.transform(
+                [eventpress.xdata, eventpress.ydata]
+                )
+
+        dx = event.xdata - eventpress.xdata
+        dy = event.ydata - eventpress.ydata
+        # refmax is used when moving the corner handle with the square state
+        # and is the maximum between refx and refy
+        refmax = None
+        if self._use_data_coordinates:
+            refx, refy = dx, dy
+        else:
+            # Get dx/dy in display coordinates
+            refx = event.x - eventpress.x
+            refy = event.y - eventpress.y
+
+        x0, x1, y0, y1 = self._extents_on_press
+        # rotate an existing shape
+        if rotate:
+            # calculate angle abc
+            a = np.array([eventpress.xdata, eventpress.ydata])
+            b = np.array(self.center)
+            c = np.array([event.xdata, event.ydata])
+            angle = (np.arctan2(c[1]-b[1], c[0]-b[0]) -
+                     np.arctan2(a[1]-b[1], a[0]-b[0]))
+            self.rotation = np.rad2deg(self._rotation_on_press + angle)
+
+        elif resize:
             size_on_press = [x1 - x0, y1 - y0]
             center = [x0 + size_on_press[0] / 2, y0 + size_on_press[1] / 2]
-            dx = event.xdata - self._eventpress.xdata
-            dy = event.ydata - self._eventpress.ydata
-
-            # change sign of relative changes to simplify calculation
-            # Switch variables so that only x1 and/or y1 are updated on move
-            x_factor = y_factor = 1
-            if 'W' in self._active_handle:
-                x_factor *= -1
-                dx *= x_factor
-                x0 = x1
-            if 'S' in self._active_handle:
-                y_factor *= -1
-                dy *= y_factor
-                y0 = y1
 
             # Keeping the center fixed
             if 'center' in state:
+                # hh, hw are half-height and half-width
                 if 'square' in state:
-                    # Force the same change in dx and dy
-                    if self._active_handle in ['E', 'W']:
-                        # using E, W handle we need to update dy accordingly
-                        dy = dx
-                    elif self._active_handle in ['S', 'N']:
-                        # using S, N handle, we need to update dx accordingly
-                        dx = dy
+                    # when using a corner, find which reference to use
+                    if self._active_handle in self._corner_order:
+                        refmax = max(refx, refy, key=abs)
+                    if self._active_handle in ['E', 'W'] or refmax == refx:
+                        hw = event.xdata - center[0]
+                        hh = hw / self._aspect_ratio_correction
                     else:
-                        dx = dy = max(dx, dy, key=abs)
-
-                # new half-width and half-height
-                hw = size_on_press[0] / 2 + dx
-                hh = size_on_press[1] / 2 + dy
-
-                if 'square' not in state:
+                        hh = event.ydata - center[1]
+                        hw = hh * self._aspect_ratio_correction
+                else:
+                    hw = size_on_press[0] / 2
+                    hh = size_on_press[1] / 2
                     # cancel changes in perpendicular direction
-                    if self._active_handle in ['E', 'W']:
-                        hh = size_on_press[1] / 2
-                    if self._active_handle in ['N', 'S']:
-                        hw = size_on_press[0] / 2
+                    if self._active_handle in ['E', 'W'] + self._corner_order:
+                        hw = abs(event.xdata - center[0])
+                    if self._active_handle in ['N', 'S'] + self._corner_order:
+                        hh = abs(event.ydata - center[1])
 
                 x0, x1, y0, y1 = (center[0] - hw, center[0] + hw,
                                   center[1] - hh, center[1] + hh)
 
             else:
-                # Keeping the opposite corner/edge fixed
+                # change sign of relative changes to simplify calculation
+                # Switch variables so that x1 and/or y1 are updated on move
+                if 'W' in self._active_handle:
+                    x0 = x1
+                if 'S' in self._active_handle:
+                    y0 = y1
+                if self._active_handle in ['E', 'W'] + self._corner_order:
+                    x1 = event.xdata
+                if self._active_handle in ['N', 'S'] + self._corner_order:
+                    y1 = event.ydata
                 if 'square' in state:
-                    dx = dy = max(dx, dy, key=abs)
-                    x1 = x0 + x_factor * (dx + size_on_press[0])
-                    y1 = y0 + y_factor * (dy + size_on_press[1])
-                else:
-                    if self._active_handle in ['E', 'W'] + self._corner_order:
-                        x1 = event.xdata
-                    if self._active_handle in ['N', 'S'] + self._corner_order:
-                        y1 = event.ydata
+                    # when using a corner, find which reference to use
+                    if self._active_handle in self._corner_order:
+                        refmax = max(refx, refy, key=abs)
+                    if self._active_handle in ['E', 'W'] or refmax == refx:
+                        sign = np.sign(event.ydata - y0)
+                        y1 = y0 + sign * abs(x1 - x0) / \
+                            self._aspect_ratio_correction
+                    else:
+                        sign = np.sign(event.xdata - x0)
+                        x1 = x0 + sign * abs(y1 - y0) * \
+                            self._aspect_ratio_correction
 
-        # move existing shape
-        elif (self._active_handle == 'C' or
-              (self.drag_from_anywhere and self._contains(event)) and
-              self._extents_on_press is not None):
+        elif move:
             x0, x1, y0, y1 = self._extents_on_press
-            dx = event.xdata - self._eventpress.xdata
-            dy = event.ydata - self._eventpress.ydata
+            dx = event.xdata - eventpress.xdata
+            dy = event.ydata - eventpress.ydata
             x0 += dx
             x1 += dx
             y0 += dy
             y1 += dy
 
-        # new shape
         else:
+            # Create a new shape
+            self._rotation = 0
             # Don't create a new rectangle if there is already one when
             # ignore_event_outside=True
-            if self.ignore_event_outside and self._selection_completed:
+            if ((self.ignore_event_outside and self._selection_completed) or
+                    not self._allow_creation):
                 return
-            center = [self._eventpress.xdata, self._eventpress.ydata]
-            center_pix = [self._eventpress.x, self._eventpress.y]
+            center = [eventpress.xdata, eventpress.ydata]
             dx = (event.xdata - center[0]) / 2.
             dy = (event.ydata - center[1]) / 2.
 
             # square shape
             if 'square' in state:
-                dx_pix = abs(event.x - center_pix[0])
-                dy_pix = abs(event.y - center_pix[1])
-                if not dx_pix:
-                    return
-                maxd = max(abs(dx_pix), abs(dy_pix))
-                if abs(dx_pix) < maxd:
-                    dx *= maxd / (abs(dx_pix) + 1e-6)
-                if abs(dy_pix) < maxd:
-                    dy *= maxd / (abs(dy_pix) + 1e-6)
+                refmax = max(refx, refy, key=abs)
+                if refmax == refx:
+                    dy = np.sign(dy) * abs(dx) / self._aspect_ratio_correction
+                else:
+                    dx = np.sign(dx) * abs(dy) * self._aspect_ratio_correction
 
             # from center
             if 'center' in state:
@@ -3079,44 +3229,75 @@ class RectangleSelector(_SelectorWidget):
     @property
     def _rect_bbox(self):
         if self._drawtype == 'box':
-            x0 = self._selection_artist.get_x()
-            y0 = self._selection_artist.get_y()
-            width = self._selection_artist.get_width()
-            height = self._selection_artist.get_height()
-            return x0, y0, width, height
+            return self._selection_artist.get_bbox().bounds
         else:
             x, y = self._selection_artist.get_data()
             x0, x1 = min(x), max(x)
             y0, y1 = min(y), max(y)
             return x0, y0, x1 - x0, y1 - y0
 
+    def _set_aspect_ratio_correction(self):
+        aspect_ratio = self.ax._get_aspect_ratio()
+        if not hasattr(self._selection_artist, '_aspect_ratio_correction'):
+            # Aspect ratio correction is not supported with deprecated
+            # drawtype='line'. Remove this block in matplotlib 3.7
+            self._aspect_ratio_correction = 1
+            return
+
+        self._selection_artist._aspect_ratio_correction = aspect_ratio
+        if self._use_data_coordinates:
+            self._aspect_ratio_correction = 1
+        else:
+            self._aspect_ratio_correction = aspect_ratio
+
+    def _get_rotation_transform(self):
+        aspect_ratio = self.ax._get_aspect_ratio()
+        return Affine2D().translate(-self.center[0], -self.center[1]) \
+                .scale(1, aspect_ratio) \
+                .rotate(self._rotation) \
+                .scale(1, 1 / aspect_ratio) \
+                .translate(*self.center)
+
     @property
     def corners(self):
-        """Corners of rectangle from lower left, moving clockwise."""
+        """
+        Corners of rectangle in data coordinates from lower left,
+        moving clockwise.
+        """
         x0, y0, width, height = self._rect_bbox
         xc = x0, x0 + width, x0 + width, x0
         yc = y0, y0, y0 + height, y0 + height
-        return xc, yc
+        transform = self._get_rotation_transform()
+        coords = transform.transform(np.array([xc, yc]).T).T
+        return coords[0], coords[1]
 
     @property
     def edge_centers(self):
-        """Midpoint of rectangle edges from left, moving anti-clockwise."""
+        """
+        Midpoint of rectangle edges in data coordiantes from left,
+        moving anti-clockwise.
+        """
         x0, y0, width, height = self._rect_bbox
         w = width / 2.
         h = height / 2.
         xe = x0, x0 + w, x0 + width, x0 + w
         ye = y0 + h, y0, y0 + h, y0 + height
-        return xe, ye
+        transform = self._get_rotation_transform()
+        coords = transform.transform(np.array([xe, ye]).T).T
+        return coords[0], coords[1]
 
     @property
     def center(self):
-        """Center of rectangle."""
+        """Center of rectangle in data coordinates."""
         x0, y0, width, height = self._rect_bbox
         return x0 + width / 2., y0 + height / 2.
 
     @property
     def extents(self):
-        """Return (xmin, xmax, ymin, ymax)."""
+        """
+        Return (xmin, xmax, ymin, ymax) in data coordinates as defined by the
+        bounding box before rotation.
+        """
         x0, y0, width, height = self._rect_bbox
         xmin, xmax = sorted([x0, x0 + width])
         ymin, ymax = sorted([y0, y0 + height])
@@ -3133,6 +3314,23 @@ class RectangleSelector(_SelectorWidget):
             self._center_handle.set_data(*self.center)
         self.set_visible(self.visible)
         self.update()
+
+    @property
+    def rotation(self):
+        """
+        Rotation in degree in interval [-45°, 45°]. The rotation is limited in
+        range to keep the implementation simple.
+        """
+        return np.rad2deg(self._rotation)
+
+    @rotation.setter
+    def rotation(self, value):
+        # Restrict to a limited range of rotation [-45°, 45°] to avoid changing
+        # order of handles
+        if -45 <= value and value <= 45:
+            self._rotation = np.deg2rad(value)
+            # call extents setter to draw shape and update handles positions
+            self.extents = self.extents
 
     draw_shape = _api.deprecate_privatize_attribute('3.5')
 
@@ -3153,6 +3351,7 @@ class RectangleSelector(_SelectorWidget):
             self._selection_artist.set_y(ymin)
             self._selection_artist.set_width(xmax - xmin)
             self._selection_artist.set_height(ymax - ymin)
+            self._selection_artist.set_angle(self.rotation)
 
         elif self._drawtype == 'line':
             self._selection_artist.set_data([xmin, xmax], [ymin, ymax])
@@ -3170,8 +3369,7 @@ class RectangleSelector(_SelectorWidget):
         elif m_dist < self.grab_range * 2:
             # Prioritise center handle over other handles
             self._active_handle = 'C'
-        elif (c_dist > self.grab_range and
-                  e_dist > self.grab_range):
+        elif c_dist > self.grab_range and e_dist > self.grab_range:
             # Not close to any handles
             if self.drag_from_anywhere and self._contains(event):
                 # Check if we've clicked inside the region
@@ -3195,9 +3393,8 @@ class RectangleSelector(_SelectorWidget):
         """
         Return an array of shape (2, 5) containing the
         x (``RectangleSelector.geometry[1, :]``) and
-        y (``RectangleSelector.geometry[0, :]``) coordinates
-        of the four corners of the rectangle starting and ending
-        in the top left corner.
+        y (``RectangleSelector.geometry[0, :]``) data coordinates of the four
+        corners of the rectangle starting and ending in the top left corner.
         """
         if hasattr(self._selection_artist, 'get_verts'):
             xfm = self.ax.transData.inverted()
@@ -3211,7 +3408,7 @@ class RectangleSelector(_SelectorWidget):
     '__ARTIST_NAME__', 'ellipse'))
 class EllipseSelector(RectangleSelector):
     """
-    Select an elliptical region of an axes.
+    Select an elliptical region of an Axes.
 
     For the cursor to remain responsive you must keep a reference to it.
 
@@ -3226,8 +3423,10 @@ class EllipseSelector(RectangleSelector):
     :doc:`/gallery/widgets/rectangle_selector`
     """
 
-    _shape_klass = Ellipse
     draw_shape = _api.deprecate_privatize_attribute('3.5')
+
+    def _init_shape(self, **props):
+        return Ellipse((0, 0), 0, 1, visible=False, **props)
 
     def _draw_shape(self, extents):
         x0, x1, y0, y1 = extents
@@ -3241,6 +3440,7 @@ class EllipseSelector(RectangleSelector):
             self._selection_artist.center = center
             self._selection_artist.width = 2 * a
             self._selection_artist.height = 2 * b
+            self._selection_artist.angle = self.rotation
         else:
             rad = np.deg2rad(np.arange(31) * 12)
             x = a * np.cos(rad) + center[0]
@@ -3346,7 +3546,7 @@ class LassoSelector(_SelectorWidget):
 
 class PolygonSelector(_SelectorWidget):
     """
-    Select a polygon region of an axes.
+    Select a polygon region of an Axes.
 
     Place vertices with each mouse click, and make the selection by completing
     the polygon (clicking on the first vertex). Once drawn individual vertices
@@ -3396,6 +3596,19 @@ class PolygonSelector(_SelectorWidget):
         A vertex is selected (to complete the polygon or to move a vertex) if
         the mouse click is within *grab_range* pixels of the vertex.
 
+    draw_bounding_box : bool, optional
+        If `True`, a bounding box will be drawn around the polygon selector
+        once it is complete. This box can be used to move and resize the
+        selector.
+
+    box_handle_props : dict, optional
+        Properties to set for the box handles. See the documentation for the
+        *handle_props* argument to `RectangleSelector` for more info.
+
+    box_props : dict, optional
+        Properties to set for the box. See the documentation for the *props*
+        argument to `RectangleSelector` for more info.
+
     Examples
     --------
     :doc:`/gallery/widgets/polygon_selector_demo`
@@ -3411,7 +3624,9 @@ class PolygonSelector(_SelectorWidget):
     @_api.rename_parameter("3.5", "markerprops", "handle_props")
     @_api.rename_parameter("3.5", "vertex_select_radius", "grab_range")
     def __init__(self, ax, onselect, useblit=False,
-                 props=None, handle_props=None, grab_range=10):
+                 props=None, handle_props=None, grab_range=10, *,
+                 draw_bounding_box=False, box_handle_props=None,
+                 box_props=None):
         # The state modifiers 'move', 'square', and 'center' are expected by
         # _SelectorWidget but are not supported by PolygonSelector
         # Note: could not use the existing 'move' state modifier in-place of
@@ -3420,25 +3635,25 @@ class PolygonSelector(_SelectorWidget):
         state_modifier_keys = dict(clear='escape', move_vertex='control',
                                    move_all='shift', move='not-applicable',
                                    square='not-applicable',
-                                   center='not-applicable')
+                                   center='not-applicable',
+                                   rotate='not-applicable')
         super().__init__(ax, onselect, useblit=useblit,
                          state_modifier_keys=state_modifier_keys)
 
-        self._xs, self._ys = [0], [0]
+        self._xys = [(0, 0)]
 
         if props is None:
             props = dict(color='k', linestyle='-', linewidth=2, alpha=0.5)
         props['animated'] = self.useblit
         self._props = props
-        line = Line2D(self._xs, self._ys, **self._props)
+        self._selection_artist = line = Line2D([], [], **self._props)
         self.ax.add_line(line)
-        self._selection_artist = line
 
         if handle_props is None:
             handle_props = dict(markeredgecolor='k',
                                 markerfacecolor=self._props.get('color', 'k'))
         self._handle_props = handle_props
-        self._polygon_handles = ToolHandles(self.ax, self._xs, self._ys,
+        self._polygon_handles = ToolHandles(self.ax, [], [],
                                             useblit=self.useblit,
                                             marker_props=self._handle_props)
 
@@ -3446,6 +3661,74 @@ class PolygonSelector(_SelectorWidget):
         self.grab_range = grab_range
 
         self.set_visible(True)
+        self._draw_box = draw_bounding_box
+        self._box = None
+
+        if box_handle_props is None:
+            box_handle_props = {}
+        self._box_handle_props = self._handle_props.update(box_handle_props)
+        self._box_props = box_props
+
+    def _get_bbox(self):
+        return self._selection_artist.get_bbox()
+
+    def _add_box(self):
+        self._box = RectangleSelector(self.ax,
+                                      onselect=lambda *args, **kwargs: None,
+                                      useblit=self.useblit,
+                                      grab_range=self.grab_range,
+                                      handle_props=self._box_handle_props,
+                                      props=self._box_props,
+                                      interactive=True)
+        self._box._state_modifier_keys.pop('rotate')
+        self._box.connect_event('motion_notify_event', self._scale_polygon)
+        self._update_box()
+        # Set state that prevents the RectangleSelector from being created
+        # by the user
+        self._box._allow_creation = False
+        self._box._selection_completed = True
+        self._draw_polygon()
+
+    def _remove_box(self):
+        if self._box is not None:
+            self._box.set_visible(False)
+            self._box = None
+
+    def _update_box(self):
+        # Update selection box extents to the extents of the polygon
+        if self._box is not None:
+            bbox = self._get_bbox()
+            self._box.extents = [bbox.x0, bbox.x1, bbox.y0, bbox.y1]
+            # Save a copy
+            self._old_box_extents = self._box.extents
+
+    def _scale_polygon(self, event):
+        """
+        Scale the polygon selector points when the bounding box is moved or
+        scaled.
+
+        This is set as a callback on the bounding box RectangleSelector.
+        """
+        if not self._selection_completed:
+            return
+
+        if self._old_box_extents == self._box.extents:
+            return
+
+        # Create transform from old box to new box
+        x1, y1, w1, h1 = self._box._rect_bbox
+        old_bbox = self._get_bbox()
+        t = (transforms.Affine2D()
+             .translate(-old_bbox.x0, -old_bbox.y0)
+             .scale(1 / old_bbox.width, 1 / old_bbox.height)
+             .scale(w1, h1)
+             .translate(x1, y1))
+
+        # Update polygon verts.  Must be a list of tuples for consistency.
+        new_verts = [(x, y) for x, y in t.transform(np.array(self.verts))]
+        self._xys = [*new_verts, new_verts[0]]
+        self._draw_polygon()
+        self._old_box_extents = self._box.extents
 
     line = _api.deprecated("3.5")(
         property(lambda self: self._selection_artist)
@@ -3458,47 +3741,40 @@ class PolygonSelector(_SelectorWidget):
         )
 
     @property
-    def _nverts(self):
-        return len(self._xs)
-
-    @property
     def _handles_artists(self):
         return self._polygon_handles.artists
 
     def _remove_vertex(self, i):
         """Remove vertex with index i."""
-        if (self._nverts > 2 and
+        if (len(self._xys) > 2 and
                 self._selection_completed and
-                i in (0, self._nverts - 1)):
+                i in (0, len(self._xys) - 1)):
             # If selecting the first or final vertex, remove both first and
             # last vertex as they are the same for a closed polygon
-            self._xs.pop(0)
-            self._ys.pop(0)
-            self._xs.pop(-1)
-            self._ys.pop(-1)
+            self._xys.pop(0)
+            self._xys.pop(-1)
             # Close the polygon again by appending the new first vertex to the
             # end
-            self._xs.append(self._xs[0])
-            self._ys.append(self._ys[0])
+            self._xys.append(self._xys[0])
         else:
-            self._xs.pop(i)
-            self._ys.pop(i)
-        if self._nverts <= 2:
+            self._xys.pop(i)
+        if len(self._xys) <= 2:
             # If only one point left, return to incomplete state to let user
             # start drawing again
             self._selection_completed = False
+            self._remove_box()
 
     def _press(self, event):
         """Button press event handler."""
         # Check for selection of a tool handle.
         if ((self._selection_completed or 'move_vertex' in self._state)
-                and len(self._xs) > 0):
+                and len(self._xys) > 0):
             h_idx, h_dist = self._polygon_handles.closest(event.x, event.y)
             if h_dist < self.grab_range:
                 self._active_handle_idx = h_idx
         # Save the vertex positions at the time of the press event (needed to
         # support the 'move_all' state modifier).
-        self._xs_at_press, self._ys_at_press = self._xs.copy(), self._ys.copy()
+        self._xys_at_press = self._xys.copy()
 
     def _release(self, event):
         """Button release event handler."""
@@ -3510,17 +3786,16 @@ class PolygonSelector(_SelectorWidget):
             self._active_handle_idx = -1
 
         # Complete the polygon.
-        elif (len(self._xs) > 3
-              and self._xs[-1] == self._xs[0]
-              and self._ys[-1] == self._ys[0]):
+        elif len(self._xys) > 3 and self._xys[-1] == self._xys[0]:
             self._selection_completed = True
+            if self._draw_box and self._box is None:
+                self._add_box()
 
         # Place new vertex.
         elif (not self._selection_completed
               and 'move_all' not in self._state
               and 'move_vertex' not in self._state):
-            self._xs.insert(-1, event.xdata)
-            self._ys.insert(-1, event.ydata)
+            self._xys.insert(-1, (event.xdata, event.ydata))
 
         if self._selection_completed:
             self.onselect(self.verts)
@@ -3542,19 +3817,19 @@ class PolygonSelector(_SelectorWidget):
         # Move the active vertex (ToolHandle).
         if self._active_handle_idx >= 0:
             idx = self._active_handle_idx
-            self._xs[idx], self._ys[idx] = event.xdata, event.ydata
+            self._xys[idx] = event.xdata, event.ydata
             # Also update the end of the polygon line if the first vertex is
             # the active handle and the polygon is completed.
             if idx == 0 and self._selection_completed:
-                self._xs[-1], self._ys[-1] = event.xdata, event.ydata
+                self._xys[-1] = event.xdata, event.ydata
 
         # Move all vertices.
         elif 'move_all' in self._state and self._eventpress:
             dx = event.xdata - self._eventpress.xdata
             dy = event.ydata - self._eventpress.ydata
-            for k in range(len(self._xs)):
-                self._xs[k] = self._xs_at_press[k] + dx
-                self._ys[k] = self._ys_at_press[k] + dy
+            for k in range(len(self._xys)):
+                x_at_press, y_at_press = self._xys_at_press[k]
+                self._xys[k] = x_at_press + dx, y_at_press + dy
 
         # Do nothing if completed or waiting for a move.
         elif (self._selection_completed
@@ -3564,15 +3839,14 @@ class PolygonSelector(_SelectorWidget):
         # Position pending vertex.
         else:
             # Calculate distance to the start vertex.
-            x0, y0 = self._selection_artist.get_transform().transform(
-                    (self._xs[0], self._ys[0])
-                )
+            x0, y0 = \
+                self._selection_artist.get_transform().transform(self._xys[0])
             v0_dist = np.hypot(x0 - event.x, y0 - event.y)
             # Lock on to the start vertex if near it and ready to complete.
-            if len(self._xs) > 3 and v0_dist < self.grab_range:
-                self._xs[-1], self._ys[-1] = self._xs[0], self._ys[0]
+            if len(self._xys) > 3 and v0_dist < self.grab_range:
+                self._xys[-1] = self._xys[0]
             else:
-                self._xs[-1], self._ys[-1] = event.xdata, event.ydata
+                self._xys[-1] = event.xdata, event.ydata
 
         self._draw_polygon()
 
@@ -3583,7 +3857,7 @@ class PolygonSelector(_SelectorWidget):
         if (not self._selection_completed
                 and ('move_vertex' in self._state or
                      'move_all' in self._state)):
-            self._xs, self._ys = self._xs[:-1], self._ys[:-1]
+            self._xys.pop()
             self._draw_polygon()
 
     def _on_key_release(self, event):
@@ -3592,37 +3866,53 @@ class PolygonSelector(_SelectorWidget):
         # 'move_all' mode (by checking the released key)
         if (not self._selection_completed
                 and
-                (event.key == self.state_modifier_keys.get('move_vertex')
-                 or event.key == self.state_modifier_keys.get('move_all'))):
-            self._xs.append(event.xdata)
-            self._ys.append(event.ydata)
+                (event.key == self._state_modifier_keys.get('move_vertex')
+                 or event.key == self._state_modifier_keys.get('move_all'))):
+            self._xys.append((event.xdata, event.ydata))
             self._draw_polygon()
         # Reset the polygon if the released key is the 'clear' key.
-        elif event.key == self.state_modifier_keys.get('clear'):
+        elif event.key == self._state_modifier_keys.get('clear'):
             event = self._clean_event(event)
-            self._xs, self._ys = [event.xdata], [event.ydata]
+            self._xys = [(event.xdata, event.ydata)]
             self._selection_completed = False
+            self._remove_box()
             self.set_visible(True)
 
     def _draw_polygon(self):
         """Redraw the polygon based on the new vertex positions."""
-        self._selection_artist.set_data(self._xs, self._ys)
+        xs, ys = zip(*self._xys) if self._xys else ([], [])
+        self._selection_artist.set_data(xs, ys)
+        self._update_box()
         # Only show one tool handle at the start and end vertex of the polygon
         # if the polygon is completed or the user is locked on to the start
         # vertex.
         if (self._selection_completed
-                or (len(self._xs) > 3
-                    and self._xs[-1] == self._xs[0]
-                    and self._ys[-1] == self._ys[0])):
-            self._polygon_handles.set_data(self._xs[:-1], self._ys[:-1])
+                or (len(self._xys) > 3
+                    and self._xys[-1] == self._xys[0])):
+            self._polygon_handles.set_data(xs[:-1], ys[:-1])
         else:
-            self._polygon_handles.set_data(self._xs, self._ys)
+            self._polygon_handles.set_data(xs, ys)
         self.update()
 
     @property
     def verts(self):
         """The polygon vertices, as a list of ``(x, y)`` pairs."""
-        return list(zip(self._xs[:-1], self._ys[:-1]))
+        return self._xys[:-1]
+
+    @verts.setter
+    def verts(self, xys):
+        """
+        Set the polygon vertices.
+
+        This will remove any pre-existing vertices, creating a complete polygon
+        with the new vertices.
+        """
+        self._xys = [*xys, xys[0]]
+        self._selection_completed = True
+        self.set_visible(True)
+        if self._draw_box and self._box is None:
+            self._add_box()
+        self._draw_polygon()
 
 
 class Lasso(AxesWidget):

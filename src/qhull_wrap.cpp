@@ -295,14 +295,31 @@ delaunay(PyObject *self, PyObject *args)
 
 /* Return qhull version string for assistance in debugging. */
 static PyObject*
-version(void)
+version(PyObject *self, PyObject *arg)
 {
     return PyBytes_FromString(qh_version);
 }
 
 static PyMethodDef qhull_methods[] = {
-    {"delaunay", (PyCFunction)delaunay, METH_VARARGS, ""},
-    {"version", (PyCFunction)version, METH_NOARGS, ""},
+    {"delaunay", delaunay, METH_VARARGS,
+     "delaunay(x, y, /)\n"
+     "--\n\n"
+     "Compute a Delaunay triangulation.\n"
+     "\n"
+     "Parameters\n"
+     "----------\n"
+     "x, y : 1d arrays\n"
+     "    The coordinates of the point set, which must consist of at least\n"
+     "    three unique points.\n"
+     "\n"
+     "Returns\n"
+     "-------\n"
+     "triangles, neighbors : int arrays, shape (ntri, 3)\n"
+     "    Indices of triangle vertices and indices of triangle neighbors.\n"
+    },
+    {"version", version, METH_NOARGS,
+     "version()\n--\n\n"
+     "Return the qhull version string."},
     {NULL, NULL, 0, NULL}
 };
 

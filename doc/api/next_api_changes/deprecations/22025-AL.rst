@@ -1,0 +1,14 @@
+``FigureFrameWx`` attributes and methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+- ``sizer`` is deprecated (use ``frame.GetSizer()`` instead).
+- ``figmgr`` and ``get_figure_manager`` are deprecated (use
+  ``frame.canvas.manager`` instead).
+- ``num`` is deprecated (use ``frame.canvas.manager.num`` instead).
+- ``toolbar`` is deprecated (use ``frame.GetToolBar()``
+  instead).
+- ``toolmanager`` is deprecated (use ``frame.canvas.manager.toolmanager``
+  instead).
+
+``RendererWx.offset_text_height``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated.

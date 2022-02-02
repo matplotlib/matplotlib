@@ -481,8 +481,7 @@ def test_linecollection_scaled_dashes():
     h1, h2, h3 = leg.legendHandles
 
     for oh, lh in zip((lc1, lc2, lc3), (h1, h2, h3)):
-        assert oh.get_linestyles()[0][1] == lh._dashSeq
-        assert oh.get_linestyles()[0][0] == lh._dashOffset
+        assert oh.get_linestyles()[0] == lh._dash_pattern
 
 
 def test_handler_numpoints():
@@ -880,3 +879,11 @@ def test_subfigure_legend():
     ax.plot([0, 1], [0, 1], label="line")
     leg = subfig.legend()
     assert leg.figure is subfig
+
+
+def test_setting_alpha_keeps_polycollection_color():
+    pc = plt.fill_between([0, 1], [2, 3], color='#123456', label='label')
+    patch = plt.legend().get_patches()[0]
+    patch.set_alpha(0.5)
+    assert patch.get_facecolor()[:3] == tuple(pc.get_facecolor()[0][:3])
+    assert patch.get_edgecolor()[:3] == tuple(pc.get_edgecolor()[0][:3])

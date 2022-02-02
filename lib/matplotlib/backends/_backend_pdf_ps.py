@@ -9,7 +9,7 @@ from fontTools import subset
 
 import matplotlib as mpl
 from .. import font_manager, ft2font
-from ..afm import AFM
+from .._afm import AFM
 from ..backend_bases import RendererBase
 
 
@@ -104,12 +104,7 @@ class RendererPDFPSBase(RendererBase):
                 s, fontsize, renderer=self)
             return w, h, d
         elif ismath:
-            # Circular import.
-            from matplotlib.backends.backend_ps import RendererPS
-            parse = self._text2path.mathtext_parser.parse(
-                s, 72, prop,
-                _force_standard_ps_fonts=(isinstance(self, RendererPS)
-                                          and mpl.rcParams["ps.useafm"]))
+            parse = self._text2path.mathtext_parser.parse(s, 72, prop)
             return parse.width, parse.height, parse.depth
         elif mpl.rcParams[self._use_afm_rc_name]:
             font = self._get_font_afm(prop)

@@ -167,6 +167,21 @@ intersphinx_mapping = {
 
 # Sphinx gallery configuration
 
+def matplotlib_reduced_latex_scraper(block, block_vars, gallery_conf,
+                                     **kwargs):
+    """
+    Reduce srcset when creating a PDF.
+
+    Because sphinx-gallery runs *very* early, we cannot modify this even in the
+    earliest builder-inited signal. Thus we do it at scraping time.
+    """
+    from sphinx_gallery.scrapers import matplotlib_scraper
+
+    if gallery_conf['builder_name'] == 'latex':
+        gallery_conf['image_srcset'] = []
+    return matplotlib_scraper(block, block_vars, gallery_conf, **kwargs)
+
+
 sphinx_gallery_conf = {
     'examples_dirs': ['../examples', '../tutorials', '../plot_types'],
     'filename_pattern': '^((?!sgskip).)*$',
@@ -183,6 +198,7 @@ sphinx_gallery_conf = {
     'remove_config_comments': True,
     'min_reported_time': 1,
     'thumbnail_size': (320, 224),
+    'image_scrapers': (matplotlib_reduced_latex_scraper, ),
     # Compression is a significant effort that we skip for local and CI builds.
     'compress_images': ('thumbnails', 'images') if is_release_build else (),
     'matplotlib_animations': True,
@@ -212,8 +228,8 @@ source_suffix = '.rst'
 # This is the default encoding, but it doesn't hurt to be explicit
 source_encoding = "utf-8"
 
-# The master toctree document.
-master_doc = 'users/index'
+# The toplevel toctree document (renamed to root_doc in Sphinx 4.0)
+root_doc = master_doc = 'users/index'
 
 # General substitutions.
 try:
@@ -230,9 +246,9 @@ html_context = {
 
 project = 'Matplotlib'
 copyright = (
-    '2002 - 2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom '
+    '2002–2012 John Hunter, Darren Dale, Eric Firing, Michael Droettboom '
     'and the Matplotlib development team; '
-    f'2012 - {sourceyear} The Matplotlib development team'
+    f'2012–{sourceyear} The Matplotlib development team'
 )
 
 
@@ -307,6 +323,12 @@ html_theme_options = {
     # and CI builds https://github.com/pydata/pydata-sphinx-theme/pull/386
     "collapse_navigation": not is_release_build,
     "show_prev_next": False,
+    "switcher": {
+        "json_url": "https://matplotlib.org/devdocs/_static/switcher.json",
+        "url_template": "https://matplotlib.org/{version}/",
+        "version_match": version,
+    },
+    "navbar_end": ["version-switcher", "mpl_icon_links"]
 }
 include_analytics = is_release_build
 if include_analytics:
@@ -378,7 +400,7 @@ latex_paper_size = 'letter'
 #    document class [howto/manual])
 
 latex_documents = [
-    ('contents', 'Matplotlib.tex', 'Matplotlib',
+    (root_doc, 'Matplotlib.tex', 'Matplotlib',
      'John Hunter\\and Darren Dale\\and Eric Firing\\and Michael Droettboom'
      '\\and and the matplotlib development team', 'manual'),
 ]
@@ -461,6 +483,8 @@ latex_elements['passoptionstopackages'] = r"""
 
 # Additional stuff for the LaTeX preamble.
 latex_elements['preamble'] = r"""
+   % Show Parts and Chapters in Table of Contents
+   \setcounter{tocdepth}{0}
    % One line per author on title page
    \DeclareRobustCommand{\and}%
      {\end{tabular}\kern-\tabcolsep\\\begin{tabular}[t]{c}}%
@@ -508,7 +532,7 @@ latex_toplevel_sectioning = 'part'
 autoclass_content = 'both'
 
 texinfo_documents = [
-    ("contents", 'matplotlib', 'Matplotlib Documentation',
+    (root_doc, 'matplotlib', 'Matplotlib Documentation',
      'John Hunter@*Darren Dale@*Eric Firing@*Michael Droettboom@*'
      'The matplotlib development team',
      'Matplotlib', "Python plotting package", 'Programming',
@@ -586,6 +610,8 @@ if link_github:
             except AttributeError:
                 return None
 
+        if inspect.isfunction(obj):
+            obj = inspect.unwrap(obj)
         try:
             fn = inspect.getsourcefile(obj)
         except TypeError:

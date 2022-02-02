@@ -2,17 +2,12 @@ import functools
 import io
 import os
 from pathlib import Path
-import sys
 
 import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    TimerBase, ToolContainerBase)
-from matplotlib.backend_tools import Cursors
-from matplotlib.figure import Figure
-from matplotlib.widgets import SubplotTool
+    FigureCanvasBase, FigureManagerBase, ToolContainerBase)
 
 try:
     import gi
@@ -31,22 +26,9 @@ except ValueError as e:
 from gi.repository import Gio, GLib, GObject, Gtk, Gdk, GdkPixbuf
 from . import _backend_gtk
 from ._backend_gtk import (
-    _create_application, _shutdown_application,
     backend_version, _BackendGTK, _NavigationToolbar2GTK,
     TimerGTK as TimerGTK4,
 )
-
-
-def _mpl_to_gtk_cursor(mpl_cursor):
-    return _api.check_getitem({
-        Cursors.MOVE: "move",
-        Cursors.HAND: "pointer",
-        Cursors.POINTER: "default",
-        Cursors.SELECT_REGION: "crosshair",
-        Cursors.WAIT: "wait",
-        Cursors.RESIZE_HORIZONTAL: "ew-resize",
-        Cursors.RESIZE_VERTICAL: "ns-resize",
-    }, cursor=mpl_cursor)
 
 
 class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
@@ -108,7 +90,7 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
 
     def set_cursor(self, cursor):
         # docstring inherited
-        self.set_cursor_from_name(_mpl_to_gtk_cursor(cursor))
+        self.set_cursor_from_name(_backend_gtk.mpl_to_gtk_cursor_name(cursor))
 
     def _mouse_event_coords(self, x, y):
         """
@@ -281,10 +263,10 @@ class FigureManagerGTK4(FigureManagerBase):
         The Gtk.VBox containing the canvas and toolbar
     window : Gtk.Window
         The Gtk.Window
-
     """
+
     def __init__(self, canvas, num):
-        app = _create_application()
+        app = _backend_gtk._create_application()
         self.window = Gtk.Window()
         app.add_window(self.window)
         super().__init__(canvas, num)
@@ -296,13 +278,6 @@ class FigureManagerGTK4(FigureManagerBase):
         self.vbox.prepend(self.canvas)
         # calculate size for window
         w, h = self.canvas.get_width_height()
-
-        self.toolbar = self._get_toolbar()
-
-        if self.toolmanager:
-            backend_tools.add_tools_to_manager(self.toolmanager)
-            if self.toolbar:
-                backend_tools.add_tools_to_container(self.toolbar)
 
         if self.toolbar is not None:
             sw = Gtk.ScrolledWindow(vscrollbar_policy=Gtk.PolicyType.NEVER)
@@ -353,17 +328,6 @@ class FigureManagerGTK4(FigureManagerBase):
         else:
             self.window.unfullscreen()
 
-    def _get_toolbar(self):
-        # must be inited after the window, drawingArea and figure
-        # attrs are set
-        if mpl.rcParams['toolbar'] == 'toolbar2':
-            toolbar = NavigationToolbar2GTK4(self.canvas, self.window)
-        elif mpl.rcParams['toolbar'] == 'toolmanager':
-            toolbar = ToolbarGTK4(self.toolmanager)
-        else:
-            toolbar = None
-        return toolbar
-
     def get_window_title(self):
         return self.window.get_title()
 
@@ -382,8 +346,9 @@ class FigureManagerGTK4(FigureManagerBase):
 
 
 class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
-    def __init__(self, canvas, window):
-        self.win = window
+    @_api.delete_parameter("3.6", "window")
+    def __init__(self, canvas, window=None):
+        self._win = window
         Gtk.Box.__init__(self)
 
         self.add_css_class('toolbar')
@@ -420,9 +385,12 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
         self.append(label)
 
         self.message = Gtk.Label()
+        self.message.set_justify(Gtk.Justification.RIGHT)
         self.append(self.message)
 
-        NavigationToolbar2.__init__(self, canvas)
+        _NavigationToolbar2GTK.__init__(self, canvas)
+
+    win = _api.deprecated("3.6")(property(lambda self: self._win))
 
     def save_figure(self, *args):
         dialog = Gtk.FileChooserNative(
@@ -512,6 +480,7 @@ class ToolbarGTK4(ToolContainerBase, Gtk.Box):
         self.append(label)
 
         self._message = Gtk.Label()
+        self._message.set_justify(Gtk.Justification.RIGHT)
         self.append(self._message)
 
     def add_toolitem(self, name, group, position, image_file, description,
@@ -590,11 +559,8 @@ class ToolbarGTK4(ToolContainerBase, Gtk.Box):
 @backend_tools._register_tool_class(FigureCanvasGTK4)
 class SaveFigureGTK4(backend_tools.SaveFigureBase):
     def trigger(self, *args, **kwargs):
-
-        class PseudoToolbar:
-            canvas = self.figure.canvas
-
-        return NavigationToolbar2GTK4.save_figure(PseudoToolbar())
+        NavigationToolbar2GTK4.save_figure(
+            self._make_classic_style_pseudo_toolbar())
 
 
 @backend_tools._register_tool_class(FigureCanvasGTK4)
@@ -689,9 +655,11 @@ backend_tools._register_tool_class(
 backend_tools._register_tool_class(
     FigureCanvasGTK4, _backend_gtk.RubberbandGTK)
 Toolbar = ToolbarGTK4
+FigureManagerGTK4._toolbar2_class = NavigationToolbar2GTK4
+FigureManagerGTK4._toolmanager_toolbar_class = ToolbarGTK4
 
 
-@_Backend.export
+@_BackendGTK.export
 class _BackendGTK4(_BackendGTK):
     FigureCanvas = FigureCanvasGTK4
     FigureManager = FigureManagerGTK4

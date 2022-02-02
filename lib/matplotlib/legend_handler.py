@@ -464,14 +464,13 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
         legend_handle.set_clip_box(None)
         legend_handle.set_clip_path(None)
 
-    def create_collection(self, orig_handle, sizes, offsets, transOffset):
-        p = type(orig_handle)(orig_handle.get_numsides(),
-                              rotation=orig_handle.get_rotation(),
-                              sizes=sizes,
-                              offsets=offsets,
-                              transOffset=transOffset,
-                              )
-        return p
+    @_api.rename_parameter("3.6", "transOffset", "offset_transform")
+    def create_collection(self, orig_handle, sizes, offsets, offset_transform):
+        return type(orig_handle)(
+            orig_handle.get_numsides(),
+            rotation=orig_handle.get_rotation(), sizes=sizes,
+            offsets=offsets, offset_transform=offset_transform,
+        )
 
     def create_artists(self, legend, orig_handle,
                        xdescent, ydescent, width, height, fontsize,
@@ -485,34 +484,33 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
         sizes = self.get_sizes(legend, orig_handle, xdescent, ydescent,
                                width, height, fontsize)
 
-        p = self.create_collection(orig_handle, sizes,
-                                   offsets=list(zip(xdata_marker, ydata)),
-                                   transOffset=trans)
+        p = self.create_collection(
+            orig_handle, sizes,
+            offsets=list(zip(xdata_marker, ydata)), offset_transform=trans)
 
         self.update_prop(p, orig_handle, legend)
-        p._transOffset = trans
+        p.set_offset_transform(trans)
         return [p]
 
 
 class HandlerPathCollection(HandlerRegularPolyCollection):
     r"""Handler for `.PathCollection`\s, which are used by `~.Axes.scatter`."""
-    def create_collection(self, orig_handle, sizes, offsets, transOffset):
-        p = type(orig_handle)([orig_handle.get_paths()[0]],
-                              sizes=sizes,
-                              offsets=offsets,
-                              transOffset=transOffset,
-                              )
-        return p
+
+    @_api.rename_parameter("3.6", "transOffset", "offset_transform")
+    def create_collection(self, orig_handle, sizes, offsets, offset_transform):
+        return type(orig_handle)(
+            [orig_handle.get_paths()[0]], sizes=sizes,
+            offsets=offsets, offset_transform=offset_transform,
+        )
 
 
 class HandlerCircleCollection(HandlerRegularPolyCollection):
     r"""Handler for `.CircleCollection`\s."""
-    def create_collection(self, orig_handle, sizes, offsets, transOffset):
-        p = type(orig_handle)(sizes,
-                              offsets=offsets,
-                              transOffset=transOffset,
-                              )
-        return p
+
+    @_api.rename_parameter("3.6", "transOffset", "offset_transform")
+    def create_collection(self, orig_handle, sizes, offsets, offset_transform):
+        return type(orig_handle)(
+            sizes, offsets=offsets, offset_transform=offset_transform)
 
 
 class HandlerErrorbar(HandlerLine2D):
@@ -788,6 +786,8 @@ class HandlerPolyCollection(HandlerBase):
         # Directly set Patch color attributes (must be RGBA tuples).
         legend_handle._facecolor = first_color(orig_handle.get_facecolor())
         legend_handle._edgecolor = first_color(orig_handle.get_edgecolor())
+        legend_handle._original_facecolor = orig_handle._original_facecolor
+        legend_handle._original_edgecolor = orig_handle._original_edgecolor
         legend_handle._fill = orig_handle.get_fill()
         legend_handle._hatch = orig_handle.get_hatch()
         # Hatch color is anomalous in having no getters and setters.

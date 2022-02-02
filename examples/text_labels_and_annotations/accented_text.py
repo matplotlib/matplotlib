@@ -1,9 +1,9 @@
 r"""
 =================================
-Using accented text in matplotlib
+Using accented text in Matplotlib
 =================================
 
-Matplotlib supports accented characters via TeX mathtext or unicode.
+Matplotlib supports accented characters via TeX mathtext or Unicode.
 
 Using mathtext, the following accents are provided: \\hat, \\breve, \\grave,
 \\bar, \\acute, \\tilde, \\vec, \\dot, \\ddot.  All of them have the same
@@ -24,7 +24,8 @@ ax.set_xlabel(r"""$\"o\ddot o \'e\`e\~n\.x\^y$""", fontsize=20)
 ax.text(4, 0.5, r"$F=m\ddot{x}$")
 fig.tight_layout()
 
-# Unicode demo
+#############################################################################
+# You can also use Unicode characters directly in strings.
 fig, ax = plt.subplots()
 ax.set_title("GISCARD CHAHUTÉ À L'ASSEMBLÉE")
 ax.set_xlabel("LE COUP DE DÉ DE DE GAULLE")

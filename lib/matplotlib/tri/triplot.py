@@ -1,5 +1,7 @@
 import numpy as np
 from matplotlib.tri.triangulation import Triangulation
+import matplotlib.cbook as cbook
+import matplotlib.lines as mlines
 
 
 def triplot(ax, *args, **kwargs):
@@ -42,11 +44,11 @@ def triplot(ax, *args, **kwargs):
     linestyle, marker, color = matplotlib.axes._base._process_plot_format(fmt)
 
     # Insert plot format string into a copy of kwargs (kwargs values prevail).
-    kw = kwargs.copy()
+    kw = cbook.normalize_kwargs(kwargs, mlines.Line2D)
     for key, val in zip(('linestyle', 'marker', 'color'),
                         (linestyle, marker, color)):
         if val is not None:
-            kw[key] = kwargs.get(key, val)
+            kw.setdefault(key, val)
 
     # Draw lines without markers.
     # Note 1: If we drew markers here, most markers would be drawn more than

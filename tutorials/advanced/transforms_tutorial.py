@@ -73,9 +73,9 @@ Note that specifying objects in *display* coordinates will change their
 location if the ``dpi`` of the figure changes.  This can cause confusion when
 printing or changing screen resolution, because the object can change location
 and size.  Therefore it is most common
-for artists placed in an axes or figure to have their transform set to
+for artists placed in an Axes or figure to have their transform set to
 something *other* than the `~.transforms.IdentityTransform()`; the default when
-an artist is placed on an axes using `~.axes.Axes.add_artist` is for the
+an artist is placed on an Axes using `~.axes.Axes.add_artist` is for the
 transform to be ``ax.transData``.
 
 .. _data-coords:

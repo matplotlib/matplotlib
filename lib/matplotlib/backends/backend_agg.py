@@ -35,8 +35,7 @@ import matplotlib as mpl
 from matplotlib import _api, cbook
 from matplotlib import colors as mcolors
 from matplotlib.backend_bases import (
-    _Backend, _check_savefig_extra_args, FigureCanvasBase, FigureManagerBase,
-    RendererBase)
+    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.font_manager import findfont, get_font
 from matplotlib.ft2font import (LOAD_FORCE_AUTOHINT, LOAD_NO_HINTING,
                                 LOAD_DEFAULT, LOAD_NO_AUTOHINT)
@@ -428,7 +427,8 @@ class FigureCanvasAgg(FigureCanvasBase):
 
     def draw(self):
         # docstring inherited
-        self.renderer = self.get_renderer(cleared=True)
+        self.renderer = self.get_renderer()
+        self.renderer.clear()
         # Acquire a lock on the shared font cache.
         with RendererAgg.lock, \
              (self.toolbar._wait_cursor_for_draw_cm() if self.toolbar
@@ -438,6 +438,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             # don't forget to call the superclass.
             super().draw()
 
+    @_api.delete_parameter("3.6", "cleared", alternative="renderer.clear()")
     def get_renderer(self, cleared=False):
         w, h = self.figure.bbox.size
         key = w, h, self.figure.dpi
@@ -477,7 +478,6 @@ class FigureCanvasAgg(FigureCanvasBase):
         """
         return self.renderer.buffer_rgba()
 
-    @_check_savefig_extra_args
     @_api.delete_parameter("3.5", "args")
     def print_raw(self, filename_or_obj, *args):
         FigureCanvasAgg.draw(self)
@@ -497,7 +497,6 @@ class FigureCanvasAgg(FigureCanvasBase):
             filename_or_obj, self.buffer_rgba(), format=fmt, origin="upper",
             dpi=self.figure.dpi, metadata=metadata, pil_kwargs=pil_kwargs)
 
-    @_check_savefig_extra_args
     @_api.delete_parameter("3.5", "args")
     def print_png(self, filename_or_obj, *args,
                   metadata=None, pil_kwargs=None):
@@ -559,26 +558,21 @@ class FigureCanvasAgg(FigureCanvasBase):
     # print_figure(), and the latter ensures that `self.figure.dpi` already
     # matches the dpi kwarg (if any).
 
-    @_check_savefig_extra_args()
     @_api.delete_parameter("3.5", "args")
-    def print_jpg(self, filename_or_obj, *args, pil_kwargs=None, **kwargs):
-        # Remove transparency by alpha-blending on an assumed white background.
-        r, g, b, a = mcolors.to_rgba(self.figure.get_facecolor())
-        try:
-            self.figure.set_facecolor(a * np.array([r, g, b]) + 1 - a)
+    def print_jpg(self, filename_or_obj, *args, pil_kwargs=None):
+        # savefig() has already applied savefig.facecolor; we now set it to
+        # white to make imsave() blend semi-transparent figures against an
+        # assumed white background.
+        with mpl.rc_context({"savefig.facecolor": "white"}):
             self._print_pil(filename_or_obj, "jpeg", pil_kwargs)
-        finally:
-            self.figure.set_facecolor((r, g, b, a))
 
     print_jpeg = print_jpg
 
-    @_check_savefig_extra_args
     def print_tif(self, filename_or_obj, *, pil_kwargs=None):
         self._print_pil(filename_or_obj, "tiff", pil_kwargs)
 
     print_tiff = print_tif
 
-    @_check_savefig_extra_args
     def print_webp(self, filename_or_obj, *, pil_kwargs=None):
         self._print_pil(filename_or_obj, "webp", pil_kwargs)
 

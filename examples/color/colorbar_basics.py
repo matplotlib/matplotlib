@@ -3,8 +3,8 @@
 Colorbar
 ========
 
-Use `~.figure.Figure.colorbar` by specifying the mappable object (here
-the `~.matplotlib.image.AxesImage` returned by `~.axes.Axes.imshow`)
+Use `~.Figure.colorbar` by specifying the mappable object (here
+the `.AxesImage` returned by `~.axes.Axes.imshow`)
 and the axes to attach the colorbar to.
 """
 

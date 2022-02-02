@@ -46,7 +46,7 @@ Learning resources
     Tutorials
     ^^^^^^^^^
 
-    - :doc:`Quick-start guide <tutorials/introductory/usage>`
+    - :doc:`Quick-start guide <tutorials/introductory/quick_start>`
     - :doc:`Plot types <plot_types/index>`
     - `Introductory tutorials <../tutorials/index.html#introductory>`_
     - :doc:`External learning resources <users/resources/index>`
@@ -56,7 +56,7 @@ Learning resources
     How-tos
     ^^^^^^^
     - :doc:`Example gallery <gallery/index>`
-    - :doc:`Matplotlib FAQ <faq/index>`
+    - :doc:`Matplotlib FAQ <users/faq/index>`
 
     ---
 

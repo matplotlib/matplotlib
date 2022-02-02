@@ -7,10 +7,11 @@ import matplotlib.colors as mcolors
 from matplotlib import rc_context
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-from matplotlib.colors import BoundaryNorm, LogNorm, PowerNorm, Normalize
+from matplotlib.colors import (
+    BoundaryNorm, LogNorm, PowerNorm, Normalize, NoNorm
+)
 from matplotlib.colorbar import Colorbar
-from matplotlib.ticker import FixedLocator
-
+from matplotlib.ticker import FixedLocator, LogFormatter
 from matplotlib.testing.decorators import check_figures_equal
 
 
@@ -183,6 +184,17 @@ def test_colorbar_positioning(use_gridspec):
                  panchor=False, use_gridspec=use_gridspec)
     plt.colorbar(ax=[ax1], location='bottom', panchor=False,
                  anchor=(0.8, 0.5), shrink=0.6, use_gridspec=use_gridspec)
+
+
+@image_comparison(['contour_colorbar.png'], remove_text=True)
+def test_contour_colorbar():
+    fig, ax = plt.subplots(figsize=(4, 2))
+    data = np.arange(1200).reshape(30, 40) - 500
+    levels = np.array([0, 200, 400, 600, 800, 1000, 1200]) - 500
+
+    CS = ax.contour(data, levels=levels, extend='both')
+    fig.colorbar(CS, orientation='horizontal', extend='both')
+    fig.colorbar(CS, orientation='vertical')
 
 
 @image_comparison(['cbar_with_subplots_adjust.png'], remove_text=True,
@@ -565,7 +577,7 @@ def test_colorbar_format(fmt):
     im.set_norm(LogNorm(vmin=0.1, vmax=10))
     fig.canvas.draw()
     assert (cbar.ax.yaxis.get_ticklabels()[0].get_text() ==
-            r'$\mathdefault{10^{-2}}$')
+            '$\\mathdefault{10^{\N{Minus Sign}2}}$')
 
 
 def test_colorbar_scale_reset():
@@ -873,3 +885,97 @@ def test_proportional_colorbars():
             CS3 = axs[i, j].contourf(X, Y, Z, levels, cmap=cmap, norm=norm,
                                      extend=extends[i])
             fig.colorbar(CS3, spacing=spacings[j], ax=axs[i, j])
+
+
+def test_negative_boundarynorm():
+    fig, ax = plt.subplots(figsize=(1, 3))
+    cmap = plt.get_cmap("viridis")
+
+    clevs = np.arange(-94, -85)
+    norm = BoundaryNorm(clevs, cmap.N)
+    cb = fig.colorbar(cm.ScalarMappable(cmap=cmap, norm=norm), cax=ax)
+    np.testing.assert_allclose(cb.ax.get_ylim(), [clevs[0], clevs[-1]])
+    np.testing.assert_allclose(cb.ax.get_yticks(), clevs)
+
+    clevs = np.arange(85, 94)
+    norm = BoundaryNorm(clevs, cmap.N)
+    cb = fig.colorbar(cm.ScalarMappable(cmap=cmap, norm=norm), cax=ax)
+    np.testing.assert_allclose(cb.ax.get_ylim(), [clevs[0], clevs[-1]])
+    np.testing.assert_allclose(cb.ax.get_yticks(), clevs)
+
+    clevs = np.arange(-3, 3)
+    norm = BoundaryNorm(clevs, cmap.N)
+    cb = fig.colorbar(cm.ScalarMappable(cmap=cmap, norm=norm), cax=ax)
+    np.testing.assert_allclose(cb.ax.get_ylim(), [clevs[0], clevs[-1]])
+    np.testing.assert_allclose(cb.ax.get_yticks(), clevs)
+
+    clevs = np.arange(-8, 1)
+    norm = BoundaryNorm(clevs, cmap.N)
+    cb = fig.colorbar(cm.ScalarMappable(cmap=cmap, norm=norm), cax=ax)
+    np.testing.assert_allclose(cb.ax.get_ylim(), [clevs[0], clevs[-1]])
+    np.testing.assert_allclose(cb.ax.get_yticks(), clevs)
+
+
+@image_comparison(['nonorm_colorbars.svg'], remove_text=False,
+                  style='mpl20')
+def test_nonorm():
+    plt.rcParams['svg.fonttype'] = 'none'
+    data = [1, 2, 3, 4, 5]
+
+    fig, ax = plt.subplots(figsize=(6, 1))
+    fig.subplots_adjust(bottom=0.5)
+
+    norm = NoNorm(vmin=min(data), vmax=max(data))
+    cmap = cm.get_cmap("viridis", len(data))
+    mappable = cm.ScalarMappable(norm=norm, cmap=cmap)
+    cbar = fig.colorbar(mappable, cax=ax, orientation="horizontal")
+
+
+@image_comparison(['test_boundaries.png'], remove_text=True,
+                  style='mpl20')
+def test_boundaries():
+    np.random.seed(seed=19680808)
+    fig, ax = plt.subplots(figsize=(2, 2))
+    pc = ax.pcolormesh(np.random.randn(10, 10), cmap='RdBu_r')
+    cb = fig.colorbar(pc, ax=ax, boundaries=np.linspace(-3, 3, 7))
+
+
+def test_colorbar_no_warning_rcparams_grid_true():
+    # github issue #21723 - If mpl style has 'axes.grid' = True,
+    # fig.colorbar raises a warning about Auto-removal of grids
+    # by pcolor() and pcolormesh(). This is fixed by PR #22216.
+    plt.rcParams['axes.grid'] = True
+    fig, ax = plt.subplots()
+    ax.grid(False)
+    im = ax.pcolormesh([0, 1], [0, 1], [[1]])
+    # make sure that no warning is raised by fig.colorbar
+    fig.colorbar(im)
+
+
+def test_colorbar_set_formatter_locator():
+    # check that the locator properties echo what is on the axis:
+    fig, ax = plt.subplots()
+    pc = ax.pcolormesh(np.random.randn(10, 10))
+    cb = fig.colorbar(pc)
+    cb.ax.yaxis.set_major_locator(FixedLocator(np.arange(10)))
+    cb.ax.yaxis.set_minor_locator(FixedLocator(np.arange(0, 10, 0.2)))
+    assert cb.locator is cb.ax.yaxis.get_major_locator()
+    assert cb.minorlocator is cb.ax.yaxis.get_minor_locator()
+    cb.ax.yaxis.set_major_formatter(LogFormatter())
+    cb.ax.yaxis.set_minor_formatter(LogFormatter())
+    assert cb.formatter is cb.ax.yaxis.get_major_formatter()
+    assert cb.minorformatter is cb.ax.yaxis.get_minor_formatter()
+
+    # check that the setter works as expected:
+    loc = FixedLocator(np.arange(7))
+    cb.locator = loc
+    assert cb.ax.yaxis.get_major_locator() is loc
+    loc = FixedLocator(np.arange(0, 7, 0.1))
+    cb.minorlocator = loc
+    assert cb.ax.yaxis.get_minor_locator() is loc
+    fmt = LogFormatter()
+    cb.formatter = fmt
+    assert cb.ax.yaxis.get_major_formatter() is fmt
+    fmt = LogFormatter()
+    cb.minorformatter = fmt
+    assert cb.ax.yaxis.get_minor_formatter() is fmt

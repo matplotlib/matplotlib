@@ -11,7 +11,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.testing import _has_tex_package, _check_for_pgf
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
-from matplotlib.backends.backend_pgf import PdfPages, common_texification
+from matplotlib.backends.backend_pgf import PdfPages, _tex_escape
 from matplotlib.testing.decorators import (_image_directories,
                                            check_figures_equal,
                                            image_comparison)
@@ -73,8 +73,8 @@ def create_figure():
     ('% not a comment', r'\% not a comment'),
     ('^not', r'\^not'),
 ])
-def test_common_texification(plain_text, escaped_text):
-    assert common_texification(plain_text) == escaped_text
+def test_tex_escape(plain_text, escaped_text):
+    assert _tex_escape(plain_text) == escaped_text
 
 
 # test compiling a figure to pdf with xelatex
@@ -312,10 +312,12 @@ def test_bbox_inches_tight():
 
 @needs_xelatex
 @needs_ghostscript
-def test_png():
-    # Just a smoketest.
-    fig, ax = plt.subplots()
-    fig.savefig(BytesIO(), format="png", backend="pgf")
+def test_png_transparency():  # Actually, also just testing that png works.
+    buf = BytesIO()
+    plt.figure().savefig(buf, format="png", backend="pgf", transparent=True)
+    buf.seek(0)
+    t = plt.imread(buf)
+    assert (t[..., 3] == 0).all()  # fully transparent.
 
 
 @needs_xelatex

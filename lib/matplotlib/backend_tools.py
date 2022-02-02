@@ -83,7 +83,9 @@ class ToolBase:
     Keymap to associate with this tool.
 
     ``list[str]``: List of keys that will trigger this tool when a keypress
-    event is emitted on ``self.figure.canvas``.
+    event is emitted on ``self.figure.canvas``.  Note that this attribute is
+    looked up on the instance, and can therefore be a property (this is used
+    e.g. by the built-in tools to load the rcParams at instantiation time).
     """
 
     description = None
@@ -307,7 +309,7 @@ class SetCursorBase(ToolBase):
             self.canvas.set_cursor(self._default_cursor)
             self._last_cursor = self._default_cursor
 
-    @_api.deprecated("3.5", alternative="figure.canvas.set_cursor")
+    @_api.deprecated("3.5", alternative="`.FigureCanvasBase.set_cursor`")
     def set_cursor(self, cursor):
         """
         Set the cursor.
@@ -382,7 +384,7 @@ class ToolQuit(ToolBase):
     """Tool to call the figure manager destroy method."""
 
     description = 'Quit the figure'
-    default_keymap = mpl.rcParams['keymap.quit']
+    default_keymap = property(lambda self: mpl.rcParams['keymap.quit'])
 
     def trigger(self, sender, event, data=None):
         Gcf.destroy_fig(self.figure)
@@ -392,7 +394,7 @@ class ToolQuitAll(ToolBase):
     """Tool to call the figure manager destroy method."""
 
     description = 'Quit all figures'
-    default_keymap = mpl.rcParams['keymap.quit_all']
+    default_keymap = property(lambda self: mpl.rcParams['keymap.quit_all'])
 
     def trigger(self, sender, event, data=None):
         Gcf.destroy_all()
@@ -402,7 +404,7 @@ class ToolGrid(ToolBase):
     """Tool to toggle the major grids of the figure."""
 
     description = 'Toggle major grids'
-    default_keymap = mpl.rcParams['keymap.grid']
+    default_keymap = property(lambda self: mpl.rcParams['keymap.grid'])
 
     def trigger(self, sender, event, data=None):
         sentinel = str(uuid.uuid4())
@@ -417,7 +419,7 @@ class ToolMinorGrid(ToolBase):
     """Tool to toggle the major and minor grids of the figure."""
 
     description = 'Toggle major and minor grids'
-    default_keymap = mpl.rcParams['keymap.grid_minor']
+    default_keymap = property(lambda self: mpl.rcParams['keymap.grid_minor'])
 
     def trigger(self, sender, event, data=None):
         sentinel = str(uuid.uuid4())
@@ -428,16 +430,13 @@ class ToolMinorGrid(ToolBase):
             mpl.backend_bases.key_press_handler(event, self.figure.canvas)
 
 
-class ToolFullScreen(ToolToggleBase):
+class ToolFullScreen(ToolBase):
     """Tool to toggle full screen."""
 
     description = 'Toggle fullscreen mode'
-    default_keymap = mpl.rcParams['keymap.fullscreen']
+    default_keymap = property(lambda self: mpl.rcParams['keymap.fullscreen'])
 
-    def enable(self, event):
-        self.figure.canvas.manager.full_screen_toggle()
-
-    def disable(self, event):
+    def trigger(self, sender, event, data=None):
         self.figure.canvas.manager.full_screen_toggle()
 
 
@@ -462,7 +461,7 @@ class ToolYScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic scales on the Y axis."""
 
     description = 'Toggle scale Y axis'
-    default_keymap = mpl.rcParams['keymap.yscale']
+    default_keymap = property(lambda self: mpl.rcParams['keymap.yscale'])
 
     def set_scale(self, ax, scale):
         ax.set_yscale(scale)
@@ -472,7 +471,7 @@ class ToolXScale(AxisScaleBase):
     """Tool to toggle between linear and logarithmic scales on the X axis."""
 
     description = 'Toggle scale X axis'
-    default_keymap = mpl.rcParams['keymap.xscale']
+    default_keymap = property(lambda self: mpl.rcParams['keymap.xscale'])
 
     def set_scale(self, ax, scale):
         ax.set_xscale(scale)
@@ -626,7 +625,7 @@ class ToolHome(ViewsPositionsBase):
 
     description = 'Reset original view'
     image = 'home'
-    default_keymap = mpl.rcParams['keymap.home']
+    default_keymap = property(lambda self: mpl.rcParams['keymap.home'])
     _on_trigger = 'home'
 
 
@@ -635,7 +634,7 @@ class ToolBack(ViewsPositionsBase):
 
     description = 'Back to previous view'
     image = 'back'
-    default_keymap = mpl.rcParams['keymap.back']
+    default_keymap = property(lambda self: mpl.rcParams['keymap.back'])
     _on_trigger = 'back'
 
 
@@ -644,7 +643,7 @@ class ToolForward(ViewsPositionsBase):
 
     description = 'Forward to next view'
     image = 'forward'
-    default_keymap = mpl.rcParams['keymap.forward']
+    default_keymap = property(lambda self: mpl.rcParams['keymap.forward'])
     _on_trigger = 'forward'
 
 
@@ -660,7 +659,7 @@ class SaveFigureBase(ToolBase):
 
     description = 'Save the figure'
     image = 'filesave'
-    default_keymap = mpl.rcParams['keymap.save']
+    default_keymap = property(lambda self: mpl.rcParams['keymap.save'])
 
 
 class ZoomPanBase(ToolToggleBase):
@@ -735,7 +734,7 @@ class ToolZoom(ZoomPanBase):
 
     description = 'Zoom to rectangle'
     image = 'zoom_to_rect'
-    default_keymap = mpl.rcParams['keymap.zoom']
+    default_keymap = property(lambda self: mpl.rcParams['keymap.zoom'])
     cursor = cursors.SELECT_REGION
     radio_group = 'default'
 
@@ -859,7 +858,7 @@ class ToolZoom(ZoomPanBase):
 class ToolPan(ZoomPanBase):
     """Pan axes with left mouse, zoom with right."""
 
-    default_keymap = mpl.rcParams['keymap.pan']
+    default_keymap = property(lambda self: mpl.rcParams['keymap.pan'])
     description = 'Pan axes with left mouse, zoom with right'
     image = 'move'
     cursor = cursors.MOVE
@@ -924,7 +923,7 @@ class ToolPan(ZoomPanBase):
 
 class ToolHelpBase(ToolBase):
     description = 'Print tool list, shortcuts and description'
-    default_keymap = mpl.rcParams['keymap.help']
+    default_keymap = property(lambda self: mpl.rcParams['keymap.help'])
     image = 'help'
 
     @staticmethod
@@ -964,7 +963,7 @@ class ToolCopyToClipboardBase(ToolBase):
     """Tool to copy the figure to the clipboard."""
 
     description = 'Copy the canvas figure to clipboard'
-    default_keymap = mpl.rcParams['keymap.copy']
+    default_keymap = property(lambda self: mpl.rcParams['keymap.copy'])
 
     def trigger(self, *args, **kwargs):
         message = "Copy tool is not available"

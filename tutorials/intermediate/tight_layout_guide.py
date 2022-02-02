@@ -117,7 +117,7 @@ plt.tight_layout()
 ###############################################################################
 # It works with subplots created with
 # :func:`~matplotlib.pyplot.subplot2grid`. In general, subplots created
-# from the gridspec (:doc:`/tutorials/intermediate/gridspec`) will work.
+# from the gridspec (:doc:`/tutorials/intermediate/arranging_axes`) will work.
 
 plt.close('all')
 fig = plt.figure()
@@ -276,7 +276,7 @@ plt.tight_layout()
 
 ###############################################################################
 # Another option is to use the AxesGrid1 toolkit to
-# explicitly create an axes for the colorbar.
+# explicitly create an Axes for the colorbar.
 
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 

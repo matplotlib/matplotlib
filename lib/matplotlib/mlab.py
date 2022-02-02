@@ -271,7 +271,7 @@ def _stride_windows(x, n, noverlap=0, axis=0):
         if axis == 0:
             return x[np.newaxis]
         else:
-            return x[np.newaxis].transpose()
+            return x[np.newaxis].T
     if n > x.size:
         raise ValueError('n cannot be greater than the length of x')
 
@@ -851,7 +851,6 @@ class GaussianKDE:
     dataset : array-like
         Datapoints to estimate from. In case of univariate data this is a 1-D
         array, otherwise a 2D array with shape (# of dims, # of data).
-
     bw_method : str, scalar or callable, optional
         The method used to calculate the estimator bandwidth.  This can be
         'scott', 'silverman', a scalar constant or a callable.  If a
@@ -862,22 +861,17 @@ class GaussianKDE:
     Attributes
     ----------
     dataset : ndarray
-        The dataset with which `gaussian_kde` was initialized.
-
+        The dataset passed to the constructor.
     dim : int
         Number of dimensions.
-
     num_dp : int
         Number of datapoints.
-
     factor : float
         The bandwidth factor, obtained from `kde.covariance_factor`, with which
         the covariance matrix is multiplied.
-
     covariance : ndarray
         The covariance matrix of *dataset*, scaled by the calculated bandwidth
         (`kde.factor`).
-
     inv_cov : ndarray
         The inverse of *covariance*.
 
@@ -885,10 +879,8 @@ class GaussianKDE:
     -------
     kde.evaluate(points) : ndarray
         Evaluate the estimated pdf on a provided set of points.
-
     kde(points) : ndarray
         Same as kde.evaluate(points)
-
     """
 
     # This implementation with minor modification was too good to pass up.

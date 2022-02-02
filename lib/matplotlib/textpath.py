@@ -292,7 +292,7 @@ class TextToPath:
             # If psfonts.map specifies an encoding, use it: it gives us a
             # mapping of glyph indices to Adobe glyph names; use it to convert
             # dvi indices to glyph names and use the FreeType-synthesized
-            # unicode charmap to convert glyph names to glyph indices (with
+            # Unicode charmap to convert glyph names to glyph indices (with
             # FT_Get_Name_Index/get_name_index), and load the glyph using
             # FT_Load_Glyph/load_glyph.  (That charmap has a coverage at least
             # as good as, and possibly better than, the native charmaps.)

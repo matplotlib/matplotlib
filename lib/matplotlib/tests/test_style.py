@@ -174,3 +174,12 @@ def test_xkcd_cm():
     with plt.xkcd():
         assert mpl.rcParams["path.sketch"] == (1, 100, 2)
     assert mpl.rcParams["path.sketch"] is None
+
+
+def test_deprecated_seaborn_styles():
+    with mpl.style.context("seaborn0.8-bright"):
+        seaborn_bright = mpl.rcParams.copy()
+    assert mpl.rcParams != seaborn_bright
+    with pytest.warns(mpl._api.MatplotlibDeprecationWarning):
+        mpl.style.use("seaborn-bright")
+    assert mpl.rcParams == seaborn_bright

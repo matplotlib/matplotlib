@@ -5,6 +5,14 @@ Pong
 
 A Matplotlib based game of Pong illustrating one way to write interactive
 animations that are easily ported to multiple backends.
+
+.. note::
+    This example exercises the interactive capabilities of Matplotlib, and this
+    will not appear in the static documentation. Please run this code on your
+    machine to see the interactivity.
+
+    You can copy and paste individual parts, or download the entire example
+    using the link at the bottom of the page.
 """
 
 import time

@@ -197,7 +197,7 @@ Contour color autoscaling improvements
 Selection of contour levels is now the same for contour and
 contourf; previously, for contour, levels outside the data range were
 deleted.  (Exception: if no contour levels are found within the
-data range, the `levels` attribute is replaced with a list holding
+data range, the ``levels`` attribute is replaced with a list holding
 only the minimum of the data range.)
 
 When contour is called with levels specified as a target number rather

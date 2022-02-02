@@ -1,6 +1,5 @@
 import functools
 import itertools
-import platform
 
 import pytest
 
@@ -62,15 +61,15 @@ def test_bar3d_shaded():
     x2d, y2d = x2d.ravel(), y2d.ravel()
     z = x2d + y2d + 1  # Avoid triggering bug with zero-depth boxes.
 
-    views = [(-60, 30), (30, 30), (30, -30), (120, -30)]
+    views = [(30, -60, 0), (30, 30, 30), (-30, 30, -90), (300, -30, 0)]
     fig = plt.figure(figsize=plt.figaspect(1 / len(views)))
     axs = fig.subplots(
         1, len(views),
         subplot_kw=dict(projection='3d')
     )
-    for ax, (azim, elev) in zip(axs, views):
+    for ax, (elev, azim, roll) in zip(axs, views):
         ax.bar3d(x2d, y2d, x2d * 0, 1, 1, z, shade=True)
-        ax.view_init(azim=azim, elev=elev)
+        ax.view_init(elev=elev, azim=azim, roll=roll)
     fig.canvas.draw()
 
 
@@ -387,10 +386,10 @@ def test_marker_draw_order_data_reversed(fig_test, fig_ref, azim):
     color = ['b', 'y']
     ax = fig_test.add_subplot(projection='3d')
     ax.scatter(x, y, z, s=3500, c=color)
-    ax.view_init(elev=0, azim=azim)
+    ax.view_init(elev=0, azim=azim, roll=0)
     ax = fig_ref.add_subplot(projection='3d')
     ax.scatter(x[::-1], y[::-1], z[::-1], s=3500, c=color[::-1])
-    ax.view_init(elev=0, azim=azim)
+    ax.view_init(elev=0, azim=azim, roll=0)
 
 
 @check_figures_equal(extensions=['png'])
@@ -410,11 +409,11 @@ def test_marker_draw_order_view_rotated(fig_test, fig_ref):
     # axis are not exactly invariant under 180 degree rotation -> deactivate
     ax.set_axis_off()
     ax.scatter(x, y, z, s=3500, c=color)
-    ax.view_init(elev=0, azim=azim)
+    ax.view_init(elev=0, azim=azim, roll=0)
     ax = fig_ref.add_subplot(projection='3d')
     ax.set_axis_off()
     ax.scatter(x, y, z, s=3500, c=color[::-1])  # color reversed
-    ax.view_init(elev=0, azim=azim - 180)  # view rotated by 180 degrees
+    ax.view_init(elev=0, azim=azim - 180, roll=0)  # view rotated by 180 deg
 
 
 @mpl3d_image_comparison(['plot_3d_from_2d.png'], tol=0.015)
@@ -483,7 +482,7 @@ def test_surface3d_masked():
     norm = mcolors.Normalize(vmax=z.max(), vmin=z.min())
     colors = plt.get_cmap("plasma")(norm(z))
     ax.plot_surface(x, y, z, facecolors=colors)
-    ax.view_init(30, -80)
+    ax.view_init(30, -80, 0)
 
 
 @mpl3d_image_comparison(['surface3d_masked_strides.png'])
@@ -495,7 +494,7 @@ def test_surface3d_masked_strides():
     z = np.ma.masked_less(x * y, 2)
 
     ax.plot_surface(x, y, z, rstride=4, cstride=4)
-    ax.view_init(60, -45)
+    ax.view_init(60, -45, 0)
 
 
 @mpl3d_image_comparison(['text3d.png'], remove_text=False)
@@ -547,7 +546,7 @@ def test_text3d_modification(fig_ref, fig_test):
         ax_ref.text(x, y, z, f'({x}, {y}, {z}), dir={zdir}', zdir=zdir)
 
 
-@mpl3d_image_comparison(['trisurf3d.png'], tol=0.03)
+@mpl3d_image_comparison(['trisurf3d.png'], tol=0.061)
 def test_trisurf3d():
     n_angles = 36
     n_radii = 8
@@ -850,7 +849,7 @@ def test_axes3d_cla():
 def test_axes3d_rotated():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection='3d')
-    ax.view_init(90, 45)  # look down, rotated. Should be square
+    ax.view_init(90, 45, 0)  # look down, rotated. Should be square
 
 
 def test_plotsurface_1d_raises():
@@ -870,8 +869,9 @@ def _test_proj_make_M():
     E = np.array([1000, -1000, 2000])
     R = np.array([100, 100, 100])
     V = np.array([0, 0, 1])
-    viewM = proj3d.view_transformation(E, R, V)
-    perspM = proj3d.persp_transformation(100, -100)
+    roll = 0
+    viewM = proj3d.view_transformation(E, R, V, roll)
+    perspM = proj3d.persp_transformation(100, -100, 1)
     M = np.dot(perspM, viewM)
     return M
 
@@ -935,7 +935,8 @@ def test_proj_axes_cube_ortho():
     E = np.array([200, 100, 100])
     R = np.array([0, 0, 0])
     V = np.array([0, 0, 1])
-    viewM = proj3d.view_transformation(E, R, V)
+    roll = 0
+    viewM = proj3d.view_transformation(E, R, V, roll)
     orthoM = proj3d.ortho_transformation(-1, 1)
     M = np.dot(orthoM, viewM)
 
@@ -1035,6 +1036,22 @@ def test_unautoscale(axis, auto):
     np.testing.assert_array_equal(get_lim(), (-0.5, 0.5))
 
 
+def test_axes3d_focal_length_checks():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    with pytest.raises(ValueError):
+        ax.set_proj_type('persp', focal_length=0)
+    with pytest.raises(ValueError):
+        ax.set_proj_type('ortho', focal_length=1)
+
+
+@mpl3d_image_comparison(['axes3d_focal_length.png'], remove_text=False)
+def test_axes3d_focal_length():
+    fig, axs = plt.subplots(1, 2, subplot_kw={'projection': '3d'})
+    axs[0].set_proj_type('persp', focal_length=np.inf)
+    axs[1].set_proj_type('persp', focal_length=0.15)
+
+
 @mpl3d_image_comparison(['axes3d_ortho.png'], remove_text=False)
 def test_axes3d_ortho():
     fig = plt.figure()
@@ -1054,7 +1071,7 @@ def test_axes3d_isometric():
     for s, e in combinations(np.array(list(product(r, r, r))), 2):
         if abs(s - e).sum() == r[1] - r[0]:
             ax.plot3D(*zip(s, e), c='k')
-    ax.view_init(elev=np.degrees(np.arctan(1. / np.sqrt(2))), azim=-45)
+    ax.view_init(elev=np.degrees(np.arctan(1. / np.sqrt(2))), azim=-45, roll=0)
     ax.grid(True)
 
 
@@ -1367,7 +1384,7 @@ def test_errorbar3d():
 
 
 @image_comparison(['stem3d.png'], style='mpl20',
-                  tol=0.0 if platform.machine() == 'x86_64' else 0.003)
+                  tol=0.003)
 def test_stem3d():
     fig, axs = plt.subplots(2, 3, figsize=(8, 6),
                             constrained_layout=True,
@@ -1606,7 +1623,7 @@ def test_computed_zorder():
                 linestyle='--',
                 color='green',
                 zorder=4)
-        ax.view_init(azim=-20, elev=20)
+        ax.view_init(elev=20, azim=-20, roll=0)
         ax.axis('off')
 
 
@@ -1693,7 +1710,7 @@ def test_view_init_vertical_axis(
     """
     rtol = 2e-06
     ax = plt.subplot(1, 1, 1, projection="3d")
-    ax.view_init(azim=0, elev=0, vertical_axis=vertical_axis)
+    ax.view_init(elev=0, azim=0, roll=0, vertical_axis=vertical_axis)
     ax.figure.canvas.draw()
 
     # Assert the projection matrix:
