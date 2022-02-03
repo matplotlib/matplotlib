@@ -8,6 +8,7 @@ Explanations
 .. toctree::
     :maxdepth: 2
 
+    api_interfaces.rst
     backends.rst
     interactive.rst
     fonts.rst
