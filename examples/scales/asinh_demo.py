@@ -36,8 +36,7 @@ transition between linear and logarithmic regions of the plot.
 
 .. note::
    `.scale.AsinhScale` is experimental, and the API may change.
-.. note::
-   `.scale.AsinhScale` is experimental, and the API may change.
+
 See `~.scale.AsinhScale`, `~.scale.SymmetricalLogScale`.
 """
 
