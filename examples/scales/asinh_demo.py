@@ -34,6 +34,8 @@ for all (finite) values, which is both mathematically cleaner
 and reduces visual artifacts associated with an abrupt
 transition between linear and logarithmic regions of the plot.
 
+.. note::
+   `.scale.AsinhScale` is experimental, and the API may change.
 See `~.scale.AsinhScale`, `~.scale.SymmetricalLogScale`.
 """
 

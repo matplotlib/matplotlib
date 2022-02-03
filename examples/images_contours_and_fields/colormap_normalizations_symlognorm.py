@@ -56,7 +56,7 @@ ax[1].text(-2.5, 1.5, 'linear')
 # In order to find the best visualization for any particular dataset,
 # it may be necessary to experiment with multiple different color scales.
 # As well as the `~.colors.SymLogNorm` scaling, there is also
-# the option of using the `~.colors.AsinhNorm`, which has a smoother
+# the option of using `~.colors.AsinhNorm` (experimental), which has a smoother
 # transition between the linear and logarithmic regions of the transformation
 # applied to the data values, "Z".
 # In the plots below, it may be possible to see contour-like artifacts

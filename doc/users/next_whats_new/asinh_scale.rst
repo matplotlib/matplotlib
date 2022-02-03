@@ -1,5 +1,5 @@
-New axis scale ``asinh``
-------------------------
+New axis scale ``asinh`` (experimental)
+---------------------------------------
 
 The new ``asinh`` axis scale offers an alternative to ``symlog`` that
 smoothly transitions between the quasi-linear and asymptotically logarithmic
