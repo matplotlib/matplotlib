@@ -4892,6 +4892,7 @@ default: :rc:`scatter.edgecolors`
 
         return collection
 
+    @_api.deprecated("3.6", alternative='annotate', removal='3.9')
     @docstring.dedent_interpd
     def arrow(self, x, y, dx, dy, **kwargs):
         """

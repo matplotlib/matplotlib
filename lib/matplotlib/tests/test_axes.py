@@ -31,7 +31,7 @@ import matplotlib.transforms as mtransforms
 from numpy.testing import (
     assert_allclose, assert_array_equal, assert_array_almost_equal)
 from matplotlib import rc_context
-from matplotlib.cbook import MatplotlibDeprecationWarning
+from matplotlib._api import MatplotlibDeprecationWarning
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
@@ -591,24 +591,27 @@ def test_arrow_simple():
         (length_includes_head, shape, head_starts_at_zero) = kwarg
         theta = 2 * np.pi * i / 12
         # Draw arrow
-        ax.arrow(0, 0, np.sin(theta), np.cos(theta),
-                 width=theta/100,
-                 length_includes_head=length_includes_head,
-                 shape=shape,
-                 head_starts_at_zero=head_starts_at_zero,
-                 head_width=theta / 10,
-                 head_length=theta / 10)
+        with pytest.warns(MatplotlibDeprecationWarning):
+            ax.arrow(0, 0, np.sin(theta), np.cos(theta),
+                     width=theta/100,
+                     length_includes_head=length_includes_head,
+                     shape=shape,
+                     head_starts_at_zero=head_starts_at_zero,
+                     head_width=theta / 10,
+                     head_length=theta / 10)
 
 
 def test_arrow_empty():
     _, ax = plt.subplots()
     # Create an empty FancyArrow
-    ax.arrow(0, 0, 0, 0, head_length=0)
+    with pytest.warns(MatplotlibDeprecationWarning):
+        ax.arrow(0, 0, 0, 0, head_length=0)
 
 
 def test_arrow_in_view():
     _, ax = plt.subplots()
-    ax.arrow(1, 1, 1, 1)
+    with pytest.warns(MatplotlibDeprecationWarning):
+        ax.arrow(1, 1, 1, 1)
     assert ax.get_xlim() == (0.8, 2.2)
     assert ax.get_ylim() == (0.8, 2.2)
 

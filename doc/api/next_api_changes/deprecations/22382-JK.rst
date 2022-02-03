@@ -1,0 +1,8 @@
+``arrow`` method is deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `~.axes.Axes.arrow` method is deprecated, and is scheduled to be
+removed in Matplotlib 3.9.  It only produces properly shaped
+arrow heads if the aspect ratio of the axes is 1, and the parameters to
+control the size of the arrow heads is in data space, and hence
+unintuitive.  Users should use `~.axes.Axes.annotate` to create arrows.

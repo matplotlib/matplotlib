@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from matplotlib import (
     collections as mcollections, colors as mcolors, patches as mpatches,
     path as mpath, transforms as mtransforms, rcParams)
+from matplotlib._api import MatplotlibDeprecationWarning
 
 import sys
 on_win = (sys.platform == 'win32')
@@ -604,7 +605,8 @@ def test_fancyarrow_units():
 
 def test_fancyarrow_setdata():
     fig, ax = plt.subplots()
-    arrow = ax.arrow(0, 0, 10, 10, head_length=5, head_width=1, width=.5)
+    with pytest.warns(MatplotlibDeprecationWarning):
+        arrow = ax.arrow(0, 0, 10, 10, head_length=5, head_width=1, width=.5)
     expected1 = np.array(
       [[13.54, 13.54],
        [10.35,  9.65],
