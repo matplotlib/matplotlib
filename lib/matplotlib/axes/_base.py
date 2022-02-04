@@ -2705,11 +2705,11 @@ class _AxesBase(martist.Artist):
             only the y-axis.
 
         tight : bool or None, default: True
-            The *tight* parameter is passed to :meth:`autoscale_view`,
+            The *tight* parameter is passed to `autoscale_view`,
             which is executed after a margin is changed; the default
             here is *True*, on the assumption that when margins are
             specified, no additional padding to match tick marks is
-            usually desired.  Set *tight* to *None* will preserve
+            usually desired.  Setting *tight* to *None* preserves
             the previous setting.
 
         Returns

@@ -510,41 +510,11 @@ class Axes3D(Axes):
 
     def margins(self, *margins, x=None, y=None, z=None, tight=True):
         """
-        Convenience method to set or retrieve autoscaling margins.
+        Set or retrieve autoscaling margins.
 
-        Call signatures::
-
-            margins()
-
-        returns xmargin, ymargin, zmargin
-
-        ::
-
-            margins(margin)
-
-            margins(xmargin, ymargin, zmargin)
-
-            margins(x=xmargin, y=ymargin, z=zmargin)
-
-            margins(..., tight=False)
-
-        All forms above set the xmargin, ymargin and zmargin
-        parameters. All keyword parameters are optional.  A single
-        positional argument specifies xmargin, ymargin and zmargin.
-        Passing both positional and keyword arguments for xmargin,
-        ymargin, and/or zmargin is invalid.
-
-        The *tight* parameter
-        is passed to :meth:`autoscale_view`, which is executed after
-        a margin is changed; the default here is *True*, on the
-        assumption that when margins are specified, no additional
-        padding to match tick marks is usually desired.  Setting
-        *tight* to *None* will preserve the previous setting.
-
-        Specifying any margin changes only the autoscaling; for example,
-        if *xmargin* is not None, then *xmargin* times the X data
-        interval will be added to each end of that interval before
-        it is used in autoscaling.
+        See `.Axes.margins` for full documentation.  Because this function
+        applies to 3D Axes, it also takes a *z* argument, and returns
+        ``(xmargin, ymargin, zmargin)``.
         """
         if margins and x is not None and y is not None and z is not None:
             raise TypeError('Cannot pass both positional and keyword '
@@ -577,10 +547,10 @@ class Axes3D(Axes):
     def autoscale(self, enable=True, axis='both', tight=None):
         """
         Convenience method for simple axis view autoscaling.
-        See :meth:`matplotlib.axes.Axes.autoscale` for full explanation.
-        Note that this function behaves the same, but for all
-        three axes.  Therefore, 'z' can be passed for *axis*,
-        and 'both' applies to all three axes.
+
+        See `.Axes.autoscale` for full documentation.  Because this function
+        applies to 3D Axes, *axis* can also be set to 'z', and setting *axis*
+        to 'both' autoscales all three axes.
         """
         if enable is None:
             scalex = True
@@ -624,9 +594,9 @@ class Axes3D(Axes):
                        scalez=True):
         """
         Autoscale the view limits using the data limits.
-        See :meth:`matplotlib.axes.Axes.autoscale_view` for documentation.
-        Note that this function applies to the 3D axes, and as such
-        adds the *scalez* to the function arguments.
+
+        See `.Axes.autoscale_view` for full documentation.  Because this
+        function applies to 3D Axes, it also takes a *scalez* argument.
         """
         # This method looks at the rectangular volume (see above)
         # of data and decides how to scale the view portal to fit it.
@@ -694,7 +664,7 @@ class Axes3D(Axes):
         """
         Set 3D x limits.
 
-        See :meth:`matplotlib.axes.Axes.set_xlim` for full documentation.
+        See `.Axes.set_xlim` for full documentation.
         """
         if right is None and np.iterable(left):
             left, right = left
@@ -751,7 +721,7 @@ class Axes3D(Axes):
         """
         Set 3D y limits.
 
-        See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation.
+        See `.Axes.set_ylim` for full documentation.
         """
         if top is None and np.iterable(bottom):
             bottom, top = bottom
@@ -809,7 +779,7 @@ class Axes3D(Axes):
         """
         Set 3D z limits.
 
-        See :meth:`matplotlib.axes.Axes.set_ylim` for full documentation
+        See `.Axes.set_ylim` for full documentation
         """
         if top is None and np.iterable(bottom):
             bottom, top = bottom
@@ -1358,8 +1328,8 @@ class Axes3D(Axes):
         .. note::
 
             Currently, this function does not behave the same as
-            :meth:`matplotlib.axes.Axes.grid`, but it is intended to
-            eventually support that behavior.
+            `.axes.Axes.grid`, but it is intended to eventually support that
+            behavior.
         """
         # TODO: Operate on each axes separately
         if len(kwargs):
@@ -1372,13 +1342,9 @@ class Axes3D(Axes):
         Convenience method for changing the appearance of ticks and
         tick labels.
 
-        See :meth:`matplotlib.axes.Axes.tick_params` for more complete
-        documentation.
-
-        The only difference is that setting *axis* to 'both' will
-        mean that the settings are applied to all three axes. Also,
-        the *axis* parameter also accepts a value of 'z', which
-        would mean to apply to only the z-axis.
+        See `.Axes.tick_params` for full documentation.  Because this function
+        applies to 3D Axes, *axis* can also be set to 'z', and setting *axis*
+        to 'both' autoscales all three axes.
 
         Also, because of how Axes3D objects are drawn very differently
         from regular 2D axes, some of these settings may have
@@ -2104,8 +2070,7 @@ class Axes3D(Axes):
         Parameters
         ----------
         X, Y, Z : array-like,
-            Input data. See `~matplotlib.axes.Axes.contour` for acceptable
-            data shapes.
+            Input data. See `.Axes.contour` for supported data shapes.
         extend3d : bool, default: False
             Whether to extend contour in 3D.
         stride : int
@@ -2149,8 +2114,7 @@ class Axes3D(Axes):
         Parameters
         ----------
         X, Y, Z : array-like
-            Input data. See `~matplotlib.axes.Axes.tricontour` for acceptable
-            data shapes.
+            Input data. See `.Axes.tricontour` for supported data shapes.
         extend3d : bool, default: False
             Whether to extend contour in 3D.
         stride : int
@@ -2208,8 +2172,7 @@ class Axes3D(Axes):
         Parameters
         ----------
         X, Y, Z : array-like
-            Input data. See `~matplotlib.axes.Axes.contourf` for acceptable
-            data shapes.
+            Input data. See `.Axes.contourf` for supported data shapes.
         zdir : {'x', 'y', 'z'}, default: 'z'
             The direction to use.
         offset : float, optional
@@ -2247,8 +2210,7 @@ class Axes3D(Axes):
         Parameters
         ----------
         X, Y, Z : array-like
-            Input data. See `~matplotlib.axes.Axes.tricontourf` for acceptable
-            data shapes.
+            Input data. See `.Axes.tricontourf` for supported data shapes.
         zdir : {'x', 'y', 'z'}, default: 'z'
             The direction to use.
         offset : float, optional
@@ -3056,7 +3018,7 @@ pivot='tail', normalize=False, **kwargs)
             this. *lims*-arguments may be scalars, or array-likes of the same
             length as the errors. To use limits with inverted axes,
             `~.Axes.set_xlim` or `~.Axes.set_ylim` must be called before
-            :meth:`errorbar`. Note the tricky parameter names: setting e.g.
+            `errorbar`. Note the tricky parameter names: setting e.g.
             *ylolims* to True means that the y-value is a *lower* limit of the
             True value, so, only an *upward*-pointing arrow will be drawn!
 
