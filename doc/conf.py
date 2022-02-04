@@ -162,6 +162,7 @@ intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
     'tornado': ('https://www.tornadoweb.org/en/stable/', None),
+    'xarray': ('https://xarray.pydata.org/en/stable/', None),
 }
 
 

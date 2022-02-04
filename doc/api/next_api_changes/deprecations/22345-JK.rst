@@ -1,0 +1,14 @@
+Pending deprecation of layout methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The methods `~.Figure.set_tight_layout`, `~.Figure.set_constrained_layout`,
+are discouraged, and now emit a ``PendingDeprecationWarning`` in favor of
+explicitly referencing the layout engine via
+``figure.set_layout_engine('tight')`` and
+``figure.set_layout_engine('constrained')``.  End users should not see the
+warning, but library authors should adjust.
+
+The methods `~.Figure.set_constrained_layout_pads` and
+`~.Figure.get_constrained_layout_pads` are will be deprecated in favor of
+``figure.get_layout_engine().set()`` and
+``figure.get_layout_engine().get()``, and currently emit a
+``PendingDeprecationWarning``.

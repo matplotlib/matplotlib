@@ -2249,11 +2249,12 @@ class Figure(FigureBase):
             # everything is None, so use default:
             self.set_layout_engine(layout=layout)
 
-        self.callbacks = cbook.CallbackRegistry()
+        self.callbacks = cbook.CallbackRegistry(signals=["dpi_changed"])
         # Callbacks traditionally associated with the canvas (and exposed with
         # a proxy property), but that actually need to be on the figure for
         # pickling.
-        self._canvas_callbacks = cbook.CallbackRegistry()
+        self._canvas_callbacks = cbook.CallbackRegistry(
+            signals=FigureCanvasBase.events)
         self._button_pick_id = self._canvas_callbacks.connect(
             'button_press_event', lambda event: self.canvas.pick(event))
         self._scroll_pick_id = self._canvas_callbacks.connect(
@@ -2455,10 +2456,15 @@ class Figure(FigureBase):
         """Return whether `.tight_layout` is called when drawing."""
         return isinstance(self.get_layout_engine(), TightLayoutEngine)
 
-    @_api.deprecated("3.6", alternative="set_layout_engine")
+    @_api.deprecated("3.6", alternative="set_layout_engine",
+                     pending=True)
     def set_tight_layout(self, tight):
         """
         Set whether and how `.tight_layout` is called when drawing.
+
+        .. admonition:: Discouraged
+
+            This method is discouraged in favor of `~.set_layout_engine`.
 
         Parameters
         ----------
@@ -2483,7 +2489,8 @@ class Figure(FigureBase):
         """
         return isinstance(self.get_layout_engine(), ConstrainedLayoutEngine)
 
-    @_api.deprecated("3.6", alternative="set_layout_engine('constrained')")
+    @_api.deprecated("3.6", alternative="set_layout_engine('constrained')",
+                     pending=True)
     def set_constrained_layout(self, constrained):
         """
         Set whether ``constrained_layout`` is used upon drawing. If None,
@@ -2494,7 +2501,9 @@ class Figure(FigureBase):
         overridden.  These pads are in inches and default to 3.0/72.0.
         ``w_pad`` is the width padding and ``h_pad`` is the height padding.
 
-        See :doc:`/tutorials/intermediate/constrainedlayout_guide`.
+        .. admonition:: Discouraged
+
+            This method is discouraged in favor of `~.set_layout_engine`.
 
         Parameters
         ----------
@@ -2509,7 +2518,8 @@ class Figure(FigureBase):
         self.stale = True
 
     @_api.deprecated(
-         "3.6", alternative="figure.get_layout_engine().set()")
+         "3.6", alternative="figure.get_layout_engine().set()",
+         pending=True)
     def set_constrained_layout_pads(self, **kwargs):
         """
         Set padding for ``constrained_layout``.
@@ -2541,7 +2551,8 @@ class Figure(FigureBase):
         if isinstance(self.get_layout_engine(), ConstrainedLayoutEngine):
             self.get_layout_engine().set(**kwargs)
 
-    @_api.deprecated("3.6", alternative="fig.get_layout_engine().get_info()")
+    @_api.deprecated("3.6", alternative="fig.get_layout_engine().get()",
+                     pending=True)
     def get_constrained_layout_pads(self, relative=False):
         """
         Get padding for ``constrained_layout``.
