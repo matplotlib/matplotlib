@@ -45,7 +45,7 @@ from . import axis3d
     "xlim3d": ["xlim"], "ylim3d": ["ylim"], "zlim3d": ["zlim"]})
 class Axes3D(Axes):
     """
-    3D axes object.
+    3D Axes object.
     """
     name = '3d'
 
@@ -80,7 +80,7 @@ class Axes3D(Axes):
             axis. A positive angle spins the camera clockwise, causing the
             scene to rotate counter-clockwise.
         sharez : Axes3D, optional
-            Other axes to share z-limits with.
+            Other Axes to share z-limits with.
         proj_type : {'persp', 'ortho'}
             The projection type, default 'persp'.
         box_aspect : 3-tuple of floats, default: None
@@ -281,7 +281,7 @@ class Axes3D(Axes):
         Set the aspect ratios.
 
         Axes 3D does not current support any aspect but 'auto' which fills
-        the axes with the data limits.
+        the Axes with the data limits.
 
         To simulate having equal aspect in data space, set the ratio
         of your data limits to match the value of `.get_box_aspect`.
@@ -339,7 +339,7 @@ class Axes3D(Axes):
 
     def set_box_aspect(self, aspect, *, zoom=1):
         """
-        Set the axes box aspect.
+        Set the Axes box aspect.
 
         The box aspect is the ratio of height to width in display
         units for each face of the box when viewed perpendicular to
@@ -405,7 +405,7 @@ class Axes3D(Axes):
         # this is duplicated from `axes._base._AxesBase.draw`
         # but must be called before any of the artist are drawn as
         # it adjusts the view limits and the size of the bounding box
-        # of the axes
+        # of the Axes
         locator = self.get_axes_locator()
         if locator:
             pos = locator(self, renderer)
@@ -1091,17 +1091,17 @@ class Axes3D(Axes):
 
     def can_zoom(self):
         """
-        Return whether this axes supports the zoom box button functionality.
+        Return whether this Axes supports the zoom box button functionality.
 
-        3D axes objects do not use the zoom box button.
+        Axes3D objects do not use the zoom box button.
         """
         return False
 
     def can_pan(self):
         """
-        Return whether this axes supports the pan/zoom button functionality.
+        Return whether this Axes supports the pan/zoom button functionality.
 
-        3D axes objects do not use the pan/zoom button.
+        Axes3d objects do not use the pan/zoom button.
         """
         return False
 
