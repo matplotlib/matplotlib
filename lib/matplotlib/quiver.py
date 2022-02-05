@@ -15,6 +15,7 @@ the Quiver code.
 """
 
 import math
+from numbers import Number
 import weakref
 
 import numpy as np
@@ -446,6 +447,10 @@ def _process_XY(X, Y, nc, nr):
     return X, Y
 
 
+def _extract_nr_nc(U):
+    return (1, U.shape[0]) if U.ndim == 1 else U.shape
+
+
 def _check_consistent_shapes(*arrays):
     all_shapes = {a.shape for a in arrays}
     if len(all_shapes) != 1:
@@ -497,10 +502,6 @@ class Quiver(mcollections.PolyCollection):
         self.angles = angles
         self.width = width
 
-        self.X, self.Y = _process_XY(X, Y, self._nr, self._nc)
-        self.XY = np.column_stack([self.X, self.Y])
-        self.N = len(self.X)
-
         if pivot.lower() == 'mid':
             pivot = 'middle'
         self.pivot = pivot.lower()
@@ -509,10 +510,14 @@ class Quiver(mcollections.PolyCollection):
         self.transform = kwargs.pop('transform', ax.transData)
         kwargs.setdefault('facecolors', color)
         kwargs.setdefault('linewidths', (0,))
-        super().__init__([], offsets=self.XY, offset_transform=self.transform,
+        super().__init__([], offset_transform=self.transform,
                          closed=False, **kwargs)
         self.polykw = kwargs
-        self.set_UVC(U, V, C)
+
+        self.X = self.Y = self.U = self.V = self.C = None
+        self.set_data(X, Y, U, V, C)
+        # self.U = self.V = self.C = None
+        # self.set_UVC(U, V, C)
         self._initialized = False
 
         weak_self = weakref.ref(self)  # Prevent closure over the real self.
@@ -573,17 +578,58 @@ class Quiver(mcollections.PolyCollection):
         self.stale = False
 
     def set_UVC(self, U, V, C=None):
+        self.set_data(U=U, V=V, C=C)
+
+    def set_XY(self, X, Y):
+        """
+        Update the locations of the arrows.
+
+        Parameters
+        ----------
+        X, Y : arraylike of float
+            The arrow locations, any shape is valid so long
+            as X and Y have the same size.
+        """
+        self.set_data(X=X, Y=Y)
+
+    def set_data(self, X=None, Y=None, U=None, V=None, C=None):
+        """
+        Update the locations and/or rotation and color of the arrows.
+
+        Parameters
+        ----------
+        X, Y : arraylike of float
+            The arrow locations, any shape is valid so long
+            as X and Y have the same size.
+        U, V : ???
+        C : ???
+        """
+        X = self.X if X is None else X
+        Y = self.Y if Y is None else Y
+        if U is None or isinstance(U, Number):
+            nr, nc = (self._nr, self._nc)
+        else:
+            nr, nc = _extract_nr_nc(U)
+        X, Y = _process_XY(X, Y, nc, nr)
+        N = len(X)
+
         # We need to ensure we have a copy, not a reference
         # to an array that might change before draw().
-        U = ma.masked_invalid(U, copy=True).ravel()
-        V = ma.masked_invalid(V, copy=True).ravel()
-        if C is not None:
-            C = ma.masked_invalid(C, copy=True).ravel()
+        U = ma.masked_invalid(self.U if U is None else U, copy=True).ravel()
+        V = ma.masked_invalid(self.V if V is None else V, copy=True).ravel()
+        if C is not None or self.C is not None:
+            C = ma.masked_invalid(
+                self.C if C is None else C, copy=True
+            ).ravel()
         for name, var in zip(('U', 'V', 'C'), (U, V, C)):
-            if not (var is None or var.size == self.N or var.size == 1):
-                raise ValueError(f'Argument {name} has a size {var.size}'
-                                 f' which does not match {self.N},'
-                                 ' the number of arrow positions')
+            if not (var is None or var.size == N or var.size == 1):
+                raise ValueError(
+                    f'Argument {name} has a size {var.size}'
+                    f' which does not match {N},'
+                    ' the number of arrow positions'
+                )
+
+        # now shapes are validated and we can start assigning things
 
         mask = ma.mask_or(U.mask, V.mask, copy=False, shrink=True)
         if C is not None:
@@ -597,24 +643,12 @@ class Quiver(mcollections.PolyCollection):
         self.Umask = mask
         if C is not None:
             self.set_array(C)
-        self._new_UV = True
-        self.stale = True
-
-    def set_XY(self, X, Y):
-        """
-        Update the locations of the arrows.
-
-        Parameters
-        ----------
-        X, Y : arraylike of float
-            The arrow locations, any shape is valid so long
-            as X and Y have the same size.
-        """
-        self.X, self.Y = _process_XY(X, Y, self._nr, self._nc)
         self.X = X
-        self.Y = X
-        self.XY = np.column_stack((self.X, self.Y))
-        self._offsets = self.XY
+        self.Y = Y
+        self.XY = np.column_stack([X, Y])
+        self.N = N
+        self._new_UV = True
+        self.set_offsets(self.XY)
         self.stale = True
 
     def _dots_per_unit(self, units):
