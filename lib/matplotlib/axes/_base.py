@@ -3691,9 +3691,17 @@ class _AxesBase(martist.Artist):
 
         >>> set_xlim(5000, 0)
         """
-        return self.xaxis._set_lim(
-            left, right, xmin, xmax, emit=emit, auto=auto,
-            names=("left", "right"))
+        if right is None and np.iterable(left):
+            left, right = left
+        if xmin is not None:
+            if left is not None:
+                raise TypeError("Cannot pass both 'left' and 'xmin'")
+            left = xmin
+        if xmax is not None:
+            if right is not None:
+                raise TypeError("Cannot pass both 'right' and 'xmax'")
+            right = xmax
+        return self.xaxis._set_lim(left, right, emit=emit, auto=auto)
 
     get_xscale = _axis_method_wrapper("xaxis", "get_scale")
 
@@ -3955,9 +3963,17 @@ class _AxesBase(martist.Artist):
 
         >>> set_ylim(5000, 0)
         """
-        return self.yaxis._set_lim(
-            bottom, top, ymin, ymax, emit=emit, auto=auto,
-            names=("bottom", "top"))
+        if top is None and np.iterable(bottom):
+            bottom, top = bottom
+        if ymin is not None:
+            if bottom is not None:
+                raise TypeError("Cannot pass both 'bottom' and 'ymin'")
+            bottom = ymin
+        if ymax is not None:
+            if top is not None:
+                raise TypeError("Cannot pass both 'top' and 'ymax'")
+            top = ymax
+        return self.yaxis._set_lim(bottom, top, emit=emit, auto=auto)
 
     get_yscale = _axis_method_wrapper("yaxis", "get_scale")
 

@@ -1022,39 +1022,26 @@ class Axis(martist.Artist):
         # attribute, and the derived code below will check for that
         # and use it if it's available (else just use 0..1)
 
-    def _set_lim(self, v0, v1, alt0=None, alt1=None, *,
-                 emit=True, auto, names=("", "")):
+    def _set_lim(self, v0, v1, *, emit=True, auto):
         """
         Set view limits.
 
         This method is a helper for the Axes ``set_xlim``, ``set_ylim``, and
-        ``set_zlim`` methods.  This docstring uses names corresponding to
-        ``set_xlim`` for simplicity.
+        ``set_zlim`` methods.
 
-        *names* is the pair of the names of the first two parameters of the
-        Axes method (e.g., "left" and "right").  They are only used to generate
-        error messages; and can be empty if the limits are known to be valid.
-
-        Other parameters are directly forwarded from the Axes limits setter:
-        *v0*, *v1*, *alt0*, and *alt1* map to *left*, *right*, *xmin*, and
-        *xmax* respectively; *emit* and *auto* are used as is.
+        Parameters
+        ----------
+        v0, v1 : float
+            The view limits.  (Passing *v0* as a (low, high) pair is not
+            supported; normalization must occur in the Axes setters.)
+        emit : bool, default: True
+            Whether to notify observers of limit change.
+        auto : bool or None, default: False
+            Whether to turn on autoscaling of the x-axis. True turns on, False
+            turns off, None leaves unchanged.
         """
-        v0name, v1name = names  # The value names.
         name, = [name for name, axis in self.axes._get_axis_map().items()
                  if axis is self]  # The axis name.
-
-        if v1 is None and np.iterable(v0):
-            v0, v1 = v0
-        if alt0 is not None:
-            if v0 is not None:
-                raise TypeError(
-                    f"Cannot pass both {v0name!r} and '{name}lim'")
-            v0 = alt0
-        if alt1 is not None:
-            if v1 is not None:
-                raise TypeError(
-                    f"Cannot pass both {v1name!r} and '{name}lim'")
-            v1 = alt1
 
         self.axes._process_unit_info([(name, (v0, v1))], convert=False)
         v0 = self.axes._validate_converted_limits(v0, self.convert_units)
@@ -1074,23 +1061,20 @@ class Axis(martist.Artist):
             # so only grab the limits if we really need them.
             old0, old1 = self.get_view_interval()
             if v0 <= 0:
-                _api.warn_external(
-                    f"Attempt to set non-positive {v0name} {name}lim on a "
-                    f"log-scaled axis will be ignored.")
+                _api.warn_external(f"Attempt to set non-positive {name}lim on "
+                                   f"a log-scaled axis will be ignored.")
                 v0 = old0
             if v1 <= 0:
-                _api.warn_external(
-                    f"Attempt to set non-positive {v1name} {name}lim on a "
-                    f"log-scaled axis will be ignored.")
+                _api.warn_external(f"Attempt to set non-positive {name}lim on "
+                                   f"a log-scaled axis will be ignored.")
                 v1 = old1
         if v0 == v1:
             _api.warn_external(
-                f"Attempting to set identical {v0name} == {v1name} == {v0} "
+                f"Attempting to set identical low and high {name}lims "
                 f"makes transformation singular; automatically expanding.")
-        reverse = v0 > v1
+        reverse = bool(v0 > v1)  # explicit cast needed for python3.8+np.bool_.
         v0, v1 = self.get_major_locator().nonsingular(v0, v1)
         v0, v1 = self.limit_range_for_scale(v0, v1)
-        # cast to bool to avoid bad interaction between python 3.8 and np.bool_
         v0, v1 = sorted([v0, v1], reverse=bool(reverse))
 
         self.set_view_interval(v0, v1, ignore=True)
@@ -1106,7 +1090,7 @@ class Axis(martist.Artist):
             for other in self.axes._shared_axes[name].get_siblings(self.axes):
                 if other is not self.axes:
                     other._get_axis_map()[name]._set_lim(
-                        v0, v1, emit=False, auto=auto, names=names)
+                        v0, v1, emit=False, auto=auto)
                     if other.figure != self.figure:
                         other.figure.canvas.draw_idle()
 

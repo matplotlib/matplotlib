@@ -42,7 +42,7 @@ from . import axis3d
 
 @docstring.interpd
 @cbook._define_aliases({
-    "xlim3d": ["xlim"], "ylim3d": ["ylim"], "zlim3d": ["zlim"]})
+    "xlim": ["xlim3d"], "ylim": ["ylim3d"], "zlim": ["zlim3d"]})
 class Axes3D(Axes):
     """
     3D Axes object.
@@ -659,48 +659,39 @@ class Axes3D(Axes):
         minz, maxz = self.get_zlim3d()
         return minx, maxx, miny, maxy, minz, maxz
 
-    def set_xlim3d(self, left=None, right=None, emit=True, auto=False,
-                   *, xmin=None, xmax=None):
-        """
-        Set 3D x limits.
-
-        See `.Axes.set_xlim` for full documentation.
-        """
-        return self.xaxis._set_lim(
-            left, right, xmin, xmax, emit=emit, auto=auto,
-            names=("left", "right"))
-
-    def set_ylim3d(self, bottom=None, top=None, emit=True, auto=False,
-                   *, ymin=None, ymax=None):
-        """
-        Set 3D y limits.
-
-        See `.Axes.set_ylim` for full documentation.
-        """
-        return self.yaxis._set_lim(
-            bottom, top, ymin, ymax, emit=emit, auto=auto,
-            names=("bottom", "top"))
-
-    def set_zlim3d(self, bottom=None, top=None, emit=True, auto=False,
-                   *, zmin=None, zmax=None):
+    # set_xlim, set_ylim are directly inherited from base Axes.
+    def set_zlim(self, bottom=None, top=None, emit=True, auto=False,
+                 *, zmin=None, zmax=None):
         """
         Set 3D z limits.
 
         See `.Axes.set_ylim` for full documentation
         """
-        return self.zaxis._set_lim(
-            bottom, top, zmin, zmax, emit=emit, auto=auto,
-            names=("bottom", "top"))
+        if top is None and np.iterable(bottom):
+            bottom, top = bottom
+        if zmin is not None:
+            if bottom is not None:
+                raise TypeError("Cannot pass both 'bottom' and 'zmin'")
+            bottom = zmin
+        if zmax is not None:
+            if top is not None:
+                raise TypeError("Cannot pass both 'top' and 'zmax'")
+            top = zmax
+        return self.zaxis._set_lim(bottom, top, emit=emit, auto=auto)
 
-    def get_xlim3d(self):
+    set_xlim3d = maxes.Axes.set_xlim
+    set_ylim3d = maxes.Axes.set_ylim
+    set_zlim3d = set_zlim
+
+    def get_xlim(self):
+        # docstring inherited
         return tuple(self.xy_viewLim.intervalx)
-    get_xlim3d.__doc__ = maxes.Axes.get_xlim.__doc__
 
-    def get_ylim3d(self):
+    def get_ylim(self):
+        # docstring inherited
         return tuple(self.xy_viewLim.intervaly)
-    get_ylim3d.__doc__ = maxes.Axes.get_ylim.__doc__
 
-    def get_zlim3d(self):
+    def get_zlim(self):
         """Get 3D z limits."""
         return tuple(self.zz_viewLim.intervalx)
 
