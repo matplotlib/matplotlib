@@ -426,19 +426,24 @@ def _parse_args(*args, caller_name='function'):
 
     nr, nc = (1, U.shape[0]) if U.ndim == 1 else U.shape
 
-    if X is not None:
-        X = X.ravel()
-        Y = Y.ravel()
-        if len(X) == nc and len(Y) == nr:
-            X, Y = [a.ravel() for a in np.meshgrid(X, Y)]
-        elif len(X) != len(Y):
-            raise ValueError('X and Y must be the same size, but '
-                             f'X.size is {X.size} and Y.size is {Y.size}.')
-    else:
+    if X is None:
         indexgrid = np.meshgrid(np.arange(nc), np.arange(nr))
         X, Y = [np.ravel(a) for a in indexgrid]
     # Size validation for U, V, C is left to the set_UVC method.
-    return X, Y, U, V, C
+    return X, Y, U, V, C, nr, nc
+
+
+def _process_XY(X, Y, nc, nr):
+    X = X.ravel()
+    Y = Y.ravel()
+    if len(X) == nc and len(Y) == nr:
+        X, Y = [a.ravel() for a in np.meshgrid(X, Y)]
+    elif len(X) != len(Y):
+        raise ValueError(
+            'X and Y must be the same size, but '
+            f'X.size is {X.size} and Y.size is {Y.size}.'
+        )
+    return X, Y
 
 
 def _check_consistent_shapes(*arrays):
@@ -451,11 +456,10 @@ class Quiver(mcollections.PolyCollection):
     """
     Specialized PolyCollection for arrows.
 
-    The only API method is set_UVC(), which can be used
-    to change the size, orientation, and color of the
-    arrows; their locations are fixed when the class is
-    instantiated.  Possibly this method will be useful
-    in animations.
+    The only API methods are ``set_UVC()``, ``set_XY``,
+    and ``set_data``, which can be used
+    to change the size, orientation, color and locations
+    of the arrows.
 
     Much of the work in this class is done in the draw()
     method so that as much information as possible is available
@@ -479,11 +483,9 @@ class Quiver(mcollections.PolyCollection):
         %s
         """
         self._axes = ax  # The attr actually set by the Artist.axes property.
-        X, Y, U, V, C = _parse_args(*args, caller_name='quiver()')
-        self.X = X
-        self.Y = Y
-        self.XY = np.column_stack((X, Y))
-        self.N = len(X)
+        X, Y, U, V, C, self._nr, self._nc = _parse_args(
+            *args, caller_name='quiver()'
+        )
         self.scale = scale
         self.headwidth = headwidth
         self.headlength = float(headlength)
@@ -494,6 +496,10 @@ class Quiver(mcollections.PolyCollection):
         self.scale_units = scale_units
         self.angles = angles
         self.width = width
+
+        self.X, self.Y = _process_XY(X, Y, self._nr, self._nc)
+        self.XY = np.column_stack([self.X, self.Y])
+        self.N = len(self.X)
 
         if pivot.lower() == 'mid':
             pivot = 'middle'
@@ -592,6 +598,23 @@ class Quiver(mcollections.PolyCollection):
         if C is not None:
             self.set_array(C)
         self._new_UV = True
+        self.stale = True
+
+    def set_XY(self, X, Y):
+        """
+        Update the locations of the arrows.
+
+        Parameters
+        ----------
+        X, Y : arraylike of float
+            The arrow locations, any shape is valid so long
+            as X and Y have the same size.
+        """
+        self.X, self.Y = _process_XY(X, Y, self._nr, self._nc)
+        self.X = X
+        self.Y = X
+        self.XY = np.column_stack((self.X, self.Y))
+        self._offsets = self.XY
         self.stale = True
 
     def _dots_per_unit(self, units):
@@ -963,10 +986,11 @@ class Barbs(mcollections.PolyCollection):
             kwargs['linewidth'] = 1
 
         # Parse out the data arrays from the various configurations supported
-        x, y, u, v, c = _parse_args(*args, caller_name='barbs()')
-        self.x = x
-        self.y = y
-        xy = np.column_stack((x, y))
+        x, y, u, v, c, self._nr, self._nc = _parse_args(
+            *args, caller_name='barbs()'
+        )
+        self.x, self.y = _process_XY(x, y, self._nr, self._nc)
+        xy = np.column_stack([self.x, self.y])
 
         # Make a collection
         barb_size = self._length ** 2 / 4  # Empirically determined
@@ -1197,6 +1221,19 @@ class Barbs(mcollections.PolyCollection):
         xy = np.column_stack((x, y))
         self._offsets = xy
         self.stale = True
+
+    def set_XY(self, X, Y):
+        """
+        Update the locations of the arrows.
+
+        Parameters
+        ----------
+        X, Y : arraylike of float
+            The arrow locations, any shape is valid so long
+            as X and Y have the same size.
+        """
+        self.X, self.Y = _process_XY(X, Y, self._nr, self._nc)
+        self.set_offsets(np.column_stack([X, Y]))
 
     def set_offsets(self, xy):
         """
