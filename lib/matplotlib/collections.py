@@ -630,6 +630,8 @@ class Collection(mcolorizer.ColorizingArtist):
         offsets = np.asanyarray(offsets)
         if offsets.shape == (2,):  # Broadcast (2,) -> (1, 2) but nothing else.
             offsets = offsets[None, :]
+        if offsets.shape == (2, 0):  # Transpose (2, 0) -> (0, 2) for [[], []] input.
+            offsets = offsets.T
         cstack = (np.ma.column_stack if isinstance(offsets, np.ma.MaskedArray)
                   else np.column_stack)
         self._offsets = cstack(
