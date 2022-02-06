@@ -216,13 +216,15 @@ class LabelBase(mtext.Text):
         self.set_rotation_mode("anchor")
         self._text_follow_ref_angle = True
 
-    def _get_text_ref_angle(self):
+    @property
+    def _text_ref_angle(self):
         if self._text_follow_ref_angle:
             return self._ref_angle + 90
         else:
             return 0
 
-    def _get_offset_ref_angle(self):
+    @property
+    def _offset_ref_angle(self):
         return self._ref_angle
 
     _get_opposite_direction = {"left": "right",
@@ -237,14 +239,12 @@ class LabelBase(mtext.Text):
         # save original and adjust some properties
         tr = self.get_transform()
         angle_orig = self.get_rotation()
-        text_ref_angle = self._get_text_ref_angle()
-        offset_ref_angle = self._get_offset_ref_angle()
-        theta = np.deg2rad(offset_ref_angle)
+        theta = np.deg2rad(self._offset_ref_angle)
         dd = self._offset_radius
         dx, dy = dd * np.cos(theta), dd * np.sin(theta)
 
         self.set_transform(tr + Affine2D().translate(dx, dy))
-        self.set_rotation(text_ref_angle+angle_orig)
+        self.set_rotation(self.text_ref_angle + angle_orig)
         super().draw(renderer)
         # restore original properties
         self.set_transform(tr)
@@ -254,14 +254,12 @@ class LabelBase(mtext.Text):
         # save original and adjust some properties
         tr = self.get_transform()
         angle_orig = self.get_rotation()
-        text_ref_angle = self._get_text_ref_angle()
-        offset_ref_angle = self._get_offset_ref_angle()
-        theta = np.deg2rad(offset_ref_angle)
+        theta = np.deg2rad(self._offset_ref_angle)
         dd = self._offset_radius
         dx, dy = dd * np.cos(theta), dd * np.sin(theta)
 
         self.set_transform(tr + Affine2D().translate(dx, dy))
-        self.set_rotation(text_ref_angle+angle_orig)
+        self.set_rotation(self.text_ref_angle + angle_orig)
         bbox = super().get_window_extent(renderer).frozen()
         # restore original properties
         self.set_transform(tr)
@@ -282,7 +280,7 @@ class AxisLabel(AttributeCopier, LabelBase):
     def __init__(self, *args, axis_direction="bottom", axis=None, **kwargs):
         self._axis = axis
         self._pad = 5
-        self._extra_pad = 0
+        self._extra_pad = 0  # in pixels
         LabelBase.__init__(self, *args, **kwargs)
         self.set_axis_direction(axis_direction)
 
