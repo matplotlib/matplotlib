@@ -442,6 +442,8 @@ def test_inverted_cla():
     assert not ax.xaxis_inverted()
     assert ax.yaxis_inverted()
 
+    for ax in fig.axes:
+        ax.remove()
     # 5. two shared axes. Inverting the leader axis should invert the shared
     # axes; clearing the leader axis should bring axes in shared
     # axes back to normal.
