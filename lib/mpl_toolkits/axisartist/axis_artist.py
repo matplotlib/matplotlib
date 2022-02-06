@@ -216,20 +216,14 @@ class LabelBase(mtext.Text):
         self.set_rotation_mode("anchor")
         self._text_follow_ref_angle = True
 
-    def _set_ref_angle(self, a):
-        self._ref_angle = a
-
-    def _get_ref_angle(self):
-        return self._ref_angle
-
     def _get_text_ref_angle(self):
         if self._text_follow_ref_angle:
-            return self._get_ref_angle()+90
+            return self._ref_angle + 90
         else:
-            return 0  # self.get_ref_angle()
+            return 0
 
     def _get_offset_ref_angle(self):
-        return self._get_ref_angle()
+        return self._ref_angle
 
     _get_opposite_direction = {"left": "right",
                                "right": "left",
@@ -520,7 +514,7 @@ class TickLabels(AxisLabel):  # mtext.Text
         for (x, y), a, l in self._locs_angles_labels:
             if not l.strip():
                 continue
-            self._set_ref_angle(a)  # + add_angle
+            self._ref_angle = a
             self.set_x(x)
             self.set_y(y)
             self.set_text(l)
@@ -548,7 +542,7 @@ class TickLabels(AxisLabel):  # mtext.Text
         self._offset_radius = r + pad
 
         for (x, y), a, l in self._locs_angles_labels:
-            self._set_ref_angle(a)  # + add_angle
+            self._ref_angle = a
             self.set_x(x)
             self.set_y(y)
             self.set_text(l)
@@ -974,7 +968,7 @@ class AxisArtist(martist.Artist):
         angle_label = angle_tangent - 90
 
         x, y = xy
-        self.label._set_ref_angle(angle_label+self._axislabel_add_angle)
+        self.label._ref_angle = angle_label + self._axislabel_add_angle
         self.label.set(x=x, y=y)
 
     def _draw_label(self, renderer):
