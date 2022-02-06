@@ -660,6 +660,7 @@ class Axes3D(Axes):
         return minx, maxx, miny, maxy, minz, maxz
 
     # set_xlim, set_ylim are directly inherited from base Axes.
+    @_api.make_keyword_only("3.6", "emit")
     def set_zlim(self, bottom=None, top=None, emit=True, auto=False,
                  *, zmin=None, zmax=None):
         """
