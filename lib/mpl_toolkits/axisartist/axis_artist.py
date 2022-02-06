@@ -244,7 +244,7 @@ class LabelBase(mtext.Text):
         dx, dy = dd * np.cos(theta), dd * np.sin(theta)
 
         self.set_transform(tr + Affine2D().translate(dx, dy))
-        self.set_rotation(self.text_ref_angle + angle_orig)
+        self.set_rotation(self._text_ref_angle + angle_orig)
         super().draw(renderer)
         # restore original properties
         self.set_transform(tr)
@@ -259,7 +259,7 @@ class LabelBase(mtext.Text):
         dx, dy = dd * np.cos(theta), dd * np.sin(theta)
 
         self.set_transform(tr + Affine2D().translate(dx, dy))
-        self.set_rotation(self.text_ref_angle + angle_orig)
+        self.set_rotation(self._text_ref_angle + angle_orig)
         bbox = super().get_window_extent(renderer).frozen()
         # restore original properties
         self.set_transform(tr)
@@ -280,7 +280,7 @@ class AxisLabel(AttributeCopier, LabelBase):
     def __init__(self, *args, axis_direction="bottom", axis=None, **kwargs):
         self._axis = axis
         self._pad = 5
-        self._extra_pad = 0  # in pixels
+        self._external_pad = 0  # in pixels
         LabelBase.__init__(self, *args, **kwargs)
         self.set_axis_direction(axis_direction)
 
@@ -300,14 +300,6 @@ class AxisLabel(AttributeCopier, LabelBase):
         See `.set_pad` for more details.
         """
         return self._pad
-
-    def _set_external_pad(self, p):
-        """Set external pad in pixels."""
-        self._extra_pad = p
-
-    def _get_external_pad(self):
-        """Return external pad in pixels."""
-        return self._extra_pad
 
     def get_ref_artist(self):
         # docstring inherited
@@ -364,9 +356,8 @@ class AxisLabel(AttributeCopier, LabelBase):
         if not self.get_visible():
             return
 
-        pad = renderer.points_to_pixels(self.get_pad())
-        r = self._get_external_pad() + pad
-        self._offset_radius = r
+        self._offset_radius = \
+            self._external_pad + renderer.points_to_pixels(self.get_pad())
 
         super().draw(renderer)
 
@@ -374,8 +365,7 @@ class AxisLabel(AttributeCopier, LabelBase):
         if not self.get_visible():
             return
 
-        pad = renderer.points_to_pixels(self.get_pad())
-        r = self._get_external_pad() + pad
+        r = self._external_pad + renderer.points_to_pixels(self.get_pad())
         self._offset_radius = r
 
         bb = super().get_window_extent(renderer)
@@ -499,14 +489,13 @@ class TickLabels(AxisLabel):  # mtext.Text
 
     def draw(self, renderer):
         if not self.get_visible():
-            self._axislabel_pad = self._get_external_pad()
+            self._axislabel_pad = self._external_pad
             return
 
         r, total_width = self._get_ticklabels_offsets(renderer,
                                                       self._axis_direction)
 
-        pad = (self._get_external_pad()
-               + renderer.points_to_pixels(self.get_pad()))
+        pad = self._external_pad + renderer.points_to_pixels(self.get_pad())
         self._offset_radius = r + pad
 
         for (x, y), a, l in self._locs_angles_labels:
@@ -527,7 +516,7 @@ class TickLabels(AxisLabel):  # mtext.Text
     def get_window_extents(self, renderer):
 
         if not self.get_visible():
-            self._axislabel_pad = self._get_external_pad()
+            self._axislabel_pad = self._external_pad
             return []
 
         bboxes = []
@@ -535,8 +524,7 @@ class TickLabels(AxisLabel):  # mtext.Text
         r, total_width = self._get_ticklabels_offsets(renderer,
                                                       self._axis_direction)
 
-        pad = self._get_external_pad() + \
-            renderer.points_to_pixels(self.get_pad())
+        pad = self._external_pad + renderer.points_to_pixels(self.get_pad())
         self._offset_radius = r + pad
 
         for (x, y), a, l in self._locs_angles_labels:
@@ -864,13 +852,12 @@ class AxisArtist(martist.Artist):
 
         dpi_cor = renderer.points_to_pixels(1.)
         if self.major_ticks.get_visible() and self.major_ticks.get_tick_out():
-            self.major_ticklabels._set_external_pad(
-                self.major_ticks._ticksize * dpi_cor)
-            self.minor_ticklabels._set_external_pad(
-                self.major_ticks._ticksize * dpi_cor)
+            ticklabel_pad = self.major_ticks._ticksize * dpi_cor
+            self.major_ticklabels._external_pad = ticklabel_pad
+            self.minor_ticklabels._external_pad = ticklabel_pad
         else:
-            self.major_ticklabels._set_external_pad(0)
-            self.minor_ticklabels._set_external_pad(0)
+            self.major_ticklabels._external_pad = 0
+            self.minor_ticklabels._external_pad = 0
 
         majortick_iter, minortick_iter = \
             self._axis_artist_helper.get_tick_iterators(self.axes)
@@ -956,7 +943,7 @@ class AxisArtist(martist.Artist):
             axislabel_pad = max(self.major_ticklabels._axislabel_pad,
                                 self.minor_ticklabels._axislabel_pad)
 
-        self.label._set_external_pad(axislabel_pad)
+        self.label._external_pad = axislabel_pad
 
         xy, angle_tangent = \
             self._axis_artist_helper.get_axislabel_pos_angle(self.axes)
