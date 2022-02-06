@@ -198,7 +198,7 @@ def _mark_every_path(markevery, tpath, affine, ax):
 
 
 @docstring.interpd
-@cbook._define_aliases({
+@_api.define_aliases({
     "antialiased": ["aa"],
     "color": ["c"],
     "drawstyle": ["ds"],

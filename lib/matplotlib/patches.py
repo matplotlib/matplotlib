@@ -24,7 +24,7 @@ from ._enums import JoinStyle, CapStyle
 
 
 @docstring.interpd
-@cbook._define_aliases({
+@_api.define_aliases({
     "antialiased": ["aa"],
     "edgecolor": ["ec"],
     "facecolor": ["fc"],

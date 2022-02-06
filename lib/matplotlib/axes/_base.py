@@ -537,7 +537,7 @@ class _process_plot_var_args:
             return [l[0] for l in result]
 
 
-@cbook._define_aliases({"facecolor": ["fc"]})
+@_api.define_aliases({"facecolor": ["fc"]})
 class _AxesBase(martist.Artist):
     name = "rectilinear"
 

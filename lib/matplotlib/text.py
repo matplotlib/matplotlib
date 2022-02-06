@@ -106,7 +106,7 @@ def _get_text_metrics_with_cache_impl(
 
 
 @docstring.interpd
-@cbook._define_aliases({
+@_api.define_aliases({
     "color": ["c"],
     "fontfamily": ["family"],
     "fontproperties": ["font", "font_properties"],
