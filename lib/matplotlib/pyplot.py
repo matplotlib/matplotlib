@@ -31,6 +31,7 @@ figure. See `.pyplot.figure`, `.pyplot.subplots`, and
     ax.plot(x, y)
 """
 
+import math
 import functools
 import importlib
 import inspect
@@ -85,6 +86,110 @@ from .ticker import (
 _log = logging.getLogger(__name__)
 
 
+def bivariateLegend(column1, column2, cmap='red_blue', column1norm=matplotlib.colors.Normalize(), column2norm=matplotlib.colors.Normalize()):    
+     # map the values to a color in the colormap
+    
+    # use a pre-canned cmap or the one passed in by the user
+    if(type(cmap) == str):
+        xaxis, yaxis = _get_bvcolormap2d(cmap)
+        xsat = 1
+        ysat = 1
+    else:
+        xaxis = cmap[0][0]
+        yaxis = cmap[1][0]
+        xsat = cmap[0][1]
+        ysat = cmap[1][1]
+    colors = []
+    c1max = np.amax(column1)
+    #c1min = np.amin(column1)
+    c2max = np.amax(column2)
+    #c2min = np.amin(column2)
+    #c1range = c1max - c1min
+    #c2range = c2max - c2min
+
+    # normalize each column using the normalizer passed in (default is linear)
+    c1normalized = column1norm(column1)
+    c2normalized = column2norm(column2)
+    for i, j in zip(c1normalized, c2normalized):
+        x = (i)
+        y = (j)
+        r = _average_colors([xaxis, xsat, x], [yaxis, ysat, y]) # use the normalized data value to determine value of color & average them
+        colors.append( r )
+        result = np.array(colors) 
+
+    # make the legend image (does not affect the mapping, it's just a legend for reference)
+    first = []
+    second = []
+    spread = np.linspace(0,1)
+    for i in spread: # add 50 (default) evenly spaced colors of each color
+        first.append((xaxis, 1, i))
+        second.append((yaxis, 1, i))
+
+    # my version of np.meshGrid(), but making sure to preserve the hsv color structure
+    firstGrid = []
+    secondGrid = []
+    for i in first: 
+        firstGrid.append(first)
+    for i in second :
+        temp = []
+        for j in second:
+            temp.append(i)
+        secondGrid.append(temp)
+    secondGrid
+
+    # my version of np.dstack(), but instead of adding, I average the two colors and add the result to the Legend 
+    Legend = []
+    for i,j in zip(firstGrid,secondGrid):
+        temp = [] 
+        for fcolor, scolor in zip(i, j):
+            color = _average_colors(fcolor, scolor)
+            temp.append(color)
+        Legend.append(temp)
+    #subplots_adjust(left=0.025, right=0.65, top=0.85) 
+
+    # position the Legend according to the other axes's dimensions and position
+    adjust = gca().get_position()
+    pad = 0.25
+    cax = gcf().add_axes([(adjust.x0 + adjust.x1/2 + pad), (adjust.y0 + adjust.y1 /2), adjust.x1/3, adjust.y1/3]) 
+    cax.imshow(Legend, origin="lower", extent=[0,1,0,1])
+      
+    # style the legend image
+    cax.set_xlabel(column1.name)
+    cax.set_ylabel(column2.name)
+    cax.set_xticks(np.linspace(0,1, num=5))  
+    xlabel = np.linspace(0, round(c1max), num=5)
+    for i in range(len(xlabel)):
+        xlabel[i] = round(xlabel[i], 1)
+    cax.set_xticklabels(xlabel)
+    cax.set_yticks(np.linspace(0,1, num=6))  
+    ylabel = np.linspace(0, round(c2max), num=6)
+    for i in range(len(ylabel)):
+        ylabel[i] = round(ylabel[i], 1)
+    cax.set_yticklabels(ylabel)
+    cax.set_title("Legend", fontsize=10)    
+    return result, cax
+
+def _average_colors(fcolor, scolor):
+    f = matplotlib.colors.hsv_to_rgb(fcolor) # convert the hsv to rgb colors
+    s = matplotlib.colors.hsv_to_rgb(scolor)
+    # that the square root of the average of the squares of the red, green, and blue components
+    r = ( math.sqrt((f[0]*f[0] + s[0]*s[0])/2),  math.sqrt((f[1]*f[1] + s[1]*s[1])/2), math.sqrt((f[2]*f[2] + s[2]*s[2])/2))
+    # convert the result color back to hsv to increase the brightness
+    to_hsv = matplotlib.colors.rgb_to_hsv(r)
+    to_hsv[2] = min(1, to_hsv[2] * 1.5)
+    return matplotlib.colors.hsv_to_rgb(to_hsv) # convert the brightened color back to rgb and return this
+
+def _get_bvcolormap2d(cmap):
+    if(cmap == 'red_blue'): return 0.00, 0.6
+    if(cmap == 'purple_cyan' ): return 0.8, 0.5
+    if(cmap == 'yellow_red'): return 0.00, 0.1667
+    if(cmap == 'red_green'): return 0.00, 0.3333
+    if(cmap == 'blue_green'): return 0.333, 0.6
+    if(cmap == 'yellow_blue'): return 0.1667, 0.4667
+    if(cmap == 'pink_blue'): return 0.89, 0.55
+    if(cmap == 'orange_blue'): return 0.6, 0.1
+    if(cmap == 'pink_orange'): return 0.89, 0.1
+    
 def _copy_docstring_and_deprecators(method, func=None):
     if func is None:
         return functools.partial(_copy_docstring_and_deprecators, method)
