@@ -231,12 +231,6 @@ class LabelBase(mtext.Text):
     def _get_offset_ref_angle(self):
         return self._get_ref_angle()
 
-    def _set_offset_radius(self, offset_radius):
-        self._offset_radius = offset_radius
-
-    def _get_offset_radius(self):
-        return self._offset_radius
-
     _get_opposite_direction = {"left": "right",
                                "right": "left",
                                "top": "bottom",
@@ -252,7 +246,7 @@ class LabelBase(mtext.Text):
         text_ref_angle = self._get_text_ref_angle()
         offset_ref_angle = self._get_offset_ref_angle()
         theta = np.deg2rad(offset_ref_angle)
-        dd = self._get_offset_radius()
+        dd = self._offset_radius
         dx, dy = dd * np.cos(theta), dd * np.sin(theta)
 
         self.set_transform(tr + Affine2D().translate(dx, dy))
@@ -269,7 +263,7 @@ class LabelBase(mtext.Text):
         text_ref_angle = self._get_text_ref_angle()
         offset_ref_angle = self._get_offset_ref_angle()
         theta = np.deg2rad(offset_ref_angle)
-        dd = self._get_offset_radius()
+        dd = self._offset_radius
         dx, dy = dd * np.cos(theta), dd * np.sin(theta)
 
         self.set_transform(tr + Affine2D().translate(dx, dy))
@@ -380,7 +374,7 @@ class AxisLabel(AttributeCopier, LabelBase):
 
         pad = renderer.points_to_pixels(self.get_pad())
         r = self._get_external_pad() + pad
-        self._set_offset_radius(r)
+        self._offset_radius = r
 
         super().draw(renderer)
 
@@ -390,7 +384,7 @@ class AxisLabel(AttributeCopier, LabelBase):
 
         pad = renderer.points_to_pixels(self.get_pad())
         r = self._get_external_pad() + pad
-        self._set_offset_radius(r)
+        self._offset_radius = r
 
         bb = super().get_window_extent(renderer)
 
@@ -521,7 +515,7 @@ class TickLabels(AxisLabel):  # mtext.Text
 
         pad = (self._get_external_pad()
                + renderer.points_to_pixels(self.get_pad()))
-        self._set_offset_radius(r+pad)
+        self._offset_radius = r + pad
 
         for (x, y), a, l in self._locs_angles_labels:
             if not l.strip():
@@ -551,7 +545,7 @@ class TickLabels(AxisLabel):  # mtext.Text
 
         pad = self._get_external_pad() + \
             renderer.points_to_pixels(self.get_pad())
-        self._set_offset_radius(r+pad)
+        self._offset_radius = r + pad
 
         for (x, y), a, l in self._locs_angles_labels:
             self._set_ref_angle(a)  # + add_angle
