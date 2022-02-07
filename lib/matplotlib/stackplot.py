@@ -16,7 +16,7 @@ __all__ = ['stackplot']
 
 
 def stackplot(axes, x, *args,
-              labels=(), colors=None, baseline='zero',
+              labels=(), colors=None, baseline='zero', where=None,
               **kwargs):
     """
     Draw a stacked area plot.
@@ -58,6 +58,13 @@ def stackplot(axes, x, *args,
     data : indexable object, optional
         DATA_PARAMETER_PLACEHOLDER
 
+    where: bool or array of bool, optional
+        Passed to `.Axes.fill_between` and defines where to exclude horizontal
+        regions from being filled. The filled regions are defined by the
+        coordinates `x[where]`. Can be either a single bool, an array of shape
+        (N,) or an array of shape (M, N).
+        Should be used together with `interpolate=True`.
+
     **kwargs
         All other keyword arguments are passed to `.Axes.fill_between`.
 
@@ -69,6 +76,10 @@ def stackplot(axes, x, *args,
     """
 
     y = np.row_stack(args)
+
+    if where is None:
+        where = True
+    where = np.broadcast_to(where, np.shape(y))
 
     labels = iter(labels)
     if colors is not None:
@@ -114,6 +125,7 @@ def stackplot(axes, x, *args,
     # Color between x = 0 and the first array.
     coll = axes.fill_between(x, first_line, stack[0, :],
                              facecolor=next(colors), label=next(labels, None),
+                             where=where[0, :],
                              **kwargs)
     coll.sticky_edges.y[:] = [0]
     r = [coll]
@@ -123,5 +135,6 @@ def stackplot(axes, x, *args,
         r.append(axes.fill_between(x, stack[i, :], stack[i + 1, :],
                                    facecolor=next(colors),
                                    label=next(labels, None),
+                                   where=where[i+1, :],
                                    **kwargs))
     return r

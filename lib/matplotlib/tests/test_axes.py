@@ -1,21 +1,16 @@
 import contextlib
 from collections import namedtuple
 import datetime
-from decimal import Decimal
-from functools import partial
 import inspect
 import io
-from itertools import product
 import platform
+from collections import namedtuple
+from decimal import Decimal
+from functools import partial
+from itertools import product
 from types import SimpleNamespace
 
 import dateutil.tz
-
-import numpy as np
-from numpy import ma
-from cycler import cycler
-import pytest
-
 import matplotlib
 import matplotlib as mpl
 from matplotlib import rc_context
@@ -39,6 +34,11 @@ from numpy.testing import (
     assert_allclose, assert_array_equal, assert_array_almost_equal)
 from matplotlib.testing.decorators import (
     image_comparison, check_figures_equal, remove_ticks_and_titles)
+
+import numpy as np
+import pytest
+from cycler import cycler
+from numpy import ma
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
@@ -2903,6 +2903,26 @@ def test_stackplot_baseline():
     axs[0, 1].stackplot(range(100), d.T, baseline='sym')
     axs[1, 0].stackplot(range(100), d.T, baseline='wiggle')
     axs[1, 1].stackplot(range(100), d.T, baseline='weighted_wiggle')
+
+
+@image_comparison(['stackplot_test_where'])
+def test_stackplot_where():
+
+    fig = plt.figure()
+
+    x = np.arange(10)
+    y0 = np.linspace(0, 1, 10)
+    y1 = np.linspace(0, 1, 10)
+    y2 = [0, 0, 0.25, 0, 0, 0, 0.25, 0, 0, 0]
+    y3 = np.linspace(0, 1, 10)
+
+    colors = ['grey', 'blue', 'red', 'blue']
+
+    y = np.stack([y0, y1, y2, y3])
+
+    ax = fig.add_subplot(1, 1, 1)
+    ax.stackplot(x, y, colors=colors, where=(y != 0),
+                 interpolate=True, edgecolor='face')
 
 
 def _bxp_test_helper(
