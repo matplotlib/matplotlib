@@ -1045,8 +1045,8 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # write to a temp file, we'll move it to outfile when done
         with TemporaryDirectory() as tmpdir:
-            tmpfile = os.path.join(tmpdir, "tmp.ps")
-            pathlib.Path(tmpfile).write_text(
+            tmppath = pathlib.Path(tmpdir, "tmp.ps")
+            tmppath.write_text(
                 f"""\
 %!PS-Adobe-3.0 EPSF-3.0
 {dsc_comments}
@@ -1082,27 +1082,21 @@ showpage
                     papertype = _get_papertype(width, height)
                 paper_width, paper_height = papersize[papertype]
 
-            texmanager = ps_renderer.get_texmanager()
-            font_preamble = texmanager.get_font_preamble()
-            custom_preamble = texmanager.get_custom_preamble()
-
-            psfrag_rotated = convert_psfrags(tmpfile, ps_renderer.psfrag,
-                                             font_preamble,
-                                             custom_preamble, paper_width,
-                                             paper_height,
-                                             orientation.name)
+            psfrag_rotated = _convert_psfrags(
+                tmppath, ps_renderer.psfrag, paper_width, paper_height,
+                orientation.name)
 
             if (mpl.rcParams['ps.usedistiller'] == 'ghostscript'
                     or mpl.rcParams['text.usetex']):
                 _try_distill(gs_distill,
-                             tmpfile, is_eps, ptype=papertype, bbox=bbox,
+                             tmppath, is_eps, ptype=papertype, bbox=bbox,
                              rotated=psfrag_rotated)
             elif mpl.rcParams['ps.usedistiller'] == 'xpdf':
                 _try_distill(xpdf_distill,
-                             tmpfile, is_eps, ptype=papertype, bbox=bbox,
+                             tmppath, is_eps, ptype=papertype, bbox=bbox,
                              rotated=psfrag_rotated)
 
-            _move_path_to_path_or_stream(tmpfile, outfile)
+            _move_path_to_path_or_stream(tmppath, outfile)
 
     print_ps = functools.partialmethod(_print_ps, "ps")
     print_eps = functools.partialmethod(_print_ps, "eps")
@@ -1112,8 +1106,14 @@ showpage
         return super().draw()
 
 
+@_api.deprecated("3.6")
 def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
                     paper_width, paper_height, orientation):
+    return _convert_psfrags(
+        pathlib.Path(tmpfile), psfrags, paper_width, paper_height, orientation)
+
+
+def _convert_psfrags(tmppath, psfrags, paper_width, paper_height, orientation):
     """
     When we want to use the LaTeX backend with postscript, we write PSFrag tags
     to a temporary postscript file, each one marking a position for LaTeX to
@@ -1140,7 +1140,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
             % {
                 "psfrags": "\n".join(psfrags),
                 "angle": 90 if orientation == 'landscape' else 0,
-                "epsfile": pathlib.Path(tmpfile).resolve().as_posix(),
+                "epsfile": tmppath.resolve().as_posix(),
             },
             fontsize=10)  # tex's default fontsize.
 
@@ -1148,7 +1148,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
         psfile = os.path.join(tmpdir, "tmp.ps")
         cbook._check_and_log_subprocess(
             ['dvips', '-q', '-R0', '-o', psfile, dvifile], _log)
-        shutil.move(psfile, tmpfile)
+        shutil.move(psfile, tmppath)
 
     # check if the dvips created a ps in landscape paper.  Somehow,
     # above latex+dvips results in a ps file in a landscape mode for a
@@ -1157,14 +1157,14 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     # the generated ps file is in landscape and return this
     # information. The return value is used in pstoeps step to recover
     # the correct bounding box. 2010-06-05 JJL
-    with open(tmpfile) as fh:
+    with open(tmppath) as fh:
         psfrag_rotated = "Landscape" in fh.read(1000)
     return psfrag_rotated
 
 
-def _try_distill(func, *args, **kwargs):
+def _try_distill(func, tmppath, *args, **kwargs):
     try:
-        func(*args, **kwargs)
+        func(str(tmppath), *args, **kwargs)
     except mpl.ExecutableNotFoundError as exc:
         _log.warning("%s.  Distillation step skipped.", exc)
 
