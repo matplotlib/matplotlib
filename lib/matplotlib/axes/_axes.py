@@ -6772,6 +6772,45 @@ such objects
                           else "list[Polygon]")
             return tops, bins, cbook.silent_list(patch_type, patches)
 
+    def vector(self, dx, dy, x=0., y=0., **kwargs):
+        """
+        Plot an arrow indicating a vector. 
+
+        Parameters
+        ----------
+        dx : float
+        	The x-component of the vector
+        dy : float
+        	The y-component of the vector
+        x : float (optional)
+        	The x-coordinate of the vector's base if nonzero.
+        y : float (optional)
+        	The y-coordinate of the vector's base if nonzero.
+
+        Other Parameters
+        ----------------
+        **kwargs
+            `~matplotlib.patches.FancyArrowPatch` properties
+        """
+        posA = (x, y)
+        posB = (x + dx, y + dy)
+
+        color = kwargs.pop("color", None)
+        if color is None:
+            color = self._get_lines.get_next_color()
+        vect = mpatches.FancyArrowPatch(posA, posB, color=color, **kwargs)
+        ms = vect._mutation_scale
+        stylekw = {
+            "head_length" : kwargs.get("head_length", 12) / ms,
+            "head_width" : kwargs.get("head_width", 12) / ms,
+            "tail_width" : kwargs.get("tail_width", 4) / ms,
+        }
+        vect.set_arrowstyle(kwargs.get("arrowstyle", "simple"), **stylekw)
+        self.add_patch(vect)
+        self.update_datalim([posA, posB])
+        self._request_autoscale_view()
+        return vect
+
     @_preprocess_data()
     def stairs(self, values, edges=None, *,
                orientation='vertical', baseline=0, fill=False, **kwargs):
