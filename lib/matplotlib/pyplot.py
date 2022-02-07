@@ -667,6 +667,7 @@ class _xkcd:
 
 ## Figures ##
 
+@_api.make_keyword_only("3.6", "facecolor")
 def figure(num=None,  # autoincrement if None, else integer from 1-N
            figsize=None,  # defaults to rc figure.figsize
            dpi=None,  # defaults to rc figure.dpi
