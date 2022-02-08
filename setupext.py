@@ -14,6 +14,7 @@ import sysconfig
 import tarfile
 import textwrap
 import urllib.request
+from packaging import version
 
 from setuptools import Distribution, Extension
 
@@ -167,12 +168,18 @@ _freetype_hashes = {
         '955e17244e9b38adb0c98df66abb50467312e6bb70eac07e49ce6bd1a20e809a',
     '2.10.1':
         '3a60d391fd579440561bf0e7f31af2222bc610ad6ce4d9d7bd2165bca8669110',
+    '2.11.1':
+        'f8db94d307e9c54961b39a1cc799a67d46681480696ed72ecf78d4473770f09b'
 }
 # This is the version of FreeType to use when building a local version.  It
 # must match the value in lib/matplotlib.__init__.py and also needs to be
 # changed below in the embedded windows build script (grep for "REMINDER" in
 # this file). Also update the cache path in `.circleci/config.yml`.
-LOCAL_FREETYPE_VERSION = '2.6.1'
+if sys.platform.startswith('win') and platform.machine() == 'ARM64':  # older versions are not supported for win/arm64
+    LOCAL_FREETYPE_VERSION = '2.11.1'
+else:
+    LOCAL_FREETYPE_VERSION = '2.6.1'
+
 LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 
 # Also update the cache path in `.circleci/config.yml`.
@@ -645,9 +652,10 @@ class FreeType(SetupPackage):
             subprocess.check_call([make], env=env, cwd=src_path)
         else:  # compilation on windows
             shutil.rmtree(src_path / "objs", ignore_errors=True)
+            is_x64 = platform.architecture()[0] == '64bit'
             msbuild_platform = (
-                'x64' if platform.architecture()[0] == '64bit' else 'Win32')
-            base_path = Path("build/freetype-2.6.1/builds/windows")
+                'ARM64' if platform.machine() == 'ARM64' else 'x64' if is_x64 else 'Win32')
+            base_path = Path("build/freetype-{}/builds/windows".format(LOCAL_FREETYPE_VERSION))
             vc = 'vc2010'
             sln_path = (
                 base_path / vc / "freetype.sln"
@@ -677,15 +685,23 @@ class FreeType(SetupPackage):
 
             cc = get_ccompiler()
             cc.initialize()  # Get msbuild in the %PATH% of cc.spawn.
+            # Freetype 2.10.0+ support static builds and use them if available as they are easier to deploy
+            msbuild_configuration = 'Release Static' if version.parse(LOCAL_FREETYPE_VERSION) >= version.parse("2.10.0") else 'Release'
             cc.spawn(["msbuild", str(sln_path),
                       "/t:Clean;Build",
-                      f"/p:Configuration=Release;Platform={msbuild_platform}"])
+                      f"/p:Configuration={msbuild_configuration};Platform={msbuild_platform}"])
             # Move to the corresponding Unix build path.
             (src_path / "objs" / ".libs").mkdir()
             # Be robust against change of FreeType version.
-            lib_path, = (src_path / "objs" / vc / msbuild_platform).glob(
-                "freetype*.lib")
-            shutil.copy2(lib_path, src_path / "objs/.libs/libfreetype.lib")
+            lib_paths = Path(src_path / "objs").rglob('freetype*.lib')
+            libfreetype_file = None
+            for lib_path in lib_paths:
+                # check if freetype.lib in required platform directory
+                if msbuild_platform in lib_path.resolve().as_uri():
+                    libfreetype_file = lib_path
+                    continue
+            print("Copying {} to {}".format(lib_path.resolve(), src_path / "objs/.libs/libfreetype.lib"))
+            shutil.copy2(libfreetype_file, src_path / "objs/.libs/libfreetype.lib")
 
 
 class Qhull(SetupPackage):
