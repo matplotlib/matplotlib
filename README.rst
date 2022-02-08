@@ -51,7 +51,7 @@ Check out our `home page <https://matplotlib.org/>`_ for more information.
 
 Matplotlib produces publication-quality figures in a variety of hardcopy
 formats and interactive environments across platforms. Matplotlib can be used
-in Python scripts, the Python and IPython shell, web application servers, and
+in Python scripts, Python/IPython shells, web application servers, and
 various graphical user interface toolkits.
 
 
