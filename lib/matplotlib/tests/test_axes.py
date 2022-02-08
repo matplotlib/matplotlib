@@ -2,6 +2,7 @@ from collections import namedtuple
 import datetime
 from decimal import Decimal
 from functools import partial
+import inspect
 import io
 from itertools import product
 import platform
@@ -26,6 +27,7 @@ import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.pyplot as plt
+import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 from numpy.testing import (
@@ -620,6 +622,16 @@ def test_annotate_default_arrow():
     assert ann.arrow_patch is None
     ann = ax.annotate("foo", (0, 1), xytext=(2, 3), arrowprops={})
     assert ann.arrow_patch is not None
+
+
+def test_annotate_signature():
+    """Check that the signature of Axes.annotate() matches Annotation."""
+    fig, ax = plt.subplots()
+    annotate_params = inspect.signature(ax.annotate).parameters
+    annotation_params = inspect.signature(mtext.Annotation).parameters
+    assert list(annotate_params.keys()) == list(annotation_params.keys())
+    for p1, p2 in zip(annotate_params.values(), annotation_params.values()):
+        assert p1 == p2
 
 
 @image_comparison(['fill_units.png'], savefig_kwarg={'dpi': 60})
