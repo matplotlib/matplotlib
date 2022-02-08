@@ -307,7 +307,7 @@ commands::
 
   python -m sphinx.ext.intersphinx 'https://docs.python.org/3/objects.inv'
   python -m sphinx.ext.intersphinx 'https://numpy.org/doc/stable/objects.inv'
-  python -m sphinx.ext.intersphinx 'https://docs.scipy.org/doc/scipy/reference/objects.inv'
+  python -m sphinx.ext.intersphinx 'https://docs.scipy.org/doc/scipy/objects.inv'
   python -m sphinx.ext.intersphinx 'https://pandas.pydata.org/pandas-docs/stable/objects.inv'
 
 .. _rst-figures-and-includes:

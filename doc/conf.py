@@ -160,7 +160,7 @@ intersphinx_mapping = {
     'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None),
     'pytest': ('https://pytest.org/en/stable/', None),
     'python': ('https://docs.python.org/3/', None),
-    'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/', None),
     'tornado': ('https://www.tornadoweb.org/en/stable/', None),
     'xarray': ('https://xarray.pydata.org/en/stable/', None),
 }
@@ -191,7 +191,7 @@ sphinx_gallery_conf = {
     'reference_url': {
         'matplotlib': None,
         'numpy': 'https://numpy.org/doc/stable/',
-        'scipy': 'https://docs.scipy.org/doc/scipy/reference/',
+        'scipy': 'https://docs.scipy.org/doc/scipy/',
     },
     'backreferences_dir': Path('api') / Path('_as_gen'),
     'subsection_order': gallery_order.sectionorder,
