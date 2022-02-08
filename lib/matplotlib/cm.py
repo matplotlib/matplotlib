@@ -265,9 +265,9 @@ def get_cmap(name=None, lut=None):
 
     Notes
     -----
-    Currently, this returns the global colormap object, which is deprecated.
-    In Matplotlib 3.5, you will no longer be able to modify the global
-    colormaps in-place.
+    Currently, this returns the global colormap object. This is undesired
+    because users could accidentally modify the global colormap.
+    From Matplotlib 3.6 on, this will return a copy instead.
 
     Parameters
     ----------
