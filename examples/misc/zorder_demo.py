@@ -61,7 +61,7 @@ plt.tight_layout()
 
 ###############################################################################
 # Many functions that create a visible object accepts a ``zorder`` parameter.
-# Alternatively, you can call ``set_order()`` on the created object later.
+# Alternatively, you can call ``set_zorder()`` on the created object later.
 
 x = np.linspace(0, 7.5, 100)
 plt.rcParams['lines.linewidth'] = 5
