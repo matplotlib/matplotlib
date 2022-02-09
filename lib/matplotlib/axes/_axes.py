@@ -6784,13 +6784,13 @@ such objects
         Parameters
         ----------
         dx : float
-        The x-component of the vector
+            The x-component of the vector
         dy : float
-        The y-component of the vector
+            The y-component of the vector
         x : float (optional)
-        The x-coordinate of the vector's base if nonzero.
+            The x-coordinate of the vector's base if nonzero.
         y : float (optional)
-        The y-coordinate of the vector's base if nonzero.
+            The y-coordinate of the vector's base if nonzero.
 
         Other Parameters
         ----------------
