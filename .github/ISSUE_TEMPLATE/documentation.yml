@@ -30,10 +30,3 @@ body:
         * This line should be be changed to say [...]
         * Include a paragraph explaining [...]
         * Add a figure showing [...]
-  - type: input
-    id: matplotlib-version
-    attributes:
-      label: Matplotlib Version
-      description: "From Python prompt: `import matplotlib; print(matplotlib.__version__)`"
-    validations:
-      required: true
