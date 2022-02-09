@@ -182,8 +182,8 @@ def test_too_many_date_ticks(caplog):
     with pytest.warns(UserWarning) as rec:
         ax.set_xlim((t0, tf), auto=True)
         assert len(rec) == 1
-        assert \
-            'Attempting to set identical left == right' in str(rec[0].message)
+        assert ('Attempting to set identical low and high xlims'
+                in str(rec[0].message))
     ax.plot([], [])
     ax.xaxis.set_major_locator(mdates.DayLocator())
     v = ax.xaxis.get_major_locator()()
