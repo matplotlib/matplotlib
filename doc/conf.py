@@ -190,8 +190,6 @@ sphinx_gallery_conf = {
     'doc_module': ('matplotlib', 'mpl_toolkits'),
     'reference_url': {
         'matplotlib': None,
-        'numpy': 'https://numpy.org/doc/stable/',
-        'scipy': 'https://docs.scipy.org/doc/scipy/',
     },
     'backreferences_dir': Path('api') / Path('_as_gen'),
     'subsection_order': gallery_order.sectionorder,
