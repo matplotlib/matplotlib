@@ -606,7 +606,7 @@ class ScalarFormatter(Formatter):
         lims : (int, int)
             A tuple *(min_exp, max_exp)* containing the powers of 10 that
             determine the switchover threshold. For a number representable as
-            :math:`a \times 10^\mathrm{exp}`` with :math:`1 <= |a| < 10`,
+            :math:`a \times 10^\mathrm{exp}` with :math:`1 <= |a| < 10`,
             scientific notation will be used if ``exp <= min_exp`` or
             ``exp >= max_exp``.
 
