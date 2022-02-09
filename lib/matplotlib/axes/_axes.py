@@ -6774,23 +6774,23 @@ such objects
 
     def vector(self, dx, dy, x=0., y=0., **kwargs):
         """
-        Plot an arrow indicating a vector. 
+        Plot an arrow indicating a vector.
 
         Parameters
         ----------
         dx : float
-        	The x-component of the vector
+        The x-component of the vector
         dy : float
-        	The y-component of the vector
+        The y-component of the vector
         x : float (optional)
-        	The x-coordinate of the vector's base if nonzero.
+        The x-coordinate of the vector's base if nonzero.
         y : float (optional)
-        	The y-coordinate of the vector's base if nonzero.
+        The y-coordinate of the vector's base if nonzero.
 
         Other Parameters
         ----------------
         **kwargs
-            `~matplotlib.patches.FancyArrowPatch` properties
+        `~matplotlib.patches.FancyArrowPatch` properties
         """
         posA = (x, y)
         posB = (x + dx, y + dy)
@@ -6801,9 +6801,9 @@ such objects
         vect = mpatches.FancyArrowPatch(posA, posB, color=color, **kwargs)
         ms = vect._mutation_scale
         stylekw = {
-            "head_length" : kwargs.get("head_length", 12) / ms,
-            "head_width" : kwargs.get("head_width", 12) / ms,
-            "tail_width" : kwargs.get("tail_width", 4) / ms,
+            "head_length": kwargs.get("head_length", 12) / ms,
+            "head_width": kwargs.get("head_width", 12) / ms,
+            "tail_width": kwargs.get("tail_width", 4) / ms,
         }
         vect.set_arrowstyle(kwargs.get("arrowstyle", "simple"), **stylekw)
         self.add_patch(vect)
