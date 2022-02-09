@@ -3596,7 +3596,7 @@ class _AxesBase(martist.Artist):
 
         See Also
         --------
-        set_xlim
+        .Axes.set_xlim
         set_xbound, get_xbound
         invert_xaxis, xaxis_inverted
 
@@ -3604,7 +3604,6 @@ class _AxesBase(martist.Artist):
         -----
         The x-axis may be inverted, in which case the *left* value will
         be greater than the *right* value.
-
         """
         return tuple(self.viewLim.intervalx)
 
@@ -3885,7 +3884,7 @@ class _AxesBase(martist.Artist):
 
         See Also
         --------
-        set_ylim
+        .Axes.set_ylim
         set_ybound, get_ybound
         invert_yaxis, yaxis_inverted
 
@@ -3893,7 +3892,6 @@ class _AxesBase(martist.Artist):
         -----
         The y-axis may be inverted, in which case the *bottom* value
         will be greater than the *top* value.
-
         """
         return tuple(self.viewLim.intervaly)
 
