@@ -71,6 +71,13 @@ def test_savefig_to_stringio(format, use_log, rcParams, orientation):
 
         assert not s_buf.closed
         assert not b_buf.closed
+        if '\x80' in s_buf.getvalue():
+            pytest.skip(
+                "This appears to be the result of a bug in ghostscript or one "
+                "of its dependencies that fails to ascii85 encode the "
+                "compressed fonts which results in encoding the string as "
+                "ascii failing just below."
+            )
         s_val = s_buf.getvalue().encode('ascii')
         b_val = b_buf.getvalue()
 
