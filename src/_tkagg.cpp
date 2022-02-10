@@ -256,25 +256,32 @@ int load_tcl(T lib)
 
 void load_tkinter_funcs(void)
 {
-    // Load Tcl/Tk functions by searching all modules in current process.
-    HMODULE hMods[1024];
-    HANDLE hProcess;
-    DWORD cbNeeded;
-    unsigned int i;
+    HANDLE process = GetCurrentProcess();  // Pseudo-handle, doesn't need closing.
+    HMODULE* modules = NULL;
+    DWORD size;
+    if (!EnumProcessModules(process, NULL, 0, &size)) {
+        PyErr_SetFromWindowsErr(0);
+        goto exit;
+    }
+    if (!(modules = static_cast<HMODULE*>(malloc(size)))) {
+        PyErr_NoMemory();
+        goto exit;
+    }
+    if (!EnumProcessModules(process, modules, size, &size)) {
+        PyErr_SetFromWindowsErr(0);
+        goto exit;
+    }
     bool tcl_ok = false, tk_ok = false;
-    // Returns pseudo-handle that does not need to be closed
-    hProcess = GetCurrentProcess();
-    // Iterate through modules in this process looking for Tcl/Tk names.
-    if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded)) {
-        for (i = 0; i < (cbNeeded / sizeof(HMODULE)); i++) {
-            if (!tcl_ok) {
-                tcl_ok = load_tcl(hMods[i]);
-            }
-            if (!tk_ok) {
-                tk_ok = load_tk(hMods[i]);
-            }
+    for (unsigned i = 0; i < size / sizeof(HMODULE); ++i) {
+        if (!tcl_ok) {
+            tcl_ok = load_tcl(modules[i]);
+        }
+        if (!tk_ok) {
+            tk_ok = load_tk(modules[i]);
         }
     }
+exit:
+    free(modules);
 }
 
 #else  // not Windows
