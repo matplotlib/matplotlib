@@ -55,7 +55,7 @@ triangle, make *headaxislength* the same as *headlength*. To make the
 arrow more pointed, reduce *headwidth* or increase *headlength* and
 *headaxislength*. To make the head smaller relative to the shaft,
 scale down all the head parameters. You will probably do best to leave
-minshaft alone.
+*minshaft* alone.
 
 **Arrow outline**
 
@@ -595,32 +595,18 @@ class Quiver(mcollections.PolyCollection):
         self.stale = True
 
     def _dots_per_unit(self, units):
-        """
-        Return a scale factor for converting from units to pixels
-        """
-        if units in ('x', 'y', 'xy'):
-            if units == 'x':
-                dx0 = self.axes.viewLim.width
-                dx1 = self.axes.bbox.width
-            elif units == 'y':
-                dx0 = self.axes.viewLim.height
-                dx1 = self.axes.bbox.height
-            else:  # 'xy', i.e. hypot(x, y)
-                dx0 = np.hypot(*self.axes.viewLim.size)
-                dx1 = np.hypot(*self.axes.bbox.size)
-            dx = dx1 / dx0
-        else:
-            if units == 'width':
-                dx = self.axes.bbox.width
-            elif units == 'height':
-                dx = self.axes.bbox.height
-            elif units == 'dots':
-                dx = 1.0
-            elif units == 'inches':
-                dx = self.axes.figure.dpi
-            else:
-                raise ValueError('unrecognized units')
-        return dx
+        """Return a scale factor for converting from units to pixels."""
+        bb = self.axes.bbox
+        vl = self.axes.viewLim
+        return _api.check_getitem({
+            'x': bb.width / vl.width,
+            'y': bb.height / vl.height,
+            'xy': np.hypot(*bb.size) / np.hypot(*vl.size),
+            'width': bb.width,
+            'height': bb.height,
+            'dots': 1.,
+            'inches': self.axes.figure.dpi,
+        }, units=units)
 
     def _set_transform(self):
         """
