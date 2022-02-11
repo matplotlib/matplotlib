@@ -8,7 +8,7 @@ Demonstration of using norm to map colormaps onto data in non-linear ways.
 .. redirect-from:: /gallery/userdemo/colormap_normalization_symlognorm
 """
 
-########################################
+###############################################################################
 # Synthetic dataset consisting of two humps, one negative and one positive,
 # the positive with 8-times the amplitude.
 # Linearly, the negative hump is almost invisible,
@@ -52,7 +52,7 @@ fig.colorbar(pcm, ax=ax[1], extend='both')
 ax[1].text(-2.5, 1.5, 'linear')
 
 
-########################################
+###############################################################################
 # In order to find the best visualization for any particular dataset,
 # it may be necessary to experiment with multiple different color scales.
 # As well as the `~.colors.SymLogNorm` scaling, there is also
