@@ -1166,6 +1166,15 @@ def test_colormap_reversing(name):
     assert_array_almost_equal(cmap(np.nan), cmap_r(np.nan))
 
 
+def test_has_alpha_channel():
+    assert mcolors._has_alpha_channel((0, 0, 0, 0))
+    assert mcolors._has_alpha_channel([1, 1, 1, 1])
+    assert not mcolors._has_alpha_channel('blue')  # 4-char string!
+    assert not mcolors._has_alpha_channel('0.25')
+    assert not mcolors._has_alpha_channel('r')
+    assert not mcolors._has_alpha_channel((1, 0, 0))
+
+
 def test_cn():
     matplotlib.rcParams['axes.prop_cycle'] = cycler('color',
                                                     ['blue', 'r'])

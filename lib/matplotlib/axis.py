@@ -12,6 +12,7 @@ import matplotlib as mpl
 from matplotlib import _api
 import matplotlib.artist as martist
 import matplotlib.cbook as cbook
+import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
 import matplotlib.scale as mscale
 import matplotlib.text as mtext
@@ -143,7 +144,12 @@ class Tick(martist.Artist):
             grid_linestyle = mpl.rcParams["grid.linestyle"]
         if grid_linewidth is None:
             grid_linewidth = mpl.rcParams["grid.linewidth"]
-        if grid_alpha is None:
+        if grid_alpha is None and not mcolors._has_alpha_channel(grid_color):
+            # alpha precedence: kwarg > color alpha > rcParams['grid.alpha']
+            # Note: only resolve to rcParams if the color does not have alpha
+            # otherwise `grid(color=(1, 1, 1, 0.5))` would work like
+            #   grid(color=(1, 1, 1, 0.5), alpha=rcParams['grid.alpha'])
+            # so the that the rcParams default would override color alpha.
             grid_alpha = mpl.rcParams["grid.alpha"]
         grid_kw = {k[5:]: v for k, v in kwargs.items()}
 
@@ -1498,7 +1504,7 @@ class Axis(martist.Artist):
                 visible = True
         which = which.lower()
         _api.check_in_list(['major', 'minor', 'both'], which=which)
-        gridkw = {'grid_' + item[0]: item[1] for item in kwargs.items()}
+        gridkw = {f'grid_{name}': value for name, value in kwargs.items()}
         if which in ['minor', 'both']:
             gridkw['gridOn'] = (not self._minor_tick_kw['gridOn']
                                 if visible is None else visible)
