@@ -206,7 +206,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._offset_transform = offset_transform
 
         self._path_effects = None
-        self.update(kwargs)
+        self._internal_update(kwargs)
         self._paths = None
 
     def get_paths(self):

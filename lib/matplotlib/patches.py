@@ -111,7 +111,7 @@ class Patch(artist.Artist):
         self.set_joinstyle(joinstyle)
 
         if len(kwargs):
-            self.update(kwargs)
+            self._internal_update(kwargs)
 
     def get_verts(self):
         """

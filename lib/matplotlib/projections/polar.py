@@ -1307,7 +1307,7 @@ class PolarAxes(Axes):
         elif fmt is not None:
             self.xaxis.set_major_formatter(mticker.FormatStrFormatter(fmt))
         for t in self.xaxis.get_ticklabels():
-            t.update(kwargs)
+            t._internal_update(kwargs)
         return self.xaxis.get_ticklines(), self.xaxis.get_ticklabels()
 
     def set_rgrids(self, radii, labels=None, angle=None, fmt=None, **kwargs):
@@ -1362,7 +1362,7 @@ class PolarAxes(Axes):
             angle = self.get_rlabel_position()
         self.set_rlabel_position(angle)
         for t in self.yaxis.get_ticklabels():
-            t.update(kwargs)
+            t._internal_update(kwargs)
         return self.yaxis.get_gridlines(), self.yaxis.get_ticklabels()
 
     def format_coord(self, theta, r):

@@ -184,7 +184,7 @@ class Cell(Rectangle):
 
         %(Text:kwdoc)s
         """
-        self._text.update(kwargs)
+        self._text._internal_update(kwargs)
         self.stale = True
 
     @property
@@ -315,7 +315,7 @@ class Table(Artist):
         self._edges = None
         self._autoColumns = []
         self._autoFontsize = True
-        self.update(kwargs)
+        self._internal_update(kwargs)
 
         self.set_clip_on(False)
 

@@ -1048,32 +1048,6 @@ class Artist:
         """
         self._in_layout = in_layout
 
-    def update(self, props):
-        """
-        Update this artist's properties from the dict *props*.
-
-        Parameters
-        ----------
-        props : dict
-        """
-        ret = []
-        with cbook._setattr_cm(self, eventson=False):
-            for k, v in props.items():
-                # Allow attributes we want to be able to update through
-                # art.update, art.set, setp.
-                if k == "axes":
-                    ret.append(setattr(self, k, v))
-                else:
-                    func = getattr(self, f"set_{k}", None)
-                    if not callable(func):
-                        raise AttributeError(f"{type(self).__name__!r} object "
-                                             f"has no property {k!r}")
-                    ret.append(func(v))
-        if ret:
-            self.pchanged()
-            self.stale = True
-        return ret
-
     def get_label(self):
         """Return the label used for this artist in the legend."""
         return self._label
@@ -1161,12 +1135,58 @@ class Artist:
         """Return a dictionary of all the properties of the artist."""
         return ArtistInspector(self).properties()
 
+    def _update_props(self, props, errfmt):
+        """
+        Helper for `.Artist.set` and `.Artist.update`.
+
+        *errfmt* is used to generate error messages for invalid property
+        names; it get formatted with ``type(self)`` and the property name.
+        """
+        ret = []
+        with cbook._setattr_cm(self, eventson=False):
+            for k, v in props.items():
+                # Allow attributes we want to be able to update through
+                # art.update, art.set, setp.
+                if k == "axes":
+                    ret.append(setattr(self, k, v))
+                else:
+                    func = getattr(self, f"set_{k}", None)
+                    if not callable(func):
+                        raise AttributeError(
+                            errfmt.format(cls=type(self), prop_name=k))
+                    ret.append(func(v))
+        if ret:
+            self.pchanged()
+            self.stale = True
+        return ret
+
+    def update(self, props):
+        """
+        Update this artist's properties from the dict *props*.
+
+        Parameters
+        ----------
+        props : dict
+        """
+        return self._update_props(
+            props, "{cls.__name__!r} object has no property {prop_name!r}")
+
+    def _internal_update(self, kwargs):
+        """
+        Update artist properties without prenormalizing them, but generating
+        errors as if calling `set`.
+
+        The lack of prenormalization is to maintain backcompatibility.
+        """
+        return self._update_props(
+            kwargs, "{cls.__name__}.set() got an unexpected keyword argument "
+            "{prop_name!r}")
+
     def set(self, **kwargs):
         # docstring and signature are auto-generated via
         # Artist._update_set_signature_and_docstring() at the end of the
         # module.
-        kwargs = cbook.normalize_kwargs(kwargs, self)
-        return self.update(kwargs)
+        return self._internal_update(cbook.normalize_kwargs(kwargs, self))
 
     @contextlib.contextmanager
     def _cm_set(self, **kwargs):

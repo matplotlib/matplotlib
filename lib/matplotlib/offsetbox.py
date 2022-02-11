@@ -193,7 +193,7 @@ class OffsetBox(martist.Artist):
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args)
-        self.update(kwargs)
+        self._internal_update(kwargs)
         # Clipping has not been implemented in the OffsetBox family, so
         # disable the clip flag for consistency. It can always be turned back
         # on to zero effect.
@@ -1359,7 +1359,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         if bboxprops:
             self.patch.set(**bboxprops)
 
-        self.update(kwargs)
+        self._internal_update(kwargs)
 
     @property
     def xyann(self):
