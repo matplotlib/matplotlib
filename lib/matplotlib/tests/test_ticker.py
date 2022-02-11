@@ -908,13 +908,12 @@ class TestLogitFormatter:
         float 1.41e-4, as '0.5' or as r'$\mathdefault{\frac{1}{2}}$' in float
         0.5,
         """
-        # Can inline the Unicode escapes to the raw strings in Python 3.8+
         match = re.match(
             r"[^\d]*"
-            r"(?P<comp>1" "[-\N{Minus Sign}]" r")?"
+            r"(?P<comp>1[-\N{Minus Sign}])?"
             r"(?P<mant>\d*\.?\d*)?"
             r"(?:\\cdot)?"
-            r"(?:10\^\{(?P<expo>" "[-\N{Minus Sign}]" r"?\d*)})?"
+            r"(?:10\^\{(?P<expo>[-\N{Minus Sign}]?\d*)})?"
             r"[^\d]*$",
             string,
         )

@@ -8,8 +8,8 @@ mplsetup.cfg.template for more information.
 # and/or pip.
 import sys
 
-py_min_version = (3, 7)  # minimal supported python version
-since_mpl_version = (3, 4)  # py_min_version is required since this mpl version
+py_min_version = (3, 8)  # minimal supported python version
+since_mpl_version = (3, 6)  # py_min_version is required since this mpl version
 
 if sys.version_info < py_min_version:
     error = """
@@ -160,12 +160,6 @@ class BuildExtraLibraries(setuptools.command.build_ext.build_ext):
         return env
 
     def build_extensions(self):
-        # Remove the -Wstrict-prototypes option, it's not valid for C++.  Fixed
-        # in Py3.7 as bpo-5755.
-        try:
-            self.compiler.compiler_so.remove('-Wstrict-prototypes')
-        except (ValueError, AttributeError):
-            pass
         if (self.compiler.compiler_type == 'msvc' and
                 os.environ.get('MPL_DISABLE_FH4')):
             # Disable FH4 Exception Handling implementation so that we don't
@@ -289,7 +283,6 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         'License :: OSI Approved :: Python Software Foundation License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
