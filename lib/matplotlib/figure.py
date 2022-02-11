@@ -35,8 +35,10 @@ import matplotlib.image as mimage
 
 from matplotlib.axes import Axes, SubplotBase, subplot_class_factory
 from matplotlib.gridspec import GridSpec
-from matplotlib.layout_engine import (ConstrainedLayoutEngine,
-                                      TightLayoutEngine, LayoutEngine)
+from matplotlib.layout_engine import (
+    ConstrainedLayoutEngine, TightLayoutEngine, LayoutEngine,
+    PlaceHolderLayoutEngine
+)
 import matplotlib.legend as mlegend
 from matplotlib.patches import Rectangle
 from matplotlib.text import Text
@@ -2382,7 +2384,9 @@ class Figure(FigureBase):
         If the figure has used the old engine and added a colorbar then the
         value of colorbar_gridspec must be the same on the new engine.
         """
-        if old is None or old.colorbar_gridspec == new.colorbar_gridspec:
+        if old is None or new is None:
+            return True
+        if old.colorbar_gridspec == new.colorbar_gridspec:
             return True
         # colorbar layout different, so check if any colorbars are on the
         # figure...
@@ -2398,15 +2402,29 @@ class Figure(FigureBase):
 
         Parameters
         ----------
-        layout: {'constrained', 'compressed', 'tight'} or `~.LayoutEngine`
-            'constrained' will use `~.ConstrainedLayoutEngine`,
-            'compressed' will also use ConstrainedLayoutEngine, but with a
-            correction that attempts to make a good layout for fixed-aspect
-            ratio Axes. 'tight' uses `~.TightLayoutEngine`.  Users and
-            libraries can define their own layout engines as well.
+        layout: {'constrained', 'compressed', 'tight', 'none'} or \
+`LayoutEngine` or None
+
+            - 'constrained' will use `~.ConstrainedLayoutEngine`
+            - 'compressed' will also use `~.ConstrainedLayoutEngine`, but with
+              a correction that attempts to make a good layout for fixed-aspect
+              ratio Axes.
+            - 'tight' uses `~.TightLayoutEngine`
+            - 'none' removes layout engine.
+
+            If `None`, the behavior is controlled by :rc:`figure.autolayout`
+            (which if `True` behaves as if 'tight' were passed) and
+            :rc:`figure.constrained_layout.use` (which if true behaves as if
+            'constrained' were passed).  If both are true,
+            :rc:`figure.autolayout` takes priority.
+
+            Users and libraries can define their own layout engines and pass
+            the instance directly as well.
+
         kwargs: dict
             The keyword arguments are passed to the layout engine to set things
             like padding and margin sizes.  Only used if *layout* is a string.
+
         """
         if layout is None:
             if mpl.rcParams['figure.autolayout']:
@@ -2423,6 +2441,14 @@ class Figure(FigureBase):
         elif layout == 'compressed':
             new_layout_engine = ConstrainedLayoutEngine(compress=True,
                                                         **kwargs)
+        elif layout == 'none':
+            if self._layout_engine is not None:
+                new_layout_engine = PlaceHolderLayoutEngine(
+                    self._layout_engine.adjust_compatible,
+                    self._layout_engine.colorbar_gridspec
+                )
+            else:
+                new_layout_engine = None
         elif isinstance(layout, LayoutEngine):
             new_layout_engine = layout
         else:
