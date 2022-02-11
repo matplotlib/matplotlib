@@ -1172,6 +1172,7 @@ class PolarAxes(Axes):
     def get_rsign(self):
         return np.sign(self._originViewLim.y1 - self._originViewLim.y0)
 
+    @_api.make_keyword_only("3.6", "emit")
     def set_rlim(self, bottom=None, top=None, emit=True, auto=False, **kwargs):
         """
         See `~.polar.PolarAxes.set_ylim`.
@@ -1191,6 +1192,7 @@ class PolarAxes(Axes):
         return self.set_ylim(bottom=bottom, top=top, emit=emit, auto=auto,
                              **kwargs)
 
+    @_api.make_keyword_only("3.6", "emit")
     def set_ylim(self, bottom=None, top=None, emit=True, auto=False,
                  *, ymin=None, ymax=None):
         """
@@ -1227,7 +1229,8 @@ class PolarAxes(Axes):
         bottom, top : (float, float)
             The new y-axis limits in data coordinates.
         """
-        return super().set_ylim(bottom, top, emit, auto, ymin=ymin, ymax=ymax)
+        return super().set_ylim(
+            bottom, top, emit=emit, auto=auto, ymin=ymin, ymax=ymax)
 
     def get_rlabel_position(self):
         """

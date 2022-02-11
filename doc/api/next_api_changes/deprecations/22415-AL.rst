@@ -1,0 +1,4 @@
+*emit* and *auto* parameters of ``set_xlim``, ``set_ylim``, ``set_zlim``, ``set_rlim``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Passing these parameters positionally is deprecated; they will become
+keyword-only in a future release.
