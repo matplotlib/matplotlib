@@ -51,6 +51,10 @@ class FigureCanvasWebAgg(core.FigureCanvasWebAggCore):
     pass
 
 
+class FigureManagerWebAgg(core.FigureManagerWebAgg):
+    _toolbar2_class = core.NavigationToolbar2WebAgg
+
+
 class WebAggApplication(tornado.web.Application):
     initialized = False
     started = False
@@ -299,7 +303,7 @@ def ipython_inline_display(figure):
 @_Backend.export
 class _BackendWebAgg(_Backend):
     FigureCanvas = FigureCanvasWebAgg
-    FigureManager = core.FigureManagerWebAgg
+    FigureManager = FigureManagerWebAgg
 
     @staticmethod
     def show():
