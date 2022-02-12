@@ -1334,7 +1334,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
                                        xycoords=xycoords,
                                        annotation_clip=annotation_clip)
         self.offsetbox = offsetbox
-        self.arrowprops = arrowprops
+        self.arrowprops = arrowprops.copy() if arrowprops is not None else None
         self.set_fontsize(fontsize)
         self.xybox = xybox if xybox is not None else xy
         self.boxcoords = boxcoords if boxcoords is not None else xycoords
