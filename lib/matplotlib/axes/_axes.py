@@ -2609,9 +2609,9 @@ class Axes(_AxesBase):
         # want to know whether to put label on positive or negative direction
         # cannot use np.sign here because it will return 0 if x == 0
         a, b = self.yaxis.get_view_interval()
-        yinverted = -1 if a > b else 1
+        y_inverted = a > b
         c, d = self.xaxis.get_view_interval()
-        xinverted = -1 if c > d else 1
+        x_inverted = c > d
 
         def sign(x):
             return 1 if x >= 0 else -1
@@ -2670,21 +2670,23 @@ class Axes(_AxesBase):
                 xy = endpt, yc
 
             if orientation == "vertical":
-                xytext = 0, yinverted * sign(dat) * padding
+                y_direction = -1 if y_inverted else 1
+                xytext = 0, y_direction * sign(dat) * padding
             else:
-                xytext = xinverted * sign(dat) * padding, 0
+                x_direction = -1 if x_inverted else 1
+                xytext = x_direction * sign(dat) * padding, 0
 
             if label_type == "center":
                 ha, va = "center", "center"
             elif label_type == "edge":
                 if orientation == "vertical":
                     ha = 'center'
-                    if yinverted == -1:
+                    if y_inverted:
                         va = 'top' if dat > 0 else 'bottom'  # also handles NaN
                     else:
                         va = 'top' if dat < 0 else 'bottom'  # also handles NaN
                 elif orientation == "horizontal":
-                    if xinverted == -1:
+                    if x_inverted:
                         ha = 'right' if dat > 0 else 'left'  # also handles NaN
                     else:
                         ha = 'right' if dat < 0 else 'left'  # also handles NaN
