@@ -46,7 +46,7 @@ import matplotlib.pyplot as plt
 # Prepare sample values for variations on y=x graph:
 x = np.linspace(-3, 6, 500)
 
-########################################
+###############################################################################
 # Compare "symlog" and "asinh" behaviour on sample y=x graph,
 # where there is a discontinuous gradient in "symlog" near y=2:
 fig1 = plt.figure()
@@ -63,7 +63,7 @@ ax1.grid()
 ax1.set_title('asinh')
 
 
-########################################
+###############################################################################
 # Compare "asinh" graphs with different scale parameter "linear_width":
 fig2 = plt.figure(constrained_layout=True)
 axs = fig2.subplots(1, 3, sharex=True)
@@ -77,7 +77,7 @@ for ax, (a0, base) in zip(axs, ((0.2, 2), (1.0, 0), (5.0, 10))):
     ax.legend(loc='best', fontsize='small')
 
 
-########################################
+###############################################################################
 # Compare "symlog" and "asinh" scalings
 # on 2D Cauchy-distributed random numbers,
 # where one may be able to see more subtle artifacts near y=2
@@ -100,7 +100,7 @@ ax.grid()
 
 plt.show()
 
-########################################
+###############################################################################
 #
 # .. admonition:: References
 #
