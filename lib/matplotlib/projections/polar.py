@@ -1175,7 +1175,14 @@ class PolarAxes(Axes):
     @_api.make_keyword_only("3.6", "emit")
     def set_rlim(self, bottom=None, top=None, emit=True, auto=False, **kwargs):
         """
-        See `~.polar.PolarAxes.set_ylim`.
+        Set the radial axis view limits.
+
+        This function behaves like `.Axes.set_ylim`, but additionally supports
+        *rmin* and *rmax* as aliases for *bottom* and *top*.
+
+        See Also
+        --------
+        .Axes.set_ylim
         """
         if 'rmin' in kwargs:
             if bottom is None:
@@ -1191,46 +1198,6 @@ class PolarAxes(Axes):
                                  'argument and kwarg "rmax"')
         return self.set_ylim(bottom=bottom, top=top, emit=emit, auto=auto,
                              **kwargs)
-
-    @_api.make_keyword_only("3.6", "emit")
-    def set_ylim(self, bottom=None, top=None, emit=True, auto=False,
-                 *, ymin=None, ymax=None):
-        """
-        Set the view limits for the radial axis.
-
-        Parameters
-        ----------
-        bottom : float, optional
-            The bottom limit (default: None, which leaves the bottom
-            limit unchanged).
-            The bottom and top ylims may be passed as the tuple
-            (*bottom*, *top*) as the first positional argument (or as
-            the *bottom* keyword argument).
-
-        top : float, optional
-            The top limit (default: None, which leaves the top limit
-            unchanged).
-
-        emit : bool, default: True
-            Whether to notify observers of limit change.
-
-        auto : bool or None, default: False
-            Whether to turn on autoscaling of the y-axis. True turns on,
-            False turns off, None leaves unchanged.
-
-        ymin, ymax : float, optional
-            These arguments are deprecated and will be removed in a future
-            version.  They are equivalent to *bottom* and *top* respectively,
-            and it is an error to pass both *ymin* and *bottom* or
-            *ymax* and *top*.
-
-        Returns
-        -------
-        bottom, top : (float, float)
-            The new y-axis limits in data coordinates.
-        """
-        return super().set_ylim(
-            bottom, top, emit=emit, auto=auto, ymin=ymin, ymax=ymax)
 
     def get_rlabel_position(self):
         """
