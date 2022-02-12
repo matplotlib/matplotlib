@@ -2129,6 +2129,7 @@ class Figure(FigureBase):
             naxes=len(self.axes),
         )
 
+    @_api.make_keyword_only("3.6", "facecolor")
     def __init__(self,
                  figsize=None,
                  dpi=None,
