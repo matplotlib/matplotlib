@@ -424,7 +424,7 @@ class Axes3D(Axes):
             # Calculate projection of collections and patches and zorder
             # them. Make sure they are drawn above the grids.
             zorder_offset = max(axis.get_zorder()
-                                for axis in self._get_axis_list()) + 1
+                                for axis in self._axis_map.values()) + 1
             collection_zorder = patch_zorder = zorder_offset
 
             for artist in sorted(collections_and_patches,
@@ -442,10 +442,10 @@ class Axes3D(Axes):
 
         if self._axis3don:
             # Draw panes first
-            for axis in self._get_axis_list():
+            for axis in self._axis_map.values():
                 axis.draw_pane(renderer)
             # Then axes
-            for axis in self._get_axis_list():
+            for axis in self._axis_map.values():
                 axis.draw(renderer)
 
         # Then rest
@@ -3165,7 +3165,7 @@ pivot='tail', normalize=False, **kwargs)
                                     for_layout_only=for_layout_only)
         batch = [ret]
         if self._axis3don:
-            for axis in self._get_axis_list():
+            for axis in self._axis_map.values():
                 if axis.get_visible():
                     axis_bb = martist._get_tightbbox_for_layout_only(
                         axis, renderer)
