@@ -406,9 +406,9 @@ class Legend(Artist):
         _lab, _hand = [], []
         for label, handle in zip(labels, handles):
             if isinstance(label, str) and label.startswith('_'):
-                _api.warn_external('The handle {!r} has a label of {!r} '
-                                   'which cannot be automatically added to'
-                                   ' the legend.'.format(handle, label))
+                _api.warn_external(f"The label {label!r} of {handle!r} starts "
+                                   "with '_'. It is thus excluded from the "
+                                   "legend.")
             else:
                 _lab.append(label)
                 _hand.append(handle)

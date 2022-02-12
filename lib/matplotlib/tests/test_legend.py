@@ -78,6 +78,20 @@ def test_various_labels():
     ax.legend(numpoints=1, loc='best')
 
 
+def test_legend_label_with_leading_underscore():
+    """
+    Test that artists with labels starting with an underscore are not added to
+    the legend, and that a warning is issued if one tries to add them
+    explicitly.
+    """
+    fig, ax = plt.subplots()
+    line, = ax.plot([0, 1], label='_foo')
+    with pytest.warns(UserWarning,
+                      match=r"starts with '_'.*excluded from the legend."):
+        legend = ax.legend(handles=[line])
+    assert len(legend.legendHandles) == 0
+
+
 @image_comparison(['legend_labels_first.png'], remove_text=True)
 def test_labels_first():
     # test labels to left of markers
