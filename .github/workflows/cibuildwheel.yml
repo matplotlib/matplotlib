@@ -20,6 +20,7 @@ on:
 jobs:
   build_wheels:
     if: |
+      github.event.action == 'push' ||
       (
         github.event.action == 'labeled' &&
         github.event.label.name == 'Run cibuildwheel'
