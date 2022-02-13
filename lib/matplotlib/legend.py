@@ -585,8 +585,12 @@ class Legend(Artist):
 
     _loc = property(_get_loc, _set_loc)
 
-    def _findoffset(self, width, height, xdescent, ydescent, renderer):
+    def _findoffset(self):
         """Helper function to locate the legend."""
+        renderer = (self.figure._cachedRenderer
+                    or self._legend_box._cached_renderer)
+        width, height, xdescent, ydescent = self._legend_box.get_extent(
+            renderer)
 
         if self._loc == 0:  # "best".
             x, y = self._find_best_position(width, height, renderer)
@@ -883,6 +887,8 @@ class Legend(Artist):
         # docstring inherited
         if renderer is None:
             renderer = self.figure._cachedRenderer
+        # May not be cached on the figure, so cache it ourselves.
+        self._cached_renderer = renderer
         return self._legend_box.get_window_extent(renderer=renderer)
 
     def get_tightbbox(self, renderer):

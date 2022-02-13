@@ -263,11 +263,19 @@ class OffsetBox(martist.Artist):
         xy : (float, float) or callable
             The (x, y) coordinates of the offset in display units. These can
             either be given explicitly as a tuple (x, y), or by providing a
-            function that converts the extent into the offset. This function
-            must have the signature::
+            function that dynamically computes an offset (taking the arguments
+            passed to `.OffsetBox.get_offset`).  It is recommended to make such
+            functions take no arguments.
+
+            Before version 3.6, the callable had to have the signature::
 
                 def offset(width, height, xdescent, ydescent, renderer) \
 -> (float, float)
+
+            For backwards compatibility, callables with arbitrary signatures
+            are currently accepted as long as compatible arguments are
+            passed in calls to `.set_offset`. This should be considered an
+            implementation detail, and may be deprecated in the future.
         """
         self._offset = xy
         self.stale = True
@@ -276,9 +284,12 @@ class OffsetBox(martist.Artist):
         """
         Return the (x, y) offset.
 
-        Parameters must be passed if the offset is dynamically determined by a
-        callable (see `~.OffsetBox.set_offset`), and are forwarded to that
-        callable.
+        Parameters are usually not necessary. The only exception can occur
+        if you have defined a callable to calculate the offset dynamically (see
+        `~.OffsetBox.set_offset`). It is now recommended that such a
+        callable does not take parameters. However, for backward-compatibility,
+        callables with parameters are still supported; these parameters must be
+        provided to `.get_offset` so that we can pass them on.
         """
         return (self._offset(*args, **kwargs) if callable(self._offset)
                 else self._offset)
@@ -340,7 +351,9 @@ class OffsetBox(martist.Artist):
     def get_window_extent(self, renderer):
         # docstring inherited
         w, h, xd, yd = self.get_extent(renderer)
-        px, py = self.get_offset(w, h, xd, yd, renderer)
+        # dynamic offset compute callables may need to access the renderer.
+        self._cached_renderer = renderer
+        px, py = self.get_offset()
         return mtransforms.Bbox.from_bounds(px - xd, py - yd, w, h)
 
     def draw(self, renderer):
@@ -349,7 +362,7 @@ class OffsetBox(martist.Artist):
         to the given *renderer*.
         """
         w, h, xdescent, ydescent, offsets = self.get_extent_offsets(renderer)
-        px, py = self.get_offset(w, h, xdescent, ydescent, renderer)
+        px, py = self.get_offset()
         for c, (ox, oy) in zip(self.get_visible_children(), offsets):
             c.set_offset((px + ox, py + oy))
             c.draw(renderer)
@@ -530,7 +543,7 @@ class PaddedBox(OffsetBox):
     def draw(self, renderer):
         # docstring inherited
         w, h, xdescent, ydescent, offsets = self.get_extent_offsets(renderer)
-        px, py = self.get_offset(w, h, xdescent, ydescent, renderer)
+        px, py = self.get_offset()
         for c, (ox, oy) in zip(self.get_visible_children(), offsets):
             c.set_offset((px + ox, py + oy))
 
@@ -1036,9 +1049,10 @@ class AnchoredOffsetbox(OffsetBox):
         # docstring inherited
         # Update the offset func, which depends on the dpi of the renderer
         # (because of the padding).
+        w, h, xd, yd = self.get_extent(renderer)
         fontsize = renderer.points_to_pixels(self.prop.get_size_in_points())
 
-        def _offset(w, h, xd, yd, renderer):
+        def _offset(*args, **kwargs):  # args are ignored; left for backcompat.
             bbox = Bbox.from_bounds(0, 0, w, h)
             pad = self.borderpad * fontsize
             bbox_to_anchor = self.get_bbox_to_anchor()
@@ -1064,9 +1078,7 @@ class AnchoredOffsetbox(OffsetBox):
         self.update_frame(bbox, fontsize)
         self.patch.draw(renderer)
 
-        width, height, xdescent, ydescent = self.get_extent(renderer)
-
-        px, py = self.get_offset(width, height, xdescent, ydescent, renderer)
+        px, py = self.get_offset()
 
         self.get_child().set_offset((px, py))
         self.get_child().draw(renderer)
@@ -1545,8 +1557,7 @@ class DraggableOffsetBox(DraggableBase):
     def save_offset(self):
         offsetbox = self.offsetbox
         renderer = offsetbox.figure._cachedRenderer
-        w, h, xd, yd = offsetbox.get_extent(renderer)
-        offset = offsetbox.get_offset(w, h, xd, yd, renderer)
+        offset = offsetbox.get_offset()
         self.offsetbox_x, self.offsetbox_y = offset
         self.offsetbox.set_offset(offset)
 
