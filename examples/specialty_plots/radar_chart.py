@@ -55,8 +55,6 @@ def radar_factory(num_vars, frame='circle'):
     class RadarAxes(PolarAxes):
 
         name = 'radar'
-        # use 1 line segment to connect specified points
-        RESOLUTION = 1
         PolarTransform = RadarTransform
 
         def __init__(self, *args, **kwargs):
