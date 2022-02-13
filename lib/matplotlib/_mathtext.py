@@ -1701,8 +1701,6 @@ def ship(ox, oy, box):
     processes have become local variables here.
     """
 
-    max_push    = 0  # Deepest nesting of push commands so far
-    cur_s       = 0
     cur_v       = 0.
     cur_h       = 0.
     off_h       = ox
@@ -1716,7 +1714,7 @@ def ship(ox, oy, box):
         return value
 
     def hlist_out(box):
-        nonlocal max_push, cur_s, cur_v, cur_h, off_h, off_v
+        nonlocal cur_v, cur_h, off_h, off_v
 
         cur_g         = 0
         cur_glue      = 0.
@@ -1724,8 +1722,6 @@ def ship(ox, oy, box):
         glue_sign     = box.glue_sign
         base_line     = cur_v
         left_edge     = cur_h
-        cur_s    += 1
-        max_push = max(cur_s, max_push)
 
         for p in box.children:
             if isinstance(p, Char):
@@ -1776,17 +1772,14 @@ def ship(ox, oy, box):
                         cur_g = round(clamp(box.glue_set * cur_glue))
                 rule_width += cur_g
                 cur_h += rule_width
-        cur_s -= 1
 
     def vlist_out(box):
-        nonlocal max_push, cur_s, cur_v, cur_h, off_h, off_v
+        nonlocal cur_v, cur_h, off_h, off_v
 
         cur_g         = 0
         cur_glue      = 0.
         glue_order    = box.glue_order
         glue_sign     = box.glue_sign
-        cur_s    += 1
-        max_push = max(max_push, cur_s)
         left_edge     = cur_h
         cur_v    -= box.height
         top_edge      = cur_v
@@ -1835,7 +1828,6 @@ def ship(ox, oy, box):
             elif isinstance(p, Char):
                 raise RuntimeError(
                     "Internal mathtext error: Char node found in vlist")
-        cur_s -= 1
 
     hlist_out(box)
 
