@@ -42,11 +42,22 @@ def radar_factory(num_vars, frame='circle'):
     # calculate evenly-spaced axis angles
     theta = np.linspace(0, 2*np.pi, num_vars, endpoint=False)
 
+    class RadarTransform(PolarAxes.PolarTransform):
+
+        def transform_path_non_affine(self, path):
+            # Paths with non-unit interpolation steps correspond to gridlines,
+            # in which case we force interpolation (to defeat PolarTransform's
+            # autoconversion to circular arcs).
+            if path._interpolation_steps > 1:
+                path = path.interpolated(num_vars)
+            return Path(self.transform(path.vertices), path.codes)
+
     class RadarAxes(PolarAxes):
 
         name = 'radar'
         # use 1 line segment to connect specified points
         RESOLUTION = 1
+        PolarTransform = RadarTransform
 
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
@@ -175,7 +186,7 @@ if __name__ == '__main__':
                      horizontalalignment='center', verticalalignment='center')
         for d, color in zip(case_data, colors):
             ax.plot(theta, d, color=color)
-            ax.fill(theta, d, facecolor=color, alpha=0.25)
+            ax.fill(theta, d, facecolor=color, alpha=0.25, label='_nolegend_')
         ax.set_varlabels(spoke_labels)
 
     # add legend relative to top-left plot
