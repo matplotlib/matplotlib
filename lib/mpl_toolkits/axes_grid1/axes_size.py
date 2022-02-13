@@ -16,7 +16,6 @@ from matplotlib.axes import Axes
 
 
 class _Base:
-
     def __rmul__(self, other):
         return Fraction(other, self)
 
@@ -38,6 +37,8 @@ class Add(_Base):
         return a_rel_size + b_rel_size, a_abs_size + b_abs_size
 
 
+@_api.deprecated(
+    "3.6", alternative="sum(sizes, start=Fixed(0))")
 class AddList(_Base):
     def __init__(self, add_list):
         self._list = add_list
