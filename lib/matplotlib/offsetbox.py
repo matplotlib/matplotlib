@@ -1314,7 +1314,9 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
             *textcoords* in `.Annotation` for a detailed description.
 
         frameon : bool, default: True
-            Whether to draw a frame around the box.
+            By default, the text is surrounded by a white `.FancyBboxPatch`
+            (accessible as the ``patch`` attribute of the `.AnnotationBbox`).
+            If *frameon* is set to False, this patch is made invisible.
 
         pad : float, default: 0.4
             Padding around the offsetbox.
@@ -1329,10 +1331,9 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         """
 
         martist.Artist.__init__(self)
-        mtext._AnnotationBase.__init__(self,
-                                       xy,
-                                       xycoords=xycoords,
-                                       annotation_clip=annotation_clip)
+        mtext._AnnotationBase.__init__(
+            self, xy, xycoords=xycoords, annotation_clip=annotation_clip)
+
         self.offsetbox = offsetbox
         self.arrowprops = arrowprops.copy() if arrowprops is not None else None
         self.set_fontsize(fontsize)
@@ -1418,34 +1419,17 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
 
     def get_window_extent(self, renderer):
         # docstring inherited
-        bboxes = [child.get_window_extent(renderer)
-                  for child in self.get_children()]
-
-        return Bbox.union(bboxes)
+        return Bbox.union([child.get_window_extent(renderer)
+                           for child in self.get_children()])
 
     def get_tightbbox(self, renderer):
         # docstring inherited
-        bboxes = [child.get_tightbbox(renderer)
-                  for child in self.get_children()]
-
-        return Bbox.union(bboxes)
+        return Bbox.union([child.get_tightbbox(renderer)
+                           for child in self.get_children()])
 
     def update_positions(self, renderer):
         """
-        Update the pixel positions of the annotated point and the text.
-        """
-        xy_pixel = self._get_position_xy(renderer)
-        self._update_position_xybox(renderer, xy_pixel)
-
-        mutation_scale = renderer.points_to_pixels(self.get_fontsize())
-        self.patch.set_mutation_scale(mutation_scale)
-
-        if self.arrow_patch:
-            self.arrow_patch.set_mutation_scale(mutation_scale)
-
-    def _update_position_xybox(self, renderer, xy_pixel):
-        """
-        Update the pixel positions of the annotation text and the arrow patch.
+        Update pixel positions for the annotated point, the text and the arrow.
         """
 
         x, y = self.xybox
@@ -1458,40 +1442,34 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
             ox0, oy0 = self._get_xy(renderer, x, y, self.boxcoords)
 
         w, h, xd, yd = self.offsetbox.get_extent(renderer)
+        fw, fh = self._box_alignment
+        self.offsetbox.set_offset((ox0 - fw * w + xd, oy0 - fh * h + yd))
 
-        _fw, _fh = self._box_alignment
-        self.offsetbox.set_offset((ox0 - _fw * w + xd, oy0 - _fh * h + yd))
-
-        # update patch position
         bbox = self.offsetbox.get_window_extent(renderer)
         self.patch.set_bounds(bbox.bounds)
 
-        ox1, oy1 = xy_pixel
+        mutation_scale = renderer.points_to_pixels(self.get_fontsize())
+        self.patch.set_mutation_scale(mutation_scale)
 
         if self.arrowprops:
-            d = self.arrowprops.copy()
-
             # Use FancyArrowPatch if self.arrowprops has "arrowstyle" key.
 
             # Adjust the starting point of the arrow relative to the textbox.
             # TODO: Rotation needs to be accounted.
-            relpos = self._arrow_relpos
+            arrow_begin = bbox.p0 + bbox.size * self._arrow_relpos
+            arrow_end = self._get_position_xy(renderer)
+            # The arrow (from arrow_begin to arrow_end) will be first clipped
+            # by patchA and patchB, then shrunk by shrinkA and shrinkB (in
+            # points).  If patch A is not set, self.bbox_patch is used.
+            self.arrow_patch.set_positions(arrow_begin, arrow_end)
 
-            ox0 = bbox.x0 + bbox.width * relpos[0]
-            oy0 = bbox.y0 + bbox.height * relpos[1]
-
-            # The arrow will be drawn from (ox0, oy0) to (ox1, oy1).
-            # It will be first clipped by patchA and patchB.
-            # Then it will be shrunk by shrinkA and shrinkB (in points).
-            # If patch A is not set, self.bbox_patch is used.
-
-            self.arrow_patch.set_positions((ox0, oy0), (ox1, oy1))
-            fs = self.prop.get_size_in_points()
-            mutation_scale = d.pop("mutation_scale", fs)
-            mutation_scale = renderer.points_to_pixels(mutation_scale)
+            if "mutation_scale" in self.arrowprops:
+                mutation_scale = renderer.points_to_pixels(
+                    self.arrowprops["mutation_scale"])
+                # Else, use fontsize-based mutation_scale defined above.
             self.arrow_patch.set_mutation_scale(mutation_scale)
 
-            patchA = d.pop("patchA", self.patch)
+            patchA = self.arrowprops.get("patchA", self.patch)
             self.arrow_patch.set_patchA(patchA)
 
     def draw(self, renderer):
