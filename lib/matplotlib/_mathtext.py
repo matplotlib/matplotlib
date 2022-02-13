@@ -1701,10 +1701,10 @@ def ship(ox, oy, box):
     processes have become local variables here.
     """
 
-    cur_v       = 0.
-    cur_h       = 0.
-    off_h       = ox
-    off_v       = oy + box.height
+    cur_v = 0.
+    cur_h = 0.
+    off_h = ox
+    off_v = oy + box.height
 
     def clamp(value):
         if value < -1000000000.:
@@ -1716,12 +1716,12 @@ def ship(ox, oy, box):
     def hlist_out(box):
         nonlocal cur_v, cur_h, off_h, off_v
 
-        cur_g         = 0
-        cur_glue      = 0.
-        glue_order    = box.glue_order
-        glue_sign     = box.glue_sign
-        base_line     = cur_v
-        left_edge     = cur_h
+        cur_g = 0
+        cur_glue = 0.
+        glue_order = box.glue_order
+        glue_sign = box.glue_sign
+        base_line = cur_v
+        left_edge = cur_h
 
         for p in box.children:
             if isinstance(p, Char):
@@ -1746,8 +1746,8 @@ def ship(ox, oy, box):
             elif isinstance(p, Box):
                 # node624
                 rule_height = p.height
-                rule_depth  = p.depth
-                rule_width  = p.width
+                rule_depth = p.depth
+                rule_width = p.width
                 if np.isinf(rule_height):
                     rule_height = box.height
                 if np.isinf(rule_depth):
@@ -1776,13 +1776,13 @@ def ship(ox, oy, box):
     def vlist_out(box):
         nonlocal cur_v, cur_h, off_h, off_v
 
-        cur_g         = 0
-        cur_glue      = 0.
-        glue_order    = box.glue_order
-        glue_sign     = box.glue_sign
-        left_edge     = cur_h
-        cur_v    -= box.height
-        top_edge      = cur_v
+        cur_g = 0
+        cur_glue = 0.
+        glue_order = box.glue_order
+        glue_sign = box.glue_sign
+        left_edge = cur_h
+        cur_v -= box.height
+        top_edge = cur_v
 
         for p in box.children:
             if isinstance(p, Kern):
