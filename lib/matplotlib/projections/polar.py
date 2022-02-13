@@ -1444,9 +1444,12 @@ class PolarAxes(Axes):
             self.set_rmax(p.rmax / scale)
 
 
-# to keep things all self contained, we can put aliases to the Polar classes
+# To keep things all self-contained, we can put aliases to the Polar classes
 # defined above. This isn't strictly necessary, but it makes some of the
-# code more readable (and provides a backwards compatible Polar API)
+# code more readable, and provides a backwards compatible Polar API. In
+# particular, this is used by the :doc:`/gallery/specialty_plots/radar_chart`
+# example to override PolarTransform on a PolarAxes subclass, so make sure that
+# that example is unaffected before changing this.
 PolarAxes.PolarTransform = PolarTransform
 PolarAxes.PolarAffine = PolarAffine
 PolarAxes.InvertedPolarTransform = InvertedPolarTransform
