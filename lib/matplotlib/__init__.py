@@ -1200,10 +1200,8 @@ default_test_modules = [
 def _init_tests():
     # The version of FreeType to install locally for running the
     # tests.  This must match the value in `setupext.py`
-    if sys.platform.startswith('win') and platform.machine() == 'ARM64':
-        LOCAL_FREETYPE_VERSION = '2.11.1'
-    else:
-        LOCAL_FREETYPE_VERSION = '2.6.1'
+    win_arm64 = sys.platform.startswith('win') and platform.machine() == 'ARM64'
+    LOCAL_FREETYPE_VERSION =  '2.11.1' if win_arm64 else '2.6.1'
 
     from matplotlib import ft2font
     if (ft2font.__freetype_version__ != LOCAL_FREETYPE_VERSION or
