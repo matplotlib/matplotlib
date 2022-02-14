@@ -1108,7 +1108,32 @@ class Normalize:
     """
     A class which, when called, linearly normalizes data into the
     ``[0.0, 1.0]`` interval.
+
+    Attributes
+    ----------
+    vmin : float or None
+       The value mapped to 0.  Any input data less than *vmin* is mapped to
+       "under"
+
+       If `None`, will be inferred from the minimum of the first input data
+       passed to `.__call__`.
+
+    vmax : float or None
+       The value mapped to 1.  Any input data greater than *vmax* is mapped
+       to "over"
+
+       If `None`, will be inferred from the maximum of the first input data
+       passed to `.__call__`.
+
+    clip : bool
+       If `True`, then the input data is clipped to *vmin* and *vmax* before
+       normalizing.  This means there will be no value mapped as over or under.
+
     """
+
+    def __repr__(self):
+        cls_name = f'{self.__class__.__module__}.{self.__class__.__qualname__}'
+        return f'<{cls_name}, vmin={self.vmin}, vmax={self.vmax}>'
 
     def __init__(self, vmin=None, vmax=None, clip=False):
         """
