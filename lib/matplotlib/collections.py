@@ -24,7 +24,7 @@ from ._enums import JoinStyle, CapStyle
 
 # "color" is excluded; it is a compound setter, and its docstring differs
 # in LineCollection.
-@cbook._define_aliases({
+@_api.define_aliases({
     "antialiased": ["antialiaseds", "aa"],
     "edgecolor": ["edgecolors", "ec"],
     "facecolor": ["facecolors", "fc"],
