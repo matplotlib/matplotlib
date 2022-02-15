@@ -391,7 +391,7 @@ class Line2D(Artist):
 
         # update kwargs before updating data to give the caller a
         # chance to init axes (and hence unit support)
-        self.update(kwargs)
+        self._internal_update(kwargs)
         self.pickradius = pickradius
         self.ind_offset = 0
         if (isinstance(self._picker, Number) and

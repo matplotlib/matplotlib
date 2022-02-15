@@ -273,7 +273,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         self._imcache = None
 
-        self.update(kwargs)
+        self._internal_update(kwargs)
 
     def __getstate__(self):
         # Save some space on the pickle by not saving the cache.
@@ -1215,7 +1215,7 @@ class PcolorImage(AxesImage):
         **kwargs : `.Artist` properties
         """
         super().__init__(ax, norm=norm, cmap=cmap)
-        self.update(kwargs)
+        self._internal_update(kwargs)
         if A is not None:
             self.set_data(x, y, A)
 
@@ -1356,7 +1356,7 @@ class FigureImage(_ImageBase):
         self.figure = fig
         self.ox = offsetx
         self.oy = offsety
-        self.update(kwargs)
+        self._internal_update(kwargs)
         self.magnification = 1.0
 
     def get_extent(self):

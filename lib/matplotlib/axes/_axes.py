@@ -166,7 +166,7 @@ class Axes(_AxesBase):
         title.update(default)
         if fontdict is not None:
             title.update(fontdict)
-        title.update(kwargs)
+        title._internal_update(kwargs)
         return title
 
     def get_legend_handles_labels(self, legend_handler_map=None):
@@ -1064,7 +1064,7 @@ class Axes(_AxesBase):
         lines = mcoll.LineCollection(masked_verts, colors=colors,
                                      linestyles=linestyles, label=label)
         self.add_collection(lines, autolim=False)
-        lines.update(kwargs)
+        lines._internal_update(kwargs)
 
         if len(y) > 0:
             minx = min(xmin.min(), xmax.min())
@@ -1143,7 +1143,7 @@ class Axes(_AxesBase):
         lines = mcoll.LineCollection(masked_verts, colors=colors,
                                      linestyles=linestyles, label=label)
         self.add_collection(lines, autolim=False)
-        lines.update(kwargs)
+        lines._internal_update(kwargs)
 
         if len(x) > 0:
             minx = x.min()
@@ -1363,7 +1363,7 @@ class Axes(_AxesBase):
                                          color=color,
                                          linestyle=linestyle)
             self.add_collection(coll, autolim=False)
-            coll.update(kwargs)
+            coll._internal_update(kwargs)
             colls.append(coll)
 
         if len(positions) > 0:
@@ -2410,7 +2410,7 @@ class Axes(_AxesBase):
                 label='_nolegend_',
                 hatch=htch,
                 )
-            r.update(kwargs)
+            r._internal_update(kwargs)
             r.get_path()._interpolation_steps = 100
             if orientation == 'vertical':
                 r.sticky_edges.y.append(b)
@@ -4502,7 +4502,7 @@ default: :rc:`scatter.edgecolors`
             collection.set_cmap(cmap)
             collection.set_norm(norm)
             collection._scale_norm(norm, vmin, vmax)
-        collection.update(kwargs)
+        collection._internal_update(kwargs)
 
         # Classic mode only:
         # ensure there are margins to allow for the
@@ -4830,7 +4830,7 @@ default: :rc:`scatter.edgecolors`
         collection.set_cmap(cmap)
         collection.set_norm(norm)
         collection.set_alpha(alpha)
-        collection.update(kwargs)
+        collection._internal_update(kwargs)
         collection._scale_norm(norm, vmin, vmax)
 
         corners = ((xmin, ymin), (xmax, ymax))
@@ -4882,7 +4882,7 @@ default: :rc:`scatter.edgecolors`
             bar.set_cmap(cmap)
             bar.set_norm(norm)
             bar.set_alpha(alpha)
-            bar.update(kwargs)
+            bar._internal_update(kwargs)
             bars.append(self.add_collection(bar, autolim=False))
 
         collection.hbar, collection.vbar = bars
@@ -6763,11 +6763,11 @@ such objects
         for patch, lbl in itertools.zip_longest(patches, labels):
             if patch:
                 p = patch[0]
-                p.update(kwargs)
+                p._internal_update(kwargs)
                 if lbl is not None:
                     p.set_label(lbl)
                 for p in patch[1:]:
-                    p.update(kwargs)
+                    p._internal_update(kwargs)
                     p.set_label('_nolegend_')
 
         if nx == 1:

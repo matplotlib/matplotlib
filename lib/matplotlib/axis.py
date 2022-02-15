@@ -1824,10 +1824,10 @@ class Axis(martist.Artist):
             tick_label = formatter(loc, pos)
             # deal with label1
             tick.label1.set_text(tick_label)
-            tick.label1.update(kwargs)
+            tick.label1._internal_update(kwargs)
             # deal with label2
             tick.label2.set_text(tick_label)
-            tick.label2.update(kwargs)
+            tick.label2._internal_update(kwargs)
             # only return visible tick labels
             if tick.label1.get_visible():
                 ret.append(tick.label1)

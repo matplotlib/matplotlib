@@ -1790,7 +1790,7 @@ def xticks(ticks=None, labels=None, **kwargs):
     if labels is None:
         labels = ax.get_xticklabels()
         for l in labels:
-            l.update(kwargs)
+            l._internal_update(kwargs)
     else:
         labels = ax.set_xticklabels(labels, **kwargs)
 
@@ -1850,7 +1850,7 @@ def yticks(ticks=None, labels=None, **kwargs):
     if labels is None:
         labels = ax.get_yticklabels()
         for l in labels:
-            l.update(kwargs)
+            l._internal_update(kwargs)
     else:
         labels = ax.set_yticklabels(labels, **kwargs)
 

@@ -642,7 +642,7 @@ class _AxesBase(martist.Artist):
         if yscale:
             self.set_yscale(yscale)
 
-        self.update(kwargs)
+        self._internal_update(kwargs)
 
         for name, axis in self._get_axis_map().items():
             axis.callbacks._pickled_cids.add(
