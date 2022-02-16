@@ -9,6 +9,7 @@ Radio buttons let you choose between multiple options in a visualization.
 In this case, the buttons let the user choose one of the three different sine
 waves to be shown in the plot.
 """
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import RadioButtons
@@ -20,10 +21,10 @@ s2 = np.sin(8*np.pi*t)
 
 fig, ax = plt.subplots()
 l, = ax.plot(t, s0, lw=2, color='red')
-plt.subplots_adjust(left=0.3)
+fig.subplots_adjust(left=0.3)
 
 axcolor = 'lightgoldenrodyellow'
-rax = plt.axes([0.05, 0.7, 0.15, 0.15], facecolor=axcolor)
+rax = fig.add_axes([0.05, 0.7, 0.15, 0.15], facecolor=axcolor)
 radio = RadioButtons(rax, ('2 Hz', '4 Hz', '8 Hz'))
 
 
@@ -34,7 +35,7 @@ def hzfunc(label):
     plt.draw()
 radio.on_clicked(hzfunc)
 
-rax = plt.axes([0.05, 0.4, 0.15, 0.15], facecolor=axcolor)
+rax = fig.add_axes([0.05, 0.4, 0.15, 0.15], facecolor=axcolor)
 radio2 = RadioButtons(rax, ('red', 'blue', 'green'))
 
 
@@ -43,7 +44,7 @@ def colorfunc(label):
     plt.draw()
 radio2.on_clicked(colorfunc)
 
-rax = plt.axes([0.05, 0.1, 0.15, 0.15], facecolor=axcolor)
+rax = fig.add_axes([0.05, 0.1, 0.15, 0.15], facecolor=axcolor)
 radio3 = RadioButtons(rax, ('-', '--', '-.', 'steps', ':'))
 
 
