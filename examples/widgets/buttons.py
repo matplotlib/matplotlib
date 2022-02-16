@@ -16,10 +16,10 @@ from matplotlib.widgets import Button
 freqs = np.arange(2, 20, 3)
 
 fig, ax = plt.subplots()
-plt.subplots_adjust(bottom=0.2)
+fig.subplots_adjust(bottom=0.2)
 t = np.arange(0.0, 1.0, 0.001)
 s = np.sin(2*np.pi*freqs[0]*t)
-l, = plt.plot(t, s, lw=2)
+l, = ax.plot(t, s, lw=2)
 
 
 class Index:
@@ -40,8 +40,8 @@ class Index:
         plt.draw()
 
 callback = Index()
-axprev = plt.axes([0.7, 0.05, 0.1, 0.075])
-axnext = plt.axes([0.81, 0.05, 0.1, 0.075])
+axprev = fig.add_axes([0.7, 0.05, 0.1, 0.075])
+axnext = fig.add_axes([0.81, 0.05, 0.1, 0.075])
 bnext = Button(axnext, 'Next')
 bnext.on_clicked(callback.next)
 bprev = Button(axprev, 'Previous')
