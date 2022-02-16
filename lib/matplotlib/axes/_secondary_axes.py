@@ -276,7 +276,8 @@ functions : 2-tuple of func, or Transform with an inverse
     If a 2-tuple of functions, the user specifies the transform
     function and its inverse.  i.e.
     ``functions=(lambda x: 2 / x, lambda x: 2 / x)`` would be an
-    reciprocal transform with a factor of 2.
+    reciprocal transform with a factor of 2. Both functions must accept
+    numpy arrays as input.
 
     The user can also directly supply a subclass of
     `.transforms.Transform` so long as it has an inverse.
