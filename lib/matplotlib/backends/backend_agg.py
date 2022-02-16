@@ -222,18 +222,12 @@ class RendererAgg(RendererBase):
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited
-
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
-
-        flags = get_hinting_flag()
-        font = self._get_agg_font(prop)
-
-        if font is None:
-            return None
+        font = self._prepare_font(prop)
         # We pass '0' for angle here, since it will be rotated (in raster
         # space) in the following call to draw_text_image).
-        font.set_text(s, 0, flags=flags)
+        font.set_text(s, 0, flags=get_hinting_flag())
         font.draw_glyphs_to_bitmap(
             antialiased=mpl.rcParams['text.antialiased'])
         d = font.get_descent() / 64.0
@@ -264,9 +258,8 @@ class RendererAgg(RendererBase):
                 self.mathtext_parser.parse(s, self.dpi, prop)
             return width, height, descent
 
-        flags = get_hinting_flag()
-        font = self._get_agg_font(prop)
-        font.set_text(s, 0.0, flags=flags)
+        font = self._prepare_font(prop)
+        font.set_text(s, 0.0, flags=get_hinting_flag())
         w, h = font.get_width_height()  # width and height of unrotated string
         d = font.get_descent()
         w /= 64.0  # convert from subpixels
@@ -295,17 +288,14 @@ class RendererAgg(RendererBase):
         # docstring inherited
         return self.width, self.height
 
-    def _get_agg_font(self, prop):
+    def _prepare_font(self, font_prop):
         """
-        Get the font for text instance t, caching for efficiency
+        Get the `.FT2Font` for *font_prop*, clear its buffer, and set its size.
         """
-        fname = findfont(prop)
-        font = get_font(fname)
-
+        font = get_font(findfont(font_prop))
         font.clear()
-        size = prop.get_size_in_points()
+        size = font_prop.get_size_in_points()
         font.set_size(size, self.dpi)
-
         return font
 
     def points_to_pixels(self, points):
