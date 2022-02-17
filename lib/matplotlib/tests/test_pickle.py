@@ -8,6 +8,7 @@ import matplotlib as mpl
 from matplotlib import cm
 from matplotlib.testing.decorators import check_figures_equal
 from matplotlib.dates import rrulewrapper
+from matplotlib.lines import VertexSelector
 import matplotlib.pyplot as plt
 import matplotlib.transforms as mtransforms
 import matplotlib.figure as mfigure
@@ -231,3 +232,8 @@ def test_dynamic_norm():
         mpl.scale.LogitScale, mpl.colors.Normalize)()
     assert type(pickle.loads(pickle.dumps(logit_norm_instance))) \
         == type(logit_norm_instance)
+
+
+def test_vertexselector():
+    line, = plt.plot([0, 1], picker=True)
+    pickle.loads(pickle.dumps(VertexSelector(line)))
