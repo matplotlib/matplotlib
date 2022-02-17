@@ -252,16 +252,6 @@ class Line2D(Artist):
 
     zorder = 2
 
-    @_api.deprecated("3.4")
-    @_api.classproperty
-    def validCap(cls):
-        return tuple(cs.value for cs in CapStyle)
-
-    @_api.deprecated("3.4")
-    @_api.classproperty
-    def validJoin(cls):
-        return tuple(js.value for js in JoinStyle)
-
     def __str__(self):
         if self._label != "":
             return f"Line2D({self._label})"
