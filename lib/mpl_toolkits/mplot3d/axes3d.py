@@ -157,14 +157,12 @@ class Axes3D(Axes):
         self.fmt_zdata = None
 
         self.mouse_init()
-        self.figure.canvas.callbacks._pickled_cids.update({
-            self.figure.canvas.mpl_connect(
-                'motion_notify_event', self._on_move),
-            self.figure.canvas.mpl_connect(
-                'button_press_event', self._button_press),
-            self.figure.canvas.mpl_connect(
-                'button_release_event', self._button_release),
-        })
+        self.figure.canvas.callbacks._connect_picklable(
+            'motion_notify_event', self._on_move)
+        self.figure.canvas.callbacks._connect_picklable(
+            'button_press_event', self._button_press)
+        self.figure.canvas.callbacks._connect_picklable(
+            'button_release_event', self._button_release)
         self.set_top_view()
 
         self.patch.set_linewidth(0)
