@@ -1236,11 +1236,11 @@ class List(Box):
         self.glue_order   = 0    # The order of infinity (0 - 3) for the glue
 
     def __repr__(self):
-        return '[%s <%.02f %.02f %.02f %.02f> %s]' % (
+        return '%s<w=%.02f h=%.02f d=%.02f s=%.02f>[%s]' % (
             super().__repr__(),
             self.width, self.height,
             self.depth, self.shift_amount,
-            ' '.join([repr(x) for x in self.children]))
+            ', '.join([repr(x) for x in self.children]))
 
     @staticmethod
     def _determine_order(totals):
