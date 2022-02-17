@@ -1707,11 +1707,7 @@ def ship(ox, oy, box):
     off_v = oy + box.height
 
     def clamp(value):
-        if value < -1000000000.:
-            return -1000000000.
-        if value > 1000000000.:
-            return 1000000000.
-        return value
+        return -1e9 if value < -1e9 else +1e9 if value > +1e9 else value
 
     def hlist_out(box):
         nonlocal cur_v, cur_h, off_h, off_v
