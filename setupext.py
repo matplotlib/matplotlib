@@ -175,10 +175,13 @@ _freetype_hashes = {
 # must match the value in lib/matplotlib.__init__.py and also needs to be
 # changed below in the embedded windows build script (grep for "REMINDER" in
 # this file). Also update the cache path in `.circleci/config.yml`.
-if sys.platform.startswith('win') and platform.machine() == 'ARM64':  # older versions are not supported for win/arm64
+TESTING_VERSION_OF_FREETYPE = '2.6.1'
+if sys.platform.startswith('win') and platform.machine() == 'ARM64':  
+    # older versions of freetype are not supported for win/arm64
+    # Matplotlib tests will not pass
     LOCAL_FREETYPE_VERSION = '2.11.1'
 else:
-    LOCAL_FREETYPE_VERSION = '2.6.1'
+    LOCAL_FREETYPE_VERSION = TESTING_VERSION_OF_FREETYPE
 
 LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 
