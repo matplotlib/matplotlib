@@ -233,9 +233,10 @@ class MathTextParser:
         The results are cached, so multiple calls to `parse`
         with the same expression should be fast.
         """
-        # lru_cache can't decorate parse() directly because the ps.useafm and
-        # mathtext.fontset rcParams also affect the parse (e.g. by affecting
-        # the glyph metrics).
+        # lru_cache can't decorate parse() directly because prop
+        # is mutable; key the cache using an internal copy (see
+        # text._get_text_metrics_with_cache for a similar case).
+        prop = prop.copy() if prop is not None else None
         return self._parse_cached(s, dpi, prop)
 
     @functools.lru_cache(50)
