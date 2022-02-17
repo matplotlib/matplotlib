@@ -11,40 +11,9 @@
 
 /* Proper way to check for the OS X version we are compiling for, from
  * https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/cross_development/Using/using.html
- */
-#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
-#define COMPILING_FOR_10_7
-#endif
 
-/* Renamed symbols cause deprecation warnings, so define macros for the new
+ * Renamed symbols cause deprecation warnings, so define macros for the new
  * names if we are compiling on an older SDK */
-#if __MAC_OS_X_VERSION_MIN_REQUIRED < 101000
-#define NSModalResponseOK                    NSOKButton
-#endif
-#if __MAC_OS_X_VERSION_MIN_REQUIRED < 101200
-#define NSEventMaskAny                       NSAnyEventMask
-#define NSEventTypeApplicationDefined        NSApplicationDefined
-#define NSEventModifierFlagCommand           NSCommandKeyMask
-#define NSEventModifierFlagControl           NSControlKeyMask
-#define NSEventModifierFlagOption            NSAlternateKeyMask
-#define NSEventModifierFlagShift             NSShiftKeyMask
-#define NSEventTypeKeyUp                     NSKeyUp
-#define NSEventTypeKeyDown                   NSKeyDown
-#define NSEventTypeMouseMoved                NSMouseMoved
-#define NSEventTypeLeftMouseDown             NSLeftMouseDown
-#define NSEventTypeRightMouseDown            NSRightMouseDown
-#define NSEventTypeOtherMouseDown            NSOtherMouseDown
-#define NSEventTypeLeftMouseDragged          NSLeftMouseDragged
-#define NSEventTypeRightMouseDragged         NSRightMouseDragged
-#define NSEventTypeOtherMouseDragged         NSOtherMouseDragged
-#define NSEventTypeLeftMouseUp               NSLeftMouseUp
-#define NSEventTypeRightMouseUp              NSRightMouseUp
-#define NSEventTypeOtherMouseUp              NSOtherMouseUp
-#define NSWindowStyleMaskClosable            NSClosableWindowMask
-#define NSWindowStyleMaskMiniaturizable      NSMiniaturizableWindowMask
-#define NSWindowStyleMaskResizable           NSResizableWindowMask
-#define NSWindowStyleMaskTitled              NSTitledWindowMask
-#endif
 #if __MAC_OS_X_VERSION_MIN_REQUIRED < 101400
 #define NSButtonTypeMomentaryLight           NSMomentaryLightButton
 #define NSButtonTypePushOnPushOff            NSPushOnPushOffButton
@@ -895,9 +864,7 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     NSSize scale;
 
     rect = NSMakeRect(0, 0, imagesize, imagesize);
-#ifdef COMPILING_FOR_10_7
     rect = [window convertRectToBacking: rect];
-#endif
     size = rect.size;
     scale = NSMakeSize(imagesize / size.width, imagesize / size.height);
 
@@ -934,10 +901,8 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     rect.size.height = 0;
     rect.origin.x += height;
     NSTextView* messagebox = [[NSTextView alloc] initWithFrame: rect];
-    if (@available(macOS 10.11, *)) {
-        messagebox.textContainer.maximumNumberOfLines = 2;
-        messagebox.textContainer.lineBreakMode = NSLineBreakByTruncatingTail;
-    }
+    messagebox.textContainer.maximumNumberOfLines = 2;
+    messagebox.textContainer.lineBreakMode = NSLineBreakByTruncatingTail;
     [messagebox setFont: font];
     [messagebox setDrawsBackground: NO];
     [messagebox setSelectable: NO];

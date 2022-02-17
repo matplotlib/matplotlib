@@ -47,6 +47,7 @@ and the capabilities they provide.
 * pycairo_ (>= 1.11.0) or cairocffi_ (>= 0.8): for the GTK and/or cairo-based
   backends.
 * Tornado_ (>=5): for the WebAgg backend.
+* macOS (>=10.12): for the macosx backend.
 
 .. _Tk: https://docs.python.org/3/library/tk.html
 .. _PyQt5: https://pypi.org/project/PyQt5/
