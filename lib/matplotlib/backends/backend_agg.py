@@ -211,7 +211,7 @@ class RendererAgg(RendererBase):
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """Draw mathtext using :mod:`matplotlib.mathtext`."""
-        ox, oy, width, height, descent, font_image, used_characters = \
+        ox, oy, width, height, descent, font_image = \
             self.mathtext_parser.parse(s, self.dpi, prop)
 
         xd = descent * sin(radians(angle))
@@ -254,7 +254,7 @@ class RendererAgg(RendererBase):
             return w, h, d
 
         if ismath:
-            ox, oy, width, height, descent, fonts, used_characters = \
+            ox, oy, width, height, descent, font_image = \
                 self.mathtext_parser.parse(s, self.dpi, prop)
             return width, height, descent
 

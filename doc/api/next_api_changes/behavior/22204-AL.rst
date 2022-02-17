@@ -1,0 +1,7 @@
+``MathtextBackendAgg.get_results`` no longer returns ``used_characters``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The last item (``used_characters``) in the tuple returned by
+``MathtextBackendAgg.get_results`` has been removed.  In order to unpack this
+tuple in a backward and forward-compatible way, use e.g.
+``ox, oy, width, height, descent, image, *_ = parse(...)``,
+which will ignore ``used_characters`` if it was present.
