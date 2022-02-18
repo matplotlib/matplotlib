@@ -22,9 +22,9 @@ _log = logging.getLogger(__name__)
 
 def _get_xdg_cache_dir():
     """
-    Return the XDG cache directory.
+    Return the `XDG cache directory`__.
 
-    See https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+    __ https://specifications.freedesktop.org/basedir-spec/latest/
     """
     cache_dir = os.environ.get('XDG_CACHE_HOME')
     if not cache_dir:
@@ -177,7 +177,8 @@ LOCAL_FREETYPE_HASH = _freetype_hashes.get(LOCAL_FREETYPE_VERSION, 'unknown')
 
 # Also update the cache path in `.circleci/config.yml`.
 LOCAL_QHULL_VERSION = '2020.2'
-LOCAL_QHULL_HASH = 'b5c2d7eb833278881b952c8a52d20179eab87766b00b865000469a45c1838b7e'
+LOCAL_QHULL_HASH = (
+    'b5c2d7eb833278881b952c8a52d20179eab87766b00b865000469a45c1838b7e')
 
 
 # Matplotlib build options, which can be altered using mplsetup.cfg
@@ -649,18 +650,19 @@ class FreeType(SetupPackage):
                 'x64' if platform.architecture()[0] == '64bit' else 'Win32')
             base_path = Path("build/freetype-2.6.1/builds/windows")
             vc = 'vc2010'
-            sln_path = (
-                base_path / vc / "freetype.sln"
-            )
+            sln_path = base_path / vc / "freetype.sln"
             # https://developercommunity.visualstudio.com/comments/190992/view.html
-            (sln_path.parent / "Directory.Build.props").write_text("""
-<Project>
- <PropertyGroup>
-  <!-- The following line *cannot* be split over multiple lines. -->
-  <WindowsTargetPlatformVersion>$([Microsoft.Build.Utilities.ToolLocationHelper]::GetLatestSDKTargetPlatformVersion('Windows', '10.0'))</WindowsTargetPlatformVersion>
- </PropertyGroup>
-</Project>
-""")
+            (sln_path.parent / "Directory.Build.props").write_text(
+                "<Project>"
+                "<PropertyGroup>"
+                # WindowsTargetPlatformVersion must be given on a single line.
+                "<WindowsTargetPlatformVersion>$("
+                "[Microsoft.Build.Utilities.ToolLocationHelper]"
+                "::GetLatestSDKTargetPlatformVersion('Windows', '10.0')"
+                ")</WindowsTargetPlatformVersion>"
+                "</PropertyGroup>"
+                "</Project>"
+            )
             # It is not a trivial task to determine PlatformToolset to plug it
             # into msbuild command, and Directory.Build.props will not override
             # the value in the project file.
@@ -713,7 +715,8 @@ class Qhull(SetupPackage):
         for ext in self._extensions_to_update:
             qhull_path = Path(f'build/qhull-{LOCAL_QHULL_VERSION}/src')
             ext.include_dirs.insert(0, str(qhull_path))
-            ext.sources.extend(map(str, sorted(qhull_path.glob('libqhull_r/*.c'))))
+            ext.sources.extend(
+                map(str, sorted(qhull_path.glob('libqhull_r/*.c'))))
             if sysconfig.get_config_var("LIBM") == "-lm":
                 ext.libraries.extend("m")
 
