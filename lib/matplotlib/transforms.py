@@ -1958,6 +1958,7 @@ class Affine2D(Affine2DBase):
         self.invalidate()
 
     @staticmethod
+    @_api.deprecated("3.6", alternative="Affine2D()")
     def identity():
         """
         Return a new `Affine2D` object that is the identity transform.

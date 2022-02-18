@@ -1,0 +1,4 @@
+``Affine2D.identity()``
+~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated in favor of directly calling the `.Affine2D` constructor with
+no arguments.
