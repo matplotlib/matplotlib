@@ -1306,9 +1306,6 @@ def _check_1d(x):
     if not hasattr(x, 'shape') or len(x.shape) < 1:
         return np.atleast_1d(x)
     else:
-        ndim = x[:, None].ndim
-        if ndim < 2:
-            return np.atleast_1d(x)
         return x
 
 
