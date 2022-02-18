@@ -258,9 +258,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         transform = self.get_transform()
         offset_trf = self.get_offset_transform()
-        has_offsets = np.any(self._offsets)  # True if any non-zero offsets
-        if has_offsets and not offset_trf.contains_branch(transData):
-            # if there are offsets but in some coords other than data,
+        if not (isinstance(offset_trf, transforms.IdentityTransform)
+                or offset_trf.contains_branch(transData)):
+            # if the offsets are in some coords other than data,
             # then don't use them for autoscaling.
             return transforms.Bbox.null()
         offsets = self._offsets
@@ -289,20 +289,19 @@ class Collection(artist.Artist, cm.ScalarMappable):
                     self.get_transforms(),
                     offset_trf.transform_non_affine(offsets),
                     offset_trf.get_affine().frozen())
-            if has_offsets:
-                # this is for collections that have their paths (shapes)
-                # in physical, axes-relative, or figure-relative units
-                # (i.e. like scatter). We can't uniquely set limits based on
-                # those shapes, so we just set the limits based on their
-                # location.
 
-                offsets = (offset_trf - transData).transform(offsets)
-                # note A-B means A B^{-1}
-                offsets = np.ma.masked_invalid(offsets)
-                if not offsets.mask.all():
-                    bbox = transforms.Bbox.null()
-                    bbox.update_from_data_xy(offsets)
-                    return bbox
+            # this is for collections that have their paths (shapes)
+            # in physical, axes-relative, or figure-relative units
+            # (i.e. like scatter). We can't uniquely set limits based on
+            # those shapes, so we just set the limits based on their
+            # location.
+            offsets = (offset_trf - transData).transform(offsets)
+            # note A-B means A B^{-1}
+            offsets = np.ma.masked_invalid(offsets)
+            if not offsets.mask.all():
+                bbox = transforms.Bbox.null()
+                bbox.update_from_data_xy(offsets)
+                return bbox
         return transforms.Bbox.null()
 
     def get_window_extent(self, renderer):
