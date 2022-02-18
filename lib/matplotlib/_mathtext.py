@@ -851,7 +851,7 @@ class Node:
         self.size = 0
 
     def __repr__(self):
-        return self.__class__.__name__
+        return type(self).__name__
 
     def get_kerning(self, next):
         return 0.0
@@ -864,7 +864,7 @@ class Node:
         self.size += 1
 
     def render(self, x, y):
-        pass
+        """Render this node."""
 
 
 class Box(Node):
@@ -961,12 +961,8 @@ class Char(Node):
         return advance + kern
 
     def render(self, x, y):
-        """
-        Render the character to the canvas
-        """
         self.font_output.render_glyph(
-            x, y,
-            self.font, self.font_class, self.c, self.fontsize, self.dpi)
+            x, y, self.font, self.font_class, self.c, self.fontsize, self.dpi)
 
     def shrink(self):
         super().shrink()
@@ -995,9 +991,6 @@ class Accent(Char):
         self._update_metrics()
 
     def render(self, x, y):
-        """
-        Render the character to the canvas.
-        """
         self.font_output.render_glyph(
             x - self._metrics.xmin, y + self._metrics.ymin,
             self.font, self.font_class, self.c, self.fontsize, self.dpi)
@@ -1022,21 +1015,10 @@ class List(Box):
             self.depth, self.shift_amount,
             ', '.join([repr(x) for x in self.children]))
 
-    @staticmethod
-    def _determine_order(totals):
-        """
-        Determine the highest order of glue used by the members of this list.
-
-        Helper function used by vpack and hpack.
-        """
-        for i in range(len(totals))[::-1]:
-            if totals[i] != 0:
-                return i
-        return 0
-
     def _set_glue(self, x, sign, totals, error_type):
-        o = self._determine_order(totals)
-        self.glue_order = o
+        self.glue_order = o = next(
+            # Highest order of glue used by the members of this list.
+            (i for i in range(len(totals))[::-1] if totals[i] != 0), 0)
         self.glue_sign = sign
         if totals[o] != 0.:
             self.glue_set = x / totals[o]
@@ -1046,7 +1028,7 @@ class List(Box):
         if o == 0:
             if len(self.children):
                 _log.warning("%s %s: %r",
-                             error_type, self.__class__.__name__, self)
+                             error_type, type(self).__name__, self)
 
     def shrink(self):
         for child in self.children:
@@ -1370,21 +1352,6 @@ class Kern(Node):
         super().shrink()
         if self.size < NUM_SIZE_LEVELS:
             self.width *= SHRINK_FACTOR
-
-
-class SubSuperCluster(Hlist):
-    """
-    A hack to get around that fact that this code does a two-pass parse like
-    TeX.  This lets us store enough information in the hlist itself, namely the
-    nucleus, sub- and super-script, such that if another script follows that
-    needs to be attached, it can be reconfigured on the fly.
-    """
-
-    def __init__(self):
-        self.nucleus = None
-        self.sub = None
-        self.super = None
-        super().__init__([])
 
 
 class AutoHeightChar(Hlist):
