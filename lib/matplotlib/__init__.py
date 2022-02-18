@@ -100,7 +100,6 @@ import subprocess
 import sys
 import tempfile
 import warnings
-import platform
 
 import numpy
 from packaging.version import parse as parse_version

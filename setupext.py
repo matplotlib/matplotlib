@@ -688,11 +688,14 @@ class FreeType(SetupPackage):
 
             cc = get_ccompiler()
             cc.initialize()  # Get msbuild in the %PATH% of cc.spawn.
-            # Freetype 2.10.0+ support static builds and use them if available as they are easier to deploy
-            msbuild_configuration = 'Release Static' if version.parse(LOCAL_FREETYPE_VERSION) >= version.parse("2.10.0") else 'Release'
+            # Freetype 2.10.0+ support static builds.
+            if version.parse(LOCAL_FREETYPE_VERSION) >= version.parse("2.10.0"):
+                msbuild_config = 'Release Static'
+            else:
+                msbuild_config = 'Release'
             cc.spawn(["msbuild", str(sln_path),
                       "/t:Clean;Build",
-                      f"/p:Configuration={msbuild_configuration};Platform={msbuild_platform}"])
+                      f"/p:Configuration={msbuild_config};Platform={msbuild_platform}"])
             # Move to the corresponding Unix build path.
             (src_path / "objs" / ".libs").mkdir()
             # Be robust against change of FreeType version.
