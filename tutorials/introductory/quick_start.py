@@ -468,16 +468,16 @@ ax.bar(categories, np.random.rand(len(categories)));
 # :doc:`/gallery/subplots_axes_and_figures/secondary_axis` for further
 # examples.
 
-fig, (ax1, ax3) = plt.subplots(1, 2, figsize=(8, 2.7), layout='constrained')
+fig, (ax1, ax3) = plt.subplots(1, 2, figsize=(7, 2.7), layout='constrained')
 l1, = ax1.plot(t, s)
 ax2 = ax1.twinx()
 l2, = ax2.plot(t, range(len(t)), 'C1')
 ax2.legend([l1, l2], ['Sine (left)', 'Straight (right)'])
 
 ax3.plot(t, s)
-ax3.set_xlabel('Angle [°]')
+ax3.set_xlabel('Angle [rad]')
 ax4 = ax3.secondary_xaxis('top', functions=(np.rad2deg, np.deg2rad))
-ax4.set_xlabel('Angle [rad]')
+ax4.set_xlabel('Angle [°]')
 
 ##############################################################################
 # Color mapped data
