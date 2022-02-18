@@ -717,8 +717,8 @@ class StixSansFonts(StixFonts):
 #
 # The most relevant "chapters" are:
 #    Data structures for boxes and their friends
-#    Shipping pages out (Ship class)
-#    Packaging (hpack and vpack)
+#    Shipping pages out (ship())
+#    Packaging (hpack() and vpack())
 #    Data structures for math mode
 #    Subroutines for math mode
 #    Typesetting math formulas
@@ -1421,81 +1421,70 @@ class AutoWidthChar(Hlist):
         self.width = char.width
 
 
-class Ship:
+def ship(ox, oy, box):
     """
     Ship boxes to output once they have been set up, this sends them to output.
 
-    Since boxes can be inside of boxes inside of boxes, the main work of `Ship`
+    Since boxes can be inside of boxes inside of boxes, the main work of `ship`
     is done by two mutually recursive routines, `hlist_out` and `vlist_out`,
     which traverse the `Hlist` nodes and `Vlist` nodes inside of horizontal
     and vertical boxes.  The global variables used in TeX to store state as it
-    processes have become member variables here.
+    processes have become local variables here.
     """
 
-    def __call__(self, ox, oy, box):
-        self.max_push    = 0  # Deepest nesting of push commands so far
-        self.cur_s       = 0
-        self.cur_v       = 0.
-        self.cur_h       = 0.
-        self.off_h       = ox
-        self.off_v       = oy + box.height
-        self.hlist_out(box)
+    cur_v = 0.
+    cur_h = 0.
+    off_h = ox
+    off_v = oy + box.height
 
-    @staticmethod
     def clamp(value):
-        if value < -1000000000.:
-            return -1000000000.
-        if value > 1000000000.:
-            return 1000000000.
-        return value
+        return -1e9 if value < -1e9 else +1e9 if value > +1e9 else value
 
-    def hlist_out(self, box):
-        cur_g         = 0
-        cur_glue      = 0.
-        glue_order    = box.glue_order
-        glue_sign     = box.glue_sign
-        base_line     = self.cur_v
-        left_edge     = self.cur_h
-        self.cur_s    += 1
-        self.max_push = max(self.cur_s, self.max_push)
-        clamp         = self.clamp
+    def hlist_out(box):
+        nonlocal cur_v, cur_h, off_h, off_v
+
+        cur_g = 0
+        cur_glue = 0.
+        glue_order = box.glue_order
+        glue_sign = box.glue_sign
+        base_line = cur_v
+        left_edge = cur_h
 
         for p in box.children:
             if isinstance(p, Char):
-                p.render(self.cur_h + self.off_h, self.cur_v + self.off_v)
-                self.cur_h += p.width
+                p.render(cur_h + off_h, cur_v + off_v)
+                cur_h += p.width
             elif isinstance(p, Kern):
-                self.cur_h += p.width
+                cur_h += p.width
             elif isinstance(p, List):
                 # node623
                 if len(p.children) == 0:
-                    self.cur_h += p.width
+                    cur_h += p.width
                 else:
-                    edge = self.cur_h
-                    self.cur_v = base_line + p.shift_amount
+                    edge = cur_h
+                    cur_v = base_line + p.shift_amount
                     if isinstance(p, Hlist):
-                        self.hlist_out(p)
+                        hlist_out(p)
                     else:
                         # p.vpack(box.height + box.depth, 'exactly')
-                        self.vlist_out(p)
-                    self.cur_h = edge + p.width
-                    self.cur_v = base_line
+                        vlist_out(p)
+                    cur_h = edge + p.width
+                    cur_v = base_line
             elif isinstance(p, Box):
                 # node624
                 rule_height = p.height
-                rule_depth  = p.depth
-                rule_width  = p.width
+                rule_depth = p.depth
+                rule_width = p.width
                 if np.isinf(rule_height):
                     rule_height = box.height
                 if np.isinf(rule_depth):
                     rule_depth = box.depth
                 if rule_height > 0 and rule_width > 0:
-                    self.cur_v = base_line + rule_depth
-                    p.render(self.cur_h + self.off_h,
-                             self.cur_v + self.off_v,
+                    cur_v = base_line + rule_depth
+                    p.render(cur_h + off_h, cur_v + off_v,
                              rule_width, rule_height)
-                    self.cur_v = base_line
-                self.cur_h += rule_width
+                    cur_v = base_line
+                cur_h += rule_width
             elif isinstance(p, Glue):
                 # node625
                 glue_spec = p.glue_spec
@@ -1509,38 +1498,36 @@ class Ship:
                         cur_glue += glue_spec.shrink
                         cur_g = round(clamp(box.glue_set * cur_glue))
                 rule_width += cur_g
-                self.cur_h += rule_width
-        self.cur_s -= 1
+                cur_h += rule_width
 
-    def vlist_out(self, box):
-        cur_g         = 0
-        cur_glue      = 0.
-        glue_order    = box.glue_order
-        glue_sign     = box.glue_sign
-        self.cur_s    += 1
-        self.max_push = max(self.max_push, self.cur_s)
-        left_edge     = self.cur_h
-        self.cur_v    -= box.height
-        top_edge      = self.cur_v
-        clamp         = self.clamp
+    def vlist_out(box):
+        nonlocal cur_v, cur_h, off_h, off_v
+
+        cur_g = 0
+        cur_glue = 0.
+        glue_order = box.glue_order
+        glue_sign = box.glue_sign
+        left_edge = cur_h
+        cur_v -= box.height
+        top_edge = cur_v
 
         for p in box.children:
             if isinstance(p, Kern):
-                self.cur_v += p.width
+                cur_v += p.width
             elif isinstance(p, List):
                 if len(p.children) == 0:
-                    self.cur_v += p.height + p.depth
+                    cur_v += p.height + p.depth
                 else:
-                    self.cur_v += p.height
-                    self.cur_h = left_edge + p.shift_amount
-                    save_v = self.cur_v
+                    cur_v += p.height
+                    cur_h = left_edge + p.shift_amount
+                    save_v = cur_v
                     p.width = box.width
                     if isinstance(p, Hlist):
-                        self.hlist_out(p)
+                        hlist_out(p)
                     else:
-                        self.vlist_out(p)
-                    self.cur_v = save_v + p.depth
-                    self.cur_h = left_edge
+                        vlist_out(p)
+                    cur_v = save_v + p.depth
+                    cur_h = left_edge
             elif isinstance(p, Box):
                 rule_height = p.height
                 rule_depth = p.depth
@@ -1549,9 +1536,8 @@ class Ship:
                     rule_width = box.width
                 rule_height += rule_depth
                 if rule_height > 0 and rule_depth > 0:
-                    self.cur_v += rule_height
-                    p.render(self.cur_h + self.off_h,
-                             self.cur_v + self.off_v,
+                    cur_v += rule_height
+                    p.render(cur_h + off_h, cur_v + off_v,
                              rule_width, rule_height)
             elif isinstance(p, Glue):
                 glue_spec = p.glue_spec
@@ -1565,14 +1551,12 @@ class Ship:
                         cur_glue += glue_spec.shrink
                         cur_g = round(clamp(box.glue_set * cur_glue))
                 rule_height += cur_g
-                self.cur_v += rule_height
+                cur_v += rule_height
             elif isinstance(p, Char):
                 raise RuntimeError(
                     "Internal mathtext error: Char node found in vlist")
-        self.cur_s -= 1
 
-
-ship = Ship()
+    hlist_out(box)
 
 
 ##############################################################################
