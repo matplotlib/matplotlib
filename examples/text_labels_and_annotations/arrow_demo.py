@@ -42,12 +42,11 @@ def make_arrow_graph(ax, data, size=4, display='length', shape='right',
         `.FancyArrow` properties, e.g. *linewidth* or *edgecolor*.
     """
 
-    ax.set(xlim=(-0.5, 1.5), ylim=(-0.5, 1.5), xticks=[], yticks=[])
-    ax.text(.01, .01, f'flux encoded as arrow {display}',
-            transform=ax.transAxes)
+    ax.set(xlim=(-0.25, 1.25), ylim=(-0.25, 1.25), xticks=[], yticks=[],
+           title=f'flux encoded as arrow {display}')
     max_text_size = size * 12
     min_text_size = size
-    label_text_size = size * 2.5
+    label_text_size = size * 4
 
     bases = 'ATGC'
     coords = {
