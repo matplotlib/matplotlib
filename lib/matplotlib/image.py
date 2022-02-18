@@ -275,6 +275,13 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         self._internal_update(kwargs)
 
+    def __str__(self):
+        try:
+            size = self.get_size()
+            return f"{type(self).__name__}(size={size!r})"
+        except RuntimeError:
+            return type(self).__name__
+
     def __getstate__(self):
         # Save some space on the pickle by not saving the cache.
         return {**super().__getstate__(), "_imcache": None}
@@ -896,8 +903,6 @@ class AxesImage(_ImageBase):
         the output image is larger than the input image.
     **kwargs : `.Artist` properties
     """
-    def __str__(self):
-        return "AxesImage(%g,%g;%gx%g)" % tuple(self.axes.bbox.bounds)
 
     def __init__(self, ax,
                  cmap=None,
