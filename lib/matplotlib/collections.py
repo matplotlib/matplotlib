@@ -268,8 +268,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         transform = self.get_transform()
         transOffset = self.get_offset_transform()
-        hasOffsets = np.any(self._offsets)  # True if any non-zero offsets
-        if hasOffsets and not transOffset.contains_branch(transData):
+        if not (isinstance(transOffset, transforms.IdentityTransform)
+                or transOffset.contains_branch(transData)):
             # if there are offsets but in some coords other than data,
             # then don't use them for autoscaling.
             return transforms.Bbox.null()
@@ -299,20 +299,20 @@ class Collection(artist.Artist, cm.ScalarMappable):
                     self.get_transforms(),
                     transOffset.transform_non_affine(offsets),
                     transOffset.get_affine().frozen())
-            if hasOffsets:
-                # this is for collections that have their paths (shapes)
-                # in physical, axes-relative, or figure-relative units
-                # (i.e. like scatter). We can't uniquely set limits based on
-                # those shapes, so we just set the limits based on their
-                # location.
 
-                offsets = (transOffset - transData).transform(offsets)
-                # note A-B means A B^{-1}
-                offsets = np.ma.masked_invalid(offsets)
-                if not offsets.mask.all():
-                    bbox = transforms.Bbox.null()
-                    bbox.update_from_data_xy(offsets)
-                    return bbox
+            # this is for collections that have their paths (shapes)
+            # in physical, axes-relative, or figure-relative units
+            # (i.e. like scatter). We can't uniquely set limits based on
+            # those shapes, so we just set the limits based on their
+            # location.
+
+            offsets = (transOffset - transData).transform(offsets)
+            # note A-B means A B^{-1}
+            offsets = np.ma.masked_invalid(offsets)
+            if not offsets.mask.all():
+                bbox = transforms.Bbox.null()
+                bbox.update_from_data_xy(offsets)
+                return bbox
         return transforms.Bbox.null()
 
     def get_window_extent(self, renderer):
