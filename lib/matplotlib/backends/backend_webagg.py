@@ -306,7 +306,7 @@ class _BackendWebAgg(_Backend):
     FigureManager = FigureManagerWebAgg
 
     @staticmethod
-    def show():
+    def show(*, block=None):
         WebAggApplication.initialize()
 
         url = "http://{address}:{port}{prefix}".format(
