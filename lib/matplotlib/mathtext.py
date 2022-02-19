@@ -202,13 +202,8 @@ class MathTextParser:
     _parser = None
 
     _backend_mapping = {
-        'bitmap': MathtextBackendPath,
         'agg':    MathtextBackendAgg,
-        'ps':     MathtextBackendPath,
-        'pdf':    MathtextBackendPath,
-        'svg':    MathtextBackendPath,
         'path':   MathtextBackendPath,
-        'cairo':  MathtextBackendPath,
         'macosx': MathtextBackendAgg,
     }
     _font_type_mapping = {
