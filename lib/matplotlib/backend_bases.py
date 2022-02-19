@@ -2884,6 +2884,7 @@ class NavigationToolbar2:
         ('Subplots', 'Configure subplots', 'subplots', 'configure_subplots'),
         (None, None, None, None),
         ('Save', 'Save the figure', 'filesave', 'save_figure'),
+        ('Copy', 'Copy to clipboard', 'copyfigure', 'copy_figure'),
       )
 
     def __init__(self, canvas):
@@ -3238,6 +3239,10 @@ class NavigationToolbar2:
             "close_event", lambda e: manager.destroy())
         manager.show()
         return self.subplot_tool
+
+    def copy_figure(self, *args):
+        """Copy the current figure."""
+        raise NotImplementedError
 
     def save_figure(self, *args):
         """Save the current figure."""

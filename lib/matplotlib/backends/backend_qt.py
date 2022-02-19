@@ -752,6 +752,10 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         self._subplot_dialog.show()
         return self._subplot_dialog
 
+    def copy_figure(self, *args):
+        pixmap = self.canvas.grab()
+        qApp.clipboard().setPixmap(pixmap)
+        
     def save_figure(self, *args):
         filetypes = self.canvas.get_supported_filetypes_grouped()
         sorted_filetypes = sorted(filetypes.items())
