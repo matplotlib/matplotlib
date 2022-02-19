@@ -8,7 +8,6 @@ import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
 from matplotlib.backend_bases import FigureCanvasBase, ToolContainerBase
 from matplotlib.backend_tools import Cursors
-from matplotlib.figure import Figure
 
 try:
     import gi
@@ -27,9 +26,10 @@ except ValueError as e:
 from gi.repository import Gio, GLib, GObject, Gtk, Gdk
 from . import _backend_gtk
 from ._backend_gtk import (
-    backend_version, _BackendGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
+    _BackendGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
     TimerGTK as TimerGTK3,
 )
+from ._backend_gtk import backend_version  # noqa: F401 # pylint: disable=W0611
 
 
 _log = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ class __getattr__:
                 Cursors.SELECT_REGION: new_cursor("crosshair"),
                 Cursors.WAIT:          new_cursor("wait"),
             }
-        except TypeError as exc:
+        except TypeError:
             return {}
 
     icon_filename = _api.deprecated("3.6", obj_type="")(property(

@@ -20,10 +20,10 @@ except ImportError:
 from matplotlib import is_interactive
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import _Backend, NavigationToolbar2
-from matplotlib.backends.backend_webagg_core import (
-    FigureCanvasWebAggCore, FigureManagerWebAgg, NavigationToolbar2WebAgg,
-    TimerTornado, TimerAsyncio
-)
+from .backend_webagg_core import (
+    FigureCanvasWebAggCore, FigureManagerWebAgg, NavigationToolbar2WebAgg)
+from .backend_webagg_core import (  # noqa: F401 # pylint: disable=W0611
+    TimerTornado, TimerAsyncio)
 
 
 def connection_info():
