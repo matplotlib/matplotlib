@@ -1,12 +1,13 @@
 """
 Helper functions for testing.
 """
-
-import locale
-import logging
-import subprocess
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import locale
+import logging
+import os
+import subprocess
+import sys
 
 import matplotlib as mpl
 from matplotlib import _api
@@ -47,6 +48,46 @@ def setup():
     # are not necessarily the default values as specified in rcsetup.py.
     set_font_settings_for_testing()
     set_reproducibility_for_testing()
+
+
+def subprocess_run_helper(func, *args, timeout, **extra_env):
+    """
+    Run a function in a sub-process
+
+    Parameters
+    ----------
+    func : function
+        The function to be run.  It must be in a module that is importable.
+
+    *args : str
+        Any additional command line arguments to be passed in
+        the first argument to subprocess.run
+
+    **extra_env : Dict[str, str]
+        Any additional envromental variables to be set for
+        the subprocess.
+
+    """
+    target = func.__name__
+    module = func.__module__
+    proc = subprocess.run(
+        [sys.executable,
+         "-c",
+         f"""
+from {module} import {target}
+{target}()
+""",
+         *args],
+        env={
+            **os.environ,
+            "SOURCE_DATE_EPOCH": "0",
+            **extra_env
+        },
+        timeout=timeout, check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        universal_newlines=True)
+    return proc
 
 
 def _check_for_pgf(texsystem):

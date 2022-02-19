@@ -37,7 +37,7 @@ change without warning [#]_.
 Previously Matplotlib's Qt backends had the Qt version number in the name, both
 in the module and the :rc:`backend` value
 (e.g. ``matplotlib.backends.backend_qt4agg`` and
-``matplotlib.backends.backend_qt5agg``), however as part of adding support for
+``matplotlib.backends.backend_qt5agg``). However as part of adding support for
 Qt6 we were able to support both Qt5 and Qt6 with a single implementation with
 all of the Qt version and binding support handled in
 `~matplotlib.backends.qt_compat`.  A majority of the renderer agnostic Qt code

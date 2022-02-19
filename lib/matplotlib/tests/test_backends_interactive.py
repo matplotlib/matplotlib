@@ -7,7 +7,6 @@ import platform
 import signal
 import subprocess
 import sys
-import textwrap
 import time
 import urllib.request
 
@@ -15,13 +14,7 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib import _c_internal_utils
-
-
-def _run_function_in_subprocess(func):
-    func_source = textwrap.dedent(inspect.getsource(func))
-    func_source = func_source[func_source.index('\n')+1:]  # Remove decorator
-    return f"{func_source}\n{func.__name__}()"
-
+from matplotlib.testing import subprocess_run_helper as _run_helper
 
 
 # Minimal smoke-testing of the backends for which the dependencies are
@@ -95,8 +88,8 @@ def _test_interactive_impl():
         "webagg.open_in_browser": False,
         "webagg.port_retries": 1,
     })
-    if len(sys.argv) >= 2:  # Second argument is json-encoded rcParams.
-        rcParams.update(json.loads(sys.argv[1]))
+
+    rcParams.update(json.loads(sys.argv[1]))
     backend = plt.rcParams["backend"].lower()
     assert_equal = TestCase().assertEqual
     assert_raises = TestCase().assertRaises
@@ -171,27 +164,16 @@ def test_interactive_backend(env, toolbar):
     if env["MPLBACKEND"] == "macosx":
         if toolbar == "toolmanager":
             pytest.skip("toolmanager is not implemented for macosx.")
+    proc = _run_helper(_test_interactive_impl,
+                       json.dumps({"toolbar": toolbar}),
+                       timeout=_test_timeout,
+                       **env)
 
-    proc = subprocess.run(
-        [sys.executable, "-c",
-         inspect.getsource(_test_interactive_impl)
-         + "\n_test_interactive_impl()",
-         json.dumps({"toolbar": toolbar})],
-        env={**os.environ, "SOURCE_DATE_EPOCH": "0", **env},
-        timeout=_test_timeout,
-        stdout=subprocess.PIPE, universal_newlines=True)
-    if proc.returncode:
-        pytest.fail("The subprocess returned with non-zero exit status "
-                    f"{proc.returncode}.")
     assert proc.stdout.count("CloseEvent") == 1
 
 
-# The source of this function gets extracted and run in another process, so it
-# must be fully self-contained.
 def _test_thread_impl():
     from concurrent.futures import ThreadPoolExecutor
-    import json
-    import sys
 
     from matplotlib import pyplot as plt, rcParams
 
@@ -199,8 +181,6 @@ def _test_thread_impl():
         "webagg.open_in_browser": False,
         "webagg.port_retries": 1,
     })
-    if len(sys.argv) >= 2:  # Second argument is json-encoded rcParams.
-        rcParams.update(json.loads(sys.argv[1]))
 
     # Test artist creation and drawing does not crash from thread
     # No other guarantees!
@@ -254,40 +234,65 @@ for param in _thread_safe_backends:
 @pytest.mark.parametrize("env", _thread_safe_backends)
 @pytest.mark.flaky(reruns=3)
 def test_interactive_thread_safety(env):
-    proc = subprocess.run(
-        [sys.executable, "-c",
-         inspect.getsource(_test_thread_impl) + "\n_test_thread_impl()"],
-        env={**os.environ, "SOURCE_DATE_EPOCH": "0", **env},
-        timeout=_test_timeout, check=True,
-        stdout=subprocess.PIPE, universal_newlines=True)
+    proc = _run_helper(_test_thread_impl,
+                       timeout=_test_timeout, **env)
     assert proc.stdout.count("CloseEvent") == 1
 
 
+def _impl_test_lazy_auto_backend_selection():
+    import matplotlib
+    import matplotlib.pyplot as plt
+    # just importing pyplot should not be enough to trigger resolution
+    bk = dict.__getitem__(matplotlib.rcParams, 'backend')
+    assert not isinstance(bk, str)
+    assert plt._backend_mod is None
+    # but actually plotting should
+    plt.plot(5)
+    assert plt._backend_mod is not None
+    bk = dict.__getitem__(matplotlib.rcParams, 'backend')
+    assert isinstance(bk, str)
+
+
 def test_lazy_auto_backend_selection():
+    _run_helper(_impl_test_lazy_auto_backend_selection,
+                timeout=_test_timeout)
 
-    @_run_function_in_subprocess
-    def _impl():
-        import matplotlib
-        import matplotlib.pyplot as plt
-        # just importing pyplot should not be enough to trigger resolution
-        bk = dict.__getitem__(matplotlib.rcParams, 'backend')
-        assert not isinstance(bk, str)
-        assert plt._backend_mod is None
-        # but actually plotting should
-        plt.plot(5)
-        assert plt._backend_mod is not None
-        bk = dict.__getitem__(matplotlib.rcParams, 'backend')
-        assert isinstance(bk, str)
 
-    proc = subprocess.run(
-        [sys.executable, "-c", _impl],
-        env={**os.environ, "SOURCE_DATE_EPOCH": "0"},
-        timeout=_test_timeout, check=True,
-        stdout=subprocess.PIPE, universal_newlines=True)
+def _implqt5agg():
+    import matplotlib.backends.backend_qt5agg  # noqa
+    import sys
+
+    assert 'PyQt6' not in sys.modules
+    assert 'pyside6' not in sys.modules
+    assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
+
+    import matplotlib.backends.backend_qt5
+    matplotlib.backends.backend_qt5.qApp
+
+
+def _implcairo():
+    import matplotlib.backends.backend_qt5cairo # noqa
+    import sys
+
+    assert 'PyQt6' not in sys.modules
+    assert 'pyside6' not in sys.modules
+    assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
+
+    import matplotlib.backends.backend_qt5
+    matplotlib.backends.backend_qt5.qApp
+
+
+def _implcore():
+    import matplotlib.backends.backend_qt5
+    import sys
+
+    assert 'PyQt6' not in sys.modules
+    assert 'pyside6' not in sys.modules
+    assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
+    matplotlib.backends.backend_qt5.qApp
 
 
 def test_qt5backends_uses_qt5():
-
     qt5_bindings = [
         dep for dep in ['PyQt5', 'pyside2']
         if importlib.util.find_spec(dep) is not None
@@ -298,51 +303,10 @@ def test_qt5backends_uses_qt5():
     ]
     if len(qt5_bindings) == 0 or len(qt6_bindings) == 0:
         pytest.skip('need both QT6 and QT5 bindings')
-
-    @_run_function_in_subprocess
-    def _implagg():
-        import matplotlib.backends.backend_qt5agg  # noqa
-        import sys
-
-        assert 'PyQt6' not in sys.modules
-        assert 'pyside6' not in sys.modules
-        assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
-
-    @_run_function_in_subprocess
-    def _implcairo():
-        import matplotlib.backends.backend_qt5cairo # noqa
-        import sys
-
-        assert 'PyQt6' not in sys.modules
-        assert 'pyside6' not in sys.modules
-        assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
-
-    @_run_function_in_subprocess
-    def _implcore():
-        import matplotlib.backends.backend_qt5 # noqa
-        import sys
-
-        assert 'PyQt6' not in sys.modules
-        assert 'pyside6' not in sys.modules
-        assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
-
-    subprocess.run(
-        [sys.executable, "-c", _implagg],
-        env={**os.environ, "SOURCE_DATE_EPOCH": "0"},
-        timeout=_test_timeout, check=True,
-        stdout=subprocess.PIPE, universal_newlines=True)
-
-    subprocess.run(
-        [sys.executable, "-c", _implcairo],
-        env={**os.environ, "SOURCE_DATE_EPOCH": "0"},
-        timeout=_test_timeout, check=True,
-        stdout=subprocess.PIPE, universal_newlines=True)
-
-    subprocess.run(
-        [sys.executable, "-c", _implcore],
-        env={**os.environ, "SOURCE_DATE_EPOCH": "0"},
-        timeout=_test_timeout, check=True,
-        stdout=subprocess.PIPE, universal_newlines=True)
+    _run_helper(_implqt5agg, timeout=_test_timeout)
+    if importlib.util.find_spec('pycairo') is not None:
+        _run_helper(_implcairo, timeout=_test_timeout)
+    _run_helper(_implcore, timeout=_test_timeout)
 
 
 def _impl_test_cross_Qt_imports():
@@ -378,11 +342,11 @@ def test_cross_Qt_imports():
         for qt6 in qt6_bindings:
             for pair in ([qt5, qt6], [qt6, qt5]):
                 try:
-                    _run_helper(__name__, _impl_test_cross_Qt_imports,
+                    _run_helper(_impl_test_cross_Qt_imports,
                                 *pair,
                                 timeout=_test_timeout)
                 except subprocess.CalledProcessError as ex:
-                    # if segfauldt, carry on.  We do try to warn the user they
+                    # if segfault, carry on.  We do try to warn the user they
                     # are doing something that we do not expect to work
                     if ex.returncode == -11:
                         continue
@@ -397,7 +361,7 @@ def test_webagg():
     proc = subprocess.Popen(
         [sys.executable, "-c",
          inspect.getsource(_test_interactive_impl)
-         + "\n_test_interactive_impl()"],
+         + "\n_test_interactive_impl()", "{}"],
         env={**os.environ, "MPLBACKEND": "webagg", "SOURCE_DATE_EPOCH": "0"})
     url = "http://{}:{}".format(
         mpl.rcParams["webagg.address"], mpl.rcParams["webagg.port"])
@@ -419,37 +383,33 @@ def test_webagg():
     assert proc.wait(timeout=_test_timeout) == 0
 
 
+def _lazy_headless():
+    import os
+    import sys
+
+    # make it look headless
+    os.environ.pop('DISPLAY', None)
+    os.environ.pop('WAYLAND_DISPLAY', None)
+
+    # we should fast-track to Agg
+    import matplotlib.pyplot as plt
+    plt.get_backend() == 'agg'
+    assert 'PyQt5' not in sys.modules
+
+    # make sure we really have pyqt installed
+    import PyQt5  # noqa
+    assert 'PyQt5' in sys.modules
+
+    # try to switch and make sure we fail with ImportError
+    try:
+        plt.switch_backend('qt5agg')
+    except ImportError:
+        ...
+    else:
+        sys.exit(1)
+
+
 @pytest.mark.skipif(sys.platform != "linux", reason="this a linux-only test")
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_lazy_linux_headless():
-    test_script = """
-import os
-import sys
-
-# make it look headless
-os.environ.pop('DISPLAY', None)
-os.environ.pop('WAYLAND_DISPLAY', None)
-
-# we should fast-track to Agg
-import matplotlib.pyplot as plt
-plt.get_backend() == 'agg'
-assert 'PyQt5' not in sys.modules
-
-# make sure we really have pyqt installed
-import PyQt5
-assert 'PyQt5' in sys.modules
-
-# try to switch and make sure we fail with ImportError
-try:
-    plt.switch_backend('qt5agg')
-except ImportError:
-    ...
-else:
-    sys.exit(1)
-
-"""
-    proc = subprocess.run([sys.executable, "-c", test_script],
-                          env={**os.environ, "MPLBACKEND": ""})
-    if proc.returncode:
-        pytest.fail("The subprocess returned with non-zero exit status "
-                    f"{proc.returncode}.")
+    proc = _run_helper(_lazy_headless, timeout=_test_timeout, MPLBACKEND="")
