@@ -75,16 +75,12 @@ class Patch(artist.Artist):
         """
         super().__init__()
 
-        if linewidth is None:
-            linewidth = mpl.rcParams['patch.linewidth']
         if linestyle is None:
             linestyle = "solid"
         if capstyle is None:
             capstyle = CapStyle.butt
         if joinstyle is None:
             joinstyle = JoinStyle.miter
-        if antialiased is None:
-            antialiased = mpl.rcParams['patch.antialiased']
 
         self._hatch_color = colors.to_rgba(mpl.rcParams['hatch.color'])
         self._fill = True  # needed for set_facecolor call
@@ -405,8 +401,6 @@ class Patch(artist.Artist):
         """
         if w is None:
             w = mpl.rcParams['patch.linewidth']
-            if w is None:
-                w = mpl.rcParams['axes.linewidth']
         self._linewidth = float(w)
         self._dash_pattern = mlines._scale_dashes(
             *self._unscaled_dash_pattern, w)
