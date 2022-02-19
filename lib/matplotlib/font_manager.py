@@ -682,23 +682,6 @@ class FontProperties:
                  stretch=None, size=None,
                  fname=None,  # if set, it's a hardcoded filename to use
                  math_fontfamily=None):
-        self._family = _normalize_font_family(rcParams['font.family'])
-        self._slant = rcParams['font.style']
-        self._variant = rcParams['font.variant']
-        self._weight = rcParams['font.weight']
-        self._stretch = rcParams['font.stretch']
-        self._size = rcParams['font.size']
-        self._file = None
-        self.set_math_fontfamily(math_fontfamily)
-
-        if isinstance(family, str):
-            # Treat family as a fontconfig pattern if it is the only
-            # parameter provided.
-            if (style is None and variant is None and weight is None and
-                    stretch is None and size is None and fname is None):
-                self.set_fontconfig_pattern(family)
-                return
-
         self.set_family(family)
         self.set_style(style)
         self.set_variant(variant)
@@ -706,6 +689,14 @@ class FontProperties:
         self.set_stretch(stretch)
         self.set_file(fname)
         self.set_size(size)
+        self.set_math_fontfamily(math_fontfamily)
+        # Treat family as a fontconfig pattern if it is the only parameter
+        # provided.  Even in that case, call the other setters first to set
+        # attributes not specified by the pattern to the rcParams defaults.
+        if (isinstance(family, str)
+                and style is None and variant is None and weight is None
+                and stretch is None and size is None and fname is None):
+            self.set_fontconfig_pattern(family)
 
     @classmethod
     def _from_any(cls, arg):
@@ -736,7 +727,7 @@ class FontProperties:
              self.get_variant(),
              self.get_weight(),
              self.get_stretch(),
-             self.get_size_in_points(),
+             self.get_size(),
              self.get_file(),
              self.get_math_fontfamily())
         return hash(l)
@@ -764,7 +755,6 @@ class FontProperties:
         Return the font style.  Values are: 'normal', 'italic' or 'oblique'.
         """
         return self._slant
-    get_slant = get_style
 
     def get_variant(self):
         """
@@ -795,9 +785,6 @@ class FontProperties:
         """
         return self._size
 
-    def get_size_in_points(self):
-        return self._size
-
     def get_file(self):
         """
         Return the filename of the associated font.
@@ -824,8 +811,9 @@ class FontProperties:
         """
         if family is None:
             family = rcParams['font.family']
-        self._family = _normalize_font_family(family)
-    set_name = set_family
+        if isinstance(family, str):
+            family = [family]
+        self._family = family
 
     def set_style(self, style):
         """
@@ -835,7 +823,6 @@ class FontProperties:
             style = rcParams['font.style']
         _api.check_in_list(['normal', 'italic', 'oblique'], style=style)
         self._slant = style
-    set_slant = set_style
 
     def set_variant(self, variant):
         """
@@ -967,6 +954,12 @@ class FontProperties:
         """Return a copy of self."""
         return copy.copy(self)
 
+    # Aliases
+    set_name = set_family
+    get_slant = get_style
+    set_slant = set_style
+    get_size_in_points = get_size
+
 
 class _JSONEncoder(json.JSONEncoder):
     def default(self, o):
@@ -1038,12 +1031,6 @@ def json_load(filename):
     """
     with open(filename, 'r') as fh:
         return json.load(fh, object_hook=_json_decode)
-
-
-def _normalize_font_family(family):
-    if isinstance(family, str):
-        family = [family]
-    return family
 
 
 class FontManager:
