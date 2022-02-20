@@ -1397,14 +1397,26 @@ class TimedAnimation(Animation):
         # delay and set the callback to one which will then set the interval
         # back.
         still_going = super()._step(*args)
-        if not still_going and self.repeat:
-            self._init_draw()
-            self.frame_seq = self.new_frame_seq()
-            self.event_source.interval = self._repeat_delay
-            return True
-        else:
-            self.event_source.interval = self._interval
-            return still_going
+        if not still_going:
+            if self.repeat:
+                # Restart the draw loop
+                self._init_draw()
+                self.frame_seq = self.new_frame_seq()
+                self.event_source.interval = self._repeat_delay
+                return True
+            else:
+                # We are done with the animation. Call pause to remove
+                # animated flags from artists that were using blitting
+                self.pause()
+                if self._blit:
+                    # Remove the resize callback if we were blitting
+                    self._fig.canvas.mpl_disconnect(self._resize_id)
+                self._fig.canvas.mpl_disconnect(self._close_id)
+                self.event_source = None
+                return False
+
+        self.event_source.interval = self._interval
+        return True
 
 
 class ArtistAnimation(TimedAnimation):
