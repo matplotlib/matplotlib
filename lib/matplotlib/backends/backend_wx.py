@@ -43,8 +43,6 @@ PIXELS_PER_INCH = 75
 
 @_api.caching_module_getattr  # module-level deprecations
 class __getattr__:
-    IDLE_DELAY = _api.deprecated("3.1", obj_type="", removal="3.6")(property(
-        lambda self: 5))
     cursord = _api.deprecated("3.5", obj_type="")(property(lambda self: {
         cursors.MOVE: wx.CURSOR_HAND,
         cursors.HAND: wx.CURSOR_HAND,
@@ -596,8 +594,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         wildcards = '|'.join(wildcards)
         return wildcards, extensions, filter_index
 
-    @_api.delete_parameter("3.4", "origin")
-    def gui_repaint(self, drawDC=None, origin='WX'):
+    def gui_repaint(self, drawDC=None):
         """
         Update the displayed image on the GUI canvas, using the supplied
         wx.PaintDC device context.
@@ -1086,10 +1083,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             image[black_mask, :3] = (fg.Red(), fg.Green(), fg.Blue())
         return wx.Bitmap.FromBufferRGBA(
             image.shape[1], image.shape[0], image.tobytes())
-
-    @_api.deprecated("3.4")
-    def get_canvas(self, frame, fig):
-        return type(self.canvas)(frame, -1, fig)
 
     def _update_buttons_checked(self):
         if "Pan" in self.wx_ids:

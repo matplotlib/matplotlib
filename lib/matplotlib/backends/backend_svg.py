@@ -1281,9 +1281,8 @@ class FigureCanvasSVG(FigureCanvasBase):
 
     fixed_dpi = 72
 
-    @_api.delete_parameter("3.4", "dpi")
     @_api.delete_parameter("3.5", "args")
-    def print_svg(self, filename, *args, dpi=None, bbox_inches_restore=None,
+    def print_svg(self, filename, *args, bbox_inches_restore=None,
                   metadata=None):
         """
         Parameters
@@ -1319,8 +1318,7 @@ class FigureCanvasSVG(FigureCanvasBase):
         with cbook.open_file_cm(filename, "w", encoding="utf-8") as fh:
             if not cbook.file_requires_unicode(fh):
                 fh = codecs.getwriter('utf-8')(fh)
-            if dpi is None:  # always use this branch after deprecation elapses
-                dpi = self.figure.get_dpi()
+            dpi = self.figure.get_dpi()
             self.figure.set_dpi(72)
             width, height = self.figure.get_size_inches()
             w, h = width * 72, height * 72

@@ -163,10 +163,7 @@ class TimerTk(TimerBase):
 class FigureCanvasTk(FigureCanvasBase):
     required_interactive_framework = "tk"
 
-    @_api.delete_parameter(
-        "3.4", "resize_callback",
-        alternative="get_tk_widget().bind('<Configure>', ..., True)")
-    def __init__(self, figure=None, master=None, resize_callback=None):
+    def __init__(self, figure=None, master=None):
         super().__init__(figure)
         self._idle_draw_id = None
         self._event_loop_id = None
@@ -177,7 +174,6 @@ class FigureCanvasTk(FigureCanvasBase):
         self._tkphoto = tk.PhotoImage(
             master=self._tkcanvas, width=w, height=h)
         self._tkcanvas.create_image(w//2, h//2, image=self._tkphoto)
-        self._resize_callback = resize_callback
         self._tkcanvas.bind("<Configure>", self.resize)
         self._tkcanvas.bind("<Map>", self._update_device_pixel_ratio)
         self._tkcanvas.bind("<Key>", self.key_press)
@@ -229,8 +225,6 @@ class FigureCanvasTk(FigureCanvasBase):
 
     def resize(self, event):
         width, height = event.width, event.height
-        if self._resize_callback is not None:
-            self._resize_callback(event)
 
         # compute desired figure size in inches
         dpival = self.figure.dpi
