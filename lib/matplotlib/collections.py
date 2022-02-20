@@ -1420,7 +1420,7 @@ class LineCollection(Collection):
         if args:
             argkw = {name: val for name, val in zip(argnames, args)}
             kwargs.update(argkw)
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.4", message="Since %(since)s, passing LineCollection "
                 "arguments other than the first, 'segments', as positional "
                 "arguments is deprecated, and they will become keyword-only "

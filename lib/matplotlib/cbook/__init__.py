@@ -29,18 +29,6 @@ import numpy as np
 
 import matplotlib
 from matplotlib import _api, _c_internal_utils
-from matplotlib._api.deprecation import (
-    MatplotlibDeprecationWarning, mplDeprecation)
-
-
-@_api.deprecated("3.4")
-def deprecated(*args, **kwargs):
-    return _api.deprecated(*args, **kwargs)
-
-
-@_api.deprecated("3.4")
-def warn_deprecated(*args, **kwargs):
-    _api.warn_deprecated(*args, **kwargs)
 
 
 def _get_running_interactive_framework():
@@ -365,7 +353,8 @@ class silent_list(list):
 
 
 def _local_over_kwdict(
-        local_var, kwargs, *keys, warning_cls=MatplotlibDeprecationWarning):
+        local_var, kwargs, *keys,
+        warning_cls=_api.MatplotlibDeprecationWarning):
     out = local_var
     for key in keys:
         kwarg_val = kwargs.pop(key, None)

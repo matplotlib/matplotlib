@@ -1,0 +1,7 @@
+Removal of deprecations in ``cbook``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The module ``cbook.deprecation`` is removed from the public API as it is
+considered internal. This also holds for deprecation-related re-imports in
+``cbook``: ``deprecated``, ``MatplotlibDeprecationWarning``,
+``mplDeprecation``, and ``warn_deprecated``.
