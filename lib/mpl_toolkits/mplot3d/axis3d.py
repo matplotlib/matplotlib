@@ -422,11 +422,11 @@ class Axis(maxis.XAxis):
             pos[index] = tick.get_loc()
             pos[tickdir] = (
                 edgep1[tickdir]
-                + info['tick']['outward_factor'] * ticksign * tickdelta)
+                + info['tick']['outward_factor'] * ticksign * tickdelta * (0 if tick._tickdir == 'out' else 1))
             x1, y1, z1 = proj3d.proj_transform(*pos, self.axes.M)
             pos[tickdir] = (
                 edgep1[tickdir]
-                - info['tick']['inward_factor'] * ticksign * tickdelta)
+                - info['tick']['inward_factor'] * ticksign * tickdelta * (0 if tick._tickdir == 'in' else 1))
             x2, y2, z2 = proj3d.proj_transform(*pos, self.axes.M)
 
             # Get position of label
