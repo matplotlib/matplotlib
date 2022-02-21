@@ -221,7 +221,7 @@ gen_rst.EXAMPLE_HEADER = """
 .. only:: html
 
     .. meta::
-        :keywords: matplotlib code example, codex, python plot, pyplot
+        :keywords: codex
 
     .. note::
         :class: sphx-glr-download-link-note
