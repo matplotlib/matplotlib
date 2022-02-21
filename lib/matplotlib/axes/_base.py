@@ -541,9 +541,22 @@ class _process_plot_var_args:
 class _AxesBase(martist.Artist):
     name = "rectilinear"
 
-    _axis_names = ("x", "y")  # See _get_axis_map.
+    # axis names are the prefixes for the attributes that contain the
+    # respective axis; e.g. 'x' <-> self.xaxis, containing an XAxis.
+    # Note that PolarAxes uses these attributes as well, so that we have
+    # 'x' <-> self.xaxis, containing a ThetaAxis. In particular we do not
+    # have 'theta' in _axis_names.
+    # In practice, this is ('x', 'y') for all 2D Axes and ('x', 'y', 'z')
+    # for Axes3D.
+    _axis_names = ("x", "y")
     _shared_axes = {name: cbook.Grouper() for name in _axis_names}
     _twinned_axes = cbook.Grouper()
+
+    @property
+    def _axis_map(self):
+        """A mapping of axis names, e.g. 'x', to `Axis` instances."""
+        return {name: getattr(self, f"{name}axis")
+                for name in self._axis_names}
 
     def __str__(self):
         return "{0}({1[0]:g},{1[1]:g};{1[2]:g}x{1[3]:g})".format(
@@ -644,7 +657,7 @@ class _AxesBase(martist.Artist):
 
         self._internal_update(kwargs)
 
-        for name, axis in self._get_axis_map().items():
+        for name, axis in self._axis_map.items():
             axis.callbacks._pickled_cids.add(
                 axis.callbacks.connect(
                     'units', self._unit_change_handler(name)))
@@ -2437,7 +2450,7 @@ class _AxesBase(martist.Artist):
         if event is None:  # Allow connecting `self._unit_change_handler(name)`
             return functools.partial(
                 self._unit_change_handler, axis_name, event=object())
-        _api.check_in_list(self._get_axis_map(), axis_name=axis_name)
+        _api.check_in_list(self._axis_map, axis_name=axis_name)
         for line in self.lines:
             line.recache_always()
         self.relim()
@@ -2503,7 +2516,7 @@ class _AxesBase(martist.Artist):
         ----------
         datasets : list
             List of (axis_name, dataset) pairs (where the axis name is defined
-            as in `._get_axis_map`).  Individual datasets can also be None
+            as in `._axis_map`).  Individual datasets can also be None
             (which gets passed through).
         kwargs : dict
             Other parameters from which unit info (i.e., the *xunits*,
@@ -2525,7 +2538,7 @@ class _AxesBase(martist.Artist):
         # (e.g. if some are scalars, etc.).
         datasets = datasets or []
         kwargs = kwargs or {}
-        axis_map = self._get_axis_map()
+        axis_map = self._axis_map
         for axis_name, data in datasets:
             try:
                 axis = axis_map[axis_name]
@@ -2953,22 +2966,6 @@ class _AxesBase(martist.Artist):
             scaley, self._autoscaleYon, self._shared_axes["y"], 'y',
             self.yaxis, self._ymargin, y_stickies, self.set_ybound)
 
-    def _get_axis_list(self):
-        return tuple(getattr(self, f"{name}axis") for name in self._axis_names)
-
-    def _get_axis_map(self):
-        """
-        Return a mapping of `Axis` "names" to `Axis` instances.
-
-        The `Axis` name is derived from the attribute under which the instance
-        is stored, so e.g. for polar Axes, the theta-axis is still named "x"
-        and the r-axis is still named "y" (for back-compatibility).
-
-        In practice, this means that the entries are typically "x" and "y", and
-        additionally "z" for 3D Axes.
-        """
-        return dict(zip(self._axis_names, self._get_axis_list()))
-
     def _update_title_position(self, renderer):
         """
         Update the title position based on the bounding box enclosing
@@ -3069,7 +3066,7 @@ class _AxesBase(martist.Artist):
         self._update_title_position(renderer)
 
         if not self.axison:
-            for _axis in self._get_axis_list():
+            for _axis in self._axis_map.values():
                 artists.remove(_axis)
 
         if not self.figure.canvas.is_saving():
@@ -3131,7 +3128,7 @@ class _AxesBase(martist.Artist):
             raise AttributeError("redraw_in_frame can only be used after an "
                                  "initial draw which caches the renderer")
         with ExitStack() as stack:
-            for artist in [*self._get_axis_list(),
+            for artist in [*self._axis_map.values(),
                            self.title, self._left_title, self._right_title]:
                 stack.enter_context(artist._cm_set(visible=False))
             self.draw(self.figure._cachedRenderer)
@@ -3202,7 +3199,7 @@ class _AxesBase(martist.Artist):
             zorder = 1.5
         else:
             raise ValueError("Unexpected axisbelow value")
-        for axis in self._get_axis_list():
+        for axis in self._axis_map.values():
             axis.set_zorder(zorder)
         self.stale = True
 
@@ -3306,8 +3303,8 @@ class _AxesBase(martist.Artist):
                                  ) from err
         STYLES = {'sci': True, 'scientific': True, 'plain': False, '': None}
         is_sci_style = _api.check_getitem(STYLES, style=style)
-        axis_map = {**{k: [v] for k, v in self._get_axis_map().items()},
-                    'both': self._get_axis_list()}
+        axis_map = {**{k: [v] for k, v in self._axis_map.items()},
+                    'both': list(self._axis_map.values())}
         axises = _api.check_getitem(axis_map, axis=axis)
         try:
             for axis in axises:
@@ -3361,7 +3358,7 @@ class _AxesBase(martist.Artist):
         _api.check_in_list([*self._axis_names, "both"], axis=axis)
         for name in self._axis_names:
             if axis in [name, "both"]:
-                loc = self._get_axis_map()[name].get_major_locator()
+                loc = self._axis_map[name].get_major_locator()
                 loc.set_params(**kwargs)
                 self._request_autoscale_view(name, tight=tight)
         self.stale = True
@@ -4412,7 +4409,7 @@ class _AxesBase(martist.Artist):
         return [
             *self._children,
             *self.spines.values(),
-            *self._get_axis_list(),
+            *self._axis_map.values(),
             self.title, self._left_title, self._right_title,
             *self.child_axes,
             *([self.legend_] if self.legend_ is not None else []),
@@ -4444,10 +4441,10 @@ class _AxesBase(martist.Artist):
 
         artists = self.get_children()
 
-        for _axis in self._get_axis_list():
+        for axis in self._axis_map.values():
             # axis tight bboxes are calculated separately inside
             # Axes.get_tightbbox() using for_layout_only=True
-            artists.remove(_axis)
+            artists.remove(axis)
         if not (self.axison and self._frameon):
             # don't do bbox on spines if frame not on.
             for spine in self.spines.values():
@@ -4520,7 +4517,7 @@ class _AxesBase(martist.Artist):
         else:
             self.apply_aspect()
 
-        for axis in self._get_axis_list():
+        for axis in self._axis_map.values():
             if self.axison and axis.get_visible():
                 ba = martist._get_tightbbox_for_layout_only(axis, renderer)
                 if ba:
