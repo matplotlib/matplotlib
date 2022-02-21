@@ -40,18 +40,6 @@ class Patch(artist.Artist):
     """
     zorder = 1
 
-    @_api.deprecated("3.4")
-    @_api.classproperty
-    def validCap(cls):
-        with _api.suppress_matplotlib_deprecation_warning():
-            return mlines.Line2D.validCap
-
-    @_api.deprecated("3.4")
-    @_api.classproperty
-    def validJoin(cls):
-        with _api.suppress_matplotlib_deprecation_warning():
-            return mlines.Line2D.validJoin
-
     # Whether to draw an edge by default.  Set on a
     # subclass-by-subclass basis.
     _edge_default = False
@@ -4229,13 +4217,11 @@ class FancyArrowPatch(Patch):
             return f"{type(self).__name__}({self._path_original})"
 
     @docstring.dedent_interpd
-    @_api.delete_parameter("3.4", "dpi_cor")
     def __init__(self, posA=None, posB=None, path=None,
                  arrowstyle="simple", connectionstyle="arc3",
                  patchA=None, patchB=None,
                  shrinkA=2, shrinkB=2,
                  mutation_scale=1, mutation_aspect=1,
-                 dpi_cor=1,
                  **kwargs):
         """
         There are two ways for defining an arrow:
@@ -4291,10 +4277,6 @@ default: 'arc3'
             the mutation and the mutated box will be stretched by the inverse
             of it.
 
-        dpi_cor : float, default: 1
-            dpi_cor is currently used for linewidth-related things and shrink
-            factor. Mutation scale is affected by this.  Deprecated.
-
         Other Parameters
         ----------------
         **kwargs : `.Patch` properties, optional
@@ -4335,32 +4317,7 @@ default: 'arc3'
         self._mutation_scale = mutation_scale
         self._mutation_aspect = mutation_aspect
 
-        self._dpi_cor = dpi_cor
-
-    @_api.deprecated("3.4")
-    def set_dpi_cor(self, dpi_cor):
-        """
-        dpi_cor is currently used for linewidth-related things and
-        shrink factor. Mutation scale is affected by this.
-
-        Parameters
-        ----------
-        dpi_cor : float
-        """
-        self._dpi_cor = dpi_cor
-        self.stale = True
-
-    @_api.deprecated("3.4")
-    def get_dpi_cor(self):
-        """
-        dpi_cor is currently used for linewidth-related things and
-        shrink factor. Mutation scale is affected by this.
-
-        Returns
-        -------
-        scalar
-        """
-        return self._dpi_cor
+        self._dpi_cor = 1.0
 
     def set_positions(self, posA, posB):
         """
@@ -4575,7 +4532,6 @@ class ConnectionPatch(FancyArrowPatch):
                (self.xy1[0], self.xy1[1], self.xy2[0], self.xy2[1])
 
     @docstring.dedent_interpd
-    @_api.delete_parameter("3.4", "dpi_cor")
     def __init__(self, xyA, xyB, coordsA, coordsB=None,
                  axesA=None, axesB=None,
                  arrowstyle="-",
@@ -4587,7 +4543,6 @@ class ConnectionPatch(FancyArrowPatch):
                  mutation_scale=10.,
                  mutation_aspect=None,
                  clip_on=False,
-                 dpi_cor=1.,
                  **kwargs):
         """
         Connect point *xyA* in *coordsA* with point *xyB* in *coordsB*.
@@ -4677,8 +4632,6 @@ class ConnectionPatch(FancyArrowPatch):
                          mutation_aspect=mutation_aspect,
                          clip_on=clip_on,
                          **kwargs)
-        self._dpi_cor = dpi_cor
-
         # if True, draw annotation only if self.xy is inside the axes
         self._annotation_clip = None
 

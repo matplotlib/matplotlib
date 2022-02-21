@@ -43,11 +43,16 @@ def test_font_styles():
         style="normal",
         variant="normal",
         size=14)
-    ax.annotate(
+    a = ax.annotate(
         "Normal Font",
         (0.1, 0.1),
         xycoords='axes fraction',
         fontproperties=normal_font)
+    assert a.get_fontname() == 'DejaVu Sans'
+    assert a.get_fontstyle() == 'normal'
+    assert a.get_fontvariant() == 'normal'
+    assert a.get_weight() == 'normal'
+    assert a.get_stretch() == 'normal'
 
     bold_font = find_matplotlib_font(
         family="Foo",
