@@ -11,14 +11,13 @@ In Matplotlib they are drawn into a dedicated `~.axes.Axes`.
    End-users most likely won't need to directly use this module's API.
 """
 
-import copy
 import logging
 import textwrap
 
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, collections, cm, colors, contour, ticker
+from matplotlib import _api, cbook, collections, cm, colors, contour, ticker
 import matplotlib.artist as martist
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
@@ -1154,20 +1153,24 @@ class Colorbar:
         These are scaled between vmin and vmax, and already handle colorbar
         orientation.
         """
-        # copy the norm and change the vmin and vmax to the vmin and
-        # vmax of the colorbar, not the norm.  This allows the situation
-        # where the colormap has a narrower range than the colorbar, to
-        # accommodate extra contours:
-        norm = copy.deepcopy(self.norm)
-        norm.vmin = self.vmin
-        norm.vmax = self.vmax
         y, extendlen = self._proportional_y()
-        # invert:
-        if (isinstance(norm, (colors.BoundaryNorm, colors.NoNorm)) or
-                self.boundaries is not None):
-            y = y * (self.vmax - self.vmin) + self.vmin  # not using a norm.
+        # Use the vmin and vmax of the colorbar, which may not be the same
+        # as the norm. There are situations where the colormap has a
+        # narrower range than the colorbar and we want to accommodate the
+        # extra contours.
+        if (isinstance(self.norm, (colors.BoundaryNorm, colors.NoNorm))
+                or self.boundaries is not None):
+            # not using a norm.
+            y = y * (self.vmax - self.vmin) + self.vmin
         else:
-            y = norm.inverse(y)
+            # Update the norm values in a context manager as it is only
+            # a temporary change and we don't want to propagate any signals
+            # attached to the norm (callbacks.blocked).
+            with self.norm.callbacks.blocked(), \
+                    cbook._setattr_cm(self.norm,
+                                      vmin=self.vmin,
+                                      vmax=self.vmax):
+                y = self.norm.inverse(y)
         self._y = y
         X, Y = np.meshgrid([0., 1.], y)
         if self.orientation == 'vertical':
