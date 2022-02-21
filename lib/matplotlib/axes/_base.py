@@ -2977,7 +2977,7 @@ class _AxesBase(martist.Artist):
                 if bb is None:
                     if 'outline' in ax.spines:
                         # Special case for colorbars:
-                        bb = self.axes.spines['outline'].get_window_extent()
+                        bb = ax.spines['outline'].get_window_extent()
                     else:
                         bb = ax.get_window_extent(renderer)
                 top = max(top, bb.ymax)
