@@ -157,8 +157,12 @@ def _mark_every_path(markevery, tpath, affine, ax):
                 raise ValueError(
                     "markevery is specified relative to the axes size, but "
                     "the line does not have a Axes as parent")
+
             # calc cumulative distance along path (in display coords):
-            disp_coords = affine.transform(tpath.vertices)
+            fin = np.isfinite(verts).all(axis=1)
+            fverts = verts[fin]
+            disp_coords = affine.transform(fverts)
+
             delta = np.empty((len(disp_coords), 2))
             delta[0, :] = 0
             delta[1:, :] = disp_coords[1:, :] - disp_coords[:-1, :]
@@ -174,7 +178,7 @@ def _mark_every_path(markevery, tpath, affine, ax):
             inds = inds.argmin(axis=1)
             inds = np.unique(inds)
             # return, we are done here
-            return Path(verts[inds], _slice_or_none(codes, inds))
+            return Path(fverts[inds], _slice_or_none(codes, inds))
         else:
             raise ValueError(
                 f"markevery={markevery!r} is a tuple with len 2, but its "
