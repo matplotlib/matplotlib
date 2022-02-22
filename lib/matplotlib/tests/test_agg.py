@@ -7,7 +7,8 @@ import pytest
 
 
 from matplotlib import (
-    collections, path, pyplot as plt, transforms as mtransforms, rcParams)
+    collections, path, patheffects, pyplot as plt, transforms as mtransforms,
+    rcParams)
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.figure import Figure
 from matplotlib.image import imread
@@ -349,3 +350,11 @@ def test_chunksize_toobig_chunks(chunk_limit_setup):
     rcParams['agg.path.chunksize'] = 90_000
     with pytest.raises(OverflowError, match='Please reduce'):
         ra.draw_path(gc, p, idt)
+
+
+def test_non_tuple_rgbaface():
+    # This passes rgbaFace as a ndarray to draw_path.
+    fig = plt.figure()
+    fig.add_subplot(projection="3d").scatter(
+        [0, 1, 2], [0, 1, 2], path_effects=[patheffects.Stroke(linewidth=4)])
+    fig.canvas.draw()
