@@ -69,7 +69,7 @@ elif QT_API_ENV is None:
 else:
     try:
         QT_API = _ETS[QT_API_ENV]
-    except KeyError as err:
+    except KeyError:
         raise RuntimeError(
             "The environment variable QT_API has the unrecognized value "
             f"{QT_API_ENV!r}; "

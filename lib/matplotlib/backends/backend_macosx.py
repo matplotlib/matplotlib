@@ -1,8 +1,8 @@
 import matplotlib as mpl
 from matplotlib import cbook
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backends import _macosx
-from matplotlib.backends.backend_agg import FigureCanvasAgg
+from . import _macosx
+from .backend_agg import FigureCanvasAgg
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
     TimerBase)

@@ -29,11 +29,9 @@ from contextlib import nullcontext
 from math import radians, cos, sin
 
 import numpy as np
-from PIL import Image
 
 import matplotlib as mpl
 from matplotlib import _api, cbook
-from matplotlib import colors as mcolors
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.font_manager import findfont, get_font
@@ -152,7 +150,7 @@ class RendererAgg(RendererBase):
                 p.simplify_threshold = path.simplify_threshold
                 try:
                     self._renderer.draw_path(gc, p, transform, rgbFace)
-                except OverflowError as err:
+                except OverflowError:
                     msg = (
                         "Exceeded cell block limit in Agg.\n\n"
                         "Please reduce the value of "
@@ -167,7 +165,7 @@ class RendererAgg(RendererBase):
         else:
             try:
                 self._renderer.draw_path(gc, path, transform, rgbFace)
-            except OverflowError as err:
+            except OverflowError:
                 cant_chunk = ''
                 if rgbFace is not None:
                     cant_chunk += "- can not split filled path\n"
