@@ -345,33 +345,32 @@ def test_non_default_dpi(text):
 
 
 def test_get_rotation_string():
-    assert mpl.text.get_rotation('horizontal') == 0.
-    assert mpl.text.get_rotation('vertical') == 90.
-    assert mpl.text.get_rotation('15.') == 15.
+    assert Text(rotation='horizontal').get_rotation() == 0.
+    assert Text(rotation='vertical').get_rotation() == 90.
 
 
 def test_get_rotation_float():
     for i in [15., 16.70, 77.4]:
-        assert mpl.text.get_rotation(i) == i
+        assert Text(rotation=i).get_rotation() == i
 
 
 def test_get_rotation_int():
     for i in [67, 16, 41]:
-        assert mpl.text.get_rotation(i) == float(i)
+        assert Text(rotation=i).get_rotation() == float(i)
 
 
 def test_get_rotation_raises():
     with pytest.raises(ValueError):
-        mpl.text.get_rotation('hozirontal')
+        Text(rotation='hozirontal')
 
 
 def test_get_rotation_none():
-    assert mpl.text.get_rotation(None) == 0.0
+    assert Text(rotation=None).get_rotation() == 0.0
 
 
 def test_get_rotation_mod360():
     for i, j in zip([360., 377., 720+177.2], [0., 17., 177.2]):
-        assert_almost_equal(mpl.text.get_rotation(i), j)
+        assert_almost_equal(Text(rotation=i).get_rotation(), j)
 
 
 @pytest.mark.parametrize("ha", ["center", "right", "left"])
