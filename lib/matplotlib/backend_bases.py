@@ -49,6 +49,7 @@ from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_managers import ToolManager
 from matplotlib.cbook import _setattr_cm
 from matplotlib.path import Path
+from matplotlib.texmanager import TexManager
 from matplotlib.transforms import Affine2D
 from matplotlib._enums import JoinStyle, CapStyle
 
@@ -605,13 +606,12 @@ class RendererBase:
         to the baseline), in display coords, of the string *s* with
         `.FontProperties` *prop*.
         """
+        fontsize = prop.get_size_in_points()
+
         if ismath == 'TeX':
             # todo: handle props
-            texmanager = self._text2path.get_texmanager()
-            fontsize = prop.get_size_in_points()
-            w, h, d = texmanager.get_text_width_height_descent(
+            return TexManager().get_text_width_height_descent(
                 s, fontsize, renderer=self)
-            return w, h, d
 
         dpi = self.points_to_pixels(72)
         if ismath:
@@ -620,8 +620,7 @@ class RendererBase:
 
         flags = self._text2path._get_hinting_flag()
         font = self._text2path._get_font(prop)
-        size = prop.get_size_in_points()
-        font.set_size(size, dpi)
+        font.set_size(fontsize, dpi)
         # the width and height of unrotated string
         font.set_text(s, 0.0, flags=flags)
         w, h = font.get_width_height()
@@ -646,7 +645,6 @@ class RendererBase:
     def get_texmanager(self):
         """Return the `.TexManager` instance."""
         if self._texmanager is None:
-            from matplotlib.texmanager import TexManager
             self._texmanager = TexManager()
         return self._texmanager
 

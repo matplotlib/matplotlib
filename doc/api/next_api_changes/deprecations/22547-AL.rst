@@ -1,0 +1,3 @@
+``TextToPath.get_texmanager``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated; directly construct a `.texmanager.TexManager` instead.
