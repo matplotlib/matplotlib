@@ -16,7 +16,8 @@ from mpl_toolkits.axes_grid1 import (
     Grid, AxesGrid, ImageGrid)
 from mpl_toolkits.axes_grid1.anchored_artists import (
     AnchoredSizeBar, AnchoredDirectionArrows)
-from mpl_toolkits.axes_grid1.axes_divider import HBoxDivider
+from mpl_toolkits.axes_grid1.axes_divider import (
+    HBoxDivider, make_axes_area_auto_adjustable)
 from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch)
 import mpl_toolkits.axes_grid1.mpl_axes
@@ -510,3 +511,16 @@ def test_mark_inset_unstales_viewlim(fig_test, fig_ref):
     mark_inset(full, inset, 1, 4)
     # Manually unstale the full's viewLim.
     fig_ref.canvas.draw()
+
+
+def test_auto_adjustable():
+    fig = plt.figure()
+    ax = fig.add_axes([0, 0, 1, 1])
+    pad = 0.1
+    make_axes_area_auto_adjustable(ax, pad=pad)
+    fig.canvas.draw()
+    tbb = ax.get_tightbbox(fig._cachedRenderer)
+    assert tbb.x0 == pytest.approx(pad * fig.dpi)
+    assert tbb.x1 == pytest.approx(fig.bbox.width - pad * fig.dpi)
+    assert tbb.y0 == pytest.approx(pad * fig.dpi)
+    assert tbb.y1 == pytest.approx(fig.bbox.height - pad * fig.dpi)
