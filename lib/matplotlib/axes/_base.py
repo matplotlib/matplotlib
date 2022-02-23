@@ -658,9 +658,8 @@ class _AxesBase(martist.Artist):
         self._internal_update(kwargs)
 
         for name, axis in self._axis_map.items():
-            axis.callbacks._pickled_cids.add(
-                axis.callbacks.connect(
-                    'units', self._unit_change_handler(name)))
+            axis.callbacks._connect_picklable(
+                'units', self._unit_change_handler(name))
 
         rcParams = mpl.rcParams
         self.tick_params(

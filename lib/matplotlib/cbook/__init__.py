@@ -236,6 +236,16 @@ class CallbackRegistry:
         self.callbacks[signal][cid] = proxy
         return cid
 
+    def _connect_picklable(self, signal, func):
+        """
+        Like `.connect`, but the callback is kept when pickling/unpickling.
+
+        Currently internal-use only.
+        """
+        cid = self.connect(signal, func)
+        self._pickled_cids.add(cid)
+        return cid
+
     # Keep a reference to sys.is_finalizing, as sys may have been cleared out
     # at that point.
     def _remove_proxy(self, proxy, *, _is_finalizing=sys.is_finalizing):
