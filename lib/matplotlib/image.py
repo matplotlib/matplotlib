@@ -13,17 +13,15 @@ import numpy as np
 import PIL.PngImagePlugin
 
 import matplotlib as mpl
-from matplotlib import _api
+from matplotlib import _api, cbook, cm
+# For clarity, names from _image are given explicitly in this module
+from matplotlib import _image
+# For user convenience, the names from _image are also imported into
+# the image namespace
+from matplotlib._image import *
 import matplotlib.artist as martist
 from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
-import matplotlib.cm as cm
-import matplotlib.cbook as cbook
-# For clarity, names from _image are given explicitly in this module:
-import matplotlib._image as _image
-# For user convenience, the names from _image are also imported into
-# the image namespace:
-from matplotlib._image import *
 from matplotlib.transforms import (
     Affine2D, BboxBase, Bbox, BboxTransform, BboxTransformTo,
     IdentityTransform, TransformedBbox)

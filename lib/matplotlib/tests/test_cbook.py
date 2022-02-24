@@ -11,8 +11,7 @@ from numpy.testing import (assert_array_equal, assert_approx_equal,
                            assert_array_almost_equal)
 import pytest
 
-from matplotlib import _api
-import matplotlib.cbook as cbook
+from matplotlib import _api, cbook
 import matplotlib.colors as mcolors
 from matplotlib.cbook import delete_masked_points
 

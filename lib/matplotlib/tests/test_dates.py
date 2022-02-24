@@ -6,12 +6,11 @@ import functools
 import numpy as np
 import pytest
 
-from matplotlib import rc_context, style
+from matplotlib import _api, rc_context, style
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.ticker as mticker
-import matplotlib._api as _api
 
 
 def test_date_numpyx():

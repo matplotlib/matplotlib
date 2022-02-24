@@ -12,7 +12,7 @@ import pytest
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import rcParams
+from matplotlib import gridspec, rcParams
 from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from matplotlib.axes import Axes
@@ -22,7 +22,6 @@ from matplotlib.layout_engine import (ConstrainedLayoutEngine,
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-import matplotlib.gridspec as gridspec
 
 
 @image_comparison(['figure_align_labels'], extensions=['png', 'svg'],

@@ -1,5 +1,5 @@
+from matplotlib import cbook
 from matplotlib.artist import Artist
-import matplotlib.cbook as cbook
 
 
 class Container(tuple):

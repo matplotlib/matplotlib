@@ -9,9 +9,8 @@ import logging
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api
+from matplotlib import _api, cbook
 import matplotlib.artist as martist
-import matplotlib.cbook as cbook
 import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
 import matplotlib.scale as mscale
