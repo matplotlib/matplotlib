@@ -19,7 +19,6 @@ import sys
 import warnings
 
 import matplotlib
-import sphinx
 
 from datetime import datetime
 import time
@@ -48,10 +47,6 @@ sys.path.append('.')
 # docs build to fail. This is especially useful for getting rid of deprecated
 # usage in the gallery.
 warnings.filterwarnings('error', append=True)
-
-# Strip backslashes in function's signature
-# To be removed when numpydoc > 0.9.x
-strip_signature_backslash = True
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
@@ -144,9 +139,7 @@ autodoc_default_options = {'members': None, 'undoc-members': None}
 warnings.filterwarnings('ignore', category=DeprecationWarning,
                         module='sphinx.util.inspect')
 
-# missing-references names matches sphinx>=3 behavior, so we can't be nitpicky
-# for older sphinxes.
-nitpicky = sphinx.version_info >= (3,)
+nitpicky = True
 # change this to True to update the allowed failures
 missing_references_write_json = False
 missing_references_warn_unused_ignores = False
@@ -429,7 +422,7 @@ latex_elements['fontenc'] = r'''
 # Sphinx 2.0 adopts GNU FreeFont by default, but it does not have all
 # the Unicode codepoints needed for the section about Mathtext
 # "Writing mathematical expressions"
-fontpkg = r"""
+latex_elements['fontpkg'] = r"""
 \IfFontExistsTF{XITS}{
  \setmainfont{XITS}
 }{
@@ -469,12 +462,7 @@ fontpkg = r"""
   Extension      = .otf,
 ]}
 """
-latex_elements['fontpkg'] = fontpkg
 
-# Sphinx <1.8.0 or >=2.0.0 does this by default, but the 1.8.x series
-# did not for latex_engine = 'xelatex' (as it used Latin Modern font).
-# We need this for code-blocks as FreeMono has wide glyphs.
-latex_elements['fvset'] = r'\fvset{fontsize=\small}'
 # Fix fancyhdr complaining about \headheight being too small
 latex_elements['passoptionstopackages'] = r"""
     \PassOptionsToPackage{headheight=14pt}{geometry}
