@@ -20,12 +20,14 @@ on:
 jobs:
   build_wheels:
     if: |
-      github.event.action == 'push' ||
-      (
-        github.event.action == 'labeled' &&
-        github.event.label.name == 'Run cibuildwheel'
-      ) ||
-      contains(github.event.pull_request.labels.*.name, 'Run cibuildwheel')
+      github.event_name == 'push' ||
+      github.event_name == 'pull_request' && (
+        (
+          github.event.action == 'labeled' &&
+          github.event.label.name == 'Run cibuildwheel'
+        ) ||
+        contains(github.event.pull_request.labels.*.name, 'Run cibuildwheel')
+      )
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     env:
