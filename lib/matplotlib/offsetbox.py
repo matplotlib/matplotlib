@@ -1525,8 +1525,10 @@ class DraggableBase:
         self.canvas = self.ref_artist.figure.canvas
         self._use_blit = use_blit and self.canvas.supports_blit
         self.cids = [
-            self.canvas.mpl_connect('pick_event', self.on_pick),
-            self.canvas.mpl_connect('button_release_event', self.on_release),
+            self.canvas.callbacks._connect_picklable(
+                'pick_event', self.on_pick),
+            self.canvas.callbacks._connect_picklable(
+                'button_release_event', self.on_release),
         ]
 
     def on_motion(self, evt):
@@ -1553,7 +1555,7 @@ class DraggableBase:
                     self.canvas.copy_from_bbox(self.ref_artist.figure.bbox)
                 self.ref_artist.draw(self.ref_artist.figure._cachedRenderer)
                 self.canvas.blit()
-            self._c1 = self.canvas.mpl_connect(
+            self._c1 = self.canvas.callbacks._connect_picklable(
                 "motion_notify_event", self.on_motion)
             self.save_offset()
 
