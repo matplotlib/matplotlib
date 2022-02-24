@@ -89,14 +89,11 @@ panels_add_bootstrap_css = False
 
 def _check_dependencies():
     names = {
+        **{ext: ext.split(".")[0] for ext in extensions},
+        # Explicitly list deps that are not extensions, or whose PyPI package
+        # name does not match the (toplevel) module name.
         "colorspacious": 'colorspacious',
-        "IPython.sphinxext.ipython_console_highlighting": 'ipython',
-        "matplotlib": 'matplotlib',
-        "numpydoc": 'numpydoc',
-        "PIL.Image": 'pillow',
-        "pydata_sphinx_theme": 'pydata_sphinx_theme',
-        "sphinx_copybutton": 'sphinx_copybutton',
-        "sphinx_gallery": 'sphinx_gallery',
+        "mpl_sphinx_theme": 'mpl_sphinx_theme',
         "sphinxcontrib.inkscapeconverter": 'sphinxcontrib-svg2pdfconverter',
     }
     missing = []
