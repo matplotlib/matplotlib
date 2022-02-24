@@ -422,7 +422,7 @@ class Axis(maxis.XAxis):
             pos[index] = tick.get_loc()
             pos[tickdir] = edgep1[tickdir]
             if tick._tickdir != 'out':
-                pos[tickdir] += info['tick']['outward_factor'] * ticksign * tickdelta                           
+                pos[tickdir] += info['tick']['outward_factor'] * ticksign * tickdelta
             x1, y1, z1 = proj3d.proj_transform(*pos, self.axes.M)
             pos[tickdir] = edgep1[tickdir]
             if tick._tickdir != 'in':
