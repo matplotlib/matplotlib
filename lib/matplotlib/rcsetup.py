@@ -312,10 +312,11 @@ def validate_color(s):
     if isinstance(s, str):
         if s.lower() == 'none':
             return 'none'
-        if len(s) == 6 or len(s) == 8:
-            stmp = '#' + s
-            if is_color_like(stmp):
-                return stmp
+        # Support "rrggbb"/"rrggbbaa" without leading '#' as these would be
+        # interpreted as comments in matplotlibrc.  Note that "rgb" -> "#rgb"
+        # is explicitly not supported, because of the ambiguity e.g. in "C10".
+        if len(s) in [6, 8] and {*s.lower()} <= {*"0123456789abcdef"}:
+            return f'#{s}'
 
     if is_color_like(s):
         return s

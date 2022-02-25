@@ -14,6 +14,12 @@ Matplotlib recognizes the following formats to specify a color.
 +--------------------------------------+--------------------------------------+
 | Case-insensitive hex RGB or RGBA     | - ``'#0f0f0f'``                      |
 | string.                              | - ``'#0f0f0f80'``                    |
+|                                      |                                      |
+| .. note::                            |                                      |
+|    In a matplotlibrc file, and only  |                                      |
+|    there, these strings must be      |                                      |
+|    given without the leading '#',    |                                      |
+|    e.g. as ``text.color: 0f0f0f``.   |                                      |
 +--------------------------------------+--------------------------------------+
 | Case-insensitive RGB or RGBA string  | - ``'#abc'`` as ``'#aabbcc'``        |
 | equivalent hex shorthand of          | - ``'#fb1'`` as ``'#ffbb11'``        |
