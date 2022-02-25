@@ -107,8 +107,8 @@ from packaging.version import parse as parse_version
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
 from . import _api, _version, cbook, docstring, rcsetup
-from matplotlib.cbook import MatplotlibDeprecationWarning, sanitize_sequence
-from matplotlib.cbook import mplDeprecation  # deprecated
+from matplotlib.cbook import sanitize_sequence
+from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.rcsetup import validate_backend, cycler
 
 
