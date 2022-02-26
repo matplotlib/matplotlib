@@ -11,6 +11,7 @@ import pytest
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib import animation
+from matplotlib.testing.decorators import check_figures_equal
 
 
 @pytest.fixture()
@@ -402,3 +403,37 @@ def test_no_frame_warning(tmpdir):
 
     with pytest.warns(UserWarning, match="exhausted"):
         anim._start()
+
+
+@check_figures_equal(extensions=["png"])
+def test_animation_frame(tmpdir, fig_test, fig_ref):
+    # Test the expected image after iterating through a few frames
+    # we save the animation to get the iteration because we are not
+    # in an interactive framework.
+    ax = fig_test.add_subplot()
+    ax.set_xlim(0, 2 * np.pi)
+    ax.set_ylim(-1, 1)
+    x = np.linspace(0, 2 * np.pi, 100)
+    line, = ax.plot([], [])
+
+    def init():
+        line.set_data([], [])
+        return line,
+
+    def animate(i):
+        line.set_data(x, np.sin(x + i / 100))
+        return line,
+
+    anim = animation.FuncAnimation(
+        fig_test, animate, init_func=init, frames=5,
+        blit=True, repeat=False)
+    with tmpdir.as_cwd():
+        anim.save("test.gif")
+
+    # Reference figure without animation
+    ax = fig_ref.add_subplot()
+    ax.set_xlim(0, 2 * np.pi)
+    ax.set_ylim(-1, 1)
+
+    # 5th frame's data
+    ax.plot(x, np.sin(x + 4 / 100))
