@@ -398,16 +398,6 @@ class Matplotlib(SetupPackage):
                 "win32": ["ole32", "shell32", "user32"],
             }.get(sys.platform, [])))
         yield ext
-        # contour
-        ext = Extension(
-            "matplotlib._contour", [
-                "src/_contour.cpp",
-                "src/_contour_wrapper.cpp",
-                "src/py_converters.cpp",
-            ])
-        add_numpy_flags(ext)
-        add_libagg_flags(ext)
-        yield ext
         # ft2font
         ext = Extension(
             "matplotlib.ft2font", [

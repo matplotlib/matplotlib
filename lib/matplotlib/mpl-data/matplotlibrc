@@ -607,10 +607,11 @@
 ## * CONTOUR PLOTS                                                           *
 ## ***************************************************************************
 #contour.negative_linestyle: dashed  # string or on-off ink sequence
-#contour.corner_mask:        True    # {True, False, legacy}
+#contour.corner_mask:        True    # {True, False}
 #contour.linewidth:          None    # {float, None} Size of the contour line
                                      # widths. If set to None, it falls back to
                                      # `line.linewidth`.
+#contour.algorithm:          mpl2014 # {mpl2005, mpl2014, serial, threaded}
 
 
 ## ***************************************************************************

@@ -1,5 +1,5 @@
-AritistList proxies copy contents on iteration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ArtistList proxies copy contents on iteration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When iterating over the contents of the the dynamically generated proxy lists
 for the Artist-type accessors (see :ref:`Behavioural API Changes 3.5 - Axes
