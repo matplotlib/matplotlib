@@ -599,25 +599,25 @@ def test_scatter_alpha_array():
 
 
 def test_pathcollection_legend_elements():
-    np.random.seed(19680801)
-    x, y = np.random.rand(2, 10)
-    y = np.random.rand(10)
-    c = np.random.randint(0, 5, size=10)
-    s = np.random.randint(10, 300, size=10)
+    random = np.random.RandomState(3)
+    x, y = random.rand(2, 10)
+    c = random.randint(0, 5, size=10)
+    s = random.randint(0, 300, size=10)
 
     fig, ax = plt.subplots()
     sc = ax.scatter(x, y, c=c, s=s, cmap="jet", marker="o", linewidths=0)
 
     h, l = sc.legend_elements(fmt="{x:g}")
-    assert len(h) == 5
-    assert_array_equal(np.array(l).astype(float), np.arange(5))
+    c_unique = np.unique(c)
+    assert len(h) == len(c_unique)
+    assert_array_equal(np.array(l).astype(float), c_unique)
     colors = np.array([line.get_color() for line in h])
-    colors2 = sc.cmap(np.arange(5)/4)
+    colors2 = sc.cmap(sc.norm(c_unique))
     assert_array_equal(colors, colors2)
     l1 = ax.legend(h, l, loc=1)
 
     h2, lab2 = sc.legend_elements(num=9)
-    assert len(h2) == 9
+    assert len(h2) == 9  # Not always true. Depends on the ticker.
     l2 = ax.legend(h2, lab2, loc=2)
 
     h, l = sc.legend_elements(prop="sizes", alpha=0.5, color="red")
@@ -628,22 +628,35 @@ def test_pathcollection_legend_elements():
     l3 = ax.legend(h, l, loc=4)
 
     h, l = sc.legend_elements(prop="sizes", num=4, fmt="{x:.2f}",
-                              func=lambda x: 2*x)
+                              func=lambda x: 2 * x)
     actsizes = [line.get_markersize() for line in h]
-    labeledsizes = np.sqrt(np.array(l).astype(float)/2)
+    labeledsizes = np.sqrt(np.array(l).astype(float) / 2)
     assert_array_almost_equal(actsizes, labeledsizes)
     l4 = ax.legend(h, l, loc=3)
 
-    loc = mpl.ticker.MaxNLocator(nbins=9, min_n_ticks=9-1,
-                                 steps=[1, 2, 2.5, 3, 5, 6, 8, 10])
+    loc = mpl.ticker.MaxNLocator(
+        nbins=9, min_n_ticks=9 - 1, steps=[1, 2, 2.5, 3, 5, 6, 8, 10]
+    )
     h5, lab5 = sc.legend_elements(num=loc)
     assert len(h2) == len(h5)
 
-    levels = [-1, 0, 55.4, 260]
+    levels = [-1, 0, 0.5 * max(s), 0.75 * max(s)]
     h6, lab6 = sc.legend_elements(num=levels, prop="sizes", fmt="{x:g}")
-    assert_array_equal(np.array(lab6).astype(float), levels[2:])
+    assert_array_equal(np.array(lab6).astype(float), levels[1:])
 
-    for l in [l1, l2, l3, l4]:
+    def num2str(x):
+        """Convert number back to string."""
+        x_str = np.asarray(x).astype(str)
+        suffix = np.array([" Celcius"])
+        return np.core.defchararray.add(x_str, suffix)
+
+    h, l = sc.legend_elements(prop="sizes", num=4, func=num2str)
+    labeledsizes = num2str(np.unique(s))
+    assert len(l) == 4
+    assert float(l[-1].split(" ")[0]) == float(labeledsizes[-1].split(" ")[0])
+    l7 = ax.legend(h, l, loc=5)
+
+    for l in [l1, l2, l3, l4, l7]:
         ax.add_artist(l)
 
     fig.canvas.draw()

@@ -1075,78 +1075,118 @@ class PathCollection(_CollectionWithSizes):
         """
         handles = []
         labels = []
-        hasarray = self.get_array() is not None
-        if fmt is None:
-            fmt = mpl.ticker.ScalarFormatter(useOffset=False, useMathText=True)
-        elif isinstance(fmt, str):
-            fmt = mpl.ticker.StrMethodFormatter(fmt)
-        fmt.create_dummy_axis()
 
         if prop == "colors":
-            if not hasarray:
+            arr = self.get_array()
+            if arr is None:
                 warnings.warn("Collection without array used. Make sure to "
                               "specify the values to be colormapped via the "
                               "`c` argument.")
                 return handles, labels
-            u = np.unique(self.get_array())
-            size = kwargs.pop("size", mpl.rcParams["lines.markersize"])
+            _size = kwargs.pop("size", mpl.rcParams["lines.markersize"])
+
+            def _get_color_and_size(value):
+                return self.cmap(self.norm(value)), _size
+
         elif prop == "sizes":
-            u = np.unique(self.get_sizes())
-            color = kwargs.pop("color", "k")
+            arr = self.get_sizes()
+            _color = kwargs.pop("color", "k")
+
+            def _get_color_and_size(value):
+                return _color, np.sqrt(value)
+
         else:
             raise ValueError("Valid values for `prop` are 'colors' or "
                              f"'sizes'. You supplied '{prop}' instead.")
 
-        fu = func(u)
-        fmt.axis.set_view_interval(fu.min(), fu.max())
-        fmt.axis.set_data_interval(fu.min(), fu.max())
+        # Get the unique values and their labels:
+        values = np.unique(arr)
+        label_values = np.asarray(func(values))
+        label_values_are_numeric = np.issubdtype(label_values.dtype, np.number)
+
+        # Handle the label format:
+        if fmt is None and label_values_are_numeric:
+            fmt = mpl.ticker.ScalarFormatter(useOffset=False, useMathText=True)
+        elif fmt is None and not label_values_are_numeric:
+            fmt = mpl.ticker.StrMethodFormatter("{x}")
+        elif isinstance(fmt, str):
+            fmt = mpl.ticker.StrMethodFormatter(fmt)
+        fmt.create_dummy_axis()
+
         if num == "auto":
             num = 9
-            if len(u) <= num:
+            if len(values) <= num:
                 num = None
-        if num is None:
-            values = u
-            label_values = func(values)
-        else:
-            if prop == "colors":
-                arr = self.get_array()
-            elif prop == "sizes":
-                arr = self.get_sizes()
-            if isinstance(num, mpl.ticker.Locator):
-                loc = num
-            elif np.iterable(num):
-                loc = mpl.ticker.FixedLocator(num)
-            else:
-                num = int(num)
-                loc = mpl.ticker.MaxNLocator(nbins=num, min_n_ticks=num-1,
-                                             steps=[1, 2, 2.5, 3, 5, 6, 8, 10])
-            label_values = loc.tick_values(func(arr).min(), func(arr).max())
-            cond = ((label_values >= func(arr).min()) &
-                    (label_values <= func(arr).max()))
-            label_values = label_values[cond]
-            yarr = np.linspace(arr.min(), arr.max(), 256)
-            xarr = func(yarr)
-            ix = np.argsort(xarr)
-            values = np.interp(label_values, xarr[ix], yarr[ix])
 
+        if label_values_are_numeric:
+            label_values_min = label_values.min()
+            label_values_max = label_values.max()
+            fmt.axis.set_view_interval(label_values_min, label_values_max)
+            fmt.axis.set_data_interval(label_values_min, label_values_max)
+
+            if num is not None:
+                # Labels are numerical but larger than the target
+                # number of elements, reduce to target using matplotlibs
+                # ticker classes:
+                if isinstance(num, mpl.ticker.Locator):
+                    loc = num
+                elif np.iterable(num):
+                    loc = mpl.ticker.FixedLocator(num)
+                else:
+                    num = int(num)
+                    loc = mpl.ticker.MaxNLocator(
+                        nbins=num,
+                        min_n_ticks=num-1,
+                        steps=[1, 2, 2.5, 3, 5, 6, 8, 10]
+                    )
+
+                # Get nicely spaced label_values:
+                label_values = loc.tick_values(label_values_min,
+                                               label_values_max)
+
+                # Remove extrapolated label_values:
+                cond = ((label_values >= label_values_min) &
+                        (label_values <= label_values_max))
+                label_values = label_values[cond]
+
+                # Get the corresponding values by creating a linear interpolant
+                # with small step size:
+                values_interp = np.linspace(values.min(), values.max(), 256)
+                label_values_interp = func(values_interp)
+                ix = np.argsort(label_values_interp)
+                values = np.interp(
+                    label_values, label_values_interp[ix], values_interp[ix]
+                )
+        elif num is not None and not label_values_are_numeric:
+            # Labels are not numerical so modifying label_values is not
+            # possible, instead filter the array with nicely distributed
+            # indexes:
+            if type(num) == int:
+                loc = mpl.ticker.LinearLocator(num)
+            else:
+                raise ValueError(
+                    "`num` only supports integers for non-numeric labels."
+                )
+
+            ind = loc.tick_values(0, len(label_values) - 1).astype(int)
+            label_values = label_values[ind]
+            values = values[ind]
+
+        # Some formatters requires set_locs:
+        if hasattr(fmt, "set_locs"):
+            fmt.set_locs(label_values)
+
+        # Default settings for handles, add or override with kwargs:
         kw = dict(markeredgewidth=self.get_linewidths()[0],
                   alpha=self.get_alpha())
         kw.update(kwargs)
 
         for val, lab in zip(values, label_values):
-            if prop == "colors":
-                color = self.cmap(self.norm(val))
-            elif prop == "sizes":
-                size = np.sqrt(val)
-                if np.isclose(size, 0.0):
-                    continue
+            color, size = _get_color_and_size(val)
             h = mlines.Line2D([0], [0], ls="", color=color, ms=size,
                               marker=self.get_paths()[0], **kw)
             handles.append(h)
-            if hasattr(fmt, "set_locs"):
-                fmt.set_locs(label_values)
-            l = fmt(lab)
-            labels.append(l)
+            labels.append(fmt(lab))
 
         return handles, labels
 
