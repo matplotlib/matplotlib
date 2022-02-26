@@ -314,10 +314,10 @@ class FigureBase(Artist):
         verticalalignment, va : {'top', 'center', 'bottom', 'baseline'}, \
 default: %(va)s
             The vertical alignment of the text relative to (*x*, *y*).
-        fontsize, size : default: :rc:`figure.titlesize`
+        fontsize, size : default: :rc:`figure.%(rc)ssize`
             The font size of the text. See `.Text.set_size` for possible
             values.
-        fontweight, weight : default: :rc:`figure.titleweight`
+        fontweight, weight : default: :rc:`figure.%(rc)sweight`
             The font weight of the text. See `.Text.set_weight` for possible
             values.
 
@@ -331,8 +331,8 @@ default: %(va)s
         fontproperties : None or dict, optional
             A dict of font properties. If *fontproperties* is given the
             default values for font size and weight are taken from the
-            `.FontProperties` defaults. :rc:`figure.titlesize` and
-            :rc:`figure.titleweight` are ignored in this case.
+            `.FontProperties` defaults. :rc:`figure.%(rc)ssize` and
+            :rc:`figure.%(rc)sweight` are ignored in this case.
 
         **kwargs
             Additional kwargs are `matplotlib.text.Text` properties.
@@ -360,9 +360,9 @@ default: %(va)s
 
         if 'fontproperties' not in kwargs:
             if 'fontsize' not in kwargs and 'size' not in kwargs:
-                kwargs['size'] = mpl.rcParams['figure.titlesize']
+                kwargs['size'] = mpl.rcParams[info['size']]
             if 'fontweight' not in kwargs and 'weight' not in kwargs:
-                kwargs['weight'] = mpl.rcParams['figure.titleweight']
+                kwargs['weight'] = mpl.rcParams[info['weight']]
 
         sup = self.text(x, y, t, **kwargs)
         if suplab is not None:
@@ -378,31 +378,34 @@ default: %(va)s
         return suplab
 
     @_docstring.Substitution(x0=0.5, y0=0.98, name='suptitle', ha='center',
-                             va='top')
+                             va='top', rc='title')
     @_docstring.copy(_suplabels)
     def suptitle(self, t, **kwargs):
         # docstring from _suplabels...
         info = {'name': '_suptitle', 'x0': 0.5, 'y0': 0.98,
-                'ha': 'center', 'va': 'top', 'rotation': 0}
+                'ha': 'center', 'va': 'top', 'rotation': 0,
+                'size': 'figure.titlesize', 'weight': 'figure.titleweight'}
         return self._suplabels(t, info, **kwargs)
 
     @_docstring.Substitution(x0=0.5, y0=0.01, name='supxlabel', ha='center',
-                             va='bottom')
+                             va='bottom', rc='label')
     @_docstring.copy(_suplabels)
     def supxlabel(self, t, **kwargs):
         # docstring from _suplabels...
         info = {'name': '_supxlabel', 'x0': 0.5, 'y0': 0.01,
-                'ha': 'center', 'va': 'bottom', 'rotation': 0}
+                'ha': 'center', 'va': 'bottom', 'rotation': 0,
+                'size': 'figure.labelsize', 'weight': 'figure.labelweight'}
         return self._suplabels(t, info, **kwargs)
 
     @_docstring.Substitution(x0=0.02, y0=0.5, name='supylabel', ha='left',
-                             va='center')
+                             va='center', rc='label')
     @_docstring.copy(_suplabels)
     def supylabel(self, t, **kwargs):
         # docstring from _suplabels...
         info = {'name': '_supylabel', 'x0': 0.02, 'y0': 0.5,
                 'ha': 'left', 'va': 'center', 'rotation': 'vertical',
-                'rotation_mode': 'anchor'}
+                'rotation_mode': 'anchor', 'size': 'figure.labelsize',
+                'weight': 'figure.labelweight'}
         return self._suplabels(t, info, **kwargs)
 
     def get_edgecolor(self):

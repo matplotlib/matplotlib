@@ -1370,6 +1370,20 @@ def test_kwargs_pass():
     assert sub_fig.get_label() == 'sub figure'
 
 
+@check_figures_equal(extensions=["png"])
+def test_rcparams(fig_test, fig_ref):
+    fig_ref.supxlabel("xlabel", weight='bold', size=15)
+    fig_ref.supylabel("ylabel", weight='bold', size=15)
+    fig_ref.suptitle("Title", weight='light', size=20)
+    with mpl.rc_context({'figure.labelweight': 'bold',
+                         'figure.labelsize': 15,
+                         'figure.titleweight': 'light',
+                         'figure.titlesize': 20}):
+        fig_test.supxlabel("xlabel")
+        fig_test.supylabel("ylabel")
+        fig_test.suptitle("Title", weight='light')
+
+
 def test_deepcopy():
     fig1, ax = plt.subplots()
     ax.plot([0, 1], [2, 3])
