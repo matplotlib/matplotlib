@@ -2,6 +2,7 @@ import datetime
 import platform
 import re
 
+import contourpy
 import numpy as np
 from numpy.testing import assert_array_almost_equal
 import matplotlib as mpl
@@ -241,33 +242,6 @@ def test_contourf_symmetric_locator():
     locator = plt.MaxNLocator(nbins=4, symmetric=True)
     cs = plt.contourf(z, locator=locator)
     assert_array_almost_equal(cs.levels, np.linspace(-12, 12, 5))
-
-
-@pytest.mark.parametrize("args, cls, message", [
-    ((), TypeError,
-     'function takes exactly 6 arguments (0 given)'),
-    ((1, 2, 3, 4, 5, 6), ValueError,
-     'Expected 2-dimensional array, got 0'),
-    (([[0]], [[0]], [[]], None, True, 0), ValueError,
-     'x, y and z must all be 2D arrays with the same dimensions'),
-    (([[0]], [[0]], [[0]], None, True, 0), ValueError,
-     'x, y and z must all be at least 2x2 arrays'),
-    ((*[np.arange(4).reshape((2, 2))] * 3, [[0]], True, 0), ValueError,
-     'If mask is set it must be a 2D array with the same dimensions as x.'),
-])
-def test_internal_cpp_api(args, cls, message):  # Github issue 8197.
-    from matplotlib import _contour  # noqa: ensure lazy-loaded module *is* loaded.
-    with pytest.raises(cls, match=re.escape(message)):
-        mpl._contour.QuadContourGenerator(*args)
-
-
-def test_internal_cpp_api_2():
-    from matplotlib import _contour  # noqa: ensure lazy-loaded module *is* loaded.
-    arr = [[0, 1], [2, 3]]
-    qcg = mpl._contour.QuadContourGenerator(arr, arr, arr, None, True, 0)
-    with pytest.raises(
-            ValueError, match=r'filled contour levels must be increasing'):
-        qcg.create_filled_contour(1, 0)
 
 
 def test_circular_contour_warning():
@@ -559,3 +533,55 @@ def test_contour_legend_elements():
     assert all(isinstance(a, LineCollection) for a in artists)
     assert all(same_color(a.get_color(), c)
                for a, c in zip(artists, colors))
+
+
+@pytest.mark.parametrize(
+    "algorithm, klass",
+    [('mpl2005', contourpy.Mpl2005ContourGenerator),
+     ('mpl2014', contourpy.Mpl2014ContourGenerator),
+     ('serial', contourpy.SerialContourGenerator),
+     ('threaded', contourpy.ThreadedContourGenerator),
+     ('invalid', None)])
+def test_algorithm_name(algorithm, klass):
+    z = np.array([[1.0, 2.0], [3.0, 4.0]])
+    if klass is not None:
+        cs = plt.contourf(z, algorithm=algorithm)
+        assert isinstance(cs._contour_generator, klass)
+    else:
+        with pytest.raises(ValueError):
+            plt.contourf(z, algorithm=algorithm)
+
+
+@pytest.mark.parametrize(
+    "algorithm", ['mpl2005', 'mpl2014', 'serial', 'threaded'])
+def test_algorithm_supports_corner_mask(algorithm):
+    z = np.array([[1.0, 2.0], [3.0, 4.0]])
+
+    # All algorithms support corner_mask=False
+    plt.contourf(z, algorithm=algorithm, corner_mask=False)
+
+    # Only some algorithms support corner_mask=True
+    if algorithm != 'mpl2005':
+        plt.contourf(z, algorithm=algorithm, corner_mask=True)
+    else:
+        with pytest.raises(ValueError):
+            plt.contourf(z, algorithm=algorithm, corner_mask=True)
+
+
+@image_comparison(baseline_images=['contour_all_algorithms'],
+                  extensions=['png'], remove_text=True)
+def test_all_algorithms():
+    algorithms = ['mpl2005', 'mpl2014', 'serial', 'threaded']
+
+    rng = np.random.default_rng(2981)
+    x, y = np.meshgrid(np.linspace(0.0, 1.0, 10), np.linspace(0.0, 1.0, 6))
+    z = np.sin(15*x)*np.cos(10*y) + rng.normal(scale=0.5, size=(6, 10))
+    mask = np.zeros_like(z, dtype=bool)
+    mask[3, 7] = True
+    z = np.ma.array(z, mask=mask)
+
+    _, axs = plt.subplots(2, 2)
+    for ax, algorithm in zip(axs.ravel(), algorithms):
+        ax.contourf(x, y, z, algorithm=algorithm)
+        ax.contour(x, y, z, algorithm=algorithm, colors='k')
+        ax.set_title(algorithm)
