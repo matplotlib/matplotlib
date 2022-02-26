@@ -1381,7 +1381,7 @@ def test_rcparams(fig_test, fig_ref):
                          'figure.titlesize': 20}):
         fig_test.supxlabel("xlabel")
         fig_test.supylabel("ylabel")
-        fig_test.suptitle("Title", weight='light')
+        fig_test.suptitle("Title")
 
 
 def test_deepcopy():
