@@ -912,7 +912,8 @@ class GraphicsContextBase:
         dash_offset : float
             The offset (usually 0).
         dash_list : array-like or None
-            The on-off sequence as points.  None specifies a solid line.
+            The on-off sequence as points.  None specifies a solid line. All
+            values must otherwise be non-negative (:math:`\\ge 0`).
 
         Notes
         -----
@@ -924,7 +925,10 @@ class GraphicsContextBase:
             dl = np.asarray(dash_list)
             if np.any(dl < 0.0):
                 raise ValueError(
-                    "All values in the dash list must be positive")
+                    "All values in the dash list must be non-negative")
+            if not np.any(dl > 0.0):
+                raise ValueError(
+                    'At least one value in the dash list must be positive')
         self._dashes = dash_offset, dash_list
 
     def set_foreground(self, fg, isRGBA=False):
