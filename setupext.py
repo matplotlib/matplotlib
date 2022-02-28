@@ -431,7 +431,7 @@ class Matplotlib(SetupPackage):
         yield ext
         # qhull
         ext = Extension(
-            "matplotlib._qhull", ["src/qhull_wrap.cpp"],
+            "matplotlib._qhull", ["src/_qhull_wrapper.cpp"],
             define_macros=[("MPL_DEVNULL", os.devnull)])
         add_numpy_flags(ext)
         Qhull.add_flags(ext)
