@@ -62,6 +62,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+
       - name: Install OS dependencies
         run: |
           case "${{ runner.os }}" in
@@ -114,22 +115,6 @@ jobs:
             ;;
           esac
 
-      - name: Cache pip
-        uses: actions/cache@v2
-        if: startsWith(runner.os, 'Linux')
-        with:
-          path: ~/.cache/pip
-          key: ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('requirements/*/*.txt') }}
-          restore-keys: |
-            ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
-      - name: Cache pip
-        uses: actions/cache@v2
-        if: startsWith(runner.os, 'macOS')
-        with:
-          path: ~/Library/Caches/pip
-          key: ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('requirements/*/*.txt') }}
-          restore-keys: |
-            ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
       - name: Cache ccache
         uses: actions/cache@v2
         with:

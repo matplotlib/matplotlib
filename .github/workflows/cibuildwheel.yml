@@ -56,6 +56,7 @@ jobs:
         name: Install Python
         with:
           python-version: '3.8'
+          cache: pip
 
       - name: Install cibuildwheel
         run: |
