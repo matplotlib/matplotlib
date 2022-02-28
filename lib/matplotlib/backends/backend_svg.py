@@ -1120,8 +1120,7 @@ class RendererSVG(RendererBase):
             if weight != 400:
                 font_parts.append(f'{weight}')
             font_parts.append(f'{short_float_fmt(prop.get_size())}px')
-            font_parts.append(", ".join([f'{prop.get_name()!r}'] +
-                                        prop.get_family()))
+            font_parts.append(f'{prop.get_name()!r}, {prop.get_family()[0]}')
             style['font'] = ' '.join(font_parts)
             if prop.get_stretch() != 'normal':
                 style['font-stretch'] = prop.get_stretch()
