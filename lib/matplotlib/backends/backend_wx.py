@@ -749,7 +749,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             cursors.RESIZE_VERTICAL: wx.CURSOR_SIZENS,
         }, cursor=cursor))
         self.SetCursor(cursor)
-        self.Update()
+        self.Refresh()
 
     def _set_capture(self, capture=True):
         """Control wx mouse capture."""
