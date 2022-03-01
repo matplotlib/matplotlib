@@ -96,14 +96,14 @@ class Axes3D(Axes):
             does not produce the desired result. Note however, that a manual
             zorder will only be correct for a limited view angle. If the figure
             is rotated by the user, it will look wrong from certain angles.
-        auto_add_to_figure : bool, default: True
+        auto_add_to_figure : bool, default: False
             Prior to Matplotlib 3.4 Axes3D would add themselves
             to their host Figure on init.  Other Axes class do not
             do this.
 
-            This behavior is deprecated in 3.4, the default will
-            change to False in 3.5.  The keyword will be undocumented
-            and a non-False value will be an error in 3.6.
+            This behavior is deprecated in 3.4, the default is
+            changed to False in 3.6.  The keyword will be undocumented
+            and a non-False value will be an error in 3.7.
         focal_length : float, default: None
             For a projection type of 'persp', the focal length of the virtual
             camera. Must be > 0. If None, defaults to 1.
@@ -142,7 +142,7 @@ class Axes3D(Axes):
             self._shared_axes["z"].join(self, sharez)
             self._adjustable = 'datalim'
 
-        auto_add_to_figure = kwargs.pop('auto_add_to_figure', True)
+        auto_add_to_figure = kwargs.pop('auto_add_to_figure', False)
 
         super().__init__(
             fig, rect, frameon=True, box_aspect=box_aspect, *args, **kwargs
@@ -157,14 +157,12 @@ class Axes3D(Axes):
         self.fmt_zdata = None
 
         self.mouse_init()
-        self.figure.canvas.callbacks._pickled_cids.update({
-            self.figure.canvas.mpl_connect(
-                'motion_notify_event', self._on_move),
-            self.figure.canvas.mpl_connect(
-                'button_press_event', self._button_press),
-            self.figure.canvas.mpl_connect(
-                'button_release_event', self._button_release),
-        })
+        self.figure.canvas.callbacks._connect_picklable(
+            'motion_notify_event', self._on_move)
+        self.figure.canvas.callbacks._connect_picklable(
+            'button_press_event', self._button_press)
+        self.figure.canvas.callbacks._connect_picklable(
+            'button_release_event', self._button_release)
         self.set_top_view()
 
         self.patch.set_linewidth(0)
@@ -178,12 +176,12 @@ class Axes3D(Axes):
 
         if auto_add_to_figure:
             _api.warn_deprecated(
-                "3.4", removal="3.6", message="Axes3D(fig) adding itself "
+                "3.4", removal="3.7", message="Axes3D(fig) adding itself "
                 "to the figure is deprecated since %(since)s. "
                 "Pass the keyword argument auto_add_to_figure=False "
                 "and use fig.add_axes(ax) to suppress this warning. "
-                "The default value of auto_add_to_figure will change to "
-                "False in mpl3.5 and True values will "
+                "The default value of auto_add_to_figure is changed to "
+                "False in mpl3.6 and True values will "
                 "no longer work %(removal)s.  This is consistent with "
                 "other Axes classes.")
             fig.add_axes(self)
@@ -424,7 +422,7 @@ class Axes3D(Axes):
             # Calculate projection of collections and patches and zorder
             # them. Make sure they are drawn above the grids.
             zorder_offset = max(axis.get_zorder()
-                                for axis in self._get_axis_list()) + 1
+                                for axis in self._axis_map.values()) + 1
             collection_zorder = patch_zorder = zorder_offset
 
             for artist in sorted(collections_and_patches,
@@ -442,10 +440,10 @@ class Axes3D(Axes):
 
         if self._axis3don:
             # Draw panes first
-            for axis in self._get_axis_list():
+            for axis in self._axis_map.values():
                 axis.draw_pane(renderer)
             # Then axes
-            for axis in self._get_axis_list():
+            for axis in self._axis_map.values():
                 axis.draw(renderer)
 
         # Then rest
@@ -1435,12 +1433,7 @@ class Axes3D(Axes):
         cmap = kwargs.get('cmap', None)
         shade = kwargs.pop('shade', cmap is None)
         if shade is None:
-            _api.warn_deprecated(
-                "3.1",
-                message="Passing shade=None to Axes3D.plot_surface() is "
-                        "deprecated since matplotlib 3.1 and will change its "
-                        "semantic or raise an error in matplotlib 3.3. "
-                        "Please use shade=False instead.")
+            raise ValueError("shade cannot be None.")
 
         colset = []  # the sampled facecolor
         if (rows - 1) % rstride == 0 and \
@@ -3165,7 +3158,7 @@ pivot='tail', normalize=False, **kwargs)
                                     for_layout_only=for_layout_only)
         batch = [ret]
         if self._axis3don:
-            for axis in self._get_axis_list():
+            for axis in self._axis_map.values():
                 if axis.get_visible():
                     axis_bb = martist._get_tightbbox_for_layout_only(
                         axis, renderer)

@@ -183,10 +183,10 @@ class Test_callback_registry:
         self.callbacks = cbook.CallbackRegistry()
 
     def connect(self, s, func, pickle):
-        cid = self.callbacks.connect(s, func)
         if pickle:
-            self.callbacks._pickled_cids.add(cid)
-        return cid
+            return self.callbacks.connect(s, func)
+        else:
+            return self.callbacks._connect_picklable(s, func)
 
     def disconnect(self, cid):
         return self.callbacks.disconnect(cid)

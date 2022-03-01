@@ -1,8 +1,7 @@
 """
-===================================
-Make Room For Ylabel Using Axesgrid
-===================================
-
+====================================
+Make room for ylabel using axes_grid
+====================================
 """
 
 import matplotlib.pyplot as plt
@@ -20,7 +19,6 @@ make_axes_area_auto_adjustable(ax)
 
 ###############################################################################
 
-
 fig = plt.figure()
 ax1 = fig.add_axes([0, 0, 1, 0.5])
 ax2 = fig.add_axes([0, 0.5, 1, 0.5])
@@ -34,7 +32,6 @@ make_axes_area_auto_adjustable(ax1, pad=0.1, use_axes=[ax1, ax2])
 make_axes_area_auto_adjustable(ax2, pad=0.1, use_axes=[ax1, ax2])
 
 ###############################################################################
-
 
 fig = plt.figure()
 ax1 = fig.add_axes([0, 0, 1, 1])

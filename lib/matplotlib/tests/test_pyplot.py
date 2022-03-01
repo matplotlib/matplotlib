@@ -8,7 +8,7 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib import pyplot as plt
-from matplotlib.cbook import MatplotlibDeprecationWarning
+from matplotlib._api import MatplotlibDeprecationWarning
 
 
 def test_pyplot_up_to_date(tmpdir):

@@ -1,0 +1,2 @@
+sphinx>=3.0 and numpydoc>=1.0 are now required for building the docs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

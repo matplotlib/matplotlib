@@ -1,7 +1,7 @@
 import numpy as np
 
 from matplotlib import cbook
-from matplotlib.backends.backend_agg import RendererAgg
+from .backend_agg import RendererAgg
 from matplotlib._tight_bbox import process_figure_for_rasterizing
 
 

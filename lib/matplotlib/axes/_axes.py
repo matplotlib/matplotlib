@@ -5590,7 +5590,7 @@ default: :rc:`scatter.edgecolors`
 
     def _pcolor_grid_deprecation_helper(self):
         grid_active = any(axis._major_tick_kw["gridOn"]
-                          for axis in self._get_axis_list())
+                          for axis in self._axis_map.values())
         # explicit is-True check because get_axisbelow() can also be 'line'
         grid_hidden_by_pcolor = self.get_axisbelow() is True
         if grid_active and not grid_hidden_by_pcolor:

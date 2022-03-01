@@ -1,7 +1,6 @@
 import functools
 import io
 import os
-from pathlib import Path
 
 import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
@@ -24,9 +23,10 @@ except ValueError as e:
 from gi.repository import Gio, GLib, GObject, Gtk, Gdk, GdkPixbuf
 from . import _backend_gtk
 from ._backend_gtk import (
-    backend_version, _BackendGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
+    _BackendGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
     TimerGTK as TimerGTK4,
 )
+from .backend_gtk import backend_version  # noqa: F401 # pylint: disable=W0611
 
 
 class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):

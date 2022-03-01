@@ -29,18 +29,6 @@ import numpy as np
 
 import matplotlib
 from matplotlib import _api, _c_internal_utils
-from matplotlib._api.deprecation import (
-    MatplotlibDeprecationWarning, mplDeprecation)
-
-
-@_api.deprecated("3.4")
-def deprecated(*args, **kwargs):
-    return _api.deprecated(*args, **kwargs)
-
-
-@_api.deprecated("3.4")
-def warn_deprecated(*args, **kwargs):
-    _api.warn_deprecated(*args, **kwargs)
 
 
 def _get_running_interactive_framework():
@@ -236,6 +224,16 @@ class CallbackRegistry:
         self.callbacks[signal][cid] = proxy
         return cid
 
+    def _connect_picklable(self, signal, func):
+        """
+        Like `.connect`, but the callback is kept when pickling/unpickling.
+
+        Currently internal-use only.
+        """
+        cid = self.connect(signal, func)
+        self._pickled_cids.add(cid)
+        return cid
+
     # Keep a reference to sys.is_finalizing, as sys may have been cleared out
     # at that point.
     def _remove_proxy(self, proxy, *, _is_finalizing=sys.is_finalizing):
@@ -365,7 +363,8 @@ class silent_list(list):
 
 
 def _local_over_kwdict(
-        local_var, kwargs, *keys, warning_cls=MatplotlibDeprecationWarning):
+        local_var, kwargs, *keys,
+        warning_cls=_api.MatplotlibDeprecationWarning):
     out = local_var
     for key in keys:
         kwarg_val = kwargs.pop(key, None)

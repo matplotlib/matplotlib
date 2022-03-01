@@ -7,7 +7,7 @@ import tempfile
 import pytest
 
 from matplotlib import cbook, patheffects
-from matplotlib.cbook import MatplotlibDeprecationWarning
+from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.figure import Figure
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib as mpl
