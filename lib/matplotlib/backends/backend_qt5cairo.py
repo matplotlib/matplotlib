@@ -1,5 +1,6 @@
-from .backend_qtcairo import (
-    _BackendQTCairo, FigureCanvasQTCairo, FigureCanvasCairo, FigureCanvasQT)
+from .backend_qtcairo import _BackendQTCairo
+from .backend_qtcairo import (  # noqa: F401 # pylint: disable=W0611
+    FigureCanvasQTCairo, FigureCanvasCairo, FigureCanvasQT)
 
 
 @_BackendQTCairo.export

@@ -405,8 +405,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
             raise RuntimeError("Event loop already running")
         self._event_loop = event_loop = QtCore.QEventLoop()
         if timeout > 0:
-            timer = QtCore.QTimer.singleShot(int(timeout * 1000),
-                                             event_loop.quit)
+            _ = QtCore.QTimer.singleShot(int(timeout * 1000), event_loop.quit)
 
         with _maybe_allow_interrupt(event_loop):
             qt_compat._exec(event_loop)

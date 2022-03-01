@@ -2,8 +2,8 @@ import wx.lib.wxcairo as wxcairo
 
 from .. import _api
 from .backend_cairo import cairo, FigureCanvasCairo
-from .backend_wx import (
-    _BackendWx, _FigureCanvasWxBase, FigureFrameWx,
+from .backend_wx import _BackendWx, _FigureCanvasWxBase, FigureFrameWx
+from .backend_wx import (  # noqa: F401 # pylint: disable=W0611
     NavigationToolbar2Wx as NavigationToolbar2WxCairo)
 
 

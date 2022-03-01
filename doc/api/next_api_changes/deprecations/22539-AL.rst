@@ -1,0 +1,4 @@
+``matplotlib.text.get_rotation()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated with no replacement.  Copy the original implementation if
+needed.

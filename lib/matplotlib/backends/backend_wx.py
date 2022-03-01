@@ -25,11 +25,8 @@ from matplotlib.backend_bases import (
 
 from matplotlib import _api, cbook, backend_tools
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_managers import ToolManager
-from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
-from matplotlib.widgets import SubplotTool
 
 import wx
 
@@ -752,7 +749,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             cursors.RESIZE_VERTICAL: wx.CURSOR_SIZENS,
         }, cursor=cursor))
         self.SetCursor(cursor)
-        self.Update()
+        self.Refresh()
 
     def _set_capture(self, capture=True):
         """Control wx mouse capture."""

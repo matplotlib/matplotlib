@@ -23,7 +23,7 @@ from .transforms import (
 _log = logging.getLogger(__name__)
 
 
-# Extracted from Text's method to serve as a function
+@_api.deprecated("3.6")
 def get_rotation(rotation):
     """
     Return *rotation* normalized to an angle between 0 and 360 degrees.
@@ -240,13 +240,10 @@ class Text(Artist):
     def get_rotation(self):
         """Return the text angle in degrees between 0 and 360."""
         if self.get_transform_rotates_text():
-            angle = get_rotation(self._rotation)
-            x, y = self.get_unitless_position()
-            angles = [angle, ]
-            pts = [[x, y]]
-            return self.get_transform().transform_angles(angles, pts).item(0)
+            return self.get_transform().transform_angles(
+                [self._rotation], [self.get_unitless_position()]).item(0)
         else:
-            return get_rotation(self._rotation)  # string_or_number -> number
+            return self._rotation
 
     def get_transform_rotates_text(self):
         """
@@ -1176,12 +1173,15 @@ class Text(Artist):
             The rotation angle in degrees in mathematically positive direction
             (counterclockwise). 'horizontal' equals 0, 'vertical' equals 90.
         """
-        if (s is not None and
-                not isinstance(s, numbers.Real) and
-                s not in ['vertical', 'horizontal']):
+        if isinstance(s, numbers.Real):
+            self._rotation = float(s) % 360
+        elif cbook._str_equal(s, 'horizontal') or s is None:
+            self._rotation = 0.
+        elif cbook._str_equal(s, 'vertical'):
+            self._rotation = 90.
+        else:
             raise ValueError("rotation must be 'vertical', 'horizontal' or "
                              f"a number, not {s}")
-        self._rotation = s
         self.stale = True
 
     def set_transform_rotates_text(self, t):

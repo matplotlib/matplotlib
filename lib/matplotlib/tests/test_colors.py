@@ -10,12 +10,10 @@ import base64
 
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
-from matplotlib import cycler
+from matplotlib import _api, cbook, cm, cycler
 import matplotlib
 import matplotlib.colors as mcolors
-import matplotlib.cm as cm
 import matplotlib.colorbar as mcolorbar
-import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
 import matplotlib.scale as mscale
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
@@ -109,7 +107,7 @@ def test_colormap_global_set_warn():
     new_cm = plt.get_cmap('viridis')
     # Store the old value so we don't override the state later on.
     orig_cmap = copy.copy(new_cm)
-    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+    with pytest.warns(_api.MatplotlibDeprecationWarning,
                       match="You are modifying the state of a globally"):
         # This should warn now because we've modified the global state
         new_cm.set_under('k')
@@ -120,7 +118,7 @@ def test_colormap_global_set_warn():
     # Test that registering and then modifying warns
     plt.register_cmap(name='test_cm', cmap=copy.copy(orig_cmap))
     new_cm = plt.get_cmap('test_cm')
-    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+    with pytest.warns(_api.MatplotlibDeprecationWarning,
                       match="You are modifying the state of a globally"):
         # This should warn now because we've modified the global state
         new_cm.set_under('k')
@@ -132,11 +130,11 @@ def test_colormap_global_set_warn():
 
 def test_colormap_dict_deprecate():
     # Make sure we warn on get and set access into cmap_d
-    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+    with pytest.warns(_api.MatplotlibDeprecationWarning,
                       match="The global colormaps dictionary is no longer"):
         cmap = plt.cm.cmap_d['viridis']
 
-    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+    with pytest.warns(_api.MatplotlibDeprecationWarning,
                       match="The global colormaps dictionary is no longer"):
         plt.cm.cmap_d['test'] = cmap
 

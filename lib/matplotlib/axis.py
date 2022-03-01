@@ -1046,7 +1046,7 @@ class Axis(martist.Artist):
             Whether to turn on autoscaling of the x-axis. True turns on, False
             turns off, None leaves unchanged.
         """
-        name, = [name for name, axis in self.axes._get_axis_map().items()
+        name, = [name for name, axis in self.axes._axis_map.items()
                  if axis is self]  # The axis name.
 
         self.axes._process_unit_info([(name, (v0, v1))], convert=False)
@@ -1095,7 +1095,7 @@ class Axis(martist.Artist):
             # Call all of the other axes that are shared with this one
             for other in self.axes._shared_axes[name].get_siblings(self.axes):
                 if other is not self.axes:
-                    other._get_axis_map()[name]._set_lim(
+                    other._axis_map[name]._set_lim(
                         v0, v1, emit=False, auto=auto)
                     if other.figure != self.figure:
                         other.figure.canvas.draw_idle()
@@ -1604,7 +1604,7 @@ class Axis(martist.Artist):
         """
         if u == self.units:
             return
-        for name, axis in self.axes._get_axis_map().items():
+        for name, axis in self.axes._axis_map.items():
             if self is axis:
                 shared = [
                     getattr(ax, f"{name}axis")
@@ -1883,7 +1883,7 @@ class Axis(martist.Artist):
 
         # XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)
-        for name, axis in self.axes._get_axis_map().items():
+        for name, axis in self.axes._axis_map.items():
             if self is axis:
                 shared = [
                     getattr(ax, f"{name}axis")
@@ -1952,7 +1952,7 @@ class Axis(martist.Artist):
         """
         # Get the Grouper keeping track of x or y label groups for this figure.
         axis_names = [
-            name for name, axis in self.axes._get_axis_map().items()
+            name for name, axis in self.axes._axis_map.items()
             if name in self.figure._align_label_groups and axis is self]
         if len(axis_names) != 1:
             return [], []
