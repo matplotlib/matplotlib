@@ -277,7 +277,7 @@ class SetCursorBase(ToolBase):
             self.canvas.set_cursor(self._default_cursor)
             self._last_cursor = self._default_cursor
 
-    @_api.deprecated("3.5", alternative="figure.canvas.set_cursor")
+    @_api.deprecated("3.5", alternative="`.FigureCanvasBase.set_cursor`")
     def set_cursor(self, cursor):
         """
         Set the cursor.
