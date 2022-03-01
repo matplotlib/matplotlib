@@ -690,7 +690,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             dashes = list(dashes) * (l_lw // gcd)
             linewidths = list(linewidths) * (l_dashes // gcd)
 
-        # scale the dash patters
+        # scale the dash patterns
         dashes = [mlines._scale_dashes(o, d, lw)
                   for (o, d), lw in zip(dashes, linewidths)]
 

@@ -131,7 +131,7 @@ def test_identical_subgridspec():
         axb += [fig.add_subplot(GSB[i])]
 
     fig.draw_without_rendering()
-    # chech first row above second
+    # check first row above second
     assert axa[0].get_position().y0 > axb[0].get_position().y1
 
 
