@@ -1335,7 +1335,7 @@ class _AxesBase(martist.Artist):
         tuples. Use as if this is a tuple already.
 
         This class exists only for the transition period to warn on the
-        deprecated modifcation of artist lists.
+        deprecated modification of artist lists.
         """
         def __init__(self, axes, prop_name, add_name,
                      valid_types=None, invalid_types=None):
@@ -2395,7 +2395,7 @@ class _AxesBase(martist.Artist):
             return
         p = patch.get_path()
         # Get all vertices on the path
-        # Loop through each sement to get extrema for Bezier curve sections
+        # Loop through each segment to get extrema for Bezier curve sections
         vertices = []
         for curve, code in p.iter_bezier():
             # Get distance along the curve of any extrema

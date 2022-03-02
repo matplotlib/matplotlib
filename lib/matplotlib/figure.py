@@ -2320,7 +2320,7 @@ class Figure(FigureBase):
         # figure...
         for ax in self.axes:
             if hasattr(ax, '_colorbar'):
-                # colorbars list themselvs as a colorbar.
+                # colorbars list themselves as a colorbar.
                 return False
         return True
 

@@ -570,5 +570,5 @@ axd['right'].set_title('right');
 # ============
 #
 # For more plot types see :doc:`Plot types </plot_types/index>` and the
-# :doc:`API reference </api/index>`, in particlar the
+# :doc:`API reference </api/index>`, in particular the
 # :doc:`Axes API </api/axes_api>`.
