@@ -97,7 +97,7 @@ class LayoutEngine:
         """
         Execute the layout on the figure given by *fig*.
         """
-        # subclasses must impliment this.
+        # subclasses must implement this.
         raise NotImplementedError
 
 

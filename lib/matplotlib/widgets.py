@@ -3274,7 +3274,7 @@ class RectangleSelector(_SelectorWidget):
     @property
     def edge_centers(self):
         """
-        Midpoint of rectangle edges in data coordiantes from left,
+        Midpoint of rectangle edges in data coordinates from left,
         moving anti-clockwise.
         """
         x0, y0, width, height = self._rect_bbox
