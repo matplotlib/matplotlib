@@ -1532,12 +1532,11 @@ class _AnnotationBase:
         Parameters
         ----------
         b : bool or None
-            - True: the annotation will only be drawn when ``self.xy`` is
-              inside the axes.
-            - False: the annotation will always be drawn regardless of its
-              position.
-            - None: the ``self.xy`` will be checked only if *xycoords* is
-              "data".
+            - True: The annotation will be clipped when ``self.xy`` is
+              outside the axes.
+            - False: The annotation will always be drawn.
+            - None: The annotation will be clipped when ``self.xy`` is
+              outside the axes and ``self.xycoords == "data"``.
         """
         self._annotation_clip = b
 
@@ -1767,14 +1766,14 @@ class Annotation(Text, _AnnotationBase):
             centered in the text box.
 
         annotation_clip : bool or None, default: None
-            Whether to draw the annotation when the annotation point *xy* is
-            outside the axes area.
+            Whether to clip (i.e. not draw) the annotation when the annotation
+            point *xy* is outside the axes area.
 
-            - If *True*, the annotation will only be drawn when *xy* is
-              within the axes.
+            - If *True*, the annotation will be clipped when *xy* is outside
+              the axes.
             - If *False*, the annotation will always be drawn.
-            - If *None*, the annotation will only be drawn when *xy* is
-              within the axes and *xycoords* is 'data'.
+            - If *None*, the annotation will be clipped when *xy* is outside
+              the axes and *xycoords* is 'data'.
 
         **kwargs
             Additional kwargs are passed to `~matplotlib.text.Text`.
