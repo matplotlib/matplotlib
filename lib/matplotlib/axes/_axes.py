@@ -2613,13 +2613,13 @@ class Axes(_AxesBase):
                 raise ValueError(
                     f"Passing {key!r} to bar_label() is not supported.")
 
-        # want to know whether to put label on positive or negative direction
-        # cannot use np.sign here because it will return 0 if x == 0
         a, b = self.yaxis.get_view_interval()
         y_inverted = a > b
         c, d = self.xaxis.get_view_interval()
         x_inverted = c > d
 
+        # want to know whether to put label on positive or negative direction
+        # cannot use np.sign here because it will return 0 if x == 0
         def sign(x):
             return 1 if x >= 0 else -1
 
