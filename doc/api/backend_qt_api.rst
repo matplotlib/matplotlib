@@ -27,7 +27,7 @@ supported Python bindings per version -- `PyQt5
 <https://doc.qt.io/qtforpython-5/contents.html>`_ for Qt5 and `PyQt6
 <https://www.riverbankcomputing.com/static/Docs/PyQt6/>`_ and `PySide6
 <https://doc.qt.io/qtforpython/contents.html>`_ for Qt6 [#]_.  While both PyQt
-and Qt for Python (aka Pyside) closely mirror the underlying c++ API they are
+and Qt for Python (aka PySide) closely mirror the underlying C++ API they are
 wrapping, they are not drop-in replacements for each other [#]_.  To account
 for this, Matplotlib has an internal API compatibility layer in
 `matplotlib.backends.qt_compat` which covers our needs.  Despite being a public
