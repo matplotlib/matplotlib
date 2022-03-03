@@ -497,7 +497,8 @@ def test_backend_fallback_headless(tmpdir):
             [sys.executable, "-c",
              "import matplotlib;"
              "matplotlib.use('tkagg');"
-             "import matplotlib.pyplot"
+             "import matplotlib.pyplot;"
+             "matplotlib.pyplot.plot(42);"
              ],
             env=env, check=True, stderr=subprocess.DEVNULL)
 

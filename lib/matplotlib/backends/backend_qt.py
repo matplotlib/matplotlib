@@ -115,6 +115,28 @@ def _create_qApp():
                     QtCore.Qt.AA_EnableHighDpiScaling)
             except AttributeError:  # Only for Qt>=5.6, <6.
                 pass
+
+            # Check to make sure a QApplication from a different major version
+            # of Qt is not instantiated in the process
+            if QT_API in {'PyQt6', 'PySide6'}:
+                other_bindings = ('PyQt5', 'PySide2')
+            elif QT_API in {'PyQt5', 'PySide2'}:
+                other_bindings = ('PyQt6', 'PySide6')
+            else:
+                raise RuntimeError("Should never be here")
+
+            for binding in other_bindings:
+                mod = sys.modules.get(f'{binding}.QtWidgets')
+                if mod is not None and mod.QApplication.instance() is not None:
+                    other_core = sys.modules.get(f'{binding}.QtCore')
+                    _api.warn_external(
+                        f'Matplotlib is using {QT_API} which wraps '
+                        f'{QtCore.qVersion()} however an instantiated '
+                        f'QApplication from {binding} which wraps '
+                        f'{other_core.qVersion()} exists.  Mixing Qt major '
+                        'versions may not work as expected.'
+                    )
+                    break
             try:
                 QtWidgets.QApplication.setHighDpiScaleFactorRoundingPolicy(
                     QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
