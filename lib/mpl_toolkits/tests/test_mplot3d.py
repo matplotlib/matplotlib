@@ -5,7 +5,8 @@ import pytest
 
 from mpl_toolkits.mplot3d import Axes3D, axes3d, proj3d, art3d
 import matplotlib as mpl
-from matplotlib.backend_bases import MouseButton
+from matplotlib.backend_bases import (MouseButton, MouseEvent,
+                                      NavigationToolbar2)
 from matplotlib import cm
 from matplotlib import colors as mcolors
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
@@ -1510,6 +1511,57 @@ def test_pan():
     assert x_center != pytest.approx(x_center0)
     assert y_center != pytest.approx(y_center0)
     assert z_center != pytest.approx(z_center0)
+
+
+@pytest.mark.parametrize("tool,button,expected",
+                         [("zoom", MouseButton.LEFT,  # zoom in
+                          ((-0.02, 0.06), (0, 0.06), (-0.01, 0.06))),
+                          ("zoom", MouseButton.RIGHT,  # zoom out
+                          ((-0.13, 0.06), (-0.18, 0.06), (-0.17, 0.06))),
+                          ("pan", MouseButton.LEFT,
+                          ((-0.46, -0.34), (-0.66, -0.54), (-0.62, -0.5)))])
+def test_toolbar_zoom_pan(tool, button, expected):
+    # NOTE: The expected values are rough ballparks of moving in the view
+    #       to make sure we are getting the right direction of motion.
+    #       The specific values can and should change if the zoom/pan
+    #       movement scaling factors get updated.
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.scatter(0, 0, 0)
+    fig.canvas.draw()
+
+    # Mouse from (0, 0) to (1, 1)
+    d0 = (0, 0)
+    d1 = (1, 1)
+    # Convert to screen coordinates ("s").  Events are defined only with pixel
+    # precision, so round the pixel values, and below, check against the
+    # corresponding xdata/ydata, which are close but not equal to d0/d1.
+    s0 = ax.transData.transform(d0).astype(int)
+    s1 = ax.transData.transform(d1).astype(int)
+
+    # Set up the mouse movements
+    start_event = MouseEvent(
+        "button_press_event", fig.canvas, *s0, button)
+    stop_event = MouseEvent(
+        "button_release_event", fig.canvas, *s1, button)
+
+    tb = NavigationToolbar2(fig.canvas)
+    if tool == "zoom":
+        tb.zoom()
+        tb.press_zoom(start_event)
+        tb.drag_zoom(stop_event)
+        tb.release_zoom(stop_event)
+    else:
+        tb.pan()
+        tb.press_pan(start_event)
+        tb.drag_pan(stop_event)
+        tb.release_pan(stop_event)
+
+    # Should be close, but won't be exact due to screen integer resolution
+    xlim, ylim, zlim = expected
+    assert (ax.get_xlim3d()) == pytest.approx(xlim, abs=0.01)
+    assert (ax.get_ylim3d()) == pytest.approx(ylim, abs=0.01)
+    assert (ax.get_zlim3d()) == pytest.approx(zlim, abs=0.01)
 
 
 @mpl.style.context('default')
