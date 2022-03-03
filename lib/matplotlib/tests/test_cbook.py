@@ -408,6 +408,22 @@ def test_callbackregistry_blocking():
         cb.process("test2")
 
 
+@pytest.mark.parametrize('line, result', [
+    ('a : no_comment', 'a : no_comment'),
+    ('a : "quoted str"', 'a : "quoted str"'),
+    ('a : "quoted str" # comment', 'a : "quoted str"'),
+    ('a : "#000000"', 'a : "#000000"'),
+    ('a : "#000000" # comment', 'a : "#000000"'),
+    ('a : ["#000000", "#FFFFFF"]', 'a : ["#000000", "#FFFFFF"]'),
+    ('a : ["#000000", "#FFFFFF"] # comment', 'a : ["#000000", "#FFFFFF"]'),
+    ('a : val  # a comment "with quotes"', 'a : val'),
+    ('# only comment "with quotes" xx', ''),
+])
+def test_strip_comment(line, result):
+    """Strip everything from the first unqouted #."""
+    assert cbook._strip_comment(line) == result
+
+
 def test_sanitize_sequence():
     d = {'a': 1, 'b': 2, 'c': 3}
     k = ['a', 'b', 'c']
