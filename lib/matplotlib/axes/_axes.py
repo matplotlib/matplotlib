@@ -6825,7 +6825,7 @@ such objects
         else:
             _color = self._get_lines.get_next_color()
         if fill:
-            kwargs.setdefault('edgecolor', 'none')
+            kwargs.setdefault('linewidth', 0)
             kwargs.setdefault('facecolor', _color)
         else:
             kwargs.setdefault('edgecolor', _color)

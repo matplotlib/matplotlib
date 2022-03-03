@@ -2095,7 +2095,7 @@ def test_stairs_options():
     ax.stairs(y[::-1]*3+14, x, baseline=26,
               color='purple', ls='--', lw=2, label="F")
     ax.stairs(yn[::-1]*3+15, x+1, baseline=np.linspace(27, 25, len(y)),
-              color='blue', ls='--', lw=2, label="G", fill=True)
+              color='blue', ls='--', label="G", fill=True)
     ax.stairs(y[:-1][::-1]*2+11, x[:-1]+0.5, color='black', ls='--', lw=2,
               baseline=12, hatch='//', label="H")
     ax.legend(loc=0)
@@ -2108,6 +2108,18 @@ def test_stairs_datetime():
               np.arange(np.datetime64('2001-12-27'),
                         np.datetime64('2002-02-02')))
     plt.xticks(rotation=30)
+
+
+@check_figures_equal(extensions=['png'])
+def test_stairs_edge_handling(fig_test, fig_ref):
+    # Test
+    test_ax = fig_test.add_subplot()
+    test_ax.stairs([1, 2, 3], color='red', fill=True)
+
+    # Ref
+    ref_ax = fig_ref.add_subplot()
+    st = ref_ax.stairs([1, 2, 3], fill=True)
+    st.set_color('red')
 
 
 def contour_dat():
