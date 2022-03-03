@@ -38,6 +38,7 @@ from matplotlib.patches import (Patch, Rectangle, Shadow, FancyBboxPatch,
 from matplotlib.collections import (
     Collection, CircleCollection, LineCollection, PathCollection,
     PolyCollection, RegularPolyCollection)
+from matplotlib.text import Text
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 from matplotlib.transforms import BboxTransformTo, BboxTransformFrom
 from matplotlib.offsetbox import (
@@ -740,11 +741,12 @@ class Legend(Artist):
             handler = self.get_legend_handler(legend_handler_map, orig_handle)
             if handler is None:
                 _api.warn_external(
-                    "Legend does not support {!r} instances.\nA proxy artist "
-                    "may be used instead.\nSee: "
-                    "https://matplotlib.org/users/legend_guide.html"
-                    "#creating-artists-specifically-for-adding-to-the-legend-"
-                    "aka-proxy-artists".format(orig_handle))
+                             "Legend does not support handles for {0} "
+                             "instances.\nA proxy artist may be used "
+                             "instead.\nSee: https://matplotlib.org/"
+                             "stable/tutorials/intermediate/legend_guide.html"
+                             "#controlling-the-legend-entries".format(
+                                 type(orig_handle).__name__))
                 # No handle for this artist, so we just defer to None.
                 handle_list.append(None)
             else:
@@ -1074,14 +1076,14 @@ def _get_legend_handles(axs, legend_handler_map=None):
     for ax in axs:
         handles_original += [
             *(a for a in ax._children
-              if isinstance(a, (Line2D, Patch, Collection))),
+              if isinstance(a, (Line2D, Patch, Collection, Text))),
             *ax.containers]
         # support parasite axes:
         if hasattr(ax, 'parasites'):
             for axx in ax.parasites:
                 handles_original += [
                     *(a for a in axx._children
-                      if isinstance(a, (Line2D, Patch, Collection))),
+                      if isinstance(a, (Line2D, Patch, Collection, Text))),
                     *axx.containers]
 
     handler_map = {**Legend.get_default_handler_map(),
@@ -1091,6 +1093,15 @@ def _get_legend_handles(axs, legend_handler_map=None):
         label = handle.get_label()
         if label != '_nolegend_' and has_handler(handler_map, handle):
             yield handle
+        elif (label not in ['_nolegend_', ''] and
+                not has_handler(handler_map, handle)):
+            _api.warn_external(
+                             "Legend does not support handles for {0} "
+                             "instances.\nSee: https://matplotlib.org/stable/"
+                             "tutorials/intermediate/legend_guide.html"
+                             "#implementing-a-custom-legend-handler".format(
+                                 type(handle).__name__))
+            continue
 
 
 def _get_legend_handles_labels(axs, legend_handler_map=None):
