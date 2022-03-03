@@ -781,14 +781,36 @@ class Axis(martist.Artist):
         return [self.label, self.offsetText,
                 *self.get_major_ticks(), *self.get_minor_ticks()]
 
-    def _reset_major_tick_kw(self):
+    def _reset_major_tick_kw(self, keep_tick_and_label_visibility=False):
+        """
+        Reset major tick params to defaults.
+
+        Shared subplots pre-configure tick and label visibility. To keep this
+        beyond an Axis.clear() operation, we may
+        *keep_tick_and_label_visibility*.
+        """
+        backup = {name: value for name, value in self._major_tick_kw.items()
+                  if name in ['tick1On', 'tick2On', 'label1On', 'label2On']}
         self._major_tick_kw.clear()
+        if keep_tick_and_label_visibility:
+            self._major_tick_kw.update(backup)
         self._major_tick_kw['gridOn'] = (
                 mpl.rcParams['axes.grid'] and
                 mpl.rcParams['axes.grid.which'] in ('both', 'major'))
 
-    def _reset_minor_tick_kw(self):
+    def _reset_minor_tick_kw(self, keep_tick_and_label_visibility=False):
+        """
+        Reset minor tick params to defaults.
+
+        Shared subplots pre-configure tick and label visibility. To keep this
+        beyond an Axis.clear() operation, we may
+        *keep_tick_and_label_visibility*.
+        """
+        backup = {name: value for name, value in self._minor_tick_kw.items()
+                  if name in ['tick1On', 'tick2On', 'label1On', 'label2On']}
         self._minor_tick_kw.clear()
+        if keep_tick_and_label_visibility:
+            self._minor_tick_kw.update(backup)
         self._minor_tick_kw['gridOn'] = (
                 mpl.rcParams['axes.grid'] and
                 mpl.rcParams['axes.grid.which'] in ('both', 'minor'))
@@ -805,6 +827,8 @@ class Axis(martist.Artist):
         - major and minor grid
         - units
         - registered callbacks
+
+        This does not reset tick and tick label visibility.
         """
 
         self.label.set_text('')  # self.set_label_text would change isDefault_
@@ -816,12 +840,8 @@ class Axis(martist.Artist):
             signals=["units", "units finalize"])
 
         # whether the grids are on
-        self._major_tick_kw['gridOn'] = (
-                mpl.rcParams['axes.grid'] and
-                mpl.rcParams['axes.grid.which'] in ('both', 'major'))
-        self._minor_tick_kw['gridOn'] = (
-                mpl.rcParams['axes.grid'] and
-                mpl.rcParams['axes.grid.which'] in ('both', 'minor'))
+        self._reset_major_tick_kw(keep_tick_and_label_visibility=True)
+        self._reset_minor_tick_kw(keep_tick_and_label_visibility=True)
         self.reset_ticks()
 
         self.converter = None
