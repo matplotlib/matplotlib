@@ -6,11 +6,10 @@ Streamline plotting for 2D vector fields.
 import numpy as np
 
 import matplotlib
-from matplotlib import _api, cm
+from matplotlib import _api, cm, patches
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcollections
 import matplotlib.lines as mlines
-import matplotlib.patches as patches
 
 
 __all__ = ['streamplot']

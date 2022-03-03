@@ -3,9 +3,8 @@ import pytest
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 import matplotlib.transforms as mtransforms
-from matplotlib import ticker, rcParams
+from matplotlib import gridspec, ticker, rcParams
 
 
 def example_plot(ax, fontsize=12, nodec=False):

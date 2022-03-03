@@ -1,13 +1,12 @@
 import re
 
+from matplotlib import path, transforms
 from matplotlib.testing import _check_for_pgf
 from matplotlib.backend_bases import (
     FigureCanvasBase, LocationEvent, MouseButton, MouseEvent,
     NavigationToolbar2, RendererBase)
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-import matplotlib.transforms as transforms
-import matplotlib.path as path
 
 import numpy as np
 import pytest
