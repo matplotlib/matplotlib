@@ -156,7 +156,7 @@ class Axes3D(Axes):
         self.fmt_zdata = None
 
         self.mouse_init()
-        self.figure.canvas.callbacks._connect_picklable(
+        self._move_cid = self.figure.canvas.callbacks._connect_picklable(
             'motion_notify_event', self._on_move)
         self.figure.canvas.callbacks._connect_picklable(
             'button_press_event', self._button_press)
@@ -920,18 +920,14 @@ class Axes3D(Axes):
     def can_zoom(self):
         """
         Return whether this Axes supports the zoom box button functionality.
-
-        Axes3D objects do not use the zoom box button.
         """
-        return False
+        return True
 
     def can_pan(self):
         """
-        Return whether this Axes supports the pan/zoom button functionality.
-
-        Axes3d objects do not use the pan/zoom button.
+        Return whether this Axes supports the pan button functionality.
         """
-        return False
+        return True
 
     def clear(self):
         # docstring inherited.
@@ -1050,6 +1046,11 @@ class Axes3D(Axes):
         if not self.button_pressed:
             return
 
+        if self.get_navigate_mode() is not None:
+            # we don't want to rotate if we are zooming/panning
+            # from the toolbar
+            return
+
         if self.M is None:
             return
 
@@ -1061,7 +1062,6 @@ class Axes3D(Axes):
         dx, dy = x - self.sx, y - self.sy
         w = self._pseudo_w
         h = self._pseudo_h
-        self.sx, self.sy = x, y
 
         # Rotation
         if self.button_pressed in self._rotate_btn:
@@ -1077,28 +1077,14 @@ class Axes3D(Axes):
             self.azim = self.azim + dazim
             self.get_proj()
             self.stale = True
-            self.figure.canvas.draw_idle()
 
         elif self.button_pressed == 2:
-            # pan view
-            # get the x and y pixel coords
-            if dx == 0 and dy == 0:
-                return
-            minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
-            dx = 1-((w - dx)/w)
-            dy = 1-((h - dy)/h)
-            elev = np.deg2rad(self.elev)
-            azim = np.deg2rad(self.azim)
-            # project xv, yv, zv -> xw, yw, zw
-            dxx = (maxx-minx)*(dy*np.sin(elev)*np.cos(azim) + dx*np.sin(azim))
-            dyy = (maxy-miny)*(-dx*np.cos(azim) + dy*np.sin(elev)*np.sin(azim))
-            dzz = (maxz-minz)*(-dy*np.cos(elev))
-            # pan
-            self.set_xlim3d(minx + dxx, maxx + dxx)
-            self.set_ylim3d(miny + dyy, maxy + dyy)
-            self.set_zlim3d(minz + dzz, maxz + dzz)
-            self.get_proj()
-            self.figure.canvas.draw_idle()
+            # Start the pan event with pixel coordinates
+            px, py = self.transData.transform([self.sx, self.sy])
+            self.start_pan(px, py, 2)
+            # pan view (takes pixel coordinate input)
+            self.drag_pan(2, None, event.x, event.y)
+            self.end_pan()
 
         # Zoom
         elif self.button_pressed in self._zoom_btn:
@@ -1113,7 +1099,182 @@ class Axes3D(Axes):
             self.set_ylim3d(miny - dy, maxy + dy)
             self.set_zlim3d(minz - dz, maxz + dz)
             self.get_proj()
-            self.figure.canvas.draw_idle()
+
+        # Store the event coordinates for the next time through.
+        self.sx, self.sy = x, y
+        # Always request a draw update at the end of interaction
+        self.figure.canvas.draw_idle()
+
+    def drag_pan(self, button, key, x, y):
+        # docstring inherited
+
+        # Get the coordinates from the move event
+        p = self._pan_start
+        (xdata, ydata), (xdata_start, ydata_start) = p.trans_inverse.transform(
+            [(x, y), (p.x, p.y)])
+        self.sx, self.sy = xdata, ydata
+        # Calling start_pan() to set the x/y of this event as the starting
+        # move location for the next event
+        self.start_pan(x, y, button)
+        dx, dy = xdata - xdata_start, ydata - ydata_start
+        if dx == 0 and dy == 0:
+            return
+
+        # Now pan the view by updating the limits
+        w = self._pseudo_w
+        h = self._pseudo_h
+
+        minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
+        dx = 1 - ((w - dx) / w)
+        dy = 1 - ((h - dy) / h)
+        elev = np.deg2rad(self.elev)
+        azim = np.deg2rad(self.azim)
+        # project xv, yv, zv -> xw, yw, zw
+        dxx = (maxx - minx) * (dy * np.sin(elev)
+                               * np.cos(azim) + dx * np.sin(azim))
+        dyy = (maxy - miny) * (-dx * np.cos(azim)
+                               + dy * np.sin(elev) * np.sin(azim))
+        dzz = (maxz - minz) * (-dy * np.cos(elev))
+        # pan
+        self.set_xlim3d(minx + dxx, maxx + dxx)
+        self.set_ylim3d(miny + dyy, maxy + dyy)
+        self.set_zlim3d(minz + dzz, maxz + dzz)
+        self.get_proj()
+
+    def _set_view_from_bbox(self, bbox, direction='in',
+                            mode=None, twinx=False, twiny=False):
+        # docstring inherited
+
+        # bbox is (start_x, start_y, event.x, event.y) in screen coords
+        # _prepare_view_from_bbox will give us back new *data* coords
+        # (in the 2D transform space, not 3D world coords)
+        new_xbound, new_ybound = self._prepare_view_from_bbox(
+            bbox, direction=direction, mode=mode, twinx=twinx, twiny=twiny)
+        # We need to get the Zoom bbox limits relative to the Axes limits
+        # 1) Axes bottom-left -> Zoom box bottom-left
+        # 2) Axes top-right -> Zoom box top-right
+        axes_to_data_trans = self.transAxes + self.transData.inverted()
+        axes_data_bbox = axes_to_data_trans.transform([(0, 0), (1, 1)])
+        # dx, dy gives us the vector difference from the axes to the
+        dx1, dy1 = (axes_data_bbox[0][0] - new_xbound[0],
+                    axes_data_bbox[0][1] - new_ybound[0])
+        dx2, dy2 = (axes_data_bbox[1][0] - new_xbound[1],
+                    axes_data_bbox[1][1] - new_ybound[1])
+
+        def data_2d_to_world_3d(dx, dy):
+            # Takes the vector (dx, dy) in transData coords and
+            # transforms that to each of the 3 world data coords
+            # (x, y, z) for calculating the offset
+            w = self._pseudo_w
+            h = self._pseudo_h
+
+            dx = 1 - ((w - dx) / w)
+            dy = 1 - ((h - dy) / h)
+            elev = np.deg2rad(self.elev)
+            azim = np.deg2rad(self.azim)
+            # project xv, yv, zv -> xw, yw, zw
+            dxx = (dy * np.sin(elev)
+                                * np.cos(azim) + dx * np.sin(azim))
+            dyy = (-dx * np.cos(azim)
+                                + dy * np.sin(elev) * np.sin(azim))
+            dzz = (-dy * np.cos(elev))
+            return dxx, dyy, dzz
+
+        # These are the amounts to bring the projection in or out by from
+        # each side (1 left, 2 right) because we aren't necessarily zooming
+        # into the center of the projection.
+        dxx1, dyy1, dzz1 = data_2d_to_world_3d(dx1, dy1)
+        dxx2, dyy2, dzz2 = data_2d_to_world_3d(dx2, dy2)
+        # update the min and max limits of the world
+        minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
+        self.set_xlim3d(minx + dxx1 * (maxx - minx),
+                        maxx + dxx2 * (maxx - minx))
+        self.set_ylim3d(miny + dyy1 * (maxy - miny),
+                        maxy + dyy2 * (maxy - miny))
+        self.set_zlim3d(minz + dzz1 * (maxz - minz),
+                        maxz + dzz2 * (maxz - minz))
+        self.get_proj()
+
+    def _prepare_view_from_bbox(self, bbox, direction='in',
+                                mode=None, twinx=False, twiny=False):
+        """
+        Helper function to prepare the new bounds from a bbox.
+
+        This helper function returns the new x and y bounds from the zoom
+        bbox. This a convenience method to abstract the bbox logic
+        out of the base setter.
+        """
+        if len(bbox) == 3:
+            xp, yp, scl = bbox  # Zooming code
+            if scl == 0:  # Should not happen
+                scl = 1.
+            if scl > 1:
+                direction = 'in'
+            else:
+                direction = 'out'
+                scl = 1 / scl
+            # get the limits of the axes
+            (xmin, ymin), (xmax, ymax) = self.transData.transform(
+                np.transpose([self.get_xlim(), self.get_ylim()]))
+            # set the range
+            xwidth = xmax - xmin
+            ywidth = ymax - ymin
+            xcen = (xmax + xmin) * .5
+            ycen = (ymax + ymin) * .5
+            xzc = (xp * (scl - 1) + xcen) / scl
+            yzc = (yp * (scl - 1) + ycen) / scl
+            bbox = [xzc - xwidth / 2. / scl, yzc - ywidth / 2. / scl,
+                    xzc + xwidth / 2. / scl, yzc + ywidth / 2. / scl]
+        elif len(bbox) != 4:
+            # should be len 3 or 4 but nothing else
+            _api.warn_external(
+                "Warning in _set_view_from_bbox: bounding box is not a tuple "
+                "of length 3 or 4. Ignoring the view change.")
+            return
+
+        # Original limits
+        # Can't use get_x/y bounds because those aren't in 2D space
+        pseudo_bbox = self.transLimits.inverted().transform([(0, 0), (1, 1)])
+        (xmin0, ymin0), (xmax0, ymax0) = pseudo_bbox
+        # The zoom box in screen coords.
+        startx, starty, stopx, stopy = bbox
+        # Convert to data coords.
+        (startx, starty), (stopx, stopy) = self.transData.inverted().transform(
+            [(startx, starty), (stopx, stopy)])
+        # Clip to axes limits.
+        xmin, xmax = np.clip(sorted([startx, stopx]), xmin0, xmax0)
+        ymin, ymax = np.clip(sorted([starty, stopy]), ymin0, ymax0)
+        # Don't double-zoom twinned axes or if zooming only the other axis.
+        if twinx or mode == "y":
+            xmin, xmax = xmin0, xmax0
+        if twiny or mode == "x":
+            ymin, ymax = ymin0, ymax0
+
+        if direction == "in":
+            new_xbound = xmin, xmax
+            new_ybound = ymin, ymax
+
+        elif direction == "out":
+            x_trf = self.xaxis.get_transform()
+            sxmin0, sxmax0, sxmin, sxmax = x_trf.transform(
+                [xmin0, xmax0, xmin, xmax])  # To screen space.
+            factor = (sxmax0 - sxmin0) / (sxmax - sxmin)  # Unzoom factor.
+            # Move original bounds away by
+            # (factor) x (distance between unzoom box and Axes bbox).
+            sxmin1 = sxmin0 - factor * (sxmin - sxmin0)
+            sxmax1 = sxmax0 + factor * (sxmax0 - sxmax)
+            # And back to data space.
+            new_xbound = x_trf.inverted().transform([sxmin1, sxmax1])
+
+            y_trf = self.yaxis.get_transform()
+            symin0, symax0, symin, symax = y_trf.transform(
+                [ymin0, ymax0, ymin, ymax])
+            factor = (symax0 - symin0) / (symax - symin)
+            symin1 = symin0 - factor * (symin - symin0)
+            symax1 = symax0 + factor * (symax0 - symax)
+            new_ybound = y_trf.inverted().transform([symin1, symax1])
+
+        return new_xbound, new_ybound
 
     def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
         """
