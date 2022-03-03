@@ -1091,6 +1091,8 @@ class FontManager:
         ----------
         path : str or path-like
         """
+        path = str(path)  # Convert to string in case of a path as
+                          # afmFontProperty and FT2Font expect this
         if Path(path).suffix.lower() == ".afm":
             with open(path, "rb") as fh:
                 font = _afm.AFM(fh)
