@@ -1,7 +1,7 @@
 """
 A module for finding, managing, and using fonts across platforms.
 
-This module provides a single `FontManager` instance that can
+This module provides a single `FontManager` instance, `fontManager`, that can
 be shared across backends and platforms.  The `findfont`
 function returns the best TrueType (TTF) font file in the local or
 system font path that matches the specified `FontProperties`
@@ -11,6 +11,10 @@ instance.  The `FontManager` also handles Adobe Font Metrics
 The design is based on the `W3C Cascading Style Sheet, Level 1 (CSS1)
 font specification <http://www.w3.org/TR/1998/REC-CSS2-19980512/>`_.
 Future versions may implement the Level 2 or 2.1 specifications.
+
+.. data:: fontManager
+
+    The singleton instance of `FontManager`.
 """
 
 # KNOWN ISSUES
