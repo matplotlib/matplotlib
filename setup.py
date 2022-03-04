@@ -201,7 +201,7 @@ def update_matplotlibrc(path):
     template_lines[backend_line_idx] = (
         "#backend: {}\n".format(setupext.options["backend"])
         if setupext.options["backend"]
-        else "##backend: Agg")
+        else "##backend: Agg\n")
     path.write_text("".join(template_lines))
 
 
