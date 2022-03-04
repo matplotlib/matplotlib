@@ -2,7 +2,6 @@
 ==============
 Demo Axes Grid
 ==============
-
 Grid of 2x2 images with single or own colorbar.
 """
 
