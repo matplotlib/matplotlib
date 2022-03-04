@@ -176,10 +176,10 @@ def test_user_fonts_linux(tmpdir, monkeypatch):
     _get_fontconfig_fonts.cache_clear()
 
 
-def test_addfont():
+def test_addfont_as_path():
+    """Smoke test that addfont() accepts pathlib.Path."""
     font_test_file = 'mpltest.ttf'
     path = Path(__file__).parent / font_test_file
-    # Add font using Path, which should not produce an error. See #22582
     fontManager.addfont(path)
 
 
