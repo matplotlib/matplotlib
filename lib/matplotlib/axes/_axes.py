@@ -3401,7 +3401,8 @@ class Axes(_AxesBase):
         for key in ['marker', 'markersize', 'markerfacecolor',
                     'markeredgewidth', 'markeredgecolor', 'markevery',
                     'linestyle', 'fillstyle', 'drawstyle', 'dash_capstyle',
-                    'dash_joinstyle', 'solid_capstyle', 'solid_joinstyle']:
+                    'dash_joinstyle', 'solid_capstyle', 'solid_joinstyle',
+                    'dashes']:
             base_style.pop(key, None)
 
         # Make the style dict for the line collections (the bars).

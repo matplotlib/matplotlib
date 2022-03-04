@@ -665,6 +665,20 @@ def test_plot_format_kwarg_redundant():
     plt.errorbar([0], [0], fmt='none', color='blue')
 
 
+@check_figures_equal(extensions=["png"])
+def test_errorbar_dashes(fig_test, fig_ref):
+    x = [1, 2, 3, 4]
+    y = np.sin(x)
+
+    ax_ref = fig_ref.gca()
+    ax_test = fig_test.gca()
+
+    line, *_ = ax_ref.errorbar(x, y, xerr=np.abs(y), yerr=np.abs(y))
+    line.set_dashes([2, 2])
+
+    ax_test.errorbar(x, y, xerr=np.abs(y), yerr=np.abs(y), dashes=[2, 2])
+
+
 @image_comparison(['single_point', 'single_point'])
 def test_single_point():
     # Issue #1796: don't let lines.marker affect the grid
