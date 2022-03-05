@@ -1,8 +1,10 @@
 """
 Render to qt from agg
 """
+from .. import backends
 
-from .backend_qtagg import (
+backends._QT_FORCE_QT5_BINDING = True
+from .backend_qtagg import (    # noqa: F401, E402 # pylint: disable=W0611
     _BackendQTAgg, FigureCanvasQTAgg, FigureManagerQT, NavigationToolbar2QT,
     backend_version,  FigureCanvasAgg,  FigureCanvasQT
 )

@@ -25,6 +25,7 @@ from packaging.version import parse as parse_version
 import matplotlib as mpl
 from matplotlib import _api
 
+from . import _QT_FORCE_QT5_BINDING
 
 QT_API_PYQT6 = "PyQt6"
 QT_API_PYSIDE6 = "PySide6"
@@ -57,10 +58,16 @@ elif sys.modules.get("PySide2.QtCore"):
 # requested backend actually matches).  Use dict.__getitem__ to avoid
 # triggering backend resolution (which can result in a partially but
 # incompletely imported backend_qt5).
-elif dict.__getitem__(mpl.rcParams, "backend") in ["Qt5Agg", "Qt5Cairo"]:
+elif (
+        isinstance(dict.__getitem__(mpl.rcParams, "backend"), str) and
+        dict.__getitem__(mpl.rcParams, "backend").lower() in [
+            "qt5agg", "qt5cairo"
+        ]
+):
     if QT_API_ENV in ["pyqt5", "pyside2"]:
         QT_API = _ETS[QT_API_ENV]
     else:
+        _QT_FORCE_QT5_BINDING = True  # noqa
         QT_API = None
 # A non-Qt backend was selected but we still got there (possible, e.g., when
 # fully manually embedding Matplotlib in a Qt app without using pyplot).
@@ -112,12 +119,19 @@ def _setup_pyqt5plus():
 if QT_API in [QT_API_PYQT6, QT_API_PYQT5, QT_API_PYSIDE6, QT_API_PYSIDE2]:
     _setup_pyqt5plus()
 elif QT_API is None:  # See above re: dict.__getitem__.
-    _candidates = [
-        (_setup_pyqt5plus, QT_API_PYQT6),
-        (_setup_pyqt5plus, QT_API_PYSIDE6),
-        (_setup_pyqt5plus, QT_API_PYQT5),
-        (_setup_pyqt5plus, QT_API_PYSIDE2),
-    ]
+    if _QT_FORCE_QT5_BINDING:
+        _candidates = [
+            (_setup_pyqt5plus, QT_API_PYQT5),
+            (_setup_pyqt5plus, QT_API_PYSIDE2),
+        ]
+    else:
+        _candidates = [
+            (_setup_pyqt5plus, QT_API_PYQT6),
+            (_setup_pyqt5plus, QT_API_PYSIDE6),
+            (_setup_pyqt5plus, QT_API_PYQT5),
+            (_setup_pyqt5plus, QT_API_PYSIDE2),
+        ]
+
     for _setup, QT_API in _candidates:
         try:
             _setup()
