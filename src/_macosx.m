@@ -873,6 +873,9 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
         NSImage* image = [[NSImage alloc] initWithContentsOfFile: filename];
         buttons[i] = [[NSButton alloc] initWithFrame: rect];
         [image setSize: size];
+        // Specify that it is a template image so the content tint
+        // color gets updated with the system theme (dark/light)
+        [image setTemplate: YES];
         [buttons[i] setBezelStyle: NSBezelStyleShadowlessSquare];
         [buttons[i] setButtonType: buttontypes[i]];
         [buttons[i] setImage: image];
