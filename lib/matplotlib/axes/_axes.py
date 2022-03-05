@@ -326,13 +326,27 @@ class Axes(_AxesBase):
             Defaults to `ax.transAxes`, i.e. the units of *rect* are in
             Axes-relative coordinates.
 
+        projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
+'polar', 'rectilinear', str}, optional
+            The projection type of the inset `~.axes.Axes`. *str* is the name
+            of a custom projection, see `~matplotlib.projections`. The default
+            None results in a 'rectilinear' projection.
+
+        polar : bool, default: False
+            If True, equivalent to projection='polar'.
+
+        axes_class : subclass type of `~.axes.Axes`, optional
+            The `.axes.Axes` subclass that is instantiated.  This parameter
+            is incompatible with *projection* and *polar*.  See
+            :ref:`axisartist_users-guide-index` for examples.
+
         zorder : number
             Defaults to 5 (same as `.Axes.legend`).  Adjust higher or lower
             to change whether it is above or below data plotted on the
             parent Axes.
 
         **kwargs
-            Other keyword arguments are passed on to the child `.Axes`.
+            Other keyword arguments are passed on to the inset Axes class.
 
         Returns
         -------
@@ -358,7 +372,10 @@ class Axes(_AxesBase):
         # This puts the rectangle into figure-relative coordinates.
         inset_locator = _TransformedBoundsLocator(bounds, transform)
         bounds = inset_locator(self, None).bounds
-        inset_ax = Axes(self.figure, bounds, zorder=zorder, **kwargs)
+        projection_class, pkw = self.figure._process_projection_requirements(
+                bounds, **kwargs)
+        inset_ax = projection_class(self.figure, bounds, zorder=zorder, **pkw)
+
         # this locator lets the axes move if in data coordinates.
         # it gets called in `ax.apply_aspect() (of all places)
         inset_ax.set_axes_locator(inset_locator)
