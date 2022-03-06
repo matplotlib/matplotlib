@@ -5,11 +5,12 @@ import urllib.parse
 
 import numpy as np
 
-from matplotlib import _text_helpers, dviread, font_manager
+from matplotlib import _api, _text_helpers, dviread, font_manager
 from matplotlib.font_manager import FontProperties, get_font
 from matplotlib.ft2font import LOAD_NO_HINTING, LOAD_TARGET_LIGHT
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
+from matplotlib.texmanager import TexManager
 from matplotlib.transforms import Affine2D
 
 _log = logging.getLogger(__name__)
@@ -44,14 +45,11 @@ class TextToPath:
         return urllib.parse.quote(f"{font.postscript_name}-{ccode:x}")
 
     def get_text_width_height_descent(self, s, prop, ismath):
-        if ismath == "TeX":
-            texmanager = self.get_texmanager()
-            fontsize = prop.get_size_in_points()
-            w, h, d = texmanager.get_text_width_height_descent(s, fontsize,
-                                                               renderer=None)
-            return w, h, d
-
         fontsize = prop.get_size_in_points()
+
+        if ismath == "TeX":
+            return TexManager().get_text_width_height_descent(s, fontsize)
+
         scale = fontsize / self.FONT_SCALE
 
         if ismath:
@@ -215,10 +213,10 @@ class TextToPath:
         return (list(zip(glyph_ids, xpositions, ypositions, sizes)),
                 glyph_map_new, myrects)
 
+    @_api.deprecated("3.6", alternative="TexManager()")
     def get_texmanager(self):
         """Return the cached `~.texmanager.TexManager` instance."""
         if self._texmanager is None:
-            from matplotlib.texmanager import TexManager
             self._texmanager = TexManager()
         return self._texmanager
 
@@ -227,7 +225,7 @@ class TextToPath:
         """Convert the string *s* to vertices and codes using usetex mode."""
         # Mostly borrowed from pdf backend.
 
-        dvifile = self.get_texmanager().make_dvi(s, self.FONT_SCALE)
+        dvifile = TexManager().make_dvi(s, self.FONT_SCALE)
         with dviread.Dvi(dvifile, self.DPI) as dvi:
             page, = dvi
 
