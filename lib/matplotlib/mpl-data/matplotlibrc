@@ -33,9 +33,14 @@
 ## Colors: for the color values below, you can either use
 ##     - a Matplotlib color string, such as r, k, or b
 ##     - an RGB tuple, such as (1.0, 0.5, 0.0)
-##     - a hex string, such as ff00ff
+##     - a double-quoted hex string, such as "#ff00ff".
+##       The unquoted string ff00ff is also supported for backward
+##       compatibility, but is discouraged.
 ##     - a scalar grayscale intensity such as 0.75
 ##     - a legal html color name, e.g., red, blue, darkslategray
+##
+## String values may optionally be enclosed in double quotes, which allows
+## using the comment character # in the string.
 ##
 ## Matplotlib configuration are currently divided into following parts:
 ##     - BACKENDS
@@ -506,10 +511,10 @@
 ## ***************************************************************************
 ## * GRIDS                                                                   *
 ## ***************************************************************************
-#grid.color:     b0b0b0  # grid color
-#grid.linestyle: -       # solid
-#grid.linewidth: 0.8     # in points
-#grid.alpha:     1.0     # transparency, between 0.0 and 1.0
+#grid.color:     "#b0b0b0"  # grid color
+#grid.linestyle: -          # solid
+#grid.linewidth: 0.8        # in points
+#grid.alpha:     1.0        # transparency, between 0.0 and 1.0
 
 
 ## ***************************************************************************

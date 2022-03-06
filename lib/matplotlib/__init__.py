@@ -780,7 +780,7 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
         try:
             for line_no, line in enumerate(fd, 1):
                 line = transform(line)
-                strippedline = line.split('#', 1)[0].strip()
+                strippedline = cbook._strip_comment(line)
                 if not strippedline:
                     continue
                 tup = strippedline.split(':', 1)
@@ -791,6 +791,8 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
                 key, val = tup
                 key = key.strip()
                 val = val.strip()
+                if val.startswith('"') and val.endswith('"'):
+                    val = val[1:-1]  # strip double quotes
                 if key in rc_temp:
                     _log.warning('Duplicate key in file %r, line %d (%r)',
                                  fname, line_no, line.rstrip('\n'))
