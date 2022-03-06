@@ -112,21 +112,6 @@ class RendererAgg(RendererBase):
         self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.copy_from_bbox = self._renderer.copy_from_bbox
 
-    @_api.deprecated("3.4")
-    def get_content_extents(self):
-        orig_img = np.asarray(self.buffer_rgba())
-        slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
-        return (slice_x.start, slice_y.start,
-                slice_x.stop - slice_x.start, slice_y.stop - slice_y.start)
-
-    @_api.deprecated("3.4")
-    def tostring_rgba_minimized(self):
-        extents = self.get_content_extents()
-        bbox = [[extents[0], self.height - (extents[1] + extents[3])],
-                [extents[0] + extents[2], self.height - extents[1]]]
-        region = self.copy_from_bbox(bbox)
-        return np.array(region), extents
-
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
         nmax = mpl.rcParams['agg.path.chunksize']  # here at least for testing

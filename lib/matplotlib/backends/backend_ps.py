@@ -806,15 +806,6 @@ grestore
         write("grestore\n")
 
 
-@_api.deprecated("3.4", alternative="GraphicsContextBase")
-class GraphicsContextPS(GraphicsContextBase):
-    def get_capstyle(self):
-        return {'butt': 0, 'round': 1, 'projecting': 2}[super().get_capstyle()]
-
-    def get_joinstyle(self):
-        return {'miter': 0, 'round': 1, 'bevel': 2}[super().get_joinstyle()]
-
-
 class _Orientation(Enum):
     portrait, landscape = range(2)
 
@@ -830,15 +821,13 @@ class FigureCanvasPS(FigureCanvasBase):
     def get_default_filetype(self):
         return 'ps'
 
-    @_api.delete_parameter("3.4", "dpi")
     @_api.delete_parameter("3.5", "args")
     def _print_ps(
             self, fmt, outfile, *args,
-            dpi=None, metadata=None, papertype=None, orientation='portrait',
+            metadata=None, papertype=None, orientation='portrait',
             **kwargs):
 
-        if dpi is None:  # always use this branch after deprecation elapses.
-            dpi = self.figure.get_dpi()
+        dpi = self.figure.get_dpi()
         self.figure.set_dpi(72)  # Override the dpi kwarg
 
         dsc_comments = {}

@@ -2738,13 +2738,10 @@ class FigureCanvasPdf(FigureCanvasBase):
     def get_default_filetype(self):
         return 'pdf'
 
-    @_api.delete_parameter("3.4", "dpi")
     def print_pdf(self, filename, *,
-                  dpi=None,  # dpi to use for images
                   bbox_inches_restore=None, metadata=None):
 
-        if dpi is None:  # always use this branch after deprecation elapses.
-            dpi = self.figure.get_dpi()
+        dpi = self.figure.get_dpi()
         self.figure.set_dpi(72)            # there are 72 pdf points to an inch
         width, height = self.figure.get_size_inches()
         if isinstance(filename, PdfPages):
