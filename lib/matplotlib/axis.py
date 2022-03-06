@@ -685,6 +685,7 @@ class Axis(martist.Artist):
 
         self.clear()
         self._set_scale('linear')
+        self._autoscale_on = True
 
     @property
     def isDefault_majloc(self):
@@ -776,6 +777,21 @@ class Axis(martist.Artist):
 
     def limit_range_for_scale(self, vmin, vmax):
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
+
+    def _get_autoscale_on(self):
+        """Return whether this Axis is autoscaled."""
+        return self._autoscale_on
+
+    def _set_autoscale_on(self, b):
+        """
+        Set whether this Axis is autoscaled when drawing or by
+        `.Axes.autoscale_view`.
+
+        Parameters
+        ----------
+        b : bool
+        """
+        self._autoscale_on = b
 
     def get_children(self):
         return [self.label, self.offsetText,
@@ -1087,7 +1103,7 @@ class Axis(martist.Artist):
         for ax in self.axes._shared_axes[name].get_siblings(self.axes):
             ax._stale_viewlims[name] = False
         if auto is not None:
-            setattr(self.axes, f"_autoscale{name.upper()}on", bool(auto))
+            self._set_autoscale_on(bool(auto))
 
         if emit:
             self.axes.callbacks.process(f"{name}lim_changed", self.axes)
