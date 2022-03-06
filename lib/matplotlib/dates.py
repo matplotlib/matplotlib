@@ -1737,7 +1737,8 @@ class MicrosecondLocator(DateLocator):
 
 @_api.deprecated(
     "3.5",
-    alternative="`date2num(datetime.utcfromtimestamp(e))<.date2num>`")
+    alternative="``[date2num(datetime.utcfromtimestamp(t)) for t in e]`` or "
+                "numpy.datetime64 types")
 def epoch2num(e):
     """
     Convert UNIX time to days since Matplotlib epoch.
