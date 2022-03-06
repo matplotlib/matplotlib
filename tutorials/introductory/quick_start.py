@@ -134,15 +134,18 @@ ax.set_ylabel('entry b');
 # Coding styles
 # =============
 #
-# The object-oriented and the pyplot interfaces
-# ---------------------------------------------
+# The explicit and the implicit interfaces
+# ----------------------------------------
 #
 # As noted above, there are essentially two ways to use Matplotlib:
 #
 # - Explicitly create Figures and Axes, and call methods on them (the
 #   "object-oriented (OO) style").
-# - Rely on pyplot to automatically create and manage the Figures and Axes, and
+# - Rely on pyplot to implicitly create and manage the Figures and Axes, and
 #   use pyplot functions for plotting.
+#
+# See :ref:`api_interfaces` for an explanation of the tradeoffs between the
+# implicit and explicit interfaces.
 #
 # So one can use the OO-style
 

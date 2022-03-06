@@ -16,7 +16,7 @@ programmatic plot generation::
     y = np.sin(x)
     plt.plot(x, y)
 
-The explicit (object-oriented) API is recommended for complex plots, though
+The explicit object-oriented API is recommended for complex plots, though
 pyplot is still usually used to create the figure and often the axes in the
 figure. See `.pyplot.figure`, `.pyplot.subplots`, and
 `.pyplot.subplot_mosaic` to create figures, and
@@ -29,6 +29,10 @@ figure. See `.pyplot.figure`, `.pyplot.subplots`, and
     y = np.sin(x)
     fig, ax = plt.subplots()
     ax.plot(x, y)
+
+
+See :ref:`api_interfaces` for an explanation of the tradeoffs between the
+implicit and explicit interfaces.
 """
 
 import functools
