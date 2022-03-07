@@ -2579,7 +2579,7 @@ class _AxesBase(martist.Artist):
     def get_autoscale_on(self):
         """Return True if each axis is autoscaled, False otherwise."""
         return all(axis._get_autoscale_on()
-                   for axis in self._get_axis_map().values())
+                   for axis in self._axis_map.values())
 
     def set_autoscale_on(self, b):
         """
@@ -2590,7 +2590,7 @@ class _AxesBase(martist.Artist):
         ----------
         b : bool
         """
-        for axis in self._get_axis_map().values():
+        for axis in self._axis_map.values():
             axis._set_autoscale_on(b)
 
     @property
