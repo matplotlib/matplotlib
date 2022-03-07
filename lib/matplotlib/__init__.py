@@ -19,10 +19,11 @@ at the ipython shell prompt.
 
 For the most part, direct use of the explicit object-oriented library is
 encouraged when programming; the implicit pyplot interface is primarily for
-working interactively. The exceptions to this suggestion are the pyplot functions
-`.pyplot.figure`, `.pyplot.subplot`, `.pyplot.subplots`, and `.pyplot.savefig`,
-which can greatly simplify scripting.  See :ref:`api_interfaces` for an
-explanation of the tradeoffs between the implicit and explicit interfaces.
+working interactively. The exceptions to this suggestion are the pyplot
+functions `.pyplot.figure`, `.pyplot.subplot`, `.pyplot.subplots`, and
+`.pyplot.savefig`, which can greatly simplify scripting.  See
+:ref:`api_interfaces` for an explanation of the tradeoffs between the implicit
+and explicit interfaces.
 
 Modules include:
 

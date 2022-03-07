@@ -10,8 +10,8 @@ no figure with the number exists, a new one is created.
 
 .. note::
 
-    We discourage working with multiple figures through the implicit pyplot interface
-    because managing the *current figure* is cumbersome and
+    We discourage working with multiple figures through the implicit pyplot
+    interface because managing the *current figure* is cumbersome and
     error-prone. Instead, we recommend using the explicit approach and call
     methods on Figure and Axes instances. See :ref:`api_interfaces` for an
     explanation of the trade-offs between the implicit and explicit interfaces.
