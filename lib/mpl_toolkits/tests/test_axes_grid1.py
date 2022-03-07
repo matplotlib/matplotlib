@@ -99,6 +99,18 @@ def test_axesgrid_colorbar_log_smoketest():
     grid.cbar_axes[0].colorbar(im)
 
 
+def test_inset_colorbar_tight_layout_smoketest():
+    fig, ax = plt.subplots(1, 1)
+    pts = ax.scatter([0, 1], [0, 1], c=[1, 5])
+
+    cax = inset_axes(ax, width="3%", height="70%")
+    plt.colorbar(pts, cax=cax)
+
+    with pytest.warns(UserWarning, match="This figure includes Axes"):
+        # Will warn, but not raise an error
+        plt.tight_layout()
+
+
 @image_comparison(['inset_locator.png'], style='default', remove_text=True)
 def test_inset_locator():
     fig, ax = plt.subplots(figsize=[5, 4])
