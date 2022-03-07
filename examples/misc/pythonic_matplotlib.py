@@ -3,9 +3,9 @@
 Pythonic Matplotlib
 ===================
 
-Some people prefer to write more "Pythonic", explicitly object-oriented code
-rather than use the implicit pyplot interface to Matplotlib.  This example
-shows you how.
+Some people prefer to write more "Pythonic", explicit object-oriented code,
+rather than use the implicit pyplot interface to Matplotlib. This example
+shows you how to take advantage of the explicit Matplotlib interface.
 
 Unless you are an application developer, I recommend using part of the
 pyplot interface, particularly the figure, close, subplot, axes, and

@@ -5,7 +5,7 @@ Pyplot tutorial
 
 An introduction to the pyplot interface.  Please also see
 :doc:`/tutorials/introductory/quick_start` for an overview of how Matplotlib
-works and :ref:`api_interfaces` for an explanation of the trade off of the
+works and :ref:`api_interfaces` for an explanation of the trade-offs between the
 supported user APIs.
 
 """

@@ -20,7 +20,7 @@ to highlight some neat features and best-practices using Matplotlib.
 A note on the explicit vs. implicit interfaces
 ==============================================
 
-Matplotlib has two interfaces. For an explanation of the tradeoffs between the
+Matplotlib has two interfaces. For an explanation of the trade-offs between the
 implicit and explicit interfaces see :ref:`api_interfaces`.
 
 The first is an explicit object-oriented (OO) interface. In this case, we

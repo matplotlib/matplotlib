@@ -115,15 +115,15 @@ Usage patterns
 --------------
 
 Below we describe several common approaches to plotting with Matplotlib.  See
-:ref:`api_interfaces` for an explanation of the trade off of the supported user
+:ref:`api_interfaces` for an explanation of the trade-offs between the supported user
 APIs.
 
 
-The Explicit API
+The explicit API
 ^^^^^^^^^^^^^^^^
 
 At its core, Matplotlib is an object-oriented library. We recommend directly
-working with the objects, if you need more control and customization of your
+working with the objects if you need more control and customization of your
 plots.
 
 In many cases you will create a `.Figure` and one or more
