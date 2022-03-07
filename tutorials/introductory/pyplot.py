@@ -29,7 +29,7 @@ supported user APIs.
 #
 # .. note::
 #
-#    the implicit pyplot API is generally terser but less-flexible than the
+#    the implicit pyplot API is generally less verbose but also not as flexible as the
 #    explicit API.  Most of the function calls you see here can also be called
 #    as methods from an ``Axes`` object. We recommend browsing the tutorials
 #    and examples to see how this works. See :ref:`api_interfaces` for an
