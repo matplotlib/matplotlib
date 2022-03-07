@@ -134,9 +134,9 @@ explicitly (e.g. when including them in GUI applications).
 Further reading:
 
 - `matplotlib.axes.Axes` and `matplotlib.figure.Figure` for an overview of
-   plotting functions.
+  plotting functions.
 - Most of the :ref:`examples <examples-index>` use the object-oriented approach
-   (except for the pyplot section)
+  (except for the pyplot section)
 
 
 The implicit API
