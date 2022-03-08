@@ -280,12 +280,10 @@ class _ColorbarAxesLocator:
         # make tight_layout happy..
         ss = getattr(self._cbar.ax, 'get_subplotspec', None)
         if ss is None:
-            if self._orig_locator is None:
+            if not hasattr(self._orig_locator, "get_subplotspec"):
                 return None
-            ss = self._orig_locator.get_subplotspec()
-        else:
-            ss = ss()
-        return ss
+            ss = self._orig_locator.get_subplotspec
+        return ss()
 
 
 class Colorbar:
