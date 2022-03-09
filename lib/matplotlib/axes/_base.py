@@ -2975,7 +2975,11 @@ class _AxesBase(martist.Artist):
                         or ax.xaxis.get_label_position() == 'top'):
                     bb = ax.xaxis.get_tightbbox(renderer)
                 if bb is None:
-                    bb = ax.get_window_extent(renderer)
+                    if 'outline' in ax.spines:
+                        # Special case for colorbars:
+                        bb = ax.spines['outline'].get_window_extent()
+                    else:
+                        bb = ax.get_window_extent(renderer)
                 top = max(top, bb.ymax)
                 if title.get_text():
                     ax.yaxis.get_tightbbox(renderer)  # update offsetText
