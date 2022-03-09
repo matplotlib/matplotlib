@@ -39,7 +39,7 @@ class LayoutGrid:
         self.parent_pos = parent_pos
         self.parent_inner = parent_inner
         self.name = name + seq_id()
-        if parent is not None:
+        if isinstance(parent, LayoutGrid):
             self.name = f'{parent.name}.{self.name}'
         self.nrows = nrows
         self.ncols = ncols
@@ -51,8 +51,10 @@ class LayoutGrid:
             self.width_ratios = np.ones(ncols)
 
         sn = self.name + '_'
-        if parent is None:
-            self.parent = None
+        if not isinstance(parent, LayoutGrid):
+            # parent can be a rect if not a LayoutGrid
+            # allows specifying a rectangle to contain the layout.
+            self.parent = parent
             self.solver = kiwi.Solver()
         else:
             self.parent = parent
@@ -178,12 +180,13 @@ class LayoutGrid:
         # parent's left, the last column right equal to the
         # parent's right...
         parent = self.parent
-        if parent is None:
-            hc = [self.lefts[0] == 0,
-                  self.rights[-1] == 1,
+        if not isinstance(parent, LayoutGrid):
+            # specify a rectangle in figure coordinates
+            hc = [self.lefts[0] == parent[0],
+                  self.rights[-1] == parent[0] + parent[2],
                   # top and bottom reversed order...
-                  self.tops[0] == 1,
-                  self.bottoms[-1] == 0]
+                  self.tops[0] == parent[1] + parent[3],
+                  self.bottoms[-1] == parent[1]]
         else:
             rows, cols = self.parent_pos
             rows = np.atleast_1d(rows)
