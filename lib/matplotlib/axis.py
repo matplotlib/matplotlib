@@ -2380,8 +2380,13 @@ class YAxis(Axis):
         Update the offset_text position based on the sequence of bounding
         boxes of all the ticklabels
         """
-        x, y = self.offsetText.get_position()
-        top = self.axes.bbox.ymax
+        x, _ = self.offsetText.get_position()
+        if 'outline' in self.axes.spines:
+            # Special case for colorbars:
+            bbox = self.axes.spines['outline'].get_window_extent()
+        else:
+            bbox = self.axes.bbox
+        top = bbox.ymax
         self.offsetText.set_position(
             (x, top + self.OFFSETTEXTPAD * self.figure.dpi / 72)
         )
