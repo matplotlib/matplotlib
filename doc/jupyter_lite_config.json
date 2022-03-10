@@ -1,0 +1,5 @@
+{
+    "XeusPythonEnv": {
+        "packages": ["numpy", "matplotlib", "ipympl"]
+    }
+}

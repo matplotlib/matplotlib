@@ -99,6 +99,27 @@ Learn
                 - figures: `.pyplot.figure`
                 - subplots: `.pyplot.subplots`, `.pyplot.subplot_mosaic`
 
+Live example
+============
+
+Try Matplotlib directly in this documentation!
+
+.. replite::
+    :kernel: python
+    :height: 600px
+    :prompt: Try Matplotlib!
+    :execute: False
+
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    x = np.linspace(0, 2 * np.pi, 200)
+    y = np.sin(x)
+
+    fig, ax = plt.subplots()
+    ax.plot(x, y)
+    plt.show()
+
 Community
 =========
 
