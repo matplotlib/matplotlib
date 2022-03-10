@@ -3,7 +3,7 @@ import codecs
 import datetime
 import gzip
 import hashlib
-from io import BytesIO, StringIO
+from io import BytesIO
 import itertools
 import logging
 import os
@@ -248,7 +248,7 @@ class XMLWriter:
 
 
 def _generate_transform(transform_list):
-    output = StringIO()
+    parts = []
     for type, value in transform_list:
         if (type == 'scale' and (value == (1,) or value == (1, 1))
                 or type == 'translate' and value == (0, 0)
@@ -256,9 +256,9 @@ def _generate_transform(transform_list):
             continue
         if type == 'matrix' and isinstance(value, Affine2DBase):
             value = value.to_values()
-        output.write('%s(%s)' % (
+        parts.append('%s(%s)' % (
             type, ' '.join(short_float_fmt(x) for x in value)))
-    return output.getvalue()
+    return ' '.join(parts)
 
 
 @_api.deprecated("3.6")
