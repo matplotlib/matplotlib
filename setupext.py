@@ -709,10 +709,10 @@ class FreeType(SetupPackage):
             # Be robust against change of FreeType version.
             lib_paths = Path(src_path / "objs").rglob('freetype*.lib')
             # Select FreeType library for required platform
-            lib_path = next(
+            lib_path, = [
                 p for p in lib_paths
                 if msbuild_platform in p.resolve().as_uri()
-            )
+            ]
             print(f"Copying {lib_path} to {src_path}/objs/.libs/libfreetype.lib")
             shutil.copy2(lib_path, src_path / "objs/.libs/libfreetype.lib")
 
