@@ -42,6 +42,8 @@ dependencies:
       - mpl-sphinx-theme
       - sphinxcontrib-svg2pdfconverter
       - pikepdf
+      - jupyterlite-sphinx>=0.7.0
+      - jupyterlite-xeus-python>=0.5.0
   # testing
   - coverage
   - flake8>=3.8
