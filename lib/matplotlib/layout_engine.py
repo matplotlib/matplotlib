@@ -34,7 +34,7 @@ class LayoutEngine:
     layout engine ``execute`` function is called at draw time by
     `~.figure.Figure.draw`, providing a special draw-time hook.
 
-    .. note ::
+    .. note::
 
        However, note that layout engines affect the creation of colorbars, so
        `~.figure.Figure.set_layout_engine` should be called before any
