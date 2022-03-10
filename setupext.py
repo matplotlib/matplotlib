@@ -656,9 +656,15 @@ class FreeType(SetupPackage):
         else:  # compilation on windows
             shutil.rmtree(src_path / "objs", ignore_errors=True)
             is_x64 = platform.architecture()[0] == '64bit'
-            msbuild_platform = (
-                'ARM64' if platform.machine() == 'ARM64' else 'x64' if is_x64 else 'Win32')
-            base_path = Path("build/freetype-{}/builds/windows".format(LOCAL_FREETYPE_VERSION))
+            if platform.machine() == 'ARM64':
+                msbuild_platform = 'ARM64'
+            elif is_x64:
+                msbuild_platform = 'x64'
+            else:
+                msbuild_platform = 'Win32'
+            base_path = Path(
+                f"build/freetype-{LOCAL_FREETYPE_VERSION}/builds/windows"
+            )
             vc = 'vc2010'
             sln_path = (
                 base_path / vc / "freetype.sln"
@@ -702,14 +708,13 @@ class FreeType(SetupPackage):
             (src_path / "objs" / ".libs").mkdir()
             # Be robust against change of FreeType version.
             lib_paths = Path(src_path / "objs").rglob('freetype*.lib')
-            libfreetype_file = None
-            for lib_path in lib_paths:
-                # check if freetype.lib in required platform directory
-                if msbuild_platform in lib_path.resolve().as_uri():
-                    libfreetype_file = lib_path
-                    continue
-            print("Copying {} to {}".format(lib_path.resolve(), src_path / "objs/.libs/libfreetype.lib"))
-            shutil.copy2(libfreetype_file, src_path / "objs/.libs/libfreetype.lib")
+            # Select FreeType library for required platform
+            lib_path = next(
+                p for p in lib_paths
+                if msbuild_platform in p.resolve().as_uri()
+            )
+            print(f"Copying {lib_path} to {src_path}/objs/.libs/libfreetype.lib")
+            shutil.copy2(lib_path, src_path / "objs/.libs/libfreetype.lib")
 
 
 class Qhull(SetupPackage):
