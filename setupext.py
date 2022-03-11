@@ -697,13 +697,15 @@ class FreeType(SetupPackage):
             # Freetype 2.10.0+ support static builds.
             msbuild_config = (
                 "Release Static"
-                if version.parse(LOCAL_FREETYPE_VERSION) >= version.parse("2.10.0")
+                if version.parse(LOCAL_FREETYPE_VERSION) >=
+                   version.parse("2.10.0")
                 else "Release"
             )
 
             cc.spawn(["msbuild", str(sln_path),
                       "/t:Clean;Build",
-                      f"/p:Configuration={msbuild_config};Platform={msbuild_platform}"])
+                      f"/p:Configuration={msbuild_config};"
+                      f"Platform={msbuild_platform}"])
             # Move to the corresponding Unix build path.
             (src_path / "objs" / ".libs").mkdir()
             # Be robust against change of FreeType version.
@@ -713,7 +715,9 @@ class FreeType(SetupPackage):
                 p for p in lib_paths
                 if msbuild_platform in p.resolve().as_uri()
             ]
-            print(f"Copying {lib_path} to {src_path}/objs/.libs/libfreetype.lib")
+            print(
+                f"Copying {lib_path} to {src_path}/objs/.libs/libfreetype.lib"
+            )
             shutil.copy2(lib_path, src_path / "objs/.libs/libfreetype.lib")
 
 
