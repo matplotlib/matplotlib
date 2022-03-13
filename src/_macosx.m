@@ -1205,7 +1205,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     const size_t bitsPerPixel = bitsPerComponent * nComponents;
     const size_t bytesPerRow = nComponents * bytesPerComponent * ncols;
 
-    CGColorSpaceRef colorspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+    CGColorSpaceRef colorspace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
     if (!colorspace) {
         _buffer_release(buffer, NULL, 0);
         return 1;
