@@ -1,0 +1,5 @@
+MacOSX backend to use sRGB instead of GenericRGB colorspace
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+MacOSX backend now display sRGB tagged image instead of GenericRGB which is
+an older (now deprecated) Apple colorspace. This is the source colorspace
+used by ColorSync to convert to the current display profile.
