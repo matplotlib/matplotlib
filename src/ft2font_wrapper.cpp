@@ -291,7 +291,7 @@ exit:
             return 1;  // Non-zero signals error, when count == 0.
         }
     }
-    return PyLong_AsUnsignedLong(PyLong_FromSsize_t(n_read));
+    return (unsigned long)n_read;
 }
 
 static void close_file_callback(FT_Stream stream)
