@@ -417,6 +417,7 @@ class Colorbar:
         self._filled = filled
         self.extendfrac = extendfrac
         self.extendrect = extendrect
+        self._extend_patches = []
         self.solids = None
         self.solids_patches = []
         self.lines = []
@@ -483,6 +484,11 @@ class Colorbar:
             setattr(self.ax, x, getattr(self, x))
         # Set the cla function to the cbar's method to override it
         self.ax.cla = self._cbar_cla
+        # Callbacks for the extend calculations to handle inverting the axis
+        self._extend_cid1 = self.ax.callbacks.connect(
+            "xlim_changed", self._do_extends)
+        self._extend_cid2 = self.ax.callbacks.connect(
+            "ylim_changed", self._do_extends)
 
     @property
     def locator(self):
@@ -598,17 +604,20 @@ class Colorbar:
         # extensions:
         self.vmin, self.vmax = self._boundaries[self._inside][[0, -1]]
         # Compute the X/Y mesh.
-        X, Y, extendlen = self._mesh()
+        X, Y = self._mesh()
         # draw the extend triangles, and shrink the inner axes to accommodate.
         # also adds the outline path to self.outline spine:
-        self._do_extends(extendlen)
-
+        self._do_extends()
+        lower, upper = self.vmin, self.vmax
+        if self._long_axis().get_inverted():
+            # If the axis is inverted, we need to swap the vmin/vmax
+            lower, upper = upper, lower
         if self.orientation == 'vertical':
             self.ax.set_xlim(0, 1)
-            self.ax.set_ylim(self.vmin, self.vmax)
+            self.ax.set_ylim(lower, upper)
         else:
             self.ax.set_ylim(0, 1)
-            self.ax.set_xlim(self.vmin, self.vmax)
+            self.ax.set_xlim(lower, upper)
 
         # set up the tick locators and formatters.  A bit complicated because
         # boundary norms + uniform spacing requires a manual locator.
@@ -661,12 +670,19 @@ class Colorbar:
             patches.append(patch)
         self.solids_patches = patches
 
-    def _do_extends(self, extendlen):
+    def _do_extends(self, ax=None):
         """
         Add the extend tri/rectangles on the outside of the axes.
+
+        ax is unused, but required due to the callbacks on xlim/ylim changed
         """
+        # Clean up any previous extend patches
+        for patch in self._extend_patches:
+            patch.remove()
+        self._extend_patches = []
         # extend lengths are fraction of the *inner* part of colorbar,
         # not the total colorbar:
+        _, extendlen = self._proportional_y()
         bot = 0 - (extendlen[0] if self._extend_lower() else 0)
         top = 1 + (extendlen[1] if self._extend_upper() else 0)
 
@@ -708,12 +724,17 @@ class Colorbar:
             if self.orientation == 'horizontal':
                 xy = xy[:, ::-1]
             # add the patch
-            color = self.cmap(self.norm(self._values[0]))
+            val = -1 if self._long_axis().get_inverted() else 0
+            color = self.cmap(self.norm(self._values[val]))
             patch = mpatches.PathPatch(
                 mpath.Path(xy), facecolor=color, linewidth=0,
                 antialiased=False, transform=self.ax.transAxes,
-                hatch=hatches[0], clip_on=False)
+                hatch=hatches[0], clip_on=False,
+                # Place it right behind the standard patches, which is
+                # needed if we updated the extends
+                zorder=np.nextafter(self.ax.patch.zorder, -np.inf))
             self.ax.add_patch(patch)
+            self._extend_patches.append(patch)
         if self._extend_upper():
             if not self.extendrect:
                 # triangle
@@ -724,12 +745,17 @@ class Colorbar:
             if self.orientation == 'horizontal':
                 xy = xy[:, ::-1]
             # add the patch
-            color = self.cmap(self.norm(self._values[-1]))
+            val = 0 if self._long_axis().get_inverted() else -1
+            color = self.cmap(self.norm(self._values[val]))
             patch = mpatches.PathPatch(
                 mpath.Path(xy), facecolor=color,
                 linewidth=0, antialiased=False,
-                transform=self.ax.transAxes, hatch=hatches[-1], clip_on=False)
+                transform=self.ax.transAxes, hatch=hatches[-1], clip_on=False,
+                # Place it right behind the standard patches, which is
+                # needed if we updated the extends
+                zorder=np.nextafter(self.ax.patch.zorder, -np.inf))
             self.ax.add_patch(patch)
+            self._extend_patches.append(patch)
         return
 
     def add_lines(self, *args, **kwargs):
@@ -1049,6 +1075,9 @@ class Colorbar:
         self.mappable.callbacks.disconnect(self.mappable.colorbar_cid)
         self.mappable.colorbar = None
         self.mappable.colorbar_cid = None
+        # Remove the extension callbacks
+        self.ax.callbacks.disconnect(self._extend_cid1)
+        self.ax.callbacks.disconnect(self._extend_cid2)
 
         try:
             ax = self.mappable.axes
@@ -1151,7 +1180,7 @@ class Colorbar:
         These are scaled between vmin and vmax, and already handle colorbar
         orientation.
         """
-        y, extendlen = self._proportional_y()
+        y, _ = self._proportional_y()
         # Use the vmin and vmax of the colorbar, which may not be the same
         # as the norm. There are situations where the colormap has a
         # narrower range than the colorbar and we want to accommodate the
@@ -1172,9 +1201,9 @@ class Colorbar:
         self._y = y
         X, Y = np.meshgrid([0., 1.], y)
         if self.orientation == 'vertical':
-            return (X, Y, extendlen)
+            return (X, Y)
         else:
-            return (Y, X, extendlen)
+            return (Y, X)
 
     def _forward_boundaries(self, x):
         # map boundaries equally between 0 and 1...
@@ -1322,11 +1351,13 @@ class Colorbar:
 
     def _extend_lower(self):
         """Return whether the lower limit is open ended."""
-        return self.extend in ('both', 'min')
+        minmax = "max" if self._long_axis().get_inverted() else "min"
+        return self.extend in ('both', minmax)
 
     def _extend_upper(self):
         """Return whether the upper limit is open ended."""
-        return self.extend in ('both', 'max')
+        minmax = "min" if self._long_axis().get_inverted() else "max"
+        return self.extend in ('both', minmax)
 
     def _long_axis(self):
         """Return the long axis"""
