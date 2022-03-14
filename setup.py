@@ -304,6 +304,7 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         "numpy>=1.19",
         "setuptools_scm>=4",
         "setuptools_scm_git_archive",
+        "packaging>=20.0",
     ],
     install_requires=[
         "cycler>=0.10",

@@ -14,8 +14,8 @@ import sysconfig
 import tarfile
 import textwrap
 import urllib.request
-from packaging import version
 
+from packaging import version
 from setuptools import Distribution, Extension
 
 _log = logging.getLogger(__name__)
