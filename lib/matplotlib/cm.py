@@ -130,7 +130,7 @@ class ColormapRegistry(Mapping):
         try:
             return self._cmaps[item].copy()
         except KeyError:
-            raise KeyError(f"{item!r} is not a known colormap name")
+            raise KeyError(f"{item!r} is not a known colormap name") from None
 
     def __iter__(self):
         return iter(self._cmaps)
