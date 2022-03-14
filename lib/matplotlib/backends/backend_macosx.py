@@ -152,6 +152,7 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
 
     def close(self):
         Gcf.destroy(self)
+        self.canvas.flush_events()
 
 
 @_Backend.export
