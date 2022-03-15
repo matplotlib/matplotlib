@@ -1014,7 +1014,7 @@ class Axes(_AxesBase):
 
         xmin, xmax : float or array-like
             Respective beginning and end of each line. If scalars are
-            provided, all lines will have same length.
+            provided, all lines will have the same length.
 
         colors : list of colors, default: :rc:`lines.color`
 
@@ -1093,7 +1093,7 @@ class Axes(_AxesBase):
 
         ymin, ymax : float or array-like
             Respective beginning and end of each line. If scalars are
-            provided, all lines will have same length.
+            provided, all lines will have the same length.
 
         colors : list of colors, default: :rc:`lines.color`
 
