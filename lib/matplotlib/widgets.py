@@ -16,8 +16,8 @@ from numbers import Integral, Number
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import docstring
-from . import _api, backend_tools, cbook, colors, ticker, transforms
+from . import (_api, _docstring, backend_tools, cbook, colors, ticker,
+               transforms)
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
 from .transforms import TransformedPatchPath, Affine2D
@@ -2844,7 +2844,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     """
 
 
-@docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING.replace(
+@_docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING.replace(
     '__ARTIST_NAME__', 'rectangle'))
 class RectangleSelector(_SelectorWidget):
     """
@@ -3404,7 +3404,7 @@ class RectangleSelector(_SelectorWidget):
             return np.array(self._selection_artist.get_data())
 
 
-@docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING.replace(
+@_docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING.replace(
     '__ARTIST_NAME__', 'ellipse'))
 class EllipseSelector(RectangleSelector):
     """

@@ -24,7 +24,7 @@ import matplotlib.path as mpath
 import matplotlib.scale as mscale
 import matplotlib.spines as mspines
 import matplotlib.transforms as mtransforms
-from matplotlib import docstring
+from matplotlib import _docstring
 
 _log = logging.getLogger(__name__)
 
@@ -117,7 +117,7 @@ boundaries, values : None or a sequence
     unusual circumstances.
 """
 
-docstring.interpd.update(colorbar_doc="""
+_docstring.interpd.update(colorbar_doc="""
 Add a colorbar to a plot.
 
 Parameters
@@ -268,7 +268,7 @@ class _ColorbarAxesLocator:
         return ss()
 
 
-@docstring.Substitution(_colormap_kw_doc)
+@_docstring.Substitution(_colormap_kw_doc)
 class Colorbar:
     r"""
     Draw a colorbar in an existing axes.
@@ -1426,7 +1426,7 @@ def _normalize_location_orientation(location, orientation):
     return loc_settings
 
 
-@docstring.Substitution(_make_axes_kw_doc)
+@_docstring.Substitution(_make_axes_kw_doc)
 def make_axes(parents, location=None, orientation=None, fraction=0.15,
               shrink=1.0, aspect=20, **kwargs):
     """
@@ -1528,7 +1528,7 @@ def make_axes(parents, location=None, orientation=None, fraction=0.15,
     return cax, kwargs
 
 
-@docstring.Substitution(_make_axes_kw_doc)
+@_docstring.Substitution(_make_axes_kw_doc)
 def make_axes_gridspec(parent, *, location=None, orientation=None,
                        fraction=0.15, shrink=1.0, aspect=20, **kwargs):
     """

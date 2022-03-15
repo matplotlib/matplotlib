@@ -106,7 +106,7 @@ from packaging.version import parse as parse_version
 
 # cbook must import matplotlib only within function
 # definitions, so it is safe to import from it here.
-from . import _api, _version, cbook, docstring, rcsetup
+from . import _api, _version, cbook, _docstring, rcsetup
 from matplotlib.cbook import sanitize_sequence
 from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.rcsetup import validate_backend, cycler
@@ -593,7 +593,7 @@ _deprecated_ignore_map = {}
 _deprecated_remain_as_none = {}
 
 
-@docstring.Substitution(
+@_docstring.Substitution(
     "\n".join(map("- {}".format, sorted(rcsetup._validators, key=str.lower)))
 )
 class RcParams(MutableMapping, dict):

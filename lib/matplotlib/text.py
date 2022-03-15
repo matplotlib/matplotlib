@@ -11,7 +11,7 @@ import weakref
 import numpy as np
 
 import matplotlib as mpl
-from . import _api, artist, cbook, docstring
+from . import _api, artist, cbook, _docstring
 from .artist import Artist
 from .font_manager import FontProperties
 from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
@@ -105,7 +105,7 @@ def _get_text_metrics_with_cache_impl(
     return renderer_ref().get_text_width_height_descent(text, fontprop, ismath)
 
 
-@docstring.interpd
+@_docstring.interpd
 @_api.define_aliases({
     "color": ["c"],
     "fontfamily": ["family"],
@@ -2015,4 +2015,4 @@ class Annotation(Text, _AnnotationBase):
         return super().get_tightbbox(renderer)
 
 
-docstring.interpd.update(Annotation=Annotation.__init__.__doc__)
+_docstring.interpd.update(Annotation=Annotation.__init__.__doc__)

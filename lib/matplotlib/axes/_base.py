@@ -12,7 +12,7 @@ import types
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cbook, docstring, offsetbox
+from matplotlib import _api, cbook, _docstring, offsetbox
 import matplotlib.artist as martist
 import matplotlib.axis as maxis
 from matplotlib.cbook import _OrderedSet, _check_1d, index_of
@@ -3182,7 +3182,7 @@ class _AxesBase(martist.Artist):
             axis.set_zorder(zorder)
         self.stale = True
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     @_api.rename_parameter("3.5", "b", "visible")
     def grid(self, visible=None, which='major', axis='both', **kwargs):
         """

@@ -20,7 +20,7 @@ import weakref
 import numpy as np
 from numpy import ma
 
-from matplotlib import _api, cbook, docstring, font_manager
+from matplotlib import _api, cbook, _docstring, font_manager
 import matplotlib.artist as martist
 import matplotlib.collections as mcollections
 from matplotlib.patches import CirclePolygon
@@ -201,9 +201,9 @@ Returns
 See Also
 --------
 .Axes.quiverkey : Add a key to a quiver plot.
-""" % docstring.interpd.params
+""" % _docstring.interpd.params
 
-docstring.interpd.update(quiver_doc=_quiver_doc)
+_docstring.interpd.update(quiver_doc=_quiver_doc)
 
 
 class QuiverKey(martist.Artist):
@@ -467,7 +467,7 @@ class Quiver(mcollections.PolyCollection):
 
     _PIVOT_VALS = ('tail', 'middle', 'tip')
 
-    @docstring.Substitution(_quiver_doc)
+    @_docstring.Substitution(_quiver_doc)
     def __init__(self, ax, *args,
                  scale=None, headwidth=3, headlength=5, headaxislength=4.5,
                  minshaft=1, minlength=1, units='width', scale_units=None,
@@ -883,9 +883,9 @@ data : indexable object, optional
     arguments:
 
     %(PolyCollection:kwdoc)s
-""" % docstring.interpd.params
+""" % _docstring.interpd.params
 
-docstring.interpd.update(barbs_doc=_barbs_doc)
+_docstring.interpd.update(barbs_doc=_barbs_doc)
 
 
 class Barbs(mcollections.PolyCollection):
@@ -905,7 +905,7 @@ class Barbs(mcollections.PolyCollection):
     # This may be an abuse of polygons here to render what is essentially maybe
     # 1 triangle and a series of lines.  It works fine as far as I can tell
     # however.
-    @docstring.interpd
+    @_docstring.interpd
     def __init__(self, ax, *args,
                  pivot='tip', length=7, barbcolor=None, flagcolor=None,
                  sizes=None, fill_empty=False, barb_increments=None,

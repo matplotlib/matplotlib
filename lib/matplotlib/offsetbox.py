@@ -24,7 +24,7 @@ Container classes for `.Artist`\s.
 
 import numpy as np
 
-from matplotlib import _api, docstring, rcParams
+from matplotlib import _api, _docstring, rcParams
 import matplotlib.artist as martist
 import matplotlib.path as mpath
 import matplotlib.text as mtext
@@ -1278,7 +1278,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
     def __str__(self):
         return "AnnotationBbox(%g,%g)" % (self.xy[0], self.xy[1])
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, offsetbox, xy,
                  xybox=None,
                  xycoords='data',

@@ -17,7 +17,7 @@ import warnings
 import numpy as np
 
 import matplotlib as mpl
-from . import (_api, _path, artist, cbook, cm, colors as mcolors, docstring,
+from . import (_api, _path, artist, cbook, cm, colors as mcolors, _docstring,
                hatch as mhatch, lines as mlines, path as mpath, transforms)
 from ._enums import JoinStyle, CapStyle
 
@@ -75,7 +75,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     # subclass-by-subclass basis.
     _edge_default = False
 
-    @docstring.interpd
+    @_docstring.interpd
     def __init__(self,
                  edgecolors=None,
                  facecolors=None,
@@ -630,7 +630,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._linewidths, self._linestyles = self._bcast_lwls(
             self._us_lw, self._us_linestyles)
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_capstyle(self, cs):
         """
         Set the `.CapStyle` for the collection (for all its elements).
@@ -644,7 +644,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def get_capstyle(self):
         return self._capstyle.name
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_joinstyle(self, js):
         """
         Set the `.JoinStyle` for the collection (for all its elements).

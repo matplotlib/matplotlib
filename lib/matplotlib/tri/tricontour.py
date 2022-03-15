@@ -1,11 +1,11 @@
 import numpy as np
 
-from matplotlib import docstring
+from matplotlib import _docstring
 from matplotlib.contour import ContourSet
 from matplotlib.tri.triangulation import Triangulation
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 class TriContourSet(ContourSet):
     """
     Create and store a set of contour lines or filled regions for
@@ -81,7 +81,7 @@ class TriContourSet(ContourSet):
         return (tri, z)
 
 
-docstring.interpd.update(_tricontour_doc="""
+_docstring.interpd.update(_tricontour_doc="""
 Draw contour %(type)s on an unstructured triangular grid.
 
 The triangulation can be specified in one of two ways; either ::
@@ -252,8 +252,8 @@ antialiased : bool, optional
     it is taken from :rc:`lines.antialiased`.""")
 
 
-@docstring.Substitution(func='tricontour', type='lines')
-@docstring.dedent_interpd
+@_docstring.Substitution(func='tricontour', type='lines')
+@_docstring.dedent_interpd
 def tricontour(ax, *args, **kwargs):
     """
     %(_tricontour_doc)s
@@ -281,8 +281,8 @@ def tricontour(ax, *args, **kwargs):
     return TriContourSet(ax, *args, **kwargs)
 
 
-@docstring.Substitution(func='tricontourf', type='regions')
-@docstring.dedent_interpd
+@_docstring.Substitution(func='tricontourf', type='regions')
+@_docstring.dedent_interpd
 def tricontourf(ax, *args, **kwargs):
     """
     %(_tricontour_doc)s

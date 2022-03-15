@@ -18,7 +18,7 @@ import textwrap
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, docstring
+from matplotlib import _api, _docstring
 from matplotlib.ticker import (
     NullFormatter, ScalarFormatter, LogFormatterSciNotation, LogitFormatter,
     NullLocator, LogLocator, AutoLocator, AutoMinorLocator,
@@ -747,7 +747,7 @@ def _get_scale_docs():
     return "\n".join(docs)
 
 
-docstring.interpd.update(
+_docstring.interpd.update(
     scale_type='{%s}' % ', '.join([repr(x) for x in get_scale_names()]),
     scale_docs=_get_scale_docs().rstrip(),
     )

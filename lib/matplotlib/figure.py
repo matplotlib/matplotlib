@@ -23,7 +23,7 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _blocking_input, docstring, projections
+from matplotlib import _blocking_input, _docstring, projections
 from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
@@ -377,27 +377,27 @@ default: %(va)s
         self.stale = True
         return suplab
 
-    @docstring.Substitution(x0=0.5, y0=0.98, name='suptitle', ha='center',
-                            va='top')
-    @docstring.copy(_suplabels)
+    @_docstring.Substitution(x0=0.5, y0=0.98, name='suptitle', ha='center',
+                             va='top')
+    @_docstring.copy(_suplabels)
     def suptitle(self, t, **kwargs):
         # docstring from _suplabels...
         info = {'name': '_suptitle', 'x0': 0.5, 'y0': 0.98,
                 'ha': 'center', 'va': 'top', 'rotation': 0}
         return self._suplabels(t, info, **kwargs)
 
-    @docstring.Substitution(x0=0.5, y0=0.01, name='supxlabel', ha='center',
-                            va='bottom')
-    @docstring.copy(_suplabels)
+    @_docstring.Substitution(x0=0.5, y0=0.01, name='supxlabel', ha='center',
+                             va='bottom')
+    @_docstring.copy(_suplabels)
     def supxlabel(self, t, **kwargs):
         # docstring from _suplabels...
         info = {'name': '_supxlabel', 'x0': 0.5, 'y0': 0.01,
                 'ha': 'center', 'va': 'bottom', 'rotation': 0}
         return self._suplabels(t, info, **kwargs)
 
-    @docstring.Substitution(x0=0.02, y0=0.5, name='supylabel', ha='left',
-                            va='center')
-    @docstring.copy(_suplabels)
+    @_docstring.Substitution(x0=0.02, y0=0.5, name='supylabel', ha='left',
+                             va='center')
+    @_docstring.copy(_suplabels)
     def supylabel(self, t, **kwargs):
         # docstring from _suplabels...
         info = {'name': '_supylabel', 'x0': 0.02, 'y0': 0.5,
@@ -507,7 +507,7 @@ default: %(va)s
         self.stale = True
         return artist
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def add_axes(self, *args, **kwargs):
         """
         Add an Axes to the figure.
@@ -620,7 +620,7 @@ default: %(va)s
             key = (projection_class, pkw)
         return self._add_axes_internal(a, key)
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def add_subplot(self, *args, **kwargs):
         """
         Add an `~.axes.Axes` to the figure as part of a subplot arrangement.
@@ -917,7 +917,7 @@ default: %(va)s
     # calls to legend() allow replacing it with figlegend() to generate the
     # docstring of pyplot.figlegend.
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def legend(self, *args, **kwargs):
         """
         Place a legend on the figure.
@@ -1052,7 +1052,7 @@ default: %(va)s
         self.stale = True
         return l
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def text(self, x, y, s, fontdict=None, **kwargs):
         """
         Add text to figure.
@@ -1102,7 +1102,7 @@ default: %(va)s
         self.stale = True
         return text
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def colorbar(
             self, mappable, cax=None, ax=None, use_gridspec=True, **kwargs):
         """%(colorbar_doc)s"""
@@ -1458,7 +1458,7 @@ default: %(va)s
         self._axobservers.process("_axes_change_event", self)
         return a
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def gca(self, **kwargs):
         """
         Get the current Axes.
@@ -1907,7 +1907,7 @@ default: %(va)s
         a.set_transform(self.transSubfigure)
 
 
-@docstring.interpd
+@_docstring.interpd
 class SubFigure(FigureBase):
     """
     Logical figure that can be placed inside a figure.
@@ -2098,7 +2098,7 @@ class SubFigure(FigureBase):
             self.stale = False
 
 
-@docstring.interpd
+@_docstring.interpd
 class Figure(FigureBase):
     """
     The top level container for all the plot elements.

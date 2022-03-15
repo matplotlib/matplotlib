@@ -13,7 +13,6 @@ import matplotlib.collections as mcoll
 import matplotlib.colors as mcolors
 import matplotlib.contour as mcontour
 import matplotlib.dates  # Register date unit converter as side-effect.
-import matplotlib.docstring as docstring
 import matplotlib.image as mimage
 import matplotlib.legend as mlegend
 import matplotlib.lines as mlines
@@ -30,7 +29,7 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 import matplotlib.units as munits
-from matplotlib import _api, _preprocess_data, rcParams
+from matplotlib import _api, _docstring, _preprocess_data, rcParams
 from matplotlib.axes._base import (
     _AxesBase, _TransformedBoundsLocator, _process_plot_format)
 from matplotlib.axes._secondary_axes import SecondaryAxis
@@ -43,7 +42,7 @@ _log = logging.getLogger(__name__)
 # All the other methods should go in the _AxesBase class.
 
 
-@docstring.interpd
+@_docstring.interpd
 class Axes(_AxesBase):
     """
     The `Axes` contains most of the figure elements: `~.axis.Axis`,
@@ -183,7 +182,7 @@ class Axes(_AxesBase):
             [self], legend_handler_map)
         return handles, labels
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def legend(self, *args, **kwargs):
         """
         Place a legend on the Axes.
@@ -367,7 +366,7 @@ class Axes(_AxesBase):
 
         return inset_ax
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def indicate_inset(self, bounds, inset_ax=None, *, transform=None,
                        facecolor='none', edgecolor='0.5', alpha=0.5,
                        zorder=4.99, **kwargs):
@@ -519,7 +518,7 @@ class Axes(_AxesBase):
         rect = (xlim[0], ylim[0], xlim[1] - xlim[0], ylim[1] - ylim[0])
         return self.indicate_inset(rect, inset_ax, **kwargs)
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def secondary_xaxis(self, location, *, functions=None, **kwargs):
         """
         Add a second x-axis to this Axes.
@@ -561,7 +560,7 @@ class Axes(_AxesBase):
             raise ValueError('secondary_xaxis location must be either '
                              'a float or "top"/"bottom"')
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def secondary_yaxis(self, location, *, functions=None, **kwargs):
         """
         Add a second y-axis to this Axes.
@@ -593,7 +592,7 @@ class Axes(_AxesBase):
             raise ValueError('secondary_yaxis location must be either '
                              'a float or "left"/"right"')
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def text(self, x, y, s, fontdict=None, **kwargs):
         """
         Add text to the Axes.
@@ -661,7 +660,7 @@ class Axes(_AxesBase):
         self._add_text(t)
         return t
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def annotate(self, text, xy, xytext=None, xycoords='data', textcoords=None,
                  arrowprops=None, annotation_clip=None, **kwargs):
         # Signature must match Annotation. This is verified in
@@ -677,7 +676,7 @@ class Axes(_AxesBase):
     annotate.__doc__ = mtext.Annotation.__init__.__doc__
     #### Lines and spans
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def axhline(self, y=0, xmin=0, xmax=1, **kwargs):
         """
         Add a horizontal line across the Axes.
@@ -745,7 +744,7 @@ class Axes(_AxesBase):
             self._request_autoscale_view("y")
         return l
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def axvline(self, x=0, ymin=0, ymax=1, **kwargs):
         """
         Add a vertical line across the Axes.
@@ -821,7 +820,7 @@ class Axes(_AxesBase):
                 raise ValueError(f"{name} must be a single scalar value, "
                                  f"but got {val}")
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def axline(self, xy1, xy2=None, *, slope=None, **kwargs):
         """
         Add an infinitely long straight line.
@@ -895,7 +894,7 @@ class Axes(_AxesBase):
         self._request_autoscale_view()
         return line
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def axhspan(self, ymin, ymax, xmin=0, xmax=1, **kwargs):
         """
         Add a horizontal span (rectangle) across the Axes.
@@ -943,7 +942,7 @@ class Axes(_AxesBase):
         self._request_autoscale_view("y")
         return p
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def axvspan(self, xmin, xmax, ymin=0, ymax=1, **kwargs):
         """
         Add a vertical span (rectangle) across the Axes.
@@ -1160,7 +1159,7 @@ class Axes(_AxesBase):
     @_preprocess_data(replace_names=["positions", "lineoffsets",
                                      "linelengths", "linewidths",
                                      "colors", "linestyles"])
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def eventplot(self, positions, orientation='horizontal', lineoffsets=1,
                   linelengths=1, linewidths=None, colors=None,
                   linestyles='solid', **kwargs):
@@ -1392,7 +1391,7 @@ class Axes(_AxesBase):
 
     # Uses a custom implementation of data-kwarg handling in
     # _process_plot_var_args.
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def plot(self, *args, scalex=True, scaley=True, data=None, **kwargs):
         """
         Plot y versus x as lines and/or markers.
@@ -1646,7 +1645,7 @@ class Axes(_AxesBase):
         return lines
 
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def plot_date(self, x, y, fmt='o', tz=None, xdate=True, ydate=False,
                   **kwargs):
         """
@@ -1727,7 +1726,7 @@ class Axes(_AxesBase):
         return self.plot(x, y, fmt, **kwargs)
 
     # @_preprocess_data() # let 'plot' do the unpacking..
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def loglog(self, *args, **kwargs):
         """
         Make a plot with log scaling on both the x and y axis.
@@ -1781,7 +1780,7 @@ class Axes(_AxesBase):
             *args, **{k: v for k, v in kwargs.items() if k not in {*dx, *dy}})
 
     # @_preprocess_data() # let 'plot' do the unpacking..
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def semilogx(self, *args, **kwargs):
         """
         Make a plot with log scaling on the x axis.
@@ -1828,7 +1827,7 @@ class Axes(_AxesBase):
             *args, **{k: v for k, v in kwargs.items() if k not in d})
 
     # @_preprocess_data() # let 'plot' do the unpacking..
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def semilogy(self, *args, **kwargs):
         """
         Make a plot with log scaling on the y axis.
@@ -2179,7 +2178,7 @@ class Axes(_AxesBase):
         return dx
 
     @_preprocess_data()
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def bar(self, x, height, width=0.8, bottom=None, *, align="center",
             **kwargs):
         r"""
@@ -2456,7 +2455,7 @@ class Axes(_AxesBase):
 
         return bar_container
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def barh(self, y, width, height=0.8, left=None, *, align="center",
              **kwargs):
         r"""
@@ -2690,7 +2689,7 @@ class Axes(_AxesBase):
         return annotations
 
     @_preprocess_data()
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def broken_barh(self, xranges, yrange, **kwargs):
         """
         Plot a horizontal sequence of rectangles.
@@ -3168,7 +3167,7 @@ class Axes(_AxesBase):
 
     @_preprocess_data(replace_names=["x", "y", "xerr", "yerr"],
                       label_namer="y")
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def errorbar(self, x, y, yerr=None, xerr=None,
                  fmt='', ecolor=None, elinewidth=None, capsize=None,
                  barsabove=False, lolims=False, uplims=False,
@@ -4522,7 +4521,7 @@ default: :rc:`scatter.edgecolors`
         return collection
 
     @_preprocess_data(replace_names=["x", "y", "C"], label_namer="y")
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def hexbin(self, x, y, C=None, gridsize=100, bins=None,
                xscale='linear', yscale='linear', extent=None,
                cmap=None, norm=None, vmin=None, vmax=None,
@@ -4898,7 +4897,7 @@ default: :rc:`scatter.edgecolors`
 
         return collection
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def arrow(self, x, y, dx, dy, **kwargs):
         """
         Add an arrow to the Axes.
@@ -4937,7 +4936,7 @@ default: :rc:`scatter.edgecolors`
         self._request_autoscale_view()
         return a
 
-    @docstring.copy(mquiver.QuiverKey.__init__)
+    @_docstring.copy(mquiver.QuiverKey.__init__)
     def quiverkey(self, Q, X, Y, U, label, **kwargs):
         qk = mquiver.QuiverKey(Q, X, Y, U, label, **kwargs)
         self.add_artist(qk)
@@ -4953,7 +4952,7 @@ default: :rc:`scatter.edgecolors`
 
     # args can by a combination if X, Y, U, V, C and all should be replaced
     @_preprocess_data()
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def quiver(self, *args, **kwargs):
         """%(quiver_doc)s"""
         # Make sure units are handled for x and y values
@@ -4965,7 +4964,7 @@ default: :rc:`scatter.edgecolors`
 
     # args can be some combination of X, Y, U, V, C and all should be replaced
     @_preprocess_data()
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def barbs(self, *args, **kwargs):
         """%(barbs_doc)s"""
         # Make sure units are handled for x and y values
@@ -5231,7 +5230,7 @@ default: :rc:`scatter.edgecolors`
             dir="horizontal", ind="x", dep="y"
         )
     fill_between = _preprocess_data(
-        docstring.dedent_interpd(fill_between),
+        _docstring.dedent_interpd(fill_between),
         replace_names=["x", "y1", "y2", "where"])
 
     def fill_betweenx(self, y, x1, x2=0, where=None,
@@ -5245,7 +5244,7 @@ default: :rc:`scatter.edgecolors`
             dir="vertical", ind="y", dep="x"
         )
     fill_betweenx = _preprocess_data(
-        docstring.dedent_interpd(fill_betweenx),
+        _docstring.dedent_interpd(fill_betweenx),
         replace_names=["y", "x1", "x2", "where"])
 
     #### plotting z(x, y): imshow, pcolor and relatives, contour
@@ -5602,7 +5601,7 @@ default: :rc:`scatter.edgecolors`
         self.grid(False)
 
     @_preprocess_data()
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def pcolor(self, *args, shading=None, alpha=None, norm=None, cmap=None,
                vmin=None, vmax=None, **kwargs):
         r"""
@@ -5846,7 +5845,7 @@ default: :rc:`scatter.edgecolors`
         return collection
 
     @_preprocess_data()
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def pcolormesh(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
                    vmax=None, shading=None, antialiased=False, **kwargs):
         """
@@ -6073,7 +6072,7 @@ default: :rc:`scatter.edgecolors`
         return collection
 
     @_preprocess_data()
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def pcolorfast(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
                    vmax=None, **kwargs):
         """
@@ -6263,7 +6262,7 @@ default: :rc:`scatter.edgecolors`
         return ret
 
     @_preprocess_data()
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def contour(self, *args, **kwargs):
         """
         Plot contour lines.
@@ -6279,7 +6278,7 @@ default: :rc:`scatter.edgecolors`
         return contours
 
     @_preprocess_data()
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def contourf(self, *args, **kwargs):
         """
         Plot filled contours.
@@ -6856,7 +6855,7 @@ such objects
         return patch
 
     @_preprocess_data(replace_names=["x", "y", "weights"])
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def hist2d(self, x, y, bins=10, range=None, density=False, weights=None,
                cmin=None, cmax=None, **kwargs):
         """
@@ -6968,7 +6967,7 @@ such objects
         return h, xedges, yedges, pc
 
     @_preprocess_data(replace_names=["x"])
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def psd(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
             window=None, noverlap=None, pad_to=None,
             sides=None, scale_by_freq=None, return_line=None, **kwargs):
@@ -7079,7 +7078,7 @@ such objects
             return pxx, freqs, line
 
     @_preprocess_data(replace_names=["x", "y"], label_namer="y")
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def csd(self, x, y, NFFT=None, Fs=None, Fc=None, detrend=None,
             window=None, noverlap=None, pad_to=None,
             sides=None, scale_by_freq=None, return_line=None, **kwargs):
@@ -7181,7 +7180,7 @@ such objects
             return pxy, freqs, line
 
     @_preprocess_data(replace_names=["x"])
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def magnitude_spectrum(self, x, Fs=None, Fc=None, window=None,
                            pad_to=None, sides=None, scale=None,
                            **kwargs):
@@ -7267,7 +7266,7 @@ such objects
         return spec, freqs, line
 
     @_preprocess_data(replace_names=["x"])
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def angle_spectrum(self, x, Fs=None, Fc=None, window=None,
                        pad_to=None, sides=None, **kwargs):
         """
@@ -7336,7 +7335,7 @@ such objects
         return spec, freqs, lines[0]
 
     @_preprocess_data(replace_names=["x"])
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def phase_spectrum(self, x, Fs=None, Fc=None, window=None,
                        pad_to=None, sides=None, **kwargs):
         """
@@ -7405,7 +7404,7 @@ such objects
         return spec, freqs, lines[0]
 
     @_preprocess_data(replace_names=["x", "y"])
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def cohere(self, x, y, NFFT=256, Fs=2, Fc=0, detrend=mlab.detrend_none,
                window=mlab.window_hanning, noverlap=0, pad_to=None,
                sides='default', scale_by_freq=None, **kwargs):
@@ -7470,7 +7469,7 @@ such objects
         return cxy, freqs
 
     @_preprocess_data(replace_names=["x"])
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def specgram(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
                  window=None, noverlap=None,
                  cmap=None, xextent=None, pad_to=None, sides=None,
@@ -7626,7 +7625,7 @@ such objects
 
         return spec, freqs, t, im
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def spy(self, Z, precision=0, marker=None, markersize=None,
             aspect='equal', origin="upper", **kwargs):
         """

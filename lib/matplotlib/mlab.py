@@ -55,9 +55,7 @@ from numbers import Number
 
 import numpy as np
 
-from matplotlib import _api
-import matplotlib.cbook as cbook
-from matplotlib import docstring
+from matplotlib import _api, _docstring, cbook
 
 
 def window_hanning(x):
@@ -475,7 +473,7 @@ def _single_spectrum_helper(
 
 
 # Split out these keyword docs so that they can be used elsewhere
-docstring.interpd.update(
+_docstring.interpd.update(
     Spectral="""\
 Fs : float, default: 2
     The sampling frequency (samples per time unit).  It is used to calculate
@@ -533,7 +531,7 @@ scale_by_freq : bool, default: True
     MATLAB compatibility.""")
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None):
     r"""
@@ -589,7 +587,7 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
     return Pxx.real, freqs
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None):
     """
@@ -694,22 +692,22 @@ specgram
 complex_spectrum = functools.partial(_single_spectrum_helper, "complex")
 complex_spectrum.__doc__ = _single_spectrum_docs.format(
     quantity="complex-valued frequency spectrum",
-    **docstring.interpd.params)
+    **_docstring.interpd.params)
 magnitude_spectrum = functools.partial(_single_spectrum_helper, "magnitude")
 magnitude_spectrum.__doc__ = _single_spectrum_docs.format(
     quantity="magnitude (absolute value) of the frequency spectrum",
-    **docstring.interpd.params)
+    **_docstring.interpd.params)
 angle_spectrum = functools.partial(_single_spectrum_helper, "angle")
 angle_spectrum.__doc__ = _single_spectrum_docs.format(
     quantity="angle of the frequency spectrum (wrapped phase spectrum)",
-    **docstring.interpd.params)
+    **_docstring.interpd.params)
 phase_spectrum = functools.partial(_single_spectrum_helper, "phase")
 phase_spectrum.__doc__ = _single_spectrum_docs.format(
     quantity="phase of the frequency spectrum (unwrapped phase spectrum)",
-    **docstring.interpd.params)
+    **_docstring.interpd.params)
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
              noverlap=None, pad_to=None, sides=None, scale_by_freq=None,
              mode=None):
@@ -792,7 +790,7 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     return spec, freqs, t
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
            noverlap=0, pad_to=None, sides='default', scale_by_freq=None):
     r"""
