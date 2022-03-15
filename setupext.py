@@ -14,7 +14,6 @@ import sysconfig
 import tarfile
 import textwrap
 import urllib.request
-from packaging import version
 
 from setuptools import Distribution, Extension
 
@@ -699,8 +698,7 @@ class FreeType(SetupPackage):
             # Freetype 2.10.0+ support static builds.
             msbuild_config = (
                 "Release Static"
-                if version.parse(LOCAL_FREETYPE_VERSION) >=
-                   version.parse("2.10.0")
+                if [*map(int, LOCAL_FREETYPE_VERSION.split("."))] >= [2, 10]
                 else "Release"
             )
 
