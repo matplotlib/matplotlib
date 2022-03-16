@@ -54,8 +54,8 @@ The defaults give a slightly swept-back arrow; to make the head a
 triangle, make *headaxislength* the same as *headlength*. To make the
 arrow more pointed, reduce *headwidth* or increase *headlength* and
 *headaxislength*. To make the head smaller relative to the shaft,
-scale down all the head parameters. You will probably do best to leave
-*minshaft* alone.
+scale down all the head parameters. See also the notes section below.
+You will probably do best to leave *minshaft* alone.
 
 **Arrow outline**
 
@@ -156,13 +156,13 @@ width : float, optional
     0.005 times the width of the plot.
 
 headwidth : float, default: 3
-    Head width as multiple of shaft width.
+    Head width as multiple of shaft width. See the notes below.
 
 headlength : float, default: 5
-    Head length as multiple of shaft width.
+    Head length as multiple of shaft width. See the notes below.
 
 headaxislength : float, default: 4.5
-    Head length at shaft intersection.
+    Head length at shaft intersection. See the notes below.
 
 minshaft : float, default: 1
     Length below which arrow scales, in units of head length. Do not
@@ -201,6 +201,21 @@ Returns
 See Also
 --------
 .Axes.quiverkey : Add a key to a quiver plot.
+
+Notes
+-----
+The arrow is drawn as a polygon using the nodes as shown below. The values
+*headwidth*, *headlength* and *headaxislength* are in units of width.
+
+.. image:: /_static/quiver_sizes.svg
+   :width: 500px
+
+To remove the head completely, set all *head* parameters to 0.
+
+For *headlength* < *headaxislength* you will get a diamond-shaped head.
+For *headaxislength* < (*headlength* / *headwidth*), the "headaxis" nodes (i.e.
+the ones connecting the head with the shaft) will protrude out of the head
+so that the arrow head looks broken.
 """ % _docstring.interpd.params
 
 _docstring.interpd.update(quiver_doc=_quiver_doc)
