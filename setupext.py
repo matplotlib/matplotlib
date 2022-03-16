@@ -171,9 +171,8 @@ _freetype_hashes = {
         'f8db94d307e9c54961b39a1cc799a67d46681480696ed72ecf78d4473770f09b'
 }
 # This is the version of FreeType to use when building a local version.  It
-# must match the value in lib/matplotlib.__init__.py and also needs to be
-# changed below in the embedded windows build script (grep for "REMINDER" in
-# this file). Also update the cache path in `.circleci/config.yml`.
+# must match the value in lib/matplotlib.__init__.py, and the cache path in
+# `.circleci/config.yml`.
 TESTING_VERSION_OF_FREETYPE = '2.6.1'
 if sys.platform.startswith('win') and platform.machine() == 'ARM64':
     # older versions of freetype are not supported for win/arm64
