@@ -368,7 +368,7 @@ An example docstring looks like:
 
 .. code-block:: python
 
-    def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
+    def hlines(self, y, xmin, xmax, colors=None, linestyles='solid',
                label='', **kwargs):
         """
         Plot horizontal lines at each *y* from *xmin* to *xmax*.
@@ -382,24 +382,26 @@ An example docstring looks like:
             Respective beginning and end of each line. If scalars are
             provided, all lines will have the same length.
 
-        colors : array-like of colors, default: 'k'
+        colors : list of colors, default: :rc:`lines.color`
 
-        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, default: 'solid'
+        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
         label : str, default: ''
 
         Returns
         -------
-        lines : `~matplotlib.collections.LineCollection`
+        `~matplotlib.collections.LineCollection`
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.collections.LineCollection` properties
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+        **kwargs :  `~matplotlib.collections.LineCollection` properties.
 
-        See also
+        See Also
         --------
         vlines : vertical lines
-        axhline: horizontal line across the axes
+        axhline : horizontal line across the Axes
         """
 
 See the `~.Axes.hlines` documentation for how this renders.
@@ -566,10 +568,10 @@ effect.
 Sphinx automatically links code elements in the definition blocks of ``See
 also`` sections. No need to use backticks there::
 
-   See also
+   See Also
    --------
    vlines : vertical lines
-   axhline: horizontal line across the axes
+   axhline : horizontal line across the Axes
 
 Wrapping parameter lists
 ~~~~~~~~~~~~~~~~~~~~~~~~
