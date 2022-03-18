@@ -1253,8 +1253,7 @@ def test_to_rgba_array_single_str():
 
     # single char color sequence is invalid
     with pytest.raises(ValueError,
-                       match="Using a string of single character colors as "
-                             "a color sequence is not supported."):
+                       match="'rgb' is not a valid color value."):
         array = mcolors.to_rgba_array("rgb")
 
 
