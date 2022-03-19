@@ -2163,7 +2163,7 @@ class _AxesBase(martist.Artist):
         Set the current image.
 
         This image will be the target of colormap functions like
-        `~.pyplot.viridis`, and other functions such as `~.pyplot.clim`.  The
+        ``pyplot.viridis``, and other functions such as `~.pyplot.clim`.  The
         current image is an attribute of the current Axes.
         """
         _api.check_isinstance(

@@ -1,4 +1,6 @@
 import difflib
+import re
+
 import numpy as np
 import subprocess
 import sys
@@ -381,3 +383,27 @@ def test_pylab_integration():
         )),
         timeout=60,
     )
+
+
+def test_doc_pyplot_summary():
+    """Test that pyplot_summary lists all the plot functions."""
+    pyplot_docs = Path(__file__).parent / '../../../doc/api/pyplot_summary.rst'
+    if not pyplot_docs.exists():
+        pytest.skip("Documentation sources not available")
+
+    lines = pyplot_docs.read_text()
+    m = re.search(r':nosignatures:\n\n(.*?)\n\n', lines, re.DOTALL)
+    doc_functions = set(line.strip() for line in m.group(1).split('\n'))
+    plot_commands = set(plt.get_plot_commands())
+    missing = plot_commands.difference(doc_functions)
+    if missing:
+        raise AssertionError(
+            f"The following pyplot functions are not listed in the "
+            f"documentation. Please add them to doc/api/pyplot_summary.rst: "
+            f"{missing!r}")
+    extra = doc_functions.difference(plot_commands)
+    if extra:
+        raise AssertionError(
+            f"The following functions are listed in the pyplot documentation, "
+            f"but they do not exist in pyplot. "
+            f"Please remove them from doc/api/pyplot_summary.rst: {extra!r}")
