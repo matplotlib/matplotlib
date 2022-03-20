@@ -2950,7 +2950,9 @@ class _AxesBase(martist.Artist):
             _log.debug('title position was updated manually, not adjusting')
             return
 
-        titles = (self.title, self._left_title, self._right_title)
+        titles = []
+
+        titles = [self.title, self._left_title, self._right_title]
 
         for title in titles:
             x, _ = title.get_position()
@@ -3002,11 +3004,21 @@ class _AxesBase(martist.Artist):
                         (0., 2 * top - title.get_window_extent(renderer).ymin))
                     title.set_position((x, y))
 
+        grouped_axs = self.figure._align_title_groups.get_siblings(self)
         ymax = max(title.get_position()[1] for title in titles)
         for title in titles:
             # now line up all the titles at the highest baseline.
             x, _ = title.get_position()
             title.set_position((x, ymax))
+
+        # Align bboxes of grouped axes to highest in group
+        bb_ymax = None
+        ax_max = None
+        for ax in grouped_axs:
+            if bb_ymax is None or ax.bbox.ymax > bb_ymax:
+                bb_ymax = ax.bbox.ymax
+                ax_max = ax
+        self.bbox = ax_max.bbox
 
     # Drawing
     @martist.allow_rasterization
