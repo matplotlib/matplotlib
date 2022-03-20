@@ -536,3 +536,29 @@ def test_auto_adjustable():
     assert tbb.x1 == pytest.approx(fig.bbox.width - pad * fig.dpi)
     assert tbb.y0 == pytest.approx(pad * fig.dpi)
     assert tbb.y1 == pytest.approx(fig.bbox.height - pad * fig.dpi)
+
+
+@image_comparison(['second_axis_with_colorbar.png'], tol=0.03)
+def test_second_axis_with_colorbar():
+    x = np.array([1, 2, 3, 4])
+    x2 = np.array([1, 2, 3, 4])
+    y = np.cos(x*20)
+    z = np.sin(x*20)
+
+    fig, ax1 = plt.subplots()
+    ax2 = ax1.twiny()
+
+    sc = ax1.scatter(x, y, c=z)
+    ax1.set_xlabel("Original x-axis")
+
+    ax2.set_xlim(ax1.get_xlim())
+    ax2.set_xticks(x)
+    ax2.set_xticklabels(x2)
+    ax2.set_xlabel("Second x-axis")
+
+    # Add colorbar.
+    the_divider = make_axes_locatable(ax1)
+    color_axis = the_divider.append_axes("right", size="2%", pad=0.1)
+    cbar = plt.colorbar(sc, ticks=np.linspace(-0.8, 0.8, 9), cax=color_axis)
+    cbar.set_label('B', fontsize=10, labelpad=4, y=0.5)
+    cbar.ax.tick_params(labelsize=10)
