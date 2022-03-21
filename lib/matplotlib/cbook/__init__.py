@@ -1150,7 +1150,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
     def _bootstrap_median(data, N=5000):
         # determine 95% confidence intervals of the median
         M = len(data)
-        percentiles = [2.5, 97.5]
+        percentiles = (2.5, 97.5)
 
         bs_index = np.random.randint(M, size=(N, M))
         bsData = data[bs_index]
@@ -1169,8 +1169,9 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         else:
 
             N = len(data)
-            notch_min = med - 1.57 * iqr / np.sqrt(N)
-            notch_max = med + 1.57 * iqr / np.sqrt(N)
+            half_height = 1.57 * iqr / (N ** (1 / 2))
+            notch_min = med - half_height
+            notch_max = med + half_height
 
         return notch_min, notch_max
 
@@ -1221,7 +1222,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None,
         stats['mean'] = np.mean(x)
 
         # medians and quartiles
-        q1, med, q3 = np.percentile(x, [25, 50, 75])
+        percentiles = (25, 50, 75)
+        q1, med, q3 = np.percentile(x, percentiles)
 
         # interquartile range
         stats['iqr'] = q3 - q1

@@ -822,45 +822,48 @@ class Path:
           Bezier Cubic Splines <https://www.tinaja.com/glib/ellipse4.pdf>`_.
         """
         MAGIC = 0.2652031
-        SQRTHALF = np.sqrt(0.5)
+        SQRTHALF = (1 / 2) ** (1 / 2)
         MAGIC45 = SQRTHALF * MAGIC
+        MAGICSUM = SQRTHALF + MAGIC45
+        MAGICDIFF = SQRTHALF - MAGIC45
 
-        vertices = np.array([[0.0, -1.0],
+        vertices = ((0.0, -1.0),
 
-                             [MAGIC, -1.0],
-                             [SQRTHALF-MAGIC45, -SQRTHALF-MAGIC45],
-                             [SQRTHALF, -SQRTHALF],
+                    (MAGIC, -1.0),
+                    (MAGICDIFF, -MAGICSUM),
+                    (SQRTHALF, -SQRTHALF),
 
-                             [SQRTHALF+MAGIC45, -SQRTHALF+MAGIC45],
-                             [1.0, -MAGIC],
-                             [1.0, 0.0],
+                    (MAGICSUM, -MAGICDIFF),
+                    (1.0, -MAGIC),
+                    (1.0, 0.0),
 
-                             [1.0, MAGIC],
-                             [SQRTHALF+MAGIC45, SQRTHALF-MAGIC45],
-                             [SQRTHALF, SQRTHALF],
+                    (1.0, MAGIC),
+                    (MAGICSUM, MAGICDIFF),
+                    (SQRTHALF, SQRTHALF),
 
-                             [SQRTHALF-MAGIC45, SQRTHALF+MAGIC45],
-                             [MAGIC, 1.0],
-                             [0.0, 1.0],
+                    (MAGICDIFF, MAGICSUM),
+                    (MAGIC, 1.0),
+                    (0.0, 1.0),
 
-                             [-MAGIC, 1.0],
-                             [-SQRTHALF+MAGIC45, SQRTHALF+MAGIC45],
-                             [-SQRTHALF, SQRTHALF],
+                    (-MAGIC, 1.0),
+                    (-MAGICDIFF, MAGICSUM),
+                    (-SQRTHALF, SQRTHALF),
 
-                             [-SQRTHALF-MAGIC45, SQRTHALF-MAGIC45],
-                             [-1.0, MAGIC],
-                             [-1.0, 0.0],
+                    (-MAGICSUM, MAGICDIFF),
+                    (-1.0, MAGIC),
+                    (-1.0, 0.0),
 
-                             [-1.0, -MAGIC],
-                             [-SQRTHALF-MAGIC45, -SQRTHALF+MAGIC45],
-                             [-SQRTHALF, -SQRTHALF],
+                    (-1.0, -MAGIC),
+                    (-MAGICSUM, -MAGICDIFF),
+                    (-SQRTHALF, -SQRTHALF),
 
-                             [-SQRTHALF+MAGIC45, -SQRTHALF-MAGIC45],
-                             [-MAGIC, -1.0],
-                             [0.0, -1.0],
+                    (-MAGICDIFF, -MAGICSUM),
+                    (-MAGIC, -1.0),
+                    (0.0, -1.0),
 
-                             [0.0, -1.0]],
-                            dtype=float)
+                    (0.0, -1.0))
+
+        vertices = np.array(vertices, dtype=float)
 
         codes = [cls.CURVE4] * 26
         codes[0] = cls.MOVETO
@@ -878,31 +881,32 @@ class Path:
         """
         if cls._unit_circle_righthalf is None:
             MAGIC = 0.2652031
-            SQRTHALF = np.sqrt(0.5)
+            SQRTHALF = (1 / 2) ** (1 / 2)
             MAGIC45 = SQRTHALF * MAGIC
+            MAGICSUM = SQRTHALF + MAGIC45
+            MAGICDIFF = SQRTHALF - MAGIC45
 
-            vertices = np.array(
-                [[0.0, -1.0],
+            vertices = ((0.0, -1.0),
 
-                 [MAGIC, -1.0],
-                 [SQRTHALF-MAGIC45, -SQRTHALF-MAGIC45],
-                 [SQRTHALF, -SQRTHALF],
+                        (MAGIC, -1.0),
+                        (MAGICDIFF, -MAGICSUM),
+                        (SQRTHALF, -SQRTHALF),
 
-                 [SQRTHALF+MAGIC45, -SQRTHALF+MAGIC45],
-                 [1.0, -MAGIC],
-                 [1.0, 0.0],
+                        (MAGICSUM, -MAGICDIFF),
+                        (1.0, -MAGIC),
+                        (1.0, 0.0),
 
-                 [1.0, MAGIC],
-                 [SQRTHALF+MAGIC45, SQRTHALF-MAGIC45],
-                 [SQRTHALF, SQRTHALF],
+                        (1.0, MAGIC),
+                        (MAGICSUM, MAGICDIFF),
+                        (SQRTHALF, SQRTHALF),
 
-                 [SQRTHALF-MAGIC45, SQRTHALF+MAGIC45],
-                 [MAGIC, 1.0],
-                 [0.0, 1.0],
+                        (MAGICDIFF, MAGICSUM),
+                        (MAGIC, 1.0),
+                        (0.0, 1.0),
 
-                 [0.0, -1.0]],
+                        (0.0, -1.0))
 
-                float)
+            vertices = np.array(vertices, dtype=float)
 
             codes = np.full(14, cls.CURVE4, dtype=cls.code_type)
             codes[0] = cls.MOVETO

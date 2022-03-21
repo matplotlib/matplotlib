@@ -165,7 +165,7 @@ class InvertedPolarTransform(mtransforms.Transform):
         # docstring inherited
         x, y = xy.T
         r = np.hypot(x, y)
-        theta = (np.arctan2(y, x) + 2 * np.pi) % (2 * np.pi)
+        theta = np.arctan2(y, x) % (2 * np.pi)
         # PolarAxes does not use the theta transforms here, but apply them for
         # backwards-compatibility if not being used by it.
         if self._apply_theta_transforms and self._axis is not None:
@@ -1076,7 +1076,7 @@ class PolarAxes(Axes):
             'SW': np.pi * 1.25,
             'S': np.pi * 1.5,
             'SE': np.pi * 1.75,
-            'E': 0,
+            'E': 0.,
             'NE': np.pi * 0.25}
         return self.set_theta_offset(mapping[loc] + np.deg2rad(offset))
 

@@ -677,7 +677,7 @@ class MarkerStyle:
             self._path = polypath
         else:
             verts = polypath.vertices
-            y = (1 + np.sqrt(5)) / 4.
+            y = (1 + 5 ** (1 / 2)) / 4.
             top = Path(verts[[0, 1, 4, 0]])
             bottom = Path(verts[[1, 2, 3, 4, 1]])
             left = Path([verts[0], verts[1], verts[2], [0, -y], verts[0]])
@@ -747,7 +747,7 @@ class MarkerStyle:
         else:
             verts = polypath.vertices
             # not drawing inside lines
-            x, y = np.sqrt(3) / 4, 3 / 4.
+            x, y = 3 ** (1 / 2) / 4, 3 / 4.
             top = Path(verts[[1, 0, 5, 4, 1]])
             bottom = Path(verts[1:5])
             left = Path(np.concatenate([
@@ -772,7 +772,7 @@ class MarkerStyle:
             self._transform.rotate_deg(22.5)
             self._path = polypath
         else:
-            x = np.sqrt(2.) / 4.
+            x = 2 ** (1 / 2) / 4.
             self._path = self._alt_path = Path(
                 [[0, -1], [0, 1], [-x, 1], [-1, x],
                  [-1, -x], [-x, -1], [0, -1]])

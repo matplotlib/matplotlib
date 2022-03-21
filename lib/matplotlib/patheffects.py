@@ -411,8 +411,8 @@ class TickedStroke(AbstractPathEffect):
             to your right, and 180 behind you.
         length : float, default: 1.414
             The length of the tick relative to spacing.
-            Recommended length = 1.414 (sqrt(2)) when angle=45, length=1.0
-            when angle=90 and length=2.0 when angle=60.
+            Recommended length = 1.414 (:math:`\\sqrt{2}`) when angle=45,
+            length=1.0 when angle=90 and length=2.0 when angle=60.
         **kwargs
             Extra keywords are stored and passed through to
             :meth:`AbstractPathEffect._update_gc`.
