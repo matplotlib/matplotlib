@@ -176,6 +176,13 @@ def test_user_fonts_linux(tmpdir, monkeypatch):
     _get_fontconfig_fonts.cache_clear()
 
 
+def test_addfont_as_path():
+    """Smoke test that addfont() accepts pathlib.Path."""
+    font_test_file = 'mpltest.ttf'
+    path = Path(__file__).parent / font_test_file
+    fontManager.addfont(path)
+
+
 @pytest.mark.skipif(sys.platform != 'win32', reason='Windows only')
 def test_user_fonts_win32():
     if not (os.environ.get('APPVEYOR') or os.environ.get('TF_BUILD')):
