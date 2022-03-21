@@ -424,6 +424,11 @@ def test_strip_comment(line, result):
     assert cbook._strip_comment(line) == result
 
 
+def test_strip_comment_invalid():
+    with pytest.raises(ValueError, match="Missing closing quote"):
+        cbook._strip_comment('grid.color: "aa')
+
+
 def test_sanitize_sequence():
     d = {'a': 1, 'b': 2, 'c': 3}
     k = ['a', 'b', 'c']
