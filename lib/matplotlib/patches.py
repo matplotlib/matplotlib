@@ -1394,13 +1394,13 @@ class FancyArrow(Polygon):
         dx, dy : float or None, default: None
             The length of the arrow along x and y direction.
 
-        width: float or None, default: None
+        width : float or None, default: None
             Width of full arrow tail.
 
-        head_width: float or None, default: None
+        head_width : float or None, default: None
             Total width of the full arrow head.
 
-        head_length: float or None, default: None
+        head_length : float or None, default: None
             Length of arrow head.
         """
         if x is not None:

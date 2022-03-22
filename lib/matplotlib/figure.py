@@ -2330,11 +2330,11 @@ class Figure(FigureBase):
 
         Parameters
         ----------
-        layout: {'constrained', 'tight'} or `~.LayoutEngine`
+        layout : {'constrained', 'tight'} or `~.LayoutEngine`
             'constrained' will use `~.ConstrainedLayoutEngine`, 'tight' will
             use `~.TightLayoutEngine`.  Users and libraries can define their
             own layout engines as well.
-        kwargs: dict
+        kwargs : dict
             The keyword arguments are passed to the layout engine to set things
             like padding and margin sizes.  Only used if *layout* is a string.
         """
