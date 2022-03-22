@@ -21,15 +21,15 @@ A note on the explicit vs. implicit interfaces
 ==============================================
 
 Matplotlib has two interfaces. For an explanation of the trade-offs between the
-implicit and explicit interfaces see :ref:`api_interfaces`.
+explicit and implicit interfaces see :ref:`api_interfaces`.
 
-The first is an explicit object-oriented (OO) interface. In this case, we
-utilize an instance of :class:`axes.Axes` in order to render visualizations on
-an instance of :class:`figure.Figure`.  The second is based on MATLAB and uses
-an implicit global state-based interface.  This is encapsulated in the
-:mod:`.pyplot` module. See the :doc:`pyplot tutorials
-</tutorials/introductory/pyplot>` for a more in-depth look at the pyplot
-interface.
+In the explicit object-oriented (OO) interface we directly utilize instances of
+:class:`axes.Axes` to build up the visualization in an instance of
+:class:`figure.Figure`.  In the implicit interface, inspired by and modeled on
+MATLAB, uses an global state-based interface which is is encapsulated in the
+:mod:`.pyplot` module to plot to the "current Axes".  See the :doc:`pyplot
+tutorials </tutorials/introductory/pyplot>` for a more in-depth look at the
+pyplot interface.
 
 Most of the terms are straightforward but the main thing to remember
 is that:
@@ -43,8 +43,8 @@ us much more flexibility and power in customizing our plot.
 
 .. note::
 
-   In general, try to use the explicit interface over the implicit pyplot
-   interface for plotting.
+   In general prefer the explicit interface over the implicit pyplot interface
+   for plotting.
 
 Our data
 ========
