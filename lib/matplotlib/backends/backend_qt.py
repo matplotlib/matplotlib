@@ -92,69 +92,72 @@ cursord = {
 }
 
 
-# make place holder
-qApp = None
+@_api.caching_module_getattr
+class __getattr__:
+    qApp = _api.deprecated(
+        "3.6", alternative="QtWidgets.QApplication.instance()")(
+            property(lambda self: QtWidgets.QApplication.instance()))
 
 
+# lru_cache keeps a reference to the QApplication instance, keeping it from
+# being GC'd.
+@functools.lru_cache(1)
 def _create_qApp():
-    """
-    Only one qApp can exist at a time, so check before creating one.
-    """
-    global qApp
+    app = QtWidgets.QApplication.instance()
 
-    if qApp is None:
-        app = QtWidgets.QApplication.instance()
-        if app is None:
-            # display_is_valid returns False only if on Linux and neither X11
-            # nor Wayland display can be opened.
-            if not mpl._c_internal_utils.display_is_valid():
-                raise RuntimeError('Invalid DISPLAY variable')
-            try:
-                QtWidgets.QApplication.setAttribute(
-                    QtCore.Qt.AA_EnableHighDpiScaling)
-            except AttributeError:  # Only for Qt>=5.6, <6.
-                pass
+    # Create a new QApplication and configure if if non exists yet, as only one
+    # QApplication can exist at a time.
+    if app is None:
+        # display_is_valid returns False only if on Linux and neither X11
+        # nor Wayland display can be opened.
+        if not mpl._c_internal_utils.display_is_valid():
+            raise RuntimeError('Invalid DISPLAY variable')
 
-            # Check to make sure a QApplication from a different major version
-            # of Qt is not instantiated in the process
-            if QT_API in {'PyQt6', 'PySide6'}:
-                other_bindings = ('PyQt5', 'PySide2')
-            elif QT_API in {'PyQt5', 'PySide2'}:
-                other_bindings = ('PyQt6', 'PySide6')
-            else:
-                raise RuntimeError("Should never be here")
-
-            for binding in other_bindings:
-                mod = sys.modules.get(f'{binding}.QtWidgets')
-                if mod is not None and mod.QApplication.instance() is not None:
-                    other_core = sys.modules.get(f'{binding}.QtCore')
-                    _api.warn_external(
-                        f'Matplotlib is using {QT_API} which wraps '
-                        f'{QtCore.qVersion()} however an instantiated '
-                        f'QApplication from {binding} which wraps '
-                        f'{other_core.qVersion()} exists.  Mixing Qt major '
-                        'versions may not work as expected.'
-                    )
-                    break
-            try:
-                QtWidgets.QApplication.setHighDpiScaleFactorRoundingPolicy(
-                    QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-            except AttributeError:  # Only for Qt>=5.14.
-                pass
-            qApp = QtWidgets.QApplication(["matplotlib"])
-            if sys.platform == "darwin":
-                image = str(cbook._get_data_path('images/matplotlib.svg'))
-                icon = QtGui.QIcon(image)
-                qApp.setWindowIcon(icon)
-            qApp.lastWindowClosed.connect(qApp.quit)
-            cbook._setup_new_guiapp()
+        # Check to make sure a QApplication from a different major version
+        # of Qt is not instantiated in the process
+        if QT_API in {'PyQt6', 'PySide6'}:
+            other_bindings = ('PyQt5', 'PySide2')
+        elif QT_API in {'PyQt5', 'PySide2'}:
+            other_bindings = ('PyQt6', 'PySide6')
         else:
-            qApp = app
+            raise RuntimeError("Should never be here")
+
+        for binding in other_bindings:
+            mod = sys.modules.get(f'{binding}.QtWidgets')
+            if mod is not None and mod.QApplication.instance() is not None:
+                other_core = sys.modules.get(f'{binding}.QtCore')
+                _api.warn_external(
+                    f'Matplotlib is using {QT_API} which wraps '
+                    f'{QtCore.qVersion()} however an instantiated '
+                    f'QApplication from {binding} which wraps '
+                    f'{other_core.qVersion()} exists.  Mixing Qt major '
+                    'versions may not work as expected.'
+                )
+                break
+        try:
+            QtWidgets.QApplication.setAttribute(
+                QtCore.Qt.AA_EnableHighDpiScaling)
+        except AttributeError:  # Only for Qt>=5.6, <6.
+            pass
+        try:
+            QtWidgets.QApplication.setHighDpiScaleFactorRoundingPolicy(
+                QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+        except AttributeError:  # Only for Qt>=5.14.
+            pass
+        app = QtWidgets.QApplication(["matplotlib"])
+        if sys.platform == "darwin":
+            image = str(cbook._get_data_path('images/matplotlib.svg'))
+            icon = QtGui.QIcon(image)
+            app.setWindowIcon(icon)
+        app.lastWindowClosed.connect(app.quit)
+        cbook._setup_new_guiapp()
 
     try:
-        qApp.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)  # Only for Qt<6.
+        app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)  # Only for Qt<6.
     except AttributeError:
         pass
+
+    return app
 
 
 def _allow_super_init(__init__):
@@ -419,7 +422,7 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
     def flush_events(self):
         # docstring inherited
-        qApp.processEvents()
+        QtWidgets.QApplication.instance().processEvents()
 
     def start_event_loop(self, timeout=0):
         # docstring inherited
@@ -1022,7 +1025,7 @@ class HelpQt(backend_tools.ToolHelpBase):
 class ToolCopyToClipboardQT(backend_tools.ToolCopyToClipboardBase):
     def trigger(self, *args, **kwargs):
         pixmap = self.canvas.grab()
-        qApp.clipboard().setPixmap(pixmap)
+        QtWidgets.QApplication.instance().clipboard().setPixmap(pixmap)
 
 
 FigureManagerQT._toolbar2_class = NavigationToolbar2QT
@@ -1036,5 +1039,6 @@ class _BackendQT(_Backend):
 
     @staticmethod
     def mainloop():
-        with _maybe_allow_interrupt(qApp):
-            qt_compat._exec(qApp)
+        qapp = QtWidgets.QApplication.instance()
+        with _maybe_allow_interrupt(qapp):
+            qt_compat._exec(qapp)

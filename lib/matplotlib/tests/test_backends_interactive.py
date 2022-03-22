@@ -267,7 +267,9 @@ def _implqt5agg():
     assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
 
     import matplotlib.backends.backend_qt5
-    matplotlib.backends.backend_qt5.qApp
+    with pytest.warns(DeprecationWarning,
+                      match="QtWidgets.QApplication.instance"):
+        matplotlib.backends.backend_qt5.qApp
 
 
 def _implcairo():
@@ -279,7 +281,9 @@ def _implcairo():
     assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
 
     import matplotlib.backends.backend_qt5
-    matplotlib.backends.backend_qt5.qApp
+    with pytest.warns(DeprecationWarning,
+                      match="QtWidgets.QApplication.instance"):
+        matplotlib.backends.backend_qt5.qApp
 
 
 def _implcore():
@@ -289,7 +293,10 @@ def _implcore():
     assert 'PyQt6' not in sys.modules
     assert 'pyside6' not in sys.modules
     assert 'PyQt5' in sys.modules or 'pyside2' in sys.modules
-    matplotlib.backends.backend_qt5.qApp
+
+    with pytest.warns(DeprecationWarning,
+                      match="QtWidgets.QApplication.instance"):
+        matplotlib.backends.backend_qt5.qApp
 
 
 def test_qt5backends_uses_qt5():
@@ -410,9 +417,23 @@ def _lazy_headless():
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="this a linux-only test")
-@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_lazy_linux_headless():
     proc = _run_helper(_lazy_headless, timeout=_test_timeout, MPLBACKEND="")
+
+
+def _qApp_warn_impl():
+    import matplotlib.backends.backend_qt
+    import pytest
+
+    with pytest.warns(
+            DeprecationWarning, match="QtWidgets.QApplication.instance"):
+        matplotlib.backends.backend_qt.qApp
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qApp_warn():
+    _run_helper(_qApp_warn_impl, timeout=_test_timeout)
 
 
 def _test_number_of_draws_script():
