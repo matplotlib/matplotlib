@@ -1691,7 +1691,7 @@ class MultiCursor(Widget):
     horizOn : bool, default: False
         Whether to draw the horizontal line.
 
-    vertOn: bool, default: True
+    vertOn : bool, default: True
         Whether to draw the vertical line.
 
     Other Parameters
