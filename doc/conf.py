@@ -278,7 +278,16 @@ default_role = 'obj'
 # Plot directive configuration
 # ----------------------------
 
-plot_formats = [('png', 100), ('pdf', 100)]
+# For speedup, decide which plot_formats to build based on build targets:
+#     html only -> png
+#     latex only -> pdf
+#     all other cases, including html + latex -> png, pdf
+# For simplicity, we assume that the build targets appear in the command line.
+# We're falling back on using all formats in case that assumption fails.
+formats = {'html': ('png', 100), 'latex': ('pdf', 100)}
+plot_formats = [formats[target] for target in ['html', 'latex']
+                if target in sys.argv] or list(formats.values())
+
 
 # GitHub extension
 
@@ -537,29 +546,12 @@ graphviz_dot = shutil.which('dot')
 # graphviz_output_format = 'svg'
 
 
-def reduce_plot_formats(app):
-    # Fox CI and local builds, we don't need all the default plot formats, so
-    # only generate the directly useful one for the current builder.
-    if app.builder.name == 'html':
-        keep = 'png'
-    elif app.builder.name == 'latex':
-        keep = 'pdf'
-    else:
-        return
-    app.config.plot_formats = [entry
-                               for entry in app.config.plot_formats
-                               if entry[0] == keep]
-
-
 def setup(app):
     if any(st in version for st in ('post', 'alpha', 'beta')):
         bld_type = 'dev'
     else:
         bld_type = 'rel'
     app.add_config_value('releaselevel', bld_type, 'env')
-
-    if not is_release_build:
-        app.connect('builder-inited', reduce_plot_formats)
 
 # -----------------------------------------------------------------------------
 # Source code links
