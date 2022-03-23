@@ -362,7 +362,7 @@ def to_rgba_array(c, alpha=None):
         pass
 
     if isinstance(c, str):
-       raise ValueError(f"{c!r} is not a valid color value.")
+        raise ValueError(f"{c!r} is not a valid color value.")
 
     if len(c) == 0:
         return np.zeros((0, 4), float)
