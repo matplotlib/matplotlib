@@ -29,7 +29,7 @@ def _isolated_tk_test(success_count, func=None):
         return func
 
     @pytest.mark.skipif(
-        importlib.util.find_spec('tkinter'),
+        not importlib.util.find_spec('tkinter'),
         reason="missing tkinter"
     )
     @pytest.mark.skipif(
@@ -189,7 +189,7 @@ def test_missing_back_button():
 
 @pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @_isolated_tk_test(success_count=1)
-def test_canvas_focus():  # pragma: no cover
+def test_canvas_focus():
     import tkinter as tk
     import matplotlib.pyplot as plt
     success = []
