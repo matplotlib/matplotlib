@@ -26,6 +26,7 @@ def _isolated_tk_test(success_count, func=None):
         return functools.partial(_isolated_tk_test, success_count)
 
     if "MPL_TEST_ESCAPE_HATCH" in os.environ:
+        # set in subprocess_run_helper() below
         return func
 
     @pytest.mark.skipif(
