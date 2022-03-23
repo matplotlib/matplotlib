@@ -1,0 +1,4 @@
+QuadMesh cursor data removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`.QuadMesh.get_cursor_data`, introduced in 3.5.1 is unreasonably slow for
+large meshes, so this method has been removed.
