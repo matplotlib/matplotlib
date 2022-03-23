@@ -1,12 +1,14 @@
 import functools
-import inspect
+import importlib
 import os
 import platform
-import re
 import subprocess
 import sys
 
 import pytest
+
+from matplotlib.testing import subprocess_run_helper
+from matplotlib import _c_internal_utils
 
 _test_timeout = 60  # A reasonably safe value for slower architectures.
 
@@ -18,30 +20,33 @@ def _isolated_tk_test(success_count, func=None):
 
     TkAgg tests seem to have interactions between tests, so isolate each test
     in a subprocess. See GH#18261
-
-    The decorated function must be fully self-contained, and thus perform
-    all the imports it needs.  Because its source is extracted and run by
-    itself, coverage will consider it as not being run, so it should be marked
-    with ``# pragma: no cover``
     """
 
     if func is None:
         return functools.partial(_isolated_tk_test, success_count)
 
-    # Remove decorators.
-    source = re.search(r"(?ms)^def .*", inspect.getsource(func)).group(0)
+    if "MPL_TEST_ESCAPE_HATCH" in os.environ:
+        # set in subprocess_run_helper() below
+        return func
 
+    @pytest.mark.skipif(
+        not importlib.util.find_spec('tkinter'),
+        reason="missing tkinter"
+    )
+    @pytest.mark.skipif(
+        sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
+        reason="$DISPLAY and $WAYLAND_DISPLAY are unset"
+    )
     @functools.wraps(func)
     def test_func():
+        # even if the package exists, may not actually be importable this can
+        # be the case on some CI systems.
+        pytest.importorskip('tkinter')
         try:
-            proc = subprocess.run(
-                [sys.executable, "-c", f"{source}\n{func.__name__}()"],
-                env={**os.environ, "MPLBACKEND": "TkAgg"},
-                timeout=_test_timeout,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                check=True,
-                universal_newlines=True,
+            proc = subprocess_run_helper(
+                func, timeout=_test_timeout,
+                MPLBACKEND="TkAgg",
+                MPL_TEST_ESCAPE_HATCH="1"
             )
         except subprocess.TimeoutExpired:
             pytest.fail("Subprocess timed out")
@@ -59,9 +64,8 @@ def _isolated_tk_test(success_count, func=None):
     return test_func
 
 
-@pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @_isolated_tk_test(success_count=6)  # len(bad_boxes)
-def test_blit():  # pragma: no cover
+def test_blit():
     import matplotlib.pyplot as plt
     import numpy as np
     import matplotlib.backends.backend_tkagg  # noqa
@@ -88,9 +92,8 @@ def test_blit():  # pragma: no cover
             print("success")
 
 
-@pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @_isolated_tk_test(success_count=1)
-def test_figuremanager_preserves_host_mainloop():  # pragma: no cover
+def test_figuremanager_preserves_host_mainloop():
     import tkinter
     import matplotlib.pyplot as plt
     success = []
@@ -116,10 +119,9 @@ def test_figuremanager_preserves_host_mainloop():  # pragma: no cover
 @pytest.mark.skipif(platform.python_implementation() != 'CPython',
                     reason='PyPy does not support Tkinter threading: '
                            'https://foss.heptapod.net/pypy/pypy/-/issues/1929')
-@pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @pytest.mark.flaky(reruns=3)
 @_isolated_tk_test(success_count=1)
-def test_figuremanager_cleans_own_mainloop():  # pragma: no cover
+def test_figuremanager_cleans_own_mainloop():
     import tkinter
     import time
     import matplotlib.pyplot as plt
@@ -144,10 +146,9 @@ def test_figuremanager_cleans_own_mainloop():  # pragma: no cover
     thread.join()
 
 
-@pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @pytest.mark.flaky(reruns=3)
 @_isolated_tk_test(success_count=0)
-def test_never_update():  # pragma: no cover
+def test_never_update():
     import tkinter
     del tkinter.Misc.update
     del tkinter.Misc.update_idletasks
@@ -171,9 +172,8 @@ def test_never_update():  # pragma: no cover
     # checks them.
 
 
-@pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @_isolated_tk_test(success_count=2)
-def test_missing_back_button():  # pragma: no cover
+def test_missing_back_button():
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
 
@@ -190,7 +190,7 @@ def test_missing_back_button():  # pragma: no cover
 
 @pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @_isolated_tk_test(success_count=1)
-def test_canvas_focus():  # pragma: no cover
+def test_canvas_focus():
     import tkinter as tk
     import matplotlib.pyplot as plt
     success = []
