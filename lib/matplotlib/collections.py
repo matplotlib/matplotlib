@@ -2015,6 +2015,7 @@ class QuadMesh(Collection):
         # super init delayed after own init because array kwarg requires
         # self._coordinates and self._shading
         super().__init__(**kwargs)
+        self.mouseover = False
 
     # Only needed during signature deprecation
     __init__.__signature__ = inspect.signature(
