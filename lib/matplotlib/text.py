@@ -1314,6 +1314,7 @@ class Text(Artist):
         self._fontproperties = FontProperties._from_any(fp).copy()
         self.stale = True
 
+    @_docstring.kwarg_doc("bool, default: :rc:`text.usetex`")
     def set_usetex(self, usetex):
         """
         Parameters

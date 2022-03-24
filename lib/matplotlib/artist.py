@@ -1482,6 +1482,9 @@ class ArtistInspector:
             raise AttributeError(f'{self.o} has no function {name}')
         func = getattr(self.o, name)
 
+        if hasattr(func, '_kwarg_doc'):
+            return func._kwarg_doc
+
         docstring = inspect.getdoc(func)
         if docstring is None:
             return 'unknown'
