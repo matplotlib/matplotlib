@@ -218,7 +218,7 @@ class Path:
         code is one of `STOP`, `MOVETO`, `LINETO`, `CURVE3`, `CURVE4`
         or `CLOSEPOLY`.  For codes that correspond to more than one
         vertex (`CURVE3` and `CURVE4`), that code will be repeated so
-        that the length of `self.vertices` and `self.codes` is always
+        that the length of `vertices` and `codes` is always
         the same.
         """
         return self._codes
