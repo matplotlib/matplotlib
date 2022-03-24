@@ -1,4 +1,6 @@
-QuadMesh cursor data removed
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-`.QuadMesh.get_cursor_data`, introduced in 3.5.1 is unreasonably slow for
-large meshes, so this method has been removed.
+QuadMesh mouseover defaults to False
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+New in 3.5, `.QuadMesh.get_cursor_data` allows display of data values
+under the cursor.  However, this can be very slow for large meshes, so
+by `.QuadMesh.set_mouseover` defaults to *False*.
