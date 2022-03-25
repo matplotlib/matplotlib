@@ -131,6 +131,11 @@ class TextToPath:
             verts.extend(verts1)
             codes.extend(codes1)
 
+        # Make sure an empty string or one with nothing to print
+        # (e.g. only spaces & newlines) will be valid/empty path
+        if not verts:
+            verts = np.empty((0, 2))
+
         return verts, codes
 
     def get_glyphs_with_font(self, font, s, glyph_map=None,
