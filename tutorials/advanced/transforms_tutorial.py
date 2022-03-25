@@ -3,18 +3,17 @@
 Transformations Tutorial
 ========================
 
-Like any graphics packages, Matplotlib is built on top of a
-transformation framework to easily move between coordinate systems,
-the userland *data* coordinate system, the *axes* coordinate system,
-the *figure* coordinate system, and the *display* coordinate system.
-In 95% of your plotting, you won't need to think about this, as it
-happens under the hood, but as you push the limits of custom figure
-generation, it helps to have an understanding of these objects so you
-can reuse the existing transformations Matplotlib makes available to
-you, or create your own (see :mod:`matplotlib.transforms`).  The table
-below summarizes the some useful coordinate systems, the transformation
-object you should use to work in that coordinate system, and the
-description of that system. In the ``Transformation Object`` column,
+Like any graphics packages, Matplotlib is built on top of a transformation
+framework to easily move between coordinate systems, the userland *data*
+coordinate system, the *axes* coordinate system, the *figure* coordinate
+system, and the *display* coordinate system.  In 95% of your plotting, you
+won't need to think about this, as it happens under the hood, but as you push
+the limits of custom figure generation, it helps to have an understanding of
+these objects so you can reuse the existing transformations Matplotlib makes
+available to you, or create your own (see :mod:`matplotlib.transforms`).  The
+table below summarizes the some useful coordinate systems, the description of
+that system, and the transformation object for going from that coordinate
+system to the *display* coordinates.  In the ``Transformation Object`` column,
 ``ax`` is a :class:`~matplotlib.axes.Axes` instance, and ``fig`` is a
 :class:`~matplotlib.figure.Figure` instance.
 
@@ -68,27 +67,30 @@ description of that system. In the ``Transformation Object`` column,
 
 
 
+The `~matplotlib.transforms.Transform` objects are naive to the source and
+destination coordinate systems, however the objects refereed to in the table
+above are constructed to take inputs in their coordinate system, and transform
+the input to the *display* coordinate system.  That is why the *display*
+coordinate system has ``None`` for the ``Transformation Object`` column -- it
+already is in *display* coordinates.  The naming and destination conventions
+are an aid to keeping track of the available "standard" coordinate systems and
+transforms.
 
+The transformations also know how to invert themselves, to go from *display*
+back to the native coordinate system.  This is particularly useful when
+processing events from the user interface, which typically occur in display
+space, and you want to know where the mouse click or key-press occurred in your
+*data* coordinate system.
 
-All of the transformation objects in the table above take inputs in
-their coordinate system, and transform the input to the *display*
-coordinate system.  That is why the *display* coordinate system has
-``None`` for the ``Transformation Object`` column -- it already is in
-*display* coordinates.  The transformations also know how to invert
-themselves, to go from *display* back to the native coordinate system.
-This is particularly useful when processing events from the user
-interface, which typically occur in display space, and you want to
-know where the mouse click or key-press occurred in your *data*
-coordinate system.
-
-Note that specifying objects in *display* coordinates will change their
-location if the ``dpi`` of the figure changes.  This can cause confusion when
-printing or changing screen resolution, because the object can change location
-and size.  Therefore it is most common
-for artists placed in an Axes or figure to have their transform set to
-something *other* than the `~.transforms.IdentityTransform()`; the default when
-an artist is placed on an Axes using `~.axes.Axes.add_artist` is for the
-transform to be ``ax.transData``.
+Note that specifying the position of Artists in *display* coordinates may
+change their relative location if the ``dpi`` or size of the figure changes.
+This can cause confusion when printing or changing screen resolution, because
+the object can change location and size.  Therefore it is most common for
+artists placed in an Axes or figure to have their transform set to something
+*other* than the `~.transforms.IdentityTransform()`; the default when an artist
+is added to an Axes using `~.axes.Axes.add_artist` is for the transform to be
+``ax.transData`` so that you can work and think in *data* coordinates and let
+Matplotlib take care of the transformation to *display*.
 
 .. _data-coords:
 
