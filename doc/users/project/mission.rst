@@ -6,8 +6,7 @@ supports Matplotlib and its extensions, providing plotting tools for
 the Scientific Python Ecosystem.  Our success is based on how effectively we
 enable our users, across scientific, industrial, commercial, and educational
 applications, to achieve their goals.  We believe that a diverse developer community creates
-the best software, and we welcome anyone, regardless of experience, education,
-gender, or nationality, who shares our mission to the community.
+the best software, and we welcome anyone who shares our values, as described in the code of conduct, and our mission to the community.
 
 
 Adapting the requirements :ref:`laid out by John Hunter
