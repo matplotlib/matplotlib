@@ -117,14 +117,10 @@ class TextToPath:
             glyph_info, glyph_map, rects = self.get_glyphs_mathtext(prop, s)
 
         verts, codes = [], []
-
         for glyph_id, xposition, yposition, scale in glyph_info:
             verts1, codes1 = glyph_map[glyph_id]
-            if len(verts1):
-                verts1 = np.array(verts1) * scale + [xposition, yposition]
-                verts.extend(verts1)
-                codes.extend(codes1)
-
+            verts.extend(verts1 * scale + [xposition, yposition])
+            codes.extend(codes1)
         for verts1, codes1 in rects:
             verts.extend(verts1)
             codes.extend(codes1)
