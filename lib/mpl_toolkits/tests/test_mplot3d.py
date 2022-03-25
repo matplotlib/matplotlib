@@ -27,11 +27,27 @@ def test_invisible_axes(fig_test, fig_ref):
     ax.set_visible(False)
 
 
-def test_aspect_equal_error():
+@mpl3d_image_comparison(['aspect_equal.png'], remove_text=False)
+def test_aspect_equal():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
-    with pytest.raises(NotImplementedError):
-        ax.set_aspect('equal')
+
+    points = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [1, 1, 0],
+                       [0, 0, 3], [1, 0, 3], [0, 1, 3], [1, 1, 3]])
+
+    x = np.asarray([coord[0] for coord in points])
+    y = np.asarray([coord[1] for coord in points])
+    z = np.asarray([coord[2] for coord in points])
+
+    def plot_edge(i, j):
+        ax.plot([x[i], x[j]], [y[i], y[j]], [z[i], z[j]], c='r')
+
+    # hexaedron creation
+    plot_edge(0, 1), plot_edge(1, 3), plot_edge(3, 2), plot_edge(2, 0)
+    plot_edge(4, 5), plot_edge(5, 7), plot_edge(7, 6), plot_edge(6, 4)
+    plot_edge(0, 4), plot_edge(1, 5), plot_edge(3, 7), plot_edge(2, 6)
+
+    ax.set_aspect('equal')
 
 
 @mpl3d_image_comparison(['bar3d.png'])

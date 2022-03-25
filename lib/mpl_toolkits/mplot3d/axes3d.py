@@ -272,22 +272,16 @@ class Axes3D(Axes):
         """
         Set the aspect ratios.
 
-        Axes 3D does not current support any aspect but 'auto' which fills
-        the Axes with the data limits.
-
-        To simulate having equal aspect in data space, set the ratio
-        of your data limits to match the value of `.get_box_aspect`.
-        To control box aspect ratios use `~.Axes3D.set_box_aspect`.
-
         Parameters
         ----------
-        aspect : {'auto'}
+        aspect : {'auto', 'equal'}
             Possible values:
 
             =========   ==================================================
             value       description
             =========   ==================================================
             'auto'      automatic; fill the position rectangle with data.
+            'equal'     adapt the axes to have equal aspect ratios.
             =========   ==================================================
 
         adjustable : None
@@ -321,13 +315,25 @@ class Axes3D(Axes):
         --------
         mpl_toolkits.mplot3d.axes3d.Axes3D.set_box_aspect
         """
-        if aspect != 'auto':
+        if aspect not in ('auto', 'equal'):
             raise NotImplementedError(
                 "Axes3D currently only supports the aspect argument "
-                f"'auto'. You passed in {aspect!r}."
+                f"'auto' or 'equal'. You passed in {aspect!r}."
             )
         super().set_aspect(
             aspect, adjustable=adjustable, anchor=anchor, share=share)
+
+        if aspect == 'equal':
+            v_intervals = np.vstack((self.xaxis.get_view_interval(),
+                                     self.yaxis.get_view_interval(),
+                                     self.zaxis.get_view_interval()))
+            mean = np.mean(v_intervals, axis=1)
+            delta = np.max(np.ptp(v_intervals, axis=1))
+            deltas = delta * self._box_aspect / min(self._box_aspect)
+
+            self.set_xlim3d(mean[0] - deltas[0] / 2., mean[0] + deltas[0] / 2.)
+            self.set_ylim3d(mean[1] - deltas[1] / 2., mean[1] + deltas[1] / 2.)
+            self.set_zlim3d(mean[2] - deltas[2] / 2., mean[2] + deltas[2] / 2.)
 
     def set_box_aspect(self, aspect, *, zoom=1):
         """
