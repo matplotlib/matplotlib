@@ -1825,8 +1825,10 @@ class Axis(martist.Artist):
             For each tick, includes ``tick.label1`` if it is visible, then
             ``tick.label2`` if it is visible, in that order.
         """
-        ticklabels = [t.get_text() if hasattr(t, 'get_text') else t
-                      for t in ticklabels]
+        ticklabels = []
+            for t in ticklabels:
+                if hasattr(t, 'get_text'):
+                    ticklabels.append(t.get_text())
         locator = (self.get_minor_locator() if minor
                    else self.get_major_locator())
         if isinstance(locator, mticker.FixedLocator):
