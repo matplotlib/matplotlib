@@ -838,18 +838,16 @@ class RangeSlider(SliderBase):
             self._active_handle = None
             return
 
+        # determine which handle was grabbed
         if self.orientation == "vertical":
-            # determine which handle was grabbed
-            event_handle = np.argmin(
+            handle_index = np.argmin(
                 np.abs([h.get_ydata()[0] - event.ydata for h in self._handles])
             )
-            handle = self._handles[event_handle]
         else:
-            # determine which handle was grabbed
-            event_handle = np.argmin(
+            handle_index = np.argmin(
                 np.abs([h.get_xdata()[0] - event.xdata for h in self._handles])
             )
-            handle = self._handles[event_handle]
+        handle = self._handles[handle_index]
 
         # these checks ensure smooth behavior if the handles swap which one
         # has a higher value. i.e. if one is dragged over and past the other.
