@@ -4917,7 +4917,8 @@ default: :rc:`scatter.edgecolors`
             DATA_PARAMETER_PLACEHOLDER
 
         **kwargs : `~matplotlib.collections.PolyCollection` properties
-            If *xscale* or *yscale* is set to 'symlog', additional `~matplotlib.scales.SymmetricalLogTransform` parameters.
+            If *xscale* or *yscale* is set to 'symlog',
+            additional `~matplotlib.scales.SymmetricalLogTransform` parameters.
             All other keyword arguments are passed on to `.PolyCollection`:
 
             %(PolyCollection:kwdoc)s
@@ -4954,7 +4955,7 @@ default: :rc:`scatter.edgecolors`
                 raise ValueError(
                     "y contains non-positive values, so cannot be log-scaled")
             ty = np.log10(ty)
-        
+
         if xscale == 'symlog' or yscale == 'symlog':
             symmlog_transform = mscale.SymmetricalLogTransform(
                 kwargs.get('base', 10),
@@ -5051,7 +5052,7 @@ default: :rc:`scatter.edgecolors`
         if linewidths is None:
             linewidths = [mpl.rcParams['patch.linewidth']]
 
-        if xscale == 'log' or yscale == 'log' or xscale == 'symlog' or yscale == 'symlog':
+        if xscale == 'log' or yscale == 'log':
             polygons = np.expand_dims(polygon, 0) + np.expand_dims(offsets, 1)
             if xscale == 'log':
                 polygons[:, :, 0] = 10.0 ** polygons[:, :, 0]
@@ -5064,6 +5065,8 @@ default: :rc:`scatter.edgecolors`
                 ymax = 10.0 ** ymax
                 self.set_yscale(yscale)
 
+        if xscale == 'symlog' or yscale == 'symlog':
+            polygons = np.expand_dims(polygon, 0) + np.expand_dims(offsets, 1)
             if xscale == 'symlog':
                 polygons[:, :, 0] = inv_symmlog_transform.transform_non_affine(
                     polygons[:, :, 0]
