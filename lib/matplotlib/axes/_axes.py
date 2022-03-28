@@ -4839,10 +4839,10 @@ default: :rc:`scatter.edgecolors`
             - If a sequence of values, the values of the lower bound of
               the bins to be used.
 
-        xscale : {'linear', 'log'}, default: 'linear'
+        xscale : {'linear', 'log', 'symlog'}, default: 'linear'
             Use a linear or log10 scale on the horizontal axis.
 
-        yscale : {'linear', 'log'}, default: 'linear'
+        yscale : {'linear', 'log', 'symlog'}, default: 'linear'
             Use a linear or log10 scale on the vertical axis.
 
         mincnt : int > 0, default: *None*
@@ -4917,6 +4917,7 @@ default: :rc:`scatter.edgecolors`
             DATA_PARAMETER_PLACEHOLDER
 
         **kwargs : `~matplotlib.collections.PolyCollection` properties
+            If *xscale* or *yscale* is set to 'symlog', additional `~matplotlib.scales.SymmetricalLogTransform` parameters.
             All other keyword arguments are passed on to `.PolyCollection`:
 
             %(PolyCollection:kwdoc)s
