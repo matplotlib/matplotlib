@@ -22,6 +22,7 @@ import matplotlib.mlab as mlab
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
 import matplotlib.quiver as mquiver
+import matplotlib.scale as mscale
 import matplotlib.stackplot as mstack
 import matplotlib.streamplot as mstream
 import matplotlib.table as mtable
@@ -4952,6 +4953,18 @@ default: :rc:`scatter.edgecolors`
                 raise ValueError(
                     "y contains non-positive values, so cannot be log-scaled")
             ty = np.log10(ty)
+        
+        if xscale == 'symlog' or yscale == 'symlog':
+            symmlog_transform = mscale.SymmetricalLogTransform(
+                kwargs.get('base', 10),
+                kwargs.get('linthresh', 2),
+                kwargs.get('linscale', 1),
+            )
+            inv_symmlog_transform = symmlog_transform.inverted()
+        if xscale == 'symlog':
+            tx = symmlog_transform.transform_non_affine(tx)
+        if yscale == 'symlog':
+            ty = symmlog_transform.transform_non_affine(ty)
         if extent is not None:
             xmin, xmax, ymin, ymax = extent
         else:
@@ -5037,7 +5050,7 @@ default: :rc:`scatter.edgecolors`
         if linewidths is None:
             linewidths = [mpl.rcParams['patch.linewidth']]
 
-        if xscale == 'log' or yscale == 'log':
+        if xscale == 'log' or yscale == 'log' or xscale == 'symlog' or yscale == 'symlog':
             polygons = np.expand_dims(polygon, 0) + np.expand_dims(offsets, 1)
             if xscale == 'log':
                 polygons[:, :, 0] = 10.0 ** polygons[:, :, 0]
@@ -5049,11 +5062,35 @@ default: :rc:`scatter.edgecolors`
                 ymin = 10.0 ** ymin
                 ymax = 10.0 ** ymax
                 self.set_yscale(yscale)
+
+            if xscale == 'symlog':
+                polygons[:, :, 0] = inv_symmlog_transform.transform_non_affine(
+                    polygons[:, :, 0]
+                )
+                xmin = inv_symmlog_transform.transform_non_affine(
+                    np.array([xmin])
+                )[0]
+                xmax = inv_symmlog_transform.transform_non_affine(
+                    np.array([xmax])
+                )[0]
+                self.set_xscale(xscale, **kwargs)
+            if yscale == 'symlog':
+                polygons[:, :, 1] = inv_symmlog_transform.transform_non_affine(
+                    polygons[:, :, 1]
+                )
+                ymin = inv_symmlog_transform.transform_non_affine(
+                    np.array([ymin])
+                )[0]
+                ymax = inv_symmlog_transform.transform_non_affine(
+                    np.array([ymax])
+                )[0]
+                self.set_yscale(yscale, **kwargs)
+
             collection = mcoll.PolyCollection(
                 polygons,
                 edgecolors=edgecolors,
                 linewidths=linewidths,
-                )
+            )
         else:
             collection = mcoll.PolyCollection(
                 [polygon],
@@ -5110,7 +5147,7 @@ default: :rc:`scatter.edgecolors`
                 ("y", y, ymin, ymax, yscale, 2 * ny),
         ]:
 
-            if zscale == "log":
+            if zscale == "log" or zscale == "symlog":
                 bin_edges = np.geomspace(zmin, zmax, nbins + 1)
             else:
                 bin_edges = np.linspace(zmin, zmax, nbins + 1)
