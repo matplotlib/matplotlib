@@ -411,7 +411,7 @@ class UnicodeFonts(TruetypeFonts):
                     'stixsans': StixSansFonts,
                     'cm': BakomaFonts
                     }.get(fallback_rc)
-        self.cm_fallback = font_cls(*args, **kwargs) if font_cls else None
+        self._fallback_font = font_cls(*args, **kwargs) if font_cls else None
 
         super().__init__(*args, **kwargs)
         self.fontmap = {}
@@ -424,7 +424,7 @@ class UnicodeFonts(TruetypeFonts):
         self.fontmap['ex'] = font
 
         # include STIX sized alternatives for glyphs if fallback is STIX
-        if isinstance(self.cm_fallback, StixFonts):
+        if isinstance(self._fallback_font, StixFonts):
             stixsizedaltfonts = {
                  0: 'STIXGeneral',
                  1: 'STIXSizeOneSym',
@@ -480,13 +480,13 @@ class UnicodeFonts(TruetypeFonts):
                     found_symbol = True
 
         if not found_symbol:
-            if self.cm_fallback:
+            if self._fallback_font:
                 if (fontname in ('it', 'regular')
-                        and isinstance(self.cm_fallback, StixFonts)):
+                        and isinstance(self._fallback_font, StixFonts)):
                     fontname = 'rm'
 
-                g = self.cm_fallback._get_glyph(fontname, font_class,
-                                                sym, fontsize)
+                g = self._fallback_font._get_glyph(fontname, font_class,
+                                                   sym, fontsize)
                 fname = g[0].family_name
                 if fname in list(BakomaFonts._fontmap.values()):
                     fname = "Computer Modern"
@@ -507,8 +507,8 @@ class UnicodeFonts(TruetypeFonts):
         return font, uniindex, fontsize, slanted
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
-        if self.cm_fallback:
-            return self.cm_fallback.get_sized_alternatives_for_symbol(
+        if self._fallback_font:
+            return self._fallback_font.get_sized_alternatives_for_symbol(
                 fontname, sym)
         return [(fontname, sym)]
 
@@ -518,9 +518,9 @@ class DejaVuFonts(UnicodeFonts):
     def __init__(self, *args, **kwargs):
         # This must come first so the backend's owner is set correctly
         if isinstance(self, DejaVuSerifFonts):
-            self.cm_fallback = StixFonts(*args, **kwargs)
+            self._fallback_font = StixFonts(*args, **kwargs)
         else:
-            self.cm_fallback = StixSansFonts(*args, **kwargs)
+            self._fallback_font = StixSansFonts(*args, **kwargs)
         self.bakoma = BakomaFonts(*args, **kwargs)
         TruetypeFonts.__init__(self, *args, **kwargs)
         self.fontmap = {}
@@ -616,7 +616,7 @@ class StixFonts(UnicodeFonts):
         4: 'STIXSizeFourSym',
         5: 'STIXSizeFiveSym',
     }
-    cm_fallback = False
+    _fallback_font = False
     _sans = False
 
     def __init__(self, *args, **kwargs):
