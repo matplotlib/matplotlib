@@ -335,6 +335,9 @@ html_static_path = ['_static']
 # default is ``".html"``.
 html_file_suffix = '.html'
 
+# this makes this the canonical link for all the pages on the site...
+html_baseurl = 'https://matplotlib.org/stable/'
+
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
 html_last_updated_fmt = '%b %d, %Y'
