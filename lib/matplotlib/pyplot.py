@@ -1303,13 +1303,13 @@ def subplot(*args, **kwargs):
 
     fig.sca(ax)
 
-    bbox = ax.bbox
-    axes_to_delete = []
-    for other_ax in fig.axes:
-        if other_ax == ax:
-            continue
-        if bbox.fully_overlaps(other_ax.bbox):
-            axes_to_delete.append(other_ax)
+    axes_to_delete = [other for other in fig.axes
+                      if other != ax and ax.bbox.fully_overlaps(other.bbox)]
+    if axes_to_delete:
+        _api.warn_deprecated(
+            "3.6", message="Auto-removal of overlapping axes is deprecated "
+            "since %(since)s and will be removed %(removal)s; explicitly call "
+            "ax.remove() as needed.")
     for ax_to_del in axes_to_delete:
         delaxes(ax_to_del)
 
@@ -1596,13 +1596,14 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
 
     subplotspec = gs.new_subplotspec(loc, rowspan=rowspan, colspan=colspan)
     ax = fig.add_subplot(subplotspec, **kwargs)
-    bbox = ax.bbox
-    axes_to_delete = []
-    for other_ax in fig.axes:
-        if other_ax == ax:
-            continue
-        if bbox.fully_overlaps(other_ax.bbox):
-            axes_to_delete.append(other_ax)
+
+    axes_to_delete = [other for other in fig.axes
+                      if other != ax and ax.bbox.fully_overlaps(other.bbox)]
+    if axes_to_delete:
+        _api.warn_deprecated(
+            "3.6", message="Auto-removal of overlapping axes is deprecated "
+            "since %(since)s and will be removed %(removal)s; explicitly call "
+            "ax.remove() as needed.")
     for ax_to_del in axes_to_delete:
         delaxes(ax_to_del)
 
