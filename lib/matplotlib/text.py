@@ -296,7 +296,8 @@ class Text(Artist):
         of a rotated text when necessary.
         """
         thisx, thisy = 0.0, 0.0
-        lines = self.get_text().split("\n")  # Ensures lines is not empty.
+        text = self.get_text()
+        lines = [text] if self.get_usetex() else text.split("\n")  # Not empty.
 
         ws = []
         hs = []
