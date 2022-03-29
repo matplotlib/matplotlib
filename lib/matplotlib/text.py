@@ -142,7 +142,7 @@ class Text(Artist):
                  wrap=False,
                  transform_rotates_text=False,
                  *,
-                 parse_math=True,
+                 parse_math=None,    # defaults to rcParams['text.parse_math']
                  **kwargs
                  ):
         """
@@ -163,7 +163,8 @@ class Text(Artist):
             color if color is not None else mpl.rcParams["text.color"])
         self.set_fontproperties(fontproperties)
         self.set_usetex(usetex)
-        self.set_parse_math(parse_math)
+        self.set_parse_math(parse_math if parse_math is not None else
+                            mpl.rcParams['text.parse_math'])
         self.set_wrap(wrap)
         self.set_verticalalignment(verticalalignment)
         self.set_horizontalalignment(horizontalalignment)

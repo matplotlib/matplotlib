@@ -301,6 +301,8 @@
                          # Values  other than 0 or 6 have no defined meaning.
 #text.antialiased: True  # If True (default), the text will be antialiased.
                          # This only affects raster outputs.
+#text.parse_math: True  # Use mathtext if there is an even number of unescaped
+                        # dollar signs.
 
 
 ## ***************************************************************************

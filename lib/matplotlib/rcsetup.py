@@ -932,6 +932,7 @@ _validators = {
     "text.hinting_factor": validate_int,
     "text.kerning_factor": validate_int,
     "text.antialiased":    validate_bool,
+    "text.parse_math":     validate_bool,
 
     "mathtext.cal":            validate_font_properties,
     "mathtext.rm":             validate_font_properties,
