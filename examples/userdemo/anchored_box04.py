@@ -12,7 +12,7 @@ from matplotlib.offsetbox import (AnchoredOffsetbox, DrawingArea, HPacker,
 
 fig, ax = plt.subplots(figsize=(3, 3))
 
-box1 = TextArea(" Test : ", textprops=dict(color="k"))
+box1 = TextArea(" Test: ", textprops=dict(color="k"))
 
 box2 = DrawingArea(60, 20, 0, 0)
 el1 = Ellipse((10, 10), width=16, height=5, angle=30, fc="r")

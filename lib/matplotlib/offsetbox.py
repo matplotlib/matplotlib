@@ -1064,8 +1064,7 @@ class AnchoredOffsetbox(OffsetBox):
             try:
                 l = len(bbox)
             except TypeError as err:
-                raise ValueError("Invalid argument for bbox : %s" %
-                                 str(bbox)) from err
+                raise ValueError(f"Invalid bbox: {bbox}") from err
 
             if l == 2:
                 bbox = [bbox[0], bbox[1], 0, 0]

@@ -299,7 +299,7 @@ class RendererWx(RendererBase):
 
 class GraphicsContextWx(GraphicsContextBase):
     """
-    The graphics context provides the color, line styles, etc...
+    The graphics context provides the color, line styles, etc.
 
     This class stores a reference to a wxMemoryDC, and a
     wxGraphicsContext that draws to it.  Creating a wxGraphicsContext

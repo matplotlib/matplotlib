@@ -2878,26 +2878,23 @@ class _AxesBase(martist.Artist):
             shared = shared_axes.get_siblings(self)
             # Base autoscaling on finite data limits when there is at least one
             # finite data limit among all the shared_axes and intervals.
-            # Also, find the minimum minpos for use in the margin calculation.
-            x_values = []
-            minimum_minpos = np.inf
-            for ax in shared:
-                x_values.extend(getattr(ax.dataLim, f"interval{name}"))
-                minimum_minpos = min(minimum_minpos,
-                                     getattr(ax.dataLim, f"minpos{name}"))
-            x_values = np.extract(np.isfinite(x_values), x_values)
-            if x_values.size >= 1:
-                x0, x1 = (x_values.min(), x_values.max())
+            values = [val for ax in shared
+                      for val in getattr(ax.dataLim, f"interval{name}")
+                      if np.isfinite(val)]
+            if values:
+                x0, x1 = (min(values), max(values))
             elif getattr(self._viewLim, f"mutated{name}")():
                 # No data, but explicit viewLims already set:
                 # in mutatedx or mutatedy.
                 return
             else:
                 x0, x1 = (-np.inf, np.inf)
-            # If x0 and x1 are non finite, use the locator to figure out
-            # default limits.
+            # If x0 and x1 are nonfinite, get default limits from the locator.
             locator = axis.get_major_locator()
             x0, x1 = locator.nonsingular(x0, x1)
+            # Find the minimum minpos for use in the margin calculation.
+            minimum_minpos = min(
+                getattr(ax.dataLim, f"minpos{name}") for ax in shared)
 
             # Prevent margin addition from crossing a sticky value.  A small
             # tolerance must be added due to floating point issues with
@@ -4027,15 +4024,10 @@ class _AxesBase(martist.Artist):
 
     def format_coord(self, x, y):
         """Return a format string formatting the *x*, *y* coordinates."""
-        if x is None:
-            xs = '???'
-        else:
-            xs = self.format_xdata(x)
-        if y is None:
-            ys = '???'
-        else:
-            ys = self.format_ydata(y)
-        return 'x=%s y=%s' % (xs, ys)
+        return "x={} y={}".format(
+            "???" if x is None else self.format_xdata(x),
+            "???" if y is None else self.format_ydata(y),
+        )
 
     def minorticks_on(self):
         """
