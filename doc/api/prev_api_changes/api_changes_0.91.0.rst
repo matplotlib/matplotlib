@@ -31,7 +31,7 @@ Changes for 0.91.0
   files. In the future the class might actually parse the font to
   allow e.g.,  subsetting.
 
-* :mod:`matplotlib.ft2font` now supports ``FT_Attach_File``. In
+* ``matplotlib.ft2font`` now supports ``FT_Attach_File``. In
   practice this can be used to read an afm file in addition to a
   pfa/pfb file, to get metrics and kerning information for a Type 1
   font.

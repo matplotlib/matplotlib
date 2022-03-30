@@ -297,7 +297,7 @@ Blacklisted rcparams no longer updated by `~matplotlib.rcdefaults`, `~matplotlib
 
 The rc modifier functions `~matplotlib.rcdefaults`,
 `~matplotlib.rc_file_defaults` and `~matplotlib.rc_file`
-now ignore rcParams in the `matplotlib.style.core.STYLE_BLACKLIST` set.  In
+now ignore rcParams in the ``matplotlib.style.core.STYLE_BLACKLIST`` set.  In
 particular, this prevents the ``backend`` and ``interactive`` rcParams from
 being incorrectly modified by these functions.
 
@@ -324,12 +324,12 @@ instead of ``\usepackage{ucs}\usepackage[utf8x]{inputenc}``.
 Return type of ArtistInspector.get_aliases changed
 --------------------------------------------------
 
-`ArtistInspector.get_aliases` previously returned the set of aliases as
+``ArtistInspector.get_aliases`` previously returned the set of aliases as
 ``{fullname: {alias1: None, alias2: None, ...}}``.  The dict-to-None mapping
 was used to simulate a set in earlier versions of Python.  It has now been
 replaced by a set, i.e. ``{fullname: {alias1, alias2, ...}}``.
 
-This value is also stored in `.ArtistInspector.aliasd`, which has likewise
+This value is also stored in ``ArtistInspector.aliasd``, which has likewise
 changed.
 
 

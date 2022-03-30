@@ -986,7 +986,7 @@ def rcdefaults():
     Restore the `.rcParams` from Matplotlib's internal default style.
 
     Style-blacklisted `.rcParams` (defined in
-    `matplotlib.style.core.STYLE_BLACKLIST`) are not updated.
+    ``matplotlib.style.core.STYLE_BLACKLIST``) are not updated.
 
     See Also
     --------
@@ -1011,7 +1011,7 @@ def rc_file_defaults():
     Restore the `.rcParams` from the original rc file loaded by Matplotlib.
 
     Style-blacklisted `.rcParams` (defined in
-    `matplotlib.style.core.STYLE_BLACKLIST`) are not updated.
+    ``matplotlib.style.core.STYLE_BLACKLIST``) are not updated.
     """
     # Deprecation warnings were already handled when creating rcParamsOrig, no
     # need to reemit them here.
@@ -1026,7 +1026,7 @@ def rc_file(fname, *, use_default_template=True):
     Update `.rcParams` from file.
 
     Style-blacklisted `.rcParams` (defined in
-    `matplotlib.style.core.STYLE_BLACKLIST`) are not updated.
+    ``matplotlib.style.core.STYLE_BLACKLIST``) are not updated.
 
     Parameters
     ----------
