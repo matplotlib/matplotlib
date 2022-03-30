@@ -1764,7 +1764,7 @@ class EllipseCollection(Collection):
         elif self._units == 'dots':
             sc = 1.0
         else:
-            raise ValueError('unrecognized units: %s' % self._units)
+            raise ValueError(f'Unrecognized units: {self._units!r}')
 
         self._transforms = np.zeros((len(self._widths), 3, 3))
         widths = self._widths * sc

@@ -169,25 +169,25 @@ def _process_plot_format(fmt):
         if fmt[i:i+2] in mlines.lineStyles:  # First, the two-char styles.
             if linestyle is not None:
                 raise ValueError(
-                    'Illegal format string "%s"; two linestyle symbols' % fmt)
+                    f'Illegal format string {fmt!r}; two linestyle symbols')
             linestyle = fmt[i:i+2]
             i += 2
         elif c in mlines.lineStyles:
             if linestyle is not None:
                 raise ValueError(
-                    'Illegal format string "%s"; two linestyle symbols' % fmt)
+                    f'Illegal format string {fmt!r}; two linestyle symbols')
             linestyle = c
             i += 1
         elif c in mlines.lineMarkers:
             if marker is not None:
                 raise ValueError(
-                    'Illegal format string "%s"; two marker symbols' % fmt)
+                    f'Illegal format string {fmt!r}; two marker symbols')
             marker = c
             i += 1
         elif c in mcolors.get_named_colors_mapping():
             if color is not None:
                 raise ValueError(
-                    'Illegal format string "%s"; two color symbols' % fmt)
+                    f'Illegal format string {fmt!r}; two color symbols')
             color = c
             i += 1
         elif c == 'C' and i < len(fmt) - 1:
@@ -2084,8 +2084,8 @@ class _AxesBase(martist.Artist):
                     self.set_ylim([ylim[0], ylim[0] + edge_size],
                                   emit=emit, auto=False)
             else:
-                raise ValueError('Unrecognized string %s to axis; '
-                                 'try on or off' % s)
+                raise ValueError(f"Unrecognized string {s!r} to axis; "
+                                 "try 'on' or 'off'")
         else:
             if len(args) == 1:
                 limits = args[0]

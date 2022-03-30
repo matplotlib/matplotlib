@@ -5095,7 +5095,8 @@ def test_shared_aspect_error():
                            r"axis\(\) takes 0 or 1 positional arguments but 2"
                            " were given"),
                           (ValueError, ('foo', ), {},
-                           "Unrecognized string foo to axis; try on or off"),
+                           "Unrecognized string 'foo' to axis; try 'on' or "
+                           "'off'"),
                           (TypeError, ([1, 2], ), {},
                            "the first argument to axis*"),
                           (TypeError, tuple(), {'foo': None},
@@ -7572,6 +7573,19 @@ def test_empty_line_plots():
     _, ax = plt.subplots()
     line = ax.plot([], [])
     assert len(line) == 1
+
+
+@pytest.mark.parametrize('fmt, match', (
+    ("foo", "Unrecognized character f in format string 'foo'"),
+    ("o+", "Illegal format string 'o\\+'; two marker symbols"),
+    (":-", "Illegal format string ':-'; two linestyle symbols"),
+    ("rk", "Illegal format string 'rk'; two color symbols"),
+    (":o-r", "Illegal format string ':o-r'; two linestyle symbols"),
+))
+def test_plot_format_errors(fmt, match):
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError, match=match):
+        ax.plot((0, 0), fmt)
 
 
 def test_clim():

@@ -251,6 +251,21 @@ def test_annotation_contains():
     assert ann.contains(event) == (False, {})
 
 
+@pytest.mark.parametrize('err, xycoords, match', (
+    (RuntimeError, print, "Unknown return type"),
+    (RuntimeError, [0, 0], r"Unknown coordinate type: \[0, 0\]"),
+    (ValueError, "foo", "'foo' is not a recognized coordinate"),
+    (ValueError, "foo bar", "'foo bar' is not a recognized coordinate"),
+    (ValueError, "offset foo", "xycoords cannot be an offset coordinate"),
+    (ValueError, "axes foo", "'foo' is not a recognized unit"),
+))
+def test_annotate_errors(err, xycoords, match):
+    fig, ax = plt.subplots()
+    with pytest.raises(err, match=match):
+        ax.annotate('xy', (0, 0), xytext=(0.5, 0.5), xycoords=xycoords)
+        fig.canvas.draw()
+
+
 @image_comparison(['titles'])
 def test_titles():
     # left and right side titles
