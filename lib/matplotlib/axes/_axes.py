@@ -5052,7 +5052,8 @@ default: :rc:`scatter.edgecolors`
         if linewidths is None:
             linewidths = [mpl.rcParams['patch.linewidth']]
 
-        if xscale == 'log' or yscale == 'log':
+        if (xscale == 'log' or yscale == 'log' or
+                xscale == 'symlog' or yscale == 'symlog'):
             polygons = np.expand_dims(polygon, 0) + np.expand_dims(offsets, 1)
             if xscale == 'log':
                 polygons[:, :, 0] = 10.0 ** polygons[:, :, 0]
@@ -5064,14 +5065,7 @@ default: :rc:`scatter.edgecolors`
                 ymin = 10.0 ** ymin
                 ymax = 10.0 ** ymax
                 self.set_yscale(yscale)
-            collection = mcoll.PolyCollection(
-                polygons,
-                edgecolors=edgecolors,
-                linewidths=linewidths,
-            )
 
-        if xscale == 'symlog' or yscale == 'symlog':
-            polygons = np.expand_dims(polygon, 0) + np.expand_dims(offsets, 1)
             if xscale == 'symlog':
                 polygons[:, :, 0] = inv_symmlog_transform.transform_non_affine(
                     polygons[:, :, 0]
