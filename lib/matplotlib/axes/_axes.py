@@ -7869,8 +7869,9 @@ such objects
           The method used to calculate the estimator bandwidth.  This can be
           'scott', 'silverman', a scalar constant or a callable.  If a
           scalar, this will be used directly as `kde.factor`.  If a
-          callable, it should take a `GaussianKDE` instance as its only
-          parameter and return a scalar. If None (default), 'scott' is used.
+          callable, it should take a `matplotlib.mlab.GaussianKDE` instance as
+          its only parameter and return a scalar. If None (default), 'scott'
+          is used.
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER

@@ -1006,8 +1006,8 @@ def add_tools_to_manager(toolmanager, tools=default_tools):
     toolmanager : `.backend_managers.ToolManager`
         Manager to which the tools are added.
     tools : {str: class_like}, optional
-        The tools to add in a {name: tool} dict, see `add_tool` for more
-        info.
+        The tools to add in a {name: tool} dict, see
+        `.backend_managers.ToolManager.add_tool` for more info.
     """
 
     for name, tool in tools.items():
@@ -1021,11 +1021,12 @@ def add_tools_to_container(container, tools=default_toolbar_tools):
     Parameters
     ----------
     container : Container
-        `backend_bases.ToolContainerBase` object that will get the tools added.
+        `.backend_bases.ToolContainerBase` object that will get the tools
+        added.
     tools : list, optional
         List in the form ``[[group1, [tool1, tool2 ...]], [group2, [...]]]``
         where the tools ``[tool1, tool2, ...]`` will display in group1.
-        See `add_tool` for details.
+        See `.backend_bases.ToolContainerBase.add_tool` for details.
     """
 
     for group, grouptools in tools:
