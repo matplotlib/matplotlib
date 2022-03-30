@@ -5064,6 +5064,11 @@ default: :rc:`scatter.edgecolors`
                 ymin = 10.0 ** ymin
                 ymax = 10.0 ** ymax
                 self.set_yscale(yscale)
+            collection = mcoll.PolyCollection(
+                polygons,
+                edgecolors=edgecolors,
+                linewidths=linewidths,
+            )
 
         if xscale == 'symlog' or yscale == 'symlog':
             polygons = np.expand_dims(polygon, 0) + np.expand_dims(offsets, 1)
