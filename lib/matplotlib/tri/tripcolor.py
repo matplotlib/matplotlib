@@ -115,13 +115,14 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
     if 'antialiaseds' not in kwargs and ec.lower() == "none":
         kwargs['antialiaseds'] = False
 
+    _api.check_isinstance((Normalize, None), norm=norm)
     if shading == 'gouraud':
         if facecolors is not None:
             raise ValueError(
                 "shading='gouraud' can only be used when the colors "
                 "are specified at the points, not at the faces.")
-        collection = TriMesh(tri, **kwargs)
-        colors = point_colors
+        collection = TriMesh(tri, alpha=alpha, array=point_colors,
+                             cmap=cmap, norm=norm, **kwargs)
     else:
         # Vertices of triangles.
         maskedTris = tri.get_masked_triangles()
@@ -136,14 +137,9 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
             colors = facecolors[~tri.mask]
         else:
             colors = facecolors
+        collection = PolyCollection(verts, alpha=alpha, array=colors,
+                                    cmap=cmap, norm=norm, **kwargs)
 
-        collection = PolyCollection(verts, **kwargs)
-
-    collection.set_alpha(alpha)
-    collection.set_array(colors)
-    _api.check_isinstance((Normalize, None), norm=norm)
-    collection.set_cmap(cmap)
-    collection.set_norm(norm)
     collection._scale_norm(norm, vmin, vmax)
     ax.grid(False)
 
