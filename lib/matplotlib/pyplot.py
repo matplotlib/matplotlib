@@ -953,7 +953,7 @@ def close(fig=None):
 
 def clf():
     """Clear the current figure."""
-    gcf().clf()
+    gcf().clear()
 
 
 def draw():
