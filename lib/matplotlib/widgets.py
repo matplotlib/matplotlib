@@ -813,7 +813,10 @@ class RangeSlider(SliderBase):
             val = self._max_in_bounds(pos)
             self.set_max(val)
         if self._active_handle:
-            self._active_handle.set_xdata([val])
+            if self.orientation == "vertical":
+                self._active_handle.set_ydata([val])
+            else:
+                self._active_handle.set_xdata([val])
 
     def _update(self, event):
         """Update the slider position."""
@@ -836,11 +839,16 @@ class RangeSlider(SliderBase):
             return
 
         # determine which handle was grabbed
-        handle = self._handles[
-            np.argmin(
+        if self.orientation == "vertical":
+            handle_index = np.argmin(
+                np.abs([h.get_ydata()[0] - event.ydata for h in self._handles])
+            )
+        else:
+            handle_index = np.argmin(
                 np.abs([h.get_xdata()[0] - event.xdata for h in self._handles])
             )
-        ]
+        handle = self._handles[handle_index]
+
         # these checks ensure smooth behavior if the handles swap which one
         # has a higher value. i.e. if one is dragged over and past the other.
         if handle is not self._active_handle:
@@ -907,14 +915,22 @@ class RangeSlider(SliderBase):
             xy[2] = .75, val[1]
             xy[3] = .75, val[0]
             xy[4] = .25, val[0]
+
+            self._handles[0].set_ydata([val[0]])
+            self._handles[1].set_ydata([val[1]])
         else:
             xy[0] = val[0], .25
             xy[1] = val[0], .75
             xy[2] = val[1], .75
             xy[3] = val[1], .25
             xy[4] = val[0], .25
+
+            self._handles[0].set_xdata([val[0]])
+            self._handles[1].set_xdata([val[1]])
+
         self.poly.xy = xy
         self.valtext.set_text(self._format(val))
+
         if self.drawon:
             self.ax.figure.canvas.draw_idle()
         self.val = val
