@@ -2941,6 +2941,32 @@ class _AxesBase(martist.Artist):
             scaley, self._shared_axes["y"], 'y', self.yaxis, self._ymargin,
             y_stickies, self.set_ybound)
 
+    def _get_titles_siblings(self, renderer):
+        """
+        Get the bounding boxes for this `.axis` and its siblings
+        as set by `.Figure.align_titles`.
+
+        By default it just gets bboxes for self.
+        """
+        # Get the Grouper keeping track of title groups for this figure.
+        axis_names = [
+            name for name, axis in self.axes._axis_map.items()
+            if name in self.figure._align_label_groups and axis is self]
+        if len(axis_names) != 1:
+            return [], []
+        axis_name, = axis_names
+        grouper = self.figure._align_label_groups[axis_name]
+        bboxes = []
+        bboxes2 = []
+        # If we want to align labels from other Axes:
+        for ax in grouper.get_siblings(self.axes):
+            axis = getattr(ax, f"{axis_name}axis")
+            ticks_to_draw = axis._update_ticks()
+            tlb, tlb2 = axis._get_ticklabel_bboxes(ticks_to_draw, renderer)
+            bboxes.extend(tlb)
+            bboxes2.extend(tlb2)
+        return bboxes, bboxes2
+
     def _update_title_position(self, renderer):
         """
         Update the title position based on the bounding box enclosing
@@ -3003,6 +3029,7 @@ class _AxesBase(martist.Artist):
                     title.set_position((x, y))
 
         ymax = max(title.get_position()[1] for title in titles)
+        # TODO: and for titles in sibling axes according to grouper
         for title in titles:
             # now line up all the titles at the highest baseline.
             x, _ = title.get_position()
