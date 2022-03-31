@@ -1490,7 +1490,12 @@ class ArtistInspector:
         ds = inspect.getdoc(o)
         if ds is None:
             return False
-        return ds.startswith('Alias for ')
+        result = ds.startswith('Alias for ')
+        alt_result = (o._artist_property.is_alias
+                      if hasattr(o, '_artist_property')
+                      else False)
+        assert result == alt_result
+        return result
 
     def aliased_name(self, s):
         """
