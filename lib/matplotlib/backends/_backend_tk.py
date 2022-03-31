@@ -519,7 +519,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         If you want to use the toolbar with a different layout manager, use
         ``pack_toolbar=False``.
     """
-    def __init__(self, canvas, window, *, pack_toolbar=True):
+    def __init__(self, canvas, window, *, pack_toolbar=True, toolitems=NavigationToolbar2.toolitems):
         # Avoid using self.window (prefer self.canvas.get_tk_widget().master),
         # so that Tool implementations can reuse the methods.
         self.window = window
@@ -528,7 +528,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
                           width=int(canvas.figure.bbox.width), height=50)
 
         self._buttons = {}
-        for text, tooltip_text, image_file, callback in self.toolitems:
+        for text, tooltip_text, image_file, callback in toolitems:
             if text is None:
                 # Add a spacer; return value is unused.
                 self._Spacer()
