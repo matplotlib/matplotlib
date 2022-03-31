@@ -5389,7 +5389,9 @@ def test_set_ticks_with_labels(fig_test, fig_ref):
 
 
 def test_set_noniterable_ticklabels():
-    # Ensure a useful TypeError message is raised when given a non-iterable ticklabels argument. Pull request #22710
+    # Ensure a useful TypeError message is raised
+    # when given a non-iterable ticklabels argument
+    # Pull request #22710
     with pytest.raises(TypeError, match='must be a sequence'):
         fig, ax = plt.subplots(2)
         ax[1].set_xticks([2, 9], 3.1)
