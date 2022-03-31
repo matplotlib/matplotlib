@@ -442,8 +442,6 @@ def test_inverted_cla():
     assert not ax.xaxis_inverted()
     assert ax.yaxis_inverted()
 
-    for ax in fig.axes:
-        ax.remove()
     # 5. two shared axes. Inverting the leader axis should invert the shared
     # axes; clearing the leader axis should bring axes in shared
     # axes back to normal.
@@ -5390,8 +5388,9 @@ def test_set_ticks_with_labels(fig_test, fig_ref):
     ax.set_yticks([2, 4], ['A', 'B'], minor=True)
 
 
-def test_iterable_ticklabels():
-    with pytest.raises(TypeError):
+def test_set_noniterable_ticklabels():
+    # Ensure a useful TypeError message is raised when given a non-iterable ticklabels argument. Pull request #22710
+    with pytest.raises(TypeError, match='must be a sequence'):
         fig, ax = plt.subplots(2)
         ax[1].set_xticks([2, 9], 3.1)
 
