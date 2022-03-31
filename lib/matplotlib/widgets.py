@@ -1201,7 +1201,7 @@ class TextBox(AxesWidget):
         # This causes a single extra draw if the figure has never been rendered
         # yet, which should be fine as we're going to repeatedly re-render the
         # figure later anyways.
-        if self.ax.figure._cachedRenderer is None:
+        if self.ax.figure._get_renderer() is None:
             self.ax.figure.canvas.draw()
 
         text = self.text_disp.get_text()  # Save value before overwriting it.
@@ -1917,7 +1917,8 @@ class _SelectorWidget(AxesWidget):
 
     def update(self):
         """Draw using blit() or draw_idle(), depending on ``self.useblit``."""
-        if not self.ax.get_visible() or self.ax.figure._cachedRenderer is None:
+        if (not self.ax.get_visible() or
+                self.ax.figure._get_renderer() is None):
             return False
         if self.useblit:
             if self.background is not None:

@@ -198,18 +198,6 @@ def auto_adjust_subplotpars(
         ax_bbox_list, pad, h_pad, w_pad, rect)
 
 
-def get_renderer(fig):
-    if fig._cachedRenderer:
-        return fig._cachedRenderer
-    else:
-        canvas = fig.canvas
-        if canvas and hasattr(canvas, "get_renderer"):
-            return canvas.get_renderer()
-        else:
-            from . import backend_bases
-            return backend_bases._get_renderer(fig)
-
-
 def get_subplotspec_list(axes_list, grid_spec=None):
     """
     Return a list of subplotspec from the given list of axes.
