@@ -298,7 +298,7 @@ class Artist:
         if val and self.stale_callback is not None:
             self.stale_callback(self, val)
 
-    def get_window_extent(self, renderer):
+    def get_window_extent(self, renderer=None):
         """
         Get the artist's bounding box in display space.
 
@@ -318,7 +318,7 @@ class Artist:
         """
         return Bbox([[0, 0], [0, 0]])
 
-    def get_tightbbox(self, renderer):
+    def get_tightbbox(self, renderer=None):
         """
         Like `.Artist.get_window_extent`, but includes any clipping.
 

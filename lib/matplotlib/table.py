@@ -398,7 +398,7 @@ class Table(Artist):
         # Need a renderer to do hit tests on mouseevent; assume the last one
         # will do
         if renderer is None:
-            renderer = self.figure._cachedRenderer
+            renderer = self.figure._get_renderer()
         if renderer is None:
             raise RuntimeError('No renderer defined')
 
@@ -432,7 +432,7 @@ class Table(Artist):
             return inside, info
         # TODO: Return index of the cell containing the cursor so that the user
         # doesn't have to bind to each one individually.
-        renderer = self.figure._cachedRenderer
+        renderer = self.figure._get_renderer()
         if renderer is not None:
             boxes = [cell.get_window_extent(renderer)
                      for (row, col), cell in self._cells.items()
@@ -446,8 +446,10 @@ class Table(Artist):
         """Return the Artists contained by the table."""
         return list(self._cells.values())
 
-    def get_window_extent(self, renderer):
+    def get_window_extent(self, renderer=None):
         # docstring inherited
+        if renderer is None:
+            renderer = self.figure._get_renderer()
         self._update_positions(renderer)
         boxes = [cell.get_window_extent(renderer)
                  for cell in self._cells.values()]

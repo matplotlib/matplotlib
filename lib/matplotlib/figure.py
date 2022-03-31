@@ -1618,7 +1618,7 @@ default: %(va)s
                 bbox_artists.extend(ax.get_default_bbox_extra_artists())
         return bbox_artists
 
-    def get_tightbbox(self, renderer, bbox_extra_artists=None):
+    def get_tightbbox(self, renderer=None, bbox_extra_artists=None):
         """
         Return a (tight) bounding box of the figure *in inches*.
 
@@ -1644,6 +1644,9 @@ default: %(va)s
         `.BboxBase`
             containing the bounding box (in figure inches).
         """
+
+        if renderer is None:
+            renderer = self.figure._get_renderer()
 
         bb = []
         if bbox_extra_artists is None:
@@ -2060,13 +2063,8 @@ class SubFigure(FigureBase):
     def dpi(self, value):
         self._parent.dpi = value
 
-    @property
-    def _cachedRenderer(self):
-        return self._parent._cachedRenderer
-
-    @_cachedRenderer.setter
-    def _cachedRenderer(self, renderer):
-        self._parent._cachedRenderer = renderer
+    def _get_renderer(self):
+        return self._parent._get_renderer()
 
     def _redo_transform_rel_fig(self, bbox=None):
         """
@@ -2496,6 +2494,14 @@ class Figure(FigureBase):
 
     get_axes = axes.fget
 
+    def _get_renderer(self):
+        if self._cachedRenderer is not None:
+            return self._cachedRenderer
+        elif hasattr(self.canvas, 'get_renderer'):
+            return self.canvas.get_renderer()
+        else:
+            return _get_renderer(self)
+
     def _get_dpi(self):
         return self._dpi
 
@@ -2644,7 +2650,7 @@ class Figure(FigureBase):
         hspace = info['hspace']
 
         if relative and (w_pad is not None or h_pad is not None):
-            renderer = _get_renderer(self)
+            renderer = self._get_renderer()
             dpi = renderer.dpi
             w_pad = w_pad * dpi / renderer.width
             h_pad = h_pad * dpi / renderer.height

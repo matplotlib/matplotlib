@@ -1425,7 +1425,7 @@ class BboxImage(_ImageBase):
 
     def get_window_extent(self, renderer=None):
         if renderer is None:
-            renderer = self.get_figure()._cachedRenderer
+            renderer = self.get_figure()._get_renderer()
 
         if isinstance(self.bbox, BboxBase):
             return self.bbox

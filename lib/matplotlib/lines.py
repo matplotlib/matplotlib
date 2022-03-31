@@ -616,7 +616,7 @@ class Line2D(Artist):
         bbox.update_from_data_xy(self.get_xydata())
         return bbox
 
-    def get_window_extent(self, renderer):
+    def get_window_extent(self, renderer=None):
         bbox = Bbox([[0, 0], [0, 0]])
         trans_data_to_xy = self.get_transform().transform
         bbox.update_from_data_xy(trans_data_to_xy(self.get_xydata()),

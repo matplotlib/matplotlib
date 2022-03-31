@@ -22,8 +22,6 @@ import matplotlib._api as _api
 from matplotlib._constrained_layout import do_constrained_layout
 from matplotlib._tight_layout import (get_subplotspec_list,
                                       get_tight_layout_figure)
-# from matplotlib.backend_bases import _get_renderer
-from matplotlib._tight_layout import get_renderer
 
 
 class LayoutEngine:
@@ -154,7 +152,7 @@ class TightLayoutEngine(LayoutEngine):
             _api.warn_external("This figure includes Axes that are not "
                                "compatible with tight_layout, so results "
                                "might be incorrect.")
-        renderer = get_renderer(fig)
+        renderer = fig._get_renderer()
         with getattr(renderer, "_draw_disabled", nullcontext)():
             kwargs = get_tight_layout_figure(
                 fig, fig.axes, subplotspec_list, renderer,

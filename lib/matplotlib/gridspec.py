@@ -474,7 +474,7 @@ class GridSpec(GridSpecBase):
                                "might be incorrect.")
 
         if renderer is None:
-            renderer = _tight_layout.get_renderer(figure)
+            renderer = figure._get_renderer()
 
         kwargs = _tight_layout.get_tight_layout_figure(
             figure, figure.axes, subplotspec_list, renderer,

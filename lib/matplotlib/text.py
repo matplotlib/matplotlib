@@ -905,7 +905,7 @@ class Text(Artist):
         if renderer is not None:
             self._renderer = renderer
         if self._renderer is None:
-            self._renderer = self.figure._cachedRenderer
+            self._renderer = self.figure._get_renderer()
         if self._renderer is None:
             raise RuntimeError(
                 "Cannot get window extent of text w/o renderer. You likely "
@@ -1567,8 +1567,10 @@ class _AnnotationBase:
         x, y = self.xy
         return self._get_xy(renderer, x, y, self.xycoords)
 
-    def _check_xy(self, renderer):
+    def _check_xy(self, renderer=None):
         """Check whether the annotation at *xy_pixel* should be drawn."""
+        if renderer is None:
+            renderer = self.figure._get_renderer()
         b = self.get_annotation_clip()
         if b or (b is None and self.xycoords == "data"):
             # check if self.xy is inside the axes.
@@ -1999,7 +2001,7 @@ class Annotation(Text, _AnnotationBase):
         if renderer is not None:
             self._renderer = renderer
         if self._renderer is None:
-            self._renderer = self.figure._cachedRenderer
+            self._renderer = self.figure._get_renderer()
         if self._renderer is None:
             raise RuntimeError('Cannot get window extent w/o renderer')
 
@@ -2013,7 +2015,7 @@ class Annotation(Text, _AnnotationBase):
 
         return Bbox.union(bboxes)
 
-    def get_tightbbox(self, renderer):
+    def get_tightbbox(self, renderer=None):
         # docstring inherited
         if not self._check_xy(renderer):
             return Bbox.null()
