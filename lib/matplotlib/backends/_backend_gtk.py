@@ -295,8 +295,7 @@ class RubberbandGTK(backend_tools.RubberbandBase):
 
 class ConfigureSubplotsGTK(backend_tools.ConfigureSubplotsBase):
     def trigger(self, *args):
-        _NavigationToolbar2GTK.configure_subplots(
-            self._make_classic_style_pseudo_toolbar(), None)
+        _NavigationToolbar2GTK.configure_subplots(self, None)
 
 
 class _BackendGTK(_Backend):
