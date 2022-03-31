@@ -934,8 +934,7 @@ class SaveFigureTk(backend_tools.SaveFigureBase):
 @backend_tools._register_tool_class(FigureCanvasTk)
 class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
     def trigger(self, *args):
-        NavigationToolbar2Tk.configure_subplots(
-            self._make_classic_style_pseudo_toolbar())
+        NavigationToolbar2Tk.configure_subplots(self)
 
 
 @backend_tools._register_tool_class(FigureCanvasTk)
