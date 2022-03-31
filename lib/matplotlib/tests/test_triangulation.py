@@ -266,6 +266,16 @@ def test_tripcolor_color():
     ax.tripcolor(x, y, facecolors=[1, 2])  # faces
 
 
+def test_tripcolor_clim():
+    np.random.seed(19680801)
+    a, b, c = np.random.rand(10), np.random.rand(10), np.random.rand(10)
+
+    ax = plt.figure().add_subplot()
+    clim = (0.25, 0.75)
+    norm = ax.tripcolor(a, b, c, clim=clim).norm
+    assert((norm.vmin, norm.vmax) == clim)
+
+
 def test_tripcolor_warnings():
     x = [-1, 0, 1, 0]
     y = [0, -1, 0, 1]
