@@ -1294,8 +1294,7 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
 
 class ConfigureSubplotsWx(backend_tools.ConfigureSubplotsBase):
     def trigger(self, *args):
-        NavigationToolbar2Wx.configure_subplots(
-            self._make_classic_style_pseudo_toolbar())
+        NavigationToolbar2Wx.configure_subplots(self)
 
 
 class SaveFigureWx(backend_tools.SaveFigureBase):

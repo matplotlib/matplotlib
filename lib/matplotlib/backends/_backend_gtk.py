@@ -156,8 +156,7 @@ class ConfigureSubplotsGTK(backend_tools.ConfigureSubplotsBase, Gtk.Window):
         return self.canvas.__class__(fig)
 
     def trigger(self, *args):
-        _NavigationToolbar2GTK.configure_subplots(
-            self._make_classic_style_pseudo_toolbar(), None)
+        _NavigationToolbar2GTK.configure_subplots(self, None)
 
 
 class _BackendGTK(_Backend):
