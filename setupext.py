@@ -617,6 +617,8 @@ class FreeType(SetupPackage):
                 },
                 **env,
             }
+            if os.path.exists(os.path.join(src_path, "autogen.sh")):
+                subprocess.check_call(["sh", "./autogen.sh"], env=env, cwd=src_path)
             env["CFLAGS"] = env.get("CFLAGS", "") + " -fPIC"
             configure = [
                 "./configure", "--with-zlib=no", "--with-bzip2=no",
