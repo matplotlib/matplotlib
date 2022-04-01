@@ -468,15 +468,13 @@ class FileMovieWriter(MovieWriter):
     def finish(self):
         # Call run here now that all frame grabbing is done. All temp files
         # are available to be assembled.
-        self._run()
-        super().finish()  # Will call clean-up
-
-    def _cleanup(self):  # Inline to finish() once cleanup() is removed.
-        super()._cleanup()
-        if self._tmpdir:
-            _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
-            self._tmpdir.cleanup()
-
+        try:
+            self._run()
+            super().finish()
+        finally:
+            if self._tmpdir:
+                _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
+                self._tmpdir.cleanup()
 
 @writers.register('pillow')
 class PillowWriter(AbstractMovieWriter):
