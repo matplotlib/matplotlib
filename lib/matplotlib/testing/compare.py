@@ -147,6 +147,11 @@ class _SVGConverter(_Converter):
             weakref.finalize(self._tmpdir, self.__del__)
         if (not self._proc  # First run.
                 or self._proc.poll() is not None):  # Inkscape terminated.
+            if self._proc is not None and self._proc.poll() is not None:
+                for stream in filter(None, [self._proc.stdin,
+                                            self._proc.stdout,
+                                            self._proc.stderr]):
+                    stream.close()
             env = {
                 **os.environ,
                 # If one passes e.g. a png file to Inkscape, it will try to
