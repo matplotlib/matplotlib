@@ -61,4 +61,5 @@ jobs:
         run: |
           anaconda --token ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }} upload \
             --user scipy-wheels-nightly \
+            --skip-existing \
             dist/matplotlib-*.whl
