@@ -617,13 +617,11 @@ class FreeType(SetupPackage):
                 },
                 **env,
             }
-            if os.path.exists(os.path.join(src_path, "autogen.sh")):
-                try:
-                    subprocess.check_call(["sh", "./autogen.sh"], env=env, cwd=src_path)
-                except Exception as err:
-                    print(err)
-                    print("Warning: Can not run autogen, the build pipeline may fail")
-                    print("Continue try to build freetype.")
+            configure_ac = os.path.join(src_path, "builds", "unix", "configure.ac")
+            if os.path.exists(os.path.join(src_path, "autogen.sh")) \
+                    and not os.path.exists(configure_ac):
+                print(f"{configure_ac} not exist. Using sh autogen.sh to generate.")
+                subprocess.check_call(["sh", "./autogen.sh"], env=env, cwd=src_path)
             env["CFLAGS"] = env.get("CFLAGS", "") + " -fPIC"
             configure = [
                 "./configure", "--with-zlib=no", "--with-bzip2=no",
