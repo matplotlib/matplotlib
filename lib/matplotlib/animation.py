@@ -17,6 +17,7 @@
 #   * Can blit be enabled for movies?
 # * Need to consider event sources to allow clicking through multiple figures
 
+
 import abc
 import base64
 import contextlib
@@ -473,8 +474,11 @@ class FileMovieWriter(MovieWriter):
             super().finish()
         finally:
             if self._tmpdir:
-                _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
+                _log.debug(
+                    'MovieWriter: clearing temporary path=%s', self._tmpdir
+                )
                 self._tmpdir.cleanup()
+
 
 @writers.register('pillow')
 class PillowWriter(AbstractMovieWriter):
