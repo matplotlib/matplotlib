@@ -54,7 +54,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           # c.f. https://github.com/Anaconda-Platform/anaconda-client/issues/540
-          python -m pip install git+https://github.com/Anaconda-Server/anaconda-client
+          python -m pip install git+https://github.com/Anaconda-Server/anaconda-client@be1e14936a8e947da94d026c990715f0596d7043
           python -m pip list
 
       - name: Upload wheels to Anaconda Cloud as nightlies
