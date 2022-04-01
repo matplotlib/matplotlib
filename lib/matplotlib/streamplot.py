@@ -70,9 +70,10 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
         Integrate the streamline in forward, backward or both directions.
     data : indexable object, optional
         DATA_PARAMETER_PLACEHOLDER
-    broken_streamlines : If False, forces streamlines to continue until they
+    broken_streamlines : boolean, default: True
+        If False, forces streamlines to continue until they
         leave the plot domain.  If True, they may be terminated if they
-        come too close to another streamline.  Default is True.
+        come too close to another streamline.
 
     Returns
     -------
@@ -482,13 +483,15 @@ def _get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
         except InvalidIndexError:
             return None
         if integration_direction in ['both', 'backward']:
-            s, xyt = _integrate_rk12(x0, y0, dmap, backward_time, maxlength, broken_streamlines)
+            s, xyt = _integrate_rk12(x0, y0, dmap, backward_time, maxlength,
+                                     broken_streamlines)
             stotal += s
             xy_traj += xyt[::-1]
 
         if integration_direction in ['both', 'forward']:
             dmap.reset_start_point(x0, y0)
-            s, xyt = _integrate_rk12(x0, y0, dmap, forward_time, maxlength, broken_streamlines)
+            s, xyt = _integrate_rk12(x0, y0, dmap, forward_time, maxlength,
+                                     broken_streamlines)
             stotal += s
             xy_traj += xyt[1:]
 
