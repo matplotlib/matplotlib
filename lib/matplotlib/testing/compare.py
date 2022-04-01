@@ -161,7 +161,7 @@ class _SVGConverter(_Converter):
                 # just be reported as a regular exception below).
                 "DISPLAY": "",
                 # Do not load any user options.
-                "INKSCAPE_PROFILE_DIR": os.devnull,
+                "INKSCAPE_PROFILE_DIR": self._tmpdir.name,
             }
             # Old versions of Inkscape (e.g. 0.48.3.1) seem to sometimes
             # deadlock when stderr is redirected to a pipe, so we redirect it
