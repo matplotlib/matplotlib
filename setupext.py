@@ -617,11 +617,14 @@ class FreeType(SetupPackage):
                 },
                 **env,
             }
-            configure_ac = os.path.join(src_path, "builds", "unix", "configure.ac")
+            configure_ac = os.path.join(
+                src_path, "builds", "unix", "configure.ac")
             if os.path.exists(os.path.join(src_path, "autogen.sh")) \
                     and not os.path.exists(configure_ac):
-                print(f"{configure_ac} does not exist. Using sh autogen.sh to generate.")
-                subprocess.check_call(["sh", "./autogen.sh"], env=env, cwd=src_path)
+                print(f"{configure_ac} does not exist. "
+                      f"Using sh autogen.sh to generate.")
+                subprocess.check_call(
+                    ["sh", "./autogen.sh"], env=env, cwd=src_path)
             env["CFLAGS"] = env.get("CFLAGS", "") + " -fPIC"
             configure = [
                 "./configure", "--with-zlib=no", "--with-bzip2=no",
