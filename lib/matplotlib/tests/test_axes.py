@@ -7614,3 +7614,4 @@ def test_bezier_autoscale():
     # Bottom ylim should be at the edge of the curve (-0.5), and not include
     # the control point (at -1)
     assert ax.get_ylim()[0] == -0.5
+    
