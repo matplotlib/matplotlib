@@ -174,7 +174,7 @@ class FigureBase(Artist):
         # see self.align_xlabels and self.align_ylabels and
         # axis._get_tick_boxes_siblings
         self._align_label_groups = {"x": cbook.Grouper(), "y": cbook.Grouper()}
-        self._align_title_groups = {"title": cbook.Grouper()}
+        self._align_title_groups = cbook.Grouper()
 
         self.figure = self
         # list of child gridspecs for this figure
@@ -1294,7 +1294,7 @@ default: %(va)s
                             rowspanc = axc.get_subplotspec().rowspan
                             if rowspan.start == rowspanc.start or \
                                rowspan.stop == rowspanc.stop:
-                                self._align_title_groups['title'].join(ax, axc)
+                                self._align_title_groups.join(ax, axc)
 
     def align_ylabels(self, axs=None):
         """

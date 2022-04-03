@@ -2952,15 +2952,6 @@ class _AxesBase(martist.Artist):
 
         titles = []
 
-        # Get grouped axes for alignment if align_titles was previously called
-        # grouped_axs = self.figure._align_title_groups.get_siblings(self)
-        # if(grouped_axs is not None):
-        #     titles = []
-        #     for ax in grouped_axs:
-        #         titles.extend([ax.title, ax._left_title, ax._right_title])
-        # else:
-        #     titles = [self.title, self._left_title, self._right_title]
-
         titles = [self.title, self._left_title, self._right_title]
 
         for title in titles:
@@ -3014,11 +3005,23 @@ class _AxesBase(martist.Artist):
                     title.set_position((x, y))
 
         ymax = max(title.get_position()[1] for title in titles)
-        # TODO: and for titles in sibling axes according to grouper
         for title in titles:
             # now line up all the titles at the highest baseline.
             x, _ = title.get_position()
             title.set_position((x, ymax))
+
+        # Assign
+        grouped_axs = self.figure._align_title_groups.get_siblings(self)
+        ymax = None
+        ax_max = None
+        for ax in grouped_axs:
+            if ymax is None or ax.bbox.ymax > ymax:
+                ymax = ax.bbox.ymax
+                ax_max = ax
+        # print("SELF FIRST: ", self.bbox.xmax)
+        # print("OTHER: ", ax_max.bbox.xmax)
+        self.bbox = ax_max.bbox
+        # print("SELF AFTER: ", self.bbox.xmax)
 
     # Drawing
     @martist.allow_rasterization
