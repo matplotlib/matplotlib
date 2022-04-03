@@ -6633,7 +6633,11 @@ such objects
 
         if histtype.startswith('bar'):
 
-            totwidth = np.diff(bins)
+            def _get_boffset(boffset):
+                if np.any(boffset):
+                    return np.diff(boffset)
+                else:
+                    return 0.0
 
             if rwidth is not None:
                 dr = np.clip(rwidth, 0, 1)
@@ -6644,17 +6648,17 @@ such objects
                 dr = 1.0
 
             if histtype == 'bar' and not stacked:
-                width = dr * totwidth / nx
-                dw = width
-                boffset = -0.5 * dr * totwidth * (1 - 1 / nx)
+                starts = dr * bins / nx
+                dw = starts
+                boffset = -0.5 * dr * bins * (1 - 1 / nx)
             elif histtype == 'barstacked' or stacked:
-                width = dr * totwidth
+                starts = dr * bins
                 boffset, dw = 0.0, 0.0
 
             if align == 'mid':
-                boffset += 0.5 * totwidth
+                boffset += 0.5 * bins
             elif align == 'right':
-                boffset += totwidth
+                boffset += bins
 
             if orientation == 'horizontal':
                 _barfunc = self.barh
@@ -6663,6 +6667,8 @@ such objects
                 _barfunc = self.bar
                 bottom_kwarg = 'bottom'
 
+            width = np.diff(starts)
+
             for m, c in zip(tops, color):
                 if bottom is None:
                     bottom = np.zeros(len(m))
@@ -6670,8 +6676,8 @@ such objects
                     height = m - bottom
                 else:
                     height = m
-                bars = _barfunc(bins[:-1]+boffset, height, width,
-                                align='center', log=log,
+                bars = _barfunc(bins[:-1] + _get_boffset(boffset), height,
+                                width, align='center', log=log,
                                 color=c, **{bottom_kwarg: bottom})
                 patches.append(bars)
                 if stacked:
