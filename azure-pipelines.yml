@@ -134,6 +134,9 @@ stages:
       - script: env
         displayName: 'print env'
 
+      - script: pip list
+        displayName: 'print pip'
+
       - bash: |
           PYTHONFAULTHANDLER=1 python -m pytest --junitxml=junit/test-results.xml -raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n 2 ||
             [[ "$PYTHON_VERSION" = 'Pre' ]]
