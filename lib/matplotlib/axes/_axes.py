@@ -2948,9 +2948,7 @@ class Axes(_AxesBase):
         Plot a pie chart.
 
         Make a pie chart of array *x*.  The fractional area of each wedge is
-        given by ``x/sum(x)``.  If ``sum(x) < 1``, then the values of *x* give
-        the fractional area directly and the array will not be normalized. The
-        resulting pie will have an empty wedge of size ``1 - sum(x)``.
+        given by ``x/sum(x)``.
 
         The wedges are plotted counterclockwise, by default starting from the
         x-axis.
