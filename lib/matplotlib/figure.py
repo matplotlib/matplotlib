@@ -3144,7 +3144,7 @@ class Figure(FigureBase):
         -------
         layoutgrid : private debugging object
         """
-
+        from matplotlib._tight_layout import get_renderer
         from matplotlib._constrained_layout import do_constrained_layout
 
         _log.debug('Executing constrainedlayout')
@@ -3155,7 +3155,7 @@ class Figure(FigureBase):
         w_pad = w_pad / width
         h_pad = h_pad / height
         if renderer is None:
-            renderer = _get_renderer(fig)
+            renderer = get_renderer(fig)
         return do_constrained_layout(fig, renderer, h_pad, w_pad,
                                      hspace, wspace)
 
@@ -3186,13 +3186,13 @@ class Figure(FigureBase):
         """
         from contextlib import nullcontext
         from .tight_layout import (
-            get_subplotspec_list, get_tight_layout_figure)
+            get_subplotspec_list, get_tight_layout_figure, get_renderer)
         subplotspec_list = get_subplotspec_list(self.axes)
         if None in subplotspec_list:
             _api.warn_external("This figure includes Axes that are not "
                                "compatible with tight_layout, so results "
                                "might be incorrect.")
-        renderer = _get_renderer(self)
+        renderer = get_renderer(self)
         with getattr(renderer, "_draw_disabled", nullcontext)():
             kwargs = get_tight_layout_figure(
                 self, self.axes, subplotspec_list, renderer,
