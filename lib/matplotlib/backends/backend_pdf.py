@@ -1702,14 +1702,8 @@ end"""
                 num_colors = len(img_colors)
                 # These constants were converted to IntEnums and deprecated in
                 # Pillow 9.2
-                dither = (
-                    Image.Dither.NONE if hasattr(Image, 'Dither')
-                    else Image.NONE
-                )
-                pmode = (
-                    Image.Palette.ADAPTIVE if hasattr(Image, 'Palette')
-                    else Image.ADAPTIVE
-                )
+                dither = getattr(Image, 'Dither', Image).NONE
+                pmode = getattr(Image, 'Palette', Image).ADAPTIVE
                 img = img.convert(
                     mode='P', dither=dither, palette=pmode, colors=num_colors
                 )
