@@ -1718,8 +1718,13 @@ end"""
                 # Convert to indexed color if there are 256 colors or fewer
                 # This can significantly reduce the file size
                 num_colors = len(img_colors)
-                img = img.convert(mode='P', dither=Image.NONE,
-                                  palette=Image.ADAPTIVE, colors=num_colors)
+                # These constants were converted to IntEnums and deprecated in
+                # Pillow 9.2
+                dither = getattr(Image, 'Dither', Image).NONE
+                pmode = getattr(Image, 'Palette', Image).ADAPTIVE
+                img = img.convert(
+                    mode='P', dither=dither, palette=pmode, colors=num_colors
+                )
                 png_data, bit_depth, palette = self._writePng(img)
                 if bit_depth is None or palette is None:
                     raise RuntimeError("invalid PNG header")
