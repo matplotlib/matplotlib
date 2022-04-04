@@ -210,6 +210,14 @@ def test_colorbar_positioning(use_gridspec):
                  anchor=(0.8, 0.5), shrink=0.6, use_gridspec=use_gridspec)
 
 
+def test_colorbar_single_ax_panchor_false():
+    # Just smoketesting that this doesn't crash.  Note that this differs from
+    # the tests above with panchor=False because there use_gridspec is actually
+    # ineffective: passing *ax* as lists always disable use_gridspec.
+    plt.imshow([[0, 1]])
+    plt.colorbar(panchor=False)
+
+
 @image_comparison(['contour_colorbar.png'], remove_text=True)
 def test_contour_colorbar():
     fig, ax = plt.subplots(figsize=(4, 2))

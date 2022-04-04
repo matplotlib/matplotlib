@@ -1599,7 +1599,7 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
             aspect = 1 / aspect
 
     parent.set_subplotspec(ss_main)
-    parent.set_anchor(panchor)
+    parent.set_anchor(loc_settings["panchor"])
 
     fig = parent.get_figure()
     cax = fig.add_subplot(ss_cb, label="<colorbar>")
