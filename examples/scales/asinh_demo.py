@@ -15,13 +15,13 @@ the "linear width" :math:`a_0`), this leaves values essentially unchanged:
 
 .. math::
 
-    a \\rightarrow a + {\\cal O}(a^3)
+    a \\rightarrow a + \\mathcal{O}(a^3)
 
 but for larger values (i.e. :math:`|a| \\gg a_0`, this is asymptotically
 
 .. math::
 
-    a \\rightarrow a_0 \\, {\\rm sgn}(a) \\ln |a| + {\\cal O}(1)
+    a \\rightarrow a_0 \\, \\mathrm{sgn}(a) \\ln |a| + \\mathcal{O}(1)
 
 As with the `symlog <.scale.SymmetricalLogScale>` scaling,
 this allows one to plot quantities

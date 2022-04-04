@@ -16,15 +16,15 @@ zoom effect.
 
 You can calculate focal length from a FOV via the equation:
 
-.. mathmpl::
+.. math::
 
-    1 / \tan (FOV / 2)
+    1 / \\tan (\\mathrm{FOV} / 2)
 
 Or vice versa:
 
-.. mathmpl::
+.. math::
 
-    FOV = 2 * \atan (1 / focal length)
+    \\mathrm{FOV} = 2 \\arctan (1 / \\mathrm{focal length})
 
 """
 
