@@ -505,9 +505,9 @@ class AsinhScale(ScaleBase):
     :math:`a \\rightarrow a_0 \\sinh^{-1} (a / a_0)` where :math:`a_0`
     is the effective width of the linear region of the transformation.
     In that region, the transformation is
-    :math:`a \\rightarrow a + {\\cal O}(a^3)`.
+    :math:`a \\rightarrow a + \\mathcal{O}(a^3)`.
     For large values of :math:`a` the transformation behaves as
-    :math:`a \\rightarrow a_0 \\, {\\rm sgn}(a) \\ln |a| + {\\cal O}(1)`.
+    :math:`a \\rightarrow a_0 \\, \\mathrm{sgn}(a) \\ln |a| + \\mathcal{O}(1)`.
 
     .. note::
 
