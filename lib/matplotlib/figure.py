@@ -954,6 +954,10 @@ default: %(va)s
         """
         Alias for the `clear()` method.
 
+        .. admonition:: Discouraged
+
+            The use of ``clf()`` is discouraged. Use ``clear()`` instead.
+
         Parameters
         ----------
         keep_observers: bool, default: False
