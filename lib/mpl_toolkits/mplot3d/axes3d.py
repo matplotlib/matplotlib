@@ -3005,7 +3005,7 @@ class Axes3D(Axes):
         # that would call self._process_unit_info again, and do other indirect
         # data processing.
         (data_line, base_style), = self._get_lines._plot_args(
-            (x, y) if fmt == '' else (x, y, fmt), kwargs, return_kwargs=True)
+            self, (x, y) if fmt == '' else (x, y, fmt), kwargs, return_kwargs=True)
         art3d.line_2d_to_3d(data_line, zs=z)
 
         # Do this after creating `data_line` to avoid modifying `base_style`.

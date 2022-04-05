@@ -27,7 +27,6 @@ from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch,
     InsetPosition)
 import mpl_toolkits.axes_grid1.mpl_axes
-
 import pytest
 
 import numpy as np
@@ -89,6 +88,15 @@ def test_twin_axes_empty_and_removed():
         h.text(0.5, 0.5, gen + ("\n" + mod if mod else ""),
                horizontalalignment="center", verticalalignment="center")
     plt.subplots_adjust(wspace=0.5, hspace=1)
+
+
+def test_twin_axes_both_with_units():
+    host = host_subplot(111)
+    host.plot_date([0, 1, 2], [0, 1, 2], xdate=False, ydate=True)
+    twin = host.twinx()
+    twin.plot(["a", "b", "c"])
+    assert host.get_yticklabels()[0].get_text() == "00:00:00"
+    assert twin.get_yticklabels()[0].get_text() == "a"
 
 
 def test_axesgrid_colorbar_log_smoketest():
