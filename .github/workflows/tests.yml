@@ -284,15 +284,23 @@ jobs:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }} result images"
           path: ./result_images
 
+  # Separate dependent job to only upload one issue from the matrix of jobs
+  create-issue:
+    runs-on: ubuntu-latest
+    needs: [test]
+    if: ${{ failure() && github.event_name == 'schedule' }}
+    name: "Create issue on failure"
+
+    steps:
       - name: Create issue on failure
         uses: imjohnbo/issue-bot@v3
-        if: ${{ failure() && github.event_name == 'schedule' }}
         with:
           title: "[TST] Upcoming dependency test failures"
           body: |
             The weekly build with nightly wheels from numpy and pandas
             has failed. Check the logs for any updates that need to be
             made in matplotlib.
+            https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
 
           pinned: false
           close-previous: false
