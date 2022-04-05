@@ -935,7 +935,7 @@ default: %(va)s
         # Break link between any twinned axes
         _break_share_link(ax, ax._twinned_axes)
 
-    def clf(self, keep_observers=False):
+    def clear(self, keep_observers=False):
         """
         Clear the figure.
 
@@ -950,7 +950,7 @@ default: %(va)s
 
         # first clear the axes in any subfigures
         for subfig in self.subfigs:
-            subfig.clf(keep_observers=keep_observers)
+            subfig.clear(keep_observers=keep_observers)
         self.subfigs = []
 
         for ax in tuple(self.axes):  # Iterate over the copy.
@@ -971,8 +971,22 @@ default: %(va)s
 
         self.stale = True
 
-    # synonym for `clf`."""
-    clear = clf
+    # synonym for `clear`.
+    def clf(self, keep_observers=False):
+        """
+        Alias for the `clear()` method.
+
+        .. admonition:: Discouraged
+
+            The use of ``clf()`` is discouraged. Use ``clear()`` instead.
+
+        Parameters
+        ----------
+        keep_observers: bool, default: False
+            Set *keep_observers* to True if, for example,
+            a gui widget is tracking the Axes in the figure.
+        """
+        return self.clear(keep_observers=keep_observers)
 
     # Note: in the docstring below, the newlines in the examples after the
     # calls to legend() allow replacing it with figlegend() to generate the
@@ -2349,7 +2363,7 @@ class Figure(FigureBase):
         self.set_tight_layout(tight_layout)
 
         self._axstack = _AxesStack()  # track all figure axes and current axes
-        self.clf()
+        self.clear()
         self._cachedRenderer = None
 
         self.set_constrained_layout(constrained_layout)
@@ -2786,10 +2800,10 @@ class Figure(FigureBase):
         """
         self.set_size_inches(self.get_figwidth(), val, forward=forward)
 
-    def clf(self, keep_observers=False):
+    def clear(self, keep_observers=False):
         # docstring inherited
-        super().clf(keep_observers=keep_observers)
-        # FigureBase.clf does not clear toolbars, as
+        super().clear(keep_observers=keep_observers)
+        # FigureBase.clear does not clear toolbars, as
         # only Figure can have toolbars
         toolbar = getattr(self.canvas, 'toolbar', None)
         if toolbar is not None:

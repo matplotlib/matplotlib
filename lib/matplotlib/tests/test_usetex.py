@@ -71,7 +71,7 @@ def test_minus_no_descent(fontsize):
     heights = {}
     fig = plt.figure()
     for vals in [(1,), (-1,), (-1, 1)]:
-        fig.clf()
+        fig.clear()
         for x in vals:
             fig.text(.5, .5, f"${x}$", usetex=True)
         fig.canvas.draw()
