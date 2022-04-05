@@ -3144,7 +3144,7 @@ class Figure(FigureBase):
         -------
         layoutgrid : private debugging object
         """
-        from matplotlib._tight_layout import get_renderer
+        from matplotlib.tight_layout import get_renderer
         from matplotlib._constrained_layout import do_constrained_layout
 
         _log.debug('Executing constrainedlayout')
