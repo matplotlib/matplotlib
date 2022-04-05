@@ -18,7 +18,7 @@ import logging
 import numpy as np
 
 from matplotlib import _api, artist as martist
-from matplotlib.backend_bases import _get_renderer
+from matplotlib._tight_layout import get_renderer
 import matplotlib.transforms as mtransforms
 import matplotlib._layoutgrid as mlayoutgrid
 
@@ -92,7 +92,7 @@ def do_constrained_layout(fig, h_pad, w_pad,
     layoutgrid : private debugging structure
     """
 
-    renderer = _get_renderer(fig)
+    renderer = get_renderer(fig)
     # make layoutgrid tree...
     layoutgrids = make_layoutgrids(fig, None)
     if not layoutgrids['hasgrids']:
