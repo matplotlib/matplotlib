@@ -3,6 +3,7 @@ import matplotlib.artist as martist
 import matplotlib.transforms as mtransforms
 from matplotlib.transforms import Bbox
 from .mpl_axes import Axes
+import functools
 
 
 class ParasiteAxesBase:
@@ -18,7 +19,8 @@ class ParasiteAxesBase:
     def clear(self):
         super().clear()
         martist.setp(self.get_children(), visible=False)
-        self._get_lines = self._parent_axes._get_lines
+        self._get_lines = functools.partial(
+            self._parent_axes._get_lines, axes=self)
         self._parent_axes.callbacks._connect_picklable(
             "xlim_changed", self._sync_lims)
         self._parent_axes.callbacks._connect_picklable(

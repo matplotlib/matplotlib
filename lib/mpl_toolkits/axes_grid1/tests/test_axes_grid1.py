@@ -25,7 +25,8 @@ from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch,
     InsetPosition)
 import mpl_toolkits.axes_grid1.mpl_axes
-
+import matplotlib.units as units
+import matplotlib.ticker as ticker
 import pytest
 
 import numpy as np
@@ -85,6 +86,43 @@ def test_twin_axes_empty_and_removed():
         h.text(0.5, 0.5, gen + ("\n" + mod if mod else ""),
                horizontalalignment="center", verticalalignment="center")
     plt.subplots_adjust(wspace=0.5, hspace=1)
+
+
+@image_comparison(['twin_axes_both_with_units.png'])
+def test_twin_axes_both_with_units():
+    mpl.rcParams.update(
+        {"font.size": 8, "xtick.labelsize": 8, "ytick.labelsize": 8})
+    class TestUnit:
+        def __init__(self, val):
+            self._val = val
+
+    class UnitA(TestUnit):
+        fmt = "%0.1f Unit A"
+    class UnitB(TestUnit):
+        fmt = "%0.1f Unit B"
+
+    class UnitConverter(units.ConversionInterface):
+        @staticmethod
+        def convert(value, unit, axis):
+            return [x._val for x in value]
+
+        @staticmethod
+        def axisinfo(unit, axis):
+            return units.AxisInfo(majfmt=ticker.FormatStrFormatter(unit.fmt))
+
+        @staticmethod
+        def default_units(x, axis):
+            return x[0].__class__
+
+    units.registry[UnitA] = UnitConverter()
+    units.registry[UnitB] = UnitConverter()
+
+    host = host_subplot(111)
+
+    p1, = host.plot([0, 1, 2], [UnitA(x) for x in (0, 1, 2)])
+    par1 = host.twinx()
+    par1.axis["right"].major_ticklabels.set_visible(True)
+    p2, = par1.plot([0, 1, 2], [UnitB(x) for x in (0, 2, 2)])
 
 
 def test_axesgrid_colorbar_log_smoketest():
