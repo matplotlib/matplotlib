@@ -19,7 +19,7 @@ Matplotlib ships with :ref:`backends <what-is-a-backend>` binding to
 several GUI toolkits (Qt, Tk, Wx, GTK, macOS, JavaScript) and third party
 packages provide bindings to `kivy
 <https://github.com/kivy-garden/garden.matplotlib>`__ and `Jupyter Lab
-<https://github.com/matplotlib/ipympl>`__.  For the figures to be responsive to
+<https://matplotlib.org/ipympl>`__.  For the figures to be responsive to
 mouse, keyboard, and paint events, the GUI event loop needs to be integrated
 with an interactive prompt. We recommend using IPython (see :ref:`below <ipython-pylab>`).
 
