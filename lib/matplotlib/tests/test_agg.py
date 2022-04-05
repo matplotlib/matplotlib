@@ -181,10 +181,9 @@ def test_agg_filter():
         shadow.update_from(line)
 
         # offset transform
-        ot = mtransforms.offset_copy(line.get_transform(), ax.figure,
-                                     x=4.0, y=-6.0, units='points')
-
-        shadow.set_transform(ot)
+        transform = mtransforms.offset_copy(line.get_transform(), ax.figure,
+                                            x=4.0, y=-6.0, units='points')
+        shadow.set_transform(transform)
 
         # adjust zorder of the shadow lines so that it is drawn below the
         # original lines
