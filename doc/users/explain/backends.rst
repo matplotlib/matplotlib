@@ -162,7 +162,7 @@ Backend   Description
 QtAgg     Agg rendering in a Qt_ canvas (requires PyQt_ or `Qt for Python`_,
           a.k.a. PySide).  This backend can be activated in IPython with
           ``%matplotlib qt``.
-ipympl    Agg rendering embedded in a Jupyter widget.  (requires ipympl).
+ipympl    Agg rendering embedded in a Jupyter widget.  (requires ipympl_).
           This backend can be enabled in a Jupyter notebook with
           ``%matplotlib ipympl``.
 GTK3Agg   Agg rendering to a GTK_ 3.x canvas (requires PyGObject_,
@@ -209,6 +209,7 @@ wxAgg     Agg rendering to a wxWidgets_ canvas (requires wxPython_ 4).
 .. _GTK: https://www.gtk.org/
 .. _Tk: https://www.tcl.tk/
 .. _wxWidgets: https://www.wxwidgets.org/
+.. _ipympl: https://www.matplotlib.org/ipympl
 
 ipympl
 ^^^^^^
@@ -219,7 +220,6 @@ Matplotlib.  To install ipympl:
 .. code-block:: bash
 
    pip install ipympl
-   jupyter nbextension enable --py --sys-prefix ipympl
 
 or
 
@@ -227,8 +227,7 @@ or
 
    conda install ipympl -c conda-forge
 
-See `jupyter-matplotlib <https://github.com/matplotlib/jupyter-matplotlib>`__
-for more details.
+See `installing ipympl <https://matplotlib.org/ipympl/installing.html>`__ for more details.
 
 .. _QT_API-usage:
 
