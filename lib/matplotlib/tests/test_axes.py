@@ -5390,6 +5390,15 @@ def test_set_ticks_with_labels(fig_test, fig_ref):
     ax.set_yticks([2, 4], ['A', 'B'], minor=True)
 
 
+def test_set_noniterable_ticklabels():
+    # Ensure a useful TypeError message is raised
+    # when given a non-iterable ticklabels argument
+    # Pull request #22710
+    with pytest.raises(TypeError, match='must be a sequence'):
+        fig, ax = plt.subplots(2)
+        ax[1].set_xticks([2, 9], 3.1)
+
+
 def test_subsampled_ticklabels():
     # test issue 11937
     fig, ax = plt.subplots()
