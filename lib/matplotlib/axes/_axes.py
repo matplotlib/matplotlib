@@ -2597,13 +2597,25 @@ class Axes(_AxesBase):
 
         **kwargs
             Any remaining keyword arguments are passed through to
-            `.Axes.annotate`.
+            `.Axes.annotate`. The alignment parameters (
+            *horizontalalignment* / *ha*, *verticalalignment* / *va*) are
+            not supported because the labels are automatically aligned to
+            the bars.
 
         Returns
         -------
         list of `.Text`
             A list of `.Text` instances for the labels.
         """
+        for key in ['horizontalalignment', 'ha', 'verticalalignment', 'va']:
+            if key in kwargs:
+                raise ValueError(
+                    f"Passing {key!r} to bar_label() is not supported.")
+
+        a, b = self.yaxis.get_view_interval()
+        y_inverted = a > b
+        c, d = self.xaxis.get_view_interval()
+        x_inverted = c > d
 
         # want to know whether to put label on positive or negative direction
         # cannot use np.sign here because it will return 0 if x == 0
@@ -2632,7 +2644,7 @@ class Axes(_AxesBase):
         annotations = []
 
         for bar, err, dat, lbl in itertools.zip_longest(
-            bars, errs, datavalues, labels
+                bars, errs, datavalues, labels
         ):
             (x0, y0), (x1, y1) = bar.get_bbox().get_points()
             xc, yc = (x0 + x1) / 2, (y0 + y1) / 2
@@ -2664,18 +2676,26 @@ class Axes(_AxesBase):
                 xy = endpt, yc
 
             if orientation == "vertical":
-                xytext = 0, sign(dat) * padding
+                y_direction = -1 if y_inverted else 1
+                xytext = 0, y_direction * sign(dat) * padding
             else:
-                xytext = sign(dat) * padding, 0
+                x_direction = -1 if x_inverted else 1
+                xytext = x_direction * sign(dat) * padding, 0
 
             if label_type == "center":
                 ha, va = "center", "center"
             elif label_type == "edge":
                 if orientation == "vertical":
                     ha = 'center'
-                    va = 'top' if dat < 0 else 'bottom'  # also handles NaN
+                    if y_inverted:
+                        va = 'top' if dat > 0 else 'bottom'  # also handles NaN
+                    else:
+                        va = 'top' if dat < 0 else 'bottom'  # also handles NaN
                 elif orientation == "horizontal":
-                    ha = 'right' if dat < 0 else 'left'  # also handles NaN
+                    if x_inverted:
+                        ha = 'right' if dat > 0 else 'left'  # also handles NaN
+                    else:
+                        ha = 'right' if dat < 0 else 'left'  # also handles NaN
                     va = 'center'
 
             if np.isnan(dat):

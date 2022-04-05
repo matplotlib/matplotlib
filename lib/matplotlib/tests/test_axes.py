@@ -7386,6 +7386,20 @@ def test_bar_label_location_vertical():
     assert labels[1].get_va() == 'top'
 
 
+def test_bar_label_location_vertical_yinverted():
+    ax = plt.gca()
+    ax.invert_yaxis()
+    xs, heights = [1, 2], [3, -4]
+    rects = ax.bar(xs, heights)
+    labels = ax.bar_label(rects)
+    assert labels[0].xy == (xs[0], heights[0])
+    assert labels[0].get_ha() == 'center'
+    assert labels[0].get_va() == 'top'
+    assert labels[1].xy == (xs[1], heights[1])
+    assert labels[1].get_ha() == 'center'
+    assert labels[1].get_va() == 'bottom'
+
+
 def test_bar_label_location_horizontal():
     ax = plt.gca()
     ys, widths = [1, 2], [3, -4]
@@ -7396,6 +7410,49 @@ def test_bar_label_location_horizontal():
     assert labels[0].get_va() == 'center'
     assert labels[1].xy == (widths[1], ys[1])
     assert labels[1].get_ha() == 'right'
+    assert labels[1].get_va() == 'center'
+
+
+def test_bar_label_location_horizontal_yinverted():
+    ax = plt.gca()
+    ax.invert_yaxis()
+    ys, widths = [1, 2], [3, -4]
+    rects = ax.barh(ys, widths)
+    labels = ax.bar_label(rects)
+    assert labels[0].xy == (widths[0], ys[0])
+    assert labels[0].get_ha() == 'left'
+    assert labels[0].get_va() == 'center'
+    assert labels[1].xy == (widths[1], ys[1])
+    assert labels[1].get_ha() == 'right'
+    assert labels[1].get_va() == 'center'
+
+
+def test_bar_label_location_horizontal_xinverted():
+    ax = plt.gca()
+    ax.invert_xaxis()
+    ys, widths = [1, 2], [3, -4]
+    rects = ax.barh(ys, widths)
+    labels = ax.bar_label(rects)
+    assert labels[0].xy == (widths[0], ys[0])
+    assert labels[0].get_ha() == 'right'
+    assert labels[0].get_va() == 'center'
+    assert labels[1].xy == (widths[1], ys[1])
+    assert labels[1].get_ha() == 'left'
+    assert labels[1].get_va() == 'center'
+
+
+def test_bar_label_location_horizontal_xyinverted():
+    ax = plt.gca()
+    ax.invert_xaxis()
+    ax.invert_yaxis()
+    ys, widths = [1, 2], [3, -4]
+    rects = ax.barh(ys, widths)
+    labels = ax.bar_label(rects)
+    assert labels[0].xy == (widths[0], ys[0])
+    assert labels[0].get_ha() == 'right'
+    assert labels[0].get_va() == 'center'
+    assert labels[1].xy == (widths[1], ys[1])
+    assert labels[1].get_ha() == 'left'
     assert labels[1].get_va() == 'center'
 
 
@@ -7443,6 +7500,16 @@ def test_bar_label_labels():
 
 def test_bar_label_nan_ydata():
     ax = plt.gca()
+    bars = ax.bar([2, 3], [np.nan, 1])
+    labels = ax.bar_label(bars)
+    assert [l.get_text() for l in labels] == ['', '1']
+    assert labels[0].xy == (2, 0)
+    assert labels[0].get_va() == 'bottom'
+
+
+def test_bar_label_nan_ydata_inverted():
+    ax = plt.gca()
+    ax.yaxis_inverted()
     bars = ax.bar([2, 3], [np.nan, 1])
     labels = ax.bar_label(bars)
     assert [l.get_text() for l in labels] == ['', '1']
