@@ -67,8 +67,7 @@ def test_rectangle_selector():
 @pytest.mark.parametrize('spancoords', ['data', 'pixels'])
 @pytest.mark.parametrize('minspanx, x1', [[0, 10], [1, 10.5], [1, 11]])
 @pytest.mark.parametrize('minspany, y1', [[0, 10], [1, 10.5], [1, 11]])
-def test_rectangle_minspan(spancoords, minspanx, x1, minspany, y1):
-    ax = get_ax()
+def test_rectangle_minspan(ax, spancoords, minspanx, x1, minspany, y1):
     # attribute to track number of onselect calls
     ax._n_onselect = 0
 
@@ -922,6 +921,37 @@ def test_span_selector_animated_artists_callback():
     do_event(span, 'release', xdata=release_data[0],
              ydata=release_data[1], button=1)
     assert ln2.stale is False
+
+
+def test_snapping_values_span_selector(ax):
+    def onselect(*args):
+        pass
+
+    tool = widgets.SpanSelector(ax, onselect, direction='horizontal',)
+    snap_function = tool._snap
+
+    snap_values = np.linspace(0, 5, 11)
+    values = np.array([-0.1, 0.1, 0.2, 0.5, 0.6, 0.7, 0.9, 4.76, 5.0, 5.5])
+    expect = np.array([00.0, 0.0, 0.0, 0.5, 0.5, 0.5, 1.0, 5.00, 5.0, 5.0])
+    values = snap_function(values, snap_values)
+    assert_allclose(values, expect)
+
+
+def test_span_selector_snap(ax):
+    def onselect(vmin, vmax):
+        ax._got_onselect = True
+
+    snap_values = np.arange(50) * 4
+
+    tool = widgets.SpanSelector(ax, onselect, direction='horizontal',
+                                snap_values=snap_values)
+    tool.extents = (17, 35)
+    assert tool.extents == (16, 36)
+
+    tool.snap_values = None
+    assert tool.snap_values is None
+    tool.extents = (17, 35)
+    assert tool.extents == (17, 35)
 
 
 def check_lasso_selector(**kwargs):

@@ -2238,6 +2238,10 @@ class SpanSelector(_SelectorWidget):
         If `True`, the event triggered outside the span selector will be
         ignored.
 
+    snap_values : 1D array-like, default: None
+        Snap the extents of the selector to the values defined in
+        ``snap_values``.
+
     Examples
     --------
     >>> import matplotlib.pyplot as plt
@@ -2259,7 +2263,7 @@ class SpanSelector(_SelectorWidget):
                  props=None, onmove_callback=None, interactive=False,
                  button=None, handle_props=None, grab_range=10,
                  state_modifier_keys=None, drag_from_anywhere=False,
-                 ignore_event_outside=False):
+                 ignore_event_outside=False, snap_values=None):
 
         if state_modifier_keys is None:
             state_modifier_keys = dict(clear='escape',
@@ -2278,6 +2282,7 @@ class SpanSelector(_SelectorWidget):
 
         self.visible = True
         self._extents_on_press = None
+        self.snap_values = snap_values
 
         # self._pressv is deprecated and we don't use it internally anymore
         # but we maintain it until it is removed
@@ -2577,6 +2582,16 @@ class SpanSelector(_SelectorWidget):
         """Return True if event is within the patch."""
         return self._selection_artist.contains(event, radius=0)[0]
 
+    @staticmethod
+    def _snap(values, snap_values):
+        """Snap values to a given array values (snap_values)."""
+        indices = np.empty_like(values, dtype="uint")
+        # take into account machine precision
+        eps = np.min(np.abs(np.diff(snap_values))) * 1e-12
+        for i, v in enumerate(values):
+            indices[i] = np.abs(snap_values - v + np.sign(v) * eps).argmin()
+        return snap_values[indices]
+
     @property
     def extents(self):
         """Return extents of the span selector."""
@@ -2591,6 +2606,8 @@ class SpanSelector(_SelectorWidget):
     @extents.setter
     def extents(self, extents):
         # Update displayed shape
+        if self.snap_values is not None:
+            extents = tuple(self._snap(extents, self.snap_values))
         self._draw_shape(*extents)
         if self._interactive:
             # Update displayed handles
@@ -2857,6 +2874,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     use_data_coordinates : bool, default: False
         If `True`, the "square" shape of the selector is defined in
         data coordinates instead of display coordinates.
+
     """
 
 
