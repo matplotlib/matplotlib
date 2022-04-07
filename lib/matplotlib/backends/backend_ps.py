@@ -778,6 +778,7 @@ grestore
             self.set_linejoin(gc.get_joinstyle())
             self.set_linecap(gc.get_capstyle())
             self.set_linedash(*gc.get_dashes())
+        if mightstroke or hatch:
             self.set_color(*gc.get_rgb()[:3])
         write('gsave\n')
 
