@@ -93,7 +93,12 @@ _log = logging.getLogger(__name__)
 # * draw_quad_mesh
 
 
+@_api.deprecated("3.6", alternative="Vendor the code")
 def fill(strings, linelen=75):
+    return _fill(strings, linelen=linelen)
+
+
+def _fill(strings, linelen=75):
     """
     Make one string from sequence of strings, with whitespace in between.
 
@@ -292,7 +297,7 @@ def pdfRepr(obj):
     # anything, so the caller must ensure that PDF names are
     # represented as Name objects.
     elif isinstance(obj, dict):
-        return fill([
+        return _fill([
             b"<<",
             *[Name(k).pdfRepr() + b" " + pdfRepr(v) for k, v in obj.items()],
             b">>",
@@ -300,7 +305,7 @@ def pdfRepr(obj):
 
     # Lists.
     elif isinstance(obj, (list, tuple)):
-        return fill([b"[", *[pdfRepr(val) for val in obj], b"]"])
+        return _fill([b"[", *[pdfRepr(val) for val in obj], b"]"])
 
     # The null keyword.
     elif obj is None:
@@ -312,7 +317,7 @@ def pdfRepr(obj):
 
     # A bounding box
     elif isinstance(obj, BboxBase):
-        return fill([pdfRepr(val) for val in obj.bounds])
+        return _fill([pdfRepr(val) for val in obj.bounds])
 
     else:
         raise TypeError("Don't know a PDF representation for {} objects"
@@ -833,7 +838,7 @@ class PdfFile:
             self.currentstream.write(data)
 
     def output(self, *data):
-        self.write(fill([pdfRepr(x) for x in data]))
+        self.write(_fill([pdfRepr(x) for x in data]))
         self.write(b'\n')
 
     def beginStream(self, id, len, extra=None, png=None):
