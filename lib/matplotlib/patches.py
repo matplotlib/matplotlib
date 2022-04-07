@@ -1469,7 +1469,7 @@ class FancyArrow(Polygon):
                     coords = np.concatenate([left_half_arrow[:-1],
                                              right_half_arrow[-2::-1]])
                 else:
-                    raise ValueError("Got unknown shape: %s" % self.shape)
+                    raise ValueError(f"Got unknown shape: {self._shape!r}")
             if distance != 0:
                 cx = self._dx / distance
                 sx = self._dy / distance
@@ -2191,12 +2191,13 @@ class _Style:
         try:
             _cls = cls._style_list[_name]
         except KeyError as err:
-            raise ValueError(f"Unknown style: {stylename}") from err
+            raise ValueError(f"Unknown style: {stylename!r}") from err
         try:
             _args_pair = [cs.split("=") for cs in _list[1:]]
             _args = {k: float(v) for k, v in _args_pair}
         except ValueError as err:
-            raise ValueError(f"Incorrect style argument: {stylename}") from err
+            raise ValueError(
+                f"Incorrect style argument: {stylename!r}") from err
         return _cls(**{**_args, **kwargs})
 
     @classmethod
