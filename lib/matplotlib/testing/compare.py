@@ -147,6 +147,11 @@ class _SVGConverter(_Converter):
             weakref.finalize(self._tmpdir, self.__del__)
         if (not self._proc  # First run.
                 or self._proc.poll() is not None):  # Inkscape terminated.
+            if self._proc is not None and self._proc.poll() is not None:
+                for stream in filter(None, [self._proc.stdin,
+                                            self._proc.stdout,
+                                            self._proc.stderr]):
+                    stream.close()
             env = {
                 **os.environ,
                 # If one passes e.g. a png file to Inkscape, it will try to
@@ -156,7 +161,7 @@ class _SVGConverter(_Converter):
                 # just be reported as a regular exception below).
                 "DISPLAY": "",
                 # Do not load any user options.
-                "INKSCAPE_PROFILE_DIR": os.devnull,
+                "INKSCAPE_PROFILE_DIR": self._tmpdir.name,
             }
             # Old versions of Inkscape (e.g. 0.48.3.1) seem to sometimes
             # deadlock when stderr is redirected to a pipe, so we redirect it
