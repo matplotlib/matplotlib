@@ -77,10 +77,10 @@ papersize = {'letter': (8.5, 11),
 
 
 def _get_papertype(w, h):
-    for key, (pw, ph) in sorted(papersize.items(), reverse=True):
+    for key, (pw, ph) in sorted(papersize.items(), key=lambda v: v[1]):
         if key.startswith('l'):
             continue
-        if w < pw and h < ph:
+        if w <= pw and h <= ph:
             return key
     return 'a0'
 
