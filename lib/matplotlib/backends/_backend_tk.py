@@ -423,11 +423,12 @@ class FigureManagerTk(FigureManagerBase):
         # to store the DPI, which will be updated by the C code, and the trace
         # will handle it on the Python side.
         window_frame = int(window.wm_frame(), 16)
-        window_dpi = tk.IntVar(master=window, value=96,
+        self._window_dpi = tk.IntVar(master=window, value=96,
                                name=f'window_dpi{window_frame}')
+        self._window_dpi_cbname = ''
         if _tkagg.enable_dpi_awareness(window_frame, window.tk.interpaddr()):
-            self._window_dpi = window_dpi  # Prevent garbage collection.
-            window_dpi.trace_add('write', self._update_window_dpi)
+            self._window_dpi_cbname = self._window_dpi.trace_add(
+                'write', self._update_window_dpi)
 
         self._shown = False
 
@@ -472,6 +473,8 @@ class FigureManagerTk(FigureManagerBase):
             self.canvas._tkcanvas.after_cancel(self.canvas._idle_draw_id)
         if self.canvas._event_loop_id:
             self.canvas._tkcanvas.after_cancel(self.canvas._event_loop_id)
+        if self._window_dpi_cbname:
+            self._window_dpi.trace_remove('write', self._window_dpi_cbname)
 
         # NOTE: events need to be flushed before issuing destroy (GH #9956),
         # however, self.window.update() can break user code. An async callback
