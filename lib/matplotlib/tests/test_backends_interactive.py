@@ -518,16 +518,20 @@ def _test_figure_leak():
     # Warmup cycle, this reasonably allocates a lot
     for _ in range(2):
         fig = plt.figure()
-        if flush: fig.canvas.flush_events()
+        if flush:
+            fig.canvas.flush_events()
         plt.close(fig)
-        if flush: fig.canvas.flush_events()
+        if flush:
+            fig.canvas.flush_events()
     mem = p.memory_info().rss
 
     for _ in range(5):
         fig = plt.figure()
-        if flush: fig.canvas.flush_events()
+        if flush:
+            fig.canvas.flush_events()
         plt.close(fig)
-        if flush: fig.canvas.flush_events()
+        if flush:
+            fig.canvas.flush_events()
     growth = p.memory_info().rss - mem
 
     print(growth)
@@ -542,7 +546,9 @@ def test_figure_leak_20490(env, flush):
     # so test with a memory growth threshold
     acceptable_memory_leakage = 3_000_000
 
-    result = _run_helper(_test_figure_leak, flush, timeout=_test_timeout, **env)
+    result = _run_helper(
+        _test_figure_leak, flush, timeout=_test_timeout, **env
+    )
 
     growth = int(result.stdout)
     assert growth <= acceptable_memory_leakage

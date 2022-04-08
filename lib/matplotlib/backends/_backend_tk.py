@@ -424,7 +424,7 @@ class FigureManagerTk(FigureManagerBase):
         # will handle it on the Python side.
         window_frame = int(window.wm_frame(), 16)
         self._window_dpi = tk.IntVar(master=window, value=96,
-                               name=f'window_dpi{window_frame}')
+                                     name=f'window_dpi{window_frame}')
         self._window_dpi_cbname = ''
         if _tkagg.enable_dpi_awareness(window_frame, window.tk.interpaddr()):
             self._window_dpi_cbname = self._window_dpi.trace_add(
