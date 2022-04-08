@@ -11,21 +11,7 @@ using `~matplotlib.gridspec.GridSpecFromSubplotSpec`).  Axes placed using
 layout.  Axes manually placed via ``figure.add_axes()`` will not.
 
 See Tutorial: :doc:`/tutorials/intermediate/constrainedlayout_guide`
-"""
 
-import logging
-
-import numpy as np
-
-from matplotlib import _api, artist as martist
-from matplotlib._tight_layout import get_renderer
-import matplotlib.transforms as mtransforms
-import matplotlib._layoutgrid as mlayoutgrid
-
-
-_log = logging.getLogger(__name__)
-
-"""
 General idea:
 -------------
 
@@ -60,6 +46,18 @@ in which case the algorithm is not applied and a warning is raised.
 See the tutorial doc:`/tutorials/intermediate/constrainedlayout_guide`
 for more discussion of the algorithm with examples.
 """
+
+import logging
+
+import numpy as np
+
+from matplotlib import _api, artist as martist
+from matplotlib._tight_layout import get_renderer
+import matplotlib.transforms as mtransforms
+import matplotlib._layoutgrid as mlayoutgrid
+
+
+_log = logging.getLogger(__name__)
 
 
 ######################################################
