@@ -31,11 +31,11 @@ math symbols and commands, supporting :doc:`mathematical expressions
 Basic text commands
 ===================
 
-The following commands are used to create text in the pyplot
-interface and the object-oriented API:
+The following commands are used to create text in the implicit and explicit
+interfaces (see :ref:`api_interfaces` for an explanation of the tradeoffs):
 
 =================== =================== ======================================
-`.pyplot` API       OO API              description
+implicit API        explicit API        description
 =================== =================== ======================================
 `~.pyplot.text`     `~.Axes.text`       Add text at an arbitrary location of
                                         the `~matplotlib.axes.Axes`.
@@ -63,6 +63,7 @@ All of these functions create and return a `.Text` instance, which can be
 configured with a variety of font and other properties.  The example below
 shows all of these commands in action, and more detail is provided in the
 sections that follow.
+
 """
 
 import matplotlib
