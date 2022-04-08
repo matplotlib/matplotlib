@@ -513,21 +513,22 @@ def _test_figure_leak():
     from matplotlib import pyplot as plt
     # Second argument is pause length, but if zero we should skip pausing
     t = float(sys.argv[1])
+    p = psutil.Process()
 
     # Warmup cycle, this reasonably allocates a lot
-    p = psutil.Process()
-    fig = plt.figure()
-    if t:
-        plt.pause(t)
-    plt.close(fig)
-    mem = p.memory_full_info().uss
+    for _ in range(2):
+        fig = plt.figure()
+        if t:
+            plt.pause(t)
+        plt.close(fig)
+    mem = p.memory_info().rss
 
     for _ in range(5):
         fig = plt.figure()
         if t:
             plt.pause(t)
         plt.close(fig)
-    growth = p.memory_full_info().uss - mem
+    growth = p.memory_info().rss - mem
 
     print(growth)
 
