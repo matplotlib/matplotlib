@@ -45,7 +45,7 @@ Pull Requests (84):
 * :ghpull:`21908`: Backport PR #21834 on branch v3.5.x (MAINT Fix signature qhull version function )
 * :ghpull:`21907`: Backport PR #21905 on branch v3.5.x (Fix image testing decorator in pytest importlib mode)
 * :ghpull:`21906`: Backport PR #21773 on branch v3.5.x (FIX: Reset label of axis to center)
-* :ghpull:`21834`: MAINT Fix signature qhull version function 
+* :ghpull:`21834`: MAINT Fix signature qhull version function
 * :ghpull:`21905`: Fix image testing decorator in pytest importlib mode
 * :ghpull:`21773`: FIX: Reset label of axis to center
 * :ghpull:`21902`: Backport PR #21884 on branch v3.5.x (FIX: be more careful about coercing unit-full containers to ndarray)

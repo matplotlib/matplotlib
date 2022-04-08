@@ -1,5 +1,5 @@
 .. redirect-from:: /users/fonts
-  
+
 Fonts in Matplotlib text engine
 ===============================
 

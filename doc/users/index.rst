@@ -29,7 +29,7 @@ Tutorials and examples
    ../tutorials/index.rst
    ../gallery/index.rst
 
-Reference 
+Reference
 #########
 
 .. toctree::
