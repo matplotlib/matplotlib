@@ -1,3 +1,4 @@
+from functools import partial
 from itertools import product
 import platform
 
@@ -536,3 +537,20 @@ def test_auto_adjustable():
     assert tbb.x1 == pytest.approx(fig.bbox.width - pad * fig.dpi)
     assert tbb.y0 == pytest.approx(pad * fig.dpi)
     assert tbb.y1 == pytest.approx(fig.bbox.height - pad * fig.dpi)
+
+
+def test_axes_locatable_and_twin():
+    positions = []
+
+    def record_position_on_draw(orig_draw, renderer):
+        orig_draw(renderer)
+        positions.append(orig_draw.__self__.get_position().get_points())
+
+    fig, ax = plt.subplots()
+    tw = ax.twiny()
+    cb_axis = make_axes_locatable(ax).append_axes("right", size="2%", pad=0.1)
+    ax.draw = partial(record_position_on_draw, ax.draw)
+    tw.draw = partial(record_position_on_draw, tw.draw)
+    fig.canvas.draw()
+    ax_pos, tw_pos = positions
+    np.testing.assert_almost_equal(ax_pos, tw_pos)

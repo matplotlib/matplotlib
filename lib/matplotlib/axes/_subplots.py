@@ -151,19 +151,6 @@ class SubplotBase:
             if self.yaxis.offsetText.get_position()[0] == 1:
                 self.yaxis.offsetText.set_visible(False)
 
-    def _make_twin_axes(self, *args, **kwargs):
-        """Make a twinx axes of self. This is used for twinx and twiny."""
-        if 'sharex' in kwargs and 'sharey' in kwargs:
-            # The following line is added in v2.2 to avoid breaking Seaborn,
-            # which currently uses this internal API.
-            if kwargs["sharex"] is not self and kwargs["sharey"] is not self:
-                raise ValueError("Twinned Axes may share only one axis")
-        twin = self.figure.add_subplot(self.get_subplotspec(), *args, **kwargs)
-        self.set_adjustable('datalim')
-        twin.set_adjustable('datalim')
-        self._twinned_axes.join(self, twin)
-        return twin
-
 
 subplot_class_factory = cbook._make_class_factory(
     SubplotBase, "{}Subplot", "_axes_class")

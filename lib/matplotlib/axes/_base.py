@@ -4523,9 +4523,11 @@ class _AxesBase(martist.Artist):
 
     def _make_twin_axes(self, *args, **kwargs):
         """Make a twinx Axes of self. This is used for twinx and twiny."""
-        # Typically, SubplotBase._make_twin_axes is called instead of this.
         if 'sharex' in kwargs and 'sharey' in kwargs:
-            raise ValueError("Twinned Axes may share only one axis")
+            # The following line is added in v2.2 to avoid breaking Seaborn,
+            # which currently uses this internal API.
+            if kwargs["sharex"] is not self and kwargs["sharey"] is not self:
+                raise ValueError("Twinned Axes may share only one axis")
         ax2 = self.figure.add_axes(
             self.get_position(True), *args, **kwargs,
             axes_locator=_TransformedBoundsLocator(
