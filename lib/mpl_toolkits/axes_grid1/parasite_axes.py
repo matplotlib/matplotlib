@@ -17,8 +17,8 @@ class ParasiteAxesBase:
         kwargs["frameon"] = False
         super().__init__(parent_axes.figure, parent_axes._position, **kwargs)
 
-    def cla(self):
-        super().cla()
+    def clear(self):
+        super().clear()
         martist.setp(self.get_children(), visible=False)
         self._get_lines = self._parent_axes._get_lines
 
@@ -138,10 +138,10 @@ class HostAxesBase:
         super().draw(renderer)
         self._children = self._children[:orig_children_len]
 
-    def cla(self):
+    def clear(self):
         for ax in self.parasites:
-            ax.cla()
-        super().cla()
+            ax.clear()
+        super().clear()
 
     def pick(self, mouseevent):
         super().pick(mouseevent)

@@ -373,13 +373,10 @@ class ThetaAxis(maxis.XAxis):
         self.isDefault_majfmt = True
 
     def clear(self):
+        # docstring inherited
         super().clear()
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
-
-    @_api.deprecated("3.4", alternative="ThetaAxis.clear()")
-    def cla(self):
-        self.clear()
 
     def _set_scale(self, value, **kwargs):
         if value != 'linear':
@@ -671,13 +668,10 @@ class RadialAxis(maxis.YAxis):
         self.isDefault_majloc = True
 
     def clear(self):
+        # docstring inherited
         super().clear()
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
-
-    @_api.deprecated("3.4", alternative="RadialAxis.clear()")
-    def cla(self):
-        self.clear()
 
     def _set_scale(self, value, **kwargs):
         super()._set_scale(value, **kwargs)
@@ -776,10 +770,11 @@ class PolarAxes(Axes):
         super().__init__(*args, **kwargs)
         self.use_sticky_edges = True
         self.set_aspect('equal', adjustable='box', anchor='C')
-        self.cla()
+        self.clear()
 
-    def cla(self):
-        super().cla()
+    def clear(self):
+        # docstring inherited
+        super().clear()
 
         self.title.set_y(1.05)
 

@@ -22,6 +22,7 @@ from matplotlib._api import MatplotlibDeprecationWarning
 import matplotlib.colors as mcolors
 import matplotlib.dates as mdates
 from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 import matplotlib.font_manager as mfont_manager
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
@@ -466,6 +467,12 @@ def test_inverted_cla():
 
     # clean up
     plt.close(fig)
+
+
+def test_cla_not_redefined():
+    for klass in Axes.__subclasses__():
+        # check that cla does not get redefined in our Axes subclasses
+        assert 'cla' not in klass.__dict__
 
 
 @check_figures_equal(extensions=["png"])
