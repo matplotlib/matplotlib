@@ -11,8 +11,8 @@ won't need to think about this, as it happens under the hood, but as you push
 the limits of custom figure generation, it helps to have an understanding of
 these objects so you can reuse the existing transformations Matplotlib makes
 available to you, or create your own (see :mod:`matplotlib.transforms`).  The
-table below summarizes the some useful coordinate systems, the description of
-that system, and the transformation object for going from that coordinate
+table below summarizes some useful coordinate systems, a description of
+each system, and the transformation object for going from each coordinate
 system to the *display* coordinates.  In the ``Transformation Object`` column,
 ``ax`` is a :class:`~matplotlib.axes.Axes` instance, and ``fig`` is a
 :class:`~matplotlib.figure.Figure` instance.
@@ -47,8 +47,8 @@ system to the *display* coordinates.  In the ``Transformation Object`` column,
 |                |(width, height) is the top right   |                             |
 |                |of the figure in inches.           |                             |
 +----------------+-----------------------------------+-----------------------------+
-|"xaxis",        |Blended coordinate systems; use    |``ax.get_xaxis_transform()``,|
-|"yaxis"         |data coordinates on one of the axis|``ax.get_yaxis_transform()`` |
+|"xaxis",        |Blended coordinate systems, using  |``ax.get_xaxis_transform()``,|
+|"yaxis"         |data coordinates on one direction  |``ax.get_yaxis_transform()`` |
 |                |and axes coordinates on the other. |                             |
 +----------------+-----------------------------------+-----------------------------+
 |"display"       |The native coordinate system of the|``None``, or                 |
@@ -60,7 +60,7 @@ system to the *display* coordinates.  In the ``Transformation Object`` column,
 |                |The exact interpertation of the    |                             |
 |                |units depends on the back end. For |                             |
 |                |example it is pixels for Agg and   |                             |
-|                |pts for svg/pdf.                   |                             |
+|                |points for svg/pdf.                |                             |
 +----------------+-----------------------------------+-----------------------------+
 
 
@@ -68,7 +68,7 @@ system to the *display* coordinates.  In the ``Transformation Object`` column,
 
 
 The `~matplotlib.transforms.Transform` objects are naive to the source and
-destination coordinate systems, however the objects refereed to in the table
+destination coordinate systems, however the objects referred to in the table
 above are constructed to take inputs in their coordinate system, and transform
 the input to the *display* coordinate system.  That is why the *display*
 coordinate system has ``None`` for the ``Transformation Object`` column -- it
