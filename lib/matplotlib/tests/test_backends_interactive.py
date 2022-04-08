@@ -59,7 +59,12 @@ def _get_testable_interactive_backends():
         elif env["MPLBACKEND"].startswith('wx') and sys.platform == 'darwin':
             # ignore on OSX because that's currently broken (github #16849)
             marks.append(pytest.mark.xfail(reason='github #16849'))
-        envs.append(pytest.param(env, marks=marks, id=str(env)))
+        envs.append(
+            pytest.param(
+                {**env, 'BACKEND_DEPS': ','.join(deps)},
+                marks=marks, id=str(env)
+            )
+        )
     return envs
 
 
@@ -396,22 +401,29 @@ def _lazy_headless():
     import os
     import sys
 
+    backend, deps = sys.argv[1:]
+    deps = deps.split(',')
+
     # make it look headless
     os.environ.pop('DISPLAY', None)
     os.environ.pop('WAYLAND_DISPLAY', None)
+    for dep in deps:
+        assert dep not in sys.modules
 
     # we should fast-track to Agg
     import matplotlib.pyplot as plt
-    plt.get_backend() == 'agg'
-    assert 'PyQt5' not in sys.modules
+    assert plt.get_backend() == 'agg'
+    for dep in deps:
+        assert dep not in sys.modules
 
-    # make sure we really have pyqt installed
-    import PyQt5  # noqa
-    assert 'PyQt5' in sys.modules
+    # make sure we really have dependencies installed
+    for dep in deps:
+        importlib.import_module(dep)
+        assert dep in sys.modules
 
     # try to switch and make sure we fail with ImportError
     try:
-        plt.switch_backend('qt5agg')
+        plt.switch_backend(backend)
     except ImportError:
         ...
     else:
@@ -419,9 +431,14 @@ def _lazy_headless():
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="this a linux-only test")
-@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
-def test_lazy_linux_headless():
-    proc = _run_helper(_lazy_headless, timeout=_test_timeout, MPLBACKEND="")
+@pytest.mark.parametrize("env", _get_testable_interactive_backends())
+def test_lazy_linux_headless(env):
+    proc = _run_helper(
+        _lazy_headless,
+        env.pop('MPLBACKEND'), env.pop("BACKEND_DEPS"),
+        timeout=_test_timeout,
+        **{**env, 'DISPLAY': '', 'WAYLAND_DISPLAY': ''}
+    )
 
 
 def _qApp_warn_impl():
