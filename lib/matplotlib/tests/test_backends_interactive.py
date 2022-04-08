@@ -511,44 +511,38 @@ def _test_figure_leak():
 
     import psutil
     from matplotlib import pyplot as plt
-
-    flush = sys.argv[1] == "yes"
+    # Second argument is pause length, but if zero we should skip pausing
+    t = float(sys.argv[1])
     p = psutil.Process()
 
     # Warmup cycle, this reasonably allocates a lot
     for _ in range(2):
         fig = plt.figure()
-        if flush:
-            fig.canvas.flush_events()
+        if t:
+            plt.pause(t)
         plt.close(fig)
-        if flush:
-            fig.canvas.flush_events()
     mem = p.memory_info().rss
 
     for _ in range(5):
         fig = plt.figure()
-        if flush:
-            fig.canvas.flush_events()
+        if t:
+            plt.pause(t)
         plt.close(fig)
-        if flush:
-            fig.canvas.flush_events()
     growth = p.memory_info().rss - mem
 
     print(growth)
 
 
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
-@pytest.mark.parametrize("flush", ["no", "yes"])
-def test_figure_leak_20490(env, flush):
+@pytest.mark.parametrize("time", ["0.0", "0.1"])
+def test_figure_leak_20490(env, time):
     pytest.importorskip("psutil", reason="psutil needed to run this test")
 
     # We can't yet directly identify the leak
     # so test with a memory growth threshold
-    acceptable_memory_leakage = 3_000_000
+    acceptable_memory_leakage = 2_000_000
 
-    result = _run_helper(
-        _test_figure_leak, flush, timeout=_test_timeout, **env
-    )
+    result = _run_helper(_test_figure_leak, time, timeout=_test_timeout, **env)
 
     growth = int(result.stdout)
     assert growth <= acceptable_memory_leakage
