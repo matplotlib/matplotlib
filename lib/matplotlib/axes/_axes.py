@@ -5150,8 +5150,20 @@ default: :rc:`scatter.edgecolors`
                 ("y", y, ymin, ymax, yscale, 2 * ny),
         ]:
 
-            if zscale == "log" or zscale == "symlog":
+            if zscale == "log":
                 bin_edges = np.geomspace(zmin, zmax, nbins + 1)
+            elif zscale == "symlog":
+                zmin = symmlog_transform.transform_non_affine(
+                    np.array([zmin])
+                )[0]
+                zmax = symmlog_transform.transform_non_affine(
+                    np.array([zmax])
+                )[0]
+                bin_edges = np.linspace(zmin, zmax, nbins + 1)
+                bin_edges = inv_symmlog_transform.transform_non_affine(
+                    bin_edges
+                )
+                
             else:
                 bin_edges = np.linspace(zmin, zmax, nbins + 1)
 
