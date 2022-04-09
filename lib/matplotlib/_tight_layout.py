@@ -223,8 +223,13 @@ def get_subplotspec_list(axes_list, grid_spec=None):
     subplotspec_list = []
     for ax in axes_list:
         axes_or_locator = ax.get_axes_locator()
+
         if axes_or_locator is None:
             axes_or_locator = ax
+        elif hasattr(ax, '_twinned_axes'):
+            for a in ax._twinned_axes.get_siblings(ax):
+                if a != ax and hasattr(a, "get_subplotspec"):
+                    axes_or_locator = a
 
         if hasattr(axes_or_locator, "get_subplotspec"):
             subplotspec = axes_or_locator.get_subplotspec()
