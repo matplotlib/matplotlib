@@ -1808,9 +1808,10 @@ class PatchCollection(Collection):
 
         *match_original*
             If True, use the colors and linewidths of the original
-            patches.  If False, new colors may be assigned by
-            providing the standard collection arguments, facecolor,
-            edgecolor, linewidths, norm or cmap.
+            patches. Also use the hatch of the first patch provided.
+            If False, new colors may be assigned by providing the
+            standard collection arguments, facecolor, edgecolor,
+            linewidths, norm or cmap.
 
         If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds* are
         None, they default to their `.rcParams` patch setting, in sequence
@@ -1827,12 +1828,20 @@ class PatchCollection(Collection):
                 if patch.get_fill():
                     return patch.get_facecolor()
                 return [0, 0, 0, 0]
-
+            def is_default(c):
+                return mcolors.same_color([0, 0, 0, 0], c)
             kwargs['facecolors'] = [determine_facecolor(p) for p in patches]
-            kwargs['edgecolors'] = [p.get_edgecolor() for p in patches]
+            edgecolors = [p.get_edgecolor() for p in patches]
+            # Since the hatch color is updated when the edge color
+            # is updated, we will ignore the edge color if it is blank (the
+            # default of [0, 0, 0, 0]).
+            if not all(is_default(c) for c in edgecolors):
+                kwargs['edgecolors'] = edgecolors
             kwargs['linewidths'] = [p.get_linewidth() for p in patches]
             kwargs['linestyles'] = [p.get_linestyle() for p in patches]
             kwargs['antialiaseds'] = [p.get_antialiased() for p in patches]
+            if patches:
+                kwargs['hatch'] = patches[0].get_hatch()
 
         super().__init__(**kwargs)
 
