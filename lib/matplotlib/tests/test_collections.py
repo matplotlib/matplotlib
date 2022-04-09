@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backend_bases import MouseEvent
 import matplotlib.collections as mcollections
 import matplotlib.colors as mcolors
+import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
 from matplotlib.collections import (Collection, LineCollection,
                                     EventCollection, PolyCollection)
@@ -1117,3 +1118,25 @@ def test_set_offset_units():
     off0 = sc.get_offsets()
     sc.set_offsets(list(zip(y, d)))
     np.testing.assert_allclose(off0, sc.get_offsets())
+
+
+@check_figures_equal(extensions=['png'])
+def test_patch_collection_keeps_hatch(fig_test, fig_ref):
+    # When creating a PatchCollection, the hatch of the original patches should
+    # be used if match_original == True.
+    ax = fig_test.subplots()
+    patches = [
+        mpatches.Rectangle((0, 0), 0.2, .2, hatch="/"),
+        mpatches.Rectangle((0.4, 0.4), 0.2, .2, hatch="/")
+    ]
+    collection = mcollections.PatchCollection(patches, match_original=True)
+    ax.add_collection(collection)
+
+    ax = fig_ref.subplots()
+    patches = [
+        mpatches.Rectangle((0, 0), 0.2, .2),
+        mpatches.Rectangle((0.4, 0.4), 0.2, .2)
+    ]
+    collection = mcollections.PatchCollection(patches, match_original=False,
+                                                hatch="/")
+    ax.add_collection(collection)
