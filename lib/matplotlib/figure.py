@@ -924,7 +924,6 @@ default: %(va)s
             a gui widget is tracking the Axes in the figure.
         """
         self.suppressComposite = None
-        self.callbacks = cbook.CallbackRegistry()
 
         # first clear the axes in any subfigures
         for subfig in self.subfigs:
@@ -2025,6 +2024,8 @@ class SubFigure(FigureBase):
         self._subplotspec = subplotspec
         self._parent = parent
         self.figure = parent.figure
+        self.callbacks = parent.callbacks
+
         # subfigures use the parent axstack
         self._axstack = parent._axstack
         self.subplotpars = parent.subplotpars
