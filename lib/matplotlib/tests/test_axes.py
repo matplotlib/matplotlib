@@ -30,6 +30,7 @@ import matplotlib.path as mpath
 from matplotlib.projections.geo import HammerAxes
 from matplotlib.projections.polar import PolarAxes
 import matplotlib.pyplot as plt
+import matplotlib.scale as mscale
 import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
@@ -1053,6 +1054,21 @@ def test_hexbin_mincnt_behavior_upon_C_parameter(fig_test, fig_ref):
         gridsize=gridsize,
     )
     ax_test.set_facecolor("green")
+
+
+@image_comparison(['hexbin_symlog.png'], style='mpl20')
+def test_hexbin_symlog():
+    np.random.seed(19680801)
+    symmlog_transform = mscale.SymmetricalLogTransform(10, 2, 1).inverted()
+    n = 100000
+    x = np.random.standard_normal(n)
+    y = (2.0 + 3.0 * x)*(2*np.random.randint(2, size=n) - 1)
+    y = symmlog_transform.transform_non_affine(y)
+
+    fig, ax = plt.subplots()
+    h = ax.hexbin(x, y, yscale='symlog', bins='log',
+                  marginals=True, reduce_C_function=np.sum)
+    plt.colorbar(h)
 
 
 def test_inverted_limits():
