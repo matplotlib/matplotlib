@@ -5163,7 +5163,7 @@ default: :rc:`scatter.edgecolors`
                 bin_edges = inv_symmlog_transform.transform_non_affine(
                     bin_edges
                 )
-                
+
             else:
                 bin_edges = np.linspace(zmin, zmax, nbins + 1)
 
