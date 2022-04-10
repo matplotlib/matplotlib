@@ -519,9 +519,8 @@ default: %(va)s
 
         Parameters
         ----------
-        rect : sequence of float
-            The dimensions [left, bottom, width, height] of the new Axes. All
-            quantities are in fractions of figure width and height.
+        rect : tuple
+            (left, bottom, right, top).
 
         projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
 'polar', 'rectilinear', str}, optional
@@ -3240,9 +3239,8 @@ class Figure(FigureBase):
         h_pad, w_pad : float, default: *pad*
             Padding (height/width) between edges of adjacent subplots,
             as a fraction of the font size.
-        rect : tuple (left, bottom, right, top), default: (0, 0, 1, 1)
-            A rectangle in normalized figure coordinates into which the whole
-            subplots area (including labels) will fit.
+        rect : tuple
+            (left, bottom, right, top), default: (0, 0, 1, 1).
 
         See Also
         --------
