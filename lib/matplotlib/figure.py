@@ -3316,12 +3316,37 @@ class Figure(FigureBase):
 
         with ExitStack() as stack:
             if transparent:
+                def _recursively_make_subfig_transparent(exit_stack, subfig):
+                    exit_stack.enter_context(
+                        subfig.patch._cm_set(
+                            facecolor="none", edgecolor="none"))
+                    for ax in subfig.axes:
+                        exit_stack.enter_context(
+                            ax.patch._cm_set(
+                                facecolor="none", edgecolor="none"))
+                    for sub_subfig in subfig.subfigs:
+                        _recursively_make_subfig_transparent(
+                            exit_stack, sub_subfig)
+
+                def _recursively_make_axes_transparent(exit_stack, ax):
+                    exit_stack.enter_context(
+                        ax.patch._cm_set(facecolor="none", edgecolor="none"))
+                    for child_ax in ax.child_axes:
+                        exit_stack.enter_context(
+                            child_ax.patch._cm_set(
+                                facecolor="none", edgecolor="none"))
+                    for child_childax in ax.child_axes:
+                        _recursively_make_axes_transparent(
+                            exit_stack, child_childax)
+
                 kwargs.setdefault('facecolor', 'none')
                 kwargs.setdefault('edgecolor', 'none')
+                # set subfigure to appear transparent in printed image
+                for subfig in self.subfigs:
+                    _recursively_make_subfig_transparent(stack, subfig)
+                # set axes to be transparent
                 for ax in self.axes:
-                    stack.enter_context(
-                        ax.patch._cm_set(facecolor='none', edgecolor='none'))
-
+                    _recursively_make_axes_transparent(stack, ax)
             self.canvas.print_figure(fname, **kwargs)
 
     def ginput(self, n=1, timeout=30, show_clicks=True,
