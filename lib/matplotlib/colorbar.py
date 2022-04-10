@@ -89,6 +89,14 @@ extendrect : bool
     If *False* the minimum and maximum colorbar extensions will be triangular
     (the default).  If *True* the extensions will be rectangular.
 
+round : {'neither', 'both', 'min', 'max'}
+    Make the end(s) of the colorbar round.
+
+rounding_size : float, default: 0.3
+    Radius of the corners in colorbar axes' coordinates.
+    Minimum value is 0.0 (rectangular ends) and maximum value
+    is 0.5 (fully round ends).
+
 spacing : {'uniform', 'proportional'}
     For discrete colorbars (`.BoundaryNorm` or contours), 'uniform' gives each
     color the same space; 'proportional' makes the space proportional to the
@@ -205,8 +213,8 @@ class _ColorbarSpine(mspines.Spine):
         # super-super-class.
         return mpatches.Patch.get_window_extent(self, renderer=renderer)
 
-    def set_xy(self, xy):
-        self._path = mpath.Path(xy, closed=True)
+    def set_xy(self, xy, codes):
+        self._path = mpath.Path(xy, codes, closed=True)
         self._xy = xy
         self.stale = True
 
@@ -218,7 +226,8 @@ class _ColorbarSpine(mspines.Spine):
 
 class _ColorbarAxesLocator:
     """
-    Shrink the axes if there are triangular or rectangular extends.
+    Shrink the axes if there are triangular or rectangular extends or
+    if there are rounded corners.
     """
     def __init__(self, cbar):
         self._cbar = cbar
@@ -229,13 +238,13 @@ class _ColorbarAxesLocator:
             pos = self._orig_locator(ax, renderer)
         else:
             pos = ax.get_position(original=True)
-        if self._cbar.extend == 'neither':
+        if self._cbar.extend == 'neither' and self._cbar.round == 'neither':
             return pos
 
         y, extendlen = self._cbar._proportional_y()
-        if not self._cbar._extend_lower():
+        if not self._cbar._extend_lower() and not self._cbar._round_lower():
             extendlen[0] = 0
-        if not self._cbar._extend_upper():
+        if not self._cbar._extend_upper() and not self._cbar._round_upper():
             extendlen[1] = 0
         len = sum(extendlen) + 1
         shrink = 1 / len
@@ -342,6 +351,7 @@ class Colorbar:
                  orientation='vertical',
                  ticklocation='auto',
                  extend=None,
+                 round=None,
                  spacing='uniform',  # uniform or proportional
                  ticks=None,
                  format=None,
@@ -349,6 +359,7 @@ class Colorbar:
                  filled=True,
                  extendfrac=None,
                  extendrect=False,
+                 rounding_size=None,
                  label='',
                  ):
 
@@ -399,6 +410,15 @@ class Colorbar:
                 extend = norm.extend
             else:
                 extend = 'neither'
+
+        if round is None:
+            round = 'neither'
+            rounding_size = 0.0
+        if rounding_size is None:
+            rounding_size = 0.3
+        # limit rounding size from 0 to 0.5
+        rounding_size = min(0.5, abs(rounding_size))
+
         self.alpha = None
         # Call set_alpha to handle array-like alphas properly
         self.set_alpha(alpha)
@@ -411,16 +431,28 @@ class Colorbar:
             {'neither': slice(0, None), 'both': slice(1, -1),
              'min': slice(1, None), 'max': slice(0, -1)},
             extend=extend)
+        self.round = round
         self.spacing = spacing
         self.orientation = orientation
         self.drawedges = drawedges
         self._filled = filled
         self.extendfrac = extendfrac
         self.extendrect = extendrect
+        self.rounding_size = rounding_size
         self._extend_patches = []
         self.solids = None
         self.solids_patches = []
         self.lines = []
+
+        # Find aspect to scale radius for y-axis
+        self._aspect = self.ax.get_box_aspect()
+        if not self._aspect:
+            fig = self.ax.figure
+            ll, ur = self.ax.get_position() * fig.get_size_inches()
+            width, height = ur - ll
+            self._aspect = height / width
+        if self.orientation == "horizontal":
+            self._aspect = 1 / self._aspect
 
         for spine in self.ax.spines.values():
             spine.set_visible(False)
@@ -683,29 +715,98 @@ class Colorbar:
         # extend lengths are fraction of the *inner* part of colorbar,
         # not the total colorbar:
         _, extendlen = self._proportional_y()
-        bot = 0 - (extendlen[0] if self._extend_lower() else 0)
-        top = 1 + (extendlen[1] if self._extend_upper() else 0)
 
-        # xyout is the outline of the colorbar including the extend patches:
-        if not self.extendrect:
-            # triangle:
-            xyout = np.array([[0, 0], [0.5, bot], [1, 0],
-                              [1, 1], [0.5, top], [0, 1], [0, 0]])
+        if self._extend_lower() or self._round_lower():
+            bot = 0 - extendlen[0]
         else:
-            # rectangle:
-            xyout = np.array([[0, 0], [0, bot], [1, bot], [1, 0],
-                              [1, 1], [1, top], [0, top], [0, 1],
-                              [0, 0]])
+            bot = 0
+        if self._extend_upper() or self._round_upper():
+            top = 1 + extendlen[1]
+        else:
+            top = 1
+
+        x0, y0 = 0, bot
+        x1, y1 = 1, top
+
+        # Set radius for each corner to 0 in order to start with a rectangle
+        dr1, dr2, dr3, dr4 = 0, 0, 0, 0
+        dt1, dt2 = 0, 0
+
+        # Extend min using triangle
+        if self._extend_lower() and not self.extendrect:
+            dt1 = bot
+            dr1 = 0.5
+            dr3 = 0.5
+        # Extend max using triangle
+        if self._extend_upper() and not self.extendrect:
+            dt2 = top - 1
+            dr1 = 0.5
+            dr3 = 0.5
+
+        # Round corners associated with min
+        if self._round_lower():
+            dt1 = 0
+            dr1 = self.rounding_size
+            dr2 = dr1 / self._aspect
+        # Round corners associated with max
+        if self._round_upper():
+            dt2 = 0
+            dr3 = self.rounding_size
+            dr4 = dr3 / self._aspect
+
+        # xyout is the outline of the colorbar including
+        # the extend/round patches:
+        xyout = np.array([
+            [x0 + dr1, y0],
+            [x1 - dr1, y0],
+            [x1, y0 - dt1],
+            [x1, y0 + dr2 - dt1],
+            [x1, y1 - dr4 - dt2],
+            [x1, y1 - dt2],
+            [x1 - dr3, y1],
+            [x0 + dr3, y1],
+            [x0, y1 - dt2],
+            [x0, y1 - dr4 - dt2],
+            [x0, y0 + dr2 - dt1],
+            [x0, y0 - dt1],
+            [x0 + dr1, y0],
+            [x0 + dr1, y0],
+        ])
+
+        codes = [
+            mpath.Path.MOVETO,
+            mpath.Path.LINETO,
+            mpath.Path.CURVE3,
+            mpath.Path.CURVE3,
+            mpath.Path.LINETO,
+            mpath.Path.CURVE3,
+            mpath.Path.CURVE3,
+            mpath.Path.LINETO,
+            mpath.Path.CURVE3,
+            mpath.Path.CURVE3,
+            mpath.Path.LINETO,
+            mpath.Path.CURVE3,
+            mpath.Path.CURVE3,
+            mpath.Path.CLOSEPOLY,
+        ]
+
+        # Handle strange bug with rectangular outline
+        # starting one pixel up and towards the left
+        # due to the use of CURVE3
+        if (
+            (self.extend == 'neither' or self.extendrect)
+            and self.round == 'neither'
+        ):
+            codes[1:13] = [mpath.Path.LINETO for _ in range(12)]
 
         if self.orientation == 'horizontal':
             xyout = xyout[:, ::-1]
 
-        # xyout is the path for the spine:
-        self.outline.set_xy(xyout)
+        self.outline.set_xy(xyout, codes)
         if not self._filled:
             return
 
-        # Make extend triangles or rectangles filled patches.  These are
+        # Make extend triangles, rectangles or round filled patches.  These are
         # defined in the outer parent axes' coordinates:
         mappable = getattr(self, 'mappable', None)
         if (isinstance(mappable, contour.ContourSet)
@@ -714,20 +815,38 @@ class Colorbar:
         else:
             hatches = [None]
 
-        if self._extend_lower():
-            if not self.extendrect:
-                # triangle
-                xy = np.array([[0, 0], [0.5, bot], [1, 0]])
-            else:
-                # rectangle
-                xy = np.array([[0, 0], [0, bot], [1., bot], [1, 0]])
+        eps = (1e-3 if self._round_lower() or self._round_upper() else 0)
+
+        if self._extend_lower() or self._round_lower():
+            xy = np.array([
+                [x0, eps],
+                [x0, y0 + dr2 - dt1],
+                [x0, y0 - dt1],
+                [x0 + dr1, y0],
+                [x1 - dr1, y0],
+                [x1, y0 - dt1],
+                [x1, y0 + dr2 - dt1],
+                [x1, eps],
+            ])
+
+            codes = [
+                mpath.Path.MOVETO,
+                mpath.Path.LINETO,
+                mpath.Path.CURVE3,
+                mpath.Path.CURVE3,
+                mpath.Path.LINETO,
+                mpath.Path.CURVE3,
+                mpath.Path.CURVE3,
+                mpath.Path.LINETO,
+            ]
+
             if self.orientation == 'horizontal':
                 xy = xy[:, ::-1]
             # add the patch
             val = -1 if self._long_axis().get_inverted() else 0
             color = self.cmap(self.norm(self._values[val]))
             patch = mpatches.PathPatch(
-                mpath.Path(xy), facecolor=color, linewidth=0,
+                mpath.Path(xy, codes), facecolor=color, linewidth=0,
                 antialiased=False, transform=self.ax.transAxes,
                 hatch=hatches[0], clip_on=False,
                 # Place it right behind the standard patches, which is
@@ -735,20 +854,36 @@ class Colorbar:
                 zorder=np.nextafter(self.ax.patch.zorder, -np.inf))
             self.ax.add_patch(patch)
             self._extend_patches.append(patch)
-        if self._extend_upper():
-            if not self.extendrect:
-                # triangle
-                xy = np.array([[0, 1], [0.5, top], [1, 1]])
-            else:
-                # rectangle
-                xy = np.array([[0, 1], [0, top], [1, top], [1, 1]])
+        if self._extend_upper() or self._round_upper():
+            xy = np.array([
+                [x0, 1 - eps],
+                [x0, y1 - dr4 - dt2],
+                [x0, y1 - dt2],
+                [x0 + dr3, y1],
+                [x1 - dr3, y1],
+                [x1, y1 - dt2],
+                [x1, y1 - dr4 - dt2],
+                [x1, 1 - eps],
+            ])
+
+            codes = [
+                mpath.Path.MOVETO,
+                mpath.Path.LINETO,
+                mpath.Path.CURVE3,
+                mpath.Path.CURVE3,
+                mpath.Path.LINETO,
+                mpath.Path.CURVE3,
+                mpath.Path.CURVE3,
+                mpath.Path.LINETO,
+            ]
+
             if self.orientation == 'horizontal':
                 xy = xy[:, ::-1]
             # add the patch
             val = 0 if self._long_axis().get_inverted() else -1
             color = self.cmap(self.norm(self._values[val]))
             patch = mpatches.PathPatch(
-                mpath.Path(xy), facecolor=color,
+                mpath.Path(xy, codes), facecolor=color,
                 linewidth=0, antialiased=False,
                 transform=self.ax.transAxes, hatch=hatches[-1], clip_on=False,
                 # Place it right behind the standard patches, which is
@@ -1319,7 +1454,12 @@ class Colorbar:
         automin = yscaled[1] - yscaled[0]
         automax = yscaled[-1] - yscaled[-2]
         extendlength = [0, 0]
-        if self._extend_lower() or self._extend_upper():
+        if (
+            self._extend_lower()
+            or self._extend_upper()
+            or self._round_lower()
+            or self._round_upper()
+        ):
             extendlength = self._get_extension_lengths(
                     self.extendfrac, automin, automax, default=0.05)
         return y, extendlength
@@ -1347,6 +1487,21 @@ class Colorbar:
             except (TypeError, ValueError) as err:
                 # Raise an error on encountering an invalid value for frac.
                 raise ValueError('invalid value for extendfrac') from err
+
+        # Round corners need an extension at least equal to the radius
+        if self._round_lower():
+            if self._extend_lower():
+                extendlength[0] = max(extendlength[0],
+                                      self.rounding_size / self._aspect)
+            else:
+                extendlength[0] = self.rounding_size / self._aspect
+        if self._round_upper():
+            if self._extend_upper():
+                extendlength[1] = max(extendlength[1],
+                                      self.rounding_size / self._aspect)
+            else:
+                extendlength[1] = self.rounding_size / self._aspect
+
         return extendlength
 
     def _extend_lower(self):
@@ -1358,6 +1513,16 @@ class Colorbar:
         """Return whether the upper limit is open ended."""
         minmax = "min" if self._long_axis().get_inverted() else "max"
         return self.extend in ('both', minmax)
+
+    def _round_lower(self):
+        """Return whether the lower edge is rounded."""
+        minmax = "max" if self._long_axis().get_inverted() else "min"
+        return self.round in ('both', minmax)
+
+    def _round_upper(self):
+        """Return whether the upper edge is rounded."""
+        minmax = "min" if self._long_axis().get_inverted() else "max"
+        return self.round in ('both', minmax)
 
     def _long_axis(self):
         """Return the long axis"""
