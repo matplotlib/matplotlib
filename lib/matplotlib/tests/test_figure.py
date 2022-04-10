@@ -557,6 +557,24 @@ def test_savefig_pixel_ratio(backend):
     assert ratio1 == ratio2
 
 
+@image_comparison(['transparent_background'],
+                    extensions=['png'], savefig_kwarg={'transparent': True},
+                    remove_text=True)
+def test_savefig_transparent():
+    # create two transparent subfigures with corresponding transparent inset
+    # axes. the entire background of the image should be transparent.
+    fig = plt.gcf()
+    gs = fig.add_gridspec(3, 3)
+    fig.add_subfigure(gs[0, 0])
+    fig.add_subplot(gs[0, 0])
+    ax = plt.gca()
+    ax.inset_axes([.1, .2, .3, .4])
+    fig.add_subfigure(gs[0:2, 1])
+    fig.add_subplot(gs[0:2, 1])
+    ax2 = plt.gca()
+    ax2.inset_axes([.1, .2, .3, .4])
+
+
 def test_figure_repr():
     fig = plt.figure(figsize=(10, 20), dpi=10)
     assert repr(fig) == "<Figure size 100x200 with 0 Axes>"

@@ -3061,10 +3061,24 @@ class Figure(FigureBase):
             if transparent:
                 kwargs.setdefault('facecolor', 'none')
                 kwargs.setdefault('edgecolor', 'none')
+                # set subfigure to appear transparent in printed image
+                for subfig in self.subfigs:
+                    stack.enter_context(
+                        subfig.patch._cm_set(
+                            facecolor='none', edgecolor='none'))
+                    for subfig_ax in subfig.axes:
+                        stack.enter_context(
+                            subfig_ax.patch._cm_set(
+                                facecolor='none', edgecolor='none'))
+                # set axes to be transparent
                 for ax in self.axes:
                     stack.enter_context(
                         ax.patch._cm_set(facecolor='none', edgecolor='none'))
-
+                    # set inset axes to be transparent as well
+                    for child_ax in ax.child_axes:
+                        stack.enter_context(
+                            child_ax.patch._cm_set(
+                                facecolor='none', edgecolor='none'))
             self.canvas.print_figure(fname, **kwargs)
 
     def ginput(self, n=1, timeout=30, show_clicks=True,
