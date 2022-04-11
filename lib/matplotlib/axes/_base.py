@@ -2950,8 +2950,6 @@ class _AxesBase(martist.Artist):
             _log.debug('title position was updated manually, not adjusting')
             return
 
-        titles = []
-
         titles = [self.title, self._left_title, self._right_title]
 
         for title in titles:
@@ -3004,7 +3002,6 @@ class _AxesBase(martist.Artist):
                         (0., 2 * top - title.get_window_extent(renderer).ymin))
                     title.set_position((x, y))
 
-        grouped_axs = self.figure._align_title_groups.get_siblings(self)
         ymax = max(title.get_position()[1] for title in titles)
         for title in titles:
             # now line up all the titles at the highest baseline.
@@ -3012,6 +3009,8 @@ class _AxesBase(martist.Artist):
             title.set_position((x, ymax))
 
         # Align bboxes of grouped axes to highest in group
+        grouped_axs = self.figure._align_label_groups['title'] \
+                          .get_siblings(self)
         bb_ymax = None
         ax_max = None
         for ax in grouped_axs:
