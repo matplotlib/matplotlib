@@ -276,7 +276,7 @@ jobs:
           find . -name '*.gc*' -delete
         if: ${{ runner.os != 'macOS' }}
       - name: Upload code coverage
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
 
       - uses: actions/upload-artifact@v2
         if: failure()
