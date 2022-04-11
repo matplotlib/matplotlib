@@ -113,13 +113,12 @@ def test_align_titles():
     axs[1][1].imshow(plt.np.zeros((1, 2)))
 
     axs[0][1].set_title('Title2', loc="left")
-    axs[0][1].set_title()
 
     fig.align_titles()
 
 
 ## TODO add image comparison
-@image_comparison(['figure_align_titles_some'], extensions=['png', 'svg'],
+@image_comparison(['figure_align_titles_param'], extensions=['png', 'svg'],
                   tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_align_titles_param():
     fig, axs = plt.subplots(2, 2,
