@@ -12,6 +12,7 @@ import numpy as np
 
 import matplotlib as mpl
 from . import _api, cbook
+from .colors import BoundaryNorm
 from .cm import ScalarMappable
 from .path import Path
 from .transforms import (Bbox, IdentityTransform, Transform, TransformedBbox,
@@ -1303,10 +1304,22 @@ class Artist:
                 return "[]"
             normed = self.norm(data)
             if np.isfinite(normed):
-                # Midpoints of neighboring color intervals.
-                neighbors = self.norm.inverse(
-                    (int(self.norm(data) * n) + np.array([0, 1])) / n)
-                delta = abs(neighbors - data).max()
+                if isinstance(self.norm, BoundaryNorm):
+                    # not an invertible normalization mapping
+                    cur_idx = np.argmin(np.abs(self.norm.boundaries - data))
+                    neigh_idx1 = max(0, cur_idx - 1)
+                    neigh_idx2 = min(
+                        len(self.norm.boundaries) - 1, cur_idx + 1)
+                    # use max diff to prevent delta == 0
+                    delta = np.diff(
+                        self.norm.boundaries[[neigh_idx1, cur_idx, neigh_idx2]]
+                    ).max()
+
+                else:
+                    # Midpoints of neighboring color intervals.
+                    neighbors = self.norm.inverse(
+                        (int(normed * n) + np.array([0, 1])) / n)
+                    delta = abs(neighbors - data).max()
                 g_sig_digits = cbook._g_sig_digits(data, delta)
             else:
                 g_sig_digits = 3  # Consistent with default below.
