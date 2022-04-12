@@ -1334,6 +1334,8 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         """
         Find the point in the contour plot that is closest to ``(x, y)``.
 
+        This method does not support filled contours.
+
         Parameters
         ----------
         x, y : float
@@ -1370,8 +1372,11 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         # sufficiently well that the time is not noticeable.
         # Nonetheless, improvements could probably be made.
 
+        if self.filled:
+            raise ValueError("Method does not support filled contours.")
+
         if indices is None:
-            indices = range(len(self.levels))
+            indices = range(len(self.collections))
 
         d2min = np.inf
         conmin = None
