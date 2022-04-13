@@ -15,7 +15,6 @@ the Quiver code.
 """
 
 import math
-import weakref
 
 import numpy as np
 from numpy import ma
@@ -273,21 +272,6 @@ class QuiverKey(martist.Artist):
         self.color = color
         self.label = label
         self._labelsep_inches = labelsep
-        self.labelsep = (self._labelsep_inches * Q.axes.figure.dpi)
-
-        # try to prevent closure over the real self
-        weak_self = weakref.ref(self)
-
-        def on_dpi_change(fig):
-            self_weakref = weak_self()
-            if self_weakref is not None:
-                self_weakref.labelsep = self_weakref._labelsep_inches * fig.dpi
-                # simple brute force update works because _init is called at
-                # the start of draw.
-                self_weakref._initialized = False
-
-        self._cid = Q.axes.figure.callbacks.connect(
-            'dpi_changed', on_dpi_change)
 
         self.labelpos = labelpos
         self.labelcolor = labelcolor
@@ -303,18 +287,16 @@ class QuiverKey(martist.Artist):
 
         if self.labelcolor is not None:
             self.text.set_color(self.labelcolor)
-        self._initialized = False
+        self._dpi_at_last_init = None
         self.zorder = Q.zorder + 0.1
 
-    def remove(self):
-        # docstring inherited
-        self.Q.axes.figure.callbacks.disconnect(self._cid)
-        self._cid = None
-        super().remove()  # pass the remove call up the stack
+    @property
+    def labelsep(self):
+        return self._labelsep_inches * self.Q.axes.figure.dpi
 
     def _init(self):
-        if True:  # not self._initialized:
-            if not self.Q._initialized:
+        if True:  # self._dpi_at_last_init != self.axes.figure.dpi
+            if self.Q._dpi_at_last_init != self.Q.axes.figure.dpi:
                 self.Q._init()
             self._set_transform()
             with cbook._setattr_cm(self.Q, pivot=self.pivot[self.labelpos],
@@ -337,7 +319,7 @@ class QuiverKey(martist.Artist):
                 self.vector.set_color(self.color)
             self.vector.set_transform(self.Q.get_transform())
             self.vector.set_figure(self.get_figure())
-            self._initialized = True
+            self._dpi_at_last_init = self.Q.axes.figure.dpi
 
     def _text_x(self, x):
         if self.labelpos == 'E':
@@ -508,26 +490,7 @@ class Quiver(mcollections.PolyCollection):
                          closed=False, **kw)
         self.polykw = kw
         self.set_UVC(U, V, C)
-        self._initialized = False
-
-        weak_self = weakref.ref(self)  # Prevent closure over the real self.
-
-        def on_dpi_change(fig):
-            self_weakref = weak_self()
-            if self_weakref is not None:
-                # vertices depend on width, span which in turn depend on dpi
-                self_weakref._new_UV = True
-                # simple brute force update works because _init is called at
-                # the start of draw.
-                self_weakref._initialized = False
-
-        self._cid = ax.figure.callbacks.connect('dpi_changed', on_dpi_change)
-
-    def remove(self):
-        # docstring inherited
-        self.axes.figure.callbacks.disconnect(self._cid)
-        self._cid = None
-        super().remove()  # pass the remove call up the stack
+        self._dpi_at_last_init = None
 
     def _init(self):
         """
@@ -536,7 +499,7 @@ class Quiver(mcollections.PolyCollection):
         """
         # It seems that there are not enough event notifications
         # available to have this work on an as-needed basis at present.
-        if True:  # not self._initialized:
+        if True:  # self._dpi_at_last_init != self.axes.figure.dpi
             trans = self._set_transform()
             self.span = trans.inverted().transform_bbox(self.axes.bbox).width
             if self.width is None:
@@ -544,10 +507,11 @@ class Quiver(mcollections.PolyCollection):
                 self.width = 0.06 * self.span / sn
 
             # _make_verts sets self.scale if not already specified
-            if not self._initialized and self.scale is None:
+            if (self._dpi_at_last_init != self.axes.figure.dpi
+                    and self.scale is None):
                 self._make_verts(self.U, self.V, self.angles)
 
-            self._initialized = True
+            self._dpi_at_last_init = self.axes.figure.dpi
 
     def get_datalim(self, transData):
         trans = self.get_transform()
@@ -563,7 +527,6 @@ class Quiver(mcollections.PolyCollection):
         self._init()
         verts = self._make_verts(self.U, self.V, self.angles)
         self.set_verts(verts, closed=False)
-        self._new_UV = False
         super().draw(renderer)
         self.stale = False
 
@@ -592,7 +555,6 @@ class Quiver(mcollections.PolyCollection):
         self.Umask = mask
         if C is not None:
             self.set_array(C)
-        self._new_UV = True
         self.stale = True
 
     def _dots_per_unit(self, units):
