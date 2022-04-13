@@ -108,7 +108,7 @@ jobs:
         run: |
           python ./ci/check_wheel_licenses.py
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: wheels
           path: ./dist/*.whl
