@@ -1307,12 +1307,10 @@ class Artist:
                 if isinstance(self.norm, BoundaryNorm):
                     # not an invertible normalization mapping
                     cur_idx = np.argmin(np.abs(self.norm.boundaries - data))
-                    neigh_idx1 = max(0, cur_idx - 1)
-                    neigh_idx2 = min(
-                        len(self.norm.boundaries) - 1, cur_idx + 1)
+                    neigh_idx = max(0, cur_idx - 1)
                     # use max diff to prevent delta == 0
                     delta = np.diff(
-                        self.norm.boundaries[[neigh_idx1, cur_idx, neigh_idx2]]
+                        self.norm.boundaries[neigh_idx:cur_idx + 2]
                     ).max()
 
                 else:
