@@ -534,16 +534,19 @@ def _test_figure_leak():
     print(growth)
 
 
+# TODO: "0.1" memory threshold could be reduced 10x by fixing tkagg
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
-@pytest.mark.parametrize("time", ["0.0", "0.1"])
-def test_figure_leak_20490(env, time):
+@pytest.mark.parametrize("time_mem", [(0.0, 2_000_000), (0.1, 30_000_000)])
+def test_figure_leak_20490(env, time_mem):
     pytest.importorskip("psutil", reason="psutil needed to run this test")
 
     # We can't yet directly identify the leak
     # so test with a memory growth threshold
-    acceptable_memory_leakage = 2_000_000
+    pause_time, acceptable_memory_leakage = time_mem
 
-    result = _run_helper(_test_figure_leak, time, timeout=_test_timeout, **env)
+    result = _run_helper(
+        _test_figure_leak, str(pause_time), timeout=_test_timeout, **env
+    )
 
     growth = int(result.stdout)
     assert growth <= acceptable_memory_leakage
