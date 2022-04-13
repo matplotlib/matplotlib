@@ -19,8 +19,10 @@
 
 
 import abc
+import asyncio
 import base64
 import contextlib
+import inspect
 from io import BytesIO, TextIOWrapper
 import itertools
 import logging
@@ -1600,8 +1602,8 @@ class FuncAnimation(TimedAnimation):
             self._args = fargs
         else:
             self._args = ()
-        self._func = func
-        self._init_func = init_func
+        self._func = self._synchronize_callable(func)
+        self._init_func = self._synchronize_callable(init_func)
 
         # Amount of framedata to keep around for saving movies. This is only
         # used if we don't know how many frames there will be: in the case
@@ -1614,6 +1616,16 @@ class FuncAnimation(TimedAnimation):
         # will be treated as a number of frames.
         if frames is None:
             self._iter_gen = itertools.count
+        elif inspect.isasyncgen(frames):
+            synchronized_frames = self._synchronize_generators(frames)
+            if kwargs.get('repeat', True):
+                self._tee_from = synchronized_frames
+                def iter_frames(frames=synchronized_frames):
+                    this, self._tee_from = itertools.tee(self._tee_from, 2)
+                    yield from this
+                self._iter_gen = iter_frames
+            else:
+                self._iter_gen = lambda: iter(synchronized_frames)
         elif callable(frames):
             self._iter_gen = frames
         elif np.iterable(frames):
@@ -1650,6 +1662,33 @@ class FuncAnimation(TimedAnimation):
         # Need to reset the saved seq, since right now it will contain data
         # for a single frame from init, which is not what we want.
         self._save_seq = []
+
+    @staticmethod
+    def _synchronize_callable(func_or_coro):
+        if inspect.iscoroutinefunction(func_or_coro):
+            def run_until(*args, **kwargs):
+                return asyncio.get_event_loop().run_until_complete(
+                    func_or_coro(*args, **kwargs)
+                )
+            return run_until
+        else:
+            return func_or_coro
+
+    @staticmethod
+    def _synchronize_generators(async_generator):
+        if inspect.isasyncgen(async_generator):
+            def synchronized_generator(gen):
+                async def get_next():
+                    return await gen.__anext__()
+                try:
+                    loop = asyncio.get_event_loop()
+                    while True:
+                        yield loop.run_until_complete(get_next())
+                except StopAsyncIteration:
+                    pass
+            return synchronized_generator(async_generator)
+        else:
+            raise TypeError
 
     def new_frame_seq(self):
         # Use the generating function to generate a new frame sequence
