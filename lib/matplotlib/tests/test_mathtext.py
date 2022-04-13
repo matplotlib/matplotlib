@@ -333,6 +333,9 @@ def test_operator_space(fig_test, fig_ref):
     fig_test.text(0.1, 0.6, r"$\operatorname{op}[6]$")
     fig_test.text(0.1, 0.7, r"$\cos^2$")
     fig_test.text(0.1, 0.8, r"$\log_2$")
+    # Check spacing after Sub/Super scripts
+    # Github issue 17852
+    fig_test.text(0.1, 0.7, r"$\sin^2 \cos$")
 
     fig_ref.text(0.1, 0.1, r"$\mathrm{log\,}6$")
     fig_ref.text(0.1, 0.2, r"$\mathrm{log}(6)$")
@@ -342,6 +345,7 @@ def test_operator_space(fig_test, fig_ref):
     fig_ref.text(0.1, 0.6, r"$\mathrm{op}[6]$")
     fig_ref.text(0.1, 0.7, r"$\mathrm{cos}^2$")
     fig_ref.text(0.1, 0.8, r"$\mathrm{log}_2$")
+    fig_ref.text(0.1, 0.7, r"$\mathrm{sin}^2 \mathrm{\,cos}$")
 
 
 def test_mathtext_fallback_valid():

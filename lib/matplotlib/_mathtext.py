@@ -1985,8 +1985,6 @@ class Parser:
         return [Hlist(toks)]
 
     def math_string(self, s, loc, toks):
-        #import pdb
-        #pdb.set_trace()
         return self._math_expression.parseString(toks[0][1:-1])
 
     def math(self, s, loc, toks):
@@ -2106,7 +2104,8 @@ class Parser:
         r'overleftarrow':  r'\leftarrow',
         r'mathring':       r'\circ',
     }
-    subScriptFlag=False
+    # To add space to nucleus operators after sub/superscripts
+    _subsuper_flag = False
     _wide_accents = set(r"widehat widetilde widebar".split())
 
     # make a lambda and call it to get the namespace right
@@ -2161,16 +2160,16 @@ class Parser:
         next_char = next((c for c in s[next_char_loc:] if c != ' '), '')
         delimiters = self._left_delim | self._ambi_delim | self._right_delim
         delimiters |= {'^', '_'}
-        print("don't stop me now")
-        #breakpoint()
+
         if (next_char not in delimiters and
                 toks[0] not in self._overunder_functions):
             # Add thin space except when followed by parenthesis, bracket, etc.
             hlist_list += [self._make_space(self._space_widths[r'\,'])]
-            print("insertSpace")
-        
+
+        # if followed by a super/subscript, set flag to true
+        # This flag tells subsuper to add space after this operator
         if(next_char in {'^', '_'}):
-            self.subScriptFlag=True
+            self._subsuper_flag = True
 
         self.pop_state()
         return Hlist(hlist_list)
@@ -2364,7 +2363,7 @@ class Parser:
                              constants.delta_integral) * lc_height
             else:
                 subkern = 0
-        #breakpoint()
+
         if super is None:
             # node757
             x = Hlist([Kern(subkern), sub])
@@ -2403,25 +2402,15 @@ class Parser:
 
         if not self.is_dropsub(last_char):
             x.width += constants.script_space * xHeight
-        #by this point in the code, the exponent has been mounted to the nucleus
-        # before you return Hlist, you need to add a space to hlist to add spacing
-        # this will work better than the previous solution, but suffers from the
-        #same issue, where $sin^{23}$ will technically have a space after this
-        #the ideal solution would involve setting a flag for it, but
-        # would require knowledge of what exponent level we are actually on
-        #maybe, just maybe, we could set some kerning flag in Hlist
-        #, but honestly, I don't think its too big of a deal
-        # of course, we will still need to add spaces after non exponentiated operators
-        #@HENRY TODO
-        #another issue: sin^{sqrt^sin}3 will have extra space compared to
-        # sin^{sqrt} 3 becuase the exponent's exponent will have extra spacing
+
+        # Do we need to add a space after the nucleus
+        # Checks the flag set by operatorname
         result = [nucleus, x]
-        if(self.subScriptFlag):
+        if(self._subsuper_flag):
             result += [self._make_space(self._space_widths[r'\,'])]
-            self.subScriptFlag=False
-            print("hopethis worked")
+            self._subsuper_flag = False
+
         result = Hlist(result)
-        #breakpoint()
         return [result]
 
     def _genfrac(self, ldelim, rdelim, rule, style, num, den):
