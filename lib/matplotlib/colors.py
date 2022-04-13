@@ -43,6 +43,7 @@ import base64
 from collections.abc import Sized, Sequence
 import copy
 import functools
+import importlib
 import inspect
 import io
 import itertools
@@ -1528,9 +1529,22 @@ def _make_norm_from_scale(scale_cls, base_norm_cls, bound_init_signature):
 
     class Norm(base_norm_cls):
         def __reduce__(self):
+            cls = type(self)
+            # If the class is toplevel-accessible, it is possible to directly
+            # pickle it "by name".  This is required to support norm classes
+            # defined at a module's toplevel, as the inner base_norm_cls is
+            # otherwise unpicklable (as it gets shadowed by the generated norm
+            # class).  If either import or attribute access fails, fall back to
+            # the general path.
+            try:
+                if cls is getattr(importlib.import_module(cls.__module__),
+                                  cls.__qualname__):
+                    return (_create_empty_object_of_class, (cls,), vars(self))
+            except (ImportError, AttributeError):
+                pass
             return (_picklable_norm_constructor,
                     (scale_cls, base_norm_cls, bound_init_signature),
-                    self.__dict__)
+                    vars(self))
 
         def __init__(self, *args, **kwargs):
             ba = bound_init_signature.bind(*args, **kwargs)
@@ -1603,9 +1617,12 @@ def _make_norm_from_scale(scale_cls, base_norm_cls, bound_init_signature):
     return Norm
 
 
-def _picklable_norm_constructor(*args):
-    cls = _make_norm_from_scale(*args)
+def _create_empty_object_of_class(cls):
     return cls.__new__(cls)
+
+
+def _picklable_norm_constructor(*args):
+    return _create_empty_object_of_class(_make_norm_from_scale(*args))
 
 
 @make_norm_from_scale(
