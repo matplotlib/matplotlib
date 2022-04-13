@@ -669,9 +669,13 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             button._ntimage_alt = image_alt
 
         if _is_dark("background"):
-            button.configure(image=image_alt)
+            # For Checkbuttons, we need to set `image` and `selectimage` at
+            # the same time. Otherwise, when updating the `image` option
+            # (such as when changing DPI), if the old `selectimage` has
+            # just been overwritten, Tk will throw an error.
+            image_kwargs = {"image": image_alt}
         else:
-            button.configure(image=image)
+            image_kwargs = {"image": image}
         # Checkbuttons may switch the background to `selectcolor` in the
         # checked state, so check separately which image it needs to use in
         # that state to still ensure enough contrast with the background.
@@ -689,11 +693,11 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
                 r2, g2, b2 = _get_color("activebackground")
                 selectcolor = ((r1+r2)/2, (g1+g2)/2, (b1+b2)/2)
             if _is_dark(selectcolor):
-                button.configure(selectimage=image_alt)
+                image_kwargs["selectimage"] = image_alt
             else:
-                button.configure(selectimage=image)
+                image_kwargs["selectimage"] = image
 
-        button.configure(height='18p', width='18p')
+        button.configure(**image_kwargs, height='18p', width='18p')
 
     def _Button(self, text, image_file, toggle, command):
         if not toggle:
