@@ -196,6 +196,7 @@ def _test_thread_impl():
     plt.pause(0.5)  # flush_events fails here on at least Tkagg (bpo-41176)
     future.result()  # Joins the thread; rethrows any exception.
     plt.close()  # backend is responsible for flushing any events here
+    fig.canvas.flush_events()  # TODO: debug why WX needs this only on py3.8
 
 
 _thread_safe_backends = _get_testable_interactive_backends()
