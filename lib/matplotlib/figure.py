@@ -2533,6 +2533,8 @@ class Figure(FigureBase):
         _tight_parameters = tight if isinstance(tight, dict) else {}
         if bool(tight):
             self.set_layout_engine(TightLayoutEngine(**_tight_parameters))
+        else:
+            self.set_layout_engine(None)
         self.stale = True
 
     def get_constrained_layout(self):
@@ -2569,6 +2571,8 @@ class Figure(FigureBase):
         _parameters = constrained if isinstance(constrained, dict) else {}
         if _constrained:
             self.set_layout_engine(ConstrainedLayoutEngine(**_parameters))
+        else:
+            self.set_layout_engine(None)
         self.stale = True
 
     @_api.deprecated(
