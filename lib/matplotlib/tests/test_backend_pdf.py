@@ -12,6 +12,7 @@ import matplotlib as mpl
 from matplotlib import dviread, pyplot as plt, checkdep_usetex, rcParams
 from matplotlib.cbook import _get_data_path
 from matplotlib.ft2font import FT2Font
+from matplotlib.font_manager import findfont, FontProperties
 from matplotlib.backends._backend_pdf_ps import get_glyphs_subset
 from matplotlib.backends.backend_pdf import PdfPages
 
@@ -43,12 +44,20 @@ and containing some French characters and the euro symbol:
     ax.axhline(0.5, linewidth=0.5)
 
 
-def test_type42():
-    rcParams['pdf.fonttype'] = 42
+@pytest.mark.parametrize('fontname, fontfile', [
+    ('DejaVu Sans', 'DejaVuSans.ttf'),
+    ('WenQuanYi Zen Hei', 'wqy-zenhei.ttc'),
+])
+@pytest.mark.parametrize('fonttype', [3, 42])
+def test_embed_fonts(fontname, fontfile, fonttype):
+    if Path(findfont(FontProperties(family=[fontname]))).name != fontfile:
+        pytest.skip(f'Font {fontname!r} may be missing')
 
+    rcParams['pdf.fonttype'] = fonttype
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3])
-    fig.savefig(io.BytesIO())
+    ax.set_title('Axes Title', font=fontname)
+    fig.savefig(io.BytesIO(), format='pdf')
 
 
 def test_multipage_pagecount():
