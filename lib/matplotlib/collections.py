@@ -1828,20 +1828,22 @@ class PatchCollection(Collection):
                 if patch.get_fill():
                     return patch.get_facecolor()
                 return [0, 0, 0, 0]
-            def is_default(c):
-                return mcolors.same_color([0, 0, 0, 0], c)
             kwargs['facecolors'] = [determine_facecolor(p) for p in patches]
-            edgecolors = [p.get_edgecolor() for p in patches]
-            # Since the hatch color is updated when the edge color
-            # is updated, we will ignore the edge color if it is blank (the
-            # default of [0, 0, 0, 0]).
-            if not all(is_default(c) for c in edgecolors):
-                kwargs['edgecolors'] = edgecolors
+            # If no edgecolor was set within the collection of patches
+            # then we will not supply the edgecolor argument, which allows the
+            # default hatch color to be used.
+            if any(p._original_edgecolor is not None for p in patches):
+                kwargs['edgecolors'] = [p.get_edgecolor() for p in patches]
             kwargs['linewidths'] = [p.get_linewidth() for p in patches]
             kwargs['linestyles'] = [p.get_linestyle() for p in patches]
             kwargs['antialiaseds'] = [p.get_antialiased() for p in patches]
             if patches:
-                kwargs['hatch'] = patches[0].get_hatch()
+                hatch = patches[0].get_hatch()
+                kwargs['hatch'] = hatch
+                if any(p.get_hatch() != hatch for p in patches):
+                    warnings.warn("More than one type of hatch detected in "
+                                  "PatchCollection. Only using hatch of "
+                                  "first patch.")
 
         super().__init__(**kwargs)
 
