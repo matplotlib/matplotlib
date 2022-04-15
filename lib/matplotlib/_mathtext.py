@@ -1947,6 +1947,9 @@ class Parser:
         self._expression = p.main
         self._math_expression = p.math
 
+        # To add space to nucleus operators after sub/superscripts
+        self._subsuper_flag = False
+
     def parse(self, s, fonts_object, fontsize, dpi):
         """
         Parse expression *s* using the given *fonts_object* for
@@ -2104,8 +2107,7 @@ class Parser:
         r'overleftarrow':  r'\leftarrow',
         r'mathring':       r'\circ',
     }
-    # To add space to nucleus operators after sub/superscripts
-    _subsuper_flag = False
+
     _wide_accents = set(r"widehat widetilde widebar".split())
 
     # make a lambda and call it to get the namespace right
@@ -2403,8 +2405,8 @@ class Parser:
         if not self.is_dropsub(last_char):
             x.width += constants.script_space * xHeight
 
-        # Do we need to add a space after the nucleus
-        # Checks the flag set by operatorname
+        # Do we need to add a space after the nucleus?
+        # To find out, check the flag set by operatorname
         result = [nucleus, x]
         if(self._subsuper_flag):
             result += [self._make_space(self._space_widths[r'\,'])]
