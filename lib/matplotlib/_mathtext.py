@@ -2170,7 +2170,7 @@ class Parser:
 
         # if followed by a super/subscript, set flag to true
         # This flag tells subsuper to add space after this operator
-        if(next_char in {'^', '_'}):
+        if next_char in {'^', '_'}:
             self._subsuper_flag = True
 
         self.pop_state()
@@ -2407,12 +2407,12 @@ class Parser:
 
         # Do we need to add a space after the nucleus?
         # To find out, check the flag set by operatorname
-        result = [nucleus, x]
-        if(self._subsuper_flag):
-            result += [self._make_space(self._space_widths[r'\,'])]
+        spaced_nucleus = [nucleus, x]
+        if self._subsuper_flag:
+            spaced_nucleus += [self._make_space(self._space_widths[r'\,'])]
             self._subsuper_flag = False
 
-        result = Hlist(result)
+        result = Hlist(spaced_nucleus)
         return [result]
 
     def _genfrac(self, ldelim, rdelim, rule, style, num, den):
