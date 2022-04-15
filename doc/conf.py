@@ -321,7 +321,6 @@ html_theme_options = {
     # and CI builds https://github.com/pydata/pydata-sphinx-theme/pull/386
     "collapse_navigation": not is_release_build,
     "show_prev_next": False,
-    "left_sidebar_end": ["sidebar_announcement.html"],
 }
 include_analytics = is_release_build
 if include_analytics:
