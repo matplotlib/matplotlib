@@ -948,8 +948,7 @@ def test_negative_boundarynorm():
     np.testing.assert_allclose(cb.ax.get_yticks(), clevs)
 
 
-@image_comparison(['nonorm_colorbars.svg'], remove_text=False,
-                  style='mpl20')
+@image_comparison(['nonorm_colorbars.svg'], style='mpl20')
 def test_nonorm():
     plt.rcParams['svg.fonttype'] = 'none'
     data = [1, 2, 3, 4, 5]

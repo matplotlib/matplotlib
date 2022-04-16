@@ -465,8 +465,7 @@ def test_colorbar_align():
                                        cbs[3].ax.get_position().y0)
 
 
-@image_comparison(['test_colorbars_no_overlapV.png'],
-                  remove_text=False, style='mpl20')
+@image_comparison(['test_colorbars_no_overlapV.png'], style='mpl20')
 def test_colorbars_no_overlapV():
     fig = plt.figure(figsize=(2, 4), layout="constrained")
     axs = fig.subplots(2, 1, sharex=True, sharey=True)
@@ -478,8 +477,7 @@ def test_colorbars_no_overlapV():
     fig.suptitle("foo")
 
 
-@image_comparison(['test_colorbars_no_overlapH.png'],
-                  remove_text=False, style='mpl20')
+@image_comparison(['test_colorbars_no_overlapH.png'], style='mpl20')
 def test_colorbars_no_overlapH():
     fig = plt.figure(figsize=(4, 2), layout="constrained")
     fig.suptitle("foo")
