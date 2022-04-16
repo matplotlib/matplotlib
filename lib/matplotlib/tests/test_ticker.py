@@ -510,8 +510,8 @@ class TestAsinhLocator:
     def test_fallback(self):
         lctr = mticker.AsinhLocator(1.0, numticks=11)
 
-        assert_almost_equal(lctr.tick_values(100, 101),
-                            np.arange(100, 101.01, 0.1))
+        assert_almost_equal(lctr.tick_values(101, 102),
+                            np.arange(101, 102.01, 0.1))
 
     def test_symmetrizing(self):
         class DummyAxis:
