@@ -153,8 +153,7 @@ def test_given_colors_levels_and_extends():
         plt.colorbar(c, ax=ax)
 
 
-@image_comparison(['contour_datetime_axis.png'],
-                  remove_text=False, style='mpl20')
+@image_comparison(['contour_datetime_axis.png'], style='mpl20')
 def test_contour_datetime_axis():
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, top=0.98, bottom=.15)
