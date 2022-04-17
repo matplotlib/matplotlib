@@ -641,7 +641,7 @@ class _AxesBase(martist.Artist):
         self.set_axisbelow(mpl.rcParams['axes.axisbelow'])
 
         self._rasterization_zorder = None
-        self.cla()
+        self.clear()
 
         # funcs used to format x and y - fall back on major formatters
         self.fmt_xdata = None
@@ -1193,7 +1193,7 @@ class _AxesBase(martist.Artist):
         self.set_ylim(y0, y1, emit=False, auto=other.get_autoscaley_on())
         self.yaxis._scale = other.yaxis._scale
 
-    def cla(self):
+    def clear(self):
         """Clear the Axes."""
         # Note: this is called by Axes.__init__()
 
@@ -1487,9 +1487,9 @@ class _AxesBase(martist.Artist):
         return self.ArtistList(self, 'texts', 'add_artist',
                                valid_types=mtext.Text)
 
-    def clear(self):
+    def cla(self):
         """Clear the Axes."""
-        self.cla()
+        self.clear()
 
     def get_facecolor(self):
         """Get the facecolor of the Axes."""

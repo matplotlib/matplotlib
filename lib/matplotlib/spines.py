@@ -222,10 +222,6 @@ class Spine(mpatches.Patch):
         if self.axis is not None:
             self.axis.clear()
 
-    @_api.deprecated("3.4", alternative="`.Spine.clear`")
-    def cla(self):
-        self.clear()
-
     def _adjust_location(self):
         """Automatically set spine bounds to the view interval."""
 
