@@ -116,7 +116,11 @@ math_tests = [
     r'$\left(X\right)_{a}^{b}$',  # github issue 7615
     r'$\dfrac{\$100.00}{y}$',  # github issue #1888
 ]
-# 'Lightweight' tests test only a single fontset (dejavusans, which is the
+# 'svgastext' tests switch svg output to embed text as text (rather than as
+# paths).
+svgastext_math_tests = [
+]
+# 'lightweight' tests test only a single fontset (dejavusans, which is the
 # default) and only png outputs, in order to minimize the size of baseline
 # images.
 lightweight_math_tests = [
@@ -195,6 +199,24 @@ def baseline_images(request, fontset, index, text):
 def test_mathtext_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
+    fig.text(0.5, 0.5, text,
+             horizontalalignment='center', verticalalignment='center')
+
+
+@pytest.mark.parametrize('index, text', enumerate(svgastext_math_tests),
+                         ids=range(len(svgastext_math_tests)))
+@pytest.mark.parametrize(
+    'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
+@pytest.mark.parametrize('baseline_images', ['mathtext0'], indirect=True)
+@image_comparison(
+    baseline_images=None,
+    savefig_kwarg={'metadata': {  # Minimize image size.
+        'Creator': None, 'Date': None, 'Format': None, 'Type': None}})
+def test_mathtext_rendering_svgastext(baseline_images, fontset, index, text):
+    mpl.rcParams['mathtext.fontset'] = fontset
+    mpl.rcParams['svg.fonttype'] = 'none'  # Minimize image size.
+    fig = plt.figure(figsize=(5.25, 0.75))
+    fig.patch.set(visible=False)  # Minimize image size.
     fig.text(0.5, 0.5, text,
              horizontalalignment='center', verticalalignment='center')
 
