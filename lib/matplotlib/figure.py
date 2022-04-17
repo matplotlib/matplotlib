@@ -1976,6 +1976,10 @@ class SubFigure(FigureBase):
 
     See :doc:`/gallery/subplots_axes_and_figures/subfigures`
     """
+    callbacks = _api.deprecated(
+            "3.6", alternative=("the 'resize_event' signal in "
+                                "Figure.canvas.callbacks")
+            )(property(lambda self: self._fig_callbacks))
 
     def __init__(self, parent, subplotspec, *,
                  facecolor=None,
@@ -2024,7 +2028,7 @@ class SubFigure(FigureBase):
         self._subplotspec = subplotspec
         self._parent = parent
         self.figure = parent.figure
-        self.callbacks = parent.callbacks
+        self._fig_callbacks = parent._fig_callbacks
 
         # subfigures use the parent axstack
         self._axstack = parent._axstack
@@ -2156,11 +2160,6 @@ class Figure(FigureBase):
     """
     The top level container for all the plot elements.
 
-    The Figure instance supports callbacks through a *callbacks* attribute
-    which is a `.CallbackRegistry` instance.  The events you can connect to
-    are 'dpi_changed', and the callback will be called with ``func(fig)`` where
-    fig is the `Figure` instance.
-
     Attributes
     ----------
     patch
@@ -2171,6 +2170,12 @@ class Figure(FigureBase):
         depending on the renderer option_image_nocomposite function.  If
         *suppressComposite* is a boolean, this will override the renderer.
     """
+    # Remove the self._fig_callbacks properties on figure and subfigure
+    # after the deprecation expires.
+    callbacks = _api.deprecated(
+        "3.6", alternative=("the 'resize_event' signal in "
+                            "Figure.canvas.callbacks")
+        )(property(lambda self: self._fig_callbacks))
 
     def __str__(self):
         return "Figure(%gx%g)" % tuple(self.bbox.size)
@@ -2303,7 +2308,7 @@ class Figure(FigureBase):
             # everything is None, so use default:
             self.set_layout_engine(layout=layout)
 
-        self.callbacks = cbook.CallbackRegistry(signals=["dpi_changed"])
+        self._fig_callbacks = cbook.CallbackRegistry(signals=["dpi_changed"])
         # Callbacks traditionally associated with the canvas (and exposed with
         # a proxy property), but that actually need to be on the figure for
         # pickling.
@@ -2502,7 +2507,7 @@ class Figure(FigureBase):
         self.dpi_scale_trans.clear().scale(dpi)
         w, h = self.get_size_inches()
         self.set_size_inches(w, h, forward=forward)
-        self.callbacks.process('dpi_changed', self)
+        self._fig_callbacks.process('dpi_changed', self)
 
     dpi = property(_get_dpi, _set_dpi, doc="The resolution in dots per inch.")
 
