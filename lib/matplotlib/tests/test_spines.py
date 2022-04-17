@@ -134,3 +134,19 @@ def test_label_without_ticks():
         spine.get_path()).get_extents()
     assert ax.xaxis.label.get_position()[1] < spinebbox.ymin, \
         "X-Axis label not below the spine"
+
+
+@check_figures_equal(extensions=['png'])
+def test_set_position_maintains_label_color(fig_test, fig_ref):
+    # set_position should not change the label color
+    ax = fig_test.subplots()
+    ax.plot([1, 2, 3])
+    for lab in ax.get_xticklabels():
+        lab.set_color("r")
+    ax.spines.left.set_position(("outward", 10))
+
+    ax = fig_ref.subplots()
+    ax.plot([1, 2, 3])
+    ax.spines.left.set_position(("outward", 10))
+    for lab in ax.get_xticklabels():
+        lab.set_color("r")

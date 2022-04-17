@@ -318,8 +318,16 @@ class Spine(mpatches.Patch):
                                  "'axes', or 'data' ")
         self._position = position
         self.set_transform(self.get_spine_transform())
-        if self.axis is not None:
+        if self.axis is not None and position != ('outward', 0.0):
+            major_labels = self.axis.get_majorticklabels()
+            minor_labels = self.axis.get_minorticklabels()
+            major_cols = [lab.get_color() for lab in major_labels]
+            minor_cols = [lab.get_color() for lab in minor_labels]
             self.axis.reset_ticks()
+            for col, label in zip(major_cols, self.axis.get_majorticklabels()):
+                label.set_color(col)
+            for col, label in zip(minor_cols, self.axis.get_minorticklabels()):
+                label.set_color(col)
         self.stale = True
 
     def get_position(self):
