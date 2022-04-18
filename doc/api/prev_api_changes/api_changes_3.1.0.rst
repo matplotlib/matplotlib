@@ -293,9 +293,9 @@ where the `.cm.ScalarMappable` passed to `matplotlib.colorbar.Colorbar`
 (`~.Figure.colorbar`) had a ``set_norm`` method, as did the colorbar.
 The colorbar is now purely a follower to the `.ScalarMappable` norm and
 colormap, and the old inherited methods
-`~matplotlib.colorbar.ColorbarBase.set_norm`,
-`~matplotlib.colorbar.ColorbarBase.set_cmap`,
-`~matplotlib.colorbar.ColorbarBase.set_clim` are deprecated, as are
+``matplotlib.colorbar.ColorbarBase.set_norm``,
+``matplotlib.colorbar.ColorbarBase.set_cmap``,
+``matplotlib.colorbar.ColorbarBase.set_clim`` are deprecated, as are
 the getter versions of those calls.  To set the norm associated with a
 colorbar do ``colorbar.mappable.set_norm()`` etc.
 
@@ -394,11 +394,11 @@ returned.
 `matplotlib.font_manager.win32InstalledFonts` returns an empty list instead
 of None if no fonts are found.
 
-`.Axes.fmt_xdata` and `.Axes.fmt_ydata` error handling
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``Axes.fmt_xdata`` and ``Axes.fmt_ydata`` error handling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Previously, if the user provided a `.Axes.fmt_xdata` or
-`.Axes.fmt_ydata` function that raised a `TypeError` (or set them to a
+Previously, if the user provided a ``Axes.fmt_xdata`` or
+``Axes.fmt_ydata`` function that raised a `TypeError` (or set them to a
 non-callable), the exception would be silently ignored and the default
 formatter be used instead.  This is no longer the case; the exception
 is now propagated out.
@@ -476,7 +476,7 @@ Exception changes
 - `.Axes.streamplot` does not support irregularly gridded ``x`` and ``y`` values.
   So far, it used to silently plot an incorrect result.  This has been changed to
   raise a `ValueError` instead.
-- The `.streamplot.Grid` class, which is internally used by streamplot
+- The ``streamplot.Grid`` class, which is internally used by streamplot
   code, also throws a `ValueError` when irregularly gridded values are
   passed in.
 
@@ -566,7 +566,7 @@ in Matplotlib 2.2 has been removed. See below for a list:
 - ``mlab.safe_isnan`` (use `numpy.isnan` instead)
 - ``mlab.cohere_pairs`` (use `scipy.signal.coherence` instead)
 - ``mlab.entropy`` (use `scipy.stats.entropy` instead)
-- ``mlab.normpdf`` (use `scipy.stats.norm.pdf` instead)
+- ``mlab.normpdf`` (use ``scipy.stats.norm.pdf`` instead)
 - ``mlab.find`` (use ``np.nonzero(np.ravel(condition))`` instead)
 - ``mlab.longest_contiguous_ones``
 - ``mlab.longest_ones``
@@ -652,7 +652,7 @@ no longer available in the `pylab` module:
 - ``longest_ones``
 - ``movavg``
 - ``norm_flat`` (use ``numpy.linalg.norm(a.flat, ord=2)`` instead)
-- ``normpdf`` (use `scipy.stats.norm.pdf` instead)
+- ``normpdf`` (use ``scipy.stats.norm.pdf`` instead)
 - ``path_length``
 - ``poly_below``
 - ``poly_between``
@@ -705,7 +705,7 @@ now a no-op).
 
 The image comparison test decorators now skip (rather than xfail) the test for
 uncomparable formats. The affected decorators are `~.image_comparison` and
-`~.check_figures_equal`. The deprecated `~.ImageComparisonTest` class is
+`~.check_figures_equal`. The deprecated ``ImageComparisonTest`` class is
 likewise changed.
 
 Dependency changes
@@ -825,7 +825,7 @@ This has not been used in the codebase since its addition in 2009.
 
   This has never been used internally, there is no equivalent method exists on
   the 2D Axis classes, and despite the similar name, it has a completely
-  different behavior from the 2D Axis' `axis.Axis.get_ticks_position` method.
+  different behavior from the 2D Axis' ``axis.Axis.get_ticks_position`` method.
 - ``.backend_pgf.LatexManagerFactory``
 
 - ``mpl_toolkits.axisartist.axislines.SimpleChainedObjects``
@@ -936,8 +936,8 @@ Axes3D
 - `.axes3d.Axes3D.w_yaxis`
 - `.axes3d.Axes3D.w_zaxis`
 
-Use `.axes3d.Axes3D.xaxis`, `.axes3d.Axes3D.yaxis` and `.axes3d.Axes3D.zaxis`
-instead.
+Use ``axes3d.Axes3D.xaxis``, ``axes3d.Axes3D.yaxis`` and
+``axes3d.Axes3D.zaxis`` instead.
 
 Testing
 ~~~~~~~
@@ -945,7 +945,7 @@ Testing
 - ``matplotlib.testing.decorators.switch_backend`` decorator
 
 Test functions should use ``pytest.mark.backend``, and the mark will be
-picked up by the `matplotlib.testing.conftest.mpl_test_settings` fixture.
+picked up by the ``matplotlib.testing.conftest.mpl_test_settings`` fixture.
 
 Quiver
 ~~~~~~
@@ -1069,7 +1069,7 @@ Axis
 
 - ``Axis.iter_ticks``
 
-This only served as a helper to the private `.Axis._update_ticks`
+This only served as a helper to the private ``Axis._update_ticks``
 
 
 Undeprecations
@@ -1123,10 +1123,10 @@ The `.Formatter` class gained a new `~.Formatter.format_ticks` method, which
 takes the list of all tick locations as a single argument and returns the list
 of all formatted values.  It is called by the axis tick handling code and, by
 default, first calls `~.Formatter.set_locs` with all locations, then repeatedly
-calls `~.Formatter.__call__` for each location.
+calls ``Formatter.__call__`` for each location.
 
 Tick-handling code in the codebase that previously performed this sequence
-(`~.Formatter.set_locs` followed by repeated `~.Formatter.__call__`) have been
+(`~.Formatter.set_locs` followed by repeated ``Formatter.__call__``) have been
 updated to use `~.Formatter.format_ticks`.
 
 `~.Formatter.format_ticks` is intended to be overridden by `.Formatter`

@@ -2691,7 +2691,7 @@ class _AxesBase(martist.Artist):
             only the y-axis.
 
         tight : bool or None, default: True
-            The *tight* parameter is passed to `autoscale_view`,
+            The *tight* parameter is passed to `~.axes.Axes.autoscale_view`,
             which is executed after a margin is changed; the default
             here is *True*, on the assumption that when margins are
             specified, no additional padding to match tick marks is
@@ -2777,8 +2777,8 @@ class _AxesBase(martist.Artist):
             to 'z', and 'both' refers to all three axes.)
         tight : bool or None, default: None
             If True, first set the margins to zero.  Then, this argument is
-            forwarded to `autoscale_view` (regardless of its value); see the
-            description of its behavior there.
+            forwarded to `~.axes.Axes.autoscale_view` (regardless of
+            its value); see the description of its behavior there.
         """
         if enable is None:
             scalex = True

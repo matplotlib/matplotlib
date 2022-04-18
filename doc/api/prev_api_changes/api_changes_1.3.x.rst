@@ -33,7 +33,7 @@ Code removal
       functionality on `matplotlib.path.Path.contains_point` and
       friends instead.
 
-    - Instead of ``axes.Axes.get_frame``, use `.axes.Axes.patch`.
+    - Instead of ``axes.Axes.get_frame``, use ``axes.Axes.patch``.
 
     - The following keyword arguments to the `~.axes.Axes.legend` function have
       been renamed:
@@ -102,7 +102,7 @@ Code deprecation
   be used.  In previous Matplotlib versions this attribute was an undocumented
   tuple of ``(colorbar_instance, colorbar_axes)`` but is now just
   ``colorbar_instance``.  To get the colorbar axes it is possible to just use
-  the :attr:`~matplotlib.colorbar.ColorbarBase.ax` attribute on a colorbar
+  the ``matplotlib.colorbar.ColorbarBase.ax`` attribute on a colorbar
   instance.
 
 * The ``matplotlib.mpl`` module is now deprecated.  Those who relied on this
