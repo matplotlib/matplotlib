@@ -821,7 +821,7 @@ class ToolZoom(ZoomPanBase):
             self._cancel_action()
             return
 
-        last_a = []
+        done_ax = []
 
         for cur_xypress in self._xypress:
             x, y = event.x, event.y
@@ -832,14 +832,9 @@ class ToolZoom(ZoomPanBase):
                 return
 
             # detect twinx, twiny axes and avoid double zooming
-            twinx, twiny = False, False
-            if last_a:
-                for la in last_a:
-                    if a.get_shared_x_axes().joined(a, la):
-                        twinx = True
-                    if a.get_shared_y_axes().joined(a, la):
-                        twiny = True
-            last_a.append(a)
+            twinx = any(a.get_shared_x_axes().joined(a, a1) for a1 in done_ax)
+            twiny = any(a.get_shared_y_axes().joined(a, a1) for a1 in done_ax)
+            done_ax.append(a)
 
             if self._button_pressed == 1:
                 direction = 'in'
