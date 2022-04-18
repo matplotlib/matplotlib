@@ -10,7 +10,7 @@ existing 3D plots.
 
 .. plot::
     :include-source: true
-    
+
     from mpl_toolkits.mplot3d import axes3d
     import matplotlib.pyplot as plt
     fig = plt.figure()

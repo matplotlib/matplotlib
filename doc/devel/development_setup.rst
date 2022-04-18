@@ -67,8 +67,17 @@ These will automatically check flake8 and other style issues when you run
 ``git commit``. The hooks are defined in the top level
 ``.pre-commit-config.yaml`` file. To install the hooks ::
 
-    pip install pre-commit
+    python -m pip install pre-commit
     pre-commit install
+
+The hooks can also be run manually. All the hooks can be run, in order as
+listed in ``.pre-commit-config.yaml``, against the full codebase with ::
+
+    pre-commit run --all-files
+
+To run a particular hook manually, run ``pre-commit run`` with the hook id ::
+
+    pre-commit run <hook id> --all-files
 
 Installing additional dependencies for development
 ==================================================

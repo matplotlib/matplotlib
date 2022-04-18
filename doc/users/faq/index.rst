@@ -3,7 +3,7 @@
 .. redirect-from:: /faq/index
 
 ##########################
-How-to and troubleshooting 
+How-to and troubleshooting
 ##########################
 
 .. only:: html

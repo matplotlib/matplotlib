@@ -222,9 +222,7 @@ def _get_tzinfo(tz=None):
     raise TypeError("tz must be string or tzinfo subclass.")
 
 
-"""
-Time-related constants.
-"""
+# Time-related constants.
 EPOCH_OFFSET = float(datetime.datetime(1970, 1, 1).toordinal())
 # EPOCH_OFFSET is not used by matplotlib
 JULIAN_OFFSET = 1721424.5  # Julian date at 0000-12-31
