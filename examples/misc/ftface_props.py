@@ -3,9 +3,9 @@
 Font properties
 ===============
 
-This example lists the attributes of an `.FT2Font` object, which describe
-global font properties.  For individual character metrics, use the `.Glyph`
-object, as returned by `.load_char`.
+This example lists the attributes of an ``FT2Font`` object, which describe
+global font properties.  For individual character metrics, use the ``Glyph``
+object, as returned by ``load_char``.
 """
 
 import os
@@ -26,9 +26,9 @@ print('Style name: ', font.style_name)       # face style name
 print('PS name:    ', font.postscript_name)  # the postscript name
 print('Num fixed:  ', font.num_fixed_sizes)  # number of embedded bitmaps
 
-# the following are only available if face.scalable
+# the following are only available if font.scalable
 if font.scalable:
-    # the face global bounding box (xmin, ymin, xmax, ymax)
+    # the font global bounding box (xmin, ymin, xmax, ymax)
     print('Bbox:               ', font.bbox)
     # number of font units covered by the EM
     print('EM:                 ', font.units_per_EM)

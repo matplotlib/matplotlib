@@ -62,8 +62,8 @@ def composite_images(images, renderer, magnification=1.0):
     Parameters
     ----------
     images : list of Images
-        Each must have a `make_image` method.  For each image,
-        `can_composite` should return `True`, though this is not
+        Each must have a ``make_image`` method.  For each image,
+        ``can_composite`` should return `True`, though this is not
         enforced by this function.  Each image must have a purely
         affine transformation with no shear.
 

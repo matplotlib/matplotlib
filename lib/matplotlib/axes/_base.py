@@ -2222,7 +2222,7 @@ class _AxesBase(martist.Artist):
 
     def add_child_axes(self, ax):
         """
-        Add an `.AxesBase` to the Axes' children; return the child Axes.
+        Add an ``AxesBase`` to the Axes' children; return the child Axes.
 
         This is the lowlevel version.  See `.axes.Axes.inset_axes`.
         """
@@ -2481,7 +2481,7 @@ class _AxesBase(martist.Artist):
 
     def update_datalim(self, xys, updatex=True, updatey=True):
         """
-        Extend the `~.Axes.dataLim` Bbox to include the given points.
+        Extend the ``ax.dataLim`` Bbox to include the given points.
 
         If no data is set currently, the Bbox will ignore its limits and set
         the bound to be the bounds of the xydata (*xys*). Otherwise, it will
@@ -2596,7 +2596,7 @@ class _AxesBase(martist.Artist):
     @property
     def use_sticky_edges(self):
         """
-        When autoscaling, whether to obey all `Artist.sticky_edges`.
+        When autoscaling, whether to obey all `.Artist.sticky_edges`.
 
         Default is ``True``.
 
@@ -2705,9 +2705,9 @@ class _AxesBase(martist.Artist):
         Notes
         -----
         If a previously used Axes method such as :meth:`pcolor` has set
-        :attr:`use_sticky_edges` to `True`, only the limits not set by
+        :attr:`~.Axes.use_sticky_edges` to `True`, only the limits not set by
         the "sticky artists" will be modified. To force all of the
-        margins to be set, set :attr:`use_sticky_edges` to `False`
+        margins to be set, set :attr:`~.Axes.use_sticky_edges` to `False`
         before calling :meth:`margins`.
         """
 
@@ -3570,8 +3570,8 @@ class _AxesBase(martist.Artist):
         See Also
         --------
         .Axes.set_xlim
-        set_xbound, get_xbound
-        invert_xaxis, xaxis_inverted
+        .Axes.set_xbound, .Axes.get_xbound
+        .Axes.invert_xaxis, .Axes.xaxis_inverted
 
         Notes
         -----
@@ -3637,9 +3637,9 @@ class _AxesBase(martist.Artist):
 
         See Also
         --------
-        get_xlim
-        set_xbound, get_xbound
-        invert_xaxis, xaxis_inverted
+        .Axes.get_xlim
+        .Axes.set_xbound, .Axes.get_xbound
+        .Axes.invert_xaxis, .Axes.xaxis_inverted
 
         Notes
         -----
@@ -3859,8 +3859,8 @@ class _AxesBase(martist.Artist):
         See Also
         --------
         .Axes.set_ylim
-        set_ybound, get_ybound
-        invert_yaxis, yaxis_inverted
+        .Axes.set_ybound, .Axes.get_ybound
+        .Axes.invert_yaxis, .Axes.yaxis_inverted
 
         Notes
         -----
@@ -3909,9 +3909,9 @@ class _AxesBase(martist.Artist):
 
         See Also
         --------
-        get_ylim
-        set_ybound, get_ybound
-        invert_yaxis, yaxis_inverted
+        .Axes.get_ylim
+        .Axes.set_ybound, .Axes.get_ybound
+        .Axes.invert_yaxis, .Axes.yaxis_inverted
 
         Notes
         -----
@@ -4006,7 +4006,7 @@ class _AxesBase(martist.Artist):
         """
         Return *x* formatted as an x-value.
 
-        This function will use the `.fmt_xdata` attribute if it is not None,
+        This function will use the ``fmt_xdata`` attribute if it is not None,
         else will fall back on the xaxis major formatter.
         """
         return (self.fmt_xdata if self.fmt_xdata is not None
@@ -4016,7 +4016,7 @@ class _AxesBase(martist.Artist):
         """
         Return *y* formatted as an y-value.
 
-        This function will use the `.fmt_ydata` attribute if it is not None,
+        This function will use the ``fmt_ydata`` attribute if it is not None,
         else will fall back on the yaxis major formatter.
         """
         return (self.fmt_ydata if self.fmt_ydata is not None

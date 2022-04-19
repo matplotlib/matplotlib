@@ -988,7 +988,7 @@ class Axes3D(Axes):
     def format_zdata(self, z):
         """
         Return *z* string formatted.  This function will use the
-        :attr:`fmt_zdata` attribute if it is callable, else will fall
+        ``fmt_zdata`` attribute if it is callable, else will fall
         back on the zaxis major formatter
         """
         try:

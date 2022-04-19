@@ -1093,8 +1093,8 @@ class Artist:
         ``x`` and ``y`` sticky edge lists for autoscaling.
 
         When performing autoscaling, if a data limit coincides with a value in
-        the corresponding sticky_edges list, then no margin will be added--the
-        view limit "sticks" to the edge. A typical use case is histograms,
+        the corresponding sticky_edges list, then no margin will be added --
+        the view limit "sticks" to the edge. A typical use case is histograms,
         where one usually expects no margin on the bottom edge (0) of the
         histogram.
 

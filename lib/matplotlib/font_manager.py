@@ -427,7 +427,7 @@ def ttfFontProperty(font):
 
     Parameters
     ----------
-    font : `.FT2Font`
+    font : ``FT2Font``
         The TrueType font file from which information will be extracted.
 
     Returns

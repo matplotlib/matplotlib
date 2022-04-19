@@ -253,7 +253,7 @@ class BboxBase(TransformNode):
         The first of the pair of *x* coordinates that define the bounding box.
 
         This is not guaranteed to be less than :attr:`x1` (for that, use
-        :attr:`xmin`).
+        :attr:`~BboxBase.xmin`).
         """
         return self.get_points()[0, 0]
 
@@ -263,7 +263,7 @@ class BboxBase(TransformNode):
         The first of the pair of *y* coordinates that define the bounding box.
 
         This is not guaranteed to be less than :attr:`y1` (for that, use
-        :attr:`ymin`).
+        :attr:`~BboxBase.ymin`).
         """
         return self.get_points()[0, 1]
 
@@ -273,7 +273,7 @@ class BboxBase(TransformNode):
         The second of the pair of *x* coordinates that define the bounding box.
 
         This is not guaranteed to be greater than :attr:`x0` (for that, use
-        :attr:`xmax`).
+        :attr:`~BboxBase.xmax`).
         """
         return self.get_points()[1, 0]
 
@@ -283,7 +283,7 @@ class BboxBase(TransformNode):
         The second of the pair of *y* coordinates that define the bounding box.
 
         This is not guaranteed to be greater than :attr:`y0` (for that, use
-        :attr:`ymax`).
+        :attr:`~BboxBase.ymax`).
         """
         return self.get_points()[1, 1]
 
@@ -293,7 +293,7 @@ class BboxBase(TransformNode):
         The first pair of (*x*, *y*) coordinates that define the bounding box.
 
         This is not guaranteed to be the bottom-left corner (for that, use
-        :attr:`min`).
+        :attr:`~BboxBase.min`).
         """
         return self.get_points()[0]
 
@@ -303,7 +303,7 @@ class BboxBase(TransformNode):
         The second pair of (*x*, *y*) coordinates that define the bounding box.
 
         This is not guaranteed to be the top-right corner (for that, use
-        :attr:`max`).
+        :attr:`~BboxBase.max`).
         """
         return self.get_points()[1]
 
@@ -375,7 +375,10 @@ class BboxBase(TransformNode):
 
     @property
     def bounds(self):
-        """Return (:attr:`x0`, :attr:`y0`, :attr:`width`, :attr:`height`)."""
+        """
+        Return (:attr:`x0`, :attr:`y0`, :attr:`~BboxBase.width`,
+        :attr:`~BboxBase.height`).
+        """
         (x0, y0), (x1, y1) = self.get_points()
         return (x0, y0, x1 - x0, y1 - y0)
 
@@ -806,7 +809,7 @@ class Bbox(BboxBase):
     @staticmethod
     def from_extents(*args, minpos=None):
         """
-        Create a new Bbox from *left*, *bottom*, *right* and *top*.
+        Create a new `Bbox` from *left*, *bottom*, *right* and *top*.
 
         The *y*-axis increases upwards.
 
@@ -816,7 +819,7 @@ class Bbox(BboxBase):
             The four extents of the bounding box.
 
         minpos : float or None
-           If this is supplied, the Bbox will have a minimum positive value
+           If this is supplied, the `Bbox` will have a minimum positive value
            set. This is useful when dealing with logarithmic scales and other
            scales where negative bounds result in floating point errors.
         """
@@ -1874,6 +1877,18 @@ class Affine2DBase(AffineBase):
             self._invalid = 0
         return self._inverted
 
+    def get_matrix(self):
+        """
+        Get the underlying transformation matrix as a 3x3 numpy array::
+
+          a c e
+          b d f
+          0 0 1
+
+        .
+        """
+        raise NotImplementedError('get_matrix must be implemented by subclass')
+
 
 class Affine2D(Affine2DBase):
     """
@@ -1921,15 +1936,7 @@ class Affine2D(Affine2DBase):
             np.array([a, c, e, b, d, f, 0.0, 0.0, 1.0], float).reshape((3, 3)))
 
     def get_matrix(self):
-        """
-        Get the underlying transformation matrix as a 3x3 numpy array::
-
-          a c e
-          b d f
-          0 0 1
-
-        .
-        """
+        # docstring inherited
         if self._invalid:
             self._inverted = None
             self._invalid = 0

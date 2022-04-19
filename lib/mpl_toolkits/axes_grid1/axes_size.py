@@ -224,12 +224,12 @@ class Padded(_Base):
 
 def from_any(size, fraction_ref=None):
     """
-    Create a Fixed unit when the first argument is a float, or a
-    Fraction unit if that is a string that ends with %. The second
-    argument is only meaningful when Fraction unit is created.
+    Create a `Fixed` unit when the first argument is a float, or a
+    `Fraction` unit if that is a string that ends with ``%``. The second
+    argument is only meaningful when a `Fraction` unit is created.
 
-    >>> a = Size.from_any(1.2) # => Size.Fixed(1.2)
-    >>> Size.from_any("50%", a) # => Size.Fraction(0.5, a)
+    >>> a = from_any(1.2) # => Fixed(1.2)
+    >>> b = from_any("50%", a) # => Fraction(0.5, a)
     """
     if isinstance(size, Number):
         return Fixed(size)

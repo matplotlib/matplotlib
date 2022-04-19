@@ -141,8 +141,8 @@ loc : str or pair of floats, default: :rc:`legend.loc` ('best' for axes, \
 
 bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
     Box that is used to position the legend in conjunction with *loc*.
-    Defaults to `axes.bbox` (if called as a method to `.Axes.legend`) or
-    `figure.bbox` (if `.Figure.legend`).  This argument allows arbitrary
+    Defaults to ``axes.bbox`` (if called as a method to `.Axes.legend`) or
+    ``figure.bbox`` (if `.Figure.legend`).  This argument allows arbitrary
     placement of the legend.
 
     Bbox coordinates are interpreted in the coordinate system given by
@@ -236,8 +236,7 @@ mode : {"expand", None}
 
 bbox_transform : None or `matplotlib.transforms.Transform`
     The transform for the bounding box (*bbox_to_anchor*). For a value
-    of ``None`` (default) the Axes'
-    :data:`~matplotlib.axes.Axes.transAxes` transform will be used.
+    of ``None`` (default) the Axes' ``transAxes`` transform will be used.
 
 title : str or None
     The legend's title. Default is no title (``None``).

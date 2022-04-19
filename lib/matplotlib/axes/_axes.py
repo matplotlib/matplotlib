@@ -322,7 +322,7 @@ class Axes(_AxesBase):
             Lower-left corner of inset Axes, and its width and height.
 
         transform : `.Transform`
-            Defaults to `ax.transAxes`, i.e. the units of *rect* are in
+            Defaults to ``ax.transAxes``, i.e. the units of *rect* are in
             Axes-relative coordinates.
 
         projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
@@ -409,7 +409,7 @@ class Axes(_AxesBase):
 
         transform : `.Transform`
             Transform for the rectangle coordinates. Defaults to
-            `ax.transAxes`, i.e. the units of *rect* are in Axes-relative
+            ``ax.transAxes``, i.e. the units of *rect* are in Axes-relative
             coordinates.
 
         facecolor : color, default: 'none'
