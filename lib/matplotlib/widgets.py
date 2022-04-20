@@ -2238,9 +2238,8 @@ class SpanSelector(_SelectorWidget):
         If `True`, the event triggered outside the span selector will be
         ignored.
 
-    snap_values : 1D array-like, default: None
-        Snap the extents of the selector to the values defined in
-        ``snap_values``.
+    snap_values : 1D array-like, optional
+        Snap the selector edges to the given values.
 
     Examples
     --------
@@ -2585,12 +2584,11 @@ class SpanSelector(_SelectorWidget):
     @staticmethod
     def _snap(values, snap_values):
         """Snap values to a given array values (snap_values)."""
-        indices = np.empty_like(values, dtype="uint")
         # take into account machine precision
         eps = np.min(np.abs(np.diff(snap_values))) * 1e-12
-        for i, v in enumerate(values):
-            indices[i] = np.abs(snap_values - v + np.sign(v) * eps).argmin()
-        return snap_values[indices]
+        return tuple(
+            snap_values[np.abs(snap_values - v + np.sign(v) * eps).argmin()]
+            for v in values)
 
     @property
     def extents(self):
@@ -2874,7 +2872,6 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     use_data_coordinates : bool, default: False
         If `True`, the "square" shape of the selector is defined in
         data coordinates instead of display coordinates.
-
     """
 
 
