@@ -171,8 +171,6 @@ bounds = [2, 3, 7, 9, 15]
 norm3 = mpl.colors.BoundaryNorm(bounds, cmap3.N)
 fig.colorbar(mpl.cm.ScalarMappable(cmap=cmap3, norm=norm3),
              cax=axl3,
-             # to use 'extend', you must specify two extra boundaries:
-             boundaries=[0] + bounds + [18],
              extend='both',
              ticks=bounds,  # optional
              spacing='proportional',
