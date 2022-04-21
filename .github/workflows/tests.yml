@@ -267,6 +267,18 @@ jobs:
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
+      - uses: pat-s/always-upload-cache@v2.1.5
+        with:
+          path: .testmondata
+          key: testmon=${{ github.ref_name }}-${{ matrix.python-version }}
+          restore-keys: testmon=${{ matrix.python-version }}-main
+
+      - name: Run testmon
+        run: |
+          ${{ matrix.XVFB_RUN }} python -mpytest -raR -n auto \
+            --maxfail=50 --timeout=300 --durations=25 --testmon \
+            --log-level=DEBUG --color=yes
+
       - name: Filter C coverage
         run: |
           lcov --capture --directory . --output-file coverage.info

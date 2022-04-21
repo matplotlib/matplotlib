@@ -6,6 +6,7 @@ pytest!=4.6.0,!=5.4.0
 pytest-cov
 pytest-rerunfailures
 pytest-timeout
+pytest-testmon
 pytest-xdist
 python-dateutil
 tornado
