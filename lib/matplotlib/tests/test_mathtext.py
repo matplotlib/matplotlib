@@ -16,7 +16,7 @@ from matplotlib import mathtext, _mathtext
 # If test is removed, use None as placeholder
 math_tests = [
     r'$a+b+\dot s+\dot{s}+\ldots$',
-    r'$x \doteq y$',
+    r'$x\hspace{-0.2}\doteq\hspace{-0.2}y$',
     r'\$100.00 $\alpha \_$',
     r'$\frac{\$100.00}{y}$',
     r'$x   y$',
@@ -104,12 +104,12 @@ math_tests = [
     r'$\mathring{A}  \AA$',
     r'$M \, M \thinspace M \/ M \> M \: M \; M \ M \enspace M \quad M \qquad M \! M$',
     r'$\Cap$ $\Cup$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$',
-    r'$\dotplus$ $\doteq$ $\doteqdot$ $\ddots$',
+    r'$\hspace{-0.2}\dotplus\hspace{-0.2}$ $\hspace{-0.2}\doteq\hspace{-0.2}$ $\hspace{-0.2}\doteqdot\hspace{-0.2}$ $\ddots$',
     r'$xyz^kx_kx^py^{p-2} d_i^jb_jc_kd x^j_i E^0 E^0_u$',  # github issue #4873
     r'${xyz}^k{x}_{k}{x}^{p}{y}^{p-2} {d}_{i}^{j}{b}_{j}{c}_{k}{d} {x}^{j}_{i}{E}^{0}{E}^0_u$',
     r'${\int}_x^x x\oint_x^x x\int_{X}^{X}x\int_x x \int^x x \int_{x} x\int^{x}{\int}_{x} x{\int}^{x}_{x}x$',
     r'testing$^{123}$',
-    ' '.join('$\\' + p + '$' for p in sorted(_mathtext.Parser._accentprefixed)),
+    None,
     r'$6-2$; $-2$; $ -2$; ${-2}$; ${  -2}$; $20^{+3}_{-2}$',
     r'$\overline{\omega}^x \frac{1}{2}_0^x$',  # github issue #5444
     r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$',  # github issue 5799
@@ -246,6 +246,19 @@ def test_mathfont_rendering(baseline_images, fontset, index, text):
              horizontalalignment='center', verticalalignment='center')
 
 
+@check_figures_equal(extensions=["png"])
+def test_short_long_accents(fig_test, fig_ref):
+    acc_map = _mathtext.Parser._accent_map
+    short_accs = [s for s in acc_map if len(s) == 1]
+    corresponding_long_accs = []
+    for s in short_accs:
+        l, = [l for l in acc_map if len(l) > 1 and acc_map[l] == acc_map[s]]
+        corresponding_long_accs.append(l)
+    fig_test.text(0, .5, "$" + "".join(rf"\{s}a" for s in short_accs) + "$")
+    fig_ref.text(
+        0, .5, "$" + "".join(fr"\{l} a" for l in corresponding_long_accs) + "$")
+
+
 def test_fontinfo():
     fontpath = mpl.font_manager.findfont("DejaVu Sans")
     font = mpl.ft2font.FT2Font(fontpath)
@@ -258,6 +271,8 @@ def test_fontinfo():
     [
         (r'$\hspace{}$', r'Expected \hspace{space}'),
         (r'$\hspace{foo}$', r'Expected \hspace{space}'),
+        (r'$\sinx$', r'Unknown symbol: \sinx'),
+        (r'$\dotx$', r'Unknown symbol: \dotx'),
         (r'$\frac$', r'Expected \frac{num}{den}'),
         (r'$\frac{}{}$', r'Expected \frac{num}{den}'),
         (r'$\binom$', r'Expected \binom{num}{den}'),
@@ -288,6 +303,8 @@ def test_fontinfo():
     ids=[
         'hspace without value',
         'hspace with invalid value',
+        'function without space',
+        'accent without space',
         'frac without parameters',
         'frac with empty parameters',
         'binom without parameters',
