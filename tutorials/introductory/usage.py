@@ -502,7 +502,7 @@ axs[1, 0].set_title('imshow() with LogNorm()')
 
 pc = axs[1, 1].scatter(data1, data2, c=data3, cmap='RdBu_r')
 fig.colorbar(pc, ax=axs[1, 1], extend='both')
-axs[1, 1].set_title('scatter()');
+axs[1, 1].set_title('scatter()')
 
 ##############################################################################
 # Colormaps

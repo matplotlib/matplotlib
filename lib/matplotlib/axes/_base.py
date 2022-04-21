@@ -2990,7 +2990,11 @@ class _AxesBase(martist.Artist):
                         or ax.xaxis.get_label_position() == 'top'):
                     bb = ax.xaxis.get_tightbbox(renderer)
                 else:
-                    bb = ax.get_window_extent(renderer)
+                    if 'outline' in ax.spines:
+                        # Special case for colorbars:
+                        bb = ax.spines['outline'].get_window_extent()
+                    else:
+                        bb = ax.get_window_extent(renderer)
                 if bb is not None:
                     top = max(top, bb.ymax)
             if top < 0:
