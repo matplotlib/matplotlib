@@ -180,8 +180,9 @@ class Registry(dict):
 
     def get_converter(self, x):
         """Get the converter interface instance for *x*, or None."""
-        if hasattr(x, "values"):
-            x = x.values  # Unpack pandas Series and DataFrames.
+        # Unpack in case of e.g. Pandas or xarray object
+        x = cbook._unpack_to_numpy(x)
+
         if isinstance(x, np.ndarray):
             # In case x in a masked array, access the underlying data (only its
             # type matters).  If x is a regular ndarray, getdata() just returns

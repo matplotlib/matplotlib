@@ -423,9 +423,8 @@ def date2num(d):
     The Gregorian calendar is assumed; this is not universal practice.
     For details see the module docstring.
     """
-    if hasattr(d, "values"):
-        # this unpacks pandas series or dataframes...
-        d = d.values
+    # Unpack in case of e.g. Pandas or xarray object
+    d = cbook._unpack_to_numpy(d)
 
     # make an iterable, but save state to unpack later:
     iterable = np.iterable(d)
