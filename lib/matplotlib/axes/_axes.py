@@ -7944,8 +7944,8 @@ such objects
         """
 
         def _kde_method(X, coords):
-            if hasattr(X, 'values'):  # support pandas.Series
-                X = X.values
+            # Unpack in case of e.g. Pandas or xarray object
+            X = cbook._unpack_to_numpy(X)
             # fallback gracefully if the vector contains only one value
             if np.all(X[0] == X):
                 return (X[0] == coords).astype(float)
