@@ -255,13 +255,12 @@ def test_fontinfo():
         (r'$\left($', re.compile(r'Expected ("|\'\\)\\right["\']')),
         (r'$\dfrac$', r'Expected \dfrac{num}{den}'),
         (r'$\dfrac{}{}$', r'Expected \dfrac{num}{den}'),
-        (r'$\overset$', r'Expected \overset{body}{annotation}'),
-        (r'$\underset$', r'Expected \underset{body}{annotation}'),
+        (r'$\overset$', r'Expected \overset{annotation}{body}'),
+        (r'$\underset$', r'Expected \underset{annotation}{body}'),
         (r'$\foo$', r'Unknown symbol: \foo'),
         (r'$a^2^2$', r'Double superscript'),
         (r'$a_2_2$', r'Double subscript'),
-        (r'$a^2_a^2$', r'Subscript/superscript sequence is too long.'\
-            r' Use braces { } to remove ambiguity.'),
+        (r'$a^2_a^2$', r'Double superscript'),
     ],
     ids=[
         'hspace without value',
