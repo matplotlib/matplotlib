@@ -405,7 +405,7 @@ def test_format_cursor_data_BoundaryNorm():
     fig.suptitle("-1..1 to 0..256 in 0.01")
     cmap = cm.get_cmap('RdBu_r', 200)
     norm = mcolors.BoundaryNorm(np.linspace(-1, 1, 200), 200)
-    img = ax.imshow(X, cmap='RdBu_r', norm=norm)
+    img = ax.imshow(X, cmap=cmap, norm=norm)
     for v in X.flat:
         label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.01))
         assert img.format_cursor_data(v) == label
@@ -417,7 +417,7 @@ def test_format_cursor_data_BoundaryNorm():
     fig.suptitle("-1..1 to 0..256 in 0.001")
     cmap = cm.get_cmap('RdBu_r', 2000)
     norm = mcolors.BoundaryNorm(np.linspace(-1, 1, 2000), 2000)
-    img = ax.imshow(X, cmap='RdBu_r', norm=norm)
+    img = ax.imshow(X, cmap=cmap, norm=norm)
     for v in X.flat:
         label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.001))
         assert img.format_cursor_data(v) == label
