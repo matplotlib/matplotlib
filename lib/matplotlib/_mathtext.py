@@ -8,6 +8,7 @@ import enum
 import functools
 import logging
 import os
+import re
 import types
 import unicodedata
 
@@ -1723,15 +1724,13 @@ class Parser:
         p.style_literal  = oneOf(
             [str(e.value) for e in self._MathStyle])("style_literal")
 
-        p.single_symbol  = Regex(
-            r"([a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|%s])|(\\[%%${}\[\]_|])" %
-            "\U00000080-\U0001ffff"  # unicode range
-        )("sym")
         p.accentprefixed = "\\" + oneOf(self._accentprefixed)("sym")
-        p.symbol_name    = (
-            oneOf([rf"\{sym}" for sym in tex2uni])("sym")
-            + Regex("(?=[^A-Za-z]|$)").leaveWhitespace())
-        p.symbol         = (p.single_symbol | p.symbol_name).leaveWhitespace()
+        p.symbol         = Regex(
+            r"[a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|\U00000080-\U0001ffff]"
+            r"|\\[%${}\[\]_|]"
+            + r"|\\(?:{})(?![A-Za-z])".format(
+                "|".join(map(re.escape, tex2uni)))
+        )("sym").leaveWhitespace()
         p.unknown_symbol = Regex(r"\\[A-Za-z]*")("name")
 
         p.font           = "\\" + oneOf(self._fontnames)("font")
