@@ -271,7 +271,7 @@ jobs:
         with:
           path: .testmondata
           key: testmon=${{ github.ref_name }}-${{ matrix.python-version }}
-          restore-keys: testmon=${{ matrix.python-version }}-main
+          restore-keys: testmon=main-${{ matrix.python-version }}
 
       - name: Run testmon
         run: |
