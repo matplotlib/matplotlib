@@ -2177,7 +2177,6 @@ class Parser:
         else:
             self._subsuper_flag = False
 
-        
         return Hlist(hlist_list)
 
     def start_group(self, s, loc, toks):
