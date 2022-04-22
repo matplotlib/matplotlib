@@ -47,7 +47,7 @@ math_tests = [
     r"$\arccos((x^i))$",
     r"$\gamma = \frac{x=\frac{6}{8}}{y} \delta$",
     r'$\limsup_{x\to\infty}$',
-    r'$\oint^\infty_0$',
+    None,
     r"$f'\quad f'''(x)\quad ''/\mathrm{yr}$",
     r'$\frac{x_2888}{y}$',
     r"$\sqrt[3]{\frac{X_2}{Y}}=5$",

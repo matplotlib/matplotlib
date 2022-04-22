@@ -1968,6 +1968,8 @@ class Parser:
                                         " " * (err.column - 1) + "^",
                                         str(err)])) from err
         self._state_stack = None
+        self._subsuper_flag = False
+        # prevent operator spacing from leaking into a new expression
         self._em_width_cache = {}
         self._expression.resetCache()
         return result[0]
@@ -2167,13 +2169,15 @@ class Parser:
                 toks[0] not in self._overunder_functions):
             # Add thin space except when followed by parenthesis, bracket, etc.
             hlist_list += [self._make_space(self._space_widths[r'\,'])]
-
+        self.pop_state()
         # if followed by a super/subscript, set flag to true
         # This flag tells subsuper to add space after this operator
         if next_char in {'^', '_'}:
             self._subsuper_flag = True
+        else:
+            self._subsuper_flag = False
 
-        self.pop_state()
+        
         return Hlist(hlist_list)
 
     def start_group(self, s, loc, toks):
