@@ -223,13 +223,12 @@ class TruetypeFonts(Fonts):
         if bunch is not None:
             return bunch
 
-        font, num, fontsize, slanted = self._get_glyph(
+        font, num, slanted = self._get_glyph(
             fontname, font_class, sym, fontsize, math)
 
         font.set_size(fontsize, dpi)
         glyph = font.load_char(
-            num,
-            flags=self.mathtext_backend.get_hinting_type())
+            num, flags=self.mathtext_backend.get_hinting_type())
 
         xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
         offset = self._get_offset(font, glyph, fontsize, dpi)
@@ -327,7 +326,7 @@ class BakomaFonts(TruetypeFonts):
             if font is not None:
                 num = ord(sym)
         if font is not None and font.get_char_index(num) != 0:
-            return font, num, fontsize, slanted
+            return font, num, slanted
         else:
             return self._stix_fallback._get_glyph(
                 fontname, font_class, sym, fontsize, math)
@@ -487,10 +486,10 @@ class UnicodeFonts(TruetypeFonts):
 
                 g = self._fallback_font._get_glyph(fontname, font_class,
                                                    sym, fontsize)
-                fname = g[0].family_name
-                if fname in list(BakomaFonts._fontmap.values()):
-                    fname = "Computer Modern"
-                _log.info("Substituting symbol %s from %s", sym, fname)
+                family = g[0].family_name
+                if family in list(BakomaFonts._fontmap.values()):
+                    family = "Computer Modern"
+                _log.info("Substituting symbol %s from %s", sym, family)
                 return g
 
             else:
@@ -504,7 +503,7 @@ class UnicodeFonts(TruetypeFonts):
                 uniindex = 0xA4  # currency char, for lack of anything better
                 slanted = False
 
-        return font, uniindex, fontsize, slanted
+        return font, uniindex, slanted
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
         if self._fallback_font:
@@ -1625,46 +1624,46 @@ class Parser:
         SCRIPTSTYLE = enum.auto()
         SCRIPTSCRIPTSTYLE = enum.auto()
 
-    _binary_operators = set('''
+    _binary_operators = set(r'''
       + * -
-      \\pm             \\sqcap                   \\rhd
-      \\mp             \\sqcup                   \\unlhd
-      \\times          \\vee                     \\unrhd
-      \\div            \\wedge                   \\oplus
-      \\ast            \\setminus                \\ominus
-      \\star           \\wr                      \\otimes
-      \\circ           \\diamond                 \\oslash
-      \\bullet         \\bigtriangleup           \\odot
-      \\cdot           \\bigtriangledown         \\bigcirc
-      \\cap            \\triangleleft            \\dagger
-      \\cup            \\triangleright           \\ddagger
-      \\uplus          \\lhd                     \\amalg'''.split())
+      \pm             \sqcap                   \rhd
+      \mp             \sqcup                   \unlhd
+      \times          \vee                     \unrhd
+      \div            \wedge                   \oplus
+      \ast            \setminus                \ominus
+      \star           \wr                      \otimes
+      \circ           \diamond                 \oslash
+      \bullet         \bigtriangleup           \odot
+      \cdot           \bigtriangledown         \bigcirc
+      \cap            \triangleleft            \dagger
+      \cup            \triangleright           \ddagger
+      \uplus          \lhd                     \amalg'''.split())
 
-    _relation_symbols = set('''
+    _relation_symbols = set(r'''
       = < > :
-      \\leq        \\geq        \\equiv   \\models
-      \\prec       \\succ       \\sim     \\perp
-      \\preceq     \\succeq     \\simeq   \\mid
-      \\ll         \\gg         \\asymp   \\parallel
-      \\subset     \\supset     \\approx  \\bowtie
-      \\subseteq   \\supseteq   \\cong    \\Join
-      \\sqsubset   \\sqsupset   \\neq     \\smile
-      \\sqsubseteq \\sqsupseteq \\doteq   \\frown
-      \\in         \\ni         \\propto  \\vdash
-      \\dashv      \\dots       \\dotplus \\doteqdot'''.split())
+      \leq        \geq        \equiv   \models
+      \prec       \succ       \sim     \perp
+      \preceq     \succeq     \simeq   \mid
+      \ll         \gg         \asymp   \parallel
+      \subset     \supset     \approx  \bowtie
+      \subseteq   \supseteq   \cong    \Join
+      \sqsubset   \sqsupset   \neq     \smile
+      \sqsubseteq \sqsupseteq \doteq   \frown
+      \in         \ni         \propto  \vdash
+      \dashv      \dots       \dotplus \doteqdot'''.split())
 
-    _arrow_symbols = set('''
-      \\leftarrow              \\longleftarrow           \\uparrow
-      \\Leftarrow              \\Longleftarrow           \\Uparrow
-      \\rightarrow             \\longrightarrow          \\downarrow
-      \\Rightarrow             \\Longrightarrow          \\Downarrow
-      \\leftrightarrow         \\longleftrightarrow      \\updownarrow
-      \\Leftrightarrow         \\Longleftrightarrow      \\Updownarrow
-      \\mapsto                 \\longmapsto              \\nearrow
-      \\hookleftarrow          \\hookrightarrow          \\searrow
-      \\leftharpoonup          \\rightharpoonup          \\swarrow
-      \\leftharpoondown        \\rightharpoondown        \\nwarrow
-      \\rightleftharpoons      \\leadsto'''.split())
+    _arrow_symbols = set(r'''
+      \leftarrow              \longleftarrow           \uparrow
+      \Leftarrow              \Longleftarrow           \Uparrow
+      \rightarrow             \longrightarrow          \downarrow
+      \Rightarrow             \Longrightarrow          \Downarrow
+      \leftrightarrow         \longleftrightarrow      \updownarrow
+      \Leftrightarrow         \Longleftrightarrow      \Updownarrow
+      \mapsto                 \longmapsto              \nearrow
+      \hookleftarrow          \hookrightarrow          \searrow
+      \leftharpoonup          \rightharpoonup          \swarrow
+      \leftharpoondown        \rightharpoondown        \nwarrow
+      \rightleftharpoons      \leadsto'''.split())
 
     _spaced_symbols = _binary_operators | _relation_symbols | _arrow_symbols
 
@@ -1675,8 +1674,7 @@ class Parser:
        \bigwedge \bigodot \bigotimes \bigoplus \biguplus
        '''.split())
 
-    _overunder_functions = set(
-        "lim liminf limsup sup max min".split())
+    _overunder_functions = set("lim liminf limsup sup max min".split())
 
     _dropsub_symbols = set(r'''\int \oint'''.split())
 
@@ -1687,9 +1685,9 @@ class Parser:
       liminf sin cos exp limsup sinh cosh gcd ln sup cot hom log tan
       coth inf max tanh""".split())
 
-    _ambi_delim = set("""
-      | \\| / \\backslash \\uparrow \\downarrow \\updownarrow \\Uparrow
-      \\Downarrow \\Updownarrow . \\vert \\Vert \\\\|""".split())
+    _ambi_delim = set(r"""
+      | \| / \backslash \uparrow \downarrow \updownarrow \Uparrow
+      \Downarrow \Updownarrow . \vert \Vert \\|""".split())
 
     _left_delim = set(r"( [ \{ < \lfloor \langle \lceil".split())
 
