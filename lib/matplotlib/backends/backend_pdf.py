@@ -399,8 +399,8 @@ class Name:
         return b'/' + self.name
 
 
+@_api.deprecated("3.6")
 class Operator:
-    """PDF operator object."""
     __slots__ = ('op',)
 
     def __init__(self, op):
@@ -422,45 +422,51 @@ class Verbatim:
         return self._x
 
 
-# PDF operators (not an exhaustive list)
-class Op(Operator, Enum):
+class Op(Enum):
+    """PDF operators (not an exhaustive list)."""
+
     close_fill_stroke = b'b'
     fill_stroke = b'B'
     fill = b'f'
-    closepath = b'h',
+    closepath = b'h'
     close_stroke = b's'
     stroke = b'S'
     endpath = b'n'
-    begin_text = b'BT',
+    begin_text = b'BT'
     end_text = b'ET'
     curveto = b'c'
     rectangle = b're'
     lineto = b'l'
-    moveto = b'm',
+    moveto = b'm'
     concat_matrix = b'cm'
     use_xobject = b'Do'
-    setgray_stroke = b'G',
+    setgray_stroke = b'G'
     setgray_nonstroke = b'g'
     setrgb_stroke = b'RG'
-    setrgb_nonstroke = b'rg',
+    setrgb_nonstroke = b'rg'
     setcolorspace_stroke = b'CS'
-    setcolorspace_nonstroke = b'cs',
+    setcolorspace_nonstroke = b'cs'
     setcolor_stroke = b'SCN'
     setcolor_nonstroke = b'scn'
-    setdash = b'd',
+    setdash = b'd'
     setlinejoin = b'j'
     setlinecap = b'J'
     setgstate = b'gs'
-    gsave = b'q',
+    gsave = b'q'
     grestore = b'Q'
     textpos = b'Td'
     selectfont = b'Tf'
-    textmatrix = b'Tm',
+    textmatrix = b'Tm'
     show = b'Tj'
     showkern = b'TJ'
     setlinewidth = b'w'
     clip = b'W'
     shading = b'sh'
+
+    op = _api.deprecated('3.6')(property(lambda self: self.value))
+
+    def pdfRepr(self):
+        return self.value
 
     @classmethod
     def paint_path(cls, fill, stroke):
@@ -1833,7 +1839,8 @@ end"""
         return [Verbatim(_path.convert_to_string(
             path, transform, clip, simplify, sketch,
             6,
-            [Op.moveto.op, Op.lineto.op, b'', Op.curveto.op, Op.closepath.op],
+            [Op.moveto.value, Op.lineto.value, b'', Op.curveto.value,
+             Op.closepath.value],
             True))]
 
     def writePath(self, path, transform, clip=False, sketch=None):
