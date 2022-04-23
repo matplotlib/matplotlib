@@ -84,7 +84,7 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
                 "facecolors via keyword")
         elif len(args) > 1:
             _api.warn_external(
-                "Additional positional parameters {args[1:]!r} are ignored")
+                f"Additional positional parameters {args[1:]!r} are ignored")
         C = np.asarray(args[0])
         if len(C) == len(tri.x):
             # having this before the len(tri.triangles) comparison gives
