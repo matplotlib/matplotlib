@@ -691,7 +691,7 @@ grestore
             self._text2path.mathtext_parser.parse(s, 72, prop)
         self.set_color(*gc.get_rgb())
         self._pswriter.write(
-            f"gsave\n"
+            "gsave\n"
             f"{x:g} {y:g} translate\n"
             f"{angle:g} rotate\n")
         lastfont = None
@@ -930,14 +930,14 @@ class FigureCanvasPS(FigureCanvasBase):
             if is_eps:
                 print("%!PS-Adobe-3.0 EPSF-3.0", file=fh)
             else:
-                print(f"%!PS-Adobe-3.0\n"
+                print("%!PS-Adobe-3.0\n"
                       f"%%DocumentPaperSizes: {papertype}\n"
-                      f"%%Pages: 1\n",
+                      "%%Pages: 1\n",
                       end="", file=fh)
             print(f"{dsc_comments}\n"
                   f"%%Orientation: {orientation.name}\n"
                   f"{get_bbox_header(bbox)[0]}\n"
-                  f"%%EndComments\n",
+                  "%%EndComments\n",
                   end="", file=fh)
 
             Ndict = len(psDefs)

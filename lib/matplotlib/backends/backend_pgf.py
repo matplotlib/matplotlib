@@ -301,8 +301,8 @@ class LatexManager:
         except FileNotFoundError as err:
             raise RuntimeError(
                 f"{self.texcommand} not found.  Install it or change "
-                f"rcParams['pgf.texsystem'] to an available TeX "
-                f"implementation.") from err
+                "rcParams['pgf.texsystem'] to an available TeX "
+                "implementation.") from err
         except OSError as err:
             raise RuntimeError("Error starting process %r" %
                                self.texcommand) from err

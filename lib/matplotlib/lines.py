@@ -178,7 +178,7 @@ def _mark_every_path(markevery, tpath, affine, ax):
         else:
             raise ValueError(
                 f"markevery={markevery!r} is a tuple with len 2, but its "
-                f"second element is not an int or a float")
+                "second element is not an int or a float")
 
     elif isinstance(markevery, slice):
         # mazol tov, it's already a slice, just return
@@ -191,7 +191,7 @@ def _mark_every_path(markevery, tpath, affine, ax):
         except (ValueError, IndexError) as err:
             raise ValueError(
                 f"markevery={markevery!r} is iterable but not a valid numpy "
-                f"fancy index") from err
+                "fancy index") from err
     else:
         raise ValueError(f"markevery={markevery!r} is not a recognized value")
 
@@ -1415,7 +1415,7 @@ class _AxLine(Line2D):
             if np.allclose(x1, x2):
                 if np.allclose(y1, y2):
                     raise ValueError(
-                        f"Cannot draw a line through two identical points "
+                        "Cannot draw a line through two identical points "
                         f"(x={(x1, x2)}, y={(y1, y2)})")
                 slope = np.inf
             else:

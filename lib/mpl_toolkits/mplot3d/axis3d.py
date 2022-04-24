@@ -65,8 +65,8 @@ class Axis(maxis.XAxis):
             [self._old_init, self._new_init], *args, **kwargs)
         if "adir" in params:
             _api.warn_deprecated(
-                "3.6", message=f"The signature of 3D Axis constructors has "
-                f"changed in %(since)s; the new signature is "
+                "3.6", message="The signature of 3D Axis constructors has "
+                "changed in %(since)s; the new signature is "
                 f"{inspect.signature(type(self).__init__)}", pending=True)
             if params["adir"] != self.axis_name:
                 raise ValueError(f"Cannot instantiate {type(self).__name__} "

@@ -126,7 +126,7 @@ def detrend(x, key=None, axis=None):
     else:
         raise ValueError(
             f"Unknown value for key: {key!r}, must be one of: 'default', "
-            f"'constant', 'mean', 'linear', or a function")
+            "'constant', 'mean', 'linear', or a function")
 
 
 def detrend_mean(x, axis=None):

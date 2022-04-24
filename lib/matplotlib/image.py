@@ -1646,7 +1646,7 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
             else:
                 metadata = {
                     "Software": (f"Matplotlib version{mpl.__version__}, "
-                                 f"https://matplotlib.org/"),
+                                 "https://matplotlib.org/"),
                     **(metadata if metadata is not None else {}),
                 }
                 pil_kwargs["pnginfo"] = pnginfo = PIL.PngImagePlugin.PngInfo()

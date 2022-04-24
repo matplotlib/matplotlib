@@ -801,10 +801,10 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         if len(allnums) == max_open_warning >= 1:
             _api.warn_external(
                 f"More than {max_open_warning} figures have been opened. "
-                f"Figures created through the pyplot interface "
-                f"(`matplotlib.pyplot.figure`) are retained until explicitly "
-                f"closed and may consume too much memory. (To control this "
-                f"warning, see the rcParam `figure.max_open_warning`).",
+                "Figures created through the pyplot interface "
+                "(`matplotlib.pyplot.figure`) are retained until explicitly "
+                "closed and may consume too much memory. (To control this "
+                "warning, see the rcParam `figure.max_open_warning`).",
                 RuntimeWarning)
 
         manager = new_figure_manager(

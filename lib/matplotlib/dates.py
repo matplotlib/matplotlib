@@ -1419,9 +1419,9 @@ class AutoDateLocator(DateLocator):
             else:
                 if not (self.interval_multiples and freq == DAILY):
                     _api.warn_external(
-                        f"AutoDateLocator was unable to pick an appropriate "
-                        f"interval for this date range. It may be necessary "
-                        f"to add an interval value to the AutoDateLocator's "
+                        "AutoDateLocator was unable to pick an appropriate "
+                        "interval for this date range. It may be necessary "
+                        "to add an interval value to the AutoDateLocator's "
                         f"intervald dictionary. Defaulting to {interval}.")
 
             # Set some parameters as appropriate

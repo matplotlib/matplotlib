@@ -1543,7 +1543,7 @@ def _get_renderer(figure, print_method=None):
             return renderer
         else:
             raise RuntimeError(f"{print_method} did not call Figure.draw, so "
-                               f"no renderer is available")
+                               "no renderer is available")
 
 
 def _no_output_draw(figure):
@@ -2775,7 +2775,7 @@ class FigureManagerBase:
             return
         raise NonGuiException(
             f"Matplotlib is currently using {get_backend()}, which is a "
-            f"non-GUI backend, so cannot show the figure.")
+            "non-GUI backend, so cannot show the figure.")
 
     def destroy(self):
         pass

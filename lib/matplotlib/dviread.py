@@ -878,11 +878,11 @@ class PsfontsMap:
             return self._parsed[texname]
         except KeyError:
             raise LookupError(
-                f"An associated PostScript font (required by Matplotlib) "
+                "An associated PostScript font (required by Matplotlib) "
                 f"could not be found for TeX font {texname.decode('ascii')!r} "
                 f"in {self._filename!r}; this problem can often be solved by "
-                f"installing a suitable PostScript font package in your TeX "
-                f"package manager") from None
+                "installing a suitable PostScript font package in your TeX "
+                "package manager") from None
 
     def _parse_and_cache_line(self, line):
         """
@@ -1094,7 +1094,7 @@ def _find_tex_file(filename, format=None):
         return path
     else:
         raise FileNotFoundError(
-            f"Matplotlib's TeX implementation searched for a file named "
+            "Matplotlib's TeX implementation searched for a file named "
             f"{filename!r} in your texmf tree, but could not find it")
 
 
@@ -1108,7 +1108,7 @@ def find_tex_file(filename, format=None):
     except FileNotFoundError as exc:
         _api.warn_deprecated(
             "3.6", message=f"{exc.args[0]}; in the future, this will raise a "
-            f"FileNotFoundError.")
+            "FileNotFoundError.")
         return ""
 
 
@@ -1135,7 +1135,7 @@ if __name__ == '__main__':
     with Dvi(args.filename, args.dpi) as dvi:
         fontmap = PsfontsMap(_find_tex_file('pdftex.map'))
         for page in dvi:
-            print(f"=== new page === "
+            print("=== new page === "
                   f"(w: {page.width}, h: {page.height}, d: {page.descent})")
             for font, group in itertools.groupby(
                     page.text, lambda text: text.font):

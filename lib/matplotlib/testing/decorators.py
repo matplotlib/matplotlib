@@ -110,7 +110,7 @@ def _checked_on_freetype_version(required_freetype_version):
     import pytest
     return pytest.mark.xfail(
         not _check_freetype_version(required_freetype_version),
-        reason=f"Mismatched version of freetype. "
+        reason="Mismatched version of freetype. "
                f"Test requires '{required_freetype_version}', "
                f"you have '{ft2font.__freetype_version__}'",
         raises=ImageComparisonFailure, strict=False)
@@ -205,7 +205,7 @@ class _ImageComparisonBase:
         except OSError as err:
             raise ImageComparisonFailure(
                 f"Missing baseline image {expected_fname} because the "
-                f"following file cannot be accessed: "
+                "following file cannot be accessed: "
                 f"{orig_expected_path}") from err
         return expected_fname
 

@@ -264,7 +264,7 @@ def _to_rgba_no_colorcycle(c, alpha=None):
             if not (0 <= c <= 1):
                 raise ValueError(
                     f"Invalid string grayscale value {orig_c!r}. "
-                    f"Value must be within 0-1 range")
+                    "Value must be within 0-1 range")
             return c, c, c, alpha if alpha is not None else 1.
         raise ValueError(f"Invalid RGBA argument: {orig_c!r}")
     # turn 2-D array into 1-D array

@@ -292,7 +292,7 @@ def rename_parameter(since, old, new, func=None):
             warn_deprecated(
                 since, message=f"The {old!r} parameter of {func.__name__}() "
                 f"has been renamed {new!r} since Matplotlib {since}; support "
-                f"for the old name will be dropped %(removal)s.")
+                "for the old name will be dropped %(removal)s.")
             kwargs[new] = kwargs.pop(old)
         return func(*args, **kwargs)
 
@@ -385,21 +385,21 @@ def delete_parameter(since, name, func=None, **kwargs):
         arguments = signature.bind(*inner_args, **inner_kwargs).arguments
         if is_varargs and arguments.get(name):
             warn_deprecated(
-                since, message=f"Additional positional arguments to "
+                since, message="Additional positional arguments to "
                 f"{func.__name__}() are deprecated since %(since)s and "
-                f"support for them will be removed %(removal)s.")
+                "support for them will be removed %(removal)s.")
         elif is_varkwargs and arguments.get(name):
             warn_deprecated(
-                since, message=f"Additional keyword arguments to "
+                since, message="Additional keyword arguments to "
                 f"{func.__name__}() are deprecated since %(since)s and "
-                f"support for them will be removed %(removal)s.")
+                "support for them will be removed %(removal)s.")
         # We cannot just check `name not in arguments` because the pyplot
         # wrappers always pass all arguments explicitly.
         elif any(name in d and d[name] != _deprecated_parameter
                  for d in [arguments, arguments.get(kwargs_name, {})]):
             deprecation_addendum = (
                 f"If any parameter follows {name!r}, they should be passed as "
-                f"keyword, not positionally.")
+                "keyword, not positionally.")
             warn_deprecated(
                 since,
                 name=repr(name),

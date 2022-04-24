@@ -2909,7 +2909,7 @@ pivot='tail', normalize=False, **kwargs)
             else:
                 raise ValueError(
                     f'errorevery={errorevery!r} is a not a tuple of two '
-                    f'integers')
+                    'integers')
 
         elif isinstance(errorevery, slice):
             pass
@@ -2921,8 +2921,8 @@ pivot='tail', normalize=False, **kwargs)
             except (ValueError, IndexError) as err:
                 raise ValueError(
                     f"errorevery={errorevery!r} is iterable but not a valid "
-                    f"NumPy fancy index to match "
-                    f"'xerr'/'yerr'/'zerr'") from err
+                    "NumPy fancy index to match "
+                    "'xerr'/'yerr'/'zerr'") from err
         else:
             raise ValueError(
                 f"errorevery={errorevery!r} is not a recognized value")

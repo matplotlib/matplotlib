@@ -2101,11 +2101,11 @@ def _check_and_log_subprocess(command, logger, **kwargs):
         if isinstance(stderr, bytes):
             stderr = stderr.decode()
         raise RuntimeError(
-            f"The command\n"
+            "The command\n"
             f"    {_pformat_subprocess(command)}\n"
-            f"failed and generated the following output:\n"
+            "failed and generated the following output:\n"
             f"{stdout}\n"
-            f"and the following error:\n"
+            "and the following error:\n"
             f"{stderr}")
     if proc.stdout:
         logger.debug("stdout:\n%s", proc.stdout)

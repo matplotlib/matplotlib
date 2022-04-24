@@ -496,9 +496,9 @@ class Sankey:
                     f"but this diagram has only {n} flows")
             if self.diagrams[prior].angles[connect[0]] is None:
                 raise ValueError(
-                    f"The connection cannot be made, which may occur if the "
+                    "The connection cannot be made, which may occur if the "
                     f"magnitude of flow {connect[0]} of diagram {prior} is "
-                    f"less than the specified tolerance")
+                    "less than the specified tolerance")
             flow_error = (self.diagrams[prior].flows[connect[0]] +
                           flows[connect[1]])
             if abs(flow_error) >= self.tolerance:
@@ -535,7 +535,7 @@ class Sankey:
                 if orient != -1:
                     raise ValueError(
                         f"The value of orientations[{i}] is {orient}, "
-                        f"but it must be -1, 0, or 1")
+                        "but it must be -1, 0, or 1")
                 if is_input:
                     angles[i] = UP
                 elif not is_input:

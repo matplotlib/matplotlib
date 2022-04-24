@@ -239,7 +239,7 @@ class AnnotatedCursor(Cursor):
             lim = self.ax.get_ylim()
         else:
             raise ValueError(f"The data axis specifier {self.dataaxis} should "
-                             f"be 'x' or 'y'")
+                             "be 'x' or 'y'")
 
         # If position is valid and in valid plot data range.
         if pos is not None and lim[0] <= pos <= lim[-1]:

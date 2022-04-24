@@ -1604,7 +1604,7 @@ default: %(va)s
                 kwargs.update(**extra_kwargs)
             else:
                 raise TypeError(
-                    f"projection must be a string, None or implement a "
+                    "projection must be a string, None or implement a "
                     f"_as_mpl_axes method, not {projection!r}")
         if projection_class.__name__ == 'Axes3D':
             kwargs.setdefault('auto_add_to_figure', False)
@@ -2947,8 +2947,8 @@ class Figure(FigureBase):
 
         if version != mpl.__version__:
             _api.warn_external(
-                f"This figure was saved with matplotlib version {version} and "
-                f"is unlikely to function correctly.")
+                f"This figure was saved with Matplotlib version {version} and "
+                "is unlikely to function correctly.")
 
         self.__dict__ = state
 

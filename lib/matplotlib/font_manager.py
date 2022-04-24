@@ -1400,7 +1400,7 @@ class FontManager:
                                      fallback_to_default=False)
             else:
                 raise ValueError(f"Failed to find font {prop}, and fallback "
-                                 f"to the default font was disabled")
+                                 "to the default font was disabled")
         else:
             _log.debug('findfont: Matching %s to %s (%r) with score of %f.',
                        prop, best_font.name, best_font.fname, best_score)

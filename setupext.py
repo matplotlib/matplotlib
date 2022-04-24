@@ -127,14 +127,14 @@ def get_and_extract_tarball(urls, sha, dirname):
         else:
             raise IOError(
                 f"Failed to download any of the following: {urls}.  "
-                f"Please download one of these urls and extract it into "
-                f"'build/' at the top-level of the source repository.")
+                "Please download one of these urls and extract it into "
+                "'build/' at the top-level of the source repository.")
         print("Extracting {}".format(urllib.parse.urlparse(url).path))
         with tarfile.open(fileobj=tar_contents, mode="r:gz") as tgz:
             if os.path.commonpath(tgz.getnames()) != dirname:
                 raise IOError(
                     f"The downloaded tgz file was expected to have {dirname} "
-                    f"as sole top-level directory, but that is not the case")
+                    "as sole top-level directory, but that is not the case")
             tgz.extractall("build")
     return toplevel
 
@@ -598,11 +598,11 @@ class FreeType(SetupPackage):
         tarball = f'freetype-{LOCAL_FREETYPE_VERSION}.tar.gz'
         src_path = get_and_extract_tarball(
             urls=[
-                (f'https://downloads.sourceforge.net/project/freetype'
+                ('https://downloads.sourceforge.net/project/freetype'
                  f'/freetype2/{LOCAL_FREETYPE_VERSION}/{tarball}'),
-                (f'https://download.savannah.gnu.org/releases/freetype'
+                ('https://download.savannah.gnu.org/releases/freetype'
                  f'/{tarball}'),
-                (f'https://download.savannah.gnu.org/releases/freetype'
+                ('https://download.savannah.gnu.org/releases/freetype'
                  f'/freetype-old/{tarball}')
             ],
             sha=LOCAL_FREETYPE_HASH,

@@ -428,7 +428,7 @@ def _get_executable_info(name):
                 parse_version("0.9") <= info.version < parse_version("1.0")):
             raise ExecutableNotFoundError(
                 f"You have pdftops version {info.version} but the minimum "
-                f"version supported by Matplotlib is 3.0")
+                "version supported by Matplotlib is 3.0")
         return info
     else:
         raise ValueError("Unknown executable: {!r}".format(name))
@@ -650,7 +650,7 @@ class RcParams(MutableMapping, dict):
         except KeyError as err:
             raise KeyError(
                 f"{key} is not a valid rc parameter (see rcParams.keys() for "
-                f"a list of valid parameters)") from err
+                "a list of valid parameters)") from err
 
     def __getitem__(self, key):
         if key in _deprecated_map:
@@ -1211,9 +1211,9 @@ def _init_tests():
     if (ft2font.__freetype_version__ != LOCAL_FREETYPE_VERSION or
             ft2font.__freetype_build_type__ != 'local'):
         _log.warning(
-            f"Matplotlib is not built with the correct FreeType version to "
-            f"run tests.  Rebuild without setting system_freetype=1 in "
-            f"mplsetup.cfg.  Expect many image comparison failures below.  "
+            "Matplotlib is not built with the correct FreeType version to "
+            "run tests.  Rebuild without setting system_freetype=1 in "
+            "mplsetup.cfg.  Expect many image comparison failures below.  "
             f"Expected freetype version {LOCAL_FREETYPE_VERSION}.  "
             f"Found freetype version {ft2font.__freetype_version__}.  "
             "Freetype build type is {}local".format(

@@ -1860,7 +1860,7 @@ class Affine2DBase(AffineBase):
             if not isinstance(points, (np.ma.MaskedArray, np.ndarray)):
                 _api.warn_external(
                     f'A non-numpy array of type {type(points)} was passed in '
-                    f'for transformation, which results in poor performance.')
+                    'for transformation, which results in poor performance.')
             return self._transform_affine(points)
 
     def inverted(self):

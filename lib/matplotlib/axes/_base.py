@@ -272,12 +272,12 @@ class _process_plot_var_args:
                     if replaced[1] is not args[1]:  # case 2a)
                         _api.warn_external(
                             f"Second argument {args[1]!r} is ambiguous: could "
-                            f"be a format string but is in 'data'; using as "
-                            f"data.  If it was intended as data, set the "
-                            f"format string to an empty string to suppress "
-                            f"this warning.  If it was intended as a format "
-                            f"string, explicitly pass the x-values as well.  "
-                            f"Alternatively, rename the entry in 'data'.",
+                            "be a format string but is in 'data'; using as "
+                            "data.  If it was intended as data, set the "
+                            "format string to an empty string to suppress "
+                            "this warning.  If it was intended as a format "
+                            "string, explicitly pass the x-values as well.  "
+                            "Alternatively, rename the entry in 'data'.",
                             RuntimeWarning)
                         label_namer_idx = 1
                     else:  # case 2b)
@@ -479,7 +479,7 @@ class _process_plot_var_args:
                         f"{prop_name} is redundantly defined by the "
                         f"'{prop_name}' keyword argument and the fmt string "
                         f'"{fmt}" (-> {prop_name}={val!r}). The keyword '
-                        f"argument will take precedence.")
+                        "argument will take precedence.")
                 kw[prop_name] = val
 
         if len(xy) == 2:
@@ -494,10 +494,10 @@ class _process_plot_var_args:
             self.axes.yaxis.update_units(y)
 
         if x.shape[0] != y.shape[0]:
-            raise ValueError(f"x and y must have same first dimension, but "
+            raise ValueError("x and y must have same first dimension, but "
                              f"have shapes {x.shape} and {y.shape}")
         if x.ndim > 2 or y.ndim > 2:
-            raise ValueError(f"x and y can be no greater than 2D, but have "
+            raise ValueError("x and y can be no greater than 2D, but have "
                              f"shapes {x.shape} and {y.shape}")
         if x.ndim == 1:
             x = x[:, np.newaxis]
@@ -520,8 +520,8 @@ class _process_plot_var_args:
         n_datasets = max(ncx, ncy)
         if n_datasets > 1 and not cbook.is_scalar_or_string(label):
             if len(label) != n_datasets:
-                raise ValueError(f"label must be scalar or have the same "
-                                 f"length as the input data, but found "
+                raise ValueError("label must be scalar or have the same "
+                                 "length as the input data, but found "
                                  f"{len(label)} for {n_datasets} datasets.")
             labels = label
         else:
@@ -2109,7 +2109,7 @@ class _AxesBase(martist.Artist):
             self.set_xlim(xmin, xmax, emit=emit, auto=xauto)
             self.set_ylim(ymin, ymax, emit=emit, auto=yauto)
         if kwargs:
-            raise TypeError(f"axis() got an unexpected keyword argument "
+            raise TypeError("axis() got an unexpected keyword argument "
                             f"'{next(iter(kwargs))}'")
         return (*self.get_xlim(), *self.get_ylim())
 
@@ -3477,10 +3477,10 @@ class _AxesBase(martist.Artist):
         protected_kw = ['x', 'horizontalalignment', 'ha']
         if {*kwargs} & {*protected_kw}:
             if loc is not None:
-                raise TypeError(f"Specifying 'loc' is disallowed when any of "
-                                f"its corresponding low level keyword "
+                raise TypeError("Specifying 'loc' is disallowed when any of "
+                                "its corresponding low level keyword "
                                 f"arguments ({protected_kw}) are also "
-                                f"supplied")
+                                "supplied")
 
         else:
             loc = (loc if loc is not None
@@ -3766,10 +3766,10 @@ class _AxesBase(martist.Artist):
         protected_kw = ['y', 'horizontalalignment', 'ha']
         if {*kwargs} & {*protected_kw}:
             if loc is not None:
-                raise TypeError(f"Specifying 'loc' is disallowed when any of "
-                                f"its corresponding low level keyword "
+                raise TypeError("Specifying 'loc' is disallowed when any of "
+                                "its corresponding low level keyword "
                                 f"arguments ({protected_kw}) are also "
-                                f"supplied")
+                                "supplied")
 
         else:
             loc = (loc if loc is not None

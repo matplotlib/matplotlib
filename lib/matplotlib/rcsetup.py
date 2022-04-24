@@ -761,7 +761,7 @@ def validate_cycler(s):
             raise ValueError(f"Cannot specify both {norm_prop!r} and alias "
                              f"{prop!r} in the same prop_cycle")
         if norm_prop in checker:
-            raise ValueError(f"Another property was already aliased to "
+            raise ValueError("Another property was already aliased to "
                              f"{norm_prop!r}. Collision normalizing {prop!r}.")
         checker.update([norm_prop])
 

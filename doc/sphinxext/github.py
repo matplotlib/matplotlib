@@ -41,7 +41,7 @@ def make_link_node(rawtext, app, type, slug, options):
             base += '/'
     except AttributeError as err:
         raise ValueError(
-            f'github_project_url configuration value is not set '
+            'github_project_url configuration value is not set '
             f'({err})') from err
 
     ref = base + type + '/' + slug + '/'
@@ -143,7 +143,7 @@ def ghcommit_role(
             base += '/'
     except AttributeError as err:
         raise ValueError(
-            f'github_project_url configuration value is not set '
+            'github_project_url configuration value is not set '
             f'({err})') from err
 
     ref = base + text

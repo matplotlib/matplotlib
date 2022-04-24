@@ -71,8 +71,8 @@ class UnitDbl:
             return self._value
         data = _api.check_getitem(self.allowed, units=units)
         if self._units != data[1]:
-            raise ValueError(f"Error trying to convert to different units.\n"
-                             f"    Invalid conversion requested.\n"
+            raise ValueError("Error trying to convert to different units.\n"
+                             "    Invalid conversion requested.\n"
                              f"    UnitDbl: {self}\n"
                              f"    Units:   {units}\n")
         return self._value / data[0]

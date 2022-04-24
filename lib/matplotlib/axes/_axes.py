@@ -2401,7 +2401,7 @@ class Axes(_AxesBase):
                 except TypeError as e:
                     raise TypeError(f'the dtypes of parameters x ({x.dtype}) '
                                     f'and width ({width.dtype}) '
-                                    f'are incompatible') from e
+                                    'are incompatible') from e
                 bottom = y
             elif orientation == 'horizontal':
                 try:
@@ -2409,7 +2409,7 @@ class Axes(_AxesBase):
                 except TypeError as e:
                     raise TypeError(f'the dtypes of parameters y ({y.dtype}) '
                                     f'and height ({height.dtype}) '
-                                    f'are incompatible') from e
+                                    'are incompatible') from e
                 left = x
         elif align == 'edge':
             left = x
@@ -3391,7 +3391,7 @@ class Axes(_AxesBase):
             else:
                 raise ValueError(
                     f'errorevery={errorevery!r} is a not a tuple of two '
-                    f'integers')
+                    'integers')
         elif isinstance(errorevery, slice):
             pass
         elif not isinstance(errorevery, str) and np.iterable(errorevery):
@@ -3401,7 +3401,7 @@ class Axes(_AxesBase):
             except (ValueError, IndexError) as err:
                 raise ValueError(
                     f"errorevery={errorevery!r} is iterable but not a valid "
-                    f"NumPy fancy index to match 'xerr'/'yerr'") from err
+                    "NumPy fancy index to match 'xerr'/'yerr'") from err
         else:
             raise ValueError(
                 f"errorevery={errorevery!r} is not a recognized value")
@@ -3502,7 +3502,7 @@ class Axes(_AxesBase):
             except ValueError:
                 raise ValueError(
                     f"'{dep_axis}err' (shape: {np.shape(err)}) must be a "
-                    f"scalar or a 1D or (2, n) array-like whose shape matches "
+                    "scalar or a 1D or (2, n) array-like whose shape matches "
                     f"'{dep_axis}' (shape: {np.shape(dep)})") from None
             if np.any(err < -err):  # like err<0, but also works for timedelta.
                 raise ValueError(
@@ -4296,8 +4296,8 @@ class Axes(_AxesBase):
                     # Both the mapping *and* the RGBA conversion failed: pretty
                     # severe failure => one may appreciate a verbose feedback.
                     raise ValueError(
-                        f"'c' argument must be a color, a sequence of colors, "
-                        f"or a sequence of numbers, not {c}") from err
+                        "'c' argument must be a color, a sequence of colors, "
+                        f"or a sequence of numbers, not {c!r}") from err
             else:
                 if len(colors) not in (0, 1, xsize):
                     # NB: remember that a single color is also acceptable.
@@ -6603,7 +6603,7 @@ such objects
         else:
             color = mcolors.to_rgba_array(color)
             if len(color) != nx:
-                raise ValueError(f"The 'color' keyword argument must have one "
+                raise ValueError("The 'color' keyword argument must have one "
                                  f"color per dataset, but {nx} datasets and "
                                  f"{len(color)} colors were provided")
 

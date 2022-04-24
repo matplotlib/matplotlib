@@ -582,18 +582,18 @@ class SubplotSpec:
                 return arg
             elif not isinstance(arg, Integral):
                 raise ValueError(
-                    f"Single argument to subplot must be a three-digit "
+                    "Single argument to subplot must be a three-digit "
                     f"integer, not {arg!r}")
             try:
                 rows, cols, num = map(int, str(arg))
             except ValueError:
                 raise ValueError(
-                    f"Single argument to subplot must be a three-digit "
+                    "Single argument to subplot must be a three-digit "
                     f"integer, not {arg!r}") from None
         elif len(args) == 3:
             rows, cols, num = args
         else:
-            raise TypeError(f"subplot() takes 1 or 3 positional arguments but "
+            raise TypeError("subplot() takes 1 or 3 positional arguments but "
                             f"{len(args)} were given")
 
         gs = GridSpec._check_gridspec_exists(figure, rows, cols)
