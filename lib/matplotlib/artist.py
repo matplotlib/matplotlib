@@ -1,8 +1,7 @@
 from collections import namedtuple
 import contextlib
 from functools import wraps
-import inspect
-from inspect import Signature, Parameter
+from inspect import getdoc, Parameter, signature, Signature
 import logging
 from numbers import Number
 import re
@@ -1411,7 +1410,7 @@ class ArtistInspector:
             if not self.is_alias(func):
                 continue
             propname = re.search("`({}.*)`".format(name[:4]),  # get_.*/set_.*
-                                 inspect.getdoc(func)).group(1)
+                                 getdoc(func)).group(1)
             aliases.setdefault(propname[4:], set()).add(name[4:])
         return aliases
 
@@ -1433,7 +1432,7 @@ class ArtistInspector:
             raise AttributeError('%s has no function %s' % (self.o, name))
         func = getattr(self.o, name)
 
-        docstring = inspect.getdoc(func)
+        docstring = getdoc(func)
         if docstring is None:
             return 'unknown'
 
@@ -1479,7 +1478,7 @@ class ArtistInspector:
                 continue
             func = getattr(self.o, name)
             if (not callable(func)
-                    or len(inspect.signature(func).parameters) < 2
+                    or len(signature(func).parameters) < 2
                     or self.is_alias(func)):
                 continue
             setters.append(name[4:])
@@ -1487,7 +1486,7 @@ class ArtistInspector:
 
     def is_alias(self, o):
         """Return whether method object *o* is an alias for another method."""
-        ds = inspect.getdoc(o)
+        ds = getdoc(o)
         if ds is None:
             return False
         return ds.startswith('Alias for ')

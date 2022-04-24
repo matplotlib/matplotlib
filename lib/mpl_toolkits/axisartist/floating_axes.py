@@ -9,10 +9,10 @@ import functools
 
 import numpy as np
 
-import matplotlib as mpl
 from matplotlib import _api, cbook
 import matplotlib.axes as maxes
 import matplotlib.patches as mpatches
+from matplotlib.transforms import _interval_contains_close
 from matplotlib.path import Path
 
 from mpl_toolkits.axes_grid1.parasite_axes import host_axes_class_factory
@@ -124,8 +124,7 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
             dd[mm] = dd2[mm] + np.pi / 2
 
             tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
-            in_01 = functools.partial(
-                mpl.transforms._interval_contains_close, (0, 1))
+            in_01 = functools.partial(_interval_contains_close, (0, 1))
             for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
                 c2 = tick_to_axes.transform((x, y))
                 if in_01(c2[0]) and in_01(c2[1]):

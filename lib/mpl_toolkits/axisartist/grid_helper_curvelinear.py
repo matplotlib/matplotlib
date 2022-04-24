@@ -7,10 +7,10 @@ from itertools import chain
 
 import numpy as np
 
-import matplotlib as mpl
 from matplotlib import _api
 from matplotlib.path import Path
-from matplotlib.transforms import Affine2D, IdentityTransform
+from matplotlib.transforms import (Affine2D, IdentityTransform,
+                                   _interval_contains_close)
 from .axislines import AxisArtistHelper, GridHelperBase
 from .axis_artist import AxisArtist
 from .grid_finder import GridFinder
@@ -234,8 +234,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             dd[mm] = dd2[mm] + np.pi / 2
 
             tick_to_axes = self.get_tick_transform(axes) - axes.transAxes
-            in_01 = functools.partial(
-                mpl.transforms._interval_contains_close, (0, 1))
+            in_01 = functools.partial(_interval_contains_close, (0, 1))
             for x, y, d, d2, lab in zip(xx1, yy1, dd, dd2, labels):
                 c2 = tick_to_axes.transform((x, y))
                 if in_01(c2[0]) and in_01(c2[1]):
