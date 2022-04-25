@@ -25,6 +25,8 @@ in order::
                                  'Lucida Grande', 'Verdana']
 
 .. redirect-from:: /examples/font_family_rc_sgskip
+
+First example:
 """
 
 import matplotlib.pyplot as plt
@@ -38,9 +40,10 @@ ax.axis("off")
 plt.show()
 
 
-"""
-And here a second example:
-"""
+#############################################################################
+#
+# Second example:
+
 
 plt.rcParams["font.family"] = "monospace"
 # plt.rcParams['font.monospace'] = ['Computer Modern Typewriter'] # this line gives an error currently, therefore the
