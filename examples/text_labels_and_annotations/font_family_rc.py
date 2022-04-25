@@ -46,7 +46,7 @@ print_text("Hello World! 01")
 # Second example:
 
 plt.rcParams["font.family"] = "sans-serif"
-plt.rcParams["font.sans-serif"] = "Tahoma"
+plt.rcParams["font.sans-serif"] = ["Tahoma"]
 print_text("Hello World! 02")
 
 #############################################################################
@@ -54,7 +54,7 @@ print_text("Hello World! 02")
 # Third example:
 
 plt.rcParams["font.family"] = "sans-serif"
-plt.rcParams["font.sans-serif"] = "Lucida Grande"
+plt.rcParams["font.sans-serif"] = ["Lucida Grande"]
 print_text("Hello World! 03")
 
 #############################################################################
@@ -69,5 +69,5 @@ print_text("Hello World! 04")
 # Fifth example:
 
 plt.rcParams["font.family"] = "monospace"
-plt.rcParams["font.monospace"] = "Menlo"
+plt.rcParams["font.monospace"] = ["Menlo"]
 print_text("Hello World! 05")
