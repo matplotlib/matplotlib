@@ -1911,7 +1911,7 @@ class QuadMesh(Collection):
     r"""
     Class for the efficient drawing of a quadrilateral mesh.
 
-    A quadrilateral mesh is a grid of M by N adjacent qudrilaterals that are
+    A quadrilateral mesh is a grid of M by N adjacent quadrilaterals that are
     defined via a (M+1, N+1) grid of vertices. The quadrilateral (m, n) is
     defined by the vertices ::
 
