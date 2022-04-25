@@ -23,6 +23,8 @@ in order::
 
   rcParams['font.sans-serif'] = ['Tahoma', 'DejaVu Sans',
                                  'Lucida Grande', 'Verdana']
+
+.. redirect-from:: /examples/font_family_rc_sgskip
 """
 
 import matplotlib.pyplot as plt
