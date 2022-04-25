@@ -27,11 +27,11 @@ in order::
 
 import matplotlib.pyplot as plt
 
-plt.rcParams['font.family'] = 'sans-serif'
-plt.rcParams['font.sans-serif'] = ['Tahoma']
+plt.rcParams["font.family"] = "sans-serif"
+plt.rcParams["font.sans-serif"] = ["Tahoma"]
 
 fig, ax = plt.subplots(figsize=(6, 1), facecolor="#eefade")
-ax.text(0.01, 0.2, "Hello World! 01", size = 40)
+ax.text(0.01, 0.2, "Hello World! 01", size=40)
 ax.axis("off")
 plt.show()
 
@@ -40,11 +40,11 @@ plt.show()
 And here a second example:
 """
 
-plt.rcParams['font.family'] = 'monospace'
-# plt.rcParams['font.monospace'] = ['Computer Modern Typewriter'] # this line gives an error currently, therefore the 
-# question: How can one access the fonts from https://github.com/matplotlib/matplotlib/blob/main/lib/matplotlib/mpl-data/matplotlibrc#L273 
+plt.rcParams["font.family"] = "monospace"
+# plt.rcParams['font.monospace'] = ['Computer Modern Typewriter'] # this line gives an error currently, therefore the
+# question: How can one access the fonts from https://github.com/matplotlib/matplotlib/blob/main/lib/matplotlib/mpl-data/matplotlibrc#L273
 # the correct way?
 fig, ax = plt.subplots(figsize=(6, 1), facecolor="#eefade")
-ax.text(0.01, 0.2, "Hello World! 01", size = 40)
+ax.text(0.01, 0.2, "Hello World! 01", size=40)
 ax.axis("off")
 plt.show()
