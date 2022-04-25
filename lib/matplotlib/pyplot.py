@@ -35,6 +35,7 @@ See :ref:`api_interfaces` for an explanation of the tradeoffs between the
 implicit and explicit interfaces.
 """
 
+from enum import Enum
 import functools
 import importlib
 import inspect
@@ -108,8 +109,15 @@ def _copy_docstring_and_deprecators(method, func=None):
 
 ## Global ##
 
-_IP_REGISTERED = None
-_INSTALL_FIG_OBSERVER = False
+
+# The state controlled by {,un}install_repl_displayhook().
+_ReplDisplayHook = Enum("_ReplDisplayHook", ["NONE", "PLAIN", "IPYTHON"])
+_REPL_DISPLAYHOOK = _ReplDisplayHook.NONE
+
+
+def _draw_all_if_interactive():
+    if matplotlib.is_interactive():
+        draw_all()
 
 
 def install_repl_displayhook():
@@ -119,30 +127,25 @@ def install_repl_displayhook():
 
     This works both with IPython and with vanilla python shells.
     """
-    global _IP_REGISTERED
-    global _INSTALL_FIG_OBSERVER
+    global _REPL_DISPLAYHOOK
 
-    if _IP_REGISTERED:
+    if _REPL_DISPLAYHOOK is _ReplDisplayHook.IPYTHON:
         return
+
     # See if we have IPython hooks around, if so use them.
     # Use ``sys.modules.get(name)`` rather than ``name in sys.modules`` as
     # entries can also have been explicitly set to None.
     mod_ipython = sys.modules.get("IPython")
     if not mod_ipython:
-        _INSTALL_FIG_OBSERVER = True
+        _REPL_DISPLAYHOOK = _ReplDisplayHook.PLAIN
         return
     ip = mod_ipython.get_ipython()
     if not ip:
-        _INSTALL_FIG_OBSERVER = True
+        _REPL_DISPLAYHOOK = _ReplDisplayHook.PLAIN
         return
 
-    def post_execute():
-        if matplotlib.is_interactive():
-            draw_all()
-
-    ip.events.register("post_execute", post_execute)
-    _IP_REGISTERED = post_execute
-    _INSTALL_FIG_OBSERVER = False
+    ip.events.register("post_execute", _draw_all_if_interactive)
+    _REPL_DISPLAYHOOK = _ReplDisplayHook.IPYTHON
 
     from IPython.core.pylabtools import backend2gui
     # trigger IPython's eventloop integration, if available
@@ -161,16 +164,12 @@ def uninstall_repl_displayhook():
        this will reset `sys.displayhook` to what ever function was there when
        Matplotlib installed its displayhook, possibly discarding your changes.
     """
-    global _IP_REGISTERED
-    global _INSTALL_FIG_OBSERVER
-    if _IP_REGISTERED:
+    global _REPL_DISPLAYHOOK
+    if _REPL_DISPLAYHOOK is _ReplDisplayHook.IPYTHON:
         from IPython import get_ipython
         ip = get_ipython()
-        ip.events.unregister('post_execute', _IP_REGISTERED)
-        _IP_REGISTERED = None
-
-    if _INSTALL_FIG_OBSERVER:
-        _INSTALL_FIG_OBSERVER = False
+        ip.events.unregister("post_execute", _draw_all_if_interactive)
+    _REPL_DISPLAYHOOK = _ReplDisplayHook.NONE
 
 
 draw_all = _pylab_helpers.Gcf.draw_all
@@ -810,7 +809,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         # FigureManager base class.
         draw_if_interactive()
 
-        if _INSTALL_FIG_OBSERVER:
+        if _REPL_DISPLAYHOOK is _ReplDisplayHook.PLAIN:
             fig.stale_callback = _auto_draw_if_interactive
 
     if clear:
