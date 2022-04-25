@@ -25,6 +25,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
 
     required_interactive_framework = "macosx"
     _timer_cls = TimerMac
+    manager_class = FigureManagerMac
 
     def __init__(self, figure):
         FigureCanvasBase.__init__(self, figure)
@@ -32,11 +33,6 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         _macosx.FigureCanvas.__init__(self, width, height)
         self._draw_pending = False
         self._is_drawing = False
-
-    @classmethod
-    def new_manager(cls, figure, num):
-        # docstring inherited
-        return FigureManagerMac(cls(figure), num)
 
     def set_cursor(self, cursor):
         # docstring inherited

@@ -71,6 +71,7 @@ def _mpl_to_gtk_cursor(mpl_cursor):
 class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
     required_interactive_framework = "gtk3"
     _timer_cls = TimerGTK3
+    manager_class = FigureManagerGTK3
     # Setting this as a static constant prevents
     # this resulting expression from leaking
     event_mask = (Gdk.EventMask.BUTTON_PRESS_MASK
@@ -114,11 +115,6 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
         style_ctx = self.get_style_context()
         style_ctx.add_provider(css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         style_ctx.add_class("matplotlib-canvas")
-
-    @classmethod
-    def new_manager(cls, figure, num):
-        # docstring inherited
-        return FigureManagerGTK3(cls(figure), num)
 
     def destroy(self):
         self.close_event()

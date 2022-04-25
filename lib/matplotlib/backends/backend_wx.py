@@ -427,6 +427,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
     required_interactive_framework = "wx"
     _timer_cls = TimerWx
+    manager_class = FigureManagerWx
 
     keyvald = {
         wx.WXK_CONTROL: 'control',
@@ -536,17 +537,6 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
         self.SetBackgroundStyle(wx.BG_STYLE_PAINT)  # Reduce flicker.
         self.SetBackgroundColour(wx.WHITE)
-
-    @classmethod
-    def new_manager(cls, figure, num):
-        # docstring inherited
-        wxapp = wx.GetApp() or _create_wxapp()
-        frame = FigureFrameWx(num, figure, canvas_class=cls)
-        figmgr = frame.get_figure_manager()
-        if mpl.is_interactive():
-            figmgr.frame.Show()
-            figure.canvas.draw_idle()
-        return figmgr
 
     def Copy_to_Clipboard(self, event=None):
         """Copy bitmap of canvas to system clipboard."""
@@ -989,6 +979,16 @@ class FigureManagerWx(FigureManagerBase):
         _log.debug("%s - __init__()", type(self))
         self.frame = self.window = frame
         super().__init__(canvas, num)
+
+    @classmethod
+    def create_with_canvas(cls, canvas_class, figure, num):
+        wxapp = wx.GetApp() or _create_wxapp()
+        frame = FigureFrameWx(num, figure, canvas_class=canvas_class)
+        figmgr = frame.get_figure_manager()
+        if mpl.is_interactive():
+            figmgr.frame.Show()
+            figure.canvas.draw_idle()
+        return figmgr
 
     def show(self):
         # docstring inherited

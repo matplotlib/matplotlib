@@ -232,6 +232,7 @@ class TimerQT(TimerBase):
 class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     required_interactive_framework = "qt"
     _timer_cls = TimerQT
+    manager_class = FigureManagerQT
 
     buttond = {
         getattr(_enum("QtCore.Qt.MouseButton"), k): v for k, v in [
@@ -259,11 +260,6 @@ class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
 
         palette = QtGui.QPalette(QtGui.QColor("white"))
         self.setPalette(palette)
-
-    @classmethod
-    def new_manager(cls, figure, num):
-        # docstring inherited
-        return FigureManagerQT(cls(figure), num)
 
     def _update_pixel_ratio(self):
         if self._set_device_pixel_ratio(_devicePixelRatioF(self)):

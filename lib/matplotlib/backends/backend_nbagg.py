@@ -78,6 +78,20 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
         self._shown = False
         super().__init__(canvas, num)
 
+    def create_with_canvas(self, canvas_class, figure, num):
+        canvas = canvas_class(figure)
+        manager = FigureManagerNbAgg(canvas, num)
+        if is_interactive():
+            manager.show()
+            figure.canvas.draw_idle()
+
+        def destroy(event):
+            canvas.mpl_disconnect(cid)
+            Gcf.destroy(manager)
+
+        cid = canvas.mpl_connect('close_event', destroy)
+        return manager
+
     def display_js(self):
         # XXX How to do this just once? It has to deal with multiple
         # browser instances using the same kernel (require.js - but the
@@ -143,20 +157,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
 
 
 class FigureCanvasNbAgg(FigureCanvasWebAggCore):
-    @classmethod
-    def new_manager(cls, figure, num):
-        canvas = cls(figure)
-        manager = FigureManagerNbAgg(canvas, num)
-        if is_interactive():
-            manager.show()
-            figure.canvas.draw_idle()
-
-        def destroy(event):
-            canvas.mpl_disconnect(cid)
-            Gcf.destroy(manager)
-
-        cid = canvas.mpl_connect('close_event', destroy)
-        return manager
+    manager_class = FigureManagerNbAgg
 
 
 class CommSocket:

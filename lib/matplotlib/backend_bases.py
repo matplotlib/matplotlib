@@ -1576,6 +1576,8 @@ class FigureCanvasBase:
         A high-level figure instance.
     """
 
+    manager_class = FigureManagerBase
+
     # Set to one of {"qt", "gtk3", "gtk4", "wx", "tk", "macosx"} if an
     # interactive framework is required, or None otherwise.
     required_interactive_framework = None
@@ -1666,11 +1668,8 @@ class FigureCanvasBase:
     def new_manager(cls, figure, num):
         """
         Create a new figure manager for *figure*, using this canvas class.
-
-        Backends should override this method to instantiate the correct figure
-        manager subclass, and perform any additional setup that may be needed.
         """
-        return FigureManagerBase(cls(figure), num)
+        return cls.manager_class.create_with_canvas(cls, figure, num)
 
     @contextmanager
     def _idle_draw_cntx(self):
@@ -2768,6 +2767,11 @@ class FigureManagerBase:
             # Called whenever the current Axes is changed.
             if self.toolmanager is None and self.toolbar is not None:
                 self.toolbar.update()
+
+    @classmethod
+    def create_with_canvas(cls, canvas_class, figure, num):
+        canvas = canvas_class(figure)
+        return cls(canvas, num)
 
     def show(self):
         """
