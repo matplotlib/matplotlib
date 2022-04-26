@@ -2195,11 +2195,45 @@ class QuadMesh(Collection):
         renderer.close_group(self.__class__.__name__)
         self.stale = False
 
+    def contains(self, event):
+        # docstring inherited
+        x, y = event.xdata, event.ydata
+
+        p = self._coordinates
+        p_a = p[:-1, :-1, :]
+        p_b = p[:-1, 1:, :]
+        p_c = p[1:, 1:, :]
+        p_d = p[1:, :-1, :]
+        # (y - y0) (x1 - x0) - (x - x0) (y1 - y0)
+        def side_of_line(x, y, p0, p1):
+            """
+            Return the side of the line the point (x, y) is on
+            left: >0
+            on: 0
+            right: <0
+            """
+            return ((y - p0[..., 1]) * (p1[..., 0] - p0[..., 0])
+                    - (x - p0[..., 0]) * (p1[..., 1] - p0[..., 1]))
+
+        # Winding number, can handle concave polys
+        # Algorithm from Dan Sunday
+        # https://web.archive.org/web/20130126163405/
+        # http://geomalgorithms.com/a03-_inclusion.html
+        winding_number = np.zeros(p_a.shape[:-1])
+        for (p0, p1) in zip([p_a, p_b, p_c, p_d], [p_b, p_c, p_d, p_a]):
+            winding_number += ((p0[..., 1] <= y)
+                               & (p1[..., 1] > y)  # upward crossing
+                               & (side_of_line(x, y, p0, p1) > 0))
+
+            winding_number -= ((p0[..., 1] > y)
+                               & (p1[..., 1] <= y)  # downward crossing
+                               & (side_of_line(x, y, p0, p1) < 0))
+
+        ind = np.nonzero((winding_number != 0).ravel())[0]
+        return len(ind) > 0, dict(ind=ind)
+
     def get_cursor_data(self, event):
         contained, info = self.contains(event)
-        if len(info["ind"]) == 1:
-            ind, = info["ind"]
-            array = self.get_array()
-            return array[ind] if array else None
-        else:
-            return None
+        if contained and len(self.get_array()):
+            return self.get_array()[info["ind"]]
+        return None
