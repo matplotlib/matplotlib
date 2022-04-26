@@ -79,9 +79,21 @@ print_text("Hello World! 05")
 
 #############################################################################
 #
-# Print all available fonts (this is OS specific):
+# Print all available font paths (this is OS specific):
 
 import matplotlib.font_manager
-list_of_fonts = matplotlib.font_manager.findSystemFonts(fontpaths=None, fontext='ttf')
-for l in list_of_fonts:
-    print(l)
+fpaths = matplotlib.font_manager.findSystemFonts(fontpaths=None, fontext='ttf')
+for i in fpaths:
+    print(i)
+
+
+#############################################################################
+#
+# Print all available font names and their style (this is OS specific):
+  
+import matplotlib.font_manager
+fpaths = matplotlib.font_manager.findSystemFonts()
+
+for i in fpaths:
+    f = matplotlib.font_manager.get_font(i)
+    print(f"{f.family_name=:<35}  {f.style_name = }")
