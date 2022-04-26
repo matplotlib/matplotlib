@@ -122,8 +122,11 @@ def _draw_all_if_interactive():
 
 def install_repl_displayhook():
     """
-    Install a repl display hook so that any stale figure are automatically
-    redrawn when control is returned to the repl.
+    Connect to the display hook of the current shell.
+
+    The display hook gets called when the read-evaluate-print-loop (REPL) of
+    the shell has finished the execution of a command. We use this callback
+    to be able to automatically update a figure in interactive mode.
 
     This works both with IPython and with vanilla python shells.
     """
@@ -155,15 +158,7 @@ def install_repl_displayhook():
 
 
 def uninstall_repl_displayhook():
-    """
-    Uninstall the Matplotlib display hook.
-
-    .. warning::
-
-       If you are using vanilla python and have installed another display hook,
-       this will reset `sys.displayhook` to what ever function was there when
-       Matplotlib installed its displayhook, possibly discarding your changes.
-    """
+    """Disconnect from the display hook of the current shell."""
     global _REPL_DISPLAYHOOK
     if _REPL_DISPLAYHOOK is _ReplDisplayHook.IPYTHON:
         from IPython import get_ipython
