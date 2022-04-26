@@ -12,6 +12,14 @@ For more information on colors in matplotlib see
 * the :doc:`/tutorials/colors/colors` tutorial;
 * the `matplotlib.colors` API;
 * the :doc:`/gallery/color/color_demo`.
+
+.. contents::
+
+----------------------------
+Helper Function for Plotting
+----------------------------
+First we define a helper function for making a table of colors, then we use it
+on some common color categories.
 """
 
 from matplotlib.patches import Rectangle
@@ -73,10 +81,26 @@ def plot_colortable(colors, title, sort_colors=True, emptycols=0):
 
     return fig
 
+#############################################################################
+# -----------
+# Base colors
+# -----------
+
 plot_colortable(mcolors.BASE_COLORS, "Base Colors",
                 sort_colors=False, emptycols=1)
+
+#############################################################################
+# ---------------
+# Tableau Palette
+# ---------------
+
 plot_colortable(mcolors.TABLEAU_COLORS, "Tableau Palette",
                 sort_colors=False, emptycols=2)
+
+#############################################################################
+# ----------
+# CSS Colors
+# ----------
 
 # sphinx_gallery_thumbnail_number = 3
 plot_colortable(mcolors.CSS4_COLORS, "CSS Colors")
