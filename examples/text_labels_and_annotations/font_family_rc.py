@@ -71,3 +71,14 @@ print_text("Hello World! 04")
 plt.rcParams["font.family"] = "monospace"
 plt.rcParams["font.monospace"] = ["Menlo"]
 print_text("Hello World! 05")
+
+
+
+#############################################################################
+#
+# Print all available fonts:
+
+import matplotlib.font_manager
+list_of_fonts = matplotlib.font_manager.findSystemFonts(fontpaths=None, fontext='ttf')
+for l in list_of_fonts:
+    print(l)
