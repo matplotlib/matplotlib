@@ -26,7 +26,7 @@ in order::
 
 .. redirect-from:: /examples/font_family_rc_sgskip
 
-# First example, chooses default sans-serif font:
+First example, chooses default sans-serif font:
 """
 
 import matplotlib.pyplot as plt
@@ -41,42 +41,45 @@ def print_text(text):
 
 plt.rcParams["font.family"] = "sans-serif"
 print_text("Hello World! 01")
-#############################################################################
+
+#
+#################################################################
 #
 # Second example:
 
 plt.rcParams["font.family"] = "sans-serif"
-plt.rcParams["font.sans-serif"] = ["Tahoma"]
+plt.rcParams["font.sans-serif"] = ["Nimbus Sans"]
 print_text("Hello World! 02")
 
-#############################################################################
+#
+#################################################################
 #
 # Third example:
 
 plt.rcParams["font.family"] = "sans-serif"
-plt.rcParams["font.sans-serif"] = ["Lucida Grande"]
+plt.rcParams["font.sans-serif"] = ["Humor Sans"]
 print_text("Hello World! 03")
 
-#############################################################################
 #
+##################################################################
 # Fourth example, chooses default monospace font:
 
 plt.rcParams["font.family"] = "monospace"
 print_text("Hello World! 04")
 
-#############################################################################
 #
+##################################################################
 # Fifth example:
 
 plt.rcParams["font.family"] = "monospace"
-plt.rcParams["font.monospace"] = ["Menlo"]
+plt.rcParams["font.monospace"] = ["FreeMono"]
 print_text("Hello World! 05")
 
 
 
 #############################################################################
 #
-# Print all available fonts:
+# Print all available fonts (this is OS specific):
 
 import matplotlib.font_manager
 list_of_fonts = matplotlib.font_manager.findSystemFonts(fontpaths=None, fontext='ttf')
