@@ -17,6 +17,7 @@
 #   * Can blit be enabled for movies?
 # * Need to consider event sources to allow clicking through multiple figures
 
+
 import abc
 import base64
 import contextlib
@@ -468,14 +469,15 @@ class FileMovieWriter(MovieWriter):
     def finish(self):
         # Call run here now that all frame grabbing is done. All temp files
         # are available to be assembled.
-        self._run()
-        super().finish()  # Will call clean-up
-
-    def _cleanup(self):  # Inline to finish() once cleanup() is removed.
-        super()._cleanup()
-        if self._tmpdir:
-            _log.debug('MovieWriter: clearing temporary path=%s', self._tmpdir)
-            self._tmpdir.cleanup()
+        try:
+            self._run()
+            super().finish()
+        finally:
+            if self._tmpdir:
+                _log.debug(
+                    'MovieWriter: clearing temporary path=%s', self._tmpdir
+                )
+                self._tmpdir.cleanup()
 
 
 @writers.register('pillow')
@@ -882,7 +884,7 @@ class Animation:
                 'Animation was deleted without rendering anything. This is '
                 'most likely not intended. To prevent deletion, assign the '
                 'Animation to a variable, e.g. `anim`, that exists until you '
-                'have outputted the Animation using `plt.show()` or '
+                'output the Animation using `plt.show()` or '
                 '`anim.save()`.'
             )
 
@@ -1185,9 +1187,16 @@ class Animation:
         # Setting up the blit requires: a cache of the background for the Axes
         self._blit_cache = dict()
         self._drawn_artists = []
+        # _post_draw needs to be called first to initialize the renderer
+        self._post_draw(None, self._blit)
+        # Then we need to clear the Frame for the initial draw
+        # This is typically handled in _on_resize because QT and Tk
+        # emit a resize event on launch, but the macosx backend does not,
+        # thus we force it here for everyone for consistency
+        self._init_draw()
+        # Connect to future resize events
         self._resize_id = self._fig.canvas.mpl_connect('resize_event',
                                                        self._on_resize)
-        self._post_draw(None, self._blit)
 
     def _on_resize(self, event):
         # On resize, we need to disable the resize event handling so we don't
@@ -1397,14 +1406,26 @@ class TimedAnimation(Animation):
         # delay and set the callback to one which will then set the interval
         # back.
         still_going = super()._step(*args)
-        if not still_going and self.repeat:
-            self._init_draw()
-            self.frame_seq = self.new_frame_seq()
-            self.event_source.interval = self._repeat_delay
-            return True
-        else:
-            self.event_source.interval = self._interval
-            return still_going
+        if not still_going:
+            if self.repeat:
+                # Restart the draw loop
+                self._init_draw()
+                self.frame_seq = self.new_frame_seq()
+                self.event_source.interval = self._repeat_delay
+                return True
+            else:
+                # We are done with the animation. Call pause to remove
+                # animated flags from artists that were using blitting
+                self.pause()
+                if self._blit:
+                    # Remove the resize callback if we were blitting
+                    self._fig.canvas.mpl_disconnect(self._resize_id)
+                self._fig.canvas.mpl_disconnect(self._close_id)
+                self.event_source = None
+                return False
+
+        self.event_source.interval = self._interval
+        return True
 
 
 class ArtistAnimation(TimedAnimation):

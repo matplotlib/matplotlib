@@ -11,40 +11,9 @@
 
 /* Proper way to check for the OS X version we are compiling for, from
  * https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/cross_development/Using/using.html
- */
-#if __MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
-#define COMPILING_FOR_10_7
-#endif
 
-/* Renamed symbols cause deprecation warnings, so define macros for the new
+ * Renamed symbols cause deprecation warnings, so define macros for the new
  * names if we are compiling on an older SDK */
-#if __MAC_OS_X_VERSION_MIN_REQUIRED < 101000
-#define NSModalResponseOK                    NSOKButton
-#endif
-#if __MAC_OS_X_VERSION_MIN_REQUIRED < 101200
-#define NSEventMaskAny                       NSAnyEventMask
-#define NSEventTypeApplicationDefined        NSApplicationDefined
-#define NSEventModifierFlagCommand           NSCommandKeyMask
-#define NSEventModifierFlagControl           NSControlKeyMask
-#define NSEventModifierFlagOption            NSAlternateKeyMask
-#define NSEventModifierFlagShift             NSShiftKeyMask
-#define NSEventTypeKeyUp                     NSKeyUp
-#define NSEventTypeKeyDown                   NSKeyDown
-#define NSEventTypeMouseMoved                NSMouseMoved
-#define NSEventTypeLeftMouseDown             NSLeftMouseDown
-#define NSEventTypeRightMouseDown            NSRightMouseDown
-#define NSEventTypeOtherMouseDown            NSOtherMouseDown
-#define NSEventTypeLeftMouseDragged          NSLeftMouseDragged
-#define NSEventTypeRightMouseDragged         NSRightMouseDragged
-#define NSEventTypeOtherMouseDragged         NSOtherMouseDragged
-#define NSEventTypeLeftMouseUp               NSLeftMouseUp
-#define NSEventTypeRightMouseUp              NSRightMouseUp
-#define NSEventTypeOtherMouseUp              NSOtherMouseUp
-#define NSWindowStyleMaskClosable            NSClosableWindowMask
-#define NSWindowStyleMaskMiniaturizable      NSMiniaturizableWindowMask
-#define NSWindowStyleMaskResizable           NSResizableWindowMask
-#define NSWindowStyleMaskTitled              NSTitledWindowMask
-#endif
 #if __MAC_OS_X_VERSION_MIN_REQUIRED < 101400
 #define NSButtonTypeMomentaryLight           NSMomentaryLightButton
 #define NSButtonTypePushOnPushOff            NSPushOnPushOffButton
@@ -376,14 +345,7 @@ FigureCanvas_repr(FigureCanvas* self)
 }
 
 static PyObject*
-FigureCanvas_draw(FigureCanvas* self)
-{
-    [self->view display];
-    Py_RETURN_NONE;
-}
-
-static PyObject*
-FigureCanvas_draw_idle(FigureCanvas* self)
+FigureCanvas_update(FigureCanvas* self)
 {
     [self->view setNeedsDisplay: YES];
     Py_RETURN_NONE;
@@ -392,6 +354,9 @@ FigureCanvas_draw_idle(FigureCanvas* self)
 static PyObject*
 FigureCanvas_flush_events(FigureCanvas* self)
 {
+    // We need to allow the runloop to run very briefly
+    // to allow the view to be displayed when used in a fast updating animation
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.0]];
     [self->view displayIfNeeded];
     Py_RETURN_NONE;
 }
@@ -516,12 +481,8 @@ static PyTypeObject FigureCanvasType = {
     .tp_new = (newfunc)FigureCanvas_new,
     .tp_doc = "A FigureCanvas object wraps a Cocoa NSView object.",
     .tp_methods = (PyMethodDef[]){
-        {"draw",
-         (PyCFunction)FigureCanvas_draw,
-         METH_NOARGS,
-         NULL},  // docstring inherited
-        {"draw_idle",
-         (PyCFunction)FigureCanvas_draw_idle,
+        {"update",
+         (PyCFunction)FigureCanvas_update,
          METH_NOARGS,
          NULL},  // docstring inherited
         {"flush_events",
@@ -895,9 +856,7 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     NSSize scale;
 
     rect = NSMakeRect(0, 0, imagesize, imagesize);
-#ifdef COMPILING_FOR_10_7
     rect = [window convertRectToBacking: rect];
-#endif
     size = rect.size;
     scale = NSMakeSize(imagesize / size.width, imagesize / size.height);
 
@@ -914,6 +873,9 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
         NSImage* image = [[NSImage alloc] initWithContentsOfFile: filename];
         buttons[i] = [[NSButton alloc] initWithFrame: rect];
         [image setSize: size];
+        // Specify that it is a template image so the content tint
+        // color gets updated with the system theme (dark/light)
+        [image setTemplate: YES];
         [buttons[i] setBezelStyle: NSBezelStyleShadowlessSquare];
         [buttons[i] setButtonType: buttontypes[i]];
         [buttons[i] setImage: image];
@@ -934,10 +896,8 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     rect.size.height = 0;
     rect.origin.x += height;
     NSTextView* messagebox = [[NSTextView alloc] initWithFrame: rect];
-    if (@available(macOS 10.11, *)) {
-        messagebox.textContainer.maximumNumberOfLines = 2;
-        messagebox.textContainer.lineBreakMode = NSLineBreakByTruncatingTail;
-    }
+    messagebox.textContainer.maximumNumberOfLines = 2;
+    messagebox.textContainer.lineBreakMode = NSLineBreakByTruncatingTail;
     [messagebox setFont: font];
     [messagebox setDrawsBackground: NO];
     [messagebox setSelectable: NO];
@@ -1245,7 +1205,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     const size_t bitsPerPixel = bitsPerComponent * nComponents;
     const size_t bytesPerRow = nComponents * bytesPerComponent * ncols;
 
-    CGColorSpaceRef colorspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+    CGColorSpaceRef colorspace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
     if (!colorspace) {
         _buffer_release(buffer, NULL, 0);
         return 1;
@@ -1298,7 +1258,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
     CGContextRef cr = [[NSGraphicsContext currentContext] CGContext];
 
-    if (!(renderer = PyObject_CallMethod(canvas, "_draw", ""))
+    if (!(renderer = PyObject_CallMethod(canvas, "get_renderer", ""))
         || !(renderer_buffer = PyObject_GetAttrString(renderer, "_renderer"))) {
         PyErr_Print();
         goto exit;
@@ -1329,6 +1289,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
         goto exit;
     }
     if (PyObject_IsTrue(change)) {
+        // Notify that there was a resize_event that took place
+        gil_call_method(canvas, "resize_event");
         [self setNeedsDisplay: YES];
     }
 

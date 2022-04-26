@@ -130,7 +130,7 @@ class ColormapRegistry(Mapping):
         try:
             return self._cmaps[item].copy()
         except KeyError:
-            raise KeyError(f"{item!r} is not a known colormap name")
+            raise KeyError(f"{item!r} is not a known colormap name") from None
 
     def __iter__(self):
         return iter(self._cmaps)
@@ -172,7 +172,7 @@ class ColormapRegistry(Mapping):
         name : str, optional
             The name for the colormap. If not given, ``cmap.name`` is used.
 
-        force: bool, default: False
+        force : bool, default: False
             If False, a ValueError is raised if trying to overwrite an already
             registered name. True supports overwriting registered colormaps
             other than the builtin colormaps.

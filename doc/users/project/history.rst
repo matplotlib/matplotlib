@@ -11,7 +11,7 @@ History
 Matplotlib is a library for making 2D plots of arrays in `Python
 <https://www.python.org>`_.  Although it has its origins in emulating
 the MATLAB graphics commands, it is
-independent of MATLAB, and can be used in a Pythonic, object oriented
+independent of MATLAB, and can be used in a Pythonic, object-oriented
 way.  Although Matplotlib is written primarily in pure Python, it
 makes heavy use of `NumPy <https://numpy.org>`_ and other extension
 code to provide good performance even for large arrays.

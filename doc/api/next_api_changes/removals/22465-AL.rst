@@ -1,0 +1,4 @@
+``mpl_toolkits.axes_grid1.axes_size.AddList``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated due to being unused.  Use ``sum(sizes, start=Fixed(0))`` (for
+example) to sum multiple size objects.

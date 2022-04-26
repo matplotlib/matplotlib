@@ -291,7 +291,7 @@ exit:
             return 1;  // Non-zero signals error, when count == 0.
         }
     }
-    return n_read;
+    return (unsigned long)n_read;
 }
 
 static void close_file_callback(FT_Stream stream)
@@ -589,7 +589,7 @@ const char *PyFT2Font_get_num_glyphs__doc__ =
 
 static PyObject *PyFT2Font_get_num_glyphs(PyFT2Font *self, PyObject *args)
 {
-    return PyLong_FromLong(self->x->get_num_glyphs());
+    return PyLong_FromSize_t(self->x->get_num_glyphs());
 }
 
 const char *PyFT2Font_load_char__doc__ =
@@ -1545,7 +1545,7 @@ PyMODINIT_FUNC PyInit_ft2font(void)
     FT_Int major, minor, patch;
     char version_string[64];
     FT_Library_Version(_ft2Library, &major, &minor, &patch);
-    sprintf(version_string, "%d.%d.%d", major, minor, patch);
+    snprintf(version_string, sizeof(version_string), "%d.%d.%d", major, minor, patch);
 
     PyObject *m = PyModule_Create(&moduledef);
     if (!m ||

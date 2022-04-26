@@ -1,4 +1,4 @@
-# Extra pip requirements for the Python 3.7+ builds
+# Extra pip requirements for the Python 3.8+ builds
 
 ipykernel
 nbconvert[execute]!=6.0.0,!=6.0.1
@@ -7,3 +7,4 @@ pandas!=0.25.0
 pikepdf
 pytz
 pywin32; sys.platform == 'win32'
+xarray

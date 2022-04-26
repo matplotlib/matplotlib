@@ -7,7 +7,8 @@ import pytest
 
 
 from matplotlib import (
-    collections, path, pyplot as plt, transforms as mtransforms, rcParams)
+    collections, path, patheffects, pyplot as plt, transforms as mtransforms,
+    rcParams)
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.figure import Figure
 from matplotlib.image import imread
@@ -180,10 +181,9 @@ def test_agg_filter():
         shadow.update_from(line)
 
         # offset transform
-        ot = mtransforms.offset_copy(line.get_transform(), ax.figure,
-                                     x=4.0, y=-6.0, units='points')
-
-        shadow.set_transform(ot)
+        transform = mtransforms.offset_copy(line.get_transform(), ax.figure,
+                                            x=4.0, y=-6.0, units='points')
+        shadow.set_transform(transform)
 
         # adjust zorder of the shadow lines so that it is drawn below the
         # original lines
@@ -349,3 +349,11 @@ def test_chunksize_toobig_chunks(chunk_limit_setup):
     rcParams['agg.path.chunksize'] = 90_000
     with pytest.raises(OverflowError, match='Please reduce'):
         ra.draw_path(gc, p, idt)
+
+
+def test_non_tuple_rgbaface():
+    # This passes rgbaFace as a ndarray to draw_path.
+    fig = plt.figure()
+    fig.add_subplot(projection="3d").scatter(
+        [0, 1, 2], [0, 1, 2], path_effects=[patheffects.Stroke(linewidth=4)])
+    fig.canvas.draw()

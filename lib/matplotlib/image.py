@@ -13,17 +13,15 @@ import numpy as np
 import PIL.PngImagePlugin
 
 import matplotlib as mpl
-from matplotlib import _api
+from matplotlib import _api, cbook, cm
+# For clarity, names from _image are given explicitly in this module
+from matplotlib import _image
+# For user convenience, the names from _image are also imported into
+# the image namespace
+from matplotlib._image import *
 import matplotlib.artist as martist
 from matplotlib.backend_bases import FigureCanvasBase
 import matplotlib.colors as mcolors
-import matplotlib.cm as cm
-import matplotlib.cbook as cbook
-# For clarity, names from _image are given explicitly in this module:
-import matplotlib._image as _image
-# For user convenience, the names from _image are also imported into
-# the image namespace:
-from matplotlib._image import *
 from matplotlib.transforms import (
     Affine2D, BboxBase, Bbox, BboxTransform, BboxTransformTo,
     IdentityTransform, TransformedBbox)
@@ -273,7 +271,14 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
 
         self._imcache = None
 
-        self.update(kwargs)
+        self._internal_update(kwargs)
+
+    def __str__(self):
+        try:
+            size = self.get_size()
+            return f"{type(self).__name__}(size={size!r})"
+        except RuntimeError:
+            return type(self).__name__
 
     def __getstate__(self):
         # Save some space on the pickle by not saving the cache.
@@ -896,8 +901,6 @@ class AxesImage(_ImageBase):
         the output image is larger than the input image.
     **kwargs : `.Artist` properties
     """
-    def __str__(self):
-        return "AxesImage(%g,%g;%gx%g)" % tuple(self.axes.bbox.bounds)
 
     def __init__(self, ax,
                  cmap=None,
@@ -971,9 +974,9 @@ class AxesImage(_ImageBase):
         self.axes.update_datalim(corners)
         self.sticky_edges.x[:] = [xmin, xmax]
         self.sticky_edges.y[:] = [ymin, ymax]
-        if self.axes._autoscaleXon:
+        if self.axes.get_autoscalex_on():
             self.axes.set_xlim((xmin, xmax), auto=None)
-        if self.axes._autoscaleYon:
+        if self.axes.get_autoscaley_on():
             self.axes.set_ylim((ymin, ymax), auto=None)
         self.stale = True
 
@@ -1215,7 +1218,7 @@ class PcolorImage(AxesImage):
         **kwargs : `.Artist` properties
         """
         super().__init__(ax, norm=norm, cmap=cmap)
-        self.update(kwargs)
+        self._internal_update(kwargs)
         if A is not None:
             self.set_data(x, y, A)
 
@@ -1356,7 +1359,7 @@ class FigureImage(_ImageBase):
         self.figure = fig
         self.ox = offsetx
         self.oy = offsety
-        self.update(kwargs)
+        self._internal_update(kwargs)
         self.magnification = 1.0
 
     def get_extent(self):

@@ -9,9 +9,9 @@ import logging
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api
+from matplotlib import _api, cbook
 import matplotlib.artist as martist
-import matplotlib.cbook as cbook
+import matplotlib.colors as mcolors
 import matplotlib.lines as mlines
 import matplotlib.scale as mscale
 import matplotlib.text as mtext
@@ -143,7 +143,12 @@ class Tick(martist.Artist):
             grid_linestyle = mpl.rcParams["grid.linestyle"]
         if grid_linewidth is None:
             grid_linewidth = mpl.rcParams["grid.linewidth"]
-        if grid_alpha is None:
+        if grid_alpha is None and not mcolors._has_alpha_channel(grid_color):
+            # alpha precedence: kwarg > color alpha > rcParams['grid.alpha']
+            # Note: only resolve to rcParams if the color does not have alpha
+            # otherwise `grid(color=(1, 1, 1, 0.5))` would work like
+            #   grid(color=(1, 1, 1, 0.5), alpha=rcParams['grid.alpha'])
+            # so the that the rcParams default would override color alpha.
             grid_alpha = mpl.rcParams["grid.alpha"]
         grid_kw = {k[5:]: v for k, v in kwargs.items()}
 
@@ -630,6 +635,9 @@ class Axis(martist.Artist):
         The minor ticks.
     """
     OFFSETTEXTPAD = 3
+    # The class used in _get_tick() to create tick instances. Must either be
+    # overwritten in subclasses, or subclasses must reimplement _get_tick().
+    _tick_class = None
 
     def __str__(self):
         return "{}({},{})".format(
@@ -680,6 +688,7 @@ class Axis(martist.Artist):
 
         self.clear()
         self._set_scale('linear')
+        self._autoscale_on = True
 
     @property
     def isDefault_majloc(self):
@@ -772,18 +781,55 @@ class Axis(martist.Artist):
     def limit_range_for_scale(self, vmin, vmax):
         return self._scale.limit_range_for_scale(vmin, vmax, self.get_minpos())
 
+    def _get_autoscale_on(self):
+        """Return whether this Axis is autoscaled."""
+        return self._autoscale_on
+
+    def _set_autoscale_on(self, b):
+        """
+        Set whether this Axis is autoscaled when drawing or by
+        `.Axes.autoscale_view`.
+
+        Parameters
+        ----------
+        b : bool
+        """
+        self._autoscale_on = b
+
     def get_children(self):
         return [self.label, self.offsetText,
                 *self.get_major_ticks(), *self.get_minor_ticks()]
 
-    def _reset_major_tick_kw(self):
+    def _reset_major_tick_kw(self, keep_tick_and_label_visibility=False):
+        """
+        Reset major tick params to defaults.
+
+        Shared subplots pre-configure tick and label visibility. To keep this
+        beyond an Axis.clear() operation, we may
+        *keep_tick_and_label_visibility*.
+        """
+        backup = {name: value for name, value in self._major_tick_kw.items()
+                  if name in ['tick1On', 'tick2On', 'label1On', 'label2On']}
         self._major_tick_kw.clear()
+        if keep_tick_and_label_visibility:
+            self._major_tick_kw.update(backup)
         self._major_tick_kw['gridOn'] = (
                 mpl.rcParams['axes.grid'] and
                 mpl.rcParams['axes.grid.which'] in ('both', 'major'))
 
-    def _reset_minor_tick_kw(self):
+    def _reset_minor_tick_kw(self, keep_tick_and_label_visibility=False):
+        """
+        Reset minor tick params to defaults.
+
+        Shared subplots pre-configure tick and label visibility. To keep this
+        beyond an Axis.clear() operation, we may
+        *keep_tick_and_label_visibility*.
+        """
+        backup = {name: value for name, value in self._minor_tick_kw.items()
+                  if name in ['tick1On', 'tick2On', 'label1On', 'label2On']}
         self._minor_tick_kw.clear()
+        if keep_tick_and_label_visibility:
+            self._minor_tick_kw.update(backup)
         self._minor_tick_kw['gridOn'] = (
                 mpl.rcParams['axes.grid'] and
                 mpl.rcParams['axes.grid.which'] in ('both', 'minor'))
@@ -800,6 +846,8 @@ class Axis(martist.Artist):
         - major and minor grid
         - units
         - registered callbacks
+
+        This does not reset tick and tick label visibility.
         """
 
         self.label.set_text('')  # self.set_label_text would change isDefault_
@@ -811,12 +859,8 @@ class Axis(martist.Artist):
             signals=["units", "units finalize"])
 
         # whether the grids are on
-        self._major_tick_kw['gridOn'] = (
-                mpl.rcParams['axes.grid'] and
-                mpl.rcParams['axes.grid.which'] in ('both', 'major'))
-        self._minor_tick_kw['gridOn'] = (
-                mpl.rcParams['axes.grid'] and
-                mpl.rcParams['axes.grid.which'] in ('both', 'minor'))
+        self._reset_major_tick_kw(keep_tick_and_label_visibility=True)
+        self._reset_minor_tick_kw(keep_tick_and_label_visibility=True)
         self.reset_ticks()
 
         self.converter = None
@@ -1040,7 +1084,7 @@ class Axis(martist.Artist):
             Whether to turn on autoscaling of the x-axis. True turns on, False
             turns off, None leaves unchanged.
         """
-        name, = [name for name, axis in self.axes._get_axis_map().items()
+        name, = [name for name, axis in self.axes._axis_map.items()
                  if axis is self]  # The axis name.
 
         self.axes._process_unit_info([(name, (v0, v1))], convert=False)
@@ -1082,14 +1126,14 @@ class Axis(martist.Artist):
         for ax in self.axes._shared_axes[name].get_siblings(self.axes):
             ax._stale_viewlims[name] = False
         if auto is not None:
-            setattr(self.axes, f"_autoscale{name.upper()}on", bool(auto))
+            self._set_autoscale_on(bool(auto))
 
         if emit:
             self.axes.callbacks.process(f"{name}lim_changed", self.axes)
             # Call all of the other axes that are shared with this one
             for other in self.axes._shared_axes[name].get_siblings(self.axes):
                 if other is not self.axes:
-                    other._get_axis_map()[name]._set_lim(
+                    other._axis_map[name]._set_lim(
                         v0, v1, emit=False, auto=auto)
                     if other.figure != self.figure:
                         other.figure.canvas.draw_idle()
@@ -1396,7 +1440,12 @@ class Axis(martist.Artist):
 
     def _get_tick(self, major):
         """Return the default tick instance."""
-        raise NotImplementedError('derived must override')
+        if self._tick_class is None:
+            raise NotImplementedError(
+                f"The Axis subclass {self.__class__.__name__} must define "
+                "_tick_class or reimplement _get_tick()")
+        tick_kw = self._major_tick_kw if major else self._minor_tick_kw
+        return self._tick_class(self.axes, 0, major=major, **tick_kw)
 
     def _get_tick_label_size(self, axis_name):
         """
@@ -1498,7 +1547,7 @@ class Axis(martist.Artist):
                 visible = True
         which = which.lower()
         _api.check_in_list(['major', 'minor', 'both'], which=which)
-        gridkw = {'grid_' + item[0]: item[1] for item in kwargs.items()}
+        gridkw = {f'grid_{name}': value for name, value in kwargs.items()}
         if which in ['minor', 'both']:
             gridkw['gridOn'] = (not self._minor_tick_kw['gridOn']
                                 if visible is None else visible)
@@ -1598,7 +1647,7 @@ class Axis(martist.Artist):
         """
         if u == self.units:
             return
-        for name, axis in self.axes._get_axis_map().items():
+        for name, axis in self.axes._axis_map.items():
             if self is axis:
                 shared = [
                     getattr(ax, f"{name}axis")
@@ -1784,8 +1833,11 @@ class Axis(martist.Artist):
             For each tick, includes ``tick.label1`` if it is visible, then
             ``tick.label2`` if it is visible, in that order.
         """
-        ticklabels = [t.get_text() if hasattr(t, 'get_text') else t
-                      for t in ticklabels]
+        try:
+            ticklabels = [t.get_text() if hasattr(t, 'get_text') else t
+                          for t in ticklabels]
+        except TypeError:
+            raise TypeError(f"{ticklabels:=} must be a sequence") from None
         locator = (self.get_minor_locator() if minor
                    else self.get_major_locator())
         if isinstance(locator, mticker.FixedLocator):
@@ -1818,10 +1870,10 @@ class Axis(martist.Artist):
             tick_label = formatter(loc, pos)
             # deal with label1
             tick.label1.set_text(tick_label)
-            tick.label1.update(kwargs)
+            tick.label1._internal_update(kwargs)
             # deal with label2
             tick.label2.set_text(tick_label)
-            tick.label2.update(kwargs)
+            tick.label2._internal_update(kwargs)
             # only return visible tick labels
             if tick.label1.get_visible():
                 ret.append(tick.label1)
@@ -1877,7 +1929,7 @@ class Axis(martist.Artist):
 
         # XXX if the user changes units, the information will be lost here
         ticks = self.convert_units(ticks)
-        for name, axis in self.axes._get_axis_map().items():
+        for name, axis in self.axes._axis_map.items():
             if self is axis:
                 shared = [
                     getattr(ax, f"{name}axis")
@@ -1946,7 +1998,7 @@ class Axis(martist.Artist):
         """
         # Get the Grouper keeping track of x or y label groups for this figure.
         axis_names = [
-            name for name, axis in self.axes._get_axis_map().items()
+            name for name, axis in self.axes._axis_map.items()
             if name in self.figure._align_label_groups and axis is self]
         if len(axis_names) != 1:
             return [], []
@@ -2089,6 +2141,7 @@ def _make_getset_interval(method_name, lim_name, attr_name):
 class XAxis(Axis):
     __name__ = 'xaxis'
     axis_name = 'x'  #: Read-only name identifying the axis.
+    _tick_class = XTick
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2128,13 +2181,6 @@ class XAxis(Axis):
             b - self.pickradius < y < b or
             t < y < t + self.pickradius)
         return inaxis, {}
-
-    def _get_tick(self, major):
-        if major:
-            tick_kw = self._major_tick_kw
-        else:
-            tick_kw = self._minor_tick_kw
-        return XTick(self.axes, 0, major=major, **tick_kw)
 
     def set_label_position(self, position):
         """
@@ -2345,6 +2391,7 @@ class XAxis(Axis):
 class YAxis(Axis):
     __name__ = 'yaxis'
     axis_name = 'y'  #: Read-only name identifying the axis.
+    _tick_class = YTick
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2386,13 +2433,6 @@ class YAxis(Axis):
             l - self.pickradius < x < l or
             r < x < r + self.pickradius)
         return inaxis, {}
-
-    def _get_tick(self, major):
-        if major:
-            tick_kw = self._major_tick_kw
-        else:
-            tick_kw = self._minor_tick_kw
-        return YTick(self.axes, 0, major=major, **tick_kw)
 
     def set_label_position(self, position):
         """
@@ -2453,8 +2493,13 @@ class YAxis(Axis):
         Update the offset_text position based on the sequence of bounding
         boxes of all the ticklabels
         """
-        x, y = self.offsetText.get_position()
-        top = self.axes.bbox.ymax
+        x, _ = self.offsetText.get_position()
+        if 'outline' in self.axes.spines:
+            # Special case for colorbars:
+            bbox = self.axes.spines['outline'].get_window_extent()
+        else:
+            bbox = self.axes.bbox
+        top = bbox.ymax
         self.offsetText.set_position(
             (x, top + self.OFFSETTEXTPAD * self.figure.dpi / 72)
         )

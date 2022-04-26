@@ -1,0 +1,7 @@
+Removal of deprecated methods and properties in ``lines`` and ``patches``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The deprecated properties ``validCap`` and ``validJoin``  have been removed
+from `~.Line2D` and `~.Patch` as the validation is centralized in ``rcsetup``.
+The deprecated methods ``get_dpi_cor`` and ``set_dpi_cor`` have been removed
+from `~.FancyArrowPatch` as the parameter ``dpi_cor`` is removed.

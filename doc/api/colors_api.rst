@@ -21,6 +21,7 @@ Classes
    :toctree: _as_gen/
    :template: autosummary.rst
 
+   AsinhNorm
    BoundaryNorm
    Colormap
    CenteredNorm

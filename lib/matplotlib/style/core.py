@@ -19,7 +19,7 @@ import re
 import warnings
 
 import matplotlib as mpl
-from matplotlib import _api, docstring, rc_params_from_file, rcParamsDefault
+from matplotlib import _api, _docstring, rc_params_from_file, rcParamsDefault
 
 _log = logging.getLogger(__name__)
 
@@ -62,7 +62,7 @@ def _apply_style(d, warn=True):
     mpl.rcParams.update(_remove_blacklisted_style_params(d, warn=warn))
 
 
-@docstring.Substitution(
+@_docstring.Substitution(
     "\n".join(map("- {}".format, sorted(STYLE_BLACKLIST, key=str.lower)))
 )
 def use(style):

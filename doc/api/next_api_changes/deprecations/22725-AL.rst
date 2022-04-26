@@ -1,0 +1,4 @@
+``TexManager.get_font_config``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated with no replacement.  (It previously returned an internal
+hashed key for used for caching purposes.)

@@ -24,7 +24,7 @@ The cell (0, 0) is positioned at the top left.
 Thanks to John Gill for providing the class and table.
 """
 
-from . import _api, docstring
+from . import _api, _docstring
 from .artist import Artist, allow_rasterization
 from .patches import Rectangle
 from .text import Text
@@ -175,7 +175,7 @@ class Cell(Rectangle):
         l, b, w, h = self.get_text_bounds(renderer)
         return w * (1.0 + (2.0 * self.PAD))
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def set_text_props(self, **kwargs):
         """
         Update the text properties.
@@ -184,7 +184,7 @@ class Cell(Rectangle):
 
         %(Text:kwdoc)s
         """
-        self._text.update(kwargs)
+        self._text._internal_update(kwargs)
         self.stale = True
 
     @property
@@ -315,7 +315,7 @@ class Table(Artist):
         self._edges = None
         self._autoColumns = []
         self._autoFontsize = True
-        self.update(kwargs)
+        self._internal_update(kwargs)
 
         self.set_clip_on(False)
 
@@ -644,7 +644,7 @@ class Table(Artist):
         return self._cells
 
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def table(ax,
           cellText=None, cellColours=None,
           cellLoc='right', colWidths=None,

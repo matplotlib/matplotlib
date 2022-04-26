@@ -30,6 +30,62 @@ methods on them to plot data, add axis labels and a figure title.
    fig.set_facecolor('lightsteelblue')
 
 
+
+.. _usage_patterns:
+
+Usage patterns
+--------------
+
+Below we describe several common approaches to plotting with Matplotlib.  See
+:ref:`api_interfaces` for an explanation of the trade-offs between the supported user
+APIs.
+
+
+The explicit API
+^^^^^^^^^^^^^^^^
+
+At its core, Matplotlib is an object-oriented library. We recommend directly
+working with the objects if you need more control and customization of your
+plots.
+
+In many cases you will create a `.Figure` and one or more
+`~matplotlib.axes.Axes` using `.pyplot.subplots` and from then on only work
+on these objects. However, it's also possible to create `.Figure`\ s
+explicitly (e.g. when including them in GUI applications).
+
+Further reading:
+
+- `matplotlib.axes.Axes` and `matplotlib.figure.Figure` for an overview of
+  plotting functions.
+- Most of the :ref:`examples <examples-index>` use the object-oriented approach
+  (except for the pyplot section)
+
+
+The implicit API
+^^^^^^^^^^^^^^^^
+
+`matplotlib.pyplot` is a collection of functions that make
+Matplotlib work like MATLAB. Each pyplot function makes some change to a
+figure: e.g., creates a figure, creates a plotting area in a figure, plots
+some lines in a plotting area, decorates the plot with labels, etc.
+
+`.pyplot` is mainly intended for interactive plots and simple cases of
+programmatic plot generation.
+
+Further reading:
+
+- The `matplotlib.pyplot` function reference
+- :doc:`/tutorials/introductory/pyplot`
+- :ref:`Pyplot examples <pyplots_examples>`
+
+.. _api-index:
+
+The pylab API (discouraged)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: pylab
+   :no-members:
+
 Modules
 -------
 
@@ -107,54 +163,3 @@ Alphabetical list of modules:
    toolkits/axes_grid1.rst
    toolkits/axisartist.rst
    toolkits/axes_grid.rst
-
-
-.. _usage_patterns:
-
-Usage patterns
---------------
-
-Below we describe several common approaches to plotting with Matplotlib.
-
-The pyplot API
-^^^^^^^^^^^^^^
-
-`matplotlib.pyplot` is a collection of functions that make
-Matplotlib work like MATLAB. Each pyplot function makes some change to a
-figure: e.g., creates a figure, creates a plotting area in a figure, plots
-some lines in a plotting area, decorates the plot with labels, etc.
-
-`.pyplot` is mainly intended for interactive plots and simple cases of
-programmatic plot generation.
-
-Further reading:
-
-- The `matplotlib.pyplot` function reference
-- :doc:`/tutorials/introductory/pyplot`
-- :ref:`Pyplot examples <pyplots_examples>`
-
-.. _api-index:
-
-The object-oriented API
-^^^^^^^^^^^^^^^^^^^^^^^
-
-At its core, Matplotlib is object-oriented. We recommend directly working
-with the objects, if you need more control and customization of your plots.
-
-In many cases you will create a `.Figure` and one or more
-`~matplotlib.axes.Axes` using `.pyplot.subplots` and from then on only work
-on these objects. However, it's also possible to create `.Figure`\ s
-explicitly (e.g. when including them in GUI applications).
-
-Further reading:
-
-- `matplotlib.axes.Axes` and `matplotlib.figure.Figure` for an overview of
-   plotting functions.
-- Most of the :ref:`examples <examples-index>` use the object-oriented approach
-   (except for the pyplot section)
-
-The pylab API (discouraged)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: pylab
-   :no-members:

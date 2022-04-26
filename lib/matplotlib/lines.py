@@ -9,8 +9,7 @@ import logging
 
 import numpy as np
 
-import matplotlib as mpl
-from . import _api, artist, cbook, colors as mcolors, docstring, rcParams
+from . import _api, cbook, colors as mcolors, _docstring, rcParams
 from .artist import Artist, allow_rasterization
 from .cbook import (
     _to_unmasked_float_array, ls_mapper, ls_mapper_r, STEP_LOOKUP_MAP)
@@ -197,8 +196,8 @@ def _mark_every_path(markevery, tpath, affine, ax):
         raise ValueError(f"markevery={markevery!r} is not a recognized value")
 
 
-@docstring.interpd
-@cbook._define_aliases({
+@_docstring.interpd
+@_api.define_aliases({
     "antialiased": ["aa"],
     "color": ["c"],
     "drawstyle": ["ds"],
@@ -251,16 +250,6 @@ class Line2D(Artist):
     fillStyles = MarkerStyle.fillstyles
 
     zorder = 2
-
-    @_api.deprecated("3.4")
-    @_api.classproperty
-    def validCap(cls):
-        return tuple(cs.value for cs in CapStyle)
-
-    @_api.deprecated("3.4")
-    @_api.classproperty
-    def validJoin(cls):
-        return tuple(js.value for js in JoinStyle)
 
     def __str__(self):
         if self._label != "":
@@ -391,7 +380,7 @@ class Line2D(Artist):
 
         # update kwargs before updating data to give the caller a
         # chance to init axes (and hence unit support)
-        self.update(kwargs)
+        self._internal_update(kwargs)
         self.pickradius = pickradius
         self.ind_offset = 0
         if (isinstance(self._picker, Number) and
@@ -1133,7 +1122,7 @@ class Line2D(Artist):
             *self._unscaled_dash_pattern, self._linewidth)
         self.stale = True
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_marker(self, marker):
         """
         Set the line marker.
@@ -1287,7 +1276,7 @@ class Line2D(Artist):
         self._marker = MarkerStyle(marker=other._marker)
         self._drawstyle = other._drawstyle
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_dash_joinstyle(self, s):
         """
         How to join segments of the line if it `~Line2D.is_dashed`.
@@ -1303,7 +1292,7 @@ class Line2D(Artist):
             self.stale = True
         self._dashjoinstyle = js
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_solid_joinstyle(self, s):
         """
         How to join segments if the line is solid (not `~Line2D.is_dashed`).
@@ -1335,7 +1324,7 @@ class Line2D(Artist):
         """
         return self._solidjoinstyle.name
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_dash_capstyle(self, s):
         """
         How to draw the end caps if the line is `~Line2D.is_dashed`.
@@ -1351,7 +1340,7 @@ class Line2D(Artist):
             self.stale = True
         self._dashcapstyle = cs
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_solid_capstyle(self, s):
         """
         How to draw the end caps if the line is solid (not `~Line2D.is_dashed`)

@@ -19,7 +19,7 @@ import textwrap
 
 import numpy as np
 
-from matplotlib import _api, cbook, docstring, _preprocess_data
+from matplotlib import _api, cbook, _docstring, _preprocess_data
 import matplotlib.artist as martist
 import matplotlib.axes as maxes
 import matplotlib.collections as mcoll
@@ -40,8 +40,8 @@ from . import proj3d
 from . import axis3d
 
 
-@docstring.interpd
-@cbook._define_aliases({
+@_docstring.interpd
+@_api.define_aliases({
     "xlim": ["xlim3d"], "ylim": ["ylim3d"], "zlim": ["zlim3d"]})
 class Axes3D(Axes):
     """
@@ -96,14 +96,14 @@ class Axes3D(Axes):
             does not produce the desired result. Note however, that a manual
             zorder will only be correct for a limited view angle. If the figure
             is rotated by the user, it will look wrong from certain angles.
-        auto_add_to_figure : bool, default: True
+        auto_add_to_figure : bool, default: False
             Prior to Matplotlib 3.4 Axes3D would add themselves
             to their host Figure on init.  Other Axes class do not
             do this.
 
-            This behavior is deprecated in 3.4, the default will
-            change to False in 3.5.  The keyword will be undocumented
-            and a non-False value will be an error in 3.6.
+            This behavior is deprecated in 3.4, the default is
+            changed to False in 3.6.  The keyword will be undocumented
+            and a non-False value will be an error in 3.7.
         focal_length : float, default: None
             For a projection type of 'persp', the focal length of the virtual
             camera. Must be > 0. If None, defaults to 1.
@@ -142,7 +142,7 @@ class Axes3D(Axes):
             self._shared_axes["z"].join(self, sharez)
             self._adjustable = 'datalim'
 
-        auto_add_to_figure = kwargs.pop('auto_add_to_figure', True)
+        auto_add_to_figure = kwargs.pop('auto_add_to_figure', False)
 
         super().__init__(
             fig, rect, frameon=True, box_aspect=box_aspect, *args, **kwargs
@@ -157,14 +157,12 @@ class Axes3D(Axes):
         self.fmt_zdata = None
 
         self.mouse_init()
-        self.figure.canvas.callbacks._pickled_cids.update({
-            self.figure.canvas.mpl_connect(
-                'motion_notify_event', self._on_move),
-            self.figure.canvas.mpl_connect(
-                'button_press_event', self._button_press),
-            self.figure.canvas.mpl_connect(
-                'button_release_event', self._button_release),
-        })
+        self.figure.canvas.callbacks._connect_picklable(
+            'motion_notify_event', self._on_move)
+        self.figure.canvas.callbacks._connect_picklable(
+            'button_press_event', self._button_press)
+        self.figure.canvas.callbacks._connect_picklable(
+            'button_release_event', self._button_release)
         self.set_top_view()
 
         self.patch.set_linewidth(0)
@@ -178,12 +176,12 @@ class Axes3D(Axes):
 
         if auto_add_to_figure:
             _api.warn_deprecated(
-                "3.4", removal="3.6", message="Axes3D(fig) adding itself "
+                "3.4", removal="3.7", message="Axes3D(fig) adding itself "
                 "to the figure is deprecated since %(since)s. "
                 "Pass the keyword argument auto_add_to_figure=False "
                 "and use fig.add_axes(ax) to suppress this warning. "
-                "The default value of auto_add_to_figure will change to "
-                "False in mpl3.5 and True values will "
+                "The default value of auto_add_to_figure is changed to "
+                "False in mpl3.6 and True values will "
                 "no longer work %(removal)s.  This is consistent with "
                 "other Axes classes.")
             fig.add_axes(self)
@@ -217,14 +215,9 @@ class Axes3D(Axes):
 
     def _init_axis(self):
         """Init 3D axes; overrides creation of regular X/Y axes."""
-        self.xaxis = axis3d.XAxis('x', self.xy_viewLim.intervalx,
-                                  self.xy_dataLim.intervalx, self)
-        self.yaxis = axis3d.YAxis('y', self.xy_viewLim.intervaly,
-                                  self.xy_dataLim.intervaly, self)
-        self.zaxis = axis3d.ZAxis('z', self.zz_viewLim.intervalx,
-                                  self.zz_dataLim.intervalx, self)
-        for ax in self.xaxis, self.yaxis, self.zaxis:
-            ax.init3d()
+        self.xaxis = axis3d.XAxis(self)
+        self.yaxis = axis3d.YAxis(self)
+        self.zaxis = axis3d.ZAxis(self)
 
     def get_zaxis(self):
         """Return the ``ZAxis`` (`~.axis3d.Axis`) instance."""
@@ -424,7 +417,7 @@ class Axes3D(Axes):
             # Calculate projection of collections and patches and zorder
             # them. Make sure they are drawn above the grids.
             zorder_offset = max(axis.get_zorder()
-                                for axis in self._get_axis_list()) + 1
+                                for axis in self._axis_map.values()) + 1
             collection_zorder = patch_zorder = zorder_offset
 
             for artist in sorted(collections_and_patches,
@@ -442,10 +435,10 @@ class Axes3D(Axes):
 
         if self._axis3don:
             # Draw panes first
-            for axis in self._get_axis_list():
+            for axis in self._axis_map.values():
                 axis.draw_pane(renderer)
             # Then axes
-            for axis in self._get_axis_list():
+            for axis in self._axis_map.values():
                 axis.draw(renderer)
 
         # Then rest
@@ -462,29 +455,8 @@ class Axes3D(Axes):
     def update_datalim(self, xys, **kwargs):
         pass
 
-    def get_autoscale_on(self):
-        # docstring inherited
-        return super().get_autoscale_on() and self.get_autoscalez_on()
-
-    def get_autoscalez_on(self):
-        """Return whether the z-axis is autoscaled."""
-        return self._autoscaleZon
-
-    def set_autoscale_on(self, b):
-        # docstring inherited
-        super().set_autoscale_on(b)
-        self.set_autoscalez_on(b)
-
-    def set_autoscalez_on(self, b):
-        """
-        Set whether the z-axis is autoscaled on the next draw or call to
-        `.Axes.autoscale_view`.
-
-        Parameters
-        ----------
-        b : bool
-        """
-        self._autoscaleZon = b
+    get_autoscalez_on = _axis_method_wrapper("zaxis", "_get_autoscale_on")
+    set_autoscalez_on = _axis_method_wrapper("zaxis", "_set_autoscale_on")
 
     def set_zmargin(self, m):
         """
@@ -558,15 +530,18 @@ class Axes3D(Axes):
             scalez = True
         else:
             if axis in ['x', 'both']:
-                self._autoscaleXon = scalex = bool(enable)
+                self.set_autoscalex_on(bool(enable))
+                scalex = self.get_autoscalex_on()
             else:
                 scalex = False
             if axis in ['y', 'both']:
-                self._autoscaleYon = scaley = bool(enable)
+                self.set_autoscaley_on(bool(enable))
+                scaley = self.get_autoscaley_on()
             else:
                 scaley = False
             if axis in ['z', 'both']:
-                self._autoscaleZon = scalez = bool(enable)
+                self.set_autoscalez_on(bool(enable))
+                scalez = self.get_autoscalez_on()
             else:
                 scalez = False
         if scalex:
@@ -613,7 +588,7 @@ class Axes3D(Axes):
         else:
             _tight = self._tight = bool(tight)
 
-        if scalex and self._autoscaleXon:
+        if scalex and self.get_autoscalex_on():
             self._shared_axes["x"].clean()
             x0, x1 = self.xy_dataLim.intervalx
             xlocator = self.xaxis.get_major_locator()
@@ -626,7 +601,7 @@ class Axes3D(Axes):
                 x0, x1 = xlocator.view_limits(x0, x1)
             self.set_xbound(x0, x1)
 
-        if scaley and self._autoscaleYon:
+        if scaley and self.get_autoscaley_on():
             self._shared_axes["y"].clean()
             y0, y1 = self.xy_dataLim.intervaly
             ylocator = self.yaxis.get_major_locator()
@@ -639,7 +614,7 @@ class Axes3D(Axes):
                 y0, y1 = ylocator.view_limits(y0, y1)
             self.set_ybound(y0, y1)
 
-        if scalez and self._autoscaleZon:
+        if scalez and self.get_autoscalez_on():
             self._shared_axes["z"].clean()
             z0, z1 = self.zz_dataLim.intervalx
             zlocator = self.zaxis.get_major_locator()
@@ -660,6 +635,7 @@ class Axes3D(Axes):
         return minx, maxx, miny, maxy, minz, maxz
 
     # set_xlim, set_ylim are directly inherited from base Axes.
+    @_api.make_keyword_only("3.6", "emit")
     def set_zlim(self, bottom=None, top=None, emit=True, auto=False,
                  *, zmin=None, zmax=None):
         """
@@ -956,10 +932,9 @@ class Axes3D(Axes):
         """
         return False
 
-    def cla(self):
+    def clear(self):
         # docstring inherited.
-
-        super().cla()
+        super().clear()
         self.zaxis.clear()
 
         if self._sharez is not None:
@@ -975,7 +950,7 @@ class Axes3D(Axes):
             except TypeError:
                 pass
 
-        self._autoscaleZon = True
+        self.set_autoscalez_on(True)
         if self._focal_length == np.inf:
             self._zmargin = rcParams['axes.zmargin']
         else:
@@ -1434,12 +1409,7 @@ class Axes3D(Axes):
         cmap = kwargs.get('cmap', None)
         shade = kwargs.pop('shade', cmap is None)
         if shade is None:
-            _api.warn_deprecated(
-                "3.1",
-                message="Passing shade=None to Axes3D.plot_surface() is "
-                        "deprecated since matplotlib 3.1 and will change its "
-                        "semantic or raise an error in matplotlib 3.3. "
-                        "Please use shade=False instead.")
+            raise ValueError("shade cannot be None.")
 
         colset = []  # the sampled facecolor
         if (rows - 1) % rstride == 0 and \
@@ -3164,7 +3134,7 @@ pivot='tail', normalize=False, **kwargs)
                                     for_layout_only=for_layout_only)
         batch = [ret]
         if self._axis3don:
-            for axis in self._get_axis_list():
+            for axis in self._axis_map.values():
                 if axis.get_visible():
                     axis_bb = martist._get_tightbbox_for_layout_only(
                         axis, renderer)

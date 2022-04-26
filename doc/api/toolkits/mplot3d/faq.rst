@@ -49,4 +49,3 @@ Work is being done to eliminate this issue. For matplotlib v1.1.0, there is
 a semi-official manner to modify these parameters. See the note in the
 :mod:`.mplot3d.axis3d` section of the mplot3d API documentation for
 more information.
-

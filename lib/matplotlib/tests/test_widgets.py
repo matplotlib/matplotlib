@@ -67,8 +67,7 @@ def test_rectangle_selector():
 @pytest.mark.parametrize('spancoords', ['data', 'pixels'])
 @pytest.mark.parametrize('minspanx, x1', [[0, 10], [1, 10.5], [1, 11]])
 @pytest.mark.parametrize('minspany, y1', [[0, 10], [1, 10.5], [1, 11]])
-def test_rectangle_minspan(spancoords, minspanx, x1, minspany, y1):
-    ax = get_ax()
+def test_rectangle_minspan(ax, spancoords, minspanx, x1, minspany, y1):
     # attribute to track number of onselect calls
     ax._n_onselect = 0
 
@@ -94,7 +93,7 @@ def test_rectangle_minspan(spancoords, minspanx, x1, minspany, y1):
     assert tool._selection_completed
     assert ax._n_onselect == 1
 
-    # Too small to create a selector. Should clear exising selector, and
+    # Too small to create a selector. Should clear existing selector, and
     # trigger onselect because there was a pre-exisiting selector
     click_and_drag(tool, start=(x0, y0), end=(x1, y1))
     assert not tool._selection_completed
@@ -924,6 +923,37 @@ def test_span_selector_animated_artists_callback():
     assert ln2.stale is False
 
 
+def test_snapping_values_span_selector(ax):
+    def onselect(*args):
+        pass
+
+    tool = widgets.SpanSelector(ax, onselect, direction='horizontal',)
+    snap_function = tool._snap
+
+    snap_values = np.linspace(0, 5, 11)
+    values = np.array([-0.1, 0.1, 0.2, 0.5, 0.6, 0.7, 0.9, 4.76, 5.0, 5.5])
+    expect = np.array([00.0, 0.0, 0.0, 0.5, 0.5, 0.5, 1.0, 5.00, 5.0, 5.0])
+    values = snap_function(values, snap_values)
+    assert_allclose(values, expect)
+
+
+def test_span_selector_snap(ax):
+    def onselect(vmin, vmax):
+        ax._got_onselect = True
+
+    snap_values = np.arange(50) * 4
+
+    tool = widgets.SpanSelector(ax, onselect, direction='horizontal',
+                                snap_values=snap_values)
+    tool.extents = (17, 35)
+    assert tool.extents == (16, 36)
+
+    tool.snap_values = None
+    assert tool.snap_values is None
+    tool.extents = (17, 35)
+    assert tool.extents == (17, 35)
+
+
 def check_lasso_selector(**kwargs):
     ax = get_ax()
 
@@ -1105,19 +1135,30 @@ def test_range_slider(orientation):
     # Check initial value is set correctly
     assert_allclose(slider.val, (0.1, 0.34))
 
+    def handle_positions(slider):
+        if orientation == "vertical":
+            return [h.get_ydata()[0] for h in slider._handles]
+        else:
+            return [h.get_xdata()[0] for h in slider._handles]
+
     slider.set_val((0.2, 0.6))
     assert_allclose(slider.val, (0.2, 0.6))
+    assert_allclose(handle_positions(slider), (0.2, 0.6))
+
     box = slider.poly.get_extents().transformed(ax.transAxes.inverted())
     assert_allclose(box.get_points().flatten()[idx], [0.2, .25, 0.6, .75])
 
     slider.set_val((0.2, 0.1))
     assert_allclose(slider.val, (0.1, 0.2))
+    assert_allclose(handle_positions(slider), (0.1, 0.2))
 
     slider.set_val((-1, 10))
     assert_allclose(slider.val, (0, 1))
+    assert_allclose(handle_positions(slider), (0, 1))
 
     slider.reset()
-    assert_allclose(slider.val, [0.1, 0.34])
+    assert_allclose(slider.val, (0.1, 0.34))
+    assert_allclose(handle_positions(slider), (0.1, 0.34))
 
 
 def check_polygon_selector(event_sequence, expected_result, selections_count,

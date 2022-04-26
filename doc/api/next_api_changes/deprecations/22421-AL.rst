@@ -1,0 +1,5 @@
+Parameters to ``plt.figure()`` and the ``Figure`` constructor
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+All parameters to `.pyplot.figure` and the `.Figure` constructor, other than
+*num*, *figsize*, and *dpi*, will become keyword-only after a deprecation
+period.

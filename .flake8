@@ -42,7 +42,6 @@ exclude =
 
 per-file-ignores =
     setup.py: E402
-    setupext.py: E501
     tests.py: F401
 
     lib/matplotlib/__init__.py: E402, F401

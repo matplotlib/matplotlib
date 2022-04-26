@@ -16,7 +16,7 @@ programmatic plot generation::
     y = np.sin(x)
     plt.plot(x, y)
 
-The explicit (object-oriented) API is recommended for complex plots, though
+The explicit object-oriented API is recommended for complex plots, though
 pyplot is still usually used to create the figure and often the axes in the
 figure. See `.pyplot.figure`, `.pyplot.subplots`, and
 `.pyplot.subplot_mosaic` to create figures, and
@@ -29,6 +29,10 @@ figure. See `.pyplot.figure`, `.pyplot.subplots`, and
     y = np.sin(x)
     fig, ax = plt.subplots()
     ax.plot(x, y)
+
+
+See :ref:`api_interfaces` for an explanation of the tradeoffs between the
+implicit and explicit interfaces.
 """
 
 import functools
@@ -52,7 +56,7 @@ from matplotlib import _api
 from matplotlib import rcsetup, style
 from matplotlib import _pylab_helpers, interactive
 from matplotlib import cbook
-from matplotlib import docstring
+from matplotlib import _docstring
 from matplotlib.backend_bases import FigureCanvasBase, MouseButton
 from matplotlib.figure import Figure, figaspect
 from matplotlib.gridspec import GridSpec, SubplotSpec
@@ -88,7 +92,7 @@ _log = logging.getLogger(__name__)
 def _copy_docstring_and_deprecators(method, func=None):
     if func is None:
         return functools.partial(_copy_docstring_and_deprecators, method)
-    decorators = [docstring.copy(method)]
+    decorators = [_docstring.copy(method)]
     # Check whether the definition of *method* includes @_api.rename_parameter
     # or @_api.make_keyword_only decorators; if so, propagate them to the
     # pyplot wrapper as well.
@@ -103,7 +107,6 @@ def _copy_docstring_and_deprecators(method, func=None):
 
 
 ## Global ##
-
 
 _IP_REGISTERED = None
 _INSTALL_FIG_OBSERVER = False
@@ -137,10 +140,7 @@ def install_repl_displayhook():
         if matplotlib.is_interactive():
             draw_all()
 
-    try:  # IPython >= 2
-        ip.events.register("post_execute", post_execute)
-    except AttributeError:  # IPython 1.x
-        ip.register_post_execute(post_execute)
+    ip.events.register("post_execute", post_execute)
     _IP_REGISTERED = post_execute
     _INSTALL_FIG_OBSERVER = False
 
@@ -157,26 +157,16 @@ def uninstall_repl_displayhook():
 
     .. warning::
 
-       Need IPython >= 2 for this to work.  For IPython < 2 will raise a
-       ``NotImplementedError``
-
-    .. warning::
-
-       If you are using vanilla python and have installed another
-       display hook, this will reset ``sys.displayhook`` to what ever
-       function was there when Matplotlib installed its displayhook,
-       possibly discarding your changes.
+       If you are using vanilla python and have installed another display hook,
+       this will reset `sys.displayhook` to what ever function was there when
+       Matplotlib installed its displayhook, possibly discarding your changes.
     """
     global _IP_REGISTERED
     global _INSTALL_FIG_OBSERVER
     if _IP_REGISTERED:
         from IPython import get_ipython
         ip = get_ipython()
-        try:
-            ip.events.unregister('post_execute', _IP_REGISTERED)
-        except AttributeError as err:
-            raise NotImplementedError("Can not unregister events "
-                                      "in IPython < 2.0") from err
+        ip.events.unregister('post_execute', _IP_REGISTERED)
         _IP_REGISTERED = None
 
     if _INSTALL_FIG_OBSERVER:
@@ -206,6 +196,28 @@ def _get_required_interactive_framework(backend_mod):
         return None
     # Inline this once the deprecation elapses.
     return backend_mod.FigureCanvas.required_interactive_framework
+
+_backend_mod = None
+
+
+def _get_backend_mod():
+    """
+    Ensure that a backend is selected and return it.
+
+    This is currently private, but may be made public in the future.
+    """
+    if _backend_mod is None:
+        # Use __getitem__ here to avoid going through the fallback logic (which
+        # will (re)import pyplot and then call switch_backend if we need to
+        # resolve the auto sentinel)
+        switch_backend(dict.__getitem__(rcParams, "backend"))
+        # Just to be safe.  Interactive mode can be turned on without calling
+        # `plt.ion()` so register it again here.  This is safe because multiple
+        # calls to `install_repl_displayhook` are no-ops and the registered
+        # function respects `mpl.is_interactive()` to determine if it should
+        # trigger a draw.
+        install_repl_displayhook()
+    return _backend_mod
 
 
 def switch_backend(newbackend):
@@ -297,7 +309,7 @@ def switch_backend(newbackend):
 
 
 def _warn_if_gui_out_of_main_thread():
-    if (_get_required_interactive_framework(_backend_mod)
+    if (_get_required_interactive_framework(_get_backend_mod())
             and threading.current_thread() is not threading.main_thread()):
         _api.warn_external(
             "Starting a Matplotlib GUI outside of the main thread will likely "
@@ -308,7 +320,7 @@ def _warn_if_gui_out_of_main_thread():
 def new_figure_manager(*args, **kwargs):
     """Create a new figure manager instance."""
     _warn_if_gui_out_of_main_thread()
-    return _backend_mod.new_figure_manager(*args, **kwargs)
+    return _get_backend_mod().new_figure_manager(*args, **kwargs)
 
 
 # This function's signature is rewritten upon backend-load by switch_backend.
@@ -321,7 +333,7 @@ def draw_if_interactive(*args, **kwargs):
         End users will typically not have to call this function because the
         the interactive mode takes care of this.
     """
-    return _backend_mod.draw_if_interactive(*args, **kwargs)
+    return _get_backend_mod().draw_if_interactive(*args, **kwargs)
 
 
 # This function's signature is rewritten upon backend-load by switch_backend.
@@ -370,7 +382,7 @@ def show(*args, **kwargs):
     explicitly there.
     """
     _warn_if_gui_out_of_main_thread()
-    return _backend_mod.show(*args, **kwargs)
+    return _get_backend_mod().show(*args, **kwargs)
 
 
 def isinteractive():
@@ -667,6 +679,7 @@ class _xkcd:
 
 ## Figures ##
 
+@_api.make_keyword_only("3.6", "facecolor")
 def figure(num=None,  # autoincrement if None, else integer from 1-N
            figsize=None,  # defaults to rc figure.figsize
            dpi=None,  # defaults to rc figure.dpi
@@ -931,7 +944,7 @@ def close(fig=None):
 
 def clf():
     """Clear the current figure."""
-    gcf().clf()
+    gcf().clear()
 
 
 def draw():
@@ -968,7 +981,7 @@ if Figure.legend.__doc__:
 
 ## Axes ##
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def axes(arg=None, **kwargs):
     """
     Add an Axes to the current figure and make it the current Axes.
@@ -1091,7 +1104,7 @@ def cla():
 
 ## More ways of creating axes ##
 
-@docstring.dedent_interpd
+@_docstring.dedent_interpd
 def subplot(*args, **kwargs):
     """
     Add an Axes to the current figure or retrieve an existing Axes.
@@ -1281,13 +1294,13 @@ def subplot(*args, **kwargs):
 
     fig.sca(ax)
 
-    bbox = ax.bbox
-    axes_to_delete = []
-    for other_ax in fig.axes:
-        if other_ax == ax:
-            continue
-        if bbox.fully_overlaps(other_ax.bbox):
-            axes_to_delete.append(other_ax)
+    axes_to_delete = [other for other in fig.axes
+                      if other != ax and ax.bbox.fully_overlaps(other.bbox)]
+    if axes_to_delete:
+        _api.warn_deprecated(
+            "3.6", message="Auto-removal of overlapping axes is deprecated "
+            "since %(since)s and will be removed %(removal)s; explicitly call "
+            "ax.remove() as needed.")
     for ax_to_del in axes_to_delete:
         delaxes(ax_to_del)
 
@@ -1574,13 +1587,14 @@ def subplot2grid(shape, loc, rowspan=1, colspan=1, fig=None, **kwargs):
 
     subplotspec = gs.new_subplotspec(loc, rowspan=rowspan, colspan=colspan)
     ax = fig.add_subplot(subplotspec, **kwargs)
-    bbox = ax.bbox
-    axes_to_delete = []
-    for other_ax in fig.axes:
-        if other_ax == ax:
-            continue
-        if bbox.fully_overlaps(other_ax.bbox):
-            axes_to_delete.append(other_ax)
+
+    axes_to_delete = [other for other in fig.axes
+                      if other != ax and ax.bbox.fully_overlaps(other.bbox)]
+    if axes_to_delete:
+        _api.warn_deprecated(
+            "3.6", message="Auto-removal of overlapping axes is deprecated "
+            "since %(since)s and will be removed %(removal)s; explicitly call "
+            "ax.remove() as needed.")
     for ax_to_del in axes_to_delete:
         delaxes(ax_to_del)
 
@@ -1789,7 +1803,7 @@ def xticks(ticks=None, labels=None, **kwargs):
     if labels is None:
         labels = ax.get_xticklabels()
         for l in labels:
-            l.update(kwargs)
+            l._internal_update(kwargs)
     else:
         labels = ax.set_xticklabels(labels, **kwargs)
 
@@ -1849,7 +1863,7 @@ def yticks(ticks=None, labels=None, **kwargs):
     if labels is None:
         labels = ax.get_yticklabels()
         for l in labels:
-            l.update(kwargs)
+            l._internal_update(kwargs)
     else:
         labels = ax.set_yticklabels(labels, **kwargs)
 
@@ -2225,15 +2239,6 @@ if (rcParams["backend_fallback"]
             set(_interactive_bk) - {'WebAgg', 'nbAgg'})
         and cbook._get_running_interactive_framework()):
     dict.__setitem__(rcParams, "backend", rcsetup._auto_backend_sentinel)
-# Set up the backend.
-switch_backend(rcParams["backend"])
-
-# Just to be safe.  Interactive mode can be turned on without
-# calling `plt.ion()` so register it again here.
-# This is safe because multiple calls to `install_repl_displayhook`
-# are no-ops and the registered function respect `mpl.is_interactive()`
-# to determine if they should trigger a draw.
-install_repl_displayhook()
 
 
 ################# REMAINING CONTENT GENERATED BY boilerplate.py ##############
@@ -2896,7 +2901,8 @@ def streamplot(
         x, y, u, v, density=1, linewidth=None, color=None, cmap=None,
         norm=None, arrowsize=1, arrowstyle='-|>', minlength=0.1,
         transform=None, zorder=None, start_points=None, maxlength=4.0,
-        integration_direction='both', *, data=None):
+        integration_direction='both', broken_streamlines=True, *,
+        data=None):
     __ret = gca().streamplot(
         x, y, u, v, density=density, linewidth=linewidth, color=color,
         cmap=cmap, norm=norm, arrowsize=arrowsize,
@@ -2904,6 +2910,7 @@ def streamplot(
         transform=transform, zorder=zorder, start_points=start_points,
         maxlength=maxlength,
         integration_direction=integration_direction,
+        broken_streamlines=broken_streamlines,
         **({"data": data} if data is not None else {}))
     sci(__ret.lines)
     return __ret

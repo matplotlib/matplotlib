@@ -43,6 +43,7 @@ import base64
 from collections.abc import Sized, Sequence
 import copy
 import functools
+import importlib
 import inspect
 import io
 import itertools
@@ -119,6 +120,12 @@ def is_color_like(c):
         return False
     else:
         return True
+
+
+def _has_alpha_channel(c):
+    """Return whether *c* is a color with an alpha channel."""
+    # 4-element sequences are interpreted as r, g, b, a
+    return not isinstance(c, str) and len(c) == 4
 
 
 def _check_color_like(**kwargs):
@@ -356,9 +363,7 @@ def to_rgba_array(c, alpha=None):
         pass
 
     if isinstance(c, str):
-        raise ValueError("Using a string of single character colors as "
-                         "a color sequence is not supported. The colors can "
-                         "be passed as an explicit list instead.")
+        raise ValueError(f"{c!r} is not a valid color value.")
 
     if len(c) == 0:
         return np.zeros((0, 4), float)
@@ -394,7 +399,7 @@ def to_hex(c, keep_alpha=False):
     ----------
     c : :doc:`color </tutorials/colors/colors>` or `numpy.ma.masked`
 
-    keep_alpha: bool, default: False
+    keep_alpha : bool, default: False
       If False, use the ``#rrggbb`` format, otherwise use ``#rrggbbaa``.
 
     Returns
@@ -1524,9 +1529,22 @@ def _make_norm_from_scale(scale_cls, base_norm_cls, bound_init_signature):
 
     class Norm(base_norm_cls):
         def __reduce__(self):
+            cls = type(self)
+            # If the class is toplevel-accessible, it is possible to directly
+            # pickle it "by name".  This is required to support norm classes
+            # defined at a module's toplevel, as the inner base_norm_cls is
+            # otherwise unpicklable (as it gets shadowed by the generated norm
+            # class).  If either import or attribute access fails, fall back to
+            # the general path.
+            try:
+                if cls is getattr(importlib.import_module(cls.__module__),
+                                  cls.__qualname__):
+                    return (_create_empty_object_of_class, (cls,), vars(self))
+            except (ImportError, AttributeError):
+                pass
             return (_picklable_norm_constructor,
                     (scale_cls, base_norm_cls, bound_init_signature),
-                    self.__dict__)
+                    vars(self))
 
         def __init__(self, *args, **kwargs):
             ba = bound_init_signature.bind(*args, **kwargs)
@@ -1599,9 +1617,12 @@ def _make_norm_from_scale(scale_cls, base_norm_cls, bound_init_signature):
     return Norm
 
 
-def _picklable_norm_constructor(*args):
-    cls = _make_norm_from_scale(*args)
+def _create_empty_object_of_class(cls):
     return cls.__new__(cls)
+
+
+def _picklable_norm_constructor(*args):
+    return _create_empty_object_of_class(_make_norm_from_scale(*args))
 
 
 @make_norm_from_scale(
@@ -1678,6 +1699,38 @@ class SymLogNorm(Normalize):
     @linthresh.setter
     def linthresh(self, value):
         self._scale.linthresh = value
+
+
+@make_norm_from_scale(
+    scale.AsinhScale,
+    init=lambda linear_width=1, vmin=None, vmax=None, clip=False: None)
+class AsinhNorm(Normalize):
+    """
+    The inverse hyperbolic sine scale is approximately linear near
+    the origin, but becomes logarithmic for larger positive
+    or negative values. Unlike the `SymLogNorm`, the transition between
+    these linear and logarithmic regions is smooth, which may reduce
+    the risk of visual artifacts.
+
+    .. note::
+
+       This API is provisional and may be revised in the future
+       based on early user feedback.
+
+    Parameters
+    ----------
+    linear_width : float, default: 1
+        The effective width of the linear region, beyond which
+        the transformation becomes asymptotically logarithmic
+    """
+
+    @property
+    def linear_width(self):
+        return self._scale.linear_width
+
+    @linear_width.setter
+    def linear_width(self, value):
+        self._scale.linear_width = value
 
 
 class PowerNorm(Normalize):

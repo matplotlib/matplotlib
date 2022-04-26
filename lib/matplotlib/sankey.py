@@ -11,7 +11,7 @@ import matplotlib as mpl
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
 from matplotlib.transforms import Affine2D
-from matplotlib import docstring
+from matplotlib import _docstring
 
 _log = logging.getLogger(__name__)
 
@@ -351,7 +351,7 @@ class Sankey:
         # path[2] = path[2][::-1]
         # return path
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def add(self, patchlabel='', flows=None, orientations=None, labels='',
             trunklength=1.0, pathlengths=0.25, prior=None, connect=(0, 0),
             rotation=0, **kwargs):

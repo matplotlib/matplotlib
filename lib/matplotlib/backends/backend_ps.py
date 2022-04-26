@@ -60,9 +60,9 @@ papersize = {'letter': (8.5, 11),
              'a5': (5.83, 8.27),
              'a6': (4.13, 5.83),
              'a7': (2.91, 4.13),
-             'a8': (2.07, 2.91),
-             'a9': (1.457, 2.05),
-             'a10': (1.02, 1.457),
+             'a8': (2.05, 2.91),
+             'a9': (1.46, 2.05),
+             'a10': (1.02, 1.46),
              'b0': (40.55, 57.32),
              'b1': (28.66, 40.55),
              'b2': (20.27, 28.66),
@@ -89,7 +89,12 @@ def _nums_to_str(*args):
     return " ".join(f"{arg:1.3f}".rstrip("0").rstrip(".") for arg in args)
 
 
+@_api.deprecated("3.6", alternative="Vendor the code")
 def quote_ps_string(s):
+    return _quote_ps_string(s)
+
+
+def _quote_ps_string(s):
     """
     Quote dangerous characters of S for use in a PostScript string constant.
     """
@@ -738,7 +743,7 @@ grestore
         streamarr['flags'] = 0
         streamarr['points'] = (flat_points - points_min) * factor
         streamarr['colors'] = flat_colors[:, :3] * 255.0
-        stream = quote_ps_string(streamarr.tobytes())
+        stream = _quote_ps_string(streamarr.tobytes())
 
         self._pswriter.write(f"""\
 gsave
@@ -778,6 +783,7 @@ grestore
             self.set_linejoin(gc.get_joinstyle())
             self.set_linecap(gc.get_capstyle())
             self.set_linedash(*gc.get_dashes())
+        if mightstroke or hatch:
             self.set_color(*gc.get_rgb()[:3])
         write('gsave\n')
 
@@ -806,15 +812,6 @@ grestore
         write("grestore\n")
 
 
-@_api.deprecated("3.4", alternative="GraphicsContextBase")
-class GraphicsContextPS(GraphicsContextBase):
-    def get_capstyle(self):
-        return {'butt': 0, 'round': 1, 'projecting': 2}[super().get_capstyle()]
-
-    def get_joinstyle(self):
-        return {'miter': 0, 'round': 1, 'bevel': 2}[super().get_joinstyle()]
-
-
 class _Orientation(Enum):
     portrait, landscape = range(2)
 
@@ -830,15 +827,13 @@ class FigureCanvasPS(FigureCanvasBase):
     def get_default_filetype(self):
         return 'ps'
 
-    @_api.delete_parameter("3.4", "dpi")
     @_api.delete_parameter("3.5", "args")
     def _print_ps(
             self, fmt, outfile, *args,
-            dpi=None, metadata=None, papertype=None, orientation='portrait',
+            metadata=None, papertype=None, orientation='portrait',
             **kwargs):
 
-        if dpi is None:  # always use this branch after deprecation elapses.
-            dpi = self.figure.get_dpi()
+        dpi = self.figure.get_dpi()
         self.figure.set_dpi(72)  # Override the dpi kwarg
 
         dsc_comments = {}
@@ -1045,8 +1040,8 @@ class FigureCanvasPS(FigureCanvasBase):
 
         # write to a temp file, we'll move it to outfile when done
         with TemporaryDirectory() as tmpdir:
-            tmpfile = os.path.join(tmpdir, "tmp.ps")
-            pathlib.Path(tmpfile).write_text(
+            tmppath = pathlib.Path(tmpdir, "tmp.ps")
+            tmppath.write_text(
                 f"""\
 %!PS-Adobe-3.0 EPSF-3.0
 {dsc_comments}
@@ -1082,27 +1077,21 @@ showpage
                     papertype = _get_papertype(width, height)
                 paper_width, paper_height = papersize[papertype]
 
-            texmanager = ps_renderer.get_texmanager()
-            font_preamble = texmanager.get_font_preamble()
-            custom_preamble = texmanager.get_custom_preamble()
-
-            psfrag_rotated = convert_psfrags(tmpfile, ps_renderer.psfrag,
-                                             font_preamble,
-                                             custom_preamble, paper_width,
-                                             paper_height,
-                                             orientation.name)
+            psfrag_rotated = _convert_psfrags(
+                tmppath, ps_renderer.psfrag, paper_width, paper_height,
+                orientation.name)
 
             if (mpl.rcParams['ps.usedistiller'] == 'ghostscript'
                     or mpl.rcParams['text.usetex']):
                 _try_distill(gs_distill,
-                             tmpfile, is_eps, ptype=papertype, bbox=bbox,
+                             tmppath, is_eps, ptype=papertype, bbox=bbox,
                              rotated=psfrag_rotated)
             elif mpl.rcParams['ps.usedistiller'] == 'xpdf':
                 _try_distill(xpdf_distill,
-                             tmpfile, is_eps, ptype=papertype, bbox=bbox,
+                             tmppath, is_eps, ptype=papertype, bbox=bbox,
                              rotated=psfrag_rotated)
 
-            _move_path_to_path_or_stream(tmpfile, outfile)
+            _move_path_to_path_or_stream(tmppath, outfile)
 
     print_ps = functools.partialmethod(_print_ps, "ps")
     print_eps = functools.partialmethod(_print_ps, "eps")
@@ -1112,8 +1101,14 @@ showpage
         return super().draw()
 
 
+@_api.deprecated("3.6")
 def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
                     paper_width, paper_height, orientation):
+    return _convert_psfrags(
+        pathlib.Path(tmpfile), psfrags, paper_width, paper_height, orientation)
+
+
+def _convert_psfrags(tmppath, psfrags, paper_width, paper_height, orientation):
     """
     When we want to use the LaTeX backend with postscript, we write PSFrag tags
     to a temporary postscript file, each one marking a position for LaTeX to
@@ -1140,7 +1135,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
             % {
                 "psfrags": "\n".join(psfrags),
                 "angle": 90 if orientation == 'landscape' else 0,
-                "epsfile": pathlib.Path(tmpfile).resolve().as_posix(),
+                "epsfile": tmppath.resolve().as_posix(),
             },
             fontsize=10)  # tex's default fontsize.
 
@@ -1148,7 +1143,7 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
         psfile = os.path.join(tmpdir, "tmp.ps")
         cbook._check_and_log_subprocess(
             ['dvips', '-q', '-R0', '-o', psfile, dvifile], _log)
-        shutil.move(psfile, tmpfile)
+        shutil.move(psfile, tmppath)
 
     # check if the dvips created a ps in landscape paper.  Somehow,
     # above latex+dvips results in a ps file in a landscape mode for a
@@ -1157,14 +1152,14 @@ def convert_psfrags(tmpfile, psfrags, font_preamble, custom_preamble,
     # the generated ps file is in landscape and return this
     # information. The return value is used in pstoeps step to recover
     # the correct bounding box. 2010-06-05 JJL
-    with open(tmpfile) as fh:
+    with open(tmppath) as fh:
         psfrag_rotated = "Landscape" in fh.read(1000)
     return psfrag_rotated
 
 
-def _try_distill(func, *args, **kwargs):
+def _try_distill(func, tmppath, *args, **kwargs):
     try:
-        func(*args, **kwargs)
+        func(str(tmppath), *args, **kwargs)
     except mpl.ExecutableNotFoundError as exc:
         _log.warning("%s.  Distillation step skipped.", exc)
 

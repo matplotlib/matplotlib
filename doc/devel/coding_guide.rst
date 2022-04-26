@@ -271,11 +271,11 @@ The current active branches are
 
 *main*
   The current development version. Future minor releases (*v3.N.0*) will be
-  branched from this. Supports Python 3.7+.
+  branched from this.
 
 *v3.N.x*
   Maintenance branch for Matplotlib 3.N. Future patch releases will be
-  branched from this.  Supports Python 3.6+.
+  branched from this.
 
 *v3.N.M-doc*
   Documentation for the current release.  On a patch release, this will be

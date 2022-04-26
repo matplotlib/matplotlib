@@ -1,7 +1,6 @@
 import numpy as np
 
-from matplotlib import _api
-import matplotlib.docstring as docstring
+from matplotlib import _api, _docstring
 import matplotlib.ticker as mticker
 from matplotlib.axes._base import _AxesBase, _TransformedBoundsLocator
 from matplotlib.axis import Axis
@@ -124,7 +123,7 @@ class SecondaryAxis(_AxesBase):
         self._set_lims()
         super().apply_aspect(position)
 
-    @docstring.copy(Axis.set_ticks)
+    @_docstring.copy(Axis.set_ticks)
     def set_ticks(self, ticks, labels=None, *, minor=False, **kwargs):
         ret = self._axis.set_ticks(ticks, labels, minor=minor, **kwargs)
         self.stale = True
@@ -276,7 +275,8 @@ functions : 2-tuple of func, or Transform with an inverse
     If a 2-tuple of functions, the user specifies the transform
     function and its inverse.  i.e.
     ``functions=(lambda x: 2 / x, lambda x: 2 / x)`` would be an
-    reciprocal transform with a factor of 2.
+    reciprocal transform with a factor of 2. Both functions must accept
+    numpy arrays as input.
 
     The user can also directly supply a subclass of
     `.transforms.Transform` so long as it has an inverse.
@@ -293,4 +293,4 @@ Other Parameters
 **kwargs : `~matplotlib.axes.Axes` properties.
     Other miscellaneous axes parameters.
 '''
-docstring.interpd.update(_secax_docstring=_secax_docstring)
+_docstring.interpd.update(_secax_docstring=_secax_docstring)

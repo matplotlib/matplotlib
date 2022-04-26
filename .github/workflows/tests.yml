@@ -8,6 +8,9 @@ on:
   pull_request:
     branches-ignore:
       - v[0-9]+.[0-9]+.[0-9x]+-doc
+  schedule:
+    # 3:47 UTC on Saturdays
+    - cron: "47 3 * * 6"
 
 env:
   NO_AT_BRIDGE: 1  # Necessary for GTK3 interactive test.
@@ -26,20 +29,16 @@ jobs:
         include:
           - name-suffix: "(Minimum Versions)"
             os: ubuntu-18.04
-            python-version: 3.7
+            python-version: 3.8
             extra-requirements: '-c requirements/testing/minver.txt'
-            pyqt5-ver: '==5.8 sip==4.19.7'  # oldest versions with a Py3.7 wheel.
+            pyqt5-ver: '==5.11.2 sip==5.0.0'  # oldest versions with a Py3.8 wheel.
             delete-font-cache: true
             XVFB_RUN: xvfb-run -a
-          - os: ubuntu-18.04
-            python-version: 3.7
-            extra-requirements: '-r requirements/testing/extra.txt'
-            XVFB_RUN: xvfb-run -a
-            CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
           - os: ubuntu-18.04
             python-version: 3.8
             extra-requirements: '-r requirements/testing/extra.txt'
             XVFB_RUN: xvfb-run -a
+            CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
           - os: ubuntu-20.04
             python-version: 3.9
             extra-requirements: '-r requirements/testing/extra.txt'
@@ -54,12 +53,12 @@ jobs:
             XVFB_RUN: ""
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -116,7 +115,7 @@ jobs:
           esac
 
       - name: Cache pip
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         if: startsWith(runner.os, 'Linux')
         with:
           path: ~/.cache/pip
@@ -124,7 +123,7 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
       - name: Cache pip
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         if: startsWith(runner.os, 'macOS')
         with:
           path: ~/Library/Caches/pip
@@ -132,7 +131,7 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
       - name: Cache ccache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.ccache
@@ -140,7 +139,7 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-ccache-
       - name: Cache Matplotlib
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.cache/matplotlib
@@ -213,6 +212,20 @@ jobs:
             echo 'wxPython is available' ||
             echo 'wxPython is not available'
 
+      - name: Install the nightly dependencies
+        # Only install the nightly dependencies during the scheduled event
+        if: ${{ github.event_name == 'schedule' && matrix.name-suffix != '(Minimum Versions)' }}
+        run: |
+          python -m pip install -i https://pypi.anaconda.org/scipy-wheels-nightly/simple --upgrade numpy pandas
+
+          # Turn all warnings to errors, except ignore the distutils deprecations and the find_spec warning
+          cat >> pytest.ini << EOF
+          filterwarnings =
+              error
+              ignore:.*distutils:DeprecationWarning
+              ignore:DynamicImporter.find_spec\(\) not found; falling back to find_module\(\):ImportWarning
+          EOF
+
       - name: Install Matplotlib
         run: |
           ccache -s
@@ -263,10 +276,33 @@ jobs:
           find . -name '*.gc*' -delete
         if: ${{ runner.os != 'macOS' }}
       - name: Upload code coverage
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }} result images"
           path: ./result_images
+
+  # Separate dependent job to only upload one issue from the matrix of jobs
+  create-issue:
+    runs-on: ubuntu-latest
+    needs: [test]
+    if: ${{ failure() && github.event_name == 'schedule' }}
+    name: "Create issue on failure"
+
+    steps:
+      - name: Create issue on failure
+        uses: imjohnbo/issue-bot@v3
+        with:
+          title: "[TST] Upcoming dependency test failures"
+          body: |
+            The weekly build with nightly wheels from numpy and pandas
+            has failed. Check the logs for any updates that need to be
+            made in matplotlib.
+            https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+
+          pinned: false
+          close-previous: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

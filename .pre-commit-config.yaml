@@ -4,6 +4,7 @@ ci:
 exclude: |
   (?x)^(
     extern|
+    LICENSE|
     lib/matplotlib/mpl-data|
     doc/devel/gitwash|
     doc/users/prev|
@@ -12,7 +13,7 @@ exclude: |
     )
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
+    rev: v4.2.0
     hooks:
       - id: check-added-large-files
       - id: check-docstring-first
@@ -22,7 +23,7 @@ repos:
       - id: trailing-whitespace
         exclude_types: [svg]
   - repo: https://github.com/pycqa/flake8
-    rev: 3.9.2
+    rev: 4.0.1
     hooks:
       - id: flake8
         additional_dependencies: [pydocstyle>5.1.0, flake8-docstrings>1.4.0]

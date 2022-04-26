@@ -92,7 +92,7 @@ class _Converter:
         while True:
             c = self._proc.stdout.read(1)
             if not c:
-                raise _ConverterError
+                raise _ConverterError(os.fsdecode(bytes(buf)))
             buf.extend(c)
             if buf.endswith(terminator):
                 return bytes(buf)
@@ -109,7 +109,8 @@ class _GSConverter(_Converter):
             try:
                 self._read_until(b"\nGS")
             except _ConverterError as err:
-                raise OSError("Failed to start Ghostscript") from err
+                raise OSError(
+                    "Failed to start Ghostscript:\n\n" + err.args[0]) from None
 
         def encode_and_escape(name):
             return (os.fsencode(name)
@@ -146,6 +147,11 @@ class _SVGConverter(_Converter):
             weakref.finalize(self._tmpdir, self.__del__)
         if (not self._proc  # First run.
                 or self._proc.poll() is not None):  # Inkscape terminated.
+            if self._proc is not None and self._proc.poll() is not None:
+                for stream in filter(None, [self._proc.stdin,
+                                            self._proc.stdout,
+                                            self._proc.stderr]):
+                    stream.close()
             env = {
                 **os.environ,
                 # If one passes e.g. a png file to Inkscape, it will try to
@@ -155,7 +161,7 @@ class _SVGConverter(_Converter):
                 # just be reported as a regular exception below).
                 "DISPLAY": "",
                 # Do not load any user options.
-                "INKSCAPE_PROFILE_DIR": os.devnull,
+                "INKSCAPE_PROFILE_DIR": self._tmpdir.name,
             }
             # Old versions of Inkscape (e.g. 0.48.3.1) seem to sometimes
             # deadlock when stderr is redirected to a pipe, so we redirect it
@@ -172,8 +178,9 @@ class _SVGConverter(_Converter):
             try:
                 self._read_until(terminator)
             except _ConverterError as err:
-                raise OSError("Failed to start Inkscape in interactive "
-                              "mode") from err
+                raise OSError(
+                    "Failed to start Inkscape in interactive mode:\n\n"
+                    + err.args[0]) from err
 
         # Inkscape's shell mode does not support escaping metacharacters in the
         # filename ("\n", and ":;" for inkscape>=1).  Avoid any problems by

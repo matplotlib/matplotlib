@@ -9,21 +9,16 @@ import json
 import pathlib
 import uuid
 
+from ipykernel.comm import Comm
 from IPython.display import display, Javascript, HTML
-try:
-    # Jupyter/IPython 4.x or later
-    from ipykernel.comm import Comm
-except ImportError:
-    # Jupyter/IPython 3.x or earlier
-    from IPython.kernel.comm import Comm
 
 from matplotlib import is_interactive
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import _Backend, NavigationToolbar2
-from matplotlib.backends.backend_webagg_core import (
-    FigureCanvasWebAggCore, FigureManagerWebAgg, NavigationToolbar2WebAgg,
-    TimerTornado, TimerAsyncio
-)
+from .backend_webagg_core import (
+    FigureCanvasWebAggCore, FigureManagerWebAgg, NavigationToolbar2WebAgg)
+from .backend_webagg_core import (  # noqa: F401 # pylint: disable=W0611
+    TimerTornado, TimerAsyncio)
 
 
 def connection_info():
@@ -44,18 +39,13 @@ def connection_info():
     return '\n'.join(result)
 
 
-# Note: Version 3.2 and 4.x icons
-# https://fontawesome.com/v3.2/icons/
-# https://fontawesome.com/v4.7/icons/
-# the `fa fa-xxx` part targets font-awesome 4, (IPython 3.x)
-# the icon-xxx targets font awesome 3.21 (IPython 2.x)
-_FONT_AWESOME_CLASSES = {
-    'home': 'fa fa-home icon-home',
-    'back': 'fa fa-arrow-left icon-arrow-left',
-    'forward': 'fa fa-arrow-right icon-arrow-right',
-    'zoom_to_rect': 'fa fa-square-o icon-check-empty',
-    'move': 'fa fa-arrows icon-move',
-    'download': 'fa fa-floppy-o icon-save',
+_FONT_AWESOME_CLASSES = {  # font-awesome 4 names
+    'home': 'fa fa-home',
+    'back': 'fa fa-arrow-left',
+    'forward': 'fa fa-arrow-right',
+    'zoom_to_rect': 'fa fa-square-o',
+    'move': 'fa fa-arrows',
+    'download': 'fa fa-floppy-o',
     None: None
 }
 

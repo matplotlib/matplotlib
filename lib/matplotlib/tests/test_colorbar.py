@@ -124,6 +124,30 @@ def test_colorbar_extension_length():
     _colorbar_extension_length('proportional')
 
 
+@pytest.mark.parametrize("orientation", ["horizontal", "vertical"])
+@pytest.mark.parametrize("extend,expected", [("min", (0, 0, 0, 1)),
+                                             ("max", (1, 1, 1, 1)),
+                                             ("both", (1, 1, 1, 1))])
+def test_colorbar_extension_inverted_axis(orientation, extend, expected):
+    """Test extension color with an inverted axis"""
+    data = np.arange(12).reshape(3, 4)
+    fig, ax = plt.subplots()
+    cmap = plt.get_cmap("viridis").with_extremes(under=(0, 0, 0, 1),
+                                                 over=(1, 1, 1, 1))
+    im = ax.imshow(data, cmap=cmap)
+    cbar = fig.colorbar(im, orientation=orientation, extend=extend)
+    if orientation == "horizontal":
+        cbar.ax.invert_xaxis()
+    else:
+        cbar.ax.invert_yaxis()
+    assert cbar._extend_patches[0].get_facecolor() == expected
+    if extend == "both":
+        assert len(cbar._extend_patches) == 2
+        assert cbar._extend_patches[1].get_facecolor() == (0, 0, 0, 1)
+    else:
+        assert len(cbar._extend_patches) == 1
+
+
 @pytest.mark.parametrize('use_gridspec', [True, False])
 @image_comparison(['cbar_with_orientation',
                    'cbar_locationing',
@@ -184,6 +208,14 @@ def test_colorbar_positioning(use_gridspec):
                  panchor=False, use_gridspec=use_gridspec)
     plt.colorbar(ax=[ax1], location='bottom', panchor=False,
                  anchor=(0.8, 0.5), shrink=0.6, use_gridspec=use_gridspec)
+
+
+def test_colorbar_single_ax_panchor_false():
+    # Just smoketesting that this doesn't crash.  Note that this differs from
+    # the tests above with panchor=False because there use_gridspec is actually
+    # ineffective: passing *ax* as lists always disable use_gridspec.
+    plt.imshow([[0, 1]])
+    plt.colorbar(panchor=False)
 
 
 @image_comparison(['contour_colorbar.png'], remove_text=True)
@@ -916,8 +948,7 @@ def test_negative_boundarynorm():
     np.testing.assert_allclose(cb.ax.get_yticks(), clevs)
 
 
-@image_comparison(['nonorm_colorbars.svg'], remove_text=False,
-                  style='mpl20')
+@image_comparison(['nonorm_colorbars.svg'], style='mpl20')
 def test_nonorm():
     plt.rcParams['svg.fonttype'] = 'none'
     data = [1, 2, 3, 4, 5]
@@ -979,3 +1010,30 @@ def test_colorbar_set_formatter_locator():
     fmt = LogFormatter()
     cb.minorformatter = fmt
     assert cb.ax.yaxis.get_minor_formatter() is fmt
+
+
+def test_offset_text_loc():
+    plt.style.use('mpl20')
+    fig, ax = plt.subplots()
+    np.random.seed(seed=19680808)
+    pc = ax.pcolormesh(np.random.randn(10, 10)*1e6)
+    cb = fig.colorbar(pc, location='right', extend='max')
+    fig.draw_without_rendering()
+    # check that the offsetText is in the proper place above the
+    # colorbar axes.  In this case the colorbar axes is the same
+    # height as the parent, so use the parents bbox.
+    assert cb.ax.yaxis.offsetText.get_position()[1] > ax.bbox.y1
+
+
+def test_title_text_loc():
+    plt.style.use('mpl20')
+    fig, ax = plt.subplots()
+    np.random.seed(seed=19680808)
+    pc = ax.pcolormesh(np.random.randn(10, 10))
+    cb = fig.colorbar(pc, location='right', extend='max')
+    cb.ax.set_title('Aardvark')
+    fig.draw_without_rendering()
+    # check that the title is in the proper place above the
+    # colorbar axes, including its extend triangles....
+    assert (cb.ax.title.get_window_extent(fig.canvas.get_renderer()).ymax >
+            cb.ax.spines['outline'].get_window_extent().ymax)

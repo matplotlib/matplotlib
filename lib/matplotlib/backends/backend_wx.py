@@ -25,11 +25,8 @@ from matplotlib.backend_bases import (
 
 from matplotlib import _api, cbook, backend_tools
 from matplotlib._pylab_helpers import Gcf
-from matplotlib.backend_managers import ToolManager
-from matplotlib.figure import Figure
 from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
-from matplotlib.widgets import SubplotTool
 
 import wx
 
@@ -43,8 +40,6 @@ PIXELS_PER_INCH = 75
 
 @_api.caching_module_getattr  # module-level deprecations
 class __getattr__:
-    IDLE_DELAY = _api.deprecated("3.1", obj_type="", removal="3.6")(property(
-        lambda self: 5))
     cursord = _api.deprecated("3.5", obj_type="")(property(lambda self: {
         cursors.MOVE: wx.CURSOR_HAND,
         cursors.HAND: wx.CURSOR_HAND,
@@ -304,7 +299,7 @@ class RendererWx(RendererBase):
 
 class GraphicsContextWx(GraphicsContextBase):
     """
-    The graphics context provides the color, line styles, etc...
+    The graphics context provides the color, line styles, etc.
 
     This class stores a reference to a wxMemoryDC, and a
     wxGraphicsContext that draws to it.  Creating a wxGraphicsContext
@@ -596,8 +591,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         wildcards = '|'.join(wildcards)
         return wildcards, extensions, filter_index
 
-    @_api.delete_parameter("3.4", "origin")
-    def gui_repaint(self, drawDC=None, origin='WX'):
+    def gui_repaint(self, drawDC=None):
         """
         Update the displayed image on the GUI canvas, using the supplied
         wx.PaintDC device context.
@@ -752,7 +746,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             cursors.RESIZE_VERTICAL: wx.CURSOR_SIZENS,
         }, cursor=cursor))
         self.SetCursor(cursor)
-        self.Update()
+        self.Refresh()
 
     def _set_capture(self, capture=True):
         """Control wx mouse capture."""
@@ -1087,10 +1081,6 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
         return wx.Bitmap.FromBufferRGBA(
             image.shape[1], image.shape[0], image.tobytes())
 
-    @_api.deprecated("3.4")
-    def get_canvas(self, frame, fig):
-        return type(self.canvas)(frame, -1, fig)
-
     def _update_buttons_checked(self):
         if "Pan" in self.wx_ids:
             self.ToggleTool(self.wx_ids["Pan"], self.mode.name == "PAN")
@@ -1252,8 +1242,7 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
 @backend_tools._register_tool_class(_FigureCanvasWxBase)
 class ConfigureSubplotsWx(backend_tools.ConfigureSubplotsBase):
     def trigger(self, *args):
-        NavigationToolbar2Wx.configure_subplots(
-            self._make_classic_style_pseudo_toolbar())
+        NavigationToolbar2Wx.configure_subplots(self)
 
 
 @backend_tools._register_tool_class(_FigureCanvasWxBase)

@@ -29,11 +29,9 @@ from contextlib import nullcontext
 from math import radians, cos, sin
 
 import numpy as np
-from PIL import Image
 
 import matplotlib as mpl
 from matplotlib import _api, cbook
-from matplotlib import colors as mcolors
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.font_manager import findfont, get_font
@@ -114,21 +112,6 @@ class RendererAgg(RendererBase):
         self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.copy_from_bbox = self._renderer.copy_from_bbox
 
-    @_api.deprecated("3.4")
-    def get_content_extents(self):
-        orig_img = np.asarray(self.buffer_rgba())
-        slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
-        return (slice_x.start, slice_y.start,
-                slice_x.stop - slice_x.start, slice_y.stop - slice_y.start)
-
-    @_api.deprecated("3.4")
-    def tostring_rgba_minimized(self):
-        extents = self.get_content_extents()
-        bbox = [[extents[0], self.height - (extents[1] + extents[3])],
-                [extents[0] + extents[2], self.height - extents[1]]]
-        region = self.copy_from_bbox(bbox)
-        return np.array(region), extents
-
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
         nmax = mpl.rcParams['agg.path.chunksize']  # here at least for testing
@@ -152,7 +135,7 @@ class RendererAgg(RendererBase):
                 p.simplify_threshold = path.simplify_threshold
                 try:
                     self._renderer.draw_path(gc, p, transform, rgbFace)
-                except OverflowError as err:
+                except OverflowError:
                     msg = (
                         "Exceeded cell block limit in Agg.\n\n"
                         "Please reduce the value of "
@@ -167,7 +150,7 @@ class RendererAgg(RendererBase):
         else:
             try:
                 self._renderer.draw_path(gc, path, transform, rgbFace)
-            except OverflowError as err:
+            except OverflowError:
                 cant_chunk = ''
                 if rgbFace is not None:
                     cant_chunk += "- can not split filled path\n"
@@ -211,7 +194,7 @@ class RendererAgg(RendererBase):
 
     def draw_mathtext(self, gc, x, y, s, prop, angle):
         """Draw mathtext using :mod:`matplotlib.mathtext`."""
-        ox, oy, width, height, descent, font_image, used_characters = \
+        ox, oy, width, height, descent, font_image = \
             self.mathtext_parser.parse(s, self.dpi, prop)
 
         xd = descent * sin(radians(angle))
@@ -222,18 +205,12 @@ class RendererAgg(RendererBase):
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         # docstring inherited
-
         if ismath:
             return self.draw_mathtext(gc, x, y, s, prop, angle)
-
-        flags = get_hinting_flag()
-        font = self._get_agg_font(prop)
-
-        if font is None:
-            return None
+        font = self._prepare_font(prop)
         # We pass '0' for angle here, since it will be rotated (in raster
         # space) in the following call to draw_text_image).
-        font.set_text(s, 0, flags=flags)
+        font.set_text(s, 0, flags=get_hinting_flag())
         font.draw_glyphs_to_bitmap(
             antialiased=mpl.rcParams['text.antialiased'])
         d = font.get_descent() / 64.0
@@ -260,13 +237,12 @@ class RendererAgg(RendererBase):
             return w, h, d
 
         if ismath:
-            ox, oy, width, height, descent, fonts, used_characters = \
+            ox, oy, width, height, descent, font_image = \
                 self.mathtext_parser.parse(s, self.dpi, prop)
             return width, height, descent
 
-        flags = get_hinting_flag()
-        font = self._get_agg_font(prop)
-        font.set_text(s, 0.0, flags=flags)
+        font = self._prepare_font(prop)
+        font.set_text(s, 0.0, flags=get_hinting_flag())
         w, h = font.get_width_height()  # width and height of unrotated string
         d = font.get_descent()
         w /= 64.0  # convert from subpixels
@@ -295,17 +271,14 @@ class RendererAgg(RendererBase):
         # docstring inherited
         return self.width, self.height
 
-    def _get_agg_font(self, prop):
+    def _prepare_font(self, font_prop):
         """
-        Get the font for text instance t, caching for efficiency
+        Get the `.FT2Font` for *font_prop*, clear its buffer, and set its size.
         """
-        fname = findfont(prop)
-        font = get_font(fname)
-
+        font = get_font(findfont(font_prop))
         font.clear()
-        size = prop.get_size_in_points()
+        size = font_prop.get_size_in_points()
         font.set_size(size, self.dpi)
-
         return font
 
     def points_to_pixels(self, points):

@@ -2,11 +2,13 @@
 # Created: 23 Sep 2005
 # Parts rewritten by Reinier Heeres <reinier@heeres.eu>
 
+import inspect
+
 import numpy as np
 
-import matplotlib.transforms as mtransforms
 from matplotlib import (
-    artist, lines as mlines, axis as maxis, patches as mpatches, rcParams)
+    _api, artist, lines as mlines, axis as maxis, patches as mpatches,
+    transforms as mtransforms, rcParams)
 from . import art3d, proj3d
 
 
@@ -51,14 +53,34 @@ class Axis(maxis.XAxis):
               'color': (0.925, 0.925, 0.925, 0.5)},
     }
 
-    def __init__(self, adir, v_intervalx, d_intervalx, axes, *args,
-                 rotate_label=None, **kwargs):
-        # adir identifies which axes this is
-        self.adir = adir
+    def _old_init(self, adir, v_intervalx, d_intervalx, axes, *args,
+                  rotate_label=None, **kwargs):
+        return locals()
+
+    def _new_init(self, axes, *, rotate_label=None, **kwargs):
+        return locals()
+
+    def __init__(self, *args, **kwargs):
+        params = _api.select_matching_signature(
+            [self._old_init, self._new_init], *args, **kwargs)
+        if "adir" in params:
+            _api.warn_deprecated(
+                "3.6", message=f"The signature of 3D Axis constructors has "
+                f"changed in %(since)s; the new signature is "
+                f"{inspect.signature(type(self).__init__)}", pending=True)
+            if params["adir"] != self.axis_name:
+                raise ValueError(f"Cannot instantiate {type(self).__name__} "
+                                 f"with adir={params['adir']!r}")
+        axes = params["axes"]
+        rotate_label = params["rotate_label"]
+        args = params.get("args", ())
+        kwargs = params["kwargs"]
+
+        name = self.axis_name
 
         # This is a temporary member variable.
         # Do not depend on this existing in future releases!
-        self._axinfo = self._AXINFO[adir].copy()
+        self._axinfo = self._AXINFO[name].copy()
         if rcParams['_internal.classic_mode']:
             self._axinfo.update({
                 'label': {'va': 'center', 'ha': 'center'},
@@ -85,10 +107,10 @@ class Axis(maxis.XAxis):
                     'outward_factor': 0.1,
                     'linewidth': {
                         True: (  # major
-                            rcParams['xtick.major.width'] if adir in 'xz' else
+                            rcParams['xtick.major.width'] if name in 'xz' else
                             rcParams['ytick.major.width']),
                         False: (  # minor
-                            rcParams['xtick.minor.width'] if adir in 'xz' else
+                            rcParams['xtick.minor.width'] if name in 'xz' else
                             rcParams['ytick.minor.width']),
                     }
                 },
@@ -106,11 +128,18 @@ class Axis(maxis.XAxis):
         super().__init__(axes, *args, **kwargs)
 
         # data and viewing intervals for this direction
-        self.d_interval = d_intervalx
-        self.v_interval = v_intervalx
+        if "d_intervalx" in params:
+            self.set_data_interval(*params["d_intervalx"])
+        if "v_intervalx" in params:
+            self.set_view_interval(*params["v_intervalx"])
         self.set_rotate_label(rotate_label)
+        self._init3d()  # Inline after init3d deprecation elapses.
 
-    def init3d(self):
+    __init__.__signature__ = inspect.signature(_new_init)
+    adir = _api.deprecated("3.6", pending=True)(
+        property(lambda self: self.axis_name))
+
+    def _init3d(self):
         self.line = mlines.Line2D(
             xdata=(0, 0), ydata=(0, 0),
             linewidth=self._axinfo['axisline']['linewidth'],
@@ -132,6 +161,10 @@ class Axis(maxis.XAxis):
         # Need to be able to place the label at the correct location
         self.label._transform = self.axes.transData
         self.offsetText._transform = self.axes.transData
+
+    @_api.deprecated("3.6", pending=True)
+    def init3d(self):  # After deprecation elapses, inline _init3d to __init__.
+        self._init3d()
 
     def get_major_ticks(self, numticks=None):
         ticks = super().get_major_ticks(numticks)
@@ -496,27 +529,18 @@ class Axis(maxis.XAxis):
 
         return mtransforms.Bbox.union([*bb_1, *bb_2, *other])
 
-    @property
-    def d_interval(self):
-        return self.get_data_interval()
-
-    @d_interval.setter
-    def d_interval(self, minmax):
-        self.set_data_interval(*minmax)
-
-    @property
-    def v_interval(self):
-        return self.get_view_interval()
-
-    @v_interval.setter
-    def v_interval(self, minmax):
-        self.set_view_interval(*minmax)
-
-
-# Use classes to look at different data limits
+    d_interval = _api.deprecated(
+        "3.6", alternative="get_data_interval", pending=True)(
+            property(lambda self: self.get_data_interval(),
+                     lambda self, minmax: self.set_data_interval(*minmax)))
+    v_interval = _api.deprecated(
+        "3.6", alternative="get_view_interval", pending=True)(
+            property(lambda self: self.get_view_interval(),
+                     lambda self, minmax: self.set_view_interval(*minmax)))
 
 
 class XAxis(Axis):
+    axis_name = "x"
     get_view_interval, set_view_interval = maxis._make_getset_interval(
         "view", "xy_viewLim", "intervalx")
     get_data_interval, set_data_interval = maxis._make_getset_interval(
@@ -524,6 +548,7 @@ class XAxis(Axis):
 
 
 class YAxis(Axis):
+    axis_name = "y"
     get_view_interval, set_view_interval = maxis._make_getset_interval(
         "view", "xy_viewLim", "intervaly")
     get_data_interval, set_data_interval = maxis._make_getset_interval(
@@ -531,6 +556,7 @@ class YAxis(Axis):
 
 
 class ZAxis(Axis):
+    axis_name = "z"
     get_view_interval, set_view_interval = maxis._make_getset_interval(
         "view", "zz_viewLim", "intervalx")
     get_data_interval, set_data_interval = maxis._make_getset_interval(

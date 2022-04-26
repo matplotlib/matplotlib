@@ -3139,7 +3139,7 @@ the `API changes <../../api/api_changes.html>`_.
     Fixed a bug in backend_qt4, reported on mpl-dev - DSD
 
 2007-03-26
-    Removed colorbar_classic from figure.py; fixed bug in Figure.clf() in which
+    Removed colorbar_classic from figure.py; fixed bug in Figure.clear() in which
     _axobservers was not getting cleared.  Modernization and cleanups. - EF
 
 2007-03-26

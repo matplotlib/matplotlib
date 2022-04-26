@@ -1,7 +1,7 @@
 """
 A module for finding, managing, and using fonts across platforms.
 
-This module provides a single `FontManager` instance that can
+This module provides a single `FontManager` instance, ``fontManager``, that can
 be shared across backends and platforms.  The `findfont`
 function returns the best TrueType (TTF) font file in the local or
 system font path that matches the specified `FontProperties`
@@ -627,32 +627,33 @@ class FontProperties:
 
     - family: A list of font names in decreasing order of priority.
       The items may include a generic font family name, either
-      'sans-serif' (default), 'serif', 'cursive', 'fantasy', or 'monospace'.
+      'sans-serif', 'serif', 'cursive', 'fantasy', or 'monospace'.
       In that case, the actual font to be used will be looked up
-      from the associated rcParam.
+      from the associated rcParam. Default: :rc:`font.family`
 
-    - style: Either 'normal' (default), 'italic' or 'oblique'.
+    - style: Either 'normal', 'italic' or 'oblique'.
+      Default: :rc:`font.style`
 
-    - variant: Either 'normal' (default) or 'small-caps'.
+    - variant: Either 'normal' or 'small-caps'.
+      Default: :rc:`font.variant`
 
     - stretch: A numeric value in the range 0-1000 or one of
       'ultra-condensed', 'extra-condensed', 'condensed',
-      'semi-condensed', 'normal' (default), 'semi-expanded', 'expanded',
-      'extra-expanded' or 'ultra-expanded'.
+      'semi-condensed', 'normal', 'semi-expanded', 'expanded',
+      'extra-expanded' or 'ultra-expanded'. Default: :rc:`font.stretch`
 
     - weight: A numeric value in the range 0-1000 or one of
-      'ultralight', 'light', 'normal' (default), 'regular', 'book', 'medium',
+      'ultralight', 'light', 'normal', 'regular', 'book', 'medium',
       'roman', 'semibold', 'demibold', 'demi', 'bold', 'heavy',
-      'extra bold', 'black'.
+      'extra bold', 'black'. Default: :rc:`font.weight`
 
     - size: Either an relative value of 'xx-small', 'x-small',
       'small', 'medium', 'large', 'x-large', 'xx-large' or an
-      absolute font size, e.g., 10 (default).
+      absolute font size, e.g., 10. Default: :rc:`font.size`
 
-    - math_fontfamily: The family of fonts used to render math text; overrides
-      :rc:`mathtext.fontset`. Supported values are the same as the ones
-      supported by :rc:`mathtext.fontset`: 'dejavusans', 'dejavuserif', 'cm',
-      'stix', 'stixsans' and 'custom'.
+    - math_fontfamily: The family of fonts used to render math text.
+      Supported values are: 'dejavusans', 'dejavuserif', 'cm',
+      'stix', 'stixsans' and 'custom'. Default: :rc:`mathtext.fontset`
 
     Alternatively, a font may be specified using the absolute path to a font
     file, by using the *fname* kwarg.  However, in this case, it is typically
@@ -682,23 +683,6 @@ class FontProperties:
                  stretch=None, size=None,
                  fname=None,  # if set, it's a hardcoded filename to use
                  math_fontfamily=None):
-        self._family = _normalize_font_family(rcParams['font.family'])
-        self._slant = rcParams['font.style']
-        self._variant = rcParams['font.variant']
-        self._weight = rcParams['font.weight']
-        self._stretch = rcParams['font.stretch']
-        self._size = rcParams['font.size']
-        self._file = None
-        self.set_math_fontfamily(math_fontfamily)
-
-        if isinstance(family, str):
-            # Treat family as a fontconfig pattern if it is the only
-            # parameter provided.
-            if (style is None and variant is None and weight is None and
-                    stretch is None and size is None and fname is None):
-                self.set_fontconfig_pattern(family)
-                return
-
         self.set_family(family)
         self.set_style(style)
         self.set_variant(variant)
@@ -706,6 +690,14 @@ class FontProperties:
         self.set_stretch(stretch)
         self.set_file(fname)
         self.set_size(size)
+        self.set_math_fontfamily(math_fontfamily)
+        # Treat family as a fontconfig pattern if it is the only parameter
+        # provided.  Even in that case, call the other setters first to set
+        # attributes not specified by the pattern to the rcParams defaults.
+        if (isinstance(family, str)
+                and style is None and variant is None and weight is None
+                and stretch is None and size is None and fname is None):
+            self.set_fontconfig_pattern(family)
 
     @classmethod
     def _from_any(cls, arg):
@@ -736,7 +728,7 @@ class FontProperties:
              self.get_variant(),
              self.get_weight(),
              self.get_stretch(),
-             self.get_size_in_points(),
+             self.get_size(),
              self.get_file(),
              self.get_math_fontfamily())
         return hash(l)
@@ -764,7 +756,6 @@ class FontProperties:
         Return the font style.  Values are: 'normal', 'italic' or 'oblique'.
         """
         return self._slant
-    get_slant = get_style
 
     def get_variant(self):
         """
@@ -795,9 +786,6 @@ class FontProperties:
         """
         return self._size
 
-    def get_size_in_points(self):
-        return self._size
-
     def get_file(self):
         """
         Return the filename of the associated font.
@@ -820,26 +808,34 @@ class FontProperties:
         is CSS parlance), such as: 'serif', 'sans-serif', 'cursive',
         'fantasy', or 'monospace', a real font name or a list of real
         font names.  Real font names are not supported when
-        :rc:`text.usetex` is `True`.
+        :rc:`text.usetex` is `True`. Default: :rc:`font.family`
         """
         if family is None:
             family = rcParams['font.family']
-        self._family = _normalize_font_family(family)
-    set_name = set_family
+        if isinstance(family, str):
+            family = [family]
+        self._family = family
 
     def set_style(self, style):
         """
-        Set the font style.  Values are: 'normal', 'italic' or 'oblique'.
+        Set the font style.
+
+        Parameters
+        ----------
+        style : {'normal', 'italic', 'oblique'}, default: :rc:`font.style`
         """
         if style is None:
             style = rcParams['font.style']
         _api.check_in_list(['normal', 'italic', 'oblique'], style=style)
         self._slant = style
-    set_slant = set_style
 
     def set_variant(self, variant):
         """
-        Set the font variant.  Values are: 'normal' or 'small-caps'.
+        Set the font variant.
+
+        Parameters
+        ----------
+        variant : {'normal', 'small-caps'}, default: :rc:`font.variant`
         """
         if variant is None:
             variant = rcParams['font.variant']
@@ -848,10 +844,14 @@ class FontProperties:
 
     def set_weight(self, weight):
         """
-        Set the font weight.  May be either a numeric value in the
-        range 0-1000 or one of 'ultralight', 'light', 'normal',
-        'regular', 'book', 'medium', 'roman', 'semibold', 'demibold',
-        'demi', 'bold', 'heavy', 'extra bold', 'black'
+        Set the font weight.
+
+        Parameters
+        ----------
+        weight : int or {'ultralight', 'light', 'normal', 'regular', 'book', \
+'medium', 'roman', 'semibold', 'demibold', 'demi', 'bold', 'heavy', \
+'extra bold', 'black'}, default: :rc:`font.weight`
+            If int, must be in the range  0-1000.
         """
         if weight is None:
             weight = rcParams['font.weight']
@@ -866,10 +866,14 @@ class FontProperties:
 
     def set_stretch(self, stretch):
         """
-        Set the font stretch or width.  Options are: 'ultra-condensed',
-        'extra-condensed', 'condensed', 'semi-condensed', 'normal',
-        'semi-expanded', 'expanded', 'extra-expanded' or
-        'ultra-expanded', or a numeric value in the range 0-1000.
+        Set the font stretch or width.
+
+        Parameters
+        ----------
+        stretch : int or {'ultra-condensed', 'extra-condensed', 'condensed', \
+'semi-condensed', 'normal', 'semi-expanded', 'expanded', 'extra-expanded', \
+'ultra-expanded'}, default: :rc:`font.stretch`
+            If int, must be in the range  0-1000.
         """
         if stretch is None:
             stretch = rcParams['font.stretch']
@@ -884,9 +888,14 @@ class FontProperties:
 
     def set_size(self, size):
         """
-        Set the font size.  Either an relative value of 'xx-small',
-        'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'
-        or an absolute font size, e.g., 12.
+        Set the font size.
+
+        Parameters
+        ----------
+        size : float or {'xx-small', 'x-small', 'small', 'medium', \
+'large', 'x-large', 'xx-large'}, default: :rc:`font.size`
+            If float, the font size in points. The string values denote sizes
+            relative to the default font size.
         """
         if size is None:
             size = rcParams['font.size']
@@ -967,6 +976,12 @@ class FontProperties:
         """Return a copy of self."""
         return copy.copy(self)
 
+    # Aliases
+    set_name = set_family
+    get_slant = get_style
+    set_slant = set_style
+    get_size_in_points = get_size
+
 
 class _JSONEncoder(json.JSONEncoder):
     def default(self, o):
@@ -1036,14 +1051,8 @@ def json_load(filename):
     --------
     json_dump
     """
-    with open(filename, 'r') as fh:
+    with open(filename) as fh:
         return json.load(fh, object_hook=_json_decode)
-
-
-def _normalize_font_family(family):
-    if isinstance(family, str):
-        family = [family]
-    return family
 
 
 class FontManager:
@@ -1104,6 +1113,9 @@ class FontManager:
         ----------
         path : str or path-like
         """
+        # Convert to string in case of a path as
+        # afmFontProperty and FT2Font expect this
+        path = os.fsdecode(path)
         if Path(path).suffix.lower() == ".afm":
             with open(path, "rb") as fh:
                 font = _afm.AFM(fh)

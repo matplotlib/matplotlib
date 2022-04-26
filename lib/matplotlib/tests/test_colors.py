@@ -10,12 +10,10 @@ import base64
 
 from numpy.testing import assert_array_equal, assert_array_almost_equal
 
-from matplotlib import cycler
+from matplotlib import _api, cbook, cm, cycler
 import matplotlib
 import matplotlib.colors as mcolors
-import matplotlib.cm as cm
 import matplotlib.colorbar as mcolorbar
-import matplotlib.cbook as cbook
 import matplotlib.pyplot as plt
 import matplotlib.scale as mscale
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
@@ -109,7 +107,7 @@ def test_colormap_global_set_warn():
     new_cm = plt.get_cmap('viridis')
     # Store the old value so we don't override the state later on.
     orig_cmap = copy.copy(new_cm)
-    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+    with pytest.warns(_api.MatplotlibDeprecationWarning,
                       match="You are modifying the state of a globally"):
         # This should warn now because we've modified the global state
         new_cm.set_under('k')
@@ -120,7 +118,7 @@ def test_colormap_global_set_warn():
     # Test that registering and then modifying warns
     plt.register_cmap(name='test_cm', cmap=copy.copy(orig_cmap))
     new_cm = plt.get_cmap('test_cm')
-    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+    with pytest.warns(_api.MatplotlibDeprecationWarning,
                       match="You are modifying the state of a globally"):
         # This should warn now because we've modified the global state
         new_cm.set_under('k')
@@ -132,11 +130,11 @@ def test_colormap_global_set_warn():
 
 def test_colormap_dict_deprecate():
     # Make sure we warn on get and set access into cmap_d
-    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+    with pytest.warns(_api.MatplotlibDeprecationWarning,
                       match="The global colormaps dictionary is no longer"):
         cmap = plt.cm.cmap_d['viridis']
 
-    with pytest.warns(cbook.MatplotlibDeprecationWarning,
+    with pytest.warns(_api.MatplotlibDeprecationWarning,
                       match="The global colormaps dictionary is no longer"):
         plt.cm.cmap_d['test'] = cmap
 
@@ -568,14 +566,15 @@ def test_Normalize():
     # Don't lose precision on longdoubles (float128 on Linux):
     # for array inputs...
     vals = np.array([1.2345678901, 9.8765432109], dtype=np.longdouble)
-    norm = mcolors.Normalize(vals.min(), vals.max())
-    assert_array_equal(np.asarray(norm(vals)), [0, 1])
+    norm = mcolors.Normalize(vals[0], vals[1])
+    assert norm(vals).dtype == np.longdouble
+    assert_array_equal(norm(vals), [0, 1])
     # and for scalar ones.
     eps = np.finfo(np.longdouble).resolution
     norm = plt.Normalize(1, 1 + 100 * eps)
     # This returns exactly 0.5 when longdouble is extended precision (80-bit),
     # but only a value close to it when it is quadruple precision (128-bit).
-    assert 0 < norm(1 + 50 * eps) < 1
+    np.testing.assert_array_almost_equal_nulp(norm(1 + 50 * eps), 0.5)
 
 
 def test_FuncNorm():
@@ -743,6 +742,28 @@ def test_SymLogNorm_single_zero():
     ticks = cbar.get_ticks()
     assert np.count_nonzero(ticks == 0) <= 1
     plt.close(fig)
+
+
+class TestAsinhNorm:
+    """
+    Tests for `~.colors.AsinhNorm`
+    """
+
+    def test_init(self):
+        norm0 = mcolors.AsinhNorm()
+        assert norm0.linear_width == 1
+
+        norm5 = mcolors.AsinhNorm(linear_width=5)
+        assert norm5.linear_width == 5
+
+    def test_norm(self):
+        norm = mcolors.AsinhNorm(2, vmin=-4, vmax=4)
+        vals = np.arange(-3.5, 3.5, 10)
+        normed_vals = norm(vals)
+        asinh2 = np.arcsinh(2)
+
+        expected = (2 * np.arcsinh(vals / 2) + 2 * asinh2) / (4 * asinh2)
+        assert_array_almost_equal(normed_vals, expected)
 
 
 def _inverse_tester(norm_instance, vals):
@@ -1166,6 +1187,15 @@ def test_colormap_reversing(name):
     assert_array_almost_equal(cmap(np.nan), cmap_r(np.nan))
 
 
+def test_has_alpha_channel():
+    assert mcolors._has_alpha_channel((0, 0, 0, 0))
+    assert mcolors._has_alpha_channel([1, 1, 1, 1])
+    assert not mcolors._has_alpha_channel('blue')  # 4-char string!
+    assert not mcolors._has_alpha_channel('0.25')
+    assert not mcolors._has_alpha_channel('r')
+    assert not mcolors._has_alpha_channel((1, 0, 0))
+
+
 def test_cn():
     matplotlib.rcParams['axes.prop_cycle'] = cycler('color',
                                                     ['blue', 'r'])
@@ -1223,8 +1253,7 @@ def test_to_rgba_array_single_str():
 
     # single char color sequence is invalid
     with pytest.raises(ValueError,
-                       match="Using a string of single character colors as "
-                             "a color sequence is not supported."):
+                       match="'rgb' is not a valid color value."):
         array = mcolors.to_rgba_array("rgb")
 
 

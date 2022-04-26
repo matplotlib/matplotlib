@@ -424,7 +424,7 @@ based prompt to a ``prompt_toolkit`` based prompt.  ``prompt_toolkit``
 has the same conceptual input hook, which is fed into ``prompt_toolkit`` via the
 :meth:`IPython.terminal.interactiveshell.TerminalInteractiveShell.inputhook`
 method.  The source for the ``prompt_toolkit`` input hooks lives at
-:mod:`IPython.terminal.pt_inputhooks`.
+``IPython.terminal.pt_inputhooks``.
 
 
 

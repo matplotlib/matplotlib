@@ -368,7 +368,7 @@ An example docstring looks like:
 
 .. code-block:: python
 
-    def hlines(self, y, xmin, xmax, colors='k', linestyles='solid',
+    def hlines(self, y, xmin, xmax, colors=None, linestyles='solid',
                label='', **kwargs):
         """
         Plot horizontal lines at each *y* from *xmin* to *xmax*.
@@ -382,24 +382,26 @@ An example docstring looks like:
             Respective beginning and end of each line. If scalars are
             provided, all lines will have the same length.
 
-        colors : array-like of colors, default: 'k'
+        colors : list of colors, default: :rc:`lines.color`
 
-        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, default: 'solid'
+        linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
         label : str, default: ''
 
         Returns
         -------
-        lines : `~matplotlib.collections.LineCollection`
+        `~matplotlib.collections.LineCollection`
 
         Other Parameters
         ----------------
-        **kwargs : `~matplotlib.collections.LineCollection` properties
+        data : indexable object, optional
+            DATA_PARAMETER_PLACEHOLDER
+        **kwargs :  `~matplotlib.collections.LineCollection` properties.
 
-        See also
+        See Also
         --------
         vlines : vertical lines
-        axhline: horizontal line across the axes
+        axhline : horizontal line across the Axes
         """
 
 See the `~.Axes.hlines` documentation for how this renders.
@@ -566,10 +568,10 @@ effect.
 Sphinx automatically links code elements in the definition blocks of ``See
 also`` sections. No need to use backticks there::
 
-   See also
+   See Also
    --------
    vlines : vertical lines
-   axhline: horizontal line across the axes
+   axhline : horizontal line across the Axes
 
 Wrapping parameter lists
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -673,7 +675,7 @@ Keyword arguments
 
 Since Matplotlib uses a lot of pass-through ``kwargs``, e.g., in every function
 that creates a line (`~.pyplot.plot`, `~.pyplot.semilogx`, `~.pyplot.semilogy`,
-etc...), it can be difficult for the new user to know which ``kwargs`` are
+etc.), it can be difficult for the new user to know which ``kwargs`` are
 supported.  Matplotlib uses a docstring interpolation scheme to support
 documentation of every function that takes a ``**kwargs``.  The requirements
 are:
@@ -684,14 +686,14 @@ are:
 2. as automated as possible so that as properties change, the docs
    are updated automatically.
 
-The ``@docstring.interpd`` decorator implements this.  Any function accepting
+The ``@_docstring.interpd`` decorator implements this.  Any function accepting
 `.Line2D` pass-through ``kwargs``, e.g., `matplotlib.axes.Axes.plot`, can list
 a summary of the `.Line2D` properties, as follows:
 
 .. code-block:: python
 
   # in axes.py
-  @docstring.interpd
+  @_docstring.interpd
   def plot(self, *args, **kwargs):
       """
       Some stuff omitted
@@ -726,7 +728,7 @@ gets interpolated into the docstring.
 
 Note that this scheme does not work for decorating an Artist's ``__init__``, as
 the subclass and its properties are not defined yet at that point.  Instead,
-``@docstring.interpd`` can be used to decorate the class itself -- at that
+``@_docstring.interpd`` can be used to decorate the class itself -- at that
 point, `.kwdoc` can list the properties and interpolate them into
 ``__init__.__doc__``.
 

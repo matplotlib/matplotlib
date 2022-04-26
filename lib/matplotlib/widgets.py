@@ -16,8 +16,8 @@ from numbers import Integral, Number
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import docstring
-from . import _api, backend_tools, cbook, colors, ticker, transforms
+from . import (_api, _docstring, backend_tools, cbook, colors, ticker,
+               transforms)
 from .lines import Line2D
 from .patches import Circle, Rectangle, Ellipse
 from .transforms import TransformedPatchPath, Affine2D
@@ -813,7 +813,10 @@ class RangeSlider(SliderBase):
             val = self._max_in_bounds(pos)
             self.set_max(val)
         if self._active_handle:
-            self._active_handle.set_xdata([val])
+            if self.orientation == "vertical":
+                self._active_handle.set_ydata([val])
+            else:
+                self._active_handle.set_xdata([val])
 
     def _update(self, event):
         """Update the slider position."""
@@ -836,11 +839,16 @@ class RangeSlider(SliderBase):
             return
 
         # determine which handle was grabbed
-        handle = self._handles[
-            np.argmin(
+        if self.orientation == "vertical":
+            handle_index = np.argmin(
+                np.abs([h.get_ydata()[0] - event.ydata for h in self._handles])
+            )
+        else:
+            handle_index = np.argmin(
                 np.abs([h.get_xdata()[0] - event.xdata for h in self._handles])
             )
-        ]
+        handle = self._handles[handle_index]
+
         # these checks ensure smooth behavior if the handles swap which one
         # has a higher value. i.e. if one is dragged over and past the other.
         if handle is not self._active_handle:
@@ -904,14 +912,22 @@ class RangeSlider(SliderBase):
             xy[2] = .75, val[1]
             xy[3] = .75, val[0]
             xy[4] = .25, val[0]
+
+            self._handles[0].set_ydata([val[0]])
+            self._handles[1].set_ydata([val[1]])
         else:
             xy[0] = val[0], .25
             xy[1] = val[0], .75
             xy[2] = val[1], .75
             xy[3] = val[1], .25
             xy[4] = val[0], .25
+
+            self._handles[0].set_xdata([val[0]])
+            self._handles[1].set_xdata([val[1]])
+
         self.poly.xy = xy
         self.valtext.set_text(self._format(val))
+
         if self.drawon:
             self.ax.figure.canvas.draw_idle()
         self.val = val
@@ -1691,7 +1707,7 @@ class MultiCursor(Widget):
     horizOn : bool, default: False
         Whether to draw the horizontal line.
 
-    vertOn: bool, default: True
+    vertOn : bool, default: True
         Whether to draw the vertical line.
 
     Other Parameters
@@ -2222,6 +2238,9 @@ class SpanSelector(_SelectorWidget):
         If `True`, the event triggered outside the span selector will be
         ignored.
 
+    snap_values : 1D array-like, optional
+        Snap the selector edges to the given values.
+
     Examples
     --------
     >>> import matplotlib.pyplot as plt
@@ -2243,7 +2262,7 @@ class SpanSelector(_SelectorWidget):
                  props=None, onmove_callback=None, interactive=False,
                  button=None, handle_props=None, grab_range=10,
                  state_modifier_keys=None, drag_from_anywhere=False,
-                 ignore_event_outside=False):
+                 ignore_event_outside=False, snap_values=None):
 
         if state_modifier_keys is None:
             state_modifier_keys = dict(clear='escape',
@@ -2262,6 +2281,7 @@ class SpanSelector(_SelectorWidget):
 
         self.visible = True
         self._extents_on_press = None
+        self.snap_values = snap_values
 
         # self._pressv is deprecated and we don't use it internally anymore
         # but we maintain it until it is removed
@@ -2561,6 +2581,15 @@ class SpanSelector(_SelectorWidget):
         """Return True if event is within the patch."""
         return self._selection_artist.contains(event, radius=0)[0]
 
+    @staticmethod
+    def _snap(values, snap_values):
+        """Snap values to a given array values (snap_values)."""
+        # take into account machine precision
+        eps = np.min(np.abs(np.diff(snap_values))) * 1e-12
+        return tuple(
+            snap_values[np.abs(snap_values - v + np.sign(v) * eps).argmin()]
+            for v in values)
+
     @property
     def extents(self):
         """Return extents of the span selector."""
@@ -2575,6 +2604,8 @@ class SpanSelector(_SelectorWidget):
     @extents.setter
     def extents(self, extents):
         # Update displayed shape
+        if self.snap_values is not None:
+            extents = tuple(self._snap(extents, self.snap_values))
         self._draw_shape(*extents)
         if self._interactive:
             # Update displayed handles
@@ -2844,7 +2875,7 @@ _RECTANGLESELECTOR_PARAMETERS_DOCSTRING = \
     """
 
 
-@docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING.replace(
+@_docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING.replace(
     '__ARTIST_NAME__', 'rectangle'))
 class RectangleSelector(_SelectorWidget):
     """
@@ -3274,7 +3305,7 @@ class RectangleSelector(_SelectorWidget):
     @property
     def edge_centers(self):
         """
-        Midpoint of rectangle edges in data coordiantes from left,
+        Midpoint of rectangle edges in data coordinates from left,
         moving anti-clockwise.
         """
         x0, y0, width, height = self._rect_bbox
@@ -3404,7 +3435,7 @@ class RectangleSelector(_SelectorWidget):
             return np.array(self._selection_artist.get_data())
 
 
-@docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING.replace(
+@_docstring.Substitution(_RECTANGLESELECTOR_PARAMETERS_DOCSTRING.replace(
     '__ARTIST_NAME__', 'ellipse'))
 class EllipseSelector(RectangleSelector):
     """
@@ -3611,6 +3642,7 @@ class PolygonSelector(_SelectorWidget):
 
     Examples
     --------
+    :doc:`/gallery/widgets/polygon_selector_simple`
     :doc:`/gallery/widgets/polygon_selector_demo`
 
     Notes

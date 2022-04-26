@@ -1,0 +1,4 @@
+``_DummyAxis.dataLim`` and ``_DummyAxis.viewLim``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated.  Use ``get_data_interval()``, ``set_data_interval()``,
+``get_view_interval()``, and ``set_view_interval()`` instead.

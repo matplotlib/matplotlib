@@ -1,7 +1,7 @@
 """
-================
-Polygon Selector
-================
+=======================================================
+Select indices from a collection using polygon selector
+=======================================================
 
 Shows how one can select indices of a polygon interactively.
 """

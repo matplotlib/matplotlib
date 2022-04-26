@@ -213,10 +213,9 @@ def drop_shadow_line(ax):
         shadow.update_from(l)
 
         # offset transform
-        ot = mtransforms.offset_copy(l.get_transform(), ax.figure,
-                                     x=4.0, y=-6.0, units='points')
-
-        shadow.set_transform(ot)
+        transform = mtransforms.offset_copy(l.get_transform(), ax.figure,
+                                            x=4.0, y=-6.0, units='points')
+        shadow.set_transform(transform)
 
         # adjust zorder of the shadow lines so that it is drawn below the
         # original lines

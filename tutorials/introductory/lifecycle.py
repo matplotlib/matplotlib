@@ -17,17 +17,19 @@ to highlight some neat features and best-practices using Matplotlib.
     <https://pbpython.com/effective-matplotlib.html>`_
     by Chris Moffitt. It was transformed into this tutorial by Chris Holdgraf.
 
-A note on the Object-Oriented API vs. Pyplot
-============================================
+A note on the explicit vs. implicit interfaces
+==============================================
 
-Matplotlib has two interfaces. The first is an object-oriented (OO)
-interface. In this case, we utilize an instance of :class:`axes.Axes`
-in order to render visualizations on an instance of :class:`figure.Figure`.
+Matplotlib has two interfaces. For an explanation of the trade-offs between the
+explicit and implicit interfaces see :ref:`api_interfaces`.
 
-The second is based on MATLAB and uses a state-based interface. This is
-encapsulated in the :mod:`.pyplot` module. See the :doc:`pyplot tutorials
-</tutorials/introductory/pyplot>` for a more in-depth look at the pyplot
-interface.
+In the explicit object-oriented (OO) interface we directly utilize instances of
+:class:`axes.Axes` to build up the visualization in an instance of
+:class:`figure.Figure`.  In the implicit interface, inspired by and modeled on
+MATLAB, uses an global state-based interface which is is encapsulated in the
+:mod:`.pyplot` module to plot to the "current Axes".  See the :doc:`pyplot
+tutorials </tutorials/introductory/pyplot>` for a more in-depth look at the
+pyplot interface.
 
 Most of the terms are straightforward but the main thing to remember
 is that:
@@ -41,14 +43,15 @@ us much more flexibility and power in customizing our plot.
 
 .. note::
 
-   In general, try to use the object-oriented interface over the pyplot
-   interface.
+   In general prefer the explicit interface over the implicit pyplot interface
+   for plotting.
 
 Our data
 ========
 
 We'll use the data from the post from which this tutorial was derived.
 It contains sales information for a number of companies.
+
 """
 
 # sphinx_gallery_thumbnail_number = 10

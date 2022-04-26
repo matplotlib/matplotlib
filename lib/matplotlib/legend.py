@@ -28,7 +28,7 @@ import time
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, docstring, colors, offsetbox
+from matplotlib import _api, _docstring, colors, offsetbox
 from matplotlib.artist import Artist, allow_rasterization
 from matplotlib.cbook import silent_list
 from matplotlib.font_manager import FontProperties
@@ -38,6 +38,7 @@ from matplotlib.patches import (Patch, Rectangle, Shadow, FancyBboxPatch,
 from matplotlib.collections import (
     Collection, CircleCollection, LineCollection, PathCollection,
     PolyCollection, RegularPolyCollection)
+from matplotlib.text import Text
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 from matplotlib.transforms import BboxTransformTo, BboxTransformFrom
 from matplotlib.offsetbox import (
@@ -93,7 +94,7 @@ class DraggableLegend(DraggableOffsetBox):
         self.legend.set_bbox_to_anchor(loc_in_bbox)
 
 
-docstring.interpd.update(_legend_kw_doc="""
+_docstring.interpd.update(_legend_kw_doc="""
 loc : str or pair of floats, default: :rc:`legend.loc` ('best' for axes, \
 'upper right' for figures)
     The location of the legend.
@@ -293,7 +294,7 @@ class Legend(Artist):
     def __str__(self):
         return "Legend"
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(
         self, parent, handles, labels,
         loc=None,
@@ -406,9 +407,9 @@ class Legend(Artist):
         _lab, _hand = [], []
         for label, handle in zip(labels, handles):
             if isinstance(label, str) and label.startswith('_'):
-                _api.warn_external('The handle {!r} has a label of {!r} '
-                                   'which cannot be automatically added to'
-                                   ' the legend.'.format(handle, label))
+                _api.warn_external(f"The label {label!r} of {handle!r} starts "
+                                   "with '_'. It is thus excluded from the "
+                                   "legend.")
             else:
                 _lab.append(label)
                 _hand.append(handle)
@@ -557,8 +558,7 @@ class Legend(Artist):
                                        colors.to_rgba_array(labelcolor))):
                 text.set_color(color)
         else:
-            raise ValueError("Invalid argument for labelcolor : %s" %
-                             str(labelcolor))
+            raise ValueError(f"Invalid labelcolor: {labelcolor!r}")
 
     def _set_artist_props(self, a):
         """
@@ -740,11 +740,12 @@ class Legend(Artist):
             handler = self.get_legend_handler(legend_handler_map, orig_handle)
             if handler is None:
                 _api.warn_external(
-                    "Legend does not support {!r} instances.\nA proxy artist "
-                    "may be used instead.\nSee: "
-                    "https://matplotlib.org/users/legend_guide.html"
-                    "#creating-artists-specifically-for-adding-to-the-legend-"
-                    "aka-proxy-artists".format(orig_handle))
+                             "Legend does not support handles for {0} "
+                             "instances.\nA proxy artist may be used "
+                             "instead.\nSee: https://matplotlib.org/"
+                             "stable/tutorials/intermediate/legend_guide.html"
+                             "#controlling-the-legend-entries".format(
+                                 type(orig_handle).__name__))
                 # No handle for this artist, so we just defer to None.
                 handle_list.append(None)
             else:
@@ -941,8 +942,7 @@ class Legend(Artist):
             try:
                 l = len(bbox)
             except TypeError as err:
-                raise ValueError("Invalid argument for bbox : %s" %
-                                 str(bbox)) from err
+                raise ValueError(f"Invalid bbox: {bbox}") from err
 
             if l == 2:
                 bbox = [bbox[0], bbox[1], 0, 0]
@@ -1074,14 +1074,14 @@ def _get_legend_handles(axs, legend_handler_map=None):
     for ax in axs:
         handles_original += [
             *(a for a in ax._children
-              if isinstance(a, (Line2D, Patch, Collection))),
+              if isinstance(a, (Line2D, Patch, Collection, Text))),
             *ax.containers]
         # support parasite axes:
         if hasattr(ax, 'parasites'):
             for axx in ax.parasites:
                 handles_original += [
                     *(a for a in axx._children
-                      if isinstance(a, (Line2D, Patch, Collection))),
+                      if isinstance(a, (Line2D, Patch, Collection, Text))),
                     *axx.containers]
 
     handler_map = {**Legend.get_default_handler_map(),
@@ -1091,6 +1091,15 @@ def _get_legend_handles(axs, legend_handler_map=None):
         label = handle.get_label()
         if label != '_nolegend_' and has_handler(handler_map, handle):
             yield handle
+        elif (label not in ['_nolegend_', ''] and
+                not has_handler(handler_map, handle)):
+            _api.warn_external(
+                             "Legend does not support handles for {0} "
+                             "instances.\nSee: https://matplotlib.org/stable/"
+                             "tutorials/intermediate/legend_guide.html"
+                             "#implementing-a-custom-legend-handler".format(
+                                 type(handle).__name__))
+            continue
 
 
 def _get_legend_handles_labels(axs, legend_handler_map=None):

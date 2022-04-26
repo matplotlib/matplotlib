@@ -11,8 +11,7 @@ from numpy.testing import (assert_array_equal, assert_approx_equal,
                            assert_array_almost_equal)
 import pytest
 
-from matplotlib import _api
-import matplotlib.cbook as cbook
+from matplotlib import _api, cbook
 import matplotlib.colors as mcolors
 from matplotlib.cbook import delete_masked_points
 
@@ -183,10 +182,10 @@ class Test_callback_registry:
         self.callbacks = cbook.CallbackRegistry()
 
     def connect(self, s, func, pickle):
-        cid = self.callbacks.connect(s, func)
         if pickle:
-            self.callbacks._pickled_cids.add(cid)
-        return cid
+            return self.callbacks.connect(s, func)
+        else:
+            return self.callbacks._connect_picklable(s, func)
 
     def disconnect(self, cid):
         return self.callbacks.disconnect(cid)
@@ -407,6 +406,27 @@ def test_callbackregistry_blocking():
         cb.process("test1")
     with pytest.raises(ValueError, match="2 should be blocked"):
         cb.process("test2")
+
+
+@pytest.mark.parametrize('line, result', [
+    ('a : no_comment', 'a : no_comment'),
+    ('a : "quoted str"', 'a : "quoted str"'),
+    ('a : "quoted str" # comment', 'a : "quoted str"'),
+    ('a : "#000000"', 'a : "#000000"'),
+    ('a : "#000000" # comment', 'a : "#000000"'),
+    ('a : ["#000000", "#FFFFFF"]', 'a : ["#000000", "#FFFFFF"]'),
+    ('a : ["#000000", "#FFFFFF"] # comment', 'a : ["#000000", "#FFFFFF"]'),
+    ('a : val  # a comment "with quotes"', 'a : val'),
+    ('# only comment "with quotes" xx', ''),
+])
+def test_strip_comment(line, result):
+    """Strip everything from the first unqouted #."""
+    assert cbook._strip_comment(line) == result
+
+
+def test_strip_comment_invalid():
+    with pytest.raises(ValueError, match="Missing closing quote"):
+        cbook._strip_comment('grid.color: "aa')
 
 
 def test_sanitize_sequence():
@@ -681,12 +701,35 @@ def test_reshape2d_pandas(pd):
     for x, xnew in zip(X.T, Xnew):
         np.testing.assert_array_equal(x, xnew)
 
+
+def test_reshape2d_xarray(xr):
+    # separate to allow the rest of the tests to run if no xarray...
     X = np.arange(30).reshape(10, 3)
-    x = pd.DataFrame(X, columns=["a", "b", "c"])
+    x = xr.DataArray(X, dims=["x", "y"])
     Xnew = cbook._reshape_2D(x, 'x')
     # Need to check each row because _reshape_2D returns a list of arrays:
     for x, xnew in zip(X.T, Xnew):
         np.testing.assert_array_equal(x, xnew)
+
+
+def test_index_of_pandas(pd):
+    # separate to allow the rest of the tests to run if no pandas...
+    X = np.arange(30).reshape(10, 3)
+    x = pd.DataFrame(X, columns=["a", "b", "c"])
+    Idx, Xnew = cbook.index_of(x)
+    np.testing.assert_array_equal(X, Xnew)
+    IdxRef = np.arange(10)
+    np.testing.assert_array_equal(Idx, IdxRef)
+
+
+def test_index_of_xarray(xr):
+    # separate to allow the rest of the tests to run if no xarray...
+    X = np.arange(30).reshape(10, 3)
+    x = xr.DataArray(X, dims=["x", "y"])
+    Idx, Xnew = cbook.index_of(x)
+    np.testing.assert_array_equal(X, Xnew)
+    IdxRef = np.arange(10)
+    np.testing.assert_array_equal(Idx, IdxRef)
 
 
 def test_contiguous_regions():

@@ -8,6 +8,7 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib.figure import Figure
+from matplotlib.text import Text
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
@@ -252,7 +253,7 @@ def test_gid():
         # we need to exclude certain objects which will not appear in the svg
         if isinstance(obj, OffsetBox):
             return False
-        if isinstance(obj, plt.Text):
+        if isinstance(obj, Text):
             if obj.get_text() == "":
                 return False
             elif obj.axes is None:

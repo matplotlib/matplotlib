@@ -7,7 +7,6 @@ import pytest
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.backend_bases import MouseEvent
 import matplotlib.collections as mcollections
 import matplotlib.colors as mcolors
 import matplotlib.transforms as mtransforms
@@ -711,6 +710,22 @@ def test_singleton_autolim():
     np.testing.assert_allclose(ax.get_xlim(), [-0.06, 0.06])
 
 
+@pytest.mark.parametrize("transform, expected", [
+    ("transData", (-0.5, 3.5)),
+    ("transAxes", (2.8, 3.2)),
+])
+def test_autolim_with_zeros(transform, expected):
+    # 1) Test that a scatter at (0, 0) data coordinates contributes to
+    # autoscaling even though any(offsets) would be False in that situation.
+    # 2) Test that specifying transAxes for the transform does not contribute
+    # to the autoscaling.
+    fig, ax = plt.subplots()
+    ax.scatter(0, 0, transform=getattr(ax, transform))
+    ax.scatter(3, 3)
+    np.testing.assert_allclose(ax.get_ylim(), expected)
+    np.testing.assert_allclose(ax.get_xlim(), expected)
+
+
 @pytest.mark.parametrize('flat_ref, kwargs', [
     (True, {}),
     (False, {}),
@@ -1021,26 +1036,6 @@ def test_array_wrong_dimensions():
     pc = plt.pcolormesh(z)
     pc.set_array(z)  # 2D is OK for Quadmesh
     pc.update_scalarmappable()
-
-
-def test_quadmesh_cursor_data():
-    fig, ax = plt.subplots()
-    *_, qm = ax.hist2d(
-        np.arange(11)**2, 100 + np.arange(11)**2)  # width-10 bins
-
-    x, y = ax.transData.transform([1, 101])
-    event = MouseEvent('motion_notify_event', fig.canvas, x, y)
-
-    assert qm.get_show_cursor_data() is False
-    assert qm.get_cursor_data(event) is None
-
-    qm.set_show_cursor_data(True)
-    assert qm.get_cursor_data(event) == 4  # (0**2, 1**2, 2**2, 3**2)
-
-    # Outside the quadmesh bounds
-    x, y = ax.transData.transform([-1, 101])
-    event = MouseEvent('motion_notify_event', fig.canvas, x, y)
-    assert qm.get_cursor_data(event) is None
 
 
 def test_get_segments():

@@ -80,6 +80,25 @@ you can install Matplotlib via your package manager, e.g.:
 
 .. _install_from_source:
 
+==========================
+Installing a nightly build
+==========================
+
+Matplotlib makes nightly development build wheels available on the
+`scipy-wheels-nightly Anaconda Cloud organization
+<https://anaconda.org/scipy-wheels-nightly>`_.
+These wheels can be installed with ``pip`` by specifying scipy-wheels-nightly
+as the package index to query:
+
+.. code-block:: sh
+
+  python -m pip install \
+    --upgrade \
+    --pre \
+    --index-url https://pypi.anaconda.org/scipy-wheels-nightly/simple \
+    --extra-index-url https://pypi.org/simple \
+    matplotlib
+
 ======================
 Installing from source
 ======================

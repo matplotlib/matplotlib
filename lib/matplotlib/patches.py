@@ -13,7 +13,7 @@ from collections import namedtuple
 import numpy as np
 
 import matplotlib as mpl
-from . import (_api, artist, cbook, colors, docstring, hatch as mhatch,
+from . import (_api, artist, cbook, colors, _docstring, hatch as mhatch,
                lines as mlines, transforms)
 from .bezier import (
     NonIntersectingPathException, get_cos_sin, get_intersection,
@@ -23,8 +23,8 @@ from .path import Path
 from ._enums import JoinStyle, CapStyle
 
 
-@docstring.interpd
-@cbook._define_aliases({
+@_docstring.interpd
+@_api.define_aliases({
     "antialiased": ["aa"],
     "edgecolor": ["ec"],
     "facecolor": ["fc"],
@@ -39,18 +39,6 @@ class Patch(artist.Artist):
     are *None*, they default to their rc params setting.
     """
     zorder = 1
-
-    @_api.deprecated("3.4")
-    @_api.classproperty
-    def validCap(cls):
-        with _api.suppress_matplotlib_deprecation_warning():
-            return mlines.Line2D.validCap
-
-    @_api.deprecated("3.4")
-    @_api.classproperty
-    def validJoin(cls):
-        with _api.suppress_matplotlib_deprecation_warning():
-            return mlines.Line2D.validJoin
 
     # Whether to draw an edge by default.  Set on a
     # subclass-by-subclass basis.
@@ -75,16 +63,12 @@ class Patch(artist.Artist):
         """
         super().__init__()
 
-        if linewidth is None:
-            linewidth = mpl.rcParams['patch.linewidth']
         if linestyle is None:
             linestyle = "solid"
         if capstyle is None:
             capstyle = CapStyle.butt
         if joinstyle is None:
             joinstyle = JoinStyle.miter
-        if antialiased is None:
-            antialiased = mpl.rcParams['patch.antialiased']
 
         self._hatch_color = colors.to_rgba(mpl.rcParams['hatch.color'])
         self._fill = True  # needed for set_facecolor call
@@ -111,7 +95,7 @@ class Patch(artist.Artist):
         self.set_joinstyle(joinstyle)
 
         if len(kwargs):
-            self.update(kwargs)
+            self._internal_update(kwargs)
 
     def get_verts(self):
         """
@@ -405,8 +389,6 @@ class Patch(artist.Artist):
         """
         if w is None:
             w = mpl.rcParams['patch.linewidth']
-            if w is None:
-                w = mpl.rcParams['axes.linewidth']
         self._linewidth = float(w)
         self._dash_pattern = mlines._scale_dashes(
             *self._unscaled_dash_pattern, w)
@@ -469,7 +451,7 @@ class Patch(artist.Artist):
     # attribute.
     fill = property(get_fill, set_fill)
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_capstyle(self, s):
         """
         Set the `.CapStyle`.
@@ -489,7 +471,7 @@ class Patch(artist.Artist):
         """Return the capstyle."""
         return self._capstyle.name
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_joinstyle(self, s):
         """
         Set the `.JoinStyle`.
@@ -635,7 +617,7 @@ class Shadow(Patch):
     def __str__(self):
         return "Shadow(%s)" % (str(self.patch))
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, patch, ox, oy, **kwargs):
         """
         Create a shadow of the given *patch*.
@@ -707,7 +689,7 @@ class Rectangle(Patch):
         fmt = "Rectangle(xy=(%g, %g), width=%g, height=%g, angle=%g)"
         return fmt % pars
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0.0, *,
                  rotation_point='xy', **kwargs):
         """
@@ -909,7 +891,7 @@ class RegularPolygon(Patch):
         return s % (self.xy[0], self.xy[1], self.numvertices, self.radius,
                     self.orientation)
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, xy, numVertices, radius=5, orientation=0,
                  **kwargs):
         """
@@ -959,7 +941,7 @@ class PathPatch(Patch):
         s = "PathPatch%d((%g, %g) ...)"
         return s % (len(self._path.vertices), *tuple(self._path.vertices[0]))
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, path, **kwargs):
         """
         *path* is a `~.path.Path` object.
@@ -988,7 +970,7 @@ class StepPatch(PathPatch):
 
     _edge_default = False
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, values, edges, *,
                  orientation='vertical', baseline=0, **kwargs):
         """
@@ -1096,7 +1078,7 @@ class Polygon(Patch):
         else:
             return "Polygon0()"
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, xy, closed=True, **kwargs):
         """
         *xy* is a numpy array with shape Nx2.
@@ -1192,7 +1174,7 @@ class Wedge(Patch):
         fmt = "Wedge(center=(%g, %g), r=%g, theta1=%g, theta2=%g, width=%s)"
         return fmt % pars
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, center, r, theta1, theta2, width=None, **kwargs):
         """
         A wedge centered at *x*, *y* center with radius *r* that
@@ -1288,7 +1270,7 @@ class Arrow(Patch):
                   [0.8, 0.1], [0.0, 0.1]],
                  closed=True)
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, x, y, dx, dy, width=1.0, **kwargs):
         """
         Draws an arrow from (*x*, *y*) to (*x* + *dx*, *y* + *dy*).
@@ -1343,7 +1325,7 @@ class FancyArrow(Polygon):
     def __str__(self):
         return "FancyArrow()"
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, x, y, dx, dy, width=0.001, length_includes_head=False,
                  head_width=None, head_length=None, shape='full', overhang=0,
                  head_starts_at_zero=False, **kwargs):
@@ -1412,13 +1394,13 @@ class FancyArrow(Polygon):
         dx, dy : float or None, default: None
             The length of the arrow along x and y direction.
 
-        width: float or None, default: None
+        width : float or None, default: None
             Width of full arrow tail.
 
-        head_width: float or None, default: None
+        head_width : float or None, default: None
             Total width of the full arrow head.
 
-        head_length: float or None, default: None
+        head_length : float or None, default: None
             Length of arrow head.
         """
         if x is not None:
@@ -1487,7 +1469,7 @@ class FancyArrow(Polygon):
                     coords = np.concatenate([left_half_arrow[:-1],
                                              right_half_arrow[-2::-1]])
                 else:
-                    raise ValueError("Got unknown shape: %s" % self.shape)
+                    raise ValueError(f"Got unknown shape: {self._shape!r}")
             if distance != 0:
                 cx = self._dx / distance
                 sx = self._dy / distance
@@ -1501,7 +1483,7 @@ class FancyArrow(Polygon):
             ]
 
 
-docstring.interpd.update(
+_docstring.interpd.update(
     FancyArrow="\n".join(
         (inspect.getdoc(FancyArrow.__init__) or "").splitlines()[2:]))
 
@@ -1513,7 +1495,7 @@ class CirclePolygon(RegularPolygon):
         s = "CirclePolygon((%g, %g), radius=%g, resolution=%d)"
         return s % (self.xy[0], self.xy[1], self.radius, self.numvertices)
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, xy, radius=5,
                  resolution=20,  # the number of vertices
                  ** kwargs):
@@ -1539,7 +1521,7 @@ class Ellipse(Patch):
         fmt = "Ellipse(xy=(%s, %s), width=%s, height=%s, angle=%s)"
         return fmt % pars
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0, **kwargs):
         """
         Parameters
@@ -1687,7 +1669,7 @@ class Annulus(Patch):
     An elliptical annulus.
     """
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, xy, r, width, angle=0.0, **kwargs):
         """
         Parameters
@@ -1878,7 +1860,7 @@ class Circle(Ellipse):
         fmt = "Circle(xy=(%g, %g), radius=%g)"
         return fmt % pars
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, xy, radius=5, **kwargs):
         """
         Create a true circle at center *xy* = (*x*, *y*) with given *radius*.
@@ -1930,7 +1912,7 @@ class Arc(Ellipse):
                "height=%g, angle=%g, theta1=%g, theta2=%g)")
         return fmt % pars
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def __init__(self, xy, width, height, angle=0.0,
                  theta1=0.0, theta2=360.0, **kwargs):
         """
@@ -2199,28 +2181,24 @@ class _Style:
     where actual styles are declared as subclass of it, and it
     provides some helper functions.
     """
+
     def __new__(cls, stylename, **kwargs):
         """Return the instance of the subclass with the given style name."""
-
         # The "class" should have the _style_list attribute, which is a mapping
         # of style names to style classes.
-
         _list = stylename.replace(" ", "").split(",")
         _name = _list[0].lower()
         try:
             _cls = cls._style_list[_name]
         except KeyError as err:
-            raise ValueError("Unknown style : %s" % stylename) from err
-
+            raise ValueError(f"Unknown style: {stylename!r}") from err
         try:
             _args_pair = [cs.split("=") for cs in _list[1:]]
             _args = {k: float(v) for k, v in _args_pair}
         except ValueError as err:
-            raise ValueError("Incorrect style argument : %s" %
-                             stylename) from err
-        _args.update(kwargs)
-
-        return _cls(**_args)
+            raise ValueError(
+                f"Incorrect style argument: {stylename!r}") from err
+        return _cls(**{**_args, **kwargs})
 
     @classmethod
     def get_styles(cls):
@@ -3910,15 +3888,15 @@ class ArrowStyle(_Style):
             return path, True
 
 
-docstring.interpd.update(
+_docstring.interpd.update(
     AvailableBoxstyles=BoxStyle.pprint_styles(),
     ListBoxstyles=_simpleprint_styles(BoxStyle._style_list),
     AvailableArrowstyles=ArrowStyle.pprint_styles(),
     AvailableConnectorstyles=ConnectionStyle.pprint_styles(),
 )
-docstring.dedent_interpd(BoxStyle)
-docstring.dedent_interpd(ArrowStyle)
-docstring.dedent_interpd(ConnectionStyle)
+_docstring.dedent_interpd(BoxStyle)
+_docstring.dedent_interpd(ArrowStyle)
+_docstring.dedent_interpd(ConnectionStyle)
 
 
 class FancyBboxPatch(Patch):
@@ -3937,7 +3915,7 @@ class FancyBboxPatch(Patch):
         s = self.__class__.__name__ + "((%g, %g), width=%g, height=%g)"
         return s % (self._x, self._y, self._width, self._height)
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     @_api.delete_parameter("3.4", "bbox_transmuter", alternative="boxstyle")
     def __init__(self, xy, width, height,
                  boxstyle="round", bbox_transmuter=None,
@@ -4007,7 +3985,7 @@ class FancyBboxPatch(Patch):
 
         self.stale = True
 
-    @docstring.dedent_interpd
+    @_docstring.dedent_interpd
     def set_boxstyle(self, boxstyle=None, **kwargs):
         """
         Set the box style.
@@ -4228,14 +4206,12 @@ class FancyArrowPatch(Patch):
         else:
             return f"{type(self).__name__}({self._path_original})"
 
-    @docstring.dedent_interpd
-    @_api.delete_parameter("3.4", "dpi_cor")
+    @_docstring.dedent_interpd
     def __init__(self, posA=None, posB=None, path=None,
                  arrowstyle="simple", connectionstyle="arc3",
                  patchA=None, patchB=None,
                  shrinkA=2, shrinkB=2,
                  mutation_scale=1, mutation_aspect=1,
-                 dpi_cor=1,
                  **kwargs):
         """
         There are two ways for defining an arrow:
@@ -4291,10 +4267,6 @@ default: 'arc3'
             the mutation and the mutated box will be stretched by the inverse
             of it.
 
-        dpi_cor : float, default: 1
-            dpi_cor is currently used for linewidth-related things and shrink
-            factor. Mutation scale is affected by this.  Deprecated.
-
         Other Parameters
         ----------------
         **kwargs : `.Patch` properties, optional
@@ -4335,32 +4307,7 @@ default: 'arc3'
         self._mutation_scale = mutation_scale
         self._mutation_aspect = mutation_aspect
 
-        self._dpi_cor = dpi_cor
-
-    @_api.deprecated("3.4")
-    def set_dpi_cor(self, dpi_cor):
-        """
-        dpi_cor is currently used for linewidth-related things and
-        shrink factor. Mutation scale is affected by this.
-
-        Parameters
-        ----------
-        dpi_cor : float
-        """
-        self._dpi_cor = dpi_cor
-        self.stale = True
-
-    @_api.deprecated("3.4")
-    def get_dpi_cor(self):
-        """
-        dpi_cor is currently used for linewidth-related things and
-        shrink factor. Mutation scale is affected by this.
-
-        Returns
-        -------
-        scalar
-        """
-        return self._dpi_cor
+        self._dpi_cor = 1.0
 
     def set_positions(self, posA, posB):
         """
@@ -4574,8 +4521,7 @@ class ConnectionPatch(FancyArrowPatch):
         return "ConnectionPatch((%g, %g), (%g, %g))" % \
                (self.xy1[0], self.xy1[1], self.xy2[0], self.xy2[1])
 
-    @docstring.dedent_interpd
-    @_api.delete_parameter("3.4", "dpi_cor")
+    @_docstring.dedent_interpd
     def __init__(self, xyA, xyB, coordsA, coordsB=None,
                  axesA=None, axesB=None,
                  arrowstyle="-",
@@ -4587,7 +4533,6 @@ class ConnectionPatch(FancyArrowPatch):
                  mutation_scale=10.,
                  mutation_aspect=None,
                  clip_on=False,
-                 dpi_cor=1.,
                  **kwargs):
         """
         Connect point *xyA* in *coordsA* with point *xyB* in *coordsB*.
@@ -4677,8 +4622,6 @@ class ConnectionPatch(FancyArrowPatch):
                          mutation_aspect=mutation_aspect,
                          clip_on=clip_on,
                          **kwargs)
-        self._dpi_cor = dpi_cor
-
         # if True, draw annotation only if self.xy is inside the axes
         self._annotation_clip = None
 
@@ -4741,18 +4684,16 @@ class ConnectionPatch(FancyArrowPatch):
 
     def set_annotation_clip(self, b):
         """
-        Set the clipping behavior.
+        Set the annotation's clipping behavior.
 
         Parameters
         ----------
         b : bool or None
-
-            - *False*: The annotation will always be drawn regardless of its
-              position.
-            - *True*: The annotation will only be drawn if ``self.xy`` is
-              inside the axes.
-            - *None*: The annotation will only be drawn if ``self.xy`` is
-              inside the axes and  ``self.xycoords == "data"``.
+            - True: The annotation will be clipped when ``self.xy`` is
+              outside the axes.
+            - False: The annotation will always be drawn.
+            - None: The annotation will be clipped when ``self.xy`` is
+              outside the axes and ``self.xycoords == "data"``.
         """
         self._annotation_clip = b
         self.stale = True

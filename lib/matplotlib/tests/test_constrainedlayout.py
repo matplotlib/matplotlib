@@ -3,9 +3,8 @@ import pytest
 
 from matplotlib.testing.decorators import image_comparison
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 import matplotlib.transforms as mtransforms
-from matplotlib import ticker, rcParams
+from matplotlib import gridspec, ticker, rcParams
 
 
 def example_plot(ax, fontsize=12, nodec=False):
@@ -131,7 +130,7 @@ def test_identical_subgridspec():
         axb += [fig.add_subplot(GSB[i])]
 
     fig.draw_without_rendering()
-    # chech first row above second
+    # check first row above second
     assert axa[0].get_position().y0 > axb[0].get_position().y1
 
 
@@ -466,8 +465,7 @@ def test_colorbar_align():
                                        cbs[3].ax.get_position().y0)
 
 
-@image_comparison(['test_colorbars_no_overlapV.png'],
-                  remove_text=False, style='mpl20')
+@image_comparison(['test_colorbars_no_overlapV.png'], style='mpl20')
 def test_colorbars_no_overlapV():
     fig = plt.figure(figsize=(2, 4), layout="constrained")
     axs = fig.subplots(2, 1, sharex=True, sharey=True)
@@ -479,8 +477,7 @@ def test_colorbars_no_overlapV():
     fig.suptitle("foo")
 
 
-@image_comparison(['test_colorbars_no_overlapH.png'],
-                  remove_text=False, style='mpl20')
+@image_comparison(['test_colorbars_no_overlapH.png'], style='mpl20')
 def test_colorbars_no_overlapH():
     fig = plt.figure(figsize=(4, 2), layout="constrained")
     fig.suptitle("foo")

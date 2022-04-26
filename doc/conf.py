@@ -19,7 +19,6 @@ import sys
 import warnings
 
 import matplotlib
-import sphinx
 
 from datetime import datetime
 import time
@@ -48,10 +47,6 @@ sys.path.append('.')
 # docs build to fail. This is especially useful for getting rid of deprecated
 # usage in the gallery.
 warnings.filterwarnings('error', append=True)
-
-# Strip backslashes in function's signature
-# To be removed when numpydoc > 0.9.x
-strip_signature_backslash = True
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
@@ -89,14 +84,11 @@ panels_add_bootstrap_css = False
 
 def _check_dependencies():
     names = {
+        **{ext: ext.split(".")[0] for ext in extensions},
+        # Explicitly list deps that are not extensions, or whose PyPI package
+        # name does not match the (toplevel) module name.
         "colorspacious": 'colorspacious',
-        "IPython.sphinxext.ipython_console_highlighting": 'ipython',
-        "matplotlib": 'matplotlib',
-        "numpydoc": 'numpydoc',
-        "PIL.Image": 'pillow',
-        "pydata_sphinx_theme": 'pydata_sphinx_theme',
-        "sphinx_copybutton": 'sphinx_copybutton',
-        "sphinx_gallery": 'sphinx_gallery',
+        "mpl_sphinx_theme": 'mpl_sphinx_theme',
         "sphinxcontrib.inkscapeconverter": 'sphinxcontrib-svg2pdfconverter',
     }
     missing = []
@@ -144,9 +136,7 @@ autodoc_default_options = {'members': None, 'undoc-members': None}
 warnings.filterwarnings('ignore', category=DeprecationWarning,
                         module='sphinx.util.inspect')
 
-# missing-references names matches sphinx>=3 behavior, so we can't be nitpicky
-# for older sphinxes.
-nitpicky = sphinx.version_info >= (3,)
+nitpicky = True
 # change this to True to update the allowed failures
 missing_references_write_json = False
 missing_references_warn_unused_ignores = False
@@ -288,7 +278,16 @@ default_role = 'obj'
 # Plot directive configuration
 # ----------------------------
 
-plot_formats = [('png', 100), ('pdf', 100)]
+# For speedup, decide which plot_formats to build based on build targets:
+#     html only -> png
+#     latex only -> pdf
+#     all other cases, including html + latex -> png, pdf
+# For simplicity, we assume that the build targets appear in the command line.
+# We're falling back on using all formats in case that assumption fails.
+formats = {'html': ('png', 100), 'latex': ('pdf', 100)}
+plot_formats = [formats[target] for target in ['html', 'latex']
+                if target in sys.argv] or list(formats.values())
+
 
 # GitHub extension
 
@@ -341,6 +340,9 @@ html_static_path = ['_static']
 # If nonempty, this is the file name suffix for generated HTML files.  The
 # default is ``".html"``.
 html_file_suffix = '.html'
+
+# this makes this the canonical link for all the pages on the site...
+html_baseurl = 'https://matplotlib.org/stable/'
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -429,7 +431,7 @@ latex_elements['fontenc'] = r'''
 # Sphinx 2.0 adopts GNU FreeFont by default, but it does not have all
 # the Unicode codepoints needed for the section about Mathtext
 # "Writing mathematical expressions"
-fontpkg = r"""
+latex_elements['fontpkg'] = r"""
 \IfFontExistsTF{XITS}{
  \setmainfont{XITS}
 }{
@@ -469,12 +471,7 @@ fontpkg = r"""
   Extension      = .otf,
 ]}
 """
-latex_elements['fontpkg'] = fontpkg
 
-# Sphinx <1.8.0 or >=2.0.0 does this by default, but the 1.8.x series
-# did not for latex_engine = 'xelatex' (as it used Latin Modern font).
-# We need this for code-blocks as FreeMono has wide glyphs.
-latex_elements['fvset'] = r'\fvset{fontsize=\small}'
 # Fix fancyhdr complaining about \headheight being too small
 latex_elements['passoptionstopackages'] = r"""
     \PassOptionsToPackage{headheight=14pt}{geometry}
@@ -552,29 +549,12 @@ graphviz_dot = shutil.which('dot')
 # graphviz_output_format = 'svg'
 
 
-def reduce_plot_formats(app):
-    # Fox CI and local builds, we don't need all the default plot formats, so
-    # only generate the directly useful one for the current builder.
-    if app.builder.name == 'html':
-        keep = 'png'
-    elif app.builder.name == 'latex':
-        keep = 'pdf'
-    else:
-        return
-    app.config.plot_formats = [entry
-                               for entry in app.config.plot_formats
-                               if entry[0] == keep]
-
-
 def setup(app):
     if any(st in version for st in ('post', 'alpha', 'beta')):
         bld_type = 'dev'
     else:
         bld_type = 'rel'
     app.add_config_value('releaselevel', bld_type, 'env')
-
-    if not is_release_build:
-        app.connect('builder-inited', reduce_plot_formats)
 
 # -----------------------------------------------------------------------------
 # Source code links

@@ -17,14 +17,14 @@ import warnings
 import numpy as np
 
 import matplotlib as mpl
-from . import (_api, _path, artist, cbook, cm, colors as mcolors, docstring,
+from . import (_api, _path, artist, cbook, cm, colors as mcolors, _docstring,
                hatch as mhatch, lines as mlines, path as mpath, transforms)
 from ._enums import JoinStyle, CapStyle
 
 
 # "color" is excluded; it is a compound setter, and its docstring differs
 # in LineCollection.
-@cbook._define_aliases({
+@_api.define_aliases({
     "antialiased": ["antialiaseds", "aa"],
     "edgecolor": ["edgecolors", "ec"],
     "facecolor": ["facecolors", "fc"],
@@ -75,7 +75,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     # subclass-by-subclass basis.
     _edge_default = False
 
-    @docstring.interpd
+    @_docstring.interpd
     def __init__(self,
                  edgecolors=None,
                  facecolors=None,
@@ -206,7 +206,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._offset_transform = offset_transform
 
         self._path_effects = None
-        self.update(kwargs)
+        self._internal_update(kwargs)
         self._paths = None
 
     def get_paths(self):
@@ -258,9 +258,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         transform = self.get_transform()
         offset_trf = self.get_offset_transform()
-        has_offsets = np.any(self._offsets)  # True if any non-zero offsets
-        if has_offsets and not offset_trf.contains_branch(transData):
-            # if there are offsets but in some coords other than data,
+        if not (isinstance(offset_trf, transforms.IdentityTransform)
+                or offset_trf.contains_branch(transData)):
+            # if the offsets are in some coords other than data,
             # then don't use them for autoscaling.
             return transforms.Bbox.null()
         offsets = self._offsets
@@ -289,20 +289,19 @@ class Collection(artist.Artist, cm.ScalarMappable):
                     self.get_transforms(),
                     offset_trf.transform_non_affine(offsets),
                     offset_trf.get_affine().frozen())
-            if has_offsets:
-                # this is for collections that have their paths (shapes)
-                # in physical, axes-relative, or figure-relative units
-                # (i.e. like scatter). We can't uniquely set limits based on
-                # those shapes, so we just set the limits based on their
-                # location.
 
-                offsets = (offset_trf - transData).transform(offsets)
-                # note A-B means A B^{-1}
-                offsets = np.ma.masked_invalid(offsets)
-                if not offsets.mask.all():
-                    bbox = transforms.Bbox.null()
-                    bbox.update_from_data_xy(offsets)
-                    return bbox
+            # this is for collections that have their paths (shapes)
+            # in physical, axes-relative, or figure-relative units
+            # (i.e. like scatter). We can't uniquely set limits based on
+            # those shapes, so we just set the limits based on their
+            # location.
+            offsets = (offset_trf - transData).transform(offsets)
+            # note A-B means A B^{-1}
+            offsets = np.ma.masked_invalid(offsets)
+            if not offsets.mask.all():
+                bbox = transforms.Bbox.null()
+                bbox.update_from_data_xy(offsets)
+                return bbox
         return transforms.Bbox.null()
 
     def get_window_extent(self, renderer):
@@ -631,7 +630,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._linewidths, self._linestyles = self._bcast_lwls(
             self._us_lw, self._us_linestyles)
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_capstyle(self, cs):
         """
         Set the `.CapStyle` for the collection (for all its elements).
@@ -645,7 +644,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
     def get_capstyle(self):
         return self._capstyle.name
 
-    @docstring.interpd
+    @_docstring.interpd
     def set_joinstyle(self, js):
         """
         Set the `.JoinStyle` for the collection (for all its elements).
@@ -691,7 +690,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             dashes = list(dashes) * (l_lw // gcd)
             linewidths = list(linewidths) * (l_dashes // gcd)
 
-        # scale the dash patters
+        # scale the dash patterns
         dashes = [mlines._scale_dashes(o, d, lw)
                   for (o, d), lw in zip(dashes, linewidths)]
 
@@ -1130,9 +1129,9 @@ class PathCollection(_CollectionWithSizes):
             ix = np.argsort(xarr)
             values = np.interp(label_values, xarr[ix], yarr[ix])
 
-        kw = dict(markeredgewidth=self.get_linewidths()[0],
-                  alpha=self.get_alpha())
-        kw.update(kwargs)
+        kw = {"markeredgewidth": self.get_linewidths()[0],
+              "alpha": self.get_alpha(),
+              **kwargs}
 
         for val, lab in zip(values, label_values):
             if prop == "colors":
@@ -1421,7 +1420,7 @@ class LineCollection(Collection):
         if args:
             argkw = {name: val for name, val in zip(argnames, args)}
             kwargs.update(argkw)
-            cbook.warn_deprecated(
+            _api.warn_deprecated(
                 "3.4", message="Since %(since)s, passing LineCollection "
                 "arguments other than the first, 'segments', as positional "
                 "arguments is deprecated, and they will become keyword-only "
@@ -1765,7 +1764,7 @@ class EllipseCollection(Collection):
         elif self._units == 'dots':
             sc = 1.0
         else:
-            raise ValueError('unrecognized units: %s' % self._units)
+            raise ValueError(f'Unrecognized units: {self._units!r}')
 
         self._transforms = np.zeros((len(self._widths), 3, 3))
         widths = self._widths * sc
@@ -1912,7 +1911,7 @@ class QuadMesh(Collection):
     r"""
     Class for the efficient drawing of a quadrilateral mesh.
 
-    A quadrilateral mesh is a grid of M by N adjacent qudrilaterals that are
+    A quadrilateral mesh is a grid of M by N adjacent quadrilaterals that are
     defined via a (M+1, N+1) grid of vertices. The quadrilateral (m, n) is
     defined by the vertices ::
 
@@ -2000,10 +1999,10 @@ class QuadMesh(Collection):
         self._shading = shading
         self._bbox = transforms.Bbox.unit()
         self._bbox.update_from_data_xy(self._coordinates.reshape(-1, 2))
-        self._show_cursor_data = False
         # super init delayed after own init because array kwarg requires
         # self._coordinates and self._shading
         super().__init__(**kwargs)
+        self.set_mouseover(False)
 
     # Only needed during signature deprecation
     __init__.__signature__ = inspect.signature(
@@ -2198,23 +2197,7 @@ class QuadMesh(Collection):
         renderer.close_group(self.__class__.__name__)
         self.stale = False
 
-    def set_show_cursor_data(self, show_cursor_data):
-        """
-        Set whether cursor data should be shown.
-
-        Notes
-        -----
-        This is set to `False` by default for new quad meshes. Showing cursor
-        data can have significant performance impacts for large meshes.
-        """
-        self._show_cursor_data = show_cursor_data
-
-    def get_show_cursor_data(self):
-        return self._show_cursor_data
-
     def get_cursor_data(self, event):
-        if not self._show_cursor_data:
-            return
         contained, info = self.contains(event)
         if len(info["ind"]) == 1:
             ind, = info["ind"]

@@ -37,15 +37,15 @@ However, for other backends, such as Qt, that open a separate window,
 cells below those that create the plot will change the plot - it is a
 live object in memory.
 
-This tutorial will use Matplotlib's imperative-style plotting
-interface, pyplot.  This interface maintains global state, and is very
-useful for quickly and easily experimenting with various plot
-settings.  The alternative is the object-oriented interface, which is also
-very powerful, and generally more suitable for large application
-development.  If you'd like to learn about the object-oriented
-interface, a great place to start is our :doc:`Quick start guide
-</tutorials/introductory/quick_start>`.  For now, let's get on
-with the imperative-style approach:
+This tutorial will use Matplotlib's implicit plotting interface, pyplot.  This
+interface maintains global state, and is very useful for quickly and easily
+experimenting with various plot settings.  The alternative is the explicit,
+which is more suitable for large application development.  For an explanation
+of the tradeoffs between the implicit and explicit interfaces See
+:ref:`api_interfaces` and the :doc:`Quick start guide
+</tutorials/introductory/quick_start>` to start using the explicit interface.
+For now, let's get on with the implicit approach:
+
 """
 
 import matplotlib.pyplot as plt

@@ -20,6 +20,7 @@ from matplotlib.rcsetup import (
     _validate_color_or_linecolor,
     validate_cycler,
     validate_float,
+    validate_fontstretch,
     validate_fontweight,
     validate_hatch,
     validate_hist_bins,
@@ -469,6 +470,26 @@ def test_validate_fontweight(weight, parsed_weight):
         assert validate_fontweight(weight) == parsed_weight
 
 
+@pytest.mark.parametrize('stretch, parsed_stretch', [
+    ('expanded', 'expanded'),
+    ('EXPANDED', ValueError),  # stretch is case-sensitive
+    (100, 100),
+    ('100', 100),
+    (np.array(100), 100),
+    # fractional fontweights are not defined. This should actually raise a
+    # ValueError, but historically did not.
+    (20.6, 20),
+    ('20.6', ValueError),
+    ([100], ValueError),
+])
+def test_validate_fontstretch(stretch, parsed_stretch):
+    if parsed_stretch is ValueError:
+        with pytest.raises(ValueError):
+            validate_fontstretch(stretch)
+    else:
+        assert validate_fontstretch(stretch) == parsed_stretch
+
+
 def test_keymaps():
     key_list = [k for k in mpl.rcParams if 'keymap' in k]
     for k in key_list:
@@ -497,7 +518,8 @@ def test_backend_fallback_headless(tmpdir):
             [sys.executable, "-c",
              "import matplotlib;"
              "matplotlib.use('tkagg');"
-             "import matplotlib.pyplot"
+             "import matplotlib.pyplot;"
+             "matplotlib.pyplot.plot(42);"
              ],
             env=env, check=True, stderr=subprocess.DEVNULL)
 

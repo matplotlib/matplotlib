@@ -223,5 +223,5 @@ participate to the review process following our :ref:`review guidelines
 Acknowledgments
 ---------------
 
-This page is lightly adapted from `the sckit-learn project
+This page is lightly adapted from `the scikit-learn project
 <https://scikit-learn.org/dev/developers/bug_triaging.html>`_ .

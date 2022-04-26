@@ -840,7 +840,7 @@ inline bool segments_intersect(const double &x1,
 
     // If den == 0 we have two possibilities:
     if (isclose(den, 0.0)) {
-        float t_area = (x2*y3 - x3*y2) - x1*(y3 - y2) + y1*(x3 - x2);
+        double t_area = (x2*y3 - x3*y2) - x1*(y3 - y2) + y1*(x3 - x2);
         // 1 - If the area of the triangle made by the 3 first points (2 from the first segment
         // plus one from the second) is zero, they are collinear
         if (isclose(t_area, 0.0)) {
@@ -852,7 +852,6 @@ inline bool segments_intersect(const double &x1,
             else {
                 return (fmin(x1, x2) <= fmin(x3, x4) && fmin(x3, x4) <= fmax(x1, x2)) ||
                         (fmin(x3, x4) <= fmin(x1, x2) && fmin(x1, x2) <= fmax(x3, x4));
-                
             }
         }
         // 2 - If t_area is not zero, the segments are parallel, but not collinear
@@ -876,7 +875,6 @@ inline bool segments_intersect(const double &x1,
 template <class PathIterator1, class PathIterator2>
 bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
 {
-    
     typedef PathNanRemover<py::PathIterator> no_nans_t;
     typedef agg::conv_curve<no_nans_t> curve_t;
 
@@ -901,7 +899,6 @@ bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
         }
         c2.rewind(0);
         c2.vertex(&x21, &y21);
-        
 
         while (c2.vertex(&x22, &y22) != agg::path_cmd_stop) {
             // if the segment in path 2 is (almost) 0 length, skip to next vertex
@@ -1147,16 +1144,15 @@ bool __convert_to_string(PathIterator &path,
     double last_x = 0.0;
     double last_y = 0.0;
 
-    int size = 0;
     unsigned code;
 
     while ((code = path.vertex(&x[0], &y[0])) != agg::path_cmd_stop) {
         if (code == CLOSEPOLY) {
             buffer += codes[4];
         } else if (code < 5) {
-            size = NUM_VERTICES[code];
+            size_t size = NUM_VERTICES[code];
 
-            for (int i = 1; i < size; ++i) {
+            for (size_t i = 1; i < size; ++i) {
                 unsigned subcode = path.vertex(&x[i], &y[i]);
                 if (subcode != code) {
                     return false;
@@ -1176,7 +1172,7 @@ bool __convert_to_string(PathIterator &path,
                 buffer += ' ';
             }
 
-            for (int i = 0; i < size; ++i) {
+            for (size_t i = 0; i < size; ++i) {
                 __add_number(x[i], format_code, precision, buffer);
                 buffer += ' ';
                 __add_number(y[i], format_code, precision, buffer);

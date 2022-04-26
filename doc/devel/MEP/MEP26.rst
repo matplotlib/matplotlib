@@ -34,7 +34,7 @@ Detailed description
 ====================
 
 Currently, the look and appearance of existing artist objects (figure,
-axes, Line2D etc...) can only be updated via ``set_`` and ``get_`` methods
+axes, Line2D, etc.) can only be updated via ``set_`` and ``get_`` methods
 on the artist object, which is quite laborious, especially if no
 reference to the artist(s) has been stored.  The new style sheets
 introduced in 1.4 allow styling before a plot is created, but do not
@@ -51,7 +51,7 @@ of primitives.
 The new methodology would require development of a number of steps:
 
 - A new stylesheet syntax (likely based on CSS) to allow selection of
-  artists by type, class, id etc...
+  artists by type, class, id, etc.
 - A mechanism by which to parse a stylesheet into a tree
 - A mechanism by which to translate the parse-tree into something
   which can be used to update the properties of relevant
