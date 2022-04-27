@@ -10,8 +10,6 @@ For more information on colors in matplotlib see
 * the `matplotlib.colors` API;
 * the :doc:`/gallery/color/color_demo`.
 
-.. contents::
-
 ----------------------------
 Helper Function for Plotting
 ----------------------------
