@@ -3,10 +3,7 @@
 List of named colors
 ====================
 
-This plots a list of the named colors supported in matplotlib. Note that
-:ref:`xkcd colors <xkcd-colors>` are supported as well, but are not listed here
-for brevity.
-
+This plots a list of the named colors supported in matplotlib.
 For more information on colors in matplotlib see
 
 * the :doc:`/tutorials/colors/colors` tutorial;
@@ -104,15 +101,17 @@ plot_colortable(mcolors.TABLEAU_COLORS, "Tableau Palette",
 
 # sphinx_gallery_thumbnail_number = 3
 plot_colortable(mcolors.CSS4_COLORS, "CSS Colors")
-
-# Optionally plot the XKCD colors (Caution: will produce large figure)
-# xkcd_fig = plot_colortable(mcolors.XKCD_COLORS, "XKCD Colors")
-# xkcd_fig.savefig("XKCD_Colors.png")
-
 plt.show()
 
-
 #############################################################################
+# -----------
+# XKCD Colors
+# -----------
+# XKCD colors are supported, but they produce a large figure, so we skip them
+# for now. You can use the following code if desired::
+#
+#     xkcd_fig = plot_colortable(mcolors.XKCD_COLORS, "XKCD Colors")
+#     xkcd_fig.savefig("XKCD_Colors.png")
 #
 # .. admonition:: References
 #
