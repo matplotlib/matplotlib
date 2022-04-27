@@ -204,12 +204,12 @@ class Sankey:
                                  # Insignificant
                                  # [6.12303177e-17, 1.00000000e+00]])
                                  [0.00000000e+00, 1.00000000e+00]])
-        if quadrant == 0 or quadrant == 2:
+        if quadrant in (0, 2):
             if cw:
                 vertices = ARC_VERTICES
             else:
                 vertices = ARC_VERTICES[:, ::-1]  # Swap x and y.
-        elif quadrant == 1 or quadrant == 3:
+        else:  # 1, 3
             # Negate x.
             if cw:
                 # Swap x and y.
@@ -299,15 +299,11 @@ class Sankey:
             else:  # Vertical
                 x += self.gap
                 if angle == UP:
-                    sign = 1
+                    sign, quadrant = 1, 3
                 else:
-                    sign = -1
+                    sign, quadrant = -1, 0
 
                 tip = [x - flow / 2.0, y + sign * (length + tipheight)]
-                if angle == UP:
-                    quadrant = 3
-                else:
-                    quadrant = 0
                 # Inner arc isn't needed if inner radius is zero
                 if self.radius:
                     path.extend(self._arc(quadrant=quadrant,
@@ -525,7 +521,7 @@ class Sankey:
             if orient == 1:
                 if is_input:
                     angles[i] = DOWN
-                elif not is_input:
+                elif is_input is False:
                     # Be specific since is_input can be None.
                     angles[i] = UP
             elif orient == 0:
@@ -538,7 +534,7 @@ class Sankey:
                         f"but it must be -1, 0, or 1")
                 if is_input:
                     angles[i] = UP
-                elif not is_input:
+                elif is_input is False:
                     angles[i] = DOWN
 
         # Justify the lengths of the paths.
@@ -561,7 +557,7 @@ class Sankey:
                 if angle == DOWN and is_input:
                     pathlengths[i] = ullength
                     ullength += flow
-                elif angle == UP and not is_input:
+                elif angle == UP and is_input is False:
                     pathlengths[i] = urlength
                     urlength -= flow  # Flow is negative for outputs.
             # Determine the lengths of the bottom-side arrows
@@ -571,7 +567,7 @@ class Sankey:
                 if angle == UP and is_input:
                     pathlengths[n - i - 1] = lllength
                     lllength += flow
-                elif angle == DOWN and not is_input:
+                elif angle == DOWN and is_input is False:
                     pathlengths[n - i - 1] = lrlength
                     lrlength -= flow
             # Determine the lengths of the left-side arrows
@@ -591,7 +587,7 @@ class Sankey:
             for i, (angle, is_input, spec) in enumerate(zip(
                   angles, are_inputs, list(zip(scaled_flows, pathlengths)))):
                 if angle == RIGHT:
-                    if not is_input:
+                    if is_input is False:
                         if has_right_output:
                             pathlengths[i] = 0
                         else:
@@ -637,7 +633,7 @@ class Sankey:
             if angle == DOWN and is_input:
                 tips[i, :], label_locations[i, :] = self._add_input(
                     ulpath, angle, *spec)
-            elif angle == UP and not is_input:
+            elif angle == UP and is_input is False:
                 tips[i, :], label_locations[i, :] = self._add_output(
                     urpath, angle, *spec)
         # Add the bottom-side inputs and outputs from the middle outwards.
@@ -647,7 +643,7 @@ class Sankey:
                 tip, label_location = self._add_input(llpath, angle, *spec)
                 tips[n - i - 1, :] = tip
                 label_locations[n - i - 1, :] = label_location
-            elif angle == DOWN and not is_input:
+            elif angle == DOWN and is_input is False:
                 tip, label_location = self._add_output(lrpath, angle, *spec)
                 tips[n - i - 1, :] = tip
                 label_locations[n - i - 1, :] = label_location
@@ -670,7 +666,7 @@ class Sankey:
         has_right_output = False
         for i, (angle, is_input, spec) in enumerate(zip(
               angles, are_inputs, list(zip(scaled_flows, pathlengths)))):
-            if angle == RIGHT and not is_input:
+            if angle == RIGHT and is_input is False:
                 if not has_right_output:
                     # Make sure the upper path extends
                     # at least as far as the lower one.
