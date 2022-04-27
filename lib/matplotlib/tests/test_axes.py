@@ -4725,6 +4725,8 @@ def test_subplot_key_hash():
     assert ax.get_subplotspec().get_geometry() == (5, 1, 0, 0)
 
 
+@pytest.mark.filterwarnings(
+    'ignore::matplotlib._api.deprecation.MatplotlibDeprecationWarning')
 @image_comparison(
     ["specgram_freqs.png", "specgram_freqs_linear.png",
      "specgram_noise.png", "specgram_noise_linear.png"],
@@ -4761,6 +4763,8 @@ def test_specgram():
                         scale="linear", norm=matplotlib.colors.LogNorm())
 
 
+@pytest.mark.filterwarnings(
+    'ignore::matplotlib._api.deprecation.MatplotlibDeprecationWarning')
 @image_comparison(
     ["specgram_magnitude_freqs.png", "specgram_magnitude_freqs_linear.png",
      "specgram_magnitude_noise.png", "specgram_magnitude_noise_linear.png"],
@@ -4798,6 +4802,8 @@ def test_specgram_magnitude():
                         scale="linear", norm=matplotlib.colors.LogNorm())
 
 
+@pytest.mark.filterwarnings(
+    'ignore::matplotlib._api.deprecation.MatplotlibDeprecationWarning')
 @image_comparison(
     ["specgram_angle_freqs.png", "specgram_phase_freqs.png",
      "specgram_angle_noise.png", "specgram_phase_noise.png"],
@@ -4836,6 +4842,8 @@ def test_specgram_angle():
                                 scale="dB")
 
 
+@pytest.mark.filterwarnings(
+    'ignore::matplotlib._api.deprecation.MatplotlibDeprecationWarning')
 def test_specgram_fs_none():
     """Test axes.specgram when Fs is None, should not throw error."""
     spec, freqs, t, im = plt.specgram(np.ones(300), Fs=None, scale='linear')
@@ -4843,6 +4851,8 @@ def test_specgram_fs_none():
     assert xmin == 32 and xmax == 96
 
 
+@pytest.mark.filterwarnings(
+    'ignore::matplotlib._api.deprecation.MatplotlibDeprecationWarning')
 @check_figures_equal(extensions=["png"])
 def test_specgram_origin_rcparam(fig_test, fig_ref):
     """Test specgram ignores image.origin rcParam and uses origin 'upper'."""
@@ -4861,6 +4871,8 @@ def test_specgram_origin_rcparam(fig_test, fig_ref):
     fig_test.subplots().specgram(signal)
 
 
+@pytest.mark.filterwarnings(
+    'ignore::matplotlib._api.deprecation.MatplotlibDeprecationWarning')
 def test_specgram_origin_kwarg():
     """Ensure passing origin as a kwarg raises a TypeError."""
     t = np.arange(500)
@@ -4870,6 +4882,8 @@ def test_specgram_origin_kwarg():
         plt.specgram(signal, origin='lower')
 
 
+@pytest.mark.filterwarnings(
+    'ignore::matplotlib._api.deprecation.MatplotlibDeprecationWarning')
 @image_comparison(
     ["psd_freqs.png", "csd_freqs.png", "psd_noise.png", "csd_noise.png"],
     remove_text=True, tol=0.002)
@@ -4904,6 +4918,8 @@ def test_psd_csd():
             ax.set(xlabel="", ylabel="")
 
 
+@pytest.mark.filterwarnings(
+    'ignore::matplotlib._api.deprecation.MatplotlibDeprecationWarning')
 @image_comparison(
     ["magnitude_spectrum_freqs_linear.png",
      "magnitude_spectrum_freqs_dB.png",
@@ -4946,6 +4962,8 @@ def test_spectrum():
             ax.set(xlabel="", ylabel="")
 
 
+@pytest.mark.filterwarnings(
+    'ignore::matplotlib._api.deprecation.MatplotlibDeprecationWarning')
 def test_psd_csd_edge_cases():
     # Inverted yaxis or fully zero inputs used to throw exceptions.
     axs = plt.figure().subplots(2)

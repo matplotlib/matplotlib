@@ -5,6 +5,10 @@ import pytest
 
 from matplotlib import mlab, _api
 
+# this module is being deprecated as of 3.6, so...
+pytestmark = pytest.mark.filterwarnings(
+    'ignore::matplotlib._api.deprecation.MatplotlibDeprecationWarning')
+
 
 class TestStride:
     def get_base(self, x):

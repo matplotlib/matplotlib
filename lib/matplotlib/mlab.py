@@ -1,8 +1,6 @@
 """
-Numerical Python functions written for compatibility with MATLAB
-commands with the same names. Most numerical Python functions can be found in
-the `NumPy`_ and `SciPy`_ libraries. What remains here is code for performing
-spectral computations and kernel density estimations.
+This module is deprecated in favour of modules that can be found in
+the `NumPy`_ and `SciPy`_ libraries.
 
 .. _NumPy: https://numpy.org
 .. _SciPy: https://www.scipy.org
@@ -58,6 +56,7 @@ import numpy as np
 from matplotlib import _api, _docstring, cbook
 
 
+@_api.deprecated("3.6", alternative="np.hanning")
 def window_hanning(x):
     """
     Return *x* times the Hanning (or Hann) window of len(*x*).
@@ -69,6 +68,7 @@ def window_hanning(x):
     return np.hanning(len(x))*x
 
 
+@_api.deprecated("3.6", alternative="")
 def window_none(x):
     """
     No window function; simply return *x*.
@@ -80,6 +80,7 @@ def window_none(x):
     return x
 
 
+@_api.deprecated("3.6", alternative="scipy.signal.detrend")
 def detrend(x, key=None, axis=None):
     """
     Return *x* with its trend removed.
@@ -129,6 +130,7 @@ def detrend(x, key=None, axis=None):
             f"'constant', 'mean', 'linear', or a function")
 
 
+@_api.deprecated("3.6", alternative="scipy.signal.detrend")
 def detrend_mean(x, axis=None):
     """
     Return *x* minus the mean(*x*).
@@ -157,6 +159,7 @@ def detrend_mean(x, axis=None):
     return x - x.mean(axis, keepdims=True)
 
 
+@_api.deprecated("3.6", alternative="scipy.signal.detrend")
 def detrend_none(x, axis=None):
     """
     Return *x*: no detrending.
@@ -179,6 +182,7 @@ def detrend_none(x, axis=None):
     return x
 
 
+@_api.deprecated("3.6", alternative="scipy.signal.detrend")
 def detrend_linear(y):
     """
     Return *x* minus best fit line; 'linear' detrending.
@@ -531,6 +535,7 @@ scale_by_freq : bool, default: True
     MATLAB compatibility.""")
 
 
+@_api.deprecated("3.6", alternative="scipy.signal.psd")
 @_docstring.dedent_interpd
 def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None):
@@ -587,6 +592,7 @@ def psd(x, NFFT=None, Fs=None, detrend=None, window=None,
     return Pxx.real, freqs
 
 
+@_api.deprecated("3.6", alternative="scipy.signal.csd")
 @_docstring.dedent_interpd
 def csd(x, y, NFFT=None, Fs=None, detrend=None, window=None,
         noverlap=None, pad_to=None, sides=None, scale_by_freq=None):
@@ -688,7 +694,6 @@ specgram
     Can return the complex spectrum of segments within the signal.
 """
 
-
 complex_spectrum = functools.partial(_single_spectrum_helper, "complex")
 complex_spectrum.__doc__ = _single_spectrum_docs.format(
     quantity="complex-valued frequency spectrum",
@@ -707,6 +712,7 @@ phase_spectrum.__doc__ = _single_spectrum_docs.format(
     **_docstring.interpd.params)
 
 
+@_api.deprecated("3.6", alternative="scipy.signal.welch")
 @_docstring.dedent_interpd
 def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
              noverlap=None, pad_to=None, sides=None, scale_by_freq=None,
@@ -790,6 +796,7 @@ def specgram(x, NFFT=None, Fs=None, detrend=None, window=None,
     return spec, freqs, t
 
 
+@_api.deprecated("3.6", alternative="scipy.signal.coherence")
 @_docstring.dedent_interpd
 def cohere(x, y, NFFT=256, Fs=2, detrend=detrend_none, window=window_hanning,
            noverlap=0, pad_to=None, sides='default', scale_by_freq=None):
