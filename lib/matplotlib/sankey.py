@@ -27,6 +27,83 @@ UP = 1
 DOWN = 3
 
 
+def _arc(quadrant=0, cw=True, radius=1, center=(0, 0)):
+    """
+    Return the codes and vertices for a rotated, scaled, and translated
+    90 degree arc.
+
+    Other Parameters
+    ----------------
+    quadrant : {0, 1, 2, 3}, default: 0
+        Uses 0-based indexing (0, 1, 2, or 3).
+    cw : bool, default: True
+        If True, the arc vertices are produced clockwise; counter-clockwise
+        otherwise.
+    radius : float, default: 1
+        The radius of the arc.
+    center : (float, float), default: (0, 0)
+        (x, y) tuple of the arc's center.
+    """
+    # Note:  It would be possible to use matplotlib's transforms to rotate,
+    # scale, and translate the arc, but since the angles are discrete,
+    # it's just as easy and maybe more efficient to do it here.
+    ARC_CODES = [Path.LINETO,
+                 Path.CURVE4,
+                 Path.CURVE4,
+                 Path.CURVE4,
+                 Path.CURVE4,
+                 Path.CURVE4,
+                 Path.CURVE4]
+    # Vertices of a cubic Bezier curve approximating a 90 deg arc
+    # These can be determined by Path.arc(0, 90).
+    ARC_VERTICES = np.array([[1.00000000e+00, 0.00000000e+00],
+                             [1.00000000e+00, 2.65114773e-01],
+                             [8.94571235e-01, 5.19642327e-01],
+                             [7.07106781e-01, 7.07106781e-01],
+                             [5.19642327e-01, 8.94571235e-01],
+                             [2.65114773e-01, 1.00000000e+00],
+                             # Insignificant
+                             # [6.12303177e-17, 1.00000000e+00]])
+                             [0.00000000e+00, 1.00000000e+00]])
+    if quadrant in (0, 2):
+        if cw:
+            vertices = ARC_VERTICES
+        else:
+            vertices = ARC_VERTICES[:, ::-1]  # Swap x and y.
+    else:  # 1, 3
+        # Negate x.
+        if cw:
+            # Swap x and y.
+            vertices = np.column_stack((-ARC_VERTICES[:, 1],
+                                         ARC_VERTICES[:, 0]))
+        else:
+            vertices = np.column_stack((-ARC_VERTICES[:, 0],
+                                         ARC_VERTICES[:, 1]))
+    if quadrant > 1:
+        radius = -radius  # Rotate 180 deg.
+    return list(zip(ARC_CODES, radius * vertices +
+                    np.tile(center, (ARC_VERTICES.shape[0], 1))))
+
+
+def _revert(path, first_action=Path.LINETO):
+    """
+    A path is not simply reversible by path[::-1] since the code
+    specifies an action to take from the **previous** point.
+    """
+    reverse_path = []
+    next_code = first_action
+    for code, position in path[::-1]:
+        reverse_path.append((next_code, position))
+        next_code = code
+    return reverse_path
+    # This might be more efficient, but it fails because 'tuple' object
+    # doesn't support item assignment:
+    # path[1] = path[1][-1:0:-1]
+    # path[1][0] = first_action
+    # path[2] = path[2][::-1]
+    # return path
+
+
 class Sankey:
     """
     Sankey diagram.
@@ -166,63 +243,6 @@ class Sankey:
         if len(kwargs):
             self.add(**kwargs)
 
-    def _arc(self, quadrant=0, cw=True, radius=1, center=(0, 0)):
-        """
-        Return the codes and vertices for a rotated, scaled, and translated
-        90 degree arc.
-
-        Other Parameters
-        ----------------
-        quadrant : {0, 1, 2, 3}, default: 0
-            Uses 0-based indexing (0, 1, 2, or 3).
-        cw : bool, default: True
-            If True, the arc vertices are produced clockwise; counter-clockwise
-            otherwise.
-        radius : float, default: 1
-            The radius of the arc.
-        center : (float, float), default: (0, 0)
-            (x, y) tuple of the arc's center.
-        """
-        # Note:  It would be possible to use matplotlib's transforms to rotate,
-        # scale, and translate the arc, but since the angles are discrete,
-        # it's just as easy and maybe more efficient to do it here.
-        ARC_CODES = [Path.LINETO,
-                     Path.CURVE4,
-                     Path.CURVE4,
-                     Path.CURVE4,
-                     Path.CURVE4,
-                     Path.CURVE4,
-                     Path.CURVE4]
-        # Vertices of a cubic Bezier curve approximating a 90 deg arc
-        # These can be determined by Path.arc(0, 90).
-        ARC_VERTICES = np.array([[1.00000000e+00, 0.00000000e+00],
-                                 [1.00000000e+00, 2.65114773e-01],
-                                 [8.94571235e-01, 5.19642327e-01],
-                                 [7.07106781e-01, 7.07106781e-01],
-                                 [5.19642327e-01, 8.94571235e-01],
-                                 [2.65114773e-01, 1.00000000e+00],
-                                 # Insignificant
-                                 # [6.12303177e-17, 1.00000000e+00]])
-                                 [0.00000000e+00, 1.00000000e+00]])
-        if quadrant == 0 or quadrant == 2:
-            if cw:
-                vertices = ARC_VERTICES
-            else:
-                vertices = ARC_VERTICES[:, ::-1]  # Swap x and y.
-        elif quadrant == 1 or quadrant == 3:
-            # Negate x.
-            if cw:
-                # Swap x and y.
-                vertices = np.column_stack((-ARC_VERTICES[:, 1],
-                                             ARC_VERTICES[:, 0]))
-            else:
-                vertices = np.column_stack((-ARC_VERTICES[:, 0],
-                                             ARC_VERTICES[:, 1]))
-        if quadrant > 1:
-            radius = -radius  # Rotate 180 deg.
-        return list(zip(ARC_CODES, radius * vertices +
-                        np.tile(center, (ARC_VERTICES.shape[0], 1))))
-
     def _add_input(self, path, angle, flow, length):
         """
         Add an input to a path and return its tip and label locations.
@@ -255,21 +275,21 @@ class Sankey:
 
                 # Inner arc isn't needed if inner radius is zero
                 if self.radius:
-                    path.extend(self._arc(quadrant=quadrant,
-                                          cw=angle == UP,
-                                          radius=self.radius,
-                                          center=(x + self.radius,
-                                                  y - sign * self.radius)))
+                    path.extend(_arc(quadrant=quadrant,
+                                     cw=angle == UP,
+                                     radius=self.radius,
+                                     center=(x + self.radius,
+                                             y - sign * self.radius)))
                 else:
                     path.append((Path.LINETO, [x, y]))
                 path.extend([(Path.LINETO, [x, y - sign * length]),
                              (Path.LINETO, dip),
                              (Path.LINETO, [x - flow, y - sign * length])])
-                path.extend(self._arc(quadrant=quadrant,
-                                      cw=angle == DOWN,
-                                      radius=flow + self.radius,
-                                      center=(x + self.radius,
-                                              y - sign * self.radius)))
+                path.extend(_arc(quadrant=quadrant,
+                                 cw=angle == DOWN,
+                                 radius=flow + self.radius,
+                                 center=(x + self.radius,
+                                         y - sign * self.radius)))
                 path.append((Path.LINETO, [x - flow, y + sign * flow]))
                 label_location = [dip[0], dip[1] - sign * self.offset]
 
@@ -299,22 +319,18 @@ class Sankey:
             else:  # Vertical
                 x += self.gap
                 if angle == UP:
-                    sign = 1
+                    sign, quadrant = 1, 3
                 else:
-                    sign = -1
+                    sign, quadrant = -1, 0
 
                 tip = [x - flow / 2.0, y + sign * (length + tipheight)]
-                if angle == UP:
-                    quadrant = 3
-                else:
-                    quadrant = 0
                 # Inner arc isn't needed if inner radius is zero
                 if self.radius:
-                    path.extend(self._arc(quadrant=quadrant,
-                                          cw=angle == UP,
-                                          radius=self.radius,
-                                          center=(x - self.radius,
-                                                  y + sign * self.radius)))
+                    path.extend(_arc(quadrant=quadrant,
+                                     cw=angle == UP,
+                                     radius=self.radius,
+                                     center=(x - self.radius,
+                                             y + sign * self.radius)))
                 else:
                     path.append((Path.LINETO, [x, y]))
                 path.extend([(Path.LINETO, [x, y + sign * length]),
@@ -324,32 +340,14 @@ class Sankey:
                              (Path.LINETO, [x + self.shoulder - flow,
                                             y + sign * length]),
                              (Path.LINETO, [x - flow, y + sign * length])])
-                path.extend(self._arc(quadrant=quadrant,
-                                      cw=angle == DOWN,
-                                      radius=self.radius - flow,
-                                      center=(x - self.radius,
-                                              y + sign * self.radius)))
+                path.extend(_arc(quadrant=quadrant,
+                                 cw=angle == DOWN,
+                                 radius=self.radius - flow,
+                                 center=(x - self.radius,
+                                         y + sign * self.radius)))
                 path.append((Path.LINETO, [x - flow, y + sign * flow]))
                 label_location = [tip[0], tip[1] + sign * self.offset]
             return tip, label_location
-
-    def _revert(self, path, first_action=Path.LINETO):
-        """
-        A path is not simply reversible by path[::-1] since the code
-        specifies an action to take from the **previous** point.
-        """
-        reverse_path = []
-        next_code = first_action
-        for code, position in path[::-1]:
-            reverse_path.append((next_code, position))
-            next_code = code
-        return reverse_path
-        # This might be more efficient, but it fails because 'tuple' object
-        # doesn't support item assignment:
-        # path[1] = path[1][-1:0:-1]
-        # path[1][0] = first_action
-        # path[2] = path[2][::-1]
-        # return path
 
     @_docstring.dedent_interpd
     def add(self, patchlabel='', flows=None, orientations=None, labels='',
@@ -525,7 +523,7 @@ class Sankey:
             if orient == 1:
                 if is_input:
                     angles[i] = DOWN
-                elif not is_input:
+                elif is_input is False:
                     # Be specific since is_input can be None.
                     angles[i] = UP
             elif orient == 0:
@@ -538,7 +536,7 @@ class Sankey:
                         f"but it must be -1, 0, or 1")
                 if is_input:
                     angles[i] = UP
-                elif not is_input:
+                elif is_input is False:
                     angles[i] = DOWN
 
         # Justify the lengths of the paths.
@@ -561,7 +559,7 @@ class Sankey:
                 if angle == DOWN and is_input:
                     pathlengths[i] = ullength
                     ullength += flow
-                elif angle == UP and not is_input:
+                elif angle == UP and is_input is False:
                     pathlengths[i] = urlength
                     urlength -= flow  # Flow is negative for outputs.
             # Determine the lengths of the bottom-side arrows
@@ -571,7 +569,7 @@ class Sankey:
                 if angle == UP and is_input:
                     pathlengths[n - i - 1] = lllength
                     lllength += flow
-                elif angle == DOWN and not is_input:
+                elif angle == DOWN and is_input is False:
                     pathlengths[n - i - 1] = lrlength
                     lrlength -= flow
             # Determine the lengths of the left-side arrows
@@ -591,7 +589,7 @@ class Sankey:
             for i, (angle, is_input, spec) in enumerate(zip(
                   angles, are_inputs, list(zip(scaled_flows, pathlengths)))):
                 if angle == RIGHT:
-                    if not is_input:
+                    if is_input is False:
                         if has_right_output:
                             pathlengths[i] = 0
                         else:
@@ -637,7 +635,7 @@ class Sankey:
             if angle == DOWN and is_input:
                 tips[i, :], label_locations[i, :] = self._add_input(
                     ulpath, angle, *spec)
-            elif angle == UP and not is_input:
+            elif angle == UP and is_input is False:
                 tips[i, :], label_locations[i, :] = self._add_output(
                     urpath, angle, *spec)
         # Add the bottom-side inputs and outputs from the middle outwards.
@@ -647,7 +645,7 @@ class Sankey:
                 tip, label_location = self._add_input(llpath, angle, *spec)
                 tips[n - i - 1, :] = tip
                 label_locations[n - i - 1, :] = label_location
-            elif angle == DOWN and not is_input:
+            elif angle == DOWN and is_input is False:
                 tip, label_location = self._add_output(lrpath, angle, *spec)
                 tips[n - i - 1, :] = tip
                 label_locations[n - i - 1, :] = label_location
@@ -670,7 +668,7 @@ class Sankey:
         has_right_output = False
         for i, (angle, is_input, spec) in enumerate(zip(
               angles, are_inputs, list(zip(scaled_flows, pathlengths)))):
-            if angle == RIGHT and not is_input:
+            if angle == RIGHT and is_input is False:
                 if not has_right_output:
                     # Make sure the upper path extends
                     # at least as far as the lower one.
@@ -689,7 +687,7 @@ class Sankey:
             urpath.pop()
 
         # Concatenate the subpaths in the correct order (clockwise from top).
-        path = (urpath + self._revert(lrpath) + llpath + self._revert(ulpath) +
+        path = (urpath + _revert(lrpath) + llpath + _revert(ulpath) +
                 [(Path.CLOSEPOLY, urpath[0][1])])
 
         # Create a patch with the Sankey outline.
