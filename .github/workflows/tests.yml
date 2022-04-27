@@ -1,4 +1,7 @@
 name: Tests
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
+  cancel-in-progress: true
 
 on:
   push:
