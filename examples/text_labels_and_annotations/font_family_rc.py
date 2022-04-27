@@ -26,10 +26,9 @@ in order::
 
 .. redirect-from:: /examples/font_family_rc_sgskip
 
+Chooses default sans-serif font:
+--------------------------------
 """
-
-# Chooses default sans-serif font:
-# -----------------------------------------------------
 
 import matplotlib.pyplot as plt
 
