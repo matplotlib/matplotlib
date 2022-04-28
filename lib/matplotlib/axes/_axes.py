@@ -1083,10 +1083,10 @@ class Axes(_AxesBase):
         lines._internal_update(kwargs)
 
         if len(y) > 0:
-            minx = min(xmin.min(), xmax.min())
-            maxx = max(xmin.max(), xmax.max())
-            miny = y.min()
-            maxy = y.max()
+            minx = min(np.nanmin(xmin), np.nanmin(xmax))
+            maxx = max(np.nanmax(xmin), np.nanmax(xmax))
+            miny = np.nanmin(y)
+            maxy = np.nanmax(y)
 
             corners = (minx, miny), (maxx, maxy)
 
@@ -1162,10 +1162,10 @@ class Axes(_AxesBase):
         lines._internal_update(kwargs)
 
         if len(x) > 0:
-            minx = x.min()
-            maxx = x.max()
-            miny = min(ymin.min(), ymax.min())
-            maxy = max(ymin.max(), ymax.max())
+            minx = np.nanmin(x)
+            maxx = np.nanmax(x)
+            miny = min(np.nanmin(ymin), np.nanmin(ymax))
+            maxy = max(np.nanmax(ymin), np.nanmax(ymax))
 
             corners = (minx, miny), (maxx, maxy)
             self.update_datalim(corners)
@@ -2674,7 +2674,7 @@ class Axes(_AxesBase):
                 extrema = max(x0, x1) if dat >= 0 else min(x0, x1)
                 length = abs(x0 - x1)
 
-            if err is None:
+            if err is None or np.size(err) == 0:
                 endpt = extrema
             elif orientation == "vertical":
                 endpt = err[:, 1].max() if dat >= 0 else err[:, 1].min()
@@ -3505,7 +3505,9 @@ class Axes(_AxesBase):
                     f"'{dep_axis}err' (shape: {np.shape(err)}) must be a "
                     f"scalar or a 1D or (2, n) array-like whose shape matches "
                     f"'{dep_axis}' (shape: {np.shape(dep)})") from None
-            if np.any(err < -err):  # like err<0, but also works for timedelta.
+            res = np.zeros_like(err, dtype=bool)  # Default in case of nan
+            if np.any(np.less(err, -err, out=res, where=(err == err))):
+                # like err<0, but also works for timedelta and nan.
                 raise ValueError(
                     f"'{dep_axis}err' must not contain negative values")
             # This is like
