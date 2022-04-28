@@ -19,7 +19,7 @@ import matplotlib as mpl
 from . import (_api, _docstring, backend_tools, cbook, colors, ticker,
                transforms)
 from .lines import Line2D
-from .patches import Circle, Rectangle, Ellipse
+from .patches import Circle, Rectangle, Ellipse, Polygon
 from .transforms import TransformedPatchPath, Affine2D
 
 
@@ -702,6 +702,8 @@ class RangeSlider(SliderBase):
             f'marker{k}': v for k, v in {**defaults, **handle_style}.items()
         }
 
+        verts = np.zeros([5,2])
+
         if orientation == "vertical":
             self.track = Rectangle(
                 (.25, 0), .5, 2,
@@ -709,7 +711,17 @@ class RangeSlider(SliderBase):
                 facecolor=track_color
             )
             ax.add_patch(self.track)
-            self.poly = ax.axhspan(valinit[0], valinit[1], 0, 1, **kwargs)
+            verts[0] = .25, valinit[0]
+            verts[1] = .25, valinit[1]
+            verts[2] = .75, valinit[1]
+            verts[3] = .75, valinit[0]
+            verts[4] = .25, valinit[0]
+            poly = Polygon(verts, **kwargs)
+            poly.set_transform(self.ax.get_xaxis_transform(which="grid"))
+            poly.get_path()._interpolation_steps = 100
+            self.ax.add_patch(poly)
+            self.ax._request_autoscale_view()
+            self.poly=poly
             handleXY_1 = [.5, valinit[0]]
             handleXY_2 = [.5, valinit[1]]
         else:
