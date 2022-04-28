@@ -17,7 +17,7 @@ Pull requests (PRs) are the mechanism for contributing to Matplotlibs code and
 documentation.
 
 Summary for pull request authors
-======================
+================================
 
 .. note::
 
@@ -55,7 +55,7 @@ When making a PR, pay attention to:
 See also :ref:`contributing` for how to make a PR.
 
 Summary for pull request reviewers
-========================
+==================================
 
 .. note::
 
