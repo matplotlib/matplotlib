@@ -924,7 +924,7 @@ class GraphicsContextBase:
             if np.any(dl < 0.0):
                 raise ValueError(
                     "All values in the dash list must be non-negative")
-            if not np.any(dl > 0.0):
+            if dl.size and not np.any(dl > 0.0):
                 raise ValueError(
                     'At least one value in the dash list must be positive')
         self._dashes = dash_offset, dash_list
