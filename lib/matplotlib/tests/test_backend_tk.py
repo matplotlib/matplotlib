@@ -45,8 +45,9 @@ def _isolated_tk_test(success_count, func=None):
             )
         except subprocess.TimeoutExpired:
             pytest.fail("Subprocess timed out")
-        except subprocess.CalledProcessError:
-            pytest.fail("Subprocess failed to test intended behavior")
+        except subprocess.CalledProcessError as e:
+            pytest.fail("Subprocess failed to test intended behavior\n"
+                        + str(e.stderr))
         else:
             # macOS may actually emit irrelevant errors about Accelerated
             # OpenGL vs. software OpenGL, so suppress them.
@@ -158,14 +159,12 @@ def test_never_update():  # pragma: no cover
 
     plt.draw()  # Test FigureCanvasTkAgg.
     fig.canvas.toolbar.configure_subplots()  # Test NavigationToolbar2Tk.
+    # Test FigureCanvasTk filter_destroy callback
+    fig.canvas.get_tk_widget().after(100, plt.close, fig)
 
     # Check for update() or update_idletasks() in the event queue, functionally
     # equivalent to tkinter.Misc.update.
-    # Must pause >= 1 ms to process tcl idle events plus extra time to avoid
-    # flaky tests on slow systems.
-    plt.pause(0.1)
-
-    plt.close(fig)  # Test FigureCanvasTk filter_destroy callback
+    plt.show(block=True)
 
     # Note that exceptions would be printed to stderr; _isolated_tk_test
     # checks them.
