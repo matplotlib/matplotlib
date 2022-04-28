@@ -2,6 +2,7 @@
 
 certifi
 coverage<6.3
+psutil
 pytest!=4.6.0,!=5.4.0
 pytest-cov
 pytest-rerunfailures
