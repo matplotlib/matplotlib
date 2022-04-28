@@ -2202,6 +2202,6 @@ class QuadMesh(Collection):
         if len(info["ind"]) == 1:
             ind, = info["ind"]
             array = self.get_array()
-            return self.get_array()[ind] if array else None
+            return array[ind] if array else None
         else:
             return None
