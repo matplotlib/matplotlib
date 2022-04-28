@@ -586,9 +586,15 @@ FigureManager_dealloc(FigureManager* self)
 }
 
 static PyObject*
-FigureManager_show(FigureManager* self)
+FigureManager__show(FigureManager* self)
 {
     [self->window makeKeyAndOrderFront: nil];
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+FigureManager__raise(FigureManager* self)
+{
     [self->window orderFrontRegardless];
     Py_RETURN_NONE;
 }
@@ -695,8 +701,11 @@ static PyTypeObject FigureManagerType = {
     .tp_new = (newfunc)FigureManager_new,
     .tp_doc = "A FigureManager object wraps a Cocoa NSWindow object.",
     .tp_methods = (PyMethodDef[]){  // All docstrings are inherited.
-        {"show",
-         (PyCFunction)FigureManager_show,
+        {"_show",
+         (PyCFunction)FigureManager__show,
+         METH_NOARGS},
+        {"_raise",
+         (PyCFunction)FigureManager__raise,
          METH_NOARGS},
         {"destroy",
          (PyCFunction)FigureManager_destroy,

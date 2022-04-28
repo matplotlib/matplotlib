@@ -140,6 +140,7 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     _toolbar2_class = NavigationToolbar2Mac
 
     def __init__(self, canvas, num):
+        self._shown = False
         _macosx.FigureManager.__init__(self, canvas)
         icon_path = str(cbook._get_data_path('images/matplotlib.pdf'))
         _macosx.FigureManager.set_icon(icon_path)
@@ -153,6 +154,13 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     def close(self):
         Gcf.destroy(self)
         self.canvas.flush_events()
+
+    def show(self):
+        if not self._shown:
+            self._show()
+            self._shown = True
+        if mpl.rcParams["figure.raise_window"]:
+            self._raise()
 
 
 @_Backend.export
