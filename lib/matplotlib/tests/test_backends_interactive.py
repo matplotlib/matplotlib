@@ -508,6 +508,7 @@ def test_blitting_events(env):
 # The source of this function gets extracted and run in another process, so it
 # must be fully self-contained.
 def _test_figure_leak():
+    import gc
     import sys
 
     import psutil
@@ -523,12 +524,14 @@ def _test_figure_leak():
             plt.pause(t)
         plt.close(fig)
     mem = p.memory_info().rss
+    gc.collect()
 
     for _ in range(5):
         fig = plt.figure()
         if t:
             plt.pause(t)
         plt.close(fig)
+        gc.collect()
     growth = p.memory_info().rss - mem
 
     print(growth)
