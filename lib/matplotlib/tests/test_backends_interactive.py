@@ -545,9 +545,11 @@ def _test_figure_leak():
 def test_figure_leak_20490(env, time_mem):
     pytest.importorskip("psutil", reason="psutil needed to run this test")
 
-    # We can't yet directly identify the leak
-    # so test with a memory growth threshold
+    # We haven't yet directly identified the leaks so test with a memory growth
+    # threshold.
     pause_time, acceptable_memory_leakage = time_mem
+    if env["MPLBACKEND"] == "macosx":
+        acceptable_memory_leakage += 10_000_000
 
     result = _run_helper(
         _test_figure_leak, str(pause_time), timeout=_test_timeout, **env
