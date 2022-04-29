@@ -65,6 +65,10 @@ class Gcf:
         if hasattr(manager, "_cidgcf"):
             manager.canvas.mpl_disconnect(manager._cidgcf)
         manager.destroy()
+        del manager, num
+        # Full cyclic garbage collection may be too expensive to do on every
+        # figure destruction, so we collect only the youngest two generations.
+        # see: https://github.com/matplotlib/matplotlib/pull/3045
         gc.collect(1)
 
     @classmethod
