@@ -175,7 +175,8 @@ class FigureCanvasTk(FigureCanvasBase):
             master=self._tkcanvas, width=w, height=h)
         self._tkcanvas.create_image(w//2, h//2, image=self._tkphoto)
         self._tkcanvas.bind("<Configure>", self.resize)
-        self._tkcanvas.bind("<Map>", self._update_device_pixel_ratio)
+        if sys.platform == 'win32':
+            self._tkcanvas.bind("<Map>", self._update_device_pixel_ratio)
         self._tkcanvas.bind("<Key>", self.key_press)
         self._tkcanvas.bind("<Motion>", self.motion_notify_event)
         self._tkcanvas.bind("<Enter>", self.enter_notify_event)
@@ -212,7 +213,7 @@ class FigureCanvasTk(FigureCanvasBase):
         self._rubberband_rect = None
 
     def _update_device_pixel_ratio(self, event=None):
-        # Tk gives scaling with respect to 72 DPI, but most (all?) screens are
+        # Tk gives scaling with respect to 72 DPI, but Windows screens are
         # scaled vs 96 dpi, and pixel ratio settings are given in whole
         # percentages, so round to 2 digits.
         ratio = round(self._tkcanvas.tk.call('tk', 'scaling') / (96 / 72), 2)
