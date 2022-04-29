@@ -16,15 +16,15 @@ Pull request guidelines
 Pull requests (PRs) are the mechanism for contributing to Matplotlibs code and
 documentation.
 
-Summary for PR authors
-======================
+Summary for pull request authors
+================================
 
 .. note::
 
    * We value contributions from people with all levels of experience. In
      particular if this is your first PR not everything has to be perfect.
      We'll guide you through the PR process.
-   * Nevertheless, try to follow the guidelines below as well as you can to
+   * Nevertheless, please try to follow the guidelines below as well as you can to
      help make the PR process quick and smooth.
    * Be patient with reviewers. We try our best to respond quickly, but we
      have limited bandwidth. If there is no feedback within a couple of days,
@@ -54,8 +54,8 @@ When making a PR, pay attention to:
 
 See also :ref:`contributing` for how to make a PR.
 
-Summary for PR reviewers
-========================
+Summary for pull request reviewers
+==================================
 
 .. note::
 
