@@ -26,8 +26,8 @@ in order::
 
 .. redirect-from:: /examples/font_family_rc_sgskip
 
-Chooses default sans-serif font:
---------------------------------
+Chooses default sans-serif font
+-------------------------------
 """
 
 import matplotlib.pyplot as plt
@@ -46,27 +46,18 @@ print_text("Hello World! 01")
 
 #################################################################
 #
-# Chose sans-serif font and specify to it to "Nimbus Sans":
-# -----------------------------------------------------
+# Chose sans-serif font and specify to it to "Nimbus Sans"
+# --------------------------------------------------------
 
 plt.rcParams["font.family"] = "sans-serif"
 plt.rcParams["font.sans-serif"] = ["Nimbus Sans"]
 print_text("Hello World! 02")
 
 
-#################################################################
-#
-# Chose sans-serif font and specify to it to "Humor Sans":
-# -----------------------------------------------------
-plt.rcParams["font.family"] = "sans-serif"
-plt.rcParams["font.sans-serif"] = ["Humor Sans"]
-print_text("Hello World! 03")
-
-
 ##################################################################
 #
-# Chooses default monospace font:
-# -----------------------------------------------------
+# Chooses default monospace font
+# ------------------------------
 
 plt.rcParams["font.family"] = "monospace"
 print_text("Hello World! 04")
@@ -74,8 +65,8 @@ print_text("Hello World! 04")
 
 ##################################################################
 #
-# Chose monospace font and specify to it to "FreeMono":
-# -----------------------------------------------------
+# Chose monospace font and specify to it to "FreeMono"
+# ----------------------------------------------------
 plt.rcParams["font.family"] = "monospace"
 plt.rcParams["font.monospace"] = ["FreeMono"]
 print_text("Hello World! 05")
