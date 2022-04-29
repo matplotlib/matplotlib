@@ -684,6 +684,13 @@ FigureManager_resize(FigureManager* self, PyObject *args, PyObject *kwds)
     Py_RETURN_NONE;
 }
 
+static PyObject*
+FigureManager_full_screen_toggle(FigureManager* self)
+{
+    [self->window toggleFullScreen: nil];
+    Py_RETURN_NONE;
+}
+
 static PyTypeObject FigureManagerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name = "_macosx.FigureManager",
@@ -714,6 +721,9 @@ static PyTypeObject FigureManagerType = {
         {"resize",
          (PyCFunction)FigureManager_resize,
          METH_VARARGS},
+        {"full_screen_toggle",
+         (PyCFunction)FigureManager_full_screen_toggle,
+         METH_NOARGS},
         {}  // sentinel
     },
 };
