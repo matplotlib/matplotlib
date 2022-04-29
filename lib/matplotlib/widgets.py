@@ -717,7 +717,7 @@ class RangeSlider(SliderBase):
             verts[3] = .75, valinit[0]
             verts[4] = .25, valinit[0]
             poly = Polygon(verts, **kwargs)
-            poly.set_transform(self.ax.get_xaxis_transform(which="grid"))
+            poly.set_transform(self.ax.get_yaxis_transform(which="grid"))
             poly.get_path()._interpolation_steps = 100
             self.ax.add_patch(poly)
             self.ax._request_autoscale_view()
