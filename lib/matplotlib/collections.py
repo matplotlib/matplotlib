@@ -2201,6 +2201,7 @@ class QuadMesh(Collection):
         contained, info = self.contains(event)
         if len(info["ind"]) == 1:
             ind, = info["ind"]
-            return self.get_array()[ind]
+            array = self.get_array()
+            return array[ind] if array else None
         else:
             return None
