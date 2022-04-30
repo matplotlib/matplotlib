@@ -3285,25 +3285,16 @@ class Axes(_AxesBase):
             """
             Safely handle tuple of containers that carry units.
 
-            If the units are carried on the values then casting to object
-            arrays preserves the units, but if the units are on the containers
-            this will not work.
-
             This function covers the case where the input to the xerr/yerr is a
             length 2 tuple of equal length ndarray-subclasses that carry the
             unit information in the container.
 
-            We defer coercing the units to be consistent to the underlying unit
+            If we have a tuple of nested numpy array (subclasses), we defer
+            coercing the units to be consistent to the underlying unit
             library (and implicitly the broadcasting).
 
-            If we do not have a tuple of nested numpy array (subclasses),
-            fallback to casting to an object array.
-
+            Otherwise, fallback to casting to an object array.
             """
-
-            # we are here because we the container is not a numpy array, but it
-            # _is_ iterable (likely a list or a tuple but maybe something more
-            # exotic)
 
             if (
                     # make sure it is not a scalar
@@ -3316,14 +3307,17 @@ class Axes(_AxesBase):
                     # fails.
                     isinstance(cbook.safe_first_element(err), np.ndarray)
             ):
-                # grab the type of the first element, we will try to promote
-                # the outer container to match the inner container
+                # Get the type of the first element
                 atype = type(cbook.safe_first_element(err))
-                # you can not directly pass data to the init of `np.ndarray`
+                # Promote the outer container to match the inner container
                 if atype is np.ndarray:
+                    # Converts using np.asarray, because data cannot
+                    # be directly passed to init of np.ndarray
                     return np.asarray(err, dtype=object)
-                # but you can for unyt and astropy uints
+                # If atype is not np.ndarray, directly pass data to init.
+                # This works for types such as unyts and astropy units
                 return atype(err)
+            # Otherwise wrap it in an object array
             return np.asarray(err, dtype=object)
 
         if xerr is not None and not isinstance(xerr, np.ndarray):
