@@ -195,8 +195,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         # default to zeros
         self._offsets = np.zeros((1, 2))
+        self._has_offsets = offsets is not None
 
-        if offsets is not None:
+        if self._has_offsets:
             offsets = np.asanyarray(offsets, float)
             # Broadcast (2,) -> (1, 2) but nothing else.
             if offsets.shape == (2,):
@@ -278,7 +279,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
             offsets = offsets.filled(np.nan)
             # get_path_collection_extents handles nan but not masked arrays
 
-        if len(paths) and len(offsets):
+        if len(paths):
             if any(transform.contains_branch_seperately(transData)):
                 # collections that are just in data units (like quiver)
                 # can properly have the axes limits set by their shape +
@@ -290,18 +291,19 @@ class Collection(artist.Artist, cm.ScalarMappable):
                     offset_trf.transform_non_affine(offsets),
                     offset_trf.get_affine().frozen())
 
-            # this is for collections that have their paths (shapes)
-            # in physical, axes-relative, or figure-relative units
-            # (i.e. like scatter). We can't uniquely set limits based on
-            # those shapes, so we just set the limits based on their
-            # location.
-            offsets = (offset_trf - transData).transform(offsets)
-            # note A-B means A B^{-1}
-            offsets = np.ma.masked_invalid(offsets)
-            if not offsets.mask.all():
-                bbox = transforms.Bbox.null()
-                bbox.update_from_data_xy(offsets)
-                return bbox
+            if self._has_offsets:
+                # this is for collections that have their paths (shapes)
+                # in physical, axes-relative, or figure-relative units
+                # (i.e. like scatter). We can't uniquely set limits based on
+                # those shapes, so we just set the limits based on their
+                # location.
+                offsets = (offset_trf - transData).transform(offsets)
+                # note A-B means A B^{-1}
+                offsets = np.ma.masked_invalid(offsets)
+                if not offsets.mask.all():
+                    bbox = transforms.Bbox.null()
+                    bbox.update_from_data_xy(offsets)
+                    return bbox
         return transforms.Bbox.null()
 
     def get_window_extent(self, renderer):
