@@ -26,9 +26,16 @@ in order::
 
 .. redirect-from:: /examples/font_family_rc_sgskip
 
-Chooses default sans-serif font
--------------------------------
+
+
+The font font.family defaults are OS dependent and can be viewed with
 """
+print(plt.rcParams["font.sans-serif"][0])
+print(plt.rcParams["font.monospace"][0])
+
+
+#################################################################
+# Chooses default sans-serif font
 
 import matplotlib.pyplot as plt
 
@@ -45,9 +52,7 @@ print_text("Hello World! 01")
 
 
 #################################################################
-#
 # Chose sans-serif font and specify to it to "Nimbus Sans"
-# --------------------------------------------------------
 
 plt.rcParams["font.family"] = "sans-serif"
 plt.rcParams["font.sans-serif"] = ["Nimbus Sans"]
@@ -55,29 +60,15 @@ print_text("Hello World! 02")
 
 
 ##################################################################
-#
 # Chooses default monospace font
-# ------------------------------
 
 plt.rcParams["font.family"] = "monospace"
 print_text("Hello World! 04")
 
 
-##################################################################
-#
+###################################################################
 # Chose monospace font and specify to it to "FreeMono"
-# ----------------------------------------------------
+
 plt.rcParams["font.family"] = "monospace"
 plt.rcParams["font.monospace"] = ["FreeMono"]
 print_text("Hello World! 05")
-
-
-##################################################################
-#
-# Print all available font paths (this is OS specific)
-# ----------------------------------------------------
-
-import matplotlib.font_manager
-fpaths = matplotlib.font_manager.findSystemFonts(fontpaths=None, fontext='ttf')
-for i in fpaths:
-    print(i)
