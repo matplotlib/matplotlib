@@ -232,6 +232,7 @@ class TimerQT(TimerBase):
 class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     required_interactive_framework = "qt"
     _timer_cls = TimerQT
+    manager_class = _api.classproperty(lambda cls: FigureManagerQT)
 
     buttond = {
         getattr(_enum("QtCore.Qt.MouseButton"), k): v for k, v in [
