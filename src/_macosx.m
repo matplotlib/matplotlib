@@ -936,7 +936,8 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     NSFont* font = [NSFont systemFontOfSize: 0.0];
     // rect.origin.x is now at the far right edge of the buttons
     // we want the messagebox to take up the rest of the toolbar area
-    rect.size.width = bounds.size.width - rect.origin.x;
+    // Make it a zero-width box if we don't have enough room
+    rect.size.width = fmax(bounds.size.width - rect.origin.x, 0);
     rect.origin.x = bounds.size.width - rect.size.width;
     NSTextView* messagebox = [[[NSTextView alloc] initWithFrame: rect] autorelease];
     messagebox.textContainer.maximumNumberOfLines = 2;
@@ -989,14 +990,15 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
         [messagebox setFrame: rect];
         // We want to control the vertical position of
         // the rect by the content size to center it vertically
-        // TODO: This seems to disable the cursor updates with newlines that
-        //       are included in the image hover text. It is only when trying
-        //       to set the frame height based on the contentRect's size.
         [messagebox.layoutManager ensureLayoutForTextContainer: messagebox.textContainer];
         NSRect contentRect = [messagebox.layoutManager usedRectForTextContainer: messagebox.textContainer];
         rect.origin.y = 0.5 * (self->height - contentRect.size.height);
         rect.size.height = contentRect.size.height;
         [messagebox setFrame: rect];
+        // Disable cursorRects so that the cursor doesn't get updated by events
+        // in NSApp (like resizing TextViews), we want to handle the cursor
+        // changes from within MPL with set_cursor() ourselves
+        [[messagebox.superview window] disableCursorRects];
     }
 
     Py_RETURN_NONE;
