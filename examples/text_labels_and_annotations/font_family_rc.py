@@ -30,15 +30,14 @@ in order::
 
 The font font.family defaults are OS dependent and can be viewed with
 """
+import matplotlib.pyplot as plt
+
 print(plt.rcParams["font.sans-serif"][0])
 print(plt.rcParams["font.monospace"][0])
 
 
 #################################################################
 # Chooses default sans-serif font
-
-import matplotlib.pyplot as plt
-
 
 def print_text(text):
     fig, ax = plt.subplots(figsize=(6, 1), facecolor="#eefade")
