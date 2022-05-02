@@ -186,7 +186,7 @@ class AngleAnnotation(Arc):
         r = s / 2
         if self.textposition == "inside":
             r = s / np.interp(angle_span, [60, 90, 135, 180],
-                                          [3.3, 3.5, 3.8, 4])
+                                          [10, 3.5, 11.4, 4])
         self.text.xy = c + r * np.array([np.cos(angle), np.sin(angle)])
         if self.textposition == "outside":
             def R90(a, r, w, h):
@@ -238,10 +238,10 @@ line1, = ax.plot(*zip(*p1))
 line2, = ax.plot(*zip(*p2))
 point, = ax.plot(*center, marker="o")
 
-am1 = AngleAnnotation(center, p1[1], p2[1], ax=ax, size=75, text=r"$\alpha$")
-am2 = AngleAnnotation(center, p2[1], p1[0], ax=ax, size=35, text=r"$\beta$")
-am3 = AngleAnnotation(center, p1[0], p2[0], ax=ax, size=75, text=r"$\gamma$")
-am4 = AngleAnnotation(center, p2[0], p1[1], ax=ax, size=35, text=r"$\theta$")
+am1 = AngleAnnotation(center, p1[1], p2[1], ax=ax, size=75, textposition="inside", text=r"$\alpha$")
+am2 = AngleAnnotation(center, p2[1], p1[0], ax=ax, size=35, textposition="inside", text=r"$\beta$")
+am3 = AngleAnnotation(center, p1[0], p2[0], ax=ax, size=75, textposition="inside", text=r"$\gamma$")
+am4 = AngleAnnotation(center, p2[0], p1[1], ax=ax, size=35, textposition="inside", text=r"$\theta$")
 
 
 # Showcase some styling options for the angle arc, as well as the text.
