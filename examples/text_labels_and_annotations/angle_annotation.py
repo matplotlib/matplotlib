@@ -185,7 +185,7 @@ class AngleAnnotation(Arc):
         r = s / 2
         if self.textposition == "inside":
             r = s / np.interp(angle_span, [60, 90, 135, 180],
-                                          [3.3, 3.5, 3.8, 4])
+                                          [10, 3.5, 11.4, 4])
         self.text.xy = c + r * np.array([np.cos(angle), np.sin(angle)])
         if self.textposition == "outside":
             def R90(a, r, w, h):
