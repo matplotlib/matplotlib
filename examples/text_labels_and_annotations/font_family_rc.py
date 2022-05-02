@@ -62,7 +62,7 @@ print_text("Hello World! 02")
 # Chooses default monospace font
 
 plt.rcParams["font.family"] = "monospace"
-print_text("Hello World! 04")
+print_text("Hello World! 03")
 
 
 ###################################################################
@@ -70,4 +70,4 @@ print_text("Hello World! 04")
 
 plt.rcParams["font.family"] = "monospace"
 plt.rcParams["font.monospace"] = ["FreeMono"]
-print_text("Hello World! 05")
+print_text("Hello World! 04")
