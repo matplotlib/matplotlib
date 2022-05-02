@@ -1,16 +1,21 @@
 import contextlib
 from collections import namedtuple
 import datetime
-import inspect
-import io
-import platform
-from collections import namedtuple
 from decimal import Decimal
 from functools import partial
+import inspect
+import io
 from itertools import product
+import platform
 from types import SimpleNamespace
 
 import dateutil.tz
+
+import numpy as np
+from numpy import ma
+from cycler import cycler
+import pytest
+
 import matplotlib
 import matplotlib as mpl
 from matplotlib import rc_context
@@ -34,11 +39,6 @@ from numpy.testing import (
     assert_allclose, assert_array_equal, assert_array_almost_equal)
 from matplotlib.testing.decorators import (
     image_comparison, check_figures_equal, remove_ticks_and_titles)
-
-import numpy as np
-import pytest
-from cycler import cycler
-from numpy import ma
 
 # Note: Some test cases are run twice: once normally and once with labeled data
 #       These two must be defined in the same test function or need to have
@@ -1884,10 +1884,8 @@ def test_boxplot_capwidths():
 
 
 def test_pcolor_regression(pd):
-    from pandas.plotting import (
-        register_matplotlib_converters,
-        deregister_matplotlib_converters,
-    )
+    from pandas.plotting import (deregister_matplotlib_converters,
+                                 register_matplotlib_converters)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)

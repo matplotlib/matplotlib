@@ -63,7 +63,7 @@ def stackplot(axes, x, *args,
         regions from being filled. The filled regions are defined by the
         coordinates `x[where]`. Can be either a single bool, an array of shape
         (N,) or an array of shape (M, N).
-        Should be used together with `interpolate=True`.
+        Should be used together with kwarg `interpolate=True`.
 
     **kwargs
         All other keyword arguments are passed to `.Axes.fill_between`.
@@ -77,7 +77,10 @@ def stackplot(axes, x, *args,
 
     y = np.row_stack(args)
 
-    if where is None:
+    if where is not None:
+        if 'interpolate' not in locals() or ('interpolate' in locals() and interpolate==False):
+            _api.warn_external('Argument where should be used together with kwarg interpolate=True')
+    else:
         where = True
     where = np.broadcast_to(where, np.shape(y))
 
