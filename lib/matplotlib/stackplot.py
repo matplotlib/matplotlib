@@ -78,8 +78,9 @@ def stackplot(axes, x, *args,
     y = np.row_stack(args)
 
     if where is not None:
-        if 'interpolate' not in locals() or ('interpolate' in locals() and interpolate==False):
-            _api.warn_external('Argument where should be used together with kwarg interpolate=True')
+        if kwargs.get('interpolate', False) is False:
+            _api.warn_external('Argument where should be used together with '
+                               'kwarg interpolate=True')
     else:
         where = True
     where = np.broadcast_to(where, np.shape(y))
