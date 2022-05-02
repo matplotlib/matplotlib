@@ -12,7 +12,8 @@ import matplotlib.colors as mcolors
 import matplotlib.path as mpath
 import matplotlib.transforms as mtransforms
 from matplotlib.collections import (Collection, LineCollection,
-                                    EventCollection, PolyCollection)
+                                    EventCollection, PolyCollection,
+                                    QuadMesh)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 
@@ -483,6 +484,44 @@ def test_picking():
     assert_array_equal(indices['ind'], [0])
 
 
+def test_quadmesh_contains():
+    n = 4
+    x = np.arange(n)
+    X = x[:, None] * x[None, :]
+
+    fig, ax = plt.subplots()
+    mesh = ax.pcolormesh(X)
+    mouse_event = SimpleNamespace(xdata=0, ydata=0)
+    found, indices = mesh.contains(mouse_event)
+    assert found
+    assert_array_equal(indices['ind'], [0])
+
+    mouse_event = SimpleNamespace(xdata=1.5, ydata=1.5)
+    found, indices = mesh.contains(mouse_event)
+    assert found
+    assert_array_equal(indices['ind'], [5])
+
+    # Test a concave polygon too, V-like shape
+    x = [[0, -1], [1, 0]]
+    y = [[0, 1], [1, -1]]
+    mesh = ax.pcolormesh(x, y, [[0]])
+    points = [(-0.5, 0.25, True),  # left wing
+              (0, 0.25, False),  # between the two wings
+              (0.5, 0.25, True),  # right wing
+              (0, -0.25, True),  # main body
+              ]
+    for point in points:
+        x, y, expected = point
+        mouse_event = SimpleNamespace(xdata=x, ydata=y)
+        found, indices = mesh.contains(mouse_event)
+        assert found == expected
+
+    # Smoke test an empty array, get_array() == None
+    coll = QuadMesh(np.ones((3, 3, 2)))
+    found, indices = coll.contains(mouse_event)
+    assert not found
+
+
 def test_linestyle_single_dashes():
     plt.scatter([0, 1, 2], [0, 1, 2], linestyle=(0., [2., 2.]))
     plt.draw()
@@ -749,8 +788,6 @@ def test_quadmesh_deprecated_signature(
         fig_test, fig_ref, flat_ref, kwargs):
     # test that the new and old quadmesh signature produce the same results
     # remove when the old QuadMesh.__init__ signature expires (v3.5+2)
-    from matplotlib.collections import QuadMesh
-
     x = [0, 1, 2, 3.]
     y = [1, 2, 3.]
     X, Y = np.meshgrid(x, y)
