@@ -12,7 +12,8 @@ import matplotlib.colors as mcolors
 import matplotlib.path as mpath
 import matplotlib.transforms as mtransforms
 from matplotlib.collections import (Collection, LineCollection,
-                                    EventCollection, PolyCollection)
+                                    EventCollection, PolyCollection,
+                                    QuadMesh)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib._api.deprecation import MatplotlibDeprecationWarning
 
@@ -483,6 +484,81 @@ def test_picking():
     assert_array_equal(indices['ind'], [0])
 
 
+def test_quadmesh_contains():
+    x = np.arange(4)
+    X = x[:, None] * x[None, :]
+
+    fig, ax = plt.subplots()
+    mesh = ax.pcolormesh(X)
+    fig.draw_without_rendering()
+    xdata, ydata = 0.5, 0.5
+    x, y = mesh.get_transform().transform((xdata, ydata))
+    mouse_event = SimpleNamespace(xdata=xdata, ydata=ydata, x=x, y=y)
+    found, indices = mesh.contains(mouse_event)
+    assert found
+    assert_array_equal(indices['ind'], [0])
+
+    xdata, ydata = 1.5, 1.5
+    x, y = mesh.get_transform().transform((xdata, ydata))
+    mouse_event = SimpleNamespace(xdata=xdata, ydata=ydata, x=x, y=y)
+    found, indices = mesh.contains(mouse_event)
+    assert found
+    assert_array_equal(indices['ind'], [5])
+
+
+def test_quadmesh_contains_concave():
+    # Test a concave polygon, V-like shape
+    x = [[0, -1], [1, 0]]
+    y = [[0, 1], [1, -1]]
+    fig, ax = plt.subplots()
+    mesh = ax.pcolormesh(x, y, [[0]])
+    fig.draw_without_rendering()
+    # xdata, ydata, expected
+    points = [(-0.5, 0.25, True),  # left wing
+              (0, 0.25, False),  # between the two wings
+              (0.5, 0.25, True),  # right wing
+              (0, -0.25, True),  # main body
+              ]
+    for point in points:
+        xdata, ydata, expected = point
+        x, y = mesh.get_transform().transform((xdata, ydata))
+        mouse_event = SimpleNamespace(xdata=xdata, ydata=ydata, x=x, y=y)
+        found, indices = mesh.contains(mouse_event)
+        assert found is expected
+
+
+def test_quadmesh_cursor_data():
+    x = np.arange(4)
+    X = x[:, None] * x[None, :]
+
+    fig, ax = plt.subplots()
+    mesh = ax.pcolormesh(X)
+    # Empty array data
+    mesh._A = None
+    fig.draw_without_rendering()
+    xdata, ydata = 0.5, 0.5
+    x, y = mesh.get_transform().transform((xdata, ydata))
+    mouse_event = SimpleNamespace(xdata=xdata, ydata=ydata, x=x, y=y)
+    # Empty collection should return None
+    assert mesh.get_cursor_data(mouse_event) is None
+
+    # Now test adding the array data, to make sure we do get a value
+    mesh.set_array(np.ones((X.shape)))
+    assert_array_equal(mesh.get_cursor_data(mouse_event), [1])
+
+
+def test_quadmesh_cursor_data_multiple_points():
+    x = [1, 2, 1, 2]
+    fig, ax = plt.subplots()
+    mesh = ax.pcolormesh(x, x, np.ones((3, 3)))
+    fig.draw_without_rendering()
+    xdata, ydata = 1.5, 1.5
+    x, y = mesh.get_transform().transform((xdata, ydata))
+    mouse_event = SimpleNamespace(xdata=xdata, ydata=ydata, x=x, y=y)
+    # All quads are covering the same square
+    assert_array_equal(mesh.get_cursor_data(mouse_event), np.ones(9))
+
+
 def test_linestyle_single_dashes():
     plt.scatter([0, 1, 2], [0, 1, 2], linestyle=(0., [2., 2.]))
     plt.draw()
@@ -749,8 +825,6 @@ def test_quadmesh_deprecated_signature(
         fig_test, fig_ref, flat_ref, kwargs):
     # test that the new and old quadmesh signature produce the same results
     # remove when the old QuadMesh.__init__ signature expires (v3.5+2)
-    from matplotlib.collections import QuadMesh
-
     x = [0, 1, 2, 3.]
     y = [1, 2, 3.]
     X, Y = np.meshgrid(x, y)
