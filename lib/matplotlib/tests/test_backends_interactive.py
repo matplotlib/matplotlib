@@ -549,7 +549,7 @@ def test_figure_leak_20490(env, time_mem):
     # threshold.
     pause_time, acceptable_memory_leakage = time_mem
     if env["MPLBACKEND"] == "macosx":
-        acceptable_memory_leakage += 10_000_000
+        acceptable_memory_leakage += 11_000_000
 
     result = _run_helper(
         _test_figure_leak, str(pause_time), timeout=_test_timeout, **env
