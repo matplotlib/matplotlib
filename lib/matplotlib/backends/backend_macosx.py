@@ -34,10 +34,6 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         self._draw_pending = False
         self._is_drawing = False
 
-    def set_cursor(self, cursor):
-        # docstring inherited
-        _macosx.set_cursor(cursor)
-
     def draw(self):
         """Render the figure and update the macosx canvas."""
         # The renderer draw is done here; delaying causes problems with code
