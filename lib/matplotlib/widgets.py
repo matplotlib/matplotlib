@@ -711,11 +711,7 @@ class RangeSlider(SliderBase):
                 facecolor=track_color
             )
             ax.add_patch(self.track)
-            verts[0] = .25, valinit[0]
-            verts[1] = .25, valinit[1]
-            verts[2] = .75, valinit[1]
-            verts[3] = .75, valinit[0]
-            verts[4] = .25, valinit[0]
+            verts = self._fill_verts(verts, valinit)
             poly = Polygon(verts, **kwargs)
             poly.set_transform(self.ax.get_yaxis_transform(which="grid"))
             handleXY_1 = [.5, valinit[0]]
@@ -727,11 +723,7 @@ class RangeSlider(SliderBase):
                 facecolor=track_color
             )
             ax.add_patch(self.track)
-            verts[0] = valinit[0], .25
-            verts[1] = valinit[0], .75
-            verts[2] = valinit[1], .75
-            verts[3] = valinit[1], .25
-            verts[4] = valinit[0], .25
+            verts = self._fill_verts(verts, valinit)
             poly = Polygon(verts, **kwargs)
             poly.set_transform(self.ax.get_xaxis_transform(which="grid"))
             handleXY_1 = [valinit[0], .5]
@@ -794,6 +786,22 @@ class RangeSlider(SliderBase):
 
         self._active_handle = None
         self.set_val(valinit)
+
+    def _fill_verts(self, verts, val):
+        """Fills the *verts* Nx2 shaped numpy array."""
+        if self.orientation == "vertical":
+            verts[0] = .25, val[0]
+            verts[1] = .25, val[1]
+            verts[2] = .75, val[1]
+            verts[3] = .75, val[0]
+            verts[4] = .25, val[0]
+        else:
+            verts[0] = val[0], .25
+            verts[1] = val[0], .75
+            verts[2] = val[1], .75
+            verts[3] = val[1], .25
+            verts[4] = val[0], .25
+        return verts
 
     def _min_in_bounds(self, min):
         """Ensure the new min value is between valmin and self.val[1]."""
@@ -924,22 +932,11 @@ class RangeSlider(SliderBase):
         val[0] = self._min_in_bounds(val[0])
         val[1] = self._max_in_bounds(val[1])
         xy = self.poly.xy
+        xy = self._fill_verts(xy, val)
         if self.orientation == "vertical":
-            xy[0] = .25, val[0]
-            xy[1] = .25, val[1]
-            xy[2] = .75, val[1]
-            xy[3] = .75, val[0]
-            xy[4] = .25, val[0]
-
             self._handles[0].set_ydata([val[0]])
             self._handles[1].set_ydata([val[1]])
         else:
-            xy[0] = val[0], .25
-            xy[1] = val[0], .75
-            xy[2] = val[1], .75
-            xy[3] = val[1], .25
-            xy[4] = val[0], .25
-
             self._handles[0].set_xdata([val[0]])
             self._handles[1].set_xdata([val[1]])
 
