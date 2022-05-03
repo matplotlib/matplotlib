@@ -1,3 +1,10 @@
+API Changes for 3.5.2
+=====================
+
+.. contents::
+   :local:
+   :depth: 1
+
 QuadMesh mouseover defaults to False
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
