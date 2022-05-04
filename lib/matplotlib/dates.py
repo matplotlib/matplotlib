@@ -1804,7 +1804,74 @@ class ConciseDateConverter(DateConverter):
                               default_limits=(datemin, datemax))
 
 
-class _SwitchableDateConverter:
+class TimedeltaConverter(units.ConversionInterface):
+    """
+    Converter for `datetime.timedelta` and `numpy.timedelta64` data,
+    or for date/time data represented as it would be converted by
+    `date2num`.
+
+    The 'unit' tag for such data is None.
+    """
+    # TODO: add pass through for potential formatter arguments
+
+    def axisinfo(self, unit, axis):
+        """
+        Return the `~matplotlib.units.AxisInfo` for *unit*.
+
+        The *unit* argument is required but not used. It should be `None`.
+        The *axis* argument is required but not used.
+        """
+        majloc = AutoTimedeltaLocator()
+        majfmt = AutoTimedeltaFormatter(majloc)
+        tdmin = datetime.timedelta(days=0)
+        tdmax = datetime.timedelta(days=10)
+
+        return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='',
+                              default_limits=(tdmin, tdmax))
+
+    @staticmethod
+    def convert(value, unit, axis):
+        """
+        If *value* is not already a number or sequence of numbers, convert it
+        with `date2num`.
+
+        The *unit* and *axis* arguments are not used.
+        """
+        return timedelta2num(value)
+
+
+class ConciseTimedeltaConverter(TimedeltaConverter):
+    # docstring inherited
+    # TODO: add pass through for potential formatter arguments
+
+    def axisinfo(self, unit, axis):
+        # docstring inherited
+
+        majloc = AutoTimedeltaLocator()
+        majfmt = ConciseTimedeltaFormatter(majloc)
+        tdmin = datetime.timedelta(days=0)
+        tdmax = datetime.timedelta(days=10)
+
+        return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='',
+                              default_limits=(tdmin, tdmax))
+
+
+class _SwitchableConverter:
+    @staticmethod
+    def _get_converter():
+        return NotImplemented
+
+    def axisinfo(self, *args, **kwargs):
+        return self._get_converter().axisinfo(*args, **kwargs)
+
+    def default_units(self, *args, **kwargs):
+        return self._get_converter().default_units(*args, **kwargs)
+
+    def convert(self, *args, **kwargs):
+        return self._get_converter().convert(*args, **kwargs)
+
+
+class _SwitchableDateConverter(_SwitchableConverter):
     """
     Helper converter-like object that generates and dispatches to
     temporary ConciseDateConverter or DateConverter instances based on
@@ -1819,17 +1886,29 @@ class _SwitchableDateConverter:
         interval_multiples = mpl.rcParams["date.interval_multiples"]
         return converter_cls(interval_multiples=interval_multiples)
 
-    def axisinfo(self, *args, **kwargs):
-        return self._get_converter().axisinfo(*args, **kwargs)
-
-    def default_units(self, *args, **kwargs):
-        return self._get_converter().default_units(*args, **kwargs)
-
-    def convert(self, *args, **kwargs):
-        return self._get_converter().convert(*args, **kwargs)
-
 
 units.registry[np.datetime64] = \
     units.registry[datetime.date] = \
     units.registry[datetime.datetime] = \
     _SwitchableDateConverter()
+
+
+class _SwitchableTimedeltaConverter(_SwitchableConverter):
+    """
+    Helper converter-like object that generates and dispatches to
+    temporary ConciseTimedeltaConverter or TimedeltaConverter instances
+    based on :rc:`date.converter`.
+    """
+    # TODO: do we want to add a `timedelta.converter` rcParam?
+
+    @staticmethod
+    def _get_converter():
+        converter_cls = {
+            "concise": ConciseTimedeltaConverter, "auto": TimedeltaConverter}[
+                mpl.rcParams["date.converter"]]
+        return converter_cls()
+
+
+units.registry[np.timedelta64] = \
+    units.registry[datetime.timedelta] = \
+    _SwitchableTimedeltaConverter()
