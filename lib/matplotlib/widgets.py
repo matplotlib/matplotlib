@@ -702,7 +702,7 @@ class RangeSlider(SliderBase):
             f'marker{k}': v for k, v in {**defaults, **handle_style}.items()
         }
 
-        verts = np.zeros([5, 2])
+        verts = self._fill_verts(np.zeros([5, 2]), valinit)
 
         if orientation == "vertical":
             self.track = Rectangle(
@@ -711,9 +711,7 @@ class RangeSlider(SliderBase):
                 facecolor=track_color
             )
             ax.add_patch(self.track)
-            verts = self._fill_verts(verts, valinit)
-            poly = Polygon(verts, **kwargs)
-            poly.set_transform(self.ax.get_yaxis_transform(which="grid"))
+            poly_transform = self.ax.get_yaxis_transform(which="grid")
             handleXY_1 = [.5, valinit[0]]
             handleXY_2 = [.5, valinit[1]]
         else:
@@ -723,15 +721,14 @@ class RangeSlider(SliderBase):
                 facecolor=track_color
             )
             ax.add_patch(self.track)
-            verts = self._fill_verts(verts, valinit)
-            poly = Polygon(verts, **kwargs)
-            poly.set_transform(self.ax.get_xaxis_transform(which="grid"))
+            poly_transform = self.ax.get_xaxis_transform(which="grid")
             handleXY_1 = [valinit[0], .5]
             handleXY_2 = [valinit[1], .5]
-        poly.get_path()._interpolation_steps = 100
-        self.ax.add_patch(poly)
+        self.poly = Polygon(verts, **kwargs)
+        self.poly.set_transform(poly_transform)
+        self.poly.get_path()._interpolation_steps = 100
+        self.ax.add_patch(self.poly)
         self.ax._request_autoscale_view()
-        self.poly = poly
         self._handles = [
             ax.plot(
                 *handleXY_1,
