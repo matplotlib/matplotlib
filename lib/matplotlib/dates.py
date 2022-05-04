@@ -1062,6 +1062,8 @@ class DateLocator(ticker.Locator):
     is not meant to be used on its own.
     """
     hms0d = {'byhour': 0, 'byminute': 0, 'bysecond': 0}
+    default_range = (date2num(datetime.date(1970, 1, 1)),
+                      date2num(datetime.date(1970, 1, 2)))
 
     def __init__(self, tz=None):
         """
@@ -1117,9 +1119,8 @@ class DateLocator(ticker.Locator):
         if it is too close to being singular (i.e. a range of ~0).
         """
         if not np.isfinite(vmin) or not np.isfinite(vmax):
-            # Except if there is no data, then use 1970 as default.
-            return (date2num(datetime.date(1970, 1, 1)),
-                    date2num(datetime.date(1970, 1, 2)))
+            # Except if there is no data, then use default range
+            return self.default_range
         if vmax < vmin:
             vmin, vmax = vmax, vmin
         unit = self._get_unit()
@@ -1322,9 +1323,8 @@ class AutoDateLocator(DateLocator):
         # whatever is thrown at us, we can scale the unit.
         # But default nonsingular date plots at an ~4 year period.
         if not np.isfinite(vmin) or not np.isfinite(vmax):
-            # Except if there is no data, then use 1970 as default.
-            return (date2num(datetime.date(1970, 1, 1)),
-                    date2num(datetime.date(1970, 1, 2)))
+            # Except if there is no data, then use default range
+            return self.default_range
         if vmax < vmin:
             vmin, vmax = vmax, vmin
         if vmin == vmax:
@@ -1716,6 +1716,138 @@ class MicrosecondLocator(DateLocator):
         return self._interval
 
 
+class TimedeltaLocator(ticker.MultipleLocator):
+    default_range = (timedelta2num(datetime.timedelta(days=0)),
+                     timedelta2num(datetime.timedelta(days=10)))
+
+    _FACTORS = {
+        DAILY: 1.0,
+        HOURLY: 1.0 / HOURS_PER_DAY,
+        MINUTELY: 1.0 / MINUTES_PER_DAY,
+        SECONDLY: 1.0 / SEC_PER_DAY,
+        MICROSECONDLY: 1.0 / MUSECONDS_PER_DAY
+    }
+
+    def __init__(self, freq=DAILY, interval=1):
+        self._freq = freq
+        self._interval = interval
+        base = 1 * self._FACTORS[self._freq] * self._interval
+        super().__init__(base=base)
+
+    # TODO: signature does not match base method, imo that is ok here?
+    def set_params(self, freq, interval):
+        if freq is not None:
+            self._freq = freq
+        if interval is not None:
+            self._interval = interval
+        base = 1 * self._FACTORS[self._freq] * self._interval
+        super().set_params(base=base)
+
+    def nonsingular(self, vmin, vmax):
+        """
+        Given the proposed upper and lower extent, adjust the range
+        if it is too close to being singular (i.e. a range of ~0).
+        """
+        if not np.isfinite(vmin) or not np.isfinite(vmax):
+            # Except if there is no data, then use 0 - 10 days as default
+            return self.default_range
+        if vmax < vmin:
+            vmin, vmax = vmax, vmin
+        unit = self._FACTORS[self._freq]
+        if abs(vmax - vmin) < 1e-6:
+            vmin -= 2 * unit * self._interval
+            vmax += 2 * unit * self._interval
+        return vmin, vmax
+
+
+class AutoTimedeltaLocator(TimedeltaLocator):
+    def __init__(self, minticks=5, maxticks=None):
+        """
+        Parameters
+        ----------
+        minticks : int
+            The minimum number of ticks desired; controls whether ticks occur
+            yearly, monthly, etc.
+        maxticks : int
+            The maximum number of ticks desired; controls the interval between
+            ticks (ticking every other, every 3, etc.).  For fine-grained
+            control, this can be a dictionary mapping individual rrule
+            frequency constants (YEARLY, MONTHLY, etc.) to their own maximum
+            number of ticks.  This can be used to keep the number of ticks
+            appropriate to the format chosen in `AutoDateFormatter`. Any
+            frequency not specified in this dictionary is given a default
+            value.
+        """
+        super().__init__()
+        self._freqs = [DAILY, HOURLY, MINUTELY, SECONDLY, MICROSECONDLY]
+        self.minticks = minticks
+        self.maxticks = {DAILY: 11, HOURLY: 12, MINUTELY: 11, SECONDLY: 11,
+                         MICROSECONDLY: 8}
+        if maxticks is not None:
+            try:
+                self.maxticks.update(maxticks)
+            except TypeError:
+                # Assume we were given an integer. Use this as the maximum
+                # number of ticks for every frequency and create a
+                # dictionary for this
+                self.maxticks = dict.fromkeys(self._freqs, maxticks)
+
+        self.intervald = {
+            DAILY: [1, 2, 3, 7, 14, 21],
+            HOURLY: [1, 2, 3, 4, 6, 12],
+            MINUTELY: [1, 5, 10, 15, 30],
+            SECONDLY: [1, 5, 10, 15, 30],
+            MICROSECONDLY: [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000,
+                            5000, 10000, 20000, 50000, 100000, 200000, 500000,
+                            1000000],
+        }
+
+    def __call__(self):
+        # docstring inherited
+        self.update_from_viewlim()
+        return super().__call__()
+
+    def update_from_viewlim(self):
+        dmin, dmax = self.viewlim_to_dt()
+        delta = (dmax - dmin).total_seconds()
+        # take absolute difference
+        if dmin > dmax:
+            delta = -delta
+        numDays = delta.days
+        numSeconds = np.floor(delta.total_seconds())
+        numHours = numDays * HOURS_PER_DAY + np.floor(numSeconds / SEC_PER_HOUR)
+        numMinutes = numDays * MINUTES_PER_DAY \
+                     + np.floor(numSeconds / SEC_PER_MIN)
+        numMicroseconds = delta.microseconds
+        nums = [numDays, numHours, numMinutes, numSeconds, numMicroseconds]
+        # Loop over all the frequencies and try to find one that gives at
+        # least a minticks tick positions.  Once this is found, look for
+        # an interval from an list specific to that frequency that gives no
+        # more than maxticks tick positions. Also, set up some ranges
+        # (bymonth, etc.) as appropriate to be passed to rrulewrapper.
+        freq = DAILY
+        for i, (freq, num) in enumerate(zip(self._freqs, nums)):
+            # If this particular frequency doesn't give enough ticks, continue
+            if num < self.minticks:
+                continue
+
+            # Find the first available interval that doesn't give too many
+            # ticks
+            for interval in self.intervald[freq]:
+                if num <= interval * (self.maxticks[freq] - 1):
+                    break
+        else:
+            interval = 1
+        super().set_params(freq=freq, interval=interval)
+
+    def viewlim_to_dt(self):
+        """Convert the view interval to datetime objects."""
+        vmin, vmax = self.axis.get_view_interval()
+        if vmin > vmax:
+            vmin, vmax = vmax, vmin
+        return num2timedelta(vmin), num2timedelta(vmax)
+
+
 class DateConverter(units.ConversionInterface):
     """
     Converter for `datetime.date` and `datetime.datetime` data, or for
@@ -1740,11 +1872,9 @@ class DateConverter(units.ConversionInterface):
         majloc = AutoDateLocator(tz=tz,
                                  interval_multiples=self._interval_multiples)
         majfmt = AutoDateFormatter(majloc, tz=tz)
-        datemin = datetime.date(1970, 1, 1)
-        datemax = datetime.date(1970, 1, 2)
 
         return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='',
-                              default_limits=(datemin, datemax))
+                              default_limits=majloc.default_range)
 
     @staticmethod
     def convert(value, unit, axis):
@@ -1798,10 +1928,8 @@ class ConciseDateConverter(DateConverter):
                                       zero_formats=self._zero_formats,
                                       offset_formats=self._offset_formats,
                                       show_offset=self._show_offset)
-        datemin = datetime.date(1970, 1, 1)
-        datemax = datetime.date(1970, 1, 2)
         return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='',
-                              default_limits=(datemin, datemax))
+                              default_limits=majloc.default_range)
 
 
 class TimedeltaConverter(units.ConversionInterface):
@@ -1823,11 +1951,9 @@ class TimedeltaConverter(units.ConversionInterface):
         """
         majloc = AutoTimedeltaLocator()
         majfmt = AutoTimedeltaFormatter(majloc)
-        tdmin = datetime.timedelta(days=0)
-        tdmax = datetime.timedelta(days=10)
 
         return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='',
-                              default_limits=(tdmin, tdmax))
+                              default_limits=majloc.default_range)
 
     @staticmethod
     def convert(value, unit, axis):
@@ -1849,11 +1975,9 @@ class ConciseTimedeltaConverter(TimedeltaConverter):
 
         majloc = AutoTimedeltaLocator()
         majfmt = ConciseTimedeltaFormatter(majloc)
-        tdmin = datetime.timedelta(days=0)
-        tdmax = datetime.timedelta(days=10)
 
         return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='',
-                              default_limits=(tdmin, tdmax))
+                              default_limits=majloc.default_range)
 
 
 class _SwitchableConverter:
