@@ -2259,4 +2259,6 @@ def _unpack_to_numpy(x):
         # so in this case we do not want to return a function
         if isinstance(xtmp, np.ndarray):
             return xtmp
+    if hasattr(x, '__array__'):
+        return x.__array__()
     return x
