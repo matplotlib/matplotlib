@@ -785,7 +785,23 @@ class RangeSlider(SliderBase):
         self.set_val(valinit)
 
     def _fill_verts(self, verts, val):
-        """Fills the *verts* Nx2 shaped numpy array."""
+        """
+        Update the *verts* of the *self.poly* slider according to the current
+        value and slider orientation.
+
+        Parameters
+        ----------------
+        verts : (5, 2) np.ndarray
+                The vertices to fill. Note that these will be modified in
+                place.
+        val : (2,) array_like
+             The new min and max values.
+
+        Returns
+        ----------
+        verts : np.ndarray
+                The original array with updated values
+        """
         if self.orientation == "vertical":
             verts[0] = .25, val[0]
             verts[1] = .25, val[1]
