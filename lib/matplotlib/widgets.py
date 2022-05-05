@@ -792,15 +792,15 @@ class RangeSlider(SliderBase):
        Parameters
        ----------
        verts : (5, 2) np.ndarray
-                 The vertices to fill. Note that these will be modified in
-                 place.
+            The vertices to fill. Note that these will be modified in
+            place.
        val : (2,) array_like
-             The new min and max values.
+            The new min and max values.
 
        Returns
        -------
        verts : np.ndarray
-                The original array with updated values.
+            The original array with updated values.
         """
         if self.orientation == "vertical":
             verts[0] = .25, val[0]
