@@ -86,6 +86,11 @@ def test_register_cmap():
 
 def test_double_register_builtin_cmap():
     name = "viridis"
+    match = f"Re-registering the builtin cmap {name!r}."
+    with pytest.raises(ValueError, match=match):
+        matplotlib.colormaps.register(
+            cm.get_cmap(name), name=name, force=True
+        )
     with pytest.raises(ValueError, match='A colormap named "viridis"'):
         cm.register_cmap(name, cm.get_cmap(name))
     with pytest.warns(UserWarning):
