@@ -193,7 +193,7 @@ def test_other_signal_before_sigint(target, kwargs):
     plt.figure()
 
 
-@pytest.mark.backend('Qt5Agg')
+@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
 def test_fig_sigint_override(qt_core):
     from matplotlib.backends.backend_qt5 import _BackendQT5
     # Create a figure
