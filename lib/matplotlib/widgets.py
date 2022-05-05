@@ -944,7 +944,7 @@ class RangeSlider(SliderBase):
         _api.check_shape((2,), val=val)
         val[0] = self._min_in_bounds(val[0])
         val[1] = self._max_in_bounds(val[1])
-        xy = self._fill_verts(self.poly.xy, val)
+        self.poly.xy = self._fill_verts(self.poly.xy, val)
         if self.orientation == "vertical":
             self._handles[0].set_ydata([val[0]])
             self._handles[1].set_ydata([val[1]])
@@ -952,7 +952,6 @@ class RangeSlider(SliderBase):
             self._handles[0].set_xdata([val[0]])
             self._handles[1].set_xdata([val[1]])
 
-        self.poly.xy = xy
         self.valtext.set_text(self._format(val))
 
         if self.drawon:
