@@ -41,7 +41,6 @@ Colors that Matplotlib recognizes are listed at
 
 import base64
 from collections.abc import Sized, Sequence, Mapping
-import copy
 import functools
 import importlib
 import inspect
@@ -646,20 +645,6 @@ def _create_lookup_table(N, data, gamma=1.0):
     return np.clip(lut, 0.0, 1.0)
 
 
-def _warn_if_global_cmap_modified(cmap):
-    if getattr(cmap, '_global', False):
-        _api.warn_deprecated(
-            "3.3",
-            removal="3.6",
-            message="You are modifying the state of a globally registered "
-                    "colormap. This has been deprecated since %(since)s and "
-                    "%(removal)s, you will not be able to modify a "
-                    "registered colormap in-place. To remove this warning, "
-                    "you can make a copy of the colormap first. "
-                    f'cmap = mpl.cm.get_cmap("{cmap.name}").copy()'
-        )
-
-
 class Colormap:
     """
     Baseclass for all scalar to RGBA mappings.
@@ -776,7 +761,6 @@ class Colormap:
         cmapobject.__dict__.update(self.__dict__)
         if self._isinit:
             cmapobject._lut = np.copy(self._lut)
-        cmapobject._global = False
         return cmapobject
 
     def __eq__(self, other):
@@ -798,7 +782,6 @@ class Colormap:
 
     def set_bad(self, color='k', alpha=None):
         """Set the color for masked values."""
-        _warn_if_global_cmap_modified(self)
         self._rgba_bad = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
@@ -811,7 +794,6 @@ class Colormap:
 
     def set_under(self, color='k', alpha=None):
         """Set the color for low out-of-range values."""
-        _warn_if_global_cmap_modified(self)
         self._rgba_under = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
@@ -824,7 +806,6 @@ class Colormap:
 
     def set_over(self, color='k', alpha=None):
         """Set the color for high out-of-range values."""
-        _warn_if_global_cmap_modified(self)
         self._rgba_over = to_rgba(color, alpha)
         if self._isinit:
             self._set_extremes()
@@ -847,7 +828,7 @@ class Colormap:
         values and, when ``norm.clip = False``, low (*under*) and high (*over*)
         out-of-range values, have been set accordingly.
         """
-        new_cm = copy.copy(self)
+        new_cm = self.copy()
         new_cm.set_extremes(bad=bad, under=under, over=over)
         return new_cm
 
