@@ -154,7 +154,7 @@ class ColormapRegistry(Mapping):
                 raise ValueError("Re-registering the builtin cmap "
                                  f"{name!r} is not allowed.")
 
-            # Warn that we are updating an already exisiting colormap
+            # Warn that we are updating an already existing colormap
             _api.warn_external(f"Overwriting the cmap {name!r} "
                                "that was already in the registry.")
 
@@ -235,7 +235,7 @@ def register_cmap(name=None, cmap=None, *, override_builtin=False):
         except AttributeError as err:
             raise ValueError("Arguments must include a name or a "
                              "Colormap") from err
-    # override_builtin is allowed here for backward compatbility
+    # override_builtin is allowed here for backward compatibility
     # this is just a shim to enable that to work privately in
     # the global ColormapRegistry
     _colormaps._allow_override_builtin = override_builtin
