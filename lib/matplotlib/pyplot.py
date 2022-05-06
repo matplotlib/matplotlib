@@ -59,7 +59,7 @@ from matplotlib import _pylab_helpers, interactive
 from matplotlib import cbook
 from matplotlib import _docstring
 from matplotlib.backend_bases import FigureCanvasBase, MouseButton
-from matplotlib.figure import Figure, figaspect
+from matplotlib.figure import Figure, FigureBase, figaspect
 from matplotlib.gridspec import GridSpec, SubplotSpec
 from matplotlib import rcParams, rcParamsDefault, get_backend, rcParamsOrig
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
@@ -690,7 +690,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
     Parameters
     ----------
-    num : int or str or `.Figure`, optional
+    num : int or str or `.Figure` or `.SubFigure`, optional
         A unique identifier for the figure.
 
         If a figure with that identifier already exists, this figure is made
@@ -702,7 +702,8 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         will be used for the ``Figure.number`` attribute, otherwise, an
         auto-generated integer value is used (starting at 1 and incremented
         for each new figure). If *num* is a string, the figure label and the
-        window title is set to this value.
+        window title is set to this value.  If num is a ``SubFigure``, its
+        parent ``Figure`` is activated.
 
     figsize : (float, float), default: :rc:`figure.figsize`
         Width, height in inches.
@@ -753,11 +754,11 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     `~matplotlib.rcParams` defines the default values, which can be modified
     in the matplotlibrc file.
     """
-    if isinstance(num, Figure):
+    if isinstance(num, FigureBase):
         if num.canvas.manager is None:
             raise ValueError("The passed figure is not managed by pyplot")
         _pylab_helpers.Gcf.set_active(num.canvas.manager)
-        return num
+        return num.figure
 
     allnums = get_fignums()
     next_num = max(allnums) + 1 if allnums else 1
