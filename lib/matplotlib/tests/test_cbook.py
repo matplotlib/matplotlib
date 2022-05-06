@@ -420,7 +420,7 @@ def test_callbackregistry_blocking():
     ('# only comment "with quotes" xx', ''),
 ])
 def test_strip_comment(line, result):
-    """Strip everything from the first unqouted #."""
+    """Strip everything from the first unquoted #."""
     assert cbook._strip_comment(line) == result
 
 

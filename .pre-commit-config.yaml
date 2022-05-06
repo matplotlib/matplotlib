@@ -28,3 +28,14 @@ repos:
       - id: flake8
         additional_dependencies: [pydocstyle>5.1.0, flake8-docstrings>1.4.0]
         args: ["--docstring-convention=all"]
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.1.0
+    hooks:
+      - id: codespell
+        files: ^.*\.(py|c|cpp|h|m|md|rst|yml)$
+        args: [
+          "--ignore-words",
+          "ci/codespell-ignore-words.txt",
+          "--skip",
+          "doc/users/project/credits.rst"
+          ]
