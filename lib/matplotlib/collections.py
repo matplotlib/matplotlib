@@ -197,8 +197,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # Broadcast (2,) -> (1, 2) but nothing else.
             if offsets.shape == (2,):
                 offsets = offsets[None, :]
-        self._offsets = offsets
 
+        self._offsets = offsets
         self._offset_transform = offset_transform
 
         self._path_effects = None
