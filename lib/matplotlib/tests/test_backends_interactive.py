@@ -458,7 +458,9 @@ def test_figure_leak_20490(env, time_mem):
     # We haven't yet directly identified the leaks so test with a memory growth
     # threshold.
     pause_time, acceptable_memory_leakage = time_mem
-    if env["MPLBACKEND"] == "macosx":
+    if env["MPLBACKEND"] == "macosx" or (
+            env["MPLBACKEND"] == "tkagg" and sys.platform == 'darwin'
+    ):
         acceptable_memory_leakage += 11_000_000
 
     result = _run_helper(
