@@ -343,3 +343,27 @@ def test_fallback_position():
     axtest = plt.axes([0.2, 0.2, 0.5, 0.5], position=[0.1, 0.1, 0.8, 0.8])
     np.testing.assert_allclose(axtest.bbox.get_points(),
                                axref.bbox.get_points())
+
+
+def test_set_current_figure_via_subfigure():
+    fig1 = plt.figure()
+    subfigs = fig1.subfigures(2)
+
+    plt.figure()
+    assert plt.gcf() != fig1
+
+    current = plt.figure(subfigs[1])
+    assert plt.gcf() == fig1
+    assert current == fig1
+
+
+def test_set_current_axes_on_subfigure():
+    fig = plt.figure()
+    subfigs = fig.subfigures(2)
+
+    ax = subfigs[0].subplots(1, squeeze=True)
+    subfigs[1].subplots(1, squeeze=True)
+
+    assert plt.gca() != ax
+    plt.sca(ax)
+    assert plt.gca() == ax
