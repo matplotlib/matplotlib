@@ -702,8 +702,6 @@ class RangeSlider(SliderBase):
             f'marker{k}': v for k, v in {**defaults, **handle_style}.items()
         }
 
-        verts = self._fill_verts(np.zeros([5, 2]), valinit)
-
         if orientation == "vertical":
             self.track = Rectangle(
                 (.25, 0), .5, 2,
@@ -724,7 +722,8 @@ class RangeSlider(SliderBase):
             poly_transform = self.ax.get_xaxis_transform(which="grid")
             handleXY_1 = [valinit[0], .5]
             handleXY_2 = [valinit[1], .5]
-        self.poly = Polygon(verts, **kwargs)
+        self.poly = Polygon(np.zeros([5, 2]), **kwargs)
+        self._update_selection_poly(*valinit)
         self.poly.set_transform(poly_transform)
         self.poly.get_path()._interpolation_steps = 100
         self.ax.add_patch(self.poly)
@@ -784,37 +783,26 @@ class RangeSlider(SliderBase):
         self._active_handle = None
         self.set_val(valinit)
 
-    def _fill_verts(self, verts, val):
+    def _update_selection_poly(self, vmin, vmax):
         """
-        Update the *verts* of the *self.poly* slider according to the current
-        value and slider orientation.
-
-       Parameters
-       ----------
-       verts : (5, 2) np.ndarray
-            The vertices to fill. Note that these will be modified in
-            place.
-       val : (2,) array_like
-            The new min and max values.
-
-       Returns
-       -------
-       verts : np.ndarray
-            The original array with updated values.
+        Update the vertices of the *self.poly* slider in-place
+        to cover the data range *vmin*, *vmax*.
         """
+        # The vertices are positioned
+        #  1 ------ 2
+        #  |        |
+        # 0, 4 ---- 3
+        verts = self.poly.xy
         if self.orientation == "vertical":
-            verts[0] = .25, val[0]
-            verts[1] = .25, val[1]
-            verts[2] = .75, val[1]
-            verts[3] = .75, val[0]
-            verts[4] = .25, val[0]
+            verts[0] = verts[4] = .25, vmin
+            verts[1] = .25, vmax
+            verts[2] = .75, vmax
+            verts[3] = .75, vmin
         else:
-            verts[0] = val[0], .25
-            verts[1] = val[0], .75
-            verts[2] = val[1], .75
-            verts[3] = val[1], .25
-            verts[4] = val[0], .25
-        return verts
+            verts[0] = verts[4] = vmin, .25
+            verts[1] = vmin, .75
+            verts[2] = vmax, .75
+            verts[3] = vmax, .25
 
     def _min_in_bounds(self, min):
         """Ensure the new min value is between valmin and self.val[1]."""
@@ -944,7 +932,7 @@ class RangeSlider(SliderBase):
         _api.check_shape((2,), val=val)
         val[0] = self._min_in_bounds(val[0])
         val[1] = self._max_in_bounds(val[1])
-        self.poly.xy = self._fill_verts(self.poly.xy, val)
+        self._update_selection_poly(val[0], val[1])
         if self.orientation == "vertical":
             self._handles[0].set_ydata([val[0]])
             self._handles[1].set_ydata([val[1]])
