@@ -19,7 +19,7 @@ import matplotlib as mpl
 from . import (_api, _docstring, backend_tools, cbook, colors, ticker,
                transforms)
 from .lines import Line2D
-from .patches import Circle, Rectangle, Ellipse
+from .patches import Circle, Rectangle, Ellipse, Polygon
 from .transforms import TransformedPatchPath, Affine2D
 
 
@@ -709,7 +709,7 @@ class RangeSlider(SliderBase):
                 facecolor=track_color
             )
             ax.add_patch(self.track)
-            self.poly = ax.axhspan(valinit[0], valinit[1], 0, 1, **kwargs)
+            poly_transform = self.ax.get_yaxis_transform(which="grid")
             handleXY_1 = [.5, valinit[0]]
             handleXY_2 = [.5, valinit[1]]
         else:
@@ -719,9 +719,15 @@ class RangeSlider(SliderBase):
                 facecolor=track_color
             )
             ax.add_patch(self.track)
-            self.poly = ax.axvspan(valinit[0], valinit[1], 0, 1, **kwargs)
+            poly_transform = self.ax.get_xaxis_transform(which="grid")
             handleXY_1 = [valinit[0], .5]
             handleXY_2 = [valinit[1], .5]
+        self.poly = Polygon(np.zeros([5, 2]), **kwargs)
+        self._update_selection_poly(*valinit)
+        self.poly.set_transform(poly_transform)
+        self.poly.get_path()._interpolation_steps = 100
+        self.ax.add_patch(self.poly)
+        self.ax._request_autoscale_view()
         self._handles = [
             ax.plot(
                 *handleXY_1,
@@ -776,6 +782,27 @@ class RangeSlider(SliderBase):
 
         self._active_handle = None
         self.set_val(valinit)
+
+    def _update_selection_poly(self, vmin, vmax):
+        """
+        Update the vertices of the *self.poly* slider in-place
+        to cover the data range *vmin*, *vmax*.
+        """
+        # The vertices are positioned
+        #  1 ------ 2
+        #  |        |
+        # 0, 4 ---- 3
+        verts = self.poly.xy
+        if self.orientation == "vertical":
+            verts[0] = verts[4] = .25, vmin
+            verts[1] = .25, vmax
+            verts[2] = .75, vmax
+            verts[3] = .75, vmin
+        else:
+            verts[0] = verts[4] = vmin, .25
+            verts[1] = vmin, .75
+            verts[2] = vmax, .75
+            verts[3] = vmax, .25
 
     def _min_in_bounds(self, min):
         """Ensure the new min value is between valmin and self.val[1]."""
@@ -903,36 +930,24 @@ class RangeSlider(SliderBase):
         """
         val = np.sort(val)
         _api.check_shape((2,), val=val)
-        val[0] = self._min_in_bounds(val[0])
-        val[1] = self._max_in_bounds(val[1])
-        xy = self.poly.xy
+        vmin, vmax = val
+        vmin = self._min_in_bounds(vmin)
+        vmax = self._max_in_bounds(vmax)
+        self._update_selection_poly(vmin, vmax)
         if self.orientation == "vertical":
-            xy[0] = .25, val[0]
-            xy[1] = .25, val[1]
-            xy[2] = .75, val[1]
-            xy[3] = .75, val[0]
-            xy[4] = .25, val[0]
-
-            self._handles[0].set_ydata([val[0]])
-            self._handles[1].set_ydata([val[1]])
+            self._handles[0].set_ydata([vmin])
+            self._handles[1].set_ydata([vmax])
         else:
-            xy[0] = val[0], .25
-            xy[1] = val[0], .75
-            xy[2] = val[1], .75
-            xy[3] = val[1], .25
-            xy[4] = val[0], .25
+            self._handles[0].set_xdata([vmin])
+            self._handles[1].set_xdata([vmax])
 
-            self._handles[0].set_xdata([val[0]])
-            self._handles[1].set_xdata([val[1]])
-
-        self.poly.xy = xy
-        self.valtext.set_text(self._format(val))
+        self.valtext.set_text(self._format((vmin, vmax)))
 
         if self.drawon:
             self.ax.figure.canvas.draw_idle()
-        self.val = val
+        self.val = (vmin, vmax)
         if self.eventson:
-            self._observers.process("changed", val)
+            self._observers.process("changed", (vmin, vmax))
 
     def on_changed(self, func):
         """
