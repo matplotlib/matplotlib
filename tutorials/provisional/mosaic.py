@@ -129,7 +129,7 @@ mosaic = "AB;CD"
 
 ###############################################################################
 # will give you the same composition, where the ``";"`` is used
-# as the separator instead.
+# as the row separator instead of newline.
 
 fig = plt.figure(constrained_layout=True)
 ax_dict = fig.subplot_mosaic(mosaic)
