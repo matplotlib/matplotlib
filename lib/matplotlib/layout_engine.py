@@ -123,7 +123,7 @@ class TightLayoutEngine(LayoutEngine):
         h_pad, w_pad : float
             Padding (height/width) between edges of adjacent subplots.
             Defaults to *pad*.
-        rect : tuple[float, float, float, float], optional
+        rect : tuple of 4 floats, optional
             (left, bottom, right, top) rectangle in normalized figure
             coordinates that the subplots (including labels)
             will fit into. Defaults to using the entire figure.
@@ -179,7 +179,8 @@ class ConstrainedLayoutEngine(LayoutEngine):
     _colorbar_gridspec = False
 
     def __init__(self, *, h_pad=None, w_pad=None,
-                 hspace=None, wspace=None, **kwargs):
+                 hspace=None, wspace=None, rect=(0, 0, 1, 1),
+                 **kwargs):
         """
         Initialize ``constrained_layout`` settings.
 
@@ -197,15 +198,20 @@ class ConstrainedLayoutEngine(LayoutEngine):
             If h/wspace < h/w_pad, then the pads are used instead.
             Default to :rc:`figure.constrained_layout.hspace` and
             :rc:`figure.constrained_layout.wspace`.
+        rect : tuple of 4 floats
+            Rectangle in figure coordinates to perform constrained layout in
+            (left, bottom, width, height), each from 0-1.
         """
         super().__init__(**kwargs)
         # set the defaults:
         self.set(w_pad=mpl.rcParams['figure.constrained_layout.w_pad'],
                  h_pad=mpl.rcParams['figure.constrained_layout.h_pad'],
                  wspace=mpl.rcParams['figure.constrained_layout.wspace'],
-                 hspace=mpl.rcParams['figure.constrained_layout.hspace'])
+                 hspace=mpl.rcParams['figure.constrained_layout.hspace'],
+                 rect=(0, 0, 1, 1))
         # set anything that was passed in (None will be ignored):
-        self.set(w_pad=w_pad, h_pad=h_pad, wspace=wspace, hspace=hspace)
+        self.set(w_pad=w_pad, h_pad=h_pad, wspace=wspace, hspace=hspace,
+                 rect=rect)
 
     def execute(self, fig):
         """
@@ -222,10 +228,11 @@ class ConstrainedLayoutEngine(LayoutEngine):
 
         return do_constrained_layout(fig, w_pad=w_pad, h_pad=h_pad,
                                      wspace=self._params['wspace'],
-                                     hspace=self._params['hspace'])
+                                     hspace=self._params['hspace'],
+                                     rect=self._params['rect'])
 
     def set(self, *, h_pad=None, w_pad=None,
-            hspace=None, wspace=None):
+            hspace=None, wspace=None, rect=None):
         """
         Set the pads for constrained_layout.
 
@@ -243,6 +250,9 @@ class ConstrainedLayoutEngine(LayoutEngine):
             If h/wspace < h/w_pad, then the pads are used instead.
             Default to :rc:`figure.constrained_layout.hspace` and
             :rc:`figure.constrained_layout.wspace`.
+        rect : tuple of 4 floats
+            Rectangle in figure coordinates to perform constrained layout in
+            (left, bottom, width, height), each from 0-1.
         """
         for td in self.set.__kwdefaults__:
             if locals()[td] is not None:
