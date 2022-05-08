@@ -289,11 +289,11 @@ be manually installed on Macports with ::
 Once pip is installed, you can install Matplotlib and all its dependencies with
 from the Terminal.app command line::
 
-   python3 -mpip install matplotlib
+   python3 -m pip install matplotlib
 
 (``sudo python3.6 ...`` on Macports).
 
-You might also want to install IPython or the Jupyter notebook (``python3 -mpip
+You might also want to install IPython or the Jupyter notebook (``python3 -m pip
 install ipython notebook``).
 
 Checking your installation
