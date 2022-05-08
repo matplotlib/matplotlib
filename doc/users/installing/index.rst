@@ -92,9 +92,17 @@ First you need to install the :ref:`dependencies`.
 
 A C compiler is required.  Typically, on Linux, you will need ``gcc``, which
 should be installed using your distribution's package manager; on macOS, you
-will need xcode_; on Windows, you will need Visual Studio 2015 or later.
+will need xcode_; on Windows, you will need `Visual Studio`_ 2015 or later.
+
+For those using Visual Studio, make sure "Desktop development with C++" is
+selected, and that the latest MSVC, "C++ CMake tools for Windows," and a
+Windows SDK compatible with your version of Windows are selected and installed.
+They should be selected by default under the "Optional" subheading, but are
+required to build matplotlib from source.
 
 .. _xcode: https://guide.macports.org/chunked/installing.html#installing.xcode
+
+.. _Visual Studio: https://visualstudio.microsoft.com/downloads/
 
 The easiest way to get the latest development version to start contributing
 is to go to the git `repository <https://github.com/matplotlib/matplotlib>`_
