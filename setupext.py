@@ -668,6 +668,7 @@ class FreeType(SetupPackage):
             sln_path = base_path / vc / "freetype.sln"
             # https://developercommunity.visualstudio.com/comments/190992/view.html
             (sln_path.parent / "Directory.Build.props").write_text(
+                "<?xml version='1.0' encoding='utf-8'?>"
                 "<Project>"
                 "<PropertyGroup>"
                 # WindowsTargetPlatformVersion must be given on a single line.
@@ -676,8 +677,8 @@ class FreeType(SetupPackage):
                 "::GetLatestSDKTargetPlatformVersion('Windows', '10.0')"
                 ")</WindowsTargetPlatformVersion>"
                 "</PropertyGroup>"
-                "</Project>"
-            )
+                "</Project>",
+                encoding="utf-8")
             # It is not a trivial task to determine PlatformToolset to plug it
             # into msbuild command, and Directory.Build.props will not override
             # the value in the project file.

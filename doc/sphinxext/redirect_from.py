@@ -15,6 +15,7 @@ directive in ``doc/topic/new-page.rst``::
 This creates in the build directory a file ``build/html/topic/old-page.html``
 that contains a relative refresh::
 
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <html>
       <head>
         <meta http-equiv="refresh" content="0; url=new-page.html">
@@ -38,7 +39,9 @@ from sphinx.util import logging
 logger = logging.getLogger(__name__)
 
 
-HTML_TEMPLATE = """<html>
+HTML_TEMPLATE = """\
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<html>
   <head>
     <meta http-equiv="refresh" content="0; url={v}">
   </head>
@@ -115,4 +118,4 @@ def _generate_redirects(app, exception):
         else:
             logger.info(f'making refresh html file: {k} redirect to {v}')
             p.parent.mkdir(parents=True, exist_ok=True)
-            p.write_text(html)
+            p.write_text(html, encoding='utf-8')
