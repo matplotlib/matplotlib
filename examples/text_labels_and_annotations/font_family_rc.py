@@ -37,7 +37,7 @@ print(plt.rcParams["font.monospace"][0])
 
 
 #################################################################
-# Chooses default sans-serif font
+# Choose default sans-serif font
 
 def print_text(text):
     fig, ax = plt.subplots(figsize=(6, 1), facecolor="#eefade")
@@ -51,7 +51,7 @@ print_text("Hello World! 01")
 
 
 #################################################################
-# Chose sans-serif font and specify to it to "Nimbus Sans"
+# Choose sans-serif font and specify to it to "Nimbus Sans"
 
 plt.rcParams["font.family"] = "sans-serif"
 plt.rcParams["font.sans-serif"] = ["Nimbus Sans"]
@@ -59,14 +59,14 @@ print_text("Hello World! 02")
 
 
 ##################################################################
-# Chooses default monospace font
+# Choose default monospace font
 
 plt.rcParams["font.family"] = "monospace"
 print_text("Hello World! 03")
 
 
 ###################################################################
-# Chose monospace font and specify to it to "FreeMono"
+# Choose monospace font and specify to it to "FreeMono"
 
 plt.rcParams["font.family"] = "monospace"
 plt.rcParams["font.monospace"] = ["FreeMono"]
