@@ -108,7 +108,7 @@ def _check_for_pgf(texsystem):
             \typeout{pgfversion=\pgfversion}
             \makeatletter
             \@@end
-        """)
+        """, encoding="utf-8")
         try:
             subprocess.check_call(
                 [texsystem, "-halt-on-error", str(tex_path)], cwd=tmpdir,
