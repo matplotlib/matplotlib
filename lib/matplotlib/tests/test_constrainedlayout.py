@@ -465,8 +465,7 @@ def test_colorbar_align():
                                        cbs[3].ax.get_position().y0)
 
 
-@image_comparison(['test_colorbars_no_overlapV.png'],
-                  remove_text=False, style='mpl20')
+@image_comparison(['test_colorbars_no_overlapV.png'], style='mpl20')
 def test_colorbars_no_overlapV():
     fig = plt.figure(figsize=(2, 4), layout="constrained")
     axs = fig.subplots(2, 1, sharex=True, sharey=True)
@@ -478,8 +477,7 @@ def test_colorbars_no_overlapV():
     fig.suptitle("foo")
 
 
-@image_comparison(['test_colorbars_no_overlapH.png'],
-                  remove_text=False, style='mpl20')
+@image_comparison(['test_colorbars_no_overlapH.png'], style='mpl20')
 def test_colorbars_no_overlapH():
     fig = plt.figure(figsize=(4, 2), layout="constrained")
     fig.suptitle("foo")
@@ -608,3 +606,21 @@ def test_discouraged_api():
 def test_kwargs():
     fig, ax = plt.subplots(constrained_layout={'h_pad': 0.02})
     fig.draw_without_rendering()
+
+
+def test_rect():
+    fig, ax = plt.subplots(layout='constrained')
+    fig.get_layout_engine().set(rect=[0, 0, 0.5, 0.5])
+    fig.draw_without_rendering()
+    ppos = ax.get_position()
+    assert ppos.x1 < 0.5
+    assert ppos.y1 < 0.5
+
+    fig, ax = plt.subplots(layout='constrained')
+    fig.get_layout_engine().set(rect=[0.2, 0.2, 0.3, 0.3])
+    fig.draw_without_rendering()
+    ppos = ax.get_position()
+    assert ppos.x1 < 0.5
+    assert ppos.y1 < 0.5
+    assert ppos.x0 > 0.2
+    assert ppos.y0 > 0.2

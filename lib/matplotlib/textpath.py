@@ -1,5 +1,4 @@
 from collections import OrderedDict
-import functools
 import logging
 import urllib.parse
 
@@ -242,25 +241,29 @@ class TextToPath:
 
         # Gather font information and do some setup for combining
         # characters into strings.
-        for x1, y1, dvifont, glyph, width in page.text:
-            font, enc = self._get_ps_font_and_encoding(dvifont.texname)
-            char_id = self._get_char_id(font, glyph)
-
+        for text in page.text:
+            font = get_font(text.font_path)
+            char_id = self._get_char_id(font, text.glyph)
             if char_id not in glyph_map:
                 font.clear()
                 font.set_size(self.FONT_SCALE, self.DPI)
-                # See comments in _get_ps_font_and_encoding.
-                if enc is not None:
-                    index = font.get_name_index(enc[glyph])
+                glyph_name_or_index = text.glyph_name_or_index
+                if isinstance(glyph_name_or_index, str):
+                    index = font.get_name_index(glyph_name_or_index)
                     font.load_glyph(index, flags=LOAD_TARGET_LIGHT)
-                else:
-                    font.load_char(glyph, flags=LOAD_TARGET_LIGHT)
+                elif isinstance(glyph_name_or_index, int):
+                    self._select_native_charmap(font)
+                    font.load_char(
+                        glyph_name_or_index, flags=LOAD_TARGET_LIGHT)
+                else:  # Should not occur.
+                    raise TypeError(f"Glyph spec of unexpected type: "
+                                    f"{glyph_name_or_index!r}")
                 glyph_map_new[char_id] = font.get_path()
 
             glyph_ids.append(char_id)
-            xpositions.append(x1)
-            ypositions.append(y1)
-            sizes.append(dvifont.size / self.FONT_SCALE)
+            xpositions.append(text.x)
+            ypositions.append(text.y)
+            sizes.append(text.font_size / self.FONT_SCALE)
 
         myrects = []
 
@@ -276,48 +279,21 @@ class TextToPath:
                 glyph_map_new, myrects)
 
     @staticmethod
-    @functools.lru_cache(50)
-    def _get_ps_font_and_encoding(texname):
-        tex_font_map = dviread.PsfontsMap(dviread._find_tex_file('pdftex.map'))
-        psfont = tex_font_map[texname]
-        if psfont.filename is None:
-            raise ValueError(
-                f"No usable font file found for {psfont.psname} ({texname}). "
-                f"The font may lack a Type-1 version.")
-
-        font = get_font(psfont.filename)
-
-        if psfont.encoding:
-            # If psfonts.map specifies an encoding, use it: it gives us a
-            # mapping of glyph indices to Adobe glyph names; use it to convert
-            # dvi indices to glyph names and use the FreeType-synthesized
-            # Unicode charmap to convert glyph names to glyph indices (with
-            # FT_Get_Name_Index/get_name_index), and load the glyph using
-            # FT_Load_Glyph/load_glyph.  (That charmap has a coverage at least
-            # as good as, and possibly better than, the native charmaps.)
-            enc = dviread._parse_enc(psfont.encoding)
-        else:
-            # If psfonts.map specifies no encoding, the indices directly
-            # map to the font's "native" charmap; so don't use the
-            # FreeType-synthesized charmap but the native ones (we can't
-            # directly identify it but it's typically an Adobe charmap), and
-            # directly load the dvi glyph indices using FT_Load_Char/load_char.
-            for charmap_code in [
-                    1094992451,  # ADOBE_CUSTOM.
-                    1094995778,  # ADOBE_STANDARD.
-            ]:
-                try:
-                    font.select_charmap(charmap_code)
-                except (ValueError, RuntimeError):
-                    pass
-                else:
-                    break
+    def _select_native_charmap(font):
+        # Select the native charmap. (we can't directly identify it but it's
+        # typically an Adobe charmap).
+        for charmap_code in [
+                1094992451,  # ADOBE_CUSTOM.
+                1094995778,  # ADOBE_STANDARD.
+        ]:
+            try:
+                font.select_charmap(charmap_code)
+            except (ValueError, RuntimeError):
+                pass
             else:
-                _log.warning("No supported encoding in font (%s).",
-                             psfont.filename)
-            enc = None
-
-        return font, enc
+                break
+        else:
+            _log.warning("No supported encoding in font (%s).", font.fname)
 
 
 text_to_path = TextToPath()

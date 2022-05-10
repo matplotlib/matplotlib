@@ -821,7 +821,7 @@ class ToolZoom(ZoomPanBase):
             self._cancel_action()
             return
 
-        last_a = []
+        done_ax = []
 
         for cur_xypress in self._xypress:
             x, y = event.x, event.y
@@ -832,14 +832,9 @@ class ToolZoom(ZoomPanBase):
                 return
 
             # detect twinx, twiny axes and avoid double zooming
-            twinx, twiny = False, False
-            if last_a:
-                for la in last_a:
-                    if a.get_shared_x_axes().joined(a, la):
-                        twinx = True
-                    if a.get_shared_y_axes().joined(a, la):
-                        twiny = True
-            last_a.append(a)
+            twinx = any(a.get_shared_x_axes().joined(a, a1) for a1 in done_ax)
+            twiny = any(a.get_shared_y_axes().joined(a, a1) for a1 in done_ax)
+            done_ax.append(a)
 
             if self._button_pressed == 1:
                 direction = 'in'
@@ -989,12 +984,10 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'help': ToolHelpBase,
                  'copy': ToolCopyToClipboardBase,
                  }
-"""Default tools"""
 
 default_toolbar_tools = [['navigation', ['home', 'back', 'forward']],
                          ['zoompan', ['pan', 'zoom', 'subplots']],
                          ['io', ['save', 'help']]]
-"""Default tools in the toolbar"""
 
 
 def add_tools_to_manager(toolmanager, tools=default_tools):
@@ -1006,8 +999,8 @@ def add_tools_to_manager(toolmanager, tools=default_tools):
     toolmanager : `.backend_managers.ToolManager`
         Manager to which the tools are added.
     tools : {str: class_like}, optional
-        The tools to add in a {name: tool} dict, see `add_tool` for more
-        info.
+        The tools to add in a {name: tool} dict, see
+        `.backend_managers.ToolManager.add_tool` for more info.
     """
 
     for name, tool in tools.items():
@@ -1021,11 +1014,12 @@ def add_tools_to_container(container, tools=default_toolbar_tools):
     Parameters
     ----------
     container : Container
-        `backend_bases.ToolContainerBase` object that will get the tools added.
+        `.backend_bases.ToolContainerBase` object that will get the tools
+        added.
     tools : list, optional
         List in the form ``[[group1, [tool1, tool2 ...]], [group2, [...]]]``
         where the tools ``[tool1, tool2, ...]`` will display in group1.
-        See `add_tool` for details.
+        See `.backend_bases.ToolContainerBase.add_tool` for details.
     """
 
     for group, grouptools in tools:

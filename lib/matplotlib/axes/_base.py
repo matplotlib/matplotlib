@@ -169,25 +169,25 @@ def _process_plot_format(fmt):
         if fmt[i:i+2] in mlines.lineStyles:  # First, the two-char styles.
             if linestyle is not None:
                 raise ValueError(
-                    'Illegal format string "%s"; two linestyle symbols' % fmt)
+                    f'Illegal format string {fmt!r}; two linestyle symbols')
             linestyle = fmt[i:i+2]
             i += 2
         elif c in mlines.lineStyles:
             if linestyle is not None:
                 raise ValueError(
-                    'Illegal format string "%s"; two linestyle symbols' % fmt)
+                    f'Illegal format string {fmt!r}; two linestyle symbols')
             linestyle = c
             i += 1
         elif c in mlines.lineMarkers:
             if marker is not None:
                 raise ValueError(
-                    'Illegal format string "%s"; two marker symbols' % fmt)
+                    f'Illegal format string {fmt!r}; two marker symbols')
             marker = c
             i += 1
         elif c in mcolors.get_named_colors_mapping():
             if color is not None:
                 raise ValueError(
-                    'Illegal format string "%s"; two color symbols' % fmt)
+                    f'Illegal format string {fmt!r}; two color symbols')
             color = c
             i += 1
         elif c == 'C' and i < len(fmt) - 1:
@@ -641,7 +641,7 @@ class _AxesBase(martist.Artist):
         self.set_axisbelow(mpl.rcParams['axes.axisbelow'])
 
         self._rasterization_zorder = None
-        self.cla()
+        self.clear()
 
         # funcs used to format x and y - fall back on major formatters
         self.fmt_xdata = None
@@ -1193,7 +1193,7 @@ class _AxesBase(martist.Artist):
         self.set_ylim(y0, y1, emit=False, auto=other.get_autoscaley_on())
         self.yaxis._scale = other.yaxis._scale
 
-    def cla(self):
+    def clear(self):
         """Clear the Axes."""
         # Note: this is called by Axes.__init__()
 
@@ -1487,9 +1487,9 @@ class _AxesBase(martist.Artist):
         return self.ArtistList(self, 'texts', 'add_artist',
                                valid_types=mtext.Text)
 
-    def clear(self):
+    def cla(self):
         """Clear the Axes."""
-        self.cla()
+        self.clear()
 
     def get_facecolor(self):
         """Get the facecolor of the Axes."""
@@ -2084,8 +2084,8 @@ class _AxesBase(martist.Artist):
                     self.set_ylim([ylim[0], ylim[0] + edge_size],
                                   emit=emit, auto=False)
             else:
-                raise ValueError('Unrecognized string %s to axis; '
-                                 'try on or off' % s)
+                raise ValueError(f"Unrecognized string {s!r} to axis; "
+                                 "try 'on' or 'off'")
         else:
             if len(args) == 1:
                 limits = args[0]
@@ -2691,7 +2691,7 @@ class _AxesBase(martist.Artist):
             only the y-axis.
 
         tight : bool or None, default: True
-            The *tight* parameter is passed to `autoscale_view`,
+            The *tight* parameter is passed to `~.axes.Axes.autoscale_view`,
             which is executed after a margin is changed; the default
             here is *True*, on the assumption that when margins are
             specified, no additional padding to match tick marks is
@@ -2777,8 +2777,8 @@ class _AxesBase(martist.Artist):
             to 'z', and 'both' refers to all three axes.)
         tight : bool or None, default: None
             If True, first set the margins to zero.  Then, this argument is
-            forwarded to `autoscale_view` (regardless of its value); see the
-            description of its behavior there.
+            forwarded to `~.axes.Axes.autoscale_view` (regardless of
+            its value); see the description of its behavior there.
         """
         if enable is None:
             scalex = True
@@ -2878,26 +2878,23 @@ class _AxesBase(martist.Artist):
             shared = shared_axes.get_siblings(self)
             # Base autoscaling on finite data limits when there is at least one
             # finite data limit among all the shared_axes and intervals.
-            # Also, find the minimum minpos for use in the margin calculation.
-            x_values = []
-            minimum_minpos = np.inf
-            for ax in shared:
-                x_values.extend(getattr(ax.dataLim, f"interval{name}"))
-                minimum_minpos = min(minimum_minpos,
-                                     getattr(ax.dataLim, f"minpos{name}"))
-            x_values = np.extract(np.isfinite(x_values), x_values)
-            if x_values.size >= 1:
-                x0, x1 = (x_values.min(), x_values.max())
+            values = [val for ax in shared
+                      for val in getattr(ax.dataLim, f"interval{name}")
+                      if np.isfinite(val)]
+            if values:
+                x0, x1 = (min(values), max(values))
             elif getattr(self._viewLim, f"mutated{name}")():
                 # No data, but explicit viewLims already set:
                 # in mutatedx or mutatedy.
                 return
             else:
                 x0, x1 = (-np.inf, np.inf)
-            # If x0 and x1 are non finite, use the locator to figure out
-            # default limits.
+            # If x0 and x1 are nonfinite, get default limits from the locator.
             locator = axis.get_major_locator()
             x0, x1 = locator.nonsingular(x0, x1)
+            # Find the minimum minpos for use in the margin calculation.
+            minimum_minpos = min(
+                getattr(ax.dataLim, f"minpos{name}") for ax in shared)
 
             # Prevent margin addition from crossing a sticky value.  A small
             # tolerance must be added due to floating point issues with
@@ -4027,15 +4024,10 @@ class _AxesBase(martist.Artist):
 
     def format_coord(self, x, y):
         """Return a format string formatting the *x*, *y* coordinates."""
-        if x is None:
-            xs = '???'
-        else:
-            xs = self.format_xdata(x)
-        if y is None:
-            ys = '???'
-        else:
-            ys = self.format_ydata(y)
-        return 'x=%s y=%s' % (xs, ys)
+        return "x={} y={}".format(
+            "???" if x is None else self.format_xdata(x),
+            "???" if y is None else self.format_ydata(y),
+        )
 
     def minorticks_on(self):
         """

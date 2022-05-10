@@ -251,6 +251,21 @@ def test_annotation_contains():
     assert ann.contains(event) == (False, {})
 
 
+@pytest.mark.parametrize('err, xycoords, match', (
+    (RuntimeError, print, "Unknown return type"),
+    (RuntimeError, [0, 0], r"Unknown coordinate type: \[0, 0\]"),
+    (ValueError, "foo", "'foo' is not a recognized coordinate"),
+    (ValueError, "foo bar", "'foo bar' is not a recognized coordinate"),
+    (ValueError, "offset foo", "xycoords cannot be an offset coordinate"),
+    (ValueError, "axes foo", "'foo' is not a recognized unit"),
+))
+def test_annotate_errors(err, xycoords, match):
+    fig, ax = plt.subplots()
+    with pytest.raises(err, match=match):
+        ax.annotate('xy', (0, 0), xytext=(0.5, 0.5), xycoords=xycoords)
+        fig.canvas.draw()
+
+
 @image_comparison(['titles'])
 def test_titles():
     # left and right side titles
@@ -755,6 +770,20 @@ def test_parse_math():
         fig.canvas.draw()
 
 
+def test_parse_math_rcparams():
+    # Default is True
+    fig, ax = plt.subplots()
+    ax.text(0, 0, r"$ \wrong{math} $")
+    with pytest.raises(ValueError, match='Unknown symbol'):
+        fig.canvas.draw()
+
+    # Setting rcParams to False
+    with mpl.rc_context({'text.parse_math': False}):
+        fig, ax = plt.subplots()
+        ax.text(0, 0, r"$ \wrong{math} $")
+        fig.canvas.draw()
+
+
 @image_comparison(['text_pdf_font42_kerning.pdf'], style='mpl20')
 def test_pdf_font42_kerning():
     plt.rcParams['pdf.fonttype'] = 42
@@ -776,26 +805,11 @@ def test_metrics_cache():
 
     fig = plt.figure()
     fig.text(.3, .5, "foo\nbar")
+    fig.text(.5, .5, "foo\nbar")
     fig.text(.3, .5, "foo\nbar", usetex=True)
     fig.text(.5, .5, "foo\nbar", usetex=True)
     fig.canvas.draw()
-    renderer = fig._cachedRenderer
-    ys = {}  # mapping of strings to where they were drawn in y with draw_tex.
-
-    def call(*args, **kwargs):
-        renderer, x, y, s, *_ = args
-        ys.setdefault(s, set()).add(y)
-
-    renderer.draw_tex = call
-    fig.canvas.draw()
-    assert [*ys] == ["foo", "bar"]
-    # Check that both TeX strings were drawn with the same y-position for both
-    # single-line substrings.  Previously, there used to be an incorrect cache
-    # collision with the non-TeX string (drawn first here) whose metrics would
-    # get incorrectly reused by the first TeX string.
-    assert len(ys["foo"]) == len(ys["bar"]) == 1
 
     info = mpl.text._get_text_metrics_with_cache_impl.cache_info()
-    # Every string gets a miss for the first layouting (extents), then a hit
-    # when drawing, but "foo\nbar" gets two hits as it's drawn twice.
-    assert info.hits > info.misses
+    # Each string gets drawn twice, so the second draw results in a hit.
+    assert info.hits == info.misses

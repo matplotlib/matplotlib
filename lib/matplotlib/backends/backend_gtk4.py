@@ -26,13 +26,14 @@ from ._backend_gtk import (
     _BackendGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
     TimerGTK as TimerGTK4,
 )
-from .backend_gtk import backend_version  # noqa: F401 # pylint: disable=W0611
+from ._backend_gtk import backend_version  # noqa: F401 # pylint: disable=W0611
 
 
 class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
     required_interactive_framework = "gtk4"
     supports_blit = False
     _timer_cls = TimerGTK4
+    manager_class = _api.classproperty(lambda cls: FigureManagerGTK4)
     _context_is_scaled = False
 
     def __init__(self, figure=None):

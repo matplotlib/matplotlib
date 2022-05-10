@@ -63,6 +63,15 @@ def error_msg_wx(msg, parent=None):
     return None
 
 
+# lru_cache holds a reference to the App and prevents it from being gc'ed.
+@functools.lru_cache(1)
+def _create_wxapp():
+    wxapp = wx.App(False)
+    wxapp.SetExitOnFrameDelete(True)
+    cbook._setup_new_guiapp()
+    return wxapp
+
+
 class TimerWx(TimerBase):
     """Subclass of `.TimerBase` using wx.Timer events."""
 
@@ -299,7 +308,7 @@ class RendererWx(RendererBase):
 
 class GraphicsContextWx(GraphicsContextBase):
     """
-    The graphics context provides the color, line styles, etc...
+    The graphics context provides the color, line styles, etc.
 
     This class stores a reference to a wxMemoryDC, and a
     wxGraphicsContext that draws to it.  Creating a wxGraphicsContext
@@ -418,6 +427,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
     required_interactive_framework = "wx"
     _timer_cls = TimerWx
+    manager_class = _api.classproperty(lambda cls: FigureManagerWx)
 
     keyvald = {
         wx.WXK_CONTROL: 'control',
@@ -970,6 +980,17 @@ class FigureManagerWx(FigureManagerBase):
         self.frame = self.window = frame
         super().__init__(canvas, num)
 
+    @classmethod
+    def create_with_canvas(cls, canvas_class, figure, num):
+        # docstring inherited
+        wxapp = wx.GetApp() or _create_wxapp()
+        frame = FigureFrameWx(num, figure, canvas_class=canvas_class)
+        manager = figure.canvas.manager
+        if mpl.is_interactive():
+            manager.frame.Show()
+            figure.canvas.draw_idle()
+        return manager
+
     def show(self):
         # docstring inherited
         self.frame.Show()
@@ -1242,8 +1263,7 @@ class ToolbarWx(ToolContainerBase, wx.ToolBar):
 @backend_tools._register_tool_class(_FigureCanvasWxBase)
 class ConfigureSubplotsWx(backend_tools.ConfigureSubplotsBase):
     def trigger(self, *args):
-        NavigationToolbar2Wx.configure_subplots(
-            self._make_classic_style_pseudo_toolbar())
+        NavigationToolbar2Wx.configure_subplots(self)
 
 
 @backend_tools._register_tool_class(_FigureCanvasWxBase)
@@ -1344,24 +1364,6 @@ FigureManagerWx._toolmanager_toolbar_class = ToolbarWx
 class _BackendWx(_Backend):
     FigureCanvas = FigureCanvasWx
     FigureManager = FigureManagerWx
-
-    @classmethod
-    def new_figure_manager_given_figure(cls, num, figure):
-        # Create a wx.App instance if it has not been created so far.
-        wxapp = wx.GetApp()
-        if wxapp is None:
-            wxapp = wx.App()
-            wxapp.SetExitOnFrameDelete(True)
-            cbook._setup_new_guiapp()
-            # Retain a reference to the app object so that it does not get
-            # garbage collected.
-            _BackendWx._theWxApp = wxapp
-        # Attaches figure.canvas, figure.canvas.manager.
-        frame = FigureFrameWx(num, figure, canvas_class=cls.FigureCanvas)
-        if mpl.is_interactive():
-            frame.Show()
-            figure.canvas.draw_idle()
-        return figure.canvas.manager
 
     @staticmethod
     def mainloop():

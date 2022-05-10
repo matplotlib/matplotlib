@@ -11,21 +11,7 @@ using `~matplotlib.gridspec.GridSpecFromSubplotSpec`).  Axes placed using
 layout.  Axes manually placed via ``figure.add_axes()`` will not.
 
 See Tutorial: :doc:`/tutorials/intermediate/constrainedlayout_guide`
-"""
 
-import logging
-
-import numpy as np
-
-from matplotlib import _api, artist as martist
-from matplotlib.backend_bases import _get_renderer
-import matplotlib.transforms as mtransforms
-import matplotlib._layoutgrid as mlayoutgrid
-
-
-_log = logging.getLogger(__name__)
-
-"""
 General idea:
 -------------
 
@@ -61,10 +47,22 @@ See the tutorial doc:`/tutorials/intermediate/constrainedlayout_guide`
 for more discussion of the algorithm with examples.
 """
 
+import logging
+
+import numpy as np
+
+from matplotlib import _api, artist as martist
+from matplotlib._tight_layout import get_renderer
+import matplotlib.transforms as mtransforms
+import matplotlib._layoutgrid as mlayoutgrid
+
+
+_log = logging.getLogger(__name__)
+
 
 ######################################################
 def do_constrained_layout(fig, h_pad, w_pad,
-                          hspace=None, wspace=None):
+                          hspace=None, wspace=None, rect=(0, 0, 1, 1)):
     """
     Do the constrained_layout.  Called at draw time in
      ``figure.constrained_layout()``
@@ -87,14 +85,18 @@ def do_constrained_layout(fig, h_pad, w_pad,
        of 0.1 of the figure width between each column.
        If h/wspace < h/w_pad, then the pads are used instead.
 
+    rect : tuple of 4 floats
+        Rectangle in figure coordinates to perform constrained layout in
+        [left, bottom, width, height], each from 0-1.
+
     Returns
     -------
     layoutgrid : private debugging structure
     """
 
-    renderer = _get_renderer(fig)
+    renderer = get_renderer(fig)
     # make layoutgrid tree...
-    layoutgrids = make_layoutgrids(fig, None)
+    layoutgrids = make_layoutgrids(fig, None, rect=rect)
     if not layoutgrids['hasgrids']:
         _api.warn_external('There are no gridspecs with layoutgrids. '
                            'Possibly did not call parent GridSpec with the'
@@ -133,7 +135,7 @@ def do_constrained_layout(fig, h_pad, w_pad,
     return layoutgrids
 
 
-def make_layoutgrids(fig, layoutgrids):
+def make_layoutgrids(fig, layoutgrids, rect=(0, 0, 1, 1)):
     """
     Make the layoutgrid tree.
 
@@ -147,8 +149,9 @@ def make_layoutgrids(fig, layoutgrids):
         layoutgrids = dict()
         layoutgrids['hasgrids'] = False
     if not hasattr(fig, '_parent'):
-        # top figure
-        layoutgrids[fig] = mlayoutgrid.LayoutGrid(parent=None, name='figlb')
+        # top figure;  pass rect as parent to allow user-specified
+        # margins
+        layoutgrids[fig] = mlayoutgrid.LayoutGrid(parent=rect, name='figlb')
     else:
         # subfigure
         gs = fig._subplotspec.get_gridspec()

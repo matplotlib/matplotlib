@@ -43,7 +43,7 @@
 
 /**********************************************************************/
 
-// a helper class to pass agg::buffer objects around.  
+// a helper class to pass agg::buffer objects around.
 
 class BufferRegion
 {

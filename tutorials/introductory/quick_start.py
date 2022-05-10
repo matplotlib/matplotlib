@@ -134,15 +134,18 @@ ax.set_ylabel('entry b');
 # Coding styles
 # =============
 #
-# The object-oriented and the pyplot interfaces
-# ---------------------------------------------
+# The explicit and the implicit interfaces
+# ----------------------------------------
 #
 # As noted above, there are essentially two ways to use Matplotlib:
 #
 # - Explicitly create Figures and Axes, and call methods on them (the
 #   "object-oriented (OO) style").
-# - Rely on pyplot to automatically create and manage the Figures and Axes, and
+# - Rely on pyplot to implicitly create and manage the Figures and Axes, and
 #   use pyplot functions for plotting.
+#
+# See :ref:`api_interfaces` for an explanation of the tradeoffs between the
+# implicit and explicit interfaces.
 #
 # So one can use the OO-style
 
@@ -288,7 +291,7 @@ mu, sigma = 115, 15
 x = mu + sigma * np.random.randn(10000)
 fig, ax = plt.subplots(figsize=(5, 2.7), layout='constrained')
 # the histogram of the data
-n, bins, patches = ax.hist(x, 50, density=1, facecolor='C0', alpha=0.75)
+n, bins, patches = ax.hist(x, 50, density=True, facecolor='C0', alpha=0.75)
 
 ax.set_xlabel('Length [cm]')
 ax.set_ylabel('Probability')

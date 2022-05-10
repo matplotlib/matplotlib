@@ -196,11 +196,16 @@ def list_fonts(directory, extensions):
     recursively under the directory.
     """
     extensions = ["." + ext for ext in extensions]
-    return [os.path.join(dirpath, filename)
-            # os.walk ignores access errors, unlike Path.glob.
-            for dirpath, _, filenames in os.walk(directory)
-            for filename in filenames
-            if Path(filename).suffix.lower() in extensions]
+    if sys.platform == 'win32' and directory == win32FontDirectory():
+        return [os.path.join(directory, filename)
+                for filename in os.listdir(directory)
+                if os.path.isfile(filename)]
+    else:
+        return [os.path.join(dirpath, filename)
+                # os.walk ignores access errors, unlike Path.glob.
+                for dirpath, _, filenames in os.walk(directory)
+                for filename in filenames
+                if Path(filename).suffix.lower() in extensions]
 
 
 def win32FontDirectory():
@@ -1051,7 +1056,7 @@ def json_load(filename):
     --------
     json_dump
     """
-    with open(filename, 'r') as fh:
+    with open(filename) as fh:
         return json.load(fh, object_hook=_json_decode)
 
 

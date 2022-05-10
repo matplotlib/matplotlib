@@ -66,7 +66,12 @@ backend_version = mpl.__version__
 # --------------------------------------------------------------------
 
 
+@_api.deprecated("3.6", alternative="Vendor the code")
 def escape_cdata(s):
+    return _escape_cdata(s)
+
+
+def _escape_cdata(s):
     s = s.replace("&", "&amp;")
     s = s.replace("<", "&lt;")
     s = s.replace(">", "&gt;")
@@ -76,12 +81,22 @@ def escape_cdata(s):
 _escape_xml_comment = re.compile(r'-(?=-)')
 
 
+@_api.deprecated("3.6", alternative="Vendor the code")
 def escape_comment(s):
-    s = escape_cdata(s)
+    return _escape_comment.sub(s)
+
+
+def _escape_comment(s):
+    s = _escape_cdata(s)
     return _escape_xml_comment.sub('- ', s)
 
 
+@_api.deprecated("3.6", alternative="Vendor the code")
 def escape_attrib(s):
+    return _escape_attrib(s)
+
+
+def _escape_attrib(s):
     s = s.replace("&", "&amp;")
     s = s.replace("'", "&apos;")
     s = s.replace('"', "&quot;")
@@ -91,12 +106,17 @@ def escape_attrib(s):
 
 
 def _quote_escape_attrib(s):
-    return ('"' + escape_cdata(s) + '"' if '"' not in s else
-            "'" + escape_cdata(s) + "'" if "'" not in s else
-            '"' + escape_attrib(s) + '"')
+    return ('"' + _escape_cdata(s) + '"' if '"' not in s else
+            "'" + _escape_cdata(s) + "'" if "'" not in s else
+            '"' + _escape_attrib(s) + '"')
 
 
+@_api.deprecated("3.6", alternative="Vendor the code")
 def short_float_fmt(x):
+    return _short_float_fmt(x)
+
+
+def _short_float_fmt(x):
     """
     Create a short string representation of a float, which is %f
     formatting with trailing zeros and the decimal point removed.
@@ -130,7 +150,7 @@ class XMLWriter:
             self.__open = 0
         if self.__data:
             data = ''.join(self.__data)
-            self.__write(escape_cdata(data))
+            self.__write(_escape_cdata(data))
             self.__data = []
 
     def start(self, tag, attrib={}, **extra):
@@ -153,14 +173,14 @@ class XMLWriter:
         An element identifier.
         """
         self.__flush()
-        tag = escape_cdata(tag)
+        tag = _escape_cdata(tag)
         self.__data = []
         self.__tags.append(tag)
         self.__write(self.__indentation[:len(self.__tags) - 1])
         self.__write("<%s" % tag)
         for k, v in {**attrib, **extra}.items():
             if v:
-                k = escape_cdata(k)
+                k = _escape_cdata(k)
                 v = _quote_escape_attrib(v)
                 self.__write(' %s=%s' % (k, v))
         self.__open = 1
@@ -177,7 +197,7 @@ class XMLWriter:
         """
         self.__flush()
         self.__write(self.__indentation[:len(self.__tags)])
-        self.__write("<!-- %s -->\n" % escape_comment(comment))
+        self.__write("<!-- %s -->\n" % _escape_comment(comment))
 
     def data(self, text):
         """
@@ -203,7 +223,7 @@ class XMLWriter:
         """
         if tag:
             assert self.__tags, "unbalanced end(%s)" % tag
-            assert escape_cdata(tag) == self.__tags[-1], \
+            assert _escape_cdata(tag) == self.__tags[-1], \
                 "expected end(%s), got %s" % (self.__tags[-1], tag)
         else:
             assert self.__tags, "unbalanced end()"
@@ -257,7 +277,7 @@ def _generate_transform(transform_list):
         if type == 'matrix' and isinstance(value, Affine2DBase):
             value = value.to_values()
         parts.append('%s(%s)' % (
-            type, ' '.join(short_float_fmt(x) for x in value)))
+            type, ' '.join(_short_float_fmt(x) for x in value)))
     return ' '.join(parts)
 
 
@@ -303,8 +323,8 @@ class RendererSVG(RendererBase):
 
         super().__init__()
         self._glyph_map = dict()
-        str_height = short_float_fmt(height)
-        str_width = short_float_fmt(width)
+        str_height = _short_float_fmt(height)
+        str_width = _short_float_fmt(width)
         svgwriter.write(svgProlog)
         self._start_id = self.writer.start(
             'svg',
@@ -459,10 +479,7 @@ class RendererSVG(RendererBase):
         return '%s%s' % (type, m.hexdigest()[:10])
 
     def _make_flip_transform(self, transform):
-        return (transform +
-                Affine2D()
-                .scale(1.0, -1.0)
-                .translate(0.0, self.height))
+        return transform + Affine2D().scale(1, -1).translate(0, self.height)
 
     def _get_font(self, prop):
         fname = fm.findfont(prop)
@@ -544,7 +561,7 @@ class RendererSVG(RendererBase):
             attrib['fill'] = "url(#%s)" % self._get_hatch(gc, rgbFace)
             if (rgbFace is not None and len(rgbFace) == 4 and rgbFace[3] != 1.0
                     and not forced_alpha):
-                attrib['fill-opacity'] = short_float_fmt(rgbFace[3])
+                attrib['fill-opacity'] = _short_float_fmt(rgbFace[3])
         else:
             if rgbFace is None:
                 attrib['fill'] = 'none'
@@ -553,25 +570,25 @@ class RendererSVG(RendererBase):
                     attrib['fill'] = rgb2hex(rgbFace)
                 if (len(rgbFace) == 4 and rgbFace[3] != 1.0
                         and not forced_alpha):
-                    attrib['fill-opacity'] = short_float_fmt(rgbFace[3])
+                    attrib['fill-opacity'] = _short_float_fmt(rgbFace[3])
 
         if forced_alpha and gc.get_alpha() != 1.0:
-            attrib['opacity'] = short_float_fmt(gc.get_alpha())
+            attrib['opacity'] = _short_float_fmt(gc.get_alpha())
 
         offset, seq = gc.get_dashes()
         if seq is not None:
             attrib['stroke-dasharray'] = ','.join(
-                short_float_fmt(val) for val in seq)
-            attrib['stroke-dashoffset'] = short_float_fmt(float(offset))
+                _short_float_fmt(val) for val in seq)
+            attrib['stroke-dashoffset'] = _short_float_fmt(float(offset))
 
         linewidth = gc.get_linewidth()
         if linewidth:
             rgb = gc.get_rgb()
             attrib['stroke'] = rgb2hex(rgb)
             if not forced_alpha and rgb[3] != 1.0:
-                attrib['stroke-opacity'] = short_float_fmt(rgb[3])
+                attrib['stroke-opacity'] = _short_float_fmt(rgb[3])
             if linewidth != 1.0:
-                attrib['stroke-width'] = short_float_fmt(linewidth)
+                attrib['stroke-width'] = _short_float_fmt(linewidth)
             if gc.get_joinstyle() != 'round':
                 attrib['stroke-linejoin'] = gc.get_joinstyle()
             if gc.get_capstyle() != 'butt':
@@ -621,10 +638,10 @@ class RendererSVG(RendererBase):
                 x, y, w, h = clip
                 writer.element(
                     'rect',
-                    x=short_float_fmt(x),
-                    y=short_float_fmt(y),
-                    width=short_float_fmt(w),
-                    height=short_float_fmt(h))
+                    x=_short_float_fmt(x),
+                    y=_short_float_fmt(y),
+                    width=_short_float_fmt(w),
+                    height=_short_float_fmt(h))
             writer.end('clipPath')
         writer.end('defs')
 
@@ -703,8 +720,8 @@ class RendererSVG(RendererBase):
                 trans_and_flip, clip=clip, simplify=False):
             if len(vertices):
                 x, y = vertices[-2:]
-                attrib['x'] = short_float_fmt(x)
-                attrib['y'] = short_float_fmt(y)
+                attrib['x'] = _short_float_fmt(x)
+                attrib['y'] = _short_float_fmt(y)
                 attrib['style'] = self._get_style(gc, rgbFace)
                 writer.element('use', attrib=attrib)
         writer.end('g')
@@ -755,8 +772,8 @@ class RendererSVG(RendererBase):
                 writer.start('g', **clip_attrs)
             attrib = {
                 'xlink:href': '#%s' % path_id,
-                'x': short_float_fmt(xo),
-                'y': short_float_fmt(self.height - yo),
+                'x': _short_float_fmt(xo),
+                'y': _short_float_fmt(self.height - yo),
                 'style': self._get_style(gc0, rgbFace)
                 }
             writer.element('use', attrib=attrib)
@@ -838,14 +855,14 @@ class RendererSVG(RendererBase):
                 'linearGradient',
                 id="GR%x_%d" % (self._n_gradients, i),
                 gradientUnits="userSpaceOnUse",
-                x1=short_float_fmt(x1), y1=short_float_fmt(y1),
-                x2=short_float_fmt(xb), y2=short_float_fmt(yb))
+                x1=_short_float_fmt(x1), y1=_short_float_fmt(y1),
+                x2=_short_float_fmt(xb), y2=_short_float_fmt(yb))
             writer.element(
                 'stop',
                 offset='1',
                 style=_generate_css({
                     'stop-color': rgb2hex(avg_color),
-                    'stop-opacity': short_float_fmt(rgba_color[-1])}))
+                    'stop-opacity': _short_float_fmt(rgba_color[-1])}))
             writer.element(
                 'stop',
                 offset='0',
@@ -857,9 +874,9 @@ class RendererSVG(RendererBase):
         writer.end('defs')
 
         # triangle formation using "path"
-        dpath = "M " + short_float_fmt(x1)+',' + short_float_fmt(y1)
-        dpath += " L " + short_float_fmt(x2) + ',' + short_float_fmt(y2)
-        dpath += " " + short_float_fmt(x3) + ',' + short_float_fmt(y3) + " Z"
+        dpath = "M " + _short_float_fmt(x1)+',' + _short_float_fmt(y1)
+        dpath += " L " + _short_float_fmt(x2) + ',' + _short_float_fmt(y2)
+        dpath += " " + _short_float_fmt(x3) + ',' + _short_float_fmt(y3) + " Z"
 
         writer.element(
             'path',
@@ -961,14 +978,14 @@ class RendererSVG(RendererBase):
                 'image',
                 transform=_generate_transform([
                     ('scale', (1, -1)), ('translate', (0, -h))]),
-                x=short_float_fmt(x),
-                y=short_float_fmt(-(self.height - y - h)),
-                width=short_float_fmt(w), height=short_float_fmt(h),
+                x=_short_float_fmt(x),
+                y=_short_float_fmt(-(self.height - y - h)),
+                width=_short_float_fmt(w), height=_short_float_fmt(h),
                 attrib=attrib)
         else:
             alpha = gc.get_alpha()
             if alpha != 1.0:
-                attrib['opacity'] = short_float_fmt(alpha)
+                attrib['opacity'] = _short_float_fmt(alpha)
 
             flipped = (
                 Affine2D().scale(1.0 / w, 1.0 / h) +
@@ -985,7 +1002,7 @@ class RendererSVG(RendererBase):
                 'image-rendering:pixelated')
             self.writer.element(
                 'image',
-                width=short_float_fmt(w), height=short_float_fmt(h),
+                width=_short_float_fmt(w), height=_short_float_fmt(h),
                 attrib=attrib)
 
         if url is not None:
@@ -1043,7 +1060,7 @@ class RendererSVG(RendererBase):
             style['fill'] = color
         alpha = gc.get_alpha() if gc.get_forced_alpha() else gc.get_rgb()[3]
         if alpha != 1:
-            style['opacity'] = short_float_fmt(alpha)
+            style['opacity'] = _short_float_fmt(alpha)
         font_scale = fontsize / text2path.FONT_SCALE
         attrib = {
             'style': _generate_css(style),
@@ -1064,9 +1081,9 @@ class RendererSVG(RendererBase):
             for glyph_id, xposition, yposition, scale in glyph_info:
                 attrib = {'xlink:href': '#%s' % glyph_id}
                 if xposition != 0.0:
-                    attrib['x'] = short_float_fmt(xposition)
+                    attrib['x'] = _short_float_fmt(xposition)
                 if yposition != 0.0:
-                    attrib['y'] = short_float_fmt(yposition)
+                    attrib['y'] = _short_float_fmt(yposition)
                 writer.element('use', attrib=attrib)
 
         else:
@@ -1106,7 +1123,7 @@ class RendererSVG(RendererBase):
 
         alpha = gc.get_alpha() if gc.get_forced_alpha() else gc.get_rgb()[3]
         if alpha != 1:
-            style['opacity'] = short_float_fmt(alpha)
+            style['opacity'] = _short_float_fmt(alpha)
 
         if not ismath:
             attrib = {}
@@ -1120,7 +1137,7 @@ class RendererSVG(RendererBase):
             if weight != 400:
                 font_parts.append(f'{weight}')
             font_parts.extend([
-                f'{short_float_fmt(prop.get_size())}px',
+                f'{_short_float_fmt(prop.get_size())}px',
                 f'{prop.get_family()[0]!r}',  # ensure quoting
             ])
             style['font'] = ' '.join(font_parts)
@@ -1150,8 +1167,8 @@ class RendererSVG(RendererBase):
                                  'center': 'middle'}
                 style['text-anchor'] = ha_mpl_to_svg[mtext.get_ha()]
 
-                attrib['x'] = short_float_fmt(ax)
-                attrib['y'] = short_float_fmt(ay)
+                attrib['x'] = _short_float_fmt(ax)
+                attrib['y'] = _short_float_fmt(ay)
                 attrib['style'] = _generate_css(style)
                 attrib['transform'] = _generate_transform([
                     ("rotate", (-angle, ax, ay))])
@@ -1192,7 +1209,7 @@ class RendererSVG(RendererBase):
                 if entry.weight != 400:
                     font_parts.append(f'{entry.weight}')
                 font_parts.extend([
-                    f'{short_float_fmt(fontsize)}px',
+                    f'{_short_float_fmt(fontsize)}px',
                     f'{entry.name!r}',  # ensure quoting
                 ])
                 style = {'font': ' '.join(font_parts)}
@@ -1213,7 +1230,7 @@ class RendererSVG(RendererBase):
 
                 attrib = {
                     'style': style,
-                    'x': ' '.join(short_float_fmt(c[0]) for c in chars),
+                    'x': ' '.join(_short_float_fmt(c[0]) for c in chars),
                     'y': ys
                     }
 
@@ -1227,10 +1244,10 @@ class RendererSVG(RendererBase):
             for x, y, width, height in rects:
                 writer.element(
                     'rect',
-                    x=short_float_fmt(x),
-                    y=short_float_fmt(-y-1),
-                    width=short_float_fmt(width),
-                    height=short_float_fmt(height)
+                    x=_short_float_fmt(x),
+                    y=_short_float_fmt(-y-1),
+                    width=_short_float_fmt(width),
+                    height=_short_float_fmt(height)
                     )
 
             writer.end('g')

@@ -55,7 +55,6 @@ simplification) and another style for publication quality plotting
 :doc:`/tutorials/introductory/customizing` for instructions on
 how to perform these actions.
 
-
 The simplification works by iteratively merging line segments
 into a single vector until the next line segment's perpendicular
 distance to the vector (measured in display-coordinate space)
@@ -67,18 +66,14 @@ is greater than the ``path.simplify_threshold`` parameter.
   parameters prior to 2.1, but rendering time for some kinds of
   data will be vastly improved in versions 2.1 and greater.
 
-Marker simplification
----------------------
+Marker subsampling
+------------------
 
-Markers can also be simplified, albeit less robustly than
-line segments. Marker simplification is only available
-to :class:`~matplotlib.lines.Line2D` objects (through the
-``markevery`` property). Wherever
-:class:`~matplotlib.lines.Line2D` construction parameters
-are passed through, such as
-:func:`matplotlib.pyplot.plot` and
-:meth:`matplotlib.axes.Axes.plot`, the ``markevery``
-parameter can be used::
+Markers can also be simplified, albeit less robustly than line
+segments. Marker subsampling is only available to `.Line2D` objects
+(through the ``markevery`` property). Wherever `.Line2D` construction
+parameters are passed through, such as `.pyplot.plot` and `.Axes.plot`,
+the ``markevery`` parameter can be used::
 
   plt.plot(x, y, markevery=10)
 

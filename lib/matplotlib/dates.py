@@ -173,7 +173,6 @@ import datetime
 import functools
 import logging
 import math
-import re
 
 from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
                             MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY,
@@ -223,9 +222,7 @@ def _get_tzinfo(tz=None):
     raise TypeError("tz must be string or tzinfo subclass.")
 
 
-"""
-Time-related constants.
-"""
+# Time-related constants.
 EPOCH_OFFSET = float(datetime.datetime(1970, 1, 1).toordinal())
 # EPOCH_OFFSET is not used by matplotlib
 JULIAN_OFFSET = 1721424.5  # Julian date at 0000-12-31
@@ -437,9 +434,8 @@ def date2num(d):
     The Gregorian calendar is assumed; this is not universal practice.
     For details see the module docstring.
     """
-    if hasattr(d, "values"):
-        # this unpacks pandas series or dataframes...
-        d = d.values
+    # Unpack in case of e.g. Pandas or xarray object
+    d = cbook._unpack_to_numpy(d)
 
     # make an iterable, but save state to unpack later:
     iterable = np.iterable(d)
@@ -605,16 +601,7 @@ def drange(dstart, dend, delta):
 
 
 def _wrap_in_tex(text):
-    p = r'([a-zA-Z]+)'
-    ret_text = re.sub(p, r'}$\1$\\mathdefault{', text)
-
-    # Braces ensure symbols are not spaced like binary operators.
-    ret_text = ret_text.replace('-', '{-}').replace(':', '{:}')
-    # To not concatenate space between numbers.
-    ret_text = ret_text.replace(' ', r'\;')
-    ret_text = '$\\mathdefault{' + ret_text + '}$'
-    ret_text = ret_text.replace('$\\mathdefault{}$', '')
-    return ret_text
+    return r"{\fontfamily{\familydefault}\selectfont " + text + "}"
 
 
 ## date tickers and formatters ###
@@ -808,8 +795,10 @@ class ConciseDateFormatter(ticker.Formatter):
         # mostly 0: years,  1: months,  2: days,
         # 3: hours, 4: minutes, 5: seconds, 6: microseconds
         for level in range(5, -1, -1):
-            if len(np.unique(tickdate[:, level])) > 1:
-                if level < 2:
+            unique = np.unique(tickdate[:, level])
+            if len(unique) > 1:
+                # if 1 is included in unique, the year is shown in ticks
+                if level < 2 and np.any(unique == 1):
                     show_offset = False
                 break
             elif level == 0:

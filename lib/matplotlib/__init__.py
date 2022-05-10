@@ -17,10 +17,13 @@ at your terminal, followed by::
 
 at the ipython shell prompt.
 
-For the most part, direct use of the object-oriented library is encouraged when
-programming; pyplot is primarily for working interactively.  The exceptions are
-the pyplot functions `.pyplot.figure`, `.pyplot.subplot`, `.pyplot.subplots`,
-and `.pyplot.savefig`, which can greatly simplify scripting.
+For the most part, direct use of the explicit object-oriented library is
+encouraged when programming; the implicit pyplot interface is primarily for
+working interactively. The exceptions to this suggestion are the pyplot
+functions `.pyplot.figure`, `.pyplot.subplot`, `.pyplot.subplots`, and
+`.pyplot.savefig`, which can greatly simplify scripting.  See
+:ref:`api_interfaces` for an explanation of the tradeoffs between the implicit
+and explicit interfaces.
 
 Modules include:
 
@@ -79,6 +82,7 @@ developed and maintained by a host of others.
 
 Occasionally the internal documentation (python docstrings) will refer
 to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
+
 """
 
 import atexit
@@ -986,7 +990,7 @@ def rcdefaults():
     Restore the `.rcParams` from Matplotlib's internal default style.
 
     Style-blacklisted `.rcParams` (defined in
-    `matplotlib.style.core.STYLE_BLACKLIST`) are not updated.
+    ``matplotlib.style.core.STYLE_BLACKLIST``) are not updated.
 
     See Also
     --------
@@ -1011,7 +1015,7 @@ def rc_file_defaults():
     Restore the `.rcParams` from the original rc file loaded by Matplotlib.
 
     Style-blacklisted `.rcParams` (defined in
-    `matplotlib.style.core.STYLE_BLACKLIST`) are not updated.
+    ``matplotlib.style.core.STYLE_BLACKLIST``) are not updated.
     """
     # Deprecation warnings were already handled when creating rcParamsOrig, no
     # need to reemit them here.
@@ -1026,7 +1030,7 @@ def rc_file(fname, *, use_default_template=True):
     Update `.rcParams` from file.
 
     Style-blacklisted `.rcParams` (defined in
-    `matplotlib.style.core.STYLE_BLACKLIST`) are not updated.
+    ``matplotlib.style.core.STYLE_BLACKLIST``) are not updated.
 
     Parameters
     ----------
@@ -1451,3 +1455,4 @@ _log.debug('platform is %s', sys.platform)
 # workaround: we must defer colormaps import to after loading rcParams, because
 # colormap creation depends on rcParams
 from matplotlib.cm import _colormaps as colormaps
+from matplotlib.colors import _color_sequences as color_sequences

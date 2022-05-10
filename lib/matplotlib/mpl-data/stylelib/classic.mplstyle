@@ -329,7 +329,7 @@ figure.subplot.hspace  : 0.2    # the amount of height reserved for space betwee
 ### IMAGES
 image.aspect : equal             # equal | auto | a number
 image.interpolation  : bilinear  # see help(imshow) for options
-image.cmap   : jet               # gray | jet etc...
+image.cmap   : jet               # gray | jet | ...
 image.lut    : 256               # the size of the colormap lookup table
 image.origin : upper             # lower | upper
 image.resample  : False

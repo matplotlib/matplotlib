@@ -162,6 +162,7 @@ class TimerTk(TimerBase):
 
 class FigureCanvasTk(FigureCanvasBase):
     required_interactive_framework = "tk"
+    manager_class = _api.classproperty(lambda cls: FigureManagerTk)
 
     def __init__(self, figure=None, master=None):
         super().__init__(figure)
@@ -175,7 +176,8 @@ class FigureCanvasTk(FigureCanvasBase):
             master=self._tkcanvas, width=w, height=h)
         self._tkcanvas.create_image(w//2, h//2, image=self._tkphoto)
         self._tkcanvas.bind("<Configure>", self.resize)
-        self._tkcanvas.bind("<Map>", self._update_device_pixel_ratio)
+        if sys.platform == 'win32':
+            self._tkcanvas.bind("<Map>", self._update_device_pixel_ratio)
         self._tkcanvas.bind("<Key>", self.key_press)
         self._tkcanvas.bind("<Motion>", self.motion_notify_event)
         self._tkcanvas.bind("<Enter>", self.enter_notify_event)
@@ -212,7 +214,7 @@ class FigureCanvasTk(FigureCanvasBase):
         self._rubberband_rect = None
 
     def _update_device_pixel_ratio(self, event=None):
-        # Tk gives scaling with respect to 72 DPI, but most (all?) screens are
+        # Tk gives scaling with respect to 72 DPI, but Windows screens are
         # scaled vs 96 dpi, and pixel ratio settings are given in whole
         # percentages, so round to 2 digits.
         ratio = round(self._tkcanvas.tk.call('tk', 'scaling') / (96 / 72), 2)
@@ -423,13 +425,51 @@ class FigureManagerTk(FigureManagerBase):
         # to store the DPI, which will be updated by the C code, and the trace
         # will handle it on the Python side.
         window_frame = int(window.wm_frame(), 16)
-        window_dpi = tk.IntVar(master=window, value=96,
-                               name=f'window_dpi{window_frame}')
+        self._window_dpi = tk.IntVar(master=window, value=96,
+                                     name=f'window_dpi{window_frame}')
+        self._window_dpi_cbname = ''
         if _tkagg.enable_dpi_awareness(window_frame, window.tk.interpaddr()):
-            self._window_dpi = window_dpi  # Prevent garbage collection.
-            window_dpi.trace_add('write', self._update_window_dpi)
+            self._window_dpi_cbname = self._window_dpi.trace_add(
+                'write', self._update_window_dpi)
 
         self._shown = False
+
+    @classmethod
+    def create_with_canvas(cls, canvas_class, figure, num):
+        # docstring inherited
+        with _restore_foreground_window_at_end():
+            if cbook._get_running_interactive_framework() is None:
+                cbook._setup_new_guiapp()
+                _c_internal_utils.Win32_SetProcessDpiAwareness_max()
+            window = tk.Tk(className="matplotlib")
+            window.withdraw()
+
+            # Put a Matplotlib icon on the window rather than the default tk
+            # icon. See https://www.tcl.tk/man/tcl/TkCmd/wm.html#M50
+            #
+            # `ImageTk` can be replaced with `tk` whenever the minimum
+            # supported Tk version is increased to 8.6, as Tk 8.6+ natively
+            # supports PNG images.
+            icon_fname = str(cbook._get_data_path(
+                'images/matplotlib.png'))
+            icon_img = ImageTk.PhotoImage(file=icon_fname, master=window)
+
+            icon_fname_large = str(cbook._get_data_path(
+                'images/matplotlib_large.png'))
+            icon_img_large = ImageTk.PhotoImage(
+                file=icon_fname_large, master=window)
+            try:
+                window.iconphoto(False, icon_img_large, icon_img)
+            except Exception as exc:
+                # log the failure (due e.g. to Tk version), but carry on
+                _log.info('Could not load matplotlib icon: %s', exc)
+
+            canvas = canvas_class(figure, master=window)
+            manager = cls(canvas, num, window)
+            if mpl.is_interactive():
+                manager.show()
+                canvas.draw_idle()
+            return manager
 
     def _update_window_dpi(self, *args):
         newdpi = self._window_dpi.get()
@@ -472,20 +512,26 @@ class FigureManagerTk(FigureManagerBase):
             self.canvas._tkcanvas.after_cancel(self.canvas._idle_draw_id)
         if self.canvas._event_loop_id:
             self.canvas._tkcanvas.after_cancel(self.canvas._event_loop_id)
+        if self._window_dpi_cbname:
+            self._window_dpi.trace_remove('write', self._window_dpi_cbname)
 
         # NOTE: events need to be flushed before issuing destroy (GH #9956),
-        # however, self.window.update() can break user code. This is the
-        # safest way to achieve a complete draining of the event queue,
-        # but it may require users to update() on their own to execute the
-        # completion in obscure corner cases.
+        # however, self.window.update() can break user code. An async callback
+        # is the safest way to achieve a complete draining of the event queue,
+        # but it leaks if no tk event loop is running. Therefore we explicitly
+        # check for an event loop and choose our best guess.
         def delayed_destroy():
             self.window.destroy()
 
             if self._owns_mainloop and not Gcf.get_num_fig_managers():
                 self.window.quit()
 
-        # "after idle after 0" avoids Tcl error/race (GH #19940)
-        self.window.after_idle(self.window.after, 0, delayed_destroy)
+        if cbook._get_running_interactive_framework() == "tk":
+            # "after idle after 0" avoids Tcl error/race (GH #19940)
+            self.window.after_idle(self.window.after, 0, delayed_destroy)
+        else:
+            self.window.update()
+            delayed_destroy()
 
     def get_window_title(self):
         return self.window.wm_title()
@@ -637,12 +683,67 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         path_large = path_regular.with_name(
             path_regular.name.replace('.png', '_large.png'))
         size = button.winfo_pixels('18p')
+
+        # Nested functions because ToolbarTk calls  _Button.
+        def _get_color(color_name):
+            # `winfo_rgb` returns an (r, g, b) tuple in the range 0-65535
+            return button.winfo_rgb(button.cget(color_name))
+
+        def _is_dark(color):
+            if isinstance(color, str):
+                color = _get_color(color)
+            return max(color) < 65535 / 2
+
+        def _recolor_icon(image, color):
+            image_data = np.asarray(image).copy()
+            black_mask = (image_data[..., :3] == 0).all(axis=-1)
+            image_data[black_mask, :3] = color
+            return Image.fromarray(image_data, mode="RGBA")
+
         # Use the high-resolution (48x48 px) icon if it exists and is needed
         with Image.open(path_large if (size > 24 and path_large.exists())
                         else path_regular) as im:
             image = ImageTk.PhotoImage(im.resize((size, size)), master=self)
-        button.configure(image=image, height='18p', width='18p')
-        button._ntimage = image  # Prevent garbage collection.
+            button._ntimage = image
+
+            # create a version of the icon with the button's text color
+            foreground = (255 / 65535) * np.array(
+                button.winfo_rgb(button.cget("foreground")))
+            im_alt = _recolor_icon(im, foreground)
+            image_alt = ImageTk.PhotoImage(
+                im_alt.resize((size, size)), master=self)
+            button._ntimage_alt = image_alt
+
+        if _is_dark("background"):
+            # For Checkbuttons, we need to set `image` and `selectimage` at
+            # the same time. Otherwise, when updating the `image` option
+            # (such as when changing DPI), if the old `selectimage` has
+            # just been overwritten, Tk will throw an error.
+            image_kwargs = {"image": image_alt}
+        else:
+            image_kwargs = {"image": image}
+        # Checkbuttons may switch the background to `selectcolor` in the
+        # checked state, so check separately which image it needs to use in
+        # that state to still ensure enough contrast with the background.
+        if (
+            isinstance(button, tk.Checkbutton)
+            and button.cget("selectcolor") != ""
+        ):
+            if self._windowingsystem != "x11":
+                selectcolor = "selectcolor"
+            else:
+                # On X11, selectcolor isn't used directly for indicator-less
+                # buttons. See `::tk::CheckEnter` in the Tk button.tcl source
+                # code for details.
+                r1, g1, b1 = _get_color("selectcolor")
+                r2, g2, b2 = _get_color("activebackground")
+                selectcolor = ((r1+r2)/2, (g1+g2)/2, (b1+b2)/2)
+            if _is_dark(selectcolor):
+                image_kwargs["selectimage"] = image_alt
+            else:
+                image_kwargs["selectimage"] = image
+
+        button.configure(**image_kwargs, height='18p', width='18p')
 
     def _Button(self, text, image_file, toggle, command):
         if not toggle:
@@ -883,8 +984,7 @@ class SaveFigureTk(backend_tools.SaveFigureBase):
 @backend_tools._register_tool_class(FigureCanvasTk)
 class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
     def trigger(self, *args):
-        NavigationToolbar2Tk.configure_subplots(
-            self._make_classic_style_pseudo_toolbar())
+        NavigationToolbar2Tk.configure_subplots(self)
 
 
 @backend_tools._register_tool_class(FigureCanvasTk)
@@ -903,45 +1003,6 @@ FigureManagerTk._toolmanager_toolbar_class = ToolbarTk
 @_Backend.export
 class _BackendTk(_Backend):
     FigureManager = FigureManagerTk
-
-    @classmethod
-    def new_figure_manager_given_figure(cls, num, figure):
-        """
-        Create a new figure manager instance for the given figure.
-        """
-        with _restore_foreground_window_at_end():
-            if cbook._get_running_interactive_framework() is None:
-                cbook._setup_new_guiapp()
-                _c_internal_utils.Win32_SetProcessDpiAwareness_max()
-            window = tk.Tk(className="matplotlib")
-            window.withdraw()
-
-            # Put a Matplotlib icon on the window rather than the default tk
-            # icon. See https://www.tcl.tk/man/tcl/TkCmd/wm.html#M50
-            #
-            # `ImageTk` can be replaced with `tk` whenever the minimum
-            # supported Tk version is increased to 8.6, as Tk 8.6+ natively
-            # supports PNG images.
-            icon_fname = str(cbook._get_data_path(
-                'images/matplotlib.png'))
-            icon_img = ImageTk.PhotoImage(file=icon_fname, master=window)
-
-            icon_fname_large = str(cbook._get_data_path(
-                'images/matplotlib_large.png'))
-            icon_img_large = ImageTk.PhotoImage(
-                file=icon_fname_large, master=window)
-            try:
-                window.iconphoto(False, icon_img_large, icon_img)
-            except Exception as exc:
-                # log the failure (due e.g. to Tk version), but carry on
-                _log.info('Could not load matplotlib icon: %s', exc)
-
-            canvas = cls.FigureCanvas(figure, master=window)
-            manager = cls.FigureManager(canvas, num, window)
-            if mpl.is_interactive():
-                manager.show()
-                canvas.draw_idle()
-            return manager
 
     @staticmethod
     def mainloop():

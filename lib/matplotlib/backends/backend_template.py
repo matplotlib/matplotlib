@@ -108,7 +108,7 @@ class RendererTemplate(RendererBase):
 
 class GraphicsContextTemplate(GraphicsContextBase):
     """
-    The graphics context provides the color, line styles, etc...  See the cairo
+    The graphics context provides the color, line styles, etc.  See the cairo
     and postscript backends for examples of mapping the graphics context
     attributes (cap styles, join styles, line widths, colors) to a particular
     backend.  In cairo this is done by wrapping a cairo.Context object and
@@ -131,7 +131,7 @@ class GraphicsContextTemplate(GraphicsContextBase):
 ########################################################################
 #
 # The following functions and classes are for pyplot and implement
-# window/figure managers, etc...
+# window/figure managers, etc.
 #
 ########################################################################
 
@@ -174,6 +174,14 @@ def new_figure_manager_given_figure(num, figure):
     return manager
 
 
+class FigureManagerTemplate(FigureManagerBase):
+    """
+    Helper class for pyplot mode, wraps everything up into a neat bundle.
+
+    For non-interactive backends, the base class is sufficient.
+    """
+
+
 class FigureCanvasTemplate(FigureCanvasBase):
     """
     The canvas the figure renders into.  Calls the draw and print fig
@@ -190,6 +198,8 @@ class FigureCanvasTemplate(FigureCanvasBase):
     figure : `matplotlib.figure.Figure`
         A high-level Figure instance
     """
+
+    manager_class = FigureManagerTemplate
 
     def draw(self):
         """
@@ -225,14 +235,6 @@ class FigureCanvasTemplate(FigureCanvasBase):
 
     def get_default_filetype(self):
         return 'foo'
-
-
-class FigureManagerTemplate(FigureManagerBase):
-    """
-    Helper class for pyplot mode, wraps everything up into a neat bundle.
-
-    For non-interactive backends, the base class is sufficient.
-    """
 
 
 ########################################################################

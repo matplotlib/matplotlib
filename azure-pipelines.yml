@@ -6,11 +6,11 @@
 trigger:
   branches:
     exclude:
-      - v[0-9]+.[0-9]+.[0-9x]+-doc
+      - v*-doc
 pr:
   branches:
     exclude:
-      - v[0-9]+.[0-9]+.[0-9x]+-doc
+      - v*-doc
 
 stages:
 
@@ -130,12 +130,16 @@ stages:
         displayName: 'Install dependencies with pip'
 
       - bash: |
-          python -m pip install -ve . ||
+          # Due to https://github.com/pypa/setuptools/pull/2896
+          SETUPTOOLS_USE_DISTUTILS=stdlib python -m pip install -ve . ||
             [[ "$PYTHON_VERSION" = 'Pre' ]]
         displayName: "Install self"
 
       - script: env
         displayName: 'print env'
+
+      - script: pip list
+        displayName: 'print pip'
 
       - bash: |
           PYTHONFAULTHANDLER=1 python -m pytest --junitxml=junit/test-results.xml -raR --maxfail=50 --timeout=300 --durations=25 --cov-report= --cov=lib -n 2 ||

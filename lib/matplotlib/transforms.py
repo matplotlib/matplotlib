@@ -1474,7 +1474,7 @@ class Transform(TransformNode):
         Returns
         -------
         array
-            The output values as NumPy array of length :attr:`input_dims` or
+            The output values as NumPy array of length :attr:`output_dims` or
             shape (N x :attr:`output_dims`), depending on the input.
         """
         # Ensure that values is a 2d array (but remember whether
@@ -1519,7 +1519,7 @@ class Transform(TransformNode):
         Returns
         -------
         array
-            The output values as NumPy array of length :attr:`input_dims` or
+            The output values as NumPy array of length :attr:`output_dims` or
             shape (N x :attr:`output_dims`), depending on the input.
         """
         return self.get_affine().transform(values)
@@ -1544,7 +1544,7 @@ class Transform(TransformNode):
         Returns
         -------
         array
-            The output values as NumPy array of length :attr:`input_dims` or
+            The output values as NumPy array of length :attr:`output_dims` or
             shape (N x :attr:`output_dims`), depending on the input.
         """
         return values

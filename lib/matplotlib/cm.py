@@ -15,7 +15,7 @@ Builtin colormaps, colormap handling utilities, and the `ScalarMappable` mixin.
   normalization.
 """
 
-from collections.abc import Mapping, MutableMapping
+from collections.abc import Mapping
 
 import numpy as np
 from numpy import ma
@@ -52,50 +52,8 @@ def _gen_cmap_registry():
     # Generate reversed cmaps.
     for cmap in list(cmap_d.values()):
         rmap = cmap.reversed()
-        cmap._global = True
-        rmap._global = True
         cmap_d[rmap.name] = rmap
     return cmap_d
-
-
-class _DeprecatedCmapDictWrapper(MutableMapping):
-    """Dictionary mapping for deprecated _cmap_d access."""
-
-    def __init__(self, cmap_registry):
-        self._cmap_registry = cmap_registry
-
-    def __delitem__(self, key):
-        self._warn_deprecated()
-        self._cmap_registry.__delitem__(key)
-
-    def __getitem__(self, key):
-        self._warn_deprecated()
-        return self._cmap_registry.__getitem__(key)
-
-    def __iter__(self):
-        self._warn_deprecated()
-        return self._cmap_registry.__iter__()
-
-    def __len__(self):
-        self._warn_deprecated()
-        return self._cmap_registry.__len__()
-
-    def __setitem__(self, key, val):
-        self._warn_deprecated()
-        self._cmap_registry.__setitem__(key, val)
-
-    def get(self, key, default=None):
-        self._warn_deprecated()
-        return self._cmap_registry.get(key, default)
-
-    def _warn_deprecated(self):
-        _api.warn_deprecated(
-            "3.3",
-            message="The global colormaps dictionary is no longer "
-                    "considered public API.",
-            alternative="Please use register_cmap() and get_cmap() to "
-                        "access the contents of the dictionary."
-        )
 
 
 class ColormapRegistry(Mapping):
@@ -125,6 +83,9 @@ class ColormapRegistry(Mapping):
     """
     def __init__(self, cmaps):
         self._cmaps = cmaps
+        self._builtin_cmaps = tuple(cmaps)
+        # A shim to allow register_cmap() to force an override
+        self._allow_override_builtin = False
 
     def __getitem__(self, item):
         try:
@@ -177,23 +138,66 @@ class ColormapRegistry(Mapping):
             registered name. True supports overwriting registered colormaps
             other than the builtin colormaps.
         """
+        _api.check_isinstance(colors.Colormap, cmap=cmap)
+
         name = name or cmap.name
-        if name in self and not force:
-            raise ValueError(
-                f'A colormap named "{name}" is already registered.')
-        register_cmap(name, cmap.copy())
+        if name in self:
+            if not force:
+                # don't allow registering an already existing cmap
+                # unless explicitly asked to
+                raise ValueError(
+                    f'A colormap named "{name}" is already registered.')
+            elif (name in self._builtin_cmaps
+                    and not self._allow_override_builtin):
+                # We don't allow overriding a builtin unless privately
+                # coming from register_cmap()
+                raise ValueError("Re-registering the builtin cmap "
+                                 f"{name!r} is not allowed.")
 
+            # Warn that we are updating an already existing colormap
+            _api.warn_external(f"Overwriting the cmap {name!r} "
+                               "that was already in the registry.")
 
-_cmap_registry = _gen_cmap_registry()
-globals().update(_cmap_registry)
-# This is no longer considered public API
-cmap_d = _DeprecatedCmapDictWrapper(_cmap_registry)
-__builtin_cmaps = tuple(_cmap_registry)
+        self._cmaps[name] = cmap.copy()
+
+    def unregister(self, name):
+        """
+        Remove a colormap from the registry.
+
+        You cannot remove built-in colormaps.
+
+        If the named colormap is not registered, returns with no error, raises
+        if you try to de-register a default colormap.
+
+        .. warning::
+
+            Colormap names are currently a shared namespace that may be used
+            by multiple packages. Use `unregister` only if you know you
+            have registered that name before. In particular, do not
+            unregister just in case to clean the name before registering a
+            new colormap.
+
+        Parameters
+        ----------
+        name : str
+            The name of the colormap to be removed.
+
+        Raises
+        ------
+        ValueError
+            If you try to remove a default built-in colormap.
+        """
+        if name in self._builtin_cmaps:
+            raise ValueError(f"cannot unregister {name!r} which is a builtin "
+                             "colormap.")
+        self._cmaps.pop(name, None)
+
 
 # public access to the colormaps should be via `matplotlib.colormaps`. For now,
 # we still create the registry here, but that should stay an implementation
 # detail.
-_colormaps = ColormapRegistry(_cmap_registry)
+_colormaps = ColormapRegistry(_gen_cmap_registry())
+globals().update(_colormaps)
 
 
 def register_cmap(name=None, cmap=None, *, override_builtin=False):
@@ -223,14 +227,6 @@ def register_cmap(name=None, cmap=None, *, override_builtin=False):
         colormap.
 
         Please do not use this unless you are sure you need it.
-
-    Notes
-    -----
-    Registering a colormap stores a reference to the colormap object
-    which can currently be modified and inadvertently change the global
-    colormap state. This behavior is deprecated and in Matplotlib 3.5
-    the registered colormap will be immutable.
-
     """
     _api.check_isinstance((str, None), name=name)
     if name is None:
@@ -239,21 +235,12 @@ def register_cmap(name=None, cmap=None, *, override_builtin=False):
         except AttributeError as err:
             raise ValueError("Arguments must include a name or a "
                              "Colormap") from err
-    if name in _cmap_registry:
-        if not override_builtin and name in __builtin_cmaps:
-            msg = f"Trying to re-register the builtin cmap {name!r}."
-            raise ValueError(msg)
-        else:
-            msg = f"Trying to register the cmap {name!r} which already exists."
-            _api.warn_external(msg)
-
-    if not isinstance(cmap, colors.Colormap):
-        raise ValueError("You must pass a Colormap instance. "
-                         f"You passed {cmap} a {type(cmap)} object.")
-
-    cmap._global = True
-    _cmap_registry[name] = cmap
-    return
+    # override_builtin is allowed here for backward compatibility
+    # this is just a shim to enable that to work privately in
+    # the global ColormapRegistry
+    _colormaps._allow_override_builtin = override_builtin
+    _colormaps.register(cmap, name=name, force=override_builtin)
+    _colormaps._allow_override_builtin = False
 
 
 def get_cmap(name=None, lut=None):
@@ -262,12 +249,6 @@ def get_cmap(name=None, lut=None):
 
     Colormaps added with :func:`register_cmap` take precedence over
     built-in colormaps.
-
-    Notes
-    -----
-    Currently, this returns the global colormap object. This is undesired
-    because users could accidentally modify the global colormap.
-    From Matplotlib 3.6 on, this will return a copy instead.
 
     Parameters
     ----------
@@ -283,11 +264,11 @@ def get_cmap(name=None, lut=None):
         name = mpl.rcParams['image.cmap']
     if isinstance(name, colors.Colormap):
         return name
-    _api.check_in_list(sorted(_cmap_registry), name=name)
+    _api.check_in_list(sorted(_colormaps), name=name)
     if lut is None:
-        return _cmap_registry[name]
+        return _colormaps[name]
     else:
-        return _cmap_registry[name]._resample(lut)
+        return _colormaps[name]._resample(lut)
 
 
 def unregister_cmap(name):
@@ -321,14 +302,10 @@ def unregister_cmap(name):
     ------
     ValueError
        If you try to de-register a default built-in colormap.
-
     """
-    if name not in _cmap_registry:
-        return
-    if name in __builtin_cmaps:
-        raise ValueError(f"cannot unregister {name!r} which is a builtin "
-                         "colormap.")
-    return _cmap_registry.pop(name)
+    cmap = _colormaps.get(name, None)
+    _colormaps.unregister(name)
+    return cmap
 
 
 class ScalarMappable:

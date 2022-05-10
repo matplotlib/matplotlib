@@ -675,7 +675,7 @@ Keyword arguments
 
 Since Matplotlib uses a lot of pass-through ``kwargs``, e.g., in every function
 that creates a line (`~.pyplot.plot`, `~.pyplot.semilogx`, `~.pyplot.semilogy`,
-etc...), it can be difficult for the new user to know which ``kwargs`` are
+etc.), it can be difficult for the new user to know which ``kwargs`` are
 supported.  Matplotlib uses a docstring interpolation scheme to support
 documentation of every function that takes a ``**kwargs``.  The requirements
 are:

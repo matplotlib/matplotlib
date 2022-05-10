@@ -22,14 +22,18 @@ from matplotlib._api import MatplotlibDeprecationWarning
 import matplotlib.colors as mcolors
 import matplotlib.dates as mdates
 from matplotlib.figure import Figure
+from matplotlib.axes import Axes
 import matplotlib.font_manager as mfont_manager
 import matplotlib.markers as mmarkers
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
+from matplotlib.projections.geo import HammerAxes
+from matplotlib.projections.polar import PolarAxes
 import matplotlib.pyplot as plt
 import matplotlib.text as mtext
 import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
+import mpl_toolkits.axisartist as AA
 from numpy.testing import (
     assert_allclose, assert_array_equal, assert_array_almost_equal)
 from matplotlib.testing.decorators import (
@@ -442,6 +446,8 @@ def test_inverted_cla():
     assert not ax.xaxis_inverted()
     assert ax.yaxis_inverted()
 
+    for ax in fig.axes:
+        ax.remove()
     # 5. two shared axes. Inverting the leader axis should invert the shared
     # axes; clearing the leader axis should bring axes in shared
     # axes back to normal.
@@ -461,6 +467,12 @@ def test_inverted_cla():
 
     # clean up
     plt.close(fig)
+
+
+def test_cla_not_redefined():
+    for klass in Axes.__subclasses__():
+        # check that cla does not get redefined in our Axes subclasses
+        assert 'cla' not in klass.__dict__
 
 
 @check_figures_equal(extensions=["png"])
@@ -1177,8 +1189,7 @@ def test_pcolormesh_alpha():
     ax4.pcolormesh(Qx, Qy, Z, cmap=cmap, shading='gouraud', zorder=1)
 
 
-@image_comparison(['pcolormesh_datetime_axis.png'],
-                  remove_text=False, style='mpl20')
+@image_comparison(['pcolormesh_datetime_axis.png'], style='mpl20')
 def test_pcolormesh_datetime_axis():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -1206,8 +1217,7 @@ def test_pcolormesh_datetime_axis():
             label.set_rotation(30)
 
 
-@image_comparison(['pcolor_datetime_axis.png'],
-                  remove_text=False, style='mpl20')
+@image_comparison(['pcolor_datetime_axis.png'], style='mpl20')
 def test_pcolor_datetime_axis():
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, top=0.98, bottom=.15)
@@ -2543,8 +2553,6 @@ def test_parse_scatter_color_args_error():
 
 def test_as_mpl_axes_api():
     # tests the _as_mpl_axes api
-    from matplotlib.projections.polar import PolarAxes
-
     class Polar:
         def __init__(self):
             self.theta_offset = 0
@@ -5093,7 +5101,8 @@ def test_shared_aspect_error():
                            r"axis\(\) takes 0 or 1 positional arguments but 2"
                            " were given"),
                           (ValueError, ('foo', ), {},
-                           "Unrecognized string foo to axis; try on or off"),
+                           "Unrecognized string 'foo' to axis; try 'on' or "
+                           "'off'"),
                           (TypeError, ([1, 2], ), {},
                            "the first argument to axis*"),
                           (TypeError, tuple(), {'foo': None},
@@ -5386,6 +5395,15 @@ def test_set_ticks_with_labels(fig_test, fig_ref):
     ax.set_xticks([1, 2, 4, 6], ['a', 'b', 'c', 'd'], fontweight='bold')
     ax.set_yticks([1, 3, 5])
     ax.set_yticks([2, 4], ['A', 'B'], minor=True)
+
+
+def test_set_noniterable_ticklabels():
+    # Ensure a useful TypeError message is raised
+    # when given a non-iterable ticklabels argument
+    # Pull request #22710
+    with pytest.raises(TypeError, match='must be a sequence'):
+        fig, ax = plt.subplots(2)
+        ax[1].set_xticks([2, 9], 3.1)
 
 
 def test_subsampled_ticklabels():
@@ -6614,6 +6632,31 @@ def test_zoom_inset():
         axin1.get_position().get_points(), xx, rtol=1e-4)
 
 
+@image_comparison(['inset_polar.png'], remove_text=True, style='mpl20')
+def test_inset_polar():
+    _, ax = plt.subplots()
+    axins = ax.inset_axes([0.5, 0.1, 0.45, 0.45], polar=True)
+    assert isinstance(axins, PolarAxes)
+
+    r = np.arange(0, 2, 0.01)
+    theta = 2 * np.pi * r
+
+    ax.plot(theta, r)
+    axins.plot(theta, r)
+
+
+def test_inset_projection():
+    _, ax = plt.subplots()
+    axins = ax.inset_axes([0.2, 0.2, 0.3, 0.3], projection="hammer")
+    assert isinstance(axins, HammerAxes)
+
+
+def test_inset_subclass():
+    _, ax = plt.subplots()
+    axins = ax.inset_axes([0.2, 0.2, 0.3, 0.3], axes_class=AA.Axes)
+    assert isinstance(axins, AA.Axes)
+
+
 @pytest.mark.parametrize('x_inverted', [False, True])
 @pytest.mark.parametrize('y_inverted', [False, True])
 def test_indicate_inset_inverted(x_inverted, y_inverted):
@@ -7375,6 +7418,20 @@ def test_bar_label_location_vertical():
     assert labels[1].get_va() == 'top'
 
 
+def test_bar_label_location_vertical_yinverted():
+    ax = plt.gca()
+    ax.invert_yaxis()
+    xs, heights = [1, 2], [3, -4]
+    rects = ax.bar(xs, heights)
+    labels = ax.bar_label(rects)
+    assert labels[0].xy == (xs[0], heights[0])
+    assert labels[0].get_ha() == 'center'
+    assert labels[0].get_va() == 'top'
+    assert labels[1].xy == (xs[1], heights[1])
+    assert labels[1].get_ha() == 'center'
+    assert labels[1].get_va() == 'bottom'
+
+
 def test_bar_label_location_horizontal():
     ax = plt.gca()
     ys, widths = [1, 2], [3, -4]
@@ -7385,6 +7442,49 @@ def test_bar_label_location_horizontal():
     assert labels[0].get_va() == 'center'
     assert labels[1].xy == (widths[1], ys[1])
     assert labels[1].get_ha() == 'right'
+    assert labels[1].get_va() == 'center'
+
+
+def test_bar_label_location_horizontal_yinverted():
+    ax = plt.gca()
+    ax.invert_yaxis()
+    ys, widths = [1, 2], [3, -4]
+    rects = ax.barh(ys, widths)
+    labels = ax.bar_label(rects)
+    assert labels[0].xy == (widths[0], ys[0])
+    assert labels[0].get_ha() == 'left'
+    assert labels[0].get_va() == 'center'
+    assert labels[1].xy == (widths[1], ys[1])
+    assert labels[1].get_ha() == 'right'
+    assert labels[1].get_va() == 'center'
+
+
+def test_bar_label_location_horizontal_xinverted():
+    ax = plt.gca()
+    ax.invert_xaxis()
+    ys, widths = [1, 2], [3, -4]
+    rects = ax.barh(ys, widths)
+    labels = ax.bar_label(rects)
+    assert labels[0].xy == (widths[0], ys[0])
+    assert labels[0].get_ha() == 'right'
+    assert labels[0].get_va() == 'center'
+    assert labels[1].xy == (widths[1], ys[1])
+    assert labels[1].get_ha() == 'left'
+    assert labels[1].get_va() == 'center'
+
+
+def test_bar_label_location_horizontal_xyinverted():
+    ax = plt.gca()
+    ax.invert_xaxis()
+    ax.invert_yaxis()
+    ys, widths = [1, 2], [3, -4]
+    rects = ax.barh(ys, widths)
+    labels = ax.bar_label(rects)
+    assert labels[0].xy == (widths[0], ys[0])
+    assert labels[0].get_ha() == 'right'
+    assert labels[0].get_va() == 'center'
+    assert labels[1].xy == (widths[1], ys[1])
+    assert labels[1].get_ha() == 'left'
     assert labels[1].get_va() == 'center'
 
 
@@ -7432,6 +7532,16 @@ def test_bar_label_labels():
 
 def test_bar_label_nan_ydata():
     ax = plt.gca()
+    bars = ax.bar([2, 3], [np.nan, 1])
+    labels = ax.bar_label(bars)
+    assert [l.get_text() for l in labels] == ['', '1']
+    assert labels[0].xy == (2, 0)
+    assert labels[0].get_va() == 'bottom'
+
+
+def test_bar_label_nan_ydata_inverted():
+    ax = plt.gca()
+    ax.yaxis_inverted()
     bars = ax.bar([2, 3], [np.nan, 1])
     labels = ax.bar_label(bars)
     assert [l.get_text() for l in labels] == ['', '1']
@@ -7570,6 +7680,19 @@ def test_empty_line_plots():
     _, ax = plt.subplots()
     line = ax.plot([], [])
     assert len(line) == 1
+
+
+@pytest.mark.parametrize('fmt, match', (
+    ("foo", "Unrecognized character f in format string 'foo'"),
+    ("o+", "Illegal format string 'o\\+'; two marker symbols"),
+    (":-", "Illegal format string ':-'; two linestyle symbols"),
+    ("rk", "Illegal format string 'rk'; two color symbols"),
+    (":o-r", "Illegal format string ':o-r'; two linestyle symbols"),
+))
+def test_plot_format_errors(fmt, match):
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError, match=match):
+        ax.plot((0, 0), fmt)
 
 
 def test_clim():

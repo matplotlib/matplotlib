@@ -43,7 +43,7 @@ def test_bbox_inches_tight():
 
 
 @image_comparison(['bbox_inches_tight_suptile_legend'],
-                  remove_text=False, savefig_kwarg={'bbox_inches': 'tight'})
+                  savefig_kwarg={'bbox_inches': 'tight'})
 def test_bbox_inches_tight_suptile_legend():
     plt.plot(np.arange(10), label='a straight line')
     plt.legend(bbox_to_anchor=(0.9, 1), loc='upper left')
@@ -62,7 +62,7 @@ def test_bbox_inches_tight_suptile_legend():
 
 
 @image_comparison(['bbox_inches_tight_suptile_non_default.png'],
-                  remove_text=False, savefig_kwarg={'bbox_inches': 'tight'},
+                  savefig_kwarg={'bbox_inches': 'tight'},
                   tol=0.1)  # large tolerance because only testing clipping.
 def test_bbox_inches_tight_suptitle_non_default():
     fig, ax = plt.subplots()

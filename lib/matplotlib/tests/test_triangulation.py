@@ -12,6 +12,67 @@ from matplotlib.path import Path
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
+class TestTriangulationParams:
+    x = [-1, 0, 1, 0]
+    y = [0, -1, 0, 1]
+    triangles = [[0, 1, 2], [0, 2, 3]]
+    mask = [False, True]
+
+    @pytest.mark.parametrize('args, kwargs, expected', [
+        ([x, y], {}, [x, y, None, None]),
+        ([x, y, triangles], {}, [x, y, triangles, None]),
+        ([x, y], dict(triangles=triangles), [x, y, triangles, None]),
+        ([x, y], dict(mask=mask), [x, y, None, mask]),
+        ([x, y, triangles], dict(mask=mask), [x, y, triangles, mask]),
+        ([x, y], dict(triangles=triangles, mask=mask), [x, y, triangles, mask])
+    ])
+    def test_extract_triangulation_params(self, args, kwargs, expected):
+        other_args = [1, 2]
+        other_kwargs = {'a': 3, 'b': '4'}
+        x_, y_, triangles_, mask_, args_, kwargs_ = \
+            mtri.Triangulation._extract_triangulation_params(
+                args + other_args, {**kwargs, **other_kwargs})
+        x, y, triangles, mask = expected
+        assert x_ is x
+        assert y_ is y
+        assert_array_equal(triangles_, triangles)
+        assert mask_ is mask
+        assert args_ == other_args
+        assert kwargs_ == other_kwargs
+
+
+def test_extract_triangulation_positional_mask():
+    # mask cannot be passed positionally
+    mask = [True]
+    args = [[0, 2, 1], [0, 0, 1], [[0, 1, 2]], mask]
+    x_, y_, triangles_, mask_, args_, kwargs_ = \
+        mtri.Triangulation._extract_triangulation_params(args, {})
+    assert mask_ is None
+    assert args_ == [mask]
+    # the positional mask must be caught downstream because this must pass
+    # unknown args through
+
+
+def test_triangulation_init():
+    x = [-1, 0, 1, 0]
+    y = [0, -1, 0, 1]
+    with pytest.raises(ValueError, match="x and y must be equal-length"):
+        mtri.Triangulation(x, [1, 2])
+    with pytest.raises(
+            ValueError,
+            match=r"triangles must be a \(N, 3\) int array, but found shape "
+                  r"\(3,\)"):
+        mtri.Triangulation(x, y, [0, 1, 2])
+    with pytest.raises(
+            ValueError,
+            match=r"triangles must be a \(N, 3\) int array, not 'other'"):
+        mtri.Triangulation(x, y, 'other')
+    with pytest.raises(ValueError, match="found value 99"):
+        mtri.Triangulation(x, y, [[0, 1, 99]])
+    with pytest.raises(ValueError, match="found value -1"):
+        mtri.Triangulation(x, y, [[0, 1, -1]])
+
+
 def test_delaunay():
     # No duplicate points, regular grid.
     nx = 5
@@ -175,6 +236,59 @@ def test_tripcolor():
     plt.subplot(122)
     plt.tripcolor(triang, facecolors=Cfaces, edgecolors='k')
     plt.title('facecolors')
+
+
+def test_tripcolor_color():
+    x = [-1, 0, 1, 0]
+    y = [0, -1, 0, 1]
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError, match=r"tripcolor\(\) missing 1 required "):
+        ax.tripcolor(x, y)
+    with pytest.raises(ValueError, match="The length of C must match either"):
+        ax.tripcolor(x, y, [1, 2, 3])
+    with pytest.raises(ValueError,
+                       match="length of facecolors must match .* triangles"):
+        ax.tripcolor(x, y, facecolors=[1, 2, 3, 4])
+    with pytest.raises(ValueError,
+                       match="'gouraud' .* at the points.* not at the faces"):
+        ax.tripcolor(x, y, facecolors=[1, 2], shading='gouraud')
+    with pytest.raises(ValueError,
+                       match="'gouraud' .* at the points.* not at the faces"):
+        ax.tripcolor(x, y, [1, 2], shading='gouraud')  # faces
+    with pytest.raises(TypeError,
+                       match="positional.*'C'.*keyword-only.*'facecolors'"):
+        ax.tripcolor(x, y, C=[1, 2, 3, 4])
+
+    # smoke test for valid color specifications (via C or facecolors)
+    ax.tripcolor(x, y, [1, 2, 3, 4])  # edges
+    ax.tripcolor(x, y, [1, 2, 3, 4], shading='gouraud')  # edges
+    ax.tripcolor(x, y, [1, 2])  # faces
+    ax.tripcolor(x, y, facecolors=[1, 2])  # faces
+
+
+def test_tripcolor_clim():
+    np.random.seed(19680801)
+    a, b, c = np.random.rand(10), np.random.rand(10), np.random.rand(10)
+
+    ax = plt.figure().add_subplot()
+    clim = (0.25, 0.75)
+    norm = ax.tripcolor(a, b, c, clim=clim).norm
+    assert((norm.vmin, norm.vmax) == clim)
+
+
+def test_tripcolor_warnings():
+    x = [-1, 0, 1, 0]
+    y = [0, -1, 0, 1]
+    C = [0.4, 0.5]
+    fig, ax = plt.subplots()
+    # additional parameters
+    with pytest.warns(DeprecationWarning, match="Additional positional param"):
+        ax.tripcolor(x, y, C, 'unused_positional')
+    # facecolors takes precednced over C
+    with pytest.warns(UserWarning, match="Positional parameter C .*no effect"):
+        ax.tripcolor(x, y, C, facecolors=C)
+    with pytest.warns(UserWarning, match="Positional parameter C .*no effect"):
+        ax.tripcolor(x, y, 'interpreted as C', facecolors=C)
 
 
 def test_no_modify():

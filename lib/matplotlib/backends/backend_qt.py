@@ -232,6 +232,7 @@ class TimerQT(TimerBase):
 class FigureCanvasQT(QtWidgets.QWidget, FigureCanvasBase):
     required_interactive_framework = "qt"
     _timer_cls = TimerQT
+    manager_class = _api.classproperty(lambda cls: FigureManagerQT)
 
     buttond = {
         getattr(_enum("QtCore.Qt.MouseButton"), k): v for k, v in [
@@ -985,9 +986,12 @@ class ToolbarQt(ToolContainerBase, QtWidgets.QToolBar):
 
 @backend_tools._register_tool_class(FigureCanvasQT)
 class ConfigureSubplotsQt(backend_tools.ConfigureSubplotsBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._subplot_dialog = None
+
     def trigger(self, *args):
-        NavigationToolbar2QT.configure_subplots(
-            self._make_classic_style_pseudo_toolbar())
+        NavigationToolbar2QT.configure_subplots(self)
 
 
 @backend_tools._register_tool_class(FigureCanvasQT)

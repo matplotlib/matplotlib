@@ -635,6 +635,9 @@ class Axis(martist.Artist):
         The minor ticks.
     """
     OFFSETTEXTPAD = 3
+    # The class used in _get_tick() to create tick instances. Must either be
+    # overwritten in subclasses, or subclasses must reimplement _get_tick().
+    _tick_class = None
 
     def __str__(self):
         return "{}({},{})".format(
@@ -1437,7 +1440,12 @@ class Axis(martist.Artist):
 
     def _get_tick(self, major):
         """Return the default tick instance."""
-        raise NotImplementedError('derived must override')
+        if self._tick_class is None:
+            raise NotImplementedError(
+                f"The Axis subclass {self.__class__.__name__} must define "
+                "_tick_class or reimplement _get_tick()")
+        tick_kw = self._major_tick_kw if major else self._minor_tick_kw
+        return self._tick_class(self.axes, 0, major=major, **tick_kw)
 
     def _get_tick_label_size(self, axis_name):
         """
@@ -1825,8 +1833,11 @@ class Axis(martist.Artist):
             For each tick, includes ``tick.label1`` if it is visible, then
             ``tick.label2`` if it is visible, in that order.
         """
-        ticklabels = [t.get_text() if hasattr(t, 'get_text') else t
-                      for t in ticklabels]
+        try:
+            ticklabels = [t.get_text() if hasattr(t, 'get_text') else t
+                          for t in ticklabels]
+        except TypeError:
+            raise TypeError(f"{ticklabels:=} must be a sequence") from None
         locator = (self.get_minor_locator() if minor
                    else self.get_major_locator())
         if isinstance(locator, mticker.FixedLocator):
@@ -2130,6 +2141,7 @@ def _make_getset_interval(method_name, lim_name, attr_name):
 class XAxis(Axis):
     __name__ = 'xaxis'
     axis_name = 'x'  #: Read-only name identifying the axis.
+    _tick_class = XTick
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2169,13 +2181,6 @@ class XAxis(Axis):
             b - self.pickradius < y < b or
             t < y < t + self.pickradius)
         return inaxis, {}
-
-    def _get_tick(self, major):
-        if major:
-            tick_kw = self._major_tick_kw
-        else:
-            tick_kw = self._minor_tick_kw
-        return XTick(self.axes, 0, major=major, **tick_kw)
 
     def set_label_position(self, position):
         """
@@ -2386,6 +2391,7 @@ class XAxis(Axis):
 class YAxis(Axis):
     __name__ = 'yaxis'
     axis_name = 'y'  #: Read-only name identifying the axis.
+    _tick_class = YTick
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -2427,13 +2433,6 @@ class YAxis(Axis):
             l - self.pickradius < x < l or
             r < x < r + self.pickradius)
         return inaxis, {}
-
-    def _get_tick(self, major):
-        if major:
-            tick_kw = self._major_tick_kw
-        else:
-            tick_kw = self._minor_tick_kw
-        return YTick(self.axes, 0, major=major, **tick_kw)
 
     def set_label_position(self, position):
         """

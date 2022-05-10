@@ -146,7 +146,7 @@ def validate_bool(b):
     elif b in ('f', 'n', 'no', 'off', 'false', '0', 0, False):
         return False
     else:
-        raise ValueError('Could not convert "%s" to bool' % b)
+        raise ValueError(f'Cannot convert {b!r} to bool')
 
 
 def validate_axisbelow(s):
@@ -156,8 +156,8 @@ def validate_axisbelow(s):
         if isinstance(s, str):
             if s == 'line':
                 return 'line'
-    raise ValueError('%s cannot be interpreted as'
-                     ' True, False, or "line"' % s)
+    raise ValueError(f'{s!r} cannot be interpreted as'
+                     ' True, False, or "line"')
 
 
 def validate_dpi(s):
@@ -739,14 +739,14 @@ def validate_cycler(s):
             _DunderChecker().visit(ast.parse(s))
             s = eval(s, {'cycler': cycler, '__builtins__': {}})
         except BaseException as e:
-            raise ValueError("'%s' is not a valid cycler construction: %s" %
-                             (s, e)) from e
+            raise ValueError(f"{s!r} is not a valid cycler construction: {e}"
+                             ) from e
     # Should make sure what comes from the above eval()
     # is a Cycler object.
     if isinstance(s, Cycler):
         cycler_inst = s
     else:
-        raise ValueError("object was not a string or Cycler instance: %s" % s)
+        raise ValueError(f"Object is not a string or Cycler instance: {s!r}")
 
     unknowns = cycler_inst.keys - (set(_prop_validators) | set(_prop_aliases))
     if unknowns:
@@ -932,6 +932,7 @@ _validators = {
     "text.hinting_factor": validate_int,
     "text.kerning_factor": validate_int,
     "text.antialiased":    validate_bool,
+    "text.parse_math":     validate_bool,
 
     "mathtext.cal":            validate_font_properties,
     "mathtext.rm":             validate_font_properties,

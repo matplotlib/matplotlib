@@ -329,8 +329,8 @@ class FloatingAxesBase:
         patch.get_path()._interpolation_steps = 100
         return patch
 
-    def cla(self):
-        super().cla()
+    def clear(self):
+        super().clear()
         self.patch.set_transform(
             self.get_grid_helper().grid_finder.get_transform()
             + self.transData)

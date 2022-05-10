@@ -52,8 +52,9 @@ class Axes(maxes.Axes):
     def axis(self):
         return self._axislines
 
-    def cla(self):
-        super().cla()
+    def clear(self):
+        # docstring inherited
+        super().clear()
         self._init_axis_artists()
 
 

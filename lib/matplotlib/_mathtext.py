@@ -13,9 +13,9 @@ import unicodedata
 
 import numpy as np
 from pyparsing import (
-    Combine, Empty, Forward, Group, Literal, oneOf, OneOrMore,
-    Optional, ParseBaseException, ParseFatalException, ParserElement,
-    ParseResults, QuotedString, Regex, StringEnd, Suppress, White, ZeroOrMore)
+    Empty, Forward, Literal, NotAny, oneOf, OneOrMore, Optional,
+    ParseBaseException, ParseFatalException, ParserElement, ParseResults,
+    QuotedString, Regex, StringEnd, ZeroOrMore, pyparsing_common)
 
 import matplotlib as mpl
 from . import cbook
@@ -223,13 +223,12 @@ class TruetypeFonts(Fonts):
         if bunch is not None:
             return bunch
 
-        font, num, fontsize, slanted = self._get_glyph(
+        font, num, slanted = self._get_glyph(
             fontname, font_class, sym, fontsize, math)
 
         font.set_size(fontsize, dpi)
         glyph = font.load_char(
-            num,
-            flags=self.mathtext_backend.get_hinting_type())
+            num, flags=self.mathtext_backend.get_hinting_type())
 
         xmin, ymin, xmax, ymax = [val/64.0 for val in glyph.bbox]
         offset = self._get_offset(font, glyph, fontsize, dpi)
@@ -327,7 +326,7 @@ class BakomaFonts(TruetypeFonts):
             if font is not None:
                 num = ord(sym)
         if font is not None and font.get_char_index(num) != 0:
-            return font, num, fontsize, slanted
+            return font, num, slanted
         else:
             return self._stix_fallback._get_glyph(
                 fontname, font_class, sym, fontsize, math)
@@ -411,7 +410,7 @@ class UnicodeFonts(TruetypeFonts):
                     'stixsans': StixSansFonts,
                     'cm': BakomaFonts
                     }.get(fallback_rc)
-        self.cm_fallback = font_cls(*args, **kwargs) if font_cls else None
+        self._fallback_font = font_cls(*args, **kwargs) if font_cls else None
 
         super().__init__(*args, **kwargs)
         self.fontmap = {}
@@ -424,7 +423,7 @@ class UnicodeFonts(TruetypeFonts):
         self.fontmap['ex'] = font
 
         # include STIX sized alternatives for glyphs if fallback is STIX
-        if isinstance(self.cm_fallback, StixFonts):
+        if isinstance(self._fallback_font, StixFonts):
             stixsizedaltfonts = {
                  0: 'STIXGeneral',
                  1: 'STIXSizeOneSym',
@@ -480,17 +479,17 @@ class UnicodeFonts(TruetypeFonts):
                     found_symbol = True
 
         if not found_symbol:
-            if self.cm_fallback:
+            if self._fallback_font:
                 if (fontname in ('it', 'regular')
-                        and isinstance(self.cm_fallback, StixFonts)):
+                        and isinstance(self._fallback_font, StixFonts)):
                     fontname = 'rm'
 
-                g = self.cm_fallback._get_glyph(fontname, font_class,
-                                                sym, fontsize)
-                fname = g[0].family_name
-                if fname in list(BakomaFonts._fontmap.values()):
-                    fname = "Computer Modern"
-                _log.info("Substituting symbol %s from %s", sym, fname)
+                g = self._fallback_font._get_glyph(fontname, font_class,
+                                                   sym, fontsize)
+                family = g[0].family_name
+                if family in list(BakomaFonts._fontmap.values()):
+                    family = "Computer Modern"
+                _log.info("Substituting symbol %s from %s", sym, family)
                 return g
 
             else:
@@ -504,11 +503,11 @@ class UnicodeFonts(TruetypeFonts):
                 uniindex = 0xA4  # currency char, for lack of anything better
                 slanted = False
 
-        return font, uniindex, fontsize, slanted
+        return font, uniindex, slanted
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
-        if self.cm_fallback:
-            return self.cm_fallback.get_sized_alternatives_for_symbol(
+        if self._fallback_font:
+            return self._fallback_font.get_sized_alternatives_for_symbol(
                 fontname, sym)
         return [(fontname, sym)]
 
@@ -518,9 +517,9 @@ class DejaVuFonts(UnicodeFonts):
     def __init__(self, *args, **kwargs):
         # This must come first so the backend's owner is set correctly
         if isinstance(self, DejaVuSerifFonts):
-            self.cm_fallback = StixFonts(*args, **kwargs)
+            self._fallback_font = StixFonts(*args, **kwargs)
         else:
-            self.cm_fallback = StixSansFonts(*args, **kwargs)
+            self._fallback_font = StixSansFonts(*args, **kwargs)
         self.bakoma = BakomaFonts(*args, **kwargs)
         TruetypeFonts.__init__(self, *args, **kwargs)
         self.fontmap = {}
@@ -616,7 +615,7 @@ class StixFonts(UnicodeFonts):
         4: 'STIXSizeFourSym',
         5: 'STIXSizeFiveSym',
     }
-    cm_fallback = False
+    _fallback_font = False
     _sans = False
 
     def __init__(self, *args, **kwargs):
@@ -1625,46 +1624,46 @@ class Parser:
         SCRIPTSTYLE = enum.auto()
         SCRIPTSCRIPTSTYLE = enum.auto()
 
-    _binary_operators = set('''
+    _binary_operators = set(r'''
       + * -
-      \\pm             \\sqcap                   \\rhd
-      \\mp             \\sqcup                   \\unlhd
-      \\times          \\vee                     \\unrhd
-      \\div            \\wedge                   \\oplus
-      \\ast            \\setminus                \\ominus
-      \\star           \\wr                      \\otimes
-      \\circ           \\diamond                 \\oslash
-      \\bullet         \\bigtriangleup           \\odot
-      \\cdot           \\bigtriangledown         \\bigcirc
-      \\cap            \\triangleleft            \\dagger
-      \\cup            \\triangleright           \\ddagger
-      \\uplus          \\lhd                     \\amalg'''.split())
+      \pm             \sqcap                   \rhd
+      \mp             \sqcup                   \unlhd
+      \times          \vee                     \unrhd
+      \div            \wedge                   \oplus
+      \ast            \setminus                \ominus
+      \star           \wr                      \otimes
+      \circ           \diamond                 \oslash
+      \bullet         \bigtriangleup           \odot
+      \cdot           \bigtriangledown         \bigcirc
+      \cap            \triangleleft            \dagger
+      \cup            \triangleright           \ddagger
+      \uplus          \lhd                     \amalg'''.split())
 
-    _relation_symbols = set('''
+    _relation_symbols = set(r'''
       = < > :
-      \\leq        \\geq        \\equiv   \\models
-      \\prec       \\succ       \\sim     \\perp
-      \\preceq     \\succeq     \\simeq   \\mid
-      \\ll         \\gg         \\asymp   \\parallel
-      \\subset     \\supset     \\approx  \\bowtie
-      \\subseteq   \\supseteq   \\cong    \\Join
-      \\sqsubset   \\sqsupset   \\neq     \\smile
-      \\sqsubseteq \\sqsupseteq \\doteq   \\frown
-      \\in         \\ni         \\propto  \\vdash
-      \\dashv      \\dots       \\dotplus \\doteqdot'''.split())
+      \leq        \geq        \equiv   \models
+      \prec       \succ       \sim     \perp
+      \preceq     \succeq     \simeq   \mid
+      \ll         \gg         \asymp   \parallel
+      \subset     \supset     \approx  \bowtie
+      \subseteq   \supseteq   \cong    \Join
+      \sqsubset   \sqsupset   \neq     \smile
+      \sqsubseteq \sqsupseteq \doteq   \frown
+      \in         \ni         \propto  \vdash
+      \dashv      \dots       \dotplus \doteqdot'''.split())
 
-    _arrow_symbols = set('''
-      \\leftarrow              \\longleftarrow           \\uparrow
-      \\Leftarrow              \\Longleftarrow           \\Uparrow
-      \\rightarrow             \\longrightarrow          \\downarrow
-      \\Rightarrow             \\Longrightarrow          \\Downarrow
-      \\leftrightarrow         \\longleftrightarrow      \\updownarrow
-      \\Leftrightarrow         \\Longleftrightarrow      \\Updownarrow
-      \\mapsto                 \\longmapsto              \\nearrow
-      \\hookleftarrow          \\hookrightarrow          \\searrow
-      \\leftharpoonup          \\rightharpoonup          \\swarrow
-      \\leftharpoondown        \\rightharpoondown        \\nwarrow
-      \\rightleftharpoons      \\leadsto'''.split())
+    _arrow_symbols = set(r'''
+      \leftarrow              \longleftarrow           \uparrow
+      \Leftarrow              \Longleftarrow           \Uparrow
+      \rightarrow             \longrightarrow          \downarrow
+      \Rightarrow             \Longrightarrow          \Downarrow
+      \leftrightarrow         \longleftrightarrow      \updownarrow
+      \Leftrightarrow         \Longleftrightarrow      \Updownarrow
+      \mapsto                 \longmapsto              \nearrow
+      \hookleftarrow          \hookrightarrow          \searrow
+      \leftharpoonup          \rightharpoonup          \swarrow
+      \leftharpoondown        \rightharpoondown        \nwarrow
+      \rightleftharpoons      \leadsto'''.split())
 
     _spaced_symbols = _binary_operators | _relation_symbols | _arrow_symbols
 
@@ -1675,8 +1674,7 @@ class Parser:
        \bigwedge \bigodot \bigotimes \bigoplus \biguplus
        '''.split())
 
-    _overunder_functions = set(
-        "lim liminf limsup sup max min".split())
+    _overunder_functions = set("lim liminf limsup sup max min".split())
 
     _dropsub_symbols = set(r'''\int \oint'''.split())
 
@@ -1687,9 +1685,9 @@ class Parser:
       liminf sin cos exp limsup sinh cosh gcd ln sup cot hom log tan
       coth inf max tanh""".split())
 
-    _ambi_delim = set("""
-      | \\| / \\backslash \\uparrow \\downarrow \\updownarrow \\Uparrow
-      \\Downarrow \\Updownarrow . \\vert \\Vert \\\\|""".split())
+    _ambi_delim = set(r"""
+      | \| / \backslash \uparrow \downarrow \updownarrow \Uparrow
+      \Downarrow \Updownarrow . \vert \Vert \\|""".split())
 
     _left_delim = set(r"( [ \{ < \lfloor \langle \lceil".split())
 
@@ -1697,184 +1695,123 @@ class Parser:
 
     def __init__(self):
         p = types.SimpleNamespace()
-        # All forward declarations are here
+
+        def set_names_and_parse_actions():
+            for key, val in vars(p).items():
+                if not key.startswith('_'):
+                    # Set names on everything -- very useful for debugging
+                    val.setName(key)
+                    # Set actions
+                    if hasattr(self, key):
+                        val.setParseAction(getattr(self, key))
+
+        # Root definitions.
+
+        p.float_literal  = Regex(r"[-+]?([0-9]+\.?[0-9]*|\.[0-9]+)")
+        p.space          = oneOf(self._space_widths)("space")
+
+        p.single_symbol  = Regex(
+            r"([a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|%s])|(\\[%%${}\[\]_|])" %
+            "\U00000080-\U0001ffff"  # unicode range
+        )("sym")
+        p.accentprefixed = "\\" + oneOf(self._accentprefixed)("sym")
+        p.symbol_name    = (
+            oneOf([rf"\{sym}" for sym in tex2uni])("sym")
+            + Regex("(?=[^A-Za-z]|$)").leaveWhitespace())
+        p.symbol         = (p.single_symbol | p.symbol_name).leaveWhitespace()
+        p.unknown_symbol = Regex(r"\\[A-Za-z]*")("name")
+
+        p.font           = "\\" + oneOf(self._fontnames)("font")
+        p.start_group    = (
+            Optional(r"\math" + oneOf(self._fontnames)("font")) + "{")
+        p.end_group      = Literal("}")
+
+        p.ambi_delim     = oneOf(self._ambi_delim)
+        p.left_delim     = oneOf(self._left_delim)
+        p.right_delim    = oneOf(self._right_delim)
+
+        set_names_and_parse_actions()  # for root definitions.
+
+        # Mutually recursive definitions.  (Minimizing the number of Forward
+        # elements is important for speed.)
         p.accent           = Forward()
-        p.ambi_delim       = Forward()
-        p.apostrophe       = Forward()
         p.auto_delim       = Forward()
         p.binom            = Forward()
-        p.bslash           = Forward()
         p.customspace      = Forward()
-        p.end_group        = Forward()
-        p.float_literal    = Forward()
-        p.font             = Forward()
         p.frac             = Forward()
         p.dfrac            = Forward()
         p.function         = Forward()
         p.genfrac          = Forward()
         p.group            = Forward()
-        p.int_literal      = Forward()
-        p.latexfont        = Forward()
-        p.lbracket         = Forward()
-        p.left_delim       = Forward()
-        p.lbrace           = Forward()
-        p.main             = Forward()
-        p.math             = Forward()
-        p.math_string      = Forward()
-        p.non_math         = Forward()
         p.operatorname     = Forward()
         p.overline         = Forward()
         p.overset          = Forward()
         p.placeable        = Forward()
-        p.rbrace           = Forward()
-        p.rbracket         = Forward()
         p.required_group   = Forward()
-        p.right_delim      = Forward()
-        p.right_delim_safe = Forward()
         p.simple           = Forward()
         p.simple_group     = Forward()
-        p.single_symbol    = Forward()
-        p.accentprefixed   = Forward()
-        p.space            = Forward()
         p.sqrt             = Forward()
-        p.start_group      = Forward()
         p.subsuper         = Forward()
-        p.subsuperop       = Forward()
-        p.symbol           = Forward()
-        p.symbol_name      = Forward()
         p.token            = Forward()
         p.underset         = Forward()
-        p.unknown_symbol   = Forward()
 
-        # Set names on everything -- very useful for debugging
-        for key, val in vars(p).items():
-            if not key.startswith('_'):
-                val.setName(key)
+        set_names_and_parse_actions()  # for mutually recursive definitions.
 
-        p.float_literal <<= Regex(r"[-+]?([0-9]+\.?[0-9]*|\.[0-9]+)")
-        p.int_literal   <<= Regex("[-+]?[0-9]+")
+        p.customspace   <<= r"\hspace" - (
+            "{" + p.float_literal("space") + "}"
+            | Error(r"Expected \hspace{n}"))
 
-        p.lbrace        <<= Literal('{').suppress()
-        p.rbrace        <<= Literal('}').suppress()
-        p.lbracket      <<= Literal('[').suppress()
-        p.rbracket      <<= Literal(']').suppress()
-        p.bslash        <<= Literal('\\')
+        p.accent        <<= (
+            "\\"
+            + oneOf([*self._accent_map, *self._wide_accents])("accent")
+            - p.placeable("sym"))
 
-        p.space         <<= oneOf(list(self._space_widths))
-        p.customspace   <<= (
-            Suppress(Literal(r'\hspace'))
-            - ((p.lbrace + p.float_literal + p.rbrace)
-               | Error(r"Expected \hspace{n}"))
-        )
+        p.function      <<= "\\" + oneOf(self._function_names)("name")
+        p.operatorname  <<= r"\operatorname" - (
+            "{" + ZeroOrMore(p.simple | p.unknown_symbol)("name") + "}"
+            | Error(r"Expected \operatorname{name}"))
 
-        unicode_range = "\U00000080-\U0001ffff"
-        p.single_symbol <<= Regex(
-            r"([a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|%s])|(\\[%%${}\[\]_|])" %
-            unicode_range)
-        p.accentprefixed <<= Suppress(p.bslash) + oneOf(self._accentprefixed)
-        p.symbol_name   <<= (
-            Combine(p.bslash + oneOf(list(tex2uni)))
-            + Suppress(Regex("(?=[^A-Za-z]|$)").leaveWhitespace())
-        )
-        p.symbol        <<= (p.single_symbol | p.symbol_name).leaveWhitespace()
+        p.group          <<= (
+            p.start_group + ZeroOrMore(p.token)("group") + p.end_group)
 
-        p.apostrophe    <<= Regex("'+")
+        p.simple_group   <<= "{" + ZeroOrMore(p.token)("group") + "}"
+        p.required_group <<= "{" + OneOrMore(p.token)("group") + "}"
 
-        p.accent        <<= Group(
-            Suppress(p.bslash)
-            + oneOf([*self._accent_map, *self._wide_accents])
-            + Suppress(Optional(White()))
-            - p.placeable
-        )
+        p.frac          <<= r"\frac" - (
+            p.required_group("num") + p.required_group("den")
+            | Error(r"Expected \frac{num}{den}"))
+        p.dfrac         <<= r"\dfrac" - (
+            p.required_group("num") + p.required_group("den")
+            | Error(r"Expected \dfrac{num}{den}"))
+        p.binom         <<= r"\binom" - (
+            p.required_group("num") + p.required_group("den")
+            | Error(r"Expected \binom{num}{den}"))
 
-        p.function      <<= (
-            Suppress(p.bslash)
-            + oneOf(list(self._function_names))
-        )
+        p.genfrac <<= r"\genfrac" - (
+            "{" + Optional(p.ambi_delim | p.left_delim)("ldelim") + "}"
+            + "{" + Optional(p.ambi_delim | p.right_delim)("rdelim") + "}"
+            + "{" + p.float_literal("rulesize") + "}"
+            + p.simple_group("style")
+            + p.required_group("num")
+            + p.required_group("den")
+            | Error("Expected "
+                    r"\genfrac{ldelim}{rdelim}{rulesize}{style}{num}{den}"))
 
-        p.start_group    <<= Optional(p.latexfont) + p.lbrace
-        p.end_group      <<= p.rbrace.copy()
-        p.simple_group   <<= Group(p.lbrace + ZeroOrMore(p.token) + p.rbrace)
-        p.required_group <<= Group(p.lbrace + OneOrMore(p.token) + p.rbrace)
-        p.group          <<= Group(
-            p.start_group + ZeroOrMore(p.token) + p.end_group
-        )
+        p.sqrt <<= r"\sqrt" - (
+            Optional("[" + OneOrMore(NotAny("]") + p.token)("root") + "]")
+            + p.required_group("value")
+            | Error(r"Expected \sqrt{value}"))
 
-        p.font          <<= Suppress(p.bslash) + oneOf(list(self._fontnames))
-        p.latexfont     <<= (
-            Suppress(p.bslash)
-            + oneOf(['math' + x for x in self._fontnames])
-        )
+        p.overline <<= r"\overline" - (
+            p.required_group("body")
+            | Error(r"Expected \overline{value}"))
 
-        p.frac          <<= Group(
-            Suppress(Literal(r"\frac"))
-            - ((p.required_group + p.required_group)
-               | Error(r"Expected \frac{num}{den}"))
-        )
-
-        p.dfrac         <<= Group(
-            Suppress(Literal(r"\dfrac"))
-            - ((p.required_group + p.required_group)
-               | Error(r"Expected \dfrac{num}{den}"))
-        )
-
-        p.binom         <<= Group(
-            Suppress(Literal(r"\binom"))
-            - ((p.required_group + p.required_group)
-               | Error(r"Expected \binom{num}{den}"))
-        )
-
-        p.ambi_delim    <<= oneOf(list(self._ambi_delim))
-        p.left_delim    <<= oneOf(list(self._left_delim))
-        p.right_delim   <<= oneOf(list(self._right_delim))
-        p.right_delim_safe <<= oneOf([*(self._right_delim - {'}'}), r'\}'])
-
-        p.genfrac <<= Group(
-            Suppress(Literal(r"\genfrac"))
-            - (((p.lbrace
-                 + Optional(p.ambi_delim | p.left_delim, default='')
-                 + p.rbrace)
-                + (p.lbrace
-                   + Optional(p.ambi_delim | p.right_delim_safe, default='')
-                   + p.rbrace)
-                + (p.lbrace + p.float_literal + p.rbrace)
-                + p.simple_group + p.required_group + p.required_group)
-               | Error("Expected "
-                       r"\genfrac{ldelim}{rdelim}{rulesize}{style}{num}{den}"))
-        )
-
-        p.sqrt <<= Group(
-            Suppress(Literal(r"\sqrt"))
-            - ((Group(Optional(
-                p.lbracket + OneOrMore(~p.rbracket + p.token) + p.rbracket))
-                + p.required_group)
-               | Error("Expected \\sqrt{value}"))
-        )
-
-        p.overline <<= Group(
-            Suppress(Literal(r"\overline"))
-            - (p.required_group | Error("Expected \\overline{value}"))
-        )
-
-        p.overset <<= Group(
-            Suppress(Literal(r"\overset"))
-            - ((p.simple_group + p.simple_group)
-               | Error("Expected \\overset{body}{annotation}"))
-        )
-
-        p.underset <<= Group(
-            Suppress(Literal(r"\underset"))
-            - ((p.simple_group + p.simple_group)
-               | Error("Expected \\underset{body}{annotation}"))
-        )
-
-        p.unknown_symbol <<= Combine(p.bslash + Regex("[A-Za-z]*"))
-
-        p.operatorname <<= Group(
-            Suppress(Literal(r"\operatorname"))
-            - ((p.lbrace + ZeroOrMore(p.simple | p.unknown_symbol) + p.rbrace)
-               | Error("Expected \\operatorname{value}"))
-        )
+        p.overset  <<= r"\overset" - (
+            p.simple_group("annotation") + p.simple_group("body")
+            | Error(r"Expected \overset{annotation}{body}"))
+        p.underset <<= r"\underset" - (
+            p.simple_group("annotation") + p.simple_group("body")
+            | Error(r"Expected \underset{annotation}{body}"))
 
         p.placeable     <<= (
             p.accentprefixed  # Must be before accent so named symbols that are
@@ -1883,6 +1820,7 @@ class Parser:
             | p.symbol   # Must be third to catch all named symbols and single
                          # chars not in a group
             | p.function
+            | p.operatorname
             | p.group
             | p.frac
             | p.dfrac
@@ -1892,7 +1830,6 @@ class Parser:
             | p.underset
             | p.sqrt
             | p.overline
-            | p.operatorname
         )
 
         p.simple        <<= (
@@ -1902,14 +1839,12 @@ class Parser:
             | p.subsuper
         )
 
-        p.subsuperop    <<= oneOf(["_", "^"])
-
-        p.subsuper      <<= Group(
-            (Optional(p.placeable)
-             + OneOrMore(p.subsuperop - p.placeable)
-             + Optional(p.apostrophe))
-            | (p.placeable + Optional(p.apostrophe))
-            | p.apostrophe
+        p.subsuper      <<= (
+            (Optional(p.placeable)("nucleus")
+             + OneOrMore(oneOf(["_", "^"]) - p.placeable)("subsuper")
+             + Regex("'*")("apostrophes"))
+            | Regex("'+")("apostrophes")
+            | (p.placeable("nucleus") + Regex("'*")("apostrophes"))
         )
 
         p.token         <<= (
@@ -1919,30 +1854,23 @@ class Parser:
         )
 
         p.auto_delim    <<= (
-            Suppress(Literal(r"\left"))
-            - ((p.left_delim | p.ambi_delim)
+            r"\left"
+            - ((p.left_delim | p.ambi_delim)("left")
                | Error("Expected a delimiter"))
-            + Group(ZeroOrMore(p.simple | p.auto_delim))
-            + Suppress(Literal(r"\right"))
-            - ((p.right_delim | p.ambi_delim)
+            + ZeroOrMore(p.simple | p.auto_delim)("mid")
+            + r"\right"
+            - ((p.right_delim | p.ambi_delim)("right")
                | Error("Expected a delimiter"))
         )
 
-        p.math          <<= OneOrMore(p.token)
-
-        p.math_string   <<= QuotedString('$', '\\', unquoteResults=False)
-
-        p.non_math      <<= Regex(r"(?:(?:\\[$])|[^$])*").leaveWhitespace()
-
-        p.main          <<= (
+        # Leaf definitions.
+        p.math          = OneOrMore(p.token)
+        p.math_string   = QuotedString('$', '\\', unquoteResults=False)
+        p.non_math      = Regex(r"(?:(?:\\[$])|[^$])*").leaveWhitespace()
+        p.main          = (
             p.non_math + ZeroOrMore(p.math_string + p.non_math) + StringEnd()
         )
-
-        # Set actions
-        for key, val in vars(p).items():
-            if not key.startswith('_'):
-                if hasattr(self, key):
-                    val.setParseAction(getattr(self, key))
+        set_names_and_parse_actions()  # for leaf definitions.
 
         self._expression = p.main
         self._math_expression = p.math
@@ -2001,6 +1929,8 @@ class Parser:
         self.get_state().font = mpl.rcParams['mathtext.default']
         return [hlist]
 
+    float_literal = staticmethod(pyparsing_common.convertToFloat)
+
     def _make_space(self, percentage):
         # All spaces are relative to em width
         state = self.get_state()
@@ -2030,16 +1960,15 @@ class Parser:
     }
 
     def space(self, s, loc, toks):
-        tok, = toks
-        num = self._space_widths[tok]
+        num = self._space_widths[toks["space"]]
         box = self._make_space(num)
         return [box]
 
     def customspace(self, s, loc, toks):
-        return [self._make_space(float(toks[0]))]
+        return [self._make_space(toks["space"])]
 
     def symbol(self, s, loc, toks):
-        c, = toks
+        c = toks["sym"]
         try:
             char = Char(c, self.get_state())
         except ValueError as err:
@@ -2079,8 +2008,7 @@ class Parser:
     accentprefixed = symbol
 
     def unknown_symbol(self, s, loc, toks):
-        c, = toks
-        raise ParseFatalException(s, loc, "Unknown symbol: %s" % c)
+        raise ParseFatalException(s, loc, f"Unknown symbol: {toks['name']}")
 
     _accent_map = {
         r'hat':            r'\circumflexaccent',
@@ -2116,7 +2044,8 @@ class Parser:
     def accent(self, s, loc, toks):
         state = self.get_state()
         thickness = state.get_current_underline_thickness()
-        (accent, sym), = toks
+        accent = toks["accent"]
+        sym = toks["sym"]
         if accent in self._wide_accents:
             accent_box = AutoWidthChar(
                 '\\' + accent, sym.width, state, char_class=Accent)
@@ -2135,7 +2064,7 @@ class Parser:
 
     def function(self, s, loc, toks):
         hlist = self.operatorname(s, loc, toks)
-        hlist.function_name, = toks
+        hlist.function_name = toks["name"]
         return hlist
 
     def operatorname(self, s, loc, toks):
@@ -2144,7 +2073,8 @@ class Parser:
         state.font = 'rm'
         hlist_list = []
         # Change the font of Chars, but leave Kerns alone
-        for c in toks[0]:
+        name = toks["name"]
+        for c in name:
             if isinstance(c, Char):
                 c.font = 'rm'
                 c._update_metrics()
@@ -2153,14 +2083,14 @@ class Parser:
                 hlist_list.append(Char(c, state))
             else:
                 hlist_list.append(c)
-        next_char_loc = loc + len(toks[0]) + 1
-        if isinstance(toks[0], ParseResults):
+        next_char_loc = loc + len(name) + 1
+        if isinstance(name, ParseResults):
             next_char_loc += len('operatorname{}')
         next_char = next((c for c in s[next_char_loc:] if c != ' '), '')
         delimiters = self._left_delim | self._ambi_delim | self._right_delim
         delimiters |= {'^', '_'}
         if (next_char not in delimiters and
-                toks[0] not in self._overunder_functions):
+                name not in self._overunder_functions):
             # Add thin space except when followed by parenthesis, bracket, etc.
             hlist_list += [self._make_space(self._space_widths[r'\,'])]
         self.pop_state()
@@ -2169,22 +2099,25 @@ class Parser:
     def start_group(self, s, loc, toks):
         self.push_state()
         # Deal with LaTeX-style font tokens
-        if len(toks):
-            self.get_state().font = toks[0][4:]
+        if toks.get("font"):
+            self.get_state().font = toks.get("font")
         return []
 
     def group(self, s, loc, toks):
-        grp = Hlist(toks[0])
+        grp = Hlist(toks.get("group", []))
         return [grp]
-    required_group = simple_group = group
+
+    def required_group(self, s, loc, toks):
+        return Hlist(toks.get("group", []))
+
+    simple_group = required_group
 
     def end_group(self, s, loc, toks):
         self.pop_state()
         return []
 
     def font(self, s, loc, toks):
-        name, = toks
-        self.get_state().font = name
+        self.get_state().font = toks["font"]
         return []
 
     def is_overunder(self, nucleus):
@@ -2208,60 +2141,24 @@ class Parser:
         return False
 
     def subsuper(self, s, loc, toks):
-        assert len(toks) == 1
+        nucleus = toks.get("nucleus", Hbox(0))
+        subsuper = toks.get("subsuper", [])
+        napostrophes = len(toks.get("apostrophes", []))
 
-        nucleus = None
-        sub = None
-        super = None
+        if not subsuper and not napostrophes:
+            return nucleus
 
-        # Pick all of the apostrophes out, including first apostrophes that
-        # have been parsed as characters
-        napostrophes = 0
-        new_toks = []
-        for tok in toks[0]:
-            if isinstance(tok, str) and tok not in ('^', '_'):
-                napostrophes += len(tok)
-            elif isinstance(tok, Char) and tok.c == "'":
-                napostrophes += 1
-            else:
-                new_toks.append(tok)
-        toks = new_toks
-
-        if len(toks) == 0:
-            assert napostrophes
-            nucleus = Hbox(0.0)
-        elif len(toks) == 1:
-            if not napostrophes:
-                return toks[0]  # .asList()
-            else:
-                nucleus = toks[0]
-        elif len(toks) in (2, 3):
-            # single subscript or superscript
-            nucleus = toks[0] if len(toks) == 3 else Hbox(0.0)
-            op, next = toks[-2:]
+        sub = super = None
+        while subsuper:
+            op, arg, *subsuper = subsuper
             if op == '_':
-                sub = next
-            else:
-                super = next
-        elif len(toks) in (4, 5):
-            # subscript and superscript
-            nucleus = toks[0] if len(toks) == 5 else Hbox(0.0)
-            op1, next1, op2, next2 = toks[-4:]
-            if op1 == op2:
-                if op1 == '_':
+                if sub is not None:
                     raise ParseFatalException("Double subscript")
-                else:
-                    raise ParseFatalException("Double superscript")
-            if op1 == '_':
-                sub = next1
-                super = next2
+                sub = arg
             else:
-                super = next1
-                sub = next2
-        else:
-            raise ParseFatalException(
-                "Subscript/superscript sequence is too long. "
-                "Use braces { } to remove ambiguity.")
+                if super is not None:
+                    raise ParseFatalException("Double superscript")
+                super = arg
 
         state = self.get_state()
         rule_thickness = state.font_output.get_underline_thickness(
@@ -2273,7 +2170,7 @@ class Parser:
             if super is None:
                 super = Hlist([])
             for i in range(napostrophes):
-                super.children.extend(self.symbol(s, loc, ['\\prime']))
+                super.children.extend(self.symbol(s, loc, {"sym": "\\prime"}))
             # kern() and hpack() needed to get the metrics right after
             # extending
             super.kern()
@@ -2402,8 +2299,6 @@ class Parser:
         state = self.get_state()
         thickness = state.get_current_underline_thickness()
 
-        rule = float(rule)
-
         if style is not self._MathStyle.DISPLAYSTYLE:
             num.shrink()
             den.shrink()
@@ -2439,28 +2334,29 @@ class Parser:
         return result
 
     def genfrac(self, s, loc, toks):
-        args, = toks
-        return self._genfrac(*args)
+        return self._genfrac(
+            toks.get("ldelim", ""), toks.get("rdelim", ""),
+            toks["rulesize"], toks["style"],
+            toks["num"], toks["den"])
 
     def frac(self, s, loc, toks):
-        thickness = self.get_state().get_current_underline_thickness()
-        (num, den), = toks
-        return self._genfrac('', '', thickness, self._MathStyle.TEXTSTYLE,
-                             num, den)
+        return self._genfrac(
+            "", "", self.get_state().get_current_underline_thickness(),
+            self._MathStyle.TEXTSTYLE, toks["num"], toks["den"])
 
     def dfrac(self, s, loc, toks):
-        thickness = self.get_state().get_current_underline_thickness()
-        (num, den), = toks
-        return self._genfrac('', '', thickness, self._MathStyle.DISPLAYSTYLE,
-                             num, den)
+        return self._genfrac(
+            "", "", self.get_state().get_current_underline_thickness(),
+            self._MathStyle.DISPLAYSTYLE, toks["num"], toks["den"])
 
     def binom(self, s, loc, toks):
-        (num, den), = toks
-        return self._genfrac('(', ')', 0.0, self._MathStyle.TEXTSTYLE,
-                             num, den)
+        return self._genfrac(
+            "(", ")", 0,
+            self._MathStyle.TEXTSTYLE, toks["num"], toks["den"])
 
     def _genset(self, s, loc, toks):
-        (annotation, body), = toks
+        annotation = toks["annotation"]
+        body = toks["body"]
         thickness = self.get_state().get_current_underline_thickness()
 
         annotation.shrink()
@@ -2491,7 +2387,8 @@ class Parser:
     overset = underset = _genset
 
     def sqrt(self, s, loc, toks):
-        (root, body), = toks
+        root = toks.get("root")
+        body = toks["value"]
         state = self.get_state()
         thickness = state.get_current_underline_thickness()
 
@@ -2530,7 +2427,7 @@ class Parser:
         return [hlist]
 
     def overline(self, s, loc, toks):
-        (body,), = toks
+        body = toks["body"]
 
         state = self.get_state()
         thickness = state.get_current_underline_thickness()
@@ -2571,6 +2468,5 @@ class Parser:
         return hlist
 
     def auto_delim(self, s, loc, toks):
-        front, middle, back = toks
-
-        return self._auto_sized_delimiter(front, middle.asList(), back)
+        return self._auto_sized_delimiter(
+            toks["left"], toks["mid"].asList(), toks["right"])

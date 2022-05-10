@@ -301,6 +301,8 @@
                          # Values  other than 0 or 6 have no defined meaning.
 #text.antialiased: True  # If True (default), the text will be antialiased.
                          # This only affects raster outputs.
+#text.parse_math: True  # Use mathtext if there is an even number of unescaped
+                        # dollar signs.
 
 
 ## ***************************************************************************
@@ -589,7 +591,7 @@
 ## ***************************************************************************
 #image.aspect:          equal        # {equal, auto} or a number
 #image.interpolation:   antialiased  # see help(imshow) for options
-#image.cmap:            viridis      # A colormap name, gray etc...
+#image.cmap:            viridis      # A colormap name (plasma, magma, etc.)
 #image.lut:             256          # the size of the colormap lookup table
 #image.origin:          upper        # {lower, upper}
 #image.resample:        True
@@ -679,12 +681,14 @@
                                 # 'tight' is incompatible with pipe-based animation
                                 # backends (e.g. 'ffmpeg') but will work with those
                                 # based on temporary files (e.g. 'ffmpeg_file')
-#savefig.pad_inches:   0.1      # Padding to be used when bbox is set to 'tight'
-#savefig.directory:    ~        # default directory in savefig dialog box,
-                                # leave empty to always use current working directory
-#savefig.transparent: False     # setting that controls whether figures are saved with a
-                                # transparent background by default
-#savefig.orientation: portrait  # Orientation of saved figure
+#savefig.pad_inches:  0.1       # padding to be used, when bbox is set to 'tight'
+#savefig.directory:   ~         # default directory in savefig dialog, gets updated after
+                                # interactive saves, unless set to the empty string (i.e.
+                                # the current directory); use '.' to start at the current
+                                # directory but update after interactive saves
+#savefig.transparent: False     # whether figures are saved with a transparent
+                                # background by default
+#savefig.orientation: portrait  # orientation of saved figure, for PostScript output only
 
 ### tk backend params
 #tk.window_focus:   False  # Maintain shell focus for TkAgg

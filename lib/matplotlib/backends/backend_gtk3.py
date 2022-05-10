@@ -71,6 +71,7 @@ def _mpl_to_gtk_cursor(mpl_cursor):
 class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
     required_interactive_framework = "gtk3"
     _timer_cls = TimerGTK3
+    manager_class = _api.classproperty(lambda cls: FigureManagerGTK3)
     # Setting this as a static constant prevents
     # this resulting expression from leaking
     event_mask = (Gdk.EventMask.BUTTON_PRESS_MASK

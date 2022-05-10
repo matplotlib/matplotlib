@@ -206,9 +206,11 @@ class ToolManager:
         """
 
         tool = self.get_tool(name)
-        _api.deprecate_method_override(
+        destroy = _api.deprecate_method_override(
             backend_tools.ToolBase.destroy, tool, since="3.6",
-            alternative="tool_removed_event")()
+            alternative="tool_removed_event")
+        if destroy is not None:
+            destroy()
 
         # If it's a toggle tool and toggled, untoggle
         if getattr(tool, 'toggled', False):

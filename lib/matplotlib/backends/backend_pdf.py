@@ -93,7 +93,12 @@ _log = logging.getLogger(__name__)
 # * draw_quad_mesh
 
 
+@_api.deprecated("3.6", alternative="Vendor the code")
 def fill(strings, linelen=75):
+    return _fill(strings, linelen=linelen)
+
+
+def _fill(strings, linelen=75):
     """
     Make one string from sequence of strings, with whitespace in between.
 
@@ -292,7 +297,7 @@ def pdfRepr(obj):
     # anything, so the caller must ensure that PDF names are
     # represented as Name objects.
     elif isinstance(obj, dict):
-        return fill([
+        return _fill([
             b"<<",
             *[Name(k).pdfRepr() + b" " + pdfRepr(v) for k, v in obj.items()],
             b">>",
@@ -300,7 +305,7 @@ def pdfRepr(obj):
 
     # Lists.
     elif isinstance(obj, (list, tuple)):
-        return fill([b"[", *[pdfRepr(val) for val in obj], b"]"])
+        return _fill([b"[", *[pdfRepr(val) for val in obj], b"]"])
 
     # The null keyword.
     elif obj is None:
@@ -312,7 +317,7 @@ def pdfRepr(obj):
 
     # A bounding box
     elif isinstance(obj, BboxBase):
-        return fill([pdfRepr(val) for val in obj.bounds])
+        return _fill([pdfRepr(val) for val in obj.bounds])
 
     else:
         raise TypeError("Don't know a PDF representation for {} objects"
@@ -394,8 +399,8 @@ class Name:
         return b'/' + self.name
 
 
+@_api.deprecated("3.6")
 class Operator:
-    """PDF operator object."""
     __slots__ = ('op',)
 
     def __init__(self, op):
@@ -417,45 +422,51 @@ class Verbatim:
         return self._x
 
 
-# PDF operators (not an exhaustive list)
-class Op(Operator, Enum):
+class Op(Enum):
+    """PDF operators (not an exhaustive list)."""
+
     close_fill_stroke = b'b'
     fill_stroke = b'B'
     fill = b'f'
-    closepath = b'h',
+    closepath = b'h'
     close_stroke = b's'
     stroke = b'S'
     endpath = b'n'
-    begin_text = b'BT',
+    begin_text = b'BT'
     end_text = b'ET'
     curveto = b'c'
     rectangle = b're'
     lineto = b'l'
-    moveto = b'm',
+    moveto = b'm'
     concat_matrix = b'cm'
     use_xobject = b'Do'
-    setgray_stroke = b'G',
+    setgray_stroke = b'G'
     setgray_nonstroke = b'g'
     setrgb_stroke = b'RG'
-    setrgb_nonstroke = b'rg',
+    setrgb_nonstroke = b'rg'
     setcolorspace_stroke = b'CS'
-    setcolorspace_nonstroke = b'cs',
+    setcolorspace_nonstroke = b'cs'
     setcolor_stroke = b'SCN'
     setcolor_nonstroke = b'scn'
-    setdash = b'd',
+    setdash = b'd'
     setlinejoin = b'j'
     setlinecap = b'J'
     setgstate = b'gs'
-    gsave = b'q',
+    gsave = b'q'
     grestore = b'Q'
     textpos = b'Td'
     selectfont = b'Tf'
-    textmatrix = b'Tm',
+    textmatrix = b'Tm'
     show = b'Tj'
     showkern = b'TJ'
     setlinewidth = b'w'
     clip = b'W'
     shading = b'sh'
+
+    op = _api.deprecated('3.6')(property(lambda self: self.value))
+
+    def pdfRepr(self):
+        return self.value
 
     @classmethod
     def paint_path(cls, fill, stroke):
@@ -833,7 +844,7 @@ class PdfFile:
             self.currentstream.write(data)
 
     def output(self, *data):
-        self.write(fill([pdfRepr(x) for x in data]))
+        self.write(_fill([pdfRepr(x) for x in data]))
         self.write(b'\n')
 
     def beginStream(self, id, len, extra=None, png=None):
@@ -1700,8 +1711,13 @@ end"""
                 # Convert to indexed color if there are 256 colors or fewer
                 # This can significantly reduce the file size
                 num_colors = len(img_colors)
-                img = img.convert(mode='P', dither=Image.NONE,
-                                  palette=Image.ADAPTIVE, colors=num_colors)
+                # These constants were converted to IntEnums and deprecated in
+                # Pillow 9.2
+                dither = getattr(Image, 'Dither', Image).NONE
+                pmode = getattr(Image, 'Palette', Image).ADAPTIVE
+                img = img.convert(
+                    mode='P', dither=dither, palette=pmode, colors=num_colors
+                )
                 png_data, bit_depth, palette = self._writePng(img)
                 if bit_depth is None or palette is None:
                     raise RuntimeError("invalid PNG header")
@@ -1823,7 +1839,8 @@ end"""
         return [Verbatim(_path.convert_to_string(
             path, transform, clip, simplify, sketch,
             6,
-            [Op.moveto.op, Op.lineto.op, b'', Op.curveto.op, Op.closepath.op],
+            [Op.moveto.value, Op.lineto.value, b'', Op.curveto.value,
+             Op.closepath.value],
             True))]
 
     def writePath(self, path, transform, clip=False, sketch=None):

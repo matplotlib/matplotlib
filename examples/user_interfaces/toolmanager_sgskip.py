@@ -3,25 +3,26 @@
 Tool Manager
 ============
 
-This example demonstrates how to:
+This example demonstrates how to
 
-* Modify the Toolbar
-* Create tools
-* Add tools
-* Remove tools
+* modify the Toolbar
+* create tools
+* add tools
+* remove tools
 
-Using `matplotlib.backend_managers.ToolManager`
+using `matplotlib.backend_managers.ToolManager`.
 """
 
 import matplotlib.pyplot as plt
-plt.rcParams['toolbar'] = 'toolmanager'
 from matplotlib.backend_tools import ToolBase, ToolToggleBase
+
+
+plt.rcParams['toolbar'] = 'toolmanager'
 
 
 class ListTools(ToolBase):
     """List all the tools controlled by the `ToolManager`."""
-    # keyboard shortcut
-    default_keymap = 'm'
+    default_keymap = 'm'  # keyboard shortcut
     description = 'List Tools'
 
     def trigger(self, *args, **kwargs):
@@ -76,7 +77,6 @@ plt.plot([3, 2, 1], gid='mygroup')
 # Add the custom tools that we created
 fig.canvas.manager.toolmanager.add_tool('List', ListTools)
 fig.canvas.manager.toolmanager.add_tool('Show', GroupHideTool, gid='mygroup')
-
 
 # Add an existing tool to new group `foo`.
 # It can be added as many times as we want

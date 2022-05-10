@@ -183,7 +183,7 @@ def _option_boolean(arg):
     elif arg.strip().lower() in ('yes', '1', 'true'):
         return True
     else:
-        raise ValueError('"%s" unknown boolean' % arg)
+        raise ValueError(f'{arg!r} unknown boolean')
 
 
 def _option_context(arg):

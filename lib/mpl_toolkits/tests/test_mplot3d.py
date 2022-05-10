@@ -1002,6 +1002,16 @@ def test_lines_dists():
     ax.set_ylim(0, 300)
 
 
+def test_lines_dists_nowarning():
+    # Smoke test to see that no RuntimeWarning is emitted when two first
+    # arguments are the same, see GH#22624
+    p0 = (10, 30)
+    p1 = (20, 150)
+    proj3d._line2d_seg_dist(p0, p0, p1)
+    p0 = np.array(p0)
+    proj3d._line2d_seg_dist(p0, p0, p1)
+
+
 def test_autoscale():
     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
     ax.margins(x=0, y=.1, z=.2)

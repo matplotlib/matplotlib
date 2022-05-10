@@ -288,9 +288,8 @@ def test_failing_ffmpeg(tmpdir, monkeypatch, anim):
     with tmpdir.as_cwd():
         monkeypatch.setenv("PATH", ".:" + os.environ["PATH"])
         exe_path = Path(str(tmpdir), "ffmpeg")
-        exe_path.write_text("#!/bin/sh\n"
-                            "[[ $@ -eq 0 ]]\n")
-        os.chmod(str(exe_path), 0o755)
+        exe_path.write_bytes(b"#!/bin/sh\n[[ $@ -eq 0 ]]\n")
+        os.chmod(exe_path, 0o755)
         with pytest.raises(subprocess.CalledProcessError):
             anim.save("test.mpeg")
 

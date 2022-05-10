@@ -80,6 +80,25 @@ you can install Matplotlib via your package manager, e.g.:
 
 .. _install_from_source:
 
+==========================
+Installing a nightly build
+==========================
+
+Matplotlib makes nightly development build wheels available on the
+`scipy-wheels-nightly Anaconda Cloud organization
+<https://anaconda.org/scipy-wheels-nightly>`_.
+These wheels can be installed with ``pip`` by specifying scipy-wheels-nightly
+as the package index to query:
+
+.. code-block:: sh
+
+  python -m pip install \
+    --upgrade \
+    --pre \
+    --index-url https://pypi.anaconda.org/scipy-wheels-nightly/simple \
+    --extra-index-url https://pypi.org/simple \
+    matplotlib
+
 ======================
 Installing from source
 ======================
@@ -92,9 +111,17 @@ First you need to install the :ref:`dependencies`.
 
 A C compiler is required.  Typically, on Linux, you will need ``gcc``, which
 should be installed using your distribution's package manager; on macOS, you
-will need xcode_; on Windows, you will need Visual Studio 2015 or later.
+will need xcode_; on Windows, you will need `Visual Studio`_ 2015 or later.
+
+For those using Visual Studio, make sure "Desktop development with C++" is
+selected, and that the latest MSVC, "C++ CMake tools for Windows," and a
+Windows SDK compatible with your version of Windows are selected and installed.
+They should be selected by default under the "Optional" subheading, but are
+required to build matplotlib from source.
 
 .. _xcode: https://guide.macports.org/chunked/installing.html#installing.xcode
+
+.. _Visual Studio: https://visualstudio.microsoft.com/downloads/
 
 The easiest way to get the latest development version to start contributing
 is to go to the git `repository <https://github.com/matplotlib/matplotlib>`_
@@ -262,11 +289,9 @@ be manually installed on Macports with ::
 Once pip is installed, you can install Matplotlib and all its dependencies with
 from the Terminal.app command line::
 
-   python3 -mpip install matplotlib
+   python3 -m pip install matplotlib
 
-(``sudo python3.6 ...`` on Macports).
-
-You might also want to install IPython or the Jupyter notebook (``python3 -mpip
+You might also want to install IPython or the Jupyter notebook (``python3 -m pip
 install ipython notebook``).
 
 Checking your installation

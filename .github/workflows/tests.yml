@@ -1,4 +1,7 @@
 name: Tests
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
+  cancel-in-progress: true
 
 on:
   push:
@@ -276,23 +279,31 @@ jobs:
           find . -name '*.gc*' -delete
         if: ${{ runner.os != 'macOS' }}
       - name: Upload code coverage
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }} result images"
           path: ./result_images
 
+  # Separate dependent job to only upload one issue from the matrix of jobs
+  create-issue:
+    runs-on: ubuntu-latest
+    needs: [test]
+    if: ${{ failure() && github.event_name == 'schedule' }}
+    name: "Create issue on failure"
+
+    steps:
       - name: Create issue on failure
         uses: imjohnbo/issue-bot@v3
-        if: ${{ failure() && github.event_name == 'schedule' }}
         with:
           title: "[TST] Upcoming dependency test failures"
           body: |
             The weekly build with nightly wheels from numpy and pandas
             has failed. Check the logs for any updates that need to be
             made in matplotlib.
+            https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
 
           pinned: false
           close-previous: false

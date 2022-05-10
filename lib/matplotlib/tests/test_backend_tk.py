@@ -50,8 +50,9 @@ def _isolated_tk_test(success_count, func=None):
             )
         except subprocess.TimeoutExpired:
             pytest.fail("Subprocess timed out")
-        except subprocess.CalledProcessError:
-            pytest.fail("Subprocess failed to test intended behavior")
+        except subprocess.CalledProcessError as e:
+            pytest.fail("Subprocess failed to test intended behavior\n"
+                        + str(e.stderr))
         else:
             # macOS may actually emit irrelevant errors about Accelerated
             # OpenGL vs. software OpenGL, so suppress them.
@@ -146,6 +147,7 @@ def test_figuremanager_cleans_own_mainloop():
     thread.join()
 
 
+@pytest.mark.backend('TkAgg', skip_on_importerror=True)
 @pytest.mark.flaky(reruns=3)
 @_isolated_tk_test(success_count=0)
 def test_never_update():
@@ -159,14 +161,12 @@ def test_never_update():
 
     plt.draw()  # Test FigureCanvasTkAgg.
     fig.canvas.toolbar.configure_subplots()  # Test NavigationToolbar2Tk.
+    # Test FigureCanvasTk filter_destroy callback
+    fig.canvas.get_tk_widget().after(100, plt.close, fig)
 
     # Check for update() or update_idletasks() in the event queue, functionally
     # equivalent to tkinter.Misc.update.
-    # Must pause >= 1 ms to process tcl idle events plus extra time to avoid
-    # flaky tests on slow systems.
-    plt.pause(0.1)
-
-    plt.close(fig)  # Test FigureCanvasTk filter_destroy callback
+    plt.show(block=True)
 
     # Note that exceptions would be printed to stderr; _isolated_tk_test
     # checks them.
@@ -216,3 +216,41 @@ def test_canvas_focus():
 
     if success:
         print("success")
+
+
+@_isolated_tk_test(success_count=2)
+def test_embedding():
+    import tkinter as tk
+    from matplotlib.backends.backend_tkagg import (
+        FigureCanvasTkAgg, NavigationToolbar2Tk)
+    from matplotlib.backend_bases import key_press_handler
+    from matplotlib.figure import Figure
+
+    root = tk.Tk()
+
+    def test_figure(master):
+        fig = Figure()
+        ax = fig.add_subplot()
+        ax.plot([1, 2, 3])
+
+        canvas = FigureCanvasTkAgg(fig, master=master)
+        canvas.draw()
+        canvas.mpl_connect("key_press_event", key_press_handler)
+        canvas.get_tk_widget().pack(expand=True, fill="both")
+
+        toolbar = NavigationToolbar2Tk(canvas, master, pack_toolbar=False)
+        toolbar.pack(expand=True, fill="x")
+
+        canvas.get_tk_widget().forget()
+        toolbar.forget()
+
+    test_figure(root)
+    print("success")
+
+    # Test with a dark button color. Doesn't actually check whether the icon
+    # color becomes lighter, just that the code doesn't break.
+
+    root.tk_setPalette(background="sky blue", selectColor="midnight blue",
+                       foreground="white")
+    test_figure(root)
+    print("success")

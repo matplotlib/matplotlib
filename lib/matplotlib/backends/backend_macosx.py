@@ -1,5 +1,5 @@
 import matplotlib as mpl
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib._pylab_helpers import Gcf
 from . import _macosx
 from .backend_agg import FigureCanvasAgg
@@ -25,6 +25,7 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
 
     required_interactive_framework = "macosx"
     _timer_cls = TimerMac
+    manager_class = _api.classproperty(lambda cls: FigureManagerMac)
 
     def __init__(self, figure):
         FigureCanvasBase.__init__(self, figure)
@@ -32,10 +33,6 @@ class FigureCanvasMac(_macosx.FigureCanvas, FigureCanvasAgg):
         _macosx.FigureCanvas.__init__(self, width, height)
         self._draw_pending = False
         self._is_drawing = False
-
-    def set_cursor(self, cursor):
-        # docstring inherited
-        _macosx.set_cursor(cursor)
 
     def draw(self):
         """Render the figure and update the macosx canvas."""
@@ -140,6 +137,7 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     _toolbar2_class = NavigationToolbar2Mac
 
     def __init__(self, canvas, num):
+        self._shown = False
         _macosx.FigureManager.__init__(self, canvas)
         icon_path = str(cbook._get_data_path('images/matplotlib.pdf'))
         _macosx.FigureManager.set_icon(icon_path)
@@ -153,6 +151,13 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
     def close(self):
         Gcf.destroy(self)
         self.canvas.flush_events()
+
+    def show(self):
+        if not self._shown:
+            self._show()
+            self._shown = True
+        if mpl.rcParams["figure.raise_window"]:
+            self._raise()
 
 
 @_Backend.export

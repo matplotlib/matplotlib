@@ -62,7 +62,6 @@ class Collection(artist.Artist, cm.ScalarMappable):
     mappable will be used to set the ``facecolors`` and ``edgecolors``,
     ignoring those that were manually passed in.
     """
-    _offsets = np.zeros((0, 2))
     #: Either a list of 3x3 arrays or an Nx3x3 array (representing N
     #: transforms), suitable for the `all_transforms` argument to
     #: `~matplotlib.backend_bases.RendererBase.draw_path_collection`;
@@ -193,16 +192,13 @@ class Collection(artist.Artist, cm.ScalarMappable):
         else:
             self._joinstyle = None
 
-        # default to zeros
-        self._offsets = np.zeros((1, 2))
-
         if offsets is not None:
             offsets = np.asanyarray(offsets, float)
             # Broadcast (2,) -> (1, 2) but nothing else.
             if offsets.shape == (2,):
                 offsets = offsets[None, :]
-            self._offsets = offsets
 
+        self._offsets = offsets
         self._offset_transform = offset_transform
 
         self._path_effects = None
@@ -263,9 +259,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # if the offsets are in some coords other than data,
             # then don't use them for autoscaling.
             return transforms.Bbox.null()
-        offsets = self._offsets
+        offsets = self.get_offsets()
 
         paths = self.get_paths()
+        if not len(paths):
+            # No paths to transform
+            return transforms.Bbox.null()
 
         if not transform.is_affine:
             paths = [transform.transform_path_non_affine(p) for p in paths]
@@ -274,22 +273,22 @@ class Collection(artist.Artist, cm.ScalarMappable):
             # transforms.get_affine().contains_branch(transData).  But later,
             # be careful to only apply the affine part that remains.
 
-        if isinstance(offsets, np.ma.MaskedArray):
-            offsets = offsets.filled(np.nan)
-            # get_path_collection_extents handles nan but not masked arrays
+        if any(transform.contains_branch_seperately(transData)):
+            # collections that are just in data units (like quiver)
+            # can properly have the axes limits set by their shape +
+            # offset.  LineCollections that have no offsets can
+            # also use this algorithm (like streamplot).
+            if isinstance(offsets, np.ma.MaskedArray):
+                offsets = offsets.filled(np.nan)
+                # get_path_collection_extents handles nan but not masked arrays
+            return mpath.get_path_collection_extents(
+                transform.get_affine() - transData, paths,
+                self.get_transforms(),
+                offset_trf.transform_non_affine(offsets),
+                offset_trf.get_affine().frozen())
 
-        if len(paths) and len(offsets):
-            if any(transform.contains_branch_seperately(transData)):
-                # collections that are just in data units (like quiver)
-                # can properly have the axes limits set by their shape +
-                # offset.  LineCollections that have no offsets can
-                # also use this algorithm (like streamplot).
-                return mpath.get_path_collection_extents(
-                    transform.get_affine() - transData, paths,
-                    self.get_transforms(),
-                    offset_trf.transform_non_affine(offsets),
-                    offset_trf.get_affine().frozen())
-
+        # NOTE: None is the default case where no offsets were passed in
+        if self._offsets is not None:
             # this is for collections that have their paths (shapes)
             # in physical, axes-relative, or figure-relative units
             # (i.e. like scatter). We can't uniquely set limits based on
@@ -314,7 +313,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
         transform = self.get_transform()
         offset_trf = self.get_offset_transform()
-        offsets = self._offsets
+        offsets = self.get_offsets()
         paths = self.get_paths()
 
         if self.have_units():
@@ -325,10 +324,9 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 xs = self.convert_xunits(xs)
                 ys = self.convert_yunits(ys)
                 paths.append(mpath.Path(np.column_stack([xs, ys]), path.codes))
-            if offsets.size:
-                xs = self.convert_xunits(offsets[:, 0])
-                ys = self.convert_yunits(offsets[:, 1])
-                offsets = np.column_stack([xs, ys])
+            xs = self.convert_xunits(offsets[:, 0])
+            ys = self.convert_yunits(offsets[:, 1])
+            offsets = np.column_stack([xs, ys])
 
         if not transform.is_affine:
             paths = [transform.transform_path_non_affine(path)
@@ -557,7 +555,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
 
     def get_offsets(self):
         """Return the offsets for the collection."""
-        return self._offsets
+        # Default to zeros in the no-offset (None) case
+        return np.zeros((1, 2)) if self._offsets is None else self._offsets
 
     def _get_default_linewidth(self):
         # This may be overridden in a subclass.
@@ -1129,9 +1128,9 @@ class PathCollection(_CollectionWithSizes):
             ix = np.argsort(xarr)
             values = np.interp(label_values, xarr[ix], yarr[ix])
 
-        kw = dict(markeredgewidth=self.get_linewidths()[0],
-                  alpha=self.get_alpha())
-        kw.update(kwargs)
+        kw = {"markeredgewidth": self.get_linewidths()[0],
+              "alpha": self.get_alpha(),
+              **kwargs}
 
         for val, lab in zip(values, label_values):
             if prop == "colors":
@@ -1764,7 +1763,7 @@ class EllipseCollection(Collection):
         elif self._units == 'dots':
             sc = 1.0
         else:
-            raise ValueError('unrecognized units: %s' % self._units)
+            raise ValueError(f'Unrecognized units: {self._units!r}')
 
         self._transforms = np.zeros((len(self._widths), 3, 3))
         widths = self._widths * sc
@@ -1911,7 +1910,7 @@ class QuadMesh(Collection):
     r"""
     Class for the efficient drawing of a quadrilateral mesh.
 
-    A quadrilateral mesh is a grid of M by N adjacent qudrilaterals that are
+    A quadrilateral mesh is a grid of M by N adjacent quadrilaterals that are
     defined via a (M+1, N+1) grid of vertices. The quadrilateral (m, n) is
     defined by the vertices ::
 
@@ -2154,13 +2153,12 @@ class QuadMesh(Collection):
         renderer.open_group(self.__class__.__name__, self.get_gid())
         transform = self.get_transform()
         offset_trf = self.get_offset_transform()
-        offsets = self._offsets
+        offsets = self.get_offsets()
 
         if self.have_units():
-            if len(self._offsets):
-                xs = self.convert_xunits(self._offsets[:, 0])
-                ys = self.convert_yunits(self._offsets[:, 1])
-                offsets = np.column_stack([xs, ys])
+            xs = self.convert_xunits(offsets[:, 0])
+            ys = self.convert_yunits(offsets[:, 1])
+            offsets = np.column_stack([xs, ys])
 
         self.update_scalarmappable()
 
@@ -2199,8 +2197,6 @@ class QuadMesh(Collection):
 
     def get_cursor_data(self, event):
         contained, info = self.contains(event)
-        if len(info["ind"]) == 1:
-            ind, = info["ind"]
-            return self.get_array()[ind]
-        else:
-            return None
+        if contained and self.get_array() is not None:
+            return self.get_array().ravel()[info["ind"]]
+        return None

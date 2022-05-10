@@ -913,10 +913,61 @@ default: %(va)s
         # Break link between any twinned axes
         _break_share_link(ax, ax._twinned_axes)
 
+    def clear(self, keep_observers=False):
+        """
+        Clear the figure.
+
+        Parameters
+        ----------
+        keep_observers: bool, default: False
+            Set *keep_observers* to True if, for example,
+            a gui widget is tracking the Axes in the figure.
+        """
+        self.suppressComposite = None
+
+        # first clear the axes in any subfigures
+        for subfig in self.subfigs:
+            subfig.clear(keep_observers=keep_observers)
+        self.subfigs = []
+
+        for ax in tuple(self.axes):  # Iterate over the copy.
+            ax.clear()
+            self.delaxes(ax)  # Remove ax from self._axstack.
+
+        self.artists = []
+        self.lines = []
+        self.patches = []
+        self.texts = []
+        self.images = []
+        self.legends = []
+        if not keep_observers:
+            self._axobservers = cbook.CallbackRegistry()
+        self._suptitle = None
+        self._supxlabel = None
+        self._supylabel = None
+
+        self.stale = True
+
+    # synonym for `clear`.
+    def clf(self, keep_observers=False):
+        """
+        Alias for the `clear()` method.
+
+        .. admonition:: Discouraged
+
+            The use of ``clf()`` is discouraged. Use ``clear()`` instead.
+
+        Parameters
+        ----------
+        keep_observers: bool, default: False
+            Set *keep_observers* to True if, for example,
+            a gui widget is tracking the Axes in the figure.
+        """
+        return self.clear(keep_observers=keep_observers)
+
     # Note: in the docstring below, the newlines in the examples after the
     # calls to legend() allow replacing it with figlegend() to generate the
     # docstring of pyplot.figlegend.
-
     @_docstring.dedent_interpd
     def legend(self, *args, **kwargs):
         """
@@ -1925,6 +1976,10 @@ class SubFigure(FigureBase):
 
     See :doc:`/gallery/subplots_axes_and_figures/subfigures`
     """
+    callbacks = _api.deprecated(
+            "3.6", alternative=("the 'resize_event' signal in "
+                                "Figure.canvas.callbacks")
+            )(property(lambda self: self._fig_callbacks))
 
     def __init__(self, parent, subplotspec, *,
                  facecolor=None,
@@ -1973,6 +2028,8 @@ class SubFigure(FigureBase):
         self._subplotspec = subplotspec
         self._parent = parent
         self.figure = parent.figure
+        self._fig_callbacks = parent._fig_callbacks
+
         # subfigures use the parent axstack
         self._axstack = parent._axstack
         self.subplotpars = parent.subplotpars
@@ -2103,11 +2160,6 @@ class Figure(FigureBase):
     """
     The top level container for all the plot elements.
 
-    The Figure instance supports callbacks through a *callbacks* attribute
-    which is a `.CallbackRegistry` instance.  The events you can connect to
-    are 'dpi_changed', and the callback will be called with ``func(fig)`` where
-    fig is the `Figure` instance.
-
     Attributes
     ----------
     patch
@@ -2118,6 +2170,12 @@ class Figure(FigureBase):
         depending on the renderer option_image_nocomposite function.  If
         *suppressComposite* is a boolean, this will override the renderer.
     """
+    # Remove the self._fig_callbacks properties on figure and subfigure
+    # after the deprecation expires.
+    callbacks = _api.deprecated(
+        "3.6", alternative=("the 'resize_event' signal in "
+                            "Figure.canvas.callbacks")
+        )(property(lambda self: self._fig_callbacks))
 
     def __str__(self):
         return "Figure(%gx%g)" % tuple(self.bbox.size)
@@ -2250,7 +2308,7 @@ class Figure(FigureBase):
             # everything is None, so use default:
             self.set_layout_engine(layout=layout)
 
-        self.callbacks = cbook.CallbackRegistry(signals=["dpi_changed"])
+        self._fig_callbacks = cbook.CallbackRegistry(signals=["dpi_changed"])
         # Callbacks traditionally associated with the canvas (and exposed with
         # a proxy property), but that actually need to be on the figure for
         # pickling.
@@ -2301,7 +2359,7 @@ class Figure(FigureBase):
         self.subplotpars = subplotpars
 
         self._axstack = _AxesStack()  # track all figure axes and current axes
-        self.clf()
+        self.clear()
         self._cachedRenderer = None
 
         # list of child gridspecs for this figure
@@ -2449,7 +2507,7 @@ class Figure(FigureBase):
         self.dpi_scale_trans.clear().scale(dpi)
         w, h = self.get_size_inches()
         self.set_size_inches(w, h, forward=forward)
-        self.callbacks.process('dpi_changed', self)
+        self._fig_callbacks.process('dpi_changed', self)
 
     dpi = property(_get_dpi, _set_dpi, doc="The resolution in dots per inch.")
 
@@ -2800,41 +2858,14 @@ class Figure(FigureBase):
         """
         self.set_size_inches(self.get_figwidth(), val, forward=forward)
 
-    def clf(self, keep_observers=False):
-        """
-        Clear the figure.
-
-        Set *keep_observers* to True if, for example,
-        a gui widget is tracking the Axes in the figure.
-        """
-        self.suppressComposite = None
-        self.callbacks = cbook.CallbackRegistry()
-
-        for ax in tuple(self.axes):  # Iterate over the copy.
-            ax.cla()
-            self.delaxes(ax)  # Remove ax from self._axstack.
-
+    def clear(self, keep_observers=False):
+        # docstring inherited
+        super().clear(keep_observers=keep_observers)
+        # FigureBase.clear does not clear toolbars, as
+        # only Figure can have toolbars
         toolbar = self.canvas.toolbar
         if toolbar is not None:
             toolbar.update()
-        self._axstack = _AxesStack()
-        self.artists = []
-        self.lines = []
-        self.patches = []
-        self.texts = []
-        self.images = []
-        self.legends = []
-        if not keep_observers:
-            self._axobservers = cbook.CallbackRegistry()
-        self._suptitle = None
-        self._supxlabel = None
-        self._supylabel = None
-
-        self.stale = True
-
-    def clear(self, keep_observers=False):
-        """Clear the figure -- synonym for `clf`."""
-        self.clf(keep_observers=keep_observers)
 
     @_finalize_rasterization
     @allow_rasterization

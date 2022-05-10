@@ -125,3 +125,10 @@ def pd():
     except ImportError:
         pass
     return pd
+
+
+@pytest.fixture
+def xr():
+    """Fixture to import xarray."""
+    xr = pytest.importorskip('xarray')
+    return xr

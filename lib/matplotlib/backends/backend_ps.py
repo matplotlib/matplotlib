@@ -89,7 +89,12 @@ def _nums_to_str(*args):
     return " ".join(f"{arg:1.3f}".rstrip("0").rstrip(".") for arg in args)
 
 
+@_api.deprecated("3.6", alternative="Vendor the code")
 def quote_ps_string(s):
+    return _quote_ps_string(s)
+
+
+def _quote_ps_string(s):
     """
     Quote dangerous characters of S for use in a PostScript string constant.
     """
@@ -738,7 +743,7 @@ grestore
         streamarr['flags'] = 0
         streamarr['points'] = (flat_points - points_min) * factor
         streamarr['colors'] = flat_colors[:, :3] * 255.0
-        stream = quote_ps_string(streamarr.tobytes())
+        stream = _quote_ps_string(streamarr.tobytes())
 
         self._pswriter.write(f"""\
 gsave
@@ -778,6 +783,7 @@ grestore
             self.set_linejoin(gc.get_joinstyle())
             self.set_linecap(gc.get_capstyle())
             self.set_linedash(*gc.get_dashes())
+        if mightstroke or hatch:
             self.set_color(*gc.get_rgb()[:3])
         write('gsave\n')
 

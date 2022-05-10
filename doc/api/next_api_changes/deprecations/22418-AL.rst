@@ -1,0 +1,6 @@
+Auto-removal of overlapping Axes by ``plt.subplot`` and ``plt.subplot2grid``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously, `.pyplot.subplot` and `.pyplot.subplot2grid` would automatically
+remove preexisting Axes that overlap with the newly added Axes.  This behavior
+was deemed confusing, and is now deprecated.  Explicitly call ``ax.remove()``
+on Axes that need to be removed.

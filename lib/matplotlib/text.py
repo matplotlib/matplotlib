@@ -142,11 +142,16 @@ class Text(Artist):
                  wrap=False,
                  transform_rotates_text=False,
                  *,
-                 parse_math=True,
+                 parse_math=None,    # defaults to rcParams['text.parse_math']
                  **kwargs
                  ):
         """
         Create a `.Text` instance at *x*, *y* with string *text*.
+
+        The text is aligned relative to the anchor point (*x*, *y*) according
+        to ``horizontalalignment`` (default: 'left') and ``verticalalignment``
+        (default: 'bottom'). See also
+        :doc:`/gallery/text_labels_and_annotations/text_alignment`.
 
         While Text accepts the 'label' keyword argument, by default it is not
         added to the handles of a legend.
@@ -163,7 +168,8 @@ class Text(Artist):
             color if color is not None else mpl.rcParams["text.color"])
         self.set_fontproperties(fontproperties)
         self.set_usetex(usetex)
-        self.set_parse_math(parse_math)
+        self.set_parse_math(parse_math if parse_math is not None else
+                            mpl.rcParams['text.parse_math'])
         self.set_wrap(wrap)
         self.set_verticalalignment(verticalalignment)
         self.set_horizontalalignment(horizontalalignment)
@@ -295,7 +301,8 @@ class Text(Artist):
         of a rotated text when necessary.
         """
         thisx, thisy = 0.0, 0.0
-        lines = self.get_text().split("\n")  # Ensures lines is not empty.
+        text = self.get_text()
+        lines = [text] if self.get_usetex() else text.split("\n")  # Not empty.
 
         ws = []
         hs = []
@@ -954,11 +961,13 @@ class Text(Artist):
 
     def set_horizontalalignment(self, align):
         """
-        Set the horizontal alignment to one of
+        Set the horizontal alignment relative to the anchor point.
+
+        See also :doc:`/gallery/text_labels_and_annotations/text_alignment`.
 
         Parameters
         ----------
-        align : {'center', 'right', 'left'}
+        align : {'left', 'center', 'right'}
         """
         _api.check_in_list(['center', 'right', 'left'], align=align)
         self._horizontalalignment = align
@@ -1200,11 +1209,13 @@ class Text(Artist):
 
     def set_verticalalignment(self, align):
         """
-        Set the vertical alignment.
+        Set the vertical alignment relative to the anchor point.
+
+        See also :doc:`/gallery/text_labels_and_annotations/text_alignment`.
 
         Parameters
         ----------
-        align : {'center', 'top', 'bottom', 'baseline', 'center_baseline'}
+        align : {'bottom', 'baseline', 'center', 'center_baseline', 'top'}
         """
         _api.check_in_list(
             ['top', 'bottom', 'center', 'baseline', 'center_baseline'],
@@ -1443,7 +1454,7 @@ class _AnnotationBase:
             elif isinstance(tr, Transform):
                 return tr
             else:
-                raise RuntimeError("unknown return type ...")
+                raise RuntimeError("Unknown return type")
         elif isinstance(s, Artist):
             bbox = s.get_window_extent(renderer)
             return BboxTransformTo(bbox)
@@ -1452,7 +1463,7 @@ class _AnnotationBase:
         elif isinstance(s, Transform):
             return s
         elif not isinstance(s, str):
-            raise RuntimeError("unknown coordinate type : %s" % s)
+            raise RuntimeError(f"Unknown coordinate type: {s!r}")
 
         if s == 'data':
             return self.axes.transData
@@ -1464,7 +1475,7 @@ class _AnnotationBase:
 
         s_ = s.split()
         if len(s_) != 2:
-            raise ValueError("%s is not a recognized coordinate" % s)
+            raise ValueError(f"{s!r} is not a recognized coordinate")
 
         bbox0, xy0 = None, None
 
@@ -1504,12 +1515,12 @@ class _AnnotationBase:
                 w, h = bbox0.size
                 tr = Affine2D().scale(w, h)
             else:
-                raise ValueError("%s is not a recognized coordinate" % s)
+                raise ValueError(f"{unit!r} is not a recognized unit")
 
             return tr.translate(ref_x, ref_y)
 
         else:
-            raise ValueError("%s is not a recognized coordinate" % s)
+            raise ValueError(f"{s!r} is not a recognized coordinate")
 
     def _get_ref_xy(self, renderer):
         """

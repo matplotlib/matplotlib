@@ -201,7 +201,7 @@ def test_inset_and_secondary():
     pickle.loads(pickle.dumps(fig))
 
 
-@pytest.mark.parametrize("cmap", cm._cmap_registry.values())
+@pytest.mark.parametrize("cmap", cm._colormaps.values())
 def test_cmap(cmap):
     pickle.dumps(cmap)
 
@@ -219,6 +219,11 @@ def test_unpickle_canvas():
 def test_mpl_toolkits():
     ax = parasite_axes.host_axes([0, 0, 1, 1])
     assert type(pickle.loads(pickle.dumps(ax))) == parasite_axes.HostAxes
+
+
+def test_standard_norm():
+    assert type(pickle.loads(pickle.dumps(mpl.colors.LogNorm()))) \
+        == mpl.colors.LogNorm
 
 
 def test_dynamic_norm():

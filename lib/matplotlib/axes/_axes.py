@@ -325,13 +325,27 @@ class Axes(_AxesBase):
             Defaults to `ax.transAxes`, i.e. the units of *rect* are in
             Axes-relative coordinates.
 
+        projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
+'polar', 'rectilinear', str}, optional
+            The projection type of the inset `~.axes.Axes`. *str* is the name
+            of a custom projection, see `~matplotlib.projections`. The default
+            None results in a 'rectilinear' projection.
+
+        polar : bool, default: False
+            If True, equivalent to projection='polar'.
+
+        axes_class : subclass type of `~.axes.Axes`, optional
+            The `.axes.Axes` subclass that is instantiated.  This parameter
+            is incompatible with *projection* and *polar*.  See
+            :ref:`axisartist_users-guide-index` for examples.
+
         zorder : number
             Defaults to 5 (same as `.Axes.legend`).  Adjust higher or lower
             to change whether it is above or below data plotted on the
             parent Axes.
 
         **kwargs
-            Other keyword arguments are passed on to the child `.Axes`.
+            Other keyword arguments are passed on to the inset Axes class.
 
         Returns
         -------
@@ -357,7 +371,10 @@ class Axes(_AxesBase):
         # This puts the rectangle into figure-relative coordinates.
         inset_locator = _TransformedBoundsLocator(bounds, transform)
         bounds = inset_locator(self, None).bounds
-        inset_ax = Axes(self.figure, bounds, zorder=zorder, **kwargs)
+        projection_class, pkw = self.figure._process_projection_requirements(
+                bounds, **kwargs)
+        inset_ax = projection_class(self.figure, bounds, zorder=zorder, **pkw)
+
         # this locator lets the axes move if in data coordinates.
         # it gets called in `ax.apply_aspect() (of all places)
         inset_ax.set_axes_locator(inset_locator)
@@ -1522,7 +1539,8 @@ class Axes(_AxesBase):
         ----------------
         scalex, scaley : bool, default: True
             These parameters determine if the view limits are adapted to the
-            data limits. The values are passed on to `autoscale_view`.
+            data limits. The values are passed on to
+            `~.axes.Axes.autoscale_view`.
 
         **kwargs : `.Line2D` properties, optional
             *kwargs* are used to specify properties like a line label (for
@@ -2597,13 +2615,25 @@ class Axes(_AxesBase):
 
         **kwargs
             Any remaining keyword arguments are passed through to
-            `.Axes.annotate`.
+            `.Axes.annotate`. The alignment parameters (
+            *horizontalalignment* / *ha*, *verticalalignment* / *va*) are
+            not supported because the labels are automatically aligned to
+            the bars.
 
         Returns
         -------
         list of `.Text`
             A list of `.Text` instances for the labels.
         """
+        for key in ['horizontalalignment', 'ha', 'verticalalignment', 'va']:
+            if key in kwargs:
+                raise ValueError(
+                    f"Passing {key!r} to bar_label() is not supported.")
+
+        a, b = self.yaxis.get_view_interval()
+        y_inverted = a > b
+        c, d = self.xaxis.get_view_interval()
+        x_inverted = c > d
 
         # want to know whether to put label on positive or negative direction
         # cannot use np.sign here because it will return 0 if x == 0
@@ -2632,7 +2662,7 @@ class Axes(_AxesBase):
         annotations = []
 
         for bar, err, dat, lbl in itertools.zip_longest(
-            bars, errs, datavalues, labels
+                bars, errs, datavalues, labels
         ):
             (x0, y0), (x1, y1) = bar.get_bbox().get_points()
             xc, yc = (x0 + x1) / 2, (y0 + y1) / 2
@@ -2664,18 +2694,26 @@ class Axes(_AxesBase):
                 xy = endpt, yc
 
             if orientation == "vertical":
-                xytext = 0, sign(dat) * padding
+                y_direction = -1 if y_inverted else 1
+                xytext = 0, y_direction * sign(dat) * padding
             else:
-                xytext = sign(dat) * padding, 0
+                x_direction = -1 if x_inverted else 1
+                xytext = x_direction * sign(dat) * padding, 0
 
             if label_type == "center":
                 ha, va = "center", "center"
             elif label_type == "edge":
                 if orientation == "vertical":
                     ha = 'center'
-                    va = 'top' if dat < 0 else 'bottom'  # also handles NaN
+                    if y_inverted:
+                        va = 'top' if dat > 0 else 'bottom'  # also handles NaN
+                    else:
+                        va = 'top' if dat < 0 else 'bottom'  # also handles NaN
                 elif orientation == "horizontal":
-                    ha = 'right' if dat < 0 else 'left'  # also handles NaN
+                    if x_inverted:
+                        ha = 'right' if dat > 0 else 'left'  # also handles NaN
+                    else:
+                        ha = 'right' if dat < 0 else 'left'  # also handles NaN
                     va = 'center'
 
             if np.isnan(dat):
@@ -2948,9 +2986,7 @@ class Axes(_AxesBase):
         Plot a pie chart.
 
         Make a pie chart of array *x*.  The fractional area of each wedge is
-        given by ``x/sum(x)``.  If ``sum(x) < 1``, then the values of *x* give
-        the fractional area directly and the array will not be normalized. The
-        resulting pie will have an empty wedge of size ``1 - sum(x)``.
+        given by ``x/sum(x)``.
 
         The wedges are plotted counterclockwise, by default starting from the
         x-axis.
@@ -3296,25 +3332,16 @@ class Axes(_AxesBase):
             """
             Safely handle tuple of containers that carry units.
 
-            If the units are carried on the values then casting to object
-            arrays preserves the units, but if the units are on the containers
-            this will not work.
-
             This function covers the case where the input to the xerr/yerr is a
             length 2 tuple of equal length ndarray-subclasses that carry the
             unit information in the container.
 
-            We defer coercing the units to be consistent to the underlying unit
+            If we have a tuple of nested numpy array (subclasses), we defer
+            coercing the units to be consistent to the underlying unit
             library (and implicitly the broadcasting).
 
-            If we do not have a tuple of nested numpy array (subclasses),
-            fallback to casting to an object array.
-
+            Otherwise, fallback to casting to an object array.
             """
-
-            # we are here because we the container is not a numpy array, but it
-            # _is_ iterable (likely a list or a tuple but maybe something more
-            # exotic)
 
             if (
                     # make sure it is not a scalar
@@ -3327,14 +3354,17 @@ class Axes(_AxesBase):
                     # fails.
                     isinstance(cbook.safe_first_element(err), np.ndarray)
             ):
-                # grab the type of the first element, we will try to promote
-                # the outer container to match the inner container
+                # Get the type of the first element
                 atype = type(cbook.safe_first_element(err))
-                # you can not directly pass data to the init of `np.ndarray`
+                # Promote the outer container to match the inner container
                 if atype is np.ndarray:
+                    # Converts using np.asarray, because data cannot
+                    # be directly passed to init of np.ndarray
                     return np.asarray(err, dtype=object)
-                # but you can for unyt and astropy uints
+                # If atype is not np.ndarray, directly pass data to init.
+                # This works for types such as unyts and astropy units
                 return atype(err)
+            # Otherwise wrap it in an object array
             return np.asarray(err, dtype=object)
 
         if xerr is not None and not isinstance(xerr, np.ndarray):
@@ -7869,8 +7899,9 @@ such objects
           The method used to calculate the estimator bandwidth.  This can be
           'scott', 'silverman', a scalar constant or a callable.  If a
           scalar, this will be used directly as `kde.factor`.  If a
-          callable, it should take a `GaussianKDE` instance as its only
-          parameter and return a scalar. If None (default), 'scott' is used.
+          callable, it should take a `matplotlib.mlab.GaussianKDE` instance as
+          its only parameter and return a scalar. If None (default), 'scott'
+          is used.
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
@@ -7907,8 +7938,8 @@ such objects
         """
 
         def _kde_method(X, coords):
-            if hasattr(X, 'values'):  # support pandas.Series
-                X = X.values
+            # Unpack in case of e.g. Pandas or xarray object
+            X = cbook._unpack_to_numpy(X)
             # fallback gracefully if the vector contains only one value
             if np.all(X[0] == X):
                 return (X[0] == coords).astype(float)

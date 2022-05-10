@@ -932,10 +932,9 @@ class Axes3D(Axes):
         """
         return False
 
-    def cla(self):
+    def clear(self):
         # docstring inherited.
-
-        super().cla()
+        super().clear()
         self.zaxis.clear()
 
         if self._sharez is not None:

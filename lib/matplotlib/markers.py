@@ -298,10 +298,6 @@ class MarkerStyle:
     def get_fillstyle(self):
         return self._fillstyle
 
-    @_api.deprecated("3.4", alternative="a new marker")
-    def set_fillstyle(self, fillstyle):
-        return self._set_fillstyle(fillstyle)
-
     def _set_fillstyle(self, fillstyle):
         """
         Set the fillstyle.
@@ -326,10 +322,6 @@ class MarkerStyle:
 
     def get_marker(self):
         return self._marker
-
-    @_api.deprecated("3.4", alternative="a new marker")
-    def set_marker(self, marker):
-        return self._set_marker(marker)
 
     def _set_marker(self, marker):
         """

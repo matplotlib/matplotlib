@@ -195,8 +195,10 @@ def _test_thread_impl():
     future = ThreadPoolExecutor().submit(fig.canvas.draw)
     plt.pause(0.5)  # flush_events fails here on at least Tkagg (bpo-41176)
     future.result()  # Joins the thread; rethrows any exception.
-    plt.close()
-    fig.canvas.flush_events()  # pause doesn't process events after close
+    plt.close()  # backend is responsible for flushing any events here
+    if plt.rcParams["backend"].startswith("WX"):
+        # TODO: debug why WX needs this only on py3.8
+        fig.canvas.flush_events()
 
 
 _thread_safe_backends = _get_testable_interactive_backends()
@@ -503,3 +505,57 @@ def test_blitting_events(env):
     # blitting is not properly implemented
     ndraws = proc.stdout.count("DrawEvent")
     assert 0 < ndraws < 5
+
+
+# The source of this function gets extracted and run in another process, so it
+# must be fully self-contained.
+def _test_figure_leak():
+    import gc
+    import sys
+
+    import psutil
+    from matplotlib import pyplot as plt
+    # Second argument is pause length, but if zero we should skip pausing
+    t = float(sys.argv[1])
+    p = psutil.Process()
+
+    # Warmup cycle, this reasonably allocates a lot
+    for _ in range(2):
+        fig = plt.figure()
+        if t:
+            plt.pause(t)
+        plt.close(fig)
+    mem = p.memory_info().rss
+    gc.collect()
+
+    for _ in range(5):
+        fig = plt.figure()
+        if t:
+            plt.pause(t)
+        plt.close(fig)
+        gc.collect()
+    growth = p.memory_info().rss - mem
+
+    print(growth)
+
+
+# TODO: "0.1" memory threshold could be reduced 10x by fixing tkagg
+@pytest.mark.parametrize("env", _get_testable_interactive_backends())
+@pytest.mark.parametrize("time_mem", [(0.0, 2_000_000), (0.1, 30_000_000)])
+def test_figure_leak_20490(env, time_mem):
+    pytest.importorskip("psutil", reason="psutil needed to run this test")
+
+    # We haven't yet directly identified the leaks so test with a memory growth
+    # threshold.
+    pause_time, acceptable_memory_leakage = time_mem
+    if env["MPLBACKEND"] == "macosx" or (
+            env["MPLBACKEND"] == "tkagg" and sys.platform == 'darwin'
+    ):
+        acceptable_memory_leakage += 11_000_000
+
+    result = _run_helper(
+        _test_figure_leak, str(pause_time), timeout=_test_timeout, **env
+    )
+
+    growth = int(result.stdout)
+    assert growth <= acceptable_memory_leakage

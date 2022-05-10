@@ -43,10 +43,11 @@ and the capabilities they provide.
 * Tk_ (>= 8.4, != 8.6.0 or 8.6.1) [#]_: for the Tk-based backends.
 * PyQt6_ (>= 6.1), PySide6_, PyQt5_, or PySide2_: for the Qt-based backends.
 * PyGObject_: for the GTK-based backends [#]_.
-* wxPython_ (>= 4) [#]_: for the wx-based backends.
 * pycairo_ (>= 1.11.0) or cairocffi_ (>= 0.8): for the GTK and/or cairo-based
   backends.
+* wxPython_ (>= 4) [#]_: for the wx-based backends.
 * Tornado_ (>=5): for the WebAgg backend.
+* ipykernel_: for the nbagg backend.
 * macOS (>=10.12): for the macosx backend.
 
 .. _Tk: https://docs.python.org/3/library/tk.html
@@ -59,6 +60,7 @@ and the capabilities they provide.
 .. _pycairo: https://pycairo.readthedocs.io/en/latest/
 .. _cairocffi: https://cairocffi.readthedocs.io/en/latest/
 .. _Tornado: https://pypi.org/project/tornado/
+.. _ipykernel: https://pypi.org/project/ipykernel/
 
 .. [#] Tk is part of most standard Python installations, but it's not part of
        Python itself and thus may not be present in rare cases.
