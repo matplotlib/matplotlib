@@ -75,9 +75,9 @@ def test_tinypages(tmpdir):
     assert filecmp.cmp(range_6, plot_file(17))
 
     # Modify the included plot
-    contents = (source_dir / 'included_plot_21.rst').read_text()
-    contents = contents.replace('plt.plot(range(6))', 'plt.plot(range(4))')
-    (source_dir / 'included_plot_21.rst').write_text(contents)
+    contents = (source_dir / 'included_plot_21.rst').read_bytes()
+    contents = contents.replace(b'plt.plot(range(6))', b'plt.plot(range(4))')
+    (source_dir / 'included_plot_21.rst').write_bytes(contents)
     # Build the pages again and check that the modified file was updated
     modification_times = [plot_directive_file(i).stat().st_mtime
                           for i in (1, 2, 3, 5)]
