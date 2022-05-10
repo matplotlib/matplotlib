@@ -15,9 +15,9 @@ directive in ``doc/topic/new-page.rst``::
 This creates in the build directory a file ``build/html/topic/old-page.html``
 that contains a relative refresh::
 
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <html>
       <head>
+        <meta charset="utf-8">
         <meta http-equiv="refresh" content="0; url=new-page.html">
       </head>
     </html>
@@ -40,9 +40,9 @@ logger = logging.getLogger(__name__)
 
 
 HTML_TEMPLATE = """\
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <html>
   <head>
+    <meta charset="utf-8">
     <meta http-equiv="refresh" content="0; url={v}">
   </head>
 </html>
