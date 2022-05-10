@@ -42,6 +42,8 @@
 ## String values may optionally be enclosed in double quotes, which allows
 ## using the comment character # in the string.
 ##
+## This file (and other style files) must be encoded as utf-8.
+##
 ## Matplotlib configuration are currently divided into following parts:
 ##     - BACKENDS
 ##     - LINES
