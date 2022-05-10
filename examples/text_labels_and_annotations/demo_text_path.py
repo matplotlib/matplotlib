@@ -46,8 +46,6 @@ class PathClippedImagePatch(PathPatch):
 
 if __name__ == "__main__":
 
-    usetex = plt.rcParams["text.usetex"]
-
     fig, (ax1, ax2) = plt.subplots(2)
 
     # EXAMPLE 1
@@ -68,30 +66,28 @@ if __name__ == "__main__":
     ax1.add_artist(ao)
 
     # another text
-    from matplotlib.patches import PathPatch
-    if usetex:
-        r = r"\mbox{textpath supports mathtext \& \TeX}"
-    else:
-        r = r"textpath supports mathtext & TeX"
+    for usetex, ypos, string in [
+            (False, 0.25, r"textpath supports mathtext"),
+            (True, 0.05, r"textpath supports \TeX"),
+    ]:
+        text_path = TextPath((0, 0), string, size=20, usetex=usetex)
 
-    text_path = TextPath((0, 0), r, size=20, usetex=usetex)
+        p1 = PathPatch(text_path, ec="w", lw=3, fc="w", alpha=0.9,
+                       transform=IdentityTransform())
+        p2 = PathPatch(text_path, ec="none", fc="k",
+                       transform=IdentityTransform())
 
-    p1 = PathPatch(text_path, ec="w", lw=3, fc="w", alpha=0.9,
-                   transform=IdentityTransform())
-    p2 = PathPatch(text_path, ec="none", fc="k",
-                   transform=IdentityTransform())
+        offsetbox2 = AuxTransformBox(IdentityTransform())
+        offsetbox2.add_artist(p1)
+        offsetbox2.add_artist(p2)
 
-    offsetbox2 = AuxTransformBox(IdentityTransform())
-    offsetbox2.add_artist(p1)
-    offsetbox2.add_artist(p2)
-
-    ab = AnnotationBbox(offsetbox2, (0.95, 0.05),
-                        xycoords='axes fraction',
-                        boxcoords="offset points",
-                        box_alignment=(1., 0.),
-                        frameon=False
-                        )
-    ax1.add_artist(ab)
+        ab = AnnotationBbox(offsetbox2, (0.95, ypos),
+                            xycoords='axes fraction',
+                            boxcoords="offset points",
+                            box_alignment=(1., 0.),
+                            frameon=False,
+                            )
+        ax1.add_artist(ab)
 
     ax1.imshow([[0, 1, 2], [1, 2, 3]], cmap=plt.cm.gist_gray_r,
                interpolation="bilinear", aspect="auto")
@@ -100,32 +96,34 @@ if __name__ == "__main__":
 
     arr = np.arange(256).reshape(1, 256) / 256
 
-    if usetex:
-        s = (r"$\displaystyle\left[\sum_{n=1}^\infty"
-             r"\frac{-e^{i\pi}}{2^n}\right]$!")
-    else:
-        s = r"$\left[\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}\right]$!"
-    text_path = TextPath((0, 0), s, size=40, usetex=usetex)
-    text_patch = PathClippedImagePatch(text_path, arr, ec="none",
-                                       transform=IdentityTransform())
+    for usetex, xpos, string in [
+            (False, 0.25,
+             r"$\left[\sum_{n=1}^\infty\frac{-e^{i\pi}}{2^n}\right]$!"),
+            (True, 0.75,
+             r"$\displaystyle\left[\sum_{n=1}^\infty"
+             r"\frac{-e^{i\pi}}{2^n}\right]$!"),
+    ]:
+        text_path = TextPath((0, 0), string, size=40, usetex=usetex)
+        text_patch = PathClippedImagePatch(text_path, arr, ec="none",
+                                           transform=IdentityTransform())
 
-    shadow1 = Shadow(text_patch, 1, -1, fc="none", ec="0.6", lw=3)
-    shadow2 = Shadow(text_patch, 1, -1, fc="0.3", ec="none")
+        shadow1 = Shadow(text_patch, 1, -1, fc="none", ec="0.6", lw=3)
+        shadow2 = Shadow(text_patch, 1, -1, fc="0.3", ec="none")
 
-    # make offset box
-    offsetbox = AuxTransformBox(IdentityTransform())
-    offsetbox.add_artist(shadow1)
-    offsetbox.add_artist(shadow2)
-    offsetbox.add_artist(text_patch)
+        # make offset box
+        offsetbox = AuxTransformBox(IdentityTransform())
+        offsetbox.add_artist(shadow1)
+        offsetbox.add_artist(shadow2)
+        offsetbox.add_artist(text_patch)
 
-    # place the anchored offset box using AnnotationBbox
-    ab = AnnotationBbox(offsetbox, (0.5, 0.5),
-                        xycoords='data',
-                        boxcoords="offset points",
-                        box_alignment=(0.5, 0.5),
-                        )
+        # place the anchored offset box using AnnotationBbox
+        ab = AnnotationBbox(offsetbox, (xpos, 0.5),
+                            xycoords='data',
+                            boxcoords="offset points",
+                            box_alignment=(0.5, 0.5),
+                            )
 
-    ax2.add_artist(ab)
+        ax2.add_artist(ab)
 
     ax2.set_xlim(0, 1)
     ax2.set_ylim(0, 1)
