@@ -1800,7 +1800,7 @@ class Parser:
             "{" + Optional(p.delim)("ldelim") + "}"
             + "{" + Optional(p.delim)("rdelim") + "}"
             + "{" + p.float_literal("rulesize") + "}"
-            + "{" + p.style_literal("style") + "}"
+            + "{" + Optional(p.style_literal)("style") + "}"
             + p.required_group("num")
             + p.required_group("den"))
 
@@ -2363,7 +2363,8 @@ class Parser:
     def genfrac(self, s, loc, toks):
         return self._genfrac(
             toks.get("ldelim", ""), toks.get("rdelim", ""),
-            toks["rulesize"], self._MathStyle(toks["style"]),
+            toks["rulesize"], self._MathStyle(
+                toks.get("style", self._MathStyle.TEXTSTYLE.value)),
             toks["num"], toks["den"])
 
     def frac(self, s, loc, toks):
