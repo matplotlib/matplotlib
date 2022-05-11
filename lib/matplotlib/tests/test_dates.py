@@ -88,6 +88,62 @@ def test_date2num_masked():
                                   (False, True, True, False, False, False,
                                    True))
 
+@pytest.mark.xfail  # TODO: un-fail once formatters exist
+def test_timedelta_numpy():
+    # TODO: merge with datetime test?
+    # test that numpy timedeltas work properly...
+    time = [datetime.timedelta(days=x) for x in range(0, 3)]
+    timenp = np.array(time, dtype='timedelta64[ns]')
+    data = np.array([0., 2., 1.])
+    fig = plt.figure(figsize=(10, 2))
+    ax = fig.add_subplot(1, 1, 1)
+    h, = ax.plot(time, data)
+    hnp, = ax.plot(timenp, data)
+    np.testing.assert_equal(h.get_xdata(orig=False), hnp.get_xdata(orig=False))
+    fig = plt.figure(figsize=(10, 2))
+    ax = fig.add_subplot(1, 1, 1)
+    h, = ax.plot(data, time)
+    hnp, = ax.plot(data, timenp)
+    np.testing.assert_equal(h.get_ydata(orig=False), hnp.get_ydata(orig=False))
+
+
+@pytest.mark.parametrize('t0', [datetime.timedelta(100),
+
+                                [datetime.timedelta(100, 1),
+                                 datetime.timedelta(101, 1)],
+
+                                [[datetime.timedelta(100, 0, 1),
+                                  datetime.timedelta(101, 0, 1)],
+                                 [datetime.timedelta(102, 0, 1),
+                                  datetime.timedelta(103, 0, 1)]]])
+@pytest.mark.parametrize('dtype', ['timedelta64[s]',
+                                   'timedelta64[us]',
+                                   'timedelta64[ms]',
+                                   'timedelta64[ns]'])
+def test_timedelta_timedelta2num_numpy(t0, dtype):
+    time = mdates.timedelta2num(t0)
+    tnp = np.array(t0, dtype=dtype)
+    nptime = mdates.timedelta2num(tnp)
+    np.testing.assert_equal(time, nptime)
+
+
+@pytest.mark.parametrize('dtype', ['timedelta64[s]',
+                                   'timedelta64[us]',
+                                   'timedelta64[ms]',
+                                   'timedelta64[ns]'])
+def test_timedelta2num_NaT(dtype):
+    t0 = datetime.timedelta(100, 0, 1)
+    tmpl = [mdates.timedelta2num(t0), np.nan]
+    tnp = np.array([t0, 'NaT'], dtype=dtype)
+    nptime = mdates.timedelta2num(tnp)
+    np.testing.assert_array_equal(tmpl, nptime)
+
+
+@pytest.mark.parametrize('units', ['s', 'ms', 'us', 'ns'])
+def test_timedelta2num_NaT_scalar(units):
+    tmpl = mdates.timedelta2num(np.timedelta64('NaT', units))
+    assert np.isnan(tmpl)
+
 
 def test_date_empty():
     # make sure we do the right thing when told to plot dates even

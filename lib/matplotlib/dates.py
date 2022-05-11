@@ -325,10 +325,43 @@ def _dt64_to_ordinalf(d):
     dt += extra.astype(np.float64) / 1.0e9
     dt = dt / SEC_PER_DAY
 
+    return _nat_to_nan(dt, d)
+
+
+def _timedelta64_to_ordinalf(t):
+    """
+    Convert `numpy.timedelta64` or an ndarray of those types to a timedelta
+    as float. Roundoff is float64 precision.
+    TODO: precision ok, can be improved? be more concrete here
+    """
+    td = t.astype('timedelta64[D]').astype(np.float64)
+
+    return _nat_to_nan(td, t)
+
+
+def _nat_to_nan(ordf, timeval):
+    """
+    Replace all values in the converted array `ordf` that were 'NaT'
+    originally in `timeval` with `np.nan`.
+
+    Parameters
+    ----------
+        ordf: datetime or timedelta converted to float (ndarray or float)
+        timeval: `numpy.datetime64` or `numpy.timedelta64` (ndarray or
+            single value)
+
+    Returns
+    -------
+        ordf with all originally 'NaT' replaced by `np.nan`
+    """
     NaT_int = np.datetime64('NaT').astype(np.int64)
-    d_int = d.astype(np.int64)
-    dt[d_int == NaT_int] = np.nan
-    return dt
+    t_int = timeval.astype(np.int64)
+    try:
+        ordf[t_int == NaT_int] = np.nan
+    except TypeError:
+        if t_int == NaT_int:
+            ordf = np.nan
+    return ordf
 
 
 def _from_ordinalf(x, tz=None):
@@ -423,35 +456,74 @@ def date2num(d):
     The Gregorian calendar is assumed; this is not universal practice.
     For details see the module docstring.
     """
+    return _timevalue2num(d, np.datetime64)
+
+
+def timedelta2num(t):
+    """
+    Convert datetime objects to Matplotlib dates.
+
+    Parameters
+    ----------
+    t : `datetime.timedelta` or `numpy.timedelta64` or sequences of these
+
+    Returns
+    -------
+    float or sequence of floats
+        Number of days. For example, 1 day 12 hours returns 1.5.
+    """
+    return _timevalue2num(t, np.timedelta64)
+
+
+def _timevalue2num(v, v_cls):
+    """
+    Convert datetime or timedelta to Matplotlibs representation as days
+    (since the epoch for datetime) as float.
+
+    Parameters
+    ----------
+    v: `datetime.datetime`, `numpy.datetime64`, `datetime.timedelta` or
+        `numpy.timedelta64` or sequences of these
+    v_cls: class `numpy.timedelta64` or `numpy.datetime64` depending on
+        whether to convert datetime or timedelta values
+    """
+    if v_cls is np.datetime64:
+        dtype = 'datetime64[us]'
+    else:
+        dtype = 'timedelta64[us]'
+
     # Unpack in case of e.g. Pandas or xarray object
-    d = cbook._unpack_to_numpy(d)
+    v = cbook._unpack_to_numpy(v)
 
     # make an iterable, but save state to unpack later:
-    iterable = np.iterable(d)
+    iterable = np.iterable(v)
     if not iterable:
-        d = [d]
+        v = [v]
 
-    masked = np.ma.is_masked(d)
-    mask = np.ma.getmask(d)
-    d = np.asarray(d)
+    masked = np.ma.is_masked(v)
+    mask = np.ma.getmask(v)
+    v = np.asarray(v)
 
     # convert to datetime64 arrays, if not already:
-    if not np.issubdtype(d.dtype, np.datetime64):
+    if not np.issubdtype(v.dtype, v_cls):
         # datetime arrays
-        if not d.size:
+        if not v.size:
             # deals with an empty array...
-            return d
-        tzi = getattr(d[0], 'tzinfo', None)
+            return v
+        tzi = getattr(v[0], 'tzinfo', None)
         if tzi is not None:
             # make datetime naive:
-            d = [dt.astimezone(UTC).replace(tzinfo=None) for dt in d]
-            d = np.asarray(d)
-        d = d.astype('datetime64[us]')
+            v = [dt.astimezone(UTC).replace(tzinfo=None) for dt in v]
+            v = np.asarray(v)
+        v = v.astype(dtype)
 
-    d = np.ma.masked_array(d, mask=mask) if masked else d
-    d = _dt64_to_ordinalf(d)
+    v = np.ma.masked_array(v, mask=mask) if masked else v
+    if v_cls is np.datetime64:
+        v = _dt64_to_ordinalf(v)
+    else:
+        v = _timedelta64_to_ordinalf(v)
 
-    return d if iterable else d[0]
+    return v if iterable else v[0]
 
 
 def num2date(x, tz=None):
