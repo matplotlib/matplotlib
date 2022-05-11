@@ -1062,8 +1062,6 @@ class DateLocator(ticker.Locator):
     is not meant to be used on its own.
     """
     hms0d = {'byhour': 0, 'byminute': 0, 'bysecond': 0}
-    default_range = (date2num(datetime.date(1970, 1, 1)),
-                      date2num(datetime.date(1970, 1, 2)))
 
     def __init__(self, tz=None):
         """
@@ -1073,6 +1071,14 @@ class DateLocator(ticker.Locator):
             Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         self.tz = _get_tzinfo(tz)
+
+    @property
+    def default_range(self):
+        """The default min and max limits of the axis."""
+        # property because date2num needs to be computed each time in
+        # case the epoch is changed
+        return (date2num(datetime.date(1970, 1, 1)),
+                date2num(datetime.date(1970, 1, 2)))
 
     def set_tzinfo(self, tz):
         """
@@ -1719,6 +1725,7 @@ class MicrosecondLocator(DateLocator):
 class TimedeltaLocator(ticker.MultipleLocator):
     default_range = (timedelta2num(datetime.timedelta(days=0)),
                      timedelta2num(datetime.timedelta(days=10)))
+    """The default min and max limits of the axis."""
 
     _FACTORS = {
         DAILY: 1.0,
