@@ -243,7 +243,8 @@ class TexManager:
         Return the file name.
         """
         texfile = cls.get_basefile(tex, fontsize) + ".tex"
-        Path(texfile).write_text(cls._get_tex_source(tex, fontsize))
+        Path(texfile).write_text(cls._get_tex_source(tex, fontsize),
+                                 encoding='utf-8')
         return texfile
 
     @classmethod
@@ -267,7 +268,8 @@ class TexManager:
                     prog=command[0],
                     format_command=cbook._pformat_subprocess(command),
                     tex=tex.encode('unicode_escape'),
-                    exc=exc.output.decode('utf-8'))) from None
+                    exc=exc.output.decode('utf-8', 'backslashreplace'))
+                ) from None
         _log.debug(report)
         return report
 
