@@ -194,7 +194,7 @@ def update_matplotlibrc(path):
     # line.  Otherwise, use the default `##backend: Agg` which has no effect
     # even after decommenting, which allows _auto_backend_sentinel to be filled
     # in at import time.
-    template_lines = path.read_text().splitlines(True)
+    template_lines = path.read_text(encoding="utf-8").splitlines(True)
     backend_line_idx, = [  # Also asserts that there is a single such line.
         idx for idx, line in enumerate(template_lines)
         if "#backend:" in line]
@@ -202,7 +202,7 @@ def update_matplotlibrc(path):
         "#backend: {}\n".format(setupext.options["backend"])
         if setupext.options["backend"]
         else "##backend: Agg\n")
-    path.write_text("".join(template_lines))
+    path.write_text("".join(template_lines), encoding="utf-8")
 
 
 class BuildPy(setuptools.command.build_py.build_py):

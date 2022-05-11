@@ -754,10 +754,7 @@ def _open_file_or_url(fname):
             yield (line.decode('utf-8') for line in f)
     else:
         fname = os.path.expanduser(fname)
-        encoding = locale.getpreferredencoding(do_setlocale=False)
-        if encoding is None:
-            encoding = "utf-8"
-        with open(fname, encoding=encoding) as f:
+        with open(fname, encoding='utf-8') as f:
             yield f
 
 
@@ -802,11 +799,8 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
                                  fname, line_no, line.rstrip('\n'))
                 rc_temp[key] = (val, line, line_no)
         except UnicodeDecodeError:
-            _log.warning('Cannot decode configuration file %s with encoding '
-                         '%s, check LANG and LC_* variables.',
-                         fname,
-                         locale.getpreferredencoding(do_setlocale=False)
-                         or 'utf-8 (default)')
+            _log.warning('Cannot decode configuration file %r as utf-8.',
+                         fname)
             raise
 
     config = RcParams()
