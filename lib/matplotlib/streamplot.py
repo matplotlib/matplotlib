@@ -249,6 +249,36 @@ class StreamplotSet:
         self.lines = lines
         self.arrows = arrows
 
+    def get_startpoints(self):
+
+        startpoints = []
+        segments = self.lines.get_segments()
+
+        for x, segment in enumerate(segments):
+            if x == 0:
+                startpoints.append(segment[0])
+            else:
+                if not(all(segment[0] == segments[x - 1][1])):
+                    startpoints.append(segment[0])
+
+        return startpoints
+
+    def get_endpoints(self):
+
+        endpoints = []
+        segments = self.lines.get_segments()
+
+        for x, segment in enumerate(segments):
+            if x == 0:
+                pass
+            else:
+                if not(all(segment[0] == segments[x - 1][1])):
+                    endpoints.append(segments[x - 1][1])
+
+        endpoints.append(segments[-1][1])
+
+        return endpoints
+
 
 # Coordinate definitions
 # ========================
