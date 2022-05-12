@@ -1726,7 +1726,7 @@ class Parser:
         p.space          = oneOf(self._space_widths)("space")
 
         p.style_literal  = oneOf(
-            [str(e.value) for e in self._MathStyle])('style_literal')
+            [str(e.value) for e in self._MathStyle])("style_literal")
 
         p.single_symbol  = Regex(
             r"([a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|%s])|(\\[%%${}\[\]_|])" %
