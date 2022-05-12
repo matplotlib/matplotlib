@@ -1634,10 +1634,10 @@ class Parser:
     """
 
     class _MathStyle(enum.Enum):
-        DISPLAYSTYLE = enum.auto()
-        TEXTSTYLE = enum.auto()
-        SCRIPTSTYLE = enum.auto()
-        SCRIPTSCRIPTSTYLE = enum.auto()
+        DISPLAYSTYLE = 0
+        TEXTSTYLE = 1
+        SCRIPTSTYLE = 2
+        SCRIPTSCRIPTSTYLE = 3
 
     _binary_operators = set(
       '+ * - \N{MINUS SIGN}'
@@ -2326,7 +2326,7 @@ class Parser:
         state = self.get_state()
         thickness = state.get_current_underline_thickness()
 
-        if style is not self._MathStyle.DISPLAYSTYLE:
+        for _ in range(style.value):
             num.shrink()
             den.shrink()
         cnum = HCentered([num])
