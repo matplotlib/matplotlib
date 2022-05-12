@@ -1723,8 +1723,10 @@ class Parser:
         # Root definitions.
 
         p.float_literal  = Regex(r"[-+]?([0-9]+\.?[0-9]*|\.[0-9]+)")
-        p.style_literal  = oneOf([str(e.value) for e in self._MathStyle])
         p.space          = oneOf(self._space_widths)("space")
+
+        p.style_literal  = oneOf(
+            [str(e.value) for e in self._MathStyle])('style_literal')
 
         p.single_symbol  = Regex(
             r"([a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|%s])|(\\[%%${}\[\]_|])" %
@@ -1936,7 +1938,6 @@ class Parser:
         return [hlist]
 
     float_literal = staticmethod(pyparsing_common.convertToFloat)
-    style_literal = staticmethod(pyparsing_common.convertToInteger)
 
     def _make_space(self, percentage):
         # All spaces are relative to em width
@@ -2360,11 +2361,13 @@ class Parser:
             return self._auto_sized_delimiter(ldelim, result, rdelim)
         return result
 
+    def style_literal(self, s, loc, toks):
+        return self._MathStyle(int(toks["style_literal"]))
+
     def genfrac(self, s, loc, toks):
         return self._genfrac(
             toks.get("ldelim", ""), toks.get("rdelim", ""),
-            toks["rulesize"], self._MathStyle(
-                toks.get("style", self._MathStyle.TEXTSTYLE.value)),
+            toks["rulesize"], toks.get("style", self._MathStyle.TEXTSTYLE),
             toks["num"], toks["den"])
 
     def frac(self, s, loc, toks):
