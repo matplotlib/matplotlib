@@ -11,15 +11,9 @@ from matplotlib._api import MatplotlibDeprecationWarning
 from matplotlib.figure import Figure
 from matplotlib.patches import Ellipse
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.testing._markers import needs_ghostscript, needs_usetex
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-
-needs_ghostscript = pytest.mark.skipif(
-    "eps" not in mpl.testing.compare.converter,
-    reason="This test needs a ghostscript installation")
-needs_usetex = pytest.mark.skipif(
-    not mpl.checkdep_usetex(True),
-    reason="This test needs a TeX installation")
 
 
 # This tests tends to hit a TeX cache lock on AppVeyor.
