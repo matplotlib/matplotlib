@@ -250,7 +250,7 @@ class StreamplotSet:
         self.arrows = arrows
 
     def get_startpoints(self):
-
+        """Return a list of start points of the stream lines"""
         startpoints = []
         segments = self.lines.get_segments()
 
@@ -264,7 +264,7 @@ class StreamplotSet:
         return startpoints
 
     def get_endpoints(self):
-
+        """Return a list of end points of the stream lines"""
         endpoints = []
         segments = self.lines.get_segments()
 
