@@ -6,6 +6,7 @@ import numpy as np
 import pytest
 
 from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing._markers import needs_usetex
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import matplotlib.transforms as mtransforms
@@ -764,9 +765,7 @@ def test_alpha_handles():
     assert lh.get_edgecolor()[:-1] == hh[1].get_edgecolor()[:-1]
 
 
-@pytest.mark.skipif(
-    not mpl.checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+@needs_usetex
 def test_usetex_no_warn(caplog):
     mpl.rcParams['font.family'] = 'serif'
     mpl.rcParams['font.serif'] = 'Computer Modern'

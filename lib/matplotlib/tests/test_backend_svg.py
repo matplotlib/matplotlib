@@ -4,18 +4,13 @@ import xml.etree.ElementTree
 import xml.parsers.expat
 
 import numpy as np
-import pytest
 
 import matplotlib as mpl
 from matplotlib.figure import Figure
 from matplotlib.text import Text
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison, check_figures_equal
-
-
-needs_usetex = pytest.mark.skipif(
-    not mpl.checkdep_usetex(True),
-    reason="This test needs a TeX installation")
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.testing._markers import needs_usetex
 
 
 def test_visibility():

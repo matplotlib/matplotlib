@@ -434,6 +434,7 @@ def _get_executable_info(name):
         raise ValueError("Unknown executable: {!r}".format(name))
 
 
+@_api.deprecated("3.6", alternative="Vendor the code")
 def checkdep_usetex(s):
     if not s:
         return False
