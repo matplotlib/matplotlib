@@ -1751,7 +1751,7 @@ def ylim(*args, **kwargs):
     return ret
 
 
-def xticks(ticks=None, labels=None, **kwargs):
+def xticks(ticks=None, labels=None, *, minor=False, **kwargs):
     """
     Get or set the current tick locations and labels of the x-axis.
 
@@ -1764,6 +1764,9 @@ def xticks(ticks=None, labels=None, **kwargs):
     labels : array-like, optional
         The labels to place at the given *ticks* locations.  This argument can
         only be passed if *ticks* is passed as well.
+    minor : bool, default: False
+        If ``False``, get/set the major ticks/labels; if ``True``, the minor
+        ticks/labels.
     **kwargs
         `.Text` properties can be used to control the appearance of the labels.
 
@@ -1794,24 +1797,24 @@ def xticks(ticks=None, labels=None, **kwargs):
     ax = gca()
 
     if ticks is None:
-        locs = ax.get_xticks()
+        locs = ax.get_xticks(minor=minor)
         if labels is not None:
             raise TypeError("xticks(): Parameter 'labels' can't be set "
                             "without setting 'ticks'")
     else:
-        locs = ax.set_xticks(ticks)
+        locs = ax.set_xticks(ticks, minor=minor)
 
     if labels is None:
-        labels = ax.get_xticklabels()
+        labels = ax.get_xticklabels(minor=minor)
         for l in labels:
             l._internal_update(kwargs)
     else:
-        labels = ax.set_xticklabels(labels, **kwargs)
+        labels = ax.set_xticklabels(labels, minor=minor, **kwargs)
 
     return locs, labels
 
 
-def yticks(ticks=None, labels=None, **kwargs):
+def yticks(ticks=None, labels=None, *, minor=False, **kwargs):
     """
     Get or set the current tick locations and labels of the y-axis.
 
@@ -1824,6 +1827,9 @@ def yticks(ticks=None, labels=None, **kwargs):
     labels : array-like, optional
         The labels to place at the given *ticks* locations.  This argument can
         only be passed if *ticks* is passed as well.
+    minor : bool, default: False
+        If ``False``, get/set the major ticks/labels; if ``True``, the minor
+        ticks/labels.
     **kwargs
         `.Text` properties can be used to control the appearance of the labels.
 
@@ -1854,19 +1860,19 @@ def yticks(ticks=None, labels=None, **kwargs):
     ax = gca()
 
     if ticks is None:
-        locs = ax.get_yticks()
+        locs = ax.get_yticks(minor=minor)
         if labels is not None:
             raise TypeError("yticks(): Parameter 'labels' can't be set "
                             "without setting 'ticks'")
     else:
-        locs = ax.set_yticks(ticks)
+        locs = ax.set_yticks(ticks, minor=minor)
 
     if labels is None:
-        labels = ax.get_yticklabels()
+        labels = ax.get_yticklabels(minor=minor)
         for l in labels:
             l._internal_update(kwargs)
     else:
-        labels = ax.set_yticklabels(labels, **kwargs)
+        labels = ax.set_yticklabels(labels, minor=minor, **kwargs)
 
     return locs, labels
 
