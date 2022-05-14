@@ -223,6 +223,7 @@ jobs:
 
           # Turn all warnings to errors, except ignore the distutils deprecations and the find_spec warning
           cat >> pytest.ini << EOF
+          [pytest]
           filterwarnings =
               error
               ignore:.*distutils:DeprecationWarning
