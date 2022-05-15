@@ -166,3 +166,45 @@ def test_streamplot_inputs():  # test no exception occurs.
     # array-likes
     plt.streamplot(range(3), range(3),
                    np.random.rand(3, 3), np.random.rand(3, 3))
+
+
+def startpoints_test():
+    # Creating dataset
+    x = np.arange(0, 10)
+    y = np.arange(0, 10)
+    # Creating grids
+    X, Y = np.meshgrid(x, y)
+    # x-component to the right
+    u = np.ones((10, 10))
+    # y-component zero
+    v = np.zeros((10, 10))
+    plot = plt.streamplot(X, Y, u, v, density=0.2)
+    startpoints = plot.get_startpoints()
+    right_values = [[0., 0.], [0., 4.5], [0., 9.]]
+
+    res = []
+    for x, right_value in enumerate(right_values):
+        res.append(all(right_value == startpoints[x]))
+
+    assert all(res)
+
+
+def endpoints_test():
+    # Creating dataset
+    x = np.arange(0, 10)
+    y = np.arange(0, 10)
+    # Creating grids
+    X, Y = np.meshgrid(x, y)
+    # x-component to the right
+    u = np.ones((10, 10))
+    # y-component zero
+    v = np.zeros((10, 10))
+    plot = plt.streamplot(X, Y, u, v, density=0.2)
+    endpoints = plot.get_endpoints()
+    right_values = [[9., 0.], [9., 4.5], [9., 9.]]
+
+    res = []
+    for x, right_value in enumerate(right_values):
+        res.append(all(right_value == endpoints[x]))
+
+    assert all(res)
