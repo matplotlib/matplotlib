@@ -51,11 +51,9 @@ static int convert_voidptr(PyObject *obj, void *p)
 // extension module or loaded Tk libraries at run-time.
 static Tk_FindPhoto_t TK_FIND_PHOTO;
 static Tk_PhotoPutBlock_t TK_PHOTO_PUT_BLOCK;
-#ifdef WIN32_DLL
 // Global vars for Tcl functions.  We load these symbols from the tkinter
 // extension module or loaded Tcl libraries at run-time.
 static Tcl_SetVar_t TCL_SETVAR;
-#endif
 
 static PyObject *mpl_tk_blit(PyObject *self, PyObject *args)
 {
@@ -225,27 +223,23 @@ static PyMethodDef functions[] = {
 // Functions to fill global Tcl/Tk function pointers by dynamic loading.
 
 template <class T>
-int load_tk(T lib)
+bool load_tcl_tk(T lib)
 {
-    // Try to fill Tk global vars with function pointers. Return the number of
-    // functions found.
-    return
-        !!(TK_FIND_PHOTO =
-            (Tk_FindPhoto_t)dlsym(lib, "Tk_FindPhoto")) +
-        !!(TK_PHOTO_PUT_BLOCK =
-            (Tk_PhotoPutBlock_t)dlsym(lib, "Tk_PhotoPutBlock"));
+    // Try to fill Tcl/Tk global vars with function pointers.  Return whether
+    // all of them have been filled.
+    if (void* ptr = dlsym(lib, "Tcl_SetVar")) {
+        TCL_SETVAR = (Tcl_SetVar_t)ptr;
+    }
+    if (void* ptr = dlsym(lib, "Tk_FindPhoto")) {
+        TK_FIND_PHOTO = (Tk_FindPhoto_t)ptr;
+    }
+    if (void* ptr = dlsym(lib, "Tk_PhotoPutBlock")) {
+        TK_PHOTO_PUT_BLOCK = (Tk_PhotoPutBlock_t)ptr;
+    }
+    return TCL_SETVAR && TK_FIND_PHOTO && TK_PHOTO_PUT_BLOCK;
 }
 
 #ifdef WIN32_DLL
-
-template <class T>
-int load_tcl(T lib)
-{
-    // Try to fill Tcl global vars with function pointers. Return the number of
-    // functions found.
-    return
-        !!(TCL_SETVAR = (Tcl_SetVar_t)dlsym(lib, "Tcl_SetVar"));
-}
 
 /* On Windows, we can't load the tkinter module to get the Tcl/Tk symbols,
  * because Windows does not load symbols into the library name-space of
@@ -259,7 +253,6 @@ void load_tkinter_funcs(void)
     HANDLE process = GetCurrentProcess();  // Pseudo-handle, doesn't need closing.
     HMODULE* modules = NULL;
     DWORD size;
-    bool tcl_ok = false, tk_ok = false;
     if (!EnumProcessModules(process, NULL, 0, &size)) {
         PyErr_SetFromWindowsErr(0);
         goto exit;
@@ -273,11 +266,8 @@ void load_tkinter_funcs(void)
         goto exit;
     }
     for (unsigned i = 0; i < size / sizeof(HMODULE); ++i) {
-        if (!tcl_ok) {
-            tcl_ok = load_tcl(modules[i]);
-        }
-        if (!tk_ok) {
-            tk_ok = load_tk(modules[i]);
+        if (load_tcl_tk(modules[i])) {
+            return;
         }
     }
 exit:
@@ -301,7 +291,7 @@ void load_tkinter_funcs(void)
 
     // Try loading from the main program namespace first.
     main_program = dlopen(NULL, RTLD_LAZY);
-    if (load_tk(main_program)) {
+    if (load_tcl_tk(main_program)) {
         goto exit;
     }
     // Clear exception triggered when we didn't find symbols above.
@@ -324,7 +314,7 @@ void load_tkinter_funcs(void)
         PyErr_SetString(PyExc_RuntimeError, dlerror());
         goto exit;
     }
-    if (load_tk(tkinter_lib)) {
+    if (load_tcl_tk(tkinter_lib)) {
         goto exit;
     }
 
@@ -353,11 +343,9 @@ PyMODINIT_FUNC PyInit__tkagg(void)
     load_tkinter_funcs();
     if (PyErr_Occurred()) {
         return NULL;
-#ifdef WIN32_DLL
     } else if (!TCL_SETVAR) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to load Tcl_SetVar");
         return NULL;
-#endif
     } else if (!TK_FIND_PHOTO) {
         PyErr_SetString(PyExc_RuntimeError, "Failed to load Tk_FindPhoto");
         return NULL;
