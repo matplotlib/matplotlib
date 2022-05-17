@@ -1,3 +1,7 @@
+#if  ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Use -fobjc-arc flag (or convert project to ARC).
+#endif
+
 #define PY_SSIZE_T_CLEAN
 #include <Cocoa/Cocoa.h>
 #include <ApplicationServices/ApplicationServices.h>
@@ -333,7 +337,6 @@ static void
 FigureCanvas_dealloc(FigureCanvas* self)
 {
     [self->view setCanvas: NULL];
-    [self->view release];
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -341,7 +344,7 @@ static PyObject*
 FigureCanvas_repr(FigureCanvas* self)
 {
     return PyUnicode_FromFormat("FigureCanvas object %p wrapping NSView %p",
-                               (void*)self, (void*)(self->view));
+                               (void*)self, (__bridge void*)(self->view));
 }
 
 static PyObject*
@@ -545,7 +548,6 @@ FigureManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (!window) { return NULL; }
     FigureManager *self = (FigureManager*)type->tp_alloc(type, 0);
     if (!self) {
-        [window release];
         return NULL;
     }
     self->window = window;
@@ -598,7 +600,7 @@ static PyObject*
 FigureManager_repr(FigureManager* self)
 {
     return PyUnicode_FromFormat("FigureManager object %p wrapping NSWindow %p",
-                               (void*) self, (void*)(self->window));
+                               (void*) self, (__bridge void*)(self->window));
 }
 
 static void
@@ -648,7 +650,7 @@ FigureManager_set_icon(PyObject* null, PyObject* args) {
             PyErr_SetString(PyExc_RuntimeError, "Could not convert to NSString*");
             return NULL;
         }
-        NSImage* image = [[[NSImage alloc] initByReferencingFile: ns_icon_path] autorelease];
+        NSImage* image = [[NSImage alloc] initByReferencingFile: ns_icon_path];
         if (!image) {
             PyErr_SetString(PyExc_RuntimeError, "Could not create NSImage*");
             return NULL;
@@ -677,9 +679,9 @@ FigureManager_set_window_title(FigureManager* self,
     if (!PyArg_ParseTuple(args, "s", &title)) {
         return NULL;
     }
-    NSString* ns_title = [[[NSString alloc]
-                           initWithCString: title
-                           encoding: NSUTF8StringEncoding] autorelease];
+    NSString* ns_title = [[NSString alloc]
+                          initWithCString: title
+                          encoding: NSUTF8StringEncoding];
     [self->window setTitle: ns_title];
     Py_RETURN_NONE;
 }
@@ -766,7 +768,7 @@ static PyTypeObject FigureManagerType = {
     NSButton* zoombutton;
 }
 - (NavigationToolbar2Handler*)initWithToolbar:(PyObject*)toolbar;
-- (void)installCallbacks:(SEL[7])actions forButtons:(NSButton*[7])buttons;
+- (void)installCallbacks:(SEL[7])actions forButtons:(NSButton*__strong [7])buttons;
 - (void)home:(id)sender;
 - (void)back:(id)sender;
 - (void)forward:(id)sender;
@@ -787,12 +789,12 @@ typedef struct {
 @implementation NavigationToolbar2Handler
 - (NavigationToolbar2Handler*)initWithToolbar:(PyObject*)theToolbar
 {
-    [self init];
+    self = [self init];
     toolbar = theToolbar;
     return self;
 }
 
-- (void)installCallbacks:(SEL[7])actions forButtons:(NSButton*[7])buttons
+- (void)installCallbacks:(SEL[7])actions forButtons:(NSButton*__strong [7])buttons
 {
     int i;
     for (i = 0; i < 7; i++) {
@@ -833,7 +835,6 @@ NavigationToolbar2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (!handler) { return NULL; }
     NavigationToolbar2 *self = (NavigationToolbar2*)type->tp_alloc(type, 0);
     if (!self) {
-        [handler release];
         return NULL;
     }
     self->handler = handler;
@@ -925,8 +926,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
         [buttons[i] setImagePosition: NSImageOnly];
         [buttons[i] setToolTip: tooltip];
         [[window contentView] addSubview: buttons[i]];
-        [buttons[i] release];
-        [image release];
         rect.origin.x += rect.size.width + gap;
     }
 
@@ -949,7 +948,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     /* if selectable, the messagebox can become first responder,
      * which is not supposed to happen */
     [[window contentView] addSubview: messagebox];
-    [messagebox release];
     [[window contentView] display];
 
     self->messagebox = messagebox;
@@ -959,7 +957,6 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
 static void
 NavigationToolbar2_dealloc(NavigationToolbar2 *self)
 {
-    [self->handler release];
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1060,36 +1057,6 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
     return sharedWindowServerConnectionManager;
 }
 
-+ (id)allocWithZone:(NSZone *)zone
-{
-    return [[self sharedManager] retain];
-}
-
-+ (id)copyWithZone:(NSZone *)zone
-{
-    return self;
-}
-
-+ (id)retain
-{
-    return self;
-}
-
-- (NSUInteger)retainCount
-{
-    return NSUIntegerMax;  //denotes an object that cannot be released
-}
-
-- (oneway void)release
-{
-    // Don't release a singleton object
-}
-
-- (id)autorelease
-{
-    return self;
-}
-
 - (void)launch:(NSNotification*)notification
 {
     CFRunLoopRef runloop;
@@ -1167,7 +1134,6 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
      * content view of this window was increased during the call to addSubview,
      * and is decreased during the call to [super dealloc].
      */
-    [super dealloc];
 }
 @end
 
@@ -1189,7 +1155,6 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
 {
     FigureCanvas* fc = (FigureCanvas*)canvas;
     if (fc) { fc->view = NULL; }
-    [super dealloc];
 }
 
 - (void)setCanvas: (PyObject*)newCanvas
