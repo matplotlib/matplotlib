@@ -176,7 +176,9 @@ The available date formatters are:
 import datetime
 import functools
 import logging
+import math
 import re
+import string
 
 from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
                             MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY,
@@ -633,10 +635,95 @@ def _wrap_in_tex(text):
     return ret_text
 
 
+class _TimedeltaFormatTemplate(string.Template):
+    # formatting template for datetime-like formatter strings
+    delimiter = '%'
+
+
+def strftimedelta(td, fmt_str):
+    """
+    Return a string representing a timedelta, controlled by an explicit
+    format string.
+
+    Arguments
+    ---------
+    td : datetime.timedelta
+    fmt_str : str
+        format string
+    """
+    # *_t values are not partially consumed by there next larger unit
+    # e.g. for timedelta(days=1.5): d=1, h=12, H=36
+    s_t = td.total_seconds()
+    sign = '-' if s_t < 0 else ''
+    s_t = abs(s_t)
+
+    d, s = divmod(s_t, SEC_PER_DAY)
+    m_t, s = divmod(s, SEC_PER_MIN)
+    h, m = divmod(m_t, MIN_PER_HOUR)
+    h_t, _ = divmod(s_t, SEC_PER_HOUR)
+
+    us = td.microseconds
+    ms, us = divmod(us, 1e3)
+
+    # create correctly zero padded string for substitution
+    # last one is a special for correct day(s) plural
+    values = {'d': int(d),
+              'H': int(h_t),
+              'M': int(m_t),
+              'S': int(s_t),
+              'h': '{:02d}'.format(int(h)),
+              'm': '{:02d}'.format(int(m)),
+              's': '{:02d}'.format(int(s)),
+              'ms': '{:03d}'.format(int(ms)),
+              'us': '{:03d}'.format(int(us)),
+              'day': 'day' if d == 1 else 'days'}
+
+    try:
+        result = _TimedeltaFormatTemplate(fmt_str).substitute(**values)
+    except KeyError:
+        raise ValueError(f"Invalid format string '{fmt_str}' for timedelta")
+    return sign + result
+
+
+def strftdnum(td_num, fmt_str):
+    """
+    Return a string representing a matplotlib internal float based timedelta,
+    controlled by an explicit format string.
+
+    Arguments
+    ---------
+    td_num : float
+        timedelta in matplotlib float representation
+    fmt_str : str
+        format string
+    """
+    td = num2timedelta(td_num)
+    return strftimedelta(td, fmt_str)
+
+
 ## date tick locators and formatters ###
 
 
-class DateFormatter(ticker.Formatter):
+class TimedeltaFormatter(ticker.Formatter):
+    def __init__(self, fmt, *, usetex=None):
+        """
+        Parameters
+        ----------
+        fmt : str
+            `strftimedelta` format string
+        usetex : bool, default: :rc:`text.usetex`
+            To enable/disable the use of TeX's math mode for rendering the
+            results of the formatter.
+        """
+        self.fmt = fmt
+        self._usetex = mpl._val_or_rc(usetex, 'text.usetex')
+
+    def __call__(self, x, pos=0):
+        result = strftdnum(x, self.fmt)
+        return _wrap_in_tex(result) if self._usetex else result
+
+
+class DateFormatter(TimedeltaFormatter):
     """
     Format a tick (in days since the epoch) with a
     `~datetime.datetime.strftime` format string.
@@ -654,9 +741,8 @@ class DateFormatter(ticker.Formatter):
             To enable/disable the use of TeX's math mode for rendering the
             results of the formatter.
         """
+        super().__init__(fmt, usetex=usetex)
         self.tz = _get_tzinfo(tz)
-        self.fmt = fmt
-        self._usetex = mpl._val_or_rc(usetex, 'text.usetex')
 
     def __call__(self, x, pos=0):
         result = num2date(x, self.tz).strftime(self.fmt)
@@ -886,7 +972,127 @@ class ConciseDateFormatter(ticker.Formatter):
         return num2date(value, tz=self._tz).strftime('%Y-%m-%d %H:%M:%S')
 
 
-class AutoDateFormatter(ticker.Formatter):
+class _AutoTimevalueFormatter(ticker.Formatter):
+    # This class cannot be used directly. It needs to be subclassed,
+    # self.scaled needs to be set and self._get_template_formatter needs to be
+    # implemented by the child class
+
+    # This can be improved by providing some user-level direction on
+    # how to choose the best format (precedence, etc.).
+
+    # Perhaps a 'struct' that has a field for each time-type where a
+    # zero would indicate "don't show" and a number would indicate
+    # "show" with some sort of priority.  Same priorities could mean
+    # show all with the same priority.
+
+    # Or more simply, perhaps just a format string for each
+    # possibility...
+
+    def __init__(self, locator, defaultfmt='', *, usetex=None):
+        self._locator = locator
+        self.defaultfmt = defaultfmt
+        self._usetex = mpl._val_or_rc(usetex, 'text.usetex')
+        self._formatter = self._get_template_formatter(defaultfmt)
+        self.scaled = dict()
+
+    def _set_locator(self, locator):
+        self._locator = locator
+
+    def _get_template_formatter(self, fmt):
+        return NotImplemented
+
+    def __call__(self, x, pos=None):
+        try:
+            locator_unit_scale = float(self._locator._get_unit())
+        except AttributeError:
+            locator_unit_scale = 1
+        # Pick the first scale which is greater than the locator unit.
+        fmt = next((fmt for scale, fmt in sorted(self.scaled.items())
+                    if scale >= locator_unit_scale),
+                   self.defaultfmt)
+
+        if isinstance(fmt, str):
+            self._formatter = self._get_template_formatter(fmt)
+            result = self._formatter(x, pos)
+        elif callable(fmt):
+            result = fmt(x, pos)
+        else:
+            raise TypeError(f'Unexpected type passed to {self!r}.')
+
+        return result
+
+
+class AutoTimedeltaFormatter(_AutoTimevalueFormatter):
+    """
+    A `.Formatter` which attempts to figure out the best format to use.  This
+    is most useful when used with the `AutoTimedeltaLocator`.
+
+    `.AutoTimedeltaFormatter` has a ``.scale`` dictionary that maps tick scales
+    (the interval in days between one major tick) to format strings; this
+    dictionary defaults to ::
+
+        self.scaled = {
+            DAYS_PER_YEAR: rcParams['date.autoformat.year'],
+            DAYS_PER_MONTH: rcParams['date.autoformat.month'],
+            1: rcParams['date.autoformat.day'],
+            1 / HOURS_PER_DAY: rcParams['date.autoformat.hour'],
+            1 / MINUTES_PER_DAY: rcParams['date.autoformat.minute'],
+            1 / SEC_PER_DAY: rcParams['date.autoformat.second'],
+            1 / MUSECONDS_PER_DAY: rcParams['date.autoformat.microsecond'],
+        }
+
+    The formatter uses the format string corresponding to the lowest key in
+    the dictionary that is greater or equal to the current scale.  Dictionary
+    entries can be customized::
+
+        locator = AutoTimedeltaLocator()
+        formatter = AutoTimedeltaFormatter(locator)
+        formatter.scaled[1/(24*60)] = '%m:%s' # only show min and sec
+
+    Custom callables can also be used instead of format strings.  The following
+    example shows how to use a custom format function to strip trailing zeros
+    from decimal seconds and adds the date to the first ticklabel::
+
+        def my_format_function(x, pos=None):
+            pass  # TODO: add example
+
+        formatter.scaled[1/(24*60)] = my_format_function
+    """
+
+    def __init__(self, locator, defaultfmt='%d %day %h:%m', *, usetex=None):
+        """
+        Autoformat the timedelta labels.
+
+        Parameters
+        ----------
+        locator : `.ticker.Locator`
+            Locator that this axis is using.
+
+        defaultfmt : str
+            The default format to use if none of the values in ``self.scaled``
+            are greater than the unit returned by ``locator._get_unit()``.
+
+        usetex : bool, default: :rc:`text.usetex`
+            To enable/disable the use of TeX's math mode for rendering the
+            results of the formatter. If any entries in ``self.scaled`` are set
+            as functions, then it is up to the customized function to enable or
+            disable TeX's math mode itself.
+        """
+        super().__init__(locator, defaultfmt=defaultfmt, usetex=usetex)
+        self.scaled = {
+            1: "%d %day",
+            1 / HOURS_PER_DAY: '%d %day, %h:%m',
+            1 / MINUTES_PER_DAY: '%d %day, %h:%m',
+            1 / SEC_PER_DAY: '%d %day, %h:%m:%s',
+            1e3 / MUSECONDS_PER_DAY: '%d %day, %h:%m:%s.%ms',
+            1 / MUSECONDS_PER_DAY: '%d %day, %h:%m:%s.%ms%us',
+        }
+
+    def _get_template_formatter(self, fmt):
+        return TimedeltaFormatter(fmt, usetex=self._usetex)
+
+
+class AutoDateFormatter(_AutoTimevalueFormatter):
     """
     A `.Formatter` which attempts to figure out the best format to use.  This
     is most useful when used with the `AutoDateLocator`.
@@ -930,18 +1136,6 @@ class AutoDateFormatter(ticker.Formatter):
 
         formatter.scaled[1/(24*60)] = my_format_function
     """
-
-    # This can be improved by providing some user-level direction on
-    # how to choose the best format (precedence, etc.).
-
-    # Perhaps a 'struct' that has a field for each time-type where a
-    # zero would indicate "don't show" and a number would indicate
-    # "show" with some sort of priority.  Same priorities could mean
-    # show all with the same priority.
-
-    # Or more simply, perhaps just a format string for each
-    # possibility...
-
     def __init__(self, locator, tz=None, defaultfmt='%Y-%m-%d', *,
                  usetex=None):
         """
@@ -965,12 +1159,9 @@ class AutoDateFormatter(ticker.Formatter):
             as functions, then it is up to the customized function to enable or
             disable TeX's math mode itself.
         """
-        self._locator = locator
         self._tz = tz
-        self.defaultfmt = defaultfmt
-        self._formatter = DateFormatter(self.defaultfmt, tz)
+        super().__init__(locator, defaultfmt=defaultfmt, usetex=usetex)
         rcParams = mpl.rcParams
-        self._usetex = mpl._val_or_rc(usetex, 'text.usetex')
         self.scaled = {
             DAYS_PER_YEAR: rcParams['date.autoformatter.year'],
             DAYS_PER_MONTH: rcParams['date.autoformatter.month'],
@@ -981,28 +1172,8 @@ class AutoDateFormatter(ticker.Formatter):
             1 / MUSECONDS_PER_DAY: rcParams['date.autoformatter.microsecond']
         }
 
-    def _set_locator(self, locator):
-        self._locator = locator
-
-    def __call__(self, x, pos=None):
-        try:
-            locator_unit_scale = float(self._locator._get_unit())
-        except AttributeError:
-            locator_unit_scale = 1
-        # Pick the first scale which is greater than the locator unit.
-        fmt = next((fmt for scale, fmt in sorted(self.scaled.items())
-                    if scale >= locator_unit_scale),
-                   self.defaultfmt)
-
-        if isinstance(fmt, str):
-            self._formatter = DateFormatter(fmt, self._tz, usetex=self._usetex)
-            result = self._formatter(x, pos)
-        elif callable(fmt):
-            result = fmt(x, pos)
-        else:
-            raise TypeError(f'Unexpected type passed to {self!r}.')
-
-        return result
+    def _get_template_formatter(self, fmt):
+        return DateFormatter(fmt, tz=self._tz, usetex=self._usetex)
 
 
 class rrulewrapper:
