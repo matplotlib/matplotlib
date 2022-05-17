@@ -373,7 +373,7 @@ class HandlerStepPatch(HandlerBase):
         # Unfilled StepPatch should show as a line
         legline = Line2D([0, width], [height/2, height/2],
                          color=orig_handle.get_edgecolor(),
-                         linestyle=orig_handle.get_linestyle(),
+                         linestyle=orig_handle.get_dashes(),
                          linewidth=orig_handle.get_linewidth(),
                          )
 
@@ -407,7 +407,7 @@ class HandlerLineCollection(HandlerLine2D):
 
     def _default_update_prop(self, legend_handle, orig_handle):
         lw = orig_handle.get_linewidths()[0]
-        dashes = orig_handle._us_linestyles[0]
+        dashes = orig_handle._unscaled_dash_patterns[0]
         color = orig_handle.get_colors()[0]
         legend_handle.set_color(color)
         legend_handle.set_linestyle(dashes)
@@ -713,7 +713,7 @@ class HandlerStem(HandlerNpointsYoffsets):
         `.Line2D` *legend_handle*.
         """
         legend_handle.set_color(orig_handle.get_color()[0])
-        legend_handle.set_linestyle(orig_handle.get_linestyle()[0])
+        legend_handle.set_linestyle(orig_handle.get_dashes()[0])
 
 
 class HandlerTuple(HandlerBase):
@@ -798,7 +798,7 @@ class HandlerPolyCollection(HandlerBase):
         legend_handle._hatch_color = orig_handle._hatch_color
         # Setters are fine for the remaining attributes.
         legend_handle.set_linewidth(get_first(orig_handle.get_linewidths()))
-        legend_handle.set_linestyle(get_first(orig_handle.get_linestyles()))
+        legend_handle.set_linestyle(get_first(orig_handle.get_dashes()))
         legend_handle.set_transform(get_first(orig_handle.get_transforms()))
         legend_handle.set_figure(orig_handle.get_figure())
         # Alpha is already taken into account by the color attributes.

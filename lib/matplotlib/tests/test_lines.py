@@ -259,6 +259,19 @@ def test_step_markers(fig_test, fig_ref):
     fig_ref.subplots().plot([0, 0, 1], [0, 1, 1], "-o", markevery=[0, 2])
 
 
+@pytest.mark.parametrize(
+    ["linestyle", "error", "message"],
+    [((None, None), ValueError, "Unrecognized linestyle"),
+     ([0, [1, 1]], ValueError, "Unrecognized linestyle"),
+     ((0, (-1, 1)), ValueError, "All values in the dash"),
+     ((0, (0, 0)), ValueError, "At least one value in"),
+     ((0, ("a", 0)), ValueError, "Unrecognized linestyle")])
+def test_linestyle_errors(linestyle, error, message):
+    line = mlines.Line2D([], [])
+    with pytest.raises(error, match=message):
+        line.set_linestyle(linestyle)
+
+
 @pytest.mark.parametrize("parent", ["figure", "axes"])
 @check_figures_equal(extensions=('png',))
 def test_markevery(fig_test, fig_ref, parent):
@@ -347,6 +360,12 @@ def test_striped_lines():
 def test_odd_dashes(fig_test, fig_ref):
     fig_test.add_subplot().plot([1, 2], dashes=[1, 2, 3])
     fig_ref.add_subplot().plot([1, 2], dashes=[1, 2, 3, 1, 2, 3])
+
+
+def test_linestyle_with_solid_dashes():
+    # See github#23437
+    line = mlines.Line2D([], [], linestyle=(0, None))
+    assert line.get_linestyle() == "-"
 
 
 def test_picking():

@@ -28,7 +28,7 @@ from ._enums import JoinStyle, CapStyle
     "antialiased": ["antialiaseds", "aa"],
     "edgecolor": ["edgecolors", "ec"],
     "facecolor": ["facecolors", "fc"],
-    "linestyle": ["linestyles", "dashes", "ls"],
+    "linestyle": ["linestyles", "ls"],
     "linewidth": ["linewidths", "lw"],
     "offset_transform": ["transOffset"],
 })
@@ -79,7 +79,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                  edgecolors=None,
                  facecolors=None,
                  linewidths=None,
-                 linestyles='solid',
+                 linestyles='-',
                  capstyle=None,
                  joinstyle=None,
                  antialiaseds=None,
@@ -104,15 +104,8 @@ class Collection(artist.Artist, cm.ScalarMappable):
             Face color for each patch making up the collection.
         linewidths : float or list of floats, default: :rc:`patch.linewidth`
             Line width for each patch making up the collection.
-        linestyles : str or tuple or list thereof, default: 'solid'
-            Valid strings are ['solid', 'dashed', 'dashdot', 'dotted', '-',
-            '--', '-.', ':']. Dash tuples should be of the form::
-
-                (offset, onoffseq),
-
-            where *onoffseq* is an even length tuple of on and off ink lengths
-            in points. For examples, see
-            :doc:`/gallery/lines_bars_and_markers/linestyles`.
+        linestyles : str or tuple or list thereof, default: '-'
+            Line style or list of line styles. See `set_linestyle` for details.
         capstyle : `.CapStyle`-like, default: :rc:`patch.capstyle`
             Style to use for capping lines for all paths in the collection.
             Allowed values are %(CapStyle)s.
@@ -156,11 +149,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
         cm.ScalarMappable.__init__(self, norm, cmap)
         # list of un-scaled dash patterns
         # this is needed scaling the dash pattern by linewidth
-        self._us_linestyles = [(0, None)]
+        self._unscaled_dash_patterns = [(0, None)]
         # list of dash patterns
-        self._linestyles = [(0, None)]
+        self._dash_patterns = [(0, None)]
+        self._linestyles = ['-']
         # list of unbroadcast/scaled linewidths
-        self._us_lw = [0]
+        self._unscaled_lw = [0]
         self._linewidths = [0]
 
         self._gapcolor = None  # Currently only used by LineCollection.
@@ -379,7 +373,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if (len(paths) == 1 and len(trans) <= 1 and
                 len(facecolors) == 1 and len(edgecolors) == 1 and
                 len(self._linewidths) == 1 and
-                all(ls[1] is None for ls in self._linestyles) and
+                all(dash[1] is None for dash in self._dash_patterns) and
                 len(self._antialiaseds) == 1 and len(self._urls) == 1 and
                 self.get_hatch() is None):
             if len(trans):
@@ -400,7 +394,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if do_single_path_optimization:
             gc.set_foreground(tuple(edgecolors[0]))
             gc.set_linewidth(self._linewidths[0])
-            gc.set_dashes(*self._linestyles[0])
+            gc.set_dashes(*self._dash_patterns[0])
             gc.set_antialiased(self._antialiaseds[0])
             gc.set_url(self._urls[0])
             renderer.draw_markers(
@@ -422,7 +416,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 gc, transform.frozen(), paths,
                 self.get_transforms(), offsets, offset_trf,
                 self.get_facecolor(), self.get_edgecolor(),
-                self._linewidths, self._linestyles,
+                self._linewidths, self._dash_patterns,
                 self._antialiaseds, self._urls,
                 "screen")  # offset_position, kept for backcompat.
 
@@ -579,54 +573,82 @@ class Collection(artist.Artist, cm.ScalarMappable):
         if lw is None:
             lw = self._get_default_linewidth()
         # get the un-scaled/broadcast lw
-        self._us_lw = np.atleast_1d(lw)
+        self._unscaled_lw = np.atleast_1d(lw)
 
         # scale all of the dash patterns.
-        self._linewidths, self._linestyles = self._bcast_lwls(
-            self._us_lw, self._us_linestyles)
+        self._linewidths, self._dash_patterns = self._bcast_lwls(
+            self._unscaled_lw, self._unscaled_dash_patterns)
         self.stale = True
 
     def set_linestyle(self, ls):
         """
-        Set the linestyle(s) for the collection.
-
-        ===========================   =================
-        linestyle                     description
-        ===========================   =================
-        ``'-'`` or ``'solid'``        solid line
-        ``'--'`` or  ``'dashed'``     dashed line
-        ``'-.'`` or  ``'dashdot'``    dash-dotted line
-        ``':'`` or ``'dotted'``       dotted line
-        ===========================   =================
-
-        Alternatively a dash tuple of the following form can be provided::
-
-            (offset, onoffseq),
-
-        where ``onoffseq`` is an even length tuple of on and off ink in points.
+        Set the line style(s) for the collection.
 
         Parameters
         ----------
         ls : str or tuple or list thereof
-            Valid values for individual linestyles include {'-', '--', '-.',
-            ':', '', (offset, on-off-seq)}. See `.Line2D.set_linestyle` for a
-            complete description.
+            The line style. Possible values:
+
+            - A string:
+
+              ==========================================  =================
+              linestyle                                   description
+              ==========================================  =================
+              ``'-'`` or ``'solid'``                      solid line
+              ``'--'`` or  ``'dashed'``                   dashed line
+              ``'-.'`` or  ``'dashdot'``                  dash-dotted line
+              ``':'`` or ``'dotted'``                     dotted line
+              ``'none'``, ``'None'``, ``' '``, or ``''``  draw nothing
+              ==========================================  =================
+
+            - Alternatively a dash tuple of the following form can be
+              provided::
+
+                  (offset, onoffseq)
+
+              where ``onoffseq`` is an even length tuple of on and off ink
+              in points.
+
+            If a single value is provided, this applies to all objects in the
+            collection. A list can be provided to set different line styles to
+            different objects.
+
+            For examples see :doc:`/gallery/lines_bars_and_markers/linestyles`.
+
+            The ``'dashed'``, ``'dashdot'``, and ``'dotted'`` line styles are
+            controlled by :rc:`lines.dashed_pattern`,
+            :rc:`lines.dashdot_pattern`, and :rc:`lines.dotted_pattern`,
+            respectively.
         """
-        try:
-            dashes = [mlines._get_dash_pattern(ls)]
-        except ValueError:
+        if isinstance(ls, str):
+            dashes, ls_norm = map(list, zip(mlines._get_dash_pattern(ls)))
+        elif not ls:
+            dashes, ls_norm = [], []
+        else:
             try:
-                dashes = [mlines._get_dash_pattern(x) for x in ls]
-            except ValueError as err:
-                emsg = f'Do not know how to convert {ls!r} to dashes'
-                raise ValueError(emsg) from err
+                dashes, ls_norm = map(list, zip(mlines._get_dash_pattern(ls)))
+            except ValueError:
+                dashes, ls_norm = map(
+                    list, zip(*[mlines._get_dash_pattern(x) for x in ls]))
 
         # get the list of raw 'unscaled' dash patterns
-        self._us_linestyles = dashes
+        self._unscaled_dash_patterns = dashes
 
         # broadcast and scale the lw and dash patterns
-        self._linewidths, self._linestyles = self._bcast_lwls(
-            self._us_lw, self._us_linestyles)
+        self._linewidths, self._dash_patterns = self._bcast_lwls(
+            self._unscaled_lw, self._unscaled_dash_patterns)
+        self._linestyles = ls_norm
+
+    # Dashes used to be an alias of linestyle
+    set_dashes = set_linestyle
+
+    def get_dashes(self):
+        """
+        Return the dash patterns.
+
+        .. versionadded:: 3.8
+        """
+        return self._dash_patterns
 
     @_docstring.interpd
     def set_capstyle(self, cs):
@@ -827,7 +849,12 @@ class Collection(artist.Artist, cm.ScalarMappable):
         return self._linewidths
 
     def get_linestyle(self):
-        return self._linestyles
+        _api.warn_external(
+            "Collection.get_linestyle will change return type from a list of dash "
+            "pattern to a list of linestyle strings. This is consistent with Line2D. "
+            "To get the previous result now and in the future without this warning, "
+            "use get_dashes.")
+        return self.get_dashes()
 
     def _set_mappable_flags(self):
         """
@@ -918,8 +945,10 @@ class Collection(artist.Artist, cm.ScalarMappable):
         self._original_facecolor = other._original_facecolor
         self._facecolors = other._facecolors
         self._linewidths = other._linewidths
+        self._unscaled_lw = other._unscaled_lw
         self._linestyles = other._linestyles
-        self._us_linestyles = other._us_linestyles
+        self._unscaled_dash_patterns = other._unscaled_dash_patterns
+        self._dash_patterns = other._dash_patterns
         self._pickradius = other._pickradius
         self._hatch = other._hatch
 
@@ -1528,11 +1557,11 @@ class LineCollection(Collection):
         to nans to prevent drawing an inverse line.
         """
         path_patterns = [
-            (mpath.Path(np.full((1, 2), np.nan)), ls)
-            if ls == (0, None) else
-            (path, mlines._get_inverse_dash_pattern(*ls))
-            for (path, ls) in
-            zip(self._paths, itertools.cycle(self._linestyles))]
+            (mpath.Path(np.full((1, 2), np.nan)), dash_patterns)
+            if dash_patterns == (0, None) else
+            (path, mlines._get_inverse_dash_pattern(*dash_patterns))
+            for (path, dash_patterns) in
+            zip(self._paths, itertools.cycle(self._dash_patterns))]
 
         return zip(*path_patterns)
 
@@ -1555,7 +1584,7 @@ class EventCollection(LineCollection):
                  linelength=1,
                  linewidth=None,
                  color=None,
-                 linestyle='solid',
+                 linestyle='-',
                  antialiased=None,
                  **kwargs
                  ):
@@ -1578,14 +1607,8 @@ class EventCollection(LineCollection):
             The line width of the event lines, in points.
         color : color or list of colors, default: :rc:`lines.color`
             The color of the event lines.
-        linestyle : str or tuple or list thereof, default: 'solid'
-            Valid strings are ['solid', 'dashed', 'dashdot', 'dotted',
-            '-', '--', '-.', ':']. Dash tuples should be of the form::
-
-                (offset, onoffseq),
-
-            where *onoffseq* is an even length tuple of on and off ink
-            in points.
+        linestyle : str or tuple or list thereof, default: '-'
+            Line style or list of line styles. See `set_linestyle` for details.
         antialiased : bool or list thereof, default: :rc:`lines.antialiased`
             Whether to use antialiasing for drawing the lines.
         **kwargs

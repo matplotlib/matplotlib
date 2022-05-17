@@ -4258,7 +4258,7 @@ def test_stem_markerfmt():
                 markercolor)
         if marker is not None:
             assert stem_container.markerline.get_marker() == marker
-        assert stem_container.markerline.get_linestyle() == 'None'
+        assert stem_container.markerline.get_linestyle() == 'none'
 
     fig, ax = plt.subplots()
 
