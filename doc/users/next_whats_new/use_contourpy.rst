@@ -2,9 +2,9 @@ New external dependency ContourPy used for quad contour calculations
 --------------------------------------------------------------------
 
 Previously Matplotlib shipped its own C++ code for calculating the contours of
-quad grids . Now the external library
+quad grids. Now the external library
 `ContourPy <https://github.com/contourpy/contourpy>`_ is used instead. There
-is a choice of four algorithms to use, controlled by the ``algorithm`` keyword
+is a choice of four algorithms to use, controlled by the *algorithm* keyword
 argument to the functions `~matplotlib.axes.Axes.contour` and
 `~matplotlib.axes.Axes.contourf`. The default behaviour is to use
 ``algorithm='mpl2014'`` which is the same algorithm that Matplotlib has been
