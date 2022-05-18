@@ -179,7 +179,7 @@ def _cached_realpath(path):
 
 def get_fontext_synonyms(fontext):
     """
-    Return a list of file extensions extensions that are synonyms for
+    Return a list of file extensions that are synonyms for
     the given file extension *fileext*.
     """
     return {

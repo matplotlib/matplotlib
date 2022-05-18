@@ -227,7 +227,7 @@ for k in axd:
 # Basic 2x2 grid
 # --------------
 #
-# We can accopmplish a 2x2 grid in the same manner as
+# We can accomplish a 2x2 grid in the same manner as
 # ``plt.subplots(2, 2)``:
 
 fig = plt.figure(figsize=(5.5, 3.5), constrained_layout=True)

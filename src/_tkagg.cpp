@@ -19,7 +19,7 @@
 /*
  * Unfortunately cygwin's libdl inherits restrictions from the underlying
  * Windows OS, at least currently. Therefore, a symbol may be loaded from a
- * module by dlsym() only if it is really located in the given modile,
+ * module by dlsym() only if it is really located in the given module,
  * dependencies are not included. So we have to use native WinAPI on Cygwin
  * also.
  */

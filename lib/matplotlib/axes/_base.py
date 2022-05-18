@@ -738,7 +738,7 @@ class _AxesBase(martist.Artist):
         Return the Axes bounding box in display space; *args* and *kwargs*
         are empty.
 
-        This bounding box does not include the spines, ticks, ticklables,
+        This bounding box does not include the spines, ticks, ticklabels,
         or other labels.  For a bounding box including these elements use
         `~matplotlib.axes.Axes.get_tightbbox`.
 
@@ -2398,7 +2398,7 @@ class _AxesBase(martist.Artist):
         for curve, code in p.iter_bezier():
             # Get distance along the curve of any extrema
             _, dzeros = curve.axis_aligned_extrema()
-            # Calculate vertcies of start, end and any extrema in between
+            # Calculate vertices of start, end and any extrema in between
             vertices.append(curve([0, *dzeros, 1]))
 
         if len(vertices):

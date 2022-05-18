@@ -90,7 +90,7 @@ def get_location(node, app):
     Usually, this will be of the form "path/to/file:linenumber". Two
     special values can be emitted, "<external>" for paths which are
     not contained in this source tree (e.g. docstrings included from
-    other modules) or "<unknown>", inidcating that the sphinx application
+    other modules) or "<unknown>", indicating that the sphinx application
     cannot locate the original source file (usually because an extension
     has injected text into the sphinx parsing engine).
     """

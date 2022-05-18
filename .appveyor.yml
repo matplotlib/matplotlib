@@ -55,7 +55,7 @@ install:
   - conda create -q -n test-environment python=%PYTHON_VERSION% tk "pip<22.0"
   - activate test-environment
   # pull pywin32 from conda because on py38 there is something wrong with finding
-  # the dlls when insalled from pip
+  # the dlls when installed from pip
   - conda install -c conda-forge pywin32
   # install pyqt from conda-forge
   - conda install -c conda-forge pyqt

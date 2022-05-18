@@ -250,7 +250,7 @@ def test_docstring_addition():
 
 def test_data_parameter_replacement():
     """
-    Test that that the docstring contains the correct *data* parameter stub
+    Test that the docstring contains the correct *data* parameter stub
     for all methods that we run _preprocess_data() on.
     """
     program = (

@@ -637,7 +637,7 @@ plot_children(fig, printit=False)
 # ``bottom`` margins are not affected by the left-hand column.  This
 # is a conscious decision of the algorithm, and leads to the case where
 # the two right-hand axes have the same height, but it is not 1/2 the height
-# of the left-hand axes.  This is consietent with how ``gridspec`` works
+# of the left-hand axes.  This is consistent with how ``gridspec`` works
 # without constrained layout.
 
 fig = plt.figure(layout="constrained")

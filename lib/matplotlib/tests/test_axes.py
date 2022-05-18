@@ -1810,7 +1810,7 @@ def test_bar_hatches(fig_test, fig_ref):
 
 
 def test_pandas_minimal_plot(pd):
-    # smoke test that series and index objcets do not warn
+    # smoke test that series and index objects do not warn
     for x in [pd.Series([1, 2], dtype="float64"),
               pd.Series([1, 2], dtype="Float64")]:
         plt.plot(x, x)
@@ -2337,7 +2337,7 @@ class TestScatter:
             plt.scatter(x, x, 'foo')
 
     def test_scatter_edgecolor_RGB(self):
-        # Github issue 19066
+        # GitHub issue 19066
         coll = plt.scatter([1, 2, 3], [1, np.nan, np.nan],
                             edgecolor=(1, 0, 0))
         assert mcolors.same_color(coll.get_edgecolor(), (1, 0, 0))
@@ -2363,7 +2363,7 @@ class TestScatter:
 
     @check_figures_equal(extensions=["png"])
     def test_scatter_no_invalid_color(self, fig_test, fig_ref):
-        # With plotninfinite=False we plot only 2 points.
+        # With plotnonfinite=False we plot only 2 points.
         ax = fig_test.subplots()
         cmap = plt.get_cmap("viridis", 16)
         cmap.set_bad("k", 1)
@@ -3599,7 +3599,7 @@ def test_errorbar_limits():
     ax.set_title('Errorbar upper and lower limits')
 
 
-def test_errobar_nonefmt():
+def test_errorbar_nonefmt():
     # Check that passing 'none' as a format still plots errorbars
     x = np.arange(5)
     y = np.arange(5)

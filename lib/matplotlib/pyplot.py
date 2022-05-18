@@ -1173,7 +1173,7 @@ def subplot(*args, **kwargs):
 
     Notes
     -----
-    Creating a new Axes will delete any pre-existing Axes that
+    Creating a new Axes will delete any preexisting Axes that
     overlaps with it beyond sharing a boundary::
 
         import matplotlib.pyplot as plt

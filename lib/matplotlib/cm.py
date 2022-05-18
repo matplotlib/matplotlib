@@ -107,7 +107,7 @@ class ColormapRegistry(Mapping):
         """
         Return a list of the registered colormap names.
 
-        This exists only for backward-compatibilty in `.pyplot` which had a
+        This exists only for backward-compatibility in `.pyplot` which had a
         ``plt.colormaps()`` method. The recommended way to get this list is
         now ``list(colormaps)``.
         """
@@ -382,7 +382,7 @@ class ScalarMappable:
         If the last dimension is 3, the *alpha* kwarg (defaulting to 1)
         will be used to fill in the transparency.  If the last dimension
         is 4, the *alpha* kwarg is ignored; it does not
-        replace the pre-existing alpha.  A ValueError will be raised
+        replace the preexisting alpha.  A ValueError will be raised
         if the third dimension is other than 3 or 4.
 
         In either case, if *bytes* is *False* (default), the rgba

@@ -69,7 +69,7 @@ class RedirectFromDomain(Domain):
 
     @property
     def redirects(self):
-        """The mapping of the redirectes."""
+        """The mapping of the redirects."""
         return self.data.setdefault('redirects', {})
 
     def clear_doc(self, docnames):

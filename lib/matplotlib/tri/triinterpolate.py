@@ -1286,7 +1286,7 @@ class _Sparse_Matrix_coo:
 def _cg(A, b, x0=None, tol=1.e-10, maxiter=1000):
     """
     Use Preconditioned Conjugate Gradient iteration to solve A x = b
-    A simple Jacobi (diagonal) preconditionner is used.
+    A simple Jacobi (diagonal) preconditioner is used.
 
     Parameters
     ----------
