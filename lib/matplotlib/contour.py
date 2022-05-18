@@ -1420,7 +1420,7 @@ class QuadContourSet(ContourSet):
     %(contour_set_attributes)s
     """
 
-    def _process_args(self, *args, corner_mask=None, **kwargs):
+    def _process_args(self, *args, corner_mask=None, algorithm=None, **kwargs):
         """
         Process args and kwargs.
         """
@@ -1433,21 +1433,31 @@ class QuadContourSet(ContourSet):
             contour_generator = args[0]._contour_generator
             self._mins = args[0]._mins
             self._maxs = args[0]._maxs
+            self._algorithm = args[0]._algorithm
         else:
-            import matplotlib._contour as _contour
+            import contourpy
+
+            if algorithm is None:
+                algorithm = mpl.rcParams['contour.algorithm']
+            mpl.rcParams.validate["contour.algorithm"](algorithm)
+            self._algorithm = algorithm
 
             if corner_mask is None:
-                corner_mask = mpl.rcParams['contour.corner_mask']
+                if self._algorithm == "mpl2005":
+                    # mpl2005 does not support corner_mask=True so if not
+                    # specifically requested then disable it.
+                    corner_mask = False
+                else:
+                    corner_mask = mpl.rcParams['contour.corner_mask']
             self._corner_mask = corner_mask
 
             x, y, z = self._contour_args(args, kwargs)
 
-            _mask = ma.getmask(z)
-            if _mask is ma.nomask or not _mask.any():
-                _mask = None
-
-            contour_generator = _contour.QuadContourGenerator(
-                x, y, z.filled(), _mask, self._corner_mask, self.nchunk)
+            contour_generator = contourpy.contour_generator(
+                x, y, z, name=self._algorithm, corner_mask=self._corner_mask,
+                line_type=contourpy.LineType.SeparateCode,
+                fill_type=contourpy.FillType.OuterCode,
+                chunk_size=self.nchunk)
 
             t = self.get_transform()
 
@@ -1772,6 +1782,15 @@ hatches : list[str], optional
     Hatching is supported in the PostScript, PDF, SVG and Agg
     backends only.
 
+algorithm : {'mpl2005', 'mpl2014', 'serial', 'threaded'}, optional
+    Which contouring algorithm to use to calculate the contour lines and
+    polygons. The algorithms are implemented in
+    `ContourPy <https://github.com/contourpy/contourpy>`_, consult the
+    `ContourPy documentation <https://contourpy.readthedocs.io>`_ for
+    further information.
+
+    The default is taken from :rc:`contour.algorithm`.
+
 data : indexable object, optional
     DATA_PARAMETER_PLACEHOLDER
 
@@ -1792,5 +1811,5 @@ Notes
 3. `.contour` and `.contourf` use a `marching squares
    <https://en.wikipedia.org/wiki/Marching_squares>`_ algorithm to
    compute contour locations.  More information can be found in
-   the source ``src/_contour.h``.
+   `ContourPy documentation <https://contourpy.readthedocs.io>`_.
 """)

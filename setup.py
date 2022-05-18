@@ -306,6 +306,7 @@ setup(  # Finally, pass this all along to setuptools to do the heavy lifting.
         "setuptools_scm_git_archive",
     ],
     install_requires=[
+        "contourpy>=1.0.1",
         "cycler>=0.10",
         "fonttools>=4.22.0",
         "kiwisolver>=1.0.1",

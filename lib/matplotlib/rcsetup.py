@@ -960,6 +960,7 @@ _validators = {
     "contour.negative_linestyle": _validate_linestyle,
     "contour.corner_mask":        validate_bool,
     "contour.linewidth":          validate_float_or_None,
+    "contour.algorithm":          ["mpl2005", "mpl2014", "serial", "threaded"],
 
     # errorbar props
     "errorbar.capsize": validate_float,
