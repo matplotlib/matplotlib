@@ -25,7 +25,8 @@
  */
 #define WIN32_DLL
 static inline PyObject *PyErr_SetFromWindowsErr(int ierr) {
-    return PyErr_SetString(PyExc_OSError, "Call to EnumProcessModules failed");
+    PyErr_SetString(PyExc_OSError, "Call to EnumProcessModules failed");
+    return NULL;
 }
 #endif
 
