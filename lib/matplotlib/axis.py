@@ -1791,7 +1791,7 @@ class Axis(martist.Artist):
         """
         self.pickradius = pickradius
 
-    # Helper for set_ticklabels. Defining it here makes it pickleable.
+    # Helper for set_ticklabels. Defining it here makes it picklable.
     @staticmethod
     def _format_with_dict(tickd, x, pos):
         return tickd.get(x, "")

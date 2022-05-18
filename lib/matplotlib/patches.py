@@ -3936,7 +3936,7 @@ class FancyBboxPatch(Patch):
         boxstyle : str or `matplotlib.patches.BoxStyle`
             The style of the fancy box. This can either be a `.BoxStyle`
             instance or a string of the style name and optionally comma
-            seprarated attributes (e.g. "Round, pad=0.2"). This string is
+            separated attributes (e.g. "Round, pad=0.2"). This string is
             passed to `.BoxStyle` to construct a `.BoxStyle` object. See
             there for a full documentation.
 
@@ -4001,7 +4001,7 @@ class FancyBboxPatch(Patch):
         boxstyle : str or `matplotlib.patches.BoxStyle`
             The style of the fancy box. This can either be a `.BoxStyle`
             instance or a string of the style name and optionally comma
-            seprarated attributes (e.g. "Round, pad=0.2"). This string is
+            separated attributes (e.g. "Round, pad=0.2"). This string is
             passed to `.BoxStyle` to construct a `.BoxStyle` object. See
             there for a full documentation.
 

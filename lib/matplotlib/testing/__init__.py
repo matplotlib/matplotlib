@@ -64,7 +64,7 @@ def subprocess_run_helper(func, *args, timeout, **extra_env):
         the first argument to subprocess.run
 
     **extra_env : Dict[str, str]
-        Any additional envromental variables to be set for
+        Any additional environment variables to be set for
         the subprocess.
 
     """

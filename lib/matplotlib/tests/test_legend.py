@@ -857,7 +857,7 @@ def test_plot_single_input_multiple_label(label_array):
 
 
 def test_plot_multiple_label_incorrect_length_exception():
-    # check that excepton is raised if multiple labels
+    # check that exception is raised if multiple labels
     # are given, but number of on labels != number of lines
     with pytest.raises(ValueError):
         x = [1, 2, 3]

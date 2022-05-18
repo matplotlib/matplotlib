@@ -537,7 +537,7 @@ class AsinhScale(ScaleBase):
             The scale parameter (elsewhere referred to as :math:`a_0`)
             defining the extent of the quasi-linear region,
             and the coordinate values beyond which the transformation
-            becomes asympotically logarithmic.
+            becomes asymptotically logarithmic.
         base : int, default: 10
             The number base used for rounding tick locations
             on a logarithmic scale. If this is less than one,

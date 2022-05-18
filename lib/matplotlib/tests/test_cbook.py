@@ -142,7 +142,7 @@ class Test_boxplot_stats:
             assert_array_almost_equal(res[key], value)
 
     def test_results_withlabels(self):
-        labels = ['Test1', 2, 'ardvark', 4]
+        labels = ['Test1', 2, 'Aardvark', 4]
         results = cbook.boxplot_stats(self.data, labels=labels)
         for lab, res in zip(labels, results):
             assert res['label'] == lab

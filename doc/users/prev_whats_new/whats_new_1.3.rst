@@ -101,7 +101,7 @@ Updated Axes3D.contour methods
 Damon McDougall updated the
 :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.tricontour` and
 :meth:`~mpl_toolkits.mplot3d.axes3d.Axes3D.tricontourf` methods to allow 3D
-contour plots on abitrary unstructured user-specified triangulations.
+contour plots on arbitrary unstructured user-specified triangulations.
 
 .. figure:: ../../gallery/mplot3d/images/sphx_glr_tricontour3d_001.png
    :target: ../../gallery/mplot3d/tricontour3d.html

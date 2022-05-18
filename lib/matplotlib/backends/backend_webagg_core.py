@@ -308,7 +308,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         y = event['y']
         y = self.get_renderer().height - y
 
-        # Javascript button numbers and matplotlib button numbers are
+        # JavaScript button numbers and matplotlib button numbers are
         # off by 1
         button = event['button'] + 1
 

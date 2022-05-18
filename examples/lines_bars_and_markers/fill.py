@@ -3,7 +3,7 @@
 Filled polygon
 ==============
 
-`~.Axes.fill()` draws a filled polygon based based on lists of point
+`~.Axes.fill()` draws a filled polygon based on lists of point
 coordinates *x*, *y*.
 
 This example uses the `Koch snowflake`_ as an example polygon.

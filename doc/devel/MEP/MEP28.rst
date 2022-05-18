@@ -46,7 +46,7 @@ Detailed description
 
 Currently, the ``Axes.boxplot`` method accepts parameters that allow the
 users to specify medians and confidence intervals for each box that
-will be drawn in the plot. These were provided so that avdanced users
+will be drawn in the plot. These were provided so that advanced users
 could provide statistics computed in a different fashion that the simple
 method provided by matplotlib. However, handling this input requires
 complex logic to make sure that the forms of the data structure match what

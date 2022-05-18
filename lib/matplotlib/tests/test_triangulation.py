@@ -284,7 +284,7 @@ def test_tripcolor_warnings():
     # additional parameters
     with pytest.warns(DeprecationWarning, match="Additional positional param"):
         ax.tripcolor(x, y, C, 'unused_positional')
-    # facecolors takes precednced over C
+    # facecolors takes precedence over C
     with pytest.warns(UserWarning, match="Positional parameter C .*no effect"):
         ax.tripcolor(x, y, C, facecolors=C)
     with pytest.warns(UserWarning, match="Positional parameter C .*no effect"):
