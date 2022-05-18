@@ -364,6 +364,10 @@ def test_cross_Qt_imports():
                     # are doing something that we do not expect to work
                     if ex.returncode == -11:
                         continue
+                    # We got the abort signal which is likely because the Qt5 /
+                    # Qt6 cross import is unhappy, carry on.
+                    elif ex.returncode == -6:
+                        continue
                     raise
 
 
