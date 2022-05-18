@@ -617,10 +617,9 @@ class FreeType(SetupPackage):
                 },
                 **env,
             }
-            configure_ac = os.path.join(
-                src_path, "builds", "unix", "configure.ac")
-            if os.path.exists(os.path.join(src_path, "autogen.sh")) \
-                    and not os.path.exists(configure_ac):
+            configure_ac = Path(src_path, "builds/unix/configure.ac")
+            if ((src_path / "autogen.sh").exists()
+                    and not configure_ac.exists()):
                 print(f"{configure_ac} does not exist. "
                       f"Using sh autogen.sh to generate.")
                 subprocess.check_call(
