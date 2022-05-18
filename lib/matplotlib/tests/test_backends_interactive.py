@@ -357,11 +357,11 @@ def test_cross_Qt_imports():
                 except subprocess.CalledProcessError as ex:
                     # if segfault, carry on.  We do try to warn the user they
                     # are doing something that we do not expect to work
-                    if ex.returncode == -11:
+                    if ex.returncode == -signal.SIGSEGV:
                         continue
                     # We got the abort signal which is likely because the Qt5 /
                     # Qt6 cross import is unhappy, carry on.
-                    elif ex.returncode == -6:
+                    elif ex.returncode == -signal.SIGABRT:
                         continue
                     raise
 
