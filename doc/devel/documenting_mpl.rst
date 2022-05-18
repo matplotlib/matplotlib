@@ -97,7 +97,7 @@ You can use the ``O`` variable to set additional options:
 Multiple options can be combined using e.g. ``make O='-j4 -Dplot_gallery=0'
 html``.
 
-On Windows, either use the format shown above or set options as environment variables, e.g.:
+On Windows, either put the arguments at the end of the statement or set the options as environment variables, e.g.:
 
 .. code-block:: bat
 
