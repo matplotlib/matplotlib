@@ -261,3 +261,22 @@ def test_empty_default_limits(quantity_converter):
     fig.draw_without_rendering()
     assert ax.get_ylim() == (0, 100)
     assert ax.get_xlim() == (28.5, 31.5)
+
+
+# test array-like objects...
+class Kernel:
+    def __init__(self, array):
+        self._array = np.asanyarray(array)
+
+    def __array__(self):
+        return self._array
+
+    @property
+    def shape(self):
+        return self._array.shape
+
+
+def test_plot_kernel():
+    # just a smoketest that fail
+    kernel = Kernel([1, 2, 3, 4, 5])
+    plt.plot(kernel)
