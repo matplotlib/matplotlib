@@ -36,12 +36,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
-try:
-    import threading
-    from threading import Timer
-except ImportError:
-    import dummy_threading as threading
-    from dummy_threading import Timer
+import threading
 
 import matplotlib as mpl
 from matplotlib import _api, _afm, cbook, ft2font, rcParams
@@ -1100,7 +1095,7 @@ class FontManager:
         self.ttflist = []
 
         # Delay the warning by 5s.
-        timer = Timer(5, lambda: _log.warning(
+        timer = threading.Timer(5, lambda: _log.warning(
             'Matplotlib is building the font cache; this may take a moment.'))
         timer.start()
         try:

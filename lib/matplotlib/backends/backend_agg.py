@@ -21,12 +21,9 @@ Still TODO:
 .. _Anti-Grain Geometry: http://agg.sourceforge.net/antigrain.com
 """
 
-try:
-    import threading
-except ImportError:
-    import dummy_threading as threading
 from contextlib import nullcontext
 from math import radians, cos, sin
+import threading
 
 import numpy as np
 
