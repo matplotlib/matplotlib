@@ -385,7 +385,7 @@ def test_pylab_integration():
             )),
         ],
         env={**os.environ, "SOURCE_DATE_EPOCH": "0"},
-        timeout=5,
+        timeout=60,
         check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
