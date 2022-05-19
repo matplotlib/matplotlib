@@ -43,11 +43,8 @@ import logging
 from numbers import Number
 import re
 import sys
+import threading
 import time
-try:
-    import threading
-except ImportError:
-    import dummy_threading as threading
 
 from cycler import cycler
 import matplotlib
