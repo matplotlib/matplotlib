@@ -362,6 +362,25 @@ FigureCanvas_flush_events(FigureCanvas* self)
 }
 
 static PyObject*
+FigureCanvas_set_cursor(PyObject* unused, PyObject* args)
+{
+    int i;
+    if (!PyArg_ParseTuple(args, "i", &i)) { return NULL; }
+    switch (i) {
+      case 1: [[NSCursor arrowCursor] set]; break;
+      case 2: [[NSCursor pointingHandCursor] set]; break;
+      case 3: [[NSCursor crosshairCursor] set]; break;
+      case 4: [[NSCursor openHandCursor] set]; break;
+      /* OSX handles busy state itself so no need to set a cursor here */
+      case 5: break;
+      case 6: [[NSCursor resizeLeftRightCursor] set]; break;
+      case 7: [[NSCursor resizeUpDownCursor] set]; break;
+      default: return NULL;
+    }
+    Py_RETURN_NONE;
+}
+
+static PyObject*
 FigureCanvas_set_rubberband(FigureCanvas* self, PyObject *args)
 {
     View* view = self->view;
@@ -489,14 +508,18 @@ static PyTypeObject FigureCanvasType = {
          (PyCFunction)FigureCanvas_flush_events,
          METH_NOARGS,
          NULL},  // docstring inherited
+        {"set_cursor",
+         (PyCFunction)FigureCanvas_set_cursor,
+         METH_VARARGS,
+         "Set the active cursor."},
         {"set_rubberband",
          (PyCFunction)FigureCanvas_set_rubberband,
          METH_VARARGS,
-         "Specifies a new rubberband rectangle and invalidates it."},
+         "Specify a new rubberband rectangle and invalidate it."},
         {"remove_rubberband",
          (PyCFunction)FigureCanvas_remove_rubberband,
          METH_NOARGS,
-         "Removes the current rubberband rectangle."},
+         "Remove the current rubberband rectangle."},
         {"start_event_loop",
          (PyCFunction)FigureCanvas_start_event_loop,
          METH_KEYWORDS | METH_VARARGS,
@@ -586,9 +609,15 @@ FigureManager_dealloc(FigureManager* self)
 }
 
 static PyObject*
-FigureManager_show(FigureManager* self)
+FigureManager__show(FigureManager* self)
 {
     [self->window makeKeyAndOrderFront: nil];
+    Py_RETURN_NONE;
+}
+
+static PyObject*
+FigureManager__raise(FigureManager* self)
+{
     [self->window orderFrontRegardless];
     Py_RETURN_NONE;
 }
@@ -684,6 +713,13 @@ FigureManager_resize(FigureManager* self, PyObject *args, PyObject *kwds)
     Py_RETURN_NONE;
 }
 
+static PyObject*
+FigureManager_full_screen_toggle(FigureManager* self)
+{
+    [self->window toggleFullScreen: nil];
+    Py_RETURN_NONE;
+}
+
 static PyTypeObject FigureManagerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
     .tp_name = "_macosx.FigureManager",
@@ -695,8 +731,11 @@ static PyTypeObject FigureManagerType = {
     .tp_new = (newfunc)FigureManager_new,
     .tp_doc = "A FigureManager object wraps a Cocoa NSWindow object.",
     .tp_methods = (PyMethodDef[]){  // All docstrings are inherited.
-        {"show",
-         (PyCFunction)FigureManager_show,
+        {"_show",
+         (PyCFunction)FigureManager__show,
+         METH_NOARGS},
+        {"_raise",
+         (PyCFunction)FigureManager__raise,
          METH_NOARGS},
         {"destroy",
          (PyCFunction)FigureManager_destroy,
@@ -714,6 +753,9 @@ static PyTypeObject FigureManagerType = {
         {"resize",
          (PyCFunction)FigureManager_resize,
          METH_VARARGS},
+        {"full_screen_toggle",
+         (PyCFunction)FigureManager_full_screen_toggle,
+         METH_NOARGS},
         {}  // sentinel
     },
 };
@@ -980,52 +1022,24 @@ choose_save_file(PyObject* unused, PyObject* args)
 {
     int result;
     const char* title;
+    const char* directory;
     const char* default_filename;
-    if (!PyArg_ParseTuple(args, "ss", &title, &default_filename)) {
+    if (!PyArg_ParseTuple(args, "sss", &title, &directory, &default_filename)) {
         return NULL;
     }
     NSSavePanel* panel = [NSSavePanel savePanel];
-    [panel setTitle: [NSString stringWithCString: title
-                                        encoding: NSASCIIStringEncoding]];
-    NSString* ns_default_filename =
-        [[NSString alloc]
-         initWithCString: default_filename
-         encoding: NSUTF8StringEncoding];
-    [panel setNameFieldStringValue: ns_default_filename];
+    [panel setTitle: [NSString stringWithUTF8String: title]];
+    [panel setDirectoryURL: [NSURL fileURLWithPath: [NSString stringWithUTF8String: directory]
+                                       isDirectory: YES]];
+    [panel setNameFieldStringValue: [NSString stringWithUTF8String: default_filename]];
     result = [panel runModal];
-    [ns_default_filename release];
     if (result == NSModalResponseOK) {
-        NSURL* url = [panel URL];
-        NSString* filename = [url path];
+        NSString *filename = [[panel URL] path];
         if (!filename) {
             PyErr_SetString(PyExc_RuntimeError, "Failed to obtain filename");
             return 0;
         }
-        unsigned int n = [filename length];
-        unichar* buffer = malloc(n*sizeof(unichar));
-        [filename getCharacters: buffer];
-        PyObject* string = PyUnicode_FromKindAndData(PyUnicode_2BYTE_KIND, buffer, n);
-        free(buffer);
-        return string;
-    }
-    Py_RETURN_NONE;
-}
-
-static PyObject*
-set_cursor(PyObject* unused, PyObject* args)
-{
-    int i;
-    if (!PyArg_ParseTuple(args, "i", &i)) { return NULL; }
-    switch (i) {
-      case 1: [[NSCursor arrowCursor] set]; break;
-      case 2: [[NSCursor pointingHandCursor] set]; break;
-      case 3: [[NSCursor crosshairCursor] set]; break;
-      case 4: [[NSCursor openHandCursor] set]; break;
-      /* OSX handles busy state itself so no need to set a cursor here */
-      case 5: break;
-      case 6: [[NSCursor resizeLeftRightCursor] set]; break;
-      case 7: [[NSCursor resizeUpDownCursor] set]; break;
-      default: return NULL;
+        return PyUnicode_FromString([filename UTF8String]);
     }
     Py_RETURN_NONE;
 }
@@ -1907,10 +1921,6 @@ static struct PyModuleDef moduledef = {
          (PyCFunction)choose_save_file,
          METH_VARARGS,
          "Query the user for a location where to save a file."},
-        {"set_cursor",
-         (PyCFunction)set_cursor,
-         METH_VARARGS,
-         "Set the active cursor."},
         {}  /* Sentinel */
     },
 };

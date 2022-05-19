@@ -259,6 +259,7 @@ void load_tkinter_funcs(void)
     HANDLE process = GetCurrentProcess();  // Pseudo-handle, doesn't need closing.
     HMODULE* modules = NULL;
     DWORD size;
+    bool tcl_ok = false, tk_ok = false;
     if (!EnumProcessModules(process, NULL, 0, &size)) {
         PyErr_SetFromWindowsErr(0);
         goto exit;
@@ -271,7 +272,6 @@ void load_tkinter_funcs(void)
         PyErr_SetFromWindowsErr(0);
         goto exit;
     }
-    bool tcl_ok = false, tk_ok = false;
     for (unsigned i = 0; i < size / sizeof(HMODULE); ++i) {
         if (!tcl_ok) {
             tcl_ok = load_tcl(modules[i]);

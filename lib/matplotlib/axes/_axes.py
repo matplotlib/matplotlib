@@ -1539,7 +1539,8 @@ class Axes(_AxesBase):
         ----------------
         scalex, scaley : bool, default: True
             These parameters determine if the view limits are adapted to the
-            data limits. The values are passed on to `autoscale_view`.
+            data limits. The values are passed on to
+            `~.axes.Axes.autoscale_view`.
 
         **kwargs : `.Line2D` properties, optional
             *kwargs* are used to specify properties like a line label (for
@@ -3200,6 +3201,38 @@ class Axes(_AxesBase):
         else:
             return slices, texts, autotexts
 
+    @staticmethod
+    def _errorevery_to_mask(x, errorevery):
+        """
+        Normalize `errorbar`'s *errorevery* to be a boolean mask for data *x*.
+
+        This function is split out to be usable both by 2D and 3D errorbars.
+        """
+        if isinstance(errorevery, Integral):
+            errorevery = (0, errorevery)
+        if isinstance(errorevery, tuple):
+            if (len(errorevery) == 2 and
+                    isinstance(errorevery[0], Integral) and
+                    isinstance(errorevery[1], Integral)):
+                errorevery = slice(errorevery[0], None, errorevery[1])
+            else:
+                raise ValueError(
+                    f'{errorevery=!r} is a not a tuple of two integers')
+        elif isinstance(errorevery, slice):
+            pass
+        elif not isinstance(errorevery, str) and np.iterable(errorevery):
+            try:
+                x[errorevery]  # fancy indexing
+            except (ValueError, IndexError) as err:
+                raise ValueError(
+                    f"{errorevery=!r} is iterable but not a valid NumPy fancy "
+                    "index to match 'xerr'/'yerr'") from err
+        else:
+            raise ValueError(f"{errorevery=!r} is not a recognized value")
+        everymask = np.zeros(len(x), bool)
+        everymask[errorevery] = True
+        return everymask
+
     @_preprocess_data(replace_names=["x", "y", "xerr", "yerr"],
                       label_namer="y")
     @_docstring.dedent_interpd
@@ -3331,25 +3364,16 @@ class Axes(_AxesBase):
             """
             Safely handle tuple of containers that carry units.
 
-            If the units are carried on the values then casting to object
-            arrays preserves the units, but if the units are on the containers
-            this will not work.
-
             This function covers the case where the input to the xerr/yerr is a
             length 2 tuple of equal length ndarray-subclasses that carry the
             unit information in the container.
 
-            We defer coercing the units to be consistent to the underlying unit
+            If we have a tuple of nested numpy array (subclasses), we defer
+            coercing the units to be consistent to the underlying unit
             library (and implicitly the broadcasting).
 
-            If we do not have a tuple of nested numpy array (subclasses),
-            fallback to casting to an object array.
-
+            Otherwise, fallback to casting to an object array.
             """
-
-            # we are here because we the container is not a numpy array, but it
-            # _is_ iterable (likely a list or a tuple but maybe something more
-            # exotic)
 
             if (
                     # make sure it is not a scalar
@@ -3362,14 +3386,17 @@ class Axes(_AxesBase):
                     # fails.
                     isinstance(cbook.safe_first_element(err), np.ndarray)
             ):
-                # grab the type of the first element, we will try to promote
-                # the outer container to match the inner container
+                # Get the type of the first element
                 atype = type(cbook.safe_first_element(err))
-                # you can not directly pass data to the init of `np.ndarray`
+                # Promote the outer container to match the inner container
                 if atype is np.ndarray:
+                    # Converts using np.asarray, because data cannot
+                    # be directly passed to init of np.ndarray
                     return np.asarray(err, dtype=object)
-                # but you can for unyt and astropy uints
+                # If atype is not np.ndarray, directly pass data to init.
+                # This works for types such as unyts and astropy units
                 return atype(err)
+            # Otherwise wrap it in an object array
             return np.asarray(err, dtype=object)
 
         if xerr is not None and not isinstance(xerr, np.ndarray):
@@ -3380,32 +3407,7 @@ class Axes(_AxesBase):
         if len(x) != len(y):
             raise ValueError("'x' and 'y' must have the same size")
 
-        if isinstance(errorevery, Integral):
-            errorevery = (0, errorevery)
-        if isinstance(errorevery, tuple):
-            if (len(errorevery) == 2 and
-                    isinstance(errorevery[0], Integral) and
-                    isinstance(errorevery[1], Integral)):
-                errorevery = slice(errorevery[0], None, errorevery[1])
-            else:
-                raise ValueError(
-                    f'errorevery={errorevery!r} is a not a tuple of two '
-                    f'integers')
-        elif isinstance(errorevery, slice):
-            pass
-        elif not isinstance(errorevery, str) and np.iterable(errorevery):
-            # fancy indexing
-            try:
-                x[errorevery]
-            except (ValueError, IndexError) as err:
-                raise ValueError(
-                    f"errorevery={errorevery!r} is iterable but not a valid "
-                    f"NumPy fancy index to match 'xerr'/'yerr'") from err
-        else:
-            raise ValueError(
-                f"errorevery={errorevery!r} is not a recognized value")
-        everymask = np.zeros(len(x), bool)
-        everymask[errorevery] = True
+        everymask = self._errorevery_to_mask(x, errorevery)
 
         label = kwargs.pop("label", None)
         kwargs['label'] = '_nolegend_'
@@ -6649,6 +6651,7 @@ such objects
             m, bins = np.histogram(x[i], bins, weights=w[i], **hist_kwargs)
             tops.append(m)
         tops = np.array(tops, float)  # causes problems later if it's an int
+        bins = np.array(bins, float)  # causes problems if float16
         if stacked:
             tops = tops.cumsum(axis=0)
             # If a stacked density plot, normalize so the area of all the
@@ -7943,8 +7946,8 @@ such objects
         """
 
         def _kde_method(X, coords):
-            if hasattr(X, 'values'):  # support pandas.Series
-                X = X.values
+            # Unpack in case of e.g. Pandas or xarray object
+            X = cbook._unpack_to_numpy(X)
             # fallback gracefully if the vector contains only one value
             if np.all(X[0] == X):
                 return (X[0] == coords).astype(float)

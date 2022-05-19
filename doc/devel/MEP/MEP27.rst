@@ -13,9 +13,11 @@ Status
 Branches and Pull requests
 ==========================
 Main PR (including GTK3):
+
 + https://github.com/matplotlib/matplotlib/pull/4143
 
 Backend specific branch diffs:
+
 + https://github.com/OceanWolf/matplotlib/compare/backend-refactor...OceanWolf:backend-refactor-tkagg
 + https://github.com/OceanWolf/matplotlib/compare/backend-refactor...OceanWolf:backend-refactor-qt
 + https://github.com/OceanWolf/matplotlib/compare/backend-refactor...backend-refactor-wx
@@ -49,15 +51,14 @@ Two main places for generic code appear in the classes derived from
 
 1. ``FigureManagerBase`` has **three** jobs at the moment:
 
-    1. The documentation describes it as a *``Helper class for pyplot
-       mode, wraps everything up into a neat bundle''*
+    1. The documentation describes it as a *Helper class for pyplot
+       mode, wraps everything up into a neat bundle*
     2. But it doesn't just wrap the canvas and toolbar, it also does
        all of the windowing tasks itself.  The conflation of these two
-       tasks gets seen the best in the following line: ```python
-       self.set_window_title("Figure %d" % num) ``` This combines
+       tasks gets seen the best in the following line:
+       ``self.set_window_title("Figure %d" % num)`` This combines
        backend specific code ``self.set_window_title(title)`` with
        matplotlib generic code ``title = "Figure %d" % num``.
-
     3. Currently the backend specific subclass of ``FigureManager``
        decides when to end the mainloop.  This also seems very wrong
        as the figure should have no control over the other figures.
@@ -95,7 +96,7 @@ The description of this MEP gives us most of the solution:
    1. This allows us to break up the conversion of backends into
       separate PRs as we can keep the existing ``FigureManagerBase``
       class and its dependencies intact.
-   2. and this also anticipates MEP22 where the new
+   2. And this also anticipates MEP22 where the new
       ``NavigationBase`` has morphed into a backend independent
       ``ToolManager``.
 

@@ -398,16 +398,6 @@ class Matplotlib(SetupPackage):
                 "win32": ["ole32", "shell32", "user32"],
             }.get(sys.platform, [])))
         yield ext
-        # contour
-        ext = Extension(
-            "matplotlib._contour", [
-                "src/_contour.cpp",
-                "src/_contour_wrapper.cpp",
-                "src/py_converters.cpp",
-            ])
-        add_numpy_flags(ext)
-        add_libagg_flags(ext)
-        yield ext
         # ft2font
         ext = Extension(
             "matplotlib.ft2font", [
@@ -627,6 +617,13 @@ class FreeType(SetupPackage):
                 },
                 **env,
             }
+            configure_ac = Path(src_path, "builds/unix/configure.ac")
+            if ((src_path / "autogen.sh").exists()
+                    and not configure_ac.exists()):
+                print(f"{configure_ac} does not exist. "
+                      f"Using sh autogen.sh to generate.")
+                subprocess.check_call(
+                    ["sh", "./autogen.sh"], env=env, cwd=src_path)
             env["CFLAGS"] = env.get("CFLAGS", "") + " -fPIC"
             configure = [
                 "./configure", "--with-zlib=no", "--with-bzip2=no",
@@ -668,6 +665,7 @@ class FreeType(SetupPackage):
             sln_path = base_path / vc / "freetype.sln"
             # https://developercommunity.visualstudio.com/comments/190992/view.html
             (sln_path.parent / "Directory.Build.props").write_text(
+                "<?xml version='1.0' encoding='utf-8'?>"
                 "<Project>"
                 "<PropertyGroup>"
                 # WindowsTargetPlatformVersion must be given on a single line.
@@ -676,8 +674,8 @@ class FreeType(SetupPackage):
                 "::GetLatestSDKTargetPlatformVersion('Windows', '10.0')"
                 ")</WindowsTargetPlatformVersion>"
                 "</PropertyGroup>"
-                "</Project>"
-            )
+                "</Project>",
+                encoding="utf-8")
             # It is not a trivial task to determine PlatformToolset to plug it
             # into msbuild command, and Directory.Build.props will not override
             # the value in the project file.

@@ -44,7 +44,7 @@ jobs:
     steps:
       - name: Set up QEMU
         if: matrix.cibw_archs == 'aarch64'
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
         with:
           platforms: arm64
 
@@ -108,7 +108,7 @@ jobs:
         run: |
           python ./ci/check_wheel_licenses.py
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: wheels
           path: ./dist/*.whl

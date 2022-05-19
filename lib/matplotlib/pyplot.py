@@ -35,6 +35,7 @@ See :ref:`api_interfaces` for an explanation of the tradeoffs between the
 implicit and explicit interfaces.
 """
 
+from enum import Enum
 import functools
 import importlib
 import inspect
@@ -58,7 +59,7 @@ from matplotlib import _pylab_helpers, interactive
 from matplotlib import cbook
 from matplotlib import _docstring
 from matplotlib.backend_bases import FigureCanvasBase, MouseButton
-from matplotlib.figure import Figure, figaspect
+from matplotlib.figure import Figure, FigureBase, figaspect
 from matplotlib.gridspec import GridSpec, SubplotSpec
 from matplotlib import rcParams, rcParamsDefault, get_backend, rcParamsOrig
 from matplotlib.rcsetup import interactive_bk as _interactive_bk
@@ -70,6 +71,7 @@ from matplotlib.scale import get_scale_names
 
 from matplotlib import cm
 from matplotlib.cm import _colormaps as colormaps, get_cmap, register_cmap
+from matplotlib.colors import _color_sequences as color_sequences
 
 import numpy as np
 
@@ -108,44 +110,46 @@ def _copy_docstring_and_deprecators(method, func=None):
 
 ## Global ##
 
-_IP_REGISTERED = None
-_INSTALL_FIG_OBSERVER = False
+
+# The state controlled by {,un}install_repl_displayhook().
+_ReplDisplayHook = Enum("_ReplDisplayHook", ["NONE", "PLAIN", "IPYTHON"])
+_REPL_DISPLAYHOOK = _ReplDisplayHook.NONE
+
+
+def _draw_all_if_interactive():
+    if matplotlib.is_interactive():
+        draw_all()
 
 
 def install_repl_displayhook():
     """
-    Install a repl display hook so that any stale figure are automatically
-    redrawn when control is returned to the repl.
+    Connect to the display hook of the current shell.
+
+    The display hook gets called when the read-evaluate-print-loop (REPL) of
+    the shell has finished the execution of a command. We use this callback
+    to be able to automatically update a figure in interactive mode.
 
     This works both with IPython and with vanilla python shells.
     """
-    global _IP_REGISTERED
-    global _INSTALL_FIG_OBSERVER
+    global _REPL_DISPLAYHOOK
 
-    if _IP_REGISTERED:
+    if _REPL_DISPLAYHOOK is _ReplDisplayHook.IPYTHON:
         return
+
     # See if we have IPython hooks around, if so use them.
     # Use ``sys.modules.get(name)`` rather than ``name in sys.modules`` as
     # entries can also have been explicitly set to None.
     mod_ipython = sys.modules.get("IPython")
     if not mod_ipython:
-        _INSTALL_FIG_OBSERVER = True
+        _REPL_DISPLAYHOOK = _ReplDisplayHook.PLAIN
         return
     ip = mod_ipython.get_ipython()
     if not ip:
-        _INSTALL_FIG_OBSERVER = True
+        _REPL_DISPLAYHOOK = _ReplDisplayHook.PLAIN
         return
 
-    def post_execute():
-        if matplotlib.is_interactive():
-            draw_all()
-
-    try:  # IPython >= 2
-        ip.events.register("post_execute", post_execute)
-    except AttributeError:  # IPython 1.x
-        ip.register_post_execute(post_execute)
-    _IP_REGISTERED = post_execute
-    _INSTALL_FIG_OBSERVER = False
+    ip.events.register("post_execute", _draw_all_if_interactive)
+    _REPL_DISPLAYHOOK = _ReplDisplayHook.IPYTHON
 
     from IPython.core.pylabtools import backend2gui
     # trigger IPython's eventloop integration, if available
@@ -155,35 +159,13 @@ def install_repl_displayhook():
 
 
 def uninstall_repl_displayhook():
-    """
-    Uninstall the Matplotlib display hook.
-
-    .. warning::
-
-       Need IPython >= 2 for this to work.  For IPython < 2 will raise a
-       ``NotImplementedError``
-
-    .. warning::
-
-       If you are using vanilla python and have installed another
-       display hook, this will reset ``sys.displayhook`` to what ever
-       function was there when Matplotlib installed its displayhook,
-       possibly discarding your changes.
-    """
-    global _IP_REGISTERED
-    global _INSTALL_FIG_OBSERVER
-    if _IP_REGISTERED:
+    """Disconnect from the display hook of the current shell."""
+    global _REPL_DISPLAYHOOK
+    if _REPL_DISPLAYHOOK is _ReplDisplayHook.IPYTHON:
         from IPython import get_ipython
         ip = get_ipython()
-        try:
-            ip.events.unregister('post_execute', _IP_REGISTERED)
-        except AttributeError as err:
-            raise NotImplementedError("Can not unregister events "
-                                      "in IPython < 2.0") from err
-        _IP_REGISTERED = None
-
-    if _INSTALL_FIG_OBSERVER:
-        _INSTALL_FIG_OBSERVER = False
+        ip.events.unregister("post_execute", _draw_all_if_interactive)
+    _REPL_DISPLAYHOOK = _ReplDisplayHook.NONE
 
 
 draw_all = _pylab_helpers.Gcf.draw_all
@@ -708,7 +690,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
     Parameters
     ----------
-    num : int or str or `.Figure`, optional
+    num : int or str or `.Figure` or `.SubFigure`, optional
         A unique identifier for the figure.
 
         If a figure with that identifier already exists, this figure is made
@@ -720,7 +702,8 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         will be used for the ``Figure.number`` attribute, otherwise, an
         auto-generated integer value is used (starting at 1 and incremented
         for each new figure). If *num* is a string, the figure label and the
-        window title is set to this value.
+        window title is set to this value.  If num is a ``SubFigure``, its
+        parent ``Figure`` is activated.
 
     figsize : (float, float), default: :rc:`figure.figsize`
         Width, height in inches.
@@ -771,11 +754,11 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
     `~matplotlib.rcParams` defines the default values, which can be modified
     in the matplotlibrc file.
     """
-    if isinstance(num, Figure):
+    if isinstance(num, FigureBase):
         if num.canvas.manager is None:
             raise ValueError("The passed figure is not managed by pyplot")
         _pylab_helpers.Gcf.set_active(num.canvas.manager)
-        return num
+        return num.figure
 
     allnums = get_fignums()
     next_num = max(allnums) + 1 if allnums else 1
@@ -823,7 +806,7 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
         # FigureManager base class.
         draw_if_interactive()
 
-        if _INSTALL_FIG_OBSERVER:
+        if _REPL_DISPLAYHOOK is _ReplDisplayHook.PLAIN:
             fig.stale_callback = _auto_draw_if_interactive
 
     if clear:
@@ -2914,7 +2897,8 @@ def streamplot(
         x, y, u, v, density=1, linewidth=None, color=None, cmap=None,
         norm=None, arrowsize=1, arrowstyle='-|>', minlength=0.1,
         transform=None, zorder=None, start_points=None, maxlength=4.0,
-        integration_direction='both', *, data=None):
+        integration_direction='both', broken_streamlines=True, *,
+        data=None):
     __ret = gca().streamplot(
         x, y, u, v, density=density, linewidth=linewidth, color=color,
         cmap=cmap, norm=norm, arrowsize=arrowsize,
@@ -2922,6 +2906,7 @@ def streamplot(
         transform=transform, zorder=zorder, start_points=start_points,
         maxlength=maxlength,
         integration_direction=integration_direction,
+        broken_streamlines=broken_streamlines,
         **({"data": data} if data is not None else {}))
     sci(__ret.lines)
     return __ret

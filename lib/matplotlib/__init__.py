@@ -754,10 +754,7 @@ def _open_file_or_url(fname):
             yield (line.decode('utf-8') for line in f)
     else:
         fname = os.path.expanduser(fname)
-        encoding = locale.getpreferredencoding(do_setlocale=False)
-        if encoding is None:
-            encoding = "utf-8"
-        with open(fname, encoding=encoding) as f:
+        with open(fname, encoding='utf-8') as f:
             yield f
 
 
@@ -802,11 +799,8 @@ def _rc_params_in_file(fname, transform=lambda x: x, fail_on_error=False):
                                  fname, line_no, line.rstrip('\n'))
                 rc_temp[key] = (val, line, line_no)
         except UnicodeDecodeError:
-            _log.warning('Cannot decode configuration file %s with encoding '
-                         '%s, check LANG and LC_* variables.',
-                         fname,
-                         locale.getpreferredencoding(do_setlocale=False)
-                         or 'utf-8 (default)')
+            _log.warning('Cannot decode configuration file %r as utf-8.',
+                         fname)
             raise
 
     config = RcParams()
@@ -990,7 +984,7 @@ def rcdefaults():
     Restore the `.rcParams` from Matplotlib's internal default style.
 
     Style-blacklisted `.rcParams` (defined in
-    `matplotlib.style.core.STYLE_BLACKLIST`) are not updated.
+    ``matplotlib.style.core.STYLE_BLACKLIST``) are not updated.
 
     See Also
     --------
@@ -1015,7 +1009,7 @@ def rc_file_defaults():
     Restore the `.rcParams` from the original rc file loaded by Matplotlib.
 
     Style-blacklisted `.rcParams` (defined in
-    `matplotlib.style.core.STYLE_BLACKLIST`) are not updated.
+    ``matplotlib.style.core.STYLE_BLACKLIST``) are not updated.
     """
     # Deprecation warnings were already handled when creating rcParamsOrig, no
     # need to reemit them here.
@@ -1030,7 +1024,7 @@ def rc_file(fname, *, use_default_template=True):
     Update `.rcParams` from file.
 
     Style-blacklisted `.rcParams` (defined in
-    `matplotlib.style.core.STYLE_BLACKLIST`) are not updated.
+    ``matplotlib.style.core.STYLE_BLACKLIST``) are not updated.
 
     Parameters
     ----------
@@ -1455,3 +1449,4 @@ _log.debug('platform is %s', sys.platform)
 # workaround: we must defer colormaps import to after loading rcParams, because
 # colormap creation depends on rcParams
 from matplotlib.cm import _colormaps as colormaps
+from matplotlib.colors import _color_sequences as color_sequences

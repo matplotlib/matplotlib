@@ -59,7 +59,12 @@ def _get_testable_interactive_backends():
         elif env["MPLBACKEND"].startswith('wx') and sys.platform == 'darwin':
             # ignore on OSX because that's currently broken (github #16849)
             marks.append(pytest.mark.xfail(reason='github #16849'))
-        envs.append(pytest.param(env, marks=marks, id=str(env)))
+        envs.append(
+            pytest.param(
+                {**env, 'BACKEND_DEPS': ','.join(deps)},
+                marks=marks, id=str(env)
+            )
+        )
     return envs
 
 
@@ -195,8 +200,10 @@ def _test_thread_impl():
     future = ThreadPoolExecutor().submit(fig.canvas.draw)
     plt.pause(0.5)  # flush_events fails here on at least Tkagg (bpo-41176)
     future.result()  # Joins the thread; rethrows any exception.
-    plt.close()
-    fig.canvas.flush_events()  # pause doesn't process events after close
+    plt.close()  # backend is responsible for flushing any events here
+    if plt.rcParams["backend"].startswith("WX"):
+        # TODO: debug why WX needs this only on py3.8
+        fig.canvas.flush_events()
 
 
 _thread_safe_backends = _get_testable_interactive_backends()
@@ -394,22 +401,29 @@ def _lazy_headless():
     import os
     import sys
 
+    backend, deps = sys.argv[1:]
+    deps = deps.split(',')
+
     # make it look headless
     os.environ.pop('DISPLAY', None)
     os.environ.pop('WAYLAND_DISPLAY', None)
+    for dep in deps:
+        assert dep not in sys.modules
 
     # we should fast-track to Agg
     import matplotlib.pyplot as plt
-    plt.get_backend() == 'agg'
-    assert 'PyQt5' not in sys.modules
+    assert plt.get_backend() == 'agg'
+    for dep in deps:
+        assert dep not in sys.modules
 
-    # make sure we really have pyqt installed
-    import PyQt5  # noqa
-    assert 'PyQt5' in sys.modules
+    # make sure we really have dependencies installed
+    for dep in deps:
+        importlib.import_module(dep)
+        assert dep in sys.modules
 
     # try to switch and make sure we fail with ImportError
     try:
-        plt.switch_backend('qt5agg')
+        plt.switch_backend(backend)
     except ImportError:
         ...
     else:
@@ -417,9 +431,14 @@ def _lazy_headless():
 
 
 @pytest.mark.skipif(sys.platform != "linux", reason="this a linux-only test")
-@pytest.mark.backend('Qt5Agg', skip_on_importerror=True)
-def test_lazy_linux_headless():
-    proc = _run_helper(_lazy_headless, timeout=_test_timeout, MPLBACKEND="")
+@pytest.mark.parametrize("env", _get_testable_interactive_backends())
+def test_lazy_linux_headless(env):
+    proc = _run_helper(
+        _lazy_headless,
+        env.pop('MPLBACKEND'), env.pop("BACKEND_DEPS"),
+        timeout=_test_timeout,
+        **{**env, 'DISPLAY': '', 'WAYLAND_DISPLAY': ''}
+    )
 
 
 def _qApp_warn_impl():
@@ -503,3 +522,57 @@ def test_blitting_events(env):
     # blitting is not properly implemented
     ndraws = proc.stdout.count("DrawEvent")
     assert 0 < ndraws < 5
+
+
+# The source of this function gets extracted and run in another process, so it
+# must be fully self-contained.
+def _test_figure_leak():
+    import gc
+    import sys
+
+    import psutil
+    from matplotlib import pyplot as plt
+    # Second argument is pause length, but if zero we should skip pausing
+    t = float(sys.argv[1])
+    p = psutil.Process()
+
+    # Warmup cycle, this reasonably allocates a lot
+    for _ in range(2):
+        fig = plt.figure()
+        if t:
+            plt.pause(t)
+        plt.close(fig)
+    mem = p.memory_info().rss
+    gc.collect()
+
+    for _ in range(5):
+        fig = plt.figure()
+        if t:
+            plt.pause(t)
+        plt.close(fig)
+        gc.collect()
+    growth = p.memory_info().rss - mem
+
+    print(growth)
+
+
+# TODO: "0.1" memory threshold could be reduced 10x by fixing tkagg
+@pytest.mark.parametrize("env", _get_testable_interactive_backends())
+@pytest.mark.parametrize("time_mem", [(0.0, 2_000_000), (0.1, 30_000_000)])
+def test_figure_leak_20490(env, time_mem):
+    pytest.importorskip("psutil", reason="psutil needed to run this test")
+
+    # We haven't yet directly identified the leaks so test with a memory growth
+    # threshold.
+    pause_time, acceptable_memory_leakage = time_mem
+    if env["MPLBACKEND"] == "macosx" or (
+            env["MPLBACKEND"] == "tkagg" and sys.platform == 'darwin'
+    ):
+        acceptable_memory_leakage += 11_000_000
+
+    result = _run_helper(
+        _test_figure_leak, str(pause_time), timeout=_test_timeout, **env
+    )
+
+    growth = int(result.stdout)
+    assert growth <= acceptable_memory_leakage

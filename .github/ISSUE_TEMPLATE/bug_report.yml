@@ -6,8 +6,8 @@ body:
     id: summary
     attributes:
       label: Bug summary
-      description:  Describe the bug in 1-2 short sentences 
-      placeholder: 
+      description:  Describe the bug in 1-2 short sentences
+      placeholder:
       value:
     validations:
       required: true
@@ -15,7 +15,7 @@ body:
     id: reproduction
     attributes:
       label: Code for reproduction
-      description: If possible, please provide a minimum self-contained example. 
+      description: If possible, please provide a minimum self-contained example.
       placeholder: Paste your code here
       render: python
     validations:
@@ -59,7 +59,7 @@ body:
       required: true
   - type: input
     id: matplotlib-backend
-    attributes: 
+    attributes:
       label: Matplotlib Backend
       description: "From Python prompt: `import matplotlib; print(matplotlib.get_backend())`"
   - type: input

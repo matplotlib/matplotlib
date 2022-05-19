@@ -36,8 +36,9 @@ class GeoAxes(Axes):
         # self.spines['geo'].register_axis(self.yaxis)
         self._update_transScale()
 
-    def cla(self):
-        super().cla()
+    def clear(self):
+        # docstring inherited
+        super().clear()
 
         self.set_longitude_grid(30)
         self.set_latitude_grid(15)
@@ -284,7 +285,7 @@ class AitoffAxes(GeoAxes):
         self._longitude_cap = np.pi / 2.0
         super().__init__(*args, **kwargs)
         self.set_aspect(0.5, adjustable='box', anchor='C')
-        self.cla()
+        self.clear()
 
     def _get_core_transform(self, resolution):
         return self.AitoffTransform(resolution)
@@ -329,7 +330,7 @@ class HammerAxes(GeoAxes):
         self._longitude_cap = np.pi / 2.0
         super().__init__(*args, **kwargs)
         self.set_aspect(0.5, adjustable='box', anchor='C')
-        self.cla()
+        self.clear()
 
     def _get_core_transform(self, resolution):
         return self.HammerTransform(resolution)
@@ -399,7 +400,7 @@ class MollweideAxes(GeoAxes):
         self._longitude_cap = np.pi / 2.0
         super().__init__(*args, **kwargs)
         self.set_aspect(0.5, adjustable='box', anchor='C')
-        self.cla()
+        self.clear()
 
     def _get_core_transform(self, resolution):
         return self.MollweideTransform(resolution)
@@ -484,10 +485,11 @@ class LambertAxes(GeoAxes):
         self._center_latitude = center_latitude
         super().__init__(*args, **kwargs)
         self.set_aspect('equal', adjustable='box', anchor='C')
-        self.cla()
+        self.clear()
 
-    def cla(self):
-        super().cla()
+    def clear(self):
+        # docstring inherited
+        super().clear()
         self.yaxis.set_major_formatter(NullFormatter())
 
     def _get_core_transform(self, resolution):

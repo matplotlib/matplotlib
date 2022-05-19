@@ -6,4 +6,3 @@ the Testing section of the Matplotlib Developers’ Guide:
 
 * https://matplotlib.org/devel/testing.html
 * <mpl_source_dir>/doc/devel/coding_guide.rst (equivalent, but in reST format)
-

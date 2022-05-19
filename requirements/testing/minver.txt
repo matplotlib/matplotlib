@@ -1,5 +1,6 @@
 # Extra pip requirements for the minimum-version CI run
 
+contourpy==1.0.1
 cycler==0.10
 kiwisolver==1.0.1
 numpy==1.19.0

@@ -1331,10 +1331,14 @@ def _to_unmasked_float_array(x):
 
 def _check_1d(x):
     """Convert scalars to 1D arrays; pass-through arrays as is."""
-    if hasattr(x, 'to_numpy'):
-        # if we are given an object that creates a numpy, we should use it...
-        x = x.to_numpy()
-    if not hasattr(x, 'shape') or len(x.shape) < 1:
+    # Unpack in case of e.g. Pandas or xarray object
+    x = _unpack_to_numpy(x)
+    # plot requires `shape` and `ndim`.  If passed an
+    # object that doesn't provide them, then force to numpy array.
+    # Note this will strip unit information.
+    if (not hasattr(x, 'shape') or
+            not hasattr(x, 'ndim') or
+            len(x.shape) < 1):
         return np.atleast_1d(x)
     else:
         return x
@@ -1352,15 +1356,8 @@ def _reshape_2D(X, name):
     *name* is used to generate the error message for invalid inputs.
     """
 
-    # unpack if we have a values or to_numpy method.
-    try:
-        X = X.to_numpy()
-    except AttributeError:
-        try:
-            if isinstance(X.values, np.ndarray):
-                X = X.values
-        except AttributeError:
-            pass
+    # Unpack in case of e.g. Pandas or xarray object
+    X = _unpack_to_numpy(X)
 
     # Iterate over columns for ndarrays.
     if isinstance(X, np.ndarray):
@@ -2251,3 +2248,20 @@ def _picklable_class_constructor(mixin_class, fmt, attr_name, base_class):
     factory = _make_class_factory(mixin_class, fmt, attr_name)
     cls = factory(base_class)
     return cls.__new__(cls)
+
+
+def _unpack_to_numpy(x):
+    """Internal helper to extract data from e.g. pandas and xarray objects."""
+    if isinstance(x, np.ndarray):
+        # If numpy, return directly
+        return x
+    if hasattr(x, 'to_numpy'):
+        # Assume that any function to_numpy() do actually return a numpy array
+        return x.to_numpy()
+    if hasattr(x, 'values'):
+        xtmp = x.values
+        # For example a dict has a 'values' attribute, but it is not a property
+        # so in this case we do not want to return a function
+        if isinstance(xtmp, np.ndarray):
+            return xtmp
+    return x

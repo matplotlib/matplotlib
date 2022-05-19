@@ -1,0 +1,5 @@
+``cmap_d`` removal
+~~~~~~~~~~~~~~~~~~
+
+The deprecated ``matplotlib.cm.cmap_d`` access to global colormaps
+has been removed.

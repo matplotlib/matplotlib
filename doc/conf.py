@@ -366,6 +366,10 @@ html_sidebars = {
     # '**': ['localtoc.html', 'pagesource.html']
 }
 
+# Copies only relevant code, not the '>>>' prompt
+copybutton_prompt_text = r'>>> |\.\.\. '
+copybutton_prompt_is_regexp = True
+
 # If true, add an index to the HTML documents.
 html_use_index = False
 

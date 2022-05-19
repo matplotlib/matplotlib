@@ -74,7 +74,7 @@ rcParam.
 Deprecated ``Axis.unit_data``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Use `.Axis.units` (which has long existed) instead.
+Use ``Axis.units`` (which has long existed) instead.
 
 
 Removals
@@ -198,11 +198,11 @@ Changes to Qt backend class MRO
 
 To support both Agg and cairo rendering for Qt backends all of the non-Agg
 specific code previously in ``backend_qt5agg.FigureCanvasQTAggBase`` has been
-moved to :class:`.backend_qt5.FigureCanvasQT` so it can be shared with the
+moved to ``backend_qt5.FigureCanvasQT`` so it can be shared with the
 cairo implementation.  The ``FigureCanvasQTAggBase.paintEvent``,
 ``FigureCanvasQTAggBase.blit``, and ``FigureCanvasQTAggBase.print_figure``
-methods have moved to :meth:`.FigureCanvasQTAgg.paintEvent`,
-:meth:`.FigureCanvasQTAgg.blit`, and :meth:`.FigureCanvasQTAgg.print_figure`.
+methods have moved to ``FigureCanvasQTAgg.paintEvent``,
+``FigureCanvasQTAgg.blit``, and ``FigureCanvasQTAgg.print_figure``.
 The first two methods assume that the instance is also a ``QWidget`` so to use
 ``FigureCanvasQTAggBase`` it was required to multiple inherit from a
 ``QWidget`` sub-class.
@@ -210,9 +210,9 @@ The first two methods assume that the instance is also a ``QWidget`` so to use
 Having moved all of its methods either up or down the class hierarchy
 ``FigureCanvasQTAggBase`` has been deprecated.  To do this without warning and
 to preserve as much API as possible, ``.backend_qt5agg.FigureCanvasQTAggBase``
-now inherits from :class:`.backend_qt5.FigureCanvasQTAgg`.
+now inherits from ``backend_qt5.FigureCanvasQTAgg``.
 
-The MRO for :class:`.FigureCanvasQTAgg` and ``FigureCanvasQTAggBase`` used to
+The MRO for ``FigureCanvasQTAgg`` and ``FigureCanvasQTAggBase`` used to
 be ::
 
 

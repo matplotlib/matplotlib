@@ -196,11 +196,16 @@ def list_fonts(directory, extensions):
     recursively under the directory.
     """
     extensions = ["." + ext for ext in extensions]
-    return [os.path.join(dirpath, filename)
-            # os.walk ignores access errors, unlike Path.glob.
-            for dirpath, _, filenames in os.walk(directory)
-            for filename in filenames
-            if Path(filename).suffix.lower() in extensions]
+    if sys.platform == 'win32' and directory == win32FontDirectory():
+        return [os.path.join(directory, filename)
+                for filename in os.listdir(directory)
+                if os.path.isfile(filename)]
+    else:
+        return [os.path.join(dirpath, filename)
+                # os.walk ignores access errors, unlike Path.glob.
+                for dirpath, _, filenames in os.walk(directory)
+                for filename in filenames
+                if Path(filename).suffix.lower() in extensions]
 
 
 def win32FontDirectory():
@@ -855,14 +860,18 @@ class FontProperties:
         """
         if weight is None:
             weight = rcParams['font.weight']
+        if weight in weight_dict:
+            self._weight = weight
+            return
         try:
             weight = int(weight)
-            if weight < 0 or weight > 1000:
-                raise ValueError()
         except ValueError:
-            if weight not in weight_dict:
-                raise ValueError("weight is invalid")
-        self._weight = weight
+            pass
+        else:
+            if 0 <= weight <= 1000:
+                self._weight = weight
+                return
+        raise ValueError(f"{weight=} is invalid")
 
     def set_stretch(self, stretch):
         """
@@ -877,14 +886,18 @@ class FontProperties:
         """
         if stretch is None:
             stretch = rcParams['font.stretch']
+        if stretch in stretch_dict:
+            self._stretch = stretch
+            return
         try:
             stretch = int(stretch)
-            if stretch < 0 or stretch > 1000:
-                raise ValueError()
         except ValueError as err:
-            if stretch not in stretch_dict:
-                raise ValueError("stretch is invalid") from err
-        self._stretch = stretch
+            pass
+        else:
+            if 0 <= stretch <= 1000:
+                self._stretch = stretch
+                return
+        raise ValueError(f"{stretch=} is invalid")
 
     def set_size(self, size):
         """

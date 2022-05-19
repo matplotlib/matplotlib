@@ -1110,8 +1110,7 @@ def test_reused_gridspec():
 
 
 @image_comparison(['test_subfigure.png'], style='mpl20',
-                  savefig_kwarg={'facecolor': 'teal'},
-                  remove_text=False)
+                  savefig_kwarg={'facecolor': 'teal'})
 def test_subfigure():
     np.random.seed(19680801)
     fig = plt.figure(layout='constrained')
@@ -1143,8 +1142,7 @@ def test_subfigure_tightbbox():
 
 
 @image_comparison(['test_subfigure_ss.png'], style='mpl20',
-                  savefig_kwarg={'facecolor': 'teal'},
-                  remove_text=False)
+                  savefig_kwarg={'facecolor': 'teal'})
 def test_subfigure_ss():
     # test assigning the subfigure via subplotspec
     np.random.seed(19680801)
@@ -1167,8 +1165,7 @@ def test_subfigure_ss():
 
 
 @image_comparison(['test_subfigure_double.png'], style='mpl20',
-                  savefig_kwarg={'facecolor': 'teal'},
-                  remove_text=False)
+                  savefig_kwarg={'facecolor': 'teal'})
 def test_subfigure_double():
     # test assigning the subfigure via subplotspec
     np.random.seed(19680801)

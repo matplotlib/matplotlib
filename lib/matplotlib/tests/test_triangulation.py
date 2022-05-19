@@ -242,7 +242,7 @@ def test_tripcolor_color():
     x = [-1, 0, 1, 0]
     y = [0, -1, 0, 1]
     fig, ax = plt.subplots()
-    with pytest.raises(ValueError, match="Missing color parameter"):
+    with pytest.raises(TypeError, match=r"tripcolor\(\) missing 1 required "):
         ax.tripcolor(x, y)
     with pytest.raises(ValueError, match="The length of C must match either"):
         ax.tripcolor(x, y, [1, 2, 3])
@@ -255,8 +255,8 @@ def test_tripcolor_color():
     with pytest.raises(ValueError,
                        match="'gouraud' .* at the points.* not at the faces"):
         ax.tripcolor(x, y, [1, 2], shading='gouraud')  # faces
-    with pytest.raises(ValueError,
-                       match=r"pass C positionally or facecolors via keyword"):
+    with pytest.raises(TypeError,
+                       match="positional.*'C'.*keyword-only.*'facecolors'"):
         ax.tripcolor(x, y, C=[1, 2, 3, 4])
 
     # smoke test for valid color specifications (via C or facecolors)
@@ -282,7 +282,7 @@ def test_tripcolor_warnings():
     C = [0.4, 0.5]
     fig, ax = plt.subplots()
     # additional parameters
-    with pytest.warns(UserWarning, match="Additional positional parameters"):
+    with pytest.warns(DeprecationWarning, match="Additional positional param"):
         ax.tripcolor(x, y, C, 'unused_positional')
     # facecolors takes precednced over C
     with pytest.warns(UserWarning, match="Positional parameter C .*no effect"):

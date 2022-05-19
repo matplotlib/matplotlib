@@ -1,4 +1,7 @@
 name: Tests
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
+  cancel-in-progress: true
 
 on:
   push:
@@ -158,8 +161,8 @@ jobs:
 
           # Install dependencies from PyPI.
           python -m pip install --upgrade $PRE \
-            cycler fonttools kiwisolver numpy packaging pillow pyparsing \
-            python-dateutil setuptools-scm \
+            'contourpy>=1.0.1' cycler fonttools kiwisolver numpy packaging \
+            pillow pyparsing python-dateutil setuptools-scm \
             -r requirements/testing/all.txt \
             ${{ matrix.extra-requirements }}
 
@@ -220,6 +223,7 @@ jobs:
 
           # Turn all warnings to errors, except ignore the distutils deprecations and the find_spec warning
           cat >> pytest.ini << EOF
+          [pytest]
           filterwarnings =
               error
               ignore:.*distutils:DeprecationWarning
@@ -276,9 +280,9 @@ jobs:
           find . -name '*.gc*' -delete
         if: ${{ runner.os != 'macOS' }}
       - name: Upload code coverage
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }} result images"

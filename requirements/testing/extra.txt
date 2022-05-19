@@ -7,3 +7,4 @@ pandas!=0.25.0
 pikepdf
 pytz
 pywin32; sys.platform == 'win32'
+xarray

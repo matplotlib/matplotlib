@@ -142,8 +142,8 @@ The available date tickers are:
 
 * `YearLocator`: Locate years that are multiples of base.
 
-* `RRuleLocator`: Locate using a ``matplotlib.dates.rrulewrapper``.
-  ``rrulewrapper`` is a simple wrapper around dateutil_'s `dateutil.rrule`
+* `RRuleLocator`: Locate using a `rrulewrapper`.
+  `rrulewrapper` is a simple wrapper around dateutil_'s `dateutil.rrule`
   which allow almost arbitrary date tick specifications.
   See :doc:`rrule example </gallery/ticks/date_demo_rrule>`.
 
@@ -195,7 +195,7 @@ __all__ = ('datestr2num', 'date2num', 'num2date', 'num2timedelta', 'drange',
            'rrule', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU',
            'YEARLY', 'MONTHLY', 'WEEKLY', 'DAILY',
            'HOURLY', 'MINUTELY', 'SECONDLY', 'MICROSECONDLY', 'relativedelta',
-           'DateConverter', 'ConciseDateConverter')
+           'DateConverter', 'ConciseDateConverter', 'rrulewrapper')
 
 
 _log = logging.getLogger(__name__)
@@ -222,9 +222,7 @@ def _get_tzinfo(tz=None):
     raise TypeError("tz must be string or tzinfo subclass.")
 
 
-"""
-Time-related constants.
-"""
+# Time-related constants.
 EPOCH_OFFSET = float(datetime.datetime(1970, 1, 1).toordinal())
 # EPOCH_OFFSET is not used by matplotlib
 JULIAN_OFFSET = 1721424.5  # Julian date at 0000-12-31
@@ -436,9 +434,8 @@ def date2num(d):
     The Gregorian calendar is assumed; this is not universal practice.
     For details see the module docstring.
     """
-    if hasattr(d, "values"):
-        # this unpacks pandas series or dataframes...
-        d = d.values
+    # Unpack in case of e.g. Pandas or xarray object
+    d = cbook._unpack_to_numpy(d)
 
     # make an iterable, but save state to unpack later:
     iterable = np.iterable(d)
@@ -798,8 +795,10 @@ class ConciseDateFormatter(ticker.Formatter):
         # mostly 0: years,  1: months,  2: days,
         # 3: hours, 4: minutes, 5: seconds, 6: microseconds
         for level in range(5, -1, -1):
-            if len(np.unique(tickdate[:, level])) > 1:
-                if level < 2:
+            unique = np.unique(tickdate[:, level])
+            if len(unique) > 1:
+                # if 1 is included in unique, the year is shown in ticks
+                if level < 2 and np.any(unique == 1):
                     show_offset = False
                 break
             elif level == 0:
@@ -982,16 +981,28 @@ class AutoDateFormatter(ticker.Formatter):
 
 class rrulewrapper:
     """
-    A simple wrapper around a ``dateutil.rrule`` allowing flexible
+    A simple wrapper around a `dateutil.rrule` allowing flexible
     date tick specifications.
     """
     def __init__(self, freq, tzinfo=None, **kwargs):
+        """
+        Parameters
+        ----------
+        freq : {YEARLY, MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY, SECONDLY}
+            Tick frequency. These constants are defined in `dateutil.rrule`,
+            but they are accessible from `matplotlib.dates` as well.
+        tzinfo : `datetime.tzinfo`, optional
+            Time zone information. The default is None.
+        **kwargs
+            Additional keyword arguments are passed to the `dateutil.rrule`.
+        """
         kwargs['freq'] = freq
         self._base_tzinfo = tzinfo
 
         self._update_rrule(**kwargs)
 
     def set(self, **kwargs):
+        """Set parameters for an existing wrapper."""
         self._construct.update(kwargs)
 
         self._update_rrule(**self._construct)

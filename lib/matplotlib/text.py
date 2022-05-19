@@ -148,6 +148,11 @@ class Text(Artist):
         """
         Create a `.Text` instance at *x*, *y* with string *text*.
 
+        The text is aligned relative to the anchor point (*x*, *y*) according
+        to ``horizontalalignment`` (default: 'left') and ``verticalalignment``
+        (default: 'bottom'). See also
+        :doc:`/gallery/text_labels_and_annotations/text_alignment`.
+
         While Text accepts the 'label' keyword argument, by default it is not
         added to the handles of a legend.
 
@@ -956,11 +961,13 @@ class Text(Artist):
 
     def set_horizontalalignment(self, align):
         """
-        Set the horizontal alignment to one of
+        Set the horizontal alignment relative to the anchor point.
+
+        See also :doc:`/gallery/text_labels_and_annotations/text_alignment`.
 
         Parameters
         ----------
-        align : {'center', 'right', 'left'}
+        align : {'left', 'center', 'right'}
         """
         _api.check_in_list(['center', 'right', 'left'], align=align)
         self._horizontalalignment = align
@@ -1202,11 +1209,13 @@ class Text(Artist):
 
     def set_verticalalignment(self, align):
         """
-        Set the vertical alignment.
+        Set the vertical alignment relative to the anchor point.
+
+        See also :doc:`/gallery/text_labels_and_annotations/text_alignment`.
 
         Parameters
         ----------
-        align : {'center', 'top', 'bottom', 'baseline', 'center_baseline'}
+        align : {'bottom', 'baseline', 'center', 'center_baseline', 'top'}
         """
         _api.check_in_list(
             ['top', 'bottom', 'center', 'baseline', 'center_baseline'],
@@ -1897,32 +1906,30 @@ class Annotation(Text, _AnnotationBase):
         """
         Update the pixel positions of the annotation text and the arrow patch.
         """
-        x1, y1 = self._get_position_xy(renderer)  # Annotated position.
-        # generate transformation,
+        # generate transformation
         self.set_transform(self._get_xy_transform(renderer, self.anncoords))
 
-        if self.arrowprops is None:
+        arrowprops = self.arrowprops
+        if arrowprops is None:
             return
 
         bbox = Text.get_window_extent(self, renderer)
 
-        d = self.arrowprops.copy()
-        ms = d.pop("mutation_scale", self.get_size())
+        arrow_end = x1, y1 = self._get_position_xy(renderer)  # Annotated pos.
+
+        ms = arrowprops.get("mutation_scale", self.get_size())
         self.arrow_patch.set_mutation_scale(ms)
 
-        if "arrowstyle" not in d:
+        if "arrowstyle" not in arrowprops:
             # Approximately simulate the YAArrow.
-            # Pop its kwargs:
-            shrink = d.pop('shrink', 0.0)
-            width = d.pop('width', 4)
-            headwidth = d.pop('headwidth', 12)
-            # Ignore frac--it is useless.
-            frac = d.pop('frac', None)
-            if frac is not None:
+            shrink = arrowprops.get('shrink', 0.0)
+            width = arrowprops.get('width', 4)
+            headwidth = arrowprops.get('headwidth', 12)
+            if 'frac' in arrowprops:
                 _api.warn_external(
                     "'frac' option in 'arrowprops' is no longer supported;"
                     " use 'headlength' to set the head length in points.")
-            headlength = d.pop('headlength', 12)
+            headlength = arrowprops.get('headlength', 12)
 
             # NB: ms is in pts
             stylekw = dict(head_length=headlength / ms,
@@ -1944,29 +1951,25 @@ class Annotation(Text, _AnnotationBase):
 
         # adjust the starting point of the arrow relative to the textbox.
         # TODO : Rotation needs to be accounted.
-        relposx, relposy = self._arrow_relpos
-        x0 = bbox.x0 + bbox.width * relposx
-        y0 = bbox.y0 + bbox.height * relposy
-
-        # The arrow will be drawn from (x0, y0) to (x1, y1). It will be first
+        arrow_begin = bbox.p0 + bbox.size * self._arrow_relpos
+        # The arrow is drawn from arrow_begin to arrow_end.  It will be first
         # clipped by patchA and patchB.  Then it will be shrunk by shrinkA and
-        # shrinkB (in points).  If patch A is not set, self.bbox_patch is used.
-        self.arrow_patch.set_positions((x0, y0), (x1, y1))
+        # shrinkB (in points).  If patchA is not set, self.bbox_patch is used.
+        self.arrow_patch.set_positions(arrow_begin, arrow_end)
 
-        if "patchA" in d:
-            self.arrow_patch.set_patchA(d.pop("patchA"))
+        if "patchA" in arrowprops:
+            patchA = arrowprops["patchA"]
+        elif self._bbox_patch:
+            patchA = self._bbox_patch
+        elif self.get_text() == "":
+            patchA = None
         else:
-            if self._bbox_patch:
-                self.arrow_patch.set_patchA(self._bbox_patch)
-            else:
-                if self.get_text() == "":
-                    self.arrow_patch.set_patchA(None)
-                    return
-                pad = renderer.points_to_pixels(4)
-                r = Rectangle(xy=(bbox.x0 - pad / 2, bbox.y0 - pad / 2),
-                              width=bbox.width + pad, height=bbox.height + pad,
-                              transform=IdentityTransform(), clip_on=False)
-                self.arrow_patch.set_patchA(r)
+            pad = renderer.points_to_pixels(4)
+            patchA = Rectangle(
+                xy=(bbox.x0 - pad / 2, bbox.y0 - pad / 2),
+                width=bbox.width + pad, height=bbox.height + pad,
+                transform=IdentityTransform(), clip_on=False)
+        self.arrow_patch.set_patchA(patchA)
 
     @artist.allow_rasterization
     def draw(self, renderer):

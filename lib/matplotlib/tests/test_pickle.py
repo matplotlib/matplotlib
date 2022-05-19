@@ -201,7 +201,7 @@ def test_inset_and_secondary():
     pickle.loads(pickle.dumps(fig))
 
 
-@pytest.mark.parametrize("cmap", cm._cmap_registry.values())
+@pytest.mark.parametrize("cmap", cm._colormaps.values())
 def test_cmap(cmap):
     pickle.dumps(cmap)
 

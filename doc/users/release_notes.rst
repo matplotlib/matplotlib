@@ -14,9 +14,12 @@ Version 3.5
 .. toctree::
     :maxdepth: 1
 
+    prev_whats_new/whats_new_3.5.2.rst
     prev_whats_new/whats_new_3.5.0.rst
+    ../api/prev_api_changes/api_changes_3.5.2.rst
     ../api/prev_api_changes/api_changes_3.5.0.rst
     github_stats.rst
+    prev_whats_new/github_stats_3.5.1.rst
     prev_whats_new/github_stats_3.5.0.rst
 
 Version 3.4

@@ -88,13 +88,13 @@ enough to be accommodated by the default data limit margins.
 While the new behavior is algorithmically simpler, it is conditional on
 properties of the `.Collection` object:
 
-  1. ``offsets = None``, ``transform`` is a child of `.Axes.transData`: use the paths
+  1. ``offsets = None``, ``transform`` is a child of ``Axes.transData``: use the paths
      for the automatic limits (i.e. for `.LineCollection` in `.Axes.streamplot`).
-  2.  ``offsets != None``, and ``offset_transform`` is child of `.Axes.transData`:
+  2.  ``offsets != None``, and ``offset_transform`` is child of ``Axes.transData``:
 
-    a) ``transform`` is child of `.Axes.transData`: use the ``path + offset`` for
+    a) ``transform`` is child of ``Axes.transData``: use the ``path + offset`` for
         limits (i.e., for `.Axes.bar`).
-    b) ``transform`` is not a child of `.Axes.transData`: just use the offsets
+    b) ``transform`` is not a child of ``Axes.transData``: just use the offsets
         for the limits (i.e. for scatter)
 
   3. otherwise return a null `.Bbox`.
@@ -294,7 +294,7 @@ Exception changes
 ~~~~~~~~~~~~~~~~~
 Various APIs that raised a `ValueError` for incorrectly typed inputs now raise
 `TypeError` instead: `.backend_bases.GraphicsContextBase.set_clip_path`,
-`.blocking_input.BlockingInput.__call__`, `.cm.register_cmap`, `.dviread.DviFont`,
+``blocking_input.BlockingInput.__call__``, `.cm.register_cmap`, `.dviread.DviFont`,
 `.rcsetup.validate_hatch`, ``.rcsetup.validate_animation_writer_path``, `.spines.Spine`,
 many classes in the :mod:`matplotlib.transforms` module and :mod:`matplotlib.tri`
 package, and Axes methods that take a ``norm`` parameter.

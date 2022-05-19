@@ -641,7 +641,7 @@ class _AxesBase(martist.Artist):
         self.set_axisbelow(mpl.rcParams['axes.axisbelow'])
 
         self._rasterization_zorder = None
-        self.cla()
+        self.clear()
 
         # funcs used to format x and y - fall back on major formatters
         self.fmt_xdata = None
@@ -1193,7 +1193,7 @@ class _AxesBase(martist.Artist):
         self.set_ylim(y0, y1, emit=False, auto=other.get_autoscaley_on())
         self.yaxis._scale = other.yaxis._scale
 
-    def cla(self):
+    def clear(self):
         """Clear the Axes."""
         # Note: this is called by Axes.__init__()
 
@@ -1487,9 +1487,9 @@ class _AxesBase(martist.Artist):
         return self.ArtistList(self, 'texts', 'add_artist',
                                valid_types=mtext.Text)
 
-    def clear(self):
+    def cla(self):
         """Clear the Axes."""
-        self.cla()
+        self.clear()
 
     def get_facecolor(self):
         """Get the facecolor of the Axes."""
@@ -2691,7 +2691,7 @@ class _AxesBase(martist.Artist):
             only the y-axis.
 
         tight : bool or None, default: True
-            The *tight* parameter is passed to `autoscale_view`,
+            The *tight* parameter is passed to `~.axes.Axes.autoscale_view`,
             which is executed after a margin is changed; the default
             here is *True*, on the assumption that when margins are
             specified, no additional padding to match tick marks is
@@ -2777,8 +2777,8 @@ class _AxesBase(martist.Artist):
             to 'z', and 'both' refers to all three axes.)
         tight : bool or None, default: None
             If True, first set the margins to zero.  Then, this argument is
-            forwarded to `autoscale_view` (regardless of its value); see the
-            description of its behavior there.
+            forwarded to `~.axes.Axes.autoscale_view` (regardless of
+            its value); see the description of its behavior there.
         """
         if enable is None:
             scalex = True

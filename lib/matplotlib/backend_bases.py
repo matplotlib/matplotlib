@@ -924,7 +924,7 @@ class GraphicsContextBase:
             if np.any(dl < 0.0):
                 raise ValueError(
                     "All values in the dash list must be non-negative")
-            if not np.any(dl > 0.0):
+            if dl.size and not np.any(dl > 0.0):
                 raise ValueError(
                     'At least one value in the dash list must be positive')
         self._dashes = dash_offset, dash_list
@@ -1580,6 +1580,13 @@ class FigureCanvasBase:
     # interactive framework is required, or None otherwise.
     required_interactive_framework = None
 
+    # The manager class instantiated by new_manager.
+    # (This is defined as a classproperty because the manager class is
+    # currently defined *after* the canvas class, but one could also assign
+    # ``FigureCanvasBase.manager_class = FigureManagerBase``
+    # after defining both classes.)
+    manager_class = _api.classproperty(lambda cls: FigureManagerBase)
+
     events = [
         'resize_event',
         'draw_event',
@@ -1661,6 +1668,19 @@ class FigureCanvasBase:
         if backend2gui_rif:
             if _is_non_interactive_terminal_ipython(ip):
                 ip.enable_gui(backend2gui_rif)
+
+    @classmethod
+    def new_manager(cls, figure, num):
+        """
+        Create a new figure manager for *figure*, using this canvas class.
+
+        Notes
+        -----
+        This method should not be reimplemented in subclasses.  If
+        custom manager creation logic is needed, please reimplement
+        ``FigureManager.create_with_canvas``.
+        """
+        return cls.manager_class.create_with_canvas(cls, figure, num)
 
     @contextmanager
     def _idle_draw_cntx(self):
@@ -2759,6 +2779,16 @@ class FigureManagerBase:
             if self.toolmanager is None and self.toolbar is not None:
                 self.toolbar.update()
 
+    @classmethod
+    def create_with_canvas(cls, canvas_class, figure, num):
+        """
+        Create a manager for a given *figure* using a specific *canvas_class*.
+
+        Backends should override this method if they have specific needs for
+        setting up the canvas or the manager.
+        """
+        return cls(canvas_class(figure), num)
+
     def show(self):
         """
         For GUI backends, show the figure window and redraw.
@@ -3225,11 +3255,10 @@ class NavigationToolbar2:
         if hasattr(self, "subplot_tool"):
             self.subplot_tool.figure.canvas.manager.show()
             return
-        plt = _safe_pyplot_import()
+        # This import needs to happen here due to circular imports.
+        from matplotlib.figure import Figure
         with mpl.rc_context({"toolbar": "none"}):  # No navbar for the toolfig.
-            # Use new_figure_manager() instead of figure() so that the figure
-            # doesn't get registered with pyplot.
-            manager = plt.new_figure_manager(-1, (6, 3))
+            manager = type(self.canvas).new_manager(Figure(figsize=(6, 3)), -1)
         manager.set_window_title("Subplot configuration tool")
         tool_fig = manager.canvas.figure
         tool_fig.subplots_adjust(top=0.9)
@@ -3457,9 +3486,7 @@ class _Backend:
     @classmethod
     def new_figure_manager_given_figure(cls, num, figure):
         """Create a new figure manager instance for the given figure."""
-        canvas = cls.FigureCanvas(figure)
-        manager = cls.FigureManager(canvas, num)
-        return manager
+        return cls.FigureCanvas.new_manager(figure, num)
 
     @classmethod
     def draw_if_interactive(cls):

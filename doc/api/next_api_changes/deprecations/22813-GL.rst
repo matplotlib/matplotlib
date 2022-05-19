@@ -1,0 +1,5 @@
+``figure.callbacks`` is deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The figure callbacks property is deprecated. The only signal was
+"dpi_changed", which can be replaced by connecting to the "resize_event"
+on the canvas ``figure.canvas.mpl_connect("resize_event", func)`` instead.

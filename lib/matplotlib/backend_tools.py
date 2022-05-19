@@ -821,7 +821,7 @@ class ToolZoom(ZoomPanBase):
             self._cancel_action()
             return
 
-        last_a = []
+        done_ax = []
 
         for cur_xypress in self._xypress:
             x, y = event.x, event.y
@@ -832,14 +832,9 @@ class ToolZoom(ZoomPanBase):
                 return
 
             # detect twinx, twiny axes and avoid double zooming
-            twinx, twiny = False, False
-            if last_a:
-                for la in last_a:
-                    if a.get_shared_x_axes().joined(a, la):
-                        twinx = True
-                    if a.get_shared_y_axes().joined(a, la):
-                        twiny = True
-            last_a.append(a)
+            twinx = any(a.get_shared_x_axes().joined(a, a1) for a1 in done_ax)
+            twiny = any(a.get_shared_y_axes().joined(a, a1) for a1 in done_ax)
+            done_ax.append(a)
 
             if self._button_pressed == 1:
                 direction = 'in'
@@ -989,12 +984,10 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'help': ToolHelpBase,
                  'copy': ToolCopyToClipboardBase,
                  }
-"""Default tools"""
 
 default_toolbar_tools = [['navigation', ['home', 'back', 'forward']],
                          ['zoompan', ['pan', 'zoom', 'subplots']],
                          ['io', ['save', 'help']]]
-"""Default tools in the toolbar"""
 
 
 def add_tools_to_manager(toolmanager, tools=default_tools):

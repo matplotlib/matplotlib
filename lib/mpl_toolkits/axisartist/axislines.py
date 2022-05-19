@@ -499,12 +499,13 @@ class Axes(maxes.Axes):
         # It is done inside the cla.
         self.gridlines = self.new_gridlines(grid_helper)
 
-    def cla(self):
-        # gridlines need to b created before cla() since cla calls grid()
+    def clear(self):
+        # docstring inherited
+        # gridlines need to be created before clear() since clear calls grid()
         self._init_gridlines()
-        super().cla()
+        super().clear()
 
-        # the clip_path should be set after Axes.cla() since that's
+        # the clip_path should be set after Axes.clear() since that's
         # when a patch is created.
         self.gridlines.set_clip_path(self.axes.patch)
 

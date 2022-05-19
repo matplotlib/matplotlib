@@ -424,17 +424,17 @@ based prompt to a ``prompt_toolkit`` based prompt.  ``prompt_toolkit``
 has the same conceptual input hook, which is fed into ``prompt_toolkit`` via the
 :meth:`IPython.terminal.interactiveshell.TerminalInteractiveShell.inputhook`
 method.  The source for the ``prompt_toolkit`` input hooks lives at
-:mod:`IPython.terminal.pt_inputhooks`.
+``IPython.terminal.pt_inputhooks``.
 
 
 
 .. rubric:: Footnotes
 
 .. [#f1] A limitation of this design is that you can only wait for one
-	 input, if there is a need to multiplex between multiple sources
-	 then the loop would look something like ::
+     input, if there is a need to multiplex between multiple sources
+     then the loop would look something like ::
 
-	   fds = [...]
+       fds = [...]
            while True:                    # Loop
                inp = select(fds).read()   # Read
                eval(inp)                  # Evaluate / Print
@@ -443,6 +443,6 @@ method.  The source for the ``prompt_toolkit`` input hooks lives at
          <https://www.youtube.com/watch?v=ZzfHjytDceU>`__ if you must.
 
 .. [#f3] These examples are aggressively dropping many of the
-	 complexities that must be dealt with in the real world such as
-	 keyboard interrupts, timeouts, bad input, resource
-	 allocation and cleanup, etc.
+     complexities that must be dealt with in the real world such as
+     keyboard interrupts, timeouts, bad input, resource
+     allocation and cleanup, etc.

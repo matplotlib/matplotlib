@@ -31,3 +31,6 @@ For a more in-depth look at colormaps, see the
 
 .. autodata:: colormaps
    :no-value:
+
+.. autodata:: color_sequences
+   :no-value:

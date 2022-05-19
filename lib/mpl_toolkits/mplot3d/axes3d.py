@@ -14,7 +14,6 @@ from collections import defaultdict
 import functools
 import itertools
 import math
-from numbers import Integral
 import textwrap
 
 import numpy as np
@@ -932,10 +931,9 @@ class Axes3D(Axes):
         """
         return False
 
-    def cla(self):
+    def clear(self):
         # docstring inherited.
-
-        super().cla()
+        super().clear()
         self.zaxis.clear()
 
         if self._sharez is not None:
@@ -2900,33 +2898,7 @@ pivot='tail', normalize=False, **kwargs)
         if not len(x) == len(y) == len(z):
             raise ValueError("'x', 'y', and 'z' must have the same size")
 
-        if isinstance(errorevery, Integral):
-            errorevery = (0, errorevery)
-        if isinstance(errorevery, tuple):
-            if (len(errorevery) == 2 and
-                    isinstance(errorevery[0], Integral) and
-                    isinstance(errorevery[1], Integral)):
-                errorevery = slice(errorevery[0], None, errorevery[1])
-            else:
-                raise ValueError(
-                    f'errorevery={errorevery!r} is a not a tuple of two '
-                    f'integers')
-
-        elif isinstance(errorevery, slice):
-            pass
-
-        elif not isinstance(errorevery, str) and np.iterable(errorevery):
-            # fancy indexing
-            try:
-                x[errorevery]
-            except (ValueError, IndexError) as err:
-                raise ValueError(
-                    f"errorevery={errorevery!r} is iterable but not a valid "
-                    f"NumPy fancy index to match "
-                    f"'xerr'/'yerr'/'zerr'") from err
-        else:
-            raise ValueError(
-                f"errorevery={errorevery!r} is not a recognized value")
+        everymask = self._errorevery_to_mask(x, errorevery)
 
         label = kwargs.pop("label", None)
         kwargs['label'] = '_nolegend_'
@@ -2987,9 +2959,6 @@ pivot='tail', normalize=False, **kwargs)
         if capthick is not None:
             eb_cap_style['markeredgewidth'] = capthick
         eb_cap_style['color'] = ecolor
-
-        everymask = np.zeros(len(x), bool)
-        everymask[errorevery] = True
 
         def _apply_mask(arrays, mask):
             # Return, for each array in *arrays*, the elements for which *mask*
