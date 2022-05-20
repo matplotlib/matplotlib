@@ -1,0 +1,4 @@
+``Axis.cla()`` has been removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use `.Axis.clear()` instead.
