@@ -1377,7 +1377,7 @@ class LineCollection(Collection):
     _edge_default = True
 
     def __init__(self, segments,  # Can be None.
-                 *args,           # Deprecated.
+                 *,
                  zorder=2,        # Collection.zorder is 1
                  **kwargs
                  ):
@@ -1413,18 +1413,6 @@ class LineCollection(Collection):
         **kwargs
             Forwarded to `.Collection`.
         """
-        argnames = ["linewidths", "colors", "antialiaseds", "linestyles",
-                    "offsets", "transOffset", "norm", "cmap", "pickradius",
-                    "zorder", "facecolors"]
-        if args:
-            argkw = {name: val for name, val in zip(argnames, args)}
-            kwargs.update(argkw)
-            _api.warn_deprecated(
-                "3.4", message="Since %(since)s, passing LineCollection "
-                "arguments other than the first, 'segments', as positional "
-                "arguments is deprecated, and they will become keyword-only "
-                "arguments %(removal)s."
-                )
         # Unfortunately, mplot3d needs this explicit setting of 'facecolors'.
         kwargs.setdefault('facecolors', 'none')
         super().__init__(
