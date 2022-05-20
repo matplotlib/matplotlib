@@ -1,0 +1,5 @@
+``key_press`` and ``button_press`` have been removed from FigureManager
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Trigger the events directly on the canvas using
+``canvas.callbacks.process(event.name, event)`` for key and button events.
