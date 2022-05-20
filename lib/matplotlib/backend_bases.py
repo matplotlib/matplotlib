@@ -2307,26 +2307,6 @@ class FigureCanvasBase:
         """
         return rcParams['savefig.format']
 
-    @_api.deprecated("3.4", alternative="`.FigureManagerBase.get_window_title`"
-                     " or GUI-specific methods")
-    def get_window_title(self):
-        """
-        Return the title text of the window containing the figure, or None
-        if there is no window (e.g., a PS backend).
-        """
-        if self.manager is not None:
-            return self.manager.get_window_title()
-
-    @_api.deprecated("3.4", alternative="`.FigureManagerBase.set_window_title`"
-                     " or GUI-specific methods")
-    def set_window_title(self, title):
-        """
-        Set the title text of the window containing the figure.  Note that
-        this has no effect if there is no window (e.g., a PS backend).
-        """
-        if self.manager is not None:
-            self.manager.set_window_title(title)
-
     def get_default_filename(self):
         """
         Return a string, which includes extension, suitable for use as
