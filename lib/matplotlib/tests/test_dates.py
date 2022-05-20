@@ -1319,8 +1319,9 @@ def test_concise_formatter_call():
                           (200, mdates.MonthLocator),
                           (2000, mdates.YearLocator)))
 def test_date_ticker_factory(span, expected_locator):
-    locator, _ = mdates.date_ticker_factory(span)
-    assert isinstance(locator, expected_locator)
+    with pytest.warns(_api.MatplotlibDeprecationWarning):
+        locator, _ = mdates.date_ticker_factory(span)
+        assert isinstance(locator, expected_locator)
 
 
 def test_usetex_newline():
