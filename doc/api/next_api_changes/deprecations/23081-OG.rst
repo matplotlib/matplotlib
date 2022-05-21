@@ -5,4 +5,4 @@ The ``date_ticker_factory`` method in the `matplotlib.dates` module is
 deprecated. Instead use `~.AutoDateLocator` and `~.AutoDateFormatter` for a
 more flexible and scalable locator and formatter.
 
-The code can also be vendored if the fixed behaviour is expected.
+If you need the exact ``date_ticker_factory`` behavior, please copy the code.
