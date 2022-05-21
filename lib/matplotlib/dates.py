@@ -1782,6 +1782,8 @@ def num2epoch(d):
     return np.asarray(d) * SEC_PER_DAY - dt
 
 
+@_api.deprecated("3.6", alternative="`AutoDateLocator` and `AutoDateFormatter`"
+                 " or vendor the code")
 def date_ticker_factory(span, tz=None, numticks=5):
     """
     Create a date locator with *numticks* (approx) and a date formatter
