@@ -949,20 +949,20 @@ def _zalpha(colors, zs, dscl=None):
         sats = 1 - norm(zs) * 0.7
 
     else:
-        # Improved normalization using a scale value derived from the XYZ 
+        # Improved normalization using a scale value derived from the XYZ
         # limits of the plot
 
         # Solid near, transparent far, solid default
-        sats = np.clip(1 - (zs - min(zs)) / dscl, 0.3, 1)
+        sats = np.clip(1 - (zs - min(zs)) / (dscl+1e-8), 0.3, 1)
 
         # Solid near, transparent far, transparent default
-        # sats = np.clip((max(zs)-zs)/dscl, 0.3, 1)
+        # sats = np.clip((max(zs)-zs)/(dscl+1e-8), 0.3, 1)
 
         # Transparent near, solid far, solid default
-        # sats = np.clip(1-(max(zs)-zs)/dscl, 0.3, 1)
+        # sats = np.clip(1-(max(zs)-zs)/(dscl+1e-8), 0.3, 1)
 
         # Transparent near, solid far, transparent default
-        # sats = np.clip((zs-min(zs))/dscl, 0.3, 1)
+        # sats = np.clip((zs-min(zs))/(dscl+1e-8), 0.3, 1)
 
     # Restructure colors into a rgba numpy array
     rgba = np.broadcast_to(mcolors.to_rgba_array(colors), (len(zs), 4))
