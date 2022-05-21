@@ -490,6 +490,8 @@ class Patch3DCollection(PatchCollection):
 
 def get_data_scale(X, Y, Z):
     def _m(data):
+        if len(data) == 0:
+            return 0
         return np.power(max(data) - min(data), 2)
 
     return np.power(_m(X) + _m(Y) + _m(Z), 0.5)
@@ -941,19 +943,30 @@ def _zalpha(colors, zs, dscl=None):
         # Normalize the z-depths to the range 0 - 1
         norm = Normalize(min(zs), max(zs))
 
-        # Generate alpha multipliers using the normalized z-depths so that closer points
+        # Generate alpha multipliers using the normalized z-depths so that
+        # closer points
         # are opaque and the furthest points are still visible, but transparent
         sats = 1 - norm(zs) * 0.7
 
     else:
-        # Improved normalization using a scale value derived from the XYZ limits of the plot
-        sats = np.clip(1 - (zs - min(zs)) / dscl, 0.3, 1)  # Solid near, transparent far, solid default
-        # sats = np.clip((max(zs)-zs)/dscl, 0.3, 1) # Solid near, transparent far, transparent default
-        # sats = np.clip(1-(max(zs)-zs)/dscl, 0.3, 1) # Transparent near, solid far, solid default
-        # sats = np.clip((zs-min(zs))/dscl, 0.3, 1) # Transparent near, solid far, transparent default
+        # Improved normalization using a scale value derived from the XYZ 
+        # limits of the plot
+
+        # Solid near, transparent far, solid default
+        sats = np.clip(1 - (zs - min(zs)) / dscl, 0.3, 1)
+
+        # Solid near, transparent far, transparent default
+        # sats = np.clip((max(zs)-zs)/dscl, 0.3, 1)
+
+        # Transparent near, solid far, solid default
+        # sats = np.clip(1-(max(zs)-zs)/dscl, 0.3, 1)
+
+        # Transparent near, solid far, transparent default
+        # sats = np.clip((zs-min(zs))/dscl, 0.3, 1)
 
     # Restructure colors into a rgba numpy array
     rgba = np.broadcast_to(mcolors.to_rgba_array(colors), (len(zs), 4))
 
-    # Change the alpha values of the colors using the generated alpha multipliers
+    # Change the alpha values of the colors using the generated alpha
+    # multipliers
     return np.column_stack([rgba[:, :3], rgba[:, 3] * sats])
