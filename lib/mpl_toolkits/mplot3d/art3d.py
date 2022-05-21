@@ -625,14 +625,20 @@ class Path3DCollection(PathCollection):
         return np.min(vzs) if vzs.size else np.nan
 
     def _maybe_depth_shade_and_sort_colors(self, color_array):
-        color_array = (
-            _zalpha(color_array, self._vzs, self._dscl)
-            if self._vzs is not None and self._depthshade
-            else color_array
-        )
+        # Adjust the color_array alpha values if point depths are defined
+        # and depth shading is active
+        if self._vzs is not None and self._depthshade:
+            color_array = _zalpha(color_array, self._vzs, dscl=self.dscl)
+
+        # Adjust the order of the color_array using the _z_markers_idx,
+        # which has been sorted by z-depth
         if len(color_array) > 1:
             color_array = color_array[self._z_markers_idx]
-        return mcolors.to_rgba_array(color_array, self._alpha)
+
+        # The correct alpha is already accounted for in the color_array
+        # Passing the self._alpha value in overwrites the automatically
+        # adjusted alpha
+        return mcolors.to_rgba_array(color_array)
 
     def get_facecolor(self):
         return self._maybe_depth_shade_and_sort_colors(super().get_facecolor())
