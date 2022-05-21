@@ -118,7 +118,7 @@ class _TransformedBoundsLocator:
             self._transform - ax.figure.transSubfigure)
 
 
-def _process_plot_format(fmt):
+def _process_plot_format(fmt, *, ambiguous_fmt_datakey=False):
     """
     Convert a MATLAB style color/line style format string to a (*linestyle*,
     *marker*, *color*) tuple.
@@ -163,31 +163,31 @@ def _process_plot_format(fmt):
     except ValueError:
         pass  # No, not just a color.
 
+    errfmt = ("{!r} is neither a data key nor a valid format string ({})"
+              if ambiguous_fmt_datakey else
+              "{!r} is not a valid format string ({})")
+
     i = 0
     while i < len(fmt):
         c = fmt[i]
         if fmt[i:i+2] in mlines.lineStyles:  # First, the two-char styles.
             if linestyle is not None:
-                raise ValueError(
-                    f'Illegal format string {fmt!r}; two linestyle symbols')
+                raise ValueError(errfmt.format(fmt, "two linestyle symbols"))
             linestyle = fmt[i:i+2]
             i += 2
         elif c in mlines.lineStyles:
             if linestyle is not None:
-                raise ValueError(
-                    f'Illegal format string {fmt!r}; two linestyle symbols')
+                raise ValueError(errfmt.format(fmt, "two linestyle symbols"))
             linestyle = c
             i += 1
         elif c in mlines.lineMarkers:
             if marker is not None:
-                raise ValueError(
-                    f'Illegal format string {fmt!r}; two marker symbols')
+                raise ValueError(errfmt.format(fmt, "two marker symbols"))
             marker = c
             i += 1
         elif c in mcolors.get_named_colors_mapping():
             if color is not None:
-                raise ValueError(
-                    f'Illegal format string {fmt!r}; two color symbols')
+                raise ValueError(errfmt.format(fmt, "two color symbols"))
             color = c
             i += 1
         elif c == 'C' and i < len(fmt) - 1:
@@ -196,7 +196,7 @@ def _process_plot_format(fmt):
             i += 2
         else:
             raise ValueError(
-                f'Unrecognized character {c} in format string {fmt!r}')
+                errfmt.format(fmt, f"unrecognized character {c!r}"))
 
     if linestyle is None and marker is None:
         linestyle = mpl.rcParams['lines.linestyle']
@@ -293,6 +293,7 @@ class _process_plot_var_args:
                 kwargs["label"] = mpl._label_from_arg(
                     replaced[label_namer_idx], args[label_namer_idx])
             args = replaced
+        ambiguous_fmt_datakey = data is not None and len(args) == 2
 
         if len(args) >= 4 and not cbook.is_scalar_or_string(
                 kwargs.get("label")):
@@ -308,7 +309,8 @@ class _process_plot_var_args:
             if args and isinstance(args[0], str):
                 this += args[0],
                 args = args[1:]
-            yield from self._plot_args(this, kwargs)
+            yield from self._plot_args(
+                this, kwargs, ambiguous_fmt_datakey=ambiguous_fmt_datakey)
 
     def get_next_color(self):
         """Return the next color in the cycle."""
@@ -402,7 +404,8 @@ class _process_plot_var_args:
         seg.set(**kwargs)
         return seg, kwargs
 
-    def _plot_args(self, tup, kwargs, return_kwargs=False):
+    def _plot_args(self, tup, kwargs, *,
+                   return_kwargs=False, ambiguous_fmt_datakey=False):
         """
         Process the arguments of ``plot([x], y, [fmt], **kwargs)`` calls.
 
@@ -429,8 +432,12 @@ class _process_plot_var_args:
             The keyword arguments passed to ``plot()``.
 
         return_kwargs : bool
-            If true, return the effective keyword arguments after label
+            Whether to also return the effective keyword arguments after label
             unpacking as well.
+
+        ambiguous_fmt_datakey : bool
+            Whether the format string in *tup* could also have been a
+            misspelled data key.
 
         Returns
         -------
@@ -445,7 +452,8 @@ class _process_plot_var_args:
         if len(tup) > 1 and isinstance(tup[-1], str):
             # xy is tup with fmt stripped (could still be (y,) only)
             *xy, fmt = tup
-            linestyle, marker, color = _process_plot_format(fmt)
+            linestyle, marker, color = _process_plot_format(
+                fmt, ambiguous_fmt_datakey=ambiguous_fmt_datakey)
         elif len(tup) == 3:
             raise ValueError('third arg must be a format string')
         else:
