@@ -628,7 +628,7 @@ class Path3DCollection(PathCollection):
         # Adjust the color_array alpha values if point depths are defined
         # and depth shading is active
         if self._vzs is not None and self._depthshade:
-            color_array = _zalpha(color_array, self._vzs, dscl=self.dscl)
+            color_array = _zalpha(color_array, self._vzs, _dscl=self._dscl)
 
         # Adjust the order of the color_array using the _z_markers_idx,
         # which has been sorted by z-depth
