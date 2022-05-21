@@ -1,0 +1,8 @@
+``date_ticker_factory`` deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``date_ticker_factory`` method in the `matplotlib.dates` module is
+deprecated. Instead use `~.AutoDateLocator` and `~.AutoDateFormatter` for a
+more flexible and scalable locator and formatter.
+
+If you need the exact ``date_ticker_factory`` behavior, please copy the code.
