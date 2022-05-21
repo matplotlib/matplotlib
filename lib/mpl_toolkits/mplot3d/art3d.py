@@ -488,13 +488,16 @@ class Patch3DCollection(PatchCollection):
         return self._maybe_depth_shade_and_sort_colors(super().get_edgecolor())
 
 
-def get_data_scale(X, Y, Z):
+def _get_data_scale(X, Y, Z):
+    """
+    Estimate the scale of the 3D data for use in depthshading
+    """
     def _m(data):
         if len(data) == 0:
             return 0
         return np.power(max(data) - min(data), 2)
 
-    return np.power(_m(X) + _m(Y) + _m(Z), 0.5)
+    return np.sqrt(_m(X) + _m(Y) + _m(Z))
 
 
 class Path3DCollection(PathCollection):
@@ -594,7 +597,7 @@ class Path3DCollection(PathCollection):
         xs, ys, zs = self._offsets3d
         vxs, vys, vzs, vis = proj3d.proj_transform_clip(xs, ys, zs,
                                                         self.axes.M)
-        self.dscl = get_data_scale(vxs, vys, vzs)
+        self._dscl = _get_data_scale(vxs, vys, vzs)
         # Sort the points based on z coordinates
         # Performance optimization: Create a sorted index array and reorder
         # points and point properties according to the index array
@@ -623,7 +626,7 @@ class Path3DCollection(PathCollection):
 
     def _maybe_depth_shade_and_sort_colors(self, color_array):
         color_array = (
-            _zalpha(color_array, self._vzs, self.dscl)
+            _zalpha(color_array, self._vzs, self._dscl)
             if self._vzs is not None and self._depthshade
             else color_array
         )
@@ -928,13 +931,13 @@ def rotate_axes(xs, ys, zs, zdir):
         return xs, ys, zs
 
 
-def _zalpha(colors, zs, dscl=None):
+def _zalpha(colors, zs, _dscl=None):
     """Modify the alphas of the color list according to depth."""
     # Return empty if given empty
     if len(colors) == 0 or len(zs) == 0:
         return np.zeros((0, 4))
 
-    if dscl is None:
+    if _dscl is None:
         # This only works well if the points for *zs* are well-spaced
         # in all three dimensions. Otherwise, at certain orientations,
         # the min and max zs are very close together.
@@ -953,16 +956,16 @@ def _zalpha(colors, zs, dscl=None):
         # limits of the plot
 
         # Solid near, transparent far, solid default
-        sats = np.clip(1 - (zs - min(zs)) / (dscl+1e-8), 0.3, 1)
+        sats = np.clip(1 - (zs - min(zs)) / (_dscl+1e-8), 0.3, 1)
 
         # Solid near, transparent far, transparent default
-        # sats = np.clip((max(zs)-zs)/(dscl+1e-8), 0.3, 1)
+        # sats = np.clip((max(zs)-zs)/(_dscl+1e-8), 0.3, 1)
 
         # Transparent near, solid far, solid default
-        # sats = np.clip(1-(max(zs)-zs)/(dscl+1e-8), 0.3, 1)
+        # sats = np.clip(1-(max(zs)-zs)/(_dscl+1e-8), 0.3, 1)
 
         # Transparent near, solid far, transparent default
-        # sats = np.clip((zs-min(zs))/(dscl+1e-8), 0.3, 1)
+        # sats = np.clip((zs-min(zs))/(_dscl+1e-8), 0.3, 1)
 
     # Restructure colors into a rgba numpy array
     rgba = np.broadcast_to(mcolors.to_rgba_array(colors), (len(zs), 4))
