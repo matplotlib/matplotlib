@@ -757,6 +757,18 @@ class Patch3DCollection(PatchCollection):
         return self._maybe_depth_shade_and_sort_colors(super().get_edgecolor())
 
 
+def _get_data_scale(X, Y, Z):
+    """
+    Estimate the scale of the 3D data for use in depth shading
+    """
+    # Account for empty datasets. Assume that X Y and Z have equal lengths
+    if len(X) == 0:
+        return 0
+
+    # Estimate the scale using the RSS of the ranges of the dimensions
+    return np.sqrt(np.ptp(X)**2 + np.ptp(Y)**2 + np.ptp(Z)**2)
+
+
 class Path3DCollection(PathCollection):
     """
     A collection of 3D paths.
@@ -885,6 +897,7 @@ class Path3DCollection(PathCollection):
         vxs, vys, vzs, vis = proj3d._proj_transform_clip(*xyzs,
                                                          self.axes.M,
                                                          self.axes._focal_length)
+        self._data_scale = _get_data_scale(vxs, vys, vzs)
         # Sort the points based on z coordinates
         # Performance optimization: Create a sorted index array and reorder
         # points and point properties according to the index array
@@ -929,14 +942,18 @@ class Path3DCollection(PathCollection):
                 self._offsets = old_offset
 
     def _maybe_depth_shade_and_sort_colors(self, color_array):
-        color_array = (
-            _zalpha(color_array, self._vzs)
-            if self._vzs is not None and self._depthshade
-            else color_array
-        )
+        # Adjust the color_array alpha values if point depths are defined
+        # and depth shading is active
+        if self._vzs is not None and self._depthshade:
+            color_array = _zalpha(color_array, self._vzs,
+                                  _data_scale=self._data_scale)
+
+        # Adjust the order of the color_array using the _z_markers_idx,
+        # which has been sorted by z-depth
         if len(color_array) > 1:
             color_array = color_array[self._z_markers_idx]
-        return mcolors.to_rgba_array(color_array, self._alpha)
+
+        return mcolors.to_rgba_array(color_array)
 
     def get_facecolor(self):
         return self._maybe_depth_shade_and_sort_colors(super().get_facecolor())
@@ -1357,17 +1374,71 @@ def rotate_axes(xs, ys, zs, zdir):
         return xs, ys, zs
 
 
-def _zalpha(colors, zs):
+def _zalpha(colors, zs, _data_scale=None, shading_mode=0):
     """Modify the alphas of the color list according to depth."""
-    # FIXME: This only works well if the points for *zs* are well-spaced
-    #        in all three dimensions. Otherwise, at certain orientations,
-    #        the min and max zs are very close together.
-    #        Should really normalize against the viewing depth.
+
     if len(colors) == 0 or len(zs) == 0:
         return np.zeros((0, 4))
-    norm = Normalize(np.min(zs), np.max(zs))
-    sats = 1 - norm(zs) * 0.7
+
+    if _data_scale is None:
+        # This only works well if the points for *zs* are well-spaced
+        # in all three dimensions. Otherwise, at certain orientations,
+        # the min and max zs are very close together.
+        # Should really normalize against the viewing depth.
+
+        # Normalize the z-depths to the range 0 - 1
+        norm = Normalize(np.min(zs), np.max(zs))
+
+        # Generate alpha multipliers using the normalized z-depths so that
+        # closer points are opaque and the furthest points are still visible,
+        # but transparent
+        sats = 1 - norm(zs) * 0.7
+
+    else:
+        # Improved normalization using a scale value derived from the XYZ 
+        # limits of the plot
+
+        if _data_scale == 0:
+            # Don't scale the alpha values since we have no valid
+            # data scale for reference
+            sats = np.ones_like(zs)
+
+        else:
+            if shading_mode == 0:
+                # This is the mode that most closely matches the behavior
+                # when _data_scale = None
+
+                # Shallower points have an increasingly solid appearance
+                # Deeper points have an increasingly transparent appearance
+                # Points with uniform depth have a solid appearance
+                sats = np.clip(1 - (zs - np.min(zs)) / _data_scale, 0.3, 1)
+
+            elif shading_mode == 1:
+                # Shallower points have an increasingly solid appearance
+                # Deeper points have an increasingly transparent appearance
+                # Points with uniform depth have a transparent appearance
+                sats = np.clip((np.max(zs) - zs) / _data_scale, 0.3, 1)
+
+            elif shading_mode == 2:
+                # Shallower points have an increasingly transparent appearance
+                # Deeper points have an increasingly solid appearance
+                # Points with uniform depth have a solid appearance
+                sats = np.clip(1 - (np.max(zs) - zs) / _data_scale, 0.3, 1)
+
+            elif shading_mode == 3:
+                # Shallower points have an increasingly transparent appearance
+                # Deeper points have an increasingly solid appearance
+                # Points with uniform depth have a transparent appearance
+                sats = np.clip((zs - np.min(zs)) / _data_scale, 0.3, 1)
+
+            else:
+                raise NotImplementedError(
+                'Specified "shading_mode" must be 0 (default), 1, 2, or 3')
+
     rgba = np.broadcast_to(mcolors.to_rgba_array(colors), (len(zs), 4))
+
+    # Change the alpha values of the colors using the generated alpha
+    # multipliers
     return np.column_stack([rgba[:, :3], rgba[:, 3] * sats])
 
 
