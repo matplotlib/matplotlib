@@ -1526,29 +1526,13 @@ def imread(fname, format=None):
         ext = format
     img_open = (
         PIL.PngImagePlugin.PngImageFile if ext == 'png' else PIL.Image.open)
-    if isinstance(fname, str):
-        parsed = parse.urlparse(fname)
-        if len(parsed.scheme) > 1:  # Pillow doesn't handle URLs directly.
-            _api.warn_deprecated(
-                "3.4", message="Directly reading images from URLs is "
-                "deprecated since %(since)s and will no longer be supported "
-                "%(removal)s. Please open the URL for reading and pass the "
-                "result to Pillow, e.g. with "
-                "``np.array(PIL.Image.open(urllib.request.urlopen(url)))``.")
-            # hide imports to speed initial import on systems with slow linkers
-            from urllib import request
-            ssl_ctx = mpl._get_ssl_context()
-            if ssl_ctx is None:
-                _log.debug(
-                    "Could not get certifi ssl context, https may not work."
-                )
-            with request.urlopen(fname, context=ssl_ctx) as response:
-                import io
-                try:
-                    response.seek(0)
-                except (AttributeError, io.UnsupportedOperation):
-                    response = io.BytesIO(response.read())
-                return imread(response, format=ext)
+    if isinstance(fname, str) and len(parse.urlparse(fname).scheme) > 1:
+        # Pillow doesn't handle URLs directly.
+        raise ValueError(
+            "Please open the URL for reading and pass the "
+            "result to Pillow, e.g. with "
+            "``np.array(PIL.Image.open(urllib.request.urlopen(url)))``."
+            )
     with img_open(fname) as image:
         return (_pil_png_to_float_array(image)
                 if isinstance(image, PIL.PngImagePlugin.PngImageFile) else
