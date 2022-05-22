@@ -11,3 +11,8 @@ There is no replacement, it was considered an internal helper.
 
 The **return_all** keyword argument has been removed from ``gridspec.get_position()``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The **minimum_descent** has been removed from ``TextArea``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The minimum_descent is now effectively always True.
