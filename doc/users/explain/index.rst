@@ -10,6 +10,7 @@ Explanations
 
     api_interfaces.rst
     backends.rst
+    writing_a_backend_pyplot_interface.rst
     interactive.rst
     fonts.rst
     event_handling.rst
