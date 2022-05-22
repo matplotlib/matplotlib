@@ -3498,14 +3498,11 @@ class _Backend:
         if cls.mainloop is None:
             return
         if block is None:
-            # Hack: Are we in IPython's pylab mode?
+            # Hack: Are we in IPython's %pylab mode?  In pylab mode, IPython
+            # (>= 0.10) tacks a _needmain attribute onto pyplot.show (always
+            # set to False).
             from matplotlib import pyplot
-            try:
-                # IPython versions >= 0.10 tack the _needmain attribute onto
-                # pyplot.show, and always set it to False, when in %pylab mode.
-                ipython_pylab = not pyplot.show._needmain
-            except AttributeError:
-                ipython_pylab = False
+            ipython_pylab = hasattr(pyplot.show, "_needmain")
             block = not ipython_pylab and not is_interactive()
             # TODO: The above is a hack to get the WebAgg backend working with
             # ipython's `%pylab` mode until proper integration is implemented.
