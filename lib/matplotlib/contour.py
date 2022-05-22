@@ -724,7 +724,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                  hatches=(None,), alpha=None, origin=None, extent=None,
                  cmap=None, colors=None, norm=None, vmin=None, vmax=None,
                  extend='neither', antialiased=None, nchunk=0, locator=None,
-                 transform=None,
+                 transform=None, negative_linestyles=None,
                  **kwargs):
         """
         Draw contour lines or filled regions, depending on
@@ -808,6 +808,13 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
             self.origin = mpl.rcParams['image.origin']
 
         self._transform = transform
+
+        self.negative_linestyles = negative_linestyles
+        # If negative_linestyles was not defined as a kwarg,
+        # define negative_linestyles with rcParams
+        if self.negative_linestyles is None:
+            self.negative_linestyles = \
+                mpl.rcParams['contour.negative_linestyle']
 
         kwargs = self._process_args(*args, **kwargs)
         self._process_levels()
@@ -1299,11 +1306,10 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
         if linestyles is None:
             tlinestyles = ['solid'] * Nlev
             if self.monochrome:
-                neg_ls = mpl.rcParams['contour.negative_linestyle']
                 eps = - (self.zmax - self.zmin) * 1e-15
                 for i, lev in enumerate(self.levels):
                     if lev < eps:
-                        tlinestyles[i] = neg_ls
+                        tlinestyles[i] = self.negative_linestyles
         else:
             if isinstance(linestyles, str):
                 tlinestyles = [linestyles] * Nlev
@@ -1761,6 +1767,18 @@ linestyles : {*None*, 'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
     *linestyles* can also be an iterable of the above strings
     specifying a set of linestyles to be used. If this
+    iterable is shorter than the number of contour levels
+    it will be repeated as necessary.
+
+negative_linestyles : *None* or str, optional
+                      {'solid', 'dashed', 'dashdot', 'dotted'}
+    *Only applies to* `.contour`.
+
+    If *negative_linestyles* is *None*, the default is 'dashed' for
+    negative contours.
+
+    *negative_linestyles* can also be an iterable of the above
+    strings specifying a set of linestyles to be used. If this
     iterable is shorter than the number of contour levels
     it will be repeated as necessary.
 
