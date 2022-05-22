@@ -40,3 +40,11 @@ Deprecated properties of widgets have been removed
 
 These include ``cids``, ``cnt``, ``observers``, ``change_observers``,
 and ``submit_observers``.
+
+Removal of methods and properties of ``Subplot``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These include ``get_geometry()``, ``change_geometry()``, ``figbox``,
+``numRows``, ``numCols``, ``update_params()``, ``is_first_row()``,
+``is_first_col()``, ``is_last_row()``, ``is_last_col()``. The subplotspec
+contains this information and can be used to replace these methods and properties.
