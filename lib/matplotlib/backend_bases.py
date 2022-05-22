@@ -3504,10 +3504,6 @@ class _Backend:
             from matplotlib import pyplot
             ipython_pylab = hasattr(pyplot.show, "_needmain")
             block = not ipython_pylab and not is_interactive()
-            # TODO: The above is a hack to get the WebAgg backend working with
-            # ipython's `%pylab` mode until proper integration is implemented.
-            if get_backend() == "WebAgg":
-                block = True
         if block:
             cls.mainloop()
 
