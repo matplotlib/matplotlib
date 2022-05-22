@@ -372,9 +372,9 @@ def test_genfrac_displaystyle(fig_test, fig_ref):
     fig_test.text(0.1, 0.1, r"$\dfrac{2x}{3y}$")
 
     thickness = _mathtext.TruetypeFonts.get_underline_thickness(
-        None, None, fontsize=12, dpi=mpl.rcParamsDefault['figure.dpi'])
-    fig_ref.text(
-        0.1, 0.1, fr"$\genfrac{{}}{{}}{{{thickness}}}{{0}}{{2x}}{{3y}}$")
+        None, None, fontsize=mpl.rcParams["font.size"],
+        dpi=mpl.rcParams["savefig.dpi"])
+    fig_ref.text(0.1, 0.1, r"$\genfrac{}{}{%f}{0}{2x}{3y}$" % thickness)
 
 
 def test_mathtext_fallback_valid():
