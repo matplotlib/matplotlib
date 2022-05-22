@@ -206,7 +206,6 @@ class CallbackRegistry:
             s: {proxy: cid for cid, proxy in d.items()}
             for s, d in self.callbacks.items()}
 
-    @_api.rename_parameter("3.4", "s", "signal")
     def connect(self, signal, func):
         """Register *func* to be called when signal *signal* is generated."""
         if signal == "units finalize":
