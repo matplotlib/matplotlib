@@ -16,3 +16,8 @@ The **minimum_descent** has been removed from ``TextArea``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The minimum_descent is now effectively always True.
+
+Extra parameters to Axes constructor
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Parameters of the Axes constructor other than *fig* and *rect* are now keyword only.
