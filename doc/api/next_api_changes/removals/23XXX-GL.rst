@@ -21,3 +21,8 @@ Extra parameters to Axes constructor
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Parameters of the Axes constructor other than *fig* and *rect* are now keyword only.
+
+``sphinext.plot_directive.align`` has been removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use ``docutils.parsers.rst.directives.images.Image.align`` instead.
