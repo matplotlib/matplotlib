@@ -111,8 +111,6 @@ class AxesWidget(Widget):
         If False, the widget does not respond to events.
     """
 
-    cids = _api.deprecated("3.4")(property(lambda self: self._cids))
-
     def __init__(self, ax):
         self.ax = ax
         self.canvas = ax.figure.canvas
@@ -152,11 +150,6 @@ class Button(AxesWidget):
     hovercolor
         The color of the button when hovering.
     """
-
-    cnt = _api.deprecated("3.4")(property(  # Not real, but close enough.
-        lambda self: len(self._observers.callbacks['clicked'])))
-    observers = _api.deprecated("3.4")(property(
-        lambda self: self._observers.callbacks['clicked']))
 
     def __init__(self, ax, label, image=None,
                  color='0.85', hovercolor='0.95'):
@@ -322,11 +315,6 @@ class Slider(SliderBase):
     val : float
         Slider value.
     """
-
-    cnt = _api.deprecated("3.4")(property(  # Not real, but close enough.
-        lambda self: len(self._observers.callbacks['changed'])))
-    observers = _api.deprecated("3.4")(property(
-        lambda self: self._observers.callbacks['changed']))
 
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt=None,
                  closedmin=True, closedmax=True, slidermin=None,
@@ -989,11 +977,6 @@ class CheckButtons(AxesWidget):
         each box, but have ``set_visible(False)`` when its box is not checked.
     """
 
-    cnt = _api.deprecated("3.4")(property(  # Not real, but close enough.
-        lambda self: len(self._observers.callbacks['clicked'])))
-    observers = _api.deprecated("3.4")(property(
-        lambda self: self._observers.callbacks['clicked']))
-
     def __init__(self, ax, labels, actives=None):
         """
         Add check buttons to `matplotlib.axes.Axes` instance *ax*.
@@ -1141,12 +1124,6 @@ class TextBox(AxesWidget):
         The color of the text box when hovering.
     """
 
-    cnt = _api.deprecated("3.4")(property(  # Not real, but close enough.
-        lambda self: sum(len(d) for d in self._observers.callbacks.values())))
-    change_observers = _api.deprecated("3.4")(property(
-        lambda self: self._observers.callbacks['change']))
-    submit_observers = _api.deprecated("3.4")(property(
-        lambda self: self._observers.callbacks['submit']))
     DIST_FROM_LEFT = _api.deprecate_privatize_attribute("3.5")
 
     def __init__(self, ax, label, initial='',
@@ -1476,11 +1453,6 @@ class RadioButtons(AxesWidget):
         self.connect_event('button_press_event', self._clicked)
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
-
-    cnt = _api.deprecated("3.4")(property(  # Not real, but close enough.
-        lambda self: len(self._observers.callbacks['clicked'])))
-    observers = _api.deprecated("3.4")(property(
-        lambda self: self._observers.callbacks['clicked']))
 
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:

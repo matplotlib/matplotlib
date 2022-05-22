@@ -34,3 +34,9 @@ Passing a URL to `~.pyplot.imread()` has been removed. Please open the URL for
 reading and directly use the Pillow API
 (``PIL.Image.open(urllib.request.urlopen(url))``, or
 ``PIL.Image.open(io.BytesIO(requests.get(url).content))``) instead.
+
+Deprecated properties of widgets have been removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+These include ``cids``, ``cnt``, ``observers``, ``change_observers``,
+and ``submit_observers``.
