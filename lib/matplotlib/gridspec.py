@@ -664,8 +664,7 @@ class SubplotSpec:
     def is_last_col(self):
         return self.colspan.stop == self.get_gridspec().ncols
 
-    @_api.delete_parameter("3.4", "return_all")
-    def get_position(self, figure, return_all=False):
+    def get_position(self, figure):
         """
         Update the subplot position from ``figure.subplotpars``.
         """
@@ -679,12 +678,7 @@ class SubplotSpec:
         fig_top = fig_tops[rows].max()
         fig_left = fig_lefts[cols].min()
         fig_right = fig_rights[cols].max()
-        figbox = Bbox.from_extents(fig_left, fig_bottom, fig_right, fig_top)
-
-        if return_all:
-            return figbox, rows[0], cols[0], nrows, ncols
-        else:
-            return figbox
+        return Bbox.from_extents(fig_left, fig_bottom, fig_right, fig_top)
 
     def get_topmost_subplotspec(self):
         """
