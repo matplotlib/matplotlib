@@ -266,15 +266,9 @@ def switch_backend(newbackend):
             rcParamsOrig["backend"] = "agg"
             return
 
-    # Backends are implemented as modules, but "inherit" default method
-    # implementations from backend_bases._Backend.  This is achieved by
-    # creating a "class" that inherits from backend_bases._Backend and whose
-    # body is filled with the module's globals.
-
-    backend_name = cbook._backend_module_name(newbackend)
-
-    class backend_mod(matplotlib.backend_bases._Backend):
-        locals().update(vars(importlib.import_module(backend_name)))
+    backend_mod = importlib.import_module(
+        cbook._backend_module_name(newbackend))
+    canvas_class = backend_mod.FigureCanvas
 
     required_framework = _get_required_interactive_framework(backend_mod)
     if required_framework is not None:
@@ -285,6 +279,36 @@ def switch_backend(newbackend):
                 "Cannot load backend {!r} which requires the {!r} interactive "
                 "framework, as {!r} is currently running".format(
                     newbackend, required_framework, current_framework))
+
+    # Load the new_figure_manager(), draw_if_interactive(), and show()
+    # functions from the backend.
+
+    # Classically, backends can directly export these functions.  This should
+    # keep working for backcompat.
+    new_figure_manager = getattr(backend_mod, "new_figure_manager", None)
+    # draw_if_interactive = getattr(backend_mod, "draw_if_interactive", None)
+    # show = getattr(backend_mod, "show", None)
+    # In that classical approach, backends are implemented as modules, but
+    # "inherit" default method implementations from backend_bases._Backend.
+    # This is achieved by creating a "class" that inherits from
+    # backend_bases._Backend and whose body is filled with the module globals.
+    class backend_mod(matplotlib.backend_bases._Backend):
+        locals().update(vars(backend_mod))
+
+    # However, the newer approach for defining new_figure_manager (and, in
+    # the future, draw_if_interactive and show) is to derive them from canvas
+    # methods.  In that case, also update backend_mod accordingly.
+    if new_figure_manager is None:
+        def new_figure_manager_given_figure(num, figure):
+            return canvas_class.new_manager(figure, num)
+
+        def new_figure_manager(num, *args, FigureClass=Figure, **kwargs):
+            fig = FigureClass(*args, **kwargs)
+            return new_figure_manager_given_figure(num, fig)
+
+        backend_mod.new_figure_manager_given_figure = \
+            new_figure_manager_given_figure
+        backend_mod.new_figure_manager = new_figure_manager
 
     _log.debug("Loaded backend %s version %s.",
                newbackend, backend_mod.backend_version)
