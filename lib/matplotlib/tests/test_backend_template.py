@@ -4,6 +4,7 @@ Backend-loading machinery tests, using variations on the template backend.
 
 import sys
 from types import SimpleNamespace
+from unittest.mock import MagicMock
 
 import matplotlib as mpl
 from matplotlib import pyplot as plt
@@ -27,3 +28,14 @@ def test_load_old_api(monkeypatch):
     mpl.use("module://mpl_test_backend")
     assert type(plt.figure().canvas) == FigureCanvasTemplate
     plt.draw_if_interactive()
+
+
+def test_show(monkeypatch):
+    mpl_test_backend = SimpleNamespace(**vars(backend_template))
+    mock_show = backend_template.FigureManagerTemplate.pyplot_show = \
+        MagicMock()
+    del mpl_test_backend.show
+    monkeypatch.setitem(sys.modules, "mpl_test_backend", mpl_test_backend)
+    mpl.use("module://mpl_test_backend")
+    plt.show()
+    mock_show.assert_called_with()

@@ -7,8 +7,8 @@ import sys
 import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
 from matplotlib.backend_bases import (
-    FigureCanvasBase, ToolContainerBase,
-    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
+    ToolContainerBase, CloseEvent, KeyEvent, LocationEvent, MouseEvent,
+    ResizeEvent)
 
 try:
     import gi
@@ -26,8 +26,8 @@ except ValueError as e:
 
 from gi.repository import Gio, GLib, GObject, Gtk, Gdk
 from . import _backend_gtk
-from ._backend_gtk import (
-    _BackendGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
+from ._backend_gtk import (  # noqa: F401 # pylint: disable=W0611
+    _BackendGTK, _FigureCanvasGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
     TimerGTK as TimerGTK3,
 )
 
@@ -52,9 +52,8 @@ def _mpl_to_gtk_cursor(mpl_cursor):
         _backend_gtk.mpl_to_gtk_cursor_name(mpl_cursor))
 
 
-class FigureCanvasGTK3(FigureCanvasBase, Gtk.DrawingArea):
+class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
     required_interactive_framework = "gtk3"
-    _timer_cls = TimerGTK3
     manager_class = _api.classproperty(lambda cls: FigureManagerGTK3)
     # Setting this as a static constant prevents
     # this resulting expression from leaking

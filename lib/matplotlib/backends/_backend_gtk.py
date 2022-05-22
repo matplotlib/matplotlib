@@ -9,7 +9,8 @@ import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
-    _Backend, FigureManagerBase, NavigationToolbar2, TimerBase)
+    _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
+    TimerBase)
 from matplotlib.backend_tools import Cursors
 
 import gi
@@ -113,6 +114,10 @@ class TimerGTK(TimerBase):
             return False
 
 
+class _FigureCanvasGTK(FigureCanvasBase):
+    _timer_cls = TimerGTK
+
+
 class _FigureManagerGTK(FigureManagerBase):
     """
     Attributes
@@ -191,6 +196,25 @@ class _FigureManagerGTK(FigureManagerBase):
         self._destroying = True
         self.window.destroy()
         self.canvas.destroy()
+
+    @classmethod
+    def start_main_loop(cls):
+        global _application
+        if _application is None:
+            return
+
+        try:
+            _application.run()  # Quits when all added windows close.
+        except KeyboardInterrupt:
+            # Ensure all windows can process their close event from
+            # _shutdown_application.
+            context = GLib.MainContext.default()
+            while context.pending():
+                context.iteration(True)
+            raise
+        finally:
+            # Running after quit is undefined, so create a new one next time.
+            _application = None
 
     def show(self):
         # show the figure window
@@ -305,22 +329,4 @@ class _BackendGTK(_Backend):
         Gtk.get_minor_version(),
         Gtk.get_micro_version(),
     )
-
-    @staticmethod
-    def mainloop():
-        global _application
-        if _application is None:
-            return
-
-        try:
-            _application.run()  # Quits when all added windows close.
-        except KeyboardInterrupt:
-            # Ensure all windows can process their close event from
-            # _shutdown_application.
-            context = GLib.MainContext.default()
-            while context.pending():
-                context.iteration(True)
-            raise
-        finally:
-            # Running after quit is undefined, so create a new one next time.
-            _application = None
+    mainloop = _FigureManagerGTK.start_main_loop

@@ -5,8 +5,7 @@ import os
 import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
 from matplotlib.backend_bases import (
-    FigureCanvasBase, ToolContainerBase,
-    KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
+    ToolContainerBase, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 
 try:
     import gi
@@ -24,16 +23,15 @@ except ValueError as e:
 
 from gi.repository import Gio, GLib, Gtk, Gdk, GdkPixbuf
 from . import _backend_gtk
-from ._backend_gtk import (
-    _BackendGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
+from ._backend_gtk import (  # noqa: F401 # pylint: disable=W0611
+    _BackendGTK, _FigureCanvasGTK, _FigureManagerGTK, _NavigationToolbar2GTK,
     TimerGTK as TimerGTK4,
 )
 
 
-class FigureCanvasGTK4(FigureCanvasBase, Gtk.DrawingArea):
+class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.DrawingArea):
     required_interactive_framework = "gtk4"
     supports_blit = False
-    _timer_cls = TimerGTK4
     manager_class = _api.classproperty(lambda cls: FigureManagerGTK4)
     _context_is_scaled = False
 

@@ -999,6 +999,13 @@ class FigureManagerWx(FigureManagerBase):
             figure.canvas.draw_idle()
         return manager
 
+    @classmethod
+    def start_main_loop(cls):
+        if not wx.App.IsMainLoopRunning():
+            wxapp = wx.GetApp()
+            if wxapp is not None:
+                wxapp.MainLoop()
+
     def show(self):
         # docstring inherited
         self.frame.Show()
@@ -1365,10 +1372,4 @@ FigureManagerWx._toolmanager_toolbar_class = ToolbarWx
 class _BackendWx(_Backend):
     FigureCanvas = FigureCanvasWx
     FigureManager = FigureManagerWx
-
-    @staticmethod
-    def mainloop():
-        if not wx.App.IsMainLoopRunning():
-            wxapp = wx.GetApp()
-            if wxapp is not None:
-                wxapp.MainLoop()
+    mainloop = FigureManagerWx.start_main_loop
