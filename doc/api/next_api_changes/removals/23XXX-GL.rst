@@ -26,3 +26,11 @@ Parameters of the Axes constructor other than *fig* and *rect* are now keyword o
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Use ``docutils.parsers.rst.directives.images.Image.align`` instead.
+
+``imread()`` no longer accepts URLs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Passing a URL to `~.pyplot.imread()` has been removed. Please open the URL for
+reading and directly use the Pillow API
+(``PIL.Image.open(urllib.request.urlopen(url))``, or
+``PIL.Image.open(io.BytesIO(requests.get(url).content))``) instead.
