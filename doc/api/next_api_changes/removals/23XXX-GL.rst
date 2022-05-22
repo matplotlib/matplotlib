@@ -9,3 +9,5 @@ or GUI-specific methods if embedding.
 
 There is no replacement, it was considered an internal helper.
 
+The **return_all** keyword argument has been removed from ``gridspec.get_position()``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
