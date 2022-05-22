@@ -341,16 +341,22 @@ static PyModuleDef _tkagg_module = {
 PyMODINIT_FUNC PyInit__tkagg(void)
 {
     load_tkinter_funcs();
-    if (PyErr_Occurred()) {
+    PyObject *type, *value, *traceback;
+    PyErr_Fetch(&type, &value, &traceback);
+    // Always raise ImportError (normalizing a previously set exception if
+    // needed) to interact properly with backend auto-fallback.
+    if (value) {
+        PyErr_NormalizeException(&type, &value, &traceback);
+        PyErr_SetObject(PyExc_ImportError, value);
         return NULL;
     } else if (!TCL_SETVAR) {
-        PyErr_SetString(PyExc_RuntimeError, "Failed to load Tcl_SetVar");
+        PyErr_SetString(PyExc_ImportError, "Failed to load Tcl_SetVar");
         return NULL;
     } else if (!TK_FIND_PHOTO) {
-        PyErr_SetString(PyExc_RuntimeError, "Failed to load Tk_FindPhoto");
+        PyErr_SetString(PyExc_ImportError, "Failed to load Tk_FindPhoto");
         return NULL;
     } else if (!TK_PHOTO_PUT_BLOCK) {
-        PyErr_SetString(PyExc_RuntimeError, "Failed to load Tk_PhotoPutBlock");
+        PyErr_SetString(PyExc_ImportError, "Failed to load Tk_PhotoPutBlock");
         return NULL;
     }
     return PyModule_Create(&_tkagg_module);
