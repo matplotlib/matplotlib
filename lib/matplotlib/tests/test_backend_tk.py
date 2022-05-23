@@ -48,10 +48,8 @@ def _isolated_tk_test(success_count, func=None):
         pytest.importorskip('tkinter')
         try:
             proc = subprocess_run_helper(
-                func, timeout=_test_timeout,
-                MPLBACKEND="TkAgg",
-                MPL_TEST_ESCAPE_HATCH="1"
-            )
+                func, timeout=_test_timeout, extra_env=dict(
+                    MPLBACKEND="TkAgg", MPL_TEST_ESCAPE_HATCH="1"))
         except subprocess.TimeoutExpired:
             pytest.fail("Subprocess timed out")
         except subprocess.CalledProcessError as e:
