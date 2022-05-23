@@ -1,5 +1,6 @@
 import difflib
 import numpy as np
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -335,3 +336,26 @@ def test_fallback_position():
     axtest = plt.axes([0.2, 0.2, 0.5, 0.5], position=[0.1, 0.1, 0.8, 0.8])
     np.testing.assert_allclose(axtest.bbox.get_points(),
                                axref.bbox.get_points())
+
+
+def test_pylab_integration():
+    pytest.importorskip("IPython")
+    subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "IPython",
+            "--pylab",
+            "-c",
+            ";".join((
+                "import matplotlib.pyplot as plt",
+                "assert plt._REPL_DISPLAYHOOK == plt._ReplDisplayHook.IPYTHON",
+            )),
+        ],
+        env={**os.environ, "SOURCE_DATE_EPOCH": "0"},
+        timeout=60,
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        universal_newlines=True,
+    )

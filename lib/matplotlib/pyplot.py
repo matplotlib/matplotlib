@@ -215,12 +215,6 @@ def _get_backend_mod():
         # will (re)import pyplot and then call switch_backend if we need to
         # resolve the auto sentinel)
         switch_backend(dict.__getitem__(rcParams, "backend"))
-        # Just to be safe.  Interactive mode can be turned on without calling
-        # `plt.ion()` so register it again here.  This is safe because multiple
-        # calls to `install_repl_displayhook` are no-ops and the registered
-        # function respects `mpl.is_interactive()` to determine if it should
-        # trigger a draw.
-        install_repl_displayhook()
     return _backend_mod
 
 
@@ -310,6 +304,10 @@ def switch_backend(newbackend):
     # Need to keep a global reference to the backend for compatibility reasons.
     # See https://github.com/matplotlib/matplotlib/issues/6092
     matplotlib.backends.backend = newbackend
+
+    # make sure the repl display hook is installed in case we become
+    # interactive
+    install_repl_displayhook()
 
 
 def _warn_if_gui_out_of_main_thread():
