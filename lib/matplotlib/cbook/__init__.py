@@ -2158,7 +2158,7 @@ def _g_sig_digits(value, delta):
     if delta == 0:
         # delta = 0 may occur when trying to format values over a tiny range;
         # in that case, replace it by the distance to the closest float.
-        delta = np.spacing(value)
+        delta = abs(np.spacing(value))
     # If e.g. value = 45.67 and delta = 0.02, then we want to round to 2 digits
     # after the decimal point (floor(log10(0.02)) = -2); 45.67 contributes 2
     # digits before the decimal point (floor(log10(45.67)) + 1 = 2): the total
