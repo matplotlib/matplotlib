@@ -1,6 +1,5 @@
 import difflib
 import numpy as np
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -371,23 +370,14 @@ def test_set_current_axes_on_subfigure():
 
 
 def test_pylab_integration():
-    pytest.importorskip("IPython")
-    subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "IPython",
-            "--pylab",
-            "-c",
-            ";".join((
-                "import matplotlib.pyplot as plt",
-                "assert plt._REPL_DISPLAYHOOK == plt._ReplDisplayHook.IPYTHON",
-            )),
-        ],
-        env={**os.environ, "SOURCE_DATE_EPOCH": "0"},
+    IPython = pytest.importorskip("IPython")
+    mpl.testing.subprocess_run_helper(
+        IPython.start_ipython,
+        "--pylab",
+        "-c",
+        ";".join((
+            "import matplotlib.pyplot as plt",
+            "assert plt._REPL_DISPLAYHOOK == plt._ReplDisplayHook.IPYTHON",
+        )),
         timeout=60,
-        check=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True,
     )
