@@ -342,6 +342,7 @@ def test_cursor_data():
         ([[.123, .987]], "[0.123]"),
         ([[np.nan, 1, 2]], "[]"),
         ([[1, 1+1e-15]], "[1.0000000000000000]"),
+        ([[-1, -1]], "[-1.0000000000000000]"),
     ])
 def test_format_cursor_data(data, text):
     from matplotlib.backend_bases import MouseEvent
