@@ -38,8 +38,8 @@ def _isolated_tk_test(success_count, func=None):
         reason="$DISPLAY and $WAYLAND_DISPLAY are unset"
     )
     @pytest.xfail(  # GitHub issue #23094
-        reason="Tk version mismatch on OSX CI",
-        condition=sys.platform == 'darwin'
+        sys.platform == 'darwin',
+        reason="Tk version mismatch on OSX CI"
     )
     @functools.wraps(func)
     def test_func():
