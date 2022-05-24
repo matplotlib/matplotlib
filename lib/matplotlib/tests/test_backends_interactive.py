@@ -59,6 +59,9 @@ def _get_testable_interactive_backends():
         elif env["MPLBACKEND"].startswith('wx') and sys.platform == 'darwin':
             # ignore on OSX because that's currently broken (github #16849)
             marks.append(pytest.mark.xfail(reason='github #16849'))
+        elif env["MPLBACKEND"] == "tkagg" and sys.platform == 'darwin':
+            marks.append(  # GitHub issue #23094
+                pytest.mark.xfail(reason="Tk version mismatch on OSX CI"))
         envs.append(
             pytest.param(
                 {**env, 'BACKEND_DEPS': ','.join(deps)},
@@ -236,6 +239,9 @@ for param in _thread_safe_backends:
                 reason='PyPy does not support Tkinter threading: '
                        'https://foss.heptapod.net/pypy/pypy/-/issues/1929',
                 strict=True))
+    elif backend == "tkagg" and sys.platform == "darwin":
+        param.marks.append(  # GitHub issue #23094
+            pytest.mark.xfail("Tk version mismatch on OSX CI"))
 
 
 @pytest.mark.parametrize("env", _thread_safe_backends)
@@ -510,6 +516,10 @@ for param in _blit_backends:
     elif backend == "wx":
         param.marks.append(
             pytest.mark.skip("wx does not support blitting"))
+    elif backend == "tkagg" and sys.platform == "darwin":
+        param.marks.append(  # GitHub issue #23094
+            pytest.mark.xfail("Tk version mismatch on OSX CI")
+        )
 
 
 @pytest.mark.parametrize("env", _blit_backends)
