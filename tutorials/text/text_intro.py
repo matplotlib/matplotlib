@@ -211,8 +211,8 @@ for ax, loc in zip(axs, locs):
 plt.show()
 
 ##############################################################################
-# Vertical spacing for titles is controlled via :rc:`axes.titlepad`, which
-# defaults to 5 points.  Setting to a different value moves the title.
+# Vertical spacing for titles is controlled via :rc:`axes.titlepad`.
+# Setting to a different value moves the title.
 
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(top=0.8)
