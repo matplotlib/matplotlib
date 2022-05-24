@@ -13,7 +13,7 @@ from PIL import Image
 
 import matplotlib as mpl
 from matplotlib import (
-    _api, colors, image as mimage, patches, pyplot as plt, style, rcParams)
+    colors, image as mimage, patches, pyplot as plt, style, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
@@ -721,7 +721,7 @@ def test_load_from_url():
     url = ('file:'
            + ('///' if sys.platform == 'win32' else '')
            + path.resolve().as_posix())
-    with _api.suppress_matplotlib_deprecation_warning():
+    with pytest.raises(ValueError, match="Please open the URL"):
         plt.imread(url)
     with urllib.request.urlopen(url) as file:
         plt.imread(file)
@@ -1138,13 +1138,6 @@ def test_exact_vmin():
 
     # check than the RBGA values are the same
     assert np.all(from_image == direct_computation)
-
-
-@pytest.mark.network
-@pytest.mark.flaky
-def test_https_imread_smoketest():
-    with _api.suppress_matplotlib_deprecation_warning():
-        v = mimage.imread('https://matplotlib.org/1.5.0/_static/logo2.png')
 
 
 # A basic ndarray subclass that implements a quantity

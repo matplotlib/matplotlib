@@ -688,11 +688,9 @@ class TextArea(OffsetBox):
     child text.
     """
 
-    @_api.delete_parameter("3.4", "minimumdescent")
     def __init__(self, s,
                  textprops=None,
                  multilinebaseline=False,
-                 minimumdescent=True,
                  ):
         """
         Parameters
@@ -705,9 +703,6 @@ class TextArea(OffsetBox):
         multilinebaseline : bool, default: False
             Whether the baseline for multiline text is adjusted so that it
             is (approximately) center-aligned with single-line text.
-        minimumdescent : bool, default: True
-            If `True`, the box has a minimum descent of "p".  This is now
-            effectively always True.
         """
         if textprops is None:
             textprops = {}
@@ -719,7 +714,6 @@ class TextArea(OffsetBox):
         self._text.set_transform(self.offset_transform +
                                  self._baseline_transform)
         self._multilinebaseline = multilinebaseline
-        self._minimumdescent = minimumdescent
 
     def set_text(self, s):
         """Set the text of this area as a string."""
@@ -747,26 +741,6 @@ class TextArea(OffsetBox):
         Get multilinebaseline.
         """
         return self._multilinebaseline
-
-    @_api.deprecated("3.4")
-    def set_minimumdescent(self, t):
-        """
-        Set minimumdescent.
-
-        If True, extent of the single line text is adjusted so that
-        its descent is at least the one of the glyph "p".
-        """
-        # The current implementation of Text._get_layout always behaves as if
-        # this is True.
-        self._minimumdescent = t
-        self.stale = True
-
-    @_api.deprecated("3.4")
-    def get_minimumdescent(self):
-        """
-        Get minimumdescent.
-        """
-        return self._minimumdescent
 
     def set_transform(self, t):
         """

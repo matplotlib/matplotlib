@@ -1,7 +1,7 @@
 import matplotlib as mpl
-from matplotlib import _api, cbook
+from matplotlib import cbook
 from matplotlib.axes._axes import Axes
-from matplotlib.gridspec import GridSpec, SubplotSpec
+from matplotlib.gridspec import SubplotSpec
 
 
 class SubplotBase:
@@ -35,22 +35,6 @@ class SubplotBase:
         # This will also update the axes position.
         self.set_subplotspec(SubplotSpec._from_subplot_args(fig, args))
 
-    @_api.deprecated(
-        "3.4", alternative="get_subplotspec",
-        addendum="(get_subplotspec returns a SubplotSpec instance.)")
-    def get_geometry(self):
-        """Get the subplot geometry, e.g., (2, 2, 3)."""
-        rows, cols, num1, num2 = self.get_subplotspec().get_geometry()
-        return rows, cols, num1 + 1  # for compatibility
-
-    @_api.deprecated("3.4", alternative="set_subplotspec")
-    def change_geometry(self, numrows, numcols, num):
-        """Change subplot geometry, e.g., from (1, 1, 1) to (2, 2, 3)."""
-        self._subplotspec = GridSpec(numrows, numcols,
-                                     figure=self.figure)[num - 1]
-        self.update_params()
-        self.set_position(self.figbox)
-
     def get_subplotspec(self):
         """Return the `.SubplotSpec` instance associated with the subplot."""
         return self._subplotspec
@@ -63,44 +47,6 @@ class SubplotBase:
     def get_gridspec(self):
         """Return the `.GridSpec` instance associated with the subplot."""
         return self._subplotspec.get_gridspec()
-
-    @_api.deprecated(
-        "3.4", alternative="get_position()")
-    @property
-    def figbox(self):
-        return self.get_position()
-
-    @_api.deprecated("3.4", alternative="get_gridspec().nrows")
-    @property
-    def numRows(self):
-        return self.get_gridspec().nrows
-
-    @_api.deprecated("3.4", alternative="get_gridspec().ncols")
-    @property
-    def numCols(self):
-        return self.get_gridspec().ncols
-
-    @_api.deprecated("3.4")
-    def update_params(self):
-        """Update the subplot position from ``self.figure.subplotpars``."""
-        # Now a no-op, as figbox/numRows/numCols are (deprecated) auto-updating
-        # properties.
-
-    @_api.deprecated("3.4", alternative="ax.get_subplotspec().is_first_row()")
-    def is_first_row(self):
-        return self.get_subplotspec().rowspan.start == 0
-
-    @_api.deprecated("3.4", alternative="ax.get_subplotspec().is_last_row()")
-    def is_last_row(self):
-        return self.get_subplotspec().rowspan.stop == self.get_gridspec().nrows
-
-    @_api.deprecated("3.4", alternative="ax.get_subplotspec().is_first_col()")
-    def is_first_col(self):
-        return self.get_subplotspec().colspan.start == 0
-
-    @_api.deprecated("3.4", alternative="ax.get_subplotspec().is_last_col()")
-    def is_last_col(self):
-        return self.get_subplotspec().colspan.stop == self.get_gridspec().ncols
 
     def label_outer(self):
         """
