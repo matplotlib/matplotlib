@@ -31,6 +31,10 @@ def _isolated_tk_test(success_count, func=None):
     # Remove decorators.
     source = re.search(r"(?ms)^def .*", inspect.getsource(func)).group(0)
 
+    @pytest.mark.xfail(  # GitHub issue #23094
+        sys.platform == 'darwin',
+        reason="Tk version mismatch on OSX CI"
+    )
     @functools.wraps(func)
     def test_func():
         try:
