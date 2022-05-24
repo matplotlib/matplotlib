@@ -273,7 +273,7 @@ divnorm = colors.TwoSlopeNorm(vmin=-500., vcenter=0, vmax=4000)
 
 pcm = ax.pcolormesh(longitude, latitude, topo, rasterized=True, norm=divnorm,
                     cmap=terrain_map, shading='auto')
-# Simple geographic plot, set aspect ratio beecause distance between lines of
+# Simple geographic plot, set aspect ratio because distance between lines of
 # longitude depends on latitude.
 ax.set_aspect(1 / np.cos(np.deg2rad(49)))
 ax.set_title('TwoSlopeNorm(x)')

@@ -5,7 +5,7 @@
 # dir.
 #
 # The contents of this file are pickled, so don't put values in the namespace
-# that aren't pickleable (module imports are okay, they're removed
+# that aren't picklable (module imports are okay, they're removed
 # automatically).
 #
 # All configuration values have a default value; values that are commented out

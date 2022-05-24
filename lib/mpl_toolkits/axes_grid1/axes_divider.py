@@ -389,7 +389,7 @@ class SubplotDivider(Divider):
 
 class AxesDivider(Divider):
     """
-    Divider based on the pre-existing axes.
+    Divider based on the preexisting axes.
     """
 
     def __init__(self, axes, xref=None, yref=None):

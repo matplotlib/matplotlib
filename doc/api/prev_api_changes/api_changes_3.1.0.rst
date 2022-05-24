@@ -337,7 +337,7 @@ match the array value type of the ``Path.codes`` array.
 LaTeX code in matplotlibrc file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Previously, the rc file keys ``pgf.preamble`` and ``text.latex.preamble`` were
-parsed using commmas as separators. This would break valid LaTeX code, such as::
+parsed using commas as separators. This would break valid LaTeX code, such as::
 
   \usepackage[protrusion=true, expansion=false]{microtype}
 

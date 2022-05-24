@@ -45,7 +45,7 @@ indexing (starts with 0).  e.g.::
 
 See :doc:`/gallery/subplots_axes_and_figures/subplot` for several code examples.
 
-Contour fixes and and triplot
+Contour fixes and triplot
 -----------------------------
 
 Ian Thomas has fixed a long-standing bug that has vexed our most

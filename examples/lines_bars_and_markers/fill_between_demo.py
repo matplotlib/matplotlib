@@ -114,7 +114,7 @@ fig.tight_layout()
 # ------------------------------------------------------------
 # The same selection mechanism can be applied to fill the full vertical height
 # of the axes. To be independent of y-limits, we add a transform that
-# interprets the x-values in data coorindates and the y-values in axes
+# interprets the x-values in data coordinates and the y-values in axes
 # coordinates.
 #
 # The following example marks the regions in which the y-data are above a

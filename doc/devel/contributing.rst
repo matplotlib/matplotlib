@@ -298,7 +298,7 @@ Rules
 ~~~~~
 
 - Deprecations are targeted at the next point.release (e.g. 3.x)
-- Deprecated API is generally removed two two point-releases after introduction
+- Deprecated API is generally removed two point-releases after introduction
   of the deprecation. Longer deprecations can be imposed by core developers on
   a case-by-case basis to give more time for the transition
 - The old API must remain fully functional during the deprecation period

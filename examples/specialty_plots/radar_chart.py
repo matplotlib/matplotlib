@@ -131,7 +131,7 @@ def example_data():
     #     Organic Carbon fraction 1 (OC)
     #     Organic Carbon fraction 2 (OC2)
     #     Organic Carbon fraction 3 (OC3)
-    #     Pyrolized Organic Carbon (OP)
+    #     Pyrolyzed Organic Carbon (OP)
     #  2)Inclusion of gas-phase specie carbon monoxide (CO)
     #  3)Inclusion of gas-phase specie ozone (O3).
     #  4)Inclusion of both gas-phase species is present...

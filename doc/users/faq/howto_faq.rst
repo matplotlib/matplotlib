@@ -117,7 +117,7 @@ You can also filter on class instances::
     for o in fig.findobj(text.Text):
         o.set_fontstyle('italic')
 
-.. _howto-supress_offset:
+.. _howto-suppress_offset:
 
 Prevent ticklabels from having an offset
 ----------------------------------------

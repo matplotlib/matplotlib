@@ -59,7 +59,7 @@ the *display* coordinates.  In the "Transformation Object" column, ``ax`` is a
 |                |is top right of the output in      |                                                   |
 |                |"display units".                   |                                                   |
 |                |                                   |                                                   |
-|                |The exact interpertation of the    |                                                   |
+|                |The exact interpretation of the    |                                                   |
 |                |units depends on the back end. For |                                                   |
 |                |example it is pixels for Agg and   |                                                   |
 |                |points for svg/pdf.                |                                                   |

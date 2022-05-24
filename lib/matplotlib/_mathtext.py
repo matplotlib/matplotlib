@@ -757,16 +757,16 @@ class FontConstantsBase:
     # superscript is present
     sub2 = 0.5
 
-    # Percentage of x-height that sub/supercripts are offset relative to the
+    # Percentage of x-height that sub/superscripts are offset relative to the
     # nucleus edge for non-slanted nuclei
     delta = 0.025
 
     # Additional percentage of last character height above 2/3 of the
-    # x-height that supercripts are offset relative to the subscript
+    # x-height that superscripts are offset relative to the subscript
     # for slanted nuclei
     delta_slanted = 0.2
 
-    # Percentage of x-height that supercripts and subscripts are offset for
+    # Percentage of x-height that superscripts and subscripts are offset for
     # integrals
     delta_integral = 0.1
 
@@ -1146,9 +1146,9 @@ class Hlist(List):
             self.glue_ratio = 0.
             return
         if x > 0.:
-            self._set_glue(x, 1, total_stretch, "Overfull")
+            self._set_glue(x, 1, total_stretch, "Overful")
         else:
-            self._set_glue(x, -1, total_shrink, "Underfull")
+            self._set_glue(x, -1, total_shrink, "Underful")
 
 
 class Vlist(List):
@@ -1225,9 +1225,9 @@ class Vlist(List):
             return
 
         if x > 0.:
-            self._set_glue(x, 1, total_stretch, "Overfull")
+            self._set_glue(x, 1, total_stretch, "Overful")
         else:
-            self._set_glue(x, -1, total_shrink, "Underfull")
+            self._set_glue(x, -1, total_shrink, "Underful")
 
 
 class Rule(Box):
