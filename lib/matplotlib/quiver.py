@@ -19,7 +19,7 @@ import math
 import numpy as np
 from numpy import ma
 
-from matplotlib import _api, cbook, _docstring, font_manager
+from matplotlib import _api, cbook, _docstring
 import matplotlib.artist as martist
 import matplotlib.collections as mcollections
 from matplotlib.patches import CirclePolygon
@@ -303,13 +303,11 @@ class QuiverKey(martist.Artist):
         self.labelcolor = labelcolor
         self.fontproperties = fontproperties or dict()
         self.kw = kwargs
-        _fp = self.fontproperties
         self.text = mtext.Text(
             text=label,
             horizontalalignment=self.halign[self.labelpos],
             verticalalignment=self.valign[self.labelpos],
-            fontproperties=font_manager.FontProperties._from_any(_fp))
-
+            fontproperties=self.fontproperties)
         if self.labelcolor is not None:
             self.text.set_color(self.labelcolor)
         self._dpi_at_last_init = None
@@ -346,29 +344,20 @@ class QuiverKey(martist.Artist):
             self.vector.set_figure(self.get_figure())
             self._dpi_at_last_init = self.Q.axes.figure.dpi
 
-    def _text_x(self, x):
-        if self.labelpos == 'E':
-            return x + self.labelsep
-        elif self.labelpos == 'W':
-            return x - self.labelsep
-        else:
-            return x
-
-    def _text_y(self, y):
-        if self.labelpos == 'N':
-            return y + self.labelsep
-        elif self.labelpos == 'S':
-            return y - self.labelsep
-        else:
-            return y
+    def _text_shift(self):
+        return {
+            "N": (0, +self.labelsep),
+            "S": (0, -self.labelsep),
+            "E": (+self.labelsep, 0),
+            "W": (-self.labelsep, 0),
+        }[self.labelpos]
 
     @martist.allow_rasterization
     def draw(self, renderer):
         self._init()
         self.vector.draw(renderer)
-        x, y = self.get_transform().transform((self.X, self.Y))
-        self.text.set_x(self._text_x(x))
-        self.text.set_y(self._text_y(y))
+        pos = self.get_transform().transform((self.X, self.Y))
+        self.text.set_position(pos + self._text_shift())
         self.text.draw(renderer)
         self.stale = False
 
