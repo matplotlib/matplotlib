@@ -52,18 +52,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v4
-        name: Install Python
-        with:
-          python-version: '3.8'
-
-      - name: Install cibuildwheel
-        run: |
-          python -m pip install cibuildwheel==2.1.1
-
       - name: Build wheels for CPython 3.10
-        run: |
-          python -m cibuildwheel --output-dir dist
+        uses: pypa/cibuildwheel@v2.1.1
         env:
           CIBW_BUILD: "cp310-*"
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux2014
@@ -73,8 +63,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.9
-        run: |
-          python -m cibuildwheel --output-dir dist
+        uses: pypa/cibuildwheel@v2.1.1
         env:
           CIBW_BUILD: "cp39-*"
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux1
@@ -84,8 +73,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.8
-        run: |
-          python -m cibuildwheel --output-dir dist
+        uses: pypa/cibuildwheel@v2.1.1
         env:
           CIBW_BUILD: "cp38-*"
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux1
@@ -95,8 +83,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for PyPy
-        run: |
-          python -m cibuildwheel --output-dir dist
+        uses: pypa/cibuildwheel@v2.1.1
         env:
           CIBW_BUILD: "pp38-*"
           CIBW_BEFORE_BUILD: pip install certifi oldest-supported-numpy
@@ -106,7 +93,7 @@ jobs:
 
       - name: Validate that LICENSE files are included in wheels
         run: |
-          python ./ci/check_wheel_licenses.py
+          python3 ./ci/check_wheel_licenses.py
 
       - uses: actions/upload-artifact@v3
         with:
