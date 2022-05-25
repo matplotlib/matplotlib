@@ -127,7 +127,7 @@ In most cases, you first create a host axes, which provides a few
 methods that can be used to create parasite axes. They are ``twinx``,
 ``twiny`` (which are similar to ``twinx`` and ``twiny`` in the matplotlib) and
 ``twin``. ``twin`` takes an arbitrary transformation that maps between the
-data coordinates of the host axes and the parasite axes. ``draw``
+data coordinates of the host axes and the parasite axes. The ``draw``
 method of the parasite axes are never called. Instead, host axes
 collects artists in parasite axes and draws them as if they belong to
 the host axes, i.e., artists in parasite axes are merged to those of
