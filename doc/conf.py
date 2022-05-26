@@ -341,7 +341,8 @@ html_theme_options = {
         "url_template": "https://matplotlib.org/{version}/",
         "version_match": version,
     },
-    "navbar_end": ["version-switcher", "mpl_icon_links"]
+    "navbar_start": ["mpl_navbar_logo", "version-switcher"],
+    "navbar_end": ["mpl_icon_links"]
 }
 include_analytics = is_release_build
 if include_analytics:

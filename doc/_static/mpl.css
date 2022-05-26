@@ -277,3 +277,22 @@ div.twocol > div {
     display: inline-block;
     margin: 0 0.5em;
 }
+
+
+/* styling for version switcher */
+.navbar-brand {
+    /* pydata-sphinx-theme sets this as flex for some reason
+       but we cannot place the version switcher to its right then.
+     */
+    display: inline-block;
+}
+
+#version_switcher {
+    display: inline-block;
+}
+
+#version_switcher_button {
+    color: rgba(var(--pst-color-text-base),1);
+    background-color: rgba(0,0,0,.03);
+    border: 1px solid rgba(0,0,0,.125);
+}
