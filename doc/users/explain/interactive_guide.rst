@@ -287,7 +287,7 @@ to call `~.FigureCanvasBase.draw_idle` to request that the canvas be
 re-drawn.  This method can be thought of *draw_soon* in analogy to
 `asyncio.loop.call_soon`.
 
-We can add this our example above as ::
+We can add this to our example above as ::
 
    def slow_loop(N, ln):
        for j in range(N):
