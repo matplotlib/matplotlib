@@ -345,7 +345,7 @@ def test_pylab_integration():
         "-c",
         ";".join((
             "import matplotlib.pyplot as plt",
-            "assert plt._REPL_DISPLAYHOOK == plt._ReplDisplayHook.IPYTHON",
+            "assert plt._IP_REGISTERED is not None",
         )),
         timeout=60,
     )
