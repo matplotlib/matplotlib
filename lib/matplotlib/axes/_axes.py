@@ -7451,8 +7451,7 @@ such objects
         r"""
         Plot the coherence between *x* and *y*.
 
-        Plot the coherence between *x* and *y*.  Coherence is the
-        normalized cross spectral density:
+        Coherence is the normalized cross spectral density:
 
         .. math::
 
