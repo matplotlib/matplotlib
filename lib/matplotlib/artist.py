@@ -241,7 +241,7 @@ class Artist:
         """
         Convert *x* using the unit type of the xaxis.
 
-        If the artist is not in contained in an Axes or if the xaxis does not
+        If the artist is not contained in an Axes or if the xaxis does not
         have units, *x* itself is returned.
         """
         ax = getattr(self, 'axes', None)
@@ -253,7 +253,7 @@ class Artist:
         """
         Convert *y* using the unit type of the yaxis.
 
-        If the artist is not in contained in an Axes or if the yaxis does not
+        If the artist is not contained in an Axes or if the yaxis does not
         have units, *y* itself is returned.
         """
         ax = getattr(self, 'axes', None)
