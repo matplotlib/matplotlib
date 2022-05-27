@@ -257,7 +257,6 @@ def host_axes(*args, axes_class=Axes, figure=None, **kwargs):
         figure = plt.gcf()
     ax = host_axes_class(figure, *args, **kwargs)
     figure.add_axes(ax)
-    plt.draw_if_interactive()
     return ax
 
 
@@ -280,5 +279,4 @@ def host_subplot(*args, axes_class=Axes, figure=None, **kwargs):
         figure = plt.gcf()
     ax = host_subplot_class(figure, *args, **kwargs)
     figure.add_subplot(ax)
-    plt.draw_if_interactive()
     return ax
