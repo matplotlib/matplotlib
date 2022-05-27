@@ -7449,8 +7449,6 @@ such objects
                window=mlab.window_hanning, noverlap=0, pad_to=None,
                sides='default', scale_by_freq=None, **kwargs):
         r"""
-        Plot the coherence between *x* and *y*.
-
         Plot the coherence between *x* and *y*.  Coherence is the
         normalized cross spectral density:
 
