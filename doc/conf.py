@@ -339,7 +339,11 @@ html_theme_options = {
     "switcher": {
         "json_url": "https://matplotlib.org/devdocs/_static/switcher.json",
         "url_template": "https://matplotlib.org/{version}/",
-        "version_match": version,
+        "version_match": (
+            # The start version to show. This must be in switcher.json.
+            # We either go to 'stable' or to 'devdocs'
+            'stable' if matplotlib.__version_info__.releaselevel == 'final'
+            else 'devdocs')
     },
     "navbar_start": ["mpl_navbar_logo", "version-switcher"],
     "navbar_end": ["mpl_icon_links"]
