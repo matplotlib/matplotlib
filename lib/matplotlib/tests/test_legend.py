@@ -927,3 +927,30 @@ def test_legend_markers_from_line2d():
 
     assert markers == new_markers == _markers
     assert labels == new_labels
+
+
+def test_annotation_legend():
+    fig, ax = plt.subplots()
+    # Add annotation with arrow and label
+    ax.annotate("", xy=(0.5, 0.5), xytext=(0.5, 0.7),
+                arrowprops={'arrowstyle': '<->'}, label="Bar")
+    legend = ax.legend()
+    assert len(legend.get_texts()) == 1
+    # No arrow, no label
+    ax.annotate("Foo", xy=(0.3, 0.3))
+    legend = ax.legend()
+    assert len(legend.get_texts()) == 1
+    # Arrow, no label
+    ax.annotate("FooBar", xy=(0.7, 0.7), xytext=(0.7, 0.9),
+                arrowprops={'arrowstyle': '->'})
+    legend = ax.legend()
+    assert len(legend.get_texts()) == 1
+    # Add another annotation with arrow and label. now with non-empty text
+    ax.annotate("Foo", xy=(0.1, 0.1), xytext=(0.1, 0.7),
+                arrowprops={'arrowstyle': '<-'}, label="Foo")
+    legend = ax.legend()
+    assert len(legend.get_texts()) == 2
+    # Add annotation without arrow, but with label
+    ax.annotate("Foo", xy=(0.2, 0.2), xytext=(0.2, 0.6), label="Foo")
+    legend = ax.legend()
+    assert len(legend.get_texts()) == 3

@@ -812,7 +812,8 @@ class HandlerFancyArrowPatch(HandlerPatch):
     """
     Handler for `~.FancyArrowPatch` instances.
     """
-    def _create_patch(self, legend, orig_handle, xdescent, ydescent, width, height, fontsize):
+    def _create_patch(self, legend, orig_handle, xdescent, ydescent, width,
+                      height, fontsize):
         arrow = FancyArrowPatch([-xdescent,
                                  -ydescent + height / 2],
                                 [-xdescent + width,
@@ -826,34 +827,19 @@ class HandlerAnnotation(HandlerBase):
     """
     Handler for `.Annotation` instances.
     Defers to `HandlerFancyArrowPatch` to draw the annotation arrow (if any).
-
-    Parameters
-    ----------
-    pad : float, optional
-        If None, fall back to :rc:`legend.borderpad` as the default.
-        In units of fraction of font size. Default is None
-        .
-    width_ratios : two-tuple, optional
-        The relative width of the respective text/arrow legend annotation pair.
-        Default is (1, 4).
     """
-
-    def __init__(self, pad=None, width_ratios=(1, 4), **kwargs):
-
-        self._pad = pad
-        self._width_ratios = width_ratios
-
-        HandlerBase.__init__(self, **kwargs)
-
     def create_artists(self, legend, orig_handle, xdescent, ydescent, width,
                        height, fontsize, trans):
 
         if orig_handle.arrow_patch is not None:
-
             # Arrow without text
-
             handler = HandlerFancyArrowPatch()
             handle = orig_handle.arrow_patch
+        else:
+            # No arrow
+            handler = HandlerPatch()
+            # Dummy patch to copy properties from to rectangle patch
+            handle = Rectangle(width=0, height=0, xy=(0, 0), color='none')
 
         return handler.create_artists(legend, handle, xdescent, ydescent,
                                       width, height, fontsize, trans)
