@@ -11,6 +11,10 @@ External resources
 Books, chapters and articles
 ============================
 
+* `Scientific Visualization: Python + Matplotlib (2021)
+  <https://hal.inria.fr/hal-03427242/>`_
+  by Nicolas P. Rougier
+
 * `Mastering matplotlib
   <https://www.packtpub.com/product/mastering-matplotlib/9781783987542>`_
   by Duncan M. McGreggor
