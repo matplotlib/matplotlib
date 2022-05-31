@@ -7,9 +7,9 @@ region between a min and max boundary that is useful for illustrating ranges.
 It has a very handy ``where`` argument to combine filling with logical ranges,
 e.g., to just fill in a curve over some threshold value.
 
-At its most basic level, ``fill_between`` can be used to enhance a graph's visual
-appearance. Let's compare two graphs of financial data with a simple line
-plot on the left and a filled line on the right.
+At its most basic level, ``fill_between`` can be used to enhance a graph's
+visual appearance. Let's compare two graphs of financial data with a simple
+line plot on the left and a filled line on the right.
 """
 
 import matplotlib.pyplot as plt
