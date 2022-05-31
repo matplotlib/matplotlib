@@ -1,3 +1,8 @@
+:root {
+    --sd-color-primary: #11557C;
+    --sd-color-primary-highlight: #003c63;
+}
+
 a {
     color: #11557C;
     text-decoration: none;
@@ -174,29 +179,6 @@ hr.box-sep {
     font-size: 1.0em;
 }
 
-
-.mpl-button {
-    background: #11557C;
-    font-weight: normal;
-    display: inline-block;
-    padding: 0 1em;
-    line-height: 2.8;
-    font-size: 16px;
-    text-align: center;
-    cursor: pointer;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 6px;
-    z-index: 1;
-    transition: background .25s ease;
-}
-
-.mpl-button:hover, .mpl-button:active, .mpl-button:focus {
-    background: #003c63;
-    outline-color: #003c63;
-}
-
-
 /* Hide red ¶ between the thumbnail and caption in gallery
 
 Due the way that sphinx-gallery floats its captions the perma-link
@@ -249,11 +231,6 @@ table.property-table td {
 
 .sidebar-cheatsheets, .sidebar-donate {
     margin: 2.75rem 0;
-}
-
-.sidebar-donate .mpl-button {
-    /* fix width to width of cheatsheet */
-    width: 210px;
 }
 
 /* Fix selection of parameter names; remove when fixed in the theme
