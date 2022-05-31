@@ -1343,13 +1343,6 @@ class Axis(martist.Artist):
         Returns
         -------
         list of `~matplotlib.text.Text`
-
-        Notes
-        -----
-        The tick label strings are not populated until a ``draw`` method has
-        been called.
-
-        See also: `~.pyplot.draw` and `~.FigureCanvasBase.draw`.
         """
         if which is not None:
             if which == 'minor':
