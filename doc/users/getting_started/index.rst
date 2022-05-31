@@ -4,9 +4,9 @@ Getting started
 Installation quick-start
 ------------------------
 
-.. container:: twocol
+.. grid:: 1 1 2 2
 
-    .. container::
+    .. grid-item::
 
         Install using `pip <https://pypi.org/project/matplotlib>`__:
 
@@ -14,7 +14,7 @@ Installation quick-start
 
             pip install matplotlib
 
-    .. container::
+    .. grid-item::
 
         Install using `conda <https://docs.continuum.io/anaconda/>`__:
 
