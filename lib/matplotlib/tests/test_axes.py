@@ -7766,3 +7766,10 @@ def test_bezier_autoscale():
     # Bottom ylim should be at the edge of the curve (-0.5), and not include
     # the control point (at -1)
     assert ax.get_ylim()[0] == -0.5
+
+
+def test_get_xticklabel():
+    fig, ax = plt.subplots()
+    ax.plot(np.arange(10))
+    for ind in range(10):
+        assert ax.get_xticklabels()[ind].get_text() == f'{ind}'
