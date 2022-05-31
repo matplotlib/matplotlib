@@ -294,6 +294,7 @@ class Legend(Artist):
     def __str__(self):
         return "Legend"
 
+    @_api.make_keyword_only("3.6", "loc")
     @_docstring.dedent_interpd
     def __init__(
         self, parent, handles, labels,
