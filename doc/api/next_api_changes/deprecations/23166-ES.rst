@@ -1,0 +1,5 @@
+``Legend`` constructor
+~~~~~~~~~~~~~~~~~~~~~~
+
+All arguments to `.legend.Legend` other than *parent*, *handles*, and *labels*
+will become keyword-only in a future version.
