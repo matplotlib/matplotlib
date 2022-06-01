@@ -387,6 +387,8 @@ class RendererAgg(RendererBase):
 class FigureCanvasAgg(FigureCanvasBase):
     # docstring inherited
 
+    _lastKey = None  # Overwritten per-instance on the first draw.
+
     def copy_from_bbox(self, bbox):
         renderer = self.get_renderer()
         return renderer.copy_from_bbox(bbox)
@@ -412,8 +414,7 @@ class FigureCanvasAgg(FigureCanvasBase):
     def get_renderer(self, cleared=False):
         w, h = self.figure.bbox.size
         key = w, h, self.figure.dpi
-        reuse_renderer = (hasattr(self, "renderer")
-                          and getattr(self, "_lastKey", None) == key)
+        reuse_renderer = (self._lastKey == key)
         if not reuse_renderer:
             self.renderer = RendererAgg(w, h, self.figure.dpi)
             self._lastKey = key
