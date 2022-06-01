@@ -1780,29 +1780,34 @@ class PatchCollection(Collection):
     """
     A generic collection of patches.
 
-    This makes it easier to assign a colormap to a heterogeneous
+    PatchCollection draws faster than a large number of equivalent individual
+    Patches. It also makes it easier to assign a colormap to a heterogeneous
     collection of patches.
-
-    This also may improve plotting speed, since PatchCollection will
-    draw faster than a large number of patches.
     """
 
     def __init__(self, patches, match_original=False, **kwargs):
         """
-        *patches*
-            a sequence of Patch objects.  This list may include
+        Parameters
+        ----------
+        patches : list of `.Patch`
+            A sequence of Patch objects.  This list may include
             a heterogeneous assortment of different patch types.
 
-        *match_original*
+        match_original : bool, default: False
             If True, use the colors and linewidths of the original
             patches.  If False, new colors may be assigned by
             providing the standard collection arguments, facecolor,
             edgecolor, linewidths, norm or cmap.
 
-        If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds* are
-        None, they default to their `.rcParams` patch setting, in sequence
-        form.
+        **kwargs
+            All other parameters are forwarded to `.Collection`.
 
+            If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds*
+            are None, they default to their `.rcParams` patch setting, in
+            sequence form.
+
+        Notes
+        -----
         The use of `~matplotlib.cm.ScalarMappable` functionality is optional.
         If the `~matplotlib.cm.ScalarMappable` matrix ``_A`` has been set (via
         a call to `~.ScalarMappable.set_array`), at draw time a call to scalar
