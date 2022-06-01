@@ -171,6 +171,9 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         # sent to the clients will be a full frame.
         self._force_full = True
 
+        # The last buffer, for diff mode.
+        self._last_buff = np.empty((0, 0))
+
         # Store the current image mode so that at any point, clients can
         # request the information. This should be changed by calling
         # self.set_image_mode(mode) so that the notification can be given
@@ -227,17 +230,18 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         if self._png_is_old:
             renderer = self.get_renderer()
 
+            pixels = np.asarray(renderer.buffer_rgba())
             # The buffer is created as type uint32 so that entire
             # pixels can be compared in one numpy call, rather than
             # needing to compare each plane separately.
-            buff = (np.frombuffer(renderer.buffer_rgba(), dtype=np.uint32)
-                    .reshape((renderer.height, renderer.width)))
+            buff = pixels.view(np.uint32).squeeze(2)
 
-            # If any pixels have transparency, we need to force a full
-            # draw as we cannot overlay new on top of old.
-            pixels = buff.view(dtype=np.uint8).reshape(buff.shape + (4,))
-
-            if self._force_full or np.any(pixels[:, :, 3] != 255):
+            if (self._force_full
+                    # If the buffer has changed size we need to do a full draw.
+                    or buff.shape != self._last_buff.shape
+                    # If any pixels have transparency, we need to force a full
+                    # draw as we cannot overlay new on top of old.
+                    or (pixels[:, :, 3] != 255).any()):
                 self.set_image_mode('full')
                 output = buff
             else:
@@ -246,7 +250,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
                 output = np.where(diff, buff, 0)
 
             # Store the current buffer so we can compute the next diff.
-            np.copyto(self._last_buff, buff)
+            self._last_buff = buff.copy()
             self._force_full = False
             self._png_is_old = False
 
@@ -254,32 +258,6 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
             with BytesIO() as png:
                 Image.fromarray(data).save(png, format="png")
                 return png.getvalue()
-
-    @_api.delete_parameter("3.6", "cleared", alternative="renderer.clear()")
-    def get_renderer(self, cleared=None):
-        # Mirrors super.get_renderer, but caches the old one so that we can do
-        # things such as produce a diff image in get_diff_image.
-        w, h = self.figure.bbox.size.astype(int)
-        key = w, h, self.figure.dpi
-        try:
-            self._lastKey, self._renderer
-        except AttributeError:
-            need_new_renderer = True
-        else:
-            need_new_renderer = (self._lastKey != key)
-
-        if need_new_renderer:
-            self._renderer = backend_agg.RendererAgg(
-                w, h, self.figure.dpi)
-            self._lastKey = key
-            self._last_buff = np.copy(np.frombuffer(
-                self._renderer.buffer_rgba(), dtype=np.uint32
-            ).reshape((self._renderer.height, self._renderer.width)))
-
-        elif cleared:
-            self._renderer.clear()
-
-        return self._renderer
 
     def handle_event(self, event):
         e_type = event['type']
