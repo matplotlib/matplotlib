@@ -1,5 +1,6 @@
-``Legend`` constructor
-~~~~~~~~~~~~~~~~~~~~~~
+Positional arguments in Artist constructors
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-All arguments to `.legend.Legend` other than *parent*, *handles*, and *labels*
-will become keyword-only in a future version.
+Passing all but the very few first arguments positionally in the constructors
+of Artists is deprecated. Most arguments will become keyword-only in a future
+version.

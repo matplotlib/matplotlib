@@ -2726,7 +2726,9 @@ class Figure(FigureBase):
             figsize = [x / dpi for x in (X.shape[1], X.shape[0])]
             self.set_size_inches(figsize, forward=True)
 
-        im = mimage.FigureImage(self, cmap, norm, xo, yo, origin, **kwargs)
+        im = mimage.FigureImage(self, cmap=cmap, norm=norm,
+                                offsetx=xo, offsety=yo,
+                                origin=origin, **kwargs)
         im.stale_callback = _stale_figure_callback
 
         im.set_array(X)

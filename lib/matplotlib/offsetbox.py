@@ -498,6 +498,8 @@ class PaddedBox(OffsetBox):
     The `.PaddedBox` contains a `.FancyBboxPatch` that is used to visualize
     it when rendering.
     """
+
+    @_api.make_keyword_only("3.6", name="draw_frame")
     def __init__(self, child, pad=None, draw_frame=False, patch_attrs=None):
         """
         Parameters
@@ -688,6 +690,7 @@ class TextArea(OffsetBox):
     child text.
     """
 
+    @_api.make_keyword_only("3.6", name="textprops")
     def __init__(self, s,
                  textprops=None,
                  multilinebaseline=False,
@@ -919,6 +922,7 @@ class AnchoredOffsetbox(OffsetBox):
              'center': 10,
              }
 
+    @_api.make_keyword_only("3.6", name="pad")
     def __init__(self, loc,
                  pad=0.4, borderpad=0.5,
                  child=None, prop=None, frameon=True,
@@ -1118,6 +1122,7 @@ class AnchoredText(AnchoredOffsetbox):
     AnchoredOffsetbox with Text.
     """
 
+    @_api.make_keyword_only("3.6", name="pad")
     def __init__(self, s, loc, pad=0.4, borderpad=0.5, prop=None, **kwargs):
         """
         Parameters
@@ -1157,6 +1162,8 @@ class AnchoredText(AnchoredOffsetbox):
 
 
 class OffsetImage(OffsetBox):
+
+    @_api.make_keyword_only("3.6", name="zoom")
     def __init__(self, arr,
                  zoom=1,
                  cmap=None,
@@ -1252,6 +1259,7 @@ class AnnotationBbox(martist.Artist, mtext._AnnotationBase):
         return "AnnotationBbox(%g,%g)" % (self.xy[0], self.xy[1])
 
     @_docstring.dedent_interpd
+    @_api.make_keyword_only("3.6", name="xycoords")
     def __init__(self, offsetbox, xy,
                  xybox=None,
                  xycoords='data',
