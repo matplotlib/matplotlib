@@ -493,9 +493,11 @@ def _get_data_scale(X, Y, Z):
     Estimate the scale of the 3D data for use in depthshading
     """
     def _m(data):
-        if len(data) == 0:
-            return 0
         return np.power(max(data) - min(data), 2)
+
+    # Account for empty datasets. Assume that X Y and Z have equal lengths
+    if len(X) == 0:
+        return 0
 
     return np.sqrt(_m(X) + _m(Y) + _m(Z))
 
@@ -962,7 +964,11 @@ def _zalpha(colors, zs, _dscl=None):
         # limits of the plot
 
         # Solid near, transparent far, solid default
-        sats = np.clip(1 - (zs - min(zs)) / (_dscl+1e-8), 0.3, 1)
+        if _dscl == 0:
+            sats = np.ones_like(zs)
+        else:
+            sats = np.clip(1 - (zs - min(zs)) / _dscl, 0.3, 1)
+        # print(_dscl)
 
         # Solid near, transparent far, transparent default
         # sats = np.clip((max(zs)-zs)/(_dscl+1e-8), 0.3, 1)
