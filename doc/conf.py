@@ -559,8 +559,6 @@ texinfo_documents = [
 
 numpydoc_show_class_members = False
 
-html4_writer = True
-
 inheritance_node_attrs = dict(fontsize=16)
 
 graphviz_dot = shutil.which('dot')
