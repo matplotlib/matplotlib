@@ -336,7 +336,7 @@ def _timedelta64_to_ordinalf(t):
     as float. Roundoff is float64 precision.
     TODO: precision ok, can be improved? be more concrete here
     """
-    td = t.astype('timedelta64[D]').astype(np.float64)
+    td = t.astype('timedelta64[us]').astype(np.float64) / MUSECONDS_PER_DAY
 
     return _nat_to_nan(td, t)
 
@@ -973,9 +973,11 @@ class ConciseDateFormatter(ticker.Formatter):
 
 
 class _AutoTimevalueFormatter(ticker.Formatter):
-    # This class cannot be used directly. It needs to be subclassed,
-    # self.scaled needs to be set and self._get_template_formatter needs to be
-    # implemented by the child class
+    """
+    Base class for `AutoTimedeltaFormatter` and `AutoDateFormatter`.
+    This class cannot be used directly. `.scaled` needs to be set and
+    `._get_template_formatter` needs to be implemented by the child class.
+    """
 
     # This can be improved by providing some user-level direction on
     # how to choose the best format (precedence, etc.).
@@ -1966,11 +1968,23 @@ class MicrosecondLocator(DateLocator):
 
 
 class TimedeltaLocator(ticker.MultipleLocator):
+    """
+    Determines the tick locations when plotting dates.
+
+    Examples::
+
+        # Ticks every day
+        locator = TimedeltaLocator()
+
+        # Ticks every 4 hours
+        locator = TimedeltaLocator(HOURLY, 4)
+    """
     default_range = (timedelta2num(datetime.timedelta(days=0)),
                      timedelta2num(datetime.timedelta(days=10)))
     """The default min and max limits of the axis."""
 
     _FACTORS = {
+        WEEKLY: 7.0,
         DAILY: 1.0,
         HOURLY: 1.0 / HOURS_PER_DAY,
         MINUTELY: 1.0 / MINUTES_PER_DAY,
@@ -1979,6 +1993,16 @@ class TimedeltaLocator(ticker.MultipleLocator):
     }
 
     def __init__(self, freq=DAILY, interval=1):
+        """
+        Create ticks with a specific frequency and interval.
+
+        Parameters
+        ----------
+        freq: one of `WEEKLY, DAILY, HOURLY, MINUTELY, SECONDLY, MICROSECONDLY`
+            The base frequency for creating ticks
+        interval: int
+            The interval (integer multiple of frequency) for creating ticks
+        """
         self._freq = freq
         self._interval = interval
         base = 1 * self._FACTORS[self._freq] * self._interval
@@ -1986,12 +2010,16 @@ class TimedeltaLocator(ticker.MultipleLocator):
 
     # TODO: signature does not match base method, imo that is ok here?
     def set_params(self, freq, interval):
+        # docstring inherited
         if freq is not None:
             self._freq = freq
         if interval is not None:
             self._interval = interval
-        base = 1 * self._FACTORS[self._freq] * self._interval
+        base = self._FACTORS[self._freq] * self._interval
         super().set_params(base=base)
+
+    def _get_unit(self):
+        return self._FACTORS[self._freq]
 
     def nonsingular(self, vmin, vmax):
         """
@@ -2011,6 +2039,42 @@ class TimedeltaLocator(ticker.MultipleLocator):
 
 
 class AutoTimedeltaLocator(TimedeltaLocator):
+    """
+    On autoscale, this class picks the best frequency and interval for
+    `TimedeltaLocator` to set the view limits and the tick locations.
+
+    Attributes
+    ----------
+    intervald : dict
+
+        Mapping of tick frequencies to multiples allowed for that ticking.
+        The default is ::
+
+            self.intervald = {
+                DAILY: [1, 2, 3, 7, 14, 21],
+                HOURLY: [1, 2, 3, 4, 6, 12],
+                MINUTELY: [1, 5, 10, 15, 30],
+                SECONDLY: [1, 5, 10, 15, 30],
+                MICROSECONDLY: [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000,
+                                2000, 5000, 10000, 20000, 50000, 100000,
+                                200000, 500000, 1000000]
+            }
+
+
+        where the keys are defined in `dateutil.rrule`.
+
+        The interval is used to specify multiples that are appropriate for
+        the frequency of ticking. For instance, every 7 days is sensible
+        for daily ticks, but for minutes/seconds, 15 or 30 make sense.
+
+        When customizing, you should only modify the values for the existing
+        keys. You should not add or delete entries.
+
+        Example for forcing ticks every 3 hours::
+
+            locator = AutoTimedeltaLocator()
+            locator.intervald[HOURLY] = [3]  # only show every 3 hours
+    """
     def __init__(self, minticks=5, maxticks=None):
         """
         Parameters
@@ -2022,9 +2086,9 @@ class AutoTimedeltaLocator(TimedeltaLocator):
             The maximum number of ticks desired; controls the interval between
             ticks (ticking every other, every 3, etc.).  For fine-grained
             control, this can be a dictionary mapping individual rrule
-            frequency constants (YEARLY, MONTHLY, etc.) to their own maximum
+            frequency constants (DAILY, HOURLY, etc.) to their own maximum
             number of ticks.  This can be used to keep the number of ticks
-            appropriate to the format chosen in `AutoDateFormatter`. Any
+            appropriate to the format chosen in `AutoTimedeltaFormatter`. Any
             frequency not specified in this dictionary is given a default
             value.
         """
@@ -2049,7 +2113,7 @@ class AutoTimedeltaLocator(TimedeltaLocator):
             SECONDLY: [1, 5, 10, 15, 30],
             MICROSECONDLY: [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000,
                             5000, 10000, 20000, 50000, 100000, 200000, 500000,
-                            1000000],
+                            1000000]
         }
 
     def __call__(self):
@@ -2059,7 +2123,7 @@ class AutoTimedeltaLocator(TimedeltaLocator):
 
     def update_from_viewlim(self):
         dmin, dmax = self.viewlim_to_dt()
-        delta = (dmax - dmin).total_seconds()
+        delta = dmax - dmin
         # take absolute difference
         if dmin > dmax:
             delta = -delta
@@ -2067,15 +2131,14 @@ class AutoTimedeltaLocator(TimedeltaLocator):
         numSeconds = np.floor(delta.total_seconds())
         numHours = numDays * HOURS_PER_DAY + np.floor(numSeconds / SEC_PER_HOUR)
         numMinutes = numDays * MINUTES_PER_DAY \
-                     + np.floor(numSeconds / SEC_PER_MIN)
-        numMicroseconds = delta.microseconds
+            + np.floor(numSeconds / SEC_PER_MIN)
+        numMicroseconds = np.floor(delta.total_seconds() * 1e6)
         nums = [numDays, numHours, numMinutes, numSeconds, numMicroseconds]
         # Loop over all the frequencies and try to find one that gives at
         # least a minticks tick positions.  Once this is found, look for
         # an interval from an list specific to that frequency that gives no
         # more than maxticks tick positions. Also, set up some ranges
         # (bymonth, etc.) as appropriate to be passed to rrulewrapper.
-        freq = DAILY
         for i, (freq, num) in enumerate(zip(self._freqs, nums)):
             # If this particular frequency doesn't give enough ticks, continue
             if num < self.minticks:
@@ -2086,6 +2149,7 @@ class AutoTimedeltaLocator(TimedeltaLocator):
             for interval in self.intervald[freq]:
                 if num <= interval * (self.maxticks[freq] - 1):
                     break
+            break
         else:
             interval = 1
         super().set_params(freq=freq, interval=interval)
