@@ -2336,7 +2336,7 @@ class Axes(_AxesBase):
         if orientation == 'vertical':
             if y is None:
                 y = 0
-        elif orientation == 'horizontal':
+        else:  # horizontal
             if x is None:
                 x = 0
 
@@ -2345,7 +2345,7 @@ class Axes(_AxesBase):
                 [("x", x), ("y", height)], kwargs, convert=False)
             if log:
                 self.set_yscale('log', nonpositive='clip')
-        elif orientation == 'horizontal':
+        else:  # horizontal
             self._process_unit_info(
                 [("x", width), ("y", y)], kwargs, convert=False)
             if log:
@@ -2374,7 +2374,7 @@ class Axes(_AxesBase):
         if orientation == 'vertical':
             tick_label_axis = self.xaxis
             tick_label_position = x
-        elif orientation == 'horizontal':
+        else:  # horizontal
             tick_label_axis = self.yaxis
             tick_label_position = y
 
@@ -2403,7 +2403,7 @@ class Axes(_AxesBase):
                                     f'and width ({width.dtype}) '
                                     f'are incompatible') from e
                 bottom = y
-            elif orientation == 'horizontal':
+            else:  # horizontal
                 try:
                     bottom = y - height / 2
                 except TypeError as e:
@@ -2411,7 +2411,7 @@ class Axes(_AxesBase):
                                     f'and height ({height.dtype}) '
                                     f'are incompatible') from e
                 left = x
-        elif align == 'edge':
+        else:  # edge
             left = x
             bottom = y
 
@@ -2431,7 +2431,7 @@ class Axes(_AxesBase):
             r.get_path()._interpolation_steps = 100
             if orientation == 'vertical':
                 r.sticky_edges.y.append(b)
-            elif orientation == 'horizontal':
+            else:  # horizontal
                 r.sticky_edges.x.append(l)
             self.add_patch(r)
             patches.append(r)
@@ -2442,7 +2442,7 @@ class Axes(_AxesBase):
                 ex = [l + 0.5 * w for l, w in zip(left, width)]
                 ey = [b + h for b, h in zip(bottom, height)]
 
-            elif orientation == 'horizontal':
+            else:  # horizontal
                 # using list comps rather than arrays to preserve unit info
                 ex = [l + w for l, w in zip(left, width)]
                 ey = [b + 0.5 * h for b, h in zip(bottom, height)]
@@ -2459,7 +2459,7 @@ class Axes(_AxesBase):
 
         if orientation == 'vertical':
             datavalues = height
-        elif orientation == 'horizontal':
+        else:  # horizontal
             datavalues = width
 
         bar_container = BarContainer(patches, errorbar, datavalues=datavalues,
@@ -2670,7 +2670,7 @@ class Axes(_AxesBase):
             if orientation == "vertical":
                 extrema = max(y0, y1) if dat >= 0 else min(y0, y1)
                 length = abs(y0 - y1)
-            elif orientation == "horizontal":
+            else:  # horizontal
                 extrema = max(x0, x1) if dat >= 0 else min(x0, x1)
                 length = abs(x0 - x1)
 
@@ -2678,38 +2678,39 @@ class Axes(_AxesBase):
                 endpt = extrema
             elif orientation == "vertical":
                 endpt = err[:, 1].max() if dat >= 0 else err[:, 1].min()
-            elif orientation == "horizontal":
+            else:  # horizontal
                 endpt = err[:, 0].max() if dat >= 0 else err[:, 0].min()
 
             if label_type == "center":
                 value = sign(dat) * length
-            elif label_type == "edge":
+            else:  # edge
                 value = extrema
 
             if label_type == "center":
                 xy = xc, yc
-            elif label_type == "edge" and orientation == "vertical":
-                xy = xc, endpt
-            elif label_type == "edge" and orientation == "horizontal":
-                xy = endpt, yc
+            else:  # edge
+                if orientation == "vertical":
+                    xy = xc, endpt
+                else:  # horizontal
+                    xy = endpt, yc
 
             if orientation == "vertical":
                 y_direction = -1 if y_inverted else 1
                 xytext = 0, y_direction * sign(dat) * padding
-            else:
+            else:  # horizontal
                 x_direction = -1 if x_inverted else 1
                 xytext = x_direction * sign(dat) * padding, 0
 
             if label_type == "center":
                 ha, va = "center", "center"
-            elif label_type == "edge":
+            else:  # edge
                 if orientation == "vertical":
                     ha = 'center'
                     if y_inverted:
                         va = 'top' if dat > 0 else 'bottom'  # also handles NaN
                     else:
                         va = 'top' if dat < 0 else 'bottom'  # also handles NaN
-                elif orientation == "horizontal":
+                else:  # horizontal
                     if x_inverted:
                         ha = 'right' if dat > 0 else 'left'  # also handles NaN
                     else:
@@ -2911,7 +2912,7 @@ class Axes(_AxesBase):
 
         if orientation == 'vertical':
             locs, heads = self._process_unit_info([("x", locs), ("y", heads)])
-        else:
+        else:  # horizontal
             heads, locs = self._process_unit_info([("x", heads), ("y", locs)])
 
         # defaults for formats
@@ -7796,7 +7797,7 @@ such objects
         self.title.set_y(1.05)
         if origin == "upper":
             self.xaxis.tick_top()
-        else:
+        else:  # lower
             self.xaxis.tick_bottom()
         self.xaxis.set_ticks_position('both')
         self.xaxis.set_major_locator(
