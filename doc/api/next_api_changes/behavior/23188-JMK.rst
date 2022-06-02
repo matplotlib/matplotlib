@@ -1,0 +1,9 @@
+Default date limits changed to 1970-01-01 to 1970-01-02
+-------------------------------------------------------
+
+Previously the default limits for an empty axis set up for dates
+(`.Axis.axis_date`) was 2000-01-01 to 2010-01-01.  This has been
+changed to 1970-01-01 to 1970-01-02.  With the default epoch, this
+makes the numeric limit for date axes the same as for other axes
+(0.0-1.0), and users are less likely to set a locator with far too
+many ticks.
