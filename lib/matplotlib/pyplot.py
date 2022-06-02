@@ -1323,6 +1323,7 @@ def subplot(*args, **kwargs):
 
 
 def subplots(nrows=1, ncols=1, *, sharex=False, sharey=False, squeeze=True,
+             width_ratios=None, height_ratios=None,
              subplot_kw=None, gridspec_kw=None, **fig_kw):
     """
     Create a figure and a set of subplots.
@@ -1367,6 +1368,18 @@ def subplots(nrows=1, ncols=1, *, sharex=False, sharey=False, squeeze=True,
         - If False, no squeezing at all is done: the returned Axes object is
           always a 2D array containing Axes instances, even if it ends up
           being 1x1.
+
+    width_ratios : array-like of length *ncols*, optional
+        Defines the relative widths of the columns. Each column gets a
+        relative width of ``width_ratios[i] / sum(width_ratios)``.
+        If not given, all columns will have the same width.  Equivalent
+        to ``gridspec_kw={'width_ratios': [...]}``.
+
+    height_ratios : array-like of length *nrows*, optional
+        Defines the relative heights of the rows. Each row gets a
+        relative height of ``height_ratios[i] / sum(height_ratios)``.
+        If not given, all rows will have the same height. Convenience
+        for ``gridspec_kw={'height_ratios': [...]}``.
 
     subplot_kw : dict, optional
         Dict with keywords passed to the
@@ -1458,13 +1471,14 @@ def subplots(nrows=1, ncols=1, *, sharex=False, sharey=False, squeeze=True,
     fig = figure(**fig_kw)
     axs = fig.subplots(nrows=nrows, ncols=ncols, sharex=sharex, sharey=sharey,
                        squeeze=squeeze, subplot_kw=subplot_kw,
-                       gridspec_kw=gridspec_kw)
+                       gridspec_kw=gridspec_kw, height_ratios=height_ratios,
+                       width_ratios=width_ratios)
     return fig, axs
 
 
 def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
-                   subplot_kw=None, gridspec_kw=None, empty_sentinel='.',
-                   **fig_kw):
+                   width_ratios=None, height_ratios=None, empty_sentinel='.',
+                   subplot_kw=None, gridspec_kw=None, **fig_kw):
     """
     Build a layout of Axes based on ASCII art or nested lists.
 
@@ -1515,6 +1529,24 @@ def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
         behave as for `subplots`.  If False, each subplot's x- or y-axis will
         be independent.
 
+    width_ratios : array-like of length *ncols*, optional
+        Defines the relative widths of the columns. Each column gets a
+        relative width of ``width_ratios[i] / sum(width_ratios)``.
+        If not given, all columns will have the same width.  Convenience
+        for ``gridspec_kw={'width_ratios': [...]}``.
+
+    height_ratios : array-like of length *nrows*, optional
+        Defines the relative heights of the rows. Each row gets a
+        relative height of ``height_ratios[i] / sum(height_ratios)``.
+        If not given, all rows will have the same height. Convenience
+        for ``gridspec_kw={'height_ratios': [...]}``.
+
+    empty_sentinel : object, optional
+        Entry in the layout to mean "leave this space empty".  Defaults
+        to ``'.'``. Note, if *layout* is a string, it is processed via
+        `inspect.cleandoc` to remove leading white space, which may
+        interfere with using white-space as the empty sentinel.
+
     subplot_kw : dict, optional
         Dictionary with keywords passed to the `.Figure.add_subplot` call
         used to create each subplot.
@@ -1522,12 +1554,6 @@ def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
     gridspec_kw : dict, optional
         Dictionary with keywords passed to the `.GridSpec` constructor used
         to create the grid the subplots are placed on.
-
-    empty_sentinel : object, optional
-        Entry in the layout to mean "leave this space empty".  Defaults
-        to ``'.'``. Note, if *layout* is a string, it is processed via
-        `inspect.cleandoc` to remove leading white space, which may
-        interfere with using white-space as the empty sentinel.
 
     **fig_kw
         All additional keyword arguments are passed to the
@@ -1547,6 +1573,7 @@ def subplot_mosaic(mosaic, *, sharex=False, sharey=False,
     fig = figure(**fig_kw)
     ax_dict = fig.subplot_mosaic(
         mosaic, sharex=sharex, sharey=sharey,
+        height_ratios=height_ratios, width_ratios=width_ratios,
         subplot_kw=subplot_kw, gridspec_kw=gridspec_kw,
         empty_sentinel=empty_sentinel
     )

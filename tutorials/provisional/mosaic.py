@@ -219,12 +219,10 @@ axd = plt.figure(constrained_layout=True).subplot_mosaic(
     bAc
     .d.
     """,
-    gridspec_kw={
-        # set the height ratios between the rows
-        "height_ratios": [1, 3.5, 1],
-        # set the width ratios between the columns
-        "width_ratios": [1, 3.5, 1],
-    },
+    # set the height ratios between the rows
+    height_ratios=[1, 3.5, 1],
+    # set the width ratios between the columns
+    width_ratios=[1, 3.5, 1],
 )
 identify_axes(axd)
 
@@ -301,7 +299,7 @@ axd = plt.figure(constrained_layout=True).subplot_mosaic(
         ["main", "BLANK"],
     ],
     empty_sentinel="BLANK",
-    gridspec_kw={"width_ratios": [2, 1]},
+    width_ratios=[2, 1],
 )
 identify_axes(axd)
 
