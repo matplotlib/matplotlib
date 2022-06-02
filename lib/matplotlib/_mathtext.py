@@ -1045,7 +1045,7 @@ class Hlist(List):
         super().__init__(elements)
         if do_kern:
             self.kern()
-        self.hpack()
+        self.hpack(w=w, m=m)
 
     def kern(self):
         """
@@ -1156,7 +1156,7 @@ class Vlist(List):
 
     def __init__(self, elements, h=0., m='additional'):
         super().__init__(elements)
-        self.vpack()
+        self.vpack(h=h, m=m)
 
     def vpack(self, h=0., m='additional', l=np.inf):
         """
@@ -1168,8 +1168,8 @@ class Vlist(List):
         h : float, default: 0
             A height.
         m : {'exactly', 'additional'}, default: 'additional'
-            Whether to produce a box whose height is 'exactly' *w*; or a box
-            with the natural height of the contents, plus *w* ('additional').
+            Whether to produce a box whose height is 'exactly' *h*; or a box
+            with the natural height of the contents, plus *h* ('additional').
         l : float, default: np.inf
             The maximum height.
 
