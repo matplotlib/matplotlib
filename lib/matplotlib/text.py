@@ -132,7 +132,15 @@ class Text(Artist):
 
         %(Text:kwdoc)s
         """
-        super().__init__()
+        forward_kwargs = {}
+        update_kwargs = {}
+        for k, v in kwargs.items():
+            if hasattr(self, f'set_{k}') or k == 'axes':
+                update_kwargs[k] = v
+            else:
+                forward_kwargs[k] = v
+        del kwargs
+        super().__init__(**forward_kwargs)
         self._x, self._y = x, y
         self._text = ''
         self._reset_visual_defaults(
@@ -150,7 +158,7 @@ class Text(Artist):
             linespacing=linespacing,
             rotation_mode=rotation_mode,
         )
-        self.update(kwargs)
+        self.update(update_kwargs)
 
     def _reset_visual_defaults(
         self,
@@ -1422,13 +1430,15 @@ class _AnnotationBase:
     def __init__(self,
                  xy,
                  xycoords='data',
-                 annotation_clip=None):
+                 annotation_clip=None,
+                 **kwargs):
 
         self.xy = xy
         self.xycoords = xycoords
         self.set_annotation_clip(annotation_clip)
 
         self._draggable = None
+        super().__init__(**kwargs)
 
     def _get_xy(self, renderer, x, y, s):
         if isinstance(s, tuple):
@@ -1809,10 +1819,17 @@ or callable, default: value of *xycoords*
         :ref:`plotting-guide-annotation`
 
         """
-        _AnnotationBase.__init__(self,
-                                 xy,
-                                 xycoords=xycoords,
-                                 annotation_clip=annotation_clip)
+
+        # default xytext to xy
+        if xytext is None:
+            xytext = xy
+        x, y = xytext
+
+        super().__init__(x=x, y=y, text=text, xy=xy,
+                         xycoords=xycoords,
+                         annotation_clip=annotation_clip,
+                         **kwargs)
+
         # warn about wonky input data
         if (xytext is None and
                 textcoords is not None and
@@ -1825,11 +1842,6 @@ or callable, default: value of *xycoords*
         if textcoords is None:
             textcoords = self.xycoords
         self._textcoords = textcoords
-
-        # cleanup xytext defaults
-        if xytext is None:
-            xytext = self.xy
-        x, y = xytext
 
         self.arrowprops = arrowprops
         if arrowprops is not None:
@@ -1844,9 +1856,6 @@ or callable, default: value of *xycoords*
             self.arrow_patch = FancyArrowPatch((0, 0), (1, 1), **arrowprops)
         else:
             self.arrow_patch = None
-
-        # Must come last, as some kwargs may be propagated to arrow_patch.
-        Text.__init__(self, x, y, text, **kwargs)
 
     @_api.rename_parameter("3.8", "event", "mouseevent")
     def contains(self, mouseevent):

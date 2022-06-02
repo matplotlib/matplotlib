@@ -1301,9 +1301,9 @@ or callable, default: value of *xycoords*
             a list.
         """
 
-        martist.Artist.__init__(self)
-        mtext._AnnotationBase.__init__(
-            self, xy, xycoords=xycoords, annotation_clip=annotation_clip)
+        super().__init__(
+            xy=xy, xycoords=xycoords, annotation_clip=annotation_clip
+        )
 
         self.offsetbox = offsetbox
         self.arrowprops = arrowprops.copy() if arrowprops is not None else None
