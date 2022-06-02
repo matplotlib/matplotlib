@@ -1,0 +1,6 @@
+``get_ticklabels`` now always populates labels
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously `.Axis.get_ticklabels` (and `.Axes.get_xticklabels`,
+`.Axes.get_yticklabels`) would only return empty strings unless a draw had
+already been performed.  Now the ticks and their labels are updated when the
+labels are requested.
