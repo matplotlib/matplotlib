@@ -5,5 +5,5 @@ The ``__init__`` method on `~matplotlib.artist.Artist` now takes ``**kwargs``
 and passes them to ``super().__init__(**kwargs)`` at the bottom of the init
 method.
 
-If you are using `~matplotlib.artist.Artist` with multiple inheritance this will like cause
+If you are using `~matplotlib.artist.Artist` with multiple inheritance this will likely cause
 breakage.  The only workaround is to version gate.
