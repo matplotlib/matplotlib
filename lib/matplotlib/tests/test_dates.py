@@ -77,8 +77,8 @@ def test_date_empty():
     ax.xaxis_date()
     fig.draw_without_rendering()
     np.testing.assert_allclose(ax.get_xlim(),
-                               [mdates.date2num(np.datetime64('2000-01-01')),
-                                mdates.date2num(np.datetime64('2010-01-01'))])
+                               [mdates.date2num(np.datetime64('1970-01-01')),
+                                mdates.date2num(np.datetime64('1970-01-02'))])
 
     mdates._reset_epoch_test_example()
     mdates.set_epoch('0000-12-31')
@@ -86,8 +86,8 @@ def test_date_empty():
     ax.xaxis_date()
     fig.draw_without_rendering()
     np.testing.assert_allclose(ax.get_xlim(),
-                               [mdates.date2num(np.datetime64('2000-01-01')),
-                                mdates.date2num(np.datetime64('2010-01-01'))])
+                               [mdates.date2num(np.datetime64('1970-01-01')),
+                                mdates.date2num(np.datetime64('1970-01-02'))])
     mdates._reset_epoch_test_example()
 
 
@@ -1235,7 +1235,7 @@ def test_julian2num():
 def test_DateLocator():
     locator = mdates.DateLocator()
     # Test nonsingular
-    assert locator.nonsingular(0, np.inf) == (10957.0, 14610.0)
+    assert locator.nonsingular(0, np.inf) == (0, 1)
     assert locator.nonsingular(0, 1) == (0, 1)
     assert locator.nonsingular(1, 0) == (0, 1)
     assert locator.nonsingular(0, 0) == (-2, 2)
@@ -1328,3 +1328,15 @@ def test_usetex_newline():
     fig, ax = plt.subplots()
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m\n%Y'))
     fig.canvas.draw()
+
+
+def test_datetime_masked():
+    # make sure that all-masked data falls back to the viewlim
+    # set in convert.axisinfo....
+    x = np.array([datetime.datetime(2017, 1, n) for n in range(1, 6)])
+    y = np.array([1, 2, 3, 4, 5])
+    m = np.ma.masked_greater(y, 0)
+
+    fig, ax = plt.subplots()
+    ax.plot(x, m)
+    assert ax.get_xlim() == (0, 1)
