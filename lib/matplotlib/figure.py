@@ -2082,6 +2082,14 @@ class SubFigure(FigureBase):
     def dpi(self, value):
         self._parent.dpi = value
 
+    @property
+    def _cachedRenderer(self):
+        return self._parent._cachedRenderer
+
+    @_cachedRenderer.setter
+    def _cachedRenderer(self, renderer):
+        self._parent._cachedRenderer = renderer
+
     def _redo_transform_rel_fig(self, bbox=None):
         """
         Make the transSubfigure bbox relative to Figure transform.

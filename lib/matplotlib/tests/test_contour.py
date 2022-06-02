@@ -520,3 +520,23 @@ def test_contour_autolabel_beyond_powerlimits():
     ax.clabel(cs)
     # Currently, the exponent is missing, but that may be fixed in the future.
     assert {text.get_text() for text in ax.texts} == {"0.25", "1.00", "4.00"}
+
+
+def test_subfigure_clabel():
+    # Smoke test for gh#23173
+    delta = 0.025
+    x = np.arange(-3.0, 3.0, delta)
+    y = np.arange(-2.0, 2.0, delta)
+    X, Y = np.meshgrid(x, y)
+    Z1 = np.exp(-(X**2) - Y**2)
+    Z2 = np.exp(-((X - 1) ** 2) - (Y - 1) ** 2)
+    Z = (Z1 - Z2) * 2
+
+    fig = plt.figure()
+    figs = fig.subfigures(nrows=1, ncols=2)
+
+    for f in figs:
+        ax = f.subplots()
+        CS = ax.contour(X, Y, Z)
+        ax.clabel(CS, inline=True, fontsize=10)
+        ax.set_title("Simplest default with labels")
