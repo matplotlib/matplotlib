@@ -335,3 +335,17 @@ def test_fallback_position():
     axtest = plt.axes([0.2, 0.2, 0.5, 0.5], position=[0.1, 0.1, 0.8, 0.8])
     np.testing.assert_allclose(axtest.bbox.get_points(),
                                axref.bbox.get_points())
+
+
+def test_pylab_integration():
+    IPython = pytest.importorskip("IPython")
+    mpl.testing.subprocess_run_helper(
+        IPython.start_ipython,
+        "--pylab",
+        "-c",
+        ";".join((
+            "import matplotlib.pyplot as plt",
+            "assert plt._IP_REGISTERED is not None",
+        )),
+        timeout=60,
+    )
