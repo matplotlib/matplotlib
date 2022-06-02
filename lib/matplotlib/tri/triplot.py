@@ -6,26 +6,27 @@ import matplotlib.lines as mlines
 
 def triplot(ax, *args, **kwargs):
     """
-    Draw a unstructured triangular grid as lines and/or markers.
+    Draw an unstructured triangular grid as lines and/or markers.
 
-    The triangulation to plot can be specified in one of two ways; either::
+    Call signatures::
 
       triplot(triangulation, ...)
+      triplot(x, y, [triangles], *, [mask=mask], ...)
 
-    where triangulation is a `.Triangulation` object, or
+    The triangular grid can be specified either by passing a `.Triangulation`
+    object as the first parameter, or by passing the points *x*, *y* and
+    optionally the *triangles* and a *mask*. If neither of *triangulation* or
+    *triangles* are given, the triangulation is calculated on the fly.
 
-    ::
-
-      triplot(x, y, ...)
-      triplot(x, y, triangles, ...)
-      triplot(x, y, triangles=triangles, ...)
-      triplot(x, y, mask=mask, ...)
-      triplot(x, y, triangles, mask=mask, ...)
-
-    in which case a Triangulation object will be created.  See `.Triangulation`
-    for a explanation of these possibilities.
-
-    The remaining args and kwargs are the same as for `~.Axes.plot`.
+    Parameters
+    ----------
+    triangulation : `.Triangulation`
+        An already created triangular grid.
+    x, y, triangles, mask
+        Parameters defining the triangular grid. See `.Triangulation`.
+        This is mutually exclusive with specifying *triangulation*.
+    other_parameters
+        All other args and kwargs are forwarded to `~.Axes.plot`.
 
     Returns
     -------
