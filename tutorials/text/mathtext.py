@@ -306,7 +306,7 @@ long and short forms for some of them.
     Command                        Result
     ============================== =================================
     ``\acute a`` or ``\'a``        :mathmpl:`\acute a`
-    ``\bar a``                     :mathmpl:`\bar a`
+    ``\bar a`` or ``\= a``         :mathmpl:`\bar a`
     ``\breve a``                   :mathmpl:`\breve a`
     ``\dot a`` or ``\.a``          :mathmpl:`\dot a`
     ``\ddot a`` or ``\''a``        :mathmpl:`\ddot a`
@@ -316,6 +316,8 @@ long and short forms for some of them.
     ``\hat a`` or ``\^a``          :mathmpl:`\hat a`
     ``\tilde a`` or ``\~a``        :mathmpl:`\tilde a`
     ``\vec a``                     :mathmpl:`\vec a`
+    ``\check a``                   :mathmpl:`\check a`
+    ``\H a``                       :mathmpl:`\H a`
     ``\overline{abc}``             :mathmpl:`\overline{abc}`
     ============================== =================================
 

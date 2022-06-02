@@ -220,7 +220,7 @@ class TruetypeFonts(Fonts):
         if bunch is not None:
             return bunch
 
-        font, num, slanted = self._get_glyph(
+        font, num, slanted, substituted_glyph = self._get_glyph(
             fontname, font_class, sym, fontsize)
 
         font.set_size(fontsize, dpi)
@@ -239,7 +239,8 @@ class TruetypeFonts(Fonts):
             ymax    = ymax+offset,
             # iceberg is the equivalent of TeX's "height"
             iceberg = glyph.horiBearingY/64.0 + offset,
-            slanted = slanted
+            slanted = slanted,
+            substituted_glyph = substituted_glyph
             )
 
         result = self.glyphd[key] = types.SimpleNamespace(
@@ -323,7 +324,7 @@ class BakomaFonts(TruetypeFonts):
             if font is not None:
                 num = ord(sym)
         if font is not None and font.get_char_index(num) != 0:
-            return font, num, slanted
+            return font, num, slanted, False
         else:
             return self._stix_fallback._get_glyph(
                 fontname, font_class, sym, fontsize)
@@ -448,6 +449,8 @@ class UnicodeFonts(TruetypeFonts):
             found_symbol = False
             _log.warning("No TeX to Unicode mapping for {!a}.".format(sym))
 
+        substituted_glyph = False
+
         fontname, uniindex = self._map_virtual_font(
             fontname, font_class, uniindex)
 
@@ -499,8 +502,9 @@ class UnicodeFonts(TruetypeFonts):
                 font = self._get_font('rm')
                 uniindex = 0xA4  # currency char, for lack of anything better
                 slanted = False
+                substituted_glyph = True
 
-        return font, uniindex, slanted
+        return font, uniindex, slanted, substituted_glyph
 
     def get_sized_alternatives_for_symbol(self, fontname, sym):
         if self._fallback_font:
@@ -934,6 +938,9 @@ class Char(Node):
 
     def is_slanted(self):
         return self._metrics.slanted
+
+    def is_substituted(self):
+        return self._metrics.substituted_glyph
 
     def get_kerning(self, next):
         """
@@ -2011,7 +2018,7 @@ class Parser:
         raise ParseFatalException(s, loc, f"Unknown symbol: {toks['name']}")
 
     _accent_map = {
-        r'hat':            r'\circumflexaccent',
+        r'hat':            r'\combiningcircumflexaccent',
         r'breve':          r'\combiningbreve',
         r'bar':            r'\combiningoverline',
         r'grave':          r'\combininggraveaccent',
@@ -2027,10 +2034,13 @@ class Parser:
         r"'":              r'\combiningacuteaccent',
         r'~':              r'\combiningtilde',
         r'.':              r'\combiningdotabove',
-        r'^':              r'\circumflexaccent',
-        r'overrightarrow': r'\rightarrow',
-        r'overleftarrow':  r'\leftarrow',
-        r'mathring':       r'\circ',
+        r'^':              r'\combiningcircumflexaccent',
+        r'overrightarrow': r'\combiningrightarrowabove',
+        r'overleftarrow':  r'\combiningleftarrowabove',
+        r'mathring':       r'\combiningringabove',
+        r'=':              r'\combiningmacron',
+        r'H':              r'\combiningdoubleacuteaccent',
+        r'check':          r'\combiningcaron',
     }
 
     _wide_accents = set(r"widehat widetilde widebar".split())
@@ -2050,10 +2060,27 @@ class Parser:
             accent_box = AutoWidthChar(
                 '\\' + accent, sym.width, state, char_class=Accent)
         else:
+            # Check if accent and character can be combined
+            a = get_unicode_index(self._accent_map[accent])
+            if isinstance(sym, Char):
+                c = sym.c
+            else:
+                c = sym.children[0].c
+            if c == chr(305):  # Dotless i, but normal i combines
+                c = 'i'
+            comb = unicodedata.normalize('NFC', c + chr(a))
+            if len(comb) == 1:  # Check that they did combine
+                newsym = Char(comb, state)
+                # Check that glyph exists
+                if not newsym.is_substituted():
+                    return newsym
+            if c == 'i':  # Turn i into dotless i
+                sym = Char(chr(305), state)
+                if sym.is_substituted():
+                    # Dotless i does not exist
+                    sym = Char('i', state)
+            # Cannot be combined
             accent_box = Accent(self._accent_map[accent], state)
-        if accent == 'mathring':
-            accent_box.shrink()
-            accent_box.shrink()
         centered = HCentered([Hbox(sym.width / 4.0), accent_box])
         centered.hpack(sym.width, 'exactly')
         return Vlist([
@@ -2135,9 +2162,6 @@ class Parser:
     def is_slanted(self, nucleus):
         if isinstance(nucleus, Char):
             return nucleus.is_slanted()
-        return False
-
-    def is_between_brackets(self, s, loc):
         return False
 
     def subsuper(self, s, loc, toks):
