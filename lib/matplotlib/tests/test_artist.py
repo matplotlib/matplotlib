@@ -562,3 +562,23 @@ def test_draw_wraper_forward_input():
 
     assert 'aardvark' == art.draw(renderer, 'aardvark')
     assert 'aardvark' == art.draw(renderer, extra='aardvark')
+
+
+def test_artist_mi():
+    class BadIdea:
+        def __init__(self, aardvark, **kwargs):
+            self.aardvark = aardvark
+            super().__init__(**kwargs)
+
+    class A(BadIdea, martist.Artist):
+        ...
+
+    class B(martist.Artist, BadIdea):
+        ...
+
+    a = A(aardvark='aardvark')
+    b = B(aardvark='aardvark')
+
+    for art in (a, b):
+        assert art.aardvark == 'aardvark'
+        assert art.figure is None
