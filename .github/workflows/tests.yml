@@ -54,6 +54,9 @@ jobs:
           - os: macos-latest
             python-version: 3.8
             XVFB_RUN: ""
+          - os: self-hosted
+            python-version: "3.10"
+            XVFB_RUN: ""
 
     steps:
       - uses: actions/checkout@v3
