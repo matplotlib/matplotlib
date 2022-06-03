@@ -377,6 +377,7 @@ index_sidebar_info = ['search-field.html',
 default_sidebar_info = []
 html_sidebars = {
     "index": index_sidebar_info,
+    "api/**": default_sidebar_info,
     "users/**": default_sidebar_info,
     "gallery/**": default_sidebar_info,
     "plot_types/**": default_sidebar_info,
