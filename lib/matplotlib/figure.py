@@ -505,7 +505,7 @@ default: %(va)s
         if not artist.is_transform_set():
             artist.set_transform(self.transSubfigure)
 
-        if clip:
+        if clip and artist.get_clip_path() is None:
             artist.set_clip_path(self.patch)
 
         self.stale = True
