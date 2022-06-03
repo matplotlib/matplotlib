@@ -1,12 +1,15 @@
 Matplotlib Mission Statement
 ============================
 
-The Matplotlib developer community develops, maintains, and
-supports Matplotlib and its extensions, providing plotting tools for 
-the Scientific Python Ecosystem.  Our success is based on how effectively we
-enable our users, across scientific, industrial, commercial, and educational
-applications, to achieve their goals.  We believe that a diverse developer community creates
-the best software, and we welcome anyone who shares our values, as described in the code of conduct, and our mission to the community.
+The Matplotlib developer community develops, maintains, and supports Matplotlib
+and its extensions to provide plotting tools for the Scientific Python
+Ecosystem.  Our success is based on how effectively we enable our users, across
+scientific, industrial, commercial, and educational domain, to achieve their
+goals.
+
+We believe that a diverse developer community creates the best software, and we
+welcome anyone who shares our mission and values, as described in the code of
+conduct, to the community.
 
 
 Adapting the requirements :ref:`laid out by John Hunter
@@ -15,12 +18,11 @@ Adapting the requirements :ref:`laid out by John Hunter
 * Support all users of the Scientific Python Ecosystem;
 * Produce high-quality raster and vector formats output;
 * Be embeddedable in graphical user interfaces for application development;
-* Be understandable and extendable by scientists, data scientists, and
-  engineers;
-* Make standard plots easy;
+* Be understandable and extendable by people familiar with data processing
+  techniques and with the Python programming language;
+* Make common plots easy;
 * Make novel or complicated visualizations possible.
 
-To achieve these goals simultaneously across the full gamut of the domains that depend on Matplotlib, 
-we have adopted a model of a general core library that supports an ecosystem of
-domain-specific extensions that inter-operate as much as practical.
-
+To achieve these goals for the full range of domains where Scientific Python is
+used, Matplotlib provides as general library on which domain-specific
+extensions can be built.
