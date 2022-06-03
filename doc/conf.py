@@ -369,13 +369,14 @@ html_last_updated_fmt = '%b %d, %Y'
 html_index = 'index.html'
 
 # Custom sidebar templates, maps page names to templates.
-default_sidebar_info = ['search-field.html',
+index_sidebar_info = ['search-field.html',
                         # 'sidebar_announcement.html',
                         "sidebar_versions.html",
                         "cheatsheet_sidebar.html",
                         "donate_sidebar.html"]
+default_sidebar_info = []
 html_sidebars = {
-    "index": default_sidebar_info,
+    "index": index_sidebar_info,
     "users/**": default_sidebar_info,
     "gallery/**": default_sidebar_info,
     "plot_types/**": default_sidebar_info,
