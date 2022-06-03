@@ -117,7 +117,7 @@ def test_expand_with_tight_layout():
     d2 = [2, 1]
     ax.plot(d1, label='series 1')
     ax.plot(d2, label='series 2')
-    ax.legend(ncol=2, mode='expand')
+    ax.legend(ncols=2, mode='expand')
 
     fig.tight_layout()  # where the crash used to happen
 
