@@ -883,10 +883,10 @@ class Legend(Artist):
     def get_window_extent(self, renderer=None):
         # docstring inherited
         if renderer is None:
-            renderer = self.figure._cachedRenderer
+            renderer = self.figure._get_renderer()
         return self._legend_box.get_window_extent(renderer=renderer)
 
-    def get_tightbbox(self, renderer):
+    def get_tightbbox(self, renderer=None):
         # docstring inherited
         return self._legend_box.get_window_extent(renderer)
 

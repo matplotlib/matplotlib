@@ -3096,7 +3096,7 @@ pivot='tail', normalize=False, **kwargs)
 
         return errlines, caplines, limmarks
 
-    def get_tightbbox(self, renderer, call_axes_locator=True,
+    def get_tightbbox(self, renderer=None, call_axes_locator=True,
                       bbox_extra_artists=None, *, for_layout_only=False):
         ret = super().get_tightbbox(renderer,
                                     call_axes_locator=call_axes_locator,

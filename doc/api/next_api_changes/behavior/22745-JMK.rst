@@ -1,0 +1,9 @@
+No need to specify renderer for get_tightbbox and get_window_extent
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``get_tightbbox`` and `~.Artist.get_window_extent` methods
+no longer require the *renderer* kwarg, saving users from having to
+querry it from ``fig.canvas.get_renderer``.  If the *renderer*
+kwarg is not supplied these methods first check if there is a cached renderer
+from a previous draw and use that.  If there is no cahched renderer, then
+the methods will use ``fig.canvas.get_renderer()`` as a fallback.

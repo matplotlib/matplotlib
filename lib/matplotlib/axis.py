@@ -1198,14 +1198,16 @@ class Axis(martist.Artist):
 
         return ticks_to_draw
 
-    def _get_ticklabel_bboxes(self, ticks, renderer):
+    def _get_ticklabel_bboxes(self, ticks, renderer=None):
         """Return lists of bboxes for ticks' label1's and label2's."""
+        if renderer is None:
+            renderer = self.figure._get_renderer()
         return ([tick.label1.get_window_extent(renderer)
                  for tick in ticks if tick.label1.get_visible()],
                 [tick.label2.get_window_extent(renderer)
                  for tick in ticks if tick.label2.get_visible()])
 
-    def get_tightbbox(self, renderer, *, for_layout_only=False):
+    def get_tightbbox(self, renderer=None, *, for_layout_only=False):
         """
         Return a bounding box that encloses the axis. It only accounts
         tick labels, axis label, and offsetText.
@@ -1217,7 +1219,8 @@ class Axis(martist.Artist):
         """
         if not self.get_visible():
             return
-
+        if renderer is None:
+            renderer = self.figure._get_renderer()
         ticks_to_draw = self._update_ticks()
 
         self._update_label_position(renderer)

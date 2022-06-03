@@ -251,13 +251,14 @@ class ContourLabeler:
     def _get_nth_label_width(self, nth):
         """Return the width of the *nth* label, in pixels."""
         fig = self.axes.figure
+        renderer = fig._get_renderer()
         return (
             text.Text(0, 0,
                       self.get_text(self.labelLevelList[nth], self.labelFmt),
                       figure=fig,
                       size=self.labelFontSizeList[nth],
                       fontproperties=self.labelFontProps)
-            .get_window_extent(mpl._tight_layout.get_renderer(fig)).width)
+            .get_window_extent(renderer).width)
 
     @_api.deprecated("3.5")
     def get_label_width(self, lev, fmt, fsize):
@@ -265,9 +266,10 @@ class ContourLabeler:
         if not isinstance(lev, str):
             lev = self.get_text(lev, fmt)
         fig = self.axes.figure
+        renderer = fig._get_renderer()
         width = (text.Text(0, 0, lev, figure=fig,
                            size=fsize, fontproperties=self.labelFontProps)
-                 .get_window_extent(mpl._tight_layout.get_renderer(fig)).width)
+                 .get_window_extent(renderer).width)
         width *= 72 / fig.dpi
         return width
 

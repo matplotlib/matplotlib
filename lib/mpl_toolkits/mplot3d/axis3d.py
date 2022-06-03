@@ -483,7 +483,7 @@ class Axis(maxis.XAxis):
 
     # TODO: Get this to work (more) properly when mplot3d supports the
     #       transforms framework.
-    def get_tightbbox(self, renderer, *, for_layout_only=False):
+    def get_tightbbox(self, renderer=None, *, for_layout_only=False):
         # docstring inherited
         if not self.get_visible():
             return
