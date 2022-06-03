@@ -5,6 +5,7 @@ Classes for the ticks and x and y axis.
 import datetime
 import functools
 import logging
+from numbers import Number
 
 import numpy as np
 
@@ -1357,7 +1358,7 @@ class Axis(martist.Artist):
 
     def get_pickradius(self):
         """Return the depth of the axis used by the picker."""
-        return self.pickradius
+        return self._pickradius
 
     def get_majorticklabels(self):
         """Return this Axis' major tick labels, as a list of `~.text.Text`."""
@@ -1831,9 +1832,17 @@ class Axis(martist.Artist):
 
         Parameters
         ----------
-        pickradius :  float
+        pickradius : float
+            The acceptance radius for containment tests.
+            See also `.Axis.contains`.
         """
-        self.pickradius = pickradius
+        if not isinstance(pickradius, Number) or pickradius < 0:
+            raise ValueError("pick radius should be a distance")
+        self._pickradius = pickradius
+
+    pickradius = property(
+        get_pickradius, set_pickradius, doc="The acceptance radius for "
+        "containment tests. See also `.Axis.contains`.")
 
     # Helper for set_ticklabels. Defining it here makes it picklable.
     @staticmethod
@@ -2217,8 +2226,8 @@ class XAxis(Axis):
             return False, {}
         (l, b), (r, t) = self.axes.transAxes.transform([(0, 0), (1, 1)])
         inaxis = 0 <= xaxes <= 1 and (
-            b - self.pickradius < y < b or
-            t < y < t + self.pickradius)
+            b - self._pickradius < y < b or
+            t < y < t + self._pickradius)
         return inaxis, {}
 
     def set_label_position(self, position):
@@ -2470,8 +2479,8 @@ class YAxis(Axis):
             return False, {}
         (l, b), (r, t) = self.axes.transAxes.transform([(0, 0), (1, 1)])
         inaxis = 0 <= yaxes <= 1 and (
-            l - self.pickradius < x < l or
-            r < x < r + self.pickradius)
+            l - self._pickradius < x < l or
+            r < x < r + self._pickradius)
         return inaxis, {}
 
     def set_label_position(self, position):

@@ -419,16 +419,17 @@ class Collection(artist.Artist, cm.ScalarMappable):
         renderer.close_group(self.__class__.__name__)
         self.stale = False
 
-    def set_pickradius(self, pr):
+    @_api.rename_parameter("3.6", "pr", "pickradius")
+    def set_pickradius(self, pickradius):
         """
         Set the pick radius used for containment tests.
 
         Parameters
         ----------
-        pr : float
+        pickradius : float
             Pick radius, in points.
         """
-        self._pickradius = pr
+        self._pickradius = pickradius
 
     def get_pickradius(self):
         return self._pickradius
