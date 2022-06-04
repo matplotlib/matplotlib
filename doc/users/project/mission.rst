@@ -13,7 +13,7 @@ conduct.
 
 
 Adapting the requirements :ref:`laid out by John Hunter
-<History>` Matplotlib should:
+<project_history>` Matplotlib should:
 
 * Support all users of the Scientific Python Ecosystem;
 * Produce high-quality raster and vector format outputs;
