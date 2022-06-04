@@ -84,68 +84,31 @@ class TriContourSet(ContourSet):
 _docstring.interpd.update(_tricontour_doc="""
 Draw contour %(type)s on an unstructured triangular grid.
 
-The triangulation can be specified in one of two ways; either ::
+Call signatures::
 
-    %(func)s(triangulation, ...)
+    %(func)s(triangulation, Z, [levels], ...)
+    %(func)s(x, y, Z, [levels], *, [triangles=triangles], [mask=mask], ...)
 
-where *triangulation* is a `.Triangulation` object, or ::
+The triangular grid can be specified either by passing a `.Triangulation`
+object as the first parameter, or by passing the points *x*, *y* and
+optionally the *triangles* and a *mask*. See `.Triangulation` for an
+explanation of these parameters. If neither of *triangulation* or
+*triangles* are given, the triangulation is calculated on the fly.
 
-    %(func)s(x, y, ...)
-    %(func)s(x, y, triangles, ...)
-    %(func)s(x, y, triangles=triangles, ...)
-    %(func)s(x, y, mask=mask, ...)
-    %(func)s(x, y, triangles, mask=mask, ...)
-
-in which case a `.Triangulation` object will be created.  See that class'
-docstring for an explanation of these cases.
-
-The remaining arguments may be::
-
-    %(func)s(..., Z)
-
-where *Z* is the array of values to contour, one per point in the
-triangulation.  The level values are chosen automatically.
-
-::
-
-    %(func)s(..., Z, levels)
-
-contour up to *levels+1* automatically chosen contour levels (*levels*
-intervals).
-
-::
-
-    %(func)s(..., Z, levels)
-
-draw contour %(type)s at the values specified in sequence *levels*, which must
-be in increasing order.
-
-::
-
-    %(func)s(Z, **kwargs)
-
-Use keyword arguments to control colors, linewidth, origin, cmap ... see below
-for more details.
+It is possible to pass *triangles* positionally, i.e.
+``%(func)s(x, y, triangles, Z, ...)``. However, this is discouraged. For more
+clarity, pass *triangles* via keyword argument.
 
 Parameters
 ----------
 triangulation : `.Triangulation`, optional
-    The unstructured triangular grid.
+    An already created triangular grid.
 
-    If specified, then *x*, *y*, *triangles*, and *mask* are not accepted.
+x, y, triangles, mask
+    Parameters defining the triangular grid. See `.Triangulation`.
+    This is mutually exclusive with specifying *triangulation*.
 
-x, y : array-like, optional
-    The coordinates of the values in *Z*.
-
-triangles : (ntri, 3) array-like of int, optional
-    For each triangle, the indices of the three points that make up the
-    triangle, ordered in an anticlockwise manner.  If not specified, the
-    Delaunay triangulation is calculated.
-
-mask : (ntri,) array-like of bool, optional
-    Which triangles are masked out.
-
-Z : 2D array-like
+Z : array-like
     The height values over which the contour is drawn.
 
 levels : int or array-like, optional
