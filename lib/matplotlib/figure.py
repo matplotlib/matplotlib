@@ -2253,7 +2253,6 @@ class SubFigure(FigureBase):
 
     def draw(self, renderer):
         # docstring inherited
-        self._cachedRenderer = renderer
 
         # draw the figure bounding box, perhaps none for white figure
         if not self.get_visible():
@@ -2493,7 +2492,6 @@ class Figure(FigureBase):
 
         self._axstack = _AxesStack()  # track all figure axes and current axes
         self.clear()
-        self._cachedRenderer = None
 
         # list of child gridspecs for this figure
         self._gridspecs = []
@@ -2655,9 +2653,7 @@ class Figure(FigureBase):
     get_axes = axes.fget
 
     def _get_renderer(self):
-        if self._cachedRenderer is not None:
-            return self._cachedRenderer
-        elif hasattr(self.canvas, 'get_renderer'):
+        if hasattr(self.canvas, 'get_renderer'):
             return self.canvas.get_renderer()
         else:
             return _get_renderer(self)
@@ -3051,7 +3047,6 @@ class Figure(FigureBase):
     @allow_rasterization
     def draw(self, renderer):
         # docstring inherited
-        self._cachedRenderer = renderer
 
         # draw the figure bounding box, perhaps none for white figure
         if not self.get_visible():
@@ -3092,14 +3087,8 @@ class Figure(FigureBase):
     def draw_artist(self, a):
         """
         Draw `.Artist` *a* only.
-
-        This method can only be used after an initial draw of the figure,
-        because that creates and caches the renderer needed here.
         """
-        if self._cachedRenderer is None:
-            raise AttributeError("draw_artist can only be used after an "
-                                 "initial draw which caches the renderer")
-        a.draw(self._cachedRenderer)
+        a.draw(self.canvas.get_renderer())
 
     def __getstate__(self):
         state = super().__getstate__()
@@ -3108,9 +3097,6 @@ class Figure(FigureBase):
         # of meaning that a figure can be detached from one canvas, and
         # re-attached to another.
         state.pop("canvas")
-
-        # Set cached renderer to None -- it can't be pickled.
-        state["_cachedRenderer"] = None
 
         # discard any changes to the dpi due to pixel ratio changes
         state["_dpi"] = state.get('_original_dpi', state['_dpi'])

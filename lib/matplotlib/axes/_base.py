@@ -3068,33 +3068,22 @@ class _AxesBase(martist.Artist):
     def draw_artist(self, a):
         """
         Efficiently redraw a single artist.
-
-        This method can only be used after an initial draw of the figure,
-        because that creates and caches the renderer needed here.
         """
-        if self.figure._cachedRenderer is None:
-            raise AttributeError("draw_artist can only be used after an "
-                                 "initial draw which caches the renderer")
-        a.draw(self.figure._cachedRenderer)
+        a.draw(self.figure.canvas.get_renderer())
 
     def redraw_in_frame(self):
         """
         Efficiently redraw Axes data, but not axis ticks, labels, etc.
-
-        This method can only be used after an initial draw which caches the
-        renderer.
         """
-        if self.figure._cachedRenderer is None:
-            raise AttributeError("redraw_in_frame can only be used after an "
-                                 "initial draw which caches the renderer")
         with ExitStack() as stack:
             for artist in [*self._axis_map.values(),
                            self.title, self._left_title, self._right_title]:
                 stack.enter_context(artist._cm_set(visible=False))
-            self.draw(self.figure._cachedRenderer)
+            self.draw(self.figure.canvas.get_renderer())
 
+    @_api.deprecated("3.6", alternative="Axes.figure.canvas.get_renderer()")
     def get_renderer_cache(self):
-        return self.figure._cachedRenderer
+        return self.figure.canvas.get_renderer()
 
     # Axes rectangle characteristics
 

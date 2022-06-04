@@ -984,7 +984,7 @@ def test_empty_imshow(make_norm):
     fig.canvas.draw()
 
     with pytest.raises(RuntimeError):
-        im.make_image(fig._cachedRenderer)
+        im.make_image(fig.canvas.get_renderer())
 
 
 def test_imshow_float16():
