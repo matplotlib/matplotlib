@@ -309,36 +309,33 @@ def get_epoch():
     return _epoch
 
 
-def _dt64_to_ordinalf(d):
+def _dt64_to_ordinalf(d, *, is_timedelta=False):
     """
     Convert `numpy.datetime64` or an `numpy.ndarray` of those types to
     Gregorian date as UTC float relative to the epoch (see `.get_epoch`).
     Roundoff is float64 precision.  Practically: microseconds for dates
     between 290301 BC, 294241 AD, milliseconds for larger dates
     (see `numpy.datetime64`).
+    `is_timedelta` indicates that the converted values are timedelta instead
+    of datetime. The converted floating point timedelta values are relative
+    to `timedelta(0)`.
     """
 
     # the "extra" ensures that we at least allow the dynamic range out to
     # seconds.  That should get out to +/-2e11 years.
-    dseconds = d.astype('datetime64[s]')
+    if is_timedelta:
+        dseconds = d.astype('timedelta64[s]')
+        dt = dseconds.astype(np.float64)
+    else:
+        dseconds = d.astype('datetime64[s]')
+        t0 = np.datetime64(get_epoch(), 's')
+        dt = (dseconds - t0).astype(np.float64)
+
     extra = (d - dseconds).astype('timedelta64[ns]')
-    t0 = np.datetime64(get_epoch(), 's')
-    dt = (dseconds - t0).astype(np.float64)
     dt += extra.astype(np.float64) / 1.0e9
     dt = dt / SEC_PER_DAY
 
     return _nat_to_nan(dt, d)
-
-
-def _timedelta64_to_ordinalf(t):
-    """
-    Convert `numpy.timedelta64` or an ndarray of those types to a timedelta
-    as float. Roundoff is float64 precision.
-    TODO: precision ok, can be improved? be more concrete here
-    """
-    td = t.astype('timedelta64[us]').astype(np.float64) / MUSECONDS_PER_DAY
-
-    return _nat_to_nan(td, t)
 
 
 def _nat_to_nan(ordf, timeval):
@@ -458,7 +455,7 @@ def date2num(d):
     The Gregorian calendar is assumed; this is not universal practice.
     For details see the module docstring.
     """
-    return _timevalue2num(d, np.datetime64)
+    return _timevalue2num(d)
 
 
 def timedelta2num(t):
@@ -474,10 +471,10 @@ def timedelta2num(t):
     float or sequence of floats
         Number of days. For example, 1 day 12 hours returns 1.5.
     """
-    return _timevalue2num(t, np.timedelta64)
+    return _timevalue2num(t, is_timedelta=True)
 
 
-def _timevalue2num(v, v_cls):
+def _timevalue2num(v, *, is_timedelta=False):
     """
     Convert datetime or timedelta to Matplotlibs representation as days
     (since the epoch for datetime) as float.
@@ -486,14 +483,9 @@ def _timevalue2num(v, v_cls):
     ----------
     v: `datetime.datetime`, `numpy.datetime64`, `datetime.timedelta` or
         `numpy.timedelta64` or sequences of these
-    v_cls: class `numpy.timedelta64` or `numpy.datetime64` depending on
-        whether to convert datetime or timedelta values
+    is_timedelta: `bool`, indicates that a timedelta object is converted
+        instead of a datetime object
     """
-    if v_cls is np.datetime64:
-        dtype = 'datetime64[us]'
-    else:
-        dtype = 'timedelta64[us]'
-
     # Unpack in case of e.g. Pandas or xarray object
     v = cbook._unpack_to_numpy(v)
 
@@ -506,8 +498,10 @@ def _timevalue2num(v, v_cls):
     mask = np.ma.getmask(v)
     v = np.asarray(v)
 
-    # convert to datetime64 arrays, if not already:
-    if not np.issubdtype(v.dtype, v_cls):
+    # convert to timedelta64/datetime64 arrays, if not already:
+    if is_timedelta and not np.issubdtype(v.dtype, np.timedelta64):
+        v = v.astype('timedelta64[us]')
+    elif not is_timedelta and not np.issubdtype(v.dtype, np.datetime64):
         # datetime arrays
         if not v.size:
             # deals with an empty array...
@@ -517,13 +511,10 @@ def _timevalue2num(v, v_cls):
             # make datetime naive:
             v = [dt.astimezone(UTC).replace(tzinfo=None) for dt in v]
             v = np.asarray(v)
-        v = v.astype(dtype)
+        v = v.astype('datetime64[us]')
 
     v = np.ma.masked_array(v, mask=mask) if masked else v
-    if v_cls is np.datetime64:
-        v = _dt64_to_ordinalf(v)
-    else:
-        v = _timedelta64_to_ordinalf(v)
+    v = _dt64_to_ordinalf(v, is_timedelta=is_timedelta)
 
     return v if iterable else v[0]
 
@@ -2107,7 +2098,8 @@ class AutoTimedeltaLocator(TimedeltaLocator):
                 self.maxticks = dict.fromkeys(self._freqs, maxticks)
 
         self.intervald = {
-            DAILY: [1, 2, 3, 7, 14, 21],
+            DAILY: [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000,
+                    10000, 20000, 50000, 100000, 200000, 500000, 1000000],
             HOURLY: [1, 2, 3, 4, 6, 12],
             MINUTELY: [1, 5, 10, 15, 30],
             SECONDLY: [1, 5, 10, 15, 30],
