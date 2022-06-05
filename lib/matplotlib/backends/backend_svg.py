@@ -298,6 +298,23 @@ def generate_css(attrib=None):
 _capstyle_d = {'projecting': 'square', 'butt': 'butt', 'round': 'round'}
 
 
+def _check_is_str(info, key):
+    if not isinstance(info, str):
+        raise TypeError(f'Invalid type for {key} metadata. Expected str, not '
+                        f'{type(info)}.')
+
+
+def _check_is_iterable_of_str(infos, key):
+    if np.iterable(infos):
+        for info in infos:
+            if not isinstance(info, str):
+                raise TypeError(f'Invalid type for {key} metadata. Expected '
+                                f'iterable of str, not {type(info)}.')
+    else:
+        raise TypeError(f'Invalid type for {key} metadata. Expected str or '
+                        f'iterable of str, not {type(infos)}.')
+
+
 class RendererSVG(RendererBase):
     def __init__(self, width, height, svgwriter, basename=None, image_dpi=72,
                  *, metadata=None):
@@ -359,7 +376,9 @@ class RendererSVG(RendererBase):
         writer = self.writer
 
         if 'Title' in metadata:
-            writer.element('title', text=metadata['Title'])
+            title = metadata['Title']
+            _check_is_str(title, 'Title')
+            writer.element('title', text=title)
 
         # Special handling.
         date = metadata.get('Date', None)
@@ -376,14 +395,14 @@ class RendererSVG(RendererBase):
                     elif isinstance(d, (datetime.datetime, datetime.date)):
                         dates.append(d.isoformat())
                     else:
-                        raise ValueError(
-                            'Invalid type for Date metadata. '
-                            'Expected iterable of str, date, or datetime, '
-                            'not {!r}.'.format(type(d)))
+                        raise TypeError(
+                            f'Invalid type for Date metadata. '
+                            f'Expected iterable of str, date, or datetime, '
+                            f'not {type(d)}.')
             else:
-                raise ValueError('Invalid type for Date metadata. '
-                                 'Expected str, date, datetime, or iterable '
-                                 'of the same, not {!r}.'.format(type(date)))
+                raise TypeError(f'Invalid type for Date metadata. '
+                                f'Expected str, date, datetime, or iterable '
+                                f'of the same, not {type(date)}.')
             metadata['Date'] = '/'.join(dates)
         elif 'Date' not in metadata:
             # Do not add `Date` if the user explicitly set `Date` to `None`
@@ -415,36 +434,40 @@ class RendererSVG(RendererBase):
             writer.element('dc:type', attrib={'rdf:resource': uri})
 
         # Single value only.
-        for key in ['title', 'coverage', 'date', 'description', 'format',
-                    'identifier', 'language', 'relation', 'source']:
-            info = metadata.pop(key.title(), None)
+        for key in ['Title', 'Coverage', 'Date', 'Description', 'Format',
+                    'Identifier', 'Language', 'Relation', 'Source']:
+            info = metadata.pop(key, None)
             if info is not None:
                 mid = ensure_metadata(mid)
-                writer.element(f'dc:{key}', text=info)
+                _check_is_str(info, key)
+                writer.element(f'dc:{key.lower()}', text=info)
 
         # Multiple Agent values.
-        for key in ['creator', 'contributor', 'publisher', 'rights']:
-            agents = metadata.pop(key.title(), None)
+        for key in ['Creator', 'Contributor', 'Publisher', 'Rights']:
+            agents = metadata.pop(key, None)
             if agents is None:
                 continue
 
             if isinstance(agents, str):
                 agents = [agents]
 
+            _check_is_iterable_of_str(agents, key)
+            # Now we know that we have an iterable of str
             mid = ensure_metadata(mid)
-            writer.start(f'dc:{key}')
+            writer.start(f'dc:{key.lower()}')
             for agent in agents:
                 writer.start('cc:Agent')
                 writer.element('dc:title', text=agent)
                 writer.end('cc:Agent')
-            writer.end(f'dc:{key}')
+            writer.end(f'dc:{key.lower()}')
 
         # Multiple values.
         keywords = metadata.pop('Keywords', None)
         if keywords is not None:
             if isinstance(keywords, str):
                 keywords = [keywords]
-
+            _check_is_iterable_of_str(keywords, 'Keywords')
+            # Now we know that we have an iterable of str
             mid = ensure_metadata(mid)
             writer.start('dc:subject')
             writer.start('rdf:Bag')
