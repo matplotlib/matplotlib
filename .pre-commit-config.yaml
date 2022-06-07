@@ -20,6 +20,8 @@ repos:
       - id: end-of-file-fixer
         exclude_types: [svg]
       - id: mixed-line-ending
+      - id: name-tests-test
+        args: ["--django"]
       - id: trailing-whitespace
         exclude_types: [svg]
   - repo: https://github.com/pycqa/flake8
