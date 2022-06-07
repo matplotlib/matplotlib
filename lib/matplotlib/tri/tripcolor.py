@@ -21,6 +21,10 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
     optionally the *triangles* and a *mask*. See `.Triangulation` for an
     explanation of these parameters.
 
+    It is possible to pass the triangles positionally, i.e.
+    ``tripcolor(x, y, triangles, C, ...)``. However, this is discouraged.
+    For more clarity, pass *triangles* via keyword argument.
+
     If neither of *triangulation* or *triangles* are given, the triangulation
     is calculated on the fly. In this case, it does not make sense to provide
     colors at the triangle faces via *C* or *facecolors* because there are
@@ -53,12 +57,6 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
         defined at points.
     other_parameters
         All other parameters are the same as for `~.Axes.pcolor`.
-
-    Notes
-    -----
-    It is possible to pass the triangles positionally, i.e.
-    ``tripcolor(x, y, triangles, C, ...)``. However, this is discouraged.
-    For more clarity, pass *triangles* via keyword argument.
     """
     _api.check_in_list(['flat', 'gouraud'], shading=shading)
 
