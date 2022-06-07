@@ -27,6 +27,9 @@ assumed to occur after the non-affine.  For any transform::
 
 The backends are not expected to handle non-affine transformations
 themselves.
+
+See the tutorial :doc:`/tutorials/advanced/transforms_tutorial` for examples
+of how to use transforms.
 """
 
 # Note: There are a number of places in the code where we use `np.min` or
