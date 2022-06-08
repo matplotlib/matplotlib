@@ -908,16 +908,18 @@ class GraphicsContextBase:
         Parameters
         ----------
         dash_offset : float
-            The offset (usually 0).
+            Distance, in points, into the dash pattern at which to
+            start the pattern. It is usually set to 0.
         dash_list : array-like or None
             The on-off sequence as points.  None specifies a solid line. All
             values must otherwise be non-negative (:math:`\\ge 0`).
 
         Notes
         -----
-        See p. 107 of to PostScript `blue book`_ for more info.
-
-        .. _blue book: https://www-cdf.fnal.gov/offline/PostScript/BLUEBOOK.PDF
+        See p. 666 of the PostScript
+        `Language Reference
+        <https://www.adobe.com/jp/print/postscript/pdfs/PLRM.pdf>`_
+        for more info.
         """
         if dash_list is not None:
             dl = np.asarray(dash_list)
