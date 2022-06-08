@@ -336,7 +336,6 @@ html_theme_options = {
     "show_prev_next": False,
     "switcher": {
         "json_url": "https://matplotlib.org/devdocs/_static/switcher.json",
-        "url_template": "https://matplotlib.org/{version}/",
         "version_match": (
             # The start version to show. This must be in switcher.json.
             # We either go to 'stable' or to 'devdocs'
