@@ -87,10 +87,12 @@ Random data in tests
 Random data is a very convenient way to generate data for examples,
 however the randomness is problematic for testing (as the tests
 must be deterministic!).  To work around this set the seed in each test.
-For numpy use::
+For numpy's default random number generator use::
 
   import numpy as np
-  np.random.seed(19680801)
+  rng = np.random.default_rng(19680801)
+
+and then use ``rng`` when generating the random numbers.
 
 The seed is John Hunter's birthday.
 
