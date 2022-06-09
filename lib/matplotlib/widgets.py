@@ -2072,9 +2072,12 @@ class _SelectorWidget(AxesWidget):
 
     def clear(self):
         """Clear the selection and set the selector ready to make a new one."""
+        self._clear_without_update()
+        self.update()
+
+    def _clear_without_update(self):
         self._selection_completed = False
         self.set_visible(False)
-        self.update()
 
     @property
     def artists(self):
@@ -3092,12 +3095,10 @@ class RectangleSelector(_SelectorWidget):
         # either x or y-direction
         minspanxy = (spanx <= self.minspanx or spany <= self.minspany)
         if (self._drawtype != 'none' and minspanxy):
-            for artist in self.artists:
-                artist.set_visible(False)
             if self._selection_completed:
                 # Call onselect, only when the selection is already existing
                 self.onselect(self._eventpress, self._eventrelease)
-            self._selection_completed = False
+            self._clear_without_update()
         else:
             self.onselect(self._eventpress, self._eventrelease)
             self._selection_completed = True
