@@ -2660,9 +2660,9 @@ class Parser:
                 hlist = HCentered([sub])
                 hlist.hpack(width, 'exactly')
                 vlist.extend([Vbox(0, vgap), hlist])
-                shift = hlist.height + vgap
+                shift = hlist.height + vgap + nucleus.depth
             vlist = Vlist(vlist)
-            vlist.shift_amount = shift + nucleus.depth
+            vlist.shift_amount = shift
             result = Hlist([vlist])
             return [result]
 

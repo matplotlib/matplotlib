@@ -122,6 +122,7 @@ math_tests = [
 lightweight_math_tests = [
     r'$\sqrt[ab]{123}$',  # github issue #8665
     r'$x \overset{f}{\rightarrow} \overset{f}{x} \underset{xx}{ff} \overset{xx}{ff} \underset{f}{x} \underset{f}{\leftarrow} x$',  # github issue #18241
+    r'$\sum x\quad\sum^nx\quad\sum_nx\quad\sum_n^nx\quad\prod x\quad\prod^nx\quad\prod_nx\quad\prod_n^nx$',  # GitHub issue 18085
 ]
 
 digits = "0123456789"
