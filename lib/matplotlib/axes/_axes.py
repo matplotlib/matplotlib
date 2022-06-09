@@ -2821,6 +2821,8 @@ class Axes(_AxesBase):
 
         The *locs*-positions are optional. The formats may be provided either
         as positional or as keyword-arguments.
+        Passing *markerfmt* and *basefmt* positionally is deprecated since
+        Matplotlib 3.5.
 
         Parameters
         ----------
@@ -2853,8 +2855,8 @@ class Axes(_AxesBase):
 
         markerfmt : str, optional
             A string defining the color and/or shape of the markers at the stem
-            heads.  Default: 'C0o', i.e. filled circles with the first color of
-            the color cycle.
+            heads. If the marker is not given, use the marker 'o', i.e. filled
+            circles. If the color is not given, use the color from *linefmt*.
 
         basefmt : str, default: 'C3-' ('C2-' in classic mode)
             A format string defining the properties of the baseline.
@@ -2918,16 +2920,27 @@ class Axes(_AxesBase):
         else:  # horizontal
             heads, locs = self._process_unit_info([("x", heads), ("y", locs)])
 
-        # defaults for formats
+        # resolve line format
         if linefmt is None:
             linefmt = args[0] if len(args) > 0 else "C0-"
         linestyle, linemarker, linecolor = _process_plot_format(linefmt)
 
+        # resolve marker format
         if markerfmt is None:
-            markerfmt = args[1] if len(args) > 1 else "C0o"
+            # if not given as kwarg, check for positional or fall back to 'o'
+            markerfmt = args[1] if len(args) > 1 else "o"
+        if markerfmt == '':
+            markerfmt = ' '  # = empty line style; '' would resolve rcParams
         markerstyle, markermarker, markercolor = \
             _process_plot_format(markerfmt)
+        if markermarker is None:
+            markermarker = 'o'
+        if markerstyle is None:
+            markerstyle = 'None'
+        if markercolor is None:
+            markercolor = linecolor
 
+        # resolve baseline format
         if basefmt is None:
             basefmt = (args[2] if len(args) > 2 else
                        "C2-" if rcParams["_internal.classic_mode"] else "C3-")
