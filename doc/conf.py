@@ -329,14 +329,13 @@ html_theme = "mpl_sphinx_theme"
 html_logo = "_static/logo2.svg"
 html_theme_options = {
     "native_site": True,
-    "logo_link": "index",
+    "logo": {"link": "index"},
     # collapse_navigation in pydata-sphinx-theme is slow, so skipped for local
     # and CI builds https://github.com/pydata/pydata-sphinx-theme/pull/386
     "collapse_navigation": not is_release_build,
     "show_prev_next": False,
     "switcher": {
         "json_url": "https://matplotlib.org/devdocs/_static/switcher.json",
-        "url_template": "https://matplotlib.org/{version}/",
         "version_match": (
             # The start version to show. This must be in switcher.json.
             # We either go to 'stable' or to 'devdocs'
