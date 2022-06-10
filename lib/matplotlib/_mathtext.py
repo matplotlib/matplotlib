@@ -1947,6 +1947,9 @@ class Parser:
         self._expression = p.main
         self._math_expression = p.math
 
+        # To add space to nucleus operators after sub/superscripts
+        self._in_subscript_or_superscript = False
+
     def parse(self, s, fonts_object, fontsize, dpi):
         """
         Parse expression *s* using the given *fonts_object* for
@@ -1965,6 +1968,8 @@ class Parser:
                                         " " * (err.column - 1) + "^",
                                         str(err)])) from err
         self._state_stack = None
+        self._in_subscript_or_superscript = False
+        # prevent operator spacing from leaking into a new expression
         self._em_width_cache = {}
         self._expression.resetCache()
         return result[0]
@@ -2164,6 +2169,13 @@ class Parser:
             # Add thin space except when followed by parenthesis, bracket, etc.
             hlist_list += [self._make_space(self._space_widths[r'\,'])]
         self.pop_state()
+        # if followed by a super/subscript, set flag to true
+        # This flag tells subsuper to add space after this operator
+        if next_char in {'^', '_'}:
+            self._in_subscript_or_superscript = True
+        else:
+            self._in_subscript_or_superscript = False
+
         return Hlist(hlist_list)
 
     def start_group(self, s, loc, toks):
@@ -2394,8 +2406,15 @@ class Parser:
 
         if not self.is_dropsub(last_char):
             x.width += constants.script_space * xHeight
-        result = Hlist([nucleus, x])
 
+        # Do we need to add a space after the nucleus?
+        # To find out, check the flag set by operatorname
+        spaced_nucleus = [nucleus, x]
+        if self._in_subscript_or_superscript:
+            spaced_nucleus += [self._make_space(self._space_widths[r'\,'])]
+            self._in_subscript_or_superscript = False
+
+        result = Hlist(spaced_nucleus)
         return [result]
 
     def _genfrac(self, ldelim, rdelim, rule, style, num, den):
