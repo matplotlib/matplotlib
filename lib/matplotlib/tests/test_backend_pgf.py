@@ -12,21 +12,13 @@ import matplotlib.pyplot as plt
 from matplotlib.testing import _has_tex_package, _check_for_pgf
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
 from matplotlib.backends.backend_pgf import PdfPages, _tex_escape
-from matplotlib.testing.decorators import (_image_directories,
-                                           check_figures_equal,
-                                           image_comparison)
+from matplotlib.testing.decorators import (
+    _image_directories, check_figures_equal, image_comparison)
+from matplotlib.testing._markers import (
+    needs_ghostscript, needs_lualatex, needs_pdflatex, needs_xelatex)
+
 
 baseline_dir, result_dir = _image_directories(lambda: 'dummy func')
-
-needs_xelatex = pytest.mark.skipif(not _check_for_pgf('xelatex'),
-                                   reason='xelatex + pgf is required')
-needs_pdflatex = pytest.mark.skipif(not _check_for_pgf('pdflatex'),
-                                    reason='pdflatex + pgf is required')
-needs_lualatex = pytest.mark.skipif(not _check_for_pgf('lualatex'),
-                                    reason='lualatex + pgf is required')
-needs_ghostscript = pytest.mark.skipif(
-    "eps" not in mpl.testing.compare.converter,
-    reason="This test needs a ghostscript installation")
 
 
 def compare_figure(fname, savefig_kwargs={}, tol=0):

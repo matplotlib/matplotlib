@@ -1,0 +1,7 @@
+``checkdep_usetex`` deprecated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This method was only intended to disable tests in case no latex install was
+found. As such, it is considered to be private and for internal use only.
+
+Please vendor the code if you need this.
