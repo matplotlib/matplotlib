@@ -211,11 +211,23 @@ def test_colorbar_positioning(use_gridspec):
 
 
 def test_colorbar_single_ax_panchor_false():
-    # Just smoketesting that this doesn't crash.  Note that this differs from
-    # the tests above with panchor=False because there use_gridspec is actually
-    # ineffective: passing *ax* as lists always disable use_gridspec.
+    # Note that this differs from the tests above with panchor=False because
+    # there use_gridspec is actually ineffective: passing *ax* as lists always
+    # disables use_gridspec.
+    ax = plt.subplot(111, anchor='N')
     plt.imshow([[0, 1]])
     plt.colorbar(panchor=False)
+    assert ax.get_anchor() == 'N'
+
+
+@pytest.mark.parametrize('constrained', [False, True],
+                         ids=['standard', 'constrained'])
+def test_colorbar_single_ax_panchor_east(constrained):
+    fig = plt.figure(constrained_layout=constrained)
+    ax = fig.add_subplot(111, anchor='N')
+    plt.imshow([[0, 1]])
+    plt.colorbar(panchor='E')
+    assert ax.get_anchor() == 'E'
 
 
 @image_comparison(['contour_colorbar.png'], remove_text=True)
