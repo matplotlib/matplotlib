@@ -21,7 +21,11 @@ ax.plot(a, c, 'k--', label='Model length')
 ax.plot(a, d, 'k:', label='Data length')
 ax.plot(a, c + d, 'k', label='Total message length')
 
-legend = ax.legend(loc='upper center', shadow=True, fontsize='x-large')
+# Create an arrow with pre-defined label.
+ax.annotate("", xy=(1.5, 4.5), xytext=(1.5, 9.0),
+            arrowprops={'arrowstyle': '<->', 'color': 'C7'}, label='Distance')
+
+legend = ax.legend(loc='upper center', shadow=True, fontsize='large')
 
 # Put a nicer background color on the legend.
 legend.get_frame().set_facecolor('C0')

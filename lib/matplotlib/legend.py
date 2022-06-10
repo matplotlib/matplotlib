@@ -34,11 +34,11 @@ from matplotlib.cbook import silent_list
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import (Patch, Rectangle, Shadow, FancyBboxPatch,
-                                StepPatch)
+                                StepPatch, FancyArrowPatch)
 from matplotlib.collections import (
     Collection, CircleCollection, LineCollection, PathCollection,
     PolyCollection, RegularPolyCollection)
-from matplotlib.text import Text
+from matplotlib.text import Annotation, Text
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
 from matplotlib.transforms import BboxTransformTo, BboxTransformFrom
 from matplotlib.offsetbox import (
@@ -650,7 +650,9 @@ class Legend(Artist):
             update_func=legend_handler.update_from_first_child),
         tuple: legend_handler.HandlerTuple(),
         PathCollection: legend_handler.HandlerPathCollection(),
-        PolyCollection: legend_handler.HandlerPolyCollection()
+        PolyCollection: legend_handler.HandlerPolyCollection(),
+        FancyArrowPatch: legend_handler.HandlerFancyArrowPatch(),
+        Annotation: legend_handler.HandlerAnnotation()
         }
 
     # (get|set|update)_default_handler_maps are public interfaces to
@@ -800,6 +802,7 @@ class Legend(Artist):
                                              self._legend_handle_box])
         self._legend_box.set_figure(self.figure)
         self._legend_box.axes = self.axes
+        self._legend_box.set_offset(self._findoffset)
         self.texts = text_list
         self.legendHandles = handle_list
 
