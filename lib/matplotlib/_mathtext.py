@@ -1830,6 +1830,7 @@ class Parser:
             | p.underset
             | p.sqrt
             | p.overline
+            | p.auto_delim
         )
 
         p.simple        <<= (
@@ -2206,6 +2207,16 @@ class Parser:
             result = Hlist([vlist])
             return [result]
 
+        # Set the minimum shifts for the superscript and subscript.
+        constants = _get_font_constant_set(state)
+        if isinstance(nucleus, Char):
+            shift_up = 0
+            shift_down = 0
+        else:
+            # TODO Optimise and reduce line length.
+            shift_up = nucleus.height - constants.subdrop * xHeight * SHRINK_FACTOR
+            shift_down = nucleus.depth + constants.subdrop * xHeight * SHRINK_FACTOR
+
         # We remove kerning on the last character for consistency (otherwise
         # it will compute kerning based on non-shrunk characters and may put
         # them too close together when superscripted)
@@ -2232,7 +2243,6 @@ class Parser:
             nucleus = Hlist([nucleus])
 
         # Handle regular sub/superscripts
-        constants = _get_font_constant_set(state)
         lc_height   = last_char.height
         lc_baseline = 0
         if self.is_dropsub(last_char):
@@ -2260,7 +2270,12 @@ class Parser:
             if self.is_dropsub(last_char):
                 shift_down = lc_baseline + constants.subdrop * xHeight
             else:
-                shift_down = constants.sub1 * xHeight
+                # TODO Optimise.
+                if shift_down < constants.sub1 * xHeight:
+                    shift_down = constants.sub1 * xHeight
+                clr = x.height - xHeight * 4 / 5
+                if shift_down < clr:
+                    shift_down = clr
             x.shift_amount = shift_down
         else:
             x = Hlist([Kern(superkern), super])
