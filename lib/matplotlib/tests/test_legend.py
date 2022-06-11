@@ -5,7 +5,7 @@ from unittest import mock
 import numpy as np
 import pytest
 
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.testing._markers import needs_usetex
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -148,7 +148,7 @@ def test_fancy():
     plt.errorbar(np.arange(10), np.arange(10), xerr=0.5,
                  yerr=0.5, label='XX')
     plt.legend(loc="center left", bbox_to_anchor=[1.0, 0.5],
-               ncol=2, shadow=True, title="My legend", numpoints=1)
+               ncols=2, shadow=True, title="My legend", numpoints=1)
 
 
 @image_comparison(['framealpha'], remove_text=True,
@@ -190,7 +190,7 @@ def test_legend_expand():
         ax.plot(x, x - 50, 'o', label='y=-1')
         l2 = ax.legend(loc='right', mode=mode)
         ax.add_artist(l2)
-        ax.legend(loc='lower left', mode=mode, ncol=2)
+        ax.legend(loc='lower left', mode=mode, ncols=2)
 
 
 @image_comparison(['hatching'], remove_text=True, style='default')
@@ -926,3 +926,12 @@ def test_legend_markers_from_line2d():
 
     assert markers == new_markers == _markers
     assert labels == new_labels
+
+
+@check_figures_equal()
+def test_ncol_ncols(fig_test, fig_ref):
+    # Test that both ncol and ncols work
+    strings = ["a", "b", "c", "d", "e", "f"]
+    ncols = 3
+    fig_test.legend(strings, ncol=ncols)
+    fig_ref.legend(strings, ncols=ncols)
