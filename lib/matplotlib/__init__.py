@@ -160,11 +160,13 @@ def _parse_to_version_info(version_str):
 
 def _get_version():
     """Return the version string used for __version__."""
-    # Only shell out to a git subprocess if really needed, and not on a
-    # shallow clone, such as those used by CI, as the latter would trigger
-    # a warning from setuptools_scm.
+    # Only shell out to a git subprocess if really needed, i.e. when we are in
+    # a matplotlib git repo but not in a shallow clone, such as those used by
+    # CI, as the latter would trigger a warning from setuptools_scm.
     root = Path(__file__).resolve().parents[2]
-    if (root / ".git").exists() and not (root / ".git/shallow").exists():
+    if ((root / ".matplotlib-repo").exists()
+            and (root / ".git").exists()
+            and not (root / ".git/shallow").exists()):
         import setuptools_scm
         return setuptools_scm.get_version(
             root=root,
