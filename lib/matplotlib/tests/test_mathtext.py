@@ -234,8 +234,8 @@ def test_fontinfo():
 @pytest.mark.parametrize(
     'math, msg',
     [
-        (r'$\hspace{}$', r'Expected \hspace{n}'),
-        (r'$\hspace{foo}$', r'Expected \hspace{n}'),
+        (r'$\hspace{}$', r'Expected \hspace{space}'),
+        (r'$\hspace{foo}$', r'Expected \hspace{space}'),
         (r'$\frac$', r'Expected \frac{num}{den}'),
         (r'$\frac{}{}$', r'Expected \frac{num}{den}'),
         (r'$\binom$', r'Expected \binom{num}{den}'),
@@ -246,8 +246,8 @@ def test_fontinfo():
          r'Expected \genfrac{ldelim}{rdelim}{rulesize}{style}{num}{den}'),
         (r'$\sqrt$', r'Expected \sqrt{value}'),
         (r'$\sqrt f$', r'Expected \sqrt{value}'),
-        (r'$\overline$', r'Expected \overline{value}'),
-        (r'$\overline{}$', r'Expected \overline{value}'),
+        (r'$\overline$', r'Expected \overline{body}'),
+        (r'$\overline{}$', r'Expected \overline{body}'),
         (r'$\leftF$', r'Expected a delimiter'),
         (r'$\rightF$', r'Unknown symbol: \rightF'),
         (r'$\left(\right$', r'Expected a delimiter'),

@@ -14,8 +14,8 @@ import unicodedata
 import numpy as np
 from pyparsing import (
     Empty, Forward, Literal, NotAny, oneOf, OneOrMore, Optional,
-    ParseBaseException, ParseFatalException, ParserElement, ParseResults,
-    QuotedString, Regex, StringEnd, ZeroOrMore, pyparsing_common)
+    ParseBaseException, ParseExpression, ParseFatalException, ParserElement,
+    ParseResults, QuotedString, Regex, StringEnd, ZeroOrMore, pyparsing_common)
 
 import matplotlib as mpl
 from . import _api, cbook
@@ -1559,9 +1559,7 @@ def Error(msg):
     def raise_error(s, loc, toks):
         raise ParseFatalException(s, loc, msg)
 
-    empty = Empty()
-    empty.setParseAction(raise_error)
-    return empty
+    return Empty().setParseAction(raise_error)
 
 
 class ParserState:
@@ -1599,6 +1597,31 @@ class ParserState:
         """Return the underline thickness for this state."""
         return self.font_output.get_underline_thickness(
             self.font, self.fontsize, self.dpi)
+
+
+def cmd(expr, args):
+    r"""
+    Helper to define TeX commands.
+
+    ``cmd("\cmd", args)`` is equivalent to
+    ``"\cmd" - (args | Error("Expected \cmd{arg}{...}"))`` where the names in
+    the error message are taken from element names in *args*.  If *expr*
+    already includes arguments (e.g. "\cmd{arg}{...}"), then they are stripped
+    when constructing the parse element, but kept (and *expr* is used as is) in
+    the error message.
+    """
+
+    def names(elt):
+        if isinstance(elt, ParseExpression):
+            for expr in elt.exprs:
+                yield from names(expr)
+        elif elt.resultsName:
+            yield elt.resultsName
+
+    csname = expr.split("{", 1)[0]
+    err = (csname + "".join("{%s}" % name for name in names(args))
+           if expr == csname else expr)
+    return csname - (args | Error(f"Expected {err}"))
 
 
 class Parser:
@@ -1742,7 +1765,7 @@ class Parser:
         p.placeable        = Forward()
         p.required_group   = Forward()
         p.simple           = Forward()
-        p.simple_group     = Forward()
+        p.optional_group   = Forward()
         p.sqrt             = Forward()
         p.subsuper         = Forward()
         p.token            = Forward()
@@ -1750,61 +1773,52 @@ class Parser:
 
         set_names_and_parse_actions()  # for mutually recursive definitions.
 
-        p.customspace   <<= r"\hspace" - (
-            "{" + p.float_literal("space") + "}"
-            | Error(r"Expected \hspace{n}"))
+        p.customspace <<= cmd(r"\hspace", "{" + p.float_literal("space") + "}")
 
-        p.accent        <<= (
+        p.accent <<= (
             "\\"
             + oneOf([*self._accent_map, *self._wide_accents])("accent")
             - p.placeable("sym"))
 
-        p.function      <<= "\\" + oneOf(self._function_names)("name")
-        p.operatorname  <<= r"\operatorname" - (
-            "{" + ZeroOrMore(p.simple | p.unknown_symbol)("name") + "}"
-            | Error(r"Expected \operatorname{name}"))
+        p.function     <<= "\\" + oneOf(self._function_names)("name")
+        p.operatorname <<= cmd(
+            r"\operatorname",
+            "{" + ZeroOrMore(p.simple | p.unknown_symbol)("name") + "}")
 
-        p.group          <<= (
-            p.start_group + ZeroOrMore(p.token)("group") + p.end_group)
+        p.group <<= p.start_group + ZeroOrMore(p.token)("group") + p.end_group
 
-        p.simple_group   <<= "{" + ZeroOrMore(p.token)("group") + "}"
+        p.optional_group <<= "{" + ZeroOrMore(p.token)("group") + "}"
         p.required_group <<= "{" + OneOrMore(p.token)("group") + "}"
 
-        p.frac          <<= r"\frac" - (
-            p.required_group("num") + p.required_group("den")
-            | Error(r"Expected \frac{num}{den}"))
-        p.dfrac         <<= r"\dfrac" - (
-            p.required_group("num") + p.required_group("den")
-            | Error(r"Expected \dfrac{num}{den}"))
-        p.binom         <<= r"\binom" - (
-            p.required_group("num") + p.required_group("den")
-            | Error(r"Expected \binom{num}{den}"))
+        p.frac  <<= cmd(
+            r"\frac", p.required_group("num") + p.required_group("den"))
+        p.dfrac <<= cmd(
+            r"\dfrac", p.required_group("num") + p.required_group("den"))
+        p.binom <<= cmd(
+            r"\binom", p.required_group("num") + p.required_group("den"))
 
-        p.genfrac <<= r"\genfrac" - (
+        p.genfrac <<= cmd(
+            r"\genfrac",
             "{" + Optional(p.ambi_delim | p.left_delim)("ldelim") + "}"
             + "{" + Optional(p.ambi_delim | p.right_delim)("rdelim") + "}"
             + "{" + p.float_literal("rulesize") + "}"
-            + p.simple_group("style")
+            + p.optional_group("style")
             + p.required_group("num")
-            + p.required_group("den")
-            | Error("Expected "
-                    r"\genfrac{ldelim}{rdelim}{rulesize}{style}{num}{den}"))
+            + p.required_group("den"))
 
-        p.sqrt <<= r"\sqrt" - (
+        p.sqrt <<= cmd(
+            r"\sqrt{value}",
             Optional("[" + OneOrMore(NotAny("]") + p.token)("root") + "]")
-            + p.required_group("value")
-            | Error(r"Expected \sqrt{value}"))
+            + p.required_group("value"))
 
-        p.overline <<= r"\overline" - (
-            p.required_group("body")
-            | Error(r"Expected \overline{value}"))
+        p.overline <<= cmd(r"\overline", p.required_group("body"))
 
-        p.overset  <<= r"\overset" - (
-            p.simple_group("annotation") + p.simple_group("body")
-            | Error(r"Expected \overset{annotation}{body}"))
-        p.underset <<= r"\underset" - (
-            p.simple_group("annotation") + p.simple_group("body")
-            | Error(r"Expected \underset{annotation}{body}"))
+        p.overset  <<= cmd(
+            r"\overset",
+            p.optional_group("annotation") + p.optional_group("body"))
+        p.underset <<= cmd(
+            r"\underset",
+            p.optional_group("annotation") + p.optional_group("body"))
 
         p.placeable     <<= (
             p.accentprefixed  # Must be before accent so named symbols that are
@@ -2110,7 +2124,7 @@ class Parser:
     def required_group(self, s, loc, toks):
         return Hlist(toks.get("group", []))
 
-    simple_group = required_group
+    optional_group = required_group
 
     def end_group(self, s, loc, toks):
         self.pop_state()
