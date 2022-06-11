@@ -5,7 +5,7 @@ from matplotlib.backend_bases import (
     FigureCanvasBase, LocationEvent, MouseButton, MouseEvent,
     NavigationToolbar2, RendererBase)
 from matplotlib.figure import Figure
-from matplotlib.testing._markers import needs_xelatex
+from matplotlib.testing._markers import needs_pgf_xelatex
 import matplotlib.pyplot as plt
 
 import numpy as np
@@ -251,7 +251,8 @@ def test_toolbar_zoompan():
 
 
 @pytest.mark.parametrize(
-    "backend", ['svg', 'ps', 'pdf', pytest.param('pgf', marks=needs_xelatex)]
+    "backend", ['svg', 'ps', 'pdf',
+                pytest.param('pgf', marks=needs_pgf_xelatex)]
 )
 def test_draw(backend):
     from matplotlib.figure import Figure
