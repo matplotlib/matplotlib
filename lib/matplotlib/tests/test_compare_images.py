@@ -42,7 +42,8 @@ from matplotlib.testing.decorators import _image_directories
         # Now test the reverse comparison.
         ('all128.png', 'all127.png', 0, 1),
     ])
-def test_image_comparison_expect_rms(im1, im2, tol, expect_rms):
+def test_image_comparison_expect_rms(im1, im2, tol, expect_rms, tmp_path,
+                                                            monkeypatch):
     """
     Compare two images, expecting a particular RMS error.
 
@@ -54,6 +55,7 @@ def test_image_comparison_expect_rms(im1, im2, tol, expect_rms):
     succeed if compare_images succeeds. Otherwise, the test will succeed if
     compare_images fails and returns an RMS error almost equal to this value.
     """
+    monkeypatch.chdir(tmp_path)
     baseline_dir, result_dir = map(Path, _image_directories(lambda: "dummy"))
     # Copy both "baseline" and "test" image to result_dir, so that 1)
     # compare_images writes the diff to result_dir, rather than to the source
