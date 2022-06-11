@@ -132,7 +132,7 @@ latex_to_bakoma = {
     ']'                          : ('cmr10', 0x5d),
 
     '*'                          : ('cmsy10', 0xa4),
-    '-'                          : ('cmsy10', 0xa1),
+    '\N{MINUS SIGN}'             : ('cmsy10', 0xa1),
     '\\Downarrow'                : ('cmsy10', 0x2b),
     '\\Im'                       : ('cmsy10', 0x3d),
     '\\Leftarrow'                : ('cmsy10', 0x28),
