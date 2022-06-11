@@ -34,15 +34,15 @@ def _checkdep_usetex():
 needs_ghostscript = pytest.mark.skipif(
     "eps" not in matplotlib.testing.compare.converter,
     reason="This test needs a ghostscript installation")
-needs_lualatex = pytest.mark.skipif(
+needs_pgf_lualatex = pytest.mark.skipif(
     not matplotlib.testing._check_for_pgf('lualatex'),
     reason='lualatex + pgf is required')
-needs_pdflatex = pytest.mark.skipif(
+needs_pgf_pdflatex = pytest.mark.skipif(
     not matplotlib.testing._check_for_pgf('pdflatex'),
     reason='pdflatex + pgf is required')
+needs_pgf_xelatex = pytest.mark.skipif(
+    not matplotlib.testing._check_for_pgf('xelatex'),
+    reason='xelatex + pgf is required')
 needs_usetex = pytest.mark.skipif(
     not _checkdep_usetex(),
     reason="This test needs a TeX installation")
-needs_xelatex = pytest.mark.skipif(
-    not matplotlib.testing._check_for_pgf('xelatex'),
-    reason='xelatex + pgf is required')
