@@ -880,7 +880,7 @@ class _AxesBase(martist.Artist):
             # for cartesian projection, this is top spine
             return self.spines.top.get_spine_transform()
         else:
-            raise ValueError('unknown value for which')
+            raise ValueError(f'unknown value for which: {which!r}')
 
     def get_xaxis_text1_transform(self, pad_points):
         """
@@ -956,7 +956,7 @@ class _AxesBase(martist.Artist):
             # for cartesian projection, this is top spine
             return self.spines.right.get_spine_transform()
         else:
-            raise ValueError('unknown value for which')
+            raise ValueError(f'unknown value for which: {which!r}')
 
     def get_yaxis_text1_transform(self, pad_points):
         """
@@ -3174,15 +3174,13 @@ class _AxesBase(martist.Artist):
         --------
         get_axisbelow
         """
+        # Check that b is True, False or 'line'
         self._axisbelow = axisbelow = validate_axisbelow(b)
-        if axisbelow is True:
-            zorder = 0.5
-        elif axisbelow is False:
-            zorder = 2.5
-        elif axisbelow == "line":
-            zorder = 1.5
-        else:
-            raise ValueError("Unexpected axisbelow value")
+        zorder = {
+            True: 0.5,
+            'line': 1.5,
+            False: 2.5,
+        }[axisbelow]
         for axis in self._axis_map.values():
             axis.set_zorder(zorder)
         self.stale = True
@@ -3495,12 +3493,12 @@ class _AxesBase(martist.Artist):
                    else mpl.rcParams['xaxis.labellocation'])
             _api.check_in_list(('left', 'center', 'right'), loc=loc)
 
-            if loc == 'left':
-                kwargs.update(x=0, horizontalalignment='left')
-            elif loc == 'center':
-                kwargs.update(x=0.5, horizontalalignment='center')
-            elif loc == 'right':
-                kwargs.update(x=1, horizontalalignment='right')
+            x = {
+                'left': 0,
+                'center': 0.5,
+                'right': 1,
+            }[loc]
+            kwargs.update(x=x, horizontalalignment=loc)
 
         return self.xaxis.set_label_text(xlabel, fontdict, **kwargs)
 
@@ -3784,12 +3782,12 @@ class _AxesBase(martist.Artist):
                    else mpl.rcParams['yaxis.labellocation'])
             _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
 
-            if loc == 'bottom':
-                kwargs.update(y=0, horizontalalignment='left')
-            elif loc == 'center':
-                kwargs.update(y=0.5, horizontalalignment='center')
-            elif loc == 'top':
-                kwargs.update(y=1, horizontalalignment='right')
+            y, ha = {
+                'bottom': (0, 'left'),
+                'center': (0.5, 'center'),
+                'top': (1, 'right')
+            }[loc]
+            kwargs.update(y=y, horizontalalignment=ha)
 
         return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
 
