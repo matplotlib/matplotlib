@@ -303,24 +303,17 @@ def test_get_unicode_index_exception():
 
 
 def test_single_minus_sign():
-    plt.figure(figsize=(0.3, 0.3))
-    plt.text(0.5, 0.5, '$-$')
-    plt.gca().spines[:].set_visible(False)
-    plt.gca().set_xticks([])
-    plt.gca().set_yticks([])
-
-    buff = io.BytesIO()
-    plt.savefig(buff, format="rgba", dpi=1000)
-    array = np.frombuffer(buff.getvalue(), dtype=np.uint8)
-
-    # If this fails, it would be all white
-    assert not np.all(array == 0xff)
+    fig = plt.figure()
+    fig.text(0.5, 0.5, '$-$')
+    fig.canvas.draw()
+    t = np.asarray(fig.canvas.renderer.buffer_rgba())
+    assert (t != 0xff).any()  # assert that canvas is not all white.
 
 
 @check_figures_equal(extensions=["png"])
 def test_spaces(fig_test, fig_ref):
-    fig_test.subplots().set_title(r"$1\,2\>3\ 4$")
-    fig_ref.subplots().set_title(r"$1\/2\:3~4$")
+    fig_test.text(.5, .5, r"$1\,2\>3\ 4$")
+    fig_ref.text(.5, .5, r"$1\/2\:3~4$")
 
 
 @check_figures_equal(extensions=["png"])
