@@ -2271,7 +2271,7 @@ class Parser:
                 shift_down = lc_baseline + constants.subdrop * xHeight
             else:
                 shift_down = max(shift_down, constants.sub1 * xHeight,
-                    x.height - xHeight * 4 / 5)
+                                 x.height - xHeight * 4 / 5)
             x.shift_amount = shift_down
         else:
             # Align superscript (node758).
@@ -2281,7 +2281,7 @@ class Parser:
                 shift_up = lc_height - constants.subdrop * xHeight
             else:
                 shift_up = max(shift_up, constants.sup1 * xHeight,
-                    x.depth + xHeight / 4)
+                               x.depth + xHeight / 4)
             if sub is None:
                 x.shift_amount = -shift_up
             else:
