@@ -787,7 +787,7 @@ class _ImageBase(martist.Artist, cm.ScalarMappable):
         """
         if s is None:
             s = "data"  # placeholder for maybe having rcParam
-        _api.check_in_list(['data', 'rgba'])
+        _api.check_in_list(['data', 'rgba'], s=s)
         self._interpolation_stage = s
         self.stale = True
 
