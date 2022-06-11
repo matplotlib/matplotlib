@@ -93,3 +93,8 @@ def test_deprecation_alternative():
     def f():
         pass
     assert alternative in f.__doc__
+
+
+def test_empty_check_in_list():
+    with pytest.raises(TypeError, match="No argument to check!"):
+        _api.check_in_list(["a"])
