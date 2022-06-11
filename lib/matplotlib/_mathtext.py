@@ -1680,7 +1680,7 @@ class Parser:
 
     _ambi_delim = set(r"""
       | \| / \backslash \uparrow \downarrow \updownarrow \Uparrow
-      \Downarrow \Updownarrow . \vert \Vert \\|""".split())
+      \Downarrow \Updownarrow . \vert \Vert""".split())
 
     _left_delim = set(r"( [ \{ < \lfloor \langle \lceil".split())
 
