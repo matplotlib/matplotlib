@@ -214,6 +214,21 @@ class _SVGConverter(_Converter):
             self._tmpdir.cleanup()
 
 
+class _SVGWithMatplotlibFontsConverter(_SVGConverter):
+    """
+    A SVG converter which explicitly adds the fonts shipped by Matplotlib to
+    Inkspace's font search path, to better support `svg.fonttype = "none"`
+    (which is in particular used by certain mathtext tests).
+    """
+
+    def __call__(self, orig, dest):
+        if not hasattr(self, "_tmpdir"):
+            self._tmpdir = TemporaryDirectory()
+            shutil.copytree(cbook._get_data_path("fonts/ttf"),
+                            Path(self._tmpdir.name, "fonts"))
+        return super().__call__(orig, dest)
+
+
 def _update_converter():
     try:
         mpl._get_executable_info("gs")
@@ -235,6 +250,7 @@ def _update_converter():
 #: extension to png format.
 converter = {}
 _update_converter()
+_svg_with_matplotlib_fonts_converter = _SVGWithMatplotlibFontsConverter()
 
 
 def comparable_formats():
@@ -284,7 +300,14 @@ def convert(filename, cache):
                 return str(newpath)
 
         _log.debug("For %s: converting to png.", filename)
-        converter[path.suffix[1:]](path, newpath)
+        convert = converter[path.suffix[1:]]
+        if path.suffix == ".svg":
+            contents = path.read_text()
+            if 'style="font:' in contents:
+                # for svg.fonttype = none, we explicitly patch the font search
+                # path so that fonts shipped by Matplotlib are found.
+                convert = _svg_with_matplotlib_fonts_converter
+        convert(path, newpath)
 
         if cache_dir is not None:
             _log.debug("For %s: caching conversion result.", filename)
