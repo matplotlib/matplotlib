@@ -55,15 +55,10 @@ elif sys.modules.get("PySide2.QtCore"):
     QT_API = QT_API_PYSIDE2
 # Otherwise, check the QT_API environment variable (from Enthought).  This can
 # only override the binding, not the backend (in other words, we check that the
-# requested backend actually matches).  Use dict.__getitem__ to avoid
+# requested backend actually matches).  Use _get_backend_or_none to avoid
 # triggering backend resolution (which can result in a partially but
 # incompletely imported backend_qt5).
-elif (
-        isinstance(dict.__getitem__(mpl.rcParams, "backend"), str) and
-        dict.__getitem__(mpl.rcParams, "backend").lower() in [
-            "qt5agg", "qt5cairo"
-        ]
-):
+elif (mpl.rcParams._get_backend_or_none() or "").lower().startswith("qt5"):
     if QT_API_ENV in ["pyqt5", "pyside2"]:
         QT_API = _ETS[QT_API_ENV]
     else:

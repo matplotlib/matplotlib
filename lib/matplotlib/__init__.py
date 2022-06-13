@@ -678,6 +678,11 @@ class RcParams(MutableMapping, dict):
 
         return dict.__getitem__(self, key)
 
+    def _get_backend_or_none(self):
+        """Get the requested backend, if any, without triggering resolution."""
+        backend = dict.__getitem__(self, "backend")
+        return None if backend is rcsetup._auto_backend_sentinel else backend
+
     def __repr__(self):
         class_name = self.__class__.__name__
         indent = len(class_name) + 1
@@ -1129,9 +1134,8 @@ def use(backend, *, force=True):
     matplotlib.get_backend
     """
     name = validate_backend(backend)
-    # we need to use the base-class method here to avoid (prematurely)
-    # resolving the "auto" backend setting
-    if dict.__getitem__(rcParams, 'backend') == name:
+    # don't (prematurely) resolve the "auto" backend setting
+    if rcParams._get_backend_or_none() == name:
         # Nothing to do if the requested backend is already set
         pass
     else:
