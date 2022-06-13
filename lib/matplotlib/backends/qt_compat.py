@@ -5,9 +5,7 @@ The selection logic is as follows:
 - if any of PyQt6, PySide6, PyQt5, or PySide2 have already been
   imported (checked in that order), use it;
 - otherwise, if the QT_API environment variable (used by Enthought) is set, use
-  it to determine which binding to use (but do not change the backend based on
-  it; i.e. if the Qt5Agg backend is requested but QT_API is set to "pyqt4",
-  then actually use Qt5 with PyQt5 or PySide2 (whichever can be imported);
+  it to determine which binding to use;
 - otherwise, use whatever the rcParams indicate.
 """
 
@@ -31,18 +29,12 @@ QT_API_PYQT6 = "PyQt6"
 QT_API_PYSIDE6 = "PySide6"
 QT_API_PYQT5 = "PyQt5"
 QT_API_PYSIDE2 = "PySide2"
-QT_API_PYQTv2 = "PyQt4v2"
-QT_API_PYSIDE = "PySide"
-QT_API_PYQT = "PyQt4"  # Use the old sip v1 API (Py3 defaults to v2).
 QT_API_ENV = os.environ.get("QT_API")
 if QT_API_ENV is not None:
     QT_API_ENV = QT_API_ENV.lower()
-# Mapping of QT_API_ENV to requested binding.  ETS does not support PyQt4v1.
-# (https://github.com/enthought/pyface/blob/master/pyface/qt/__init__.py)
-_ETS = {
+_ETS = {  # Mapping of QT_API_ENV to requested binding.
     "pyqt6": QT_API_PYQT6, "pyside6": QT_API_PYSIDE6,
     "pyqt5": QT_API_PYQT5, "pyside2": QT_API_PYSIDE2,
-    None: None
 }
 # First, check if anything is already imported.
 if sys.modules.get("PyQt6.QtCore"):
@@ -73,15 +65,12 @@ elif (
 # fully manually embedding Matplotlib in a Qt app without using pyplot).
 elif QT_API_ENV is None:
     QT_API = None
+elif QT_API_ENV in _ETS:
+    QT_API = _ETS[QT_API_ENV]
 else:
-    try:
-        QT_API = _ETS[QT_API_ENV]
-    except KeyError:
-        raise RuntimeError(
-            "The environment variable QT_API has the unrecognized value "
-            f"{QT_API_ENV!r}; "
-            f"valid values are {set(k for k in _ETS if k is not None)}"
-        ) from None
+    raise RuntimeError(
+        "The environment variable QT_API has the unrecognized value {!r}; "
+        "valid values are {}".format(QT_API_ENV, ", ".join(_ETS)))
 
 
 def _setup_pyqt5plus():
@@ -139,7 +128,9 @@ elif QT_API is None:  # See above re: dict.__getitem__.
             continue
         break
     else:
-        raise ImportError("Failed to import any qt binding")
+        raise ImportError(
+            "Failed to import any of the following Qt binding modules: {}"
+            .format(", ".join(_ETS.values())))
 else:  # We should not get there.
     raise AssertionError(f"Unexpected QT_API: {QT_API}")
 
@@ -186,7 +177,7 @@ def _devicePixelRatioF(obj):
     except AttributeError:
         pass
     try:
-        # Not available on Qt4 or some older Qt5.
+        # Not available on older Qt5.
         # self.devicePixelRatio() returns 0 in rare cases
         return obj.devicePixelRatio() or 1
     except AttributeError:
@@ -200,7 +191,7 @@ def _setDevicePixelRatio(obj, val):
     This can be replaced by the direct call when we require Qt>=5.6.
     """
     if hasattr(obj, 'setDevicePixelRatio'):
-        # Not available on Qt4 or some older Qt5.
+        # Not available on older Qt5.
         obj.setDevicePixelRatio(val)
 
 
