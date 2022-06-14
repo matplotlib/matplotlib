@@ -1757,8 +1757,8 @@ linestyles : {*None*, 'solid', 'dashed', 'dashdot', 'dotted'}, optional
     iterable is shorter than the number of contour levels
     it will be repeated as necessary.
 
-negative_linestyles : None or str, optional
-                      {'solid', 'dashed', 'dashdot', 'dotted'}
+negative_linestyles : {*None*, 'solid', 'dashed', 'dashdot', 'dotted'}, \
+                       optional
     *Only applies to* `.contour`.
 
     If *negative_linestyles* is None, the default is 'dashed' for
