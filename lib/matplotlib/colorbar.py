@@ -703,8 +703,9 @@ class Colorbar:
             val = -1 if self._long_axis().get_inverted() else 0
             color = self.cmap(self.norm(self._values[val]))
             patch = mpatches.PathPatch(
-                mpath.Path(xy), facecolor=color, linewidth=0,
-                antialiased=False, transform=self.ax.transAxes,
+                mpath.Path(xy), facecolor=color, alpha=self.alpha,
+                linewidth=0, antialiased=False,
+                transform=self.ax.transAxes,
                 hatch=hatches[0], clip_on=False,
                 # Place it right behind the standard patches, which is
                 # needed if we updated the extends
@@ -724,7 +725,7 @@ class Colorbar:
             val = 0 if self._long_axis().get_inverted() else -1
             color = self.cmap(self.norm(self._values[val]))
             patch = mpatches.PathPatch(
-                mpath.Path(xy), facecolor=color,
+                mpath.Path(xy), facecolor=color, alpha=self.alpha,
                 linewidth=0, antialiased=False,
                 transform=self.ax.transAxes, hatch=hatches[-1], clip_on=False,
                 # Place it right behind the standard patches, which is
