@@ -653,10 +653,8 @@ class Colorbar:
                     self.solids.set_rasterized(True)
         if self.drawedges:
             start_idx = 0 if self._extend_lower() else 1
-            if self._extend_upper():
-                self.dividers.set_segments(np.dstack([X, Y])[start_idx:])
-            else:
-                self.dividers.set_segments(np.dstack([X, Y])[start_idx:-1])
+            end_idx = len(X) if self._extend_upper() else -1
+            self.dividers.set_segments(np.dstack([X, Y])[start_idx:end_idx])
         else:
             self.dividers.set_segments([])
 
