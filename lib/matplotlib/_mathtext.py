@@ -34,7 +34,7 @@ _log = logging.getLogger("matplotlib.mathtext")
 
 
 @_api.delete_parameter("3.6", "math")
-def get_unicode_index(symbol, math=True):  # Publicly exported.
+def get_unicode_index(symbol, math=False):  # Publicly exported.
     r"""
     Return the integer index (from the Unicode table) of *symbol*.
 
@@ -43,8 +43,8 @@ def get_unicode_index(symbol, math=True):  # Publicly exported.
     symbol : str
         A single (Unicode) character, a TeX command (e.g. r'\pi') or a Type1
         symbol name (e.g. 'phi').
-    math : bool, default: True
-        If False, always treat as a single Unicode character.
+    math : bool, default: False
+        If True (deprecated), replace ASCII hyphen-minus by Unicode minus.
     """
     # From UTF #25: U+2212 minus sign is the preferred
     # representation of the unary and binary minus sign rather than
