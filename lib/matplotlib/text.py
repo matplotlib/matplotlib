@@ -1503,7 +1503,7 @@ class _AnnotationBase:
             ref_x, ref_y = xy0
             if unit == "points":
                 # dots per points
-                dpp = self.figure.dpi / 72.
+                dpp = self.figure.dpi / 72
                 tr = Affine2D().scale(dpp)
             elif unit == "pixels":
                 tr = Affine2D()
