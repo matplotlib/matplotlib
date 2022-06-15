@@ -88,7 +88,6 @@ def test_date2num_masked():
                                   (False, True, True, False, False, False,
                                    True))
 
-@pytest.mark.xfail  # TODO: un-fail once formatters exist
 def test_timedelta_numpy():
     # TODO: merge with datetime test?
     # test that numpy timedeltas work properly...
@@ -1571,83 +1570,75 @@ def test_strftimedelta(td, fmt, expected):
 
 
 @pytest.mark.parametrize(
-    "t_delta, fmt, kwargs, expected, expected_offset",
+    "t_delta, fmt, expected",
     [
-        [datetime.timedelta(days=141), "%d %day", {},
+        [datetime.timedelta(days=141), "%d %day",
          ['100 days', '120 days', '140 days', '160 days', '180 days',
-          '200 days', '220 days', '240 days', '260 days'],
-         ""],
+          '200 days', '220 days', '240 days', '260 days']],
+        [datetime.timedelta(hours=40), "%d %day %h:%m",
+         ['100 days 00:00', '100 days 06:00', '100 days 12:00',
+          '100 days 18:00', '101 days 00:00', '101 days 06:00',
+          '101 days 12:00', '101 days 18:00', '102 days 00:00']],
 
-        # [datetime.timedelta(hours=40), "%H:%m",
-        #  {'offset_fmt': '%d %day', 'offset_on': 'days'},
-        #  ['4:00', '8:00', '12:00', '16:00', '20:00', '24:00',
-        #   '28:00', '32:00', '36:00', '40:00'],
-        #  "100 days"],
-        #
-        # [datetime.timedelta(minutes=30), "%M:%s.0",
-        #  {'offset_fmt': '%d %day, %h:%m', 'offset_on': 'hours'},
-        #  ['42:00.0', '45:00.0', '48:00.0', '51:00.0', '54:00.0',
-        #   '57:00.0', '60:00.0', '63:00.0', '66:00.0', '69:00.0'],
-        #  "100 days, 03:00"],
-        #
-        # [datetime.timedelta(seconds=30), "%S.%ms",
-        #  {'offset_fmt': '%d %day, %h:%m', 'offset_on': 'minutes'},
-        #  ['0.000', '3.000', '6.000', '9.000', '12.000', '15.000',
-        #   '18.000', '21.000', '24.000', '27.000', '30.000'],
-        #  "100 days, 03:40"],
-        #
-        # [datetime.timedelta(microseconds=600), "%S.%ms%us",
-        #  {'offset_fmt': '%d %day, %h:%m:%s', 'offset_on': 'seconds'},
-        #  ['0.999900', '1.000000', '1.000100', '1.000200', '1.000300',
-        #   '1.000400', '1.000500', '1.000600', '1.000700'],
-        #  "100 days, 03:39:59"]
+        [datetime.timedelta(minutes=30), "%m:%s.0",
+         ['40:00.0', '45:00.0', '50:00.0', '55:00.0', '00:00.0',
+          '05:00.0', '10:00.0', '15:00.0', '20:00.0']],
+
+        [datetime.timedelta(seconds=30), "%s.%ms",
+         ['00.000', '05.000', '10.000', '15.000', '20.000', '25.000',
+          '30.000', '35.000']],
+
+        [datetime.timedelta(microseconds=600), "%s.%ms%us",
+         ['59.999600', '59.999800', '00.000000', '00.000200',
+          '00.000400', '00.000600', '00.000800', '00.001000']]
      ]
 )
-def test_timdelta_formatter(t_delta, fmt, kwargs, expected, expected_offset):
-    def _create_timedelta_locator(td1, td2, fmt, kwargs):
+def test_timdelta_formatter(t_delta, fmt, expected):
+    def _create_timedelta_locator(td1, td2, fmt):
         fig, ax = plt.subplots()
 
         locator = mdates.AutoTimedeltaLocator()
-        formatter = mdates.TimedeltaFormatter(fmt, **kwargs)
+        formatter = mdates.TimedeltaFormatter(fmt)
         ax.yaxis.set_major_locator(locator)
         ax.yaxis.set_major_formatter(formatter)
         ax.set_ylim(td1, td2)
         fig.canvas.draw()
         sts = [st.get_text() for st in ax.get_yticklabels()]
-        offset_text = ax.yaxis.get_offset_text().get_text()
-        return sts, offset_text
+        return sts
 
-    td1 = datetime.timedelta(days=100, hours=3, minutes=40)
+    td1 = datetime.timedelta(days=100, hours=3, minutes=45)
     td2 = td1 + t_delta
-    strings, offset_string = _create_timedelta_locator(
-        td1, td2, fmt, kwargs
+    strings = _create_timedelta_locator(
+        td1, td2, fmt
     )
     assert strings == expected
-    assert offset_string == expected_offset
 
 
-def test_timedelta_formatter_usetex():
-    formatter = mdates.TimedeltaFormatter("%h:%m", offset_on='days',
-                                          offset_fmt="%d %day", usetex=True)
-    values = [datetime.timedelta(days=0, hours=12),
-              datetime.timedelta(days=1, hours=0),
-              datetime.timedelta(days=1, hours=12),
-              datetime.timedelta(days=2, hours=0)]
+@pytest.mark.parametrize('delta, expected', [
+    (datetime.timedelta(days=200),
+     ['%d days' % day for day in range(20, 261, 20)]),
+    (datetime.timedelta(days=1),
+     ['%d days, %02d:00' % (day, hour) for day, hour in [
+         (39, 18), (40, 0), (40, 6), (40, 12), (40, 18), (41, 0), (41, 6)]
+      ]),
+    (datetime.timedelta(hours=2),
+     ['%d days, %02d:%02d' % (day, hour, minu) for day, hour, minu in [
+         (39, 23, 45), (40, 0, 0), (40, 0, 15), (40, 0, 30), (40, 0, 45),
+         (40, 1, 0), (40, 1, 15), (40, 1, 30), (40, 1, 45), (40, 2, 0),
+         (40, 2, 15)]
+      ])
+])
+def test_timedelta_formatter_usetex(delta, expected):
+    style.use("default")
 
-    labels = formatter.format_ticks(mdates.date2num(values))
+    d1 = datetime.timedelta(days=40)
+    d2 = d1 + delta
 
-    start = '$\\mathdefault{'
-    i_start = len(start)
-    end = '}$'
-    i_end = -len(end)
+    locator = mdates.AutoTimedeltaLocator()
+    locator.create_dummy_axis()
+    locator.axis.set_view_interval(mdates.timedelta2num(d1),
+                                   mdates.timedelta2num(d2))
 
-    def verify(string):
-        assert string[:i_start] == start
-        assert string[i_end:] == end
-
-    # assert ticks are tex formatted
-    for lbl in labels:
-        verify(lbl)
-
-    # assert offset is tex formatted
-    verify(formatter.get_offset())
+    formatter = mdates.AutoTimedeltaFormatter(locator, usetex=True)
+    assert [formatter(loc) for loc in locator()] == [
+        r'{\fontfamily{\familydefault}\selectfont %s}' % s for s in expected]

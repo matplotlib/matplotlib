@@ -2110,11 +2110,11 @@ class AutoTimedeltaLocator(TimedeltaLocator):
 
     def __call__(self):
         # docstring inherited
-        self.update_from_viewlim()
+        dmin, dmax = self.viewlim_to_dt()
+        self.update_from_limits(dmin, dmax)
         return super().__call__()
 
-    def update_from_viewlim(self):
-        dmin, dmax = self.viewlim_to_dt()
+    def update_from_limits(self, dmin, dmax):
         delta = dmax - dmin
         # take absolute difference
         if dmin > dmax:
@@ -2152,6 +2152,10 @@ class AutoTimedeltaLocator(TimedeltaLocator):
         if vmin > vmax:
             vmin, vmax = vmax, vmin
         return num2timedelta(vmin), num2timedelta(vmax)
+
+    def nonsingular(self, vmin, vmax):
+        self.update_from_limits(*num2timedelta([vmin, vmax]))
+        return super().nonsingular(vmin, vmax)
 
 
 class DateConverter(units.ConversionInterface):
