@@ -4,7 +4,7 @@ import shutil
 import pytest
 from pytest import approx
 
-from matplotlib.testing.compare import compare_images, make_test_filename
+from matplotlib.testing.compare import compare_images
 from matplotlib.testing.decorators import _image_directories
 
 
