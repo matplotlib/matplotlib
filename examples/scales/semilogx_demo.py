@@ -3,6 +3,8 @@
 Log Axis
 ========
 
+.. redirect-from:: /gallery/scales/log_test
+
 This is an example of assigning a log-scale for the x-axis using
 `~.axes.Axes.semilogx`.
 """
