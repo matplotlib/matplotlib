@@ -115,6 +115,9 @@ math_tests = [
     r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$',  # github issue 5799
     r'$\left(X\right)_{a}^{b}$',  # github issue 7615
     r'$\dfrac{\$100.00}{y}$',  # github issue #1888
+    r'$\={M}\H{a}\check{t}\hat{p}\overleftarrow{l}\overrightarrow{o}\"{t}'
+    r'\.{l}\mathring{i}\~{b}$ $\breve{M}\bar{a}\grave{t}\acute{p}\vec{l}'
+    r'\dddot{o}\ddddot{t}\^{l}\ddot{i}\overline{b}$'
 ]
 # 'svgastext' tests switch svg output to embed text as text (rather than as
 # paths).
