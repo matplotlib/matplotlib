@@ -1247,6 +1247,11 @@ def test_subfigure_scatter_size():
         ax.scatter([1, 2, 3], [1, 2, 3], s=30, marker='s', color='r')
         ax.scatter([3, 4, 5], [1, 2, 3], s=[20, 30, 40], marker='s', color='g')
 
+def test_subfigure_pdf():
+    fig = plt.figure(layout='constrained')
+    fig.subfigures()
+    buffer = io.StringIO()
+    fig.savefig(buffer, format='pdf')
 
 def test_add_subplot_kwargs():
     # fig.add_subplot() always creates new axes, even if axes kwargs differ.
