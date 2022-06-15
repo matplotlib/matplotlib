@@ -834,7 +834,7 @@ class FigureCanvasPS(FigureCanvasBase):
             **kwargs):
 
         dpi = self.figure.dpi
-        self.figure.dpi = 72   # Override the dpi kwarg
+        self.figure.dpi = 72  # Override the dpi kwarg
 
         dsc_comments = {}
         if isinstance(outfile, (str, os.PathLike)):
