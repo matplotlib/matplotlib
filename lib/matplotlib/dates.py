@@ -335,32 +335,15 @@ def _dt64_to_ordinalf(d, *, is_timedelta=False):
     dt += extra.astype(np.float64) / 1.0e9
     dt = dt / SEC_PER_DAY
 
-    return _nat_to_nan(dt, d)
-
-
-def _nat_to_nan(ordf, timeval):
-    """
-    Replace all values in the converted array `ordf` that were 'NaT'
-    originally in `timeval` with `np.nan`.
-
-    Parameters
-    ----------
-        ordf: datetime or timedelta converted to float (ndarray or float)
-        timeval: `numpy.datetime64` or `numpy.timedelta64` (ndarray or
-            single value)
-
-    Returns
-    -------
-        ordf with all originally 'NaT' replaced by `np.nan`
-    """
     NaT_int = np.datetime64('NaT').astype(np.int64)
-    t_int = timeval.astype(np.int64)
+    t_int = d.astype(np.int64)
     try:
-        ordf[t_int == NaT_int] = np.nan
+        dt[t_int == NaT_int] = np.nan
     except TypeError:
         if t_int == NaT_int:
-            ordf = np.nan
-    return ordf
+            dt = np.nan
+
+    return dt
 
 
 def _from_ordinalf(x, tz=None):
