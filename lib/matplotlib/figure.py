@@ -2045,6 +2045,21 @@ class SubFigure(FigureBase):
     @dpi.setter
     def dpi(self, value):
         self._parent.dpi = value
+        
+    def get_dpi(self):
+        """Return the resolution of the parent figure in dots-per-inch as a float."""
+        return self._parent.dpi
+    
+    def set_dpi(self, val):
+        """
+        Set the resolution of parent figure in dots-per-inch.
+        
+        Parameters
+        ----------
+        val : float
+        """
+        self._parent.dpi = val
+        self.stale = True
 
     def _get_renderer(self):
         return self._parent._get_renderer()
