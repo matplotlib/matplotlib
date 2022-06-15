@@ -1509,7 +1509,7 @@ class _AnnotationBase:
                 tr = Affine2D()
             elif unit == "fontsize":
                 fontsize = self.get_size()
-                dpp = fontsize * self.figure.dpi / 72.
+                dpp = fontsize * self.figure.dpi / 72
                 tr = Affine2D().scale(dpp)
             elif unit == "fraction":
                 w, h = bbox0.size
