@@ -361,6 +361,12 @@ def test_operator_space(fig_test, fig_ref):
     fig_ref.text(0.1, 0.9, r"$\mathrm{sin}^2 \mathrm{\,cos}$")
 
 
+@check_figures_equal(extensions=["png"])
+def test_inverted_delimiters(fig_test, fig_ref):
+    fig_test.text(.5, .5, r"$\left)\right($", math_fontfamily="dejavusans")
+    fig_ref.text(.5, .5, r"$)($", math_fontfamily="dejavusans")
+
+
 def test_mathtext_fallback_valid():
     for fallback in ['cm', 'stix', 'stixsans', 'None']:
         mpl.rcParams['mathtext.fallback'] = fallback

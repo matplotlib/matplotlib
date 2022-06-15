@@ -1701,13 +1701,12 @@ class Parser:
       liminf sin cos exp limsup sinh cosh gcd ln sup cot hom log tan
       coth inf max tanh""".split())
 
-    _ambi_delim = set(r"""
+    _ambi_delims = set(r"""
       | \| / \backslash \uparrow \downarrow \updownarrow \Uparrow
       \Downarrow \Updownarrow . \vert \Vert""".split())
-
-    _left_delim = set(r"( [ \{ < \lfloor \langle \lceil".split())
-
-    _right_delim = set(r") ] \} > \rfloor \rangle \rceil".split())
+    _left_delims = set(r"( [ \{ < \lfloor \langle \lceil".split())
+    _right_delims = set(r") ] \} > \rfloor \rangle \rceil".split())
+    _delims = _left_delims | _right_delims | _ambi_delims
 
     def __init__(self):
         p = types.SimpleNamespace()
@@ -1742,9 +1741,7 @@ class Parser:
             Optional(r"\math" + oneOf(self._fontnames)("font")) + "{")
         p.end_group      = Literal("}")
 
-        p.ambi_delim     = oneOf(self._ambi_delim)
-        p.left_delim     = oneOf(self._left_delim)
-        p.right_delim    = oneOf(self._right_delim)
+        p.delim          = oneOf(self._delims)
 
         set_names_and_parse_actions()  # for root definitions.
 
@@ -1799,8 +1796,8 @@ class Parser:
 
         p.genfrac <<= cmd(
             r"\genfrac",
-            "{" + Optional(p.ambi_delim | p.left_delim)("ldelim") + "}"
-            + "{" + Optional(p.ambi_delim | p.right_delim)("rdelim") + "}"
+            "{" + Optional(p.delim)("ldelim") + "}"
+            + "{" + Optional(p.delim)("rdelim") + "}"
             + "{" + p.float_literal("rulesize") + "}"
             + p.optional_group("style")
             + p.required_group("num")
@@ -1861,13 +1858,9 @@ class Parser:
         )
 
         p.auto_delim    <<= (
-            r"\left"
-            - ((p.left_delim | p.ambi_delim)("left")
-               | Error("Expected a delimiter"))
+            r"\left" - (p.delim("left") | Error("Expected a delimiter"))
             + ZeroOrMore(p.simple | p.auto_delim)("mid")
-            + r"\right"
-            - ((p.right_delim | p.ambi_delim)("right")
-               | Error("Expected a delimiter"))
+            + r"\right" - (p.delim("right") | Error("Expected a delimiter"))
         )
 
         # Leaf definitions.
@@ -2001,7 +1994,7 @@ class Parser:
             # Binary operators at start of string should not be spaced
             if (c in self._binary_operators and
                     (len(s[:loc].split()) == 0 or prev_char == '{' or
-                     prev_char in self._left_delim)):
+                     prev_char in self._left_delims)):
                 return [char]
             else:
                 return [Hlist([self._make_space(0.2),
@@ -2106,8 +2099,7 @@ class Parser:
         if isinstance(name, ParseResults):
             next_char_loc += len('operatorname{}')
         next_char = next((c for c in s[next_char_loc:] if c != ' '), '')
-        delimiters = self._left_delim | self._ambi_delim | self._right_delim
-        delimiters |= {'^', '_'}
+        delimiters = self._delims | {'^', '_'}
         if (next_char not in delimiters and
                 name not in self._overunder_functions):
             # Add thin space except when followed by parenthesis, bracket, etc.
@@ -2502,4 +2494,7 @@ class Parser:
 
     def auto_delim(self, s, loc, toks):
         return self._auto_sized_delimiter(
-            toks["left"], toks["mid"].asList(), toks["right"])
+            toks["left"],
+            # if "mid" in toks ... can be removed when requiring pyparsing 3.
+            toks["mid"].asList() if "mid" in toks else [],
+            toks["right"])
