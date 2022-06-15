@@ -43,7 +43,7 @@ from matplotlib.testing.decorators import _image_directories
         ('all128.png', 'all127.png', 0, 1),
     ])
 def test_image_comparison_expect_rms(im1, im2, tol, expect_rms, tmp_path,
-                                                            monkeypatch):
+                                     monkeypatch):
     """
     Compare two images, expecting a particular RMS error.
 
