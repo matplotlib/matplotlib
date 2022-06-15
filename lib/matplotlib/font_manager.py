@@ -35,6 +35,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import struct
 import sys
 import threading
 
@@ -1099,7 +1100,7 @@ class FontManager:
             'Matplotlib is building the font cache; this may take a moment.'))
         timer.start()
         try:
-            for fontext in ["afm", "ttf"]:
+            for fontext in ["afm", "ttf", "ttc"]:
                 for path in [*findSystemFonts(paths, fontext=fontext),
                              *findSystemFonts(fontext=fontext)]:
                     try:
@@ -1129,6 +1130,9 @@ class FontManager:
                 font = _afm.AFM(fh)
             prop = afmFontProperty(path, font)
             self.afmlist.append(prop)
+        elif Path(path).suffix.lower() == ".ttc":
+            for ttf_file in _split_ttc(path):
+                self.addfont(ttf_file)
         else:
             font = ft2font.FT2Font(path)
             prop = ttfFontProperty(font)
@@ -1471,6 +1475,102 @@ def get_font(filename, hinting_factor=None):
     return _get_font(filename, hinting_factor,
                      _kerning_factor=rcParams['text.kerning_factor'],
                      thread_id=threading.get_ident())
+
+
+def _split_ttc(ttc_path):
+    """SPlit a TTC ont into TTF files"""
+    res = _read_ttc(ttc_path)
+    ttf_fonts, table_index, table_data = res
+    out_base = Path(
+        mpl.get_cachedir(),
+        os.path.basename(ttc_path) + "-"
+    )
+    return _dump_ttf(out_base, ttf_fonts, table_index, table_data)
+
+
+def _read_ttc(ttc_path):
+    """
+    Read a TTC font collection
+
+    Returns an internal list of TTF fonts, table index data, and table
+    contents.
+    """
+    with open(ttc_path, "rb") as ttc_file:
+        def read(fmt):
+            """Read with struct format"""
+            size = struct.calcsize(fmt)
+            data = ttc_file.read(size)
+            return struct.unpack(fmt, data)
+
+        read(">HHI")  # ttcf tag and version, ignore
+        num_fonts = read(">I")[0]  # Number of fonts
+        font_offsets = read(f">{num_fonts:d}I")  # offsets of TTF font
+
+        # Set of tables referenced by any font
+        table_index = {}  # (offset, length): tag, chksum
+
+        # List of TTF fonts
+        ttf_fonts = []  # (version, num_entries, triple, referenced tables)
+
+        # Read TTF headers and directory tables
+        for font_offset in font_offsets:
+            ttc_file.seek(font_offset)
+
+            version = read(">HH")  # TTF format version
+            num_entries = read(">H")[0]  # Number of entried in directory table
+            triple = read(">HHH")  # Weird triple, often invalid
+            referenced_tables = []
+
+            for _ in range(num_entries):
+                tag, chksum, offset, length = read(">IIII")
+                referenced_tables.append((offset, length))
+                table_index[(offset, length)] = tag, chksum
+
+            ttf_fonts.append((version, num_entries, triple, referenced_tables))
+
+        # Read data for all tables
+        table_data = {}
+        for (offset, length), (tag, chksum) in table_index.items():
+            ttc_file.seek(offset)
+            table_data[(offset, length)] = ttc_file.read(length)
+
+    return ttf_fonts, table_index, table_data
+
+
+def _dump_ttf(base_name, ttf_fonts, table_index, table_data):
+    """Write each TTF font to a separate font"""
+    created_paths = []
+
+    # Dump TTF fonts into separate files
+    for i, font in enumerate(ttf_fonts):
+        version, num_entries, triple, referenced_tables = font
+
+        def write(file, fmt, values):
+            raw = struct.pack(fmt, *values)
+            file.write(raw)
+
+        out_path = f"{base_name}{i}.ttf"
+        created_paths.append(out_path)
+        with open(out_path, "wb") as ttf_file:
+
+            write(ttf_file, ">HH", version)
+            write(ttf_file, ">H", (num_entries, ))
+            write(ttf_file, ">HHH", triple)
+
+            # Length of header and directory
+            file_offset = 12 + len(referenced_tables) * 16
+
+            # Write directory
+            for (offset, length) in referenced_tables:
+                tag, chksum, = table_index[(offset, length)]
+                write(ttf_file, ">IIII", (tag, chksum, file_offset, length))
+                file_offset += length
+
+            # Write tables
+            for table_coord in referenced_tables:
+                data = table_data[table_coord]
+                ttf_file.write(data)
+    return created_paths
 
 
 def _load_fontmanager(*, try_read_cache=True):
