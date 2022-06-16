@@ -136,14 +136,6 @@ class GraphicsContextTemplate(GraphicsContextBase):
 ########################################################################
 
 
-def draw_if_interactive():
-    """
-    For image backends - is not required.
-    For GUI backends - this should be overridden if drawing should be done in
-    interactive python mode.
-    """
-
-
 def show(*, block=None):
     """
     For image backends - is not required.
@@ -154,24 +146,6 @@ def show(*, block=None):
     for manager in Gcf.get_all_fig_managers():
         # do something to display the GUI
         pass
-
-
-def new_figure_manager(num, *args, FigureClass=Figure, **kwargs):
-    """Create a new figure manager instance."""
-    thisFig = FigureClass(*args, **kwargs)
-    return new_figure_manager_given_figure(num, thisFig)
-
-
-def new_figure_manager_given_figure(num, figure):
-    """Create a new figure manager instance for the given figure."""
-    # If a main-level app must be created, this is the usual place to do it
-    # -- see the wx and tk backends for examples (the default implementation
-    # of new_figure_manager defers to new_figure_manager_given_figure, so it
-    # also benefits from this instantiation).  Not all GUIs require explicit
-    # instantiation of a main-level app (e.g., backend_gtk3) for pylab.
-    canvas = FigureCanvasTemplate(figure)
-    manager = FigureManagerTemplate(canvas, num)
-    return manager
 
 
 class FigureManagerTemplate(FigureManagerBase):
@@ -199,6 +173,9 @@ class FigureCanvasTemplate(FigureCanvasBase):
         A high-level Figure instance
     """
 
+    # The instantiated manager class.  For further customization,
+    # ``FigureManager.create_with_canvas`` can also be overridden; see the
+    # wx-based backends for an example.
     manager_class = FigureManagerTemplate
 
     def draw(self):
