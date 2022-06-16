@@ -392,6 +392,11 @@ class Name:
     def __hash__(self):
         return hash(self.name)
 
+    @staticmethod
+    @_api.deprecated("3.6")
+    def hexify(match):
+        return '#%02x' % ord(match.group())
+
     def pdfRepr(self):
         return b'/' + self.name
 

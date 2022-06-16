@@ -1,0 +1,3 @@
+``backend_pdf.Name.hexify``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated with no replacement.
