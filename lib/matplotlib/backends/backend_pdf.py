@@ -13,7 +13,6 @@ import itertools
 import logging
 import math
 import os
-import re
 import string
 import struct
 import sys
@@ -118,25 +117,6 @@ def _fill(strings, linelen=75):
             currpos = length
     result.append(b' '.join(strings[lasti:]))
     return b'\n'.join(result)
-
-# PDF strings are supposed to be able to include any eight-bit data,
-# except that unbalanced parens and backslashes must be escaped by a
-# backslash. However, sf bug #2708559 shows that the carriage return
-# character may get read as a newline; these characters correspond to
-# \gamma and \Omega in TeX's math font encoding. Escaping them fixes
-# the bug.
-_string_escape_regex = re.compile(br'([\\()\r\n])')
-
-
-def _string_escape(match):
-    m = match.group(0)
-    if m in br'\()':
-        return b'\\' + m
-    elif m == b'\n':
-        return br'\n'
-    elif m == b'\r':
-        return br'\r'
-    assert False
 
 
 def _create_pdf_info_dict(backend, metadata):
@@ -267,6 +247,15 @@ def _get_link_annotation(gc, x, y, width, height):
     return link_annotation
 
 
+# PDF strings are supposed to be able to include any eight-bit data, except
+# that unbalanced parens and backslashes must be escaped by a backslash.
+# However, sf bug #2708559 shows that the carriage return character may get
+# read as a newline; these characters correspond to \gamma and \Omega in TeX's
+# math font encoding. Escaping them fixes the bug.
+_str_escapes = str.maketrans({
+    '\\': '\\\\', '(': '\\(', ')': '\\)', '\n': '\\n', '\r': '\\r'})
+
+
 def pdfRepr(obj):
     """Map Python objects to PDF syntax."""
 
@@ -292,22 +281,21 @@ def pdfRepr(obj):
     elif isinstance(obj, (int, np.integer)):
         return b"%d" % obj
 
-    # Unicode strings are encoded in UTF-16BE with byte-order mark.
+    # Non-ASCII Unicode strings are encoded in UTF-16BE with byte-order mark.
     elif isinstance(obj, str):
-        try:
-            # But maybe it's really ASCII?
-            s = obj.encode('ASCII')
-            return pdfRepr(s)
-        except UnicodeEncodeError:
-            s = codecs.BOM_UTF16_BE + obj.encode('UTF-16BE')
-            return pdfRepr(s)
+        return pdfRepr(obj.encode('ascii') if obj.isascii()
+                       else codecs.BOM_UTF16_BE + obj.encode('UTF-16BE'))
 
     # Strings are written in parentheses, with backslashes and parens
     # escaped. Actually balanced parens are allowed, but it is
     # simpler to escape them all. TODO: cut long strings into lines;
     # I believe there is some maximum line length in PDF.
+    # Despite the extra decode/encode, translate is faster than regex.
     elif isinstance(obj, bytes):
-        return b'(' + _string_escape_regex.sub(_string_escape, obj) + b')'
+        return (
+            b'(' +
+            obj.decode('latin-1').translate(_str_escapes).encode('latin-1')
+            + b')')
 
     # Dictionaries. The keys must be PDF names, so if we find strings
     # there, we make Name objects from them. The values may be
