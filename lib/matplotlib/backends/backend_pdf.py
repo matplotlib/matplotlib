@@ -291,7 +291,7 @@ def _get_link_annotation(gc, x, y, width, height, angle=0):
         'Type': Name('Annot'),
         'Subtype': Name('Link'),
         'Rect': rect,
-        'QuadPoint': quadpoint,
+        'QuadPoint': quadpoints,
         'Border': [0, 0, 0],
         'A': {
             'S': Name('URI'),
