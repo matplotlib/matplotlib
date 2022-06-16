@@ -1634,10 +1634,10 @@ class Parser:
     """
 
     class _MathStyle(enum.Enum):
-        DISPLAYSTYLE = enum.auto()
-        TEXTSTYLE = enum.auto()
-        SCRIPTSTYLE = enum.auto()
-        SCRIPTSCRIPTSTYLE = enum.auto()
+        DISPLAYSTYLE = 0
+        TEXTSTYLE = 1
+        SCRIPTSTYLE = 2
+        SCRIPTSCRIPTSTYLE = 3
 
     _binary_operators = set(
       '+ * - \N{MINUS SIGN}'
@@ -1725,6 +1725,9 @@ class Parser:
         p.float_literal  = Regex(r"[-+]?([0-9]+\.?[0-9]*|\.[0-9]+)")
         p.space          = oneOf(self._space_widths)("space")
 
+        p.style_literal  = oneOf(
+            [str(e.value) for e in self._MathStyle])("style_literal")
+
         p.single_symbol  = Regex(
             r"([a-zA-Z0-9 +\-*/<>=:,.;!\?&'@()\[\]|%s])|(\\[%%${}\[\]_|])" %
             "\U00000080-\U0001ffff"  # unicode range
@@ -1799,7 +1802,7 @@ class Parser:
             "{" + Optional(p.delim)("ldelim") + "}"
             + "{" + Optional(p.delim)("rdelim") + "}"
             + "{" + p.float_literal("rulesize") + "}"
-            + p.optional_group("style")
+            + "{" + Optional(p.style_literal)("style") + "}"
             + p.required_group("num")
             + p.required_group("den"))
 
@@ -2324,7 +2327,7 @@ class Parser:
         state = self.get_state()
         thickness = state.get_current_underline_thickness()
 
-        if style is not self._MathStyle.DISPLAYSTYLE:
+        for _ in range(style.value):
             num.shrink()
             den.shrink()
         cnum = HCentered([num])
@@ -2358,10 +2361,13 @@ class Parser:
             return self._auto_sized_delimiter(ldelim, result, rdelim)
         return result
 
+    def style_literal(self, s, loc, toks):
+        return self._MathStyle(int(toks["style_literal"]))
+
     def genfrac(self, s, loc, toks):
         return self._genfrac(
             toks.get("ldelim", ""), toks.get("rdelim", ""),
-            toks["rulesize"], toks["style"],
+            toks["rulesize"], toks.get("style", self._MathStyle.TEXTSTYLE),
             toks["num"], toks["den"])
 
     def frac(self, s, loc, toks):
