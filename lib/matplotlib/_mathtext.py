@@ -188,7 +188,8 @@ class TruetypeFonts(Fonts):
     """
     def __init__(self, default_font_prop, mathtext_backend):
         super().__init__(default_font_prop, mathtext_backend)
-        self.glyphd = {}
+        # Per-instance cache.
+        self._get_info = functools.lru_cache(None)(self._get_info)
         self._fonts = {}
 
         filename = findfont(default_font_prop)
@@ -214,15 +215,10 @@ class TruetypeFonts(Fonts):
             return (glyph.height / 64 / 2) + (fontsize/3 * dpi/72)
         return 0.
 
+    # The return value of _get_info is cached per-instance.
     def _get_info(self, fontname, font_class, sym, fontsize, dpi):
-        key = fontname, font_class, sym, fontsize, dpi
-        bunch = self.glyphd.get(key)
-        if bunch is not None:
-            return bunch
-
         font, num, slanted = self._get_glyph(
             fontname, font_class, sym, fontsize)
-
         font.set_size(fontsize, dpi)
         glyph = font.load_char(
             num, flags=self.mathtext_backend.get_hinting_type())
@@ -242,7 +238,7 @@ class TruetypeFonts(Fonts):
             slanted = slanted
             )
 
-        result = self.glyphd[key] = types.SimpleNamespace(
+        return types.SimpleNamespace(
             font            = font,
             fontsize        = fontsize,
             postscript_name = font.postscript_name,
@@ -251,7 +247,6 @@ class TruetypeFonts(Fonts):
             glyph           = glyph,
             offset          = offset
             )
-        return result
 
     def get_xheight(self, fontname, fontsize, dpi):
         font = self._get_font(fontname)
