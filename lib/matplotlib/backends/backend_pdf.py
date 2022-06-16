@@ -263,7 +263,7 @@ def _calculate_quad_point_coordinates(x, y, width, height, angle=0):
     d = y - width * math.sin(angle) + height * math.cos(angle)
     e = x + width * math.cos(angle)
     f = y - width * math.sin(angle)
-    return ((a, b), (c, d), (e, f))
+    return ((x, y), (a, b), (c, d), (e, f))
 
 
 def _get_coordinates_of_block(x, y, width, height, angle=0):
