@@ -118,7 +118,7 @@ class _TransformedBoundsLocator:
             self._transform - ax.figure.transSubfigure)
 
 
-def _process_plot_format(fmt):
+def _process_plot_format(fmt, *, ambiguous_fmt_datakey=False):
     """
     Convert a MATLAB style color/line style format string to a (*linestyle*,
     *marker*, *color*) tuple.
@@ -163,31 +163,31 @@ def _process_plot_format(fmt):
     except ValueError:
         pass  # No, not just a color.
 
+    errfmt = ("{!r} is neither a data key nor a valid format string ({})"
+              if ambiguous_fmt_datakey else
+              "{!r} is not a valid format string ({})")
+
     i = 0
     while i < len(fmt):
         c = fmt[i]
         if fmt[i:i+2] in mlines.lineStyles:  # First, the two-char styles.
             if linestyle is not None:
-                raise ValueError(
-                    f'Illegal format string {fmt!r}; two linestyle symbols')
+                raise ValueError(errfmt.format(fmt, "two linestyle symbols"))
             linestyle = fmt[i:i+2]
             i += 2
         elif c in mlines.lineStyles:
             if linestyle is not None:
-                raise ValueError(
-                    f'Illegal format string {fmt!r}; two linestyle symbols')
+                raise ValueError(errfmt.format(fmt, "two linestyle symbols"))
             linestyle = c
             i += 1
         elif c in mlines.lineMarkers:
             if marker is not None:
-                raise ValueError(
-                    f'Illegal format string {fmt!r}; two marker symbols')
+                raise ValueError(errfmt.format(fmt, "two marker symbols"))
             marker = c
             i += 1
         elif c in mcolors.get_named_colors_mapping():
             if color is not None:
-                raise ValueError(
-                    f'Illegal format string {fmt!r}; two color symbols')
+                raise ValueError(errfmt.format(fmt, "two color symbols"))
             color = c
             i += 1
         elif c == 'C' and i < len(fmt) - 1:
@@ -196,7 +196,7 @@ def _process_plot_format(fmt):
             i += 2
         else:
             raise ValueError(
-                f'Unrecognized character {c} in format string {fmt!r}')
+                errfmt.format(fmt, f"unrecognized character {c!r}"))
 
     if linestyle is None and marker is None:
         linestyle = mpl.rcParams['lines.linestyle']
@@ -293,6 +293,7 @@ class _process_plot_var_args:
                 kwargs["label"] = mpl._label_from_arg(
                     replaced[label_namer_idx], args[label_namer_idx])
             args = replaced
+        ambiguous_fmt_datakey = data is not None and len(args) == 2
 
         if len(args) >= 4 and not cbook.is_scalar_or_string(
                 kwargs.get("label")):
@@ -308,7 +309,8 @@ class _process_plot_var_args:
             if args and isinstance(args[0], str):
                 this += args[0],
                 args = args[1:]
-            yield from self._plot_args(this, kwargs)
+            yield from self._plot_args(
+                this, kwargs, ambiguous_fmt_datakey=ambiguous_fmt_datakey)
 
     def get_next_color(self):
         """Return the next color in the cycle."""
@@ -402,7 +404,8 @@ class _process_plot_var_args:
         seg.set(**kwargs)
         return seg, kwargs
 
-    def _plot_args(self, tup, kwargs, return_kwargs=False):
+    def _plot_args(self, tup, kwargs, *,
+                   return_kwargs=False, ambiguous_fmt_datakey=False):
         """
         Process the arguments of ``plot([x], y, [fmt], **kwargs)`` calls.
 
@@ -429,8 +432,12 @@ class _process_plot_var_args:
             The keyword arguments passed to ``plot()``.
 
         return_kwargs : bool
-            If true, return the effective keyword arguments after label
+            Whether to also return the effective keyword arguments after label
             unpacking as well.
+
+        ambiguous_fmt_datakey : bool
+            Whether the format string in *tup* could also have been a
+            misspelled data key.
 
         Returns
         -------
@@ -445,7 +452,8 @@ class _process_plot_var_args:
         if len(tup) > 1 and isinstance(tup[-1], str):
             # xy is tup with fmt stripped (could still be (y,) only)
             *xy, fmt = tup
-            linestyle, marker, color = _process_plot_format(fmt)
+            linestyle, marker, color = _process_plot_format(
+                fmt, ambiguous_fmt_datakey=ambiguous_fmt_datakey)
         elif len(tup) == 3:
             raise ValueError('third arg must be a format string')
         else:
@@ -562,8 +570,8 @@ class _AxesBase(martist.Artist):
         return "{0}({1[0]:g},{1[1]:g};{1[2]:g}x{1[3]:g})".format(
             type(self).__name__, self._position.bounds)
 
-    @_api.make_keyword_only("3.4", "facecolor")
     def __init__(self, fig, rect,
+                 *,
                  facecolor=None,  # defaults to rc axes.facecolor
                  frameon=True,
                  sharex=None,  # use Axes instance's xaxis info
@@ -738,7 +746,7 @@ class _AxesBase(martist.Artist):
         Return the Axes bounding box in display space; *args* and *kwargs*
         are empty.
 
-        This bounding box does not include the spines, ticks, ticklables,
+        This bounding box does not include the spines, ticks, ticklabels,
         or other labels.  For a bounding box including these elements use
         `~matplotlib.axes.Axes.get_tightbbox`.
 
@@ -872,7 +880,7 @@ class _AxesBase(martist.Artist):
             # for cartesian projection, this is top spine
             return self.spines.top.get_spine_transform()
         else:
-            raise ValueError('unknown value for which')
+            raise ValueError(f'unknown value for which: {which!r}')
 
     def get_xaxis_text1_transform(self, pad_points):
         """
@@ -948,7 +956,7 @@ class _AxesBase(martist.Artist):
             # for cartesian projection, this is top spine
             return self.spines.right.get_spine_transform()
         else:
-            raise ValueError('unknown value for which')
+            raise ValueError(f'unknown value for which: {which!r}')
 
     def get_yaxis_text1_transform(self, pad_points):
         """
@@ -2155,7 +2163,7 @@ class _AxesBase(martist.Artist):
         Set the current image.
 
         This image will be the target of colormap functions like
-        `~.pyplot.viridis`, and other functions such as `~.pyplot.clim`.  The
+        ``pyplot.viridis``, and other functions such as `~.pyplot.clim`.  The
         current image is an attribute of the current Axes.
         """
         _api.check_isinstance(
@@ -2398,7 +2406,7 @@ class _AxesBase(martist.Artist):
         for curve, code in p.iter_bezier():
             # Get distance along the curve of any extrema
             _, dzeros = curve.axis_aligned_extrema()
-            # Calculate vertcies of start, end and any extrema in between
+            # Calculate vertices of start, end and any extrema in between
             vertices.append(curve([0, *dzeros, 1]))
 
         if len(vertices):
@@ -3166,15 +3174,13 @@ class _AxesBase(martist.Artist):
         --------
         get_axisbelow
         """
+        # Check that b is True, False or 'line'
         self._axisbelow = axisbelow = validate_axisbelow(b)
-        if axisbelow is True:
-            zorder = 0.5
-        elif axisbelow is False:
-            zorder = 2.5
-        elif axisbelow == "line":
-            zorder = 1.5
-        else:
-            raise ValueError("Unexpected axisbelow value")
+        zorder = {
+            True: 0.5,
+            'line': 1.5,
+            False: 2.5,
+        }[axisbelow]
         for axis in self._axis_map.values():
             axis.set_zorder(zorder)
         self.stale = True
@@ -3487,12 +3493,12 @@ class _AxesBase(martist.Artist):
                    else mpl.rcParams['xaxis.labellocation'])
             _api.check_in_list(('left', 'center', 'right'), loc=loc)
 
-            if loc == 'left':
-                kwargs.update(x=0, horizontalalignment='left')
-            elif loc == 'center':
-                kwargs.update(x=0.5, horizontalalignment='center')
-            elif loc == 'right':
-                kwargs.update(x=1, horizontalalignment='right')
+            x = {
+                'left': 0,
+                'center': 0.5,
+                'right': 1,
+            }[loc]
+            kwargs.update(x=x, horizontalalignment=loc)
 
         return self.xaxis.set_label_text(xlabel, fontdict, **kwargs)
 
@@ -3776,12 +3782,12 @@ class _AxesBase(martist.Artist):
                    else mpl.rcParams['yaxis.labellocation'])
             _api.check_in_list(('bottom', 'center', 'top'), loc=loc)
 
-            if loc == 'bottom':
-                kwargs.update(y=0, horizontalalignment='left')
-            elif loc == 'center':
-                kwargs.update(y=0.5, horizontalalignment='center')
-            elif loc == 'top':
-                kwargs.update(y=1, horizontalalignment='right')
+            y, ha = {
+                'bottom': (0, 'left'),
+                'center': (0.5, 'center'),
+                'top': (1, 'right')
+            }[loc]
+            kwargs.update(y=y, horizontalalignment=ha)
 
         return self.yaxis.set_label_text(ylabel, fontdict, **kwargs)
 
@@ -4433,7 +4439,7 @@ class _AxesBase(martist.Artist):
         return [a for a in artists if a.get_visible() and a.get_in_layout()
                 and (isinstance(a, noclip) or not a._fully_clipped_to_axes())]
 
-    def get_tightbbox(self, renderer, call_axes_locator=True,
+    def get_tightbbox(self, renderer=None, call_axes_locator=True,
                       bbox_extra_artists=None, *, for_layout_only=False):
         """
         Return the tight bounding box of the Axes, including axis and their
@@ -4477,6 +4483,8 @@ class _AxesBase(martist.Artist):
         """
 
         bb = []
+        if renderer is None:
+            renderer = self.figure._get_renderer()
 
         if not self.get_visible():
             return None
@@ -4595,9 +4603,9 @@ class _AxesBase(martist.Artist):
         return ax2
 
     def get_shared_x_axes(self):
-        """Return a reference to the shared axes Grouper object for x axes."""
-        return self._shared_axes["x"]
+        """Return an immutable view on the shared x-axes Grouper."""
+        return cbook.GrouperView(self._shared_axes["x"])
 
     def get_shared_y_axes(self):
-        """Return a reference to the shared axes Grouper object for y axes."""
-        return self._shared_axes["y"]
+        """Return an immutable view on the shared y-axes Grouper."""
+        return cbook.GrouperView(self._shared_axes["y"])

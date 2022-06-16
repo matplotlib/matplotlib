@@ -332,11 +332,7 @@ def _dt64_to_ordinalf(d):
 
     NaT_int = np.datetime64('NaT').astype(np.int64)
     d_int = d.astype(np.int64)
-    try:
-        dt[d_int == NaT_int] = np.nan
-    except TypeError:
-        if d_int == NaT_int:
-            dt = np.nan
+    dt[d_int == NaT_int] = np.nan
     return dt
 
 
@@ -592,7 +588,8 @@ def drange(dstart, dend, delta):
 
     # ensure, that an half open interval will be generated [dstart, dend)
     if dinterval_end >= dend:
-        # if the endpoint is greater than dend, just subtract one delta
+        # if the endpoint is greater than or equal to dend,
+        # just subtract one delta
         dinterval_end -= delta
         num -= 1
 
@@ -1157,9 +1154,9 @@ class DateLocator(ticker.Locator):
         if it is too close to being singular (i.e. a range of ~0).
         """
         if not np.isfinite(vmin) or not np.isfinite(vmax):
-            # Except if there is no data, then use 2000-2010 as default.
-            return (date2num(datetime.date(2000, 1, 1)),
-                    date2num(datetime.date(2010, 1, 1)))
+            # Except if there is no data, then use 1970 as default.
+            return (date2num(datetime.date(1970, 1, 1)),
+                    date2num(datetime.date(1970, 1, 2)))
         if vmax < vmin:
             vmin, vmax = vmax, vmin
         unit = self._get_unit()
@@ -1362,9 +1359,9 @@ class AutoDateLocator(DateLocator):
         # whatever is thrown at us, we can scale the unit.
         # But default nonsingular date plots at an ~4 year period.
         if not np.isfinite(vmin) or not np.isfinite(vmax):
-            # Except if there is no data, then use 2000-2010 as default.
-            return (date2num(datetime.date(2000, 1, 1)),
-                    date2num(datetime.date(2010, 1, 1)))
+            # Except if there is no data, then use 1970 as default.
+            return (date2num(datetime.date(1970, 1, 1)),
+                    date2num(datetime.date(1970, 1, 2)))
         if vmax < vmin:
             vmin, vmax = vmax, vmin
         if vmin == vmax:
@@ -1534,11 +1531,6 @@ class MonthLocator(RRuleLocator):
         """
         if bymonth is None:
             bymonth = range(1, 13)
-        elif isinstance(bymonth, np.ndarray):
-            # This fixes a bug in dateutil <= 2.3 which prevents the use of
-            # numpy arrays in (among other things) the bymonthday, byweekday
-            # and bymonth parameters.
-            bymonth = [x.item() for x in bymonth.astype(int)]
 
         rule = rrulewrapper(MONTHLY, bymonth=bymonth, bymonthday=bymonthday,
                             interval=interval, **self.hms0d)
@@ -1562,12 +1554,6 @@ class WeekdayLocator(RRuleLocator):
         *interval* specifies the number of weeks to skip.  For example,
         ``interval=2`` plots every second week.
         """
-        if isinstance(byweekday, np.ndarray):
-            # This fixes a bug in dateutil <= 2.3 which prevents the use of
-            # numpy arrays in (among other things) the bymonthday, byweekday
-            # and bymonth parameters.
-            [x.item() for x in byweekday.astype(int)]
-
         rule = rrulewrapper(DAILY, byweekday=byweekday,
                             interval=interval, **self.hms0d)
         super().__init__(rule, tz=tz)
@@ -1588,11 +1574,6 @@ class DayLocator(RRuleLocator):
             raise ValueError("interval must be an integer greater than 0")
         if bymonthday is None:
             bymonthday = range(1, 32)
-        elif isinstance(bymonthday, np.ndarray):
-            # This fixes a bug in dateutil <= 2.3 which prevents the use of
-            # numpy arrays in (among other things) the bymonthday, byweekday
-            # and bymonth parameters.
-            bymonthday = [x.item() for x in bymonthday.astype(int)]
 
         rule = rrulewrapper(DAILY, bymonthday=bymonthday,
                             interval=interval, **self.hms0d)
@@ -1782,6 +1763,8 @@ def num2epoch(d):
     return np.asarray(d) * SEC_PER_DAY - dt
 
 
+@_api.deprecated("3.6", alternative="`AutoDateLocator` and `AutoDateFormatter`"
+                 " or vendor the code")
 def date_ticker_factory(span, tz=None, numticks=5):
     """
     Create a date locator with *numticks* (approx) and a date formatter
@@ -1848,8 +1831,8 @@ class DateConverter(units.ConversionInterface):
         majloc = AutoDateLocator(tz=tz,
                                  interval_multiples=self._interval_multiples)
         majfmt = AutoDateFormatter(majloc, tz=tz)
-        datemin = datetime.date(2000, 1, 1)
-        datemax = datetime.date(2010, 1, 1)
+        datemin = datetime.date(1970, 1, 1)
+        datemax = datetime.date(1970, 1, 2)
 
         return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='',
                               default_limits=(datemin, datemax))
@@ -1905,8 +1888,8 @@ class ConciseDateConverter(DateConverter):
                                       zero_formats=self._zero_formats,
                                       offset_formats=self._offset_formats,
                                       show_offset=self._show_offset)
-        datemin = datetime.date(2000, 1, 1)
-        datemax = datetime.date(2010, 1, 1)
+        datemin = datetime.date(1970, 1, 1)
+        datemax = datetime.date(1970, 1, 2)
         return units.AxisInfo(majloc=majloc, majfmt=majfmt, label='',
                               default_limits=(datemin, datemax))
 

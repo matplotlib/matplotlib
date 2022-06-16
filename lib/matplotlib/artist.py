@@ -241,7 +241,7 @@ class Artist:
         """
         Convert *x* using the unit type of the xaxis.
 
-        If the artist is not in contained in an Axes or if the xaxis does not
+        If the artist is not contained in an Axes or if the xaxis does not
         have units, *x* itself is returned.
         """
         ax = getattr(self, 'axes', None)
@@ -253,7 +253,7 @@ class Artist:
         """
         Convert *y* using the unit type of the yaxis.
 
-        If the artist is not in contained in an Axes or if the yaxis does not
+        If the artist is not contained in an Axes or if the yaxis does not
         have units, *y* itself is returned.
         """
         ax = getattr(self, 'axes', None)
@@ -298,7 +298,7 @@ class Artist:
         if val and self.stale_callback is not None:
             self.stale_callback(self, val)
 
-    def get_window_extent(self, renderer):
+    def get_window_extent(self, renderer=None):
         """
         Get the artist's bounding box in display space.
 
@@ -318,7 +318,7 @@ class Artist:
         """
         return Bbox([[0, 0], [0, 0]])
 
-    def get_tightbbox(self, renderer):
+    def get_tightbbox(self, renderer=None):
         """
         Like `.Artist.get_window_extent`, but includes any clipping.
 
@@ -934,11 +934,13 @@ class Artist:
         Parameters
         ----------
         filter_func : callable
-            A filter function, which takes a (m, n, 3) float array and a dpi
-            value, and returns a (m, n, 3) array.
+            A filter function, which takes a (m, n, depth) float array
+            and a dpi value, and returns a (m, n, depth) array and two
+            offsets from the bottom left corner of the image
 
             .. ACCEPTS: a filter function, which takes a (m, n, 3) float array
-                and a dpi value, and returns a (m, n, 3) array
+                and a dpi value, and returns a (m, n, 3) array and two offsets
+                from the bottom left corner of the image
         """
         self._agg_filter = filter_func
         self.stale = True

@@ -111,8 +111,6 @@ class AxesWidget(Widget):
         If False, the widget does not respond to events.
     """
 
-    cids = _api.deprecated("3.4")(property(lambda self: self._cids))
-
     def __init__(self, ax):
         self.ax = ax
         self.canvas = ax.figure.canvas
@@ -152,11 +150,6 @@ class Button(AxesWidget):
     hovercolor
         The color of the button when hovering.
     """
-
-    cnt = _api.deprecated("3.4")(property(  # Not real, but close enough.
-        lambda self: len(self._observers.callbacks['clicked'])))
-    observers = _api.deprecated("3.4")(property(
-        lambda self: self._observers.callbacks['clicked']))
 
     def __init__(self, ax, label, image=None,
                  color='0.85', hovercolor='0.95'):
@@ -323,11 +316,6 @@ class Slider(SliderBase):
         Slider value.
     """
 
-    cnt = _api.deprecated("3.4")(property(  # Not real, but close enough.
-        lambda self: len(self._observers.callbacks['changed'])))
-    observers = _api.deprecated("3.4")(property(
-        lambda self: self._observers.callbacks['changed']))
-
     def __init__(self, ax, label, valmin, valmax, valinit=0.5, valfmt=None,
                  closedmin=True, closedmax=True, slidermin=None,
                  slidermax=None, dragging=True, valstep=None,
@@ -441,7 +429,7 @@ class Slider(SliderBase):
             ax.add_patch(self.track)
             self.poly = ax.axhspan(valmin, valinit, .25, .75, **kwargs)
             # Drawing a longer line and clipping it to the track avoids
-            # pixellization-related asymmetries.
+            # pixelation-related asymmetries.
             self.hline = ax.axhline(valinit, 0, 1, color=initcolor, lw=1,
                                     clip_path=TransformedPatchPath(self.track))
             handleXY = [[0.5], [valinit]]
@@ -989,11 +977,6 @@ class CheckButtons(AxesWidget):
         each box, but have ``set_visible(False)`` when its box is not checked.
     """
 
-    cnt = _api.deprecated("3.4")(property(  # Not real, but close enough.
-        lambda self: len(self._observers.callbacks['clicked'])))
-    observers = _api.deprecated("3.4")(property(
-        lambda self: self._observers.callbacks['clicked']))
-
     def __init__(self, ax, labels, actives=None):
         """
         Add check buttons to `matplotlib.axes.Axes` instance *ax*.
@@ -1141,12 +1124,6 @@ class TextBox(AxesWidget):
         The color of the text box when hovering.
     """
 
-    cnt = _api.deprecated("3.4")(property(  # Not real, but close enough.
-        lambda self: sum(len(d) for d in self._observers.callbacks.values())))
-    change_observers = _api.deprecated("3.4")(property(
-        lambda self: self._observers.callbacks['change']))
-    submit_observers = _api.deprecated("3.4")(property(
-        lambda self: self._observers.callbacks['submit']))
     DIST_FROM_LEFT = _api.deprecate_privatize_attribute("3.5")
 
     def __init__(self, ax, label, initial='',
@@ -1224,7 +1201,7 @@ class TextBox(AxesWidget):
         # This causes a single extra draw if the figure has never been rendered
         # yet, which should be fine as we're going to repeatedly re-render the
         # figure later anyways.
-        if self.ax.figure._cachedRenderer is None:
+        if self.ax.figure._get_renderer() is None:
             self.ax.figure.canvas.draw()
 
         text = self.text_disp.get_text()  # Save value before overwriting it.
@@ -1476,11 +1453,6 @@ class RadioButtons(AxesWidget):
         self.connect_event('button_press_event', self._clicked)
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
-
-    cnt = _api.deprecated("3.4")(property(  # Not real, but close enough.
-        lambda self: len(self._observers.callbacks['clicked'])))
-    observers = _api.deprecated("3.4")(property(
-        lambda self: self._observers.callbacks['clicked']))
 
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
@@ -1945,7 +1917,8 @@ class _SelectorWidget(AxesWidget):
 
     def update(self):
         """Draw using blit() or draw_idle(), depending on ``self.useblit``."""
-        if not self.ax.get_visible() or self.ax.figure._cachedRenderer is None:
+        if (not self.ax.get_visible() or
+                self.ax.figure._get_renderer() is None):
             return False
         if self.useblit:
             if self.background is not None:
@@ -3951,7 +3924,7 @@ class PolygonSelector(_SelectorWidget):
         """
         Set the polygon vertices.
 
-        This will remove any pre-existing vertices, creating a complete polygon
+        This will remove any preexisting vertices, creating a complete polygon
         with the new vertices.
         """
         self._xys = [*xys, xys[0]]

@@ -38,7 +38,7 @@ plt.show()
 # It should be noted that the coordinate transform used by ``symlog``
 # has a discontinuous gradient at the transition between its linear
 # and logarithmic regions. The ``asinh`` axis scale is an alternative
-# technique that may avoid visual artifacts caused by these disconinuities.
+# technique that may avoid visual artifacts caused by these discontinuities.
 
 ###############################################################################
 #

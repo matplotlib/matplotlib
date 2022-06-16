@@ -162,8 +162,11 @@ bbox_to_anchor : `.BboxBase`, 2-tuple, or 4-tuple of floats
 
         loc='upper right', bbox_to_anchor=(0.5, 0.5)
 
-ncol : int, default: 1
+ncols : int, default: 1
     The number of columns that the legend has.
+
+    For backward compatibility, the spelling *ncol* is also supported
+    but it is discouraged. If both are given, *ncols* takes precedence.
 
 prop : None or `matplotlib.font_manager.FontProperties` or dict
     The font properties of the legend. If None (default), the current
@@ -294,6 +297,7 @@ class Legend(Artist):
     def __str__(self):
         return "Legend"
 
+    @_api.make_keyword_only("3.6", "loc")
     @_docstring.dedent_interpd
     def __init__(
         self, parent, handles, labels,
@@ -316,7 +320,7 @@ class Legend(Artist):
         borderaxespad=None,  # pad between the axes and legend border
         columnspacing=None,  # spacing between columns
 
-        ncol=1,     # number of columns
+        ncols=1,     # number of columns
         mode=None,  # horizontal distribution of columns: None or "expand"
 
         fancybox=None,  # True: fancy box, False: rounded box, None: rcParam
@@ -332,6 +336,8 @@ class Legend(Artist):
         frameon=None,         # draw frame
         handler_map=None,
         title_fontproperties=None,  # properties for the legend title
+        *,
+        ncol=1  # synonym for ncols (backward compatibility)
     ):
         """
         Parameters
@@ -417,8 +423,8 @@ class Legend(Artist):
 
         handles = list(handles)
         if len(handles) < 2:
-            ncol = 1
-        self._ncol = ncol
+            ncols = 1
+        self._ncols = ncols if ncols != 1 else ncol
 
         if self.numpoints <= 0:
             raise ValueError("numpoints must be > 0; it was %d" % numpoints)
@@ -579,6 +585,10 @@ class Legend(Artist):
         self._loc_real = loc
         self.stale = True
         self._legend_box.set_offset(self._findoffset)
+
+    def set_ncols(self, ncols):
+        """Set the number of columns."""
+        self._ncols = ncols
 
     def _get_loc(self):
         return self._loc_real
@@ -766,12 +776,12 @@ class Legend(Artist):
                 handles_and_labels.append((handlebox, textbox))
 
         columnbox = []
-        # array_split splits n handles_and_labels into ncol columns, with the
-        # first n%ncol columns having an extra entry.  filter(len, ...) handles
-        # the case where n < ncol: the last ncol-n columns are empty and get
-        # filtered out.
-        for handles_and_labels_column \
-                in filter(len, np.array_split(handles_and_labels, self._ncol)):
+        # array_split splits n handles_and_labels into ncols columns, with the
+        # first n%ncols columns having an extra entry.  filter(len, ...)
+        # handles the case where n < ncols: the last ncols-n columns are empty
+        # and get filtered out.
+        for handles_and_labels_column in filter(
+                len, np.array_split(handles_and_labels, self._ncols)):
             # pack handlebox and labelbox into itembox
             itemboxes = [HPacker(pad=0,
                                  sep=self.handletextpad * fontsize,
@@ -882,10 +892,10 @@ class Legend(Artist):
     def get_window_extent(self, renderer=None):
         # docstring inherited
         if renderer is None:
-            renderer = self.figure._cachedRenderer
+            renderer = self.figure._get_renderer()
         return self._legend_box.get_window_extent(renderer=renderer)
 
-    def get_tightbbox(self, renderer):
+    def get_tightbbox(self, renderer=None):
         # docstring inherited
         return self._legend_box.get_window_extent(renderer)
 

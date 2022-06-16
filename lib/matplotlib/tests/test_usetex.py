@@ -7,11 +7,11 @@ import matplotlib as mpl
 from matplotlib import dviread
 from matplotlib.testing import _has_tex_package
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.testing._markers import needs_usetex
 import matplotlib.pyplot as plt
 
 
-if not mpl.checkdep_usetex(True):
-    pytestmark = pytest.mark.skip('Missing TeX of Ghostscript or dvipng')
+pytestmark = needs_usetex
 
 
 @image_comparison(

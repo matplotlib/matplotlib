@@ -186,6 +186,12 @@ Required:
 - Ghostscript_ (>= 9.0, to render PDF files)
 - Inkscape_ (to render SVG files)
 
+  .. note::
+
+    When installing Inkscape on Windows, make sure that you select Add
+    Inkscape to system PATH, either for all users or current user, or the
+    tests will not find it.
+
 Optional:
 
 - pytest-cov_ (>=2.3.1) to collect coverage information

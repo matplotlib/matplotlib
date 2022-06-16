@@ -211,11 +211,23 @@ def test_colorbar_positioning(use_gridspec):
 
 
 def test_colorbar_single_ax_panchor_false():
-    # Just smoketesting that this doesn't crash.  Note that this differs from
-    # the tests above with panchor=False because there use_gridspec is actually
-    # ineffective: passing *ax* as lists always disable use_gridspec.
+    # Note that this differs from the tests above with panchor=False because
+    # there use_gridspec is actually ineffective: passing *ax* as lists always
+    # disables use_gridspec.
+    ax = plt.subplot(111, anchor='N')
     plt.imshow([[0, 1]])
     plt.colorbar(panchor=False)
+    assert ax.get_anchor() == 'N'
+
+
+@pytest.mark.parametrize('constrained', [False, True],
+                         ids=['standard', 'constrained'])
+def test_colorbar_single_ax_panchor_east(constrained):
+    fig = plt.figure(constrained_layout=constrained)
+    ax = fig.add_subplot(111, anchor='N')
+    plt.imshow([[0, 1]])
+    plt.colorbar(panchor='E')
+    assert ax.get_anchor() == 'E'
 
 
 @image_comparison(['contour_colorbar.png'], remove_text=True)
@@ -609,7 +621,7 @@ def test_colorbar_format(fmt):
     im.set_norm(LogNorm(vmin=0.1, vmax=10))
     fig.canvas.draw()
     assert (cbar.ax.yaxis.get_ticklabels()[0].get_text() ==
-            '$\\mathdefault{10^{\N{Minus Sign}2}}$')
+            '$\\mathdefault{10^{-2}}$')
 
 
 def test_colorbar_scale_reset():
@@ -917,6 +929,30 @@ def test_proportional_colorbars():
             CS3 = axs[i, j].contourf(X, Y, Z, levels, cmap=cmap, norm=norm,
                                      extend=extends[i])
             fig.colorbar(CS3, spacing=spacings[j], ax=axs[i, j])
+
+
+@pytest.mark.parametrize("extend, coloroffset, res", [
+    ('both', 1, [np.array([[0., 0.], [0., 1.]]),
+                 np.array([[1., 0.], [1., 1.]]),
+                 np.array([[2., 0.], [2., 1.]])]),
+    ('min', 0, [np.array([[0., 0.], [0., 1.]]),
+                np.array([[1., 0.], [1., 1.]])]),
+    ('max', 0, [np.array([[1., 0.], [1., 1.]]),
+                np.array([[2., 0.], [2., 1.]])]),
+    ('neither', -1, [np.array([[1., 0.], [1., 1.]])])
+    ])
+def test_colorbar_extend_drawedges(extend, coloroffset, res):
+    cmap = plt.get_cmap("viridis")
+    bounds = np.arange(3)
+    nb_colors = len(bounds) + coloroffset
+    colors = cmap(np.linspace(100, 255, nb_colors).astype(int))
+    cmap, norm = mcolors.from_levels_and_colors(bounds, colors, extend=extend)
+
+    plt.figure(figsize=(5, 1))
+    ax = plt.subplot(111)
+    cbar = Colorbar(ax, cmap=cmap, norm=norm, orientation='horizontal',
+                    drawedges=True)
+    assert np.all(np.equal(cbar.dividers.get_segments(), res))
 
 
 def test_negative_boundarynorm():

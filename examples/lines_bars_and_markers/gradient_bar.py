@@ -13,7 +13,7 @@ by a unit vector *v*. The values at the corners are then obtained by the
 lengths of the projections of the corner vectors on *v*.
 
 A similar approach can be used to create a gradient background for an Axes.
-In that case, it is helpful to uses Axes coordinates (``extent=(0, 1, 0, 1),
+In that case, it is helpful to use Axes coordinates (``extent=(0, 1, 0, 1),
 transform=ax.transAxes``) to be independent of the data coordinates.
 
 """

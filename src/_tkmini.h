@@ -100,11 +100,10 @@ typedef int (*Tk_PhotoPutBlock_t) (Tcl_Interp *interp, Tk_PhotoHandle handle,
         Tk_PhotoImageBlock *blockPtr, int x, int y,
         int width, int height, int compRule);
 
-#ifdef WIN32_DLL
 /* Typedefs derived from function signatures in Tcl header */
+/* Tcl_SetVar typedef */
 typedef const char *(*Tcl_SetVar_t)(Tcl_Interp *interp, const char *varName,
                                     const char *newValue, int flags);
-#endif
 
 #ifdef __cplusplus
 }

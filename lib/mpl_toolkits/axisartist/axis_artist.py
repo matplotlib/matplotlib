@@ -250,7 +250,10 @@ class LabelBase(mtext.Text):
         self.set_transform(tr)
         self.set_rotation(angle_orig)
 
-    def get_window_extent(self, renderer):
+    def get_window_extent(self, renderer=None):
+        if renderer is None:
+            renderer = self.figure._get_renderer()
+
         # save original and adjust some properties
         tr = self.get_transform()
         angle_orig = self.get_rotation()
@@ -361,7 +364,9 @@ class AxisLabel(AttributeCopier, LabelBase):
 
         super().draw(renderer)
 
-    def get_window_extent(self, renderer):
+    def get_window_extent(self, renderer=None):
+        if renderer is None:
+            renderer = self.figure._get_renderer()
         if not self.get_visible():
             return
 
@@ -513,7 +518,9 @@ class TickLabels(AxisLabel):  # mtext.Text
     def set_locs_angles_labels(self, locs_angles_labels):
         self._locs_angles_labels = locs_angles_labels
 
-    def get_window_extents(self, renderer):
+    def get_window_extents(self, renderer=None):
+        if renderer is None:
+            renderer = self.figure._get_renderer()
 
         if not self.get_visible():
             self._axislabel_pad = self._external_pad
@@ -846,9 +853,12 @@ class AxisArtist(martist.Artist):
 
         return ticks_loc_angle, ticklabels_loc_angle_label
 
-    def _update_ticks(self, renderer):
+    def _update_ticks(self, renderer=None):
         # set extra pad for major and minor ticklabels: use ticksize of
         # majorticks even for minor ticks. not clear what is best.
+
+        if renderer is None:
+            renderer = self.figure._get_renderer()
 
         dpi_cor = renderer.points_to_pixels(1.)
         if self.major_ticks.get_visible() and self.major_ticks.get_tick_out():
@@ -963,7 +973,7 @@ class AxisArtist(martist.Artist):
     def set_label(self, s):
         self.label.set_text(s)
 
-    def get_tightbbox(self, renderer):
+    def get_tightbbox(self, renderer=None):
         if not self.get_visible():
             return
         self._axis_artist_helper.update_lim(self.axes)

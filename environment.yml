@@ -33,11 +33,12 @@ dependencies:
   - sphinx>=1.8.1,!=2.0.0
   - sphinx-copybutton
   - sphinx-gallery>=0.10
-  - sphinx-panels
+  - sphinx-design
   - pip
   - pip:
       - mpl-sphinx-theme
       - sphinxcontrib-svg2pdfconverter
+      - pikepdf
   # testing
   - coverage
   - flake8>=3.8
@@ -47,7 +48,6 @@ dependencies:
   - nbconvert[execute]!=6.0.0,!=6.0.1
   - nbformat!=5.0.0,!=5.0.1
   - pandas!=0.25.0
-  - pikepdf
   - psutil
   - pre-commit
   - pydocstyle>=5.1.0

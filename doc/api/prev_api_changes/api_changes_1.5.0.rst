@@ -374,7 +374,7 @@ directly.
 patheffects.svg
 ~~~~~~~~~~~~~~~
 
- - remove ``get_proxy_renderer`` method from ``AbstarctPathEffect`` class
+ - remove ``get_proxy_renderer`` method from ``AbstractPathEffect`` class
  - remove ``patch_alpha`` and ``offset_xy`` from ``SimplePatchShadow``
 
 

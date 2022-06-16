@@ -1509,8 +1509,7 @@ default: %(va)s
         self._axobservers.process("_axes_change_event", self)
         return a
 
-    @_docstring.dedent_interpd
-    def gca(self, **kwargs):
+    def gca(self):
         """
         Get the current Axes.
 
@@ -1519,25 +1518,9 @@ default: %(va)s
         Axes on a Figure, check whether ``figure.axes`` is empty.  To test
         whether there is currently a Figure on the pyplot figure stack, check
         whether `.pyplot.get_fignums()` is empty.)
-
-        The following kwargs are supported for ensuring the returned Axes
-        adheres to the given projection etc., and for Axes creation if
-        the active Axes does not exist:
-
-        %(Axes:kwdoc)s
         """
-        if kwargs:
-            _api.warn_deprecated(
-                "3.4",
-                message="Calling gca() with keyword arguments was deprecated "
-                "in Matplotlib %(since)s. Starting %(removal)s, gca() will "
-                "take no keyword arguments. The gca() function should only be "
-                "used to get the current axes, or if no axes exist, create "
-                "new axes with default keyword arguments. To create a new "
-                "axes with non-default arguments, use plt.axes() or "
-                "plt.subplot().")
         ax = self._axstack.current()
-        return ax if ax is not None else self.add_subplot(**kwargs)
+        return ax if ax is not None else self.add_subplot()
 
     def _gci(self):
         # Helper for `~matplotlib.pyplot.gci`.  Do not use elsewhere.
@@ -1618,7 +1601,7 @@ default: %(va)s
                 bbox_artists.extend(ax.get_default_bbox_extra_artists())
         return bbox_artists
 
-    def get_tightbbox(self, renderer, bbox_extra_artists=None):
+    def get_tightbbox(self, renderer=None, bbox_extra_artists=None):
         """
         Return a (tight) bounding box of the figure *in inches*.
 
@@ -1644,6 +1627,9 @@ default: %(va)s
         `.BboxBase`
             containing the bounding box (in figure inches).
         """
+
+        if renderer is None:
+            renderer = self.figure._get_renderer()
 
         bb = []
         if bbox_extra_artists is None:
@@ -2060,6 +2046,9 @@ class SubFigure(FigureBase):
     def dpi(self, value):
         self._parent.dpi = value
 
+    def _get_renderer(self):
+        return self._parent._get_renderer()
+
     def _redo_transform_rel_fig(self, bbox=None):
         """
         Make the transSubfigure bbox relative to Figure transform.
@@ -2245,7 +2234,7 @@ class Figure(FigureBase):
                 The use of this parameter is discouraged. Please use
                 ``layout='constrained'`` instead.
 
-        layout : {'constrained', 'tight', `.LayoutEngine`, None}, optional
+        layout : {'constrained', 'compressed', 'tight', `.LayoutEngine`, None}
             The layout mechanism for positioning of plot elements to avoid
             overlapping Axes decorations (labels, ticks, etc). Note that
             layout managers can have significant performance penalties.
@@ -2257,6 +2246,10 @@ class Figure(FigureBase):
 
               See :doc:`/tutorials/intermediate/constrainedlayout_guide`
               for examples.
+
+            - 'compressed': uses the same algorithm as 'constrained', but
+              removes extra space between fixed-aspect-ratio Axes.  Best for
+              simple grids of axes.
 
             - 'tight': Use the tight layout mechanism. This is a relatively
               simple algorithm that adjusts the subplot parameters so that
@@ -2388,11 +2381,13 @@ class Figure(FigureBase):
 
         Parameters
         ----------
-        layout : {'constrained', 'tight'} or `~.LayoutEngine`
-            'constrained' will use `~.ConstrainedLayoutEngine`, 'tight' will
-            use `~.TightLayoutEngine`.  Users and libraries can define their
-            own layout engines as well.
-        kwargs : dict
+        layout: {'constrained', 'compressed', 'tight'} or `~.LayoutEngine`
+            'constrained' will use `~.ConstrainedLayoutEngine`,
+            'compressed' will also use ConstrainedLayoutEngine, but with a
+            correction that attempts to make a good layout for fixed-aspect
+            ratio Axes. 'tight' uses `~.TightLayoutEngine`.  Users and
+            libraries can define their own layout engines as well.
+        kwargs: dict
             The keyword arguments are passed to the layout engine to set things
             like padding and margin sizes.  Only used if *layout* is a string.
         """
@@ -2408,6 +2403,9 @@ class Figure(FigureBase):
             new_layout_engine = TightLayoutEngine(**kwargs)
         elif layout == 'constrained':
             new_layout_engine = ConstrainedLayoutEngine(**kwargs)
+        elif layout == 'compressed':
+            new_layout_engine = ConstrainedLayoutEngine(compress=True,
+                                                        **kwargs)
         elif isinstance(layout, LayoutEngine):
             new_layout_engine = layout
         else:
@@ -2487,6 +2485,14 @@ class Figure(FigureBase):
         return self._axstack.as_list()
 
     get_axes = axes.fget
+
+    def _get_renderer(self):
+        if self._cachedRenderer is not None:
+            return self._cachedRenderer
+        elif hasattr(self.canvas, 'get_renderer'):
+            return self.canvas.get_renderer()
+        else:
+            return _get_renderer(self)
 
     def _get_dpi(self):
         return self._dpi
@@ -2636,7 +2642,7 @@ class Figure(FigureBase):
         hspace = info['hspace']
 
         if relative and (w_pad is not None or h_pad is not None):
-            renderer = _get_renderer(self)
+            renderer = self._get_renderer()
             dpi = renderer.dpi
             w_pad = w_pad * dpi / renderer.width
             h_pad = h_pad * dpi / renderer.height

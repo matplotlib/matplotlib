@@ -206,7 +206,6 @@ class CallbackRegistry:
             s: {proxy: cid for cid, proxy in d.items()}
             for s, d in self.callbacks.items()}
 
-    @_api.rename_parameter("3.4", "s", "signal")
     def connect(self, signal, func):
         """Register *func* to be called when signal *signal* is generated."""
         if signal == "units finalize":
@@ -905,6 +904,34 @@ class Grouper:
         self.clean()
         siblings = self._mapping.get(weakref.ref(a), [weakref.ref(a)])
         return [x() for x in siblings]
+
+
+class GrouperView:
+    """Immutable view over a `.Grouper`."""
+
+    def __init__(self, grouper):
+        self._grouper = grouper
+
+    class _GrouperMethodForwarder:
+        def __init__(self, deprecated_kw=None):
+            self._deprecated_kw = deprecated_kw
+
+        def __set_name__(self, owner, name):
+            wrapped = getattr(Grouper, name)
+            forwarder = functools.wraps(wrapped)(
+                lambda self, *args, **kwargs: wrapped(
+                    self._grouper, *args, **kwargs))
+            if self._deprecated_kw:
+                forwarder = _api.deprecated(**self._deprecated_kw)(forwarder)
+            setattr(owner, name, forwarder)
+
+    __contains__ = _GrouperMethodForwarder()
+    __iter__ = _GrouperMethodForwarder()
+    joined = _GrouperMethodForwarder()
+    get_siblings = _GrouperMethodForwarder()
+    clean = _GrouperMethodForwarder(deprecated_kw=dict(since="3.6"))
+    join = _GrouperMethodForwarder(deprecated_kw=dict(since="3.6"))
+    remove = _GrouperMethodForwarder(deprecated_kw=dict(since="3.6"))
 
 
 def simple_linear_interpolation(a, steps):
@@ -2158,7 +2185,7 @@ def _g_sig_digits(value, delta):
     if delta == 0:
         # delta = 0 may occur when trying to format values over a tiny range;
         # in that case, replace it by the distance to the closest float.
-        delta = np.spacing(value)
+        delta = abs(np.spacing(value))
     # If e.g. value = 45.67 and delta = 0.02, then we want to round to 2 digits
     # after the decimal point (floor(log10(0.02)) = -2); 45.67 contributes 2
     # digits before the decimal point (floor(log10(45.67)) + 1 = 2): the total

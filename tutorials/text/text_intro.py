@@ -212,8 +212,8 @@ for ax, loc in zip(axs, locs):
 plt.show()
 
 ##############################################################################
-# Vertical spacing for titles is controlled via :rc:`axes.titlepad`, which
-# defaults to 5 points.  Setting to a different value moves the title.
+# Vertical spacing for titles is controlled via :rc:`axes.titlepad`.
+# Setting to a different value moves the title.
 
 fig, ax = plt.subplots(figsize=(5, 3))
 fig.subplots_adjust(top=0.8)
@@ -283,7 +283,7 @@ plt.show()
 # Tick Locators and Formatters
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #
-# Instead of making a list of all the tickalbels, we could have
+# Instead of making a list of all the ticklabels, we could have
 # used `matplotlib.ticker.StrMethodFormatter` (new-style ``str.format()``
 # format string) or `matplotlib.ticker.FormatStrFormatter` (old-style '%'
 # format string) and passed it to the ``ax.xaxis``.  A

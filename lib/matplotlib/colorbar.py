@@ -454,7 +454,7 @@ class Colorbar:
         if np.iterable(ticks):
             self._locator = ticker.FixedLocator(ticks, nbins=len(ticks))
         else:
-            self._locator = ticks  # Handle default in _ticker()
+            self._locator = ticks
 
         if isinstance(format, str):
             # Check format between FormatStrFormatter and StrMethodFormatter
@@ -651,8 +651,12 @@ class Colorbar:
             if not self.drawedges:
                 if len(self._y) >= self.n_rasterize:
                     self.solids.set_rasterized(True)
-        self.dividers.set_segments(
-            np.dstack([X, Y])[1:-1] if self.drawedges else [])
+        if self.drawedges:
+            start_idx = 0 if self._extend_lower() else 1
+            end_idx = len(X) if self._extend_upper() else -1
+            self.dividers.set_segments(np.dstack([X, Y])[start_idx:end_idx])
+        else:
+            self.dividers.set_segments([])
 
     def _add_solids_patches(self, X, Y, C, mappable):
         hatches = mappable.hatches * len(C)  # Have enough hatches.
@@ -727,8 +731,9 @@ class Colorbar:
             val = -1 if self._long_axis().get_inverted() else 0
             color = self.cmap(self.norm(self._values[val]))
             patch = mpatches.PathPatch(
-                mpath.Path(xy), facecolor=color, linewidth=0,
-                antialiased=False, transform=self.ax.transAxes,
+                mpath.Path(xy), facecolor=color, alpha=self.alpha,
+                linewidth=0, antialiased=False,
+                transform=self.ax.transAxes,
                 hatch=hatches[0], clip_on=False,
                 # Place it right behind the standard patches, which is
                 # needed if we updated the extends
@@ -748,7 +753,7 @@ class Colorbar:
             val = 0 if self._long_axis().get_inverted() else -1
             color = self.cmap(self.norm(self._values[val]))
             patch = mpatches.PathPatch(
-                mpath.Path(xy), facecolor=color,
+                mpath.Path(xy), facecolor=color, alpha=self.alpha,
                 linewidth=0, antialiased=False,
                 transform=self.ax.transAxes, hatch=hatches[-1], clip_on=False,
                 # Place it right behind the standard patches, which is
@@ -1093,32 +1098,6 @@ class Colorbar:
         else:
             # use_gridspec was True
             ax.set_subplotspec(subplotspec)
-
-    def _ticker(self, locator, formatter):
-        """
-        Return the sequence of ticks (colorbar data locations),
-        ticklabels (strings), and the corresponding offset string.
-        """
-        if isinstance(self.norm, colors.NoNorm) and self.boundaries is None:
-            intv = self._values[0], self._values[-1]
-        else:
-            intv = self.vmin, self.vmax
-        locator.create_dummy_axis(minpos=intv[0])
-        locator.axis.set_view_interval(*intv)
-        locator.axis.set_data_interval(*intv)
-        formatter.set_axis(locator.axis)
-
-        b = np.array(locator())
-        if isinstance(locator, ticker.LogLocator):
-            eps = 1e-10
-            b = b[(b <= intv[1] * (1 + eps)) & (b >= intv[0] * (1 - eps))]
-        else:
-            eps = (intv[1] - intv[0]) * 1e-10
-            b = b[(b <= intv[1] + eps) & (b >= intv[0] - eps)]
-        ticks = self._locate(b)
-        ticklabels = formatter.format_ticks(b)
-        offset_string = formatter.get_offset()
-        return ticks, ticklabels, offset_string
 
     def _process_values(self):
         """
@@ -1617,7 +1596,8 @@ def make_axes_gridspec(parent, *, location=None, orientation=None,
             aspect = 1 / aspect
 
     parent.set_subplotspec(ss_main)
-    parent.set_anchor(loc_settings["panchor"])
+    if panchor is not False:
+        parent.set_anchor(panchor)
 
     fig = parent.get_figure()
     cax = fig.add_subplot(ss_cb, label="<colorbar>")

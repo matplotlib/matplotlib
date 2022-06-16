@@ -215,7 +215,7 @@ class HostAxesBase:
         self.axis[tuple(restore)].set_visible(True)
         self.axis[tuple(restore)].toggle(ticklabels=False, label=False)
 
-    def get_tightbbox(self, renderer, call_axes_locator=True,
+    def get_tightbbox(self, renderer=None, call_axes_locator=True,
                       bbox_extra_artists=None):
         bbs = [
             *[ax.get_tightbbox(renderer, call_axes_locator=call_axes_locator)
@@ -257,7 +257,6 @@ def host_axes(*args, axes_class=Axes, figure=None, **kwargs):
         figure = plt.gcf()
     ax = host_axes_class(figure, *args, **kwargs)
     figure.add_axes(ax)
-    plt.draw_if_interactive()
     return ax
 
 
@@ -280,5 +279,4 @@ def host_subplot(*args, axes_class=Axes, figure=None, **kwargs):
         figure = plt.gcf()
     ax = host_subplot_class(figure, *args, **kwargs)
     figure.add_subplot(ax)
-    plt.draw_if_interactive()
     return ax

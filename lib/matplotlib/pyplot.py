@@ -20,7 +20,7 @@ The explicit object-oriented API is recommended for complex plots, though
 pyplot is still usually used to create the figure and often the axes in the
 figure. See `.pyplot.figure`, `.pyplot.subplots`, and
 `.pyplot.subplot_mosaic` to create figures, and
-:doc:`Axes API <../axes_api>` for the plotting methods on an Axes::
+:doc:`Axes API </api/axes_api>` for the plotting methods on an Axes::
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -43,11 +43,8 @@ import logging
 from numbers import Number
 import re
 import sys
+import threading
 import time
-try:
-    import threading
-except ImportError:
-    import dummy_threading as threading
 
 from cycler import cycler
 import matplotlib
@@ -206,12 +203,6 @@ def _get_backend_mod():
         # will (re)import pyplot and then call switch_backend if we need to
         # resolve the auto sentinel)
         switch_backend(dict.__getitem__(rcParams, "backend"))
-        # Just to be safe.  Interactive mode can be turned on without calling
-        # `plt.ion()` so register it again here.  This is safe because multiple
-        # calls to `install_repl_displayhook` are no-ops and the registered
-        # function respects `mpl.is_interactive()` to determine if it should
-        # trigger a draw.
-        install_repl_displayhook()
     return _backend_mod
 
 
@@ -269,15 +260,9 @@ def switch_backend(newbackend):
             rcParamsOrig["backend"] = "agg"
             return
 
-    # Backends are implemented as modules, but "inherit" default method
-    # implementations from backend_bases._Backend.  This is achieved by
-    # creating a "class" that inherits from backend_bases._Backend and whose
-    # body is filled with the module's globals.
-
-    backend_name = cbook._backend_module_name(newbackend)
-
-    class backend_mod(matplotlib.backend_bases._Backend):
-        locals().update(vars(importlib.import_module(backend_name)))
+    backend_mod = importlib.import_module(
+        cbook._backend_module_name(newbackend))
+    canvas_class = backend_mod.FigureCanvas
 
     required_framework = _get_required_interactive_framework(backend_mod)
     if required_framework is not None:
@@ -288,6 +273,36 @@ def switch_backend(newbackend):
                 "Cannot load backend {!r} which requires the {!r} interactive "
                 "framework, as {!r} is currently running".format(
                     newbackend, required_framework, current_framework))
+
+    # Load the new_figure_manager(), draw_if_interactive(), and show()
+    # functions from the backend.
+
+    # Classically, backends can directly export these functions.  This should
+    # keep working for backcompat.
+    new_figure_manager = getattr(backend_mod, "new_figure_manager", None)
+    # draw_if_interactive = getattr(backend_mod, "draw_if_interactive", None)
+    # show = getattr(backend_mod, "show", None)
+    # In that classical approach, backends are implemented as modules, but
+    # "inherit" default method implementations from backend_bases._Backend.
+    # This is achieved by creating a "class" that inherits from
+    # backend_bases._Backend and whose body is filled with the module globals.
+    class backend_mod(matplotlib.backend_bases._Backend):
+        locals().update(vars(backend_mod))
+
+    # However, the newer approach for defining new_figure_manager (and, in
+    # the future, draw_if_interactive and show) is to derive them from canvas
+    # methods.  In that case, also update backend_mod accordingly.
+    if new_figure_manager is None:
+        def new_figure_manager_given_figure(num, figure):
+            return canvas_class.new_manager(figure, num)
+
+        def new_figure_manager(num, *args, FigureClass=Figure, **kwargs):
+            fig = FigureClass(*args, **kwargs)
+            return new_figure_manager_given_figure(num, fig)
+
+        backend_mod.new_figure_manager_given_figure = \
+            new_figure_manager_given_figure
+        backend_mod.new_figure_manager = new_figure_manager
 
     _log.debug("Loaded backend %s version %s.",
                newbackend, backend_mod.backend_version)
@@ -301,6 +316,10 @@ def switch_backend(newbackend):
     # Need to keep a global reference to the backend for compatibility reasons.
     # See https://github.com/matplotlib/matplotlib/issues/6092
     matplotlib.backends.backend = newbackend
+
+    # make sure the repl display hook is installed in case we become
+    # interactive
+    install_repl_displayhook()
 
 
 def _warn_if_gui_out_of_main_thread():
@@ -1173,7 +1192,7 @@ def subplot(*args, **kwargs):
 
     Notes
     -----
-    Creating a new Axes will delete any pre-existing Axes that
+    Creating a new Axes will delete any preexisting Axes that
     overlaps with it beyond sharing a boundary::
 
         import matplotlib.pyplot as plt
@@ -2005,11 +2024,9 @@ def thetagrids(angles=None, labels=None, fmt=None, **kwargs):
     return lines, labels
 
 
-## Plotting Info ##
-
-
-def plotting():
-    pass
+_NON_PLOT_COMMANDS = {
+    'connect', 'disconnect', 'get_current_fig_manager', 'ginput',
+    'new_figure_manager', 'waitforbuttonpress'}
 
 
 def get_plot_commands():
@@ -2019,67 +2036,14 @@ def get_plot_commands():
     # This works by searching for all functions in this module and removing
     # a few hard-coded exclusions, as well as all of the colormap-setting
     # functions, and anything marked as private with a preceding underscore.
-    exclude = {'colormaps', 'colors', 'connect', 'disconnect',
-               'get_plot_commands', 'get_current_fig_manager', 'ginput',
-               'plotting', 'waitforbuttonpress'}
-    exclude |= set(colormaps)
+    exclude = {'colormaps', 'colors', 'get_plot_commands',
+               *_NON_PLOT_COMMANDS, *colormaps}
     this_module = inspect.getmodule(get_plot_commands)
     return sorted(
         name for name, obj in globals().items()
         if not name.startswith('_') and name not in exclude
            and inspect.isfunction(obj)
            and inspect.getmodule(obj) is this_module)
-
-
-def _setup_pyplot_info_docstrings():
-    """
-    Setup the docstring of `plotting` and of the colormap-setting functions.
-
-    These must be done after the entire module is imported, so it is called
-    from the end of this module, which is generated by boilerplate.py.
-    """
-    commands = get_plot_commands()
-
-    first_sentence = re.compile(r"(?:\s*).+?\.(?:\s+|$)", flags=re.DOTALL)
-
-    # Collect the first sentence of the docstring for all of the
-    # plotting commands.
-    rows = []
-    max_name = len("Function")
-    max_summary = len("Description")
-    for name in commands:
-        doc = globals()[name].__doc__
-        summary = ''
-        if doc is not None:
-            match = first_sentence.match(doc)
-            if match is not None:
-                summary = inspect.cleandoc(match.group(0)).replace('\n', ' ')
-        name = '`%s`' % name
-        rows.append([name, summary])
-        max_name = max(max_name, len(name))
-        max_summary = max(max_summary, len(summary))
-
-    separator = '=' * max_name + ' ' + '=' * max_summary
-    lines = [
-        separator,
-        '{:{}} {:{}}'.format('Function', max_name, 'Description', max_summary),
-        separator,
-    ] + [
-        '{:{}} {:{}}'.format(name, max_name, summary, max_summary)
-        for name, summary in rows
-    ] + [
-        separator,
-    ]
-    plotting.__doc__ = '\n'.join(lines)
-
-    for cm_name in colormaps:
-        if cm_name in globals():
-            globals()[cm_name].__doc__ = f"""
-    Set the colormap to {cm_name!r}.
-
-    This changes the default colormap as well as the colormap of the current
-    image if there is one. See ``help(colormaps)`` for more information.
-    """
 
 
 ## Plotting part 1: manually generated functions and wrappers ##
@@ -2231,7 +2195,7 @@ def polar(*args, **kwargs):
 # requested, ignore rcParams['backend'] and force selection of a backend that
 # is compatible with the current running interactive framework.
 if (rcParams["backend_fallback"]
-        and dict.__getitem__(rcParams, "backend") in (
+        and rcParams._get_backend_or_none() in (
             set(_interactive_bk) - {'WebAgg', 'nbAgg'})
         and cbook._get_running_interactive_framework()):
     dict.__setitem__(rcParams, "backend", rcsetup._auto_backend_sentinel)
@@ -2258,8 +2222,8 @@ def figtext(x, y, s, fontdict=None, **kwargs):
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
 @_copy_docstring_and_deprecators(Figure.gca)
-def gca(**kwargs):
-    return gcf().gca(**kwargs)
+def gca():
+    return gcf().gca()
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
@@ -3063,25 +3027,209 @@ def yscale(value, **kwargs):
 
 
 # Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
-def autumn(): set_cmap('autumn')
-def bone(): set_cmap('bone')
-def cool(): set_cmap('cool')
-def copper(): set_cmap('copper')
-def flag(): set_cmap('flag')
-def gray(): set_cmap('gray')
-def hot(): set_cmap('hot')
-def hsv(): set_cmap('hsv')
-def jet(): set_cmap('jet')
-def pink(): set_cmap('pink')
-def prism(): set_cmap('prism')
-def spring(): set_cmap('spring')
-def summer(): set_cmap('summer')
-def winter(): set_cmap('winter')
-def magma(): set_cmap('magma')
-def inferno(): set_cmap('inferno')
-def plasma(): set_cmap('plasma')
-def viridis(): set_cmap('viridis')
-def nipy_spectral(): set_cmap('nipy_spectral')
+def autumn():
+    """
+    Set the colormap to 'autumn'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('autumn')
 
 
-_setup_pyplot_info_docstrings()
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def bone():
+    """
+    Set the colormap to 'bone'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('bone')
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def cool():
+    """
+    Set the colormap to 'cool'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('cool')
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def copper():
+    """
+    Set the colormap to 'copper'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('copper')
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def flag():
+    """
+    Set the colormap to 'flag'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('flag')
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def gray():
+    """
+    Set the colormap to 'gray'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('gray')
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def hot():
+    """
+    Set the colormap to 'hot'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('hot')
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def hsv():
+    """
+    Set the colormap to 'hsv'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('hsv')
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def jet():
+    """
+    Set the colormap to 'jet'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('jet')
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def pink():
+    """
+    Set the colormap to 'pink'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('pink')
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def prism():
+    """
+    Set the colormap to 'prism'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('prism')
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def spring():
+    """
+    Set the colormap to 'spring'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('spring')
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def summer():
+    """
+    Set the colormap to 'summer'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('summer')
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def winter():
+    """
+    Set the colormap to 'winter'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('winter')
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def magma():
+    """
+    Set the colormap to 'magma'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('magma')
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def inferno():
+    """
+    Set the colormap to 'inferno'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('inferno')
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def plasma():
+    """
+    Set the colormap to 'plasma'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('plasma')
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def viridis():
+    """
+    Set the colormap to 'viridis'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('viridis')
+
+
+# Autogenerated by boilerplate.py.  Do not edit as changes will be lost.
+def nipy_spectral():
+    """
+    Set the colormap to 'nipy_spectral'.
+
+    This changes the default colormap as well as the colormap of the current
+    image if there is one. See ``help(colormaps)`` for more information.
+    """
+    set_cmap('nipy_spectral')

@@ -14,11 +14,11 @@ import unicodedata
 import numpy as np
 from pyparsing import (
     Empty, Forward, Literal, NotAny, oneOf, OneOrMore, Optional,
-    ParseBaseException, ParseFatalException, ParserElement, ParseResults,
-    QuotedString, Regex, StringEnd, ZeroOrMore, pyparsing_common)
+    ParseBaseException, ParseExpression, ParseFatalException, ParserElement,
+    ParseResults, QuotedString, Regex, StringEnd, ZeroOrMore, pyparsing_common)
 
 import matplotlib as mpl
-from . import cbook
+from . import _api, cbook
 from ._mathtext_data import (
     latex_to_bakoma, stix_glyph_fixes, stix_virtual_fonts, tex2uni)
 from .font_manager import FontProperties, findfont, get_font
@@ -33,7 +33,8 @@ _log = logging.getLogger("matplotlib.mathtext")
 # FONTS
 
 
-def get_unicode_index(symbol, math=True):
+@_api.delete_parameter("3.6", "math")
+def get_unicode_index(symbol, math=True):  # Publicly exported.
     r"""
     Return the integer index (from the Unicode table) of *symbol*.
 
@@ -45,15 +46,13 @@ def get_unicode_index(symbol, math=True):
     math : bool, default: True
         If False, always treat as a single Unicode character.
     """
-    # for a non-math symbol, simply return its Unicode index
-    if not math:
-        return ord(symbol)
     # From UTF #25: U+2212 minus sign is the preferred
     # representation of the unary and binary minus sign rather than
     # the ASCII-derived U+002D hyphen-minus, because minus sign is
     # unambiguous and because it is rendered with a more desirable
     # length, usually longer than a hyphen.
-    if symbol == '-':
+    # Remove this block when the 'math' parameter is deleted.
+    if math and symbol == '-':
         return 0x2212
     try:  # This will succeed if symbol is a single Unicode char
         return ord(symbol)
@@ -98,7 +97,7 @@ class Fonts:
         """
         return 0.
 
-    def get_metrics(self, font, font_class, sym, fontsize, dpi, math=True):
+    def get_metrics(self, font, font_class, sym, fontsize, dpi):
         r"""
         Parameters
         ----------
@@ -117,8 +116,6 @@ class Fonts:
             Font size in points.
         dpi : float
             Rendering dots-per-inch.
-        math : bool
-            Whether we are currently in math mode or not.
 
         Returns
         -------
@@ -136,7 +133,7 @@ class Fonts:
             - *slanted*: Whether the glyph should be considered as "slanted"
               (currently used for kerning sub/superscripts).
         """
-        info = self._get_info(font, font_class, sym, fontsize, dpi, math)
+        info = self._get_info(font, font_class, sym, fontsize, dpi)
         return info.metrics
 
     def render_glyph(self, ox, oy, font, font_class, sym, fontsize, dpi):
@@ -217,14 +214,14 @@ class TruetypeFonts(Fonts):
             return (glyph.height / 64 / 2) + (fontsize/3 * dpi/72)
         return 0.
 
-    def _get_info(self, fontname, font_class, sym, fontsize, dpi, math=True):
+    def _get_info(self, fontname, font_class, sym, fontsize, dpi):
         key = fontname, font_class, sym, fontsize, dpi
         bunch = self.glyphd.get(key)
         if bunch is not None:
             return bunch
 
         font, num, slanted = self._get_glyph(
-            fontname, font_class, sym, fontsize, math)
+            fontname, font_class, sym, fontsize)
 
         font.set_size(fontsize, dpi)
         glyph = font.load_char(
@@ -314,7 +311,7 @@ class BakomaFonts(TruetypeFonts):
 
     _slanted_symbols = set(r"\int \oint".split())
 
-    def _get_glyph(self, fontname, font_class, sym, fontsize, math=True):
+    def _get_glyph(self, fontname, font_class, sym, fontsize):
         font = None
         if fontname in self.fontmap and sym in latex_to_bakoma:
             basename, num = latex_to_bakoma[sym]
@@ -329,7 +326,7 @@ class BakomaFonts(TruetypeFonts):
             return font, num, slanted
         else:
             return self._stix_fallback._get_glyph(
-                fontname, font_class, sym, fontsize, math)
+                fontname, font_class, sym, fontsize)
 
     # The Bakoma fonts contain many pre-sized alternatives for the
     # delimiters.  The AutoSizedChar class will use these alternatives
@@ -442,9 +439,9 @@ class UnicodeFonts(TruetypeFonts):
     def _map_virtual_font(self, fontname, font_class, uniindex):
         return fontname, uniindex
 
-    def _get_glyph(self, fontname, font_class, sym, fontsize, math=True):
+    def _get_glyph(self, fontname, font_class, sym, fontsize):
         try:
-            uniindex = get_unicode_index(sym, math)
+            uniindex = get_unicode_index(sym)
             found_symbol = True
         except ValueError:
             uniindex = ord('?')
@@ -536,11 +533,10 @@ class DejaVuFonts(UnicodeFonts):
             self.fontmap[key] = fullpath
             self.fontmap[name] = fullpath
 
-    def _get_glyph(self, fontname, font_class, sym, fontsize, math=True):
+    def _get_glyph(self, fontname, font_class, sym, fontsize):
         # Override prime symbol to use Bakoma.
         if sym == r'\prime':
-            return self.bakoma._get_glyph(
-                fontname, font_class, sym, fontsize, math)
+            return self.bakoma._get_glyph(fontname, font_class, sym, fontsize)
         else:
             # check whether the glyph is available in the display font
             uniindex = get_unicode_index(sym)
@@ -548,11 +544,9 @@ class DejaVuFonts(UnicodeFonts):
             if font is not None:
                 glyphindex = font.get_char_index(uniindex)
                 if glyphindex != 0:
-                    return super()._get_glyph(
-                        'ex', font_class, sym, fontsize, math)
+                    return super()._get_glyph('ex', font_class, sym, fontsize)
             # otherwise return regular glyph
-            return super()._get_glyph(
-                fontname, font_class, sym, fontsize, math)
+            return super()._get_glyph(fontname, font_class, sym, fontsize)
 
 
 class DejaVuSerifFonts(DejaVuFonts):
@@ -757,16 +751,16 @@ class FontConstantsBase:
     # superscript is present
     sub2 = 0.5
 
-    # Percentage of x-height that sub/supercripts are offset relative to the
+    # Percentage of x-height that sub/superscripts are offset relative to the
     # nucleus edge for non-slanted nuclei
     delta = 0.025
 
     # Additional percentage of last character height above 2/3 of the
-    # x-height that supercripts are offset relative to the subscript
+    # x-height that superscripts are offset relative to the subscript
     # for slanted nuclei
     delta_slanted = 0.2
 
-    # Percentage of x-height that supercripts and subscripts are offset for
+    # Percentage of x-height that superscripts and subscripts are offset for
     # integrals
     delta_integral = 0.1
 
@@ -913,7 +907,7 @@ class Char(Node):
     `Hlist`.
     """
 
-    def __init__(self, c, state, math=True):
+    def __init__(self, c, state):
         super().__init__()
         self.c = c
         self.font_output = state.font_output
@@ -921,7 +915,6 @@ class Char(Node):
         self.font_class = state.font_class
         self.fontsize = state.fontsize
         self.dpi = state.dpi
-        self.math = math
         # The real width, height and depth will be set during the
         # pack phase, after we know the real fontsize
         self._update_metrics()
@@ -931,8 +924,7 @@ class Char(Node):
 
     def _update_metrics(self):
         metrics = self._metrics = self.font_output.get_metrics(
-            self.font, self.font_class, self.c, self.fontsize, self.dpi,
-            self.math)
+            self.font, self.font_class, self.c, self.fontsize, self.dpi)
         if self.c == ' ':
             self.width = metrics.advance
         else:
@@ -1045,7 +1037,7 @@ class Hlist(List):
         super().__init__(elements)
         if do_kern:
             self.kern()
-        self.hpack()
+        self.hpack(w=w, m=m)
 
     def kern(self):
         """
@@ -1146,9 +1138,9 @@ class Hlist(List):
             self.glue_ratio = 0.
             return
         if x > 0.:
-            self._set_glue(x, 1, total_stretch, "Overfull")
+            self._set_glue(x, 1, total_stretch, "Overful")
         else:
-            self._set_glue(x, -1, total_shrink, "Underfull")
+            self._set_glue(x, -1, total_shrink, "Underful")
 
 
 class Vlist(List):
@@ -1156,7 +1148,7 @@ class Vlist(List):
 
     def __init__(self, elements, h=0., m='additional'):
         super().__init__(elements)
-        self.vpack()
+        self.vpack(h=h, m=m)
 
     def vpack(self, h=0., m='additional', l=np.inf):
         """
@@ -1168,8 +1160,8 @@ class Vlist(List):
         h : float, default: 0
             A height.
         m : {'exactly', 'additional'}, default: 'additional'
-            Whether to produce a box whose height is 'exactly' *w*; or a box
-            with the natural height of the contents, plus *w* ('additional').
+            Whether to produce a box whose height is 'exactly' *h*; or a box
+            with the natural height of the contents, plus *h* ('additional').
         l : float, default: np.inf
             The maximum height.
 
@@ -1225,9 +1217,9 @@ class Vlist(List):
             return
 
         if x > 0.:
-            self._set_glue(x, 1, total_stretch, "Overfull")
+            self._set_glue(x, 1, total_stretch, "Overful")
         else:
-            self._set_glue(x, -1, total_shrink, "Underfull")
+            self._set_glue(x, -1, total_shrink, "Underful")
 
 
 class Rule(Box):
@@ -1567,9 +1559,7 @@ def Error(msg):
     def raise_error(s, loc, toks):
         raise ParseFatalException(s, loc, msg)
 
-    empty = Empty()
-    empty.setParseAction(raise_error)
-    return empty
+    return Empty().setParseAction(raise_error)
 
 
 class ParserState:
@@ -1609,6 +1599,31 @@ class ParserState:
             self.font, self.fontsize, self.dpi)
 
 
+def cmd(expr, args):
+    r"""
+    Helper to define TeX commands.
+
+    ``cmd("\cmd", args)`` is equivalent to
+    ``"\cmd" - (args | Error("Expected \cmd{arg}{...}"))`` where the names in
+    the error message are taken from element names in *args*.  If *expr*
+    already includes arguments (e.g. "\cmd{arg}{...}"), then they are stripped
+    when constructing the parse element, but kept (and *expr* is used as is) in
+    the error message.
+    """
+
+    def names(elt):
+        if isinstance(elt, ParseExpression):
+            for expr in elt.exprs:
+                yield from names(expr)
+        elif elt.resultsName:
+            yield elt.resultsName
+
+    csname = expr.split("{", 1)[0]
+    err = (csname + "".join("{%s}" % name for name in names(args))
+           if expr == csname else expr)
+    return csname - (args | Error(f"Expected {err}"))
+
+
 class Parser:
     """
     A pyparsing-based parser for strings containing math expressions.
@@ -1624,8 +1639,9 @@ class Parser:
         SCRIPTSTYLE = enum.auto()
         SCRIPTSCRIPTSTYLE = enum.auto()
 
-    _binary_operators = set(r'''
-      + * -
+    _binary_operators = set(
+      '+ * - \N{MINUS SIGN}'
+      r'''
       \pm             \sqcap                   \rhd
       \mp             \sqcup                   \unlhd
       \times          \vee                     \unrhd
@@ -1685,13 +1701,12 @@ class Parser:
       liminf sin cos exp limsup sinh cosh gcd ln sup cot hom log tan
       coth inf max tanh""".split())
 
-    _ambi_delim = set(r"""
+    _ambi_delims = set(r"""
       | \| / \backslash \uparrow \downarrow \updownarrow \Uparrow
-      \Downarrow \Updownarrow . \vert \Vert \\|""".split())
-
-    _left_delim = set(r"( [ \{ < \lfloor \langle \lceil".split())
-
-    _right_delim = set(r") ] \} > \rfloor \rangle \rceil".split())
+      \Downarrow \Updownarrow . \vert \Vert""".split())
+    _left_delims = set(r"( [ \{ < \lfloor \langle \lceil".split())
+    _right_delims = set(r") ] \} > \rfloor \rangle \rceil".split())
+    _delims = _left_delims | _right_delims | _ambi_delims
 
     def __init__(self):
         p = types.SimpleNamespace()
@@ -1726,9 +1741,7 @@ class Parser:
             Optional(r"\math" + oneOf(self._fontnames)("font")) + "{")
         p.end_group      = Literal("}")
 
-        p.ambi_delim     = oneOf(self._ambi_delim)
-        p.left_delim     = oneOf(self._left_delim)
-        p.right_delim    = oneOf(self._right_delim)
+        p.delim          = oneOf(self._delims)
 
         set_names_and_parse_actions()  # for root definitions.
 
@@ -1749,7 +1762,7 @@ class Parser:
         p.placeable        = Forward()
         p.required_group   = Forward()
         p.simple           = Forward()
-        p.simple_group     = Forward()
+        p.optional_group   = Forward()
         p.sqrt             = Forward()
         p.subsuper         = Forward()
         p.token            = Forward()
@@ -1757,61 +1770,52 @@ class Parser:
 
         set_names_and_parse_actions()  # for mutually recursive definitions.
 
-        p.customspace   <<= r"\hspace" - (
-            "{" + p.float_literal("space") + "}"
-            | Error(r"Expected \hspace{n}"))
+        p.customspace <<= cmd(r"\hspace", "{" + p.float_literal("space") + "}")
 
-        p.accent        <<= (
+        p.accent <<= (
             "\\"
             + oneOf([*self._accent_map, *self._wide_accents])("accent")
             - p.placeable("sym"))
 
-        p.function      <<= "\\" + oneOf(self._function_names)("name")
-        p.operatorname  <<= r"\operatorname" - (
-            "{" + ZeroOrMore(p.simple | p.unknown_symbol)("name") + "}"
-            | Error(r"Expected \operatorname{name}"))
+        p.function     <<= "\\" + oneOf(self._function_names)("name")
+        p.operatorname <<= cmd(
+            r"\operatorname",
+            "{" + ZeroOrMore(p.simple | p.unknown_symbol)("name") + "}")
 
-        p.group          <<= (
-            p.start_group + ZeroOrMore(p.token)("group") + p.end_group)
+        p.group <<= p.start_group + ZeroOrMore(p.token)("group") + p.end_group
 
-        p.simple_group   <<= "{" + ZeroOrMore(p.token)("group") + "}"
+        p.optional_group <<= "{" + ZeroOrMore(p.token)("group") + "}"
         p.required_group <<= "{" + OneOrMore(p.token)("group") + "}"
 
-        p.frac          <<= r"\frac" - (
-            p.required_group("num") + p.required_group("den")
-            | Error(r"Expected \frac{num}{den}"))
-        p.dfrac         <<= r"\dfrac" - (
-            p.required_group("num") + p.required_group("den")
-            | Error(r"Expected \dfrac{num}{den}"))
-        p.binom         <<= r"\binom" - (
-            p.required_group("num") + p.required_group("den")
-            | Error(r"Expected \binom{num}{den}"))
+        p.frac  <<= cmd(
+            r"\frac", p.required_group("num") + p.required_group("den"))
+        p.dfrac <<= cmd(
+            r"\dfrac", p.required_group("num") + p.required_group("den"))
+        p.binom <<= cmd(
+            r"\binom", p.required_group("num") + p.required_group("den"))
 
-        p.genfrac <<= r"\genfrac" - (
-            "{" + Optional(p.ambi_delim | p.left_delim)("ldelim") + "}"
-            + "{" + Optional(p.ambi_delim | p.right_delim)("rdelim") + "}"
+        p.genfrac <<= cmd(
+            r"\genfrac",
+            "{" + Optional(p.delim)("ldelim") + "}"
+            + "{" + Optional(p.delim)("rdelim") + "}"
             + "{" + p.float_literal("rulesize") + "}"
-            + p.simple_group("style")
+            + p.optional_group("style")
             + p.required_group("num")
-            + p.required_group("den")
-            | Error("Expected "
-                    r"\genfrac{ldelim}{rdelim}{rulesize}{style}{num}{den}"))
+            + p.required_group("den"))
 
-        p.sqrt <<= r"\sqrt" - (
+        p.sqrt <<= cmd(
+            r"\sqrt{value}",
             Optional("[" + OneOrMore(NotAny("]") + p.token)("root") + "]")
-            + p.required_group("value")
-            | Error(r"Expected \sqrt{value}"))
+            + p.required_group("value"))
 
-        p.overline <<= r"\overline" - (
-            p.required_group("body")
-            | Error(r"Expected \overline{value}"))
+        p.overline <<= cmd(r"\overline", p.required_group("body"))
 
-        p.overset  <<= r"\overset" - (
-            p.simple_group("annotation") + p.simple_group("body")
-            | Error(r"Expected \overset{annotation}{body}"))
-        p.underset <<= r"\underset" - (
-            p.simple_group("annotation") + p.simple_group("body")
-            | Error(r"Expected \underset{annotation}{body}"))
+        p.overset  <<= cmd(
+            r"\overset",
+            p.optional_group("annotation") + p.optional_group("body"))
+        p.underset <<= cmd(
+            r"\underset",
+            p.optional_group("annotation") + p.optional_group("body"))
 
         p.placeable     <<= (
             p.accentprefixed  # Must be before accent so named symbols that are
@@ -1854,13 +1858,9 @@ class Parser:
         )
 
         p.auto_delim    <<= (
-            r"\left"
-            - ((p.left_delim | p.ambi_delim)("left")
-               | Error("Expected a delimiter"))
+            r"\left" - (p.delim("left") | Error("Expected a delimiter"))
             + ZeroOrMore(p.simple | p.auto_delim)("mid")
-            + r"\right"
-            - ((p.right_delim | p.ambi_delim)("right")
-               | Error("Expected a delimiter"))
+            + r"\right" - (p.delim("right") | Error("Expected a delimiter"))
         )
 
         # Leaf definitions.
@@ -1874,6 +1874,9 @@ class Parser:
 
         self._expression = p.main
         self._math_expression = p.math
+
+        # To add space to nucleus operators after sub/superscripts
+        self._in_subscript_or_superscript = False
 
     def parse(self, s, fonts_object, fontsize, dpi):
         """
@@ -1893,6 +1896,8 @@ class Parser:
                                         " " * (err.column - 1) + "^",
                                         str(err)])) from err
         self._state_stack = None
+        self._in_subscript_or_superscript = False
+        # prevent operator spacing from leaking into a new expression
         self._em_width_cache = {}
         self._expression.resetCache()
         return result[0]
@@ -1922,7 +1927,7 @@ class Parser:
 
     def non_math(self, s, loc, toks):
         s = toks[0].replace(r'\$', '$')
-        symbols = [Char(c, self.get_state(), math=False) for c in s]
+        symbols = [Char(c, self.get_state()) for c in s]
         hlist = Hlist(symbols)
         # We're going into math now, so set font to 'it'
         self.push_state()
@@ -1969,6 +1974,13 @@ class Parser:
 
     def symbol(self, s, loc, toks):
         c = toks["sym"]
+        if c == "-":
+            # "U+2212 minus sign is the preferred representation of the unary
+            # and binary minus sign rather than the ASCII-derived U+002D
+            # hyphen-minus, because minus sign is unambiguous and because it
+            # is rendered with a more desirable length, usually longer than a
+            # hyphen." (https://www.unicode.org/reports/tr25/)
+            c = "\N{MINUS SIGN}"
         try:
             char = Char(c, self.get_state())
         except ValueError as err:
@@ -1982,7 +1994,7 @@ class Parser:
             # Binary operators at start of string should not be spaced
             if (c in self._binary_operators and
                     (len(s[:loc].split()) == 0 or prev_char == '{' or
-                     prev_char in self._left_delim)):
+                     prev_char in self._left_delims)):
                 return [char]
             else:
                 return [Hlist([self._make_space(0.2),
@@ -2087,13 +2099,19 @@ class Parser:
         if isinstance(name, ParseResults):
             next_char_loc += len('operatorname{}')
         next_char = next((c for c in s[next_char_loc:] if c != ' '), '')
-        delimiters = self._left_delim | self._ambi_delim | self._right_delim
-        delimiters |= {'^', '_'}
+        delimiters = self._delims | {'^', '_'}
         if (next_char not in delimiters and
                 name not in self._overunder_functions):
             # Add thin space except when followed by parenthesis, bracket, etc.
             hlist_list += [self._make_space(self._space_widths[r'\,'])]
         self.pop_state()
+        # if followed by a super/subscript, set flag to true
+        # This flag tells subsuper to add space after this operator
+        if next_char in {'^', '_'}:
+            self._in_subscript_or_superscript = True
+        else:
+            self._in_subscript_or_superscript = False
+
         return Hlist(hlist_list)
 
     def start_group(self, s, loc, toks):
@@ -2110,7 +2128,7 @@ class Parser:
     def required_group(self, s, loc, toks):
         return Hlist(toks.get("group", []))
 
-    simple_group = required_group
+    optional_group = required_group
 
     def end_group(self, s, loc, toks):
         self.pop_state()
@@ -2200,9 +2218,9 @@ class Parser:
                 hlist = HCentered([sub])
                 hlist.hpack(width, 'exactly')
                 vlist.extend([Vbox(0, vgap), hlist])
-                shift = hlist.height + vgap
+                shift = hlist.height + vgap + nucleus.depth
             vlist = Vlist(vlist)
-            vlist.shift_amount = shift + nucleus.depth
+            vlist.shift_amount = shift
             result = Hlist([vlist])
             return [result]
 
@@ -2291,8 +2309,15 @@ class Parser:
 
         if not self.is_dropsub(last_char):
             x.width += constants.script_space * xHeight
-        result = Hlist([nucleus, x])
 
+        # Do we need to add a space after the nucleus?
+        # To find out, check the flag set by operatorname
+        spaced_nucleus = [nucleus, x]
+        if self._in_subscript_or_superscript:
+            spaced_nucleus += [self._make_space(self._space_widths[r'\,'])]
+            self._in_subscript_or_superscript = False
+
+        result = Hlist(spaced_nucleus)
         return [result]
 
     def _genfrac(self, ldelim, rdelim, rule, style, num, den):
@@ -2469,4 +2494,7 @@ class Parser:
 
     def auto_delim(self, s, loc, toks):
         return self._auto_sized_delimiter(
-            toks["left"], toks["mid"].asList(), toks["right"])
+            toks["left"],
+            # if "mid" in toks ... can be removed when requiring pyparsing 3.
+            toks["mid"].asList() if "mid" in toks else [],
+            toks["right"])

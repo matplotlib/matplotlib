@@ -39,7 +39,7 @@ its docs for detailed API information.
 * The position of each axes is determined at the drawing time (see
   AxesDivider_), so that the size of the entire grid fits in the
   given rectangle (like the aspect of axes). Note that in this example,
-  the paddings between axes are fixed even if you changes the figure
+  the paddings between axes are fixed even if you change the figure
   size.
 
 * Axes in the same column share their x-axis, and axes in the same row share
@@ -76,8 +76,8 @@ for an Axes::
 `.AxesDivider.append_axes` can then be used to create a new axes on a given
 side ("left", "right", "top", "bottom") of the original axes.
 
-colorbar whose height (or width) in sync with the main axes
------------------------------------------------------------
+colorbar whose height (or width) is in sync with the main axes
+--------------------------------------------------------------
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_colorbar_001.png
    :target: ../../gallery/axes_grid1/simple_colorbar.html
@@ -124,19 +124,19 @@ axes. The location is adjusted in the drawing time, thus it works even
 if the host change its location (e.g., images).
 
 In most cases, you first create a host axes, which provides a few
-method that can be used to create parasite axes. They are *twinx*,
-*twiny* (which are similar to twinx and twiny in the matplotlib) and
-*twin*. *twin* takes an arbitrary transformation that maps between the
-data coordinates of the host axes and the parasite axes.  *draw*
+methods that can be used to create parasite axes. They are ``twinx``,
+``twiny`` (which are similar to ``twinx`` and ``twiny`` in the matplotlib) and
+``twin``. ``twin`` takes an arbitrary transformation that maps between the
+data coordinates of the host axes and the parasite axes. The ``draw``
 method of the parasite axes are never called. Instead, host axes
-collects artists in parasite axes and draw them as if they belong to
+collects artists in parasite axes and draws them as if they belong to
 the host axes, i.e., artists in parasite axes are merged to those of
 the host axes and then drawn according to their zorder.  The host and
 parasite axes modifies some of the axes behavior. For example, color
 cycle for plot lines are shared between host and parasites. Also, the
 legend command in host, creates a legend that includes lines in the
-parasite axes.  To create a host axes, you may use *host_subplot* or
-*host_axes* command.
+parasite axes.  To create a host axes, you may use ``host_subplot`` or
+``host_axes`` command.
 
 Example 1. twinx
 ~~~~~~~~~~~~~~~~
@@ -148,7 +148,7 @@ Example 1. twinx
 Example 2. twin
 ~~~~~~~~~~~~~~~
 
-*twin* without a transform argument assumes that the parasite axes has the
+``twin`` without a transform argument assumes that the parasite axes has the
 same data transform as the host. This can be useful when you want the
 top(or right)-axis to have different tick-locations, tick-labels, or
 tick-formatter for bottom(or left)-axis. ::
@@ -177,7 +177,7 @@ AnchoredArtists
 is anchored to the (axes) bbox, similarly to legends.  These artists derive
 from `.offsetbox.OffsetBox`, and the artist need to be drawn in canvas
 coordinates.  There is limited support for arbitrary transforms.  For example,
-the ellipse in the example below will have width and height in data coordinate.
+the ellipse in the example below will have width and height in data coordinates.
 
 .. figure:: ../../gallery/axes_grid1/images/sphx_glr_simple_anchored_artists_001.png
    :target: ../../gallery/axes_grid1/simple_anchored_artists.html

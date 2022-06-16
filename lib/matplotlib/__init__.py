@@ -164,11 +164,13 @@ def _parse_to_version_info(version_str):
 
 def _get_version():
     """Return the version string used for __version__."""
-    # Only shell out to a git subprocess if really needed, and not on a
-    # shallow clone, such as those used by CI, as the latter would trigger
-    # a warning from setuptools_scm.
+    # Only shell out to a git subprocess if really needed, i.e. when we are in
+    # a matplotlib git repo but not in a shallow clone, such as those used by
+    # CI, as the latter would trigger a warning from setuptools_scm.
     root = Path(__file__).resolve().parents[2]
-    if (root / ".git").exists() and not (root / ".git/shallow").exists():
+    if ((root / ".matplotlib-repo").exists()
+            and (root / ".git").exists()
+            and not (root / ".git/shallow").exists()):
         import setuptools_scm
         return setuptools_scm.get_version(
             root=root,
@@ -434,6 +436,7 @@ def _get_executable_info(name):
         raise ValueError("Unknown executable: {!r}".format(name))
 
 
+@_api.deprecated("3.6", alternative="Vendor the code")
 def checkdep_usetex(s):
     if not s:
         return False
@@ -674,6 +677,11 @@ class RcParams(MutableMapping, dict):
                 plt.switch_backend(rcsetup._auto_backend_sentinel)
 
         return dict.__getitem__(self, key)
+
+    def _get_backend_or_none(self):
+        """Get the requested backend, if any, without triggering resolution."""
+        backend = dict.__getitem__(self, "backend")
+        return None if backend is rcsetup._auto_backend_sentinel else backend
 
     def __repr__(self):
         class_name = self.__class__.__name__
@@ -1126,9 +1134,8 @@ def use(backend, *, force=True):
     matplotlib.get_backend
     """
     name = validate_backend(backend)
-    # we need to use the base-class method here to avoid (prematurely)
-    # resolving the "auto" backend setting
-    if dict.__getitem__(rcParams, 'backend') == name:
+    # don't (prematurely) resolve the "auto" backend setting
+    if rcParams._get_backend_or_none() == name:
         # Nothing to do if the requested backend is already set
         pass
     else:

@@ -33,7 +33,7 @@ The Locator subclasses defined here are:
 `IndexLocator`          Locator for index plots (e.g., where
                         ``x = range(len(y))``).
 `NullLocator`           No ticks.
-`SymmetricalLogLocator` Locator for use with with the symlog norm; works like
+`SymmetricalLogLocator` Locator for use with the symlog norm; works like
                         `LogLocator` for the part outside of the threshold and
                         adds 0 if inside the limits.
 `AsinhLocator`          Locator for use with the asinh norm, attempting to
@@ -354,7 +354,7 @@ class FormatStrFormatter(Formatter):
     It will be applied to the value (not the position) of the tick.
 
     Negative numeric values will use a dash, not a Unicode minus; use mathtext
-    to get a Unicode minus by wrappping the format specifier with $ (e.g.
+    to get a Unicode minus by wrapping the format specifier with $ (e.g.
     "$%g$").
     """
     def __init__(self, fmt):
@@ -1100,12 +1100,11 @@ class LogFormatterMathtext(LogFormatter):
             base = '%s' % b
 
         if abs(fx) < min_exp:
-            s = r'$\mathdefault{%s%g}$' % (sign_string, x)
+            return r'$\mathdefault{%s%g}$' % (sign_string, x)
         elif not is_x_decade:
-            s = self._non_decade_format(sign_string, base, fx, usetex)
+            return self._non_decade_format(sign_string, base, fx, usetex)
         else:
-            s = r'$\mathdefault{%s%s^{%d}}$' % (sign_string, base, fx)
-        return self.fix_minus(s)
+            return r'$\mathdefault{%s%s^{%d}}$' % (sign_string, base, fx)
 
 
 class LogFormatterSciNotation(LogFormatterMathtext):
@@ -1308,7 +1307,7 @@ class LogitFormatter(Formatter):
             s = self._one_minus(self._format_value(1-x, 1-self.locs))
         else:
             s = self._format_value(x, self.locs, sci_notation=False)
-        return r"$\mathdefault{%s}$" % self.fix_minus(s)
+        return r"$\mathdefault{%s}$" % s
 
     def format_data_short(self, value):
         # docstring inherited

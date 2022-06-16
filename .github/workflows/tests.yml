@@ -61,7 +61,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -161,8 +161,8 @@ jobs:
 
           # Install dependencies from PyPI.
           python -m pip install --upgrade $PRE \
-            contourpy>=1.0.1 cycler fonttools kiwisolver numpy packaging pillow pyparsing \
-            python-dateutil setuptools-scm \
+            'contourpy>=1.0.1' cycler fonttools kiwisolver numpy packaging \
+            pillow pyparsing python-dateutil setuptools-scm \
             -r requirements/testing/all.txt \
             ${{ matrix.extra-requirements }}
 
@@ -220,15 +220,6 @@ jobs:
         if: ${{ github.event_name == 'schedule' && matrix.name-suffix != '(Minimum Versions)' }}
         run: |
           python -m pip install -i https://pypi.anaconda.org/scipy-wheels-nightly/simple --upgrade numpy pandas
-
-          # Turn all warnings to errors, except ignore the distutils deprecations and the find_spec warning
-          cat >> pytest.ini << EOF
-          [pytest]
-          filterwarnings =
-              error
-              ignore:.*distutils:DeprecationWarning
-              ignore:DynamicImporter.find_spec\(\) not found; falling back to find_module\(\):ImportWarning
-          EOF
 
       - name: Install Matplotlib
         run: |

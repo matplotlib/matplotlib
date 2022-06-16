@@ -120,6 +120,8 @@ def check_in_list(_values, *, _print_supported_values=True, **kwargs):
     --------
     >>> _api.check_in_list(["foo", "bar"], arg=arg, other_arg=other_arg)
     """
+    if not kwargs:
+        raise TypeError("No argument to check!")
     values = _values
     for key, val in kwargs.items():
         if val not in values:

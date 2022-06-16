@@ -16,4 +16,4 @@ ytick.major.size: 0.0
 
 # colors:
 image.cmap    : Blues
-# axes.prop_cycle: cycler('color', ['FF7F0E', '1F77B4', '2CA02C'])
+axes.prop_cycle: cycler('color', ['1f77b4', '82bbdb', 'ccdff1'])

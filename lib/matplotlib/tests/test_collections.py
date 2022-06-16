@@ -1039,7 +1039,7 @@ def test_color_logic(pcfunc):
     # Define 2 reference "colors" here for multiple use.
     face_default = mcolors.to_rgba_array(pc._get_default_facecolor())
     mapped = pc.get_cmap()(pc.norm((z.ravel())))
-    # Github issue #1302:
+    # GitHub issue #1302:
     assert mcolors.same_color(pc.get_edgecolor(), 'red')
     # Check setting attributes after initialization:
     pc = pcfunc(z)
@@ -1100,12 +1100,12 @@ def test_color_logic(pcfunc):
 
 
 def test_LineCollection_args():
-    with pytest.warns(MatplotlibDeprecationWarning):
-        lc = LineCollection(None, 2.2, 'r', zorder=3, facecolors=[0, 1, 0, 1])
-        assert lc.get_linewidth()[0] == 2.2
-        assert mcolors.same_color(lc.get_edgecolor(), 'r')
-        assert lc.get_zorder() == 3
-        assert mcolors.same_color(lc.get_facecolor(), [[0, 1, 0, 1]])
+    lc = LineCollection(None, linewidth=2.2, edgecolor='r',
+                        zorder=3, facecolors=[0, 1, 0, 1])
+    assert lc.get_linewidth()[0] == 2.2
+    assert mcolors.same_color(lc.get_edgecolor(), 'r')
+    assert lc.get_zorder() == 3
+    assert mcolors.same_color(lc.get_facecolor(), [[0, 1, 0, 1]])
     # To avoid breaking mplot3d, LineCollection internally sets the facecolor
     # kwarg if it has not been specified.  Hence we need the following test
     # for LineCollection._set_default().

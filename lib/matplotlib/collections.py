@@ -303,7 +303,7 @@ class Collection(artist.Artist, cm.ScalarMappable):
                 return bbox
         return transforms.Bbox.null()
 
-    def get_window_extent(self, renderer):
+    def get_window_extent(self, renderer=None):
         # TODO: check to ensure that this does not fail for
         # cases other than scatter plot legend
         return self.get_datalim(transforms.IdentityTransform())
@@ -1377,7 +1377,7 @@ class LineCollection(Collection):
     _edge_default = True
 
     def __init__(self, segments,  # Can be None.
-                 *args,           # Deprecated.
+                 *,
                  zorder=2,        # Collection.zorder is 1
                  **kwargs
                  ):
@@ -1413,18 +1413,6 @@ class LineCollection(Collection):
         **kwargs
             Forwarded to `.Collection`.
         """
-        argnames = ["linewidths", "colors", "antialiaseds", "linestyles",
-                    "offsets", "transOffset", "norm", "cmap", "pickradius",
-                    "zorder", "facecolors"]
-        if args:
-            argkw = {name: val for name, val in zip(argnames, args)}
-            kwargs.update(argkw)
-            _api.warn_deprecated(
-                "3.4", message="Since %(since)s, passing LineCollection "
-                "arguments other than the first, 'segments', as positional "
-                "arguments is deprecated, and they will become keyword-only "
-                "arguments %(removal)s."
-                )
         # Unfortunately, mplot3d needs this explicit setting of 'facecolors'.
         kwargs.setdefault('facecolors', 'none')
         super().__init__(
@@ -1792,29 +1780,34 @@ class PatchCollection(Collection):
     """
     A generic collection of patches.
 
-    This makes it easier to assign a colormap to a heterogeneous
+    PatchCollection draws faster than a large number of equivalent individual
+    Patches. It also makes it easier to assign a colormap to a heterogeneous
     collection of patches.
-
-    This also may improve plotting speed, since PatchCollection will
-    draw faster than a large number of patches.
     """
 
     def __init__(self, patches, match_original=False, **kwargs):
         """
-        *patches*
-            a sequence of Patch objects.  This list may include
+        Parameters
+        ----------
+        patches : list of `.Patch`
+            A sequence of Patch objects.  This list may include
             a heterogeneous assortment of different patch types.
 
-        *match_original*
+        match_original : bool, default: False
             If True, use the colors and linewidths of the original
             patches.  If False, new colors may be assigned by
             providing the standard collection arguments, facecolor,
             edgecolor, linewidths, norm or cmap.
 
-        If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds* are
-        None, they default to their `.rcParams` patch setting, in sequence
-        form.
+        **kwargs
+            All other parameters are forwarded to `.Collection`.
 
+            If any of *edgecolors*, *facecolors*, *linewidths*, *antialiaseds*
+            are None, they default to their `.rcParams` patch setting, in
+            sequence form.
+
+        Notes
+        -----
         The use of `~matplotlib.cm.ScalarMappable` functionality is optional.
         If the `~matplotlib.cm.ScalarMappable` matrix ``_A`` has been set (via
         a call to `~.ScalarMappable.set_array`), at draw time a call to scalar

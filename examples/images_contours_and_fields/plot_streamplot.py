@@ -72,7 +72,7 @@ ax4.set_aspect('equal')
 
 ax5 = fig.add_subplot(gs[2, 1])
 ax5.streamplot(X, Y, U, V, broken_streamlines=False)
-ax5.set_title('Streamplot with with unbroken streamlines')
+ax5.set_title('Streamplot with unbroken streamlines')
 
 plt.tight_layout()
 plt.show()

@@ -47,7 +47,7 @@ math_tests = [
     r"$\arccos((x^i))$",
     r"$\gamma = \frac{x=\frac{6}{8}}{y} \delta$",
     r'$\limsup_{x\to\infty}$',
-    r'$\oint^\infty_0$',
+    None,
     r"$f'\quad f'''(x)\quad ''/\mathrm{yr}$",
     r'$\frac{x_2888}{y}$',
     r"$\sqrt[3]{\frac{X_2}{Y}}=5$",
@@ -116,12 +116,17 @@ math_tests = [
     r'$\left(X\right)_{a}^{b}$',  # github issue 7615
     r'$\dfrac{\$100.00}{y}$',  # github issue #1888
 ]
-# 'Lightweight' tests test only a single fontset (dejavusans, which is the
+# 'svgastext' tests switch svg output to embed text as text (rather than as
+# paths).
+svgastext_math_tests = [
+]
+# 'lightweight' tests test only a single fontset (dejavusans, which is the
 # default) and only png outputs, in order to minimize the size of baseline
 # images.
 lightweight_math_tests = [
     r'$\sqrt[ab]{123}$',  # github issue #8665
     r'$x \overset{f}{\rightarrow} \overset{f}{x} \underset{xx}{ff} \overset{xx}{ff} \underset{f}{x} \underset{f}{\leftarrow} x$',  # github issue #18241
+    r'$\sum x\quad\sum^nx\quad\sum_nx\quad\sum_n^nx\quad\prod x\quad\prod^nx\quad\prod_nx\quad\prod_n^nx$',  # GitHub issue 18085
 ]
 
 digits = "0123456789"
@@ -199,6 +204,24 @@ def test_mathtext_rendering(baseline_images, fontset, index, text):
              horizontalalignment='center', verticalalignment='center')
 
 
+@pytest.mark.parametrize('index, text', enumerate(svgastext_math_tests),
+                         ids=range(len(svgastext_math_tests)))
+@pytest.mark.parametrize(
+    'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
+@pytest.mark.parametrize('baseline_images', ['mathtext0'], indirect=True)
+@image_comparison(
+    baseline_images=None,
+    savefig_kwarg={'metadata': {  # Minimize image size.
+        'Creator': None, 'Date': None, 'Format': None, 'Type': None}})
+def test_mathtext_rendering_svgastext(baseline_images, fontset, index, text):
+    mpl.rcParams['mathtext.fontset'] = fontset
+    mpl.rcParams['svg.fonttype'] = 'none'  # Minimize image size.
+    fig = plt.figure(figsize=(5.25, 0.75))
+    fig.patch.set(visible=False)  # Minimize image size.
+    fig.text(0.5, 0.5, text,
+             horizontalalignment='center', verticalalignment='center')
+
+
 @pytest.mark.parametrize('index, text', enumerate(lightweight_math_tests),
                          ids=range(len(lightweight_math_tests)))
 @pytest.mark.parametrize('fontset', ['dejavusans'])
@@ -233,8 +256,8 @@ def test_fontinfo():
 @pytest.mark.parametrize(
     'math, msg',
     [
-        (r'$\hspace{}$', r'Expected \hspace{n}'),
-        (r'$\hspace{foo}$', r'Expected \hspace{n}'),
+        (r'$\hspace{}$', r'Expected \hspace{space}'),
+        (r'$\hspace{foo}$', r'Expected \hspace{space}'),
         (r'$\frac$', r'Expected \frac{num}{den}'),
         (r'$\frac{}{}$', r'Expected \frac{num}{den}'),
         (r'$\binom$', r'Expected \binom{num}{den}'),
@@ -245,8 +268,8 @@ def test_fontinfo():
          r'Expected \genfrac{ldelim}{rdelim}{rulesize}{style}{num}{den}'),
         (r'$\sqrt$', r'Expected \sqrt{value}'),
         (r'$\sqrt f$', r'Expected \sqrt{value}'),
-        (r'$\overline$', r'Expected \overline{value}'),
-        (r'$\overline{}$', r'Expected \overline{value}'),
+        (r'$\overline$', r'Expected \overline{body}'),
+        (r'$\overline{}$', r'Expected \overline{body}'),
         (r'$\leftF$', r'Expected a delimiter'),
         (r'$\rightF$', r'Unknown symbol: \rightF'),
         (r'$\left(\right$', r'Expected a delimiter'),
@@ -302,24 +325,17 @@ def test_get_unicode_index_exception():
 
 
 def test_single_minus_sign():
-    plt.figure(figsize=(0.3, 0.3))
-    plt.text(0.5, 0.5, '$-$')
-    plt.gca().spines[:].set_visible(False)
-    plt.gca().set_xticks([])
-    plt.gca().set_yticks([])
-
-    buff = io.BytesIO()
-    plt.savefig(buff, format="rgba", dpi=1000)
-    array = np.frombuffer(buff.getvalue(), dtype=np.uint8)
-
-    # If this fails, it would be all white
-    assert not np.all(array == 0xff)
+    fig = plt.figure()
+    fig.text(0.5, 0.5, '$-$')
+    fig.canvas.draw()
+    t = np.asarray(fig.canvas.renderer.buffer_rgba())
+    assert (t != 0xff).any()  # assert that canvas is not all white.
 
 
 @check_figures_equal(extensions=["png"])
 def test_spaces(fig_test, fig_ref):
-    fig_test.subplots().set_title(r"$1\,2\>3\ 4$")
-    fig_ref.subplots().set_title(r"$1\/2\:3~4$")
+    fig_test.text(.5, .5, r"$1\,2\>3\ 4$")
+    fig_ref.text(.5, .5, r"$1\/2\:3~4$")
 
 
 @check_figures_equal(extensions=["png"])
@@ -332,6 +348,7 @@ def test_operator_space(fig_test, fig_ref):
     fig_test.text(0.1, 0.6, r"$\operatorname{op}[6]$")
     fig_test.text(0.1, 0.7, r"$\cos^2$")
     fig_test.text(0.1, 0.8, r"$\log_2$")
+    fig_test.text(0.1, 0.9, r"$\sin^2 \cos$")  # GitHub issue #17852
 
     fig_ref.text(0.1, 0.1, r"$\mathrm{log\,}6$")
     fig_ref.text(0.1, 0.2, r"$\mathrm{log}(6)$")
@@ -341,6 +358,13 @@ def test_operator_space(fig_test, fig_ref):
     fig_ref.text(0.1, 0.6, r"$\mathrm{op}[6]$")
     fig_ref.text(0.1, 0.7, r"$\mathrm{cos}^2$")
     fig_ref.text(0.1, 0.8, r"$\mathrm{log}_2$")
+    fig_ref.text(0.1, 0.9, r"$\mathrm{sin}^2 \mathrm{\,cos}$")
+
+
+@check_figures_equal(extensions=["png"])
+def test_inverted_delimiters(fig_test, fig_ref):
+    fig_test.text(.5, .5, r"$\left)\right($", math_fontfamily="dejavusans")
+    fig_ref.text(.5, .5, r"$)($", math_fontfamily="dejavusans")
 
 
 def test_mathtext_fallback_valid():

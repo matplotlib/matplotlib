@@ -257,7 +257,7 @@ install Matplotlib with other useful Python software is to use the Anaconda_
 Python scientific software collection, which includes Python itself and a
 wide range of libraries; if you need a library that is not available from the
 collection, you can install it yourself using standard methods such as *pip*.
-See the Ananconda web page for installation support.
+See the Anaconda web page for installation support.
 
 .. _system python packages:
     https://github.com/MacPython/wiki/wiki/Which-Python#system-python-and-extra-python-packages

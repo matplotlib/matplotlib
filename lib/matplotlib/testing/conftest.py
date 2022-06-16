@@ -17,7 +17,6 @@ def pytest_configure(config):
          "style: Set alternate Matplotlib style temporarily (deprecated)."),
         ("markers", "baseline_images: Compare output against references."),
         ("markers", "pytz: Tests that require pytz to be installed."),
-        ("markers", "network: Tests that reach out to the network."),
         ("filterwarnings", "error"),
         ("filterwarnings",
          "ignore:.*The py23 module has been deprecated:DeprecationWarning"),
@@ -44,13 +43,13 @@ def mpl_test_settings(request):
 
         backend = None
         backend_marker = request.node.get_closest_marker('backend')
+        prev_backend = matplotlib.get_backend()
         if backend_marker is not None:
             assert len(backend_marker.args) == 1, \
                 "Marker 'backend' must specify 1 backend."
             backend, = backend_marker.args
             skip_on_importerror = backend_marker.kwargs.get(
                 'skip_on_importerror', False)
-            prev_backend = matplotlib.get_backend()
 
             # special case Qt backend importing to avoid conflicts
             if backend.lower().startswith('qt5'):
@@ -87,8 +86,7 @@ def mpl_test_settings(request):
         try:
             yield
         finally:
-            if backend is not None:
-                plt.switch_backend(prev_backend)
+            matplotlib.use(prev_backend)
 
 
 @pytest.fixture

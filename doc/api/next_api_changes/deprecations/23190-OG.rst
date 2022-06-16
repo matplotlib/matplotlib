@@ -1,0 +1,9 @@
+Unused methods in ``Axis``, ``Tick``, ``XAxis``, and ``YAxis``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following methods are no longer used and deprecated without a replacement::
+
+  - ``Axis.get_ticklabel_extents``
+  - ``Tick.get_pad_pixels``
+  - ``XAxis.get_text_heights``
+  - ``YAxis.get_text_widths``

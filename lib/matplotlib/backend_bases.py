@@ -812,12 +812,9 @@ class GraphicsContextBase:
         """
         Return the dash style as an (offset, dash-list) pair.
 
-        The dash list is a even-length list that gives the ink on, ink off in
-        points.  See p. 107 of to PostScript `blue book`_ for more info.
+        See `.set_dashes` for details.
 
         Default value is (None, None).
-
-        .. _blue book: https://www-cdf.fnal.gov/offline/PostScript/BLUEBOOK.PDF
         """
         return self._dashes
 
@@ -908,16 +905,18 @@ class GraphicsContextBase:
         Parameters
         ----------
         dash_offset : float
-            The offset (usually 0).
+            Distance, in points, into the dash pattern at which to
+            start the pattern. It is usually set to 0.
         dash_list : array-like or None
             The on-off sequence as points.  None specifies a solid line. All
             values must otherwise be non-negative (:math:`\\ge 0`).
 
         Notes
         -----
-        See p. 107 of to PostScript `blue book`_ for more info.
-
-        .. _blue book: https://www-cdf.fnal.gov/offline/PostScript/BLUEBOOK.PDF
+        See p. 666 of the PostScript
+        `Language Reference
+        <https://www.adobe.com/jp/print/postscript/pdfs/PLRM.pdf>`_
+        for more info.
         """
         if dash_list is not None:
             dl = np.asarray(dash_list)
@@ -2307,26 +2306,6 @@ class FigureCanvasBase:
         """
         return rcParams['savefig.format']
 
-    @_api.deprecated("3.4", alternative="`.FigureManagerBase.get_window_title`"
-                     " or GUI-specific methods")
-    def get_window_title(self):
-        """
-        Return the title text of the window containing the figure, or None
-        if there is no window (e.g., a PS backend).
-        """
-        if self.manager is not None:
-            return self.manager.get_window_title()
-
-    @_api.deprecated("3.4", alternative="`.FigureManagerBase.set_window_title`"
-                     " or GUI-specific methods")
-    def set_window_title(self, title):
-        """
-        Set the title text of the window containing the figure.  Note that
-        this has no effect if there is no window (e.g., a PS backend).
-        """
-        if self.manager is not None:
-            self.manager.set_window_title(title)
-
     def get_default_filename(self):
         """
         Return a string, which includes extension, suitable for use as
@@ -2815,23 +2794,6 @@ class FigureManagerBase:
 
     def resize(self, w, h):
         """For GUI backends, resize the window (in physical pixels)."""
-
-    @_api.deprecated(
-        "3.4", alternative="self.canvas.callbacks.process(event.name, event)")
-    def key_press(self, event):
-        """
-        Implement the default Matplotlib key bindings defined at
-        :ref:`key-event-handling`.
-        """
-        if rcParams['toolbar'] != 'toolmanager':
-            key_press_handler(event)
-
-    @_api.deprecated(
-        "3.4", alternative="self.canvas.callbacks.process(event.name, event)")
-    def button_press(self, event):
-        """The default Matplotlib button actions for extra mouse buttons."""
-        if rcParams['toolbar'] != 'toolmanager':
-            button_press_handler(event)
 
     def get_window_title(self):
         """
@@ -3515,19 +3477,12 @@ class _Backend:
         if cls.mainloop is None:
             return
         if block is None:
-            # Hack: Are we in IPython's pylab mode?
+            # Hack: Are we in IPython's %pylab mode?  In pylab mode, IPython
+            # (>= 0.10) tacks a _needmain attribute onto pyplot.show (always
+            # set to False).
             from matplotlib import pyplot
-            try:
-                # IPython versions >= 0.10 tack the _needmain attribute onto
-                # pyplot.show, and always set it to False, when in %pylab mode.
-                ipython_pylab = not pyplot.show._needmain
-            except AttributeError:
-                ipython_pylab = False
+            ipython_pylab = hasattr(pyplot.show, "_needmain")
             block = not ipython_pylab and not is_interactive()
-            # TODO: The above is a hack to get the WebAgg backend working with
-            # ipython's `%pylab` mode until proper integration is implemented.
-            if get_backend() == "WebAgg":
-                block = True
         if block:
             cls.mainloop()
 
