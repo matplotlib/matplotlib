@@ -249,15 +249,21 @@ def _datetime_to_pdf(d):
         r += "-%02d'%02d'" % (z // 3600, z % 3600)
     return r
 
+def _get_coordinated_from_angle(x, y, width, height, phi = 0):
+    """
+    Calculate the coordinates of the URL-active area
+    and take an angle of rotation into account.
+    """
+    return (x, y, x + math.cos(phi + math.atan(height / width)), math.sin(phi + math.atan(height / width)))
 
-def _get_link_annotation(gc, x, y, width, height):
+def _get_link_annotation(gc, x, y, width, height, angle = 0):
     """
     Create a link annotation object for embedding URLs.
     """
     link_annotation = {
         'Type': Name('Annot'),
         'Subtype': Name('Link'),
-        'Rect': (x, y, x + width, y + height),
+        'Rect': _get_coordinated_from_angle(x, y, width, height, angle),
         'Border': [0, 0, 0],
         'A': {
             'S': Name('URI'),
@@ -2172,7 +2178,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
         if gc.get_url() is not None:
             self.file._annotations[-1][1].append(_get_link_annotation(
-                gc, x, y, width, height))
+                gc, x, y, width, height, angle))
 
         fonttype = mpl.rcParams['pdf.fonttype']
 
@@ -2229,7 +2235,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
         if gc.get_url() is not None:
             self.file._annotations[-1][1].append(_get_link_annotation(
-                gc, x, y, page.width, page.height))
+                gc, x, y, page.width, page.height, angle))
 
         # Gather font information and do some setup for combining
         # characters into strings. The variable seq will contain a
@@ -2330,7 +2336,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             font.set_text(s)
             width, height = font.get_width_height()
             self.file._annotations[-1][1].append(_get_link_annotation(
-                gc, x, y, width / 64, height / 64))
+                gc, x, y, width / 64, height / 64, angle))
 
         # If fonttype is neither 3 nor 42, emit the whole string at once
         # without manual kerning.
