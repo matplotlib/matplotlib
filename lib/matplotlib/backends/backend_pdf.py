@@ -290,9 +290,8 @@ def _get_link_annotation(gc, x, y, width, height, angle=0):
     link_annotation = {
         'Type': Name('Annot'),
         'Subtype': Name('Link'),
-        'Rect': _get_coordinates_of_block(x, y, width, height, angle),
-        'QuadPoint': _calculate_quad_point_coordinates(x, y, width,
-                                                        height, angle),
+        'Rect': rect,
+        'QuadPoint': quadpoint,
         'Border': [0, 0, 0],
         'A': {
             'S': Name('URI'),
