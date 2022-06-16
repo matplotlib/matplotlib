@@ -268,7 +268,7 @@ def _calculate_quad_point_coordinates(x, y, width, height, angle=0):
 
 def _get_coordinates_of_block(x, y, width, height, angle=0):
     """
-    Get the coordinates of a rectange that contains the URL text.
+    Get the coordinates of a rectangle that contains the URL text.
     This is for use in PDF < v1.6
     """
 
