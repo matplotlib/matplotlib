@@ -249,14 +249,17 @@ def _datetime_to_pdf(d):
         r += "-%02d'%02d'" % (z // 3600, z % 3600)
     return r
 
-def _get_coordinated_from_angle(x, y, width, height, phi = 0):
+
+def _get_coordinated_from_angle(x, y, width, height, angle=0):
     """
     Calculate the coordinates of the URL-active area
     and take an angle of rotation into account.
     """
-    return (x, y, x + math.cos(phi + math.atan(height / width)), math.sin(phi + math.atan(height / width)))
+    return (x, y, x + math.cos(angle + math.atan(height / width)), 
+            math.sin(angle + math.atan(height / width)))
 
-def _get_link_annotation(gc, x, y, width, height, angle = 0):
+
+def _get_link_annotation(gc, x, y, width, height, angle=0):
     """
     Create a link annotation object for embedding URLs.
     """
