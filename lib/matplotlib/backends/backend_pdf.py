@@ -266,17 +266,20 @@ def _calculate_quad_point_coordinates(x, y, width, height, angle=0):
     return ((a, b), (c, d), (e, f))
 
 
-def _get_coordinates_from_angle(x, y, width, height, angle=0):
+def _get_coordinates_of_block(x, y, width, height, angle=0):
     """
-    Calculate the coordinates of the URL-active area
-    and take an angle of rotation into account.
+    Get the coordinates of a rectange that contains the URL text.
+    This is for use in PDF < v1.6
     """
 
-    hypot = math.hypot(width, height)
-    angle = math.radians(angle)
+    vertices = _calculate_quad_point_coordinates(x, y, width,
+                                                    height, angle)
 
-    return (x, y, x + hypot * math.cos(angle + math.atan(height / width)),
-            hypot * math.sin(angle + math.atan(height / width)))
+    min_x = min(vertices[0][0], vertices[1][0], vertices[2][0], vertices[3][0])
+    min_y = min(vertices[0][1], vertices[1][1], vertices[2][1], vertices[3][1])
+    max_x = max(vertices[0][0], vertices[1][0], vertices[2][0], vertices[3][0])
+    max_y = max(vertices[0][1], vertices[1][1], vertices[2][1], vertices[3][1])
+    return (min_x, min_y, max_x, max_y)
 
 
 def _get_link_annotation(gc, x, y, width, height, angle=0):
@@ -286,7 +289,7 @@ def _get_link_annotation(gc, x, y, width, height, angle=0):
     link_annotation = {
         'Type': Name('Annot'),
         'Subtype': Name('Link'),
-        'Rect': _get_coordinates_from_angle(x, y, width, height, angle),
+        'Rect': _get_coordinates_of_block(x, y, width, height, angle),
         'QuadPoint': _calculate_quad_point_coordinates(x, y, width,
                                                         height, angle),
         'Border': [0, 0, 0],
