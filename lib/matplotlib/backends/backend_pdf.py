@@ -250,13 +250,33 @@ def _datetime_to_pdf(d):
     return r
 
 
-def _get_coordinated_from_angle(x, y, width, height, angle=0):
+def _calculate_quad_point_coordinates(x, y, width, height, angle=0):
+    """
+    Uses matrix maths to calculate the coordinates of a
+    rectangle when rotated by angle around x, y
+    """
+
+    angle = math.radians(angle)
+    a = x - x * math.cos(angle) + (height - y) * math.sin(angle)
+    b = y + x * math.sin(angle) + (height - y) * math.cos(angle)
+    c = x + (width - x) * math.cos(angle) + (height - y) * math.sin(angle)
+    d = y - (width - x) * math.sin(angle) + (height - y) * math.cos(angle)
+    e = x + (width - x) * math.cos(angle) - y * math.sin(angle)
+    f = y - (width - x) * math.sin(angle) - y * math.cos(angle)
+    return ((a, b), (c, d), (e, f))
+
+
+def _get_coordinates_from_angle(x, y, width, height, angle=0):
     """
     Calculate the coordinates of the URL-active area
     and take an angle of rotation into account.
     """
-    return (x, y, x + math.cos(angle + math.atan(height / width)), 
-            math.sin(angle + math.atan(height / width)))
+
+    hypot = math.hypot(width, height)
+    angle = math.radians(angle)
+
+    return (x, y, x + hypot * math.cos(angle + math.atan(height / width)),
+            hypot * math.sin(angle + math.atan(height / width)))
 
 
 def _get_link_annotation(gc, x, y, width, height, angle=0):
@@ -266,7 +286,9 @@ def _get_link_annotation(gc, x, y, width, height, angle=0):
     link_annotation = {
         'Type': Name('Annot'),
         'Subtype': Name('Link'),
-        'Rect': _get_coordinated_from_angle(x, y, width, height, angle),
+        'Rect': _get_coordinates_from_angle(x, y, width, height, angle),
+        'QuadPoint': _calculate_quad_point_coordinates(x, y, width,
+                                                        height, angle),
         'Border': [0, 0, 0],
         'A': {
             'S': Name('URI'),
