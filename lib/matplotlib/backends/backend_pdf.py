@@ -257,12 +257,12 @@ def _calculate_quad_point_coordinates(x, y, width, height, angle=0):
     """
 
     angle = math.radians(angle)
-    a = x - x * math.cos(angle) + (height - y) * math.sin(angle)
-    b = y + x * math.sin(angle) + (height - y) * math.cos(angle)
-    c = x + (width - x) * math.cos(angle) + (height - y) * math.sin(angle)
-    d = y - (width - x) * math.sin(angle) + (height - y) * math.cos(angle)
-    e = x + (width - x) * math.cos(angle) - y * math.sin(angle)
-    f = y - (width - x) * math.sin(angle) - y * math.cos(angle)
+    a = x + height * math.sin(angle)
+    b = y + height * math.cos(angle)
+    c = x + width * math.cos(angle) + height * math.sin(angle)
+    d = y - width * math.sin(angle) + height * math.cos(angle)
+    e = x + width * math.cos(angle)
+    f = y - width * math.sin(angle)
     return ((a, b), (c, d), (e, f))
 
 
