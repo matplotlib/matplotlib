@@ -250,6 +250,23 @@ def _datetime_to_pdf(d):
     return r
 
 
+def _get_link_annotation(gc, x, y, width, height):
+    """
+    Create a link annotation object for embedding URLs.
+    """
+    link_annotation = {
+        'Type': Name('Annot'),
+        'Subtype': Name('Link'),
+        'Rect': (x, y, x + width, y + height),
+        'Border': [0, 0, 0],
+        'A': {
+            'S': Name('URI'),
+            'URI': gc.get_url(),
+        },
+    }
+    return link_annotation
+
+
 def pdfRepr(obj):
     """Map Python objects to PDF syntax."""
 
@@ -2154,17 +2171,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             self._text2path.mathtext_parser.parse(s, 72, prop)
 
         if gc.get_url() is not None:
-            link_annotation = {
-                'Type': Name('Annot'),
-                'Subtype': Name('Link'),
-                'Rect': (x, y, x + width, y + height),
-                'Border': [0, 0, 0],
-                'A': {
-                    'S': Name('URI'),
-                    'URI': gc.get_url(),
-                },
-            }
-            self.file._annotations[-1][1].append(link_annotation)
+            self.file._annotations[-1][1].append(_get_link_annotation(
+                gc, x, y, width, height))
 
         fonttype = mpl.rcParams['pdf.fonttype']
 
@@ -2220,17 +2228,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             page, = dvi
 
         if gc.get_url() is not None:
-            link_annotation = {
-                'Type': Name('Annot'),
-                'Subtype': Name('Link'),
-                'Rect': (x, y, x + page.width, y + page.height),
-                'Border': [0, 0, 0],
-                'A': {
-                    'S': Name('URI'),
-                    'URI': gc.get_url(),
-                },
-            }
-            self.file._annotations[-1][1].append(link_annotation)
+            self.file._annotations[-1][1].append(_get_link_annotation(
+                gc, x, y, page.width, page.height))
 
         # Gather font information and do some setup for combining
         # characters into strings. The variable seq will contain a
@@ -2330,17 +2329,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         if gc.get_url() is not None:
             font.set_text(s)
             width, height = font.get_width_height()
-            link_annotation = {
-                'Type': Name('Annot'),
-                'Subtype': Name('Link'),
-                'Rect': (x, y, x + width / 64, y + height / 64),
-                'Border': [0, 0, 0],
-                'A': {
-                    'S': Name('URI'),
-                    'URI': gc.get_url(),
-                },
-            }
-            self.file._annotations[-1][1].append(link_annotation)
+            self.file._annotations[-1][1].append(_get_link_annotation(
+                gc, x, y, width / 64, height / 64))
 
         # If fonttype is neither 3 nor 42, emit the whole string at once
         # without manual kerning.
