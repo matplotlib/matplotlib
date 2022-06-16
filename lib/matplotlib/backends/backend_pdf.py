@@ -279,7 +279,7 @@ def _get_coordinates_of_block(x, y, width, height, angle=0):
     min_y = min(vertices[0][1], vertices[1][1], vertices[2][1], vertices[3][1])
     max_x = max(vertices[0][0], vertices[1][0], vertices[2][0], vertices[3][0])
     max_y = max(vertices[0][1], vertices[1][1], vertices[2][1], vertices[3][1])
-    return (min_x, min_y, max_x, max_y)
+    return vertices, (min_x, min_y, max_x, max_y)
 
 
 def _get_link_annotation(gc, x, y, width, height, angle=0):
