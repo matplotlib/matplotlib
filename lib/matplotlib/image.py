@@ -902,6 +902,7 @@ class AxesImage(_ImageBase):
     **kwargs : `.Artist` properties
     """
 
+    @_api.make_keyword_only("3.6", name="cmap")
     def __init__(self, ax,
                  cmap=None,
                  norm=None,
@@ -1185,6 +1186,8 @@ class PcolorImage(AxesImage):
     This uses a variation of the original irregular image code,
     and it is used by pcolorfast for the corresponding grid type.
     """
+
+    @_api.make_keyword_only("3.6", name="cmap")
     def __init__(self, ax,
                  x=None,
                  y=None,
@@ -1336,6 +1339,7 @@ class FigureImage(_ImageBase):
 
     _interpolation = 'nearest'
 
+    @_api.make_keyword_only("3.6", name="cmap")
     def __init__(self, fig,
                  cmap=None,
                  norm=None,
@@ -1394,6 +1398,7 @@ class FigureImage(_ImageBase):
 class BboxImage(_ImageBase):
     """The Image class whose size is determined by the given bbox."""
 
+    @_api.make_keyword_only("3.6", name="cmap")
     def __init__(self, bbox,
                  cmap=None,
                  norm=None,
