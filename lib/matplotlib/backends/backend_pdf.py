@@ -275,10 +275,10 @@ def _get_coordinates_of_block(x, y, width, height, angle=0):
     vertices = _calculate_quad_point_coordinates(x, y, width,
                                                     height, angle)
 
-    min_x = min(vertices[0][0], vertices[1][0], vertices[2][0], vertices[3][0])
-    min_y = min(vertices[0][1], vertices[1][1], vertices[2][1], vertices[3][1])
-    max_x = max(vertices[0][0], vertices[1][0], vertices[2][0], vertices[3][0])
-    max_y = max(vertices[0][1], vertices[1][1], vertices[2][1], vertices[3][1])
+    min_x = min(v[0] for v in vertices)
+    min_y = min(v[1] for v in vertices)
+    max_x = max(v[0] for v in vertices)
+    max_y = max(v[1] for v in vertices)
     return vertices, (min_x, min_y, max_x, max_y)
 
 
