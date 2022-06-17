@@ -256,13 +256,15 @@ def _calculate_quad_point_coordinates(x, y, width, height, angle=0):
     rectangle when rotated by angle around x, y
     """
 
-    angle = math.radians(angle)
-    a = x + height * math.sin(angle)
-    b = y + height * math.cos(angle)
-    c = x + width * math.cos(angle) + height * math.sin(angle)
-    d = y - width * math.sin(angle) + height * math.cos(angle)
-    e = x + width * math.cos(angle)
-    f = y - width * math.sin(angle)
+    angle = math.radians(-angle)
+    sin_angle = math.sin(angle)
+    cos_angle = math.cos(angle)
+    a = x + height * sin_angle
+    b = y + height * cos_angle
+    c = x + width * cos_angle + height * sin_angle
+    d = y - width * sin_angle + height * cos_angle
+    e = x + width * cos_angle
+    f = y - width * sin_angle
     return ((x, y), (a, b), (c, d), (e, f))
 
 
