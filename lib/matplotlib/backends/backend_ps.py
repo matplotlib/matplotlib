@@ -853,8 +853,8 @@ class FigureCanvasPS(FigureCanvasBase):
             **kwargs):
 
         if dpi is None:  # always use this branch after deprecation elapses.
-            dpi = self.figure.get_dpi()
-        self.figure.set_dpi(72)  # Override the dpi kwarg
+            dpi = self.figure.dpi
+        self.figure.dpi = 72  # Override the dpi kwarg
 
         dsc_comments = {}
         if isinstance(outfile, (str, os.PathLike)):

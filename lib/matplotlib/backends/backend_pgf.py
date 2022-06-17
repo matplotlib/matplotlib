@@ -826,7 +826,7 @@ class FigureCanvasPgf(FigureCanvasBase):
 
         # get figure size in inch
         w, h = self.figure.get_figwidth(), self.figure.get_figheight()
-        dpi = self.figure.get_dpi()
+        dpi = self.figure.dpi
 
         # create pgfpicture environment and write the pgf code
         fh.write(header_text)
