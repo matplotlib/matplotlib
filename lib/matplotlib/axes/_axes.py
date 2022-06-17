@@ -2901,12 +2901,15 @@ class Axes(_AxesBase):
             heads, = args
             locs = np.arange(len(heads))
             args = ()
+        elif isinstance(args[1], str):
+            heads, *args = args
+            locs = np.arange(len(heads))
         else:
             locs, heads, *args = args
-        if args:
+        if len(args) > 1:
             _api.warn_deprecated(
                 "3.5",
-                message="Passing the linefmt parameter positionally is "
+                message="Passing the markerfmt parameter positionally is "
                         "deprecated since Matplotlib %(since)s; the "
                         "parameter will become keyword-only %(removal)s.")
 
