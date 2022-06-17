@@ -247,6 +247,32 @@ def test_text_urls():
                 assert annot.Rect[1] == decimal.Decimal(y) * 72
 
 
+def test_text_rotated_urls():
+    pikepdf = pytest.importorskip('pikepdf')
+
+    test_url = 'https://test_text_urls.matplotlib.org/'
+
+    fig = plt.figure(figsize=(2, 1))
+    text = fig.text(0.1, 0.1, 'test plain 123', rotation=45, url=f'{test_url}')
+    
+    with io.BytesIO() as fd:
+        fig.savefig(fd, format='pdf')
+
+        with pikepdf.Pdf.open(fd) as pdf:
+            annots = pdf.pages[0].Annots
+
+            # Iteration over Annots must occur within the context manager,
+            # otherwise it may fail depending on the pdf structure.
+            annot = next(
+                (a for a in annots if a.A.URI == f'{test_url}'),
+                None)
+            assert annot is not None
+            # Positions in points (72 per inch.) Figure is 2 inches
+            assert annot.QuadPoint[0][0] / 72 / 2 == pytest.approx(decimal.Decimal('0.1'), abs=1e-1)
+            assert annot.QuadPoint[1][0] / 72 / 2 == pytest.approx(decimal.Decimal('0.08'), abs=1e-1)
+            assert annot.Rect[0] == annot.QuadPoint[1][0]
+
+
 @needs_usetex
 def test_text_urls_tex():
     pikepdf = pytest.importorskip('pikepdf')
