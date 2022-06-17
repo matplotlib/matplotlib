@@ -268,8 +268,10 @@ def test_text_rotated_urls():
                 None)
             assert annot is not None
             # Positions in points (72 per inch.) Figure is 2 inches
-            assert annot.QuadPoint[0][0] / 72 / 2 == pytest.approx(decimal.Decimal('0.1'), abs=1e-1)
-            assert annot.QuadPoint[1][0] / 72 / 2 == pytest.approx(decimal.Decimal('0.08'), abs=1e-1)
+            assert annot.QuadPoint[0][0] / 72 / 2 ==  \
+                pytest.approx(decimal.Decimal('0.1'), abs=1e-1)
+            assert annot.QuadPoint[1][0] / 72 / 2 == \
+                pytest.approx(decimal.Decimal('0.08'), abs=1e-1)
             assert annot.Rect[0] == annot.QuadPoint[1][0]
 
 
