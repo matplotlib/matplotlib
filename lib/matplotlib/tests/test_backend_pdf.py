@@ -253,8 +253,8 @@ def test_text_rotated_urls():
     test_url = 'https://test_text_urls.matplotlib.org/'
 
     fig = plt.figure(figsize=(2, 1))
-    text = fig.text(0.1, 0.1, 'test plain 123', rotation=45, url=f'{test_url}')
-    
+    fig.text(0.1, 0.1, 'test plain 123', rotation=45, url=f'{test_url}')
+
     with io.BytesIO() as fd:
         fig.savefig(fd, format='pdf')
 
