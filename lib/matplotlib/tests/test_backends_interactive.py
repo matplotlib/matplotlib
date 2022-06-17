@@ -512,6 +512,10 @@ for param in _blit_backends:
         # copy_from_bbox only works when rendering to an ImageSurface
         param.marks.append(
             pytest.mark.skip("gtk3cairo does not support blitting"))
+    elif backend == "gtk4cairo":
+        # copy_from_bbox only works when rendering to an ImageSurface
+        param.marks.append(
+            pytest.mark.skip("gtk4cairo does not support blitting"))
     elif backend == "wx":
         param.marks.append(
             pytest.mark.skip("wx does not support blitting"))

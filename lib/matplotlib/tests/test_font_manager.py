@@ -310,5 +310,6 @@ def test_get_font_names():
             pass
     available_fonts = sorted(list(set(ttf_fonts)))
     mpl_font_names = sorted(fontManager.get_font_names())
+    assert set(available_fonts) == set(mpl_font_names)
     assert len(available_fonts) == len(mpl_font_names)
     assert available_fonts == mpl_font_names
