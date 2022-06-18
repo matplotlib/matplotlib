@@ -252,8 +252,7 @@ def _datetime_to_pdf(d):
 
 def _calculate_quad_point_coordinates(x, y, width, height, angle=0):
     """
-    Uses matrix maths to calculate the coordinates of a
-    rectangle when rotated by angle around x, y
+    Calculate the coordinates of rectangle when rotated by angle around x, y
     """
 
     angle = math.radians(-angle)
@@ -265,41 +264,51 @@ def _calculate_quad_point_coordinates(x, y, width, height, angle=0):
     d = y - width * sin_angle + height * cos_angle
     e = x + width * cos_angle
     f = y - width * sin_angle
-    return ((x, y), (a, b), (c, d), (e, f))
+    return ((x, y), (e, f), (c, d), (a, b))
 
 
 def _get_coordinates_of_block(x, y, width, height, angle=0):
     """
-    Get the coordinates of a rectangle that contains the URL text.
-    This is for use in PDF < v1.6
+    Get the coordinates of rotated rectangle and rectangle that covers the
+    rotated rectangle.
     """
 
     vertices = _calculate_quad_point_coordinates(x, y, width,
-                                                    height, angle)
+                                                 height, angle)
 
-    min_x = min(v[0] for v in vertices)
-    min_y = min(v[1] for v in vertices)
-    max_x = max(v[0] for v in vertices)
-    max_y = max(v[1] for v in vertices)
-    return vertices, (min_x, min_y, max_x, max_y)
+    # Find min and max values for rectangle
+    # adjust so that QuadPoints is inside Rect
+    # PDF docs says that QuadPoints should be ignored if any point lies
+    # outside Rect, but for Acrobat it is enough that QuadPoints is on the
+    # border of Rect.
+
+    min_x = min(v[0] for v in vertices) - 0.00001
+    min_y = min(v[1] for v in vertices) - 0.00001
+    max_x = max(v[0] for v in vertices) + 0.00001
+    max_y = max(v[1] for v in vertices) + 0.00001
+    return (tuple(itertools.chain.from_iterable(vertices)),
+            (min_x, min_y, max_x, max_y))
 
 
 def _get_link_annotation(gc, x, y, width, height, angle=0):
     """
     Create a link annotation object for embedding URLs.
     """
-    quadpoints, rect = _get_coordinates_of_block(x, y, width, height, angle)
     link_annotation = {
         'Type': Name('Annot'),
         'Subtype': Name('Link'),
-        'Rect': rect,
-        'QuadPoint': quadpoints,
+        'Rect': [x, y, x + width, y + height],
         'Border': [0, 0, 0],
         'A': {
             'S': Name('URI'),
             'URI': gc.get_url(),
         },
     }
+    if angle % 90:
+        # Get QuadPoints and new rect
+        quadpoints, rect = _get_coordinates_of_block(x, y, width,
+                                                     height, angle)
+        link_annotation.update({'Rect': rect, 'QuadPoints': quadpoints})
     return link_annotation
 
 
