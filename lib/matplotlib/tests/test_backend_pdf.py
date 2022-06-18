@@ -243,6 +243,7 @@ def test_text_urls():
                     (a for a in annots if a.A.URI == f'{test_url}{fragment}'),
                     None)
                 assert annot is not None
+                assert getattr(annot, 'QuadPoints', None) is None
                 # Positions in points (72 per inch.)
                 assert annot.Rect[1] == decimal.Decimal(y) * 72
 
@@ -252,8 +253,8 @@ def test_text_rotated_urls():
 
     test_url = 'https://test_text_urls.matplotlib.org/'
 
-    fig = plt.figure(figsize=(2, 1))
-    fig.text(0.1, 0.1, 'test plain 123', rotation=45, url=f'{test_url}')
+    fig = plt.figure(figsize=(1, 1))
+    fig.text(0.1, 0.1, 'N', rotation=45, url=f'{test_url}')
 
     with io.BytesIO() as fd:
         fig.savefig(fd, format='pdf')
@@ -267,12 +268,9 @@ def test_text_rotated_urls():
                 (a for a in annots if a.A.URI == f'{test_url}'),
                 None)
             assert annot is not None
-            # Positions in points (72 per inch.) Figure is 2 inches
-            assert annot.QuadPoint[0][0] / 72 / 2 ==  \
-                pytest.approx(decimal.Decimal('0.1'), abs=1e-1)
-            assert annot.QuadPoint[1][0] / 72 / 2 == \
-                pytest.approx(decimal.Decimal('0.08'), abs=1e-1)
-            assert annot.Rect[0] == annot.QuadPoint[1][0]
+            assert getattr(annot, 'QuadPoints', None) is not None
+            # Positions in points (72 per inch)
+            assert annot.Rect[0] == annot.QuadPoints[6] - decimal.Decimal('0.00001')
 
 
 @needs_usetex
