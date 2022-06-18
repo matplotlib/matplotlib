@@ -307,10 +307,8 @@ def _get_link_annotation(gc, x, y, width, height, angle=0):
         },
     }
     if angle % 90:
-        # Get QuadPoints and new rect
-        quadpoints, rect = _get_coordinates_of_block(x, y, width,
-                                                     height, angle)
-        link_annotation.update({'Rect': rect, 'QuadPoints': quadpoints})
+        # Add QuadPoints
+        link_annotation['QuadPoints'] = quadpoints
     return link_annotation
 
 
