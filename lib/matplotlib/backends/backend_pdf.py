@@ -299,7 +299,7 @@ def _get_link_annotation(gc, x, y, width, height, angle=0):
     link_annotation = {
         'Type': Name('Annot'),
         'Subtype': Name('Link'),
-        'Rect': [x, y, x + width, y + height],
+        'Rect': rect,
         'Border': [0, 0, 0],
         'A': {
             'S': Name('URI'),
