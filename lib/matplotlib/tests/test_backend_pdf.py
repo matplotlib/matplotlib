@@ -270,7 +270,8 @@ def test_text_rotated_urls():
             assert annot is not None
             assert getattr(annot, 'QuadPoints', None) is not None
             # Positions in points (72 per inch)
-            assert annot.Rect[0] == annot.QuadPoints[6] - decimal.Decimal('0.00001')
+            assert annot.Rect[0] == \
+               annot.QuadPoints[6] - decimal.Decimal('0.00001')
 
 
 @needs_usetex
