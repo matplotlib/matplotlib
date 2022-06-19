@@ -2837,8 +2837,9 @@ def stackplot(
 @_copy_docstring_and_deprecators(Axes.stem)
 def stem(
         *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
-        label=None, use_line_collection=True, orientation='vertical',
-        data=None):
+        label=None,
+        use_line_collection=_api.deprecation._deprecated_parameter,
+        orientation='vertical', data=None):
     return gca().stem(
         *args, linefmt=linefmt, markerfmt=markerfmt, basefmt=basefmt,
         bottom=bottom, label=label,

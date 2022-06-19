@@ -3826,9 +3826,14 @@ def test_stem(use_line_collection):
     fig, ax = plt.subplots()
     # Label is a single space to force a legend to be drawn, but to avoid any
     # text being drawn
-    ax.stem(x, np.cos(x),
-            linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label=' ',
-            use_line_collection=use_line_collection)
+    if use_line_collection:
+        ax.stem(x, np.cos(x),
+                linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label=' ')
+    else:
+        with pytest.warns(match='deprecated'):
+            ax.stem(x, np.cos(x),
+                    linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label=' ',
+                    use_line_collection=False)
     ax.legend()
 
 
@@ -3868,9 +3873,16 @@ def test_stem_orientation(use_line_collection):
     x = np.linspace(0.1, 2*np.pi, 50)
 
     fig, ax = plt.subplots()
-    ax.stem(x, np.cos(x),
-            linefmt='C2-.', markerfmt='kx', basefmt='C1-.',
-            use_line_collection=use_line_collection, orientation='horizontal')
+    if use_line_collection:
+        ax.stem(x, np.cos(x),
+                linefmt='C2-.', markerfmt='kx', basefmt='C1-.',
+                orientation='horizontal')
+    else:
+        with pytest.warns(match='deprecated'):
+            ax.stem(x, np.cos(x),
+                    linefmt='C2-.', markerfmt='kx', basefmt='C1-.',
+                    use_line_collection=False,
+                    orientation='horizontal')
 
 
 @image_comparison(['hist_stacked_stepfilled_alpha'])
