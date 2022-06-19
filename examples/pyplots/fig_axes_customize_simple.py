@@ -28,7 +28,7 @@ for label in ax1.xaxis.get_ticklabels():
 
 for line in ax1.yaxis.get_ticklines():
     # line is a Line2D instance
-    line.set_color('tab:green')
+    line.set_markeredgecolor('tab:green')
     line.set_markersize(25)
     line.set_markeredgewidth(3)
 
@@ -47,7 +47,7 @@ plt.show()
 #    - `matplotlib.text.Text.set_fontsize`
 #    - `matplotlib.text.Text.set_color`
 #    - `matplotlib.lines.Line2D`
-#    - `matplotlib.lines.Line2D.set_color`
+#    - `matplotlib.lines.Line2D.set_markeredgecolor`
 #    - `matplotlib.lines.Line2D.set_markersize`
 #    - `matplotlib.lines.Line2D.set_markeredgewidth`
 #    - `matplotlib.patches.Patch.set_facecolor`
