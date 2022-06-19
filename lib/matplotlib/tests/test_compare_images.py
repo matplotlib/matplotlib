@@ -55,6 +55,8 @@ def test_image_comparison_expect_rms(im1, im2, tol, expect_rms, tmp_path,
     succeed if compare_images succeeds. Otherwise, the test will succeed if
     compare_images fails and returns an RMS error almost equal to this value.
     """
+    # Change the working directory using monkeypatch to use a temporary
+    # test specific directory
     monkeypatch.chdir(tmp_path)
     baseline_dir, result_dir = map(Path, _image_directories(lambda: "dummy"))
     # Copy "test" image to result_dir, so that compare_images writes
