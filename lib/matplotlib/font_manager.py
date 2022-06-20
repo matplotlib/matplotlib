@@ -1502,7 +1502,15 @@ def _read_ttc(ttc_path):
             data = ttc_file.read(size)
             return struct.unpack(fmt, data)
 
-        read(">HHI")  # ttcf tag and version, ignore
+        tag, major, minor = read(">4sHH")  # ttcf tag and version
+        if tag != b'ttcf':
+            _log.warning("Failed to read TTC file, invalid tag: %r", ttc_path)
+            return [], {}, {}
+
+        if major > 2:
+            _log.info("TTC file format version > 2, parsing might fail: %r",
+                      ttc_path)
+
         num_fonts = read(">I")[0]  # Number of fonts
         font_offsets = read(f">{num_fonts:d}I")  # offsets of TTF font
 
@@ -1534,6 +1542,8 @@ def _read_ttc(ttc_path):
             ttc_file.seek(offset)
             table_data[(offset, length)] = ttc_file.read(length)
 
+    _log.debug("Extracted %d tables for %d fonts from TTC file %r",
+               len(table_index), len(ttf_fonts), ttc_path)
     return ttf_fonts, table_index, table_data
 
 
@@ -1570,6 +1580,7 @@ def _dump_ttf(base_name, ttf_fonts, table_index, table_data):
             for table_coord in referenced_tables:
                 data = table_data[table_coord]
                 ttf_file.write(data)
+        _log.info("Created %r from TTC file", out_path)
     return created_paths
 
 
