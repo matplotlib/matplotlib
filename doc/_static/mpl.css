@@ -3,15 +3,6 @@
     --sd-color-primary-highlight: #003c63;
 }
 
-a {
-    color: #11557C;
-    text-decoration: none;
-}
-
-a:hover {
-    color:  #CA7900;
-}
-
 .simple li>p {
     margin: 0;
 }
@@ -93,10 +84,6 @@ img.sphx-glr-multi-img {
 table.property-table th,
 table.property-table td {
     padding: 4px 10px;
-}
-
-.sidebar-cheatsheets, .sidebar-donate {
-    margin: 2.75rem 0;
 }
 
 /* Fix selection of parameter names; remove when fixed in the theme
