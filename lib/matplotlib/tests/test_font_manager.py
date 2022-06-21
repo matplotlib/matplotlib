@@ -15,8 +15,8 @@ from matplotlib.font_manager import (
     findfont, findSystemFonts, FontEntry, FontProperties, fontManager,
     json_dump, json_load, get_font, is_opentype_cff_font,
     MSUserFontDirectories, _get_fontconfig_fonts, ft2font,
-    ttfFontProperty, cbook)
-from matplotlib import pyplot as plt, rc_context
+    ttfFontProperty, cbook, _load_fontmanager)
+from matplotlib import pyplot as plt, rc_context, get_cachedir
 
 has_fclist = shutil.which('fc-list') is not None
 
@@ -297,11 +297,17 @@ def test_fontentry_dataclass_invalid_path():
 
 @pytest.mark.skipif(sys.platform == 'win32', reason='Linux or OS only')
 def test_get_font_names():
+    # Ensure fonts like 'mpltest' are not in cache
+    new_fm = _load_fontmanager(try_read_cache=False)
+    mpl_font_names = sorted(new_fm.get_font_names())
+
     paths_mpl = [cbook._get_data_path('fonts', subdir) for subdir in ['ttf']]
     fonts_mpl = findSystemFonts(paths_mpl, fontext='ttf')
     fonts_system = findSystemFonts(fontext='ttf')
+    # TTF extracted and cached from TTC
+    cached_fonts = findSystemFonts(get_cachedir(), fontext='ttf')
     ttf_fonts = []
-    for path in fonts_mpl + fonts_system:
+    for path in fonts_mpl + fonts_system + cached_fonts:
         try:
             font = ft2font.FT2Font(path)
             prop = ttfFontProperty(font)
@@ -309,6 +315,6 @@ def test_get_font_names():
         except:
             pass
     available_fonts = sorted(list(set(ttf_fonts)))
-    mpl_font_names = sorted(fontManager.get_font_names())
+
     assert len(available_fonts) == len(mpl_font_names)
     assert available_fonts == mpl_font_names
