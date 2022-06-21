@@ -1154,6 +1154,27 @@ def test_pcolormesh():
     ax3.pcolormesh(Qx, Qz, Z, shading="gouraud")
 
 
+@image_comparison(['pcolormesh_small'], extensions=["eps"])
+def test_pcolormesh_small():
+    n = 3
+    x = np.linspace(-1.5, 1.5, n)
+    y = np.linspace(-1.5, 1.5, n*2)
+    X, Y = np.meshgrid(x, y)
+    Qx = np.cos(Y) - np.cos(X)
+    Qz = np.sin(Y) + np.sin(X)
+    Qx = (Qx + 1.1)
+    Z = np.hypot(X, Y) / 5
+    Z = (Z - Z.min()) / Z.ptp()
+    Zm = ma.masked_where(np.abs(Qz) < 0.5 * np.max(Qz), Z)
+
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+    ax1.pcolormesh(Qx, Qz, Zm[:-1, :-1], lw=0.5, edgecolors='k')
+    ax2.pcolormesh(Qx, Qz, Zm[:-1, :-1], lw=2, edgecolors=['b', 'w'])
+    ax3.pcolormesh(Qx, Qz, Zm, shading="gouraud")
+    for ax in fig.axes:
+        ax.set_axis_off()
+
+
 @image_comparison(['pcolormesh_alpha'], extensions=["png", "pdf"],
                   remove_text=True)
 def test_pcolormesh_alpha():
@@ -3833,16 +3854,24 @@ def test_stem(use_line_collection):
 
 
 def test_stem_args():
+    def _assert_equal(stem_container, expected):
+        x, y = map(list, stem_container.markerline.get_data())
+        assert x == expected[0]
+        assert y == expected[1]
+
     fig, ax = plt.subplots()
 
-    x = list(range(10))
-    y = list(range(10))
+    x = [1, 3, 5]
+    y = [9, 8, 7]
 
     # Test the call signatures
-    ax.stem(y)
-    ax.stem(x, y)
-    ax.stem(x, y, linefmt='r--')
-    ax.stem(x, y, linefmt='r--', basefmt='b--')
+    _assert_equal(ax.stem(y), expected=([0, 1, 2], y))
+    _assert_equal(ax.stem(x, y), expected=(x, y))
+    _assert_equal(ax.stem(x, y, linefmt='r--'), expected=(x, y))
+    _assert_equal(ax.stem(x, y, 'r--'), expected=(x, y))
+    _assert_equal(ax.stem(x, y, linefmt='r--', basefmt='b--'), expected=(x, y))
+    _assert_equal(ax.stem(y, linefmt='r--'), expected=([0, 1, 2], y))
+    _assert_equal(ax.stem(y, 'r--'), expected=([0, 1, 2], y))
 
 
 def test_stem_dates():
@@ -7626,7 +7655,7 @@ def test_nan_barlabels():
 
 def test_patch_bounds():  # PR 19078
     fig, ax = plt.subplots()
-    ax.add_patch(mpatches.Wedge((0, -1), 1.05, 60, 120, 0.1))
+    ax.add_patch(mpatches.Wedge((0, -1), 1.05, 60, 120, width=0.1))
     bot = 1.9*np.sin(15*np.pi/180)**2
     np.testing.assert_array_almost_equal_nulp(
         np.array((-0.525, -(bot+0.05), 1.05, bot+0.1)), ax.dataLim.bounds, 16)

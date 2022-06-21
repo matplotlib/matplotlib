@@ -13,7 +13,6 @@ import itertools
 import logging
 import math
 import os
-import re
 import string
 import struct
 import sys
@@ -118,25 +117,6 @@ def _fill(strings, linelen=75):
             currpos = length
     result.append(b' '.join(strings[lasti:]))
     return b'\n'.join(result)
-
-# PDF strings are supposed to be able to include any eight-bit data,
-# except that unbalanced parens and backslashes must be escaped by a
-# backslash. However, sf bug #2708559 shows that the carriage return
-# character may get read as a newline; these characters correspond to
-# \gamma and \Omega in TeX's math font encoding. Escaping them fixes
-# the bug.
-_string_escape_regex = re.compile(br'([\\()\r\n])')
-
-
-def _string_escape(match):
-    m = match.group(0)
-    if m in br'\()':
-        return b'\\' + m
-    elif m == b'\n':
-        return br'\n'
-    elif m == b'\r':
-        return br'\r'
-    assert False
 
 
 def _create_pdf_info_dict(backend, metadata):
@@ -250,6 +230,32 @@ def _datetime_to_pdf(d):
     return r
 
 
+def _get_link_annotation(gc, x, y, width, height):
+    """
+    Create a link annotation object for embedding URLs.
+    """
+    link_annotation = {
+        'Type': Name('Annot'),
+        'Subtype': Name('Link'),
+        'Rect': (x, y, x + width, y + height),
+        'Border': [0, 0, 0],
+        'A': {
+            'S': Name('URI'),
+            'URI': gc.get_url(),
+        },
+    }
+    return link_annotation
+
+
+# PDF strings are supposed to be able to include any eight-bit data, except
+# that unbalanced parens and backslashes must be escaped by a backslash.
+# However, sf bug #2708559 shows that the carriage return character may get
+# read as a newline; these characters correspond to \gamma and \Omega in TeX's
+# math font encoding. Escaping them fixes the bug.
+_str_escapes = str.maketrans({
+    '\\': '\\\\', '(': '\\(', ')': '\\)', '\n': '\\n', '\r': '\\r'})
+
+
 def pdfRepr(obj):
     """Map Python objects to PDF syntax."""
 
@@ -275,22 +281,21 @@ def pdfRepr(obj):
     elif isinstance(obj, (int, np.integer)):
         return b"%d" % obj
 
-    # Unicode strings are encoded in UTF-16BE with byte-order mark.
+    # Non-ASCII Unicode strings are encoded in UTF-16BE with byte-order mark.
     elif isinstance(obj, str):
-        try:
-            # But maybe it's really ASCII?
-            s = obj.encode('ASCII')
-            return pdfRepr(s)
-        except UnicodeEncodeError:
-            s = codecs.BOM_UTF16_BE + obj.encode('UTF-16BE')
-            return pdfRepr(s)
+        return pdfRepr(obj.encode('ascii') if obj.isascii()
+                       else codecs.BOM_UTF16_BE + obj.encode('UTF-16BE'))
 
     # Strings are written in parentheses, with backslashes and parens
     # escaped. Actually balanced parens are allowed, but it is
     # simpler to escape them all. TODO: cut long strings into lines;
     # I believe there is some maximum line length in PDF.
+    # Despite the extra decode/encode, translate is faster than regex.
     elif isinstance(obj, bytes):
-        return b'(' + _string_escape_regex.sub(_string_escape, obj) + b')'
+        return (
+            b'(' +
+            obj.decode('latin-1').translate(_str_escapes).encode('latin-1')
+            + b')')
 
     # Dictionaries. The keys must be PDF names, so if we find strings
     # there, we make Name objects from them. The values may be
@@ -366,7 +371,8 @@ class Reference:
 class Name:
     """PDF name object."""
     __slots__ = ('name',)
-    _regex = re.compile(r'[^!-~]')
+    _hexify = {c: '#%02x' % c
+               for c in {*range(256)} - {*range(ord('!'), ord('~') + 1)}}
 
     def __init__(self, name):
         if isinstance(name, Name):
@@ -374,13 +380,13 @@ class Name:
         else:
             if isinstance(name, bytes):
                 name = name.decode('ascii')
-            self.name = self._regex.sub(Name.hexify, name).encode('ascii')
+            self.name = name.translate(self._hexify).encode('ascii')
 
     def __repr__(self):
         return "<Name %s>" % self.name
 
     def __str__(self):
-        return '/' + str(self.name)
+        return '/' + self.name.decode('ascii')
 
     def __eq__(self, other):
         return isinstance(other, Name) and self.name == other.name
@@ -392,6 +398,7 @@ class Name:
         return hash(self.name)
 
     @staticmethod
+    @_api.deprecated("3.6")
     def hexify(match):
         return '#%02x' % ord(match.group())
 
@@ -2154,17 +2161,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             self._text2path.mathtext_parser.parse(s, 72, prop)
 
         if gc.get_url() is not None:
-            link_annotation = {
-                'Type': Name('Annot'),
-                'Subtype': Name('Link'),
-                'Rect': (x, y, x + width, y + height),
-                'Border': [0, 0, 0],
-                'A': {
-                    'S': Name('URI'),
-                    'URI': gc.get_url(),
-                },
-            }
-            self.file._annotations[-1][1].append(link_annotation)
+            self.file._annotations[-1][1].append(_get_link_annotation(
+                gc, x, y, width, height))
 
         fonttype = mpl.rcParams['pdf.fonttype']
 
@@ -2220,17 +2218,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             page, = dvi
 
         if gc.get_url() is not None:
-            link_annotation = {
-                'Type': Name('Annot'),
-                'Subtype': Name('Link'),
-                'Rect': (x, y, x + page.width, y + page.height),
-                'Border': [0, 0, 0],
-                'A': {
-                    'S': Name('URI'),
-                    'URI': gc.get_url(),
-                },
-            }
-            self.file._annotations[-1][1].append(link_annotation)
+            self.file._annotations[-1][1].append(_get_link_annotation(
+                gc, x, y, page.width, page.height))
 
         # Gather font information and do some setup for combining
         # characters into strings. The variable seq will contain a
@@ -2330,17 +2319,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         if gc.get_url() is not None:
             font.set_text(s)
             width, height = font.get_width_height()
-            link_annotation = {
-                'Type': Name('Annot'),
-                'Subtype': Name('Link'),
-                'Rect': (x, y, x + width / 64, y + height / 64),
-                'Border': [0, 0, 0],
-                'A': {
-                    'S': Name('URI'),
-                    'URI': gc.get_url(),
-                },
-            }
-            self.file._annotations[-1][1].append(link_annotation)
+            self.file._annotations[-1][1].append(_get_link_annotation(
+                gc, x, y, width / 64, height / 64))
 
         # If fonttype is neither 3 nor 42, emit the whole string at once
         # without manual kerning.
@@ -2758,8 +2738,8 @@ class FigureCanvasPdf(FigureCanvasBase):
     def print_pdf(self, filename, *,
                   bbox_inches_restore=None, metadata=None):
 
-        dpi = self.figure.get_dpi()
-        self.figure.set_dpi(72)            # there are 72 pdf points to an inch
+        dpi = self.figure.dpi
+        self.figure.dpi = 72  # there are 72 pdf points to an inch
         width, height = self.figure.get_size_inches()
         if isinstance(filename, PdfPages):
             file = filename._file

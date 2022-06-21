@@ -1,0 +1,10 @@
+Methods to set parameters in ``LogLocator`` and ``LogFormatter*``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In `~.LogFormatter` and derived subclasses, the methods ``base`` and
+``label_minor`` for setting the respective parameter are deprecated and
+replaced by ``set_base`` and ``set_label_minor``, respectively.
+
+In `~.LogLocator`, the methods ``base`` and ``subs`` for setting the
+respective parameter are deprecated. Instead, use
+``set_params(base=..., subs=...)``.

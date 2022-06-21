@@ -590,8 +590,8 @@ def test_invalid_layouts():
 
 @check_figures_equal(extensions=["png", "pdf"])
 def test_add_artist(fig_test, fig_ref):
-    fig_test.set_dpi(100)
-    fig_ref.set_dpi(100)
+    fig_test.dpi = 100
+    fig_ref.dpi = 100
 
     fig_test.subplots()
     l1 = plt.Line2D([.2, .7], [.7, .7], gid='l1')
@@ -1109,6 +1109,16 @@ def test_subfigure_tightbbox():
             8.0)
 
 
+def test_subfigure_dpi():
+    fig = plt.figure(dpi=100)
+    sub_fig = fig.subfigures()
+    assert sub_fig.get_dpi() == fig.get_dpi()
+
+    sub_fig.set_dpi(200)
+    assert sub_fig.get_dpi() == 200
+    assert fig.get_dpi() == 200
+
+
 @image_comparison(['test_subfigure_ss.png'], style='mpl20',
                   savefig_kwarg={'facecolor': 'teal'})
 def test_subfigure_ss():
@@ -1222,10 +1232,10 @@ def test_subfigure_ticks():
     ax2.scatter(x=[-126.5357270050049, 94.68456736755368], y=[1500, 3600])
     ax3 = subfig_bl.add_subplot(gs[0, 3:14], sharey=ax1)
 
-    fig.set_dpi(120)
+    fig.dpi = 120
     fig.draw_without_rendering()
     ticks120 = ax2.get_xticks()
-    fig.set_dpi(300)
+    fig.dpi = 300
     fig.draw_without_rendering()
     ticks300 = ax2.get_xticks()
     np.testing.assert_allclose(ticks120, ticks300)
@@ -1246,6 +1256,16 @@ def test_subfigure_scatter_size():
     for ax in [ax0, axs[0]]:
         ax.scatter([1, 2, 3], [1, 2, 3], s=30, marker='s', color='r')
         ax.scatter([3, 4, 5], [1, 2, 3], s=[20, 30, 40], marker='s', color='g')
+
+
+def test_subfigure_pdf():
+    fig = plt.figure(layout='constrained')
+    sub_fig = fig.subfigures()
+    ax = sub_fig.add_subplot(111)
+    b = ax.bar(1, 1)
+    ax.bar_label(b)
+    buffer = io.BytesIO()
+    fig.savefig(buffer, format='pdf')
 
 
 def test_add_subplot_kwargs():

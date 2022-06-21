@@ -244,6 +244,7 @@ class Tick(martist.Artist):
         self.gridline.set_clip_path(clippath, transform)
         self.stale = True
 
+    @_api.deprecated("3.6")
     def get_pad_pixels(self):
         return self.figure.dpi * self._base_pad / 72
 
@@ -643,6 +644,7 @@ class Axis(martist.Artist):
         return "{}({},{})".format(
             type(self).__name__, *self.axes.transAxes.transform((0, 0)))
 
+    @_api.make_keyword_only("3.6", name="pickradius")
     def __init__(self, axes, pickradius=15):
         """
         Parameters
@@ -1141,6 +1143,7 @@ class Axis(martist.Artist):
             return
         a.set_figure(self.figure)
 
+    @_api.deprecated("3.6")
     def get_ticklabel_extents(self, renderer):
         """Get the extents of the tick labels on either side of the axes."""
         ticks_to_draw = self._update_ticks()
@@ -2253,6 +2256,7 @@ class XAxis(Axis):
             y = top + self.OFFSETTEXTPAD * self.figure.dpi / 72
         self.offsetText.set_position((x, y))
 
+    @_api.deprecated("3.6")
     def get_text_heights(self, renderer):
         """
         Return how much space should be reserved for text above and below the
@@ -2510,6 +2514,7 @@ class YAxis(Axis):
         self.offsetText.set_position((x, y))
         self.stale = True
 
+    @_api.deprecated("3.6")
     def get_text_widths(self, renderer):
         bbox, bbox2 = self.get_ticklabel_extents(renderer)
         # MGDTODO: Need a better way to get the pad

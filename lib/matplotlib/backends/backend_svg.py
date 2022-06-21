@@ -481,14 +481,6 @@ class RendererSVG(RendererBase):
     def _make_flip_transform(self, transform):
         return transform + Affine2D().scale(1, -1).translate(0, self.height)
 
-    def _get_font(self, prop):
-        fname = fm.findfont(prop)
-        font = fm.get_font(fname)
-        font.clear()
-        size = prop.get_size_in_points()
-        font.set_size(size, 72.0)
-        return font
-
     def _get_hatch(self, gc, rgbFace):
         """
         Create a new hatch pattern
@@ -1335,8 +1327,8 @@ class FigureCanvasSVG(FigureCanvasBase):
         with cbook.open_file_cm(filename, "w", encoding="utf-8") as fh:
             if not cbook.file_requires_unicode(fh):
                 fh = codecs.getwriter('utf-8')(fh)
-            dpi = self.figure.get_dpi()
-            self.figure.set_dpi(72)
+            dpi = self.figure.dpi
+            self.figure.dpi = 72
             width, height = self.figure.get_size_inches()
             w, h = width * 72, height * 72
             renderer = MixedModeRenderer(

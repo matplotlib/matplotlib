@@ -128,6 +128,7 @@ class Text(Artist):
     def __repr__(self):
         return "Text(%s, %s, %s)" % (self._x, self._y, repr(self._text))
 
+    @_api.make_keyword_only("3.6", name="color")
     def __init__(self,
                  x=0, y=0, text='',
                  color=None,           # defaults to rc params
@@ -1503,13 +1504,13 @@ class _AnnotationBase:
             ref_x, ref_y = xy0
             if unit == "points":
                 # dots per points
-                dpp = self.figure.get_dpi() / 72.
+                dpp = self.figure.dpi / 72
                 tr = Affine2D().scale(dpp)
             elif unit == "pixels":
                 tr = Affine2D()
             elif unit == "fontsize":
                 fontsize = self.get_size()
-                dpp = fontsize * self.figure.get_dpi() / 72.
+                dpp = fontsize * self.figure.dpi / 72
                 tr = Affine2D().scale(dpp)
             elif unit == "fraction":
                 w, h = bbox0.size
