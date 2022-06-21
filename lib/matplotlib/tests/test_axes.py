@@ -45,6 +45,12 @@ from matplotlib.testing.decorators import (
 #       the tests with multiple threads.
 
 
+@check_figures_equal(extensions=["png"])
+def test_invisible_axes(fig_test, fig_ref):
+    ax = fig_test.subplots()
+    ax.set_visible(False)
+
+
 def test_get_labels():
     fig, ax = plt.subplots()
     ax.set_xlabel('x label')
@@ -7331,7 +7337,7 @@ def test_redraw_in_frame():
     ax.redraw_in_frame()
 
 
-def test_invisible_axes():
+def test_invisible_axes_events():
     # invisible axes should not respond to events...
     fig, ax = plt.subplots()
     assert fig.canvas.inaxes((200, 200)) is not None

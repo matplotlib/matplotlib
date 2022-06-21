@@ -21,6 +21,12 @@ mpl3d_image_comparison = functools.partial(
     image_comparison, remove_text=True, style='default')
 
 
+@check_figures_equal(extensions=["png"])
+def test_invisible_axes(fig_test, fig_ref):
+    ax = fig_test.subplots(subplot_kw=dict(projection='3d'))
+    ax.set_visible(False)
+
+
 def test_aspect_equal_error():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
