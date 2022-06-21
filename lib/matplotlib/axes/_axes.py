@@ -2804,6 +2804,7 @@ class Axes(_AxesBase):
         return col
 
     @_preprocess_data()
+    @_api.delete_parameter("3.6", "use_line_collection")
     def stem(self, *args, linefmt=None, markerfmt=None, basefmt=None, bottom=0,
              label=None, use_line_collection=True, orientation='vertical'):
         """
@@ -2870,11 +2871,12 @@ class Axes(_AxesBase):
             The label to use for the stems in legends.
 
         use_line_collection : bool, default: True
+            *Deprecated since 3.6*
+
             If ``True``, store and plot the stem lines as a
             `~.collections.LineCollection` instead of individual lines, which
             significantly increases performance.  If ``False``, defaults to the
-            old behavior of using a list of `.Line2D` objects.  This parameter
-            may be deprecated in the future.
+            old behavior of using a list of `.Line2D` objects.
 
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER

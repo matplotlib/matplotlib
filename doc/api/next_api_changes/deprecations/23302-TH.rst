@@ -1,0 +1,4 @@
+``stem(..., use_line_collection=False)``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated with no replacement. This was compatibility fallback to a
+former more inefficient representation of the stem lines.
