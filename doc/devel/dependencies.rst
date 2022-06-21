@@ -198,14 +198,16 @@ Optional:
 - pytest-flake8_ to test coding standards using flake8_
 - pytest-timeout_ to limit runtime in case of stuck tests
 - pytest-xdist_ to run tests in parallel
+- pytest-xvfb_ to run tests without windows popping up (Linux)
 
 .. _pytest: http://doc.pytest.org/en/latest/
 .. _Ghostscript: https://www.ghostscript.com/
 .. _Inkscape: https://inkscape.org
 .. _pytest-cov: https://pytest-cov.readthedocs.io/en/latest/
 .. _pytest-flake8: https://pypi.org/project/pytest-flake8/
-.. _pytest-xdist: https://pypi.org/project/pytest-xdist/
 .. _pytest-timeout: https://pypi.org/project/pytest-timeout/
+.. _pytest-xdist: https://pypi.org/project/pytest-xdist/
+.. _pytest-xvfb: https://pypi.org/project/pytest-xvfb/
 .. _flake8: https://pypi.org/project/flake8/
 
 

@@ -8,4 +8,5 @@ pytest-cov
 pytest-rerunfailures
 pytest-timeout
 pytest-xdist
+pytest-xvfb
 tornado
