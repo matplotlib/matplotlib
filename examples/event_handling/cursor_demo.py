@@ -21,6 +21,8 @@ achieve a similar effect.
 
 __ https://github.com/joferkington/mpldatacursor
 __ https://github.com/anntzer/mplcursors
+
+.. redirect-from:: /gallery/misc/cursor_demo
 """
 
 import matplotlib.pyplot as plt
