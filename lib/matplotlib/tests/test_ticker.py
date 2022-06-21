@@ -585,6 +585,8 @@ class TestScalarFormatter:
 
     use_offset_data = [True, False]
 
+    useMathText_data = [True, False]
+
     #  (sci_type, scilimits, lim, orderOfMag, fewticks)
     scilimits_data = [
         (False, (0, 0), (10.0, 20.0), 0, False),
@@ -643,6 +645,19 @@ class TestScalarFormatter:
         with mpl.rc_context({'axes.formatter.useoffset': use_offset}):
             tmp_form = mticker.ScalarFormatter()
             assert use_offset == tmp_form.get_useOffset()
+            assert tmp_form.offset == 0
+
+    @pytest.mark.parametrize('use_math_text', useMathText_data)
+    def test_useMathText(self, use_math_text):
+        with mpl.rc_context({'axes.formatter.use_mathtext': use_math_text}):
+            tmp_form = mticker.ScalarFormatter()
+            assert use_math_text == tmp_form.get_useMathText()
+
+    def test_set_use_offset_float(self):
+        tmp_form = mticker.ScalarFormatter()
+        tmp_form.set_useOffset(0.5)
+        assert not tmp_form.get_useOffset()
+        assert tmp_form.offset == 0.5
 
     def test_use_locale(self):
         conv = locale.localeconv()
@@ -695,6 +710,8 @@ class TestScalarFormatter:
         sf.axis.set_view_interval(0, 10)
         fmt = sf.format_data_short
         assert fmt(data) == expected
+        assert sf.axis.get_tick_space() == 9
+        assert sf.axis.get_minpos() == 0
 
     def test_mathtext_ticks(self):
         mpl.rcParams.update({
@@ -707,6 +724,11 @@ class TestScalarFormatter:
             fig, ax = plt.subplots()
             ax.set_xticks([-1, 0, 1])
             fig.canvas.draw()
+
+    def test_empty_locs(self):
+        sf = mticker.ScalarFormatter()
+        sf.set_locs([])
+        assert sf(0.5) == ''
 
 
 class FakeAxis:
@@ -1484,7 +1506,7 @@ def test_remove_overlap(remove_overlapping_locs, expected_num):
 def test_bad_locator_subs(sub):
     ll = mticker.LogLocator()
     with pytest.raises(ValueError):
-        ll.subs(sub)
+        ll.set_params(subs=sub)
 
 
 @pytest.mark.parametrize('numticks', [1, 2, 3, 9])
@@ -1495,3 +1517,19 @@ def test_small_range_loglocator(numticks):
     for top in [5, 7, 9, 11, 15, 50, 100, 1000]:
         ticks = ll.tick_values(.5, top)
         assert (np.diff(np.log10(ll.tick_values(6, 150))) == 1).all()
+
+
+def test_NullFormatter():
+    formatter = mticker.NullFormatter()
+    assert formatter(1.0) == ''
+    assert formatter.format_data(1.0) == ''
+    assert formatter.format_data_short(1.0) == ''
+
+
+@pytest.mark.parametrize('formatter', (
+    mticker.FuncFormatter(lambda a: f'val: {a}'),
+    mticker.FixedFormatter(('foo', 'bar'))))
+def test_set_offset_string(formatter):
+    assert formatter.get_offset() == ''
+    formatter.set_offset_string('mpl')
+    assert formatter.get_offset() == 'mpl'
