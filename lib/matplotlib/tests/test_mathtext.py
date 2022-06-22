@@ -119,6 +119,7 @@ math_tests = [
 # 'svgastext' tests switch svg output to embed text as text (rather than as
 # paths).
 svgastext_math_tests = [
+    r'$-$-',
 ]
 # 'lightweight' tests test only a single fontset (dejavusans, which is the
 # default) and only png outputs, in order to minimize the size of baseline
@@ -206,11 +207,10 @@ def test_mathtext_rendering(baseline_images, fontset, index, text):
 
 @pytest.mark.parametrize('index, text', enumerate(svgastext_math_tests),
                          ids=range(len(svgastext_math_tests)))
-@pytest.mark.parametrize(
-    'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
+@pytest.mark.parametrize('fontset', ['cm', 'dejavusans'])
 @pytest.mark.parametrize('baseline_images', ['mathtext0'], indirect=True)
 @image_comparison(
-    baseline_images=None,
+    baseline_images=None, extensions=['svg'],
     savefig_kwarg={'metadata': {  # Minimize image size.
         'Creator': None, 'Date': None, 'Format': None, 'Type': None}})
 def test_mathtext_rendering_svgastext(baseline_images, fontset, index, text):
