@@ -1,9 +1,6 @@
-mpl.rc_context no longer resests the `'backend'` key
+mpl.rc_context no longer resests the value of `rcParams['backend']`
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you want to rest :rc:`backend` after the context, you must use
-`matplotlib.use` to change the backend.  Previously the key would be reset, but
-it would have any of the expected side-effects because internally
-`matplotlib.rc_context` side-steps the custom logic in the
-`~matplotlib.RcParams` class (because we copied the values from ``rcParamms``
-so it does not need to be re-validated.
+`matplotlib.rc_context` did incorrectly reset the value of `rcParams['backend']` if backend
+resolution was triggered in the context. This affected only the value. The actual backend
+was not reset. Now, `matpotlib.rc_context` dose not modify `rcParams['backend']` anymore.
