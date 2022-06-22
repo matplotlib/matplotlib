@@ -1,8 +1,7 @@
 """
 =========
-Pgf Fonts
+PGF fonts
 =========
-
 """
 
 import matplotlib.pyplot as plt

@@ -1,14 +1,15 @@
 """
 ==================
-Ellipse With Units
+Ellipse with units
 ==================
 
-Compare the ellipse generated with arcs versus a polygonal approximation
+Compare the ellipse generated with arcs versus a polygonal approximation.
 
 .. only:: builder_html
 
    This example requires :download:`basic_units.py <basic_units.py>`
 """
+
 from basic_units import cm
 import numpy as np
 from matplotlib import patches

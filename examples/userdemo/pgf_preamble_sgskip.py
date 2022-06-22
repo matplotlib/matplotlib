@@ -1,8 +1,7 @@
 """
 ============
-Pgf Preamble
+PGF preamble
 ============
-
 """
 
 import matplotlib as mpl
