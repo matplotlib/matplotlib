@@ -1,8 +1,7 @@
 """
 =======================
-Matplotlib With Glade 3
+Matplotlib with Glade 3
 =======================
-
 """
 
 from pathlib import Path
