@@ -104,6 +104,19 @@ def test_rectangle_minspan(ax, spancoords, minspanx, x1, minspany, y1):
     assert ax._erelease.ydata == y1
 
 
+def test_deprecation_selector_visible_attribute():
+    ax = get_ax()
+    tool = widgets.RectangleSelector(ax, lambda *args: None)
+
+    assert tool.get_visible()
+
+    with pytest.warns(
+        MatplotlibDeprecationWarning,
+            match="was deprecated in Matplotlib 3.6"):
+        tool.visible = False
+    assert not tool.get_visible()
+
+
 @pytest.mark.parametrize('drag_from_anywhere, new_center',
                          [[True, (60, 75)],
                           [False, (30, 20)]])
@@ -789,18 +802,18 @@ def test_selector_clear_method(ax, selector):
         tool = widgets.RectangleSelector(ax, onselect=noop, interactive=True)
     click_and_drag(tool, start=(10, 10), end=(100, 120))
     assert tool._selection_completed
-    assert tool.visible
+    assert tool.get_visible()
     if selector == 'span':
         assert tool.extents == (10, 100)
 
     tool.clear()
     assert not tool._selection_completed
-    assert not tool.visible
+    assert not tool.get_visible()
 
     # Do another cycle of events to make sure we can
     click_and_drag(tool, start=(10, 10), end=(50, 120))
     assert tool._selection_completed
-    assert tool.visible
+    assert tool.get_visible()
     if selector == 'span':
         assert tool.extents == (10, 50)
 
