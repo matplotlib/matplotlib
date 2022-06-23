@@ -1804,7 +1804,7 @@ class _SelectorWidget(AxesWidget):
                  state_modifier_keys=None, use_data_coordinates=False):
         super().__init__(ax)
 
-        self.visible = True
+        self._visible = True
         self.onselect = onselect
         self.useblit = useblit and self.canvas.supports_blit
         self.connect_default_events()
@@ -2052,16 +2052,32 @@ class _SelectorWidget(AxesWidget):
         """Key release event handler."""
 
     def set_visible(self, visible):
-        """Set the visibility of our artists."""
-        self.visible = visible
+        """Set the visibility of the selector artists."""
+        self._visible = visible
         for artist in self.artists:
             artist.set_visible(visible)
 
+    def get_visible(self):
+        """Get the visibility of the selector artists."""
+        return self._visible
+
+    @property
+    def visible(self):
+        return self.get_visible()
+
+    @visible.setter
+    def visible(self, visible):
+        _api.warn_deprecated("3.6", alternative="set_visible")
+        self.set_visible(visible)
+
     def clear(self):
         """Clear the selection and set the selector ready to make a new one."""
+        self._clear_without_update()
+        self.update()
+
+    def _clear_without_update(self):
         self._selection_completed = False
         self.set_visible(False)
-        self.update()
 
     @property
     def artists(self):
@@ -2266,8 +2282,6 @@ class SpanSelector(_SelectorWidget):
         props['animated'] = self.useblit
 
         self.direction = direction
-
-        self.visible = True
         self._extents_on_press = None
         self.snap_values = snap_values
 
@@ -2405,11 +2419,11 @@ class SpanSelector(_SelectorWidget):
             # when the press event outside the span, we initially set the
             # visibility to False and extents to (v, v)
             # update will be called when setting the extents
-            self.visible = False
+            self._visible = False
             self.extents = v, v
             # We need to set the visibility back, so the span selector will be
             # drawn when necessary (span width > 0)
-            self.visible = True
+            self._visible = True
         else:
             self.set_visible(True)
 
@@ -2598,7 +2612,7 @@ class SpanSelector(_SelectorWidget):
         if self._interactive:
             # Update displayed handles
             self._edge_handles.set_data(self.extents)
-        self.set_visible(self.visible)
+        self.set_visible(self._visible)
         self.update()
 
 
@@ -2912,7 +2926,6 @@ class RectangleSelector(_SelectorWidget):
                          state_modifier_keys=state_modifier_keys,
                          use_data_coordinates=use_data_coordinates)
 
-        self.visible = True
         self._interactive = interactive
         self.drag_from_anywhere = drag_from_anywhere
         self.ignore_event_outside = ignore_event_outside
@@ -2931,14 +2944,14 @@ class RectangleSelector(_SelectorWidget):
                                "%(removal)s."
                                "Use props=dict(visible=False) instead.")
             drawtype = 'line'
-            self.visible = False
+            self._visible = False
 
         if drawtype == 'box':
             if props is None:
                 props = dict(facecolor='red', edgecolor='black',
                              alpha=0.2, fill=True)
             props['animated'] = self.useblit
-            self.visible = props.pop('visible', self.visible)
+            self._visible = props.pop('visible', self._visible)
             self._props = props
             to_draw = self._init_shape(**self._props)
             self.ax.add_patch(to_draw)
@@ -3035,9 +3048,9 @@ class RectangleSelector(_SelectorWidget):
                 self._allow_creation):
             x = event.xdata
             y = event.ydata
-            self.visible = False
+            self._visible = False
             self.extents = x, x, y, y
-            self.visible = True
+            self._visible = True
         else:
             self.set_visible(True)
 
@@ -3082,12 +3095,10 @@ class RectangleSelector(_SelectorWidget):
         # either x or y-direction
         minspanxy = (spanx <= self.minspanx or spany <= self.minspany)
         if (self._drawtype != 'none' and minspanxy):
-            for artist in self.artists:
-                artist.set_visible(False)
             if self._selection_completed:
                 # Call onselect, only when the selection is already existing
                 self.onselect(self._eventpress, self._eventrelease)
-            self._selection_completed = False
+            self._clear_without_update()
         else:
             self.onselect(self._eventpress, self._eventrelease)
             self._selection_completed = True
@@ -3331,7 +3342,7 @@ class RectangleSelector(_SelectorWidget):
             self._corner_handles.set_data(*self.corners)
             self._edge_handles.set_data(*self.edge_centers)
             self._center_handle.set_data(*self.center)
-        self.set_visible(self.visible)
+        self.set_visible(self._visible)
         self.update()
 
     @property
