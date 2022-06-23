@@ -230,20 +230,65 @@ def _datetime_to_pdf(d):
     return r
 
 
-def _get_link_annotation(gc, x, y, width, height):
+def _calculate_quad_point_coordinates(x, y, width, height, angle=0):
+    """
+    Calculate the coordinates of rectangle when rotated by angle around x, y
+    """
+
+    angle = math.radians(-angle)
+    sin_angle = math.sin(angle)
+    cos_angle = math.cos(angle)
+    a = x + height * sin_angle
+    b = y + height * cos_angle
+    c = x + width * cos_angle + height * sin_angle
+    d = y - width * sin_angle + height * cos_angle
+    e = x + width * cos_angle
+    f = y - width * sin_angle
+    return ((x, y), (e, f), (c, d), (a, b))
+
+
+def _get_coordinates_of_block(x, y, width, height, angle=0):
+    """
+    Get the coordinates of rotated rectangle and rectangle that covers the
+    rotated rectangle.
+    """
+
+    vertices = _calculate_quad_point_coordinates(x, y, width,
+                                                 height, angle)
+
+    # Find min and max values for rectangle
+    # adjust so that QuadPoints is inside Rect
+    # PDF docs says that QuadPoints should be ignored if any point lies
+    # outside Rect, but for Acrobat it is enough that QuadPoints is on the
+    # border of Rect.
+
+    pad = 0.00001 if angle % 90 else 0
+    min_x = min(v[0] for v in vertices) - pad
+    min_y = min(v[1] for v in vertices) - pad
+    max_x = max(v[0] for v in vertices) + pad
+    max_y = max(v[1] for v in vertices) + pad
+    return (tuple(itertools.chain.from_iterable(vertices)),
+            (min_x, min_y, max_x, max_y))
+
+
+def _get_link_annotation(gc, x, y, width, height, angle=0):
     """
     Create a link annotation object for embedding URLs.
     """
+    quadpoints, rect = _get_coordinates_of_block(x, y, width, height, angle)
     link_annotation = {
         'Type': Name('Annot'),
         'Subtype': Name('Link'),
-        'Rect': (x, y, x + width, y + height),
+        'Rect': rect,
         'Border': [0, 0, 0],
         'A': {
             'S': Name('URI'),
             'URI': gc.get_url(),
         },
     }
+    if angle % 90:
+        # Add QuadPoints
+        link_annotation['QuadPoints'] = quadpoints
     return link_annotation
 
 
@@ -2162,7 +2207,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
         if gc.get_url() is not None:
             self.file._annotations[-1][1].append(_get_link_annotation(
-                gc, x, y, width, height))
+                gc, x, y, width, height, angle))
 
         fonttype = mpl.rcParams['pdf.fonttype']
 
@@ -2219,7 +2264,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
         if gc.get_url() is not None:
             self.file._annotations[-1][1].append(_get_link_annotation(
-                gc, x, y, page.width, page.height))
+                gc, x, y, page.width, page.height, angle))
 
         # Gather font information and do some setup for combining
         # characters into strings. The variable seq will contain a
@@ -2320,7 +2365,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             font.set_text(s)
             width, height = font.get_width_height()
             self.file._annotations[-1][1].append(_get_link_annotation(
-                gc, x, y, width / 64, height / 64))
+                gc, x, y, width / 64, height / 64, angle))
 
         # If fonttype is neither 3 nor 42, emit the whole string at once
         # without manual kerning.
