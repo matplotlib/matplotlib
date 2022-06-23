@@ -5,7 +5,7 @@ Classes for including text in a figure.
 import functools
 import logging
 import math
-import numbers
+from numbers import Real
 import weakref
 
 import numpy as np
@@ -181,7 +181,7 @@ class Text(Artist):
         self._renderer = None
         if linespacing is None:
             linespacing = 1.2  # Maybe use rcParam later.
-        self._linespacing = linespacing
+        self.set_linespacing(linespacing)
         self.set_rotation_mode(rotation_mode)
         self.update(kwargs)
 
@@ -1000,6 +1000,7 @@ class Text(Artist):
         ----------
         spacing : float (multiple of font size)
         """
+        _api.check_isinstance(Real, spacing=spacing)
         self._linespacing = spacing
         self.stale = True
 
@@ -1186,7 +1187,7 @@ class Text(Artist):
             The rotation angle in degrees in mathematically positive direction
             (counterclockwise). 'horizontal' equals 0, 'vertical' equals 90.
         """
-        if isinstance(s, numbers.Real):
+        if isinstance(s, Real):
             self._rotation = float(s) % 360
         elif cbook._str_equal(s, 'horizontal') or s is None:
             self._rotation = 0.
