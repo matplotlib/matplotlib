@@ -5,7 +5,7 @@ import numpy as np
 
 import pytest
 
-from matplotlib import cbook, cm
+from matplotlib import cm
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
@@ -394,8 +394,20 @@ def test_format_cursor_data_BoundaryNorm():
     fig.suptitle("-1..1 to 0..256 in 0.1")
     norm = mcolors.BoundaryNorm(np.linspace(-1, 1, 20), 256)
     img = ax.imshow(X, cmap='RdBu_r', norm=norm)
-    for v in X.flat:
-        label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.1))
+
+    labels_list = [
+        "[0.9]",
+        "[1.]",
+        "[1.]",
+        "[-1.0]",
+        "[0.0]",
+        "[1.0]",
+        "[0.09]",
+        "[0.009]",
+        "[0.0009]",
+    ]
+    for v, label in zip(X.flat, labels_list):
+        # label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.1))
         assert img.format_cursor_data(v) == label
 
     plt.close()
@@ -406,8 +418,20 @@ def test_format_cursor_data_BoundaryNorm():
     cmap = cm.get_cmap('RdBu_r', 200)
     norm = mcolors.BoundaryNorm(np.linspace(-1, 1, 200), 200)
     img = ax.imshow(X, cmap=cmap, norm=norm)
-    for v in X.flat:
-        label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.01))
+
+    labels_list = [
+        "[0.90]",
+        "[0.99]",
+        "[1.0]",
+        "[-1.00]",
+        "[0.00]",
+        "[1.00]",
+        "[0.09]",
+        "[0.009]",
+        "[0.0009]",
+    ]
+    for v, label in zip(X.flat, labels_list):
+        # label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.01))
         assert img.format_cursor_data(v) == label
 
     plt.close()
@@ -418,29 +442,52 @@ def test_format_cursor_data_BoundaryNorm():
     cmap = cm.get_cmap('RdBu_r', 2000)
     norm = mcolors.BoundaryNorm(np.linspace(-1, 1, 2000), 2000)
     img = ax.imshow(X, cmap=cmap, norm=norm)
-    for v in X.flat:
-        label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.001))
+
+    labels_list = [
+        "[0.900]",
+        "[0.990]",
+        "[0.999]",
+        "[-1.000]",
+        "[0.000]",
+        "[1.000]",
+        "[0.090]",
+        "[0.009]",
+        "[0.0009]",
+    ]
+    for v, label in zip(X.flat, labels_list):
+        # label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.001))
         assert img.format_cursor_data(v) == label
 
     plt.close()
 
-    # out of bounds values for 0..1
-    Y = np.empty((7, 1))
-    Y[0] = -1.0
-    Y[1] = 0.0
-    Y[2] = 0.1
-    Y[3] = 0.5
-    Y[4] = 0.9
-    Y[5] = 1.0
-    Y[6] = 2.0
+    # different testing data set with
+    # out of bounds values for 0..1 range
+    X = np.empty((7, 1))
+    X[0] = -1.0
+    X[1] = 0.0
+    X[2] = 0.1
+    X[3] = 0.5
+    X[4] = 0.9
+    X[5] = 1.0
+    X[6] = 2.0
+
+    labels_list = [
+        "[-1.0]",
+        "[0.0]",
+        "[0.1]",
+        "[0.5]",
+        "[0.9]",
+        "[1.0]",
+        "[2.0]",
+    ]
 
     fig, ax = plt.subplots()
     fig.suptitle("noclip, neither")
     norm = mcolors.BoundaryNorm(
         np.linspace(0, 1, 4, endpoint=True), 256, clip=False, extend='neither')
     img = ax.imshow(X, cmap='RdBu_r', norm=norm)
-    for v in X.flat:
-        label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.33))
+    for v, label in zip(X.flat, labels_list):
+        # label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.33))
         assert img.format_cursor_data(v) == label
 
     plt.close()
@@ -450,8 +497,8 @@ def test_format_cursor_data_BoundaryNorm():
     norm = mcolors.BoundaryNorm(
         np.linspace(0, 1, 4, endpoint=True), 256, clip=False, extend='min')
     img = ax.imshow(X, cmap='RdBu_r', norm=norm)
-    for v in X.flat:
-        label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.33))
+    for v, label in zip(X.flat, labels_list):
+        # label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.33))
         assert img.format_cursor_data(v) == label
 
     plt.close()
@@ -461,8 +508,8 @@ def test_format_cursor_data_BoundaryNorm():
     norm = mcolors.BoundaryNorm(
         np.linspace(0, 1, 4, endpoint=True), 256, clip=False, extend='max')
     img = ax.imshow(X, cmap='RdBu_r', norm=norm)
-    for v in X.flat:
-        label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.33))
+    for v, label in zip(X.flat, labels_list):
+        # label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.33))
         assert img.format_cursor_data(v) == label
 
     plt.close()
@@ -472,8 +519,8 @@ def test_format_cursor_data_BoundaryNorm():
     norm = mcolors.BoundaryNorm(
         np.linspace(0, 1, 4, endpoint=True), 256, clip=False, extend='both')
     img = ax.imshow(X, cmap='RdBu_r', norm=norm)
-    for v in X.flat:
-        label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.33))
+    for v, label in zip(X.flat, labels_list):
+        # label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.33))
         assert img.format_cursor_data(v) == label
 
     plt.close()
@@ -483,8 +530,8 @@ def test_format_cursor_data_BoundaryNorm():
     norm = mcolors.BoundaryNorm(
         np.linspace(0, 1, 4, endpoint=True), 256, clip=True, extend='neither')
     img = ax.imshow(X, cmap='RdBu_r', norm=norm)
-    for v in X.flat:
-        label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.33))
+    for v, label in zip(X.flat, labels_list):
+        # label = "[{:-#.{}g}]".format(v, cbook._g_sig_digits(v, 0.33))
         assert img.format_cursor_data(v) == label
 
     plt.close()
