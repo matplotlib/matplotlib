@@ -1907,14 +1907,9 @@ class Arc(Ellipse):
     """
     An elliptical arc, i.e. a segment of an ellipse.
 
-    Due to internal optimizations, there are certain restrictions on using Arc:
-
-    - The arc cannot be filled.
-
-    - The arc must be used in an `~.axes.Axes` instance. It can not be added
-      directly to a `.Figure` because it is optimized to only render the
-      segments that are inside the axes bounding box with high resolution.
+    Due to internal optimizations, the arc cannot be filled.
     """
+
     def __str__(self):
         pars = (self.center[0], self.center[1], self.width,
                 self.height, self.angle, self.theta1, self.theta2)
@@ -1997,12 +1992,11 @@ class Arc(Ellipse):
         with each visible arc using a fixed number of spline segments
         (8).  The algorithm proceeds as follows:
 
-        1. The points where the ellipse intersects the axes bounding
-           box are located.  (This is done be performing an inverse
-           transformation on the axes bbox such that it is relative
-           to the unit circle -- this makes the intersection
-           calculation much easier than doing rotated ellipse
-           intersection directly).
+        1. The points where the ellipse intersects the axes (or figure)
+           bounding box are located.  (This is done by performing an inverse
+           transformation on the bbox such that it is relative to the unit
+           circle -- this makes the intersection calculation much easier than
+           doing rotated ellipse intersection directly.)
 
            This uses the "line intersecting a circle" algorithm from:
 
@@ -2016,8 +2010,6 @@ class Arc(Ellipse):
            pairs of vertices are drawn using the Bezier arc
            approximation technique implemented in `.Path.arc`.
         """
-        if not hasattr(self, 'axes'):
-            raise RuntimeError('Arcs can only be used in Axes instances')
         if not self.get_visible():
             return
 
@@ -2104,10 +2096,12 @@ class Arc(Ellipse):
                 & (y0e - epsilon < ys) & (ys < y1e + epsilon)
             ]
 
-        # Transforms the axes box_path so that it is relative to the unit
-        # circle in the same way that it is relative to the desired ellipse.
-        box_path_transform = (transforms.BboxTransformTo(self.axes.bbox)
-                              + self.get_transform().inverted())
+        # Transform the axes (or figure) box_path so that it is relative to
+        # the unit circle in the same way that it is relative to the desired
+        # ellipse.
+        box_path_transform = (
+            transforms.BboxTransformTo((self.axes or self.figure).bbox)
+            - self.get_transform())
         box_path = Path.unit_rectangle().transformed(box_path_transform)
 
         thetas = set()
