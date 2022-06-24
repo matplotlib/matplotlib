@@ -1083,13 +1083,14 @@ class Axes(_AxesBase):
         lines._internal_update(kwargs)
 
         if len(y) > 0:
-            minx = min(np.nanmin(xmin), np.nanmin(xmax))
-            maxx = max(np.nanmax(xmin), np.nanmax(xmax))
-            miny = np.nanmin(y)
-            maxy = np.nanmax(y)
-
+            # Extreme values of xmin/xmax/y.  Using masked_verts here handles
+            # the case of y being a masked *object* array (as can be generated
+            # e.g. by errorbar()), which would make nanmin/nanmax stumble.
+            minx = np.nanmin(masked_verts[..., 0])
+            maxx = np.nanmax(masked_verts[..., 0])
+            miny = np.nanmin(masked_verts[..., 1])
+            maxy = np.nanmax(masked_verts[..., 1])
             corners = (minx, miny), (maxx, maxy)
-
             self.update_datalim(corners)
             self._request_autoscale_view()
 
@@ -1162,11 +1163,13 @@ class Axes(_AxesBase):
         lines._internal_update(kwargs)
 
         if len(x) > 0:
-            minx = np.nanmin(x)
-            maxx = np.nanmax(x)
-            miny = min(np.nanmin(ymin), np.nanmin(ymax))
-            maxy = max(np.nanmax(ymin), np.nanmax(ymax))
-
+            # Extreme values of x/ymin/ymax.  Using masked_verts here handles
+            # the case of x being a masked *object* array (as can be generated
+            # e.g. by errorbar()), which would make nanmin/nanmax stumble.
+            minx = np.nanmin(masked_verts[..., 0])
+            maxx = np.nanmax(masked_verts[..., 0])
+            miny = np.nanmin(masked_verts[..., 1])
+            maxy = np.nanmax(masked_verts[..., 1])
             corners = (minx, miny), (maxx, maxy)
             self.update_datalim(corners)
             self._request_autoscale_view()
