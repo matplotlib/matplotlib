@@ -21,7 +21,7 @@ repos:
         exclude_types: [svg]
       - id: mixed-line-ending
       - id: name-tests-test
-        args: ["--django"]
+        args: ["--pytest-test-first"]
       - id: trailing-whitespace
         exclude_types: [svg]
   - repo: https://github.com/pycqa/flake8
