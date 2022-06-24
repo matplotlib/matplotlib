@@ -1322,8 +1322,8 @@ class FigureCanvasSVG(FigureCanvasBase):
             if not cbook.file_requires_unicode(fh):
                 fh = codecs.getwriter('utf-8')(fh)
             if dpi is None:  # always use this branch after deprecation elapses
-                dpi = self.figure.get_dpi()
-            self.figure.set_dpi(72)
+                dpi = self.figure.dpi
+            self.figure.dpi = 72
             width, height = self.figure.get_size_inches()
             w, h = width * 72, height * 72
             renderer = MixedModeRenderer(

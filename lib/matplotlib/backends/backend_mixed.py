@@ -53,7 +53,7 @@ class MixedModeRenderer:
         # the figure dpi before and after the rasterization. Although
         # this looks ugly, I couldn't find a better solution. -JJL
         self.figure = figure
-        self._figdpi = figure.get_dpi()
+        self._figdpi = figure.dpi
 
         self._bbox_inches_restore = bbox_inches_restore
 
@@ -74,7 +74,7 @@ class MixedModeRenderer:
         `stop_rasterizing` is called) will be drawn with the raster backend.
         """
         # change the dpi of the figure temporarily.
-        self.figure.set_dpi(self.dpi)
+        self.figure.dpi = self.dpi
         if self._bbox_inches_restore:  # when tight bbox is used
             r = process_figure_for_rasterizing(self.figure,
                                                self._bbox_inches_restore)
@@ -110,7 +110,7 @@ class MixedModeRenderer:
         self._raster_renderer = None
 
         # restore the figure dpi.
-        self.figure.set_dpi(self._figdpi)
+        self.figure.dpi = self._figdpi
 
         if self._bbox_inches_restore:  # when tight bbox is used
             r = process_figure_for_rasterizing(self.figure,

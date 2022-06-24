@@ -2774,8 +2774,8 @@ class FigureCanvasPdf(FigureCanvasBase):
                   bbox_inches_restore=None, metadata=None):
 
         if dpi is None:  # always use this branch after deprecation elapses.
-            dpi = self.figure.get_dpi()
-        self.figure.set_dpi(72)            # there are 72 pdf points to an inch
+            dpi = self.figure.dpi
+        self.figure.dpi = 72            # there are 72 pdf points to an inch
         width, height = self.figure.get_size_inches()
         if isinstance(filename, PdfPages):
             file = filename._file
