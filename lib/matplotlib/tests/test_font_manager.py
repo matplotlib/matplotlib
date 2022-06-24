@@ -180,7 +180,16 @@ def test_addfont_as_path():
     """Smoke test that addfont() accepts pathlib.Path."""
     font_test_file = 'mpltest.ttf'
     path = Path(__file__).parent / font_test_file
-    fontManager.addfont(path)
+    try:
+        fontManager.addfont(path)
+        added, = [font for font in fontManager.ttflist
+                  if font.fname.endswith(font_test_file)]
+        fontManager.ttflist.remove(added)
+    finally:
+        to_remove = [font for font in fontManager.ttflist
+                     if font.fname.endswith(font_test_file)]
+        for font in to_remove:
+            fontManager.ttflist.remove(font)
 
 
 @pytest.mark.skipif(sys.platform != 'win32', reason='Windows only')
