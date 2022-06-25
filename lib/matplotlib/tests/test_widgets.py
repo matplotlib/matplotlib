@@ -1516,11 +1516,12 @@ def test_polygon_selector_box(ax):
     [(True, True), (True, False), (False, True)],
 )
 def test_MultiCursor(horizOn, vertOn):
-    fig, (ax1, ax2, ax3) = plt.subplots(3, sharex=True)
+    (ax1, ax3) = plt.figure().subplots(2, sharex=True)
+    ax2 = plt.figure().subplots()
 
     # useblit=false to avoid having to draw the figure to cache the renderer
     multi = widgets.MultiCursor(
-        fig.canvas, (ax1, ax2), useblit=False, horizOn=horizOn, vertOn=vertOn
+        None, (ax1, ax2), useblit=False, horizOn=horizOn, vertOn=vertOn
     )
 
     # Only two of the axes should have a line drawn on them.
