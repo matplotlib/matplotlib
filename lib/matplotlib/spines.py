@@ -27,6 +27,7 @@ class Spine(mpatches.Patch):
     `~.Spine.set_patch_line`, `~.Spine.set_patch_circle`, or
     `~.Spine.set_patch_arc` has been called. Line-like is the default.
 
+    For examples see :ref:`spines_examples`.
     """
     def __str__(self):
         return "Spine"
