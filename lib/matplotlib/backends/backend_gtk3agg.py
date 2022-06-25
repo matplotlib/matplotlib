@@ -1,14 +1,10 @@
 import numpy as np
 
-from .. import _api, cbook
-try:
-    from . import backend_cairo
-except ImportError as e:
-    raise ImportError('backend Gtk3Agg requires cairo') from e
+from .. import _api, cbook, transforms
 from . import backend_agg, backend_gtk3
-from .backend_cairo import cairo
 from .backend_gtk3 import Gtk, _BackendGTK3
-from matplotlib import transforms
+
+import cairo  # Presence of cairo is already checked by _backend_gtk.
 
 
 class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
@@ -31,8 +27,6 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
             bbox_queue = [transforms.Bbox([[0, 0], [w, h]])]
         else:
             bbox_queue = self._bbox_queue
-
-        ctx = backend_cairo._to_context(ctx)
 
         for bbox in bbox_queue:
             x = int(bbox.x0)

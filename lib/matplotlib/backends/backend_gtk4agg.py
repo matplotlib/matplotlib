@@ -1,13 +1,10 @@
 import numpy as np
 
 from .. import _api, cbook
-try:
-    from . import backend_cairo
-except ImportError as e:
-    raise ImportError('backend Gtk4Agg requires cairo') from e
 from . import backend_agg, backend_gtk4
-from .backend_cairo import cairo
 from .backend_gtk4 import Gtk, _BackendGTK4
+
+import cairo  # Presence of cairo is already checked by _backend_gtk.
 
 
 class FigureCanvasGTK4Agg(backend_gtk4.FigureCanvasGTK4,
@@ -23,8 +20,6 @@ class FigureCanvasGTK4Agg(backend_gtk4.FigureCanvasGTK4,
             self.get_style_context(), ctx,
             allocation.x, allocation.y,
             allocation.width, allocation.height)
-
-        ctx = backend_cairo._to_context(ctx)
 
         buf = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(
             np.asarray(self.get_renderer().buffer_rgba()))
