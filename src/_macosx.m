@@ -938,7 +938,7 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     // Make it a zero-width box if we don't have enough room
     rect.size.width = fmax(bounds.size.width - rect.origin.x, 0);
     rect.origin.x = bounds.size.width - rect.size.width;
-    NSTextView* messagebox = [[[NSTextView alloc] initWithFrame: rect] autorelease];
+    NSTextView* messagebox = [[NSTextView alloc] initWithFrame: rect];
     messagebox.textContainer.maximumNumberOfLines = 2;
     messagebox.textContainer.lineBreakMode = NSLineBreakByTruncatingTail;
     messagebox.alignment = NSTextAlignmentRight;
