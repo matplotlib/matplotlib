@@ -46,4 +46,20 @@ enum {
 
 const size_t NUM_VERTICES[] = { 1, 1, 1, 2, 3, 1 };
 
+inline int prepare_and_add_type(PyTypeObject *type, PyObject *module)
+{
+    if (PyType_Ready(type)) {
+        return -1;
+    }
+    char const* ptr = strrchr(type->tp_name, '.');
+    if (!ptr) {
+        PyErr_SetString(PyExc_ValueError, "tp_name should be a qualified name");
+        return -1;
+    }
+    if (PyModule_AddObject(module, ptr + 1, (PyObject *)type)) {
+        return -1;
+    }
+    return 0;
+}
+
 #endif
