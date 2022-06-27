@@ -3165,11 +3165,9 @@ class ArrowStyle(_Style):
                                                         mutation_size,
                                                         linewidth)
                 if np.iterable(fillable):
-                    path_list = []
-                    for p in path_mutated:
-                        # Restore the height
-                        path_list.append(
-                            Path(p.vertices * [1, aspect_ratio], p.codes))
+                    # Restore the height
+                    path_list = [Path(p.vertices * [1, aspect_ratio], p.codes)
+                                 for p in path_mutated]
                     return path_list, fillable
                 else:
                     return path_mutated, fillable

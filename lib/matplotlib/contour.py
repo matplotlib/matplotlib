@@ -531,9 +531,7 @@ class ContourLabeler:
             paths.pop(segmin)
 
             # Add paths if not empty or single point
-            for n in nlc:
-                if len(n) > 1:
-                    paths.append(mpath.Path(n))
+            paths.extend([mpath.Path(n) for n in nlc if len(n) > 1])
 
     def pop_label(self, index=-1):
         """Defaults to removing last label, but any index can be supplied"""
