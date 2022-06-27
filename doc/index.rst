@@ -44,7 +44,6 @@ Learning resources
 .. grid:: 1 1 2 2
 
     .. grid-item-card::
-        :class-header: sd-bg-light
         :padding: 2
 
         Tutorials
@@ -56,7 +55,6 @@ Learning resources
         - :doc:`External learning resources <users/resources/index>`
 
     .. grid-item-card::
-        :class-header: sd-bg-light
         :padding: 2
 
         How-tos
@@ -66,7 +64,6 @@ Learning resources
         - :doc:`Matplotlib FAQ <users/faq/index>`
 
     .. grid-item-card::
-        :class-header: sd-bg-light
         :padding: 2
 
         Understand how Matplotlib works
@@ -79,7 +76,6 @@ Learning resources
           material
 
     .. grid-item-card::
-        :class-header: sd-bg-light
         :padding: 2
 
         Reference
