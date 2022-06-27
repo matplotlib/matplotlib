@@ -1,6 +1,8 @@
 :root {
-    --sd-color-primary: #11557C;
-    --sd-color-primary-highlight: #003c63;
+    --pst-color-link: var(--pst-color-primary);
+    --pst-color-link-hover: var(--pst-color-secondary);
+    --sd-color-primary: var(--pst-color-primary);
+    --sd-color-primary-text: var(--pst-color-text-base);
 }
 
 .simple li>p {
