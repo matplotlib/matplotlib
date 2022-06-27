@@ -14,7 +14,7 @@ class FigureFrameWxCairo(FigureFrameWx):
         return FigureCanvasWxCairo(self, -1, fig)
 
 
-class FigureCanvasWxCairo(_FigureCanvasWxBase, FigureCanvasCairo):
+class FigureCanvasWxCairo(FigureCanvasCairo, _FigureCanvasWxBase):
     """
     The FigureCanvas contains the figure and does event handling.
 

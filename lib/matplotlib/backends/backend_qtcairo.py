@@ -5,7 +5,7 @@ from .backend_qt import QtCore, QtGui, _BackendQT, FigureCanvasQT
 from .qt_compat import QT_API, _enum, _setDevicePixelRatio
 
 
-class FigureCanvasQTCairo(FigureCanvasQT, FigureCanvasCairo):
+class FigureCanvasQTCairo(FigureCanvasCairo, FigureCanvasQT):
     def draw(self):
         if hasattr(self._renderer.gc, "ctx"):
             self._renderer.dpi = self.figure.dpi

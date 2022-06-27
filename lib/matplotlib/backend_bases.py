@@ -1633,6 +1633,7 @@ class FigureCanvasBase:
         # We don't want to scale up the figure DPI more than once.
         figure._original_dpi = figure.dpi
         self._device_pixel_ratio = 1
+        super().__init__()  # Typically the GUI widget init (if any).
 
     callbacks = property(lambda self: self.figure._canvas_callbacks)
     button_pick_id = property(lambda self: self.figure._button_pick_id)
@@ -1703,7 +1704,6 @@ class FigureCanvasBase:
     def blit(self, bbox=None):
         """Blit the canvas in bbox (default entire canvas)."""
 
-    @_api.deprecated("3.6", alternative="FigureManagerBase.resize")
     def resize(self, w, h):
         """
         UNUSED: Set the canvas size in pixels.
@@ -1711,6 +1711,13 @@ class FigureCanvasBase:
         Certain backends may implement a similar method internally, but this is
         not a requirement of, nor is it used by, Matplotlib itself.
         """
+        # The entire method is actually deprecated, but we allow pass-through
+        # to a parent class to support e.g. QWidget.resize.
+        if hasattr(super(), "resize"):
+            return super().resize(w, h)
+        else:
+            _api.warn_deprecated("3.6", name="resize", obj_type="method",
+                                 alternative="FigureManagerBase.resize")
 
     def draw_event(self, renderer):
         """Pass a `DrawEvent` to all functions connected to ``draw_event``."""

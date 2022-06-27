@@ -11,8 +11,8 @@ class RendererGTK3Cairo(backend_cairo.RendererCairo):
         self.gc.ctx = backend_cairo._to_context(ctx)
 
 
-class FigureCanvasGTK3Cairo(backend_gtk3.FigureCanvasGTK3,
-                            backend_cairo.FigureCanvasCairo):
+class FigureCanvasGTK3Cairo(backend_cairo.FigureCanvasCairo,
+                            backend_gtk3.FigureCanvasGTK3):
 
     def on_draw_event(self, widget, ctx):
         with (self.toolbar._wait_cursor_for_draw_cm() if self.toolbar
