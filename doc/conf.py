@@ -342,8 +342,8 @@ html_theme_options = {
             else 'devdocs')
     },
     "logo": {"link": "index",
-            "image_light": "images/logo2.svg",
-            "image_dark": "images/logo_dark.svg"},
+             "image_light": "images/logo2.svg",
+             "image_dark": "images/logo_dark.svg"},
     "navbar_end": ["version-switcher", "mpl_icon_links", "theme-switcher"]
 }
 include_analytics = is_release_build
