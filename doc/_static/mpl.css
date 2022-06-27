@@ -51,6 +51,10 @@ does not float with it.
     margin: 5px 2px;
 }
 
+html[data-theme="dark"] .sphx-glr-thumbcontainer {
+    background-color: rgb(63, 63, 63);
+}
+
 /* workaround: the default padding decenters the image inside the frame */
 .sphx-glr-thumbcontainer .figure {
     padding: 0;
