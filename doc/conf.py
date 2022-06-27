@@ -329,7 +329,6 @@ html_theme = "mpl_sphinx_theme"
 html_logo = "_static/logo2.svg"
 html_theme_options = {
     "native_site": True,
-    "logo": {"link": "index"},
     # collapse_navigation in pydata-sphinx-theme is slow, so skipped for local
     # and CI builds https://github.com/pydata/pydata-sphinx-theme/pull/386
     "collapse_navigation": not is_release_build,
@@ -342,7 +341,10 @@ html_theme_options = {
             'stable' if matplotlib.__version_info__.releaselevel == 'final'
             else 'devdocs')
     },
-    "navbar_end": ["version-switcher", "mpl_icon_links"]
+    "logo": {"link": "index",
+            "image_light": "images/logo2.svg",
+            "image_dark": "images/logo_dark.svg"},
+    "navbar_end": ["version-switcher", "mpl_icon_links", "theme-switcher"]
 }
 include_analytics = is_release_build
 if include_analytics:
