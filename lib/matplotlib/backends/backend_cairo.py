@@ -38,22 +38,6 @@ from matplotlib.transforms import Affine2D
 backend_version = cairo.version
 
 
-if cairo.__name__ == "cairocffi":
-    # Convert a pycairo context to a cairocffi one.
-    def _to_context(ctx):
-        if not isinstance(ctx, cairo.Context):
-            ctx = cairo.Context._from_pointer(
-                cairo.ffi.cast(
-                    'cairo_t **',
-                    id(ctx) + object.__basicsize__)[0],
-                incref=True)
-        return ctx
-else:
-    # Pass-through a pycairo context.
-    def _to_context(ctx):
-        return ctx
-
-
 def _append_path(ctx, path, transform, clip=None):
     for points, code in path.iter_segments(
             transform, remove_nans=True, clip=clip):
@@ -545,6 +529,19 @@ class FigureCanvasCairo(FigureCanvasBase):
     print_ps = functools.partialmethod(_save, "ps")
     print_svg = functools.partialmethod(_save, "svg")
     print_svgz = functools.partialmethod(_save, "svgz")
+
+
+@_api.deprecated("3.6")
+class _RendererGTKCairo(RendererCairo):
+    def set_context(self, ctx):
+        if (cairo.__name__ == "cairocffi"
+                and not isinstance(ctx, cairo.Context)):
+            ctx = cairo.Context._from_pointer(
+                cairo.ffi.cast(
+                    'cairo_t **',
+                    id(ctx) + object.__basicsize__)[0],
+                incref=True)
+        self.gc.ctx = ctx
 
 
 @_Backend.export
