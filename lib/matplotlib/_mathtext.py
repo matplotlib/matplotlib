@@ -2000,16 +2000,16 @@ class Parser:
                                self._make_space(0.2)],
                               do_kern=True)]
         elif c in self._punctuation_symbols:
+            prev_char = next((c for c in s[:loc][::-1] if c != ' '), '')
+            next_char = next((c for c in s[loc + 1:] if c != ' '), '')
 
             # Do not space commas between brackets
             if c == ',':
-                prev_char = next((c for c in s[:loc][::-1] if c != ' '), '')
-                next_char = next((c for c in s[loc + 1:] if c != ' '), '')
                 if prev_char == '{' and next_char == '}':
                     return [char]
 
             # Do not space dots as decimal separators
-            if c == '.' and s[loc - 1].isdigit() and s[loc + 1].isdigit():
+            if c == '.' and prev_char.isdigit() and next_char.isdigit():
                 return [char]
             else:
                 return [Hlist([char, self._make_space(0.2)], do_kern=True)]
