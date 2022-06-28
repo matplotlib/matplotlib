@@ -37,7 +37,7 @@ canvas.mpl_connect(
     "key_press_event", lambda event: print(f"you pressed {event.key}"))
 canvas.mpl_connect("key_press_event", key_press_handler)
 
-button_quit = tkinter.Button(master=root, text="Quit", command=root.quit)
+button_quit = tkinter.Button(master=root, text="Quit", command=root.destroy)
 
 
 def update_frequency(new_val):
