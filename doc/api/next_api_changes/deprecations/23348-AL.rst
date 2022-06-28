@@ -1,0 +1,7 @@
+The ``canvas`` and ``background`` attributes of ``MultiCursor``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated with no replacement.
+
+All parameters to ``MultiCursor`` starting from *useblit*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are becoming keyword-only (passing them positionally is deprecated).

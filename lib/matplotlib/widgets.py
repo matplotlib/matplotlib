@@ -1680,8 +1680,8 @@ class MultiCursor(Widget):
 
     Parameters
     ----------
-    canvas : `matplotlib.backend_bases.FigureCanvasBase`
-        The FigureCanvas that contains all the Axes.
+    canvas : object
+        This parameter is entirely unused and only kept for back-compatibility.
 
     axes : list of `matplotlib.axes.Axes`
         The `~.axes.Axes` to attach the cursor to.
@@ -1708,12 +1708,19 @@ class MultiCursor(Widget):
     See :doc:`/gallery/widgets/multicursor`.
     """
 
+    @_api.make_keyword_only("3.6", "useblit")
     def __init__(self, canvas, axes, useblit=True, horizOn=False, vertOn=True,
                  **lineprops):
-        self.canvas = canvas
+        # canvas is stored only to provide the deprecated .canvas attribute;
+        # once it goes away the unused argument won't need to be stored at all.
+        self._canvas = canvas
+
         self.axes = axes
         self.horizOn = horizOn
         self.vertOn = vertOn
+
+        self._canvas_infos = {
+            ax.figure.canvas: {"cids": [], "background": None} for ax in axes}
 
         xmin, xmax = axes[-1].get_xlim()
         ymin, ymax = axes[-1].get_ylim()
@@ -1721,8 +1728,9 @@ class MultiCursor(Widget):
         ymid = 0.5 * (ymin + ymax)
 
         self.visible = True
-        self.useblit = useblit and self.canvas.supports_blit
-        self.background = None
+        self.useblit = (
+            useblit
+            and all(canvas.supports_blit for canvas in self._canvas_infos))
         self.needclear = False
 
         if self.useblit:
@@ -1742,33 +1750,39 @@ class MultiCursor(Widget):
 
         self.connect()
 
+    canvas = _api.deprecate_privatize_attribute("3.6")
+    background = _api.deprecated("3.6")(lambda self: (
+        self._backgrounds[self.axes[0].figure.canvas] if self.axes else None))
+
     def connect(self):
         """Connect events."""
-        self._cidmotion = self.canvas.mpl_connect('motion_notify_event',
-                                                  self.onmove)
-        self._ciddraw = self.canvas.mpl_connect('draw_event', self.clear)
+        for canvas, info in self._canvas_infos.items():
+            info["cids"] = [
+                canvas.mpl_connect('motion_notify_event', self.onmove),
+                canvas.mpl_connect('draw_event', self.clear),
+            ]
 
     def disconnect(self):
         """Disconnect events."""
-        self.canvas.mpl_disconnect(self._cidmotion)
-        self.canvas.mpl_disconnect(self._ciddraw)
+        for canvas, info in self._canvas_infos.items():
+            for cid in info["cids"]:
+                canvas.mpl_disconnect(cid)
+            info["cids"].clear()
 
     def clear(self, event):
         """Clear the cursor."""
         if self.ignore(event):
             return
         if self.useblit:
-            self.background = (
-                self.canvas.copy_from_bbox(self.canvas.figure.bbox))
+            for canvas, info in self._canvas_infos.items():
+                info["background"] = canvas.copy_from_bbox(canvas.figure.bbox)
         for line in self.vlines + self.hlines:
             line.set_visible(False)
 
     def onmove(self, event):
-        if self.ignore(event):
-            return
-        if event.inaxes not in self.axes:
-            return
-        if not self.canvas.widgetlock.available(self):
+        if (self.ignore(event)
+                or event.inaxes not in self.axes
+                or not event.canvas.widgetlock.available(self)):
             return
         self.needclear = True
         if not self.visible:
@@ -1785,17 +1799,20 @@ class MultiCursor(Widget):
 
     def _update(self):
         if self.useblit:
-            if self.background is not None:
-                self.canvas.restore_region(self.background)
+            for canvas, info in self._canvas_infos.items():
+                if info["background"]:
+                    canvas.restore_region(info["background"])
             if self.vertOn:
                 for ax, line in zip(self.axes, self.vlines):
                     ax.draw_artist(line)
             if self.horizOn:
                 for ax, line in zip(self.axes, self.hlines):
                     ax.draw_artist(line)
-            self.canvas.blit()
+            for canvas in self._canvas_infos:
+                canvas.blit()
         else:
-            self.canvas.draw_idle()
+            for canvas in self._canvas_infos:
+                canvas.draw_idle()
 
 
 class _SelectorWidget(AxesWidget):
