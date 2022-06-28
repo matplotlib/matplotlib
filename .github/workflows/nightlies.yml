@@ -63,3 +63,23 @@ jobs:
             --user scipy-wheels-nightly \
             --skip-existing \
             dist/matplotlib-*.whl
+
+      - name: Remove old uploads to save space
+        shell: bash
+        run: |
+          N_LATEST_UPLOADS=5
+
+          # Remove all _but_ the last "${N_LATEST_UPLOADS}" package versions
+          # N.B.: `anaconda show` places the newest packages at the bottom of the output
+          # of the 'Versions' section and package versions are preceded with a '   + '.
+          anaconda show scipy-wheels-nightly/matplotlib &> >(grep '+') | \
+              sed 's/.* + //' | \
+              head --lines "-${N_LATEST_UPLOADS}" > remove-package-versions.txt
+
+          if [ -s remove-package-versions.txt ]; then
+              while LANG=C IFS= read -r package_version ; do
+                  anaconda --token ${{ secrets.ANACONDA_ORG_UPLOAD_TOKEN }} remove \
+                    --force \
+                    "scipy-wheels-nightly/matplotlib/${package_version}"
+              done <remove-package-versions.txt
+          fi
