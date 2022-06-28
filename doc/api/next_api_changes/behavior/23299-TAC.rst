@@ -1,4 +1,4 @@
-mpl.rc_context no longer resets the value of :rc:`backend`
+mpl.rc_context no longer resets the value of ``'backend'``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `matplotlib.rc_context` incorrectly reset the value of :rc:`backend` if backend
