@@ -1,0 +1,6 @@
+mpl.rc_context no longer resets the value of ``'backend'``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`matplotlib.rc_context` incorrectly reset the value of :rc:`backend` if backend
+resolution was triggered in the context. This affected only the value. The actual backend
+was not changed. Now, `matplotlib.rc_context` does not reset  :rc:`backend` anymore.
