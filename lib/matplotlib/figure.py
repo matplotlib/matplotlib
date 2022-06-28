@@ -764,7 +764,8 @@ default: %(va)s
         return ax
 
     def subplots(self, nrows=1, ncols=1, *, sharex=False, sharey=False,
-                 squeeze=True, subplot_kw=None, gridspec_kw=None):
+                 squeeze=True, width_ratios=None, height_ratios=None,
+                 subplot_kw=None, gridspec_kw=None):
         """
         Add a set of subplots to this figure.
 
@@ -806,6 +807,18 @@ default: %(va)s
             - If False, no squeezing at all is done: the returned Axes object
               is always a 2D array containing Axes instances, even if it ends
               up being 1x1.
+
+        width_ratios : array-like of length *ncols*, optional
+            Defines the relative widths of the columns. Each column gets a
+            relative width of ``width_ratios[i] / sum(width_ratios)``.
+            If not given, all columns will have the same width.  Equivalent
+            to ``gridspec_kw={'width_ratios': [...]}``.
+
+        height_ratios : array-like of length *nrows*, optional
+            Defines the relative heights of the rows. Each row gets a
+            relative height of ``height_ratios[i] / sum(height_ratios)``.
+            If not given, all rows will have the same height. Equivalent
+            to ``gridspec_kw={'height_ratios': [...]}``.
 
         subplot_kw : dict, optional
             Dict with keywords passed to the `.Figure.add_subplot` call used to
@@ -871,6 +884,17 @@ default: %(va)s
         """
         if gridspec_kw is None:
             gridspec_kw = {}
+        if height_ratios is not None:
+            if 'height_ratios' in gridspec_kw:
+                raise ValueError("'height_ratios' must not be defined both as "
+                                 "parameter and as key in 'gridspec_kw'")
+            gridspec_kw['height_ratios'] = height_ratios
+        if width_ratios is not None:
+            if 'width_ratios' in gridspec_kw:
+                raise ValueError("'width_ratios' must not be defined both as "
+                                 "parameter and as key in 'gridspec_kw'")
+            gridspec_kw['width_ratios'] = width_ratios
+
         gs = self.add_gridspec(nrows, ncols, figure=self, **gridspec_kw)
         axs = gs.subplots(sharex=sharex, sharey=sharey, squeeze=squeeze,
                           subplot_kw=subplot_kw)
@@ -1683,7 +1707,8 @@ default: %(va)s
             return [list(ln) for ln in layout.strip('\n').split('\n')]
 
     def subplot_mosaic(self, mosaic, *, sharex=False, sharey=False,
-                       subplot_kw=None, gridspec_kw=None, empty_sentinel='.'):
+                       width_ratios=None, height_ratios=None,
+                       empty_sentinel='.', subplot_kw=None, gridspec_kw=None):
         """
         Build a layout of Axes based on ASCII art or nested lists.
 
@@ -1739,6 +1764,18 @@ default: %(va)s
             units behave as for `subplots`.  If False, each subplot's x- or
             y-axis will be independent.
 
+        width_ratios : array-like of length *ncols*, optional
+            Defines the relative widths of the columns. Each column gets a
+            relative width of ``width_ratios[i] / sum(width_ratios)``.
+            If not given, all columns will have the same width.  Equivalent
+            to ``gridspec_kw={'width_ratios': [...]}``.
+
+        height_ratios : array-like of length *nrows*, optional
+            Defines the relative heights of the rows. Each row gets a
+            relative height of ``height_ratios[i] / sum(height_ratios)``.
+            If not given, all rows will have the same height. Equivalent
+            to ``gridspec_kw={'height_ratios': [...]}``.
+
         subplot_kw : dict, optional
             Dictionary with keywords passed to the `.Figure.add_subplot` call
             used to create each subplot.
@@ -1763,6 +1800,17 @@ default: %(va)s
         """
         subplot_kw = subplot_kw or {}
         gridspec_kw = gridspec_kw or {}
+        if height_ratios is not None:
+            if 'height_ratios' in gridspec_kw:
+                raise ValueError("'height_ratios' must not be defined both as "
+                                 "parameter and as key in 'gridspec_kw'")
+            gridspec_kw['height_ratios'] = height_ratios
+        if width_ratios is not None:
+            if 'width_ratios' in gridspec_kw:
+                raise ValueError("'width_ratios' must not be defined both as "
+                                 "parameter and as key in 'gridspec_kw'")
+            gridspec_kw['width_ratios'] = width_ratios
+
         # special-case string input
         if isinstance(mosaic, str):
             mosaic = self._normalize_grid_string(mosaic)

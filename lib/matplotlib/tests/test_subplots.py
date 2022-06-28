@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 import matplotlib.pyplot as plt
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import matplotlib.axes as maxes
 
 
@@ -212,3 +212,42 @@ def test_dont_mutate_kwargs():
 def test_subplot_factory_reapplication():
     assert maxes.subplot_class_factory(maxes.Axes) is maxes.Subplot
     assert maxes.subplot_class_factory(maxes.Subplot) is maxes.Subplot
+
+
+@pytest.mark.parametrize("width_ratios", [None, [1, 3, 2]])
+@pytest.mark.parametrize("height_ratios", [None, [1, 2]])
+@check_figures_equal(extensions=['png'])
+def test_width_and_height_ratios(fig_test, fig_ref,
+                                 height_ratios, width_ratios):
+    fig_test.subplots(2, 3, height_ratios=height_ratios,
+                      width_ratios=width_ratios)
+    fig_ref.subplots(2, 3, gridspec_kw={
+                     'height_ratios': height_ratios,
+                     'width_ratios': width_ratios})
+
+
+@pytest.mark.parametrize("width_ratios", [None, [1, 3, 2]])
+@pytest.mark.parametrize("height_ratios", [None, [1, 2]])
+@check_figures_equal(extensions=['png'])
+def test_width_and_height_ratios_mosaic(fig_test, fig_ref,
+                                        height_ratios, width_ratios):
+    mosaic_spec = [['A', 'B', 'B'], ['A', 'C', 'D']]
+    fig_test.subplot_mosaic(mosaic_spec, height_ratios=height_ratios,
+                            width_ratios=width_ratios)
+    fig_ref.subplot_mosaic(mosaic_spec, gridspec_kw={
+                           'height_ratios': height_ratios,
+                           'width_ratios': width_ratios})
+
+
+@pytest.mark.parametrize('method,args', [
+    ('subplots', (2, 3)),
+    ('subplot_mosaic', ('abc;def', ))
+    ]
+)
+def test_ratio_overlapping_kws(method, args):
+    with pytest.raises(ValueError, match='height_ratios'):
+        getattr(plt, method)(*args, height_ratios=[1, 2],
+                             gridspec_kw={'height_ratios': [1, 2]})
+    with pytest.raises(ValueError, match='width_ratios'):
+        getattr(plt, method)(*args, width_ratios=[1, 2, 3],
+                             gridspec_kw={'width_ratios': [1, 2, 3]})
