@@ -68,7 +68,7 @@ def _mpl_to_gtk_cursor(mpl_cursor):
         _backend_gtk.mpl_to_gtk_cursor_name(mpl_cursor))
 
 
-class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
+class FigureCanvasGTK3(FigureCanvasBase, Gtk.DrawingArea):
     required_interactive_framework = "gtk3"
     _timer_cls = TimerGTK3
     manager_class = _api.classproperty(lambda cls: FigureManagerGTK3)
@@ -85,8 +85,7 @@ class FigureCanvasGTK3(Gtk.DrawingArea, FigureCanvasBase):
                   | Gdk.EventMask.SCROLL_MASK)
 
     def __init__(self, figure=None):
-        FigureCanvasBase.__init__(self, figure)
-        GObject.GObject.__init__(self)
+        super().__init__(figure=figure)
 
         self._idle_draw_id = 0
         self._rubberband_rect = None

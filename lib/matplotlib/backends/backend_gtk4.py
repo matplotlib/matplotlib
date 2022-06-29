@@ -29,7 +29,7 @@ from ._backend_gtk import (
 from ._backend_gtk import backend_version  # noqa: F401 # pylint: disable=W0611
 
 
-class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
+class FigureCanvasGTK4(FigureCanvasBase, Gtk.DrawingArea):
     required_interactive_framework = "gtk4"
     supports_blit = False
     _timer_cls = TimerGTK4
@@ -37,8 +37,8 @@ class FigureCanvasGTK4(Gtk.DrawingArea, FigureCanvasBase):
     _context_is_scaled = False
 
     def __init__(self, figure=None):
-        FigureCanvasBase.__init__(self, figure)
-        GObject.GObject.__init__(self)
+        super().__init__(figure=figure)
+
         self.set_hexpand(True)
         self.set_vexpand(True)
 

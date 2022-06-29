@@ -16,10 +16,6 @@ from .backend_qt import (  # noqa: F401 # pylint: disable=W0611
 
 class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
 
-    def __init__(self, figure=None):
-        # Must pass 'figure' as kwarg to Qt base class.
-        super().__init__(figure=figure)
-
     def paintEvent(self, event):
         """
         Copy the image from the Agg canvas to the qt.drawable.

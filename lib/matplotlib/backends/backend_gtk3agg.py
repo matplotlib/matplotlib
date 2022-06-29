@@ -7,10 +7,10 @@ from .backend_gtk3 import Gtk, _BackendGTK3
 import cairo  # Presence of cairo is already checked by _backend_gtk.
 
 
-class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
-                          backend_agg.FigureCanvasAgg):
+class FigureCanvasGTK3Agg(backend_agg.FigureCanvasAgg,
+                          backend_gtk3.FigureCanvasGTK3):
     def __init__(self, figure):
-        backend_gtk3.FigureCanvasGTK3.__init__(self, figure)
+        super().__init__(figure=figure)
         self._bbox_queue = []
 
     def on_draw_event(self, widget, ctx):
@@ -62,12 +62,6 @@ class FigureCanvasGTK3Agg(backend_gtk3.FigureCanvasGTK3,
 
         self._bbox_queue.append(bbox)
         self.queue_draw_area(x, y, width, height)
-
-    def draw(self):
-        # Call these explicitly because GTK's draw is a GObject method which
-        # isn't cooperative with Python class methods.
-        backend_agg.FigureCanvasAgg.draw(self)
-        backend_gtk3.FigureCanvasGTK3.draw(self)
 
 
 @_api.deprecated("3.6", alternative="backend_gtk3.FigureManagerGTK3")
