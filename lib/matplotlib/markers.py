@@ -571,15 +571,13 @@ class MarkerStyle:
         self._transform = Affine2D().translate(-0.49999, -0.49999)
         self._snap_threshold = None
 
-    _triangle_path = Path([[0, 1], [-1, -1], [1, -1], [0, 1]], closed=True)
+    _triangle_path = Path._create_closed([[0, 1], [-1, -1], [1, -1]])
     # Going down halfway looks to small.  Golden ratio is too far.
-    _triangle_path_u = Path([[0, 1], [-3/5, -1/5], [3/5, -1/5], [0, 1]],
-                            closed=True)
-    _triangle_path_d = Path(
-        [[-3/5, -1/5], [3/5, -1/5], [1, -1], [-1, -1], [-3/5, -1/5]],
-        closed=True)
-    _triangle_path_l = Path([[0, 1], [0, -1], [-1, -1], [0, 1]], closed=True)
-    _triangle_path_r = Path([[0, 1], [0, -1], [1, -1], [0, 1]], closed=True)
+    _triangle_path_u = Path._create_closed([[0, 1], [-3/5, -1/5], [3/5, -1/5]])
+    _triangle_path_d = Path._create_closed(
+        [[-3/5, -1/5], [3/5, -1/5], [1, -1], [-1, -1]])
+    _triangle_path_l = Path._create_closed([[0, 1], [0, -1], [-1, -1]])
+    _triangle_path_r = Path._create_closed([[0, 1], [0, -1], [1, -1]])
 
     def _set_triangle(self, rot, skip):
         self._transform = Affine2D().scale(0.5).rotate_deg(rot)
@@ -901,14 +899,12 @@ class MarkerStyle:
         self._filled = False
         self._path = self._x_path
 
-    _plus_filled_path = Path(
-        np.array([(-1, -3), (+1, -3), (+1, -1), (+3, -1), (+3, +1), (+1, +1),
-                  (+1, +3), (-1, +3), (-1, +1), (-3, +1), (-3, -1), (-1, -1),
-                  (-1, -3)]) / 6, closed=True)
-    _plus_filled_path_t = Path(
-        np.array([(+3, 0), (+3, +1), (+1, +1), (+1, +3),
-                  (-1, +3), (-1, +1), (-3, +1), (-3, 0),
-                  (+3, 0)]) / 6, closed=True)
+    _plus_filled_path = Path._create_closed(np.array([
+        (-1, -3), (+1, -3), (+1, -1), (+3, -1), (+3, +1), (+1, +1),
+        (+1, +3), (-1, +3), (-1, +1), (-3, +1), (-3, -1), (-1, -1)]) / 6)
+    _plus_filled_path_t = Path._create_closed(np.array([
+        (+3, 0), (+3, +1), (+1, +1), (+1, +3),
+        (-1, +3), (-1, +1), (-3, +1), (-3, 0)]) / 6)
 
     def _set_plus_filled(self):
         self._transform = Affine2D()
@@ -924,15 +920,12 @@ class MarkerStyle:
                 {'top': 0, 'left': 90, 'bottom': 180, 'right': 270}[fs])
             self._alt_transform = self._transform.frozen().rotate_deg(180)
 
-    _x_filled_path = Path(
-        np.array([(-1, -2), (0, -1), (+1, -2), (+2, -1), (+1, 0), (+2, +1),
-                  (+1, +2), (0, +1), (-1, +2), (-2, +1), (-1, 0), (-2, -1),
-                  (-1, -2)]) / 4,
-        closed=True)
-    _x_filled_path_t = Path(
-        np.array([(+1, 0), (+2, +1), (+1, +2), (0, +1),
-                  (-1, +2), (-2, +1), (-1, 0), (+1, 0)]) / 4,
-        closed=True)
+    _x_filled_path = Path._create_closed(np.array([
+        (-1, -2), (0, -1), (+1, -2), (+2, -1), (+1, 0), (+2, +1),
+        (+1, +2), (0, +1), (-1, +2), (-2, +1), (-1, 0), (-2, -1)]) / 4)
+    _x_filled_path_t = Path._create_closed(np.array([
+        (+1, 0), (+2, +1), (+1, +2), (0, +1),
+        (-1, +2), (-2, +1), (-1, 0)]) / 4)
 
     def _set_x_filled(self):
         self._transform = Affine2D()

@@ -4031,9 +4031,8 @@ class Axes(_AxesBase):
             return self.plot(*[xs, ys][maybe_swap], **kwargs)[0]
 
         def do_patch(xs, ys, **kwargs):
-            path = mpath.Path(
-                # Last (0, 0) vertex has a CLOSEPOLY code and is thus ignored.
-                np.column_stack([[*xs, 0], [*ys, 0]][maybe_swap]), closed=True)
+            path = mpath.Path._create_closed(
+                np.column_stack([xs, ys][maybe_swap]))
             patch = mpatches.PathPatch(path, **kwargs)
             self.add_artist(patch)
             return patch
