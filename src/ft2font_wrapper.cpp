@@ -179,8 +179,13 @@ typedef struct
 static PyTypeObject PyGlyphType;
 
 static PyObject *
-PyGlyph_new(const FT_Face &face, const FT_Glyph &glyph, size_t ind, long hinting_factor)
+PyGlyph_from_FT2Font(const FT2Font *font)
 {
+    const FT_Face &face = font->get_face();
+    const FT_Glyph &glyph = font->get_last_glyph();
+    size_t ind = font->get_last_glyph_index();
+    long hinting_factor = font->get_hinting_factor();
+
     PyGlyph *self;
     self = (PyGlyph *)PyGlyphType.tp_alloc(&PyGlyphType, 0);
 
@@ -625,10 +630,7 @@ static PyObject *PyFT2Font_load_char(PyFT2Font *self, PyObject *args, PyObject *
 
     CALL_CPP("load_char", (self->x->load_char(charcode, flags)));
 
-    return PyGlyph_new(self->x->get_face(),
-                       self->x->get_last_glyph(),
-                       self->x->get_last_glyph_index(),
-                       self->x->get_hinting_factor());
+    return PyGlyph_from_FT2Font(self->x);
 }
 
 const char *PyFT2Font_load_glyph__doc__ =
@@ -664,10 +666,7 @@ static PyObject *PyFT2Font_load_glyph(PyFT2Font *self, PyObject *args, PyObject 
 
     CALL_CPP("load_glyph", (self->x->load_glyph(glyph_index, flags)));
 
-    return PyGlyph_new(self->x->get_face(),
-                       self->x->get_last_glyph(),
-                       self->x->get_last_glyph_index(),
-                       self->x->get_hinting_factor());
+    return PyGlyph_from_FT2Font(self->x);
 }
 
 const char *PyFT2Font_get_width_height__doc__ =
