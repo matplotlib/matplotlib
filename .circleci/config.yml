@@ -99,13 +99,8 @@ commands:
             python -m pip install --user \
                 numpy<< parameters.numpy_version >> codecov coverage \
                 -r requirements/doc/doc-requirements.txt
-
-  mpl-theme-install:
-    steps:
-      - run:
-          name: Install mpl-sphinx-theme dev
-          command: |
-            pip install git+https://github.com/matplotlib/mpl-sphinx-theme.git
+            python -m pip install --user \
+                git+https://github.com/matplotlib/mpl-sphinx-theme.git
 
   mpl-install:
     steps:
