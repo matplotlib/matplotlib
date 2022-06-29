@@ -625,6 +625,8 @@ def strftimedelta(td, fmt_str):
     fmt_str : str
         format string
     """
+    # TODO: make as compatible as possible with strftime format strings,
+    #  remove %day
     # *_t values are not partially consumed by there next larger unit
     # e.g. for timedelta(days=1.5): d=1, h=12, H=36
     s_t = td.total_seconds()
@@ -726,7 +728,114 @@ class DateFormatter(TimedeltaFormatter):
         self.tz = _get_tzinfo(tz)
 
 
-class ConciseDateFormatter(ticker.Formatter):
+class _ConciseTimevalueFormatter(ticker.Formatter):
+
+    def __init__(self, locator, show_offset=True, *, usetex=None):
+        self._locator = locator
+        self.offset_string = ''
+        self.show_offset = show_offset
+        self._usetex = mpl._val_or_rc(usetex, 'text.usetex')
+
+        self.formats = list()
+        self.zero_formats = list()
+        self.offset_formats = list()
+
+    def __call__(self, x, pos=None):
+        return NotImplemented
+
+    def _get_formats(self):
+        return self.formats, self.zero_formats, self.offset_formats
+
+    def _format_ticks(self, tickvalue, ticktuple):
+        # basic algorithm:
+        # 1) only display a part of the date if it changes over the ticks.
+        # 2) don't display the smaller part of the date if:
+        #    it is always the same or if it is the start of the
+        #    year, month, day etc.
+        fmts, zerofmts, offsetfmts = self._get_formats()
+        # fmts: format for most ticks at this level
+        # zerofmts: format beginnings of days, months, years, etc.
+        # offsetfmts: offset fmt are for the offset in the upper left of the
+        #             or lower right of the axis.
+        show_offset = self.show_offset
+
+        # determine the level we will label at:
+        # mostly 0: years,  1: months,  2: days,
+        # 3: hours, 4: minutes, 5: seconds, 6: microseconds
+        for level in range(5, -1, -1):
+            unique = np.unique(ticktuple[:, level])
+            if len(unique) > 1:
+                # if 1 is included in unique, the year is shown in ticks
+                if level < 2 and np.any(unique == 1):
+                    show_offset = False
+                break
+            elif level == 0:
+                # all tickdate are the same, so only micros might be different
+                # set to the most precise (6: microseconds doesn't exist...)
+                level = 5
+
+        # level is the basic level we will label at.
+        # now loop through and decide the actual ticklabels
+        zerovals = [0, 1, 1, 0, 0, 0, 0]
+        labels = [''] * len(ticktuple)
+        for nn in range(len(ticktuple)):
+            if level < 5:
+                if ticktuple[nn][level] == zerovals[level]:
+                    fmt = zerofmts[level]
+                else:
+                    fmt = fmts[level]
+            else:
+                # special handling for seconds + microseconds
+                if (isinstance(tickvalue[nn], datetime.timedelta)
+                        and (tickvalue[nn].total_seconds() % 60 == 0.0)):
+                    fmt = zerofmts[level]
+                elif (isinstance(tickvalue[nn], datetime.datetime)
+                        and (tickvalue[nn].second
+                             == tickvalue[nn].microsecond == 0)):
+                    fmt = zerofmts[level]
+                else:
+                    fmt = fmts[level]
+            labels[nn] = self._format_string(tickvalue[nn], fmt)
+
+        # special handling of seconds and microseconds:
+        # strip extra zeros and decimal if possible.
+        # this is complicated by two factors.  1) we have some level-4 strings
+        # here (i.e. 03:00, '0.50000', '1.000') 2) we would like to have the
+        # same number of decimals for each string (i.e. 0.5 and 1.0).
+        if level >= 5:
+            trailing_zeros = min(
+                (len(s) - len(s.rstrip('0')) for s in labels if '.' in s),
+                default=None)
+            if trailing_zeros:
+                for nn in range(len(labels)):
+                    if '.' in labels[nn]:
+                        labels[nn] = labels[nn][:-trailing_zeros].rstrip('.')
+
+        if show_offset:
+            # set the offset string:
+            self.offset_string = self._format_string(tickvalue[-1],
+                                                     offsetfmts[level])
+            if self._usetex:
+                self.offset_string = _wrap_in_tex(self.offset_string)
+        else:
+            self.offset_string = ''
+
+        if self._usetex:
+            return [_wrap_in_tex(l) for l in labels]
+        else:
+            return labels
+
+    def get_offset(self):
+        return self.offset_string
+
+    def format_data_short(self, value):
+        return NotImplemented
+
+    def _format_string(self, value, fmt):
+        return NotImplemented
+
+
+class ConciseDateFormatter(_ConciseTimevalueFormatter):
     """
     A `.Formatter` which attempts to figure out the best format to use for the
     date, and to make it as compact as possible, but still be complete. This is
@@ -803,7 +912,7 @@ class ConciseDateFormatter(ticker.Formatter):
         Autoformat the date labels.  The default format is used to form an
         initial string, and then redundant elements are removed.
         """
-        self._locator = locator
+        super().__init__(locator, show_offset=show_offset, usetex=usetex)
         self._tz = tz
         self.defaultfmt = '%Y'
         # there are 6 levels with each level getting a specific format
@@ -851,9 +960,6 @@ class ConciseDateFormatter(ticker.Formatter):
                                    '%Y-%b-%d',
                                    '%Y-%b-%d',
                                    '%Y-%b-%d %H:%M']
-        self.offset_string = ''
-        self.show_offset = show_offset
-        self._usetex = mpl._val_or_rc(usetex, 'text.usetex')
 
     def __call__(self, x, pos=None):
         formatter = DateFormatter(self.defaultfmt, self._tz,
@@ -862,88 +968,99 @@ class ConciseDateFormatter(ticker.Formatter):
 
     def format_ticks(self, values):
         tickdatetime = [num2date(value, tz=self._tz) for value in values]
-        tickdate = np.array([tdt.timetuple()[:6] for tdt in tickdatetime])
-
-        # basic algorithm:
-        # 1) only display a part of the date if it changes over the ticks.
-        # 2) don't display the smaller part of the date if:
-        #    it is always the same or if it is the start of the
-        #    year, month, day etc.
-        # fmt for most ticks at this level
-        fmts = self.formats
-        # format beginnings of days, months, years, etc.
-        zerofmts = self.zero_formats
-        # offset fmt are for the offset in the upper left of the
-        # or lower right of the axis.
-        offsetfmts = self.offset_formats
-        show_offset = self.show_offset
-
-        # determine the level we will label at:
-        # mostly 0: years,  1: months,  2: days,
-        # 3: hours, 4: minutes, 5: seconds, 6: microseconds
-        for level in range(5, -1, -1):
-            unique = np.unique(tickdate[:, level])
-            if len(unique) > 1:
-                # if 1 is included in unique, the year is shown in ticks
-                if level < 2 and np.any(unique == 1):
-                    show_offset = False
-                break
-            elif level == 0:
-                # all tickdate are the same, so only micros might be different
-                # set to the most precise (6: microseconds doesn't exist...)
-                level = 5
-
-        # level is the basic level we will label at.
-        # now loop through and decide the actual ticklabels
-        zerovals = [0, 1, 1, 0, 0, 0, 0]
-        labels = [''] * len(tickdate)
-        for nn in range(len(tickdate)):
-            if level < 5:
-                if tickdate[nn][level] == zerovals[level]:
-                    fmt = zerofmts[level]
-                else:
-                    fmt = fmts[level]
-            else:
-                # special handling for seconds + microseconds
-                if (tickdatetime[nn].second == tickdatetime[nn].microsecond
-                        == 0):
-                    fmt = zerofmts[level]
-                else:
-                    fmt = fmts[level]
-            labels[nn] = tickdatetime[nn].strftime(fmt)
-
-        # special handling of seconds and microseconds:
-        # strip extra zeros and decimal if possible.
-        # this is complicated by two factors.  1) we have some level-4 strings
-        # here (i.e. 03:00, '0.50000', '1.000') 2) we would like to have the
-        # same number of decimals for each string (i.e. 0.5 and 1.0).
-        if level >= 5:
-            trailing_zeros = min(
-                (len(s) - len(s.rstrip('0')) for s in labels if '.' in s),
-                default=None)
-            if trailing_zeros:
-                for nn in range(len(labels)):
-                    if '.' in labels[nn]:
-                        labels[nn] = labels[nn][:-trailing_zeros].rstrip('.')
-
-        if show_offset:
-            # set the offset string:
-            self.offset_string = tickdatetime[-1].strftime(offsetfmts[level])
-            if self._usetex:
-                self.offset_string = _wrap_in_tex(self.offset_string)
-        else:
-            self.offset_string = ''
-
-        if self._usetex:
-            return [_wrap_in_tex(l) for l in labels]
-        else:
-            return labels
-
-    def get_offset(self):
-        return self.offset_string
+        ticktuple = np.array([tdt.timetuple()[:6] for tdt in tickdatetime])
+        return super()._format_ticks(tickdatetime, ticktuple)
 
     def format_data_short(self, value):
         return num2date(value, tz=self._tz).strftime('%Y-%m-%d %H:%M:%S')
+
+    def _format_string(self, value, fmt):
+        return value.strftime(fmt)
+
+
+class ConciseTimedeltaFormatter(_ConciseTimevalueFormatter):
+    # TODO: add docs
+
+    def __init__(self, locator, formats=None, offset_formats=None,
+                 zero_formats=None, show_offset=True, *, usetex=None):
+        """
+        Autoformat the date labels.  The default format is used to form an
+        initial string, and then redundant elements are removed.
+        """
+        super().__init__(locator, show_offset=show_offset, usetex=usetex)
+        self.defaultfmt = '%{d}D'
+        # there are 6 levels with each level getting a specific format
+        # 0: mostly years,  1: months,  2: days,
+        # 3: hours, 4: minutes, 5: seconds
+        # level 0 and 1 are unsupported for timedelta and skipped here
+        if formats:
+            if len(formats) != 4:
+                raise ValueError('formats argument must be a list of '
+                                 '4 format strings (or None)')
+            self.formats = formats
+        else:
+            self.formats = ['%{d}D',  # days
+                            '%h:%m',       # hours
+                            '%h:%m',       # minutes
+                            '%s.%ms%us',   # secs
+                            ]
+        # fmt for zeros ticks at this level.  These are
+        # ticks that should be labeled w/ info the level above.
+        # like 02:02:00 can just be labeled 02:02.
+        if zero_formats:
+            if len(zero_formats) != 4:
+                raise ValueError('zero_formats argument must be a list of '
+                                 '4 format strings (or4 None)')
+            self.zero_formats = zero_formats
+        else:
+            # use the users formats for the zero tick formats
+            self.zero_formats = [''] + self.formats[:-1]
+
+        if offset_formats:
+            if len(offset_formats) != 4:
+                raise ValueError('offset_formats argument must be a list of '
+                                 '4 format strings (or None)')
+            self.offset_formats = offset_formats
+        else:
+            self.offset_formats = ['',
+                                   '',
+                                   '%{d}D',
+                                   '%{d}D %h:%m']
+
+    def __call__(self, x, pos=None):
+        formatter = TimedeltaFormatter(self.defaultfmt, usetex=self._usetex)
+        return formatter(x, pos=pos)
+
+    def _make_timetuple(self, td):
+        # returns a tuple similar in structure to datetime.timetuple
+        # all values are rounded to integer precision
+        s_t = td.total_seconds()
+        d, s = divmod(s_t, SEC_PER_DAY)
+        m_t, s = divmod(s, SEC_PER_MIN)
+        h, m = divmod(m_t, MIN_PER_HOUR)
+
+        # year, month not supported for timedelta, therefore zero
+        return 0, 0, d, h, m, s, td.microseconds
+
+    def _get_formats(self):
+        # extend list of format strings by two emtpy (and unused) strings for
+        # year and month (necessary for compatibility with base class)
+        ret = list()
+        for fmts in (self.formats, self.zero_formats, self.offset_formats):
+            ret.append(["", "", *fmts])
+        return ret
+
+    def format_ticks(self, values):
+        ticktimedelta = [num2timedelta(value) for value in values]
+        ticktuple = np.array([self._make_timetuple(tdt)
+                              for tdt in ticktimedelta])
+        return super()._format_ticks(ticktimedelta, ticktuple)
+
+    def format_data_short(self, value):
+        return strftimedelta(num2timedelta(value), '%{d}D %h:%m:%s')
+
+    def _format_string(self, value, fmt):
+        return strftimedelta(value, fmt)
 
 
 class _AutoTimevalueFormatter(ticker.Formatter):

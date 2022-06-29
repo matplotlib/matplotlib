@@ -1642,3 +1642,62 @@ def test_timedelta_formatter_usetex(delta, expected):
     formatter = mdates.AutoTimedeltaFormatter(locator, usetex=True)
     assert [formatter(loc) for loc in locator()] == [
         r'{\fontfamily{\familydefault}\selectfont %s}' % s for s in expected]
+
+
+@pytest.mark.parametrize('t_delta, expected', [
+    [datetime.timedelta(days=141),  # label on days
+     ['100D', '120D', '140D', '160D', '180D', '200D', '220D', '240D', '260D']
+     ],
+    [datetime.timedelta(hours=40),  # label on hh:mm, zero format on days
+     ['100D', '06:00', '12:00', '18:00', '101D', '06:00', '12:00',
+      '18:00', '102D']
+     ],
+    [datetime.timedelta(minutes=30),  # label on hh:mm, same for zero format
+     ['03:40', '03:45', '03:50', '03:55', '04:00', '04:05', '04:10',
+      '04:15', '04:20']
+     ],
+    [datetime.timedelta(seconds=30),  # label on seconds, zero format hh:mm
+     ['03:45', '05', '10', '15', '20', '25', '30', '35']
+     ],
+    [datetime.timedelta(seconds=2),  # label on seconds.f, zero format hh:mm
+     ['03:45', '00.5', '01.0', '01.5', '02.0', '02.5']
+     ],
+])
+def test_concise_timedelta_formatter(t_delta, expected):
+    t1 = datetime.timedelta(days=100, hours=3, minutes=45)
+    t2 = t1 + t_delta
+
+    fig, ax = plt.subplots()
+
+    locator = mdates.AutoTimedeltaLocator()
+    formatter = mdates.ConciseTimedeltaFormatter(locator)
+    ax.yaxis.set_major_locator(locator)
+    ax.yaxis.set_major_formatter(formatter)
+    ax.set_ylim(t1, t2)
+    fig.canvas.draw()
+    strings = [st.get_text() for st in ax.get_yticklabels()]
+
+    assert strings == expected
+
+
+@pytest.mark.parametrize('t_delta, expected', [
+    [datetime.timedelta(days=141), ""],
+    [datetime.timedelta(hours=40),  ""],
+    [datetime.timedelta(minutes=30), "100D"],
+    [datetime.timedelta(seconds=30), "100D 03:45"],
+    [datetime.timedelta(seconds=2),  "100D 03:45"],
+])
+def test_concise_timedelta_formatter_show_offset(t_delta, expected):
+    t1 = datetime.timedelta(days=100, hours=3, minutes=45)
+    t2 = t1 + t_delta
+
+    fig, ax = plt.subplots()
+
+    locator = mdates.AutoTimedeltaLocator()
+    formatter = mdates.ConciseTimedeltaFormatter(locator)
+    ax.yaxis.set_major_locator(locator)
+    ax.yaxis.set_major_formatter(formatter)
+    ax.set_ylim(t1, t2)
+    fig.canvas.draw()
+
+    assert formatter.get_offset() == expected
