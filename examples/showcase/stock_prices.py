@@ -5,14 +5,13 @@ Stock prices over 32 years
 
 .. redirect-from:: /gallery/showcase/bachelors_degrees_by_gender
 
-A graph of multiple time series that demonstrates custom
-styling of plot frame, tick lines, tick labels, and line graph properties.
+A graph of multiple time series that demonstrates custom styling of plot frame,
+tick lines, tick labels, and line graph properties. It also uses custom
+placement of text labels along the right edge as an alternative to a
+conventional legend.
 
-Also demonstrates the custom placement of text labels along the right edge
-as an alternative to a conventional legend.
-
-Note: The third-party mpl style dufte_ produces similar-looking plots with
-less code.
+Note: The third-party mpl style dufte_ produces similar-looking plots with less
+code.
 
 .. _dufte: https://github.com/nschloe/dufte
 """
@@ -29,7 +28,8 @@ def convertdate(x):
 
 fname = get_sample_data('Stocks.csv', asfileobj=False)
 stock_data = np.genfromtxt(fname, encoding='utf-8', delimiter=',',
-                           names=True, dtype=None, converters={0: convertdate})
+                           names=True, dtype=None, converters={0: convertdate},
+                           skip_header=1)
 
 
 fig, ax = plt.subplots(1, 1, figsize=(6, 8), layout='constrained')
