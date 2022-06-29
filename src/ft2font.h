@@ -93,7 +93,7 @@ class FT2Font
     long get_name_index(char *name);
     PyObject* get_path();
 
-    FT_Face &get_face()
+    FT_Face const &get_face() const
     {
         return face;
     }
@@ -101,19 +101,19 @@ class FT2Font
     {
         return image;
     }
-    FT_Glyph &get_last_glyph()
+    FT_Glyph const &get_last_glyph() const
     {
         return glyphs.back();
     }
-    size_t get_last_glyph_index()
+    size_t get_last_glyph_index() const
     {
         return glyphs.size() - 1;
     }
-    size_t get_num_glyphs()
+    size_t get_num_glyphs() const
     {
         return glyphs.size();
     }
-    long get_hinting_factor()
+    long get_hinting_factor() const
     {
         return hinting_factor;
     }
