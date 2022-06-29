@@ -779,7 +779,7 @@
 ## ImageMagick in the registry (as convert is also the name of a system tool).
 #animation.convert_path: convert
 ## Additional arguments to pass to convert.
-#animation.convert_args:
+#animation.convert_args: -layers, OptimizePlus
 #
 #animation.embed_limit:  20.0     # Limit, in MB, of size of base64 encoded
                                   # animation in HTML (i.e. IPython notebook)

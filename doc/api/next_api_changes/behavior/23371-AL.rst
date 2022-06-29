@@ -1,0 +1,4 @@
+The default ``rcParams["animation.convert_args"]`` changed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+It now defaults to ``["-layers", "OptimizePlus"]`` to try to generate smaller
+GIFs.  Set it back to an empty list to recover the previous behavior.
