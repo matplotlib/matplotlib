@@ -1,0 +1,4 @@
+All `kwargs` parameters to Line2D are now appropriately supported by axes.errorbar
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Keys are now detected through the signature of Line2D, rather than through a
+hardcoded list.
