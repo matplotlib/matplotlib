@@ -124,8 +124,8 @@ class TightLayoutEngine(LayoutEngine):
             Padding (height/width) between edges of adjacent subplots.
             Defaults to *pad*.
         rect : tuple (left, bottom, right, top), default: (0, 0, 1, 1).
-            rectangle in normalized figure coordinates that the subplots (including labels)
-            will fit into.
+            rectangle in normalized figure coordinates that the subplots 
+            (including labels) will fit into.
         """
         super().__init__(**kwargs)
         for td in ['pad', 'h_pad', 'w_pad', 'rect']:
