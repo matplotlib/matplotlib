@@ -17,5 +17,6 @@ Matplotlib should:
 
 
 We believe that a diverse developer community creates the best software, and we
-welcome anyone who shares our mission and values, as described in the code of
-conduct.
+welcome anyone who shares our mission, and our values described in the `code of
+conduct
+<https://github.com/matplotlib/matplotlib/blob/main/CODE_OF_CONDUCT.md>`__.
