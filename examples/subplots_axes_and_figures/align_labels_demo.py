@@ -30,8 +30,7 @@ for i in range(2):
     ax.set_ylabel('YLabel1 %d' % i)
     ax.set_xlabel('XLabel1 %d' % i)
     if i == 0:
-        for tick in ax.get_xticklabels():
-            tick.set_rotation(55)
+        ax.tick_params(axis='x', rotation=55)
 fig.align_labels()  # same as fig.align_xlabels(); fig.align_ylabels()
 
 plt.show()
