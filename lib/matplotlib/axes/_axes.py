@@ -1,4 +1,5 @@
 import functools
+import inspect
 import itertools
 import logging
 import math
@@ -3453,11 +3454,7 @@ class Axes(_AxesBase):
 
         # Eject any line-specific information from format string, as it's not
         # needed for bars or caps.
-        for key in ['marker', 'markersize', 'markerfacecolor',
-                    'markeredgewidth', 'markeredgecolor', 'markevery',
-                    'linestyle', 'fillstyle', 'drawstyle', 'dash_capstyle',
-                    'dash_joinstyle', 'solid_capstyle', 'solid_joinstyle',
-                    'dashes']:
+        for key in inspect.signature(mlines.Line2D).parameters:
             base_style.pop(key, None)
 
         # Make the style dict for the line collections (the bars).
