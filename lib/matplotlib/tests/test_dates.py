@@ -1554,15 +1554,17 @@ def test_timedelta_locators_fixed(kwargs, dt1, expected):
 @pytest.mark.parametrize(
     "td, fmt, expected",
     [
-        (datetime.timedelta(days=1), "%d %day, %h:%m", "1 day, 00:00"),
-        (datetime.timedelta(days=2.25), "%d %day, %h:%m", "2 days, 06:00"),
-        (datetime.timedelta(seconds=362), "%h:%m:%s.%ms", "00:06:02.000"),
-        (datetime.timedelta(microseconds=1250), "%s.%ms%us", "00.001250"),
-        (datetime.timedelta(days=-0.25), "%h:%m", "-06:00"),
-        (datetime.timedelta(days=-1.5), "%d %day, %h:%m", "-1 day, 12:00"),
-        (datetime.timedelta(days=2), "%H hours", "48 hours"),
-        (datetime.timedelta(days=0.25), "%M min", "360 min"),
-        (datetime.timedelta(seconds=362.13), "%S.%ms", "362.130")
+        (datetime.timedelta(days=1), "%d days, %H:%M", "1 days, 00:00"),
+        (datetime.timedelta(days=2.25), "%d days, %H:%M", "2 days, 06:00"),
+        (datetime.timedelta(seconds=362), "%H:%M:%S.%f", "00:06:02.000000"),
+        (datetime.timedelta(microseconds=1250), "%S.%f", "00.001250"),
+        (datetime.timedelta(days=-0.25), "%H:%M", "-06:00"),
+        (datetime.timedelta(days=-1.5), "%d days, %H:%M", "-1 days, 12:00"),
+        (datetime.timedelta(days=2), "%>H hours", "48 hours"),
+        (datetime.timedelta(days=0.25), "%>M min", "360 min"),
+        (datetime.timedelta(hours=2), "%H hours", "02 hours"),
+        (datetime.timedelta(hours=2), "%-H hours", "2 hours"),
+        (datetime.timedelta(seconds=362.13), "%>S.%f", "362.130000")
     ]
 )
 def test_strftimedelta(td, fmt, expected):
@@ -1572,23 +1574,23 @@ def test_strftimedelta(td, fmt, expected):
 @pytest.mark.parametrize(
     "t_delta, fmt, expected",
     [
-        [datetime.timedelta(days=141), "%d %day",
+        [datetime.timedelta(days=141), "%d days",
          ['100 days', '120 days', '140 days', '160 days', '180 days',
           '200 days', '220 days', '240 days', '260 days']],
-        [datetime.timedelta(hours=40), "%d %day %h:%m",
+        [datetime.timedelta(hours=40), "%d days %H:%M",
          ['100 days 00:00', '100 days 06:00', '100 days 12:00',
           '100 days 18:00', '101 days 00:00', '101 days 06:00',
           '101 days 12:00', '101 days 18:00', '102 days 00:00']],
 
-        [datetime.timedelta(minutes=30), "%m:%s.0",
+        [datetime.timedelta(minutes=30), "%M:%S.0",
          ['40:00.0', '45:00.0', '50:00.0', '55:00.0', '00:00.0',
           '05:00.0', '10:00.0', '15:00.0', '20:00.0']],
 
-        [datetime.timedelta(seconds=30), "%s.%ms",
-         ['00.000', '05.000', '10.000', '15.000', '20.000', '25.000',
-          '30.000', '35.000']],
+        [datetime.timedelta(seconds=30), "%S.%f",
+         ['00.000000', '05.000000', '10.000000', '15.000000', '20.000000',
+          '25.000000', '30.000000', '35.000000']],
 
-        [datetime.timedelta(microseconds=600), "%s.%ms%us",
+        [datetime.timedelta(microseconds=600), "%S.%f",
          ['59.999600', '59.999800', '00.000000', '00.000200',
           '00.000400', '00.000600', '00.000800', '00.001000']]
      ]
@@ -1646,21 +1648,22 @@ def test_timedelta_formatter_usetex(delta, expected):
 
 @pytest.mark.parametrize('t_delta, expected', [
     [datetime.timedelta(days=141),  # label on days
-     ['100D', '120D', '140D', '160D', '180D', '200D', '220D', '240D', '260D']
+     ['100 days', '120 days', '140 days', '160 days', '180 days',
+      '200 days', '220 days', '240 days', '260 days']
      ],
     [datetime.timedelta(hours=40),  # label on hh:mm, zero format on days
-     ['100D', '06:00', '12:00', '18:00', '101D', '06:00', '12:00',
-      '18:00', '102D']
+     ['100 days', '6:00', '12:00', '18:00', '101 days', '6:00', '12:00',
+      '18:00', '102 days']
      ],
     [datetime.timedelta(minutes=30),  # label on hh:mm, same for zero format
-     ['03:40', '03:45', '03:50', '03:55', '04:00', '04:05', '04:10',
-      '04:15', '04:20']
+     ['3:40', '3:45', '3:50', '3:55', '4:00', '4:05', '4:10',
+      '4:15', '4:20']
      ],
     [datetime.timedelta(seconds=30),  # label on seconds, zero format hh:mm
-     ['03:45', '05', '10', '15', '20', '25', '30', '35']
+     ['3:45', '5', '10', '15', '20', '25', '30', '35']
      ],
     [datetime.timedelta(seconds=2),  # label on seconds.f, zero format hh:mm
-     ['03:45', '00.5', '01.0', '01.5', '02.0', '02.5']
+     ['3:45', '0.5', '1.0', '1.5', '2.0', '2.5']
      ],
 ])
 def test_concise_timedelta_formatter(t_delta, expected):
@@ -1683,9 +1686,9 @@ def test_concise_timedelta_formatter(t_delta, expected):
 @pytest.mark.parametrize('t_delta, expected', [
     [datetime.timedelta(days=141), ""],
     [datetime.timedelta(hours=40),  ""],
-    [datetime.timedelta(minutes=30), "100D"],
-    [datetime.timedelta(seconds=30), "100D 03:45"],
-    [datetime.timedelta(seconds=2),  "100D 03:45"],
+    [datetime.timedelta(minutes=30), "100 days"],
+    [datetime.timedelta(seconds=30), "100 days 3:45"],
+    [datetime.timedelta(seconds=2),  "100 days 3:45"],
 ])
 def test_concise_timedelta_formatter_show_offset(t_delta, expected):
     t1 = datetime.timedelta(days=100, hours=3, minutes=45)

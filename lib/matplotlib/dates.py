@@ -612,6 +612,11 @@ def _wrap_in_tex(text):
 class _TimedeltaFormatTemplate(string.Template):
     # formatting template for datetime-like formatter strings
     delimiter = '%'
+    idpattern = r'[>-]?[dHMSf]{1}'
+
+    # add VERBOSE to override default IGNORECASE; VERBOSE is always added
+    # anyway by the template class, so this is effectively a None flag here
+    flags = re.VERBOSE
 
 
 def strftimedelta(td, fmt_str):
@@ -619,16 +624,49 @@ def strftimedelta(td, fmt_str):
     Return a string representing a timedelta, controlled by an explicit
     format string.
 
+    The format codes are similar to the C standard format codes for formatting
+    dates. All format codes that are reasonably transferable to timedelta are
+    supported. Additionally, some extensions to the C standard are defined.
+
+    The following is a full list of the format codes that are supported.
+
+    +-----------+---------------------------------------+---------------------+
+    | Directive | Meaning                               | Example             |
+    +-----------+---------------------------------------+---------------------+
+    | %d        | Days                                  | 0, 1, 2, ...        |
+    +-----------+---------------------------------------+---------------------+
+    | %H        | Hours as zero-padded decimal number   | 00, 01, ..., 23     |
+    +-----------+---------------------------------------+---------------------+
+    | %M        | Minutes as zero-padded decimal number | 00, 01, ..., 59     |
+    +-----------+---------------------------------------+---------------------+
+    | %S        | Seconds as zero-padded decimal number | 00, 01, ..., 59     |
+    +-----------+---------------------------------------+---------------------+
+    | %-H       | Hours as decimal number               | 0, 1, ..., 23       |
+    +-----------+---------------------------------------+---------------------+
+    | %-M       | Minutes as decimal number             | 0, 1, ..., 59       |
+    +-----------+---------------------------------------+---------------------+
+    | %-S       | Seconds as decimal number             | 0, 1, ..., 59       |
+    +-----------+---------------------------------------+---------------------+
+    | %>H       | Total number of hours including days  | 0, 1, ..., 100, ... |
+    +-----------+---------------------------------------+---------------------+
+    | %>M       | Total number of minutes including     | 0, 1, ..., 100, ... |
+    |           | days and hours                        |                     |
+    +-----------+---------------------------------------+---------------------+
+    | %>S       | Total number of seconds including     | 0, 1, ..., 100, ... |
+    |           | days, hours and minutes               |                     |
+    +-----------+---------------------------------------+---------------------+
+    | %f        | Microseconds as a decimal number,     | 000000, 000001, ... |
+    |           | zero-padded to 6 digits               | 999999              |
+    +-----------+---------------------------------------+---------------------+
+
+    # TODO: move format code docs to general section at the top
+
     Arguments
     ---------
     td : datetime.timedelta
     fmt_str : str
         format string
     """
-    # TODO: make as compatible as possible with strftime format strings,
-    #  remove %day
-    # *_t values are not partially consumed by there next larger unit
-    # e.g. for timedelta(days=1.5): d=1, h=12, H=36
     s_t = td.total_seconds()
     sign = '-' if s_t < 0 else ''
     s_t = abs(s_t)
@@ -639,20 +677,22 @@ def strftimedelta(td, fmt_str):
     h_t, _ = divmod(s_t, SEC_PER_HOUR)
 
     us = td.microseconds
-    ms, us = divmod(us, 1e3)
 
-    # create correctly zero padded string for substitution
-    # last one is a special for correct day(s) plural
-    values = {'d': int(d),
-              'H': int(h_t),
-              'M': int(m_t),
-              'S': int(s_t),
-              'h': '{:02d}'.format(int(h)),
-              'm': '{:02d}'.format(int(m)),
-              's': '{:02d}'.format(int(s)),
-              'ms': '{:03d}'.format(int(ms)),
-              'us': '{:03d}'.format(int(us)),
-              'day': 'day' if d == 1 else 'days'}
+    # define substitution strings; all reasonable equivalents from the c
+    # standard implementation for strftime for dates are supported
+    # >H, >M, >S are total values and not partially consumed by there next
+    # larger units e.g. for timedelta(days=1.5): d=1, h=12, H=36
+    values = {'d': int(d),  # days; equivalent to c standard
+              '>H': int(h_t),  # total number of h, m, s;
+              '>M': int(m_t),  # extension to c standard
+              '>S': int(s_t),
+              'H': '{:02d}'.format(int(h)),  # zero-padded h, m, s;
+              'M': '{:02d}'.format(int(m)),  # equivalent to c std
+              'S': '{:02d}'.format(int(s)),
+              '-H': int(h),  # h, m, s without zero-padding;
+              '-M': int(m),  # platform specific in c std
+              '-S': int(s),
+              'f': '{:06d}'.format(int(us))}  # microseconds, equiv. c std
 
     try:
         result = _TimedeltaFormatTemplate(fmt_str).substitute(**values)
@@ -999,10 +1039,10 @@ class ConciseTimedeltaFormatter(_ConciseTimevalueFormatter):
                                  '4 format strings (or None)')
             self.formats = formats
         else:
-            self.formats = ['%{d}D',  # days
-                            '%h:%m',       # hours
-                            '%h:%m',       # minutes
-                            '%s.%ms%us',   # secs
+            self.formats = ['%{d} days',  # days
+                            '%-H:%M',   # hours
+                            '%-H:%M',   # minutes
+                            '%-S.%f',   # secs
                             ]
         # fmt for zeros ticks at this level.  These are
         # ticks that should be labeled w/ info the level above.
@@ -1024,8 +1064,8 @@ class ConciseTimedeltaFormatter(_ConciseTimevalueFormatter):
         else:
             self.offset_formats = ['',
                                    '',
-                                   '%{d}D',
-                                   '%{d}D %h:%m']
+                                   '%{d} days',
+                                   '%{d} days %-H:%M']
 
     def __call__(self, x, pos=None):
         formatter = TimedeltaFormatter(self.defaultfmt, usetex=self._usetex)
@@ -1057,7 +1097,7 @@ class ConciseTimedeltaFormatter(_ConciseTimevalueFormatter):
         return super()._format_ticks(ticktimedelta, ticktuple)
 
     def format_data_short(self, value):
-        return strftimedelta(num2timedelta(value), '%{d}D %h:%m:%s')
+        return strftimedelta(num2timedelta(value), '%{d}D %H:%M:%S')
 
     def _format_string(self, value, fmt):
         return strftimedelta(value, fmt)
@@ -1140,7 +1180,7 @@ class AutoTimedeltaFormatter(_AutoTimevalueFormatter):
 
         locator = AutoTimedeltaLocator()
         formatter = AutoTimedeltaFormatter(locator)
-        formatter.scaled[1/(24*60)] = '%m:%s' # only show min and sec
+        formatter.scaled[1/(24*60)] = '%M:%S' # only show min and sec
 
     Custom callables can also be used instead of format strings.  The following
     example shows how to use a custom format function to strip trailing zeros
@@ -1152,7 +1192,7 @@ class AutoTimedeltaFormatter(_AutoTimevalueFormatter):
         formatter.scaled[1/(24*60)] = my_format_function
     """
 
-    def __init__(self, locator, defaultfmt='%d %day %h:%m', *, usetex=None):
+    def __init__(self, locator, defaultfmt='%d days %H:%M', *, usetex=None):
         """
         Autoformat the timedelta labels.
 
@@ -1173,12 +1213,12 @@ class AutoTimedeltaFormatter(_AutoTimevalueFormatter):
         """
         super().__init__(locator, defaultfmt=defaultfmt, usetex=usetex)
         self.scaled = {
-            1: "%d %day",
-            1 / HOURS_PER_DAY: '%d %day, %h:%m',
-            1 / MINUTES_PER_DAY: '%d %day, %h:%m',
-            1 / SEC_PER_DAY: '%d %day, %h:%m:%s',
-            1e3 / MUSECONDS_PER_DAY: '%d %day, %h:%m:%s.%ms',
-            1 / MUSECONDS_PER_DAY: '%d %day, %h:%m:%s.%ms%us',
+            1: "%d days",
+            1 / HOURS_PER_DAY: '%d days, %H:%M',
+            1 / MINUTES_PER_DAY: '%d days, %H:%M',
+            1 / SEC_PER_DAY: '%d days, %H:%M:%S',
+            1e3 / MUSECONDS_PER_DAY: '%d days, %H:%M:%S.%f',
+            1 / MUSECONDS_PER_DAY: '%d days, %H:%M:%S.%f',
         }
 
     def _get_template_formatter(self, fmt):
