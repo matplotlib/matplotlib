@@ -519,8 +519,8 @@ default: %(va)s
 
         Parameters
         ----------
-        rect : tuple (left, bottom, right, top)
-            The dimensions (left, bottom, right, top) of the new Axes. All
+        rect : tuple (left, bottom, width, height)
+            The dimensions (left, bottom, width, height) of the new Axes. All
             quantities are in fractions of figure width and height.
 
         projection : {None, 'aitoff', 'hammer', 'lambert', 'mollweide', \
