@@ -7,6 +7,7 @@
 #include <ApplicationServices/ApplicationServices.h>
 #include <sys/socket.h>
 #include <Python.h>
+#include "mplutils.h"
 
 #ifndef PYPY
 /* Remove this once Python is fixed: https://bugs.python.org/issue23237 */
@@ -1920,23 +1921,16 @@ static struct PyModuleDef moduledef = {
 
 PyObject* PyInit__macosx(void)
 {
-    if (PyType_Ready(&FigureCanvasType) < 0
-     || PyType_Ready(&FigureManagerType) < 0
-     || PyType_Ready(&NavigationToolbar2Type) < 0
-     || PyType_Ready(&TimerType) < 0)
-        return NULL;
-
-    PyObject *module = PyModule_Create(&moduledef);
-    if (!module) {
+    PyObject *m;
+    if (!(m = PyModule_Create(&moduledef))
+        || prepare_and_add_type(&FigureCanvasType, m)
+        || prepare_and_add_type(&FigureManagerType, m)
+        || prepare_and_add_type(&NavigationToolbar2Type, m)
+        || prepare_and_add_type(&TimerType, m)) {
+        Py_XDECREF(m);
         return NULL;
     }
-
-    PyModule_AddObject(module, "FigureCanvas", (PyObject*) &FigureCanvasType);
-    PyModule_AddObject(module, "FigureManager", (PyObject*) &FigureManagerType);
-    PyModule_AddObject(module, "NavigationToolbar2", (PyObject*) &NavigationToolbar2Type);
-    PyModule_AddObject(module, "Timer", (PyObject*) &TimerType);
-
-    return module;
+    return m;
 }
 
 #pragma GCC visibility pop

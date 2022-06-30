@@ -33,6 +33,8 @@ typedef struct
     Py_ssize_t suboffsets[2];
 } PyFT2Image;
 
+static PyTypeObject PyFT2ImageType;
+
 static PyObject *PyFT2Image_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PyFT2Image *self;
@@ -121,9 +123,7 @@ static int PyFT2Image_get_buffer(PyFT2Image *self, Py_buffer *buf, int flags)
     return 1;
 }
 
-static PyTypeObject PyFT2ImageType;
-
-static PyTypeObject *PyFT2Image_init_type(PyObject *m, PyTypeObject *type)
+static PyTypeObject* PyFT2Image_init_type()
 {
     static PyMethodDef methods[] = {
         {"draw_rect", (PyCFunction)PyFT2Image_draw_rect, METH_VARARGS, PyFT2Image_draw_rect__doc__},
@@ -132,28 +132,18 @@ static PyTypeObject *PyFT2Image_init_type(PyObject *m, PyTypeObject *type)
     };
 
     static PyBufferProcs buffer_procs;
-    memset(&buffer_procs, 0, sizeof(PyBufferProcs));
     buffer_procs.bf_getbuffer = (getbufferproc)PyFT2Image_get_buffer;
 
-    memset(type, 0, sizeof(PyTypeObject));
-    type->tp_name = "matplotlib.ft2font.FT2Image";
-    type->tp_basicsize = sizeof(PyFT2Image);
-    type->tp_dealloc = (destructor)PyFT2Image_dealloc;
-    type->tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
-    type->tp_methods = methods;
-    type->tp_new = PyFT2Image_new;
-    type->tp_init = (initproc)PyFT2Image_init;
-    type->tp_as_buffer = &buffer_procs;
+    PyFT2ImageType.tp_name = "matplotlib.ft2font.FT2Image";
+    PyFT2ImageType.tp_basicsize = sizeof(PyFT2Image);
+    PyFT2ImageType.tp_dealloc = (destructor)PyFT2Image_dealloc;
+    PyFT2ImageType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    PyFT2ImageType.tp_methods = methods;
+    PyFT2ImageType.tp_new = PyFT2Image_new;
+    PyFT2ImageType.tp_init = (initproc)PyFT2Image_init;
+    PyFT2ImageType.tp_as_buffer = &buffer_procs;
 
-    if (PyType_Ready(type) < 0) {
-        return NULL;
-    }
-
-    if (PyModule_AddObject(m, "FT2Image", (PyObject *)type)) {
-        return NULL;
-    }
-
-    return type;
+    return &PyFT2ImageType;
 }
 
 /**********************************************************************
@@ -217,7 +207,7 @@ static PyObject *PyGlyph_get_bbox(PyGlyph *self, void *closure)
         "llll", self->bbox.xMin, self->bbox.yMin, self->bbox.xMax, self->bbox.yMax);
 }
 
-static PyTypeObject *PyGlyph_init_type(PyObject *m, PyTypeObject *type)
+static PyTypeObject *PyGlyph_init_type()
 {
     static PyMemberDef members[] = {
         {(char *)"width", T_LONG, offsetof(PyGlyph, width), READONLY, (char *)""},
@@ -237,22 +227,14 @@ static PyTypeObject *PyGlyph_init_type(PyObject *m, PyTypeObject *type)
         {NULL}
     };
 
-    memset(type, 0, sizeof(PyTypeObject));
-    type->tp_name = "matplotlib.ft2font.Glyph";
-    type->tp_basicsize = sizeof(PyGlyph);
-    type->tp_dealloc = (destructor)PyGlyph_dealloc;
-    type->tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
-    type->tp_members = members;
-    type->tp_getset = getset;
+    PyGlyphType.tp_name = "matplotlib.ft2font.Glyph";
+    PyGlyphType.tp_basicsize = sizeof(PyGlyph);
+    PyGlyphType.tp_dealloc = (destructor)PyGlyph_dealloc;
+    PyGlyphType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    PyGlyphType.tp_members = members;
+    PyGlyphType.tp_getset = getset;
 
-    if (PyType_Ready(type) < 0) {
-        return NULL;
-    }
-
-    /* Don't need to add to module, since you can't create glyphs
-       directly from Python */
-
-    return type;
+    return &PyGlyphType;
 }
 
 /**********************************************************************
@@ -269,6 +251,8 @@ typedef struct
     Py_ssize_t strides[2];
     Py_ssize_t suboffsets[2];
 } PyFT2Font;
+
+static PyTypeObject PyFT2FontType;
 
 static unsigned long read_from_file_callback(FT_Stream stream,
                                              unsigned long offset,
@@ -316,8 +300,6 @@ exit:
     }
     PyErr_Restore(type, value, traceback);
 }
-
-static PyTypeObject PyFT2FontType;
 
 static PyObject *PyFT2Font_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
@@ -1448,7 +1430,7 @@ static int PyFT2Font_get_buffer(PyFT2Font *self, Py_buffer *buf, int flags)
     return 1;
 }
 
-static PyTypeObject *PyFT2Font_init_type(PyObject *m, PyTypeObject *type)
+static PyTypeObject *PyFT2Font_init_type()
 {
     static PyGetSetDef getset[] = {
         {(char *)"postscript_name", (getter)PyFT2Font_postscript_name, NULL, NULL, NULL},
@@ -1503,30 +1485,20 @@ static PyTypeObject *PyFT2Font_init_type(PyObject *m, PyTypeObject *type)
     };
 
     static PyBufferProcs buffer_procs;
-    memset(&buffer_procs, 0, sizeof(PyBufferProcs));
     buffer_procs.bf_getbuffer = (getbufferproc)PyFT2Font_get_buffer;
 
-    memset(type, 0, sizeof(PyTypeObject));
-    type->tp_name = "matplotlib.ft2font.FT2Font";
-    type->tp_doc = PyFT2Font_init__doc__;
-    type->tp_basicsize = sizeof(PyFT2Font);
-    type->tp_dealloc = (destructor)PyFT2Font_dealloc;
-    type->tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
-    type->tp_methods = methods;
-    type->tp_getset = getset;
-    type->tp_new = PyFT2Font_new;
-    type->tp_init = (initproc)PyFT2Font_init;
-    type->tp_as_buffer = &buffer_procs;
+    PyFT2FontType.tp_name = "matplotlib.ft2font.FT2Font";
+    PyFT2FontType.tp_doc = PyFT2Font_init__doc__;
+    PyFT2FontType.tp_basicsize = sizeof(PyFT2Font);
+    PyFT2FontType.tp_dealloc = (destructor)PyFT2Font_dealloc;
+    PyFT2FontType.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE;
+    PyFT2FontType.tp_methods = methods;
+    PyFT2FontType.tp_getset = getset;
+    PyFT2FontType.tp_new = PyFT2Font_new;
+    PyFT2FontType.tp_init = (initproc)PyFT2Font_init;
+    PyFT2FontType.tp_as_buffer = &buffer_procs;
 
-    if (PyType_Ready(type) < 0) {
-        return NULL;
-    }
-
-    if (PyModule_AddObject(m, "FT2Font", (PyObject *)type)) {
-        return NULL;
-    }
-
-    return type;
+    return &PyFT2FontType;
 }
 
 static struct PyModuleDef moduledef = { PyModuleDef_HEAD_INIT, "ft2font" };
@@ -1546,11 +1518,12 @@ PyMODINIT_FUNC PyInit_ft2font(void)
     FT_Library_Version(_ft2Library, &major, &minor, &patch);
     snprintf(version_string, sizeof(version_string), "%d.%d.%d", major, minor, patch);
 
-    PyObject *m = PyModule_Create(&moduledef);
-    if (!m ||
-        !PyFT2Image_init_type(m, &PyFT2ImageType) ||
-        !PyGlyph_init_type(m, &PyGlyphType) ||
-        !PyFT2Font_init_type(m, &PyFT2FontType) ||
+    PyObject *m;
+    if (!(m = PyModule_Create(&moduledef)) ||
+        prepare_and_add_type(PyFT2Image_init_type(), m) ||
+        prepare_and_add_type(PyFT2Font_init_type(), m) ||
+        // Glyph is not constructible from Python, thus not added to the module.
+        PyType_Ready(PyGlyph_init_type()) ||
         PyModule_AddStringConstant(m, "__freetype_version__", version_string) ||
         PyModule_AddStringConstant(m, "__freetype_build_type__", STRINGIFY(FREETYPE_BUILD_TYPE)) ||
         PyModule_AddIntConstant(m, "SCALABLE", FT_FACE_FLAG_SCALABLE) ||
