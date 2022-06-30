@@ -3042,6 +3042,9 @@ class NavigationToolbar2:
 
         Pan with left button, zoom with right.
         """
+        if not self.canvas.widgetlock.available(self):
+            self.set_message("pan unavailable")
+            return
         if self.mode == _Mode.PAN:
             self.mode = _Mode.NONE
             self.canvas.widgetlock.release(self)
@@ -3094,6 +3097,9 @@ class NavigationToolbar2:
         self.push_current()
 
     def zoom(self, *args):
+        if not self.canvas.widgetlock.available(self):
+            self.set_message("zoom unavailable")
+            return
         """Toggle zoom to rect mode."""
         if self.mode == _Mode.ZOOM:
             self.mode = _Mode.NONE
