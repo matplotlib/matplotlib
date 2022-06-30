@@ -25,6 +25,7 @@ Pull Requests
 
 First Pull Request Merged
 ^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. code-block:: md
 
     Hi-five ✋ on merging your first pull request to Matplotlib, @username! We hope you stick around and invite you to
@@ -50,4 +51,3 @@ Rebase
 
     We documented [the rebase process here](https://matplotlib.org/devdocs/devel/git_workflows#rebase.html) Have a look and
     let me know how you'd like to proceed.
-
