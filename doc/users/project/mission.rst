@@ -13,8 +13,7 @@ Matplotlib should:
 * Produce high-quality raster and vector format outputs suitable for publication;
 * Provide a simple graphical user interface and support embedding in applications;
 * Be understandable and extensible by people familiar with data processing in Python;
-* Make common plots easy, and novel or complicated visualizations possible.
-
+* Make common plots easy, and novel or complex visualizations possible.
 
 We believe that a diverse developer community creates the best software, and we
 welcome anyone who shares our mission, and our values described in the `code of
