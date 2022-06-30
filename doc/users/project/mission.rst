@@ -8,7 +8,7 @@ Python Ecosystem.
 Adapting the requirements :ref:`laid out by John Hunter <project_history>`
 Matplotlib should:
 
-* Support users of the Scientific Python Ecosystem;
+* Support users of the Scientific Python ecosystem;
 * Facilitate interactive data exploration;
 * Produce high-quality raster and vector format outputs suitable for publication;
 * Provide a simple graphical user interface and support embedding in applications;
