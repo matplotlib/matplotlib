@@ -3,9 +3,7 @@ Matplotlib Mission Statement
 
 The Matplotlib developer community develops, maintains, and supports Matplotlib
 and its extensions to provide data visualization tools for the Scientific Python
-Ecosystem.  We judge our success based on how effectively we enable our users, across
-scientific, industrial, commercial, and educational domains, to achieve their
-goals.
+Ecosystem.
 
 We believe that a diverse developer community creates the best software, and we
 welcome anyone who shares our mission and values, as described in the code of
