@@ -3,6 +3,7 @@ import re
 
 import matplotlib.pyplot as plt
 from matplotlib.texmanager import TexManager
+from matplotlib.testing._markers import needs_usetex
 import pytest
 
 
@@ -39,3 +40,20 @@ def test_font_selection(rc, preamble, family):
     src = Path(tm.make_tex("hello, world", fontsize=12)).read_text()
     assert preamble in src
     assert [*re.findall(r"\\\w+family", src)] == [family]
+
+
+@needs_usetex
+def test_unicode_characters():
+    # Smoke test to see that Unicode characters does not cause issues
+    # See #23019
+    plt.rcParams['text.usetex'] = True
+    fig, ax = plt.subplots()
+    ax.set_ylabel('\\textit{Velocity (\N{DEGREE SIGN}/sec)}')
+    ax.set_xlabel('\N{VULGAR FRACTION ONE QUARTER}Öøæ')
+    fig.canvas.draw()
+
+    # But not all characters.
+    # Should raise RuntimeError, not UnicodeDecodeError
+    with pytest.raises(RuntimeError):
+        ax.set_title('\N{SNOWMAN}')
+        fig.canvas.draw()
