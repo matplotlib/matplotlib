@@ -589,7 +589,7 @@ class _AxesBase(martist.Artist):
         fig : `~matplotlib.figure.Figure`
             The Axes is built in the `.Figure` *fig*.
 
-        rect : [left, bottom, width, height]
+        rect : tuple (left, bottom, width, height).
             The Axes is built in the rectangle *rect*. *rect* is in
             `.Figure` coordinates.
 

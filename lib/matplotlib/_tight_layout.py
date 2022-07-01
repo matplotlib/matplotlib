@@ -41,8 +41,8 @@ def _auto_adjust_subplotpars(
     h_pad, w_pad : float
         Padding (height/width) between edges of adjacent subplots, as a
         fraction of the font size.  Defaults to *pad*.
-    rect : tuple[float, float, float, float]
-        [left, bottom, right, top] in normalized (0, 1) figure coordinates.
+    rect : tuple
+        (left, bottom, right, top), default: None.
     """
     rows, cols = shape
 
@@ -183,8 +183,8 @@ def auto_adjust_subplotpars(
     h_pad, w_pad : float
         Padding (height/width) between edges of adjacent subplots, as a
         fraction of the font size.  Defaults to *pad*.
-    rect : tuple[float, float, float, float]
-        [left, bottom, right, top] in normalized (0, 1) figure coordinates.
+    rect : tuple
+        (left, bottom, right, top), default: None.
     """
     nrows, ncols = nrows_ncols
     span_pairs = []
@@ -250,8 +250,8 @@ def get_tight_layout_figure(fig, axes_list, subplotspec_list, renderer,
     h_pad, w_pad : float
         Padding (height/width) between edges of adjacent subplots.  Defaults to
         *pad*.
-    rect : tuple[float, float, float, float], optional
-        (left, bottom, right, top) rectangle in normalized figure coordinates
+    rect : tuple (left, bottom, right, top), default: None.
+        rectangle in normalized figure coordinates
         that the whole subplots area (including labels) will fit into.
         Defaults to using the entire figure.
 

@@ -63,7 +63,7 @@ class Axes3D(Axes):
         ----------
         fig : Figure
             The parent figure.
-        rect : (float, float, float, float)
+        rect : tuple (left, bottom, width, height), default: None.
             The ``(left, bottom, width, height)`` axes position.
         elev : float, default: 30
             The elevation angle in degrees rotates the camera above and below
