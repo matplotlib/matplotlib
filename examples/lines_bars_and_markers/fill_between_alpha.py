@@ -30,10 +30,9 @@ ax2.fill_between(r.date, pricemin, r.close, alpha=0.7)
 
 for ax in ax1, ax2:
     ax.grid(True)
+    ax.label_outer()
 
 ax1.set_ylabel('price')
-for label in ax2.get_yticklabels():
-    label.set_visible(False)
 
 fig.suptitle('Google (GOOG) daily closing price')
 fig.autofmt_xdate()
