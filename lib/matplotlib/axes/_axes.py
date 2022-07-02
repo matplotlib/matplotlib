@@ -834,8 +834,8 @@ class Axes(_AxesBase):
         # Helper method to check that vals are not unitized
         for val, name in zip(vals, names):
             if not munits._is_natively_supported(val):
-                raise ValueError(f"{repr(name)} must be a single scalar value, "
-                                 f"but got {repr(val)}")
+                raise ValueError(f"{repr(name)} must be a single scalar value,"
+                                 f" but got {repr(val)}")
 
     @_docstring.dedent_interpd
     def axline(self, xy1, xy2=None, *, slope=None, **kwargs):
@@ -2402,7 +2402,8 @@ class Axes(_AxesBase):
                 try:
                     left = x - width / 2
                 except TypeError as e:
-                    raise TypeError(f'the dtypes of parameters x ({repr(x.dtype)}) '
+                    raise TypeError('the dtypes of parameters x'
+                                    f' ({repr(x.dtype)}) '
                                     f'and width ({repr(width.dtype)}) '
                                     'are incompatible') from e
                 bottom = y
@@ -3124,7 +3125,8 @@ class Axes(_AxesBase):
 
         _api.check_isinstance(Number, radius=radius, startangle=startangle)
         if radius <= 0:
-            raise ValueError(f'radius must be a positive number, not {repr(radius)}')
+            raise ValueError('radius must be a positive number, not'
+                            f' {repr(radius)}')
 
         # Starting theta1 is the start fraction of the circle
         theta1 = startangle / 360
@@ -3511,9 +3513,11 @@ class Axes(_AxesBase):
                 np.broadcast_to(err, (2, len(dep)))
             except ValueError:
                 raise ValueError(
-                    f"'{repr(dep_axis)}err' (shape: {repr(np.shape(err))}) must be a "
+                    f"'{repr(dep_axis)}err' (shape: {repr(np.shape(err))}) must"
+                    " be a "
                     "scalar or a 1D or (2, n) array-like whose shape matches "
-                    f"'{repr(dep_axis)}' (shape: {repr(np.shape(dep))})") from None
+                    f"'{repr(dep_axis)}'"
+                    f" (shape: {repr(np.shape(dep))})") from None
             res = np.zeros(err.shape, dtype=bool)  # Default in case of nan
             if np.any(np.less(err, -err, out=res, where=(err == err))):
                 # like err<0, but also works for timedelta and nan.
@@ -4263,8 +4267,8 @@ class Axes(_AxesBase):
 
         def invalid_shape_exception(csize, xsize):
             return ValueError(
-                f"'c' argument has {repr(csize)} elements, which is inconsistent "
-                f"with 'x' and 'y' with size {repr(xsize)}.")
+                f"'c' argument has {repr(csize)} elements, which is"
+                f"inconsistent with 'x' and 'y' with size {repr(xsize)}.")
 
         c_is_mapped = False  # Unless proven otherwise below.
         valid_shape = True  # Unless proven otherwise below.
@@ -5188,7 +5192,8 @@ default: :rc:`scatter.edgecolors`
         else:
             where = np.asarray(where, dtype=bool)
             if where.size != ind.size:
-                raise ValueError(f"where size ({repr(where.size)}) does not match "
+                raise ValueError(f"where size ({repr(where.size)})"
+                                " does not match "
                                  f"{repr(ind_dir)} size ({repr(ind.size)})")
         where = where & ~functools.reduce(
             np.logical_or, map(np.ma.getmask, [ind, dep1, dep2]))
@@ -5570,8 +5575,8 @@ default: :rc:`scatter.edgecolors`
                     Y = Y.data
             nrows, ncols = C.shape
         else:
-            raise TypeError(f'{repr(funcname)}() takes 1 or 3 positional arguments '
-                            f'but {len(args)} were given')
+            raise TypeError(f'{repr(funcname)}() takes 1 or 3 positional'
+                            f' arguments but {len(args)} were given')
 
         Nx = X.shape[-1]
         Ny = Y.shape[0]
@@ -5593,12 +5598,16 @@ default: :rc:`scatter.edgecolors`
 
         if shading == 'flat':
             if (Nx, Ny) != (ncols + 1, nrows + 1):
-                raise TypeError(f'Dimensions of C {repr(C.shape)} are incompatible with'
-                                f' X ({repr(Nx)}) and/or Y ({repr(Ny)}); see help({repr(funcname)})')
+                raise TypeError(f'Dimensions of C {repr(C.shape)} are'
+                                ' incompatible with'
+                                f' X ({repr(Nx)}) and/or Y ({repr(Ny)});'
+                                ' see help({repr(funcname)})')
         else:    # ['nearest', 'gouraud']:
             if (Nx, Ny) != (ncols, nrows):
-                raise TypeError(f'Dimensions of C {repr(C.shape)} are incompatible with'
-                                f' X ({repr(Nx)}) and/or Y ({repr(Ny)}); see help({repr(funcname)})')
+                raise TypeError(f'Dimensions of C {repr(C.shape)}'
+                                ' are incompatible with'
+                                f' X ({repr(Nx)}) and/or Y ({repr(Ny)});'
+                                ' see help({repr(funcname)})')
             if shading == 'nearest':
                 # grid is specified at the center, so define corners
                 # at the midpoints between the grid centers and then use the
@@ -6615,7 +6624,8 @@ such objects
             color = mcolors.to_rgba_array(color)
             if len(color) != nx:
                 raise ValueError(f"The 'color' keyword argument must have one "
-                                 f"color per dataset, but {repr(nx)} datasets and "
+                                 f"color per dataset, but {repr(nx)}"
+                                 " datasets and "
                                  f"{repr(len(color))} colors were provided")
 
         hist_kwargs = dict()
