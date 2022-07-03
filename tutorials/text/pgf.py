@@ -1,7 +1,7 @@
 r"""
-*********************************************************
-Typesetting with XeLaTeX/LuaLaTeX via the ``pgf`` backend
-*********************************************************
+************************************************************
+Text rendering with XeLaTeX/LuaLaTeX via the ``pgf`` backend
+************************************************************
 
 Using the ``pgf`` backend, Matplotlib can export figures as pgf drawing
 commands that can be processed with pdflatex, xelatex or lualatex. XeLaTeX and
