@@ -1478,7 +1478,7 @@ def get_font(filename, hinting_factor=None):
 
 
 def _split_ttc(ttc_path):
-    """SPlit a TTC ont into TTF files"""
+    """Split a TTC file into TTF files"""
     res = _read_ttc(ttc_path)
     ttf_fonts, table_index, table_data = res
     out_base = Path(
