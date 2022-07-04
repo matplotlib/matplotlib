@@ -82,7 +82,7 @@ mpl_in_to_pt = 1. / mpl_pt_to_in
 
 
 _NO_ESCAPE = r"(?<!\\)(?:\\\\)*"
-_split_math = re.compile(_NO_ESCAPE + r"\$").split
+_split_math = re.compile(_NO_ESCAPE + r"(?:\$|\\[()])").split
 _replace_escapetext = functools.partial(
     # When the next character is _, ^, $, or % (not preceded by an escape),
     # insert a backslash.
