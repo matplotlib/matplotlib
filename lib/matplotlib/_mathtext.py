@@ -1649,7 +1649,8 @@ class Parser:
       \cdot           \bigtriangledown         \bigcirc
       \cap            \triangleleft            \dagger
       \cup            \triangleright           \ddagger
-      \uplus          \lhd                     \amalg'''.split())
+      \uplus          \lhd                     \amalg
+      \dotplus        \dotminus'''.split())
 
     _relation_symbols = set(r'''
       = < > :
@@ -1662,7 +1663,7 @@ class Parser:
       \sqsubset   \sqsupset   \neq     \smile
       \sqsubseteq \sqsupseteq \doteq   \frown
       \in         \ni         \propto  \vdash
-      \dashv      \dots       \dotplus \doteqdot'''.split())
+      \dashv      \dots       \doteqdot'''.split())
 
     _arrow_symbols = set(r'''
       \leftarrow              \longleftarrow           \uparrow
