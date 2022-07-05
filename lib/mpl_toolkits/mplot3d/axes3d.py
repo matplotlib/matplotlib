@@ -891,8 +891,7 @@ class Axes3D(Axes):
                                                 self._focal_length)
 
         # Combine all the transformation matrices to get the final projection
-        M0 = np.dot(viewM, worldM)
-        M = np.dot(projM, M0)
+        M = np.linalg.multi_dot([projM, viewM, worldM])
         return M
 
     def mouse_init(self, rotate_btn=1, zoom_btn=3):
