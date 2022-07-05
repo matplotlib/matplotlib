@@ -3454,8 +3454,14 @@ class Axes(_AxesBase):
 
         # Eject anything that's not acceptable by LineCollection.set()
         lc_keys = inspect.signature(mcoll.LineCollection.set).parameters
-        for key in tuple(base_style.keys()):  # Because we're resizing base_style
-            if key not in lc_keys:
+        rej_keys = ['marker', 'markersize', 'markerfacecolor',
+                    'markeredgewidth', 'markeredgecolor', 'markevery',
+                    'linestyle', 'fillstyle', 'drawstyle', 'dash_capstyle',
+                    'dash_joinstyle', 'solid_capstyle', 'solid_joinstyle',
+                    'dashes']
+        # Because we're resizing base_style
+        for key in tuple(base_style.keys()):
+            if key not in lc_keys or key in rej_keys:
                 base_style.pop(key, None)
 
         # Make the style dict for the line collections (the bars).
