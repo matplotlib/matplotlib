@@ -3452,10 +3452,11 @@ class Axes(_AxesBase):
         if ecolor is None:
             ecolor = base_style['color']
 
-        # Eject any line-specific information from format string, as it's not
-        # needed for bars or caps.
-        for key in inspect.signature(mlines.Line2D).parameters:
-            base_style.pop(key, None)
+        # Eject anything that's not acceptable by LineCollection.set()
+        lc_keys = inspect.signature(mcoll.LineCollection.set).parameters
+        for key in tuple(base_style.keys()):  # Because we're resizing base_style
+            if key not in lc_keys:
+                base_style.pop(key, None)
 
         # Make the style dict for the line collections (the bars).
         eb_lines_style = {**base_style, 'color': ecolor}
