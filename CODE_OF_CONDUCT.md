@@ -62,7 +62,7 @@ representative at an online or offline event.
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community leaders responsible for enforcement at
 [matplotlib-coc@numfocus.org](mailto:matplotlib-coc@numfocus.org)
-(monitored by the [CoC subcommittee](https://matplotlib.org/governance/people.html#coc-subcommitee)) or a
+(monitored by the [CoC subcommittee](https://matplotlib.org/governance/people.html#coc-subcommittee)) or a
 report can be made using the [NumFOCUS Code of Conduct report form][numfocus
 form].  If community leaders cannot come to a resolution about enforcement,
 reports will be escalated to the NumFocus Code of Conduct committee
