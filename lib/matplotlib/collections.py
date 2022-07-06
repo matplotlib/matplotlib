@@ -1217,11 +1217,7 @@ class PolyCollection(_CollectionWithSizes):
         self._paths = []
         for xy in verts:
             if len(xy):
-                if isinstance(xy, np.ma.MaskedArray):
-                    xy = np.ma.concatenate([xy, xy[:1]])
-                else:
-                    xy = np.concatenate([xy, xy[:1]])
-                self._paths.append(mpath.Path(xy, closed=True))
+                self._paths.append(mpath.Path._create_closed(xy))
             else:
                 self._paths.append(mpath.Path(xy))
 

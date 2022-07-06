@@ -191,8 +191,7 @@ def test_affine_inverted_invalidated():
 
 def test_clipping_of_log():
     # issue 804
-    path = Path([(0.2, -99), (0.4, -99), (0.4, 20), (0.2, 20), (0.2, -99)],
-                closed=True)
+    path = Path._create_closed([(0.2, -99), (0.4, -99), (0.4, 20), (0.2, 20)])
     # something like this happens in plotting logarithmic histograms
     trans = mtransforms.BlendedGenericTransform(
         mtransforms.Affine2D(), scale.LogTransform(10, 'clip'))
