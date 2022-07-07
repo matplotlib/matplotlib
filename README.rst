@@ -4,6 +4,7 @@
 
 |GitHubActions|_ |AzurePipelines|_ |AppVeyor|_ |Codecov|_ |LGTM|_
 
+
 .. |GitHubActions| image:: https://github.com/matplotlib/matplotlib/workflows/Tests/badge.svg
 .. _GitHubActions: https://github.com/matplotlib/matplotlib/actions?query=workflow%3ATests
 
@@ -39,6 +40,7 @@
 
 .. |NUMFocus| image:: https://img.shields.io/badge/powered%20by-NumFOCUS-orange.svg?style=flat&colorA=E1523D&colorB=007D8A
 .. _NUMFocus: https://numfocus.org
+
 
 .. image:: https://matplotlib.org/_static/logo2.svg
 
@@ -84,9 +86,11 @@ Our active mailing lists (which are mirrored on Discourse) are:
 
 * `Users <https://mail.python.org/mailman/listinfo/matplotlib-users>`_ mailing
   list: matplotlib-users@python.org
+  
 * `Announcement
   <https://mail.python.org/mailman/listinfo/matplotlib-announce>`_ mailing
   list: matplotlib-announce@python.org
+  
 * `Development <https://mail.python.org/mailman/listinfo/matplotlib-devel>`_
   mailing list: matplotlib-devel@python.org
 
