@@ -868,6 +868,19 @@ def test_hexbin_log():
     plt.colorbar(h)
 
 
+@image_comparison(["hexbin_linear.png"], style="mpl20", remove_text=True)
+def test_hexbin_linear():
+    # Issue #21165
+    np.random.seed(19680801)
+    n = 100000
+    x = np.random.standard_normal(n)
+    y = 2.0 + 3.0 * x + 4.0 * np.random.standard_normal(n)
+
+    fig, ax = plt.subplots()
+    ax.hexbin(x, y, gridsize=(10, 5), marginals=True,
+              reduce_C_function=np.sum)
+
+
 def test_hexbin_log_clim():
     x, y = np.arange(200).reshape((2, 100))
     fig, ax = plt.subplots()
