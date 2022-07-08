@@ -5,7 +5,7 @@ Rotating a 3D plot
 
 A very simple animation of a rotating 3D plot about all 3 axes.
 
-See wire3d_animation_demo for another simple example of animating a 3D plot.
+See :doc:`wire3d_animation_sgskip` for another example of animating a 3D plot.
 
 (This example is skipped when building the documentation gallery because it
 intentionally takes a long time to run)
