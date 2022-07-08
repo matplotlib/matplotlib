@@ -110,4 +110,5 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: wheels
-          path: ./dist/*.whl
+          path: ./wheelhouse/*.whl
+          if-no-files-found: error
