@@ -3871,7 +3871,7 @@ def test_stem(use_line_collection):
         ax.stem(x, np.cos(x),
                 linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label=' ')
     else:
-        with pytest.warns(match='deprecated'):
+        with pytest.warns(MatplotlibDeprecationWarning, match='deprecated'):
             ax.stem(x, np.cos(x),
                     linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label=' ',
                     use_line_collection=False)
@@ -3919,7 +3919,7 @@ def test_stem_orientation(use_line_collection):
                 linefmt='C2-.', markerfmt='kx', basefmt='C1-.',
                 orientation='horizontal')
     else:
-        with pytest.warns(match='deprecated'):
+        with pytest.warns(MatplotlibDeprecationWarning, match='deprecated'):
             ax.stem(x, np.cos(x),
                     linefmt='C2-.', markerfmt='kx', basefmt='C1-.',
                     use_line_collection=False,
