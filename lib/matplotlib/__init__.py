@@ -63,7 +63,7 @@ Modules include:
     :mod:`matplotlib.ticker`
         Calculation of tick mark locations and formatting of tick labels.
 
-    :doc:`matplotlib.backends </api/index_backend_api>`
+    :mod:`matplotlib.backends`
         A subpackage with modules for various GUI libraries and output formats.
 
 The base matplotlib namespace includes:
