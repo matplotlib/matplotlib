@@ -371,6 +371,16 @@ def calculate_rms(expected_image, actual_image):
 # 16-bit depth, as Pillow converts these to RGB incorrectly.
 
 
+def _load_image(path):
+    img = Image.open(path)
+    # In an RGBA image, if the smallest value in the alpha channel is 255, all
+    # values in it must be 255, meaning that the image is opaque. If so,
+    # discard the alpha channel so that it may compare equal to an RGB image.
+    if img.mode != "RGBA" or img.getextrema()[3][0] == 255:
+        img = img.convert("RGB")
+    return np.asarray(img)
+
+
 def compare_images(expected, actual, tol, in_decorator=False):
     """
     Compare two "image" files checking differences within a tolerance.
@@ -435,9 +445,9 @@ def compare_images(expected, actual, tol, in_decorator=False):
         actual = convert(actual, cache=True)
         expected = convert(expected, cache=True)
 
-    # open the image files and remove the alpha channel (if it exists)
-    expected_image = np.asarray(Image.open(expected).convert("RGB"))
-    actual_image = np.asarray(Image.open(actual).convert("RGB"))
+    # open the image files
+    expected_image = _load_image(expected)
+    actual_image = _load_image(actual)
 
     actual_image, expected_image = crop_to_same(
         actual, actual_image, expected, expected_image)
@@ -486,9 +496,8 @@ def save_diff_image(expected, actual, output):
     output : str
         File path to save difference image to.
     """
-    # Drop alpha channels, similarly to compare_images.
-    expected_image = np.asarray(Image.open(expected).convert("RGB"))
-    actual_image = np.asarray(Image.open(actual).convert("RGB"))
+    expected_image = _load_image(expected)
+    actual_image = _load_image(actual)
     actual_image, expected_image = crop_to_same(
         actual, actual_image, expected, expected_image)
     expected_image = np.array(expected_image).astype(float)
