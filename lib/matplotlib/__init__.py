@@ -63,7 +63,7 @@ Modules include:
     :mod:`matplotlib.ticker`
         Calculation of tick mark locations and formatting of tick labels.
 
-    :mod:`matplotlib.backends`
+    :doc:`matplotlib.backends </api/index_backend_api>`
         A subpackage with modules for various GUI libraries and output formats.
 
 The base matplotlib namespace includes:
@@ -81,7 +81,7 @@ Matplotlib was initially written by John D. Hunter (1968-2012) and is now
 developed and maintained by a host of others.
 
 Occasionally the internal documentation (python docstrings) will refer
-to MATLAB&reg;, a registered trademark of The MathWorks, Inc.
+to MATLAB®, a registered trademark of The MathWorks, Inc.
 
 """
 
