@@ -1515,8 +1515,7 @@ class VertexSelector:
     Derived classes should override the `process_selected` method to do
     something with the picks.
 
-    Here is an example which highlights the selected verts with red
-    circles::
+    Here is an example which highlights the selected verts with red circles::
 
         import numpy as np
         import matplotlib.pyplot as plt
@@ -1524,7 +1523,7 @@ class VertexSelector:
 
         class HighlightSelected(lines.VertexSelector):
             def __init__(self, line, fmt='ro', **kwargs):
-                lines.VertexSelector.__init__(self, line)
+                super().__init__(line)
                 self.markers, = self.axes.plot([], [], fmt, **kwargs)
 
             def process_selected(self, ind, xs, ys):
@@ -1537,26 +1536,28 @@ class VertexSelector:
 
         selector = HighlightSelected(line)
         plt.show()
-
     """
+
     def __init__(self, line):
         """
-        Initialize the class with a `.Line2D`.  The line should already be
-        added to an `~.axes.Axes` and should have the picker property set.
+        Parameters
+        ----------
+        line : `.Line2D`
+            The line must already have been added to an `~.axes.Axes` and must
+            have its picker property set.
         """
         if line.axes is None:
             raise RuntimeError('You must first add the line to the Axes')
-
         if line.get_picker() is None:
             raise RuntimeError('You must first set the picker property '
                                'of the line')
-
         self.axes = line.axes
         self.line = line
-        self.canvas = self.axes.figure.canvas
-        self.cid = self.canvas.mpl_connect('pick_event', self.onpick)
-
+        self.cid = self.canvas.callbacks._connect_picklable(
+            'pick_event', self.onpick)
         self.ind = set()
+
+    canvas = property(lambda self: self.axes.figure.canvas)
 
     def process_selected(self, ind, xs, ys):
         """
