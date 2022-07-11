@@ -1,0 +1,4 @@
+``backend_template.new_figure_manager``, ``backend_template.new_figure_manager_given_figure``, and ``backend_template.draw_if_interactive``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... have been removed, as part of the introduction of the simplified backend
+API.
