@@ -65,11 +65,18 @@ def _get_preamble():
             families = ["serif", "sans\\-serif", "monospace"]
             commands = ["setmainfont", "setsansfont", "setmonofont"]
             for family, command in zip(families, commands):
-                # 1) Forward slashes also work on Windows, so don't mess with
-                # backslashes.  2) The dirname needs to include a separator.
-                path = pathlib.Path(fm.findfont(family))
-                preamble.append(r"\%s{%s}[Path=\detokenize{%s/}]" % (
-                    command, path.name, path.parent.as_posix()))
+                try:
+                    # 1) Forward slashes also work on Windows, so do not mess
+                    # with backslashes.
+                    # 2) The dirname needs to include a separator.
+                    path = pathlib.Path(fm.findfont(family,
+                                                    fallback_to_default=False))
+                except ValueError:
+                    # Use default LaTeX font instead
+                    pass
+                else:
+                    preamble.append(r"\%s{%s}[Path=\detokenize{%s}]" % (
+                        command, path.name, path.parent.as_posix() + "/"))
     return "\n".join(preamble)
 
 
