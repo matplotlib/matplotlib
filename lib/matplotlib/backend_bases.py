@@ -1405,6 +1405,7 @@ class MouseEvent(LocationEvent):
 
     def __init__(self, name, canvas, x, y, button=None, key=None,
                  step=0, dblclick=False, guiEvent=None):
+        super().__init__(name, canvas, x, y, guiEvent=guiEvent)
         if button in MouseButton.__members__.values():
             button = MouseButton(button)
         if name == "scroll_event" and button is None:
@@ -1416,10 +1417,6 @@ class MouseEvent(LocationEvent):
         self.key = key
         self.step = step
         self.dblclick = dblclick
-
-        # super-init is deferred to the end because it calls back on
-        # 'axes_enter_event', which requires a fully initialized event.
-        super().__init__(name, canvas, x, y, guiEvent=guiEvent)
 
     def _process(self):
         if self.name == "button_press_event":
@@ -1521,9 +1518,8 @@ class KeyEvent(LocationEvent):
     """
 
     def __init__(self, name, canvas, key, x=0, y=0, guiEvent=None):
-        self.key = key
-        # super-init deferred to the end: callback errors if called before
         super().__init__(name, canvas, x, y, guiEvent=guiEvent)
+        self.key = key
 
     def _process(self):
         if self.name == "key_press_event":
