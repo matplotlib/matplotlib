@@ -1277,10 +1277,6 @@ class ResizeEvent(Event):
         super().__init__(name, canvas)
         self.width, self.height = canvas.get_width_height()
 
-    def _process(self):
-        super()._process()
-        self.canvas.draw_idle()
-
 
 class CloseEvent(Event):
     """An event triggered by a figure being closed."""

@@ -343,6 +343,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
         self._png_is_old = True
         self.manager.resize(*fig.bbox.size, forward=False)
         ResizeEvent('resize_event', self)._process()
+        self.draw_idle()
 
     def handle_send_image_mode(self, event):
         # The client requests notification of what the current image mode is.

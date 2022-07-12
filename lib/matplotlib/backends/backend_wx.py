@@ -705,6 +705,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         # the whole background is repainted.
         self.Refresh(eraseBackground=False)
         ResizeEvent("resize_event", self)._process()
+        self.draw_idle()
 
     def _get_key(self, event):
 

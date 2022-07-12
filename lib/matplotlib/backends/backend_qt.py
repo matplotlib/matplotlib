@@ -348,6 +348,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         QtWidgets.QWidget.resizeEvent(self, event)
         # emit our resize events
         ResizeEvent("resize_event", self)._process()
+        self.draw_idle()
 
     def sizeHint(self):
         w, h = self.get_width_height()
