@@ -2376,8 +2376,16 @@ class Figure(FigureBase):
             'button_press_event', self.pick)
         self._scroll_pick_id = self._canvas_callbacks._connect_picklable(
             'scroll_event', self.pick)
-        self._axes_enter_leave_id = self._canvas_callbacks.connect(
-            'motion_notify_event', backend_bases._axes_enter_leave_emitter)
+        connect = self._canvas_callbacks._connect_picklable
+        self._mouse_key_ids = [
+            connect('key_press_event', backend_bases._key_handler),
+            connect('key_release_event', backend_bases._key_handler),
+            connect('key_release_event', backend_bases._key_handler),
+            connect('button_press_event', backend_bases._mouse_handler),
+            connect('button_release_event', backend_bases._mouse_handler),
+            connect('scroll_event', backend_bases._mouse_handler),
+            connect('motion_notify_event', backend_bases._mouse_handler),
+        ]
 
         if figsize is None:
             figsize = mpl.rcParams['figure.figsize']

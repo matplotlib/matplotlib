@@ -1418,17 +1418,6 @@ class MouseEvent(LocationEvent):
         self.step = step
         self.dblclick = dblclick
 
-    def _process(self):
-        if self.name == "button_press_event":
-            self.canvas._button = self.button
-        elif self.name == "button_release_event":
-            self.canvas._button = None
-        elif self.name == "motion_notify_event" and self.button is None:
-            self.button = self.canvas._button
-        if self.key is None:
-            self.key = self.canvas._key
-        super()._process()
-
     def __str__(self):
         return (f"{self.name}: "
                 f"xy=({self.x}, {self.y}) xydata=({self.xdata}, {self.ydata}) "
@@ -1521,28 +1510,41 @@ class KeyEvent(LocationEvent):
         super().__init__(name, canvas, x, y, guiEvent=guiEvent)
         self.key = key
 
-    def _process(self):
-        if self.name == "key_press_event":
-            self.canvas._key = self.key
-        elif self.name == "key_release_event":
-            self.canvas._key = None
-        super()._process()
+
+# Default callback for key events.
+def _key_handler(event):
+    # Dead reckoning of key.
+    if event.name == "key_press_event":
+        event.canvas._key = event.key
+    elif event.name == "key_release_event":
+        event.canvas._key = None
 
 
-def _axes_enter_leave_emitter(event):
-    last = LocationEvent.lastevent
-    last_axes = last.inaxes if last is not None else None
-    if last_axes != event.inaxes:
-        if last_axes is not None:
-            try:
-                last.canvas.callbacks.process("axes_leave_event", last)
-            except Exception:
-                # The last canvas may already have been torn down.
-                pass
-        if event.inaxes is not None:
-            event.canvas.callbacks.process("axes_enter_event", event)
-    LocationEvent.lastevent = (
-        None if event.name == "figure_leave_event" else event)
+# Default callback for mouse events.
+def _mouse_handler(event):
+    # Dead-reckoning of button and key.
+    if event.name == "button_press_event":
+        event.canvas._button = event.button
+    elif event.name == "button_release_event":
+        event.canvas._button = None
+    elif event.name == "motion_notify_event" and event.button is None:
+        event.button = event.canvas._button
+    if event.key is None:
+        event.key = event.canvas._key
+    # Emit axes_enter/axes_leave.
+    if event.name == "motion_notify_event":
+        last = LocationEvent.lastevent
+        last_axes = last.inaxes if last is not None else None
+        if last_axes != event.inaxes:
+            if last_axes is not None:
+                try:
+                    last.canvas.callbacks.process("axes_leave_event", last)
+                except Exception:
+                    pass  # The last canvas may already have been torn down.
+            if event.inaxes is not None:
+                event.canvas.callbacks.process("axes_enter_event", event)
+        LocationEvent.lastevent = (
+            None if event.name == "figure_leave_event" else event)
 
 
 def _get_renderer(figure, print_method=None):
