@@ -1285,15 +1285,6 @@ class ResizeEvent(Event):
 class CloseEvent(Event):
     """An event triggered by a figure being closed."""
 
-    def _process(self):
-        try:
-            super()._process()
-        except (AttributeError, TypeError):
-            pass
-            # Suppress AttributeError/TypeError that occur when the python
-            # session is being killed.  It may be that a better solution would
-            # be a mechanism to disconnect all callbacks upon shutdown.
-
 
 class LocationEvent(Event):
     """
