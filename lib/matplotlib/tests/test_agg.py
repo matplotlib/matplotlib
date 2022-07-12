@@ -7,7 +7,7 @@ import pytest
 
 
 from matplotlib import (
-    collections, path, patheffects, pyplot as plt, transforms as mtransforms,
+    collections, patheffects, pyplot as plt, transforms as mtransforms,
     rcParams, rc_context)
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.figure import Figure
@@ -56,7 +56,7 @@ def test_large_single_path_collection():
     # applied.
     f, ax = plt.subplots()
     collection = collections.PathCollection(
-        [path.Path([[-10, 5], [10, 5], [10, -5], [-10, -5], [-10, 5]])])
+        [Path([[-10, 5], [10, 5], [10, -5], [-10, -5], [-10, 5]])])
     ax.add_artist(collection)
     ax.set_xlim(10**-3, 1)
     plt.savefig(buff)
@@ -270,7 +270,7 @@ def test_webp_alpha():
 
 def test_draw_path_collection_error_handling():
     fig, ax = plt.subplots()
-    ax.scatter([1], [1]).set_paths(path.Path([(0, 1), (2, 3)]))
+    ax.scatter([1], [1]).set_paths(Path([(0, 1), (2, 3)]))
     with pytest.raises(TypeError):
         fig.canvas.draw()
 
