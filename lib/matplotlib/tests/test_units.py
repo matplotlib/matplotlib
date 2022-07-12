@@ -283,3 +283,23 @@ def test_plot_kernel():
     # just a smoketest that fail
     kernel = Kernel([1, 2, 3, 4, 5])
     plt.plot(kernel)
+
+
+@check_figures_equal(extensions=['png'])
+def test_unit_axis_label(fig_test, fig_ref):
+    import matplotlib.testing.jpl_units as units
+    units.register()
+
+    data = [0 * units.km, 1 * units.km, 2 * units.km]
+
+    ax_test = fig_test.subplots()
+    ax_ref = fig_ref.subplots()
+    axs = [ax_test, ax_ref]
+
+    for ax in axs:
+        ax.yaxis.set_units('km')
+        ax.set_xlim(10, 20)
+        ax.set_ylim(10, 20)
+
+    ax_test.scatter([1, 2, 3], data, edgecolors='none')
+    ax_ref.plot([1, 2, 3], data, marker='o', linewidth=0)
