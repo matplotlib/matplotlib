@@ -276,6 +276,11 @@ def test_draw_path_collection_error_handling():
 
 
 def test_chunksize_fails():
+    # NOTE: This test covers multiple independent test scenarios in a single
+    #       function, because each scenario uses ~2GB of memory and we don't
+    #       want parallel test executors to accidentally run multiple of these
+    #       at the same time.
+
     N = 100_000
     dpi = 500
     w = 5*dpi
