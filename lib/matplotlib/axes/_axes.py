@@ -26,6 +26,7 @@ import matplotlib.streamplot as mstream
 import matplotlib.table as mtable
 import matplotlib.text as mtext
 import matplotlib.ticker as mticker
+import matplotlib.timedeltas # Register timedelta unit converter as side-effect.
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 import matplotlib.units as munits

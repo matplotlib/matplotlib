@@ -53,6 +53,11 @@ class ConversionError(TypeError):
     pass
 
 
+def _is_natively_supported_scalar(x):
+    return (isinstance(x, Number) and not
+            isinstance(x, Decimal) and not
+            isinstance(x, np.timedelta64))
+
 def _is_natively_supported(x):
     """
     Return whether *x* is of a type that Matplotlib natively supports or an
@@ -64,9 +69,9 @@ def _is_natively_supported(x):
         for thisx in x:
             if thisx is ma.masked:
                 continue
-            return isinstance(thisx, Number) and not isinstance(thisx, Decimal)
+            return _is_natively_supported_scalar(thisx)
     else:
-        return isinstance(x, Number) and not isinstance(x, Decimal)
+        return _is_natively_supported_scalar(x)
 
 
 class AxisInfo:
