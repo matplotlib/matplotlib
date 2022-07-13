@@ -50,8 +50,11 @@ def create_figure():
 
     # text and typesetting
     plt.plot([0.9], [0.5], "ro", markersize=3)
-    plt.text(0.9, 0.5, 'unicode (ü, °, µ) and math ($\\mu_i = x_i^2$)',
+    plt.text(0.9, 0.5, 'unicode (ü, °, µ), math ($\\mu_i = x_i^2$),' \
+            + 'and parenthesis delimiters (\\(\\sqrt{\\mu_i} = x_i\\)).',
              ha='right', fontsize=20)
+    plt.xlabel('sans-serif, blue, \\(x\\)..',
+               family='sans-serif', color='blue')
     plt.ylabel('sans-serif, blue, $\\frac{\\sqrt{x}}{y^2}$..',
                family='sans-serif', color='blue')
 
@@ -62,6 +65,7 @@ def create_figure():
 @pytest.mark.parametrize('plain_text, escaped_text', [
     (r'quad_sum: $\sum x_i^2$', r'quad\_sum: \(\displaystyle \sum x_i^2\)'),
     (r'no \$splits \$ here', r'no \$splits \$ here'),
+    (r'nor \\(here either)', r'nor \\(here either)'),
     ('with_underscores', r'with\_underscores'),
     ('% not a comment', r'\% not a comment'),
     ('^not', r'\^not'),
@@ -332,6 +336,16 @@ def test_minus_signs_with_tex(fig_test, fig_ref, texsystem):
     mpl.rcParams["pgf.texsystem"] = texsystem
     fig_test.text(.5, .5, "$-1$")
     fig_ref.text(.5, .5, "$\N{MINUS SIGN}1$")
+
+@check_figures_equal(extensions=["pdf"])
+@pytest.mark.parametrize("texsystem", ("pdflatex", "xelatex", "lualatex"))
+@pytest.mark.backend("pgf")
+def test_minus_signs_with_tex_and_parentheses(fig_test, fig_ref, texsystem):
+    if not _check_for_pgf(texsystem):
+        pytest.skip(texsystem + ' + pgf is required')
+    mpl.rcParams["pgf.texsystem"] = texsystem
+    fig_test.text(.5, .5, "\\(-1\\)")
+    fig_ref.text(.5, .5, "\\(\N{MINUS SIGN}1\\)")
 
 
 @pytest.mark.backend("pgf")
