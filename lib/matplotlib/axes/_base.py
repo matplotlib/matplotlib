@@ -2582,7 +2582,7 @@ class _AxesBase(martist.Artist):
             # Update from data if axis is already set but no unit is set yet.
             if (axis is not None and
                     data is not None and not
-                    axis.have_units_and_converter()):
+                    axis._have_units_and_converter()):
                 axis.update_units(data)
         for axis_name, axis in axis_map.items():
             # Return if no axis is set.
