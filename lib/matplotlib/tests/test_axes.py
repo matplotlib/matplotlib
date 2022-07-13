@@ -868,6 +868,19 @@ def test_hexbin_log():
     plt.colorbar(h)
 
 
+@image_comparison(["hexbin_linear.png"], style="mpl20", remove_text=True)
+def test_hexbin_linear():
+    # Issue #21165
+    np.random.seed(19680801)
+    n = 100000
+    x = np.random.standard_normal(n)
+    y = 2.0 + 3.0 * x + 4.0 * np.random.standard_normal(n)
+
+    fig, ax = plt.subplots()
+    ax.hexbin(x, y, gridsize=(10, 5), marginals=True,
+              reduce_C_function=np.sum)
+
+
 def test_hexbin_log_clim():
     x, y = np.arange(200).reshape((2, 100))
     fig, ax = plt.subplots()
@@ -3871,7 +3884,7 @@ def test_stem(use_line_collection):
         ax.stem(x, np.cos(x),
                 linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label=' ')
     else:
-        with pytest.warns(match='deprecated'):
+        with pytest.warns(MatplotlibDeprecationWarning, match='deprecated'):
             ax.stem(x, np.cos(x),
                     linefmt='C2-.', markerfmt='k+', basefmt='C1-.', label=' ',
                     use_line_collection=False)
@@ -3919,7 +3932,7 @@ def test_stem_orientation(use_line_collection):
                 linefmt='C2-.', markerfmt='kx', basefmt='C1-.',
                 orientation='horizontal')
     else:
-        with pytest.warns(match='deprecated'):
+        with pytest.warns(MatplotlibDeprecationWarning, match='deprecated'):
             ax.stem(x, np.cos(x),
                     linefmt='C2-.', markerfmt='kx', basefmt='C1-.',
                     use_line_collection=False,

@@ -8,16 +8,22 @@ from types import SimpleNamespace
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib.backends import backend_template
+from matplotlib.backends.backend_template import (
+    FigureCanvasTemplate, FigureManagerTemplate)
 
 
 def test_load_template():
     mpl.use("template")
-    assert type(plt.figure().canvas) == backend_template.FigureCanvasTemplate
+    assert type(plt.figure().canvas) == FigureCanvasTemplate
 
 
-def test_new_manager(monkeypatch):
+def test_load_old_api(monkeypatch):
     mpl_test_backend = SimpleNamespace(**vars(backend_template))
-    del mpl_test_backend.new_figure_manager
+    mpl_test_backend.new_figure_manager = (
+        lambda num, *args, FigureClass=mpl.figure.Figure, **kwargs:
+        FigureManagerTemplate(
+            FigureCanvasTemplate(FigureClass(*args, **kwargs)), num))
     monkeypatch.setitem(sys.modules, "mpl_test_backend", mpl_test_backend)
     mpl.use("module://mpl_test_backend")
-    assert type(plt.figure().canvas) == backend_template.FigureCanvasTemplate
+    assert type(plt.figure().canvas) == FigureCanvasTemplate
+    plt.draw_if_interactive()

@@ -296,7 +296,7 @@ def test_marker_as_markerstyle():
     line.set_marker(MarkerStyle("o"))
     fig.canvas.draw()
     # test Path roundtrip
-    triangle1 = Path([[-1., -1.], [1., -1.], [0., 2.], [0., 0.]], closed=True)
+    triangle1 = Path._create_closed([[-1, -1], [1, -1], [0, 2]])
     line2, = ax.plot([1, 3, 2], marker=MarkerStyle(triangle1), ms=22)
     line3, = ax.plot([0, 2, 1], marker=triangle1, ms=22)
 

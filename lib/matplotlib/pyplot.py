@@ -274,13 +274,11 @@ def switch_backend(newbackend):
                 "framework, as {!r} is currently running".format(
                     newbackend, required_framework, current_framework))
 
-    # Load the new_figure_manager(), draw_if_interactive(), and show()
-    # functions from the backend.
+    # Load the new_figure_manager() and show() functions from the backend.
 
     # Classically, backends can directly export these functions.  This should
     # keep working for backcompat.
     new_figure_manager = getattr(backend_mod, "new_figure_manager", None)
-    # draw_if_interactive = getattr(backend_mod, "draw_if_interactive", None)
     # show = getattr(backend_mod, "show", None)
     # In that classical approach, backends are implemented as modules, but
     # "inherit" default method implementations from backend_bases._Backend.
@@ -290,8 +288,9 @@ def switch_backend(newbackend):
         locals().update(vars(backend_mod))
 
     # However, the newer approach for defining new_figure_manager (and, in
-    # the future, draw_if_interactive and show) is to derive them from canvas
-    # methods.  In that case, also update backend_mod accordingly.
+    # the future, show) is to derive them from canvas methods.  In that case,
+    # also update backend_mod accordingly; also, per-backend customization of
+    # draw_if_interactive is disabled.
     if new_figure_manager is None:
         def new_figure_manager_given_figure(num, figure):
             return canvas_class.new_manager(figure, num)
@@ -300,9 +299,16 @@ def switch_backend(newbackend):
             fig = FigureClass(*args, **kwargs)
             return new_figure_manager_given_figure(num, fig)
 
+        def draw_if_interactive():
+            if matplotlib.is_interactive():
+                manager = _pylab_helpers.Gcf.get_active()
+                if manager:
+                    manager.canvas.draw_idle()
+
         backend_mod.new_figure_manager_given_figure = \
             new_figure_manager_given_figure
         backend_mod.new_figure_manager = new_figure_manager
+        backend_mod.draw_if_interactive = draw_if_interactive
 
     _log.debug("Loaded backend %s version %s.",
                newbackend, backend_mod.backend_version)
@@ -762,9 +768,9 @@ def figure(num=None,  # autoincrement if None, else integer from 1-N
 
     Notes
     -----
-    Newly created figures will be passed to the
-    `~.backend_template.new_figure_manager` function provided by the current
-    backend, which will install a canvas and a manager on the figure.
+    Newly created figures are passed to the `~.FigureCanvasBase.new_manager`
+    method or the `new_figure_manager` function provided by the current
+    backend, which install a canvas and a manager on the figure.
 
     If you are creating many figures, make sure you explicitly call
     `.pyplot.close` on the figures you are not using, because this will

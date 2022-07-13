@@ -7,8 +7,8 @@ import pytest
 
 
 from matplotlib import (
-    collections, path, patheffects, pyplot as plt, transforms as mtransforms,
-    rcParams)
+    collections, patheffects, pyplot as plt, transforms as mtransforms,
+    rcParams, rc_context)
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.figure import Figure
 from matplotlib.image import imread
@@ -56,7 +56,7 @@ def test_large_single_path_collection():
     # applied.
     f, ax = plt.subplots()
     collection = collections.PathCollection(
-        [path.Path([[-10, 5], [10, 5], [10, -5], [-10, -5], [-10, 5]])])
+        [Path([[-10, 5], [10, 5], [10, -5], [-10, -5], [-10, 5]])])
     ax.add_artist(collection)
     ax.set_xlim(10**-3, 1)
     plt.savefig(buff)
@@ -270,85 +270,62 @@ def test_webp_alpha():
 
 def test_draw_path_collection_error_handling():
     fig, ax = plt.subplots()
-    ax.scatter([1], [1]).set_paths(path.Path([(0, 1), (2, 3)]))
+    ax.scatter([1], [1]).set_paths(Path([(0, 1), (2, 3)]))
     with pytest.raises(TypeError):
         fig.canvas.draw()
 
 
-@pytest.fixture
-def chunk_limit_setup():
+def test_chunksize_fails():
+    # NOTE: This test covers multiple independent test scenarios in a single
+    #       function, because each scenario uses ~2GB of memory and we don't
+    #       want parallel test executors to accidentally run multiple of these
+    #       at the same time.
+
     N = 100_000
     dpi = 500
     w = 5*dpi
     h = 6*dpi
 
-    # just fit in the width
+    # make a Path that spans the whole w-h rectangle
     x = np.linspace(0, w, N)
-    # and go top-to-bottom
     y = np.ones(N) * h
     y[::2] = 0
+    path = Path(np.vstack((x, y)).T)
+    # effectively disable path simplification (but leaving it "on")
+    path.simplify_threshold = 0
 
-    idt = IdentityTransform()
-    # make a renderer
+    # setup the minimal GraphicsContext to draw a Path
     ra = RendererAgg(w, h, dpi)
-    # setup the minimal gc to draw a line
     gc = ra.new_gc()
     gc.set_linewidth(1)
     gc.set_foreground('r')
-    # make a Path
-    p = Path(np.vstack((x, y)).T)
-    # effectively disable path simplification (but leaving it "on")
-    p.simplify_threshold = 0
-
-    return ra, gc, p, idt
-
-
-def test_chunksize_hatch_fail(chunk_limit_setup):
-    ra, gc, p, idt = chunk_limit_setup
 
     gc.set_hatch('/')
+    with pytest.raises(OverflowError, match='can not split hatched path'):
+        ra.draw_path(gc, path, IdentityTransform())
+    gc.set_hatch(None)
 
-    with pytest.raises(OverflowError, match='hatched path'):
-        ra.draw_path(gc, p, idt)
+    with pytest.raises(OverflowError, match='can not split filled path'):
+        ra.draw_path(gc, path, IdentityTransform(), (1, 0, 0))
 
+    # Set to zero to disable, currently defaults to 0, but let's be sure.
+    with rc_context({'agg.path.chunksize': 0}):
+        with pytest.raises(OverflowError, match='Please set'):
+            ra.draw_path(gc, path, IdentityTransform())
 
-def test_chunksize_rgbFace_fail(chunk_limit_setup):
-    ra, gc, p, idt = chunk_limit_setup
+    # Set big enough that we do not try to chunk.
+    with rc_context({'agg.path.chunksize': 1_000_000}):
+        with pytest.raises(OverflowError, match='Please reduce'):
+            ra.draw_path(gc, path, IdentityTransform())
 
-    with pytest.raises(OverflowError, match='filled path'):
-        ra.draw_path(gc, p, idt, (1, 0, 0))
+    # Small enough we will try to chunk, but big enough we will fail to render.
+    with rc_context({'agg.path.chunksize': 90_000}):
+        with pytest.raises(OverflowError, match='Please reduce'):
+            ra.draw_path(gc, path, IdentityTransform())
 
-
-def test_chunksize_no_simplify_fail(chunk_limit_setup):
-    ra, gc, p, idt = chunk_limit_setup
-    p.should_simplify = False
+    path.should_simplify = False
     with pytest.raises(OverflowError, match="should_simplify is False"):
-        ra.draw_path(gc, p, idt)
-
-
-def test_chunksize_zero(chunk_limit_setup):
-    ra, gc, p, idt = chunk_limit_setup
-    # set to zero to disable, currently defaults to 0, but lets be sure
-    rcParams['agg.path.chunksize'] = 0
-    with pytest.raises(OverflowError, match='Please set'):
-        ra.draw_path(gc, p, idt)
-
-
-def test_chunksize_too_big_to_chunk(chunk_limit_setup):
-    ra, gc, p, idt = chunk_limit_setup
-    # set big enough that we do not try to chunk
-    rcParams['agg.path.chunksize'] = 1_000_000
-    with pytest.raises(OverflowError, match='Please reduce'):
-        ra.draw_path(gc, p, idt)
-
-
-def test_chunksize_toobig_chunks(chunk_limit_setup):
-    ra, gc, p, idt = chunk_limit_setup
-    # small enough we will try to chunk, but big enough we will fail
-    # to render
-    rcParams['agg.path.chunksize'] = 90_000
-    with pytest.raises(OverflowError, match='Please reduce'):
-        ra.draw_path(gc, p, idt)
+        ra.draw_path(gc, path, IdentityTransform())
 
 
 def test_non_tuple_rgbaface():

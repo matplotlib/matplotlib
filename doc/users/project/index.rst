@@ -6,7 +6,8 @@ Project information
 .. toctree::
     :maxdepth: 2
 
-    license.rst
-    citing.rst
-    credits.rst
+    mission.rst
     history.rst
+    citing.rst
+    license.rst
+    credits.rst

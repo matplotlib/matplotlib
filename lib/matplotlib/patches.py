@@ -1269,11 +1269,9 @@ class Arrow(Patch):
     def __str__(self):
         return "Arrow()"
 
-    _path = Path([[0.0, 0.1], [0.0, -0.1],
-                  [0.8, -0.1], [0.8, -0.3],
-                  [1.0, 0.0], [0.8, 0.3],
-                  [0.8, 0.1], [0.0, 0.1]],
-                 closed=True)
+    _path = Path._create_closed([
+        [0.0, 0.1], [0.0, -0.1], [0.8, -0.1], [0.8, -0.3], [1.0, 0.0],
+        [0.8, 0.3], [0.8, 0.1]])
 
     @_docstring.dedent_interpd
     @_api.make_keyword_only("3.6", name="width")
@@ -2303,8 +2301,8 @@ class BoxStyle(_Style):
             # boundary of the padded box
             x0, y0 = x0 - pad, y0 - pad
             x1, y1 = x0 + width, y0 + height
-            return Path([(x0, y0), (x1, y0), (x1, y1), (x0, y1), (x0, y0)],
-                        closed=True)
+            return Path._create_closed(
+                [(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
 
     @_register_style(_style_list)
     class Circle:
@@ -2353,11 +2351,11 @@ class BoxStyle(_Style):
             dxx = dx / 2
             x0 = x0 + pad / 1.4  # adjust by ~sqrt(2)
 
-            return Path([(x0 + dxx, y0), (x1, y0), (x1, y1), (x0 + dxx, y1),
-                         (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
-                         (x0 + dxx, y0 - dxx),  # arrow
-                         (x0 + dxx, y0), (x0 + dxx, y0)],
-                        closed=True)
+            return Path._create_closed(
+                [(x0 + dxx, y0), (x1, y0), (x1, y1), (x0 + dxx, y1),
+                 (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
+                 (x0 + dxx, y0 - dxx),  # arrow
+                 (x0 + dxx, y0)])
 
     @_register_style(_style_list)
     class RArrow(LArrow):
@@ -2397,14 +2395,14 @@ class BoxStyle(_Style):
             dxx = dx / 2
             x0 = x0 + pad / 1.4  # adjust by ~sqrt(2)
 
-            return Path([(x0 + dxx, y0), (x1, y0),  # bot-segment
-                         (x1, y0 - dxx), (x1 + dx + dxx, y0 + dx),
-                         (x1, y1 + dxx),  # right-arrow
-                         (x1, y1), (x0 + dxx, y1),  # top-segment
-                         (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
-                         (x0 + dxx, y0 - dxx),  # left-arrow
-                         (x0 + dxx, y0), (x0 + dxx, y0)],  # close-poly
-                        closed=True)
+            return Path._create_closed([
+                (x0 + dxx, y0), (x1, y0),  # bot-segment
+                (x1, y0 - dxx), (x1 + dx + dxx, y0 + dx),
+                (x1, y1 + dxx),  # right-arrow
+                (x1, y1), (x0 + dxx, y1),  # top-segment
+                (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
+                (x0 + dxx, y0 - dxx),  # left-arrow
+                (x0 + dxx, y0)])
 
     @_register_style(_style_list)
     class Round:

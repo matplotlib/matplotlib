@@ -1,5 +1,7 @@
 .. redirect-from:: /users/history
 
+.. _project_history:
+
 History
 =======
 
