@@ -149,6 +149,40 @@ def test_rotate_rect_draw(fig_test, fig_ref):
     assert rect_test.get_angle() == angle
 
 
+@check_figures_equal(extensions=['png'])
+def test_dash_offset_patch_draw(fig_test, fig_ref):
+    ax_test = fig_test.add_subplot()
+    ax_ref = fig_ref.add_subplot()
+
+    loc = (0, 0)
+    width, height = (1, 1)
+    edgecolor = 'b'
+    linestyle = (0, [6, 6])
+    linestyle_hacked = (0, [0, 6, 6, 0])
+    rect_ref = Rectangle(loc, width, height, edgecolor=edgecolor,
+                                                linestyle=linestyle)
+    rect_ref2 = Rectangle(loc, width, height, edgecolor=edgecolor,
+                                        linestyle=linestyle_hacked)
+    ax_ref.add_patch(rect_ref)
+    ax_ref.add_patch(rect_ref2)
+
+    assert rect_ref.get_linestyle() == linestyle
+    assert rect_ref2.get_linestyle() == linestyle_hacked
+
+    # Check that the dash offset of the rect is the same if we pass it in the
+    # init method and if we create two rects with appropriate onoff sequence
+    # of linestyle.
+    linestyle_test = (6, [6, 6])
+    rect_test = Rectangle(loc, width, height, edgecolor=edgecolor,
+                                                linestyle=linestyle)
+    rect_test2 = Rectangle(loc, width, height, edgecolor=edgecolor,
+                                             linestyle=linestyle_test)
+    assert rect_test.get_linestyle() == linestyle
+    assert rect_test2.get_linestyle() == linestyle_test
+    ax_test.add_patch(rect_test)
+    ax_test.add_patch(rect_test2)
+
+
 def test_negative_rect():
     # These two rectangles have the same vertices, but starting from a
     # different point.  (We also drop the last vertex, which is a duplicate.)
