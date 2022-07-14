@@ -274,14 +274,17 @@ class Axes3D(Axes):
 
         Parameters
         ----------
-        aspect : {'auto', 'equal'}
+        aspect : {'auto', 'equal', 'equalxy', 'equalxz', 'equalyz'}
             Possible values:
 
             =========   ==================================================
             value       description
             =========   ==================================================
             'auto'      automatic; fill the position rectangle with data.
-            'equal'     adapt the axes to have equal aspect ratios.
+            'equal'     adapt all the axes to have equal aspect ratios.
+            'equalxy'   adapt the x and y axes to have equal aspect ratios.
+            'equalxz'   adapt the x and z axes to have equal aspect ratios.
+            'equalyz'   adapt the y and z axes to have equal aspect ratios.
             =========   ==================================================
 
         adjustable : None
@@ -315,25 +318,33 @@ class Axes3D(Axes):
         --------
         mpl_toolkits.mplot3d.axes3d.Axes3D.set_box_aspect
         """
-        if aspect not in ('auto', 'equal'):
-            raise NotImplementedError(
-                "Axes3D currently only supports the aspect argument "
-                f"'auto' or 'equal'. You passed in {aspect!r}."
-            )
+        _api.check_in_list(('auto', 'equal', 'equalxy', 'equalyz', 'equalxz'),
+                           aspect=aspect)
         super().set_aspect(
-            aspect, adjustable=adjustable, anchor=anchor, share=share)
+            aspect='auto', adjustable=adjustable, anchor=anchor, share=share)
 
-        if aspect == 'equal':
-            v_intervals = np.vstack((self.xaxis.get_view_interval(),
-                                     self.yaxis.get_view_interval(),
-                                     self.zaxis.get_view_interval()))
-            mean = np.mean(v_intervals, axis=1)
-            delta = np.max(np.ptp(v_intervals, axis=1))
+        if aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
+            if aspect == 'equal':
+                axis_indices = [0, 1, 2]
+            elif aspect == 'equalxy':
+                axis_indices = [0, 1]
+            elif aspect == 'equalxz':
+                axis_indices = [0, 2]
+            elif aspect == 'equalyz':
+                axis_indices = [1, 2]
+
+            view_intervals = np.array([self.xaxis.get_view_interval(),
+                                       self.yaxis.get_view_interval(),
+                                       self.zaxis.get_view_interval()])
+            mean = np.mean(view_intervals, axis=1)
+            delta = np.max(np.ptp(view_intervals, axis=1))
             deltas = delta * self._box_aspect / min(self._box_aspect)
 
-            self.set_xlim3d(mean[0] - deltas[0] / 2., mean[0] + deltas[0] / 2.)
-            self.set_ylim3d(mean[1] - deltas[1] / 2., mean[1] + deltas[1] / 2.)
-            self.set_zlim3d(mean[2] - deltas[2] / 2., mean[2] + deltas[2] / 2.)
+            for i, set_lim in enumerate((self.set_xlim3d,
+                                         self.set_ylim3d,
+                                         self.set_zlim3d)):
+                if i in axis_indices:
+                    set_lim(mean[i] - deltas[i]/2., mean[i] + deltas[i]/2.)
 
     def set_box_aspect(self, aspect, *, zoom=1):
         """
