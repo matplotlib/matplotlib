@@ -35,19 +35,22 @@ def compare_figure(fname, savefig_kwargs={}, tol=0):
 
 @pytest.mark.parametrize('plain_text, escaped_text', [
     (r'quad_sum: $\sum x_i^2$', r'quad_sum: \(\displaystyle \sum x_i^2\)'),
-    ('% not a comment', r'\% not a comment'),
-    ('^not', r'\^not'),
 ])
 def test_tex_escape(plain_text, escaped_text):
     assert _tex_escape(plain_text) == escaped_text
 
 
 @needs_pgf_xelatex
+@needs_ghostscript
 @pytest.mark.backend('pgf')
 def test_tex_special_chars(tmp_path):
     fig = plt.figure()
-    fig.text(.5, .5, "_^ $a_b^c$")
-    fig.savefig(tmp_path / "test.pdf")  # Should not error.
+    fig.text(.5, .5, "%_^ $a_b^c$")
+    buf = BytesIO()
+    fig.savefig(buf, format="png", backend="pgf")
+    buf.seek(0)
+    t = plt.imread(buf)
+    assert not (t == 1).all()  # The leading "%" didn't eat up everything.
 
 
 def create_figure():

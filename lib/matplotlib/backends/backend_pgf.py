@@ -85,9 +85,6 @@ mpl_in_to_pt = 1. / mpl_pt_to_in
 
 _NO_ESCAPE = r"(?<!\\)(?:\\\\)*"
 _split_math = re.compile(_NO_ESCAPE + r"\$").split
-_replace_escapetext = functools.partial(
-    # When the next character is an unescaped % or ^, insert a backslash.
-    re.compile(_NO_ESCAPE + "(?=[%^])").sub, "\\\\")
 _replace_mathdefault = functools.partial(
     # Replace \mathdefault (when not preceded by an escape) by empty string.
     re.compile(_NO_ESCAPE + r"(\\mathdefault)").sub, "")
@@ -106,8 +103,6 @@ def _tex_escape(text):
     This distinguishes text-mode and math-mode by replacing the math separator
     ``$`` with ``\(\displaystyle %s\)``. Escaped math separators (``\$``)
     are ignored.
-
-    The following characters are escaped in text segments: ``^%``
     """
     # Sometimes, matplotlib adds the unknown command \mathdefault.
     # Not using \mathnormal instead since this looks odd for the latex cm font.
@@ -116,11 +111,7 @@ def _tex_escape(text):
     # split text into normaltext and inline math parts
     parts = _split_math(text)
     for i, s in enumerate(parts):
-        if not i % 2:
-            # textmode replacements
-            s = _replace_escapetext(s)
-        else:
-            # mathmode replacements
+        if i % 2:  # mathmode replacements
             s = r"\(\displaystyle %s\)" % s
         parts[i] = s
     return "".join(parts)
@@ -168,7 +159,17 @@ def _escape_and_apply_props(s, prop):
         commands.append(r"\bfseries")
 
     commands.append(r"\selectfont")
-    return "".join(commands) + " " + _tex_escape(s)
+    return (
+        "{"
+        + "".join(commands)
+        + r"\catcode`\^=\active\def^{\ifmmode\sp\else\^{}\fi}"
+        # It should normally be enough to set the catcode of % to 12 ("normal
+        # character"); this works on TeXLive 2021 but not on 2018, so we just
+        # make it active too.
+        + r"\catcode`\%=\active\def%{\%}"
+        + _tex_escape(s)
+        + "}"
+    )
 
 
 def _metadata_to_str(key, value):
@@ -357,7 +358,11 @@ class LatexManager:
         """
         # This method gets wrapped in __init__ for per-instance caching.
         self._stdin_writeln(  # Send textbox to TeX & request metrics typeout.
-            r"\sbox0{%s}\typeout{\the\wd0,\the\ht0,\the\dp0}" % tex)
+            # \sbox doesn't handle catcode assignments inside its argument,
+            # so repeat the assignment of the catcode of "^" and "%" outside.
+            r"{\catcode`\^=\active\catcode`\%%=\active\sbox0{%s}"
+            r"\typeout{\the\wd0,\the\ht0,\the\dp0}}"
+            % tex)
         try:
             answer = self._expect_prompt()
         except LatexError as err:
