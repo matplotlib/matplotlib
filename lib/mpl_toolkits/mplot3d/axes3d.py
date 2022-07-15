@@ -1088,17 +1088,9 @@ class Axes3D(Axes):
 
         # Zoom
         elif self.button_pressed in self._zoom_btn:
-            # zoom view
-            # hmmm..this needs some help from clipping....
-            minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
-            df = 1-((h - dy)/h)
-            dx = (maxx-minx)*df
-            dy = (maxy-miny)*df
-            dz = (maxz-minz)*df
-            self.set_xlim3d(minx - dx, maxx + dx)
-            self.set_ylim3d(miny - dy, maxy + dy)
-            self.set_zlim3d(minz - dz, maxz + dz)
-            self.get_proj()
+            # zoom view (dragging down zooms in)
+            scale = h/(h - dy)
+            self._zoom_data_limits(scale)
 
         # Store the event coordinates for the next time through.
         self.sx, self.sy = x, y
@@ -1143,63 +1135,31 @@ class Axes3D(Axes):
 
     def _set_view_from_bbox(self, bbox, direction='in',
                             mode=None, twinx=False, twiny=False):
-        # docstring inherited
+        # Move the center of the view to the center of the bbox
+        (start_x, start_y, stop_x, stop_y) = self._prepare_view_from_bbox(bbox)
+        zoom_center_x = (start_x + stop_x)/2
+        zoom_center_y = (start_y + stop_y)/2
 
-        # bbox is (start_x, start_y, event.x, event.y) in screen coords
-        # _prepare_view_from_bbox will give us back new *data* coords
-        # (in the 2D transform space, not 3D world coords)
-        new_xbound, new_ybound = self._prepare_view_from_bbox(
-            bbox, direction=direction, mode=mode, twinx=twinx, twiny=twiny)
-        # We need to get the Zoom bbox limits relative to the Axes limits
-        # 1) Axes bottom-left -> Zoom box bottom-left
-        # 2) Axes top-right -> Zoom box top-right
-        axes_to_data_trans = self.transAxes + self.transData.inverted()
-        axes_data_bbox = axes_to_data_trans.transform([(0, 0), (1, 1)])
-        # dx, dy gives us the vector difference from the axes to the
-        dx1, dy1 = (axes_data_bbox[0][0] - new_xbound[0],
-                    axes_data_bbox[0][1] - new_ybound[0])
-        dx2, dy2 = (axes_data_bbox[1][0] - new_xbound[1],
-                    axes_data_bbox[1][1] - new_ybound[1])
+        ax_center_x = (self.bbox.max[0] + self.bbox.min[0])/2
+        ax_center_y = (self.bbox.max[1] + self.bbox.min[1])/2
 
-        def data_2d_to_world_3d(dx, dy):
-            # Takes the vector (dx, dy) in transData coords and
-            # transforms that to each of the 3 world data coords
-            # (x, y, z) for calculating the offset
-            w = self._pseudo_w
-            h = self._pseudo_h
+        self.start_pan(zoom_center_x, zoom_center_y, 2)
+        self.drag_pan(2, None, ax_center_x, ax_center_y)
+        self.end_pan()
 
-            dx = 1 - ((w - dx) / w)
-            dy = 1 - ((h - dy) / h)
-            elev = np.deg2rad(self.elev)
-            azim = np.deg2rad(self.azim)
-            # project xv, yv, zv -> xw, yw, zw
-            dxx = (dy * np.sin(elev)
-                                * np.cos(azim) + dx * np.sin(azim))
-            dyy = (-dx * np.cos(azim)
-                                + dy * np.sin(elev) * np.sin(azim))
-            dzz = (-dy * np.cos(elev))
-            return dxx, dyy, dzz
+        # Calculate zoom level
+        scale_x = abs((start_x - stop_x)/(self.bbox.max[0] - self.bbox.min[0]))
+        scale_y = abs((start_y - stop_y)/(self.bbox.max[1] - self.bbox.min[1]))
+        scale = max(scale_x, scale_y)
+        if direction == 'out':
+            scale = 1 / scale
 
-        # These are the amounts to bring the projection in or out by from
-        # each side (1 left, 2 right) because we aren't necessarily zooming
-        # into the center of the projection.
-        dxx1, dyy1, dzz1 = data_2d_to_world_3d(dx1, dy1)
-        dxx2, dyy2, dzz2 = data_2d_to_world_3d(dx2, dy2)
-        # update the min and max limits of the world
-        minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
-        self.set_xlim3d(minx + dxx1 * (maxx - minx),
-                        maxx + dxx2 * (maxx - minx))
-        self.set_ylim3d(miny + dyy1 * (maxy - miny),
-                        maxy + dyy2 * (maxy - miny))
-        self.set_zlim3d(minz + dzz1 * (maxz - minz),
-                        maxz + dzz2 * (maxz - minz))
-        self.get_proj()
+        self._zoom_data_limits(scale)
 
     def _prepare_view_from_bbox(self, bbox, direction='in',
                                 mode=None, twinx=False, twiny=False):
         """
         Helper function to prepare the new bounds from a bbox.
-
         This helper function returns the new x and y bounds from the zoom
         bbox. This a convenience method to abstract the bbox logic
         out of the base setter.
@@ -1232,49 +1192,21 @@ class Axes3D(Axes):
                 "of length 3 or 4. Ignoring the view change.")
             return
 
-        # Original limits
-        # Can't use get_x/y bounds because those aren't in 2D space
-        pseudo_bbox = self.transLimits.inverted().transform([(0, 0), (1, 1)])
-        (xmin0, ymin0), (xmax0, ymax0) = pseudo_bbox
-        # The zoom box in screen coords.
-        startx, starty, stopx, stopy = bbox
-        # Convert to data coords.
-        (startx, starty), (stopx, stopy) = self.transData.inverted().transform(
-            [(startx, starty), (stopx, stopy)])
-        # Clip to axes limits.
-        xmin, xmax = np.clip(sorted([startx, stopx]), xmin0, xmax0)
-        ymin, ymax = np.clip(sorted([starty, stopy]), ymin0, ymax0)
-        # Don't double-zoom twinned axes or if zooming only the other axis.
-        if twinx or mode == "y":
-            xmin, xmax = xmin0, xmax0
-        if twiny or mode == "x":
-            ymin, ymax = ymin0, ymax0
+        return bbox
 
-        if direction == "in":
-            new_xbound = xmin, xmax
-            new_ybound = ymin, ymax
-
-        elif direction == "out":
-            x_trf = self.xaxis.get_transform()
-            sxmin0, sxmax0, sxmin, sxmax = x_trf.transform(
-                [xmin0, xmax0, xmin, xmax])  # To screen space.
-            factor = (sxmax0 - sxmin0) / (sxmax - sxmin)  # Unzoom factor.
-            # Move original bounds away by
-            # (factor) x (distance between unzoom box and Axes bbox).
-            sxmin1 = sxmin0 - factor * (sxmin - sxmin0)
-            sxmax1 = sxmax0 + factor * (sxmax0 - sxmax)
-            # And back to data space.
-            new_xbound = x_trf.inverted().transform([sxmin1, sxmax1])
-
-            y_trf = self.yaxis.get_transform()
-            symin0, symax0, symin, symax = y_trf.transform(
-                [ymin0, ymax0, ymin, ymax])
-            factor = (symax0 - symin0) / (symax - symin)
-            symin1 = symin0 - factor * (symin - symin0)
-            symax1 = symax0 + factor * (symax0 - symax)
-            new_ybound = y_trf.inverted().transform([symin1, symax1])
-
-        return new_xbound, new_ybound
+    def _zoom_data_limits(self, scale):
+        # hmmm..this needs some help from clipping....
+        minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
+        cx = (maxx + minx)/2
+        cy = (maxy + miny)/2
+        cz = (maxz + minz)/2
+        dx = (maxx - minx)*scale/2
+        dy = (maxy - miny)*scale/2
+        dz = (maxz - minz)*scale/2
+        self.set_xlim3d(cx - dx, cx + dx)
+        self.set_ylim3d(cy - dy, cy + dy)
+        self.set_zlim3d(cz - dz, cz + dz)
+        self.get_proj()
 
     def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
         """
