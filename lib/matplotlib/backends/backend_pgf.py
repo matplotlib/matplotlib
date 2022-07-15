@@ -310,8 +310,10 @@ class LatexManager:
         test_input = self.latex_header + latex_end
         stdout, stderr = latex.communicate(test_input)
         if latex.returncode != 0:
-            raise LatexError("LaTeX returned an error, probably missing font "
-                             "or error in preamble.", stdout)
+            raise LatexError(
+                f"LaTeX errored (probably missing font or error in preamble) "
+                f"while processing the following input:\n{test_input}",
+                stdout)
 
         self.latex = None  # Will be set up on first use.
         # Per-instance cache.
