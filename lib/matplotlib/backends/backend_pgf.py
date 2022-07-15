@@ -38,9 +38,9 @@ _log = logging.getLogger(__name__)
 @_api.caching_module_getattr
 class __getattr__:
     NO_ESCAPE = _api.deprecated("3.6", obj_type="")(
-        property(lambda self: _NO_ESCAPE))
+        property(lambda self: r"(?<!\\)(?:\\\\)*"))
     re_mathsep = _api.deprecated("3.6", obj_type="")(
-        property(lambda self: _split_math.__self__))
+        property(lambda self: r"(?<!\\)(?:\\\\)*\$"))
 
 
 @_api.deprecated("3.6")
@@ -58,7 +58,15 @@ def get_preamble():
 
 def _get_preamble():
     """Prepare a LaTeX preamble based on the rcParams configuration."""
-    preamble = [mpl.rcParams["pgf.preamble"]]
+    preamble = [
+        # Remove Matplotlib's custom command \mathdefault.  (Not using
+        # \mathnormal instead since this looks odd with Computer Modern.)
+        r"\def\mathdefault#1{#1}",
+        # Use displaystyle for all math.
+        r"\everymath=\expandafter{\the\everymath\displaystyle}",
+        # Allow pgf.preamble to override the above definitions.
+        mpl.rcParams["pgf.preamble"],
+    ]
     if mpl.rcParams["pgf.texsystem"] != "pdflatex":
         preamble.append("\\usepackage{fontspec}")
         if mpl.rcParams["pgf.rcfonts"]:
@@ -83,13 +91,6 @@ mpl_pt_to_in = 1. / 72.
 mpl_in_to_pt = 1. / mpl_pt_to_in
 
 
-_NO_ESCAPE = r"(?<!\\)(?:\\\\)*"
-_split_math = re.compile(_NO_ESCAPE + r"\$").split
-_replace_mathdefault = functools.partial(
-    # Replace \mathdefault (when not preceded by an escape) by empty string.
-    re.compile(_NO_ESCAPE + r"(\\mathdefault)").sub, "")
-
-
 @_api.deprecated("3.6")
 def common_texification(text):
     return _tex_escape(text)
@@ -99,22 +100,8 @@ def _tex_escape(text):
     r"""
     Do some necessary and/or useful substitutions for texts to be included in
     LaTeX documents.
-
-    This distinguishes text-mode and math-mode by replacing the math separator
-    ``$`` with ``\(\displaystyle %s\)``. Escaped math separators (``\$``)
-    are ignored.
     """
-    # Sometimes, matplotlib adds the unknown command \mathdefault.
-    # Not using \mathnormal instead since this looks odd for the latex cm font.
-    text = _replace_mathdefault(text)
-    text = text.replace("\N{MINUS SIGN}", r"\ensuremath{-}")
-    # split text into normaltext and inline math parts
-    parts = _split_math(text)
-    for i, s in enumerate(parts):
-        if i % 2:  # mathmode replacements
-            s = r"\(\displaystyle %s\)" % s
-        parts[i] = s
-    return "".join(parts)
+    return text.replace("\N{MINUS SIGN}", r"\ensuremath{-}")
 
 
 @_api.deprecated("3.6")

@@ -11,7 +11,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.testing import _has_tex_package, _check_for_pgf
 from matplotlib.testing.compare import compare_images, ImageComparisonFailure
-from matplotlib.backends.backend_pgf import PdfPages, _tex_escape
+from matplotlib.backends.backend_pgf import PdfPages
 from matplotlib.testing.decorators import (
     _image_directories, check_figures_equal, image_comparison)
 from matplotlib.testing._markers import (
@@ -31,13 +31,6 @@ def compare_figure(fname, savefig_kwargs={}, tol=0):
     err = compare_images(expected, actual, tol=tol)
     if err:
         raise ImageComparisonFailure(err)
-
-
-@pytest.mark.parametrize('plain_text, escaped_text', [
-    (r'quad_sum: $\sum x_i^2$', r'quad_sum: \(\displaystyle \sum x_i^2\)'),
-])
-def test_tex_escape(plain_text, escaped_text):
-    assert _tex_escape(plain_text) == escaped_text
 
 
 @needs_pgf_xelatex
