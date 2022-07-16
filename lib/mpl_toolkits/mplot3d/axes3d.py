@@ -838,15 +838,13 @@ class Axes3D(Axes):
             pb_aspect=box_aspect,
         )
 
-        # Look into the middle of the new coordinates:
+        # Look into the middle of the world coordinates:
         R = 0.5 * box_aspect
 
         # elev stores the elevation angle in the z plane
         # azim stores the azimuth angle in the x,y plane
-        # roll stores the roll angle about the view axis
         elev_rad = np.deg2rad(art3d._norm_angle(self.elev))
         azim_rad = np.deg2rad(art3d._norm_angle(self.azim))
-        roll_rad = np.deg2rad(art3d._norm_angle(self.roll))
 
         # Coordinates for a point that rotates around the box of data.
         # p0, p1 corresponds to rotating the box only around the
@@ -864,28 +862,20 @@ class Axes3D(Axes):
         # The coordinates for the eye viewing point. The eye is looking
         # towards the middle of the box of data from a distance:
         eye = R + self._dist * ps
-
-        # TODO: Is this being used somewhere? Can it be removed?
         self.eye = eye
-        self.vvec = R - eye
-        self.vvec = self.vvec / np.linalg.norm(self.vvec)
-
-        # Define which axis should be vertical. A negative value
-        # indicates the plot is upside down and therefore the values
-        # have been reversed:
-        V = np.zeros(3)
-        V[self._vertical_axis] = -1 if abs(elev_rad) > 0.5 * np.pi else 1
 
         # Generate the view and projection transformation matrices
         if self._focal_length == np.inf:
             # Orthographic projection
-            viewM = proj3d.view_transformation(eye, R, V, roll_rad)
+            u, v, n = self._get_view_axes(eye)
+            viewM = proj3d.view_transformation(u, v, n, eye)
             projM = proj3d.ortho_transformation(-self._dist, self._dist)
         else:
             # Perspective projection
             # Scale the eye dist to compensate for the focal length zoom effect
             eye_focal = R + self._dist * ps * self._focal_length
-            viewM = proj3d.view_transformation(eye_focal, R, V, roll_rad)
+            u, v, n = self._get_view_axes(eye_focal)
+            viewM = proj3d.view_transformation(u, v, n, eye_focal)
             projM = proj3d.persp_transformation(-self._dist,
                                                 self._dist,
                                                 self._focal_length)
@@ -1119,19 +1109,35 @@ class Axes3D(Axes):
         minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
         dx = 1 - ((w - dx) / w)
         dy = 1 - ((h - dy) / h)
-        elev = np.deg2rad(self.elev)
-        azim = np.deg2rad(self.azim)
-        # project xv, yv, zv -> xw, yw, zw
-        dxx = (maxx - minx) * (dy * np.sin(elev)
-                               * np.cos(azim) + dx * np.sin(azim))
-        dyy = (maxy - miny) * (-dx * np.cos(azim)
-                               + dy * np.sin(elev) * np.sin(azim))
-        dzz = (maxz - minz) * (-dy * np.cos(elev))
+        dz = 0
+        u, v, n = self._get_view_axes(self.eye)
+
+        dxyz_projected = -dx*u -dy*v -dz*n
+        dxx = (maxx - minx) * dxyz_projected[0]
+        dyy = (maxy - miny) * dxyz_projected[1]
+        dzz = (maxz - minz) * dxyz_projected[2]
+
         # pan
         self.set_xlim3d(minx + dxx, maxx + dxx)
         self.set_ylim3d(miny + dyy, maxy + dyy)
         self.set_zlim3d(minz + dzz, maxz + dzz)
         self.get_proj()
+
+    def _get_view_axes(self, eye):
+        elev_rad = np.deg2rad(art3d._norm_angle(self.elev))
+        roll_rad = np.deg2rad(art3d._norm_angle(self.roll))
+
+        # Look into the middle of the world coordinates
+        R = 0.5 * self._roll_to_vertical(self._box_aspect)
+
+        # Define which axis should be vertical. A negative value
+        # indicates the plot is upside down and therefore the values
+        # have been reversed:
+        V = np.zeros(3)
+        V[self._vertical_axis] = -1 if abs(elev_rad) > np.pi/2 else 1
+
+        u, v, n = proj3d.view_axes(eye, R, V, roll_rad)
+        return u, v, n
 
     def _set_view_from_bbox(self, bbox, direction='in',
                             mode=None, twinx=False, twiny=False):

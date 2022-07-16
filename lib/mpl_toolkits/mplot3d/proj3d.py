@@ -72,7 +72,7 @@ def rotation_about_vector(v, angle):
     return R
 
 
-def view_transformation(E, R, V, roll):
+def view_axes(E, R, V, roll):
     n = (E - R)
     n = n/np.linalg.norm(n)
     u = np.cross(V, n)
@@ -85,12 +85,14 @@ def view_transformation(E, R, V, roll):
         Rroll = rotation_about_vector(n, -roll)
         u = np.dot(Rroll, u)
         v = np.dot(Rroll, v)
+    return u, v, n
 
+
+def view_transformation(u, v, n, E):
     Mr = np.eye(4)
     Mt = np.eye(4)
     Mr[:3, :3] = [u, v, n]
     Mt[:3, -1] = -E
-
     return np.dot(Mr, Mt)
 
 
