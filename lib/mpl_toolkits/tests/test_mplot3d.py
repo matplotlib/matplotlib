@@ -299,6 +299,16 @@ def test_scatter3d_color():
                color='b', marker='s')
 
 
+@mpl3d_image_comparison(['scatter3d_linewidth.png'])
+def test_scatter3d_linewidth():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    # Check that array-like linewidth can be set
+    ax.scatter(np.arange(10), np.arange(10), np.arange(10),
+               marker='o', linewidth=np.arange(10))
+
+
 @check_figures_equal(extensions=['png'])
 def test_scatter3d_modification(fig_ref, fig_test):
     # Changing Path3DCollection properties post-creation should work correctly.
