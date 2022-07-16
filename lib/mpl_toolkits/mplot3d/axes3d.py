@@ -885,7 +885,7 @@ class Axes3D(Axes):
         M = np.dot(projM, M0)
         return M
 
-    def mouse_init(self, rotate_btn=1, zoom_btn=3):
+    def mouse_init(self, rotate_btn=1, pan_btn=2, zoom_btn=3):
         """
         Set the mouse buttons for 3D rotation and zooming.
 
@@ -893,6 +893,8 @@ class Axes3D(Axes):
         ----------
         rotate_btn : int or list of int, default: 1
             The mouse button or buttons to use for 3D rotation of the axes.
+        pan_btn : int or list of int, default: 2
+            The mouse button or buttons to use to pan the 3D axes.
         zoom_btn : int or list of int, default: 3
             The mouse button or buttons to use to zoom the 3D axes.
         """
@@ -901,11 +903,12 @@ class Axes3D(Axes):
         # a regular list to avoid comparisons against None
         # which breaks in recent versions of numpy.
         self._rotate_btn = np.atleast_1d(rotate_btn).tolist()
+        self._pan_btn = np.atleast_1d(pan_btn).tolist()
         self._zoom_btn = np.atleast_1d(zoom_btn).tolist()
 
     def disable_mouse_rotation(self):
-        """Disable mouse buttons for 3D rotation and zooming."""
-        self.mouse_init(rotate_btn=[], zoom_btn=[])
+        """Disable mouse buttons for 3D rotation, panning, and zooming."""
+        self.mouse_init(rotate_btn=[], pan_btn=[], zoom_btn=[])
 
     def can_zoom(self):
         """
@@ -1029,8 +1032,8 @@ class Axes3D(Axes):
         """
         Mouse moving.
 
-        By default, button-1 rotates and button-3 zooms; these buttons can be
-        modified via `mouse_init`.
+        By default, button-1 rotates, button-2 pans, and button-3 zooms;
+        these buttons can be modified via `mouse_init`.
         """
 
         if not self.button_pressed:
@@ -1068,7 +1071,7 @@ class Axes3D(Axes):
             self.get_proj()
             self.stale = True
 
-        elif self.button_pressed == 2:
+        elif self.button_pressed in self._pan_btn:
             # Start the pan event with pixel coordinates
             px, py = self.transData.transform([self.sx, self.sy])
             self.start_pan(px, py, 2)
