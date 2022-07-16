@@ -111,7 +111,7 @@ artist at a global scope and let Python sort things out.  For example ::
 
    fig, ax = plt.subplots()
    xdata, ydata = [], []
-   ln, = plt.plot([], [], 'ro')
+   ln, = ax.plot([], [], 'ro')
 
    def init():
        ax.set_xlim(0, 2*np.pi)
