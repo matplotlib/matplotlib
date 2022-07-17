@@ -617,7 +617,7 @@ class DateFormatter(ticker.Formatter):
         fmt : str
             `~datetime.datetime.strftime` format string
         tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
-            Ticks timezone.
+            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         usetex : bool, default: :rc:`text.usetex`
             To enable/disable the use of TeX's math mode for rendering the
             results of the formatter.
@@ -650,7 +650,7 @@ class ConciseDateFormatter(ticker.Formatter):
         Locator that this axis is using.
 
     tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
-        Passed to `.dates.num2date`.
+        Ticks timezone, passed to `.dates.num2date`.
 
     formats : list of 6 strings, optional
         Format strings for 6 levels of tick labelling: mostly years,
@@ -922,8 +922,8 @@ class AutoDateFormatter(ticker.Formatter):
         locator : `.ticker.Locator`
             Locator that this axis is using.
 
-        tz : str or `~datetime.tzinfo`, optional
-            Passed to `.dates.num2date`.
+        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
 
         defaultfmt : str
             The default format to use if none of the values in ``self.scaled``
@@ -1111,12 +1111,18 @@ class DateLocator(ticker.Locator):
         Parameters
         ----------
         tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         self.tz = _get_tzinfo(tz)
 
     def set_tzinfo(self, tz):
         """
-        Set timezone info. str or `~datetime.tzinfo`.
+        Set timezone info.
+
+        Parameters
+        ----------
+        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         self.tz = _get_tzinfo(tz)
 
@@ -1289,7 +1295,7 @@ class AutoDateLocator(DateLocator):
         Parameters
         ----------
         tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
-            Ticks timezone.
+            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         minticks : int
             The minimum number of ticks desired; controls whether ticks occur
             yearly, monthly, etc.
@@ -1490,8 +1496,17 @@ class YearLocator(RRuleLocator):
     """
     def __init__(self, base=1, month=1, day=1, tz=None):
         """
-        Mark years that are multiple of base on a given month and day
-        (default jan 1).
+        Parameters
+        ----------
+        base : int, default: 1
+            Mark ticks every *base* years.
+        month : int, default: 1
+            The month on which to place the ticks, starting from 1. Default is
+            January.
+        day : int, default: 1
+            The day on which to place the ticks.
+        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         rule = rrulewrapper(YEARLY, interval=base, bymonth=month,
                             bymonthday=day, **self.hms0d)
@@ -1523,11 +1538,18 @@ class MonthLocator(RRuleLocator):
     """
     def __init__(self, bymonth=None, bymonthday=1, interval=1, tz=None):
         """
-        Mark every month in *bymonth*; *bymonth* can be an int or
-        sequence.  Default is ``range(1, 13)``, i.e. every month.
-
-        *interval* is the interval between each iteration.  For
-        example, if ``interval=2``, mark every second occurrence.
+        Parameters
+        ----------
+        bymonth : int or list of int, default: all months
+            Ticks will be placed on every month in *bymonth*. Default is
+            ``range(1, 13)``, i.e. every month.
+        bymonthday : int, default: 1
+            The day on which to place the ticks.
+        interval : int, default: 1
+            The interval between each iteration. For example, if
+            ``interval=2``, mark every second occurrence.
+        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         if bymonth is None:
             bymonth = range(1, 13)
@@ -1544,15 +1566,20 @@ class WeekdayLocator(RRuleLocator):
 
     def __init__(self, byweekday=1, interval=1, tz=None):
         """
-        Mark every weekday in *byweekday*; *byweekday* can be a number or
-        sequence.
+        Parameters
+        ----------
+        byweekday : int or list of int, default: all days
+            Ticks will be placed on every weekday in *byweekday*. Default is
+            every day.
 
-        Elements of *byweekday* must be one of MO, TU, WE, TH, FR, SA,
-        SU, the constants from :mod:`dateutil.rrule`, which have been
-        imported into the :mod:`matplotlib.dates` namespace.
-
-        *interval* specifies the number of weeks to skip.  For example,
-        ``interval=2`` plots every second week.
+            Elements of *byweekday* must be one of MO, TU, WE, TH, FR, SA,
+            SU, the constants from :mod:`dateutil.rrule`, which have been
+            imported into the :mod:`matplotlib.dates` namespace.
+        interval : int, default: 1
+            The interval between each iteration. For example, if
+            ``interval=2``, mark every second occurrence.
+        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         rule = rrulewrapper(DAILY, byweekday=byweekday,
                             interval=interval, **self.hms0d)
@@ -1566,9 +1593,16 @@ class DayLocator(RRuleLocator):
     """
     def __init__(self, bymonthday=None, interval=1, tz=None):
         """
-        Mark every day in *bymonthday*; *bymonthday* can be an int or sequence.
-
-        Default is to tick every day of the month: ``bymonthday=range(1, 32)``.
+        Parameters
+        ----------
+        bymonthday : int or list of int, default: all days
+            Ticks will be placed on every day in *bymonthday*. Default is
+            ``bymonthday=range(1, 32)``, i.e., every day of the month.
+        interval : int, default: 1
+            The interval between each iteration. For example, if
+            ``interval=2``, mark every second occurrence.
+        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         if interval != int(interval) or interval < 1:
             raise ValueError("interval must be an integer greater than 0")
@@ -1586,11 +1620,16 @@ class HourLocator(RRuleLocator):
     """
     def __init__(self, byhour=None, interval=1, tz=None):
         """
-        Mark every hour in *byhour*; *byhour* can be an int or sequence.
-        Default is to tick every hour: ``byhour=range(24)``
-
-        *interval* is the interval between each iteration.  For
-        example, if ``interval=2``, mark every second occurrence.
+        Parameters
+        ----------
+        byhour : int or list of int, default: all hours
+            Ticks will be placed on every hour in *byhour*. Default is
+            ``byhour=range(24)``, i.e., every hour.
+        interval : int, default: 1
+            The interval between each iteration. For example, if
+            ``interval=2``, mark every second occurrence.
+        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         if byhour is None:
             byhour = range(24)
@@ -1606,11 +1645,16 @@ class MinuteLocator(RRuleLocator):
     """
     def __init__(self, byminute=None, interval=1, tz=None):
         """
-        Mark every minute in *byminute*; *byminute* can be an int or
-        sequence.  Default is to tick every minute: ``byminute=range(60)``
-
-        *interval* is the interval between each iteration.  For
-        example, if ``interval=2``, mark every second occurrence.
+        Parameters
+        ----------
+        byminute : int or list of int, default: all minutes
+            Ticks will be placed on every minutes in *byminutes*. Default is
+            ``byminute=range(60)``, i.e., every minute.
+        interval : int, default: 1
+            The interval between each iteration. For example, if
+            ``interval=2``, mark every second occurrence.
+        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         if byminute is None:
             byminute = range(60)
@@ -1626,12 +1670,16 @@ class SecondLocator(RRuleLocator):
     """
     def __init__(self, bysecond=None, interval=1, tz=None):
         """
-        Mark every second in *bysecond*; *bysecond* can be an int or
-        sequence.  Default is to tick every second: ``bysecond = range(60)``
-
-        *interval* is the interval between each iteration.  For
-        example, if ``interval=2``, mark every second occurrence.
-
+        Parameters
+        ----------
+        bysecond : int or list of int, default: all seconds
+            Ticks will be placed on every second in *bysecond*. Default is
+            ``bysecond = range(60)``, i.e., every second.
+        interval : int, default: 1
+            The interval between each iteration. For example, if
+            ``interval=2``, mark every second occurrence.
+        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         if bysecond is None:
             bysecond = range(60)
@@ -1664,9 +1712,13 @@ class MicrosecondLocator(DateLocator):
     """
     def __init__(self, interval=1, tz=None):
         """
-        *interval* is the interval between each iteration.  For
-        example, if ``interval=2``, mark every second microsecond.
-
+        Parameters
+        ----------
+        interval : int, default: 1
+            The interval between each iteration. For example, if
+            ``interval=2``, mark every second occurrence.
+        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         super().__init__(tz=tz)
         self._interval = interval
