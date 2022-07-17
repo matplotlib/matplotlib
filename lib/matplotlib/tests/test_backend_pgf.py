@@ -33,6 +33,23 @@ def compare_figure(fname, savefig_kwargs={}, tol=0):
         raise ImageComparisonFailure(err)
 
 
+@pytest.mark.parametrize('plain_text, escaped_text', [
+    (r'quad_sum: $\sum x_i^2$', r'quad_sum: \(\displaystyle \sum x_i^2\)'),
+    ('% not a comment', r'\% not a comment'),
+    ('^not', r'\^not'),
+])
+def test_tex_escape(plain_text, escaped_text):
+    assert _tex_escape(plain_text) == escaped_text
+
+
+@needs_pgf_xelatex
+@pytest.mark.backend('pgf')
+def test_tex_special_chars(tmp_path):
+    fig = plt.figure()
+    fig.text(.5, .5, "_^ $a_b^c$")
+    fig.savefig(tmp_path / "test.pdf")  # Should not error.
+
+
 def create_figure():
     plt.figure()
     x = np.linspace(0, 1, 15)
@@ -57,17 +74,6 @@ def create_figure():
 
     plt.xlim(0, 1)
     plt.ylim(0, 1)
-
-
-@pytest.mark.parametrize('plain_text, escaped_text', [
-    (r'quad_sum: $\sum x_i^2$', r'quad\_sum: \(\displaystyle \sum x_i^2\)'),
-    (r'no \$splits \$ here', r'no \$splits \$ here'),
-    ('with_underscores', r'with\_underscores'),
-    ('% not a comment', r'\% not a comment'),
-    ('^not', r'\^not'),
-])
-def test_tex_escape(plain_text, escaped_text):
-    assert _tex_escape(plain_text) == escaped_text
 
 
 # test compiling a figure to pdf with xelatex

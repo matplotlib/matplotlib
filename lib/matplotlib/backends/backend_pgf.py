@@ -70,6 +70,8 @@ def _get_preamble():
                 path = pathlib.Path(fm.findfont(family))
                 preamble.append(r"\%s{%s}[Path=\detokenize{%s/}]" % (
                     command, path.name, path.parent.as_posix()))
+    preamble.append(mpl.texmanager._usepackage_if_not_loaded(
+        "underscore", option="strings"))  # Documented as "must come last".
     return "\n".join(preamble)
 
 
@@ -84,9 +86,8 @@ mpl_in_to_pt = 1. / mpl_pt_to_in
 _NO_ESCAPE = r"(?<!\\)(?:\\\\)*"
 _split_math = re.compile(_NO_ESCAPE + r"\$").split
 _replace_escapetext = functools.partial(
-    # When the next character is _, ^, $, or % (not preceded by an escape),
-    # insert a backslash.
-    re.compile(_NO_ESCAPE + "(?=[_^$%])").sub, "\\\\")
+    # When the next character is an unescaped % or ^, insert a backslash.
+    re.compile(_NO_ESCAPE + "(?=[%^])").sub, "\\\\")
 _replace_mathdefault = functools.partial(
     # Replace \mathdefault (when not preceded by an escape) by empty string.
     re.compile(_NO_ESCAPE + r"(\\mathdefault)").sub, "")
@@ -106,7 +107,7 @@ def _tex_escape(text):
     ``$`` with ``\(\displaystyle %s\)``. Escaped math separators (``\$``)
     are ignored.
 
-    The following characters are escaped in text segments: ``_^$%``
+    The following characters are escaped in text segments: ``^%``
     """
     # Sometimes, matplotlib adds the unknown command \mathdefault.
     # Not using \mathnormal instead since this looks odd for the latex cm font.
@@ -309,8 +310,10 @@ class LatexManager:
         test_input = self.latex_header + latex_end
         stdout, stderr = latex.communicate(test_input)
         if latex.returncode != 0:
-            raise LatexError("LaTeX returned an error, probably missing font "
-                             "or error in preamble.", stdout)
+            raise LatexError(
+                f"LaTeX errored (probably missing font or error in preamble) "
+                f"while processing the following input:\n{test_input}",
+                stdout)
 
         self.latex = None  # Will be set up on first use.
         # Per-instance cache.
@@ -358,14 +361,16 @@ class LatexManager:
         try:
             answer = self._expect_prompt()
         except LatexError as err:
-            raise ValueError("Error measuring {!r}\nLaTeX Output:\n{}"
+            # Here and below, use '{}' instead of {!r} to avoid doubling all
+            # backslashes.
+            raise ValueError("Error measuring {}\nLaTeX Output:\n{}"
                              .format(tex, err.latex_output)) from err
         try:
             # Parse metrics from the answer string.  Last line is prompt, and
             # next-to-last-line is blank line from \typeout.
             width, height, offset = answer.splitlines()[-3].split(",")
         except Exception as err:
-            raise ValueError("Error measuring {!r}\nLaTeX Output:\n{}"
+            raise ValueError("Error measuring {}\nLaTeX Output:\n{}"
                              .format(tex, answer)) from err
         w, h, o = float(width[:-2]), float(height[:-2]), float(offset[:-2])
         # The height returned from LaTeX goes from base to top;
@@ -864,8 +869,8 @@ class FigureCanvasPgf(FigureCanvasBase):
                     r"\documentclass[12pt]{minimal}",
                     r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
                     % (w, h),
-                    _get_preamble(),
                     r"\usepackage{pgf}",
+                    _get_preamble(),
                     r"\begin{document}",
                     r"\centering",
                     r"\input{figure.pgf}",
@@ -975,8 +980,8 @@ class PdfPages:
             r"\documentclass[12pt]{minimal}",
             r"\usepackage[papersize={%fin,%fin}, margin=0in]{geometry}"
             % (width_inches, height_inches),
-            _get_preamble(),
             r"\usepackage{pgf}",
+            _get_preamble(),
             r"\setlength{\parindent}{0pt}",
             r"\begin{document}%",
         ])
