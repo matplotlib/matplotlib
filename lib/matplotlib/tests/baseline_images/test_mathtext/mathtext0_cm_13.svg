@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\arccos((x^i))$ -->
+   <g transform="translate(157.74 30.42)">
+    <text>
+     <tspan style="font: 12px 'cmr10'" x="0 6 10.693359 16.019531 21.345703 27.345703 32.074219 36.732422 53.191617 57.84982" y="-0.2212509155273441">arccos(())</tspan>
+     <tspan style="font: 12px 'cmmi10'" x="41.390625" y="-0.2212509155273441">x</tspan>
+     <tspan style="font: 8.4px 'cmmi10'" x="49.596265" y="-4.4437500000000005">i</tspan>
+    </text>
+   </g>
+  </g>
+ </g>
+</svg>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\binom{p}{2}{x}^{2}{y}^{p-2}-\frac{1}{1-x}\frac{1}{1-{x}^{2}}$ -->
+   <g transform="translate(132.48 30.06)">
+    <text>
+     <tspan style="font: 11.43987px 'cmex10'" x="0 10.963074" y="-9.65453125">¡¢</tspan>
+     <tspan style="font: 8.4px 'cmmi10'" x="5.988464 36.549772 83.115319 103.085475" y="-6.4 -5.060780334472656 3.611093750000002 4.1624681091308595">ppxx</tspan>
+     <tspan style="font: 8.4px 'cmr10'" x="5.988464 24.407178 50.249811 69.439889 76.439889 89.410045 98.410045" y="3.6110937499999984 -5.060780334472656 -5.060780334472656 3.611093750000002 -6.399999999999999 4.1624681091308595 -6.4">2221111</tspan>
+     <tspan style="font: 12px 'cmmi10'" x="16.201538 29.310928" y="-0.8382812499999996">xy</tspan>
+     <tspan style="font: 8.4px 'cmsy10'" x="42.249303 75.114811 95.084967" y="-5.060780334472656 3.611093750000002 4.1624681091308595">¡¡¡</tspan>
+     <tspan style="font: 12px 'cmsy10'" x="57.260592" y="-0.8382812499999996">¡</tspan>
+     <tspan style="font: 5.88px 'cmr10'" x="108.829423" y="1.2067187500000003">2</tspan>
+    </text>
+    <rect x="69.439889" y="-4.463281" width="18.470156" height="0.75"/>
+    <rect x="89.410045" y="-4.463281" width="22.852003" height="0.75"/>
+   </g>
+  </g>
+ </g>
+</svg>

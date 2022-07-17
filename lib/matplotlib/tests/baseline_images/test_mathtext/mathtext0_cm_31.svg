@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\sum _{i=1}^{p}\sum _{j=1}^{q}\sum _{k=1}^{r}{a}_{ij}{b}_{jk}{c}_{ki}$ -->
+   <g transform="translate(142.98 30)">
+    <text>
+     <tspan style="font: 8.4px 'cmmi10'" x="0 6 16.567031 23.567031 33.695977 40.695977 58.073555 60.965156 70.272812 73.726328 83.983789 88.351953" y="12.234375 -16.2921875 12.234375 -16.2921875 12.464062499999997 -14.7609375 1.8626037597656229 1.8626037597656229 1.8626037597656229 1.8626037597656229 1.8626037597656229 1.8626037597656229">ipjqkrijjkki</tspan>
+     <tspan style="font: 12px 'cmex10'" x="0 17.567031 34.695977" y="-12.412500000000001">XXX</tspan>
+     <tspan style="font: 8.4px 'cmr10'" x="4.366523 12.367031 21.495469 29.495977 39.539062 47.53957" y="12.234375 12.234375 12.234375 12.234375 12.464062499999997 12.464062499999997">=1=1=1</tspan>
+     <tspan style="font: 12px 'cmmi10'" x="51.73957 65.122422 78.798242" y="-0.014062500000001421">abc</tspan>
+    </text>
+   </g>
+  </g>
+ </g>
+</svg>

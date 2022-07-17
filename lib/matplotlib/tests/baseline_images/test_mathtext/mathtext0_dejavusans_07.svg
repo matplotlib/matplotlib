@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0&lt;j&lt;n}}f\left(i,j\right)\mathcal{R}\prod_{i=\alpha_{i+1}}^\infty a_i \sin(2 \pi f x_i)\sqrt[2]{\prod^\frac{x}{2\pi^2}_\infty}$ -->
+   <g transform="translate(96.6 32.88)">
+    <text>
+     <tspan style="font: 12px 'DejaVu Sans Display'" x="8 73.244568 172.834455" y="-0.9174999999999969 -0.9175000000000004 -1.1057812499999997">∑∏∏</tspan>
+     <tspan style="font: 5.88px 'DejaVu Sans'" x="0.525 1.525 5.411602 6.411602 14.263184 15.263184 84.206013 90.278376 159.666677 172.359455" y="9.069374999999994 16.786874999999995 9.069374999999994 16.786874999999995 9.069374999999994 16.786874999999995 12.363749999999996 12.363749999999996 -19.135 -15.673749999999998">00≤&lt;≤&lt;+122</tspan>
+     <tspan style="font: oblique 5.88px 'DejaVu Sans'" x="11.483965 12.483965 20.335547 21.335547 81.426794 175.359455 176.10049" y="9.069374999999994 16.786874999999995 9.069374999999994 16.786874999999995 12.363749999999996 -24.034374999999997 -15.673749999999998">ijmnixπ</tspan>
+     <tspan style="font: oblique 12px 'DejaVu Sans'" x="26.588379 35.494629 44.980957 94.249099 133.772341 140.996951 145.22156" y="-0.9175000000000004">fijaπfx</tspan>
+     <tspan style="font: 12px 'DejaVu Sans'" x="30.812988 38.828613 48.314941 104.264529 110.516482 113.850466 121.455935 126.137576 154.985037" y="-0.9175000000000004">(,)sin(2)</tspan>
+     <tspan style="font: italic 12px 'STIXNonUnicode'" x="52.996582" y="-0.9175000000000004"></tspan>
+     <tspan style="font: 8.4px 'DejaVu Sans'" x="67.21488 76.244568 174.834455" y="10.985624999999999 -15.370625 8.500468749999996">=∞∞</tspan>
+     <tspan style="font: oblique 8.4px 'DejaVu Sans'" x="63.244568 75.889685 101.602615 152.323123" y="10.985624999999999 10.985624999999999 1.051249999999996 1.051249999999996">iαii</tspan>
+     <tspan style="font: 12.843506px 'STIXSizeThreeSym'" x="156.48097" y="2.063749999999999">√</tspan>
+     <tspan style="font: 4.116px 'DejaVu Sans'" x="179.903158" y="-17.924687499999997">2</tspan>
+    </text>
+    <rect x="170.334455" y="-31.5" width="14.373209" height="0.75"/>
+    <rect x="172.359455" y="-22.584375" width="10.323209" height="0.525"/>
+   </g>
+  </g>
+ </g>
+</svg>

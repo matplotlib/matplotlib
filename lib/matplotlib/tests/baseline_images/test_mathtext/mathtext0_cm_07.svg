@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0&lt;j&lt;n}}f\left(i,j\right)\mathcal{R}\prod_{i=\alpha_{i+1}}^\infty a_i \sin(2 \pi f x_i)\sqrt[2]{\prod^\frac{x}{2\pi^2}_\infty}$ -->
+   <g transform="translate(97.8 32.22)">
+    <text>
+     <tspan style="font: 12px 'cmex10'" x="4 71.04602 166.902637" y="-13.226875 -13.226875 -12.941897323608398">XYY</tspan>
+     <tspan style="font: 5.88px 'cmr10'" x="0.525 1.525 83.838563 89.438919 155.978262 169.427637" y="9.740000000000002 16.747765625 12.689916381835936 12.689916381835936 -17.899375 -15.260803573608401">00+122</tspan>
+     <tspan style="font: 5.88px 'cmsy10'" x="4.497445 13.154367" y="9.740000000000002">∙∙</tspan>
+     <tspan style="font: 5.88px 'cmmi10'" x="5.497445 10.097801 11.097801 14.547707 18.754723 20.148062 80.781997 172.367637 172.427637" y="16.747765625 9.740000000000002 16.747765625 16.747765625 9.740000000000002 16.747765625 12.689916381835936 -15.260803573608401 -22.65453125">&lt;ij&lt;mni¼x</tspan>
+     <tspan style="font: 12px 'cmmi10'" x="24.441949 34.346719 38.477578 43.906875 92.871544 128.171973 135.009864 140.875098" y="-0.8284374999999997">fi;ja¼fx</tspan>
+     <tspan style="font: 10.40625px 'cmr10'" x="30.307184 48.840469" y="-0.9690624999999997">()</tspan>
+     <tspan style="font: 12px 'cmsy10'" x="52.880005" y="-0.8284374999999997">R</tspan>
+     <tspan style="font: 8.4px 'cmsy10'" x="74.04602 169.902637" y="-15.575312499999999 9.812790176391601">11</tspan>
+     <tspan style="font: 8.4px 'cmmi10'" x="63.04602 75.413052 99.205528 147.724708" y="11.376249999999999 11.376249999999999 1.0482287597656246 1.0482287597656246">i®ii</tspan>
+     <tspan style="font: 8.4px 'cmr10'" x="67.412544" y="11.376249999999999">=</tspan>
+     <tspan style="font: 12px 'cmr10'" x="102.800879 107.529395 110.851661 117.51377 122.171973 151.320059" y="-0.8284374999999997">sin(2)</tspan>
+     <tspan style="font: 12.970409px 'cmex10'" x="152.433887" y="-28.764375">s</tspan>
+     <tspan style="font: 4.116px 'cmr10'" x="176.369796" y="-17.329828125000002">2</tspan>
+    </text>
+    <rect x="165.402637" y="-29.5" width="16.96875" height="0.75"/>
+    <rect x="169.427637" y="-21.598828" width="9.344997" height="0.525"/>
+   </g>
+  </g>
+ </g>
+</svg>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\gamma = \frac{x=\frac{6}{8}}{y} \delta$ -->
+   <g transform="translate(163.62 32.46)">
+    <text>
+     <tspan style="font: oblique 12px 'DejaVu Sans'" x="0 43.405488" y="-0.3004687500000003">γδ</tspan>
+     <tspan style="font: 12px 'DejaVu Sans'" x="9.439453" y="-0.3004687500000003">=</tspan>
+     <tspan style="font: oblique 8.4px 'DejaVu Sans'" x="22.582031 30.582031" y="-8.8125 4.752656250000001">xy</tspan>
+     <tspan style="font: 8.4px 'DejaVu Sans'" x="29.189648" y="-8.8125">=</tspan>
+     <tspan style="font: 5.88px 'DejaVu Sans'" x="38.389453 38.389453" y="-13.6359375 -5.2753125">68</tspan>
+    </text>
+    <rect x="38.389453" y="-12.185937" width="3.741035" height="0.525"/>
+    <rect x="22.582031" y="-4.691094" width="20.073457" height="0.75"/>
+   </g>
+  </g>
+ </g>
+</svg>

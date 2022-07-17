@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- ${x}_{{y}_{b}^{a}}^{{z}_{c}^{d}}$ -->
+   <g transform="translate(180.3 29.82)">
+    <text>
+     <tspan style="font: 12px 'cmmi10'" x="0" y="-0.6865635681152362">x</tspan>
+     <tspan style="font: 8.4px 'cmmi10'" x="6.849609 8.20564" y="3.706561431884765 -6.963469390869142">yz</tspan>
+     <tspan style="font: 5.88px 'cmmi10'" x="10.967578 11.9168 12.110328 13.05955" y="6.921092681884762 0.6714051818847633 -4.992969818115235 -9.91921875">bacd</tspan>
+    </text>
+   </g>
+  </g>
+ </g>
+</svg>

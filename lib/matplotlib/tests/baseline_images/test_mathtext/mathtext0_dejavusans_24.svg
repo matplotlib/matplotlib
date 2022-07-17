@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $x+{y}^{\frac{2}{k+1}}$ -->
+   <g transform="translate(166.38 32.94)">
+    <text>
+     <tspan style="font: oblique 12px 'DejaVu Sans'" x="0 21.832031" y="-0.6346874999999983">xy</tspan>
+     <tspan style="font: 12px 'DejaVu Sans'" x="9.439453" y="-0.6346874999999983">+</tspan>
+     <tspan style="font: 5.88px 'DejaVu Sans'" x="34.545215 34.994531 40.617578" y="-2.2753124999999983 -10.635937499999999 -2.2753124999999983">+21</tspan>
+     <tspan style="font: oblique 5.88px 'DejaVu Sans'" x="29.994531" y="-2.2753124999999983">k</tspan>
+    </text>
+    <rect x="29.994531" y="-9.185937" width="14.364082" height="0.525"/>
+   </g>
+  </g>
+ </g>
+</svg>

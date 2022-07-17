@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\left(\frac{{\partial }^{2}}{\partial {x}^{2}}+\frac{{\partial }^{2}}{\partial {y}^{2}}\right){|\varphi \left(x+iy\right)|}^{2}=0$ -->
+   <g transform="translate(122.58 29.82)">
+    <text>
+     <tspan style="font: 10.65105px 'cmex10'" x="0 48.479739" y="-12.55240753173828">³´</tspan>
+     <tspan style="font: 8.4px 'STIXGeneral'" x="7.104233 10.104233 35.273529 37.273529" y="4.438217468261719 -6.124250640869141 4.438217468261719 -6.124250640869141">∂∂∂∂</tspan>
+     <tspan style="font: 5.88px 'cmr10'" x="14.405465 16.804576 41.574761 44.297114" y="-9.08 1.4824681091308598 -9.08 1.4824681091308598">2222</tspan>
+     <tspan style="font: 8.4px 'cmmi10'" x="11.060628 39.229924" y="4.438217468261719">xy</tspan>
+     <tspan style="font: 12px 'cmr10'" x="23.094232 78.998117 115.306293 126.73559" y="-0.5625318908691401">++=0</tspan>
+     <tspan style="font: 12px 'cmsy10'" x="54.833972 104.480621" y="-0.5625318908691401">jj</tspan>
+     <tspan style="font: 12px 'cmmi10'" x="58.156238 70.041476 90.427414 94.558273" y="-0.5625318908691401">'xiy</tspan>
+     <tspan style="font: 10.40625px 'cmr10'" x="66.001941 100.441086" y="-0.7031568908691401">()</tspan>
+     <tspan style="font: 8.4px 'cmr10'" x="108.295512" y="-4.785030975341797">2</tspan>
+    </text>
+    <rect x="7.104233" y="-4.187532" width="13.132968" height="0.75"/>
+    <rect x="35.273529" y="-4.187532" width="12.45621" height="0.75"/>
+   </g>
+  </g>
+ </g>
+</svg>

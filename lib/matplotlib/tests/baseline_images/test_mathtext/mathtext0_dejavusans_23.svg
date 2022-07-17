@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\frac{x+{y}^{2}}{k+1}$ -->
+   <g transform="translate(175.92 31.68)">
+    <text>
+     <tspan style="font: oblique 8.4px 'DejaVu Sans'" x="0.75 2.75 16.032422" y="-7.4203125000000005 4.5234375 -7.4203125000000005">xky</tspan>
+     <tspan style="font: 8.4px 'DejaVu Sans'" x="7.357617 9.250977 17.925781" y="-7.4203125000000005 4.5234375 4.5234375">++1</tspan>
+     <tspan style="font: 5.88px 'DejaVu Sans'" x="21.378672" y="-10.6359375">2</tspan>
+    </text>
+    <rect x="0.75" y="-4.920313" width="24.599395" height="0.75"/>
+   </g>
+  </g>
+ </g>
+</svg>

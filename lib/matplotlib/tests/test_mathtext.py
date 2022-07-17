@@ -18,7 +18,7 @@ math_tests = [
     r'$a+b+\dot s+\dot{s}+\ldots$',
     r'$x \doteq y$',
     r'\$100.00 $\alpha \_$',
-    r'$\frac{\$100.00}{y}$',
+    None,
     r'$x   y$',
     r'$x+y\ x=y\ x<y\ x:y\ x,y\ x@y$',
     r'$100\%y\ x*y\ x/y x\$y$',
@@ -26,49 +26,115 @@ math_tests = [
     r'$x \sf x \bf x {\cal X} \rm x$',
     r'$x\ x\,x\;x\quad x\qquad x\!x\hspace{ 0.5 }y$',
     r'$\{ \rm braces \}$',
-    r'$\left[\left\lfloor\frac{5}{\frac{\left(3\right)}{4}} y\right)\right]$',
+    None,
     r'$\left(x\right)$',
     r'$\sin(x)$',
-    r'$x_2$',
-    r'$x^2$',
-    r'$x^2_y$',
-    r'$x_y^2$',
-    (r'$\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0<j<n}}f\left(i,j\right)'
-     r'\mathcal{R}\prod_{i=\alpha_{i+1}}^\infty a_i \sin(2 \pi f x_i)'
-     r"\sqrt[2]{\prod^\frac{x}{2\pi^2}_\infty}$"),
-    r'$x = \frac{x+\frac{5}{2}}{\frac{y+3}{8}}$',
-    r'$dz/dt = \gamma x^2 + {\rm sin}(2\pi y+\phi)$',
-    r'Foo: $\alpha_{i+1}^j = {\rm sin}(2\pi f_j t_i) e^{-5 t_i/\tau}$',
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
     None,
     r'Variable $i$ is good',
-    r'$\Delta_i^j$',
-    r'$\Delta^j_{i+1}$',
+    None,
+    None,
     r'$\ddot{o}\acute{e}\grave{e}\hat{O}\breve{\imath}\tilde{n}\vec{q}$',
-    r"$\arccos((x^i))$",
-    r"$\gamma = \frac{x=\frac{6}{8}}{y} \delta$",
+    None,
+    None,
     r'$\limsup_{x\to\infty}$',
     None,
-    r"$f'\quad f'''(x)\quad ''/\mathrm{yr}$",
-    r'$\frac{x_2888}{y}$',
-    r"$\sqrt[3]{\frac{X_2}{Y}}=5$",
+    None,
+    None,
+    None,
     None,
     r"$\sqrt[3]{x}=5$",
-    r'$\frac{X}{\frac{X}{Y}}$',
-    r"$W^{3\beta}_{\delta_1 \rho_1 \sigma_2} = U^{3\beta}_{\delta_1 \rho_1} + \frac{1}{8 \pi 2} \int^{\alpha_2}_{\alpha_2} d \alpha^\prime_2 \left[\frac{ U^{2\beta}_{\delta_1 \rho_1} - \alpha^\prime_2U^{1\beta}_{\rho_1 \sigma_2} }{U^{0\beta}_{\rho_1 \sigma_2}}\right]$",
-    r'$\mathcal{H} = \int d \tau \left(\epsilon E^2 + \mu H^2\right)$',
+    None,
+    None,
+    None,
     r'$\widehat{abc}\widetilde{def}$',
     '$\\Gamma \\Delta \\Theta \\Lambda \\Xi \\Pi \\Sigma \\Upsilon \\Phi \\Psi \\Omega$',
     '$\\alpha \\beta \\gamma \\delta \\epsilon \\zeta \\eta \\theta \\iota \\lambda \\mu \\nu \\xi \\pi \\kappa \\rho \\sigma \\tau \\upsilon \\phi \\chi \\psi$',
 
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+
+    r"$\left( \xi \left( 1 - \xi \right) \right)$",  # Bug 2969451
+    r"$\left(2 \, a=b\right)$",  # Sage bug #8125
+    r"$? ! &$",  # github issue #466
+    None,
+    None,
+    r"$\left\Vert a \right\Vert \left\vert b \right\vert \left| a \right| \left\| b\right\| \Vert a \Vert \vert b \vert$",
+    r'$\mathring{A}  \AA$',
+    r'$M \, M \thinspace M \/ M \> M \: M \; M \ M \enspace M \quad M \qquad M \! M$',
+    r'$\Cap$ $\Cup$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$',
+    r'$\dotplus$ $\doteq$ $\doteqdot$ $\ddots$',
+    None,
+    None,
+    None,
+    None,
+    ' '.join('$\\' + p + '$' for p in sorted(_mathtext.Parser._accentprefixed)),
+    None,
+    None,
+    r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$',  # github issue 5799
+    None,
+    None,
+]
+# 'svgastext' tests switch svg output to embed text as text (rather than as
+# paths).
+svgastext_math_tests = [
+    r'$-$-',
+    r'$\frac{\$100.00}{y}$',
+    r'$\left[\left\lfloor\frac{5}{\frac{\left(3\right)}{4}} y\right)\right]$',
+    r'$x_2$',
+    r'$x^2$',
+    r'$x^2_y$',
+    r'$x_y^2$',
+    r'$\sum _{\genfrac{}{}{0}{}{0\leq i\leq m}{0<j<n}}f\left(i,j\right)\mathcal{R}\prod_{i=\alpha_{i+1}}^\infty a_i \sin(2 \pi f x_i)\sqrt[2]{\prod^\frac{x}{2\pi^2}_\infty}$',
+    r'$x = \frac{x+\frac{5}{2}}{\frac{y+3}{8}}$',
+    r'$dz/dt = \gamma x^2 + {\rm sin}(2\pi y+\phi)$',
+    r'Foo: $\alpha_{i+1}^j = {\rm sin}(2\pi f_j t_i) e^{-5 t_i/\tau}$',
+    r'$\Delta_i^j$',
+    r'$\Delta^j_{i+1}$',
+    r"$\arccos((x^i))$",
+    r"$\gamma = \frac{x=\frac{6}{8}}{y} \delta$",
+    r"$f'\quad f'''(x)\quad ''/\mathrm{yr}$",
+    r'$\frac{x_2888}{y}$',
+    r"$\sqrt[3]{\frac{X_2}{Y}}=5$",
+    r'$\frac{X}{\frac{X}{Y}}$',
+    r"$W^{3\beta}_{\delta_1 \rho_1 \sigma_2} = U^{3\beta}_{\delta_1 \rho_1} + \frac{1}{8 \pi 2} \int^{\alpha_2}_{\alpha_2} d \alpha^\prime_2 \left[\frac{ U^{2\beta}_{\delta_1 \rho_1} - \alpha^\prime_2U^{1\beta}_{\rho_1 \sigma_2} }{U^{0\beta}_{\rho_1 \sigma_2}}\right]$",
+    r'$\mathcal{H} = \int d \tau \left(\epsilon E^2 + \mu H^2\right)$',
+
     # The examples prefixed by 'mmltt' are from the MathML torture test here:
-    # https://developer.mozilla.org/en-US/docs/Mozilla/MathML_Project/MathML_Torture_Test
+    # https://www-archive.mozilla.org/projects/mathml/demo/texvsmml.xhtml
     r'${x}^{2}{y}^{2}$',
     r'${}_{2}F_{3}$',
     r'$\frac{x+{y}^{2}}{k+1}$',
     r'$x+{y}^{\frac{2}{k+1}}$',
     r'$\frac{a}{b/2}$',
     r'${a}_{0}+\frac{1}{{a}_{1}+\frac{1}{{a}_{2}+\frac{1}{{a}_{3}+\frac{1}{{a}_{4}}}}}$',
-    r'${a}_{0}+\frac{1}{{a}_{1}+\frac{1}{{a}_{2}+\frac{1}{{a}_{3}+\frac{1}{{a}_{4}}}}}$',
+    r'${a}_{0}+\dfrac{1}{{a}_{1}+\dfrac{1}{{a}_{2}+\dfrac{1}{{a}_{3}+\dfrac{1}{{a}_{4}}}}}$',
     r'$\binom{n}{k/2}$',
     r'$\binom{p}{2}{x}^{2}{y}^{p-2}-\frac{1}{1-x}\frac{1}{1-{x}^{2}}$',
     r'${x}^{2y}$',
@@ -95,31 +161,14 @@ math_tests = [
     r'${y}_{3}^{\prime \prime \prime }$',
     # End of the MathML torture tests.
 
-    r"$\left( \xi \left( 1 - \xi \right) \right)$",  # Bug 2969451
-    r"$\left(2 \, a=b\right)$",  # Sage bug #8125
-    r"$? ! &$",  # github issue #466
-    None,
-    None,
-    r"$\left\Vert a \right\Vert \left\vert b \right\vert \left| a \right| \left\| b\right\| \Vert a \Vert \vert b \vert$",
-    r'$\mathring{A}  \AA$',
-    r'$M \, M \thinspace M \/ M \> M \: M \; M \ M \enspace M \quad M \qquad M \! M$',
-    r'$\Cap$ $\Cup$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$',
-    r'$\dotplus$ $\doteq$ $\doteqdot$ $\ddots$',
     r'$xyz^kx_kx^py^{p-2} d_i^jb_jc_kd x^j_i E^0 E^0_u$',  # github issue #4873
     r'${xyz}^k{x}_{k}{x}^{p}{y}^{p-2} {d}_{i}^{j}{b}_{j}{c}_{k}{d} {x}^{j}_{i}{E}^{0}{E}^0_u$',
     r'${\int}_x^x x\oint_x^x x\int_{X}^{X}x\int_x x \int^x x \int_{x} x\int^{x}{\int}_{x} x{\int}^{x}_{x}x$',
     r'testing$^{123}$',
-    ' '.join('$\\' + p + '$' for p in sorted(_mathtext.Parser._accentprefixed)),
     r'$6-2$; $-2$; $ -2$; ${-2}$; ${  -2}$; $20^{+3}_{-2}$',
     r'$\overline{\omega}^x \frac{1}{2}_0^x$',  # github issue #5444
-    r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$',  # github issue 5799
     r'$\left(X\right)_{a}^{b}$',  # github issue 7615
     r'$\dfrac{\$100.00}{y}$',  # github issue #1888
-]
-# 'svgastext' tests switch svg output to embed text as text (rather than as
-# paths).
-svgastext_math_tests = [
-    r'$-$-',
 ]
 # 'lightweight' tests test only a single fontset (dejavusans, which is the
 # default) and only png outputs, in order to minimize the size of baseline

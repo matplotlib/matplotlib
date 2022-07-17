@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\sqrt[3]{\frac{X_2}{Y}}=5$ -->
+   <g transform="translate(165.66 33.12)">
+    <text>
+     <tspan style="font: 5.88px 'DejaVu Sans'" x="0 17.955404" y="-10.432500000000001 -5.746874999999999">32</tspan>
+     <tspan style="font: 11.808879px 'STIXSizeOneSym'" x="-2.468842" y="1.3449999999999989">√</tspan>
+     <tspan style="font: oblique 8.4px 'DejaVu Sans'" x="12.200912 14.200912" y="-7.125 4.818750000000001">XY</tspan>
+     <tspan style="font: 12px 'DejaVu Sans'" x="26.514018 38.906596" y="-0.16125000000000256">=5</tspan>
+    </text>
+    <rect x="9.950912" y="-17.5" width="14.225215" height="0.75"/>
+    <rect x="12.200912" y="-4.625" width="9.725215" height="0.75"/>
+   </g>
+  </g>
+ </g>
+</svg>

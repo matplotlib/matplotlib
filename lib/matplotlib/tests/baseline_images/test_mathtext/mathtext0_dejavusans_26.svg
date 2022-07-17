@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- ${a}_{0}+\frac{1}{{a}_{1}+\frac{1}{{a}_{2}+\frac{1}{{a}_{3}+\frac{1}{{a}_{4}}}}}$ -->
+   <g transform="translate(150.36 25.32)">
+    <text>
+     <tspan style="font: oblique 12px 'DejaVu Sans'" x="0" y="-0.984375">a</tspan>
+     <tspan style="font: 8.4px 'DejaVu Sans'" x="7.353516 39.261152 49.506445" y="0.984375 5.485937499999999 -7.875">0+1</tspan>
+     <tspan style="font: 12px 'DejaVu Sans'" x="15.363867" y="-0.984375">+</tspan>
+     <tspan style="font: oblique 8.4px 'DejaVu Sans'" x="28.506445" y="5.485937499999999">a</tspan>
+     <tspan style="font: 5.88px 'DejaVu Sans'" x="33.653906 55.989252 60.460957" y="6.864062499999999 10.015156249999997 0.6624999999999979">1+1</tspan>
+     <tspan style="font: oblique 5.88px 'DejaVu Sans'" x="48.460957" y="10.015156249999997">a</tspan>
+     <tspan style="font: 4.116px 'DejaVu Sans'" x="52.06418 67.429115 67.698922" y="10.979843749999997 6.638749999999995 13.185609374999991">21+</tspan>
+     <tspan style="font: oblique 4.116px 'DejaVu Sans'" x="62.429115" y="13.185609374999991">a</tspan>
+     <tspan style="font: 2.8812px 'DejaVu Sans'" x="64.951371 73.206826" y="13.860890624999993 10.822124999999993">31</tspan>
+     <tspan style="font: oblique 2.8812px 'DejaVu Sans'" x="72.206826" y="14.918831249999993">a</tspan>
+     <tspan style="font: 2.01684px 'DejaVu Sans'" x="73.972405" y="15.391528124999994">4</tspan>
+    </text>
+    <rect x="28.506445" y="-5.375" width="47.977668" height="0.75"/>
+    <rect x="48.460957" y="2.1125" width="27.498156" height="0.525"/>
+    <rect x="62.429115" y="7.35375" width="13.162498" height="0.3675"/>
+    <rect x="72.206826" y="11.022625" width="3.127537" height="0.25725"/>
+   </g>
+  </g>
+ </g>
+</svg>

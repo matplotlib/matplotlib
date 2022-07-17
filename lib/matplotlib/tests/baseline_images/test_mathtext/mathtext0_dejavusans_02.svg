@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\left[\left\lfloor\frac{5}{\frac{\left(3\right)}{4}} y\right)\right]$ -->
+   <g transform="translate(167.1 28.44)">
+    <text>
+     <tspan style="font: 9.746032px 'STIXSizeThreeSym'" x="0 37.225097" y="5.65625">[]</tspan>
+     <tspan style="font: 12.573747px 'STIXSizeTwoSym'" x="4.953003 29.549102" y="5.96875">⌊)</tspan>
+     <tspan style="font: 8.4px 'DejaVu Sans'" x="14.318497" y="-7.48046875">5</tspan>
+     <tspan style="font: 5.88px 'DejaVu Sans'" x="12.843497 14.843497 15.137501 18.878536" y="1.2331250000000011 9.59375 1.2331250000000011 1.2331250000000011">(43)</tspan>
+     <tspan style="font: oblique 12px 'DejaVu Sans'" x="22.44754" y="-0.58984375">y</tspan>
+    </text>
+    <rect x="12.318497" y="-4.980469" width="9.379043" height="0.75"/>
+    <rect x="12.843497" y="2.683125" width="8.329043" height="0.525"/>
+   </g>
+  </g>
+ </g>
+</svg>

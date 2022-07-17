@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\sqrt{1+\sqrt{1+\sqrt{1+\sqrt{1+\sqrt{1+\sqrt{1+\sqrt{1+x}}}}}}}$ -->
+   <g transform="translate(67.56 44.724375)">
+    <text>
+     <tspan style="font: 13.14625px 'cmex10'" x="0" y="-38.74875">s</tspan>
+     <tspan style="font: 12px 'cmr10'" x="14.640625 22.747656 47.333203 55.440234 78.541406 86.648438 110.437109 118.544141 143.489062 151.596094 174.072266 182.179297 205.717969 213.825" y="-0.5612500000000011 -0.5612500000000011 -0.26437500000000114 -0.26437500000000114 0.03249999999999886 0.03249999999999886 0.34499999999999886 0.34499999999999886 0.6418749999999989 0.6418749999999989 0.9543749999999989 0.9543749999999989 1.25 1.25">1+1+1+1+1+1+1+</tspan>
+     <tspan style="font: 11.661875px 'cmex10'" x="34.176953" y="-34.06125">s</tspan>
+     <tspan style="font: 10.1775px 'cmex10'" x="66.869531" y="-29.37375">s</tspan>
+     <tspan style="font: 10.874097px 'cmex10'" x="98.077734" y="-24.5925">r</tspan>
+     <tspan style="font: 12.018048px 'cmex10'" x="129.973437" y="-19.795625">q</tspan>
+     <tspan style="font: 9.553839px 'cmex10'" x="163.025391" y="-15.155">q</tspan>
+     <tspan style="font: 10.62039px 'cmex10'" x="193.608594" y="-10.358125">p</tspan>
+     <tspan style="font: 12px 'cmmi10'" x="225.254297" y="1.25">x</tspan>
+    </text>
+    <rect x="13.140625" y="-39.5" width="229.463281" height="0.75"/>
+    <rect x="45.833203" y="-34.75" width="195.270703" height="0.75"/>
+    <rect x="77.041406" y="-30" width="162.5625" height="0.75"/>
+    <rect x="108.937109" y="-25.25" width="129.166797" height="0.75"/>
+    <rect x="141.989062" y="-20.5" width="94.614844" height="0.75"/>
+    <rect x="172.572266" y="-15.75" width="62.531641" height="0.75"/>
+    <rect x="204.217969" y="-11" width="29.385938" height="0.75"/>
+   </g>
+  </g>
+ </g>
+</svg>

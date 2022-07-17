@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- ${y}_{3}^{\prime \prime \prime }$ -->
+   <g transform="translate(181.56 29.22)">
+    <text>
+     <tspan style="font: 12px 'cmmi10'" x="0" y="-0.0703125">y</tspan>
+     <tspan style="font: 8.4px 'cmsy10'" x="7.238844 9.548023 11.857203" y="-4.307812500000001">000</tspan>
+     <tspan style="font: 8.4px 'cmr10'" x="5.882812" y="4.292187499999999">3</tspan>
+    </text>
+   </g>
+  </g>
+ </g>
+</svg>

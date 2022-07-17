@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- ${a}_{0}+\frac{1}{{a}_{1}+\frac{1}{{a}_{2}+\frac{1}{{a}_{3}+\frac{1}{{a}_{4}}}}}$ -->
+   <g transform="translate(154.32 25.14)">
+    <text>
+     <tspan style="font: 12px 'cmmi10'" x="0" y="-0.8382812500000014">a</tspan>
+     <tspan style="font: 8.4px 'cmr10'" x="6.333984 34.865398 44.524062" y="1.0383850097656229 5.099921875 -6.4">0+1</tspan>
+     <tspan style="font: 12px 'cmr10'" x="13.344765" y="-0.8382812500000014">+</tspan>
+     <tspan style="font: 8.4px 'cmmi10'" x="25.524062" y="5.099921875">a</tspan>
+     <tspan style="font: 5.88px 'cmr10'" x="29.957851 49.929841 54.390906" y="6.413588256835936 9.2566640625 1.2067187500000003">1+1</tspan>
+     <tspan style="font: 5.88px 'cmmi10'" x="43.390906" y="9.2566640625">a</tspan>
+     <tspan style="font: 4.116px 'cmr10'" x="46.494558 60.474951 60.897697" y="10.176230529785155 12.166383593749998 6.5314218749999995">2+1</tspan>
+     <tspan style="font: 4.116px 'cmmi10'" x="55.897697" y="12.166383593749998">a</tspan>
+     <tspan style="font: 2.8812px 'cmr10'" x="58.070253 65.65245" y="12.810080120849609 10.258714062500001">31</tspan>
+     <tspan style="font: 2.8812px 'cmmi10'" x="64.65245" y="13.69251921875">a</tspan>
+     <tspan style="font: 2.01684px 'cmr10'" x="66.17324" y="14.143106787719727">4</tspan>
+    </text>
+    <rect x="25.524062" y="-4.463281" width="42.976318" height="0.75"/>
+    <rect x="43.390906" y="2.262422" width="24.584474" height="0.525"/>
+    <rect x="55.897697" y="6.970414" width="11.710183" height="0.3675"/>
+    <rect x="64.65245" y="10.266009" width="2.69818" height="0.25725"/>
+   </g>
+  </g>
+ </g>
+</svg>

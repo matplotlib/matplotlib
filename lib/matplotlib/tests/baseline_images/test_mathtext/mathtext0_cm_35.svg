@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- ${\int }_{1}^{x}\frac{\mathrm{dt}}{t}$ -->
+   <g transform="translate(174.3 30.96)">
+    <text>
+     <tspan style="font: 12px 'cmex10'" x="0" y="-18.16885375976562">Z</tspan>
+     <tspan style="font: 8.4px 'cmmi10'" x="15.139535 22.684262" y="-16.2921875 3.6164587402343784">xt</tspan>
+     <tspan style="font: 8.4px 'cmr10'" x="7.858441 20.684262 25.347738" y="10.379687500000003 -6.394635009765622 -6.394635009765622">1dt</tspan>
+    </text>
+    <rect x="20.684262" y="-4.457916" width="7.924219" height="0.75"/>
+   </g>
+  </g>
+ </g>
+</svg>

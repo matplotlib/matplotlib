@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\sqrt{1+\sqrt{1+\sqrt{1+\sqrt{1+\sqrt{1+\sqrt{1+\sqrt{1+x}}}}}}}$ -->
+   <g transform="translate(56.46 44.424375)">
+    <text>
+     <tspan style="font: 12.452566px 'STIXSizeThreeSym'" x="0" y="-6.498750000000001">√</tspan>
+     <tspan style="font: 12px 'DejaVu Sans'" x="14.949982 24.922638 50.651215 60.623871 87.863953 97.836609 123.109695 133.082352 158.998306 168.970963 192.772919 202.745575 223.772888 233.745544" y="-0.7018750000000011 -0.7018750000000011 -0.26437500000000114 -0.26437500000000114 -0.42062500000000114 -0.42062500000000114 0.04812499999999886 0.04812499999999886 0.09499999999999886 0.09499999999999886 0.14187499999999886 0.14187499999999886 -0.0 -0.0">1+1+1+1+1+1+1+</tspan>
+     <tspan style="font: 11.050364px 'STIXSizeThreeSym'" x="37.315216" y="-6.311250000000001">√</tspan>
+     <tspan style="font: 11.822636px 'STIXSizeTwoSym'" x="73.016449" y="-5.108125000000001">√</tspan>
+     <tspan style="font: 10.082033px 'STIXSizeTwoSym'" x="110.229187" y="-4.467500000000001">√</tspan>
+     <tspan style="font: 11.417167px 'STIXSizeOneSym'" x="145.47493" y="-3.201875000000001">√</tspan>
+     <tspan style="font: 9.412939px 'STIXSizeOneSym'" x="181.363541" y="-2.561250000000001">√</tspan>
+     <tspan style="font: 6.765328px 'STIXSizeOneSym'" x="215.138153" y="-1.9206250000000011">√</tspan>
+     <tspan style="font: oblique 12px 'DejaVu Sans'" x="246.138123" y="-0.0">x</tspan>
+    </text>
+    <rect x="13.449982" y="-37.5" width="250.289703" height="0.75"/>
+    <rect x="49.151215" y="-34.75" width="213.08847" height="0.75"/>
+    <rect x="86.363953" y="-30" width="174.375732" height="0.75"/>
+    <rect x="121.609695" y="-25.25" width="137.62999" height="0.75"/>
+    <rect x="157.498306" y="-20.5" width="100.241379" height="0.75"/>
+    <rect x="191.272919" y="-16.75" width="64.966766" height="0.75"/>
+    <rect x="222.272888" y="-13" width="32.466797" height="0.75"/>
+   </g>
+  </g>
+ </g>
+</svg>

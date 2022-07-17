@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\sum _{i=1}^{p}\sum _{j=1}^{q}\sum _{k=1}^{r}{a}_{ij}{b}_{jk}{c}_{ki}$ -->
+   <g transform="translate(139.92 30.66)">
+    <text>
+     <tspan style="font: oblique 8.4px 'DejaVu Sans'" x="0 6 17.989453 23.989453 35.978906 44.978906 63.852539 66.186328 76.46543 78.799219 90.589453 95.453906" y="11.809375000000003 -16.296875 11.80937500000001 -16.27499999999999 11.809375000000003 -14.546874999999996 1.8750000000000036 1.8750000000000036 1.8750000000000036 1.8750000000000036 1.8750000000000036 1.8750000000000036">ipjqkrijjkki</tspan>
+     <tspan style="font: 12px 'DejaVu Sans Display'" x="4 21.989453 40.978906" y="-0.09375 -0.0937499999999929 -0.09374999999999645">∑∑∑</tspan>
+     <tspan style="font: 8.4px 'DejaVu Sans'" x="3.970312 12.645117 21.959766 30.63457 42.479883 51.154687" y="11.809375000000003 11.809375000000003 11.80937500000001 11.80937500000001 11.809375000000003 11.809375000000003">=1=1=1</tspan>
+     <tspan style="font: oblique 12px 'DejaVu Sans'" x="56.499023 68.848242 83.991797" y="-0.09374999999999645">abc</tspan>
+    </text>
+   </g>
+  </g>
+ </g>
+</svg>

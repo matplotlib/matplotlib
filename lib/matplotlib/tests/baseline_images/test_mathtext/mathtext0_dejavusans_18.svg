@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\frac{X}{\frac{X}{Y}}$ -->
+   <g transform="translate(185.34 28.5)">
+    <text>
+     <tspan style="font: oblique 8.4px 'DejaVu Sans'" x="0.75" y="-7.875">X</tspan>
+     <tspan style="font: oblique 5.88px 'DejaVu Sans'" x="1.275 1.275" y="0.6624999999999996 9.023125">XY</tspan>
+    </text>
+    <rect x="0.75" y="-5.375" width="5.754492" height="0.75"/>
+    <rect x="1.275" y="2.1125" width="4.028145" height="0.525"/>
+   </g>
+  </g>
+ </g>
+</svg>

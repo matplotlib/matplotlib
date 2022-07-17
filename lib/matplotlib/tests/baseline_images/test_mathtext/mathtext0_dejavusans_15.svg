@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $f'\quad f'''(x)\quad ''/\mathrm{yr}$ -->
+   <g transform="translate(148.44 30.42)">
+    <text>
+     <tspan style="font: oblique 12px 'DejaVu Sans'" x="0 19.446055 36.502656" y="-0.7140625000000007">ffx</tspan>
+     <tspan style="font: 8.4px 'cmsy10'" x="5.119297 24.565352 26.874531 29.183711 60.090156 62.399336" y="-5.307812500000001">000000</tspan>
+     <tspan style="font: 12px 'DejaVu Sans'" x="31.821016 43.604219 65.036641 69.079609 76.181172" y="-0.7140625000000007">()/yr</tspan>
+    </text>
+   </g>
+  </g>
+ </g>
+</svg>

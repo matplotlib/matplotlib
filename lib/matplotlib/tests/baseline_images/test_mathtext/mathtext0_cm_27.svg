@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- ${a}_{0}+\dfrac{1}{{a}_{1}+\dfrac{1}{{a}_{2}+\dfrac{1}{{a}_{3}+\dfrac{1}{{a}_{4}}}}}$ -->
+   <g transform="translate(130.8 6.42)">
+    <text>
+     <tspan style="font: 12px 'cmmi10'" x="0 25.524062 51.048125 76.572187 102.096249" y="-0.0546875 15.515625 31.0859375 46.65625 55.131249999999994">aaaaa</tspan>
+     <tspan style="font: 8.4px 'cmr10'" x="6.333984 31.858047 57.382109 82.906171 108.430234" y="1.8219787597656243 17.392291259765628 32.96260375976563 48.53291625976563 57.007916259765636">01234</tspan>
+     <tspan style="font: 12px 'cmr10'" x="13.344765 38.868828 64.39289 67.524062 80.048125 89.916953 92.572187 105.096249" y="-0.0546875 15.515625 31.0859375 -8.0 7.5703125 46.65625 23.140625 38.7109375">+++11+11</tspan>
+    </text>
+    <rect x="25.524062" y="-3.679688" width="90.059921" height="0.75"/>
+    <rect x="51.048125" y="11.890625" width="63.785859" height="0.75"/>
+    <rect x="76.572187" y="27.460938" width="37.511797" height="0.75"/>
+    <rect x="102.096249" y="43.03125" width="11.237734" height="0.75"/>
+   </g>
+  </g>
+ </g>
+</svg>

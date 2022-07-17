@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\binom{p}{2}{x}^{2}{y}^{p-2}-\frac{1}{1-x}\frac{1}{1-{x}^{2}}$ -->
+   <g transform="translate(126.78 30.96)">
+    <text>
+     <tspan style="font: 12.782222px 'STIXSizeOneSym'" x="0 12.811331" y="1.9437500000000014">()</tspan>
+     <tspan style="font: oblique 8.4px 'DejaVu Sans'" x="6.716995 39.725787 92.17774 114.304498" y="-6.956250000000001 -5.578125 4.068750000000001 4.068750000000001">ppxx</tspan>
+     <tspan style="font: 8.4px 'DejaVu Sans'" x="6.716995 26.415826 46.694342 55.369147 76.522076 83.502936 84.522076 98.648834 105.629694 108.648834" y="4.068750000000001 -5.578125 -5.578125 -5.578125 4.068750000000001 4.068750000000001 -7.875 4.068750000000001 4.068750000000001 -7.875">22−21−11−1</tspan>
+     <tspan style="font: oblique 12px 'DejaVu Sans'" x="18.778326 32.088287" y="-0.984375">xy</tspan>
+     <tspan style="font: 12px 'DejaVu Sans'" x="63.379498" y="-0.984375">−</tspan>
+     <tspan style="font: 5.88px 'DejaVu Sans'" x="119.650748" y="0.8531250000000021">2</tspan>
+    </text>
+    <rect x="76.522076" y="-5.375" width="20.626758" height="0.75"/>
+    <rect x="98.648834" y="-5.375" width="24.972637" height="0.75"/>
+   </g>
+  </g>
+ </g>
+</svg>

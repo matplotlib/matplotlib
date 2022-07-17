@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\left(\frac{{\partial }^{2}}{\partial {x}^{2}}+\frac{{\partial }^{2}}{\partial {y}^{2}}\right){|\varphi \left(x+iy\right)|}^{2}=0$ -->
+   <g transform="translate(116.64 30.84)">
+    <text>
+     <tspan style="font: 11.529993px 'STIXSizeTwoSym'" x="0 51.825022" y="2.796875">()</tspan>
+     <tspan style="font: 8.4px 'DejaVu Sans'" x="7.523499 10.523499 37.414495 40.414495 116.564667" y="4.390625 -7.553125000000001 4.390625 -7.553125000000001 -5.256250000000001">∂∂∂∂2</tspan>
+     <tspan style="font: 5.88px 'DejaVu Sans'" x="14.947444 17.213303 44.83844 47.104299" y="-10.76875 1.1750000000000007 -10.76875 1.1750000000000007">2222</tspan>
+     <tspan style="font: oblique 8.4px 'DejaVu Sans'" x="11.867053 41.758049" y="4.390625">xy</tspan>
+     <tspan style="font: 12px 'DejaVu Sans'" x="24.271917 58.817011 70.775995 84.897089 107.725214 112.406855 124.575019 136.967597" y="-0.6625000000000014">+|(+)|=0</tspan>
+     <tspan style="font: oblique 12px 'DejaVu Sans'" x="62.85998 75.457636 97.289667 100.623652" y="-0.6625000000000014">φxiy</tspan>
+    </text>
+    <rect x="7.523499" y="-5.053125" width="13.660527" height="0.75"/>
+    <rect x="37.414495" y="-5.053125" width="13.660527" height="0.75"/>
+   </g>
+  </g>
+ </g>
+</svg>

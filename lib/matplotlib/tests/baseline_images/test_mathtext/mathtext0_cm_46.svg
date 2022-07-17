@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $6-2$; $-2$; $ -2$; ${-2}$; ${  -2}$; $20^{+3}_{-2}$ -->
+   <g transform="translate(113.94 30.06)">
+    <text>
+     <tspan style="font: 12px 'cmr10'" x="0 19.536328 42.716016 65.895703 89.075391 112.255078 126.1125 132.1125" y="-0.4624999999999986">62222220</tspan>
+     <tspan style="font: 12px 'cmsy10'" x="8.107031 33.39375 56.573437 79.753125 102.932812" y="-0.4624999999999986">¡¡¡¡¡</tspan>
+     <tspan style="font: 12px 'DejaVu Sans'" x="25.536328 29.579297 48.716016 52.758984 71.895703 75.938672 95.075391 99.118359 118.255078 122.298047" y="-0.4624999999999986">; ; ; ; ; </tspan>
+     <tspan style="font: 8.4px 'cmr10'" x="138.605125 145.130711 145.130711" y="-5.4 3.8999999999999986 -5.4">+23</tspan>
+     <tspan style="font: 8.4px 'cmsy10'" x="138.605125" y="3.8999999999999986">¡</tspan>
+    </text>
+   </g>
+  </g>
+ </g>
+</svg>

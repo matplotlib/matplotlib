@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\frac{a}{b/2}$ -->
+   <g transform="translate(181.44 29.88)">
+    <text>
+     <tspan style="font: oblique 8.4px 'DejaVu Sans'" x="0.75 4.75" y="4.646875000000001 -7.296875">ba</tspan>
+     <tspan style="font: 8.4px 'DejaVu Sans'" x="6.082031 8.912109" y="4.646875000000001">/2</tspan>
+    </text>
+    <rect x="0.75" y="-4.796875" width="13.506445" height="0.75"/>
+   </g>
+  </g>
+ </g>
+</svg>

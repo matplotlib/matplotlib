@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\binom{n}{k/2}$ -->
+   <g transform="translate(176.58 28.38)">
+    <text>
+     <tspan style="font: 8.790825px 'cmex10'" x="0 19.512045" y="-9.61859375">³´</tspan>
+     <tspan style="font: 8.4px 'cmmi10'" x="5.993881 9.993881 10.362045" y="3.71890625 -6.292187500000001 3.71890625">kn=</tspan>
+     <tspan style="font: 8.4px 'cmr10'" x="14.562045" y="3.71890625">2</tspan>
+    </text>
+   </g>
+  </g>
+ </g>
+</svg>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $x = \frac{x+\frac{5}{2}}{\frac{y+3}{8}}$ -->
+   <g transform="translate(168.9 29.82)">
+    <text>
+     <tspan style="font: 12px 'cmmi10'" x="0" y="-0.9472343750000025">x</tspan>
+     <tspan style="font: 12px 'cmr10'" x="8.956641" y="-0.9472343750000025">=</tspan>
+     <tspan style="font: 8.4px 'cmmi10'" x="21.135938" y="-8.186796875000002">x</tspan>
+     <tspan style="font: 8.4px 'cmr10'" x="27.405586" y="-8.186796875000002">+</tspan>
+     <tspan style="font: 5.88px 'cmr10'" x="27.575961 28.660937 33.176316 35.931094 35.931094" y="1.0977656249999974 8.309515624999996 1.0977656249999974 -12.079999999999998 -5.072234374999997">+8352</tspan>
+     <tspan style="font: 5.88px 'cmmi10'" x="23.660937" y="1.0977656249999974">y</tspan>
+    </text>
+    <rect x="35.931094" y="-11.024297" width="2.94" height="0.525"/>
+    <rect x="21.135938" y="-4.572234" width="18.260156" height="0.75"/>
+    <rect x="23.660937" y="2.357453" width="12.455379" height="0.525"/>
+   </g>
+  </g>
+ </g>
+</svg>

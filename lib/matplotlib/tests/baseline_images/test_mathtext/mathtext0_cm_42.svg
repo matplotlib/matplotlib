@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $xyz^kx_kx^py^{p-2} d_i^jb_jc_kd x^j_i E^0 E^0_u$ -->
+   <g transform="translate(110.16 30.54)">
+    <text>
+     <tspan style="font: 12px 'cmmi10'" x="0 6.849609 12.732422 24.738492 36.660015 49.794015 75.636647 88.026741 97.334397 107.591857 113.832092 126.194998 141.918607" y="-0.4781250000000039">xyzxxydbcdxEE</tspan>
+     <tspan style="font: 8.4px 'cmmi10'" x="19.666578 31.588101 44.865656 57.032858 81.876882 83.869475 93.177131 102.519944 120.681701 122.037732 150.772122" y="-4.70062408447266 1.3985412597656204 -4.70062408447266 -4.70062408447266 3.8406249999999975 -6.4437500000000005 1.3985412597656204 1.3985412597656204 3.8406249999999975 -6.4437500000000005 2.3368743896484343">kkppijjkiju</tspan>
+     <tspan style="font: 8.4px 'cmsy10'" x="62.73239" y="-4.70062408447266">¡</tspan>
+     <tspan style="font: 8.4px 'cmr10'" x="70.732897 137.014857 152.738466" y="-4.70062408447266 -4.70062408447266 -4.7006240844726594">200</tspan>
+    </text>
+   </g>
+  </g>
+ </g>
+</svg>

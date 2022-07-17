@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $x = \frac{x+\frac{5}{2}}{\frac{y+3}{8}}$ -->
+   <g transform="translate(167.28 30.72)">
+    <text>
+     <tspan style="font: oblique 12px 'DejaVu Sans'" x="0" y="-0.4612499999999997">x</tspan>
+     <tspan style="font: 12px 'DejaVu Sans'" x="9.439453" y="-0.4612499999999997">=</tspan>
+     <tspan style="font: oblique 8.4px 'DejaVu Sans'" x="22.582031" y="-8.889062500000001">x</tspan>
+     <tspan style="font: 8.4px 'DejaVu Sans'" x="29.189648" y="-8.889062500000001">+</tspan>
+     <tspan style="font: 5.88px 'DejaVu Sans'" x="29.732363 30.107031 35.804727 38.389453 38.389453" y="1.2621874999999996 9.622812499999998 1.2621874999999996 -13.7125 -5.351875">+8352</tspan>
+     <tspan style="font: oblique 5.88px 'DejaVu Sans'" x="25.107031" y="1.2621874999999996">y</tspan>
+    </text>
+    <rect x="38.389453" y="-12.2625" width="3.741035" height="0.525"/>
+    <rect x="22.582031" y="-4.851875" width="20.073457" height="0.75"/>
+    <rect x="25.107031" y="2.712187" width="14.43873" height="0.525"/>
+   </g>
+  </g>
+ </g>
+</svg>

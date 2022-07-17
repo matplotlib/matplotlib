@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- ${\int}_x^x x\oint_x^x x\int_{X}^{X}x\int_x x \int^x x \int_{x} x\int^{x}{\int}_{x} x{\int}^{x}_{x}x$ -->
+   <g transform="translate(81.72 31.92)">
+    <text>
+     <tspan style="font: 12px 'cmex10'" x="0 26.783871 53.567742 82.513137 102.015914 128.799785 148.302563 168.236824 187.739602" y="-18.134478759765624">ZIZZZZZZZ</tspan>
+     <tspan style="font: 8.4px 'cmmi10'" x="7.858441 15.139535 34.642313 41.923406 61.426184 68.707277 90.371578 117.155449 136.658227 163.442098 176.095266 195.598043 202.879137" y="10.4140625 -16.2578125 10.4140625 -16.2578125 10.4140625 -16.2578125 10.4140625 -16.2578125 10.4140625 -16.2578125 10.4140625 10.4140625 -16.2578125">xxxxXXxxxxxxx</tspan>
+     <tspan style="font: 12px 'cmmi10'" x="19.934262 46.718133 75.663527 95.166305 121.950176 141.452953 180.889992 207.673863" y="-0.7985412597656243">xxxxxxxx</tspan>
+    </text>
+   </g>
+  </g>
+ </g>
+</svg>

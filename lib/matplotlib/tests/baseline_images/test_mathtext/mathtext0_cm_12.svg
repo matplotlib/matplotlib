@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\Delta^j_{i+1}$ -->
+   <g transform="translate(175.08 30.18)">
+    <text>
+     <tspan style="font: 12px 'cmr10'" x="0" y="-0.47812500000000213">¢</tspan>
+     <tspan style="font: 8.4px 'cmmi10'" x="10.488719 10.488719" y="-6.4437500000000005 3.884374999999997">ji</tspan>
+     <tspan style="font: 8.4px 'cmr10'" x="14.855242 22.85575" y="3.884374999999997">+1</tspan>
+    </text>
+   </g>
+  </g>
+ </g>
+</svg>
