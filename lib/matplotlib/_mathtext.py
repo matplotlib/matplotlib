@@ -306,6 +306,12 @@ class Fonts(abc.ABC):
         """
         output.rects.append((x, y, w, h))
 
+    def get_axis_height(self, font: str, fontsize: float, dpi: float) -> float:
+        """
+        Get the axis height for the given *font* and *fontsize*.
+        """
+        raise NotImplementedError()
+
     def get_xheight(self, font: str, fontsize: float, dpi: float) -> float:
         """
         Get the xheight for the given *font* and *fontsize*.
@@ -407,17 +413,19 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
             offset=offset
         )
 
+    def get_axis_height(self, fontname: str, fontsize: float, dpi: float) -> float:
+        # The fraction line (if present) must be aligned with the minus sign. Therefore,
+        # the height of the latter from the baseline is the axis height.
+        metrics = self.get_metrics(
+            fontname, mpl.rcParams['mathtext.default'], '\u2212', fontsize, dpi)
+        return (metrics.ymax + metrics.ymin) / 2
+
     def get_xheight(self, fontname: str, fontsize: float, dpi: float) -> float:
-        font = self._get_font(fontname)
-        font.set_size(fontsize, dpi)
-        pclt = font.get_sfnt_table('pclt')
-        if pclt is None:
-            # Some fonts don't store the xHeight, so we do a poor man's xHeight
-            metrics = self.get_metrics(
-                fontname, mpl.rcParams['mathtext.default'], 'x', fontsize, dpi)
-            return metrics.iceberg
-        x_height = (pclt['xHeight'] / 64) * (fontsize / 12) * (dpi / 100)
-        return x_height
+        # Some fonts report the wrong x-height, while some don't store it, so
+        # we do a poor man's x-height.
+        metrics = self.get_metrics(
+            fontname, mpl.rcParams['mathtext.default'], 'x', fontsize, dpi)
+        return metrics.iceberg
 
     def get_underline_thickness(self, font: str, fontsize: float, dpi: float) -> float:
         # This function used to grab underline thickness from the font
@@ -895,7 +903,10 @@ class FontConstantsBase:
     # Percentage of x-height of additional horiz. space after sub/superscripts
     script_space: T.ClassVar[float] = 0.05
 
-    # Percentage of x-height that sub/superscripts drop below the baseline
+    # Percentage of x-height that superscripts drop below the top of large box
+    supdrop: T.ClassVar[float] = 0.4
+
+    # Percentage of x-height that subscripts drop below the bottom of large box
     subdrop: T.ClassVar[float] = 0.4
 
     # Percentage of x-height that superscripts are raised from the baseline
@@ -921,16 +932,45 @@ class FontConstantsBase:
     # integrals
     delta_integral: T.ClassVar[float] = 0.1
 
+    # Percentage of x-height the numerator is shifted up in display style.
+    num1: T.ClassVar[float] = 1.4
+
+    # Percentage of x-height the numerator is shifted up in text, script and
+    # scriptscript styles if there is a fraction line.
+    num2: T.ClassVar[float] = 1.5
+
+    # Percentage of x-height the numerator is shifted up in text, script and
+    # scriptscript styles if there is no fraction line.
+    num3: T.ClassVar[float] = 1.3
+
+    # Percentage of x-height the denominator is shifted down in display style.
+    denom1: T.ClassVar[float] = 1.3
+
+    # Percentage of x-height the denominator is shifted down in text, script
+    # and scriptscript styles.
+    denom2: T.ClassVar[float] = 1.1
+
 
 class ComputerModernFontConstants(FontConstantsBase):
-    script_space = 0.075
-    subdrop = 0.2
-    sup1 = 0.45
-    sub1 = 0.2
-    sub2 = 0.3
-    delta = 0.075
+    # Previously, the x-height of Computer Modern was obtained from the font
+    # table. However, that x-height was greater than the the actual (rendered)
+    # x-height by a factor of 1.771484375 (at font size 12, DPI 100 and hinting
+    # type 32). Now that we're using the rendered x-height, some font constants
+    # have been increased by the same factor to compensate.
+    script_space = 0.132861328125
+    supdrop = 0.354296875
+    subdrop = 0.354296875
+    sup1 = 0.79716796875
+    sub1 = 0.354296875
+    sub2 = 0.5314453125
+    delta = 0.132861328125
     delta_slanted = 0.3
     delta_integral = 0.3
+    num1 = 1.5
+    num2 = 1.5
+    num3 = 1.5
+    denom1 = 1.6
+    denom2 = 1.2
 
 
 class STIXFontConstants(FontConstantsBase):
@@ -940,6 +980,10 @@ class STIXFontConstants(FontConstantsBase):
     delta = 0.05
     delta_slanted = 0.3
     delta_integral = 0.3
+    num1 = 1.6
+    num2 = 1.6
+    num3 = 1.6
+    denom1 = 1.6
 
 
 class STIXSansFontConstants(FontConstantsBase):
@@ -947,10 +991,16 @@ class STIXSansFontConstants(FontConstantsBase):
     sup1 = 0.8
     delta_slanted = 0.6
     delta_integral = 0.3
+    num1 = 1.5
+    num3 = 1.5
+    denom1 = 1.5
 
 
 class DejaVuSerifFontConstants(FontConstantsBase):
-    pass
+    num1 = 1.5
+    num2 = 1.6
+    num3 = 1.4
+    denom1 = 1.4
 
 
 class DejaVuSansFontConstants(FontConstantsBase):
@@ -1014,6 +1064,15 @@ class Node:
 
     def render(self, output: Output, x: float, y: float) -> None:
         """Render this node."""
+
+    def is_char_node(self) -> bool:
+        # TeX defines a `char_node` as one which represents a single character,
+        # but also states that a `char_node` will never appear in a `Vlist`
+        # (node134). Further, nuclei made of one `Char` and nuclei made of
+        # multiple `Char`s have their superscripts and subscripts shifted by
+        # the same amount. In order to make Mathtext behave similarly, just
+        # check whether this node is a `Vlist` or has any `Vlist` descendants.
+        return True
 
 
 class Box(Node):
@@ -1204,6 +1263,10 @@ class Hlist(List):
             self.kern()
         self.hpack(w=w, m=m)
 
+    def is_char_node(self) -> bool:
+        # See description in Node.is_char_node.
+        return all(map(lambda node: node.is_char_node(), self.children))
+
     def kern(self) -> None:
         """
         Insert `Kern` nodes between `Char` nodes to set kerning.
@@ -1294,6 +1357,10 @@ class Vlist(List):
                  m: T.Literal['additional', 'exactly'] = 'additional'):
         super().__init__(elements)
         self.vpack(h=h, m=m)
+
+    def is_char_node(self) -> bool:
+        # See description in Node.is_char_node.
+        return False
 
     def vpack(self, h: float = 0.0,
               m: T.Literal['additional', 'exactly'] = 'additional',
@@ -2111,6 +2178,7 @@ class Parser:
             | p.text
             | p.boldsymbol
             | p.substack
+            | p.auto_delim
         )
 
         mdelim = r"\middle" - (p.delim("mdelim") | Error("Expected a delimiter"))
@@ -2440,8 +2508,7 @@ class Parser:
         state = self.get_state()
         rule_thickness = state.fontset.get_underline_thickness(
             state.font, state.fontsize, state.dpi)
-        x_height = state.fontset.get_xheight(
-            state.font, state.fontsize, state.dpi)
+        x_height = state.fontset.get_xheight(state.font, state.fontsize, state.dpi)
 
         if napostrophes:
             if super is None:
@@ -2530,9 +2597,19 @@ class Parser:
             else:
                 subkern = 0
 
+        # Set the minimum shifts for the superscript and subscript (node756).
+        if nucleus.is_char_node():
+            shift_up = 0.0
+            shift_down = 0.0
+        else:
+            shrunk_x_height = state.fontset.get_xheight(
+                state.font, state.fontsize * SHRINK_FACTOR, state.dpi)
+            shift_up = nucleus.height - consts.supdrop * shrunk_x_height
+            shift_down = nucleus.depth + consts.subdrop * shrunk_x_height
+
         x: List
         if super is None:
-            # node757
+            # Align subscript without superscript (node757).
             # Note: One of super or sub must be a Node if we're in this function, but
             # mypy can't know this, since it can't interpret pyparsing expressions,
             # hence the cast.
@@ -2541,29 +2618,37 @@ class Parser:
             if self.is_dropsub(last_char):
                 shift_down = lc_baseline + consts.subdrop * x_height
             else:
-                shift_down = consts.sub1 * x_height
+                shift_down = max(shift_down, consts.sub1 * x_height,
+                                 x.height - x_height * 4 / 5)
             x.shift_amount = shift_down
         else:
+            # Align superscript (node758).
             x = Hlist([Kern(superkern), super])
             x.shrink()
             if self.is_dropsub(last_char):
                 shift_up = lc_height - consts.subdrop * x_height
             else:
-                shift_up = consts.sup1 * x_height
+                shift_up = max(shift_up, consts.sup1 * x_height, x.depth + x_height / 4)
             if sub is None:
                 x.shift_amount = -shift_up
-            else:  # Both sub and superscript
+            else:
+                # Align subscript with superscript (node759).
                 y = Hlist([Kern(subkern), sub])
                 y.shrink()
                 if self.is_dropsub(last_char):
                     shift_down = lc_baseline + consts.subdrop * x_height
                 else:
-                    shift_down = consts.sub2 * x_height
-                # If sub and superscript collide, move super up
-                clr = (2 * rule_thickness -
+                    shift_down = max(shift_down, consts.sub2 * x_height)
+                # If the subscript and superscript are too close to each other,
+                # move the subscript down.
+                clr = (4 * rule_thickness -
                        ((shift_up - x.depth) - (y.height - shift_down)))
                 if clr > 0.:
-                    shift_up += clr
+                    shift_down += clr
+                    clr = x_height * 4 / 5 - shift_up + x.depth
+                    if clr > 0:
+                        shift_up += clr
+                        shift_down -= clr
                 x = Vlist([
                     x,
                     Kern((shift_up - x.depth) - (y.height - shift_down)),
@@ -2586,7 +2671,13 @@ class Parser:
         state = self.get_state()
         thickness = state.get_current_underline_thickness()
 
+        axis_height = state.fontset.get_axis_height(
+            state.font, state.fontsize, state.dpi)
+        consts = _get_font_constant_set(state)
+        x_height = state.fontset.get_xheight(state.font, state.fontsize, state.dpi)
+
         for _ in range(style.value):
+            x_height *= SHRINK_FACTOR
             num.shrink()
             den.shrink()
         cnum = HCentered([num])
@@ -2594,24 +2685,54 @@ class Parser:
         width = max(num.width, den.width)
         cnum.hpack(width, 'exactly')
         cden.hpack(width, 'exactly')
-        vlist = Vlist([
-            cnum,                    # numerator
-            Vbox(0, 2 * thickness),  # space
-            Hrule(state, rule),      # rule
-            Vbox(0, 2 * thickness),  # space
-            cden,                    # denominator
-        ])
 
-        # Shift so the fraction line sits in the middle of the
-        # equals sign
-        metrics = state.fontset.get_metrics(
-            state.font, mpl.rcParams['mathtext.default'],
-            '=', state.fontsize, state.dpi)
-        shift = (cden.height -
-                 ((metrics.ymax + metrics.ymin) / 2 - 3 * thickness))
-        vlist.shift_amount = shift
+        # Align the fraction with a fraction line (node743, node744 and node746).
+        if rule:
+            if style is self._MathStyle.DISPLAYSTYLE:
+                num_shift_up = consts.num1 * x_height
+                den_shift_down = consts.denom1 * x_height
+                clr = 3 * rule  # The minimum clearance.
+            else:
+                num_shift_up = consts.num2 * x_height
+                den_shift_down = consts.denom2 * x_height
+                clr = rule  # The minimum clearance.
+            delta = rule / 2
+            num_clr = max((num_shift_up - cnum.depth) - (axis_height + delta), clr)
+            den_clr = max((axis_height - delta) - (cden.height - den_shift_down), clr)
+            # Possible bug in fraction rendering. See GitHub PR 22852 comments.
+            vlist = Vlist([cnum,                     # numerator
+                           Vbox(0, num_clr - rule),  # space
+                           Hrule(state, rule),       # rule
+                           Vbox(0, den_clr + rule),  # space
+                           cden                      # denominator
+                           ])
+            vlist.shift_amount = cden.height + den_clr + delta - axis_height
 
-        result: list[Box | Char | str] = [Hlist([vlist, Hbox(2 * thickness)])]
+        # Align the fraction without a fraction line (node743, node744 and node745).
+        else:
+            if style is self._MathStyle.DISPLAYSTYLE:
+                num_shift_up = consts.num1 * x_height
+                den_shift_down = consts.denom1 * x_height
+                min_clr = 7 * thickness  # The minimum clearance.
+            else:
+                num_shift_up = consts.num3 * x_height
+                den_shift_down = consts.denom2 * x_height
+                min_clr = 3 * thickness  # The minimum clearance.
+            def_clr = (num_shift_up - cnum.depth) - (cden.height - den_shift_down)
+            clr = max(def_clr, min_clr)
+            vlist = Vlist([cnum,          # numerator
+                           Vbox(0, clr),  # space
+                           cden           # denominator
+                           ])
+            vlist.shift_amount = den_shift_down
+            if def_clr < min_clr:
+                vlist.shift_amount += (min_clr - def_clr) / 2
+
+        result: list[Box | Char | str] = [Hlist([
+            Hbox(thickness),
+            vlist,
+            Hbox(thickness)
+        ])]
         if ldelim or rdelim:
             return self._auto_sized_delimiter(ldelim or ".", result, rdelim or ".")
         return result
