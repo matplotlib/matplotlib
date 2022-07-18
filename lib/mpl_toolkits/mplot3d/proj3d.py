@@ -21,7 +21,7 @@ def _line2d_seg_dist(p1, p2, p0):
 
     x01 = np.asarray(p0[0]) - p1[0]
     y01 = np.asarray(p0[1]) - p1[1]
-    if np.all(p1 == p2):
+    if np.all(p1[0:2] == p2[0:2]):
         return np.hypot(x01, y01)
 
     x21 = p2[0] - p1[0]
