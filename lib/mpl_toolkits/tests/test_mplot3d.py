@@ -1004,11 +1004,13 @@ def test_lines_dists():
 def test_lines_dists_nowarning():
     # Smoke test to see that no RuntimeWarning is emitted when two first
     # arguments are the same, see GH#22624
-    p0 = (10, 30)
-    p1 = (20, 150)
-    proj3d._line2d_seg_dist(p0, p0, p1)
+    p0 = (10, 30, 50)
+    p1 = (10, 30, 20)
+    p2 = (20, 150)
+    proj3d._line2d_seg_dist(p0, p0, p2)
+    proj3d._line2d_seg_dist(p0, p1, p2)
     p0 = np.array(p0)
-    proj3d._line2d_seg_dist(p0, p0, p1)
+    proj3d._line2d_seg_dist(p0, p0, p2)
 
 
 def test_autoscale():
