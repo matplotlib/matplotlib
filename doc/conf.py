@@ -23,6 +23,7 @@ import matplotlib
 from datetime import datetime
 import time
 
+
 # Release mode enables optimizations and other related options.
 is_release_build = tags.has('release')  # noqa
 
@@ -164,7 +165,7 @@ def matplotlib_reduced_latex_scraper(block, block_vars, gallery_conf,
     Because sphinx-gallery runs *very* early, we cannot modify this even in the
     earliest builder-inited signal. Thus we do it at scraping time.
     """
-    from sphinx_gallery.scrapers import matplotlib_scraper
+    from mpl_playback.scraper import matplotlib_scraper
 
     if gallery_conf['builder_name'] == 'latex':
         gallery_conf['image_srcset'] = []
