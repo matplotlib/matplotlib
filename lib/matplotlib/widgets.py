@@ -977,6 +977,7 @@ class CheckButtons(AxesWidget):
     ----------
     ax : `~matplotlib.axes.Axes`
         The parent Axes for the widget.
+
     labels : list of `.Text`
 
     rectangles : list of `.Rectangle`
@@ -986,7 +987,7 @@ class CheckButtons(AxesWidget):
         each box, but have ``set_visible(False)`` when its box is not checked.
     """
 
-    def __init__(self, ax, labels, actives=None):
+    def __init__(self, ax, labels, actives=None, *, useblit=True):
         """
         Add check buttons to `matplotlib.axes.Axes` instance *ax*.
 
@@ -994,13 +995,14 @@ class CheckButtons(AxesWidget):
         ----------
         ax : `~matplotlib.axes.Axes`
             The parent Axes for the widget.
-
         labels : list of str
             The labels of the check buttons.
-
         actives : list of bool, optional
             The initial check states of the buttons. The list must have the
             same length as *labels*. If not given, all buttons are unchecked.
+        useblit : bool, default: True
+            Use blitting for faster drawing if supported by the backend.
+            See the tutorial :doc:`/tutorials/advanced/blitting` for details.
         """
         super().__init__(ax)
 
@@ -1010,6 +1012,9 @@ class CheckButtons(AxesWidget):
 
         if actives is None:
             actives = [False] * len(labels)
+
+        self._useblit = useblit and self.canvas.supports_blit
+        self._background = None
 
         ys = np.linspace(1, 0, len(labels)+2)[1:-1]
         text_size = mpl.rcParams["font.size"] / 2
@@ -1026,12 +1031,25 @@ class CheckButtons(AxesWidget):
         self._crosses = ax.scatter(
             [0.15] * len(ys), ys, marker='x', linewidth=1, s=text_size**2,
             c=["k" if active else "none" for active in actives],
-            transform=ax.transAxes
+            transform=ax.transAxes, animated=self._useblit,
         )
 
         self.connect_event('button_press_event', self._clicked)
+        if self._useblit:
+            self.connect_event('draw_event', self._clear)
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
+
+    def _clear(self, event):
+        """Internal event handler to clear the buttons."""
+        if self.ignore(event):
+            return
+        self._background = self.canvas.copy_from_bbox(self.ax.bbox)
+        self.ax.draw_artist(self._crosses)
+        if hasattr(self, '_lines'):
+            for l1, l2 in self._lines:
+                self.ax.draw_artist(l1)
+                self.ax.draw_artist(l2)
 
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
@@ -1093,7 +1111,17 @@ class CheckButtons(AxesWidget):
             l2.set_visible(not l2.get_visible())
 
         if self.drawon:
-            self.ax.figure.canvas.draw()
+            if self._useblit:
+                if self._background is not None:
+                    self.canvas.restore_region(self._background)
+                self.ax.draw_artist(self._crosses)
+                if hasattr(self, "_lines"):
+                    for l1, l2 in self._lines:
+                        self.ax.draw_artist(l1)
+                        self.ax.draw_artist(l2)
+                self.canvas.blit(self.ax.bbox)
+            else:
+                self.canvas.draw()
 
         if self.eventson:
             self._observers.process('clicked', self.labels[index].get_text())
@@ -1152,7 +1180,8 @@ class CheckButtons(AxesWidget):
             current_status = self.get_status()
             lineparams = {'color': 'k', 'linewidth': 1.25,
                           'transform': self.ax.transAxes,
-                          'solid_capstyle': 'butt'}
+                          'solid_capstyle': 'butt',
+                          'animated': self._useblit}
             for i, y in enumerate(ys):
                 x, y = 0.05, y - h / 2
                 l1 = Line2D([x, x + w], [y + h, y], **lineparams)
