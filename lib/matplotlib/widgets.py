@@ -1456,7 +1456,8 @@ class RadioButtons(AxesWidget):
         The label text of the currently selected button.
     """
 
-    def __init__(self, ax, labels, active=0, activecolor='blue'):
+    def __init__(self, ax, labels, active=0, activecolor='blue', *,
+                 useblit=True):
         """
         Add radio buttons to an `~.axes.Axes`.
 
@@ -1470,6 +1471,9 @@ class RadioButtons(AxesWidget):
             The index of the initially selected button.
         activecolor : color
             The color of the selected button.
+        useblit : bool, default: True
+            Use blitting for faster drawing if supported by the backend.
+            See the tutorial :doc:`/tutorials/advanced/blitting` for details.
         """
         super().__init__(ax)
         self.activecolor = activecolor
@@ -1482,6 +1486,9 @@ class RadioButtons(AxesWidget):
         ys = np.linspace(1, 0, len(labels) + 2)[1:-1]
         text_size = mpl.rcParams["font.size"] / 2
 
+        self._useblit = useblit and self.canvas.supports_blit
+        self._background = None
+
         self.labels = [
             ax.text(0.25, y, label, transform=ax.transAxes,
                     horizontalalignment="left", verticalalignment="center")
@@ -1489,11 +1496,23 @@ class RadioButtons(AxesWidget):
         self._buttons = ax.scatter(
             [.15] * len(ys), ys, transform=ax.transAxes, s=text_size**2,
             c=[activecolor if i == active else "none" for i in range(len(ys))],
-            edgecolor="black")
+            edgecolor="black", animated=self._useblit)
 
         self.connect_event('button_press_event', self._clicked)
+        if self._useblit:
+            self.connect_event('draw_event', self._clear)
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
+
+    def _clear(self, event):
+        """Internal event handler to clear the buttons."""
+        if self.ignore(event):
+            return
+        self._background = self.canvas.copy_from_bbox(self.ax.bbox)
+        self.ax.draw_artist(self._buttons)
+        if hasattr(self, "_circles"):
+            for circle in self._circles:
+                self.ax.draw_artist(circle)
 
     def _clicked(self, event):
         if self.ignore(event) or event.button != 1 or event.inaxes != self.ax:
@@ -1533,8 +1552,20 @@ class RadioButtons(AxesWidget):
         if hasattr(self, "_circles"):  # Remove once circles is removed.
             for i, p in enumerate(self._circles):
                 p.set_facecolor(self.activecolor if i == index else "none")
+                if self.drawon and self._useblit:
+                    self.ax.draw_artist(p)
         if self.drawon:
-            self.ax.figure.canvas.draw()
+            if self._useblit:
+                if self._background is not None:
+                    self.canvas.restore_region(self._background)
+                self.ax.draw_artist(self._buttons)
+                if hasattr(self, "_circles"):
+                    for p in self._circles:
+                        self.ax.draw_artist(p)
+                self.canvas.blit(self.ax.bbox)
+            else:
+                self.canvas.draw()
+
         if self.eventson:
             self._observers.process('clicked', self.labels[index].get_text())
 
@@ -1558,7 +1589,8 @@ class RadioButtons(AxesWidget):
             circles = self._circles = [
                 Circle(xy=self._buttons.get_offsets()[i], edgecolor="black",
                        facecolor=self._buttons.get_facecolor()[i],
-                       radius=radius, transform=self.ax.transAxes)
+                       radius=radius, transform=self.ax.transAxes,
+                       animated=self._useblit)
                 for i in range(len(self.labels))]
             self._buttons.set_visible(False)
             for circle in circles:
