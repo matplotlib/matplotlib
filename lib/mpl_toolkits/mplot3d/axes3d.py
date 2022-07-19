@@ -1101,9 +1101,13 @@ class Axes3D(Axes):
         # move location for the next event
         self.start_pan(x, y, button)
         dx, dy = xdata - xdata_start, ydata - ydata_start
+        dz = 0
+        if key == 'x':
+            dy = 0
+        elif key == 'y':
+            dx = 0
         if dx == 0 and dy == 0:
             return
-        dz = 0
 
         # Transform the pan from the view axes to the data axees
         u, v, n = self._get_view_axes(self.eye)
@@ -1139,8 +1143,15 @@ class Axes3D(Axes):
 
     def _set_view_from_bbox(self, bbox, direction='in',
                             mode=None, twinx=False, twiny=False):
-        # Move the center of the view to the center of the bbox
         (start_x, start_y, stop_x, stop_y) = self._prepare_view_from_bbox(bbox)
+        if mode == 'x':
+            start_y = self.bbox.min[1]
+            stop_y = self.bbox.max[1]
+        elif mode == 'y':
+            start_x = self.bbox.min[0]
+            stop_x = self.bbox.max[0]
+
+        # Move the center of the view to the center of the bbox
         zoom_center_x = (start_x + stop_x)/2
         zoom_center_y = (start_y + stop_y)/2
 
