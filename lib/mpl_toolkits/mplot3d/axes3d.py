@@ -1049,7 +1049,7 @@ class Axes3D(Axes):
 
         x, y = event.xdata, event.ydata
         # In case the mouse is out of bounds.
-        if x is None:
+        if x is None or event.inaxes != self:
             return
 
         dx, dy = x - self.sx, y - self.sy
@@ -1083,7 +1083,7 @@ class Axes3D(Axes):
         elif self.button_pressed in self._zoom_btn:
             # zoom view (dragging down zooms in)
             scale = h/(h - dy)
-            self._zoom_data_limits(scale)
+            self._zoom_data_limits(scale, scale)
 
         # Store the event coordinates for the next time through.
         self.sx, self.sy = x, y
@@ -1104,23 +1104,20 @@ class Axes3D(Axes):
         dx, dy = xdata - xdata_start, ydata - ydata_start
         if dx == 0 and dy == 0:
             return
-
-        # Now pan the view by updating the limits
-        w = self._pseudo_w
-        h = self._pseudo_h
-
-        minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
-        dx = 1 - ((w - dx) / w)
-        dy = 1 - ((h - dy) / h)
         dz = 0
-        u, v, n = self._get_view_axes(self.eye)
 
-        dxyz_projected = -dx*u -dy*v -dz*n
+        # Transform the pan into view-projected coordinates
+        u, v, n = self._get_view_axes(self.eye)
+        U, V, N = -np.array([u, v, n]) / self._box_aspect * self._dist
+        dxyz_projected = dx*U + dy*V + dz*N
+
+        # Calculate pan distance
+        minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
         dxx = (maxx - minx) * dxyz_projected[0]
         dyy = (maxy - miny) * dxyz_projected[1]
         dzz = (maxz - minz) * dxyz_projected[2]
 
-        # pan
+        # Set the new axis limits
         self.set_xlim3d(minx + dxx, maxx + dxx)
         self.set_ylim3d(miny + dyy, maxy + dyy)
         self.set_zlim3d(minz + dzz, maxz + dzz)
@@ -1159,11 +1156,11 @@ class Axes3D(Axes):
         # Calculate zoom level
         scale_x = abs((start_x - stop_x)/(self.bbox.max[0] - self.bbox.min[0]))
         scale_y = abs((start_y - stop_y)/(self.bbox.max[1] - self.bbox.min[1]))
-        scale = max(scale_x, scale_y)
         if direction == 'out':
-            scale = 1 / scale
+            scale_x = 1 / scale_x
+            scale_y = 1 / scale_y
 
-        self._zoom_data_limits(scale)
+        self._zoom_data_limits(scale_x, scale_y)
 
     def _prepare_view_from_bbox(self, bbox, direction='in',
                                 mode=None, twinx=False, twiny=False):
@@ -1203,15 +1200,18 @@ class Axes3D(Axes):
 
         return bbox
 
-    def _zoom_data_limits(self, scale):
+    def _zoom_data_limits(self, scale_x, scale_y, scale_z=1):
         # hmmm..this needs some help from clipping....
+        u, v, n = self._get_view_axes(self.eye)
+        scale = np.abs(scale_x*u + scale_y*v + scale_z*n)
+
         minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
         cx = (maxx + minx)/2
         cy = (maxy + miny)/2
         cz = (maxz + minz)/2
-        dx = (maxx - minx)*scale/2
-        dy = (maxy - miny)*scale/2
-        dz = (maxz - minz)*scale/2
+        dx = (maxx - minx)*scale[0]/2
+        dy = (maxy - miny)*scale[1]/2
+        dz = (maxz - minz)*scale[2]/2
         self.set_xlim3d(cx - dx, cx + dx)
         self.set_ylim3d(cy - dy, cy + dy)
         self.set_zlim3d(cz - dz, cz + dz)
