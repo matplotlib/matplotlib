@@ -876,7 +876,8 @@ def _test_proj_make_M():
     R = np.array([100, 100, 100])
     V = np.array([0, 0, 1])
     roll = 0
-    viewM = proj3d.view_transformation(E, R, V, roll)
+    u, v, n = proj3d.view_axes(E, R, V, roll)
+    viewM = proj3d.view_transformation(u, v, n, E)
     perspM = proj3d.persp_transformation(100, -100, 1)
     M = np.dot(perspM, viewM)
     return M
@@ -942,7 +943,8 @@ def test_proj_axes_cube_ortho():
     R = np.array([0, 0, 0])
     V = np.array([0, 0, 1])
     roll = 0
-    viewM = proj3d.view_transformation(E, R, V, roll)
+    u, v, n = proj3d.view_axes(E, R, V, roll)
+    viewM = proj3d.view_transformation(u, v, n, E)
     orthoM = proj3d.ortho_transformation(-1, 1)
     M = np.dot(orthoM, viewM)
 
@@ -1533,16 +1535,16 @@ def test_pan():
 
 @pytest.mark.parametrize("tool,button,expected",
                          [("zoom", MouseButton.LEFT,  # zoom in
-                          ((-0.02, 0.06), (0, 0.06), (-0.01, 0.06))),
+                          ((0.03, 0.61), (0.27, 0.71), (0.32, 0.89))),
                           ("zoom", MouseButton.RIGHT,  # zoom out
-                          ((-0.13, 0.06), (-0.18, 0.06), (-0.17, 0.06))),
+                          ((0.29, 0.35), (0.44, 0.53), (0.57, 0.64))),
                           ("pan", MouseButton.LEFT,
-                          ((-0.46, -0.34), (-0.66, -0.54), (-0.62, -0.5)))])
+                          ((-0.70, -0.58), (-1.03, -0.91), (-1.27, -1.15)))])
 def test_toolbar_zoom_pan(tool, button, expected):
-    # NOTE: The expected values are rough ballparks of moving in the view
+    # NOTE: The expected zoom values are rough ballparks of moving in the view
     #       to make sure we are getting the right direction of motion.
-    #       The specific values can and should change if the zoom/pan
-    #       movement scaling factors get updated.
+    #       The specific values can and should change if the zoom movement
+    #       scaling factor gets updated.
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
     ax.scatter(0, 0, 0)
@@ -1577,9 +1579,9 @@ def test_toolbar_zoom_pan(tool, button, expected):
 
     # Should be close, but won't be exact due to screen integer resolution
     xlim, ylim, zlim = expected
-    assert (ax.get_xlim3d()) == pytest.approx(xlim, abs=0.01)
-    assert (ax.get_ylim3d()) == pytest.approx(ylim, abs=0.01)
-    assert (ax.get_zlim3d()) == pytest.approx(zlim, abs=0.01)
+    assert ax.get_xlim3d() == pytest.approx(xlim, abs=0.01)
+    assert ax.get_ylim3d() == pytest.approx(ylim, abs=0.01)
+    assert ax.get_zlim3d() == pytest.approx(zlim, abs=0.01)
 
 
 @mpl.style.context('default')
