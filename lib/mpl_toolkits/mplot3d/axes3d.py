@@ -1174,13 +1174,16 @@ class Axes3D(Axes):
         self.end_pan()
 
         # Calculate zoom level
-        scale_x = abs(start_x - stop_x) / (self.bbox.max[0] - self.bbox.min[0])
-        scale_y = abs(start_y - stop_y) / (self.bbox.max[1] - self.bbox.min[1])
+        dx = abs(start_x - stop_x)
+        dy = abs(start_y - stop_y)
+        scale_x = dx / (self.bbox.max[0] - self.bbox.min[0])
+        scale_y = dy / (self.bbox.max[1] - self.bbox.min[1])
+        scale_z = 1
         if direction == 'out':
             scale_x = 1 / scale_x
             scale_y = 1 / scale_y
 
-        self._zoom_data_limits(scale_x, scale_y)
+        self._zoom_data_limits(scale_x, scale_y, scale_z)
 
     def _prepare_view_from_bbox(self, bbox, direction='in',
                                 mode=None, twinx=False, twiny=False):
@@ -1220,7 +1223,7 @@ class Axes3D(Axes):
 
         return bbox
 
-    def _zoom_data_limits(self, scale_x, scale_y, scale_z=1):
+    def _zoom_data_limits(self, scale_x, scale_y, scale_z):
         """
         Zoom in or out of a 3D plot.
         Will scale the data limits by the scale factors, where scale_x,
@@ -1397,7 +1400,7 @@ class Axes3D(Axes):
             z coordinates of vertices; either one for all points or one for
             each point.
         zdir : {'x', 'y', 'z'}, default: 'z'
-            When plotting 2D data, the direction to use as z ('x', 'y' or 'z').
+            When plotting 3D data, the direction to use as z ('x', 'y' or 'z').
         **kwargs
             Other arguments are forwarded to `matplotlib.axes.Axes.plot`.
         """
