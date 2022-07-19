@@ -1111,8 +1111,8 @@ class Axes3D(Axes):
 
         # Transform the pan from the view axes to the data axees
         u, v, n = self._get_view_axes(self.eye)
-        U, V, N = -np.array([u, v, n]) / self._box_aspect * self._dist
-        dxyz_projected = dx*U + dy*V + dz*N
+        R = -np.array([u, v, n]) / self._box_aspect * self._dist
+        dxyz_projected = R.T @ np.array([dx, dy, dz])
 
         # Calculate pan distance
         minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
@@ -1126,6 +1126,12 @@ class Axes3D(Axes):
         self.set_zlim3d(minz + dzz, maxz + dzz)
 
     def _get_view_axes(self, eye):
+        """
+        Get the unit viewing axes in data coordinates.
+        `u` is towards the right of the screen
+        `v` is towards the top of the screen
+        `n` is out of the screen
+        """
         elev_rad = np.deg2rad(art3d._norm_angle(self.elev))
         roll_rad = np.deg2rad(art3d._norm_angle(self.roll))
 
@@ -1143,6 +1149,11 @@ class Axes3D(Axes):
 
     def _set_view_from_bbox(self, bbox, direction='in',
                             mode=None, twinx=False, twiny=False):
+        """
+        Zoom in or out of the bounding box.
+        Will center the view on the center of the bounding box, and zoom by
+        the ratio of the size of the bounding box to the size of the Axes3D.
+        """
         (start_x, start_y, stop_x, stop_y) = self._prepare_view_from_bbox(bbox)
         if mode == 'x':
             start_y = self.bbox.min[1]
@@ -1210,6 +1221,13 @@ class Axes3D(Axes):
         return bbox
 
     def _zoom_data_limits(self, scale_x, scale_y, scale_z=1):
+        """
+        Zoom in or out of a 3D plot.
+        Will scale the data limits by the scale factors, where scale_x,
+        scale_y, and scale_z refer to the scale factors for the viewing axes.
+        These will be transformed to the data axes based on the current view
+        angles. A scale factor > 1 zooms out and a scale factor < 1 zooms in.
+        """
         # Convert from the scale factors in the view frame to the data frame
         u, v, n = self._get_view_axes(self.eye)
         R = np.array([u, v, n])
