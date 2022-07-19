@@ -95,7 +95,7 @@ except mpl.ExecutableNotFoundError:
 @pytest.mark.skipif(not _has_tex_package('ucs'), reason='needs ucs.sty')
 @pytest.mark.backend('pgf')
 @image_comparison(['pgf_pdflatex.pdf'], style='default',
-                  tol=11.7 if _old_gs_version else 0)
+                  tol=11.71 if _old_gs_version else 0)
 def test_pdflatex():
     if os.environ.get('APPVEYOR'):
         pytest.xfail("pdflatex test does not work on appveyor due to missing "
