@@ -152,7 +152,7 @@ class Button(AxesWidget):
     """
 
     def __init__(self, ax, label, image=None,
-                 color='0.85', hovercolor='0.95'):
+                 color='0.85', hovercolor='0.95', *, useblit=True):
         """
         Parameters
         ----------
@@ -167,6 +167,9 @@ class Button(AxesWidget):
             The color of the button when not activated.
         hovercolor : color
             The color of the button when the mouse is over it.
+        useblit : bool, default: True
+            Use blitting for faster drawing if supported by the backend.
+            See the tutorial :doc:`/tutorials/advanced/blitting` for details.
         """
         super().__init__(ax)
 
@@ -176,6 +179,8 @@ class Button(AxesWidget):
                              verticalalignment='center',
                              horizontalalignment='center',
                              transform=ax.transAxes)
+
+        self._useblit = useblit and self.canvas.supports_blit
 
         self._observers = cbook.CallbackRegistry(signals=["clicked"])
 
@@ -209,7 +214,11 @@ class Button(AxesWidget):
         if not colors.same_color(c, self.ax.get_facecolor()):
             self.ax.set_facecolor(c)
             if self.drawon:
-                self.ax.figure.canvas.draw()
+                if self._useblit:
+                    self.ax.draw_artist(self.ax)
+                    self.canvas.blit(self.ax.bbox)
+                else:
+                    self.canvas.draw()
 
     def on_clicked(self, func):
         """
