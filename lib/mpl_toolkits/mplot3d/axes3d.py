@@ -1068,7 +1068,6 @@ class Axes3D(Axes):
             dazim = -(dy/h)*180*np.sin(roll) - (dx/w)*180*np.cos(roll)
             self.elev = self.elev + delev
             self.azim = self.azim + dazim
-            self.get_proj()
             self.stale = True
 
         elif self.button_pressed in self._pan_btn:
@@ -1083,7 +1082,7 @@ class Axes3D(Axes):
         elif self.button_pressed in self._zoom_btn:
             # zoom view (dragging down zooms in)
             scale = h/(h - dy)
-            self._zoom_data_limits(scale, scale)
+            self._zoom_data_limits(scale, scale, scale)
 
         # Store the event coordinates for the next time through.
         self.sx, self.sy = x, y
@@ -1106,7 +1105,7 @@ class Axes3D(Axes):
             return
         dz = 0
 
-        # Transform the pan into view-projected coordinates
+        # Transform the pan from the view axes to the data axees
         u, v, n = self._get_view_axes(self.eye)
         U, V, N = -np.array([u, v, n]) / self._box_aspect * self._dist
         dxyz_projected = dx*U + dy*V + dz*N
@@ -1121,7 +1120,6 @@ class Axes3D(Axes):
         self.set_xlim3d(minx + dxx, maxx + dxx)
         self.set_ylim3d(miny + dyy, maxy + dyy)
         self.set_zlim3d(minz + dzz, maxz + dzz)
-        self.get_proj()
 
     def _get_view_axes(self, eye):
         elev_rad = np.deg2rad(art3d._norm_angle(self.elev))
@@ -1154,8 +1152,8 @@ class Axes3D(Axes):
         self.end_pan()
 
         # Calculate zoom level
-        scale_x = abs((start_x - stop_x)/(self.bbox.max[0] - self.bbox.min[0]))
-        scale_y = abs((start_y - stop_y)/(self.bbox.max[1] - self.bbox.min[1]))
+        scale_x = abs(start_x - stop_x) / (self.bbox.max[0] - self.bbox.min[0])
+        scale_y = abs(start_y - stop_y) / (self.bbox.max[1] - self.bbox.min[1])
         if direction == 'out':
             scale_x = 1 / scale_x
             scale_y = 1 / scale_y
@@ -1201,21 +1199,24 @@ class Axes3D(Axes):
         return bbox
 
     def _zoom_data_limits(self, scale_x, scale_y, scale_z=1):
-        # hmmm..this needs some help from clipping....
+        # Convert from the scale factors in the view frame to the data frame
         u, v, n = self._get_view_axes(self.eye)
-        scale = np.abs(scale_x*u + scale_y*v + scale_z*n)
+        R = np.array([u, v, n])
+        S = np.array([scale_x, scale_y, scale_z])
+        scale = np.linalg.norm(R.T@(np.eye(3)*S), axis=1)
 
+        # Scale the data range
         minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
+        dxyz = np.array([maxx - minx, maxy - miny, maxz - minz])
+        dxyz_scaled = dxyz*scale
+
+        # Set the axis limits
         cx = (maxx + minx)/2
         cy = (maxy + miny)/2
         cz = (maxz + minz)/2
-        dx = (maxx - minx)*scale[0]/2
-        dy = (maxy - miny)*scale[1]/2
-        dz = (maxz - minz)*scale[2]/2
-        self.set_xlim3d(cx - dx, cx + dx)
-        self.set_ylim3d(cy - dy, cy + dy)
-        self.set_zlim3d(cz - dz, cz + dz)
-        self.get_proj()
+        self.set_xlim3d(cx - dxyz_scaled[0]/2, cx + dxyz_scaled[0]/2)
+        self.set_ylim3d(cy - dxyz_scaled[1]/2, cy + dxyz_scaled[1]/2)
+        self.set_zlim3d(cz - dxyz_scaled[2]/2, cz + dxyz_scaled[2]/2)
 
     def set_zlabel(self, zlabel, fontdict=None, labelpad=None, **kwargs):
         """

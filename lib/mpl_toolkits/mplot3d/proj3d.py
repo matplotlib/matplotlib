@@ -73,6 +73,12 @@ def rotation_about_vector(v, angle):
 
 
 def view_axes(E, R, V, roll):
+    '''
+    u, v, and n are the view axes
+    u is towards the right
+    v is towards the top
+    n is the vector out of the screen
+    '''
     n = (E - R)
     n = n/np.linalg.norm(n)
     u = np.cross(V, n)
