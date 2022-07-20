@@ -864,17 +864,21 @@ class Axes3D(Axes):
         eye = R + self._dist * ps
         self.eye = eye
 
+        # Calculate the viewing axes for the eye position
+        u, v, n = self._calc_view_axes(eye)
+        self._view_u = u
+        self._view_v = v
+        self._view_n = n
+
         # Generate the view and projection transformation matrices
         if self._focal_length == np.inf:
             # Orthographic projection
-            u, v, n = self._get_view_axes(eye)
             viewM = proj3d.view_transformation(u, v, n, eye)
             projM = proj3d.ortho_transformation(-self._dist, self._dist)
         else:
             # Perspective projection
             # Scale the eye dist to compensate for the focal length zoom effect
             eye_focal = R + self._dist * ps * self._focal_length
-            u, v, n = self._get_view_axes(eye_focal)
             viewM = proj3d.view_transformation(u, v, n, eye_focal)
             projM = proj3d.persp_transformation(-self._dist,
                                                 self._dist,
@@ -1110,8 +1114,8 @@ class Axes3D(Axes):
             return
 
         # Transform the pan from the view axes to the data axees
-        u, v, n = self._get_view_axes(self.eye)
-        R = -np.array([u, v, n]) / self._box_aspect * self._dist
+        R = np.array([self._view_u, self._view_v, self._view_n])
+        R = -R / self._box_aspect * self._dist
         dxyz_projected = R.T @ np.array([dx, dy, dz])
 
         # Calculate pan distance
@@ -1125,7 +1129,7 @@ class Axes3D(Axes):
         self.set_ylim3d(miny + dyy, maxy + dyy)
         self.set_zlim3d(minz + dzz, maxz + dzz)
 
-    def _get_view_axes(self, eye):
+    def _calc_view_axes(self, eye):
         """
         Get the unit viewing axes in data coordinates.
         `u` is towards the right of the screen
@@ -1237,8 +1241,7 @@ class Axes3D(Axes):
         angles. A scale factor > 1 zooms out and a scale factor < 1 zooms in.
         """
         # Convert from the scale factors in the view frame to the data frame
-        u, v, n = self._get_view_axes(self.eye)
-        R = np.array([u, v, n])
+        R = np.array([self._view_u, self._view_v, self._view_n])
         S = np.array([scale_x, scale_y, scale_z])
         scale = np.linalg.norm(R.T@(np.eye(3)*S), axis=1)
 
