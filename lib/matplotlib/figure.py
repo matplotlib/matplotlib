@@ -2724,6 +2724,7 @@ class Figure(FigureBase):
         """
         self.canvas = canvas
 
+    @_docstring.interpd
     def figimage(self, X, xo=0, yo=0, alpha=None, norm=None, cmap=None,
                  vmin=None, vmax=None, origin=None, resize=False, **kwargs):
         """
@@ -2737,9 +2738,11 @@ class Figure(FigureBase):
         X
             The image data. This is an array of one of the following shapes:
 
-            - MxN: luminance (grayscale) values
-            - MxNx3: RGB values
-            - MxNx4: RGBA values
+            - (M, N): an image with scalar data.  Color-mapping is controlled
+              by *cmap*, *norm*, *vmin*, and *vmax*.
+            - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
+            - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
+              i.e. including transparency.
 
         xo, yo : int
             The *x*/*y* image offset in pixels.
@@ -2747,16 +2750,17 @@ class Figure(FigureBase):
         alpha : None or float
             The alpha blending value.
 
-        norm : `matplotlib.colors.Normalize`
-            A `.Normalize` instance to map the luminance to the
-            interval [0, 1].
+        %(cmap_doc)s
 
-        cmap : str or `matplotlib.colors.Colormap`, default: :rc:`image.cmap`
-            The colormap to use.
+            This parameter is ignored if *X* is RGB(A).
 
-        vmin, vmax : float
-            If *norm* is not given, these values set the data limits for the
-            colormap.
+        %(norm_doc)s
+
+            This parameter is ignored if *X* is RGB(A).
+
+        %(vmin_vmax_doc)s
+
+            This parameter is ignored if *X* is RGB(A).
 
         origin : {'upper', 'lower'}, default: :rc:`image.origin`
             Indicates where the [0, 0] index of the array is in the upper left

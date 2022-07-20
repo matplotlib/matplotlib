@@ -995,8 +995,8 @@ def test_imshow_norm_vminvmax():
     a = [[1, 2], [3, 4]]
     ax = plt.axes()
     with pytest.raises(ValueError,
-                       match="Passing parameters norm and vmin/vmax "
-                             "simultaneously is not supported."):
+                       match="Passing a Normalize instance simultaneously "
+                             "with vmin/vmax is not supported."):
         ax.imshow(a, norm=mcolors.Normalize(-10, 10), vmin=0, vmax=5)
 
 
@@ -2444,8 +2444,8 @@ class TestScatter:
         x = [1, 2, 3]
         ax = plt.axes()
         with pytest.raises(ValueError,
-                           match="Passing parameters norm and vmin/vmax "
-                                 "simultaneously is not supported."):
+                           match="Passing a Normalize instance simultaneously "
+                                 "with vmin/vmax is not supported."):
             ax.scatter(x, x, c=x, norm=mcolors.Normalize(-10, 10),
                        vmin=0, vmax=5)
 

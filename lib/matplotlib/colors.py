@@ -1598,21 +1598,37 @@ def make_norm_from_scale(scale_cls, base_norm_cls=None, *, init=None):
     if base_norm_cls is None:
         return functools.partial(make_norm_from_scale, scale_cls, init=init)
 
+    if isinstance(scale_cls, functools.partial):
+        scale_args = scale_cls.args
+        scale_kwargs_items = tuple(scale_cls.keywords.items())
+        scale_cls = scale_cls.func
+    else:
+        scale_args = scale_kwargs_items = ()
+
     if init is None:
         def init(vmin=None, vmax=None, clip=False): pass
 
     return _make_norm_from_scale(
-        scale_cls, base_norm_cls, inspect.signature(init))
+        scale_cls, scale_args, scale_kwargs_items,
+        base_norm_cls, inspect.signature(init))
 
 
 @functools.lru_cache(None)
-def _make_norm_from_scale(scale_cls, base_norm_cls, bound_init_signature):
+def _make_norm_from_scale(
+    scale_cls, scale_args, scale_kwargs_items,
+    base_norm_cls, bound_init_signature,
+):
     """
     Helper for `make_norm_from_scale`.
 
-    This function is split out so that it takes a signature object as third
-    argument (as signatures are picklable, contrary to arbitrary lambdas);
-    caching is also used so that different unpickles reuse the same class.
+    This function is split out to enable caching (in particular so that
+    different unpickles reuse the same class).  In order to do so,
+
+    - ``functools.partial`` *scale_cls* is expanded into ``func, args, kwargs``
+      to allow memoizing returned norms (partial instances always compare
+      unequal, but we can check identity based on ``func, args, kwargs``;
+    - *init* is replaced by *init_signature*, as signatures are picklable,
+      unlike to arbitrary lambdas.
     """
 
     class Norm(base_norm_cls):
@@ -1631,7 +1647,8 @@ def _make_norm_from_scale(scale_cls, base_norm_cls, bound_init_signature):
             except (ImportError, AttributeError):
                 pass
             return (_picklable_norm_constructor,
-                    (scale_cls, base_norm_cls, bound_init_signature),
+                    (scale_cls, scale_args, scale_kwargs_items,
+                     base_norm_cls, bound_init_signature),
                     vars(self))
 
         def __init__(self, *args, **kwargs):
@@ -1639,7 +1656,9 @@ def _make_norm_from_scale(scale_cls, base_norm_cls, bound_init_signature):
             ba.apply_defaults()
             super().__init__(
                 **{k: ba.arguments.pop(k) for k in ["vmin", "vmax", "clip"]})
-            self._scale = scale_cls(axis=None, **ba.arguments)
+            self._scale = functools.partial(
+                scale_cls, *scale_args, **dict(scale_kwargs_items))(
+                    axis=None, **ba.arguments)
             self._trf = self._scale.get_transform()
 
         __init__.__signature__ = bound_init_signature.replace(parameters=[
@@ -1693,12 +1712,12 @@ def _make_norm_from_scale(scale_cls, base_norm_cls, bound_init_signature):
             in_trf_domain = np.extract(np.isfinite(self._trf.transform(A)), A)
             return super().autoscale_None(in_trf_domain)
 
-    Norm.__name__ = (
-            f"{scale_cls.__name__}Norm" if base_norm_cls is Normalize
-            else base_norm_cls.__name__)
-    Norm.__qualname__ = (
-            f"{scale_cls.__qualname__}Norm" if base_norm_cls is Normalize
-            else base_norm_cls.__qualname__)
+    if base_norm_cls is Normalize:
+        Norm.__name__ = f"{scale_cls.__name__}Norm"
+        Norm.__qualname__ = f"{scale_cls.__qualname__}Norm"
+    else:
+        Norm.__name__ = base_norm_cls.__name__
+        Norm.__qualname__ = base_norm_cls.__qualname__
     Norm.__module__ = base_norm_cls.__module__
     Norm.__doc__ = base_norm_cls.__doc__
 
@@ -1746,9 +1765,10 @@ class FuncNorm(Normalize):
     """
 
 
-@make_norm_from_scale(functools.partial(scale.LogScale, nonpositive="mask"))
-class LogNorm(Normalize):
-    """Normalize a given value to the 0-1 range on a log scale."""
+LogNorm = make_norm_from_scale(
+    functools.partial(scale.LogScale, nonpositive="mask"))(Normalize)
+LogNorm.__name__ = LogNorm.__qualname__ = "LogNorm"
+LogNorm.__doc__ = "Normalize a given value to the 0-1 range on a log scale."
 
 
 @make_norm_from_scale(
