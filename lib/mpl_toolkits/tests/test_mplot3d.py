@@ -1533,14 +1533,22 @@ def test_pan():
     assert z_center != pytest.approx(z_center0)
 
 
-@pytest.mark.parametrize("tool,button,expected",
-                         [("zoom", MouseButton.LEFT,  # zoom in
+@pytest.mark.parametrize("tool,button,key,expected",
+                         [("zoom", MouseButton.LEFT, None,  # zoom in
                           ((0.03, 0.61), (0.27, 0.71), (0.32, 0.89))),
-                          ("zoom", MouseButton.RIGHT,  # zoom out
+                          ("zoom", MouseButton.LEFT, 'x',  # zoom in
+                          ((0.17, 0.73), (0.09, 0.43), (-0.06, 0.06))),
+                          ("zoom", MouseButton.LEFT, 'y',  # zoom in
+                          ((-0.23, -0.03), (0.07, 0.37), (0.32, 0.89))),
+                          ("zoom", MouseButton.RIGHT, None,  # zoom out
                           ((0.29, 0.35), (0.44, 0.53), (0.57, 0.64))),
-                          ("pan", MouseButton.LEFT,
-                          ((-0.70, -0.58), (-1.03, -0.91), (-1.27, -1.15)))])
-def test_toolbar_zoom_pan(tool, button, expected):
+                          ("pan", MouseButton.LEFT, None,
+                          ((-0.70, -0.58), (-1.03, -0.91), (-1.27, -1.15))),
+                          ("pan", MouseButton.LEFT, 'x',
+                          ((-0.96, -0.84), (-0.58, -0.46), (-0.06, 0.06))),
+                          ("pan", MouseButton.LEFT, 'y',
+                          ((0.20, 0.32), (-0.51, -0.39), (-1.27, -1.15)))])
+def test_toolbar_zoom_pan(tool, button, key, expected):
     # NOTE: The expected zoom values are rough ballparks of moving in the view
     #       to make sure we are getting the right direction of motion.
     #       The specific values can and should change if the zoom movement
@@ -1561,9 +1569,9 @@ def test_toolbar_zoom_pan(tool, button, expected):
 
     # Set up the mouse movements
     start_event = MouseEvent(
-        "button_press_event", fig.canvas, *s0, button)
+        "button_press_event", fig.canvas, *s0, button, key=key)
     stop_event = MouseEvent(
-        "button_release_event", fig.canvas, *s1, button)
+        "button_release_event", fig.canvas, *s1, button, key=key)
 
     tb = NavigationToolbar2(fig.canvas)
     if tool == "zoom":
