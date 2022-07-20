@@ -1,0 +1,5 @@
+``w_xaxis``, ``w_yaxis``, and ``w_zaxis`` of ``Axis3D``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+... have been pending deprecation since 3.1. They are now deprecated.
+Instead use ``xaxis``, ``yaxis``, and ``zaxis``.
