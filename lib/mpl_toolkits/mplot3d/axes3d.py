@@ -1179,6 +1179,11 @@ class Axes3D(Axes):
         scale_x = dx / (self.bbox.max[0] - self.bbox.min[0])
         scale_y = dy / (self.bbox.max[1] - self.bbox.min[1])
         scale_z = 1
+
+        # Limit box zoom to reasonable range, protect for divide by zero below
+        scale_x = np.clip(scale_x, 1e-2, 1e2)
+        scale_y = np.clip(scale_y, 1e-2, 1e2)
+
         if direction == 'out':
             scale_x = 1 / scale_x
             scale_y = 1 / scale_y
