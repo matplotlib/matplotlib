@@ -52,6 +52,8 @@ class Axes3D(Axes):
     Axes._shared_axes["z"] = cbook.Grouper()
 
     dist = _api.deprecate_privatize_attribute("3.6")
+    vvec = _api.deprecate_privatize_attribute("3.6")
+    eye = _api.deprecate_privatize_attribute("3.6")
 
     def __init__(
             self, fig, rect=None, *args,
@@ -862,7 +864,11 @@ class Axes3D(Axes):
         # The coordinates for the eye viewing point. The eye is looking
         # towards the middle of the box of data from a distance:
         eye = R + self._dist * ps
-        self.eye = eye
+
+        # vvec, self._vvec and self._eye are unused, remove when deprecated
+        vvec = R - eye
+        self._eye = eye
+        self._vvec = vvec / np.linalg.norm(vvec)
 
         # Calculate the viewing axes for the eye position
         u, v, n = self._calc_view_axes(eye)
