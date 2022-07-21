@@ -2372,10 +2372,10 @@ class Figure(FigureBase):
         # pickling.
         self._canvas_callbacks = cbook.CallbackRegistry(
             signals=FigureCanvasBase.events)
-        self._button_pick_id = self._canvas_callbacks.connect(
-            'button_press_event', lambda event: self.canvas.pick(event))
-        self._scroll_pick_id = self._canvas_callbacks.connect(
-            'scroll_event', lambda event: self.canvas.pick(event))
+        self._button_pick_id = self._canvas_callbacks._connect_picklable(
+            'button_press_event', self.pick)
+        self._scroll_pick_id = self._canvas_callbacks._connect_picklable(
+            'scroll_event', self.pick)
 
         if figsize is None:
             figsize = mpl.rcParams['figure.figsize']
@@ -2422,6 +2422,10 @@ class Figure(FigureBase):
 
         # list of child gridspecs for this figure
         self._gridspecs = []
+
+    def pick(self, mouseevent):
+        if not self.canvas.widgetlock.locked():
+            super().pick(mouseevent)
 
     def _check_layout_engines_compat(self, old, new):
         """
