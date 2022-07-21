@@ -42,9 +42,9 @@ def test_axes3d_repr():
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     ax.set_zlabel('z')
-    assert repr(ax) == ("<Axes3DSubplot:label='label', " +
-                        "title={'center':'title'}, " +
-                        "xlabel='x', ylabel='y', zlabel='z'>")
+    assert repr(ax) == (
+        "<Axes3DSubplot: label='label', "
+        "title={'center': 'title'}, xlabel='x', ylabel='y', zlabel='z'>")
 
 
 @mpl3d_image_comparison(['bar3d.png'])

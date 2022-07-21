@@ -65,8 +65,9 @@ def test_repr():
     ax.set_title('title')
     ax.set_xlabel('x')
     ax.set_ylabel('y')
-    assert repr(ax) == ("<AxesSubplot:label='label', " +
-                        "title={'center':'title'}, xlabel='x', ylabel='y'>")
+    assert repr(ax) == (
+        "<AxesSubplot: "
+        "label='label', title={'center': 'title'}, xlabel='x', ylabel='y'>")
 
 
 @check_figures_equal()
@@ -7046,7 +7047,7 @@ def test_secondary_formatter():
 def test_secondary_repr():
     fig, ax = plt.subplots()
     secax = ax.secondary_xaxis("top")
-    assert repr(secax) == '<SecondaryAxis:>'
+    assert repr(secax) == '<SecondaryAxis: >'
 
 
 def color_boxes(fig, ax):
