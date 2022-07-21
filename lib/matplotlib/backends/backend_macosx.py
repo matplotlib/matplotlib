@@ -158,9 +158,13 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
             self.show()
             self.canvas.draw_idle()
 
-    def close(self):
+    def _close_button_pressed(self):
         Gcf.destroy(self)
         self.canvas.flush_events()
+
+    @_api.deprecated("3.6")
+    def close(self):
+        return self._close_button_pressed()
 
     def show(self):
         if not self._shown:

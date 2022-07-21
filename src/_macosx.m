@@ -1132,7 +1132,7 @@ static WindowServerConnectionManager *sharedWindowServerConnectionManager = nil;
 
 - (BOOL)closeButtonPressed
 {
-    gil_call_method(manager, "close");
+    gil_call_method(manager, "_close_button_pressed");
     return YES;
 }
 
