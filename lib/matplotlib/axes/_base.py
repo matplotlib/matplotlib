@@ -732,10 +732,9 @@ class _AxesBase(martist.Artist):
                     titles.append(f"{k!r}:{title!r}")
         if titles:
             fields += ["title={" + ",".join(titles) + "}"]
-        if self.get_xlabel():
-            fields += [f"xlabel={self.get_xlabel()!r}"]
-        if self.get_ylabel():
-            fields += [f"ylabel={self.get_ylabel()!r}"]
+        for name, axis in self._axis_map.items():
+            if axis.get_label() and axis.get_label().get_text():
+                fields += [f"{name}label={axis.get_label().get_text()!r}"]
         return f"<{self.__class__.__name__}:" + ", ".join(fields) + ">"
 
     @_api.delete_parameter("3.6", "args")

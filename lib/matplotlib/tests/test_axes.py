@@ -59,6 +59,16 @@ def test_get_labels():
     assert ax.get_ylabel() == 'y label'
 
 
+def test_repr():
+    fig, ax = plt.subplots()
+    ax.set_label('label')
+    ax.set_title('title')
+    ax.set_xlabel('x')
+    ax.set_ylabel('y')
+    assert repr(ax) == ("<AxesSubplot:label='label', " +
+                        "title={'center':'title'}, xlabel='x', ylabel='y'>")
+
+
 @check_figures_equal()
 def test_label_loc_vertical(fig_test, fig_ref):
     ax = fig_test.subplots()
