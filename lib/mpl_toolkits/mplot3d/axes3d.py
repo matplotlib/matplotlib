@@ -1164,7 +1164,7 @@ class Axes3D(Axes):
         Will center the view on the center of the bounding box, and zoom by
         the ratio of the size of the bounding box to the size of the Axes3D.
         """
-        (start_x, start_y, stop_x, stop_y) = self._prepare_view_from_bbox(bbox)
+        (start_x, start_y, stop_x, stop_y) = bbox
         if mode == 'x':
             start_y = self.bbox.min[1]
             stop_y = self.bbox.max[1]
@@ -1199,44 +1199,6 @@ class Axes3D(Axes):
             scale_y = 1 / scale_y
 
         self._zoom_data_limits(scale_x, scale_y, scale_z)
-
-    def _prepare_view_from_bbox(self, bbox, direction='in',
-                                mode=None, twinx=False, twiny=False):
-        """
-        Helper function to prepare the new bounds from a bbox.
-        This helper function returns the new x and y bounds from the zoom
-        bbox. This a convenience method to abstract the bbox logic
-        out of the base setter.
-        """
-        if len(bbox) == 3:
-            xp, yp, scl = bbox  # Zooming code
-            if scl == 0:  # Should not happen
-                scl = 1.
-            if scl > 1:
-                direction = 'in'
-            else:
-                direction = 'out'
-                scl = 1 / scl
-            # get the limits of the axes
-            (xmin, ymin), (xmax, ymax) = self.transData.transform(
-                np.transpose([self.get_xlim(), self.get_ylim()]))
-            # set the range
-            xwidth = xmax - xmin
-            ywidth = ymax - ymin
-            xcen = (xmax + xmin) * .5
-            ycen = (ymax + ymin) * .5
-            xzc = (xp * (scl - 1) + xcen) / scl
-            yzc = (yp * (scl - 1) + ycen) / scl
-            bbox = [xzc - xwidth / 2. / scl, yzc - ywidth / 2. / scl,
-                    xzc + xwidth / 2. / scl, yzc + ywidth / 2. / scl]
-        elif len(bbox) != 4:
-            # should be len 3 or 4 but nothing else
-            _api.warn_external(
-                "Warning in _set_view_from_bbox: bounding box is not a tuple "
-                "of length 3 or 4. Ignoring the view change.")
-            return
-
-        return bbox
 
     def _zoom_data_limits(self, scale_x, scale_y, scale_z):
         """
