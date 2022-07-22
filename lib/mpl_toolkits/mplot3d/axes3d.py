@@ -325,25 +325,27 @@ class Axes3D(Axes):
 
         if aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
             if aspect == 'equal':
-                axis_indices = [0, 1, 2]
+                ax_indices = [0, 1, 2]
             elif aspect == 'equalxy':
-                axis_indices = [0, 1]
+                ax_indices = [0, 1]
             elif aspect == 'equalxz':
-                axis_indices = [0, 2]
+                ax_indices = [0, 2]
             elif aspect == 'equalyz':
-                axis_indices = [1, 2]
+                ax_indices = [1, 2]
 
             view_intervals = np.array([self.xaxis.get_view_interval(),
                                        self.yaxis.get_view_interval(),
                                        self.zaxis.get_view_interval()])
             mean = np.mean(view_intervals, axis=1)
-            delta = np.max(np.ptp(view_intervals, axis=1))
-            deltas = delta * self._box_aspect / min(self._box_aspect)
+            ptp = np.ptp(view_intervals, axis=1)
+            delta = max(ptp[ax_indices])
+            scale = self._box_aspect[ptp == delta][0]
+            deltas = delta * self._box_aspect / scale
 
             for i, set_lim in enumerate((self.set_xlim3d,
                                          self.set_ylim3d,
                                          self.set_zlim3d)):
-                if i in axis_indices:
+                if i in ax_indices:
                     set_lim(mean[i] - deltas[i]/2., mean[i] + deltas[i]/2.)
 
     def set_box_aspect(self, aspect, *, zoom=1):

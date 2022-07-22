@@ -32,9 +32,9 @@ def test_aspects():
     aspects = ('auto', 'equal', 'equalxy', 'equalyz', 'equalxz')
     fig, axs = plt.subplots(1, len(aspects), subplot_kw={'projection': '3d'})
 
-    # Draw rectangular cuboid with side lengths [1, 1, 2]
+    # Draw rectangular cuboid with side lengths [1, 1, 5]
     r = [0, 1]
-    scale = np.array([1, 1, 2])
+    scale = np.array([1, 1, 5])
     pts = itertools.combinations(np.array(list(itertools.product(r, r, r))), 2)
     for start, end in pts:
         if np.sum(np.abs(start - end)) == r[1] - r[0]:
