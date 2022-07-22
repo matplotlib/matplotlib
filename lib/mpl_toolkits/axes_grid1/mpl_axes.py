@@ -40,14 +40,6 @@ class Axes(maxes.Axes):
         def __call__(self, *v, **kwargs):
             return maxes.Axes.axis(self.axes, *v, **kwargs)
 
-    def _init_axis_artists(self):
-        self._axislines = self.AxisDict(self)
-        self._axislines.update(
-            bottom=SimpleAxisArtist(self.xaxis, 1, self.spines["bottom"]),
-            top=SimpleAxisArtist(self.xaxis, 2, self.spines["top"]),
-            left=SimpleAxisArtist(self.yaxis, 1, self.spines["left"]),
-            right=SimpleAxisArtist(self.yaxis, 2, self.spines["right"]))
-
     @property
     def axis(self):
         return self._axislines
@@ -55,7 +47,13 @@ class Axes(maxes.Axes):
     def clear(self):
         # docstring inherited
         super().clear()
-        self._init_axis_artists()
+        # Init axis artists.
+        self._axislines = self.AxisDict(self)
+        self._axislines.update(
+            bottom=SimpleAxisArtist(self.xaxis, 1, self.spines["bottom"]),
+            top=SimpleAxisArtist(self.xaxis, 2, self.spines["top"]),
+            left=SimpleAxisArtist(self.yaxis, 1, self.spines["left"]),
+            right=SimpleAxisArtist(self.yaxis, 2, self.spines["right"]))
 
 
 class SimpleAxisArtist(Artist):

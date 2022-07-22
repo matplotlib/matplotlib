@@ -1,0 +1,3 @@
+``axislines.GridHelperBase.new_gridlines`` and ``axislines.Axes.new_gridlines``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... are deprecated.
