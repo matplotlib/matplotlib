@@ -54,22 +54,12 @@ class FixedAxisArtistHelper(grid_helper_curvelinear.FloatingAxisArtistHelper):
         grid_finder = self.grid_helper.grid_finder
 
         lat_levs, lat_n, lat_factor = self._grid_info["lat_info"]
+        yy0 = lat_levs / lat_factor
+        dy = 0.001 / lat_factor
+
         lon_levs, lon_n, lon_factor = self._grid_info["lon_info"]
-
-        lon_levs, lat_levs = np.asarray(lon_levs), np.asarray(lat_levs)
-        if lat_factor is not None:
-            yy0 = lat_levs / lat_factor
-            dy = 0.001 / lat_factor
-        else:
-            yy0 = lat_levs
-            dy = 0.001
-
-        if lon_factor is not None:
-            xx0 = lon_levs / lon_factor
-            dx = 0.001 / lon_factor
-        else:
-            xx0 = lon_levs
-            dx = 0.001
+        xx0 = lon_levs / lon_factor
+        dx = 0.001 / lon_factor
 
         extremes = self.grid_helper._extremes
         xmin, xmax = sorted(extremes[:2])
@@ -242,31 +232,25 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
 
         lon_min, lon_max = sorted(extremes[:2])
         lat_min, lat_max = sorted(extremes[2:])
+        grid_info["extremes"] = lon_min, lon_max, lat_min, lat_max  # extremes
+
         lon_levs, lon_n, lon_factor = \
             grid_finder.grid_locator1(lon_min, lon_max)
+        lon_levs = np.asarray(lon_levs)
         lat_levs, lat_n, lat_factor = \
             grid_finder.grid_locator2(lat_min, lat_max)
-        grid_info["extremes"] = lon_min, lon_max, lat_min, lat_max  # extremes
+        lat_levs = np.asarray(lat_levs)
 
         grid_info["lon_info"] = lon_levs, lon_n, lon_factor
         grid_info["lat_info"] = lat_levs, lat_n, lat_factor
 
-        grid_info["lon_labels"] = grid_finder.tick_formatter1("bottom",
-                                                              lon_factor,
-                                                              lon_levs)
+        grid_info["lon_labels"] = grid_finder.tick_formatter1(
+            "bottom", lon_factor, lon_levs)
+        grid_info["lat_labels"] = grid_finder.tick_formatter2(
+            "bottom", lat_factor, lat_levs)
 
-        grid_info["lat_labels"] = grid_finder.tick_formatter2("bottom",
-                                                              lat_factor,
-                                                              lat_levs)
-
-        if lon_factor is None:
-            lon_values = np.asarray(lon_levs[:lon_n])
-        else:
-            lon_values = np.asarray(lon_levs[:lon_n]/lon_factor)
-        if lat_factor is None:
-            lat_values = np.asarray(lat_levs[:lat_n])
-        else:
-            lat_values = np.asarray(lat_levs[:lat_n]/lat_factor)
+        lon_values = lon_levs[:lon_n] / lon_factor
+        lat_values = lat_levs[:lat_n] / lat_factor
 
         lon_lines, lat_lines = grid_finder._get_raw_grid_lines(
             lon_values[(lon_min < lon_values) & (lon_values < lon_max)],

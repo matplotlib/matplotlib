@@ -120,8 +120,8 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
 
         self._grid_info = {
             "extremes": (lon_min, lon_max, lat_min, lat_max),
-            "lon_info": (lon_levs, lon_n, lon_factor),
-            "lat_info": (lat_levs, lat_n, lat_factor),
+            "lon_info": (lon_levs, lon_n, np.asarray(lon_factor)),
+            "lat_info": (lat_levs, lat_n, np.asarray(lat_factor)),
             "lon_labels": grid_finder.tick_formatter1(
                 "bottom", lon_factor, lon_levs),
             "lat_labels": grid_finder.tick_formatter2(
@@ -170,12 +170,10 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
         grid_finder = self.grid_helper.grid_finder
 
         lat_levs, lat_n, lat_factor = self._grid_info["lat_info"]
-        lat_levs = np.asarray(lat_levs)
         yy0 = lat_levs / lat_factor
         dy = 0.01 / lat_factor
 
         lon_levs, lon_n, lon_factor = self._grid_info["lon_info"]
-        lon_levs = np.asarray(lon_levs)
         xx0 = lon_levs / lon_factor
         dx = 0.01 / lon_factor
 
