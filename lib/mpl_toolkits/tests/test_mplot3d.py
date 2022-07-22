@@ -876,8 +876,8 @@ def _test_proj_make_M():
     R = np.array([100, 100, 100])
     V = np.array([0, 0, 1])
     roll = 0
-    u, v, n = proj3d.view_axes(E, R, V, roll)
-    viewM = proj3d.view_transformation(u, v, n, E)
+    u, v, w = proj3d.view_axes(E, R, V, roll)
+    viewM = proj3d.view_transformation(u, v, w, E)
     perspM = proj3d.persp_transformation(100, -100, 1)
     M = np.dot(perspM, viewM)
     return M
@@ -943,8 +943,8 @@ def test_proj_axes_cube_ortho():
     R = np.array([0, 0, 0])
     V = np.array([0, 0, 1])
     roll = 0
-    u, v, n = proj3d.view_axes(E, R, V, roll)
-    viewM = proj3d.view_transformation(u, v, n, E)
+    u, v, w = proj3d.view_axes(E, R, V, roll)
+    viewM = proj3d.view_transformation(u, v, w, E)
     orthoM = proj3d.ortho_transformation(-1, 1)
     M = np.dot(orthoM, viewM)
 

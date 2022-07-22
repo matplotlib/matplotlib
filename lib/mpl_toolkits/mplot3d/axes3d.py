@@ -871,21 +871,21 @@ class Axes3D(Axes):
         self._vvec = vvec / np.linalg.norm(vvec)
 
         # Calculate the viewing axes for the eye position
-        u, v, n = self._calc_view_axes(eye)
+        u, v, w = self._calc_view_axes(eye)
         self._view_u = u  # _view_u is towards the right of the screen
         self._view_v = v  # _view_v is towards the top of the screen
-        self._view_n = n  # _view_n is out of the screen
+        self._view_w = w  # _view_w is out of the screen
 
         # Generate the view and projection transformation matrices
         if self._focal_length == np.inf:
             # Orthographic projection
-            viewM = proj3d.view_transformation(u, v, n, eye)
+            viewM = proj3d.view_transformation(u, v, w, eye)
             projM = proj3d.ortho_transformation(-self._dist, self._dist)
         else:
             # Perspective projection
             # Scale the eye dist to compensate for the focal length zoom effect
             eye_focal = R + self._dist * ps * self._focal_length
-            viewM = proj3d.view_transformation(u, v, n, eye_focal)
+            viewM = proj3d.view_transformation(u, v, w, eye_focal)
             projM = proj3d.persp_transformation(-self._dist,
                                                 self._dist,
                                                 self._focal_length)
@@ -1111,7 +1111,7 @@ class Axes3D(Axes):
         # move location for the next event
         self.start_pan(x, y, button)
         du, dv = xdata - xdata_start, ydata - ydata_start
-        dn = 0
+        dw = 0
         if key == 'x':
             dv = 0
         elif key == 'y':
@@ -1120,15 +1120,15 @@ class Axes3D(Axes):
             return
 
         # Transform the pan from the view axes to the data axees
-        R = np.array([self._view_u, self._view_v, self._view_n])
+        R = np.array([self._view_u, self._view_v, self._view_w])
         R = -R / self._box_aspect * self._dist
-        duvn_projected = R.T @ np.array([du, dv, dn])
+        duvw_projected = R.T @ np.array([du, dv, dw])
 
         # Calculate pan distance
         minx, maxx, miny, maxy, minz, maxz = self.get_w_lims()
-        dx = (maxx - minx) * duvn_projected[0]
-        dy = (maxy - miny) * duvn_projected[1]
-        dz = (maxz - minz) * duvn_projected[2]
+        dx = (maxx - minx) * duvw_projected[0]
+        dy = (maxy - miny) * duvw_projected[1]
+        dz = (maxz - minz) * duvw_projected[2]
 
         # Set the new axis limits
         self.set_xlim3d(minx + dx, maxx + dx)
@@ -1140,7 +1140,7 @@ class Axes3D(Axes):
         Get the unit vectors for the viewing axes in data coordinates.
         `u` is towards the right of the screen
         `v` is towards the top of the screen
-        `n` is out of the screen
+        `w` is out of the screen
         """
         elev_rad = np.deg2rad(art3d._norm_angle(self.elev))
         roll_rad = np.deg2rad(art3d._norm_angle(self.roll))
@@ -1154,8 +1154,8 @@ class Axes3D(Axes):
         V = np.zeros(3)
         V[self._vertical_axis] = -1 if abs(elev_rad) > np.pi/2 else 1
 
-        u, v, n = proj3d.view_axes(eye, R, V, roll_rad)
-        return u, v, n
+        u, v, w = proj3d.view_axes(eye, R, V, roll_rad)
+        return u, v, w
 
     def _set_view_from_bbox(self, bbox, direction='in',
                             mode=None, twinx=False, twiny=False):
@@ -1188,7 +1188,7 @@ class Axes3D(Axes):
         dy = abs(start_y - stop_y)
         scale_u = dx / (self.bbox.max[0] - self.bbox.min[0])
         scale_v = dy / (self.bbox.max[1] - self.bbox.min[1])
-        scale_n = 1
+        scale_w = 1
 
         # Limit box zoom to reasonable range, protect for divide by zero below
         scale_u = np.clip(scale_u, 1e-2, 1e2)
@@ -1198,20 +1198,20 @@ class Axes3D(Axes):
             scale_u = 1 / scale_u
             scale_v = 1 / scale_v
 
-        self._zoom_data_limits(scale_u, scale_v, scale_n)
+        self._zoom_data_limits(scale_u, scale_v, scale_w)
 
-    def _zoom_data_limits(self, scale_u, scale_v, scale_n):
+    def _zoom_data_limits(self, scale_u, scale_v, scale_w):
         """
         Zoom in or out of a 3D plot.
         Will scale the data limits by the scale factors, where scale_u,
-        scale_v, and scale_n refer to the scale factors for the viewing axes.
+        scale_v, and scale_w refer to the scale factors for the viewing axes.
         These will be transformed to the x, y, z data axes based on the current
         view angles. A scale factor > 1 zooms out and a scale factor < 1 zooms
         in.
         """
         # Convert from the scale factors in the view frame to the data frame
-        R = np.array([self._view_u, self._view_v, self._view_n])
-        S = np.array([scale_u, scale_v, scale_n]) * np.eye(3)
+        R = np.array([self._view_u, self._view_v, self._view_w])
+        S = np.array([scale_u, scale_v, scale_w]) * np.eye(3)
         scale = np.linalg.norm(R.T @ S, axis=1)
 
         # Scale the data range
