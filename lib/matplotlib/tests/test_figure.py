@@ -1,6 +1,7 @@
 from datetime import datetime
 import io
 from pathlib import Path
+import pickle
 import platform
 from threading import Timer
 from types import SimpleNamespace
@@ -1360,3 +1361,11 @@ def test_kwargs_pass():
 
     assert fig.get_label() == 'whole Figure'
     assert sub_fig.get_label() == 'sub figure'
+
+
+def test_unpickle_with_device_pixel_ratio():
+    fig = Figure(dpi=42)
+    fig.canvas._set_device_pixel_ratio(7)
+    assert fig.dpi == 42*7
+    fig2 = pickle.loads(pickle.dumps(fig))
+    assert fig2.dpi == 42
