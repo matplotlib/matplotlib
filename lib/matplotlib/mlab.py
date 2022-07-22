@@ -68,7 +68,7 @@ def window_hanning(x):
     return np.hanning(len(x))*x
 
 
-@_api.deprecated("3.6", alternative="")
+@_api.deprecated("3.6")
 def window_none(x):
     """
     No window function; simply return *x*.
@@ -159,7 +159,7 @@ def detrend_mean(x, axis=None):
     return x - x.mean(axis, keepdims=True)
 
 
-@_api.deprecated("3.6", alternative="scipy.signal.detrend")
+@_api.deprecated("3.6")
 def detrend_none(x, axis=None):
     """
     Return *x*: no detrending.
