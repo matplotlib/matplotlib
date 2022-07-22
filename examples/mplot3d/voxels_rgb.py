@@ -39,5 +39,6 @@ ax.voxels(r, g, b, sphere,
           edgecolors=np.clip(2*colors - 0.5, 0, 1),  # brighter
           linewidth=0.5)
 ax.set(xlabel='r', ylabel='g', zlabel='b')
+ax.set_aspect('equal')
 
 plt.show()
