@@ -3467,6 +3467,7 @@ class Axes(_AxesBase):
         # Eject any line-specific information from format string, as it's not
         # needed for bars or caps.
         for key in ['marker', 'markersize', 'markerfacecolor',
+                    'markerfacecoloralt',
                     'markeredgewidth', 'markeredgecolor', 'markevery',
                     'linestyle', 'fillstyle', 'drawstyle', 'dash_capstyle',
                     'dash_joinstyle', 'solid_capstyle', 'solid_joinstyle',
