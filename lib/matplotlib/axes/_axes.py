@@ -3369,21 +3369,21 @@ class Axes(_AxesBase):
 
             Valid kwargs for the marker properties are:
 
-                - marker
-                - markersize
-                - markerfacecolor
-                - markerfacecoloralt
-                - markeredgewidth
-                - markeredgecolor
-                - markevery
-                - linestyle
-                - fillstyle
-                - drawstyle
-                - dash_capstyle
-                - dash_joinstyle
-                - solid_capstyle
-                - solid_joinstyle
-                - dashes
+                - *dashes*
+                - *dash_capstyle*
+                - *dash_joinstyle*
+                - *drawstyle*
+                - *fillstyle*
+                - *linestyle*
+                - *marker*
+                - *markeredgecolor*
+                - *markeredgewidth*
+                - *markerfacecolor*
+                - *markerfacecoloralt*
+                - *markersize*
+                - *markevery*
+                - *solid_capstyle*
+                - *solid_joinstyle*
 
             Refer to the corresponding `.Line2D` property for more details:
 
