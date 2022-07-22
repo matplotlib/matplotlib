@@ -23,11 +23,11 @@ from numbers import Integral
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _blocking_input, _docstring, projections
+from matplotlib import _blocking_input, backend_bases, _docstring, projections
 from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
-    FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
+    DrawEvent, FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
 import matplotlib._api as _api
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
@@ -2376,6 +2376,16 @@ class Figure(FigureBase):
             'button_press_event', self.pick)
         self._scroll_pick_id = self._canvas_callbacks._connect_picklable(
             'scroll_event', self.pick)
+        connect = self._canvas_callbacks._connect_picklable
+        self._mouse_key_ids = [
+            connect('key_press_event', backend_bases._key_handler),
+            connect('key_release_event', backend_bases._key_handler),
+            connect('key_release_event', backend_bases._key_handler),
+            connect('button_press_event', backend_bases._mouse_handler),
+            connect('button_release_event', backend_bases._mouse_handler),
+            connect('scroll_event', backend_bases._mouse_handler),
+            connect('motion_notify_event', backend_bases._mouse_handler),
+        ]
 
         if figsize is None:
             figsize = mpl.rcParams['figure.figsize']
@@ -2979,7 +2989,7 @@ class Figure(FigureBase):
         finally:
             self.stale = False
 
-        self.canvas.draw_event(renderer)
+        DrawEvent("draw_event", self.canvas, renderer)._process()
 
     def draw_without_rendering(self):
         """

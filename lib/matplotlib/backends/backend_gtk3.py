@@ -6,7 +6,9 @@ import sys
 
 import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
-from matplotlib.backend_bases import FigureCanvasBase, ToolContainerBase
+from matplotlib.backend_bases import (
+    FigureCanvasBase, ToolContainerBase,
+    CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 from matplotlib.backend_tools import Cursors
 
 try:
@@ -101,8 +103,8 @@ class FigureCanvasGTK3(FigureCanvasBase, Gtk.DrawingArea):
         self.connect('key_press_event',      self.key_press_event)
         self.connect('key_release_event',    self.key_release_event)
         self.connect('motion_notify_event',  self.motion_notify_event)
-        self.connect('leave_notify_event',   self.leave_notify_event)
         self.connect('enter_notify_event',   self.enter_notify_event)
+        self.connect('leave_notify_event',   self.leave_notify_event)
         self.connect('size_allocate',        self.size_allocate)
 
         self.set_events(self.__class__.event_mask)
@@ -116,7 +118,7 @@ class FigureCanvasGTK3(FigureCanvasBase, Gtk.DrawingArea):
         style_ctx.add_class("matplotlib-canvas")
 
     def destroy(self):
-        self.close_event()
+        CloseEvent("close_event", self)._process()
 
     def set_cursor(self, cursor):
         # docstring inherited
@@ -126,9 +128,10 @@ class FigureCanvasGTK3(FigureCanvasBase, Gtk.DrawingArea):
             context = GLib.MainContext.default()
             context.iteration(True)
 
-    def _mouse_event_coords(self, event):
+    def _mpl_coords(self, event=None):
         """
-        Calculate mouse coordinates in physical pixels.
+        Convert the position of a GTK event, or of the current cursor position
+        if *event* is None, to Matplotlib coordinates.
 
         GTK use logical pixels, but the figure is scaled to physical pixels for
         rendering.  Transform to physical pixels so that all of the down-stream
@@ -136,57 +139,66 @@ class FigureCanvasGTK3(FigureCanvasBase, Gtk.DrawingArea):
 
         Also, the origin is different and needs to be corrected.
         """
-        x = event.x * self.device_pixel_ratio
+        if event is None:
+            window = self.get_window()
+            t, x, y, state = window.get_device_position(
+                window.get_display().get_device_manager().get_client_pointer())
+        else:
+            x, y = event.x, event.y
+        x = x * self.device_pixel_ratio
         # flip y so y=0 is bottom of canvas
-        y = self.figure.bbox.height - event.y * self.device_pixel_ratio
+        y = self.figure.bbox.height - y * self.device_pixel_ratio
         return x, y
 
     def scroll_event(self, widget, event):
-        x, y = self._mouse_event_coords(event)
         step = 1 if event.direction == Gdk.ScrollDirection.UP else -1
-        FigureCanvasBase.scroll_event(self, x, y, step, guiEvent=event)
+        MouseEvent("scroll_event", self, *self._mpl_coords(event), step=step,
+                   guiEvent=event)._process()
         return False  # finish event propagation?
 
     def button_press_event(self, widget, event):
-        x, y = self._mouse_event_coords(event)
-        FigureCanvasBase.button_press_event(
-            self, x, y, event.button, guiEvent=event)
+        MouseEvent("button_press_event", self,
+                   *self._mpl_coords(event), event.button,
+                   guiEvent=event)._process()
         return False  # finish event propagation?
 
     def button_release_event(self, widget, event):
-        x, y = self._mouse_event_coords(event)
-        FigureCanvasBase.button_release_event(
-            self, x, y, event.button, guiEvent=event)
+        MouseEvent("button_release_event", self,
+                   *self._mpl_coords(event), event.button,
+                   guiEvent=event)._process()
         return False  # finish event propagation?
 
     def key_press_event(self, widget, event):
-        key = self._get_key(event)
-        FigureCanvasBase.key_press_event(self, key, guiEvent=event)
+        KeyEvent("key_press_event", self,
+                 self._get_key(event), *self._mpl_coords(),
+                 guiEvent=event)._process()
         return True  # stop event propagation
 
     def key_release_event(self, widget, event):
-        key = self._get_key(event)
-        FigureCanvasBase.key_release_event(self, key, guiEvent=event)
+        KeyEvent("key_release_event", self,
+                 self._get_key(event), *self._mpl_coords(),
+                 guiEvent=event)._process()
         return True  # stop event propagation
 
     def motion_notify_event(self, widget, event):
-        x, y = self._mouse_event_coords(event)
-        FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
+        MouseEvent("motion_notify_event", self, *self._mpl_coords(event),
+                   guiEvent=event)._process()
         return False  # finish event propagation?
 
-    def leave_notify_event(self, widget, event):
-        FigureCanvasBase.leave_notify_event(self, event)
-
     def enter_notify_event(self, widget, event):
-        x, y = self._mouse_event_coords(event)
-        FigureCanvasBase.enter_notify_event(self, guiEvent=event, xy=(x, y))
+        LocationEvent("figure_enter_event", self, *self._mpl_coords(event),
+                      guiEvent=event)._process()
+
+    def leave_notify_event(self, widget, event):
+        LocationEvent("figure_leave_event", self, *self._mpl_coords(event),
+                      guiEvent=event)._process()
 
     def size_allocate(self, widget, allocation):
         dpival = self.figure.dpi
         winch = allocation.width * self.device_pixel_ratio / dpival
         hinch = allocation.height * self.device_pixel_ratio / dpival
         self.figure.set_size_inches(winch, hinch, forward=False)
-        FigureCanvasBase.resize_event(self)
+        ResizeEvent("resize_event", self)._process()
         self.draw_idle()
 
     def _get_key(self, event):

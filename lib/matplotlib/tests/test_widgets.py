@@ -1,6 +1,7 @@
 import functools
 
 from matplotlib._api.deprecation import MatplotlibDeprecationWarning
+from matplotlib.backend_bases import MouseEvent
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
@@ -1486,16 +1487,22 @@ def test_polygon_selector_box(ax):
     canvas = ax.figure.canvas
 
     # Scale to half size using the top right corner of the bounding box
-    canvas.button_press_event(*t.transform((40, 40)), 1)
-    canvas.motion_notify_event(*t.transform((20, 20)))
-    canvas.button_release_event(*t.transform((20, 20)), 1)
+    MouseEvent(
+        "button_press_event", canvas, *t.transform((40, 40)), 1)._process()
+    MouseEvent(
+        "motion_notify_event", canvas, *t.transform((20, 20)))._process()
+    MouseEvent(
+        "button_release_event", canvas, *t.transform((20, 20)), 1)._process()
     np.testing.assert_allclose(
         tool.verts, [(10, 0), (0, 10), (10, 20), (20, 10)])
 
     # Move using the center of the bounding box
-    canvas.button_press_event(*t.transform((10, 10)), 1)
-    canvas.motion_notify_event(*t.transform((30, 30)))
-    canvas.button_release_event(*t.transform((30, 30)), 1)
+    MouseEvent(
+        "button_press_event", canvas, *t.transform((10, 10)), 1)._process()
+    MouseEvent(
+        "motion_notify_event", canvas, *t.transform((30, 30)))._process()
+    MouseEvent(
+        "button_release_event", canvas, *t.transform((30, 30)), 1)._process()
     np.testing.assert_allclose(
         tool.verts, [(30, 20), (20, 30), (30, 40), (40, 30)])
 
@@ -1503,8 +1510,10 @@ def test_polygon_selector_box(ax):
     np.testing.assert_allclose(
         tool._box.extents, (20.0, 40.0, 20.0, 40.0))
 
-    canvas.button_press_event(*t.transform((30, 20)), 3)
-    canvas.button_release_event(*t.transform((30, 20)), 3)
+    MouseEvent(
+        "button_press_event", canvas, *t.transform((30, 20)), 3)._process()
+    MouseEvent(
+        "button_release_event", canvas, *t.transform((30, 20)), 3)._process()
     np.testing.assert_allclose(
         tool.verts, [(20, 30), (30, 40), (40, 30)])
     np.testing.assert_allclose(
