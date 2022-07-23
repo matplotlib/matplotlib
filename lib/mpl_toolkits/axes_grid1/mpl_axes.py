@@ -1,7 +1,7 @@
 import matplotlib.axes as maxes
 from matplotlib.artist import Artist
 from matplotlib.axis import XAxis, YAxis
-
+Axes = maxes.Axes
 
 class SimpleChainedObjects:
     def __init__(self, objects):
@@ -15,19 +15,18 @@ class SimpleChainedObjects:
         for m in self._objects:
             m(*args, **kwargs)
 
-
-class Axes(maxes.Axes):
+class AxesAdapter:
 
     class AxisDict(dict):
         def __init__(self, axes):
-            self.axes = axes
+            self._axes = axes
             super().__init__()
 
         def __getitem__(self, k):
             if isinstance(k, tuple):
                 r = SimpleChainedObjects(
                     # super() within a list comprehension needs explicit args.
-                    [super(Axes.AxisDict, self).__getitem__(k1) for k1 in k])
+                    [super(AxesAdapter.AxisDict, self).__getitem__(k1) for k1 in k])
                 return r
             elif isinstance(k, slice):
                 if k.start is None and k.stop is None and k.step is None:
@@ -39,7 +38,16 @@ class Axes(maxes.Axes):
 
         def __call__(self, *v, **kwargs):
             return maxes.Axes.axis(self.axes, *v, **kwargs)
-
+    def __init__(self, adapted_axes):
+        if isinstance(adapted_axes, AxesAdapter):
+            self._adapted_axes = adapted_axes._adapted_axes
+        else:
+            self._adapted_axes = adapted_axes
+        self._init_axis_artists()
+    def __getattr__(self, attr):
+        if attr in ('axis', 'clear','_axislines','_init_axis_artists'):
+            return object.__getattribute__(self, attr)
+        return self._adapted_axes.__getattribute__(attr)
     def _init_axis_artists(self):
         self._axislines = self.AxisDict(self)
         self._axislines.update(

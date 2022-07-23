@@ -4,7 +4,8 @@ import matplotlib.image as mimage
 import matplotlib.transforms as mtransforms
 from matplotlib.axes import subplot_class_factory
 from matplotlib.transforms import Bbox
-from .mpl_axes import Axes
+from matplotlib.axes import Axes
+from .mpl_axes import AxesAdapter
 
 
 class ParasiteAxesBase:
@@ -158,9 +159,11 @@ class HostAxesBase:
         will have ticks on the right.
         """
         ax = self._add_twin_axes(axes_class, sharex=self)
-        self.axis["right"].set_visible(False)
-        ax.axis["right"].set_visible(True)
-        ax.axis["left", "top", "bottom"].set_visible(False)
+        aax = AxesAdapter(ax)
+        aself = AxesAdapter(self)
+        aself.axis["right"].set_visible(False)
+        aax.axis["right"].set_visible(True)
+        aax.axis["left", "top", "bottom"].set_visible(False)
         return ax
 
     def twiny(self, axes_class=None):
@@ -171,9 +174,11 @@ class HostAxesBase:
         will have ticks on the top.
         """
         ax = self._add_twin_axes(axes_class, sharey=self)
-        self.axis["top"].set_visible(False)
-        ax.axis["top"].set_visible(True)
-        ax.axis["left", "right", "bottom"].set_visible(False)
+        aself = AxesAdapter(self)
+        aax = AxesAdapter(ax)
+        aself.axis["top"].set_visible(False)
+        aax.axis["top"].set_visible(True)
+        aax.axis["left", "right", "bottom"].set_visible(False)
         return ax
 
     def twin(self, aux_trans=None, axes_class=None):
@@ -187,9 +192,11 @@ class HostAxesBase:
             aux_trans = mtransforms.IdentityTransform()
         ax = self._add_twin_axes(
             axes_class, aux_transform=aux_trans, viewlim_mode="transform")
-        self.axis["top", "right"].set_visible(False)
-        ax.axis["top", "right"].set_visible(True)
-        ax.axis["left", "bottom"].set_visible(False)
+        aself = AxesAdapter(self)
+        aself.axis["top", "right"].set_visible(False)
+        aax = AxesAdapter(ax)
+        aax.axis["top", "right"].set_visible(True)
+        aax.axis["left", "bottom"].set_visible(False)
         return ax
 
     def _add_twin_axes(self, axes_class, **kwargs):
@@ -212,8 +219,9 @@ class HostAxesBase:
             restore.remove("top")
         if ax._sharey:
             restore.remove("right")
-        self.axis[tuple(restore)].set_visible(True)
-        self.axis[tuple(restore)].toggle(ticklabels=False, label=False)
+        aself = AxesAdapter(self)
+        aself.axis[tuple(restore)].set_visible(True)
+        aself.axis[tuple(restore)].toggle(ticklabels=False, label=False)
 
     def get_tightbbox(self, renderer=None, call_axes_locator=True,
                       bbox_extra_artists=None):

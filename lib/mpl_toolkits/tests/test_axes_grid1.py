@@ -21,6 +21,7 @@ from mpl_toolkits.axes_grid1.axes_divider import (
 from mpl_toolkits.axes_grid1.inset_locator import (
     zoomed_inset_axes, mark_inset, inset_axes, BboxConnectorPatch)
 import mpl_toolkits.axes_grid1.mpl_axes
+from mpl_toolkits.axes_grid1.mpl_axes import AxesAdapter
 
 import pytest
 
@@ -74,11 +75,13 @@ def test_twin_axes_empty_and_removed():
         h = host_subplot(len(modifiers)+1, len(generators), i)
         t = getattr(h, gen)()
         if "twin invisible" in mod:
-            t.axis[:].set_visible(False)
+            at = AxesAdapter(t)
+            at.axis[:].set_visible(False)
         if "twin removed" in mod:
             t.remove()
         if "host invisible" in mod:
-            h.axis[:].set_visible(False)
+            ah = AxesAdapter(h)
+            ah.axis[:].set_visible(False)
         h.text(0.5, 0.5, gen + ("\n" + mod if mod else ""),
                horizontalalignment="center", verticalalignment="center")
     plt.subplots_adjust(wspace=0.5, hspace=1)

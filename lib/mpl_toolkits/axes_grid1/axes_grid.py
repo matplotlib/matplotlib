@@ -7,14 +7,15 @@ from matplotlib import _api, cbook
 from matplotlib.gridspec import SubplotSpec
 
 from .axes_divider import Size, SubplotDivider, Divider
-from .mpl_axes import Axes
+from matplotlib.axes import Axes
+from .mpl_axes import AxesAdapter
 
-
-def _tick_only(ax, bottom_on, left_on):
+def _tick_only(ax: Axes, bottom_on, left_on):
     bottom_off = not bottom_on
     left_off = not left_on
-    ax.axis["bottom"].toggle(ticklabels=bottom_off, label=bottom_off)
-    ax.axis["left"].toggle(ticklabels=left_off, label=left_off)
+    aax = AxesAdapter(ax)
+    aax.axis["bottom"].toggle(ticklabels=bottom_off, label=bottom_off)
+    aax.axis["left"].toggle(ticklabels=left_off, label=left_off)
 
 
 class CbarAxesBase:
