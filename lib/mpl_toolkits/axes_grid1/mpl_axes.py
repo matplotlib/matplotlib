@@ -3,6 +3,7 @@ from matplotlib.artist import Artist
 from matplotlib.axis import XAxis, YAxis
 Axes = maxes.Axes
 
+
 class SimpleChainedObjects:
     def __init__(self, objects):
         self._objects = objects
@@ -14,6 +15,7 @@ class SimpleChainedObjects:
     def __call__(self, *args, **kwargs):
         for m in self._objects:
             m(*args, **kwargs)
+
 
 class AxesAdapter:
 
@@ -38,16 +40,19 @@ class AxesAdapter:
 
         def __call__(self, *v, **kwargs):
             return maxes.Axes.axis(self.axes, *v, **kwargs)
+
     def __init__(self, adapted_axes):
         if isinstance(adapted_axes, AxesAdapter):
             self._adapted_axes = adapted_axes._adapted_axes
         else:
             self._adapted_axes = adapted_axes
         self._init_axis_artists()
+
     def __getattr__(self, attr):
-        if attr in ('axis', 'clear','_axislines','_init_axis_artists'):
+        if attr in ('axis', 'clear', '_axislines', '_init_axis_artists'):
             return object.__getattribute__(self, attr)
         return self._adapted_axes.__getattribute__(attr)
+
     def _init_axis_artists(self):
         self._axislines = self.AxisDict(self)
         self._axislines.update(

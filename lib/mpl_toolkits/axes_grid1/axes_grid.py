@@ -10,6 +10,7 @@ from .axes_divider import Size, SubplotDivider, Divider
 from matplotlib.axes import Axes
 from .mpl_axes import AxesAdapter
 
+
 def _tick_only(ax: Axes, bottom_on, left_on):
     bottom_off = not bottom_on
     left_off = not left_on
