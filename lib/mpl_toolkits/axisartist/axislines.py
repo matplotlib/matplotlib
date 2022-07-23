@@ -466,7 +466,7 @@ class Axes(maxes.Axes):
         if axes is None:
             axes = self
 
-        self._axislines = mpl_axes.Axes.AxisDict(self)
+        self._axislines = mpl_axes.AxesAdapter.AxisDict()
         new_fixed_axis = self.get_grid_helper().new_fixed_axis
         for loc in ["bottom", "top", "left", "right"]:
             self._axislines[loc] = new_fixed_axis(loc=loc, axes=axes,
