@@ -46,9 +46,25 @@ class AxesAdapter:
         self._init_axis_artists()
 
     def __getattr__(self, attr):
-        if attr in ('axis', 'clear', '_axislines', '_init_axis_artists'):
+        if attr in ('_adapted_axes', 'axis', 'clear', '_init_axis_artists'):
             return object.__getattribute__(self, attr)
+        if attr in ('_axislines',):
+            return self._adapted_axes.__getattribute__('_adapter' + attr)
         return self._adapted_axes.__getattribute__(attr)
+
+    def __setattr__(self, attr, value):
+        if attr in ('_adapted_axes',):
+            return object.__setattr__(self, attr, value)
+        if attr in ('_axislines',):
+            return self._adapted_axes.__setattr__('_adapter' + attr, value)
+        return self._adapted_axes.__setattr__(attr, value)
+
+    def __delattr__(self, attr):
+        if attr in ('_adapted_axes',):
+            return object.__delattr__(self, attr)
+        if attr in ('_axislines',):
+            return self._adapted_axes.__delattr__('_adapter' + attr)
+        return self._adapted_axes.__delattr__(attr)
 
     def _init_axis_artists(self):
         self._axislines = self.AxisDict()
