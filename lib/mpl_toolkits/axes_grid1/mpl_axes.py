@@ -20,8 +20,7 @@ class SimpleChainedObjects:
 class AxesAdapter:
 
     class AxisDict(dict):
-        def __init__(self, axes):
-            self._axes = axes
+        def __init__(self):
             super().__init__()
 
         def __getitem__(self, k):
@@ -39,9 +38,6 @@ class AxesAdapter:
             else:
                 return dict.__getitem__(self, k)
 
-        def __call__(self, *v, **kwargs):
-            return maxes.Axes.axis(self.axes, *v, **kwargs)
-
     def __init__(self, adapted_axes):
         if isinstance(adapted_axes, AxesAdapter):
             self._adapted_axes = adapted_axes._adapted_axes
@@ -55,7 +51,7 @@ class AxesAdapter:
         return self._adapted_axes.__getattribute__(attr)
 
     def _init_axis_artists(self):
-        self._axislines = self.AxisDict(self)
+        self._axislines = self.AxisDict()
         self._axislines.update(
             bottom=SimpleAxisArtist(self.xaxis, 1, self.spines["bottom"]),
             top=SimpleAxisArtist(self.xaxis, 2, self.spines["top"]),
