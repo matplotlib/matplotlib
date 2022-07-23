@@ -28,7 +28,8 @@ class AxesAdapter:
             if isinstance(k, tuple):
                 r = SimpleChainedObjects(
                     # super() within a list comprehension needs explicit args.
-                    [super(AxesAdapter.AxisDict, self).__getitem__(k1) for k1 in k])
+                    [super(AxesAdapter.AxisDict, self).__getitem__(k1)
+                        for k1 in k])
                 return r
             elif isinstance(k, slice):
                 if k.start is None and k.stop is None and k.step is None:
