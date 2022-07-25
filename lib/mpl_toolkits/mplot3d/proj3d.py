@@ -8,29 +8,6 @@ import numpy.linalg as linalg
 from matplotlib import _api
 
 
-def _line2d_seg_dist(p, s0, s1):
-    """
-    Return the distance(s) from point(s) *p* to segment(s) (*s0*, *s1*).
-
-    Parameters
-    ----------
-    p : (ndim,) or (N, ndim) array-like
-        The points from which the distances are computed.
-    s0, s1 : (ndim,) or (N, ndim) array-like
-        The xy(z...) coordinates of the segment endpoints.
-    """
-    s0 = np.asarray(s0)
-    s01 = s1 - s0  # shape (ndim,) or (N, ndim)
-    s0p = p - s0  # shape (ndim,) or (N, ndim)
-    l2 = s01 @ s01  # squared segment length
-    # Avoid div. by zero for degenerate segments (for them, s01 = (0, 0, ...)
-    # so the value of l2 doesn't matter; this just replaces 0/0 by 0/1).
-    l2 = np.where(l2, l2, 1)
-    # Project onto segment, without going past segment ends.
-    p1 = s0 + np.multiply.outer(np.clip(s0p @ s01 / l2, 0, 1), s01)
-    return ((p - p1) ** 2).sum(axis=-1) ** (1/2)
-
-
 def world_transformation(xmin, xmax,
                          ymin, ymax,
                          zmin, zmax, pb_aspect=None):
@@ -220,10 +197,11 @@ def inv_transform(xs, ys, zs, M):
     iM = linalg.inv(M)
     vec = _vec_pad_ones(xs, ys, zs)
     vecr = np.dot(iM, vec)
-    try:
-        vecr = vecr / vecr[3]
-    except OverflowError:
-        pass
+    if vecr.shape == (4,):
+        vecr = vecr.reshape((4, 1))
+    for i in range(vecr.shape[1]):
+        if vecr[3][i] != 0:
+            vecr[:, i] = vecr[:, i] / vecr[3][i]
     return vecr[0], vecr[1], vecr[2]
 
 
