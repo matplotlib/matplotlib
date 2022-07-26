@@ -479,6 +479,7 @@ class Tests(OptionalPackage):
                 *_pkg_data_helper('matplotlib', 'tests/baseline_images'),
                 *_pkg_data_helper('matplotlib', 'tests/tinypages'),
                 'tests/cmr10.pfb',
+                'tests/Courier10PitchBT-Bold.pfb',
                 'tests/mpltest.ttf',
                 'tests/test_*.ipynb',
             ],
