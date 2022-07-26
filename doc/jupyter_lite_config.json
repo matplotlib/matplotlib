@@ -1,5 +1,8 @@
 {
     "XeusPythonEnv": {
         "packages": ["numpy", "matplotlib", "ipympl"]
+    },
+    "LiteBuildConfig": {
+        "ignore_contents": ["\\.(rst|zip|pickle|py|md5|png|gif)"]
     }
 }

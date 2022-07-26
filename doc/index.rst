@@ -93,22 +93,21 @@ Learning resources
 Live example
 ************
 
-Try Matplotlib directly in this documentation!
+Try Matplotlib directly in this documentation (Press ``shift+Enter`` to execute code)! Alternatively, you can try the gallery examples in `our JupyterLite deployment <./lite/lab>`__.
 
 .. replite::
-   :kernel: python
+   :kernel: xeus-python
    :height: 600px
    :prompt: Try Matplotlib!
 
-    import matplotlib.pyplot as plt
-    import numpy as np
+   %matplotlib inline
 
-    x = np.linspace(0, 2 * np.pi, 200)
-    y = np.sin(x)
+   import matplotlib.pyplot as plt
+   import numpy as np
 
-    fig, ax = plt.subplots()
-    ax.plot(x, y)
-    plt.show()
+   fig = plt.figure()
+   plt.plot(np.sin(np.linspace(0, 20, 100)))
+   plt.show();
 
 
 ********************
