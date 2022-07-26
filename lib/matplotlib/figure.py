@@ -3055,7 +3055,8 @@ class Figure(FigureBase):
             import matplotlib._pylab_helpers as pylab_helpers
             allnums = plt.get_fignums()
             num = max(allnums) + 1 if allnums else 1
-            mgr = plt._backend_mod.new_figure_manager_given_figure(num, self)
+            backend = plt._get_backend_mod()
+            mgr = backend.new_figure_manager_given_figure(num, self)
             pylab_helpers.Gcf._set_new_active_manager(mgr)
             plt.draw_if_interactive()
 
