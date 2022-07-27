@@ -231,7 +231,7 @@ class Game:
 
                     self.background = None
                     self.ax.figure.canvas.draw_idle()
-                    return True
+                    return
                 puck.disp.set_offsets([[puck.x, puck.y]])
                 self.ax.draw_artist(puck.disp)
 
@@ -244,7 +244,6 @@ class Game:
             plt.close()
 
         self.cnt += 1
-        return True
 
     def on_key_press(self, event):
         if event.key == '3':

@@ -34,11 +34,11 @@ line, = ax.plot(xs, ys, 'o', picker=True, pickradius=5)
 def onpick(event):
 
     if event.artist != line:
-        return True
+        return
 
     N = len(event.ind)
     if not N:
-        return True
+        return
 
     figi, axs = plt.subplots(N, squeeze=False)
     for ax, dataind in zip(axs.flat, event.ind):
@@ -47,7 +47,7 @@ def onpick(event):
                 transform=ax.transAxes, va='top')
         ax.set_ylim(-0.5, 1.5)
     figi.show()
-    return True
+
 
 fig.canvas.mpl_connect('pick_event', onpick)
 

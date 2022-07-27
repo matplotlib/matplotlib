@@ -1936,7 +1936,7 @@ class _SelectorWidget(AxesWidget):
         """Draw using blit() or draw_idle(), depending on ``self.useblit``."""
         if (not self.ax.get_visible() or
                 self.ax.figure._get_renderer() is None):
-            return False
+            return
         if self.useblit:
             if self.background is not None:
                 self.canvas.restore_region(self.background)
@@ -1952,7 +1952,6 @@ class _SelectorWidget(AxesWidget):
             self.canvas.blit(self.ax.bbox)
         else:
             self.canvas.draw_idle()
-        return False
 
     def _get_data(self, event):
         """Get the xdata and ydata for event, with limits."""
